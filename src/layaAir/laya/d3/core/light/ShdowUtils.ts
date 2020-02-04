@@ -4,11 +4,47 @@ import { SpotLight } from "./SpotLight";
 import { MathUtils3D } from "../../math/MathUtils3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { ShadowMode } from "./ShadowMode";
+import { RenderTexture } from "../../resource/RenderTexture";
+import { RenderTextureFormat, RenderTextureDepthFormat } from "../../../resource/RenderTextureFormat";
+import { FilterMode } from "../../../resource/FilterMode";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { WarpMode } from "../../../resource/WrapMode";
 
 /**
  * @internal
  */
-class ShadowUtils {
+export class ShadowUtils {
+    /** @internal */
+    private static _shadowTextureFormat: RenderTextureFormat;
+    /** @internal */
+    private static _shadowTextureFilterMode: FilterMode;
+
+    /**
+     * @internal
+     */
+    static init(): void {
+        //some const value,only init once here.
+        if (LayaGL.layaGPUInstance._isWebGL2) {
+            ShadowUtils._shadowTextureFormat = RenderTextureFormat.ShadowMap;
+            ShadowUtils._shadowTextureFilterMode = FilterMode.Bilinear;
+        }
+        else {
+            ShadowUtils._shadowTextureFormat = RenderTextureFormat.Depth;
+            ShadowUtils._shadowTextureFilterMode = FilterMode.Point;//TODO:webgl1.0是否也用blinear
+        }
+    }
+
+    /**
+     * @internal
+     */
+    static getTemporaryShadowTexture(witdh: number, height: number, depthFormat: RenderTextureDepthFormat): RenderTexture {
+        var shadowMap: RenderTexture = RenderTexture.createFromPool(witdh, height, ShadowUtils._shadowTextureFormat, depthFormat);
+        shadowMap.filterMode = ShadowUtils._shadowTextureFilterMode;
+        shadowMap.wrapModeU = WarpMode.Clamp;
+        shadowMap.wrapModeV = WarpMode.Clamp;
+        return shadowMap;
+    }
+
     /**
      * @internal
      */
@@ -37,7 +73,7 @@ class ShadowUtils {
         var depthBias: number = -lightSprite._shadowDepthBias * texelSize;
         var normalBias: number = -lightSprite._shadowNormalBias * texelSize;
 
-        if (lightSprite.shadowMode=ShadowMode.Soft) {
+        if (lightSprite.shadowMode = ShadowMode.Soft) {
             // TODO: depth and normal bias assume sample is no more than 1 texel away from shadowmap
             // This is not true with PCF. Ideally we need to do either
             // cone base bias (based on distance to center sample)

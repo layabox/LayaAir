@@ -27,11 +27,11 @@ export class RenderTexture extends BaseTexture {
 	/**
 	 *从对象池获取临时渲染目标。
 	 */
-	static createFromPool(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16, filterMode: FilterMode = FilterMode.Bilinear): RenderTexture {
+	static createFromPool(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16): RenderTexture {
 		var tex: RenderTexture;
 		for (var i: number = 0, n: number = RenderTexture._pool.length; i < n; i++) {
 			tex = RenderTexture._pool[i];
-			if (tex._width == width && tex._height == height && tex._format == format && tex._depthStencilFormat == depthStencilFormat && tex._filterMode == filterMode) {
+			if (tex._width == width && tex._height == height && tex._format == format && tex._depthStencilFormat == depthStencilFormat) {
 				tex._inPool = false;
 				var end: RenderTexture = RenderTexture._pool[n - 1];
 				RenderTexture._pool[i] = end;
@@ -40,7 +40,6 @@ export class RenderTexture extends BaseTexture {
 			}
 		}
 		tex = new RenderTexture(width, height, format, depthStencilFormat);
-		tex.filterMode = filterMode;
 		tex.lock = true;//TODO:资源不加锁会被GC掉,或GC时对象池清空
 		return tex;
 	}

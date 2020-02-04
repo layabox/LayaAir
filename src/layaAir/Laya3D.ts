@@ -96,6 +96,7 @@ import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { MeshReader } from "./laya/d3/loaders/MeshReader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
+import { ShadowUtils } from "./laya/d3/core/light/ShdowUtils";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -229,6 +230,7 @@ export class Laya3D {
 		}
 
 		ShaderInit3D.__init__();
+		ShadowUtils.init();
 		PBRMaterial.__init__();
 		PBRStandardMaterial.__init__();
 		PBRSpecularMaterial.__init__();
@@ -478,10 +480,10 @@ export class Laya3D {
 						lightMap.path = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, lightMap.path, Laya3D.TEXTURE2D, lightMap.constructParams, lightMap.propertyParams);
 					}
 					else {
-						var lightmapColorData:any=lightMap.color;
+						var lightmapColorData: any = lightMap.color;
 						lightmapColorData.path = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, lightmapColorData.path, Laya3D.TEXTURE2D, lightmapColorData.constructParams, lightmapColorData.propertyParams);
-						var lightmapDirectionData:any=lightMap.direction;
-						if(lightmapDirectionData)
+						var lightmapDirectionData: any = lightMap.direction;
+						if (lightmapDirectionData)
 							lightmapDirectionData.path = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, lightmapDirectionData.path, Laya3D.TEXTURE2D, lightmapDirectionData.constructParams, lightmapDirectionData.propertyParams);
 					}
 				}

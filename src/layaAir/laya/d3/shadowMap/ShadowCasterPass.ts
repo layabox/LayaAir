@@ -16,23 +16,19 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
 import { WarpMode } from "../../resource/WrapMode";
+import { ShadowUtils } from "../core/light/ShdowUtils";
 
 /**
  * @internal
  */
-export class ShadowMap {
+export class ShadowCasterPass {
 	/**@internal */
-	static MAX_PSSM_COUNT: number = 3;
+	static _maxCascades: number = 4;
+
+
 
 	/**@internal */
 	static _tempVector30: Vector3 = new Vector3();
-
-	/**@internal */
-	private lastNearPlane: number;
-	/**@internal */
-	private lastFieldOfView: number;
-	/**@internal */
-	private lastAspectRatio: number;
 
 	/**@internal */
 	private _spiltDistance: number[] = [];
@@ -41,13 +37,11 @@ export class ShadowMap {
 	/**@internal */
 	private _shadowMapCount: number = 3;
 	/**@internal */
-	private _maxDistance: number = 200.0;
+	_maxDistance: number = 200.0;
 	/**@internal */
 	private _ratioOfDistance: number = 1.0 / this._shadowMapCount;
 	/**@internal */
 	private _globalParallelLightDir: Vector3 = new Vector3(0, -1, 0);
-	/**@internal */
-	private _statesDirty: boolean = true;
 	/**@internal */
 	cameras: Camera[];
 	/**@internal */
@@ -55,17 +49,17 @@ export class ShadowMap {
 	/**@internal */
 	private _scene: Scene3D = null;
 	/**@internal */
-	private _boundingSphere: BoundSphere[] = new Array<BoundSphere>(ShadowMap.MAX_PSSM_COUNT + 1);
+	private _boundingSphere: BoundSphere[] = new Array<BoundSphere>(ShadowCasterPass._maxCascades + 1);
 	/**@internal */
-	_boundingBox: BoundBox[] = new Array<BoundBox>(ShadowMap.MAX_PSSM_COUNT + 1);
+	_boundingBox: BoundBox[] = new Array<BoundBox>(ShadowCasterPass._maxCascades + 1);
 	/**@internal */
-	private _frustumPos: Vector3[] = new Array<Vector3>((ShadowMap.MAX_PSSM_COUNT + 1) * 4);
+	private _frustumPos: Vector3[] = new Array<Vector3>((ShadowCasterPass._maxCascades + 1) * 4);
 	/**@internal */
-	private _uniformDistance: number[] = new Array<number>(ShadowMap.MAX_PSSM_COUNT + 1);
+	private _uniformDistance: number[] = new Array<number>(ShadowCasterPass._maxCascades + 1);
 	/**@internal */
-	private _logDistance: number[] = new Array<number>(ShadowMap.MAX_PSSM_COUNT + 1);
+	private _logDistance: number[] = new Array<number>(ShadowCasterPass._maxCascades + 1);
 	/**@internal */
-	private _dimension: Vector2[] = new Array<Vector2>(ShadowMap.MAX_PSSM_COUNT + 1);
+	private _dimension: Vector2[] = new Array<Vector2>(ShadowCasterPass._maxCascades + 1);
 	/** @internal */
 	private _PCFType: number = 0;
 	/** @internal */
@@ -105,21 +99,20 @@ export class ShadowMap {
 			this._spiltDistance[i] = 0.0;
 		}
 
-		for (i = 0; i < this._dimension.length; i++) {
+		for (i = 0; i < this._dimension.length; i++)
 			this._dimension[i] = new Vector2();
-		}
 
-		for (i = 0; i < this._frustumPos.length; i++) {
+
+		for (i = 0; i < this._frustumPos.length; i++)
 			this._frustumPos[i] = new Vector3();
-		}
 
-		for (i = 0; i < this._boundingBox.length; i++) {
+
+		for (i = 0; i < this._boundingBox.length; i++)
 			this._boundingBox[i] = new BoundBox(new Vector3(), new Vector3());
-		}
 
-		for (i = 0; i < this._boundingSphere.length; i++) {
+
+		for (i = 0; i < this._boundingSphere.length; i++)
 			this._boundingSphere[i] = new BoundSphere(new Vector3(), 0.0);
-		}
 
 		Matrix4x4.createScaling(new Vector3(0.5, 0.5, 1.0), this._tempScaleMatrix44);
 		this._tempScaleMatrix44.elements[12] = 0.5;
@@ -127,8 +120,8 @@ export class ShadowMap {
 	}
 
 	setInfo(scene: Scene3D, maxDistance: number, globalParallelDir: Vector3, shadowMapTextureSize: number, numberOfPSSM: number, PCFType: number): void {
-		if (numberOfPSSM > ShadowMap.MAX_PSSM_COUNT) {
-			this._shadowMapCount = ShadowMap.MAX_PSSM_COUNT;
+		if (numberOfPSSM > ShadowCasterPass._maxCascades) {
+			this._shadowMapCount = ShadowCasterPass._maxCascades;
 		}
 		this._scene = scene;
 		this._maxDistance = maxDistance;
@@ -142,7 +135,6 @@ export class ShadowMap {
 		this._shadowPCFOffset.x = 1.0 / this._shadowMapTextureSize;
 		this._shadowPCFOffset.y = 1.0 / this._shadowMapTextureSize;
 		this.setPCFType(PCFType);
-		this._statesDirty = true;
 	}
 
 	setPCFType(PCFtype: number): void {
@@ -179,17 +171,15 @@ export class ShadowMap {
 	setFarDistance(value: number): void {
 		if (this._maxDistance != value) {
 			this._maxDistance = value;
-			this._statesDirty = true;
 		}
 	}
 
 	set shadowMapCount(value: number) {
 		value = value > 0 ? value : 1;
-		value = value <= ShadowMap.MAX_PSSM_COUNT ? value : ShadowMap.MAX_PSSM_COUNT;
+		value = value <= ShadowCasterPass._maxCascades ? value : ShadowCasterPass._maxCascades;
 		if (this._shadowMapCount != value) {
 			this._shadowMapCount = value;
 			this._ratioOfDistance = 1.0 / this._shadowMapCount;
-			this._statesDirty = true;
 
 			this._shaderValueLightVP = new Float32Array(value * 16);
 			this._shaderValueVPs.length = value;
@@ -204,11 +194,8 @@ export class ShadowMap {
 
 
 	private _beginSampler(index: number, sceneCamera: BaseCamera): void {
-		if (index < 0 || index > this._shadowMapCount) //TODO:
-			throw new Error("ParallelSplitShadowMap: beginSample invalid index");
-
 		this._currentPSSM = index;
-		this._update(sceneCamera);
+		this._update(index, sceneCamera);
 	}
 
 	/**
@@ -245,19 +232,12 @@ export class ShadowMap {
 	/**
 	 * @internal
 	 */
-	private _update(sceneCamera: BaseCamera): void {
+	private _update(index: number, sceneCamera: BaseCamera): void {
 		var nearPlane: number = sceneCamera.nearPlane;
 		var fieldOfView: number = sceneCamera.fieldOfView;
-		var aspectRatio: number = ((<Camera>sceneCamera)).aspectRatio;
-		if (this._statesDirty || this.lastNearPlane !== nearPlane || this.lastFieldOfView !== fieldOfView || this.lastAspectRatio !== aspectRatio) {//TODO:同一场景多摄像机频繁切换仍会重新计算,将包围矩阵存到摄像机自身可解决
-			this._recalculate(nearPlane, fieldOfView, aspectRatio);
-			this._uploadShaderValue();
-			this._statesDirty = false;
-			this.lastNearPlane = nearPlane;
-			this.lastFieldOfView = fieldOfView;
-			this.lastAspectRatio = aspectRatio;
-		}
-		//calcSplitFrustum(sceneCamera);
+		var aspectRatio: number = (<Camera>sceneCamera).aspectRatio;
+		this._recalculate(nearPlane, fieldOfView, aspectRatio);
+		this._uploadShaderValue();
 		this._calcLightViewProject(sceneCamera);
 	}
 
@@ -328,7 +308,7 @@ export class ShadowMap {
 		this._shaderValueDistance.x = (this._spiltDistance[1] != undefined) && (this._spiltDistance[1]);
 		this._shaderValueDistance.y = (this._spiltDistance[2] != undefined) && (this._spiltDistance[2]);
 		this._shaderValueDistance.z = (this._spiltDistance[3] != undefined) && (this._spiltDistance[3]);
-		this._shaderValueDistance.w = (this._spiltDistance[4] != undefined) && (this._spiltDistance[4]);; //_spiltDistance[4]为undefine 微信小游戏
+		this._shaderValueDistance.w = (this._spiltDistance[4] != undefined) && (this._spiltDistance[4]); //_spiltDistance[4]为undefine 微信小游戏
 	}
 
 	/**
@@ -418,11 +398,11 @@ export class ShadowMap {
 	}
 
 	calcSplitFrustum(sceneCamera: BaseCamera): void {
-		if (this._currentPSSM > 0) {
+		if (this._currentPSSM > 0)
 			Matrix4x4.createPerspective(3.1416 * sceneCamera.fieldOfView / 180.0, ((<Camera>sceneCamera)).aspectRatio, this._spiltDistance[this._currentPSSM - 1], this._spiltDistance[this._currentPSSM], this._tempMatrix44);
-		} else {
+		else
 			Matrix4x4.createPerspective(3.1416 * sceneCamera.fieldOfView / 180.0, ((<Camera>sceneCamera)).aspectRatio, this._spiltDistance[0], this._spiltDistance[this._shadowMapCount], this._tempMatrix44);
-		}
+
 		Matrix4x4.multiply(this._tempMatrix44, ((<Camera>sceneCamera)).viewMatrix, this._tempMatrix44);
 		this._splitFrustumCulling.matrix = this._tempMatrix44;
 	}
@@ -445,19 +425,7 @@ export class ShadowMap {
 			var shadowMap: RenderTexture = this.cameras[i].renderTarget;
 			if (shadowMap == null || shadowMap.width != this._shadowMapTextureSize || shadowMap.height != this._shadowMapTextureSize) {
 				(shadowMap) && (shadowMap.destroy());
-				var format: RenderTextureFormat, filterMode: FilterMode;
-				if (LayaGL.layaGPUInstance._isWebGL2) {
-					format = RenderTextureFormat.ShadowMap;
-					filterMode = FilterMode.Bilinear;
-				}
-				else {
-					format = RenderTextureFormat.Depth;
-					filterMode = FilterMode.Point;
-				}
-				shadowMap = new RenderTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, format, RenderTextureDepthFormat.DEPTH_16);
-				shadowMap.filterMode = filterMode;
-				shadowMap.wrapModeU = WarpMode.Clamp;
-				shadowMap.wrapModeV = WarpMode.Clamp;
+				shadowMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, RenderTextureDepthFormat.DEPTH_16);
 				this.cameras[i].renderTarget = shadowMap;
 			}
 		}
@@ -478,8 +446,8 @@ export class ShadowMap {
 		lookAt3Element.y = lookAt4Element.y;
 		lookAt3Element.z = lookAt4Element.z;
 		var lightUpElement: Vector3 = this._tempLightUp;
-		sceneCamera.transform.worldMatrix.getForward(ShadowMap._tempVector30);
-		var sceneCameraDir: Vector3 = ShadowMap._tempVector30;
+		sceneCamera.transform.worldMatrix.getForward(ShadowCasterPass._tempVector30);
+		var sceneCameraDir: Vector3 = ShadowCasterPass._tempVector30;
 		lightUpElement.x = sceneCameraDir.x;
 		lightUpElement.y = 1.0;
 		lightUpElement.z = sceneCameraDir.z;
@@ -564,7 +532,7 @@ export class ShadowMap {
 
 		//calc frustum
 		var projectView: Matrix4x4 = curLightCamera.projectionViewMatrix;
-		ShadowMap.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
+		ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
 		this._scene._shaderValues.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
 	}
 
@@ -596,7 +564,6 @@ export class ShadowMap {
 			this._shadowMapTextureSize = size;
 			this._shadowPCFOffset.x = 1 / this._shadowMapTextureSize;
 			this._shadowPCFOffset.y = 1 / this._shadowMapTextureSize;
-			this._statesDirty = true;
 		}
 	}
 

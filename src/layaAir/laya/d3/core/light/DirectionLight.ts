@@ -1,12 +1,11 @@
 import { Vector3 } from "../../math/Vector3";
 import { ShaderData } from "../../shader/ShaderData";
-import { ShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Scene3D } from "../scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite, LightType } from "./LightSprite";
-import { ShadowMode } from "./ShadowMode";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
-
+import { ShadowMode } from "./ShadowMode";
+import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
 /**
  * <code>DirectionLight</code> 类用于创建平行光。
  */
@@ -62,7 +61,7 @@ export class DirectionLight extends LightSprite {
 	 */
 	private _initShadow(): void {
 		if (this._shadowMode !== ShadowMode.None) {
-			this._parallelSplitShadowMap = new ShadowMap();
+			this._parallelSplitShadowMap = new ShadowCasterPass();
 			this.transform.worldMatrix.getForward(this._direction);
 			Vector3.normalize(this._direction, this._direction);
 			this._parallelSplitShadowMap.setInfo(this.scene, this._shadowDistance, this._direction, this._shadowResolution, this._shadowCascadesMode, 0);//TODO:

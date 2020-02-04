@@ -22,7 +22,6 @@ import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
-import { ShadowMap } from "../shadowMap/ParallelSplitShadowMap";
 import { Picker } from "../utils/Picker";
 import { BaseCamera } from "./BaseCamera";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
@@ -33,6 +32,7 @@ import { Scene3D } from "./scene/Scene3D";
 import { Transform3D } from "./Transform3D";
 import { DirectionLight } from "./light/DirectionLight";
 import { ShadowMode } from "./light/ShadowMode";
+import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 
 /**
  * 相机清除标记。
@@ -551,24 +551,27 @@ export class Camera extends BaseCamera {
 		var scene: Scene3D = context.scene = <Scene3D>this._scene;
 		context.pipelineMode = "Forward";
 
-		if (needInternalRT)
-			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, FilterMode.Bilinear);
-		else
+		if (needInternalRT) {
+			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16);
+			this._internalRenderTexture.filterMode = FilterMode.Bilinear;
+		}
+		else {
 			this._internalRenderTexture = null;
+		}
 
-
+		//render shadowMap
 		var mainLight: DirectionLight = scene._mainLight;
-		if (mainLight && mainLight.shadowMode!==ShadowMode.None) {
+		if (mainLight && mainLight.shadowMode !== ShadowMode.None) {
 			context.pipelineMode = "ShadowCaster";
 			ShaderData.setRuntimeValueMode(false);
-			var parallelSplitShadowMap: ShadowMap = mainLight._parallelSplitShadowMap;
+
+			var parallelSplitShadowMap: ShadowCasterPass = mainLight._parallelSplitShadowMap;
 			parallelSplitShadowMap._calcAllLightCameraInfo(this);
 
 			for (var i: number = 0, n: number = parallelSplitShadowMap.shadowMapCount; i < n; i++) {
 				var smCamera: Camera = parallelSplitShadowMap.cameras[i];
 				context.camera = smCamera;
 				FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag, true);
-
 				var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 				shadowMap._start();
 				RenderContext3D._instance.invertY = false;//阴影不需要翻转,临时矫正，待重构处理
@@ -596,7 +599,8 @@ export class Camera extends BaseCamera {
 		//if need internal RT and no off screen RT and clearFlag is DepthOnly or Nothing, should grab the backBuffer
 		if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == CameraClearFlags.DepthOnly || this.clearFlag == CameraClearFlags.Nothing)) {
 			if (this._enableHDR) {//internal RT is HDR can't directly copy
-				var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTH_16, FilterMode.Bilinear);
+				var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTH_16);
+				grabTexture.filterMode = FilterMode.Bilinear;
 				WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
 				gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(grabTexture, this._internalRenderTexture);

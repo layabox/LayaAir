@@ -1,10 +1,10 @@
 import { Config3D } from "../../../../Config3D";
 import { Node } from "../../../display/Node";
 import { Vector3 } from "../../math/Vector3";
-import { ShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
+import { Vector4 } from "../../math/Vector4";
+import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
-import { Vector4 } from "../../math/Vector4";
 import { ShadowMode } from "./ShadowMode";
 
 /**
@@ -52,7 +52,7 @@ export class LightSprite extends Sprite3D {
 	/** @internal */
 	_shadowStrength: number = 1.0;
 	/** @internal */
-	_parallelSplitShadowMap: ShadowMap;
+	_parallelSplitShadowMap: ShadowCasterPass;
 	/** @internal */
 	_lightmapBakedType: number;
 	/** @internal */
@@ -91,7 +91,7 @@ export class LightSprite extends Sprite3D {
 
 	set shadowDistance(value: number) {
 		this._shadowDistance = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setFarDistance(value));
+		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap._maxDistance = value);
 	}
 
 	/**
