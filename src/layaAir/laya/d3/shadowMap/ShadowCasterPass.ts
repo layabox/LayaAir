@@ -14,6 +14,7 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * @internal
@@ -85,6 +86,8 @@ export class ShadowCasterPass {
 	private _shaderValueLightVP: Float32Array = null;
 	/** @internal */
 	private _shaderValueVPs: Float32Array[];
+	/** @internal */
+	private _shadowMap: RenderTexture;
 
 	constructor() {
 		this.cameras = [];
@@ -257,20 +260,6 @@ export class ShadowCasterPass {
 		sceneSV.setVector(ILaya3D.Scene3D.SHADOWDISTANCE, this._shaderValueDistance);
 		sceneSV.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
 		sceneSV.setVector2(ILaya3D.Scene3D.SHADOWMAPPCFOFFSET, this._shadowPCFOffset);
-		switch (this._shadowMapCount) {
-			case 3:
-				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE1, this.cameras[1].renderTarget);
-				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE2, this.cameras[2].renderTarget)
-				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE3, this.cameras[3].renderTarget);
-				break;
-			case 2:
-				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE1, this.cameras[1].renderTarget);
-				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE2, this.cameras[2].renderTarget);
-				break;
-			case 1:
-				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE1, this.cameras[1].renderTarget);
-				break;
-		}
 	}
 
 	/**
@@ -410,13 +399,6 @@ export class ShadowCasterPass {
 				camera.clearColor = new Vector4(1.0, 1.0, 1.0, 1.0);
 				this.cameras[i] = camera;
 			}
-
-			var shadowMap: RenderTexture = this.cameras[i].renderTarget;
-			if (shadowMap == null || shadowMap.width != this._shadowMapTextureSize || shadowMap.height != this._shadowMapTextureSize) {
-				(shadowMap) && (shadowMap.destroy());
-				shadowMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, RenderTextureDepthFormat.DEPTH_16);
-				this.cameras[i].renderTarget = shadowMap;
-			}
 		}
 	}
 
@@ -532,7 +514,6 @@ export class ShadowCasterPass {
 	 * @param	out  输出矩阵
 	 */
 	static multiplyMatrixOutFloat32Array(left: Matrix4x4, right: Matrix4x4, out: Float32Array): void {
-
 		var i: number, a: Float32Array, b: Float32Array, ai0: number, ai1: number, ai2: number, ai3: number;
 		a = left.elements;
 		b = right.elements;
@@ -556,13 +537,43 @@ export class ShadowCasterPass {
 		}
 	}
 
-	disposeAllRenderTarget(): void {
-		for (var i: number = 0, n: number = this._shadowMapCount + 1; i < n; i++) {
-			if (this.cameras[i].renderTarget) {
-				this.cameras[i].renderTarget.destroy();
-				this.cameras[i].renderTarget = null;
-			}
-		}
+
+	/**
+	 * @internal
+	 */
+	start(): void {
+		var shadowMap: RenderTexture = ShadowUtils.getTemporaryShadowTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, RenderTextureDepthFormat.DEPTH_16);
+		var sceneSV: ShaderData = this._scene._shaderValues;
+		sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE1, shadowMap);
+		shadowMap._start();
+		this._shadowMap = shadowMap;
+	}
+
+
+	//TOOD:TEMP
+	tempViewPort(): void {
+		var gl = LayaGL.instance;
+		LayaGL.instance.viewport(0, 0, this._shadowMap.width, this._shadowMap.height);
+		gl.enable(gl.SCISSOR_TEST);
+		LayaGL.instance.scissor(0, 0, this._shadowMap.width, this._shadowMap.height);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	}
+
+	/**
+	 * @internal
+	 */
+	end(): void {
+		var gl = LayaGL.instance;
+		this._shadowMap._end();
+		gl.disable(gl.SCISSOR_TEST);
+	}
+
+	/**
+	 * @internal
+	 */
+	clear(): void {
+		RenderTexture.recoverToPool(this._shadowMap);
+		this._shadowMap = null;
 	}
 }
 

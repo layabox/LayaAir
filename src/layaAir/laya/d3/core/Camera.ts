@@ -560,19 +560,20 @@ export class Camera extends BaseCamera {
 		}
 
 		//render shadowMap
+		var shadowCasterPass: ShadowCasterPass;
 		var mainLight: DirectionLight = scene._mainLight;
 		if (mainLight && mainLight.shadowMode !== ShadowMode.None) {
 			context.pipelineMode = "ShadowCaster";
 			ShaderData.setRuntimeValueMode(false);
 
-			var parallelSplitShadowMap: ShadowCasterPass = Scene3D._shadowCasterPass;
-			parallelSplitShadowMap._calcAllLightCameraInfo(this);
+			shadowCasterPass = Scene3D._shadowCasterPass;
+			shadowCasterPass._calcAllLightCameraInfo(this);
 
-			var smCamera: Camera = parallelSplitShadowMap.cameras[0];
+			var smCamera: Camera = shadowCasterPass.cameras[0];
 			context.camera = smCamera;
 			FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag, true);
-			var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[0 + 1].renderTarget;
-			shadowMap._start();
+
+			shadowCasterPass.start();
 			RenderContext3D._instance.invertY = false;//阴影不需要翻转,临时矫正，待重构处理
 			context.camera = smCamera;
 			Camera._updateMark++;
@@ -580,11 +581,12 @@ export class Camera extends BaseCamera {
 			smCamera._prepareCameraToRender();
 			smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);
 			scene._clear(gl, context);
+			shadowCasterPass.tempViewPort();
 			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
 			// gl.colorMask(false,false,false,false);
 			queue._render(context);
 			// gl.colorMask(true,true,true,true);
-			shadowMap._end();
+			shadowCasterPass.end();
 
 			ShaderData.setRuntimeValueMode(true);
 			context.pipelineMode = "Forward";
@@ -640,6 +642,9 @@ export class Camera extends BaseCamera {
 			}
 			RenderTexture.recoverToPool(this._internalRenderTexture);
 		}
+
+		if (mainLight && mainLight.shadowMode !== ShadowMode.None)
+			shadowCasterPass.clear();
 	}
 
 
