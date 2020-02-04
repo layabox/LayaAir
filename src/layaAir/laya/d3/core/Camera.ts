@@ -565,28 +565,27 @@ export class Camera extends BaseCamera {
 			context.pipelineMode = "ShadowCaster";
 			ShaderData.setRuntimeValueMode(false);
 
-			var parallelSplitShadowMap: ShadowCasterPass = mainLight._parallelSplitShadowMap;
+			var parallelSplitShadowMap: ShadowCasterPass = Scene3D._shadowCasterPass;
 			parallelSplitShadowMap._calcAllLightCameraInfo(this);
 
-			for (var i: number = 0, n: number = parallelSplitShadowMap.shadowMapCount; i < n; i++) {
-				var smCamera: Camera = parallelSplitShadowMap.cameras[i];
-				context.camera = smCamera;
-				FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag, true);
-				var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[i + 1].renderTarget;
-				shadowMap._start();
-				RenderContext3D._instance.invertY = false;//阴影不需要翻转,临时矫正，待重构处理
-				context.camera = smCamera;
-				Camera._updateMark++;
-				context.viewport = smCamera.viewport;
-				smCamera._prepareCameraToRender();
-				smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);
-				scene._clear(gl, context);
-				var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
-				// gl.colorMask(false,false,false,false);
-				queue._render(context);
-				// gl.colorMask(true,true,true,true);
-				shadowMap._end();
-			}
+			var smCamera: Camera = parallelSplitShadowMap.cameras[0];
+			context.camera = smCamera;
+			FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag, true);
+			var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[0 + 1].renderTarget;
+			shadowMap._start();
+			RenderContext3D._instance.invertY = false;//阴影不需要翻转,临时矫正，待重构处理
+			context.camera = smCamera;
+			Camera._updateMark++;
+			context.viewport = smCamera.viewport;
+			smCamera._prepareCameraToRender();
+			smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);
+			scene._clear(gl, context);
+			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
+			// gl.colorMask(false,false,false,false);
+			queue._render(context);
+			// gl.colorMask(true,true,true,true);
+			shadowMap._end();
+
 			ShaderData.setRuntimeValueMode(true);
 			context.pipelineMode = "Forward";
 		}

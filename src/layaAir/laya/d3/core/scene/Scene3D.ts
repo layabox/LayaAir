@@ -57,6 +57,7 @@ import { RenderQueue } from "../render/RenderQueue";
 import { BoundsOctree } from "./BoundsOctree";
 import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
+import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
 
 /**
  * 环境光模式
@@ -76,6 +77,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private static _lightTexture: Texture2D;
 	/** @internal */
 	private static _lightPixles: Float32Array;
+	/** @internal */
+	static _shadowCasterPass: ShadowCasterPass = new ShadowCasterPass();
 
 	/**Hierarchy资源。*/
 	static HIERARCHY: string = "HIERARCHY";

@@ -1,8 +1,8 @@
 import { ILaya3D } from "../../../ILaya3D";
-import { FilterMode } from "../../resource/FilterMode";
-import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
+import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
 import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
+import { ShadowUtils } from "../core/light/ShdowUtils";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
 import { BoundBox } from "../math/BoundBox";
@@ -14,9 +14,6 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
-import { LayaGL } from "../../layagl/LayaGL";
-import { WarpMode } from "../../resource/WrapMode";
-import { ShadowUtils } from "../core/light/ShdowUtils";
 
 /**
  * @internal
@@ -24,8 +21,6 @@ import { ShadowUtils } from "../core/light/ShdowUtils";
 export class ShadowCasterPass {
 	/**@internal */
 	static _maxCascades: number = 4;
-
-
 
 	/**@internal */
 	static _tempVector30: Vector3 = new Vector3();
@@ -165,12 +160,6 @@ export class ShadowCasterPass {
 				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1);
 				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2);
 				break;
-		}
-	}
-
-	setFarDistance(value: number): void {
-		if (this._maxDistance != value) {
-			this._maxDistance = value;
 		}
 	}
 

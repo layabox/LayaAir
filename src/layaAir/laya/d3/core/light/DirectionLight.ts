@@ -43,7 +43,7 @@ export class DirectionLight extends LightSprite {
 
 	set shadowCascadesMode(value: ShadowCascadesMode) {
 		this._shadowCascadesMode = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.shadowMapCount = value);
+		Scene3D._shadowCasterPass.shadowMapCount = value;
 	}
 
 	/**
@@ -61,14 +61,13 @@ export class DirectionLight extends LightSprite {
 	 */
 	private _initShadow(): void {
 		if (this._shadowMode !== ShadowMode.None) {
-			this._parallelSplitShadowMap = new ShadowCasterPass();
 			this.transform.worldMatrix.getForward(this._direction);
 			Vector3.normalize(this._direction, this._direction);
-			this._parallelSplitShadowMap.setInfo(this.scene, this._shadowDistance, this._direction, this._shadowResolution, this._shadowCascadesMode, 0);//TODO:
+			Scene3D._shadowCasterPass.setInfo(this.scene, this._shadowDistance, this._direction, this._shadowResolution, this._shadowCascadesMode, 0);//TODO:
 		} else {
 			var defineDatas: ShaderData = (<Scene3D>this._scene)._shaderValues;
-			this._parallelSplitShadowMap.disposeAllRenderTarget();
-			this._parallelSplitShadowMap = null;
+			Scene3D._shadowCasterPass.disposeAllRenderTarget();
+			Scene3D._shadowCasterPass = null;
 			defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
 			defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
 			defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);

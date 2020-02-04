@@ -52,8 +52,6 @@ export class LightSprite extends Sprite3D {
 	/** @internal */
 	_shadowStrength: number = 1.0;
 	/** @internal */
-	_parallelSplitShadowMap: ShadowCasterPass;
-	/** @internal */
 	_lightmapBakedType: number;
 	/** @internal */
 	_lightType: LightType;
@@ -91,7 +89,7 @@ export class LightSprite extends Sprite3D {
 
 	set shadowDistance(value: number) {
 		this._shadowDistance = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap._maxDistance = value);
+		Scene3D._shadowCasterPass._maxDistance = value;
 	}
 
 	/**
@@ -103,7 +101,7 @@ export class LightSprite extends Sprite3D {
 
 	set shadowResolution(value: number) {
 		this._shadowResolution = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setShadowMapTextureSize(value));
+		Scene3D._shadowCasterPass.setShadowMapTextureSize(value);
 	}
 
 	/**
