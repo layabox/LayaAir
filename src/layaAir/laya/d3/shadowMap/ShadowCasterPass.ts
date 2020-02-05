@@ -33,7 +33,7 @@ export class ShadowCasterPass {
 	/**@internal */
 	private _currentPSSM: number = -1;
 	/**@internal */
-	private _shadowMapCount: number = 3;
+	_shadowMapCount: number = 3;
 	/**@internal */
 	_maxDistance: number = 200.0;
 	/**@internal */
@@ -162,10 +162,6 @@ export class ShadowCasterPass {
 			for (var i: number = 0; i < value; i++)
 				this._shaderValueVPs[i] = new Float32Array(this._shaderValueLightVP.buffer, i * 64);
 		}
-	}
-
-	get shadowMapCount(): number {
-		return this._shadowMapCount;
 	}
 
 
