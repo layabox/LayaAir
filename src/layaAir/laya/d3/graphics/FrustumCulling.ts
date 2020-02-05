@@ -22,9 +22,6 @@ import { StaticBatchManager } from "./StaticBatchManager";
 import { Shader3D } from "../shader/Shader3D";
 
 
-/**
- * @internal
- */
 export class CameraCullInfo {
 	position: Vector3;
 	useOcclusionCulling: Boolean;

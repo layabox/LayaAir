@@ -570,22 +570,17 @@ export class Camera extends BaseCamera {
 			shadowCasterPass._calcAllLightCameraInfo(this);
 
 			var smCamera: Camera = shadowCasterPass.cameras[0];
-			context.camera = smCamera;
-
 			var cameraCullInfo: CameraCullInfo = FrustumCulling._cameraCullInfo;
-			cameraCullInfo.position = this._transform.position;
-			cameraCullInfo.cullingMask = this.cullingMask;
-			cameraCullInfo.boundFrustum = this.boundFrustum;
-			cameraCullInfo.useOcclusionCulling = this.useOcclusionCulling;
+			cameraCullInfo.position = smCamera._transform.position;
+			cameraCullInfo.cullingMask = smCamera.cullingMask;
+			cameraCullInfo.boundFrustum = smCamera.boundFrustum;
+			cameraCullInfo.useOcclusionCulling = smCamera.useOcclusionCulling;
 			FrustumCulling.renderObjectCulling(cameraCullInfo, scene, context, shader, replacementTag, true);
 
 			shadowCasterPass.start();
 			context.camera = smCamera;
 			Camera._updateMark++;
-			context.viewport = smCamera.viewport;//TODO:可删除
-			smCamera._prepareCameraToRender();
-			smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);
-			scene._clear(gl, context);
+			smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);//TODO:需要剥离渲染对Camera的依赖
 			shadowCasterPass.tempViewPort();//TODO:
 			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
 			// gl.colorMask(false,false,false,false);
