@@ -574,14 +574,13 @@ export class Camera extends BaseCamera {
 			FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag, true);
 
 			shadowCasterPass.start();
-			RenderContext3D._instance.invertY = false;//阴影不需要翻转,临时矫正，待重构处理
 			context.camera = smCamera;
 			Camera._updateMark++;
-			context.viewport = smCamera.viewport;
+			context.viewport = smCamera.viewport;//TODO:可删除
 			smCamera._prepareCameraToRender();
 			smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);
 			scene._clear(gl, context);
-			shadowCasterPass.tempViewPort();
+			shadowCasterPass.tempViewPort();//TODO:
 			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
 			// gl.colorMask(false,false,false,false);
 			queue._render(context);

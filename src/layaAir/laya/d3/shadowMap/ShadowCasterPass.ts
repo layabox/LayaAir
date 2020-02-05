@@ -15,6 +15,7 @@ import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
+import { DirectionLight } from "../core/light/DirectionLight";
 
 /**
  * @internal
@@ -25,6 +26,8 @@ export class ShadowCasterPass {
 
 	/**@internal */
 	static _tempVector30: Vector3 = new Vector3();
+	/**@internal */
+	static _tempVector31: Vector3 = new Vector3();
 
 	/**@internal */
 	private _spiltDistance: number[] = [];
@@ -36,8 +39,11 @@ export class ShadowCasterPass {
 	_maxDistance: number = 200.0;
 	/**@internal */
 	private _ratioOfDistance: number = 1.0 / this._shadowMapCount;
+
 	/**@internal */
 	private _globalParallelLightDir: Vector3 = new Vector3(0, -1, 0);
+	/**@internal */
+	_light: DirectionLight;
 	/**@internal */
 	cameras: Camera[];
 	/**@internal */
@@ -74,8 +80,8 @@ export class ShadowCasterPass {
 	private _tempMax: Vector4 = new Vector4();
 	/** @internal */
 	private _tempMatrix44: Matrix4x4 = new Matrix4x4;
-	/**@internal */
-	private _splitFrustumCulling: BoundFrustum = new BoundFrustum(Matrix4x4.DEFAULT);
+	// /**@internal */
+	// private _splitFrustumCulling: BoundFrustum = new BoundFrustum(Matrix4x4.DEFAULT);
 	/** @internal */
 	private _tempScaleMatrix44: Matrix4x4 = new Matrix4x4();
 	/** @internal */
@@ -230,7 +236,7 @@ export class ShadowCasterPass {
 		var aspectRatio: number = (<Camera>sceneCamera).aspectRatio;
 		this._recalculate(nearPlane, fieldOfView, aspectRatio);
 		this._uploadShaderValue();
-		this._calcLightViewProject(sceneCamera);
+		this._getLightViewProject(sceneCamera);
 	}
 
 	/**
@@ -375,14 +381,33 @@ export class ShadowCasterPass {
 		this._boundingSphere[0].radius = Math.sqrt(Math.pow(max.x - min.x, 2) + Math.pow(max.y - min.y, 2) + Math.pow(max.z - min.z, 2)) * 0.5;
 	}
 
-	calcSplitFrustum(sceneCamera: BaseCamera): void {
-		if (this._currentPSSM > 0)
-			Matrix4x4.createPerspective(3.1416 * sceneCamera.fieldOfView / 180.0, ((<Camera>sceneCamera)).aspectRatio, this._spiltDistance[this._currentPSSM - 1], this._spiltDistance[this._currentPSSM], this._tempMatrix44);
-		else
-			Matrix4x4.createPerspective(3.1416 * sceneCamera.fieldOfView / 180.0, ((<Camera>sceneCamera)).aspectRatio, this._spiltDistance[0], this._spiltDistance[this._shadowMapCount], this._tempMatrix44);
 
-		Matrix4x4.multiply(this._tempMatrix44, ((<Camera>sceneCamera)).viewMatrix, this._tempMatrix44);
-		this._splitFrustumCulling.matrix = this._tempMatrix44;
+
+	/**
+	 * @internal
+	 */
+	private _getLightViewProject(sceneCamera: BaseCamera): void {
+		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
+		var lightUp: Vector3 = ShadowCasterPass._tempVector30;
+		lightUp.setValue(lightWorld.getElementByRowColumn(0, 0), lightWorld.getElementByRowColumn(0, 1), lightWorld.getElementByRowColumn(0, 2));
+
+		var boundSphere: BoundSphere = this._boundingSphere[this._currentPSSM];
+		var center: Vector3 = boundSphere.center;
+		var radius: number = boundSphere.radius;
+
+		var origin: Vector3 = ShadowCasterPass._tempVector31;
+		Vector3.scale(this._light._direction, radius, origin);
+		Vector3.subtract(center, origin, origin);
+
+		var curLightCamera: Camera = this.cameras[this._currentPSSM];
+		curLightCamera._transform.position = origin;
+		curLightCamera._transform.lookAt(center, lightUp, false);
+
+		Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, this._light._shadowNearPlane, radius * 2.0, curLightCamera.projectionMatrix);
+		//calc frustum
+		var projectView: Matrix4x4 = curLightCamera.projectionViewMatrix;
+		ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
+		this._scene._shaderValues.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
 	}
 
 	/**
@@ -402,110 +427,6 @@ export class ShadowCasterPass {
 		}
 	}
 
-	/**
-	 * @internal
-	 */
-	private _calcLightViewProject(sceneCamera: BaseCamera): void {
-		var boundSphere: BoundSphere = this._boundingSphere[this._currentPSSM];
-		var cameraMatViewInv: Matrix4x4 = sceneCamera.transform.worldMatrix;
-		var radius: number = boundSphere.radius;
-		boundSphere.center.cloneTo(this._tempLookAt3);
-		Vector3.transformV3ToV4(this._tempLookAt3, cameraMatViewInv, this._tempLookAt4);
-		var lookAt3Element: Vector3 = this._tempLookAt3;
-		var lookAt4Element: Vector4 = this._tempLookAt4;
-		lookAt3Element.x = lookAt4Element.x;
-		lookAt3Element.y = lookAt4Element.y;
-		lookAt3Element.z = lookAt4Element.z;
-		var lightUpElement: Vector3 = this._tempLightUp;
-		sceneCamera.transform.worldMatrix.getForward(ShadowCasterPass._tempVector30);
-		var sceneCameraDir: Vector3 = ShadowCasterPass._tempVector30;
-		lightUpElement.x = sceneCameraDir.x;
-		lightUpElement.y = 1.0;
-		lightUpElement.z = sceneCameraDir.z;
-		Vector3.normalize(this._tempLightUp, this._tempLightUp);
-		Vector3.scale(this._globalParallelLightDir, boundSphere.radius * 4, this._tempPos);
-		Vector3.subtract(this._tempLookAt3, this._tempPos, this._tempPos);
-		var curLightCamera: Camera = this.cameras[this._currentPSSM];
-		curLightCamera.transform.position = this._tempPos;
-		curLightCamera.transform.lookAt(this._tempLookAt3, this._tempLightUp, false);
-		var tempMax: Vector4 = this._tempMax;
-		var tempMin: Vector4 = this._tempMin;
-		tempMax.x = tempMax.y = tempMax.z = -100000.0;
-		tempMax.w = 1.0;
-		tempMin.x = tempMin.y = tempMin.z = 100000.0;
-		tempMin.w = 1.0;
-		/*
-		   var offSet:int; var offSet1:int; var offSet2:int;
-		   if (_currentPSSM == 0) {
-		   offSet1 = 0;
-		   offSet2 = _numberOfPSSM * 3;
-		   }
-		   else {
-		   offSet1 = (_currentPSSM - 1) * 4;
-		   offSet2 = offSet1;
-		   }
-		   //Convert  matrix : from view space->world space->light view space
-		   Matrix4x4.multiply(_lightCamera.viewMatrix, cameraMatViewInv, _tempMatrix44);
-		   var tempValueElement:Float32Array = _tempValue.elements;
-		   for (var i:int= 0; i < 8 ; i++ ) {
-		   offSet = (i < 4) ? offSet1 : offSet2;
-		   var frustumPosElements:Float32Array = _frustumPos[offSet + i].elements;
-		   tempValueElement[0] = frustumPosElements[0];
-		   tempValueElement[1] = frustumPosElements[1];
-		   tempValueElement[2] = frustumPosElements[2];
-		   tempValueElement[3] = 1.0;
-		   Vector4.transformByM4x4(_tempValue, _tempMatrix44, _tempValue);
-		   tempMinElements[0] = (tempValueElement[0] < tempMinElements[0]) ? tempValueElement[0] : tempMinElements[0];
-		   tempMinElements[1] = (tempValueElement[1] < tempMinElements[1]) ? tempValueElement[1] : tempMinElements[1];
-		   tempMinElements[2] = (tempValueElement[2] < tempMinElements[2]) ? tempValueElement[2] : tempMinElements[2];
-		   tempMaxElements[0] = (tempValueElement[0] > tempMaxElements[0]) ? tempValueElement[0] : tempMaxElements[0];
-		   tempMaxElements[1] = (tempValueElement[1] > tempMaxElements[1]) ? tempValueElement[1] : tempMaxElements[1];
-		   tempMaxElements[2] = (tempValueElement[2] > tempMaxElements[2]) ? tempValueElement[2] : tempMaxElements[2];
-		   }
-		 */
-		Matrix4x4.multiply(curLightCamera.viewMatrix, cameraMatViewInv, this._tempMatrix44);
-		var tempValueElement: Vector4 = this._tempValue;
-		var corners: Vector3[] = [];
-		corners.length = 8;
-		this._boundingBox[this._currentPSSM].getCorners(corners);
-		for (var i: number = 0; i < 8; i++) {
-			var frustumPosElements: Vector3 = corners[i];
-			tempValueElement.x = frustumPosElements.x;
-			tempValueElement.y = frustumPosElements.y;
-			tempValueElement.z = frustumPosElements.z;
-			tempValueElement.w = 1.0;
-			Vector4.transformByM4x4(this._tempValue, this._tempMatrix44, this._tempValue);
-			tempMin.x = (tempValueElement.x < tempMin.x) ? tempValueElement.x : tempMin.x;
-			tempMin.y = (tempValueElement.y < tempMin.y) ? tempValueElement.y : tempMin.y;
-			tempMin.z = (tempValueElement.z < tempMin.z) ? tempValueElement.z : tempMin.z;
-			tempMax.x = (tempValueElement.x > tempMax.x) ? tempValueElement.x : tempMax.x;
-			tempMax.y = (tempValueElement.y > tempMax.y) ? tempValueElement.y : tempMax.y;
-			tempMax.z = (tempValueElement.z > tempMax.z) ? tempValueElement.z : tempMax.z;
-		}
-		//现在tempValueElement变成了center
-		Vector4.add(this._tempMax, this._tempMin, this._tempValue);
-		tempValueElement.x *= 0.5;
-		tempValueElement.y *= 0.5;
-		tempValueElement.z *= 0.5;
-		tempValueElement.w = 1;
-		Vector4.transformByM4x4(this._tempValue, curLightCamera.transform.worldMatrix, this._tempValue);
-		var distance: number = Math.abs(-this._tempMax.z);
-		var farPlane: number = distance > this._maxDistance ? distance : this._maxDistance;
-		//build light's view and project matrix
-		Vector3.scale(this._globalParallelLightDir, farPlane, this._tempPos);
-		var tempPosElement: Vector3 = this._tempPos;
-		tempPosElement.x = tempValueElement.x - tempPosElement.x;
-		tempPosElement.y = tempValueElement.y - tempPosElement.y;
-		tempPosElement.z = tempValueElement.z - tempPosElement.z;
-		curLightCamera.transform.position = this._tempPos;
-		curLightCamera.transform.lookAt(this._tempLookAt3, this._tempLightUp, false);
-		Matrix4x4.createOrthoOffCenter(tempMin.x, tempMax.x, tempMin.y, tempMax.y, 1.0, farPlane + 0.5 * (tempMax.z - tempMin.z), curLightCamera.projectionMatrix);
-
-		//calc frustum
-		var projectView: Matrix4x4 = curLightCamera.projectionViewMatrix;
-		ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
-		this._scene._shaderValues.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
-	}
 
 	/**
 	 * 计算两个矩阵的乘法
