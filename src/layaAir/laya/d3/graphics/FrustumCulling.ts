@@ -21,6 +21,17 @@ import { DynamicBatchManager } from "./DynamicBatchManager";
 import { StaticBatchManager } from "./StaticBatchManager";
 import { Shader3D } from "../shader/Shader3D";
 
+
+/**
+ * @internal
+ */
+export class CameraCullInfo {
+	position: Vector3;
+	useOcclusionCulling: Boolean;
+	boundFrustum: BoundFrustum;
+	cullingMask: number;
+}
+
 /**
  * @internal
  * <code>FrustumCulling</code> 类用于裁剪。
@@ -30,6 +41,9 @@ export class FrustumCulling {
 	private static _tempVector3: Vector3 = new Vector3();
 	/**@internal */
 	private static _tempColor0: Color = new Color();
+
+	/**@internal */
+	static _cameraCullInfo: CameraCullInfo = new CameraCullInfo();
 
 	/**@internal */
 	static debugFrustumCulling: boolean = false;
@@ -68,10 +82,11 @@ export class FrustumCulling {
 	/**
 	 * @internal
 	 */
-	private static _traversalCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList<ISingletonElement>, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
+	private static _traversalCulling(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D, renderList: SingletonList<ISingletonElement>, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		var renders: ISingletonElement[] = renderList.elements;
-		var boundFrustum: BoundFrustum = camera.boundFrustum;
-		var camPos: Vector3 = camera._transform.position;
+		var boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;
+		var camPos: Vector3 = cameraCullInfo.position;
+		var cullMask: number = cameraCullInfo.cullingMask;
 		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 			var render: BaseRender = <BaseRender>renders[i];
@@ -79,11 +94,11 @@ export class FrustumCulling {
 			if (isShadowCasterCull)
 				canPass = render._castShadow && render._enable;
 			else
-				canPass = camera._isLayerVisible(render._owner._layer) && render._enable;
+				canPass = ((Math.pow(2, render._owner._layer) & cullMask) != 0) && render._enable;
 
 			if (canPass) {
 				Stat.frustumCulling++;
-				if (!camera.useOcclusionCulling || render._needRender(boundFrustum, context)) {
+				if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
 					render._renderMark = loopCount;
 					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 					var elements: RenderElement[] = render._renderElements;
@@ -97,7 +112,7 @@ export class FrustumCulling {
 	/**
 	 * @internal
 	 */
-	static renderObjectCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
+	static renderObjectCulling(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		var i: number, n: number;
 		var opaqueQueue: RenderQueue = scene._opaqueQueue;
 		var transparentQueue: RenderQueue = scene._transparentQueue;
@@ -116,10 +131,10 @@ export class FrustumCulling {
 		if (octree) {
 			octree.updateMotionObjects();
 			octree.shrinkRootIfPossible();
-			octree.getCollidingWithFrustum(context, customShader, replacementTag, isShadowCasterCull);
+			octree.getCollidingWithFrustum(cameraCullInfo, context, customShader, replacementTag, isShadowCasterCull);
 		}
 		//else {//包围盒不完善的节点走遍历裁剪
-		FrustumCulling._traversalCulling(camera, scene, context, renderList, customShader, replacementTag, isShadowCasterCull);
+		FrustumCulling._traversalCulling(cameraCullInfo, scene, context, renderList, customShader, replacementTag, isShadowCasterCull);
 		//}
 
 		if (FrustumCulling.debugFrustumCulling) {

@@ -9,7 +9,7 @@ import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/Re
 import { SystemUtils } from "../../webgl/SystemUtils";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
-import { FrustumCulling } from "../graphics/FrustumCulling";
+import { FrustumCulling, CameraCullInfo } from "../graphics/FrustumCulling";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Matrix4x4 } from "../math/Matrix4x4";
@@ -571,7 +571,13 @@ export class Camera extends BaseCamera {
 
 			var smCamera: Camera = shadowCasterPass.cameras[0];
 			context.camera = smCamera;
-			FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag, true);
+
+			var cameraCullInfo: CameraCullInfo = FrustumCulling._cameraCullInfo;
+			cameraCullInfo.position = this._transform.position;
+			cameraCullInfo.cullingMask = this.cullingMask;
+			cameraCullInfo.boundFrustum = this.boundFrustum;
+			cameraCullInfo.useOcclusionCulling = this.useOcclusionCulling;
+			FrustumCulling.renderObjectCulling(cameraCullInfo, scene, context, shader, replacementTag, true);
 
 			shadowCasterPass.start();
 			context.camera = smCamera;

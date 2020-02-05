@@ -19,7 +19,7 @@ import { WebGLContext } from "../../../webgl/WebGLContext";
 import { Animator } from "../../component/Animator";
 import { Script3D } from "../../component/Script3D";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
-import { FrustumCulling } from "../../graphics/FrustumCulling";
+import { FrustumCulling, CameraCullInfo } from "../../graphics/FrustumCulling";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
 import { Input3D } from "../../Input3D";
@@ -982,7 +982,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_preCulling(context: RenderContext3D, camera: Camera, shader: Shader3D, replacementTag: string): void {
-		FrustumCulling.renderObjectCulling(camera, this, context, shader, replacementTag, false);
+		var cameraCullInfo: CameraCullInfo = FrustumCulling._cameraCullInfo;
+		cameraCullInfo.position=camera._transform.position;
+		cameraCullInfo.cullingMask=camera.cullingMask;
+		cameraCullInfo.boundFrustum=camera.boundFrustum;
+		cameraCullInfo.useOcclusionCulling=camera.useOcclusionCulling;
+		FrustumCulling.renderObjectCulling(cameraCullInfo, this, context, shader, replacementTag, false);
 	}
 
 	/**
