@@ -1,12 +1,13 @@
 import { ILaya3D } from "../../../ILaya3D";
+import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
 import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
+import { DirectionLight } from "../core/light/DirectionLight";
 import { ShadowUtils } from "../core/light/ShdowUtils";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
 import { BoundBox } from "../math/BoundBox";
-import { BoundFrustum } from "../math/BoundFrustum";
 import { BoundSphere } from "../math/BoundSphere";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector2 } from "../math/Vector2";
@@ -14,8 +15,6 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
-import { LayaGL } from "../../layagl/LayaGL";
-import { DirectionLight } from "../core/light/DirectionLight";
 
 /**
  * @internal
@@ -41,8 +40,6 @@ export class ShadowCasterPass {
 	private _ratioOfDistance: number = 1.0 / this._shadowMapCount;
 
 	/**@internal */
-	private _globalParallelLightDir: Vector3 = new Vector3(0, -1, 0);
-	/**@internal */
 	_light: DirectionLight;
 	/**@internal */
 	cameras: Camera[];
@@ -64,24 +61,6 @@ export class ShadowCasterPass {
 	private _dimension: Vector2[] = new Array<Vector2>(ShadowCasterPass._maxCascades + 1);
 	/** @internal */
 	private _PCFType: number = 0;
-	/** @internal */
-	private _tempLookAt3: Vector3 = new Vector3();
-	/** @internal */
-	private _tempLookAt4: Vector4 = new Vector4();
-	/** @internal */
-	private _tempValue: Vector4 = new Vector4();
-	/** @internal */
-	private _tempPos: Vector3 = new Vector3();
-	/** @internal */
-	private _tempLightUp: Vector3 = new Vector3();
-	/** @internal */
-	private _tempMin: Vector4 = new Vector4();
-	/** @internal */
-	private _tempMax: Vector4 = new Vector4();
-	/** @internal */
-	private _tempMatrix44: Matrix4x4 = new Matrix4x4;
-	// /**@internal */
-	// private _splitFrustumCulling: BoundFrustum = new BoundFrustum(Matrix4x4.DEFAULT);
 	/** @internal */
 	private _tempScaleMatrix44: Matrix4x4 = new Matrix4x4();
 	/** @internal */
@@ -130,7 +109,6 @@ export class ShadowCasterPass {
 		this._scene = scene;
 		this._maxDistance = maxDistance;
 		this.shadowMapCount = numberOfPSSM;
-		this._globalParallelLightDir = globalParallelDir;
 		this._ratioOfDistance = 1.0 / this._shadowMapCount;
 		for (var i: number = 0; i < this._spiltDistance.length; i++) {
 			this._spiltDistance[i] = 0.0;
