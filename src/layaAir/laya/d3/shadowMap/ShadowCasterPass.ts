@@ -15,6 +15,7 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
+import { MathUtils3D } from "../math/MathUtils3D";
 
 
 export class ShadowCasterPass {
@@ -288,13 +289,13 @@ export class ShadowCasterPass {
 	 */
 	private _getLightViewProject(sceneCamera: BaseCamera): void {
 		var boundSphere: BoundSphere = ShadowCasterPass._tempBoundSphere0;
-		this.getBoundSphereOfFrustum((<Camera>sceneCamera).projectionViewMatrix, boundSphere);
+		var viewProjectMatrix: Matrix4x4 = this.getFrustumMatrix(<Camera>sceneCamera);
+		this.getBoundSphereOfFrustum(viewProjectMatrix, boundSphere);
 
 		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
 		var lightUp: Vector3 = ShadowCasterPass._tempVector30;
 		lightUp.setValue(lightWorld.getElementByRowColumn(0, 0), lightWorld.getElementByRowColumn(0, 1), lightWorld.getElementByRowColumn(0, 2));
 
-		// var boundSphere: BoundSphere = this._boundingSphere[this._currentPSSM];
 		var center: Vector3 = boundSphere.center;
 		var radius: number = boundSphere.radius;
 
@@ -310,6 +311,7 @@ export class ShadowCasterPass {
 		//calc frustum
 		var projectView: Matrix4x4 = curLightCamera.projectionViewMatrix;
 		ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
+		
 		this._scene._shaderValues.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
 	}
 
@@ -398,6 +400,21 @@ export class ShadowCasterPass {
 	clear(): void {
 		RenderTexture.recoverToPool(this._shadowMap);
 		// this._shadowMap = null; TODO:
+	}
+
+	/**
+	 * @internal
+	 */
+	getFrustumMatrix(camera: Camera): Matrix4x4 {
+		if (this._maxDistance < camera.farPlane) {
+			var projectionViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
+			Matrix4x4.createPerspective(camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera.nearPlane, this._maxDistance, projectionViewMatrix);
+			Matrix4x4.multiply(projectionViewMatrix, camera.viewMatrix, projectionViewMatrix)
+			return projectionViewMatrix;
+		}
+		else {
+			return camera.projectionViewMatrix;
+		}
 	}
 
 	/**
