@@ -77,9 +77,7 @@ export class Viewport {
 
 		var a: number = (((out.x * matrixEleme[3]) + (out.y * matrixEleme[7])) + (out.z * matrixEleme[11])) + matrixEleme[15];
 		Vector3.transformV3ToV3(out, matrix, out);
-
-		if (a !== 1.0)//待优化，经过计算得出的a可能会永远只近似于1，因为是Number类型
-		{
+		if (a !== 1.0) {
 			out.x = out.x / a;
 			out.y = out.y / a;
 			out.z = out.z / a;

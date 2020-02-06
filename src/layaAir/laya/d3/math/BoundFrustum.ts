@@ -5,9 +5,10 @@ import { CollisionUtils } from "./CollisionUtils";
 import { ContainmentType } from "./ContainmentType";
 import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
+
 /**
-	 * <code>BoundFrustum</code> 类用于创建锥截体。
-	 */
+ * <code>BoundFrustum</code> 类用于创建锥截体。
+ */
 export class BoundFrustum {
 	/** @internal */
 	private static _tempV30: Vector3 = new Vector3();
@@ -26,19 +27,19 @@ export class BoundFrustum {
 	/** @internal */
 	private static _tempV37: Vector3 = new Vector3();
 
-	/**4x4矩阵*/
+	/** @internal */
 	private _matrix: Matrix4x4;
-	/**近平面*/
+	/** @internal */
 	private _near: Plane;
-	/**远平面*/
+	/** @internal */
 	private _far: Plane;
-	/**左平面*/
+	/** @internal */
 	private _left: Plane;
-	/**右平面*/
+	/** @internal */
 	private _right: Plane;
-	/**顶平面*/
+	/** @internal */
 	private _top: Plane;
-	/**底平面*/
+	/** @internal */
 	private _bottom: Plane;
 
 	/**
@@ -57,65 +58,54 @@ export class BoundFrustum {
 	}
 
 	/**
-	 * 获取描述矩阵。
-	 * @return  描述矩阵。
+	 * 描述矩阵。
 	 */
 	get matrix(): Matrix4x4 {
 		return this._matrix;
 	}
 
-	/**
-	 * 设置描述矩阵。
-	 * @param matrix 描述矩阵。
-	 */
 	set matrix(matrix: Matrix4x4) {
 		this._matrix = matrix;
 		BoundFrustum._getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
 	}
 
 	/**
-	 * 获取近平面。
-	 * @return  近平面。
+	 * 近平面。
 	 */
 	get near(): Plane {
 		return this._near;
 	}
 
 	/**
-	 * 获取远平面。
-	 * @return  远平面。
+	 * 远平面。
 	 */
 	get far(): Plane {
 		return this._far;
 	}
 
 	/**
-	 * 获取左平面。
-	 * @return  左平面。
+	 * 左平面。
 	 */
 	get left(): Plane {
 		return this._left;
 	}
 
 	/**
-	 * 获取右平面。
-	 * @return  右平面。
+	 * 右平面。
 	 */
 	get right(): Plane {
 		return this._right;
 	}
 
 	/**
-	 * 获取顶平面。
-	 * @return  顶平面。
+	 * 顶平面。
 	 */
 	get top(): Plane {
 		return this._top;
 	}
 
 	/**
-	 * 获取底平面。
-	 * @return  底平面。
+	 * 底平面。
 	 */
 	get bottom(): Plane {
 		return this._bottom;
@@ -284,7 +274,6 @@ export class BoundFrustum {
 	 * @param  corners  返回顶点的输出队列。
 	 */
 	getCorners(corners: Vector3[]): void {
-
 		BoundFrustum._get3PlaneInterPoint(this._near, this._bottom, this._right).cloneTo(corners[0]);
 		BoundFrustum._get3PlaneInterPoint(this._near, this._top, this._right).cloneTo(corners[1]);
 		BoundFrustum._get3PlaneInterPoint(this._near, this._top, this._left).cloneTo(corners[2]);

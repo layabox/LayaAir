@@ -16,9 +16,7 @@ import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
 
-/**
- * @internal
- */
+
 export class ShadowCasterPass {
 	/**@internal */
 	static _maxCascades: number = 4;
@@ -27,6 +25,22 @@ export class ShadowCasterPass {
 	static _tempVector30: Vector3 = new Vector3();
 	/**@internal */
 	static _tempVector31: Vector3 = new Vector3();
+	/**@internal */
+	static _tempVector32: Vector3 = new Vector3();
+	/**@internal */
+	static _tempVector33: Vector3 = new Vector3();
+	/**@internal */
+	static _tempVector34: Vector3 = new Vector3();
+	/**@internal */
+	static _tempVector35: Vector3 = new Vector3();
+	/**@internal */
+	static _tempVector36: Vector3 = new Vector3();
+	/**@internal */
+	static _tempVector37: Vector3 = new Vector3();
+	/**@internal */
+	static _tempBoundSphere0: BoundSphere = new BoundSphere(new Vector3(), 0);
+	/**@internal */
+	static _tempMatrix0: Matrix4x4 = new Matrix4x4();
 
 	/**@internal */
 	private _spiltDistance: number[] = [];
@@ -71,8 +85,8 @@ export class ShadowCasterPass {
 	private _shaderValueLightVP: Float32Array = null;
 	/** @internal */
 	private _shaderValueVPs: Float32Array[];
-	/** @internal */
-	private _shadowMap: RenderTexture;
+
+	_shadowMap: RenderTexture;
 
 	constructor() {
 		this.cameras = [];
@@ -197,7 +211,6 @@ export class ShadowCasterPass {
 	 */
 	private _recalculate(nearPlane: number, fieldOfView: number, aspectRatio: number): void {
 		this._calcSplitDistance(nearPlane);
-		this._calcBoundingBox(fieldOfView, aspectRatio);
 		this._rebuildRenderInfo();
 	}
 
@@ -269,103 +282,19 @@ export class ShadowCasterPass {
 		this._shaderValueDistance.w = (this._spiltDistance[4] != undefined) && (this._spiltDistance[4]); //_spiltDistance[4]为undefine 微信小游戏
 	}
 
-	/**
-	 * @internal
-	 */
-	_calcBoundingBox(fieldOfView: number, aspectRatio: number): void {
-		var fov: number = 3.1415926 * fieldOfView / 180.0;
-
-		var halfTanValue: number = Math.tan(fov / 2.0);
-
-		var height: number;
-		var width: number;
-		var distance: number;
-
-		var i: number;
-		for (i = 0; i <= this._shadowMapCount; i++) {
-			distance = this._spiltDistance[i];
-			height = distance * halfTanValue;
-			width = height * aspectRatio;
-
-			var temp: any = this._frustumPos[i * 4 + 0];
-			temp.x = -width;// distance * 0.0 - height * 0.0 + width * -1.0
-			temp.y = -height;//distance * 0.0 - height * 1.0 + width * 0.0
-			temp.z = -distance;// distance * -1.0 - height * 0.0 + width * 0.0
-
-			temp = this._frustumPos[i * 4 + 1];
-			temp.x = width;// distance * 0.0 - height * 0.0 - width * -1.0
-			temp.y = -height;// distance * 0.0 - height * 1.0 - width * 0.0
-			temp.z = -distance;//distance * -1.0 - height * 0.0 - width * 0.0
-
-			temp = this._frustumPos[i * 4 + 2];
-			temp.x = -width;// distance * 0.0 + width * -1 + height * 0.0
-			temp.y = height;// distance * 0.0 + width * 0.0 + height * 1.0
-			temp.z = -distance;// distance * -1.0 + width * 0.0 + height * 0.0
-
-			temp = this._frustumPos[i * 4 + 3];
-			temp.x = width;// distance * 0.0 - width * -1 + height * 0.0
-			temp.y = height;// distance * 0.0 - width * 0.0 + height * 1.0
-			temp.z = -distance;// distance * -1.0 - width * 0.0 + height * 0.0
-
-			temp = this._dimension[i];
-			temp.x = width;
-			temp.y = height;
-		}
-
-		var d: Vector2;
-		var min: Vector3;
-		var max: Vector3;
-		var center: Vector3;
-		for (i = 1; i <= this._shadowMapCount; i++) {
-
-			d = this._dimension[i];
-			min = this._boundingBox[i].min;
-
-			min.x = -d.x;
-			min.y = -d.y;
-			min.z = -this._spiltDistance[i];
-
-			max = this._boundingBox[i].max;
-			max.x = d.x;
-			max.y = d.y;
-			max.z = -this._spiltDistance[i - 1];
-
-			center = this._boundingSphere[i].center;
-			center.x = (min.x + max.x) * 0.5;
-			center.y = (min.y + max.y) * 0.5;
-			center.z = (min.z + max.z) * 0.5;
-			this._boundingSphere[i].radius = Math.sqrt(Math.pow(max.x - min.x, 2) + Math.pow(max.y - min.y, 2) + Math.pow(max.z - min.z, 2)) * 0.5;
-		}
-
-		min = this._boundingBox[0].min;
-		d = this._dimension[this._shadowMapCount];
-		min.x = -d.x;
-		min.y = -d.y;
-		min.z = -this._spiltDistance[this._shadowMapCount];
-
-		max = this._boundingBox[0].max;
-		max.x = d.x;
-		max.y = d.y;
-		max.z = -this._spiltDistance[0];
-
-		center = this._boundingSphere[0].center;
-		center.x = (min.x + max.x) * 0.5;
-		center.y = (min.y + max.y) * 0.5;
-		center.z = (min.z + max.z) * 0.5;
-		this._boundingSphere[0].radius = Math.sqrt(Math.pow(max.x - min.x, 2) + Math.pow(max.y - min.y, 2) + Math.pow(max.z - min.z, 2)) * 0.5;
-	}
-
-
 
 	/**
 	 * @internal
 	 */
 	private _getLightViewProject(sceneCamera: BaseCamera): void {
+		var boundSphere: BoundSphere = ShadowCasterPass._tempBoundSphere0;
+		this.getBoundSphereOfFrustum((<Camera>sceneCamera).projectionViewMatrix, boundSphere);
+
 		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
 		var lightUp: Vector3 = ShadowCasterPass._tempVector30;
 		lightUp.setValue(lightWorld.getElementByRowColumn(0, 0), lightWorld.getElementByRowColumn(0, 1), lightWorld.getElementByRowColumn(0, 2));
 
-		var boundSphere: BoundSphere = this._boundingSphere[this._currentPSSM];
+		// var boundSphere: BoundSphere = this._boundingSphere[this._currentPSSM];
 		var center: Vector3 = boundSphere.center;
 		var radius: number = boundSphere.radius;
 
@@ -468,7 +397,54 @@ export class ShadowCasterPass {
 	 */
 	clear(): void {
 		RenderTexture.recoverToPool(this._shadowMap);
-		this._shadowMap = null;
+		// this._shadowMap = null; TODO:
+	}
+
+	/**
+	 * @internal
+	 */
+	getBoundSphereOfFrustum(viewProjectMatrix: Matrix4x4, outBoundSphere: BoundSphere): void {
+		// use project space coordinate to get world point is better than get form the Frustum,unless you already have the world Point.
+		var invViewProjMat: Matrix4x4 = ShadowCasterPass._tempMatrix0;
+		viewProjectMatrix.invert(invViewProjMat);
+
+		var nlb: Vector3 = ShadowCasterPass._tempVector30;
+		var flb: Vector3 = ShadowCasterPass._tempVector31;
+		var frt: Vector3 = ShadowCasterPass._tempVector32;
+
+		var abXac: Vector3 = ShadowCasterPass._tempVector33;
+		var ab: Vector3 = ShadowCasterPass._tempVector34;
+		var ac: Vector3 = ShadowCasterPass._tempVector35;
+		var abXacXab: Vector3 = ShadowCasterPass._tempVector36;
+		var acXabXac: Vector3 = ShadowCasterPass._tempVector37;
+
+		nlb.setValue(-1.0, -1.0, -1.0);
+		flb.setValue(-1.0, -1.0, 1.0);
+		frt.setValue(1.0, 1.0, 1.0);
+
+		Vector3.transformCoordinate(nlb, invViewProjMat, nlb);
+		Vector3.transformCoordinate(flb, invViewProjMat, flb);
+		Vector3.transformCoordinate(frt, invViewProjMat, frt);
+
+		// get circumcenter of a triangle
+		// https://gamedev.stackexchange.com/questions/60630/how-do-i-find-the-circumcenter-of-a-triangle-in-3d
+		// https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
+		Vector3.subtract(frt, nlb, ac);
+		Vector3.subtract(flb, nlb, ab);
+		Vector3.cross(ab, ac, abXac);
+		Vector3.cross(abXac, ab, abXacXab);
+		Vector3.cross(ac, abXac, acXabXac);
+		var acLen2: number = Vector3.scalarLengthSquared(ac);
+		var abLen2: number = Vector3.scalarLengthSquared(ab);
+		var abXacLen2Double: number = Vector3.scalarLengthSquared(abXac) * 2.0;
+		var toCenX: number = (abXacXab.x * acLen2 + acXabXac.x * abLen2) / abXacLen2Double;
+		var toCenY: number = (abXacXab.y * acLen2 + acXabXac.y * abLen2) / abXacLen2Double;
+		var toCenZ: number = (abXacXab.z * acLen2 + acXabXac.z * abLen2) / abXacLen2Double;
+		outBoundSphere.radius = Math.sqrt(toCenX * toCenX + toCenY * toCenY + toCenZ * toCenZ);
+		var center: Vector3 = outBoundSphere.center;
+		center.x = nlb.x + toCenX;
+		center.y = nlb.y + toCenY;
+		center.z = nlb.z + toCenZ;
 	}
 }
 
