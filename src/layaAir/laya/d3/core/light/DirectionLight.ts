@@ -5,15 +5,19 @@ import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite, LightType } from "./LightSprite";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";
-import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
+
 /**
  * <code>DirectionLight</code> 类用于创建平行光。
  */
 export class DirectionLight extends LightSprite {
 	/**@iternal */
-	_direction: Vector3;
+	_direction: Vector3 = new Vector3();
 	/** @internal */
 	_shadowCascadesMode: ShadowCascadesMode;
+	/** @internal */
+	_shadowTwoCascadeSplits: number = 1.0 / 3.0;
+	/** @internal */
+	_shadowFourCascadeSplits: Vector3 = new Vector3(1.0 / 15, 2.0 / 15.0, 4.0 / 15.0);
 
 	/**
 	* @inheritDoc
@@ -47,11 +51,32 @@ export class DirectionLight extends LightSprite {
 	}
 
 	/**
+	 * 二级级联阴影分割比例。
+	 */
+	get shadowTwoCascadeSplits(): number {
+		return this._shadowTwoCascadeSplits;
+	}
+
+	set shadowTwoCascadeSplits(value: number) {
+		this._shadowTwoCascadeSplits = value;
+	}
+
+	/**
+	 * 四级级联阴影分割比例。
+	 */
+	get shadowFourCascadeSplits(): Vector3 {
+		return this._shadowFourCascadeSplits;
+	}
+
+	set shadowFourCascadeSplits(value: Vector3) {
+		value.cloneTo(this._shadowFourCascadeSplits);
+	}
+
+	/**
 	 * 创建一个 <code>DirectionLight</code> 实例。
 	 */
 	constructor() {
 		super();
-		this._direction = new Vector3();
 		this._lightType = LightType.Directional;
 	}
 

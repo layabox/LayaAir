@@ -9,13 +9,13 @@ import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
 import { BoundBox } from "../math/BoundBox";
 import { BoundSphere } from "../math/BoundSphere";
+import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
-import { MathUtils3D } from "../math/MathUtils3D";
 
 
 export class ShadowCasterPass {
@@ -259,38 +259,10 @@ export class ShadowCasterPass {
 	/**
 	 * @internal
 	 */
-	private _calcSplitDistance(nearPlane: number): void {
-		var far: number = this._maxDistance;
-		var invNumberOfPSSM: number = 1.0 / this._shadowMapCount;
-		var i: number;
-		for (i = 0; i <= this._shadowMapCount; i++) {
-			this._uniformDistance[i] = nearPlane + (far - nearPlane) * i * invNumberOfPSSM;
-		}
-
-		var farDivNear: number = far / nearPlane;
-		for (i = 0; i <= this._shadowMapCount; i++) {
-			var n: number = Math.pow(farDivNear, i * invNumberOfPSSM);
-			this._logDistance[i] = nearPlane * n;
-		}
-
-		for (i = 0; i <= this._shadowMapCount; i++) {
-			this._spiltDistance[i] = this._uniformDistance[i] * this._ratioOfDistance + this._logDistance[i] * (1.0 - this._ratioOfDistance);
-		}
-
-		this._shaderValueDistance.x = (this._spiltDistance[1] != undefined) && (this._spiltDistance[1]);
-		this._shaderValueDistance.y = (this._spiltDistance[2] != undefined) && (this._spiltDistance[2]);
-		this._shaderValueDistance.z = (this._spiltDistance[3] != undefined) && (this._spiltDistance[3]);
-		this._shaderValueDistance.w = (this._spiltDistance[4] != undefined) && (this._spiltDistance[4]); //_spiltDistance[4]为undefine 微信小游戏
-	}
-
-
-	/**
-	 * @internal
-	 */
 	private _getLightViewProject(sceneCamera: BaseCamera): void {
 		var boundSphere: BoundSphere = ShadowCasterPass._tempBoundSphere0;
 		var viewProjectMatrix: Matrix4x4 = this.getFrustumMatrix(<Camera>sceneCamera);
-		this.getBoundSphereOfFrustum(viewProjectMatrix, boundSphere);
+		this.getBoundSphereOfFrustum(viewProjectMatrix, boundSphere, sceneCamera._transform.position, Math.min(sceneCamera.farPlane, this._maxDistance));
 
 		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
 		var lightUp: Vector3 = ShadowCasterPass._tempVector30;
@@ -311,8 +283,6 @@ export class ShadowCasterPass {
 		//calc frustum
 		var projectView: Matrix4x4 = curLightCamera.projectionViewMatrix;
 		ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
-		
-		this._scene._shaderValues.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
 	}
 
 	/**
@@ -420,9 +390,10 @@ export class ShadowCasterPass {
 	/**
 	 * @internal
 	 */
-	getBoundSphereOfFrustum(viewProjectMatrix: Matrix4x4, outBoundSphere: BoundSphere): void {
+	getBoundSphereOfFrustum(viewProjectMatrix: Matrix4x4, outBoundSphere: BoundSphere, cameraPos: Vector3, maxDistance: number): void {
 		// use project space coordinate to get world point is better than get form the Frustum,unless you already have the world Point.
 		var invViewProjMat: Matrix4x4 = ShadowCasterPass._tempMatrix0;
+		// var invViewProjMat: Matrix4x4 = new Matrix4x4();
 		viewProjectMatrix.invert(invViewProjMat);
 
 		var nlb: Vector3 = ShadowCasterPass._tempVector30;
@@ -435,13 +406,22 @@ export class ShadowCasterPass {
 		var abXacXab: Vector3 = ShadowCasterPass._tempVector36;
 		var acXabXac: Vector3 = ShadowCasterPass._tempVector37;
 
-		nlb.setValue(-1.0, -1.0, -1.0);
+		nlb.setValue(-1.0, -1.0, 0.0);
 		flb.setValue(-1.0, -1.0, 1.0);
 		frt.setValue(1.0, 1.0, 1.0);
 
 		Vector3.transformCoordinate(nlb, invViewProjMat, nlb);
 		Vector3.transformCoordinate(flb, invViewProjMat, flb);
 		Vector3.transformCoordinate(frt, invViewProjMat, frt);
+
+		// Vector3.subtract(flb, cameraPos, flb);
+		// Vector3.normalize(flb, flb);
+		// Vector3.scale(flb, maxDistance, flb);
+		// Vector3.add(cameraPos, flb, flb);
+		// Vector3.subtract(frt, cameraPos, frt);
+		// Vector3.normalize(frt, frt);
+		// Vector3.scale(frt, maxDistance, frt);
+		// Vector3.add(cameraPos, frt, frt);
 
 		// get circumcenter of a triangle
 		// https://gamedev.stackexchange.com/questions/60630/how-do-i-find-the-circumcenter-of-a-triangle-in-3d
@@ -462,6 +442,33 @@ export class ShadowCasterPass {
 		center.x = nlb.x + toCenX;
 		center.y = nlb.y + toCenY;
 		center.z = nlb.z + toCenZ;
+	}
+
+	/**
+	 * @internal
+	 */
+	private _calcSplitDistance(nearPlane: number): void {//TODO:删除
+		var far: number = this._maxDistance;
+		var invNumberOfPSSM: number = 1.0 / this._shadowMapCount;
+		var i: number;
+		for (i = 0; i <= this._shadowMapCount; i++) {
+			this._uniformDistance[i] = nearPlane + (far - nearPlane) * i * invNumberOfPSSM;
+		}
+
+		var farDivNear: number = far / nearPlane;
+		for (i = 0; i <= this._shadowMapCount; i++) {
+			var n: number = Math.pow(farDivNear, i * invNumberOfPSSM);
+			this._logDistance[i] = nearPlane * n;
+		}
+
+		for (i = 0; i <= this._shadowMapCount; i++) {
+			this._spiltDistance[i] = this._uniformDistance[i] * this._ratioOfDistance + this._logDistance[i] * (1.0 - this._ratioOfDistance);
+		}
+
+		this._shaderValueDistance.x = (this._spiltDistance[1] != undefined) && (this._spiltDistance[1]);
+		this._shaderValueDistance.y = (this._spiltDistance[2] != undefined) && (this._spiltDistance[2]);
+		this._shaderValueDistance.z = (this._spiltDistance[3] != undefined) && (this._spiltDistance[3]);
+		this._shaderValueDistance.w = (this._spiltDistance[4] != undefined) && (this._spiltDistance[4]); //_spiltDistance[4]为undefine 微信小游戏
 	}
 }
 
