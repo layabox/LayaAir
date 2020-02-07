@@ -42,6 +42,10 @@ export class ShadowCasterPass {
 	static _tempBoundSphere0: BoundSphere = new BoundSphere(new Vector3(), 0);
 	/**@internal */
 	static _tempMatrix0: Matrix4x4 = new Matrix4x4();
+	/**@internal */
+	static _tempMatrix1: Matrix4x4 = new Matrix4x4();
+	/**@internal */
+	static _tempMatrix2: Matrix4x4 = new Matrix4x4();
 
 	/**@internal */
 	private _spiltDistance: number[] = [];
@@ -267,44 +271,61 @@ export class ShadowCasterPass {
 		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
 		var lightUp: Vector3 = ShadowCasterPass._tempVector32;
 		var lightSide: Vector3 = ShadowCasterPass._tempVector31;
-		var lightDirection: Vector3 = ShadowCasterPass._tempVector30;
-		lightUp.setValue(lightWorld.getElementByRowColumn(0, 0), lightWorld.getElementByRowColumn(0, 1), lightWorld.getElementByRowColumn(0, 2));
-		lightSide.setValue(lightWorld.getElementByRowColumn(1, 0), lightWorld.getElementByRowColumn(1, 1), lightWorld.getElementByRowColumn(1, 2));
-		lightDirection.setValue(lightWorld.getElementByRowColumn(2, 0), lightWorld.getElementByRowColumn(2, 1), lightWorld.getElementByRowColumn(2, 2));
-		Vector3.normalize(lightUp, lightUp);
-		Vector3.normalize(lightSide, lightSide);
-		Vector3.normalize(lightDirection, lightDirection);
+		var lightForward: Vector3 = ShadowCasterPass._tempVector30;
+		lightSide.setValue(lightWorld.getElementByRowColumn(0, 0), lightWorld.getElementByRowColumn(0, 1), lightWorld.getElementByRowColumn(0, 2));
+		lightUp.setValue(lightWorld.getElementByRowColumn(1, 0), lightWorld.getElementByRowColumn(1, 1), lightWorld.getElementByRowColumn(1, 2));
+		lightForward.setValue(-lightWorld.getElementByRowColumn(2, 0), -lightWorld.getElementByRowColumn(2, 1), -lightWorld.getElementByRowColumn(2, 2));
+		// Vector3.normalize(lightUp, lightUp);
+		// Vector3.normalize(lightSide, lightSide);
+		// Vector3.normalize(lightForward, lightForward);
 
-		for (var i: number = 0; i < 1; i++) {//TODO split
+		var sizeSM: number = this._light.shadowResolution;
+		for (var i: number = 0; i < 1; i++) {//TODO: split
 			var center: Vector3 = boundSphere.center;
 			var radius: number = boundSphere.radius;
+			var diam: number = radius * 2.0;
+			var sizeUnit: number = sizeSM / diam;
+			var radiusUnit: number = diam / sizeSM;
 
 			// to solve shdow swimming problem
-			var sizeSM: number = this._light.shadowResolution;
-			var sizeUnit: number = sizeSM / radius;
-			var radiusUnit: number = radius / sizeSM;
 			var upLen: number = Math.ceil(Vector3.dot(center, lightUp) * sizeUnit) * radiusUnit;
-			var SideLen: number = Math.ceil(Vector3.dot(center, lightSide) * sizeUnit) * radiusUnit;
-			var dirLength: number = Vector3.dot(center, lightDirection);
+			var sideLen: number = Math.ceil(Vector3.dot(center, lightSide) * sizeUnit) * radiusUnit;
+			var forwardLen: number = Vector3.dot(center, lightForward);
 
-			center.x = lightUp.x * upLen + lightSide.x * SideLen + lightDirection.x * dirLength;
-			center.y = lightUp.y * upLen + lightSide.y * SideLen + lightDirection.y * dirLength;
-			center.z = lightUp.z * upLen + lightSide.z * SideLen + lightDirection.z * dirLength;
+			center.x = lightUp.x * upLen + lightSide.x * sideLen + lightForward.x * forwardLen;
+			center.y = lightUp.y * upLen + lightSide.y * sideLen + lightForward.y * forwardLen;
+			center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
 
 			var origin: Vector3 = ShadowCasterPass._tempVector31;
 			Vector3.scale(this._light._direction, radius, origin);
 			Vector3.subtract(center, origin, origin);
 
+			var viewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
+			var projectMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix1;
+			var projectViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix2;
+
+			Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
+			Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, this._light._shadowNearPlane, diam, projectMatrix);
+			Matrix4x4.multiply(projectMatrix, viewMatrix, projectViewMatrix);
+
+			//TODO:剥离对Camera的依赖后可删除
 			var curLightCamera: Camera = this.cameras[this._currentPSSM];
-			curLightCamera._transform.position = origin;
-			curLightCamera._transform.lookAt(center, lightUp, false);
+			viewMatrix.cloneTo(curLightCamera.viewMatrix);
+			projectMatrix.cloneTo(curLightCamera.projectionMatrix);
 
-			Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, this._light._shadowNearPlane, radius * 2.0, curLightCamera.projectionMatrix);
-
-			//calc frustum
-			var projectView: Matrix4x4 = curLightCamera.projectionViewMatrix;
-			ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
+			ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectViewMatrix, this._shaderValueVPs[this._currentPSSM]);
 		}
+	}
+
+	static ff: Vector3 = new Vector3();
+
+	_float32: Float32Array = new Float32Array(1);
+	/**
+	 * @internal
+	 */
+	_toFloat32(value: number): number {
+		this._float32[0] = value;
+		return this._float32[0];
 	}
 
 	/**
