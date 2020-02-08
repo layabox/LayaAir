@@ -297,7 +297,7 @@ export class ShadowCasterPass {
 			center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
 
 			var origin: Vector3 = ShadowCasterPass._tempVector31;
-			Vector3.scale(this._light._direction, radius, origin);
+			Vector3.scale(lightForward, radius, origin);
 			Vector3.subtract(center, origin, origin);
 
 			var viewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
@@ -436,55 +436,53 @@ export class ShadowCasterPass {
 	getBoundSphereOfFrustum(viewProjectMatrix: Matrix4x4, outBoundSphere: BoundSphere, cameraPos: Vector3, maxDistance: number): void {
 		// use project space coordinate to get world point is better than get form the Frustum,unless you already have the world Point.
 		var invViewProjMat: Matrix4x4 = ShadowCasterPass._tempMatrix0;
-		// var invViewProjMat: Matrix4x4 = new Matrix4x4();
 		viewProjectMatrix.invert(invViewProjMat);
 
+		var center: Vector3 = outBoundSphere.center;
 		var nlb: Vector3 = ShadowCasterPass._tempVector30;
 		var flb: Vector3 = ShadowCasterPass._tempVector31;
 		var frt: Vector3 = ShadowCasterPass._tempVector32;
-
-		var abXac: Vector3 = ShadowCasterPass._tempVector33;
-		var ab: Vector3 = ShadowCasterPass._tempVector34;
-		var ac: Vector3 = ShadowCasterPass._tempVector35;
-		var abXacXab: Vector3 = ShadowCasterPass._tempVector36;
-		var acXabXac: Vector3 = ShadowCasterPass._tempVector37;
-
 		nlb.setValue(-1.0, -1.0, 0.0);
 		flb.setValue(-1.0, -1.0, 1.0);
 		frt.setValue(1.0, 1.0, 1.0);
-
 		Vector3.transformCoordinate(nlb, invViewProjMat, nlb);
 		Vector3.transformCoordinate(flb, invViewProjMat, flb);
 		Vector3.transformCoordinate(frt, invViewProjMat, frt);
 
-		// Vector3.subtract(flb, cameraPos, flb);
-		// Vector3.normalize(flb, flb);
-		// Vector3.scale(flb, maxDistance, flb);
-		// Vector3.add(cameraPos, flb, flb);
-		// Vector3.subtract(frt, cameraPos, frt);
-		// Vector3.normalize(frt, frt);
-		// Vector3.scale(frt, maxDistance, frt);
-		// Vector3.add(cameraPos, frt, frt);
+		var halfDiagonalFar: number = Vector3.distance(frt, flb) / 2.0;
+		if (halfDiagonalFar > maxDistance) {// if the far plane is enough wide or FOV is ver big
+			outBoundSphere.radius = halfDiagonalFar;
+			center.x = (frt.x + flb.x) / 2.0;
+			center.y = (frt.y + flb.y) / 2.0;
+			center.z = (frt.z + flb.z) / 2.0;
+		}
+		else {
+			var abXac: Vector3 = ShadowCasterPass._tempVector33;
+			var ab: Vector3 = ShadowCasterPass._tempVector34;
+			var ac: Vector3 = ShadowCasterPass._tempVector35;
+			var abXacXab: Vector3 = ShadowCasterPass._tempVector36;
+			var acXabXac: Vector3 = ShadowCasterPass._tempVector37;
 
-		// get circumcenter of a triangle
-		// https://gamedev.stackexchange.com/questions/60630/how-do-i-find-the-circumcenter-of-a-triangle-in-3d
-		// https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
-		Vector3.subtract(frt, nlb, ac);
-		Vector3.subtract(flb, nlb, ab);
-		Vector3.cross(ab, ac, abXac);
-		Vector3.cross(abXac, ab, abXacXab);
-		Vector3.cross(ac, abXac, acXabXac);
-		var acLen2: number = Vector3.scalarLengthSquared(ac);
-		var abLen2: number = Vector3.scalarLengthSquared(ab);
-		var abXacLen2Double: number = Vector3.scalarLengthSquared(abXac) * 2.0;
-		var toCenX: number = (abXacXab.x * acLen2 + acXabXac.x * abLen2) / abXacLen2Double;
-		var toCenY: number = (abXacXab.y * acLen2 + acXabXac.y * abLen2) / abXacLen2Double;
-		var toCenZ: number = (abXacXab.z * acLen2 + acXabXac.z * abLen2) / abXacLen2Double;
-		outBoundSphere.radius = Math.sqrt(toCenX * toCenX + toCenY * toCenY + toCenZ * toCenZ);
-		var center: Vector3 = outBoundSphere.center;
-		center.x = nlb.x + toCenX;
-		center.y = nlb.y + toCenY;
-		center.z = nlb.z + toCenZ;
+			// get circumcenter of a triangle
+			// https://gamedev.stackexchange.com/questions/60630/how-do-i-find-the-circumcenter-of-a-triangle-in-3d
+			// https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
+			Vector3.subtract(frt, nlb, ac);
+			Vector3.subtract(flb, nlb, ab);
+			Vector3.cross(ab, ac, abXac);
+			Vector3.cross(abXac, ab, abXacXab);
+			Vector3.cross(ac, abXac, acXabXac);
+			var acLen2: number = Vector3.scalarLengthSquared(ac);
+			var abLen2: number = Vector3.scalarLengthSquared(ab);
+			var abXacLen2Double: number = Vector3.scalarLengthSquared(abXac) * 2.0;
+			var toCenX: number = (abXacXab.x * acLen2 + acXabXac.x * abLen2) / abXacLen2Double;
+			var toCenY: number = (abXacXab.y * acLen2 + acXabXac.y * abLen2) / abXacLen2Double;
+			var toCenZ: number = (abXacXab.z * acLen2 + acXabXac.z * abLen2) / abXacLen2Double;
+			outBoundSphere.radius = Math.sqrt(toCenX * toCenX + toCenY * toCenY + toCenZ * toCenZ);
+			center.x = nlb.x + toCenX;
+			center.y = nlb.y + toCenY;
+			center.z = nlb.z + toCenZ;
+		}
+		console.log(outBoundSphere.radius);
 	}
 
 	/**
