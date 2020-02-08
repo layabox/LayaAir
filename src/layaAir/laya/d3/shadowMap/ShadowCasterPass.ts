@@ -184,7 +184,7 @@ export class ShadowCasterPass {
 	}
 
 
-	private _beginSampler(index: number, sceneCamera: BaseCamera): void {
+	private _beginSampler(index: number, sceneCamera: Camera): void {
 		this._currentPSSM = index;
 		this._update(index, sceneCamera);
 	}
@@ -192,14 +192,14 @@ export class ShadowCasterPass {
 	/**
 	 * @internal
 	 */
-	endSampler(sceneCamera: BaseCamera): void {
+	endSampler(sceneCamera: Camera): void {
 		this._currentPSSM = -1;
 	}
 
 	/**
 	 * @internal
 	 */
-	_calcAllLightCameraInfo(sceneCamera: BaseCamera): void {
+	_calcAllLightCameraInfo(sceneCamera: Camera): void {
 		if (this._shadowMapCount === 1) {
 			this._beginSampler(0, sceneCamera);
 			this.endSampler(sceneCamera);
@@ -222,7 +222,7 @@ export class ShadowCasterPass {
 	/**
 	 * @internal
 	 */
-	private _update(index: number, sceneCamera: BaseCamera): void {
+	private _update(index: number, sceneCamera: Camera): void {
 		var nearPlane: number = sceneCamera.nearPlane;
 		var fieldOfView: number = sceneCamera.fieldOfView;
 		var aspectRatio: number = (<Camera>sceneCamera).aspectRatio;
@@ -263,10 +263,13 @@ export class ShadowCasterPass {
 	/**
 	 * @internal
 	 */
-	private _getLightViewProject(sceneCamera: BaseCamera): void {
+	private _getLightViewProject(sceneCamera: Camera): void {
 		var boundSphere: BoundSphere = ShadowCasterPass._tempBoundSphere0;
-		var viewProjectMatrix: Matrix4x4 = this.getFrustumMatrix(<Camera>sceneCamera);
-		this.getBoundSphereOfFrustum(viewProjectMatrix, boundSphere, sceneCamera._transform.position, Math.min(sceneCamera.farPlane, this._maxDistance));
+		// var viewProjectMatrix: Matrix4x4 = this.getFrustumMatrix(sceneCamera);
+		var forward: Vector3 = ShadowCasterPass._tempVector30;
+		sceneCamera._transform.getForward(forward);//TODO:normalize测试
+		this.getBoundSphereByFrustum(sceneCamera.nearPlane, Math.min(sceneCamera.farPlane, this._maxDistance), sceneCamera.fieldOfView * MathUtils3D.Deg2Rad,
+			sceneCamera.aspectRatio, sceneCamera._transform.position, forward, boundSphere);
 
 		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
 		var lightUp: Vector3 = ShadowCasterPass._tempVector32;
@@ -415,74 +418,56 @@ export class ShadowCasterPass {
 		// this._shadowMap = null; TODO:
 	}
 
-	/**
-	 * @internal
-	 */
-	getFrustumMatrix(camera: Camera): Matrix4x4 {
-		if (this._maxDistance < camera.farPlane) {
-			var projectionViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
-			Matrix4x4.createPerspective(camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera.nearPlane, this._maxDistance, projectionViewMatrix);
-			Matrix4x4.multiply(projectionViewMatrix, camera.viewMatrix, projectionViewMatrix)
-			return projectionViewMatrix;
-		}
-		else {
-			return camera.projectionViewMatrix;
-		}
-	}
+	// /**
+	//  * @internal
+	//  */
+	// getFrustumMatrix(camera: Camera): Matrix4x4 {
+	// 	if (this._maxDistance < camera.farPlane) {
+	// 		var projectionViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
+	// 		Matrix4x4.createPerspective(camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera.nearPlane, this._maxDistance, projectionViewMatrix);
+	// 		Matrix4x4.multiply(projectionViewMatrix, camera.viewMatrix, projectionViewMatrix)
+	// 		return projectionViewMatrix;
+	// 	}
+	// 	else {
+	// 		return camera.projectionViewMatrix;
+	// 	}
+	// }
+
+	/** @intenal */
+	private _lastBuildSphereInfo: Vector4 = new Vector4();
+	/** @intenal */
+	private _lastFrustumSphere: Vector2 = new Vector2();
 
 	/**
 	 * @internal
 	 */
-	getBoundSphereOfFrustum(viewProjectMatrix: Matrix4x4, outBoundSphere: BoundSphere, cameraPos: Vector3, maxDistance: number): void {
-		// use project space coordinate to get world point is better than get form the Frustum,unless you already have the world Point.
-		var invViewProjMat: Matrix4x4 = ShadowCasterPass._tempMatrix0;
-		viewProjectMatrix.invert(invViewProjMat);
+	getBoundSphereByFrustum(near: number, far: number, fov: number, aspectRatio: number, cameraPos: Vector3, forward: Vector3, outBoundSphere: BoundSphere): void {
+		var lastBuildInfo: Vector4 = this._lastBuildSphereInfo;
+		var lastFrustumSphere: Vector2 = this._lastFrustumSphere;
+		if (lastBuildInfo.x != near || lastBuildInfo.y != far || lastBuildInfo.z != fov || lastBuildInfo.w != aspectRatio) {
+			// https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html
+			var centerZ: number;
+			var radius: number;
+			var k: number = Math.sqrt(1.0 + aspectRatio * aspectRatio) * Math.tan(fov / 2.0);
+			var k2: number = k * k;
+			var farSNear: number = far - near;
+			var farANear: number = far + near;
+			if (k2 > farSNear / farANear) {
+				centerZ = far;
+				radius = far * k;
+			}
+			else {
+				centerZ = 0.5 * farANear * (1 + k2);
+				radius = 0.5 * Math.sqrt(farSNear * farSNear + 2.0 * (far * far + near * near) * k2 + farANear * farANear * k2 * k2);
+			}
+			lastBuildInfo.setValue(near, far, fov, aspectRatio);
+			lastFrustumSphere.setValue(centerZ, radius);
+		}
 
 		var center: Vector3 = outBoundSphere.center;
-		var nlb: Vector3 = ShadowCasterPass._tempVector30;
-		var flb: Vector3 = ShadowCasterPass._tempVector31;
-		var frt: Vector3 = ShadowCasterPass._tempVector32;
-		nlb.setValue(-1.0, -1.0, 0.0);
-		flb.setValue(-1.0, -1.0, 1.0);
-		frt.setValue(1.0, 1.0, 1.0);
-		Vector3.transformCoordinate(nlb, invViewProjMat, nlb);
-		Vector3.transformCoordinate(flb, invViewProjMat, flb);
-		Vector3.transformCoordinate(frt, invViewProjMat, frt);
-
-		var halfDiagonalFar: number = Vector3.distance(frt, flb) / 2.0;
-		if (halfDiagonalFar > maxDistance) {// if the far plane is enough wide or FOV is ver big
-			outBoundSphere.radius = halfDiagonalFar;
-			center.x = (frt.x + flb.x) / 2.0;
-			center.y = (frt.y + flb.y) / 2.0;
-			center.z = (frt.z + flb.z) / 2.0;
-		}
-		else {
-			var abXac: Vector3 = ShadowCasterPass._tempVector33;
-			var ab: Vector3 = ShadowCasterPass._tempVector34;
-			var ac: Vector3 = ShadowCasterPass._tempVector35;
-			var abXacXab: Vector3 = ShadowCasterPass._tempVector36;
-			var acXabXac: Vector3 = ShadowCasterPass._tempVector37;
-
-			// get circumcenter of a triangle
-			// https://gamedev.stackexchange.com/questions/60630/how-do-i-find-the-circumcenter-of-a-triangle-in-3d
-			// https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
-			Vector3.subtract(frt, nlb, ac);
-			Vector3.subtract(flb, nlb, ab);
-			Vector3.cross(ab, ac, abXac);
-			Vector3.cross(abXac, ab, abXacXab);
-			Vector3.cross(ac, abXac, acXabXac);
-			var acLen2: number = Vector3.scalarLengthSquared(ac);
-			var abLen2: number = Vector3.scalarLengthSquared(ab);
-			var abXacLen2Double: number = Vector3.scalarLengthSquared(abXac) * 2.0;
-			var toCenX: number = (abXacXab.x * acLen2 + acXabXac.x * abLen2) / abXacLen2Double;
-			var toCenY: number = (abXacXab.y * acLen2 + acXabXac.y * abLen2) / abXacLen2Double;
-			var toCenZ: number = (abXacXab.z * acLen2 + acXabXac.z * abLen2) / abXacLen2Double;
-			outBoundSphere.radius = Math.sqrt(toCenX * toCenX + toCenY * toCenY + toCenZ * toCenZ);
-			center.x = nlb.x + toCenX;
-			center.y = nlb.y + toCenY;
-			center.z = nlb.z + toCenZ;
-		}
-		console.log(outBoundSphere.radius);
+		outBoundSphere.radius = lastFrustumSphere.y;
+		Vector3.scale(forward, lastFrustumSphere.x, center);
+		Vector3.add(cameraPos, center, center);
 	}
 
 	/**
