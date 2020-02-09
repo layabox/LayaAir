@@ -6,6 +6,8 @@ export enum ShadowMode {
     None,
     /* 硬阴影。*/
     Hard,
-    /* 软阴影。*/
-    Soft
+    /* 低强度软阴影。*/
+    SoftLow,
+    /* 高强度软阴影。*/
+    SoftHigh
 }

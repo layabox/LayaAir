@@ -16,13 +16,9 @@ export class Scene3DShaderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_SHADOW_PSSM3: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PCF_NO: ShaderDefine;
+	static SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PCF1: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_SHADOW_PCF2: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_SHADOW_PCF3: ShaderDefine;
+	static SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_GI_AMBIENT_SH: ShaderDefine;
 }

@@ -73,7 +73,7 @@ export class ShadowUtils {
         var depthBias: number = -lightSprite._shadowDepthBias * texelSize;
         var normalBias: number = -lightSprite._shadowNormalBias * texelSize;
 
-        if (lightSprite.shadowMode = ShadowMode.Soft) {
+        if (lightSprite.shadowMode == ShadowMode.SoftLow || lightSprite.shadowMode == ShadowMode.SoftHigh) {
             // TODO: depth and normal bias assume sample is no more than 1 texel away from shadowmap
             // This is not true with PCF. Ideally we need to do either
             // cone base bias (based on distance to center sample)

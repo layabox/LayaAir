@@ -88,7 +88,7 @@ export class DirectionLight extends LightSprite {
 		if (this._shadowMode !== ShadowMode.None) {
 			this.transform.worldMatrix.getForward(this._direction);
 			Vector3.normalize(this._direction, this._direction);
-			Scene3D._shadowCasterPass.setInfo(this.scene, this._shadowDistance, this._direction, this._shadowResolution, this._shadowCascadesMode, 0);//TODO:
+			Scene3D._shadowCasterPass.setInfo(this.scene, this._shadowDistance, this._direction, this._shadowResolution, this._shadowCascadesMode, this._shadowMode);//TODO:
 			Scene3D._shadowCasterPass._light = this;
 		} else {
 			var defineDatas: ShaderData = (<Scene3D>this._scene)._shaderValues;

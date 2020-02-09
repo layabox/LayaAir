@@ -1,7 +1,6 @@
 import { ILaya3D } from "../../../ILaya3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
-import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
 import { DirectionLight } from "../core/light/DirectionLight";
 import { ShadowUtils } from "../core/light/ShdowUtils";
@@ -16,6 +15,7 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
+import { ShadowMode } from "../core/light/ShadowMode";
 
 
 export class ShadowCasterPass {
@@ -79,8 +79,6 @@ export class ShadowCasterPass {
 	/**@internal */
 	private _dimension: Vector2[] = new Array<Vector2>(ShadowCasterPass._maxCascades + 1);
 	/** @internal */
-	private _PCFType: number = 0;
-	/** @internal */
 	private _tempScaleMatrix44: Matrix4x4 = new Matrix4x4();
 	/** @internal */
 	private _shadowPCFOffset: Vector2 = new Vector2(1.0 / 1024.0, 1.0 / 1024.0);
@@ -121,7 +119,7 @@ export class ShadowCasterPass {
 		this._tempScaleMatrix44.elements[13] = 0.5;
 	}
 
-	setInfo(scene: Scene3D, maxDistance: number, globalParallelDir: Vector3, shadowMapTextureSize: number, numberOfPSSM: number, PCFType: number): void {
+	setInfo(scene: Scene3D, maxDistance: number, globalParallelDir: Vector3, shadowMapTextureSize: number, numberOfPSSM: number, shadowMode: ShadowMode): void {
 		if (numberOfPSSM > ShadowCasterPass._maxCascades) {
 			this._shadowMapCount = ShadowCasterPass._maxCascades;
 		}
@@ -133,38 +131,23 @@ export class ShadowCasterPass {
 			this._spiltDistance[i] = 0.0;
 		}
 		this._shadowMapTextureSize = shadowMapTextureSize;
-		this._shadowPCFOffset.x = 1.0 / this._shadowMapTextureSize;
-		this._shadowPCFOffset.y = 1.0 / this._shadowMapTextureSize;
-		this.setPCFType(PCFType);
-	}
+		this._shadowPCFOffset.x = 0.5 / this._shadowMapTextureSize;
+		this._shadowPCFOffset.y = 0.5 / this._shadowMapTextureSize;
 
-	setPCFType(PCFtype: number): void {
-		this._PCFType = PCFtype;
 		var defineData: ShaderData = this._scene._shaderValues;
-		switch (this._PCFType) {
-			case 0:
-				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3);
+		switch (shadowMode) {
+			case ShadowMode.None:
+			case ShadowMode.Hard:
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
 				break;
-			case 1:
-				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3);
+			case ShadowMode.SoftLow:
+				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
 				break;
-			case 2:
-				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3);
-				break;
-			case 3:
-				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2);
+			case ShadowMode.SoftHigh:
+				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
 				break;
 		}
 	}

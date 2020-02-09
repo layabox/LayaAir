@@ -77,7 +77,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private static _lightTexture: Texture2D;
 	/** @internal */
 	private static _lightPixles: Float32Array;
-	/** @internal */
+
 	static _shadowCasterPass: ShadowCasterPass = new ShadowCasterPass();
 
 	/**Hierarchy资源。*/
@@ -167,10 +167,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1 = Shader3D.getDefineByName("SHADOWMAP_PSSM1");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2 = Shader3D.getDefineByName("SHADOWMAP_PSSM2");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3 = Shader3D.getDefineByName("SHADOWMAP_PSSM3");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO = Shader3D.getDefineByName("SHADOWMAP_PCF_NO");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1 = Shader3D.getDefineByName("SHADOWMAP_PCF1");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2 = Shader3D.getDefineByName("SHADOWMAP_PCF2");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.getDefineByName("SHADOWMAP_PCF3");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_LOW");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_HIGH");
 		Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH = Shader3D.getDefineByName("GI_AMBIENT_SH");
 	}
 
@@ -983,10 +981,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_preCulling(context: RenderContext3D, camera: Camera, shader: Shader3D, replacementTag: string): void {
 		var cameraCullInfo: CameraCullInfo = FrustumCulling._cameraCullInfo;
-		cameraCullInfo.position=camera._transform.position;
-		cameraCullInfo.cullingMask=camera.cullingMask;
-		cameraCullInfo.boundFrustum=camera.boundFrustum;
-		cameraCullInfo.useOcclusionCulling=camera.useOcclusionCulling;
+		cameraCullInfo.position = camera._transform.position;
+		cameraCullInfo.cullingMask = camera.cullingMask;
+		cameraCullInfo.boundFrustum = camera.boundFrustum;
+		cameraCullInfo.useOcclusionCulling = camera.useOcclusionCulling;
 		FrustumCulling.renderObjectCulling(cameraCullInfo, this, context, shader, replacementTag, false);
 	}
 

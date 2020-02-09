@@ -6,11 +6,17 @@
 	uniform mediump sampler2D u_shadowMap1;
 	uniform mediump sampler2D u_shadowMap2;
 	uniform mediump sampler2D u_shadowMap3;
+	#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) texture2D(textureName,coord3.xy).r<coord3.z?0.0:1.0
+	#define TEXTURE2D_SHADOW_PARAM(shadowMap) sampler2D shadowMap
 #else
 	uniform mediump sampler2DShadow u_shadowMap1;
 	uniform mediump sampler2DShadow u_shadowMap2;
 	uniform mediump sampler2DShadow u_shadowMap3;
+	#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) texture2D(textureName,coord3)
+	#define TEXTURE2D_SHADOW_PARAM(shadowMap) sampler2DShadow shadowMap
 #endif
+
+
 
 uniform vec2 u_shadowPCFoffset;
 uniform vec4 u_shadowPSSMDistance;
@@ -30,175 +36,23 @@ float unpackDepth(const in vec4 rgbaDepth)
 	float depth = dot(rgbaDepth, bitShift);
 	return depth;
 }
-float tex2DPCF( sampler2D shadowMap,vec2 texcoord,vec2 invsize,float zRef )
-{
-	vec2 texelpos =texcoord / invsize;
-	vec2 lerps = fract( texelpos );
-	float sourcevals[4];
-	sourcevals[0] = float( texture2D(shadowMap,texcoord).r > zRef );
-	sourcevals[1] = float( texture2D(shadowMap,texcoord + vec2(invsize.x,0)).r > zRef );
-	sourcevals[2] = float( texture2D(shadowMap,texcoord + vec2(0,invsize.y)).r > zRef );
-	sourcevals[3] = float( texture2D(shadowMap,texcoord + vec2(invsize.x, invsize.y)).r > zRef );
-	return mix( mix(sourcevals[0],sourcevals[2],lerps.y),mix(sourcevals[1],sourcevals[3],lerps.y),lerps.x );
-}
-float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadowMap3,mat4 lightShadowVP[4],vec4 pssmDistance,vec2 shadowPCFOffset,vec3 worldPos,float posViewZ)
-{
-	float value = 1.0;
-	int nPSNum = int(posViewZ>pssmDistance.x);
-	nPSNum += int(posViewZ>pssmDistance.y);
-	nPSNum += int(posViewZ>pssmDistance.z);
-	//真SB,webgl不支持在PS中直接访问数组
-	mat4 lightVP;
-	if( nPSNum == 0 )
-	{
-		lightVP = lightShadowVP[1];
-	}
-	else if( nPSNum == 1 )
-	{
-		lightVP = lightShadowVP[2];
-	}
-	else if( nPSNum == 2 )
-	{
-		lightVP = lightShadowVP[3];
-	}
-	vec4 vLightMVPPos = lightVP * vec4(worldPos,1.0);
-	//为了效率，在CPU计算/2.0 + 0.5
-	//vec3 vText = (vLightMVPPos.xyz / vLightMVPPos.w)/2.0 + 0.5;
-	vec3 vText = vLightMVPPos.xyz / vLightMVPPos.w;
-	float fMyZ = vText.z;
-	/*
-	bvec4 bInFrustumVec = bvec4 ( vText.x >= 0.0, vText.x <= 1.0, vText.y >= 0.0, vText.y <= 1.0 );
-	bool bInFrustum = all( bInFrustumVec );
-	bvec2 bFrustumTestVec = bvec2( bInFrustum, fMyZ <= 1.0 );
-	bool bFrustumTest = all( bFrustumTestVec );
-	if ( bFrustumTest ) 
-	*/
-	if( fMyZ <= 1.0 )
-	{
-		float zdepth=0.0;
-		#ifdef SHADOWMAP_PCF2
-				if ( nPSNum == 0 )
-				{
-					value = tex2DPCF( shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
-				}
-				else if( nPSNum == 1 )
-				{
-					value = tex2DPCF( shadowMap2,vText.xy,shadowPCFOffset,fMyZ);
-				}
-				else if( nPSNum == 2 )
-				{
-					vec4 color = texture2D( shadowMap3,vText.xy );
-					zdepth = color.r;
-					value = float(fMyZ < zdepth);
-				}
 
-		#endif
-		#ifdef SHADOWMAP_PCF1
-				if ( nPSNum == 0 )
-				{
-					value = tex2DPCF( shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
-				}
-				else if( nPSNum == 1 )
-				{
-					vec4 color = texture2D( shadowMap2,vText.xy );
-					zdepth = color.r;
-					value = float(fMyZ < zdepth);
-				}
-				else if( nPSNum == 2 )
-				{
-					vec4 color = texture2D( shadowMap3,vText.xy );
-					zdepth = color.r;
-					value = float(fMyZ < zdepth);
-				}
-		#endif
-		#ifdef SHADOWMAP_PCF_NO
-				vec4 color;
-				if ( nPSNum == 0 )
-				{
-					color = texture2D( shadowMap1,vText.xy );
-				}
-				else if( nPSNum == 1 )
-				{
-					color = texture2D( shadowMap2,vText.xy );
-				}
-				else if( nPSNum == 2 )
-				{
-					color = texture2D( shadowMap3,vText.xy );
-				}
-				zdepth = color.r;
-				value = float(fMyZ < zdepth);
-		#endif
-	}
-	return value;
-}
-float getShadowPSSM2( sampler2D shadowMap1,sampler2D shadowMap2,mat4 lightShadowVP[4],vec4 pssmDistance,vec2 shadowPCFOffset,vec3 worldPos,float posViewZ )
+mediump float sampleShdowMapFiltered(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec2 halfTexelSize)
 {
-	float value = 1.0;
-	int nPSNum = int(posViewZ>pssmDistance.x);
-	nPSNum += int(posViewZ>pssmDistance.y);
-	//真SB,webgl不支持在PS中直接访问数组
-	mat4 lightVP;
-	if( nPSNum == 0 )
-	{
-		lightVP = lightShadowVP[1];
-	}
-	else if( nPSNum == 1 )
-	{
-		lightVP = lightShadowVP[2];
-	}
-	vec4 vLightMVPPos = lightVP * vec4(worldPos,1.0);
-	//为了效率，在CPU计算/2.0 + 0.5
-	//vec3 vText = (vLightMVPPos.xyz / vLightMVPPos.w)/2.0 + 0.5;
-	vec3 vText = vLightMVPPos.xyz / vLightMVPPos.w;
-	float fMyZ = vText.z;
-	/*
-	bvec4 bInFrustumVec = bvec4 ( vText.x >= 0.0, vText.x <= 1.0, vText.y >= 0.0, vText.y <= 1.0 );
-	bool bInFrustum = all( bInFrustumVec );
-	bvec2 bFrustumTestVec = bvec2( bInFrustum, fMyZ <= 1.0 );
-	bool bFrustumTest = all( bFrustumTestVec );
-	if ( bFrustumTest ) 
-	*/
-	if( fMyZ <= 1.0 )
-	{
-		float zdepth=0.0;
-		#ifdef SHADOWMAP_PCF2
-				if ( nPSNum == 0 )
-				{
-					value = tex2DPCF( shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
-				}
-				else if( nPSNum == 1 )
-				{
-					value = tex2DPCF( shadowMap2,vText.xy,shadowPCFOffset,fMyZ);
-				}
-		#endif
-		#ifdef SHADOWMAP_PCF1
-				if ( nPSNum == 0 )
-				{
-					value = tex2DPCF( shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
-				}
-				else if( nPSNum == 1 )
-				{
-					vec4 color = texture2D( shadowMap2,vText.xy );
-					zdepth = color.r;
-					value = float(fMyZ < zdepth);
-				}
-		#endif
-		#ifdef SHADOWMAP_PCF_NO
-				vec4 color;
-				if ( nPSNum == 0 )
-				{
-					color = texture2D( shadowMap1,vText.xy );
-				}
-				else if( nPSNum == 1 )
-				{
-					color = texture2D( shadowMap2,vText.xy );
-				}
-				zdepth = color.r;
-				value = float(fMyZ < zdepth);
-		#endif
-	}
-	return value;
+	mediump float attenuation;
+	vec4 attenuation4;
+	vec3 shadowCoord0=shadowCoord + vec3(-halfTexelSize,0.0);
+	vec3 shadowCoord1=shadowCoord + vec3(halfTexelSize.x,-halfTexelSize.y,0.0);
+	vec3 shadowCoord2=shadowCoord + vec3(-halfTexelSize.x,halfTexelSize.y,0.0);
+	vec3 shadowCoord3=shadowCoord + vec3(halfTexelSize,0.0);
+    attenuation4.x = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord0);
+    attenuation4.y = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord1);
+    attenuation4.z = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord2);
+    attenuation4.w = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord3);
+	attenuation = dot(attenuation4, vec4(0.25));
+	return attenuation;
 }
+
 float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec2 shadowPCFOffset,float posViewZ)
 {
 	float value = 1.0;
@@ -206,35 +60,21 @@ float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec2 shadowPCFOffset,flo
 	{
 		vec3 vText = lightMVPPos.xyz / lightMVPPos.w;
 		float fMyZ = vText.z;
-		/*
-		bvec4 bInFrustumVec = bvec4 ( vText.x >= 0.0, vText.x <= 1.0, vText.y >= 0.0, vText.y <= 1.0 );
-		bool bInFrustum = all( bInFrustumVec );
-		bvec2 bFrustumTestVec = bvec2( bInFrustum, fMyZ <= 1.0 );
-		bool bFrustumTest = all( bFrustumTestVec );
-		*/
 		if ( fMyZ <= 1.0 ) 
 		{
-			float zdepth=0.0;
-			#ifdef SHADOWMAP_PCF2		
-						value = tex2DPCF( u_shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
-			#endif
-			#ifdef SHADOWMAP_PCF1
-						value = tex2DPCF( u_shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
-			#endif
-			#ifdef SHADOWMAP_PCF_NO
-				#ifdef	NO_NATIVE_SHADOWMAP	
-					vec4 color = texture2D(u_shadowMap1,vText.xy );
-					zdepth = color.r;
-					value = float(fMyZ < zdepth);
-				#else
-					lowp float shadow = texture2D(u_shadowMap1,vText);
-					value = shadow;
-				#endif
+			#if defined(SHADOW_SOFT_SHADOW_HIGH)
+				value = sampleShdowMapFiltered(u_shadowMap1,vText,shadowPCFOffset);//TODO:验证shadowPCFOffset
+			#elif defined(SHADOW_SOFT_SHADOW_LOW)
+				value = sampleShdowMapFiltered(u_shadowMap1,vText,shadowPCFOffset);//TODO:
+			#else
+				value = SAMPLE_TEXTURE2D_SHADOW(u_shadowMap1,vText);
 			#endif
 		}
 	}
 	return value;
 }
+
+
 
 vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
 {

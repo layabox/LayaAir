@@ -2,7 +2,6 @@ import { Config3D } from "../../../../Config3D";
 import { Node } from "../../../display/Node";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
-import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { ShadowMode } from "./ShadowMode";
