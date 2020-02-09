@@ -16,22 +16,15 @@ import { WarpMode } from "../../../resource/WrapMode";
 export class ShadowUtils {
     /** @internal */
     private static _shadowTextureFormat: RenderTextureFormat;
-    /** @internal */
-    private static _shadowTextureFilterMode: FilterMode;
-
     /**
      * @internal
      */
     static init(): void {
         //some const value,only init once here.
-        if (LayaGL.layaGPUInstance._isWebGL2) {
+        if (LayaGL.layaGPUInstance._isWebGL2)
             ShadowUtils._shadowTextureFormat = RenderTextureFormat.ShadowMap;
-            ShadowUtils._shadowTextureFilterMode = FilterMode.Bilinear;
-        }
-        else {
+        else
             ShadowUtils._shadowTextureFormat = RenderTextureFormat.Depth;
-            ShadowUtils._shadowTextureFilterMode = FilterMode.Point;//TODO:webgl1.0是否也用blinear
-        }
     }
 
     /**
@@ -39,7 +32,7 @@ export class ShadowUtils {
      */
     static getTemporaryShadowTexture(witdh: number, height: number, depthFormat: RenderTextureDepthFormat): RenderTexture {
         var shadowMap: RenderTexture = RenderTexture.createFromPool(witdh, height, ShadowUtils._shadowTextureFormat, depthFormat);
-        shadowMap.filterMode = ShadowUtils._shadowTextureFilterMode;
+        shadowMap.filterMode = FilterMode.Bilinear;
         shadowMap.wrapModeU = WarpMode.Clamp;
         shadowMap.wrapModeV = WarpMode.Clamp;
         return shadowMap;

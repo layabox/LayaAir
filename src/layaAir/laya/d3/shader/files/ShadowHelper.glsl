@@ -3,20 +3,16 @@
 #endif
 
 #ifdef NO_NATIVE_SHADOWMAP
-	uniform mediump sampler2D u_shadowMap1;
-	uniform mediump sampler2D u_shadowMap2;
-	uniform mediump sampler2D u_shadowMap3;
+	#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2D textureName
 	#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) texture2D(textureName,coord3.xy).r<coord3.z?0.0:1.0
 	#define TEXTURE2D_SHADOW_PARAM(shadowMap) sampler2D shadowMap
 #else
-	uniform mediump sampler2DShadow u_shadowMap1;
-	uniform mediump sampler2DShadow u_shadowMap2;
-	uniform mediump sampler2DShadow u_shadowMap3;
+	#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2DShadow textureName
 	#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) texture2D(textureName,coord3)
 	#define TEXTURE2D_SHADOW_PARAM(shadowMap) sampler2DShadow shadowMap
 #endif
 
-
+TEXTURE2D_SHADOW(u_shadowMap1);
 
 uniform vec2 u_shadowPCFoffset;
 uniform vec4 u_shadowPSSMDistance;
@@ -37,7 +33,7 @@ float unpackDepth(const in vec4 rgbaDepth)
 	return depth;
 }
 
-mediump float sampleShdowMapFiltered(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec2 halfTexelSize)
+mediump float sampleShdowMapFiltered4(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec2 halfTexelSize)
 {
 	mediump float attenuation;
 	vec4 attenuation4;
@@ -53,6 +49,24 @@ mediump float sampleShdowMapFiltered(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shad
 	return attenuation;
 }
 
+// mediump float sampleShdowMapFiltered9(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec2 halfTexelSize)
+// {
+// 	mediump float attenuation;
+// 	float fetchesWeights[9];
+//     vec2 fetchesUV[9];
+//     SampleShadow_ComputeSamples_Tent_5x5(samplingData.shadowmapSize, shadowCoord.xy, fetchesWeights, fetchesUV);
+// 	attenuation = fetchesWeights[0] * SAMPLE_TEXTURE2D_SHADOW(ShadowMap, vec3(fetchesUV[0].xy, shadowCoord.z));
+//     attenuation += fetchesWeights[1] * SAMPLE_TEXTURE2D_SHADOW(ShadowMap, vec3(fetchesUV[1].xy, shadowCoord.z));
+//     attenuation += fetchesWeights[2] * SAMPLE_TEXTURE2D_SHADOW(ShadowMap, vec3(fetchesUV[2].xy, shadowCoord.z));
+//     attenuation += fetchesWeights[3] * SAMPLE_TEXTURE2D_SHADOW(ShadowMap, vec3(fetchesUV[3].xy, shadowCoord.z));
+//     attenuation += fetchesWeights[4] * SAMPLE_TEXTURE2D_SHADOW(ShadowMap, vec3(fetchesUV[4].xy, shadowCoord.z));
+//     attenuation += fetchesWeights[5] * SAMPLE_TEXTURE2D_SHADOW(ShadowMap, vec3(fetchesUV[5].xy, shadowCoord.z));
+//     attenuation += fetchesWeights[6] * SAMPLE_TEXTURE2D_SHADOW(ShadowMap, vec3(fetchesUV[6].xy, shadowCoord.z));
+//     attenuation += fetchesWeights[7] * SAMPLE_TEXTURE2D_SHADOW(ShadowMap, vec3(fetchesUV[7].xy, shadowCoord.z));
+//     attenuation += fetchesWeights[8] * SAMPLE_TEXTURE2D_SHADOW(ShadowMap, vec3(fetchesUV[8].xy, shadowCoord.z));
+// 	return attenuation;
+// }
+
 float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec2 shadowPCFOffset,float posViewZ)
 {
 	float value = 1.0;
@@ -63,9 +77,9 @@ float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec2 shadowPCFOffset,flo
 		if ( fMyZ <= 1.0 ) 
 		{
 			#if defined(SHADOW_SOFT_SHADOW_HIGH)
-				value = sampleShdowMapFiltered(u_shadowMap1,vText,shadowPCFOffset);//TODO:验证shadowPCFOffset
+				value = sampleShdowMapFiltered4(u_shadowMap1,vText,shadowPCFOffset);//TODO:验证shadowPCFOffset
 			#elif defined(SHADOW_SOFT_SHADOW_LOW)
-				value = sampleShdowMapFiltered(u_shadowMap1,vText,shadowPCFOffset);//TODO:
+				value = sampleShdowMapFiltered4(u_shadowMap1,vText,shadowPCFOffset);//TODO:
 			#else
 				value = SAMPLE_TEXTURE2D_SHADOW(u_shadowMap1,vText);
 			#endif
