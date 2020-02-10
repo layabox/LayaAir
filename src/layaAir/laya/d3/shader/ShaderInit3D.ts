@@ -10,6 +10,7 @@ import extendTerrainPS from "./files/extendTerrain.fs";
 import extendTerrainVS from "./files/extendTerrain.vs";
 import GlobalIllumination from "./files/GlobalIllumination.glsl";
 import LightingGLSL from "./files/Lighting.glsl";
+import ShadowSampleTentGLSL from "./files/ShadowSampleTent.glsl";
 import linePS from "./files/line.fs";
 import lineVS from "./files/line.vs";
 import MeshBlinnPhongPS from "./files/Mesh-BlinnPhong.fs";
@@ -74,6 +75,7 @@ export class ShaderInit3D {
 		Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3 = Shader3D.getDefineByName("GRAPHICS_API_GLES3");
 
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
+		Shader3D.addInclude("ShadowSampleTent.glsl", ShadowSampleTentGLSL);
 		Shader3D.addInclude("GlobalIllumination.glsl", GlobalIllumination)
 		Shader3D.addInclude("ShadowHelper.glsl", ShadowHelperGLSL);
 		Shader3D.addInclude("Colors.glsl", ColorsGLSL);
@@ -137,7 +139,7 @@ export class ShaderInit3D {
 			'u_shadowMap3': Shader3D.PERIOD_SCENE,
 			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
 			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
+			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 
 			//GI
 			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
@@ -428,7 +430,7 @@ export class ShaderInit3D {
 			'u_shadowMap3': Shader3D.PERIOD_SCENE,
 			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
 			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
+			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 			//legacy lighting
 			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
 			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,

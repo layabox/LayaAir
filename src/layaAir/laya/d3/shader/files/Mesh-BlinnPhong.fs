@@ -203,13 +203,13 @@ void main()
 	#ifdef RECEIVESHADOW
 		float shadowValue = 1.0;
 		#ifdef SHADOWMAP_PSSM3
-			shadowValue = getShadowPSSM3(u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ);
+			shadowValue = getShadowPSSM3(u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_ShadowMapSize,v_PositionWorld,v_posViewZ);
 		#endif
 		#ifdef SHADOWMAP_PSSM2
-			shadowValue = getShadowPSSM2(u_shadowMap1,u_shadowMap2,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ);
+			shadowValue = getShadowPSSM2(u_shadowMap1,u_shadowMap2,u_lightShadowVP,u_shadowPSSMDistance,u_ShadowMapSize,v_PositionWorld,v_posViewZ);
 		#endif 
 		#ifdef SHADOWMAP_PSSM1
-			shadowValue = getShadowPSSM1(v_lightMVPPos,u_shadowPSSMDistance,u_shadowPCFoffset,v_posViewZ);
+			shadowValue = getShadowPSSM1(v_lightMVPPos,u_shadowPSSMDistance,u_ShadowMapSize,v_posViewZ);
 		#endif
 		gl_FragColor =vec4(mainColor.rgb*(globalDiffuse + diffuse*shadowValue),mainColor.a);
 	#else

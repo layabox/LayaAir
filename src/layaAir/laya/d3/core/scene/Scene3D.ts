@@ -134,7 +134,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	static SHADOWDISTANCE: number = Shader3D.propertyNameToID("u_shadowPSSMDistance");
 	static SHADOWLIGHTVIEWPROJECT: number = Shader3D.propertyNameToID("u_lightShadowVP");
-	static SHADOWMAPPCFOFFSET: number = Shader3D.propertyNameToID("u_shadowPCFoffset");
+	static SHADOW_MAP_SIZE: number = Shader3D.propertyNameToID("u_ShadowMapSize");
 	static SHADOWMAPTEXTURE1: number = Shader3D.propertyNameToID("u_shadowMap1");
 	static SHADOWMAPTEXTURE2: number = Shader3D.propertyNameToID("u_shadowMap2");
 	static SHADOWMAPTEXTURE3: number = Shader3D.propertyNameToID("u_shadowMap3");

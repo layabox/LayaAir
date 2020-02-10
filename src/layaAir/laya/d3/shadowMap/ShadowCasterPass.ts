@@ -81,7 +81,7 @@ export class ShadowCasterPass {
 	/** @internal */
 	private _tempScaleMatrix44: Matrix4x4 = new Matrix4x4();
 	/** @internal */
-	private _shadowPCFOffset: Vector2 = new Vector2(1.0 / 1024.0, 1.0 / 1024.0);
+	private _shadowMapSize: Vector4 = new Vector4();
 	/** @internal */
 	private _shaderValueDistance: Vector4 = new Vector4();
 	/** @internal */
@@ -131,8 +131,6 @@ export class ShadowCasterPass {
 			this._spiltDistance[i] = 0.0;
 		}
 		this._shadowMapTextureSize = shadowMapTextureSize;
-		this._shadowPCFOffset.x = 0.5 / this._shadowMapTextureSize;
-		this._shadowPCFOffset.y = 0.5 / this._shadowMapTextureSize;
 
 		var defineData: ShaderData = this._scene._shaderValues;
 		switch (shadowMode) {
@@ -240,7 +238,7 @@ export class ShadowCasterPass {
 
 		sceneSV.setVector(ILaya3D.Scene3D.SHADOWDISTANCE, this._shaderValueDistance);
 		sceneSV.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
-		sceneSV.setVector2(ILaya3D.Scene3D.SHADOWMAPPCFOFFSET, this._shadowPCFOffset);
+		sceneSV.setVector(ILaya3D.Scene3D.SHADOW_MAP_SIZE, this._shadowMapSize);
 	}
 
 	/**
@@ -355,11 +353,12 @@ export class ShadowCasterPass {
 	}
 
 	setShadowMapTextureSize(size: number): void {
-		if (size !== this._shadowMapTextureSize) {
-			this._shadowMapTextureSize = size;
-			this._shadowPCFOffset.x = 1 / this._shadowMapTextureSize;
-			this._shadowPCFOffset.y = 1 / this._shadowMapTextureSize;
-		}
+		this._shadowMapTextureSize = size;
+		this._shadowMapSize.x = 1.0 / size;
+		this._shadowMapSize.y = 1.0 / size;
+		this._shadowMapSize.z = size;
+		this._shadowMapSize.w = size;
+
 	}
 
 

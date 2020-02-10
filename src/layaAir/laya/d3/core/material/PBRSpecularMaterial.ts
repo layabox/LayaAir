@@ -101,7 +101,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_shadowMap3': Shader3D.PERIOD_SCENE,
 			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
 			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
+			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 
 			//PBRGI
 			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,

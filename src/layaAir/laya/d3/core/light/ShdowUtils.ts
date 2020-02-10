@@ -16,6 +16,7 @@ import { WarpMode } from "../../../resource/WrapMode";
 export class ShadowUtils {
     /** @internal */
     private static _shadowTextureFormat: RenderTextureFormat;
+    
     /**
      * @internal
      */
