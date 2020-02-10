@@ -83,6 +83,8 @@ export class ShadowCasterPass {
 	/** @internal */
 	private _shadowMapSize: Vector4 = new Vector4();
 	/** @internal */
+	private _shadowParams: Vector4 = new Vector4();
+	/** @internal */
 	private _shaderValueDistance: Vector4 = new Vector4();
 	/** @internal */
 	private _shaderValueLightVP: Float32Array = null;
@@ -239,6 +241,8 @@ export class ShadowCasterPass {
 		sceneSV.setVector(ILaya3D.Scene3D.SHADOWDISTANCE, this._shaderValueDistance);
 		sceneSV.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
 		sceneSV.setVector(ILaya3D.Scene3D.SHADOW_MAP_SIZE, this._shadowMapSize);
+		this._shadowParams.setValue(this._light._shadowStrength, 0.0, 0.0, 0.0);
+		sceneSV.setVector(ILaya3D.Scene3D.SHADOW_PARAMS, this._shadowParams);
 	}
 
 	/**
@@ -299,17 +303,6 @@ export class ShadowCasterPass {
 
 			ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectViewMatrix, this._shaderValueVPs[this._currentPSSM]);
 		}
-	}
-
-	static ff: Vector3 = new Vector3();
-
-	_float32: Float32Array = new Float32Array(1);
-	/**
-	 * @internal
-	 */
-	_toFloat32(value: number): number {
-		this._float32[0] = value;
-		return this._float32[0];
 	}
 
 	/**

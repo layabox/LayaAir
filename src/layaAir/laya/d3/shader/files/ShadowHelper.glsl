@@ -17,6 +17,7 @@
 TEXTURE2D_SHADOW(u_shadowMap1);
 uniform vec4 u_ShadowMapSize;
 uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
+uniform vec4 u_ShadowParams; // x: shadowStrength
 uniform vec4 u_shadowPSSMDistance;
 
 vec4 packDepth(const in float depth)
@@ -71,7 +72,7 @@ float sampleShdowMapFiltered9(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord
 
 float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec4 shadowMapSize,float posViewZ)
 {
-	float value = 1.0;
+	float attenuation = 1.0;
 	if( posViewZ < pssmDistance.x )
 	{
 		vec3 vText = lightMVPPos.xyz / lightMVPPos.w;
@@ -79,15 +80,16 @@ float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec4 shadowMapSize,float
 		if ( fMyZ <= 1.0 ) 
 		{
 			#if defined(SHADOW_SOFT_SHADOW_HIGH)
-				value = sampleShdowMapFiltered9(u_shadowMap1,vText,shadowMapSize);
+				attenuation = sampleShdowMapFiltered9(u_shadowMap1,vText,shadowMapSize);
 			#elif defined(SHADOW_SOFT_SHADOW_LOW)
-				value = sampleShdowMapFiltered4(u_shadowMap1,vText,shadowMapSize);
+				attenuation = sampleShdowMapFiltered4(u_shadowMap1,vText,shadowMapSize);
 			#else
-				value = SAMPLE_TEXTURE2D_SHADOW(u_shadowMap1,vText);
+				attenuation = SAMPLE_TEXTURE2D_SHADOW(u_shadowMap1,vText);
 			#endif
+			attenuation = mix(1.0,attenuation,u_ShadowParams.x);//u_ShadowParams.x:shadow strength
 		}
 	}
-	return value;
+	return attenuation;
 }
 
 

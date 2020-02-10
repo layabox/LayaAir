@@ -97,8 +97,7 @@ export class PBRStandardMaterial extends PBRMaterial {
 
 			//Shadow
 			'u_shadowMap1': Shader3D.PERIOD_SCENE,
-			'u_shadowMap2': Shader3D.PERIOD_SCENE,
-			'u_shadowMap3': Shader3D.PERIOD_SCENE,
+			'u_ShadowParams': Shader3D.PERIOD_SCENE,
 			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
 			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
 			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
