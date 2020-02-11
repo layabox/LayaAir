@@ -88,7 +88,6 @@ export class LightSprite extends Sprite3D {
 
 	set shadowDistance(value: number) {
 		this._shadowDistance = value;
-		Scene3D._shadowCasterPass._maxDistance = value;
 	}
 
 	/**
@@ -100,7 +99,6 @@ export class LightSprite extends Sprite3D {
 
 	set shadowResolution(value: number) {
 		this._shadowResolution = value;
-		Scene3D._shadowCasterPass.setShadowMapTextureSize(value);
 	}
 
 	/**

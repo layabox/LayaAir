@@ -71,8 +71,6 @@ export class ShadowCasterPass {
 	/**@internal */
 	_shadowMapCount: number = 3;
 	/**@internal */
-	_maxDistance: number = 200.0;
-	/**@internal */
 	private _ratioOfDistance: number = 1.0 / this._shadowMapCount;
 
 	/**@internal */
@@ -143,7 +141,6 @@ export class ShadowCasterPass {
 			this._shadowMapCount = ShadowCasterPass._maxCascades;
 		}
 		this._scene = scene;
-		this._maxDistance = maxDistance;
 		this.shadowMapCount = numberOfPSSM;
 		this._ratioOfDistance = 1.0 / this._shadowMapCount;
 		for (var i: number = 0; i < this._spiltDistance.length; i++) {
@@ -227,7 +224,7 @@ export class ShadowCasterPass {
 		// var viewProjectMatrix: Matrix4x4 = this.getFrustumMatrix(sceneCamera);
 		var forward: Vector3 = ShadowCasterPass._tempVector30;
 		sceneCamera._transform.getForward(forward);//TODO:normalize测试
-		this.getBoundSphereByFrustum(sceneCamera.nearPlane, Math.min(sceneCamera.farPlane, this._maxDistance), sceneCamera.fieldOfView * MathUtils3D.Deg2Rad,
+		this.getBoundSphereByFrustum(sceneCamera.nearPlane, Math.min(sceneCamera.farPlane, this._light.shadowDistance), sceneCamera.fieldOfView * MathUtils3D.Deg2Rad,
 			sceneCamera.aspectRatio, sceneCamera._transform.position, forward, boundSphere);
 
 		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
@@ -412,7 +409,7 @@ export class ShadowCasterPass {
 	 * @internal
 	 */
 	private _calcSplitDistance(nearPlane: number): void {//TODO:删除
-		var far: number = this._maxDistance;
+		var far: number = this._light.shadowDistance;
 		var invNumberOfPSSM: number = 1.0 / this._shadowMapCount;
 		var i: number;
 		for (i = 0; i <= this._shadowMapCount; i++) {
