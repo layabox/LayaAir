@@ -34,7 +34,7 @@ void main()
 	#else
 		worldMat = u_WorldMat;
 	#endif
-
+	
 	#ifdef BONE
 		mat4 skinTransform = u_Bones[int(a_BoneIndices.x)] * a_BoneWeights.x;
 		skinTransform += u_Bones[int(a_BoneIndices.y)] * a_BoneWeights.y;
@@ -49,9 +49,8 @@ void main()
 	positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_LightDirection);
 
 	vec4 positionCS = u_ViewProjection * positionWS;
+	positionCS.z = max(positionCS.z, 0.0);//min ndc is 0.0
 
-
-	//positionCS.z = max(positionCS.z, positionCS.w * LAYA_NEAR_CLIP_VALUE);//	
 	//TODO没考虑UV动画呢
 	#if defined(DIFFUSEMAP)&&defined(ALPHATEST)
 		v_Texcoord0=a_Texcoord0;

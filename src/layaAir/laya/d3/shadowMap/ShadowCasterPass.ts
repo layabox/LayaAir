@@ -1,8 +1,8 @@
-import { ILaya3D } from "../../../ILaya3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
 import { Camera } from "../core/Camera";
 import { DirectionLight } from "../core/light/DirectionLight";
+import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowUtils } from "../core/light/ShdowUtils";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
@@ -14,9 +14,8 @@ import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
-import { ShaderData } from "../shader/ShaderData";
-import { ShadowMode } from "../core/light/ShadowMode";
 import { Shader3D } from "../shader/Shader3D";
+import { ShaderData } from "../shader/ShaderData";
 
 
 export class ShadowCasterPass {
@@ -255,14 +254,15 @@ export class ShadowCasterPass {
 			center.y = lightUp.y * upLen + lightSide.y * sideLen + lightForward.y * forwardLen;
 			center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
 
+			//direction light use shadow pancaking tech,do special dispose with nearPlane.
+			var nearPlane: number = this._light.shadowNearPlane;
 			var origin: Vector3 = ShadowCasterPass._tempVector31;
-			Vector3.scale(lightForward, radius, origin);
-			Vector3.subtract(center, origin, origin);
-
 			var projectViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix2;
 
+			Vector3.scale(lightForward, radius + nearPlane, origin);
+			Vector3.subtract(center, origin, origin);
 			Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
-			Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, this._light._shadowNearPlane, diam, projectMatrix);
+			Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
 			Matrix4x4.multiply(projectMatrix, viewMatrix, projectViewMatrix);
 
 			//TODO:剥离对Camera的依赖后可删除
