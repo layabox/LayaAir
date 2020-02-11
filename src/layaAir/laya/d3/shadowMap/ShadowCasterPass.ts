@@ -77,8 +77,6 @@ export class ShadowCasterPass {
 	/**@internal */
 	cameras: Camera[];
 	/**@internal */
-	private _scene: Scene3D = null;
-	/**@internal */
 	private _boundingSphere: BoundSphere[] = new Array<BoundSphere>(ShadowCasterPass._maxCascades + 1);
 	/**@internal */
 	_boundingBox: BoundBox[] = new Array<BoundBox>(ShadowCasterPass._maxCascades + 1);
@@ -133,18 +131,6 @@ export class ShadowCasterPass {
 		Matrix4x4.createScaling(new Vector3(0.5, 0.5, 1.0), this._tempScaleMatrix44);
 		this._tempScaleMatrix44.elements[12] = 0.5;
 		this._tempScaleMatrix44.elements[13] = 0.5;
-	}
-
-	setInfo(scene: Scene3D, maxDistance: number, globalParallelDir: Vector3, shadowMapTextureSize: number, numberOfPSSM: number, shadowMode: ShadowMode): void {
-		if (numberOfPSSM > ShadowCasterPass._maxCascades) {
-			this._shadowMapCount = ShadowCasterPass._maxCascades;
-		}
-		this._scene = scene;
-		this.shadowMapCount = numberOfPSSM;
-		this._ratioOfDistance = 1.0 / this._shadowMapCount;
-		for (var i: number = 0; i < this._spiltDistance.length; i++) {
-			this._spiltDistance[i] = 0.0;
-		}
 	}
 
 	set shadowMapCount(value: number) {
@@ -204,7 +190,7 @@ export class ShadowCasterPass {
 		var nearPlane: number = sceneCamera.nearPlane;
 		var fieldOfView: number = sceneCamera.fieldOfView;
 		var aspectRatio: number = (<Camera>sceneCamera).aspectRatio;
-		var shaderValues: ShaderData = this._scene._shaderValues;
+		var shaderValues: ShaderData = (<Scene3D>this._light._scene)._shaderValues;
 		this._recalculate(nearPlane, fieldOfView, aspectRatio);
 		this._setupShadowReceiverShaderValues(shaderValues);
 		var viewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
@@ -212,6 +198,8 @@ export class ShadowCasterPass {
 		this._getLightViewProject(sceneCamera, viewMatrix, projectMatrix);
 
 		ShadowUtils.getShadowBias(this._light, projectMatrix, this._light.shadowResolution, this._shadowBias);
+		this._light.transform.worldMatrix.getForward(this._light._direction);
+		Vector3.normalize(this._light._direction, this._light._direction);
 		this._setupShadowCasterShaderValues(shaderValues, this._light._direction, this._shadowBias);
 	}
 
@@ -233,9 +221,9 @@ export class ShadowCasterPass {
 		lightSide.setValue(lightWorld.getElementByRowColumn(0, 0), lightWorld.getElementByRowColumn(0, 1), lightWorld.getElementByRowColumn(0, 2));
 		lightUp.setValue(lightWorld.getElementByRowColumn(1, 0), lightWorld.getElementByRowColumn(1, 1), lightWorld.getElementByRowColumn(1, 2));
 		lightForward.setValue(-lightWorld.getElementByRowColumn(2, 0), -lightWorld.getElementByRowColumn(2, 1), -lightWorld.getElementByRowColumn(2, 2));
-		// Vector3.normalize(lightUp, lightUp);
-		// Vector3.normalize(lightSide, lightSide);
-		// Vector3.normalize(lightForward, lightForward);
+		Vector3.normalize(lightUp, lightUp);
+		Vector3.normalize(lightSide, lightSide);
+		Vector3.normalize(lightForward, lightForward);
 
 		var sizeSM: number = this._light.shadowResolution;
 		for (var i: number = 0; i < 1; i++) {//TODO: split
@@ -320,7 +308,7 @@ export class ShadowCasterPass {
 	start(): void {
 		var shadowMapSize: number = this._light.shadowResolution;
 		var shadowMap: RenderTexture = ShadowUtils.getTemporaryShadowTexture(shadowMapSize, shadowMapSize, RenderTextureDepthFormat.DEPTH_16);
-		var sceneSV: ShaderData = this._scene._shaderValues;
+		var sceneSV: ShaderData = (<Scene3D>this._light._scene)._shaderValues;
 		sceneSV.setTexture(ShadowCasterPass.SHADOWMAPTEXTURE1, shadowMap);
 		shadowMap._start();
 		this._shadowMap = shadowMap;
@@ -422,9 +410,8 @@ export class ShadowCasterPass {
 			this._logDistance[i] = nearPlane * n;
 		}
 
-		for (i = 0; i <= this._shadowMapCount; i++) {
+		for (i = 0; i <= this._shadowMapCount; i++)
 			this._spiltDistance[i] = this._uniformDistance[i] * this._ratioOfDistance + this._logDistance[i] * (1.0 - this._ratioOfDistance);
-		}
 
 		this._shaderValueDistance.x = (this._spiltDistance[1] != undefined) && (this._spiltDistance[1]);
 		this._shaderValueDistance.y = (this._spiltDistance[2] != undefined) && (this._spiltDistance[2]);
