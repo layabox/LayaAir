@@ -134,6 +134,8 @@ export class ShaderInit3D {
 			'u_LightBuffer': Shader3D.PERIOD_SCENE,
 			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
 			'u_AmbientColor': Shader3D.PERIOD_SCENE,
+			'u_ShadowBias': Shader3D.PERIOD_SCENE,
+			'u_LightDirection': Shader3D.PERIOD_SCENE,
 			'u_shadowMap1': Shader3D.PERIOD_SCENE,
 			'u_ShadowParams': Shader3D.PERIOD_SCENE,
 			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,

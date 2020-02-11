@@ -9,6 +9,9 @@ import { RenderTextureFormat, RenderTextureDepthFormat } from "../../../resource
 import { FilterMode } from "../../../resource/FilterMode";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { WarpMode } from "../../../resource/WrapMode";
+import { ShaderData } from "../../shader/ShaderData";
+import { Scene3D } from "../scene/Scene3D";
+import { Vector3 } from "../../math/Vector3";
 
 /**
  * @internal
@@ -16,7 +19,7 @@ import { WarpMode } from "../../../resource/WrapMode";
 export class ShadowUtils {
     /** @internal */
     private static _shadowTextureFormat: RenderTextureFormat;
-    
+
     /**
      * @internal
      */
@@ -77,8 +80,6 @@ export class ShadowUtils {
             depthBias *= kernelRadius;
             normalBias *= kernelRadius;
         }
-
         out.setValue(depthBias, normalBias, 0.0, 0.0);
     }
-
 }

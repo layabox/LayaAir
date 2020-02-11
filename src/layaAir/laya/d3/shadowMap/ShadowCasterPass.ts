@@ -16,6 +16,7 @@ import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
 import { ShadowMode } from "../core/light/ShadowMode";
+import { Shader3D } from "../shader/Shader3D";
 
 
 export class ShadowCasterPass {
@@ -48,6 +49,22 @@ export class ShadowCasterPass {
 	static _tempMatrix2: Matrix4x4 = new Matrix4x4();
 
 	/**@internal */
+	static SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
+	/**@internal */
+	static SHADOW_LIGHT_DIRECTION: number = Shader3D.propertyNameToID("u_ShadowLightDirection");
+
+	/**@internal */
+	static SHADOWDISTANCE: number = Shader3D.propertyNameToID("u_shadowPSSMDistance");
+	/**@internal */
+	static SHADOWLIGHTVIEWPROJECT: number = Shader3D.propertyNameToID("u_lightShadowVP");
+	/**@internal */
+	static SHADOW_MAP_SIZE: number = Shader3D.propertyNameToID("u_ShadowMapSize");
+	/**@internal */
+	static SHADOWMAPTEXTURE1: number = Shader3D.propertyNameToID("u_shadowMap1");
+	/**@internal */
+	static SHADOW_PARAMS: number = Shader3D.propertyNameToID("u_ShadowParams");
+
+	/**@internal */
 	private _spiltDistance: number[] = [];
 	/**@internal */
 	private _currentPSSM: number = -1;
@@ -62,8 +79,6 @@ export class ShadowCasterPass {
 	_light: DirectionLight;
 	/**@internal */
 	cameras: Camera[];
-	/**@internal */
-	private _shadowMapTextureSize: number = 1024;
 	/**@internal */
 	private _scene: Scene3D = null;
 	/**@internal */
@@ -90,6 +105,8 @@ export class ShadowCasterPass {
 	private _shaderValueLightVP: Float32Array = null;
 	/** @internal */
 	private _shaderValueVPs: Float32Array[];
+	/** @internal */
+	private _shadowBias: Vector4 = new Vector4();
 
 	_shadowMap: RenderTexture;
 
@@ -131,24 +148,6 @@ export class ShadowCasterPass {
 		this._ratioOfDistance = 1.0 / this._shadowMapCount;
 		for (var i: number = 0; i < this._spiltDistance.length; i++) {
 			this._spiltDistance[i] = 0.0;
-		}
-		this._shadowMapTextureSize = shadowMapTextureSize;
-
-		var defineData: ShaderData = this._scene._shaderValues;
-		switch (shadowMode) {
-			case ShadowMode.None:
-			case ShadowMode.Hard:
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
-				break;
-			case ShadowMode.SoftLow:
-				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
-				break;
-			case ShadowMode.SoftHigh:
-				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
-				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
-				break;
 		}
 	}
 
@@ -209,46 +208,21 @@ export class ShadowCasterPass {
 		var nearPlane: number = sceneCamera.nearPlane;
 		var fieldOfView: number = sceneCamera.fieldOfView;
 		var aspectRatio: number = (<Camera>sceneCamera).aspectRatio;
+		var shaderValues: ShaderData = this._scene._shaderValues;
 		this._recalculate(nearPlane, fieldOfView, aspectRatio);
-		this._uploadShaderValue();
-		this._getLightViewProject(sceneCamera);
+		this._setupShadowReceiverShaderValues(shaderValues);
+		var viewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
+		var projectMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix1;
+		this._getLightViewProject(sceneCamera, viewMatrix, projectMatrix);
+
+		ShadowUtils.getShadowBias(this._light, projectMatrix, this._light.shadowResolution, this._shadowBias);
+		this._setupShadowCasterShaderValues(shaderValues, this._light._direction, this._shadowBias);
 	}
 
 	/**
 	 * @internal
 	 */
-	private _uploadShaderValue(): void {
-		var sceneSV: ShaderData = this._scene._shaderValues;
-		switch (this._shadowMapCount) {
-			case 1:
-				sceneSV.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
-				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
-				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
-				break;
-			case 2:
-				sceneSV.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
-				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
-				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
-				break;
-			case 3:
-				sceneSV.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
-				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
-				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
-				break;
-		}
-
-
-		sceneSV.setVector(ILaya3D.Scene3D.SHADOWDISTANCE, this._shaderValueDistance);
-		sceneSV.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
-		sceneSV.setVector(ILaya3D.Scene3D.SHADOW_MAP_SIZE, this._shadowMapSize);
-		this._shadowParams.setValue(this._light._shadowStrength, 0.0, 0.0, 0.0);
-		sceneSV.setVector(ILaya3D.Scene3D.SHADOW_PARAMS, this._shadowParams);
-	}
-
-	/**
-	 * @internal
-	 */
-	private _getLightViewProject(sceneCamera: Camera): void {
+	private _getLightViewProject(sceneCamera: Camera, viewMatrix: Matrix4x4, projectMatrix: Matrix4x4): void {
 		var boundSphere: BoundSphere = ShadowCasterPass._tempBoundSphere0;
 		// var viewProjectMatrix: Matrix4x4 = this.getFrustumMatrix(sceneCamera);
 		var forward: Vector3 = ShadowCasterPass._tempVector30;
@@ -288,8 +262,6 @@ export class ShadowCasterPass {
 			Vector3.scale(lightForward, radius, origin);
 			Vector3.subtract(center, origin, origin);
 
-			var viewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
-			var projectMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix1;
 			var projectViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix2;
 
 			Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
@@ -345,23 +317,14 @@ export class ShadowCasterPass {
 		}
 	}
 
-	setShadowMapTextureSize(size: number): void {
-		this._shadowMapTextureSize = size;
-		this._shadowMapSize.x = 1.0 / size;
-		this._shadowMapSize.y = 1.0 / size;
-		this._shadowMapSize.z = size;
-		this._shadowMapSize.w = size;
-
-	}
-
-
 	/**
 	 * @internal
 	 */
 	start(): void {
-		var shadowMap: RenderTexture = ShadowUtils.getTemporaryShadowTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, RenderTextureDepthFormat.DEPTH_16);
+		var shadowMapSize: number = this._light.shadowResolution;
+		var shadowMap: RenderTexture = ShadowUtils.getTemporaryShadowTexture(shadowMapSize, shadowMapSize, RenderTextureDepthFormat.DEPTH_16);
 		var sceneSV: ShaderData = this._scene._shaderValues;
-		sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE1, shadowMap);
+		sceneSV.setTexture(ShadowCasterPass.SHADOWMAPTEXTURE1, shadowMap);
 		shadowMap._start();
 		this._shadowMap = shadowMap;
 	}
@@ -470,6 +433,58 @@ export class ShadowCasterPass {
 		this._shaderValueDistance.y = (this._spiltDistance[2] != undefined) && (this._spiltDistance[2]);
 		this._shaderValueDistance.z = (this._spiltDistance[3] != undefined) && (this._spiltDistance[3]);
 		this._shaderValueDistance.w = (this._spiltDistance[4] != undefined) && (this._spiltDistance[4]); //_spiltDistance[4]为undefine 微信小游戏
+	}
+
+	/**
+     * @internal
+     */
+	private _setupShadowCasterShaderValues(shaderValues: ShaderData, direction: Vector3, shadowBias: Vector4): void {
+		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
+		shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, direction);
+	}
+
+	/**
+	 * @internal
+	 */
+	private _setupShadowReceiverShaderValues(shaderValues: ShaderData): void {
+		switch (this._shadowMapCount) {
+			case 1:
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
+				break;
+			case 2:
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
+				break;
+			case 3:
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
+				break;
+		}
+		switch (this._light.shadowMode) {
+			case ShadowMode.Hard:
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
+				break;
+			case ShadowMode.SoftLow:
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
+				break;
+			case ShadowMode.SoftHigh:
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
+				break;
+		}
+		var shadowMapSize: number = this._light.shadowResolution;
+		this._shadowMapSize.setValue(1.0 / shadowMapSize, 1.0 / shadowMapSize, shadowMapSize, shadowMapSize);
+		shaderValues.setVector(ShadowCasterPass.SHADOWDISTANCE, this._shaderValueDistance);
+		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
+		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
+		this._shadowParams.setValue(this._light._shadowStrength, 0.0, 0.0, 0.0);
+		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
 	}
 }
 

@@ -92,8 +92,6 @@ float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec4 shadowMapSize,float
 	return attenuation;
 }
 
-
-
 vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
 {
     float invNdotL = 1.0 - clamp(dot(lightDirection, normalWS),0.0,1.0);
