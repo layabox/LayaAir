@@ -77,6 +77,7 @@ export class LightSprite extends Sprite3D {
 	}
 
 	set shadowMode(value: ShadowMode) {
+		this._shadowMode=value
 	}
 
 	/**

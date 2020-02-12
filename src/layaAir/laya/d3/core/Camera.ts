@@ -565,8 +565,9 @@ export class Camera extends BaseCamera {
 		if (mainLight && mainLight.shadowMode !== ShadowMode.None) {
 			context.pipelineMode = "ShadowCaster";
 			ShaderData.setRuntimeValueMode(false);
-			shadowCasterPass._light = mainLight;
+			
 			shadowCasterPass = Scene3D._shadowCasterPass;
+			shadowCasterPass._light = mainLight;
 			shadowCasterPass._calcAllLightCameraInfo(this);
 
 			var smCamera: Camera = shadowCasterPass.cameras[0];
