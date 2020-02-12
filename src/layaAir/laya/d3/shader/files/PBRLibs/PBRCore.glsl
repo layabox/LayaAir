@@ -155,18 +155,10 @@ void fragmentForward()
 	//Shadow
 	float shadowValue = 1.0;
 	#ifdef RECEIVESHADOW
-		#ifdef SHADOWMAP_PSSM3
-			shadowValue = getShadowPSSM3(u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_ShadowMapSize,v_PositionWorld,v_posViewZ);
-		#endif
-		#ifdef SHADOWMAP_PSSM2
-			shadowValue = getShadowPSSM2(u_shadowMap1,u_shadowMap2,u_lightShadowVP,u_shadowPSSMDistance,u_ShadowMapSize,v_PositionWorld,v_posViewZ);
-		#endif 
-		#ifdef SHADOWMAP_PSSM1
-			shadowValue = getShadowPSSM1(v_lightMVPPos,u_shadowPSSMDistance,u_ShadowMapSize,v_posViewZ);
-		#endif
+		shadowValue = sampleShadowmap(u_shadowMap1,u_shadowPSSMDistance,u_ShadowMapSize,u_ShadowParams);
 	#endif
 
-	 #ifdef LEGACYSINGLELIGHTING
+	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
 			LayaLight dirLight = layaDirectionLightToLight(u_DirectionLight,shadowValue);
 			color+= LAYA_BRDF_LIGHT(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,dirLight);

@@ -70,24 +70,20 @@ float sampleShdowMapFiltered9(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord
 	return attenuation;
 }
 
-float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec4 shadowMapSize,float posViewZ)
+float sampleShadowmap(TEXTURE2D_SHADOW_PARAM(shadowMap),vec4 shadowCoord,vec4 shadowMapSize,vec4 shadowParams)
 {
+	shadowCoord.xyz /= shadowCoord.w;
 	float attenuation = 1.0;
-	if( posViewZ < pssmDistance.x )
+	if(shadowCoord.z > 0.0 || shadowCoord.z < 1.0)
 	{
-		vec3 vText = lightMVPPos.xyz / lightMVPPos.w;
-		float fMyZ = vText.z;
-		if ( fMyZ <= 1.0 ) 
-		{
-			#if defined(SHADOW_SOFT_SHADOW_HIGH)
-				attenuation = sampleShdowMapFiltered9(u_shadowMap1,vText,shadowMapSize);
-			#elif defined(SHADOW_SOFT_SHADOW_LOW)
-				attenuation = sampleShdowMapFiltered4(u_shadowMap1,vText,shadowMapSize);
-			#else
-				attenuation = SAMPLE_TEXTURE2D_SHADOW(u_shadowMap1,vText);
-			#endif
-			attenuation = mix(1.0,attenuation,u_ShadowParams.x);//u_ShadowParams.x:shadow strength
-		}
+		#if defined(SHADOW_SOFT_SHADOW_HIGH)
+			attenuation = sampleShdowMapFiltered9(shadowMap,shadowCoord.xyz,shadowMapSize);
+		#elif defined(SHADOW_SOFT_SHADOW_LOW)
+			attenuation = sampleShdowMapFiltered4(shadowMap,shadowCoord.xyz,shadowMapSize);
+		#else
+			attenuation = SAMPLE_TEXTURE2D_SHADOW(shadowMap,shadowCoord.xyz);
+		#endif
+		attenuation = mix(1.0,attenuation,shadowParams.x);//shadowParams.x:shadow strength
 	}
 	return attenuation;
 }

@@ -194,16 +194,7 @@ vec3 globalDiffuse = u_AmbientColor;
 #endif
 
 #ifdef RECEIVESHADOW
-	float shadowValue = 1.0;
-	#ifdef SHADOWMAP_PSSM3
-		shadowValue = getShadowPSSM3( u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_ShadowMapSize,v_PositionWorld,v_posViewZ);
-	#endif
-	#ifdef SHADOWMAP_PSSM2
-		shadowValue = getShadowPSSM2( u_shadowMap1,u_shadowMap2,u_lightShadowVP,u_shadowPSSMDistance,u_ShadowMapSize,v_PositionWorld,v_posViewZ);
-	#endif 
-	#ifdef SHADOWMAP_PSSM1
-		shadowValue = getShadowPSSM1(v_lightMVPPos,u_shadowPSSMDistance,u_ShadowMapSize,v_posViewZ);
-	#endif
+	float shadowValue = shadowValue = sampleShadowmap(u_shadowMap1,v_lightMVPPos,u_ShadowMapSize,u_ShadowParams);
 	gl_FragColor = vec4(gl_FragColor.rgb * (globalDiffuse + diffuse) * shadowValue, gl_FragColor.a);
 #else
 	gl_FragColor = vec4(gl_FragColor.rgb * (globalDiffuse + diffuse), gl_FragColor.a);
