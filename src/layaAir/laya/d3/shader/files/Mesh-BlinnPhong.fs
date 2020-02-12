@@ -200,19 +200,16 @@ void main()
 		#endif
 	#endif
 
+	//TODO：应该逐灯光设置
 	#ifdef RECEIVESHADOW
 		float shadowValue = sampleShadowmap(u_shadowMap1,v_lightMVPPos,u_ShadowMapSize,u_ShadowParams);
-		gl_FragColor =vec4(mainColor.rgb*(globalDiffuse + diffuse*shadowValue),mainColor.a);
-	#else
-		gl_FragColor =vec4(mainColor.rgb*(globalDiffuse + diffuse),mainColor.a);
+		diffuse*= shadowValue;
 	#endif
 
+	gl_FragColor =vec4(mainColor.rgb*(globalDiffuse + diffuse),mainColor.a);
+
 	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-		#ifdef RECEIVESHADOW
-			gl_FragColor.rgb+=specular*shadowValue;
-		#else
-			gl_FragColor.rgb+=specular;
-		#endif
+		gl_FragColor.rgb+=specular;
 	#endif
 	  
 	#ifdef FOG
