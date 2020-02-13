@@ -20,21 +20,6 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 uniform vec4 u_ShadowParams; // x: shadowStrength
 uniform vec4 u_shadowPSSMDistance;
 
-vec4 packDepth(const in float depth)
-{
-	const vec4 bitShift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);
-	const vec4 bitMask	= vec4(0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0);
-	vec4 res = mod(depth*bitShift*vec4(255), vec4(256))/vec4(255);
-	res -= res.xxyz * bitMask;
-	return res;
-}
-float unpackDepth(const in vec4 rgbaDepth)
-{
-	const vec4 bitShift = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
-	float depth = dot(rgbaDepth, bitShift);
-	return depth;
-}
-
 float sampleShdowMapFiltered4(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowMapSize)
 {
 	float attenuation;
