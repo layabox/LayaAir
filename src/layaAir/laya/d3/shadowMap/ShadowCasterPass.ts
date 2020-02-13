@@ -186,7 +186,7 @@ export class ShadowCasterPass {
 		var projectMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix1;
 		this._getLightViewProject(sceneCamera, viewMatrix, projectMatrix);
 
-		ShadowUtils.getShadowBias(this._light, projectMatrix, this._light.shadowResolution, this._shadowBias);
+		ShadowUtils.getShadowBias(this._light, projectMatrix, this._light._shadowResolution, this._shadowBias);
 		this._light.transform.worldMatrix.getForward(this._light._direction);
 		Vector3.normalize(this._light._direction, this._light._direction);
 		this._setupShadowCasterShaderValues(shaderValues, this._light._direction, this._shadowBias);
@@ -200,7 +200,7 @@ export class ShadowCasterPass {
 		// var viewProjectMatrix: Matrix4x4 = this.getFrustumMatrix(sceneCamera);
 		var forward: Vector3 = ShadowCasterPass._tempVector30;
 		sceneCamera._transform.getForward(forward);//TODO:normalize测试
-		this.getBoundSphereByFrustum(sceneCamera.nearPlane, Math.min(sceneCamera.farPlane, this._light.shadowDistance), sceneCamera.fieldOfView * MathUtils3D.Deg2Rad,
+		this.getBoundSphereByFrustum(sceneCamera.nearPlane, Math.min(sceneCamera.farPlane, this._light._shadowDistance), sceneCamera.fieldOfView * MathUtils3D.Deg2Rad,
 			sceneCamera.aspectRatio, sceneCamera._transform.position, forward, boundSphere);
 
 		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
@@ -214,7 +214,7 @@ export class ShadowCasterPass {
 		Vector3.normalize(lightSide, lightSide);
 		Vector3.normalize(lightForward, lightForward);
 
-		var sizeSM: number = this._light.shadowResolution;
+		var sizeSM: number = this._light._shadowResolution;
 		for (var i: number = 0; i < 1; i++) {//TODO: split
 			var center: Vector3 = boundSphere.center;
 			var radius: number = boundSphere.radius;
@@ -295,7 +295,7 @@ export class ShadowCasterPass {
 	 * @internal
 	 */
 	start(): void {
-		var shadowMapSize: number = this._light.shadowResolution;
+		var shadowMapSize: number = this._light._shadowResolution;
 		var shadowMap: RenderTexture = ShadowUtils.getTemporaryShadowTexture(shadowMapSize, shadowMapSize, RenderTextureDepthFormat.DEPTH_16);
 		var sceneSV: ShaderData = (<Scene3D>this._light._scene)._shaderValues;
 		sceneSV.setTexture(ShadowCasterPass.SHADOWMAPTEXTURE1, shadowMap);
@@ -386,7 +386,7 @@ export class ShadowCasterPass {
 	 * @internal
 	 */
 	private _calcSplitDistance(nearPlane: number): void {//TODO:删除
-		var far: number = this._light.shadowDistance;
+		var far: number = this._light._shadowDistance;
 		var invNumberOfPSSM: number = 1.0 / this._shadowMapCount;
 		var i: number;
 		for (i = 0; i <= this._shadowMapCount; i++) {
@@ -451,7 +451,7 @@ export class ShadowCasterPass {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
 				break;
 		}
-		var shadowMapSize: number = this._light.shadowResolution;
+		var shadowMapSize: number = this._light._shadowResolution;
 		this._shadowMapSize.setValue(1.0 / shadowMapSize, 1.0 / shadowMapSize, shadowMapSize, shadowMapSize);
 		shaderValues.setVector(ShadowCasterPass.SHADOWDISTANCE, this._shaderValueDistance);
 		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHT_VIEW_PROJECTS, this._shaderValueLightVP);
