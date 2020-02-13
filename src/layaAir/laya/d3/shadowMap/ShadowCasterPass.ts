@@ -66,8 +66,6 @@ export class ShadowCasterPass {
 	/**@internal */
 	private _spiltDistance: number[] = [];
 	/**@internal */
-	private _currentPSSM: number = -1;
-	/**@internal */
 	_shadowMapCount: number = 3;
 	/**@internal */
 	private _ratioOfDistance: number = 1.0 / this._shadowMapCount;
@@ -149,16 +147,9 @@ export class ShadowCasterPass {
 
 
 	private _beginSampler(index: number, sceneCamera: Camera): void {
-		this._currentPSSM = index;
 		this._update(index, sceneCamera);
 	}
 
-	/**
-	 * @internal
-	 */
-	endSampler(sceneCamera: Camera): void {
-		this._currentPSSM = -1;
-	}
 
 	/**
 	 * @internal
@@ -166,11 +157,9 @@ export class ShadowCasterPass {
 	_calcAllLightCameraInfo(sceneCamera: Camera): void {
 		if (this._shadowMapCount === 1) {
 			this._beginSampler(0, sceneCamera);
-			this.endSampler(sceneCamera);
 		} else {
 			for (var i: number = 0, n: number = this._shadowMapCount + 1; i < n; i++) {
 				this._beginSampler(i, sceneCamera);
-				this.endSampler(sceneCamera);
 			}
 		}
 	}
@@ -254,11 +243,11 @@ export class ShadowCasterPass {
 			Matrix4x4.multiply(projectMatrix, viewMatrix, projectViewMatrix);
 
 			//TODO:剥离对Camera的依赖后可删除
-			var curLightCamera: Camera = this.cameras[this._currentPSSM];
+			var curLightCamera: Camera = this.cameras[0];
 			viewMatrix.cloneTo(curLightCamera.viewMatrix);
 			projectMatrix.cloneTo(curLightCamera.projectionMatrix);
 
-			ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectViewMatrix, this._shaderValueVPs[this._currentPSSM]);
+			ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectViewMatrix, this._shaderValueVPs[0]);
 		}
 	}
 
