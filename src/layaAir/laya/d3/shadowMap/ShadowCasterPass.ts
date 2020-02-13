@@ -16,7 +16,6 @@ import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
-import { Plane } from "../math/Plane";
 
 
 export class ShadowCasterPass {
@@ -68,8 +67,6 @@ export class ShadowCasterPass {
 	private _spiltDistance: number[] = [];
 	/**@internal */
 	_shadowMapCount: number = 3;
-	/**@internal */
-	private _ratioOfDistance: number = 1.0 / this._shadowMapCount;
 
 	/**@internal */
 	_light: DirectionLight;
@@ -81,10 +78,6 @@ export class ShadowCasterPass {
 	_boundingBox: BoundBox[] = new Array<BoundBox>(ShadowCasterPass._maxCascades + 1);
 	/**@internal */
 	private _frustumPos: Vector3[] = new Array<Vector3>((ShadowCasterPass._maxCascades + 1) * 4);
-	/**@internal */
-	private _uniformDistance: number[] = new Array<number>(ShadowCasterPass._maxCascades + 1);
-	/**@internal */
-	private _logDistance: number[] = new Array<number>(ShadowCasterPass._maxCascades + 1);
 	/**@internal */
 	private _dimension: Vector2[] = new Array<Vector2>(ShadowCasterPass._maxCascades + 1);
 	/** @internal */
@@ -137,7 +130,6 @@ export class ShadowCasterPass {
 		value = value <= ShadowCasterPass._maxCascades ? value : ShadowCasterPass._maxCascades;
 		if (this._shadowMapCount != value) {
 			this._shadowMapCount = value;
-			this._ratioOfDistance = 1.0 / this._shadowMapCount;
 
 			this._shaderValueLightVP = new Float32Array(value * 16);
 			this._shaderValueVPs.length = value;
@@ -169,7 +161,6 @@ export class ShadowCasterPass {
 	 * @internal
 	 */
 	private _recalculate(nearPlane: number, fieldOfView: number, aspectRatio: number): void {
-		this._calcSplitDistance(nearPlane);
 		this._rebuildRenderInfo();
 	}
 
@@ -371,32 +362,6 @@ export class ShadowCasterPass {
 		outBoundSphere.radius = lastFrustumSphere.y;
 		Vector3.scale(forward, lastFrustumSphere.x, center);
 		Vector3.add(cameraPos, center, center);
-	}
-
-	/**
-	 * @internal
-	 */
-	private _calcSplitDistance(nearPlane: number): void {//TODO:删除
-		var far: number = this._light._shadowDistance;
-		var invNumberOfPSSM: number = 1.0 / this._shadowMapCount;
-		var i: number;
-		for (i = 0; i <= this._shadowMapCount; i++) {
-			this._uniformDistance[i] = nearPlane + (far - nearPlane) * i * invNumberOfPSSM;
-		}
-
-		var farDivNear: number = far / nearPlane;
-		for (i = 0; i <= this._shadowMapCount; i++) {
-			var n: number = Math.pow(farDivNear, i * invNumberOfPSSM);
-			this._logDistance[i] = nearPlane * n;
-		}
-
-		for (i = 0; i <= this._shadowMapCount; i++)
-			this._spiltDistance[i] = this._uniformDistance[i] * this._ratioOfDistance + this._logDistance[i] * (1.0 - this._ratioOfDistance);
-
-		this._shaderValueDistance.x = (this._spiltDistance[1] != undefined) && (this._spiltDistance[1]);
-		this._shaderValueDistance.y = (this._spiltDistance[2] != undefined) && (this._spiltDistance[2]);
-		this._shaderValueDistance.z = (this._spiltDistance[3] != undefined) && (this._spiltDistance[3]);
-		this._shaderValueDistance.w = (this._spiltDistance[4] != undefined) && (this._spiltDistance[4]); //_spiltDistance[4]为undefine 微信小游戏
 	}
 
 	/**
