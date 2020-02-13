@@ -36,7 +36,7 @@ import CompositePS from "./files/postProcess/Composite.fs";
 import CompositeVS from "./files/postProcess/Composite.vs";
 import SamplingGLSL from "./files/postProcess/Sampling.glsl";
 import StdLibGLSL from "./files/postProcess/StdLib.glsl";
-import ShadowHelperGLSL from "./files/ShadowHelper.glsl";
+import ShadowGLSL from "./files/Shadow.glsl";
 import ShadowCasterVSGLSL from "./files/ShadowCasterVS.glsl";
 import ShadowCasterFSGLSL from "./files/ShadowCasterFS.glsl";
 import SkyBoxPS from "./files/SkyBox.fs";
@@ -77,7 +77,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
 		Shader3D.addInclude("ShadowSampleTent.glsl", ShadowSampleTentGLSL);
 		Shader3D.addInclude("GlobalIllumination.glsl", GlobalIllumination)
-		Shader3D.addInclude("ShadowHelper.glsl", ShadowHelperGLSL);
+		Shader3D.addInclude("Shadow.glsl", ShadowGLSL);
 		Shader3D.addInclude("ShadowCasterVS.glsl", ShadowCasterVSGLSL);
 		Shader3D.addInclude("ShadowCasterFS.glsl", ShadowCasterFSGLSL);
 		Shader3D.addInclude("Colors.glsl", ColorsGLSL);

@@ -1,5 +1,5 @@
 #include "Lighting.glsl";
-#include "ShadowHelper.glsl";
+#include "Shadow.glsl";
 
 attribute vec4 a_Position;
 

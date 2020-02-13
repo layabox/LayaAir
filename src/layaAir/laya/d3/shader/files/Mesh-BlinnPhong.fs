@@ -82,7 +82,7 @@ varying vec3 v_Normal;
 
 #include "GlobalIllumination.glsl";//"GlobalIllumination.glsl use uniform should at front of this
 
-#include "ShadowHelper.glsl"
+#include "Shadow.glsl"
 #ifdef RECEIVESHADOW
 	varying vec4 v_lightMVPPos;
 #endif

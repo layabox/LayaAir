@@ -39,7 +39,7 @@
 	#endif
 #endif
 
-#include "ShadowHelper.glsl"
+#include "Shadow.glsl"
 #ifdef RECEIVESHADOW
 	#ifdef SHADOWMAP_PSSM1 
 	varying vec4 v_lightMVPPos;
