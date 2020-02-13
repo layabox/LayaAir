@@ -7,6 +7,22 @@ import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
 
 /**
+ * 锥体角点。
+ */
+export enum FrustumCorner {
+	FarBottomLeft = 0,
+	FarTopLeft = 1,
+	FarTopRight = 2,
+	FarBottomRight = 3,
+	nearBottomLeft = 4,
+	nearTopLeft = 5,
+	nearTopRight = 6,
+	nearBottomRight = 7,
+	unknown = 8
+}
+
+
+/**
  * <code>BoundFrustum</code> 类用于创建锥截体。
  */
 export class BoundFrustum {
@@ -244,7 +260,7 @@ export class BoundFrustum {
 	 * @param  p2  平面2。
 	 * @param  p3  平面3。
 	 */
-	private static _get3PlaneInterPoint(p1: Plane, p2: Plane, p3: Plane): Vector3 {
+	private static _get3PlaneInterPoint(p1: Plane, p2: Plane, p3: Plane, out: Vector3): void {
 		var p1Nor: Vector3 = p1.normal;
 		var p2Nor: Vector3 = p2.normal;
 		var p3Nor: Vector3 = p3.normal;
@@ -262,11 +278,7 @@ export class BoundFrustum {
 		Vector3.scale(BoundFrustum._tempV32, -p3.distance / c, BoundFrustum._tempV35);
 
 		Vector3.add(BoundFrustum._tempV33, BoundFrustum._tempV34, BoundFrustum._tempV36);
-		Vector3.add(BoundFrustum._tempV35, BoundFrustum._tempV36, BoundFrustum._tempV37);
-
-		var v: Vector3 = BoundFrustum._tempV37;
-
-		return v;
+		Vector3.add(BoundFrustum._tempV35, BoundFrustum._tempV36, out);
 	}
 
 	/**
@@ -274,14 +286,14 @@ export class BoundFrustum {
 	 * @param  corners  返回顶点的输出队列。
 	 */
 	getCorners(corners: Vector3[]): void {
-		BoundFrustum._get3PlaneInterPoint(this._near, this._bottom, this._right).cloneTo(corners[0]);
-		BoundFrustum._get3PlaneInterPoint(this._near, this._top, this._right).cloneTo(corners[1]);
-		BoundFrustum._get3PlaneInterPoint(this._near, this._top, this._left).cloneTo(corners[2]);
-		BoundFrustum._get3PlaneInterPoint(this._near, this._bottom, this._left).cloneTo(corners[3]);
-		BoundFrustum._get3PlaneInterPoint(this._far, this._bottom, this._right).cloneTo(corners[4]);
-		BoundFrustum._get3PlaneInterPoint(this._far, this._top, this._right).cloneTo(corners[5]);
-		BoundFrustum._get3PlaneInterPoint(this._far, this._top, this._left).cloneTo(corners[6]);
-		BoundFrustum._get3PlaneInterPoint(this._far, this._bottom, this._left).cloneTo(corners[7]);
+		BoundFrustum._get3PlaneInterPoint(this._near, this._bottom, this._right, corners[FrustumCorner.nearBottomRight]);
+		BoundFrustum._get3PlaneInterPoint(this._near, this._top, this._right, corners[FrustumCorner.nearTopRight]);
+		BoundFrustum._get3PlaneInterPoint(this._near, this._top, this._left, corners[FrustumCorner.nearTopLeft]);
+		BoundFrustum._get3PlaneInterPoint(this._near, this._bottom, this._left, corners[FrustumCorner.nearBottomLeft]);
+		BoundFrustum._get3PlaneInterPoint(this._far, this._bottom, this._right, corners[FrustumCorner.FarBottomRight]);
+		BoundFrustum._get3PlaneInterPoint(this._far, this._top, this._right, corners[FrustumCorner.FarTopRight]);
+		BoundFrustum._get3PlaneInterPoint(this._far, this._top, this._left, corners[FrustumCorner.FarTopLeft]);
+		BoundFrustum._get3PlaneInterPoint(this._far, this._bottom, this._left, corners[FrustumCorner.FarBottomLeft]);
 	}
 
 	/**

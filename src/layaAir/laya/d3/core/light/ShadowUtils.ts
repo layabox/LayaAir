@@ -2,16 +2,28 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { FilterMode } from "../../../resource/FilterMode";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../../resource/RenderTextureFormat";
 import { WarpMode } from "../../../resource/WrapMode";
+import { BoundFrustum, FrustumCorner } from "../../math/BoundFrustum";
 import { MathUtils3D } from "../../math/MathUtils3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Plane } from "../../math/Plane";
+import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { LightSprite, LightType } from "./LightSprite";
 import { ShadowMode } from "./ShadowMode";
 import { SpotLight } from "./SpotLight";
-import { Camera } from "../Camera";
-import { BoundFrustum } from "../../math/BoundFrustum";
-import { Plane } from "../../math/Plane";
+
+/**
+ * @internal
+ */
+enum FrustumFace {
+    Near = 0,
+    Far = 1,
+    Left = 2,
+    Right = 3,
+    Bottom = 4,
+    Top = 5,
+}
 
 /**
  * @internal
@@ -19,6 +31,36 @@ import { Plane } from "../../math/Plane";
 export class ShadowUtils {
     /** @internal */
     private static _shadowTextureFormat: RenderTextureFormat;
+
+    /** @internal */
+    private static _frustumCorners: Array<Vector3> = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
+    /** @internal */
+    private static _frustumPlanes: Array<Plane> = new Array(6);
+    /** @internal */
+    private static _backPlaneFaces: Array<FrustumFace> = new Array(5);
+    /** @internal */
+    private static _edgePlanePoint2: Vector3 = new Vector3();
+    /** @internal */
+    private static _edgePlanePool: Array<Plane> = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
+
+    /** @internal */
+    private static _frustumPlaneNeighbors: Array<Array<FrustumFace>> = [
+        [FrustumFace.Left, FrustumFace.Right, FrustumFace.Top, FrustumFace.Bottom],// near
+        [FrustumFace.Left, FrustumFace.Right, FrustumFace.Top, FrustumFace.Bottom],// far
+        [FrustumFace.Near, FrustumFace.Far, FrustumFace.Top, FrustumFace.Bottom],// left
+        [FrustumFace.Near, FrustumFace.Far, FrustumFace.Top, FrustumFace.Bottom],// right
+        [FrustumFace.Near, FrustumFace.Far, FrustumFace.Left, FrustumFace.Right],// bottom
+        [FrustumFace.Near, FrustumFace.Far, FrustumFace.Left, FrustumFace.Right]];// top
+
+    /** @internal */
+    private static _frustumTwoPlaneCorners: Array<Array<Array<FrustumCorner>>> = [
+        [[FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.nearTopLeft, FrustumCorner.nearBottomLeft], [FrustumCorner.nearBottomRight, FrustumCorner.nearTopRight], [FrustumCorner.nearBottomLeft, FrustumCorner.nearBottomRight], [FrustumCorner.nearTopRight, FrustumCorner.nearTopLeft]],// near
+        [[FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.FarBottomLeft, FrustumCorner.FarTopLeft], [FrustumCorner.FarTopRight, FrustumCorner.FarBottomRight], [FrustumCorner.FarBottomRight, FrustumCorner.FarBottomLeft], [FrustumCorner.FarTopLeft, FrustumCorner.FarTopRight]],// far
+        [[FrustumCorner.nearBottomLeft, FrustumCorner.nearTopLeft], [FrustumCorner.FarTopLeft, FrustumCorner.FarBottomLeft], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.FarBottomLeft, FrustumCorner.nearBottomLeft], [FrustumCorner.nearTopLeft, FrustumCorner.FarTopLeft]],// left
+        [[FrustumCorner.nearTopRight, FrustumCorner.nearBottomRight], [FrustumCorner.FarBottomRight, FrustumCorner.FarTopRight], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.nearBottomRight, FrustumCorner.FarBottomRight], [FrustumCorner.FarTopRight, FrustumCorner.nearTopRight]],// right
+        [[FrustumCorner.nearBottomRight, FrustumCorner.nearBottomLeft], [FrustumCorner.FarBottomLeft, FrustumCorner.FarBottomRight], [FrustumCorner.nearBottomLeft, FrustumCorner.FarBottomLeft], [FrustumCorner.FarBottomRight, FrustumCorner.nearBottomRight], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown]],// bottom
+        [[FrustumCorner.nearTopLeft, FrustumCorner.nearTopRight], [FrustumCorner.FarTopRight, FrustumCorner.FarTopLeft], [FrustumCorner.FarTopLeft, FrustumCorner.nearTopLeft], [FrustumCorner.nearTopRight, FrustumCorner.FarTopRight], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown]]// top
+    ];
 
     /**
      * @internal
@@ -83,15 +125,60 @@ export class ShadowUtils {
         out.setValue(depthBias, normalBias, 0.0, 0.0);
     }
 
+
+
     /**
 	 * @internal
 	 */
-    static getDirationLightShadowCullPlanes(frustum: BoundFrustum, out: Array<Plane>): void {
-        var left: Plane = frustum._left;
-        var right: Plane = frustum._right;
-        var top: Plane = frustum._top;
-        var bottom: Plane = frustum._bottom;
-        var near: Plane = frustum._near;
-        var far: Plane = frustum._far;
+    static getDirationLightShadowCullPlanes(frustum: BoundFrustum, direction: Vector3, out: Array<Plane>): number {
+        var frustumPlanes: Array<Plane> = ShadowUtils._frustumPlanes;
+        var frustumCorners: Array<Vector3> = ShadowUtils._frustumCorners;
+        var backPlaneFaces: Array<FrustumFace> = ShadowUtils._backPlaneFaces;
+        var planeNeighbors: Array<Array<FrustumFace>> = ShadowUtils._frustumPlaneNeighbors;
+        var twoPlaneCorners: Array<Array<Array<FrustumCorner>>> = ShadowUtils._frustumTwoPlaneCorners;
+        var edgePlanePool: Array<Plane> = ShadowUtils._edgePlanePool;
+        var edgePlanePoint2: Vector3 = ShadowUtils._edgePlanePoint2;
+        frustumPlanes[FrustumFace.Near] = frustum._near;
+        frustumPlanes[FrustumFace.Far] = frustum._far;
+        frustumPlanes[FrustumFace.Left] = frustum._left;
+        frustumPlanes[FrustumFace.Right] = frustum._right;
+        frustumPlanes[FrustumFace.Bottom] = frustum._bottom;
+        frustumPlanes[FrustumFace.Top] = frustum._top;
+        frustum.getCorners(frustumCorners);
+
+        var backIndex: number = 0;
+        for (var i: FrustumFace = 0; i < 6; i++) {//meybe 3,maybe 5(light eye is at far, forward is near, or orth camera is any axis)
+            var plane: Plane = frustumPlanes[i];
+            if (Vector3.dot(plane.normal, direction) < 0.0) {
+                out[backIndex] = plane;
+                backPlaneFaces[backIndex] = i;
+                backIndex++;
+            }
+        }
+
+        var edgeIndex: number = backIndex;
+        for (var i: FrustumFace = 0; i < backIndex; i++) {
+            var backFace: FrustumFace = backPlaneFaces[i];
+            var neighborFaces: Array<FrustumFace> = planeNeighbors[backFace];
+            for (var j: number = 0; j < 4; j++) {
+                var neighborFace: FrustumFace = neighborFaces[j];
+                var notBackFace: boolean = true;
+                for (var k: number = 0; k < backIndex; k++)
+                    if (neighborFace == backPlaneFaces[k]) {
+                        notBackFace = false;
+                        break;
+                    }
+                if (notBackFace) {
+                    var corners: Array<FrustumCorner> = twoPlaneCorners[backFace][neighborFace];
+                    var point0: Vector3 = frustumCorners[corners[0]];
+                    var point1: Vector3 = frustumCorners[corners[1]];
+                    Vector3.add(point0, direction, edgePlanePoint2);
+                    var edgePlane: Plane = edgePlanePool[edgeIndex - backIndex];
+                    Plane.createPlaneBy3P(point0, point1, edgePlanePoint2, edgePlane);
+                    out[edgeIndex++] = edgePlane;
+                }
+            }
+        }
+        return edgeIndex;
     }
 }

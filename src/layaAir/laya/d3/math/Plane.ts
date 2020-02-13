@@ -26,35 +26,33 @@ export class Plane {
 	}
 
 	/**
-	 * 创建一个 <code>Plane</code> 实例。
-	 * @param	point1 第一点
-	 * @param	point2 第二点
-	 * @param	point3 第三点
+	 * 通过三个点创建一个平面。
+	 * @param	point0 第零个点
+	 * @param	point1 第一个点
+	 * @param	point2 第二个点
 	 */
-	static createPlaneBy3P(point1: Vector3, point2: Vector3, point3: Vector3): Plane {
-		var x1: number = point2.x - point1.x;
-		var y1: number = point2.y - point1.y;
-		var z1: number = point2.z - point1.z;
-		var x2: number = point3.x - point1.x;
-		var y2: number = point3.y - point1.y;
-		var z2: number = point3.z - point1.z;
+	static createPlaneBy3P(point0: Vector3, point1: Vector3, point2: Vector3, out: Plane): void {
+		var x1: number = point1.x - point0.x;
+		var y1: number = point1.y - point0.y;
+		var z1: number = point1.z - point0.z;
+		var x2: number = point2.x - point0.x;
+		var y2: number = point2.y - point0.y;
+		var z2: number = point2.z - point0.z;
 		var yz: number = (y1 * z2) - (z1 * y2);
 		var xz: number = (z1 * x2) - (x1 * z2);
 		var xy: number = (x1 * y2) - (y1 * x2);
-		var invPyth: number = 1 / (Math.sqrt((yz * yz) + (xz * xz) + (xy * xy)));
+		var invPyth: number = 1.0 / (Math.sqrt((yz * yz) + (xz * xz) + (xy * xy)));
 
 		var x: number = yz * invPyth;
 		var y: number = xz * invPyth;
 		var z: number = xy * invPyth;
 
-		Plane._TEMPVec3.x = x;
-		Plane._TEMPVec3.y = y;
-		Plane._TEMPVec3.z = z;
+		var normal: Vector3 = out.normal;
+		normal.x = x;
+		normal.y = y;
+		normal.z = z;
 
-		var d: number = -((x * point1.x) + (y * point1.y) + (z * point1.z));
-
-		var plane: Plane = new Plane(Plane._TEMPVec3, d);
-		return plane;
+		out.distance = -((x * point0.x) + (y * point0.y) + (z * point0.z));
 	}
 
 	/**

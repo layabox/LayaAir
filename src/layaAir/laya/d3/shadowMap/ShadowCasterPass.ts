@@ -16,6 +16,7 @@ import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
+import { Plane } from "../math/Plane";
 
 
 export class ShadowCasterPass {
@@ -197,11 +198,16 @@ export class ShadowCasterPass {
 	 */
 	private _getLightViewProject(sceneCamera: Camera, viewMatrix: Matrix4x4, projectMatrix: Matrix4x4): void {
 		var boundSphere: BoundSphere = ShadowCasterPass._tempBoundSphere0;
-		// var viewProjectMatrix: Matrix4x4 = this.getFrustumMatrix(sceneCamera);
 		var forward: Vector3 = ShadowCasterPass._tempVector30;
 		sceneCamera._transform.getForward(forward);//TODO:normalize测试
 		this.getBoundSphereByFrustum(sceneCamera.nearPlane, Math.min(sceneCamera.farPlane, this._light._shadowDistance), sceneCamera.fieldOfView * MathUtils3D.Deg2Rad,
 			sceneCamera.aspectRatio, sceneCamera._transform.position, forward, boundSphere);
+
+		// //TODO:test
+		// debugger;
+		// var o:Array<Plane>=[];
+		// var c=ShadowUtils.getDirationLightShadowCullPlanes(sceneCamera.boundFrustum,this._light._direction,o);
+		// console.log(c);
 
 		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
 		var lightUp: Vector3 = ShadowCasterPass._tempVector32;
