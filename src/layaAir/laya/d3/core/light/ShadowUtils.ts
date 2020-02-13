@@ -131,6 +131,7 @@ export class ShadowUtils {
 	 * @internal
 	 */
     static getDirationLightShadowCullPlanes(frustum: BoundFrustum, direction: Vector3, out: Array<Plane>): number {
+        // http://lspiroengine.com/?p=187
         var frustumPlanes: Array<Plane> = ShadowUtils._frustumPlanes;
         var frustumCorners: Array<Vector3> = ShadowUtils._frustumCorners;
         var backPlaneFaces: Array<FrustumFace> = ShadowUtils._backPlaneFaces;
@@ -147,7 +148,7 @@ export class ShadowUtils {
         frustum.getCorners(frustumCorners);
 
         var backIndex: number = 0;
-        for (var i: FrustumFace = 0; i < 6; i++) {//meybe 3,maybe 5(light eye is at far, forward is near, or orth camera is any axis)
+        for (var i: FrustumFace = 0; i < 6; i++) {// meybe 3、4、5(light eye is at far, forward is near, or orth camera is any axis)
             var plane: Plane = frustumPlanes[i];
             if (Vector3.dot(plane.normal, direction) < 0.0) {
                 out[backIndex] = plane;
