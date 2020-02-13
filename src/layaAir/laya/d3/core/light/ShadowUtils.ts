@@ -1,17 +1,17 @@
-import { Vector4 } from "../../math/Vector4";
-import { LightSprite, LightType } from "./LightSprite";
-import { SpotLight } from "./SpotLight";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { FilterMode } from "../../../resource/FilterMode";
+import { RenderTextureDepthFormat, RenderTextureFormat } from "../../../resource/RenderTextureFormat";
+import { WarpMode } from "../../../resource/WrapMode";
 import { MathUtils3D } from "../../math/MathUtils3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
-import { ShadowMode } from "./ShadowMode";
+import { Vector4 } from "../../math/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { RenderTextureFormat, RenderTextureDepthFormat } from "../../../resource/RenderTextureFormat";
-import { FilterMode } from "../../../resource/FilterMode";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { WarpMode } from "../../../resource/WrapMode";
-import { ShaderData } from "../../shader/ShaderData";
-import { Scene3D } from "../scene/Scene3D";
-import { Vector3 } from "../../math/Vector3";
+import { LightSprite, LightType } from "./LightSprite";
+import { ShadowMode } from "./ShadowMode";
+import { SpotLight } from "./SpotLight";
+import { Camera } from "../Camera";
+import { BoundFrustum } from "../../math/BoundFrustum";
+import { Plane } from "../../math/Plane";
 
 /**
  * @internal
@@ -81,5 +81,17 @@ export class ShadowUtils {
             normalBias *= kernelRadius;
         }
         out.setValue(depthBias, normalBias, 0.0, 0.0);
+    }
+
+    /**
+	 * @internal
+	 */
+    static getDirationLightShadowCullPlanes(frustum: BoundFrustum, out: Array<Plane>): void {
+        var left: Plane = frustum._left;
+        var right: Plane = frustum._right;
+        var top: Plane = frustum._top;
+        var bottom: Plane = frustum._bottom;
+        var near: Plane = frustum._near;
+        var far: Plane = frustum._far;
     }
 }

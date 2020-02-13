@@ -64,7 +64,7 @@ export class Plane {
 		var normalEX: number = this.normal.x;
 		var normalEY: number = this.normal.y;
 		var normalEZ: number = this.normal.z;
-		var magnitude: number = 1 / Math.sqrt(normalEX * normalEX + normalEY * normalEY + normalEZ * normalEZ);
+		var magnitude: number = 1.0 / Math.sqrt(normalEX * normalEX + normalEY * normalEY + normalEZ * normalEZ);
 
 		this.normal.x = normalEX * magnitude;
 		this.normal.y = normalEY * magnitude;

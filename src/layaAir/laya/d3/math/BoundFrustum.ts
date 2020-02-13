@@ -27,20 +27,98 @@ export class BoundFrustum {
 	/** @internal */
 	private static _tempV37: Vector3 = new Vector3();
 
+	/**
+	 * 根据矩阵获取6个包围平面。
+	 * @param  m 描述矩阵。
+	 * @param  np 近平面。
+	 * @param  fp 远平面。
+	 * @param  lp 左平面。
+	 * @param  rp 右平面。
+	 * @param  tp 顶平面。
+	 * @param  bp 底平面。
+	 */
+	static getPlanesFromMatrix(m: Matrix4x4, np: Plane, fp: Plane, lp: Plane, rp: Plane, tp: Plane, bp: Plane): void {
+		var matrixE: Float32Array = m.elements;
+		var m11: number = matrixE[0];
+		var m12: number = matrixE[1];
+		var m13: number = matrixE[2];
+		var m14: number = matrixE[3];
+		var m21: number = matrixE[4];
+		var m22: number = matrixE[5];
+		var m23: number = matrixE[6];
+		var m24: number = matrixE[7];
+		var m31: number = matrixE[8];
+		var m32: number = matrixE[9];
+		var m33: number = matrixE[10];
+		var m34: number = matrixE[11];
+		var m41: number = matrixE[12];
+		var m42: number = matrixE[13];
+		var m43: number = matrixE[14];
+		var m44: number = matrixE[15];
+
+		//near
+		var nearNorE: Vector3 = np.normal;
+		nearNorE.x = m13;
+		nearNorE.y = m23;
+		nearNorE.z = m33;
+		np.distance = m43;
+		np.normalize();
+
+		//far
+		var farNorE: Vector3 = fp.normal;
+		farNorE.x = m14 - m13;
+		farNorE.y = m24 - m23;
+		farNorE.z = m34 - m33;
+		fp.distance = m44 - m43;
+		fp.normalize();
+
+		//left
+		var leftNorE: Vector3 = lp.normal;
+		leftNorE.x = m14 + m11;
+		leftNorE.y = m24 + m21;
+		leftNorE.z = m34 + m31;
+		lp.distance = m44 + m41;
+		lp.normalize();
+
+		//right
+		var rightNorE: Vector3 = rp.normal;
+		rightNorE.x = m14 - m11;
+		rightNorE.y = m24 - m21;
+		rightNorE.z = m34 - m31;
+		rp.distance = m44 - m41;
+		rp.normalize();
+
+		//top
+		var topNorE: Vector3 = tp.normal;
+		topNorE.x = m14 - m12;
+		topNorE.y = m24 - m22;
+		topNorE.z = m34 - m32;
+		tp.distance = m44 - m42;
+		tp.normalize();
+
+		//bottom
+		var bottomNorE: Vector3 = bp.normal;
+		bottomNorE.x = m14 + m12;
+		bottomNorE.y = m24 + m22;
+		bottomNorE.z = m34 + m32;
+		bp.distance = m44 + m42;
+		bp.normalize();
+	}
+
 	/** @internal */
 	private _matrix: Matrix4x4;
 	/** @internal */
-	private _near: Plane;
+	_near: Plane;
 	/** @internal */
-	private _far: Plane;
+	_far: Plane;
 	/** @internal */
-	private _left: Plane;
+	_left: Plane;
 	/** @internal */
-	private _right: Plane;
+	_right: Plane;
 	/** @internal */
-	private _top: Plane;
+	_top: Plane;
 	/** @internal */
-	private _bottom: Plane;
+	_bottom: Plane;
 
 	/**
 	 * 创建一个 <code>BoundFrustum</code> 实例。
@@ -54,7 +132,7 @@ export class BoundFrustum {
 		this._right = new Plane(new Vector3());
 		this._top = new Plane(new Vector3());
 		this._bottom = new Plane(new Vector3());
-		BoundFrustum._getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
+		BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
 	}
 
 	/**
@@ -66,7 +144,7 @@ export class BoundFrustum {
 
 	set matrix(matrix: Matrix4x4) {
 		this._matrix = matrix;
-		BoundFrustum._getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
+		BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
 	}
 
 	/**
@@ -158,84 +236,6 @@ export class BoundFrustum {
 			default:
 				return null;
 		}
-	}
-
-	/**
-	 * 根据描述矩阵获取锥截体的6个面。
-	 * @param  m 描述矩阵。
-	 * @param  np   近平面。
-	 * @param  fp    远平面。
-	 * @param  lp   左平面。
-	 * @param  rp  右平面。
-	 * @param  tp    顶平面。
-	 * @param  bp 底平面。
-	 */
-	private static _getPlanesFromMatrix(m: Matrix4x4, np: Plane, fp: Plane, lp: Plane, rp: Plane, tp: Plane, bp: Plane): void {//适用于OPENGL规则
-		var matrixE: Float32Array = m.elements;
-		var m11: number = matrixE[0];
-		var m12: number = matrixE[1];
-		var m13: number = matrixE[2];
-		var m14: number = matrixE[3];
-		var m21: number = matrixE[4];
-		var m22: number = matrixE[5];
-		var m23: number = matrixE[6];
-		var m24: number = matrixE[7];
-		var m31: number = matrixE[8];
-		var m32: number = matrixE[9];
-		var m33: number = matrixE[10];
-		var m34: number = matrixE[11];
-		var m41: number = matrixE[12];
-		var m42: number = matrixE[13];
-		var m43: number = matrixE[14];
-		var m44: number = matrixE[15];
-
-		//近平面
-		var nearNorE: Vector3 = np.normal;
-		nearNorE.x = m14 + m13;
-		nearNorE.y = m24 + m23;
-		nearNorE.z = m34 + m33;
-		np.distance = m44 + m43;
-		np.normalize();
-
-		//远平面
-		var farNorE: Vector3 = fp.normal;
-		farNorE.x = m14 - m13;
-		farNorE.y = m24 - m23;
-		farNorE.z = m34 - m33;
-		fp.distance = m44 - m43;
-		fp.normalize();
-
-		//左平面
-		var leftNorE: Vector3 = lp.normal;
-		leftNorE.x = m14 + m11;
-		leftNorE.y = m24 + m21;
-		leftNorE.z = m34 + m31;
-		lp.distance = m44 + m41;
-		lp.normalize();
-
-		//右平面
-		var rightNorE: Vector3 = rp.normal;
-		rightNorE.x = m14 - m11;
-		rightNorE.y = m24 - m21;
-		rightNorE.z = m34 - m31;
-		rp.distance = m44 - m41;
-		rp.normalize();
-
-		//顶平面
-		var topNorE: Vector3 = tp.normal;
-		topNorE.x = m14 - m12;
-		topNorE.y = m24 - m22;
-		topNorE.z = m34 - m32;
-		tp.distance = m44 - m42;
-		tp.normalize();
-
-		//底平面
-		var bottomNorE: Vector3 = bp.normal;
-		bottomNorE.x = m14 + m12;
-		bottomNorE.y = m24 + m22;
-		bottomNorE.z = m34 + m32;
-		bp.distance = m44 + m42;
-		bp.normalize();
 	}
 
 	/**

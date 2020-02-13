@@ -3,7 +3,7 @@ import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
 import { Camera } from "../core/Camera";
 import { DirectionLight } from "../core/light/DirectionLight";
 import { ShadowMode } from "../core/light/ShadowMode";
-import { ShadowUtils } from "../core/light/ShdowUtils";
+import { ShadowUtils } from "../core/light/ShadowUtils";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
 import { BoundBox } from "../math/BoundBox";
@@ -329,21 +329,6 @@ export class ShadowCasterPass {
 		RenderTexture.recoverToPool(this._shadowMap);
 		// this._shadowMap = null; TODO:
 	}
-
-	// /**
-	//  * @internal
-	//  */
-	// getFrustumMatrix(camera: Camera): Matrix4x4 {
-	// 	if (this._maxDistance < camera.farPlane) {
-	// 		var projectionViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
-	// 		Matrix4x4.createPerspective(camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera.nearPlane, this._maxDistance, projectionViewMatrix);
-	// 		Matrix4x4.multiply(projectionViewMatrix, camera.viewMatrix, projectionViewMatrix)
-	// 		return projectionViewMatrix;
-	// 	}
-	// 	else {
-	// 		return camera.projectionViewMatrix;
-	// 	}
-	// }
 
 	/** @intenal */
 	private _lastBuildSphereInfo: Vector4 = new Vector4();
