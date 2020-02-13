@@ -59,7 +59,7 @@ export class ShadowCasterPass {
 	/**@internal */
 	static SHADOW_MAP_SIZE: number = Shader3D.propertyNameToID("u_ShadowMapSize");
 	/**@internal */
-	static SHADOWMAPTEXTURE1: number = Shader3D.propertyNameToID("u_shadowMap1");
+	static SHADOWMAPTEXTURE1: number = Shader3D.propertyNameToID("u_ShadowMap");
 	/**@internal */
 	static SHADOW_PARAMS: number = Shader3D.propertyNameToID("u_ShadowParams");
 

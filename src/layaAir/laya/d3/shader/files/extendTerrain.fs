@@ -194,7 +194,7 @@ vec3 globalDiffuse = u_AmbientColor;
 #endif
 
 #ifdef RECEIVESHADOW
-	float shadowValue = shadowValue = sampleShadowmap(u_shadowMap1,v_lightMVPPos,u_ShadowMapSize,u_ShadowParams);
+	float shadowValue = shadowValue = sampleShadowmap(v_lightMVPPos);
 	gl_FragColor = vec4(gl_FragColor.rgb * (globalDiffuse + diffuse) * shadowValue, gl_FragColor.a);
 #else
 	gl_FragColor = vec4(gl_FragColor.rgb * (globalDiffuse + diffuse), gl_FragColor.a);

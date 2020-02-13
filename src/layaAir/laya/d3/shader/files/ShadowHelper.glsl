@@ -14,7 +14,7 @@
 
 #include "ShadowSampleTent.glsl"
 
-TEXTURE2D_SHADOW(u_shadowMap1);
+TEXTURE2D_SHADOW(u_ShadowMap);
 uniform vec4 u_ShadowMapSize;
 uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 uniform vec4 u_ShadowParams; // x: shadowStrength
@@ -70,20 +70,20 @@ float sampleShdowMapFiltered9(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord
 	return attenuation;
 }
 
-float sampleShadowmap(TEXTURE2D_SHADOW_PARAM(shadowMap),vec4 shadowCoord,vec4 shadowMapSize,vec4 shadowParams)
+float sampleShadowmap(vec4 shadowCoord)
 {
 	shadowCoord.xyz /= shadowCoord.w;
 	float attenuation = 1.0;
 	if(shadowCoord.z > 0.0 || shadowCoord.z < 1.0)
 	{
 		#if defined(SHADOW_SOFT_SHADOW_HIGH)
-			attenuation = sampleShdowMapFiltered9(shadowMap,shadowCoord.xyz,shadowMapSize);
+			attenuation = sampleShdowMapFiltered9(u_ShadowMap,shadowCoord.xyz,u_ShadowMapSize);
 		#elif defined(SHADOW_SOFT_SHADOW_LOW)
-			attenuation = sampleShdowMapFiltered4(shadowMap,shadowCoord.xyz,shadowMapSize);
+			attenuation = sampleShdowMapFiltered4(u_ShadowMap,shadowCoord.xyz,u_ShadowMapSize);
 		#else
-			attenuation = SAMPLE_TEXTURE2D_SHADOW(shadowMap,shadowCoord.xyz);
+			attenuation = SAMPLE_TEXTURE2D_SHADOW(u_ShadowMap,shadowCoord.xyz);
 		#endif
-		attenuation = mix(1.0,attenuation,shadowParams.x);//shadowParams.x:shadow strength
+		attenuation = mix(1.0,attenuation,u_ShadowParams.x);//shadowParams.x:shadow strength
 	}
 	return attenuation;
 }

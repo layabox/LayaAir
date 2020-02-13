@@ -143,9 +143,16 @@ void main()
 		#endif
 	#endif
 
+	
+	
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
+			#ifdef RECEIVESHADOW
+				float shadowAttenuation=sampleShadowmap(v_lightMVPPos);
+				dif *= shadowAttenuation;
+				spe *= shadowAttenuation;
+			#endif
 			diffuse+=dif;
 			specular+=spe;
 		#endif
@@ -168,6 +175,10 @@ void main()
 				if(i >= u_DirationLightCount)
 					break;
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
+				#ifdef RECEIVESHADOW
+					if(i == 0)
+						directionLight.color *= sampleShadowmap(v_lightMVPPos);
+				#endif
 				LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,dif,spe);
 				diffuse+=dif;
 				specular+=spe;
@@ -198,12 +209,6 @@ void main()
 				}
 			#endif
 		#endif
-	#endif
-
-	//TODO：应该逐灯光设置
-	#ifdef RECEIVESHADOW
-		float shadowValue = sampleShadowmap(u_shadowMap1,v_lightMVPPos,u_ShadowMapSize,u_ShadowParams);
-		diffuse*= shadowValue;
 	#endif
 
 	gl_FragColor =vec4(mainColor.rgb*(globalDiffuse + diffuse),mainColor.a);
