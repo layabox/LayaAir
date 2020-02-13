@@ -23,11 +23,7 @@ varying vec2 v_Texcoord0;
 #endif
 
 #ifdef RECEIVESHADOW
-	varying float v_posViewZ;
-	#ifdef SHADOWMAP_PSSM1 
-		varying vec4 v_lightMVPPos;
-		uniform mat4 u_lightShadowVP[4];
-	#endif
+	varying vec4 v_lightMVPPos;
 #endif
 
 void main()
@@ -50,10 +46,7 @@ void main()
 	#endif
 
 	#ifdef RECEIVESHADOW
-		v_posViewZ = gl_Position.w;
-		#ifdef SHADOWMAP_PSSM1
-			v_lightMVPPos = u_lightShadowVP[0] * vec4(v_PositionWorld,1.0);
-		#endif
+		v_lightMVPPos = getShadowCoord(vec4(v_PositionWorld,1.0));
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
 }

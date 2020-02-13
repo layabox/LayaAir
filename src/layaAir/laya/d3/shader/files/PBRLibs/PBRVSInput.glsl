@@ -47,10 +47,7 @@ varying vec3 v_PositionWorld;
 varying float v_posViewZ;
 
 #ifdef RECEIVESHADOW
-	#ifdef SHADOWMAP_PSSM1 
 	varying vec4 v_lightMVPPos;
-	uniform mat4 u_lightShadowVP[4];
-	#endif
 #endif
 
 #ifdef TILINGOFFSET

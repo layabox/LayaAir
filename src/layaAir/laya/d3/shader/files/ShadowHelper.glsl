@@ -18,7 +18,13 @@ TEXTURE2D_SHADOW(u_ShadowMap);
 uniform vec4 u_ShadowMapSize;
 uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 uniform vec4 u_ShadowParams; // x: shadowStrength
+uniform mat4 u_ShadowLightViewProjects[4];
 uniform vec4 u_shadowPSSMDistance;
+
+vec4 getShadowCoord(vec4 positionWS)
+{
+	return u_ShadowLightViewProjects[0] * positionWS;
+}
 
 float sampleShdowMapFiltered4(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowMapSize)
 {

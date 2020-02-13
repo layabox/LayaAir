@@ -41,9 +41,6 @@
 
 #include "ShadowHelper.glsl"
 #ifdef RECEIVESHADOW
-	#if defined(SHADOWMAP_PSSM2)||defined(SHADOWMAP_PSSM3)
-	uniform mat4 u_lightShadowVP[4];
-	#endif
 	#ifdef SHADOWMAP_PSSM1 
 	varying vec4 v_lightMVPPos;
 	#endif

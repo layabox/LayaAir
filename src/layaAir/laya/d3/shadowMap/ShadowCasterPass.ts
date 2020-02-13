@@ -55,7 +55,7 @@ export class ShadowCasterPass {
 	/**@internal */
 	static SHADOWDISTANCE: number = Shader3D.propertyNameToID("u_shadowPSSMDistance");
 	/**@internal */
-	static SHADOWLIGHTVIEWPROJECT: number = Shader3D.propertyNameToID("u_lightShadowVP");
+	static SHADOWLIGHT_VIEW_PROJECTS: number = Shader3D.propertyNameToID("u_ShadowLightViewProjects");
 	/**@internal */
 	static SHADOW_MAP_SIZE: number = Shader3D.propertyNameToID("u_ShadowMapSize");
 	/**@internal */
@@ -465,7 +465,7 @@ export class ShadowCasterPass {
 		var shadowMapSize: number = this._light.shadowResolution;
 		this._shadowMapSize.setValue(1.0 / shadowMapSize, 1.0 / shadowMapSize, shadowMapSize, shadowMapSize);
 		shaderValues.setVector(ShadowCasterPass.SHADOWDISTANCE, this._shaderValueDistance);
-		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
+		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHT_VIEW_PROJECTS, this._shaderValueLightVP);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
 		this._shadowParams.setValue(this._light._shadowStrength, 0.0, 0.0, 0.0);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
