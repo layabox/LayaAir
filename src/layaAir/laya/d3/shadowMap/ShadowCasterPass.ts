@@ -28,24 +28,9 @@ export class ShadowCasterPass {
 	/**@internal */
 	static _tempVector32: Vector3 = new Vector3();
 	/**@internal */
-	static _tempVector33: Vector3 = new Vector3();
-	/**@internal */
-	static _tempVector34: Vector3 = new Vector3();
-	/**@internal */
-	static _tempVector35: Vector3 = new Vector3();
-	/**@internal */
-	static _tempVector36: Vector3 = new Vector3();
-	/**@internal */
-	static _tempVector37: Vector3 = new Vector3();
-	/**@internal */
 	static _tempBoundSphere0: BoundSphere = new BoundSphere(new Vector3(), 0);
 	/**@internal */
 	static _tempMatrix0: Matrix4x4 = new Matrix4x4();
-	/**@internal */
-	static _tempMatrix1: Matrix4x4 = new Matrix4x4();
-	/**@internal */
-	static _tempMatrix2: Matrix4x4 = new Matrix4x4();
-
 
 	/**@internal */
 	static SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
@@ -77,10 +62,14 @@ export class ShadowCasterPass {
 	_shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
 	/**@internal */
 	_cascadeSplitDistances: Vector4[] = [new Vector4(), new Vector4(), new Vector4(), new Vector4()];
+	/**@internal */
+	_shadowMatrix: Matrix4x4[] = [new Matrix4x4(), new Matrix4x4(), new Matrix4x4(), new Matrix4x4(), new Matrix4x4()];
 
 
 
-	
+
+
+
 	/**@internal */
 	_light: DirectionLight;
 	/** @internal */
@@ -168,7 +157,7 @@ export class ShadowCasterPass {
 			//direction light use shadow pancaking tech,do special dispose with nearPlane.
 			var nearPlane: number = this._light.shadowNearPlane;
 			var origin: Vector3 = this._shadowSliceDatas[i].position;
-			var projectViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix2;
+			var projectViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
 
 			Vector3.scale(lightForward, radius + nearPlane, origin);
 			Vector3.subtract(center, origin, origin);
