@@ -86,6 +86,12 @@ varying vec3 v_EyeVec;
 	varying vec3 v_Binormal;
 #endif
 
+#ifdef FOG
+	uniform float u_FogStart;
+	uniform float u_FogRange;
+	uniform vec3 u_FogColor;
+#endif
+
 
 //后面考虑宏TODO
 varying vec3 v_PositionWorld;
