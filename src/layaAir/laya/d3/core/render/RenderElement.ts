@@ -138,7 +138,7 @@ export class RenderElement {
 		var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		var updateMark: number = Camera._updateMark;
 		var scene: Scene3D = context.scene;
-		var camera: BaseCamera = context.camera;
+		var cameraShaderValue: ShaderData = context.cameraShaderValue;
 
 		var transform: Transform3D = this._transform;
 		var geometry: GeometryElement = this._geometry;
@@ -190,10 +190,10 @@ export class RenderElement {
 					shaderIns._uploadRenderType = this.renderType;
 				}
 
-				var uploadCamera: boolean = shaderIns._uploadCamera !== camera || switchUpdateMark;
+				var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderValue || switchUpdateMark;
 				if (uploadCamera || switchShader) {
-					shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
-					shaderIns._uploadCamera = camera;
+					shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
+					shaderIns._uploadCameraShaderValue = cameraShaderValue;
 				}
 
 				var uploadMaterial: boolean = (shaderIns._uploadMaterial !== this.material) || switchUpdateMark;

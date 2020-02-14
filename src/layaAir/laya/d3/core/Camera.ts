@@ -578,7 +578,7 @@ export class Camera extends BaseCamera {
 			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
 
 			shadowCasterPass.start();
-			context.camera = smCamera;
+			context.cameraShaderValue = smCamera._shaderValues;
 			Camera._updateMark++;
 			shadowCasterPass.tempViewPort();//TODO:
 			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
@@ -591,7 +591,7 @@ export class Camera extends BaseCamera {
 			context.pipelineMode = "Forward";
 		}
 
-		context.camera = this;
+		context.cameraShaderValue = this._shaderValues;
 		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复
 		//TODO:webgl2 should use blitFramebuffer

@@ -4,6 +4,7 @@ import { Scene3D } from "../scene/Scene3D"
 import { Matrix4x4 } from "../../math/Matrix4x4"
 import { Viewport } from "../../math/Viewport"
 import { ShaderInstance } from "../../shader/ShaderInstance"
+import { ShaderData } from "../../shader/ShaderData";
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。
@@ -29,7 +30,7 @@ export class RenderContext3D {
 	/** @internal */
 	scene: Scene3D;
 	/** @internal */
-	camera: BaseCamera;
+	cameraShaderValue: ShaderData;
 	/** @internal */
 	renderElement: RenderElement;
 	/** @internal */

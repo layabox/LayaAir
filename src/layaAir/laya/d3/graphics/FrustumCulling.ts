@@ -199,6 +199,7 @@ export class FrustumCulling {
 	}
 
 
+	//---------------------------------------------------------NATIVE---------------------------------------------------------------------------------------------
 	/**@internal	[NATIVE]*/
 	static _cullingBufferLength: number;
 	/**@internal	[NATIVE]*/

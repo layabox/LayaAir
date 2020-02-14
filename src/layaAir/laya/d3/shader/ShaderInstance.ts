@@ -68,7 +68,7 @@ export class ShaderInstance extends Resource {
 	/** @internal */
 	_uploadRenderType: number = -1;
 	/**@internal */
-	_uploadCamera: BaseCamera;
+	_uploadCameraShaderValue: ShaderData;
 	/**@internal */
 	_uploadScene: Scene3D;
 
