@@ -16,6 +16,8 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ShadowSliceData } from "./ShadowSliceData";
+import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
+import { LightSprite } from "../core/light/LightSprite";
 
 /**
  * 
@@ -73,8 +75,6 @@ export class ShadowCasterPass {
 	/**@internal */
 	_light: DirectionLight;
 	/** @internal */
-	private _tempScaleMatrix44: Matrix4x4 = new Matrix4x4();
-	/** @internal */
 	private _shadowMapSize: Vector4 = new Vector4();
 	/** @internal */
 	private _shadowParams: Vector4 = new Vector4();
@@ -91,10 +91,6 @@ export class ShadowCasterPass {
 
 	constructor() {
 		this._shaderValueVPs = [];
-		Matrix4x4.createScaling(new Vector3(0.5, 0.5, 1.0), this._tempScaleMatrix44);
-		this._tempScaleMatrix44.elements[12] = 0.5;
-		this._tempScaleMatrix44.elements[13] = 0.5;
-
 		this._shaderValueLightVP = new Float32Array(4 * 16);
 		this._shaderValueVPs.length = 4;
 		for (var i: number = 0; i < 4; i++)
@@ -166,7 +162,7 @@ export class ShadowCasterPass {
 			Matrix4x4.multiply(projectMatrix, viewMatrix, projectViewMatrix);
 			this._shadowSliceDatas[i].boundFrustum.matrix = projectViewMatrix;
 
-			ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectViewMatrix, this._shaderValueVPs[0]);
+			ShadowCasterPass.multiplyMatrixOutFloat32Array(ShadowUtils._shadowMapScaleOffsetMatrix, projectViewMatrix, this._shaderValueVPs[0]);
 		}
 	}
 
@@ -251,24 +247,14 @@ export class ShadowCasterPass {
 	 * @internal
 	 */
 	private _setupShadowReceiverShaderValues(shaderValues: ShaderData): void {
-		switch (1) {//todo:
-			case 1:
-				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
-				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
-				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
-				break;
-			// case 2:
-			// 	shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
-			// 	shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
-			// 	shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
-			// 	break;
-			// case 3:
-			// 	shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
-			// 	shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
-			// 	shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
-			// 	break;
-		}
-		switch (this._light.shadowMode) {
+		var light: DirectionLight = this._light;
+		
+		if (light.shadowCascadesMode !== ShadowCascadesMode.NoCascades)
+			shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADES);
+		else
+			shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADES);
+		
+		switch (light.shadowMode) {
 			case ShadowMode.Hard:
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH);
@@ -282,12 +268,12 @@ export class ShadowCasterPass {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
 				break;
 		}
-		var shadowMapSize: number = this._light._shadowResolution;
+		var shadowMapSize: number = light._shadowResolution;
 		this._shadowMapSize.setValue(1.0 / shadowMapSize, 1.0 / shadowMapSize, shadowMapSize, shadowMapSize);
 		shaderValues.setVector(ShadowCasterPass.SHADOWDISTANCE, this._shaderValueDistance);
 		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHT_VIEW_PROJECTS, this._shaderValueLightVP);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
-		this._shadowParams.setValue(this._light._shadowStrength, 0.0, 0.0, 0.0);
+		this._shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
 	}
 }

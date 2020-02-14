@@ -32,6 +32,14 @@ enum FrustumFace {
  */
 export class ShadowUtils {
     /** @internal */
+    static _shadowMapScaleOffsetMatrix: Matrix4x4 = new Matrix4x4(
+        0.5, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.5, 0.5, 0.0, 1.0,
+    );
+
+    /** @internal */
     private static _shadowTextureFormat: RenderTextureFormat;
 
     /** @internal */

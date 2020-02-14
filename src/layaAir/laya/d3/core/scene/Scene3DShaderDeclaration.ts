@@ -10,11 +10,7 @@ export class Scene3DShaderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_SPOTLIGHT: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PSSM1: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_SHADOW_PSSM2: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_SHADOW_PSSM3: ShaderDefine;
+	static SHADERDEFINE_SHADOW_CASCADES: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW: ShaderDefine;
 	/**@internal */

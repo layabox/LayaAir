@@ -561,7 +561,6 @@ export class Utils3D {
 
 
 	static matrix4x4MultiplyFFF(a: Float32Array, b: Float32Array, e: Float32Array): void {
-
 		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
 		if (e === b) {
 			b = new Float32Array(16);
