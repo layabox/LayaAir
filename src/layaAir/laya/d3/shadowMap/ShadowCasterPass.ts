@@ -61,7 +61,7 @@ export class ShadowCasterPass {
 	/**@internal */
 	static SHADOW_MAP_SIZE: number = Shader3D.propertyNameToID("u_ShadowMapSize");
 	/**@internal */
-	static SHADOWMAPTEXTURE1: number = Shader3D.propertyNameToID("u_ShadowMap");
+	static SHADOW_MAP: number = Shader3D.propertyNameToID("u_ShadowMap");
 	/**@internal */
 	static SHADOW_PARAMS: number = Shader3D.propertyNameToID("u_ShadowParams");
 
@@ -127,27 +127,16 @@ export class ShadowCasterPass {
 		Matrix4x4.createScaling(new Vector3(0.5, 0.5, 1.0), this._tempScaleMatrix44);
 		this._tempScaleMatrix44.elements[12] = 0.5;
 		this._tempScaleMatrix44.elements[13] = 0.5;
-	}
 
-	set shadowMapCount(value: number) {
-		value = value > 0 ? value : 1;
-		value = value <= ShadowCasterPass._maxCascades ? value : ShadowCasterPass._maxCascades;
-		if (this._shadowMapCount != value) {
-			this._shadowMapCount = value;
-
-			this._shaderValueLightVP = new Float32Array(value * 16);
-			this._shaderValueVPs.length = value;
-			for (var i: number = 0; i < value; i++)
-				this._shaderValueVPs[i] = new Float32Array(this._shaderValueLightVP.buffer, i * 64);
-		}
+		this._shaderValueLightVP = new Float32Array(4 * 16);
+		this._shaderValueVPs.length = 4;
+		for (var i: number = 0; i < 4; i++)
+			this._shaderValueVPs[i] = new Float32Array(this._shaderValueLightVP.buffer, i * 64);
 	}
 	/**
 	 * @internal
 	 */
 	_update(index: number, sceneCamera: Camera): void {
-		var nearPlane: number = sceneCamera.nearPlane;
-		var fieldOfView: number = sceneCamera.fieldOfView;
-		var aspectRatio: number = (<Camera>sceneCamera).aspectRatio;
 		var shaderValues: ShaderData = (<Scene3D>this._light._scene)._shaderValues;
 		this._rebuildRenderInfo();
 		this._setupShadowReceiverShaderValues(shaderValues);
@@ -170,12 +159,6 @@ export class ShadowCasterPass {
 		sceneCamera._transform.getForward(forward);//TODO:normalize测试
 		ShadowUtils.getBoundSphereByFrustum(sceneCamera.nearPlane, Math.min(sceneCamera.farPlane, this._light._shadowDistance), sceneCamera.fieldOfView * MathUtils3D.Deg2Rad,
 			sceneCamera.aspectRatio, sceneCamera._transform.position, forward, boundSphere);
-
-		// //TODO:test
-		// debugger;
-		// var o:Array<Plane>=[];
-		// var c=ShadowUtils.getDirationLightShadowCullPlanes(sceneCamera.boundFrustum,this._light._direction,o);
-		// console.log(c);
 
 		var lightWorld: Matrix4x4 = this._light._transform.worldMatrix;
 		var lightUp: Vector3 = ShadowCasterPass._tempVector32;
@@ -272,7 +255,7 @@ export class ShadowCasterPass {
 		var shadowMapSize: number = this._light._shadowResolution;
 		var shadowMap: RenderTexture = ShadowUtils.getTemporaryShadowTexture(shadowMapSize, shadowMapSize, RenderTextureDepthFormat.DEPTH_16);
 		var sceneSV: ShaderData = (<Scene3D>this._light._scene)._shaderValues;
-		sceneSV.setTexture(ShadowCasterPass.SHADOWMAPTEXTURE1, shadowMap);
+		sceneSV.setTexture(ShadowCasterPass.SHADOW_MAP, shadowMap);
 		shadowMap._start();
 		this._shadowMap = shadowMap;
 	}

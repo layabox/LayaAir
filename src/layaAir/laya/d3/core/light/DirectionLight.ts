@@ -25,7 +25,6 @@ export class DirectionLight extends LightSprite {
 
 	set shadowCascadesMode(value: ShadowCascadesMode) {
 		this._shadowCascadesMode = value;
-		Scene3D._shadowCasterPass.shadowMapCount = value;
 	}
 
 	/**
