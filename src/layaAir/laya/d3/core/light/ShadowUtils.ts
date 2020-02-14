@@ -12,6 +12,8 @@ import { RenderTexture } from "../../resource/RenderTexture";
 import { LightSprite, LightType } from "./LightSprite";
 import { ShadowMode } from "./ShadowMode";
 import { SpotLight } from "./SpotLight";
+import { BoundSphere } from "../../math/BoundSphere";
+import { Vector2 } from "../../math/Vector2";
 
 /**
  * @internal
@@ -42,6 +44,11 @@ export class ShadowUtils {
     private static _edgePlanePoint2: Vector3 = new Vector3();
     /** @internal */
     private static _edgePlanePool: Array<Plane> = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
+
+    /** @intenal */
+    private static _lastBuildSphereInfo: Vector4 = new Vector4();
+    /** @intenal */
+    private static _lastFrustumSphere: Vector2 = new Vector2();
 
     /** @internal */
     private static _frustumPlaneNeighbors: Array<Array<FrustumFace>> = [
@@ -181,5 +188,37 @@ export class ShadowUtils {
             }
         }
         return edgeIndex;
+    }
+
+    /**
+     * @internal
+     */
+    static getBoundSphereByFrustum(near: number, far: number, fov: number, aspectRatio: number, cameraPos: Vector3, forward: Vector3, outBoundSphere: BoundSphere): void {
+        var lastBuildInfo: Vector4 = ShadowUtils._lastBuildSphereInfo;
+        var lastFrustumSphere: Vector2 = ShadowUtils._lastFrustumSphere;
+        if (lastBuildInfo.x != near || lastBuildInfo.y != far || lastBuildInfo.z != fov || lastBuildInfo.w != aspectRatio) {
+            // https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html
+            var centerZ: number;
+            var radius: number;
+            var k: number = Math.sqrt(1.0 + aspectRatio * aspectRatio) * Math.tan(fov / 2.0);
+            var k2: number = k * k;
+            var farSNear: number = far - near;
+            var farANear: number = far + near;
+            if (k2 > farSNear / farANear) {
+                centerZ = far;
+                radius = far * k;
+            }
+            else {
+                centerZ = 0.5 * farANear * (1 + k2);
+                radius = 0.5 * Math.sqrt(farSNear * farSNear + 2.0 * (far * far + near * near) * k2 + farANear * farANear * k2 * k2);
+            }
+            lastBuildInfo.setValue(near, far, fov, aspectRatio);
+            lastFrustumSphere.setValue(centerZ, radius);
+        }
+
+        var center: Vector3 = outBoundSphere.center;
+        outBoundSphere.radius = lastFrustumSphere.y;
+        Vector3.scale(forward, lastFrustumSphere.x, center);
+        Vector3.add(cameraPos, center, center);
     }
 }
