@@ -1,29 +1,26 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
+import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
 import { DirectionLight } from "../core/light/DirectionLight";
 import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowUtils } from "../core/light/ShadowUtils";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
-import { BoundBox } from "../math/BoundBox";
 import { BoundSphere } from "../math/BoundSphere";
 import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
-import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
-import { BaseCamera } from "../core/BaseCamera";
 import { ShadowSliceData } from "./ShadowSliceData";
 
-
+/**
+ * 
+ */
 export class ShadowCasterPass {
-	/**@internal */
-	static _maxCascades: number = 4;
-
 	/**@internal */
 	static _tempVector30: Vector3 = new Vector3();
 	/**@internal */
@@ -54,7 +51,6 @@ export class ShadowCasterPass {
 	static SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
 	/**@internal */
 	static SHADOW_LIGHT_DIRECTION: number = Shader3D.propertyNameToID("u_ShadowLightDirection");
-
 	/**@internal */
 	static SHADOWDISTANCE: number = Shader3D.propertyNameToID("u_shadowPSSMDistance");
 	/**@internal */
@@ -67,20 +63,26 @@ export class ShadowCasterPass {
 	static SHADOW_PARAMS: number = Shader3D.propertyNameToID("u_ShadowParams");
 
 	/**@internal */
-	private _spiltDistance: number[] = [];
+	static _maxCascades: number = 4;
 
+	/** */
+	_shadowMap: RenderTexture;
+	/**@internal */
+	_shadowMapWith: number = 0;
+	/**@internal */
+	_shadowMapHeight: number = 0;
+	/**@internal */
+	_cascadeCount: number = 0;
+	/**@internal */
+	_shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
+	/**@internal */
+	_cascadeSplitDistances: Vector4[] = [new Vector4(), new Vector4(), new Vector4(), new Vector4()];
+
+
+
+	
 	/**@internal */
 	_light: DirectionLight;
-	/**@internal */
-	shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
-	/**@internal */
-	private _boundingSphere: BoundSphere[] = new Array<BoundSphere>(ShadowCasterPass._maxCascades + 1);
-	/**@internal */
-	_boundingBox: BoundBox[] = new Array<BoundBox>(ShadowCasterPass._maxCascades + 1);
-	/**@internal */
-	private _frustumPos: Vector3[] = new Array<Vector3>((ShadowCasterPass._maxCascades + 1) * 4);
-	/**@internal */
-	private _dimension: Vector2[] = new Array<Vector2>(ShadowCasterPass._maxCascades + 1);
 	/** @internal */
 	private _tempScaleMatrix44: Matrix4x4 = new Matrix4x4();
 	/** @internal */
@@ -98,30 +100,8 @@ export class ShadowCasterPass {
 	/**@internal */
 	private _projectViewMatrix: Matrix4x4 = new Matrix4x4();
 
-	_shadowMap: RenderTexture;
-
 	constructor() {
 		this._shaderValueVPs = [];
-		var i: number;
-		for (i = 0; i < this._spiltDistance.length; i++) {
-			this._spiltDistance[i] = 0.0;
-		}
-
-		for (i = 0; i < this._dimension.length; i++)
-			this._dimension[i] = new Vector2();
-
-
-		for (i = 0; i < this._frustumPos.length; i++)
-			this._frustumPos[i] = new Vector3();
-
-
-		for (i = 0; i < this._boundingBox.length; i++)
-			this._boundingBox[i] = new BoundBox(new Vector3(), new Vector3());
-
-
-		for (i = 0; i < this._boundingSphere.length; i++)
-			this._boundingSphere[i] = new BoundSphere(new Vector3(), 0.0);
-
 		Matrix4x4.createScaling(new Vector3(0.5, 0.5, 1.0), this._tempScaleMatrix44);
 		this._tempScaleMatrix44.elements[12] = 0.5;
 		this._tempScaleMatrix44.elements[13] = 0.5;
@@ -137,8 +117,8 @@ export class ShadowCasterPass {
 	_update(index: number, sceneCamera: Camera): void {
 		var shaderValues: ShaderData = (<Scene3D>this._light._scene)._shaderValues;
 		this._setupShadowReceiverShaderValues(shaderValues);
-		var viewMatrix: Matrix4x4 = this.shadowSliceDatas[0].viewMatrix;
-		var projectMatrix: Matrix4x4 = this.shadowSliceDatas[0].projectionMatrix;
+		var viewMatrix: Matrix4x4 = this._shadowSliceDatas[0].viewMatrix;
+		var projectMatrix: Matrix4x4 = this._shadowSliceDatas[0].projectionMatrix;
 		this._getLightViewProject(sceneCamera, viewMatrix, projectMatrix);
 
 		ShadowUtils.getShadowBias(this._light, projectMatrix, this._light._shadowResolution, this._shadowBias);
@@ -187,7 +167,7 @@ export class ShadowCasterPass {
 
 			//direction light use shadow pancaking tech,do special dispose with nearPlane.
 			var nearPlane: number = this._light.shadowNearPlane;
-			var origin: Vector3 = this.shadowSliceDatas[i].position;
+			var origin: Vector3 = this._shadowSliceDatas[i].position;
 			var projectViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix2;
 
 			Vector3.scale(lightForward, radius + nearPlane, origin);
@@ -195,7 +175,7 @@ export class ShadowCasterPass {
 			Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
 			Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
 			Matrix4x4.multiply(projectMatrix, viewMatrix, projectViewMatrix);
-			this.shadowSliceDatas[i].boundFrustum.matrix = projectViewMatrix;
+			this._shadowSliceDatas[i].boundFrustum.matrix = projectViewMatrix;
 
 			ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectViewMatrix, this._shaderValueVPs[0]);
 		}
@@ -272,7 +252,7 @@ export class ShadowCasterPass {
 		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
 		shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, direction);
 
-		var cameraSV: ShaderData = this.shadowSliceDatas[0].cameraShaderBalue;//TODO:
+		var cameraSV: ShaderData = this._shadowSliceDatas[0].cameraShaderBalue;//TODO:
 		cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, projectMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, this._projectViewMatrix);

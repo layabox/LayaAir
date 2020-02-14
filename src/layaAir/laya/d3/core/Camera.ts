@@ -572,7 +572,7 @@ export class Camera extends BaseCamera {
 			shadowCasterPass._light = mainLight;
 			shadowCasterPass._update(0, this);
 
-			var shadowSliceData: ShadowSliceData = shadowCasterPass.shadowSliceDatas[0];
+			var shadowSliceData: ShadowSliceData = shadowCasterPass._shadowSliceDatas[0];
 			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
 			shadowCullInfo.position = shadowSliceData.position;
 			shadowCullInfo.cullPlaneCount = ShadowUtils.getDirectionLightShadowCullPlanes(shadowSliceData.boundFrustum, mainLight._direction, shadowCullInfo.cullPlanes);
