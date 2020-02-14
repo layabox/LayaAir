@@ -17,6 +17,7 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { BaseCamera } from "../core/BaseCamera";
+import { ShadowSliceData } from "./ShadowSliceData";
 
 
 export class ShadowCasterPass {
@@ -67,13 +68,11 @@ export class ShadowCasterPass {
 
 	/**@internal */
 	private _spiltDistance: number[] = [];
-	/**@internal */
-	_shadowMapCount: number = 3;
 
 	/**@internal */
 	_light: DirectionLight;
 	/**@internal */
-	cameras: Camera[];
+	shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
 	/**@internal */
 	private _boundingSphere: BoundSphere[] = new Array<BoundSphere>(ShadowCasterPass._maxCascades + 1);
 	/**@internal */
@@ -102,7 +101,6 @@ export class ShadowCasterPass {
 	_shadowMap: RenderTexture;
 
 	constructor() {
-		this.cameras = [];
 		this._shaderValueVPs = [];
 		var i: number;
 		for (i = 0; i < this._spiltDistance.length; i++) {
@@ -138,10 +136,9 @@ export class ShadowCasterPass {
 	 */
 	_update(index: number, sceneCamera: Camera): void {
 		var shaderValues: ShaderData = (<Scene3D>this._light._scene)._shaderValues;
-		this._rebuildRenderInfo();
 		this._setupShadowReceiverShaderValues(shaderValues);
-		var viewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
-		var projectMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix1;
+		var viewMatrix: Matrix4x4 = this.shadowSliceDatas[0].viewMatrix;
+		var projectMatrix: Matrix4x4 = this.shadowSliceDatas[0].projectionMatrix;
 		this._getLightViewProject(sceneCamera, viewMatrix, projectMatrix);
 
 		ShadowUtils.getShadowBias(this._light, projectMatrix, this._light._shadowResolution, this._shadowBias);
@@ -190,7 +187,7 @@ export class ShadowCasterPass {
 
 			//direction light use shadow pancaking tech,do special dispose with nearPlane.
 			var nearPlane: number = this._light.shadowNearPlane;
-			var origin: Vector3 = ShadowCasterPass._tempVector31;
+			var origin: Vector3 = this.shadowSliceDatas[i].position;
 			var projectViewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix2;
 
 			Vector3.scale(lightForward, radius + nearPlane, origin);
@@ -198,30 +195,9 @@ export class ShadowCasterPass {
 			Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
 			Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
 			Matrix4x4.multiply(projectMatrix, viewMatrix, projectViewMatrix);
-
-			//TODO:剥离对Camera的依赖后可删除
-			var curLightCamera: Camera = this.cameras[0];
-			viewMatrix.cloneTo(curLightCamera.viewMatrix);
-			projectMatrix.cloneTo(curLightCamera.projectionMatrix);
+			this.shadowSliceDatas[i].boundFrustum.matrix = projectViewMatrix;
 
 			ShadowCasterPass.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectViewMatrix, this._shaderValueVPs[0]);
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	private _rebuildRenderInfo(): void {
-		var nNum: number = this._shadowMapCount + 1;
-		var i: number;
-		this.cameras.length = nNum;
-		for (i = 0; i < nNum; i++) {
-			if (!this.cameras[i]) {
-				var camera: Camera = new Camera();
-				camera.name = "lightCamera" + i;
-				camera.clearColor = new Vector4(1.0, 1.0, 1.0, 1.0);
-				this.cameras[i] = camera;
-			}
 		}
 	}
 
@@ -267,6 +243,7 @@ export class ShadowCasterPass {
 		LayaGL.instance.viewport(0, 0, this._shadowMap.width, this._shadowMap.height);
 		gl.enable(gl.SCISSOR_TEST);
 		LayaGL.instance.scissor(0, 0, this._shadowMap.width, this._shadowMap.height);
+		gl.clearColor(1, 1, 1, 1);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	}
 
@@ -295,7 +272,7 @@ export class ShadowCasterPass {
 		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
 		shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, direction);
 
-		var cameraSV: ShaderData = this.cameras[0]._shaderValues;//TODO:
+		var cameraSV: ShaderData = this.shadowSliceDatas[0].cameraShaderBalue;//TODO:
 		cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, projectMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, this._projectViewMatrix);
@@ -305,22 +282,22 @@ export class ShadowCasterPass {
 	 * @internal
 	 */
 	private _setupShadowReceiverShaderValues(shaderValues: ShaderData): void {
-		switch (this._shadowMapCount) {
+		switch (1) {//todo:
 			case 1:
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
 				break;
-			case 2:
-				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
-				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
-				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
-				break;
-			case 3:
-				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
-				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
-				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
-				break;
+			// case 2:
+			// 	shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
+			// 	shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
+			// 	shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
+			// 	break;
+			// case 3:
+			// 	shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
+			// 	shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
+			// 	shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
+			// 	break;
 		}
 		switch (this._light.shadowMode) {
 			case ShadowMode.Hard:

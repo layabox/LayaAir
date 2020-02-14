@@ -159,7 +159,7 @@ export class BoundFrustum {
 	}
 
 	set matrix(matrix: Matrix4x4) {
-		this._matrix = matrix;
+		matrix.cloneTo(this._matrix)
 		BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
 	}
 

@@ -34,6 +34,7 @@ import { DirectionLight } from "./light/DirectionLight";
 import { ShadowMode } from "./light/ShadowMode";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 import { ShadowUtils } from "./light/ShadowUtils";
+import { ShadowSliceData } from "../shadowMap/ShadowSliceData";
 
 /**
  * 相机清除标记。
@@ -571,14 +572,14 @@ export class Camera extends BaseCamera {
 			shadowCasterPass._light = mainLight;
 			shadowCasterPass._update(0, this);
 
-			var smCamera: Camera = shadowCasterPass.cameras[0];
+			var shadowSliceData: ShadowSliceData = shadowCasterPass.shadowSliceDatas[0];
 			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
-			shadowCullInfo.position = smCamera._transform.position;
-			shadowCullInfo.cullPlaneCount = ShadowUtils.getDirectionLightShadowCullPlanes(smCamera.boundFrustum, mainLight._direction, shadowCullInfo.cullPlanes);
+			shadowCullInfo.position = shadowSliceData.position;
+			shadowCullInfo.cullPlaneCount = ShadowUtils.getDirectionLightShadowCullPlanes(shadowSliceData.boundFrustum, mainLight._direction, shadowCullInfo.cullPlanes);
 			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
 
 			shadowCasterPass.start();
-			context.cameraShaderValue = smCamera._shaderValues;
+			context.cameraShaderValue = shadowSliceData.cameraShaderBalue;
 			Camera._updateMark++;
 			shadowCasterPass.tempViewPort();//TODO:
 			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
@@ -591,6 +592,7 @@ export class Camera extends BaseCamera {
 			context.pipelineMode = "Forward";
 		}
 
+		context.camera=this;
 		context.cameraShaderValue = this._shaderValues;
 		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复
