@@ -17,6 +17,7 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ShadowSliceData } from "./ShadowSliceData";
+import { Utils3D } from "../utils/Utils3D";
 
 /**
  * 
@@ -158,32 +159,10 @@ export class ShadowCasterPass {
 			Matrix4x4.multiply(projectMatrix, viewMatrix, projectViewMatrix);
 			this._shadowSliceDatas[i].boundFrustum.matrix = projectViewMatrix;
 
-			ShadowCasterPass.multiplyMatrixOutFloat32Array(ShadowUtils._shadowMapScaleOffsetMatrix, projectViewMatrix, this._shaderValueVPs[0]);
+			Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, projectViewMatrix.elements, this._shaderValueVPs[0], 0);
 		}
 	}
 
-
-	/**
-	 * 计算两个矩阵的乘法
-	 * @param	left left矩阵
-	 * @param	right  right矩阵
-	 * @param	out  输出矩阵
-	 */
-	static multiplyMatrixOutFloat32Array(left: Matrix4x4, right: Matrix4x4, out: Float32Array): void {
-		var i: number, a: Float32Array, b: Float32Array, ai0: number, ai1: number, ai2: number, ai3: number;
-		a = left.elements;
-		b = right.elements;
-		for (i = 0; i < 4; i++) {
-			ai0 = a[i];
-			ai1 = a[i + 4];
-			ai2 = a[i + 8];
-			ai3 = a[i + 12];
-			out[i] = ai0 * b[0] + ai1 * b[1] + ai2 * b[2] + ai3 * b[3];
-			out[i + 4] = ai0 * b[4] + ai1 * b[5] + ai2 * b[6] + ai3 * b[7];
-			out[i + 8] = ai0 * b[8] + ai1 * b[9] + ai2 * b[10] + ai3 * b[11];
-			out[i + 12] = ai0 * b[12] + ai1 * b[13] + ai2 * b[14] + ai3 * b[15];
-		}
-	}
 
 	/**
 	 * @internal

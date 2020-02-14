@@ -453,30 +453,37 @@ export class Utils3D {
 	/**
 	 * @internal
 	 */
-	static _mulMatrixArray(leftMatrixE: Float32Array, rightMatrix: Matrix4x4, outArray: Float32Array, outOffset: number): void {
+	static _mulMatrixArray(left: Float32Array, right: Float32Array, outArray: Float32Array, outOffset: number): void {
+		var l: Float32Array = right;
+		var r: Float32Array = left;
+		var e: Float32Array = outArray;
 
-		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
-		var rightMatrixE: Float32Array = rightMatrix.elements;
-		var m11: number = rightMatrixE[0], m12: number = rightMatrixE[1], m13: number = rightMatrixE[2], m14: number = rightMatrixE[3];
-		var m21: number = rightMatrixE[4], m22: number = rightMatrixE[5], m23: number = rightMatrixE[6], m24: number = rightMatrixE[7];
-		var m31: number = rightMatrixE[8], m32: number = rightMatrixE[9], m33: number = rightMatrixE[10], m34: number = rightMatrixE[11];
-		var m41: number = rightMatrixE[12], m42: number = rightMatrixE[13], m43: number = rightMatrixE[14], m44: number = rightMatrixE[15];
+		var l11: number = l[0], l12: number = l[1], l13: number = l[2], l14: number = l[3];
+		var l21: number = l[4], l22: number = l[5], l23: number = l[6], l24: number = l[7];
+		var l31: number = l[8], l32: number = l[9], l33: number = l[10], l34: number = l[11];
+		var l41: number = l[12], l42: number = l[13], l43: number = l[14], l44: number = l[15];
 
-		var ai0OutOffset: number = outOffset;
-		var ai1OutOffset: number = outOffset + 4;
-		var ai2OutOffset: number = outOffset + 8;
-		var ai3OutOffset: number = outOffset + 12;
+		var r11: number = r[0], r12: number = r[1], r13: number = r[2], r14: number = r[3];
+		var r21: number = r[4], r22: number = r[5], r23: number = r[6], r24: number = r[7];
+		var r31: number = r[8], r32: number = r[9], r33: number = r[10], r34: number = r[11];
+		var r41: number = r[12], r42: number = r[13], r43: number = r[14], r44: number = r[15];
 
-		for (i = 0; i < 4; i++) {
-			ai0 = leftMatrixE[i];
-			ai1 = leftMatrixE[i + 4];
-			ai2 = leftMatrixE[i + 8];
-			ai3 = leftMatrixE[i + 12];
-			outArray[ai0OutOffset + i] = ai0 * m11 + ai1 * m12 + ai2 * m13 + ai3 * m14;
-			outArray[ai1OutOffset + i] = ai0 * m21 + ai1 * m22 + ai2 * m23 + ai3 * m24;
-			outArray[ai2OutOffset + i] = ai0 * m31 + ai1 * m32 + ai2 * m33 + ai3 * m34;
-			outArray[ai3OutOffset + i] = ai0 * m41 + ai1 * m42 + ai2 * m43 + ai3 * m44;
-		}
+		e[outOffset + 0] = (l11 * r11) + (l12 * r21) + (l13 * r31) + (l14 * r41);
+		e[outOffset + 1] = (l11 * r12) + (l12 * r22) + (l13 * r32) + (l14 * r42);
+		e[outOffset + 2] = (l11 * r13) + (l12 * r23) + (l13 * r33) + (l14 * r43);
+		e[outOffset + 3] = (l11 * r14) + (l12 * r24) + (l13 * r34) + (l14 * r44);
+		e[outOffset + 4] = (l21 * r11) + (l22 * r21) + (l23 * r31) + (l24 * r41);
+		e[outOffset + 5] = (l21 * r12) + (l22 * r22) + (l23 * r32) + (l24 * r42);
+		e[outOffset + 6] = (l21 * r13) + (l22 * r23) + (l23 * r33) + (l24 * r43);
+		e[outOffset + 7] = (l21 * r14) + (l22 * r24) + (l23 * r34) + (l24 * r44);
+		e[outOffset + 8] = (l31 * r11) + (l32 * r21) + (l33 * r31) + (l34 * r41);
+		e[outOffset + 9] = (l31 * r12) + (l32 * r22) + (l33 * r32) + (l34 * r42);
+		e[outOffset + 10] = (l31 * r13) + (l32 * r23) + (l33 * r33) + (l34 * r43);
+		e[outOffset + 11] = (l31 * r14) + (l32 * r24) + (l33 * r34) + (l34 * r44);
+		e[outOffset + 12] = (l41 * r11) + (l42 * r21) + (l43 * r31) + (l44 * r41);
+		e[outOffset + 13] = (l41 * r12) + (l42 * r22) + (l43 * r32) + (l44 * r42);
+		e[outOffset + 14] = (l41 * r13) + (l42 * r23) + (l43 * r33) + (l44 * r43);
+		e[outOffset + 15] = (l41 * r14) + (l42 * r24) + (l43 * r34) + (l44 * r44);
 	}
 
 	private static arcTanAngle(x: number, y: number): number {
@@ -561,6 +568,7 @@ export class Utils3D {
 
 
 	static matrix4x4MultiplyFFF(a: Float32Array, b: Float32Array, e: Float32Array): void {
+
 		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
 		if (e === b) {
 			b = new Float32Array(16);
