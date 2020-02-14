@@ -4,7 +4,6 @@ import { ISingletonElement } from "../../resource/ISingletonElement";
 import { Stat } from "../../utils/Stat";
 import { SimpleSingletonList } from "../component/SimpleSingletonList";
 import { SingletonList } from "../component/SingletonList";
-import { Bounds } from "../core/Bounds";
 import { Camera } from "../core/Camera";
 import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BaseRender } from "../core/render/BaseRender";
@@ -15,18 +14,26 @@ import { BoundsOctree } from "../core/scene/BoundsOctree";
 import { Scene3D } from "../core/scene/Scene3D";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Color } from "../math/Color";
+import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
+import { Shader3D } from "../shader/Shader3D";
 import { Utils3D } from "../utils/Utils3D";
 import { DynamicBatchManager } from "./DynamicBatchManager";
 import { StaticBatchManager } from "./StaticBatchManager";
-import { Shader3D } from "../shader/Shader3D";
 
 
 export class CameraCullInfo {
 	position: Vector3;
+
 	useOcclusionCulling: Boolean;
 	boundFrustum: BoundFrustum;
 	cullingMask: number;
+}
+
+export class ShadowCullInfo {
+	position: Vector3;
+	cullPlanes: Array<Plane> = new Array(10);
+	cullPlaneCount: number;
 }
 
 /**
@@ -35,20 +42,15 @@ export class CameraCullInfo {
  */
 export class FrustumCulling {
 	/**@internal */
-	private static _tempVector3: Vector3 = new Vector3();
-	/**@internal */
 	private static _tempColor0: Color = new Color();
 
 	/**@internal */
 	static _cameraCullInfo: CameraCullInfo = new CameraCullInfo();
+	/**@internal */
+	static _shadowCullInfo: ShadowCullInfo = new ShadowCullInfo();
 
 	/**@internal */
 	static debugFrustumCulling: boolean = false;
-
-	/**@internal	[NATIVE]*/
-	static _cullingBufferLength: number;
-	/**@internal	[NATIVE]*/
-	static _cullingBuffer: Float32Array;
 
 	/**
 	 * @internal
@@ -64,7 +66,6 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	private static _drawTraversalCullingBound(renderList: SingletonList<ISingletonElement>, debugTool: PixelLineSprite3D): void {
-		var validCount: number = renderList.length;
 		var renders: ISingletonElement[] = renderList.elements;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 			var color: Color = FrustumCulling._tempColor0;
@@ -153,6 +154,57 @@ export class FrustumCulling {
 	}
 
 	/**
+	 * @internal
+	 */
+	static cullingShadow(cullInfo: ShadowCullInfo, scene: Scene3D, context: RenderContext3D): void {
+		var renderList: SingletonList<ISingletonElement> = scene._renders;
+		var position: Vector3 = cullInfo.position;
+		var cullPlaneCount: number = cullInfo.cullPlaneCount;
+		var cullPlanes: Array<Plane> = cullInfo.cullPlanes;
+		var renders: ISingletonElement[] = renderList.elements;
+		var loopCount: number = Stat.loopCount;
+		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
+			var render: BaseRender = <BaseRender>renders[i];
+			var canPass: boolean = render._castShadow && render._enable;
+			if (canPass) {
+				var min: Vector3 = render.bounds.getMin();
+				var max: Vector3 = render.bounds.getMax();
+				var minX: number = min.x;
+				var minY: number = min.y;
+				var minZ: number = min.z;
+				var maxX: number = max.x;
+				var maxY: number = max.y;
+				var maxZ: number = max.z;
+				//TODO:通过相机裁剪直接pass
+				var pass: boolean = true;
+				for (var j: number = 0; j < cullPlaneCount; j++) {
+					var plane: Plane = cullPlanes[j];
+					var normal: Vector3 = plane.normal;
+					if (plane.distance + (normal.x * (normal.x < 0.0 ? minX : maxX)) + (normal.y * (normal.y < 0.0 ? minY : maxY)) + (normal.z * (normal.z < 0.0 ? minZ : maxZ)) < 0.0) {
+						pass = false;
+						break;
+					}
+				}
+				Stat.frustumCulling++;
+
+				if (pass) {
+					render._renderMark = loopCount;
+					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
+					var elements: RenderElement[] = render._renderElements;
+					for (var j: number = 0, m: number = elements.length; j < m; j++)
+						elements[j]._update(scene, context, null, null);
+				}
+			}
+		}
+	}
+
+
+	/**@internal	[NATIVE]*/
+	static _cullingBufferLength: number;
+	/**@internal	[NATIVE]*/
+	static _cullingBuffer: Float32Array;
+
+	/**
 	 * @internal [NATIVE]
 	 */
 	static renderObjectCullingNative(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SimpleSingletonList, customShader: Shader3D, replacementTag: string): void {
@@ -206,13 +258,5 @@ export class FrustumCulling {
 	static cullingNative(boundFrustumBuffer: Float32Array, cullingBuffer: Float32Array, cullingBufferIndices: Int32Array, cullingCount: number, cullingBufferResult: Int32Array): number {
 		return (<any>LayaGL.instance).culling(boundFrustumBuffer, cullingBuffer, cullingBufferIndices, cullingCount, cullingBufferResult);
 	}
-
-	/**
-	 * 创建一个 <code>FrustumCulling</code> 实例。
-	 */
-	constructor() {
-
-	}
-
 }
 

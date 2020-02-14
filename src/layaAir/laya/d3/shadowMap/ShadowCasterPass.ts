@@ -16,6 +16,7 @@ import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
+import { BaseCamera } from "../core/BaseCamera";
 
 
 export class ShadowCasterPass {
@@ -46,6 +47,7 @@ export class ShadowCasterPass {
 	static _tempMatrix1: Matrix4x4 = new Matrix4x4();
 	/**@internal */
 	static _tempMatrix2: Matrix4x4 = new Matrix4x4();
+
 
 	/**@internal */
 	static SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
@@ -94,6 +96,8 @@ export class ShadowCasterPass {
 	private _shaderValueVPs: Float32Array[];
 	/** @internal */
 	private _shadowBias: Vector4 = new Vector4();
+	/**@internal */
+	private _projectViewMatrix: Matrix4x4 = new Matrix4x4();
 
 	_shadowMap: RenderTexture;
 
@@ -137,42 +141,15 @@ export class ShadowCasterPass {
 				this._shaderValueVPs[i] = new Float32Array(this._shaderValueLightVP.buffer, i * 64);
 		}
 	}
-
-
-	private _beginSampler(index: number, sceneCamera: Camera): void {
-		this._update(index, sceneCamera);
-	}
-
-
 	/**
 	 * @internal
 	 */
-	_calcAllLightCameraInfo(sceneCamera: Camera): void {
-		if (this._shadowMapCount === 1) {
-			this._beginSampler(0, sceneCamera);
-		} else {
-			for (var i: number = 0, n: number = this._shadowMapCount + 1; i < n; i++) {
-				this._beginSampler(i, sceneCamera);
-			}
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	private _recalculate(nearPlane: number, fieldOfView: number, aspectRatio: number): void {
-		this._rebuildRenderInfo();
-	}
-
-	/**
-	 * @internal
-	 */
-	private _update(index: number, sceneCamera: Camera): void {
+	_update(index: number, sceneCamera: Camera): void {
 		var nearPlane: number = sceneCamera.nearPlane;
 		var fieldOfView: number = sceneCamera.fieldOfView;
 		var aspectRatio: number = (<Camera>sceneCamera).aspectRatio;
 		var shaderValues: ShaderData = (<Scene3D>this._light._scene)._shaderValues;
-		this._recalculate(nearPlane, fieldOfView, aspectRatio);
+		this._rebuildRenderInfo();
 		this._setupShadowReceiverShaderValues(shaderValues);
 		var viewMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix0;
 		var projectMatrix: Matrix4x4 = ShadowCasterPass._tempMatrix1;
@@ -181,7 +158,7 @@ export class ShadowCasterPass {
 		ShadowUtils.getShadowBias(this._light, projectMatrix, this._light._shadowResolution, this._shadowBias);
 		this._light.transform.worldMatrix.getForward(this._light._direction);
 		Vector3.normalize(this._light._direction, this._light._direction);
-		this._setupShadowCasterShaderValues(shaderValues, this._light._direction, this._shadowBias);
+		this._setupShadowCasterShaderValues(shaderValues, this._light._direction, this._shadowBias, viewMatrix, projectMatrix);
 	}
 
 	/**
@@ -330,9 +307,15 @@ export class ShadowCasterPass {
 	/**
      * @internal
      */
-	private _setupShadowCasterShaderValues(shaderValues: ShaderData, direction: Vector3, shadowBias: Vector4): void {
+	private _setupShadowCasterShaderValues(shaderValues: ShaderData, direction: Vector3, shadowBias: Vector4, viewMatrix: Matrix4x4, projectMatrix: Matrix4x4): void {
+		Matrix4x4.multiply(projectMatrix, viewMatrix, this._projectViewMatrix);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
 		shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, direction);
+
+		var cameraSV: ShaderData = this.cameras[0]._shaderValues;//TODO:
+		cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMatrix);
+		cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, projectMatrix);
+		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, this._projectViewMatrix);
 	}
 
 	/**

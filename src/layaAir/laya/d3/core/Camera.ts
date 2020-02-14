@@ -9,7 +9,7 @@ import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/Re
 import { SystemUtils } from "../../webgl/SystemUtils";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
-import { FrustumCulling, CameraCullInfo } from "../graphics/FrustumCulling";
+import { FrustumCulling, CameraCullInfo, ShadowCullInfo } from "../graphics/FrustumCulling";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Matrix4x4 } from "../math/Matrix4x4";
@@ -33,6 +33,7 @@ import { Transform3D } from "./Transform3D";
 import { DirectionLight } from "./light/DirectionLight";
 import { ShadowMode } from "./light/ShadowMode";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
+import { ShadowUtils } from "./light/ShadowUtils";
 
 /**
  * 相机清除标记。
@@ -565,23 +566,20 @@ export class Camera extends BaseCamera {
 		if (mainLight && mainLight.shadowMode !== ShadowMode.None) {
 			context.pipelineMode = "ShadowCaster";
 			ShaderData.setRuntimeValueMode(false);
-			
+
 			shadowCasterPass = Scene3D._shadowCasterPass;
 			shadowCasterPass._light = mainLight;
-			shadowCasterPass._calcAllLightCameraInfo(this);
+			shadowCasterPass._update(0, this);
 
 			var smCamera: Camera = shadowCasterPass.cameras[0];
-			var cameraCullInfo: CameraCullInfo = FrustumCulling._cameraCullInfo;
-			cameraCullInfo.position = smCamera._transform.position;
-			cameraCullInfo.cullingMask = smCamera.cullingMask;
-			cameraCullInfo.boundFrustum = smCamera.boundFrustum;
-			cameraCullInfo.useOcclusionCulling = smCamera.useOcclusionCulling;
-			FrustumCulling.renderObjectCulling(cameraCullInfo, scene, context, shader, replacementTag, true);
+			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
+			shadowCullInfo.position = smCamera._transform.position;
+			shadowCullInfo.cullPlaneCount = ShadowUtils.getDirectionLightShadowCullPlanes(smCamera.boundFrustum, mainLight._direction, shadowCullInfo.cullPlanes);
+			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
 
 			shadowCasterPass.start();
 			context.camera = smCamera;
 			Camera._updateMark++;
-			smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);//TODO:需要剥离渲染对Camera的依赖
 			shadowCasterPass.tempViewPort();//TODO:
 			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
 			// gl.colorMask(false,false,false,false);

@@ -137,7 +137,7 @@ export class ShadowUtils {
     /**
 	 * @internal
 	 */
-    static getDirationLightShadowCullPlanes(frustum: BoundFrustum, direction: Vector3, out: Array<Plane>): number {
+    static getDirectionLightShadowCullPlanes(frustum: BoundFrustum, direction: Vector3, out: Array<Plane>): number {
         // http://lspiroengine.com/?p=187
         var frustumPlanes: Array<Plane> = ShadowUtils._frustumPlanes;
         var frustumCorners: Array<Vector3> = ShadowUtils._frustumCorners;
