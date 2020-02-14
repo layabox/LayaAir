@@ -3,6 +3,7 @@ import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
 import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
 import { DirectionLight } from "../core/light/DirectionLight";
+import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
 import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowUtils } from "../core/light/ShadowUtils";
 import { Scene3D } from "../core/scene/Scene3D";
@@ -16,8 +17,6 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ShadowSliceData } from "./ShadowSliceData";
-import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
-import { LightSprite } from "../core/light/LightSprite";
 
 /**
  * 
@@ -52,6 +51,13 @@ export class ShadowCasterPass {
 	/**@internal */
 	static _maxCascades: number = 4;
 
+	/** @internal */
+	private _shadowBias: Vector4 = new Vector4();
+	/** @internal */
+	private _shadowParams: Vector4 = new Vector4();
+	/** @internal */
+	private _shadowMapSize: Vector4 = new Vector4();
+
 	/** */
 	_shadowMap: RenderTexture;
 	/**@internal */
@@ -69,23 +75,13 @@ export class ShadowCasterPass {
 
 
 
-
-
-
 	/**@internal */
 	_light: DirectionLight;
-	/** @internal */
-	private _shadowMapSize: Vector4 = new Vector4();
-	/** @internal */
-	private _shadowParams: Vector4 = new Vector4();
-	/** @internal */
-	private _shaderValueDistance: Vector4 = new Vector4();
 	/** @internal */
 	private _shaderValueLightVP: Float32Array = null;
 	/** @internal */
 	private _shaderValueVPs: Float32Array[];
-	/** @internal */
-	private _shadowBias: Vector4 = new Vector4();
+
 	/**@internal */
 	private _projectViewMatrix: Matrix4x4 = new Matrix4x4();
 
@@ -248,12 +244,12 @@ export class ShadowCasterPass {
 	 */
 	private _setupShadowReceiverShaderValues(shaderValues: ShaderData): void {
 		var light: DirectionLight = this._light;
-		
+
 		if (light.shadowCascadesMode !== ShadowCascadesMode.NoCascades)
 			shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADES);
 		else
 			shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADES);
-		
+
 		switch (light.shadowMode) {
 			case ShadowMode.Hard:
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
@@ -268,9 +264,8 @@ export class ShadowCasterPass {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
 				break;
 		}
-		var shadowMapSize: number = light._shadowResolution;
+		var shadowMapSize: number = light._shadowResolution;//TODO:
 		this._shadowMapSize.setValue(1.0 / shadowMapSize, 1.0 / shadowMapSize, shadowMapSize, shadowMapSize);
-		shaderValues.setVector(ShadowCasterPass.SHADOWDISTANCE, this._shaderValueDistance);
 		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHT_VIEW_PROJECTS, this._shaderValueLightVP);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
 		this._shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
