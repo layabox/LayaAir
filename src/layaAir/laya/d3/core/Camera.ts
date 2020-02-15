@@ -569,8 +569,7 @@ export class Camera extends BaseCamera {
 			ShaderData.setRuntimeValueMode(false);
 
 			shadowCasterPass = Scene3D._shadowCasterPass;
-			shadowCasterPass._light = mainLight;
-			shadowCasterPass._update(0, this);
+			shadowCasterPass.update(this,mainLight);
 
 			var shadowSliceData: ShadowSliceData = shadowCasterPass._shadowSliceDatas[0];
 			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
@@ -579,7 +578,7 @@ export class Camera extends BaseCamera {
 			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
 
 			shadowCasterPass.start();
-			context.cameraShaderValue = shadowSliceData.cameraShaderBalue;
+			context.cameraShaderValue = shadowSliceData.cameraShaderValue;
 			Camera._updateMark++;
 			shadowCasterPass.tempViewPort();//TODO:
 			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列

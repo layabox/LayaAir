@@ -8,9 +8,10 @@ import { BoundFrustum } from "../math/BoundFrustum";
  * 阴影分割数据。
  */
 export class ShadowSliceData {
-    cameraShaderBalue: ShaderData = new ShaderData();
+    cameraShaderValue: ShaderData = new ShaderData();
     position: Vector3 = new Vector3();
     boundFrustum: BoundFrustum = new BoundFrustum(new Matrix4x4());
     viewMatrix: Matrix4x4 = new Matrix4x4();
     projectionMatrix: Matrix4x4 = new Matrix4x4();
+    viewProjectMatrix: Matrix4x4 = new Matrix4x4();
 }

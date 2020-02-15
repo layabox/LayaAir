@@ -14,6 +14,9 @@ import { ShadowMode } from "./ShadowMode";
 import { SpotLight } from "./SpotLight";
 import { BoundSphere } from "../../math/BoundSphere";
 import { Vector2 } from "../../math/Vector2";
+import { Camera } from "../Camera";
+import { Utils3D } from "../../utils/Utils3D";
+import { ShadowSliceData } from "../../shadowMap/ShadowSliceData";
 
 /**
  * @internal
@@ -31,6 +34,15 @@ enum FrustumFace {
  * @internal
  */
 export class ShadowUtils {
+    /** @internal */
+    private static _tempVector30: Vector3 = new Vector3();
+    /** @internal */
+    private static _tempVector31: Vector3 = new Vector3();
+    /** @internal */
+    private static _tempVector32: Vector3 = new Vector3();
+    /** @internal */
+    private static _tempBoundSphere0: BoundSphere = new BoundSphere(new Vector3(), 0);
+
     /** @internal */
     static _shadowMapScaleOffsetMatrix: Matrix4x4 = new Matrix4x4(
         0.5, 0.0, 0.0, 0.0,
@@ -228,5 +240,71 @@ export class ShadowUtils {
         outBoundSphere.radius = lastFrustumSphere.y;
         Vector3.scale(forward, lastFrustumSphere.x, center);
         Vector3.add(cameraPos, center, center);
+    }
+
+    /**
+     * @inernal
+     */
+    static getMaxTileResolutionInAtlas(atlasWidth: number, atlasHeight: number, tileCount: number): number {
+        var resolution: number = Math.min(atlasWidth, atlasHeight);
+        var currentTileCount: number = Math.floor(atlasWidth / resolution) * Math.floor(atlasHeight / resolution);
+        while (currentTileCount < tileCount) {
+            resolution = Math.floor(resolution >> 1);
+            currentTileCount = Math.floor(atlasWidth / resolution) * Math.floor(atlasHeight / resolution);
+        }
+        return resolution;
+    }
+
+    /**
+     * @internal
+     */
+    static getLightMatrices(sceneCamera: Camera, light: LightSprite, cascadeIndex: number, nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array): void {
+        var boundSphere: BoundSphere = ShadowUtils._tempBoundSphere0;
+        var forward: Vector3 = ShadowUtils._tempVector30;
+        sceneCamera._transform.getForward(forward);//TODO:normalize测试
+        ShadowUtils.getBoundSphereByFrustum(sceneCamera.nearPlane, Math.min(sceneCamera.farPlane, light._shadowDistance), sceneCamera.fieldOfView * MathUtils3D.Deg2Rad,
+            sceneCamera.aspectRatio, sceneCamera._transform.position, forward, boundSphere);
+
+        var lightWorld: Matrix4x4 = light._transform.worldMatrix;
+        var lightUp: Vector3 = ShadowUtils._tempVector32;
+        var lightSide: Vector3 = ShadowUtils._tempVector31;
+        var lightForward: Vector3 = ShadowUtils._tempVector30;
+        lightSide.setValue(lightWorld.getElementByRowColumn(0, 0), lightWorld.getElementByRowColumn(0, 1), lightWorld.getElementByRowColumn(0, 2));
+        lightUp.setValue(lightWorld.getElementByRowColumn(1, 0), lightWorld.getElementByRowColumn(1, 1), lightWorld.getElementByRowColumn(1, 2));
+        lightForward.setValue(-lightWorld.getElementByRowColumn(2, 0), -lightWorld.getElementByRowColumn(2, 1), -lightWorld.getElementByRowColumn(2, 2));
+        Vector3.normalize(lightUp, lightUp);
+        Vector3.normalize(lightSide, lightSide);
+        Vector3.normalize(lightForward, lightForward);
+
+        var center: Vector3 = boundSphere.center;
+        var radius: number = boundSphere.radius;
+        var diam: number = radius * 2.0;
+        var sizeUnit: number = shadowResolution / diam;
+        var radiusUnit: number = diam / shadowResolution;
+
+        // to solve shdow swimming problem
+        var upLen: number = Math.ceil(Vector3.dot(center, lightUp) * sizeUnit) * radiusUnit;
+        var sideLen: number = Math.ceil(Vector3.dot(center, lightSide) * sizeUnit) * radiusUnit;
+        var forwardLen: number = Vector3.dot(center, lightForward);
+
+        center.x = lightUp.x * upLen + lightSide.x * sideLen + lightForward.x * forwardLen;
+        center.y = lightUp.y * upLen + lightSide.y * sideLen + lightForward.y * forwardLen;
+        center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
+
+        //direction light use shadow pancaking tech,do special dispose with nearPlane.
+        var origin: Vector3 = shadowSliceData.position;
+        var viewMatrix: Matrix4x4 = shadowSliceData.viewMatrix;
+        var projectMatrix: Matrix4x4 = shadowSliceData.projectionMatrix;
+        var viewProjectMatrix: Matrix4x4 = shadowSliceData.viewProjectMatrix;
+
+        Vector3.scale(lightForward, radius + nearPlane, origin);
+        Vector3.subtract(center, origin, origin);
+        Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
+        Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
+        Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
+        shadowSliceData.boundFrustum.matrix = viewProjectMatrix;
+
+        Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, shadowMatrices, cascadeIndex * 16);
+
     }
 }

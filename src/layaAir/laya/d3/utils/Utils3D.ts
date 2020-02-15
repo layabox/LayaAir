@@ -1,7 +1,9 @@
 import { Node } from "../../display/Node";
 import { LayaGL } from "../../layagl/LayaGL";
-import { BaseTexture } from "../../resource/BaseTexture";
+import { FilterMode } from "../../resource/FilterMode";
 import { Texture2D } from "../../resource/Texture2D";
+import { TextureFormat } from "../../resource/TextureFormat";
+import { WarpMode } from "../../resource/WrapMode";
 import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BoundBox } from "../math/BoundBox";
 import { Color } from "../math/Color";
@@ -9,11 +11,8 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
-import { TextureGenerator } from "../resource/TextureGenerator";
-import { TextureFormat } from "../../resource/TextureFormat";
 import { Physics3D } from "../physics/Physics3D";
-import { FilterMode } from "../../resource/FilterMode";
-import { WarpMode } from "../../resource/WrapMode";
+import { TextureGenerator } from "../resource/TextureGenerator";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
