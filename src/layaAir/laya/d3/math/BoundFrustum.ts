@@ -260,7 +260,7 @@ export class BoundFrustum {
 	 * @param  p2  平面2。
 	 * @param  p3  平面3。
 	 */
-	private static _get3PlaneInterPoint(p1: Plane, p2: Plane, p3: Plane, out: Vector3): void {
+	static get3PlaneInterPoint(p1: Plane, p2: Plane, p3: Plane, out: Vector3): void {
 		var p1Nor: Vector3 = p1.normal;
 		var p2Nor: Vector3 = p2.normal;
 		var p3Nor: Vector3 = p3.normal;
@@ -286,14 +286,14 @@ export class BoundFrustum {
 	 * @param  corners  返回顶点的输出队列。
 	 */
 	getCorners(corners: Vector3[]): void {
-		BoundFrustum._get3PlaneInterPoint(this._near, this._bottom, this._right, corners[FrustumCorner.nearBottomRight]);
-		BoundFrustum._get3PlaneInterPoint(this._near, this._top, this._right, corners[FrustumCorner.nearTopRight]);
-		BoundFrustum._get3PlaneInterPoint(this._near, this._top, this._left, corners[FrustumCorner.nearTopLeft]);
-		BoundFrustum._get3PlaneInterPoint(this._near, this._bottom, this._left, corners[FrustumCorner.nearBottomLeft]);
-		BoundFrustum._get3PlaneInterPoint(this._far, this._bottom, this._right, corners[FrustumCorner.FarBottomRight]);
-		BoundFrustum._get3PlaneInterPoint(this._far, this._top, this._right, corners[FrustumCorner.FarTopRight]);
-		BoundFrustum._get3PlaneInterPoint(this._far, this._top, this._left, corners[FrustumCorner.FarTopLeft]);
-		BoundFrustum._get3PlaneInterPoint(this._far, this._bottom, this._left, corners[FrustumCorner.FarBottomLeft]);
+		BoundFrustum.get3PlaneInterPoint(this._near, this._bottom, this._right, corners[FrustumCorner.nearBottomRight]);
+		BoundFrustum.get3PlaneInterPoint(this._near, this._top, this._right, corners[FrustumCorner.nearTopRight]);
+		BoundFrustum.get3PlaneInterPoint(this._near, this._top, this._left, corners[FrustumCorner.nearTopLeft]);
+		BoundFrustum.get3PlaneInterPoint(this._near, this._bottom, this._left, corners[FrustumCorner.nearBottomLeft]);
+		BoundFrustum.get3PlaneInterPoint(this._far, this._bottom, this._right, corners[FrustumCorner.FarBottomRight]);
+		BoundFrustum.get3PlaneInterPoint(this._far, this._top, this._right, corners[FrustumCorner.FarTopRight]);
+		BoundFrustum.get3PlaneInterPoint(this._far, this._top, this._left, corners[FrustumCorner.FarTopLeft]);
+		BoundFrustum.get3PlaneInterPoint(this._far, this._bottom, this._left, corners[FrustumCorner.FarBottomLeft]);
 	}
 
 	/**

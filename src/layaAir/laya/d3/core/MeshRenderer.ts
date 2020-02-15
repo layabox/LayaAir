@@ -153,29 +153,31 @@ export class MeshRenderer extends BaseRender {
 	 */
 	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
-		var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
-		switch (element.renderType) {
-			case RenderElement.RENDERTYPE_NORMAL:
-			case RenderElement.RENDERTYPE_STATICBATCH:
-			case RenderElement.RENDERTYPE_VERTEXBATCH:
-				if (transform) {
-					Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-					this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-				} else {
-					this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-				}
-				break;
-			case RenderElement.RENDERTYPE_INSTANCEBATCH:
-				var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
-				var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
-				var elements: SubMeshRenderElement[] = insBatches.elements;
-				var count: number = insBatches.length;
-				for (var i: number = 0; i < count; i++) {
-					var worldMat: Matrix4x4 = elements[i]._transform.worldMatrix;
-					Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
-				}
-				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
-				break;
+		if (projectionView) {//TODO:是否移除MVP
+			var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
+			switch (element.renderType) {
+				case RenderElement.RENDERTYPE_NORMAL:
+				case RenderElement.RENDERTYPE_STATICBATCH:
+				case RenderElement.RENDERTYPE_VERTEXBATCH:
+					if (transform) {
+						Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
+						this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
+					} else {
+						this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
+					}
+					break;
+				case RenderElement.RENDERTYPE_INSTANCEBATCH:
+					var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
+					var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
+					var elements: SubMeshRenderElement[] = insBatches.elements;
+					var count: number = insBatches.length;
+					for (var i: number = 0; i < count; i++) {
+						var worldMat: Matrix4x4 = elements[i]._transform.worldMatrix;
+						Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
+					}
+					SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
+					break;
+			}
 		}
 	}
 	/**

@@ -569,12 +569,12 @@ export class Camera extends BaseCamera {
 			ShaderData.setRuntimeValueMode(false);
 
 			shadowCasterPass = Scene3D._shadowCasterPass;
-			shadowCasterPass.update(this,mainLight);
+			shadowCasterPass.update(this, mainLight);
 
 			var shadowSliceData: ShadowSliceData = shadowCasterPass._shadowSliceDatas[0];
 			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
 			shadowCullInfo.position = shadowSliceData.position;
-			shadowCullInfo.cullPlaneCount = ShadowUtils.getDirectionLightShadowCullPlanes(shadowSliceData.boundFrustum, mainLight._direction, shadowCullInfo.cullPlanes);
+			shadowCullInfo.cullPlaneCount = ShadowUtils.getDirectionLightShadowCullPlanes(shadowSliceData.viewProjectMatrix, mainLight._direction, shadowCullInfo.cullPlanes);
 			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
 
 			shadowCasterPass.start();
@@ -591,7 +591,7 @@ export class Camera extends BaseCamera {
 			context.pipelineMode = "Forward";
 		}
 
-		context.camera=this;
+		context.camera = this;
 		context.cameraShaderValue = this._shaderValues;
 		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复

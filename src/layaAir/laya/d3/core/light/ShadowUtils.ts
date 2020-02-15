@@ -57,7 +57,7 @@ export class ShadowUtils {
     /** @internal */
     private static _frustumCorners: Array<Vector3> = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
     /** @internal */
-    private static _frustumPlanes: Array<Plane> = new Array(6);
+    private static _frustumPlanes: Array<Plane> = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
     /** @internal */
     private static _backPlaneFaces: Array<FrustumFace> = new Array(5);
     /** @internal */
@@ -157,7 +157,7 @@ export class ShadowUtils {
     /**
 	 * @internal
 	 */
-    static getDirectionLightShadowCullPlanes(frustum: BoundFrustum, direction: Vector3, out: Array<Plane>): number {
+    static getDirectionLightShadowCullPlanes(viewProjectMatrix: Matrix4x4, direction: Vector3, out: Array<Plane>): number {
         // http://lspiroengine.com/?p=187
         var frustumPlanes: Array<Plane> = ShadowUtils._frustumPlanes;
         var frustumCorners: Array<Vector3> = ShadowUtils._frustumCorners;
@@ -166,13 +166,18 @@ export class ShadowUtils {
         var twoPlaneCorners: Array<Array<Array<FrustumCorner>>> = ShadowUtils._frustumTwoPlaneCorners;
         var edgePlanePool: Array<Plane> = ShadowUtils._edgePlanePool;
         var edgePlanePoint2: Vector3 = ShadowUtils._edgePlanePoint2;
-        frustumPlanes[FrustumFace.Near] = frustum._near;
-        frustumPlanes[FrustumFace.Far] = frustum._far;
-        frustumPlanes[FrustumFace.Left] = frustum._left;
-        frustumPlanes[FrustumFace.Right] = frustum._right;
-        frustumPlanes[FrustumFace.Bottom] = frustum._bottom;
-        frustumPlanes[FrustumFace.Top] = frustum._top;
-        frustum.getCorners(frustumCorners);
+        var near: Plane = frustumPlanes[FrustumFace.Near], far: Plane = frustumPlanes[FrustumFace.Far];
+        var left: Plane = frustumPlanes[FrustumFace.Left], right: Plane = frustumPlanes[FrustumFace.Right];
+        var bottom: Plane = frustumPlanes[FrustumFace.Bottom], top: Plane = frustumPlanes[FrustumFace.Top];
+        BoundFrustum.getPlanesFromMatrix(viewProjectMatrix, near, far, left, right, top, bottom);
+        BoundFrustum.get3PlaneInterPoint(near, bottom, right, frustumCorners[FrustumCorner.nearBottomRight]);
+        BoundFrustum.get3PlaneInterPoint(near, top, right, frustumCorners[FrustumCorner.nearTopRight]);
+        BoundFrustum.get3PlaneInterPoint(near, top, left, frustumCorners[FrustumCorner.nearTopLeft]);
+        BoundFrustum.get3PlaneInterPoint(near, bottom, left, frustumCorners[FrustumCorner.nearBottomLeft]);
+        BoundFrustum.get3PlaneInterPoint(far, bottom, right, frustumCorners[FrustumCorner.FarBottomRight]);
+        BoundFrustum.get3PlaneInterPoint(far, top, right, frustumCorners[FrustumCorner.FarTopRight]);
+        BoundFrustum.get3PlaneInterPoint(far, top, left, frustumCorners[FrustumCorner.FarTopLeft]);
+        BoundFrustum.get3PlaneInterPoint(far, bottom, left, frustumCorners[FrustumCorner.FarBottomLeft]);
 
         var backIndex: number = 0;
         for (var i: FrustumFace = 0; i < 6; i++) {// meybe 3、4、5(light eye is at far, forward is near, or orth camera is any axis)
@@ -258,13 +263,14 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getLightMatrices(sceneCamera: Camera, light: LightSprite, cascadeIndex: number, nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array): void {
-        var boundSphere: BoundSphere = ShadowUtils._tempBoundSphere0;
+    static getDirectionalLightMatrices(camera: Camera, light: LightSprite, cascadeIndex: number, nearPlane: number, shadowResolution: number, outShadowSliceData: ShadowSliceData, outShadowMatrices: Float32Array): void {
         var forward: Vector3 = ShadowUtils._tempVector30;
-        sceneCamera._transform.getForward(forward);//TODO:normalize测试
-        ShadowUtils.getBoundSphereByFrustum(sceneCamera.nearPlane, Math.min(sceneCamera.farPlane, light._shadowDistance), sceneCamera.fieldOfView * MathUtils3D.Deg2Rad,
-            sceneCamera.aspectRatio, sceneCamera._transform.position, forward, boundSphere);
+        var boundSphere: BoundSphere = ShadowUtils._tempBoundSphere0;
+        camera._transform.getForward(forward);
+        Vector3.normalize(forward, forward);
+        ShadowUtils.getBoundSphereByFrustum(camera.nearPlane, Math.min(camera.farPlane, light._shadowDistance), camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
 
+        // to solve shdow swimming problem
         var lightWorld: Matrix4x4 = light._transform.worldMatrix;
         var lightUp: Vector3 = ShadowUtils._tempVector32;
         var lightSide: Vector3 = ShadowUtils._tempVector31;
@@ -281,30 +287,29 @@ export class ShadowUtils {
         var diam: number = radius * 2.0;
         var sizeUnit: number = shadowResolution / diam;
         var radiusUnit: number = diam / shadowResolution;
-
-        // to solve shdow swimming problem
         var upLen: number = Math.ceil(Vector3.dot(center, lightUp) * sizeUnit) * radiusUnit;
         var sideLen: number = Math.ceil(Vector3.dot(center, lightSide) * sizeUnit) * radiusUnit;
         var forwardLen: number = Vector3.dot(center, lightForward);
-
         center.x = lightUp.x * upLen + lightSide.x * sideLen + lightForward.x * forwardLen;
         center.y = lightUp.y * upLen + lightSide.y * sideLen + lightForward.y * forwardLen;
         center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
 
-        //direction light use shadow pancaking tech,do special dispose with nearPlane.
-        var origin: Vector3 = shadowSliceData.position;
-        var viewMatrix: Matrix4x4 = shadowSliceData.viewMatrix;
-        var projectMatrix: Matrix4x4 = shadowSliceData.projectionMatrix;
-        var viewProjectMatrix: Matrix4x4 = shadowSliceData.viewProjectMatrix;
+        // direction light use shadow pancaking tech,do special dispose with nearPlane.
+        var origin: Vector3 = outShadowSliceData.position;
+        var viewMatrix: Matrix4x4 = outShadowSliceData.viewMatrix;
+        var projectMatrix: Matrix4x4 = outShadowSliceData.projectionMatrix;
+        var viewProjectMatrix: Matrix4x4 = outShadowSliceData.viewProjectMatrix;
+        outShadowSliceData.resolution = shadowResolution;
+        outShadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
+        outShadowSliceData.offsetY = (cascadeIndex / 2) * shadowResolution;
 
         Vector3.scale(lightForward, radius + nearPlane, origin);
         Vector3.subtract(center, origin, origin);
         Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
         Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
-        shadowSliceData.boundFrustum.matrix = viewProjectMatrix;
+        Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, outShadowMatrices, cascadeIndex * 16);
 
-        Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, shadowMatrices, cascadeIndex * 16);
-
+        //TODO:atalsUVTransform
     }
 }

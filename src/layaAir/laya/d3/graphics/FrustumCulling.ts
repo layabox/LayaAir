@@ -157,6 +157,19 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	static cullingShadow(cullInfo: ShadowCullInfo, scene: Scene3D, context: RenderContext3D): void {
+		var opaqueQueue: RenderQueue = scene._opaqueQueue;
+		var transparentQueue: RenderQueue = scene._transparentQueue;
+		var renderList: SingletonList<ISingletonElement> = scene._renders;
+		opaqueQueue.clear();
+		transparentQueue.clear();
+
+		var staticBatchManagers: StaticBatchManager[] = StaticBatchManager._managers;
+		for (var i: number = 0, n: number = staticBatchManagers.length; i < n; i++)
+			staticBatchManagers[i]._clear();
+		var dynamicBatchManagers: DynamicBatchManager[] = DynamicBatchManager._managers;
+		for (var i: number = 0, n: number = dynamicBatchManagers.length; i < n; i++)
+			dynamicBatchManagers[i]._clear();
+
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
 		var position: Vector3 = cullInfo.position;
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;

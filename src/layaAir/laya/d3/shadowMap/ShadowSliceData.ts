@@ -10,7 +10,9 @@ import { BoundFrustum } from "../math/BoundFrustum";
 export class ShadowSliceData {
     cameraShaderValue: ShaderData = new ShaderData();
     position: Vector3 = new Vector3();
-    boundFrustum: BoundFrustum = new BoundFrustum(new Matrix4x4());
+    offsetX: number;
+    offsetY: number;
+    resolution:number;
     viewMatrix: Matrix4x4 = new Matrix4x4();
     projectionMatrix: Matrix4x4 = new Matrix4x4();
     viewProjectMatrix: Matrix4x4 = new Matrix4x4();

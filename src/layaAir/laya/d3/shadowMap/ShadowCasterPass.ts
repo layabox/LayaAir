@@ -188,7 +188,7 @@ export class ShadowCasterPass {
 
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceDatas: ShadowSliceData = this._shadowSliceDatas[i];
-			ShadowUtils.getLightMatrices(camera, light, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
+			ShadowUtils.getDirectionalLightMatrices(camera, light, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
 
 
 			var projectMatrix: Matrix4x4 = sliceDatas.projectionMatrix;
