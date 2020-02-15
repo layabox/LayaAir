@@ -12,8 +12,9 @@ export class ShadowSliceData {
     position: Vector3 = new Vector3();
     offsetX: number;
     offsetY: number;
-    resolution:number;
+    resolution: number;
     viewMatrix: Matrix4x4 = new Matrix4x4();
     projectionMatrix: Matrix4x4 = new Matrix4x4();
     viewProjectMatrix: Matrix4x4 = new Matrix4x4();
+    cameraViewProjectMatrix: Matrix4x4 = new Matrix4x4();
 }

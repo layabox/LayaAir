@@ -81,12 +81,12 @@ export class ShadowUtils {
 
     /** @internal */
     private static _frustumTwoPlaneCorners: Array<Array<Array<FrustumCorner>>> = [
-        [[FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.nearTopLeft, FrustumCorner.nearBottomLeft], [FrustumCorner.nearBottomRight, FrustumCorner.nearTopRight], [FrustumCorner.nearBottomLeft, FrustumCorner.nearBottomRight], [FrustumCorner.nearTopRight, FrustumCorner.nearTopLeft]],// near
-        [[FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.FarBottomLeft, FrustumCorner.FarTopLeft], [FrustumCorner.FarTopRight, FrustumCorner.FarBottomRight], [FrustumCorner.FarBottomRight, FrustumCorner.FarBottomLeft], [FrustumCorner.FarTopLeft, FrustumCorner.FarTopRight]],// far
-        [[FrustumCorner.nearBottomLeft, FrustumCorner.nearTopLeft], [FrustumCorner.FarTopLeft, FrustumCorner.FarBottomLeft], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.FarBottomLeft, FrustumCorner.nearBottomLeft], [FrustumCorner.nearTopLeft, FrustumCorner.FarTopLeft]],// left
-        [[FrustumCorner.nearTopRight, FrustumCorner.nearBottomRight], [FrustumCorner.FarBottomRight, FrustumCorner.FarTopRight], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.nearBottomRight, FrustumCorner.FarBottomRight], [FrustumCorner.FarTopRight, FrustumCorner.nearTopRight]],// right
-        [[FrustumCorner.nearBottomRight, FrustumCorner.nearBottomLeft], [FrustumCorner.FarBottomLeft, FrustumCorner.FarBottomRight], [FrustumCorner.nearBottomLeft, FrustumCorner.FarBottomLeft], [FrustumCorner.FarBottomRight, FrustumCorner.nearBottomRight], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown]],// bottom
-        [[FrustumCorner.nearTopLeft, FrustumCorner.nearTopRight], [FrustumCorner.FarTopRight, FrustumCorner.FarTopLeft], [FrustumCorner.FarTopLeft, FrustumCorner.nearTopLeft], [FrustumCorner.nearTopRight, FrustumCorner.FarTopRight], [FrustumCorner.unknown, FrustumCorner.unknown], [FrustumCorner.unknown, FrustumCorner.unknown]]// top
+        [[FrustumCorner.unknown, FrustumCorner.unknown]/* near */, [FrustumCorner.unknown, FrustumCorner.unknown]/* far */, [FrustumCorner.nearBottomLeft, FrustumCorner.nearTopLeft]/* left */, [FrustumCorner.nearTopRight, FrustumCorner.nearBottomRight]/* right */, [FrustumCorner.nearBottomRight, FrustumCorner.nearBottomLeft]/* bottom */, [FrustumCorner.nearTopLeft, FrustumCorner.nearTopRight]/* top */],// near
+        [[FrustumCorner.unknown, FrustumCorner.unknown]/* near */, [FrustumCorner.unknown, FrustumCorner.unknown]/* far */, [FrustumCorner.FarTopLeft, FrustumCorner.FarBottomLeft]/* left */, [FrustumCorner.FarBottomRight, FrustumCorner.FarTopRight]/* right */, [FrustumCorner.FarBottomLeft, FrustumCorner.FarBottomRight]/* bottom */, [FrustumCorner.FarTopRight, FrustumCorner.FarTopLeft]/* top */],// far
+        [[FrustumCorner.nearTopLeft, FrustumCorner.nearBottomLeft]/* near */, [FrustumCorner.FarBottomLeft, FrustumCorner.FarTopLeft]/* far */, [FrustumCorner.unknown, FrustumCorner.unknown]/* left */, [FrustumCorner.unknown, FrustumCorner.unknown]/* right */, [FrustumCorner.nearBottomLeft, FrustumCorner.FarBottomLeft]/* bottom */, [FrustumCorner.FarTopLeft, FrustumCorner.nearTopLeft]/* top */],// left
+        [[FrustumCorner.nearBottomRight, FrustumCorner.nearTopRight]/* near */, [FrustumCorner.FarTopRight, FrustumCorner.FarBottomRight]/* far */, [FrustumCorner.unknown, FrustumCorner.unknown]/* left */, [FrustumCorner.unknown, FrustumCorner.unknown]/* right */, [FrustumCorner.FarBottomRight, FrustumCorner.nearBottomRight]/* bottom */, [FrustumCorner.nearTopRight, FrustumCorner.FarTopRight]/* top */],// right
+        [[FrustumCorner.nearBottomLeft, FrustumCorner.nearBottomRight]/* near */, [FrustumCorner.FarBottomRight, FrustumCorner.FarBottomLeft]/* far */, [FrustumCorner.FarBottomLeft, FrustumCorner.nearBottomLeft]/* left */, [FrustumCorner.nearBottomRight, FrustumCorner.FarBottomRight]/* right */, [FrustumCorner.unknown, FrustumCorner.unknown]/* bottom */, [FrustumCorner.unknown, FrustumCorner.unknown]/* top */],// bottom
+        [[FrustumCorner.nearTopRight, FrustumCorner.nearTopLeft]/* near */, [FrustumCorner.FarTopLeft, FrustumCorner.FarTopRight]/* far */, [FrustumCorner.nearTopLeft, FrustumCorner.FarTopLeft]/* left */, [FrustumCorner.FarTopRight, FrustumCorner.nearTopRight], [FrustumCorner.unknown/* right */, FrustumCorner.unknown]/* bottom */, [FrustumCorner.unknown, FrustumCorner.unknown]/* top */]// top
     ];
 
     /**
@@ -299,6 +299,7 @@ export class ShadowUtils {
         var viewMatrix: Matrix4x4 = outShadowSliceData.viewMatrix;
         var projectMatrix: Matrix4x4 = outShadowSliceData.projectionMatrix;
         var viewProjectMatrix: Matrix4x4 = outShadowSliceData.viewProjectMatrix;
+        var cameraViewProjectMatrix: Matrix4x4 = outShadowSliceData.cameraViewProjectMatrix;//TODO:
         outShadowSliceData.resolution = shadowResolution;
         outShadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
         outShadowSliceData.offsetY = (cascadeIndex / 2) * shadowResolution;
@@ -309,6 +310,7 @@ export class ShadowUtils {
         Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
         Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, outShadowMatrices, cascadeIndex * 16);
+        camera.projectionViewMatrix.cloneTo(cameraViewProjectMatrix);
 
         //TODO:atalsUVTransform
     }
