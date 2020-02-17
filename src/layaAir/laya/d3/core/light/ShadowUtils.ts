@@ -17,6 +17,7 @@ import { Vector2 } from "../../math/Vector2";
 import { Camera } from "../Camera";
 import { Utils3D } from "../../utils/Utils3D";
 import { ShadowSliceData } from "../../shadowMap/ShadowSliceData";
+import { ShadowCascadesMode } from "./ShadowCascadesMode";
 
 /**
  * @internal
@@ -55,15 +56,16 @@ export class ShadowUtils {
     private static _shadowTextureFormat: RenderTextureFormat;
 
     /** @internal */
-    private static _frustumCorners: Array<Vector3> = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
+    private static _frustumCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
+
     /** @internal */
-    private static _frustumPlanes: Array<Plane> = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
+    private static _adjustNearPlane: Plane = new Plane(new Vector3());
     /** @internal */
-    private static _backPlaneFaces: Array<FrustumFace> = new Array(5);
+    private static _adjustFarPlane: Plane = new Plane(new Vector3());
+    /** @internal */
+    private static _backPlaneFaces: FrustumFace[] = new Array(5);
     /** @internal */
     private static _edgePlanePoint2: Vector3 = new Vector3();
-    /** @internal */
-    private static _edgePlanePool: Array<Plane> = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
 
     /** @intenal */
     private static _lastBuildSphereInfo: Vector4 = new Vector4();
@@ -71,7 +73,7 @@ export class ShadowUtils {
     private static _lastFrustumSphere: Vector2 = new Vector2();
 
     /** @internal */
-    private static _frustumPlaneNeighbors: Array<Array<FrustumFace>> = [
+    private static _frustumPlaneNeighbors: FrustumFace[][] = [
         [FrustumFace.Left, FrustumFace.Right, FrustumFace.Top, FrustumFace.Bottom],// near
         [FrustumFace.Left, FrustumFace.Right, FrustumFace.Top, FrustumFace.Bottom],// far
         [FrustumFace.Near, FrustumFace.Far, FrustumFace.Top, FrustumFace.Bottom],// left
@@ -80,7 +82,7 @@ export class ShadowUtils {
         [FrustumFace.Near, FrustumFace.Far, FrustumFace.Left, FrustumFace.Right]];// top
 
     /** @internal */
-    private static _frustumTwoPlaneCorners: Array<Array<Array<FrustumCorner>>> = [
+    private static _frustumTwoPlaneCorners: FrustumCorner[][][] = [
         [[FrustumCorner.unknown, FrustumCorner.unknown]/* near */, [FrustumCorner.unknown, FrustumCorner.unknown]/* far */, [FrustumCorner.nearBottomLeft, FrustumCorner.nearTopLeft]/* left */, [FrustumCorner.nearTopRight, FrustumCorner.nearBottomRight]/* right */, [FrustumCorner.nearBottomRight, FrustumCorner.nearBottomLeft]/* bottom */, [FrustumCorner.nearTopLeft, FrustumCorner.nearTopRight]/* top */],// near
         [[FrustumCorner.unknown, FrustumCorner.unknown]/* near */, [FrustumCorner.unknown, FrustumCorner.unknown]/* far */, [FrustumCorner.FarTopLeft, FrustumCorner.FarBottomLeft]/* left */, [FrustumCorner.FarBottomRight, FrustumCorner.FarTopRight]/* right */, [FrustumCorner.FarBottomLeft, FrustumCorner.FarBottomRight]/* bottom */, [FrustumCorner.FarTopRight, FrustumCorner.FarTopLeft]/* top */],// far
         [[FrustumCorner.nearTopLeft, FrustumCorner.nearBottomLeft]/* near */, [FrustumCorner.FarBottomLeft, FrustumCorner.FarTopLeft]/* far */, [FrustumCorner.unknown, FrustumCorner.unknown]/* left */, [FrustumCorner.unknown, FrustumCorner.unknown]/* right */, [FrustumCorner.nearBottomLeft, FrustumCorner.FarBottomLeft]/* bottom */, [FrustumCorner.FarTopLeft, FrustumCorner.nearTopLeft]/* top */],// left
@@ -152,38 +154,80 @@ export class ShadowUtils {
         out.setValue(depthBias, normalBias, 0.0, 0.0);
     }
 
+    /**
+	 * @internal
+	 */
+    static getCameraFrustumPlanes(cameraViewProjectMatrix: Matrix4x4, frustumPlanes: Plane[]): void {
+        BoundFrustum.getPlanesFromMatrix(cameraViewProjectMatrix, frustumPlanes[FrustumFace.Near], frustumPlanes[FrustumFace.Far], frustumPlanes[FrustumFace.Left], frustumPlanes[FrustumFace.Right], frustumPlanes[FrustumFace.Top], frustumPlanes[FrustumFace.Bottom]);
+    }
+
+    /**
+    * @internal
+    */
+    static getCascadesSplitDistance(twoSplitRatio: number, fourSplitRatio: Vector3, nearPalne: number, farPalne: number, cascadesMode: ShadowCascadesMode, out: number[]): void {
+        var range: number = farPalne - nearPalne;
+        out[0] = nearPalne;
+        switch (cascadesMode) {
+            case ShadowCascadesMode.NoCascades:
+                out[1] = farPalne;
+                break;
+            case ShadowCascadesMode.TwoCascades:
+                out[1] = nearPalne + range * twoSplitRatio;
+                out[2] = farPalne;
+                break;
+            case ShadowCascadesMode.FourCascades:
+                out[1] = nearPalne + range * fourSplitRatio.x;
+                out[2] = nearPalne + range * fourSplitRatio.y;
+                out[3] = nearPalne + range * fourSplitRatio.z;
+                out[4] = farPalne;
+                break;
+        }
+    }
 
 
     /**
 	 * @internal
 	 */
-    static getDirectionLightShadowCullPlanes(viewProjectMatrix: Matrix4x4, direction: Vector3, out: Array<Plane>): number {
+    static getDirectionLightShadowCullPlanes(cameraFrustumPlanes: Array<Plane>, cascadeIndex: number, splitDistance: number[], direction: Vector3, shadowSliceData: ShadowSliceData): void {
         // http://lspiroengine.com/?p=187
-        var frustumPlanes: Array<Plane> = ShadowUtils._frustumPlanes;
-        var frustumCorners: Array<Vector3> = ShadowUtils._frustumCorners;
-        var backPlaneFaces: Array<FrustumFace> = ShadowUtils._backPlaneFaces;
-        var planeNeighbors: Array<Array<FrustumFace>> = ShadowUtils._frustumPlaneNeighbors;
-        var twoPlaneCorners: Array<Array<Array<FrustumCorner>>> = ShadowUtils._frustumTwoPlaneCorners;
-        var edgePlanePool: Array<Plane> = ShadowUtils._edgePlanePool;
+        var frustumCorners: Vector3[] = ShadowUtils._frustumCorners;
+        var backPlaneFaces: FrustumFace[] = ShadowUtils._backPlaneFaces;
+        var planeNeighbors: FrustumFace[][] = ShadowUtils._frustumPlaneNeighbors;
+        var twoPlaneCorners: FrustumCorner[][][] = ShadowUtils._frustumTwoPlaneCorners;
+        // var edgePlanePool: Plane[] = ShadowUtils._edgePlanePool;
         var edgePlanePoint2: Vector3 = ShadowUtils._edgePlanePoint2;
-        var near: Plane = frustumPlanes[FrustumFace.Near], far: Plane = frustumPlanes[FrustumFace.Far];
-        var left: Plane = frustumPlanes[FrustumFace.Left], right: Plane = frustumPlanes[FrustumFace.Right];
-        var bottom: Plane = frustumPlanes[FrustumFace.Bottom], top: Plane = frustumPlanes[FrustumFace.Top];
-        BoundFrustum.getPlanesFromMatrix(viewProjectMatrix, near, far, left, right, top, bottom);
-        BoundFrustum.get3PlaneInterPoint(near, bottom, right, frustumCorners[FrustumCorner.nearBottomRight]);
-        BoundFrustum.get3PlaneInterPoint(near, top, right, frustumCorners[FrustumCorner.nearTopRight]);
-        BoundFrustum.get3PlaneInterPoint(near, top, left, frustumCorners[FrustumCorner.nearTopLeft]);
-        BoundFrustum.get3PlaneInterPoint(near, bottom, left, frustumCorners[FrustumCorner.nearBottomLeft]);
-        BoundFrustum.get3PlaneInterPoint(far, bottom, right, frustumCorners[FrustumCorner.FarBottomRight]);
-        BoundFrustum.get3PlaneInterPoint(far, top, right, frustumCorners[FrustumCorner.FarTopRight]);
-        BoundFrustum.get3PlaneInterPoint(far, top, left, frustumCorners[FrustumCorner.FarTopLeft]);
-        BoundFrustum.get3PlaneInterPoint(far, bottom, left, frustumCorners[FrustumCorner.FarBottomLeft]);
+        var out: Plane[] = shadowSliceData.cullPlanes;
+
+        // cameraFrustumPlanes is share
+        var near: Plane = cameraFrustumPlanes[FrustumFace.Near], far: Plane = cameraFrustumPlanes[FrustumFace.Far];
+        var left: Plane = cameraFrustumPlanes[FrustumFace.Left], right: Plane = cameraFrustumPlanes[FrustumFace.Right];
+        var bottom: Plane = cameraFrustumPlanes[FrustumFace.Bottom], top: Plane = cameraFrustumPlanes[FrustumFace.Top];
+
+        // adjustment the near/far plane
+        var splitNearDistance: number = splitDistance[cascadeIndex];
+        var splitFarDistance: number = splitDistance[cascadeIndex + 1];
+        var splitNear: Plane = ShadowUtils._adjustNearPlane;
+        var splitFar: Plane = ShadowUtils._adjustFarPlane;
+        near.normal.cloneTo(splitNear.normal);
+        far.normal.cloneTo(splitFar.normal);
+        splitNear.distance = -splitNearDistance;
+        splitFar.distance = splitFarDistance;
+
+        BoundFrustum.get3PlaneInterPoint(splitNear, bottom, right, frustumCorners[FrustumCorner.nearBottomRight]);
+        BoundFrustum.get3PlaneInterPoint(splitNear, top, right, frustumCorners[FrustumCorner.nearTopRight]);
+        BoundFrustum.get3PlaneInterPoint(splitNear, top, left, frustumCorners[FrustumCorner.nearTopLeft]);
+        BoundFrustum.get3PlaneInterPoint(splitNear, bottom, left, frustumCorners[FrustumCorner.nearBottomLeft]);
+        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, right, frustumCorners[FrustumCorner.FarBottomRight]);
+        BoundFrustum.get3PlaneInterPoint(splitFar, top, right, frustumCorners[FrustumCorner.FarTopRight]);
+        BoundFrustum.get3PlaneInterPoint(splitFar, top, left, frustumCorners[FrustumCorner.FarTopLeft]);
+        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, left, frustumCorners[FrustumCorner.FarBottomLeft]);
+
 
         var backIndex: number = 0;
         for (var i: FrustumFace = 0; i < 6; i++) {// meybe 3、4、5(light eye is at far, forward is near, or orth camera is any axis)
-            var plane: Plane = frustumPlanes[i];
+            var plane: Plane = cameraFrustumPlanes[i];
             if (Vector3.dot(plane.normal, direction) < 0.0) {
-                out[backIndex] = plane;
+                plane.cloneTo(out[backIndex]);
                 backPlaneFaces[backIndex] = i;
                 backIndex++;
             }
@@ -206,13 +250,11 @@ export class ShadowUtils {
                     var point0: Vector3 = frustumCorners[corners[0]];
                     var point1: Vector3 = frustumCorners[corners[1]];
                     Vector3.add(point0, direction, edgePlanePoint2);
-                    var edgePlane: Plane = edgePlanePool[edgeIndex - backIndex];
-                    Plane.createPlaneBy3P(point0, point1, edgePlanePoint2, edgePlane);
-                    out[edgeIndex++] = edgePlane;
+                    Plane.createPlaneBy3P(point0, point1, edgePlanePoint2, out[edgeIndex++]);
                 }
             }
         }
-        return edgeIndex;
+        shadowSliceData.cullPlaneCount = edgeIndex;
     }
 
     /**
@@ -260,6 +302,7 @@ export class ShadowUtils {
         return resolution;
     }
 
+
     /**
      * @internal
      */
@@ -299,7 +342,6 @@ export class ShadowUtils {
         var viewMatrix: Matrix4x4 = outShadowSliceData.viewMatrix;
         var projectMatrix: Matrix4x4 = outShadowSliceData.projectionMatrix;
         var viewProjectMatrix: Matrix4x4 = outShadowSliceData.viewProjectMatrix;
-        var cameraViewProjectMatrix: Matrix4x4 = outShadowSliceData.cameraViewProjectMatrix;//TODO:
         outShadowSliceData.resolution = shadowResolution;
         outShadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
         outShadowSliceData.offsetY = (cascadeIndex / 2) * shadowResolution;
@@ -310,7 +352,6 @@ export class ShadowUtils {
         Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
         Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, outShadowMatrices, cascadeIndex * 16);
-        camera.projectionViewMatrix.cloneTo(cameraViewProjectMatrix);
 
         //TODO:atalsUVTransform
     }

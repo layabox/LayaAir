@@ -8,23 +8,22 @@ import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowUtils } from "../core/light/ShadowUtils";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
-import { BoundSphere } from "../math/BoundSphere";
-import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
+import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ShadowSliceData } from "./ShadowSliceData";
-import { Utils3D } from "../utils/Utils3D";
+import { ShadowCullInfo, FrustumCulling } from "../graphics/FrustumCulling";
+import { RenderQueue } from "../core/render/RenderQueue";
+import { RenderContext3D } from "../core/render/RenderContext3D";
 
 /**
  * 
  */
 export class ShadowCasterPass {
-
-
 	/** @internal */
 	static SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
 	/** @internal */
@@ -42,6 +41,11 @@ export class ShadowCasterPass {
 
 	/** @internal */
 	private static _maxCascades: number = 4;
+	/**@internal */
+	private static _cascadesSplitDistance: number[] = new Array(5);// max split plane is 5
+	/** @internal */
+	private static _frustumPlanes: Plane[] = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
+
 	/** @internal */
 	private _shadowBias: Vector4 = new Vector4();
 	/** @internal */
@@ -58,6 +62,7 @@ export class ShadowCasterPass {
 	private _shadowMapWith: number = 0;
 	/**@internal */
 	private _shadowMapHeight: number = 0;
+
 
 	/** */
 	_shadowMap: RenderTexture;
@@ -186,8 +191,14 @@ export class ShadowCasterPass {
 				this._shadowMapWith = shadowTileResolution * 2;
 		}
 
+		var splitDistance: number[] = ShadowCasterPass._cascadesSplitDistance;
+		var frustumPlanes: Plane[] = ShadowCasterPass._frustumPlanes;
+		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, camera.nearPlane, Math.min(camera.farPlane, light._shadowDistance), cascadesMode, splitDistance);
+		ShadowUtils.getCameraFrustumPlanes(camera.projectionViewMatrix, frustumPlanes);
+
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceDatas: ShadowSliceData = this._shadowSliceDatas[i];
+			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, light._direction, sliceDatas);
 			ShadowUtils.getDirectionalLightMatrices(camera, light, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
 
 
@@ -199,6 +210,31 @@ export class ShadowCasterPass {
 			Vector3.normalize(light._direction, light._direction);
 			this._setupShadowCasterShaderValues(shaderValues, light._direction, this._shadowBias, sliceDatas.viewMatrix, projectMatrix, sliceDatas.viewProjectMatrix);
 		}
+	}
+
+	/**
+	 * @interal
+	 */
+	render(context: RenderContext3D, scene: Scene3D): void {
+		var shadowSliceData: ShadowSliceData = this._shadowSliceDatas[0];
+		var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
+		shadowCullInfo.position = shadowSliceData.position;
+		shadowCullInfo.cullPlanes = shadowSliceData.cullPlanes;
+		shadowCullInfo.cullPlaneCount = shadowSliceData.cullPlaneCount;
+		FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
+
+		this.start();
+		context.cameraShaderValue = shadowSliceData.cameraShaderValue;
+		Camera._updateMark++;
+		this.tempViewPort();//TODO:
+		var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
+		// gl.colorMask(false,false,false,false);
+		queue._render(context);
+		// gl.colorMask(true,true,true,true);
+		this.end();
+
+		ShaderData.setRuntimeValueMode(true);
+		context.pipelineMode = "Forward";
 	}
 }
 

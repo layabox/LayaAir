@@ -1,11 +1,9 @@
 import { Vector3 } from "./Vector3";
-/**
-	 * <code>Plane</code> 类用于创建平面。
-	 */
-export class Plane {
 
-	/** @internal */
-	private static _TEMPVec3: Vector3 = new Vector3();
+/**
+ * 平面。
+ */
+export class Plane {
 	/**平面的向量*/
 	normal: Vector3;
 	/**平面到坐标系原点的距离*/
@@ -69,6 +67,26 @@ export class Plane {
 		this.normal.z = normalEZ * magnitude;
 
 		this.distance *= magnitude;
+	}
+
+	/**
+	 * 克隆。
+	 * @param	destObject 克隆源。
+	 */
+	cloneTo(destObject: any): void {
+		var dest: Plane = <Plane>destObject;
+		this.normal.cloneTo(dest.normal);
+		dest.distance = this.distance;
+	}
+
+	/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): Plane {
+		var dest: Plane = new Plane(new Vector3());
+		this.cloneTo(dest);
+		return dest;
 	}
 
 }

@@ -567,28 +567,9 @@ export class Camera extends BaseCamera {
 		if (mainLight && mainLight.shadowMode !== ShadowMode.None) {
 			context.pipelineMode = "ShadowCaster";
 			ShaderData.setRuntimeValueMode(false);
-
 			shadowCasterPass = Scene3D._shadowCasterPass;
 			shadowCasterPass.update(this, mainLight);
-
-			var shadowSliceData: ShadowSliceData = shadowCasterPass._shadowSliceDatas[0];
-			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
-			shadowCullInfo.position = shadowSliceData.position;
-			shadowCullInfo.cullPlaneCount = ShadowUtils.getDirectionLightShadowCullPlanes(shadowSliceData.cameraViewProjectMatrix, mainLight._direction, shadowCullInfo.cullPlanes);
-			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
-
-			shadowCasterPass.start();
-			context.cameraShaderValue = shadowSliceData.cameraShaderValue;
-			Camera._updateMark++;
-			shadowCasterPass.tempViewPort();//TODO:
-			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
-			// gl.colorMask(false,false,false,false);
-			queue._render(context);
-			// gl.colorMask(true,true,true,true);
-			shadowCasterPass.end();
-
-			ShaderData.setRuntimeValueMode(true);
-			context.pipelineMode = "Forward";
+			shadowCasterPass.render(context, scene);
 		}
 
 		context.camera = this;
