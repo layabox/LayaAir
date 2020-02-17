@@ -44,7 +44,7 @@ vec4 shadowCasterVertex()
 	#endif
 
 	vec4 positionWS = worldMat * a_Position;
-	vec3 normalWS = normalize(a_Normal*inverseMat(mat3(worldMat)));//if no normalize will cause precision problem
+	vec3 normalWS = normalize(a_Normal*inverse(mat3(worldMat)));//if no normalize will cause precision problem
 
 	positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_LightDirection);
 

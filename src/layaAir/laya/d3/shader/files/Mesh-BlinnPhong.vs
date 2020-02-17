@@ -94,9 +94,9 @@ void main()
 
 	mat3 worldInvMat;
 	#ifdef BONE
-		worldInvMat=inverseMat(mat3(worldMat*skinTransform));
+		worldInvMat=inverse(mat3(worldMat*skinTransform));
 	#else
-		worldInvMat=inverseMat(mat3(worldMat));
+		worldInvMat=inverse(mat3(worldMat));
 	#endif  
 	v_Normal=normalize(a_Normal*worldInvMat);
 	#if defined(NORMALMAP)
