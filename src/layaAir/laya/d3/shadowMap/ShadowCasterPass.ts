@@ -182,11 +182,11 @@ export class ShadowCasterPass {
 			Camera._updateMark++;
 			var gl = LayaGL.instance;
 			var resolution: number = sliceData.resolution;
-			gl.clearColor(0, 0, 0, 0);
+			gl.clearColor(0, 0, 0, 1);
 			gl.enable(gl.SCISSOR_TEST);
 			// gl.colorMask(false,false,false,false);
-			LayaGL.instance.viewport(sliceData.offsetX, sliceData.offsetY, resolution, resolution);
-			LayaGL.instance.scissor(sliceData.offsetX + 4, sliceData.offsetY + 4, resolution - 8, resolution - 8);
+			gl.viewport(sliceData.offsetX, sliceData.offsetY, resolution, resolution);
+			gl.scissor(sliceData.offsetX + 4, sliceData.offsetY + 4, resolution - 8, resolution - 8);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			scene._opaqueQueue._render(context);//阴影均为非透明队列
 			gl.disable(gl.SCISSOR_TEST);
