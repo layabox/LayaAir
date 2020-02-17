@@ -193,12 +193,12 @@ export class ShadowCasterPass {
 
 		var splitDistance: number[] = ShadowCasterPass._cascadesSplitDistance;
 		var frustumPlanes: Plane[] = ShadowCasterPass._frustumPlanes;
-		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, camera.nearPlane, Math.min(camera.farPlane, light._shadowDistance), cascadesMode, splitDistance);
+		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, Math.min(camera.farPlane, light._shadowDistance) - camera.nearPlane, cascadesMode, splitDistance);
 		ShadowUtils.getCameraFrustumPlanes(camera.projectionViewMatrix, frustumPlanes);
-
+		var cameraRange: number = camera.farPlane - camera.nearPlane;
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceDatas: ShadowSliceData = this._shadowSliceDatas[i];
-			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, light._direction, sliceDatas);
+			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, light._direction, sliceDatas);
 			ShadowUtils.getDirectionalLightMatrices(camera, light, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
 
 

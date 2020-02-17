@@ -40,8 +40,6 @@ export class BoundFrustum {
 	private static _tempV35: Vector3 = new Vector3();
 	/** @internal */
 	private static _tempV36: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempV37: Vector3 = new Vector3();
 
 	/**
 	 * 根据矩阵获取6个包围平面。

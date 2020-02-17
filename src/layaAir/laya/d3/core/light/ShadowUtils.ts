@@ -164,22 +164,21 @@ export class ShadowUtils {
     /**
     * @internal
     */
-    static getCascadesSplitDistance(twoSplitRatio: number, fourSplitRatio: Vector3, nearPalne: number, farPalne: number, cascadesMode: ShadowCascadesMode, out: number[]): void {
-        var range: number = farPalne - nearPalne;
-        out[0] = nearPalne;
+    static getCascadesSplitDistance(twoSplitRatio: number, fourSplitRatio: Vector3, range: number, cascadesMode: ShadowCascadesMode, out: number[]): void {
+        out[0] = 0.0;
         switch (cascadesMode) {
             case ShadowCascadesMode.NoCascades:
-                out[1] = farPalne;
+                out[1] = range;
                 break;
             case ShadowCascadesMode.TwoCascades:
-                out[1] = nearPalne + range * twoSplitRatio;
-                out[2] = farPalne;
+                out[1] = range * twoSplitRatio;
+                out[2] = range;
                 break;
             case ShadowCascadesMode.FourCascades:
-                out[1] = nearPalne + range * fourSplitRatio.x;
-                out[2] = nearPalne + range * fourSplitRatio.y;
-                out[3] = nearPalne + range * fourSplitRatio.z;
-                out[4] = farPalne;
+                out[1] = range * fourSplitRatio.x;
+                out[2] = range * fourSplitRatio.y;
+                out[3] = range * fourSplitRatio.z;
+                out[4] = range;
                 break;
         }
     }
@@ -188,7 +187,7 @@ export class ShadowUtils {
     /**
 	 * @internal
 	 */
-    static getDirectionLightShadowCullPlanes(cameraFrustumPlanes: Array<Plane>, cascadeIndex: number, splitDistance: number[], direction: Vector3, shadowSliceData: ShadowSliceData): void {
+    static getDirectionLightShadowCullPlanes(cameraFrustumPlanes: Array<Plane>, cascadeIndex: number, splitDistance: number[], cameraRange: number, direction: Vector3, shadowSliceData: ShadowSliceData): void {
         // http://lspiroengine.com/?p=187
         var frustumCorners: Vector3[] = ShadowUtils._frustumCorners;
         var backPlaneFaces: FrustumFace[] = ShadowUtils._backPlaneFaces;
@@ -210,8 +209,8 @@ export class ShadowUtils {
         var splitFar: Plane = ShadowUtils._adjustFarPlane;
         near.normal.cloneTo(splitNear.normal);
         far.normal.cloneTo(splitFar.normal);
-        splitNear.distance = -splitNearDistance;
-        splitFar.distance = splitFarDistance;
+        splitNear.distance = near.distance - splitNearDistance;
+        splitFar.distance = far.distance - (cameraRange - splitFarDistance);
 
         BoundFrustum.get3PlaneInterPoint(splitNear, bottom, right, frustumCorners[FrustumCorner.nearBottomRight]);
         BoundFrustum.get3PlaneInterPoint(splitNear, top, right, frustumCorners[FrustumCorner.nearTopRight]);
