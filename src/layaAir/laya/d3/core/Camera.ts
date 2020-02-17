@@ -564,7 +564,8 @@ export class Camera extends BaseCamera {
 		//render shadowMap
 		var shadowCasterPass: ShadowCasterPass;
 		var mainLight: DirectionLight = scene._mainLight;
-		if (mainLight && mainLight.shadowMode !== ShadowMode.None) {
+		var needShadowCasterPass: boolean = mainLight && mainLight.shadowMode !== ShadowMode.None;
+		if (needShadowCasterPass) {
 			shadowCasterPass = Scene3D._shadowCasterPass;
 			shadowCasterPass.update(this, mainLight);
 			shadowCasterPass.render(context, scene);
@@ -622,8 +623,8 @@ export class Camera extends BaseCamera {
 			RenderTexture.recoverToPool(this._internalRenderTexture);
 		}
 
-		if (mainLight && mainLight.shadowMode !== ShadowMode.None)
-			shadowCasterPass.clear();
+		if (needShadowCasterPass)
+			shadowCasterPass.cleanUp();
 	}
 
 

@@ -6,8 +6,10 @@ import { DirectionLight } from "../core/light/DirectionLight";
 import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
 import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowUtils } from "../core/light/ShadowUtils";
+import { RenderContext3D } from "../core/render/RenderContext3D";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
+import { FrustumCulling, ShadowCullInfo } from "../graphics/FrustumCulling";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
@@ -16,9 +18,6 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ShadowSliceData } from "./ShadowSliceData";
-import { ShadowCullInfo, FrustumCulling } from "../graphics/FrustumCulling";
-import { RenderQueue } from "../core/render/RenderQueue";
-import { RenderContext3D } from "../core/render/RenderContext3D";
 
 /**
  * 
@@ -42,7 +41,7 @@ export class ShadowCasterPass {
 	/** @internal */
 	private static _maxCascades: number = 4;
 	/**@internal */
-	private static _cascadesSplitDistance: number[] = new Array(5);// max split plane is 5
+	private static _cascadesSplitDistance: number[] = new Array(ShadowCasterPass._maxCascades + 1);
 	/** @internal */
 	private static _frustumPlanes: Plane[] = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
 
@@ -54,51 +53,22 @@ export class ShadowCasterPass {
 	private _shadowMapSize: Vector4 = new Vector4();
 	/** @internal */
 	private _shadowMatrices: Float32Array = new Float32Array(16 * 4);
-	/**@internal */
+	/** @internal */
 	private _cascadeSplitDistances: Vector4[] = [new Vector4(), new Vector4(), new Vector4(), new Vector4()];
-	/**@internal */
+	/** @internal */
 	private _cascadeCount: number = 0;
-	/**@internal */
+	/** @internal */
 	private _shadowMapWith: number = 0;
-	/**@internal */
+	/** @internal */
 	private _shadowMapHeight: number = 0;
-
-
-	/** */
+	//测试临时屏蔽+internal+private
 	_shadowMap: RenderTexture;
-	/**@internal */
-	_shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
-
-
+	/** @internal */
+	private _shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
 	/**@internal */
 	private _light: DirectionLight;
 
 	constructor() {
-	}
-
-
-
-
-
-	/**
-	 * @internal
-	 */
-	start(): void {
-		var shadowMapSize: number = this._light._shadowResolution;
-		var shadowMap: RenderTexture = ShadowUtils.getTemporaryShadowTexture(shadowMapSize, shadowMapSize, RenderTextureDepthFormat.DEPTH_16);
-		var sceneSV: ShaderData = (<Scene3D>this._light._scene)._shaderValues;
-		sceneSV.setTexture(ShadowCasterPass.SHADOW_MAP, shadowMap);
-		shadowMap._start();
-		this._shadowMap = shadowMap;
-	}
-
-
-	/**
-	 * @internal
-	 */
-	clear(): void {
-		RenderTexture.recoverToPool(this._shadowMap);
-		// this._shadowMap = null; TODO:
 	}
 
 	/**
@@ -139,11 +109,11 @@ export class ShadowCasterPass {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
 				break;
 		}
-		var shadowMapSize: number = light._shadowResolution;//TODO:
-		this._shadowMapSize.setValue(1.0 / shadowMapSize, 1.0 / shadowMapSize, shadowMapSize, shadowMapSize);
-		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHT_VIEW_PROJECTS, this._shadowMatrices);
-		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
+		this._shadowMapSize.setValue(1.0 / this._shadowMapWith, 1.0 / this._shadowMapHeight, this._shadowMapWith, this._shadowMapHeight);
 		this._shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
+		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHT_VIEW_PROJECTS, this._shadowMatrices);
+		shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, this._shadowMap);
+		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
 	}
 
@@ -206,7 +176,8 @@ export class ShadowCasterPass {
 			shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
 			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
 
-			this.start();
+			var shadowMap: RenderTexture = this._shadowMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWith, this._shadowMapHeight, RenderTextureDepthFormat.DEPTH_16);
+			shadowMap._start();
 			context.cameraShaderValue = sliceData.cameraShaderValue;
 			Camera._updateMark++;
 			var gl = LayaGL.instance;
@@ -220,11 +191,20 @@ export class ShadowCasterPass {
 			scene._opaqueQueue._render(context);//阴影均为非透明队列
 			gl.disable(gl.SCISSOR_TEST);
 			// gl.colorMask(true,true,true,true);
-			this._shadowMap._end();
+			shadowMap._end();
 		}
 		this._setupShadowReceiverShaderValues(shaderValues);
 		ShaderData.setRuntimeValueMode(true);
 		context.pipelineMode = "Forward";
+	}
+
+	/**
+	 * @internal
+	 */
+	cleanUp(): void {
+		RenderTexture.recoverToPool(this._shadowMap);
+		// this._shadowMap = null; 测试临时屏蔽
+		this._light = null;
 	}
 }
 
