@@ -93,25 +93,6 @@ export class ShadowCasterPass {
 	}
 
 
-	//TOOD:TEMP
-	tempViewPort(): void {
-		var gl = LayaGL.instance;
-		LayaGL.instance.viewport(0, 0, this._shadowMap.width, this._shadowMap.height);
-		gl.enable(gl.SCISSOR_TEST);
-		LayaGL.instance.scissor(0, 0, this._shadowMap.width, this._shadowMap.height);
-		gl.clearColor(1, 1, 1, 1);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	}
-
-	/**
-	 * @internal
-	 */
-	end(): void {
-		var gl = LayaGL.instance;
-		this._shadowMap._end();
-		gl.disable(gl.SCISSOR_TEST);
-	}
-
 	/**
 	 * @internal
 	 */
@@ -171,6 +152,8 @@ export class ShadowCasterPass {
 	 */
 	update(camera: Camera, light: DirectionLight): void {
 		this._light = light;
+		light.transform.worldMatrix.getForward(light._direction);
+		Vector3.normalize(light._direction, light._direction);//TODO:应该优化移除
 		var atlasResolution: number = light._shadowResolution;
 		var cascadesMode: ShadowCascadesMode = light._shadowCascadesMode;
 		var cascadesCount: number;
@@ -190,6 +173,7 @@ export class ShadowCasterPass {
 			else
 				this._shadowMapWith = shadowTileResolution * 2;
 		}
+		this._cascadeCount = cascadesCount;
 
 		var splitDistance: number[] = ShadowCasterPass._cascadesSplitDistance;
 		var frustumPlanes: Plane[] = ShadowCasterPass._frustumPlanes;
@@ -200,15 +184,6 @@ export class ShadowCasterPass {
 			var sliceDatas: ShadowSliceData = this._shadowSliceDatas[i];
 			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, light._direction, sliceDatas);
 			ShadowUtils.getDirectionalLightMatrices(camera, light, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
-
-
-			var projectMatrix: Matrix4x4 = sliceDatas.projectionMatrix;
-			var shaderValues: ShaderData = (<Scene3D>light._scene)._shaderValues;
-			this._setupShadowReceiverShaderValues(shaderValues);
-			ShadowUtils.getShadowBias(light, projectMatrix, light._shadowResolution, this._shadowBias);
-			light.transform.worldMatrix.getForward(light._direction);
-			Vector3.normalize(light._direction, light._direction);
-			this._setupShadowCasterShaderValues(shaderValues, light._direction, this._shadowBias, sliceDatas.viewMatrix, projectMatrix, sliceDatas.viewProjectMatrix);
 		}
 	}
 
@@ -216,23 +191,38 @@ export class ShadowCasterPass {
 	 * @interal
 	 */
 	render(context: RenderContext3D, scene: Scene3D): void {
-		var shadowSliceData: ShadowSliceData = this._shadowSliceDatas[0];
-		var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
-		shadowCullInfo.position = shadowSliceData.position;
-		shadowCullInfo.cullPlanes = shadowSliceData.cullPlanes;
-		shadowCullInfo.cullPlaneCount = shadowSliceData.cullPlaneCount;
-		FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
+		var shaderValues: ShaderData = scene._shaderValues;
+		context.pipelineMode = "ShadowCaster";
+		ShaderData.setRuntimeValueMode(false);
+		var light: DirectionLight = this._light;
+		for (var i: number = 0; i < this._cascadeCount; i++) {
+			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
+			var projectMatrix: Matrix4x4 = sliceData.projectionMatrix;
+			ShadowUtils.getShadowBias(light, projectMatrix, light._shadowResolution, this._shadowBias);
+			this._setupShadowCasterShaderValues(shaderValues, light._direction, this._shadowBias, sliceData.viewMatrix, projectMatrix, sliceData.viewProjectMatrix);
+			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
+			shadowCullInfo.position = sliceData.position;
+			shadowCullInfo.cullPlanes = sliceData.cullPlanes;
+			shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
+			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
 
-		this.start();
-		context.cameraShaderValue = shadowSliceData.cameraShaderValue;
-		Camera._updateMark++;
-		this.tempViewPort();//TODO:
-		var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
-		// gl.colorMask(false,false,false,false);
-		queue._render(context);
-		// gl.colorMask(true,true,true,true);
-		this.end();
-
+			this.start();
+			context.cameraShaderValue = sliceData.cameraShaderValue;
+			Camera._updateMark++;
+			var gl = LayaGL.instance;
+			var resolution: number = sliceData.resolution;
+			gl.clearColor(0, 0, 0, 0);
+			gl.enable(gl.SCISSOR_TEST);
+			// gl.colorMask(false,false,false,false);
+			LayaGL.instance.viewport(sliceData.offsetX, sliceData.offsetY, resolution, resolution);
+			LayaGL.instance.scissor(sliceData.offsetX + 4, sliceData.offsetY + 4, resolution - 8, resolution - 8);
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			scene._opaqueQueue._render(context);//阴影均为非透明队列
+			gl.disable(gl.SCISSOR_TEST);
+			// gl.colorMask(true,true,true,true);
+			this._shadowMap._end();
+		}
+		this._setupShadowReceiverShaderValues(shaderValues);
 		ShaderData.setRuntimeValueMode(true);
 		context.pipelineMode = "Forward";
 	}
