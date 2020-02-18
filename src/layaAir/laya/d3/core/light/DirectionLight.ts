@@ -10,7 +10,7 @@ export class DirectionLight extends LightSprite {
 	/**@iternal */
 	_direction: Vector3 = new Vector3();
 	/** @internal */
-	_shadowCascadesMode: ShadowCascadesMode;
+	_shadowCascadesMode: ShadowCascadesMode = ShadowCascadesMode.NoCascades;
 	/** @internal */
 	_shadowTwoCascadeSplits: number = 1.0 / 3.0;
 	/** @internal */
