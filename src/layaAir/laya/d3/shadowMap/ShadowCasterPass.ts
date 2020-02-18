@@ -23,6 +23,9 @@ import { ShadowSliceData } from "./ShadowSliceData";
  * @internal
  */
 export class ShadowCasterPass {
+	/**@internal */
+	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
+
 	/** @internal */
 	static SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
 	/** @internal */
@@ -58,7 +61,7 @@ export class ShadowCasterPass {
 	/** @internal */
 	private _cascadeCount: number = 0;
 	/** @internal */
-	private _shadowMapWith: number = 0;
+	private _shadowMapWidth: number = 0;
 	/** @internal */
 	private _shadowMapHeight: number = 0;
 	/** @internal */
@@ -67,8 +70,12 @@ export class ShadowCasterPass {
 	private _shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
 	/**@internal */
 	private _light: DirectionLight;
-	/**@internal */
-	private _lightWorldMat: Matrix4x4 = new Matrix4x4();
+	/** @internal */
+	private _lightUp: Vector3 = new Vector3();
+	/** @internal */
+	private _lightSide: Vector3 = new Vector3();
+	/** @internal */
+	private _lightForward: Vector3 = new Vector3();
 
 	constructor() {
 	}
@@ -110,7 +117,7 @@ export class ShadowCasterPass {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
 				break;
 		}
-		this._shadowMapSize.setValue(1.0 / this._shadowMapWith, 1.0 / this._shadowMapHeight, this._shadowMapWith, this._shadowMapHeight);
+		this._shadowMapSize.setValue(1.0 / this._shadowMapWidth, 1.0 / this._shadowMapHeight, this._shadowMapWidth, this._shadowMapHeight);
 		this._shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
 		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHT_VIEW_PROJECTS, this._shadowMatrices);
 		shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, this._shadowMap);
@@ -123,8 +130,17 @@ export class ShadowCasterPass {
 	 */
 	update(camera: Camera, light: DirectionLight): void {
 		this._light = light;
-		Matrix4x4.createFromQuaternion(light._transform.rotation, this._lightWorldMat);//to remove scale problem
-		this._lightWorldMat.getForward(light._direction);
+
+		var lightWorld: Matrix4x4 = ShadowCasterPass._tempMatrix0;
+		var lightWorldE: Float32Array = lightWorld.elements;
+		var lightUp: Vector3 = this._lightUp;
+		var lightSide: Vector3 = this._lightSide;
+		var lightForward: Vector3 = this._lightForward;
+		Matrix4x4.createFromQuaternion(light._transform.rotation, lightWorld);//to remove scale problem
+		lightSide.setValue(lightWorldE[0], lightWorldE[1], lightWorldE[2]);
+		lightUp.setValue(lightWorldE[4], lightWorldE[5], lightWorldE[6]);
+		lightForward.setValue(-lightWorldE[8], -lightWorldE[9], -lightWorldE[10]);
+
 		var atlasResolution: number = light._shadowResolution;
 		var cascadesMode: ShadowCascadesMode = light._shadowCascadesMode;
 		var cascadesCount: number;
@@ -132,7 +148,7 @@ export class ShadowCasterPass {
 		if (cascadesMode == ShadowCascadesMode.NoCascades) {
 			cascadesCount = 1;
 			this._shadowMapHeight = atlasResolution;
-			this._shadowMapWith = atlasResolution;
+			this._shadowMapWidth = atlasResolution;
 			shadowTileResolution = atlasResolution;
 		}
 		else {
@@ -140,9 +156,9 @@ export class ShadowCasterPass {
 			shadowTileResolution = ShadowUtils.getMaxTileResolutionInAtlas(atlasResolution, atlasResolution, cascadesCount);
 			this._shadowMapHeight = shadowTileResolution * 2;
 			if (cascadesMode == ShadowCascadesMode.TwoCascades)
-				this._shadowMapWith = shadowTileResolution;
+				this._shadowMapWidth = shadowTileResolution;
 			else
-				this._shadowMapWith = shadowTileResolution * 2;
+				this._shadowMapWidth = shadowTileResolution * 2;
 		}
 		this._cascadeCount = cascadesCount;
 
@@ -153,8 +169,8 @@ export class ShadowCasterPass {
 		var cameraRange: number = camera.farPlane - camera.nearPlane;
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceDatas: ShadowSliceData = this._shadowSliceDatas[i];
-			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, light._direction, sliceDatas);
-			ShadowUtils.getDirectionalLightMatrices(camera, light, this._lightWorldMat, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
+			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, lightForward, sliceDatas);
+			ShadowUtils.getDirectionalLightMatrices(camera, light, lightUp, lightSide, lightForward, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
 		}
 	}
 
@@ -170,14 +186,14 @@ export class ShadowCasterPass {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
 			var projectMatrix: Matrix4x4 = sliceData.projectionMatrix;
 			ShadowUtils.getShadowBias(light, projectMatrix, sliceData.resolution, this._shadowBias);
-			this._setupShadowCasterShaderValues(shaderValues, light._direction, this._shadowBias, sliceData.viewMatrix, projectMatrix, sliceData.viewProjectMatrix);
+			this._setupShadowCasterShaderValues(shaderValues, this._lightForward, this._shadowBias, sliceData.viewMatrix, projectMatrix, sliceData.viewProjectMatrix);
 			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
 			shadowCullInfo.position = sliceData.position;
 			shadowCullInfo.cullPlanes = sliceData.cullPlanes;
 			shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
 			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
 
-			var shadowMap: RenderTexture = this._shadowMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWith, this._shadowMapHeight, RenderTextureDepthFormat.DEPTH_16);
+			var shadowMap: RenderTexture = this._shadowMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTextureDepthFormat.DEPTH_16);
 			shadowMap._start();
 			context.cameraShaderValue = sliceData.cameraShaderValue;
 			Camera._updateMark++;

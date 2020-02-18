@@ -37,26 +37,19 @@ export class ShadowUtils {
     /** @internal */
     private static _tempVector30: Vector3 = new Vector3();
     /** @internal */
-    private static _tempVector31: Vector3 = new Vector3();
-    /** @internal */
-    private static _tempVector32: Vector3 = new Vector3();
-    /** @internal */
     private static _tempBoundSphere0: BoundSphere = new BoundSphere(new Vector3(), 0.0);
 
     /** @internal */
-    static _shadowMapScaleOffsetMatrix: Matrix4x4 = new Matrix4x4(
+    private static _shadowMapScaleOffsetMatrix: Matrix4x4 = new Matrix4x4(
         0.5, 0.0, 0.0, 0.0,
         0.0, 0.5, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.5, 0.5, 0.0, 1.0,
     );
-
     /** @internal */
     private static _shadowTextureFormat: RenderTextureFormat;
-
     /** @internal */
     private static _frustumCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
-
     /** @internal */
     private static _adjustNearPlane: Plane = new Plane(new Vector3());
     /** @internal */
@@ -188,7 +181,6 @@ export class ShadowUtils {
         var backPlaneFaces: FrustumFace[] = ShadowUtils._backPlaneFaces;
         var planeNeighbors: FrustumFace[][] = ShadowUtils._frustumPlaneNeighbors;
         var twoPlaneCorners: FrustumCorner[][][] = ShadowUtils._frustumTwoPlaneCorners;
-        // var edgePlanePool: Plane[] = ShadowUtils._edgePlanePool;
         var edgePlanePoint2: Vector3 = ShadowUtils._edgePlanePoint2;
         var out: Plane[] = shadowSliceData.cullPlanes;
 
@@ -305,7 +297,7 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getDirectionalLightMatrices(camera: Camera, light: LightSprite, lightWorld: Matrix4x4, cascadeIndex: number, nearPlane: number, shadowResolution: number, outShadowSliceData: ShadowSliceData, outShadowMatrices: Float32Array): void {
+    static getDirectionalLightMatrices(camera: Camera, light: LightSprite, lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, nearPlane: number, shadowResolution: number, outShadowSliceData: ShadowSliceData, outShadowMatrices: Float32Array): void {
         var forward: Vector3 = ShadowUtils._tempVector30;
         var boundSphere: BoundSphere = ShadowUtils._tempBoundSphere0;
         camera._transform.getForward(forward);
@@ -313,13 +305,6 @@ export class ShadowUtils {
         ShadowUtils.getBoundSphereByFrustum(camera.nearPlane, Math.min(camera.farPlane, light._shadowDistance), camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
 
         // to solve shdow swimming problem
-        var lightUp: Vector3 = ShadowUtils._tempVector32;
-        var lightSide: Vector3 = ShadowUtils._tempVector31;
-        var lightForward: Vector3 = ShadowUtils._tempVector30;
-        lightSide.setValue(lightWorld.getElementByRowColumn(0, 0), lightWorld.getElementByRowColumn(0, 1), lightWorld.getElementByRowColumn(0, 2));
-        lightUp.setValue(lightWorld.getElementByRowColumn(1, 0), lightWorld.getElementByRowColumn(1, 1), lightWorld.getElementByRowColumn(1, 2));
-        lightForward.setValue(-lightWorld.getElementByRowColumn(2, 0), -lightWorld.getElementByRowColumn(2, 1), -lightWorld.getElementByRowColumn(2, 2));
-
         var center: Vector3 = boundSphere.center;
         var radius: number = boundSphere.radius;
         var diam: number = radius * 2.0;
