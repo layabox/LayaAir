@@ -77,7 +77,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private static _lightTexture: Texture2D;
 	/** @internal */
 	private static _lightPixles: Float32Array;
-
+	/** @internal */
 	static _shadowCasterPass: ShadowCasterPass = new ShadowCasterPass();
 
 	/**Hierarchy资源。*/
