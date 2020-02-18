@@ -74,6 +74,6 @@ void vertexForward()
 	#endif
 
 	#ifdef RECEIVESHADOW
-		v_lightMVPPos = getShadowCoord(vec4(v_PositionWorld,1.0));
+		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 	#endif
 }

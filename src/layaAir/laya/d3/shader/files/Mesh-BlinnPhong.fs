@@ -84,7 +84,7 @@ varying vec3 v_Normal;
 
 #include "Shadow.glsl"
 #ifdef RECEIVESHADOW
-	varying vec4 v_lightMVPPos;
+	varying vec4 v_ShadowCoord;
 #endif
 
 void main()
@@ -143,7 +143,7 @@ void main()
 		#ifdef DIRECTIONLIGHT
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
 			#ifdef RECEIVESHADOW
-				float shadowAttenuation=sampleShadowmap(v_lightMVPPos);
+				float shadowAttenuation=sampleShadowmap(v_ShadowCoord);
 				dif *= shadowAttenuation;
 				spe *= shadowAttenuation;
 			#endif
@@ -171,7 +171,7 @@ void main()
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
 				#ifdef RECEIVESHADOW
 					if(i == 0)
-						directionLight.color *= sampleShadowmap(v_lightMVPPos);
+						directionLight.color *= sampleShadowmap(v_ShadowCoord);
 				#endif
 				LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,dif,spe);
 				diffuse+=dif;

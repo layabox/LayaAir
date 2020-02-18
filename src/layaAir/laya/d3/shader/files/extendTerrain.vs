@@ -23,7 +23,7 @@ varying vec2 v_Texcoord0;
 #endif
 
 #ifdef RECEIVESHADOW
-	varying vec4 v_lightMVPPos;
+	varying vec4 v_ShadowCoord;
 #endif
 
 void main()
@@ -46,7 +46,7 @@ void main()
 	#endif
 
 	#ifdef RECEIVESHADOW
-		v_lightMVPPos = getShadowCoord(vec4(v_PositionWorld,1.0));
+		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
 }

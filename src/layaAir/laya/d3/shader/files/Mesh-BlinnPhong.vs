@@ -60,7 +60,7 @@ varying vec3 v_Normal;
 #endif
 
 #ifdef RECEIVESHADOW
-	varying vec4 v_lightMVPPos;
+	varying vec4 v_ShadowCoord;
 #endif
 
 #ifdef TILINGOFFSET
@@ -134,7 +134,7 @@ void main()
 	#endif
 
 	#ifdef RECEIVESHADOW
-		v_lightMVPPos =getShadowCoord(vec4(v_PositionWorld,1.0));
+		v_ShadowCoord =getShadowCoord(vec4(v_PositionWorld,1.0));
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
 }

@@ -97,7 +97,7 @@ varying vec3 v_EyeVec;
 varying vec3 v_PositionWorld;
 
 #ifdef RECEIVESHADOW
-	varying vec4 v_lightMVPPos;
+	varying vec4 v_ShadowCoord;
 #endif
 
 

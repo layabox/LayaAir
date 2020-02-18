@@ -47,7 +47,7 @@ varying vec3 v_PositionWorld;
 varying float v_posViewZ;
 
 #ifdef RECEIVESHADOW
-	varying vec4 v_lightMVPPos;
+	varying vec4 v_ShadowCoord;
 #endif
 
 #ifdef TILINGOFFSET

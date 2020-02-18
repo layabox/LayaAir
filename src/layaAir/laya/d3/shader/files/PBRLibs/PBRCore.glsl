@@ -156,7 +156,7 @@ void fragmentForward()
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
 			#ifdef RECEIVESHADOW
-				shadowAttenuation= sampleShadowmap(v_lightMVPPos);
+				shadowAttenuation= sampleShadowmap(v_ShadowCoord);
 			#endif
 			LayaLight dirLight = layaDirectionLightToLight(u_DirectionLight,shadowAttenuation);
 			color+= LAYA_BRDF_LIGHT(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,dirLight);
@@ -179,7 +179,7 @@ void fragmentForward()
 					break;
 				#ifdef RECEIVESHADOW
 					if(i==0)
-						shadowAttenuation= sampleShadowmap(v_lightMVPPos);
+						shadowAttenuation= sampleShadowmap(v_ShadowCoord);
 				#endif
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
 				LayaLight dirLight = layaDirectionLightToLight(directionLight,shadowAttenuation);
