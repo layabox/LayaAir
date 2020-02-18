@@ -168,7 +168,7 @@ export class ShadowCasterPass {
 		for (var i: number = 0; i < this._cascadeCount; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
 			var projectMatrix: Matrix4x4 = sliceData.projectionMatrix;
-			ShadowUtils.getShadowBias(light, projectMatrix, light._shadowResolution, this._shadowBias);
+			ShadowUtils.getShadowBias(light, projectMatrix, sliceData.resolution, this._shadowBias);
 			this._setupShadowCasterShaderValues(shaderValues, light._direction, this._shadowBias, sliceData.viewMatrix, projectMatrix, sliceData.viewProjectMatrix);
 			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
 			shadowCullInfo.position = sliceData.position;
