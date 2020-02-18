@@ -116,20 +116,21 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getShadowBias(lightSprite: LightSprite, shadowProjectionMatrix: Matrix4x4, shadowResolution: number, out: Vector4): void {
+    static getShadowBias(light: LightSprite, shadowProjectionMatrix: Matrix4x4, shadowResolution: number, out: Vector4): void {
         var frustumSize: number;
-        if (lightSprite._lightType == LightType.Directional) {
+        if (light._lightType == LightType.Directional) {
             // Frustum size is guaranteed to be a cube as we wrap shadow frustum around a sphere
+            // elements[0] = 2.0 / (right - left)
             frustumSize = 2.0 / shadowProjectionMatrix.elements[0];
         }
-        else if (lightSprite._lightType == LightType.Spot) {
+        else if (light._lightType == LightType.Spot) {
             // For perspective projections, shadow texel size varies with depth
             // It will only work well if done in receiver side in the pixel shader. Currently We
             // do bias on caster side in vertex shader. When we add shader quality tiers we can properly
             // handle this. For now, as a poor approximation we do a constant bias and compute the size of
             // the frustum as if it was orthogonal considering the size at mid point between near and far planes.
             // Depending on how big the light range is, it will be good enough with some tweaks in bias
-            frustumSize = Math.tan((<SpotLight>lightSprite).spotAngle * 0.5 * MathUtils3D.Deg2Rad) * (<SpotLight>lightSprite).range;
+            frustumSize = Math.tan((<SpotLight>light).spotAngle * 0.5 * MathUtils3D.Deg2Rad) * (<SpotLight>light).range;
         }
         else {
             console.warn("ShadowUtils:Only spot and directional shadow casters are supported now.");
@@ -138,10 +139,10 @@ export class ShadowUtils {
 
         // depth and normal bias scale is in shadowmap texel size in world space
         var texelSize: number = frustumSize / shadowResolution;
-        var depthBias: number = -lightSprite._shadowDepthBias * texelSize;
-        var normalBias: number = -lightSprite._shadowNormalBias * texelSize;
+        var depthBias: number = -light._shadowDepthBias * texelSize;
+        var normalBias: number = -light._shadowNormalBias * texelSize;
 
-        if (lightSprite.shadowMode == ShadowMode.SoftLow || lightSprite.shadowMode == ShadowMode.SoftHigh) {
+        if (light.shadowMode == ShadowMode.SoftHigh) {
             // TODO: depth and normal bias assume sample is no more than 1 texel away from shadowmap
             // This is not true with PCF. Ideally we need to do either
             // cone base bias (based on distance to center sample)
