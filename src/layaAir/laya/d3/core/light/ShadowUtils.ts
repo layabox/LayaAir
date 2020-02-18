@@ -305,7 +305,7 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getDirectionalLightMatrices(camera: Camera, light: LightSprite, cascadeIndex: number, nearPlane: number, shadowResolution: number, outShadowSliceData: ShadowSliceData, outShadowMatrices: Float32Array): void {
+    static getDirectionalLightMatrices(camera: Camera, light: LightSprite, lightWorld: Matrix4x4, cascadeIndex: number, nearPlane: number, shadowResolution: number, outShadowSliceData: ShadowSliceData, outShadowMatrices: Float32Array): void {
         var forward: Vector3 = ShadowUtils._tempVector30;
         var boundSphere: BoundSphere = ShadowUtils._tempBoundSphere0;
         camera._transform.getForward(forward);
@@ -313,16 +313,12 @@ export class ShadowUtils {
         ShadowUtils.getBoundSphereByFrustum(camera.nearPlane, Math.min(camera.farPlane, light._shadowDistance), camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
 
         // to solve shdow swimming problem
-        var lightWorld: Matrix4x4 = light._transform.worldMatrix;
         var lightUp: Vector3 = ShadowUtils._tempVector32;
         var lightSide: Vector3 = ShadowUtils._tempVector31;
         var lightForward: Vector3 = ShadowUtils._tempVector30;
         lightSide.setValue(lightWorld.getElementByRowColumn(0, 0), lightWorld.getElementByRowColumn(0, 1), lightWorld.getElementByRowColumn(0, 2));
         lightUp.setValue(lightWorld.getElementByRowColumn(1, 0), lightWorld.getElementByRowColumn(1, 1), lightWorld.getElementByRowColumn(1, 2));
         lightForward.setValue(-lightWorld.getElementByRowColumn(2, 0), -lightWorld.getElementByRowColumn(2, 1), -lightWorld.getElementByRowColumn(2, 2));
-        Vector3.normalize(lightUp, lightUp);
-        Vector3.normalize(lightSide, lightSide);
-        Vector3.normalize(lightForward, lightForward);
 
         var center: Vector3 = boundSphere.center;
         var radius: number = boundSphere.radius;

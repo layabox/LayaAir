@@ -67,6 +67,8 @@ export class ShadowCasterPass {
 	private _shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
 	/**@internal */
 	private _light: DirectionLight;
+	/**@internal */
+	private _lightWorldMat: Matrix4x4 = new Matrix4x4();
 
 	constructor() {
 	}
@@ -89,7 +91,6 @@ export class ShadowCasterPass {
 	 */
 	private _setupShadowReceiverShaderValues(shaderValues: ShaderData): void {
 		var light: DirectionLight = this._light;
-
 		if (light.shadowCascadesMode !== ShadowCascadesMode.NoCascades)
 			shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADES);
 		else
@@ -122,8 +123,8 @@ export class ShadowCasterPass {
 	 */
 	update(camera: Camera, light: DirectionLight): void {
 		this._light = light;
-		light.transform.worldMatrix.getForward(light._direction);
-		Vector3.normalize(light._direction, light._direction);//TODO:应该优化移除
+		Matrix4x4.createFromQuaternion(light._transform.rotation, this._lightWorldMat);//to remove scale problem
+		this._lightWorldMat.getForward(light._direction);
 		var atlasResolution: number = light._shadowResolution;
 		var cascadesMode: ShadowCascadesMode = light._shadowCascadesMode;
 		var cascadesCount: number;
@@ -153,7 +154,7 @@ export class ShadowCasterPass {
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceDatas: ShadowSliceData = this._shadowSliceDatas[i];
 			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, light._direction, sliceDatas);
-			ShadowUtils.getDirectionalLightMatrices(camera, light, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
+			ShadowUtils.getDirectionalLightMatrices(camera, light, this._lightWorldMat, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
 		}
 	}
 
