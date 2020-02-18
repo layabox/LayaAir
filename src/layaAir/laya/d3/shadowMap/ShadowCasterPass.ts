@@ -203,7 +203,7 @@ export class ShadowCasterPass {
 	 */
 	cleanUp(): void {
 		RenderTexture.recoverToPool(this._shadowMap);
-		// this._shadowMap = null; 测试临时屏蔽
+		this._shadowMap = null;
 		this._light = null;
 	}
 }
