@@ -65,7 +65,7 @@ float sampleShadowmap(vec4 shadowCoord)
 {
 	shadowCoord.xyz /= shadowCoord.w;
 	float attenuation = 1.0;
-	if(shadowCoord.z > 0.0 || shadowCoord.z < 1.0)
+	if(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)
 	{
 		#if defined(SHADOW_SOFT_SHADOW_HIGH)
 			attenuation = sampleShdowMapFiltered9(u_ShadowMap,shadowCoord.xyz,u_ShadowMapSize);
