@@ -13,6 +13,8 @@ import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
+import { ShadowMode } from "laya/d3/core/light/ShadowMode";
+import { ShadowCascadesMode } from "laya/d3/core/light/ShadowCascadesMode";
 
 /**
  * ...
@@ -43,15 +45,13 @@ export class RealTimeShadow {
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//灯光开启阴影
-		directionLight.shadow = true;
+		directionLight.shadowMode = ShadowMode.SoftHigh;
 		//可见阴影距离
 		directionLight.shadowDistance = 3;
 		//生成阴影贴图尺寸
 		directionLight.shadowResolution = 2048;
-		//生成阴影贴图数量
-		directionLight.shadowPSSMCount = 1;
-		//模糊等级,越大越高,更耗性能
-		directionLight.shadowPCFType = 3;
+		//阴影的级联模式
+		directionLight.shadowCascadesMode = ShadowCascadesMode.NoCascades;
 
 		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh",
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
