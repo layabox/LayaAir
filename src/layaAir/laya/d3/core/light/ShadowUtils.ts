@@ -3,21 +3,20 @@ import { FilterMode } from "../../../resource/FilterMode";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../../resource/RenderTextureFormat";
 import { WarpMode } from "../../../resource/WrapMode";
 import { BoundFrustum, FrustumCorner } from "../../math/BoundFrustum";
+import { BoundSphere } from "../../math/BoundSphere";
 import { MathUtils3D } from "../../math/MathUtils3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Plane } from "../../math/Plane";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
+import { ShadowSliceData } from "../../shadowMap/ShadowSliceData";
+import { Utils3D } from "../../utils/Utils3D";
+import { Camera } from "../Camera";
 import { LightSprite, LightType } from "./LightSprite";
+import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";
 import { SpotLight } from "./SpotLight";
-import { BoundSphere } from "../../math/BoundSphere";
-import { Vector2 } from "../../math/Vector2";
-import { Camera } from "../Camera";
-import { Utils3D } from "../../utils/Utils3D";
-import { ShadowSliceData } from "../../shadowMap/ShadowSliceData";
-import { ShadowCascadesMode } from "./ShadowCascadesMode";
 
 /**
  * @internal
@@ -220,7 +219,18 @@ export class ShadowUtils {
 
         var backIndex: number = 0;
         for (var i: FrustumFace = 0; i < 6; i++) {// meybe 3、4、5(light eye is at far, forward is near, or orth camera is any axis)
-            var plane: Plane = cameraFrustumPlanes[i];
+            var plane: Plane;
+            switch (i) {
+                case FrustumFace.Near:
+                    plane = splitNear;
+                    break;
+                case FrustumFace.Far:
+                    plane = splitFar;
+                    break;
+                default:
+                    plane = cameraFrustumPlanes[i];
+                    break;
+            }
             if (Vector3.dot(plane.normal, direction) < 0.0) {
                 plane.cloneTo(out[backIndex]);
                 backPlaneFaces[backIndex] = i;
