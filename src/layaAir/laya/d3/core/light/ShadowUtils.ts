@@ -42,7 +42,7 @@ export class ShadowUtils {
     /** @internal */
     private static _tempVector32: Vector3 = new Vector3();
     /** @internal */
-    private static _tempBoundSphere0: BoundSphere = new BoundSphere(new Vector3(), 0);
+    private static _tempBoundSphere0: BoundSphere = new BoundSphere(new Vector3(), 0.0);
 
     /** @internal */
     static _shadowMapScaleOffsetMatrix: Matrix4x4 = new Matrix4x4(

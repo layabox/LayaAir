@@ -20,7 +20,7 @@ import { ShaderData } from "../shader/ShaderData";
 import { ShadowSliceData } from "./ShadowSliceData";
 
 /**
- * 
+ * @internal
  */
 export class ShadowCasterPass {
 	/** @internal */
@@ -61,8 +61,8 @@ export class ShadowCasterPass {
 	private _shadowMapWith: number = 0;
 	/** @internal */
 	private _shadowMapHeight: number = 0;
-	//测试临时屏蔽+internal+private
-	_shadowMap: RenderTexture;
+	/** @internal */
+	private _shadowMap: RenderTexture;
 	/** @internal */
 	private _shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
 	/**@internal */
