@@ -93,10 +93,11 @@ export class ShadowCasterPass {
 		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectViewMatrix);
 	}
 
+
 	/**
 	 * @internal
 	 */
-	private _setupShadowReceiverShaderValues(shadowFar: number, shaderValues: ShaderData): void {
+	private _setupShadowReceiverShaderValues(shaderValues: ShaderData): void {
 		var light: DirectionLight = this._light;
 		if (light.shadowCascadesMode !== ShadowCascadesMode.NoCascades)
 			shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE);
@@ -116,21 +117,6 @@ export class ShadowCasterPass {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
 				break;
 		}
-
-		this._shadowMapSize.setValue(1.0 / this._shadowMapWidth, 1.0 / this._shadowMapHeight, this._shadowMapWidth, this._shadowMapHeight);
-		this._shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
-		switch (light._shadowCascadesMode) {
-			case ShadowCascadesMode.NoCascades:
-				this._shadowSplitDistance.setValue(0, 0, 0, 0);
-				break;
-			case ShadowCascadesMode.TwoCascades:
-				this._shadowSplitDistance.setValue(light._shadowTwoCascadeSplits * shadowFar, shadowFar, 0, 0);
-				break;
-			case ShadowCascadesMode.FourCascades:
-				var forSplit: Vector3 = light._shadowFourCascadeSplits;
-				this._shadowSplitDistance.setValue(forSplit.x * shadowFar, forSplit.y * shadowFar, forSplit.z * shadowFar, 1.0);
-				break;
-		}
 		shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, this._shadowMap);
 		shaderValues.setBuffer(ShadowCasterPass.SHADOW_MATRICES, this._shadowMatrices);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
@@ -143,8 +129,6 @@ export class ShadowCasterPass {
 	 */
 	update(camera: Camera, light: DirectionLight): void {
 		this._light = light;
-		this._cam = camera;//TODO:临时
-
 		var lightWorld: Matrix4x4 = ShadowCasterPass._tempMatrix0;
 		var lightWorldE: Float32Array = lightWorld.elements;
 		var lightUp: Vector3 = this._lightUp;
@@ -190,6 +174,7 @@ export class ShadowCasterPass {
 			if (cascadesCount > 1)
 				ShadowUtils.applySliceTransform(sliceData, shadowMapWidth, shadowMapHeight, i, shadowMatrices);
 		}
+		ShadowUtils.prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, shadowFar, this._shadowMapSize, this._shadowParams, this._shadowSplitDistance);
 	}
 
 	/**
@@ -228,13 +213,10 @@ export class ShadowCasterPass {
 			}
 		}
 		shadowMap._end();
-		var shadowFar: number = Math.min(this._cam.farPlane, light._shadowDistance);//TODO:优化
-		this._setupShadowReceiverShaderValues(shadowFar, shaderValues);
+		this._setupShadowReceiverShaderValues(shaderValues);
 		ShaderData.setRuntimeValueMode(true);
 		context.pipelineMode = "Forward";
 	}
-
-	private _cam: Camera;
 
 	/**
 	 * @internal
