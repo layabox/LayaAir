@@ -55,9 +55,9 @@ void vertexForward()
 
 	mat3 worldInvMat;
 	#ifdef BONE
-		worldInvMat=inverse(mat3(worldMat*skinTransform));
+		worldInvMat=INVERSE_MAT(mat3(worldMat*skinTransform));
 	#else
-		worldInvMat=inverse(mat3(worldMat));
+		worldInvMat=INVERSE_MAT(mat3(worldMat));
 	#endif
 
 	v_Normal=normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem.
