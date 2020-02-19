@@ -145,7 +145,12 @@ void main()
 		#ifdef DIRECTIONLIGHT
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
 			#ifdef RECEIVESHADOW
-				float shadowAttenuation=sampleShadowmap(v_ShadowCoord);
+				#ifdef SHADOW_CASCADE
+					vec3 shadowCoord = getShadowCoord(v_PositionWorld);
+				#else
+					vec3 shadowCoord = v_ShadowCoord;
+				#endif
+				float shadowAttenuation=sampleShadowmap(shadowCoord);
 				dif *= shadowAttenuation;
 				spe *= shadowAttenuation;
 			#endif
