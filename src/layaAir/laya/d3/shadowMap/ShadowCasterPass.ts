@@ -181,6 +181,8 @@ export class ShadowCasterPass {
 		var shaderValues: ShaderData = scene._shaderValues;
 		context.pipelineMode = "ShadowCaster";
 		ShaderData.setRuntimeValueMode(false);
+		var shadowMap: RenderTexture = this._shadowMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTextureDepthFormat.DEPTH_16);
+		shadowMap._start();
 		var light: DirectionLight = this._light;
 		for (var i: number = 0; i < this._cascadeCount; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
@@ -191,10 +193,7 @@ export class ShadowCasterPass {
 			shadowCullInfo.position = sliceData.position;
 			shadowCullInfo.cullPlanes = sliceData.cullPlanes;
 			shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
-			FrustumCulling.cullingShadow(shadowCullInfo, scene, context)
-
-			var shadowMap: RenderTexture = this._shadowMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTextureDepthFormat.DEPTH_16);
-			shadowMap._start();
+			var needRender: boolean = FrustumCulling.cullingShadow(shadowCullInfo, scene, context);
 			context.cameraShaderValue = sliceData.cameraShaderValue;
 			Camera._updateMark++;
 			var gl = LayaGL.instance;
@@ -202,16 +201,15 @@ export class ShadowCasterPass {
 			var offsetX: number = sliceData.offsetX;
 			var offsetY: number = sliceData.offsetY;
 			gl.enable(gl.SCISSOR_TEST);
-			gl.clearColor(0, 0, 0, 1);
 			gl.viewport(offsetX, offsetY, resolution, resolution);
 			gl.scissor(offsetX, offsetY, resolution, resolution);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-			// gl.colorMask(false,false,false,false);
-			gl.scissor(offsetX + 4, offsetY + 4, resolution - 8, resolution - 8);
-			scene._opaqueQueue._render(context);//阴影均为非透明队列
-			// gl.colorMask(true,true,true,true);
-			shadowMap._end();
+			gl.clear(gl.DEPTH_BUFFER_BIT);
+			if (needRender) {// if one cascade have anything to render.
+				gl.scissor(offsetX + 4, offsetY + 4, resolution - 8, resolution - 8);
+				scene._opaqueQueue._render(context);//阴影均为非透明队列
+			}
 		}
+		shadowMap._end();
 		this._setupShadowReceiverShaderValues(shaderValues);
 		ShaderData.setRuntimeValueMode(true);
 		context.pipelineMode = "Forward";
