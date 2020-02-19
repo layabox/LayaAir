@@ -166,14 +166,15 @@ export class ShadowCasterPass {
 		var frustumPlanes: Plane[] = ShadowCasterPass._frustumPlanes;
 		var cameraRange: number = camera.farPlane - camera.nearPlane;
 		var shadowFar: number = Math.min(camera.farPlane, light._shadowDistance);
+		var shadowMatrices: Float32Array = this._shadowMatrices;
 		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, shadowFar - camera.nearPlane, cascadesMode, splitDistance);
 		ShadowUtils.getCameraFrustumPlanes(camera.projectionViewMatrix, frustumPlanes);
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
 			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, lightForward, sliceData);
-			ShadowUtils.getDirectionalLightMatrices(camera, shadowFar, lightUp, lightSide, lightForward, i, light._shadowNearPlane, shadowTileResolution, sliceData, this._shadowMatrices);
+			ShadowUtils.getDirectionalLightMatrices(camera, shadowFar, lightUp, lightSide, lightForward, i, light._shadowNearPlane, shadowTileResolution, sliceData, shadowMatrices);
 			if (cascadesCount > 1)
-				ShadowUtils.applySliceTransform(sliceData, shadowMapWidth, shadowMapHeight, i, this._shadowMatrices);
+				ShadowUtils.applySliceTransform(sliceData, shadowMapWidth, shadowMapHeight, i, shadowMatrices);
 		}
 	}
 
@@ -187,7 +188,7 @@ export class ShadowCasterPass {
 		var shadowMap: RenderTexture = this._shadowMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTextureDepthFormat.DEPTH_16);
 		shadowMap._start();
 		var light: DirectionLight = this._light;
-		for (var i: number = 0; i < this._cascadeCount; i++) {
+		for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
 			var projectMatrix: Matrix4x4 = sliceData.projectionMatrix;
 			ShadowUtils.getShadowBias(light, projectMatrix, sliceData.resolution, this._shadowBias);
