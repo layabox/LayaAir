@@ -139,7 +139,7 @@ void main()
 
 	#ifdef RECEIVESHADOW
 		#ifndef SHADOW_CASCADE
-			v_ShadowCoord =getShadowCoord(vec4(positionWS,1.0));
+			v_ShadowCoord =getShadowCoord(vec4(positionWS,1.0),0);
 		#endif
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);

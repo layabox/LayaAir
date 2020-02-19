@@ -146,9 +146,10 @@ void main()
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
 			#ifdef RECEIVESHADOW
 				#ifdef SHADOW_CASCADE
-					vec3 shadowCoord = getShadowCoord(v_PositionWorld);
+					mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
 				#else
-					vec3 shadowCoord = v_ShadowCoord;
+					vec4 shadowCoord = v_ShadowCoord;
 				#endif
 				float shadowAttenuation=sampleShadowmap(shadowCoord);
 				dif *= shadowAttenuation;
@@ -178,7 +179,15 @@ void main()
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
 				#ifdef RECEIVESHADOW
 					if(i == 0)
-						directionLight.color *= sampleShadowmap(v_ShadowCoord);
+					{
+						#ifdef SHADOW_CASCADE
+							mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+							vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
+						#else
+							vec4 shadowCoord = v_ShadowCoord;
+						#endif
+						directionLight.color *= sampleShadowmap(shadowCoord);
+					}
 				#endif
 				LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,dif,spe);
 				diffuse+=dif;

@@ -368,11 +368,11 @@ export class ShadowUtils {
                 shadowDistance.setValue(0, 0, 0, 0);
                 break;
             case ShadowCascadesMode.TwoCascades:
-                shadowDistance.setValue(light._shadowTwoCascadeSplits * shadowFar, shadowFar, 0, 0);
+                shadowDistance.setValue(light._shadowTwoCascadeSplits * shadowFar, shadowFar, 0, 0);//TODO:加保护
                 break;
             case ShadowCascadesMode.FourCascades:
                 var forSplit: Vector3 = light._shadowFourCascadeSplits;
-                shadowDistance.setValue(forSplit.x * shadowFar, forSplit.y * shadowFar, forSplit.z * shadowFar, 1.0);
+                shadowDistance.setValue(forSplit.x * shadowFar, forSplit.y * shadowFar, forSplit.z * shadowFar, 1.0);//TODO:加保护
                 break;
         }
     }

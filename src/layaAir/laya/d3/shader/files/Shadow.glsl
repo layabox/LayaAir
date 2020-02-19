@@ -24,18 +24,30 @@ uniform vec4 u_ShadowSplitDistance;
 mediump int computeCascadeIndex(float viewZ)
 {
 	mediump vec4 comparison = vec4(viewZ<u_ShadowSplitDistance.x,viewZ<u_ShadowSplitDistance.y,viewZ<u_ShadowSplitDistance.z,viewZ<u_ShadowSplitDistance.w);
-	float index = 4.0 - dot(comparison, comparison);
-	return int(index);
+	mediump int index = 4 - int(dot(comparison, comparison));
+	return index;
 }
 
-vec4 getShadowCoord(vec4 positionWS)
+vec4 getShadowCoord(vec4 positionWS,mediump int cascadeIndex)
 {
 	#ifdef SHADOW_CASCADE
-		const mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+		#ifdef GRAPHICS_API_GLES3
+			return u_ShadowMatrices[cascadeIndex] * positionWS;
+		#else
+			mat4 shadowMat;
+			if( cascadeIndex == 0 )
+				shadowMat = u_ShadowMatrices[0];
+			else if( cascadeIndex == 1 )
+				shadowMat = u_ShadowMatrices[1];
+			else if( cascadeIndex == 2 )
+				shadowMat = u_ShadowMatrices[2];
+			else
+				shadowMat = u_ShadowMatrices[3];
+			return shadowMat * positionWS;
+		#endif
 	#else
-	 	const mediump int cascadeIndex = 0;
+		return u_ShadowMatrices[0] * positionWS;
 	#endif
-	return u_ShadowMatrices[cascadeIndex] * positionWS;
 }
 
 float sampleShdowMapFiltered4(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowMapSize)
