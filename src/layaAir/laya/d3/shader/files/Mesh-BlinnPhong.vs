@@ -60,7 +60,9 @@ varying vec3 v_Normal;
 #endif
 
 #ifdef RECEIVESHADOW
-	varying vec4 v_ShadowCoord;
+	#ifndef SHADOW_CASCADE
+		varying vec4 v_ShadowCoord;
+	#endif
 #endif
 
 #ifdef TILINGOFFSET
@@ -134,7 +136,9 @@ void main()
 	#endif
 
 	#ifdef RECEIVESHADOW
-		v_ShadowCoord =getShadowCoord(vec4(v_PositionWorld,1.0));
+		#ifndef SHADOW_CASCADE
+			v_ShadowCoord =getShadowCoord(vec4(v_PositionWorld,1.0));
+		#endif
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
 }

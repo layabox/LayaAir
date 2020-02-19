@@ -138,8 +138,8 @@ export class ShaderInit3D {
 			'u_LightDirection': Shader3D.PERIOD_SCENE,
 			'u_ShadowMap': Shader3D.PERIOD_SCENE,
 			'u_ShadowParams': Shader3D.PERIOD_SCENE,
-			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
-			'u_ShadowLightViewProjects': Shader3D.PERIOD_SCENE,
+			'u_ShadowSplitDistance': Shader3D.PERIOD_SCENE,
+			'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
 			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 
 			//GI
@@ -429,8 +429,8 @@ export class ShaderInit3D {
 			'u_ShadowMap': Shader3D.PERIOD_SCENE,
 			'u_shadowMap2': Shader3D.PERIOD_SCENE,
 			'u_shadowMap3': Shader3D.PERIOD_SCENE,
-			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
-			'u_ShadowLightViewProjects': Shader3D.PERIOD_SCENE,
+			'u_ShadowSplitDistance': Shader3D.PERIOD_SCENE,
+			'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
 			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 			//legacy lighting
 			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,

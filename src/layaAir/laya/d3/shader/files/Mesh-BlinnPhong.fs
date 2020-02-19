@@ -75,7 +75,7 @@ varying vec3 v_Normal;
 	uniform vec3 u_FogColor;
 #endif
 
-#if defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
+#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(RECEIVESHADOW)&&defined(SHADOW_CASCADE))
 	varying vec3 v_PositionWorld;
 #endif
 
@@ -84,7 +84,9 @@ varying vec3 v_Normal;
 
 #include "Shadow.glsl"
 #ifdef RECEIVESHADOW
-	varying vec4 v_ShadowCoord;
+	#ifndef SHADOW_CASCADE
+		varying vec4 v_ShadowCoord;
+	#endif
 #endif
 
 void main()

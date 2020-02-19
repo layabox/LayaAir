@@ -31,9 +31,9 @@ export class ShadowCasterPass {
 	/** @internal */
 	static SHADOW_LIGHT_DIRECTION: number = Shader3D.propertyNameToID("u_ShadowLightDirection");
 	/** @internal */
-	static SHADOWDISTANCE: number = Shader3D.propertyNameToID("u_shadowPSSMDistance");
+	static SHADOW_SPLIT_DISTANCE: number = Shader3D.propertyNameToID("u_ShadowSplitDistance");
 	/** @internal */
-	static SHADOWLIGHT_VIEW_PROJECTS: number = Shader3D.propertyNameToID("u_ShadowLightViewProjects");
+	static SHADOW_MATRICES: number = Shader3D.propertyNameToID("u_ShadowMatrices");
 	/** @internal */
 	static SHADOW_MAP_SIZE: number = Shader3D.propertyNameToID("u_ShadowMapSize");
 	/** @internal */
@@ -57,7 +57,7 @@ export class ShadowCasterPass {
 	/** @internal */
 	private _shadowMatrices: Float32Array = new Float32Array(16 * 4);
 	/** @internal */
-	private _cascadeSplitDistances: Vector4[] = [new Vector4(), new Vector4(), new Vector4(), new Vector4()];
+	private _shadowSplitDistance: Vector4 = new Vector4();
 	/** @internal */
 	private _cascadeCount: number = 0;
 	/** @internal */
@@ -96,13 +96,12 @@ export class ShadowCasterPass {
 	/**
 	 * @internal
 	 */
-	private _setupShadowReceiverShaderValues(shaderValues: ShaderData): void {
+	private _setupShadowReceiverShaderValues(shadowFar: number, shaderValues: ShaderData): void {
 		var light: DirectionLight = this._light;
 		if (light.shadowCascadesMode !== ShadowCascadesMode.NoCascades)
-			shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADES);
+			shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE);
 		else
-			shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADES);
-
+			shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE);
 		switch (light.shadowMode) {
 			case ShadowMode.Hard:
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
@@ -117,12 +116,26 @@ export class ShadowCasterPass {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW);
 				break;
 		}
+
 		this._shadowMapSize.setValue(1.0 / this._shadowMapWidth, 1.0 / this._shadowMapHeight, this._shadowMapWidth, this._shadowMapHeight);
 		this._shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
-		shaderValues.setBuffer(ShadowCasterPass.SHADOWLIGHT_VIEW_PROJECTS, this._shadowMatrices);
+		switch (light._shadowCascadesMode) {
+			case ShadowCascadesMode.NoCascades:
+				this._shadowSplitDistance.setValue(0, 0, 0, 0);
+				break;
+			case ShadowCascadesMode.TwoCascades:
+				this._shadowSplitDistance.setValue(light._shadowTwoCascadeSplits * shadowFar, shadowFar, 0, 0);
+				break;
+			case ShadowCascadesMode.FourCascades:
+				var forSplit: Vector3 = light._shadowFourCascadeSplits;
+				this._shadowSplitDistance.setValue(forSplit.x * shadowFar, forSplit.y * shadowFar, forSplit.z * shadowFar, 1.0);
+				break;
+		}
 		shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, this._shadowMap);
+		shaderValues.setBuffer(ShadowCasterPass.SHADOW_MATRICES, this._shadowMatrices);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
+		shaderValues.setVector(ShadowCasterPass.SHADOW_SPLIT_DISTANCE, this._shadowSplitDistance);
 	}
 
 	/**
@@ -130,6 +143,7 @@ export class ShadowCasterPass {
 	 */
 	update(camera: Camera, light: DirectionLight): void {
 		this._light = light;
+		this._cam = camera;//TODO:临时
 
 		var lightWorld: Matrix4x4 = ShadowCasterPass._tempMatrix0;
 		var lightWorldE: Float32Array = lightWorld.elements;
@@ -214,10 +228,13 @@ export class ShadowCasterPass {
 			}
 		}
 		shadowMap._end();
-		this._setupShadowReceiverShaderValues(shaderValues);
+		var shadowFar: number = Math.min(this._cam.farPlane, light._shadowDistance);//TODO:优化
+		this._setupShadowReceiverShaderValues(shadowFar, shaderValues);
 		ShaderData.setRuntimeValueMode(true);
 		context.pipelineMode = "Forward";
 	}
+
+	private _cam: Camera;
 
 	/**
 	 * @internal

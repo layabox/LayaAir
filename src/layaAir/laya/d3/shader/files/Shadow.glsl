@@ -18,12 +18,24 @@ TEXTURE2D_SHADOW(u_ShadowMap);
 uniform vec4 u_ShadowMapSize;
 uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 uniform vec4 u_ShadowParams; // x: shadowStrength
-uniform mat4 u_ShadowLightViewProjects[4];
-uniform vec4 u_shadowPSSMDistance;
+uniform mat4 u_ShadowMatrices[4];
+uniform vec4 u_ShadowSplitDistance;
+
+mediump int computeCascadeIndex(float viewZ)
+{
+	mediump vec4 comparison = vec4(viewZ<u_ShadowSplitDistance.x,viewZ<u_ShadowSplitDistance.y,viewZ<u_ShadowSplitDistance.z,viewZ<u_ShadowSplitDistance.w);
+	float index = 4.0 - dot(comparison, comparison);
+	return int(index);
+}
 
 vec4 getShadowCoord(vec4 positionWS)
 {
-	return u_ShadowLightViewProjects[0] * positionWS;
+	#ifdef SHADOW_CASCADE
+		const mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+	#else
+	 	const mediump int cascadeIndex = 0;
+	#endif
+	return u_ShadowMatrices[cascadeIndex] * positionWS;
 }
 
 float sampleShdowMapFiltered4(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowMapSize)
