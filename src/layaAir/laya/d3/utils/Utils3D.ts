@@ -452,22 +452,22 @@ export class Utils3D {
 	/**
 	 * @internal
 	 */
-	static _mulMatrixArray(left: Float32Array, right: Float32Array, outArray: Float32Array, outOffset: number): void {
+	static _mulMatrixArray(left: Float32Array, right: Float32Array, rightOffset: number, outArray: Float32Array, outOffset: number): void {
 		var l: Float32Array = right;
 		var r: Float32Array = left;
 		var e: Float32Array = outArray;
 
-		var l11: number = l[0], l12: number = l[1], l13: number = l[2], l14: number = l[3];
-		var l21: number = l[4], l22: number = l[5], l23: number = l[6], l24: number = l[7];
-		var l31: number = l[8], l32: number = l[9], l33: number = l[10], l34: number = l[11];
-		var l41: number = l[12], l42: number = l[13], l43: number = l[14], l44: number = l[15];
+		var l11: number = l[rightOffset], l12: number = l[rightOffset + 1], l13: number = l[rightOffset + 2], l14: number = l[rightOffset + 3];
+		var l21: number = l[rightOffset + 4], l22: number = l[rightOffset + 5], l23: number = l[rightOffset + 6], l24: number = l[rightOffset + 7];
+		var l31: number = l[rightOffset + 8], l32: number = l[rightOffset + 9], l33: number = l[rightOffset + 10], l34: number = l[rightOffset + 11];
+		var l41: number = l[rightOffset + 12], l42: number = l[rightOffset + 13], l43: number = l[rightOffset + 14], l44: number = l[rightOffset + 15];
 
 		var r11: number = r[0], r12: number = r[1], r13: number = r[2], r14: number = r[3];
 		var r21: number = r[4], r22: number = r[5], r23: number = r[6], r24: number = r[7];
 		var r31: number = r[8], r32: number = r[9], r33: number = r[10], r34: number = r[11];
 		var r41: number = r[12], r42: number = r[13], r43: number = r[14], r44: number = r[15];
 
-		e[outOffset + 0] = (l11 * r11) + (l12 * r21) + (l13 * r31) + (l14 * r41);
+		e[outOffset] = (l11 * r11) + (l12 * r21) + (l13 * r31) + (l14 * r41);
 		e[outOffset + 1] = (l11 * r12) + (l12 * r22) + (l13 * r32) + (l14 * r42);
 		e[outOffset + 2] = (l11 * r13) + (l12 * r23) + (l13 * r33) + (l14 * r43);
 		e[outOffset + 3] = (l11 * r14) + (l12 * r24) + (l13 * r34) + (l14 * r44);

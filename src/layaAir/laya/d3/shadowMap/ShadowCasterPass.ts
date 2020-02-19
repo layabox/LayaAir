@@ -145,32 +145,35 @@ export class ShadowCasterPass {
 		var cascadesMode: ShadowCascadesMode = light._shadowCascadesMode;
 		var cascadesCount: number;
 		var shadowTileResolution: number;
+		var shadowMapWidth: number, shadowMapHeight: number;
 		if (cascadesMode == ShadowCascadesMode.NoCascades) {
 			cascadesCount = 1;
-			this._shadowMapHeight = atlasResolution;
-			this._shadowMapWidth = atlasResolution;
 			shadowTileResolution = atlasResolution;
+			shadowMapWidth = atlasResolution;
+			shadowMapHeight = atlasResolution;
 		}
 		else {
 			cascadesCount = cascadesMode == ShadowCascadesMode.TwoCascades ? 2 : 4;
 			shadowTileResolution = ShadowUtils.getMaxTileResolutionInAtlas(atlasResolution, atlasResolution, cascadesCount);
-			this._shadowMapHeight = shadowTileResolution * 2;
-			if (cascadesMode == ShadowCascadesMode.TwoCascades)
-				this._shadowMapWidth = shadowTileResolution;
-			else
-				this._shadowMapWidth = shadowTileResolution * 2;
+			shadowMapWidth = shadowTileResolution * 2;
+			shadowMapHeight = cascadesMode == ShadowCascadesMode.TwoCascades ? shadowTileResolution : shadowTileResolution * 2;
 		}
 		this._cascadeCount = cascadesCount;
+		this._shadowMapWidth = shadowMapWidth;
+		this._shadowMapHeight = shadowMapHeight;
 
 		var splitDistance: number[] = ShadowCasterPass._cascadesSplitDistance;
 		var frustumPlanes: Plane[] = ShadowCasterPass._frustumPlanes;
-		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, Math.min(camera.farPlane, light._shadowDistance) - camera.nearPlane, cascadesMode, splitDistance);
-		ShadowUtils.getCameraFrustumPlanes(camera.projectionViewMatrix, frustumPlanes);
 		var cameraRange: number = camera.farPlane - camera.nearPlane;
+		var shadowFar: number = Math.min(camera.farPlane, light._shadowDistance);
+		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, shadowFar - camera.nearPlane, cascadesMode, splitDistance);
+		ShadowUtils.getCameraFrustumPlanes(camera.projectionViewMatrix, frustumPlanes);
 		for (var i: number = 0; i < cascadesCount; i++) {
-			var sliceDatas: ShadowSliceData = this._shadowSliceDatas[i];
-			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, lightForward, sliceDatas);
-			ShadowUtils.getDirectionalLightMatrices(camera, light, lightUp, lightSide, lightForward, i, light._shadowNearPlane, shadowTileResolution, sliceDatas, this._shadowMatrices);
+			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
+			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, lightForward, sliceData);
+			ShadowUtils.getDirectionalLightMatrices(camera, shadowFar, lightUp, lightSide, lightForward, i, light._shadowNearPlane, shadowTileResolution, sliceData, this._shadowMatrices);
+			if (cascadesCount > 1)
+				ShadowUtils.applySliceTransform(sliceData, shadowMapWidth, shadowMapHeight, i, this._shadowMatrices);
 		}
 	}
 

@@ -38,6 +38,8 @@ export class ShadowUtils {
     private static _tempVector30: Vector3 = new Vector3();
     /** @internal */
     private static _tempBoundSphere0: BoundSphere = new BoundSphere(new Vector3(), 0.0);
+    /** @internal */
+    private static _tempMatrix0: Matrix4x4 = new Matrix4x4()
 
     /** @internal */
     private static _shadowMapScaleOffsetMatrix: Matrix4x4 = new Matrix4x4(
@@ -171,6 +173,26 @@ export class ShadowUtils {
         }
     }
 
+    /**
+	 * @internal
+	 */
+    static applySliceTransform(shadowSliceData: ShadowSliceData, atlasWidth: number, atlasHeight: number, cascadeIndex: number, outShadowMatrices: Float32Array): void {
+        // Apply shadow slice scale and offset
+        var sliceE: Float32Array = ShadowUtils._tempMatrix0.elements;
+        var oneOverAtlasWidth: number = 1.0 / atlasWidth;
+        var oneOverAtlasHeight: number = 1.0 / atlasHeight;
+
+        sliceE[0] = shadowSliceData.resolution * oneOverAtlasWidth;//scale
+        sliceE[5] = shadowSliceData.resolution * oneOverAtlasHeight;
+        sliceE[12] = shadowSliceData.offsetX * oneOverAtlasWidth;//offset
+        sliceE[13] = shadowSliceData.offsetY * oneOverAtlasHeight;
+        sliceE[1] = sliceE[2] = sliceE[2] = sliceE[4] = sliceE[6] = sliceE[7] = sliceE[8] = sliceE[9] = sliceE[11] = sliceE[14] = 0;
+        sliceE[10] = sliceE[15] = 1;
+
+        var offset: number = cascadeIndex * 16;
+        Utils3D._mulMatrixArray(sliceE, outShadowMatrices, offset, outShadowMatrices, offset);
+    }
+
 
     /**
 	 * @internal
@@ -297,12 +319,12 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getDirectionalLightMatrices(camera: Camera, light: LightSprite, lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, nearPlane: number, shadowResolution: number, outShadowSliceData: ShadowSliceData, outShadowMatrices: Float32Array): void {
+    static getDirectionalLightMatrices(camera: Camera, shadowFar: number, lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array): void {
         var forward: Vector3 = ShadowUtils._tempVector30;
         var boundSphere: BoundSphere = ShadowUtils._tempBoundSphere0;
         camera._transform.getForward(forward);
         Vector3.normalize(forward, forward);
-        ShadowUtils.getBoundSphereByFrustum(camera.nearPlane, Math.min(camera.farPlane, light._shadowDistance), camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
+        ShadowUtils.getBoundSphereByFrustum(camera.nearPlane, shadowFar, camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
 
         // to solve shdow swimming problem
         var center: Vector3 = boundSphere.center;
@@ -318,21 +340,19 @@ export class ShadowUtils {
         center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
 
         // direction light use shadow pancaking tech,do special dispose with nearPlane.
-        var origin: Vector3 = outShadowSliceData.position;
-        var viewMatrix: Matrix4x4 = outShadowSliceData.viewMatrix;
-        var projectMatrix: Matrix4x4 = outShadowSliceData.projectionMatrix;
-        var viewProjectMatrix: Matrix4x4 = outShadowSliceData.viewProjectMatrix;
-        outShadowSliceData.resolution = shadowResolution;
-        outShadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
-        outShadowSliceData.offsetY = (cascadeIndex / 2) * shadowResolution;
+        var origin: Vector3 = shadowSliceData.position;
+        var viewMatrix: Matrix4x4 = shadowSliceData.viewMatrix;
+        var projectMatrix: Matrix4x4 = shadowSliceData.projectionMatrix;
+        var viewProjectMatrix: Matrix4x4 = shadowSliceData.viewProjectMatrix;
+        shadowSliceData.resolution = shadowResolution;
+        shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
+        shadowSliceData.offsetY = (cascadeIndex / 2) * shadowResolution;
 
         Vector3.scale(lightForward, radius + nearPlane, origin);
         Vector3.subtract(center, origin, origin);
         Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
         Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
-        Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, outShadowMatrices, cascadeIndex * 16);
-
-        //TODO:atalsUVTransform
+        Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
     }
 }

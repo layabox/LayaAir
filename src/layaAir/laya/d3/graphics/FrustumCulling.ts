@@ -156,7 +156,7 @@ export class FrustumCulling {
 	/**
 	 * @internal
 	 */
-	static cullingShadow(cullInfo: ShadowCullInfo, scene: Scene3D, context: RenderContext3D): void {
+	static cullingShadow(cullInfo: ShadowCullInfo, scene: Scene3D, context: RenderContext3D): boolean {
 		var opaqueQueue: RenderQueue = scene._opaqueQueue;
 		var transparentQueue: RenderQueue = scene._transparentQueue;
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
@@ -209,6 +209,7 @@ export class FrustumCulling {
 				}
 			}
 		}
+		return opaqueQueue.elements.length > 0 ? true : false;
 	}
 
 
