@@ -17,6 +17,7 @@ import { LightSprite, LightType } from "./LightSprite";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";
 import { SpotLight } from "./SpotLight";
+import { DirectionLight } from "./DirectionLight";
 
 /**
  * @internal
@@ -354,5 +355,25 @@ export class ShadowUtils {
         Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
         Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
+    }
+
+    /**
+     * @internal
+     */
+    static prepareShadowReceiverShaderValues(light: DirectionLight, shadowMapWidth: number, shadowMapHeight: number, shadowFar: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowDistance: Vector4): void {
+        shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
+        shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
+        switch (light._shadowCascadesMode) {
+            case ShadowCascadesMode.NoCascades:
+                shadowDistance.setValue(0, 0, 0, 0);
+                break;
+            case ShadowCascadesMode.TwoCascades:
+                shadowDistance.setValue(light._shadowTwoCascadeSplits * shadowFar, shadowFar, 0, 0);
+                break;
+            case ShadowCascadesMode.FourCascades:
+                var forSplit: Vector3 = light._shadowFourCascadeSplits;
+                shadowDistance.setValue(forSplit.x * shadowFar, forSplit.y * shadowFar, forSplit.z * shadowFar, 1.0);
+                break;
+        }
     }
 }
