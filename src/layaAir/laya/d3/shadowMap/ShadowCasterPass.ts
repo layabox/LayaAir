@@ -83,14 +83,14 @@ export class ShadowCasterPass {
 	/**
      * @internal
      */
-	private _setupShadowCasterShaderValues(shaderValues: ShaderData, direction: Vector3, shadowBias: Vector4, viewMatrix: Matrix4x4, projectMatrix: Matrix4x4, projectViewMatrix: Matrix4x4): void {
+	private _setupShadowCasterShaderValues(shaderValues: ShaderData, shadowSliceData: ShadowSliceData, direction: Vector3, shadowBias: Vector4): void {
 		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
 		shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, direction);
 
-		var cameraSV: ShaderData = this._shadowSliceDatas[0].cameraShaderValue;//TODO:
-		cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMatrix);
-		cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, projectMatrix);
-		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectViewMatrix);
+		var cameraSV: ShaderData = shadowSliceData.cameraShaderValue;//TODO:should optimization with shader upload.
+		cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
+		cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
+		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
 	}
 
 
@@ -189,9 +189,8 @@ export class ShadowCasterPass {
 		var light: DirectionLight = this._light;
 		for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
-			var projectMatrix: Matrix4x4 = sliceData.projectionMatrix;
-			ShadowUtils.getShadowBias(light, projectMatrix, sliceData.resolution, this._shadowBias);
-			this._setupShadowCasterShaderValues(shaderValues, this._lightForward, this._shadowBias, sliceData.viewMatrix, projectMatrix, sliceData.viewProjectMatrix);
+			ShadowUtils.getShadowBias(light, sliceData.projectionMatrix, sliceData.resolution, this._shadowBias);
+			this._setupShadowCasterShaderValues(shaderValues, sliceData, this._lightForward, this._shadowBias);
 			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
 			shadowCullInfo.position = sliceData.position;
 			shadowCullInfo.cullPlanes = sliceData.cullPlanes;

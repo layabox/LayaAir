@@ -348,7 +348,7 @@ export class ShadowUtils {
         var viewProjectMatrix: Matrix4x4 = shadowSliceData.viewProjectMatrix;
         shadowSliceData.resolution = shadowResolution;
         shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
-        shadowSliceData.offsetY = (cascadeIndex / 2) * shadowResolution;
+        shadowSliceData.offsetY = Math.floor(cascadeIndex / 2) * shadowResolution;
 
         Vector3.scale(lightForward, radius + nearPlane, origin);
         Vector3.subtract(center, origin, origin);
