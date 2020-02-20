@@ -18,13 +18,13 @@ TEXTURE2D_SHADOW(u_ShadowMap);
 uniform vec4 u_ShadowMapSize;
 uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 uniform vec4 u_ShadowParams; // x: shadowStrength
-uniform mat4 u_ShadowMatrices[4];
+uniform mat4 u_ShadowMatrices[5];
 uniform vec4 u_ShadowSplitDistance;
 
 mediump int computeCascadeIndex(float viewZ)
 {
-	mediump vec4 comparison = vec4(viewZ<u_ShadowSplitDistance.x,viewZ<u_ShadowSplitDistance.y,viewZ<u_ShadowSplitDistance.z,viewZ<u_ShadowSplitDistance.w);
-	mediump int index = 4 - int(dot(comparison, comparison));
+	mediump vec4 comparison = vec4(viewZ>u_ShadowSplitDistance.x,viewZ>u_ShadowSplitDistance.y,viewZ>u_ShadowSplitDistance.z,viewZ>u_ShadowSplitDistance.w);
+	mediump int index =int(dot(comparison, comparison));
 	return index;
 }
 
@@ -35,14 +35,16 @@ vec4 getShadowCoord(vec4 positionWS,mediump int cascadeIndex)
 			return u_ShadowMatrices[cascadeIndex] * positionWS;
 		#else
 			mat4 shadowMat;
-			if( cascadeIndex == 0 )
+			if(cascadeIndex == 0)
 				shadowMat = u_ShadowMatrices[0];
-			else if( cascadeIndex == 1 )
+			else if(cascadeIndex == 1)
 				shadowMat = u_ShadowMatrices[1];
-			else if( cascadeIndex == 2 )
+			else if(cascadeIndex == 2)
 				shadowMat = u_ShadowMatrices[2];
-			else
+			else if(cascadeIndex == 3)
 				shadowMat = u_ShadowMatrices[3];
+			else 
+				shadowMat = u_ShadowMatrices[4];
 			return shadowMat * positionWS;
 		#endif
 	#else

@@ -360,7 +360,7 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static prepareShadowReceiverShaderValues(light: DirectionLight, shadowMapWidth: number, shadowMapHeight: number, shadowFar: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowDistance: Vector4): void {
+    static prepareShadowReceiverShaderValues(light: DirectionLight, shadowMapWidth: number, shadowMapHeight: number, shadowFar: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowDistance: Vector4, shadowMatrices: Float32Array, cascadeCount: number): void {
         shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
         shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
         switch (light._shadowCascadesMode) {
@@ -368,12 +368,15 @@ export class ShadowUtils {
                 shadowDistance.setValue(0, 0, 0, 0);
                 break;
             case ShadowCascadesMode.TwoCascades:
-                shadowDistance.setValue(light._shadowTwoCascadeSplits * shadowFar, shadowFar, 0, 0);//TODO:加保护
+                shadowDistance.setValue(light._shadowTwoCascadeSplits * shadowFar, shadowFar, shadowFar, shadowFar);
                 break;
             case ShadowCascadesMode.FourCascades:
-                var forSplit: Vector3 = light._shadowFourCascadeSplits;
-                shadowDistance.setValue(forSplit.x * shadowFar, forSplit.y * shadowFar, forSplit.z * shadowFar, 1.0);//TODO:加保护
+                var farSplit: Vector3 = light._shadowFourCascadeSplits;
+                shadowDistance.setValue(farSplit.x * shadowFar, farSplit.y * shadowFar, farSplit.z * shadowFar, shadowFar);
                 break;
         }
+        const matrixFloatCount: number = 16;
+        for (var i: number = cascadeCount * matrixFloatCount, n: number = 3 * matrixFloatCount; i <= n; i++)//the last matrix is always ZERO
+            shadowMatrices[i] = 0.0;//set Matrix4x4.ZERO to project the cascade index is 4
     }
 }

@@ -55,7 +55,7 @@ export class ShadowCasterPass {
 	/** @internal */
 	private _shadowMapSize: Vector4 = new Vector4();
 	/** @internal */
-	private _shadowMatrices: Float32Array = new Float32Array(16 * 4);
+	private _shadowMatrices: Float32Array = new Float32Array(16 * (ShadowCasterPass._maxCascades + 1));//the end is project prcision problem in shader
 	/** @internal */
 	private _shadowSplitDistance: Vector4 = new Vector4();
 	/** @internal */
@@ -174,7 +174,7 @@ export class ShadowCasterPass {
 			if (cascadesCount > 1)
 				ShadowUtils.applySliceTransform(sliceData, shadowMapWidth, shadowMapHeight, i, shadowMatrices);
 		}
-		ShadowUtils.prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, shadowFar, this._shadowMapSize, this._shadowParams, this._shadowSplitDistance);
+		ShadowUtils.prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, shadowFar, this._shadowMapSize, this._shadowParams, this._shadowSplitDistance,shadowMatrices,cascadesCount);
 	}
 
 	/**
