@@ -7,12 +7,12 @@ import { ShadowCascadesMode } from "./ShadowCascadesMode";
  * <code>DirectionLight</code> 类用于创建平行光。
  */
 export class DirectionLight extends LightSprite {
-	/**@iternal */
+	/** @internal */
 	_direction: Vector3 = new Vector3();
 	/** @internal */
 	_shadowCascadesMode: ShadowCascadesMode = ShadowCascadesMode.NoCascades;
 	/** @internal */
-	_shadowTwoCascadeSplits: number = 1.0 / 4.0;
+	_shadowTwoCascadeSplits: number = 1.0 / 3.0;
 	/** @internal */
 	_shadowFourCascadeSplits: Vector3 = new Vector3(1.0 / 15, 3.0 / 15.0, 7.0 / 15.0);
 
