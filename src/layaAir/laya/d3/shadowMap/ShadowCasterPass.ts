@@ -170,11 +170,11 @@ export class ShadowCasterPass {
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
 			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, lightForward, sliceData);
-			ShadowUtils.getDirectionalLightMatrices(camera, shadowFar, lightUp, lightSide, lightForward, i, light._shadowNearPlane, shadowTileResolution, sliceData, shadowMatrices);
+			ShadowUtils.getDirectionalLightMatrices(camera, lightUp, lightSide, lightForward, i, splitDistance, light._shadowNearPlane, shadowTileResolution, sliceData, shadowMatrices);
 			if (cascadesCount > 1)
 				ShadowUtils.applySliceTransform(sliceData, shadowMapWidth, shadowMapHeight, i, shadowMatrices);
 		}
-		ShadowUtils.prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, shadowFar, this._shadowMapSize, this._shadowParams, this._shadowSplitDistance,shadowMatrices,cascadesCount);
+		ShadowUtils.prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, shadowFar, this._shadowMapSize, this._shadowParams, this._shadowSplitDistance, shadowMatrices, cascadesCount);
 	}
 
 	/**

@@ -320,12 +320,13 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getDirectionalLightMatrices(camera: Camera, shadowFar: number, lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array): void {
+    static getDirectionalLightMatrices(camera: Camera, lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, splitDistance: number[], nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array): void {
         var forward: Vector3 = ShadowUtils._tempVector30;
         var boundSphere: BoundSphere = ShadowUtils._tempBoundSphere0;
         camera._transform.getForward(forward);
         Vector3.normalize(forward, forward);
-        ShadowUtils.getBoundSphereByFrustum(camera.nearPlane, shadowFar, camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
+        var cameraNear: number = camera.nearPlane;
+        ShadowUtils.getBoundSphereByFrustum(cameraNear + splitDistance[cascadeIndex], cameraNear + splitDistance[cascadeIndex + 1], camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
 
         // to solve shdow swimming problem
         var center: Vector3 = boundSphere.center;
