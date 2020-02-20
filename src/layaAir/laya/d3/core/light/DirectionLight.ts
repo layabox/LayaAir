@@ -12,9 +12,9 @@ export class DirectionLight extends LightSprite {
 	/** @internal */
 	_shadowCascadesMode: ShadowCascadesMode = ShadowCascadesMode.NoCascades;
 	/** @internal */
-	_shadowTwoCascadeSplits: number = 1.0 / 3.0;
+	_shadowTwoCascadeSplits: number = 1.0 / 4.0;
 	/** @internal */
-	_shadowFourCascadeSplits: Vector3 = new Vector3(1.0 / 15, 2.0 / 15.0, 4.0 / 15.0);
+	_shadowFourCascadeSplits: Vector3 = new Vector3(1.0 / 15, 3.0 / 15.0, 7.0 / 15.0);
 
 	/**
 	 * 阴影级联数量。
@@ -39,13 +39,15 @@ export class DirectionLight extends LightSprite {
 	}
 
 	/**
-	 * 四级级联阴影分割比例。
+	 * 四级级联阴影分割比例,X、Y、Z依次为其分割比例,Z必须大于Y,Y必须大于X。
 	 */
 	get shadowFourCascadeSplits(): Vector3 {
 		return this._shadowFourCascadeSplits;
 	}
 
 	set shadowFourCascadeSplits(value: Vector3) {
+		if (value.x > value.y || value.y > value.z || value.z > 1.0)
+			throw "DiretionLight:Invalid value.";
 		value.cloneTo(this._shadowFourCascadeSplits);
 	}
 

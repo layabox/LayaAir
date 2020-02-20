@@ -162,10 +162,11 @@ export class ShadowCasterPass {
 
 		var splitDistance: number[] = ShadowCasterPass._cascadesSplitDistance;
 		var frustumPlanes: Plane[] = ShadowCasterPass._frustumPlanes;
-		var cameraRange: number = camera.farPlane - camera.nearPlane;
+		var cameraNear: number = camera.nearPlane;
+		var cameraRange: number = camera.farPlane - cameraNear;
 		var shadowFar: number = Math.min(camera.farPlane, light._shadowDistance);
 		var shadowMatrices: Float32Array = this._shadowMatrices;
-		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, shadowFar - camera.nearPlane, cascadesMode, splitDistance);
+		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, shadowFar - cameraNear, cascadesMode, splitDistance);
 		ShadowUtils.getCameraFrustumPlanes(camera.projectionViewMatrix, frustumPlanes);
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
@@ -174,7 +175,7 @@ export class ShadowCasterPass {
 			if (cascadesCount > 1)
 				ShadowUtils.applySliceTransform(sliceData, shadowMapWidth, shadowMapHeight, i, shadowMatrices);
 		}
-		ShadowUtils.prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, shadowFar, this._shadowMapSize, this._shadowParams, this._shadowSplitDistance, shadowMatrices, cascadesCount);
+		ShadowUtils.prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, cameraNear, splitDistance, cascadesCount, this._shadowMapSize, this._shadowParams, this._shadowSplitDistance, shadowMatrices);
 	}
 
 	/**

@@ -155,21 +155,21 @@ export class ShadowUtils {
     /**
     * @internal
     */
-    static getCascadesSplitDistance(twoSplitRatio: number, fourSplitRatio: Vector3, range: number, cascadesMode: ShadowCascadesMode, out: number[]): void {
+    static getCascadesSplitDistance(twoSplitRatio: number, fourSplitRatio: Vector3, shadowRange: number, cascadesMode: ShadowCascadesMode, out: number[]): void {
         out[0] = 0.0;
         switch (cascadesMode) {
             case ShadowCascadesMode.NoCascades:
-                out[1] = range;
+                out[1] = shadowRange;
                 break;
             case ShadowCascadesMode.TwoCascades:
-                out[1] = range * twoSplitRatio;
-                out[2] = range;
+                out[1] = shadowRange * twoSplitRatio;
+                out[2] = shadowRange;
                 break;
             case ShadowCascadesMode.FourCascades:
-                out[1] = range * fourSplitRatio.x;
-                out[2] = range * fourSplitRatio.y;
-                out[3] = range * fourSplitRatio.z;
-                out[4] = range;
+                out[1] = shadowRange * fourSplitRatio.x;
+                out[2] = shadowRange * fourSplitRatio.y;
+                out[3] = shadowRange * fourSplitRatio.z;
+                out[4] = shadowRange;
                 break;
         }
     }
@@ -361,7 +361,7 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static prepareShadowReceiverShaderValues(light: DirectionLight, shadowMapWidth: number, shadowMapHeight: number, shadowFar: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowDistance: Vector4, shadowMatrices: Float32Array, cascadeCount: number): void {
+    static prepareShadowReceiverShaderValues(light: DirectionLight, shadowMapWidth: number, shadowMapHeight: number, cameraNear: number, splitDistance: number[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowDistance: Vector4, shadowMatrices: Float32Array): void {
         shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
         shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
         switch (light._shadowCascadesMode) {
@@ -369,11 +369,11 @@ export class ShadowUtils {
                 shadowDistance.setValue(0, 0, 0, 0);
                 break;
             case ShadowCascadesMode.TwoCascades:
-                shadowDistance.setValue(light._shadowTwoCascadeSplits * shadowFar, shadowFar, shadowFar, shadowFar);
+                var scenond: number = cameraNear + splitDistance[2];
+                shadowDistance.setValue(cameraNear + splitDistance[1], scenond, scenond, scenond);
                 break;
             case ShadowCascadesMode.FourCascades:
-                var farSplit: Vector3 = light._shadowFourCascadeSplits;
-                shadowDistance.setValue(farSplit.x * shadowFar, farSplit.y * shadowFar, farSplit.z * shadowFar, shadowFar);
+                shadowDistance.setValue(cameraNear + splitDistance[1], cameraNear + splitDistance[2], cameraNear + splitDistance[3], cameraNear + splitDistance[4]);
                 break;
         }
         const matrixFloatCount: number = 16;
