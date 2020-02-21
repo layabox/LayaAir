@@ -1,4 +1,5 @@
 import { Laya } from "Laya";
+import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { ShadowCascadesMode } from "laya/d3/core/light/ShadowCascadesMode";
@@ -13,28 +14,43 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
+import { Event } from "laya/events/Event";
 import { Loader } from "laya/net/Loader";
+import { Button } from "laya/ui/Button";
+import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 /**
- * 实时阴影案例。
+ * Light rotation script.
+ */
+class RotationScript extends Script3D {
+	/** Roation speed. */
+	autoRotateSpeed: Vector3 = new Vector3(0, 0.025, 0);
+	/** If roation. */
+	rotation: boolean = true;
+
+	onUpdate(): void {
+		if (this.rotation)
+			(<DirectionLight>this.owner).transform.rotate(this.autoRotateSpeed, false);
+	}
+}
+
+/**
+ * Realtime shadow sample. 
  */
 export class RealTimeShadow {
 	constructor() {
-		//初始化引擎
+		//Init engine.
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
 
 		Laya.loader.create([
-			"res/threeDimen/scene/LayaScene_EmptyScene/Conventional/EmptyScene.ls",
 			"res/threeDimen/staticModel/grid/plane.lh",
-			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"
+			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh",
+			"res/threeDimen/ui/button.png"
 		], Handler.create(this, this.onComplete));
 	}
 
@@ -50,33 +66,34 @@ export class RealTimeShadow {
 		directionLight.color = new Vector3(0.85, 0.85, 0.8);
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
-		//灯光开启阴影
+		// Use soft shadow.
 		directionLight.shadowMode = ShadowMode.SoftHigh;
-		//可见阴影距离
+		// Set shadow max distance from camera.
 		directionLight.shadowDistance = 3;
-		//生成阴影贴图尺寸
+		// Set shadow resolution.
 		directionLight.shadowResolution = 2048;
-		//阴影的级联模式
+		// Set shadow cascade mode.
 		directionLight.shadowCascadesMode = ShadowCascadesMode.NoCascades;
 
-		//设置时钟定时执行
-		var rot: Vector3 = new Vector3(0, 0.025, 0);
-		Laya.timer.frameLoop(1, this, function (): void {
-			directionLight.transform.rotate(rot, false);
-		});
+		// Add rotation script to light.
+		var rotationScript: RotationScript = directionLight.addComponent(RotationScript);
 
-		// 地面接收阴影
+		// A plane receive shadow.
 		var grid: Sprite3D = <Sprite3D>scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh"));
 		(<MeshSprite3D>grid.getChildAt(0)).meshRenderer.receiveShadow = true;
 
-		// 猴子产生阴影
+		// A monkey cast shadow.
 		var layaMonkey: Sprite3D = <Sprite3D>scene.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
 		layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
 		(<SkinnedMeshSprite3D>layaMonkey.getChildAt(0).getChildAt(0)).skinnedMeshRenderer.castShadow = true;
 
-		// 球产生阴影
+		// A sphere cast/receive shadow.
 		var sphereSprite: MeshSprite3D = this.addPBRSphere(PrimitiveMesh.createSphere(0.1), new Vector3(0, 0.2, 0.5), scene);
 		sphereSprite.meshRenderer.castShadow = true;
+		sphereSprite.meshRenderer.receiveShadow = true;
+
+		// Add Light controll UI.
+		this.loadUI(rotationScript);
 	}
 
 	/**
@@ -92,6 +109,27 @@ export class RealTimeShadow {
 		transform.localPosition = position;
 		scene.addChild(meshSprite);
 		return meshSprite;
+	}
+
+	/**
+	 * Add Button control light rotation.
+	 */
+	loadUI(rottaionScript: RotationScript): void {
+		var rotationButton: Button = <Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "Stop Rotation"));
+		rotationButton.size(150, 30);
+		rotationButton.labelSize = 20;
+		rotationButton.sizeGrid = "4,4,4,4";
+		rotationButton.scale(Browser.pixelRatio, Browser.pixelRatio);
+		rotationButton.pos(Laya.stage.width / 2 - rotationButton.width * Browser.pixelRatio / 2, Laya.stage.height - 40 * Browser.pixelRatio);
+		rotationButton.on(Event.CLICK, this, function (): void {
+			if (rottaionScript.rotation) {
+				rotationButton.label = "Start Rotation";
+				rottaionScript.rotation = false;
+			} else {
+				rotationButton.label = "Stop Rotation";
+				rottaionScript.rotation = true;
+			}
+		});
 	}
 }
 
