@@ -21,6 +21,7 @@ import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Stat } from "laya/utils/Stat";
 
 /**
  * Light rotation script.
@@ -46,6 +47,8 @@ export class RealTimeShadow {
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		//show stat.
+		Stat.show();
 
 		Laya.loader.create([
 			"res/threeDimen/staticModel/grid/plane.lh",
