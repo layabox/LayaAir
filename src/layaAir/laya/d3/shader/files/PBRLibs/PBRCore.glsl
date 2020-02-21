@@ -155,7 +155,7 @@ void fragmentForward()
 	float shadowAttenuation = 1.0;
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
-			#ifdef RECEIVESHADOW
+			#ifdef CALCULATE_SHADOWS
 				shadowAttenuation= sampleShadowmap(v_ShadowCoord);
 			#endif
 			LayaLight dirLight = layaDirectionLightToLight(u_DirectionLight,shadowAttenuation);
@@ -177,7 +177,7 @@ void fragmentForward()
 			{
 				if(i >= u_DirationLightCount)
 					break;
-				#ifdef RECEIVESHADOW
+				#ifdef CALCULATE_SHADOWS
 					if(i==0)
 						shadowAttenuation= sampleShadowmap(v_ShadowCoord);
 				#endif

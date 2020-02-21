@@ -55,11 +55,11 @@ varying vec3 v_Normal;
 	uniform mat4 u_WorldMat;
 #endif
 
-#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(RECEIVESHADOW)&&defined(SHADOW_CASCADE))
+#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
 	varying vec3 v_PositionWorld;
 #endif
 
-#ifdef RECEIVESHADOW
+#ifdef CALCULATE_SHADOWS
 	#ifndef SHADOW_CASCADE
 		varying vec4 v_ShadowCoord;
 	#endif
@@ -106,12 +106,12 @@ void main()
 		v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
 	#endif
 
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(RECEIVESHADOW)&&defined(SHADOW_CASCADE))
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
 		vec3 positionWS=(worldMat*position).xyz;
 		#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
 			v_ViewDir = u_CameraPos-positionWS;
 		#endif
-		#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(RECEIVESHADOW)&&defined(SHADOW_CASCADE))
+		#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
 			v_PositionWorld = positionWS;
 		#endif
 	#endif
@@ -137,7 +137,7 @@ void main()
 		v_Color=a_Color;
 	#endif
 
-	#ifdef RECEIVESHADOW
+	#ifdef CALCULATE_SHADOWS
 		#ifndef SHADOW_CASCADE
 			v_ShadowCoord =getShadowCoord(vec4(positionWS,1.0),0);
 		#endif

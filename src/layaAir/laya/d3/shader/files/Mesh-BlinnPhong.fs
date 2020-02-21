@@ -75,7 +75,7 @@ varying vec3 v_Normal;
 	uniform vec3 u_FogColor;
 #endif
 
-#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(RECEIVESHADOW)&&defined(SHADOW_CASCADE))
+#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
 	varying vec3 v_PositionWorld;
 #endif
 
@@ -83,7 +83,7 @@ varying vec3 v_Normal;
 #include "GlobalIllumination.glsl";//"GlobalIllumination.glsl use uniform should at front of this
 
 #include "Shadow.glsl"
-#ifdef RECEIVESHADOW
+#ifdef CALCULATE_SHADOWS
 	#ifndef SHADOW_CASCADE
 		varying vec4 v_ShadowCoord;
 	#endif
@@ -144,7 +144,7 @@ void main()
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
-			#ifdef RECEIVESHADOW
+			#ifdef CALCULATE_SHADOWS
 				#ifdef SHADOW_CASCADE
 					mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
 					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
@@ -177,7 +177,7 @@ void main()
 				if(i >= u_DirationLightCount)
 					break;
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
-				#ifdef RECEIVESHADOW
+				#ifdef CALCULATE_SHADOWS
 					if(i == 0)
 					{
 						#ifdef SHADOW_CASCADE

@@ -35,6 +35,7 @@ import { ShadowMode } from "./light/ShadowMode";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 import { ShadowUtils } from "./light/ShadowUtils";
 import { ShadowSliceData } from "../shadowMap/ShadowSliceData";
+import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 
 /**
  * 相机清除标记。
@@ -566,9 +567,13 @@ export class Camera extends BaseCamera {
 		var mainLight: DirectionLight = scene._mainLight;
 		var needShadowCasterPass: boolean = mainLight && mainLight.shadowMode !== ShadowMode.None;
 		if (needShadowCasterPass) {
+			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 			shadowCasterPass = Scene3D._shadowCasterPass;
 			shadowCasterPass.update(this, mainLight);
 			shadowCasterPass.render(context, scene);
+		}
+		else {
+			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 		}
 
 		context.camera = this;

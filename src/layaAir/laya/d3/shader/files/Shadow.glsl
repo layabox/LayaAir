@@ -12,6 +12,10 @@
 	#define TEXTURE2D_SHADOW_PARAM(shadowMap) sampler2DShadow shadowMap
 #endif
 
+#if defined(RECEIVESHADOW)&&defined(SHADOW)
+    #define CALCULATE_SHADOWS
+#endif
+
 #include "ShadowSampleTent.glsl"
 
 TEXTURE2D_SHADOW(u_ShadowMap);
