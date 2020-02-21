@@ -1,9 +1,18 @@
 import { Config3D } from "../../../../Config3D";
 import { Node } from "../../../display/Node";
 import { Vector3 } from "../../math/Vector3";
-import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
+import { ShadowMode } from "./ShadowMode";
+
+/**
+ * @internal
+ */
+export enum LightType {
+	Directional,
+	Spot,
+	Point
+}
 
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。
@@ -17,26 +26,30 @@ export class LightSprite extends Sprite3D {
 	static LIGHTMAPBAKEDTYPE_BAKED: number = 2;
 
 	/** @internal */
+	protected _shadowMode: ShadowMode = ShadowMode.None;
+
+	/** @internal */
 	_isAlternate: boolean = false;
 	/** @internal */
 	_intensityColor: Vector3;
-
 	/** @internal */
 	_intensity: number;
 	/** @internal */
-	protected _shadow: boolean;
+	_shadowResolution: number = 2048;
 	/** @internal */
-	protected _shadowFarPlane: number;
+	_shadowDistance: number = 50.0;
 	/** @internal */
-	protected _shadowMapSize: number;
+	_shadowDepthBias: number = 1.0;
 	/** @internal */
-	protected _shadowMapCount: number;
+	_shadowNormalBias: number = 1.0;
 	/** @internal */
-	protected _shadowMapPCFType: number;
+	_shadowNearPlane: number = 0.1;
 	/** @internal */
-	_parallelSplitShadowMap: ParallelSplitShadowMap;
+	_shadowStrength: number = 1.0;
 	/** @internal */
 	_lightmapBakedType: number;
+	/** @internal */
+	_lightType: LightType;
 
 	/** 灯光颜色。 */
 	color: Vector3;
@@ -53,62 +66,80 @@ export class LightSprite extends Sprite3D {
 	}
 
 	/**
-	 * 是否产生阴影。
+	 * 阴影模式。
 	 */
-	get shadow(): boolean {
-		return this._shadow;
+	get shadowMode(): ShadowMode {
+		return this._shadowMode;
 	}
 
-	set shadow(value: boolean) {
-		throw new Error("LightSprite: must override it.");
+	set shadowMode(value: ShadowMode) {
+		this._shadowMode = value
 	}
 
 	/**
-	 * 阴影最远范围。
+	 * 最大阴影距离。
 	 */
 	get shadowDistance(): number {
-		return this._shadowFarPlane;
+		return this._shadowDistance;
 	}
 
 	set shadowDistance(value: number) {
-		this._shadowFarPlane = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setFarDistance(value));
+		this._shadowDistance = value;
 	}
 
 	/**
-	 * 阴影贴图尺寸。
+	 * 阴影贴图分辨率。
 	 */
 	get shadowResolution(): number {
-		return this._shadowMapSize;
+		return this._shadowResolution;
 	}
 
 	set shadowResolution(value: number) {
-		this._shadowMapSize = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setShadowMapTextureSize(value));
+		this._shadowResolution = value;
 	}
 
 	/**
-	 * 阴影分段数。
+	 * 阴影深度偏差。
 	 */
-	get shadowPSSMCount(): number {
-		return this._shadowMapCount;
+	get shadowDepthBias(): number {
+		return this._shadowDepthBias;
 	}
 
-	set shadowPSSMCount(value: number) {
-		this._shadowMapCount = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.shadowMapCount = value);
+	set shadowDepthBias(value: number) {
+		this._shadowDepthBias = value;
 	}
 
 	/**
-	 * 阴影PCF类型。
+	 * 阴影法线偏差。
 	 */
-	get shadowPCFType(): number {
-		return this._shadowMapPCFType;
+	get shadowNormalBias(): number {
+		return this._shadowNormalBias;
 	}
 
-	set shadowPCFType(value: number) {
-		this._shadowMapPCFType = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setPCFType(value));
+	set shadowNormalBias(value: number) {
+		this._shadowNormalBias = value;
+	}
+
+	/**
+	 * 阴影强度。
+	 */
+	get shadowStrength(): number {
+		return this._shadowStrength;
+	}
+
+	set shadowStrength(value: number) {
+		this._shadowStrength = value;
+	}
+
+	/**
+	 * 阴影视锥的近裁面。
+	 */
+	get shadowNearPlane(): number {
+		return this._shadowNearPlane;
+	}
+
+	set shadowNearPlane(value: number) {
+		this._shadowNearPlane = value;
 	}
 
 	/**
@@ -138,11 +169,6 @@ export class LightSprite extends Sprite3D {
 		this._intensity = 1.0;
 		this._intensityColor = new Vector3();
 		this.color = new Vector3(1.0, 1.0, 1.0);
-		this._shadow = false;
-		this._shadowFarPlane = 8;
-		this._shadowMapSize = 512;
-		this._shadowMapCount = 1;
-		this._shadowMapPCFType = 0;
 		this._lightmapBakedType = LightSprite.LIGHTMAPBAKEDTYPE_REALTIME;
 	}
 
@@ -235,8 +261,8 @@ export class LightSprite extends Sprite3D {
 	}
 
 	/**
-	 * 灯光的漫反射颜色。
-	 * @return 灯光的漫反射颜色。
+	 * @deprecated
+	 * please use color property instead.
 	 */
 	get diffuseColor(): Vector3 {
 		console.log("LightSprite: discard property,please use color property instead.");

@@ -96,12 +96,13 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
 
 			//Shadow
-			'u_shadowMap1': Shader3D.PERIOD_SCENE,
-			'u_shadowMap2': Shader3D.PERIOD_SCENE,
-			'u_shadowMap3': Shader3D.PERIOD_SCENE,
-			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
-			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
+			'u_ShadowBias': Shader3D.PERIOD_SCENE,
+			'u_LightDirection': Shader3D.PERIOD_SCENE,
+			'u_ShadowMap': Shader3D.PERIOD_SCENE,
+			'u_ShadowParams': Shader3D.PERIOD_SCENE,
+			'u_ShadowSplitDistance': Shader3D.PERIOD_SCENE,
+			'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
+			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 
 			//PBRGI
 			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,

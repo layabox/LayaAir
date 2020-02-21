@@ -1,11 +1,9 @@
 import { Vector3 } from "./Vector3";
-/**
-	 * <code>Plane</code> 类用于创建平面。
-	 */
-export class Plane {
 
-	/** @internal */
-	private static _TEMPVec3: Vector3 = new Vector3();
+/**
+ * 平面。
+ */
+export class Plane {
 	/**平面的向量*/
 	normal: Vector3;
 	/**平面到坐标系原点的距离*/
@@ -26,35 +24,33 @@ export class Plane {
 	}
 
 	/**
-	 * 创建一个 <code>Plane</code> 实例。
-	 * @param	point1 第一点
-	 * @param	point2 第二点
-	 * @param	point3 第三点
+	 * 通过三个点创建一个平面。
+	 * @param	point0 第零个点
+	 * @param	point1 第一个点
+	 * @param	point2 第二个点
 	 */
-	static createPlaneBy3P(point1: Vector3, point2: Vector3, point3: Vector3): Plane {
-		var x1: number = point2.x - point1.x;
-		var y1: number = point2.y - point1.y;
-		var z1: number = point2.z - point1.z;
-		var x2: number = point3.x - point1.x;
-		var y2: number = point3.y - point1.y;
-		var z2: number = point3.z - point1.z;
+	static createPlaneBy3P(point0: Vector3, point1: Vector3, point2: Vector3, out: Plane): void {
+		var x1: number = point1.x - point0.x;
+		var y1: number = point1.y - point0.y;
+		var z1: number = point1.z - point0.z;
+		var x2: number = point2.x - point0.x;
+		var y2: number = point2.y - point0.y;
+		var z2: number = point2.z - point0.z;
 		var yz: number = (y1 * z2) - (z1 * y2);
 		var xz: number = (z1 * x2) - (x1 * z2);
 		var xy: number = (x1 * y2) - (y1 * x2);
-		var invPyth: number = 1 / (Math.sqrt((yz * yz) + (xz * xz) + (xy * xy)));
+		var invPyth: number = 1.0 / (Math.sqrt((yz * yz) + (xz * xz) + (xy * xy)));
 
 		var x: number = yz * invPyth;
 		var y: number = xz * invPyth;
 		var z: number = xy * invPyth;
 
-		Plane._TEMPVec3.x = x;
-		Plane._TEMPVec3.y = y;
-		Plane._TEMPVec3.z = z;
+		var normal: Vector3 = out.normal;
+		normal.x = x;
+		normal.y = y;
+		normal.z = z;
 
-		var d: number = -((x * point1.x) + (y * point1.y) + (z * point1.z));
-
-		var plane: Plane = new Plane(Plane._TEMPVec3, d);
-		return plane;
+		out.distance = -((x * point0.x) + (y * point0.y) + (z * point0.z));
 	}
 
 	/**
@@ -64,13 +60,33 @@ export class Plane {
 		var normalEX: number = this.normal.x;
 		var normalEY: number = this.normal.y;
 		var normalEZ: number = this.normal.z;
-		var magnitude: number = 1 / Math.sqrt(normalEX * normalEX + normalEY * normalEY + normalEZ * normalEZ);
+		var magnitude: number = 1.0 / Math.sqrt(normalEX * normalEX + normalEY * normalEY + normalEZ * normalEZ);
 
 		this.normal.x = normalEX * magnitude;
 		this.normal.y = normalEY * magnitude;
 		this.normal.z = normalEZ * magnitude;
 
 		this.distance *= magnitude;
+	}
+
+	/**
+	 * 克隆。
+	 * @param	destObject 克隆源。
+	 */
+	cloneTo(destObject: any): void {
+		var dest: Plane = <Plane>destObject;
+		this.normal.cloneTo(dest.normal);
+		dest.distance = this.distance;
+	}
+
+	/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): Plane {
+		var dest: Plane = new Plane(new Vector3());
+		this.cloneTo(dest);
+		return dest;
 	}
 
 }

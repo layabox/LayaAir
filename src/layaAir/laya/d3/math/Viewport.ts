@@ -70,16 +70,12 @@ export class Viewport {
 	unprojectFromMat(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
 		var matrixEleme: Float32Array = matrix.elements;
 
-		out.x = (((source.x - this.x) / (this.width)) * 2.0) - 1.0;
-		out.y = -((((source.y - this.y) / (this.height)) * 2.0) - 1.0);
-		var halfDepth: number = (this.maxDepth - this.minDepth) / 2;
-		out.z = (source.z - this.minDepth - halfDepth) / halfDepth;
-
+		out.x = (((source.x - this.x) / this.width) * 2.0) - 1.0;
+		out.y = -((((source.y - this.y) / this.height) * 2.0) - 1.0);
+		out.z = (source.z - this.minDepth) / (this.maxDepth - this.minDepth);
 		var a: number = (((out.x * matrixEleme[3]) + (out.y * matrixEleme[7])) + (out.z * matrixEleme[11])) + matrixEleme[15];
 		Vector3.transformV3ToV3(out, matrix, out);
-
-		if (a !== 1.0)//待优化，经过计算得出的a可能会永远只近似于1，因为是Number类型
-		{
+		if (a !== 1.0) {
 			out.x = out.x / a;
 			out.y = out.y / a;
 			out.z = out.z / a;

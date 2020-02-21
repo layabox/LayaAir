@@ -1176,6 +1176,9 @@ export class Context {
 	 * @return
 	 */
 	_inner_drawTexture(tex: Texture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix, uv: ArrayLike<number>, alpha: number, lastRender: boolean): boolean {
+		if (width <= 0 || height <= 0) {
+			return;
+		}
 		var preKey: SubmitKey = this._curSubmit._key;
 		uv = uv || tex._uv
 		//为了优化，如果上次是画三角形，并且贴图相同，会认为他们是一组的，把这个也转成三角形，以便合并。

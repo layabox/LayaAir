@@ -1,4 +1,5 @@
 #include "Lighting.glsl";
+#include "Shadow.glsl";
 
 attribute vec4 a_Position;
 
@@ -54,16 +55,14 @@ varying vec3 v_Normal;
 	uniform mat4 u_WorldMat;
 #endif
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
+#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(RECEIVESHADOW)&&defined(SHADOW_CASCADE))
 	varying vec3 v_PositionWorld;
 #endif
 
-varying float v_posViewZ;
 #ifdef RECEIVESHADOW
-  #ifdef SHADOWMAP_PSSM1 
-  varying vec4 v_lightMVPPos;
-  uniform mat4 u_lightShadowVP[4];
-  #endif
+	#ifndef SHADOW_CASCADE
+		varying vec4 v_ShadowCoord;
+	#endif
 #endif
 
 #ifdef TILINGOFFSET
@@ -97,9 +96,9 @@ void main()
 
 	mat3 worldInvMat;
 	#ifdef BONE
-		worldInvMat=inverseMat(mat3(worldMat*skinTransform));
+		worldInvMat=INVERSE_MAT(mat3(worldMat*skinTransform));
 	#else
-		worldInvMat=inverseMat(mat3(worldMat));
+		worldInvMat=INVERSE_MAT(mat3(worldMat));
 	#endif  
 	v_Normal=normalize(a_Normal*worldInvMat);
 	#if defined(NORMALMAP)
@@ -107,12 +106,14 @@ void main()
 		v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
 	#endif
 
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
-		v_PositionWorld=(worldMat*position).xyz;
-	#endif
-	
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-		v_ViewDir=u_CameraPos-v_PositionWorld;
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(RECEIVESHADOW)&&defined(SHADOW_CASCADE))
+		vec3 positionWS=(worldMat*position).xyz;
+		#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
+			v_ViewDir = u_CameraPos-positionWS;
+		#endif
+		#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(RECEIVESHADOW)&&defined(SHADOW_CASCADE))
+			v_PositionWorld = positionWS;
+		#endif
 	#endif
 
 	#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
@@ -137,9 +138,8 @@ void main()
 	#endif
 
 	#ifdef RECEIVESHADOW
-		v_posViewZ = gl_Position.w;
-		#ifdef SHADOWMAP_PSSM1 
-			v_lightMVPPos = u_lightShadowVP[0] * vec4(v_PositionWorld,1.0);
+		#ifndef SHADOW_CASCADE
+			v_ShadowCoord =getShadowCoord(vec4(positionWS,1.0),0);
 		#endif
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);

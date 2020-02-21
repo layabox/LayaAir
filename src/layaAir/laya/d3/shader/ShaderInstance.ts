@@ -68,7 +68,7 @@ export class ShaderInstance extends Resource {
 	/** @internal */
 	_uploadRenderType: number = -1;
 	/**@internal */
-	_uploadCamera: BaseCamera;
+	_uploadCameraShaderValue: ShaderData;
 	/**@internal */
 	_uploadScene: Scene3D;
 
@@ -250,6 +250,7 @@ export class ShaderInstance extends Resource {
 				one.fun = isArray ? this._uniformMatrix4fv : this._uniformMatrix4f;
 				break;
 			case gl.SAMPLER_2D:
+			case (<WebGL2RenderingContext>gl).SAMPLER_2D_SHADOW:
 				gl.uniform1i(one.location, this._curActTexIndex);
 				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
 				one.fun = this._uniform_sampler2D;

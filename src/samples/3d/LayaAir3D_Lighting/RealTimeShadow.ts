@@ -1,11 +1,12 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { ShadowCascadesMode } from "laya/d3/core/light/ShadowCascadesMode";
+import { ShadowMode } from "laya/d3/core/light/ShadowMode";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
@@ -19,7 +20,6 @@ import { Laya3D } from "Laya3D";
  * @author ...
  */
 export class RealTimeShadow {
-
 	private _quaternion: Quaternion = new Quaternion();
 	private _direction: Vector3 = new Vector3();
 	private scene: Scene3D;
@@ -43,30 +43,21 @@ export class RealTimeShadow {
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//灯光开启阴影
-		directionLight.shadow = true;
+		directionLight.shadowMode = ShadowMode.SoftHigh;
 		//可见阴影距离
 		directionLight.shadowDistance = 3;
 		//生成阴影贴图尺寸
 		directionLight.shadowResolution = 2048;
-		//生成阴影贴图数量
-		directionLight.shadowPSSMCount = 1;
-		//模糊等级,越大越高,更耗性能
-		directionLight.shadowPCFType = 3;
+		//阴影的级联模式
+		directionLight.shadowCascadesMode = ShadowCascadesMode.NoCascades;
 
 		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh",
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
 
 		//设置时钟定时执行
+		var rot: Vector3 = new Vector3(0, 0.025, 0);
 		Laya.timer.frameLoop(1, this, function (): void {
-			//从欧拉角生成四元数（顺序为Yaw、Pitch、Roll）
-			Quaternion.createFromYawPitchRoll(0.025, 0, 0, this._quaternion);
-			directionLight.transform.worldMatrix.getForward(this._direction);
-			//根据四元数旋转三维向量
-			Vector3.transformQuat(this._direction, this._quaternion, this._direction);
-			//设置平行光的方向
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-			mat.setForward(this._direction);
-			directionLight.transform.worldMatrix = mat;
+			directionLight.transform.rotate(rot, false);
 		});
 	}
 
@@ -74,7 +65,7 @@ export class RealTimeShadow {
 
 		var grid: Sprite3D = (<Sprite3D>this.scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh")));
 		//地面接收阴影
-		((<MeshSprite3D>grid.getChildAt(0))).meshRenderer.receiveShadow = true;
+		(<MeshSprite3D>grid.getChildAt(0)).meshRenderer.receiveShadow = true;
 
 		var staticLayaMonkey: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm"))));
 		staticLayaMonkey.meshRenderer.material = Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/Materials/T_Diffuse.lmat");
@@ -86,7 +77,7 @@ export class RealTimeShadow {
 
 		var layaMonkey: Sprite3D = (<Sprite3D>this.scene.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh")));
 		//产生阴影
-		((<SkinnedMeshSprite3D>layaMonkey.getChildAt(0).getChildAt(0))).skinnedMeshRenderer.castShadow = true;
+		(<SkinnedMeshSprite3D>layaMonkey.getChildAt(0).getChildAt(0)).skinnedMeshRenderer.castShadow = true;
 	}
 }
 

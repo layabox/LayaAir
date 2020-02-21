@@ -1,26 +1,54 @@
 import { Vector3 } from "../../math/Vector3";
-import { ShaderData } from "../../shader/ShaderData";
-import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Scene3D } from "../scene/Scene3D";
-import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
-import { LightSprite } from "./LightSprite";
+import { LightSprite, LightType } from "./LightSprite";
+import { ShadowCascadesMode } from "./ShadowCascadesMode";
 
 /**
  * <code>DirectionLight</code> 类用于创建平行光。
  */
 export class DirectionLight extends LightSprite {
-	/**@iternal */
-	_direction: Vector3;
+	/** @internal */
+	_direction: Vector3 = new Vector3();
+	/** @internal */
+	_shadowCascadesMode: ShadowCascadesMode = ShadowCascadesMode.NoCascades;
+	/** @internal */
+	_shadowTwoCascadeSplits: number = 1.0 / 3.0;
+	/** @internal */
+	_shadowFourCascadeSplits: Vector3 = new Vector3(1.0 / 15, 3.0 / 15.0, 7.0 / 15.0);
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * 阴影级联数量。
 	 */
-	set shadow(value: boolean) {
-		if (this._shadow !== value) {
-			this._shadow = value;
-			(this.scene) && (this._initShadow());
-		}
+	get shadowCascadesMode(): ShadowCascadesMode {
+		return this._shadowCascadesMode;
+	}
+
+	set shadowCascadesMode(value: ShadowCascadesMode) {
+		this._shadowCascadesMode = value;
+	}
+
+	/**
+	 * 二级级联阴影分割比例。
+	 */
+	get shadowTwoCascadeSplits(): number {
+		return this._shadowTwoCascadeSplits;
+	}
+
+	set shadowTwoCascadeSplits(value: number) {
+		this._shadowTwoCascadeSplits = value;
+	}
+
+	/**
+	 * 四级级联阴影分割比例,X、Y、Z依次为其分割比例,Z必须大于Y,Y必须大于X。
+	 */
+	get shadowFourCascadeSplits(): Vector3 {
+		return this._shadowFourCascadeSplits;
+	}
+
+	set shadowFourCascadeSplits(value: Vector3) {
+		if (value.x > value.y || value.y > value.z || value.z > 1.0)
+			throw "DiretionLight:Invalid value.";
+		value.cloneTo(this._shadowFourCascadeSplits);
 	}
 
 	/**
@@ -28,30 +56,7 @@ export class DirectionLight extends LightSprite {
 	 */
 	constructor() {
 		super();
-		this._direction = new Vector3();
-	}
-
-
-	/**
-	 * @internal
-	 */
-	private _initShadow(): void {
-		if (this._shadow) {
-			this._parallelSplitShadowMap = new ParallelSplitShadowMap();
-			this.scene.parallelSplitShadowMaps.push(this._parallelSplitShadowMap);
-			this.transform.worldMatrix.getForward(this._direction);
-			Vector3.normalize(this._direction, this._direction);
-			this._parallelSplitShadowMap.setInfo(this.scene, this._shadowFarPlane, this._direction, this._shadowMapSize, this._shadowMapCount, this._shadowMapPCFType);
-		} else {
-			var defineDatas: ShaderData = ((<Scene3D>this._scene))._shaderValues;
-			var parallelSplitShadowMaps: ParallelSplitShadowMap[] = this.scene.parallelSplitShadowMaps;
-			parallelSplitShadowMaps.splice(parallelSplitShadowMaps.indexOf(this._parallelSplitShadowMap), 1);
-			this._parallelSplitShadowMap.disposeAllRenderTarget();
-			this._parallelSplitShadowMap = null;
-			defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
-			defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
-			defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
-		}
+		this._lightType = LightType.Directional;
 	}
 
 	/**

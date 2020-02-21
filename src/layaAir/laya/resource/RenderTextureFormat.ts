@@ -8,7 +8,9 @@ export enum RenderTextureFormat {
     /**RGBA格式,每个通道16位。*/
     R16G16B16A16 = 14,
     /**深度格式。*/
-    Depth = 15
+    Depth = 15,
+    /**阴影贴图格式格式。*/
+    ShadowMap = 16
 }
 
 export enum RenderTextureDepthFormat {

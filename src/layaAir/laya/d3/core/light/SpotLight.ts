@@ -1,6 +1,6 @@
 import { Vector3 } from "../../math/Vector3";
 import { Scene3D } from "../scene/Scene3D";
-import { LightSprite } from "./LightSprite";
+import { LightSprite, LightType } from "./LightSprite";
 
 /**
  * <code>SpotLight</code> 类用于创建聚光。
@@ -44,6 +44,7 @@ export class SpotLight extends LightSprite {
 		this._spotAngle = 30.0;
 		this._range = 10.0;
 		this._direction = new Vector3();
+		this._lightType = LightType.Spot;
 	}
 
 	/**

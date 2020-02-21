@@ -59,6 +59,8 @@ export class SystemUtils {
                 return (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear) ? true : false;
             case RenderTextureFormat.Depth:
                 return (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._webgl_depth_texture) ? true : false;
+            case RenderTextureFormat.ShadowMap:
+                return LayaGL.layaGPUInstance._isWebGL2 ? true : false;
             default:
                 return true;
         }

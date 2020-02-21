@@ -16,6 +16,7 @@ import { IOctreeObject } from "./IOctreeObject";
 import { Scene3D } from "./Scene3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Shader3D } from "../../shader/Shader3D";
+import { CameraCullInfo } from "../../graphics/FrustumCulling";
 
 /**
  * <code>BoundsOctreeNode</code> 类用于创建八叉树节点。
@@ -369,11 +370,15 @@ export class BoundsOctreeNode {
 	/**
 	 * @internal
 	 */
-	private _getCollidingWithFrustum(context: RenderContext3D, frustum: BoundFrustum, testVisible: boolean, camPos: Vector3, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
+	private _getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, testVisible: boolean, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		//if (_children === null && _objects.length == 0) {//无用末级节不需要检查，调试用
 		//debugger;
 		//return;
 		//}
+
+		var frustum: BoundFrustum = cameraCullInfo.boundFrustum;
+		var camPos: Vector3 = cameraCullInfo.position;
+		var cullMask: number = cameraCullInfo.cullingMask;
 
 		if (testVisible) {
 			var type: number = frustum.containsBoundBox(this._bounds);
@@ -385,7 +390,6 @@ export class BoundsOctreeNode {
 		this._isContaion = !testVisible;//[Debug] 用于调试信息,末级无用子节点不渲染、脱节节点看不见,所以无需更新变量
 
 		//检查节点中的对象
-		var camera: Camera = <Camera>context.camera;
 		var scene: Scene3D = context.scene;
 		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
@@ -394,7 +398,7 @@ export class BoundsOctreeNode {
 			if (isShadowCasterCull)
 				canPass = render._castShadow && render._enable;
 			else
-				canPass = camera._isLayerVisible(render._owner._layer) && render._enable;
+				canPass = (((Math.pow(2, render._owner._layer) & cullMask) != 0)) && render._enable;
 			if (canPass) {
 				if (testVisible) {
 					Stat.frustumCulling++;
@@ -416,7 +420,7 @@ export class BoundsOctreeNode {
 		if (this._children != null) {
 			for (i = 0; i < 8; i++) {
 				var child: BoundsOctreeNode = this._children[i];
-				child && child._getCollidingWithFrustum(context, frustum, testVisible, camPos, customShader, replacementTag, isShadowCasterCull);
+				child && child._getCollidingWithFrustum(cameraCullInfo, context, testVisible, customShader, replacementTag, isShadowCasterCull);
 			}
 		}
 	}
@@ -647,10 +651,8 @@ export class BoundsOctreeNode {
 	 * 	@param	ray 射线。.
 	 * 	@param	result 相交物体列表。
 	 */
-	getCollidingWithFrustum(context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
-		var cameraPos: Vector3 = context.camera.transform.position;
-		var boundFrustum: BoundFrustum = ((<Camera>context.camera)).boundFrustum;
-		this._getCollidingWithFrustum(context, boundFrustum, true, cameraPos, customShader, replacementTag, isShadowCasterCull);
+	getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
+		this._getCollidingWithFrustum(cameraCullInfo, context, true, customShader, replacementTag, isShadowCasterCull);
 	}
 
 	/**
