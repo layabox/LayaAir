@@ -83,7 +83,7 @@ export class ShadowCasterPass {
 	/**
      * @internal
      */
-	private _setupShadowCasterShaderValues(shaderValues: ShaderData, shadowSliceData: ShadowSliceData, direction: Vector3, shadowBias: Vector4): void {
+	private _setupShadowCasterShaderValues(context: RenderContext3D, shaderValues: ShaderData, shadowSliceData: ShadowSliceData, direction: Vector3, shadowBias: Vector4): void {
 		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
 		shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, direction);
 
@@ -91,6 +91,9 @@ export class ShadowCasterPass {
 		cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
+		context.viewMatrix = shadowSliceData.viewMatrix;
+		context.projectionViewMatrix = shadowSliceData.projectionMatrix;
+		context.projectionViewMatrix = shadowSliceData.viewProjectMatrix;
 	}
 
 
@@ -191,7 +194,7 @@ export class ShadowCasterPass {
 		for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
 			ShadowUtils.getShadowBias(light, sliceData.projectionMatrix, sliceData.resolution, this._shadowBias);
-			this._setupShadowCasterShaderValues(shaderValues, sliceData, this._lightForward, this._shadowBias);
+			this._setupShadowCasterShaderValues(context, shaderValues, sliceData, this._lightForward, this._shadowBias);
 			var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
 			shadowCullInfo.position = sliceData.position;
 			shadowCullInfo.cullPlanes = sliceData.cullPlanes;
