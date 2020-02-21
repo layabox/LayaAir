@@ -49,8 +49,7 @@ export class RealTimeShadow {
 
 		Laya.loader.create([
 			"res/threeDimen/staticModel/grid/plane.lh",
-			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh",
-			"res/threeDimen/ui/button.png"
+			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"
 		], Handler.create(this, this.onComplete));
 	}
 
@@ -58,13 +57,13 @@ export class RealTimeShadow {
 		var scene: Scene3D = <Scene3D>Laya.stage.addChild(new Scene3D());
 
 		var camera: Camera = <Camera>(scene.addChild(new Camera(0, 0.1, 100)));
-		camera.transform.translate(new Vector3(0, 1, 2));
-		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+		camera.transform.translate(new Vector3(0, 1, 1.5));
+		camera.transform.rotate(new Vector3(-25, 0, 0), true, false);
 		camera.addComponent(CameraMoveScript);
 
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		directionLight.color = new Vector3(0.85, 0.85, 0.8);
-		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
+		directionLight.transform.rotate(new Vector3(-Math.PI / 2.5, 0, 0));
 
 		// Use soft shadow.
 		directionLight.shadowMode = ShadowMode.SoftHigh;
@@ -115,21 +114,22 @@ export class RealTimeShadow {
 	 * Add Button control light rotation.
 	 */
 	loadUI(rottaionScript: RotationScript): void {
-		var rotationButton: Button = <Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "Stop Rotation"));
-		rotationButton.size(150, 30);
-		rotationButton.labelSize = 20;
-		rotationButton.sizeGrid = "4,4,4,4";
-		rotationButton.scale(Browser.pixelRatio, Browser.pixelRatio);
-		rotationButton.pos(Laya.stage.width / 2 - rotationButton.width * Browser.pixelRatio / 2, Laya.stage.height - 40 * Browser.pixelRatio);
-		rotationButton.on(Event.CLICK, this, function (): void {
-			if (rottaionScript.rotation) {
-				rotationButton.label = "Start Rotation";
-				rottaionScript.rotation = false;
-			} else {
-				rotationButton.label = "Stop Rotation";
-				rottaionScript.rotation = true;
-			}
-		});
+		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
+			var rotationButton: Button = <Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "Stop Rotation"));
+			rotationButton.size(150, 30);
+			rotationButton.labelSize = 20;
+			rotationButton.sizeGrid = "4,4,4,4";
+			rotationButton.scale(Browser.pixelRatio, Browser.pixelRatio);
+			rotationButton.pos(Laya.stage.width / 2 - rotationButton.width * Browser.pixelRatio / 2, Laya.stage.height - 40 * Browser.pixelRatio);
+			rotationButton.on(Event.CLICK, this, function (): void {
+				if (rottaionScript.rotation) {
+					rotationButton.label = "Start Rotation";
+					rottaionScript.rotation = false;
+				} else {
+					rotationButton.label = "Stop Rotation";
+					rottaionScript.rotation = true;
+				}
+			});
+		}));
 	}
 }
-
