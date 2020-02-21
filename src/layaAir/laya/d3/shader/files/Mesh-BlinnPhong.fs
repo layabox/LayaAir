@@ -83,10 +83,8 @@ varying vec3 v_Normal;
 #include "GlobalIllumination.glsl";//"GlobalIllumination.glsl use uniform should at front of this
 
 #include "Shadow.glsl"
-#ifdef CALCULATE_SHADOWS
-	#ifndef SHADOW_CASCADE
-		varying vec4 v_ShadowCoord;
-	#endif
+#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
+	varying vec4 v_ShadowCoord;
 #endif
 
 void main()

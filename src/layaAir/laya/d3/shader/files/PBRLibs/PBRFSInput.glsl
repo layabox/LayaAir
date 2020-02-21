@@ -96,7 +96,7 @@ varying vec3 v_EyeVec;
 //后面考虑宏TODO
 varying vec3 v_PositionWorld;
 
-#ifdef CALCULATE_SHADOWS
+#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
 	varying vec4 v_ShadowCoord;
 #endif
 

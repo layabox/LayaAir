@@ -59,10 +59,8 @@ varying vec3 v_Normal;
 	varying vec3 v_PositionWorld;
 #endif
 
-#ifdef CALCULATE_SHADOWS
-	#ifndef SHADOW_CASCADE
-		varying vec4 v_ShadowCoord;
-	#endif
+#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
+	varying vec4 v_ShadowCoord;
 #endif
 
 #ifdef TILINGOFFSET
@@ -137,10 +135,8 @@ void main()
 		v_Color=a_Color;
 	#endif
 
-	#ifdef CALCULATE_SHADOWS
-		#ifndef SHADOW_CASCADE
-			v_ShadowCoord =getShadowCoord(vec4(positionWS,1.0),0);
-		#endif
+	#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
+		v_ShadowCoord =getShadowCoord(vec4(positionWS,1.0),0);
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
 }

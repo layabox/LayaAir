@@ -46,7 +46,7 @@ varying vec3 v_EyeVec;
 varying vec3 v_PositionWorld;
 varying float v_posViewZ;
 
-#ifdef CALCULATE_SHADOWS
+#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
 	varying vec4 v_ShadowCoord;
 #endif
 

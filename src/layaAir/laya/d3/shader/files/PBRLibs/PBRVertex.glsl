@@ -73,7 +73,7 @@ void vertexForward()
 		v_ViewDirForParallax=(worldInvMat*u_CameraPos-position.xyz)*objectTBN;
 	#endif
 
-	#ifdef CALCULATE_SHADOWS
+	#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
 		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 	#endif
 }
