@@ -58,6 +58,7 @@ import { BoundsOctree } from "./BoundsOctree";
 import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
+import { DefineDatas } from "../../shader/DefineDatas";
 
 /**
  * 环境光模式
@@ -135,6 +136,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static REFLECTIONTEXTURE: number = Shader3D.propertyNameToID("u_ReflectTexture");
 	static TIME: number = Shader3D.propertyNameToID("u_Time");
 
+	/** @internal */
+	static _configDefineValues: DefineDatas = new DefineDatas();
+
 
 	/**
 	 * @internal
@@ -160,6 +164,25 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_LOW");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_HIGH");
 		Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH = Shader3D.getDefineByName("GI_AMBIENT_SH");
+
+
+		var config: Config3D = Config3D._config;
+		var configShaderValue: DefineDatas = Scene3D._configDefineValues;
+		(config._multiLighting) || (configShaderValue.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+		if (LayaGL.layaGPUInstance._isWebGL2)
+			configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
+		else
+			configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
+		switch (config.pbrRenderQuality) {
+			case PBRRenderQuality.High:
+				configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH)
+				break;
+			case PBRRenderQuality.Low:
+				configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW)
+				break;
+			default:
+				throw "Scene3D:unknown shader quality.";
+		}
 	}
 
 
@@ -512,22 +535,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.reflection = TextureCube.blackTexture;
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
-		var config: Config3D = Config3D._config;
-		(config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
-		if (LayaGL.layaGPUInstance._isWebGL2)
-			this._shaderValues.addDefine(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
-		else
-			this._shaderValues.addDefine(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
-		switch (config.pbrRenderQuality) {
-			case PBRRenderQuality.High:
-				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH)
-				break;
-			case PBRRenderQuality.Low:
-				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW)
-				break;
-			default:
-				throw "Scene3D:unknown shader quality.";
-		}
 
 		this._shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this._reflectionCubeHDRParams);
 
