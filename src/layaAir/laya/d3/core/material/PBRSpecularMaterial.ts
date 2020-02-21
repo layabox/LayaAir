@@ -67,6 +67,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_View': Shader3D.PERIOD_CAMERA,
 			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
 			'u_Viewport': Shader3D.PERIOD_CAMERA,
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,
 
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
