@@ -28,7 +28,7 @@ import { Stat } from "laya/utils/Stat";
  */
 class RotationScript extends Script3D {
 	/** Roation speed. */
-	autoRotateSpeed: Vector3 = new Vector3(0, 0.025, 0);
+	autoRotateSpeed: Vector3 = new Vector3(0, 0.05, 0);
 	/** If roation. */
 	rotation: boolean = true;
 
@@ -60,13 +60,13 @@ export class RealTimeShadow {
 		var scene: Scene3D = <Scene3D>Laya.stage.addChild(new Scene3D());
 
 		var camera: Camera = <Camera>(scene.addChild(new Camera(0, 0.1, 100)));
-		camera.transform.translate(new Vector3(0, 1, 1.5));
-		camera.transform.rotate(new Vector3(-25, 0, 0), true, false);
+		camera.transform.translate(new Vector3(0, 1.2, 1.6));
+		camera.transform.rotate(new Vector3(-35, 0, 0), true, false);
 		camera.addComponent(CameraMoveScript);
 
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		directionLight.color = new Vector3(0.85, 0.85, 0.8);
-		directionLight.transform.rotate(new Vector3(-Math.PI / 2.5, 0, 0));
+		directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
 
 		// Use soft shadow.
 		directionLight.shadowMode = ShadowMode.SoftHigh;
