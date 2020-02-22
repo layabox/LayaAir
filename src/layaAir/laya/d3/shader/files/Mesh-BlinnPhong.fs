@@ -7,6 +7,7 @@
 #endif
 
 #include "Lighting.glsl";
+#include "Shadow.glsl"
 
 uniform vec4 u_DiffuseColor;
 
@@ -82,7 +83,6 @@ varying vec3 v_Normal;
 
 #include "GlobalIllumination.glsl";//"GlobalIllumination.glsl use uniform should at front of this
 
-#include "Shadow.glsl"
 #if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
 	varying vec4 v_ShadowCoord;
 #endif
