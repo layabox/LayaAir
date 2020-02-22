@@ -7,8 +7,6 @@ import { Vector4 } from "./Vector4";
 export class Viewport {
 	/** @internal */
 	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
-	/** @internal */
-	private static _tempVector4: Vector4 = new Vector4();
 
 	/**X轴坐标*/
 	x: number;
@@ -44,21 +42,20 @@ export class Viewport {
 	 * 投影一个三维向量到视口空间。
 	 * @param	source 三维向量。
 	 * @param	matrix 变换矩阵。
-	 * @param	out x、y、z为视口空间坐标,w为相对于变换矩阵的z轴坐标。
+	 * @param	out x、y、z为视口空间坐标,透视投影下w为相对于变换矩阵的z轴坐标。
 	 */
 	project(source: Vector3, matrix: Matrix4x4, out: Vector4): void {
-		var vec4: Vector4 = Viewport._tempVector4;
-		Vector3.transformV3ToV4(source, matrix, vec4);
-		var w: number = vec4.w;
-		if (w !== 1.0) {//待优化，经过计算得出的a可能会永远只近似于1
-			out.x = vec4.x / w;
-			out.y = vec4.y / w;
-			out.z = vec4.z / w;
+		Vector3.transformV3ToV4(source, matrix, out);
+		var x: number = out.x, y: number = out.y, z: number = out.z;
+		var w: number = out.w;
+		if (w !== 1.0) {
+			x = x / w;
+			y = y / w;
+			z = z / w;
 		}
-		out.x = (out.x + 1.0) * 0.5 * this.width + this.x;
-		out.y = (-out.y + 1.0) * 0.5 * this.height + this.y;
-		out.z = out.z * (this.maxDepth - this.minDepth) + this.minDepth;
-		out.w = w;
+		out.x = (x + 1.0) * 0.5 * this.width + this.x;
+		out.y = (-y + 1.0) * 0.5 * this.height + this.y;
+		out.z = z * (this.maxDepth - this.minDepth) + this.minDepth;
 	}
 
 	/**
