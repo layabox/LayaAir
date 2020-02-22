@@ -115,19 +115,19 @@ export class RenderTexture extends BaseTexture {
 			switch (format) {
 				case RenderTextureFormat.R8G8B8:
 					if (isWebGL2)
-						gl2.texStorage2D(glTextureType, this._mipmapCount, gl.RGB, width, height);
+						gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.RGB8, width, height);
 					else
 						gl.texImage2D(glTextureType, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
 					break;
 				case RenderTextureFormat.R8G8B8A8:
 					if (isWebGL2)
-						gl2.texStorage2D(glTextureType, this._mipmapCount, gl.RGBA, width, height);
+						gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.RGBA8, width, height);
 					else
 						gl.texImage2D(glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 					break;
 				case RenderTextureFormat.Alpha8:
 					if (isWebGL2)
-						gl2.texStorage2D(glTextureType, 0, gl.ALPHA, width, height);
+						gl2.texStorage2D(glTextureType, 0, gl2.R8, width, height);
 					else
 						gl.texImage2D(glTextureType, 0, gl.ALPHA, width, height, 0, gl.ALPHA, gl.UNSIGNED_BYTE, null);
 					break;
