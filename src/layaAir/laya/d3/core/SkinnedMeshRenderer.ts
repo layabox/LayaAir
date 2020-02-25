@@ -124,9 +124,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 					data[dstIndex + d] = preData[srcIndex + d];
 			} else {
 				if (!this._cacheAvatar) {
-					Utils3D._mulMatrixArray(this._bones[index].transform.worldMatrix.elements, bindPoses[index], data, k * 16);
+					Utils3D._mulMatrixArray(this._bones[index].transform.worldMatrix.elements, bindPoses[index].elements,0, data, k * 16);
 				} else {//[兼容代码]
-					Utils3D._mulMatrixArray(this._cacheAnimationNode[index].transform.getWorldMatrix(), bindPoses[index], data, k * 16);
+					Utils3D._mulMatrixArray(this._cacheAnimationNode[index].transform.getWorldMatrix(), bindPoses[index].elements,0, data, k * 16);
 				}
 				this._skinnedDataLoopMarks[index] = Stat.loopCount;
 			}

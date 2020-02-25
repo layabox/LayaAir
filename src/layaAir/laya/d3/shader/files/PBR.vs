@@ -1,14 +1,10 @@
-#include "PBRVSInput.glsl";
 #include "Lighting.glsl";
+#include "Shadow.glsl"
+#include "PBRVSInput.glsl";
 #include "PBRVertex.glsl";
-#include "PBRVSShadow.glsl";
 
 void main()
 {
-	#ifdef CASTSHADOW
-		main_castShadow();
-	#else
-		vertexForward();
-	#endif
+	vertexForward();
 	gl_Position=remapGLPositionZ(gl_Position);
 }

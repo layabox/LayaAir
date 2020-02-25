@@ -138,7 +138,7 @@ export class RenderElement {
 		var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		var updateMark: number = Camera._updateMark;
 		var scene: Scene3D = context.scene;
-		var camera: BaseCamera = context.camera;
+		var cameraShaderValue: ShaderData = context.cameraShaderValue;
 
 		var transform: Transform3D = this._transform;
 		var geometry: GeometryElement = this._geometry;
@@ -159,14 +159,21 @@ export class RenderElement {
 			}
 		}
 
+		var currentPipelineMode: string = context.pipelineMode;//NORE:can covert string to int.
+
 		if (geometry._prepareRender(context)) {
 			var passes: ShaderPass[] = this.renderSubShader._passes;
 			for (var j: number = 0, m: number = passes.length; j < m; j++) {
+				var pass: ShaderPass = passes[j];
+				//NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
+				if (pass._pipelineMode !== currentPipelineMode)
+					continue;
+
 				var comDef: DefineDatas = RenderElement._compileDefine;
 				scene._shaderValues._defineDatas.cloneTo(comDef);
 				comDef.addDefineDatas(this.render._shaderValues._defineDatas);
 				comDef.addDefineDatas(this.material._shaderValues._defineDatas);
-				var shaderIns: ShaderInstance = context.shader = passes[j].withCompile(comDef);
+				var shaderIns: ShaderInstance = context.shader = pass.withCompile(comDef);
 				var switchShader: boolean = shaderIns.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
 				var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
 
@@ -183,10 +190,10 @@ export class RenderElement {
 					shaderIns._uploadRenderType = this.renderType;
 				}
 
-				var uploadCamera: boolean = shaderIns._uploadCamera !== camera || switchUpdateMark;
+				var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderValue || switchUpdateMark;
 				if (uploadCamera || switchShader) {
-					shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
-					shaderIns._uploadCamera = camera;
+					shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
+					shaderIns._uploadCameraShaderValue = cameraShaderValue;
 				}
 
 				var uploadMaterial: boolean = (shaderIns._uploadMaterial !== this.material) || switchUpdateMark;

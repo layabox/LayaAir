@@ -2,6 +2,7 @@
 import { ILaya } from "../../ILaya";
 import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject";
 import { SystemUtils } from "./SystemUtils";
+import { Config3D } from "../../Config3D";
 
 /**
  * @internal
@@ -37,6 +38,8 @@ export class LayaGPU {
     _compressedTexturePvrtc: any = null;
     /**@internal */
     _compressedTextureEtc1: any = null;
+    /**@internal */
+    _webgl_depth_texture: any = null;
 
     /**
      * @internal
@@ -61,7 +64,7 @@ export class LayaGPU {
             //this._getExtension("OES_texture_float_linear");
             this._oes_element_index_uint = this._getExtension("OES_element_index_uint");
             this._extShaderTextureLod = this._getExtension("EXT_shader_texture_lod");
-            this._getExtension("WEBGL_depth_texture");
+            this._webgl_depth_texture = this._getExtension("WEBGL_depth_texture");
 
             SystemUtils._shaderCapailityLevel = 30;
         } else {
@@ -169,7 +172,7 @@ export class LayaGPU {
      * @internal
      */
     supportInstance(): boolean {
-        if (this._isWebGL2 || this._angleInstancedArrays)
+        if ((this._isWebGL2 || this._angleInstancedArrays) && Config3D._config.allowGPUInstanceDynamicBatch)
             return true;
         else
             return false;
