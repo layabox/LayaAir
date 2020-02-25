@@ -55,9 +55,9 @@ void vertexForward()
 
 	mat3 worldInvMat;
 	#ifdef BONE
-		worldInvMat=inverseMat(mat3(worldMat*skinTransform));
+		worldInvMat=INVERSE_MAT(mat3(worldMat*skinTransform));
 	#else
-		worldInvMat=inverseMat(mat3(worldMat));
+		worldInvMat=INVERSE_MAT(mat3(worldMat));
 	#endif
 
 	v_Normal=normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem.
@@ -73,10 +73,7 @@ void vertexForward()
 		v_ViewDirForParallax=(worldInvMat*u_CameraPos-position.xyz)*objectTBN;
 	#endif
 
-	#ifdef RECEIVESHADOW
-		v_posViewZ = gl_Position.w;
-		#ifdef SHADOWMAP_PSSM1 
-			v_lightMVPPos = u_lightShadowVP[0] * vec4(v_PositionWorld,1.0);
-		#endif
+	#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
+		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),0);
 	#endif
 }

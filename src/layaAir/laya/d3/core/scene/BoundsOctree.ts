@@ -8,6 +8,7 @@ import { Ray } from "../../math/Ray"
 import { Vector3 } from "../../math/Vector3"
 import { ISingletonElement } from "../../../resource/ISingletonElement"
 import { Shader3D } from "../../shader/Shader3D";
+import { CameraCullInfo } from "../../graphics/FrustumCulling";
 
 /**
  * <code>BoundsOctree</code> 类用于创建八叉树。
@@ -224,8 +225,8 @@ export class BoundsOctree {
 	 *	获取与指定视锥相交的的物理列表。
 	 *  @param 渲染上下文。
 	 */
-	getCollidingWithFrustum(context: RenderContext3D, shader: Shader3D, replacementTag: string,isShadowCasterCull:boolean): void {
-		this._rootNode.getCollidingWithFrustum(context, shader, replacementTag,isShadowCasterCull);
+	getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, shader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
+		this._rootNode.getCollidingWithFrustum(cameraCullInfo, context, shader, replacementTag, isShadowCasterCull);
 	}
 
 	/**

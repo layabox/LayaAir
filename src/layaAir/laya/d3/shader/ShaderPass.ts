@@ -1,7 +1,9 @@
 import { Config3D } from "../../../Config3D";
+import { SystemUtils } from "../../webgl/SystemUtils";
 import { InlcudeFile } from "../../webgl/utils/InlcudeFile";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { ShaderNode } from "../../webgl/utils/ShaderNode";
+import { WebGL } from "../../webgl/WebGL";
 import { RenderState } from "../core/material/RenderState";
 import { Vector3 } from "../math/Vector3";
 import { DefineDatas } from "./DefineDatas";
@@ -9,36 +11,39 @@ import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
 import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
-import { SystemUtils } from "../../webgl/SystemUtils";
-import { WebGLContext } from "../../webgl/WebGLContext";
-import { WebGL } from "../../webgl/WebGL";
+import { Scene3D } from "../core/scene/Scene3D";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
  */
 export class ShaderPass extends ShaderCompile {
-	/**@internal */
+	/** @internal */
 	private static _defineString: Array<string> = [];
-	/**@internal */
-	private static _debugDefineString: Array<string> = [];
+	/** @internal */
+	private static _debugDefineString: string[] = [];
+	/** @internal */
+	private static _debugDefineMask: number[] = [];
 
-	/**@internal */
+	/** @internal */
 	private _owner: SubShader;
-	/**@internal */
+	/** @internal */
 	_stateMap: object;
-	/**@internal */
+	/** @internal */
 	private _cacheSharders: object = {};
-	/**@internal */
+	/** @internal */
 	private _cacheShaderHierarchy: number = 1;
-	/**@internal */
+	/** @internal */
 	private _renderState: RenderState = new RenderState();
 
-	/**@internal */
+	/** @internal */
 	_validDefine: DefineDatas = new DefineDatas();
+	/** @internal */
+	_tags: any = {};
+	/** @internal */
+	_pipelineMode: string;
 
 	/**
-	 * 获取渲染状态。
-	 * @return 渲染状态。
+	 * 渲染状态。
 	 */
 	get renderState(): RenderState {
 		return this._renderState;
@@ -179,20 +184,20 @@ export class ShaderPass extends ShaderCompile {
 	/**
 	 * @internal
 	 */
-	_addDebugShaderVariantCollection(compileDefine: DefineDatas): void {
+	_addDebugShaderVariantCollection(compileDefine: DefineDatas, outDebugDefines: string[], outDebugDefineMask: number[]): void {
 		var dbugShaderVariantInfo: ShaderVariant = Shader3D._debugShaderVariantInfo;
 		var debugSubShader: SubShader = this._owner;
 		var debugShader: Shader3D = debugSubShader._owner;
-		var deugDefines: string[] = ShaderPass._debugDefineString;
-		Shader3D._getNamesByDefineData(compileDefine, deugDefines);
-		if (!Config3D._config._multiLighting) {
-			var index = deugDefines.indexOf("LEGACYSINGLELIGHTING");
-			(index !== -1) && (deugDefines.splice(index, 1));
-		}
+		var mask: number[] = compileDefine._mask;
+		Shader3D._getNamesByDefineData(compileDefine, outDebugDefines);
+		outDebugDefineMask.length = mask.length;
+		for (var i: number = 0, n: number = mask.length; i < n; i++)
+			outDebugDefineMask[i] = mask[i];
+
 		if (dbugShaderVariantInfo)
-			dbugShaderVariantInfo.setValue(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
+			dbugShaderVariantInfo.setValue(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), outDebugDefines);
 		else
-			Shader3D._debugShaderVariantInfo = dbugShaderVariantInfo = new ShaderVariant(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
+			Shader3D._debugShaderVariantInfo = dbugShaderVariantInfo = new ShaderVariant(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), outDebugDefines);
 		Shader3D.debugShaderVariantCollection.add(dbugShaderVariantInfo);
 	}
 
@@ -201,9 +206,15 @@ export class ShaderPass extends ShaderCompile {
 	 * @internal
 	 */
 	withCompile(compileDefine: DefineDatas): ShaderInstance {
+		var debugDefineString: string[] = ShaderPass._debugDefineString;
+		var debugDefineMask: number[] = ShaderPass._debugDefineMask;
+		var debugMaskLength: number;
 		compileDefine._intersectionDefineDatas(this._validDefine);
-		if (Shader3D.debugMode)//add shader variant info to debug ShaderVariantCollection
-			this._addDebugShaderVariantCollection(compileDefine);
+		if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
+			debugMaskLength = compileDefine._length;
+			this._addDebugShaderVariantCollection(compileDefine, debugDefineString, debugDefineMask);
+		}
+		compileDefine.addDefineDatas(Scene3D._configDefineValues);
 
 		var cacheShaders: object = this._cacheSharders;
 		var maskLength: number = compileDefine._length;
@@ -310,16 +321,10 @@ export class ShaderPass extends ShaderCompile {
 			var defStr: string = "";
 			var defMask: string = "";
 
-			if (!config._multiLighting) {
-				compileDefine.remove(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING);
-				var index = defineString.indexOf("LEGACYSINGLELIGHTING");
-				(index !== -1) && (defineString.splice(index, 1));
-			}
-
-			for (var i: number = 0, n: number = compileDefine._length; i < n; i++)
-				(i == n - 1) ? defMask += mask[i] : defMask += mask[i] + ",";
-			for (var i: number = 0, n: number = defineString.length; i < n; i++)
-				(i == n - 1) ? defStr += defineString[i] : defStr += defineString[i] + ",";
+			for (var i: number = 0, n: number = debugMaskLength; i < n; i++)
+				(i == n - 1) ? defMask += debugDefineMask[i] : defMask += debugDefineMask[i] + ",";
+			for (var i: number = 0, n: number = debugDefineString.length; i < n; i++)
+				(i == n - 1) ? defStr += debugDefineString[i] : defStr += debugDefineString[i] + ",";
 
 			console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this._owner._owner._name + " SubShaderIndex:" + this._owner._owner._subShaders.indexOf(this._owner) + " PassIndex:" + this._owner._passes.indexOf(this) + " DefineMask:[" + defMask + "]" + " DefineNames:[" + defStr + "]", "color:green");
 		}
@@ -327,7 +332,25 @@ export class ShaderPass extends ShaderCompile {
 		return shader;
 	}
 
+	/**
+	 * 添加标记。
+	 * @param key 标记键。
+	 * @param value 标记值。
+	 */
+	setTag(key: string, value: string): void {
+		if (value)
+			this._tags[key] = value;
+		else
+			delete this._tags[key];
+	}
 
+	/**
+	 * 获取标记值。
+	 * @return key 标记键。
+	 */
+	getTag(key: string): string {
+		return this._tags[key];
+	}
 }
 
 

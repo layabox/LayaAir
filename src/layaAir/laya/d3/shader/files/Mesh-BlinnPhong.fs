@@ -7,6 +7,7 @@
 #endif
 
 #include "Lighting.glsl";
+#include "Shadow.glsl"
 
 uniform vec4 u_DiffuseColor;
 
@@ -75,38 +76,18 @@ varying vec3 v_Normal;
 	uniform vec3 u_FogColor;
 #endif
 
-#if defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
+#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
 	varying vec3 v_PositionWorld;
 #endif
 
 
 #include "GlobalIllumination.glsl";//"GlobalIllumination.glsl use uniform should at front of this
 
-#include "ShadowHelper.glsl"
-varying float v_posViewZ;
-#ifdef RECEIVESHADOW
-	#if defined(SHADOWMAP_PSSM2)||defined(SHADOWMAP_PSSM3)
-		uniform mat4 u_lightShadowVP[4];
-	#endif
-	#ifdef SHADOWMAP_PSSM1 
-		varying vec4 v_lightMVPPos;
-	#endif
+#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
+	varying vec4 v_ShadowCoord;
 #endif
 
-
-void main_castShadow()
-{
-	//gl_FragColor=vec4(v_posViewZ,0.0,0.0,1.0);
-	gl_FragColor=packDepth(v_posViewZ);
-	#if defined(DIFFUSEMAP)&&defined(ALPHATEST)
-		float alpha = texture2D(u_DiffuseTexture,v_Texcoord0).w;
-		if( alpha < u_AlphaTestValue )
-		{
-			discard;
-		}
-	#endif
-}
-void main_normal()
+void main()
 {
 	vec3 normal;//light and SH maybe use normal
 	#if defined(NORMALMAP)
@@ -156,9 +137,22 @@ void main_normal()
 		#endif
 	#endif
 
+	
+	
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
+			#ifdef CALCULATE_SHADOWS
+				#ifdef SHADOW_CASCADE
+					mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
+				#else
+					vec4 shadowCoord = v_ShadowCoord;
+				#endif
+				float shadowAttenuation=sampleShadowmap(shadowCoord);
+				dif *= shadowAttenuation;
+				spe *= shadowAttenuation;
+			#endif
 			diffuse+=dif;
 			specular+=spe;
 		#endif
@@ -181,6 +175,18 @@ void main_normal()
 				if(i >= u_DirationLightCount)
 					break;
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
+				#ifdef CALCULATE_SHADOWS
+					if(i == 0)
+					{
+						#ifdef SHADOW_CASCADE
+							mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+							vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
+						#else
+							vec4 shadowCoord = v_ShadowCoord;
+						#endif
+						directionLight.color *= sampleShadowmap(shadowCoord);
+					}
+				#endif
 				LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,dif,spe);
 				diffuse+=dif;
 				specular+=spe;
@@ -213,42 +219,15 @@ void main_normal()
 		#endif
 	#endif
 
-	#ifdef RECEIVESHADOW
-		float shadowValue = 1.0;
-		#ifdef SHADOWMAP_PSSM3
-			shadowValue = getShadowPSSM3(u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
-		#endif
-		#ifdef SHADOWMAP_PSSM2
-			shadowValue = getShadowPSSM2(u_shadowMap1,u_shadowMap2,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
-		#endif 
-		#ifdef SHADOWMAP_PSSM1
-			shadowValue = getShadowPSSM1(u_shadowMap1,v_lightMVPPos,u_shadowPSSMDistance,u_shadowPCFoffset,v_posViewZ,0.001);
-		#endif
-		gl_FragColor =vec4(mainColor.rgb*(globalDiffuse + diffuse*shadowValue),mainColor.a);
-	#else
-		gl_FragColor =vec4(mainColor.rgb*(globalDiffuse + diffuse),mainColor.a);
-	#endif
+	gl_FragColor =vec4(mainColor.rgb*(globalDiffuse + diffuse),mainColor.a);
 
 	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-		#ifdef RECEIVESHADOW
-			gl_FragColor.rgb+=specular*shadowValue;
-		#else
-			gl_FragColor.rgb+=specular;
-		#endif
+		gl_FragColor.rgb+=specular;
 	#endif
 	  
 	#ifdef FOG
 		float lerpFact=clamp((1.0/gl_FragCoord.w-u_FogStart)/u_FogRange,0.0,1.0);
 		gl_FragColor.rgb=mix(gl_FragColor.rgb,u_FogColor,lerpFact);
 	#endif
-}
-
-void main()
-{
-	#ifdef CASTSHADOW		
-		main_castShadow();
-	#else
-		main_normal();
-	#endif  
 }
 

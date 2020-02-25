@@ -10,18 +10,19 @@ import extendTerrainPS from "./files/extendTerrain.fs";
 import extendTerrainVS from "./files/extendTerrain.vs";
 import GlobalIllumination from "./files/GlobalIllumination.glsl";
 import LightingGLSL from "./files/Lighting.glsl";
+import ShadowSampleTentGLSL from "./files/ShadowSampleTent.glsl";
 import linePS from "./files/line.fs";
 import lineVS from "./files/line.vs";
 import MeshBlinnPhongPS from "./files/Mesh-BlinnPhong.fs";
 import MeshBlinnPhongVS from "./files/Mesh-BlinnPhong.vs";
+import MeshBlinnPhongShadowCasterPS from "./files/Mesh-BlinnPhongShadowCaster.fs";
+import MeshBlinnPhongShadowCasterVS from "./files/Mesh-BlinnPhongShadowCaster.vs";
 import ParticleShuriKenPS from "./files/ParticleShuriKen.fs";
 import ParticleShuriKenVS from "./files/ParticleShuriKen.vs";
 import LayaPBRBRDF from "./files/PBRLibs/LayaPBRBRDF.glsl";
 import PBRCore from "./files/PBRLibs/PBRCore.glsl";
 import PBRVSInput from "./files/PBRLibs/PBRVSInput.glsl";
 import PBRFSInput from "./files/PBRLibs/PBRFSInput.glsl";
-import PBRVSShadow from "./files/PBRLibs/PBRVSShadow.glsl";
-import PBRFSShadow from "./files/PBRLibs/PBRFSShadow.glsl";
 import PBRVertex from "./files/PBRLibs/PBRVertex.glsl";
 import BloomVS from "./files/postProcess/Bloom.vs";
 import BloomDownsample13PS from "./files/postProcess/BloomDownsample13.fs";
@@ -35,7 +36,9 @@ import CompositePS from "./files/postProcess/Composite.fs";
 import CompositeVS from "./files/postProcess/Composite.vs";
 import SamplingGLSL from "./files/postProcess/Sampling.glsl";
 import StdLibGLSL from "./files/postProcess/StdLib.glsl";
-import ShadowHelperGLSL from "./files/ShadowHelper.glsl";
+import ShadowGLSL from "./files/Shadow.glsl";
+import ShadowCasterVSGLSL from "./files/ShadowCasterVS.glsl";
+import ShadowCasterFSGLSL from "./files/ShadowCasterFS.glsl";
 import SkyBoxPS from "./files/SkyBox.fs";
 import SkyBoxVS from "./files/SkyBox.vs";
 import SkyBoxProceduralPS from "./files/SkyBoxProcedural.fs";
@@ -68,17 +71,20 @@ export class ShaderInit3D {
 	 */
 	static __init__(): void {
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
+		Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2 = Shader3D.getDefineByName("GRAPHICS_API_GLES2");
+		Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3 = Shader3D.getDefineByName("GRAPHICS_API_GLES3");
 
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
+		Shader3D.addInclude("ShadowSampleTent.glsl", ShadowSampleTentGLSL);
 		Shader3D.addInclude("GlobalIllumination.glsl", GlobalIllumination)
-		Shader3D.addInclude("ShadowHelper.glsl", ShadowHelperGLSL);
+		Shader3D.addInclude("Shadow.glsl", ShadowGLSL);
+		Shader3D.addInclude("ShadowCasterVS.glsl", ShadowCasterVSGLSL);
+		Shader3D.addInclude("ShadowCasterFS.glsl", ShadowCasterFSGLSL);
 		Shader3D.addInclude("Colors.glsl", ColorsGLSL);
 		Shader3D.addInclude("Sampling.glsl", SamplingGLSL);
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
 		Shader3D.addInclude("PBRVSInput.glsl", PBRVSInput);
 		Shader3D.addInclude("PBRFSInput.glsl", PBRFSInput);
-		Shader3D.addInclude("PBRVSShadow.glsl", PBRVSShadow);
-		Shader3D.addInclude("PBRFSShadow.glsl", PBRFSShadow);
 		Shader3D.addInclude("LayaPBRBRDF.glsl", LayaPBRBRDF);
 		Shader3D.addInclude("PBRCore.glsl", PBRCore);
 		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
@@ -117,6 +123,7 @@ export class ShaderInit3D {
 			'u_Viewport': Shader3D.PERIOD_CAMERA,
 			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
 			'u_View': Shader3D.PERIOD_CAMERA,
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
 			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
@@ -127,12 +134,13 @@ export class ShaderInit3D {
 			'u_LightBuffer': Shader3D.PERIOD_SCENE,
 			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
 			'u_AmbientColor': Shader3D.PERIOD_SCENE,
-			'u_shadowMap1': Shader3D.PERIOD_SCENE,
-			'u_shadowMap2': Shader3D.PERIOD_SCENE,
-			'u_shadowMap3': Shader3D.PERIOD_SCENE,
-			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
-			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
+			'u_ShadowBias': Shader3D.PERIOD_SCENE,
+			'u_LightDirection': Shader3D.PERIOD_SCENE,
+			'u_ShadowMap': Shader3D.PERIOD_SCENE,
+			'u_ShadowParams': Shader3D.PERIOD_SCENE,
+			'u_ShadowSplitDistance': Shader3D.PERIOD_SCENE,
+			'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
+			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 
 			//GI
 			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
@@ -166,7 +174,8 @@ export class ShaderInit3D {
 		var shader: Shader3D = Shader3D.add("BLINNPHONG", null, null, true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap);
+		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap, "Forward");
+		var shaderPass: ShaderPass = subShader.addShaderPass(MeshBlinnPhongShadowCasterVS, MeshBlinnPhongShadowCasterPS, stateMap, "ShadowCaster");
 
 		//LineShader
 		attributeMap = {
@@ -189,7 +198,7 @@ export class ShaderInit3D {
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(lineVS, linePS, stateMap);
-		
+
 		//unlit
 		attributeMap = {
 			'a_Position': VertexMesh.MESH_POSITION0,
@@ -417,12 +426,12 @@ export class ShaderInit3D {
 			'u_LightBuffer': Shader3D.PERIOD_SCENE,
 			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
 			'u_AmbientColor': Shader3D.PERIOD_SCENE,
-			'u_shadowMap1': Shader3D.PERIOD_SCENE,
+			'u_ShadowMap': Shader3D.PERIOD_SCENE,
 			'u_shadowMap2': Shader3D.PERIOD_SCENE,
 			'u_shadowMap3': Shader3D.PERIOD_SCENE,
-			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
-			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
+			'u_ShadowSplitDistance': Shader3D.PERIOD_SCENE,
+			'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
+			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 			//legacy lighting
 			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
 			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,

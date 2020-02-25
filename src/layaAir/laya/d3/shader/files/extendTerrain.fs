@@ -39,14 +39,9 @@
 	#endif
 #endif
 
-#include "ShadowHelper.glsl"
-#ifdef RECEIVESHADOW
-	#if defined(SHADOWMAP_PSSM2)||defined(SHADOWMAP_PSSM3)
-	uniform mat4 u_lightShadowVP[4];
-	#endif
-	#ifdef SHADOWMAP_PSSM1 
-	varying vec4 v_lightMVPPos;
-	#endif
+#include "Shadow.glsl"
+#ifdef CALCULATE_SHADOWS
+	varying vec4 v_ShadowCoord;
 #endif
 varying float v_posViewZ;
 
@@ -193,24 +188,15 @@ vec3 globalDiffuse = u_AmbientColor;
 	globalDiffuse += decodeHDR(texture2D(u_LightMap, v_LightMapUV),5.0);
 #endif
 
-#ifdef RECEIVESHADOW
-	float shadowValue = 1.0;
-	#ifdef SHADOWMAP_PSSM3
-		shadowValue = getShadowPSSM3( u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
-	#endif
-	#ifdef SHADOWMAP_PSSM2
-		shadowValue = getShadowPSSM2( u_shadowMap1,u_shadowMap2,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
-	#endif 
-	#ifdef SHADOWMAP_PSSM1
-		shadowValue = getShadowPSSM1( u_shadowMap1,v_lightMVPPos,u_shadowPSSMDistance,u_shadowPCFoffset,v_posViewZ,0.001);
-	#endif
+#ifdef CALCULATE_SHADOWS
+	float shadowValue = shadowValue = sampleShadowmap(v_ShadowCoord);
 	gl_FragColor = vec4(gl_FragColor.rgb * (globalDiffuse + diffuse) * shadowValue, gl_FragColor.a);
 #else
 	gl_FragColor = vec4(gl_FragColor.rgb * (globalDiffuse + diffuse), gl_FragColor.a);
 #endif
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	#ifdef RECEIVESHADOW
+	#ifdef CALCULATE_SHADOWS
 		gl_FragColor.rgb += specular * shadowValue;
 	#else
 		gl_FragColor.rgb += specular;

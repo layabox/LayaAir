@@ -4,6 +4,8 @@ import { Scene3D } from "../scene/Scene3D"
 import { Matrix4x4 } from "../../math/Matrix4x4"
 import { Viewport } from "../../math/Viewport"
 import { ShaderInstance } from "../../shader/ShaderInstance"
+import { ShaderData } from "../../shader/ShaderData";
+import { Camera } from "../Camera";
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。
@@ -29,13 +31,17 @@ export class RenderContext3D {
 	/** @internal */
 	scene: Scene3D;
 	/** @internal */
-	camera: BaseCamera;
+	camera: Camera;
+	/** @internal */
+	cameraShaderValue: ShaderData;
 	/** @internal */
 	renderElement: RenderElement;
 	/** @internal */
 	shader: ShaderInstance;
 	/** @internal */
 	invertY: boolean = false;
+	/** @internal */
+	pipelineMode: string;
 
 	/**
 	 * 创建一个 <code>RenderContext3D</code> 实例。

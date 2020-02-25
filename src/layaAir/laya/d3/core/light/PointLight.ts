@@ -1,5 +1,5 @@
 import { Scene3D } from "../scene/Scene3D";
-import { LightSprite } from "./LightSprite";
+import { LightSprite, LightType } from "./LightSprite";
 
 /**
  * <code>PointLight</code> 类用于创建点光。
@@ -26,6 +26,7 @@ export class PointLight extends LightSprite {
 	constructor() {
 		super();
 		this._range = 6.0;
+		this._lightType = LightType.Point;
 	}
 
 

@@ -470,10 +470,10 @@ import { DisplayHook } from "./tools/DisplayHook";
 				this.debug_view.setContents(dataList);
 			}
 			
-			for (i = 0; i < len; i++) {
-				key = DebugPanel.tObjKeys[i];
-				this.preValueO[key] = tTarget[key];
-			}
+			// for (i = 0; i < len; i++) {
+			// 	key = DebugPanel.tObjKeys[i];
+			// 	this.preValueO[key] = tTarget[key];
+			// }
 		}
 		
 		private fromMe:boolean = false;
