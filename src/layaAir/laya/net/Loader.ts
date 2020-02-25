@@ -573,7 +573,6 @@ export class Loader extends EventDispatcher {
 		if (this._customParse) {
 			this.event(Event.LOADED, data instanceof Array ? [data] : data);
 		} else {
-			this._http.offAllCaller(this);
 			Loader._loaders.push(this);
 			if (!Loader._isWorking) Loader.checkNext();
 		}
