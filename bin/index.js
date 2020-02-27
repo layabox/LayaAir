@@ -9,5 +9,6 @@ window.screenOrientation = "sensor_landscape";
 
 //-----libs-begin-----
 loadLib("astar.js")
+loadLib("laya.physics3D.js")
 //-----libs-end-------
 loadLib("rollUp/bundle.js");

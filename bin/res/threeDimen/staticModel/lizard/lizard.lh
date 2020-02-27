@@ -4,7 +4,7 @@
 		"type":"Sprite3D",
 		"props":{
 			"name":"Lizard",
-			"translate":[
+			"position":[
 				0,
 				0,
 				0
@@ -28,7 +28,7 @@
 					"isStatic":false,
 					"name":"lizard",
 					"layer":0,
-					"translate":[
+					"position":[
 						0,
 						0,
 						0
@@ -53,7 +53,7 @@
 							"isStatic":false,
 							"name":"eye_geo",
 							"layer":0,
-							"translate":[
+							"position":[
 								0,
 								0,
 								0
@@ -86,7 +86,7 @@
 							"isStatic":false,
 							"name":"lizard_geo",
 							"layer":0,
-							"translate":[
+							"position":[
 								0,
 								0,
 								0
@@ -119,7 +119,7 @@
 							"isStatic":false,
 							"name":"rock_geo",
 							"layer":0,
-							"translate":[
+							"position":[
 								1.142998,
 								-0.1689996,
 								0.6889985

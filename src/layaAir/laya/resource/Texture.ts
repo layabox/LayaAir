@@ -351,7 +351,7 @@ export class Texture extends EventDispatcher {
         var offsetX = this.offsetX;
         var offsetY = this.offsetY;
         let draww = width;
-        let drawh = width;
+        let drawh = height;
         if (x + width > texw + offsetX) draww -= (x + width) - texw - offsetX;
         if (x + width > sourceWidth) width -= (x + width) - sourceWidth;
         if (y + height > texh + offsetY) drawh -= (y + height) - texh - offsetY;

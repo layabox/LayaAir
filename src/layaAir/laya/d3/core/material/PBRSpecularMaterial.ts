@@ -2,6 +2,8 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import PBRPS from "../../shader/files/PBRSpecular.fs";
 import PBRVS from "../../shader/files/PBRSpecular.vs";
+import PBRShadowCasterPS from "../../shader/files/PBRSpecularShadowCaster.fs";
+import PBRShadowCasterVS from "../../shader/files/PBRSpecularShadowCaster.vs";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
@@ -59,11 +61,13 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_WorldMat': Shader3D.PERIOD_SPRITE,
 			'u_LightmapScaleOffset': Shader3D.PERIOD_SPRITE,
 			'u_LightMap': Shader3D.PERIOD_SPRITE,
+			'u_LightMapDirection': Shader3D.PERIOD_SPRITE,
 
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
 			'u_View': Shader3D.PERIOD_CAMERA,
 			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
 			'u_Viewport': Shader3D.PERIOD_CAMERA,
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,
 
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
@@ -93,12 +97,13 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
 
 			//Shadow
-			'u_shadowMap1': Shader3D.PERIOD_SCENE,
-			'u_shadowMap2': Shader3D.PERIOD_SCENE,
-			'u_shadowMap3': Shader3D.PERIOD_SCENE,
-			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
-			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
+			'u_ShadowBias': Shader3D.PERIOD_SCENE,
+			'u_LightDirection': Shader3D.PERIOD_SCENE,
+			'u_ShadowMap': Shader3D.PERIOD_SCENE,
+			'u_ShadowParams': Shader3D.PERIOD_SCENE,
+			'u_ShadowSplitDistance': Shader3D.PERIOD_SCENE,
+			'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
+			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 
 			//PBRGI
 			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
@@ -134,7 +139,8 @@ export class PBRSpecularMaterial extends PBRMaterial {
 		var shader: Shader3D = Shader3D.add("PBRSpecular");
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(PBRVS, PBRPS, stateMap);
+		subShader.addShaderPass(PBRVS, PBRPS, stateMap, "Forward");
+		subShader.addShaderPass(PBRShadowCasterVS, PBRShadowCasterPS, stateMap, "ShadowCaster");
 	}
 
 	/**

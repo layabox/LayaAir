@@ -129,7 +129,7 @@ export class RenderTexture2D extends BaseTexture {
                     gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
                     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
                     break;
-                case RenderTextureDepthFormat.DEPTHSTENCIL_16_8:
+                case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
                     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
                     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
                     break;

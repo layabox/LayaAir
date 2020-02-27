@@ -345,14 +345,13 @@ export class Matrix4x4 implements IClone {
 	}
 
 	/**
-	 *  计算观察矩阵
+	 * 计算观察矩阵
 	 * @param	eye 视点位置
-	 * @param	center 视点目标
+	 * @param	target 视点目标
 	 * @param	up 向上向量
 	 * @param	out 输出矩阵
 	 */
 	static createLookAt(eye: Vector3, target: Vector3, up: Vector3, out: Matrix4x4): void {
-		//注:WebGL为右手坐标系统
 		var oE: Float32Array = out.elements;
 		var xaxis: Vector3 = Matrix4x4._tempVector0;
 		var yaxis: Vector3 = Matrix4x4._tempVector1;
@@ -363,7 +362,8 @@ export class Matrix4x4 implements IClone {
 		Vector3.normalize(xaxis, xaxis);
 		Vector3.cross(zaxis, xaxis, yaxis);
 
-		out.identity();
+		oE[3] = oE[7] = oE[11] = 0;
+		oE[15] = 1;
 		oE[0] = xaxis.x;
 		oE[4] = xaxis.y;
 		oE[8] = xaxis.z;

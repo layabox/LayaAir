@@ -273,32 +273,6 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	get enabled(): boolean {
-		return super.enabled;
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	set enabled(value: boolean) {
-		if (this._enabled != value) {
-			if (this._simulation && this._colliderShape) {
-				if (value) {
-					this._derivePhysicsTransformation(true);
-					this._addToSimulation();
-				} else {
-					this._removeFromSimulation();
-				}
-			}
-			super.enabled = value;
-		}
-	}
-
-	/**
 	 * 碰撞形状。
 	 */
 	get colliderShape(): ColliderShape {
@@ -362,15 +336,12 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * 可碰撞的碰撞组。
+	 * 可碰撞的碰撞组,基于位运算。
 	 */
 	get canCollideWith(): number {
 		return this._canCollideWith;
 	}
 
-	/**
-	 *  设置可碰撞的碰撞组(如果多组采用位操作）。
-	 */
 	set canCollideWith(value: number) {
 		if (this._canCollideWith !== value) {
 			this._canCollideWith = value;
@@ -423,10 +394,10 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 * @override
 	 */
-	protected _onEnable(): void {
+	_onEnable(): void {
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 1e30);
-		if (this._colliderShape && this._enabled) {
+		if (this._colliderShape) {
 			this._derivePhysicsTransformation(true);
 			this._addToSimulation();
 		}
@@ -438,7 +409,7 @@ export class PhysicsComponent extends Component {
 	 * @override
 	 */
 	protected _onDisable(): void {
-		if (this._colliderShape && this._enabled) {
+		if (this._colliderShape) {
 			this._removeFromSimulation();
 			(this._inPhysicUpdateListIndex !== -1) && (this._simulation._physicsUpdateList.remove(this));//销毁前一定会调用 _onDisable()
 		}
@@ -514,7 +485,11 @@ export class PhysicsComponent extends Component {
 	 * 	@internal
 	 */
 	_derivePhysicsTransformation(force: boolean): void {
-		this._innerDerivePhysicsTransformation(Physics3D._bullet.btCollisionObject_getWorldTransform(this._btColliderObject), force);
+		var bt: any = Physics3D._bullet;
+		var btColliderObject: number = this._btColliderObject;
+		var btTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
+		this._innerDerivePhysicsTransformation(btTransform, force);
+		bt.btCollisionObject_setWorldTransform(btColliderObject, btTransform);
 	}
 
 	/**

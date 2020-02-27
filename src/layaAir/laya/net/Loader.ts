@@ -315,41 +315,12 @@ export class Loader extends EventDispatcher {
 			}
 			this._loadHtmlImage(url, this, onLoaded, this, onError);
 		} else {
-			var ext: string = Utils.getFileExtension(url);
-			if (ext === "ktx" || ext === "pvr") {
-				onLoaded = function (imageData: any): void {
-					let format: TextureFormat;
-					switch (ext) {
-						case "ktx":
-							format = TextureFormat.ETC1RGB;
-							break;
-						case "pvr":
-							format = TextureFormat.PVRTCRGBA_4BPPV;
-							break;
-						default: {
-							console.error('unknown format', ext);
-							return;
-						}
-					}
-					var tex = new Texture2D(0, 0, format, false, false);
-					tex.wrapModeU = WarpMode.Clamp;
-					tex.wrapModeV = WarpMode.Clamp;
-					tex.setCompressData(imageData);
-					tex._setCreateURL(url);
-					_this.onLoaded(tex);
-				};
-				this._loadHttpRequest(url, Loader.BUFFER, this, onLoaded, null, null, this, onError);
-			} else {
-				onLoaded = function (image: any): void {
-					var tex: Texture2D = new Texture2D(image.width, image.height, 1, false, false);
-					tex.wrapModeU = WarpMode.Clamp;
-					tex.wrapModeV = WarpMode.Clamp;
-					tex.loadImageSource(image, true);
-					tex._setCreateURL(url);
-					_this.onLoaded(tex);
-				}
-				this._loadHtmlImage(url, this, onLoaded, this, onError);
-			}
+			
+			 var ext: string = Utils.getFileExtension(url);
+			 if (ext === "ktx" || ext === "pvr") 
+				this._loadHttpRequest(url, Loader.BUFFER, this, this.onLoaded, this, this.onProgress, this, this.onError);
+			else
+				this._loadHtmlImage(url, this, this.onLoaded, this, onError);
 		}
 	}
 
@@ -404,9 +375,38 @@ export class Loader extends EventDispatcher {
 			this.parsePLFData(data);
 			this.complete(data);
 		} else if (type === Loader.IMAGE) {
-			var tex: Texture = new Texture(data);
-			tex.url = this._url;
+			//可能有另外一种情况
+			//var tex: Texture = new Texture(data);
+			//tex.url = this._url;
+			if (data instanceof ArrayBuffer) {
+					var ext: string = Utils.getFileExtension(this._url);
+					let format: TextureFormat;
+					switch (ext) {
+						case "ktx":
+							format = TextureFormat.ETC1RGB;
+							break;
+						case "pvr":
+							format = TextureFormat.PVRTCRGBA_4BPPV;
+							break;
+						default: {
+							console.error('unknown format', ext);
+							return;
+						}
+					}
+					var tex = new Texture2D(0, 0, format, false, false);
+					tex.wrapModeU = WarpMode.Clamp;
+					tex.wrapModeV = WarpMode.Clamp;
+					tex.setCompressData(data);
+					tex._setCreateURL(url);
+			} else {
+				var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+				tex.wrapModeU = WarpMode.Clamp;
+				tex.wrapModeV = WarpMode.Clamp;
+				tex.loadImageSource(data, true);
+				tex._setCreateURL(this.url);
+			}
 			this.complete(tex);
+		
 		} else if (type === Loader.SOUND || type === "htmlimage" || type === "nativeimage") {
 			this.complete(data);
 		} else if (type === Loader.ATLAS) {

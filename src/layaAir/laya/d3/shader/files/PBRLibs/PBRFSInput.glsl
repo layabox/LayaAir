@@ -51,7 +51,7 @@ uniform float u_SmoothnessScale;
 #ifdef LIGHTMAP
 	varying vec2 v_LightMapUV;
 	uniform sampler2D u_LightMap;
-	#ifdef DIRECTIONAL_LIGHTMAP
+	#ifdef LIGHTMAP_DIRECTIONAL
 		uniform sampler2D u_LightMapDirection;
 	#endif
 #endif
@@ -86,18 +86,18 @@ varying vec3 v_EyeVec;
 	varying vec3 v_Binormal;
 #endif
 
+#ifdef FOG
+	uniform float u_FogStart;
+	uniform float u_FogRange;
+	uniform vec3 u_FogColor;
+#endif
+
 
 //后面考虑宏TODO
 varying vec3 v_PositionWorld;
 
-varying float v_posViewZ;
-#ifdef RECEIVESHADOW
-	#if defined(SHADOWMAP_PSSM2)||defined(SHADOWMAP_PSSM3)
-		uniform mat4 u_lightShadowVP[4];
-	#endif
-	#ifdef SHADOWMAP_PSSM1 
-		varying vec4 v_lightMVPPos;
-	#endif
+#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
+	varying vec4 v_ShadowCoord;
 #endif
 
 

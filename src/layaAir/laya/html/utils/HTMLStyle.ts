@@ -15,7 +15,7 @@ export class HTMLStyle {
     /**
      * 需要继承的属性
      */
-    private static _inheritProps: any[] = ["italic", "align", "valign", "leading", "stroke", "strokeColor", "bold", "fontSize", "lineHeight", "wordWrap", "color"];
+    private static _inheritProps: any[] = ["italic", "align", "valign", "leading", "letterSpacing", "stroke", "strokeColor", "bold", "fontWeight", "fontSize", "lineHeight", "wordWrap", "color"];
 
     /**水平居左对齐方式。 */
     static ALIGN_LEFT: string = "left";
@@ -318,6 +318,14 @@ export class HTMLStyle {
 
     set bold(value: boolean) {
         value ? (this._type |= HTMLStyle._BOLD) : (this._type &= ~HTMLStyle._BOLD);
+    }
+
+    get fontWeight(): string {
+        return (this._type & HTMLStyle._BOLD) ? "bold" : "none";
+    }
+
+    set fontWeight(value: string) {
+        value == "bold" ? (this._type |= HTMLStyle._BOLD) : (this._type &= ~HTMLStyle._BOLD);
     }
 
     /**

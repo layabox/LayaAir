@@ -198,9 +198,6 @@ class Main {
                         console.log("start copy jsc");
                         yield gulp.src("./jsc/**/*.*").pipe(gulp.dest(path.join(this.outfile, this.outfileAS)));
                         console.log("copy success!");
-                        // fs.writeFile("tst.txt",JSON.stringify(testArr),err=>{
-                        //     console.log("end");
-                        // });
                     }));
                 });
             }
