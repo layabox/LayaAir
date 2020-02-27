@@ -120,6 +120,7 @@ class emiter {
             }
         }
         let packageName = this.url.replace(new RegExp("\\\\", "g"), ".");
+        emiter.dtsData += "\r\n" + tsstr + "\r\n";
         //拼package & class
         asCode = "\r\n\tpublic class " + nodeName + " {\r\n" + asCode + "\r\n\t}";
         asCode = this.changeIndex(node, "\r\n") + "package " + packageName + " {\r\n" + asCode + "\r\n}";
