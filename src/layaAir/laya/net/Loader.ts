@@ -376,8 +376,6 @@ export class Loader extends EventDispatcher {
 			this.complete(data);
 		} else if (type === Loader.IMAGE) {
 			//可能有另外一种情况
-			//var tex: Texture = new Texture(data);
-			//tex.url = this._url;
 			if (data instanceof ArrayBuffer) {
 					var ext: string = Utils.getFileExtension(this._url);
 					let format: TextureFormat;
@@ -405,7 +403,9 @@ export class Loader extends EventDispatcher {
 				tex.loadImageSource(data, true);
 				tex._setCreateURL(this.url);
 			}
-			this.complete(tex);
+			var texture: Texture = new Texture(tex);
+			texture.url = this._url;
+			this.complete(texture);
 		
 		} else if (type === Loader.SOUND || type === "htmlimage" || type === "nativeimage") {
 			this.complete(data);
