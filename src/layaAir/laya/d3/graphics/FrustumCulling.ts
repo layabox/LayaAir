@@ -49,8 +49,6 @@ export class FrustumCulling {
 	private static _tempColor0: Color = new Color();
 	/**@internal */
 	private static _tempVector0: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector1: Vector3 = new Vector3();
 
 	/**@internal */
 	static _cameraCullInfo: CameraCullInfo = new CameraCullInfo();
@@ -112,24 +110,6 @@ export class FrustumCulling {
 						elements[j]._update(scene, context, customShader, replacementTag);
 				}
 			}
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	private static _cullDirectionShadowWithBoundSphere(direction: Vector3, point: Vector3, boundSphere: BoundSphere): boolean {
-		var distanceV3: Vector3 = FrustumCulling._tempVector0;
-		var center: Vector3 = boundSphere.center;
-		var radius: number = boundSphere.radius;
-		Vector3.subtract(center, point, distanceV3);
-		var distance: number = Vector3.dot(distanceV3, direction);
-		if (distance > 0) {// up part use project radius
-			var projectDistance2: number = Vector3.dot(distanceV3, distanceV3) - distance * distance;
-			return projectDistance2 <= radius * radius;
-		}
-		else {// down part directly compare radius
-			return -distance <= radius;
 		}
 	}
 
@@ -220,8 +200,9 @@ export class FrustumCulling {
 				var maxZ: number = max.z;
 				//TODO:通过相机裁剪直接pass
 
-				// cull by planes
 				var pass: boolean = true;
+				// cull by planes
+				// Improve:Maybe use sphre and direction cull can savle the far plane cull
 				for (var j: number = 0; j < cullPlaneCount; j++) {
 					var plane: Plane = cullPlanes[j];
 					var normal: Vector3 = plane.normal;
@@ -230,10 +211,6 @@ export class FrustumCulling {
 						break;
 					}
 				}
-
-				// cull by sphere
-				if (!FrustumCulling._cullDirectionShadowWithBoundSphere(direction, min, cullSphere) && !FrustumCulling._cullDirectionShadowWithBoundSphere(direction, max, cullSphere))
-					pass = false;
 
 				if (pass) {
 					render._renderMark = loopCount;

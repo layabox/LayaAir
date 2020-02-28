@@ -20,4 +20,5 @@ export class ShadowSliceData {
     cullPlanes: Array<Plane> = [new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3())];
     cullPlaneCount: number;
     splitBoundSphere: BoundSphere = new BoundSphere(new Vector3(), 0.0);
+    sphereCenterZ: number;
 }

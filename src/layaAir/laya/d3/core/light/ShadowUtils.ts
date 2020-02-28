@@ -36,8 +36,6 @@ enum FrustumFace {
  */
 export class ShadowUtils {
     /** @internal */
-    private static _tempVector30: Vector3 = new Vector3();
-    /** @internal */
     private static _tempMatrix0: Matrix4x4 = new Matrix4x4()
 
 
@@ -54,6 +52,8 @@ export class ShadowUtils {
     private static _frustumCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
     /** @internal */
     private static _adjustNearPlane: Plane = new Plane(new Vector3());
+    /** @internal */
+    private static _adjustFarPlane: Plane = new Plane(new Vector3());
     /** @internal */
     private static _backPlaneFaces: FrustumFace[] = new Array(5);
     /** @internal */
@@ -225,17 +225,20 @@ export class ShadowUtils {
         // adjustment the near/far plane
         var splitNearDistance: number = splitDistance[cascadeIndex] - cameraNear;
         var splitNear: Plane = ShadowUtils._adjustNearPlane;
+        var splitFar: Plane = ShadowUtils._adjustFarPlane;
         near.normal.cloneTo(splitNear.normal);
+        far.normal.cloneTo(splitFar.normal);
         splitNear.distance = near.distance - splitNearDistance;
+        splitFar.distance = Math.min(-near.distance + shadowSliceData.sphereCenterZ + shadowSliceData.splitBoundSphere.radius, far.distance);//do a clamp is the sphere is out of range the far plane
 
         BoundFrustum.get3PlaneInterPoint(splitNear, bottom, right, frustumCorners[FrustumCorner.nearBottomRight]);
         BoundFrustum.get3PlaneInterPoint(splitNear, top, right, frustumCorners[FrustumCorner.nearTopRight]);
         BoundFrustum.get3PlaneInterPoint(splitNear, top, left, frustumCorners[FrustumCorner.nearTopLeft]);
         BoundFrustum.get3PlaneInterPoint(splitNear, bottom, left, frustumCorners[FrustumCorner.nearBottomLeft]);
-        BoundFrustum.get3PlaneInterPoint(far, bottom, right, frustumCorners[FrustumCorner.FarBottomRight]);
-        BoundFrustum.get3PlaneInterPoint(far, top, right, frustumCorners[FrustumCorner.FarTopRight]);
-        BoundFrustum.get3PlaneInterPoint(far, top, left, frustumCorners[FrustumCorner.FarTopLeft]);
-        BoundFrustum.get3PlaneInterPoint(far, bottom, left, frustumCorners[FrustumCorner.FarBottomLeft]);
+        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, right, frustumCorners[FrustumCorner.FarBottomRight]);
+        BoundFrustum.get3PlaneInterPoint(splitFar, top, right, frustumCorners[FrustumCorner.FarTopRight]);
+        BoundFrustum.get3PlaneInterPoint(splitFar, top, left, frustumCorners[FrustumCorner.FarTopLeft]);
+        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, left, frustumCorners[FrustumCorner.FarBottomLeft]);
 
         var backIndex: number = 0;
         for (var i: FrustumFace = 0; i < 6; i++) {// meybe 3、4、5(light eye is at far, forward is near, or orth camera is any axis)
@@ -243,6 +246,9 @@ export class ShadowUtils {
             switch (i) {
                 case FrustumFace.Near:
                     plane = splitNear;
+                    break;
+                case FrustumFace.Far:
+                    plane = splitFar;
                     break;
                 default:
                     plane = cameraFrustumPlanes[i];
@@ -282,7 +288,7 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getBoundSphereByFrustum(near: number, far: number, fov: number, aspectRatio: number, cameraPos: Vector3, forward: Vector3, outBoundSphere: BoundSphere): void {
+    static getBoundSphereByFrustum(near: number, far: number, fov: number, aspectRatio: number, cameraPos: Vector3, forward: Vector3, outBoundSphere: BoundSphere): number {
         // https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html
         var centerZ: number;
         var radius: number;
@@ -303,6 +309,7 @@ export class ShadowUtils {
         outBoundSphere.radius = radius;
         Vector3.scale(forward, centerZ, center);
         Vector3.add(cameraPos, center, center);
+        return centerZ;
     }
 
     /**
@@ -322,12 +329,8 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getDirectionalLightMatrices(camera: Camera, lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, splitDistance: number[], nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array, boundSpheres: Float32Array): void {
-        var forward: Vector3 = ShadowUtils._tempVector30;
+    static getDirectionalLightMatrices(lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array): void {
         var boundSphere: BoundSphere = shadowSliceData.splitBoundSphere;
-        camera._transform.getForward(forward);
-        Vector3.normalize(forward, forward);
-        ShadowUtils.getBoundSphereByFrustum(splitDistance[cascadeIndex], splitDistance[cascadeIndex + 1], camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
 
         // to solve shdow swimming problem
         var center: Vector3 = boundSphere.center;

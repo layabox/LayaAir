@@ -25,6 +25,8 @@ import { ShadowSliceData } from "./ShadowSliceData";
  */
 export class ShadowCasterPass {
 	/**@internal */
+	private static _tempVector30: Vector3 = new Vector3();
+	/**@internal */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
 
 	/** @internal */
@@ -172,10 +174,14 @@ export class ShadowCasterPass {
 		var boundSpheres: Float32Array = this._splitBoundSpheres;
 		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, cameraNear, shadowFar, camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, cascadesMode, splitDistance);
 		ShadowUtils.getCameraFrustumPlanes(camera.projectionViewMatrix, frustumPlanes);
+		var forward: Vector3 = ShadowCasterPass._tempVector30;
+		camera._transform.getForward(forward);
+		Vector3.normalize(forward, forward);
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
+			sliceData.sphereCenterZ = ShadowUtils.getBoundSphereByFrustum(splitDistance[i], splitDistance[i + 1], camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, sliceData.splitBoundSphere);
 			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraNear, lightForward, sliceData);
-			ShadowUtils.getDirectionalLightMatrices(camera, lightUp, lightSide, lightForward, i, splitDistance, light._shadowNearPlane, shadowTileResolution, sliceData, shadowMatrices, boundSpheres);
+			ShadowUtils.getDirectionalLightMatrices(lightUp, lightSide, lightForward, i, light._shadowNearPlane, shadowTileResolution, sliceData, shadowMatrices);
 			if (cascadesCount > 1)
 				ShadowUtils.applySliceTransform(sliceData, shadowMapWidth, shadowMapHeight, i, shadowMatrices);
 		}
