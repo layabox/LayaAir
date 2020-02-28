@@ -407,8 +407,8 @@ export class Stage extends Sprite {
 		}
 
 		if (this.useRetinalCanvas) {
-			canvasWidth = screenWidth;
-			canvasHeight = screenHeight;
+			realWidth =  canvasWidth = screenWidth;
+			realHeight = canvasHeight = screenHeight;
 		}
 
 		//根据不同尺寸缩放stage画面
