@@ -354,7 +354,7 @@ export class ShadowUtils {
         Vector3.scale(lightForward, radius + nearPlane, origin);
         Vector3.subtract(center, origin, origin);
         Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
-        Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam, projectMatrix);
+        Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam + nearPlane, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
         Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
     }
@@ -367,9 +367,10 @@ export class ShadowUtils {
         shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
         if (cascadeCount > 1) {
             const matrixFloatCount: number = 16;
-            for (var i: number = cascadeCount * matrixFloatCount, n: number = 3 * matrixFloatCount; i <= n; i++)//the last matrix is always ZERO
+            for (var i: number = cascadeCount * matrixFloatCount, n: number = 4 * matrixFloatCount; i < n; i++)//the last matrix is always ZERO
                 shadowMatrices[i] = 0.0;//set Matrix4x4.ZERO to project the cascade index is 4
-            for (var i: number = 0, n: number = 4; i < n; i++) {
+
+            for (var i: number = 0; i < cascadeCount; i++) {
                 var boundSphere: BoundSphere = shadowSliceDatas[i].splitBoundSphere;
                 var center: Vector3 = boundSphere.center;
                 var radius: number = boundSphere.radius;
@@ -379,6 +380,9 @@ export class ShadowUtils {
                 splitBoundSpheres[offset + 2] = center.z;
                 splitBoundSpheres[offset + 3] = radius * radius;
             }
+            const sphereFloatCount: number = 4;
+            for (var i: number = cascadeCount * sphereFloatCount, n: number = 4 * sphereFloatCount; i < n; i++)
+                splitBoundSpheres[i] = 0.0;//set Matrix4x4.ZERO to project the cascade index is 4
         }
     }
 }
