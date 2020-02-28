@@ -20,6 +20,8 @@ import { Shader3D } from "../shader/Shader3D";
 import { Utils3D } from "../utils/Utils3D";
 import { DynamicBatchManager } from "./DynamicBatchManager";
 import { StaticBatchManager } from "./StaticBatchManager";
+import { Bounds } from "../core/Bounds";
+import { BoundSphere } from "../math/BoundSphere";
 
 
 export class CameraCullInfo {
@@ -32,8 +34,10 @@ export class CameraCullInfo {
 
 export class ShadowCullInfo {
 	position: Vector3;
-	cullPlanes: Array<Plane> = new Array(10);
+	cullPlanes: Plane[];
+	cullSphere: BoundSphere;
 	cullPlaneCount: number;
+	direction: Vector3;
 }
 
 /**
@@ -43,6 +47,10 @@ export class ShadowCullInfo {
 export class FrustumCulling {
 	/**@internal */
 	private static _tempColor0: Color = new Color();
+	/**@internal */
+	private static _tempVector0: Vector3 = new Vector3();
+	/**@internal */
+	private static _tempVector1: Vector3 = new Vector3();
 
 	/**@internal */
 	static _cameraCullInfo: CameraCullInfo = new CameraCullInfo();
@@ -104,6 +112,24 @@ export class FrustumCulling {
 						elements[j]._update(scene, context, customShader, replacementTag);
 				}
 			}
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	private static _cullDirectionShadowWithBoundSphere(direction: Vector3, point: Vector3, boundSphere: BoundSphere): boolean {
+		var distanceV3: Vector3 = FrustumCulling._tempVector0;
+		var center: Vector3 = boundSphere.center;
+		var radius: number = boundSphere.radius;
+		Vector3.subtract(center, point, distanceV3);
+		var distance: number = Vector3.dot(distanceV3, direction);
+		if (distance > 0) {// up part use project radius
+			var projectDistance2: number = Vector3.dot(distanceV3, distanceV3) - distance * distance;
+			return projectDistance2 <= radius * radius;
+		}
+		else {// down part directly compare radius
+			return -distance <= radius;
 		}
 	}
 
@@ -173,15 +199,19 @@ export class FrustumCulling {
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
 		var position: Vector3 = cullInfo.position;
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
-		var cullPlanes: Array<Plane> = cullInfo.cullPlanes;
+		var cullPlanes: Plane[] = cullInfo.cullPlanes;
+		var cullSphere: BoundSphere = cullInfo.cullSphere;
+		var direction: Vector3 = cullInfo.direction;
 		var renders: ISingletonElement[] = renderList.elements;
 		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 			var render: BaseRender = <BaseRender>renders[i];
 			var canPass: boolean = render._castShadow && render._enable;
 			if (canPass) {
-				var min: Vector3 = render.bounds.getMin();
-				var max: Vector3 = render.bounds.getMax();
+				Stat.frustumCulling++;
+				var bounds: Bounds = render.bounds;
+				var min: Vector3 = bounds.getMin();
+				var max: Vector3 = bounds.getMax();
 				var minX: number = min.x;
 				var minY: number = min.y;
 				var minZ: number = min.z;
@@ -189,6 +219,8 @@ export class FrustumCulling {
 				var maxY: number = max.y;
 				var maxZ: number = max.z;
 				//TODO:通过相机裁剪直接pass
+
+				// cull by planes
 				var pass: boolean = true;
 				for (var j: number = 0; j < cullPlaneCount; j++) {
 					var plane: Plane = cullPlanes[j];
@@ -198,11 +230,14 @@ export class FrustumCulling {
 						break;
 					}
 				}
-				Stat.frustumCulling++;
+
+				// cull by sphere
+				if (!FrustumCulling._cullDirectionShadowWithBoundSphere(direction, min, cullSphere) && !FrustumCulling._cullDirectionShadowWithBoundSphere(direction, max, cullSphere))
+					pass = false;
 
 				if (pass) {
 					render._renderMark = loopCount;
-					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
+					render._distanceForSort = Vector3.distance(bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
 					var elements: RenderElement[] = render._renderElements;
 					for (var j: number = 0, m: number = elements.length; j < m; j++)
 						elements[j]._update(scene, context, null, null);

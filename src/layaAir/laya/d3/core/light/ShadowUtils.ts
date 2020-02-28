@@ -38,9 +38,8 @@ export class ShadowUtils {
     /** @internal */
     private static _tempVector30: Vector3 = new Vector3();
     /** @internal */
-    private static _tempBoundSphere0: BoundSphere = new BoundSphere(new Vector3(), 0.0);
-    /** @internal */
     private static _tempMatrix0: Matrix4x4 = new Matrix4x4()
+
 
     /** @internal */
     private static _shadowMapScaleOffsetMatrix: Matrix4x4 = new Matrix4x4(
@@ -55,8 +54,6 @@ export class ShadowUtils {
     private static _frustumCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
     /** @internal */
     private static _adjustNearPlane: Plane = new Plane(new Vector3());
-    /** @internal */
-    private static _adjustFarPlane: Plane = new Plane(new Vector3());
     /** @internal */
     private static _backPlaneFaces: FrustumFace[] = new Array(5);
     /** @internal */
@@ -155,21 +152,34 @@ export class ShadowUtils {
     /**
     * @internal
     */
-    static getCascadesSplitDistance(twoSplitRatio: number, fourSplitRatio: Vector3, shadowRange: number, cascadesMode: ShadowCascadesMode, out: number[]): void {
-        out[0] = 0.0;
+    static getFarWithRadius(radius: number, denominator: number): number {
+        // use the frustum side as the radius and get the far distance form camera.
+        // var tFov: number = Math.tan(fov * 0.5);// get this the equation using Pythagorean
+        // return Math.sqrt(radius * radius / (1.0 + tFov * tFov * (aspectRatio * aspectRatio + 1.0)));
+        return Math.sqrt(radius * radius / denominator);
+    }
+
+    /**
+    * @internal
+    */
+    static getCascadesSplitDistance(twoSplitRatio: number, fourSplitRatio: Vector3, cameraNear: number, shadowFar: number, fov: number, aspectRatio: number, cascadesMode: ShadowCascadesMode, out: number[]): void {
+        out[0] = cameraNear;
+        var range: number = shadowFar - cameraNear;
+        var tFov: number = Math.tan(fov * 0.5);
+        var denominator: number = 1.0 + tFov * tFov * (aspectRatio * aspectRatio + 1.0);
         switch (cascadesMode) {
             case ShadowCascadesMode.NoCascades:
-                out[1] = shadowRange;
+                out[1] = ShadowUtils.getFarWithRadius(shadowFar, denominator);
                 break;
             case ShadowCascadesMode.TwoCascades:
-                out[1] = shadowRange * twoSplitRatio;
-                out[2] = shadowRange;
+                out[1] = ShadowUtils.getFarWithRadius(cameraNear + range * twoSplitRatio, denominator);
+                out[2] = ShadowUtils.getFarWithRadius(shadowFar, denominator);
                 break;
             case ShadowCascadesMode.FourCascades:
-                out[1] = shadowRange * fourSplitRatio.x;
-                out[2] = shadowRange * fourSplitRatio.y;
-                out[3] = shadowRange * fourSplitRatio.z;
-                out[4] = shadowRange;
+                out[1] = ShadowUtils.getFarWithRadius(cameraNear + range * fourSplitRatio.x, denominator);
+                out[2] = ShadowUtils.getFarWithRadius(cameraNear + range * fourSplitRatio.y, denominator);
+                out[3] = ShadowUtils.getFarWithRadius(cameraNear + range * fourSplitRatio.z, denominator);
+                out[4] = ShadowUtils.getFarWithRadius(shadowFar, denominator);
                 break;
         }
     }
@@ -198,7 +208,7 @@ export class ShadowUtils {
     /**
 	 * @internal
 	 */
-    static getDirectionLightShadowCullPlanes(cameraFrustumPlanes: Array<Plane>, cascadeIndex: number, splitDistance: number[], cameraRange: number, direction: Vector3, shadowSliceData: ShadowSliceData): void {
+    static getDirectionLightShadowCullPlanes(cameraFrustumPlanes: Array<Plane>, cascadeIndex: number, splitDistance: number[], cameraNear: number, direction: Vector3, shadowSliceData: ShadowSliceData): void {
         // http://lspiroengine.com/?p=187
         var frustumCorners: Vector3[] = ShadowUtils._frustumCorners;
         var backPlaneFaces: FrustumFace[] = ShadowUtils._backPlaneFaces;
@@ -213,24 +223,19 @@ export class ShadowUtils {
         var bottom: Plane = cameraFrustumPlanes[FrustumFace.Bottom], top: Plane = cameraFrustumPlanes[FrustumFace.Top];
 
         // adjustment the near/far plane
-        var splitNearDistance: number = splitDistance[cascadeIndex];
-        var splitFarDistance: number = splitDistance[cascadeIndex + 1];
+        var splitNearDistance: number = splitDistance[cascadeIndex] - cameraNear;
         var splitNear: Plane = ShadowUtils._adjustNearPlane;
-        var splitFar: Plane = ShadowUtils._adjustFarPlane;
         near.normal.cloneTo(splitNear.normal);
-        far.normal.cloneTo(splitFar.normal);
         splitNear.distance = near.distance - splitNearDistance;
-        splitFar.distance = far.distance - (cameraRange - splitFarDistance);
 
         BoundFrustum.get3PlaneInterPoint(splitNear, bottom, right, frustumCorners[FrustumCorner.nearBottomRight]);
         BoundFrustum.get3PlaneInterPoint(splitNear, top, right, frustumCorners[FrustumCorner.nearTopRight]);
         BoundFrustum.get3PlaneInterPoint(splitNear, top, left, frustumCorners[FrustumCorner.nearTopLeft]);
         BoundFrustum.get3PlaneInterPoint(splitNear, bottom, left, frustumCorners[FrustumCorner.nearBottomLeft]);
-        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, right, frustumCorners[FrustumCorner.FarBottomRight]);
-        BoundFrustum.get3PlaneInterPoint(splitFar, top, right, frustumCorners[FrustumCorner.FarTopRight]);
-        BoundFrustum.get3PlaneInterPoint(splitFar, top, left, frustumCorners[FrustumCorner.FarTopLeft]);
-        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, left, frustumCorners[FrustumCorner.FarBottomLeft]);
-
+        BoundFrustum.get3PlaneInterPoint(far, bottom, right, frustumCorners[FrustumCorner.FarBottomRight]);
+        BoundFrustum.get3PlaneInterPoint(far, top, right, frustumCorners[FrustumCorner.FarTopRight]);
+        BoundFrustum.get3PlaneInterPoint(far, top, left, frustumCorners[FrustumCorner.FarTopLeft]);
+        BoundFrustum.get3PlaneInterPoint(far, bottom, left, frustumCorners[FrustumCorner.FarBottomLeft]);
 
         var backIndex: number = 0;
         for (var i: FrustumFace = 0; i < 6; i++) {// meybe 3、4、5(light eye is at far, forward is near, or orth camera is any axis)
@@ -238,9 +243,6 @@ export class ShadowUtils {
             switch (i) {
                 case FrustumFace.Near:
                     plane = splitNear;
-                    break;
-                case FrustumFace.Far:
-                    plane = splitFar;
                     break;
                 default:
                     plane = cameraFrustumPlanes[i];
@@ -320,13 +322,12 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getDirectionalLightMatrices(camera: Camera, lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, splitDistance: number[], nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array): void {
+    static getDirectionalLightMatrices(camera: Camera, lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, splitDistance: number[], nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array, boundSpheres: Float32Array): void {
         var forward: Vector3 = ShadowUtils._tempVector30;
-        var boundSphere: BoundSphere = ShadowUtils._tempBoundSphere0;
+        var boundSphere: BoundSphere = shadowSliceData.splitBoundSphere;
         camera._transform.getForward(forward);
         Vector3.normalize(forward, forward);
-        var cameraNear: number = camera.nearPlane;
-        ShadowUtils.getBoundSphereByFrustum(cameraNear + splitDistance[cascadeIndex], cameraNear + splitDistance[cascadeIndex + 1], camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
+        ShadowUtils.getBoundSphereByFrustum(splitDistance[cascadeIndex], splitDistance[cascadeIndex + 1], camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, camera._transform.position, forward, boundSphere);
 
         // to solve shdow swimming problem
         var center: Vector3 = boundSphere.center;
@@ -361,23 +362,23 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static prepareShadowReceiverShaderValues(light: DirectionLight, shadowMapWidth: number, shadowMapHeight: number, cameraNear: number, splitDistance: number[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowDistance: Vector4, shadowMatrices: Float32Array): void {
+    static prepareShadowReceiverShaderValues(light: DirectionLight, shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
         shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
         shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
-        switch (light._shadowCascadesMode) {
-            case ShadowCascadesMode.NoCascades:
-                shadowDistance.setValue(0, 0, 0, 0);
-                break;
-            case ShadowCascadesMode.TwoCascades:
-                var scenond: number = cameraNear + splitDistance[2];
-                shadowDistance.setValue(cameraNear + splitDistance[1], scenond, scenond, scenond);
-                break;
-            case ShadowCascadesMode.FourCascades:
-                shadowDistance.setValue(cameraNear + splitDistance[1], cameraNear + splitDistance[2], cameraNear + splitDistance[3], cameraNear + splitDistance[4]);
-                break;
+        if (cascadeCount > 1) {
+            const matrixFloatCount: number = 16;
+            for (var i: number = cascadeCount * matrixFloatCount, n: number = 3 * matrixFloatCount; i <= n; i++)//the last matrix is always ZERO
+                shadowMatrices[i] = 0.0;//set Matrix4x4.ZERO to project the cascade index is 4
+            for (var i: number = 0, n: number = 4; i < n; i++) {
+                var boundSphere: BoundSphere = shadowSliceDatas[i].splitBoundSphere;
+                var center: Vector3 = boundSphere.center;
+                var radius: number = boundSphere.radius;
+                var offset: number = i * 4;
+                splitBoundSpheres[offset] = center.x;
+                splitBoundSpheres[offset + 1] = center.y;
+                splitBoundSpheres[offset + 2] = center.z;
+                splitBoundSpheres[offset + 3] = radius * radius;
+            }
         }
-        const matrixFloatCount: number = 16;
-        for (var i: number = cascadeCount * matrixFloatCount, n: number = 3 * matrixFloatCount; i <= n; i++)//the last matrix is always ZERO
-            shadowMatrices[i] = 0.0;//set Matrix4x4.ZERO to project the cascade index is 4
     }
 }

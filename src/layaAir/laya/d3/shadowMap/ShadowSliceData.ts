@@ -1,8 +1,8 @@
+import { BoundSphere } from "../math/BoundSphere";
 import { Matrix4x4 } from "../math/Matrix4x4";
+import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
 import { ShaderData } from "../shader/ShaderData";
-import { BoundFrustum } from "../math/BoundFrustum";
-import { Plane } from "../math/Plane";
 
 /**
  * @internal
@@ -19,4 +19,5 @@ export class ShadowSliceData {
     viewProjectMatrix: Matrix4x4 = new Matrix4x4();
     cullPlanes: Array<Plane> = [new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3())];
     cullPlaneCount: number;
+    splitBoundSphere: BoundSphere = new BoundSphere(new Vector3(), 0.0);
 }

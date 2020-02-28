@@ -10,6 +10,7 @@ import { RenderContext3D } from "../core/render/RenderContext3D";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
 import { FrustumCulling, ShadowCullInfo } from "../graphics/FrustumCulling";
+import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
@@ -31,7 +32,7 @@ export class ShadowCasterPass {
 	/** @internal */
 	static SHADOW_LIGHT_DIRECTION: number = Shader3D.propertyNameToID("u_ShadowLightDirection");
 	/** @internal */
-	static SHADOW_SPLIT_DISTANCE: number = Shader3D.propertyNameToID("u_ShadowSplitDistance");
+	static SHADOW_SPLIT_SPHERES: number = Shader3D.propertyNameToID("u_ShadowSplitSpheres");
 	/** @internal */
 	static SHADOW_MATRICES: number = Shader3D.propertyNameToID("u_ShadowMatrices");
 	/** @internal */
@@ -56,8 +57,8 @@ export class ShadowCasterPass {
 	private _shadowMapSize: Vector4 = new Vector4();
 	/** @internal */
 	private _shadowMatrices: Float32Array = new Float32Array(16 * (ShadowCasterPass._maxCascades + 1));//the end is project prcision problem in shader
-	/** @internal */
-	private _shadowSplitDistance: Vector4 = new Vector4();
+	/**@internal */
+	private _splitBoundSpheres: Float32Array = new Float32Array(ShadowCasterPass._maxCascades * 4);
 	/** @internal */
 	private _cascadeCount: number = 0;
 	/** @internal */
@@ -124,7 +125,7 @@ export class ShadowCasterPass {
 		shaderValues.setBuffer(ShadowCasterPass.SHADOW_MATRICES, this._shadowMatrices);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
-		shaderValues.setVector(ShadowCasterPass.SHADOW_SPLIT_DISTANCE, this._shadowSplitDistance);
+		shaderValues.setBuffer(ShadowCasterPass.SHADOW_SPLIT_SPHERES, this._splitBoundSpheres);
 	}
 
 	/**
@@ -166,19 +167,19 @@ export class ShadowCasterPass {
 		var splitDistance: number[] = ShadowCasterPass._cascadesSplitDistance;
 		var frustumPlanes: Plane[] = ShadowCasterPass._frustumPlanes;
 		var cameraNear: number = camera.nearPlane;
-		var cameraRange: number = camera.farPlane - cameraNear;
 		var shadowFar: number = Math.min(camera.farPlane, light._shadowDistance);
 		var shadowMatrices: Float32Array = this._shadowMatrices;
-		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, shadowFar - cameraNear, cascadesMode, splitDistance);
+		var boundSpheres: Float32Array = this._splitBoundSpheres;
+		ShadowUtils.getCascadesSplitDistance(light._shadowTwoCascadeSplits, light._shadowFourCascadeSplits, cameraNear, shadowFar, camera.fieldOfView * MathUtils3D.Deg2Rad, camera.aspectRatio, cascadesMode, splitDistance);
 		ShadowUtils.getCameraFrustumPlanes(camera.projectionViewMatrix, frustumPlanes);
 		for (var i: number = 0; i < cascadesCount; i++) {
 			var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
-			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraRange, lightForward, sliceData);
-			ShadowUtils.getDirectionalLightMatrices(camera, lightUp, lightSide, lightForward, i, splitDistance, light._shadowNearPlane, shadowTileResolution, sliceData, shadowMatrices);
+			ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraNear, lightForward, sliceData);
+			ShadowUtils.getDirectionalLightMatrices(camera, lightUp, lightSide, lightForward, i, splitDistance, light._shadowNearPlane, shadowTileResolution, sliceData, shadowMatrices, boundSpheres);
 			if (cascadesCount > 1)
 				ShadowUtils.applySliceTransform(sliceData, shadowMapWidth, shadowMapHeight, i, shadowMatrices);
 		}
-		ShadowUtils.prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, cameraNear, splitDistance, cascadesCount, this._shadowMapSize, this._shadowParams, this._shadowSplitDistance, shadowMatrices);
+		ShadowUtils.prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, this._shadowSliceDatas, cascadesCount, this._shadowMapSize, this._shadowParams, shadowMatrices, boundSpheres);
 	}
 
 	/**
@@ -199,6 +200,8 @@ export class ShadowCasterPass {
 			shadowCullInfo.position = sliceData.position;
 			shadowCullInfo.cullPlanes = sliceData.cullPlanes;
 			shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
+			shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
+			shadowCullInfo.direction = this._lightForward;
 			var needRender: boolean = FrustumCulling.cullingShadow(shadowCullInfo, scene, context);
 			context.cameraShaderValue = sliceData.cameraShaderValue;
 			Camera._updateMark++;
