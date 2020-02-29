@@ -220,7 +220,7 @@ export class ShadowCasterPass {
 			gl.scissor(offsetX, offsetY, resolution, resolution);
 			gl.clear(gl.DEPTH_BUFFER_BIT);
 			if (needRender) {// if one cascade have anything to render.
-				gl.scissor(offsetX, offsetY, resolution, resolution);
+				gl.scissor(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);//for no cascade is for the edge,for cascade is for the beyond maxCascade pixel can use (0,0,0) trick sample the shadowMap
 				scene._opaqueQueue._render(context);//阴影均为非透明队列
 			}
 		}
