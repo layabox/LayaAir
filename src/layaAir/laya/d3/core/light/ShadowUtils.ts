@@ -12,12 +12,11 @@ import { Vector4 } from "../../math/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { ShadowSliceData } from "../../shadowMap/ShadowSliceData";
 import { Utils3D } from "../../utils/Utils3D";
-import { Camera } from "../Camera";
+import { DirectionLight } from "./DirectionLight";
 import { LightSprite, LightType } from "./LightSprite";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";
 import { SpotLight } from "./SpotLight";
-import { DirectionLight } from "./DirectionLight";
 
 /**
  * @internal
@@ -77,6 +76,9 @@ export class ShadowUtils {
         [[FrustumCorner.nearBottomLeft, FrustumCorner.nearBottomRight]/* near */, [FrustumCorner.FarBottomRight, FrustumCorner.FarBottomLeft]/* far */, [FrustumCorner.FarBottomLeft, FrustumCorner.nearBottomLeft]/* left */, [FrustumCorner.nearBottomRight, FrustumCorner.FarBottomRight]/* right */, [FrustumCorner.unknown, FrustumCorner.unknown]/* bottom */, [FrustumCorner.unknown, FrustumCorner.unknown]/* top */],// bottom
         [[FrustumCorner.nearTopRight, FrustumCorner.nearTopLeft]/* near */, [FrustumCorner.FarTopLeft, FrustumCorner.FarTopRight]/* far */, [FrustumCorner.nearTopLeft, FrustumCorner.FarTopLeft]/* left */, [FrustumCorner.FarTopRight, FrustumCorner.nearTopRight], [FrustumCorner.unknown/* right */, FrustumCorner.unknown]/* bottom */, [FrustumCorner.unknown, FrustumCorner.unknown]/* top */]// top
     ];
+
+    /** @internal */
+    static readonly atlasBorderSize: number = 4.0;
 
     /**
      * @internal
@@ -350,6 +352,7 @@ export class ShadowUtils {
         var viewMatrix: Matrix4x4 = shadowSliceData.viewMatrix;
         var projectMatrix: Matrix4x4 = shadowSliceData.projectionMatrix;
         var viewProjectMatrix: Matrix4x4 = shadowSliceData.viewProjectMatrix;
+        var borderRadius: number = radius + ShadowUtils.atlasBorderSize * radiusUnit;
         shadowSliceData.resolution = shadowResolution;
         shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
         shadowSliceData.offsetY = Math.floor(cascadeIndex / 2) * shadowResolution;
@@ -357,7 +360,7 @@ export class ShadowUtils {
         Vector3.scale(lightForward, radius + nearPlane, origin);
         Vector3.subtract(center, origin, origin);
         Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
-        Matrix4x4.createOrthoOffCenter(-radius, radius, -radius, radius, 0.0, diam + nearPlane, projectMatrix);
+        Matrix4x4.createOrthoOffCenter(- borderRadius, borderRadius, - borderRadius, borderRadius, 0.0, diam + nearPlane, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
         Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
     }

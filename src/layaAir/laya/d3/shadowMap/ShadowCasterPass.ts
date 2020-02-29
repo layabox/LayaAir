@@ -220,7 +220,7 @@ export class ShadowCasterPass {
 			gl.scissor(offsetX, offsetY, resolution, resolution);
 			gl.clear(gl.DEPTH_BUFFER_BIT);
 			if (needRender) {// if one cascade have anything to render.
-				gl.scissor(offsetX + 4, offsetY + 4, resolution - 8, resolution - 8);
+				gl.scissor(offsetX, offsetY, resolution, resolution);
 				scene._opaqueQueue._render(context);//阴影均为非透明队列
 			}
 		}
