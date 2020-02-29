@@ -337,9 +337,11 @@ export class ShadowUtils {
         // to solve shdow swimming problem
         var center: Vector3 = boundSphere.center;
         var radius: number = boundSphere.radius;
-        var diam: number = radius * 2.0;
-        var sizeUnit: number = shadowResolution / diam;
-        var radiusUnit: number = diam / shadowResolution;
+        var halfShadowResolution: number = shadowResolution / 2;
+        var borderRadius: number = radius * halfShadowResolution / (halfShadowResolution - ShadowUtils.atlasBorderSize);// add border to prject edge pixel PCF
+        var borderDiam: number = borderRadius * 2.0;
+        var sizeUnit: number = shadowResolution / borderDiam;
+        var radiusUnit: number = borderDiam / shadowResolution;
         var upLen: number = Math.ceil(Vector3.dot(center, lightUp) * sizeUnit) * radiusUnit;
         var sideLen: number = Math.ceil(Vector3.dot(center, lightSide) * sizeUnit) * radiusUnit;
         var forwardLen: number = Vector3.dot(center, lightForward);
@@ -352,8 +354,6 @@ export class ShadowUtils {
         var viewMatrix: Matrix4x4 = shadowSliceData.viewMatrix;
         var projectMatrix: Matrix4x4 = shadowSliceData.projectionMatrix;
         var viewProjectMatrix: Matrix4x4 = shadowSliceData.viewProjectMatrix;
-        var halfShadowResolution: number = shadowResolution / 2;
-        var borderRadius: number = radius * halfShadowResolution / (halfShadowResolution - ShadowUtils.atlasBorderSize);
 
         shadowSliceData.resolution = shadowResolution;
         shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
@@ -362,7 +362,7 @@ export class ShadowUtils {
         Vector3.scale(lightForward, radius + nearPlane, origin);
         Vector3.subtract(center, origin, origin);
         Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
-        Matrix4x4.createOrthoOffCenter(- borderRadius, borderRadius, - borderRadius, borderRadius, 0.0, diam + nearPlane, projectMatrix);
+        Matrix4x4.createOrthoOffCenter(- borderRadius, borderRadius, - borderRadius, borderRadius, 0.0, radius * 2.0 + nearPlane, projectMatrix);
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
         Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
     }
