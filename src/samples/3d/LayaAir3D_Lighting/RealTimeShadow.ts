@@ -69,11 +69,11 @@ export class RealTimeShadow {
 		directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
 
 		// Use soft shadow.
-		directionLight.shadowMode = ShadowMode.SoftHigh;
+		directionLight.shadowMode = ShadowMode.SoftLow;
 		// Set shadow max distance from camera.
 		directionLight.shadowDistance = 3;
 		// Set shadow resolution.
-		directionLight.shadowResolution = 2048;
+		directionLight.shadowResolution = 1024;
 		// Set shadow cascade mode.
 		directionLight.shadowCascadesMode = ShadowCascadesMode.NoCascades;
 
