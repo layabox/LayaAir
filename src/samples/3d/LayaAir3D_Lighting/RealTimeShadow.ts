@@ -64,7 +64,7 @@ export class RealTimeShadow {
 		camera.transform.rotate(new Vector3(-35, 0, 0), true, false);
 		camera.addComponent(CameraMoveScript);
 
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+		var directionLight: DirectionLight = <DirectionLight>scene.addChild(new DirectionLight());
 		directionLight.color = new Vector3(0.85, 0.85, 0.8);
 		directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
 
