@@ -352,7 +352,9 @@ export class ShadowUtils {
         var viewMatrix: Matrix4x4 = shadowSliceData.viewMatrix;
         var projectMatrix: Matrix4x4 = shadowSliceData.projectionMatrix;
         var viewProjectMatrix: Matrix4x4 = shadowSliceData.viewProjectMatrix;
-        var borderRadius: number = radius + ShadowUtils.atlasBorderSize * radiusUnit;
+        var halfShadowResolution: number = shadowResolution / 2;
+        var borderRadius: number = radius * halfShadowResolution / (halfShadowResolution - ShadowUtils.atlasBorderSize);
+
         shadowSliceData.resolution = shadowResolution;
         shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
         shadowSliceData.offsetY = Math.floor(cascadeIndex / 2) * shadowResolution;
