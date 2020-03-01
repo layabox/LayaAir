@@ -334,11 +334,13 @@ export class ShadowUtils {
     static getDirectionalLightMatrices(lightUp: Vector3, lightSide: Vector3, lightForward: Vector3, cascadeIndex: number, nearPlane: number, shadowResolution: number, shadowSliceData: ShadowSliceData, shadowMatrices: Float32Array): void {
         var boundSphere: BoundSphere = shadowSliceData.splitBoundSphere;
 
-        // to solve shdow swimming problem
+        // To solve shdow swimming problem.
         var center: Vector3 = boundSphere.center;
         var radius: number = boundSphere.radius;
         var halfShadowResolution: number = shadowResolution / 2;
-        var borderRadius: number = radius * halfShadowResolution / (halfShadowResolution - ShadowUtils.atlasBorderSize);// add border to prject edge pixel PCF
+        // Add border to prject edge pixel PCF.
+        // Improve:the clip planes not conside the border,but I think is OK,because the object can clip is not continuous.
+        var borderRadius: number = radius * halfShadowResolution / (halfShadowResolution - ShadowUtils.atlasBorderSize);
         var borderDiam: number = borderRadius * 2.0;
         var sizeUnit: number = shadowResolution / borderDiam;
         var radiusUnit: number = borderDiam / shadowResolution;
@@ -349,7 +351,7 @@ export class ShadowUtils {
         center.y = lightUp.y * upLen + lightSide.y * sideLen + lightForward.y * forwardLen;
         center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
 
-        // direction light use shadow pancaking tech,do special dispose with nearPlane.
+        // Direction light use shadow pancaking tech,do special dispose with nearPlane.
         var origin: Vector3 = shadowSliceData.position;
         var viewMatrix: Matrix4x4 = shadowSliceData.viewMatrix;
         var projectMatrix: Matrix4x4 = shadowSliceData.projectionMatrix;
