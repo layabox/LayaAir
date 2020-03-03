@@ -85,7 +85,7 @@ export class Physics extends EventDispatcher {
             options || (options = {});
             var box2d: any = (<any>window).box2d;
             if (box2d == null) {
-                console.error("Can not find box2d libs, you should reuqest box2d.js first.");
+                console.error("Can not find box2d libs, you should request box2d.js first.");
                 return;
             }
 
