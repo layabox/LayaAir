@@ -20,7 +20,7 @@ export class Script extends Component {
 	 * @inheritDoc
 	 * @override
 	 */
-	protected _onAwake(): void {
+	_onAwake(): void {
 		this.onAwake();
 		if (this.onStart !== Script.prototype.onStart) {
 			ILaya.startTimer.callLater(this, this.onStart);
@@ -32,7 +32,7 @@ export class Script extends Component {
 	 * @inheritDoc
 	 * @override
 	 */
-	protected _onEnable(): void {
+	_onEnable(): void {
 		var proto: any = Script.prototype;
 		if (this.onTriggerEnter !== proto.onTriggerEnter) {
 			this.owner.on(Event.TRIGGER_ENTER, this, this.onTriggerEnter);

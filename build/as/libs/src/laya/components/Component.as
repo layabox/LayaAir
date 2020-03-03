@@ -9,16 +9,6 @@ package laya.components {
 	public class Component implements ISingletonElement,IDestroy {
 
 		/**
-		 * @private [实现IListPool接口]
-		 */
-		private var _indexInList:*;
-
-		/**
-		 * @private 
-		 */
-		private var _awaked:*;
-
-		/**
 		 * [只读]获取所属Node节点。
 		 * @readonly 
 		 */
@@ -31,7 +21,7 @@ package laya.components {
 		public function Component(){}
 
 		/**
-		 * 获取唯一标识ID。
+		 * 唯一标识ID。
 		 */
 		public function get id():Number{
 				return null;

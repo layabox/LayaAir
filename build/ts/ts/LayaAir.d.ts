@@ -1423,16 +1423,6 @@ declare module laya.components {
 	class Component implements laya.resource.ISingletonElement,laya.resource.IDestroy  {
 
 		/**
-		 * @private [实现IListPool接口]
-		 */
-		private _indexInList:any;
-
-		/**
-		 * @private 
-		 */
-		private _awaked:any;
-
-		/**
 		 * [只读]获取所属Node节点。
 		 * @readonly 
 		 */
@@ -1445,7 +1435,7 @@ declare module laya.components {
 		constructor();
 
 		/**
-		 * 获取唯一标识ID。
+		 * 唯一标识ID。
 		 */
 		readonly id:number;
 
@@ -2434,24 +2424,6 @@ declare module laya.d3.component {
 		 * 此方法为虚方法，使用时重写覆盖即可
 		 */
 		onMouseOut():void;
-
-		/**
-		 * 键盘按下时执行
-		 * 此方法为虚方法，使用时重写覆盖即可
-		 */
-		onKeyDown(e:laya.events.Event):void;
-
-		/**
-		 * 键盘产生一个字符时执行
-		 * 此方法为虚方法，使用时重写覆盖即可
-		 */
-		onKeyPress(e:laya.events.Event):void;
-
-		/**
-		 * 键盘抬起时执行
-		 * 此方法为虚方法，使用时重写覆盖即可
-		 */
-		onKeyUp(e:laya.events.Event):void;
 
 		/**
 		 * 每帧更新时执行
@@ -7393,8 +7365,7 @@ declare module laya.d3.core.particleShuriKen {
 		readonly aliveParticleCount:number;
 
 		/**
-		 * 获取一次循环内的累计时间。
-		 * @return 一次循环内的累计时间。
+		 * 一次循环内的累计时间。
 		 */
 		readonly emissionTime:number;
 
@@ -13269,7 +13240,7 @@ declare module laya.d3.math {
 		 * 投影一个三维向量到视口空间。
 		 * @param source 三维向量。
 		 * @param matrix 变换矩阵。
-		 * @param out x、y、z为视口空间坐标,w为相对于变换矩阵的z轴坐标。
+		 * @param out x、y、z为视口空间坐标,透视投影下w为相对于变换矩阵的z轴坐标。
 		 */
 		project(source:laya.d3.math.Vector3,matrix:laya.d3.math.Matrix4x4,out:laya.d3.math.Vector4):void;
 
@@ -43915,6 +43886,17 @@ declare module Laya {
 
 	class Bounds extends laya.d3.core.Bounds {}
 
+enum CameraClearFlags {
+    /**固定颜色。*/
+    SolidColor = 0,
+    /**天空。*/
+    Sky = 1,
+    /**仅深度。*/
+    DepthOnly = 2,
+    /**不清除。*/
+    Nothing = 3
+}
+
 	/**
 	 * <code>Camera</code> 类用于创建摄像机。
 	 */
@@ -44014,17 +43996,49 @@ declare module Laya {
 
 	class Material extends laya.d3.core.material.Material {}
 
+enum PBRRenderMode {
+    /**不透明。*/
+    Opaque = 0,
+    /**透明裁剪。*/
+    Cutout = 1,
+    /**透明混合_游戏中经常使用的透明。*/
+    Fade = 2,
+    /**透明混合_物理上看似合理的透明。*/
+    Transparent = 3
+}
+
 	/**
 	 * PBR材质的父类,该类为抽象类。
 	 */
 
 	class PBRMaterial extends laya.d3.core.material.PBRMaterial {}
 
+enum PBRRenderQuality {
+    /**高质量。*/
+    High = 0,
+    /**低质量。*/
+    Low = 1
+}
+
+enum PBRSpecularSmoothnessSource {
+    /**金属度贴图的Alpha通道。*/
+    SpecularTextureAlpha = 0,
+    /**反射率贴图的Alpha通道。*/
+    AlbedoTextureAlpha = 1
+}
+
 	/**
 	 * <code>PBRSpecularMaterial</code> 类用于实现PBR(Specular)材质。
 	 */
 
 	class PBRSpecularMaterial extends laya.d3.core.material.PBRSpecularMaterial {}
+
+enum PBRMetallicSmoothnessSource {
+    /**金属度贴图的Alpha通道。*/
+    MetallicGlossTextureAlpha = 0,
+    /**反射率贴图的Alpha通道。*/
+    AlbedoTextureAlpha = 1
+}
 
 	/**
 	 * <code>PBRStandardMaterial</code> 类用于实现PBR材质。
@@ -44392,6 +44406,13 @@ declare module Laya {
 
 	class OctreeMotionList extends laya.d3.core.scene.OctreeMotionList {}
 
+enum AmbientMode {
+    /** 固定颜色。*/
+    SolidColor = 0,
+    /** 球谐光照,例如通过天空盒生成的球谐数据。 */
+    SphericalHarmonics = 1
+}
+
 	/**
 	 * 用于实现3D场景。
 	 */
@@ -44428,6 +44449,11 @@ declare module Laya {
 	class Sprite3D extends laya.d3.core.Sprite3D {}
 
 	class TextureMode extends laya.d3.core.TextureMode {}
+
+enum TrailAlignment {
+    View = 0,
+    TransformZ = 1
+}
 
 	/**
 	 * <code>TrailFilter</code> 类用于创建拖尾过滤器。
@@ -44482,6 +44508,15 @@ declare module Laya {
 	 */
 
 	class IndexBuffer3D extends laya.d3.graphics.IndexBuffer3D {}
+
+enum IndexFormat {
+    /** 8 位无符号整型索引格式。*/
+    UInt8 = 0,
+    /** 16 位无符号整型索引格式。*/
+    UInt16 = 1,
+    /** 32 位无符号整型索引格式。*/
+    UInt32 = 2
+}
 
 	/**
 	 * 二阶球谐函数。
@@ -45018,6 +45053,13 @@ declare module Laya {
 	 */
 
 	class Media extends laya.device.media.Media {}
+
+const enum VIDEOTYPE {
+    MP4 = 1,
+    OGG = 2,
+    CAMERA = 4,
+    WEBM = 8
+}
 
 	/**
 	 * <code>Video</code>将视频显示到Canvas上。<code>Video</code>可能不会在所有浏览器有效。
@@ -45708,6 +45750,11 @@ declare module Laya {
 
 	class HTMLDocument extends laya.html.dom.HTMLDocument {}
 
+enum HTMLElementType {
+    BASE = 0,
+    IMAGE = 1
+}
+
 	/**
 	 * @private 
 	 */
@@ -46284,6 +46331,15 @@ declare module Laya {
 
 	class Context extends laya.resource.Context {}
 
+enum FilterMode {
+    /**点过滤。*/
+    Point = 0,
+    /**双线性过滤。*/
+    Bilinear = 1,
+    /**三线性过滤。*/
+    Trilinear = 2
+}
+
 	/**
 	 * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
 	 */
@@ -46301,6 +46357,28 @@ declare module Laya {
 	 */
 
 	class RenderTexture2D extends laya.resource.RenderTexture2D {}
+
+enum RenderTextureFormat {
+    /**RGB格式,每个通道8位。*/
+    R8G8B8 = 0,
+    /**RGBA格式,每个通道8位。*/
+    R8G8B8A8 = 1,
+    /**Alpha格式,8位。*/
+    Alpha8 = 2,
+    /**RGBA格式,每个通道16位。*/
+    R16G16B16A16 = 14
+}
+
+enum RenderTextureDepthFormat {
+    /**深度格式_DEPTH_16。*/
+    DEPTH_16 = 0,
+    /**深度格式_STENCIL_8。*/
+    STENCIL_8 = 1,
+    /**深度格式_DEPTHSTENCIL_16_8。*/
+    DEPTHSTENCIL_16_8 = 2,
+    /**深度格式_DEPTHSTENCIL_NONE。*/
+    DEPTHSTENCIL_NONE = 3
+}
 
 	/**
 	 * <code>Resource</code> 资源存取类。
@@ -46325,12 +46403,54 @@ declare module Laya {
 
 	class Texture2D extends laya.resource.Texture2D {}
 
+enum TextureDecodeFormat {
+    /** 常规解码方式,直接采样纹理颜色。*/
+    Normal = 0,
+    /** 按照RGBM方式解码并计算最终RGB颜色。 */
+    RGBM = 1
+}
+
+enum TextureFormat {
+    /**纹理格式_R8G8B8。*/
+    R8G8B8 = 0,
+    /**纹理格式_R8G8B8A8。*/
+    R8G8B8A8 = 1,
+    /**RGB格式纹理,R通道5位，G通道6位，B通道5位。*/
+    R5G6B5 = 16,
+    /**纹理格式_ALPHA8。*/
+    Alpha8 = 2,
+    /**纹理格式_DXT1。*/
+    DXT1 = 3,
+    /**纹理格式_DXT5。*/
+    DXT5 = 4,
+    /**纹理格式_ETC2RGB。*/
+    ETC1RGB = 5,
+    /**纹理格式_ETC2RGB_PUNCHTHROUGHALPHA。*/
+    /**纹理格式_PVRTCRGB_2BPPV。*/
+    PVRTCRGB_2BPPV = 9,
+    /**纹理格式_PVRTCRGBA_2BPPV。*/
+    PVRTCRGBA_2BPPV = 10,
+    /**纹理格式_PVRTCRGB_4BPPV。*/
+    PVRTCRGB_4BPPV = 11,
+    /**纹理格式_PVRTCRGBA_4BPPV。*/
+    PVRTCRGBA_4BPPV = 12,
+    /**RGBA格式纹理,每个通道32位浮点数。*/
+    R32G32B32A32 = 15
+}
+
 	/**
 	 * WebGLRTMgr 管理WebGLRenderTarget的创建和回收
 	 * TODO 需求不大，管理成本高。先去掉。
 	 */
 
 	class WebGLRTMgr extends laya.resource.WebGLRTMgr {}
+
+enum WarpMode {
+    /** 循环平铺。*/
+    Repeat = 0,
+    /** 超过UV边界后采用最后一个像素。*/
+    Clamp = 1
+}
 
 	/**
 	 * @private 

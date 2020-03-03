@@ -861,14 +861,14 @@ window.qqMiniGame = function (exports, Laya) {
 	            var tempUrl = Laya.URL.formatURL(url);
 	            if (url.indexOf(QQMiniAdapter.window.qq.env.USER_DATA_PATH) == -1 && (tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1)) {
 	                if (QQMiniAdapter.isZiYu) {
-	                    thisLoader._loadImage(url, false);
+	                    thisLoader._loadImage(url);
 	                }
 	                else {
 	                    MiniFileMgr.downOtherFiles(encodeURI(tempUrl), new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 	                }
 	            }
 	            else
-	                thisLoader._loadImage(url, false);
+	                thisLoader._loadImage(url);
 	        }
 	        else {
 	            MiniLoader.onCreateImage(url, thisLoader);

@@ -421,7 +421,7 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 * @override
 	 */
-	protected _onEnable(): void {
+	_onEnable(): void {
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 1e30);
 		if (this._colliderShape && this._enabled) {

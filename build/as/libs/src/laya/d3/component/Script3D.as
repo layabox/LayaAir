@@ -2,7 +2,6 @@ package laya.d3.component {
 	import laya.components.Component;
 	import laya.d3.physics.Collision;
 	import laya.d3.physics.PhysicsComponent;
-	import laya.events.Event;
 
 	/**
 	 * <code>Script3D</code> 类用于创建脚本的父类,该类为抽象类,不允许实例。
@@ -104,24 +103,6 @@ package laya.d3.component {
 		 * 此方法为虚方法，使用时重写覆盖即可
 		 */
 		public function onMouseOut():void{}
-
-		/**
-		 * 键盘按下时执行
-		 * 此方法为虚方法，使用时重写覆盖即可
-		 */
-		public function onKeyDown(e:Event):void{}
-
-		/**
-		 * 键盘产生一个字符时执行
-		 * 此方法为虚方法，使用时重写覆盖即可
-		 */
-		public function onKeyPress(e:Event):void{}
-
-		/**
-		 * 键盘抬起时执行
-		 * 此方法为虚方法，使用时重写覆盖即可
-		 */
-		public function onKeyUp(e:Event):void{}
 
 		/**
 		 * 每帧更新时执行

@@ -884,14 +884,14 @@ window.qgMiniGame = function (exports, Laya) {
 	            var tempUrl = Laya.URL.formatURL(url);
 	            if (url.indexOf('http://usr/') == -1 && (tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1)) {
 	                if (QGMiniAdapter.isZiYu) {
-	                    thisLoader._loadImage(url, false);
+	                    thisLoader._loadImage(url);
 	                }
 	                else {
 	                    MiniFileMgr.downOtherFiles(tempUrl, new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 	                }
 	            }
 	            else
-	                thisLoader._loadImage(url, false);
+	                thisLoader._loadImage(url);
 	        }
 	        else {
 	            MiniLoader.onCreateImage(url, thisLoader);

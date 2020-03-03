@@ -19,14 +19,14 @@ export class JointBase extends Component {
      * @internal
      * @override
      */
-    protected _onEnable(): void {
+    _onEnable(): void {
         this._createJoint();
     }
     /**
      * @internal
      * @override
      */
-    protected _onAwake(): void {
+    _onAwake(): void {
         this._createJoint();
     }
 

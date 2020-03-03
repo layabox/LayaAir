@@ -1,4 +1,4 @@
-window.wxMiniGame = function (exports, Laya) {
+(function (exports, Laya) {
 	'use strict';
 
 	class StringTool {
@@ -908,13 +908,23 @@ window.wxMiniGame = function (exports, Laya) {
 	    static getObjectDisplayAbleKeys(obj, rst = null) {
 	        if (!rst)
 	            rst = [];
-	        var key;
-	        var tValue;
-	        for (key in obj) {
-	            tValue = obj[key];
-	            if (key.charAt(0) == "_")
+	        for (let key in obj) {
+	            let tValue = obj[key];
+	            let tType = typeof (tValue);
+	            if (key.charAt(0) == "_" || !this.displayTypes[tType])
 	                continue;
 	            rst.push(key);
+	        }
+	        let temp = obj;
+	        while (temp) {
+	            let descript = Object.getOwnPropertyDescriptors(temp);
+	            for (let element in descript) {
+	                let tValue = descript[element];
+	                if (!tValue.get)
+	                    continue;
+	                rst.push(element);
+	            }
+	            temp = Object.getPrototypeOf(temp);
 	        }
 	        ClassTool.getObjectGetSetKeys(obj, rst);
 	        rst = ObjectTools.getNoSameArr(rst);
@@ -5106,10 +5116,6 @@ window.wxMiniGame = function (exports, Laya) {
 	            dataList = DebugPanel.getObjectData(tTarget);
 	            this.debug_view.setContents(dataList);
 	        }
-	        for (i = 0; i < len; i++) {
-	            key = DebugPanel.tObjKeys[i];
-	            this.preValueO[key] = tTarget[key];
-	        }
 	    }
 	    adptPos() {
 	        if (this.fromMe)
@@ -7977,4 +7983,4 @@ window.wxMiniGame = function (exports, Laya) {
 	exports.XML2Object = XML2Object;
 	exports.XML2ObjectNodejs = XML2ObjectNodejs;
 
-} 
+}(window.Laya = window.Laya || {}, Laya));

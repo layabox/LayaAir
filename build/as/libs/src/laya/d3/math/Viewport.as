@@ -52,7 +52,7 @@ package laya.d3.math {
 		 * 投影一个三维向量到视口空间。
 		 * @param source 三维向量。
 		 * @param matrix 变换矩阵。
-		 * @param out x、y、z为视口空间坐标,w为相对于变换矩阵的z轴坐标。
+		 * @param out x、y、z为视口空间坐标,透视投影下w为相对于变换矩阵的z轴坐标。
 		 */
 		public function project(source:Vector3,matrix:Matrix4x4,out:Vector4):void{}
 

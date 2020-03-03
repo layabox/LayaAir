@@ -6108,7 +6108,7 @@
 	Shader3D._defineMap = {};
 	Shader3D._preCompileShader = {};
 	Shader3D._maskMap = [];
-	Shader3D.debugMode = true;
+	Shader3D.debugMode = false;
 	Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
 
 	class ShaderData {
@@ -12622,18 +12622,17 @@
 	        this.height = height;
 	    }
 	    project(source, matrix, out) {
-	        var vec4 = Viewport._tempVector4;
-	        Vector3.transformV3ToV4(source, matrix, vec4);
-	        var w = vec4.w;
+	        Vector3.transformV3ToV4(source, matrix, out);
+	        var x = out.x, y = out.y, z = out.z;
+	        var w = out.w;
 	        if (w !== 1.0) {
-	            out.x = vec4.x / w;
-	            out.y = vec4.y / w;
-	            out.z = vec4.z / w;
+	            x = x / w;
+	            y = y / w;
+	            z = z / w;
 	        }
-	        out.x = (out.x + 1.0) * 0.5 * this.width + this.x;
-	        out.y = (-out.y + 1.0) * 0.5 * this.height + this.y;
-	        out.z = out.z * (this.maxDepth - this.minDepth) + this.minDepth;
-	        out.w = w;
+	        out.x = (x + 1.0) * 0.5 * this.width + this.x;
+	        out.y = (-y + 1.0) * 0.5 * this.height + this.y;
+	        out.z = z * (this.maxDepth - this.minDepth) + this.minDepth;
 	    }
 	    unprojectFromMat(source, matrix, out) {
 	        var matrixEleme = matrix.elements;
@@ -12665,7 +12664,6 @@
 	    }
 	}
 	Viewport._tempMatrix4x4 = new Matrix4x4();
-	Viewport._tempVector4 = new Vector4();
 
 	class Picker {
 	    constructor() {
@@ -19970,6 +19968,8 @@
 	        if (this._vertexBuffer) {
 	            this._vertexBuffer.destroy();
 	            this._indexBuffer.destroy();
+	            var memorySize = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
+	            Laya.Resource._addMemory(-memorySize, -memorySize);
 	        }
 	        var gl = Laya.LayaGL.instance;
 	        var render = this._ownerRender;
@@ -28698,7 +28698,7 @@
 
 	var PBRVSInput = "attribute vec4 a_Position;\r\n\r\n#ifdef GPU_INSTANCE\r\n\tattribute mat4 a_MvpMatrix;\r\n\tattribute mat4 a_WorldMat;\r\n#else\r\n\tuniform mat4 u_MvpMatrix;\r\n\tuniform mat4 u_WorldMat;\r\n#endif\r\n\r\n#ifdef BONE\r\n\tconst int c_MaxBoneCount = 24;\r\n\tattribute vec4 a_BoneIndices;\r\n\tattribute vec4 a_BoneWeights;\r\n\tuniform mat4 u_Bones[c_MaxBoneCount];\r\n#endif\r\n\r\nattribute vec3 a_Normal;\r\nvarying vec3 v_Normal; \r\n\r\n#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)\r\n\tattribute vec4 a_Tangent0;\r\n\tvarying vec3 v_Tangent;\r\n\tvarying vec3 v_Binormal;\r\n    #ifdef PARALLAXTEXTURE\r\n\t    varying vec3 v_ViewDirForParallax;\r\n    #endif\r\n#endif\r\n\r\n#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)||(defined(LIGHTMAP)&&defined(UV))\r\n\tattribute vec2 a_Texcoord0;\r\n\tvarying vec2 v_Texcoord0;\r\n#endif\r\n\r\n#if defined(LIGHTMAP)&&defined(UV1)\r\n\tattribute vec2 a_Texcoord1;\r\n#endif\r\n\r\n#ifdef LIGHTMAP\r\n\tuniform vec4 u_LightmapScaleOffset;\r\n\tvarying vec2 v_LightMapUV;\r\n#endif\r\n\r\nuniform vec3 u_CameraPos;\r\nvarying vec3 v_EyeVec;\r\nvarying vec3 v_PositionWorld;\r\nvarying float v_posViewZ;\r\n\r\n#ifdef RECEIVESHADOW\r\n\t#ifdef SHADOWMAP_PSSM1 \r\n\tvarying vec4 v_lightMVPPos;\r\n\tuniform mat4 u_lightShadowVP[4];\r\n\t#endif\r\n#endif\r\n\r\n#ifdef TILINGOFFSET\r\n\tuniform vec4 u_TilingOffset;\r\n#endif";
 
-	var PBRFSInput = "#ifdef ALPHATEST\r\n\tuniform float u_AlphaTestValue;\r\n#endif\r\n\r\nuniform vec4 u_AlbedoColor;\r\n\r\n#ifdef NORMALTEXTURE\r\n\tuniform sampler2D u_NormalTexture;\r\n\tuniform float u_NormalScale;\r\n#endif\r\n\r\n#ifdef ALBEDOTEXTURE\r\n\tuniform sampler2D u_AlbedoTexture;\r\n#endif\r\n\r\n#ifdef METALLICGLOSSTEXTURE\r\n\tuniform sampler2D u_MetallicGlossTexture;\r\n#endif\r\nuniform float u_Metallic;\r\n\r\n#ifdef SPECULARGLOSSTEXTURE\r\n\tuniform sampler2D u_SpecGlossTexture;\r\n#endif\r\nuniform vec3 u_SpecularColor;\r\n\r\nuniform float u_Smoothness;\r\nuniform float u_SmoothnessScale;\r\n\r\n#ifdef PARALLAXTEXTURE\r\n\tuniform sampler2D u_ParallaxTexture;\r\n\tuniform float u_ParallaxScale;\r\n\tvarying vec3 v_ViewDirForParallax;\r\n#endif\r\n\r\n#ifdef OCCLUSIONTEXTURE\r\n\tuniform sampler2D u_OcclusionTexture;\r\n\tuniform float u_occlusionStrength;\r\n#endif\r\n\r\n#ifdef EMISSION \r\n\t#ifdef EMISSIONTEXTURE\r\n\t\tuniform sampler2D u_EmissionTexture;\r\n\t#endif\r\n\tuniform vec4 u_EmissionColor;\r\n#endif\r\n\r\n#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)\r\n\tvarying vec2 v_Texcoord0;\r\n#endif\r\n\r\n#ifdef LIGHTMAP\r\n\tvarying vec2 v_LightMapUV;\r\n\tuniform sampler2D u_LightMap;\r\n#endif\r\n\r\nvarying vec3 v_Normal; \r\n\r\n#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)\r\n\t#ifdef LEGACYSINGLELIGHTING\r\n\t\t#ifdef DIRECTIONLIGHT\r\n\t\t\tuniform DirectionLight u_DirectionLight;\r\n\t\t#endif\r\n\t\t#ifdef POINTLIGHT\r\n\t\t\tuniform PointLight u_PointLight;\r\n\t\t#endif\r\n\t\t#ifdef SPOTLIGHT\r\n\t\t\tuniform SpotLight u_SpotLight;\r\n\t\t#endif\r\n\t#else\r\n\t\tuniform mat4 u_View;\r\n\t\tuniform vec4 u_ProjectionParams;\r\n\t\tuniform vec4 u_Viewport;\r\n\t\tuniform int u_DirationLightCount;\r\n\t\tuniform sampler2D u_LightBuffer;\r\n\t\tuniform sampler2D u_LightClusterBuffer;\r\n\t#endif\r\n#endif\r\n\r\nvarying vec3 v_EyeVec;\r\n\r\n#ifdef NORMALTEXTURE\r\n\tvarying vec3 v_Tangent;\r\n\tvarying vec3 v_Binormal;\r\n#endif\r\n\r\n\r\n//后面考虑宏TODO\r\nvarying vec3 v_PositionWorld;\r\n\r\nvarying float v_posViewZ;\r\n#ifdef RECEIVESHADOW\r\n\t#if defined(SHADOWMAP_PSSM2)||defined(SHADOWMAP_PSSM3)\r\n\t\tuniform mat4 u_lightShadowVP[4];\r\n\t#endif\r\n\t#ifdef SHADOWMAP_PSSM1 \r\n\t\tvarying vec4 v_lightMVPPos;\r\n\t#endif\r\n#endif\r\n\r\n\r\nmediump float lerpOneTo(mediump float b, mediump float t)\r\n{\r\n    mediump float oneMinusT = 1.0 - t;\r\n    return oneMinusT + b * t;\r\n}\r\n\r\n#ifdef EMISSION \r\n\tvec3 emission(vec2 uv)\r\n\t{\r\n\t\t#ifdef EMISSIONTEXTURE\r\n\t\t\treturn texture2D(u_EmissionTexture, uv).rgb * u_EmissionColor.rgb;\r\n\t\t#else\r\n\t\t\treturn u_EmissionColor.rgb;\r\n\t\t#endif\r\n\t}\r\n#endif\r\n\r\nmediump float alpha(vec2 uv)\r\n{\r\n\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\treturn u_AlbedoColor.a;\r\n\t#else\r\n\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\treturn texture2D(u_AlbedoTexture, uv).a * u_AlbedoColor.a;\r\n\t\t#else\r\n\t\t\treturn u_AlbedoColor.a;\r\n\t\t#endif\r\n\t#endif\r\n}\r\n\r\nmediump float occlusion(vec2 uv)\r\n{\r\n\t#ifdef OCCLUSIONTEXTURE\r\n\t\tmediump float occ = texture2D(u_OcclusionTexture, uv).g;\r\n\t\treturn lerpOneTo(occ, u_occlusionStrength);\r\n\t#else\r\n\t\treturn 1.0;\r\n\t#endif\r\n}\r\n\r\nmediump vec3 albedo(vec2 uv)\r\n{\r\n\t#ifdef ALBEDOTEXTURE\r\n\t\treturn u_AlbedoColor.rgb * texture2D(u_AlbedoTexture, uv).rgb;\r\n\t#else\r\n\t\treturn u_AlbedoColor.rgb;\r\n\t#endif\r\n\t//TODO:Detail Texture\r\n}\r\n\r\nmediump vec2 metallicGloss(vec2 uv)\r\n{\r\n\tmediump vec2 ms;//x is metallic,y is smoothness\r\n\t#ifdef METALLICGLOSSTEXTURE\r\n\t\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\t\tms.x = texture2D(u_MetallicGlossTexture, uv).r;\r\n\t\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\t\tms.y = texture2D(u_AlbedoTexture, uv).a*u_SmoothnessScale;\r\n\t\t\t#else\r\n\t\t\t\tms.y = u_SmoothnessScale;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\tms = texture2D(u_MetallicGlossTexture, uv).ra;\r\n\t\t\tms.y *= u_SmoothnessScale;\r\n\t\t#endif\r\n\t#else\r\n\t\tms.x = u_Metallic;\r\n\t\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\t\tms.y = texture2D(u_AlbedoTexture, uv).a * u_SmoothnessScale;\r\n\t\t\t#else\r\n\t\t\t\tms.y = u_SmoothnessScale;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\tms.y = u_Smoothness;\r\n\t\t#endif\r\n\t#endif\r\n\treturn ms;\r\n}\r\n\r\nmediump vec4 specularGloss(vec2 uv)\r\n{\r\n\tmediump vec4 sg;\r\n\t#ifdef SPECULARGLOSSTEXTURE\r\n\t\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\t\tsg.rgb = texture2D(u_SpecGlossTexture, uv).rgb;\r\n\t\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\t\tsg.a = texture2D(u_AlbedoTexture, uv).a*u_SmoothnessScale;\r\n\t\t\t#else\r\n\t\t\t\tsg.a = u_SmoothnessScale;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\tsg = texture2D(u_SpecGlossTexture, uv);\r\n\t\t\tsg.a *= u_SmoothnessScale;\r\n\t\t#endif\r\n\t#else\r\n\t\tsg.rgb = u_SpecularColor.rgb;\r\n\t\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\t\tsg.a = texture2D(u_AlbedoTexture, uv).a * u_SmoothnessScale;\r\n\t\t\t#else\r\n\t\t\t\tsg.a = u_SmoothnessScale;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\tsg.a = u_Smoothness;\r\n\t\t#endif\r\n\t#endif\r\n\t\treturn sg;\r\n}\r\n\r\n\r\n#ifdef NORMALTEXTURE\r\n\tmediump vec3 unpackScaleNormal(mediump vec3 packednormal, mediump float bumpScale)\r\n\t{\r\n\t\tmediump vec3 normal = packednormal.xyz * 2.0 - 1.0;\r\n\t\tnormal.y=-normal.y;//NOTE:because unity to LayaAir coordSystem.\r\n\t\tnormal.xy *= bumpScale;\r\n\t\treturn normal;\r\n\t}\r\n\t\r\n\tmediump vec3 normalInTangentSpace(vec2 texcoords)\r\n\t{\r\n\t\tmediump vec3 normalTangent = unpackScaleNormal(texture2D(u_NormalTexture, texcoords).rgb,u_NormalScale);\r\n\t\treturn normalTangent;\r\n\t}\r\n#endif\r\n\r\n#ifdef PARALLAXTEXTURE\r\n\tmediump vec2 parallaxOffset1Step(mediump float h, mediump float height, mediump vec3 viewDir)\r\n\t{\r\n\t\th = h * height - height / 2.0;\r\n\t\tviewDir.z += 0.42;\r\n\t\treturn h * (viewDir.xy / viewDir.z);\r\n\t}\r\n\r\n\tvec2 parallax(vec2 texcoords, mediump vec3 viewDir)\r\n\t{\r\n\t\tmediump float h = texture2D(u_ParallaxTexture, texcoords.xy).g;\r\n\t\tvec2 offset = parallaxOffset1Step(h, u_ParallaxScale, viewDir);\r\n\t\treturn texcoords+offset;\r\n\t}\r\n#endif\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
+	var PBRFSInput = "#ifdef ALPHATEST\r\n\tuniform float u_AlphaTestValue;\r\n#endif\r\n\r\nuniform vec4 u_AlbedoColor;\r\n\r\n#ifdef NORMALTEXTURE\r\n\tuniform sampler2D u_NormalTexture;\r\n\tuniform float u_NormalScale;\r\n#endif\r\n\r\n#ifdef ALBEDOTEXTURE\r\n\tuniform sampler2D u_AlbedoTexture;\r\n#endif\r\n\r\n#ifdef METALLICGLOSSTEXTURE\r\n\tuniform sampler2D u_MetallicGlossTexture;\r\n#endif\r\nuniform float u_Metallic;\r\n\r\n#ifdef SPECULARGLOSSTEXTURE\r\n\tuniform sampler2D u_SpecGlossTexture;\r\n#endif\r\nuniform vec3 u_SpecularColor;\r\n\r\nuniform float u_Smoothness;\r\nuniform float u_SmoothnessScale;\r\n\r\n#ifdef PARALLAXTEXTURE\r\n\tuniform sampler2D u_ParallaxTexture;\r\n\tuniform float u_ParallaxScale;\r\n\tvarying vec3 v_ViewDirForParallax;\r\n#endif\r\n\r\n#ifdef OCCLUSIONTEXTURE\r\n\tuniform sampler2D u_OcclusionTexture;\r\n\tuniform float u_occlusionStrength;\r\n#endif\r\n\r\n#ifdef EMISSION \r\n\t#ifdef EMISSIONTEXTURE\r\n\t\tuniform sampler2D u_EmissionTexture;\r\n\t#endif\r\n\tuniform vec4 u_EmissionColor;\r\n#endif\r\n\r\n#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)\r\n\tvarying vec2 v_Texcoord0;\r\n#endif\r\n\r\n#ifdef LIGHTMAP\r\n\tvarying vec2 v_LightMapUV;\r\n\tuniform sampler2D u_LightMap;\r\n#endif\r\n\r\nvarying vec3 v_Normal; \r\n\r\n#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)\r\n\t#ifdef LEGACYSINGLELIGHTING\r\n\t\t#ifdef DIRECTIONLIGHT\r\n\t\t\tuniform DirectionLight u_DirectionLight;\r\n\t\t#endif\r\n\t\t#ifdef POINTLIGHT\r\n\t\t\tuniform PointLight u_PointLight;\r\n\t\t#endif\r\n\t\t#ifdef SPOTLIGHT\r\n\t\t\tuniform SpotLight u_SpotLight;\r\n\t\t#endif\r\n\t#else\r\n\t\tuniform mat4 u_View;\r\n\t\tuniform vec4 u_ProjectionParams;\r\n\t\tuniform vec4 u_Viewport;\r\n\t\tuniform int u_DirationLightCount;\r\n\t\tuniform sampler2D u_LightBuffer;\r\n\t\tuniform sampler2D u_LightClusterBuffer;\r\n\t#endif\r\n#endif\r\n\r\nvarying vec3 v_EyeVec;\r\n\r\n#ifdef NORMALTEXTURE\r\n\tvarying vec3 v_Tangent;\r\n\tvarying vec3 v_Binormal;\r\n#endif\r\n\r\n#ifdef FOG\r\n\tuniform float u_FogStart;\r\n\tuniform float u_FogRange;\r\n\tuniform vec3 u_FogColor;\r\n#endif\r\n\r\n\r\n//后面考虑宏TODO\r\nvarying vec3 v_PositionWorld;\r\n\r\nvarying float v_posViewZ;\r\n#ifdef RECEIVESHADOW\r\n\t#if defined(SHADOWMAP_PSSM2)||defined(SHADOWMAP_PSSM3)\r\n\t\tuniform mat4 u_lightShadowVP[4];\r\n\t#endif\r\n\t#ifdef SHADOWMAP_PSSM1 \r\n\t\tvarying vec4 v_lightMVPPos;\r\n\t#endif\r\n#endif\r\n\r\n\r\nmediump float lerpOneTo(mediump float b, mediump float t)\r\n{\r\n    mediump float oneMinusT = 1.0 - t;\r\n    return oneMinusT + b * t;\r\n}\r\n\r\n#ifdef EMISSION \r\n\tvec3 emission(vec2 uv)\r\n\t{\r\n\t\t#ifdef EMISSIONTEXTURE\r\n\t\t\treturn texture2D(u_EmissionTexture, uv).rgb * u_EmissionColor.rgb;\r\n\t\t#else\r\n\t\t\treturn u_EmissionColor.rgb;\r\n\t\t#endif\r\n\t}\r\n#endif\r\n\r\nmediump float alpha(vec2 uv)\r\n{\r\n\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\treturn u_AlbedoColor.a;\r\n\t#else\r\n\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\treturn texture2D(u_AlbedoTexture, uv).a * u_AlbedoColor.a;\r\n\t\t#else\r\n\t\t\treturn u_AlbedoColor.a;\r\n\t\t#endif\r\n\t#endif\r\n}\r\n\r\nmediump float occlusion(vec2 uv)\r\n{\r\n\t#ifdef OCCLUSIONTEXTURE\r\n\t\tmediump float occ = texture2D(u_OcclusionTexture, uv).g;\r\n\t\treturn lerpOneTo(occ, u_occlusionStrength);\r\n\t#else\r\n\t\treturn 1.0;\r\n\t#endif\r\n}\r\n\r\nmediump vec3 albedo(vec2 uv)\r\n{\r\n\t#ifdef ALBEDOTEXTURE\r\n\t\treturn u_AlbedoColor.rgb * texture2D(u_AlbedoTexture, uv).rgb;\r\n\t#else\r\n\t\treturn u_AlbedoColor.rgb;\r\n\t#endif\r\n\t//TODO:Detail Texture\r\n}\r\n\r\nmediump vec2 metallicGloss(vec2 uv)\r\n{\r\n\tmediump vec2 ms;//x is metallic,y is smoothness\r\n\t#ifdef METALLICGLOSSTEXTURE\r\n\t\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\t\tms.x = texture2D(u_MetallicGlossTexture, uv).r;\r\n\t\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\t\tms.y = texture2D(u_AlbedoTexture, uv).a*u_SmoothnessScale;\r\n\t\t\t#else\r\n\t\t\t\tms.y = u_SmoothnessScale;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\tms = texture2D(u_MetallicGlossTexture, uv).ra;\r\n\t\t\tms.y *= u_SmoothnessScale;\r\n\t\t#endif\r\n\t#else\r\n\t\tms.x = u_Metallic;\r\n\t\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\t\tms.y = texture2D(u_AlbedoTexture, uv).a * u_SmoothnessScale;\r\n\t\t\t#else\r\n\t\t\t\tms.y = u_SmoothnessScale;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\tms.y = u_Smoothness;\r\n\t\t#endif\r\n\t#endif\r\n\treturn ms;\r\n}\r\n\r\nmediump vec4 specularGloss(vec2 uv)\r\n{\r\n\tmediump vec4 sg;\r\n\t#ifdef SPECULARGLOSSTEXTURE\r\n\t\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\t\tsg.rgb = texture2D(u_SpecGlossTexture, uv).rgb;\r\n\t\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\t\tsg.a = texture2D(u_AlbedoTexture, uv).a*u_SmoothnessScale;\r\n\t\t\t#else\r\n\t\t\t\tsg.a = u_SmoothnessScale;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\tsg = texture2D(u_SpecGlossTexture, uv);\r\n\t\t\tsg.a *= u_SmoothnessScale;\r\n\t\t#endif\r\n\t#else\r\n\t\tsg.rgb = u_SpecularColor.rgb;\r\n\t\t#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA\r\n\t\t\t#ifdef ALBEDOTEXTURE\r\n\t\t\t\tsg.a = texture2D(u_AlbedoTexture, uv).a * u_SmoothnessScale;\r\n\t\t\t#else\r\n\t\t\t\tsg.a = u_SmoothnessScale;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\tsg.a = u_Smoothness;\r\n\t\t#endif\r\n\t#endif\r\n\t\treturn sg;\r\n}\r\n\r\n\r\n#ifdef NORMALTEXTURE\r\n\tmediump vec3 unpackScaleNormal(mediump vec3 packednormal, mediump float bumpScale)\r\n\t{\r\n\t\tmediump vec3 normal = packednormal.xyz * 2.0 - 1.0;\r\n\t\tnormal.y=-normal.y;//NOTE:because unity to LayaAir coordSystem.\r\n\t\tnormal.xy *= bumpScale;\r\n\t\treturn normal;\r\n\t}\r\n\t\r\n\tmediump vec3 normalInTangentSpace(vec2 texcoords)\r\n\t{\r\n\t\tmediump vec3 normalTangent = unpackScaleNormal(texture2D(u_NormalTexture, texcoords).rgb,u_NormalScale);\r\n\t\treturn normalTangent;\r\n\t}\r\n#endif\r\n\r\n#ifdef PARALLAXTEXTURE\r\n\tmediump vec2 parallaxOffset1Step(mediump float h, mediump float height, mediump vec3 viewDir)\r\n\t{\r\n\t\th = h * height - height / 2.0;\r\n\t\tviewDir.z += 0.42;\r\n\t\treturn h * (viewDir.xy / viewDir.z);\r\n\t}\r\n\r\n\tvec2 parallax(vec2 texcoords, mediump vec3 viewDir)\r\n\t{\r\n\t\tmediump float h = texture2D(u_ParallaxTexture, texcoords.xy).g;\r\n\t\tvec2 offset = parallaxOffset1Step(h, u_ParallaxScale, viewDir);\r\n\t\treturn texcoords+offset;\r\n\t}\r\n#endif\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
 
 	var PBRVSShadow = "void main_castShadow()\r\n{\r\n\tvec4 position;\r\n\t#ifdef BONE\r\n\t\tmat4 skinTransform = u_Bones[int(a_BoneIndices.x)] * a_BoneWeights.x;\r\n\t\tskinTransform += u_Bones[int(a_BoneIndices.y)] * a_BoneWeights.y;\r\n\t\tskinTransform += u_Bones[int(a_BoneIndices.z)] * a_BoneWeights.z;\r\n\t\tskinTransform += u_Bones[int(a_BoneIndices.w)] * a_BoneWeights.w;\r\n\t\tposition=skinTransform*a_Position;\r\n\t#else\r\n\t\tposition=a_Position;\r\n\t#endif\r\n\t#ifdef GPU_INSTANCE\r\n\t\tgl_Position = a_MvpMatrix * position;\r\n\t#else\r\n\t\tgl_Position = u_MvpMatrix * position;\r\n\t#endif\r\n\t\r\n\t//TODO没考虑UV动画呢\r\n\t#if defined(ALBEDOTEXTURE)&&defined(ALPHATEST)\r\n\t\tv_Texcoord0=a_Texcoord0;\r\n\t#endif\r\n\tgl_Position=remapGLPositionZ(gl_Position);\r\n\tv_posViewZ = gl_Position.z;\r\n}";
 
@@ -31304,19 +31304,11 @@
 	    }
 	    _onEnable() {
 	        this.owner._scene._addScript(this);
-	        var proto = Script3D.prototype;
-	        if (this.onKeyDown !== proto.onKeyDown)
-	            Laya.Laya.stage.on(Laya.Event.KEY_DOWN, this, this.onKeyDown);
-	        if (this.onKeyPress !== proto.onKeyPress)
-	            Laya.Laya.stage.on(Laya.Event.KEY_PRESS, this, this.onKeyUp);
-	        if (this.onKeyUp !== proto.onKeyUp)
-	            Laya.Laya.stage.on(Laya.Event.KEY_UP, this, this.onKeyUp);
 	        this.onEnable();
 	    }
 	    _onDisable() {
 	        this.owner._scene._removeScript(this);
 	        this.owner.offAllCaller(this);
-	        Laya.Laya.stage.offAllCaller(this);
 	        this.onDisable();
 	    }
 	    _onDestroy() {
@@ -31383,12 +31375,6 @@
 	    onMouseOver() {
 	    }
 	    onMouseOut() {
-	    }
-	    onKeyDown(e) {
-	    }
-	    onKeyPress(e) {
-	    }
-	    onKeyUp(e) {
 	    }
 	    onUpdate() {
 	    }

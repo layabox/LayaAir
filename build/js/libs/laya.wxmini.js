@@ -608,6 +608,11 @@ window.wxMiniGame = function (exports, Laya) {
 	        var model = MiniAdpter.systemInfo.model;
 	        var system = MiniAdpter.systemInfo.system;
 	        if (model.indexOf("iPhone") != -1) {
+	            if (model.indexOf("iPhone 6<") != -1) {
+	                if (Laya.Browser.window.Config) {
+	                    Laya.Browser.window.Config.allowGPUInstanceDynamicBatch = false;
+	                }
+	            }
 	            Laya.Browser.onIPhone = true;
 	            Laya.Browser.onIOS = true;
 	            Laya.Browser.onIPad = true;
@@ -861,14 +866,14 @@ window.wxMiniGame = function (exports, Laya) {
 	            var tempUrl = Laya.URL.formatURL(url);
 	            if (url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1 && (tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1)) {
 	                if (MiniAdpter.isZiYu) {
-	                    thisLoader._loadImage(url, false);
+	                    thisLoader._loadImage(url);
 	                }
 	                else {
 	                    MiniFileMgr.downOtherFiles(tempUrl, new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 	                }
 	            }
 	            else
-	                thisLoader._loadImage(url, false);
+	                thisLoader._loadImage(url);
 	        }
 	        else {
 	            MiniLoader.onCreateImage(url, thisLoader);

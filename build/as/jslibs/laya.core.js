@@ -12153,7 +12153,14 @@ window.Laya= (function (exports) {
             this.lock = true;
         }
         clear() {
-            this._ctx && this._ctx.clear && this._ctx.clear();
+            if (this._ctx) {
+                if (this._ctx.clear) {
+                    this._ctx.clear();
+                }
+                else {
+                    this._ctx.clearRect(0, 0, this._width, this._height);
+                }
+            }
             if (this._texture) {
                 this._texture.destroy();
                 this._texture = null;
@@ -13155,8 +13162,10 @@ window.Laya= (function (exports) {
             if (this._components) {
                 for (var i = 0, n = this._components.length; i < n; i++) {
                     var comp = this._components[i];
-                    comp._setActive(true);
-                    (comp._isScript() && comp._enabled) && (activeChangeScripts.push(comp));
+                    if (comp._isScript())
+                        (comp._enabled) && (activeChangeScripts.push(comp));
+                    else
+                        comp._setActive(true);
                 }
             }
             this._onActive();
@@ -13171,8 +13180,14 @@ window.Laya= (function (exports) {
             this.onEnable();
         }
         _activeScripts() {
-            for (var i = 0, n = this._activeChangeScripts.length; i < n; i++)
-                this._activeChangeScripts[i].onEnable();
+            for (var i = 0, n = this._activeChangeScripts.length; i < n; i++) {
+                var comp = this._activeChangeScripts[i];
+                if (!comp._awaked) {
+                    comp._awaked = true;
+                    comp._onAwake();
+                }
+                comp._onEnable();
+            }
             this._activeChangeScripts.length = 0;
         }
         _processInActive() {
@@ -16419,8 +16434,8 @@ window.Laya= (function (exports) {
                     break;
             }
             if (this.useRetinalCanvas) {
-                canvasWidth = screenWidth;
-                canvasHeight = screenHeight;
+                realWidth = canvasWidth = screenWidth;
+                realHeight = canvasHeight = screenHeight;
             }
             scaleX *= this.scaleX;
             scaleY *= this.scaleY;
@@ -18582,41 +18597,10 @@ window.Laya= (function (exports) {
             }
             else {
                 var ext = Utils.getFileExtension(url);
-                if (ext === "ktx" || ext === "pvr") {
-                    onLoaded = function (imageData) {
-                        let format;
-                        switch (ext) {
-                            case "ktx":
-                                format = exports.TextureFormat.ETC1RGB;
-                                break;
-                            case "pvr":
-                                format = exports.TextureFormat.PVRTCRGBA_4BPPV;
-                                break;
-                            default: {
-                                console.error('unknown format', ext);
-                                return;
-                            }
-                        }
-                        var tex = new Texture2D(0, 0, format, false, false);
-                        tex.wrapModeU = exports.WarpMode.Clamp;
-                        tex.wrapModeV = exports.WarpMode.Clamp;
-                        tex.setCompressData(imageData);
-                        tex._setCreateURL(url);
-                        _this.onLoaded(tex);
-                    };
-                    this._loadHttpRequest(url, Loader.BUFFER, this, onLoaded, null, null, this, onError);
-                }
-                else {
-                    onLoaded = function (image) {
-                        var tex = new Texture2D(image.width, image.height, 1, false, false);
-                        tex.wrapModeU = exports.WarpMode.Clamp;
-                        tex.wrapModeV = exports.WarpMode.Clamp;
-                        tex.loadImageSource(image, true);
-                        tex._setCreateURL(url);
-                        _this.onLoaded(tex);
-                    };
-                    this._loadHtmlImage(url, this, onLoaded, this, onError);
-                }
+                if (ext === "ktx" || ext === "pvr")
+                    this._loadHttpRequest(url, Loader.BUFFER, this, this.onLoaded, this, this.onProgress, this, this.onError);
+                else
+                    this._loadHtmlImage(url, this, this.onLoaded, this, onError);
             }
         }
         _loadSound(url) {
@@ -18658,9 +18642,37 @@ window.Laya= (function (exports) {
                 this.complete(data);
             }
             else if (type === Loader.IMAGE) {
-                var tex = new Texture(data);
-                tex.url = this._url;
-                this.complete(tex);
+                if (data instanceof ArrayBuffer) {
+                    var ext = Utils.getFileExtension(this._url);
+                    let format;
+                    switch (ext) {
+                        case "ktx":
+                            format = exports.TextureFormat.ETC1RGB;
+                            break;
+                        case "pvr":
+                            format = exports.TextureFormat.PVRTCRGBA_4BPPV;
+                            break;
+                        default: {
+                            console.error('unknown format', ext);
+                            return;
+                        }
+                    }
+                    var tex = new Texture2D(0, 0, format, false, false);
+                    tex.wrapModeU = exports.WarpMode.Clamp;
+                    tex.wrapModeV = exports.WarpMode.Clamp;
+                    tex.setCompressData(data);
+                    tex._setCreateURL(url);
+                }
+                else {
+                    var tex = new Texture2D(data.width, data.height, 1, false, false);
+                    tex.wrapModeU = exports.WarpMode.Clamp;
+                    tex.wrapModeV = exports.WarpMode.Clamp;
+                    tex.loadImageSource(data, true);
+                    tex._setCreateURL(this.url);
+                }
+                var texture = new Texture(tex);
+                texture.url = this._url;
+                this.complete(texture);
             }
             else if (type === Loader.SOUND || type === "htmlimage" || type === "nativeimage") {
                 this.complete(data);
@@ -22356,7 +22368,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.5.0beta";
+    Laya.version = "2.5.0";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;
@@ -23757,10 +23769,10 @@ window.Laya= (function (exports) {
         }
         static destroy(url, name = "") {
             var flag = false;
-            var list = Scene.unDestroyedScenes;
+            var list = [].concat(Scene.unDestroyedScenes);
             for (var i = 0, n = list.length; i < n; i++) {
                 var scene = list[i];
-                if (scene.url === url && scene.name == name) {
+                if (scene.url === url && scene.name == name && !scene.destroyed) {
                     scene.destroy();
                     flag = true;
                 }

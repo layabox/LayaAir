@@ -856,14 +856,14 @@ window.bdMiniGame = function (exports, Laya) {
 	            var tempUrl = Laya.URL.formatURL(url);
 	            if (url.indexOf(BMiniAdapter.window.swan.env.USER_DATA_PATH) == -1 && (tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1)) {
 	                if (BMiniAdapter.isZiYu) {
-	                    thisLoader._loadImage(url, false);
+	                    thisLoader._loadImage(url);
 	                }
 	                else {
 	                    MiniFileMgr.downOtherFiles(tempUrl, new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 	                }
 	            }
 	            else
-	                thisLoader._loadImage(url, false);
+	                thisLoader._loadImage(url);
 	        }
 	        else {
 	            MiniLoader.onCreateImage(url, thisLoader);

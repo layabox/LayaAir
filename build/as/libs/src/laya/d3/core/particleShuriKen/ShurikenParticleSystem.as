@@ -238,8 +238,7 @@ package laya.d3.core.particleShuriKen {
 		}
 
 		/**
-		 * 获取一次循环内的累计时间。
-		 * @return 一次循环内的累计时间。
+		 * 一次循环内的累计时间。
 		 */
 		public function get emissionTime():Number{
 				return null;
