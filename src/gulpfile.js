@@ -261,6 +261,14 @@ gulp.task('CopyTSFileToTS', () => {
         .pipe(gulp.dest('../build/ts_new/libs'));
 });
 
+//拷贝第三方库至ts库(未来在数组中补充需要的其他第三方库)
+gulp.task('CopyTSJSLibsFileToTS', () => {
+    return gulp.src([
+        './layaAir/jsLibs/**/*.*'])
+        .pipe(gulp.dest('../build/ts_new/jslibs'));
+});
+
+
 gulp.task('CopyDTS', (cb) => {
     gulp.src(['../tslibs/ts/*.*'])
         .pipe(gulp.dest('../build/js/ts'))
@@ -320,4 +328,4 @@ gulp.task('buildJS', async function () {
     }
 });
 
-gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyJSFileToTSCompatible', 'CopyDTS'));
+gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS'));
