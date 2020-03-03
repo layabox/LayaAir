@@ -411,7 +411,7 @@ export class Loader extends EventDispatcher {
 			this.complete(data);
 		} else if (type === Loader.ATLAS) {
 			//处理图集
-			if (!(data instanceof Image)) {
+			if (!(data instanceof Image)||!(data instanceof Texture2D)) {
 				var toloadPics: string[] = [];
 				if (!this._data) {
 					this._data = data;
@@ -455,12 +455,15 @@ export class Loader extends EventDispatcher {
 				this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
 				return this._loadResourceFilter(Loader.IMAGE, toloadPics.pop() as string);
 			} else {
-				var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
-				tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-				tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-				tex.loadImageSource(data, true);
-				tex._setCreateURL(data.src);
-				data = tex;
+				if((data instanceof Image))
+				{
+					var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+					tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
+					tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+					tex.loadImageSource(data, true);
+					tex._setCreateURL(data.src);
+					data = tex;
+				}
 				this._data.pics.push(data);
 				if (this._data.toLoads.length > 0) {
 					this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);
