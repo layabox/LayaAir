@@ -122,11 +122,11 @@ float sampleShadowmap(vec4 shadowCoord)
 
 vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
 {
-    float invNdotL = 1.0 - clamp(dot(lightDirection, normalWS),0.0,1.0);
+    float invNdotL = 1.0 - clamp(dot(-lightDirection, normalWS),0.0,1.0);
     float scale = invNdotL * u_ShadowBias.y;
 
     // normal bias is negative since we want to apply an inset normal offset
-    positionWS += lightDirection * vec3(u_ShadowBias);
+    positionWS += -lightDirection * u_ShadowBias.xxx;
     positionWS += normalWS * vec3(scale);
     return positionWS;
 }
