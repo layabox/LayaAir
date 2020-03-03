@@ -80,7 +80,7 @@ export class Shader3D {
 
 
 	/**是否开启调试模式。 */
-	static debugMode: boolean = true;
+	static debugMode: boolean = false;
 	/**调试着色器变种集合。 */
 	static readonly debugShaderVariantCollection: ShaderVariantCollection = new ShaderVariantCollection();
 
@@ -177,12 +177,6 @@ export class Shader3D {
 					compileDefineDatas.clear();
 					for (var i: number = 0, n: number = defineNames.length; i < n; i++)
 						compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
-
-					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
-					if (LayaGL.layaGPUInstance._isWebGL2)
-						compileDefineDatas.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
-					else
-						compileDefineDatas.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
 					pass.withCompile(compileDefineDatas);
 				} else {
 					console.warn("Shader3D: unknown passIndex.");
@@ -276,12 +270,6 @@ export class Shader3D {
 					for (var i: number = 0, n: number = defineMask.length; i < n; i++)
 						mask.push(defineMask[i]);
 					compileDefineDatas._length = defineMask.length;
-
-					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
-					if (LayaGL.layaGPUInstance._isWebGL2)
-						compileDefineDatas.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
-					else
-						compileDefineDatas.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
 					pass.withCompile(compileDefineDatas);
 
 				} else {

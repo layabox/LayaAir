@@ -24,9 +24,9 @@ export class WebGLContext {
     /**@internal */
     private static _blendEquationAlpha: number;
     /**@internal */
-    private static __sFactor: number;
+    private static _sFactor: number;
     /**@internal */
-    private static __dFactor: number;
+    private static _dFactor: number;
     /**@internal */
     private static _sFactorRGB: number;
     /**@internal */
@@ -64,22 +64,6 @@ export class WebGLContext {
         WebGLContext._dFactorAlpha = gl.ZERO;
         WebGLContext._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0
         WebGLContext._glTextureIDs = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7];
-    }
-
-    static get _sFactor() {
-        return WebGLContext.__sFactor;
-    }
-
-    static set _sFactor(value) {
-        WebGLContext.__sFactor = value;
-    }
-
-    static get _dFactor() {
-        return WebGLContext.__dFactor;
-    }
-
-    static set _dFactor(value) {
-        WebGLContext.__dFactor = value;
     }
 
 	/**
@@ -148,8 +132,8 @@ export class WebGLContext {
 	/**
 	 * @internal
 	 */
-    static setBlendFunc(gl: WebGLRenderingContext, sFactor: number, dFactor: number): void {
-        if (sFactor !== WebGLContext._sFactor || dFactor !== WebGLContext._dFactor) {
+    static setBlendFunc(gl: WebGLRenderingContext, sFactor: number, dFactor: number,force:boolean=false): void {
+        if (force || sFactor !== WebGLContext._sFactor || dFactor !== WebGLContext._dFactor) {
             WebGLContext._sFactor = sFactor;
             WebGLContext._dFactor = dFactor;
             WebGLContext._sFactorRGB = null;

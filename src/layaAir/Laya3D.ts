@@ -96,7 +96,7 @@ import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { MeshReader } from "./laya/d3/loaders/MeshReader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
-import { ShadowUtils } from "./laya/d3/core/light/ShdowUtils";
+import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */

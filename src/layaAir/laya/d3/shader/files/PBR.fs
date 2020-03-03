@@ -7,12 +7,11 @@
 #endif
 
 #include "Lighting.glsl";
+#include "Shadow.glsl"
 #include "PBRFSInput.glsl";
 #include "LayaPBRBRDF.glsl";
 #include "GlobalIllumination.glsl";
-#include "ShadowHelper.glsl"
 #include "PBRCore.glsl";
-
 
 void main()
 {

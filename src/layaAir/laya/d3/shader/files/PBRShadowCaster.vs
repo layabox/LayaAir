@@ -1,6 +1,7 @@
-#include "PBRVSShadow.glsl";
+#include "ShadowCasterVS.glsl"
+
 void main()
 {
-	vertexShadowCaster();
-	gl_Position=remapGLPositionZ(gl_Position);
+	vec4 positionCS =  shadowCasterVertex();
+	gl_Position=remapGLPositionZ(positionCS);
 }

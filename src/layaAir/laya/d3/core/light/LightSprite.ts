@@ -1,8 +1,6 @@
 import { Config3D } from "../../../../Config3D";
 import { Node } from "../../../display/Node";
 import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
-import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { ShadowMode } from "./ShadowMode";
@@ -28,21 +26,18 @@ export class LightSprite extends Sprite3D {
 	static LIGHTMAPBAKEDTYPE_BAKED: number = 2;
 
 	/** @internal */
+	protected _shadowMode: ShadowMode = ShadowMode.None;
+
+	/** @internal */
 	_isAlternate: boolean = false;
 	/** @internal */
 	_intensityColor: Vector3;
-
 	/** @internal */
 	_intensity: number;
 	/** @internal */
-	protected _shadowMode: ShadowMode = ShadowMode.None;
+	_shadowResolution: number = 2048;
 	/** @internal */
-	protected _shadowDistance: number = 50;
-	/** @internal */
-	protected _shadowResolution: number = 2048;
-	/** @internal */
-	protected _shadowBias: Vector4 = new Vector4();
-
+	_shadowDistance: number = 50.0;
 	/** @internal */
 	_shadowDepthBias: number = 1.0;
 	/** @internal */
@@ -78,6 +73,7 @@ export class LightSprite extends Sprite3D {
 	}
 
 	set shadowMode(value: ShadowMode) {
+		this._shadowMode = value
 	}
 
 	/**
@@ -89,7 +85,6 @@ export class LightSprite extends Sprite3D {
 
 	set shadowDistance(value: number) {
 		this._shadowDistance = value;
-		Scene3D._shadowCasterPass._maxDistance = value;
 	}
 
 	/**
@@ -101,7 +96,6 @@ export class LightSprite extends Sprite3D {
 
 	set shadowResolution(value: number) {
 		this._shadowResolution = value;
-		Scene3D._shadowCasterPass.setShadowMapTextureSize(value);
 	}
 
 	/**
@@ -113,7 +107,6 @@ export class LightSprite extends Sprite3D {
 
 	set shadowDepthBias(value: number) {
 		this._shadowDepthBias = value;
-		//todo:
 	}
 
 	/**
@@ -125,7 +118,6 @@ export class LightSprite extends Sprite3D {
 
 	set shadowNormalBias(value: number) {
 		this._shadowNormalBias = value;
-		//todo:
 	}
 
 	/**

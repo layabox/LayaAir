@@ -19,7 +19,7 @@ import { WebGLContext } from "../../../webgl/WebGLContext";
 import { Animator } from "../../component/Animator";
 import { Script3D } from "../../component/Script3D";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
-import { FrustumCulling } from "../../graphics/FrustumCulling";
+import { FrustumCulling, CameraCullInfo } from "../../graphics/FrustumCulling";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
 import { Input3D } from "../../Input3D";
@@ -58,6 +58,7 @@ import { BoundsOctree } from "./BoundsOctree";
 import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
+import { DefineDatas } from "../../shader/DefineDatas";
 
 /**
  * 环境光模式
@@ -131,17 +132,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static SPOTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_SpotLight.color");
 	//------------------legacy lighting-------------------------------
 
-
-	static SHADOWDISTANCE: number = Shader3D.propertyNameToID("u_shadowPSSMDistance");
-	static SHADOWLIGHTVIEWPROJECT: number = Shader3D.propertyNameToID("u_lightShadowVP");
-	static SHADOWMAPPCFOFFSET: number = Shader3D.propertyNameToID("u_shadowPCFoffset");
-	static SHADOWMAPTEXTURE1: number = Shader3D.propertyNameToID("u_shadowMap1");
-	static SHADOWMAPTEXTURE2: number = Shader3D.propertyNameToID("u_shadowMap2");
-	static SHADOWMAPTEXTURE3: number = Shader3D.propertyNameToID("u_shadowMap3");
-
 	static AMBIENTCOLOR: number = Shader3D.propertyNameToID("u_AmbientColor");
 	static REFLECTIONTEXTURE: number = Shader3D.propertyNameToID("u_ReflectTexture");
 	static TIME: number = Shader3D.propertyNameToID("u_Time");
+
+	/** @internal */
+	static _configDefineValues: DefineDatas = new DefineDatas();
 
 
 	/**
@@ -164,14 +160,30 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT = Shader3D.getDefineByName("DIRECTIONLIGHT");
 		Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT = Shader3D.getDefineByName("POINTLIGHT");
 		Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT = Shader3D.getDefineByName("SPOTLIGHT");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1 = Shader3D.getDefineByName("SHADOWMAP_PSSM1");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2 = Shader3D.getDefineByName("SHADOWMAP_PSSM2");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3 = Shader3D.getDefineByName("SHADOWMAP_PSSM3");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO = Shader3D.getDefineByName("SHADOWMAP_PCF_NO");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1 = Shader3D.getDefineByName("SHADOWMAP_PCF1");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2 = Shader3D.getDefineByName("SHADOWMAP_PCF2");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.getDefineByName("SHADOWMAP_PCF3");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW = Shader3D.getDefineByName("SHADOW");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE = Shader3D.getDefineByName("SHADOW_CASCADE");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_LOW");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_HIGH");
 		Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH = Shader3D.getDefineByName("GI_AMBIENT_SH");
+
+
+		var config: Config3D = Config3D._config;
+		var configShaderValue: DefineDatas = Scene3D._configDefineValues;
+		(config._multiLighting) || (configShaderValue.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+		if (LayaGL.layaGPUInstance._isWebGL2)
+			configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
+		else
+			configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
+		switch (config.pbrRenderQuality) {
+			case PBRRenderQuality.High:
+				configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH)
+				break;
+			case PBRRenderQuality.Low:
+				configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW)
+				break;
+			default:
+				throw "Scene3D:unknown shader quality.";
+		}
 	}
 
 
@@ -524,22 +536,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.reflection = TextureCube.blackTexture;
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
-		var config: Config3D = Config3D._config;
-		(config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
-		if (LayaGL.layaGPUInstance._isWebGL2)
-			this._shaderValues.addDefine(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
-		else
-			this._shaderValues.addDefine(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
-		switch (config.pbrRenderQuality) {
-			case PBRRenderQuality.High:
-				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH)
-				break;
-			case PBRRenderQuality.Low:
-				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW)
-				break;
-			default:
-				throw "Scene3D:unknown shader quality.";
-		}
 
 		this._shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this._reflectionCubeHDRParams);
 
@@ -877,6 +873,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		else {
 			if (this._directionLights._length > 0) {
 				var dirLight: DirectionLight = this._directionLights._elements[0];
+				this._mainLight = dirLight;
 				Vector3.scale(dirLight.color, dirLight._intensity, dirLight._intensityColor);
 
 				dirLight.transform.worldMatrix.getForward(dirLight._direction);
@@ -982,7 +979,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_preCulling(context: RenderContext3D, camera: Camera, shader: Shader3D, replacementTag: string): void {
-		FrustumCulling.renderObjectCulling(camera, this, context, shader, replacementTag, false);
+		var cameraCullInfo: CameraCullInfo = FrustumCulling._cameraCullInfo;
+		cameraCullInfo.position = camera._transform.position;
+		cameraCullInfo.cullingMask = camera.cullingMask;
+		cameraCullInfo.boundFrustum = camera.boundFrustum;
+		cameraCullInfo.useOcclusionCulling = camera.useOcclusionCulling;
+		FrustumCulling.renderObjectCulling(cameraCullInfo, this, context, shader, replacementTag, false);
 	}
 
 	/**

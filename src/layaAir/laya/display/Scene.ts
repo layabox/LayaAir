@@ -388,10 +388,10 @@ export class Scene extends Sprite {
      */
     static destroy(url: string, name: string = ""): boolean {
         var flag: boolean = false;
-        var list: any[] = Scene.unDestroyedScenes;
+        var list: any[] = [].concat(Scene.unDestroyedScenes);
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             var scene: Scene = list[i];
-            if (scene.url === url && scene.name == name) {
+            if (scene.url === url && scene.name == name && !scene.destroyed) {
                 scene.destroy();
                 flag = true;
             }

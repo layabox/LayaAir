@@ -9,7 +9,7 @@ import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/Re
 import { SystemUtils } from "../../webgl/SystemUtils";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
-import { FrustumCulling } from "../graphics/FrustumCulling";
+import { FrustumCulling, CameraCullInfo, ShadowCullInfo } from "../graphics/FrustumCulling";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Matrix4x4 } from "../math/Matrix4x4";
@@ -33,6 +33,9 @@ import { Transform3D } from "./Transform3D";
 import { DirectionLight } from "./light/DirectionLight";
 import { ShadowMode } from "./light/ShadowMode";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
+import { ShadowUtils } from "./light/ShadowUtils";
+import { ShadowSliceData } from "../shadowMap/ShadowSliceData";
+import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 
 /**
  * 相机清除标记。
@@ -562,37 +565,19 @@ export class Camera extends BaseCamera {
 		//render shadowMap
 		var shadowCasterPass: ShadowCasterPass;
 		var mainLight: DirectionLight = scene._mainLight;
-		if (mainLight && mainLight.shadowMode !== ShadowMode.None) {
-			context.pipelineMode = "ShadowCaster";
-			ShaderData.setRuntimeValueMode(false);
-
+		var needShadowCasterPass: boolean = mainLight && mainLight.shadowMode !== ShadowMode.None;
+		if (needShadowCasterPass) {
+			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 			shadowCasterPass = Scene3D._shadowCasterPass;
-			shadowCasterPass._calcAllLightCameraInfo(this);
-
-			var smCamera: Camera = shadowCasterPass.cameras[0];
-			context.camera = smCamera;
-			FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag, true);
-
-			shadowCasterPass.start();
-			RenderContext3D._instance.invertY = false;//阴影不需要翻转,临时矫正，待重构处理
-			context.camera = smCamera;
-			Camera._updateMark++;
-			context.viewport = smCamera.viewport;
-			smCamera._prepareCameraToRender();
-			smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);
-			scene._clear(gl, context);
-			shadowCasterPass.tempViewPort();
-			var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
-			// gl.colorMask(false,false,false,false);
-			queue._render(context);
-			// gl.colorMask(true,true,true,true);
-			shadowCasterPass.end();
-
-			ShaderData.setRuntimeValueMode(true);
-			context.pipelineMode = "Forward";
+			shadowCasterPass.update(this, mainLight);
+			shadowCasterPass.render(context, scene);
+		}
+		else {
+			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 		}
 
 		context.camera = this;
+		context.cameraShaderValue = this._shaderValues;
 		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复
 		//TODO:webgl2 should use blitFramebuffer
@@ -643,8 +628,8 @@ export class Camera extends BaseCamera {
 			RenderTexture.recoverToPool(this._internalRenderTexture);
 		}
 
-		if (mainLight && mainLight.shadowMode !== ShadowMode.None)
-			shadowCasterPass.clear();
+		if (needShadowCasterPass)
+			shadowCasterPass.cleanUp();
 	}
 
 

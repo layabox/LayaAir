@@ -82,7 +82,8 @@ export class SkyRenderer {
 		if (this._material && this._mesh) {
 			var gl: WebGLRenderingContext = LayaGL.instance;
 			var scene: Scene3D = context.scene;
-			var camera: Camera = <Camera>context.camera;
+			var cameraShaderValue: ShaderData = context.cameraShaderValue;
+			var camera: Camera = context.camera;
 
 			var noteValue: boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
 			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
@@ -103,7 +104,7 @@ export class SkyRenderer {
 			}
 
 			var renderTex: RenderTexture = camera._getRenderTexture();
-			var uploadCamera: boolean = (shader._uploadCamera !== camera) || switchShaderLoop;
+			var uploadCamera: boolean = (shader._uploadCameraShaderValue !== cameraShaderValue) || switchShaderLoop;
 			if (uploadCamera || switchShader) {
 				var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
 				var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
@@ -143,8 +144,8 @@ export class SkyRenderer {
 				projectionMatrix.elements[14] = -0;//znear无穷小
 
 				(<Camera>camera)._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
-				shader.uploadUniforms(shader._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
-				shader._uploadCamera = camera;
+				shader.uploadUniforms(shader._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
+				shader._uploadCameraShaderValue = cameraShaderValue;
 			}
 
 			var uploadMaterial: boolean = (shader._uploadMaterial !== this._material) || switchShaderLoop;
