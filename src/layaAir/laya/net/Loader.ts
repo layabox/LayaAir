@@ -310,9 +310,6 @@ export class Loader extends EventDispatcher {
 			_this.event(Event.ERROR, "Load image failed");
 		}
 		if (this._type === "nativeimage") {
-			onLoaded = (image: any) => {
-				this.onLoaded(image);
-			}
 			this._loadHtmlImage(url, this, onLoaded, this, onError);
 		} else {
 			
