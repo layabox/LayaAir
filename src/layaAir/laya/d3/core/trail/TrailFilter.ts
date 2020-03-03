@@ -239,6 +239,13 @@ export class TrailFilter {
 		this._colorGradient = null;
 	}
 
+	clear(): void {
+		(<TrailGeometry>this._trialGeometry).clear();
+		this._lastPosition.setValue(0, 0, 0);
+		this._curtime = 0;
+		this._totalLength = 0;
+	}
+
 	//--------------------------------------------------兼容---------------------------------------------------------------------
 	/** 轨迹准线_面向摄像机。*/
 	static ALIGNMENT_VIEW: number = 0;
