@@ -88,7 +88,7 @@ export class Laya {
 	/** 加载管理器的引用。*/
 	static loader: LoaderManager = null;
 	/** 当前引擎版本。*/
-	static version: string = "2.5.0beta";
+	static version: string = "2.6.0beta";
 	/**@private Render 类的引用。*/
 	static render: Render;
 	/**@internal */
@@ -278,7 +278,7 @@ export class Laya {
 	 * 表示是否捕获全局错误并弹出提示。默认为false。
 	 * 适用于移动设备等不方便调试的时候，设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈。
 	 */
-	static set alertGlobalError(value: boolean) {
+	static alertGlobalError(value: boolean) {
 		var erralert: number = 0;
 		if (value) {
 			Browser.window.onerror = function (msg: string, url: string, line: string, column: string, detail: any): void {
