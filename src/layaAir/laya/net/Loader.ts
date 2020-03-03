@@ -393,7 +393,7 @@ export class Loader extends EventDispatcher {
 					tex.wrapModeV = WarpMode.Clamp;
 					tex.setCompressData(data);
 					tex._setCreateURL(this.url);
-			} else {
+			} else if(data instanceof Image){
 				var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
 				tex.wrapModeU = WarpMode.Clamp;
 				tex.wrapModeV = WarpMode.Clamp;
