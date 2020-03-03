@@ -408,7 +408,7 @@ export class Loader extends EventDispatcher {
 			this.complete(data);
 		} else if (type === Loader.ATLAS) {
 			//处理图集
-			if (!(data instanceof Image)||!(data instanceof Texture2D)) {
+			if (!(data instanceof Image)&&!(data instanceof Texture2D)) {
 				var toloadPics: string[] = [];
 				if (!this._data) {
 					this._data = data;
