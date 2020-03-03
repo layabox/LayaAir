@@ -305,7 +305,6 @@ export class Loader extends EventDispatcher {
 		var _this = this;
 		if(isformatURL)
 			url = URL.formatURL(url);
-		var onLoaded: Function;
 		var onError: Function = function (): void {
 			_this.event(Event.ERROR, "Load image failed");
 		}
@@ -404,9 +403,17 @@ export class Loader extends EventDispatcher {
 			texture.url = this._url;
 			this.complete(texture);
 		
-		} else if (type === Loader.SOUND || type === "htmlimage" || type === "nativeimage") {
+		} else if (type === Loader.SOUND || type === "nativeimage") {
 			this.complete(data);
-		} else if (type === Loader.ATLAS) {
+		} else if(type === "htmlimage" ){
+			var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+				tex.wrapModeU = WarpMode.Clamp;
+				tex.wrapModeV = WarpMode.Clamp;
+				tex.loadImageSource(data, true);
+				tex._setCreateURL(data.src);
+				this.complete(tex);
+		}
+		 else if (type === Loader.ATLAS) {
 			//处理图集
 			if (!(data instanceof Image)&&!(data instanceof Texture2D)) {
 				var toloadPics: string[] = [];
