@@ -157,7 +157,7 @@ void fragmentForward()
 		#ifdef DIRECTIONLIGHT
 			#ifdef CALCULATE_SHADOWS
 				#ifdef SHADOW_CASCADE
-					mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+					mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
 					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
 				#else
 					vec4 shadowCoord = v_ShadowCoord;
@@ -187,7 +187,7 @@ void fragmentForward()
 					if(i == 0)
 					{
 						#ifdef SHADOW_CASCADE
-							mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+							mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
 							vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
 						#else
 							vec4 shadowCoord = v_ShadowCoord;
