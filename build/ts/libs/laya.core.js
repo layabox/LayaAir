@@ -22564,6 +22564,7 @@ window.Laya= (function (exports) {
             if (this.onPreRender !== proto.onPreRender) {
                 ILaya.lateTimer.frameLoop(1, this, this.onPreRender);
             }
+            this.onEnable();
         }
         _onDisable() {
             this.owner.offAllCaller(this);
