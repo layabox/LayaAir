@@ -98,6 +98,7 @@ export class Script extends Component {
 		if (this.onPreRender !== proto.onPreRender) {
 			ILaya.lateTimer.frameLoop(1, this, this.onPreRender);
 		}
+		this.onEnable();
 	}
 
 	/**
