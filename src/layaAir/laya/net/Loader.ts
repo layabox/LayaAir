@@ -392,7 +392,7 @@ export class Loader extends EventDispatcher {
 					tex.wrapModeV = WarpMode.Clamp;
 					tex.setCompressData(data);
 					tex._setCreateURL(this.url);
-			} else if(data instanceof Image){
+			} else if(!(data instanceof Texture2D)){
 				var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
 				tex.wrapModeU = WarpMode.Clamp;
 				tex.wrapModeV = WarpMode.Clamp;
@@ -415,7 +415,7 @@ export class Loader extends EventDispatcher {
 		}
 		 else if (type === Loader.ATLAS) {
 			//处理图集
-			if (!(data instanceof Image)&&!(data instanceof Texture2D)) {
+			if (data.frames) {
 				var toloadPics: string[] = [];
 				if (!this._data) {
 					this._data = data;
@@ -459,7 +459,7 @@ export class Loader extends EventDispatcher {
 				this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
 				return this._loadResourceFilter(Loader.IMAGE, toloadPics.pop() as string);
 			} else {
-				if((data instanceof Image))
+				if(!(data instanceof Texture2D))
 				{
 					var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
 					tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
