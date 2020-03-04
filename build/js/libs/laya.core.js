@@ -18585,15 +18585,11 @@ window.Laya= (function (exports) {
             var _this = this;
             if (isformatURL)
                 url = URL.formatURL(url);
-            var onLoaded;
             var onError = function () {
                 _this.event(Event.ERROR, "Load image failed");
             };
             if (this._type === "nativeimage") {
-                onLoaded = (image) => {
-                    this.onLoaded(image);
-                };
-                this._loadHtmlImage(url, this, onLoaded, this, onError);
+                this._loadHtmlImage(url, this, this.onLoaded, this, onError);
             }
             else {
                 var ext = Utils.getFileExtension(url);
@@ -18661,24 +18657,32 @@ window.Laya= (function (exports) {
                     tex.wrapModeU = exports.WarpMode.Clamp;
                     tex.wrapModeV = exports.WarpMode.Clamp;
                     tex.setCompressData(data);
-                    tex._setCreateURL(url);
+                    tex._setCreateURL(this.url);
                 }
-                else {
+                else if (!(data instanceof Texture2D)) {
                     var tex = new Texture2D(data.width, data.height, 1, false, false);
                     tex.wrapModeU = exports.WarpMode.Clamp;
                     tex.wrapModeV = exports.WarpMode.Clamp;
                     tex.loadImageSource(data, true);
-                    tex._setCreateURL(this.url);
+                    tex._setCreateURL(data.src);
                 }
                 var texture = new Texture(tex);
                 texture.url = this._url;
                 this.complete(texture);
             }
-            else if (type === Loader.SOUND || type === "htmlimage" || type === "nativeimage") {
+            else if (type === Loader.SOUND || type === "nativeimage") {
                 this.complete(data);
             }
+            else if (type === "htmlimage") {
+                var tex = new Texture2D(data.width, data.height, 1, false, false);
+                tex.wrapModeU = exports.WarpMode.Clamp;
+                tex.wrapModeV = exports.WarpMode.Clamp;
+                tex.loadImageSource(data, true);
+                tex._setCreateURL(data.src);
+                this.complete(tex);
+            }
             else if (type === Loader.ATLAS) {
-                if (!(data instanceof Texture2D)) {
+                if (data.frames) {
                     var toloadPics = [];
                     if (!this._data) {
                         this._data = data;
@@ -18714,6 +18718,14 @@ window.Laya= (function (exports) {
                     return this._loadResourceFilter(Loader.IMAGE, toloadPics.pop());
                 }
                 else {
+                    if (!(data instanceof Texture2D)) {
+                        var tex = new Texture2D(data.width, data.height, 1, false, false);
+                        tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
+                        tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+                        tex.loadImageSource(data, true);
+                        tex._setCreateURL(data.src);
+                        data = tex;
+                    }
                     this._data.pics.push(data);
                     if (this._data.toLoads.length > 0) {
                         this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);
