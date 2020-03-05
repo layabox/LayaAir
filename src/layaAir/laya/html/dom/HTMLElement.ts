@@ -445,7 +445,7 @@ export class HTMLElement {
         var cssStyle: HTMLStyle = this.style;
         var hasLine: boolean;
         hasLine = cssStyle.textDecoration != "none";
-        var i: number, len: number;
+        var i: number = 0, len: number;
         len = wordList.length;
         var tStartWord: HTMLChar;
         tStartWord = wordList[i];

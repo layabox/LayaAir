@@ -5,11 +5,15 @@
 #ifdef NO_NATIVE_SHADOWMAP
 	#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2D textureName
 	#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) (texture2D(textureName,coord3.xy).r<coord3.z?0.0:1.0)
-	#define TEXTURE2D_SHADOW_PARAM(shadowMap) sampler2D shadowMap
+	#define TEXTURE2D_SHADOW_PARAM(shadowMap) mediump sampler2D shadowMap
 #else
 	#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2DShadow textureName
 	#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) textureLod(textureName,coord3,0.0)
-	#define TEXTURE2D_SHADOW_PARAM(shadowMap) sampler2DShadow shadowMap
+	#define TEXTURE2D_SHADOW_PARAM(shadowMap) mediump sampler2DShadow shadowMap
+#endif
+
+#if defined(RECEIVESHADOW)&&defined(SHADOW)
+    #define CALCULATE_SHADOWS
 #endif
 
 #include "ShadowSampleTent.glsl"
@@ -18,13 +22,24 @@ TEXTURE2D_SHADOW(u_ShadowMap);
 uniform vec4 u_ShadowMapSize;
 uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 uniform vec4 u_ShadowParams; // x: shadowStrength
-uniform mat4 u_ShadowMatrices[5];
-uniform vec4 u_ShadowSplitDistance;
+uniform mat4 u_ShadowMatrices[5]; // add one zero matrix in end to do a trick
+uniform vec4 u_ShadowSplitSpheres[4];// max cascade is 4
 
-mediump int computeCascadeIndex(float viewZ)
+mediump int computeCascadeIndex(vec3 positionWS)
 {
-	mediump vec4 comparison = vec4(viewZ>u_ShadowSplitDistance.x,viewZ>u_ShadowSplitDistance.y,viewZ>u_ShadowSplitDistance.z,viewZ>u_ShadowSplitDistance.w);
-	mediump int index =int(dot(comparison, comparison));
+	vec3 fromCenter0 = positionWS - u_ShadowSplitSpheres[0].xyz;
+    vec3 fromCenter1 = positionWS - u_ShadowSplitSpheres[1].xyz;
+    vec3 fromCenter2 = positionWS - u_ShadowSplitSpheres[2].xyz;
+    vec3 fromCenter3 = positionWS - u_ShadowSplitSpheres[3].xyz;
+
+	mediump vec4 comparison = vec4(
+		dot(fromCenter0, fromCenter0)<u_ShadowSplitSpheres[0].w,
+		dot(fromCenter1, fromCenter1)<u_ShadowSplitSpheres[1].w,
+		dot(fromCenter2, fromCenter2)<u_ShadowSplitSpheres[2].w,
+		dot(fromCenter3, fromCenter3)<u_ShadowSplitSpheres[3].w);
+	comparison.yzw = clamp(comparison.yzw - comparison.xyz,0.0,1.0);//keep the nearest
+	mediump vec4 indexCoefficient = vec4(4.0,3.0,2.0,1.0);
+	mediump int index = 4 - int(dot(comparison, indexCoefficient));
 	return index;
 }
 
@@ -107,11 +122,11 @@ float sampleShadowmap(vec4 shadowCoord)
 
 vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
 {
-    float invNdotL = 1.0 - clamp(dot(lightDirection, normalWS),0.0,1.0);
+    float invNdotL = 1.0 - clamp(dot(-lightDirection, normalWS),0.0,1.0);
     float scale = invNdotL * u_ShadowBias.y;
 
     // normal bias is negative since we want to apply an inset normal offset
-    positionWS += lightDirection * vec3(u_ShadowBias);
+    positionWS += -lightDirection * u_ShadowBias.xxx;
     positionWS += normalWS * vec3(scale);
     return positionWS;
 }

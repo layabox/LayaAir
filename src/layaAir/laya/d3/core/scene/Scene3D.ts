@@ -160,6 +160,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT = Shader3D.getDefineByName("DIRECTIONLIGHT");
 		Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT = Shader3D.getDefineByName("POINTLIGHT");
 		Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT = Shader3D.getDefineByName("SPOTLIGHT");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW = Shader3D.getDefineByName("SHADOW");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE = Shader3D.getDefineByName("SHADOW_CASCADE");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_LOW");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_HIGH");
@@ -872,6 +873,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		else {
 			if (this._directionLights._length > 0) {
 				var dirLight: DirectionLight = this._directionLights._elements[0];
+				this._mainLight = dirLight;
 				Vector3.scale(dirLight.color, dirLight._intensity, dirLight._intensityColor);
 
 				dirLight.transform.worldMatrix.getForward(dirLight._direction);

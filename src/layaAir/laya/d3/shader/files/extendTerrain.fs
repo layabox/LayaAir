@@ -40,7 +40,7 @@
 #endif
 
 #include "Shadow.glsl"
-#ifdef RECEIVESHADOW
+#ifdef CALCULATE_SHADOWS
 	varying vec4 v_ShadowCoord;
 #endif
 varying float v_posViewZ;
@@ -188,7 +188,7 @@ vec3 globalDiffuse = u_AmbientColor;
 	globalDiffuse += decodeHDR(texture2D(u_LightMap, v_LightMapUV),5.0);
 #endif
 
-#ifdef RECEIVESHADOW
+#ifdef CALCULATE_SHADOWS
 	float shadowValue = shadowValue = sampleShadowmap(v_ShadowCoord);
 	gl_FragColor = vec4(gl_FragColor.rgb * (globalDiffuse + diffuse) * shadowValue, gl_FragColor.a);
 #else
@@ -196,7 +196,7 @@ vec3 globalDiffuse = u_AmbientColor;
 #endif
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	#ifdef RECEIVESHADOW
+	#ifdef CALCULATE_SHADOWS
 		gl_FragColor.rgb += specular * shadowValue;
 	#else
 		gl_FragColor.rgb += specular;

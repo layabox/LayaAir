@@ -1,4 +1,5 @@
 
+import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
 import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject";
 import { SystemUtils } from "./SystemUtils";
@@ -171,7 +172,7 @@ export class LayaGPU {
      * @internal
      */
     supportInstance(): boolean {
-        if (this._isWebGL2 || this._angleInstancedArrays)
+        if ((this._isWebGL2 || this._angleInstancedArrays) && Config.allowGPUInstanceDynamicBatch)
             return true;
         else
             return false;

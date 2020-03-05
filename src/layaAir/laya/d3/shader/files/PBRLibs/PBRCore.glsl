@@ -155,8 +155,14 @@ void fragmentForward()
 	float shadowAttenuation = 1.0;
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
-			#ifdef RECEIVESHADOW
-				shadowAttenuation= sampleShadowmap(v_ShadowCoord);
+			#ifdef CALCULATE_SHADOWS
+				#ifdef SHADOW_CASCADE
+					mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
+					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
+				#else
+					vec4 shadowCoord = v_ShadowCoord;
+				#endif
+				shadowAttenuation=sampleShadowmap(shadowCoord);
 			#endif
 			LayaLight dirLight = layaDirectionLightToLight(u_DirectionLight,shadowAttenuation);
 			color+= LAYA_BRDF_LIGHT(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,dirLight);
@@ -177,9 +183,17 @@ void fragmentForward()
 			{
 				if(i >= u_DirationLightCount)
 					break;
-				#ifdef RECEIVESHADOW
-					if(i==0)
-						shadowAttenuation= sampleShadowmap(v_ShadowCoord);
+				#ifdef CALCULATE_SHADOWS
+					if(i == 0)
+					{
+						#ifdef SHADOW_CASCADE
+							mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
+							vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
+						#else
+							vec4 shadowCoord = v_ShadowCoord;
+						#endif
+						shadowAttenuation *= sampleShadowmap(shadowCoord);
+					}
 				#endif
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
 				LayaLight dirLight = layaDirectionLightToLight(directionLight,shadowAttenuation);

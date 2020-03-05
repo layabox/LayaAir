@@ -9,7 +9,6 @@ import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/Re
 import { SystemUtils } from "../../webgl/SystemUtils";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
-import { FrustumCulling, CameraCullInfo, ShadowCullInfo } from "../graphics/FrustumCulling";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Matrix4x4 } from "../math/Matrix4x4";
@@ -22,19 +21,19 @@ import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
+import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 import { Picker } from "../utils/Picker";
 import { BaseCamera } from "./BaseCamera";
+import { DirectionLight } from "./light/DirectionLight";
+import { ShadowMode } from "./light/ShadowMode";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
 import { RenderContext3D } from "./render/RenderContext3D";
-import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
+import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
-import { DirectionLight } from "./light/DirectionLight";
-import { ShadowMode } from "./light/ShadowMode";
-import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
+import { ILaya3D } from "../../../ILaya3D";
 import { ShadowUtils } from "./light/ShadowUtils";
-import { ShadowSliceData } from "../shadowMap/ShadowSliceData";
 
 /**
  * 相机清除标记。
@@ -564,11 +563,15 @@ export class Camera extends BaseCamera {
 		//render shadowMap
 		var shadowCasterPass: ShadowCasterPass;
 		var mainLight: DirectionLight = scene._mainLight;
-		var needShadowCasterPass: boolean = mainLight && mainLight.shadowMode !== ShadowMode.None;
+		var needShadowCasterPass: boolean = mainLight && mainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
 		if (needShadowCasterPass) {
-			shadowCasterPass = Scene3D._shadowCasterPass;
+			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+			shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
 			shadowCasterPass.update(this, mainLight);
 			shadowCasterPass.render(context, scene);
+		}
+		else {
+			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 		}
 
 		context.camera = this;
