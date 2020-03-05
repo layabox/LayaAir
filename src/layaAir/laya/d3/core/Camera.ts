@@ -33,6 +33,7 @@ import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
 import { ILaya3D } from "../../../ILaya3D";
+import { ShadowUtils } from "./light/ShadowUtils";
 
 /**
  * 相机清除标记。
@@ -562,7 +563,7 @@ export class Camera extends BaseCamera {
 		//render shadowMap
 		var shadowCasterPass: ShadowCasterPass;
 		var mainLight: DirectionLight = scene._mainLight;
-		var needShadowCasterPass: boolean = mainLight && mainLight.shadowMode !== ShadowMode.None;
+		var needShadowCasterPass: boolean = mainLight && mainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
 		if (needShadowCasterPass) {
 			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 			shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;

@@ -17,6 +17,7 @@ import { LightSprite, LightType } from "./LightSprite";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";
 import { SpotLight } from "./SpotLight";
+import { SystemUtils } from "../../../webgl/SystemUtils";
 
 /**
  * @internal
@@ -79,6 +80,13 @@ export class ShadowUtils {
 
     /** @internal */
     static readonly atlasBorderSize: number = 4.0;//now max shadow sample tent is 5x5,atlas borderSize at leate 3=ceil(2.5),and +1 pixle is for global border for no cascade mode.
+
+    /**
+    * @internal
+    */
+    static supportShadow(): boolean {
+        return LayaGL.layaGPUInstance._isWebGL2 || SystemUtils.supportRenderTextureFormat(RenderTextureFormat.Depth);
+    }
 
     /**
      * @internal
