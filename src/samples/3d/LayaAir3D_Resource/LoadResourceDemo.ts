@@ -143,7 +143,7 @@ export class LoadResourceDemo {
 					//设置动作循环
 					state1.clip.islooping = true;
 					//为动画组件添加一个动作状态
-					this.pangziAnimator.addState(state1);
+					this.pangziAnimator.getControllerLayer(0).addState(state1);
 					//播放动作
 					this.pangziAnimator.play("hello");
 				}));
@@ -251,7 +251,7 @@ export class LoadResourceDemo {
 		//设置动作循环
 		state1.clip.islooping = true;
 		//为动画组件添加一个动作状态
-		this.pangziAnimator.addState(state1);
+		this.pangziAnimator.getControllerLayer(0).addState(state1);
 		//播放动作
 		this.pangziAnimator.play("hello");
 	}

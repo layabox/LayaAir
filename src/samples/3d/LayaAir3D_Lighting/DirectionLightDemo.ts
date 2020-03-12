@@ -71,7 +71,7 @@ export class DirectionLightDemo {
 				//设置动作
 				state.clip = animator.getDefaultState().clip;
 				//为动画组件添加一个动作状态
-				animator.addState(state);
+				animator.getControllerLayer(0).addState(state);
 				//播放动作
 				animator.play("run");
 				//设置时钟定时执行

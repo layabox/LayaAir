@@ -131,7 +131,6 @@ export class CameraDemo {
 			changeActionButton2.on(Event.CLICK, this, function (): void {
 				this.index2++;
 				if (this.index2 % 2 === 1) {
-					debugger;
 					//设置相机的清除标识为天空盒
 					this.camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
 					//使用加载天空盒材质

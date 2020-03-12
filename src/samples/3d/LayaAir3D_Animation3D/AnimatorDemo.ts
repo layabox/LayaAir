@@ -95,7 +95,7 @@ export class AnimatorDemo {
 		//为动画状态添加动画状态脚本
 		state1.addScript(CustomAnimatorStateScript);
 		//为动画组件添加一个动作状态
-		this._animator.addState(state1);
+		this._animator.getControllerLayer(0).addState(state1);
 
 		var state2: AnimatorState = new AnimatorState();
 		state2.name = "ride";
@@ -104,7 +104,7 @@ export class AnimatorDemo {
 		state2.clip = this._animator.getDefaultState().clip;
 		state2.clip.islooping = true;
 		state2.addScript(CustomAnimatorStateScript);
-		this._animator.addState(state2);
+		this._animator.getControllerLayer(0).addState(state2);
 		this._animator.speed = 0.0;
 
 		var state3: AnimatorState = new AnimatorState();
@@ -114,7 +114,7 @@ export class AnimatorDemo {
 		state3.clip = this._animator.getDefaultState().clip;
 		state3.clip.islooping = true;
 		state3.addScript(CustomAnimatorStateScript);
-		this._animator.addState(state3);
+		this._animator.getControllerLayer(0).addState(state3);
 		this._animator.speed = 0.0;
 
 		var state4: AnimatorState = new AnimatorState();
@@ -124,7 +124,7 @@ export class AnimatorDemo {
 		state4.clip = this._animator.getDefaultState().clip;
 		state4.clip.islooping = true;
 		state4.addScript(CustomAnimatorStateScript);
-		this._animator.addState(state4);
+		this._animator.getControllerLayer(0).addState(state4);
 		this._animator.speed = 0.0;
 
 		var state5: AnimatorState = new AnimatorState();
@@ -134,7 +134,7 @@ export class AnimatorDemo {
 		state5.clip = this._animator.getDefaultState().clip;
 		state5.clip.islooping = true;
 		state5.addScript(CustomAnimatorStateScript);
-		this._animator.addState(state5);
+		this._animator.getControllerLayer(0).addState(state5);
 		this._animator.speed = 0.0;
 
 		var state6: AnimatorState = new AnimatorState();
@@ -144,7 +144,7 @@ export class AnimatorDemo {
 		state6.clip = this._animator.getDefaultState().clip;
 		state6.clip.islooping = true;
 		state6.addScript(CustomAnimatorStateScript);
-		this._animator.addState(state6);
+		this._animator.getControllerLayer(0).addState(state6);
 		this._animator.speed = 0.0;
 
 		this.loadUI();
