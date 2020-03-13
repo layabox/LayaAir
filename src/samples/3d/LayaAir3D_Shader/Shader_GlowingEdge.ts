@@ -95,7 +95,7 @@ export class Shader_GlowingEdge {
 
 			(<SkinnedMeshSprite3D>dude.getChildAt(0).getChildAt(0)).skinnedMeshRenderer.sharedMaterials = baseMaterials;
 			dude.transform.position = new Vector3(0, 0.5, 0);
-			dude.transform.scale = new Vector3(0.2, 0.2, 0.2);
+			dude.transform.setWorldLossyScale(new Vector3(0.2, 0.2, 0.2)); 
 			dude.transform.rotate(new Vector3(0, 180, 0), false, false);
 		}));
 

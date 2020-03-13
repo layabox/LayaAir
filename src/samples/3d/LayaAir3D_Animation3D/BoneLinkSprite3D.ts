@@ -100,7 +100,7 @@ export class BoneLinkSprite3D {
 		//设置动作循环
 		state1.clip.islooping = true;
 		//为动画组件添加一个动作状态
-		this.animator.addState(state1);
+		this.animator.getControllerLayer(0).addState(state1);
 		//播放动作
 		this.animator.play("hello");
 
@@ -110,7 +110,7 @@ export class BoneLinkSprite3D {
 		state2.clipEnd = 33 / 581;
 		state2.clip = this.animator.getDefaultState().clip;
 		state2.clip.islooping = true;
-		this.animator.addState(state2);
+		this.animator.getControllerLayer(0).addState(state2);
 
 		this.dragon1 = Loader.getRes("res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh");
 		this.dragon1.transform.localScale = this._dragonScale;
@@ -123,7 +123,7 @@ export class BoneLinkSprite3D {
 		state3.clipEnd = 65 / 644;
 		state3.clip = this.dragonAnimator1.getDefaultState().clip;
 		state3.clip.islooping = true;
-		this.dragonAnimator1.addState(state3);
+		this.dragonAnimator1.getControllerLayer(0).addState(state3);
 
 		this.dragon2 = Loader.getRes("res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh");
 		this.dragon2.transform.localScale = this._dragonScale;
@@ -136,7 +136,7 @@ export class BoneLinkSprite3D {
 		state4.clipEnd = 65 / 550;
 		state4.clip = this.dragonAnimator2.getDefaultState().clip;
 		state4.clip.islooping = true;
-		this.dragonAnimator2.addState(state4);
+		this.dragonAnimator2.getControllerLayer(0).addState(state4);
 
 		this.loadUI();
 	}
