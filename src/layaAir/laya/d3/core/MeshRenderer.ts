@@ -19,6 +19,10 @@ import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { Sprite3D } from "./Sprite3D";
 import { Transform3D } from "./Transform3D";
+import { LayaGPU } from "../../webgl/LayaGPU";
+import { LayaGL } from "../../layagl/LayaGL";
+import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
+import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -140,7 +144,10 @@ export class MeshRenderer extends BaseRender {
 				var count: number = insBatches.length;
 				for (var i: number = 0; i < count; i++)
 					worldMatrixData.set(elements[i]._transform.worldMatrix.elements, i * 16);
-				SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
+
+				var worldBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer;
+				worldBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.   TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
+				worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
 				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 				break;
 		}
@@ -175,7 +182,9 @@ export class MeshRenderer extends BaseRender {
 						var worldMat: Matrix4x4 = elements[i]._transform.worldMatrix;
 						Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
 					}
-					SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
+					var mvpBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer;
+					mvpBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.  TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
+					mvpBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
 					break;
 			}
 		}
