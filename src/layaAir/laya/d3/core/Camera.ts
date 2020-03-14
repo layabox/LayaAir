@@ -316,7 +316,7 @@ export class Camera extends BaseCamera {
 		this._viewport = new Viewport(0, 0, 0, 0);
 		this._normalizedViewport = new Viewport(0, 0, 1, 1);
 		this._aspectRatio = aspectRatio;
-		this._boundFrustum = new BoundFrustum(Matrix4x4.DEFAULT);
+		this._boundFrustum = new BoundFrustum(new Matrix4x4());
 		if (Render.supportWebGLPlusCulling)
 			this._boundFrustumBuffer = new Float32Array(24);
 
