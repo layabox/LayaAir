@@ -5,7 +5,6 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
-import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
@@ -13,8 +12,6 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { ShadowCascadesMode } from "laya/d3/core/light/ShadowCascadesMode";
-import { ShadowMode } from "laya/d3/core/light/ShadowMode";
 
 /**
  * ...
@@ -63,15 +60,6 @@ export class TransformDemo {
 		directionLight.color = new Vector3(1, 1, 1);
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
-		//灯光开启阴影
-		directionLight.shadowMode = ShadowMode.Hard;
-		//可见阴影距离
-		directionLight.shadowDistance = 5;
-		//生成阴影贴图尺寸
-		directionLight.shadowResolution = 2048;
-		//生成阴影贴图数量
-		directionLight.shadowCascadesMode = ShadowCascadesMode.NoCascades;
-
 		//批量预加载资源
 		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
 
@@ -80,8 +68,6 @@ export class TransformDemo {
 	private onComplete(): void {
 		//加载地面
 		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh")));
-		//地面接收阴影
-		((<MeshSprite3D>grid.getChildAt(0))).meshRenderer.receiveShadow = true;
 		//加载静态小猴子
 		var staticLayaMonkey: MeshSprite3D = (<MeshSprite3D>Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
 
