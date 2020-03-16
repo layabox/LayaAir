@@ -1,6 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Buffer } from "../../webgl/utils/Buffer";
 import { VertexDeclaration } from "./VertexDeclaration";
+import { LayaGPU } from "../../webgl/LayaGPU";
 
 
 /**
@@ -75,6 +76,14 @@ export class VertexBuffer3D extends Buffer {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * 剥离内存块存储。
+	 */
+	orphanStorage(): void {
+		this.bind();
+		LayaGL.instance.bufferData(this._bufferType, this._byteLength, this._bufferUsage);
 	}
 
 	/**

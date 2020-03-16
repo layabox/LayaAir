@@ -12077,6 +12077,10 @@
 	            return false;
 	        }
 	    }
+	    orphanStorage() {
+	        this.bind();
+	        Laya.LayaGL.instance.bufferData(this._bufferType, this._byteLength, this._bufferUsage);
+	    }
 	    setData(buffer, bufferOffset = 0, dataStartIndex = 0, dataCount = Number.MAX_SAFE_INTEGER) {
 	        this.bind();
 	        var needSubData = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
@@ -13140,7 +13144,7 @@
 	        this._viewport = new Viewport(0, 0, 0, 0);
 	        this._normalizedViewport = new Viewport(0, 0, 1, 1);
 	        this._aspectRatio = aspectRatio;
-	        this._boundFrustum = new BoundFrustum(Matrix4x4.DEFAULT);
+	        this._boundFrustum = new BoundFrustum(new Matrix4x4());
 	        if (Laya.Render.supportWebGLPlusCulling)
 	            this._boundFrustumBuffer = new Float32Array(24);
 	        this._calculateProjectionMatrix();
@@ -20717,7 +20721,9 @@
 	                var count = insBatches.length;
 	                for (var i = 0; i < count; i++)
 	                    worldMatrixData.set(elements[i]._transform.worldMatrix.elements, i * 16);
-	                SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
+	                var worldBuffer = SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer;
+	                worldBuffer.orphanStorage();
+	                worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
 	                this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 	                break;
 	        }
@@ -20747,7 +20753,9 @@
 	                        var worldMat = elements[i]._transform.worldMatrix;
 	                        Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
 	                    }
-	                    SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
+	                    var mvpBuffer = SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer;
+	                    mvpBuffer.orphanStorage();
+	                    mvpBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
 	                    break;
 	            }
 	        }
