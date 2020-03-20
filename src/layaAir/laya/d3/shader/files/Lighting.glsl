@@ -87,7 +87,7 @@ int getLightIndex(sampler2D clusterBuffer,int offset,int index)
       return int(texel.y);
     else if (pixelComponent == 2) 
       return int(texel.z);
-    else if (pixelComponent == 3) 
+    else //pixelComponent==3
       return int(texel.w);
 }
 
