@@ -1079,9 +1079,44 @@ window.qqMiniGame = function (exports, Laya) {
 	        QQMiniAdapter.window["wx"].exitMiniProgram();
 	    }
 	    static onMkdirCallBack(errorCode, data) {
-	        if (!errorCode)
+	        if (!errorCode) {
 	            MiniFileMgr.filesListObj = JSON.parse(data.data);
-	        MiniFileMgr.fakeObj = MiniFileMgr.filesListObj;
+	            MiniFileMgr.fakeObj = MiniFileMgr.filesListObj || {};
+	        }
+	        else {
+	            MiniFileMgr.fakeObj = MiniFileMgr.filesListObj = {};
+	        }
+	        MiniFileMgr.fs.readdir({
+	            dirPath: MiniFileMgr.fileNativeDir,
+	            success: function (data) {
+	                var tempMd5ListObj = {};
+	                var fileObj;
+	                for (let key in MiniFileMgr.filesListObj) {
+	                    if (key != "fileUsedSize") {
+	                        fileObj = MiniFileMgr.filesListObj[key];
+	                        tempMd5ListObj[fileObj.md5] = true;
+	                    }
+	                }
+	                var files = data.files;
+	                var fileName;
+	                for (let i = 0, sz = files.length; i < sz; i++) {
+	                    fileName = files[i];
+	                    if (fileName == MiniFileMgr.fileListName)
+	                        continue;
+	                    var deleteFileUrl = MiniFileMgr.getFileNativePath(fileName);
+	                    if (tempMd5ListObj[deleteFileUrl])
+	                        continue;
+	                    if (tempMd5ListObj[fileName])
+	                        continue;
+	                    MiniFileMgr.fs.unlink({
+	                        filePath: deleteFileUrl,
+	                        success: function (data) {
+	                            console.log("删除无引用的磁盘文件:" + fileName);
+	                        }
+	                    });
+	                }
+	            }
+	        });
 	    }
 	    static pixelRatio() {
 	        if (!QQMiniAdapter.EnvConfig.pixelRatioInt) {

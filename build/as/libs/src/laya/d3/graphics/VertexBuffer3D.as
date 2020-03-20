@@ -47,6 +47,11 @@ package laya.d3.graphics {
 		}
 
 		/**
+		 * 剥离内存块存储。
+		 */
+		public function orphanStorage():void{}
+
+		/**
 		 * 设置数据。
 		 * @param data 顶点数据。
 		 * @param bufferOffset 顶点缓冲中的偏移,以字节为单位。
