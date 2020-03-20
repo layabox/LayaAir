@@ -47,7 +47,7 @@ mediump vec3 energyConservationBetweenDiffuseAndSpecular (mediump vec3 albedo, m
 
 FragmentCommonData metallicSetup(vec2 uv)
 {
-	mediump vec2 metallicGloss = metallicGloss(uv);
+	mediump vec2 metallicGloss = getMetallicGloss(uv);
 	mediump float metallic = metallicGloss.x;
 	mediump float smoothness = metallicGloss.y; // this is 1 minus the square root of real roughness m.
 	mediump float oneMinusReflectivity;
@@ -117,7 +117,7 @@ void fragmentForward()
 		#endif
 	#endif
 
-	mediump float alpha = alpha(uv);
+	mediump float alpha = getAlpha(uv);
 	#ifdef ALPHATEST
 		if(alpha<u_AlphaTestValue)
 			discard;
@@ -141,7 +141,7 @@ void fragmentForward()
 		o.diffColor=preMultiplyAlpha(o.diffColor,alpha,o.oneMinusReflectivity,/*out*/alpha);// shader relies on pre-multiply alpha-blend (srcBlend = One, dstBlend = OneMinusSrcAlpha)
 	#endif
 
-	mediump float occlusion = occlusion(uv);
+	mediump float occlusion = getOcclusion(uv);
 	mediump vec2 lightMapUV;
 	#ifdef LIGHTMAP
 		lightMapUV=v_LightMapUV;
@@ -157,7 +157,7 @@ void fragmentForward()
 		#ifdef DIRECTIONLIGHT
 			#ifdef CALCULATE_SHADOWS
 				#ifdef SHADOW_CASCADE
-					mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+					mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
 					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
 				#else
 					vec4 shadowCoord = v_ShadowCoord;
@@ -187,7 +187,7 @@ void fragmentForward()
 					if(i == 0)
 					{
 						#ifdef SHADOW_CASCADE
-							mediump int cascadeIndex = computeCascadeIndex(1.0/gl_FragCoord.w);
+							mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
 							vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
 						#else
 							vec4 shadowCoord = v_ShadowCoord;

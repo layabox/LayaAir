@@ -30,7 +30,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	static SHADERDEFINE_SPECULARGLOSSTEXTURE: ShaderDefine;
 
 	/** @internal */
-	static SPECULARTEXTURE: number = Shader3D.propertyNameToID("u_SpecularTexture");
+	static SPECULARTEXTURE: number = Shader3D.propertyNameToID("u_SpecGlossTexture");
 	/** @internal */
 	static SPECULARCOLOR: number = Shader3D.propertyNameToID("u_SpecularColor");
 
@@ -98,10 +98,10 @@ export class PBRSpecularMaterial extends PBRMaterial {
 
 			//Shadow
 			'u_ShadowBias': Shader3D.PERIOD_SCENE,
-			'u_LightDirection': Shader3D.PERIOD_SCENE,
+			'u_ShadowLightDirection': Shader3D.PERIOD_SCENE,
 			'u_ShadowMap': Shader3D.PERIOD_SCENE,
 			'u_ShadowParams': Shader3D.PERIOD_SCENE,
-			'u_ShadowSplitDistance': Shader3D.PERIOD_SCENE,
+			'u_ShadowSplitSpheres': Shader3D.PERIOD_SCENE,
 			'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
 			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
 

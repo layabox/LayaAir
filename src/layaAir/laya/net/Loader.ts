@@ -305,15 +305,11 @@ export class Loader extends EventDispatcher {
 		var _this = this;
 		if(isformatURL)
 			url = URL.formatURL(url);
-		var onLoaded: Function;
 		var onError: Function = function (): void {
 			_this.event(Event.ERROR, "Load image failed");
 		}
 		if (this._type === "nativeimage") {
-			onLoaded = (image: any) => {
-				this.onLoaded(image);
-			}
-			this._loadHtmlImage(url, this, onLoaded, this, onError);
+			this._loadHtmlImage(url, this, this.onLoaded, this, onError);
 		} else {
 			
 			 var ext: string = Utils.getFileExtension(url);
@@ -376,8 +372,6 @@ export class Loader extends EventDispatcher {
 			this.complete(data);
 		} else if (type === Loader.IMAGE) {
 			//可能有另外一种情况
-			//var tex: Texture = new Texture(data);
-			//tex.url = this._url;
 			if (data instanceof ArrayBuffer) {
 					var ext: string = Utils.getFileExtension(this._url);
 					let format: TextureFormat;
@@ -397,21 +391,31 @@ export class Loader extends EventDispatcher {
 					tex.wrapModeU = WarpMode.Clamp;
 					tex.wrapModeV = WarpMode.Clamp;
 					tex.setCompressData(data);
-					tex._setCreateURL(url);
-			} else {
+					tex._setCreateURL(this.url);
+			} else if(!(data instanceof Texture2D)){
 				var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
 				tex.wrapModeU = WarpMode.Clamp;
 				tex.wrapModeV = WarpMode.Clamp;
 				tex.loadImageSource(data, true);
-				tex._setCreateURL(this.url);
+				tex._setCreateURL(data.src);
 			}
-			this.complete(tex);
+			var texture: Texture = new Texture(tex);
+			texture.url = this._url;
+			this.complete(texture);
 		
-		} else if (type === Loader.SOUND || type === "htmlimage" || type === "nativeimage") {
+		} else if (type === Loader.SOUND || type === "nativeimage") {
 			this.complete(data);
-		} else if (type === Loader.ATLAS) {
+		} else if(type === "htmlimage" ){
+			var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+				tex.wrapModeU = WarpMode.Clamp;
+				tex.wrapModeV = WarpMode.Clamp;
+				tex.loadImageSource(data, true);
+				tex._setCreateURL(data.src);
+				this.complete(tex);
+		}
+		 else if (type === Loader.ATLAS) {
 			//处理图集
-			if (!(data instanceof Texture2D)) {
+			if (data.frames) {
 				var toloadPics: string[] = [];
 				if (!this._data) {
 					this._data = data;
@@ -455,6 +459,15 @@ export class Loader extends EventDispatcher {
 				this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
 				return this._loadResourceFilter(Loader.IMAGE, toloadPics.pop() as string);
 			} else {
+				if(!(data instanceof Texture2D))
+				{
+					var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+					tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
+					tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+					tex.loadImageSource(data, true);
+					tex._setCreateURL(data.src);
+					data = tex;
+				}
 				this._data.pics.push(data);
 				if (this._data.toLoads.length > 0) {
 					this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);

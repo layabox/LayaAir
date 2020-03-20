@@ -97,9 +97,9 @@ export class PhysicsWorld_CompoundCollider {
 			var rotationEuler: Vector3 = transform.rotationEuler;
 			rotationEuler.setValue(Math.random() * 360, Math.random() * 360, Math.random() * 360);
 			transform.rotationEuler = rotationEuler;
-			var scale: Vector3 = transform.scale;
+			var scale: Vector3 = transform.getWorldLossyScale();
 			scale.setValue(3, 3, 3);
-			transform.scale = scale;
+			transform.setWorldLossyScale(scale);
 
 
 			var rigidBody: Rigidbody3D = (<Rigidbody3D>table.addComponent(Rigidbody3D));
@@ -155,9 +155,9 @@ export class PhysicsWorld_CompoundCollider {
 			var rotationEuler: Vector3 = transform.rotationEuler;
 			rotationEuler.setValue(Math.random() * 360, Math.random() * 360, Math.random() * 360);
 			transform.rotationEuler = rotationEuler;
-			var scale: Vector3 = transform.scale;
+			var scale: Vector3 = transform.getWorldLossyScale();
 			scale.setValue(0.01, 0.01, 0.01);
-			transform.scale = scale;
+			transform.setWorldLossyScale(scale);
 			object.meshRenderer.material = mat;
 
 			var rigidBody: Rigidbody3D = (<Rigidbody3D>object.addComponent(Rigidbody3D));

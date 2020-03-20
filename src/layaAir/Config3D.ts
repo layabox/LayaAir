@@ -43,8 +43,6 @@ export class Config3D implements IClone {
 	octreeMinNodeSize: number = 2.0;
 	/** 八叉树松散值。*/
 	octreeLooseness: number = 1.25;
-	/** 是否允许GPUInstance动态合并。*/
-	allowGPUInstanceDynamicBatch: boolean = true;
 
 	/** 
 	 * 是否开启视锥裁剪调试。

@@ -873,6 +873,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		else {
 			if (this._directionLights._length > 0) {
 				var dirLight: DirectionLight = this._directionLights._elements[0];
+				this._mainLight = dirLight;
 				Vector3.scale(dirLight.color, dirLight._intensity, dirLight._intensityColor);
 
 				dirLight.transform.worldMatrix.getForward(dirLight._direction);

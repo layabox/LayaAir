@@ -1,8 +1,8 @@
 
+import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
 import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject";
 import { SystemUtils } from "./SystemUtils";
-import { Config3D } from "../../Config3D";
 
 /**
  * @internal
@@ -172,7 +172,7 @@ export class LayaGPU {
      * @internal
      */
     supportInstance(): boolean {
-        if ((this._isWebGL2 || this._angleInstancedArrays) && Config3D._config.allowGPUInstanceDynamicBatch)
+        if ((this._isWebGL2 || this._angleInstancedArrays) && Config.allowGPUInstanceDynamicBatch)
             return true;
         else
             return false;

@@ -41,6 +41,9 @@ export class Config {
      * 是否使用webgl2
      */
     static useWebGL2: boolean = true;
+    
+    /** 是否允许GPUInstance动态合并,仅对3D有效。*/
+	static allowGPUInstanceDynamicBatch: boolean = true;
 
     static useRetinalCanvas: boolean = false;
 }
