@@ -75,7 +75,7 @@ export class SceneLoad2 {
 			mat.setForward(new Vector3(0, -5, 1));
 			light.transform.worldMatrix = mat;
 			//设置灯光漫反射颜色
-			light.diffuseColor = new Vector3(0.3, 0.3, 0.3);
+			light.color = new Vector3(0.3, 0.3, 0.3);
 
 			//激活场景中的两个子节点
 			((<MeshSprite3D>scene.getChildByName('Scenes').getChildByName('HeightMap'))).active = false;

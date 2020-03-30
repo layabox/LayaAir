@@ -24,8 +24,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { ShadowCascadesMode } from "laya/d3/core/light/ShadowCascadesMode";
-import { ShadowMode } from "laya/d3/core/light/ShadowMode";
+
 
 /**
  * ...
@@ -65,15 +64,6 @@ export class MouseInteraction {
 		directionLight.color = new Vector3(1, 1, 1);
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
-		//灯光开启阴影
-		directionLight.shadowMode = ShadowMode.Hard;
-		//可见阴影距离
-		directionLight.shadowDistance = 3;
-		//生成阴影贴图尺寸
-		directionLight.shadowResolution = 2048;
-		//生成阴影贴图数量
-		directionLight.shadowCascadesMode = ShadowCascadesMode.NoCascades;
-
 		//批量预加载资源
 		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
 
@@ -84,8 +74,6 @@ export class MouseInteraction {
 		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh")));
 		//指定精灵的图层
 		grid.layer = 10;
-		//地面接收阴影
-		((<MeshSprite3D>grid.getChildAt(0))).meshRenderer.receiveShadow = true;
 		//加载静态小猴子
 		var staticLayaMonkey: MeshSprite3D = (<MeshSprite3D>this._scene.addChild(new MeshSprite3D(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm"))));
 		//设置材质
@@ -96,8 +84,6 @@ export class MouseInteraction {
 		staticLayaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
 		//设置旋转
 		staticLayaMonkey.transform.rotation = new Quaternion(0.7071068, 0, 0, -0.7071067);
-		//产生阴影
-		staticLayaMonkey.meshRenderer.castShadow = true;
 
 		//克隆sprite3d
 		this.tmpVector.setValue(0.0, 0, 0.5);

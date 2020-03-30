@@ -30,7 +30,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	static SHADERDEFINE_SPECULARGLOSSTEXTURE: ShaderDefine;
 
 	/** @internal */
-	static SPECULARTEXTURE: number = Shader3D.propertyNameToID("u_SpecularTexture");
+	static SPECULARTEXTURE: number = Shader3D.propertyNameToID("u_SpecGlossTexture");
 	/** @internal */
 	static SPECULARCOLOR: number = Shader3D.propertyNameToID("u_SpecularColor");
 

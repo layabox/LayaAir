@@ -95,7 +95,7 @@ export class AnimatorStateScriptDemo {
 		asst1.text = this.text;
 		this.animator.speed = 0.0;
 		//为动画组件添加一个动作状态
-		this.animator.addState(state1);
+		this.animator.getControllerLayer(0).addState(state1);
 
 		var state2: AnimatorState = new AnimatorState();
 		state2.name = "ride";
@@ -105,7 +105,7 @@ export class AnimatorStateScriptDemo {
 		state2.clip.islooping = true;
 		var asst2 = state2.addScript(AnimatorStateScriptTest) as AnimatorStateScriptTest;
 		asst2.text = this.text;
-		this.animator.addState(state2);
+		this.animator.getControllerLayer(0).addState(state2);
 
 
 		var state3: AnimatorState = new AnimatorState();
@@ -117,7 +117,7 @@ export class AnimatorStateScriptDemo {
 		this.animator.speed = 0.0;
 		var asst3 = state3.addScript(AnimatorStateScriptTest) as AnimatorStateScriptTest;
 		asst3.text = this.text;
-		this.animator.addState(state3);
+		this.animator.getControllerLayer(0).addState(state3);
 
 
 		this.loadUI();
