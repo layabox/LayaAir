@@ -46,7 +46,7 @@ export class HttpRequest extends EventDispatcher {
         this._responseType = responseType;
         this._data = null;
 
-        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame) {
+        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame||Browser.onBLMiniGame) {
             url = encodeURI(url);
         }
         this._url = url;
@@ -84,6 +84,7 @@ export class HttpRequest extends EventDispatcher {
         http.onload = function (e: any): void {
             _this._onLoad(e);
         }
+        if(Browser.onBLMiniGame&&Browser.onAndroid&&!data)data={};
         http.send( isJson?JSON.stringify(data):data);
     }
 
