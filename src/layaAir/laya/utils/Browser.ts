@@ -127,7 +127,7 @@ export class Browser {
         if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
             if("bl" in Browser.window){
                  //手机QQ小游戏
-                (window as any).bililMiniGame(Laya, Laya);
+                (window as any).biliMiniGame(Laya, Laya);
                 if (!Laya["BLMiniAdapter"]) {
                     console.error("请引入bilibili小游戏的适配库：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
                 } else {
