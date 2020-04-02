@@ -320,14 +320,14 @@ export class SoundManager {
             if (SoundManager._soundMuted) return null;
         }
         var tSound: Sound;
-        if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame) {
+        if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame) {
             tSound = ILaya.loader.getRes(url);
         }
         if (!soundClass) soundClass = SoundManager._soundClass;
         if (!tSound) {
             tSound = new soundClass();
             tSound.load(url);
-            if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame) {
+            if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame) {
                 ILaya.Loader.cacheRes(url, tSound);
             }
         }
