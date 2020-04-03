@@ -112,15 +112,19 @@ export class SubMesh extends GeometryElement {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var skinnedDatas: any[] = (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData;
 		var glIndexFormat: number;
+		var byteCount:number;
 		switch (mesh.indexFormat) {
 			case IndexFormat.UInt32:
 				glIndexFormat = gl.UNSIGNED_INT;
+				byteCount = 4;
 				break;
 			case IndexFormat.UInt16:
 				glIndexFormat = gl.UNSIGNED_SHORT;
+				byteCount = 2;
 				break;
 			case IndexFormat.UInt8:
 				glIndexFormat = gl.UNSIGNED_BYTE;
+				byteCount = 1;
 				break;
 		}
 		mesh._bufferState.bind();
@@ -128,10 +132,10 @@ export class SubMesh extends GeometryElement {
 			var subSkinnedDatas: Float32Array[] = skinnedDatas[this._indexInMesh];
 			for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
 				state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
-				gl.drawElements(gl.TRIANGLES, this._subIndexBufferCount[i], glIndexFormat, this._subIndexBufferStart[i] * 2);
+				gl.drawElements(gl.TRIANGLES, this._subIndexBufferCount[i], glIndexFormat, this._subIndexBufferStart[i] * byteCount);
 			}
 		} else {
-			gl.drawElements(gl.TRIANGLES, this._indexCount, glIndexFormat, this._indexStart * 2);
+			gl.drawElements(gl.TRIANGLES, this._indexCount, glIndexFormat, this._indexStart * byteCount);
 		}
 		Stat.trianglesFaces += this._indexCount / 3;
 		Stat.renderBatches++;
