@@ -156,7 +156,6 @@ export class Loader extends EventDispatcher {
 			return;
 		}
 
-		Loader.setGroup(url, "666");
 		this._url = url;
 		if (url.indexOf("data:image") === 0) type = Loader.IMAGE;
 		else url = URL.formatURL(url);

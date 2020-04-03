@@ -145,7 +145,7 @@ export class WorkerLoader extends EventDispatcher {
                 var image:any = imageData;
                 if (type !== "nativeimage") {
                     image = new Texture2D();
-                    image.loadImageSource(imageData);
+                    image.loadImageSource(imageData, true);
                 }
                 
                 _this["onLoaded"](image);
