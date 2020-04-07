@@ -30,6 +30,11 @@ package laya.net {
 		/**
 		 * @private 
 		 */
+		private static var _urlEncode:*;
+
+		/**
+		 * @private 
+		 */
 		protected var _responseType:String;
 
 		/**

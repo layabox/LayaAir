@@ -26905,6 +26905,11 @@ declare module laya.net {
 		/**
 		 * @private 
 		 */
+		private static _urlEncode:any;
+
+		/**
+		 * @private 
+		 */
 		protected _responseType:string;
 
 		/**
@@ -38114,6 +38119,11 @@ declare module laya.utils {
 		 * *手机QQ小游戏
 		 */
 		static onQQMiniGame:boolean;
+
+		/**
+		 * * BILIBILI小游戏
+		 */
+		static onBLMiniGame:boolean;
 
 		/**
 		 * @private 

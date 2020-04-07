@@ -28,6 +28,8 @@ export class HttpRequest extends EventDispatcher {
     /**@private */
     protected _http = new XMLHttpRequest();
     /**@private */
+    private static _urlEncode:Function = encodeURI;
+    /**@private */
     protected _responseType: string;
     /**@private */
     protected _data: any;
@@ -46,8 +48,8 @@ export class HttpRequest extends EventDispatcher {
         this._responseType = responseType;
         this._data = null;
 
-        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame) {
-            url = encodeURI(url);
+        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame||Browser.onBLMiniGame) {
+            url = HttpRequest._urlEncode(url);
         }
         this._url = url;
         var _this: HttpRequest = this;
@@ -84,6 +86,7 @@ export class HttpRequest extends EventDispatcher {
         http.onload = function (e: any): void {
             _this._onLoad(e);
         }
+        if(Browser.onBLMiniGame&&Browser.onAndroid&&!data)data={};
         http.send( isJson?JSON.stringify(data):data);
     }
 

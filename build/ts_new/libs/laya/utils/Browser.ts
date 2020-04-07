@@ -51,6 +51,8 @@ export class Browser {
     static onAlipayMiniGame: boolean;
     /***手机QQ小游戏 */
     static onQQMiniGame: boolean;
+    /*** BILIBILI小游戏 */
+    static onBLMiniGame:boolean;
     /** @private */
     static onFirefox: boolean;//TODO:求补充
     /** @private */
@@ -123,15 +125,24 @@ export class Browser {
         }
 
         if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
-            if ("qq" in Browser.window) {
-                //手机QQ小游戏
+            if("bl" in Browser.window){
+                 //手机QQ小游戏
+                (window as any).biliMiniGame(Laya, Laya);
+                if (!Laya["BLMiniAdapter"]) {
+                    console.error("请引入bilibili小游戏的适配库：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
+                } else {
+                    Laya["BLMiniAdapter"].enable();
+                }
+            } 
+            else if ("qq" in Browser.window) {
                 (window as any).qqMiniGame(Laya, Laya);
                 if (!Laya["QQMiniAdapter"]) {
                     console.error("请引入手机QQ小游戏的适配库：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
                 } else {
                     Laya["QQMiniAdapter"].enable();
                 }
-            } else {
+            }
+            else {
                 //微信小游戏
                 (window as any).wxMiniGame(Laya, Laya);
                 if (!Laya["MiniAdpter"]) {
@@ -254,6 +265,9 @@ export class Browser {
         } else if ("qq" in Browser.window && u.indexOf('MiniGame') > -1) {
             Browser.onQQMiniGame = true;//手机QQ环境判断
             Browser.onMiniGame = false;
+        }else if("bl" in Browser.window&& u.indexOf('MiniGame') > -1){
+            Browser.onBLMiniGame=true;//B站环境判断
+            Browser.onMiniGame=true;
         }
         Browser.onVVMiniGame = u.indexOf('VVGame') > -1;//vivo
         Browser.onKGMiniGame = u.indexOf('QuickGame') > -1;//小米运行环境判断

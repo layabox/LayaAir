@@ -118,7 +118,7 @@ mediump float lerpOneTo(mediump float b, mediump float t)
 	}
 #endif
 
-mediump float alpha(vec2 uv)
+mediump float getAlpha(vec2 uv)
 {
 	#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 		return u_AlbedoColor.a;
@@ -131,7 +131,7 @@ mediump float alpha(vec2 uv)
 	#endif
 }
 
-mediump float occlusion(vec2 uv)
+mediump float getOcclusion(vec2 uv)
 {
 	#ifdef OCCLUSIONTEXTURE
 		mediump float occ = texture2D(u_OcclusionTexture, uv).g;
@@ -151,7 +151,7 @@ mediump vec3 albedo(vec2 uv)
 	//TODO:Detail Texture
 }
 
-mediump vec2 metallicGloss(vec2 uv)
+mediump vec2 getMetallicGloss(vec2 uv)
 {
 	mediump vec2 ms;//x is metallic,y is smoothness
 	#ifdef METALLICGLOSSTEXTURE

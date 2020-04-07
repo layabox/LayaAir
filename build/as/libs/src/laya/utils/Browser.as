@@ -112,6 +112,11 @@ package laya.utils {
 		public static var onQQMiniGame:Boolean;
 
 		/**
+		 * * BILIBILI小游戏
+		 */
+		public static var onBLMiniGame:Boolean;
+
+		/**
 		 * @private 
 		 */
 		public static var onFirefox:Boolean;
