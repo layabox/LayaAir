@@ -28,6 +28,8 @@ export class HttpRequest extends EventDispatcher {
     /**@private */
     protected _http = new XMLHttpRequest();
     /**@private */
+    private static _urlEncode:Function = encodeURI;
+    /**@private */
     protected _responseType: string;
     /**@private */
     protected _data: any;
@@ -47,7 +49,7 @@ export class HttpRequest extends EventDispatcher {
         this._data = null;
 
         if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame||Browser.onBLMiniGame) {
-            url = encodeURI(url);
+            url = HttpRequest._urlEncode(url);
         }
         this._url = url;
         var _this: HttpRequest = this;
