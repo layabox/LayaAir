@@ -84,7 +84,7 @@ export class PBRMaterialDemo {
 		const width: number = col * 0.5;
 		for (var i: number = 0, n: number = col; i < n; i++) {//diffenent smoothness
 			var smoothness: number = i / (n - 1);
-			var metallic: number = metallic;
+			// var metallic: number = metallic;
 
 			var pos: Vector3 = PBRMaterialDemo._tempPos;
 			pos.setValue(-width / 2 + i * width / (n - 1), 0, 3.0);
