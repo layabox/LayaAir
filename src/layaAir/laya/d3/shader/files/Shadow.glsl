@@ -24,7 +24,7 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 	TEXTURE2D_SHADOW(u_ShadowMap);
 	uniform vec4 u_ShadowMapSize;
 	uniform vec4 u_ShadowParams; // x: shadowStrength
-	uniform mat4 u_ShadowMatrices[5]; // add one zero matrix in end to do a trick
+	uniform mat4 u_ShadowMatrices[4];
 	uniform vec4 u_ShadowSplitSpheres[4];// max cascade is 4
 
 	mediump int computeCascadeIndex(vec3 positionWS)
@@ -45,9 +45,13 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 		return index;
 	}
 
-	vec4 getShadowCoord(vec4 positionWS,mediump int cascadeIndex)
+	vec4 getShadowCoord(vec4 positionWS)
 	{
 		#ifdef SHADOW_CASCADE
+			mediump int cascadeIndex = computeCascadeIndex(positionWS.xyz);
+			if(cascadeIndex > 3)// out of shadow range cascadeIndex is 4.
+				return vec4(0.0);
+			
 			#ifdef GRAPHICS_API_GLES3
 				return u_ShadowMatrices[cascadeIndex] * positionWS;
 			#else
@@ -58,10 +62,8 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 					shadowMat = u_ShadowMatrices[1];
 				else if(cascadeIndex == 2)
 					shadowMat = u_ShadowMatrices[2];
-				else if(cascadeIndex == 3)
+				else
 					shadowMat = u_ShadowMatrices[3];
-				else 
-					shadowMat = u_ShadowMatrices[4];
 				return shadowMat * positionWS;
 			#endif
 		#else
