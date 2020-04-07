@@ -46,7 +46,7 @@ void main()
 	#endif
 
 	#ifdef CALCULATE_SHADOWS
-		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
+		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld));
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
 }

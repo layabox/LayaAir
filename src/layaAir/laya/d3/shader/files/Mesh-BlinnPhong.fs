@@ -144,8 +144,7 @@ void main()
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
 			#ifdef CALCULATE_SHADOWS
 				#ifdef SHADOW_CASCADE
-					mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
-					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
+					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 				#else
 					vec4 shadowCoord = v_ShadowCoord;
 				#endif
@@ -179,8 +178,7 @@ void main()
 					if(i == 0)
 					{
 						#ifdef SHADOW_CASCADE
-							mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
-							vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
+							vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 						#else
 							vec4 shadowCoord = v_ShadowCoord;
 						#endif
