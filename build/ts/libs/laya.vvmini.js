@@ -1081,7 +1081,7 @@ window.vvMiniGame = function (exports, Laya) {
 	                        tempMd5ListObj[fileObj.md5] = true;
 	                    }
 	                }
-	                var files = data.files;
+	                var files = data.fileList;
 	                var fileName;
 	                for (let i = 0, sz = files.length; i < sz; i++) {
 	                    fileName = files[i];
