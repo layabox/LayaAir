@@ -121,7 +121,7 @@
 						1,
 						1
 					],
-					"meshPath":"Library/unity-default-resources-Sphere.lm",
+					"meshPath":"Library/unity default resources-Sphere.lm",
 					"enableRender":true,
 					"materials":[
 						{
@@ -154,7 +154,7 @@
 						2,
 						2
 					],
-					"meshPath":"Library/unity-default-resources-Cube.lm",
+					"meshPath":"Library/unity default resources-Cube.lm",
 					"enableRender":true,
 					"materials":[
 						{
