@@ -95,7 +95,7 @@ export class ShadowCasterPass {
 		cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
 		context.viewMatrix = shadowSliceData.viewMatrix;
-		context.projectionViewMatrix = shadowSliceData.projectionMatrix;
+		context.projectionMatrix = shadowSliceData.projectionMatrix;
 		context.projectionViewMatrix = shadowSliceData.viewProjectMatrix;
 	}
 
