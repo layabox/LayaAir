@@ -251,10 +251,10 @@ export class TextRender {
             if (this.hasFreedText(sameTexData)) {
                 sameTexData = wt.pageChars = [];
 			}
-			if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
-				// 文字缩放要清理缓存
-				sameTexData = wt.pageChars = [];
-			}
+			// if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
+			// 	// 文字缩放要清理缓存
+			// 	sameTexData = wt.pageChars = [];
+			// }
         }
         var ri: CharRenderInfo = null;
         //var oneTex: boolean = isWT || TextRender.forceWholeRender;	// 如果能缓存的话，就用一张贴图
