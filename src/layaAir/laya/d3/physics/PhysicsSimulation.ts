@@ -589,6 +589,7 @@ export class PhysicsSimulation {
 		bt.btCollisionWorld_convexSweepTest(this._btCollisionWorld, sweepShape, convexTransform, convexTransTo, convexResultCall, allowedCcdPenetration);
 		var count: number = bt.tBtCollisionObjectArray_size(collisionObjects);
 		if (count > 0) {
+			this._collisionsUtils.recoverAllHitResultsPool();
 			var btPoints: number = bt.AllConvexResultCallback_get_m_hitPointWorld(convexResultCall);
 			var btNormals: number = bt.AllConvexResultCallback_get_m_hitNormalWorld(convexResultCall);
 			var btFractions: number = bt.AllConvexResultCallback_get_m_hitFractions(convexResultCall);
