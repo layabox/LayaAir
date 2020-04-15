@@ -140,7 +140,7 @@ void main()
 	#endif
 
 	#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
-		v_ShadowCoord =getShadowCoord(vec4(positionWS,1.0),0);
+		v_ShadowCoord =getShadowCoord(vec4(positionWS,1.0));
 	#endif
 
 	#ifdef CALCULATE_SPOTSHADOWS
