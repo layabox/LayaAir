@@ -63,6 +63,10 @@ varying vec3 v_Normal;
 	varying vec4 v_ShadowCoord;
 #endif
 
+#ifdef CALCULATE_SPOTSHADOWS
+	varying vec4 v_SpotShadowCoord;
+#endif
+
 #ifdef TILINGOFFSET
 	uniform vec4 u_TilingOffset;
 #endif
@@ -138,5 +142,10 @@ void main()
 	#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
 		v_ShadowCoord =getShadowCoord(vec4(positionWS,1.0),0);
 	#endif
+
+	#ifdef CALCULATE_SPOTSHADOWS
+		v_SpotShadowCoord = u_SpotViewProjectMatrix*vec4(positionWS,1.0);
+	#endif
+
 	gl_Position=remapGLPositionZ(gl_Position);
 }

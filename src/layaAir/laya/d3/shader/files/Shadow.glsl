@@ -17,11 +17,17 @@
 #endif
 
 #include "ShadowSampleTent.glsl"
+#if defined(RECEIVESHADOW)&&defined(SHADOW_SPOT)
+	#define CALCULATE_SPOTSHADOWS
+	uniform mat4 u_SpotViewProjectMatrix;
+#endif
 
 TEXTURE2D_SHADOW(u_ShadowMap);
+TEXTURE2D_SHADOW(u_SpotShadowMap);
+
 uniform vec4 u_ShadowMapSize;
 uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
-uniform vec4 u_ShadowParams; // x: shadowStrength
+uniform vec4 u_ShadowParams; // x: shadowStrength y:SpotStrength 
 uniform mat4 u_ShadowMatrices[5]; // add one zero matrix in end to do a trick
 uniform vec4 u_ShadowSplitSpheres[4];// max cascade is 4
 
@@ -116,6 +122,26 @@ float sampleShadowmap(vec4 shadowCoord)
 			attenuation = SAMPLE_TEXTURE2D_SHADOW(u_ShadowMap,shadowCoord.xyz);
 		#endif
 		attenuation = mix(1.0,attenuation,u_ShadowParams.x);//shadowParams.x:shadow strength
+	}
+	return attenuation;
+}
+
+float sampleSpotShadowmap(vec4 shadowCoord)
+{
+	shadowCoord.xyz /= shadowCoord.w;
+	float attenuation = 1.0;
+	shadowCoord.xy +=1.0;
+	shadowCoord.xy/=2.0; 
+	if(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)
+	{
+		#if defined(SHADOW_SOFT_SHADOW_HIGH)
+			attenuation = sampleShdowMapFiltered9(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);
+		#elif defined(SHADOW_SOFT_SHADOW_LOW)
+			attenuation = sampleShdowMapFiltered4(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);
+		#else
+			attenuation = SAMPLE_TEXTURE2D_SHADOW(u_SpotShadowMap,shadowCoord.xyz);
+		#endif
+		attenuation = mix(1.0,attenuation,u_ShadowParams.y);//shadowParams.y:shadow strength
 	}
 	return attenuation;
 }

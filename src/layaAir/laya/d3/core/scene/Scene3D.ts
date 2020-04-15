@@ -41,7 +41,7 @@ import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera, CameraClearFlags } from "../Camera";
 import { DirectionLight } from "../light/DirectionLight";
-import { AlternateLightQueue, DirectionLightQueue, LightQueue } from "../light/LightQueue";
+import { AlternateLightQueue, LightQueue } from "../light/LightQueue";
 import { PointLight } from "../light/PointLight";
 import { SpotLight } from "../light/SpotLight";
 import { Material } from "../material/Material";
@@ -59,6 +59,8 @@ import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
 import { DefineDatas } from "../../shader/DefineDatas";
+import { StaticBatchManager } from "../../graphics/StaticBatchManager";
+import { DynamicBatchManager } from "../../graphics/DynamicBatchManager";
 
 /**
  * 环境光模式
@@ -165,7 +167,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_LOW");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_HIGH");
 		Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH = Shader3D.getDefineByName("GI_AMBIENT_SH");
-
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT = Shader3D.getDefineByName("SHADOW_SPOT");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_LOW");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_HIGH");
 
 		var config: Config3D = Config3D._config;
 		var configShaderValue: DefineDatas = Scene3D._configDefineValues;
@@ -207,7 +211,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	public _spotLights: LightQueue<SpotLight> = new LightQueue();
 	/** @internal */
-	public _directionLights: DirectionLightQueue = new DirectionLightQueue();
+	public _directionLights: LightQueue<DirectionLight> = new LightQueue();
 	/** @internal */
 	public _alternateLights: AlternateLightQueue = new AlternateLightQueue();
 
@@ -239,7 +243,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _reflectionIntensity: number = 1.0;
 
 	/** @internal */
-	_mainLight: DirectionLight;
+	_mainDirectionLight: DirectionLight;
+	/** @internal */
+	_mainSpotLight:SpotLight;
+	/** @internal */
+	_mainPointLight:PointLight;//TODO
 	/** @internal */
 	_physicsSimulation: PhysicsSimulation;
 	/** @internal */
@@ -785,8 +793,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var dirCount: number = this._directionLights._length;
 			var dirElements: DirectionLight[] = this._directionLights._elements;
 			if (dirCount > 0) {
-				var sunLightIndex: number = this._directionLights.getSunLight();//get the brightest light as sun
-				this._mainLight = dirElements[sunLightIndex];
+				var sunLightIndex: number = this._directionLights.getBrightestLight();//get the brightest light as sun
+				this._mainDirectionLight = dirElements[sunLightIndex];
 				for (var i: number = 0; i < dirCount; i++ , curCount++) {
 					var dirLight: DirectionLight = dirElements[i];
 					var dir: Vector3 = dirLight._direction;
@@ -815,6 +823,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var poiCount: number = this._pointLights._length;
 			if (poiCount > 0) {
 				var poiElements: PointLight[] = this._pointLights._elements;
+				var mainPointLightIndex:number = this._pointLights.getBrightestLight();
+				this._mainPointLight = poiElements[mainPointLightIndex];
 				for (var i: number = 0; i < poiCount; i++ , curCount++) {
 					var poiLight: PointLight = poiElements[i];
 					var pos: Vector3 = poiLight.transform.position;
@@ -838,6 +848,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var spoCount: number = this._spotLights._length;
 			if (spoCount > 0) {
 				var spoElements: SpotLight[] = this._spotLights._elements;
+				var mainSpotLightIndex:number = this._spotLights.getBrightestLight();
+				this._mainSpotLight = spoElements[mainSpotLightIndex];
 				for (var i: number = 0; i < spoCount; i++ , curCount++) {
 					var spoLight: SpotLight = spoElements[i];
 					var dir: Vector3 = spoLight._direction;
@@ -873,7 +885,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		else {
 			if (this._directionLights._length > 0) {
 				var dirLight: DirectionLight = this._directionLights._elements[0];
-				this._mainLight = dirLight;
+				this._mainDirectionLight = dirLight;
 				Vector3.scale(dirLight.color, dirLight._intensity, dirLight._intensityColor);
 
 				dirLight.transform.worldMatrix.getForward(dirLight._direction);
@@ -1229,6 +1241,21 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			return this._opaqueQueue;
 		else
 			return this._transparentQueue;
+	}
+
+	/**
+	 * @internal
+	 */
+	_clearRenderQueue():void
+	{
+		this._opaqueQueue.clear();
+		this._transparentQueue.clear();
+		var staticBatchManagers: StaticBatchManager[] = StaticBatchManager._managers;
+		for (var i: number = 0, n: number = staticBatchManagers.length; i < n; i++)
+			staticBatchManagers[i]._clear();
+		var dynamicBatchManagers: DynamicBatchManager[] = DynamicBatchManager._managers;
+		for (var i: number = 0, n: number = dynamicBatchManagers.length; i < n; i++)
+			dynamicBatchManagers[i]._clear();
 	}
 
 	/**

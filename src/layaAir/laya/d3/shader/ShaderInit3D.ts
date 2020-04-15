@@ -141,6 +141,9 @@ export class ShaderInit3D {
 			'u_ShadowSplitSpheres': Shader3D.PERIOD_SCENE,
 			'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
 			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
+			'u_SpotShadowMap':Shader3D.PERIOD_SCENE,
+			'u_SpotViewProjectMatrix':Shader3D.PERIOD_SCENE,
+			'u_ShadowLightPosition':Shader3D.PERIOD_SCENE,
 
 			//GI
 			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
