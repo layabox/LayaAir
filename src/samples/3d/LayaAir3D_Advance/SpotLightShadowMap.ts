@@ -8,7 +8,6 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Handler } from "laya/utils/Handler";
-import { SpotMapShadowMaterial } from "./spotMapShadowMap/SpotMapShadowMaterial";
 import { Node } from "laya/display/Node";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -19,25 +18,15 @@ import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ShadowMode } from "laya/d3/core/light/ShadowMode";
 
 export class SpotLightShadowMap{
-    public spotMaterial:SpotMapShadowMaterial;
-    public blinnphongMaterial:BlinnPhongMaterial;
     public camera:Camera;
     public demoScene:Scene3D;
-    public spotLight:SpotLight;
-
-    public depthCamera:Camera;
-    public renderTexture:RenderTexture;
-
-
     constructor(){
         Laya3D.init(0,0);
         Stat.show();
         Laya.stage.scaleMode = Stage.SCALE_FULL;
         Laya.stage.screenMode = Stage.SCREEN_NONE;
-        SpotMapShadowMaterial.initShader();
         Shader3D.debugMode = true;
-        this.spotMaterial = new SpotMapShadowMaterial();
-        this.blinnphongMaterial = new BlinnPhongMaterial();
+    
         Scene3D.load("res/threeDimen/testNewFunction/LayaScene_depthScene/Conventional/depthScene.ls", Handler.create(this, function (scene: Scene3D): void {
             this.demoScene =(<Scene3D>Laya.stage.addChild(scene));  
             this.camera= (<Camera>scene.getChildByName("Camera"));
@@ -45,8 +34,6 @@ export class SpotLightShadowMap{
             this.camera.active = true; 
             this.receaveRealShadow(this.demoScene);
         }));
-        
-      
     }
     receaveRealShadow(scene3d:Scene3D):void
     {
