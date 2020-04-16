@@ -323,8 +323,7 @@ export class ShadowCasterPass {
 				gl.enable(gl.SCISSOR_TEST);
 				gl.viewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 				gl.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY,shadowSpotData.resolution, shadowSpotData.resolution);
-				gl.clearColor(1.0,1.0,1.0,1.0);
-				gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
+				gl.clear(gl.DEPTH_BUFFER_BIT);
 			
 				if(needRender){
 					 gl.scissor(shadowSpotData.offsetX,shadowSpotData.offsetY,shadowSpotData.resolution,shadowSpotData.resolution);

@@ -566,6 +566,7 @@ export class Camera extends BaseCamera {
 		var mainDirectLight: DirectionLight = scene._mainDirectionLight;
 		var needShadowCasterPass: boolean = mainDirectLight && mainDirectLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
 		if (needShadowCasterPass) {
+			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT)
 			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 			shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
 			shadowCasterPass.update(this, mainDirectLight,ShadowLightType.DirectionLight);
@@ -577,6 +578,7 @@ export class Camera extends BaseCamera {
 		var spotMainLight:SpotLight = scene._mainSpotLight;
 		var spotneedShadowCasterPass:boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
 		if(spotneedShadowCasterPass) {
+			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
 			shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
 			shadowCasterPass.update(this,spotMainLight,ShadowLightType.SpotLight);
@@ -585,6 +587,12 @@ export class Camera extends BaseCamera {
 		else{
 			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
 		}
+		if(needShadowCasterPass)
+			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+		if(spotneedShadowCasterPass)	
+			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+
+
 
 		context.camera = this;
 		context.cameraShaderValue = this._shaderValues;
