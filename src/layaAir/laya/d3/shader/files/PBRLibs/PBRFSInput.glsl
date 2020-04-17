@@ -100,6 +100,9 @@ varying vec3 v_PositionWorld;
 	varying vec4 v_ShadowCoord;
 #endif
 
+#ifdef CALCULATE_SPOTSHADOWS
+	varying vec4 v_SpotShadowCoord;
+#endif
 
 mediump float lerpOneTo(mediump float b, mediump float t)
 {

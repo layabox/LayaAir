@@ -76,4 +76,8 @@ void vertexForward()
 	#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
 		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 	#endif
+
+	#ifdef CALCULATE_SPOTSHADOWS
+		v_SpotShadowCoord = u_SpotViewProjectMatrix*vec4(positionWS,1.0);
+	#endif
 }

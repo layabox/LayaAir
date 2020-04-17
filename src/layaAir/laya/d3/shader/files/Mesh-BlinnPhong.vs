@@ -55,7 +55,7 @@ varying vec3 v_Normal;
 	uniform mat4 u_WorldMat;
 #endif
 
-#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
+#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))||defined(CALCULATE_SPOTSHADOWS)
 	varying vec3 v_PositionWorld;
 #endif
 
@@ -108,12 +108,12 @@ void main()
 		v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
 	#endif
 
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))||defined(CALCULATE_SPOTSHADOWS)
 		vec3 positionWS=(worldMat*position).xyz;
 		#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
 			v_ViewDir = u_CameraPos-positionWS;
 		#endif
-		#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
+		#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))||defined(CALCULATE_SPOTSHADOWS)
 			v_PositionWorld = positionWS;
 		#endif
 	#endif

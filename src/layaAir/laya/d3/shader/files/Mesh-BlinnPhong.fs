@@ -76,7 +76,7 @@ varying vec3 v_Normal;
 	uniform vec3 u_FogColor;
 #endif
 
-#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
+#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))||defined(CALCULATE_SPOTSHADOWS)
 	varying vec3 v_PositionWorld;
 #endif
 
@@ -169,6 +169,12 @@ void main()
 
 		#ifdef SPOTLIGHT
 			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_SpotLight,dif,spe);
+			#ifdef CALCULATE_SPOTSHADOWS
+				vec4 spotShadowcoord = v_SpotShadowCoord;
+				float spotShadowAttenuation = sampleSpotShadowmap(spotShadowcoord);
+				dif *= shadowAttenuation;
+				spe *= shadowAttenuation;
+			#endif
 			diffuse+=dif;
 			specular+=spe;
 		#endif
