@@ -88,7 +88,7 @@ export class TextRender {
         }
         if (ILaya.Browser.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
         //TextRender.isWan1Wan = true;
-        this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth, TextRender.atlasWidth, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
+        this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
         TextRender.textRenderInst = this;
         ILaya.Laya['textRender'] = this;
         TextRender.atlasWidth2 = TextRender.atlasWidth * TextRender.atlasWidth;
