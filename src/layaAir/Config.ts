@@ -46,6 +46,10 @@ export class Config {
 	static allowGPUInstanceDynamicBatch: boolean = true;
 
     static useRetinalCanvas: boolean = false;
+	
+     /** loadingPage出现和隐藏的延迟时间*/
+    static showLoadingPageDelay=0;
+    static hideLoadingPageDelay=0;
 }
 (window as any).Config = Config;
 
