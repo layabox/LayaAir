@@ -115,6 +115,8 @@ export class Scene extends Sprite {
      */
     open(closeOther: boolean = true, param: any = null): void {
         if (closeOther) Scene.closeAll();
+        if(Config.SceneCenterX) this.x = Math.round(((Laya.stage.width - this.width) >> 1) + this.pivotX);
+        if(Config.SceneCenterY) this.y = Math.round(((Laya.stage.height - this.height) >> 1) + this.pivotY);
         Scene.root.addChild(this);
         this.onOpened(param);
     }
