@@ -161,6 +161,8 @@ export class Dialog extends View {
 
     /**@private 表示对话框管理器。*/
     private static _manager: DialogManager;
+    /**表示点击对话框遮罩默认不可以关闭对话框*/
+    closeOnSide=false;  
 
     /**对话框管理容器，所有的对话框都在该容器内，并且受管理器管理，可以自定义自己的管理器，来更改窗口管理的流程。
      * 任意对话框打开和关闭，都会触发管理类的open和close事件*/
