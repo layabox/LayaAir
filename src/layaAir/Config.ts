@@ -46,6 +46,10 @@ export class Config {
 	static allowGPUInstanceDynamicBatch: boolean = true;
 
     static useRetinalCanvas: boolean = false;
+	
+    /** 是否居中场景*/
+    static SceneCenterX=1;
+    static SceneCenterY=1;
 }
 (window as any).Config = Config;
 
