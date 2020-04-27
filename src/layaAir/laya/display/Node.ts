@@ -170,7 +170,7 @@ export class Node extends EventDispatcher {
         if (this._children) {
             //为了保持销毁顺序，所以需要正序销毁
             for (var i: number = 0, n: number = this._children.length; i < n; i++) {
-                this._children[i].destroy(true);
+                this._children[0].destroy(true);
             }
         }
     }
