@@ -371,33 +371,36 @@ export class Loader extends EventDispatcher {
 			this.parsePLFData(data);
 			this.complete(data);
 		} else if (type === Loader.IMAGE) {
+			let tex:Texture2D;
 			//可能有另外一种情况
 			if (data instanceof ArrayBuffer) {
-					var ext: string = Utils.getFileExtension(this._url);
-					let format: TextureFormat;
-					switch (ext) {
-						case "ktx":
-							format = TextureFormat.ETC1RGB;
-							break;
-						case "pvr":
-							format = TextureFormat.PVRTCRGBA_4BPPV;
-							break;
-						default: {
-							console.error('unknown format', ext);
-							return;
-						}
+				var ext: string = Utils.getFileExtension(this._url);
+				let format: TextureFormat;
+				switch (ext) {
+					case "ktx":
+						format = TextureFormat.ETC1RGB;
+						break;
+					case "pvr":
+						format = TextureFormat.PVRTCRGBA_4BPPV;
+						break;
+					default: {
+						console.error('unknown format', ext);
+						return;
 					}
-					var tex = new Texture2D(0, 0, format, false, false);
-					tex.wrapModeU = WarpMode.Clamp;
-					tex.wrapModeV = WarpMode.Clamp;
-					tex.setCompressData(data);
-					tex._setCreateURL(this.url);
+				}
+				tex = new Texture2D(0, 0, format, false, false);
+				tex.wrapModeU = WarpMode.Clamp;
+				tex.wrapModeV = WarpMode.Clamp;
+				tex.setCompressData(data);
+				tex._setCreateURL(this.url);
 			} else if(!(data instanceof Texture2D)){
-				var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+				tex = new Texture2D(data.width, data.height, 1, false, false);
 				tex.wrapModeU = WarpMode.Clamp;
 				tex.wrapModeV = WarpMode.Clamp;
 				tex.loadImageSource(data, true);
 				tex._setCreateURL(data.src);
+			}else{
+				tex = data;
 			}
 			var texture: Texture = new Texture(tex);
 			texture.url = this._url;
@@ -406,12 +409,12 @@ export class Loader extends EventDispatcher {
 		} else if (type === Loader.SOUND || type === "nativeimage") {
 			this.complete(data);
 		} else if(type === "htmlimage" ){
-			var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
-				tex.wrapModeU = WarpMode.Clamp;
-				tex.wrapModeV = WarpMode.Clamp;
-				tex.loadImageSource(data, true);
-				tex._setCreateURL(data.src);
-				this.complete(tex);
+			let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+			tex.wrapModeU = WarpMode.Clamp;
+			tex.wrapModeV = WarpMode.Clamp;
+			tex.loadImageSource(data, true);
+			tex._setCreateURL(data.src);
+			this.complete(tex);
 		}
 		 else if (type === Loader.ATLAS) {
 			//处理图集
@@ -461,7 +464,7 @@ export class Loader extends EventDispatcher {
 			} else {
 				if(!(data instanceof Texture2D))
 				{
-					var tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+					let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
 					tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
 					tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
 					tex.loadImageSource(data, true);
