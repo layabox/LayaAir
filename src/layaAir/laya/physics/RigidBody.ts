@@ -259,7 +259,7 @@ export class RigidBody extends Component {
         return this._body;
     }
 
-    getOriBody(): any {
+    _getOriBody(): any {
         return this._body;
     }
 
