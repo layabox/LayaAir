@@ -234,8 +234,20 @@ export class RenderSprite {
 	/**@internal */
 	_texture(sprite: Sprite, context: Context, x: number, y: number): void {
 		var tex: Texture = sprite.texture;
-		if (tex._getSource())
-			context.drawTexture(tex, x - sprite.pivotX + tex.offsetX, y - sprite.pivotY + tex.offsetY, sprite._width || tex.width, sprite._height || tex.height);
+		if (tex._getSource()) {
+			var width: number = sprite._width || tex.sourceWidth;
+            var height: number = sprite._height || tex.sourceHeight;
+			var wRate: number = width / tex.sourceWidth;
+            var hRate: number = height / tex.sourceHeight;
+            width = tex.width * wRate;
+            height = tex.height * hRate;
+            if (width <= 0 || height <= 0) return null;
+
+            x = x - sprite.pivotX + tex.offsetX * wRate;
+			y = y - sprite.pivotY + tex.offsetY * hRate;
+
+			context.drawTexture(tex, x, y, width, height);
+		}
 		var next: RenderSprite = this._next;
 		if (next != RenderSprite.NORENDER)
 			next._fun.call(next, sprite, context, x, y);
