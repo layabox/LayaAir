@@ -50,6 +50,10 @@ varying float v_posViewZ;
 	varying vec4 v_ShadowCoord;
 #endif
 
+#ifdef CALCULATE_SPOTSHADOWS
+	varying vec4 v_SpotShadowCoord;
+#endif
+
 #ifdef TILINGOFFSET
 	uniform vec4 u_TilingOffset;
 #endif
