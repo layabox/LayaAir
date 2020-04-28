@@ -21,7 +21,7 @@ import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
-import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
+import { ShadowCasterPass, ShadowLightType } from "../shadowMap/ShadowCasterPass";
 import { Picker } from "../utils/Picker";
 import { BaseCamera } from "./BaseCamera";
 import { DirectionLight } from "./light/DirectionLight";
@@ -34,6 +34,7 @@ import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
 import { ILaya3D } from "../../../ILaya3D";
 import { ShadowUtils } from "./light/ShadowUtils";
+import { SpotLight } from "./light/SpotLight";
 
 /**
  * 相机清除标记。
@@ -562,17 +563,36 @@ export class Camera extends BaseCamera {
 
 		//render shadowMap
 		var shadowCasterPass: ShadowCasterPass;
-		var mainLight: DirectionLight = scene._mainLight;
-		var needShadowCasterPass: boolean = mainLight && mainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
+		var mainDirectLight: DirectionLight = scene._mainDirectionLight;
+		var needShadowCasterPass: boolean = mainDirectLight && mainDirectLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
 		if (needShadowCasterPass) {
+			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT)
 			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 			shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
-			shadowCasterPass.update(this, mainLight);
-			shadowCasterPass.render(context, scene);
+			shadowCasterPass.update(this, mainDirectLight,ShadowLightType.DirectionLight);
+			shadowCasterPass.render(context, scene,ShadowLightType.DirectionLight);
 		}
 		else {
 			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 		}
+		var spotMainLight:SpotLight = scene._mainSpotLight;
+		var spotneedShadowCasterPass:boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
+		if(spotneedShadowCasterPass) {
+			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+			shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
+			shadowCasterPass.update(this,spotMainLight,ShadowLightType.SpotLight);
+			shadowCasterPass.render(context,scene,ShadowLightType.SpotLight);
+		}
+		else{
+			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+		}
+		if(needShadowCasterPass)
+			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+		if(spotneedShadowCasterPass)	
+			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+
+
 
 		context.camera = this;
 		context.cameraShaderValue = this._shaderValues;
@@ -626,7 +646,7 @@ export class Camera extends BaseCamera {
 			RenderTexture.recoverToPool(this._internalRenderTexture);
 		}
 
-		if (needShadowCasterPass)
+		if (needShadowCasterPass||spotneedShadowCasterPass)
 			shadowCasterPass.cleanUp();
 	}
 

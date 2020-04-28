@@ -168,11 +168,17 @@ void fragmentForward()
 		#endif
 	
 		#ifdef POINTLIGHT
+			shadowAttenuation = 1.0;
 			LayaLight poiLight = layaPointLightToLight(posworld,normalWorld,u_PointLight,shadowAttenuation);
 			color+= LAYA_BRDF_LIGHT(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,poiLight);
 		#endif
 		
 		#ifdef SPOTLIGHT
+			shadowAttenuation = 1.0;
+			#ifdef CALCULATE_SPOTSHADOWS
+				vec4 spotShadowcoord = v_SpotShadowCoord;
+				shadowAttenuation = sampleSpotShadowmap(spotShadowcoord);
+			#endif
 		    LayaLight spoLight = layaSpotLightToLight(posworld,normalWorld,u_SpotLight,shadowAttenuation);
 			color+= LAYA_BRDF_LIGHT(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,spoLight);
 		#endif
@@ -180,6 +186,7 @@ void fragmentForward()
 	 	#ifdef DIRECTIONLIGHT
 			for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
 			{
+				shadowAttenuation = 1.0;
 				if(i >= u_DirationLightCount)
 					break;
 				#ifdef CALCULATE_SHADOWS
@@ -203,6 +210,7 @@ void fragmentForward()
 			#ifdef POINTLIGHT
 				for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
 				{
+					shadowAttenuation = 1.0;
 					if(i >= clusterInfo.x)//PointLightCount
 						break;
 					PointLight pointLight = getPointLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
@@ -213,8 +221,16 @@ void fragmentForward()
 			#ifdef SPOTLIGHT
 				for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
 				{
+					shadowAttenuation = 1.0;
 					if(i >= clusterInfo.y)//SpotLightCount
 						break;
+					#ifdef CALCULATE_SPOTSHADOWS
+						if(i == 0)
+						{
+							vec4 spotShadowcoord = v_SpotShadowCoord;
+							shadowAttenuation= sampleSpotShadowmap(spotShadowcoord);
+						}
+					#endif
 					SpotLight spotLight = getSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
 					LayaLight spoLight = layaSpotLightToLight(posworld,normalWorld,spotLight,shadowAttenuation);
 					color+= LAYA_BRDF_LIGHT(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,spoLight);

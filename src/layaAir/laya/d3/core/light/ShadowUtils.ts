@@ -10,7 +10,7 @@ import { Plane } from "../../math/Plane";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { ShadowSliceData } from "../../shadowMap/ShadowSliceData";
+import { ShadowSliceData, ShadowSpotData } from "../../shadowMap/ShadowSliceData";
 import { Utils3D } from "../../utils/Utils3D";
 import { DirectionLight } from "./DirectionLight";
 import { LightSprite, LightType } from "./LightSprite";
@@ -376,6 +376,31 @@ export class ShadowUtils {
         Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
         Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
     }
+
+    /** 
+    * @internal
+    */
+   static getSpotLightShadowData(shadowSpotData:ShadowSpotData,spotLight:SpotLight,resolution:number,shadowParams:Vector4,shadowSpotMatrices:Matrix4x4,shadowMapSize:Vector4)
+   {
+        var out:Vector3 = shadowSpotData.position = spotLight.transform.position;
+        shadowSpotData.resolution = resolution;
+        shadowMapSize.setValue(1.0 / resolution, 1.0 / resolution, resolution, resolution);
+        shadowSpotData.offsetX = 0;
+        shadowSpotData.offsetY = 0;
+
+        var spotWorldMatrix:Matrix4x4 = spotLight.transform.worldMatrix 
+        var viewMatrix: Matrix4x4 = shadowSpotData.viewMatrix;
+        var projectMatrix: Matrix4x4 = shadowSpotData.projectionMatrix;
+        var viewProjectMatrix: Matrix4x4 = shadowSpotData.viewProjectMatrix;
+        var BoundFrustum:BoundFrustum = shadowSpotData.cameraCullInfo.boundFrustum;
+        spotWorldMatrix.invert(viewMatrix);
+        Matrix4x4.createPerspective(3.1416*spotLight.spotAngle / 180.0,1,0.1,spotLight.range,projectMatrix);
+        shadowParams.y = spotLight.shadowStrength;
+        Matrix4x4.multiply(projectMatrix,viewMatrix,viewProjectMatrix);
+        BoundFrustum.matrix = viewProjectMatrix;
+        viewProjectMatrix.cloneTo(shadowSpotMatrices);
+        shadowSpotData.cameraCullInfo.position = out;
+   }
 
     /**
      * @internal
