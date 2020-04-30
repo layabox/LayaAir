@@ -7,6 +7,7 @@ import { Physics3D } from "./Physics3D";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { ColliderShape } from "./shape/ColliderShape";
 import { Stat } from "../../utils/Stat";
+import { ConstraintComponent } from "./constraints/ConstraintComponent";
 
 /**
  * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。
@@ -97,7 +98,10 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	/** @internal */
 	private _detectCollisions: boolean = true;
 	//private var _linkedConstraints:Array;//TODO:
-
+	/** @internal */
+	private _constaintRigidbodyA:ConstraintComponent;
+	/** @internal */
+	private _constaintRigidbodyB:ConstraintComponent;
 	/**
 	 * 质量。
 	 */
@@ -355,6 +359,34 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		bt.btRigidBody_setSleepingThresholds(this._btColliderObject, bt.btRigidBody_getLinearSleepingThreshold(this._btColliderObject), value);
 	}
 
+	get btColliderObject():number{
+		return this._btColliderObject;
+	}
+
+	/**
+	 * @internal
+	 */	
+	set constaintRigidbodyA(value:ConstraintComponent){
+		this._constaintRigidbodyA = value;
+	}
+	/**
+	 * @internal
+	 */	
+	get constaintRigidbodyA():ConstraintComponent{
+		return this._constaintRigidbodyA;
+	}
+	/**
+	 * @internal
+	 */	
+	set constaintRigidbodyB(value:ConstraintComponent){
+		this._constaintRigidbodyB = value;
+	}
+	/**
+	 * @internal
+	 */	
+	get constaintRigidbodyB():ConstraintComponent{
+		return this._constaintRigidbodyB;
+	}
 
 	/**
 	 * 创建一个 <code>RigidBody3D</code> 实例。
@@ -511,6 +543,13 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		this._angularVelocity = null;
 		this._linearFactor = null;
 		this._angularFactor = null;
+		if(this.constaintRigidbodyA)
+			this.constaintRigidbodyA._breakConstrained();	
+		if(this.constaintRigidbodyB){
+			this.constaintRigidbodyB.connectedBody = null;
+			this.constaintRigidbodyB._onDisable();
+		}
+			
 	}
 
 	/**
