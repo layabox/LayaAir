@@ -23,7 +23,7 @@ export class MeshColliderShape extends ColliderShape {
 		if (this._mesh !== value) {
 			var bt: any = Physics3D._bullet;
 			if (this._mesh) {
-				bt.destroy(this._btShape);
+				bt.btCollisionShape_destroy(this._btShape);
 			}
 			if (value) {
 				this._btShape = bt.btGImpactMeshShape_create(value._getPhysicMesh());
