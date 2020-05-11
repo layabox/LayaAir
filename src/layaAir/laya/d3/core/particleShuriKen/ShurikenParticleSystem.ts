@@ -272,7 +272,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**粒子的播放速度。 */
 	simulationSpeed: number = 1.0;
 	/**缩放模式，0为Hiercachy,1为Local,2为World。*/
-	scaleMode: number = 0;
+	scaleMode: number = 1;
 	/**激活时是否自动播放。*/
 	playOnAwake: boolean = false;
 
@@ -910,7 +910,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		this.gravityModifier = 0.0;
 		this.simulationSpace = 1;
-		this.scaleMode = 0;
+		this.scaleMode = 1;
 		this.playOnAwake = true;
 		this._rand = new Rand(0);
 		this.autoRandomSeed = true;

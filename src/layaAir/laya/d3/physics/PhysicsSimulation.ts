@@ -19,6 +19,7 @@ import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { Rigidbody3D } from "./Rigidbody3D";
 import { ColliderShape } from "./shape/ColliderShape";
 import { Physics3D } from "./Physics3D";
+import { ConstraintComponent } from "./constraints/ConstraintComponent";
 
 /**
  * <code>Simulation</code> 类用于创建物理模拟器。
@@ -130,7 +131,8 @@ export class PhysicsSimulation {
 	private _previousFrameCollisions: Collision[] = [];
 	/** @internal */
 	private _currentFrameCollisions: Collision[] = [];
-
+	/** @internal */
+	private _currentConstraint:any = {};
 	/** @internal */
 	_physicsUpdateList: PhysicsUpdateList = new PhysicsUpdateList();
 	/**@internal	*/
@@ -621,20 +623,23 @@ export class PhysicsSimulation {
 	 * @param constraint 约束。
 	 * @param disableCollisionsBetweenLinkedBodies 是否禁用
 	 */
-	addConstraint(constraint: Constraint3D, disableCollisionsBetweenLinkedBodies: boolean = false): void {
+	addConstraint(constraint: ConstraintComponent, disableCollisionsBetweenLinkedBodies: boolean = false): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
 		// this._nativeDiscreteDynamicsWorld.addConstraint(constraint._nativeConstraint, disableCollisionsBetweenLinkedBodies);
-		constraint._simulation = this;
+		Physics3D._bullet.btCollisionWorld_addConstraint(this._btDiscreteDynamicsWorld,constraint._btConstraint,disableCollisionsBetweenLinkedBodies);
+		this._currentConstraint[constraint.id] = constraint;
 	}
 
 	/**
 	 * 移除刚体运动的约束条件。
 	 */
-	removeConstraint(constraint: Constraint3D): void {
+	removeConstraint(constraint: ConstraintComponent): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
 		// this._nativeDiscreteDynamicsWorld.removeConstraint(constraint._nativeConstraint);
+		Physics3D._bullet.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, constraint._btConstraint);
+		delete this._currentConstraint[constraint.id];
 	}
 
 	/**
@@ -872,6 +877,16 @@ export class PhysicsSimulation {
 					}
 				}
 			}
+		}
+		for(var id in this._currentConstraint){
+			var constraintObj:ConstraintComponent = this._currentConstraint[id];
+			var scripts: Script3D[] = (<Sprite3D>constraintObj.owner)._scripts; 
+			if(constraintObj.enabled && constraintObj._isBreakConstrained())
+			 {
+				for(i = 0,n = scripts.length;i<n;i++){
+					scripts[i].onJointBreak();
+				}
+			 }
 		}
 	}
 
