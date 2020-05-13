@@ -210,6 +210,14 @@ export class Script3D extends Component {
 	}
 
 	/**
+	 * 关节破坏时执行此方法
+	 * 此方法为虚方法，使用时重写覆盖即可
+	 */
+	onJointBreak():void{
+		
+	}
+
+	/**
 	 * 鼠标按下时执行
 	 * 此方法为虚方法，使用时重写覆盖即可
 	 */
