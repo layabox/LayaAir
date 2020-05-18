@@ -152,15 +152,11 @@ export class WebAudioSoundChannel extends SoundChannel {
     }
 
     private _tryClearBuffer(sourceNode: any): void {
-        if (!Browser.onMac) {
-            try {
-                sourceNode.buffer = null;
-            } catch (e) {
-                WebAudioSoundChannel._tryCleanFailed = true;
-            }
-            return;
+        try {//已经支持buffer=null
+            sourceNode.buffer = null;
+        } catch (e) {
+            WebAudioSoundChannel._tryCleanFailed = true;
         }
-        try { sourceNode.buffer = ILaya.WebAudioSound._miniBuffer; } catch (e) { WebAudioSoundChannel._tryCleanFailed = true; }
     }
 
     /**
