@@ -97,6 +97,7 @@ import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { MeshReader } from "./laya/d3/loaders/MeshReader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
+import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
 import { CannonColliderShape } from "./laya/d3/physicsCannon/shape/CannonColliderShape";
 import { CannonPhysicsComponent } from "./laya/d3/physicsCannon/CannonPhysicsComponent";
 import { CannonPhysicsSimulation } from "./laya/d3/physicsCannon/CannonPhysicsSimulation";
@@ -299,6 +300,7 @@ export class Laya3D {
 		ClassUtils.regClass("CharacterController", CharacterController);
 		ClassUtils.regClass("Animator", Animator);
 		ClassUtils.regClass("Rigidbody3D", Rigidbody3D);
+		ClassUtils.regClass("FixedJoint", FixedConstraint);
 
 
 		PixelLineMaterial.defaultMaterial = new PixelLineMaterial();

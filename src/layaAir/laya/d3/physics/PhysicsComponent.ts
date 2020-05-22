@@ -615,6 +615,7 @@ export class PhysicsComponent extends Component {
 	 */
 	_onAdded(): void {
 		this.enabled = this._enabled;
+		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		this.restitution = this._restitution;
 		this.friction = this._friction;
 		this.rollingFriction = this._rollingFriction;
