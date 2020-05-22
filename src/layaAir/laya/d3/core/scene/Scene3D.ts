@@ -61,6 +61,9 @@ import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
 import { DefineDatas } from "../../shader/DefineDatas";
 import { StaticBatchManager } from "../../graphics/StaticBatchManager";
 import { DynamicBatchManager } from "../../graphics/DynamicBatchManager";
+import { CannonPhysicsSimulation } from "../../physicsCannon/CannonPhysicsSimulation";
+import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings";
+import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
 
 /**
  * 环境光模式
@@ -87,6 +90,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static HIERARCHY: string = "HIERARCHY";
 	/**@internal */
 	static physicsSettings: PhysicsSettings = new PhysicsSettings();
+	/**@internal */
+	static cannonPhysicsSettings:CannonPhysicsSettings;
 	/** 是否开启八叉树裁剪。*/
 	static octreeCulling: boolean = false;
 	/** 八叉树初始化尺寸。*/
@@ -250,6 +255,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_mainPointLight:PointLight;//TODO
 	/** @internal */
 	_physicsSimulation: PhysicsSimulation;
+	/** @internal */
+	_cannonPhysicsSimulation:CannonPhysicsSimulation;
 	/** @internal */
 	_octree: BoundsOctree;
 	/** @internal 只读,不允许修改。*/
@@ -532,7 +539,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		super();
 		if (Physics3D._enablePhysics)
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
-
+		if(CANNON){
+			if(!Scene3D.cannonPhysicsSettings) 
+				Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
+			this._cannonPhysicsSimulation = new CannonPhysicsSimulation(Scene3D.cannonPhysicsSettings);
+		}
+			
+		
 		this._shaderValues = new ShaderData(null);
 
 		this.enableFog = false;
@@ -623,6 +636,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 			//send contact events
 			simulation._eventScripts();
+		} 
+		if(CANNON){
+			var cannonSimulation:CannonPhysicsSimulation = this._cannonPhysicsSimulation;
+			cannonSimulation._updatePhysicsTransformFromRender();
+			CannonPhysicsComponent._addUpdateList = false;
+			cannonSimulation._simulate(delta);
+			PhysicsComponent._addUpdateList = true;
+			cannonSimulation._updateCollisions();
+			cannonSimulation._eventScripts();
 		}
 		this._input._update();
 

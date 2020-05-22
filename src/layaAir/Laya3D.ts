@@ -97,6 +97,12 @@ import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { MeshReader } from "./laya/d3/loaders/MeshReader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
+import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
+import { CannonColliderShape } from "./laya/d3/physicsCannon/shape/CannonColliderShape";
+import { CannonPhysicsComponent } from "./laya/d3/physicsCannon/CannonPhysicsComponent";
+import { CannonPhysicsSimulation } from "./laya/d3/physicsCannon/CannonPhysicsSimulation";
+import { CannonBoxColliderShape } from "./laya/d3/physicsCannon/shape/CannonBoxColliderShape";
+import { CannonRigidbody3D } from "./laya/d3/physicsCannon/CannonRigidbody3D";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -228,7 +234,14 @@ export class Laya3D {
 			CharacterController.__init__();
 			Rigidbody3D.__init__();
 		}
-
+		if(CANNON)
+		{
+			CannonColliderShape.__init__();
+			CannonPhysicsComponent.__init__();
+			CannonPhysicsSimulation.__init__();
+			CannonBoxColliderShape.__init__();
+			CannonRigidbody3D.__init__();
+		}
 		ShaderInit3D.__init__();
 		ShadowUtils.init();
 		PBRMaterial.__init__();
@@ -287,6 +300,7 @@ export class Laya3D {
 		ClassUtils.regClass("CharacterController", CharacterController);
 		ClassUtils.regClass("Animator", Animator);
 		ClassUtils.regClass("Rigidbody3D", Rigidbody3D);
+		ClassUtils.regClass("FixedJoint", FixedConstraint);
 
 
 		PixelLineMaterial.defaultMaterial = new PixelLineMaterial();

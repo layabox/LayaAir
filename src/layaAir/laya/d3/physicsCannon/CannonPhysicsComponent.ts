@@ -1,7 +1,6 @@
 
 import { Component } from "../../components/Component";
 import { Event } from "../../events/Event";
-import { Loader } from "../../net/Loader";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Transform3D } from "../core/Transform3D";
@@ -9,21 +8,14 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
-import { Physics3D } from "./Physics3D";
-import { PhysicsSimulation } from "./PhysicsSimulation";
-import { BoxColliderShape } from "./shape/BoxColliderShape";
-import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
-import { ColliderShape } from "./shape/ColliderShape";
-import { CompoundColliderShape } from "./shape/CompoundColliderShape";
-import { ConeColliderShape } from "./shape/ConeColliderShape";
-import { CylinderColliderShape } from "./shape/CylinderColliderShape";
-import { MeshColliderShape } from "./shape/MeshColliderShape";
-import { SphereColliderShape } from "./shape/SphereColliderShape";
-
+import { CannonPhysicsSimulation } from "./CannonPhysicsSimulation";
+import { CannonBoxColliderShape } from "./shape/CannonBoxColliderShape";
+import { CannonColliderShape } from "./shape/CannonColliderShape";
+import { CannonSphereColliderShape } from "./shape/CannonSphereColliderShape";
 /**
  * <code>PhysicsComponent</code> 类用于创建物理组件的父类。
  */
-export class PhysicsComponent extends Component {
+export class CannonPhysicsComponent extends Component {
 	/** @internal */
 	static ACTIVATIONSTATE_ACTIVE_TAG: number = 1;
 	/** @internal */
@@ -59,9 +51,9 @@ export class PhysicsComponent extends Component {
 	/** @internal */
 	protected static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
 	/** @internal */
-	protected static _btVector30: number;
+	protected static _btVector30: CANNON.Vec3;
 	/** @internal */
-	protected static _btQuaternion0: number;
+	protected static _btQuaternion0: CANNON.Quaternion;
 
 	/** @internal */
 	static _physicObjectsMap: any = {};
@@ -72,9 +64,8 @@ export class PhysicsComponent extends Component {
 	* @internal
 	*/
 	static __init__(): void {
-		var bt: any = Physics3D._bullet;
-		PhysicsComponent._btVector30 = bt.btVector3_create(0, 0, 0);
-		PhysicsComponent._btQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
+		CannonPhysicsComponent._btVector30 =new CANNON.Vec3(0,0,0);
+		CannonPhysicsComponent._btQuaternion0 = new CANNON.Quaternion(0,0,0,1);
 	}
 
 	/**
@@ -107,30 +98,30 @@ export class PhysicsComponent extends Component {
 	/**
 	 * @internal
 	 */
-	static _creatShape(shapeData: any): ColliderShape {
-		var colliderShape: ColliderShape;
+	static _creatShape(shapeData: any): CannonColliderShape {
+		var colliderShape: CannonColliderShape;
 		switch (shapeData.type) {
 			case "BoxColliderShape":
 				var sizeData: any[] = shapeData.size;
-				colliderShape = sizeData ? new BoxColliderShape(sizeData[0], sizeData[1], sizeData[2]) : new BoxColliderShape();
+				colliderShape = sizeData ? new CannonBoxColliderShape(sizeData[0], sizeData[1], sizeData[2]) : new CannonBoxColliderShape();
 				break;
 			case "SphereColliderShape":
-				colliderShape = new SphereColliderShape(shapeData.radius);
+				colliderShape = new CannonSphereColliderShape(shapeData.radius);
 				break;
-			case "CapsuleColliderShape":
-				colliderShape = new CapsuleColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
-				break;
-			case "MeshColliderShape":
-				var meshCollider: MeshColliderShape = new MeshColliderShape();
-				shapeData.mesh && (meshCollider.mesh = Loader.getRes(shapeData.mesh));
-				colliderShape = meshCollider;
-				break;
-			case "ConeColliderShape":
-				colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
-				break;
-			case "CylinderColliderShape":
-				colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
-				break;
+			// case "CapsuleColliderShape":
+			// 	colliderShape = new CapsuleColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+			// 	break;
+			// case "MeshColliderShape":
+			// 	var meshCollider: MeshColliderShape = new MeshColliderShape();
+			// 	shapeData.mesh && (meshCollider.mesh = Loader.getRes(shapeData.mesh));
+			// 	colliderShape = meshCollider;
+			// 	break;
+			// case "ConeColliderShape":
+			// 	colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+			// 	break;
+			// case "CylinderColliderShape":
+			// 	colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+			// 	break;
 			default:
 				throw "unknown shape type.";
 		}
@@ -176,27 +167,20 @@ export class PhysicsComponent extends Component {
 	/** @internal */
 	private _friction: number = 0.5;
 	/** @internal */
-	private _rollingFriction: number = 0.0;
-	/** @internal */
-	private _ccdMotionThreshold: number = 0.0;
-	/** @internal */
-	private _ccdSweptSphereRadius: number = 0.0;
-
-	/** @internal */
 	protected _collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER;
 	/** @internal */
 	protected _canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER;
 	/** @internal */
-	protected _colliderShape: ColliderShape = null;
+	protected _colliderShape: CannonColliderShape = null;
 	/** @internal */
 	protected _transformFlag: number = 2147483647 /*int.MAX_VALUE*/;
 	/** @internal */
 	protected _controlBySimulation: boolean = false;
 
 	/** @internal */
-	_btColliderObject: number;//TODO:不用声明,TODO:删除相关判断
+	_btColliderObject: CANNON.Body;//TODO:不用声明,TODO:删除相关判断
 	/** @internal */
-	_simulation: PhysicsSimulation;
+	_simulation: CannonPhysicsSimulation;
 	/** @internal */
 	_enableProcessCollisions: boolean = true;
 	/** @internal */
@@ -214,7 +198,7 @@ export class PhysicsComponent extends Component {
 
 	set restitution(value: number) {
 		this._restitution = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setRestitution(this._btColliderObject, value);
+		this._btColliderObject && (this._btColliderObject.material.restitution = value);
 	}
 
 	/**
@@ -226,61 +210,18 @@ export class PhysicsComponent extends Component {
 
 	set friction(value: number) {
 		this._friction = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setFriction(this._btColliderObject, value);
-	}
-
-	/**
-	 * 滚动摩擦力。
-	 */
-	get rollingFriction(): number {
-		return this._rollingFriction;
-	}
-
-	set rollingFriction(value: number) {
-		this._rollingFriction = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setRollingFriction(this._btColliderObject, value);
-	}
-
-	/**
-	 * 用于连续碰撞检测(CCD)的速度阈值,当物体移动速度小于该值时不进行CCD检测,防止快速移动物体(例如:子弹)错误的穿过其它物体,0表示禁止。
-	 */
-	get ccdMotionThreshold(): number {
-		return this._ccdMotionThreshold;
-	}
-
-	set ccdMotionThreshold(value: number) {
-		this._ccdMotionThreshold = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setCcdMotionThreshold(this._btColliderObject, value);
-	}
-
-	/**
-	 * 获取用于进入连续碰撞检测(CCD)范围的球半径。
-	 */
-	get ccdSweptSphereRadius(): number {
-		return this._ccdSweptSphereRadius;
-	}
-
-	set ccdSweptSphereRadius(value: number) {
-		this._ccdSweptSphereRadius = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setCcdSweptSphereRadius(this._btColliderObject, value);
-	}
-
-	/**
-	 * 获取是否激活。
-	 */
-	get isActive(): boolean {
-		return this._btColliderObject ? Physics3D._bullet.btCollisionObject_isActive(this._btColliderObject) : false;
+		this._btColliderObject && (this._btColliderObject.material.friction = value);
 	}
 
 	/**
 	 * 碰撞形状。
 	 */
-	get colliderShape(): ColliderShape {
+	get colliderShape(): CannonColliderShape {
 		return this._colliderShape;
 	}
 
-	set colliderShape(value: ColliderShape) {
-		var lastColliderShape: ColliderShape = this._colliderShape;
+	set colliderShape(value: CannonColliderShape) {
+		var lastColliderShape: CannonColliderShape = this._colliderShape;
 		if (lastColliderShape) {
 			lastColliderShape._attatched = false;
 			lastColliderShape._attatchedCollisionObject = null;
@@ -296,10 +237,14 @@ export class PhysicsComponent extends Component {
 			}
 
 			if (this._btColliderObject) {
-				Physics3D._bullet.btCollisionObject_setCollisionShape(this._btColliderObject, value._btShape);
+				this._btColliderObject.shapes.length = 0;
+				this._btColliderObject.shapeOffsets.length = 0;
+				this._btColliderObject.shapeOrientations.length = 0;
+				this._btColliderObject.addShape(this._colliderShape._btShape);
+				this._btColliderObject.updateBoundingRadius();
 				var canInSimulation: boolean = this._simulation && this._enabled;
 				(canInSimulation && lastColliderShape) && (this._removeFromSimulation());//修改shape必须把Collison从物理世界中移除再重新添加
-				this._onShapeChange(value);//修改shape会计算惯性
+				this._onShapeChange(value);//
 				if (canInSimulation) {
 					this._derivePhysicsTransformation(true);
 					this._addToSimulation();
@@ -314,7 +259,7 @@ export class PhysicsComponent extends Component {
 	/**
 	 * 模拟器。
 	 */
-	get simulation(): PhysicsSimulation {
+	get simulation(): CannonPhysicsSimulation {
 		return this._simulation;
 	}
 
@@ -328,6 +273,7 @@ export class PhysicsComponent extends Component {
 	set collisionGroup(value: number) {
 		if (this._collisionGroup !== value) {
 			this._collisionGroup = value;
+			this._btColliderObject.collisionFilterGroup = value; 
 			if (this._simulation && this._colliderShape && this._enabled) {
 				this._removeFromSimulation();
 				this._addToSimulation();
@@ -345,6 +291,7 @@ export class PhysicsComponent extends Component {
 	set canCollideWith(value: number) {
 		if (this._canCollideWith !== value) {
 			this._canCollideWith = value;
+			this._btColliderObject.collisionFilterMask = value; 
 			if (this._simulation && this._colliderShape && this._enabled) {
 				this._removeFromSimulation();
 				this._addToSimulation();
@@ -361,7 +308,7 @@ export class PhysicsComponent extends Component {
 		super();
 		this._collisionGroup = collisionGroup;
 		this._canCollideWith = canCollideWith;
-		PhysicsComponent._physicObjectsMap[this.id] = this;
+		CannonPhysicsComponent._physicObjectsMap[this.id] = this;
 	}
 
 	/**
@@ -370,15 +317,16 @@ export class PhysicsComponent extends Component {
 	protected _parseShape(shapesData: any[]): void {
 		var shapeCount: number = shapesData.length;
 		if (shapeCount === 1) {
-			var shape: ColliderShape = PhysicsComponent._creatShape(shapesData[0]);
+			var shape: CannonColliderShape = CannonPhysicsComponent._creatShape(shapesData[0]);
 			this.colliderShape = shape;
 		} else {
-			var compoundShape: CompoundColliderShape = new CompoundColliderShape();
-			for (var i: number = 0; i < shapeCount; i++) {
-				shape = PhysicsComponent._creatShape(shapesData[i]);
-				compoundShape.addChildShape(shape);
-			}
-			this.colliderShape = compoundShape;
+			//TODO:
+			// var compoundShape: CompoundColliderShape = new CompoundColliderShape();
+			// for (var i: number = 0; i < shapeCount; i++) {
+			// 	shape = PhysicsComponent._creatShape(shapesData[i]);
+			// 	compoundShape.addChildShape(shape);
+			// }
+			// this.colliderShape = compoundShape;
 		}
 	}
 
@@ -395,8 +343,8 @@ export class PhysicsComponent extends Component {
 	 * @override
 	 */
 	_onEnable(): void {
-		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
-		Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 1e30);
+		//@ts-ignorets  minerTODO：
+		this._simulation = ((<Scene3D>this.owner._scene))._cannonPhysicsSimulation;
 		if (this._colliderShape) {
 			this._derivePhysicsTransformation(true);
 			this._addToSimulation();
@@ -422,8 +370,8 @@ export class PhysicsComponent extends Component {
 	 * @override
 	 */
 	protected _onDestroy(): void {
-		delete PhysicsComponent._physicObjectsMap[this.id];
-		Physics3D._bullet.btCollisionObject_destroy(this._btColliderObject);
+		delete CannonPhysicsComponent._physicObjectsMap[this.id];
+		this._btColliderObject = null;
 		this._colliderShape.destroy();
 		super._onDestroy();
 		this._btColliderObject = null;
@@ -447,8 +395,6 @@ export class PhysicsComponent extends Component {
 	_parse(data: any): void {
 		(data.collisionGroup != null) && (this.collisionGroup = data.collisionGroup);
 		(data.canCollideWith != null) && (this.canCollideWith = data.canCollideWith);
-		(data.ccdMotionThreshold != null) && (this.ccdMotionThreshold = data.ccdMotionThreshold);
-		(data.ccdSweptSphereRadius != null) && (this.ccdSweptSphereRadius = data.ccdSweptSphereRadius);
 	}
 
 	/**
@@ -485,49 +431,45 @@ export class PhysicsComponent extends Component {
 	 * 	@internal
 	 */
 	_derivePhysicsTransformation(force: boolean): void {
-		var bt: any = Physics3D._bullet;
-		var btColliderObject: number = this._btColliderObject;
-		var btTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
-		this._innerDerivePhysicsTransformation(btTransform, force);
-		bt.btCollisionObject_setWorldTransform(btColliderObject, btTransform);
+		var btColliderObject: CANNON.Body = this._btColliderObject;
+		this._innerDerivePhysicsTransformation(btColliderObject, force);
 	}
 
 	/**
 	 * 	@internal
 	 *	通过渲染矩阵更新物理矩阵。
 	 */
-	_innerDerivePhysicsTransformation(physicTransformOut: number, force: boolean): void {
-		var bt: any = Physics3D._bullet;
+	_innerDerivePhysicsTransformation(physicTransformOut: CANNON.Body, force: boolean): void {
 		var transform: Transform3D = ((<Sprite3D>this.owner))._transform;
 
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			var shapeOffset: Vector3 = this._colliderShape.localOffset;
 			var position: Vector3 = transform.position;
-			var btPosition: any = PhysicsComponent._btVector30;
+			var btPosition: CANNON.Vec3 = CannonPhysicsComponent._btVector30;
 			if (shapeOffset.x !== 0 || shapeOffset.y !== 0 || shapeOffset.z !== 0) {
-				var physicPosition: Vector3 = PhysicsComponent._tempVector30;
+				var physicPosition: Vector3 = CannonPhysicsComponent._tempVector30;
 				var worldMat: Matrix4x4 = transform.worldMatrix;
 				Vector3.transformCoordinate(shapeOffset, worldMat, physicPosition);
-				bt.btVector3_setValue(btPosition, -physicPosition.x, physicPosition.y, physicPosition.z);
+				btPosition.set(physicPosition.x,physicPosition.y,physicPosition.z);
 			} else {
-				bt.btVector3_setValue(btPosition, -position.x, position.y, position.z);
+				btPosition.set(position.x,position.y,position.z);
 			}
-			bt.btTransform_setOrigin(physicTransformOut, btPosition);
+			physicTransformOut.position.set(btPosition.x,btPosition.y,btPosition.z);
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION, false);
 		}
 
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION)) {
 			var shapeRotation: Quaternion = this._colliderShape.localRotation;
-			var btRotation: any = PhysicsComponent._btQuaternion0;
+			var btRotation: CANNON.Quaternion= CannonPhysicsComponent._btQuaternion0;
 			var rotation: Quaternion = transform.rotation;
 			if (shapeRotation.x !== 0 || shapeRotation.y !== 0 || shapeRotation.z !== 0 || shapeRotation.w !== 1) {
-				var physicRotation: Quaternion = PhysicsComponent._tempQuaternion0;
-				PhysicsComponent.physicQuaternionMultiply(rotation.x, rotation.y, rotation.z, rotation.w, shapeRotation, physicRotation);
-				bt.btQuaternion_setValue(btRotation, -physicRotation.x, physicRotation.y, physicRotation.z, -physicRotation.w);
+				var physicRotation: Quaternion = CannonPhysicsComponent._tempQuaternion0;
+				CannonPhysicsComponent.physicQuaternionMultiply(rotation.x, rotation.y, rotation.z, rotation.w, shapeRotation, physicRotation);
+				btRotation.set(physicRotation.x,physicRotation.y,physicRotation.z,physicRotation.w)
 			} else {
-				bt.btQuaternion_setValue(btRotation, -rotation.x, rotation.y, rotation.z, -rotation.w);
+				btRotation.set(rotation.x,rotation.y,rotation.z,rotation.w)
 			}
-			bt.btTransform_setRotation(physicTransformOut, btRotation);
+			physicTransformOut.quaternion.set(btRotation.x,btRotation.y,btRotation.z,btRotation.w); 
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION, false);
 		}
 
@@ -541,10 +483,8 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 * 通过物理矩阵更新渲染矩阵。
 	 */
-	_updateTransformComponent(physicsTransform: number): void {
-		//TODO:Need Test!!! because _innerDerivePhysicsTransformation update position use worldMatrix,not(position rotation WorldLossyScale),maybe the center is no different.
-		var bt: any = Physics3D._bullet;
-		var colliderShape: ColliderShape = this._colliderShape;
+	_updateTransformComponent(physicsTransform: CANNON.Body): void {
+		var colliderShape: CannonColliderShape = this._colliderShape;
 		var localOffset: Vector3 = colliderShape.localOffset;
 		var localRotation: Quaternion = colliderShape.localRotation;
 
@@ -552,18 +492,18 @@ export class PhysicsComponent extends Component {
 		var position: Vector3 = transform.position;
 		var rotation: Quaternion = transform.rotation;
 
-		var btPosition: number = bt.btTransform_getOrigin(physicsTransform);
-		var btRotation: number = bt.btTransform_getRotation(physicsTransform);
+		var btPosition:CANNON.Vec3 = physicsTransform.position;
+		var btRotation:CANNON.Quaternion = physicsTransform.quaternion;
 
-		var btRotX: number = -bt.btQuaternion_x(btRotation);
-		var btRotY: number = bt.btQuaternion_y(btRotation);
-		var btRotZ: number = bt.btQuaternion_z(btRotation);
-		var btRotW: number = -bt.btQuaternion_w(btRotation);
+		var btRotX: number = btRotation.x;
+		var btRotY: number = btRotation.y;
+		var btRotZ: number = btRotation.z;
+		var btRotW: number = btRotation.w;
 
 		if (localRotation.x !== 0 || localRotation.y !== 0 || localRotation.z !== 0 || localRotation.w !== 1) {
-			var invertShapeRotaion: Quaternion = PhysicsComponent._tempQuaternion0;
+			var invertShapeRotaion: Quaternion = CannonPhysicsComponent._tempQuaternion0;
 			localRotation.invert(invertShapeRotaion);
-			PhysicsComponent.physicQuaternionMultiply(btRotX, btRotY, btRotZ, btRotW, invertShapeRotaion, rotation);
+			CannonPhysicsComponent.physicQuaternionMultiply(btRotX, btRotY, btRotZ, btRotW, invertShapeRotaion, rotation);
 		} else {
 			rotation.x = btRotX;
 			rotation.y = btRotY;
@@ -573,19 +513,21 @@ export class PhysicsComponent extends Component {
 		transform.rotation = rotation;
 
 		if (localOffset.x !== 0 || localOffset.y !== 0 || localOffset.z !== 0) {
-			var btScale: number = bt.btCollisionShape_getLocalScaling(colliderShape._btShape);
-			var rotShapePosition: Vector3 = PhysicsComponent._tempVector30;
-			rotShapePosition.x = localOffset.x * bt.btVector3_x(btScale);
-			rotShapePosition.y = localOffset.y * bt.btVector3_y(btScale);
-			rotShapePosition.z = localOffset.z * bt.btVector3_z(btScale);
+			var rotShapePosition: Vector3 = CannonPhysicsComponent._tempVector30;
+
+			rotShapePosition.x = localOffset.x;
+			rotShapePosition.y = localOffset.y;
+			rotShapePosition.z = localOffset.z;
 			Vector3.transformQuat(rotShapePosition, rotation, rotShapePosition);
-			position.x = -bt.btVector3_x(btPosition) - rotShapePosition.x;
-			position.y = bt.btVector3_y(btPosition) - rotShapePosition.y;
-			position.z = bt.btVector3_z(btPosition) - rotShapePosition.z;
+
+			position.x = btPosition.x-rotShapePosition.x;
+			position.y = btPosition.y-rotShapePosition.z;
+			position.z = btPosition.z-rotShapePosition.y;
 		} else {
-			position.x = -bt.btVector3_x(btPosition);
-			position.y = bt.btVector3_y(btPosition);
-			position.z = bt.btVector3_z(btPosition);
+			position.x =  btPosition.x;
+			position.y = btPosition.y;
+			position.z = btPosition.z;
+
 		}
 		transform.position = position;
 	}
@@ -595,17 +537,8 @@ export class PhysicsComponent extends Component {
 	/**
 	 * @internal
 	 */
-	_onShapeChange(colShape: ColliderShape): void {
-		var btColObj: any = this._btColliderObject;
-		var bt: any = Physics3D._bullet;
-		var flags: number = bt.btCollisionObject_getCollisionFlags(btColObj);
-		if (colShape.needsCustomCollisionCallback) {
-			if ((flags & PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK) === 0)
-				bt.btCollisionObject_setCollisionFlags(btColObj, flags | PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK);
-		} else {
-			if ((flags & PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK) > 0)
-				bt.btCollisionObject_setCollisionFlags(btColObj, flags ^ PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK);
-		}
+	_onShapeChange(colShape: CannonColliderShape): void {
+		//TODO：
 	}
 
 	/**
@@ -615,12 +548,8 @@ export class PhysicsComponent extends Component {
 	 */
 	_onAdded(): void {
 		this.enabled = this._enabled;
-		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		this.restitution = this._restitution;
 		this.friction = this._friction;
-		this.rollingFriction = this._rollingFriction;
-		this.ccdMotionThreshold = this._ccdMotionThreshold;
-		this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
 		(<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
 	}
 
@@ -628,7 +557,7 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	_onTransformChanged(flag: number): void {
-		if (PhysicsComponent._addUpdateList || !this._controlBySimulation) {//PhysicsComponent._addUpdateList = false is the stage of physic simulation.
+		if (CannonPhysicsComponent._addUpdateList || !this._controlBySimulation) {
 			flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
 			if (flag) {
 				this._transformFlag |= flag;
@@ -644,12 +573,9 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	_cloneTo(dest: Component): void {
-		var destPhysicsComponent: PhysicsComponent = <PhysicsComponent>dest;
+		var destPhysicsComponent: CannonPhysicsComponent = <CannonPhysicsComponent>dest;
 		destPhysicsComponent.restitution = this._restitution;
 		destPhysicsComponent.friction = this._friction;
-		destPhysicsComponent.rollingFriction = this._rollingFriction;
-		destPhysicsComponent.ccdMotionThreshold = this._ccdMotionThreshold;
-		destPhysicsComponent.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
 		destPhysicsComponent.collisionGroup = this._collisionGroup;
 		destPhysicsComponent.canCollideWith = this._canCollideWith;
 		destPhysicsComponent.canScaleShape = this.canScaleShape;
