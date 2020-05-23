@@ -196,7 +196,7 @@ export class RenderSprite {
 	/**@internal */
 	_custom(sprite: Sprite, context: Context, x: number, y: number): void {
 		sprite.customRender(context, x, y);
-		this._next._fun.call(this._next, sprite, context, x - sprite.pivotX, y - sprite.pivotY);
+		this._next._fun.call(this._next, sprite, context, 0, 0);
 	}
 
 	/**@internal */
