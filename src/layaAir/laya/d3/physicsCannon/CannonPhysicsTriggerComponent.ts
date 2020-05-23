@@ -1,6 +1,5 @@
 import { Component } from "../../components/Component"
 import { CannonPhysicsComponent } from "./CannonPhysicsComponent"
-import { CannonPhysics3D } from "./CannonPhysics3D";
 
 /**
  * <code>PhysicsTriggerComponent</code> 类用于创建物理触发器组件。

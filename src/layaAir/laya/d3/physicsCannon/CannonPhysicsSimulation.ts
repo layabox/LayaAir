@@ -13,7 +13,6 @@ import { CannonPhysicsCollider } from "./CannonPhysicsCollider";
 import { CannonPhysicsComponent } from "./CannonPhysicsComponent";
 import { CannonPhysicsSettings } from "./CannonPhysicsSettings";
 import { CannonRigidbody3D } from "./CannonRigidbody3D";
-import { CannonPhysics3D } from "./CannonPhysics3D";
 
 /**
  * <code>Simulation</code> 类用于创建物理模拟器。
@@ -65,7 +64,6 @@ export class CannonPhysicsSimulation {
 	* @internal
 	*/
 	static __init__(): void {
-		//var bt: any = CannonPhysics3D._bullet;
 		CannonPhysicsSimulation._btTempVector30 = new CANNON.Vec3(0,0,0);
 		CannonPhysicsSimulation._btTempVector31 = new CANNON.Vec3(0,0,0);;
 	}
@@ -614,7 +612,6 @@ export class CannonPhysicsSimulation {
 	clearForces(): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
-			CannonPhysics3D._bullet.btDiscreteDynamicsWorld_clearForces(this._btDiscreteDynamicsWorld);
 	}
 
 }
