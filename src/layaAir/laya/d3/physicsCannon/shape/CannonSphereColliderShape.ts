@@ -1,5 +1,4 @@
 import { CannonColliderShape } from "./CannonColliderShape";
-import { CannonPhysics3D } from "../CannonPhysics3D";
 
 /**
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
