@@ -1,4 +1,3 @@
-import { CannonPhysics3D } from "../CannonPhysics3D";
 import { CannonColliderShape } from "./CannonColliderShape";
 
 /**
