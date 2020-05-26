@@ -124,7 +124,7 @@ export class ConfigurableJoint extends ConstraintComponent{
 	get minAngularLimit():Vector3{
 		return this._minAngularLimit;
 	}
-	set maxAngular(value:Vector3){
+	set maxLinearLimit(value:Vector3){
 		value.cloneTo(this._maxLinearLimit);
 	}
 
