@@ -3,6 +3,8 @@ import { Component } from "../../../components/Component";
 import { Physics3D } from "../Physics3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Vector3 } from "../../math/Vector3";
+import { Rigidbody3D } from "../Rigidbody3D";
+import { Sprite3D } from "../../core/Sprite3D";
 
 export class ConfigurableJoint extends ConstraintComponent{
 	static CONFIG_MOTION_TYPE_LOCKED:number = 0;
@@ -107,7 +109,22 @@ export class ConfigurableJoint extends ConstraintComponent{
 		return this._secondaryAxis;
 	}
 
-	set maxLinearLimit(value:Vector3){
+	set maxAngularLimit(value:Vector3){
+		value.cloneTo(this.maxAngularLimit);
+	}
+
+	set minAngularLimit(value:Vector3){
+		value.cloneTo(this._minAngularLimit);
+	}
+
+	get maxAngularLimit():Vector3{
+		return this.maxAngularLimit;
+	}
+
+	get minAngularLimit():Vector3{
+		return this._minAngularLimit;
+	}
+	set maxAngular(value:Vector3){
 		value.cloneTo(this._maxLinearLimit);
 	}
 
@@ -122,7 +139,6 @@ export class ConfigurableJoint extends ConstraintComponent{
 	get minLinearLimit():Vector3{
 		return this._minLinearLimit;
 	}
-
 	/**
 	 * X轴线性约束模式
 	 */
@@ -536,6 +552,11 @@ export class ConfigurableJoint extends ConstraintComponent{
 	 */
 	_onEnable():void{
 		super._onEnable();
+		if(!this._btConstraint){
+			if(this.ownBody&&this.ownBody.physicsSimulation&&this.connectedBody&&this.connectedBody.physicsSimulation)
+			this._createConstraint();
+			this._addToSimulation();
+		}
 		if(this._btConstraint)
 		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 	}
@@ -547,6 +568,72 @@ export class ConfigurableJoint extends ConstraintComponent{
 		if(this._btConstraint)
 		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,false);
 	}
+	
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_parse(data: any,interactMap:any = null): void {
+		this._anchor.fromArray(data.anchor);
+		this._connectAnchor.fromArray(data.connectAnchor);
+		this._axis.fromArray(data.axis);
+		this._secondaryAxis.fromArray(data.secondaryAxis);
+		var limitlimit:number = data.linearLimit;
+		this._minLinearLimit.setValue(-limitlimit,-limitlimit,-limitlimit);
+		this._maxLinearLimit.setValue(limitlimit,limitlimit,limitlimit);
+		var limitSpring:number = data.limitSpring;
+		this._linearLimitSpring.setValue(limitSpring,limitSpring,limitSpring);
+		var limitDamp:number = data.damp;
+		this._linearDamp.setValue(limitDamp,limitDamp,limitDamp);
+		var limitBounciness:number = data.bounciness;
+		this._linearBounce.setValue(limitBounciness,limitBounciness,limitBounciness);
+		var xlowAngularLimit:number = data.lowAngularXLimit;
+		var xhighAngularLimit:number = data.highAngularXLimit;
+		var yAngularLimit:number = data.angularYLimit;
+		var zAngularLimit:number = data.angularZLimit;
+		this._minAngularLimit.setValue(xlowAngularLimit,-yAngularLimit,-zAngularLimit);
+		this._maxAngularLimit.setValue(xhighAngularLimit,yAngularLimit,zAngularLimit);
+		//var xlowAngularBounciness:number = data.lowAngularXBounciness;
+		var xhighAngularBounciness:number = data.highAngularXBounciness;
+		var ybounciness:number = data.angularYBounciness;
+		var zbounciness:number = data.angularZBounciness;
+		this._angularBounce.setValue(xhighAngularBounciness,ybounciness,zbounciness);
+		var xAngularSpring:number = data.angularXLimitSpring;
+		var yzAngularSpriny:number = data.angularYZLimitSpring;
+		this._angularLimitSpring.setValue(xAngularSpring,yzAngularSpriny,yzAngularSpriny);
+		var xAngularDamper:number = data.XAngularDamper;
+		var yzAngularDamper:number = data.YZAngularDamper;
+		this._angularDamp.setValue(xAngularDamper,yzAngularDamper,yzAngularDamper);
+
+		this.XMotion = data.XMotion;
+		this.YMotion = data.YMotion;
+		this.ZMotion = data.ZMotion;
+		this.angularXMotion = data.angularXMotion;
+		this.angularYMotion = data.angularYMotion;
+		this.angularZMotion = data.angularZMotion;	
+		
+		if(data.rigidbodyID!=-1&&data.connectRigidbodyID!=-1){
+			interactMap.component.push(this);
+			interactMap.data.push(data);
+		}
+		(data.breakForce != undefined) && (this.breakForce = data.breakForce);
+		(data.breakTorque != undefined) && (this.breakTorque = data.breakTorque);
+	}
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_parseInteractive(data:any = null,spriteMap:any = null){
+		var rigidBodySprite:Sprite3D = spriteMap[data.rigidbodyID];
+		var rigidBody: Rigidbody3D = rigidBodySprite.getComponent(Rigidbody3D);
+		var connectSprite: Sprite3D = spriteMap[data.connectRigidbodyID];
+		var connectRigidbody: Rigidbody3D = connectSprite.getComponent(Rigidbody3D);
+		this.ownBody = rigidBody;
+		this.connectedBody = connectRigidbody;
+
+	}
 
 	/**
 	 * @inheritDoc
@@ -556,6 +643,7 @@ export class ConfigurableJoint extends ConstraintComponent{
 	protected _onDestroy(): void {
 		super._onDestroy();
 	}
+
 
 
 	/**

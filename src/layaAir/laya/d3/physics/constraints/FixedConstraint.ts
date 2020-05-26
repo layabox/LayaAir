@@ -66,6 +66,11 @@ export class FixedConstraint extends ConstraintComponent{
 	 */
 	_onEnable():void{
 		super._onEnable();
+		if(!this._btConstraint){
+			if(this.ownBody&&this.ownBody.physicsSimulation&&this.connectedBody&&this.connectedBody.physicsSimulation)
+			this._createConstraint();
+			this._addToSimulation();
+		}
 		if(this._btConstraint)
 		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 	}
@@ -110,7 +115,9 @@ export class FixedConstraint extends ConstraintComponent{
 		var rigidBody: Rigidbody3D = rigidBodySprite.getComponent(Rigidbody3D);
 		var connectSprite: Sprite3D = spriteMap[data.connectRigidbodyID];
 		var connectRigidbody: Rigidbody3D = connectSprite.getComponent(Rigidbody3D);
-		this.setConnectRigidBody(rigidBody, connectRigidbody);
+		this.ownBody = rigidBody;
+		this.connectedBody = connectRigidbody;
+
 	}
 
 	/**
