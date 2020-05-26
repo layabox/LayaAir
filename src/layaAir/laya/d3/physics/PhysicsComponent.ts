@@ -352,6 +352,13 @@ export class PhysicsComponent extends Component {
 		}
 	}
 
+	/** @internal */
+	get physicsSimulation(){
+		if(this.owner&&this.owner.scene)
+			this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
+		return this._simulation;
+	}
+
 	/**
 	 * 创建一个 <code>PhysicsComponent</code> 实例。
 	 * @param collisionGroup 所属碰撞组。

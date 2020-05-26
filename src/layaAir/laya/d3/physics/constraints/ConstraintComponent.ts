@@ -83,6 +83,7 @@ export class ConstraintComponent extends Component {
 		return this._btConstraint.AppliedImpulse;
 	}
 
+	/**@internal */
 	set connectedBody(value:Rigidbody3D){
 		this._connectedBody = value;
 	}
@@ -95,6 +96,7 @@ export class ConstraintComponent extends Component {
 		return this._connectedBody;
 	}
 
+
 	/**
 	 * 获取连接的刚体A。
 	 * @return 已连接刚体A。
@@ -102,7 +104,11 @@ export class ConstraintComponent extends Component {
 	get ownBody():Rigidbody3D{
 		return this._ownBody;
 	}
-
+	
+	/**@internal */
+	set ownBody(value:Rigidbody3D){
+		this._ownBody = value;
+	}
 	/**
 	 * 获得收到的总力
 	 */
@@ -208,7 +214,7 @@ export class ConstraintComponent extends Component {
 	 * @param connectRigidBody 
 	 * @override
 	 */
-	setConnectRigidBody(ownerRigid:Rigidbody3D,connectRigidBody:Rigidbody3D){
+	setConnectRigidBody(ownerRigid:Rigidbody3D = null,connectRigidBody:Rigidbody3D=null){
 		var ownerCanInSimulation:Boolean = (ownerRigid)&&(!!(ownerRigid._simulation && ownerRigid._enabled && ownerRigid.colliderShape));
 		var connectCanInSimulation:Boolean = (connectRigidBody)&&(!!(connectRigidBody._simulation && connectRigidBody._enabled && connectRigidBody.colliderShape));
 		if(!(ownerCanInSimulation&&connectCanInSimulation))
@@ -224,6 +230,8 @@ export class ConstraintComponent extends Component {
 			this._addToSimulation();
 		}
 	}
+	
+	
 
 	/**
 	 * 获得当前力
