@@ -206,9 +206,9 @@ export class ConstraintComponent extends Component {
 	 * 设置约束刚体
 	 * @param ownerRigid 
 	 * @param connectRigidBody 
+	 * @override
 	 */
-	setConnectRigidBody(ownerRigid:Rigidbody3D,connectRigidBody:Rigidbody3D)
-	{
+	setConnectRigidBody(ownerRigid:Rigidbody3D,connectRigidBody:Rigidbody3D){
 		var ownerCanInSimulation:Boolean = (ownerRigid)&&(!!(ownerRigid._simulation && ownerRigid._enabled && ownerRigid.colliderShape));
 		var connectCanInSimulation:Boolean = (connectRigidBody)&&(!!(connectRigidBody._simulation && connectRigidBody._enabled && connectRigidBody.colliderShape));
 		if(!(ownerCanInSimulation&&connectCanInSimulation))

@@ -47,7 +47,7 @@ export class FixedConstraint extends ConstraintComponent{
 		this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject,this.connectedBody.btColliderObject,origin);
 		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
 		bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
-		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation
+		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 	}
 
 	
