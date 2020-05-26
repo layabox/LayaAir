@@ -883,8 +883,10 @@ export class PhysicsSimulation {
 			var scripts: Script3D[] = (<Sprite3D>constraintObj.owner)._scripts; 
 			if(constraintObj.enabled && constraintObj._isBreakConstrained())
 			 {
-				for(i = 0,n = scripts.length;i<n;i++){
-					scripts[i].onJointBreak();
+				if(scripts.length!=0){
+					for(i = 0,n = scripts.length;i<n;i++){
+						scripts[i].onJointBreak();
+					}
 				}
 			 }
 		}

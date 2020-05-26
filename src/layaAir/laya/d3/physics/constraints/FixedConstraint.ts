@@ -46,7 +46,7 @@ export class FixedConstraint extends ConstraintComponent{
 		var origin = bt.btTransform_getOrigin(physicsTransform);
 		this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject,this.connectedBody.btColliderObject,origin);
 		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
-		bt.btFixedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
+		bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation
 	}
 
@@ -67,7 +67,7 @@ export class FixedConstraint extends ConstraintComponent{
 	_onEnable():void{
 		super._onEnable();
 		if(this._btConstraint)
-		Physics3D._bullet.btFixedConstraint_setEnabled(this._btConstraint,true);
+		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 	}
 
 	_onDisable():void{
@@ -75,7 +75,7 @@ export class FixedConstraint extends ConstraintComponent{
 		if(!this.connectedBody)
 			this._removeFromSimulation();
 		if(this._btConstraint)
-		Physics3D._bullet.btFixedConstraint_setEnabled(this._btConstraint,false);
+		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,false);
 	}
 
 	/**
