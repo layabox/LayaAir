@@ -104,7 +104,7 @@ export class ConstraintComponent extends Component {
 	get ownBody():Rigidbody3D{
 		return this._ownBody;
 	}
-	
+
 	/**@internal */
 	set ownBody(value:Rigidbody3D){
 		this._ownBody = value;
@@ -214,7 +214,7 @@ export class ConstraintComponent extends Component {
 	 * @param connectRigidBody 
 	 * @override
 	 */
-	setConnectRigidBody(ownerRigid:Rigidbody3D = null,connectRigidBody:Rigidbody3D=null){
+	setConnectRigidBody(ownerRigid:Rigidbody3D,connectRigidBody:Rigidbody3D){
 		var ownerCanInSimulation:Boolean = (ownerRigid)&&(!!(ownerRigid._simulation && ownerRigid._enabled && ownerRigid.colliderShape));
 		var connectCanInSimulation:Boolean = (connectRigidBody)&&(!!(connectRigidBody._simulation && connectRigidBody._enabled && connectRigidBody.colliderShape));
 		if(!(ownerCanInSimulation&&connectCanInSimulation))
