@@ -1,4 +1,5 @@
 import { CannonColliderShape } from "./CannonColliderShape";
+import { Vector3 } from "../../math/Vector3";
 
 /**
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
@@ -24,6 +25,16 @@ export class CannonSphereColliderShape extends CannonColliderShape {
 		this._radius = radius;
 		this._type = CannonColliderShape.SHAPETYPES_SPHERE;
 		this._btShape =new CANNON.Sphere(radius);
+	}
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_setScale(scale:Vector3){
+		var max:number = Math.max(scale.x,scale.y,scale.z);
+		this._scale.setValue(max,max,max);
+		(<CANNON.Sphere>this._btShape).radius = max*this.radius;
+		(<CANNON.Sphere>this._btShape).updateBoundingSphereRadius();
 	}
 
 	/**

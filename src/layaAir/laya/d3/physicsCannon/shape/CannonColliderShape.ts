@@ -79,7 +79,7 @@ export class CannonColliderShape implements IClone {
 	}
 
 	/**@internal */
-	protected _scale: Vector3 = new Vector3(1, 1, 1);
+	 _scale: Vector3 = new Vector3(1, 1, 1);
 
 	/**@internal */
 	_btShape: CANNON.Shape;
@@ -122,9 +122,7 @@ export class CannonColliderShape implements IClone {
 	}
 
 	set localOffset(value: Vector3) {
-		this._localOffset = value;
-		if (this._compoundParent)
-			this._compoundParent._updateChildTransform(this);
+		value.cloneTo(this._localOffset); 
 	}
 
 	/**
