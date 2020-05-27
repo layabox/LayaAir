@@ -103,6 +103,7 @@ import { CannonPhysicsComponent } from "./laya/d3/physicsCannon/CannonPhysicsCom
 import { CannonPhysicsSimulation } from "./laya/d3/physicsCannon/CannonPhysicsSimulation";
 import { CannonBoxColliderShape } from "./laya/d3/physicsCannon/shape/CannonBoxColliderShape";
 import { CannonRigidbody3D } from "./laya/d3/physicsCannon/CannonRigidbody3D";
+import { ConfigurableJoint } from "./laya/d3/physics/constraints/ConfigurableJoint";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -301,6 +302,7 @@ export class Laya3D {
 		ClassUtils.regClass("Animator", Animator);
 		ClassUtils.regClass("Rigidbody3D", Rigidbody3D);
 		ClassUtils.regClass("FixedJoint", FixedConstraint);
+		ClassUtils.regClass("ConfigurableJoint",ConfigurableJoint);
 
 
 		PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
