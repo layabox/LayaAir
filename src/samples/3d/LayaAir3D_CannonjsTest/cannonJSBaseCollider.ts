@@ -18,6 +18,9 @@ import { CannonPhysicsCollider } from "laya/d3/physicsCannon/CannonPhysicsCollid
 import { CannonBoxColliderShape } from "laya/d3/physicsCannon/shape/CannonBoxColliderShape";
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { CannonRigidbody3D } from "laya/d3/physicsCannon/CannonRigidbody3D";
+import { CannonSphereColliderShape } from "laya/d3/physicsCannon/shape/CannonSphereColliderShape";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { CannonCompoundColliderShape } from "laya/d3/physicsCannon/shape/CannonCompoundColliderShape";
 
 export class CannonPhysicsWorld_BaseCollider{
     private scene:Scene3D;
@@ -92,8 +95,8 @@ export class CannonPhysicsWorld_BaseCollider{
 			Texture2D.load("res/threeDimen/Physics/steel.jpg", Handler.create(this, function (tex: Texture2D): void {
 				this.mat5.albedoTexture = tex;
             }));
-            Laya.timer.loop(1000, this, function (): void {
-                this.addBox();
+            Laya.timer.loop(3000, this, function (): void {
+                this.addCompoundColliderShape();
             });
             
         }));
@@ -108,8 +111,13 @@ export class CannonPhysicsWorld_BaseCollider{
          box.meshRenderer.material = this.mat1;
          var transform: Transform3D = box.transform;
          var pos: Vector3 = transform.position;
-         pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
-         transform.position = pos;
+         pos.setValue(Math.random() * 2 - 2, 10, Math.random() * 2 - 2);
+		 transform.position = pos;
+		 
+		 var scale:Vector3 = transform.scale;
+		 scale.setValue(Math.random(),Math.random(),Math.random());
+		 transform.scale = scale;
+
          //创建刚体碰撞器
          var rigidBody: CannonRigidbody3D = box.addComponent(CannonRigidbody3D);
          //创建盒子形状碰撞器
@@ -120,6 +128,66 @@ export class CannonPhysicsWorld_BaseCollider{
          rigidBody.mass = 10;
     }
     addSphere(){
-       
-    }
+	   var radius:number = 1;
+	   var sphere:MeshSprite3D = <MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(1)));
+	   sphere.meshRenderer.material = this.mat2;
+	   var sphereTransform:Transform3D = sphere.transform;
+	   var pos:Vector3 =sphereTransform.position;
+	   pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
+	   var scale:Vector3 = sphereTransform.scale;
+	   scale.setValue(0.5,0.5,0.5);
+	   sphereTransform.scale = scale;
+
+	   sphereTransform.position = pos;
+	     //创建刚体碰撞器
+         var rigidBody: CannonRigidbody3D = sphere.addComponent(CannonRigidbody3D);
+         //创建盒子形状碰撞器
+         var sphereShape: CannonSphereColliderShape = new CannonSphereColliderShape(radius);
+         //设置盒子的碰撞形状
+         rigidBody.colliderShape = sphereShape;
+         //设置刚体的质量
+         rigidBody.mass = 10;
+	}
+	addCompoundColliderShape(){
+		var x = Math.random() * 4 - 2;
+		var y = 10; 
+		var z = Math.random() * 4 - 2;
+		
+		var mesh:MeshSprite3D = this.addMeshBox(x,y,z);
+		var scale:Vector3 = mesh.transform.scale;
+		scale.setValue(0.5,0.5,0.5);
+		mesh.transform.scale = scale;
+		this.scene.addChild(mesh);
+		//创建刚体碰撞器
+         var rigidBody: CannonRigidbody3D = mesh.addComponent(CannonRigidbody3D);
+         //创建盒子形状碰撞器
+		 var boxShape0: CannonBoxColliderShape = new CannonBoxColliderShape(1, 1, 1);
+		 var boxShape1: CannonBoxColliderShape = new CannonBoxColliderShape(1, 1, 1);
+		 var boxShape2: CannonBoxColliderShape = new CannonBoxColliderShape(1, 1, 1);
+		 var boxShape3: CannonBoxColliderShape = new CannonBoxColliderShape(1, 1, 1);
+
+		 var boxCompoundShape:CannonCompoundColliderShape = new CannonCompoundColliderShape();
+		 (<any>boxCompoundShape).addChildShape(boxShape0,new Vector3(0.5,0.5,0));
+		 (<any>boxCompoundShape).addChildShape(boxShape1,new Vector3(0.5,-0.5,0));
+		 (<any>boxCompoundShape).addChildShape(boxShape2,new Vector3(-0.5,0.5,0));
+		 (<any>boxCompoundShape).addChildShape(boxShape3,new Vector3(-0.5,-0.5));
+         //设置盒子的碰撞形状
+         rigidBody.colliderShape = boxCompoundShape;
+         //设置刚体的质量
+         rigidBody.mass = 10;
+	}
+	addMeshBox(x:number,y:number,z:number):MeshSprite3D{
+		var sX: number =2;
+		var sY: number =2;
+        var sZ: number =1;
+         //创建盒型MeshSprite3D
+         var box: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(sX, sY, sZ))));
+         //设置材质
+         box.meshRenderer.material = this.mat1;
+         var transform: Transform3D = box.transform;
+         var pos: Vector3 = transform.position;
+         pos.setValue(x,y,z);
+		 transform.position = pos;
+		 return box;
+	}
 }

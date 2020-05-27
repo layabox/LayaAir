@@ -881,8 +881,7 @@ export class PhysicsSimulation {
 		for(var id in this._currentConstraint){
 			var constraintObj:ConstraintComponent = this._currentConstraint[id];
 			var scripts: Script3D[] = (<Sprite3D>constraintObj.owner)._scripts; 
-			if(constraintObj.enabled && constraintObj._isBreakConstrained())
-			 {
+			if(constraintObj.enabled && constraintObj._isBreakConstrained() && (!!scripts)){
 				if(scripts.length!=0){
 					for(i = 0,n = scripts.length;i<n;i++){
 						scripts[i].onJointBreak();

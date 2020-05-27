@@ -12,6 +12,7 @@ import { CannonPhysicsSimulation } from "./CannonPhysicsSimulation";
 import { CannonBoxColliderShape } from "./shape/CannonBoxColliderShape";
 import { CannonColliderShape } from "./shape/CannonColliderShape";
 import { CannonSphereColliderShape } from "./shape/CannonSphereColliderShape";
+import { CannonCompoundColliderShape } from "./shape/CannonCompoundColliderShape";
 /**
  * <code>PhysicsComponent</code> 类用于创建物理组件的父类。
  */
@@ -237,11 +238,20 @@ export class CannonPhysicsComponent extends Component {
 			}
 
 			if (this._btColliderObject) {
-				this._btColliderObject.shapes.length = 0;
-				this._btColliderObject.shapeOffsets.length = 0;
-				this._btColliderObject.shapeOrientations.length = 0;
-				this._btColliderObject.addShape(this._colliderShape._btShape);
-				this._btColliderObject.updateBoundingRadius();
+				if(value.type!=CannonColliderShape.SHAPETYPES_COMPOUND){
+					this._btColliderObject.shapes.length = 0;
+					this._btColliderObject.shapeOffsets.length = 0;
+					this._btColliderObject.shapeOrientations.length = 0;
+					var localOffset = value.localOffset;
+					var scale = value._scale;
+					var vecs:CANNON.Vec3 =new CANNON.Vec3(localOffset.x*scale.x,localOffset.y*scale.y,localOffset.z*scale.z);
+					this._btColliderObject.addShape(this._colliderShape._btShape,vecs);
+					this._btColliderObject.updateBoundingRadius();
+				}
+				else
+				{
+					(<CannonCompoundColliderShape>value).bindRigidBody(this);
+				}
 				var canInSimulation: boolean = this._simulation && this._enabled;
 				(canInSimulation && lastColliderShape) && (this._removeFromSimulation());//修改shape必须把Collison从物理世界中移除再重新添加
 				this._onShapeChange(value);//

@@ -1,4 +1,5 @@
 import { CannonColliderShape } from "./CannonColliderShape";
+import { Vector3 } from "../../math/Vector3";
 
 /**
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
@@ -61,6 +62,16 @@ export class CannonBoxColliderShape extends CannonColliderShape {
 		this._btShape =new CANNON.Box(btsize);
 	}
 
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_setScale(scale:Vector3){
+		this._scale.setValue(scale.x,scale.y,scale.z);
+		(<CANNON.Box>this._btShape).halfExtents.set(this.sizeX/2*scale.x,this.sizeY/2*scale.y,this.sizeZ/2*scale.z);
+		(<CANNON.Box>this._btShape).updateConvexPolyhedronRepresentation();
+		(<CANNON.Box>this._btShape).updateBoundingSphereRadius();
+	}
 	/**
 	 * @inheritDoc
 	 * @override
