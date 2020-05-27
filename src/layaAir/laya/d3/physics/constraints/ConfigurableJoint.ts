@@ -596,8 +596,8 @@ export class ConfigurableJoint extends ConstraintComponent{
 		this._maxAngularLimit.setValue(xhighAngularLimit,yAngularLimit,zAngularLimit);
 		//var xlowAngularBounciness:number = data.lowAngularXBounciness;
 		var xhighAngularBounciness:number = data.highAngularXLimitBounciness;
-		var ybounciness:number = data.angularYBounciness;
-		var zbounciness:number = data.angularZBounciness;
+		var ybounciness:number = data.angularYLimitBounciness;
+		var zbounciness:number = data.angularZLimitBounciness;
 		this._angularBounce.setValue(xhighAngularBounciness,ybounciness,zbounciness);
 		var xAngularSpring:number = data.angularXLimitSpring;
 		var yzAngularSpriny:number = data.angularYZLimitSpring;
@@ -606,9 +606,9 @@ export class ConfigurableJoint extends ConstraintComponent{
 		var yzAngularDamper:number = data.angularYZLimitDamper;
 		this._angularDamp.setValue(xAngularDamper,yzAngularDamper,yzAngularDamper);
 
-		this.XMotion = data.XMotion;
-		this.YMotion = data.YMotion;
-		this.ZMotion = data.ZMotion;
+		this.XMotion = data.xMotion;
+		this.YMotion = data.yMotion;
+		this.ZMotion = data.zMotion;
 		this.angularXMotion = data.angularXMotion;
 		this.angularYMotion = data.angularYMotion;
 		this.angularZMotion = data.angularZMotion;	
