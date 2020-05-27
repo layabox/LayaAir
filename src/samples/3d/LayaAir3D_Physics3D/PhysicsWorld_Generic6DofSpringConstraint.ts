@@ -54,6 +54,7 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 
 		this.springTest();
 		//this.bounceTest();
+		this.freeRotate();
 		this.rotateAngularX();
 		this.rotateAngularZ();
 		this.rotateAngularY();
@@ -152,10 +153,10 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		configurableJoint.XMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.YMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.ZMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LIMITED;
+		configurableJoint.angularXMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_FREE;
 		configurableJoint.angularYMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularZMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
-		boxBRigid.angularVelocity = new Vector3(1.0, 0, 0);
+		boxBRigid.angularVelocity = new Vector3(5, 0, 0);
 
 	}
 
@@ -213,6 +214,31 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		configurableJoint.angularZMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		boxBRigid.angularVelocity = new Vector3(0.0, 0.5, 0);
 
+	}
+
+	freeRotate(){
+		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(-15, 6, 0),1);
+		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
+		boxARigid.overrideGravity = true;
+		boxARigid.isKinematic = true;
+
+		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-15, 4, 0),1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
+		
+		var configurableJoint:ConfigurableJoint = boxA.addComponent(ConfigurableJoint); 
+		configurableJoint.setConnectRigidBody(boxARigid,boxBRigid);
+	    configurableJoint.anchor = new Vector3(0, -1, 0);
+		configurableJoint.connectAnchor = new Vector3(0,1,0);
+
+		configurableJoint.XMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.YMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.ZMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.angularXMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_FREE;
+		configurableJoint.angularYMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_FREE;
+		configurableJoint.angularZMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_FREE;
+		boxBRigid.angularVelocity = new Vector3(20, 2, 10);
 	}
 
 	rotateAngularPoint():void{
