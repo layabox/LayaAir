@@ -582,11 +582,11 @@ export class ConfigurableJoint extends ConstraintComponent{
 		var limitlimit:number = data.linearLimit;
 		this._minLinearLimit.setValue(-limitlimit,-limitlimit,-limitlimit);
 		this._maxLinearLimit.setValue(limitlimit,limitlimit,limitlimit);
-		var limitSpring:number = data.limitSpring;
+		var limitSpring:number = data.linearLimitSpring;
 		this._linearLimitSpring.setValue(limitSpring,limitSpring,limitSpring);
-		var limitDamp:number = data.damp;
+		var limitDamp:number = data.linearLimitDamper;
 		this._linearDamp.setValue(limitDamp,limitDamp,limitDamp);
-		var limitBounciness:number = data.bounciness;
+		var limitBounciness:number = data.linearLimitBounciness;
 		this._linearBounce.setValue(limitBounciness,limitBounciness,limitBounciness);
 		var xlowAngularLimit:number = data.lowAngularXLimit;
 		var xhighAngularLimit:number = data.highAngularXLimit;
@@ -595,15 +595,15 @@ export class ConfigurableJoint extends ConstraintComponent{
 		this._minAngularLimit.setValue(xlowAngularLimit,-yAngularLimit,-zAngularLimit);
 		this._maxAngularLimit.setValue(xhighAngularLimit,yAngularLimit,zAngularLimit);
 		//var xlowAngularBounciness:number = data.lowAngularXBounciness;
-		var xhighAngularBounciness:number = data.highAngularXBounciness;
+		var xhighAngularBounciness:number = data.highAngularXLimitBounciness;
 		var ybounciness:number = data.angularYBounciness;
 		var zbounciness:number = data.angularZBounciness;
 		this._angularBounce.setValue(xhighAngularBounciness,ybounciness,zbounciness);
 		var xAngularSpring:number = data.angularXLimitSpring;
 		var yzAngularSpriny:number = data.angularYZLimitSpring;
 		this._angularLimitSpring.setValue(xAngularSpring,yzAngularSpriny,yzAngularSpriny);
-		var xAngularDamper:number = data.XAngularDamper;
-		var yzAngularDamper:number = data.YZAngularDamper;
+		var xAngularDamper:number = data.angularXLimitDamper;
+		var yzAngularDamper:number = data.angularYZLimitDamper;
 		this._angularDamp.setValue(xAngularDamper,yzAngularDamper,yzAngularDamper);
 
 		this.XMotion = data.XMotion;
