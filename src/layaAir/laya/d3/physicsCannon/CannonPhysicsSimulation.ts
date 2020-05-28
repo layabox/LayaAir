@@ -262,7 +262,7 @@ export class CannonPhysicsSimulation {
 		rayOptions.collisionFilterMask = collisionMask;
 		rayOptions.collisionFilterGroup = collisonGroup;
 		rayOptions.result = rayResultCall;
-		this._btDiscreteDynamicsWorld.raycastAny(rayFrom,rayTo,rayOptions,rayResultCall);
+		this._btDiscreteDynamicsWorld.raycastClosest(rayFrom,rayTo,rayOptions,rayResultCall);
 		if(rayResultCall.hasHit){
 			if(out){
 				out.succeeded = true;
@@ -428,7 +428,6 @@ export class CannonPhysicsSimulation {
 					collision._isTrigger = true;
 					contacts.length = 0;
 				}
-				break;
 				
 			} else if (((<Sprite3D>componentA.owner))._needProcessCollisions || ((<Sprite3D>componentB.owner))._needProcessCollisions) {
 				if (componentA._enableProcessCollisions || componentB._enableProcessCollisions) {//例：A和B均为运动刚体或PhysicCollider

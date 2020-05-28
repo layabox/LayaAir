@@ -115,7 +115,6 @@ export class CannonCompoundColliderShape extends CannonColliderShape {
 	 * @override
 	 */
 	_setScale(scale:Vector3){
-        debugger;
 		this._scale.setValue(scale.x,scale.y,scale.z);
         var body:CANNON.Body = this.physicColliderObject._btColliderObject;
         var length = this.getChildShapeCount();
