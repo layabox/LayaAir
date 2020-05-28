@@ -29,6 +29,14 @@ export class ConstraintComponent extends Component {
 	static CONSTRAINT_FIXED_CONSTRAINT_TYPE:number = 11;
 	/** @internal TODO*/
 	static CONSTRAINT_MAX_CONSTRAINT_TYPE:number = 12;
+	/** @internal error reduction parameter (ERP)*/
+	static CONSTRAINT_CONSTRAINT_ERP:number = 1;
+	/** @internal*/
+	static CONSTRAINT_CONSTRAINT_STOP_ERP:number = 2;
+	/** @internal constraint force mixing（CFM）*/
+	static CONSTRAINT_CONSTRAINT_CFM:number = 3;
+	/** @internal*/
+	static CONSTRAINT_CONSTRAINT_STOP_CFM:number = 4;
 	/** @internal */
 	static tempForceV3:Vector3 = new Vector3();
 	/**@internal */

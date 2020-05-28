@@ -21,10 +21,11 @@ import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ConfigurableJoint } from "laya/d3/physics/constraints/ConfigurableJoint";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
+
+
 export class PhysicsWorld_Generic6DofSpringConstraint{
     private scene:Scene3D;
 	private camera: Camera;
-	private staticBox:Rigidbody3D;
     constructor() {
         Laya3D.init(0, 0);
         Laya.stage.scaleMode = Stage.SCALE_FULL;
@@ -42,7 +43,7 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(40, 40, 40, 40))));
 		plane.transform.position = new Vector3(0, -2.0, 0);
 		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/grass.png", Handler.create(this, function (tex: Texture2D): void {
+		Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function (tex: Texture2D): void {
 			planeMat.albedoTexture = tex;
 		}));
 		//设置纹理平铺和偏移
@@ -53,28 +54,29 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		plane.meshRenderer.material = planeMat;
 
 		this.springTest();
-		//this.bounceTest();
+		this.bounceTest();
+		// this.bounceTestY();
+
+		this.alongZAixs();
+		//this.alongXAixs();
+		//this.alongYAixs();
+
 		this.freeRotate();
 		this.rotateAngularX();
-		this.rotateAngularZ();
-		this.rotateAngularY();
+		// this.rotateAngularZ();
+		// this.rotateAngularY();
 		this.rotateAngularPoint();
 
-		this.alongXAixs();
-		this.alongYAixs();
-		this.alongZAixs();
-		//this.rotateAngularPoint();
 		
 	}
 
 	springTest(): void {
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(10, 3, 0),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(7, 3, 0),1);
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 		boxARigid.overrideGravity = true;
 		boxARigid.isKinematic = true;
 
-		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(13, 0, 0),1);
+		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(10, 0, 0),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		boxBRigid.overrideGravity = true;
@@ -85,8 +87,8 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		configurableJoint.connectAnchor = new Vector3(0,0,0);
 
 		
-		configurableJoint.minLinearLimit = new Vector3(-4,0,0);
-		configurableJoint.maxLinearLimit = new Vector3(4,0,0);
+		configurableJoint.minLinearLimit = new Vector3(-3,0,0);
+		configurableJoint.maxLinearLimit = new Vector3(3,0,0);
 		configurableJoint.XMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LIMITED;
 		configurableJoint.YMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.ZMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
@@ -98,48 +100,66 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 	}
 
 
-	bounceTest(): void {
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(0, 6, 0),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
-		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
-		boxARigid.isKinematic = true;
 
-		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(0, 4, 0),1);
+	bounceTest(): void {
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(7, 3, 3),1);
+		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
+
+		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(7, 0, 3),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		
 		var configurableJoint:ConfigurableJoint = boxA.addComponent(ConfigurableJoint); 
 		configurableJoint.setConnectRigidBody(boxARigid,boxBRigid);
-	    configurableJoint.anchor = new Vector3(0, 0, 0);
+	    configurableJoint.anchor = new Vector3(0, -3, 0);
 		configurableJoint.connectAnchor = new Vector3(0,0,0);
-
 		
-		configurableJoint.minLinearLimit = new Vector3(0,-5,0);
-		configurableJoint.maxLinearLimit = new Vector3(0,5,0);
+		configurableJoint.minLinearLimit = new Vector3(-2,0,0);
+		configurableJoint.maxLinearLimit = new Vector3(2,0,0);
+		configurableJoint.XMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LIMITED;
+		configurableJoint.YMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.ZMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.angularXMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.angularYMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.angularZMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.setBounce(0, 1);
+		configurableJoint.setParam(0, 2, 0.80);
+		configurableJoint.setParam(0, 4, 0.0);
+		boxBRigid.applyImpulse(new Vector3(100, 0, 0));
+
+	}
+
+	bounceTestY(): void {
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(0, 4, 0),1);
+		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
+
+		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(0, 2, 0),1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
+		
+		var configurableJoint:ConfigurableJoint = boxA.addComponent(ConfigurableJoint); 
+		configurableJoint.setConnectRigidBody(boxARigid,boxBRigid);
+	    configurableJoint.anchor = new Vector3(0, -2, 0);
+		configurableJoint.connectAnchor = new Vector3(0,0,0);
+		
+		configurableJoint.minLinearLimit = new Vector3(0,-2,0);
+		configurableJoint.maxLinearLimit = new Vector3(0,10,0);
 		configurableJoint.XMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.YMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LIMITED;
 		configurableJoint.ZMotion = ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularXMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularYMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularZMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.setOverrideNumSolverIterations(60);
-
-		// var bt = Physics3D._bullet;
-		// bt.btGeneric6DofSpring2Constraint_setBounce(configurableJoint._btConstraint, 1, 1000);
-		// configurableJoint.linearLimitSpring = new Vector3(0,0,0);
-		// configurableJoint.linearDamp = new Vector3(0,0,0);
+		configurableJoint.setBounce(1, 1);
+		configurableJoint.setParam(1, 2, 0.995);
 
 	}
 
 	rotateAngularX():void{
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(-10, 6, 0),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(-2, 3, 0),1);
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
-		boxARigid.isKinematic = true;
 
-		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-10, 4, 0),1);
+		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-2, 1, 0),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		
@@ -161,11 +181,8 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 	}
 
 	rotateAngularZ():void{
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(-7, 6, 0),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(-7, 6, 0),1);
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
-		boxARigid.isKinematic = true;
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-7, 4, 0),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
@@ -189,11 +206,8 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 	}
 
 	rotateAngularY():void{
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(-5, 6, 0),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(-5, 6, 0),1);
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
-		boxARigid.isKinematic = true;
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-5, 4, 0),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
@@ -217,13 +231,10 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 	}
 
 	freeRotate(){
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(-15, 6, 0),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(-6, 3, 0),1);
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
-		boxARigid.isKinematic = true;
 
-		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-15, 4, 0),1);
+		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-6, 1, 0),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		
@@ -242,11 +253,8 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 	}
 
 	rotateAngularPoint():void{
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(0, 15, 0),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(0, 15, 0),1);
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
-		boxARigid.isKinematic = true;
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(6, 15, 0),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
@@ -271,11 +279,8 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 
 
 	alongXAixs():void{
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(0, 0, -4),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(0, 0, -4),1);
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
-		boxARigid.isKinematic = true;
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(5, 0, -4),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
@@ -301,11 +306,9 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 	}
 
 	alongYAixs():void{
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(0, 0, 0),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(0, 0, 0),1);
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
-		boxARigid.isKinematic = true;
+
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(5, 0, 0),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
@@ -331,13 +334,10 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 	}
 
 	alongZAixs():void{
-		var boxA:MeshSprite3D = this.addRigidBodyBox(new Vector3(0, 2, 4),1);
-		(<BlinnPhongMaterial>boxA.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		var boxA:MeshSprite3D = this.addRigidBodySphere(new Vector3(2, 3, 0),1);
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
-		boxARigid.isKinematic = true;
 
-		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(5, 2, 4),1);
+		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(2, 0, 0),1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		boxBRigid.overrideGravity = true;
@@ -345,7 +345,7 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		var configurableJoint:ConfigurableJoint = boxA.addComponent(ConfigurableJoint); 
 		configurableJoint.setConnectRigidBody(boxARigid,boxBRigid);
 	    configurableJoint.anchor = new Vector3(0,0,0);
-		configurableJoint.connectAnchor = new Vector3(-5,0,0);
+		configurableJoint.connectAnchor = new Vector3(0,3,0);
 		
 		configurableJoint.minLinearLimit = new Vector3(0,0,-4);
 		configurableJoint.maxLinearLimit = new Vector3(0,0,4);
@@ -355,8 +355,9 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		configurableJoint.angularXMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularYMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularZMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.setOverrideNumSolverIterations(80);
 
-		boxBRigid.linearVelocity = new Vector3(0.0, 0.0, 1);
+		boxBRigid.linearVelocity = new Vector3(0.0, 0.0, 4);
 
 	}
 
@@ -387,9 +388,9 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
         //创建盒型MeshSprite3D
 		var sphere: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(0.2))));
 		sphere.transform.position = pos;
-		//box.addComponent(TriggerCollisionScript);
 
 		var mat:BlinnPhongMaterial = new BlinnPhongMaterial();
+		mat.albedoColor = new Vector4(0, 1, 0, 1);
 		sphere.meshRenderer.material = mat;
 
 		//创建刚体碰撞器
@@ -404,9 +405,9 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		rigidBody.friction = 0.5;
 		//物理碰撞体设置弹力
 		rigidBody.restitution = 0.0;
+		rigidBody.isKinematic = true;
 		return sphere;	
     }  
 }
 
 
-//new PhysicsWorld_Generic6DofSpringConstraint();
