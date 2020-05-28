@@ -355,7 +355,6 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		configurableJoint.angularXMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularYMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularZMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.setOverrideNumSolverIterations(80);
 
 		boxBRigid.linearVelocity = new Vector3(0.0, 0.0, 4);
 

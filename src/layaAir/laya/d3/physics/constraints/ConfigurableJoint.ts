@@ -501,20 +501,6 @@ export class ConfigurableJoint extends ConstraintComponent{
 		this._btConstraint = bt.btGeneric6DofSpring2Constraint_create(this.ownBody.btColliderObject, this._btframAPos, this.connectedBody.btColliderObject, this._btframBPos);
 		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
 		bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
-		//初始化设置
-		bt.btTypedConstraint_setOverrideNumSolverIterations(this._btConstraint, 80);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_LINEAR_INDEX_X, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_ERP, 0.8);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_LINEAR_INDEX_X, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_CFM, 0.0);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_LINEAR_INDEX_Y, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_ERP, 0.8);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_LINEAR_INDEX_Y, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_CFM, 0.0);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_LINEAR_INDEX_Z, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_ERP, 0.8);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_LINEAR_INDEX_Z, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_CFM, 0.0);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_ANGULAR_INDEX_X, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_ERP, 0.8);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_ANGULAR_INDEX_X, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_CFM, 0.0);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_ERP, 0.8);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_CFM, 0.0);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_ERP, 0.8);
-		bt.btTypedConstraint_setParam(this._btConstraint, ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, ConstraintComponent.CONSTRAINT_CONSTRAINT_STOP_CFM, 0.0);
 		//TODO:需要初始化数据
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		this._initAllConstraintInfo();
