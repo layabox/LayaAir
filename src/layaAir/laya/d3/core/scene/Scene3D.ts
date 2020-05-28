@@ -483,6 +483,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return this._physicsSimulation;
 	}
 
+	get cannonPhysicsSimulation():CannonPhysicsSimulation{
+		return this._cannonPhysicsSimulation;
+	}
 	/**
 	 * 场景时钟。
 	 * @override

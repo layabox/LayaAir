@@ -413,7 +413,7 @@ export class CannonRigidbody3D extends CannonPhysicsCollider {
 			btOffset.set(localOffset.x,localOffset.y,localOffset.z);
 		else
 			btOffset.set(0.0,0.0,0.0);
-		this.btColliderObject.applyLocalImplse(btForce,btOffset);
+		this.btColliderObject.applyImpulse(btForce,btOffset);
 	}
 
 	/**
