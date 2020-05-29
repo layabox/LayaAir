@@ -820,6 +820,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			if (dirCount > 0) {
 				var sunLightIndex: number = this._directionLights.getBrightestLight();//get the brightest light as sun
 				this._mainDirectionLight = dirElements[sunLightIndex];
+				this._directionLights.normalLightOrdering(sunLightIndex);
 				for (var i: number = 0; i < dirCount; i++ , curCount++) {
 					var dirLight: DirectionLight = dirElements[i];
 					var dir: Vector3 = dirLight._direction;
@@ -834,7 +835,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					ligPix[off + 4] = dir.x;
 					ligPix[off + 5] = dir.y;
 					ligPix[off + 6] = dir.z;
-					if (i == sunLightIndex) {
+					if (i == 0) {
 						shaderValues.setVector3(Scene3D.SUNLIGHTDIRCOLOR, intCor);
 						shaderValues.setVector3(Scene3D.SUNLIGHTDIRECTION, dir);
 					}
@@ -850,6 +851,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				var poiElements: PointLight[] = this._pointLights._elements;
 				var mainPointLightIndex:number = this._pointLights.getBrightestLight();
 				this._mainPointLight = poiElements[mainPointLightIndex];
+				this._pointLights.normalLightOrdering(mainPointLightIndex);
 				for (var i: number = 0; i < poiCount; i++ , curCount++) {
 					var poiLight: PointLight = poiElements[i];
 					var pos: Vector3 = poiLight.transform.position;
@@ -875,6 +877,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				var spoElements: SpotLight[] = this._spotLights._elements;
 				var mainSpotLightIndex:number = this._spotLights.getBrightestLight();
 				this._mainSpotLight = spoElements[mainSpotLightIndex];
+				this._spotLights.normalLightOrdering(mainSpotLightIndex)
 				for (var i: number = 0; i < spoCount; i++ , curCount++) {
 					var spoLight: SpotLight = spoElements[i];
 					var dir: Vector3 = spoLight._direction;
