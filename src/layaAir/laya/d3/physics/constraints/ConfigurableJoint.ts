@@ -22,7 +22,18 @@ export class ConfigurableJoint extends ConstraintComponent{
 	static MOTION_ANGULAR_INDEX_Y:number = 4;
 	/** @internal */
 	static MOTION_ANGULAR_INDEX_Z:number = 5;
-
+	/** @internal */
+	static RO_XYZ:number = 0;
+	/** @internal */
+	static RO_XZY:number = 1;
+	/** @internal */
+	static RO_YXZ:number = 2;
+	/** @internal */
+	static RO_YZX:number = 3;
+	/** @internal */
+	static RO_ZXY:number = 4;
+	/** @internal */
+	static RO_ZYX:number = 5;
 	/** @internal */
 	private _btAxis:number;
 	/** @internal */
@@ -376,14 +387,14 @@ export class ConfigurableJoint extends ConstraintComponent{
 	/**
 	 * @internal
 	 */
-	setSpring(axis:number, springValue:number): void {
+	setSpring(axis:number, springValue:number, limitIfNeeded:boolean = true): void {
 		if(!this._btConstraint)
 			return;
 		var bt = Physics3D._bullet;
 		var enableSpring:Boolean = springValue>0;
 		bt.btGeneric6DofSpring2Constraint_enableSpring(this._btConstraint, axis, enableSpring);
 		if(enableSpring)
-		bt.btGeneric6DofSpring2Constraint_setStiffness(this._btConstraint, axis, springValue);
+		bt.btGeneric6DofSpring2Constraint_setStiffness(this._btConstraint, axis, springValue, limitIfNeeded);
 	}
 	/**
 	 * @internal
@@ -399,12 +410,12 @@ export class ConfigurableJoint extends ConstraintComponent{
 	/**
 	 * @internal
 	 */
-	setDamping(axis:number, damp:number): void {
+	setDamping(axis:number, damp:number, limitIfNeeded:boolean = true): void {
 		if(!this._btConstraint)
 			return;
 		var bt = Physics3D._bullet;
 		damp = damp<=0?0:damp;
-		bt.btGeneric6DofSpring2Constraint_setDamping(this._btConstraint, axis, damp);
+		bt.btGeneric6DofSpring2Constraint_setDamping(this._btConstraint, axis, damp, limitIfNeeded);
 	} 
 	/**
 	 * TODO
@@ -498,7 +509,7 @@ export class ConfigurableJoint extends ConstraintComponent{
 	 */
 	_createConstraint():void{
 		var bt = Physics3D._bullet;
-		this._btConstraint = bt.btGeneric6DofSpring2Constraint_create(this.ownBody.btColliderObject, this._btframAPos, this.connectedBody.btColliderObject, this._btframBPos);
+		this._btConstraint = bt.btGeneric6DofSpring2Constraint_create(this.ownBody.btColliderObject, this._btframAPos, this.connectedBody.btColliderObject, this._btframBPos, ConfigurableJoint.RO_XYZ);
 		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
 		bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
 		//TODO:需要初始化数据
