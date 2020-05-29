@@ -43,6 +43,7 @@ export class Config3D implements IClone {
 	octreeMinNodeSize: number = 2.0;
 	/** 八叉树松散值。*/
 	octreeLooseness: number = 1.25;
+	
 
 	/** 
 	 * 是否开启视锥裁剪调试。
@@ -52,7 +53,8 @@ export class Config3D implements IClone {
 	debugFrustumCulling: boolean = false;
 	/** PBR材质渲染质量。*/
 	pbrRenderQuality: PBRRenderQuality = PBRRenderQuality.High;
-
+	/** 是否使用CANNONJS物理引擎*/
+	isUseCannonPhysicsEngine:boolean = false;
 	/**
 	 * 默认物理功能初始化内存，单位为M。
 	 */

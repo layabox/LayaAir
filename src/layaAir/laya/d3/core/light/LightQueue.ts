@@ -46,6 +46,12 @@ export class LightQueue<T extends LightSprite> {
         }
         return maxIntIndex;
     }
+    normalLightOrdering(brightestIndex:number){
+        var slements:T[] = this._elements;
+        var firstLight:T = this._elements[0];
+        this._elements[0] = this._elements[brightestIndex];
+        this._elements[brightestIndex] = firstLight;
+    }
 }
 
 
