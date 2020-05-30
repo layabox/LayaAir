@@ -122,9 +122,9 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		configurableJoint.angularXMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularYMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularZMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.setBounce(0, 1);
-		configurableJoint.setParam(0, 2, 0.80);
-		configurableJoint.setParam(0, 4, 0.0);
+		// configurableJoint.setBounce(0, 1);
+		// configurableJoint.setParam(0, 2, 0.80);
+		// configurableJoint.setParam(0, 4, 0.0);
 		boxBRigid.applyImpulse(new Vector3(100, 0, 0));
 
 	}
@@ -150,8 +150,8 @@ export class PhysicsWorld_Generic6DofSpringConstraint{
 		configurableJoint.angularXMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularYMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
 		configurableJoint.angularZMotion= ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.setBounce(1, 1);
-		configurableJoint.setParam(1, 2, 0.995);
+		// configurableJoint.setBounce(1, 1);
+		// configurableJoint.setParam(1, 2, 0.995);
 
 	}
 

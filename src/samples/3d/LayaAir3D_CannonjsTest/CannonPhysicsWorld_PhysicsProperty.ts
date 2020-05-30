@@ -18,6 +18,7 @@ import { CannonBoxColliderShape } from "laya/d3/physicsCannon/shape/CannonBoxCol
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { CannonRigidbody3D } from "laya/d3/physicsCannon/CannonRigidbody3D";
 import { CannonSphereColliderShape } from "laya/d3/physicsCannon/shape/CannonSphereColliderShape";
+import { Config3D } from "Config3D";
 
 /**
  * 示例基本碰撞
@@ -26,6 +27,8 @@ export class CannonPhysicsWorld_PhysicsProperty{
     private scene:Scene3D;
 
     constructor(){
+			//@ts-ignore
+		Config3D._config.isUseCannonPhysicsEngine = true;
         Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -79,9 +82,9 @@ export class CannonPhysicsWorld_PhysicsProperty{
 	   var sphereTransform:Transform3D = sphere.transform;
 	   var pos:Vector3 =sphereTransform.position;
 	   pos.setValue(x, y,z);
-	   var scale:Vector3 = sphereTransform.scale;
+	   var scale:Vector3 = sphereTransform.getWorldLossyScale();
 	   scale.setValue(0.5,0.5,0.5);
-	   sphereTransform.scale = scale;
+	   sphereTransform.setWorldLossyScale(scale);
 
 	   sphereTransform.position = pos;
 	     //创建刚体碰撞器

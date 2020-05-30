@@ -89,7 +89,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**Hierarchy资源。*/
 	static HIERARCHY: string = "HIERARCHY";
 	/**@internal */
-	static physicsSettings: PhysicsSettings = new PhysicsSettings();
+	static physicsSettings: PhysicsSettings;
 	/**@internal */
 	static cannonPhysicsSettings:CannonPhysicsSettings;
 	/** 是否开启八叉树裁剪。*/
@@ -192,6 +192,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				break;
 			default:
 				throw "Scene3D:unknown shader quality.";
+		}
+		if(config.isUseCannonPhysicsEngine){
+			this.cannonPhysicsSettings = new CannonPhysicsSettings(); 
+		}else{
+			this.physicsSettings = new PhysicsSettings();
 		}
 	}
 
@@ -540,11 +545,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	constructor() {
 		super();
-		if (Physics3D._enablePhysics)
+		if(!Config3D._config.isUseCannonPhysicsEngine)
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
-		if(CANNON){
-			if(!Scene3D.cannonPhysicsSettings) 
-				Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
+		else if(Physics3D._cannon){
 			this._cannonPhysicsSimulation = new CannonPhysicsSimulation(Scene3D.cannonPhysicsSettings);
 		}
 			
@@ -625,7 +628,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._shaderValues.setNumber(Scene3D.TIME, this._time);
 
 		var simulation: PhysicsSimulation = this._physicsSimulation;
-		if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation) {
+		if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation&&!Config3D._config.isUseCannonPhysicsEngine) {
 			simulation._updatePhysicsTransformFromRender();
 			PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
 			//simulate physics
@@ -639,13 +642,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 			//send contact events
 			simulation._eventScripts();
-		} 
-		if(CANNON){
+		}
+		if(Physics3D._cannon&&Config3D._config.isUseCannonPhysicsEngine){
 			var cannonSimulation:CannonPhysicsSimulation = this._cannonPhysicsSimulation;
 			cannonSimulation._updatePhysicsTransformFromRender();
 			CannonPhysicsComponent._addUpdateList = false;
 			cannonSimulation._simulate(delta);
-			PhysicsComponent._addUpdateList = true;
+			CannonPhysicsComponent._addUpdateList = true;
 			cannonSimulation._updateCollisions();
 			cannonSimulation._eventScripts();
 		}
