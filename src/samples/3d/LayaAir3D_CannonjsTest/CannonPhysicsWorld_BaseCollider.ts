@@ -20,27 +20,25 @@ import { Transform3D } from "laya/d3/core/Transform3D";
 import { CannonRigidbody3D } from "laya/d3/physicsCannon/CannonRigidbody3D";
 import { CannonSphereColliderShape } from "laya/d3/physicsCannon/shape/CannonSphereColliderShape";
 import { CannonCompoundColliderShape } from "laya/d3/physicsCannon/shape/CannonCompoundColliderShape";
+import { Config3D } from "Config3D";
 
 /**
  * 示例基本碰撞
  */
 export class CannonPhysicsWorld_BaseCollider{
     private scene:Scene3D;
-    private tmpVector:Vector3 = new Vector3(0,0,0);
     private mat1:BlinnPhongMaterial;
 	private mat2: BlinnPhongMaterial;
 	private mat3: BlinnPhongMaterial;
-	private mat4: BlinnPhongMaterial;
-	private mat5: BlinnPhongMaterial;
     constructor(){
+			//@ts-ignore
+		Config3D._config.isUseCannonPhysicsEngine = true;
         Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-
 			//初始化照相机
 			var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
 			camera.transform.translate(new Vector3(0, 6, 9.5));
@@ -110,9 +108,9 @@ export class CannonPhysicsWorld_BaseCollider{
          pos.setValue(Math.random() * 2 - 2, 10, Math.random() * 2 - 2);
 		 transform.position = pos;
 		 
-		 var scale:Vector3 = transform.scale;
+		 var scale:Vector3 = transform.getWorldLossyScale();
 		 scale.setValue(Math.random(),Math.random(),Math.random());
-		 transform.scale = scale;
+		 transform.setWorldLossyScale( scale);
          //创建刚体碰撞器
          var rigidBody: CannonRigidbody3D = box.addComponent(CannonRigidbody3D);
          //创建盒子形状碰撞器
@@ -129,9 +127,9 @@ export class CannonPhysicsWorld_BaseCollider{
 	   var sphereTransform:Transform3D = sphere.transform;
 	   var pos:Vector3 =sphereTransform.position;
 	   pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
-	   var scale:Vector3 = sphereTransform.scale;
+	   var scale:Vector3 = sphereTransform.getWorldLossyScale();
 	   scale.setValue(0.5,0.5,0.5);
-	   sphereTransform.scale = scale;
+	   sphereTransform.setWorldLossyScale(scale);
 
 	   sphereTransform.position = pos;
 	     //创建刚体碰撞器
@@ -149,10 +147,10 @@ export class CannonPhysicsWorld_BaseCollider{
 		var z = Math.random() * 4 - 2;
 		
 		var mesh:MeshSprite3D = this.addMeshBox(x,y,z);
-		var scale:Vector3 = mesh.transform.scale;
+		var scale:Vector3 = mesh.transform.getWorldLossyScale();
 		//测试Scale
 		scale.setValue(0.5,0.5,0.5);
-		mesh.transform.scale = scale;
+		mesh.transform.setWorldLossyScale(scale) ;
 		this.scene.addChild(mesh);
 		//创建刚体碰撞器
          var rigidBody: CannonRigidbody3D = mesh.addComponent(CannonRigidbody3D);

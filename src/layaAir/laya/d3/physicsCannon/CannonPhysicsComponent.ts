@@ -69,32 +69,32 @@ export class CannonPhysicsComponent extends Component {
 		CannonPhysicsComponent._btQuaternion0 = new CANNON.Quaternion(0,0,0,1);
 	}
 
-	/**
-	 * @internal
-	 */
-	private static _createAffineTransformationArray(tranX: number, tranY: number, tranZ: number, rotX: number, rotY: number, rotZ: number, rotW: number, scale: Float32Array, outE: Float32Array): void {
+	// /**
+	//  * @internal
+	//  */
+	// private static _createAffineTransformationArray(tranX: number, tranY: number, tranZ: number, rotX: number, rotY: number, rotZ: number, rotW: number, scale: Float32Array, outE: Float32Array): void {
 
-		var x2: number = rotX + rotX, y2: number = rotY + rotY, z2: number = rotZ + rotZ;
-		var xx: number = rotX * x2, xy: number = rotX * y2, xz: number = rotX * z2, yy: number = rotY * y2, yz: number = rotY * z2, zz: number = rotZ * z2;
-		var wx: number = rotW * x2, wy: number = rotW * y2, wz: number = rotW * z2, sx: number = scale[0], sy: number = scale[1], sz: number = scale[2];
+	// 	var x2: number = rotX + rotX, y2: number = rotY + rotY, z2: number = rotZ + rotZ;
+	// 	var xx: number = rotX * x2, xy: number = rotX * y2, xz: number = rotX * z2, yy: number = rotY * y2, yz: number = rotY * z2, zz: number = rotZ * z2;
+	// 	var wx: number = rotW * x2, wy: number = rotW * y2, wz: number = rotW * z2, sx: number = scale[0], sy: number = scale[1], sz: number = scale[2];
 
-		outE[0] = (1 - (yy + zz)) * sx;
-		outE[1] = (xy + wz) * sx;
-		outE[2] = (xz - wy) * sx;
-		outE[3] = 0;
-		outE[4] = (xy - wz) * sy;
-		outE[5] = (1 - (xx + zz)) * sy;
-		outE[6] = (yz + wx) * sy;
-		outE[7] = 0;
-		outE[8] = (xz + wy) * sz;
-		outE[9] = (yz - wx) * sz;
-		outE[10] = (1 - (xx + yy)) * sz;
-		outE[11] = 0;
-		outE[12] = tranX;
-		outE[13] = tranY;
-		outE[14] = tranZ;
-		outE[15] = 1;
-	}
+	// 	outE[0] = (1 - (yy + zz)) * sx;
+	// 	outE[1] = (xy + wz) * sx;
+	// 	outE[2] = (xz - wy) * sx;
+	// 	outE[3] = 0;
+	// 	outE[4] = (xy - wz) * sy;
+	// 	outE[5] = (1 - (xx + zz)) * sy;
+	// 	outE[6] = (yz + wx) * sy;
+	// 	outE[7] = 0;
+	// 	outE[8] = (xz + wy) * sz;
+	// 	outE[9] = (yz - wx) * sz;
+	// 	outE[10] = (1 - (xx + yy)) * sz;
+	// 	outE[11] = 0;
+	// 	outE[12] = tranX;
+	// 	outE[13] = tranY;
+	// 	outE[14] = tranZ;
+	// 	outE[15] = 1;
+	// }
 
 	/**
 	 * @internal
@@ -135,15 +135,15 @@ export class CannonPhysicsComponent extends Component {
 		return colliderShape;
 	}
 
-	/**
-	 * @internal
-	 */
-	private static physicVector3TransformQuat(source: Vector3, qx: number, qy: number, qz: number, qw: number, out: Vector3): void {
-		var x: number = source.x, y: number = source.y, z: number = source.z, ix: number = qw * x + qy * z - qz * y, iy: number = qw * y + qz * x - qx * z, iz: number = qw * z + qx * y - qy * x, iw: number = -qx * x - qy * y - qz * z;
-		out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
-		out.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
-		out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
-	}
+	// /**
+	//  * @internal
+	//  */
+	// private static physicVector3TransformQuat(source: Vector3, qx: number, qy: number, qz: number, qw: number, out: Vector3): void {
+	// 	var x: number = source.x, y: number = source.y, z: number = source.z, ix: number = qw * x + qy * z - qz * y, iy: number = qw * y + qz * x - qx * z, iz: number = qw * z + qx * y - qy * x, iw: number = -qx * x - qy * y - qz * z;
+	// 	out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+	// 	out.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+	// 	out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+	// }
 
 	/**
 	 * @internal

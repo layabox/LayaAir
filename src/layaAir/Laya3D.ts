@@ -53,15 +53,8 @@ import { BulletInteractive } from "./laya/d3/physics/BulletInteractive";
 import { CharacterController } from "./laya/d3/physics/CharacterController";
 import { Physics3D } from "./laya/d3/physics/Physics3D";
 import { PhysicsCollider } from "./laya/d3/physics/PhysicsCollider";
-import { PhysicsComponent } from "./laya/d3/physics/PhysicsComponent";
 import { PhysicsSettings } from "./laya/d3/physics/PhysicsSettings";
-import { PhysicsSimulation } from "./laya/d3/physics/PhysicsSimulation";
 import { Rigidbody3D } from "./laya/d3/physics/Rigidbody3D";
-import { BoxColliderShape } from "./laya/d3/physics/shape/BoxColliderShape";
-import { ColliderShape } from "./laya/d3/physics/shape/ColliderShape";
-import { CompoundColliderShape } from "./laya/d3/physics/shape/CompoundColliderShape";
-import { CylinderColliderShape } from "./laya/d3/physics/shape/CylinderColliderShape";
-import { StaticPlaneColliderShape } from "./laya/d3/physics/shape/StaticPlaneColliderShape";
 import { Mesh } from "./laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "./laya/d3/resource/models/SkyBox";
@@ -98,11 +91,6 @@ import { MeshReader } from "./laya/d3/loaders/MeshReader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
-import { CannonColliderShape } from "./laya/d3/physicsCannon/shape/CannonColliderShape";
-import { CannonPhysicsComponent } from "./laya/d3/physicsCannon/CannonPhysicsComponent";
-import { CannonPhysicsSimulation } from "./laya/d3/physicsCannon/CannonPhysicsSimulation";
-import { CannonBoxColliderShape } from "./laya/d3/physicsCannon/shape/CannonBoxColliderShape";
-import { CannonRigidbody3D } from "./laya/d3/physicsCannon/CannonRigidbody3D";
 import { ConfigurableJoint } from "./laya/d3/physics/constraints/ConfigurableJoint";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -222,27 +210,6 @@ export class Laya3D {
 		PixelLineVertex.__init__();
 		SubMeshInstanceBatch.__init__();
 		SubMeshDynamicBatch.__init__();
-
-		Physics3D._bullet = (window as any).Physics3D;
-		if (Physics3D._bullet) {
-			StaticPlaneColliderShape.__init__();
-			ColliderShape.__init__();
-			CompoundColliderShape.__init__();
-			PhysicsComponent.__init__();
-			PhysicsSimulation.__init__();
-			BoxColliderShape.__init__();
-			CylinderColliderShape.__init__();
-			CharacterController.__init__();
-			Rigidbody3D.__init__();
-		}
-		if(CANNON)
-		{
-			CannonColliderShape.__init__();
-			CannonPhysicsComponent.__init__();
-			CannonPhysicsSimulation.__init__();
-			CannonBoxColliderShape.__init__();
-			CannonRigidbody3D.__init__();
-		}
 		ShaderInit3D.__init__();
 		ShadowUtils.init();
 		PBRMaterial.__init__();
@@ -926,15 +893,18 @@ export class Laya3D {
 		Scene3D.octreeLooseness = config.octreeLooseness;
 
 		var physics3D: Function = (window as any).Physics3D;
-		if (physics3D == null) {
+		if (physics3D == null||config.isUseCannonPhysicsEngine) {
 			Physics3D._enablePhysics = false;
 			Laya3D.__init__(width, height, config);
+			if(config.isUseCannonPhysicsEngine)
+				Physics3D.__cannoninit__();
 			compolete && compolete.run();
 		} else {
 			Physics3D._enablePhysics = true;
 			//should convert MB to pages
 			physics3D(config.defaultPhysicsMemory * 16, BulletInteractive._interactive).then(function (): void {
 				Laya3D.__init__(width, height, config);
+				Physics3D.__bulletinit__();
 				compolete && compolete.run();
 			});
 		}

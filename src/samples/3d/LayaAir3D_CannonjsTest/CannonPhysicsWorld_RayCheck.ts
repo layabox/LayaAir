@@ -26,6 +26,7 @@ import { Vector2 } from "laya/d3/math/Vector2";
 import { Ray } from "laya/d3/math/Ray";
 import { CannonHitResult } from "laya/d3/physicsCannon/CannonHitResult";
 import { Color } from "laya/d3/math/Color";
+import { Config3D } from "Config3D";
 
 /**
  * 射线示例测试   点击左键 选中的物体会变红
@@ -42,6 +43,8 @@ export class CannonPhysicsWorld_RayCheck{
 	private colorWrite:Vector4 = new Vector4(1,1,1,1);
 	private oldSelectMesh:MeshSprite3D;
     constructor(){
+			//@ts-ignore
+		Config3D._config.isUseCannonPhysicsEngine = true;
         Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -145,10 +148,10 @@ export class CannonPhysicsWorld_RayCheck{
 	addCompoundColliderShape(){
 		var mesh:MeshSprite3D = this.addMeshBox(5,5,0);
 		mesh.name = "compound"
-		var scale:Vector3 = mesh.transform.scale;
+		var scale:Vector3 = mesh.transform.getWorldLossyScale();
 		//测试Scale
 		scale.setValue(0.5,0.5,0.5);
-		mesh.transform.scale = scale;
+		mesh.transform.setWorldLossyScale(scale);
 		this.scene.addChild(mesh);
 		//创建刚体碰撞器
          var rigidBody: CannonRigidbody3D = mesh.addComponent(CannonRigidbody3D);

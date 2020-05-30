@@ -24,6 +24,7 @@ import { Event } from "laya/events/Event";
 import { Script3D } from "laya/d3/component/Script3D";
 import { PhysicsComponent } from "laya/d3/physics/PhysicsComponent";
 import { Collision } from "laya/d3/physics/Collision";
+import { Config3D } from "Config3D";
 
 /**
  * 用键盘WASD来控制小盒子的移动，碰到的会变成红色
@@ -38,6 +39,8 @@ export class CannonPhysicsWorld_ColliderEvent{
 	private speed:number =0.1;
 	private tempSpeed:Vector3 = new Vector3();
     constructor(){
+		//@ts-ignore
+		Config3D._config.isUseCannonPhysicsEngine = true;
         Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -48,7 +51,7 @@ export class CannonPhysicsWorld_ColliderEvent{
 
 			//初始化照相机
 			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-			this.camera.transform.translate(new Vector3(0, 6, 9.5));
+			this.camera.transform.translate(new Vector3(0, 6, 15));
 			this.camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 			this.camera.addComponent(CameraMoveScript);
 			this.camera.clearColor = null;
@@ -153,10 +156,10 @@ export class CannonPhysicsWorld_ColliderEvent{
 	addCompoundColliderShape(){
 		var mesh:MeshSprite3D = this.addMeshBox(5,5,0);
 		mesh.name = "compound"
-		var scale:Vector3 = mesh.transform.scale;
+		var scale:Vector3 = mesh.transform.getWorldLossyScale();
 		//测试Scale
 		scale.setValue(0.5,0.5,0.5);
-		mesh.transform.scale = scale;
+		mesh.transform.setWorldLossyScale(scale);
 		this.scene.addChild(mesh);
 		//创建刚体碰撞器
          var rigidBody: CannonRigidbody3D = mesh.addComponent(CannonRigidbody3D);
