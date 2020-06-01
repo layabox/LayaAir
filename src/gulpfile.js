@@ -44,13 +44,36 @@ var packsDef = [
     {
         'libName': "d3",
         'input': [
-            './layaAir/laya/d3/**/*.*',
+            './layaAir/laya/d3/animation/**/*.*',
+            './layaAir/laya/d3/component/**/*.*',
+            './layaAir/laya/d3/core/**/*.*',
+            './layaAir/laya/d3/graphics/**/*.*',
+            './layaAir/laya/d3/loaders/**/*.*',
+            './layaAir/laya/d3/math/**/*.*',
+            './layaAir/laya/d3/physics/**/*.*',
+            './layaAir/laya/d3/shader/**/*.*',
+            './layaAir/laya/d3/shadowMap/**/*.*',
+            './layaAir/laya/d3/text/**/*.*',
+            './layaAir/laya/d3/utils/**/*.*',
+            './layaAir/laya/d3/CastShadowList.ts',
+            './layaAir/laya/d3/Input3D.ts',
+            './layaAir/laya/d3/MouseTouch.ts',
+            './layaAir/laya/d3/Touch.ts',
+            './layaAir/laya/d3/resource/**/*.*',
             './layaAir/Config3D.ts',
             './layaAir/ILaya3D.ts',
             './layaAir/Laya3D.ts'
         ],
         'out': '../build/js/libs/laya.d3.js'
     },
+    {
+        'libName': "cannonPhysics",
+        'input': [
+            './layaAir/laya/d3/physicsCannon/**/*.*',
+        ],
+        'out': '../build/js/libs/laya.cannonPhysics.js'
+    },
+
     {
         'libName': 'device',
         'input': [

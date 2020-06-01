@@ -50,7 +50,6 @@ export class PhysicsWorld_ConstraintFixedJoint{
 		var boxShape: BoxColliderShape = new BoxColliderShape(1, 1, 1);
 		//设置盒子的碰撞形状
 		rigidBody.colliderShape = boxShape;
-		rigidBody.linearVelocity = new Vector3(-10, 0, 0);
 		
 		//设置刚体的质量
 		rigidBody.mass = 10;
@@ -71,7 +70,10 @@ export class PhysicsWorld_ConstraintFixedJoint{
 		rigidBody2.colliderShape = boxShape2;
 		//设置刚体的质量
 		rigidBody2.mass = 10;
+
 		var fixedConstraint:FixedConstraint = box.addComponent(FixedConstraint);
+		fixedConstraint.anchor = new Vector3(0,0,0);
+		fixedConstraint.connectAnchor = new Vector3(0,2,0);
 		box.addComponent(FixedEventTest);
 		fixedConstraint.setConnectRigidBody(rigidBody,rigidBody2);
 		
