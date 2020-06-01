@@ -11,6 +11,8 @@ const rollup = require('rollup');
 var through = require('through2');
 //合并文件
 var concat = require('gulp-concat'),pump = require('pump');
+const uglify = require('gulp-uglify-es').default;
+const rename = require('gulp-rename');
 
 
 //编译新的库文件只需要在packsDef中配置一下新的库就可以了
@@ -328,4 +330,54 @@ gulp.task('buildJS', async function () {
     }
 });
 
-gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS'));
+// 压缩
+// 下面两个方法，最好能合并
+gulp.task("compressJs", function () {
+    gulp.src("../build/as/jslibs/laya.physics3D.js")
+        .pipe(rename({extname: ".min.js"}))
+        .pipe(gulp.dest("../build/as/jslibs/min"))
+        .pipe(gulp.dest("../build/js/libs/min"))
+        .pipe(gulp.dest("../build/ts/libs/min"));
+
+    gulp.src("../build/as/jslibs/laya.physics3D.wasm.wasm")
+        .pipe(gulp.dest("../build/as/jslibs/min"))
+        .pipe(gulp.dest("../build/js/libs/min"))
+        .pipe(gulp.dest("../build/ts/libs/min"));
+
+    return gulp.src(["../build/as/jslibs/*.js", "!../build/as/jslibs/{laya.physics3D.js}"])
+        .pipe(uglify({
+            mangle: {
+                keep_fnames: true
+            }
+        }))
+        .on('error', function (err) {
+            console.warn(err.toString());
+        })
+        .pipe(rename({extname: ".min.js"}))
+        .pipe(gulp.dest("../build/as/jslibs/min"))
+        .pipe(gulp.dest("../build/js/libs/min"))
+        .pipe(gulp.dest("../build/ts/libs/min"));
+});
+
+gulp.task("compresstsnewJs", function () {
+    gulp.src("../build/ts_new/jslibs/{laya.physics3D.js, box2d.js}")
+        .pipe(rename({extname: ".min.js"}))
+        .pipe(gulp.dest("../build/ts_new/jslibs/min"));
+
+    gulp.src("../build/ts_new/jslibs/laya.physics3D.wasm.wasm")
+        .pipe(gulp.dest("../build/ts_new/jslibs/min"));
+
+    return gulp.src(["../build/ts_new/jslibs/*.js", "!../build/ts_new/jslibs/{laya.physics3D.js, box2d.js}"])
+        .pipe(uglify({
+            mangle: {
+                keep_fnames: true
+            }
+        }))
+        .on('error', function (err) {
+            console.warn(err.toString());
+        })
+        .pipe(rename({extname: ".min.js"}))
+        .pipe(gulp.dest("../build/ts_new/jslibs/min"));
+});
+
+gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS', 'compressJs', 'compresstsnewJs'));
