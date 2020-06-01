@@ -45,6 +45,18 @@ export class ConstraintComponent extends Component {
 	_simulation: PhysicsSimulation;
 	/**@internal 回调参数*/
 	_btJointFeedBackObj:number; 
+	/** @internal */
+	_anchor:Vector3 = new Vector3();
+	/** @internal */
+	_connectAnchor:Vector3 = new Vector3();
+	/** @internal */
+	_btframAPos:number;
+	/** @internal */
+	_btframBPos:number;
+	/** @internal */
+	_btframATrans:number;
+	/** @internal */
+	_btframBTrans:number;
 	/**@internal */
 	private _constraintType:number;
 	/**@internal */
@@ -157,12 +169,41 @@ export class ConstraintComponent extends Component {
         this._breakTorque = value;
 	}
 
+	set anchor(value:Vector3){
+		value.cloneTo(this._anchor);
+		this.setFrames();
+	}
+
+	get anchor(){
+		return this._anchor;
+	}
+
+	set connectAnchor(value:Vector3){
+		value.cloneTo(this._connectAnchor);
+		this.setFrames();
+	}
+
+	get connectAnchor():Vector3{
+		return this._connectAnchor;
+	}
+
 	/**
 	 * 创建一个 <code>ConstraintComponent</code> 实例。
 	 */
 	constructor(constraintType:number) {
 		super();
 		this._constraintType = constraintType;
+		var bt = Physics3D._bullet;
+		this._btframATrans = bt.btTransform_create();
+		this._btframBTrans = bt.btTransform_create();
+		bt.btTransform_setIdentity(this._btframATrans);
+		bt.btTransform_setIdentity(this._btframBTrans);
+		this._btframAPos = bt.btVector3_create(0, 0, 0);
+		this._btframBPos= bt.btVector3_create(0, 0, 0);
+		bt.btTransform_setOrigin(this._btframATrans,  this._btframAPos);
+		bt.btTransform_setOrigin(this._btframBTrans,  this._btframBPos);
+		this._breakForce = -1;
+		this._breakTorque = -1;
 	}
 
 	/**
@@ -197,7 +238,17 @@ export class ConstraintComponent extends Component {
 		super._onDisable();
 		this.enabled = false;
 	}
-
+	/**
+	 * @override
+	 * @internal
+	 */
+	setFrames(){
+		var bt = Physics3D._bullet;
+		bt.btVector3_setValue(this._btframAPos,-this._anchor.x,this.anchor.y,this.anchor.z);
+		bt.btVector3_setValue(this._btframBPos,-this._connectAnchor.x,this._connectAnchor.y,this._connectAnchor.z);
+		bt.btTransform_setOrigin(this._btframATrans,this._btframAPos);
+		bt.btTransform_setOrigin(this._btframBTrans,this._btframBPos);
+	}
 	/**
 	 * @internal
 	 */
@@ -301,6 +352,17 @@ export class ConstraintComponent extends Component {
 		return false;
 	}
 
+
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_parse(data: any): void {
+		this._anchor.fromArray(data.anchor);
+		this._connectAnchor.fromArray(data.connectAnchor);
+		this.setFrames();
+	}
 	/**
 	 * @internal
 	 */
