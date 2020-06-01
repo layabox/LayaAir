@@ -41,14 +41,19 @@ export class FixedConstraint extends ConstraintComponent{
 	 * @internal
 	 */
 	_createConstraint():void{
-		var bt = Physics3D._bullet;
-		this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans)
-		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);	
-		bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
-		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
+		if(this.ownBody&&this.ownBody._simulation&&this.connectedBody&&this.connectedBody._simulation){
+			var bt = Physics3D._bullet;
+			this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans)
+			this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);	
+			bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
+			this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
+			this._addToSimulation();
+			Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
+		}
 	}
 
 	
+
 	/**
 	 * @inheritDoc
 	 * @override
@@ -63,12 +68,14 @@ export class FixedConstraint extends ConstraintComponent{
 	 * @internal
 	 */
 	_onEnable():void{
+		if(!this._btConstraint)
+		{return;}
 		super._onEnable();
-		if(!this._btConstraint){
-			if(this.ownBody&&this.ownBody.physicsSimulation&&this.connectedBody&&this.connectedBody.physicsSimulation)
-			this._createConstraint();
-			this._addToSimulation();
-		}
+		// if(!this._btConstraint){
+		// 	if(this.ownBody&&this.ownBody.physicsSimulation&&this.connectedBody&&this.connectedBody.physicsSimulation)
+		// 	this._createConstraint();
+		// 	this._addToSimulation();
+		// }
 		if(this._btConstraint)
 		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 	}
