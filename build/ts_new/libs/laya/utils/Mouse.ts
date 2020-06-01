@@ -1,3 +1,4 @@
+import { Browser } from "./Browser";
 /**
 	 * <code>Mouse</code> 类用于控制鼠标光标样式。
 	 */
@@ -27,7 +28,7 @@ export class Mouse {
 
     /**@internal */
     static __init__(): any {
-        //Mouse._style = Browser.document.body.style;
+        Mouse._style = Browser.document.body.style;
     }
 
     /**

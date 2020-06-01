@@ -22117,6 +22117,7 @@ window.Laya= (function (exports) {
             return Mouse._style.cursor;
         }
         static __init__() {
+            Mouse._style = Browser.document.body.style;
         }
         static hide() {
             if (Mouse.cursor != "none") {
@@ -22386,7 +22387,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.6.1beta";
+    Laya.version = "2.6.1";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;
