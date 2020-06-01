@@ -11,8 +11,8 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
-import { Physics3D } from "../physics/Physics3D";
 import { TextureGenerator } from "../resource/TextureGenerator";
+import { ILaya3D } from "../../../ILaya3D";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
@@ -42,7 +42,7 @@ export class Utils3D {
 	 * @internal
 	 */
 	static _convertToLayaVec3(bVector: number, out: Vector3, inverseX: boolean): void {
-		var bullet: any = Physics3D._bullet;
+		var bullet: any = ILaya3D.Physics3D._bullet;
 		out.x = inverseX ? - bullet.btVector3_x(bVector) : bullet.btVector3_x(bVector);
 		out.y = bullet.btVector3_y(bVector);
 		out.z = bullet.btVector3_z(bVector);
@@ -52,7 +52,7 @@ export class Utils3D {
 	 * @internal
 	 */
 	static _convertToBulletVec3(lVector: Vector3, out: number, inverseX: boolean): void {
-		Physics3D._bullet.btVector3_setValue(out, inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
+		ILaya3D.Physics3D._bullet.btVector3_setValue(out, inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
 	}
 
 	/**

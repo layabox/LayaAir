@@ -3,7 +3,6 @@ import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { CannonPhysicsComponent } from "../CannonPhysicsComponent";
-// import { CompoundColliderShape } from "./CompoundColliderShape";
 
 /**
  * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。

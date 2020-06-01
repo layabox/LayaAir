@@ -3,11 +3,10 @@ import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
 import { PhysicsComponent } from "./PhysicsComponent";
-import { Physics3D } from "./Physics3D";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { ColliderShape } from "./shape/ColliderShape";
-import { Stat } from "../../utils/Stat";
 import { ConstraintComponent } from "./constraints/ConstraintComponent";
+import { ILaya3D } from "../../../ILaya3D";
 
 /**
  * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。
@@ -58,7 +57,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @internal
 	 */
 	static __init__(): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		Rigidbody3D._btTempVector30 = bt.btVector3_create(0, 0, 0);
 		Rigidbody3D._btTempVector31 = bt.btVector3_create(0, 0, 0);
 		Rigidbody3D._btVector3Zero = bt.btVector3_create(0, 0, 0);
@@ -125,7 +124,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set isKinematic(value: boolean) {
 		this._isKinematic = value;
 		this._controlBySimulation = !value;//isKinematic not controll by Simulation
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var canInSimulation: boolean = !!(this._simulation && this._enabled && this._colliderShape);
 		canInSimulation && this._removeFromSimulation();
 		var natColObj: any = this._btColliderObject;
@@ -164,7 +163,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set linearDamping(value: number) {
 		this._linearDamping = value;
 		if (this._btColliderObject)
-			Physics3D._bullet.btRigidBody_setDamping(this._btColliderObject, value, this._angularDamping);
+			ILaya3D.Physics3D._bullet.btRigidBody_setDamping(this._btColliderObject, value, this._angularDamping);
 	}
 
 	/**
@@ -177,7 +176,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set angularDamping(value: number) {
 		this._angularDamping = value;
 		if (this._btColliderObject)
-			Physics3D._bullet.btRigidBody_setDamping(this._btColliderObject, this._linearDamping, value);
+			ILaya3D.Physics3D._bullet.btRigidBody_setDamping(this._btColliderObject, this._linearDamping, value);
 	}
 
 	/**
@@ -189,7 +188,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 
 	set overrideGravity(value: boolean) {
 		this._overrideGravity = value;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		if (this._btColliderObject) {
 			var flag: number = bt.btRigidBody_getFlags(this._btColliderObject);
 			if (value) {
@@ -211,7 +210,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 
 	set gravity(value: Vector3) {
 		this._gravity = value;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btVector3_setValue(Rigidbody3D._btGravity, -value.x, value.y, value.z);
 		bt.btRigidBody_setGravity(this._btColliderObject, Rigidbody3D._btGravity);
 	}
@@ -221,7 +220,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	get totalForce(): Vector3 {
 		if (this._btColliderObject) {
-			var btTotalForce: number = Physics3D._bullet.btRigidBody_getTotalForce(this._btColliderObject);
+			var btTotalForce: number = ILaya3D.Physics3D._bullet.btRigidBody_getTotalForce(this._btColliderObject);
 			Utils3D._convertToLayaVec3(btTotalForce, this._totalForce, true);
 			return this._totalForce;
 		}
@@ -239,7 +238,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		this._linearFactor = value;
 		var btValue: number = Rigidbody3D._btTempVector30;
 		Utils3D._convertToBulletVec3(value, btValue, false);
-		Physics3D._bullet.btRigidBody_setLinearFactor(this._btColliderObject, btValue);
+		ILaya3D.Physics3D._bullet.btRigidBody_setLinearFactor(this._btColliderObject, btValue);
 	}
 
 	/**
@@ -247,7 +246,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	get linearVelocity(): Vector3 {
 		if (this._btColliderObject)
-			Utils3D._convertToLayaVec3(Physics3D._bullet.btRigidBody_getLinearVelocity(this._btColliderObject), this._linearVelocity, true);
+			Utils3D._convertToLayaVec3(ILaya3D.Physics3D._bullet.btRigidBody_getLinearVelocity(this._btColliderObject), this._linearVelocity, true);
 		return this._linearVelocity;
 	}
 
@@ -257,7 +256,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 			var btValue: number = Rigidbody3D._btTempVector30;
 			Utils3D._convertToBulletVec3(value, btValue, true);
 			(this.isSleeping) && (this.wakeUp());//可能会因睡眠导致设置线速度无效
-			Physics3D._bullet.btRigidBody_setLinearVelocity(this._btColliderObject, btValue);
+			ILaya3D.Physics3D._bullet.btRigidBody_setLinearVelocity(this._btColliderObject, btValue);
 		}
 	}
 
@@ -272,7 +271,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		this._angularFactor = value;
 		var btValue: number = Rigidbody3D._btTempVector30;
 		Utils3D._convertToBulletVec3(value, btValue, false);
-		Physics3D._bullet.btRigidBody_setAngularFactor(this._btColliderObject, btValue);
+		ILaya3D.Physics3D._bullet.btRigidBody_setAngularFactor(this._btColliderObject, btValue);
 
 	}
 
@@ -281,7 +280,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	get angularVelocity(): Vector3 {
 		if (this._btColliderObject)
-			Utils3D._convertToLayaVec3(Physics3D._bullet.btRigidBody_getAngularVelocity(this._btColliderObject), this._angularVelocity, true);
+			Utils3D._convertToLayaVec3(ILaya3D.Physics3D._bullet.btRigidBody_getAngularVelocity(this._btColliderObject), this._angularVelocity, true);
 		return this._angularVelocity;
 	}
 
@@ -291,7 +290,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 			var btValue: number = Rigidbody3D._btTempVector30;
 			Utils3D._convertToBulletVec3(value, btValue, true);
 			(this.isSleeping) && (this.wakeUp());//可能会因睡眠导致设置角速度无效
-			Physics3D._bullet.btRigidBody_setAngularVelocity(this._btColliderObject, btValue);
+			ILaya3D.Physics3D._bullet.btRigidBody_setAngularVelocity(this._btColliderObject, btValue);
 		}
 	}
 
@@ -300,7 +299,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	get totalTorque(): Vector3 {
 		if (this._btColliderObject) {
-			var btTotalTorque: number = Physics3D._bullet.btRigidBody_getTotalTorque(this._btColliderObject);
+			var btTotalTorque: number = ILaya3D.Physics3D._bullet.btRigidBody_getTotalTorque(this._btColliderObject);
 			Utils3D._convertToLayaVec3(btTotalTorque, this._totalTorque, true);
 			return this._totalTorque;
 		}
@@ -331,7 +330,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	get isSleeping(): boolean {
 		if (this._btColliderObject)
-			return Physics3D._bullet.btCollisionObject_getActivationState(this._btColliderObject) === PhysicsComponent.ACTIVATIONSTATE_ISLAND_SLEEPING;
+			return ILaya3D.Physics3D._bullet.btCollisionObject_getActivationState(this._btColliderObject) === PhysicsComponent.ACTIVATIONSTATE_ISLAND_SLEEPING;
 		return false;
 	}
 
@@ -339,11 +338,11 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * 刚体睡眠的线速度阈值。
 	 */
 	get sleepLinearVelocity(): number {
-		return Physics3D._bullet.btRigidBody_getLinearSleepingThreshold(this._btColliderObject);
+		return ILaya3D.Physics3D._bullet.btRigidBody_getLinearSleepingThreshold(this._btColliderObject);
 	}
 
 	set sleepLinearVelocity(value: number) {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btRigidBody_setSleepingThresholds(this._btColliderObject, value, bt.btRigidBody_getAngularSleepingThreshold(this._btColliderObject));
 	}
 
@@ -351,11 +350,11 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * 刚体睡眠的角速度阈值。
 	 */
 	get sleepAngularVelocity(): number {
-		return Physics3D._bullet.btRigidBody_getAngularSleepingThreshold(this._btColliderObject);
+		return ILaya3D.Physics3D._bullet.btRigidBody_getAngularSleepingThreshold(this._btColliderObject);
 	}
 
 	set sleepAngularVelocity(value: number) {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btRigidBody_setSleepingThresholds(this._btColliderObject, bt.btRigidBody_getLinearSleepingThreshold(this._btColliderObject), value);
 	}
 
@@ -404,7 +403,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	private _updateMass(mass: number): void {
 		if (this._btColliderObject && this._colliderShape) {
-			var bt: any = Physics3D._bullet;
+			var bt: any = ILaya3D.Physics3D._bullet;
 			bt.btCollisionShape_calculateLocalInertia(this._colliderShape._btShape, mass, Rigidbody3D._btInertia);
 			bt.btRigidBody_setMassProps(this._btColliderObject, mass, Rigidbody3D._btInertia);
 			bt.btRigidBody_updateInertiaTensor(this._btColliderObject); //this was the major headache when I had to debug Slider and Hinge constraint
@@ -425,7 +424,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * 	@internal
 	 */
 	_derivePhysicsTransformation(force: boolean): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var btColliderObject: number = this._btColliderObject;
 		var oriTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
 		var transform: number =Rigidbody3D._btTransform0;//must use another transform
@@ -440,7 +439,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @internal
 	 */
 	_onAdded(): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var motionState: number = bt.layaMotionState_create();
 		bt.layaMotionState_set_rigidBodyID(motionState, this._id);
 		this._btLayaMotionState = motionState;
@@ -471,7 +470,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		if (this._isKinematic) {
 			this._updateMass(0);
 		} else {
-			var bt: any = Physics3D._bullet;
+			var bt: any = ILaya3D.Physics3D._bullet;
 			bt.btRigidBody_setCenterOfMassTransform(this._btColliderObject, bt.btCollisionObject_getWorldTransform(this._btColliderObject));//修改Shape会影响坐标,需要更新插值坐标,否则物理引擎motionState.setWorldTrans数据为旧数据
 			this._updateMass(this._mass);
 		}
@@ -518,7 +517,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @override
 	 */
 	protected _onDestroy(): void {
-		Physics3D._bullet.btMotionState_destroy(this._btLayaMotionState);
+		ILaya3D.Physics3D._bullet.btMotionState_destroy(this._btLayaMotionState);
 
 		////Remove constraints safely
 		//var toremove = new FastList<Constraint>();
@@ -600,7 +599,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	applyForce(force: Vector3, localOffset: Vector3 = null): void {
 		if (this._btColliderObject == null)
 			throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var btForce: number = Rigidbody3D._btTempVector30;
 		bt.btVector3_setValue(btForce, -force.x, force.y, force.z);
 		if (localOffset) {
@@ -619,7 +618,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	applyTorque(torque: Vector3): void {
 		if (this._btColliderObject == null)
 			throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-		var bullet: any = Physics3D._bullet;
+		var bullet: any = ILaya3D.Physics3D._bullet;
 		var btTorque: number = Rigidbody3D._btTempVector30;
 		bullet.btVector3_setValue(btTorque, -torque.x, torque.y, torque.z);
 		bullet.btRigidBody_applyTorque(this._btColliderObject, btTorque);
@@ -633,7 +632,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	applyImpulse(impulse: Vector3, localOffset: Vector3 = null): void {
 		if (this._btColliderObject == null)
 			throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btVector3_setValue(Rigidbody3D._btImpulse, -impulse.x, impulse.y, impulse.z);
 		if (localOffset) {
 			bt.btVector3_setValue(Rigidbody3D._btImpulseOffset, -localOffset.x, localOffset.y, localOffset.z);
@@ -650,7 +649,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	applyTorqueImpulse(torqueImpulse: Vector3): void {
 		if (this._btColliderObject == null)
 			throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var btTorqueImpulse: number = Rigidbody3D._btTempVector30;
 		bt.btVector3_setValue(btTorqueImpulse, -torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
 		bt.btRigidBody_applyTorqueImpulse(this._btColliderObject, btTorqueImpulse);
@@ -660,7 +659,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * 唤醒刚体。
 	 */
 	wakeUp(): void {
-		this._btColliderObject && (Physics3D._bullet.btCollisionObject_activate(this._btColliderObject, false));
+		this._btColliderObject && (ILaya3D.Physics3D._bullet.btCollisionObject_activate(this._btColliderObject, false));
 	}
 
 	/**
@@ -671,7 +670,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		if (rigidBody == null)
 			throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
 
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btRigidBody_clearForces(rigidBody);
 		var btZero: number = Rigidbody3D._btVector3Zero;
 		bt.btCollisionObject_setInterpolationLinearVelocity(rigidBody, btZero);

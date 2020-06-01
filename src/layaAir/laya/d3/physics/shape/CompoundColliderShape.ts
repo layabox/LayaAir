@@ -1,7 +1,7 @@
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { ColliderShape } from "./ColliderShape";
-import { Physics3D } from "../Physics3D";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
@@ -20,7 +20,7 @@ export class CompoundColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	static __init__(): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		CompoundColliderShape._btVector3One = bt.btVector3_create(1, 1, 1);
 		CompoundColliderShape._btTransform = bt.btTransform_create();
 		CompoundColliderShape._btOffset = bt.btVector3_create(0, 0, 0);
@@ -36,7 +36,7 @@ export class CompoundColliderShape extends ColliderShape {
 	constructor() {
 		super();
 		this._type = ColliderShape.SHAPETYPES_COMPOUND;
-		this._btShape = Physics3D._bullet.btCompoundShape_create();
+		this._btShape = ILaya3D.Physics3D._bullet.btCompoundShape_create();
 	}
 
 	/**
@@ -70,7 +70,7 @@ export class CompoundColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	_updateChildTransform(shape: ColliderShape): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var offset: Vector3 = shape.localOffset;
 		var rotation: Quaternion = shape.localRotation;
 		var btOffset: number = ColliderShape._btVector30;
@@ -97,7 +97,7 @@ export class CompoundColliderShape extends ColliderShape {
 		this._childColliderShapes.push(shape);
 		var offset: Vector3 = shape.localOffset;
 		var rotation: Quaternion = shape.localRotation;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btVector3_setValue(CompoundColliderShape._btOffset, -offset.x, offset.y, offset.z);
 		bt.btQuaternion_setValue(CompoundColliderShape._btRotation, -rotation.x, rotation.y, rotation.z, -rotation.w);
 		bt.btTransform_setOrigin(CompoundColliderShape._btTransform, CompoundColliderShape._btOffset);
@@ -123,7 +123,7 @@ export class CompoundColliderShape extends ColliderShape {
 			endShape._indexInCompound = index;
 			this._childColliderShapes[index] = endShape;
 			this._childColliderShapes.pop();
-			Physics3D._bullet.btCompoundShape_removeChildShapeByIndex(this._btShape, index);
+			ILaya3D.Physics3D._bullet.btCompoundShape_removeChildShapeByIndex(this._btShape, index);
 		}
 	}
 
@@ -133,7 +133,7 @@ export class CompoundColliderShape extends ColliderShape {
 	clearChildShape(): void {
 		for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++) {
 			this._clearChildShape(this._childColliderShapes[i]);
-			Physics3D._bullet.btCompoundShape_removeChildShapeByIndex(this._btShape, 0);
+			ILaya3D.Physics3D._bullet.btCompoundShape_removeChildShapeByIndex(this._btShape, 0);
 		}
 		this._childColliderShapes.length = 0;
 	}
