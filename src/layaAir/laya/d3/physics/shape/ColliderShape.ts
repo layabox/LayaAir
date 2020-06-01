@@ -2,9 +2,9 @@ import { IClone } from "../../core/IClone";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { Physics3D } from "../Physics3D";
 import { PhysicsComponent } from "../PhysicsComponent";
 import { CompoundColliderShape } from "./CompoundColliderShape";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。
@@ -49,7 +49,7 @@ export class ColliderShape implements IClone {
 	 * @internal
 	 */
 	static __init__(): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any =ILaya3D.Physics3D._bullet;
 		ColliderShape._btScale = bt.btVector3_create(1, 1, 1);
 		ColliderShape._btVector30 = bt.btVector3_create(0, 0, 0);
 		ColliderShape._btQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
@@ -159,7 +159,7 @@ export class ColliderShape implements IClone {
 		if (this._compoundParent) {//TODO:待查,这里有问题
 			this.updateLocalTransformations();
 		} else {
-			var bt: any = Physics3D._bullet;
+			var bt: any = ILaya3D.Physics3D._bullet;
 			bt.btVector3_setValue(ColliderShape._btScale, value.x, value.y, value.z);
 			bt.btCollisionShape_setLocalScaling(this._btShape, ColliderShape._btScale);
 		}
@@ -217,7 +217,7 @@ export class ColliderShape implements IClone {
 	 */
 	destroy(): void {
 		if (this._btShape) {
-			Physics3D._bullet.btCollisionShape_destroy(this._btShape);
+			ILaya3D.Physics3D._bullet.btCollisionShape_destroy(this._btShape);
 			this._btShape = null;
 		}
 	}

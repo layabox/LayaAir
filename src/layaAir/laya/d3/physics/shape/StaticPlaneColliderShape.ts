@@ -1,6 +1,6 @@
 import { ColliderShape } from "./ColliderShape";
 import { Vector3 } from "../../math/Vector3"
-import { Physics3D } from "../Physics3D";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>StaticPlaneColliderShape</code> 类用于创建静态平面碰撞器。
@@ -18,7 +18,7 @@ export class StaticPlaneColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	static __init__(): void {
-		StaticPlaneColliderShape._btNormal = Physics3D._bullet.btVector3_create(0, 0, 0);
+		StaticPlaneColliderShape._btNormal = ILaya3D.Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	/**
@@ -30,7 +30,7 @@ export class StaticPlaneColliderShape extends ColliderShape {
 		this._offset = offset;
 		this._type = ColliderShape.SHAPETYPES_STATICPLANE;
 
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btVector3_setValue(StaticPlaneColliderShape._btNormal, -normal.x, normal.y, normal.z);
 		this._btShape = bt.btStaticPlaneShape_create(StaticPlaneColliderShape._btNormal, offset);
 	}

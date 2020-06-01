@@ -92,6 +92,8 @@ import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMateri
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
 import { ConfigurableJoint } from "./laya/d3/physics/constraints/ConfigurableJoint";
+import { Camera } from "./laya/d3/core/Camera";
+import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -196,7 +198,8 @@ export class Laya3D {
 		ILaya3D.SubMeshDynamicBatch = SubMeshDynamicBatch;
 		ILaya3D.Laya3D = Laya3D;
 		ILaya3D.Matrix4x4 = Matrix4x4;
-
+		ILaya3D.Physics3D = Physics3D;
+		ILaya3D.ShadowLightType = ShadowLightType;
 		//函数里面会有判断isConchApp
 		Laya3D.enableNative3D();
 

@@ -1,5 +1,5 @@
 import { ColliderShape } from "./ColliderShape";
-import { Physics3D } from "../Physics3D";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
@@ -25,7 +25,7 @@ export class SphereColliderShape extends ColliderShape {
 		this._radius = radius;
 		this._type = ColliderShape.SHAPETYPES_SPHERE;
 
-		this._btShape = Physics3D._bullet.btSphereShape_create(radius);
+		this._btShape = ILaya3D.Physics3D._bullet.btSphereShape_create(radius);
 	}
 
 	/**
