@@ -42,9 +42,7 @@ export class FixedConstraint extends ConstraintComponent{
 	 */
 	_createConstraint():void{
 		var bt = Physics3D._bullet;
-		var physicsTransform = bt.btCollisionObject_getWorldTransform(this.ownBody.btColliderObject);
-		var origin = bt.btTransform_getOrigin(physicsTransform);
-		this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframAPos, this.connectedBody.btColliderObject, this._btframBPos)
+		this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans)
 		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);	
 		bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
