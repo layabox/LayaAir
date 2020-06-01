@@ -27,8 +27,7 @@ export class CannonPhysicsWorld_PhysicsProperty{
     private scene:Scene3D;
 
     constructor(){
-			//@ts-ignore
-		Config3D._config.isUseCannonPhysicsEngine = true;
+		Config3D.useCannonPhysics(true);
         Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;

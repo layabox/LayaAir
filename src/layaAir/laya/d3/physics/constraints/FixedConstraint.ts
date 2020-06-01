@@ -44,8 +44,8 @@ export class FixedConstraint extends ConstraintComponent{
 		var bt = Physics3D._bullet;
 		var physicsTransform = bt.btCollisionObject_getWorldTransform(this.ownBody.btColliderObject);
 		var origin = bt.btTransform_getOrigin(physicsTransform);
-		this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject,this.connectedBody.btColliderObject,origin);
-		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
+		this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframAPos, this.connectedBody.btColliderObject, this._btframBPos)
+		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);	
 		bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 	}
@@ -98,6 +98,7 @@ export class FixedConstraint extends ConstraintComponent{
 	 * @override
 	 */
 	_parse(data: any,interactMap:any = null): void {
+		super._parse(data);
 		if(data.rigidbodyID!=-1&&data.connectRigidbodyID!=-1){
 			interactMap.component.push(this);
 			interactMap.data.push(data);

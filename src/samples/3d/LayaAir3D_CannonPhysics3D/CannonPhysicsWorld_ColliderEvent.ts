@@ -21,30 +21,25 @@ import { CannonRigidbody3D } from "laya/d3/physicsCannon/CannonRigidbody3D";
 import { CannonSphereColliderShape } from "laya/d3/physicsCannon/shape/CannonSphereColliderShape";
 import { CannonCompoundColliderShape } from "laya/d3/physicsCannon/shape/CannonCompoundColliderShape";
 import { Event } from "laya/events/Event";
-import { MouseManager } from "laya/events/MouseManager";
-import { Vector2 } from "laya/d3/math/Vector2";
-import { Ray } from "laya/d3/math/Ray";
-import { CannonHitResult } from "laya/d3/physicsCannon/CannonHitResult";
-import { Color } from "laya/d3/math/Color";
+import { Script3D } from "laya/d3/component/Script3D";
+import { PhysicsComponent } from "laya/d3/physics/PhysicsComponent";
+import { Collision } from "laya/d3/physics/Collision";
 import { Config3D } from "Config3D";
 
 /**
- * 射线示例测试   点击左键 选中的物体会变红
+ * 用键盘WASD来控制小盒子的移动，碰到的会变成红色
  */
-export class CannonPhysicsWorld_RayCheck{
+export class CannonPhysicsWorld_ColliderEvent{
     private scene:Scene3D;
     private mat1:BlinnPhongMaterial;
 	private mat2: BlinnPhongMaterial;
 	private mat3: BlinnPhongMaterial;
 	private camera:Camera;
-	private point:Vector2 = new Vector2();
-	private ray: Ray = new Ray(new Vector3(),new Vector3());
-	private colorRed:Vector4 = new Vector4(1,0,0,1);
-	private colorWrite:Vector4 = new Vector4(1,1,1,1);
-	private oldSelectMesh:MeshSprite3D;
+	private Kinematic:MeshSprite3D;
+	private speed:number =0.1;
+	private tempSpeed:Vector3 = new Vector3();
     constructor(){
-			//@ts-ignore
-		Config3D._config.isUseCannonPhysicsEngine = true;
+		Config3D.useCannonPhysics(true);
         Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -55,7 +50,7 @@ export class CannonPhysicsWorld_RayCheck{
 
 			//初始化照相机
 			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-			this.camera.transform.translate(new Vector3(0, 6, 9.5));
+			this.camera.transform.translate(new Vector3(0, 6, 15));
 			this.camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 			this.camera.addComponent(CameraMoveScript);
 			this.camera.clearColor = null;
@@ -98,13 +93,19 @@ export class CannonPhysicsWorld_RayCheck{
 				this.mat3.albedoTexture = tex;
 			}));
             
-			this.addBox();
+			this.addBox(false);
 			this.addSphere();
 			this.addCompoundColliderShape();
-			Laya.stage.on(Event.MOUSE_DOWN, this, this.mouseDown);
+
+			//增加一个运动学刚体
+			this.Kinematic= this.addBox(true);
+			this.Kinematic.transform.position = new Vector3(0,0.5,5);
+			this.Kinematic.addComponent(colliderCheck);
+			Laya.stage.on(Event.KEY_DOWN,this,this.keyDown);
+			Laya.stage.on(Event.KEY_PRESS,this,this.keyDown);
         }));
     }
-    addBox(){
+    addBox(isKinematic:boolean):MeshSprite3D{
         var sX: number =1;
 		var sY: number =1;
         var sZ: number =1;
@@ -124,7 +125,9 @@ export class CannonPhysicsWorld_RayCheck{
          //设置盒子的碰撞形状
          rigidBody.colliderShape = boxShape;
          //设置刚体的质量
-         rigidBody.mass = 10;
+		 rigidBody.mass = 10;
+		 rigidBody.isKinematic = isKinematic;
+		 return box;
     }
     addSphere(){
 	   var radius:number = 1;
@@ -133,17 +136,19 @@ export class CannonPhysicsWorld_RayCheck{
 	   sphere.meshRenderer.material = this.mat2;
 	   var sphereTransform:Transform3D = sphere.transform;
 	   var pos:Vector3 =sphereTransform.position;
-	   pos.setValue(0,5,0);
+	   pos.setValue(0,1,0);
 	
 	   sphereTransform.position = pos;
 	     //创建刚体碰撞器
-         var rigidBody: CannonRigidbody3D = sphere.addComponent(CannonRigidbody3D);
+         var physicsCollider: CannonPhysicsCollider = sphere.addComponent(CannonPhysicsCollider);
          //创建盒子形状碰撞器
          var sphereShape: CannonSphereColliderShape = new CannonSphereColliderShape(radius);
          //设置盒子的碰撞形状
-         rigidBody.colliderShape = sphereShape;
-         //设置刚体的质量
-         rigidBody.mass = 10;
+		 physicsCollider.colliderShape = sphereShape;
+		 physicsCollider.isTrigger = true;
+		  //@ts-ignorets  minerTODO：
+		 // sphere.addComponent(colliderCheck);
+		 
 	}
 	addCompoundColliderShape(){
 		var mesh:MeshSprite3D = this.addMeshBox(5,5,0);
@@ -169,7 +174,7 @@ export class CannonPhysicsWorld_RayCheck{
          //设置盒子的碰撞形状
          rigidBody.colliderShape = boxCompoundShape;
          //设置刚体的质量
-         rigidBody.mass = 10;
+		 rigidBody.mass = 10;
 	}
 	addMeshBox(x:number,y:number,z:number):MeshSprite3D{
 		var sX: number =2;
@@ -185,25 +190,77 @@ export class CannonPhysicsWorld_RayCheck{
 		 transform.position = pos;
 		 return box;
 	}
-
-	mouseDown(){
-		this.point.x = MouseManager.instance.mouseX;
-		this.point.y = MouseManager.instance.mouseY;
-		//产生射线
-		this.camera.viewportPointToRay(this.point, this.ray);
-		var out: CannonHitResult = new CannonHitResult();
-		this.scene.cannonPhysicsSimulation.rayCast(this.ray,out);
-		if(out.succeeded)
-		{
-
-			var selectSprite3D:MeshSprite3D = <MeshSprite3D>out.collider.owner;
-			(<BlinnPhongMaterial>selectSprite3D.meshRenderer.sharedMaterial).albedoColor = this.colorRed;
-			console.log(selectSprite3D.name); 
-			if(this.oldSelectMesh)
-			if(selectSprite3D!=this.oldSelectMesh)
-			(<BlinnPhongMaterial>this.oldSelectMesh.meshRenderer.sharedMaterial).albedoColor = this.colorWrite;
-			this.oldSelectMesh = selectSprite3D;
-		}
+	keyDown(e:any)
+	{
 		
+		//var key:string = String.fromCharCode(e.keyCode);
+		switch (e.keyCode) {
+			case 87: 
+				this.tempSpeed.setValue(0,0,-this.speed);
+				break;
+			case 83: 
+				//Down
+				this.tempSpeed.setValue(0,0,this.speed);
+				break;
+			case 65: 
+				//Left
+				this.tempSpeed.setValue(-this.speed,0,0);
+				break;
+			case 68: 
+				//Right
+				this.tempSpeed.setValue(this.speed,0,0);
+				break;
+		}
+	this.Kinematic.transform.translate(this.tempSpeed);
+	}
+}
+
+export class colliderCheck extends Script3D{
+	/**
+	 * 开始触发时执行
+	 * 此方法为虚方法，使用时重写覆盖即可
+	 */
+	onTriggerEnter(other: PhysicsComponent): void {
+		console.log("triggerEnter");
+	}
+
+	/**
+	 * 持续触发时执行
+	 * 此方法为虚方法，使用时重写覆盖即可
+	 */
+	onTriggerStay(other: PhysicsComponent): void {
+		console.log("triggerStay");
+	}
+
+	/**
+	 * 结束触发时执行
+	 * 此方法为虚方法，使用时重写覆盖即可
+	 */
+	onTriggerExit(other: PhysicsComponent): void {
+		console.log("triggerExit");
+	}
+
+	/**
+	 * 开始碰撞时执行
+	 * 此方法为虚方法，使用时重写覆盖即可
+	 */
+	onCollisionEnter(collision: Collision): void {
+		console.log("collisionEnter");
+	}
+
+	/**
+	 * 持续碰撞时执行
+	 * 此方法为虚方法，使用时重写覆盖即可
+	 */
+	onCollisionStay(collision: Collision): void {
+		console.log("collisionStay");
+	}
+
+	/**
+	 * 结束碰撞时执行
+	 * 此方法为虚方法，使用时重写覆盖即可
+	 */
+	onCollisionExit(collision: Collision): void {
+		console.log("collisionexit");
 	}
 }
