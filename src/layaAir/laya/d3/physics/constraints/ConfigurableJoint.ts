@@ -63,18 +63,6 @@ export class ConfigurableJoint extends ConstraintComponent{
 	/** @internal */
 	private _angularDamp:Vector3 = new Vector3();
 	/** @internal */
-	private _btframATrans:number;
-	/** @internal */
-	private _btframBTrans:number;
-	/** @internal */
-	private _btframAPos:number;
-	/** @internal */
-	private _btframBPos:number;
-	/** @internal */
-	private _anchor:Vector3 = new Vector3();
-	/** @internal */
-	private _connectAnchor:Vector3 = new Vector3();
-	/** @internal */
 	private _xMotion:number = 0;
 	/** @internal */
 	private _yMotion:number = 0;
@@ -94,16 +82,6 @@ export class ConfigurableJoint extends ConstraintComponent{
 		var bt = Physics3D._bullet;
 		this._btAxis =bt.btVector3_create(-1.0,0.0,0.0);
 		this._btSecondaryAxis = bt.btVector3_create(0.0,1.0,0.0);
-		this._btframATrans = bt.btTransform_create();
-		this._btframBTrans = bt.btTransform_create();
-		bt.btTransform_setIdentity(this._btframATrans);
-		bt.btTransform_setIdentity(this._btframBTrans);
-		this._btframAPos = bt.btVector3_create(0, 0, 0);
-		this._btframBPos= bt.btVector3_create(0, 0, 0);
-		bt.btTransform_setOrigin(this._btframATrans,  this._btframAPos);
-		bt.btTransform_setOrigin(this._btframBTrans,  this._btframBPos);
-		this.breakForce = -1;
-		this.breakTorque = -1;	
 	}
 
 	/**
@@ -473,15 +451,13 @@ export class ConfigurableJoint extends ConstraintComponent{
 		bt.btTypedConstraint_setParam(this._btConstraint, axis, constraintParams, value);
 	}
 	/**
-	 *
+	 * @inheritDoc
+	 * @override
 	 * @internal
 	 */
 	setFrames(): void {
+		super.setFrames();
 		var bt = Physics3D._bullet;
-		bt.btVector3_setValue(this._btframAPos,-this._anchor.x,this.anchor.y,this.anchor.z);
-		bt.btVector3_setValue(this._btframBPos,-this._connectAnchor.x,this._connectAnchor.y,this._connectAnchor.z);
-		bt.btTransform_setOrigin(this._btframATrans,this._btframAPos);
-		bt.btTransform_setOrigin(this._btframBTrans,this._btframBPos);
 		if(!this._btConstraint)
 			return;
 		bt.btGeneric6DofSpring2Constraint_setFrames(this._btConstraint, this._btframATrans, this._btframBTrans);
@@ -545,7 +521,6 @@ export class ConfigurableJoint extends ConstraintComponent{
 		this.setDamping(ConfigurableJoint.MOTION_ANGULAR_INDEX_Z,this._angularDamp.z);
 		this.setFrames();
 		this.setEquilibriumPoint(0,0);
-		
 	}
 	
 	/**
@@ -586,8 +561,7 @@ export class ConfigurableJoint extends ConstraintComponent{
 	 * @override
 	 */
 	_parse(data: any,interactMap:any = null): void {
-		this._anchor.fromArray(data.anchor);
-		this._connectAnchor.fromArray(data.connectAnchor);
+		super._parse(data);
 		this._axis.fromArray(data.axis);
 		this._secondaryAxis.fromArray(data.secondaryAxis);
 		var limitlimit:number = data.linearLimit;
@@ -605,7 +579,6 @@ export class ConfigurableJoint extends ConstraintComponent{
 		var zAngularLimit:number = data.angularZLimit;
 		this._minAngularLimit.setValue(xlowAngularLimit,-yAngularLimit,-zAngularLimit);
 		this._maxAngularLimit.setValue(xhighAngularLimit,yAngularLimit,zAngularLimit);
-		//var xlowAngularBounciness:number = data.lowAngularXBounciness;
 		var xhighAngularBounciness:number = data.highAngularXLimitBounciness;
 		var ybounciness:number = data.angularYLimitBounciness;
 		var zbounciness:number = data.angularZLimitBounciness;
