@@ -241,7 +241,7 @@ export class WebAudioSound extends EventDispatcher {
      * @return
      *
      */
-    play(startTime: number = 0, loops: number = 0, channel: SoundChannel = null): SoundChannel {
+    play(startTime: number = 0, loops: number = 0, channel: WebAudioSoundChannel = null): SoundChannel {
         channel = channel ? channel : new WebAudioSoundChannel();
         if (!this.audioBuffer) {
             if (this.url) {
@@ -253,7 +253,7 @@ export class WebAudioSound extends EventDispatcher {
         }
         channel.url = this.url;
         channel.loops = loops;
-        channel["audioBuffer"] = this.audioBuffer;
+        channel.audioBuffer = this.audioBuffer;
         channel.startTime = startTime;
         channel.play();
         ILaya.SoundManager.addChannel(channel);
