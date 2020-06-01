@@ -21,7 +21,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 
 
 
-export class PhysicsWorld_Generic6DofSpringConstraint{
+export class PhysicsWorld_ConfigurableJoint{
     private scene:Scene3D;
 	private camera: Camera;
     constructor() {
