@@ -9,6 +9,9 @@ export class Config3D implements IClone {
 	/**@internal*/
 	static _config: Config3D = new Config3D();
 
+	static useCannonPhysics(IsUseCannonPhysics:boolean){
+		Config3D._config.isUseCannonPhysicsEngine = IsUseCannonPhysics;
+	}
 	/**@internal*/
 	private _defaultPhysicsMemory: number = 16;
 	/**@internal*/
