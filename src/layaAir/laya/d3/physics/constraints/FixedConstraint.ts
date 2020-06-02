@@ -69,13 +69,8 @@ export class FixedConstraint extends ConstraintComponent{
 	 */
 	_onEnable():void{
 		if(!this._btConstraint)
-		{return;}
+			return;
 		super._onEnable();
-		// if(!this._btConstraint){
-		// 	if(this.ownBody&&this.ownBody.physicsSimulation&&this.connectedBody&&this.connectedBody.physicsSimulation)
-		// 	this._createConstraint();
-		// 	this._addToSimulation();
-		// }
 		if(this._btConstraint)
 		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 	}
