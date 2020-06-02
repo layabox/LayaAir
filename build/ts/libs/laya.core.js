@@ -11905,9 +11905,9 @@ window.Laya= (function (exports) {
                 height = tex.height * hRate;
                 if (width <= 0 || height <= 0)
                     return null;
-                x = x - sprite.pivotX + tex.offsetX * wRate;
-                y = y - sprite.pivotY + tex.offsetY * hRate;
-                context.drawTexture(tex, x, y, width, height);
+                var px = x - sprite.pivotX + tex.offsetX * wRate;
+                var py = y - sprite.pivotY + tex.offsetY * hRate;
+                context.drawTexture(tex, px, py, width, height);
             }
             var next = this._next;
             if (next != RenderSprite.NORENDER)

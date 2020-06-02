@@ -60,6 +60,7 @@
 	 * <code>Config3D</code> 类用于创建3D初始化配置。
 	 */
 	declare class Config3D implements laya.d3.core.IClone  {
+		static useCannonPhysics(IsUseCannonPhysics:boolean):void;
 
 		/**
 		 * 是否开启抗锯齿。
@@ -14011,6 +14012,10 @@ declare module laya.d3.physics.constraints {
 		 */
 		get breakTorque():number;
 		set breakTorque(value:number);
+		set anchor(value:laya.d3.math.Vector3);
+		get anchor():laya.d3.math.Vector3;
+		set connectAnchor(value:laya.d3.math.Vector3);
+		get connectAnchor():laya.d3.math.Vector3;
 
 		/**
 		 * 创建一个 <code>ConstraintComponent</code> 实例。

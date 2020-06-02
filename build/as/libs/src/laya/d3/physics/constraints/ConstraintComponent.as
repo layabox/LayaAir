@@ -60,6 +60,10 @@ package laya.d3.physics.constraints {
 		 */
 		public function get breakTorque():Number{return null;}
 		public function set breakTorque(value:Number):void{}
+		public function set anchor(value:Vector3):void{}
+		public function get anchor():Vector3{return null;}
+		public function set connectAnchor(value:Vector3):void{}
+		public function get connectAnchor():Vector3{return null;}
 
 		/**
 		 * 创建一个 <code>ConstraintComponent</code> 实例。
