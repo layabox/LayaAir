@@ -508,7 +508,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		(data.restitution != null) && (this.restitution = data.restitution);
 		(data.isTrigger != null) && (this.isTrigger = data.isTrigger);
 		(data.mass != null) && (this.mass = data.mass);
-		(data.isKinematic != null) && (this.isKinematic = data.isKinematic);
 		(data.linearDamping != null) && (this.linearDamping = data.linearDamping);
 		(data.angularDamping != null) && (this.angularDamping = data.angularDamping);
 		(data.overrideGravity != null) && (this.overrideGravity = data.overrideGravity);
@@ -530,6 +529,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		}
 		super._parse(data);
 		this._parseShape(data.shapes);
+		(data.isKinematic != null) && (this._isKinematic = data.isKinematic);
 	}
 
 	/**
