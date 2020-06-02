@@ -545,7 +545,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	constructor() {
 		super();
-		if(!Config3D._config.isUseCannonPhysicsEngine)
+		if(!Config3D._config.isUseCannonPhysicsEngine&&Physics3D._bullet)
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
 		else if(Physics3D._cannon){
 			this._cannonPhysicsSimulation = new CannonPhysicsSimulation(Scene3D.cannonPhysicsSettings);
