@@ -488,9 +488,10 @@ export class ConfigurableJoint extends ConstraintComponent{
 		this._btConstraint = bt.btGeneric6DofSpring2Constraint_create(this.ownBody.btColliderObject, this._btframAPos, this.connectedBody.btColliderObject, this._btframBPos, ConfigurableJoint.RO_XYZ);
 		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
 		bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
-		//TODO:需要初始化数据
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		this._initAllConstraintInfo();
+		this._addToSimulation();
+		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 	}
 
 	_initAllConstraintInfo():void{
@@ -537,12 +538,11 @@ export class ConfigurableJoint extends ConstraintComponent{
 	 * @internal
 	 */
 	_onEnable():void{
+		if(!this._btConstraint)
+			return;
 		super._onEnable();
-		if(!this._btConstraint){
-			if(this.ownBody&&this.ownBody.physicsSimulation&&this.connectedBody&&this.connectedBody.physicsSimulation)
-			this._createConstraint();
-			this._addToSimulation();
-		}
+
+	
 		if(this._btConstraint)
 		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 	}
