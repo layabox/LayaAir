@@ -13,6 +13,7 @@ import { ILaya3D } from "../../../ILaya3D";
  */
 export class Rigidbody3D extends PhysicsTriggerComponent {
 	/*
+
 	 * 刚体类型_静态。
 	 * 设定为永远不会移动刚体,引擎也不会自动更新。
 	 * 如果你打算移动物理,建议使用TYPE_KINEMATIC。
@@ -464,6 +465,26 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @override
 	 * @internal
 	 */
+	_onEnable(){
+		super._onEnable();
+		if(this._constaintRigidbodyA){
+			if(this._constaintRigidbodyA.connectedBody._simulation){
+				this._constaintRigidbodyA._createConstraint();
+				this._constaintRigidbodyA._onEnable();
+			}
+		}
+		if(this._constaintRigidbodyB){
+			if(this._constaintRigidbodyB.ownBody._simulation){
+				this._constaintRigidbodyB._createConstraint();
+				this._constaintRigidbodyB._onEnable();
+			}
+		}
+	}
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
 	_onShapeChange(colShape: ColliderShape): void {
 		super._onShapeChange(colShape);
 		//TODO:此时已经加入场景,只影响mass为0,函数内部设置的flas是否为static无效			
@@ -487,7 +508,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		(data.restitution != null) && (this.restitution = data.restitution);
 		(data.isTrigger != null) && (this.isTrigger = data.isTrigger);
 		(data.mass != null) && (this.mass = data.mass);
-		(data.isKinematic != null) && (this.isKinematic = data.isKinematic);
 		(data.linearDamping != null) && (this.linearDamping = data.linearDamping);
 		(data.angularDamping != null) && (this.angularDamping = data.angularDamping);
 		(data.overrideGravity != null) && (this.overrideGravity = data.overrideGravity);
@@ -509,6 +529,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		}
 		super._parse(data);
 		this._parseShape(data.shapes);
+		(data.isKinematic != null) && (this._isKinematic = data.isKinematic);
 	}
 
 	/**

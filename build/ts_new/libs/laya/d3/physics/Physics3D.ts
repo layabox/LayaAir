@@ -24,15 +24,17 @@ export class Physics3D {
     /**@internal */
     static __bulletinit__(){
         this._bullet = (window as any).Physics3D;
-        StaticPlaneColliderShape.__init__();
-        ColliderShape.__init__();
-        CompoundColliderShape.__init__();
-        PhysicsComponent.__init__();
-        PhysicsSimulation.__init__();
-        BoxColliderShape.__init__();
-        CylinderColliderShape.__init__();
-        CharacterController.__init__();
-        Rigidbody3D.__init__();
+        if(this._bullet){
+            StaticPlaneColliderShape.__init__();
+            ColliderShape.__init__();
+            CompoundColliderShape.__init__();
+            PhysicsComponent.__init__();
+            PhysicsSimulation.__init__();
+            BoxColliderShape.__init__();
+            CylinderColliderShape.__init__();
+            CharacterController.__init__();
+            Rigidbody3D.__init__();
+        }   
     }
 
     static __cannoninit__(){

@@ -14285,11 +14285,6 @@
 	            }
 	        }
 	    }
-	    get physicsSimulation() {
-	        if (this.owner && this.owner.scene)
-	            this._simulation = this.owner._scene.physicsSimulation;
-	        return this._simulation;
-	    }
 	    _parseShape(shapesData) {
 	        var shapeCount = shapesData.length;
 	        if (shapeCount === 1) {
@@ -15596,6 +15591,21 @@
 	        this.isKinematic = this._isKinematic;
 	        bt.btRigidBodyConstructionInfo_destroy(constructInfo);
 	    }
+	    _onEnable() {
+	        super._onEnable();
+	        if (this._constaintRigidbodyA) {
+	            if (this._constaintRigidbodyA.connectedBody._simulation) {
+	                this._constaintRigidbodyA._createConstraint();
+	                this._constaintRigidbodyA._onEnable();
+	            }
+	        }
+	        if (this._constaintRigidbodyB) {
+	            if (this._constaintRigidbodyB.ownBody._simulation) {
+	                this._constaintRigidbodyB._createConstraint();
+	                this._constaintRigidbodyB._onEnable();
+	            }
+	        }
+	    }
 	    _onShapeChange(colShape) {
 	        super._onShapeChange(colShape);
 	        if (this._isKinematic) {
@@ -15613,7 +15623,6 @@
 	        (data.restitution != null) && (this.restitution = data.restitution);
 	        (data.isTrigger != null) && (this.isTrigger = data.isTrigger);
 	        (data.mass != null) && (this.mass = data.mass);
-	        (data.isKinematic != null) && (this.isKinematic = data.isKinematic);
 	        (data.linearDamping != null) && (this.linearDamping = data.linearDamping);
 	        (data.angularDamping != null) && (this.angularDamping = data.angularDamping);
 	        (data.overrideGravity != null) && (this.overrideGravity = data.overrideGravity);
@@ -15633,6 +15642,7 @@
 	        }
 	        super._parse(data);
 	        this._parseShape(data.shapes);
+	        (data.isKinematic != null) && (this._isKinematic = data.isKinematic);
 	    }
 	    _onDestroy() {
 	        ILaya3D.Physics3D._bullet.btMotionState_destroy(this._btLayaMotionState);
@@ -15741,15 +15751,17 @@
 	class Physics3D {
 	    static __bulletinit__() {
 	        this._bullet = window.Physics3D;
-	        StaticPlaneColliderShape.__init__();
-	        ColliderShape.__init__();
-	        CompoundColliderShape.__init__();
-	        PhysicsComponent.__init__();
-	        PhysicsSimulation.__init__();
-	        BoxColliderShape.__init__();
-	        CylinderColliderShape.__init__();
-	        CharacterController.__init__();
-	        Rigidbody3D.__init__();
+	        if (this._bullet) {
+	            StaticPlaneColliderShape.__init__();
+	            ColliderShape.__init__();
+	            CompoundColliderShape.__init__();
+	            PhysicsComponent.__init__();
+	            PhysicsSimulation.__init__();
+	            BoxColliderShape.__init__();
+	            CylinderColliderShape.__init__();
+	            CharacterController.__init__();
+	            Rigidbody3D.__init__();
+	        }
 	    }
 	    static __cannoninit__() {
 	        this._cannon = window.CANNON;
@@ -19509,7 +19521,7 @@
 	        this._key = new Laya.SubmitKey();
 	        this._pickIdToSprite = new Object();
 	        this._reflectionMode = 0;
-	        if (!Config3D._config.isUseCannonPhysicsEngine)
+	        if (!Config3D._config.isUseCannonPhysicsEngine && Physics3D._bullet)
 	            this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
 	        else if (Physics3D._cannon) {
 	            this._cannonPhysicsSimulation = new Laya.CannonPhysicsSimulation(Scene3D.cannonPhysicsSettings);
@@ -31238,6 +31250,7 @@
 	    }
 	    set connectedBody(value) {
 	        this._connectedBody = value;
+	        value.constaintRigidbodyB = this;
 	    }
 	    get connectedBody() {
 	        return this._connectedBody;
@@ -31247,6 +31260,7 @@
 	    }
 	    set ownBody(value) {
 	        this._ownBody = value;
+	        value.constaintRigidbodyA = this;
 	    }
 	    get currentForce() {
 	        if (!this._getJointFeedBack)
@@ -31326,7 +31340,6 @@
 	            this._ownBody.constaintRigidbodyA = this;
 	            this._connectedBody.constaintRigidbodyB = this;
 	            this._createConstraint();
-	            this._addToSimulation();
 	        }
 	    }
 	    getcurrentForce(out) {
@@ -31418,22 +31431,23 @@
 	        this._simulation = null;
 	    }
 	    _createConstraint() {
-	        var bt = Physics3D._bullet;
-	        this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans);
-	        this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
-	        bt.btTypedConstraint_setJointFeedback(this._btConstraint, this._btJointFeedBackObj);
-	        this._simulation = this.owner._scene.physicsSimulation;
+	        if (this.ownBody && this.ownBody._simulation && this.connectedBody && this.connectedBody._simulation) {
+	            var bt = Physics3D._bullet;
+	            this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans);
+	            this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
+	            bt.btTypedConstraint_setJointFeedback(this._btConstraint, this._btJointFeedBackObj);
+	            this._simulation = this.owner._scene.physicsSimulation;
+	            this._addToSimulation();
+	            Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, true);
+	        }
 	    }
 	    _onAdded() {
 	        super._onAdded();
 	    }
 	    _onEnable() {
+	        if (!this._btConstraint)
+	            return;
 	        super._onEnable();
-	        if (!this._btConstraint) {
-	            if (this.ownBody && this.ownBody.physicsSimulation && this.connectedBody && this.connectedBody.physicsSimulation)
-	                this._createConstraint();
-	            this._addToSimulation();
-	        }
 	        if (this._btConstraint)
 	            Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, true);
 	    }
@@ -31758,6 +31772,8 @@
 	        bt.btTypedConstraint_setJointFeedback(this._btConstraint, this._btJointFeedBackObj);
 	        this._simulation = this.owner._scene.physicsSimulation;
 	        this._initAllConstraintInfo();
+	        this._addToSimulation();
+	        Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, true);
 	    }
 	    _initAllConstraintInfo() {
 	        this.setLimit(ConfigurableJoint.MOTION_LINEAR_INDEX_X, this._xMotion, -this._maxLinearLimit.x, -this._minLinearLimit.x);
@@ -31791,12 +31807,9 @@
 	        super._onAdded();
 	    }
 	    _onEnable() {
+	        if (!this._btConstraint)
+	            return;
 	        super._onEnable();
-	        if (!this._btConstraint) {
-	            if (this.ownBody && this.ownBody.physicsSimulation && this.connectedBody && this.connectedBody.physicsSimulation)
-	                this._createConstraint();
-	            this._addToSimulation();
-	        }
 	        if (this._btConstraint)
 	            Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, true);
 	    }
