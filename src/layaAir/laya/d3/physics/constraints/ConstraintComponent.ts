@@ -106,6 +106,7 @@ export class ConstraintComponent extends Component {
 	/**@internal */
 	set connectedBody(value:Rigidbody3D){
 		this._connectedBody = value;
+		value.constaintRigidbodyB = this;
 	}
 
 	/**
@@ -128,6 +129,7 @@ export class ConstraintComponent extends Component {
 	/**@internal */
 	set ownBody(value:Rigidbody3D){
 		this._ownBody = value;
+		value.constaintRigidbodyA = this;
 	}
 	/**
 	 * 获得收到的总力
@@ -286,7 +288,6 @@ export class ConstraintComponent extends Component {
 			this._ownBody.constaintRigidbodyA = this;
 			this._connectedBody.constaintRigidbodyB = this;
 			this._createConstraint();
-			this._addToSimulation();
 		}
 	}
 	
