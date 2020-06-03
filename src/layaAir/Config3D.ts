@@ -1,6 +1,9 @@
 import { IClone } from "./laya/d3/core/IClone"
 import { Vector3 } from "./laya/d3/math/Vector3"
 import { PBRRenderQuality } from "./laya/d3/core/material/PBRRenderQuality";
+import { Physics3D } from "./laya/d3/physics/Physics3D";
+import { ILaya3D } from "./ILaya3D";
+import { CannonPhysicsSettings } from "./laya/d3/physicsCannon/CannonPhysicsSettings";
 
 /**
  * <code>Config3D</code> 类用于创建3D初始化配置。
@@ -11,6 +14,8 @@ export class Config3D implements IClone {
 
 	static useCannonPhysics(IsUseCannonPhysics:boolean){
 		Config3D._config.isUseCannonPhysicsEngine = IsUseCannonPhysics;
+		Physics3D.__cannoninit__();
+		ILaya3D.Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
 	}
 	/**@internal*/
 	private _defaultPhysicsMemory: number = 16;
