@@ -241,6 +241,9 @@ window.vvMiniGame = function (exports, Laya) {
 	            if (MiniFileMgr.filesListObj[fileurlkey]) {
 	                var deletefileSize = parseInt(MiniFileMgr.filesListObj[fileurlkey].size);
 	                MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) - deletefileSize;
+	                if (MiniFileMgr.filesListObj[fileurlkey].md5 == MiniFileMgr.fakeObj[fileurlkey].md5) {
+	                    delete MiniFileMgr.fakeObj[fileurlkey];
+	                }
 	                delete MiniFileMgr.filesListObj[fileurlkey];
 	                MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), false);
 	                callBack != null && callBack.runWith([0]);
@@ -293,7 +296,7 @@ window.vvMiniGame = function (exports, Laya) {
 	        MiniFileMgr.fileNativeDir = VVMiniAdapter.window.qg.env.USER_DATA_PATH + value;
 	    }
 	}
-	MiniFileMgr.fs = window.qg.getFileSystemManager ? window.qg.getFileSystemManager() : window.qg;
+	MiniFileMgr.fs = window.qg;
 	MiniFileMgr.wxdown = window.qg.download;
 	MiniFileMgr.filesListObj = {};
 	MiniFileMgr.fakeObj = {};
@@ -1065,10 +1068,11 @@ window.vvMiniGame = function (exports, Laya) {
 	    static onMkdirCallBack(errorCode, data) {
 	        if (!errorCode) {
 	            MiniFileMgr.filesListObj = JSON.parse(data.data);
-	            MiniFileMgr.fakeObj = MiniFileMgr.filesListObj || {};
+	            MiniFileMgr.fakeObj = JSON.parse(data.data) || {};
 	        }
 	        else {
-	            MiniFileMgr.fakeObj = MiniFileMgr.filesListObj = {};
+	            MiniFileMgr.fakeObj = {};
+	            MiniFileMgr.filesListObj = {};
 	        }
 	        MiniFileMgr.fs.listDir({
 	            uri: MiniFileMgr.fileNativeDir,
@@ -1264,7 +1268,7 @@ window.vvMiniGame = function (exports, Laya) {
 	    var rst;
 	    value = value.replace(/>\s+</g, '><');
 	    try {
-	        rst = (new window.DOMParser()).parseFromString(value, 'text/xml');
+	        rst = new DOMParser().parseFromString(value, 'text/xml');
 	    }
 	    catch (error) {
 	        throw "需要引入xml解析库文件";
