@@ -7757,7 +7757,8 @@ window.Laya= (function (exports) {
                     }
                 }
                 else {
-                    var isotex = TextRender.noAtlas || strWidth * this.fontScaleX > TextRender.atlasWidth;
+                    var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);
+                    var isotex = TextRender.noAtlas || (strWidth + margin + margin) * this.fontScaleX > TextRender.atlasWidth;
                     ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                     sameTexData[0] = { texgen: ri.tex.genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
                 }
