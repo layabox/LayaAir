@@ -19,6 +19,9 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Texture } from "laya/resource/Texture";
+import { Texture2D } from "laya/resource/Texture2D";
+import { Sprite } from "laya/display/Sprite";
 
 export class RenderTargetCamera {
 	constructor() {
@@ -80,6 +83,12 @@ export class RenderTargetCamera {
 				renderTargetCamera.clearFlag = BaseCamera.CLEARFLAG_SKY;
 				//设置网格精灵的纹理
 				mat.albedoTexture = renderTargetCamera.renderTarget;
+
+
+				var rtex = new Texture(((<Texture2D>(renderTargetCamera.renderTarget as any))), Texture.INV_UV);
+				var sp = new Sprite();
+				Laya.stage.addChild(sp);
+				sp.graphics.drawTexture(rtex);
 			});
 		}));
 	}
