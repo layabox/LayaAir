@@ -288,7 +288,6 @@ export class ConstraintComponent extends Component {
 			this._ownBody.constaintRigidbodyA = this;
 			this._connectedBody.constaintRigidbodyB = this;
 			this._createConstraint();
-			//this._addToSimulation();
 		}
 	}
 	

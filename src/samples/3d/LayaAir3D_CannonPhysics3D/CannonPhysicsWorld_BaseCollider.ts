@@ -82,7 +82,7 @@ export class CannonPhysicsWorld_BaseCollider{
 			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
 				this.mat3.albedoTexture = tex;
 			}));
-            Laya.timer.loop(1000, this, function (): void {
+            Laya.timer.loop(3000, this, function (): void {
 				var random:number = Math.random();
 				if(random<0.33)
 				this.addCompoundColliderShape();
