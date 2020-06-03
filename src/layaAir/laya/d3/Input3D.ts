@@ -16,6 +16,7 @@ import { HitResult } from "./physics/HitResult";
 import { PhysicsSimulation } from "./physics/PhysicsSimulation";
 import { Physics3D } from "./physics/Physics3D";
 import { ILaya } from "../../ILaya";
+import { Config3D } from "../../Config3D";
 
 /**
  * <code>Input3D</code> 类用于实现3D输入。
@@ -328,7 +329,7 @@ export class Input3D {
 						throw "Input3D:unkonwn event type.";
 				}
 			}
-			(rayCast) && (this._mouseTouchRayCast(cameras));//延迟射线检测,否则mouseMove每帧可能触发多次
+			(rayCast)&&(!Config3D._config.isUseCannonPhysicsEngine) && (this._mouseTouchRayCast(cameras));//延迟射线检测,否则mouseMove每帧可能触发多次
 			this._eventList.length = 0;
 		}
 

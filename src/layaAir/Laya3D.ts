@@ -203,6 +203,11 @@ export class Laya3D {
 		//函数里面会有判断isConchApp
 		Laya3D.enableNative3D();
 
+		if(config.isUseCannonPhysicsEngine)
+		Physics3D.__cannoninit__();
+		
+		Physics3D.__bulletinit__();
+
 		VertexElementFormat.__init__();
 		VertexMesh.__init__();
 		VertexShurikenParticleBillboard.__init__();
@@ -899,15 +904,12 @@ export class Laya3D {
 		if (physics3D == null||config.isUseCannonPhysicsEngine) {
 			Physics3D._enablePhysics = false;
 			Laya3D.__init__(width, height, config);
-			if(config.isUseCannonPhysicsEngine)
-				Physics3D.__cannoninit__();
 			compolete && compolete.run();
 		} else {
 			Physics3D._enablePhysics = true;
 			//should convert MB to pages
 			physics3D(config.defaultPhysicsMemory * 16, BulletInteractive._interactive).then(function (): void {
 				Laya3D.__init__(width, height, config);
-				Physics3D.__bulletinit__();
 				compolete && compolete.run();
 			});
 		}

@@ -194,9 +194,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				throw "Scene3D:unknown shader quality.";
 		}
 		if(config.isUseCannonPhysicsEngine){
-			this.cannonPhysicsSettings = new CannonPhysicsSettings(); 
+			Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings(); 
 		}else{
-			this.physicsSettings = new PhysicsSettings();
+			Scene3D.physicsSettings = new PhysicsSettings();
 		}
 	}
 

@@ -560,8 +560,8 @@ Broadphase.prototype.needBroadphaseCollision = function(bodyA,bodyB){
     }
 
     // Check types
-    if(((bodyA.type & Broadphase_needBroadphaseCollision_STATIC_OR_KINEMATIC)!==0 || bodyA.sleepState === Body.SLEEPING) &&
-       ((bodyB.type & Broadphase_needBroadphaseCollision_STATIC_OR_KINEMATIC)!==0 || bodyB.sleepState === Body.SLEEPING)) {
+    if(((bodyA.type & Body.STATIC)!==0 || bodyA.sleepState === Body.SLEEPING) &&
+       ((bodyB.type & Body.STATIC)!==0 || bodyB.sleepState === Body.SLEEPING)) {
         // Both bodies are static, kinematic or sleeping. Skip.
         return false;
     }
@@ -3723,12 +3723,14 @@ function Material(options){
     /**
      * Friction for this material. If non-negative, it will be used instead of the friction given by ContactMaterials. If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
      * @property {number} friction
+     * miner 修改默认的摩擦力
      */
     this.friction = typeof(options.friction) !== 'undefined' ? options.friction : -1;
 
     /**
      * Restitution for this material. If non-negative, it will be used instead of the restitution given by ContactMaterials. If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
      * @property {number} restitution
+     * miner 修改默认的弹力
      */
     this.restitution = typeof(options.restitution) !== 'undefined' ? options.restitution : -1;
 }
@@ -5211,6 +5213,8 @@ function Body(options){
     this.id = Body.idCounter++;
     //miner laya对应ID
     this.layaID;
+    //istriger的功能添加
+    this.isTrigger = false;
     /**
      * Reference to the world the body is living in
      * @property world
@@ -11217,9 +11221,10 @@ Narrowphase.prototype.getContacts = function(p1, p2, world, result, oldcontacts,
             bj = p2[k];
 
         // Get contact material
-        var bodyContactMaterial = null;
+        //miner使用两个body的材质的弹力和摩擦力
+        var bodyContactMaterial = false;
         if(bi.material && bj.material){
-            bodyContactMaterial = world.getContactMaterial(bi.material,bj.material) || null;
+            bodyContactMaterial =true;//world.getContactMaterial(bi.material,bj.material) || null;
         }
 
         for (var i = 0; i < bi.shapes.length; i++) {
@@ -11245,8 +11250,21 @@ Narrowphase.prototype.getContacts = function(p1, p2, world, result, oldcontacts,
                 if(si.material && sj.material){
                     shapeContactMaterial = world.getContactMaterial(si.material,sj.material) || null;
                 }
+                // Layaminer在这儿改掉
+               // this.currentContactMaterial = shapeContactMaterial || bodyContactMaterial || world.defaultContactMaterial;
+               
+                if(bodyContactMaterial)
+                {
+                    this.currentContactMaterial = world.defaultContactMaterial2;
+                    this.currentContactMaterial.materials[0] = bi.material;
+                    this.currentContactMaterial.materials[1] = bj.material;
+                    this.currentContactMaterial.friction =bi.material.friction+ bj.material.friction;
+                    this.currentContactMaterial.restitution = bi.material.restitution*bj.material.restitution;
+                }
+                else
+                    this.currentContactMaterial = world.defaultContactMaterial2;
 
-                this.currentContactMaterial = shapeContactMaterial || bodyContactMaterial || world.defaultContactMaterial;
+                this.currentContactMaterial = world.defaultContactMaterial2;
 
                 // Get contacts
                 var resolver = this[si.type | sj.type];
@@ -12782,6 +12800,8 @@ function World(){
      * @type {Array}
      */
     this.contacts = [];
+    //miner所有碰撞点
+    this.allContacts = [];
     this.frictionEquations = [];
 
     /**
@@ -12900,6 +12920,8 @@ function World(){
      * @type {ContactMaterial}
      */
     this.defaultContactMaterial = new ContactMaterial(this.defaultMaterial, this.defaultMaterial, { friction: 0.3, restitution: 0.0 });
+    //miner增加一个默认的摩擦材质
+    this.defaultContactMaterial2 = new ContactMaterial(this.defaultMaterial, this.defaultMaterial, { friction: 0.3, restitution: 0.0 });
 
     /**
      * @property doProfiling
@@ -13284,6 +13306,7 @@ World.prototype.internalStep = function(dt){
     var world = this,
         that = this,
         contacts = this.contacts,
+        allContacts = this.allContacts,
         p1 = World_step_p1,
         p2 = World_step_p2,
         N = this.numObjects(),
@@ -13349,13 +13372,16 @@ World.prototype.internalStep = function(dt){
     // Generate contacts
     if(doProfiling){ profilingStart = performance.now(); }
     var oldcontacts = World_step_oldContacts;
-    var NoldContacts = contacts.length;
+    //miner
+    var NoldContacts = allContacts.length;
 
     for(i=0; i!==NoldContacts; i++){
-        oldcontacts.push(contacts[i]);
+    //miner
+        oldcontacts.push(allContacts[i]);
     }
     contacts.length = 0;
-
+    //miner
+    allContacts.length = 0;
     // Transfer FrictionEquation from current list to the pool for reuse
     var NoldFrictionEquations = this.frictionEquations.length;
     for(i=0; i!==NoldFrictionEquations; i++){
@@ -13367,11 +13393,21 @@ World.prototype.internalStep = function(dt){
         p1,
         p2,
         this,
-        contacts,
+        allContacts,//miner
         oldcontacts, // To be reused
         this.frictionEquations,
         frictionEquationPool
     );
+    //排除istrigger的碰撞物体
+    var ncontactss = allContacts.length;
+    for(var ii = 0;ii != ncontactss;ii++)
+    {
+        var tempContact = allContacts[ii];
+        if(!(tempContact.bi.isTrigger||tempContact.bj.isTrigger))
+        {
+            contacts.push(tempContact);
+        }
+    }
 
     if(doProfiling){
         profile.narrowphase = performance.now() - profilingStart;
@@ -13601,8 +13637,7 @@ World.prototype.internalStep = function(dt){
                 invMass = b.invMass,
                 invInertia = b.invInertiaWorld;
             //miner 组织所有的变动大的物体
-            if(b.angularVelocity.length()>0.0001||b.velocity.length()>0.0001)
-            this.callBackBody.push(b);
+          
             //miner end
             velo.x += force.x * invMass * dt;
             velo.y += force.y * invMass * dt;
@@ -13613,7 +13648,7 @@ World.prototype.internalStep = function(dt){
                 invI_tau_dt.mult(dt,invI_tau_dt);
                 invI_tau_dt.vadd(angularVelo,angularVelo);
             }
-
+           
             // Use new velocity  - leap frog
             pos.x += velo.x * dt;
             pos.y += velo.y * dt;
@@ -13634,7 +13669,8 @@ World.prototype.internalStep = function(dt){
                     }
                 }
             }
-
+            //if(velo.length()>0.0001||(wq.x!=0||wq.y!=0||wq.z!=0||wq.w!=0))
+            this.callBackBody.push(b);
             if(b.aabb){
                 b.aabbNeedsUpdate = true;
             }
