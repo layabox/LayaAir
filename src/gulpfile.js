@@ -289,7 +289,7 @@ gulp.task('CopyTSFileToTS', () => {
 //拷贝第三方库至ts库(未来在数组中补充需要的其他第三方库)
 gulp.task('CopyTSJSLibsFileToTS', () => {
     return gulp.src([
-        './layaAir/jsLibs/**/*.*'])
+        './layaAir/jsLibs/**/*.*','../build/js/libs/laya.cannonPhysics.js'])
         .pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
