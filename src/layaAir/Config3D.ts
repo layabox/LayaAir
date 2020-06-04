@@ -12,10 +12,16 @@ export class Config3D implements IClone {
 	/**@internal*/
 	static _config: Config3D = new Config3D();
 
-	static useCannonPhysics(IsUseCannonPhysics:boolean){
-		Config3D._config.isUseCannonPhysicsEngine = IsUseCannonPhysics;
-		Physics3D.__cannoninit__();
-		ILaya3D.Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
+
+	static get useCannonPhysics():boolean{
+		return Config3D._config.isUseCannonPhysicsEngine;
+	}
+	static set useCannonPhysics(value:boolean){
+		Config3D._config.isUseCannonPhysicsEngine = value;
+		if(value) {
+			Physics3D.__cannoninit__();
+			if(!ILaya3D.Scene3D.cannonPhysicsSettings) ILaya3D.Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
+		}	
 	}
 	/**@internal*/
 	private _defaultPhysicsMemory: number = 16;
