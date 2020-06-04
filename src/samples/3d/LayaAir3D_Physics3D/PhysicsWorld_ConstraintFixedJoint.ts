@@ -15,6 +15,7 @@ import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Physics3D } from "laya/d3/physics/Physics3D";
 import { Script3D } from "laya/d3/component/Script3D";
+import { Config3D } from "Config3D";
 
 export class PhysicsWorld_ConstraintFixedJoint{
     private scene:Scene3D;
@@ -23,7 +24,8 @@ export class PhysicsWorld_ConstraintFixedJoint{
         Laya3D.init(0, 0);
         Laya.stage.scaleMode = Stage.SCALE_FULL;
         Laya.stage.screenMode = Stage.SCREEN_NONE;
-        Stat.show();
+		Stat.show();
+		Config3D.useCannonPhysics = false;
         this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
         this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
         this.camera.transform.translate(new Vector3(0, 3, 10));

@@ -20,6 +20,7 @@ import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ConfigurableJoint } from "laya/d3/physics/constraints/ConfigurableJoint";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Config3D } from "Config3D";
 
 
 
@@ -31,6 +32,7 @@ export class PhysicsWorld_ConfigurableJoint{
         Laya.stage.scaleMode = Stage.SCALE_FULL;
         Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
+		Config3D.useCannonPhysics = false;
 		Shader3D.debugMode = true;
         this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
         this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
