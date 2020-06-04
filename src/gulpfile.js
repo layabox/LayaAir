@@ -60,6 +60,7 @@ var packsDef = [
             './layaAir/laya/d3/MouseTouch.ts',
             './layaAir/laya/d3/Touch.ts',
             './layaAir/laya/d3/resource/**/*.*',
+            './layaAir/laya/d3/physicsCannon/**/*.*',
             './layaAir/Config3D.ts',
             './layaAir/ILaya3D.ts',
             './layaAir/Laya3D.ts'
