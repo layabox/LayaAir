@@ -312,7 +312,8 @@ export class TextRender {
 
             } else {
                 // 如果要整句话渲染
-                var isotex: boolean = TextRender.noAtlas || strWidth * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集
+				var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
+				var isotex: boolean = TextRender.noAtlas || (strWidth+margin+margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
                 ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                 // 整句渲染，则只有一个贴图
                 sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
