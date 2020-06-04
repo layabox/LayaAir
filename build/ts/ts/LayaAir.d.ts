@@ -60,7 +60,8 @@
 	 * <code>Config3D</code> 类用于创建3D初始化配置。
 	 */
 	declare class Config3D implements laya.d3.core.IClone  {
-		static useCannonPhysics(IsUseCannonPhysics:boolean):void;
+		static get useCannonPhysics():boolean;
+		static set useCannonPhysics(value:boolean);
 
 		/**
 		 * 是否开启抗锯齿。

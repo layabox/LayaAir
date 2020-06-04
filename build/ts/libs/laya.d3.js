@@ -5024,10 +5024,16 @@
 	        this.isUseCannonPhysicsEngine = false;
 	        this._maxAreaLightCountPerClusterAverage = Math.min(Math.floor(2048 / this._lightClusterCount.z - 1) * 4, this._maxLightCount);
 	    }
-	    static useCannonPhysics(IsUseCannonPhysics) {
-	        Config3D._config.isUseCannonPhysicsEngine = IsUseCannonPhysics;
-	        Physics3D.__cannoninit__();
-	        ILaya3D.Scene3D.cannonPhysicsSettings = new Laya.CannonPhysicsSettings();
+	    static get useCannonPhysics() {
+	        return Config3D._config.isUseCannonPhysicsEngine;
+	    }
+	    static set useCannonPhysics(value) {
+	        Config3D._config.isUseCannonPhysicsEngine = value;
+	        if (value) {
+	            Physics3D.__cannoninit__();
+	            if (!ILaya3D.Scene3D.cannonPhysicsSettings)
+	                ILaya3D.Scene3D.cannonPhysicsSettings = new Laya.CannonPhysicsSettings();
+	        }
 	    }
 	    get defaultPhysicsMemory() {
 	        return this._defaultPhysicsMemory;

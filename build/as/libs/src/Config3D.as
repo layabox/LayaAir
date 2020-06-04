@@ -7,7 +7,8 @@ package  {
 	 * <code>Config3D</code> 类用于创建3D初始化配置。
 	 */
 	public class Config3D implements IClone {
-		public static function useCannonPhysics(IsUseCannonPhysics:Boolean):void{}
+		public static function get useCannonPhysics():Boolean{return null;}
+		public static function set useCannonPhysics(value:Boolean):void{}
 
 		/**
 		 * 是否开启抗锯齿。
