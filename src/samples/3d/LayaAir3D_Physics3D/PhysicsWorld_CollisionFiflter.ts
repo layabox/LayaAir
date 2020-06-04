@@ -24,6 +24,7 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
+import { Config3D } from "Config3D";
 
 export class PhysicsWorld_CollisionFiflter {
 
@@ -55,6 +56,7 @@ export class PhysicsWorld_CollisionFiflter {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
+			Config3D.useCannonPhysics = false;
 			//创建场景
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 			//创建相机
