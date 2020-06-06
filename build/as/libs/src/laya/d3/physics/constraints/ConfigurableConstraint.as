@@ -1,7 +1,7 @@
 package laya.d3.physics.constraints {
 	import laya.d3.physics.constraints.ConstraintComponent;
 	import laya.d3.math.Vector3;
-	public class ConfigurableJoint extends ConstraintComponent {
+	public class ConfigurableConstraint extends ConstraintComponent {
 		public static var CONFIG_MOTION_TYPE_LOCKED:Number;
 		public static var CONFIG_MOTION_TYPE_LIMITED:Number;
 		public static var CONFIG_MOTION_TYPE_FREE:Number;
@@ -10,7 +10,7 @@ package laya.d3.physics.constraints {
 		 * 创建一个<code>Generic6DofSpring2Constraint</code>实例
 		 */
 
-		public function ConfigurableJoint(){}
+		public function ConfigurableConstraint(){}
 
 		/**
 		 * 主轴

@@ -31275,7 +31275,7 @@
 	            this._getFeedBackInfo();
 	        return this._currentForce;
 	    }
-	    get currentToque() {
+	    get currentTorque() {
 	        if (!this._getJointFeedBack)
 	            this._getFeedBackInfo();
 	        return this._currentTorque;
@@ -31383,8 +31383,8 @@
 	            return false;
 	        this._getFeedBackInfo();
 	        var isBreakForce = this._breakForce != -1 && (Vector3.scalarLength(this._currentForce) > this._breakForce);
-	        var isBreakToque = this._breakTorque != -1 && (Vector3.scalarLength(this._currentTorque) > this._breakTorque);
-	        if (isBreakForce || isBreakToque) {
+	        var isBreakTorque = this._breakTorque != -1 && (Vector3.scalarLength(this._currentTorque) > this._breakTorque);
+	        if (isBreakForce || isBreakTorque) {
 	            this._breakConstrained();
 	            return true;
 	        }
@@ -31490,7 +31490,7 @@
 	    }
 	}
 
-	class ConfigurableJoint extends ConstraintComponent {
+	class ConfigurableConstraint extends ConstraintComponent {
 	    constructor() {
 	        super(ConstraintComponent.CONSTRAINT_D6_SPRING_CONSTRAINT_TYPE);
 	        this._axis = new Vector3();
@@ -31548,7 +31548,7 @@
 	    set XMotion(value) {
 	        if (this._xMotion != value) {
 	            this._xMotion = value;
-	            this.setLimit(ConfigurableJoint.MOTION_LINEAR_INDEX_X, value, -this._maxLinearLimit.x, -this._minLinearLimit.x);
+	            this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_X, value, -this._maxLinearLimit.x, -this._minLinearLimit.x);
 	        }
 	    }
 	    get XMotion() {
@@ -31557,7 +31557,7 @@
 	    set YMotion(value) {
 	        if (this._yMotion != value) {
 	            this._yMotion = value;
-	            this.setLimit(ConfigurableJoint.MOTION_LINEAR_INDEX_Y, value, this._minLinearLimit.y, this._maxLinearLimit.y);
+	            this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_Y, value, this._minLinearLimit.y, this._maxLinearLimit.y);
 	        }
 	    }
 	    get YMotion() {
@@ -31566,7 +31566,7 @@
 	    set ZMotion(value) {
 	        if (this._zMotion != value) {
 	            this._zMotion = value;
-	            this.setLimit(ConfigurableJoint.MOTION_LINEAR_INDEX_Z, value, this._minLinearLimit.z, this._maxLinearLimit.z);
+	            this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_Z, value, this._minLinearLimit.z, this._maxLinearLimit.z);
 	        }
 	    }
 	    get ZMotion() {
@@ -31575,7 +31575,7 @@
 	    set angularXMotion(value) {
 	        if (this._angularXMotion != value) {
 	            this._angularXMotion = value;
-	            this.setLimit(ConfigurableJoint.MOTION_ANGULAR_INDEX_X, value, -this._maxAngularLimit.x, -this._minAngularLimit.x);
+	            this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X, value, -this._maxAngularLimit.x, -this._minAngularLimit.x);
 	        }
 	    }
 	    get angularXMotion() {
@@ -31584,7 +31584,7 @@
 	    set angularYMotion(value) {
 	        if (this._angularYMotion != value) {
 	            this._angularYMotion = value;
-	            this.setLimit(ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, value, this._minAngularLimit.y, this._maxAngularLimit.y);
+	            this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y, value, this._minAngularLimit.y, this._maxAngularLimit.y);
 	        }
 	    }
 	    get angularYMotion() {
@@ -31593,7 +31593,7 @@
 	    set angularZMotion(value) {
 	        if (this._angularZMotion != value) {
 	            this._angularZMotion = value;
-	            this.setLimit(ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, value, this._minAngularLimit.z, this._maxAngularLimit.z);
+	            this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z, value, this._minAngularLimit.z, this._maxAngularLimit.z);
 	        }
 	    }
 	    get angularZMotion() {
@@ -31602,9 +31602,9 @@
 	    set linearLimitSpring(value) {
 	        if (!Vector3.equals(this._linearLimitSpring, value)) {
 	            value.cloneTo(this._linearLimitSpring);
-	            this.setSpring(ConfigurableJoint.MOTION_LINEAR_INDEX_X, value.x);
-	            this.setSpring(ConfigurableJoint.MOTION_LINEAR_INDEX_Y, value.y);
-	            this.setSpring(ConfigurableJoint.MOTION_LINEAR_INDEX_Z, value.z);
+	            this.setSpring(ConfigurableConstraint.MOTION_LINEAR_INDEX_X, value.x);
+	            this.setSpring(ConfigurableConstraint.MOTION_LINEAR_INDEX_Y, value.y);
+	            this.setSpring(ConfigurableConstraint.MOTION_LINEAR_INDEX_Z, value.z);
 	        }
 	    }
 	    get linearLimitSpring() {
@@ -31613,9 +31613,9 @@
 	    set angularLimitSpring(value) {
 	        if (!Vector3.equals(this._angularLimitSpring, value)) {
 	            value.cloneTo(this._angularLimitSpring);
-	            this.setSpring(ConfigurableJoint.MOTION_ANGULAR_INDEX_X, value.x);
-	            this.setSpring(ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, value.y);
-	            this.setSpring(ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, value.z);
+	            this.setSpring(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X, value.x);
+	            this.setSpring(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y, value.y);
+	            this.setSpring(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z, value.z);
 	        }
 	    }
 	    get angularLimitSpring() {
@@ -31624,9 +31624,9 @@
 	    set linearBounce(value) {
 	        if (!Vector3.equals(this._linearBounce, value)) {
 	            value.cloneTo(this._linearBounce);
-	            this.setBounce(ConfigurableJoint.MOTION_LINEAR_INDEX_X, value.x);
-	            this.setBounce(ConfigurableJoint.MOTION_LINEAR_INDEX_Y, value.y);
-	            this.setBounce(ConfigurableJoint.MOTION_LINEAR_INDEX_Z, value.z);
+	            this.setBounce(ConfigurableConstraint.MOTION_LINEAR_INDEX_X, value.x);
+	            this.setBounce(ConfigurableConstraint.MOTION_LINEAR_INDEX_Y, value.y);
+	            this.setBounce(ConfigurableConstraint.MOTION_LINEAR_INDEX_Z, value.z);
 	        }
 	    }
 	    get linearBounce() {
@@ -31635,9 +31635,9 @@
 	    set angularBounce(value) {
 	        if (!Vector3.equals(this._angularBounce, value)) {
 	            value.cloneTo(this._angularBounce);
-	            this.setBounce(ConfigurableJoint.MOTION_ANGULAR_INDEX_X, value.x);
-	            this.setBounce(ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, value.y);
-	            this.setBounce(ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, value.z);
+	            this.setBounce(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X, value.x);
+	            this.setBounce(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y, value.y);
+	            this.setBounce(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z, value.z);
 	        }
 	    }
 	    get angularBounce() {
@@ -31646,9 +31646,9 @@
 	    set linearDamp(value) {
 	        if (!Vector3.equals(this._linearDamp, value)) {
 	            value.cloneTo(this._linearDamp);
-	            this.setDamping(ConfigurableJoint.MOTION_LINEAR_INDEX_X, value.x);
-	            this.setDamping(ConfigurableJoint.MOTION_LINEAR_INDEX_Y, value.y);
-	            this.setDamping(ConfigurableJoint.MOTION_LINEAR_INDEX_Z, value.z);
+	            this.setDamping(ConfigurableConstraint.MOTION_LINEAR_INDEX_X, value.x);
+	            this.setDamping(ConfigurableConstraint.MOTION_LINEAR_INDEX_Y, value.y);
+	            this.setDamping(ConfigurableConstraint.MOTION_LINEAR_INDEX_Z, value.z);
 	        }
 	    }
 	    get linearDamp() {
@@ -31657,9 +31657,9 @@
 	    set angularDamp(value) {
 	        if (!Vector3.equals(this._angularDamp, value)) {
 	            value.cloneTo(this._angularDamp);
-	            this.setDamping(ConfigurableJoint.MOTION_ANGULAR_INDEX_X, value.x);
-	            this.setDamping(ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, value.y);
-	            this.setDamping(ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, value.z);
+	            this.setDamping(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X, value.x);
+	            this.setDamping(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y, value.y);
+	            this.setDamping(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z, value.z);
 	        }
 	    }
 	    get angularDamp() {
@@ -31694,14 +31694,14 @@
 	            return;
 	        var bt = Physics3D._bullet;
 	        switch (motionType) {
-	            case ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED:
+	            case ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED:
 	                bt.btGeneric6DofSpring2Constraint_setLimit(this._btConstraint, axis, 0, 0);
 	                break;
-	            case ConfigurableJoint.CONFIG_MOTION_TYPE_LIMITED:
+	            case ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED:
 	                if (low < high)
 	                    bt.btGeneric6DofSpring2Constraint_setLimit(this._btConstraint, axis, low, high);
 	                break;
-	            case ConfigurableJoint.CONFIG_MOTION_TYPE_FREE:
+	            case ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE:
 	                bt.btGeneric6DofSpring2Constraint_setLimit(this._btConstraint, axis, 1, 0);
 	                break;
 	            default:
@@ -31775,7 +31775,7 @@
 	    }
 	    _createConstraint() {
 	        var bt = Physics3D._bullet;
-	        this._btConstraint = bt.btGeneric6DofSpring2Constraint_create(this.ownBody.btColliderObject, this._btframAPos, this.connectedBody.btColliderObject, this._btframBPos, ConfigurableJoint.RO_XYZ);
+	        this._btConstraint = bt.btGeneric6DofSpring2Constraint_create(this.ownBody.btColliderObject, this._btframAPos, this.connectedBody.btColliderObject, this._btframBPos, ConfigurableConstraint.RO_XYZ);
 	        this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
 	        bt.btTypedConstraint_setJointFeedback(this._btConstraint, this._btJointFeedBackObj);
 	        this._simulation = this.owner._scene.physicsSimulation;
@@ -31784,30 +31784,30 @@
 	        Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, true);
 	    }
 	    _initAllConstraintInfo() {
-	        this.setLimit(ConfigurableJoint.MOTION_LINEAR_INDEX_X, this._xMotion, -this._maxLinearLimit.x, -this._minLinearLimit.x);
-	        this.setLimit(ConfigurableJoint.MOTION_LINEAR_INDEX_Y, this._yMotion, this._minLinearLimit.y, this._maxLinearLimit.y);
-	        this.setLimit(ConfigurableJoint.MOTION_LINEAR_INDEX_Z, this._zMotion, this._minLinearLimit.z, this._maxLinearLimit.z);
-	        this.setLimit(ConfigurableJoint.MOTION_ANGULAR_INDEX_X, this._angularXMotion, -this._maxAngularLimit.x, -this._minAngularLimit.x);
-	        this.setLimit(ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, this._angularYMotion, this._minAngularLimit.y, this._maxAngularLimit.y);
-	        this.setLimit(ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, this._angularZMotion, this._minAngularLimit.z, this._maxAngularLimit.z);
-	        this.setSpring(ConfigurableJoint.MOTION_LINEAR_INDEX_X, this._linearLimitSpring.x);
-	        this.setSpring(ConfigurableJoint.MOTION_LINEAR_INDEX_Y, this._linearLimitSpring.y);
-	        this.setSpring(ConfigurableJoint.MOTION_LINEAR_INDEX_Z, this._linearLimitSpring.z);
-	        this.setSpring(ConfigurableJoint.MOTION_ANGULAR_INDEX_X, this._angularLimitSpring.x);
-	        this.setSpring(ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, this._angularLimitSpring.y);
-	        this.setSpring(ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, this._angularLimitSpring.z);
-	        this.setBounce(ConfigurableJoint.MOTION_LINEAR_INDEX_X, this._linearBounce.x);
-	        this.setBounce(ConfigurableJoint.MOTION_LINEAR_INDEX_Y, this._linearBounce.y);
-	        this.setBounce(ConfigurableJoint.MOTION_LINEAR_INDEX_Z, this._linearBounce.z);
-	        this.setBounce(ConfigurableJoint.MOTION_ANGULAR_INDEX_X, this._angularBounce.x);
-	        this.setBounce(ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, this._angularBounce.y);
-	        this.setBounce(ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, this._angularBounce.z);
-	        this.setDamping(ConfigurableJoint.MOTION_LINEAR_INDEX_X, this._linearDamp.x);
-	        this.setDamping(ConfigurableJoint.MOTION_LINEAR_INDEX_Y, this._linearDamp.y);
-	        this.setDamping(ConfigurableJoint.MOTION_LINEAR_INDEX_Z, this._linearDamp.z);
-	        this.setDamping(ConfigurableJoint.MOTION_ANGULAR_INDEX_X, this._angularDamp.x);
-	        this.setDamping(ConfigurableJoint.MOTION_ANGULAR_INDEX_Y, this._angularDamp.y);
-	        this.setDamping(ConfigurableJoint.MOTION_ANGULAR_INDEX_Z, this._angularDamp.z);
+	        this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_X, this._xMotion, -this._maxLinearLimit.x, -this._minLinearLimit.x);
+	        this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_Y, this._yMotion, this._minLinearLimit.y, this._maxLinearLimit.y);
+	        this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_Z, this._zMotion, this._minLinearLimit.z, this._maxLinearLimit.z);
+	        this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X, this._angularXMotion, -this._maxAngularLimit.x, -this._minAngularLimit.x);
+	        this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y, this._angularYMotion, this._minAngularLimit.y, this._maxAngularLimit.y);
+	        this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z, this._angularZMotion, this._minAngularLimit.z, this._maxAngularLimit.z);
+	        this.setSpring(ConfigurableConstraint.MOTION_LINEAR_INDEX_X, this._linearLimitSpring.x);
+	        this.setSpring(ConfigurableConstraint.MOTION_LINEAR_INDEX_Y, this._linearLimitSpring.y);
+	        this.setSpring(ConfigurableConstraint.MOTION_LINEAR_INDEX_Z, this._linearLimitSpring.z);
+	        this.setSpring(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X, this._angularLimitSpring.x);
+	        this.setSpring(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y, this._angularLimitSpring.y);
+	        this.setSpring(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z, this._angularLimitSpring.z);
+	        this.setBounce(ConfigurableConstraint.MOTION_LINEAR_INDEX_X, this._linearBounce.x);
+	        this.setBounce(ConfigurableConstraint.MOTION_LINEAR_INDEX_Y, this._linearBounce.y);
+	        this.setBounce(ConfigurableConstraint.MOTION_LINEAR_INDEX_Z, this._linearBounce.z);
+	        this.setBounce(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X, this._angularBounce.x);
+	        this.setBounce(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y, this._angularBounce.y);
+	        this.setBounce(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z, this._angularBounce.z);
+	        this.setDamping(ConfigurableConstraint.MOTION_LINEAR_INDEX_X, this._linearDamp.x);
+	        this.setDamping(ConfigurableConstraint.MOTION_LINEAR_INDEX_Y, this._linearDamp.y);
+	        this.setDamping(ConfigurableConstraint.MOTION_LINEAR_INDEX_Z, this._linearDamp.z);
+	        this.setDamping(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X, this._angularDamp.x);
+	        this.setDamping(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y, this._angularDamp.y);
+	        this.setDamping(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z, this._angularDamp.z);
 	        this.setFrames();
 	        this.setEquilibriumPoint(0, 0);
 	    }
@@ -31884,21 +31884,21 @@
 	    _cloneTo(dest) {
 	    }
 	}
-	ConfigurableJoint.CONFIG_MOTION_TYPE_LOCKED = 0;
-	ConfigurableJoint.CONFIG_MOTION_TYPE_LIMITED = 1;
-	ConfigurableJoint.CONFIG_MOTION_TYPE_FREE = 2;
-	ConfigurableJoint.MOTION_LINEAR_INDEX_X = 0;
-	ConfigurableJoint.MOTION_LINEAR_INDEX_Y = 1;
-	ConfigurableJoint.MOTION_LINEAR_INDEX_Z = 2;
-	ConfigurableJoint.MOTION_ANGULAR_INDEX_X = 3;
-	ConfigurableJoint.MOTION_ANGULAR_INDEX_Y = 4;
-	ConfigurableJoint.MOTION_ANGULAR_INDEX_Z = 5;
-	ConfigurableJoint.RO_XYZ = 0;
-	ConfigurableJoint.RO_XZY = 1;
-	ConfigurableJoint.RO_YXZ = 2;
-	ConfigurableJoint.RO_YZX = 3;
-	ConfigurableJoint.RO_ZXY = 4;
-	ConfigurableJoint.RO_ZYX = 5;
+	ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED = 0;
+	ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED = 1;
+	ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE = 2;
+	ConfigurableConstraint.MOTION_LINEAR_INDEX_X = 0;
+	ConfigurableConstraint.MOTION_LINEAR_INDEX_Y = 1;
+	ConfigurableConstraint.MOTION_LINEAR_INDEX_Z = 2;
+	ConfigurableConstraint.MOTION_ANGULAR_INDEX_X = 3;
+	ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y = 4;
+	ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z = 5;
+	ConfigurableConstraint.RO_XYZ = 0;
+	ConfigurableConstraint.RO_XZY = 1;
+	ConfigurableConstraint.RO_YXZ = 2;
+	ConfigurableConstraint.RO_YZX = 3;
+	ConfigurableConstraint.RO_ZXY = 4;
+	ConfigurableConstraint.RO_ZYX = 5;
 
 	class Laya3D {
 	    constructor() {
@@ -32010,8 +32010,8 @@
 	        Laya.ClassUtils.regClass("CharacterController", CharacterController);
 	        Laya.ClassUtils.regClass("Animator", Animator);
 	        Laya.ClassUtils.regClass("Rigidbody3D", Rigidbody3D);
-	        Laya.ClassUtils.regClass("FixedJoint", FixedConstraint);
-	        Laya.ClassUtils.regClass("ConfigurableJoint", ConfigurableJoint);
+	        Laya.ClassUtils.regClass("FixedConstraint", FixedConstraint);
+	        Laya.ClassUtils.regClass("ConfigurableConstraint", ConfigurableConstraint);
 	        PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
 	        BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
 	        EffectMaterial.defaultMaterial = new EffectMaterial();
@@ -33396,7 +33396,7 @@
 	exports.ConeColliderShape = ConeColliderShape;
 	exports.ConeShape = ConeShape;
 	exports.Config3D = Config3D;
-	exports.ConfigurableJoint = ConfigurableJoint;
+	exports.ConfigurableConstraint = ConfigurableConstraint;
 	exports.Constraint3D = Constraint3D;
 	exports.ConstraintComponent = ConstraintComponent;
 	exports.ContactPoint = ContactPoint;

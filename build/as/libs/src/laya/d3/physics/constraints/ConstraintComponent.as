@@ -45,7 +45,7 @@ package laya.d3.physics.constraints {
 		/**
 		 * 获取的总力矩
 		 */
-		public function get currentToque():Vector3{return null;}
+		public function get currentTorque():Vector3{return null;}
 
 		/**
 		 * 设置最大承受力

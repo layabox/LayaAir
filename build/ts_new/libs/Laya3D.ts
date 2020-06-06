@@ -91,7 +91,7 @@ import { MeshReader } from "./laya/d3/loaders/MeshReader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
-import { ConfigurableJoint } from "./laya/d3/physics/constraints/ConfigurableJoint";
+import { ConfigurableConstraint } from "./laya/d3/physics/constraints/ConfigurableConstraint";
 import { Camera } from "./laya/d3/core/Camera";
 import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
 /**
@@ -276,8 +276,8 @@ export class Laya3D {
 		ClassUtils.regClass("CharacterController", CharacterController);
 		ClassUtils.regClass("Animator", Animator);
 		ClassUtils.regClass("Rigidbody3D", Rigidbody3D);
-		ClassUtils.regClass("FixedJoint", FixedConstraint);
-		ClassUtils.regClass("ConfigurableJoint",ConfigurableJoint);
+		ClassUtils.regClass("FixedConstraint", FixedConstraint);
+		ClassUtils.regClass("ConfigurableConstraint",ConfigurableConstraint);
 
 
 		PixelLineMaterial.defaultMaterial = new PixelLineMaterial();

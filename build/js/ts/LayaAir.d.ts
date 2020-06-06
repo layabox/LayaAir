@@ -13845,7 +13845,7 @@ declare module laya.d3.physics {
 }
 
 declare module laya.d3.physics.constraints {
-	class ConfigurableJoint extends laya.d3.physics.constraints.ConstraintComponent  {
+	class ConfigurableConstraint extends laya.d3.physics.constraints.ConstraintComponent  {
 		static CONFIG_MOTION_TYPE_LOCKED:number;
 		static CONFIG_MOTION_TYPE_LIMITED:number;
 		static CONFIG_MOTION_TYPE_FREE:number;
@@ -13998,7 +13998,7 @@ declare module laya.d3.physics.constraints {
 		/**
 		 * 获取的总力矩
 		 */
-		get currentToque():laya.d3.math.Vector3;
+		get currentTorque():laya.d3.math.Vector3;
 
 		/**
 		 * 设置最大承受力
@@ -46662,7 +46662,7 @@ enum FrustumCorner {
 
 	class Constraint3D extends laya.d3.physics.Constraint3D {}
 
-	class ConfigurableJoint extends laya.d3.physics.constraints.ConfigurableJoint {}
+	class ConfigurableConstraint extends laya.d3.physics.constraints.ConfigurableConstraint {}
 
 	/**
 	 * <code>ConstraintComponent</code> 类用于创建约束的父类。
