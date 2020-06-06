@@ -143,7 +143,7 @@ export class ConstraintComponent extends Component {
 	/**
 	 * 获取的总力矩
 	 */
-	get currentToque():Vector3{
+	get currentTorque():Vector3{
 		if(!this._getJointFeedBack)
 			this._getFeedBackInfo();
 		return this._currentTorque;
@@ -345,8 +345,8 @@ export class ConstraintComponent extends Component {
 			return false;
 		this._getFeedBackInfo();	
 		var isBreakForce:Boolean = this._breakForce!=-1&&(Vector3.scalarLength(this._currentForce)>this._breakForce);
-		var isBreakToque:Boolean = this._breakTorque!=-1&&(Vector3.scalarLength(this._currentTorque)>this._breakTorque);
-		if(isBreakForce||isBreakToque){
+		var isBreakTorque:Boolean = this._breakTorque!=-1&&(Vector3.scalarLength(this._currentTorque)>this._breakTorque);
+		if(isBreakForce||isBreakTorque){
 			this._breakConstrained();
 			return true;
 		}
