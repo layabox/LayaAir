@@ -13288,7 +13288,7 @@ window.Laya= (function (exports) {
             if (this._components) {
                 for (var i = 0, n = this._components.length; i < n; i++) {
                     var item = this._components[i];
-                    item._destroy();
+                    item && item._destroy();
                 }
                 this._components.length = 0;
             }

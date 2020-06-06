@@ -893,7 +893,7 @@ export class Node extends EventDispatcher {
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {
                 var item: Component = this._components[i];
-                item._destroy();
+                item && item._destroy();
             }
             this._components.length = 0;
         }
