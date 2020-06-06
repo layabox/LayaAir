@@ -168,12 +168,12 @@ export class Browser {
         }
         //华为快游戏
         if("hbs" in Browser.window){
-            (window as any).hbsMiniGame(Laya, Laya);
-            if (!Laya["HBSMiniAdapter"]) {
+            (window as any).hwMiniGame(Laya, Laya);
+            if (!Laya["HWMiniAdapter"]) {
                 console.error("请先添加小游戏适配库!");
                 //TODO 教程要改
             } else {
-                Laya["HBSMiniAdapter"].enable();
+                Laya["HWMiniAdapter"].enable();
             }
         }
 
