@@ -236,7 +236,7 @@ export class Loader extends EventDispatcher {
 	 * onload、onprocess、onerror必须写在本类
 	 */
 	private _loadHttpRequest(url: string, contentType: string, onLoadCaller: Object, onLoad: Function | null, onProcessCaller: any, onProcess: Function | null, onErrorCaller: any, onError: Function): void {
-		if (Browser.onVVMiniGame) {
+		if (Browser.onVVMiniGame||Browser.onHWMiniGame) {
 			this._http = new HttpRequest();//临时修复vivo复用xmlhttprequest的bug
 		} else {
 			if (!this._http)
