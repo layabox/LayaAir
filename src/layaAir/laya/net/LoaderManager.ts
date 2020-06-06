@@ -153,7 +153,8 @@ export class LoaderManager extends EventDispatcher {
     private _createOne(url: string, mainResou: boolean, complete: Handler|null = null, progress: Handler|null = null, type: string|null = null, constructParams: any[]|null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true): void {
         var item: any = this.getRes(url);
         if (!item) {
-            var extension: string = Utils.getFileExtension(url);
+            var extension: string =(LoaderManager.createMap[Utils.getFilecompatibleExtension(url)])?Utils.getFilecompatibleExtension(url):Utils.getFileExtension(url);
+            
             (type) || (type = LoaderManager.createMap[extension] ? LoaderManager.createMap[extension][0] : null);
 
             if (!type) {
