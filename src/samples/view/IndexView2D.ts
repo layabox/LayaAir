@@ -208,7 +208,7 @@ import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
 		//private _VIPClsArr:any[] = [VIPMergeBinary_as,VIPMergeText,VIPTexturetrans_as_a,VIPTexturetrans_as_b];
 		private _VIPArr:any[] = ['VIP_MergeBinary',"VIP_MergeText","VIP_Texturetrans_a","VIP_Texturetrans_b"];
 		
-		private _bigIndex:number =0;
+		private _bigIndex:number = -1;
 		private _smallIndex:number;
 		private _oldView:any;
 		private Main:typeof Main;
@@ -430,71 +430,73 @@ import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
 		
 		private onBigComBoxSelectHandler(index:number,smallIndex:number = 0):void
 		{
-			this._bigIndex = index;
-			var labelStr:string;
-			switch(index)
-			{
-				case 0://sprite
-					labelStr = this._comboBoxSpriteArr.toString();
-					break;
-				case 1://animiation
-					labelStr = this._comboBoxAnimationArr.toString();
-					break;
-				case 2://animiation
-					labelStr = this._comboBoxSkeletonArr.toString();
-					break;
-				case 3://BlendMode
-					labelStr = this._comboBoxBlendModeArr.toString();
-					break;
-				case 4://TiledMap
-					labelStr = this._comboBoxTiledMapArr.toString();
-					break;
-				case 5://Filters
-					labelStr = this._comboBoxFiltersArr.toString();
-					break;
-				case 6://Particle
-					labelStr = this._comboBoxParticleArr.toString();
-					break;
-				case 7://Sound
-					labelStr = this._comboBoxSoundArr.toString();
-					break;
-				case 8://Text
-					labelStr = this._comboBoxTextArr.toString();
-					break;
-				case 9://UI
-					labelStr = this._comboBoxUIArr.toString();
-					break;
-				case 10://Timer
-					labelStr = this._comboBoxTimerArr.toString();
-					break;
-				case 11://Tween
-					labelStr = this._comboBoxTweenArr.toString();
-					break;
-				case 12://Interaction
-					labelStr = this._comboBoxInteractionArr.toString();
-					break;
-				case 13://SmartScale
-					labelStr = this._comboBoxSmartScaleArr.toString();
-					break;
-				case 14://Network
-					labelStr = this._comboBoxNetworkArr.toString();
-					break;
-				case 15://Debug
-					labelStr = this._comboBoxDebugArr.toString();
-					break;
-				case 16://PerformanceTest
-					labelStr = this._comboBoxPerformanceTestArr.toString();
-					break;
-				case 17://IDE
-					labelStr = this._comboBoxIDEArr.toString();
-					break;
-				case 18://IDE
-					//labelStr = this._VIPArr.toString();
-					break;
+			if(this._bigIndex!=index){
+
+				this._bigIndex = index;
+				var labelStr:string;
+				switch(index)
+				{
+					case 0://sprite
+						labelStr = this._comboBoxSpriteArr.toString();
+						break;
+					case 1://animiation
+						labelStr = this._comboBoxAnimationArr.toString();
+						break;
+					case 2://animiation
+						labelStr = this._comboBoxSkeletonArr.toString();
+						break;
+					case 3://BlendMode
+						labelStr = this._comboBoxBlendModeArr.toString();
+						break;
+					case 4://TiledMap
+						labelStr = this._comboBoxTiledMapArr.toString();
+						break;
+					case 5://Filters
+						labelStr = this._comboBoxFiltersArr.toString();
+						break;
+					case 6://Particle
+						labelStr = this._comboBoxParticleArr.toString();
+						break;
+					case 7://Sound
+						labelStr = this._comboBoxSoundArr.toString();
+						break;
+					case 8://Text
+						labelStr = this._comboBoxTextArr.toString();
+						break;
+					case 9://UI
+						labelStr = this._comboBoxUIArr.toString();
+						break;
+					case 10://Timer
+						labelStr = this._comboBoxTimerArr.toString();
+						break;
+					case 11://Tween
+						labelStr = this._comboBoxTweenArr.toString();
+						break;
+					case 12://Interaction
+						labelStr = this._comboBoxInteractionArr.toString();
+						break;
+					case 13://SmartScale
+						labelStr = this._comboBoxSmartScaleArr.toString();
+						break;
+					case 14://Network
+						labelStr = this._comboBoxNetworkArr.toString();
+						break;
+					case 15://Debug
+						labelStr = this._comboBoxDebugArr.toString();
+						break;
+					case 16://PerformanceTest
+						labelStr = this._comboBoxPerformanceTestArr.toString();
+						break;
+					case 17://IDE
+						labelStr = this._comboBoxIDEArr.toString();
+						break;
+					case 18://IDE
+						//labelStr = this._VIPArr.toString();
+						break;
+				}
+				this.smallComBox.labels = labelStr;
 			}
-			this.smallComBox.labels = labelStr;
 			this.smallComBox.selectedIndex = smallIndex;
-			this.smallComBox.visibleNum = 5;//(labelStr.split(",") as Array).length;
 		}
 		
 		private onRightBtnClick():void
