@@ -1,6 +1,6 @@
 import { Vector3 } from "../../math/Vector3";
-import { Physics3D } from "../Physics3D";
 import { ColliderShape } from "./ColliderShape";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
@@ -51,7 +51,7 @@ export class CapsuleColliderShape extends ColliderShape {
 		this._orientation = orientation;
 		this._type = ColliderShape.SHAPETYPES_CAPSULE;
 
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
 				this._btShape = bt.btCapsuleShapeX_create(radius, length - radius * 2);

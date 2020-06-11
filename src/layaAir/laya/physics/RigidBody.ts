@@ -239,7 +239,7 @@ export class RigidBody extends Component {
     protected _onDisable(): void {
         //添加到物理世界
         Laya.physicsTimer.clear(this, this._sysPhysicToNode);
-        IPhysics.Physics.I._removeBody(this._body);
+        this._body && IPhysics.Physics.I._removeBody(this._body);
         this._body = null;
 
         var owner: any = this.owner;
@@ -256,6 +256,10 @@ export class RigidBody extends Component {
     /**获得原始body对象 */
     getBody(): any {
         if (!this._body) this._onAwake();
+        return this._body;
+    }
+
+    _getOriBody(): any {
         return this._body;
     }
 

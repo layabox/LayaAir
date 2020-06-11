@@ -76,6 +76,8 @@ export class RealTimeShadow {
 		directionLight.shadowResolution = 1024;
 		// Set shadow cascade mode.
 		directionLight.shadowCascadesMode = ShadowCascadesMode.NoCascades;
+		// Set shadow normal bias.
+		directionLight.shadowNormalBias = 4;
 
 		// Add rotation script to light.
 		var rotationScript: RotationScript = directionLight.addComponent(RotationScript);
@@ -92,7 +94,6 @@ export class RealTimeShadow {
 		// A sphere cast/receive shadow.
 		var sphereSprite: MeshSprite3D = this.addPBRSphere(PrimitiveMesh.createSphere(0.1), new Vector3(0, 0.2, 0.5), scene);
 		sphereSprite.meshRenderer.castShadow = true;
-		sphereSprite.meshRenderer.receiveShadow = true;
 
 		// Add Light controll UI.
 		this.loadUI(rotationScript);

@@ -161,11 +161,20 @@ export class ColorPicker extends UIComponent {
     /** @private */
     protected _panelChanged: boolean;
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  destroy(destroyChild: boolean = true): void {
+    constructor(createChildren = true){
+        super(false);
+        if(createChildren){
+            this.preinitialize();
+            this.createChildren();
+            this.initialize();
+        }
+    }
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	destroy(destroyChild: boolean = true): void {
+        ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeColorBox);
         super.destroy(destroyChild);
         this._colorPanel && this._colorPanel.destroy(destroyChild);
         this._colorButton && this._colorButton.destroy(destroyChild);
@@ -178,11 +187,11 @@ export class ColorPicker extends UIComponent {
         this.changeHandler = null;
     }
 
-		/**
-		 * @inheritDoc 
-         * @override
-		*/
-		/*override*/ protected createChildren(): void {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	protected createChildren(): void {
         this.addChild(this._colorButton = new Button());
         this._colorPanel = new Box();
         this._colorPanel.size(230, 166);
@@ -191,11 +200,11 @@ export class ColorPicker extends UIComponent {
         this._colorPanel.addChild(this._colorInput = new Input());
     }
 
-		/**
-		 * @inheritDoc 
-         * @override
-		*/
-		/*override*/ protected initialize(): void {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	protected initialize(): void {
         this._colorButton.on(Event.CLICK, this, this.onColorButtonClick);
 
         this._colorBlock.pos(5, 5);

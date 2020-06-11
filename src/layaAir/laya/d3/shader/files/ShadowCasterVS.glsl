@@ -19,7 +19,11 @@ attribute vec3 a_Normal;
 
 uniform mat4 u_ViewProjection;
 
-uniform vec3 u_ShadowLightDirection;
+#ifdef SHADOW
+	uniform vec3 u_ShadowLightDirection;
+#endif
+
+
 
 #if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))||(defined(LIGHTMAP)&&defined(UV))
 	attribute vec2 a_Texcoord0;
@@ -46,11 +50,16 @@ vec4 shadowCasterVertex()
 	vec4 positionWS = worldMat * a_Position;
 	vec3 normalWS = normalize(a_Normal*INVERSE_MAT(mat3(worldMat)));//if no normalize will cause precision problem
 
-	positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);
+	#ifdef SHADOW
+		positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);
+	#endif
 
 	vec4 positionCS = u_ViewProjection * positionWS;
+	#ifdef SHADOW_SPOT
+		positionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;
+	#endif
 	positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
-
+	
 	// //TODO没考虑UV动画呢
 	// #if defined(DIFFUSEMAP)&&defined(ALPHATEST)
 	// 	v_Texcoord0=a_Texcoord0;

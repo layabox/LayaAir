@@ -3,6 +3,7 @@ import { SoundManager } from "./SoundManager";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
+import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * @private
@@ -121,4 +122,5 @@ export class SoundNode extends Sprite {
     }
 }
 
-
+ClassUtils.regClass("laya.media.SoundNode", SoundNode);
+ClassUtils.regClass("Laya.SoundNode", SoundNode);

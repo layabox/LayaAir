@@ -117,20 +117,10 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	static renderObjectCulling(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
-		var i: number, n: number;
 		var opaqueQueue: RenderQueue = scene._opaqueQueue;
 		var transparentQueue: RenderQueue = scene._transparentQueue;
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
-		opaqueQueue.clear();
-		transparentQueue.clear();
-
-		var staticBatchManagers: StaticBatchManager[] = StaticBatchManager._managers;
-		for (i = 0, n = staticBatchManagers.length; i < n; i++)
-			staticBatchManagers[i]._clear();
-		var dynamicBatchManagers: DynamicBatchManager[] = DynamicBatchManager._managers;
-		for (i = 0, n = dynamicBatchManagers.length; i < n; i++)
-			dynamicBatchManagers[i]._clear();
-
+		scene._clearRenderQueue();
 		var octree: BoundsOctree = scene._octree;
 		if (octree) {
 			octree.updateMotionObjects();
@@ -163,20 +153,11 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	static cullingShadow(cullInfo: ShadowCullInfo, scene: Scene3D, context: RenderContext3D): boolean {
-		var opaqueQueue: RenderQueue = scene._opaqueQueue;
-		var transparentQueue: RenderQueue = scene._transparentQueue;
+	
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
-		opaqueQueue.clear();
-		transparentQueue.clear();
-
-		var staticBatchManagers: StaticBatchManager[] = StaticBatchManager._managers;
-		for (var i: number = 0, n: number = staticBatchManagers.length; i < n; i++)
-			staticBatchManagers[i]._clear();
-		var dynamicBatchManagers: DynamicBatchManager[] = DynamicBatchManager._managers;
-		for (var i: number = 0, n: number = dynamicBatchManagers.length; i < n; i++)
-			dynamicBatchManagers[i]._clear();
-
-		var renderList: SingletonList<ISingletonElement> = scene._renders;
+		scene._clearRenderQueue();
+		var opaqueQueue = scene._opaqueQueue;
+		//var renderList: SingletonList<ISingletonElement> = scene._renders;
 		var position: Vector3 = cullInfo.position;
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		var cullPlanes: Plane[] = cullInfo.cullPlanes;
@@ -224,7 +205,33 @@ export class FrustumCulling {
 		return opaqueQueue.elements.length > 0 ? true : false;
 	}
 
+	/**
+	 * @internal
+	 */
+	static cullingSpotShadow(cameraCullInfo:CameraCullInfo,scene: Scene3D, context: RenderContext3D):boolean
+	{
+		var renderList: SingletonList<ISingletonElement> = scene._renders;
+		scene._clearRenderQueue();
+		var opaqueQueue = scene._opaqueQueue;
+		var renders: ISingletonElement[] = renderList.elements;
+		var loopCount: number = Stat.loopCount;
+		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
+			var render: BaseRender = <BaseRender>renders[i];
+			var canPass: boolean = render._castShadow && render._enable;
+			if (canPass) {
+				if(render._needRender(cameraCullInfo.boundFrustum,context)){
+					var bounds = render.bounds;
+					render._renderMark = loopCount;
+					render._distanceForSort = Vector3.distance(bounds.getCenter(),cameraCullInfo.position);
+					var elements:RenderElement[] = render._renderElements;
+					for (var j: number = 0, m: number = elements.length; j < m; j++)
+						elements[j]._update(scene, context, null, null);
+				}
+			}
+		}
 
+		return opaqueQueue.elements.length>0?true:false;
+	}
 	//---------------------------------------------------------NATIVE---------------------------------------------------------------------------------------------
 	/**@internal	[NATIVE]*/
 	static _cullingBufferLength: number;
@@ -238,16 +245,7 @@ export class FrustumCulling {
 		var i: number, n: number, j: number, m: number;
 		var opaqueQueue: RenderQueue = scene._opaqueQueue;
 		var transparentQueue: RenderQueue = scene._transparentQueue;
-		opaqueQueue.clear();
-		transparentQueue.clear();
-
-		var staticBatchManagers: StaticBatchManager[] = StaticBatchManager._managers;
-		for (i = 0, n = staticBatchManagers.length; i < n; i++)
-			staticBatchManagers[i]._clear();
-		var dynamicBatchManagers: DynamicBatchManager[] = DynamicBatchManager._managers;
-		for (i = 0, n = dynamicBatchManagers.length; i < n; i++)
-			dynamicBatchManagers[i]._clear();
-
+		scene._clearRenderQueue();
 		var validCount: number = renderList.length;
 		var renders: ISingletonElement[] = renderList.elements;
 		for (i = 0; i < validCount; i++) {
