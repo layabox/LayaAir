@@ -34,7 +34,7 @@ export class Main {
     private _isReadNetWorkRes: boolean = true;
     constructor() {
         //false为2D true为3D
-        this._isType = (window as any).isType || false;
+        this._isType = (window as any).isType || true;
         if (!this._isType) {
             Laya.init(1280, 720);
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
