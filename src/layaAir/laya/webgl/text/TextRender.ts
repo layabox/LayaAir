@@ -81,7 +81,7 @@ export class TextRender {
 
         var bugIOS: boolean = false;//是否是有bug的ios版本
         //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
-        var miniadp: any = ILaya.Laya['MiniAdpter'];
+        var miniadp: any = ILaya.Laya['MiniAdpter'] || (window as any).Laya.TTMiniAdapter; //头条也继承了这个bug
         if (miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
 			bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
 			//12.3
