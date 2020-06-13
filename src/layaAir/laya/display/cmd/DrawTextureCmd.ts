@@ -80,6 +80,7 @@ export class DrawTextureCmd {
         this.texture && this.texture._removeReference();
         this.texture = null;
         this.matrix = null;
+        this.colorFlt = null;
         Pool.recover("DrawTextureCmd", this);
     }
 
