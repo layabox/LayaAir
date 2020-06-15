@@ -189,8 +189,12 @@ export class CannonPhysicsSimulation {
 	 */
 	_simulate(deltaTime: number): void {
 		this._updatedRigidbodies = 0;
-		if (this._btDiscreteDynamicsWorld)
+		console.log( this._btDiscreteDynamicsWorld.bodies.length);
+		if (this._btDiscreteDynamicsWorld){
+			this._btDiscreteDynamicsWorld.callBackBody.length = 0;
+			this._btDiscreteDynamicsWorld.allContacts.length = 0;
 			this._btDiscreteDynamicsWorld.step(this.fixedTimeStep,deltaTime,this.maxSubSteps);
+		}
 		var callBackBody:CANNON.Body[] = this._btDiscreteDynamicsWorld.callBackBody;
 		
 		for(var i:number = 0,n = callBackBody.length;i<n;i++){
@@ -240,6 +244,9 @@ export class CannonPhysicsSimulation {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
 		this._btDiscreteDynamicsWorld.removeBody(rigidBody._btColliderObject);
+		//@ts-ignore
+		rigidBody._btColliderObject.isDestroy = true;
+		console.log(rigidBody._btColliderObject.id);
 	}
 	/**
 	 * 射线检测第一个碰撞物体。
