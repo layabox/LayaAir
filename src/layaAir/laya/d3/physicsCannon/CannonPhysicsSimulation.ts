@@ -243,9 +243,6 @@ export class CannonPhysicsSimulation {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
 		this._btDiscreteDynamicsWorld.removeBody(rigidBody._btColliderObject);
-		//@ts-ignore
-		rigidBody._btColliderObject.isDestroy = true;
-		console.log(rigidBody._btColliderObject.id);
 	}
 	/**
 	 * 射线检测第一个碰撞物体。
