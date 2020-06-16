@@ -189,7 +189,6 @@ export class CannonPhysicsSimulation {
 	 */
 	_simulate(deltaTime: number): void {
 		this._updatedRigidbodies = 0;
-		console.log( this._btDiscreteDynamicsWorld.bodies.length);
 		if (this._btDiscreteDynamicsWorld){
 			this._btDiscreteDynamicsWorld.callBackBody.length = 0;
 			this._btDiscreteDynamicsWorld.allContacts.length = 0;
