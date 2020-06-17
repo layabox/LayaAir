@@ -155,6 +155,7 @@ export class CharRender_Canvas extends ICharRender {
 		//ctx.restore();
 		if (rect) {
 			if (rect[2] == -1) rect[2] = Math.ceil((cri.width + lineWidth * 2) * this.lastScaleX); // 这个没有考虑左右margin
+			if(rect[2]<=0) rect[2]=1;	// 有的字体在处理不存在文字的时候，测量宽度为0，会导致getImageData出错
 		}
 		var imgdt: ImageData = rect ? (ctx.getImageData(rect[0], rect[1], rect[2], rect[3]+1)) : (ctx.getImageData(0, 0, w, h+1));
 		ctx.restore();
