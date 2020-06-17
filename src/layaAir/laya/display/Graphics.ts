@@ -49,7 +49,7 @@ export class Graphics {
     /**@internal */
     _one: any = null;
     /**@internal */
-    _render: Function = this._renderEmpty;
+    _render: (sprite: Sprite, context: Context, x: number, y: number)=>void = this._renderEmpty;
     /**@private */
     private _cmds: any[] = null;
     /**@private */
@@ -388,7 +388,7 @@ export class Graphics {
      */
 
     fillBorderText(text: string, x: number, y: number, font: string, fillColor: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
-        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth, textAlign));
+        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), fillColor, textAlign, lineWidth, borderColor));
     }
 
     /*** @private */

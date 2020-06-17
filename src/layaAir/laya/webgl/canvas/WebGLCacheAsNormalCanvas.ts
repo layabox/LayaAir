@@ -15,10 +15,10 @@ import { MeshVG } from "../utils/MeshVG"
 export class WebGLCacheAsNormalCanvas {
     submitStartPos: number = 0;	// 对应的context的submit的开始的地方
     submitEndPos: number = 0;
-    context: Context = null;
+    context: Context;
     touches: any[] = [];		//记录的文字信息。cacheas normal的话，文字要能正确touch
     submits: any[] = [];		// 从context中剪切的submit
-    sprite: Sprite = null;	// 对应的sprite对象
+    sprite: Sprite|null = null;	// 对应的sprite对象
 
     // submit需要关联稳定独立的mesh。所以这里要创建自己的mesh对象
     /**@internal */
@@ -28,9 +28,9 @@ export class WebGLCacheAsNormalCanvas {
     meshlist: any[] = [];			//本context用到的mesh
 
     // 原始context的原始值
-    private _oldMesh: MeshQuadTexture;
-    private _oldPathMesh: MeshVG;
-    private _oldTriMesh: MeshTexture;
+    private _oldMesh: MeshQuadTexture|null;
+    private _oldPathMesh: MeshVG|null;
+    private _oldTriMesh: MeshTexture|null;
     private _oldMeshList: any[];
 
     // cache的时候对应的clip
@@ -50,19 +50,20 @@ export class WebGLCacheAsNormalCanvas {
     }
 
     startRec(): void {
+		let context = this.context;
         // 如果有文字优化，这里要先提交一下
-        if (this.context._charSubmitCache._enable) {
-            this.context._charSubmitCache.enable(false, this.context);
-            this.context._charSubmitCache.enable(true, this.context);
+        if (context._charSubmitCache && context._charSubmitCache._enable) {
+            context._charSubmitCache.enable(false, context);
+            context._charSubmitCache.enable(true, context);
         }
-        this.context._incache = true;
+        context._incache = true;
         this.touches.length = 0;
         //记录需要touch的文字资源
-        ((<any>this.context)).touches = this.touches;
-        this.context._globalClipMatrix.copyTo(this.cachedClipInfo);
+        ((<any>context)).touches = this.touches;
+        context._globalClipMatrix.copyTo(this.cachedClipInfo);
 
         this.submits.length = 0;
-        this.submitStartPos = this.context._submits._length;
+        this.submitStartPos = context._submits._length;
 
         // 先把之前的释放掉
         for (var i: number = 0, sz: number = this.meshlist.length; i < sz; i++) {
@@ -80,39 +81,40 @@ export class WebGLCacheAsNormalCanvas {
         this.meshlist.push(this._triangleMesh);
 
         // 打断合并
-        this.context._curSubmit = SubmitBase.RENDERBASE;
+        context._curSubmit = SubmitBase.RENDERBASE;
         // 接管context中的一些值
-        this._oldMesh = this.context._mesh;
-        this._oldPathMesh = this.context._pathMesh;
-        this._oldTriMesh = this.context._triangleMesh;
-        this._oldMeshList = this.context.meshlist;
+        this._oldMesh = context._mesh;
+        this._oldPathMesh = context._pathMesh;
+        this._oldTriMesh = context._triangleMesh;
+        this._oldMeshList = context.meshlist;
 
-        this.context._mesh = this._mesh;
-        this.context._pathMesh = this._pathMesh;
-        this.context._triangleMesh = this._triangleMesh;
-        this.context.meshlist = this.meshlist;
+        context._mesh = this._mesh;
+        context._pathMesh = this._pathMesh;
+        context._triangleMesh = this._triangleMesh;
+        context.meshlist = this.meshlist;
 
         // 要取消位置，因为以后会再传入位置。这里好乱
-        this.oldTx = this.context._curMat.tx;
-        this.oldTy = this.context._curMat.ty;
-        this.context._curMat.tx = 0;
-        this.context._curMat.ty = 0;
+        this.oldTx = context._curMat.tx;
+        this.oldTy = context._curMat.ty;
+        context._curMat.tx = 0;
+        context._curMat.ty = 0;
 
         // 取消缩放等
-        this.context._curMat.copyTo(this.invMat);
+        context._curMat.copyTo(this.invMat);
         this.invMat.invert();
         //oldMatrix = context._curMat;
         //context._curMat = matI;
     }
 
     endRec(): void {
+		let context = this.context;
         // 如果有文字优化，这里要先提交一下
-        if (this.context._charSubmitCache._enable) {
-            this.context._charSubmitCache.enable(false, this.context);
-            this.context._charSubmitCache.enable(true, this.context);
+        if (context._charSubmitCache && context._charSubmitCache._enable) {
+            context._charSubmitCache.enable(false, context);
+            context._charSubmitCache.enable(true, context);
         }
         // copy submit
-        var parsubmits: any = this.context._submits;
+        var parsubmits: any = context._submits;
         this.submitEndPos = parsubmits._length;
         var num: number = this.submitEndPos - this.submitStartPos;
         for (var i: number = 0; i < num; i++) {
@@ -121,19 +123,19 @@ export class WebGLCacheAsNormalCanvas {
         parsubmits._length -= num;
 
         // 恢复原始context的值
-        this.context._mesh = this._oldMesh;
-        this.context._pathMesh = this._oldPathMesh;
-        this.context._triangleMesh = this._oldTriMesh;
-        this.context.meshlist = this._oldMeshList;
+        context._mesh = this._oldMesh;
+        context._pathMesh = this._oldPathMesh;
+        context._triangleMesh = this._oldTriMesh;
+        context.meshlist = this._oldMeshList;
 
         // 打断合并
-        this.context._curSubmit = SubmitBase.RENDERBASE;
+        context._curSubmit = SubmitBase.RENDERBASE;
         // 恢复matrix
         //context._curMat = oldMatrix;
-        this.context._curMat.tx = this.oldTx;
-        this.context._curMat.ty = this.oldTy;
-        ((<any>this.context)).touches = null;
-        this.context._incache = false;
+        context._curMat.tx = this.oldTx;
+        context._curMat.ty = this.oldTy;
+        ((<any>context)).touches = null;
+        context._incache = false;
     }
 
     /**
