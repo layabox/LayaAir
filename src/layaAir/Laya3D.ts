@@ -574,6 +574,7 @@ export class Laya3D {
 	 *@internal
 	 */
 	private static _loadHierarchy(loader: Loader): void {
+		loader._originType = loader.type;
 		loader.on(Event.LOADED, null, Laya3D._onHierarchylhLoaded, [loader]);
 		loader.load(loader.url, Loader.JSON, false, null, true);
 	}
@@ -878,7 +879,7 @@ export class Laya3D {
 	 */
 	private static _onProcessChange(loader: Loader, offset: number, weight: number, process: number): void {
 		process = offset + process * weight;
-		(process < 1.0) && (loader.event(Event.PROGRESS, process));
+		(process < 1.0) && (loader.event(Event.PROGRESS, process *2/3+ 1/3));
 	}
 
 	/**
