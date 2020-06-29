@@ -809,7 +809,7 @@ window.bdMiniGame = function (exports, Laya) {
 	                    MiniFileMgr.readFile(MiniFileMgr.getFileNativePath(fileObj.md5), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
 	                else if (thisLoader.type == "image" || thisLoader.type == "htmlimage") {
-	                    thisLoader._transformUrl(url, contentType);
+	                    thisLoader._transformImgUrl(url, contentType);
 	                }
 	                else {
 	                    if (contentType != Laya.Loader.IMAGE && ((tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || MiniFileMgr.isLocalNativeFile(url))) {
@@ -1072,10 +1072,11 @@ window.bdMiniGame = function (exports, Laya) {
 	    static onMkdirCallBack(errorCode, data) {
 	        if (!errorCode) {
 	            MiniFileMgr.filesListObj = JSON.parse(data.data);
-	            MiniFileMgr.fakeObj = MiniFileMgr.filesListObj || {};
+	            MiniFileMgr.fakeObj = JSON.parse(data.data) || {};
 	        }
 	        else {
-	            MiniFileMgr.fakeObj = MiniFileMgr.filesListObj = {};
+	            MiniFileMgr.fakeObj = {};
+	            MiniFileMgr.filesListObj = {};
 	        }
 	        MiniFileMgr.fs.readdir({
 	            dirPath: MiniFileMgr.fileNativeDir,
