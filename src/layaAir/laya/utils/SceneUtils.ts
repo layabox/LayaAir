@@ -347,6 +347,9 @@ class InitTool {
     //TODO:coverage
     addLoadRes(url: string, type: string = null): void {
         if (!this._loadList) this._loadList = [];
+        if (ILaya.loader.getRes(url)) {
+            return;
+        }
         if (!type) {
             this._loadList.push(url);
         } else {

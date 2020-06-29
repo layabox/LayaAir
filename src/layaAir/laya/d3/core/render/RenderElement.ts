@@ -220,7 +220,7 @@ export class RenderElement {
 				shaderIns._uploadMark = updateMark;
 			}
 		}
-		if (updateRender && this.renderType !== RenderElement.RENDERTYPE_NORMAL)
+		if (this.renderType !== RenderElement.RENDERTYPE_NORMAL)
 			this.render._revertBatchRenderUpdate(context);//还原因合并导致的数据变化
 	}
 
