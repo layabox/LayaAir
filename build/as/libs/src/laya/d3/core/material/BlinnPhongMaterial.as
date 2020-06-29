@@ -64,16 +64,19 @@ package laya.d3.core.material {
 		public function set _ColorG(value:Number):void{}
 		public function set _ColorB(value:Number):void{}
 		public function set _ColorA(value:Number):void{}
+		public function set _Color(value:Vector4):void{}
 		public function set _SpecColorR(value:Number):void{}
 		public function set _SpecColorG(value:Number):void{}
 		public function set _SpecColorB(value:Number):void{}
 		public function set _SpecColorA(value:Number):void{}
+		public function set _SpecColor(value:Vector4):void{}
 		public function set _AlbedoIntensity(value:Number):void{}
 		public function set _Shininess(value:Number):void{}
 		public function set _MainTex_STX(x:Number):void{}
 		public function set _MainTex_STY(y:Number):void{}
 		public function set _MainTex_STZ(z:Number):void{}
 		public function set _MainTex_STW(w:Number):void{}
+		public function set _MainTex_ST(value:Vector4):void{}
 		public function set _Cutoff(value:Number):void{}
 
 		/**

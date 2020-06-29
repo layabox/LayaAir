@@ -10091,6 +10091,12 @@
 	        this._albedoColor.w = value;
 	        this.albedoColor = this._albedoColor;
 	    }
+	    get _Color() {
+	        return this._shaderValues.getVector(BlinnPhongMaterial.ALBEDOCOLOR);
+	    }
+	    set _Color(value) {
+	        this.albedoColor = value;
+	    }
 	    get _SpecColorR() {
 	        return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).x;
 	    }
@@ -10114,6 +10120,12 @@
 	    }
 	    set _SpecColorA(value) {
 	        this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).w = value;
+	    }
+	    get _SpecColor() {
+	        return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR);
+	    }
+	    set _SpecColor(value) {
+	        this.specularColor = value;
 	    }
 	    get _AlbedoIntensity() {
 	        return this._albedoIntensity;
@@ -10164,6 +10176,12 @@
 	        var tilOff = this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET);
 	        tilOff.w = w;
 	        this.tilingOffset = tilOff;
+	    }
+	    get _MainTex_ST() {
+	        return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET);
+	    }
+	    set _MainTex_ST(value) {
+	        this.tilingOffset = value;
 	    }
 	    get _Cutoff() {
 	        return this.alphaTestValue;
@@ -17176,7 +17194,7 @@
 	                shaderIns._uploadMark = updateMark;
 	            }
 	        }
-	        if (updateRender && this.renderType !== RenderElement.RENDERTYPE_NORMAL)
+	        if (this.renderType !== RenderElement.RENDERTYPE_NORMAL)
 	            this.render._revertBatchRenderUpdate(context);
 	    }
 	    destroy() {
@@ -32259,6 +32277,7 @@
 	            Laya3D._getSprite3DHierarchyInnerUrls(children[i], firstLevelUrls, secondLevelUrls, thirdLevelUrls, fourthLelUrls, subUrls, urlVersion, hierarchyBasePath);
 	    }
 	    static _loadHierarchy(loader) {
+	        loader._originType = loader.type;
 	        loader.on(Laya.Event.LOADED, null, Laya3D._onHierarchylhLoaded, [loader]);
 	        loader.load(loader.url, Laya.Loader.JSON, false, null, true);
 	    }
@@ -32487,7 +32506,7 @@
 	    }
 	    static _onProcessChange(loader, offset, weight, process) {
 	        process = offset + process * weight;
-	        (process < 1.0) && (loader.event(Laya.Event.PROGRESS, process));
+	        (process < 1.0) && (loader.event(Laya.Event.PROGRESS, process * 2 / 3 + 1 / 3));
 	    }
 	    static init(width, height, config = null, compolete = null) {
 	        if (Laya3D._isInit) {

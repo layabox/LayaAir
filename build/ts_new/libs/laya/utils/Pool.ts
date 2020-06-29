@@ -65,7 +65,7 @@ export class Pool {
      * 根据类名回收类的实例
      * @param	instance 类的具体实例
      */
-    static createByClass(cls: new () => any): any {
+    static createByClass<T>(cls: new () => T): T {
         return Pool.getItemByClass(Pool._getClassSign(cls), cls);
     }
 
@@ -76,7 +76,7 @@ export class Pool {
      * @param cls 用于创建该类型对象的类。
      * @return 此类型标识的一个对象。
      */
-    static getItemByClass(sign: string, cls: new () => any): any {
+    static getItemByClass<T>(sign: string, cls: new () => T): T {
         if (!Pool._poolDic[sign]) return new cls();
 
         var pool = Pool.getPoolBySign(sign);

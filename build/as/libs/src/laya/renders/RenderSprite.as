@@ -1,6 +1,6 @@
 package laya.renders {
-	import laya.resource.Context;
 	import laya.resource.RenderTexture2D;
+	import laya.resource.Context;
 
 	/**
 	 * @private 精灵渲染器

@@ -3673,16 +3673,19 @@ declare module laya.d3.core.material {
 		set _ColorG(value:number);
 		set _ColorB(value:number);
 		set _ColorA(value:number);
+		set _Color(value:laya.d3.math.Vector4);
 		set _SpecColorR(value:number);
 		set _SpecColorG(value:number);
 		set _SpecColorB(value:number);
 		set _SpecColorA(value:number);
+		set _SpecColor(value:laya.d3.math.Vector4);
 		set _AlbedoIntensity(value:number);
 		set _Shininess(value:number);
 		set _MainTex_STX(x:number);
 		set _MainTex_STY(y:number);
 		set _MainTex_STZ(z:number);
 		set _MainTex_STW(w:number);
+		set _MainTex_ST(value:laya.d3.math.Vector4);
 		set _Cutoff(value:number);
 
 		/**
@@ -21937,7 +21940,7 @@ declare module laya.display {
 		 * @param globalNode global节点，默认为Laya.stage
 		 * @return 转换后的坐标的点。
 		 */
-		localToGlobal(point:laya.maths.Point,createNewPoint?:boolean,globalNode?:Sprite):laya.maths.Point;
+		localToGlobal(point:laya.maths.Point,createNewPoint?:boolean,globalNode?:Sprite|null):laya.maths.Point;
 
 		/**
 		 * 把stage的全局坐标转换为本地坐标。
@@ -21946,7 +21949,7 @@ declare module laya.display {
 		 * @param globalNode global节点，默认为Laya.stage
 		 * @return 转换后的坐标的点。
 		 */
-		globalToLocal(point:laya.maths.Point,createNewPoint?:boolean,globalNode?:Sprite):laya.maths.Point;
+		globalToLocal(point:laya.maths.Point,createNewPoint?:boolean,globalNode?:Sprite|null):laya.maths.Point;
 
 		/**
 		 * 将本地坐标系坐标转转换到父容器坐标系。
@@ -28204,7 +28207,7 @@ declare module laya.media.webaudio {
 		 * @param loops 循环次数
 		 * @return 
 		 */
-		play(startTime?:number,loops?:number,channel?:laya.media.SoundChannel):laya.media.SoundChannel;
+		play(startTime?:number,loops?:number,channel?:laya.media.webaudio.WebAudioSoundChannel):laya.media.SoundChannel;
 		get duration():number;
 		dispose():void;
 	}
@@ -32054,6 +32057,12 @@ declare module laya.renders {
 declare module laya.renders {
 
 	/**
+	 * @private 
+	 */
+	interface _RenderFunction{
+	}
+
+	/**
 	 * @private 精灵渲染器
 	 */
 	class RenderSprite  {
@@ -32114,7 +32123,7 @@ declare module laya.renders {
 		/**
 		 * @private 
 		 */
-		static renders:any[];
+		static renders:RenderSprite[];
 
 		/**
 		 * @private 
@@ -32123,7 +32132,7 @@ declare module laya.renders {
 		private static _initRenderFun:any;
 		private static _getTypeRender:any;
 
-		constructor(type:number,next:RenderSprite);
+		constructor(type:number,next:RenderSprite|null);
 		protected onCreate(type:number):void;
 		static tempUV:any[];
 		static tmpTarget(ctx:laya.resource.Context,rt:laya.resource.RenderTexture2D,w:number,h:number):void;
@@ -32818,7 +32827,7 @@ declare module laya.resource {
 		 * @param type "image/png"
 		 * @param encoderOptions 质量参数，取值范围为0-1
 		 */
-		toBase64(type:string,encoderOptions:number):string;
+		toBase64(type:string,encoderOptions:number):string|null;
 		toBase64Async(type:string,encoderOptions:number,callBack:Function):void;
 	}
 
@@ -34662,6 +34671,8 @@ declare module laya.ui {
 		 * @private 
 		 */
 		protected _panelChanged:boolean;
+
+		constructor(createChildren?:boolean);
 
 		/**
 		 * @inheritDoc 
@@ -39925,6 +39936,16 @@ declare module laya.utils {
 		static onBLMiniGame:boolean;
 
 		/**
+		 * 字节跳动小游戏
+		 */
+		static onTTMiniGame:boolean;
+
+		/**
+		 * 华为快游戏
+		 */
+		static onHWMiniGame:boolean;
+
+		/**
 		 * @private 
 		 */
 		static onFirefox:boolean;
@@ -41984,7 +42005,7 @@ declare module laya.utils {
 		 * 根据类名回收类的实例
 		 * @param instance 类的具体实例
 		 */
-		static createByClass(cls:new () => any):any;
+		static createByClass(cls:new () => T):T;
 
 		/**
 		 * <p>根据传入的对象类型标识字符，获取对象池中此类型标识的一个对象实例。</p>
@@ -41993,7 +42014,7 @@ declare module laya.utils {
 		 * @param cls 用于创建该类型对象的类。
 		 * @return 此类型标识的一个对象。
 		 */
-		static getItemByClass(sign:string,cls:new () => any):any;
+		static getItemByClass(sign:string,cls:new () => T):T;
 
 		/**
 		 * <p>根据传入的对象类型标识字符，获取对象池中此类型标识的一个对象实例。</p>
@@ -43561,7 +43582,7 @@ declare module laya.webgl.canvas {
 		context:laya.resource.Context;
 		touches:any[];
 		submits:any[];
-		sprite:laya.display.Sprite;
+		sprite:laya.display.Sprite|null;
 		private _pathMesh:any;
 		private _triangleMesh:any;
 		meshlist:any[];

@@ -117,6 +117,16 @@ package laya.utils {
 		public static var onBLMiniGame:Boolean;
 
 		/**
+		 * 字节跳动小游戏
+		 */
+		public static var onTTMiniGame:Boolean;
+
+		/**
+		 * 华为快游戏
+		 */
+		public static var onHWMiniGame:Boolean;
+
+		/**
 		 * @private 
 		 */
 		public static var onFirefox:Boolean;

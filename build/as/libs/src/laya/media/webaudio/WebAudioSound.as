@@ -1,4 +1,5 @@
 package laya.media.webaudio {
+	import laya.media.webaudio.WebAudioSoundChannel;
 	import laya.events.EventDispatcher;
 	import laya.media.SoundChannel;
 
@@ -123,7 +124,7 @@ package laya.media.webaudio {
 		 * @param loops 循环次数
 		 * @return 
 		 */
-		public function play(startTime:Number = null,loops:Number = null,channel:SoundChannel = null):SoundChannel{
+		public function play(startTime:Number = null,loops:Number = null,channel:WebAudioSoundChannel = null):SoundChannel{
 			return null;
 		}
 		public function get duration():Number{return null;}

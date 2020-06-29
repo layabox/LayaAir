@@ -90,6 +90,8 @@ package laya.ui {
 		 */
 		protected var _panelChanged:Boolean;
 
+		public function ColorPicker(createChildren:Boolean = undefined){}
+
 		/**
 		 * @inheritDoc 
 		 * @override 

@@ -224,6 +224,9 @@ window.wxMiniGame = function (exports, Laya) {
 	                var deletefileSize = parseInt(MiniFileMgr.filesListObj[fileurlkey].size);
 	                MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) - deletefileSize;
 	                delete MiniFileMgr.filesListObj[fileurlkey];
+	                if (MiniFileMgr.fakeObj[fileurlkey].md5 == MiniFileMgr.fakeObj[fileurlkey].md5) {
+	                    delete MiniFileMgr.fakeObj[fileurlkey];
+	                }
 	                MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), false);
 	                callBack != null && callBack.runWith([0]);
 	            }
@@ -1080,10 +1083,11 @@ window.wxMiniGame = function (exports, Laya) {
 	    static onMkdirCallBack(errorCode, data) {
 	        if (!errorCode) {
 	            MiniFileMgr.filesListObj = JSON.parse(data.data);
-	            MiniFileMgr.fakeObj = MiniFileMgr.filesListObj || {};
+	            MiniFileMgr.fakeObj = JSON.parse(data.data) || {};
 	        }
 	        else {
-	            MiniFileMgr.fakeObj = MiniFileMgr.filesListObj = {};
+	            MiniFileMgr.fakeObj = {};
+	            MiniFileMgr.filesListObj = {};
 	        }
 	        MiniFileMgr.fs.readdir({
 	            dirPath: MiniFileMgr.fileNativeDir,
