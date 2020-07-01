@@ -117,10 +117,9 @@ export class Timer {
 
     /** @internal */
     _create(useFrame: boolean, repeat: boolean, delay: number, caller: any, method: Function, args: any[], coverBefore: boolean): TimerHandler {
-        //如果延迟为0，则立即执行
+        //如果延迟为0或null，则设置为0
         if (!delay) {
-            method.apply(caller, args);
-            return null;
+            delay = 0;
         }
 
         //先覆盖相同函数的计时
