@@ -4,6 +4,8 @@ const ts = require("typescript");
 const path = require("path");
 class emiter {
     constructor() {
+        /***方法的泛型列表 */
+        this.generList = [];
         /**
          * 枚举类型
          */
@@ -33,7 +35,8 @@ class emiter {
             "ImportEqualsDeclaration": this.emitImportEquals,
             "EnumDeclaration": this.emitEnum,
             "GetAccessor": this.emitGetset,
-            "SetAccessor": this.emitGetset //get set解析
+            "SetAccessor": this.emitGetset,
+            "CallSignature": this.emitCallSignature
         };
     }
     static get BaseURL() {
@@ -180,6 +183,24 @@ class emiter {
         emiter.jscObj[node.name.getText()] = "*";
         return ["", ""];
     }
+    emitCallSignature(node) {
+        let tsstr;
+        let note = this.changeIndex(node, "\r\n\t");
+        let result = this.emitParameters(node.parameters, false, false);
+        let idtype = "";
+        this.generList.length = 0;
+        if (node.typeParameters) {
+            for (let i = 0; i < node.typeParameters.length; i++) {
+                let elemnt = node.typeParameters[i];
+                let name = elemnt.getText();
+                this.generList.push(name);
+                idtype += (i ? "," : "") + name;
+            }
+            idtype = "<" + idtype + ">";
+        }
+        tsstr = idtype + "(" + result[1] + ")" + ":" + this.emitTsType(node.type);
+        return ["", tsstr];
+    }
     /**
      * 生成class
      * @param node
@@ -290,8 +311,19 @@ class emiter {
             paramstr += result[0];
             tsparam += result[1];
         }
+        let idtype = "";
+        this.generList.length = 0;
+        if (node.typeParameters) {
+            for (let i = 0; i < node.typeParameters.length; i++) {
+                let elemnt = node.typeParameters[i];
+                let name = elemnt.getText();
+                this.generList.push(name);
+                idtype += (i ? "," : "") + name;
+            }
+            idtype = "<" + idtype + ">";
+        }
         methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type) + ";";
-        tsMethod += node.name.getText() + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
+        tsMethod += node.name.getText() + idtype + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
         let note = this.changeIndex(node, "\r\n\t\t");
         return [note + methodstr + "\r\n", note + tsMethod + "\r\n"];
     }
@@ -390,9 +422,20 @@ class emiter {
         else {
             methodstr += "public function ";
         }
+        this.generList.length = 0;
         let paramstr = "";
         let tsparam = "";
         let isImplements = false;
+        let idtype = "";
+        if (node.typeParameters) {
+            for (let i = 0; i < node.typeParameters.length; i++) {
+                let elemnt = node.typeParameters[i];
+                let name = elemnt.getText();
+                this.generList.push(name);
+                idtype += (i ? "," : "") + name;
+            }
+            idtype = "<" + idtype + ">";
+        }
         //检测是否重写接口
         if (note.indexOf("@implements") != -1)
             isImplements = true;
@@ -411,7 +454,7 @@ class emiter {
         }
         let nodetype = this.emitType(node.type);
         methodstr += node.name.getText() + "(" + paramstr + "):" + nodetype + "{" + (["*", "void"].indexOf(nodetype) != -1 ? "" : ("\r\n\t\t\treturn null;\r\n\t\t")) + "}";
-        tsmethod += node.name.getText() + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
+        tsmethod += node.name.getText() + idtype + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
         return [note + methodstr + "\r\n", note + tsmethod + "\r\n"];
     }
     /**
@@ -544,8 +587,7 @@ class emiter {
                         type += (i ? "|" : "") + this.emitType(node.typeArguments[i]);
                     }
                 }
-                //检测内部枚举是否是枚举类型
-                if (this.enumType.indexOf(type) != -1) {
+                else if (this.enumType.indexOf(type) != -1 || this.generList.indexOf(type) != -1) { //检测内部枚举是否是枚举类型，或者是泛型<T>
                     return "*";
                 }
                 //如果是内部类且有引用
