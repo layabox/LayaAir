@@ -32060,7 +32060,7 @@ declare module laya.renders {
 	 * @private 
 	 */
 	interface _RenderFunction{
-	}
+(sp:laya.display.Sprite,ctx:laya.resource.Context,x:number,y:number):void	}
 
 	/**
 	 * @private 精灵渲染器
@@ -42005,7 +42005,7 @@ declare module laya.utils {
 		 * 根据类名回收类的实例
 		 * @param instance 类的具体实例
 		 */
-		static createByClass(cls:new () => T):T;
+		static createByClass<T>(cls:new () => T):T;
 
 		/**
 		 * <p>根据传入的对象类型标识字符，获取对象池中此类型标识的一个对象实例。</p>
@@ -42014,7 +42014,7 @@ declare module laya.utils {
 		 * @param cls 用于创建该类型对象的类。
 		 * @return 此类型标识的一个对象。
 		 */
-		static getItemByClass(sign:string,cls:new () => T):T;
+		static getItemByClass<T>(sign:string,cls:new () => T):T;
 
 		/**
 		 * <p>根据传入的对象类型标识字符，获取对象池中此类型标识的一个对象实例。</p>

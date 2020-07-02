@@ -204,7 +204,7 @@
 	        Geolocation.navigator.geolocation.clearWatch(id);
 	    }
 	}
-	Geolocation.navigator = Laya.ILaya.Browser.window.navigator;
+	Geolocation.navigator = navigator;
 	Geolocation.position = new GeolocationInfo();
 	Geolocation.PERMISSION_DENIED = 1;
 	Geolocation.POSITION_UNAVAILABLE = 2;
