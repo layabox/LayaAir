@@ -67,7 +67,7 @@ export class HTMLDivElement extends Sprite {
      * @override
     */
     destroy(destroyChild: boolean = true): void {
-        if (this._element) this._element.reset();
+        if (this._element) this._element.destroy();
         this._element = null;
         this._doClears();
         super.destroy(destroyChild);
