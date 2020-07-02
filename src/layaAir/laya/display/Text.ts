@@ -782,7 +782,7 @@ export class Text extends Sprite {
                 }
                 _word.setText(word);
                 ((<WordText>_word)).splitRender = this._singleCharRender;
-                style.stroke ? graphics.fillBorderText(_word, x, y, ctxFont, this.color, style.strokeColor, style.stroke, textAlgin) : graphics.fillText(_word, x, y, ctxFont, this.color, textAlgin);
+                style.stroke ? graphics.fillBorderText(_word, x, y, ctxFont, this.color, textAlgin, style.stroke, style.strokeColor) : graphics.fillText(_word, x, y, ctxFont, this.color, textAlgin);
             }
         }
         if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {

@@ -9,7 +9,6 @@ import { CharacterController } from "./CharacterController";
 import { PhysicsUpdateList } from "./PhysicsUpdateList";
 import { Collision } from "./Collision";
 import { CollisionTool } from "./CollisionTool";
-import { Constraint3D } from "./Constraint3D";
 import { ContactPoint } from "./ContactPoint";
 import { HitResult } from "./HitResult";
 import { PhysicsCollider } from "./PhysicsCollider";
@@ -18,7 +17,8 @@ import { PhysicsSettings } from "./PhysicsSettings";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { Rigidbody3D } from "./Rigidbody3D";
 import { ColliderShape } from "./shape/ColliderShape";
-import { Physics3D } from "./Physics3D";
+import { ConstraintComponent } from "./constraints/ConstraintComponent";
+import { ILaya3D } from "../../../ILaya3D";
 
 /**
  * <code>Simulation</code> 类用于创建物理模拟器。
@@ -78,7 +78,7 @@ export class PhysicsSimulation {
 	* @internal
 	*/
 	static __init__(): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		PhysicsSimulation._btTempVector30 = bt.btVector3_create(0, 0, 0);
 		PhysicsSimulation._btTempVector31 = bt.btVector3_create(0, 0, 0);
 		PhysicsSimulation._btTempQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
@@ -112,9 +112,9 @@ export class PhysicsSimulation {
 	private _gravity: Vector3 = new Vector3(0, -10, 0);
 
 	/** @internal */
-	private _btVector3Zero: number = Physics3D._bullet.btVector3_create(0, 0, 0);
+	private _btVector3Zero: number = ILaya3D.Physics3D._bullet.btVector3_create(0, 0, 0);
 	/** @internal */
-	private _btDefaultQuaternion: number = Physics3D._bullet.btQuaternion_create(0, 0, 0, -1);
+	private _btDefaultQuaternion: number = ILaya3D.Physics3D._bullet.btQuaternion_create(0, 0, 0, -1);
 	/** @internal */
 	private _btClosestRayResultCallback: number;
 	/** @internal */
@@ -130,7 +130,8 @@ export class PhysicsSimulation {
 	private _previousFrameCollisions: Collision[] = [];
 	/** @internal */
 	private _currentFrameCollisions: Collision[] = [];
-
+	/** @internal */
+	private _currentConstraint:any = {};
 	/** @internal */
 	_physicsUpdateList: PhysicsUpdateList = new PhysicsUpdateList();
 	/**@internal	*/
@@ -147,11 +148,11 @@ export class PhysicsSimulation {
 	 * 是否进行连续碰撞检测。
 	 */
 	get continuousCollisionDetection(): boolean {
-		return Physics3D._bullet.btCollisionWorld_get_m_useContinuous(this._btDispatchInfo);
+		return ILaya3D.Physics3D._bullet.btCollisionWorld_get_m_useContinuous(this._btDispatchInfo);
 	}
 
 	set continuousCollisionDetection(value: boolean) {
-		Physics3D._bullet.btCollisionWorld_set_m_useContinuous(this._btDispatchInfo, value);
+		ILaya3D.Physics3D._bullet.btCollisionWorld_set_m_useContinuous(this._btDispatchInfo, value);
 	}
 
 	/**
@@ -168,7 +169,7 @@ export class PhysicsSimulation {
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
 
 		this._gravity = value;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var btGravity: number = PhysicsSimulation._btTempVector30;
 		bt.btVector3_setValue(btGravity, -value.x, value.y, value.z);//TODO:是否先get省一个变量
 		bt.btDiscreteDynamicsWorld_setGravity(this._btDiscreteDynamicsWorld, btGravity);
@@ -180,7 +181,7 @@ export class PhysicsSimulation {
 	get speculativeContactRestitution(): boolean {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Simulation:Cannot Cannot perform this action when the physics engine is set to CollisionsOnly";
-		return Physics3D._bullet.btDiscreteDynamicsWorld_getApplySpeculativeContactRestitution(this._btDiscreteDynamicsWorld);
+		return ILaya3D.Physics3D._bullet.btDiscreteDynamicsWorld_getApplySpeculativeContactRestitution(this._btDiscreteDynamicsWorld);
 	}
 
 	/**
@@ -189,7 +190,7 @@ export class PhysicsSimulation {
 	set speculativeContactRestitution(value: boolean) {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Simulation:Cannot Cannot perform this action when the physics engine is set to CollisionsOnly";
-		Physics3D._bullet.btDiscreteDynamicsWorld_setApplySpeculativeContactRestitution(this._btDiscreteDynamicsWorld, value);
+		ILaya3D.Physics3D._bullet.btDiscreteDynamicsWorld_setApplySpeculativeContactRestitution(this._btDiscreteDynamicsWorld, value);
 	}
 
 	/**
@@ -200,7 +201,7 @@ export class PhysicsSimulation {
 		this.maxSubSteps = configuration.maxSubSteps;
 		this.fixedTimeStep = configuration.fixedTimeStep;
 
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		this._btCollisionConfiguration = bt.btDefaultCollisionConfiguration_create();
 		this._btDispatcher = bt.btCollisionDispatcher_create(this._btCollisionConfiguration);
 		this._btBroadphase = bt.btDbvtBroadphase_create();
@@ -235,7 +236,7 @@ export class PhysicsSimulation {
 	 */
 	_simulate(deltaTime: number): void {
 		this._updatedRigidbodies = 0;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		if (this._btDiscreteDynamicsWorld)
 			bt.btDiscreteDynamicsWorld_stepSimulation(this._btDiscreteDynamicsWorld, deltaTime, this.maxSubSteps, this.fixedTimeStep);
 		else
@@ -246,7 +247,7 @@ export class PhysicsSimulation {
 	 * @internal
 	 */
 	_destroy(): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		if (this._btDiscreteDynamicsWorld) {
 			bt.btCollisionWorld_destroy(this._btDiscreteDynamicsWorld);
 			this._btDiscreteDynamicsWorld = null;
@@ -267,14 +268,14 @@ export class PhysicsSimulation {
 	 * @internal
 	 */
 	_addPhysicsCollider(component: PhysicsCollider, group: number, mask: number): void {
-		Physics3D._bullet.btCollisionWorld_addCollisionObject(this._btCollisionWorld, component._btColliderObject, group, mask);
+		ILaya3D.Physics3D._bullet.btCollisionWorld_addCollisionObject(this._btCollisionWorld, component._btColliderObject, group, mask);
 	}
 
 	/**
 	 * @internal
 	 */
 	_removePhysicsCollider(component: PhysicsCollider): void {
-		Physics3D._bullet.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, component._btColliderObject);
+		ILaya3D.Physics3D._bullet.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, component._btColliderObject);
 	}
 
 	/**
@@ -283,7 +284,7 @@ export class PhysicsSimulation {
 	_addRigidBody(rigidBody: Rigidbody3D, group: number, mask: number): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
-		Physics3D._bullet.btDiscreteDynamicsWorld_addRigidBody(this._btCollisionWorld, rigidBody._btColliderObject, group, mask);
+		ILaya3D.Physics3D._bullet.btDiscreteDynamicsWorld_addRigidBody(this._btCollisionWorld, rigidBody._btColliderObject, group, mask);
 	}
 
 	/**
@@ -292,7 +293,7 @@ export class PhysicsSimulation {
 	_removeRigidBody(rigidBody: Rigidbody3D): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
-		Physics3D._bullet.btDiscreteDynamicsWorld_removeRigidBody(this._btCollisionWorld, rigidBody._btColliderObject);
+		ILaya3D.Physics3D._bullet.btDiscreteDynamicsWorld_removeRigidBody(this._btCollisionWorld, rigidBody._btColliderObject);
 	}
 
 	/**
@@ -301,7 +302,7 @@ export class PhysicsSimulation {
 	_addCharacter(character: CharacterController, group: number, mask: number): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, character._btColliderObject, group, mask);
 		bt.btDynamicsWorld_addAction(this._btCollisionWorld, character._btKinematicCharacter);
 	}
@@ -312,7 +313,7 @@ export class PhysicsSimulation {
 	_removeCharacter(character: CharacterController): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, character._btColliderObject);
 		bt.btDynamicsWorld_removeAction(this._btCollisionWorld, character._btKinematicCharacter);
 	}
@@ -327,7 +328,7 @@ export class PhysicsSimulation {
 	 * @return 	是否成功。
 	 */
 	raycastFromTo(from: Vector3, to: Vector3, out: HitResult = null, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var rayResultCall: number = this._btClosestRayResultCallback;
 		var rayFrom: number = PhysicsSimulation._btTempVector30;
 		var rayTo: number = PhysicsSimulation._btTempVector31;
@@ -375,7 +376,7 @@ export class PhysicsSimulation {
 	 * @return 	是否成功。
 	 */
 	raycastAllFromTo(from: Vector3, to: Vector3, out: HitResult[], collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var rayResultCall: number = this._btAllHitsRayResultCallback;
 		var rayFrom: number = PhysicsSimulation._btTempVector30;
 		var rayTo: number = PhysicsSimulation._btTempVector31;
@@ -474,7 +475,7 @@ export class PhysicsSimulation {
 	 * @return 	是否成功。
 	 */
 	shapeCast(shape: ColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult = null, fromRotation: Quaternion = null, toRotation: Quaternion = null, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, allowedCcdPenetration: number = 0.0): boolean {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var convexResultCall: number = this._btClosestConvexResultCallback;
 		var convexPosFrom: number = PhysicsSimulation._btTempVector30;
 		var convexPosTo: number = PhysicsSimulation._btTempVector31;
@@ -548,7 +549,7 @@ export class PhysicsSimulation {
 	 * @return 	是否成功。
 	 */
 	shapeCastAll(shape: ColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult[], fromRotation: Quaternion = null, toRotation: Quaternion = null, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, allowedCcdPenetration: number = 0.0): boolean {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var convexResultCall: number = this._btAllConvexResultCallback;
 		var convexPosFrom: number = PhysicsSimulation._btTempVector30;
 		var convexPosTo: number = PhysicsSimulation._btTempVector31;
@@ -589,6 +590,7 @@ export class PhysicsSimulation {
 		bt.btCollisionWorld_convexSweepTest(this._btCollisionWorld, sweepShape, convexTransform, convexTransTo, convexResultCall, allowedCcdPenetration);
 		var count: number = bt.tBtCollisionObjectArray_size(collisionObjects);
 		if (count > 0) {
+			this._collisionsUtils.recoverAllHitResultsPool();
 			var btPoints: number = bt.AllConvexResultCallback_get_m_hitPointWorld(convexResultCall);
 			var btNormals: number = bt.AllConvexResultCallback_get_m_hitNormalWorld(convexResultCall);
 			var btFractions: number = bt.AllConvexResultCallback_get_m_hitFractions(convexResultCall);
@@ -620,20 +622,23 @@ export class PhysicsSimulation {
 	 * @param constraint 约束。
 	 * @param disableCollisionsBetweenLinkedBodies 是否禁用
 	 */
-	addConstraint(constraint: Constraint3D, disableCollisionsBetweenLinkedBodies: boolean = false): void {
+	addConstraint(constraint: ConstraintComponent, disableCollisionsBetweenLinkedBodies: boolean = false): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
 		// this._nativeDiscreteDynamicsWorld.addConstraint(constraint._nativeConstraint, disableCollisionsBetweenLinkedBodies);
-		constraint._simulation = this;
+		ILaya3D.Physics3D._bullet.btCollisionWorld_addConstraint(this._btDiscreteDynamicsWorld,constraint._btConstraint,disableCollisionsBetweenLinkedBodies);
+		this._currentConstraint[constraint.id] = constraint;
 	}
 
 	/**
 	 * 移除刚体运动的约束条件。
 	 */
-	removeConstraint(constraint: Constraint3D): void {
+	removeConstraint(constraint: ConstraintComponent): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
 		// this._nativeDiscreteDynamicsWorld.removeConstraint(constraint._nativeConstraint);
+		ILaya3D.Physics3D._bullet.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, constraint._btConstraint);
+		delete this._currentConstraint[constraint.id];
 	}
 
 	/**
@@ -655,7 +660,7 @@ export class PhysicsSimulation {
 	_updateCharacters(): void {
 		for (var i: number = 0, n: number = this._characters.length; i < n; i++) {
 			var character: PhysicsComponent = this._characters[i];
-			character._updateTransformComponent(Physics3D._bullet.btCollisionObject_getWorldTransform(character._btColliderObject));
+			character._updateTransformComponent(ILaya3D.Physics3D._bullet.btCollisionObject_getWorldTransform(character._btColliderObject));
 		}
 	}
 
@@ -669,7 +674,7 @@ export class PhysicsSimulation {
 		this._currentFrameCollisions.length = 0;
 		this._previousFrameCollisions = previous;
 		var loopCount: number = Stat.loopCount;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var numManifolds: number = bt.btDispatcher_getNumManifolds(this._btDispatcher);
 		for (var i: number = 0; i < numManifolds; i++) {
 			var contactManifold: number = bt.btDispatcher_getManifoldByIndexInternal(this._btDispatcher, i);//1.可能同时返回A和B、B和A 2.可能同时返回A和B多次(可能和CCD有关)
@@ -872,6 +877,17 @@ export class PhysicsSimulation {
 				}
 			}
 		}
+		for(var id in this._currentConstraint){
+			var constraintObj:ConstraintComponent = this._currentConstraint[id];
+			var scripts: Script3D[] = (<Sprite3D>constraintObj.owner)._scripts; 
+			if(constraintObj.enabled && constraintObj._isBreakConstrained() && (!!scripts)){
+				if(scripts.length!=0){
+					for(i = 0,n = scripts.length;i<n;i++){
+						scripts[i].onJointBreak();
+					}
+				}
+			 }
+		}
 	}
 
 	/**
@@ -880,7 +896,7 @@ export class PhysicsSimulation {
 	clearForces(): void {
 		if (!this._btDiscreteDynamicsWorld)
 			throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
-		Physics3D._bullet.btDiscreteDynamicsWorld_clearForces(this._btDiscreteDynamicsWorld);
+		ILaya3D.Physics3D._bullet.btDiscreteDynamicsWorld_clearForces(this._btDiscreteDynamicsWorld);
 	}
 
 }

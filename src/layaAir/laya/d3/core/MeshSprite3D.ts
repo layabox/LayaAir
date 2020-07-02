@@ -70,7 +70,9 @@ export class MeshSprite3D extends RenderableSprite3D {
 		var lightmapScaleOffsetArray: any[] = data.lightmapScaleOffset;
 		(lightmapScaleOffsetArray) && (render.lightmapScaleOffset = new Vector4(lightmapScaleOffsetArray[0], lightmapScaleOffsetArray[1], lightmapScaleOffsetArray[2], lightmapScaleOffsetArray[3]));
 		(data.meshPath != undefined) && (this.meshFilter.sharedMesh = Loader.getRes(data.meshPath));
-		(data.enableRender != undefined) && (this.meshRenderer.enable = data.enableRender);
+		(data.enableRender != undefined) && (render.enable = data.enableRender);
+		(data.receiveShadows != undefined) && (render.receiveShadow = data.receiveShadows);
+		(data.castShadow != undefined) && (render.castShadow = data.castShadow);
 		var materials: any[] = data.materials;
 		if (materials) {
 			var sharedMaterials: Material[] = render.sharedMaterials;

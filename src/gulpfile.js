@@ -11,6 +11,8 @@ const rollup = require('rollup');
 var through = require('through2');
 //合并文件
 var concat = require('gulp-concat'),pump = require('pump');
+const uglify = require('gulp-uglify-es').default;
+const rename = require('gulp-rename');
 
 
 //编译新的库文件只需要在packsDef中配置一下新的库就可以了
@@ -42,13 +44,36 @@ var packsDef = [
     {
         'libName': "d3",
         'input': [
-            './layaAir/laya/d3/**/*.*',
+            './layaAir/laya/d3/animation/**/*.*',
+            './layaAir/laya/d3/component/**/*.*',
+            './layaAir/laya/d3/core/**/*.*',
+            './layaAir/laya/d3/graphics/**/*.*',
+            './layaAir/laya/d3/loaders/**/*.*',
+            './layaAir/laya/d3/math/**/*.*',
+            './layaAir/laya/d3/physics/**/*.*',
+            './layaAir/laya/d3/shader/**/*.*',
+            './layaAir/laya/d3/shadowMap/**/*.*',
+            './layaAir/laya/d3/text/**/*.*',
+            './layaAir/laya/d3/utils/**/*.*',
+            './layaAir/laya/d3/CastShadowList.ts',
+            './layaAir/laya/d3/Input3D.ts',
+            './layaAir/laya/d3/MouseTouch.ts',
+            './layaAir/laya/d3/Touch.ts',
+            './layaAir/laya/d3/resource/**/*.*',
             './layaAir/Config3D.ts',
             './layaAir/ILaya3D.ts',
             './layaAir/Laya3D.ts'
         ],
         'out': '../build/js/libs/laya.d3.js'
     },
+    {
+        'libName': "cannonPhysics",
+        'input': [
+            './layaAir/laya/d3/physicsCannon/**/*.*',
+        ],
+        'out': '../build/js/libs/laya.cannonPhysics.js'
+    },
+
     {
         'libName': 'device',
         'input': [
@@ -264,7 +289,7 @@ gulp.task('CopyTSFileToTS', () => {
 //拷贝第三方库至ts库(未来在数组中补充需要的其他第三方库)
 gulp.task('CopyTSJSLibsFileToTS', () => {
     return gulp.src([
-        './layaAir/jsLibs/**/*.*'])
+        './layaAir/jsLibs/**/*.*','../build/js/libs/laya.cannonPhysics.js'])
         .pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
@@ -328,4 +353,54 @@ gulp.task('buildJS', async function () {
     }
 });
 
-gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS'));
+// 压缩
+// 下面两个方法，最好能合并
+gulp.task("compressJs", function () {
+    gulp.src("../build/as/jslibs/laya.physics3D.js")
+        .pipe(rename({extname: ".min.js"}))
+        .pipe(gulp.dest("../build/as/jslibs/min"))
+        .pipe(gulp.dest("../build/js/libs/min"))
+        .pipe(gulp.dest("../build/ts/libs/min"));
+
+    gulp.src("../build/as/jslibs/laya.physics3D.wasm.wasm")
+        .pipe(gulp.dest("../build/as/jslibs/min"))
+        .pipe(gulp.dest("../build/js/libs/min"))
+        .pipe(gulp.dest("../build/ts/libs/min"));
+
+    return gulp.src(["../build/as/jslibs/*.js", "!../build/as/jslibs/{laya.physics3D.js}"])
+        .pipe(uglify({
+            mangle: {
+                keep_fnames: true
+            }
+        }))
+        .on('error', function (err) {
+            console.warn(err.toString());
+        })
+        .pipe(rename({extname: ".min.js"}))
+        .pipe(gulp.dest("../build/as/jslibs/min"))
+        .pipe(gulp.dest("../build/js/libs/min"))
+        .pipe(gulp.dest("../build/ts/libs/min"));
+});
+
+gulp.task("compresstsnewJs", function () {
+    gulp.src("../build/ts_new/jslibs/{laya.physics3D.js,box2d.js}")
+        .pipe(rename({extname: ".min.js"}))
+        .pipe(gulp.dest("../build/ts_new/jslibs/min"));
+
+    gulp.src("../build/ts_new/jslibs/laya.physics3D.wasm.wasm")
+        .pipe(gulp.dest("../build/ts_new/jslibs/min"));
+
+    return gulp.src(["../build/ts_new/jslibs/*.js", "!../build/ts_new/jslibs/{laya.physics3D.js,box2d.js}"])
+        .pipe(uglify({
+            mangle: {
+                keep_fnames: true
+            }
+        }))
+        .on('error', function (err) {
+            console.warn(err.toString());
+        })
+        .pipe(rename({extname: ".min.js"}))
+        .pipe(gulp.dest("../build/ts_new/jslibs/min"));
+});
+
+gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS', 'compressJs', 'compresstsnewJs'));

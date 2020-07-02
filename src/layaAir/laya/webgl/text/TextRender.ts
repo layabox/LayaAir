@@ -81,14 +81,14 @@ export class TextRender {
 
         var bugIOS: boolean = false;//是否是有bug的ios版本
         //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
-        var miniadp: any = ILaya.Laya['MiniAdpter'];
+        var miniadp: any = ILaya.Laya['MiniAdpter'] || (window as any).Laya.TTMiniAdapter; //头条也继承了这个bug
         if (miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
 			bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
 			//12.3
         }
         if (ILaya.Browser.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
         //TextRender.isWan1Wan = true;
-        this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth, TextRender.atlasWidth, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
+        this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
         TextRender.textRenderInst = this;
         ILaya.Laya['textRender'] = this;
         TextRender.atlasWidth2 = TextRender.atlasWidth * TextRender.atlasWidth;
@@ -251,10 +251,10 @@ export class TextRender {
             if (this.hasFreedText(sameTexData)) {
                 sameTexData = wt.pageChars = [];
 			}
-			if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
-				// 文字缩放要清理缓存
-				sameTexData = wt.pageChars = [];
-			}
+			// if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
+			// 	// 文字缩放要清理缓存
+			// 	sameTexData = wt.pageChars = [];
+			// }
         }
         var ri: CharRenderInfo = null;
         //var oneTex: boolean = isWT || TextRender.forceWholeRender;	// 如果能缓存的话，就用一张贴图
@@ -312,7 +312,8 @@ export class TextRender {
 
             } else {
                 // 如果要整句话渲染
-                var isotex: boolean = TextRender.noAtlas || strWidth * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集
+				var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
+				var isotex: boolean = TextRender.noAtlas || (strWidth+margin+margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
                 ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                 // 整句渲染，则只有一个贴图
                 sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };

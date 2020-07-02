@@ -76,7 +76,7 @@ varying vec3 v_Normal;
 	uniform vec3 u_FogColor;
 #endif
 
-#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))
+#if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))||defined(CALCULATE_SPOTSHADOWS)
 	varying vec3 v_PositionWorld;
 #endif
 
@@ -86,6 +86,11 @@ varying vec3 v_Normal;
 #if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
 	varying vec4 v_ShadowCoord;
 #endif
+
+#ifdef CALCULATE_SPOTSHADOWS
+	varying vec4 v_SpotShadowCoord;
+#endif
+
 
 void main()
 {
@@ -144,8 +149,7 @@ void main()
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
 			#ifdef CALCULATE_SHADOWS
 				#ifdef SHADOW_CASCADE
-					mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
-					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
+					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 				#else
 					vec4 shadowCoord = v_ShadowCoord;
 				#endif
@@ -165,6 +169,12 @@ void main()
 
 		#ifdef SPOTLIGHT
 			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_SpotLight,dif,spe);
+			#ifdef CALCULATE_SPOTSHADOWS
+				vec4 spotShadowcoord = v_SpotShadowCoord;
+				float spotShadowAttenuation = sampleSpotShadowmap(spotShadowcoord);
+				dif *= shadowAttenuation;
+				spe *= shadowAttenuation;
+			#endif
 			diffuse+=dif;
 			specular+=spe;
 		#endif
@@ -179,8 +189,7 @@ void main()
 					if(i == 0)
 					{
 						#ifdef SHADOW_CASCADE
-							mediump int cascadeIndex = computeCascadeIndex(v_PositionWorld);
-							vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0),cascadeIndex);
+							vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 						#else
 							vec4 shadowCoord = v_ShadowCoord;
 						#endif
@@ -211,6 +220,13 @@ void main()
 					if(i >= clusterInfo.y)//SpotLightCount
 						break;
 					SpotLight spotLight = getSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
+					#ifdef CALCULATE_SPOTSHADOWS
+						if(i == 0)
+						{
+							vec4 spotShadowcoord = v_SpotShadowCoord;
+							spotLight.color *= sampleSpotShadowmap(spotShadowcoord);
+						}
+					#endif
 					LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
 					diffuse+=dif;
 					specular+=spe;

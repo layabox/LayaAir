@@ -153,7 +153,8 @@ export class LoaderManager extends EventDispatcher {
     private _createOne(url: string, mainResou: boolean, complete: Handler|null = null, progress: Handler|null = null, type: string|null = null, constructParams: any[]|null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true): void {
         var item: any = this.getRes(url);
         if (!item) {
-            var extension: string = Utils.getFileExtension(url);
+            var extension: string =(LoaderManager.createMap[Utils.getFilecompatibleExtension(url)])?Utils.getFilecompatibleExtension(url):Utils.getFileExtension(url);
+            
             (type) || (type = LoaderManager.createMap[extension] ? LoaderManager.createMap[extension][0] : null);
 
             if (!type) {
@@ -209,7 +210,7 @@ export class LoaderManager extends EventDispatcher {
 
         if (!ignoreCache && content != null) {
             //增加延迟回掉，防止快速回掉导致执行顺序错误
-            ILaya.systemTimer.frameOnce(1, this, function (this:LoaderManager): void {
+            ILaya.systemTimer.callLater(this, function (this:LoaderManager): void {
                 progress && progress.runWith(1);
                 complete && complete.runWith(content instanceof Array ? [content] : content);
                 //判断是否全部加载，如果是则抛出complete事件

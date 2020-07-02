@@ -1,7 +1,7 @@
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
 import { ColliderShape } from "./ColliderShape";
-import { Physics3D } from "../Physics3D";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
@@ -21,9 +21,9 @@ export class MeshColliderShape extends ColliderShape {
 
 	set mesh(value: Mesh) {
 		if (this._mesh !== value) {
-			var bt: any = Physics3D._bullet;
+			var bt: any = ILaya3D.Physics3D._bullet;
 			if (this._mesh) {
-				bt.destroy(this._btShape);
+				bt.btCollisionShape_destroy(this._btShape);
 			}
 			if (value) {
 				this._btShape = bt.btGImpactMeshShape_create(value._getPhysicMesh());
@@ -62,7 +62,7 @@ export class MeshColliderShape extends ColliderShape {
 		if (this._compoundParent) {//TODO:待查,这里有问题
 			this.updateLocalTransformations();//TODO:
 		} else {
-			var bt: any = Physics3D._bullet;
+			var bt: any = ILaya3D.Physics3D._bullet;
 			bt.btVector3_setValue(ColliderShape._btScale, value.x, value.y, value.z);
 			bt.btCollisionShape_setLocalScaling(this._btShape, ColliderShape._btScale);
 			bt.btGImpactShapeInterface_updateBound(this._btShape);//更新缩放后需要更新包围体,有性能损耗
@@ -97,7 +97,7 @@ export class MeshColliderShape extends ColliderShape {
 	 */
 	destroy(): void {
 		if (this._btShape) {
-			Physics3D._bullet.btCollisionShape_destroy(this._btShape);
+			ILaya3D.Physics3D._bullet.btCollisionShape_destroy(this._btShape);
 			this._btShape = null;
 		}
 	}

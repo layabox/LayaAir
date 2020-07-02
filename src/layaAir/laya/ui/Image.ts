@@ -104,12 +104,12 @@ export class Image extends UIComponent {
         this.skin = skin;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  destroy(destroyChild: boolean = true): void {
-        super.destroy(true);
+    /**
+     * @inheritDoc 
+     * @override
+    */
+	destroy(destroyChild: boolean = true): void {
+        super.destroy(destroyChild);
         this._bitmap && this._bitmap.destroy();
         this._bitmap = null;
     }

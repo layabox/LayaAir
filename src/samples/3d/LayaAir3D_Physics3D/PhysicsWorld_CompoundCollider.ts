@@ -21,6 +21,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Config3D } from "Config3D";
 
 export class PhysicsWorld_CompoundCollider {
 	private scene: Scene3D;
@@ -30,7 +31,7 @@ export class PhysicsWorld_CompoundCollider {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
+			Config3D.useCannonPhysics = false;
 			this.scene = <Scene3D>Laya.stage.addChild(new Scene3D());
 
 			this.camera = <Camera>this.scene.addChild(new Camera(0, 0.1, 100));

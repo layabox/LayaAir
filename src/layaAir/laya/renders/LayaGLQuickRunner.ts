@@ -6,6 +6,7 @@ import { Matrix } from "../maths/Matrix"
 import { Rectangle } from "../maths/Rectangle"
 import { Context } from "../resource/Context"
 import { Texture } from "../resource/Texture"
+import { _RenderFunction } from "./RenderSprite"
 
 /**
  * @internal
@@ -14,7 +15,7 @@ import { Texture } from "../resource/Texture"
  */
 export class LayaGLQuickRunner {
     /*[FILEINDEX:10000]*/
-    static map: any = {};
+    static map: _RenderFunction[] = [];
     private static curMat: Matrix = new Matrix();
     /**@internal */
     static __init__(): void {
@@ -65,7 +66,18 @@ export class LayaGLQuickRunner {
 
         context.saveTransform(LayaGLQuickRunner.curMat);
         context.transformByMatrix(sprite.transform, x, y);
-        context.drawTexture(tex, -sprite.pivotX, -sprite.pivotY, sprite._width || tex.width, sprite._height || tex.height);
+
+        var width:number = sprite._width || tex.sourceWidth;
+        var height:number = sprite._height || tex.sourceHeight;
+        var wRate:number = width / tex.sourceWidth;
+        var hRate:number = height / tex.sourceHeight;
+        width = tex.width * wRate;
+        height = tex.height * hRate;
+        if (width <= 0 || height <= 0) return null;
+        var px = -sprite.pivotX + tex.offsetX * wRate;
+        var py = -sprite.pivotY + tex.offsetY * hRate;
+        context.drawTexture(tex, px, py, width, height);
+
         context.restoreTransform(LayaGLQuickRunner.curMat);
 
         /*

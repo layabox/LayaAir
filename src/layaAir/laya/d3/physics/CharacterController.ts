@@ -2,9 +2,9 @@ import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
 import { PhysicsComponent } from "./PhysicsComponent";
-import { Physics3D } from "./Physics3D";
 import { ColliderShape } from "./shape/ColliderShape";
 import { Component } from "../../components/Component";
+import { ILaya3D } from "../../../ILaya3D";
 
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
@@ -17,7 +17,7 @@ export class CharacterController extends PhysicsComponent {
 	 * @internal
 	 */
 	static __init__(): void {
-		CharacterController._btTempVector30 = Physics3D._bullet.btVector3_create(0, 0, 0);
+		CharacterController._btTempVector30 = ILaya3D.Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	/* UP轴_X轴。*/
@@ -52,7 +52,7 @@ export class CharacterController extends PhysicsComponent {
 
 	set fallSpeed(value: number) {
 		this._fallSpeed = value;
-		Physics3D._bullet.btKinematicCharacterController_setFallSpeed(this._btKinematicCharacter, value);
+		ILaya3D.Physics3D._bullet.btKinematicCharacterController_setFallSpeed(this._btKinematicCharacter, value);
 	}
 
 	/**
@@ -64,7 +64,7 @@ export class CharacterController extends PhysicsComponent {
 
 	set jumpSpeed(value: number) {
 		this._jumpSpeed = value;
-		Physics3D._bullet.btKinematicCharacterController_setJumpSpeed(this._btKinematicCharacter, value);
+		ILaya3D.Physics3D._bullet.btKinematicCharacterController_setJumpSpeed(this._btKinematicCharacter, value);
 	}
 
 	/**
@@ -76,7 +76,7 @@ export class CharacterController extends PhysicsComponent {
 
 	set gravity(value: Vector3) {
 		this._gravity = value;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var btGravity: number = CharacterController._btTempVector30;
 		bt.btVector3_setValue(btGravity, -value.x, value.y, value.z);
 		bt.btKinematicCharacterController_setGravity(this._btKinematicCharacter, btGravity);
@@ -91,14 +91,14 @@ export class CharacterController extends PhysicsComponent {
 
 	set maxSlope(value: number) {
 		this._maxSlope = value;
-		Physics3D._bullet.btKinematicCharacterController_setMaxSlope(this._btKinematicCharacter, (value / 180) * Math.PI);
+		ILaya3D.Physics3D._bullet.btKinematicCharacterController_setMaxSlope(this._btKinematicCharacter, (value / 180) * Math.PI);
 	}
 
 	/**
 	 * 角色是否在地表。
 	 */
 	get isGrounded(): boolean {
-		return Physics3D._bullet.btKinematicCharacterController_onGround(this._btKinematicCharacter);
+		return ILaya3D.Physics3D._bullet.btKinematicCharacterController_onGround(this._btKinematicCharacter);
 	}
 
 	/**
@@ -110,7 +110,7 @@ export class CharacterController extends PhysicsComponent {
 
 	set stepHeight(value: number) {
 		this._stepHeight = value;
-		Physics3D._bullet.btKinematicCharacterController_setStepHeight(this._btKinematicCharacter, value);
+		ILaya3D.Physics3D._bullet.btKinematicCharacterController_setStepHeight(this._btKinematicCharacter, value);
 	}
 
 	/**
@@ -124,7 +124,7 @@ export class CharacterController extends PhysicsComponent {
 		this._upAxis = value;
 		var btUpAxis: number = CharacterController._btTempVector30;
 		Utils3D._convertToBulletVec3(value, btUpAxis, false);
-		Physics3D._bullet.btKinematicCharacterController_setUp(this._btKinematicCharacter, btUpAxis);
+		ILaya3D.Physics3D._bullet.btKinematicCharacterController_setUp(this._btKinematicCharacter, btUpAxis);
 	}
 
 	/**
@@ -145,7 +145,7 @@ export class CharacterController extends PhysicsComponent {
 	 * @internal
 	 */
 	private _constructCharacter(): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		if (this._btKinematicCharacter)
 			bt.btKinematicCharacterController_destroy(this._btKinematicCharacter);
 
@@ -174,7 +174,7 @@ export class CharacterController extends PhysicsComponent {
 	 * @internal
 	 */
 	_onAdded(): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var ghostObject: number = bt.btPairCachingGhostObject_create();
 		bt.btCollisionObject_setUserIndex(ghostObject, this.id);
 		bt.btCollisionObject_setCollisionFlags(ghostObject, PhysicsComponent.COLLISIONFLAGS_CHARACTER_OBJECT);
@@ -226,7 +226,7 @@ export class CharacterController extends PhysicsComponent {
 	 * @override
 	 */
 	protected _onDestroy(): void {
-		Physics3D._bullet.btKinematicCharacterController_destroy(this._btKinematicCharacter);
+		ILaya3D.Physics3D._bullet.btKinematicCharacterController_destroy(this._btKinematicCharacter);
 		super._onDestroy();
 		this._btKinematicCharacter = null;
 	}
@@ -237,7 +237,7 @@ export class CharacterController extends PhysicsComponent {
 	 */
 	move(movement: Vector3): void {
 		var btMovement: number = CharacterController._btVector30;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btVector3_setValue(btMovement, -movement.x, movement.y, movement.z);
 		bt.btKinematicCharacterController_setWalkDirection(this._btKinematicCharacter, btMovement);
 	}
@@ -247,7 +247,7 @@ export class CharacterController extends PhysicsComponent {
 	 * @param velocity 跳跃速度。
 	 */
 	jump(velocity: Vector3 = null): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var btVelocity: number = CharacterController._btVector30;
 		if (velocity) {
 			Utils3D._convertToBulletVec3(velocity, btVelocity, true);

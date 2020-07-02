@@ -128,7 +128,7 @@ export class TTFLoader {
 
         var self: TTFLoader = this;
         fontStyle.onload = function (): void {
-            ILaya.systemTimer.once(10000, self, this._complete);
+            ILaya.systemTimer.once(10000, self, self._complete);
         };
         ILaya.systemTimer.loop(20, this, this._checkComplete);
 

@@ -1,5 +1,5 @@
-import { Physics3D } from "../Physics3D";
 import { ColliderShape } from "./ColliderShape";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
@@ -12,7 +12,7 @@ export class CylinderColliderShape extends ColliderShape {
 	* @internal
 	*/
 	static __init__(): void {
-		CylinderColliderShape._btSize = Physics3D._bullet.btVector3_create(0, 0, 0);
+		CylinderColliderShape._btSize = ILaya3D.Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	private _orientation: number;
@@ -51,7 +51,7 @@ export class CylinderColliderShape extends ColliderShape {
 		this._height = height;
 		this._orientation = orientation;
 		this._type = ColliderShape.SHAPETYPES_CYLINDER;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
 				bt.btVector3_setValue(CylinderColliderShape._btSize, height / 2, radius, radius);

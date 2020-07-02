@@ -224,6 +224,20 @@ export class Utils {
     }
 
     /**
+     * @private 
+     * 为兼容平台后缀名不能用的特殊兼容TODO：
+     */
+    static getFilecompatibleExtension(path: string):string{
+        var result:string[] = path.split(".");
+        var resultlen:number = result.length;
+        if(result.length>2)
+        return result[resultlen-2]+"."+result[resultlen-1];
+        else
+        return null;
+
+    }
+
+    /**
      * 获取指定区域内相对于窗口左上角的transform。
      * @param	coordinateSpace	坐标空间，不能是Stage引用
      * @param	x				相对于coordinateSpace的x坐标
