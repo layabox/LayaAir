@@ -1118,6 +1118,8 @@ window.biliMiniGame = function (exports, Laya) {
 	                    }
 	                }
 	                var files = data.files;
+	                if (!files)
+	                    return;
 	                var fileName;
 	                for (let i = 0, sz = files.length; i < sz; i++) {
 	                    fileName = files[i];
