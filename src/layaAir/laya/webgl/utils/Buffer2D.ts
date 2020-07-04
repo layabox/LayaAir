@@ -12,8 +12,6 @@ export class Buffer2D extends Buffer {
 	static __int__(gl: WebGLContext): void {
 	}
 
-	protected _maxsize: number = 0;
-
 	_upload: boolean = true;
 	protected _uploadSize: number = 0;
 	protected _bufferSize: number = 0;
@@ -54,16 +52,6 @@ export class Buffer2D extends Buffer {
 	}
 
 	protected _bufferData(): void {
-		this._maxsize = Math.max(this._maxsize, this._byteLength);
-		if (RenderInfo.loopCount % 30 == 0) {//每30帧缩小一下buffer	。TODO 这个有问题。不知道_maxsize和_byteLength是怎么维护的，这里会导致重新分配64字节
-			if (this._buffer.byteLength > (this._maxsize + 64)) {
-				//_setGPUMemory(_buffer.byteLength);
-				this._buffer = this._buffer.slice(0, this._maxsize + 64);
-				this._bufferSize = this._buffer.byteLength;
-				this._checkArrayUse();
-			}
-			this._maxsize = this._byteLength;
-		}
 		if (this._uploadSize < this._buffer.byteLength) {
 			this._uploadSize = this._buffer.byteLength;
 
@@ -75,17 +63,6 @@ export class Buffer2D extends Buffer {
 
 	//TODO:coverage
 	protected _bufferSubData(offset: number = 0, dataStart: number = 0, dataLength: number = 0): void {
-		this._maxsize = Math.max(this._maxsize, this._byteLength);
-		if (RenderInfo.loopCount % 30 == 0) {
-			if (this._buffer.byteLength > (this._maxsize + 64)) {
-				//_setGPUMemory(_buffer.byteLength);
-				this._buffer = this._buffer.slice(0, this._maxsize + 64);
-				this._bufferSize = this._buffer.byteLength;
-				this._checkArrayUse();
-			}
-			this._maxsize = this._byteLength;
-		}
-
 		if (this._uploadSize < this._buffer.byteLength) {
 			this._uploadSize = this._buffer.byteLength;
 			LayaGL.instance.bufferData(this._bufferType, this._uploadSize, this._bufferUsage);
