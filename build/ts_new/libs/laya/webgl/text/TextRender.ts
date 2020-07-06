@@ -81,12 +81,12 @@ export class TextRender {
 
         var bugIOS: boolean = false;//是否是有bug的ios版本
         //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
-        var miniadp: any = ILaya.Laya['MiniAdpter'] || (window as any).Laya.TTMiniAdapter; //头条也继承了这个bug
+        var miniadp: any = ILaya.Laya['MiniAdpter']; //头条也继承了这个bug
         if (miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
 			bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
 			//12.3
         }
-        if (ILaya.Browser.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
+        if ((ILaya.Browser.onMiniGame||ILaya.Browser.onTTMiniGame) /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
         //TextRender.isWan1Wan = true;
         this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
         TextRender.textRenderInst = this;
