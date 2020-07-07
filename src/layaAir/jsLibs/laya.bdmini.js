@@ -844,12 +844,12 @@ window.bdMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    static _transformImgUrl(url, type, thisLoader) {
-	        if (BMiniAdapter.isZiYu) {
+	        if (BMiniAdapter.isZiYu || MiniFileMgr.isLocalNativeFile(url)) {
 	            thisLoader._loadImage(url, false);
 	            return;
 	        }
-	        if (MiniFileMgr.isLocalNativeFile(url)) {
-	            thisLoader._loadImage(url, false);
+	        if (!BMiniAdapter.autoCacheFile) {
+	            thisLoader._loadImage(url);
 	            return;
 	        }
 	        if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(Laya.URL.formatURL(url))) {

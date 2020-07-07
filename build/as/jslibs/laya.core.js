@@ -11487,7 +11487,7 @@ window.Laya= (function (exports) {
             return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), color, textAlign, 0, ""));
         }
         fillBorderText(text, x, y, font, fillColor, textAlign, lineWidth, borderColor) {
-            return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth, textAlign));
+            return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), fillColor, textAlign, lineWidth, borderColor));
         }
         fillWords(words, x, y, font, color) {
             return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, null, words, x, y, font || ILaya.Text.defaultFontStr(), color));
