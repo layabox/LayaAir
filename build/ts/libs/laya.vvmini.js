@@ -881,12 +881,12 @@ window.vvMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    static _transformImgUrl(url, type, thisLoader) {
-	        if (VVMiniAdapter.isZiYu) {
+	        if (VVMiniAdapter.isZiYu || MiniFileMgr.isLocalNativeFile(url)) {
 	            thisLoader._loadImage(url, false);
 	            return;
 	        }
-	        if (MiniFileMgr.isLocalNativeFile(url)) {
-	            thisLoader._loadImage(url, false);
+	        if (!VVMiniAdapter.autoCacheFile) {
+	            thisLoader._loadImage(url);
 	            return;
 	        }
 	        if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(Laya.URL.formatURL(url))) {

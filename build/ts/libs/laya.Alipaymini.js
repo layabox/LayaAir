@@ -856,12 +856,12 @@ window.aliPayMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    static _transformImgUrl(url, type, thisLoader) {
-	        if (ALIMiniAdapter.isZiYu) {
+	        if (ALIMiniAdapter.isZiYu || MiniFileMgr.isLocalNativeFile(url)) {
 	            thisLoader._loadImage(url, false);
 	            return;
 	        }
-	        if (MiniFileMgr.isLocalNativeFile(url)) {
-	            thisLoader._loadImage(url, false);
+	        if (!ALIMiniAdapter.autoCacheFile) {
+	            thisLoader._loadImage(url);
 	            return;
 	        }
 	        if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(Laya.URL.formatURL(url))) {

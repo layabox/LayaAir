@@ -67,8 +67,9 @@ window.ttMiniGame = function (exports, Laya) {
 	                else
 	                    callBack != null && callBack.runWith([0, data]);
 	            }, fail: function (data) {
-	                if (data)
+	                if (data) {
 	                    callBack != null && callBack.runWith([1, data]);
+	                }
 	            } });
 	    }
 	    static downOtherFiles(fileUrl, callBack = null, readyUrl = "", isSaveFile = false, isAutoClear = true) {
@@ -852,12 +853,12 @@ window.ttMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    static _transformImgUrl(url, type, thisLoader) {
-	        if (TTMiniAdapter.isZiYu) {
+	        if (TTMiniAdapter.isZiYu || MiniFileMgr.isLocalNativeFile(url)) {
 	            thisLoader._loadImage(url, false);
 	            return;
 	        }
-	        if (MiniFileMgr.isLocalNativeFile(url)) {
-	            thisLoader._loadImage(url, false);
+	        if (!TTMiniAdapter.autoCacheFile) {
+	            thisLoader._loadImage(url);
 	            return;
 	        }
 	        if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(Laya.URL.formatURL(url))) {
