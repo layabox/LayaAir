@@ -87,7 +87,7 @@ export class BlendMode {
 
     //TODO:coverage
     static BlendDestinationOut(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ZERO, gl.ZERO,true);
+        WebGLContext.setBlendFunc(gl, gl.ZERO, gl.ONE_MINUS_SRC_COLOR,true);
     }
 }
 
