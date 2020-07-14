@@ -189,8 +189,11 @@ export class CannonPhysicsSimulation {
 	 */
 	_simulate(deltaTime: number): void {
 		this._updatedRigidbodies = 0;
-		if (this._btDiscreteDynamicsWorld)
+		if (this._btDiscreteDynamicsWorld){
+			this._btDiscreteDynamicsWorld.callBackBody.length = 0;
+			this._btDiscreteDynamicsWorld.allContacts.length = 0;
 			this._btDiscreteDynamicsWorld.step(this.fixedTimeStep,deltaTime,this.maxSubSteps);
+		}
 		var callBackBody:CANNON.Body[] = this._btDiscreteDynamicsWorld.callBackBody;
 		
 		for(var i:number = 0,n = callBackBody.length;i<n;i++){

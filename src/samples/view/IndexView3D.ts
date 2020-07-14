@@ -99,8 +99,8 @@ import { CannonPhysicsWorld_BaseCollider } from "../3d/LayaAir3D_CannonPhysics3D
 import { CannonPhysicsWorld_ColliderEvent } from "../3d/LayaAir3D_CannonPhysics3D/CannonPhysicsWorld_ColliderEvent";
 import { CannonPhysicsWorld_PhysicsProperty } from "../3d/LayaAir3D_CannonPhysics3D/CannonPhysicsWorld_PhysicsProperty";
 import { CannonPhysicsWorld_RayCheck } from "../3d/LayaAir3D_CannonPhysics3D/CannonPhysicsWorld_RayCheck";
+import { Config3D } from "Config3D";
 import { SpotLightShadowMap } from "../3d/LayaAir3D_Lighting/SpotLightShadowMap";
-
 
 export class IndexView3D extends IndexViewUI {
 
@@ -275,6 +275,7 @@ export class IndexView3D extends IndexViewUI {
 		else {
 
 			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D','CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Performance', 'Advance', 'Demo'];
+			Config3D.useCannonPhysics = false;
 			switch (this._bigIndex) {
 				case 0:
 					this._oldView = new this._resourceClsArr[index];

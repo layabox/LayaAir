@@ -78,7 +78,7 @@ export class Browser {
     /** @private */
     private static _window: any;
     /** @private */
-    private static _document: any;
+    private static _document: Document;
     /** @private */
     private static _container: any;
     /** @private */
@@ -98,7 +98,7 @@ export class Browser {
             return Browser.fontMap[font];
         }
 
-        var ctx: any = Browser.context;
+        var ctx: CanvasRenderingContext2D = Browser.context;
         ctx.font = font;
 
         var r: any = ctx.measureText(txt);

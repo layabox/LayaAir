@@ -761,7 +761,7 @@ export class Node extends EventDispatcher {
         this._onActive();
         for (i = 0, n = this._children.length; i < n; i++) {
             var child: Node = this._children[i];
-            (!child._getBit(Const.NOT_ACTIVE)) && (child._activeHierarchy(activeChangeScripts));
+            (!child._getBit(Const.NOT_ACTIVE) && !child._getBit(Const.NOT_READY)) && (child._activeHierarchy(activeChangeScripts));
         }
         if (!this._getBit(Const.AWAKED)) {
             this._setBit(Const.AWAKED, true);
