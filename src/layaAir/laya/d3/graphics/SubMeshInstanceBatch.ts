@@ -33,6 +33,13 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	/** @internal */
 	instanceMVPMatrixBuffer: VertexBuffer3D;
 
+	/**SimpleAnimator */
+	/** @internal */
+	instanceSimpleAnimatorData:Float32Array;
+	/** @internal */
+	instanceSimpleAnimatorBuffer:VertexBuffer3D;
+
+
 	/**
 	 * 创建一个 <code>InstanceSubMesh</code> 实例。
 	 */
@@ -60,6 +67,19 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		Stat.renderBatches++;
 		Stat.savedRenderBatches += count - 1;
 		Stat.trianglesFaces += indexCount * count / 3;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	creatInstanceSimpleAnimatorBuffer(){
+		if(this.instanceSimpleAnimatorData)
+			return;
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		this.instanceSimpleAnimatorData = new Float32Array(this.maxInstanceCount * 4);
+		this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length*4,gl.DYNAMIC_DRAW);
+		this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
 	}
 }
 

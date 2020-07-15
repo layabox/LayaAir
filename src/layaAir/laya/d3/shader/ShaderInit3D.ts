@@ -153,6 +153,10 @@ export class ShaderInit3D {
 			'u_AmbientSHBg': Shader3D.PERIOD_SCENE,
 			'u_AmbientSHBb': Shader3D.PERIOD_SCENE,
 			'u_AmbientSHC': Shader3D.PERIOD_SCENE,
+			
+			 'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
+			 'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
+			 'u_SimpleAnimatorTextureSize':Shader3D.PERIOD_SPRITE,
 
 			//legacy lighting
 			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,

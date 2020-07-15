@@ -150,6 +150,28 @@ export class Shader3D {
 	}
 
 	/**
+	 * 通过宏属性动态修改AttributeMap
+	 * @param defineString 
+	 * @param attributeMap 
+	 */
+	static getAttributeMapByDefine(defineString:string[],attributeMap:any):any{
+		var newAttributeMap:any = {};
+		for(var value in attributeMap){
+			newAttributeMap[value] = attributeMap[value];
+		}	
+		for ( var i = 0, n: number = defineString.length; i < n; i++) {
+			var def: string = defineString[i];
+			switch(def){
+				case "SIMPLEBONE":
+				newAttributeMap["a_SimpleTextureParams"] = attributeMap["a_Texcoord1"];
+				delete newAttributeMap["a_Texcoord1"];
+				break;
+			}
+		}
+		return newAttributeMap;
+	}
+
+	/**
 	 * 添加函数库引用。
 	 * @param fileName 文件名字。
 	 * @param txt 文件内容
