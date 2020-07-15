@@ -26,6 +26,14 @@ import { ILaya } from "../../ILaya";
 
 /**
  * @private
+ * 
+ */
+export interface _RenderFunction{
+	(sp:Sprite,ctx:Context,x:number,y:number):void;
+}
+
+/**
+ * @private
  * 精灵渲染器
  */
 export class RenderSprite {
@@ -56,7 +64,7 @@ export class RenderSprite {
 	/** @private */
 	static INIT: number = 0x11111;
 	/** @private */
-	static renders: any[] = [];
+	static renders: RenderSprite[] = [];
 	/** @private */
 	protected static NORENDER: RenderSprite =  new RenderSprite(0, null);
 	/** @internal */
@@ -99,19 +107,19 @@ export class RenderSprite {
 
 	private static _getTypeRender(type: number): RenderSprite {
 		if (LayaGLQuickRunner.map[type]) return new RenderSprite(type, null);
-		var rst: RenderSprite = null;
+		var rst: RenderSprite|null = null;
 		var tType: number = SpriteConst.CHILDS;
 		while (tType > 0) {
 			if (tType & type)
 				rst = new RenderSprite(tType, rst);
 			tType = tType >> 1;
 		}
-		return rst;
+		return rst as RenderSprite;
 	}
 
 
 
-	constructor(type: number, next: RenderSprite) {
+	constructor(type: number, next: RenderSprite|null) {
 
 		if (LayaGLQuickRunner.map[type]) {
 			this._fun = LayaGLQuickRunner.map[type];
@@ -241,7 +249,7 @@ export class RenderSprite {
             var hRate: number = height / tex.sourceHeight;
             width = tex.width * wRate;
             height = tex.height * hRate;
-            if (width <= 0 || height <= 0) return null;
+            if (width <= 0 || height <= 0) return;
 
             var px = x - sprite.pivotX + tex.offsetX * wRate;
 			var py = y - sprite.pivotY + tex.offsetY * hRate;
@@ -255,10 +263,10 @@ export class RenderSprite {
 
 	/**@internal */
 	_graphics(sprite: Sprite, context: Context, x: number, y: number): void {
-		var style: any = sprite._style;
-		var g: Graphics = sprite._graphics;
+		var style = sprite._style;
+		var g = sprite._graphics;
 		g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
-		var next: RenderSprite = this._next;
+		var next = this._next;
 		if (next != RenderSprite.NORENDER)
 			next._fun.call(next, sprite, context, x, y);
 	}
@@ -456,23 +464,24 @@ export class RenderSprite {
 
 		var _cacheStyle: CacheStyle = sprite._cacheStyle;
 		var _next: RenderSprite = this._next;
-		var canvas = _cacheStyle.canvas;
+		var canvas:WebGLCacheAsNormalCanvas = _cacheStyle.canvas as unknown as WebGLCacheAsNormalCanvas;
 
 		var tCacheType: string = _cacheStyle.cacheAs;
 		_cacheStyle._calculateCacheRect(sprite, tCacheType, 0, 0);
 
 		if (!canvas) {
-			canvas = _cacheStyle.canvas = ((new WebGLCacheAsNormalCanvas(context, sprite) as any) as HTMLCanvas);
+			canvas = new WebGLCacheAsNormalCanvas(context, sprite);
+			_cacheStyle.canvas = ((canvas as any) as HTMLCanvas);
 		}
 		var tx: Context = canvas.context as Context;
 
 
-		canvas['startRec']();
+		canvas.startRec();
 		_next._fun.call(_next, sprite, tx, sprite.pivotX, sprite.pivotY);	// 由于后面的渲染会减去pivot，而cacheas normal并不希望这样，只希望创建一个原始的图像。所以在这里补偿。
 		sprite._applyFilters();
 
 		Stat.canvasReCache++;
-		canvas['endRec']();
+		canvas.endRec();
 
 		//context.drawCanvas(canvas, x , y , 1, 1); // 这种情况下宽高没用
 	}

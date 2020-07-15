@@ -15,7 +15,7 @@ export class HTMLCanvas extends Bitmap {
     /**@internal */
     _source: HTMLCanvasElement;
     /**@internal */
-    _texture: Texture;
+    _texture: Texture|null;
     /**
      * @inheritDoc
      */
@@ -159,7 +159,7 @@ export class HTMLCanvas extends Bitmap {
      * @param	type "image/png"
      * @param	encoderOptions	质量参数，取值范围为0-1
      */
-    toBase64(type: string, encoderOptions: number): string {
+    toBase64(type: string, encoderOptions: number): string|null {
         if (this._source) {
             if (ILaya.Render.isConchApp) {
                 var win: any = window as any;

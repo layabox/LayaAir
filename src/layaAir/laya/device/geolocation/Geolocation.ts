@@ -7,7 +7,7 @@ import { Handler } from "../../utils/Handler";
  * 使用前可用<code>supported</code>查看浏览器支持。
  */
 export class Geolocation {
-    private static navigator: any = ILaya.Browser.window.navigator;
+    private static navigator = navigator;
     private static position: GeolocationInfo = new GeolocationInfo();
 
     /**
