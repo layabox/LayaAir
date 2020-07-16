@@ -78,7 +78,9 @@ export class EffectMaterial extends Material {
 		this.color = this._color;
 	}
 
-	/**@internal */
+	/**
+	 * @internal 
+	 */
 	get _TintColorA(): number {
 		return this._color.w;
 	}
@@ -86,6 +88,17 @@ export class EffectMaterial extends Material {
 	set _TintColorA(value: number) {
 		this._color.w = value;
 		this.color = this._color;
+	}
+
+	/**
+	 * @internal
+	 */
+	get _TintColor(): Vector4 {
+		return this._shaderValues.getVector(EffectMaterial.TINTCOLOR);
+	}
+
+	set _TintColor(value: Vector4) {
+		this.color = value;
 	}
 
 	/**
@@ -138,6 +151,17 @@ export class EffectMaterial extends Material {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(EffectMaterial.TILINGOFFSET));
 		tilOff.w = w;
 		this.tilingOffset = tilOff;
+	}
+
+	/**
+	 * @internal
+	 */
+	get _MainTex_ST(): Vector4 {
+		return this._shaderValues.getVector(EffectMaterial.TILINGOFFSET);
+	}
+
+	set _MainTex_ST(value: Vector4) {
+		this.tilingOffset = value;
 	}
 
 	/**

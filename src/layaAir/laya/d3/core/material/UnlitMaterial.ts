@@ -100,6 +100,17 @@ export class UnlitMaterial extends Material {
 	/**
 	 * @internal
 	 */
+	get _Color(): Vector4 {
+		return this._shaderValues.getVector(UnlitMaterial.ALBEDOCOLOR);
+	}
+
+	set _Color(value: Vector4) {
+		this.albedoColor = value;
+	}
+
+	/**
+	 * @internal
+	 */
 	get _AlbedoIntensity(): number {
 		return this._albedoIntensity;
 	}
@@ -163,6 +174,17 @@ export class UnlitMaterial extends Material {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET));
 		tilOff.w = w;
 		this.tilingOffset = tilOff;
+	}
+
+	/**
+	 * @internal
+	 */
+	get _MainTex_ST(): Vector4 {
+		return this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET);
+	}
+
+	set _MainTex_ST(value: Vector4) {
+		this.tilingOffset = value;
 	}
 
 	/**
