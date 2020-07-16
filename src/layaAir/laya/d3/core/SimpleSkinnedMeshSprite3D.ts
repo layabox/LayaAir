@@ -6,28 +6,26 @@ import { Vector4 } from "../math/Vector4";
 import { Mesh } from "../resource/models/Mesh";
 import { Shader3D } from "../shader/Shader3D";
 import { Utils3D } from "../utils/Utils3D";
-import { Avatar } from "./Avatar";
 import { Bounds } from "./Bounds";
 import { MeshFilter } from "./MeshFilter";
 import { MeshSprite3D } from "./MeshSprite3D";
 import { RenderableSprite3D } from "./RenderableSprite3D";
-import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
 import { Sprite3D } from "./Sprite3D";
 import { Material } from "./material/Material";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
+import { SimpleSkinnedMeshRenderer } from "./SimpleSkinnedMeshRenderer";
+import { Texture2D } from "../../resource/Texture2D";
 
 
 
 /**
  * <code>SkinnedMeshSprite3D</code> 类用于创建网格。
  */
-export class SkinnedMeshSprite3D extends RenderableSprite3D {
+export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 	/**@internal */
 	static _tempArray0: any[] = [];
 
-	/**着色器变量名，蒙皮动画。*/
-	static BONES: number = Shader3D.propertyNameToID("u_Bones");
-	/**简单动画变量名，贴图蒙皮动画*/
+	/** */
 	static SIMPLE_SIMPLEANIMATORTEXTURE:number = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
 	static SIMPLE_SIMPLEANIMATORPARAMS:number = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
 	static SIMPLE_SIMPLEANIMATORTEXTURESIZE:number = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
@@ -35,7 +33,6 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	 * @internal
 	 */
 	static __init__(): void {
-		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = Shader3D.getDefineByName("BONE");
 		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
 	}
 
@@ -52,8 +49,8 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**
 	 * 网格渲染器。
 	 */
-	get skinnedMeshRenderer(): SkinnedMeshRenderer {
-		return (<SkinnedMeshRenderer>this._render);
+	get simpleSkinnedMeshRenderer(): SimpleSkinnedMeshRenderer {
+		return (<SimpleSkinnedMeshRenderer>this._render);
 	}
 
 	/**
@@ -64,7 +61,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	constructor(mesh: Mesh = null, name: string = null) {
 		super(name);
 		this._meshFilter = new MeshFilter(this);
-		this._render = new SkinnedMeshRenderer(this);
+		this._render = new SimpleSkinnedMeshRenderer(this);
 		(mesh) && (this._meshFilter.sharedMesh = mesh);
 	}
 
@@ -75,7 +72,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
-		var render: SkinnedMeshRenderer = this.skinnedMeshRenderer;
+		var render: SimpleSkinnedMeshRenderer = this.simpleSkinnedMeshRenderer;
 		var lightmapIndex: any = data.lightmapIndex;
 		(lightmapIndex != null) && (render.lightmapIndex = lightmapIndex);
 		var lightmapScaleOffsetArray: any[] = data.lightmapScaleOffset;
@@ -117,6 +114,12 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 		} else {//[兼容代码]
 			(data.rootBone) && (render._setRootBone(data.rootBone));//[兼容性]
 		}
+		var animatorTexture:string = data.animatorTexture;
+		if(animatorTexture)
+		{
+			var animatortexture:Texture2D = Loader.getRes(animatorTexture);
+			(render as SimpleSkinnedMeshRenderer).simpleAnimatorTexture = animatortexture;
+		}
 	}
 
 	/**
@@ -126,17 +129,9 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	 */
 	protected _changeHierarchyAnimator(animator: Animator): void {
 		super._changeHierarchyAnimator(animator);
-		this.skinnedMeshRenderer._setCacheAnimator(animator);
+		this.simpleSkinnedMeshRenderer._setCacheAnimator(animator);
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	protected _changeAnimatorAvatar(avatar: Avatar): void {
-		this.skinnedMeshRenderer._setCacheAvatar(avatar);
-	}
 
 	/**
 	 * @inheritDoc
@@ -146,8 +141,8 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	_cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
 		var meshSprite3D: MeshSprite3D = (<MeshSprite3D>destObject);
 		meshSprite3D.meshFilter.sharedMesh = this.meshFilter.sharedMesh;
-		var meshRender: SkinnedMeshRenderer = (<SkinnedMeshRenderer>this._render);
-		var destMeshRender: SkinnedMeshRenderer = (<SkinnedMeshRenderer>meshSprite3D._render);
+		var meshRender: SimpleSkinnedMeshRenderer = (<SimpleSkinnedMeshRenderer>this._render);
+		var destMeshRender: SimpleSkinnedMeshRenderer = (<SimpleSkinnedMeshRenderer>meshSprite3D._render);
 		destMeshRender.enable = meshRender.enable;
 		destMeshRender.sharedMaterials = meshRender.sharedMaterials;
 		destMeshRender.castShadow = meshRender.castShadow;
@@ -164,7 +159,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 
 		var rootBone: Sprite3D = meshRender.rootBone;
 		if (rootBone) {
-			var pathes: any[] = Utils3D._getHierarchyPath(srcRoot, rootBone, SkinnedMeshSprite3D._tempArray0);
+			var pathes: any[] = Utils3D._getHierarchyPath(srcRoot, rootBone, SimpleSkinnedMeshSprite3D._tempArray0);
 			if (pathes)
 				destMeshRender.rootBone = (<Sprite3D>Utils3D._getNodeByHierarchyPath(dstRoot, pathes));
 			else
@@ -172,7 +167,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 		}
 
 		for (var i: number = 0; i < bones.length; i++) {
-			pathes = Utils3D._getHierarchyPath(srcRoot, bones[i], SkinnedMeshSprite3D._tempArray0);
+			pathes = Utils3D._getHierarchyPath(srcRoot, bones[i], SimpleSkinnedMeshSprite3D._tempArray0);
 			if (pathes)
 				destBones[i] = (<Sprite3D>Utils3D._getNodeByHierarchyPath(dstRoot, pathes));
 			else
@@ -181,6 +176,9 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 
 		var lbb: Bounds = meshRender.localBounds;
 		(lbb) && (lbb.cloneTo(destMeshRender.localBounds));
+		
+		destMeshRender.simpleAnimatorTexture = meshRender.simpleAnimatorTexture;
+
 		super._cloneTo(destObject, srcRoot, dstRoot);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
 	}
 
@@ -199,7 +197,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	 * @internal
 	 */
 	protected _create(): Node {
-		return new SkinnedMeshSprite3D();
+		return new SimpleSkinnedMeshSprite3D();
 	}
 
 }

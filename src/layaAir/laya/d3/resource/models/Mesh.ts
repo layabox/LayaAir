@@ -43,6 +43,10 @@ export class skinnedMatrixCache {
 export class Mesh extends Resource implements IClone {
 	/**Mesh资源。*/
 	static MESH: string = "MESH";
+	
+	static MESH_INSTANCEBUFFER_TYPE_NORMAL:number = 0;
+
+	static MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:number = 1;
 
 	/** @internal */
 	private _tempVector30: Vector3 = new Vector3()
@@ -96,6 +100,8 @@ export class Mesh extends Resource implements IClone {
 	_bufferState: BufferState = new BufferState();
 	/** @internal */
 	_instanceBufferState: BufferState = new BufferState();
+	/** @internal */
+	_instanceBufferStateType:number = 0;
 	/** @internal */
 	_subMeshes: SubMesh[];
 	/** @internal */
@@ -366,6 +372,12 @@ export class Mesh extends Resource implements IClone {
 		instanceBufferState.applyVertexBuffer(vertexBuffer);
 		instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
 		instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer);
+		switch(this._instanceBufferStateType){
+			case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
+				SubMeshInstanceBatch.instance.creatInstanceSimpleAnimatorBuffer();
+				instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer)
+			break;
+		}
 		instanceBufferState.applyIndexBuffer(indexBuffer);
 		instanceBufferState.unBind();
 	}

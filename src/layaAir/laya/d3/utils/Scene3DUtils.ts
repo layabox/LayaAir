@@ -14,6 +14,7 @@ import { Sprite3D } from "../core/Sprite3D";
 import { TrailSprite3D } from "../core/trail/TrailSprite3D";
 import { StaticBatchManager } from "../graphics/StaticBatchManager";
 import { ClassUtils } from "../../utils/ClassUtils";
+import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
 
 
 
@@ -36,6 +37,9 @@ export class Scene3DUtils {
 				break;
 			case "SkinnedMeshSprite3D":
 				node = new SkinnedMeshSprite3D();
+				break;
+			case "SimpleSkinnedMeshSprite3D":
+				node = new SimpleSkinnedMeshSprite3D();
 				break;
 			case "ShuriKenParticle3D":
 				node = new ShuriKenParticle3D();
