@@ -366,22 +366,26 @@ export class Mesh extends Resource implements IClone {
 		bufferState.applyVertexBuffer(vertexBuffer);
 		bufferState.applyIndexBuffer(indexBuffer);
 		bufferState.unBind();
+	}
 
+	/**
+	 * @internal
+	 */
+	_setInstanceBuffer(instanceBufferStateType:number){
+		debugger;
 		var instanceBufferState: BufferState = this._instanceBufferState;
 		instanceBufferState.bind();
-		instanceBufferState.applyVertexBuffer(vertexBuffer);
+		instanceBufferState.applyVertexBuffer(this._vertexBuffer);
 		instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
 		instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer);
-		switch(this._instanceBufferStateType){
+		switch(instanceBufferStateType){
 			case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
-				SubMeshInstanceBatch.instance.creatInstanceSimpleAnimatorBuffer();
 				instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer)
 			break;
 		}
-		instanceBufferState.applyIndexBuffer(indexBuffer);
+		instanceBufferState.applyIndexBuffer(this._indexBuffer);
 		instanceBufferState.unBind();
 	}
-
 
 	/**
 	 * @internal

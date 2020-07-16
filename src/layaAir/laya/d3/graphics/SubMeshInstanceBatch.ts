@@ -35,7 +35,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 
 	/**SimpleAnimator */
 	/** @internal */
-	instanceSimpleAnimatorData:Float32Array;
+	instanceSimpleAnimatorData:Float32Array = new Float32Array(this.maxInstanceCount*4);
 	/** @internal */
 	instanceSimpleAnimatorBuffer:VertexBuffer3D;
 
@@ -50,6 +50,10 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		this.instanceMVPMatrixBuffer = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, gl.DYNAMIC_DRAW);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
 		this.instanceMVPMatrixBuffer.vertexDeclaration = VertexMesh.instanceMVPMatrixDeclaration;
+		//SImpleAnimator
+		this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length*4,gl.DYNAMIC_DRAW);
+		this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
+
 	}
 
 	/**
@@ -67,19 +71,6 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		Stat.renderBatches++;
 		Stat.savedRenderBatches += count - 1;
 		Stat.trianglesFaces += indexCount * count / 3;
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	creatInstanceSimpleAnimatorBuffer(){
-		if(this.instanceSimpleAnimatorData)
-			return;
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		this.instanceSimpleAnimatorData = new Float32Array(this.maxInstanceCount * 4);
-		this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length*4,gl.DYNAMIC_DRAW);
-		this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
 	}
 }
 

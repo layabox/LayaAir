@@ -76,7 +76,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer{
         if(this._cacheMesh){
             this._bonesNums = this.bones.length;
             this._simpleAnimatorParams.x = this._simpleAnimatorOffset.x;
-            this._simpleAnimatorParams.y =Math.ceil(this._simpleAnimatorOffset.y)*this._bonesNums*4;
+            this._simpleAnimatorParams.y =Math.round(this._simpleAnimatorOffset.y)*this._bonesNums*4;
             //this._simpleAnimatorParams.y =Math.ceil(this._simpleAnimatorOffset.y%75)*19*4;
         }
     }
