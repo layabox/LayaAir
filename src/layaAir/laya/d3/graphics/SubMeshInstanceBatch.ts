@@ -36,6 +36,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	/**SimpleAnimator */
 	/** @internal */
 	instanceSimpleAnimatorData:Float32Array = new Float32Array(this.maxInstanceCount*4);
+
 	/** @internal */
 	instanceSimpleAnimatorBuffer:VertexBuffer3D;
 
@@ -72,5 +73,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		Stat.savedRenderBatches += count - 1;
 		Stat.trianglesFaces += indexCount * count / 3;
 	}
+
+
 }
 
