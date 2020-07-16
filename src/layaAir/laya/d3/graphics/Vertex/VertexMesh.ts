@@ -25,9 +25,13 @@ export class VertexMesh {
 	static MESH_MVPMATRIX_ROW2: number = 14;
 	static MESH_MVPMATRIX_ROW3: number = 15;
 
+	//TODO：location不够
+	static MESH_SIMPLEANIMATOR:number = 7;
 	static instanceWorldMatrixDeclaration: VertexDeclaration;
 
 	static instanceMVPMatrixDeclaration: VertexDeclaration;
+
+	static instanceSimpleAnimatorDeclaration: VertexDeclaration;
 
 	/**@internal */
 	private static _vertexDeclarationMap: any = {};
@@ -47,6 +51,8 @@ export class VertexMesh {
 			new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW1),
 			new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW2),
 			new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW3)]);
+		
+		VertexMesh.instanceSimpleAnimatorDeclaration = new VertexDeclaration(16,[new VertexElement(0,VertexElementFormat.Vector4,VertexMesh.MESH_SIMPLEANIMATOR)]);
 	}
 
 	/**

@@ -277,6 +277,11 @@ export class LoadModelV05 {
 		var bindPoseCount: number = bindPoseFloatCount / 16;
 		var bindPoseBuffer: ArrayBuffer = mesh._inverseBindPosesBuffer = new ArrayBuffer(bindPoseFloatCount * 4);//TODO:[NATIVE]临时
 		mesh._inverseBindPoses = [];
+		if(bindPoseFloatCount!=0) 
+			mesh._instanceBufferStateType = Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR;
+		else
+			mesh._instanceBufferStateType = Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL;
+		mesh._setInstanceBuffer(mesh._instanceBufferStateType);
 		for (i = 0; i < bindPoseFloatCount; i += 16) {
 			var inverseGlobalBindPose: Matrix4x4 = new Matrix4x4(bindPoseDatas[i + 0], bindPoseDatas[i + 1], bindPoseDatas[i + 2], bindPoseDatas[i + 3], bindPoseDatas[i + 4], bindPoseDatas[i + 5], bindPoseDatas[i + 6], bindPoseDatas[i + 7], bindPoseDatas[i + 8], bindPoseDatas[i + 9], bindPoseDatas[i + 10], bindPoseDatas[i + 11], bindPoseDatas[i + 12], bindPoseDatas[i + 13], bindPoseDatas[i + 14], bindPoseDatas[i + 15], new Float32Array(bindPoseBuffer, i * 4, 16));
 			mesh._inverseBindPoses[i / 16] = inverseGlobalBindPose;
