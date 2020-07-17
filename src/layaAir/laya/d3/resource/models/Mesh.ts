@@ -372,7 +372,6 @@ export class Mesh extends Resource implements IClone {
 	 * @internal
 	 */
 	_setInstanceBuffer(instanceBufferStateType:number){
-		debugger;
 		var instanceBufferState: BufferState = this._instanceBufferState;
 		instanceBufferState.bind();
 		instanceBufferState.applyVertexBuffer(this._vertexBuffer);
