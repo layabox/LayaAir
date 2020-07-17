@@ -163,8 +163,11 @@ export class Shader3D {
 			var def: string = defineString[i];
 			switch(def){
 				case "SIMPLEBONE":
-				newAttributeMap["a_SimpleTextureParams"] = attributeMap["a_Texcoord1"];
-				delete newAttributeMap["a_Texcoord1"];
+				if(attributeMap["a_Texcoord1"]){
+					newAttributeMap["a_SimpleTextureParams"] = attributeMap["a_Texcoord1"];
+					delete newAttributeMap["a_Texcoord1"];
+				}
+				newAttributeMap["a_SimpleTextureParams"] = 7;
 				break;
 			}
 		}
