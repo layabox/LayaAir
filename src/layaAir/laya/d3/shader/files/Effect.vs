@@ -30,10 +30,25 @@ void main()
 {
 	vec4 position;
 	#ifdef BONE
-		mat4 skinTransform = u_Bones[int(a_BoneIndices.x)] * a_BoneWeights.x;
-		skinTransform += u_Bones[int(a_BoneIndices.y)] * a_BoneWeights.y;
-		skinTransform += u_Bones[int(a_BoneIndices.z)] * a_BoneWeights.z;
-		skinTransform += u_Bones[int(a_BoneIndices.w)] * a_BoneWeights.w;
+		mat4 skinTransform;
+	 	#ifdef SIMPLEBONE
+			float currentPixelPos;
+			#ifdef GPU_INSTANCE
+				currentPixelPos = a_SimpleTextureParams.x+a_SimpleTextureParams.y;
+			#else
+				currentPixelPos = u_SimpleAnimatorParams.x+u_SimpleAnimatorParams.y;
+			#endif
+			float offset = 1.0/u_SimpleAnimatorTextureSize;
+			skinTransform =  loadMatFromTexture(currentPixelPos,int(a_BoneIndices.x),offset) * a_BoneWeights.x;
+			skinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.y),offset) * a_BoneWeights.y;
+			skinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.z),offset) * a_BoneWeights.z;
+			skinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.w),offset) * a_BoneWeights.w;
+		#else
+			skinTransform =  u_Bones[int(a_BoneIndices.x)] * a_BoneWeights.x;
+			skinTransform += u_Bones[int(a_BoneIndices.y)] * a_BoneWeights.y;
+			skinTransform += u_Bones[int(a_BoneIndices.z)] * a_BoneWeights.z;
+			skinTransform += u_Bones[int(a_BoneIndices.w)] * a_BoneWeights.w;
+		#endif
 		position=skinTransform*a_Position;
 	#else
 		position=a_Position;

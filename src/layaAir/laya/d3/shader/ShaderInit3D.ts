@@ -119,6 +119,10 @@ export class ShaderInit3D {
 			'u_LightMap': Shader3D.PERIOD_SPRITE,
 			'u_LightMapDirection': Shader3D.PERIOD_SPRITE,
 
+			'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
+			'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
+			'u_SimpleAnimatorTextureSize':Shader3D.PERIOD_SPRITE,
+
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
 			'u_Viewport': Shader3D.PERIOD_CAMERA,
 			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
@@ -154,9 +158,6 @@ export class ShaderInit3D {
 			'u_AmbientSHBb': Shader3D.PERIOD_SCENE,
 			'u_AmbientSHC': Shader3D.PERIOD_SCENE,
 			
-			 'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
-			 'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
-			 'u_SimpleAnimatorTextureSize':Shader3D.PERIOD_SPRITE,
 
 			//legacy lighting
 			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
@@ -222,6 +223,11 @@ export class ShaderInit3D {
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
+
+			'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
+			'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
+			'u_SimpleAnimatorTextureSize':Shader3D.PERIOD_SPRITE,
+			
 			'u_FogStart': Shader3D.PERIOD_SCENE,
 			'u_FogRange': Shader3D.PERIOD_SCENE,
 			'u_FogColor': Shader3D.PERIOD_SCENE
@@ -254,6 +260,9 @@ export class ShaderInit3D {
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
+			'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
+			'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
+			'u_SimpleAnimatorTextureSize':Shader3D.PERIOD_SPRITE,
 			'u_FogStart': Shader3D.PERIOD_SCENE,
 			'u_FogRange': Shader3D.PERIOD_SCENE,
 			'u_FogColor': Shader3D.PERIOD_SCENE

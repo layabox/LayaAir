@@ -62,6 +62,10 @@ export class PBRStandardMaterial extends PBRMaterial {
 			'u_LightmapScaleOffset': Shader3D.PERIOD_SPRITE,
 			'u_LightMap': Shader3D.PERIOD_SPRITE,
 			'u_LightMapDirection': Shader3D.PERIOD_SPRITE,
+			
+			'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
+			'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
+			'u_SimpleAnimatorTextureSize':Shader3D.PERIOD_SPRITE,
 
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
 			'u_View': Shader3D.PERIOD_CAMERA,
@@ -104,6 +108,10 @@ export class PBRStandardMaterial extends PBRMaterial {
 			'u_ShadowSplitSpheres': Shader3D.PERIOD_SCENE,
 			'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
 			'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
+			//SpotShadow
+			'u_SpotShadowMap':Shader3D.PERIOD_SCENE,
+			'u_SpotViewProjectMatrix':Shader3D.PERIOD_SCENE,
+			'u_ShadowLightPosition':Shader3D.PERIOD_SCENE,
 
 			//GI
 			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
