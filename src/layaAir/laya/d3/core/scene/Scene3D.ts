@@ -438,6 +438,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set reflection(value: TextureCube) {
 		if (this._reflection != value) {
+			value._addReference();
 			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value || TextureCube.blackTexture);
 			this._reflection = value;
 		}
@@ -1309,6 +1310,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._cameraPool = null;
 		this._octree = null;
 		this._physicsSimulation && this._physicsSimulation._destroy();
+		this._reflection._removeReference();
+		this._reflection = null;
 		Loader.clearRes(this.url);
 	}
 
