@@ -144,7 +144,7 @@ export class PBRStandardMaterial extends PBRMaterial {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		}
-		var shader: Shader3D = Shader3D.add("PBR");
+		var shader: Shader3D = Shader3D.add("PBR",attributeMap,uniformMap,true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(PBRVS, PBRPS, stateMap, "Forward");
