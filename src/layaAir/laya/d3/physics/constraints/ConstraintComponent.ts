@@ -29,6 +29,14 @@ export class ConstraintComponent extends Component {
 	static CONSTRAINT_FIXED_CONSTRAINT_TYPE:number = 11;
 	/** @internal TODO*/
 	static CONSTRAINT_MAX_CONSTRAINT_TYPE:number = 12;
+	/** @internal error reduction parameter (ERP)*/
+	static CONSTRAINT_CONSTRAINT_ERP:number = 1;
+	/** @internal*/
+	static CONSTRAINT_CONSTRAINT_STOP_ERP:number = 2;
+	/** @internal constraint force mixing（CFM）*/
+	static CONSTRAINT_CONSTRAINT_CFM:number = 3;
+	/** @internal*/
+	static CONSTRAINT_CONSTRAINT_STOP_CFM:number = 4;
 	/** @internal */
 	static tempForceV3:Vector3 = new Vector3();
 	/**@internal */
@@ -37,8 +45,18 @@ export class ConstraintComponent extends Component {
 	_simulation: PhysicsSimulation;
 	/**@internal 回调参数*/
 	_btJointFeedBackObj:number; 
-	/**@internal */
-	private _breakingImpulseThreshold: number;
+	/** @internal */
+	_anchor:Vector3 = new Vector3();
+	/** @internal */
+	_connectAnchor:Vector3 = new Vector3();
+	/** @internal */
+	_btframAPos:number;
+	/** @internal */
+	_btframBPos:number;
+	/** @internal */
+	_btframATrans:number;
+	/** @internal */
+	_btframBTrans:number;
 	/**@internal */
 	private _constraintType:number;
 	/**@internal */
@@ -74,23 +92,6 @@ export class ConstraintComponent extends Component {
 		super.enabled = value;
 	}
 
-	// /**
-	//  * 获取打破冲力阈值。
-	//  * @return 打破冲力阈值。
-	//  */
-	// get breakingImpulseThreshold(): number {
-	// 	return this._breakingImpulseThreshold;
-	// }
-
-	// /**
-	//  * 设置打破冲力阈值。
-	//  * @param value 打破冲力阈值。
-	//  */
-	// set breakingImpulseThreshold(value: number) {
-	// 	this._btConstraint.BreakingImpulseThreshold = value;
-	// 	this._breakingImpulseThreshold = value;
-	// }
-
 	/**
 	 * 获取应用的冲力。
 	 */
@@ -102,10 +103,12 @@ export class ConstraintComponent extends Component {
 		return this._btConstraint.AppliedImpulse;
 	}
 
-
+	/**@internal */
 	set connectedBody(value:Rigidbody3D){
 		this._connectedBody = value;
+		value.constaintRigidbodyB = this;
 	}
+
 	/**
 	 * 获取连接的刚体B。
 	 * @return 已连接刚体B。
@@ -113,6 +116,8 @@ export class ConstraintComponent extends Component {
 	get connectedBody(): Rigidbody3D {
 		return this._connectedBody;
 	}
+
+
 	/**
 	 * 获取连接的刚体A。
 	 * @return 已连接刚体A。
@@ -121,13 +126,24 @@ export class ConstraintComponent extends Component {
 		return this._ownBody;
 	}
 
+	/**@internal */
+	set ownBody(value:Rigidbody3D){
+		this._ownBody = value;
+		value.constaintRigidbodyA = this;
+	}
+	/**
+	 * 获得收到的总力
+	 */
 	get currentForce():Vector3{
 		if(!this._getJointFeedBack)
 			this._getFeedBackInfo();
 		return this._currentForce;
 	}
 
-	get currentToque():Vector3{
+	/**
+	 * 获取的总力矩
+	 */
+	get currentTorque():Vector3{
 		if(!this._getJointFeedBack)
 			this._getFeedBackInfo();
 		return this._currentTorque;
@@ -153,7 +169,25 @@ export class ConstraintComponent extends Component {
     }
     set breakTorque(value:number){
         this._breakTorque = value;
-    }
+	}
+
+	set anchor(value:Vector3){
+		value.cloneTo(this._anchor);
+		this.setFrames();
+	}
+
+	get anchor(){
+		return this._anchor;
+	}
+
+	set connectAnchor(value:Vector3){
+		value.cloneTo(this._connectAnchor);
+		this.setFrames();
+	}
+
+	get connectAnchor():Vector3{
+		return this._connectAnchor;
+	}
 
 	/**
 	 * 创建一个 <code>ConstraintComponent</code> 实例。
@@ -161,6 +195,35 @@ export class ConstraintComponent extends Component {
 	constructor(constraintType:number) {
 		super();
 		this._constraintType = constraintType;
+		var bt = Physics3D._bullet;
+		this._btframATrans = bt.btTransform_create();
+		this._btframBTrans = bt.btTransform_create();
+		bt.btTransform_setIdentity(this._btframATrans);
+		bt.btTransform_setIdentity(this._btframBTrans);
+		this._btframAPos = bt.btVector3_create(0, 0, 0);
+		this._btframBPos= bt.btVector3_create(0, 0, 0);
+		bt.btTransform_setOrigin(this._btframATrans,  this._btframAPos);
+		bt.btTransform_setOrigin(this._btframBTrans,  this._btframBPos);
+		this._breakForce = -1;
+		this._breakTorque = -1;
+	}
+
+	/**
+	 * 设置迭代的次数，次数越高，越精确
+	 * @param overideNumIterations 
+	 */
+	setOverrideNumSolverIterations(overideNumIterations:number): void {
+		var bt = Physics3D._bullet;
+		bt.btTypedConstraint_setOverrideNumSolverIterations(this._btConstraint, overideNumIterations);
+	}
+
+	/**
+	 * 设置约束是否可用
+	 * @param enable 
+	 */
+	setConstraintEnabled(enable:boolean): void {
+		var bt = Physics3D._bullet;
+		bt.btTypedConstraint_setEnabled(this._btConstraint, enable);
 	}
 
 	/**
@@ -177,7 +240,17 @@ export class ConstraintComponent extends Component {
 		super._onDisable();
 		this.enabled = false;
 	}
-
+	/**
+	 * @override
+	 * @internal
+	 */
+	setFrames(){
+		var bt = Physics3D._bullet;
+		bt.btVector3_setValue(this._btframAPos,-this._anchor.x,this.anchor.y,this.anchor.z);
+		bt.btVector3_setValue(this._btframBPos,-this._connectAnchor.x,this._connectAnchor.y,this._connectAnchor.z);
+		bt.btTransform_setOrigin(this._btframATrans,this._btframAPos);
+		bt.btTransform_setOrigin(this._btframBTrans,this._btframBPos);
+	}
 	/**
 	 * @internal
 	 */
@@ -200,9 +273,9 @@ export class ConstraintComponent extends Component {
 	 * 设置约束刚体
 	 * @param ownerRigid 
 	 * @param connectRigidBody 
+	 * @override
 	 */
-	setConnectRigidBody(ownerRigid:Rigidbody3D,connectRigidBody:Rigidbody3D)
-	{
+	setConnectRigidBody(ownerRigid:Rigidbody3D,connectRigidBody:Rigidbody3D){
 		var ownerCanInSimulation:Boolean = (ownerRigid)&&(!!(ownerRigid._simulation && ownerRigid._enabled && ownerRigid.colliderShape));
 		var connectCanInSimulation:Boolean = (connectRigidBody)&&(!!(connectRigidBody._simulation && connectRigidBody._enabled && connectRigidBody.colliderShape));
 		if(!(ownerCanInSimulation&&connectCanInSimulation))
@@ -215,9 +288,10 @@ export class ConstraintComponent extends Component {
 			this._ownBody.constaintRigidbodyA = this;
 			this._connectedBody.constaintRigidbodyB = this;
 			this._createConstraint();
-			this._addToSimulation();
 		}
 	}
+	
+	
 
 	/**
 	 * 获得当前力
@@ -243,7 +317,8 @@ export class ConstraintComponent extends Component {
 		var applyTorque:number =bt.btJointFeedback_getAppliedTorqueBodyA(this._btJointFeedBackObj);
 		out.setValue(bt.btVector3_x(applyTorque),bt.btVector3_y(applyTorque),bt.btVector3_z(applyTorque));
 		return;
-    }
+	}
+	
 	/**
 	 * @inheritDoc
 	 * @internal
@@ -253,13 +328,14 @@ export class ConstraintComponent extends Component {
 		var physics3D: any = Physics3D._bullet;
 		this._removeFromSimulation();
 		if(this._btConstraint&&this._btJointFeedBackObj&&this._simulation){
-			physics3D.btFixedConstraint_destroy(this._btConstraint);
+			physics3D.btTypedConstraint_destroy(this._btConstraint);
 			physics3D.btJointFeedback_destroy(this._btJointFeedBackObj);
 			this._btJointFeedBackObj = null;
 			this._btConstraint = null;
 		}
 		super._onDisable();
 	}
+
 	/**
 	 * @internal
 	 */
@@ -269,14 +345,25 @@ export class ConstraintComponent extends Component {
 			return false;
 		this._getFeedBackInfo();	
 		var isBreakForce:Boolean = this._breakForce!=-1&&(Vector3.scalarLength(this._currentForce)>this._breakForce);
-		var isBreakToque:Boolean = this._breakTorque!=-1&&(Vector3.scalarLength(this._currentTorque)>this._breakTorque);
-		if(isBreakForce||isBreakToque){
+		var isBreakTorque:Boolean = this._breakTorque!=-1&&(Vector3.scalarLength(this._currentTorque)>this._breakTorque);
+		if(isBreakForce||isBreakTorque){
 			this._breakConstrained();
 			return true;
 		}
 		return false;
 	}
 
+
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_parse(data: any): void {
+		this._anchor.fromArray(data.anchor);
+		this._connectAnchor.fromArray(data.connectAnchor);
+		this.setFrames();
+	}
 	/**
 	 * @internal
 	 */

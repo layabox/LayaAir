@@ -9,7 +9,6 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
-import { Physics3D } from "./Physics3D";
 import { PhysicsSimulation } from "./PhysicsSimulation";
 import { BoxColliderShape } from "./shape/BoxColliderShape";
 import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
@@ -19,6 +18,7 @@ import { ConeColliderShape } from "./shape/ConeColliderShape";
 import { CylinderColliderShape } from "./shape/CylinderColliderShape";
 import { MeshColliderShape } from "./shape/MeshColliderShape";
 import { SphereColliderShape } from "./shape/SphereColliderShape";
+import { ILaya3D } from "../../../ILaya3D";
 
 /**
  * <code>PhysicsComponent</code> 类用于创建物理组件的父类。
@@ -72,7 +72,7 @@ export class PhysicsComponent extends Component {
 	* @internal
 	*/
 	static __init__(): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		PhysicsComponent._btVector30 = bt.btVector3_create(0, 0, 0);
 		PhysicsComponent._btQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
 	}
@@ -214,7 +214,7 @@ export class PhysicsComponent extends Component {
 
 	set restitution(value: number) {
 		this._restitution = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setRestitution(this._btColliderObject, value);
+		this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setRestitution(this._btColliderObject, value);
 	}
 
 	/**
@@ -226,7 +226,7 @@ export class PhysicsComponent extends Component {
 
 	set friction(value: number) {
 		this._friction = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setFriction(this._btColliderObject, value);
+		this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setFriction(this._btColliderObject, value);
 	}
 
 	/**
@@ -238,7 +238,7 @@ export class PhysicsComponent extends Component {
 
 	set rollingFriction(value: number) {
 		this._rollingFriction = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setRollingFriction(this._btColliderObject, value);
+		this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setRollingFriction(this._btColliderObject, value);
 	}
 
 	/**
@@ -250,7 +250,7 @@ export class PhysicsComponent extends Component {
 
 	set ccdMotionThreshold(value: number) {
 		this._ccdMotionThreshold = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setCcdMotionThreshold(this._btColliderObject, value);
+		this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setCcdMotionThreshold(this._btColliderObject, value);
 	}
 
 	/**
@@ -262,14 +262,14 @@ export class PhysicsComponent extends Component {
 
 	set ccdSweptSphereRadius(value: number) {
 		this._ccdSweptSphereRadius = value;
-		this._btColliderObject && Physics3D._bullet.btCollisionObject_setCcdSweptSphereRadius(this._btColliderObject, value);
+		this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setCcdSweptSphereRadius(this._btColliderObject, value);
 	}
 
 	/**
 	 * 获取是否激活。
 	 */
 	get isActive(): boolean {
-		return this._btColliderObject ? Physics3D._bullet.btCollisionObject_isActive(this._btColliderObject) : false;
+		return this._btColliderObject ? ILaya3D.Physics3D._bullet.btCollisionObject_isActive(this._btColliderObject) : false;
 	}
 
 	/**
@@ -296,7 +296,7 @@ export class PhysicsComponent extends Component {
 			}
 
 			if (this._btColliderObject) {
-				Physics3D._bullet.btCollisionObject_setCollisionShape(this._btColliderObject, value._btShape);
+				ILaya3D.Physics3D._bullet.btCollisionObject_setCollisionShape(this._btColliderObject, value._btShape);
 				var canInSimulation: boolean = this._simulation && this._enabled;
 				(canInSimulation && lastColliderShape) && (this._removeFromSimulation());//修改shape必须把Collison从物理世界中移除再重新添加
 				this._onShapeChange(value);//修改shape会计算惯性
@@ -396,7 +396,7 @@ export class PhysicsComponent extends Component {
 	 */
 	_onEnable(): void {
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
-		Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 1e30);
+		ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 1e30);
 		if (this._colliderShape) {
 			this._derivePhysicsTransformation(true);
 			this._addToSimulation();
@@ -423,7 +423,7 @@ export class PhysicsComponent extends Component {
 	 */
 	protected _onDestroy(): void {
 		delete PhysicsComponent._physicObjectsMap[this.id];
-		Physics3D._bullet.btCollisionObject_destroy(this._btColliderObject);
+		ILaya3D.Physics3D._bullet.btCollisionObject_destroy(this._btColliderObject);
 		this._colliderShape.destroy();
 		super._onDestroy();
 		this._btColliderObject = null;
@@ -485,7 +485,7 @@ export class PhysicsComponent extends Component {
 	 * 	@internal
 	 */
 	_derivePhysicsTransformation(force: boolean): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var btColliderObject: number = this._btColliderObject;
 		var btTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
 		this._innerDerivePhysicsTransformation(btTransform, force);
@@ -497,7 +497,7 @@ export class PhysicsComponent extends Component {
 	 *	通过渲染矩阵更新物理矩阵。
 	 */
 	_innerDerivePhysicsTransformation(physicTransformOut: number, force: boolean): void {
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var transform: Transform3D = ((<Sprite3D>this.owner))._transform;
 
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
@@ -543,7 +543,7 @@ export class PhysicsComponent extends Component {
 	 */
 	_updateTransformComponent(physicsTransform: number): void {
 		//TODO:Need Test!!! because _innerDerivePhysicsTransformation update position use worldMatrix,not(position rotation WorldLossyScale),maybe the center is no different.
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var colliderShape: ColliderShape = this._colliderShape;
 		var localOffset: Vector3 = colliderShape.localOffset;
 		var localRotation: Quaternion = colliderShape.localRotation;
@@ -597,7 +597,7 @@ export class PhysicsComponent extends Component {
 	 */
 	_onShapeChange(colShape: ColliderShape): void {
 		var btColObj: any = this._btColliderObject;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		var flags: number = bt.btCollisionObject_getCollisionFlags(btColObj);
 		if (colShape.needsCustomCollisionCallback) {
 			if ((flags & PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK) === 0)

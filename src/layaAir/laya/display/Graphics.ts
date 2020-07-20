@@ -49,7 +49,7 @@ export class Graphics {
     /**@internal */
     _one: any = null;
     /**@internal */
-    _render: Function = this._renderEmpty;
+    _render: (sprite: Sprite, context: Context, x: number, y: number)=>void = this._renderEmpty;
     /**@private */
     private _cmds: any[] = null;
     /**@private */
@@ -382,13 +382,13 @@ export class Graphics {
      * @param y				开始绘制文本的 y 坐标位置（相对于画布）。
      * @param font			定义字体和字号，比如"20px Arial"。
      * @param fillColor		定义文本颜色，比如"#ff0000"。
-     * @param borderColor	定义镶边文本颜色。
-     * @param lineWidth		镶边线条宽度。
      * @param textAlign		文本对齐方式，可选值："left"，"center"，"right"。
+     * @param lineWidth		镶边线条宽度。
+     * @param borderColor	定义镶边文本颜色。
      */
 
     fillBorderText(text: string, x: number, y: number, font: string, fillColor: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
-        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth, textAlign));
+        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), fillColor, textAlign, lineWidth, borderColor));
     }
 
     /*** @private */

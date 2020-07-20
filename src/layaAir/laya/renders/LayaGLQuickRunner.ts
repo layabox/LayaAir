@@ -6,6 +6,7 @@ import { Matrix } from "../maths/Matrix"
 import { Rectangle } from "../maths/Rectangle"
 import { Context } from "../resource/Context"
 import { Texture } from "../resource/Texture"
+import { _RenderFunction } from "./RenderSprite"
 
 /**
  * @internal
@@ -14,7 +15,7 @@ import { Texture } from "../resource/Texture"
  */
 export class LayaGLQuickRunner {
     /*[FILEINDEX:10000]*/
-    static map: any = {};
+    static map: _RenderFunction[] = [];
     private static curMat: Matrix = new Matrix();
     /**@internal */
     static __init__(): void {

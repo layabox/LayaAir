@@ -28,6 +28,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Config3D } from "Config3D";
 
 export class PhysicsWorld_RayShapeCast {
 	//声明一些使用到的全局变量
@@ -57,7 +58,7 @@ export class PhysicsWorld_RayShapeCast {
 			Stat.show();
 			//创建场景
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-
+			Config3D.useCannonPhysics = false;
 			//创建相机
 			var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
 			camera.transform.translate(new Vector3(0, 8, 20));

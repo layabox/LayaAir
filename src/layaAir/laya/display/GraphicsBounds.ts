@@ -29,6 +29,7 @@ import { Graphics } from "./Graphics";
 import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
 import { Draw9GridTexture } from "./cmd/Draw9GridTexture";
 import { ClassUtils } from "../utils/ClassUtils";
+import { SaveCmd } from "./cmd/SaveCmd"
 
 /**
  * @private
@@ -133,7 +134,8 @@ export class GraphicsBounds {
         for (var i: number = 0, n: number = cmds.length; i < n; i++) {
             cmd = cmds[i];
             switch (cmd.cmdID) {
-                case AlphaCmd.ID: //save //TODO:是否还需要
+                case AlphaCmd.ID:
+                case SaveCmd.ID:
                     matrixs.push(tMatrix);
                     tMatrix = tMatrix.clone();
                     break;

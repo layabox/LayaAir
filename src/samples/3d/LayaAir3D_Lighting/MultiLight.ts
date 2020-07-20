@@ -44,7 +44,7 @@ export class MultiLight {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
-
+		Config3D.useCannonPhysics = false;
 		Scene3D.load("res/threeDimen/scene/MultiLightScene/InventoryScene_Forest.ls", Handler.create(this, function (scene: Scene3D): void {
 			Laya.stage.addChild(scene);
 

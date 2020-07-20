@@ -14,6 +14,7 @@ import { Sprite3D } from "../core/Sprite3D";
 import { TrailSprite3D } from "../core/trail/TrailSprite3D";
 import { StaticBatchManager } from "../graphics/StaticBatchManager";
 import { ClassUtils } from "../../utils/ClassUtils";
+import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
 
 
 
@@ -36,6 +37,9 @@ export class Scene3DUtils {
 				break;
 			case "SkinnedMeshSprite3D":
 				node = new SkinnedMeshSprite3D();
+				break;
+			case "SimpleSkinnedMeshSprite3D":
+				node = new SimpleSkinnedMeshSprite3D();
 				break;
 			case "ShuriKenParticle3D":
 				node = new ShuriKenParticle3D();
@@ -71,14 +75,14 @@ export class Scene3DUtils {
 		return node;
 	}
 
-	private static _createComponentInstance(nodeData: any, spriteMap: any): void {
+	private static _createComponentInstance(nodeData: any, spriteMap: any,interactMap:any): void {
 		var node: Node = spriteMap[nodeData.instanceID];
 		node._parse(nodeData.props, spriteMap);
 
 		var childData: any[] = nodeData.child;
 		if (childData) {
 			for (var i: number = 0, n: number = childData.length; i < n; i++)
-				Scene3DUtils._createComponentInstance(childData[i], spriteMap)
+				Scene3DUtils._createComponentInstance(childData[i], spriteMap, interactMap)
 		}
 
 		var componentsData: any[] = nodeData.components;
@@ -88,7 +92,7 @@ export class Scene3DUtils {
 				var clas: any = ClassUtils.getRegClass(data.type);
 				if (clas) {
 					var component: Component = node.addComponent(clas);
-					component._parse(data);
+					component._parse(data,interactMap);
 				} else {
 					console.warn("Unkown component type.");
 				}
@@ -103,11 +107,23 @@ export class Scene3DUtils {
 	 */
 	static _createNodeByJson02(nodeData: any, outBatchSprites: RenderableSprite3D[]): Node {
 		var spriteMap: any = {};
+		var interactMap:any = {component:[],data:[]};
 		var node: Node = Scene3DUtils._createSprite3DInstance(nodeData, spriteMap, outBatchSprites);
-		Scene3DUtils._createComponentInstance(nodeData, spriteMap);
+		Scene3DUtils._createComponentInstance(nodeData, spriteMap,interactMap);
+		Scene3DUtils._createInteractInstance(interactMap,spriteMap);
 		return node;
 	}
 
+	/**
+	 * @internal
+	 */
+	static _createInteractInstance(interatMap:any,spriteMap:any){
+		var components:Component[] = interatMap.component;
+		var data = interatMap.data;
+		for(var i = 0,n = components.length;i<n;i++){
+			components[i]._parseInteractive(data[i],spriteMap);
+		}
+	}
 
 	/**
 	 *@internal

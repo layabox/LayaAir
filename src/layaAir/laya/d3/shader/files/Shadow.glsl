@@ -149,9 +149,9 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 		shadowCoord.xy/=2.0; 
 		if(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)
 		{
-			#if defined(SHADOW_SOFT_SHADOW_HIGH)
+			#if defined(SHADOW_SPOT_SOFT_SHADOW_HIGH)
 				attenuation = sampleShdowMapFiltered9(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);
-			#elif defined(SHADOW_SOFT_SHADOW_LOW)
+			#elif defined(SHADOW_SPOT_SOFT_SHADOW_LOW)
 				attenuation = sampleShdowMapFiltered4(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);
 			#else
 				attenuation = SAMPLE_TEXTURE2D_SHADOW(u_SpotShadowMap,shadowCoord.xyz);

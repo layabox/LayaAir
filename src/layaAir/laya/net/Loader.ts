@@ -139,7 +139,8 @@ export class Loader extends EventDispatcher {
 	_propertyParams: any;
 	/**@internal */
 	_createCache: boolean;
-
+	/**@internal 原始加载类型 */
+	_originType:string;
 
 	/**
 	 * 加载资源。加载错误会派发 Event.ERROR 事件，参数为错误信息。
@@ -236,7 +237,7 @@ export class Loader extends EventDispatcher {
 	 * onload、onprocess、onerror必须写在本类
 	 */
 	private _loadHttpRequest(url: string, contentType: string, onLoadCaller: Object, onLoad: Function | null, onProcessCaller: any, onProcess: Function | null, onErrorCaller: any, onError: Function): void {
-		if (Browser.onVVMiniGame) {
+		if (Browser.onVVMiniGame||Browser.onHWMiniGame) {
 			this._http = new HttpRequest();//临时修复vivo复用xmlhttprequest的bug
 		} else {
 			if (!this._http)
@@ -350,6 +351,7 @@ export class Loader extends EventDispatcher {
 	/**@private */
 	protected onProgress(value: number): void {
 		if (this._type === Loader.ATLAS) this.event(Event.PROGRESS, value * 0.3);
+		else if(this._originType == Loader.HIERARCHY) this.event(Event.PROGRESS,value /3);
 		else this.event(Event.PROGRESS, value);
 	}
 

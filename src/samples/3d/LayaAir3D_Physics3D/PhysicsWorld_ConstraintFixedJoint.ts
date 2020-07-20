@@ -10,11 +10,12 @@ import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
-import { FixedConstraint } from "laya/d3/physics/constraints/FixedConstraint"
+import { FixedConstraint } from "laya/d3/physics/constraints/FixedConstraint";
 import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Physics3D } from "laya/d3/physics/Physics3D";
 import { Script3D } from "laya/d3/component/Script3D";
+import { Config3D } from "Config3D";
 
 export class PhysicsWorld_ConstraintFixedJoint{
     private scene:Scene3D;
@@ -23,7 +24,8 @@ export class PhysicsWorld_ConstraintFixedJoint{
         Laya3D.init(0, 0);
         Laya.stage.scaleMode = Stage.SCALE_FULL;
         Laya.stage.screenMode = Stage.SCREEN_NONE;
-        Stat.show();
+		Stat.show();
+		Config3D.useCannonPhysics = false;
         this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
         this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
         this.camera.transform.translate(new Vector3(0, 3, 10));
@@ -50,7 +52,6 @@ export class PhysicsWorld_ConstraintFixedJoint{
 		var boxShape: BoxColliderShape = new BoxColliderShape(1, 1, 1);
 		//设置盒子的碰撞形状
 		rigidBody.colliderShape = boxShape;
-		rigidBody.linearVelocity = new Vector3(-10, 0, 0);
 		
 		//设置刚体的质量
 		rigidBody.mass = 10;
@@ -71,9 +72,11 @@ export class PhysicsWorld_ConstraintFixedJoint{
 		rigidBody2.colliderShape = boxShape2;
 		//设置刚体的质量
 		rigidBody2.mass = 10;
+
 		var fixedConstraint:FixedConstraint = box.addComponent(FixedConstraint);
+		fixedConstraint.anchor = new Vector3(0,0,0);
+		fixedConstraint.connectAnchor = new Vector3(0,2,0);
 		box.addComponent(FixedEventTest);
-		debugger;
 		fixedConstraint.setConnectRigidBody(rigidBody,rigidBody2);
 		
     }

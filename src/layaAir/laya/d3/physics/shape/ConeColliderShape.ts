@@ -1,5 +1,5 @@
 import { ColliderShape } from "./ColliderShape";
-import { Physics3D } from "../Physics3D";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>ConeColliderShape</code> 类用于创建圆柱碰撞器。
@@ -41,7 +41,7 @@ export class ConeColliderShape extends ColliderShape {
 		this._height = height;
 		this._orientation = orientation;
 		this._type = ColliderShape.SHAPETYPES_CYLINDER;
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
 				this._btShape = bt.btConeShapeX_create(radius, height);

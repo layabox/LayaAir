@@ -279,3 +279,6 @@ LayaLight layaSpotLightToLight(in vec3 pos,in vec3 normal, in SpotLight light,in
 	return relight;
 }
 
+
+
+

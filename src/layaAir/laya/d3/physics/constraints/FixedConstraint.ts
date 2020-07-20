@@ -2,6 +2,8 @@ import { ConstraintComponent } from "./ConstraintComponent";
 import { Component } from "../../../components/Component";
 import { Physics3D } from "../Physics3D";
 import { Scene3D } from "../../core/scene/Scene3D";
+import { Sprite3D } from "../../core/Sprite3D";
+import { Rigidbody3D } from "../Rigidbody3D";
 
 export class FixedConstraint extends ConstraintComponent{
 	/**
@@ -39,16 +41,19 @@ export class FixedConstraint extends ConstraintComponent{
 	 * @internal
 	 */
 	_createConstraint():void{
-		var bt = Physics3D._bullet;
-		var physicsTransform = bt.btCollisionObject_getWorldTransform(this.ownBody.btColliderObject);
-		var origin = bt.btTransform_getOrigin(physicsTransform);
-		this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject,this.connectedBody.btColliderObject,origin);
-		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
-		bt.btFixedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
-		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation
+		if(this.ownBody&&this.ownBody._simulation&&this.connectedBody&&this.connectedBody._simulation){
+			var bt = Physics3D._bullet;
+			this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans)
+			this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);	
+			bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
+			this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
+			this._addToSimulation();
+			Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
+		}
 	}
 
 	
+
 	/**
 	 * @inheritDoc
 	 * @override
@@ -63,9 +68,11 @@ export class FixedConstraint extends ConstraintComponent{
 	 * @internal
 	 */
 	_onEnable():void{
+		if(!this._btConstraint)
+			return;
 		super._onEnable();
 		if(this._btConstraint)
-		Physics3D._bullet.btFixedConstraint_setEnabled(this._btConstraint,true);
+		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 	}
 
 	_onDisable():void{
@@ -73,7 +80,7 @@ export class FixedConstraint extends ConstraintComponent{
 		if(!this.connectedBody)
 			this._removeFromSimulation();
 		if(this._btConstraint)
-		Physics3D._bullet.btFixedConstraint_setEnabled(this._btConstraint,false);
+		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,false);
 	}
 
 	/**
@@ -85,6 +92,34 @@ export class FixedConstraint extends ConstraintComponent{
 		super._onDestroy();
 	}
 
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_parse(data: any,interactMap:any = null): void {
+		super._parse(data);
+		if(data.rigidbodyID!=-1&&data.connectRigidbodyID!=-1){
+			interactMap.component.push(this);
+			interactMap.data.push(data);
+		}
+		(data.breakForce != undefined) && (this.breakForce = data.breakForce);
+		(data.breakTorque != undefined) && (this.breakTorque = data.breakTorque);
+	}
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_parseInteractive(data:any = null,spriteMap:any = null){
+		var rigidBodySprite:Sprite3D = spriteMap[data.rigidbodyID];
+		var rigidBody: Rigidbody3D = rigidBodySprite.getComponent(Rigidbody3D);
+		var connectSprite: Sprite3D = spriteMap[data.connectRigidbodyID];
+		var connectRigidbody: Rigidbody3D = connectSprite.getComponent(Rigidbody3D);
+		this.ownBody = rigidBody;
+		this.connectedBody = connectRigidbody;
+
+	}
 
 	/**
 	 * @inheritDoc

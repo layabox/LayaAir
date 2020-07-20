@@ -223,13 +223,13 @@ export class Sprite extends Node {
     /**@internal */
     _renderType: number = 0;
     /**@internal */
-    _transform: Matrix = null;
+    _transform: Matrix|null = null;
     /**@internal */
     protected _tfChanged: boolean = false;
     /**@internal */
     protected _repaint: number = SpriteConst.REPAINT_NONE;
     /**@internal */
-    private _texture: Texture = null;
+    private _texture: Texture|null = null;
 
     //以下变量为系统调用，请不要直接使用
     /**@internal */
@@ -237,9 +237,9 @@ export class Sprite extends Node {
     /**@internal */
     _cacheStyle: CacheStyle = CacheStyle.EMPTY;
     /**@internal */
-    _boundStyle: BoundsStyle = null;
+    _boundStyle: BoundsStyle|null = null;
     /**@internal */
-    _graphics: Graphics = null;
+    _graphics: Graphics|null = null;
 
     /**
      * <p>鼠标事件与此对象的碰撞检测是否可穿透。碰撞检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
@@ -1271,12 +1271,14 @@ export class Sprite extends Node {
 		}else{
 			ctx.asBitmap=true;
 		}
-        ctx._targets.start();
-        ctx._targets.clear(0, 0, 0, 0);	// 否则没有地方调用clear
-        RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
-        ctx.flush();
-        ctx._targets.end();
-		ctx._targets.restore();
+		if(ctx._targets){
+			ctx._targets.start();
+			ctx._targets.clear(0, 0, 0, 0);	// 否则没有地方调用clear
+			RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+			ctx.flush();
+			ctx._targets.end();
+			ctx._targets.restore();
+		}
 		if(!rt){
         	var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))), Texture.INV_UV);
         	ctx.destroy(true);// 保留 _targets
@@ -1374,7 +1376,7 @@ export class Sprite extends Node {
      * @param globalNode		global节点，默认为Laya.stage
      * @return 转换后的坐标的点。
      */
-    localToGlobal(point: Point, createNewPoint: boolean = false, globalNode: Sprite = null): Point {
+    localToGlobal(point: Point, createNewPoint: boolean = false, globalNode: Sprite|null = null): Point {
         //if (!_displayedInStage || !point) return point;
         if (createNewPoint === true) {
             point = new Point(point.x, point.y);
@@ -1397,7 +1399,7 @@ export class Sprite extends Node {
      * @param globalNode		global节点，默认为Laya.stage
      * @return 转换后的坐标的点。
      */
-    globalToLocal(point: Point, createNewPoint: boolean = false, globalNode: Sprite = null): Point {
+    globalToLocal(point: Point, createNewPoint: boolean = false, globalNode: Sprite|null = null): Point {
         //if (!_displayedInStage || !point) return point;
         if (createNewPoint) {
             point = new Point(point.x, point.y);

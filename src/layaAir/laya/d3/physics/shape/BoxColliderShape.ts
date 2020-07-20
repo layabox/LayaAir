@@ -1,5 +1,5 @@
-import { Physics3D } from "../Physics3D";
 import { ColliderShape } from "./ColliderShape";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
@@ -12,7 +12,7 @@ export class BoxColliderShape extends ColliderShape {
 	* @internal
 	*/
 	static __init__(): void {
-		BoxColliderShape._btSize = Physics3D._bullet.btVector3_create(0, 0, 0);
+		BoxColliderShape._btSize = ILaya3D.Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	/**@internal */
@@ -59,7 +59,7 @@ export class BoxColliderShape extends ColliderShape {
 		this._sizeZ = sizeZ;
 		this._type = ColliderShape.SHAPETYPES_BOX;
 
-		var bt: any = Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btVector3_setValue(BoxColliderShape._btSize, sizeX / 2, sizeY / 2, sizeZ / 2);
 		this._btShape = bt.btBoxShape_create(BoxColliderShape._btSize);
 	}

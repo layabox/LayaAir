@@ -33,6 +33,14 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	/** @internal */
 	instanceMVPMatrixBuffer: VertexBuffer3D;
 
+	/**SimpleAnimator */
+	/** @internal */
+	instanceSimpleAnimatorData:Float32Array = new Float32Array(this.maxInstanceCount*4);
+
+	/** @internal */
+	instanceSimpleAnimatorBuffer:VertexBuffer3D;
+
+
 	/**
 	 * 创建一个 <code>InstanceSubMesh</code> 实例。
 	 */
@@ -43,6 +51,10 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		this.instanceMVPMatrixBuffer = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, gl.DYNAMIC_DRAW);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
 		this.instanceMVPMatrixBuffer.vertexDeclaration = VertexMesh.instanceMVPMatrixDeclaration;
+		//SImpleAnimator
+		this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length*4,gl.DYNAMIC_DRAW);
+		this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
+
 	}
 
 	/**
@@ -61,5 +73,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		Stat.savedRenderBatches += count - 1;
 		Stat.trianglesFaces += indexCount * count / 3;
 	}
+
+
 }
 
