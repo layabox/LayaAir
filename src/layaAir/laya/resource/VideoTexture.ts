@@ -7,6 +7,7 @@ import { Video } from "../device/media/Video";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { SingletonList } from "../d3/component/SingletonList";
 import { SimpleSingletonList } from "../d3/component/SimpleSingletonList";
+import { Laya } from "../../Laya";
 
 
 /**
@@ -49,15 +50,31 @@ export class VideoTexture extends BaseTexture {
 		VideoTexture._videoTexturePool.add(this);
 	}
 
-	get video():Video{
+	get video():any{
 		return this._video;
 	}
-	set video(value:Video){
+	set video(value:any){
 		if(!value)
 			return;
 		this._video = value;
-		//this._video.playsInline = true;
-		//this._video["webkit-playsInline"] = true;
+		if (Laya.Browser.onMobile) {
+			//miner 
+			this._video["x5-playsInline"]=true;
+			this._video["x5-playsinline"]=true;
+			this._video.x5PlaysInline=true;
+			this._video.playsInline=true;
+			this._video["webkit-playsInline"]=true;
+			this._video["webkit-playsinline"]=true;
+			this._video.webkitPlaysInline=true;
+			this._video.playsinline=true;
+			this._video.style.playsInline=true;
+			this._video.crossOrigin="anonymous";
+			this._video.setAttribute('crossorigin', "anonymous");
+			this._video.setAttribute('playsinline', 'true')
+			this._video.setAttribute('x5-playsinline', 'true')
+			this._video.setAttribute('webkit-playsinline', 'true')
+			this._video.autoplay=true;
+		}
 	}
 
 	/**
@@ -87,9 +104,5 @@ export class VideoTexture extends BaseTexture {
 		super.destroy();
 		this._video = null;
 	}
-
-
-
-
 }
 
