@@ -23,7 +23,7 @@
 		"textures":[
 			{
 				"name":"albedoTexture",
-				"path":"../../Effect_waibao/FX_tx/FX_mag036.jpg",
+				"path":"../T_Diffuse.jpg",
 				"constructParams":[
 					512,
 					512,
@@ -51,9 +51,9 @@
 			{
 				"name":"specularColor",
 				"value":[
-					1,
-					1,
-					1,
+					0,
+					0,
+					0,
 					1
 				]
 			},

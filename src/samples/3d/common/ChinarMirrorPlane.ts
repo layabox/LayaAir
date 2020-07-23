@@ -8,6 +8,7 @@ import { RenderTextureFormat } from "laya/resource/RenderTextureFormat";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Material } from "../../../../bin/tsc/layaAir/laya/d3/core/material/Material";
 
 export class ChinarMirrorPlane extends Script3D {
     
@@ -22,7 +23,7 @@ export class ChinarMirrorPlane extends Script3D {
     public mainCamera:Camera;
     private mirrorCamera: Camera = new Camera(); // 镜像摄像机
 
-    private renderTexture:RenderTexture = new RenderTexture(512,512,RenderTextureFormat.R8G8B8);
+    private renderTexture:RenderTexture = new RenderTexture(1024,1024,RenderTextureFormat.R8G8B8);
 
     public estimateViewFrustum: boolean = true;
     public setNearClipPlane: boolean = true;
@@ -57,8 +58,10 @@ export class ChinarMirrorPlane extends Script3D {
 
     set mirrorPlane(value:MeshSprite3D){
         this._mirrorPlane = value;
-        (value.meshRenderer.sharedMaterial as UnlitMaterial).albedoTexture = this.renderTexture;
-        (value.meshRenderer.sharedMaterial as UnlitMaterial).tilingOffset = new Vector4(-1,1,0,0);
+        var material:UnlitMaterial = new UnlitMaterial();
+        value.meshRenderer.sharedMaterial =material;
+        material.albedoTexture = this.renderTexture;
+        material.tilingOffset = new Vector4(-1,1,0,0);
     }
 
     set onlyMainCamera(value:Camera){
@@ -72,7 +75,8 @@ export class ChinarMirrorPlane extends Script3D {
 
     onStart(): void {
         //this.mirrorCamera = this.owner as Camera;'
-        //this.mirrorCamera.renderTarget =this.renderTexture;
+        this.mirrorCamera.renderTarget =this.renderTexture;
+        this.mirrorCamera.clearColor = new Vector4(0.0,0.0,0.0,1.0);
 
     }
 
