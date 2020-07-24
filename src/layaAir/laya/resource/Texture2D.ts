@@ -173,6 +173,11 @@ export class Texture2D extends BaseTexture {
 				else
 					gl.texImage2D(textureType, miplevel, gl.RGBA, width, height, 0, glFormat, gl.FLOAT, pixels);
 				break;
+			case TextureFormat.R16G16B16A16://todo miner
+				if(LayaGL.layaGPUInstance._isWebGL2)
+					gl.texImage2D(textureType,miplevel,(<WebGL2RenderingContext>gl).RGBA16F,width,height,0,glFormat,(<WebGL2RenderingContext>gl).HALF_FLOAT,pixels);
+				else	
+					gl.texImage2D(textureType,miplevel,(<WebGL2RenderingContext>gl).RGBA16F,width,height,0,glFormat,LayaGL.layaGPUInstance._oesTextureHalfFloat.HALF_FLOAT_OES,pixels);	
 			default:
 				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
 		}

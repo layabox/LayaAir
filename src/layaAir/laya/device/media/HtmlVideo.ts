@@ -4,10 +4,10 @@ import { ILaya } from "../../../ILaya";
 
 
 /**
- * @internal
+ * <HtmlVideo>html多媒体数据<HtmlVideo>
  */
 export class HtmlVideo extends Bitmap {
-    protected video: HTMLVideoElement;
+    public video: HTMLVideoElement;
 	protected _source: any;
 	protected _w=0;
 	protected _h=0;
