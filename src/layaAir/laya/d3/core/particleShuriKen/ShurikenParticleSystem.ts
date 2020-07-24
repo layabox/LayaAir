@@ -35,7 +35,7 @@ import { GradientDataNumber } from "./module/GradientDataNumber";
 import { GradientSize } from "./module/GradientSize";
 import { GradientVelocity } from "./module/GradientVelocity";
 import { RotationOverLifetime } from "./module/RotationOverLifetime";
-import { BaseShape } from "./module/shape/BaseShape";
+import { BaseShape, ParticleSystemShapeType } from "./module/shape/BaseShape";
 import { SizeOverLifetime } from "./module/SizeOverLifetime";
 import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
 import { VelocityOverLifetime } from "./module/VelocityOverLifetime";
@@ -45,6 +45,12 @@ import { ShurikenParticleData } from "./ShurikenParticleData";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { Quaternion } from "../../math/Quaternion";
 import { IndexFormat } from "../../graphics/IndexFormat";
+import { Bounds } from "../Bounds";
+import { SphereShape } from "./module/shape/SphereShape";
+import { HemisphereShape } from "./module/shape/HemisphereShape";
+import { ConeShape } from "./module/shape/ConeShape";
+import { CircleShape } from "./module/shape/CircleShape";
+import { BoxShape } from "./module/shape/BoxShape";
 
 
 /**
@@ -94,6 +100,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	_boundingBox: BoundBox = null;
 	/** @internal */
 	_boundingBoxCorners: Vector3[] = null;
+
+	/**@internal */
+	_bounds: Bounds = null;
 
 	/** @internal */
 	private _owner: ShuriKenParticle3D = null;
@@ -857,6 +866,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._boundingBoxCorners = [];
 		this._boundingSphere = new BoundSphere(new Vector3(), Number.MAX_VALUE);//TODO:
 		this._boundingBox = new BoundBox(new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE), new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE));//TODO:
+		this._bounds = new Bounds(this._boundingBox.min, this._boundingBox.max);
 		this._currentTime = 0;
 
 		this._isEmitting = false;
@@ -1228,6 +1238,178 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**
 	 * @internal
 	 */
+	_generateBounds(): void {
+		var particle: ShuriKenParticle3D = (<ShuriKenParticle3D>this._owner);
+		var particleRender: ShurikenParticleRenderer = particle.particleRenderer;
+		var boundsMin: Vector3 = this._bounds.getMin();
+		var boundsMax: Vector3 = this._bounds.getMax();
+
+		// lifeTime
+		var time: number = 0;
+		switch (this.startLifetimeType) {
+			case 0: // 固定时间
+				time = this._startLifetimeConstant;
+				break;
+			case 2: // 两个固定时间随机值
+				time = this._startLifetimeConstantMax;
+				break;
+			case 1: // 渐变时间
+			case 3: // 两个渐变时间随机值
+			default :
+				// todo 不支持模式
+				break;
+		}
+
+		// speed
+		// todo
+		var speedOrigan: number = 0;
+		switch (this.startSpeedType) {
+			case 0: // 恒定速度
+				speedOrigan = this.startSpeedConstant;
+				break;
+			case 2: // 两个固定值间
+				speedOrigan = this.startSpeedConstantMax;
+				break;
+			case 1:
+			case 3:
+			default:
+				// todo 不支持模式
+				break;
+		}
+
+		// size
+		var maxSizeScale = 0;
+		if (this.threeDStartSize) {
+			switch (this.startSizeType) {
+				case 0: // 恒定尺寸
+					maxSizeScale = Math.max(this.startSizeConstantSeparate.x, this.startSizeConstantSeparate.y, this.startSizeConstantSeparate.z);
+					break;
+				case 2: // 两个固定尺寸之间
+					maxSizeScale = Math.max(this.startSizeConstantMaxSeparate.x, this.startSizeConstantMaxSeparate.y, this.startSizeConstantMaxSeparate.z);
+					break;
+				case 1:
+				case 3:
+				default:
+					// todo 不支持模式
+					break;
+			}
+		}
+		else {
+			switch (this.startSizeType) {
+				case 0: // 恒定尺寸
+					maxSizeScale = this.startSizeConstant;
+					break;
+				case 2: // 两个固定尺寸之间
+					maxSizeScale = this.startSizeConstantMax;
+					break;
+				case 1:
+				case 3:
+				default:
+					// todo 不支持模式
+					break;
+			}
+		}
+
+		//gravity重力值
+		var gravity: number = this.gravityModifier;
+
+		// shape
+		var zDirectionSpeed: Vector3 = ShurikenParticleSystem._tempVector30;
+		var fDirectionSpeed: Vector3 = ShurikenParticleSystem._tempVector31;
+		var zEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector32;
+		var fEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector33;
+		// var shape: SphereShape|HemisphereShape|ConeShape|CircleShape|BoxShape;
+		switch (this.shape.shapeType) {
+			case ParticleSystemShapeType.Sphere: 
+				var sphere: SphereShape = <SphereShape>this.shape;
+				zDirectionSpeed.setValue(1, 1, 1);
+				fDirectionSpeed.setValue(1, 1, 1);
+				zEmisionOffsetXYZ.setValue(sphere.radius, sphere.radius, sphere.radius);
+				fEmisionOffsetXYZ.setValue(sphere.radius, sphere.radius, sphere.radius);
+				break;
+			case ParticleSystemShapeType.Hemisphere:
+				var hemiShpere: HemisphereShape = <HemisphereShape>this.shape;
+				zDirectionSpeed.setValue(1, 1, 1);
+				fDirectionSpeed.setValue(1, 1, 1);
+				zEmisionOffsetXYZ.setValue(hemiShpere.radius, hemiShpere.radius, hemiShpere.radius);
+				fEmisionOffsetXYZ.setValue(hemiShpere.radius, hemiShpere.radius, 0.0);
+				break;
+			case ParticleSystemShapeType.Cone:
+				var cone: ConeShape = <ConeShape>this.shape;
+				// Base || BaseShell
+				if (cone.emitType == 0 || cone.emitType == 1) {
+					var angle: number = cone.angle * Math.PI / 180;
+					var sinAngle: number = Math.sin(angle);
+					zDirectionSpeed.setValue(sinAngle, sinAngle, 1.0);
+					fDirectionSpeed.setValue(sinAngle, sinAngle, 0.0);
+					zEmisionOffsetXYZ.setValue(cone.radius, cone.radius, 0.0);
+					fEmisionOffsetXYZ.setValue(cone.radius, cone.radius, 0.0);
+					break;
+				}
+				// Volume || VolumeShell
+				else if (cone.emitType == 2 || cone.emitType == 3) {
+					var angle: number = cone.angle * Math.PI / 180;
+					var sinAngle: number = Math.sin(angle);
+					var coneLength: number = cone.length;
+					zDirectionSpeed.setValue(sinAngle, sinAngle, 1.0);
+					fDirectionSpeed.setValue(sinAngle, sinAngle, 0.0);
+					var tanAngle: number = Math.tan(angle);
+					var rPLCT: number = cone.radius + coneLength * tanAngle;
+					zEmisionOffsetXYZ.setValue(rPLCT, rPLCT, coneLength);
+					fEmisionOffsetXYZ.setValue(rPLCT, rPLCT, 0.0);
+				}
+				break;
+			case ParticleSystemShapeType.Box:
+				var box: BoxShape = <BoxShape>this.shape;
+				if (this.shape.randomDirection != 0) {
+					zDirectionSpeed.setValue(1, 1, 1);
+					fDirectionSpeed.setValue(1, 1, 1);
+				}
+				else {
+					zDirectionSpeed.setValue(0, 0, 0);
+					fDirectionSpeed.setValue(0, 0, 0);
+				}
+				zEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z /2);
+				fEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z /2);
+				break;
+			case ParticleSystemShapeType.Circle:
+				var circle: CircleShape = <CircleShape>this.shape;
+				zDirectionSpeed.setValue(1, 1, 1);
+				fDirectionSpeed.setValue(1, 1, 1);
+				zEmisionOffsetXYZ.setValue(circle.radius, circle.radius, 0);
+				fEmisionOffsetXYZ.setValue(circle.radius, circle.radius, 0);
+				break;
+			default:
+				break;
+		}
+
+		// size
+		var meshSize: number = 0;
+		switch (particleRender.renderMode) {
+			case 0: // billboard
+				meshSize = ShurikenParticleSystem.halfKSqrtOf2;// Math.sqrt(2) / 2.0;
+				break;
+			case 4: // mesh
+				var meshBounds: Bounds = particleRender.mesh.bounds;
+				meshSize = Math.sqrt(Math.pow(meshBounds.getExtent().x, 2.0) + Math.pow(meshBounds.getExtent().y, 2.0) + Math.pow(meshBounds.getExtent().z, 2.0));
+				break;
+			default:
+				break;
+		}
+		// speedOrigan * directionSpeed * time + directionoffset + size * maxsizeScale
+		var distance: number = speedOrigan * time;
+		var endSize: number = meshSize * maxSizeScale;
+		boundsMin.setValue(-(distance * fEmisionOffsetXYZ.x + endSize + fEmisionOffsetXYZ.x), 
+							-(distance * fEmisionOffsetXYZ.y + endSize + fEmisionOffsetXYZ.y),
+							-(distance * fEmisionOffsetXYZ.z + endSize + fEmisionOffsetXYZ.z));
+		boundsMax.setValue(distance * fEmisionOffsetXYZ.x + endSize + fEmisionOffsetXYZ.x, 
+							distance * fEmisionOffsetXYZ.y + endSize + fEmisionOffsetXYZ.y,
+							distance * fEmisionOffsetXYZ.z + endSize + fEmisionOffsetXYZ.z);
+	}
+
+	/**
+	 * @internal
+	 */
 	private _updateEmission(): void {
 		if (!this.isAlive)
 			return;
@@ -1547,6 +1729,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._vertexBuffer.destroy();
 		this._indexBuffer.destroy();
 		this._emission.destroy();
+		this._boundingBox = null;
+		this._boundingSphere = null;
+		this._boundingBoxCorners = null;
+		this._bounds = null;
 		this._bufferState = null;
 		this._vertexBuffer = null;
 		this._indexBuffer = null;
