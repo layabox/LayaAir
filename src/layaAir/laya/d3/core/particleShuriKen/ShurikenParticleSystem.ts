@@ -64,6 +64,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private static halfKSqrtOf2: number = 1.42 * 0.5;
 
 	/** @internal */
+	private static g: number = 9.8;
+
+	/** @internal */
 	static _maxElapsedTime: number = 1.0 / 3.0;
 
 	/**@internal */
@@ -1255,7 +1258,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				break;
 			case 1: // 渐变时间
 			case 3: // 两个渐变时间随机值
-			default :
+			default:
 				// todo 不支持模式
 				break;
 		}
@@ -1310,17 +1313,14 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			}
 		}
 
-		//gravity重力值
-		var gravity: number = this.gravityModifier;
-
 		// shape
 		var zDirectionSpeed: Vector3 = ShurikenParticleSystem._tempVector30;
 		var fDirectionSpeed: Vector3 = ShurikenParticleSystem._tempVector31;
 		var zEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector32;
 		var fEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector33;
-		// var shape: SphereShape|HemisphereShape|ConeShape|CircleShape|BoxShape;
+
 		switch (this.shape.shapeType) {
-			case ParticleSystemShapeType.Sphere: 
+			case ParticleSystemShapeType.Sphere:
 				var sphere: SphereShape = <SphereShape>this.shape;
 				zDirectionSpeed.setValue(1, 1, 1);
 				fDirectionSpeed.setValue(1, 1, 1);
@@ -1372,8 +1372,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					zDirectionSpeed.setValue(0, 0, 0);
 					fDirectionSpeed.setValue(0, 0, 0);
 				}
-				zEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z /2);
-				fEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z /2);
+				zEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
+				fEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
 				break;
 			case ParticleSystemShapeType.Circle:
 				var circle: CircleShape = <CircleShape>this.shape;
@@ -1399,17 +1399,33 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			default:
 				break;
 		}
-		// speedOrigan * directionSpeed * time + directionoffset + size * maxsizeScale
-		var distance: number = speedOrigan * time;
-		var endSize: number = meshSize * maxSizeScale;
-		boundsMax.setValue(distance * zDirectionSpeed.x + endSize + zEmisionOffsetXYZ.x, 
-			distance * zDirectionSpeed.y + endSize + zEmisionOffsetXYZ.y,
-			distance * zDirectionSpeed.z + endSize + zEmisionOffsetXYZ.z);
 
-		boundsMin.setValue(-(distance * fDirectionSpeed.x + endSize + fEmisionOffsetXYZ.x), 
-							-(distance * fDirectionSpeed.y + endSize + fEmisionOffsetXYZ.y),
-							-(distance * fDirectionSpeed.z + endSize + fEmisionOffsetXYZ.z));
-		
+		var endSize: number = meshSize * maxSizeScale;
+		var endSizeOffset: Vector3 = ShurikenParticleSystem._tempVector36;
+		endSizeOffset.setValue(endSize, endSize, endSize);
+
+		var distance: number = speedOrigan * time;
+		var speedZOffset: Vector3 = ShurikenParticleSystem._tempVector34;
+		var speedFOffset: Vector3 = ShurikenParticleSystem._tempVector35;
+		Vector3.scale(zDirectionSpeed, distance, speedZOffset);
+		Vector3.scale(fDirectionSpeed, distance, speedFOffset);
+
+		//gravity重力值
+		var gravity: number = this.gravityModifier;
+		var gravityOffset: number = 0.5 * ShurikenParticleSystem.g * gravity * time * time;
+		speedZOffset.y -= gravityOffset;
+		speedFOffset.y += gravityOffset;
+
+		speedZOffset.y = speedZOffset.y > 0 ? speedZOffset.y : 0;
+		speedFOffset.y = speedFOffset.y > 0 ? speedFOffset.y : 0;
+
+		// speedOrigan * directionSpeed * time + directionoffset + size * maxsizeScale
+		Vector3.add(speedZOffset, endSizeOffset, boundsMax);
+		Vector3.add(boundsMax, zEmisionOffsetXYZ, boundsMax);
+
+		Vector3.add(speedFOffset, endSizeOffset, boundsMin);
+		Vector3.add(boundsMin, fEmisionOffsetXYZ, boundsMin);
+		Vector3.scale(boundsMin, -1, boundsMin);
 
 		this._bounds.setMin(boundsMin);
 		this._bounds.setMax(boundsMax);
