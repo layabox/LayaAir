@@ -342,7 +342,7 @@ export class SubMeshRenderElement extends RenderElement {
 			var dynLastElement: RenderElement = queue.lastTransparentRenderElement;
 			if (dynLastElement) {
 				var dynLastRender: BaseRender = dynLastElement.render;
-				if (dynLastElement._geometry._getType() !== this._geometry._getType() || ((<SubMesh>dynLastElement._geometry))._vertexBuffer._vertexDeclaration !== verDec || dynLastElement.material !== this.material || dynLastRender.receiveShadow !== this.render.receiveShadow || dynLastRender.lightmapIndex !== this.render.lightmapIndex) {
+				if (!(dynLastElement as SubMeshRenderElement)._dynamicVertexBatch|| dynLastElement._geometry._getType() !== this._geometry._getType() || ((<SubMesh>dynLastElement._geometry))._vertexBuffer._vertexDeclaration !== verDec || dynLastElement.material !== this.material || dynLastRender.receiveShadow !== this.render.receiveShadow || dynLastRender.lightmapIndex !== this.render.lightmapIndex) {
 					queueElements.add(this);
 					queue.lastTransparentBatched = false;
 				} else {
