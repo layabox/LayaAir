@@ -1338,7 +1338,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				var cone: ConeShape = <ConeShape>this.shape;
 				// Base || BaseShell
 				if (cone.emitType == 0 || cone.emitType == 1) {
-					var angle: number = cone.angle * Math.PI / 180;
+					// todo angle define
+					// var angle: number = cone.angle * Math.PI / 180;
+					var angle: number = cone.angle;
 					var sinAngle: number = Math.sin(angle);
 					zDirectionSpeed.setValue(sinAngle, sinAngle, 1.0);
 					fDirectionSpeed.setValue(sinAngle, sinAngle, 0.0);
@@ -1348,7 +1350,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				}
 				// Volume || VolumeShell
 				else if (cone.emitType == 2 || cone.emitType == 3) {
-					var angle: number = cone.angle * Math.PI / 180;
+					// var angle: number = cone.angle * Math.PI / 180;
+					var angle: number = cone.angle;
 					var sinAngle: number = Math.sin(angle);
 					var coneLength: number = cone.length;
 					zDirectionSpeed.setValue(sinAngle, sinAngle, 1.0);
@@ -1399,12 +1402,17 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		// speedOrigan * directionSpeed * time + directionoffset + size * maxsizeScale
 		var distance: number = speedOrigan * time;
 		var endSize: number = meshSize * maxSizeScale;
-		boundsMin.setValue(-(distance * fEmisionOffsetXYZ.x + endSize + fEmisionOffsetXYZ.x), 
-							-(distance * fEmisionOffsetXYZ.y + endSize + fEmisionOffsetXYZ.y),
-							-(distance * fEmisionOffsetXYZ.z + endSize + fEmisionOffsetXYZ.z));
-		boundsMax.setValue(distance * fEmisionOffsetXYZ.x + endSize + fEmisionOffsetXYZ.x, 
-							distance * fEmisionOffsetXYZ.y + endSize + fEmisionOffsetXYZ.y,
-							distance * fEmisionOffsetXYZ.z + endSize + fEmisionOffsetXYZ.z);
+		boundsMax.setValue(distance * zDirectionSpeed.x + endSize + zEmisionOffsetXYZ.x, 
+			distance * zDirectionSpeed.y + endSize + zEmisionOffsetXYZ.y,
+			distance * zDirectionSpeed.z + endSize + zEmisionOffsetXYZ.z);
+
+		boundsMin.setValue(-(distance * fDirectionSpeed.x + endSize + fEmisionOffsetXYZ.x), 
+							-(distance * fDirectionSpeed.y + endSize + fEmisionOffsetXYZ.y),
+							-(distance * fDirectionSpeed.z + endSize + fEmisionOffsetXYZ.z));
+		
+
+		this._bounds.setMin(boundsMin);
+		this._bounds.setMax(boundsMax);
 	}
 
 	/**
