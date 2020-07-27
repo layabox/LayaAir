@@ -33,12 +33,16 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer{
     private _bonesNums:number;
     
     /**
-	 * 动画贴图
+     * @internal
+	 * 设置动画帧贴图
 	 */
     get simpleAnimatorTexture():Texture2D{
         return this._simpleAnimatorTexture;
     }
 
+    /**
+     * @internal
+     */
     set simpleAnimatorTexture(value:Texture2D){
         this._simpleAnimatorTexture = value;
         this._simpleAnimatorTextureSize = value.width;
@@ -48,11 +52,16 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer{
     }
 
     /**
-     * 动画帧数
+     * @internal
+     * 设置动画帧数参数
      */
     get simpleAnimatorOffset():Vector2{
         return this._simpleAnimatorOffset;
     }
+    
+    /**
+     * @internal
+     */
     set simpleAnimatorOffset(value:Vector2){
         value.cloneTo(this._simpleAnimatorOffset);
     }
@@ -214,6 +223,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer{
         }
     }
 
+    /**
+     * 删除节点
+     */
     _destroy():void{
         if (this._cacheRootBone)
         (!this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));

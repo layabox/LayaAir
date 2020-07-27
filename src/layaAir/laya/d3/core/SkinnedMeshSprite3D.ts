@@ -19,7 +19,7 @@ import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShade
 
 
 /**
- * <code>SkinnedMeshSprite3D</code> 类用于创建网格。
+ * <code>SkinnedMeshSprite3D</code> 类用于绑点骨骼节点精灵。
  */
 export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**@internal */
