@@ -30,8 +30,6 @@ export class SimpleSkinMeshSprite3D {
 			this.scene.addChild(sprite);
 			this.oriSprite3D = this.scene.getChildAt(0).getChildAt(2) as Sprite3D;
 			this.sceneBuild();
-			//this.scene.getChildAt(0).getChildAt(1) as SpotLight;
-			
 			var animate:Animator = this.oriSprite3D.getComponent(Animator);
 			animate.play("chongci");
 		}));
