@@ -1319,75 +1319,84 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var zEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector32;
 		var fEmisionOffsetXYZ: Vector3 = ShurikenParticleSystem._tempVector33;
 
-		switch (this.shape.shapeType) {
-			case ParticleSystemShapeType.Sphere:
-				var sphere: SphereShape = <SphereShape>this.shape;
-				zDirectionSpeed.setValue(1, 1, 1);
-				fDirectionSpeed.setValue(1, 1, 1);
-				zEmisionOffsetXYZ.setValue(sphere.radius, sphere.radius, sphere.radius);
-				fEmisionOffsetXYZ.setValue(sphere.radius, sphere.radius, sphere.radius);
-				break;
-			case ParticleSystemShapeType.Hemisphere:
-				var hemiShpere: HemisphereShape = <HemisphereShape>this.shape;
-				zDirectionSpeed.setValue(1, 1, 1);
-				fDirectionSpeed.setValue(1, 1, 1);
-				zEmisionOffsetXYZ.setValue(hemiShpere.radius, hemiShpere.radius, hemiShpere.radius);
-				fEmisionOffsetXYZ.setValue(hemiShpere.radius, hemiShpere.radius, 0.0);
-				break;
-			case ParticleSystemShapeType.Cone:
-				var cone: ConeShape = <ConeShape>this.shape;
-				// Base || BaseShell
-				if (cone.emitType == 0 || cone.emitType == 1) {
-					// todo angle define
-					// var angle: number = cone.angle * Math.PI / 180;
-					var angle: number = cone.angle;
-					var sinAngle: number = Math.sin(angle);
-					zDirectionSpeed.setValue(sinAngle, sinAngle, 1.0);
-					fDirectionSpeed.setValue(sinAngle, sinAngle, 0.0);
-					zEmisionOffsetXYZ.setValue(cone.radius, cone.radius, 0.0);
-					fEmisionOffsetXYZ.setValue(cone.radius, cone.radius, 0.0);
-					break;
-				}
-				// Volume || VolumeShell
-				else if (cone.emitType == 2 || cone.emitType == 3) {
-					// var angle: number = cone.angle * Math.PI / 180;
-					var angle: number = cone.angle;
-					var sinAngle: number = Math.sin(angle);
-					var coneLength: number = cone.length;
-					zDirectionSpeed.setValue(sinAngle, sinAngle, 1.0);
-					fDirectionSpeed.setValue(sinAngle, sinAngle, 0.0);
-					var tanAngle: number = Math.tan(angle);
-					var rPLCT: number = cone.radius + coneLength * tanAngle;
-					zEmisionOffsetXYZ.setValue(rPLCT, rPLCT, coneLength);
-					fEmisionOffsetXYZ.setValue(rPLCT, rPLCT, 0.0);
-				}
-				break;
-			case ParticleSystemShapeType.Box:
-				var box: BoxShape = <BoxShape>this.shape;
-				if (this.shape.randomDirection != 0) {
+		zDirectionSpeed.setValue(0, 0, 1);
+		fDirectionSpeed.setValue(0, 0, 0);
+		zEmisionOffsetXYZ.setValue(0, 0, 0);
+		fEmisionOffsetXYZ.setValue(0, 0, 0);
+
+		if (this.shape && this.shape.enable) {
+			switch (this.shape.shapeType) {
+				case ParticleSystemShapeType.Sphere:
+					var sphere: SphereShape = <SphereShape>this.shape;
 					zDirectionSpeed.setValue(1, 1, 1);
 					fDirectionSpeed.setValue(1, 1, 1);
-				}
-				else {
-					zDirectionSpeed.setValue(0, 0, 0);
-					fDirectionSpeed.setValue(0, 0, 0);
-				}
-				zEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
-				fEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
-				break;
-			case ParticleSystemShapeType.Circle:
-				var circle: CircleShape = <CircleShape>this.shape;
-				zDirectionSpeed.setValue(1, 1, 1);
-				fDirectionSpeed.setValue(1, 1, 1);
-				zEmisionOffsetXYZ.setValue(circle.radius, circle.radius, 0);
-				fEmisionOffsetXYZ.setValue(circle.radius, circle.radius, 0);
-				break;
-			default:
-				break;
+					zEmisionOffsetXYZ.setValue(sphere.radius, sphere.radius, sphere.radius);
+					fEmisionOffsetXYZ.setValue(sphere.radius, sphere.radius, sphere.radius);
+					break;
+				case ParticleSystemShapeType.Hemisphere:
+					var hemiShpere: HemisphereShape = <HemisphereShape>this.shape;
+					zDirectionSpeed.setValue(1, 1, 1);
+					fDirectionSpeed.setValue(1, 1, 1);
+					zEmisionOffsetXYZ.setValue(hemiShpere.radius, hemiShpere.radius, hemiShpere.radius);
+					fEmisionOffsetXYZ.setValue(hemiShpere.radius, hemiShpere.radius, 0.0);
+					break;
+				case ParticleSystemShapeType.Cone:
+					var cone: ConeShape = <ConeShape>this.shape;
+					// Base || BaseShell
+					if (cone.emitType == 0 || cone.emitType == 1) {
+						// todo angle define
+						// var angle: number = cone.angle * Math.PI / 180;
+						var angle: number = cone.angle;
+						var sinAngle: number = Math.sin(angle);
+						zDirectionSpeed.setValue(sinAngle, sinAngle, 1.0);
+						fDirectionSpeed.setValue(sinAngle, sinAngle, 0.0);
+						zEmisionOffsetXYZ.setValue(cone.radius, cone.radius, 0.0);
+						fEmisionOffsetXYZ.setValue(cone.radius, cone.radius, 0.0);
+						break;
+					}
+					// Volume || VolumeShell
+					else if (cone.emitType == 2 || cone.emitType == 3) {
+						// var angle: number = cone.angle * Math.PI / 180;
+						var angle: number = cone.angle;
+						var sinAngle: number = Math.sin(angle);
+						var coneLength: number = cone.length;
+						zDirectionSpeed.setValue(sinAngle, sinAngle, 1.0);
+						fDirectionSpeed.setValue(sinAngle, sinAngle, 0.0);
+						var tanAngle: number = Math.tan(angle);
+						var rPLCT: number = cone.radius + coneLength * tanAngle;
+						zEmisionOffsetXYZ.setValue(rPLCT, rPLCT, coneLength);
+						fEmisionOffsetXYZ.setValue(rPLCT, rPLCT, 0.0);
+					}
+					break;
+				case ParticleSystemShapeType.Box:
+					var box: BoxShape = <BoxShape>this.shape;
+					if (this.shape.randomDirection != 0) {
+						zDirectionSpeed.setValue(1, 1, 1);
+						fDirectionSpeed.setValue(1, 1, 1);
+					}
+					else {
+						zDirectionSpeed.setValue(0, 0, 0);
+						fDirectionSpeed.setValue(0, 0, 0);
+					}
+					zEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
+					fEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
+					break;
+				case ParticleSystemShapeType.Circle:
+					var circle: CircleShape = <CircleShape>this.shape;
+					zDirectionSpeed.setValue(1, 1, 1);
+					fDirectionSpeed.setValue(1, 1, 1);
+					zEmisionOffsetXYZ.setValue(circle.radius, circle.radius, 0);
+					fEmisionOffsetXYZ.setValue(circle.radius, circle.radius, 0);
+					break;
+				default:
+					break;
+			}
 		}
 
 		// size
 		var meshSize: number = 0;
+		// 是否是 mesh 模式
+		var meshMode: boolean = particleRender.renderMode == 4;
 		switch (particleRender.renderMode) {
 			case 0: // billboard
 				meshSize = ShurikenParticleSystem.halfKSqrtOf2;// Math.sqrt(2) / 2.0;
@@ -1400,15 +1409,70 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				break;
 		}
 
-		var endSize: number = meshSize * maxSizeScale;
 		var endSizeOffset: Vector3 = ShurikenParticleSystem._tempVector36;
-		endSizeOffset.setValue(endSize, endSize, endSize);
+		if (this.sizeOverLifetime && this.sizeOverLifetime.enable) {
+			var gradientSize: GradientSize = this.sizeOverLifetime.size;
+			var maxSize: number = gradientSize.getMaxSizeInGradient(meshMode);
 
-		var distance: number = speedOrigan * time;
+			endSizeOffset.setValue(maxSize, maxSize, maxSize);
+		}
+		
+		Vector3.scale(endSizeOffset, meshSize * maxSizeScale, endSizeOffset);
+
+		// var distance: number = speedOrigan * time;
 		var speedZOffset: Vector3 = ShurikenParticleSystem._tempVector34;
 		var speedFOffset: Vector3 = ShurikenParticleSystem._tempVector35;
-		Vector3.scale(zDirectionSpeed, distance, speedZOffset);
-		Vector3.scale(fDirectionSpeed, distance, speedFOffset);
+
+		if (speedOrigan > 0) {
+			Vector3.scale(zDirectionSpeed, speedOrigan, speedZOffset);
+			Vector3.scale(fDirectionSpeed, speedOrigan, speedFOffset);
+		}
+		else {
+			Vector3.scale(zDirectionSpeed, -speedOrigan, speedFOffset);
+			Vector3.scale(fDirectionSpeed, -speedOrigan, speedZOffset);
+		}
+
+		if (this.velocityOverLifetime && this.velocityOverLifetime.enable) {
+			var gradientVelocity: GradientVelocity = this.velocityOverLifetime.velocity;
+			var velocitySpeedOffset: Vector3 = ShurikenParticleSystem._tempVector37;
+			switch (gradientVelocity.type) {
+				case 0: // 常量模式
+					gradientVelocity.constant.cloneTo(velocitySpeedOffset);
+					break;
+				case 2: // 随机双常量模式
+					gradientVelocity.constantMax.cloneTo(velocitySpeedOffset);
+					break;
+				case 1: // 曲线模式
+					// todo 获取 曲线最大值
+					var curveX: number = gradientVelocity.gradientX.getAverageValue();
+					var curveY: number = gradientVelocity.gradientY.getAverageValue();
+					var curveZ: number = gradientVelocity.gradientZ.getAverageValue();
+					velocitySpeedOffset.setValue(curveX, curveY, curveZ);
+					break;
+				case 3: // 随机双曲线模式
+					var xMax: number = gradientVelocity.gradientXMax.getAverageValue();
+					var yMax: number = gradientVelocity.gradientYMax.getAverageValue();
+					var zMax: number = gradientVelocity.gradientZMax.getAverageValue();
+					velocitySpeedOffset.setValue(xMax, yMax, zMax);
+					break;
+				default:
+					break;
+			}
+
+			// 速度空间 world
+			if (this.velocityOverLifetime.space == 1) {
+				Vector3.transformV3ToV3(velocitySpeedOffset, this._owner.transform.worldMatrix, velocitySpeedOffset);
+			}
+
+			Vector3.add(speedZOffset, velocitySpeedOffset, speedZOffset);
+			Vector3.subtract(speedFOffset, velocitySpeedOffset, speedFOffset);
+
+			Vector3.max(speedZOffset, Vector3._ZERO, speedZOffset);
+			Vector3.max(speedFOffset, Vector3._ZERO, speedFOffset);
+		}
+
+		Vector3.scale(speedZOffset, time, speedZOffset);
+		Vector3.scale(speedFOffset, time, speedFOffset);
 
 		//gravity重力值
 		var gravity: number = this.gravityModifier;
