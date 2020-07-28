@@ -140,25 +140,28 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 * @internal
 	 * @override
 	 */
-	protected _calculateBoundingBox(): void {//TODO:日后需要计算包围盒的更新
-		//var particleSystem:ShurikenParticleSystem = (_owner as ShuriKenParticle3D).particleSystem;
-		//particleSystem._generateBoundingBox();
-		//var rotation:Quaternion = _owner.transform.rotation;
-		//var corners:Vector.<Vector3> = particleSystem._boundingBoxCorners;
-		//for (var i:int = 0; i < 8; i++)
-		//	Vector3.transformQuat(corners[i], rotation, _tempBoudingBoxCorners[i]);
-		//BoundBox.createfromPoints(_tempBoudingBoxCorners, _boundingBox);
+	protected _calculateBoundingBox(): void {
 
-		var min: Vector3 = this._bounds.getMin();
-		min.x = -Number.MAX_VALUE;
-		min.y = -Number.MAX_VALUE;
-		min.z = -Number.MAX_VALUE;
-		this._bounds.setMin(min);
-		var max: Vector3 = this._bounds.getMax();
-		max.x = Number.MAX_VALUE;
-		max.y = Number.MAX_VALUE;
-		max.z = Number.MAX_VALUE;
-		this._bounds.setMax(max);
+		var particleSystem: ShurikenParticleSystem = (this._owner as ShuriKenParticle3D).particleSystem;
+		var bounds: Bounds;
+		if (particleSystem._useCustomBounds) {
+			bounds = particleSystem.customBounds;
+			bounds._tranform(this._owner.transform.worldMatrix, this._bounds);
+		}
+		else if (particleSystem._simulationSupported()) {
+			// todo need update Bounds
+			particleSystem._generateBounds();
+			bounds = particleSystem._bounds;
+			bounds._tranform(this._owner.transform.worldMatrix, this._bounds);
+		}
+		else {
+			var min: Vector3 = this._bounds.getMin();
+			min.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+			this._bounds.setMin(min);
+			var max: Vector3 = this._bounds.getMax();
+			max.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+			this._bounds.setMax(max);
+		}
 
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
 			var min: Vector3 = this._bounds.getMin();

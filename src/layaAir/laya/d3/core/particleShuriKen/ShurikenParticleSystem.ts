@@ -104,8 +104,14 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/** @internal */
 	_boundingBoxCorners: Vector3[] = null;
 
-	/**@internal */
+	/** @internal */
 	_bounds: Bounds = null;
+
+	/** @internal */
+	_customBounds: Bounds = null;
+
+	/** @internal */
+	_useCustomBounds: boolean = false;
 
 	/** @internal */
 	private _owner: ShuriKenParticle3D = null;
@@ -870,6 +876,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._boundingSphere = new BoundSphere(new Vector3(), Number.MAX_VALUE);//TODO:
 		this._boundingBox = new BoundBox(new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE), new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE));//TODO:
 		this._bounds = new Bounds(this._boundingBox.min, this._boundingBox.max);
+		this._useCustomBounds = false;
+
 		this._currentTime = 0;
 
 		this._isEmitting = false;
@@ -1264,7 +1272,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		}
 
 		// speed
-		// todo
 		var speedOrigan: number = 0;
 		switch (this.startSpeedType) {
 			case 0: // 恒定速度
@@ -1416,7 +1423,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 			endSizeOffset.setValue(maxSize, maxSize, maxSize);
 		}
-		
+
 		Vector3.scale(endSizeOffset, meshSize * maxSizeScale, endSizeOffset);
 
 		// var distance: number = speedOrigan * time;
@@ -1493,6 +1500,37 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		this._bounds.setMin(boundsMin);
 		this._bounds.setMax(boundsMax);
+	}
+
+	/**
+	 * 设置 自定义 包围盒
+	 */
+	get customBounds(): Bounds {
+		return this._customBounds;
+	}
+
+	set customBounds(value: Bounds) {
+		if (value) {
+			this._useCustomBounds = true;
+		}
+		else {
+			this._useCustomBounds = false;
+		}
+		this._customBounds = value;
+	}
+
+	/**
+	 * @internal
+	 */
+	_simulationSupported(): boolean {
+
+		if (this.simulationSpace == 0) {
+			return false;
+		}
+
+		// todo other propertys break procedural 
+
+		return true;
 	}
 
 	/**
@@ -1821,6 +1859,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._boundingSphere = null;
 		this._boundingBoxCorners = null;
 		this._bounds = null;
+		this._customBounds = null;
 		this._bufferState = null;
 		this._vertexBuffer = null;
 		this._indexBuffer = null;
@@ -2277,6 +2316,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 */
 	cloneTo(destObject: any): void {
 		var dest: ShurikenParticleSystem = (<ShurikenParticleSystem>destObject);
+
+		dest._useCustomBounds = this._useCustomBounds;
+		(this._customBounds) && (this._customBounds.cloneTo(dest._customBounds));		
 
 		dest.duration = this.duration;
 		dest.looping = this.looping;
