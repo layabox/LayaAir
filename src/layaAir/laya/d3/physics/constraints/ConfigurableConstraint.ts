@@ -6,21 +6,27 @@ import { Vector3 } from "../../math/Vector3";
 import { Rigidbody3D } from "../Rigidbody3D";
 import { Sprite3D } from "../../core/Sprite3D";
 
+/**
+ * <code>ConfigurableConstraint</code>类用于可设置的约束组件
+ */
 export class ConfigurableConstraint extends ConstraintComponent{
+	/** 约束限制模式  完全限制 */
 	static CONFIG_MOTION_TYPE_LOCKED:number = 0;
+	/** 约束限制模式  范围限制 */
 	static CONFIG_MOTION_TYPE_LIMITED:number = 1;
+	/** 约束限制模式  不限制 */
 	static CONFIG_MOTION_TYPE_FREE:number = 2;
-	/** @internal */
+	/** @internal 线性x轴*/
 	static MOTION_LINEAR_INDEX_X:number = 0;
-	/** @internal */
+	/** @internal 线性Y轴*/
 	static MOTION_LINEAR_INDEX_Y:number = 1;
-	/** @internal */
+	/** @internal 线性Z轴*/
 	static MOTION_LINEAR_INDEX_Z:number = 2;
-	/** @internal */
+	/** @internal 旋转X轴*/
 	static MOTION_ANGULAR_INDEX_X:number = 3;
-	/** @internal */
+	/** @internal 旋转Y轴*/
 	static MOTION_ANGULAR_INDEX_Y:number = 4;
-	/** @internal */
+	/** @internal 旋转Z轴*/
 	static MOTION_ANGULAR_INDEX_Z:number = 5;
 	/** @internal */
 	static RO_XYZ:number = 0;
@@ -75,7 +81,7 @@ export class ConfigurableConstraint extends ConstraintComponent{
 	/** @internal */
 	private _angularZMotion:number = 0;
 	/**
-	 * 创建一个<code>Generic6DofSpring2Constraint</code>实例	
+	 * 创建一个<code>ConfigurableConstraint</code>实例	可设置的约束组件
 	 */
 	constructor(){
 		super(ConstraintComponent.CONSTRAINT_D6_SPRING_CONSTRAINT_TYPE);
@@ -98,10 +104,16 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		return this._secondaryAxis;
 	}
 
+	/**
+	 * 旋转角度最大值
+	 */
 	set maxAngularLimit(value:Vector3){
 		value.cloneTo(this._maxAngularLimit);
 	}
 
+	/**
+	 * 旋转角度最小值
+	 */
 	set minAngularLimit(value:Vector3){
 		value.cloneTo(this._minAngularLimit);
 	}
@@ -113,13 +125,21 @@ export class ConfigurableConstraint extends ConstraintComponent{
 	get minAngularLimit():Vector3{
 		return this._minAngularLimit;
 	}
+
+	/**
+	 * 最大线性位置
+	 */
 	set maxLinearLimit(value:Vector3){
 		value.cloneTo(this._maxLinearLimit);
 	}
 
+	/**
+	 * 最小线性位置
+	 */
 	set minLinearLimit(value:Vector3){
 		value.cloneTo(this._minLinearLimit);
 	}
+
 
 	get maxLinearLimit():Vector3{
 		return this._maxLinearLimit;
@@ -279,6 +299,9 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		return this._angularBounce;
 	}
 
+	/**
+	 * 线性阻力
+	 */
 	set linearDamp(value:Vector3){
 		if(!Vector3.equals(this._linearDamp,value)){
 			value.cloneTo(this._linearDamp);
@@ -292,6 +315,9 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		return this._linearDamp;
 	}
 
+	/**
+	 * 角度阻力
+	 */
 	set angularDamp(value:Vector3){
 		if(!Vector3.equals(this._angularDamp,value)){
 			value.cloneTo(this._angularDamp);
@@ -305,6 +331,9 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		return this._angularDamp;
 	}
 
+	/**
+	 * 设置锚点
+	 */
 	set anchor(value:Vector3){
 		value.cloneTo(this._anchor);
 		this.setFrames();
@@ -314,6 +343,9 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		return this._anchor;
 	}
 
+	/**
+	 * 设置链接锚点
+	 */
 	set connectAnchor(value:Vector3){
 		value.cloneTo(this._connectAnchor);
 		this.setFrames();

@@ -171,6 +171,9 @@ export class ConstraintComponent extends Component {
         this._breakTorque = value;
 	}
 
+	/**
+	 * 设置锚点
+	 */
 	set anchor(value:Vector3){
 		value.cloneTo(this._anchor);
 		this.setFrames();
@@ -180,6 +183,9 @@ export class ConstraintComponent extends Component {
 		return this._anchor;
 	}
 
+	/**
+	 * 设置链接锚点
+	 */
 	set connectAnchor(value:Vector3){
 		value.cloneTo(this._connectAnchor);
 		this.setFrames();
