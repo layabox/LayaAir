@@ -50,6 +50,21 @@ export class ShurikenParticleMaterial extends Material {
 	/**
 	 * @internal
 	 */
+	get _TintColor(): Vector4 {
+		return this.color;
+	}
+
+	/**
+	 * @internal
+	 */
+	set _TintColor(value: Vector4) {
+		this.color = value;
+	}
+
+
+	/**
+	 * @internal
+	 */
 	get _TintColorR(): number {
 		return this._color.x;
 	}
@@ -104,6 +119,23 @@ export class ShurikenParticleMaterial extends Material {
 		this._color.w = value;
 		this.color = this._color;
 	}
+
+	/**
+	 * @internal
+	 */
+	get _MainTex_ST(): Vector4 {
+		return this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET)
+	}
+
+	/**
+	 * @internal
+	 */
+	set _MainTex_ST(value: Vector4) {
+		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET));
+		tilOff.setValue(value.x, value.y, value.z, value.w);
+		this.tilingOffset = tilOff;
+	}
+
 
 	/**
 	 * @internal

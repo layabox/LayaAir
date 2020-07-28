@@ -1,4 +1,4 @@
-import { BaseShape } from "./BaseShape";
+import { BaseShape, ParticleSystemShapeType } from "./BaseShape";
 import { ShapeUtils } from "./ShapeUtils";
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"
@@ -24,6 +24,7 @@ export class CircleShape extends BaseShape {
 	 */
 	constructor() {
 		super();
+		this.shapeType = ParticleSystemShapeType.Circle;
 		this.radius = 1.0;
 		this.arc = 360.0 / 180.0 * Math.PI;
 		this.emitFromEdge = false;

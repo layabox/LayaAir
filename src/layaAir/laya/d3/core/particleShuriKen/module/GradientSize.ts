@@ -263,7 +263,7 @@ export class GradientSize implements IClone {
 	/**
 	 * 获取最大尺寸。
 	 */
-	getMaxSizeInGradient(): number {
+	getMaxSizeInGradient(meshMode: boolean = false): number {
 		var i: number, n: number;
 		var maxSize: number = -Number.MAX_VALUE;
 		switch (this._type) {
@@ -273,7 +273,11 @@ export class GradientSize implements IClone {
 						maxSize = Math.max(maxSize, this._gradientX.getValueByIndex(i));
 					for (i = 0, n = this._gradientY.gradientCount; i < n; i++)
 						maxSize = Math.max(maxSize, this._gradientY.getValueByIndex(i));
-					//TODO:除了RenderMode为MeshZ无效
+					if (meshMode) {
+						for (i = 0, n = this._gradientZ.gradientCount; i < n; i++) {
+							maxSize = Math.max(maxSize, this._gradientZ.getValueByIndex(i));
+						}
+					}
 				} else {
 					for (i = 0, n = this._gradient.gradientCount; i < n; i++)
 						maxSize = Math.max(maxSize, this._gradient.getValueByIndex(i));
@@ -283,8 +287,9 @@ export class GradientSize implements IClone {
 				if (this._separateAxes) {
 					maxSize = Math.max(this._constantMinSeparate.x, this._constantMaxSeparate.x);
 					maxSize = Math.max(maxSize, this._constantMinSeparate.y);
-					maxSize = Math.max(maxSize, this._constantMaxSeparate.y);
-					//TODO:除了RenderMode为MeshZ无效
+					if (meshMode) {
+						maxSize = maxSize = Math.max(maxSize, this._constantMaxSeparate.z);
+					}
 				} else {
 					maxSize = Math.max(this._constantMin, this._constantMax);
 				}
@@ -300,7 +305,15 @@ export class GradientSize implements IClone {
 						maxSize = Math.max(maxSize, this._gradientYMin.getValueByIndex(i));
 					for (i = 0, n = this._gradientZMax.gradientCount; i < n; i++)
 						maxSize = Math.max(maxSize, this._gradientZMax.getValueByIndex(i));
-					//TODO:除了RenderMode为MeshZ无效
+					
+					if (meshMode) {
+						for (i = 0, n = this._gradientZMin.gradientCount; i < n; i++) {
+							maxSize = Math.max(maxSize, this._gradientZMin.getValueByIndex(i));
+						}
+						for (i = 0, n = this._gradientZMax.gradientCount; i < n; i++) {
+							maxSize = Math.max(maxSize, this._gradientZMax.getValueByIndex(i));
+						}
+					}
 				} else {
 					for (i = 0, n = this._gradientMin.gradientCount; i < n; i++)
 						maxSize = Math.max(maxSize, this._gradientMin.getValueByIndex(i));
