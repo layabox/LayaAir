@@ -312,7 +312,8 @@ export class Input3D {
 						var lastLength: number = this._touches.length;//需要在_changeTouches()之前获取
 						this._changeTouches((<TouchEvent>e).changedTouches, 0);
 						if (enablePhysics) {
-							rayCast = true;//触摸点击时touchMove不会触发,需要调用_touchRayCast()函数
+							//rayCast = true;//触摸点击时touchMove不会触发,需要调用_touchRayCast()函数
+							(!Config3D._config.isUseCannonPhysicsEngine) && (this._mouseTouchRayCast(cameras));
 							(lastLength === 0) && (this._mouseTouchDown());
 						}
 						break;
