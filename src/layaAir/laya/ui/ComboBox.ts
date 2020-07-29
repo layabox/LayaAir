@@ -422,9 +422,13 @@ export class ComboBox extends UIComponent {
     }
 
     set selectedLabel(value: string) {
-        this.callLater(() => {
+        if (this._labels.length > 0) {
             this.selectedIndex = this._labels.indexOf(value);
-        });
+        } else {
+            this.callLater(() => {
+                this.selectedIndex = this._labels.indexOf(value);
+            });
+        }
     }
 
     /**
