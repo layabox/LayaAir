@@ -324,16 +324,22 @@ export class Animator extends Component {
 			}
 
 			if (frontPlay) {
-				playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+				this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
 				for (var i: number = 0, n: number = loopCount - 1; i < n; i++)
 					this._eventScript(scripts, events, 0, clipDuration, true);
-				(loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, 0, time, true));//if need cross loop,'time' must large than 0
+				if(loopCount > 0 && time > 0){  //if need cross loop,'time' must large than 0
+					playStateInfo._playEventIndex = 0;
+					this._eventScript(scripts, events, 0, time, true);
+				} 
 			} else {
-				playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+				this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
 				var eventIndex: number = events.length - 1;
 				for (i = 0, n = loopCount - 1; i < n; i++)
 					this._eventScript(scripts, events, eventIndex, 0, false);
-				(loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, eventIndex, time, false));//if need cross loop,'time' must large than 0
+				if(loopCount > 0 && time > 0){  //if need cross loop,'time' must large than 0
+					playStateInfo._playEventIndex = eventIndex;
+					this._eventScript(scripts, events, playStateInfo._playEventIndex, time, true);
+				}					
 			}
 		}
 	}
