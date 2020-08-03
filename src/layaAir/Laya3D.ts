@@ -335,6 +335,7 @@ export class Laya3D {
 		createMap["ltcb"] = [Laya3D.TEXTURECUBEBIN, TextureCube._parseBin];
 		//为其他平台添加的兼容代码,临时TODO：
 		createMap["ltcb.ls"] = [Laya3D.TEXTURECUBEBIN, TextureCube._parseBin];
+		createMap["lanit.ls"] = [Laya3D.TEXTURE2D,Texture2D._SimpleAnimatorTextureParse];
 
 		var parserMap: any = Loader.parserMap;
 		parserMap[Laya3D.HIERARCHY] = Laya3D._loadHierarchy;
@@ -765,18 +766,7 @@ export class Laya3D {
 	private static _loadSimpleAnimator(loader:Loader):void{
 		loader.on(Event.LOADED,null,function(data:any):void{
 			loader._cache = loader._createCache;
-			var byte:Byte = new Byte(data);
-			var version:String = byte.readUTFString();
-			if(version!="LAYAANIMATORTEXTURE:0000")
-				throw "Laya3D:unknow version.";
-			var textureWidth:number = byte.readInt32();
-			var pixelDataLength:number = byte.readInt32();
-			var pixelDataArrays:Float32Array = new Float32Array(textureWidth*textureWidth*4); 
-			var usePixelData:Float32Array =new Float32Array(byte.readArrayBuffer(pixelDataLength*4));
-			pixelDataArrays.set(usePixelData,0);
-			var texture = new Texture2D(textureWidth,textureWidth,TextureFormat.R32G32B32A32,false,false);
-			texture.setPixels(pixelDataArrays,0);
-			texture.filterMode = FilterMode.Point;
+			var texture: Texture2D = Texture2D._SimpleAnimatorTextureParse(data, loader._propertyParams, loader._constructParams);
 			Laya3D._endLoad(loader,texture);
 		});
 		loader.load(loader.url,Loader.BUFFER,false,null,true)
