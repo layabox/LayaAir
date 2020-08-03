@@ -17,7 +17,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 
 
 export class DrawTextTexture {
-    private cav: any;
+    private cav: HTMLCanvasElement;
     private plane: MeshSprite3D;
     private mat: UnlitMaterial;
     private texture2D: Texture2D;
@@ -50,7 +50,7 @@ export class DrawTextTexture {
         cxt.fillStyle = 'rgb(' + '132' + ',' + '240' + ',109)';
         cxt.font = "bold 50px 宋体";
         cxt.textAlign = "center";//文本的对齐方式
-        cxt.textBaseline = "center";//文本相对于起点的位置
+        cxt.textBaseline = "middle";//文本相对于起点的位置
         //设置文字,位置
         cxt.fillText("LayaAir", 100, 50, 200);//有填充cxt.font="bold 60px 宋体";
 
@@ -65,7 +65,7 @@ export class DrawTextTexture {
 
         cxt.strokeStyle = "yellow";
         cxt.font = "bold 30px 黑体";
-        cxt.strokeText("LayaBox", 100, 150, 200);//只有边框
+        cxt.strokeText("LayaBox", 100, 150,);//只有边框
         this.texture2D = new Texture2D(256, 256);
         this.texture2D.loadImageSource(this.cav);
         this.mat.renderMode = UnlitMaterial.RENDERMODE_TRANSPARENT;
@@ -76,7 +76,6 @@ export class DrawTextTexture {
         var rotate: Vector3 = new Vector3(0, 0, 1);
         Laya.timer.frameLoop(1, this, function (): void {
             this.plane.transform.rotate(rotate, true, false);
-
         });
     }
 
