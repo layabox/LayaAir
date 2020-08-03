@@ -257,12 +257,8 @@ export class Laya {
 	}
 
 	/**@internal */
-	static _getUrlPath(): string {
-		var location: any = Browser.window.location;
-		var pathName: string = location.pathname;
-		// 索引为2的字符如果是':'就是windows file协议
-		pathName = pathName.charAt(2) == ':' ? pathName.substring(1) : pathName;
-		return URL.getPath(location.protocol == "file:" ? pathName : location.protocol + "//" + location.host + location.pathname);
+	static _getUrlPath(): string {//不再需要特殊处理file的路径
+		return URL.getPath(location.protocol + "//" + location.host + location.pathname);
 	}
 
 	/**@internal */

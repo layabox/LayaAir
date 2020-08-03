@@ -36,7 +36,10 @@ export class WXOpenDataViewer extends UIComponent {
     }
     
     private _onLoop():void {
-        (this.texture.bitmap as Texture2D).loadImageSource((window as any).sharedCanvas);
+        let _canvas:HTMLCanvasElement = (window as any).sharedCanvas;
+        this.texture.sourceWidth = _canvas.width;
+        this.texture.sourceHeight = _canvas.height;
+        (this.texture.bitmap as Texture2D).loadImageSource(_canvas);
     }
     
     /**
