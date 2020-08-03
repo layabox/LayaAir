@@ -356,7 +356,7 @@ export class SoundManager {
      * 播放背景音乐。背景音乐同时只能播放一个，如果在播放背景音乐时再次调用本方法，会先停止之前的背景音乐，再播放当前的背景音乐。
      * @param url		声音文件地址。
      * @param loops		循环次数,0表示无限循环。
-     * @param complete	声音播放完成回调。
+     * @param complete	声音播放完成回调,complete 结果参数 true: 播放完成, false/undefined ：stop触发的complete。
      * @param startTime	声音播放起始时间。
      * @return SoundChannel对象，通过此对象可以对声音进行控制，以及获取声音信息。
      */
