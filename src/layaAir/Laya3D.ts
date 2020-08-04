@@ -96,6 +96,7 @@ import { Camera } from "./laya/d3/core/Camera";
 import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
 import { SimpleSkinnedMeshRenderer } from "./laya/d3/core/SimpleSkinnedMeshRenderer";
 import { Utils } from "./laya/utils/Utils";
+import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -234,6 +235,7 @@ export class Laya3D {
 		RenderableSprite3D.__init__();
 		MeshSprite3D.__init__();
 		SkinnedMeshSprite3D.__init__();
+		SimpleSkinnedMeshSprite3D.__init__();
 		ShuriKenParticle3D.__init__();
 		TrailSprite3D.__init__();
 		PostProcess.__init__();

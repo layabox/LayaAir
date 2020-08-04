@@ -9,9 +9,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Animator } from "laya/d3/component/Animator";
 import { Shader3D } from "laya/d3/shader/Shader3D";
-import { SpotLight } from "laya/d3/core/light/SpotLight";
 
-export class SimpleSkinMeshSprite3D {
+export class SimpleSkinAnimationInstance {
 	private animatorName:string[] = ["run","chongci","dead","xuli","stand"];
 	private oriSprite3D:Sprite3D;
 	private scene:Scene3D;
