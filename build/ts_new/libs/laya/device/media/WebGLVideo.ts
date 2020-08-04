@@ -16,8 +16,8 @@ export class WebGLVideo extends HtmlVideo {
 		super();
 
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		if (!ILaya.Render.isConchApp && ILaya.Browser.onIPhone)
-			return;
+		// if (!ILaya.Render.isConchApp && ILaya.Browser.onIPhone)
+		// 	return;
 		this.gl = ILaya.Render.isConchApp ? (window as any).LayaGLContext.instance : WebGLContext.mainContext;
 		this._source = this.gl.createTexture();
 
@@ -37,8 +37,8 @@ export class WebGLVideo extends HtmlVideo {
 	}
 
 	updateTexture(): void {
-		if (!ILaya.Render.isConchApp && ILaya.Browser.onIPhone)
-			return;
+		// if (!ILaya.Render.isConchApp && ILaya.Browser.onIPhone)
+		// 	return;
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.bindTexture(this.gl, gl.TEXTURE_2D, this._source);
 
@@ -56,13 +56,15 @@ export class WebGLVideo extends HtmlVideo {
 		destroy(): void {
 		if (this._source) {
 			this.gl = ILaya.Render.isConchApp ? (window as any).LayaGLContext.instance : WebGLContext.mainContext;
-
-			if (WebGLVideo.curBindSource == this._source) {
-				WebGLContext.bindTexture(this.gl, this.gl.TEXTURE_2D, null);
-				WebGLVideo.curBindSource = null;
+			if(this.gl){
+				if (WebGLVideo.curBindSource == this._source) {
+					WebGLContext.bindTexture(this.gl, this.gl.TEXTURE_2D, null);
+					WebGLVideo.curBindSource = null;
+				}
+	
+				this.gl.deleteTexture(this._source);
 			}
-
-			this.gl.deleteTexture(this._source);
+			
 		}
 
 		super.destroy();

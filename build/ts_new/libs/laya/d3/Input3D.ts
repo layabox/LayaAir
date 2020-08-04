@@ -126,8 +126,14 @@ export class Input3D {
 	/**
 	 * @internal
 	 */
-	private _getTouch(touchID: number): Touch {
+	private _getTouch(touchID: number,type:number): Touch {
 		var touch: Touch = this._touchPool[touchID];
+		if((type==0&&touch&&touch._getIndexInList()!=-1))
+			return null;
+
+		if(type == 1&&touch&&(touch._getIndexInList()==-1))
+			return null;
+			
 		if (!touch) {
 			touch = new Touch();
 			this._touchPool[touchID] = touch;
@@ -244,8 +250,8 @@ export class Input3D {
 			var identifier: number = nativeTouch.identifier;
 			if (!this._multiTouchEnabled && identifier !== 0)
 				continue;
-			var touch: Touch = this._getTouch(identifier);
-			var pos: Vector2 = touch._position;
+			var touch: Touch = this._getTouch(identifier,flag);
+			var pos: Vector2 = this._touchPool[identifier]._position;
 			var mousePoint: Point = Input3D._tempPoint;
 			mousePoint.setTo(nativeTouch.pageX, nativeTouch.pageY);
 			ILaya.stage._canvasTransform.invertTransformPoint(mousePoint);//考虑画布缩放	
@@ -253,12 +259,14 @@ export class Input3D {
 			var posY: number = mousePoint.y;
 			switch (flag) {
 				case 0://add 
-					this._touches.add(touch);
+					if(!!touch)
+						this._touches.add(touch);
 					offsetX += posX;
 					offsetY += posY;
 					break;
-				case 1://remove 
-					this._touches.remove(touch);
+				case 1://remove
+					 if(!!touch)
+						this._touches.remove(touch);
 					offsetX -= posX;
 					offsetY -= posY;
 					break;
@@ -312,7 +320,8 @@ export class Input3D {
 						var lastLength: number = this._touches.length;//需要在_changeTouches()之前获取
 						this._changeTouches((<TouchEvent>e).changedTouches, 0);
 						if (enablePhysics) {
-							rayCast = true;//触摸点击时touchMove不会触发,需要调用_touchRayCast()函数
+							//rayCast = true;//触摸点击时touchMove不会触发,需要调用_touchRayCast()函数
+							(!Config3D._config.isUseCannonPhysicsEngine) && (this._mouseTouchRayCast(cameras));
 							(lastLength === 0) && (this._mouseTouchDown());
 						}
 						break;
