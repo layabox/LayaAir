@@ -18,9 +18,15 @@ import { SingletonList } from "../component/SingletonList";
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 import { Utils3D } from "../utils/Utils3D";
-import { SimpleSkinnedMeshSprite3D } from "./SimpleSkinnedMeshSprite3D";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer{
+    /**@internal 解决循环引用 */
+    static SIMPLE_SIMPLEANIMATORTEXTURE:number;
+    /**@internal 解决循环引用*/
+    static SIMPLE_SIMPLEANIMATORPARAMS:number;
+    /**@internal 解决循环引用*/
+    static SIMPLE_SIMPLEANIMATORTEXTURESIZE:number;
+    
     /**@internal */
     private _simpleAnimatorTexture:Texture2D;
     /**@internal */
@@ -46,9 +52,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer{
     set simpleAnimatorTexture(value:Texture2D){
         this._simpleAnimatorTexture = value;
         this._simpleAnimatorTextureSize = value.width;
-        this._shaderValues.setTexture(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE,value);
+        this._shaderValues.setTexture(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURE,value);
         value._addReference();
-        this._shaderValues.setNumber(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE,this._simpleAnimatorTextureSize);
+        this._shaderValues.setNumber(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURESIZE,this._simpleAnimatorTextureSize);
     }
 
     /**
@@ -132,7 +138,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer{
                     this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
                 }
                 this._computeAnimatorParamsData();
-                this._shaderValues.setVector(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS,this._simpleAnimatorParams);
+                this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS,this._simpleAnimatorParams);
                 break;
             case RenderElement.RENDERTYPE_INSTANCEBATCH:
                 var worldMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceWorldMatrixData;

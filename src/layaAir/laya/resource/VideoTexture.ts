@@ -1,12 +1,8 @@
 import { BaseTexture } from "./BaseTexture";
-import { WebGLVideo } from "../device/media/WebGLVideo";
 import { LayaGL } from "../layagl/LayaGL";
 import { WarpMode } from "./WrapMode";
 import { FilterMode } from "./FilterMode";
-import { Video } from "../device/media/Video";
 import { WebGLContext } from "../webgl/WebGLContext";
-import { SingletonList } from "../d3/component/SingletonList";
-import { SimpleSingletonList } from "../d3/component/SimpleSingletonList";
 import { Laya } from "../../Laya";
 
 
@@ -15,15 +11,14 @@ import { Laya } from "../../Laya";
  */
 export class VideoTexture extends BaseTexture {
 	/**videoTexture对象池*/
-	public static _videoTexturePool:SingletonList<VideoTexture> = new SingletonList<VideoTexture>();
+	public static _videoTexturePool:Array<VideoTexture> = new Array<VideoTexture>();
 	/**
 	 * @internal 会在场景中更新video文件
 	 */
 	static _update(): void {
-		var pool: SingletonList<VideoTexture> = VideoTexture._videoTexturePool;
-		var elements = pool.elements;
+		var pool: Array<VideoTexture> = VideoTexture._videoTexturePool;
 		for (var i: number = 0, n: number = pool.length; i < n; i++) {
-			var videoElement = elements[i] ;
+			var videoElement = pool[i] ;
 			(videoElement)&&videoElement._updateVideoData();
 		}
 	}
@@ -47,14 +42,22 @@ export class VideoTexture extends BaseTexture {
 		this._setFilterMode(this._filterMode);
 		this._needUpdate = false;
 		this._readyed = true;
-		VideoTexture._videoTexturePool.add(this);
+		VideoTexture._videoTexturePool.push(this);
 	}
 
+	/**
+	 * 获得绑定的资源Video
+	 * return HTMLVideoElement
+	 */
 	get video():any{
 		return this._video;
 	}
+	/**
+	 * @value
+	 * 输入Video资源
+	 */
 	set video(value:any){
-		if(!value)
+		if(!value||!(value instanceof HTMLVideoElement))
 			return;
 		this._video = value;
 		if (Laya.Browser.onMobile) {
@@ -88,13 +91,18 @@ export class VideoTexture extends BaseTexture {
 		gl.texImage2D(this._glTextureType,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,this._video);
 	}
 
-	
+	/**
+	 * 开始播放视频
+	 */
 	videoPlay(){
 		this._video.play();
 		this._needUpdate = true;
 		
 	}
 
+	/**
+	 * 暂停播放视频
+	 */
 	videoPause(){
 		this._video.pause();
 		this._needUpdate = false;
