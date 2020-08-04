@@ -223,6 +223,9 @@ window.qgMiniGame = function (exports, Laya) {
 	            if (MiniFileMgr.filesListObj[fileurlkey]) {
 	                var deletefileSize = parseInt(MiniFileMgr.filesListObj[fileurlkey].size);
 	                MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) - deletefileSize;
+	                if (MiniFileMgr.filesListObj[fileurlkey].md5 == MiniFileMgr.fakeObj[fileurlkey].md5) {
+	                    delete MiniFileMgr.fakeObj[fileurlkey];
+	                }
 	                delete MiniFileMgr.filesListObj[fileurlkey];
 	                MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), false);
 	                callBack != null && callBack.runWith([0]);
