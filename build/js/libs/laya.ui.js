@@ -3560,14 +3560,7 @@
 	        return this._selectedIndex > -1 && this._selectedIndex < this._labels.length ? this._labels[this._selectedIndex] : null;
 	    }
 	    set selectedLabel(value) {
-	        if (this._labels.length > 0) {
-	            this.selectedIndex = this._labels.indexOf(value);
-	        }
-	        else {
-	            this.callLater(() => {
-	                this.selectedIndex = this._labels.indexOf(value);
-	            });
-	        }
+	        this.selectedIndex = this._labels.indexOf(value);
 	    }
 	    get visibleNum() {
 	        return this._visibleNum;
