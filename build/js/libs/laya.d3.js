@@ -15851,8 +15851,12 @@
 	    set multiTouchEnabled(value) {
 	        this._multiTouchEnabled = value;
 	    }
-	    _getTouch(touchID) {
+	    _getTouch(touchID, type) {
 	        var touch = this._touchPool[touchID];
+	        if ((type == 0 && touch && touch._getIndexInList() != -1))
+	            return null;
+	        if (type == 1 && touch && (touch._getIndexInList() == -1))
+	            return null;
 	        if (!touch) {
 	            touch = new Touch();
 	            this._touchPool[touchID] = touch;
@@ -15948,8 +15952,8 @@
 	            var identifier = nativeTouch.identifier;
 	            if (!this._multiTouchEnabled && identifier !== 0)
 	                continue;
-	            var touch = this._getTouch(identifier);
-	            var pos = touch._position;
+	            var touch = this._getTouch(identifier, flag);
+	            var pos = this._touchPool[identifier]._position;
 	            var mousePoint = Input3D._tempPoint;
 	            mousePoint.setTo(nativeTouch.pageX, nativeTouch.pageY);
 	            Laya.ILaya.stage._canvasTransform.invertTransformPoint(mousePoint);
@@ -15957,12 +15961,14 @@
 	            var posY = mousePoint.y;
 	            switch (flag) {
 	                case 0:
-	                    this._touches.add(touch);
+	                    if (!!touch)
+	                        this._touches.add(touch);
 	                    offsetX += posX;
 	                    offsetY += posY;
 	                    break;
 	                case 1:
-	                    this._touches.remove(touch);
+	                    if (!!touch)
+	                        this._touches.remove(touch);
 	                    offsetX -= posX;
 	                    offsetY -= posY;
 	                    break;
@@ -16012,7 +16018,7 @@
 	                        var lastLength = this._touches.length;
 	                        this._changeTouches(e.changedTouches, 0);
 	                        if (enablePhysics) {
-	                            rayCast = true;
+	                            (!Config3D._config.isUseCannonPhysicsEngine) && (this._mouseTouchRayCast(cameras));
 	                            (lastLength === 0) && (this._mouseTouchDown());
 	                        }
 	                        break;
@@ -17481,7 +17487,7 @@
 	            var dynLastElement = queue.lastTransparentRenderElement;
 	            if (dynLastElement) {
 	                var dynLastRender = dynLastElement.render;
-	                if (dynLastElement._geometry._getType() !== this._geometry._getType() || dynLastElement._geometry._vertexBuffer._vertexDeclaration !== verDec || dynLastElement.material !== this.material || dynLastRender.receiveShadow !== this.render.receiveShadow || dynLastRender.lightmapIndex !== this.render.lightmapIndex) {
+	                if (!dynLastElement._dynamicVertexBatch || dynLastElement._geometry._getType() !== this._geometry._getType() || dynLastElement._geometry._vertexBuffer._vertexDeclaration !== verDec || dynLastElement.material !== this.material || dynLastRender.receiveShadow !== this.render.receiveShadow || dynLastRender.lightmapIndex !== this.render.lightmapIndex) {
 	                    queueElements.add(this);
 	                    queue.lastTransparentBatched = false;
 	                }
@@ -20780,6 +20786,9 @@
 	            'u_LightmapScaleOffset': Shader3D.PERIOD_SPRITE,
 	            'u_LightMap': Shader3D.PERIOD_SPRITE,
 	            'u_LightMapDirection': Shader3D.PERIOD_SPRITE,
+	            'u_SimpleAnimatorTexture': Shader3D.PERIOD_SPRITE,
+	            'u_SimpleAnimatorParams': Shader3D.PERIOD_SPRITE,
+	            'u_SimpleAnimatorTextureSize': Shader3D.PERIOD_SPRITE,
 	            'u_CameraPos': Shader3D.PERIOD_CAMERA,
 	            'u_View': Shader3D.PERIOD_CAMERA,
 	            'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
@@ -20817,6 +20826,9 @@
 	            'u_ShadowSplitSpheres': Shader3D.PERIOD_SCENE,
 	            'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
 	            'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
+	            'u_SpotShadowMap': Shader3D.PERIOD_SCENE,
+	            'u_SpotViewProjectMatrix': Shader3D.PERIOD_SCENE,
+	            'u_ShadowLightPosition': Shader3D.PERIOD_SCENE,
 	            'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
 	            'u_AmbientSHAg': Shader3D.PERIOD_SCENE,
 	            'u_AmbientSHAb': Shader3D.PERIOD_SCENE,
@@ -20845,7 +20857,7 @@
 	            's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 	            's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 	        };
-	        var shader = Shader3D.add("PBRSpecular");
+	        var shader = Shader3D.add("PBRSpecular", attributeMap, uniformMap, true);
 	        var subShader = new SubShader(attributeMap, uniformMap);
 	        shader.addSubShader(subShader);
 	        subShader.addShaderPass(PBRVS, PBRPS, stateMap, "Forward");
@@ -20916,6 +20928,9 @@
 	            'u_LightmapScaleOffset': Shader3D.PERIOD_SPRITE,
 	            'u_LightMap': Shader3D.PERIOD_SPRITE,
 	            'u_LightMapDirection': Shader3D.PERIOD_SPRITE,
+	            'u_SimpleAnimatorTexture': Shader3D.PERIOD_SPRITE,
+	            'u_SimpleAnimatorParams': Shader3D.PERIOD_SPRITE,
+	            'u_SimpleAnimatorTextureSize': Shader3D.PERIOD_SPRITE,
 	            'u_CameraPos': Shader3D.PERIOD_CAMERA,
 	            'u_View': Shader3D.PERIOD_CAMERA,
 	            'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
@@ -20953,6 +20968,9 @@
 	            'u_ShadowSplitSpheres': Shader3D.PERIOD_SCENE,
 	            'u_ShadowMatrices': Shader3D.PERIOD_SCENE,
 	            'u_ShadowMapSize': Shader3D.PERIOD_SCENE,
+	            'u_SpotShadowMap': Shader3D.PERIOD_SCENE,
+	            'u_SpotViewProjectMatrix': Shader3D.PERIOD_SCENE,
+	            'u_ShadowLightPosition': Shader3D.PERIOD_SCENE,
 	            'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
 	            'u_AmbientSHAg': Shader3D.PERIOD_SCENE,
 	            'u_AmbientSHAb': Shader3D.PERIOD_SCENE,
@@ -20981,7 +20999,7 @@
 	            's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 	            's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 	        };
-	        var shader = Shader3D.add("PBR");
+	        var shader = Shader3D.add("PBR", attributeMap, uniformMap, true);
 	        var subShader = new SubShader(attributeMap, uniformMap);
 	        shader.addSubShader(subShader);
 	        subShader.addShaderPass(PBRVS$1, PBRPS$1, stateMap, "Forward");

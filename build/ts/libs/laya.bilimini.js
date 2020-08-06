@@ -688,6 +688,7 @@ window.biliMiniGame = function (exports, Laya) {
 	    }
 	    _loadResourceFilter(type, url) {
 	        var thisLoader = this;
+	        this.sourceUrl = Laya.URL.formatURL(url);
 	        if (url.indexOf(BLMiniAdapter.window.bl.env.USER_DATA_PATH) == -1 && (url.indexOf("http://") != -1 || url.indexOf("https://") != -1)) {
 	            if (MiniFileMgr.loadPath != "") {
 	                url = url.split(MiniFileMgr.loadPath)[1];
@@ -797,6 +798,15 @@ window.biliMiniGame = function (exports, Laya) {
 	        rst = fun.bind(scope);
 	        return rst;
 	    }
+	    complete(data) {
+	        if (data instanceof Laya.Resource) {
+	            data._setCreateURL(this.sourceUrl);
+	        }
+	        else if ((data instanceof Laya.Texture) && (data.bitmap instanceof Laya.Resource)) {
+	            data.bitmap._setCreateURL(this.sourceUrl);
+	        }
+	        this.originComplete(data);
+	    }
 	    _loadHttpRequestWhat(url, contentType) {
 	        var thisLoader = this;
 	        var encoding = BLMiniAdapter.getUrlEncode(url, contentType);
@@ -854,7 +864,7 @@ window.biliMiniGame = function (exports, Laya) {
 	            return;
 	        }
 	        if (!BLMiniAdapter.autoCacheFile) {
-	            thisLoader._loadImage(url);
+	            thisLoader._loadImage(encodeURI(url));
 	            return;
 	        }
 	        if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(Laya.URL.formatURL(url))) {
@@ -1030,6 +1040,8 @@ window.biliMiniGame = function (exports, Laya) {
 	        Laya.Input['_createInputElement'] = MiniInput['_createInputElement'];
 	        Laya.Loader.prototype._loadResourceFilter = MiniLoader.prototype._loadResourceFilter;
 	        Laya.Loader.prototype._loadSound = MiniLoader.prototype._loadSound;
+	        Laya.Loader.prototype.originComplete = Laya.Loader.prototype.complete;
+	        Laya.Loader.prototype.complete = MiniLoader.prototype.complete;
 	        Laya.Loader.prototype._loadHttpRequestWhat = MiniLoader.prototype._loadHttpRequestWhat;
 	        Laya.LocalStorage._baseClass = MiniLocalStorage;
 	        MiniLocalStorage.__init__();

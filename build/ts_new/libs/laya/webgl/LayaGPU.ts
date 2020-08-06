@@ -68,7 +68,7 @@ export class LayaGPU {
 
             SystemUtils._shaderCapailityLevel = 30;
         } else {
-            this._getExtension("EXT_color_buffer_float");
+            this._oesTextureFloat = this._getExtension("EXT_color_buffer_float");
             //this._getExtension("OES_texture_float_linear");
 
             SystemUtils._shaderCapailityLevel = 35;
