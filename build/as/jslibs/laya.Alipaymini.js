@@ -1286,7 +1286,7 @@ window.aliPayMiniGame = function (exports, Laya) {
 	    }
 	}
 	ALIMiniAdapter._inited = false;
-	ALIMiniAdapter.autoCacheFile = true;
+	ALIMiniAdapter.autoCacheFile = false;
 	ALIMiniAdapter.minClearSize = (5 * 1024 * 1024);
 	ALIMiniAdapter.nativefiles = ["layaNativeDir"];
 	ALIMiniAdapter.subNativeFiles = [];
