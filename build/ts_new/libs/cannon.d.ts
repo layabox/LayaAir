@@ -1130,7 +1130,6 @@ declare module CANNON {
         dt: number;
         allowSleep: boolean;
         contacts: ContactEquation[];
-        allContacts:ContactEquation[];
         frictionEquations: FrictionEquation[];
         quatNormalizeSkip: number;
         quatNormalizeFast: boolean;
@@ -1142,6 +1141,7 @@ declare module CANNON {
         broadphase: NaiveBroadphase;
         bodies: Body[];
         //miner
+        allContacts:ContactEquation[];
         callBackBody:Body[];
         solver: Solver;
         constraints: Constraint[];
