@@ -1,3 +1,4 @@
+import { Handler } from "laya/utils/Handler";
 declare module laya.wx.mini {
     import Handler = laya.utils.Handler;
     class MiniAdpter {

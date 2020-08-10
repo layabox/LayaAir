@@ -1141,6 +1141,7 @@ declare module CANNON {
         broadphase: NaiveBroadphase;
         bodies: Body[];
         //miner
+        allContacts:ContactEquation[];
         callBackBody:Body[];
         solver: Solver;
         constraints: Constraint[];
