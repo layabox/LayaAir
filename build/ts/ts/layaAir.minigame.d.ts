@@ -94,7 +94,6 @@ declare module laya.wx.mini {
 }
 
 declare module laya.hw.mini {
-
     import Handler = laya.utils.Handler;
     class HWMiniAdapter {
         static EnvConfig: any;
