@@ -29,7 +29,8 @@ export class VideoPlayIn3DWorld {
 			(<Scene3D>Laya.stage.addChild(scene));
 
 			//获取场景中的相机
-			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+            var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+            camera.enableHDR = false;
             camera.addComponent(CameraMoveScript);
             var mirrorFloor:ChinarMirrorPlane = camera.addComponent(ChinarMirrorPlane) as ChinarMirrorPlane;
             mirrorFloor.onlyMainCamera = camera;
