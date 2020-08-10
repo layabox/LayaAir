@@ -29700,6 +29700,7 @@
 	        destIB.setData(ib.getData().slice());
 	        destMesh._indexBuffer = destIB;
 	        destMesh._setBuffer(destMesh._vertexBuffer, destIB);
+	        destMesh._setInstanceBuffer(this._instanceBufferStateType);
 	        destMesh._setCPUMemory(this.cpuMemory);
 	        destMesh._setGPUMemory(this.gpuMemory);
 	        var i;

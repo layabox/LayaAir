@@ -760,6 +760,7 @@ export class Mesh extends Resource implements IClone {
 		destMesh._indexBuffer = destIB;
 
 		destMesh._setBuffer(destMesh._vertexBuffer, destIB);
+		destMesh._setInstanceBuffer(this._instanceBufferStateType);
 		destMesh._setCPUMemory(this.cpuMemory);
 		destMesh._setGPUMemory(this.gpuMemory);
 
