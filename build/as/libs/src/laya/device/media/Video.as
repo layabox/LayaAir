@@ -32,8 +32,9 @@ package laya.device.media {
 		 */
 		public static var SUPPORT_NO:String;
 		private var htmlVideo:*;
-		private var videoElement:*;
+		public var videoElement:*;
 		private var internalTexture:*;
+		private var _clickhandle:*;
 
 		public function Video(width:Number = undefined,height:Number = undefined){}
 		private static var onAbort:*;

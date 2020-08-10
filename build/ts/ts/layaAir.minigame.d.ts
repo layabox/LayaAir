@@ -94,6 +94,8 @@ declare module laya.wx.mini {
 }
 
 declare module laya.hw.mini {
+
+    import Handler = laya.utils.Handler;
     class HWMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
@@ -186,6 +188,7 @@ declare module laya.hw.mini {
 }
 
 declare module laya.bili.mini {
+    import Handler = laya.utils.Handler;
     class BLMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
@@ -280,6 +283,7 @@ declare module laya.bili.mini {
 }
 
 declare module laya.qq.mini {
+    import Handler = laya.utils.Handler;
     class QQMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
@@ -374,6 +378,7 @@ declare module laya.qq.mini {
 }
 
 declare module laya.ali.mini {
+    import Handler = laya.utils.Handler;
     class ALIMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
@@ -468,6 +473,7 @@ declare module laya.ali.mini {
 }
 
 declare module laya.tt.mini {
+    import Handler = laya.utils.Handler;
     class TTMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
