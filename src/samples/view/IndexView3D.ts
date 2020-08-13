@@ -106,7 +106,7 @@ import { SimpleSkinAnimationInstance } from "../3d/LayaAir3D_Animation3D/SimpleS
 
 export class IndexView3D extends IndexViewUI {
 
-	private _bigIndex: number = 0;
+	private _bigIndex: number = -1;
 	private _smallIndex: number;
 	private _oldView: any;
 
@@ -400,79 +400,79 @@ export class IndexView3D extends IndexViewUI {
 
 
 	private onBigComBoxSelectHandler(index: number, smallIndex: number = 0): void {
-		this._bigIndex = index;
-		var labelStr: string;
-
-		switch (index) {
-			case 0:
-				labelStr = this._resourceArr.toString();
-				break;
-			case 1:
-				labelStr = this._scene3DArr.toString();
-				break;
-			case 2:
-				labelStr = this._cameraArr.toString();
-				break;
-			case 3:
-				labelStr = this._lightingArr.toString();
-				break;
-			case 4:
-				labelStr = this._sprite3DArr.toString();
-				break;
-			case 5:
-				labelStr = this._meshArr.toString();
-				break;
-			case 6:
-				labelStr = this._materilArr.toString();
-				break;
-			case 7:
-				labelStr = this._textureArr.toString();
-				break;
-			case 8:
-				labelStr = this._animationArr.toString();
-				break;
-			case 9:
-				labelStr = this._physicslArr.toString();
-				break;
-			case 10:
-				labelStr = this._cannonPhysicslArr.toString();
-				break;
-			case 11:
-				labelStr = this._mouseLnteractionArr.toString();
-				break;
-			case 12:
-				labelStr = this._scriptArr.toString();
-				break;
-			case 13:
-				labelStr = this._skyArr.toString();
-				break;
-			case 14:
-				labelStr = this._particleArr.toString();
-				break;
-			case 15:
-				labelStr = this._trailArr.toString();
-				break;
-			case 16:
-				labelStr = this._shaderArr.toString();
-				break;
-			case 17:
-				labelStr = this._performanceArr.toString();
-				break;
-			case 18:
-				labelStr = this._advanceArr.toString();
-				break;
-			case 19:
-				labelStr = this._demoArr.toString();
-				break;
-			// case 19: //advanced
-			// 	labelStr = this._testPerformanceArr.toString();
-			// 	break;
-			default:
-				break;
+		if(this._bigIndex!=index){
+			this._bigIndex = index;
+			var labelStr: string;
+			switch (index) {
+				case 0:
+					labelStr = this._resourceArr.toString();
+					break;
+				case 1:
+					labelStr = this._scene3DArr.toString();
+					break;
+				case 2:
+					labelStr = this._cameraArr.toString();
+					break;
+				case 3:
+					labelStr = this._lightingArr.toString();
+					break;
+				case 4:
+					labelStr = this._sprite3DArr.toString();
+					break;
+				case 5:
+					labelStr = this._meshArr.toString();
+					break;
+				case 6:
+					labelStr = this._materilArr.toString();
+					break;
+				case 7:
+					labelStr = this._textureArr.toString();
+					break;
+				case 8:
+					labelStr = this._animationArr.toString();
+					break;
+				case 9:
+					labelStr = this._physicslArr.toString();
+					break;
+				case 10:
+					labelStr = this._cannonPhysicslArr.toString();
+					break;
+				case 11:
+					labelStr = this._mouseLnteractionArr.toString();
+					break;
+				case 12:
+					labelStr = this._scriptArr.toString();
+					break;
+				case 13:
+					labelStr = this._skyArr.toString();
+					break;
+				case 14:
+					labelStr = this._particleArr.toString();
+					break;
+				case 15:
+					labelStr = this._trailArr.toString();
+					break;
+				case 16:
+					labelStr = this._shaderArr.toString();
+					break;
+				case 17:
+					labelStr = this._performanceArr.toString();
+					break;
+				case 18:
+					labelStr = this._advanceArr.toString();
+					break;
+				case 19:
+					labelStr = this._demoArr.toString();
+					break;
+				// case 19: //advanced
+				// 	labelStr = this._testPerformanceArr.toString();
+				// 	break;
+				default:
+					break;
+			}
+			this.smallComBox.labels = labelStr;
 		}
-		this.smallComBox.labels = labelStr;
 		this.smallComBox.selectedIndex = smallIndex;
-		this.smallComBox.visibleNum = 5;//(labelStr.split(",") as Array).length;
 	}
 }
 
