@@ -1306,7 +1306,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._pointLights = null;
 		this._spotLights = null;
 		this._alternateLights = null;
-		this._lightmaps = null;
 		this._shaderValues = null;
 		this._renders = null;
 		this._cameraPool = null;
@@ -1314,6 +1313,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._physicsSimulation && this._physicsSimulation._destroy();
 		this._reflection._removeReference();
 		this._reflection = null;
+		var maps: Lightmap[] = this._lightmaps;
+		if (maps) {
+			for (var i: number = 0, n: number = maps.length; i < n; i++) {
+				var map: Lightmap = maps[i];
+				map.lightmapColor&&map.lightmapColor._removeReference();
+				map.lightmapDirection&&map.lightmapDirection._removeReference();
+			}
+		}
+		this._lightmaps = null;
 		Loader.clearRes(this.url);
 	}
 
