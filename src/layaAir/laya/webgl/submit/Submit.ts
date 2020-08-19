@@ -16,10 +16,10 @@ export class Submit extends SubmitBase {
     constructor(renderType: number = SubmitBase.TYPE_2D) {
         super(renderType);
     }
-		/**
-		 * @override
-		 */
-		 /*override*/ renderSubmit(): number {
+    /**
+     * @override
+     */
+    renderSubmit(): number {
         if (this._numEle === 0 || !this._mesh || this._numEle == 0) return 1;//怎么会有_numEle是0的情况?
 
         var _tex: Texture = this.shaderValue.textureHost;
@@ -49,10 +49,10 @@ export class Submit extends SubmitBase {
 
         return 1;
     }
-		/**
-		 * @override
-		 */
-		 /*override*/ releaseRender(): void {
+    /**
+     * @override
+     */
+    releaseRender(): void {
         if (SubmitBase.RENDERBASE == this)
             return;
 
@@ -67,9 +67,9 @@ export class Submit extends SubmitBase {
         }
     }
 
-	/*
-	   create方法只传对submit设置的值
-	 */
+	/**
+     * create方法只传对submit设置的值
+     */
     static create(context: Context, mesh: Mesh2D, sv: Value2D): Submit {
         var o: Submit = Submit._poolSize ? Submit.POOL[--Submit._poolSize] : new Submit();
         o._ref = 1;

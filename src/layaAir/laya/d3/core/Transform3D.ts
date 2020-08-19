@@ -652,7 +652,7 @@ export class Transform3D extends EventDispatcher {
 
 	/**
 	 * 获取向前方向。
-	 * @param 前方向。
+	 * @param forward 前方向。
 	 */
 	getForward(forward: Vector3): void {
 		var worldMatElem: Float32Array = this.worldMatrix.elements;
@@ -663,7 +663,7 @@ export class Transform3D extends EventDispatcher {
 
 	/**
 	 * 获取向上方向。
-	 * @param 上方向。
+	 * @param up 上方向。
 	 */
 	getUp(up: Vector3): void {
 		var worldMatElem: Float32Array = this.worldMatrix.elements;
