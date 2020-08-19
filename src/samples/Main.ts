@@ -10,6 +10,7 @@ import { Laya3D } from "Laya3D";
 import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
+import { Texture2D } from 'laya/resource/Texture2D';
 
 export class Main {
     private static _box3D: Sprite;
@@ -45,7 +46,6 @@ export class Main {
         }
         Laya.stage.bgColor = "#ffffff";
         Stat.show();
-
         //这里改成true就会从外部加载资源
         this._isReadNetWorkRes = (window as any).isReadNetWorkRes || false;
         if (this._isReadNetWorkRes || ILaya.Browser.onVVMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onMiniGame) {
@@ -56,7 +56,8 @@ export class Main {
     }
 
     private onLoaded(): void {
-        let txture: Texture = Laya.loader.getRes("comp/button.png");
+        let texture: Texture = Laya.loader.getRes("comp/button.png");
+        (texture.bitmap as Texture2D).lock = true;
         if (!this._isType) {
             //Layaair1.0-2d
             Main.box2D = new Sprite();
