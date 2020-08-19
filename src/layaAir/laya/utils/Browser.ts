@@ -120,7 +120,7 @@ export class Browser {
 
         //阿里小游戏
         if ("my" in Browser.window) {
-            if("TB" in Browser.window.my){
+            if("tb" in Browser.window.my){
                 //这里需要手动初始化阿里适配库
                 (window as any).tbMiniGame(Laya, Laya);
                 if (!Laya["TBMiniAdapter"]) {
