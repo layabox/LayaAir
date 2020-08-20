@@ -63,7 +63,7 @@ export class SoundChannel extends EventDispatcher {
      * 停止播放。
      */
     stop(): void {
-        if (this.completeHandler) this.completeHandler.run();
+        if (this.completeHandler) this.completeHandler.runWith(false);
     }
 
     /**
@@ -83,7 +83,7 @@ export class SoundChannel extends EventDispatcher {
      */
     protected __runComplete(handler: Handler): void {
         if (handler) {
-            handler.run();
+            handler.runWith(true);
         }
     }
 }
