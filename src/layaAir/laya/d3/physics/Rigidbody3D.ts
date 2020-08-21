@@ -529,7 +529,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		}
 		super._parse(data);
 		this._parseShape(data.shapes);
-		(data.isKinematic != null) && (this._isKinematic = data.isKinematic);
+		(data.isKinematic != null) && (this.isKinematic = data.isKinematic);
 	}
 
 	/**
