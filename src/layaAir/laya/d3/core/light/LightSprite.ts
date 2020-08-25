@@ -4,6 +4,7 @@ import { Vector3 } from "../../math/Vector3";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { ShadowMode } from "./ShadowMode";
+import { Matrix4x4 } from "../../math/Matrix4x4";
 
 /**
  * @internal
@@ -50,6 +51,8 @@ export class LightSprite extends Sprite3D {
 	_lightmapBakedType: number;
 	/** @internal */
 	_lightType: LightType;
+	/** @internal 因为scale会影响裁剪阴影*/
+	_lightWoldMatrix:Matrix4x4 = new Matrix4x4();
 
 	/** 灯光颜色。 */
 	color: Vector3;
@@ -159,6 +162,13 @@ export class LightSprite extends Sprite3D {
 					this._removeFromScene();
 			}
 		}
+	}
+
+	get lightWorldMatrix():Matrix4x4{
+		var position = this.transform.position;
+		var quaterian = this.transform.rotation;
+		Matrix4x4.createAffineTransformation(position,quaterian,Vector3._ONE,this._lightWoldMatrix);
+		return this._lightWoldMatrix;
 	}
 
 	/**

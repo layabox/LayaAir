@@ -19,7 +19,7 @@ import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShade
 
 
 /**
- * <code>SkinnedMeshSprite3D</code> 类用于创建网格。
+ * <code>SkinnedMeshSprite3D</code> 类用于绑点骨骼节点精灵。
  */
 export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**@internal */
@@ -27,12 +27,16 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 
 	/**着色器变量名，蒙皮动画。*/
 	static BONES: number = Shader3D.propertyNameToID("u_Bones");
-
+	/**简单动画变量名，贴图蒙皮动画*/
+	static SIMPLE_SIMPLEANIMATORTEXTURE:number = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
+	static SIMPLE_SIMPLEANIMATORPARAMS:number = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
+	static SIMPLE_SIMPLEANIMATORTEXTURESIZE:number = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
 		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = Shader3D.getDefineByName("BONE");
+		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
 	}
 
 	/** @internal */

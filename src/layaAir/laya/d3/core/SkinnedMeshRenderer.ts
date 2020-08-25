@@ -27,19 +27,19 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
 
 	/**@internal */
-	private _cacheMesh: Mesh;
+	protected _cacheMesh: Mesh;
 	/** @internal */
-	private _bones: Sprite3D[] = [];
+	protected _bones: Sprite3D[] = [];
 	/** @internal */
 	_skinnedData: any[];
 	/** @internal */
 	private _skinnedDataLoopMarks: number[] = [];
 	/**@internal */
-	private _localBounds: Bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
+	protected _localBounds: Bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
 	/**@internal */
-	private _cacheAnimator: Animator;
+	protected _cacheAnimator: Animator;
 	/**@internal */
-	private _cacheRootBone: Sprite3D;
+	protected _cacheRootBone: Sprite3D;
 
 	/**
 	 * 局部边界。
@@ -322,7 +322,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 * @internal
 	 */
-	private _setRootNode(): void {//[兼容性API]
+	protected _setRootNode(): void {//[兼容性API]
 		var rootNode: AnimationNode;
 		if (this._cacheAnimator && this._rootBone && this._cacheAvatar)
 			rootNode = this._cacheAnimator._avatarNodeMap[this._rootBone];

@@ -101,10 +101,12 @@ import { CannonPhysicsWorld_PhysicsProperty } from "../3d/LayaAir3D_CannonPhysic
 import { CannonPhysicsWorld_RayCheck } from "../3d/LayaAir3D_CannonPhysics3D/CannonPhysicsWorld_RayCheck";
 import { Config3D } from "Config3D";
 import { SpotLightShadowMap } from "../3d/LayaAir3D_Lighting/SpotLightShadowMap";
+import { VideoPlayIn3DWorld } from "../3d/LayaAir3D_Advance/VideoPlayIn3DWorld";
+import { SimpleSkinAnimationInstance } from "../3d/LayaAir3D_Animation3D/SimpleSkinAnimationInstance";
 
 export class IndexView3D extends IndexViewUI {
 
-	private _bigIndex: number = 0;
+	private _bigIndex: number = -1;
 	private _smallIndex: number;
 	private _oldView: any;
 
@@ -118,11 +120,11 @@ export class IndexView3D extends IndexViewUI {
 
 	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance', 'Demo'];
 	//var s:Secne3DPlayer2D    
-	private _advanceClsArr: any[] = [PostProcessBloom, AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = ['PostProcessBloom', 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [PostProcessBloom, AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = ['PostProcessBloom', 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld'];//'后期处理之泛光','寻路示例',
 
-	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
-	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample"];
+	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample,SimpleSkinAnimationInstance];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
+	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample","SimpleSkinAnimationInstance"];
 
 	private _cameraClsArr: any[] = [CameraDemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, PickPixel, RenderTargetCamera];
 	private _cameraArr: any[] = ['Camera', 'CameraLayer', 'CameraLookAt', 'CameraRay', 'D3SpaceToD2Space', 'MultiCamera', 'OrthographicCamera', 'PickPixel', 'RenderTargetCamera'];
@@ -398,79 +400,79 @@ export class IndexView3D extends IndexViewUI {
 
 
 	private onBigComBoxSelectHandler(index: number, smallIndex: number = 0): void {
-		this._bigIndex = index;
-		var labelStr: string;
-
-		switch (index) {
-			case 0:
-				labelStr = this._resourceArr.toString();
-				break;
-			case 1:
-				labelStr = this._scene3DArr.toString();
-				break;
-			case 2:
-				labelStr = this._cameraArr.toString();
-				break;
-			case 3:
-				labelStr = this._lightingArr.toString();
-				break;
-			case 4:
-				labelStr = this._sprite3DArr.toString();
-				break;
-			case 5:
-				labelStr = this._meshArr.toString();
-				break;
-			case 6:
-				labelStr = this._materilArr.toString();
-				break;
-			case 7:
-				labelStr = this._textureArr.toString();
-				break;
-			case 8:
-				labelStr = this._animationArr.toString();
-				break;
-			case 9:
-				labelStr = this._physicslArr.toString();
-				break;
-			case 10:
-				labelStr = this._cannonPhysicslArr.toString();
-				break;
-			case 11:
-				labelStr = this._mouseLnteractionArr.toString();
-				break;
-			case 12:
-				labelStr = this._scriptArr.toString();
-				break;
-			case 13:
-				labelStr = this._skyArr.toString();
-				break;
-			case 14:
-				labelStr = this._particleArr.toString();
-				break;
-			case 15:
-				labelStr = this._trailArr.toString();
-				break;
-			case 16:
-				labelStr = this._shaderArr.toString();
-				break;
-			case 17:
-				labelStr = this._performanceArr.toString();
-				break;
-			case 18:
-				labelStr = this._advanceArr.toString();
-				break;
-			case 19:
-				labelStr = this._demoArr.toString();
-				break;
-			// case 19: //advanced
-			// 	labelStr = this._testPerformanceArr.toString();
-			// 	break;
-			default:
-				break;
+		if(this._bigIndex!=index){
+			this._bigIndex = index;
+			var labelStr: string;
+			switch (index) {
+				case 0:
+					labelStr = this._resourceArr.toString();
+					break;
+				case 1:
+					labelStr = this._scene3DArr.toString();
+					break;
+				case 2:
+					labelStr = this._cameraArr.toString();
+					break;
+				case 3:
+					labelStr = this._lightingArr.toString();
+					break;
+				case 4:
+					labelStr = this._sprite3DArr.toString();
+					break;
+				case 5:
+					labelStr = this._meshArr.toString();
+					break;
+				case 6:
+					labelStr = this._materilArr.toString();
+					break;
+				case 7:
+					labelStr = this._textureArr.toString();
+					break;
+				case 8:
+					labelStr = this._animationArr.toString();
+					break;
+				case 9:
+					labelStr = this._physicslArr.toString();
+					break;
+				case 10:
+					labelStr = this._cannonPhysicslArr.toString();
+					break;
+				case 11:
+					labelStr = this._mouseLnteractionArr.toString();
+					break;
+				case 12:
+					labelStr = this._scriptArr.toString();
+					break;
+				case 13:
+					labelStr = this._skyArr.toString();
+					break;
+				case 14:
+					labelStr = this._particleArr.toString();
+					break;
+				case 15:
+					labelStr = this._trailArr.toString();
+					break;
+				case 16:
+					labelStr = this._shaderArr.toString();
+					break;
+				case 17:
+					labelStr = this._performanceArr.toString();
+					break;
+				case 18:
+					labelStr = this._advanceArr.toString();
+					break;
+				case 19:
+					labelStr = this._demoArr.toString();
+					break;
+				// case 19: //advanced
+				// 	labelStr = this._testPerformanceArr.toString();
+				// 	break;
+				default:
+					break;
+			}
+			this.smallComBox.labels = labelStr;
 		}
-		this.smallComBox.labels = labelStr;
 		this.smallComBox.selectedIndex = smallIndex;
-		this.smallComBox.visibleNum = 5;//(labelStr.split(",") as Array).length;
 	}
 }
 

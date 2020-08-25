@@ -180,6 +180,7 @@ export class BaseTexture extends Bitmap {
 				glFormat = gl.ALPHA;
 				break;
 			case TextureFormat.R32G32B32A32:
+			case TextureFormat.R16G16B16A16://todo miner
 				glFormat = gl.RGBA;
 				break;
 			case TextureFormat.DXT1:

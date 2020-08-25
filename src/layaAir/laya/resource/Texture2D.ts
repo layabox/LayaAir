@@ -4,6 +4,8 @@ import { Handler } from "../utils/Handler";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { BaseTexture } from "./BaseTexture";
 import { TextureFormat } from "./TextureFormat";
+import { Byte } from "../utils/Byte";
+import { FilterMode } from "./FilterMode";
 
 /**
  * <code>Texture2D</code> 类用于生成2D纹理。
@@ -72,6 +74,25 @@ export class Texture2D extends BaseTexture {
 			default:
 				throw "Texture2D:unkonwn format.";
 		}
+		return texture;
+	}
+
+	/**
+	 * @internal
+	 */
+	static _SimpleAnimatorTextureParse(data: any, propertyParams: any = null, constructParams: any[] = null):Texture2D{
+		var byte:Byte = new Byte(data);
+		var version:String = byte.readUTFString();
+		if(version!="LAYAANIMATORTEXTURE:0000")
+			throw "Laya3D:unknow version.";
+		var textureWidth:number = byte.readInt32();
+		var pixelDataLength:number = byte.readInt32();
+		var pixelDataArrays:Float32Array = new Float32Array(textureWidth*textureWidth*4); 
+		var usePixelData:Float32Array =new Float32Array(byte.readArrayBuffer(pixelDataLength*4));
+		pixelDataArrays.set(usePixelData,0);
+		var texture: Texture2D = new Texture2D(textureWidth,textureWidth,TextureFormat.R32G32B32A32,false,false);
+		texture.setPixels(pixelDataArrays,0);
+		texture.filterMode = FilterMode.Point;
 		return texture;
 	}
 
@@ -173,6 +194,11 @@ export class Texture2D extends BaseTexture {
 				else
 					gl.texImage2D(textureType, miplevel, gl.RGBA, width, height, 0, glFormat, gl.FLOAT, pixels);
 				break;
+			case TextureFormat.R16G16B16A16://todo miner
+				if(LayaGL.layaGPUInstance._isWebGL2)
+					gl.texImage2D(textureType,miplevel,(<WebGL2RenderingContext>gl).RGBA16F,width,height,0,glFormat,(<WebGL2RenderingContext>gl).HALF_FLOAT,pixels);
+				else	
+					gl.texImage2D(textureType,miplevel,(<WebGL2RenderingContext>gl).RGBA16F,width,height,0,glFormat,LayaGL.layaGPUInstance._oesTextureHalfFloat.HALF_FLOAT_OES,pixels);	
 			default:
 				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
 		}

@@ -94,6 +94,9 @@ import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
 import { ConfigurableConstraint } from "./laya/d3/physics/constraints/ConfigurableConstraint";
 import { Camera } from "./laya/d3/core/Camera";
 import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
+import { SimpleSkinnedMeshRenderer } from "./laya/d3/core/SimpleSkinnedMeshRenderer";
+import { Utils } from "./laya/utils/Utils";
+import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -118,6 +121,8 @@ export class Laya3D {
 	static TERRAINHEIGHTDATA: string = "TERRAINHEIGHTDATA";
 	/**Terrain资源。*/
 	static TERRAINRES: string = "TERRAIN";
+	/**SimpleAnimator资源。 */
+	static SIMPLEANIMATORBIN: string = "SIMPLEANIMATOR";
 
 	/**@internal */
 	private static _innerFirstLevelLoaderManager: LoaderManager = new LoaderManager();//Mesh 
@@ -230,6 +235,7 @@ export class Laya3D {
 		RenderableSprite3D.__init__();
 		MeshSprite3D.__init__();
 		SkinnedMeshSprite3D.__init__();
+		SimpleSkinnedMeshSprite3D.__init__();
 		ShuriKenParticle3D.__init__();
 		TrailSprite3D.__init__();
 		PostProcess.__init__();
@@ -331,6 +337,7 @@ export class Laya3D {
 		createMap["ltcb"] = [Laya3D.TEXTURECUBEBIN, TextureCube._parseBin];
 		//为其他平台添加的兼容代码,临时TODO：
 		createMap["ltcb.ls"] = [Laya3D.TEXTURECUBEBIN, TextureCube._parseBin];
+		createMap["lanit.ls"] = [Laya3D.TEXTURE2D,Texture2D._SimpleAnimatorTextureParse];
 
 		var parserMap: any = Loader.parserMap;
 		parserMap[Laya3D.HIERARCHY] = Laya3D._loadHierarchy;
@@ -341,6 +348,7 @@ export class Laya3D {
 		parserMap[Laya3D.TEXTURE2D] = Laya3D._loadTexture2D;
 		parserMap[Laya3D.ANIMATIONCLIP] = Laya3D._loadAnimationClip;
 		parserMap[Laya3D.AVATAR] = Laya3D._loadAvatar;
+		parserMap[Laya3D.SIMPLEANIMATORBIN] = Laya3D._loadSimpleAnimator;
 		//parserMap[Laya3D.TERRAINRES] = _loadTerrain;
 		//parserMap[Laya3D.TERRAINHEIGHTDATA] = _loadTerrain;
 
@@ -499,13 +507,18 @@ export class Laya3D {
 			case "TrailSprite3D":
 			case "MeshSprite3D":
 			case "SkinnedMeshSprite3D":
+			case "SimpleSkinnedMeshSprite3D":
 				var meshPath: string = props.meshPath;
 				(meshPath) && (props.meshPath = Laya3D._addHierarchyInnerUrls(firstLevelUrls, subUrls, urlVersion, hierarchyBasePath, meshPath, Laya3D.MESH));
 				var materials: any[] = props.materials;
 				if (materials)
 					for (i = 0, n = materials.length; i < n; i++)
 						materials[i].path = Laya3D._addHierarchyInnerUrls(secondLevelUrls, subUrls, urlVersion, hierarchyBasePath, materials[i].path, Laya3D.MATERIAL);
+				if(node.type=="SimpleSkinnedMeshSprite3D")
+					if(props.animatorTexture)
+						props.animatorTexture = Laya3D._addHierarchyInnerUrls(fourthLelUrls,subUrls,urlVersion, hierarchyBasePath,props.animatorTexture,Laya3D.SIMPLEANIMATORBIN)
 				break;
+			
 			case "ShuriKenParticle3D":
 				if (props.main) {
 					var resources: any = props.renderer.resources;
@@ -747,6 +760,18 @@ export class Laya3D {
 			Laya3D._endLoad(loader, avatar);
 		});
 		loader.load(loader.url, Loader.JSON, false, null, true);
+	}
+	
+	/**
+	 *@internal 
+	 */
+	private static _loadSimpleAnimator(loader:Loader):void{
+		loader.on(Event.LOADED,null,function(data:any):void{
+			loader._cache = loader._createCache;
+			var texture: Texture2D = Texture2D._SimpleAnimatorTextureParse(data, loader._propertyParams, loader._constructParams);
+			Laya3D._endLoad(loader,texture);
+		});
+		loader.load(loader.url,Loader.BUFFER,false,null,true)
 	}
 
 	/**

@@ -388,7 +388,7 @@ export class ShadowUtils {
         shadowSpotData.offsetX = 0;
         shadowSpotData.offsetY = 0;
 
-        var spotWorldMatrix:Matrix4x4 = spotLight.transform.worldMatrix 
+        var spotWorldMatrix:Matrix4x4 = spotLight.lightWorldMatrix; 
         var viewMatrix: Matrix4x4 = shadowSpotData.viewMatrix;
         var projectMatrix: Matrix4x4 = shadowSpotData.projectionMatrix;
         var viewProjectMatrix: Matrix4x4 = shadowSpotData.viewProjectMatrix;

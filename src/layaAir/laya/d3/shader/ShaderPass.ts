@@ -313,7 +313,9 @@ export class ShaderPass extends ShaderCompile {
 			psVersion = ps[0] + '\n';
 			ps.shift();
 		}
-		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap || this._owner._owner._attributeMap, this._owner._uniformMap || this._owner._owner._uniformMap, this);
+
+		var attibuteMap = Shader3D.getAttributeMapByDefine(defineString,this._owner._attributeMap);
+		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'),attibuteMap , this._owner._uniformMap || this._owner._owner._uniformMap, this);
 
 		cacheShaders[cacheKey] = shader;
 

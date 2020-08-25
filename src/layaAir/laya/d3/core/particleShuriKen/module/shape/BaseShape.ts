@@ -4,6 +4,15 @@ import { Rand } from "../../../../math/Rand"
 import { Vector2 } from "../../../../math/Vector2"
 import { Vector3 } from "../../../../math/Vector3"
 
+export enum ParticleSystemShapeType {
+	Box = 0,
+	Circle = 1,
+	Cone = 2,
+	Hemisphere = 3,
+	Sphere = 4
+}
+
+
 /**
  * <code>BaseShape</code> 类用于粒子形状。
  */
@@ -12,6 +21,9 @@ export class BaseShape implements IClone {
 	enable: boolean=true;
 	/**随机方向。*/
 	randomDirection: number=0;
+
+	/**粒子类型 */
+	shapeType: ParticleSystemShapeType;
 
 	/**
 	 * 创建一个 <code>BaseShape</code> 实例。

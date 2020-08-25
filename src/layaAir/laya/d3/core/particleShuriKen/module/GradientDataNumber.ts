@@ -63,12 +63,15 @@ export class GradientDataNumber implements IClone {
 	 */
 	getAverageValue(): number {
 		var total: number = 0;
+		var count: number = 0;
 		for (var i: number = 0, n: number = this._currentLength - 2; i < n; i += 2) {
 			var subValue: number = this._elements[i + 1];
 			subValue += this._elements[i + 3];
 			subValue = subValue * (this._elements[i + 2] - this._elements[i]);
+			total += subValue;
+			count++;
 		}
-		return total / 2;
+		return total / count;
 	}
 
 	/**

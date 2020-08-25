@@ -28,5 +28,7 @@ export enum TextureFormat {
     /**纹理格式_PVRTCRGBA_4BPPV。*/
     PVRTCRGBA_4BPPV = 12,
     /**RGBA格式纹理,每个通道32位浮点数。*/
-    R32G32B32A32 = 15
+    R32G32B32A32 = 15,
+    /**RGBA格式纹理，每个通道16位浮点数。 */
+    R16G16B16A16 = 16
 }
