@@ -1,0 +1,1 @@
+window.Physics3D=function(n,o){window.conch.setGetWorldTransformFunction(o.getWorldTransform),window.conch.setSetWorldTransformFunction(o.setWorldTransform);var r=window.layaConchBullet;return r.then=n=>{n()},window.Physics3D=r,r};
