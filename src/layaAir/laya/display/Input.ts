@@ -72,8 +72,6 @@ export class Input extends Text {
 
     /**@private */
 	protected static input: HTMLInputElement;
-	/**@private */ 
-	protected static lastInputType='text';
     /**@private */
     protected static area: any;
     /**@private */
@@ -327,14 +325,7 @@ export class Input extends Text {
         Input.isInputting = true;
 		var input: any = this.nativeInput;
 		
-        var style = this._style as TextStyle;
-        var password = style.asPassword;
-		if(password){
-			Input.lastInputType = Input.input.type;
-			Input.input.type='password';
-		}else{
-			Input.input.type = Input.lastInputType;
-		}
+		Input.input && (Input.input.type = this._type);		// 设置input控件的 password
 
         this._focus = true;
 
