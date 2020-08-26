@@ -23608,7 +23608,6 @@ window.Laya= (function (exports) {
             this.url = null;
             this._viewCreated = false;
             this._$componentType = "Scene";
-            this._setBit(Const.NOT_READY, true);
             Scene.unDestroyedScenes.push(this);
             this._scene = this;
             if (createChildren)
@@ -23634,6 +23633,7 @@ window.Laya= (function (exports) {
                 this.createView(view);
             }
             else {
+                this._setBit(Const.NOT_READY, true);
                 ILaya.loader.resetProgress();
                 var loader = new SceneLoader();
                 loader.on(Event.COMPLETE, this, this._onSceneLoaded, [url]);

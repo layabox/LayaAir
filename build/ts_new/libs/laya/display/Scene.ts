@@ -39,7 +39,8 @@ export class Scene extends Sprite {
 
     constructor(createChildren = true) {
         super();
-        this._setBit(Const.NOT_READY, true);
+        //not ready状态变更修改为加载资源之前后
+        // this._setBit(Const.NOT_READY, true);
         Scene.unDestroyedScenes.push(this);
         this._scene = this;
         if (createChildren)
@@ -52,6 +53,7 @@ export class Scene extends Sprite {
     protected createChildren(): void {
     }
     /**
+     * 兼容加载模式
      * 加载模式设置uimap
      * @param url uimapJosn的url
      */
@@ -76,6 +78,7 @@ export class Scene extends Sprite {
         if (view) {
             this.createView(view);
         } else {
+            this._setBit(Const.NOT_READY, true);
             ILaya.loader.resetProgress();
             var loader: SceneLoader = new SceneLoader();
             loader.on(Event.COMPLETE, this, this._onSceneLoaded, [url]);

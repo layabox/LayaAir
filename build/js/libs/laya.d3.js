@@ -4867,7 +4867,7 @@
 	        }
 	        super._parse(data);
 	        this._parseShape(data.shapes);
-	        (data.isKinematic != null) && (this._isKinematic = data.isKinematic);
+	        (data.isKinematic != null) && (this.isKinematic = data.isKinematic);
 	    }
 	    _onDestroy() {
 	        ILaya3D.Physics3D._bullet.btMotionState_destroy(this._btLayaMotionState);
