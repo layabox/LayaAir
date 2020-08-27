@@ -1,6 +1,5 @@
 import { IOctreeObject } from "./IOctreeObject";
 import { SingletonList } from "../../component/SingletonList"
-import { ISingletonElement } from "../../../resource/ISingletonElement";
 
 /**
  * <code>OctreeMotionList</code> 类用于实现物理更新队列。

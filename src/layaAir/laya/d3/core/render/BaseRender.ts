@@ -21,6 +21,7 @@ import { Texture2D } from "../../../resource/Texture2D"
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
 import { Stat } from "../../../utils/Stat";
 import { Lightmap } from "../scene/Lightmap";
+import { ReflectionProbe } from "../reflectionProbe/ReflectionProbe";
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -79,6 +80,8 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_renderMark: number = -1;//TODO:初始值为-1强制更新,否则会造成第一帧动画不更新等,待优化
 	/** @internal */
 	_octreeNode: BoundsOctreeNode;
+	/** @internal 是否需要反射探针*/
+	_probReflection:ReflectionProbe;
 	/** @internal */
 	_indexInOctreeMotionList: number = -1;
 
@@ -469,7 +472,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 			this._renderElements[i].destroy();
 		for (i = 0, n = this._sharedMaterials.length; i < n; i++)
 			(this._sharedMaterials[i].destroyed) || (this._sharedMaterials[i]._removeReference());//TODO:材质可能为空
-
+		this._owner.transform.off(Event.TRANSFORM_CHANGED,this,this._onWorldMatNeedChange)
 		this._renderElements = null;
 		this._owner = null;
 		this._sharedMaterials = null;
