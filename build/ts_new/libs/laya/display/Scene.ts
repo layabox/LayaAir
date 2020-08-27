@@ -163,7 +163,7 @@ export class Scene extends Sprite {
     /**
      * @inheritDoc 
      * @override
-     */
+    */
     set scaleX(value: number) {
         if (super.get_scaleX() == value) return;
         super.set_scaleX(value);
@@ -180,7 +180,7 @@ export class Scene extends Sprite {
     /**
      * @inheritDoc 
      * @override
-     */
+    */
     set scaleY(value: number) {
         if (super.get_scaleY() == value) return;
         super.set_scaleY(value);
@@ -213,7 +213,7 @@ export class Scene extends Sprite {
     /**
      * @inheritDoc 
      * @override
-     */
+    */
     set width(value: number) {
         if (super.get_width() == value) return;
         super.set_width(value);
@@ -223,7 +223,7 @@ export class Scene extends Sprite {
     /**
      * @inheritDoc 
      * @override
-     */
+    */
     get height(): number {
         if (this._height) return this._height;
         var max: number = 0;
@@ -239,7 +239,7 @@ export class Scene extends Sprite {
     /**
      * @inheritDoc 
      * @override
-     */
+    */
     set height(value: number) {
         if (super.get_height() == value) return;
         super.set_height(value);
@@ -311,7 +311,7 @@ export class Scene extends Sprite {
             }
             if (scene && scene instanceof Node) {
                 scene.url = url;
-                if (!scene._getBit(Const.NOT_READY)) {
+                if (scene._viewCreated) {
                     complete && complete.runWith(scene);
                 } else {
                     scene.on("onViewCreated", null, function (): void {

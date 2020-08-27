@@ -24017,6 +24017,12 @@
 	        ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
 	        ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 	    }
+	    get _TintColor() {
+	        return this.color;
+	    }
+	    set _TintColor(value) {
+	        this.color = value;
+	    }
 	    get _TintColorR() {
 	        return this._color.x;
 	    }
@@ -24044,6 +24050,14 @@
 	    set _TintColorA(value) {
 	        this._color.w = value;
 	        this.color = this._color;
+	    }
+	    get _MainTex_ST() {
+	        return this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET);
+	    }
+	    set _MainTex_ST(value) {
+	        var tilOff = this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET);
+	        tilOff.setValue(value.x, value.y, value.z, value.w);
+	        this.tilingOffset = tilOff;
 	    }
 	    get _MainTex_STX() {
 	        return this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET).x;
