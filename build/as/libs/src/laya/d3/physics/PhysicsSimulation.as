@@ -136,6 +136,12 @@ package laya.d3.physics {
 		public function removeConstraint(constraint:ConstraintComponent):void{}
 
 		/**
+		 * 设置射线检测回调
+		 * @param HITSRAYRESULTCALLBACK_FLAG值 
+		 */
+		public function setHitsRayResultCallbackFlay(flag:Number = null):void{}
+
+		/**
 		 * 清除力。
 		 */
 		public function clearForces():void{}

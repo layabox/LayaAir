@@ -10823,7 +10823,7 @@ window.Laya= (function (exports) {
         static supportTextureFormat(format) {
             switch (format) {
                 case exports.TextureFormat.R32G32B32A32:
-                    return (!LayaGL.layaGPUInstance._oesTextureFloat) ? false : true;
+                    return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureFloat) ? false : true;
                 default:
                     return true;
             }
@@ -10831,7 +10831,7 @@ window.Laya= (function (exports) {
         static supportRenderTextureFormat(format) {
             switch (format) {
                 case exports.RenderTextureFormat.R16G16B16A16:
-                    return (((!!LayaGL.layaGPUInstance._isWebGL2) && (!!LayaGL.layaGPUInstance._oesTextureFloat)) || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear) ? true : false;
+                    return (((!!LayaGL.layaGPUInstance._isWebGL2) && (!!LayaGL.layaGPUInstance._extColorBufferFloat)) || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear) ? true : false;
                 case exports.RenderTextureFormat.Depth:
                     return (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._webgl_depth_texture) ? true : false;
                 case exports.RenderTextureFormat.ShadowMap:
@@ -10858,6 +10858,7 @@ window.Laya= (function (exports) {
             this._compressedTexturePvrtc = null;
             this._compressedTextureEtc1 = null;
             this._webgl_depth_texture = null;
+            this._extColorBufferFloat = null;
             this._gl = gl;
             this._isWebGL2 = isWebGL2;
             var maxTextureFS = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
@@ -10878,7 +10879,7 @@ window.Laya= (function (exports) {
                 SystemUtils._shaderCapailityLevel = 30;
             }
             else {
-                this._oesTextureFloat = this._getExtension("EXT_color_buffer_float");
+                this._extColorBufferFloat = this._getExtension("EXT_color_buffer_float");
                 SystemUtils._shaderCapailityLevel = 35;
             }
             this._extTextureFilterAnisotropic = this._getExtension("EXT_texture_filter_anisotropic");
@@ -22460,7 +22461,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.8.0beta";
+    Laya.version = "2.7.1";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;
@@ -23630,7 +23631,6 @@ window.Laya= (function (exports) {
             this.url = null;
             this._viewCreated = false;
             this._$componentType = "Scene";
-            this._setBit(Const.NOT_READY, true);
             Scene.unDestroyedScenes.push(this);
             this._scene = this;
             if (createChildren)
@@ -23656,6 +23656,7 @@ window.Laya= (function (exports) {
                 this.createView(view);
             }
             else {
+                this._setBit(Const.NOT_READY, true);
                 ILaya.loader.resetProgress();
                 var loader = new SceneLoader();
                 loader.on(Event.COMPLETE, this, this._onSceneLoaded, [url]);

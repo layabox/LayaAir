@@ -55,7 +55,18 @@ export class PhysicsSimulation {
 	static SOLVERMODE_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS: number = 512;
 	/** @internal */
 	static SOLVERMODE_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS: number = 1024;
-
+	/** @internal 射线回调模式*/
+	static HITSRAYRESULTCALLBACK_FLAG_NONE = 0;
+	/** @internal 射线回调模式 忽略反面,射线检测时，会忽略掉反面的三角形*/
+	static HITSRAYRESULTCALLBACK_FLAG_FILTERBACKFACESS = 1;
+	/** @internal 射线回调模式*/
+	static HITSRAYRESULTCALLBACK_FLAG_KEEPUNFILIPPEDNORMAL = 2;
+	/** @internal 射线回调模式*/
+	static HITSRAYRESULTCALLBACK_FLAG_USESUBSIMPLEXCONVEXCASTRAYTEST = 4;
+	/** @internal 射线回调模式*/
+	static HITSRAYRESULTCALLBACK_FLAG_USEGJKCONVEXCASTRAYTEST = 8;
+	/** @internal 射线回调模式*/
+	static HITSRAYRESULTCALLBACK_FLAG_TERMINATOR = 0xffffffff;
 	/** @internal */
 	private static _btTempVector30: number;
 	/** @internal */
@@ -227,7 +238,7 @@ export class PhysicsSimulation {
 		this._btAllHitsRayResultCallback = bt.AllHitsRayResultCallback_create(this._btVector3Zero, this._btVector3Zero);
 		this._btClosestConvexResultCallback = bt.ClosestConvexResultCallback_create(this._btVector3Zero, this._btVector3Zero);
 		this._btAllConvexResultCallback = bt.AllConvexResultCallback_create(this._btVector3Zero, this._btVector3Zero);//TODO:是否优化C++
-
+		this.setHitsRayResultCallbackFlay();
 		bt.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._btDispatcher);//注册算法
 	}
 
@@ -639,6 +650,16 @@ export class PhysicsSimulation {
 		// this._nativeDiscreteDynamicsWorld.removeConstraint(constraint._nativeConstraint);
 		ILaya3D.Physics3D._bullet.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, constraint._btConstraint);
 		delete this._currentConstraint[constraint.id];
+	}
+
+	/**
+	 * 设置射线检测回调
+	 * @param HITSRAYRESULTCALLBACK_FLAG值
+	 */
+	setHitsRayResultCallbackFlay(flag:number = 1){
+		var bt: any = ILaya3D.Physics3D._bullet;
+		bt.RayResultCallback_set_m_flags(this._btAllHitsRayResultCallback);
+		bt.RayResultCallback_set_m_flags(this._btClosestRayResultCallback);
 	}
 
 	/**

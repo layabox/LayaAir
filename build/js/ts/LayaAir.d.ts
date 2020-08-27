@@ -3466,6 +3466,7 @@ declare module laya.d3.core.light {
 		 */
 		get lightmapBakedType():number;
 		set lightmapBakedType(value:number);
+		get lightWorldMatrix():laya.d3.math.Matrix4x4;
 
 		/**
 		 * 创建一个 <code>LightSprite</code> 实例。
@@ -10104,13 +10105,13 @@ declare module laya.d3.core {
 
 		/**
 		 * 获取向前方向。
-		 * @param 前方向 。
+		 * @param forward 前方向。
 		 */
 		getForward(forward:laya.d3.math.Vector3):void;
 
 		/**
 		 * 获取向上方向。
-		 * @param 上方向 。
+		 * @param up 上方向。
 		 */
 		getUp(up:laya.d3.math.Vector3):void;
 
@@ -14588,6 +14589,12 @@ declare module laya.d3.physics {
 		 * 移除刚体运动的约束条件。
 		 */
 		removeConstraint(constraint:laya.d3.physics.constraints.ConstraintComponent):void;
+
+		/**
+		 * 设置射线检测回调
+		 * @param HITSRAYRESULTCALLBACK_FLAG值 
+		 */
+		setHitsRayResultCallbackFlay(flag?:number):void;
 
 		/**
 		 * 清除力。
@@ -21497,6 +21504,7 @@ declare module laya.display {
 		protected createChildren():void;
 
 		/**
+		 * 兼容加载模式
 		 * 加载模式设置uimap
 		 * @param url uimapJosn的url
 		 */

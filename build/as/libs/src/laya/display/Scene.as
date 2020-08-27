@@ -52,6 +52,7 @@ package laya.display {
 		protected function createChildren():void{}
 
 		/**
+		 * 兼容加载模式
 		 * 加载模式设置uimap
 		 * @param url uimapJosn的url
 		 */

@@ -935,6 +935,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 			if (this._pointLights._length > 0) {
 				var poiLight: PointLight = this._pointLights._elements[0];
+				this._mainPointLight = poiLight;
 				Vector3.scale(poiLight.color, poiLight._intensity, poiLight._intensityColor);
 				shaderValues.setVector3(Scene3D.POINTLIGHTCOLOR, poiLight._intensityColor);
 				shaderValues.setVector3(Scene3D.POINTLIGHTPOS, poiLight.transform.position);
@@ -946,6 +947,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 			if (this._spotLights._length > 0) {
 				var spotLight: SpotLight = this._spotLights._elements[0];
+				this._mainSpotLight = spotLight;
 				Vector3.scale(spotLight.color, spotLight._intensity, spotLight._intensityColor);
 				shaderValues.setVector3(Scene3D.SPOTLIGHTCOLOR, spotLight._intensityColor);
 				shaderValues.setVector3(Scene3D.SPOTLIGHTPOS, spotLight.transform.position);
@@ -1306,7 +1308,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._pointLights = null;
 		this._spotLights = null;
 		this._alternateLights = null;
-		this._lightmaps = null;
 		this._shaderValues = null;
 		this._renders = null;
 		this._cameraPool = null;
@@ -1314,6 +1315,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._physicsSimulation && this._physicsSimulation._destroy();
 		this._reflection._removeReference();
 		this._reflection = null;
+		var maps: Lightmap[] = this._lightmaps;
+		if (maps) {
+			for (var i: number = 0, n: number = maps.length; i < n; i++) {
+				var map: Lightmap = maps[i];
+				map.lightmapColor&&map.lightmapColor._removeReference();
+				map.lightmapDirection&&map.lightmapDirection._removeReference();
+			}
+		}
+		this._lightmaps = null;
 		Loader.clearRes(this.url);
 	}
 
