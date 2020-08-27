@@ -299,7 +299,7 @@ export class Scene extends Sprite {
             }
             if (scene && scene instanceof Node) {
                 scene.url = url;
-                if (!scene._getBit(Const.NOT_READY)) {
+                if (scene._viewCreated) {
                     complete && complete.runWith(scene);
                 } else {
                     scene.on("onViewCreated", null, function (): void {
