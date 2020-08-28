@@ -218,8 +218,8 @@ export class Shader3D {
 	/**
 	 * 添加预编译shader文件，主要是处理宏定义
 	 */
-	static add(name: string, attributeMap: any = null, uniformMap: any = null, enableInstancing: boolean = false): Shader3D {
-		return Shader3D._preCompileShader[name] = new Shader3D(name, attributeMap, uniformMap, enableInstancing);
+	static add(name: string, attributeMap: any = null, uniformMap: any = null, enableInstancing: boolean = false,supportReflectionProbe:boolean = false): Shader3D {
+		return Shader3D._preCompileShader[name] = new Shader3D(name, attributeMap, uniformMap, enableInstancing,supportReflectionProbe);
 	}
 
 	/**
@@ -235,6 +235,8 @@ export class Shader3D {
 	_name: string;
 	/**@internal */
 	_enableInstancing: boolean = false;
+	/**@internal */
+	_supportReflectionProbe:boolean = false;
 
 	/**@internal */
 	_subShaders: SubShader[] = [];
@@ -249,11 +251,12 @@ export class Shader3D {
 	/**
 	 * 创建一个 <code>Shader3D</code> 实例。
 	 */
-	constructor(name: string, attributeMap: any, uniformMap: any, enableInstancing: boolean) {
+	constructor(name: string, attributeMap: any, uniformMap: any, enableInstancing: boolean, supportReflectionProbe:boolean) {
 		this._name = name;
 		this._attributeMap = attributeMap;
 		this._uniformMap = uniformMap;
 		this._enableInstancing = enableInstancing;
+		this._supportReflectionProbe = supportReflectionProbe;
 	}
 
 	/**

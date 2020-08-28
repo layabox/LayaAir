@@ -65,6 +65,7 @@ import { CannonPhysicsSimulation } from "../../physicsCannon/CannonPhysicsSimula
 import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings";
 import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
 import { VideoTexture } from "../../../resource/videoTexture";
+import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
 
 /**
  * 环境光模式
@@ -288,6 +289,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_needClearScriptPool: boolean = false;
 	/**	@internal */
 	_reflectionCubeHDRParams: Vector4 = new Vector4();
+	/** @internal */
+	_reflectionProbeManager:ReflectionProbeManager = new ReflectionProbeManager();
+
+
 
 	/** 当前创建精灵所属遮罩层。*/
 	currentCreationLayer: number = Math.pow(2, 0);
@@ -1324,6 +1329,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 		}
 		this._lightmaps = null;
+		this._reflectionProbeManager.destroy();
 		Loader.clearRes(this.url);
 	}
 
