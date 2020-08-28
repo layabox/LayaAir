@@ -179,7 +179,7 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		}
-		var shader: Shader3D = Shader3D.add("BLINNPHONG", null, null, true);
+		var shader: Shader3D = Shader3D.add("BLINNPHONG", null, null, true,true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap, "Forward");
