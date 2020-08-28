@@ -866,8 +866,12 @@ export class Text extends Sprite {
         //计算textHeight
         if (((<TextStyle>this._style)).currBitmapFont)
             nh = this._lines.length * (((<TextStyle>this._style)).currBitmapFont.getMaxHeight() + this.leading) + this.padding[0] + this.padding[2];
-        else
-            nh = this._lines.length * (this._charSize.height + this.leading) + this.padding[0] + this.padding[2];
+        else{
+			nh = this._lines.length * (this._charSize.height + this.leading) + this.padding[0] + this.padding[2];
+			if(this._lines.length){
+				nh-=this.leading; 	// 去掉最后一行的leading，否则多算了。
+			}
+		}
         if (nw != this._textWidth || nh != this._textHeight) {
             this._textWidth = nw;
             this._textHeight = nh;
