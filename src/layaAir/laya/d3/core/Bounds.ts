@@ -221,12 +221,14 @@ export class Bounds implements IClone {
 		var calMin:Vector3 = bounds.getMin();
 		var tempV0:Vector3 = Bounds.TEMP_VECTOR3_MAX0;
 		var tempV1:Vector3 = Bounds.TEMP_VECTOR3_MAX1;
+		var thisExtends:Vector3 = this.getExtent();
+		var boundExtends:Vector3 =bounds.getExtent();
 		tempV0.setValue(Math.max(ownMax.x,calMax.x)-Math.min(ownMin.x,calMin.x),
 			Math.max(ownMax.y,calMax.y)-Math.min(ownMin.y,calMin.y),
 			Math.max(ownMax.z,calMax.z)-Math.min(ownMin.z,calMin.z));
-		tempV1.setValue(this._extent.x+bounds._extent.x,
-			this._extent.y+bounds._extent.y,
-			this._extent.z+bounds._extent.z); 
+		tempV1.setValue((thisExtends.x+boundExtends.x)*2.0,
+			(thisExtends.y+boundExtends.y)*2.0,
+			(thisExtends.z+boundExtends.z)*2.0); 
 		if((tempV0.x)>=(tempV1.x)) return -1;
 		if((tempV0.y)>=(tempV1.y)) return -1;
 		if((tempV0.z)>=(tempV1.z)) return -1;

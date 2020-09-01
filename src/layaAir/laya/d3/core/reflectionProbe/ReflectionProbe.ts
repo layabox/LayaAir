@@ -2,38 +2,53 @@ import { Component } from "../../../components/Component";
 import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
 import { Bounds } from "../Bounds";
+import { Sprite3D } from "../Sprite3D";
+import { Scene3D } from "../scene/Scene3D";
+import { Vector3 } from "../../math/Vector3";
+import { Loader } from "../../../net/Loader";
+import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
 
 /**
  * 反射探针模式
  */
 export enum ReflectionProbeMode {
-        Baked = 0,//现在仅仅支持Back烘培
-        Realtime = 1,
+        off = 0,//现在仅仅支持Back烘培
+        simple = 1,
 }
 /**
  * <code>ReflectionProbe</code> 类用于实现反射探针组件
  * @miner
  */
-export class ReflectionProbe extends Component {
-	//暂不支持HDR。因为纹理数量问题 暂不支持探针混合
+export class ReflectionProbe extends Sprite3D {
+	//因为纹理数量问题 暂不支持探针混合
+	static TEMPVECTOR3:Vector3 = new Vector3();
 	/** 默认解码数据 */
 	static defaultTextureHDRDecodeValues:Vector4 = new Vector4(1.0,1.0,0.0,0.0);
 	/** 盒子反射是否开启 */
-	private _boxProjection:boolean;
+	private _boxProjection:boolean = false;
 	/** 探针重要度 */
 	private _importance:number;
 	/** 反射探针图片 */
 	private _reflectionTexture:TextureCube;
+	/** 包围盒大小 */
+	private _size:Vector3 = new Vector3();
+	/** 包围盒偏移 */
+	private _offset:Vector3 = new Vector3();
 	/** 包围盒 */
 	private _bounds:Bounds;
 	/** 反射强度 */
 	private _intensity:number;
+	/** 反射参数 */
+	private _reflectionHDRParams:Vector4 = new Vector4();
+	/** 反射探针解码格式 */
+	private _reflectionDecodeFormat:TextureDecodeFormat = TextureDecodeFormat.Normal;
 	/** 队列索引 */
 	private _indexInReflectProbList:number;
+	/** 是否是场景探针 */
+	_isScene:boolean = false;
 
 	constructor(){
 		super();
-
 	}
 
 	/**
@@ -45,7 +60,6 @@ export class ReflectionProbe extends Component {
 	
 	set boxProjection(value: boolean) {
 		this._boxProjection = value;
-		//TODO:
 	}
 
 	/**
@@ -67,11 +81,15 @@ export class ReflectionProbe extends Component {
 	}
 
 	set intensity(value:number){
+		value = Math.max(Math.min(value, 1.0), 0.0);
+		this._reflectionHDRParams.x = value;
+		if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
+			this._reflectionHDRParams.x *= 5.0;//5.0 is RGBM param
 		this._intensity = value;
 	}
 
 	/**
-	 * 设置反射强度
+	 * 设置反射贴图
 	 */
 	get reflectionTexture(){
 		return this._reflectionTexture;
@@ -86,50 +104,71 @@ export class ReflectionProbe extends Component {
 	 * 获得反射探针的包围盒
 	 */
 	get bounds():Bounds{
-		return this.bounds;
+		return this._bounds;
 	}
 
-	
+	/**
+	 * @internal
+	 */
+	set bounds(value:Bounds){
+		this._bounds = value;
+	}
+
+	get boundsMax():Vector3{
+		return this._bounds.getMax();
+	}
+
+	get boundsMin():Vector3{
+		return this._bounds.getMin();
+	}
+
+	get probePosition():Vector3{
+		return this.transform.position;
+	}
+
+	/**
+	 * 反射参数
+	 */
+	get reflectionHDRParams():Vector4{
+		return this._reflectionHDRParams;
+	}
+
+	/**
+	 * @internal
+	 */
+	set reflectionHDRParams(value:Vector4){
+		this._reflectionHDRParams = value;
+	}
+
 	/**
 	 * @inheritDoc
 	 * @internal
 	 * @override
 	 */
-	_onAdded(): void {
+	_parse(data: any,spriteMap: any): void {
+		super._parse(data,spriteMap);
+		this._boxProjection = data.boxProjection;
+		this._importance = data.importance;
 		
-	}
-
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	protected _onDestroy(): void {
-		this._reflectionTexture._removeReference(1);
-	}
-
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	_onEnable(): void {
-	}
-
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	protected _onDisable(): void {
-	}
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	_parse(data: any): void {
-
+		this._reflectionTexture = Loader.getRes(data.reflection);
+		var position:Vector3 = this.transform.position;
+		this._size.fromArray(data.boxSize);
+		Vector3.scale(this._size,0.5, ReflectionProbe.TEMPVECTOR3);
+		this._offset.fromArray(data.boxOffset);
+		var min:Vector3 = new Vector3();
+		var max:Vector3 = new Vector3();
+		Vector3.add(position,ReflectionProbe.TEMPVECTOR3,max);
+		Vector3.add(max,this._offset,max);
+		Vector3.subtract(position,ReflectionProbe.TEMPVECTOR3,min);
+		Vector3.add(min,this._offset,min);
+		this._reflectionDecodeFormat = data.reflectionDecodingFormat;
+		this.intensity = data.intensity;
+		if(!this._bounds) this.bounds = new Bounds(min,max);
+		else {
+			this._bounds.setMin(min);
+			this._bounds.setMax(max);
+		}
+		
 	}
 
 	/**
@@ -146,13 +185,42 @@ export class ReflectionProbe extends Component {
 		return this._indexInReflectProbList;
 	}
 	
-	
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onActive(): void {
+		super._onActive();
+		if(this._reflectionTexture)
+		(this.scene as Scene3D)._reflectionProbeManager.add(this);
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onInActive(): void {
+		super._onInActive();
+		if(this.reflectionTexture)
+		(this.scene as Scene3D)._reflectionProbeManager.remove(this);
+	}
+
+
+	/**
+	 * 
+	 */
+	destroy(){
+		this._reflectionTexture._removeReference();
+		this._reflectionTexture = null;
+		this._bounds = null;
+	}
 
 	/**
 	 * @internal
 	 * @override
 	 */
-	_cloneTo(dest: Component): void {
+	_cloneTo(dest: ReflectionProbe): void {
 
 	}
 

@@ -21,7 +21,7 @@ import { Texture2D } from "../../../resource/Texture2D"
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
 import { Stat } from "../../../utils/Stat";
 import { Lightmap } from "../scene/Lightmap";
-import { ReflectionProbe } from "../reflectionProbe/ReflectionProbe";
+import { ReflectionProbe, ReflectionProbeMode } from "../reflectionProbe/ReflectionProbe";
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -87,7 +87,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/** @internal 材质是否支持反射探针*/
 	_surportReflectionProbe:Boolean;
 	/** @internal 设置是反射探针模式 off  simple */
-	_reflectionMode:number = 0;
+	_reflectionMode:number = ReflectionProbeMode.simple;
 
 	/** @internal */
 	_updateMark: number = -1;
@@ -295,6 +295,14 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		return this._renderMark == -1 || this._renderMark == (Stat.loopCount - 1);
 	}
 
+	set reflectionMode(value:ReflectionProbeMode){
+		this._reflectionMode = value;
+	}
+
+	get reflectionMode():ReflectionProbeMode{
+		return this._reflectionMode;
+	}
+
 	/**
 	 * @internal
 	 * 创建一个新的 <code>BaseRender</code> 实例。
@@ -390,6 +398,17 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
+	 * 渲染器添加到更新反射探针队列
+	 * @internal
+	 */
+	_addReflectionProbeUpdate(){
+		//TODO目前暂时不支持混合以及与天空盒模式，只支持simple和off
+		if(this._surportReflectionProbe&&this._reflectionMode==1){
+			this._scene._reflectionProbeManager.addMotionObject(this);
+		}
+	}
+
+	/**
 	 * @internal
 	 */
 	_applyLightMapParams(): void {
@@ -425,11 +444,10 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 					this._octreeNode._octree.addMotionObject(this);
 			}
 		}
-		//TODO目前暂时不支持混合以及与天空盒模式，只支持simple和off
-		if(this._surportReflectionProbe&&this._reflectionMode==3){
-			this._scene._reflectionProbeManager.addMotionObject(this);
-		}
+		this._addReflectionProbeUpdate();
+		
 	}
+
 
 	
 

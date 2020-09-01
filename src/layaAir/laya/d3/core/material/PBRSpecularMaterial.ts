@@ -67,6 +67,12 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
 			'u_SimpleAnimatorTextureSize':Shader3D.PERIOD_SPRITE,
 
+			'u_ReflectCubeHDRParams': Shader3D.PERIOD_SPRITE,
+			'u_ReflectTexture': Shader3D.PERIOD_SPRITE,
+			'u_SpecCubeProbePosition':Shader3D.PERIOD_SPRITE,
+			'u_SpecCubeBoxMax':Shader3D.PERIOD_SPRITE,
+			'u_SpecCubeBoxMin':Shader3D.PERIOD_SPRITE,
+
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
 			'u_View': Shader3D.PERIOD_CAMERA,
 			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
@@ -90,8 +96,6 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_SpecGlossTexture': Shader3D.PERIOD_MATERIAL,
 			'u_SpecularColor': Shader3D.PERIOD_MATERIAL,
 
-			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
-			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
 			'u_AmbientColor': Shader3D.PERIOD_SCENE,
 			'u_FogStart': Shader3D.PERIOD_SCENE,
 			'u_FogRange': Shader3D.PERIOD_SCENE,
@@ -121,8 +125,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_AmbientSHBg': Shader3D.PERIOD_SCENE,
 			'u_AmbientSHBb': Shader3D.PERIOD_SCENE,
 			'u_AmbientSHC': Shader3D.PERIOD_SCENE,
-			'u_ReflectionProbe': Shader3D.PERIOD_SCENE,
-			'u_ReflectCubeHDRParams': Shader3D.PERIOD_SCENE,
+
 
 			//legacy lighting
 			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,

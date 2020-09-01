@@ -25,6 +25,7 @@ export class MeshSprite3D extends RenderableSprite3D {
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR = Shader3D.getDefineByName("COLOR");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = Shader3D.getDefineByName("UV1");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
 		StaticBatchManager._registerManager(MeshRenderStaticBatchManager.instance);
 		DynamicBatchManager._registerManager(MeshRenderDynamicBatchManager.instance);
 	}
