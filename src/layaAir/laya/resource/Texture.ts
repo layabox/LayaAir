@@ -448,10 +448,16 @@ export class Texture extends EventDispatcher {
     recoverBitmap(onok: Function = null): void {
         var url: string = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
-            ILaya.loader.load(url, Handler.create(this, function (bit: any): void {
-                this.bitmap = bit;
+            let tex:Texture2D = ILaya.loader.getRes(url);
+            if(tex){
+                this.bitmap = tex;
                 onok && onok();
-            }), null, "htmlimage", 1, true);
+            }else{
+                ILaya.loader.load(url, Handler.create(this, function (bit: any): void {
+                    this.bitmap = bit;
+                    onok && onok();
+                }), null, "htmlimage", 1, true);
+            }
         }
     }
 
