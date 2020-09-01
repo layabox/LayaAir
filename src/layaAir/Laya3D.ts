@@ -536,6 +536,10 @@ export class Laya3D {
 			case "Terrain":
 				Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, props.dataPath, Laya3D.TERRAINRES);
 				break;
+			case "ReflectionProbe":
+				var reflection = props.reflection;
+				(reflection) && (props.reflection = Laya3D._addHierarchyInnerUrls(firstLevelUrls, subUrls, urlVersion, hierarchyBasePath, reflection, Laya3D.TEXTURECUBEBIN));
+				break;
 		}
 
 		var components: any[] = node.components;

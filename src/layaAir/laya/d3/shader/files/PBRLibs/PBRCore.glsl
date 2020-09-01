@@ -79,12 +79,13 @@ FragmentCommonData specularSetup(vec2 uv)
     return o;
 }
 
-LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump vec2 lightmapUV,vec3 worldnormal)
+LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump vec2 lightmapUV,vec3 worldnormal,vec3 worldPos)
 {
 	LayaGIInput giInput;
 	#ifdef LIGHTMAP
 		giInput.lightmapUV=lightmapUV;
 	#endif
+	giInput.worldPos = worldPos;
 
 	vec3 worldViewDir = -eyeVec;
 	mediump vec4 uvwRoughness;
@@ -149,7 +150,7 @@ void fragmentForward()
 	float perceptualRoughness = smoothnessToPerceptualRoughness(o.smoothness);
 	float roughness = perceptualRoughnessToRoughness(perceptualRoughness);
 	float nv = abs(dot(normalWorld, eyeVec));
-	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,lightMapUV,normalWorld);
+	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,lightMapUV,normalWorld,posworld);
 	vec4 color = LAYA_BRDF_GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,perceptualRoughness,roughness,nv,normalWorld,eyeVec,gi);
 	
 	float shadowAttenuation = 1.0;
@@ -250,5 +251,6 @@ void fragmentForward()
 	
 	gl_FragColor=vec4(color.rgb,alpha);
 }
+
 
 

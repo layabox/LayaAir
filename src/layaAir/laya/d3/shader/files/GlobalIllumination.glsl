@@ -1,6 +1,7 @@
 struct LayaGIInput
 {
 	vec2 lightmapUV;
+	vec3 worldPos;
 };
 
 #define LAYA_SPECCUBE_LOD_STEPS 6.0
@@ -19,6 +20,12 @@ uniform vec3 u_AmbientColor;
 
 uniform samplerCube u_ReflectTexture;
 uniform vec4 u_ReflectCubeHDRParams;
+
+#ifdef SPECCUBE_BOX_PROJECTION
+	uniform vec3 u_SpecCubeProbePosition;
+	uniform vec3 u_SpecCubeBoxMax;
+	uniform vec3 u_SpecCubeBoxMin;
+#endif
 
 
 #ifdef GI_AMBIENT_SH
@@ -59,6 +66,21 @@ uniform vec4 u_ReflectCubeHDRParams;
 		return ambient;
 	}
 #endif
+
+
+
+ mediump vec3 BoxProjectedCubemapDirection(mediump vec3 worldRefl,mediump vec3 worldPos,mediump vec3 cubemapCenter,mediump vec3 boxMin,mediump vec3 boxMax){
+	 mediump vec3 nrdir = normalize(worldRefl);
+	 mediump vec3 rbmax = (boxMax - worldPos);
+	 mediump vec3 rbmin = (boxMin - worldPos);
+	 mediump vec3 select = step(vec3(0.0), worldRefl);
+	 mediump vec3 rbminmax = mix(rbmin, rbmax, select);
+	rbminmax = rbminmax / nrdir;
+	mediump float scalar = min(min(rbminmax.x, rbminmax.y), rbminmax.z);
+	 mediump vec3 worldChangeRefl = nrdir * scalar + (worldPos - cubemapCenter);
+	return worldChangeRefl;
+}
+
 
 mediump vec3 layaDecodeDirectionalLightmap (mediump vec3 color, lowp vec4 dirTex, mediump vec3 normalWorld)
 {
@@ -119,6 +141,10 @@ mediump vec3 layaGlossyEnvironment(mediump vec4 glossIn)
 
 mediump vec3 layaGIIndirectSpecular(LayaGIInput giInput,mediump float occlusion, vec4 glossIn)
 {
+	#ifdef SPECCUBE_BOX_PROJECTION
+		vec3 originalReflUVW = glossIn.xyz;
+		glossIn.xyz =BoxProjectedCubemapDirection(originalReflUVW,giInput.worldPos,u_SpecCubeProbePosition,u_SpecCubeBoxMin,u_SpecCubeBoxMax);
+	#endif
 	mediump vec3 specular = layaGlossyEnvironment(glossIn);
 	return specular * occlusion;
 }
