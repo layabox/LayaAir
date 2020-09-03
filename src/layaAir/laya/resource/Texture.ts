@@ -448,7 +448,7 @@ export class Texture extends EventDispatcher {
     recoverBitmap(onok: Function = null): void {
         var url: string = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
-            let tex:Texture2D = ILaya.loader.getRes(url);
+            let tex:Texture2D = ILaya.Loader.loadedMap[url];
             if(tex){
                 this.bitmap = tex;
                 onok && onok();
