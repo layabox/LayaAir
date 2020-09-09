@@ -22461,7 +22461,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.8.0beta2";
+    Laya.version = "2.8.0beta3";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;
@@ -23809,7 +23809,7 @@ window.Laya= (function (exports) {
                 }
                 if (scene && scene instanceof Node) {
                     scene.url = url;
-                    if (!scene._getBit(Const.NOT_READY)) {
+                    if (scene._viewCreated) {
                         complete && complete.runWith(scene);
                     }
                     else {
