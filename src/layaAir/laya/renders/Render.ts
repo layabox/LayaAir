@@ -23,7 +23,7 @@ export class Render {
     /** @internal 主画布。canvas和webgl渲染都用这个画布*/
     static _mainCanvas: HTMLCanvas;
 
-    static supportWebGLPlusCulling: boolean = false;
+    // static supportWebGLPlusCulling: boolean = false;
     static supportWebGLPlusAnimation: boolean = false;
     static supportWebGLPlusRendering: boolean = false;
     /**是否是加速器 只读*/
@@ -132,13 +132,13 @@ export class Render {
 {
     Render.isConchApp = ((window as any).conch != null);
     if (Render.isConchApp) {
-        Render.supportWebGLPlusCulling = false;
-        Render.supportWebGLPlusAnimation = false;
+        //Render.supportWebGLPlusCulling = false;
+        //Render.supportWebGLPlusAnimation = false;
         Render.supportWebGLPlusRendering = false;
     }
     else if ((window as any).qq != null && (window as any).qq.webglPlus != null) {
-        Render.supportWebGLPlusCulling = false;
-        Render.supportWebGLPlusAnimation = false;
+        //Render.supportWebGLPlusCulling = false;
+        //Render.supportWebGLPlusAnimation = false;
         Render.supportWebGLPlusRendering = false;
     }
 }
