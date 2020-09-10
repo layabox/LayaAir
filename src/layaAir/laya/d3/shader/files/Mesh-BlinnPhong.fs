@@ -1,4 +1,4 @@
-#ifdef GL_FRAGMENT_PRECISION_HIGH
+#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了
 	precision highp float;
 	precision highp int;
 #else
@@ -87,7 +87,7 @@ varying vec3 v_Normal;
 	varying vec4 v_ShadowCoord;
 #endif
 
-#ifdef CALCULATE_SPOTSHADOWS
+#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 	varying vec4 v_SpotShadowCoord;
 #endif
 
@@ -147,7 +147,7 @@ void main()
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
-			#ifdef CALCULATE_SHADOWS
+			#if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 				#ifdef SHADOW_CASCADE
 					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 				#else
@@ -169,7 +169,7 @@ void main()
 
 		#ifdef SPOTLIGHT
 			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_SpotLight,dif,spe);
-			#ifdef CALCULATE_SPOTSHADOWS
+			#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 				vec4 spotShadowcoord = v_SpotShadowCoord;
 				float spotShadowAttenuation = sampleSpotShadowmap(spotShadowcoord);
 				dif *= spotShadowAttenuation;
@@ -185,7 +185,7 @@ void main()
 				if(i >= u_DirationLightCount)
 					break;
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
-				#ifdef CALCULATE_SHADOWS
+				#if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 					if(i == 0)
 					{
 						#ifdef SHADOW_CASCADE
@@ -220,7 +220,7 @@ void main()
 					if(i >= clusterInfo.y)//SpotLightCount
 						break;
 					SpotLight spotLight = getSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
-					#ifdef CALCULATE_SPOTSHADOWS
+					#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 						if(i == 0)
 						{
 							vec4 spotShadowcoord = v_SpotShadowCoord;

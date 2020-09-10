@@ -58,24 +58,24 @@ export class ShaderPass extends ShaderCompile {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * @private
 	 */
 	protected _compileToTree(parent: ShaderNode, lines: any[], start: number, includefiles: any[], defs: any): void {
 		var node: ShaderNode, preNode: ShaderNode;
 		var text: string, name: string, fname: string;
 		var ofs: number, words: any[], noUseNode: ShaderNode;
 		var i: number, n: number, j: number;
+		
 		for (i = start; i < lines.length; i++) {
 			text = lines[i];
 			if (text.length < 1) continue;
 			ofs = text.indexOf("//");
 			if (ofs === 0) continue;
 			if (ofs >= 0) text = text.substr(0, ofs);
-
 			node = noUseNode || new ShaderNode(includefiles);
 			noUseNode = null;
 			node.text = text;
+			node.noCompile = true;
 
 			if ((ofs = text.indexOf("#")) >= 0) {
 				name = "#";
@@ -88,6 +88,15 @@ export class ShaderPass extends ShaderCompile {
 				switch (name) {
 					case "#ifdef":
 					case "#ifndef":
+						node.src = text;
+						node.noCompile = text.match(/[!&|()=<>]/) != null;
+						if (!node.noCompile) {
+							words = text.replace(/^\s*/, '').split(/\s+/);
+							node.setCondition(words[1], name === "#ifdef" ? ShaderCompile.IFDEF_YES : ShaderCompile.IFDEF_ELSE);
+							node.text = "//" + node.text;
+						} else {
+							console.log("function():Boolean{return " + text.substr(ofs + node.name.length) + "}");
+						}
 						node.setParent(parent);
 						parent = node;
 						if (defs) {
@@ -100,8 +109,19 @@ export class ShaderPass extends ShaderCompile {
 						continue;
 					case "#if":
 					case "#elif":
+						node.src = text;
+						node.noCompile = true;
+                        if(name=="#elif"){
+                            parent = parent.parent;
+                            preNode = parent.childs[parent.childs.length - 1];
+                            //匹配"#ifdef"
+                            preNode.text = preNode.src;
+                            preNode.noCompile = true;
+                            preNode.condition = null;
+                        }
 						node.setParent(parent);
-						parent = node;
+                        parent = node;
+                        
 						if (defs) {
 							words = text.substr(j).split(ShaderCompile._splitToWordExps3);
 							for (j = 0; j < words.length; j++) {
@@ -111,14 +131,26 @@ export class ShaderPass extends ShaderCompile {
 						}
 						continue;
 					case "#else":
+						node.src = text;
 						parent = parent.parent;
 						preNode = parent.childs[parent.childs.length - 1];
+						node.noCompile = preNode.noCompile;
+						if (!node.noCompile) {
+							node.condition = preNode.condition;
+							node.conditionType = preNode.conditionType == ShaderCompile.IFDEF_YES ? ShaderCompile.IFDEF_ELSE : ShaderCompile.IFDEF_YES;
+							node.text = "//" + node.text + " " + preNode.text + " " + node.conditionType;
+						}
+						//递归节点树
 						node.setParent(parent);
 						parent = node;
 						continue;
 					case "#endif":
 						parent = parent.parent;
 						preNode = parent.childs[parent.childs.length - 1];
+						node.noCompile = preNode.noCompile;
+						if (!node.noCompile) {
+							node.text = "//" + node.text;
+						}
 						node.setParent(parent);
 						continue;
 					case "#include"://这里有问题,主要是空格

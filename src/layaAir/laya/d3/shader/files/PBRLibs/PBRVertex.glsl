@@ -92,7 +92,7 @@ void vertexForward()
 		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 	#endif
 
-	#ifdef CALCULATE_SPOTSHADOWS
+	#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 		v_SpotShadowCoord = u_SpotViewProjectMatrix*vec4(v_PositionWorld,1.0);
 	#endif
 }
