@@ -959,7 +959,6 @@ export class Animator extends Component {
 
 		if (needRender) {
 			if (this._avatar) {
-				Render.supportWebGLPlusAnimation && this._updateAnimationNodeWorldMatix(this._animationNodeLocalPositions, this._animationNodeLocalRotations, this._animationNodeLocalScales, this._animationNodeWorldMatrixs, this._animationNodeParentIndices);//[NATIVE]
 				this._updateAvatarNodesToSprite();
 			}
 		}

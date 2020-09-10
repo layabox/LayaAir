@@ -98,7 +98,6 @@ export class TrailGeometry extends GeometryElement {
 		var sprite3dPosition: Vector3 = this._owner._owner.transform.position;
 		bounds.setMin(sprite3dPosition);
 		bounds.setMax(sprite3dPosition);
-		Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 	}
 
 	/**
@@ -296,7 +295,6 @@ export class TrailGeometry extends GeometryElement {
 		Vector3.max(max, out, max);
 		bounds.setMax(max);
 
-		Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 
 		var floatCount: number = this._floatCountPerVertices1 * 2;
 		this._vertexBuffer1.setData(this._vertices1.buffer, vertexOffset * 4, vertexOffset * 4, floatCount * 4);
@@ -326,7 +324,6 @@ export class TrailGeometry extends GeometryElement {
 			bounds.setMax(sprite3dPosition);
 			min = bounds.getMin();
 			max = bounds.getMax();
-			Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 		}
 		var vertexCount: number = this._endIndex;
 		var curLength: number = 0;
@@ -386,7 +383,6 @@ export class TrailGeometry extends GeometryElement {
 			bounds.setMin(min);
 			bounds.setMax(max);
 			this._disappearBoundsMode = false;
-			Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 		}
 		var offset: number = this._activeIndex * stride;
 		this._vertexBuffer2.setData(this._vertices2.buffer, offset * 4, offset * 4, (vertexCount * stride - offset) * 4);
@@ -472,22 +468,6 @@ export class TrailGeometry extends GeometryElement {
 		this._subDistance = null;
 		this._lastFixedVertexPosition = null;
 		this._disappearBoundsMode = false;
-	}
-	/**
-	 *@internal [NATIVE]
-	 */
-	_calculateBoundingBoxForNative(): void {
-		var trail: TrailRenderer = this._owner._owner.trailRenderer;
-		var bounds: Bounds = trail.bounds;
-		var min: Vector3 = bounds.getMin();
-		var max: Vector3 = bounds.getMax();
-		var buffer: Float32Array = FrustumCulling._cullingBuffer;
-		buffer[trail._cullingBufferIndex + 1] = min.x;
-		buffer[trail._cullingBufferIndex + 2] = min.y;
-		buffer[trail._cullingBufferIndex + 3] = min.z;
-		buffer[trail._cullingBufferIndex + 4] = max.x;
-		buffer[trail._cullingBufferIndex + 5] = max.y;
-		buffer[trail._cullingBufferIndex + 6] = max.z;
 	}
 
 	clear(): void {

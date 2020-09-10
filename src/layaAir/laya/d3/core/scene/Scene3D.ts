@@ -575,10 +575,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		this._reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
 
-		if (Render.supportWebGLPlusCulling) {//[NATIVE]
-			this._cullingBufferIndices = new Int32Array(1024);
-			this._cullingBufferResult = new Int32Array(1024);
-		}
 
 		//this._shaderValues.setTexture(Scene3D.RANGEATTENUATIONTEXTURE, ShaderInit3D._rangeAttenTex);//TODO:
 
@@ -1246,19 +1242,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._octree.add(render);
 		} else {
 			this._renders.add(render);
-			if (Render.supportWebGLPlusCulling) {//[NATIVE]
-				var indexInList: number = render._getIndexInList();
-				var length: number = this._cullingBufferIndices.length;
-				if (indexInList >= length) {
-					var tempIndices: Int32Array = this._cullingBufferIndices;
-					var tempResult: Int32Array = this._cullingBufferResult;
-					this._cullingBufferIndices = new Int32Array(length + 1024);
-					this._cullingBufferResult = new Int32Array(length + 1024);
-					this._cullingBufferIndices.set(tempIndices, 0);
-					this._cullingBufferResult.set(tempResult, 0);
-				}
-				this._cullingBufferIndices[indexInList] = render._cullingBufferIndex;
-			}
 		}
 		render._addReflectionProbeUpdate();
 	}
@@ -1271,13 +1254,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._octree.remove(render);
 		} else {
 			var endRender: BaseRender;
-			if (Render.supportWebGLPlusCulling) {//[NATIVE]
-				endRender = (<BaseRender>this._renders.elements[this._renders.length - 1]);
-			}
 			this._renders.remove(render);
-			if (Render.supportWebGLPlusCulling) {//[NATIVE]
-				this._cullingBufferIndices[endRender._getIndexInList()] = endRender._cullingBufferIndex;
-			}
 		}
 	}
 

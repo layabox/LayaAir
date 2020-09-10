@@ -230,27 +230,6 @@ export class Camera extends BaseCamera {
 	 */
 	get boundFrustum(): BoundFrustum {
 		this._boundFrustum.matrix = this.projectionViewMatrix;
-		if (Render.supportWebGLPlusCulling) {
-			var near: Plane = this._boundFrustum.near;
-			var far: Plane = this._boundFrustum.far;
-			var left: Plane = this._boundFrustum.left;
-			var right: Plane = this._boundFrustum.right;
-			var top: Plane = this._boundFrustum.top;
-			var bottom: Plane = this._boundFrustum.bottom;
-			var nearNE: Vector3 = near.normal;
-			var farNE: Vector3 = far.normal;
-			var leftNE: Vector3 = left.normal;
-			var rightNE: Vector3 = right.normal;
-			var topNE: Vector3 = top.normal;
-			var bottomNE: Vector3 = bottom.normal;
-			var buffer: Float32Array = this._boundFrustumBuffer;
-			buffer[0] = nearNE.x, buffer[1] = nearNE.y, buffer[2] = nearNE.z, buffer[3] = near.distance;
-			buffer[4] = farNE.x, buffer[5] = farNE.y, buffer[6] = farNE.z, buffer[7] = far.distance;
-			buffer[8] = leftNE.x, buffer[9] = leftNE.y, buffer[10] = leftNE.z, buffer[11] = left.distance;
-			buffer[12] = rightNE.x, buffer[13] = rightNE.y, buffer[14] = rightNE.z, buffer[15] = right.distance;
-			buffer[16] = topNE.x, buffer[17] = topNE.y, buffer[18] = topNE.z, buffer[19] = top.distance;
-			buffer[20] = bottomNE.x, buffer[21] = bottomNE.y, buffer[22] = bottomNE.z, buffer[23] = bottom.distance;
-		}
 
 		return this._boundFrustum;
 	}
@@ -317,8 +296,6 @@ export class Camera extends BaseCamera {
 		this._normalizedViewport = new Viewport(0, 0, 1, 1);
 		this._aspectRatio = aspectRatio;
 		this._boundFrustum = new BoundFrustum(new Matrix4x4());
-		if (Render.supportWebGLPlusCulling)
-			this._boundFrustumBuffer = new Float32Array(24);
 
 		this._calculateProjectionMatrix();
 		Laya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);

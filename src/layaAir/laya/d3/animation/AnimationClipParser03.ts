@@ -144,17 +144,7 @@ export class AnimationClipParser03 {
 
 						startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
 
-						if (Render.supportWebGLPlusAnimation) {
 
-							var data: Float32Array = ((<any>floatArrayKeyframe)).data = new Float32Array(3 * 3);
-							for (var k: number = 0; k < 3; k++)
-								data[k] = reader.getFloat32();
-							for (k = 0; k < 3; k++)
-								data[3 + k] = reader.getFloat32();
-							for (k = 0; k < 3; k++)
-								data[6 + k] = reader.getFloat32();
-						}
-						else {
 							var inTangent: Vector3 = floatArrayKeyframe.inTangent;
 							var outTangent: Vector3 = floatArrayKeyframe.outTangent;
 							var value: Vector3 = floatArrayKeyframe.value;
@@ -167,22 +157,13 @@ export class AnimationClipParser03 {
 							value.x = reader.getFloat32();
 							value.y = reader.getFloat32();
 							value.z = reader.getFloat32();
-						}
+
 						break;
 					case 2:
 						var quaArrayKeyframe: QuaternionKeyframe = new QuaternionKeyframe();
 						node._setKeyframeByIndex(j, quaArrayKeyframe);
 						startTime = quaArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-						if (Render.supportWebGLPlusAnimation) {
-							data = ((<any>quaArrayKeyframe)).data = new Float32Array(3 * 4);
-							for (k = 0; k < 4; k++)
-								data[k] = reader.getFloat32();
-							for (k = 0; k < 4; k++)
-								data[4 + k] = reader.getFloat32();
-							for (k = 0; k < 4; k++)
-								data[8 + k] = reader.getFloat32();
-						}
-						else {
+
 							var inTangentQua: Vector4 = quaArrayKeyframe.inTangent;
 							var outTangentQua: Vector4 = quaArrayKeyframe.outTangent;
 							var valueQua: Quaternion = quaArrayKeyframe.value;
@@ -198,7 +179,6 @@ export class AnimationClipParser03 {
 							valueQua.y = reader.getFloat32();
 							valueQua.z = reader.getFloat32();
 							valueQua.w = reader.getFloat32();
-						}
 						break;
 					default:
 						throw "AnimationClipParser03:unknown type.";
