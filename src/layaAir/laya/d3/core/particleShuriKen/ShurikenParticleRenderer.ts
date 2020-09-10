@@ -163,17 +163,6 @@ export class ShurikenParticleRenderer extends BaseRender {
 			this._bounds.setMax(max);
 		}
 
-		if (Render.supportWebGLPlusCulling) {//[NATIVE]
-			var min: Vector3 = this._bounds.getMin();
-			var max: Vector3 = this._bounds.getMax();
-			var buffer: Float32Array = FrustumCulling._cullingBuffer;
-			buffer[this._cullingBufferIndex + 1] = min.x;
-			buffer[this._cullingBufferIndex + 2] = min.y;
-			buffer[this._cullingBufferIndex + 3] = min.z;
-			buffer[this._cullingBufferIndex + 4] = max.x;
-			buffer[this._cullingBufferIndex + 5] = max.y;
-			buffer[this._cullingBufferIndex + 6] = max.z;
-		}
 	}
 
 	/**

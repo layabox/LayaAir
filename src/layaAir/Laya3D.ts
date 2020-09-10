@@ -398,16 +398,7 @@ export class Laya3D {
 			LayaGLRunner.uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
 		}
 
-		if (Render.supportWebGLPlusCulling) {
-			frustumCulling.renderObjectCulling = FrustumCulling.renderObjectCullingNative;
-		}
 
-		if (Render.supportWebGLPlusAnimation) {
-			avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
-			var animationClip: any = AnimationClip;
-			animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
-			skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
-		}
 	}
 
 	/**

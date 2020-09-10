@@ -62,10 +62,6 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	static __init__(): void {
-		if (Render.supportWebGLPlusCulling) {//[NATIVE]
-			FrustumCulling._cullingBufferLength = 0;
-			FrustumCulling._cullingBuffer = new Float32Array(4096);
-		}
 	}
 
 	/**
