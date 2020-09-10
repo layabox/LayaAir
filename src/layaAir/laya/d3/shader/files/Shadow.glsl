@@ -68,7 +68,7 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 
 
 
-#ifdef CALCULATE_SHADOWS
+#if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 
 	TEXTURE2D_SHADOW(u_ShadowMap);
 
@@ -138,7 +138,7 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 	}
 #endif
 
-#ifdef CALCULATE_SPOTSHADOWS
+#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 	TEXTURE2D_SHADOW(u_SpotShadowMap);
 	uniform mat4 u_SpotViewProjectMatrix;
 	float sampleSpotShadowmap(vec4 shadowCoord)

@@ -100,7 +100,7 @@ varying vec3 v_PositionWorld;
 	varying vec4 v_ShadowCoord;
 #endif
 
-#ifdef CALCULATE_SPOTSHADOWS
+#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 	varying vec4 v_SpotShadowCoord;
 #endif
 

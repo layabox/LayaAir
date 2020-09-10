@@ -22,7 +22,7 @@ varying vec2 v_Texcoord0;
 	uniform vec4 u_LightmapScaleOffset;
 #endif
 
-#ifdef CALCULATE_SHADOWS
+#if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 	varying vec4 v_ShadowCoord;
 #endif
 
@@ -45,7 +45,7 @@ void main()
 		v_PositionWorld=(u_WorldMat*a_Position).xyz;
 	#endif
 
-	#ifdef CALCULATE_SHADOWS
+	#if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld));
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
