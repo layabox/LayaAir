@@ -132,7 +132,8 @@ export class TextRender {
      */
     getNextChar(str: string): string |null{
         var len: number = str.length;
-        var start: number = this._curStrPos;
+		var start: number = this._curStrPos;
+		if(!str.substring) return null;	// 保护一下，避免下面 substring 报错
         if (start >= len)
             return null;
 
@@ -189,7 +190,7 @@ export class TextRender {
     }
 
     _fast_filltext(ctx: Context, data: string | WordText|null, htmlchars: HTMLChar[]|null, x: number, y: number, font: FontInfo, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine: number = 0): void {
-        if (data && data.length < 1) return;
+        if (data && !(data.length > 1)) return;	// length有可能是 undefined
         if (htmlchars && htmlchars.length < 1) return;
         if (lineWidth < 0) lineWidth = 0;
         this.setFont(font);
