@@ -312,19 +312,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._id = ++BaseRender._uniqueIDCounter;
 		this._indexInCastShadowList = -1;
 		this._bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
-		if (Render.supportWebGLPlusCulling) {//[NATIVE]
-			var length: number = FrustumCulling._cullingBufferLength;
-			this._cullingBufferIndex = length;
-			var cullingBuffer: Float32Array = FrustumCulling._cullingBuffer;
-			var resizeLength: number = length + 7;
-			if (resizeLength >= cullingBuffer.length) {
-				var temp: Float32Array = cullingBuffer;
-				cullingBuffer = FrustumCulling._cullingBuffer = new Float32Array(cullingBuffer.length + 4096);
-				cullingBuffer.set(temp, 0);
-			}
-			cullingBuffer[length] = 2;
-			FrustumCulling._cullingBufferLength = resizeLength;
-		}
 
 		this._renderElements = [];
 		this._owner = owner;

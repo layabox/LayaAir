@@ -21,8 +21,6 @@ export class Avatar extends Resource implements IClone {
 	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Avatar {
 		var avatar: Avatar = new Avatar();
 		avatar._rootNode = new AnimationNode(new Float32Array(3), new Float32Array(4), new Float32Array(3), new Float32Array(16));//[NATIVE],需要优化
-		if (Render.supportWebGLPlusAnimation)
-			avatar._nativeNodeCount++;//[NATIVE]
 		if (data.version) {
 			var rootNode: any = data.rootNode;
 			(rootNode) && (avatar._parseNode(rootNode, avatar._rootNode));
@@ -82,8 +80,6 @@ export class Avatar extends Resource implements IClone {
 			var childData: any = childrenData[j];
 			var childBone: AnimationNode = new AnimationNode(new Float32Array(3), new Float32Array(4), new Float32Array(3), new Float32Array(16));//[NATIVE],需要优化
 			node.addChild(childBone);
-			if (Render.supportWebGLPlusAnimation)
-				this._nativeNodeCount++;//[NATIVE]
 			this._parseNode(childData, childBone);
 		}
 	}

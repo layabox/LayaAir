@@ -67,10 +67,10 @@ export class AnimatorState implements IReferenceCounter, IClone {
 						case 1:
 						case 3:
 						case 4:
-							realtimeDatas[i] = Render.supportWebGLPlusAnimation ? new ConchVector3 : new Vector3();
+							realtimeDatas[i] = new Vector3();
 							break;
 						case 2:
-							realtimeDatas[i] = Render.supportWebGLPlusAnimation ? new ConchQuaternion : new Quaternion();
+							realtimeDatas[i] = new Quaternion();
 							break;
 						default:
 							throw "AnimationClipParser04:unknown type.";

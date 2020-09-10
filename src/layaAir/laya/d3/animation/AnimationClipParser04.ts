@@ -149,16 +149,6 @@ export class AnimationClipParser04 {
 								var floatArrayKeyframe: Vector3Keyframe = new Vector3Keyframe();
 								node._setKeyframeByIndex(j, floatArrayKeyframe);
 								startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-								if (Render.supportWebGLPlusAnimation) {
-									var data: Float32Array = ((<any>floatArrayKeyframe)).data = new Float32Array(3 * 3);
-									for (var k: number = 0; k < 3; k++)
-										data[k] = reader.getFloat32();
-									for (k = 0; k < 3; k++)
-										data[3 + k] = reader.getFloat32();
-									for (k = 0; k < 3; k++)
-										data[6 + k] = reader.getFloat32();
-								}
-								else {
 									var inTangent: Vector3 = floatArrayKeyframe.inTangent;
 									var outTangent: Vector3 = floatArrayKeyframe.outTangent;
 									var value: Vector3 = floatArrayKeyframe.value;
@@ -171,22 +161,11 @@ export class AnimationClipParser04 {
 									value.x = reader.getFloat32();
 									value.y = reader.getFloat32();
 									value.z = reader.getFloat32();
-								}
 								break;
 							case 2:
 								var quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe();
 								node._setKeyframeByIndex(j, quaternionKeyframe);
 								startTime = quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
-								if (Render.supportWebGLPlusAnimation) {
-									data = ((<any>quaternionKeyframe)).data = new Float32Array(3 * 4);
-									for (k = 0; k < 4; k++)
-										data[k] = reader.getFloat32();
-									for (k = 0; k < 4; k++)
-										data[4 + k] = reader.getFloat32();
-									for (k = 0; k < 4; k++)
-										data[8 + k] = reader.getFloat32();
-								}
-								else {
 									var inTangentQua: Vector4 = quaternionKeyframe.inTangent;
 									var outTangentQua: Vector4 = quaternionKeyframe.outTangent;
 									var valueQua: Quaternion = quaternionKeyframe.value;
@@ -202,7 +181,6 @@ export class AnimationClipParser04 {
 									valueQua.y = reader.getFloat32();
 									valueQua.z = reader.getFloat32();
 									valueQua.w = reader.getFloat32();
-								}
 								break;
 							default:
 								throw "AnimationClipParser04:unknown type.";
@@ -227,16 +205,6 @@ export class AnimationClipParser04 {
 								node._setKeyframeByIndex(j, floatArrayKeyframe);
 								startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
 
-								if (Render.supportWebGLPlusAnimation) {
-									data = ((<any>floatArrayKeyframe)).data = new Float32Array(3 * 3);
-									for (k = 0; k < 3; k++)
-										data[k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-									for (k = 0; k < 3; k++)
-										data[3 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-									for (k = 0; k < 3; k++)
-										data[6 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-								}
-								else {
 									inTangent = floatArrayKeyframe.inTangent;
 									outTangent = floatArrayKeyframe.outTangent;
 									value = floatArrayKeyframe.value;
@@ -249,23 +217,12 @@ export class AnimationClipParser04 {
 									value.x = HalfFloatUtils.convertToNumber(reader.getUint16());
 									value.y = HalfFloatUtils.convertToNumber(reader.getUint16());
 									value.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-								}
 								break;
 							case 2:
 								quaternionKeyframe = new QuaternionKeyframe();
 								node._setKeyframeByIndex(j, quaternionKeyframe);
 								startTime = quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
 
-								if (Render.supportWebGLPlusAnimation) {
-									data = ((<any>quaternionKeyframe)).data = new Float32Array(3 * 4);
-									for (k = 0; k < 4; k++)
-										data[k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-									for (k = 0; k < 4; k++)
-										data[4 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-									for (k = 0; k < 4; k++)
-										data[8 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-								}
-								else {
 									inTangentQua = quaternionKeyframe.inTangent;
 									outTangentQua = quaternionKeyframe.outTangent;
 									valueQua = quaternionKeyframe.value;
@@ -281,7 +238,6 @@ export class AnimationClipParser04 {
 									valueQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
 									valueQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
 									valueQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
-								}
 								break;
 							default:
 								throw "AnimationClipParser04:unknown type.";
