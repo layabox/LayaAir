@@ -464,6 +464,8 @@ export class Stage extends Sprite {
 		super.set_transform(this.transform);
 		canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
 		canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
+		canvasStyle.width = canvasWidth;
+		canvasStyle.height = canvasHeight;
 		//修正用户自行设置的偏移
 		if (this._safariOffsetY) mat.translate(0, -this._safariOffsetY);
 		mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
