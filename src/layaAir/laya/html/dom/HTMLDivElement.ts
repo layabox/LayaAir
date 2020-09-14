@@ -151,16 +151,16 @@ export class HTMLDivElement extends Sprite {
         this._element.width = value;
     }
 
-    get width() {
-        this._element.width;
+    get width():number {
+        return this._element.width;
     }
 
     set height(value: number) {
         this._element.height = value;
     }
 
-    get height() {
-        this._element.height;
+    get height():number {
+        return this._element.height;
     }
 
     /**
