@@ -1381,10 +1381,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 						zDirectionSpeed.setValue(1, 1, 1);
 						fDirectionSpeed.setValue(1, 1, 1);
 					}
-					else {
-						zDirectionSpeed.setValue(0, 0, 0);
-						fDirectionSpeed.setValue(0, 0, 0);
-					}
 					zEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
 					fEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
 					break;
@@ -1424,7 +1420,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			endSizeOffset.setValue(maxSize, maxSize, maxSize);
 		}
 
-		Vector3.scale(endSizeOffset, meshSize * maxSizeScale, endSizeOffset);
+		var offsetSize: number = meshSize * maxSizeScale;
+		ShurikenParticleSystem._tempVector38.setValue(offsetSize, offsetSize, offsetSize);
+		Vector3.add(endSizeOffset, ShurikenParticleSystem._tempVector38, endSizeOffset);
 
 		// var distance: number = speedOrigan * time;
 		var speedZOffset: Vector3 = ShurikenParticleSystem._tempVector34;
@@ -1442,6 +1440,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		if (this.velocityOverLifetime && this.velocityOverLifetime.enable) {
 			var gradientVelocity: GradientVelocity = this.velocityOverLifetime.velocity;
 			var velocitySpeedOffset: Vector3 = ShurikenParticleSystem._tempVector37;
+			velocitySpeedOffset.setValue(0, 0, 0);
 			switch (gradientVelocity.type) {
 				case 0: // 常量模式
 					gradientVelocity.constant.cloneTo(velocitySpeedOffset);
