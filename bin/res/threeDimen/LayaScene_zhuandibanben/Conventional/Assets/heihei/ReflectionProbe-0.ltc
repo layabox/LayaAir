@@ -1,0 +1,8 @@
+{
+	"front":"ReflectionProbe-0_PositiveZ.png",
+	"back":"ReflectionProbe-0_NegativeZ.png",
+	"left":"ReflectionProbe-0_PositiveX.png",
+	"right":"ReflectionProbe-0_NegativeX.png",
+	"up":"ReflectionProbe-0_PositiveY.png",
+	"down":"ReflectionProbe-0_NegativeY.png"
+}
