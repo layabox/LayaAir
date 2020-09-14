@@ -1,0 +1,37 @@
+{
+	"version":"LAYAMATERIAL:02",
+	"props":{
+		"type":"Laya.SkyBoxMaterial",
+		"name":"sky",
+		"textures":[
+			{
+				"name":"textureCube",
+				"path":"../../../heihei/ReflectionProbe-0.ltc"
+			}
+		],
+		"vectors":[
+			{
+				"name":"tintColor",
+				"value":[
+					0.5,
+					0.5,
+					0.5,
+					0.5
+				]
+			}
+		],
+		"defines":[
+			"SUNDISK_HIGH_QUALITY"
+		],
+		"cull":2,
+		"blendSrc":1,
+		"blendDst":0,
+		"blend":0,
+		"depthWrite":true,
+		"depthTest":515,
+		"renderQueue":1000,
+		"exposure":1,
+		"rotation":0,
+		"textureCubeDecodeFormat":1
+	}
+}
