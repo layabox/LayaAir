@@ -106,6 +106,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 	/** @internal */
 	_bounds: Bounds = null;
+	/** @internal 重力影响偏移, 用于计算世界包围盒 */
+	_gravityOffset: Vector2 = new Vector2();
 
 	/** @internal */
 	_customBounds: Bounds = null;
@@ -1402,6 +1404,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var meshMode: boolean = particleRender.renderMode == 4;
 		switch (particleRender.renderMode) {
 			case 0: // billboard
+			case 1:
+			case 2:
+			case 3:
 				meshSize = ShurikenParticleSystem.halfKSqrtOf2;// Math.sqrt(2) / 2.0;
 				break;
 			case 4: // mesh
@@ -1482,12 +1487,18 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		//gravity重力值
 		var gravity: number = this.gravityModifier;
-		var gravityOffset: number = 0.5 * ShurikenParticleSystem.g * gravity * time * time;
-		speedZOffset.y -= gravityOffset;
-		speedFOffset.y += gravityOffset;
+		if (gravity != 0) {
+			// 记录重力影响偏移
+			var gravityOffset: number = 0.5 * ShurikenParticleSystem.g * gravity * time * time;
 
-		speedZOffset.y = speedZOffset.y > 0 ? speedZOffset.y : 0;
-		speedFOffset.y = speedFOffset.y > 0 ? speedFOffset.y : 0;
+			var speedZOffsetY = speedZOffset.y - gravityOffset;
+			var speedFOffsetY = speedFOffset.y + gravityOffset;
+
+			speedZOffsetY = speedZOffsetY > 0 ? speedZOffsetY: 0;
+			speedFOffsetY = speedFOffsetY > 0 ? speedFOffsetY: 0;
+
+			this._gravityOffset.setValue(speedZOffset.y - speedZOffsetY, speedFOffsetY - speedFOffset.y);
+		}
 
 		// speedOrigan * directionSpeed * time + directionoffset + size * maxsizeScale
 		Vector3.add(speedZOffset, endSizeOffset, boundsMax);
