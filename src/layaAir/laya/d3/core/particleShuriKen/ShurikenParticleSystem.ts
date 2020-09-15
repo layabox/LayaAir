@@ -1413,6 +1413,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		}
 
 		var endSizeOffset: Vector3 = ShurikenParticleSystem._tempVector36;
+		endSizeOffset.setValue(1, 1, 1);
 		if (this.sizeOverLifetime && this.sizeOverLifetime.enable) {
 			var gradientSize: GradientSize = this.sizeOverLifetime.size;
 			var maxSize: number = gradientSize.getMaxSizeInGradient(meshMode);
@@ -1421,8 +1422,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		}
 
 		var offsetSize: number = meshSize * maxSizeScale;
-		ShurikenParticleSystem._tempVector38.setValue(offsetSize, offsetSize, offsetSize);
-		Vector3.add(endSizeOffset, ShurikenParticleSystem._tempVector38, endSizeOffset);
+		Vector3.scale(endSizeOffset, offsetSize, endSizeOffset);
 
 		// var distance: number = speedOrigan * time;
 		var speedZOffset: Vector3 = ShurikenParticleSystem._tempVector34;
