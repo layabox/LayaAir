@@ -148,6 +148,7 @@ export class VertexBuffer3D extends Buffer {
 		this._buffer = null;
 		this._float32Reader = null;
 		this._vertexDeclaration = null;
+		this._byteLength = 0;
 	}
 }
 

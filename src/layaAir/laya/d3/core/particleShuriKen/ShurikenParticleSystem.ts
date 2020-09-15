@@ -1729,9 +1729,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 */
 	_initBufferDatas(): void {
 		if (this._vertexBuffer) {//修改了maxCount以及renderMode以及Mesh等需要清空
-			this._vertexBuffer.destroy();
-			this._indexBuffer.destroy();
 			var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
+			this._vertexBuffer.destroy();
+			this._indexBuffer.destroy();		
 			Resource._addMemory(-memorySize, -memorySize);
 			//TODO:some time use clone will cause this call twice(from 'maxParticleCount' and 'renderMode'),this should optimization rewrite with special clone fun.
 		}

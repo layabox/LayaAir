@@ -322,14 +322,16 @@ export class Animator extends Component {
 					playStateInfo._playEventIndex--;
 				playStateInfo._lastIsFront = frontPlay;
 			}
-
+			var preEventIndex:number = playStateInfo._playEventIndex;
 			if (frontPlay) {
-				playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+				var newEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+				(preEventIndex === playStateInfo._playEventIndex) &&(playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
 				for (var i: number = 0, n: number = loopCount - 1; i < n; i++)
 					this._eventScript(scripts, events, 0, clipDuration, true);
 				(loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, 0, time, true));//if need cross loop,'time' must large than 0
 			} else {
-				playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+				var newEventIndex  = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+				(preEventIndex === playStateInfo._playEventIndex) &&(playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
 				var eventIndex: number = events.length - 1;
 				for (i = 0, n = loopCount - 1; i < n; i++)
 					this._eventScript(scripts, events, eventIndex, 0, false);
@@ -856,7 +858,7 @@ export class Animator extends Component {
 	 */
 	_update(): void {
 		var timer: Timer = ((<Scene3D>this.owner._scene)).timer;
-		var delta: number = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale
+		var delta: number = 0.006;//Laya.timer.delta已结包含Laya.timer.scale
 		if (this._speed === 0 || delta === 0)//delta为0无需更新,可能造成crossWeight计算值为NaN
 			return;
 		var needRender: boolean;

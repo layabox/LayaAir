@@ -205,6 +205,8 @@ export class IndexBuffer3D extends Buffer {
 	destroy(): void {
 		super.destroy();
 		this._buffer = null;
+		this._byteLength = 0;
+		this._indexCount = 0;
 	}
 
 }
