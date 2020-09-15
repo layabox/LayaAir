@@ -15,6 +15,7 @@ import { Transform3D } from "../Transform3D";
 import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
+import { Vector2 } from "../../math/Vector2";
 
 
 /**
@@ -153,6 +154,16 @@ export class ShurikenParticleRenderer extends BaseRender {
 			particleSystem._generateBounds();
 			bounds = particleSystem._bounds;
 			bounds._tranform(this._owner.transform.worldMatrix, this._bounds);
+			// 在世界坐标下考虑重力影响
+			if (particleSystem.gravityModifier != 0) {
+				var max: Vector3 = this._bounds.getMax();
+				var min: Vector3 = this._bounds.getMin();
+				var gravityOffset: Vector2 = particleSystem._gravityOffset;
+				max.y -= gravityOffset.x;
+				min.y -= gravityOffset.y;
+				this._bounds.setMax(max);
+				this._bounds.setMin(min);
+			}                               
 		}
 		else {
 			var min: Vector3 = this._bounds.getMin();
@@ -162,7 +173,6 @@ export class ShurikenParticleRenderer extends BaseRender {
 			max.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
 			this._bounds.setMax(max);
 		}
-
 	}
 
 	/**
