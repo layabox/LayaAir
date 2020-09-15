@@ -728,8 +728,7 @@ export class Context {
 	}
 
 	set globalCompositeOperation(value: string) {
-		var n: any = BlendMode.TOINT[value];
-
+		var n = BlendMode.TOINT[value];
 		n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
 	}
 

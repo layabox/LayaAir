@@ -1,22 +1,24 @@
 import { WebGLContext } from "../WebGLContext"
 
+export type BlendFunc = (gl:WebGLRenderingContext)=>void
+
 export class BlendMode {
-    static activeBlendFunction: Function = null;
-    static NAMES: any[] = ["normal", "add", "multiply", "screen", "overlay", "light", "mask", "destination-out"];
-    static TOINT: any = { "normal": 0, "add": 1, "multiply": 2, "screen": 3, "overlay": 4, "light": 5, "mask": 6, "destination-out": 7, "lighter": 1 };
+    static activeBlendFunction: BlendFunc = null;
+    static NAMES = ["normal", "add", "multiply", "screen", "overlay", "light", "mask", "destination-out"];
+    static TOINT:{[key:string]:number} = { "normal": 0, "add": 1, "multiply": 2, "screen": 3, "overlay": 4, "light": 5, "mask": 6, "destination-out": 7, "lighter": 1 };
 
-    static NORMAL: string = "normal";					//0
-    static ADD: string = "add";							//1
-    static MULTIPLY: string = "multiply";				//2
-    static SCREEN: string = "screen";					//3
-    static OVERLAY: string = "overlay";					//4
-    static LIGHT: string = "light";						//5
-    static MASK: string = "mask";						//6
-    static DESTINATIONOUT: string = "destination-out";	//7
-    static LIGHTER: string = "lighter";					//1  等同于加色法
+    static NORMAL = "normal";					//0
+    static ADD = "add";							//1
+    static MULTIPLY = "multiply";				//2
+    static SCREEN = "screen";					//3
+    static OVERLAY = "overlay";					//4
+    static LIGHT = "light";						//5
+    static MASK = "mask";						//6
+    static DESTINATIONOUT = "destination-out";	//7
+    static LIGHTER = "lighter";					//1  等同于加色法
 
-    static fns: any[] = [];
-    static targetFns: any[] = [];
+    static fns: BlendFunc[];
+    static targetFns: BlendFunc[];
     /**@internal */
     static _init_(gl: WebGLContext): void {
         BlendMode.fns = [BlendMode.BlendNormal, BlendMode.BlendAdd, BlendMode.BlendMultiply, BlendMode.BlendScreen, BlendMode.BlendOverlay, BlendMode.BlendLight, BlendMode.BlendMask, BlendMode.BlendDestinationOut];
@@ -32,22 +34,18 @@ export class BlendMode {
         WebGLContext.setBlendFunc(gl, gl.ONE, gl.DST_ALPHA,true);
     }
 
-    //TODO:coverage
     static BlendMultiply(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,true);
     }
 
-    //TODO:coverage
     static BlendScreen(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
     }
 
-    //TODO:coverage
     static BlendOverlay(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_COLOR,true);
     }
 
-    //TODO:coverage
     static BlendLight(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
     }
@@ -56,27 +54,22 @@ export class BlendMode {
         WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA,true);
     }
 
-    //TODO:coverage
     static BlendAddTarget(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.ONE, gl.DST_ALPHA,true);
     }
 
-    //TODO:coverage
     static BlendMultiplyTarget(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,true);
     }
 
-    //TODO:coverage
     static BlendScreenTarget(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
     }
 
-    //TODO:coverage
     static BlendOverlayTarget(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_COLOR,true);
     }
 
-    //TODO:coverage
     static BlendLightTarget(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
     }
@@ -85,7 +78,6 @@ export class BlendMode {
         WebGLContext.setBlendFunc(gl, gl.ZERO, gl.SRC_ALPHA,true);
     }
 
-    //TODO:coverage
     static BlendDestinationOut(gl: WebGLRenderingContext): void {
         WebGLContext.setBlendFunc(gl, gl.ZERO, gl.ZERO,true);
     }

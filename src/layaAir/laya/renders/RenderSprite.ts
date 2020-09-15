@@ -586,7 +586,7 @@ export class RenderSprite {
 	}
 
 	static setBlendMode(blendMode: string): void {
-		var gl: WebGLContext = WebGLContext.mainContext;
+		var gl = WebGLContext.mainContext;
 		BlendMode.targetFns[BlendMode.TOINT[blendMode]](gl);
 	}
 

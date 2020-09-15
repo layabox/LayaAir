@@ -2,6 +2,7 @@ import { ISubmit } from "./ISubmit";
 import { SubmitKey } from "./SubmitKey";
 import { Value2D } from "../shader/d2/value/Value2D"
 import { Mesh2D } from "../utils/Mesh2D"
+import { BlendFunc } from "../canvas/BlendMode";
 
 export class SubmitBase implements ISubmit {
 
@@ -36,7 +37,7 @@ export class SubmitBase implements ISubmit {
     /**@internal */
     _mesh: Mesh2D = null;			//代替 _vb,_ib
     /**@internal */
-    _blendFn: Function = null;
+    _blendFn: BlendFunc = null;
     protected _id: number = 0;
     /**@internal */
     _renderType: number = 0;

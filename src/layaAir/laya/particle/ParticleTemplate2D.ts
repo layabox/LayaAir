@@ -5,7 +5,7 @@ import { ParticleShaderValue } from "./shader/value/ParticleShaderValue";
 import { Handler } from "../utils/Handler";
 import { Texture } from "../resource/Texture";
 import { ILaya } from "../../ILaya";
-import { BlendMode } from "../webgl/canvas/BlendMode";
+import { BlendMode, BlendFunc } from "../webgl/canvas/BlendMode";
 import { MeshParticle2D } from "../webgl/utils/MeshParticle2D";
 import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
 import { WebGLContext } from "../webgl/WebGLContext";
@@ -24,7 +24,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
     x: number = 0;
 
     y: number = 0;
-    protected _blendFn: Function;
+    protected _blendFn: BlendFunc;
     sv: ParticleShaderValue = new ParticleShaderValue();
 
     private _startTime: number;
