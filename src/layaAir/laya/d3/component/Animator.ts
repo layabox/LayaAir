@@ -858,7 +858,7 @@ export class Animator extends Component {
 	 */
 	_update(): void {
 		var timer: Timer = ((<Scene3D>this.owner._scene)).timer;
-		var delta: number = 0.006;//Laya.timer.delta已结包含Laya.timer.scale
+		var delta: number = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale
 		if (this._speed === 0 || delta === 0)//delta为0无需更新,可能造成crossWeight计算值为NaN
 			return;
 		var needRender: boolean;

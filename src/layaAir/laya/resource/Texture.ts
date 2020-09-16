@@ -5,6 +5,7 @@ import { Rectangle } from "../maths/Rectangle"
 import { Handler } from "../utils/Handler"
 import { LoaderManager } from "../net/LoaderManager";
 import { ILaya } from "../../ILaya";
+import { RenderTexture } from "../d3/resource/RenderTexture";
 /**
  * 资源加载完成后调度。
  * @eventType Event.READY
@@ -32,7 +33,7 @@ export class Texture extends EventDispatcher {
     /**@private */
     private _destroyed: boolean = false;
     /**@private */
-    private _bitmap: Texture2D | Texture;
+    private _bitmap: Texture2D | Texture| RenderTexture;
     /**@internal */
     public _uv: ArrayLike<number>;
     /**@private */
@@ -107,10 +108,10 @@ export class Texture extends EventDispatcher {
      * @param	outTexture 返回的Texture对象。
      * @return  <code>Texture</code> 对象。
      */
-    static _create(source: Texture2D | Texture, x: number, y: number, width: number, height: number, offsetX: number = 0, offsetY: number = 0, sourceWidth: number = 0, sourceHeight: number = 0, outTexture: Texture = null): Texture {
+    static _create(source: Texture2D | Texture | RenderTexture, x: number, y: number, width: number, height: number, offsetX: number = 0, offsetY: number = 0, sourceWidth: number = 0, sourceHeight: number = 0, outTexture: Texture = null): Texture {
         var btex: boolean = source instanceof Texture;
         var uv = btex ? ((<Texture>source)).uv : Texture.DEF_UV;
-        var bitmap: Texture2D | Texture = btex ? ((<Texture>source)).bitmap : source as Texture2D;
+        var bitmap: Texture2D | Texture | RenderTexture = btex ? ((<Texture>source)).bitmap : source as Texture2D;
 
         if (bitmap.width && (x + width) > bitmap.width)
             width = bitmap.width - x;
@@ -225,7 +226,7 @@ export class Texture extends EventDispatcher {
      * 获取位图。
      * @return 位图。
      */
-    get bitmap(): Texture2D | Texture {
+    get bitmap(): Texture2D | Texture |RenderTexture{
         return this._bitmap;
     }
 
@@ -233,7 +234,7 @@ export class Texture extends EventDispatcher {
      * 设置位图。
      * @param 位图。
      */
-    set bitmap(value: Texture2D | Texture) {
+    set bitmap(value: Texture2D | Texture | RenderTexture) {
         this._bitmap && this._bitmap._removeReference(this._referenceCount);
         this._bitmap = value;
         value && (value._addReference(this._referenceCount));
@@ -252,7 +253,7 @@ export class Texture extends EventDispatcher {
      * @param	bitmap 位图资源。
      * @param	uv UV 数据信息。
      */
-    constructor(bitmap: Texture2D | Texture = null, uv: ArrayLike<number> = null, sourceWidth: number = 0, sourceHeight: number = 0) {
+    constructor(bitmap: Texture2D | Texture | RenderTexture = null, uv: ArrayLike<number> = null, sourceWidth: number = 0, sourceHeight: number = 0) {
         super();
         this.setTo(bitmap, uv, sourceWidth, sourceHeight);
     }
@@ -314,7 +315,7 @@ export class Texture extends EventDispatcher {
      * @param	bitmap 位图资源
      * @param	uv UV数据信息
      */
-    setTo(bitmap: Texture2D | Texture = null, uv: ArrayLike<number> = null, sourceWidth: number = 0, sourceHeight: number = 0): void {
+    setTo(bitmap: Texture2D | Texture | RenderTexture= null, uv: ArrayLike<number> = null, sourceWidth: number = 0, sourceHeight: number = 0): void {
         this.bitmap = bitmap;
         this.sourceWidth = sourceWidth;
         this.sourceHeight = sourceHeight;
@@ -340,7 +341,7 @@ export class Texture extends EventDispatcher {
 
     getTexturePixels(x: number, y: number, width: number, height: number): Uint8Array {
         var st: number, dst: number, i: number;
-        var tex2d: Texture2D | Texture = this.bitmap;
+        var tex2d: Texture2D | Texture | RenderTexture = this.bitmap;
         // 适配图集
         var texw = this._w;
         var texh = this._h;
