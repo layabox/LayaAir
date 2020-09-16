@@ -86,14 +86,16 @@ export class PostProcess {
 		var camera: Camera = this._context.camera;
 		var viewport: Viewport = camera.viewport;
 
-		var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+		// var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+		
 		var cameraTarget: RenderTexture = camera._internalRenderTexture;
+		var screenTexture:RenderTexture = cameraTarget;
 		this._context.command.clear();
 		this._context.source = screenTexture;
 		this._context.destination = cameraTarget;
 		this._context.compositeShaderData.clearDefine();
 
-		this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
+		//this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
 
 		this._context.compositeShaderData.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
 
@@ -112,7 +114,7 @@ export class PostProcess {
 
 		//context.source = context.destination;
 		//context.destination = finalDestination;
-
+		
 		//释放临时纹理
 		RenderTexture.recoverToPool(screenTexture);
 		var tempRenderTextures: RenderTexture[] = this._context.deferredReleaseTextures;
