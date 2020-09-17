@@ -12,11 +12,11 @@ import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "laya/resource/RenderTextureFormat";
 import { FilterMode } from "laya/resource/FilterMode";
 import { Vector4 } from "laya/d3/math/Vector4";
-import BlurVS from "./BlurShader/Blur.vs";
-import BlurHorizentalFS from "./BlurShader/BlurHorizontal.fs";
-import BlurVerticalFS from "./BlurShader/BlurVertical.fs";
-import BlurDownSampleFS from "./BlurShader/BlurDownSample.fs";
-import BlurDownSampleVS from "./BlurShader/BlurDownSample.vs";
+import BlurVS from "./Blur.vs";
+import BlurHorizentalFS from "./BlurHorizontal.fs";
+import BlurVerticalFS from "./BlurVertical.fs";
+import BlurDownSampleFS from "./BlurDownSample.fs";
+import BlurDownSampleVS from "./BlurDownSample.vs";
 export class BlurEffect extends PostProcessEffect{
     static BLUR_TYPE_GaussianBlur:number = 0;
     static BLUR_TYPE_Simple:number = 1;
