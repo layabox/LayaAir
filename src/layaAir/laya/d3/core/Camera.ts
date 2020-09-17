@@ -262,7 +262,7 @@ export class Camera extends BaseCamera {
 		this._postProcess = value;
 		var postProcessCommandBuffer: CommandBuffer = new CommandBuffer();
 		this.addCommandBuffer(Camera.CAMERAEVENT_POSTPROCESS, postProcessCommandBuffer);
-		value._init(this, postProcessCommandBuffer);
+		value && value._init(this, postProcessCommandBuffer);
 	}
 
 	/**
