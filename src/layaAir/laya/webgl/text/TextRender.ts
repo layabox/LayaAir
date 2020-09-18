@@ -190,7 +190,7 @@ export class TextRender {
     }
 
     _fast_filltext(ctx: Context, data: string | WordText|null, htmlchars: HTMLChar[]|null, x: number, y: number, font: FontInfo, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine: number = 0): void {
-        if (data && !(data.length > 1)) return;	// length有可能是 undefined
+        if (data && !(data.length >= 1)) return;	// length有可能是 undefined
         if (htmlchars && htmlchars.length < 1) return;
         if (lineWidth < 0) lineWidth = 0;
         this.setFont(font);
