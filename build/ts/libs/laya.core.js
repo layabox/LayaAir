@@ -7551,13 +7551,24 @@ window.Laya= (function (exports) {
             var u = Browser.userAgent = win.navigator.userAgent;
             var maxTouchPoints = win.navigator.maxTouchPoints || 0;
             var platform = win.navigator.platform;
-            if (u.indexOf('AlipayMiniGame') > -1 && "my" in Browser.window) {
-                window.aliPayMiniGame(Laya, Laya);
-                if (!Laya["ALIMiniAdapter"]) {
-                    console.error("请先添加阿里小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+            if ("my" in Browser.window) {
+                if ("tb" in Browser.window.my) {
+                    window.tbMiniGame(Laya, Laya);
+                    if (!Laya["TBMiniAdapter"]) {
+                        console.error("请先添加淘宝适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+                    }
+                    else {
+                        Laya["TBMiniAdapter"].enable();
+                    }
                 }
-                else {
-                    Laya["ALIMiniAdapter"].enable();
+                else if (u.indexOf('AlipayMiniGame') > -1) {
+                    window.aliPayMiniGame(Laya, Laya);
+                    if (!Laya["ALIMiniAdapter"]) {
+                        console.error("请先添加阿里小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+                    }
+                    else {
+                        Laya["ALIMiniAdapter"].enable();
+                    }
                 }
             }
             if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
@@ -7706,6 +7717,9 @@ window.Laya= (function (exports) {
             if (u.indexOf('AlipayMiniGame') > -1) {
                 Browser.onAlipayMiniGame = true;
                 Browser.onMiniGame = false;
+            }
+            if (u.indexOf('TB') > -1) {
+                Browser.onTBMiniGame = true;
             }
             return win;
         }
@@ -8025,7 +8039,7 @@ window.Laya= (function (exports) {
             if (miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
                 bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
             }
-            if ((ILaya.Browser.onMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onAlipayMiniGame) && !bugIOS)
+            if ((ILaya.Browser.onMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) && !bugIOS)
                 TextRender.isWan1Wan = true;
             this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
             TextRender.textRenderInst = this;
@@ -15655,7 +15669,7 @@ window.Laya= (function (exports) {
             Input._createInputElement();
             if (ILaya.Browser.onMobile) {
                 var isTrue = false;
-                if (ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onQQMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onHWMiniGame) {
+                if (ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onQQMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onHWMiniGame || ILaya.Browser.onTBMiniGame) {
                     isTrue = true;
                 }
                 ILaya.Render.canvas.addEventListener(Input.IOS_IFRAME ? (isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
@@ -15818,7 +15832,7 @@ window.Laya= (function (exports) {
             this.event(Event.FOCUS);
             if (ILaya.Browser.onPC)
                 input.focus();
-            if (!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame) {
+            if (!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
                 var temp = this._text;
                 this._text = null;
             }
@@ -16968,6 +16982,8 @@ window.Laya= (function (exports) {
             super.set_transform(this.transform);
             canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
             canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
+            canvasStyle.width = canvasWidth;
+            canvasStyle.height = canvasHeight;
             if (this._safariOffsetY)
                 mat.translate(0, -this._safariOffsetY);
             mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
@@ -18138,7 +18154,7 @@ window.Laya= (function (exports) {
                     return null;
             }
             var tSound;
-            if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame) {
+            if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
                 tSound = ILaya.loader.getRes(url);
             }
             if (!soundClass)
@@ -18146,7 +18162,7 @@ window.Laya= (function (exports) {
             if (!tSound) {
                 tSound = new soundClass();
                 tSound.load(url);
-                if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame) {
+                if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
                     ILaya.Loader.cacheRes(url, tSound);
                 }
             }
@@ -18418,7 +18434,7 @@ window.Laya= (function (exports) {
         send(url, data = null, method = "get", responseType = "text", headers = null) {
             this._responseType = responseType;
             this._data = null;
-            if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame || Browser.onBLMiniGame || Browser.onHWMiniGame || Browser.onTTMiniGame) {
+            if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame || Browser.onBLMiniGame || Browser.onHWMiniGame || Browser.onTTMiniGame || Browser.onTBMiniGame) {
                 url = HttpRequest._urlEncode(url);
             }
             this._url = url;
@@ -18793,7 +18809,7 @@ window.Laya= (function (exports) {
                         data.pics = [];
                     }
                     this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
-                    return this._loadResourceFilter(Loader.IMAGE, toloadPics.pop());
+                    return this._loadResourceFilter(Loader.IMAGE, URL.formatURL(toloadPics.pop()));
                 }
                 else {
                     if (!(data instanceof Texture2D)) {
@@ -21271,7 +21287,7 @@ window.Laya= (function (exports) {
             this._view = [];
         }
         show(x = 0, y = 0) {
-            if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame && !Browser.onQQMiniGame && !Browser.onAlipayMiniGame && !Browser.onBLMiniGame && !Browser.onTTMiniGame && !Browser.onHWMiniGame)
+            if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame && !Browser.onQQMiniGame && !Browser.onAlipayMiniGame && !Browser.onBLMiniGame && !Browser.onTTMiniGame && !Browser.onHWMiniGame && !Browser.onTBMiniGame)
                 this._useCanvas = true;
             this._show = true;
             Stat._fpsData.length = 60;
@@ -22461,7 +22477,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.8.0beta3";
+    Laya.version = "2.8.0beta4";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;

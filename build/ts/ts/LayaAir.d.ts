@@ -20947,11 +20947,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set color(value:string);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get color():string;
 
 		/**
@@ -20959,11 +20954,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set bgColor(value:string);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get bgColor():string;
 
 		/**
@@ -21564,11 +21554,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set scaleX(value:number);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get scaleX():number;
 
 		/**
@@ -21576,11 +21561,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set scaleY(value:number);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get scaleY():number;
 
 		/**
@@ -22728,11 +22708,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set width(value:number);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get width():number;
 
 		/**
@@ -22903,11 +22878,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set visible(value:boolean);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get visible():boolean;
 
 		/**
@@ -40181,6 +40151,11 @@ declare module laya.utils {
 		static onHWMiniGame:boolean;
 
 		/**
+		 * 淘宝小程序
+		 */
+		static onTBMiniGame:boolean;
+
+		/**
 		 * @private 
 		 */
 		static onFirefox:boolean;
@@ -44292,6 +44267,10 @@ declare module laya.webgl.submit {
 		 * @override 
 		 */
 		releaseRender():void;
+
+		/**
+		 * create方法只传对submit设置的值
+		 */
 		static create(context:laya.resource.Context,mesh:laya.webgl.utils.Mesh2D,sv:laya.webgl.shader.d2.value.Value2D):Submit;
 
 		/**

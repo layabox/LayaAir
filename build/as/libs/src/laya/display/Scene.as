@@ -112,24 +112,14 @@ package laya.display {
 		 * @override 
 		 */
 		override public function set scaleX(value:Number):void{}
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override public function get scaleX():Number{return null;}
+		public function get scaleX():Number{return null;}
 
 		/**
 		 * @inheritDoc 
 		 * @override 
 		 */
 		override public function set scaleY(value:Number):void{}
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override public function get scaleY():Number{return null;}
+		public function get scaleY():Number{return null;}
 
 		/**
 		 * @inheritDoc 

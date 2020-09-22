@@ -20,6 +20,10 @@ package laya.webgl.submit {
 		 * @override 
 		 */
 		override public function releaseRender():void{}
+
+		/**
+		 * create方法只传对submit设置的值
+		 */
 		public static function create(context:Context,mesh:Mesh2D,sv:Value2D):Submit{
 			return null;
 		}
