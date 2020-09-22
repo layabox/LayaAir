@@ -160,44 +160,35 @@ export class Scene extends Sprite {
         }
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set scaleX(value: number) {
         if (super.get_scaleX() == value) return;
         super.set_scaleX(value);
         this.event(Event.RESIZE);
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
+
     get scaleX() {
         return super.scaleX;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set scaleY(value: number) {
         if (super.get_scaleY() == value) return;
         super.set_scaleY(value);
         this.event(Event.RESIZE);
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
+
     get scaleY() {
         return super.scaleY;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     get width(): number {
         if (this._width) return this._width;
         var max: number = 0;
@@ -210,20 +201,18 @@ export class Scene extends Sprite {
         return max;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set width(value: number) {
         if (super.get_width() == value) return;
         super.set_width(value);
         this.callLater(this._sizeChanged);
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     get height(): number {
         if (this._height) return this._height;
         var max: number = 0;
@@ -236,10 +225,9 @@ export class Scene extends Sprite {
         return max;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set height(value: number) {
         if (super.get_height() == value) return;
         super.set_height(value);

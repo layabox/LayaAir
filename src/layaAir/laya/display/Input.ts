@@ -130,7 +130,7 @@ export class Input extends Text {
         // 移动端通过画布的touchend调用focus
         if (ILaya.Browser.onMobile) {
             var isTrue: boolean = false;
-            if (ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onQQMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onHWMiniGame) {
+            if (ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onQQMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onHWMiniGame || ILaya.Browser.onTBMiniGame) {
                 isTrue = true;
             }
             ILaya.Render.canvas.addEventListener(Input.IOS_IFRAME ? (isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
@@ -352,7 +352,7 @@ export class Input extends Text {
         if (ILaya.Browser.onPC) input.focus();
 
         // PC浏览器隐藏文字
-        if (!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame) {
+        if (!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
             var temp: string = this._text;
             this._text = null;
         }
@@ -477,10 +477,9 @@ export class Input extends Text {
             super.changeText(text);
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set color(value: string) {
         if (this._focus)
             this.nativeInput.setColor(value);
@@ -488,27 +487,20 @@ export class Input extends Text {
         super.set_color(this._content ? value : this._promptColor);
         this._originColor = value;
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
+
     get color() {
         return super.color;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set bgColor(value: string) {
         super.set_bgColor(value);
         if (ILaya.Render.isConchApp)
             this.nativeInput.setBgColor(value);
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
+
     get bgColor() {
         return super.bgColor;
     }
