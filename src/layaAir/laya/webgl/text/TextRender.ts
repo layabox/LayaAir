@@ -215,7 +215,7 @@ export class TextRender {
         //拷贝到texture上,得到一个gltexture和uv
         var wt = (<WordText>data);
         var isWT = !htmlchars && (data instanceof WordText);
-        var str = (<string>data);
+        var str = data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
         var isHtmlChar= !!htmlchars;
         /**
          * sameTexData 
