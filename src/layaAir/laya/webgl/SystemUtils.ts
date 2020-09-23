@@ -43,6 +43,8 @@ export class SystemUtils {
         switch (format) {
             case TextureFormat.R32G32B32A32:
                 return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureFloat) ? false : true;
+            case TextureFormat.R16G16B16A16:
+                return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureHalfFloat) ? false : true; 
             default:
                 return true;
         }

@@ -36,7 +36,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer{
     /**@internal  x simpleAnimation offset,y simpleFrameOffset*/
     private _simpleAnimatorOffset:Vector2;
     /**@internal */
-    private _bonesNums:number;
+    _bonesNums:number;
     
     /**
      * @internal
@@ -90,7 +90,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer{
 	 */
 	private _computeAnimatorParamsData(): void {
         if(this._cacheMesh){
-            this._bonesNums = this.bones.length;
             this._simpleAnimatorParams.x = this._simpleAnimatorOffset.x;
             this._simpleAnimatorParams.y =Math.round(this._simpleAnimatorOffset.y)*this._bonesNums*4;
         }

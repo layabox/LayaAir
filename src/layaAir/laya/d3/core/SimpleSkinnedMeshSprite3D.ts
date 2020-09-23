@@ -112,6 +112,8 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 			var n: number;
 			for (i = 0, n = bonesData.length; i < n; i++)
 				render.bones.push(spriteMap[bonesData[i]]);
+
+			render._bonesNums = data.bonesNums? data.bonesNums:render.bones.length;
 		} else {//[兼容代码]
 			(data.rootBone) && (render._setRootBone(data.rootBone));//[兼容性]
 		}
