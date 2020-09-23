@@ -7718,7 +7718,7 @@ window.Laya= (function (exports) {
                 Browser.onAlipayMiniGame = true;
                 Browser.onMiniGame = false;
             }
-            if (u.indexOf('TB') > -1) {
+            if (u.indexOf('TB') > -1 || u.indexOf('Taobao') > -1) {
                 Browser.onTBMiniGame = true;
             }
             return win;
