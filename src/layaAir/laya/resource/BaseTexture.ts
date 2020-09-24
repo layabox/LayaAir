@@ -147,8 +147,11 @@ export class BaseTexture extends Bitmap {
 				return 1;
 			case TextureFormat.Alpha8:
 				return 1;
+			case TextureFormat.R16G16B16A16:
+				return 2;	
 			case TextureFormat.R32G32B32A32:
 				return 4;
+			
 			default:
 				throw "Texture2D: unknown format.";
 		}
