@@ -180,7 +180,10 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 		var lbb: Bounds = meshRender.localBounds;
 		(lbb) && (lbb.cloneTo(destMeshRender.localBounds));
 		
+
+		destMeshRender.simpleAnimatorOffset = meshRender.simpleAnimatorOffset;
 		destMeshRender.simpleAnimatorTexture = meshRender.simpleAnimatorTexture;
+		destMeshRender._bonesNums = meshRender._bonesNums;
 
 		super._cloneTo(destObject, srcRoot, dstRoot);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
 	}
