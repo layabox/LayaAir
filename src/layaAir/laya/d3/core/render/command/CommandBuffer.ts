@@ -8,6 +8,12 @@ import { SetShaderDataTextureCMD } from "./SetShaderDataTextureCMD";
 import { Command } from "./Command";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Vector4 } from "../../../math/Vector4";
+import { Mesh } from "../../../resource/models/Mesh";
+import { Matrix4x4 } from "../../../math/Matrix4x4";
+import { Material } from "../../material/Material";
+import { SetShaderDataCMD, ShaderDataCMDType } from "./SetShaderDataCMD";
+import { Vector3 } from "../../../math/Vector3";
+import { Vector2 } from "../../../math/Vector2";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -26,6 +32,7 @@ export class CommandBuffer {
 	}
 
 	/**
+	 * 调用所有渲染指令
 	 *@internal
 	 */
 	_apply(): void {
@@ -34,10 +41,73 @@ export class CommandBuffer {
 	}
 
 	/**
-	 *@internal
+	 * 设置shader图片数据
+	 * @param shaderData 
+	 * @param nameID 
+	 * @param source 
 	 */
 	setShaderDataTexture(shaderData: ShaderData, nameID: number, source: BaseTexture): void {
 		this._commands.push(SetShaderDataTextureCMD.create(shaderData, nameID, source));
+	}
+
+	/**
+	 * 设置shader Vector4数据
+	 * @param shaderData 
+	 * @param nameID 
+	 * @param value 
+	 */
+	setShaderDataVector(shaderData:ShaderData,nameID,value:Vector4):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Vector));
+	}
+
+	/**
+	 * 设置shader Vector3数据
+	 * @param shaderData 
+	 * @param nameID 
+	 * @param value 
+	 */
+	setShaderDataVector3(shaderData:ShaderData,nameID,value:Vector3):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Vector3));
+	}
+
+	/**
+	 * 设置shader Vector2数据
+	 * @param shaderData 
+	 * @param nameID 
+	 * @param value 
+	 */
+	setShaderDataVector2(shaderData:ShaderData,nameID,value:Vector2):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Vector2));
+	}
+
+	/**
+	 * 设置shader Number属性
+	 * @param shaderData 
+	 * @param nameID 
+	 * @param value 
+	 */
+	setShaderDataNumber(shaderData:ShaderData,nameID,value:number):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Number));
+	}
+
+	/**
+	 * 设置shader Int属性
+	 * @param shaderData 
+	 * @param nameID 
+	 * @param value 
+	 */
+	setShaderDataInt(shaderData:ShaderData,nameID,value:number):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Int));
+	}
+
+	/**
+	 * 设置shader Matrix属性
+	 * @param shaderData 
+	 * @param nameID 
+	 * @param value 
+	 */
+	setShaderDataMatrix(shaderData:ShaderData,nameID,value:Matrix4x4):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Matrix4x4));
 	}
 
 	/**
@@ -67,10 +137,23 @@ export class CommandBuffer {
 	}
 
 	/**
+	 * 设置指令渲染目标
 	 *@internal
 	 */
 	setRenderTarget(renderTexture: RenderTexture): void {
 		this._commands.push(SetRenderTargetCMD.create(renderTexture));
+	}
+
+	/**
+	 * miner TODO:
+	 * @param mesh 
+	 * @param matrix 
+	 * @param material 
+	 * @param submeshIndex 
+	 * @param shaderPass 
+	 */
+	drawMesh(mesh:Mesh,matrix:Matrix4x4, material:Material ,submeshIndex:number,shaderPass:number){
+		
 	}
 
 	/**
