@@ -377,9 +377,8 @@ export class TextRender {
      * @return
      */
     hasFreedText(txts: any[]): boolean {
-        var sz: number = txts.length;
-        for (var i: number = 0; i < sz; i++) {
-            var pri: any = txts[i];
+        for(let i in txts){
+            var pri = txts[i];
             if (!pri) continue;
             var tex: TextTexture = ((<TextTexture>pri.tex));
             if (tex.__destroyed || tex.genID != pri.texgen) {
