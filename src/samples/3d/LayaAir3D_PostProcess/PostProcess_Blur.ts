@@ -82,7 +82,6 @@ export class PostProcess_Blur {
 				if (enableHDR)
 				{
 					button.label = "开启高斯模糊";
-					this.camera.removeCommandBuffers(0);
 					this.camera.postProcess = null;
 
 				}

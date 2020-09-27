@@ -11,7 +11,7 @@ import { Vector4 } from "../../../math/Vector4";
 import { Mesh } from "../../../resource/models/Mesh";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { Material } from "../../material/Material";
-import { SetShaderDataCMD, ShaderDataCMDType } from "./SetShaderDataCMD";
+import { SetShaderDataCMD, ShaderDataType } from "./SetShaderDataCMD";
 import { Vector3 } from "../../../math/Vector3";
 import { Vector2 } from "../../../math/Vector2";
 
@@ -57,7 +57,7 @@ export class CommandBuffer {
 	 * @param value 
 	 */
 	setShaderDataVector(shaderData:ShaderData,nameID,value:Vector4):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Vector));
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector));
 	}
 
 	/**
@@ -67,7 +67,7 @@ export class CommandBuffer {
 	 * @param value 
 	 */
 	setShaderDataVector3(shaderData:ShaderData,nameID,value:Vector3):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Vector3));
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector3));
 	}
 
 	/**
@@ -77,7 +77,7 @@ export class CommandBuffer {
 	 * @param value 
 	 */
 	setShaderDataVector2(shaderData:ShaderData,nameID,value:Vector2):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Vector2));
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector2));
 	}
 
 	/**
@@ -87,7 +87,7 @@ export class CommandBuffer {
 	 * @param value 
 	 */
 	setShaderDataNumber(shaderData:ShaderData,nameID,value:number):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Number));
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Number));
 	}
 
 	/**
@@ -97,7 +97,7 @@ export class CommandBuffer {
 	 * @param value 
 	 */
 	setShaderDataInt(shaderData:ShaderData,nameID,value:number):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Int));
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Int));
 	}
 
 	/**
@@ -107,7 +107,7 @@ export class CommandBuffer {
 	 * @param value 
 	 */
 	setShaderDataMatrix(shaderData:ShaderData,nameID,value:Matrix4x4):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataCMDType.Matrix4x4));
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Matrix4x4));
 	}
 
 	/**

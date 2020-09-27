@@ -6,7 +6,7 @@ import { Vector3 } from "../../../math/Vector3";
 import { Vector4 } from "../../../math/Vector4";
 import { Quaternion } from "../../../math/Quaternion";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
-export enum ShaderDataCMDType{
+export enum ShaderDataType{
 	Int,
 	Bool,
 	Number,
@@ -39,7 +39,7 @@ export class SetShaderDataCMD extends Command {
 	/**
 	 * @internal
 	 */
-	static create(shaderData: ShaderData, nameID: number, value:any,shaderDataType:ShaderDataCMDType): SetShaderDataCMD {
+	static create(shaderData: ShaderData, nameID: number, value:any,shaderDataType:ShaderDataType): SetShaderDataCMD {
 		var cmd: SetShaderDataCMD;
 		cmd = SetShaderDataCMD._pool.length > 0 ? SetShaderDataCMD._pool.pop() : new SetShaderDataCMD();
 		cmd._shaderData = shaderData;
@@ -55,34 +55,34 @@ export class SetShaderDataCMD extends Command {
 	 */
 	run(): void {
 		switch(this._dataType){
-			case ShaderDataCMDType.Int:
+			case ShaderDataType.Int:
 				this._shaderData.setInt(this._nameID,this._value as number);
 				break;
-			case ShaderDataCMDType.Number:
+			case ShaderDataType.Number:
 				this._shaderData.setNumber(this._nameID,this._value as number);
 				break;
-			case ShaderDataCMDType.Bool:
+			case ShaderDataType.Bool:
 				this._shaderData.setBool(this._nameID,this._value as boolean);
 				break;
-			case ShaderDataCMDType.Matrix4x4:
+			case ShaderDataType.Matrix4x4:
 				this._shaderData.setMatrix4x4(this._nameID,this._value as Matrix4x4);
 				break;
-			case ShaderDataCMDType.Quaternion:
+			case ShaderDataType.Quaternion:
 				this._shaderData.setQuaternion(this._nameID,this._value as Quaternion);
 				break;
-			case ShaderDataCMDType.Texture:
+			case ShaderDataType.Texture:
 				this._shaderData.setTexture(this._nameID,this._value as BaseTexture);
 				break;
-			case ShaderDataCMDType.Vector:
+			case ShaderDataType.Vector:
 				this._shaderData.setVector(this._nameID,this._value as Vector4);
 				break;
-			case ShaderDataCMDType.Vector2:
+			case ShaderDataType.Vector2:
 				this._shaderData.setVector2(this._nameID,this._value as Vector2);
 				break;
-			case ShaderDataCMDType.Vector3:
+			case ShaderDataType.Vector3:
 				this._shaderData.setVector3(this._nameID,this._value as Vector3);
 				break;
-			case ShaderDataCMDType.Buffer:
+			case ShaderDataType.Buffer:
 				this._shaderData.setBuffer(this._nameID,this._value as Float32Array);
 				break;
 			default:
