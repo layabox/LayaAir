@@ -66,14 +66,15 @@ export class PostProcess {
 	constructor() {
 		this._context = new PostProcessRenderContext();
 		this._context.compositeShaderData = this._compositeShaderData;
+		this._context.command = new CommandBuffer();
 	}
 
 	/**
 	 *@internal
 	 */
-	_init(camera: Camera, command: CommandBuffer): void {
+	_init(camera: Camera): void {
 		this._context.camera = camera;
-		this._context.command = command;
+		this._context.command._camera = camera;
 	}
 
 	/**
@@ -139,6 +140,14 @@ export class PostProcess {
 		var index: number = this._effects.indexOf(effect);
 		if (index !== -1)
 			this._effects.splice(index, 1);
+	}
+
+	/**
+	 * 调用指令集
+	 * @internal
+	 */
+	_applyPostProcessCommandBuffers():void{
+		this._context.command._apply();
 	}
 
 }

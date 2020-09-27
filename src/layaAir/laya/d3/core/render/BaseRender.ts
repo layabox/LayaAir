@@ -380,7 +380,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		var sharedMats: Material[] = this._sharedMaterials;
 		for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
 			var mat: Material = sharedMats[i];
-			this._surportReflectionProbe= (this._surportReflectionProbe||(mat&&mat._shader._supportReflectionProbe));
+			this._surportReflectionProbe= (this._surportReflectionProbe||(mat&&mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
 		}
 	}
 

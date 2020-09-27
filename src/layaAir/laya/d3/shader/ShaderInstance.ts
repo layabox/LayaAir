@@ -29,6 +29,8 @@ export class ShaderInstance extends Resource {
 	private _attributeMap: any;
 	/**@internal */
 	private _uniformMap: any;
+	/**@internal miner 动态添加的uniformMap*/
+	private _globaluniformMap:any;
 	/**@internal */
 	private _shaderPass: ShaderPass;
 
@@ -83,6 +85,7 @@ export class ShaderInstance extends Resource {
 		this._attributeMap = attributeMap;
 		this._uniformMap = uniformMap;
 		this._shaderPass = shaderPass;
+		this._globaluniformMap = [];
 		this._create();
 		this.lock = true;
 	}
@@ -153,6 +156,12 @@ export class ShaderInstance extends Resource {
 					default:
 						throw new Error("Shader3D: period is unkonw.");
 				}
+			}
+			else{
+				//没有涉及到的uniform加入sceneParms,全局传入
+				one.dataOffset = Shader3D.propertyNameToID(uniName);
+				this._globaluniformMap[uniName] = Shader3D.PERIOD_SCENE;
+				sceneParms.push(one);
 			}
 		}
 

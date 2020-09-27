@@ -66,7 +66,7 @@ import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings
 import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
 import { VideoTexture } from "../../../resource/videoTexture";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
-
+import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
 /**
  * 环境光模式
  */
@@ -1363,6 +1363,44 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	reUse(context: Context, pos: number): number {
 		return 0;
+	}
+	
+	setGlobalShaderValue(name:string,shaderDataType:ShaderDataType,value:any){
+		 var shaderOffset = Shader3D.propertyNameToID(name);
+		 switch(shaderDataType)
+		 {
+			case ShaderDataType.Int:
+				this._shaderValues.setInt(shaderOffset,value);
+				break;
+			case ShaderDataType.Number:
+				this._shaderValues.setNumber(shaderOffset,value);
+				break;
+			case ShaderDataType.Bool:
+				this._shaderValues.setBool(shaderOffset,value);
+				break;
+			case ShaderDataType.Matrix4x4:
+				this._shaderValues.setMatrix4x4(shaderOffset,value);
+				break;
+			case ShaderDataType.Quaternion:
+				this._shaderValues.setQuaternion(shaderOffset,value);
+				break;
+			case ShaderDataType.Texture:
+				this._shaderValues.setTexture(shaderOffset,value);
+				break;
+			case ShaderDataType.Vector:
+				this._shaderValues.setVector(shaderOffset,value);
+				break;
+			case ShaderDataType.Vector2:
+				this._shaderValues.setVector2(shaderOffset,value);
+				break;
+			case ShaderDataType.Vector3:
+				this._shaderValues.setVector3(shaderOffset,value);
+				break;
+			case ShaderDataType.Buffer:
+				this._shaderValues.setBuffer(shaderOffset,value);
+				break; 
+		 }
+		
 	}
 
 

@@ -54,7 +54,7 @@ export class PostProcess_Blur {
 			var blurEffect:BlurEffect = new BlurEffect();
 			this.postProcess.addEffect(blurEffect);
 			this.camera.postProcess = this.postProcess;
-
+			
 			//设置模糊参数
 			blurEffect.downSampleNum =6;
 			blurEffect.blurSpreadSize = 1;
@@ -83,6 +83,7 @@ export class PostProcess_Blur {
 				{
 					button.label = "开启高斯模糊";
 					this.camera.postProcess = null;
+
 				}
 				else{
 					button.label = "关闭高斯模糊";

@@ -260,9 +260,8 @@ export class Camera extends BaseCamera {
 
 	set postProcess(value: PostProcess) {
 		this._postProcess = value;
-		var postProcessCommandBuffer: CommandBuffer = new CommandBuffer();
-		this.addCommandBuffer(Camera.CAMERAEVENT_POSTPROCESS, postProcessCommandBuffer);
-		value && value._init(this, postProcessCommandBuffer);
+		if(!value) return;
+		value && value._init(this);
 	}
 
 	/**
@@ -409,14 +408,6 @@ export class Camera extends BaseCamera {
 	 */
 	_needInternalRenderTexture(): boolean {
 		return this._postProcess || this._enableHDR ? true : false;//condition of internal RT
-	}
-
-	/**
-	 * @internal
-	 */
-	_applyPostProcessCommandBuffers(): void {
-		for (var i: number = 0, n: number = this._postProcessCommandBuffers.length; i < n; i++)
-			this._postProcessCommandBuffers[i]._apply();
 	}
 
 	/**
@@ -611,7 +602,7 @@ export class Camera extends BaseCamera {
 		if (needInternalRT) {
 			if (this._postProcess) {
 				this._postProcess._render();
-				this._applyPostProcessCommandBuffers();
+				this._postProcess._applyPostProcessCommandBuffers();
 			} else if (this._enableHDR) {
 				var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
 				this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
@@ -621,7 +612,6 @@ export class Camera extends BaseCamera {
 			}
 			RenderTexture.recoverToPool(this._internalRenderTexture);
 		}
-
 		if (needShadowCasterPass||spotneedShadowCasterPass)
 			shadowCasterPass.cleanUp();
 	}
@@ -710,29 +700,29 @@ export class Camera extends BaseCamera {
 	 * 在特定渲染管线阶段添加指令缓存。
 	 */
 	addCommandBuffer(event: number, commandBuffer: CommandBuffer): void {
-		switch (event) {
-			case Camera.CAMERAEVENT_POSTPROCESS:
-				this._postProcessCommandBuffers.push(commandBuffer);
-				commandBuffer._camera = this;
-				break;
-			default:
-				throw "Camera:unknown event.";
-		}
+		// switch (event) {
+		// 	case Camera.CAMERAEVENT_POSTPROCESS:
+		// 		this._postProcessCommandBuffers.push(commandBuffer);
+		// 		commandBuffer._camera = this;
+		// 		break;
+		// 	default:
+		// 		throw "Camera:unknown event.";
+		// }
 	}
 
 	/**
 	 * 在特定渲染管线阶段移除指令缓存。
 	 */
 	removeCommandBuffer(event: number, commandBuffer: CommandBuffer): void {
-		switch (event) {
-			case Camera.CAMERAEVENT_POSTPROCESS:
-				var index: number = this._postProcessCommandBuffers.indexOf(commandBuffer);
-				if (index !== -1)
-					this._postProcessCommandBuffers.splice(index, 1);
-				break;
-			default:
-				throw "Camera:unknown event.";
-		}
+		// switch (event) {
+		// 	case Camera.CAMERAEVENT_POSTPROCESS:
+		// 		var index: number = this._postProcessCommandBuffers.indexOf(commandBuffer);
+		// 		if (index !== -1)
+		// 			this._postProcessCommandBuffers.splice(index, 1);
+		// 		break;
+		// 	default:
+		// 		throw "Camera:unknown event.";
+		// }
 	}
 
 	/**
