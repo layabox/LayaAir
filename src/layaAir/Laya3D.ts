@@ -47,7 +47,6 @@ import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPosition
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
 import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
-import { HalfFloatUtils } from "./laya/d3/math/HalfFloatUtils";
 import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
 import { BulletInteractive } from "./laya/d3/physics/BulletInteractive";
 import { CharacterController } from "./laya/d3/physics/CharacterController";
@@ -97,6 +96,7 @@ import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCas
 import { SimpleSkinnedMeshRenderer } from "./laya/d3/core/SimpleSkinnedMeshRenderer";
 import { Utils } from "./laya/utils/Utils";
 import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
+import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */

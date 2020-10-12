@@ -1,7 +1,7 @@
 import { Laya } from "Laya";
-import { HalfFloatUtils } from "laya/d3/math/HalfFloatUtils";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";
+import { HalfFloatUtils } from "laya/utils/HalfFloatUtils";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 
