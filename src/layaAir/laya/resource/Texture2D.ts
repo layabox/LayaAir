@@ -7,7 +7,7 @@ import { TextureFormat } from "./TextureFormat";
 import { Byte } from "../utils/Byte";
 import { FilterMode } from "./FilterMode";
 import { SystemUtils } from "../webgl/SystemUtils";
-import { HalfFloatUtils } from "../d3/math/HalfFloatUtils";
+import { HalfFloatUtils } from "../utils/HalfFloatUtils";
 
 /**
  * <code>Texture2D</code> 类用于生成2D纹理。
