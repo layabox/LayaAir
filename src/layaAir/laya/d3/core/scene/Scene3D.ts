@@ -77,6 +77,12 @@ export enum AmbientMode {
 	SphericalHarmonics
 }
 
+export enum SceneRenderFlag{
+	RenderOpaque = 0,
+	RenderSkyBox = 1,
+	RenderTransparent = 2
+}
+
 /**
  * 用于实现3D场景。
  */
@@ -1128,26 +1134,33 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @internal
+	 * @internal 渲染Scene的各个管线
 	 */
-	_renderScene(context: RenderContext3D): void {
+	_renderScene(context: RenderContext3D,renderFlag:SceneRenderFlag): void {
 		var camera: Camera = <Camera>context.camera;
-
-		this._opaqueQueue._render(context);//非透明队列
-		if (camera.clearFlag === CameraClearFlags.Sky) {
-			if (camera.skyRenderer._isAvailable())
-				camera.skyRenderer._render(context);
-			else if (this._skyRenderer._isAvailable())
-				this._skyRenderer._render(context);
-		}
-		this._transparentQueue._render(context);//透明队列
-
-		if (FrustumCulling.debugFrustumCulling) {
-			var renderElements: RenderElement[] = this._debugTool._render._renderElements;
-			for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
-				renderElements[i]._update(this, context, null, null);
-				renderElements[i]._render(context);
-			}
+		switch(renderFlag)
+		{
+			case SceneRenderFlag.RenderOpaque:
+				this._opaqueQueue._render(context);//非透明队列
+				break;
+			case SceneRenderFlag.RenderSkyBox:
+				if (camera.clearFlag === CameraClearFlags.Sky) {
+					if (camera.skyRenderer._isAvailable())
+						camera.skyRenderer._render(context);
+					else if (this._skyRenderer._isAvailable())
+						this._skyRenderer._render(context);
+				}
+				break;
+			case SceneRenderFlag.RenderTransparent:
+				this._transparentQueue._render(context);//透明队列
+				if (FrustumCulling.debugFrustumCulling) {
+					var renderElements: RenderElement[] = this._debugTool._render._renderElements;
+					for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
+						renderElements[i]._update(this, context, null, null);
+						renderElements[i]._render(context);
+					}
+				}
+				break;
 		}
 	}
 

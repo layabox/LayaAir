@@ -1,6 +1,7 @@
 import { Command } from "./Command";
 import { ShaderData } from "../../../shader/ShaderData"
 import { BaseTexture } from "../../../../resource/BaseTexture";
+import { CommandBuffer } from "./CommandBuffer";
 
 
 /**
@@ -21,12 +22,13 @@ export class SetShaderDataTextureCMD extends Command {
 	/**
 	 * @internal
 	 */
-	static create(shaderData: ShaderData, nameID: number, texture: BaseTexture): SetShaderDataTextureCMD {
+	static create(shaderData: ShaderData, nameID: number, texture: BaseTexture,commandBuffer:CommandBuffer): SetShaderDataTextureCMD {
 		var cmd: SetShaderDataTextureCMD;
 		cmd = SetShaderDataTextureCMD._pool.length > 0 ? SetShaderDataTextureCMD._pool.pop() : new SetShaderDataTextureCMD();
 		cmd._shaderData = shaderData;
 		cmd._nameID = nameID;
 		cmd._texture = texture;
+		cmd._commandBuffer = commandBuffer;
 		return cmd;
 	}
 

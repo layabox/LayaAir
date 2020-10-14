@@ -831,5 +831,17 @@ export class Matrix4x4 implements IClone {
 		me[10] = -forward.z;
 	}
 
+	/**
+	 * 判断此矩阵是否是反向矩阵
+	 */
+	getInvertFront():boolean{
+		this.decomposeTransRotScale(Matrix4x4._tempVector0,Matrix4x4._tempQuaternion,Matrix4x4._tempVector1);
+		var scale:Vector3 = Matrix4x4._tempVector1
+		var isInvert: boolean = scale.x < 0;
+		(scale.y < 0) && (isInvert = !isInvert);
+		(scale.z < 0) && (isInvert = !isInvert);
+		return isInvert;
+	}
+
 }
 
