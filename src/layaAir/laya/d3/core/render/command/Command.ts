@@ -1,5 +1,6 @@
 import { Shader3D } from "../../../../d3/shader/Shader3D";
 import { ShaderData } from "../../../../d3/shader/ShaderData";
+import { RenderContext3D } from "../RenderContext3D";
 import { CommandBuffer } from "./CommandBuffer";
 
 /**
@@ -25,8 +26,9 @@ export class Command {
 	static MAINTEXTURE_TEXELSIZE_ID: number = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME);//todo：
 
 	/**@internal */
-	private _commandBuffer: CommandBuffer = null;
-
+	_commandBuffer: CommandBuffer = null;
+	/**@internal */
+	_context:RenderContext3D;
 	/**
 	* @internal
 	*/
@@ -54,6 +56,10 @@ export class Command {
 	 */
 	recover(): void {
 		this._commandBuffer = null;
+	}
+
+	setContext(context:RenderContext3D){
+		this._context = context;
 	}
 
 }

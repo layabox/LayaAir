@@ -1,0 +1,36 @@
+{
+	"version":"LAYAMATERIAL:02",
+	"props":{
+		"type":"Laya.SkyBoxMaterial",
+		"name":"Skybox_v1",
+		"textures":[
+			{
+				"name":"textureCube",
+				"path":"Skybox_v1.ltc"
+			}
+		],
+		"vectors":[
+			{
+				"name":"tintColor",
+				"value":[
+					0.5,
+					0.5,
+					0.5,
+					0.5
+				]
+			}
+		],
+		"defines":[
+			"_EMISSION"
+		],
+		"cull":2,
+		"blendSrc":1,
+		"blendDst":0,
+		"blend":0,
+		"depthWrite":true,
+		"depthTest":515,
+		"renderQueue":1000,
+		"exposure":1,
+		"rotation":0
+	}
+}
