@@ -79,11 +79,13 @@ export class HTMLCanvas extends Bitmap {
      * Canvas 渲染上下文。
      */
     get context(): Context {
-		if (this._ctx) return this._ctx;
-		//@ts-ignore
+        if (this._ctx) return this._ctx;
+        //@ts-ignore
         if (this._source == this) {	//是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
+            // @ts-ignore
             this._ctx = new ILaya.Context();
         } else {
+            //@ts-ignore
             this._ctx = this._source.getContext(ILaya.Render.isConchApp ? 'layagl' : '2d');
         }
         this._ctx._canvas = this;
