@@ -6,6 +6,7 @@ import { Vector3 } from "../../../math/Vector3";
 import { Vector4 } from "../../../math/Vector4";
 import { Quaternion } from "../../../math/Quaternion";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
+import { CommandBuffer } from "./CommandBuffer";
 export enum ShaderDataType{
 	Int,
 	Bool,
@@ -39,13 +40,14 @@ export class SetShaderDataCMD extends Command {
 	/**
 	 * @internal
 	 */
-	static create(shaderData: ShaderData, nameID: number, value:any,shaderDataType:ShaderDataType): SetShaderDataCMD {
+	static create(shaderData: ShaderData, nameID: number, value:any,shaderDataType:ShaderDataType,commandBuffer:CommandBuffer): SetShaderDataCMD {
 		var cmd: SetShaderDataCMD;
 		cmd = SetShaderDataCMD._pool.length > 0 ? SetShaderDataCMD._pool.pop() : new SetShaderDataCMD();
 		cmd._shaderData = shaderData;
 		cmd._nameID = nameID;
 		cmd._value = value;
-		cmd._dataType = shaderDataType
+		cmd._dataType = shaderDataType;
+		cmd._commandBuffer = commandBuffer;
 		return cmd;
 	}
 

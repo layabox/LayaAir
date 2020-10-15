@@ -14,6 +14,9 @@ import { Material } from "../../material/Material";
 import { SetShaderDataCMD, ShaderDataType } from "./SetShaderDataCMD";
 import { Vector3 } from "../../../math/Vector3";
 import { Vector2 } from "../../../math/Vector2";
+import { DrawMeshCMD } from "./DrawMeshCMD";
+import { RenderContext3D } from "../RenderContext3D";
+import { Scene3D } from "../../scene/Scene3D";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -21,6 +24,8 @@ import { Vector2 } from "../../../math/Vector2";
 export class CommandBuffer {
 	/**@internal */
 	_camera: Camera = null;
+	/**@internal */
+	_context:RenderContext3D;
 	/**@internal */
 	private _commands: Command[] = [];
 
@@ -47,7 +52,17 @@ export class CommandBuffer {
 	 * @param source 
 	 */
 	setShaderDataTexture(shaderData: ShaderData, nameID: number, source: BaseTexture): void {
-		this._commands.push(SetShaderDataTextureCMD.create(shaderData, nameID, source));
+		this._commands.push(SetShaderDataTextureCMD.create(shaderData, nameID, source,this));
+	}
+
+	/**
+	 * 设置全局Uniform图片数据
+	 * @param nameID 
+	 * @param source 
+	 */
+	setGlobalTexture(nameID:number,source: BaseTexture){
+		var scene:Scene3D = this._camera.scene;
+		this._commands.push(SetShaderDataTextureCMD.create(scene._shaderValues,nameID,source,this));
 	}
 
 	/**
@@ -56,8 +71,8 @@ export class CommandBuffer {
 	 * @param nameID 
 	 * @param value 
 	 */
-	setShaderDataVector(shaderData:ShaderData,nameID,value:Vector4):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector));
+	setShaderDataVector(shaderData:ShaderData,nameID:number,value:Vector4):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector,this));
 	}
 
 	/**
@@ -66,8 +81,8 @@ export class CommandBuffer {
 	 * @param nameID 
 	 * @param value 
 	 */
-	setShaderDataVector3(shaderData:ShaderData,nameID,value:Vector3):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector3));
+	setShaderDataVector3(shaderData:ShaderData,nameID:number,value:Vector3):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector3,this));
 	}
 
 	/**
@@ -76,8 +91,8 @@ export class CommandBuffer {
 	 * @param nameID 
 	 * @param value 
 	 */
-	setShaderDataVector2(shaderData:ShaderData,nameID,value:Vector2):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector2));
+	setShaderDataVector2(shaderData:ShaderData,nameID:number,value:Vector2):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector2,this));
 	}
 
 	/**
@@ -86,8 +101,8 @@ export class CommandBuffer {
 	 * @param nameID 
 	 * @param value 
 	 */
-	setShaderDataNumber(shaderData:ShaderData,nameID,value:number):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Number));
+	setShaderDataNumber(shaderData:ShaderData,nameID:number,value:number):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Number,this));
 	}
 
 	/**
@@ -96,8 +111,8 @@ export class CommandBuffer {
 	 * @param nameID 
 	 * @param value 
 	 */
-	setShaderDataInt(shaderData:ShaderData,nameID,value:number):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Int));
+	setShaderDataInt(shaderData:ShaderData,nameID:number,value:number):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Int,this));
 	}
 
 	/**
@@ -106,8 +121,8 @@ export class CommandBuffer {
 	 * @param nameID 
 	 * @param value 
 	 */
-	setShaderDataMatrix(shaderData:ShaderData,nameID,value:Matrix4x4):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Matrix4x4));
+	setShaderDataMatrix(shaderData:ShaderData,nameID:number,value:Matrix4x4):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Matrix4x4,this));
 	}
 
 	/**
@@ -120,7 +135,7 @@ export class CommandBuffer {
 	 * @param	subShader subShader索引,默认值为0。
 	 */
 	blitScreenQuad(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
-		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_QUAD));
+		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_QUAD,this));
 	}
 
 	/**
@@ -133,7 +148,7 @@ export class CommandBuffer {
 	 * @param	subShader subShader索引,默认值为0。
 	 */
 	blitScreenTriangle(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
-		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_TRIANGLE));
+		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_TRIANGLE,this));
 	}
 
 	/**
@@ -144,8 +159,13 @@ export class CommandBuffer {
 		this._commands.push(SetRenderTargetCMD.create(renderTexture));
 	}
 
+	//TODO
+	// getTempRenderTarget(){
+
+	// }
+
+	
 	/**
-	 * miner TODO:
 	 * @param mesh 
 	 * @param matrix 
 	 * @param material 
@@ -153,7 +173,14 @@ export class CommandBuffer {
 	 * @param shaderPass 
 	 */
 	drawMesh(mesh:Mesh,matrix:Matrix4x4, material:Material ,submeshIndex:number,shaderPass:number){
-		
+		this._commands.push(DrawMeshCMD.create(mesh,matrix,material,submeshIndex,shaderPass,this));
+	}
+
+	/**
+	 * miner TODO:
+	 */
+	drawRender(){
+
 	}
 
 	/**

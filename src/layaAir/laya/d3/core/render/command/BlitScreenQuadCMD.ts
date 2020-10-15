@@ -12,6 +12,7 @@ import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { ScreenTriangle } from "../ScreenTriangle";
 import { Command } from "./Command";
+import { CommandBuffer } from "./CommandBuffer";
 
 /**
  * <code>BlitScreenQuadCMD</code> 类用于创建从一张渲染目标输出到另外一张渲染目标指令。
@@ -47,9 +48,16 @@ export class BlitScreenQuadCMD extends Command {
 	private _screenType: number = 0;
 
 	/**
-	 * 
+	 * 创建命令流
+	 * @param source 原始贴图 如果设置为null  将会使用默认的Camera流程中的原RenderTexture
+	 * @param dest 目标贴图
+	 * @param offsetScale 偏移缩放
+	 * @param shader 渲染shader
+	 * @param shaderData 渲染数据
+	 * @param subShader subshader的节点
+	 * @param screenType 
 	 */
-	static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD): BlitScreenQuadCMD {
+	static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD,commandbuffer:CommandBuffer = null): BlitScreenQuadCMD {
 		var cmd: BlitScreenQuadCMD;
 		cmd = BlitScreenQuadCMD._pool.length > 0 ? BlitScreenQuadCMD._pool.pop() : new BlitScreenQuadCMD();
 		cmd._source = source;
@@ -59,6 +67,7 @@ export class BlitScreenQuadCMD extends Command {
 		cmd._shaderData = shaderData;
 		cmd._subShader = subShader;
 		cmd._screenType = screenType;
+		cmd._commandBuffer = commandbuffer;
 		return cmd;
 	}
 
@@ -67,6 +76,12 @@ export class BlitScreenQuadCMD extends Command {
 	 * @override
 	 */
 	run(): void {//TODO:相机的UV
+		//TODO  这里有点问题，不能这样控制
+		if(!this._source){
+			if(!this._commandBuffer._camera._internalRenderTexture)
+				throw "camera internalRenderTexture is null,please set camera enableBuiltInRenderTexture";
+			this._source = this._commandBuffer._camera._internalRenderTexture;
+		}
 		var shader: Shader3D = this._shader || Command._screenShader;
 		var shaderData: ShaderData = this._shaderData || Command._screenShaderData;
 		var dest: RenderTexture = this._dest;
