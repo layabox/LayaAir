@@ -17,6 +17,7 @@ import { Vector2 } from "../../../math/Vector2";
 import { DrawMeshCMD } from "./DrawMeshCMD";
 import { RenderContext3D } from "../RenderContext3D";
 import { Scene3D } from "../../scene/Scene3D";
+import { ClearRenderTextureCMD } from "./ClearRenderTextureCMD";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -175,6 +176,11 @@ export class CommandBuffer {
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Matrix4x4,this));
 	}
 
+	/**
+	 * 设置全局Matrix属性
+	 * @param nameID 
+	 * @param source 
+	 */
 	setGlobalMatrix(nameID:number,source:number){
 		var scene:Scene3D = this._camera.scene;
 		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Matrix4x4,this));
@@ -232,10 +238,16 @@ export class CommandBuffer {
 		this._commands.push(SetRenderTargetCMD.create(renderTexture));
 	}
 
-	//TODO
-	// clearRenderTexture():void{
-
-	// }
+	/**
+	 * clear渲染纹理
+	 * @param clearColor 
+	 * @param clearDepth 
+	 * @param backgroundColor 
+	 * @param depth 
+	 */
+	ClearRenderTarget(clearColor:boolean,clearDepth:boolean,backgroundColor:Vector4,depth:number = 1):void{
+		this._commands.push(ClearRenderTextureCMD.create(clearColor,clearDepth,backgroundColor,depth,this));
+	}
 	
 	/**
 	 * @param mesh 
