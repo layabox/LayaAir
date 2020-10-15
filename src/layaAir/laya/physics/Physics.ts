@@ -241,7 +241,8 @@ export class Physics extends EventDispatcher {
     }
 
     /**物理世界根容器，将根据此容器作为物理世界坐标世界，进行坐标变换，默认值为stage
-     * 设置特定容器后，就可整体位移物理对象，保持物理世界不变*/
+     * 设置特定容器后，就可整体位移物理对象，保持物理世界不变。
+     * 注意，仅会在 set worldRoot 时平移一次，其他情况请配合 updatePhysicsByWorldRoot 函数使用*/
     get worldRoot(): Sprite {
         return this._worldRoot || Laya.stage;
     }
@@ -251,7 +252,17 @@ export class Physics extends EventDispatcher {
         if (value) {
             //TODO：
             var p: Point = value.localToGlobal(Point.TEMP.setTo(0, 0));
-            this.world.ShiftOrigin({ x: p.x / Physics.PIXEL_RATIO, y: p.y / Physics.PIXEL_RATIO });
+            this.world.ShiftOrigin({ x: -p.x / Physics.PIXEL_RATIO, y: -p.y / Physics.PIXEL_RATIO });
+        }
+    }
+
+    /**
+     * 设定 worldRoot 后，手动触发物理世界更新
+     */
+    updatePhysicsByWorldRoot() {
+        if (!!this.worldRoot) {
+            var p: Point = this.worldRoot.localToGlobal(Point.TEMP.setTo(0, 0));
+            this.world.ShiftOrigin({ x: -p.x / Physics.PIXEL_RATIO, y: -p.y / Physics.PIXEL_RATIO });
         }
     }
 }
