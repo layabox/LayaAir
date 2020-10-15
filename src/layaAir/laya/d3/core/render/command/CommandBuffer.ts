@@ -28,18 +28,12 @@ export class CommandBuffer {
 	_context:RenderContext3D;
 	/**@internal */
 	private _commands: Command[] = [];
-	/**@internal */
-	private _renderTexturePool:RenderTexture[] = [];
-	private _renderTexturelength:number = -1;
+
 	/**
 	 * 创建一个 <code>CommandBuffer</code> 实例。
 	 */
 	constructor() {
 
-	}
-
-	_getTempRenderTexture(resourceID:number):RenderTexture{
-		return this._renderTexturePool[resourceID];
 	}
 
 	/**
@@ -236,11 +230,6 @@ export class CommandBuffer {
 	 */
 	setRenderTarget(renderTexture: RenderTexture): void {
 		this._commands.push(SetRenderTargetCMD.create(renderTexture));
-	}
-
-	TODO
-	getTempRenderTarget(){
-
 	}
 
 	//TODO
