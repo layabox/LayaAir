@@ -56,7 +56,7 @@ export class CommandBuffer {
 	}
 
 	/**
-	 * 设置全局Uniform图片数据
+	 * 设置全局纹理数据
 	 * @param nameID 
 	 * @param source 
 	 */
@@ -76,6 +76,16 @@ export class CommandBuffer {
 	}
 
 	/**
+	 * 设置全局Vector4数据
+	 * @param nameID 
+	 * @param source 
+	 */
+	setGlobalVector(nameID:number,source: Vector4){
+		var scene:Scene3D = this._camera.scene;
+		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Vector,this));
+	}
+
+	/**
 	 * 设置shader Vector3数据
 	 * @param shaderData 
 	 * @param nameID 
@@ -83,6 +93,16 @@ export class CommandBuffer {
 	 */
 	setShaderDataVector3(shaderData:ShaderData,nameID:number,value:Vector3):void{
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector3,this));
+	}
+
+	/**
+	 * 设置全局Vector3数据
+	 * @param nameID 
+	 * @param source 
+	 */
+	setGlobalVector3(nameID:number,source:Vector3){
+		var scene:Scene3D = this._camera.scene;
+		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Vector3,this));
 	}
 
 	/**
@@ -96,6 +116,16 @@ export class CommandBuffer {
 	}
 
 	/**
+	 * 设置全局Vector2数据
+	 * @param nameID Uniform标记
+	 * @param source 
+	 */
+	setGlobalVector2(nameID:number,source:Vector2){
+		var scene:Scene3D = this._camera.scene;
+		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Vector2,this));
+	}
+
+	/**
 	 * 设置shader Number属性
 	 * @param shaderData 
 	 * @param nameID 
@@ -103,6 +133,16 @@ export class CommandBuffer {
 	 */
 	setShaderDataNumber(shaderData:ShaderData,nameID:number,value:number):void{
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Number,this));
+	}
+
+	/**
+	 * 设置全局number属性
+	 * @param nameID 
+	 * @param source 
+	 */
+	setGlobalNumber(nameID:number,source:number){
+		var scene:Scene3D = this._camera.scene;
+		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Number,this));
 	}
 
 	/**
@@ -116,6 +156,16 @@ export class CommandBuffer {
 	}
 
 	/**
+	 * 设置全局int属性
+	 * @param nameID 
+	 * @param source 
+	 */
+	setGlobalInt(nameID:number,source:number){
+		var scene:Scene3D = this._camera.scene;
+		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Int,this));
+	}
+
+	/**
 	 * 设置shader Matrix属性
 	 * @param shaderData 
 	 * @param nameID 
@@ -123,6 +173,11 @@ export class CommandBuffer {
 	 */
 	setShaderDataMatrix(shaderData:ShaderData,nameID:number,value:Matrix4x4):void{
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Matrix4x4,this));
+	}
+
+	setGlobalMatrix(nameID:number,source:number){
+		var scene:Scene3D = this._camera.scene;
+		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Matrix4x4,this));
 	}
 
 	/**
@@ -136,6 +191,24 @@ export class CommandBuffer {
 	 */
 	blitScreenQuad(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
 		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_QUAD,this));
+	}
+
+	/**
+	 * 添加一条通过全屏四边形将源纹理渲染到目标渲染纹理指令。
+	 * @param source 
+	 * @param dest 
+	 * @param offsetScale 
+	 * @param material 
+	 * @param subShader 
+	 */
+	blitScreenQuadByMaterial(source:BaseTexture,dest:RenderTexture,offsetScale:Vector4 = null,material:Material = null,subShader: number = 0):void{
+		var shader:Shader3D;
+		var shaderData:ShaderData;
+		if(material){
+			shader = material._shader;
+			shaderData = material.shaderData
+		}
+		this._commands.push(BlitScreenQuadCMD.create(source,dest,offsetScale,shader,shaderData,subShader,BlitScreenQuadCMD._SCREENTYPE_QUAD,this));
 	}
 
 	/**
@@ -160,10 +233,9 @@ export class CommandBuffer {
 	}
 
 	//TODO
-	// getTempRenderTarget(){
+	// clearRenderTexture():void{
 
 	// }
-
 	
 	/**
 	 * @param mesh 
