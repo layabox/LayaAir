@@ -200,6 +200,7 @@ export class RigidBody extends Component {
 
             if (ang == 0) {
                 var point: Point = sp.parent.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
+                sp.parent.fromParentPoint(point);
                 this.accessGetSetFunc(sp, "x", "set")(point.x);
                 this.accessGetSetFunc(sp, "y", "set")(point.y);
             } else {
