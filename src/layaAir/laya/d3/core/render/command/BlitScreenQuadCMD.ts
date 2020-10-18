@@ -46,11 +46,13 @@ export class BlitScreenQuadCMD extends Command {
 	private _sourceTexelSize: Vector4 = new Vector4();
 	/**@internal */
 	private _screenType: number = 0;
+	/**@internal 为了兼容老的Camera里面的一个流程*/
+	_drawDefineCavans:boolean = false;
 
 	/**
 	 * 创建命令流
 	 * @param source 原始贴图 如果设置为null  将会使用默认的Camera流程中的原RenderTexture
-	 * @param dest 目标贴图
+	 * @param dest 目标贴图 如果设置为null，将会使用默认的camera渲染目标
 	 * @param offsetScale 偏移缩放
 	 * @param shader 渲染shader
 	 * @param shaderData 渲染数据
@@ -77,6 +79,7 @@ export class BlitScreenQuadCMD extends Command {
 	 */
 	run(): void {//TODO:相机的UV
 		var source;
+		//当this.source为null时，会自动绑定摄像机内部渲染目标
 		if(!this._source){
 			if(!this._commandBuffer._camera._internalRenderTexture)
 				throw "camera internalRenderTexture is null,please set camera enableBuiltInRenderTexture";
@@ -87,7 +90,8 @@ export class BlitScreenQuadCMD extends Command {
 
 		var shader: Shader3D = this._shader || Command._screenShader;
 		var shaderData: ShaderData = this._shaderData || Command._screenShaderData;
-		var dest: RenderTexture = this._dest;
+		//当this.dest为null时，会自动绑定摄像机内部的渲染目标，如果this._drawDefineCavans为true，会画入默认cavans
+		var dest: RenderTexture =this._dest?this._dest:(this._drawDefineCavans?this._dest:this._commandBuffer._camera._internalRenderTexture);
 
 		LayaGL.instance.viewport(0, 0, dest ? dest.width : RenderContext3D.clientWidth, dest ? dest.height : RenderContext3D.clientHeight);//TODO:是否在此
 		//TODO:优化
@@ -95,7 +99,8 @@ export class BlitScreenQuadCMD extends Command {
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitScreenQuadCMD._defaultOffsetScale);
 		this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
-
+		//如果已经有绑定的帧buffer  要解绑
+		(RenderTexture.currentActive)&&(RenderTexture.currentActive._end());
 		(dest) && (dest._start());
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
@@ -132,6 +137,7 @@ export class BlitScreenQuadCMD extends Command {
 		this._offsetScale = null;
 		this._shader = null;
 		this._shaderData = null;
+		this._drawDefineCavans = false;
 		super.recover();
 	}
 
