@@ -2,20 +2,14 @@ import { Command } from "./Command";
 import { Mesh } from "../../../resource/models/Mesh";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { Material } from "../../material/Material";
-import { RenderContext3D } from "../RenderContext3D";
 import { SubShader } from "../../../shader/SubShader";
 import { ShaderData } from "../../../shader/ShaderData";
 import { DefineDatas } from "../../../shader/DefineDatas";
-import { MeshRenderer } from "../../MeshRenderer";
-import { RenderElement } from "../RenderElement";
 import { Sprite3D } from "../../Sprite3D";
-import { GeometryElement } from "../../GeometryElement";
 import { SubMesh } from "../../../resource/models/SubMesh";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { ShaderInstance } from "../../../shader/ShaderInstance";
 import { Scene3D } from "../../scene/Scene3D";
-import { Vector3 } from "../../../math/Vector3";
-import { Quaternion } from "../../../math/Quaternion";
 import { CommandBuffer } from "./CommandBuffer";
 
 
@@ -31,14 +25,14 @@ export class DrawMeshCMD extends Command {
 	/**
 	 * @internal
 	 */
-	static create(mesh:Mesh,matrix:Matrix4x4,material:Material,subMeshIndex:number,shaderPass:number,commandBuffer:CommandBuffer):DrawMeshCMD {
+	static create(mesh:Mesh,matrix:Matrix4x4,material:Material,subMeshIndex:number,_subShaderIndex:number,commandBuffer:CommandBuffer):DrawMeshCMD {
 		var cmd: DrawMeshCMD;
 		cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop():new DrawMeshCMD();
 		cmd._mesh = mesh;
 		cmd._matrix = matrix;
 		cmd._material = material;
 		cmd._subMeshIndex = subMeshIndex;
-		cmd._shaderPass = shaderPass;
+		cmd._subShaderIndex = _subShaderIndex;
 		cmd._commandBuffer = commandBuffer;
 		return cmd;
 	}
@@ -51,7 +45,7 @@ export class DrawMeshCMD extends Command {
 	/**@internal */
 	private _subMeshIndex:number;
 	/**@internal */
-	private _shaderPass:number;
+	private _subShaderIndex:number;
 	/**@internal */
 	private _mesh:Mesh;
 	
@@ -75,7 +69,9 @@ export class DrawMeshCMD extends Command {
 	 * @override
 	 */
 	run(): void {
-		var renderSubShader:SubShader = this._material._shader.getSubShaderAt(this._shaderPass);
+
+		var renderSubShader:SubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
+		this.setContext(this._commandBuffer._context);
 		var context = this._context;
 		var forceInvertFace: boolean = context.invertY;
 		var scene:Scene3D = context.scene;
@@ -91,7 +87,7 @@ export class DrawMeshCMD extends Command {
 		var passes:ShaderPass[] = renderSubShader._passes;
 		for (var j: number = 0, m: number = passes.length; j < m; j++) {
 			var pass:ShaderPass = passes[j];
-			if(pass._pipelineMode!=currentPipelineMode)
+			if (pass._pipelineMode !== currentPipelineMode)
 				continue;
 			var comDef:DefineDatas = DrawMeshCMD._compileDefine;
 			scene._shaderValues._defineDatas.cloneTo(comDef);
@@ -108,7 +104,6 @@ export class DrawMeshCMD extends Command {
 			//material
 			var matValues: ShaderData = this._material._shaderValues;
 			shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap,matValues,true);
-			shaderIns.uploadRenderStateBlendDepth(matValues);
 			shaderIns.uploadRenderStateBlendDepth(matValues);
 			shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this._matrix.getInvertFront());
 		}

@@ -94,7 +94,7 @@ export class RenderElement {
 	/**
 	 * @internal
 	 */
-	_update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string): void {
+	_update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string,subshaderIndex:number = 0): void {
 		if (this.material) {//材质可能为空
 			var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
 			this.renderSubShader = null;
@@ -116,7 +116,7 @@ export class RenderElement {
 						return;
 					}
 				} else {
-					this.renderSubShader = customShader.getSubShaderAt(0);//TODO:
+					this.renderSubShader = customShader.getSubShaderAt(subshaderIndex);//TODO:
 				}
 			} else {
 				this.renderSubShader = subShader;

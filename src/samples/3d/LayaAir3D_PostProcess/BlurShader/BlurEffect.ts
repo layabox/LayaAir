@@ -17,6 +17,10 @@ import BlurHorizentalFS from "./BlurHorizontal.fs";
 import BlurVerticalFS from "./BlurVertical.fs";
 import BlurDownSampleFS from "./BlurDownSample.fs";
 import BlurDownSampleVS from "./BlurDownSample.vs";
+import BlurEdgeAdd from "./EdgeAdd.fs";
+import BlurEdgeSub from "./EdgeSub.fs";
+import { Material } from "laya/d3/core/material/Material";
+import { BaseTexture } from "laya/resource/BaseTexture";
 export class BlurEffect extends PostProcessEffect{
     static BLUR_TYPE_GaussianBlur:number = 0;
     static BLUR_TYPE_Simple:number = 1;
@@ -32,7 +36,9 @@ export class BlurEffect extends PostProcessEffect{
         var uniformMap = {
             'u_MainTex': Shader3D.PERIOD_MATERIAL,
             'u_MainTex_TexelSize':Shader3D.PERIOD_MATERIAL,
-            'u_DownSampleValue':Shader3D.PERIOD_MATERIAL
+            'u_DownSampleValue':Shader3D.PERIOD_MATERIAL,
+            'u_sourceTexture0':Shader3D.PERIOD_MATERIAL,
+            'u_sourceTexture1':Shader3D.PERIOD_MATERIAL
         }
         var shader:Shader3D = Shader3D.add("blurEffect");
         //subShader0  降采样
@@ -62,6 +68,25 @@ export class BlurEffect extends PostProcessEffect{
         renderState.depthWrite = false;
         renderState.cull = RenderState.CULL_NONE;
         renderState.blend = RenderState.BLEND_DISABLE;
+        //subShader3 subTexture
+        subShader = new SubShader(attributeMap,uniformMap);
+        shader.addSubShader(subShader);
+        shaderpass = subShader.addShaderPass(BlurVS,BlurEdgeSub);
+        renderState = shaderpass.renderState;
+        renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+        renderState.depthWrite = false;
+        renderState.cull = RenderState.CULL_NONE;
+        renderState.blend = RenderState.BLEND_DISABLE;
+        //subShader4 addTexture
+        subShader = new SubShader(attributeMap,uniformMap);
+        shader.addSubShader(subShader);
+        shaderpass = subShader.addShaderPass(BlurVS,BlurEdgeAdd);
+        renderState = shaderpass.renderState;
+        renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+        renderState.depthWrite = false;
+        renderState.cull = RenderState.CULL_NONE;
+        renderState.blend = RenderState.BLEND_DISABLE;
+        
     }
     
     /**@internal */
@@ -176,3 +201,31 @@ export class BlurEffect extends PostProcessEffect{
         context.deferredReleaseTextures.push(lastDownTexture);
     }
 }
+
+
+export class BlurMaterial extends Material{
+    static SHADERVALUE_MAINTEX:number = Shader3D.propertyNameToID("u_MainTex");
+    static SHADERVALUE_TEXELSIZE:number = Shader3D.propertyNameToID("u_MainTex_TexelSize");
+    static SHADERVALUE_DOWNSAMPLEVALUE:number = Shader3D.propertyNameToID("u_DownSampleValue");
+    static SHADERVALUE_SOURCETEXTURE0:number = Shader3D.propertyNameToID("u_sourceTexture0");
+    static ShADERVALUE_SOURCETEXTURE1:number = Shader3D.propertyNameToID("u_sourceTexture1");
+    
+    private texelSize:Vector4 = new Vector4();
+    private doSamplevalue:number = 0;
+
+    constructor(texelSize:Vector4,offset:number){
+        super();
+        this.setShaderName("blurEffect");
+        this._shaderValues.setNumber(BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE,offset);
+        this._shaderValues.setVector(BlurMaterial.SHADERVALUE_TEXELSIZE,texelSize);
+    }
+
+    sourceTexture(sourceTexture0:BaseTexture,sourceTexture1:BaseTexture){
+        this._shaderValues.setTexture(BlurMaterial.SHADERVALUE_SOURCETEXTURE0,sourceTexture0);
+        this._shaderValues.setTexture(BlurMaterial.ShADERVALUE_SOURCETEXTURE1,sourceTexture1);
+    }
+    
+
+
+}
+

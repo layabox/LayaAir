@@ -232,7 +232,6 @@ export class CommandBuffer {
 
 	/**
 	 * 设置指令渲染目标
-	 *@internal
 	 */
 	setRenderTarget(renderTexture: RenderTexture): void {
 		this._commands.push(SetRenderTargetCMD.create(renderTexture));
@@ -245,7 +244,7 @@ export class CommandBuffer {
 	 * @param backgroundColor 
 	 * @param depth 
 	 */
-	ClearRenderTarget(clearColor:boolean,clearDepth:boolean,backgroundColor:Vector4,depth:number = 1):void{
+	clearRenderTarget(clearColor:boolean,clearDepth:boolean,backgroundColor:Vector4,depth:number = 1):void{
 		this._commands.push(ClearRenderTextureCMD.create(clearColor,clearDepth,backgroundColor,depth,this));
 	}
 	
@@ -256,15 +255,15 @@ export class CommandBuffer {
 	 * @param submeshIndex 
 	 * @param shaderPass 
 	 */
-	drawMesh(mesh:Mesh,matrix:Matrix4x4, material:Material ,submeshIndex:number,shaderPass:number){
-		this._commands.push(DrawMeshCMD.create(mesh,matrix,material,submeshIndex,shaderPass,this));
+	drawMesh(mesh:Mesh,matrix:Matrix4x4, material:Material ,submeshIndex:number,subShaderIndex:number){
+		this._commands.push(DrawMeshCMD.create(mesh,matrix,material,submeshIndex,subShaderIndex,this));
 	}
 
 	/**
 	 * miner TODO:
 	 */
 	drawRender(){
-
+		
 	}
 
 	/**

@@ -11,7 +11,7 @@ uniform float u_DownSampleValue;
 
 void main()
 {
-    vec4 color = vec4(0.0,0.0,0.0,0.0);
+    vec4 color;
     vec2 uv = v_Texcoord0;
     vec2 uvOffset = vec2(1.0,0.0)*u_MainTex_TexelSize.xy*u_DownSampleValue;
     uv = uv - uvOffset*3.0;

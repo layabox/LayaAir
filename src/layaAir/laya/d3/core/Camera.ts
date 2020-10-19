@@ -3,7 +3,6 @@ import { Laya } from "../../../Laya";
 import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
-import { Render } from "../../renders/Render";
 import { FilterMode } from "../../resource/FilterMode";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
 import { SystemUtils } from "../../webgl/SystemUtils";
@@ -12,7 +11,6 @@ import { PostProcess } from "../component/PostProcess";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Matrix4x4 } from "../math/Matrix4x4";
-import { Plane } from "../math/Plane";
 import { Ray } from "../math/Ray";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
@@ -553,6 +551,7 @@ export class Camera extends BaseCamera {
 			value._context = context;
 			value._apply();
 		});
+		(RenderTexture.currentActive)&&(RenderTexture.currentActive._end());
 		if(this._internalRenderTexture)
 			this._internalRenderTexture._start();
 		else{
@@ -672,6 +671,7 @@ export class Camera extends BaseCamera {
 				var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
 				this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
 				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(this._internalRenderTexture, this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale);
+				blit._drawDefineCavans = true;
 				blit.run();
 				blit.recover();
 			}

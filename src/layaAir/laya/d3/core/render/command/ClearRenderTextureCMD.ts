@@ -53,7 +53,7 @@ export class ClearRenderTextureCMD extends Command {
 		if(this._clearColor||this._clearDepth){
 			gl.clear(flag);
 		}		
-	}	
+	}
 
 	/**
 	 * @inheritDoc
