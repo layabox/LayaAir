@@ -47,7 +47,7 @@ export class BlitScreenQuadCMD extends Command {
 	/**@internal */
 	private _screenType: number = 0;
 	/**@internal 为了兼容老的Camera里面的一个流程*/
-	_drawDefineCavans:boolean = false;
+	private _drawDefineCavans:boolean = false;
 
 	/**
 	 * 创建命令流
@@ -59,7 +59,7 @@ export class BlitScreenQuadCMD extends Command {
 	 * @param subShader subshader的节点
 	 * @param screenType 
 	 */
-	static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD,commandbuffer:CommandBuffer = null): BlitScreenQuadCMD {
+	static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD,commandbuffer:CommandBuffer = null,definedCanvas:boolean = false): BlitScreenQuadCMD {
 		var cmd: BlitScreenQuadCMD;
 		cmd = BlitScreenQuadCMD._pool.length > 0 ? BlitScreenQuadCMD._pool.pop() : new BlitScreenQuadCMD();
 		cmd._source = source;
@@ -70,6 +70,7 @@ export class BlitScreenQuadCMD extends Command {
 		cmd._subShader = subShader;
 		cmd._screenType = screenType;
 		cmd._commandBuffer = commandbuffer;
+		cmd._drawDefineCavans = definedCanvas;
 		return cmd;
 	}
 

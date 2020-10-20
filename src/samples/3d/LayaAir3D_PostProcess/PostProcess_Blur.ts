@@ -15,8 +15,6 @@ import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { BlurEffect } from "./BlurShader/BlurEffect";
 
 export class PostProcess_Blur {
-	private camera: Camera = null;
-	private postProcess: PostProcess = null;
 	/**
 	 *@private
 	 */
