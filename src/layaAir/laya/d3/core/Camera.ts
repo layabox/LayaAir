@@ -653,11 +653,11 @@ export class Camera extends BaseCamera {
 		scene._clear(gl, context);
 
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
-		scene._renderScene(context,0);
+		scene._renderScene(context,ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox,context);
-		scene._renderScene(context,1);
+		scene._renderScene(context,ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
 		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent,context);
-		scene._renderScene(context,2);
+		scene._renderScene(context,ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
 		
 		scene._postRenderScript();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect,context);
@@ -769,7 +769,8 @@ export class Camera extends BaseCamera {
 	addCommandBuffer(event: CameraEventFlags, commandBuffer: CommandBuffer): void {
 		var commandBufferArray:CommandBuffer[] = this._cameraEventCommandBuffer[event];
 		if(!commandBufferArray) commandBufferArray = this._cameraEventCommandBuffer[event] = [];
-		commandBufferArray.push(commandBuffer);
+		if(commandBufferArray.indexOf(commandBuffer) < 0)
+			commandBufferArray.push(commandBuffer);
 		commandBuffer._camera = this;
 	}
 
