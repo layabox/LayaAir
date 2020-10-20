@@ -205,6 +205,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private _indexBuffer: IndexBuffer3D = null;
 	/** @internal */
 	private _bufferState: BufferState = new BufferState();
+	/**@internal */
+	private _updateMask:number = 0;
 
 	/**@internal */
 	_currentTime: number = 0;
@@ -2209,12 +2211,15 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 * @internal
 	 */
 	_prepareRender(state: RenderContext3D): boolean {
-		this._updateEmission();
-		//设备丢失时, setData  here
-		if (this._firstNewElement != this._firstFreeElement)
-			this.addNewParticlesToVertexBuffer();
-
-		this._drawCounter++;
+		if(this._updateMask!=Stat.loopCount){
+			this._updateMask = Stat.loopCount;
+			this._updateEmission();
+			//设备丢失时, setData  here
+			if (this._firstNewElement != this._firstFreeElement)
+				this.addNewParticlesToVertexBuffer();
+			this._drawCounter++;
+		}
+			
 		if (this._firstActiveElement != this._firstFreeElement)
 			return true;
 		else

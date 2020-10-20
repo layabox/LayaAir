@@ -26,7 +26,7 @@ import { ShadowMode } from "./light/ShadowMode";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
 import { RenderContext3D } from "./render/RenderContext3D";
-import { Scene3D, SceneRenderFlag } from "./scene/Scene3D";
+import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
 import { ILaya3D } from "../../../ILaya3D";
@@ -653,11 +653,11 @@ export class Camera extends BaseCamera {
 		scene._clear(gl, context);
 
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
-		scene._renderScene(context,SceneRenderFlag.RenderOpaque);
+		scene._renderScene(context,0);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox,context);
-		scene._renderScene(context,SceneRenderFlag.RenderSkyBox);
+		scene._renderScene(context,1);
 		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent,context);
-		scene._renderScene(context,SceneRenderFlag.RenderTransparent);
+		scene._renderScene(context,2);
 		
 		scene._postRenderScript();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect,context);
@@ -670,8 +670,7 @@ export class Camera extends BaseCamera {
 			} else if (this._enableHDR||this._needBuiltInRenderTexture) {
 				var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
 				this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
-				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(this._internalRenderTexture, this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale);
-				blit._drawDefineCavans = true;
+				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(this._internalRenderTexture, this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale,null,null,0,BlitScreenQuadCMD._SCREENTYPE_QUAD,null,true);
 				blit.run();
 				blit.recover();
 			}

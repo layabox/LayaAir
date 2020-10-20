@@ -4,7 +4,6 @@ import { ShaderData } from "../../../shader/ShaderData";
 import { Camera } from "../../Camera";
 import { BlitScreenQuadCMD } from "./BlitScreenQuadCMD";
 import { SetRenderTargetCMD } from "./SetRenderTargetCMD";
-import { SetShaderDataTextureCMD } from "./SetShaderDataTextureCMD";
 import { Command } from "./Command";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Vector4 } from "../../../math/Vector4";
@@ -16,8 +15,10 @@ import { Vector3 } from "../../../math/Vector3";
 import { Vector2 } from "../../../math/Vector2";
 import { DrawMeshCMD } from "./DrawMeshCMD";
 import { RenderContext3D } from "../RenderContext3D";
-import { Scene3D } from "../../scene/Scene3D";
 import { ClearRenderTextureCMD } from "./ClearRenderTextureCMD";
+import { BaseRender } from "../BaseRender";
+import { DrawRenderCMD } from "./DrawRenderCMD";
+import { SetGlobalShaderDataCMD } from "./SetGlobalShaderDataCMD";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -53,7 +54,7 @@ export class CommandBuffer {
 	 * @param source 
 	 */
 	setShaderDataTexture(shaderData: ShaderData, nameID: number, source: BaseTexture): void {
-		this._commands.push(SetShaderDataTextureCMD.create(shaderData, nameID, source,this));
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,source,ShaderDataType.Texture,this));
 	}
 
 	/**
@@ -62,8 +63,8 @@ export class CommandBuffer {
 	 * @param source 
 	 */
 	setGlobalTexture(nameID:number,source: BaseTexture){
-		var scene:Scene3D = this._camera.scene;
-		this._commands.push(SetShaderDataTextureCMD.create(scene._shaderValues,nameID,source,this));
+		
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Texture,this));
 	}
 
 	/**
@@ -82,8 +83,8 @@ export class CommandBuffer {
 	 * @param source 
 	 */
 	setGlobalVector(nameID:number,source: Vector4){
-		var scene:Scene3D = this._camera.scene;
-		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Vector,this));
+		
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Vector,this));
 	}
 
 	/**
@@ -102,8 +103,8 @@ export class CommandBuffer {
 	 * @param source 
 	 */
 	setGlobalVector3(nameID:number,source:Vector3){
-		var scene:Scene3D = this._camera.scene;
-		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Vector3,this));
+		
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Vector3,this));
 	}
 
 	/**
@@ -122,8 +123,8 @@ export class CommandBuffer {
 	 * @param source 
 	 */
 	setGlobalVector2(nameID:number,source:Vector2){
-		var scene:Scene3D = this._camera.scene;
-		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Vector2,this));
+		
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Vector2,this));
 	}
 
 	/**
@@ -142,8 +143,8 @@ export class CommandBuffer {
 	 * @param source 
 	 */
 	setGlobalNumber(nameID:number,source:number){
-		var scene:Scene3D = this._camera.scene;
-		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Number,this));
+		
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Number,this));
 	}
 
 	/**
@@ -162,8 +163,8 @@ export class CommandBuffer {
 	 * @param source 
 	 */
 	setGlobalInt(nameID:number,source:number){
-		var scene:Scene3D = this._camera.scene;
-		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Int,this));
+		
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Int,this));
 	}
 
 	/**
@@ -182,8 +183,8 @@ export class CommandBuffer {
 	 * @param source 
 	 */
 	setGlobalMatrix(nameID:number,source:number){
-		var scene:Scene3D = this._camera.scene;
-		this._commands.push(SetShaderDataCMD.create(scene._shaderValues,nameID,source,ShaderDataType.Matrix4x4,this));
+		
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Matrix4x4,this));
 	}
 
 	/**
@@ -226,8 +227,8 @@ export class CommandBuffer {
 	 * @param	shaderData 着色器数据,如果为null只接收sourceTexture。
 	 * @param	subShader subShader索引,默认值为0。
 	 */
-	blitScreenTriangle(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
-		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_TRIANGLE,this));
+	blitScreenTriangle(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0,defineCanvas:boolean = false): void {
+		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_TRIANGLE,this,defineCanvas));
 	}
 
 	/**
@@ -262,8 +263,8 @@ export class CommandBuffer {
 	/**
 	 * miner TODO:
 	 */
-	drawRender(){
-		
+	drawRender(render:BaseRender,material:Material,subShaderIndex:number){
+		this._commands.push(DrawRenderCMD.create(render,material,subShaderIndex,this));
 	}
 
 	/**

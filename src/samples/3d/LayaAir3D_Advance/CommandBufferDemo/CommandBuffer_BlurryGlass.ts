@@ -68,7 +68,7 @@ export class CommandBuffer_BlurryGlass {
 		//创建渲染命令流
 		var buf:CommandBuffer = new CommandBuffer();
 		//TODO：不应该限制在这个地方添加事件
-		camera.addCommandBuffer(CameraEventFlags.BeforeTransparent,buf);
+	
 		//创建需要模糊使用的屏幕RenderTexture
 		var viewPort:Viewport = camera.viewport;
 		var renderTexture = RenderTexture.createFromPool(viewPort.width,viewPort.height,RenderTextureFormat.R8G8B8,RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
@@ -104,7 +104,7 @@ export class CommandBuffer_BlurryGlass {
 		//设置全局uniform变量  这个uniform变量可以不声明在Material中
 		var globalUniformNameID:number = Shader3D.propertyNameToID("u_screenTexture");
 		buf.setGlobalTexture(globalUniformNameID,downRenderTexture);
-
+		camera.addCommandBuffer(CameraEventFlags.BeforeTransparent,buf);
 		//回收用过的RenderTexture
 		RenderTexture.recoverToPool(downRenderTexture);
 		RenderTexture.recoverToPool(blurTexture);
