@@ -3,6 +3,10 @@ import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { ClassUtils } from "../utils/ClassUtils";
 import { ILaya } from "../../ILaya";
+import { Draw9GridTexture } from "../display/cmd/Draw9GridTexture";
+import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
+import { SpriteConst } from "../display/SpriteConst";
+import { Matrix } from "../maths/Matrix";
 
 /**
  * <code>AutoBitmap</code> 类是用于表示位图图像或绘制图形的显示对象。
@@ -10,11 +14,11 @@ import { ILaya } from "../../ILaya";
  */
 export class AutoBitmap extends Graphics {
     /**@private 是否自动缓存命令*/
-    autoCacheCmd: boolean = true;
+    autoCacheCmd = true;
     /**@private 宽度*/
-    private _width: number = 0;
+    private _width = 0;
     /**@private 高度*/
-    private _height: number = 0;
+    private _height = 0;
     /**@private 源数据*/
     private _source: Texture;
     /**@private 网格数据*/
@@ -26,6 +30,7 @@ export class AutoBitmap extends Graphics {
     uv: number[] = null;
     ///**@private */
     //private var _key:String;
+    private  _drawGridCmd:Draw9GridTexture|null;
 
     /**@inheritDoc 
      * @override
@@ -119,7 +124,21 @@ export class AutoBitmap extends Graphics {
             this._setChanged();
         } else {
             this._source = null;
-            this.clear();
+            //this.clear();     可能有其他graphic命令，不能直接clear
+            if(this._drawGridCmd){
+                // 去掉 this._drawGridCmd
+                if(this._one){
+                    if(this._one == this._drawGridCmd)
+                        this._one=null;
+                }
+                let cmds = this.cmds;
+                if(cmds && cmds.length>0){
+                    // 只处理第一个
+                    if(cmds[0]==this._drawGridCmd){
+                        cmds.splice(0,1);
+                    }
+                }
+            }
         }
     }
 
@@ -131,38 +150,52 @@ export class AutoBitmap extends Graphics {
         }
     }
 
+    private   _createDrawTexture(texture: Texture|null, x: number = 0, y: number = 0, width: number = 0, height: number = 0, matrix: Matrix|null = null, alpha: number = 1, color: string|null = null, blendMode: string|null = null, uv?: number[]): DrawTextureCmd|null {
+        if (!texture || alpha < 0.01) return null;
+        if (!texture.getIsReady()) return null;
+        if (!width) width = texture.sourceWidth;
+        if (!height) height = texture.sourceHeight;
+        if (texture.getIsReady()) {
+            var wRate: number = width / texture.sourceWidth;
+            var hRate: number = height / texture.sourceHeight;
+            width = texture.width * wRate;
+            height = texture.height * hRate;
+            if (width <= 0 || height <= 0) return null;
+
+            x += texture.offsetX * wRate;
+            y += texture.offsetY * hRate;
+        }
+
+        if (this._sp) {
+            this._sp._renderType |= SpriteConst.GRAPHICS;
+            this._sp._setRenderType(this._sp._renderType);
+        }
+
+        return DrawTextureCmd.create.call(this, texture, x, y, width, height, matrix, alpha, color, blendMode, uv);
+    }
+
     /**
      * @private
      * 修改纹理资源。
      */
     protected changeSource(): void {
         this._isChanged = false;
-        var source: Texture = this._source;
+        var source = this._source;
         if (!source || !source.bitmap) return;
 
-        var width: number = this.width;
-        var height: number = this.height;
-        var sizeGrid: any[] = this._sizeGrid;
-        var sw: number = source.sourceWidth;
-        var sh: number = source.sourceHeight;
+        var width = this.width;
+        var height = this.height;
+        var sizeGrid = this._sizeGrid;
+        var sw = source.sourceWidth;
+        var sh = source.sourceHeight;
 
         //如果没有设置9宫格，或大小未改变，则直接用原图绘制
         if (!sizeGrid || (sw === width && sh === height)) {
-            this.clear();
-            this.drawTexture(source, this._offset ? this._offset[0] : 0, this._offset ? this._offset[1] : 0, width, height, null, 1, null, null, this.uv);
+            let cmd = this._createDrawTexture(source, this._offset ? this._offset[0] : 0, this._offset ? this._offset[1] : 0, width, height, null, 1, null, null, this.uv);
+            cmd && this._setDrawGridCmd(cmd);
         } else {
-            //从缓存中读取渲染命令(和回收冲突，暂时去掉)
-            //source.$_GID || (source.$_GID = Utils.getGID());
-            //_key = source.$_GID + "." + width + "." + height + "." + sizeGrid.join(".");
-            //if (Utils.isOKCmdList(WeakObject.I.get(_key))) {
-            //this.cmds = WeakObject.I.get(_key);
-            //return;
-            //}
-
-            this.clear();
-            this.draw9Grid(source, 0, 0, width, height, sizeGrid);
-            this._repaint();
-            return;
+            let cmd = Draw9GridTexture.create(source, 0, 0, width, height, sizeGrid);
+            this._setDrawGridCmd(cmd);
         }
         this._repaint();
     }
@@ -187,11 +220,40 @@ export class AutoBitmap extends Graphics {
         return texture;
     }
 
-    //override public function clear(recoverCmds:Boolean = true):void {
-    ////重写clear，防止缓存被清理
-    //super.clear(recoverCmds);
-    //_key && WeakObject.I.del(_key);
-    //}
+    /**
+     *  由于可能有其他的graphic命令，因此不能用原来的直接clear()的方法
+     */
+    private _setDrawGridCmd(newcmd:any){
+        var source = this._source;
+        if (!source || !source.bitmap){
+            return;
+        } 
+
+        //let newcmd = Draw9GridTexture.create(source, 0, 0, width, height, sizeGrid);
+        let cmds = this.cmds;
+        if(!this._one && (!cmds || cmds.length<=0)){
+            // 如果没有，直接添加
+            this._saveToCmd(null,newcmd);
+        }else{
+            // 如果只有一个
+            let lastOne = this._one;
+            if(lastOne){
+                if(lastOne==this._drawGridCmd){
+                    // 如果one就是drawgrid，则替换
+                    this._one = newcmd;
+                }else{
+                    // 否则，就是两个命令
+                    this.clear();
+                    this._saveToCmd(null,newcmd);
+                    this._saveToCmd(null,lastOne);
+                }
+            }else{
+                // 本身就有多个命令，则把自己插入到第一个
+                cmds.splice(0,0,newcmd);
+            }
+        }
+        this._drawGridCmd=newcmd;
+    }
 }
 
 ClassUtils.regClass("laya.ui.AutoBitmap", AutoBitmap);
