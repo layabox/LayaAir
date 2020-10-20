@@ -77,11 +77,6 @@ export enum AmbientMode {
 	SphericalHarmonics
 }
 
-export enum SceneRenderFlag{
-	RenderOpaque = 0,
-	RenderSkyBox = 1,
-	RenderTransparent = 2
-}
 
 /**
  * 用于实现3D场景。
@@ -113,6 +108,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	static REFLECTIONMODE_SKYBOX: number = 0;
 	static REFLECTIONMODE_CUSTOM: number = 1;
+
+	static SCENERENDERFLAG_RENDERQPAQUE = 0;
+	static SCENERENDERFLAG_SKYBOX = 1;
+	static SCENERENDERFLAG_RENDERTRANSPARENT = 2;
 
 	static FOGCOLOR: number = Shader3D.propertyNameToID("u_FogColor");
 	static FOGSTART: number = Shader3D.propertyNameToID("u_FogStart");
@@ -1136,14 +1135,14 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal 渲染Scene的各个管线
 	 */
-	_renderScene(context: RenderContext3D,renderFlag:SceneRenderFlag): void {
+	_renderScene(context: RenderContext3D,renderFlag:number): void {
 		var camera: Camera = <Camera>context.camera;
 		switch(renderFlag)
 		{
-			case SceneRenderFlag.RenderOpaque:
+			case Scene3D.SCENERENDERFLAG_RENDERQPAQUE:
 				this._opaqueQueue._render(context);//非透明队列
 				break;
-			case SceneRenderFlag.RenderSkyBox:
+			case Scene3D.SCENERENDERFLAG_SKYBOX:
 				if (camera.clearFlag === CameraClearFlags.Sky) {
 					if (camera.skyRenderer._isAvailable())
 						camera.skyRenderer._render(context);
@@ -1151,7 +1150,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 						this._skyRenderer._render(context);
 				}
 				break;
-			case SceneRenderFlag.RenderTransparent:
+			case Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT:
 				this._transparentQueue._render(context);//透明队列
 				if (FrustumCulling.debugFrustumCulling) {
 					var renderElements: RenderElement[] = this._debugTool._render._renderElements;
