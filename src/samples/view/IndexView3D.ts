@@ -87,7 +87,7 @@ import { TextureGPUCompression } from "../3d/LayaAir3D_Texture/TextureGPUCompres
 import { TrailDemo } from "../3d/LayaAir3D_Trail/TrailDemo";
 import { TrailRender } from "../3d/LayaAir3D_Trail/TrailRender";
 import { IndexViewUI } from "../ui/IndexViewUI";
-import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
+import { PostProcessBloom } from "../3d/LayaAir3D_PostProcess/PostProcessBloom";
 import { AStarFindPath } from "../3d/LayaAir3D_Advance/AStarFindPath";
 import { MultiLight } from "../3d/LayaAir3D_Lighting/MultiLight";
 import { PBRMaterialDemo } from "../3d/LayaAir3D_Material/PBRMaterialDemo";
