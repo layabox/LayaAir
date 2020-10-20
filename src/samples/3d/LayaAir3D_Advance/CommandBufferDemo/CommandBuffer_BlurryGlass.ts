@@ -30,23 +30,23 @@ export class CommandBuffer_BlurryGlass {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		
-		//初始化模糊shader
+		//材质初始化
 		BlurEffect.init();
 		GlassWithoutGrabMaterail.init();
 
 		//加载场景
 		Scene3D.load("res/threeDimen/BlurryRefraction/Conventional/BlurryGlass.ls", Handler.create(this, function (scene: Scene3D): void {
 			(<Scene3D>Laya.stage.addChild(scene));
-
 			//获取场景中的相机
 			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
 			//增加移动脚本
 			camera.addComponent(CameraMoveScript);
-
+			
 			var glass01:MeshSprite3D = scene.getChildByName("glass01") as MeshSprite3D;
 			var glass02:MeshSprite3D = scene.getChildByName("glass02") as MeshSprite3D; 
 			//在这里切换了材质
 			var pbrStandard:PBRStandardMaterial = glass01.meshRenderer.sharedMaterial as PBRStandardMaterial;
+			//将图片设置到玻璃材质
 			var glassMaterial:GlassWithoutGrabMaterail = new GlassWithoutGrabMaterail(pbrStandard.albedoTexture);
 		
 			//给模型赋毛玻璃材质
@@ -63,19 +63,17 @@ export class CommandBuffer_BlurryGlass {
 	 * @param camera 
 	 */
 	createCommandBuffer(camera:Camera){
-		//注意：需要使用内部cameraTarget需要设置相机enableBuiltInRenderTexture
+		//当需要在流程中拿摄像机渲染效果的时候 设置true
 		camera.enableBuiltInRenderTexture = true;
 		//创建渲染命令流
 		var buf:CommandBuffer = new CommandBuffer();
-		//TODO：不应该限制在这个地方添加事件
-	
 		//创建需要模糊使用的屏幕RenderTexture
 		var viewPort:Viewport = camera.viewport;
 		var renderTexture = RenderTexture.createFromPool(viewPort.width,viewPort.height,RenderTextureFormat.R8G8B8,RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
 		//将当前渲染的结果拷贝到创建好的RenderTexture
 		this.texture = renderTexture; 
 		buf.blitScreenTriangle(null,renderTexture);
-		//TODO：这里应该改成Material会更好一些
+		//获得shader
 		var shader:Shader3D = Shader3D.find("blurEffect");
 		var shaderValue:ShaderData = new ShaderData();
 		//down Sample level设置降采样等级
@@ -101,9 +99,11 @@ export class CommandBuffer_BlurryGlass {
 		buf.blitScreenTriangle(downRenderTexture,blurTexture,null,shader,shaderValue,1);
 		//vertical blur
 		buf.blitScreenTriangle(blurTexture,downRenderTexture,null,shader,shaderValue,2);
-		//设置全局uniform变量  这个uniform变量可以不声明在Material中
+		
+		//设置全局uniform变量  
 		var globalUniformNameID:number = Shader3D.propertyNameToID("u_screenTexture");
 		buf.setGlobalTexture(globalUniformNameID,downRenderTexture);
+		//将commandBuffer加入渲染流程
 		camera.addCommandBuffer(CameraEventFlags.BeforeTransparent,buf);
 		//回收用过的RenderTexture
 		RenderTexture.recoverToPool(downRenderTexture);
