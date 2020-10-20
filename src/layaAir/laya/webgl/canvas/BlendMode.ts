@@ -1,9 +1,9 @@
 import { WebGLContext } from "../WebGLContext"
 
-export type BlendFunc = (gl:WebGLRenderingContext)=>void
+//export type BlendFunc = (gl:WebGLRenderingContext)=>void
 
 export class BlendMode {
-    static activeBlendFunction: BlendFunc = null;
+    static activeBlendFunction: Function = null;
     /** @internal 这个不直接暴露给开发者*/
     static NAMES = [
         "normal", 
@@ -34,8 +34,8 @@ export class BlendMode {
     static        MASK = "mask";					//6
     static     LIGHTER = "lighter";					//1  
 
-    static fns: BlendFunc[];
-    static targetFns: BlendFunc[];
+    static fns: any[];
+    static targetFns: any[];
     /**@internal */
     static _init_(gl: WebGLContext): void {
         BlendMode.fns =       [
