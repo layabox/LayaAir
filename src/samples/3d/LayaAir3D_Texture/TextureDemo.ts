@@ -11,7 +11,6 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
-import { BaseTexture } from "laya/resource/BaseTexture";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
