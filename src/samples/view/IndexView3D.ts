@@ -103,6 +103,10 @@ import { Config3D } from "Config3D";
 import { SpotLightShadowMap } from "../3d/LayaAir3D_Lighting/SpotLightShadowMap";
 import { VideoPlayIn3DWorld } from "../3d/LayaAir3D_Advance/VideoPlayIn3DWorld";
 import { SimpleSkinAnimationInstance } from "../3d/LayaAir3D_Animation3D/SimpleSkinAnimationInstance";
+import { PostProcess_Blur } from "../3d/LayaAir3D_PostProcess/PostProcess_Blur";
+import { CommandBuffer_Outline } from "../3d/LayaAir3D_Advance/CommandBuffer_Outline";
+import { CommandBuffer_BlurryGlass } from "../3d/LayaAir3D_Advance/CommandBuffer_BlurryGlass";
+import { HalfFloatTexture } from "../3d/LayaAir3D_Texture/HalfFloatTexture";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -118,10 +122,13 @@ export class IndexView3D extends IndexViewUI {
 	private b_length: number;
 	private m_length: number;
 
-	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance', 'Demo'];
+	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance', 'Demo','PostProcess'];
 	//var s:Secne3DPlayer2D    
-	private _advanceClsArr: any[] = [PostProcessBloom, AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = ['PostProcessBloom', 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass'];//'后期处理之泛光','寻路示例',
+
+	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur];
+	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur'];
 
 	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample,SimpleSkinAnimationInstance];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample","SimpleSkinAnimationInstance"];
@@ -174,8 +181,8 @@ export class IndexView3D extends IndexViewUI {
 	private _sprite3DClsArr: any[] = [PixelLineSprite3DDemo, SkinnedMeshSprite3DDemo, Sprite3DClone, Sprite3DLoad, Sprite3DParent, TransformDemo];
 	private _sprite3DArr: any[] = ['PixelLineSprite3D', 'SkinnedMeshSprite3D', "Sprite3DClone", 'Sprite3DLoad', 'Sprite3DParent', 'Transform'];
 
-	private _textureClsArr: any[] = [TextureDemo, TextureGPUCompression];
-	private _textureArr: any[] = ['Texture', 'TextureGPUCompression'];
+	private _textureClsArr: any[] = [TextureDemo, HalfFloatTexture,TextureGPUCompression];
+	private _textureArr: any[] = ['Texture', 'HalfFloatTexture','TextureGPUCompression'];
 
 	private _trailClsArr: any[] = [TrailDemo, TrailRender];
 	private _trailArr: any[] = ['Trail', 'TrailRender'];
@@ -276,7 +283,7 @@ export class IndexView3D extends IndexViewUI {
 		}
 		else {
 
-			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D','CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Performance', 'Advance', 'Demo'];
+			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D','CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Performance', 'Advance', 'Demo','PostProcess'];
 			Config3D.useCannonPhysics = false;
 			switch (this._bigIndex) {
 				case 0:
@@ -359,6 +366,9 @@ export class IndexView3D extends IndexViewUI {
 					this._oldView = new this._demoClsArr[index];
 					this.b_length = this._demoClsArr.length - 1;
 					break;
+				case 20:
+					this._oldView = new this._postProcessClsArr[index];
+					this.b_length = this._postProcessClsArr.length-1;
 				// case 19:
 				// 	this._oldView = new this._testPerformanceClsArr[index];
 				// 	this.b_length = this._testPerformanceClsArr.length - 1;
@@ -464,6 +474,8 @@ export class IndexView3D extends IndexViewUI {
 				case 19:
 					labelStr = this._demoArr.toString();
 					break;
+				case 20:
+					labelStr = this._postProcessArr.toString();
 				// case 19: //advanced
 				// 	labelStr = this._testPerformanceArr.toString();
 				// 	break;

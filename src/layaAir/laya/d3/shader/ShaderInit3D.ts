@@ -11,6 +11,7 @@ import extendTerrainVS from "./files/extendTerrain.vs";
 import GlobalIllumination from "./files/GlobalIllumination.glsl";
 import LightingGLSL from "./files/Lighting.glsl";
 import ShadowSampleTentGLSL from "./files/ShadowSampleTent.glsl";
+import LayaUtile from "./files/LayaUtile.glsl"
 import linePS from "./files/line.fs";
 import lineVS from "./files/line.vs";
 import MeshBlinnPhongPS from "./files/Mesh-BlinnPhong.fs";
@@ -88,6 +89,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("LayaPBRBRDF.glsl", LayaPBRBRDF);
 		Shader3D.addInclude("PBRCore.glsl", PBRCore);
 		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
+		Shader3D.addInclude("LayaUtile.glsl",LayaUtile);
 
 		//BLINNPHONG
 		var attributeMap: any = {

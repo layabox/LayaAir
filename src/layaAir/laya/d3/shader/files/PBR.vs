@@ -6,6 +6,7 @@
 	precision mediump int;
 #endif
 #include "Lighting.glsl";
+#include "LayaUtile.glsl"
 #include "Shadow.glsl"
 #include "PBRVSInput.glsl";
 #include "PBRVertex.glsl";
