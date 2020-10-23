@@ -597,14 +597,20 @@ export class PhysicsSimulation {
 		}
 
 		var collisionObjects: number = bt.AllConvexResultCallback_get_m_collisionObjects(convexResultCall);
+		var btPoints: number = bt.AllConvexResultCallback_get_m_hitPointWorld(convexResultCall);
+		var btNormals: number = bt.AllConvexResultCallback_get_m_hitNormalWorld(convexResultCall);
+		var btFractions: number = bt.AllConvexResultCallback_get_m_hitFractions(convexResultCall);
+
+		bt.tVector3Array_clear(btPoints);
+		bt.tVector3Array_clear(btNormals);
+		bt.tScalarArray_clear(btFractions);
 		bt.tBtCollisionObjectArray_clear(collisionObjects);//清空检测队列
 		bt.btCollisionWorld_convexSweepTest(this._btCollisionWorld, sweepShape, convexTransform, convexTransTo, convexResultCall, allowedCcdPenetration);
 		var count: number = bt.tBtCollisionObjectArray_size(collisionObjects);
+		
 		if (count > 0) {
 			this._collisionsUtils.recoverAllHitResultsPool();
-			var btPoints: number = bt.AllConvexResultCallback_get_m_hitPointWorld(convexResultCall);
-			var btNormals: number = bt.AllConvexResultCallback_get_m_hitNormalWorld(convexResultCall);
-			var btFractions: number = bt.AllConvexResultCallback_get_m_hitFractions(convexResultCall);
+		
 			for (var i: number = 0; i < count; i++) {
 				var hitResult: HitResult = this._collisionsUtils.getHitResult();
 				out.push(hitResult);
