@@ -73,9 +73,9 @@ export class VideoTexture extends BaseTexture {
 			this._video.style.playsInline=true;
 			this._video.crossOrigin="anonymous";
 			this._video.setAttribute('crossorigin', "anonymous");
-			this._video.setAttribute('playsinline', 'true')
-			this._video.setAttribute('x5-playsinline', 'true')
-			this._video.setAttribute('webkit-playsinline', 'true')
+			this._video.setAttribute('playsinline', 'true');
+			this._video.setAttribute('x5-playsinline', 'true');
+			this._video.setAttribute('webkit-playsinline', 'true');
 			this._video.autoplay=true;
 		}
 	}

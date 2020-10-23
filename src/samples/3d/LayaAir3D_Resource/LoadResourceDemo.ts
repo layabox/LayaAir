@@ -24,6 +24,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Material } from "laya/d3/core/material/Material";
+import { Shader3D } from "laya/d3/shader/Shader3D";
 
 /**
  * ...
@@ -43,7 +44,7 @@ export class LoadResourceDemo {
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		//显示性能面板
 		Stat.show();
-
+		Shader3D.debugMode = true;
 		//加载资源
 		this.LoadRes();
 
