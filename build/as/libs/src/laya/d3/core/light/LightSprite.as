@@ -2,6 +2,7 @@ package laya.d3.core.light {
 	import laya.d3.math.Vector3;
 	import laya.d3.core.Sprite3D;
 	import laya.d3.core.light.ShadowMode;
+	import laya.d3.math.Matrix4x4;
 
 	/**
 	 * <code>LightSprite</code> 类用于创建灯光的父类。
@@ -81,6 +82,7 @@ package laya.d3.core.light {
 		 */
 		public function get lightmapBakedType():Number{return null;}
 		public function set lightmapBakedType(value:Number):void{}
+		public function get lightWorldMatrix():Matrix4x4{return null;}
 
 		/**
 		 * 创建一个 <code>LightSprite</code> 实例。

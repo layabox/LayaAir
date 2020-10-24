@@ -39,7 +39,8 @@ export class Scene extends Sprite {
 
     constructor(createChildren = true) {
         super();
-        this._setBit(Const.NOT_READY, true);
+        //not ready状态变更修改为加载资源之前后
+        // this._setBit(Const.NOT_READY, true);
         Scene.unDestroyedScenes.push(this);
         this._scene = this;
         if (createChildren)
@@ -52,6 +53,7 @@ export class Scene extends Sprite {
     protected createChildren(): void {
     }
     /**
+     * 兼容加载模式
      * 加载模式设置uimap
      * @param url uimapJosn的url
      */
@@ -76,6 +78,7 @@ export class Scene extends Sprite {
         if (view) {
             this.createView(view);
         } else {
+            this._setBit(Const.NOT_READY, true);
             ILaya.loader.resetProgress();
             var loader: SceneLoader = new SceneLoader();
             loader.on(Event.COMPLETE, this, this._onSceneLoaded, [url]);
@@ -157,44 +160,35 @@ export class Scene extends Sprite {
         }
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set scaleX(value: number) {
         if (super.get_scaleX() == value) return;
         super.set_scaleX(value);
         this.event(Event.RESIZE);
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
+
     get scaleX() {
         return super.scaleX;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set scaleY(value: number) {
         if (super.get_scaleY() == value) return;
         super.set_scaleY(value);
         this.event(Event.RESIZE);
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
+
     get scaleY() {
         return super.scaleY;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     get width(): number {
         if (this._width) return this._width;
         var max: number = 0;
@@ -207,20 +201,18 @@ export class Scene extends Sprite {
         return max;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set width(value: number) {
         if (super.get_width() == value) return;
         super.set_width(value);
         this.callLater(this._sizeChanged);
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     get height(): number {
         if (this._height) return this._height;
         var max: number = 0;
@@ -233,10 +225,9 @@ export class Scene extends Sprite {
         return max;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set height(value: number) {
         if (super.get_height() == value) return;
         super.set_height(value);
@@ -308,7 +299,7 @@ export class Scene extends Sprite {
             }
             if (scene && scene instanceof Node) {
                 scene.url = url;
-                if (!scene._getBit(Const.NOT_READY)) {
+                if (scene._viewCreated) { 
                     complete && complete.runWith(scene);
                 } else {
                     scene.on("onViewCreated", null, function (): void {

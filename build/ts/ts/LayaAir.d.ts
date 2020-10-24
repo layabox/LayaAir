@@ -3466,6 +3466,7 @@ declare module laya.d3.core.light {
 		 */
 		get lightmapBakedType():number;
 		set lightmapBakedType(value:number);
+		get lightWorldMatrix():laya.d3.math.Matrix4x4;
 
 		/**
 		 * 创建一个 <code>LightSprite</code> 实例。
@@ -10104,13 +10105,13 @@ declare module laya.d3.core {
 
 		/**
 		 * 获取向前方向。
-		 * @param 前方向 。
+		 * @param forward 前方向。
 		 */
 		getForward(forward:laya.d3.math.Vector3):void;
 
 		/**
 		 * 获取向上方向。
-		 * @param 上方向 。
+		 * @param up 上方向。
 		 */
 		getUp(up:laya.d3.math.Vector3):void;
 
@@ -14588,6 +14589,12 @@ declare module laya.d3.physics {
 		 * 移除刚体运动的约束条件。
 		 */
 		removeConstraint(constraint:laya.d3.physics.constraints.ConstraintComponent):void;
+
+		/**
+		 * 设置射线检测回调
+		 * @param HITSRAYRESULTCALLBACK_FLAG值 
+		 */
+		setHitsRayResultCallbackFlay(flag?:number):void;
 
 		/**
 		 * 清除力。
@@ -20940,11 +20947,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set color(value:string);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get color():string;
 
 		/**
@@ -20952,11 +20954,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set bgColor(value:string);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get bgColor():string;
 
 		/**
@@ -21497,6 +21494,7 @@ declare module laya.display {
 		protected createChildren():void;
 
 		/**
+		 * 兼容加载模式
 		 * 加载模式设置uimap
 		 * @param url uimapJosn的url
 		 */
@@ -21556,11 +21554,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set scaleX(value:number);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get scaleX():number;
 
 		/**
@@ -21568,11 +21561,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set scaleY(value:number);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get scaleY():number;
 
 		/**
@@ -22720,11 +22708,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set width(value:number);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get width():number;
 
 		/**
@@ -22895,11 +22878,6 @@ declare module laya.display {
 		 * @override 
 		 */
 		set visible(value:boolean);
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
 		get visible():boolean;
 
 		/**
@@ -40173,6 +40151,11 @@ declare module laya.utils {
 		static onHWMiniGame:boolean;
 
 		/**
+		 * 淘宝小程序
+		 */
+		static onTBMiniGame:boolean;
+
+		/**
 		 * @private 
 		 */
 		static onFirefox:boolean;
@@ -44284,6 +44267,10 @@ declare module laya.webgl.submit {
 		 * @override 
 		 */
 		releaseRender():void;
+
+		/**
+		 * create方法只传对submit设置的值
+		 */
 		static create(context:laya.resource.Context,mesh:laya.webgl.utils.Mesh2D,sv:laya.webgl.shader.d2.value.Value2D):Submit;
 
 		/**

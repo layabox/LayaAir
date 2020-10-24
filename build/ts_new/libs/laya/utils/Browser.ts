@@ -57,6 +57,8 @@ export class Browser {
     static onTTMiniGame:boolean;
     /** 华为快游戏 */
     static onHWMiniGame:boolean;
+    /** 淘宝小程序 */
+    static onTBMiniGame:boolean;
     /** @private */
     static onFirefox: boolean;//TODO:求补充
     /** @private */
@@ -117,13 +119,23 @@ export class Browser {
         var platform:string = win.navigator.platform;
 
         //阿里小游戏
-        if (u.indexOf('AlipayMiniGame') > -1 && "my" in Browser.window) {
-            //这里需要手动初始化阿里适配库
-            (window as any).aliPayMiniGame(Laya, Laya);
-            if (!Laya["ALIMiniAdapter"]) {
-                console.error("请先添加阿里小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
-            } else {
-                Laya["ALIMiniAdapter"].enable();
+        if ("my" in Browser.window) {
+            if("tb" in Browser.window.my){
+                //这里需要手动初始化阿里适配库
+                (window as any).tbMiniGame(Laya, Laya);
+                if (!Laya["TBMiniAdapter"]) {
+                    console.error("请先添加淘宝适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+                } else {
+                    Laya["TBMiniAdapter"].enable();
+                }
+            }else if(u.indexOf('AlipayMiniGame') > -1){
+                //这里需要手动初始化阿里适配库
+                (window as any).aliPayMiniGame(Laya, Laya);
+                if (!Laya["ALIMiniAdapter"]) {
+                    console.error("请先添加阿里小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+                } else {
+                    Laya["ALIMiniAdapter"].enable();
+                }
             }
         }
 
@@ -288,6 +300,9 @@ export class Browser {
         if (u.indexOf('AlipayMiniGame') > -1) {
             Browser.onAlipayMiniGame = true;//阿里小游戏环境判断
             Browser.onMiniGame = false;
+        }
+        if(u.indexOf('TB')>-1||u.indexOf('Taobao')>-1){
+            Browser.onTBMiniGame = true;
         }
         return win;
     }

@@ -127,6 +127,11 @@ package laya.utils {
 		public static var onHWMiniGame:Boolean;
 
 		/**
+		 * 淘宝小程序
+		 */
+		public static var onTBMiniGame:Boolean;
+
+		/**
 		 * @private 
 		 */
 		public static var onFirefox:Boolean;

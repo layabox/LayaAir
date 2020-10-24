@@ -4,6 +4,7 @@ import { Matrix } from "../maths/Matrix"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 import { ClassUtils } from "../utils/ClassUtils";
+import { TextStyle } from "./css/TextStyle";
 /**
  * 用户输入一个或多个文本字符时后调度。
  * @eventType Event.INPUT
@@ -70,7 +71,7 @@ export class Input extends Text {
     static TYPE_SEARCH: string = "search";
 
     /**@private */
-    protected static input: any;
+	protected static input: HTMLInputElement;
     /**@private */
     protected static area: any;
     /**@private */
@@ -130,7 +131,7 @@ export class Input extends Text {
         // 移动端通过画布的touchend调用focus
         if (ILaya.Browser.onMobile) {
             var isTrue: boolean = false;
-            if (ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onQQMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onHWMiniGame) {
+            if (ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onQQMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onHWMiniGame || ILaya.Browser.onTBMiniGame) {
                 isTrue = true;
             }
             ILaya.Render.canvas.addEventListener(Input.IOS_IFRAME ? (isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
@@ -322,7 +323,9 @@ export class Input extends Text {
 
     private _focusIn(): void {
         Input.isInputting = true;
-        var input: any = this.nativeInput;
+		var input: any = this.nativeInput;
+		
+		Input.input && (Input.input.type = this._type);		// 设置input控件的 password
 
         this._focus = true;
 
@@ -352,7 +355,7 @@ export class Input extends Text {
         if (ILaya.Browser.onPC) input.focus();
 
         // PC浏览器隐藏文字
-        if (!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame) {
+        if (!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
             var temp: string = this._text;
             this._text = null;
         }
@@ -477,10 +480,9 @@ export class Input extends Text {
             super.changeText(text);
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set color(value: string) {
         if (this._focus)
             this.nativeInput.setColor(value);
@@ -488,27 +490,20 @@ export class Input extends Text {
         super.set_color(this._content ? value : this._promptColor);
         this._originColor = value;
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
+
     get color() {
         return super.color;
     }
 
-    /**
-     * @inheritDoc 
+    /**@inheritDoc 
      * @override
-     */
+    */
     set bgColor(value: string) {
         super.set_bgColor(value);
         if (ILaya.Render.isConchApp)
             this.nativeInput.setBgColor(value);
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
+
     get bgColor() {
         return super.bgColor;
     }
@@ -541,7 +536,7 @@ export class Input extends Text {
     set editable(value: boolean) {
         this._editable = value;
         if (ILaya.Render.isConchApp) {
-            Input.input.setForbidEdit(!value);
+            (Input.input as any).setForbidEdit(!value);
         }
     }
 

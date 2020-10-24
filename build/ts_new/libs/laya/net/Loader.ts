@@ -462,7 +462,7 @@ export class Loader extends EventDispatcher {
 					data.pics = [];
 				}
 				this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
-				return this._loadResourceFilter(Loader.IMAGE, toloadPics.pop() as string);
+				return this._loadResourceFilter(Loader.IMAGE, URL.formatURL(toloadPics.pop() as string));
 			} else {
 				if(!(data instanceof Texture2D))
 				{

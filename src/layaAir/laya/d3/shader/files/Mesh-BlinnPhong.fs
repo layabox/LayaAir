@@ -172,8 +172,8 @@ void main()
 			#ifdef CALCULATE_SPOTSHADOWS
 				vec4 spotShadowcoord = v_SpotShadowCoord;
 				float spotShadowAttenuation = sampleSpotShadowmap(spotShadowcoord);
-				dif *= shadowAttenuation;
-				spe *= shadowAttenuation;
+				dif *= spotShadowAttenuation;
+				spe *= spotShadowAttenuation;
 			#endif
 			diffuse+=dif;
 			specular+=spe;
