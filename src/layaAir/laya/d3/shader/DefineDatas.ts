@@ -83,17 +83,23 @@ export class DefineDatas implements IClone {
 		var addMask: Array<number> = define._mask;
 		var size: number = define._length;
 		var mask: Array<number> = this._mask;
-		var maskStart: number = mask.length;
+		var maskStart: number = this._length;
 		if (maskStart < size) {
 			mask.length = size;
 			for (var i: number = 0; i < maskStart; i++)
 				mask[i] |= addMask[i];
-			for (; maskStart < size; maskStart++)
-				mask[maskStart] = addMask[maskStart];
+			for (; i < size; i++)
+				mask[i] = addMask[i];
 			this._length = size;
 		} else {
 			for (var i: number = 0; i < size; i++)
+			{
+				if(i<this._length)
 				mask[i] |= addMask[i];
+				else
+				mask[i] = addMask[i];
+			}
+				
 			this._length = Math.max(this._length, size);
 		}
 	}
