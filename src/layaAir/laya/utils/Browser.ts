@@ -301,7 +301,7 @@ export class Browser {
             Browser.onAlipayMiniGame = true;//阿里小游戏环境判断
             Browser.onMiniGame = false;
         }
-        if(u.indexOf('TB')>-1){
+        if(u.indexOf('TB')>-1||u.indexOf('Taobao')>-1||u.indexOf('TM')>-1){
             Browser.onTBMiniGame = true;
         }
         return win;
