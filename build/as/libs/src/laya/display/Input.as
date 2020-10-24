@@ -262,24 +262,14 @@ package laya.display {
 		 * @override 
 		 */
 		override public function set color(value:String):void{}
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override public function get color():String{return null;}
+		public function get color():String{return null;}
 
 		/**
 		 * @inheritDoc 
 		 * @override 
 		 */
 		override public function set bgColor(value:String):void{}
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override public function get bgColor():String{return null;}
+		public function get bgColor():String{return null;}
 
 		/**
 		 * 限制输入的字符。

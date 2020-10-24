@@ -176,13 +176,13 @@ package laya.d3.core {
 
 		/**
 		 * 获取向前方向。
-		 * @param 前方向 。
+		 * @param forward 前方向。
 		 */
 		public function getForward(forward:Vector3):void{}
 
 		/**
 		 * 获取向上方向。
-		 * @param 上方向 。
+		 * @param up 上方向。
 		 */
 		public function getUp(up:Vector3):void{}
 

@@ -284,12 +284,7 @@ package laya.display {
 		 * @override 
 		 */
 		override public function set width(value:Number):void{}
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override public function get width():Number{return null;}
+		public function get width():Number{return null;}
 
 		/**
 		 * @inheritDoc 
@@ -465,12 +460,7 @@ package laya.display {
 		 * @override 
 		 */
 		override public function set visible(value:Boolean):void{}
-
-		/**
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override public function get visible():Boolean{return null;}
+		public function get visible():Boolean{return null;}
 
 		/**
 		 * @private 

@@ -87,7 +87,6 @@ export class HTMLCanvas extends Bitmap {
             this._ctx = this._source.getContext(ILaya.Render.isConchApp ? 'layagl' : '2d');
         }
         this._ctx._canvas = this;
-        //if(!Browser.onLimixiu) _ctx.size = function(w:Number, h:Number):void {};	这个是干什么的，会导致ctx的size不好使
         return this._ctx;
     }
 
