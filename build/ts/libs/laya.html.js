@@ -1481,6 +1481,18 @@
                 this._element.innerHTML = this._innerHTML;
             this._setGraphicDirty();
         }
+        set width(value) {
+            this._element.width = value;
+        }
+        get width() {
+            return this._element.width;
+        }
+        set height(value) {
+            this._element.height = value;
+        }
+        get height() {
+            return this._element.height;
+        }
         get contextWidth() {
             return this._element.contextWidth;
         }

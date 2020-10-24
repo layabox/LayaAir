@@ -2779,14 +2779,37 @@ window.Laya= (function (exports) {
 
     class BlendMode {
         static _init_(gl) {
-            BlendMode.fns = [BlendMode.BlendNormal, BlendMode.BlendAdd, BlendMode.BlendMultiply, BlendMode.BlendScreen, BlendMode.BlendOverlay, BlendMode.BlendLight, BlendMode.BlendMask, BlendMode.BlendDestinationOut];
-            BlendMode.targetFns = [BlendMode.BlendNormalTarget, BlendMode.BlendAddTarget, BlendMode.BlendMultiplyTarget, BlendMode.BlendScreenTarget, BlendMode.BlendOverlayTarget, BlendMode.BlendLightTarget, BlendMode.BlendMask, BlendMode.BlendDestinationOut];
+            BlendMode.fns = [
+                BlendMode.BlendNormal,
+                BlendMode.BlendAdd,
+                BlendMode.BlendMultiply,
+                BlendMode.BlendScreen,
+                BlendMode.BlendOverlay,
+                BlendMode.BlendLight,
+                BlendMode.BlendMask,
+                BlendMode.BlendDestinationOut,
+                BlendMode.BlendAddOld
+            ];
+            BlendMode.targetFns = [
+                BlendMode.BlendNormalTarget,
+                BlendMode.BlendAddTarget,
+                BlendMode.BlendMultiplyTarget,
+                BlendMode.BlendScreenTarget,
+                BlendMode.BlendOverlayTarget,
+                BlendMode.BlendLightTarget,
+                BlendMode.BlendMask,
+                BlendMode.BlendDestinationOut,
+                BlendMode.BlendAddTargetOld
+            ];
         }
         static BlendNormal(gl) {
             WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA, true);
         }
-        static BlendAdd(gl) {
+        static BlendAddOld(gl) {
             WebGLContext.setBlendFunc(gl, gl.ONE, gl.DST_ALPHA, true);
+        }
+        static BlendAdd(gl) {
+            WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE, true);
         }
         static BlendMultiply(gl) {
             WebGLContext.setBlendFunc(gl, gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA, true);
@@ -2803,8 +2826,11 @@ window.Laya= (function (exports) {
         static BlendNormalTarget(gl) {
             WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA, true);
         }
-        static BlendAddTarget(gl) {
+        static BlendAddTargetOld(gl) {
             WebGLContext.setBlendFunc(gl, gl.ONE, gl.DST_ALPHA, true);
+        }
+        static BlendAddTarget(gl) {
+            WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE, true);
         }
         static BlendMultiplyTarget(gl) {
             WebGLContext.setBlendFunc(gl, gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA, true);
@@ -2826,8 +2852,30 @@ window.Laya= (function (exports) {
         }
     }
     BlendMode.activeBlendFunction = null;
-    BlendMode.NAMES = ["normal", "add", "multiply", "screen", "overlay", "light", "mask", "destination-out"];
-    BlendMode.TOINT = { "normal": 0, "add": 1, "multiply": 2, "screen": 3, "overlay": 4, "light": 5, "mask": 6, "destination-out": 7, "lighter": 1 };
+    BlendMode.NAMES = [
+        "normal",
+        "add",
+        "multiply",
+        "screen",
+        "overlay",
+        "light",
+        "mask",
+        "destination-out",
+        "add_old"
+    ];
+    BlendMode.TOINT = {
+        "normal": 0,
+        "add": 1,
+        "multiply": 2,
+        "screen": 3,
+        "overlay": 4,
+        "light": 5,
+        "mask": 6,
+        "destination-out": 7,
+        "lighter": 1,
+        "lighter_old": 8,
+        "add_old": 8
+    };
     BlendMode.NORMAL = "normal";
     BlendMode.ADD = "add";
     BlendMode.MULTIPLY = "multiply";
@@ -7718,7 +7766,7 @@ window.Laya= (function (exports) {
                 Browser.onAlipayMiniGame = true;
                 Browser.onMiniGame = false;
             }
-            if (u.indexOf('TB') > -1 || u.indexOf('Taobao') > -1) {
+            if (u.indexOf('TB') > -1 || u.indexOf('Taobao') > -1 || u.indexOf('TM') > -1) {
                 Browser.onTBMiniGame = true;
             }
             return win;
@@ -8070,6 +8118,8 @@ window.Laya= (function (exports) {
         getNextChar(str) {
             var len = str.length;
             var start = this._curStrPos;
+            if (!str.substring)
+                return null;
             if (start >= len)
                 return null;
             var i = start;
@@ -8120,7 +8170,7 @@ window.Laya= (function (exports) {
             this._fast_filltext(ctx, null, data, x, y, font, color, strokeColor, lineWidth, 0, 0);
         }
         _fast_filltext(ctx, data, htmlchars, x, y, font, color, strokeColor, lineWidth, textAlign, underLine = 0) {
-            if (data && data.length < 1)
+            if (data && !(data.length >= 1))
                 return;
             if (htmlchars && htmlchars.length < 1)
                 return;
@@ -8145,7 +8195,7 @@ window.Laya= (function (exports) {
             font._italic && (ctx._italicDeg = 13);
             var wt = data;
             var isWT = !htmlchars && (data instanceof WordText);
-            var str = data;
+            var str = data.toString();
             var isHtmlChar = !!htmlchars;
             var sameTexData = isWT ? wt.pageChars : [];
             var strWidth = 0;
@@ -8265,8 +8315,7 @@ window.Laya= (function (exports) {
             }
         }
         hasFreedText(txts) {
-            var sz = txts.length;
-            for (var i = 0; i < sz; i++) {
+            for (let i in txts) {
                 var pri = txts[i];
                 if (!pri)
                     continue;
@@ -12596,7 +12645,8 @@ window.Laya= (function (exports) {
                     ctx.breakNextMerge();
                     ctx.popRT();
                     ctx.save();
-                    ctx.clipRect(x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
+                    let shrink = 0.1;
+                    ctx.clipRect(x + tRect.x - sprite.getStyle().pivotX + shrink, y + tRect.y - sprite.getStyle().pivotY + shrink, w - shrink * 2, h - shrink * 2);
                     next._fun.call(next, sprite, ctx, x, y);
                     ctx.restore();
                     preBlendMode = ctx.globalCompositeOperation;
@@ -15813,6 +15863,7 @@ window.Laya= (function (exports) {
         _focusIn() {
             Input.isInputting = true;
             var input = this.nativeInput;
+            Input.input && (Input.input.type = this._type);
             this._focus = true;
             var cssStyle = input.style;
             cssStyle.whiteSpace = (this.wordWrap ? "pre-wrap" : "nowrap");
@@ -18813,12 +18864,37 @@ window.Laya= (function (exports) {
                 }
                 else {
                     if (!(data instanceof Texture2D)) {
-                        let tex = new Texture2D(data.width, data.height, 1, false, false);
-                        tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-                        tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-                        tex.loadImageSource(data, true);
-                        tex._setCreateURL(data.src);
-                        data = tex;
+                        if (data instanceof ArrayBuffer) {
+                            let url = this._http.url;
+                            var ext = Utils.getFileExtension(url);
+                            let format;
+                            switch (ext) {
+                                case "ktx":
+                                    format = exports.TextureFormat.ETC1RGB;
+                                    break;
+                                case "pvr":
+                                    format = exports.TextureFormat.PVRTCRGBA_4BPPV;
+                                    break;
+                                default: {
+                                    console.error('unknown format', ext);
+                                    return;
+                                }
+                            }
+                            let tex = new Texture2D(0, 0, format, false, false);
+                            tex.wrapModeU = exports.WarpMode.Clamp;
+                            tex.wrapModeV = exports.WarpMode.Clamp;
+                            tex.setCompressData(data);
+                            tex._setCreateURL(url);
+                            data = tex;
+                        }
+                        else {
+                            let tex = new Texture2D(data.width, data.height, 1, false, false);
+                            tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
+                            tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+                            tex.loadImageSource(data, true);
+                            tex._setCreateURL(data.src);
+                            data = tex;
+                        }
                     }
                     this._data.pics.push(data);
                     if (this._data.toLoads.length > 0) {
@@ -19617,7 +19693,7 @@ window.Laya= (function (exports) {
     class TTFLoader {
         load(fontPath) {
             this._url = fontPath;
-            var tArr = fontPath.split(".ttf")[0].split("/");
+            var tArr = fontPath.toLowerCase().split(".ttf")[0].split("/");
             this.fontName = tArr[tArr.length - 1];
             if (ILaya.Render.isConchApp) {
                 this._loadConch();
@@ -22477,7 +22553,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.8.0beta4";
+    Laya.version = "2.8.0";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;

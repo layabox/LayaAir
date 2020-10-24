@@ -3575,14 +3575,17 @@
 	            bt.btTransform_setRotation(convexTransTo, this._btDefaultQuaternion);
 	        }
 	        var collisionObjects = bt.AllConvexResultCallback_get_m_collisionObjects(convexResultCall);
+	        var btPoints = bt.AllConvexResultCallback_get_m_hitPointWorld(convexResultCall);
+	        var btNormals = bt.AllConvexResultCallback_get_m_hitNormalWorld(convexResultCall);
+	        var btFractions = bt.AllConvexResultCallback_get_m_hitFractions(convexResultCall);
+	        bt.tVector3Array_clear(btPoints);
+	        bt.tVector3Array_clear(btNormals);
+	        bt.tScalarArray_clear(btFractions);
 	        bt.tBtCollisionObjectArray_clear(collisionObjects);
 	        bt.btCollisionWorld_convexSweepTest(this._btCollisionWorld, sweepShape, convexTransform, convexTransTo, convexResultCall, allowedCcdPenetration);
 	        var count = bt.tBtCollisionObjectArray_size(collisionObjects);
 	        if (count > 0) {
 	            this._collisionsUtils.recoverAllHitResultsPool();
-	            var btPoints = bt.AllConvexResultCallback_get_m_hitPointWorld(convexResultCall);
-	            var btNormals = bt.AllConvexResultCallback_get_m_hitNormalWorld(convexResultCall);
-	            var btFractions = bt.AllConvexResultCallback_get_m_hitFractions(convexResultCall);
 	            for (var i = 0; i < count; i++) {
 	                var hitResult = this._collisionsUtils.getHitResult();
 	                out.push(hitResult);
@@ -7529,14 +7532,17 @@
 	                    playStateInfo._playEventIndex--;
 	                playStateInfo._lastIsFront = frontPlay;
 	            }
+	            var preEventIndex = playStateInfo._playEventIndex;
 	            if (frontPlay) {
-	                playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+	                var newEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+	                (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);
 	                for (var i = 0, n = loopCount - 1; i < n; i++)
 	                    this._eventScript(scripts, events, 0, clipDuration, true);
 	                (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, 0, time, true));
 	            }
 	            else {
-	                playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+	                var newEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+	                (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);
 	                var eventIndex = events.length - 1;
 	                for (i = 0, n = loopCount - 1; i < n; i++)
 	                    this._eventScript(scripts, events, eventIndex, 0, false);
@@ -8098,7 +8104,6 @@
 	        }
 	        if (needRender) {
 	            if (this._avatar) {
-	                Laya.Render.supportWebGLPlusAnimation && this._updateAnimationNodeWorldMatix(this._animationNodeLocalPositions, this._animationNodeLocalRotations, this._animationNodeLocalScales, this._animationNodeWorldMatrixs, this._animationNodeParentIndices);
 	                this._updateAvatarNodesToSprite();
 	            }
 	        }
@@ -8675,18 +8680,22 @@
 	        var addMask = define._mask;
 	        var size = define._length;
 	        var mask = this._mask;
-	        var maskStart = mask.length;
+	        var maskStart = this._length;
 	        if (maskStart < size) {
 	            mask.length = size;
 	            for (var i = 0; i < maskStart; i++)
 	                mask[i] |= addMask[i];
-	            for (; maskStart < size; maskStart++)
-	                mask[maskStart] = addMask[maskStart];
+	            for (; i < size; i++)
+	                mask[i] = addMask[i];
 	            this._length = size;
 	        }
 	        else {
-	            for (var i = 0; i < size; i++)
-	                mask[i] |= addMask[i];
+	            for (var i = 0; i < size; i++) {
+	                if (i < this._length)
+	                    mask[i] |= addMask[i];
+	                else
+	                    mask[i] = addMask[i];
+	            }
 	            this._length = Math.max(this._length, size);
 	        }
 	    }
@@ -13859,6 +13868,8 @@
 	    destroy() {
 	        super.destroy();
 	        this._buffer = null;
+	        this._byteLength = 0;
+	        this._indexCount = 0;
 	    }
 	}
 
@@ -14125,6 +14136,7 @@
 	        this._buffer = null;
 	        this._float32Reader = null;
 	        this._vertexDeclaration = null;
+	        this._byteLength = 0;
 	    }
 	}
 	VertexBuffer3D.DATATYPE_FLOAT32ARRAY = 0;
@@ -24448,6 +24460,15 @@
 	            particleSystem._generateBounds();
 	            bounds = particleSystem._bounds;
 	            bounds._tranform(this._owner.transform.worldMatrix, this._bounds);
+	            if (particleSystem.gravityModifier != 0) {
+	                var max = this._bounds.getMax();
+	                var min = this._bounds.getMin();
+	                var gravityOffset = particleSystem._gravityOffset;
+	                max.y -= gravityOffset.x;
+	                min.y -= gravityOffset.y;
+	                this._bounds.setMax(max);
+	                this._bounds.setMin(min);
+	            }
 	        }
 	        else {
 	            var min = this._bounds.getMin();
@@ -24456,17 +24477,6 @@
 	            var max = this._bounds.getMax();
 	            max.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
 	            this._bounds.setMax(max);
-	        }
-	        if (Laya.Render.supportWebGLPlusCulling) {
-	            var min = this._bounds.getMin();
-	            var max = this._bounds.getMax();
-	            var buffer = FrustumCulling._cullingBuffer;
-	            buffer[this._cullingBufferIndex + 1] = min.x;
-	            buffer[this._cullingBufferIndex + 2] = min.y;
-	            buffer[this._cullingBufferIndex + 3] = min.z;
-	            buffer[this._cullingBufferIndex + 4] = max.x;
-	            buffer[this._cullingBufferIndex + 5] = max.y;
-	            buffer[this._cullingBufferIndex + 6] = max.z;
 	        }
 	    }
 	    _needRender(boundFrustum, context) {
@@ -25178,6 +25188,7 @@
 	        this._boundingBox = null;
 	        this._boundingBoxCorners = null;
 	        this._bounds = null;
+	        this._gravityOffset = new Vector2();
 	        this._customBounds = null;
 	        this._useCustomBounds = false;
 	        this._owner = null;
@@ -25222,6 +25233,7 @@
 	        this._vertexBuffer = null;
 	        this._indexBuffer = null;
 	        this._bufferState = new BufferState();
+	        this._updateMask = 0;
 	        this._currentTime = 0;
 	        this._startUpdateLoopCount = 0;
 	        this._rand = null;
@@ -26150,10 +26162,6 @@
 	                        zDirectionSpeed.setValue(1, 1, 1);
 	                        fDirectionSpeed.setValue(1, 1, 1);
 	                    }
-	                    else {
-	                        zDirectionSpeed.setValue(0, 0, 0);
-	                        fDirectionSpeed.setValue(0, 0, 0);
-	                    }
 	                    zEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
 	                    fEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
 	                    break;
@@ -26172,6 +26180,9 @@
 	        var meshMode = particleRender.renderMode == 4;
 	        switch (particleRender.renderMode) {
 	            case 0:
+	            case 1:
+	            case 2:
+	            case 3:
 	                meshSize = ShurikenParticleSystem.halfKSqrtOf2;
 	                break;
 	            case 4:
@@ -26182,12 +26193,14 @@
 	                break;
 	        }
 	        var endSizeOffset = ShurikenParticleSystem._tempVector36;
+	        endSizeOffset.setValue(1, 1, 1);
 	        if (this.sizeOverLifetime && this.sizeOverLifetime.enable) {
 	            var gradientSize = this.sizeOverLifetime.size;
 	            var maxSize = gradientSize.getMaxSizeInGradient(meshMode);
 	            endSizeOffset.setValue(maxSize, maxSize, maxSize);
 	        }
-	        Vector3.scale(endSizeOffset, meshSize * maxSizeScale, endSizeOffset);
+	        var offsetSize = meshSize * maxSizeScale;
+	        Vector3.scale(endSizeOffset, offsetSize, endSizeOffset);
 	        var speedZOffset = ShurikenParticleSystem._tempVector34;
 	        var speedFOffset = ShurikenParticleSystem._tempVector35;
 	        if (speedOrigan > 0) {
@@ -26201,6 +26214,7 @@
 	        if (this.velocityOverLifetime && this.velocityOverLifetime.enable) {
 	            var gradientVelocity = this.velocityOverLifetime.velocity;
 	            var velocitySpeedOffset = ShurikenParticleSystem._tempVector37;
+	            velocitySpeedOffset.setValue(0, 0, 0);
 	            switch (gradientVelocity.type) {
 	                case 0:
 	                    gradientVelocity.constant.cloneTo(velocitySpeedOffset);
@@ -26234,11 +26248,14 @@
 	        Vector3.scale(speedZOffset, time, speedZOffset);
 	        Vector3.scale(speedFOffset, time, speedFOffset);
 	        var gravity = this.gravityModifier;
-	        var gravityOffset = 0.5 * ShurikenParticleSystem.g * gravity * time * time;
-	        speedZOffset.y -= gravityOffset;
-	        speedFOffset.y += gravityOffset;
-	        speedZOffset.y = speedZOffset.y > 0 ? speedZOffset.y : 0;
-	        speedFOffset.y = speedFOffset.y > 0 ? speedFOffset.y : 0;
+	        if (gravity != 0) {
+	            var gravityOffset = 0.5 * ShurikenParticleSystem.g * gravity * time * time;
+	            var speedZOffsetY = speedZOffset.y - gravityOffset;
+	            var speedFOffsetY = speedFOffset.y + gravityOffset;
+	            speedZOffsetY = speedZOffsetY > 0 ? speedZOffsetY : 0;
+	            speedFOffsetY = speedFOffsetY > 0 ? speedFOffsetY : 0;
+	            this._gravityOffset.setValue(speedZOffset.y - speedZOffsetY, speedFOffsetY - speedFOffset.y);
+	        }
 	        Vector3.add(speedZOffset, endSizeOffset, boundsMax);
 	        Vector3.add(boundsMax, zEmisionOffsetXYZ, boundsMax);
 	        Vector3.add(speedFOffset, endSizeOffset, boundsMin);
@@ -26400,9 +26417,9 @@
 	    }
 	    _initBufferDatas() {
 	        if (this._vertexBuffer) {
+	            var memorySize = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
 	            this._vertexBuffer.destroy();
 	            this._indexBuffer.destroy();
-	            var memorySize = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
 	            Laya.Resource._addMemory(-memorySize, -memorySize);
 	        }
 	        var gl = Laya.LayaGL.instance;
@@ -26831,10 +26848,13 @@
 	        return ShurikenParticleSystem._type;
 	    }
 	    _prepareRender(state) {
-	        this._updateEmission();
-	        if (this._firstNewElement != this._firstFreeElement)
-	            this.addNewParticlesToVertexBuffer();
-	        this._drawCounter++;
+	        if (this._updateMask != Laya.Stat.loopCount) {
+	            this._updateMask = Laya.Stat.loopCount;
+	            this._updateEmission();
+	            if (this._firstNewElement != this._firstFreeElement)
+	                this.addNewParticlesToVertexBuffer();
+	            this._drawCounter++;
+	        }
 	        if (this._firstActiveElement != this._firstFreeElement)
 	            return true;
 	        else

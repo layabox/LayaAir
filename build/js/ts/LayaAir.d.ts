@@ -20788,7 +20788,7 @@ declare module laya.display {
 		/**
 		 * @private 
 		 */
-		protected static input:any;
+		protected static input:HTMLInputElement;
 
 		/**
 		 * @private 
@@ -25434,6 +25434,10 @@ declare module laya.html.dom {
 		 */
 		set innerHTML(text:string);
 		private _refresh:any;
+		set width(value:number);
+		get width():number;
+		set height(value:number);
+		get height():number;
 
 		/**
 		 * 获取內容宽度
@@ -43630,8 +43634,6 @@ declare module laya.webgl {
 declare module laya.webgl.canvas {
 	class BlendMode  {
 		static activeBlendFunction:Function;
-		static NAMES:any[];
-		static TOINT:any;
 		static NORMAL:string;
 		static ADD:string;
 		static MULTIPLY:string;

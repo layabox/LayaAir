@@ -103,7 +103,7 @@ package laya.display {
 		/**
 		 * @private 
 		 */
-		protected static var input:*;
+		protected static var input:HTMLInputElement;
 
 		/**
 		 * @private 

@@ -4,6 +4,7 @@ import { Matrix } from "../maths/Matrix"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 import { ClassUtils } from "../utils/ClassUtils";
+import { TextStyle } from "./css/TextStyle";
 /**
  * 用户输入一个或多个文本字符时后调度。
  * @eventType Event.INPUT
@@ -70,7 +71,7 @@ export class Input extends Text {
     static TYPE_SEARCH: string = "search";
 
     /**@private */
-    protected static input: any;
+	protected static input: HTMLInputElement;
     /**@private */
     protected static area: any;
     /**@private */
@@ -322,7 +323,9 @@ export class Input extends Text {
 
     private _focusIn(): void {
         Input.isInputting = true;
-        var input: any = this.nativeInput;
+		var input: any = this.nativeInput;
+		
+		Input.input && (Input.input.type = this._type);		// 设置input控件的 password
 
         this._focus = true;
 
@@ -533,7 +536,7 @@ export class Input extends Text {
     set editable(value: boolean) {
         this._editable = value;
         if (ILaya.Render.isConchApp) {
-            Input.input.setForbidEdit(!value);
+            (Input.input as any).setForbidEdit(!value);
         }
     }
 

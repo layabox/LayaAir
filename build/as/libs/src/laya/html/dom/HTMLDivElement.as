@@ -90,6 +90,10 @@ package laya.html.dom {
 		 */
 		public function set innerHTML(text:String):void{}
 		private var _refresh:*;
+		public function set width(value:Number):void{}
+		public function get width():Number{return null;}
+		public function set height(value:Number):void{}
+		public function get height():Number{return null;}
 
 		/**
 		 * 获取內容宽度

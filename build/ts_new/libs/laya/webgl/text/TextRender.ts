@@ -132,7 +132,8 @@ export class TextRender {
      */
     getNextChar(str: string): string |null{
         var len: number = str.length;
-        var start: number = this._curStrPos;
+		var start: number = this._curStrPos;
+		if(!str.substring) return null;	// 保护一下，避免下面 substring 报错
         if (start >= len)
             return null;
 
@@ -189,7 +190,7 @@ export class TextRender {
     }
 
     _fast_filltext(ctx: Context, data: string | WordText|null, htmlchars: HTMLChar[]|null, x: number, y: number, font: FontInfo, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine: number = 0): void {
-        if (data && data.length < 1) return;
+        if (data && !(data.length >= 1)) return;	// length有可能是 undefined
         if (htmlchars && htmlchars.length < 1) return;
         if (lineWidth < 0) lineWidth = 0;
         this.setFont(font);
@@ -214,7 +215,7 @@ export class TextRender {
         //拷贝到texture上,得到一个gltexture和uv
         var wt = (<WordText>data);
         var isWT = !htmlchars && (data instanceof WordText);
-        var str = (<string>data);
+        var str = data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
         var isHtmlChar= !!htmlchars;
         /**
          * sameTexData 
@@ -376,9 +377,8 @@ export class TextRender {
      * @return
      */
     hasFreedText(txts: any[]): boolean {
-        var sz: number = txts.length;
-        for (var i: number = 0; i < sz; i++) {
-            var pri: any = txts[i];
+        for(let i in txts){
+            var pri = txts[i];
             if (!pri) continue;
             var tex: TextTexture = ((<TextTexture>pri.tex));
             if (tex.__destroyed || tex.genID != pri.texgen) {

@@ -1,8 +1,6 @@
 package laya.webgl.canvas {
 	public class BlendMode {
 		public static var activeBlendFunction:Function;
-		public static var NAMES:Array;
-		public static var TOINT:*;
 		public static var NORMAL:String;
 		public static var ADD:String;
 		public static var MULTIPLY:String;
