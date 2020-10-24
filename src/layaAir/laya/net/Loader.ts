@@ -462,16 +462,40 @@ export class Loader extends EventDispatcher {
 					data.pics = [];
 				}
 				this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
-				return this._loadResourceFilter(Loader.IMAGE, toloadPics.pop() as string);
+				return this._loadResourceFilter(Loader.IMAGE, URL.formatURL(toloadPics.pop() as string));
 			} else {
 				if(!(data instanceof Texture2D))
 				{
-					let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
-					tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-					tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-					tex.loadImageSource(data, true);
-					tex._setCreateURL(data.src);
-					data = tex;
+					if (data instanceof ArrayBuffer) {
+						let url = this._http.url;
+						var ext: string = Utils.getFileExtension(url);
+						let format: TextureFormat;
+						switch (ext) {
+							case "ktx":
+								format = TextureFormat.ETC1RGB;
+								break;
+							case "pvr":
+								format = TextureFormat.PVRTCRGBA_4BPPV;
+								break;
+							default: {
+								console.error('unknown format', ext);
+								return;
+							}
+						}
+						let tex = new Texture2D(0, 0, format, false, false);
+						tex.wrapModeU = WarpMode.Clamp;
+						tex.wrapModeV = WarpMode.Clamp;
+						tex.setCompressData(data);
+						tex._setCreateURL(url);
+						data = tex;
+					} else {
+						let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+						tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
+						tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+						tex.loadImageSource(data, true);
+						tex._setCreateURL(data.src);
+						data = tex;
+					}
 				}
 				this._data.pics.push(data);
 				if (this._data.toLoads.length > 0) {
