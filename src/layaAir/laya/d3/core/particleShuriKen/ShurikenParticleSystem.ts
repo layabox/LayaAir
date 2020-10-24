@@ -106,6 +106,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 	/** @internal */
 	_bounds: Bounds = null;
+	/** @internal 重力影响偏移, 用于计算世界包围盒 */
+	_gravityOffset: Vector2 = new Vector2();
 
 	/** @internal */
 	_customBounds: Bounds = null;
@@ -203,6 +205,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private _indexBuffer: IndexBuffer3D = null;
 	/** @internal */
 	private _bufferState: BufferState = new BufferState();
+	/**@internal */
+	private _updateMask:number = 0;
 
 	/**@internal */
 	_currentTime: number = 0;
@@ -1381,10 +1385,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 						zDirectionSpeed.setValue(1, 1, 1);
 						fDirectionSpeed.setValue(1, 1, 1);
 					}
-					else {
-						zDirectionSpeed.setValue(0, 0, 0);
-						fDirectionSpeed.setValue(0, 0, 0);
-					}
 					zEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
 					fEmisionOffsetXYZ.setValue(box.x / 2, box.y / 2, box.z / 2);
 					break;
@@ -1406,6 +1406,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var meshMode: boolean = particleRender.renderMode == 4;
 		switch (particleRender.renderMode) {
 			case 0: // billboard
+			case 1:
+			case 2:
+			case 3:
 				meshSize = ShurikenParticleSystem.halfKSqrtOf2;// Math.sqrt(2) / 2.0;
 				break;
 			case 4: // mesh
@@ -1417,6 +1420,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		}
 
 		var endSizeOffset: Vector3 = ShurikenParticleSystem._tempVector36;
+		endSizeOffset.setValue(1, 1, 1);
 		if (this.sizeOverLifetime && this.sizeOverLifetime.enable) {
 			var gradientSize: GradientSize = this.sizeOverLifetime.size;
 			var maxSize: number = gradientSize.getMaxSizeInGradient(meshMode);
@@ -1424,7 +1428,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			endSizeOffset.setValue(maxSize, maxSize, maxSize);
 		}
 
-		Vector3.scale(endSizeOffset, meshSize * maxSizeScale, endSizeOffset);
+		var offsetSize: number = meshSize * maxSizeScale;
+		Vector3.scale(endSizeOffset, offsetSize, endSizeOffset);
 
 		// var distance: number = speedOrigan * time;
 		var speedZOffset: Vector3 = ShurikenParticleSystem._tempVector34;
@@ -1442,6 +1447,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		if (this.velocityOverLifetime && this.velocityOverLifetime.enable) {
 			var gradientVelocity: GradientVelocity = this.velocityOverLifetime.velocity;
 			var velocitySpeedOffset: Vector3 = ShurikenParticleSystem._tempVector37;
+			velocitySpeedOffset.setValue(0, 0, 0);
 			switch (gradientVelocity.type) {
 				case 0: // 常量模式
 					gradientVelocity.constant.cloneTo(velocitySpeedOffset);
@@ -1483,12 +1489,18 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		//gravity重力值
 		var gravity: number = this.gravityModifier;
-		var gravityOffset: number = 0.5 * ShurikenParticleSystem.g * gravity * time * time;
-		speedZOffset.y -= gravityOffset;
-		speedFOffset.y += gravityOffset;
+		if (gravity != 0) {
+			// 记录重力影响偏移
+			var gravityOffset: number = 0.5 * ShurikenParticleSystem.g * gravity * time * time;
 
-		speedZOffset.y = speedZOffset.y > 0 ? speedZOffset.y : 0;
-		speedFOffset.y = speedFOffset.y > 0 ? speedFOffset.y : 0;
+			var speedZOffsetY = speedZOffset.y - gravityOffset;
+			var speedFOffsetY = speedFOffset.y + gravityOffset;
+
+			speedZOffsetY = speedZOffsetY > 0 ? speedZOffsetY: 0;
+			speedFOffsetY = speedFOffsetY > 0 ? speedFOffsetY: 0;
+
+			this._gravityOffset.setValue(speedZOffset.y - speedZOffsetY, speedFOffsetY - speedFOffset.y);
+		}
 
 		// speedOrigan * directionSpeed * time + directionoffset + size * maxsizeScale
 		Vector3.add(speedZOffset, endSizeOffset, boundsMax);
@@ -1719,9 +1731,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 */
 	_initBufferDatas(): void {
 		if (this._vertexBuffer) {//修改了maxCount以及renderMode以及Mesh等需要清空
-			this._vertexBuffer.destroy();
-			this._indexBuffer.destroy();
 			var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
+			this._vertexBuffer.destroy();
+			this._indexBuffer.destroy();		
 			Resource._addMemory(-memorySize, -memorySize);
 			//TODO:some time use clone will cause this call twice(from 'maxParticleCount' and 'renderMode'),this should optimization rewrite with special clone fun.
 		}
@@ -2199,12 +2211,15 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 * @internal
 	 */
 	_prepareRender(state: RenderContext3D): boolean {
-		this._updateEmission();
-		//设备丢失时, setData  here
-		if (this._firstNewElement != this._firstFreeElement)
-			this.addNewParticlesToVertexBuffer();
-
-		this._drawCounter++;
+		if(this._updateMask!=Stat.loopCount){
+			this._updateMask = Stat.loopCount;
+			this._updateEmission();
+			//设备丢失时, setData  here
+			if (this._firstNewElement != this._firstFreeElement)
+				this.addNewParticlesToVertexBuffer();
+			this._drawCounter++;
+		}
+			
 		if (this._firstActiveElement != this._firstFreeElement)
 			return true;
 		else
