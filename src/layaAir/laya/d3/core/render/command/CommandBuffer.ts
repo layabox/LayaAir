@@ -250,6 +250,7 @@ export class CommandBuffer {
 	}
 	
 	/**
+	 * 渲染一个Mesh
 	 * @param mesh 
 	 * @param matrix 
 	 * @param material 
@@ -261,7 +262,10 @@ export class CommandBuffer {
 	}
 
 	/**
-	 * miner TODO:
+	 * 渲染一个Render
+	 * @param render 
+	 * @param material 
+	 * @param subShaderIndex 
 	 */
 	drawRender(render:BaseRender,material:Material,subShaderIndex:number){
 		this._commands.push(DrawRenderCMD.create(render,material,subShaderIndex,this));
