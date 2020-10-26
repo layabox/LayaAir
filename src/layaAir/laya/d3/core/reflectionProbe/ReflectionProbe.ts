@@ -7,6 +7,7 @@ import { Scene3D } from "../scene/Scene3D";
 import { Vector3 } from "../../math/Vector3";
 import { Loader } from "../../../net/Loader";
 import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
+import { Node } from "../../../display/Node";
 
 /**
  * 反射探针模式
@@ -208,19 +209,25 @@ export class ReflectionProbe extends Sprite3D {
 
 
 	/**
-	 * 
+	 * @inheritDoc
+	 * @override
 	 */
-	destroy(){
+	destroy(destroyChild: boolean = true): void {
+		if (this.destroyed)
+			return;
+		super.destroy(destroyChild);
 		this._reflectionTexture&&this._reflectionTexture._removeReference();
 		this._reflectionTexture = null;
 		this._bounds = null;
 	}
 
 	/**
-	 * @internal
+	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
-	_cloneTo(dest: ReflectionProbe): void {
+	_cloneTo(destObject: any, srcRoot:Node, dstRoot: Node): void {
+		var dest:ReflectionProbe = (<ReflectionProbe>destObject);
 		dest.bounds = this.bounds;
 		dest.boxProjection = this.boxProjection;
 		dest.importance = this.importance;
@@ -229,6 +236,7 @@ export class ReflectionProbe extends Sprite3D {
 		dest._offset = this._offset;
 		dest.intensity = this.intensity;
 		dest.reflectionHDRParams = this.reflectionHDRParams;
+		super._cloneTo(destObject, srcRoot, dstRoot);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
 	}
 
 }
