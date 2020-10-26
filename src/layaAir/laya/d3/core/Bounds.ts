@@ -215,6 +215,7 @@ export class Bounds implements IClone {
 	 * @returns -1为不相交 不为0的时候返回值为相交体积
 	 */
 	calculateBoundsintersection(bounds:Bounds):number{
+		debugger;
 		var ownMax:Vector3 = this.getMax();
 		var ownMin:Vector3 = this.getMin();
 		var calMax:Vector3 = bounds.getMax();
@@ -229,9 +230,9 @@ export class Bounds implements IClone {
 		tempV1.setValue((thisExtends.x+boundExtends.x)*2.0,
 			(thisExtends.y+boundExtends.y)*2.0,
 			(thisExtends.z+boundExtends.z)*2.0); 
-		if((tempV0.x)>=(tempV1.x)) return -1;
-		if((tempV0.y)>=(tempV1.y)) return -1;
-		if((tempV0.z)>=(tempV1.z)) return -1;
+		if((tempV0.x)>(tempV1.x)) return -1;
+		if((tempV0.y)>(tempV1.y)) return -1;
+		if((tempV0.z)>(tempV1.z)) return -1;
 		return (tempV1.x-tempV0.x)*(tempV1.y-tempV0.y)*(tempV1.z-tempV0.z);
 	}
 
