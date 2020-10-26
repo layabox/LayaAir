@@ -68,7 +68,7 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 
 
 
-#if defined(CALCULATE_SHADOWS)//shader���Զ���ĺ겻����ifdef ����ĳ�if defined
+#if defined(CALCULATE_SHADOWS)
 
 	TEXTURE2D_SHADOW(u_ShadowMap);
 
