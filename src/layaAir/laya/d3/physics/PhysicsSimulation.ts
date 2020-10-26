@@ -664,8 +664,8 @@ export class PhysicsSimulation {
 	 */
 	setHitsRayResultCallbackFlay(flag:number = 1){
 		var bt: any = ILaya3D.Physics3D._bullet;
-		bt.RayResultCallback_set_m_flags(this._btAllHitsRayResultCallback);
-		bt.RayResultCallback_set_m_flags(this._btClosestRayResultCallback);
+		bt.RayResultCallback_set_m_flags(this._btAllHitsRayResultCallback,flag);
+		bt.RayResultCallback_set_m_flags(this._btClosestRayResultCallback,flag);
 	}
 
 	/**
