@@ -1,11 +1,8 @@
 #!/usr/bin/env node
-
 // var td = require('./dist/lib/cli.js');
 // new td.CliApplication();
 const typedoc = require("typedoc");
-const app = new typedoc.CliApplication();
-
-app.bootstrap({
+const app = new typedoc.CliApplication({
     mode: "modules",
     target: "ES6",
     out:"doc",
@@ -20,5 +17,6 @@ app.bootstrap({
     exclude:"node",
     tsconfig:"../layaAir/tsconfig.json",
     includes:"../layaAir"
-})
+});
+
 

@@ -1,3 +1,3 @@
-
+rmdir /s/q doc
 node typedoc.js
-@pause
+gulp buildAPI
