@@ -211,7 +211,7 @@ export class ReflectionProbe extends Sprite3D {
 	 * 
 	 */
 	destroy(){
-		this._reflectionTexture._removeReference();
+		this._reflectionTexture&&this._reflectionTexture._removeReference();
 		this._reflectionTexture = null;
 		this._bounds = null;
 	}
@@ -221,7 +221,14 @@ export class ReflectionProbe extends Sprite3D {
 	 * @override
 	 */
 	_cloneTo(dest: ReflectionProbe): void {
-
+		dest.bounds = this.bounds;
+		dest.boxProjection = this.boxProjection;
+		dest.importance = this.importance;
+		//图片不克隆，需要重新烘培
+		dest._size = this._size;
+		dest._offset = this._offset;
+		dest.intensity = this.intensity;
+		dest.reflectionHDRParams = this.reflectionHDRParams;
 	}
 
 }
