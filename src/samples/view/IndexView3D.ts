@@ -107,7 +107,7 @@ import { PostProcess_Blur } from "../3d/LayaAir3D_PostProcess/PostProcess_Blur";
 import { CommandBuffer_Outline } from "../3d/LayaAir3D_Advance/CommandBuffer_Outline";
 import { CommandBuffer_BlurryGlass } from "../3d/LayaAir3D_Advance/CommandBuffer_BlurryGlass";
 import { HalfFloatTexture } from "../3d/LayaAir3D_Texture/HalfFloatTexture";
-import { ReflectionProbeDemo } from "../3d/LayaAir3D_Scene3D/ReflectionProbeDemo";
+import { ReflectionProbeDemo } from "../3d/LayaAir3D_Advance/ReflectionProbeDemo";
 
 export class IndexView3D extends IndexViewUI {
 
