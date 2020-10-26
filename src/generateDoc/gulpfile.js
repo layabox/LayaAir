@@ -118,8 +118,8 @@ var type = {
     "d3_Graphics":"3D",
     "d3_Input3d":"3D",
     "d3_Math":"Math",
-    "d3_Physicscannon":"Physics3D",
-    "d3_Physics":"Physics3D",
+    "d3_Physicscannon":"3D",
+    "d3_Physics":"3D",
     "d3_Resource":"3D",
     "d3_Shader":"3D",
     "d3_Shadowmap":"3D",
@@ -144,7 +144,7 @@ var type = {
     "Utils":"Core",
     "Webgl":"Core",
     "Const":"Core",
-    "System":"System"
+    "System":"Core"
 }
 const copyEnumAndJS =  async (cb)=>{
     //解析enums
