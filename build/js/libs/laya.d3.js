@@ -3623,8 +3623,8 @@
 	    }
 	    setHitsRayResultCallbackFlay(flag = 1) {
 	        var bt = ILaya3D.Physics3D._bullet;
-	        bt.RayResultCallback_set_m_flags(this._btAllHitsRayResultCallback);
-	        bt.RayResultCallback_set_m_flags(this._btClosestRayResultCallback);
+	        bt.RayResultCallback_set_m_flags(this._btAllHitsRayResultCallback, 1);
+	        bt.RayResultCallback_set_m_flags(this._btClosestRayResultCallback, 1);
 	    }
 	    _updatePhysicsTransformFromRender() {
 	        var elements = this._physicsUpdateList.elements;
