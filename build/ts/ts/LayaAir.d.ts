@@ -14594,7 +14594,7 @@ declare module laya.d3.physics {
 		 * 设置射线检测回调
 		 * @param HITSRAYRESULTCALLBACK_FLAG值 
 		 */
-		setHitsRayResultCallbackFlay(flag?:number):void;
+		setHitsRayResultCallbackFlag(flag?:number):void;
 
 		/**
 		 * 清除力。

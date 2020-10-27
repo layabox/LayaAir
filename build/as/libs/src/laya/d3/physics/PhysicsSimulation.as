@@ -139,7 +139,7 @@ package laya.d3.physics {
 		 * 设置射线检测回调
 		 * @param HITSRAYRESULTCALLBACK_FLAG值 
 		 */
-		public function setHitsRayResultCallbackFlay(flag:Number = null):void{}
+		public function setHitsRayResultCallbackFlag(flag:Number = null):void{}
 
 		/**
 		 * 清除力。

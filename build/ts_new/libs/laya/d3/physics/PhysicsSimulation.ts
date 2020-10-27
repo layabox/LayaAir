@@ -238,7 +238,7 @@ export class PhysicsSimulation {
 		this._btAllHitsRayResultCallback = bt.AllHitsRayResultCallback_create(this._btVector3Zero, this._btVector3Zero);
 		this._btClosestConvexResultCallback = bt.ClosestConvexResultCallback_create(this._btVector3Zero, this._btVector3Zero);
 		this._btAllConvexResultCallback = bt.AllConvexResultCallback_create(this._btVector3Zero, this._btVector3Zero);//TODO:是否优化C++
-		this.setHitsRayResultCallbackFlay();
+		this.setHitsRayResultCallbackFlag();
 		bt.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._btDispatcher);//注册算法
 	}
 
@@ -662,10 +662,10 @@ export class PhysicsSimulation {
 	 * 设置射线检测回调
 	 * @param HITSRAYRESULTCALLBACK_FLAG值
 	 */
-	setHitsRayResultCallbackFlay(flag:number = 1){
+	setHitsRayResultCallbackFlag(flag:number = 1){
 		var bt: any = ILaya3D.Physics3D._bullet;
-		bt.RayResultCallback_set_m_flags(this._btAllHitsRayResultCallback,1);
-		bt.RayResultCallback_set_m_flags(this._btClosestRayResultCallback,1);
+		bt.RayResultCallback_set_m_flags(this._btAllHitsRayResultCallback,flag);
+		bt.RayResultCallback_set_m_flags(this._btClosestRayResultCallback,flag);
 	}
 
 	/**

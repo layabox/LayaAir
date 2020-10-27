@@ -598,9 +598,6 @@ window.tbMiniGame = function (exports, Laya) {
 	        Laya.Input['inputContainer'].style.position = "absolute";
 	        Laya.Input['inputContainer'].style.zIndex = 1E5;
 	        Laya.Browser.container.appendChild(Laya.Input['inputContainer']);
-	        Laya.Laya.stage.on("resize", null, MiniInput._onStageResize);
-	        TBMiniAdapter.window.my.onWindowResize && TBMiniAdapter.window.my.onWindowResize(function (res) {
-	        });
 	        Laya.SoundManager._soundClass = MiniSound;
 	        Laya.SoundManager._musicClass = MiniSound;
 	        var model = TBMiniAdapter.systemInfo.model;
@@ -740,7 +737,7 @@ window.tbMiniGame = function (exports, Laya) {
 	                MiniLoader.onDownLoadCallBack(url, thisLoader, 0);
 	            }
 	            else {
-	                MiniFileMgr.downOtherFiles(encodeURI(tempurl), Laya.Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl, thisLoader]), tempurl, TBMiniAdapter.autoCacheFile);
+	                MiniFileMgr.downOtherFiles(TBMiniAdapter.safeEncodeURI(tempurl), Laya.Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl, thisLoader]), tempurl, TBMiniAdapter.autoCacheFile);
 	            }
 	        }
 	    }
@@ -819,7 +816,7 @@ window.tbMiniGame = function (exports, Laya) {
 	                        MiniFileMgr.readFile(url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
 	                else {
-	                    MiniFileMgr.downFiles(encodeURI(tempurl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, TBMiniAdapter.AutoCacheDownFile);
+	                    MiniFileMgr.downFiles(TBMiniAdapter.safeEncodeURI(tempurl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, TBMiniAdapter.AutoCacheDownFile);
 	                }
 	            }
 	        }
@@ -867,7 +864,7 @@ window.tbMiniGame = function (exports, Laya) {
 	        }
 	        else
 	            fileNativeUrl = TBMiniAdapter.baseDir + sourceUrl;
-	        thisLoader._loadImage(encodeURI(fileNativeUrl), false);
+	        thisLoader._loadImage(TBMiniAdapter.safeEncodeURI(fileNativeUrl), false);
 	    }
 	}
 
@@ -950,6 +947,7 @@ window.tbMiniGame = function (exports, Laya) {
 	        };
 	        TBMiniAdapter.window.CanvasRenderingContext2D = function () {
 	        };
+	        Laya.HttpRequest._urlEncode = TBMiniAdapter.safeEncodeURI;
 	        TBMiniAdapter._preCreateElement = Laya.Browser.createElement;
 	        TBMiniAdapter.window.CanvasRenderingContext2D.prototype = TBMiniAdapter._preCreateElement("canvas").getContext('2d').__proto__;
 	        TBMiniAdapter.window.document.body.appendChild = function () {
@@ -1136,6 +1134,26 @@ window.tbMiniGame = function (exports, Laya) {
 	        return func;
 	    }
 	}
+	TBMiniAdapter.IGNORE = new RegExp("[-_.!~*'();/?:@&=+$,#%]|[0-9|A-Z|a-z]");
+	TBMiniAdapter.safeEncodeURI = function (str) {
+	    var strTemp = "";
+	    var length = str.length;
+	    for (var i = 0; i < length; i++) {
+	        var word = str[i];
+	        if (TBMiniAdapter.IGNORE.test(word)) {
+	            strTemp += word;
+	        }
+	        else {
+	            try {
+	                strTemp += encodeURI(word);
+	            }
+	            catch (e) {
+	                console.log("errorInfo", ">>>" + word);
+	            }
+	        }
+	    }
+	    return strTemp;
+	};
 	TBMiniAdapter._inited = false;
 	TBMiniAdapter.autoCacheFile = true;
 	TBMiniAdapter.minClearSize = (5 * 1024 * 1024);

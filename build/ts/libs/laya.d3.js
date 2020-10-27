@@ -3286,7 +3286,7 @@
 	        this._btAllHitsRayResultCallback = bt.AllHitsRayResultCallback_create(this._btVector3Zero, this._btVector3Zero);
 	        this._btClosestConvexResultCallback = bt.ClosestConvexResultCallback_create(this._btVector3Zero, this._btVector3Zero);
 	        this._btAllConvexResultCallback = bt.AllConvexResultCallback_create(this._btVector3Zero, this._btVector3Zero);
-	        this.setHitsRayResultCallbackFlay();
+	        this.setHitsRayResultCallbackFlag();
 	        bt.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._btDispatcher);
 	    }
 	    static __init__() {
@@ -3621,10 +3621,10 @@
 	        ILaya3D.Physics3D._bullet.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, constraint._btConstraint);
 	        delete this._currentConstraint[constraint.id];
 	    }
-	    setHitsRayResultCallbackFlay(flag = 1) {
+	    setHitsRayResultCallbackFlag(flag = 1) {
 	        var bt = ILaya3D.Physics3D._bullet;
-	        bt.RayResultCallback_set_m_flags(this._btAllHitsRayResultCallback, 1);
-	        bt.RayResultCallback_set_m_flags(this._btClosestRayResultCallback, 1);
+	        bt.RayResultCallback_set_m_flags(this._btAllHitsRayResultCallback, flag);
+	        bt.RayResultCallback_set_m_flags(this._btClosestRayResultCallback, flag);
 	    }
 	    _updatePhysicsTransformFromRender() {
 	        var elements = this._physicsUpdateList.elements;
