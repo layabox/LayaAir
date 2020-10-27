@@ -1,7 +1,8 @@
-import { ILaya } from "ILaya";
 import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage";
 import { TiledMap } from "laya/map/TiledMap";
 import { Rectangle } from "laya/maths/Rectangle";
+import { Resource } from "laya/resource/Resource";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
 export class TiledMap_PerspectiveWall {
@@ -10,8 +11,8 @@ export class TiledMap_PerspectiveWall {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 		//			Laya.init(700, 500, WebGL);
-		Laya.stage.alignV = ILaya.Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = ILaya.Stage.ALIGN_CENTER;
+		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+		Laya.stage.alignH = Stage.ALIGN_CENTER;
 
 		Laya.stage.bgColor = "#232628";
 
@@ -32,7 +33,7 @@ export class TiledMap_PerspectiveWall {
 		if (this.tiledMap) {
 			this.tiledMap.mapSprite().removeChildren();
 			this.tiledMap.destroy();
-			ILaya.Resource.destroyUnusedResources();
+			Resource.destroyUnusedResources();
 		}
 	}
 }

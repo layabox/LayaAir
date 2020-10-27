@@ -1,4 +1,4 @@
-import { ILaya } from "ILaya";
+
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
@@ -11,6 +11,7 @@ import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
 import { Texture2D } from 'laya/resource/Texture2D';
+import { Browser } from "laya/utils/Browser";
 
 export class Main {
     private static _box3D: Sprite;
@@ -48,7 +49,7 @@ export class Main {
         Stat.show();
         //这里改成true就会从外部加载资源
         this._isReadNetWorkRes = (window as any).isReadNetWorkRes || false;
-        if (this._isReadNetWorkRes || ILaya.Browser.onVVMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onMiniGame) {
+        if (this._isReadNetWorkRes || Browser.onVVMiniGame || Browser.onBDMiniGame || Browser.onMiniGame) {
             URL.rootPath = URL.basePath ="https://layaair2.ldc2.layabox.com/demo2/h5/";/*"http://10.10.20.55:8000/";*///"https://star.layabox.com/Laya1.0.0/";//"http://10.10.20.55:8000/";"https://layaair.ldc.layabox.com/demo2/h5/";
         }
         //加载引擎需要的资源
