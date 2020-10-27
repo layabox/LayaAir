@@ -101,9 +101,13 @@ function createJS(){
      var excludeClassList = {};
      excludeClassList["Core"] = [];
     `;
+    let topObj = {};
+    topObj.categories = Object.keys(tmpObj);
+    topObj.classList = tmpObj;
     let jsFile = fs.readFileSync("source.js","utf8");
     jsFile = topstr + jsFile;
     fs.writeFileSync(path.join(outDir,"script.js"),jsFile,"utf8");
+    fs.writeFileSync(path.join(outDir,"config.json"),JSON.stringify(topObj),"utf8");
 }
 var type = {
     "TopLevel":"TopLevel",

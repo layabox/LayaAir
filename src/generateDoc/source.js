@@ -68,6 +68,10 @@ function navToClass(classFullName, memberName, flags) {
         }
         else if(classFullName.indexOf("classes.") !== -1){
             classFullName = classFullName.replace(/classes\./, "");
+        }else if (classFullName.indexOf("enums.") !== -1) {
+            var nameArr = classFullName.split("_");
+            nameArr[nameArr.length - 2] = (nameArr[nameArr.length - 1]).replace(".","");
+            classFullName = nameArr.join("_");
         }
         classPath = baseUrl.replace(/index.html/, "")  + classFullName + ".html";
         if(memberName && memberName != ""){
