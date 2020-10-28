@@ -3,7 +3,6 @@ const path = require('path');
 const starturl = "./doc/";
 const gulp = require("gulp");
 const outDir = "./out";
-const del = require("del");
 const htmlout = path.join(outDir,"classes")
 function loaddir(dir){
     // console.log(dir)
@@ -170,9 +169,8 @@ function delDir(){
     })
 }
 
-const delAndCreate = async (cb)=>{
+const createDir = async (cb)=>{
     try{
-        await delDir();
         fs.mkdirSync(outDir);
     }catch(err){
         console.log(err)
@@ -180,4 +178,4 @@ const delAndCreate = async (cb)=>{
     cb();
 }
 
-exports.buildAPI = gulp.series(delAndCreate,copyClass,copyEnumAndJS);
+exports.buildAPI = gulp.series(createDir,copyClass,copyEnumAndJS);
