@@ -16,21 +16,23 @@ export class TextureGPUCompression {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 
+		var path = "";
 		if (Browser.onAndroid)
-			URL.basePath = "res/Android/";
+			path += "res/Android/";
 		else if (Browser.onIOS)
-			URL.basePath = "res/IOS/";
+			path += "res/IOS/";
 		else
-			URL.basePath = "res/Conventional/";
+			path += "res/Conventional/";
 
-		Scene3D.load("scene.ls", Handler.create(this, function (scene: Scene3D): void {
-			Laya.stage.addChild(scene);
-			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
+
+		Scene3D.load(path +"scene.ls", Handler.create(this, function (scene: Scene3D): void {
+			(<Scene3D>Laya.stage.addChild(scene));
+			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
 			camera.addComponent(CameraMoveScript);
+			console.log(camera.clearColor);
 		}));
-
 	}
-
 }
+
 
 
