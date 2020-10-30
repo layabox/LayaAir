@@ -175,7 +175,9 @@ export class Layout {
                 curLine.h = lineHeight;
                 continue;
             } else if (oneLayout._isChar()) {
-                htmlWord = (<HTMLChar>oneLayout);
+                htmlWord = <HTMLChar>oneLayout;
+                w = htmlWord.width + htmlWord.style.letterSpacing;	// 下面要用到w，所以先计算（Bug:英文的宽度按照前面的汉字的宽度计算导致错误换行）
+                h = htmlWord.height;
                 if (!htmlWord.isWord) //如果是完整单词
                 {
                     if (lines.length > 0 && (x + w) > width && curLine.wordStartIndex > 0) //如果完整单词超界，需要单词开始折到下一行
@@ -194,9 +196,6 @@ export class Layout {
                     curLine.wordStartIndex = curLine.elements.length;
                 }
 
-                //w = htmlWord.width + letterSpacing;
-                w = htmlWord.width + htmlWord.style.letterSpacing;
-                h = htmlWord.height;
                 nextNewline = false;
 
                 newLine = newLine || ((x + w) > width);
