@@ -169,10 +169,10 @@ export class Loader extends EventDispatcher {
 			ILaya.WorkerLoader.enableWorkerLoader();
 
 		var cacheRes: any;
-		if (type == Loader.IMAGE)
-			cacheRes = Loader.textureMap[url];
-		else
-			cacheRes = Loader.loadedMap[url];
+		// if (type == Loader.IMAGE)
+		// 	cacheRes = Loader.textureMap[url];
+		// else
+		cacheRes = Loader.loadedMap[url];
 		if (!ignoreCache && cacheRes) {
 			this._data = cacheRes;
 			this.event(Event.PROGRESS, 1);

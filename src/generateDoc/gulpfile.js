@@ -177,8 +177,6 @@ function createJS(){
     fs.writeFileSync(path.join(outDir,"script.js"),jsFile,"utf8");
     fs.writeFileSync(path.join(outDir,"config.json"),JSON.stringify(topObj),"utf8");
 }
-createJS();
-
 
 const copyEnumAndJS =  async (cb)=>{
     //解析enums
@@ -187,17 +185,6 @@ const copyEnumAndJS =  async (cb)=>{
     checkdir(dirs,lasturl);
     createJS();
     cb();
-}
-
-function delDir(){
-    return new Promise(r=>{
-        del(outDir,{force:true}).then(paths=>{
-            r();
-        }).catch(err=>{
-            console.log(err);
-            r();
-        })
-    })
 }
 
 const createDir = async (cb)=>{
