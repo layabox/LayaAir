@@ -180,7 +180,6 @@ export class Layout {
                 h = htmlWord.height;
                 if (!htmlWord.isWord) //如果是完整单词
                 {
-                    w = htmlWord.width + htmlWord.style.letterSpacing;
                     if (lines.length > 0 && (x + w) > width && curLine.wordStartIndex > 0) //如果完整单词超界，需要单词开始折到下一行
                     {
                         var tLineWord: number = 0;
