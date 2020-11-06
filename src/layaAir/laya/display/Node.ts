@@ -379,7 +379,7 @@ export class Node extends EventDispatcher {
                 var arr: any[] = childs;
                 this._children = Node.ARRAY_EMPTY;
             } else {
-                arr = childs.splice(beginIndex, endIndex - beginIndex);
+                arr = childs.splice(beginIndex, endIndex - beginIndex + 1);
             }
             for (var i: number = 0, n: number = arr.length; i < n; i++) {
                 arr[i]._setParent(null);
