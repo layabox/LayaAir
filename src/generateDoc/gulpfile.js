@@ -64,7 +64,7 @@ function loaddir(dir){
     }
 }
 
-async function checkdir(dirs,lasturl){
+async function copyHtml(dirs,lasturl,nameHead){
     // console.log(dirs);
     if (dirs) {
         // if (dirs.indexOf("tsconfig.json")==-1) {
@@ -73,10 +73,12 @@ async function checkdir(dirs,lasturl){
             let from = path.join(lasturl,url);
             let urlArr = url.split("_");
             urlArr[urlArr.length - 2] = urlArr[urlArr.length -1 ].split(".")[1];
-            url = urlArr.join("_")
-            let to = path.join(htmlout,"enums." + url);
+            let  newUrl = nameHead + (urlArr.join("_"));
+            let to = path.join(htmlout, newUrl);
+            let fileStr = fs.readFileSync(from,"utf8");
+            fileStr = fileStr.replace(new RegExp(`${url}`,"g"),newUrl);
             try{
-                fs.copyFileSync(from,to);
+                fs.writeFileSync(to,fileStr,"utf8");
             }catch(err){
                 console.log(err);
             }
@@ -130,8 +132,19 @@ function createJS(){
                     fulltype = getFullType("d3_" + urlArr[3]);
                 }
                 typeName = fulltype[0];
-                package = "Enum";
-            }else{
+                package = "Enums";
+            }else if(urlArr.indexOf("interfaces.") !== -1){
+                if (urlArr.indexOf("d3") == -1) {
+                    startIndex = 1;
+                    fulltype = getFullType(urlArr[2]);
+                }else{
+                    startIndex = 1;
+                    fulltype = getFullType("d3_" + urlArr[3]);
+                }
+                typeName = fulltype[0];
+                package = "Interfaces";
+            }
+            else{
                 if (urlArr.indexOf("d3") == -1) {
                     startIndex = 1;
                     fulltype = getFullType(urlArr[2]);
@@ -172,9 +185,6 @@ function createJS(){
     let topObj = {};
     topObj.categories = Object.keys(tmpObj);
     topObj.classList = tmpObj;
-    let jsFile = fs.readFileSync("source.js","utf8");
-    jsFile = topstr + jsFile;
-    fs.writeFileSync(path.join(outDir,"script.js"),jsFile,"utf8");
     fs.writeFileSync(path.join(outDir,"config.json"),JSON.stringify(topObj),"utf8");
 }
 
@@ -182,7 +192,16 @@ const copyEnumAndJS =  async (cb)=>{
     //解析enums
     let lasturl = path.join(starturl,"enums");
     let dirs = loaddir(lasturl);
-    checkdir(dirs,lasturl);
+    copyHtml(dirs,lasturl,"enums.");
+
+    lasturl = path.join(starturl,"interfaces");
+    dirs = loaddir(lasturl);
+    copyHtml(dirs,lasturl,"interfaces.");
+
+    lasturl = path.join(starturl,"classes");
+    dirs = loaddir(lasturl);
+    copyHtml(dirs,lasturl,"");
+
     createJS();
     cb();
 }
@@ -190,10 +209,11 @@ const copyEnumAndJS =  async (cb)=>{
 const createDir = async (cb)=>{
     try{
         fs.mkdirSync(outDir);
+        fs.mkdirSync(path.join(outDir,"classes"));
     }catch(err){
         console.log(err)
     }
     cb();
 }
 
-exports.buildAPI = gulp.series(createDir,copyClass,copyEnumAndJS);
+exports.buildAPI = gulp.series(createDir,copyEnumAndJS);
