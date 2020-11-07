@@ -1,6 +1,6 @@
 import { Matrix } from "../../maths/Matrix";
 
-
+/**@internal */
 export class Transform {
 
 	skX: number = 0;		// 旋转？

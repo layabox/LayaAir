@@ -2629,7 +2629,7 @@ export class Context {
 }
 
 
-
+/** @internal */
 class ContextParams {
 	static DEFAULT: ContextParams;
 

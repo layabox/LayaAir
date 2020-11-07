@@ -20,6 +20,9 @@ export class HtmlVideo extends Bitmap {
         this.createDomElement();
     }
 
+    /**
+     * 创建一个 HtmlVideo 实例
+     */
     static create: Function = function (): HtmlVideo {
         return new HtmlVideo();
     }
@@ -38,6 +41,11 @@ export class HtmlVideo extends Bitmap {
         });
     }
 
+    /**
+     * 设置播放源路径
+     * @param url 播放源路径
+     * @param extension 播放源类型(1: MP4, 2: OGG)
+     */
     setSource(url: string, extension: number): void {
         while (this.video.childElementCount)
             this.video.firstChild.remove();
@@ -55,10 +63,14 @@ export class HtmlVideo extends Bitmap {
         this.video.appendChild(sourceElement);
     }
 
+    /**
+     * 获取播放源
+     */
     getVideo(): any {
         return this.video;
     }
     /**
+     * 获取播放源
      * @internal
      * @override
      */
@@ -68,6 +80,7 @@ export class HtmlVideo extends Bitmap {
     }
 
     /**
+     * 销毁
      * @override
      */
     destroy(): void {

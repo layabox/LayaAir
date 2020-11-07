@@ -423,9 +423,7 @@ export class GraphicAnimation extends FrameAnimation {
 }
 
 
-
-
-
+/**@internal */
 class GraphicNode {
     skin: string;
     transform: Matrix;

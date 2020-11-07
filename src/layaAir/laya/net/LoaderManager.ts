@@ -580,6 +580,7 @@ export class LoaderManager extends EventDispatcher {
     }
 }
 
+/** @internal */
 class ResInfo extends EventDispatcher {
     url: string;
     type: string|null;
