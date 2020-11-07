@@ -30,7 +30,7 @@ var type = {
     "maths":["2D","Math"],
     "physics":["2D","Physics"],
     "display":["Core","display"],
-    "effect":["2D","Effect"],
+    "effect":["Exclude",""],
     "events":["Core","Event"],
     "filters":["2D","Filter"],
     "html":["2D","HTMLText"],
@@ -41,7 +41,7 @@ var type = {
     "renders":["Core","Renders"],
     "resource":["Core","Resource"],
     "utils":["Core","Utils"],
-    "webgl":["Core","Webgl"],
+    "webgl":["Exclude",""],
     "const":["Core","Const"],
     "system":["Core","System"]
 }
@@ -173,7 +173,9 @@ function createJS(){
             }
             tmpObj[typeName][package].push(fullName);
         }else{
-            console.log("未知包体：",url);
+            if (!typeName == "Exclude") {
+                console.log("未知包体：",url);
+            }
         }
     }
     let topstr = `
