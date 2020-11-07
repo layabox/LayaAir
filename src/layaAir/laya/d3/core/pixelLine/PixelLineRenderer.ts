@@ -18,6 +18,10 @@ export class PixelLineRenderer extends BaseRender {
 	/** @internal */
 	protected _projectionViewWorldMatrix: Matrix4x4;
 
+	/**
+	 * 创建一个PixelLineRenderer实例
+	 * @param owner 线渲染精灵
+	 */
 	constructor(owner: PixelLineSprite3D) {
 		super(owner);
 		this._projectionViewWorldMatrix = new Matrix4x4();

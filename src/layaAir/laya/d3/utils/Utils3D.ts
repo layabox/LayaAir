@@ -374,7 +374,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * 通过矩阵转换一个三维向量数组到另外一个归一化的三维向量数组。
+	 * 通过矩阵转换一个三维向量数组到另外一个三维向量数组。
 	 * @param	source 源三维向量所在数组。
 	 * @param	sourceOffset 源三维向量数组偏移。
 	 * @param	transform  变换矩阵。
@@ -393,6 +393,14 @@ export class Utils3D {
 		result[resultOffset + 2] = (coordinateX * transformElem[2]) + (coordinateY * transformElem[6]) + (coordinateZ * transformElem[10]) + transformElem[14] / w;
 	}
 
+	/**
+	 * 通过矩阵转换一个三维向量数组到另外一个归一化的三维向量数组。
+	 * @param source 源三维向量所在数组。
+	 * @param sourceOffset 源三维向量数组偏移。
+	 * @param transform 变换矩阵。
+	 * @param result 输出三维向量所在数组。
+	 * @param resultOffset 输出三维向量数组偏移。
+	 */
 	static transformVector3ArrayToVector3ArrayNormal(source: Float32Array, sourceOffset: number, transform: Matrix4x4, result: Float32Array, resultOffset: number): void {
 		var coordinateX: number = source[sourceOffset + 0];
 		var coordinateY: number = source[sourceOffset + 1];
@@ -485,6 +493,7 @@ export class Utils3D {
 		e[outOffset + 15] = (l41 * r14) + (l42 * r24) + (l43 * r34) + (l44 * r44);
 	}
 
+	/**@internal */
 	private static arcTanAngle(x: number, y: number): number {
 
 		if (x == 0) {
@@ -502,6 +511,7 @@ export class Utils3D {
 		return 0;
 	}
 
+	/**@internal */
 	private static angleTo(from: Vector3, location: Vector3, angle: Vector3): void {
 
 		Vector3.subtract(location, from, Quaternion.TEMPVector30);
@@ -511,6 +521,12 @@ export class Utils3D {
 		angle.y = Utils3D.arcTanAngle(-Quaternion.TEMPVector30.z, -Quaternion.TEMPVector30.x);
 	}
 
+	/**
+	 * 四元数旋转矩阵
+	 * @param source 源数据
+	 * @param rotation 旋转四元数Array
+	 * @param out 输出数据
+	 */
 	static transformQuat(source: Vector3, rotation: Float32Array, out: Vector3): void {
 		var re: Float32Array = rotation;
 
@@ -523,6 +539,12 @@ export class Utils3D {
 		out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
 	}
 
+	/**
+	 * 修改四元数权重
+	 * @param f 元数据
+	 * @param weight 权重
+	 * @param e 目标数据
+	 */
 	static quaternionWeight(f: Quaternion, weight: number, e: Quaternion): void {
 		e.x = f.x * weight;
 		e.y = f.y * weight;
@@ -565,7 +587,7 @@ export class Utils3D {
 	}
 
 
-
+	/**@internal */
 	static matrix4x4MultiplyFFF(a: Float32Array, b: Float32Array, e: Float32Array): void {
 
 		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
@@ -593,10 +615,12 @@ export class Utils3D {
 		}
 	}
 
+	/**@internal */
 	static matrix4x4MultiplyFFFForNative(a: Float32Array, b: Float32Array, e: Float32Array): void {
 		(<any>LayaGL.instance).matrix4x4Multiply(a, b, e);
 	}
 
+	/**@internal */
 	static matrix4x4MultiplyMFM(left: Matrix4x4, right: Float32Array, out: Matrix4x4): void {
 		Utils3D.matrix4x4MultiplyFFF(left.elements, right, out.elements);
 	}

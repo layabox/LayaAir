@@ -24,11 +24,18 @@ import { SpotLight } from "../core/light/SpotLight";
 import { BoundFrustum } from "../math/BoundFrustum";
 
 export enum ShadowLightType{
+	/**直射光 */
 	DirectionLight,
+	/**聚光 */
 	SpotLight,
+	/**点光 */
 	PointLight
 }
 
+/**
+ * @internal
+ * <code>ShadowCasterPass</code> 类用于实现阴影渲染管线
+ */
 export class ShadowCasterPass {
 	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
@@ -100,8 +107,16 @@ export class ShadowCasterPass {
 	}
 
 	/**
-     * @internal
-     */
+	 * 设置阴影级联数据模式
+	 * @internal
+	 * @param context 渲染上下文
+	 * @param shaderValues 渲染数据
+	 * @param shadowSliceData 分级数据
+	 * @param LightParam 灯光属性
+	 * @param shadowparams 阴影属性
+	 * @param shadowBias 阴影偏移
+	 * @param lightType 灯光类型
+	 */
 	private _setupShadowCasterShaderValues(context: RenderContext3D, shaderValues: ShaderData, shadowSliceData: any, LightParam: Vector3,shadowparams:Vector4, shadowBias: Vector4,lightType:LightType): void {
 		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
 		switch(lightType)
@@ -128,7 +143,9 @@ export class ShadowCasterPass {
 	
 
 	/**
+	 *设置直射光接受阴影的模式
 	 * @internal
+	 * @param shaderValues 渲染数据
 	 */
 	private _setupShadowReceiverShaderValues(shaderValues: ShaderData): void {
 		var light: DirectionLight = <DirectionLight>this._light;
@@ -158,7 +175,9 @@ export class ShadowCasterPass {
 	}
 
 	/**
-	 * @internal 
+	 * 设置聚光接受阴影的模式
+	 * @internal
+	 * @param shaderValues 渲染数据
 	 */
 	private _setupSpotShadowReceiverShaderValues(shaderValues:ShaderData):void{
 		var spotLight:SpotLight = <SpotLight>this._light;
@@ -184,7 +203,11 @@ export class ShadowCasterPass {
 
 
 	/**
+	 * 更新阴影数据
 	 * @internal
+	 * @param camera 渲染相机
+	 * @param light 灯光
+	 * @param lightType 灯光类型
 	 */
 	update(camera: Camera, light: LightSprite,lightType:ShadowLightType): void {
 		switch(lightType){
@@ -264,7 +287,11 @@ export class ShadowCasterPass {
 	}
 
 	/**
-	 * @interal
+	 * 渲染阴影帧缓存
+	 * @internal
+	 * @param context 渲染上下文
+	 * @param scene 3DScene场景
+	 * @param lightType 阴影类型
 	 */
 	render(context: RenderContext3D, scene: Scene3D,lightType:ShadowLightType): void {
 		switch(lightType){
@@ -345,6 +372,7 @@ export class ShadowCasterPass {
 	}
 
 	/**
+	 * 清理阴影数据
 	 * @internal
 	 */
 	cleanUp(): void {

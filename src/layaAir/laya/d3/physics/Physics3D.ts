@@ -13,6 +13,10 @@ import { CylinderColliderShape } from "./shape/CylinderColliderShape";
 import { CharacterController } from "./CharacterController";
 import { Rigidbody3D } from "./Rigidbody3D";
 
+/**
+ * Laya物理类
+ * internal
+ */
 export class Physics3D {
     /**@internal */
     static _bullet: any = null;
@@ -37,6 +41,7 @@ export class Physics3D {
         }   
     }
 
+    /**@internal */
     static __cannoninit__(){
         this._cannon = window.CANNON;
         if(!this._cannon)

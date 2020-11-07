@@ -1,4 +1,6 @@
-
+/**
+ *Shader宏结构
+ */
 export class ShaderDefine {
 	/**@internal */
 	_index: number;

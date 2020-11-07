@@ -55,15 +55,16 @@ export enum CameraEventFlags {
 	//AfterDepthTexture,
 	//BeforeDepthNormalsTexture,
 	//AfterDepthNormalTexture,
-	BeforeForwardOpaque = 0,//在渲染非透明物体之前
-	//AfterForwardOpaque = 1,
-	BeforeSkyBox = 2,//在渲染天空盒之前
-	//AfterSkyBox = 3,
-	BeforeTransparent = 4,//在渲染透明物体之前
-	//AfterTransparent = 5,
-	BeforeImageEffect = 6,//在后期处理之前
-	//AfterImageEffect = 7,
-	AfterEveryThing = 8,//所有渲染之后
+	/**在渲染非透明物体之前。*/
+	BeforeForwardOpaque = 0,
+	/**在渲染天空盒之前。*/
+	BeforeSkyBox = 2,
+	/**在渲染透明物体之前。*/
+	BeforeTransparent = 4,
+	/**在后期处理之前。*/
+	BeforeImageEffect = 6,
+	/**所有渲染之后。*/
+	AfterEveryThing = 8,
 }
 
 /**

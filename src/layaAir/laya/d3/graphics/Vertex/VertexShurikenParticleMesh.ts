@@ -6,9 +6,9 @@ import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
 
 /**
-	/**
-	 * <code>VertexShurikenParticle</code> 类用于创建粒子顶点结构。
-	 */
+ * @internal
+ * <code>VertexShurikenParticle</code> 类用于创建粒子顶点结构。
+ */
 export class VertexShurikenParticleMesh extends VertexShuriKenParticle {
 	/**@internal */
 	private static _vertexDeclaration: VertexDeclaration;

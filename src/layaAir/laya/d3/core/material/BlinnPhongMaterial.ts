@@ -23,24 +23,41 @@ export class BlinnPhongMaterial extends Material {
 	/**渲染状态_透明混合。*/
 	static RENDERMODE_TRANSPARENT: number = 2;
 
+	/**@internal */
 	static SHADERDEFINE_DIFFUSEMAP: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_NORMALMAP: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_SPECULARMAP: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
-
+	/**@internal */
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_DiffuseTexture");
+	/**@internal */
 	static NORMALTEXTURE: number = Shader3D.propertyNameToID("u_NormalTexture");
+	/**@internal */
 	static SPECULARTEXTURE: number = Shader3D.propertyNameToID("u_SpecularTexture");
+	/**@internal */
 	static ALBEDOCOLOR: number = Shader3D.propertyNameToID("u_DiffuseColor");
+	/**@internal */
 	static MATERIALSPECULAR: number = Shader3D.propertyNameToID("u_MaterialSpecular");
+	/**@internal */
 	static SHININESS: number = Shader3D.propertyNameToID("u_Shininess");
+	/**@internal */
 	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+	/**@internal */
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
+	/**@internal */
 	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
+	/**@internal */
 	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
+	/**@internal */
 	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
+	/**@internal */
 	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
+	/**@internal */
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/** 默认材质，禁止修改*/
@@ -280,6 +297,7 @@ export class BlinnPhongMaterial extends Material {
 
 	/**
 	 * 设置渲染模式。
+	 * @param 渲染模式
 	 */
 	set renderMode(value: number) {
 		switch (value) {

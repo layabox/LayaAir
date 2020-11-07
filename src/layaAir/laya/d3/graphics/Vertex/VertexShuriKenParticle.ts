@@ -1,7 +1,7 @@
 
 
 /**
- * ...
+ * @internal
  * @author ...
  */
 export class VertexShuriKenParticle {

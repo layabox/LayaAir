@@ -1,6 +1,9 @@
 import { Rigidbody3D } from "./Rigidbody3D";
 import { PhysicsComponent } from "./PhysicsComponent";
 
+/**
+ * @internal
+ */
 export class BulletInteractive {
     /**@internal */
     static _interactive: object = {

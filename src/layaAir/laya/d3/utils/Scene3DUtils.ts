@@ -20,9 +20,16 @@ import { ReflectionProbe } from "../core/reflectionProbe/ReflectionProbe";
 
 
 /**
+ * @internal
  * <code>Utils3D</code> 类用于创建3D工具。
  */
 export class Scene3DUtils {
+	/**
+	 * @internal
+	 * @param nodeData 创建数据
+	 * @param spriteMap 精灵集合
+	 * @param outBatchSprites 渲染精灵集合
+	 */
 	private static _createSprite3DInstance(nodeData: any, spriteMap: any, outBatchSprites: RenderableSprite3D[]): Node {
 		var node: Node;
 		switch (nodeData.type) {
@@ -79,6 +86,12 @@ export class Scene3DUtils {
 		return node;
 	}
 
+	/**
+	 * @internal
+	 * @param nodeData 
+	 * @param spriteMap 
+	 * @param interactMap 
+	 */
 	private static _createComponentInstance(nodeData: any, spriteMap: any,interactMap:any): void {
 		var node: Node = spriteMap[nodeData.instanceID];
 		node._parse(nodeData.props, spriteMap);

@@ -6,12 +6,19 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { ILaya } from "../../../ILaya";
 import { TextureFormat } from "../../resource/TextureFormat";
 
+
 export enum TextureCubeFace {
+	/**+x */
 	PositiveX,
+	/**-x */
 	NegativeX,
+	/**+y */
 	PositiveY,
+	/**-y */
 	NegativeY,
+	/**+z */
 	PositiveZ,
+	/**-z */
 	NegativeZ
 }
 

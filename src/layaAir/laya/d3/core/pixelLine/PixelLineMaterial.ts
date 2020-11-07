@@ -6,17 +6,23 @@ import { Material } from "../material/Material";
  * <code>PixelLineMaterial</code> 类用于实现像素线材质。
  */
 export class PixelLineMaterial extends Material {
+	/**@internal */
 	static COLOR: number = Shader3D.propertyNameToID("u_Color");
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PixelLineMaterial;
 
-
+	/**@internal */
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
+	/**@internal */
 	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
+	/**@internal */
 	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
+	/**@internal */
 	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
+	/**@internal */
 	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
+	/**@internal */
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**
@@ -138,6 +144,9 @@ export class PixelLineMaterial extends Material {
 		return this._shaderValues.getInt(PixelLineMaterial.DEPTH_TEST);
 	}
 
+	/**
+	 *  创建一个 <code>PixelLineMaterial</code> 实例。
+	 */
 	constructor() {
 		super();
 		this.setShaderName("LineShader");

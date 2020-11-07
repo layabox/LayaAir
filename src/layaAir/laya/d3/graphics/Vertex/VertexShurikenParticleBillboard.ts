@@ -6,6 +6,7 @@ import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
 
 /**
+ * @internal
  * <code>VertexShurikenParticle</code> 类用于创建粒子顶点结构。
  */
 export class VertexShurikenParticleBillboard extends VertexShuriKenParticle {
