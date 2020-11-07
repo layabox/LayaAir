@@ -77,7 +77,7 @@ export class LocalStorage {
 }
 
 
-
+/** @internal */
 class Storage {
 
 	/**
