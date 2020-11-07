@@ -24,14 +24,23 @@ import { Bounds } from "../core/Bounds";
 import { BoundSphere } from "../math/BoundSphere";
 
 
+/**
+ * camera裁剪数据
+ */
 export class CameraCullInfo {
+	/**位置 */
 	position: Vector3;
-
+	/**是否遮挡剔除 */
 	useOcclusionCulling: Boolean;
+	/**锥体包围盒 */
 	boundFrustum: BoundFrustum;
+	/**遮挡标记 */
 	cullingMask: number;
 }
-
+/**
+ * @internal
+ * 阴影裁剪数据
+ */
 export class ShadowCullInfo {
 	position: Vector3;
 	cullPlanes: Plane[];

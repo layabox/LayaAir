@@ -16,33 +16,51 @@ export class ExtendTerrainMaterial extends Material {
 	/**渲染状态_透明混合。*/
 	static RENDERMODE_TRANSPARENT: number = 2;
 
-	/**渲染状态_透明混合。*/
+	/**@internal */
 	static SPLATALPHATEXTURE: number = Shader3D.propertyNameToID("u_SplatAlphaTexture");
-
+	/**@internal */
 	static DIFFUSETEXTURE1: number = Shader3D.propertyNameToID("u_DiffuseTexture1");
+	/**@internal */
 	static DIFFUSETEXTURE2: number = Shader3D.propertyNameToID("u_DiffuseTexture2");
+	/**@internal */
 	static DIFFUSETEXTURE3: number = Shader3D.propertyNameToID("u_DiffuseTexture3");
+	/**@internal */
 	static DIFFUSETEXTURE4: number = Shader3D.propertyNameToID("u_DiffuseTexture4");
+	/**@internal */
 	static DIFFUSETEXTURE5: number = Shader3D.propertyNameToID("u_DiffuseTexture5");
-
+	/**@internal */
 	static DIFFUSESCALEOFFSET1: number = Shader3D.propertyNameToID("u_DiffuseScaleOffset1");
+	/**@internal */
 	static DIFFUSESCALEOFFSET2: number = Shader3D.propertyNameToID("u_DiffuseScaleOffset2");
+	/**@internal */
 	static DIFFUSESCALEOFFSET3: number = Shader3D.propertyNameToID("u_DiffuseScaleOffset3");
+	/**@internal */
 	static DIFFUSESCALEOFFSET4: number = Shader3D.propertyNameToID("u_DiffuseScaleOffset4");
+	/**@internal */
 	static DIFFUSESCALEOFFSET5: number = Shader3D.propertyNameToID("u_DiffuseScaleOffset5");
-
+	/**@internal */
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
+	/**@internal */
 	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
+	/**@internal */
 	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
+	/**@internal */
 	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
+	/**@internal */
 	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
+	/**@internal */
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**地形细节宏定义。*/
+	/**@internal */
 	static SHADERDEFINE_DETAIL_NUM1: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_DETAIL_NUM2: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_DETAIL_NUM3: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_DETAIL_NUM4: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_DETAIL_NUM5: ShaderDefine;
 
 	/**
@@ -258,7 +276,9 @@ export class ExtendTerrainMaterial extends Material {
 	set depthTest(value: number) {
 		this._shaderValues.setInt(ExtendTerrainMaterial.DEPTH_TEST, value);
 	}
-
+	/**
+	 * 创建一个 <code>ExtendTerrainMaterial</code> 实例。
+	 */
 	constructor() {
 		super();
 		this.setShaderName("ExtendTerrain");

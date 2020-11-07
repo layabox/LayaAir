@@ -4,7 +4,8 @@ import { TextureFormat } from "../../resource/TextureFormat";
 
 	
 	/**
-	 * ...
+	 * 贴图生成器
+	 * @internal
 	 * @author
 	 */
 	export class TextureGenerator {

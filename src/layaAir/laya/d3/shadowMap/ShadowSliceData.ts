@@ -25,6 +25,10 @@ export class ShadowSliceData {
     sphereCenterZ: number;
 }
 
+/**
+ * @internal
+ * 聚光灯阴影数据。
+ */
 export class ShadowSpotData{
     cameraShaderValue:ShaderData = new ShaderData();
     position:Vector3 = new Vector3;

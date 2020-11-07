@@ -8,15 +8,25 @@ import { Quaternion } from "../../../math/Quaternion";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { CommandBuffer } from "./CommandBuffer";
 export enum ShaderDataType{
+	/**整数 */
 	Int,
+	/**布尔 */
 	Bool,
+	/**浮点数 */
 	Number,
+	/**2维数结构 */
 	Vector2,
+	/**3维数结构 */
 	Vector3,
+	/**4维数结构 */
 	Vector,
+	/**四元数 */
 	Quaternion,
+	/**矩阵 */
 	Matrix4x4,
+	/**数组 */
 	Buffer,
+	/**图片 */
 	Texture
 }
 

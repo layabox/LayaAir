@@ -21,7 +21,7 @@ var type = {
     "d3_physics":["3D","BulletPhysics"],
     "d3_resource":["3D","Resource"],
     "d3_shader":["3D","Shader"],
-    "d3_shadowmap":["3D","Shadow"],
+    "d3_shadowmap":["Exclude",""],
     "d3_text":["3D","RenderGraphics"],
     "d3_touch":["3D","Input3D"],
     "d3_utils":["3D","Utils"],

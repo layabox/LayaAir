@@ -11,7 +11,6 @@ import { ILaya } from "../../../ILaya";
 import { IHtml } from "../utils/IHtml";
 import { ClassUtils } from "../../utils/ClassUtils";
 
-/**@internal */
 export enum HTMLElementType {
     BASE = 0,
     IMAGE = 1

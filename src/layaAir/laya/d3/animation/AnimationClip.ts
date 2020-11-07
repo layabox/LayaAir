@@ -31,6 +31,7 @@ export class AnimationClip extends Resource {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 */
 	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): AnimationClip {
 		var clip: AnimationClip = new AnimationClip();
@@ -53,7 +54,7 @@ export class AnimationClip extends Resource {
 	/**
 	 * 加载动画片段。
 	 * @param url 动画片段地址。
-	 * @param complete  完成回掉。
+	 * @param complete  完成回掉。load
 	 */
 	static load(url: string, complete: Handler): void {
 		ILaya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
@@ -76,7 +77,8 @@ export class AnimationClip extends Resource {
 	islooping: boolean;
 
 	/**
-	 * 获取动画片段时长。
+	 * 动画持续时间
+	 * @returns 返回动画持续时间
 	 */
 	duration(): number {
 		return this._duration;
@@ -289,6 +291,14 @@ export class AnimationClip extends Resource {
 		}
 	}
 
+	
+	/**
+	 * @internal
+	 * @param nodes 
+	 * @param playCurTime 
+	 * @param realTimeCurrentFrameIndexes 
+	 * @param addtive 
+	 */
 	_evaluateClipDatasRealTimeForNative(nodes: any, playCurTime: number, realTimeCurrentFrameIndexes: Uint16Array, addtive: boolean): void {
 		(<any>LayaGL.instance).evaluateClipDatasRealTime(nodes._nativeObj, playCurTime, realTimeCurrentFrameIndexes, addtive);
 	}
@@ -373,6 +383,7 @@ export class AnimationClip extends Resource {
 
 	/**
 	 * 添加动画事件。
+	 * @param event 动画事件
 	 */
 	addEvent(event: AnimationEvent): void {
 		var index: number = this._binarySearchEventIndex(event.time);

@@ -13,7 +13,9 @@ import { Node } from "../../../display/Node";
  * 反射探针模式
  */
 export enum ReflectionProbeMode {
-        off = 0,//现在仅仅支持Back烘培
+		/**烘培模式 */
+		off = 0,//现在仅仅支持Back烘培
+		/**实时简单采样模式 还未支持*/
         simple = 1,
 }
 /**

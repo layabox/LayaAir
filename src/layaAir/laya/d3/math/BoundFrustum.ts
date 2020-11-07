@@ -7,6 +7,7 @@ import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
 
 /**
+ * @internal
  * 锥体角点。
  */
 export enum FrustumCorner {

@@ -5,10 +5,15 @@ import { Vector2 } from "../../../../math/Vector2"
 import { Vector3 } from "../../../../math/Vector3"
 
 export enum ParticleSystemShapeType {
+	/**盒体 */
 	Box = 0,
+	/**环形 */
 	Circle = 1,
+	/**锥体 */
 	Cone = 2,
+	/**半球体 */
 	Hemisphere = 3,
+	/**球体 */
 	Sphere = 4
 }
 

@@ -58,8 +58,10 @@ export class ConeColliderShape extends ColliderShape {
 	}
 
 	/**
+	 * 克隆
 	 * @inheritDoc
 	 * @override
+	 * @returns 克隆的ConeColliderShape实例
 	 */
 	clone(): any {
 		var dest: ConeColliderShape = new ConeColliderShape(this._radius, this._height, this._orientation);

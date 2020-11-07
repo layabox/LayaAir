@@ -112,40 +112,64 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static SCENERENDERFLAG_RENDERQPAQUE = 0;
 	static SCENERENDERFLAG_SKYBOX = 1;
 	static SCENERENDERFLAG_RENDERTRANSPARENT = 2;
-
+	/** @internal */
 	static FOGCOLOR: number = Shader3D.propertyNameToID("u_FogColor");
+	/** @internal */
 	static FOGSTART: number = Shader3D.propertyNameToID("u_FogStart");
+	/** @internal */
 	static FOGRANGE: number = Shader3D.propertyNameToID("u_FogRange");
-
+	/** @internal */
 	static DIRECTIONLIGHTCOUNT: number = Shader3D.propertyNameToID("u_DirationLightCount");
+	/** @internal */
 	static LIGHTBUFFER: number = Shader3D.propertyNameToID("u_LightBuffer");
+	/** @internal */
 	static CLUSTERBUFFER: number = Shader3D.propertyNameToID("u_LightClusterBuffer");
+	/** @internal */
 	static SUNLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SunLight.direction");
+	/** @internal */
 	static SUNLIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_SunLight.color");
+	/** @internal */
 	static AMBIENTSHAR: number = Shader3D.propertyNameToID("u_AmbientSHAr");
+	/** @internal */
 	static AMBIENTSHAG: number = Shader3D.propertyNameToID("u_AmbientSHAg");
+	/** @internal */
 	static AMBIENTSHAB: number = Shader3D.propertyNameToID("u_AmbientSHAb");
+	/** @internal */
 	static AMBIENTSHBR: number = Shader3D.propertyNameToID("u_AmbientSHBr");
+	/** @internal */
 	static AMBIENTSHBG: number = Shader3D.propertyNameToID("u_AmbientSHBg");
+	/** @internal */
 	static AMBIENTSHBB: number = Shader3D.propertyNameToID("u_AmbientSHBb");
+	/** @internal */
 	static AMBIENTSHC: number = Shader3D.propertyNameToID("u_AmbientSHC");
 
 	//------------------legacy lighting-------------------------------
+	/** @internal */
 	static LIGHTDIRECTION: number = Shader3D.propertyNameToID("u_DirectionLight.direction");
+	/** @internal */
 	static LIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_DirectionLight.color");
+	/** @internal */
 	static POINTLIGHTPOS: number = Shader3D.propertyNameToID("u_PointLight.position");
+	/** @internal */
 	static POINTLIGHTRANGE: number = Shader3D.propertyNameToID("u_PointLight.range");
+	/** @internal */
 	static POINTLIGHTATTENUATION: number = Shader3D.propertyNameToID("u_PointLight.attenuation");
+	/** @internal */
 	static POINTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_PointLight.color");
+	/** @internal */
 	static SPOTLIGHTPOS: number = Shader3D.propertyNameToID("u_SpotLight.position");
+	/** @internal */
 	static SPOTLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SpotLight.direction");
+	/** @internal */
 	static SPOTLIGHTSPOTANGLE: number = Shader3D.propertyNameToID("u_SpotLight.spot");
+	/** @internal */
 	static SPOTLIGHTRANGE: number = Shader3D.propertyNameToID("u_SpotLight.range");
+	/** @internal */
 	static SPOTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_SpotLight.color");
 	//------------------legacy lighting-------------------------------
-
+	/** @internal */
 	static AMBIENTCOLOR: number = Shader3D.propertyNameToID("u_AmbientColor");
-
+	/** @internal */
 	static TIME: number = Shader3D.propertyNameToID("u_Time");
 
 	/** @internal */
@@ -740,6 +764,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
+	 * @param url 路径
 	 */
 	_setCreateURL(url: string): void {
 		this._url = URL.formatURL(url);
@@ -1298,6 +1323,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * 删除资源
 	 */
 	destroy(destroyChild: boolean = true): void {
 		if (this.destroyed)
@@ -1341,7 +1367,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * 
+	 * 渲染入口
 	 */
 	renderSubmit(): number {
 		var gl: any = LayaGL.instance;
@@ -1358,25 +1384,31 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * 
+	 * 获得渲染类型
 	 */
 	getRenderType(): number {
 		return 0;
 	}
 
 	/**
-	 * 
+	 * 删除渲染
 	 */
 	releaseRender(): void {
 	}
 
 	/**
-	 * 
+	 * @internal
 	 */
 	reUse(context: Context, pos: number): number {
 		return 0;
 	}
 	
+	/**
+	 * 设置全局渲染数据
+	 * @param name 数据对应着色器名字
+	 * @param shaderDataType 渲染数据类型
+	 * @param value 渲染数据值
+	 */
 	setGlobalShaderValue(name:string,shaderDataType:ShaderDataType,value:any){
 		 var shaderOffset = Shader3D.propertyNameToID(name);
 		 switch(shaderDataType)

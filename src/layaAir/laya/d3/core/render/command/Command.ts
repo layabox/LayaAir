@@ -45,19 +45,23 @@ export class Command {
 	}
 
 	/**
-	 *
+	 * 运行渲染指令
 	 */
 	run(): void {
 
 	}
 
 	/**
-	 *
+	 * 回收渲染指令
 	 */
 	recover(): void {
 		this._commandBuffer = null;
 	}
 
+	/**
+	 * 设置渲染上下文
+	 * @param context 渲染上下文 
+	 */
 	setContext(context:RenderContext3D){
 		this._context = context;
 	}

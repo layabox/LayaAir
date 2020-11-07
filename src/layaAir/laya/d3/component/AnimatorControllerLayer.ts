@@ -54,9 +54,9 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 
 	/** 层的名称。*/
 	name: string;
-	/** 名称。*/
+	/** 混合模式。*/
 	blendingMode: number = AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
-	/** 权重。*/
+	/** 默认权重。*/
 	defaultWeight: number = 1.0;
 	/**	激活时是否自动播放。*/
 	playOnWake: boolean = true;
@@ -75,6 +75,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 
 	/**
 	 * 创建一个 <code>AnimatorControllerLayer</code> 实例。
+	 * @param 动画层名称
 	 */
 	constructor(name: string) {
 		this.name = name;

@@ -7,30 +7,47 @@ import { VertexElementFormat } from "../VertexElementFormat";
  * @author ...
  */
 export class VertexMesh {
+	/**顶点位置数据 */
 	static MESH_POSITION0: number = 0;
+	/**顶点顶点色数据 */
 	static MESH_COLOR0: number = 1;
+	/**顶点UV0数据 */
 	static MESH_TEXTURECOORDINATE0: number = 2;
+	/**顶点法线数据 */
 	static MESH_NORMAL0: number = 3;
+	/**顶点切线数据 */
 	static MESH_TANGENT0: number = 4;
+	/**顶点骨骼索引数据 */
 	static MESH_BLENDINDICES0: number = 5;
+	/**顶点骨骼权重数据 */
 	static MESH_BLENDWEIGHT0: number = 6;
+	/**顶点UV1数据 */
 	static MESH_TEXTURECOORDINATE1: number = 7;
-
+	/**顶点世界矩阵数据Row0 */
 	static MESH_WORLDMATRIX_ROW0: number = 8;
+	/**顶点世界矩阵数据Row1 */
 	static MESH_WORLDMATRIX_ROW1: number = 9;
+	/**顶点世界矩阵数据Row2 */
 	static MESH_WORLDMATRIX_ROW2: number = 10;
+	/**顶点世界矩阵数据Row3 */
 	static MESH_WORLDMATRIX_ROW3: number = 11;
+	/**顶点MVP矩阵数据Row0 */
 	static MESH_MVPMATRIX_ROW0: number = 12;
+	/**顶点MVP矩阵数据Row1 */
 	static MESH_MVPMATRIX_ROW1: number = 13;
+	/**顶点MVP矩阵数据Row2 */
 	static MESH_MVPMATRIX_ROW2: number = 14;
+	/**顶点MVP矩阵数据Row3 */
 	static MESH_MVPMATRIX_ROW3: number = 15;
 
 	//TODO：location不够
+	/**简单数据动画数据 */
 	static MESH_SIMPLEANIMATOR:number = 7;
+	/**instanceworld顶点描述 */
 	static instanceWorldMatrixDeclaration: VertexDeclaration;
-
+	/**instanceMVP顶点描述 */
 	static instanceMVPMatrixDeclaration: VertexDeclaration;
-
+	/**instanceSimple动画数据顶点描述 */
 	static instanceSimpleAnimatorDeclaration: VertexDeclaration;
 
 	/**@internal */
