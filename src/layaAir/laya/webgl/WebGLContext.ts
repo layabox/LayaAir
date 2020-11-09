@@ -3,6 +3,14 @@ import { LayaGL } from "../layagl/LayaGL";
 
 /**
  * @private
+ * 
+ * iOS的下 sFactor !== WebGLContext._sFactor 这个判断有问题，但是 sFactor!=_sFactor却没有问题，不知道为什么
+ */
+var  _sFactor=1;
+var  _dFactor=0;
+
+/**
+ * @private
  */
 export class WebGLContext {
     /**@internal */
@@ -58,8 +66,8 @@ export class WebGLContext {
         WebGLContext._blendEquation = gl.FUNC_ADD;
         WebGLContext._blendEquationRGB = gl.FUNC_ADD;
         WebGLContext._blendEquationAlpha = gl.FUNC_ADD;
-        WebGLContext._sFactor = gl.ONE;
-        WebGLContext._dFactor = gl.ZERO;
+        _sFactor = gl.ONE;	// 由于有iOS的问题，先改成普通的全局变量
+        _dFactor = gl.ZERO;
         WebGLContext._sFactorAlpha = gl.ONE;
         WebGLContext._dFactorAlpha = gl.ZERO;
         WebGLContext._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0
@@ -133,9 +141,10 @@ export class WebGLContext {
 	 * @internal
 	 */
     static setBlendFunc(gl: WebGLRenderingContext, sFactor: number, dFactor: number,force:boolean=false): void {
-        if (force || sFactor !== WebGLContext._sFactor || dFactor !== WebGLContext._dFactor) {
-            WebGLContext._sFactor = sFactor;
-            WebGLContext._dFactor = dFactor;
+		// 有个iOS的bug，用原来的写法有时候会出错
+        if (force || sFactor !== _sFactor || dFactor !== _dFactor) {
+            _sFactor = sFactor;
+            _dFactor = dFactor;
             WebGLContext._sFactorRGB = null;
             WebGLContext._dFactorRGB = null;
             WebGLContext._sFactorAlpha = null;
@@ -153,8 +162,8 @@ export class WebGLContext {
             WebGLContext._dFactorRGB = dstRGB;
             WebGLContext._sFactorAlpha = srcAlpha;
             WebGLContext._dFactorAlpha = dstAlpha;
-            WebGLContext._sFactor = null;
-            WebGLContext._dFactor = null;
+            _sFactor = null;
+            _dFactor = null;
             gl.blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
         }
     }
