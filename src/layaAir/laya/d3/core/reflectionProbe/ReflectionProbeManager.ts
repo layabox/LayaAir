@@ -43,6 +43,12 @@ export class ReflectionProbeManager {
      * @param baseRender 
      */
     _updateMotionObjects(baseRender:BaseRender):void{
+        if(this._reflectionProbes.length==0){
+            baseRender._probReflection = this._sceneReflectionProbe;
+            return;
+        }
+
+ 
         var elements:ReflectionProbe[] = this._reflectionProbes.elements;
         var maxOverlap:number = 0;
         var mainProbe:ReflectionProbe;
@@ -94,8 +100,7 @@ export class ReflectionProbeManager {
      * 更新运动物体的反射探针信息
      */
     update():void{
-        if(this._reflectionProbes.length==0)
-            return;
+
         var elements: BaseRender[] = this._motionObjects.elements;
         for(var i:number = 0,n:number = this._motionObjects.length;i<n;i++){
             this._updateMotionObjects(elements[i]);
