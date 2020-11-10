@@ -157,9 +157,9 @@ function createJS(){
             }
         }
 
-        
-        
-        if (package != "" && typeName != "") {
+        if (typeName == "Exclude") {
+
+        }else if (package != "" && typeName != "") {
             let fullName = "";
             for (let j = startIndex; j < urlArr.length - 2 ; j++) {
                 fullName += urlArr[j] + ".";
@@ -173,9 +173,7 @@ function createJS(){
             }
             tmpObj[typeName][package].push(fullName);
         }else{
-            if (!typeName == "Exclude") {
-                console.log("未知包体：",url);
-            }
+            console.log("未知包体：",url);
         }
     }
     let topstr = `
