@@ -1,7 +1,9 @@
 import { SkinMeshForGraphic } from "./bone/canvasmesh/SkinMeshForGraphic"
 import { Matrix } from "../maths/Matrix";
 import { Graphics } from "../display/Graphics";
-
+/**
+ * 动画
+ */
 export class GraphicsAni extends Graphics {
 
 	/**
@@ -21,6 +23,10 @@ export class GraphicsAni extends Graphics {
 		return rs || new GraphicsAni();
 	}
 
+	/**
+	 * 回收清理
+	 * @param graphics 
+	 */
 	//TODO:coverage
 	static recycle(graphics: GraphicsAni): void {
 		graphics.clear();
