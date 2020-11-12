@@ -331,7 +331,7 @@ export class ShadowCasterPass {
 				shadowMap._end();
 				this._setupShadowReceiverShaderValues(shaderValues);
 				ShaderData.setRuntimeValueMode(true);
-				context.pipelineMode = "Forward";
+				context.pipelineMode = context.configPipeLineMode;
 				break;
 			case ShadowLightType.SpotLight:
 				var shaderValues:ShaderData = scene._shaderValues;
@@ -359,7 +359,7 @@ export class ShadowCasterPass {
 				shadowMap._end();
 				this._setupSpotShadowReceiverShaderValues(shaderValues);
 				ShaderData.setRuntimeValueMode(true);
-				context.pipelineMode = "Forward";
+				context.pipelineMode = context.configPipeLineMode;
 				break;
 			case ShadowLightType.PointLight:
 				//TODO:

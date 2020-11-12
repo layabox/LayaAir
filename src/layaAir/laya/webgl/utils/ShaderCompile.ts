@@ -23,8 +23,10 @@ export class ShaderCompile {
 	static shaderParamsMap: any;
 
 	private _nameMap: any;
-	protected _VS: ShaderNode;
-	protected _PS: ShaderNode;
+	/** @internal */
+	public _VS: ShaderNode;
+	/** @internal */
+	public _PS: ShaderNode;
 
 	/**
 	 * @internal

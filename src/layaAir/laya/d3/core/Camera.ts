@@ -575,7 +575,7 @@ export class Camera extends BaseCamera {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var context: RenderContext3D = RenderContext3D._instance;
 		var scene: Scene3D = context.scene = <Scene3D>this._scene;
-		context.pipelineMode = "Forward";
+		context.pipelineMode = context.configPipeLineMode;
 
 		if (needInternalRT) {
 			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16);

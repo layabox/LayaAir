@@ -42,6 +42,8 @@ export class RenderContext3D {
 	invertY: boolean = false;
 	/** @internal */
 	pipelineMode: string;
+	/** @internal */
+	configPipeLineMode:string = "Forward";
 
 	/**
 	 * 创建一个 <code>RenderContext3D</code> 实例。
