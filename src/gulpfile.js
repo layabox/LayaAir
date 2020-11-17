@@ -67,6 +67,13 @@ var packsDef = [
         'out': '../build/js/libs/laya.d3.js'
     },
     {
+        'libName': "gltf",
+        'input': [
+            './layaAir/laya/gltf/**/*.*',
+        ],
+        'out': '../build/js/libs/laya.gltf.js'
+    },
+    {
         'libName': "cannonPhysics",
         'input': [
             './layaAir/laya/d3/physicsCannon/**/*.*',

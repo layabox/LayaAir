@@ -20,10 +20,10 @@ export class SubmitTexture extends SubmitBase {
     constructor(renderType: number = SubmitBase.TYPE_2D) {
         super(renderType);
     }
-		/**
-		 * @override
-		 */
-		 /*override*/ releaseRender(): void {
+    /**
+     * @override
+     */
+	releaseRender(): void {
         if ((--this._ref) < 1) {
             SubmitTexture.POOL[SubmitTexture._poolSize++] = this;
             this.shaderValue.release();
@@ -32,10 +32,8 @@ export class SubmitTexture extends SubmitBase {
             this._parent && (this._parent.releaseRender(), this._parent = null);
         }
     }
-		/**
-		 * @override
-		 */
-		 /*override*/ renderSubmit(): number {
+
+    renderSubmit(): number {
         if (this._numEle === 0)
             return 1;
 
