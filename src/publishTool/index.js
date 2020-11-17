@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Main = void 0;
 const ts = require("typescript");
 const fs = require("fs");
 const path = require("path");
@@ -35,6 +36,7 @@ class Main {
         // this.tstoas("laya\\d3\\core\\Transform3D.d.ts",null,"laya\\d3\\core\\");
         // this.tstoas("laya\\html\\dom\\HTMLElement.d.ts", null, "laya\\html\\dom");
         // this.tstoas("laya\\resource\\IDestroy.d.ts",null,"laya\\resource");
+        // this.tstoas("laya\\gltf\\GLTFLoader.d.ts",null,"laya\\gltf");
         // this.tstoas("Laya.d.ts",null,"");
         // this.tstoas("laya\\d3\\component\\SingletonList.d.ts",null,"laya\\d3\\component");
     }

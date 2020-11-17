@@ -17,6 +17,7 @@
     "RenderTextureDepthFormat":"int",
     "HTMLCanvasElement":"*",
     "ChildNode":"*",
-    "CanvasRenderingContext2D":"*"
+    "CanvasRenderingContext2D":"*",
+    "GraphicNode":"*"
   }
 }
