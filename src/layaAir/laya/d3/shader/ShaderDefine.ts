@@ -1,5 +1,5 @@
 /**
- * <code>IOctreeObject</code> 类用于定义宏数据。
+ * <code>ShaderDefine</code> 类用于定义宏数据。
  */
 export class ShaderDefine {
 	/**@internal */
