@@ -51,57 +51,56 @@ export class CameraRay {
 	private tmpVector2: Vector3 = new Vector3(0, 0, 0);
 
 	constructor() {
-		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
-
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-
-		//初始化照相机
-		this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		this.camera.transform.translate(this._translate);
-		this.camera.transform.rotate(this._rotation, true, false);
-		this.camera.addComponent(CameraMoveScript);
-		this.camera.clearColor = null;
-
-		//方向光
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color.setValue(0.6, 0.6, 0.6);
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(this._forward);
-		directionLight.transform.worldMatrix = mat;
-
-		//平面
-		var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(10, 10, 10, 10))));
-		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function (tex: Texture2D): void {
-			planeMat.albedoTexture = tex;
+		//初始化引擎,使用物理的wasm库需要调用回调的方式来初始化
+		Laya3D.init(0, 0,null,Handler.create(this,()=>{
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
+	
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+	
+			//初始化照相机
+			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			this.camera.transform.translate(this._translate);
+			this.camera.transform.rotate(this._rotation, true, false);
+			this.camera.addComponent(CameraMoveScript);
+			this.camera.clearColor = null;
+	
+			//方向光
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			directionLight.color.setValue(0.6, 0.6, 0.6);
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(this._forward);
+			directionLight.transform.worldMatrix = mat;
+	
+			//平面
+			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(10, 10, 10, 10))));
+			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+			Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function (tex: Texture2D): void {
+				planeMat.albedoTexture = tex;
+			}));
+			//设置纹理平铺和偏移
+			planeMat.tilingOffset = this._tilingOffset;
+			//设置材质
+			plane.meshRenderer.material = planeMat;
+	
+			//平面添加物理碰撞体组件
+			var planeStaticCollider: PhysicsCollider = plane.addComponent(PhysicsCollider);
+			//创建盒子形状碰撞器
+			var planeShape: BoxColliderShape = new BoxColliderShape(10, 0, 10);
+			//物理碰撞体设置形状
+			planeStaticCollider.colliderShape = planeShape;
+			//物理碰撞体设置摩擦力
+			planeStaticCollider.friction = 2;
+			//物理碰撞体设置弹力
+			planeStaticCollider.restitution = 0.3;
+			//添加鼠标事件
+			this.addMouseEvent();
+			//射线初始化（必须初始化）
+			this._ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
 		}));
-		//设置纹理平铺和偏移
-		planeMat.tilingOffset = this._tilingOffset;
-		//设置材质
-		plane.meshRenderer.material = planeMat;
-
-		//平面添加物理碰撞体组件
-		var planeStaticCollider: PhysicsCollider = plane.addComponent(PhysicsCollider);
-		//创建盒子形状碰撞器
-		var planeShape: BoxColliderShape = new BoxColliderShape(10, 0, 10);
-		//物理碰撞体设置形状
-		planeStaticCollider.colliderShape = planeShape;
-		//物理碰撞体设置摩擦力
-		planeStaticCollider.friction = 2;
-		//物理碰撞体设置弹力
-		planeStaticCollider.restitution = 0.3;
-
-		//添加鼠标事件
-		this.addMouseEvent();
-		//射线初始化（必须初始化）
-		this._ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
-
 	}
 
 	addBoxXYZ(x: number, y: number, z: number): void {
