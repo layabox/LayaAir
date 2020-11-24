@@ -581,7 +581,7 @@ export class ConfigurableConstraint extends ConstraintComponent{
 
 	_onDisable():void{
 		super._onDisable();
-		if(!this.connectedBody)
+		if(!this.connectedBody&&this._simulation)
 			this._removeFromSimulation();
 		if(this._btConstraint)
 		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,false);

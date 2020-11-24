@@ -142,10 +142,10 @@ export class TrailGeometry extends GeometryElement {
 		var oldSubBirthTime: Float32Array = new Float32Array(this._subBirthTime.buffer, this._activeIndex * 4, count);//修改出生时间数据
 
 		if (count === this._segementCount) {//当前count=_segementCount表示已满,需要扩充
-			this._vertexBuffer1.destroy();
-			this._vertexBuffer2.destroy();
 			var memorySize: number = this._vertexBuffer1._byteLength + this._vertexBuffer2._byteLength;
 			Resource._addMemory(-memorySize, -memorySize);
+			this._vertexBuffer1.destroy();
+			this._vertexBuffer2.destroy();
 			this._segementCount += this._increaseSegementCount;
 			this._resizeData(this._segementCount, this._bufferState);
 		}

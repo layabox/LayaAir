@@ -28,48 +28,47 @@ export class PhysicsWorld_ConfigurableJoint{
     private scene:Scene3D;
 	private camera: Camera;
     constructor() {
-        Laya3D.init(0, 0);
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
-		Config3D.useCannonPhysics = false;
-		Shader3D.debugMode = true;
-        this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-        this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		this.camera.transform.translate(new Vector3(0, 3, 30));
-		this.camera.addComponent(CameraMoveScript)
-        var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-        directionLight.color = new Vector3(1, 1, 1);
-		directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, 1.0));
-		//平面
-		var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(40, 40, 40, 40))));
-		plane.transform.position = new Vector3(0, -2.0, 0);
-		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function (tex: Texture2D): void {
-			planeMat.albedoTexture = tex;
+        Laya3D.init(0, 0,null,Handler.create(this,()=>{
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
+			Config3D.useCannonPhysics = false;
+			Shader3D.debugMode = true;
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			this.camera.transform.translate(new Vector3(0, 3, 30));
+			this.camera.addComponent(CameraMoveScript)
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			directionLight.color = new Vector3(1, 1, 1);
+			directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, 1.0));
+			//平面
+			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(40, 40, 40, 40))));
+			plane.transform.position = new Vector3(0, -2.0, 0);
+			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+			Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function (tex: Texture2D): void {
+				planeMat.albedoTexture = tex;
+			}));
+			//设置纹理平铺和偏移
+			var tilingOffset: Vector4 = planeMat.tilingOffset;
+			tilingOffset.setValue(5, 5, 0, 0);
+			planeMat.tilingOffset = tilingOffset;
+			//设置材质
+			plane.meshRenderer.material = planeMat;
+	
+			this.springTest();
+			this.bounceTest();
+			// this.bounceTestY();
+	
+			this.alongZAixs();
+			//this.alongXAixs();
+			//this.alongYAixs();
+	
+			this.freeRotate();
+			this.rotateAngularX();
+			// this.rotateAngularZ();
+			// this.rotateAngularY();
+			this.rotateAngularPoint();
 		}));
-		//设置纹理平铺和偏移
-		var tilingOffset: Vector4 = planeMat.tilingOffset;
-		tilingOffset.setValue(5, 5, 0, 0);
-		planeMat.tilingOffset = tilingOffset;
-		//设置材质
-		plane.meshRenderer.material = planeMat;
-
-		this.springTest();
-		this.bounceTest();
-		// this.bounceTestY();
-
-		this.alongZAixs();
-		//this.alongXAixs();
-		//this.alongYAixs();
-
-		this.freeRotate();
-		this.rotateAngularX();
-		// this.rotateAngularZ();
-		// this.rotateAngularY();
-		this.rotateAngularPoint();
-
-		
 	}
 
 	springTest(): void {
