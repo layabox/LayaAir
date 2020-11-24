@@ -2,6 +2,9 @@ import { PerfData } from "./PerfData";
 import { Sprite } from "../display/Sprite"
 import { SpriteConst } from "../display/SpriteConst"
 import { Context } from "../resource/Context"
+/**
+ * @internal
+ */
 export class PerfHUD extends Sprite {
     private static _lastTm: number = 0;	//perf Data
     private static _now: () => number = null;

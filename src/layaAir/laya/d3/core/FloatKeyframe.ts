@@ -3,8 +3,11 @@ import { Keyframe } from "./Keyframe";
 	 * <code>FloatKeyFrame</code> 类用于创建浮点关键帧实例。
 	 */
 export class FloatKeyframe extends Keyframe {
+	/**内切线 */
 	inTangent: number;
+	/**外切线 */
 	outTangent: number;
+	/**帧数据 */
 	value: number;
 
 	/**
@@ -15,6 +18,7 @@ export class FloatKeyframe extends Keyframe {
 	}
 
 	/**
+	 * 克隆数据
 	 * @inheritDoc
 	 * @override
 	 */
