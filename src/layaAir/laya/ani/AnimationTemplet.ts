@@ -13,6 +13,7 @@ import { BezierLerp } from "./math/BezierLerp";
  * <code>AnimationTemplet</code> 类用于动画模板资源。
  */
 export class AnimationTemplet extends Resource {
+	/**插值函数 */
 	static interpolation: any[] = [AnimationTemplet._LinearInterpolation_0, AnimationTemplet._QuaternionInterpolation_1, AnimationTemplet._AngleInterpolation_2, AnimationTemplet._RadiansInterpolation_3, AnimationTemplet._Matrix4x4Interpolation_4, AnimationTemplet._NoInterpolation_5, AnimationTemplet._BezierInterpolation_6, AnimationTemplet._BezierInterpolation_7];
 
 	/**
@@ -171,40 +172,57 @@ export class AnimationTemplet extends Resource {
 		}
 	}
 
+	/**
+	 * 获取动画数量
+	 */
 	getAnimationCount(): number {
 		return this._anis.length;
 	}
 
+	/**
+	 * 通过索引获取动画
+	 * @param aniIndex 
+	 */
 	getAnimation(aniIndex: number): any {
 		return this._anis[aniIndex];
 	}
 
+	/**
+	 * 获取动画时长
+	 * @param aniIndex 
+	 */
 	getAniDuration(aniIndex: number): number {
 		return this._anis[aniIndex].playTime;
 	}
 
 	//TODO:coverage
+	/**获取动画nodes信息 */
 	getNodes(aniIndex: number): any {
 		return this._anis[aniIndex].nodes;
 	}
 
+	/**获取动画骨骼信息 */
 	getNodeIndexWithName(aniIndex: number, name: string): number {
 		return this._anis[aniIndex].bone3DMap[name];
 	}
 
+	/**获取nodes长度 */
 	getNodeCount(aniIndex: number): number {
 		return this._anis[aniIndex].nodes.length;
 	}
 
+	/**获取keyframes长度 */
 	getTotalkeyframesLength(aniIndex: number): number {
 		return this._anis[aniIndex].totalKeyframeDatasLength;
 	}
 
+	/**获取附加数据 */
 	getPublicExtData(): ArrayBuffer {
 		return this._publicExtData;
 	}
 
 	//TODO:coverage
+	/**获取动画信息数据 */
 	getAnimationDataWithCache(key: any, cacheDatas: any, aniIndex: number, frameIndex: number): Float32Array {
 		var aniDatas: any = cacheDatas[aniIndex];
 		if (!aniDatas) {
@@ -220,6 +238,7 @@ export class AnimationTemplet extends Resource {
 	}
 
 	//TODO:coverage
+	/**设置动画信息数据 */
 	setAnimationDataWithCache(key: any, cacheDatas: any[], aniIndex: number, frameIndex: number, data: any): void {
 		var aniDatas: any = (cacheDatas[aniIndex]) || (cacheDatas[aniIndex] = {});
 		var aniDatasCache: any[] = (aniDatas[key]) || (aniDatas[key] = []);
@@ -280,7 +299,7 @@ export class AnimationTemplet extends Resource {
 	}
 
 	/**
-	 * 
+	 * 获取原始数据
 	 * @param	aniIndex
 	 * @param	originalData
 	 * @param	nodesFrameIndices
@@ -354,6 +373,7 @@ export class AnimationTemplet extends Resource {
 	}
 
 	//TODO:coverage
+	/**获取nodes信息 */
 	getNodesCurrentFrameIndex(aniIndex: number, playCurTime: number): Uint32Array {
 		var ani: AnimationContent = this._anis[aniIndex];
 		var nodes: AnimationNodeContent[] = ani.nodes;
@@ -382,6 +402,7 @@ export class AnimationTemplet extends Resource {
 	}
 
 	//TODO:coverage
+	/**获取原始数据 */
 	getOriginalDataUnfixedRate(aniIndex: number, originalData: Float32Array, playCurTime: number): void {
 		var oneAni: AnimationContent = this._anis[aniIndex];
 
