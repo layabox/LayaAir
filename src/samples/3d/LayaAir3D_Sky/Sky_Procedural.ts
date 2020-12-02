@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -36,7 +36,7 @@ export class Sky_Procedural {
 		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
 		camera.addComponent(CameraMoveScript);
 		//设置相机的清除标识为天空盒(这个参数必须设置为CLEARFLAG_SKY，否则无法使用天空盒)
-		camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
+		camera.clearFlag = CameraClearFlags.Sky;
 
 		//初始化平行光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));

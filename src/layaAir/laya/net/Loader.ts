@@ -462,7 +462,13 @@ export class Loader extends EventDispatcher {
 					data.pics = [];
 				}
 				this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
-				return this._loadResourceFilter(Loader.IMAGE, URL.formatURL(toloadPics.pop() as string));
+				var url = URL.formatURL(toloadPics.pop());
+				var ext = Utils.getFileExtension(url);
+				var type = Loader.IMAGE;
+				if(ext == "pvr"||ext == "ktx"){
+					type = Loader.BUFFER;
+				}
+				return this._loadResourceFilter(type, url);
 			} else {
 				if(!(data instanceof Texture2D))
 				{
@@ -501,7 +507,13 @@ export class Loader extends EventDispatcher {
 				if (this._data.toLoads.length > 0) {
 					this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);
 					//有图片未加载
-					return this._loadResourceFilter(Loader.IMAGE, this._data.toLoads.pop());
+					var url = URL.formatURL(this._data.toLoads.pop());
+					var ext = Utils.getFileExtension(url);
+					var type = Loader.IMAGE;
+					if(ext == "pvr"||ext == "ktx"){
+						type = Loader.BUFFER;
+					}
+					return this._loadResourceFilter(type, url);
 				}
 				var frames: any = this._data.frames;
 				var cleanUrl: string = this._url.split("?")[0];
