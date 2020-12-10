@@ -671,31 +671,31 @@ export class Text extends Sprite {
      * @param	visibleLineCount 渲染的行数。
      */
     protected _renderText(): void {
-        var padding: any[] = this.padding;
-        var visibleLineCount: number = this._lines.length;
+        var padding = this.padding;
+        var visibleLineCount = this._lines.length;
         // overflow为scroll或visible时会截行
         if (this.overflow != Text.VISIBLE) {
             visibleLineCount = Math.min(visibleLineCount, Math.floor((this.height - padding[0] - padding[2]) / (this.leading + this._charSize.height)) + 1);
         }
 
-        var beginLine: number = this.scrollY / (this._charSize.height + this.leading) | 0;
+        var beginLine = this.scrollY / (this._charSize.height + this.leading) | 0;
 
-        var graphics: Graphics = this.graphics;
+        var graphics = this.graphics;
         graphics.clear(true);
 
-        var ctxFont: string = this._getContextFont();
+        var ctxFont = this._getContextFont();
         ILaya.Browser.context.font = ctxFont;
 
         //处理垂直对齐
-        var startX: number = padding[3];
-        var textAlgin: string = "left";
-        var lines: any[] = this._lines;
-        var lineHeight: number = this.leading + this._charSize.height;
-        var tCurrBitmapFont: BitmapFont = ((<TextStyle>this._style)).currBitmapFont;
+        var startX = padding[3];
+        var textAlgin = "left";
+        var lines = this._lines;
+        var lineHeight = this.leading + this._charSize.height;
+        var tCurrBitmapFont = ((<TextStyle>this._style)).currBitmapFont;
         if (tCurrBitmapFont) {
             lineHeight = this.leading + tCurrBitmapFont.getMaxHeight();
         }
-        var startY: number = padding[0];
+        var startY = padding[0];
 
         //处理水平对齐
         if ((!tCurrBitmapFont) && this._width > 0 && this._textWidth <= this._width) {
@@ -708,18 +708,18 @@ export class Text extends Sprite {
             }
         }
 
-        if (this._height > 0) {
-            var tempVAlign: string = (this._textHeight > this._height) ? "top" : this.valign;
-            if (tempVAlign === "middle")
-                startY = (this._height - visibleLineCount * lineHeight) * 0.5 + padding[0] - padding[2];
-            else if (tempVAlign === "bottom")
-                startY = this._height - visibleLineCount * lineHeight - padding[2];
+        //drawBg(style);
+        let bitmapScale=1;
+        if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
+            bitmapScale = tCurrBitmapFont.fontSize / this.fontSize;
         }
 
-        var style: TextStyle = (<TextStyle>this._style);
-        //drawBg(style);
-        if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
-            var bitmapScale: number = tCurrBitmapFont.fontSize / this.fontSize;
+        if (this._height > 0) {
+            var tempVAlign = (this._textHeight > this._height) ? "top" : this.valign;
+            if (tempVAlign === "middle")
+                startY = (this._height - visibleLineCount /bitmapScale* lineHeight) * 0.5 + padding[0] - padding[2];
+            else if (tempVAlign === "bottom")
+                startY = this._height - visibleLineCount /bitmapScale* lineHeight - padding[2];
         }
 
         //渲染
@@ -742,20 +742,20 @@ export class Text extends Sprite {
             this.repaint();
         }
 
-        var password: boolean = style.asPassword;
+        var style = <TextStyle>this._style;
+        var password = style.asPassword;
         // 输入框的prompt始终显示明文
         if (("prompt" in (this as any)) && this['prompt'] == this._text)
             password = false;
 
-        var x: number = 0, y: number = 0;
-        var end: number = Math.min(this._lines.length, visibleLineCount + beginLine) || 1;
-        for (var i: number = beginLine; i < end; i++) {
-            var word: string = lines[i];
+        var x = 0, y = 0;
+        var end = Math.min(this._lines.length, visibleLineCount + beginLine) || 1;
+        for (var i = beginLine; i < end; i++) {
+            var word = lines[i];
             var _word: any;
             if (password) {
-                var len: number = word.length;
                 word = "";
-                for (var j: number = len; j > 0; j--) {
+                for (var j = word.length; j > 0; j--) {
                     word += "●";
                 }
             }
@@ -767,9 +767,11 @@ export class Text extends Sprite {
             this.underline && this._drawUnderline(textAlgin, x, y, i);
 
             if (tCurrBitmapFont) {
-                var tWidth: number = this.width;
+                var tWidth = this.width;
                 if (tCurrBitmapFont.autoScaleSize) {
                     tWidth = this.width * bitmapScale;
+                    x*=bitmapScale;
+                    y*=bitmapScale;
                 }
                 tCurrBitmapFont._drawText(word, this, x, y, this.align, tWidth);
             } else {
@@ -786,7 +788,7 @@ export class Text extends Sprite {
             }
         }
         if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
-            var tScale: number = 1 / bitmapScale;
+            var tScale = 1 / bitmapScale;
             this.scale(tScale, tScale);
         }
 
@@ -864,8 +866,14 @@ export class Text extends Sprite {
         nw = Math.max.apply(this, this._lineWidths);
 
         //计算textHeight
-        if (((<TextStyle>this._style)).currBitmapFont)
-            nh = this._lines.length * (((<TextStyle>this._style)).currBitmapFont.getMaxHeight() + this.leading) + this.padding[0] + this.padding[2];
+        let bmpFont = (this._style as TextStyle) .currBitmapFont;
+        if (bmpFont){
+            let h = bmpFont.getMaxHeight();
+            if(bmpFont.autoScaleSize){
+                h = this.fontSize;
+            }
+            nh = this._lines.length * (h + this.leading) + this.padding[0] + this.padding[2];
+        }
         else{
 			nh = this._lines.length * (this._charSize.height + this.leading) + this.padding[0] + this.padding[2];
 			if(this._lines.length){
