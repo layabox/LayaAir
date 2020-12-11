@@ -21,7 +21,7 @@ export class Bone {
 
     rotation: number;
     resultRotation: number;
-    d: number = -1;
+    d = -1;
 
     /**@internal */
     private _tempMatrix: Matrix;

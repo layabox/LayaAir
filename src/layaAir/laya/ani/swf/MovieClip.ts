@@ -42,19 +42,19 @@ export class MovieClip extends Sprite {
 	/**@internal 当前位置。*/
 	protected _Pos: number = 0;
 	/**@internal 数据。*/
-	protected _data: Byte;
+	protected _data?: Byte;
 	/**@internal */
-	protected _curIndex: number;
+	protected _curIndex?: number;
 	/**@internal */
-	protected _preIndex: number;
+	protected _preIndex?: number;
 	/**@internal */
-	protected _playIndex: number;
+	protected _playIndex: number=0;
 	/**@internal */
 	protected _playing: boolean;
 	/**@internal */
 	protected _ended: boolean = true;
 	/**@internal 总帧数。*/
-	protected _count: number;
+	protected _count: number =0;
 	/**@internal id_data起始位置表*/
 	_ids: any;
 	/**@internal */
@@ -62,34 +62,34 @@ export class MovieClip extends Sprite {
 	/**@internal id_实例表*/
 	_idOfSprite: any[];
 	/**@internal 父mc*/
-	_parentMovieClip: MovieClip;
+	_parentMovieClip: MovieClip|null;
 	/**@internal 需要更新的movieClip表*/
 	_movieClipList: any[];
 	/**@internal */
 	protected _labels: any;
 	/**资源根目录。*/
-	basePath: string;
+	basePath?: string;
 	/**@internal */
-	private _atlasPath: string;
+	private _atlasPath?: string;
 	/**@internal */
-	private _url: string;
+	private _url?: string;
 	/**@internal */
 	private _isRoot: boolean;
 	/**@internal */
-	private _completeHandler: Handler;
+	private _completeHandler: Handler|null=null;
 	/**@internal */
 	private _endFrame: number = -1;
 
 	/** 播放间隔(单位：毫秒)。*/
 	interval: number = 30;
 	/**是否循环播放 */
-	loop: boolean;
+	loop?: boolean;
 
 	/**
 	 * 创建一个 <code>MovieClip</code> 实例。
 	 * @param parentMovieClip 父MovieClip,自己创建时不需要传该参数
 	 */
-	constructor(parentMovieClip: MovieClip = null) {
+	constructor(parentMovieClip: MovieClip|null = null) {
 		super();
 		this._ids = {};
 		this._idOfSprite = [];
@@ -500,7 +500,7 @@ export class MovieClip extends Sprite {
 	 * @param	end		结束索引
 	 * @param	complete	结束回调
 	 */
-	playTo(start: number, end: number, complete: Handler = null): void {
+	playTo(start: number, end: number, complete: Handler|null = null): void {
 		this._completeHandler = complete;
 		this._endFrame = end;
 		this.play(start, false);

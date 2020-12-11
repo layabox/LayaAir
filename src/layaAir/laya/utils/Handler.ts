@@ -11,11 +11,11 @@ export class Handler {
     private static _gid: number = 1;
 
     /** 执行域(this)。*/
-    caller: Object|null;
+    caller: Object|null=null;
     /** 处理方法。*/
-    method: Function|null;
+    method: Function|null=null;
     /** 参数。*/
-    args: any[]|null;
+    args: any[]|null=null;
     /** 表示是否只执行一次。如果为true，回调后执行recover()进行回收，回收后会被再利用，默认为false 。*/
     once = false;
 
@@ -55,8 +55,8 @@ export class Handler {
      */
     run(): any {
         if (this.method == null) return null;
-        var id: number = this._id;
-        var result: any = this.method.apply(this.caller, this.args);
+        var id = this._id;
+        var result = this.method.apply(this.caller, this.args);
         this._id === id && this.once && this.recover();
         return result;
     }
@@ -67,9 +67,9 @@ export class Handler {
      */
     runWith(data: any): any {
         if (this.method == null) return null;
-        var id: number = this._id;
+        var id = this._id;
         if (data == null)
-            var result: any = this.method.apply(this.caller, this.args);
+            var result = this.method.apply(this.caller, this.args);
         else if (!this.args && !data.unshift) result = this.method.call(this.caller, data);
         else if (this.args) result = this.method.apply(this.caller, this.args.concat(data));
         else result = this.method.apply(this.caller, data);

@@ -1,19 +1,18 @@
+import { ILaya } from "../../../ILaya";
+import { Sprite } from "../../display/Sprite";
+import { Point } from "../../maths/Point";
+import { RenderInfo } from "../../renders/RenderInfo";
+import { Context } from "../../resource/Context";
+import { Texture } from "../../resource/Texture";
+import { FontInfo } from "../../utils/FontInfo";
+import { HTMLChar } from "../../utils/HTMLChar";
+import { WordText } from "../../utils/WordText";
+import { CharRenderInfo } from "./CharRenderInfo";
+import { CharRender_Canvas } from "./CharRender_Canvas";
+import { CharRender_Native } from "./CharRender_Native";
+import { ICharRender } from "./ICharRender";
 import { TextAtlas } from "./TextAtlas";
 import { TextTexture } from "./TextTexture";
-import { Sprite } from "../../display/Sprite"
-import { Matrix } from "../../maths/Matrix"
-import { Point } from "../../maths/Point"
-import { RenderInfo } from "../../renders/RenderInfo"
-import { Context } from "../../resource/Context"
-import { Texture } from "../../resource/Texture"
-import { FontInfo } from "../../utils/FontInfo"
-import { HTMLChar } from "../../utils/HTMLChar"
-import { WordText } from "../../utils/WordText"
-import { CharRenderInfo } from "./CharRenderInfo"
-import { CharRender_Canvas } from "./CharRender_Canvas"
-import { CharRender_Native } from "./CharRender_Native"
-import { ICharRender } from "./ICharRender"
-import { ILaya } from "../../../ILaya";
 
 export class TextRender {
     //config
@@ -47,8 +46,6 @@ export class TextRender {
     private mapFont: any = {};		// 把font名称映射到数字
     private fontID: number = 0;
 
-    private mapColor: any[] = [];		// 把color映射到数字
-    private colorID: number = 0;
     private fontScaleX: number = 1.0;						//临时缩放。
     private fontScaleY: number = 1.0;
 
@@ -72,7 +69,6 @@ export class TextRender {
 
     private renderPerChar: boolean = true;	// 是否是单个字符渲染。这个是结果，上面的是配置
     private tmpAtlasPos: Point = new Point();
-    private textureMem: number = 0; 			// 当前贴图所占用的内存
     private fontStr: string;					// 因为要去掉italic，所以自己保存一份
     static simClean: boolean = false;				// 测试用。强制清理占用低的图集
 
@@ -168,9 +164,9 @@ export class TextRender {
         if (data.length <= 0)
             return;
         //以后保存到wordtext中
-        var font: FontInfo = FontInfo.Parse(fontStr);
+        var font = FontInfo.Parse(fontStr);
 
-        var nTextAlign: number = 0;
+        var nTextAlign = 0;
         switch (textAlign) {
             case 'center':
                 nTextAlign = ILaya.Context.ENUM_TEXTALIGN_CENTER;
@@ -185,7 +181,7 @@ export class TextRender {
     fillWords(ctx: Context, data: HTMLChar[], x: number, y: number, fontStr: string | FontInfo, color: string, strokeColor: string, lineWidth: number): void {
         if (!data) return;
         if (data.length <= 0) return;
-        var font: FontInfo = typeof (fontStr) === 'string' ? FontInfo.Parse(fontStr) : fontStr;
+        var font = typeof (fontStr) === 'string' ? FontInfo.Parse(fontStr) : fontStr;
         this._fast_filltext(ctx, null, data, x, y, font, color, strokeColor, lineWidth, 0, 0);
     }
 
@@ -196,8 +192,8 @@ export class TextRender {
         this.setFont(font);
         this.fontScaleX = this.fontScaleY = 1.0;
         if (TextRender.scaleFontWithCtx) {
-            var sx: number = 1;
-            var sy: number = 1;
+            var sx = 1;
+            var sy = 1;
     
             if (!ILaya.Render.isConchApp || ((window as any).conchTextCanvas.scale)) {
                 sx = ctx.getMatScaleX();
@@ -257,7 +253,7 @@ export class TextRender {
 			// 	sameTexData = wt.pageChars = [];
 			// }
         }
-        var ri: CharRenderInfo = null;
+        var ri: CharRenderInfo|null = null;
         //var oneTex: boolean = isWT || TextRender.forceWholeRender;	// 如果能缓存的话，就用一张贴图
         var splitTex: boolean = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || isHtmlChar || (isWT && wt.splitRender); 	// 拆分字符串渲染，这个优先级高
         if (!sameTexData || sameTexData.length < 1) {

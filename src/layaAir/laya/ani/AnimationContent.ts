@@ -4,10 +4,10 @@ import { AnimationNodeContent } from "./AnimationNodeContent";
  * @author ...
  */
 export class AnimationContent {
-	nodes: AnimationNodeContent[];
-	name: string;
-	playTime: number;
+	nodes!: AnimationNodeContent[];
+	name!: string;
+	playTime!: number;
 	bone3DMap: any;
-	totalKeyframeDatasLength: number;
+	totalKeyframeDatasLength!: number;
 }
 

@@ -16,7 +16,7 @@ export class Dragging {
 
 
 	/** 被拖动的对象。*/
-	target: Sprite;
+	target: Sprite|null;
 	/** 缓动衰减系数。*/
 	ratio: number = 0.92;
 	/** 单帧最大偏移量。*/
@@ -42,7 +42,7 @@ export class Dragging {
 	private _offsetY: number;
 	private _offsets: any[];
 	private _disableMouseEvent: boolean;
-	private _tween: Tween;
+	private _tween: Tween|null;
 	private _parent: Sprite;
 
 	/**
@@ -112,11 +112,11 @@ export class Dragging {
 	 * 拖拽的循环处理函数。
 	 */
 	private loop(): void {
-		var point: Point = this._parent.getMousePoint();
-		var mouseX: number = point.x;
-		var mouseY: number = point.y;
-		var offsetX: number = mouseX - this._lastX;
-		var offsetY: number = mouseY - this._lastY;
+		var point = this._parent.getMousePoint();
+		var mouseX = point.x;
+		var mouseY = point.y;
+		var offsetX = mouseX - this._lastX;
+		var offsetY = mouseY - this._lastY;
 
 		if (this._clickOnly) {
 			if (Math.abs(offsetX * ILaya.stage._canvasTransform.getScaleX()) > 1 || Math.abs(offsetY * ILaya.stage._canvasTransform.getScaleY()) > 1) {
@@ -199,10 +199,10 @@ export class Dragging {
 			}
 
 			this._offsetX = this._offsetY = 0;
-			var len: number = this._offsets.length;
-			var n: number = Math.min(len, 6);
-			var m: number = this._offsets.length - n;
-			for (var i: number = len - 1; i > m; i--) {
+			var len = this._offsets.length;
+			var n = Math.min(len, 6);
+			var m = this._offsets.length - n;
+			for (var i = len - 1; i > m; i--) {
 				this._offsetY += this._offsets[i--];
 				this._offsetX += this._offsets[i];
 			}

@@ -3,7 +3,7 @@ import { WebGLContext } from "../WebGLContext"
 //export type BlendFunc = (gl:WebGLRenderingContext)=>void
 
 export class BlendMode {
-    static activeBlendFunction: Function = null;
+    static activeBlendFunction: Function|null = null;
     /** @internal 这个不直接暴露给开发者*/
     static NAMES = [
         "normal", 

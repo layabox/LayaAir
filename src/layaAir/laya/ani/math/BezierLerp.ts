@@ -8,17 +8,15 @@ import { Bezier } from "../../maths/Bezier";
 export class BezierLerp {
 
 	constructor() {
-
 	}
 	/**@internal */
 	private static _bezierResultCache: any = {};
 	/**@internal */
 	private static _bezierPointsCache: any = {};
 
-	//TODO:coverage
 	static getBezierRate(t: number, px0: number, py0: number, px1: number, py1: number): number {
-		var key: number = BezierLerp._getBezierParamKey(px0, py0, px1, py1);
-		var vKey: number = key * 100 + t;
+		var key = BezierLerp._getBezierParamKey(px0, py0, px1, py1);
+		var vKey = key * 100 + t;
 		if (BezierLerp._bezierResultCache[vKey]) return BezierLerp._bezierResultCache[vKey];
 		var points: any[] = BezierLerp._getBezierPoints(px0, py0, px1, py1, key);
 		var i: number, len: number;
@@ -33,13 +31,11 @@ export class BezierLerp {
 		return 1;
 	}
 
-	//TODO:coverage
 	/**@internal */
 	private static _getBezierParamKey(px0: number, py0: number, px1: number, py1: number): number {
 		return (((px0 * 100 + py0) * 100 + px1) * 100 + py1) * 100;
 	}
 
-	//TODO:coverage
 	/**@internal */
 	private static _getBezierPoints(px0: number, py0: number, px1: number, py1: number, key: number): any[] {
 		if (BezierLerp._bezierPointsCache[key]) return BezierLerp._bezierPointsCache[key];

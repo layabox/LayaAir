@@ -45,7 +45,7 @@ export class Node extends EventDispatcher {
     _extUIChild: any[] = Node.ARRAY_EMPTY;
 
     /**@internal 父节点对象*/
-    _parent: Node = null;
+    _parent: Node|null = null;
 
     /**节点名称。*/
     name: string = "";
@@ -84,7 +84,7 @@ export class Node extends EventDispatcher {
 
     /**@internal */
     _setBitUp(type: number): void {
-        var ele: Node = this;
+        var ele:Node|null = this;
         ele._setBit(type, true);
         ele = ele._parent;
         while (ele) {
@@ -104,7 +104,7 @@ export class Node extends EventDispatcher {
      * @return 此 EventDispatcher 对象。
      * @override
      */
-    on(type: string, caller: any, listener: Function, args: any[] = null): EventDispatcher {
+    on(type: string, caller: any, listener: Function, args: any[]|null = null): EventDispatcher {
         if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
             if (!this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
         }

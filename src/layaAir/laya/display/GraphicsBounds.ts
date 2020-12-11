@@ -1,20 +1,3 @@
-import { AlphaCmd } from "./cmd/AlphaCmd"
-import { DrawCircleCmd } from "./cmd/DrawCircleCmd"
-import { DrawCurvesCmd } from "./cmd/DrawCurvesCmd"
-import { DrawImageCmd } from "./cmd/DrawImageCmd"
-import { DrawLineCmd } from "./cmd/DrawLineCmd"
-import { DrawLinesCmd } from "./cmd/DrawLinesCmd"
-import { DrawPathCmd } from "./cmd/DrawPathCmd"
-import { DrawPieCmd } from "./cmd/DrawPieCmd"
-import { DrawPolyCmd } from "./cmd/DrawPolyCmd"
-import { DrawRectCmd } from "./cmd/DrawRectCmd"
-import { DrawTextureCmd } from "./cmd/DrawTextureCmd"
-import { FillTextureCmd } from "./cmd/FillTextureCmd"
-import { RestoreCmd } from "./cmd/RestoreCmd"
-import { RotateCmd } from "./cmd/RotateCmd"
-import { ScaleCmd } from "./cmd/ScaleCmd"
-import { TransformCmd } from "./cmd/TransformCmd"
-import { TranslateCmd } from "./cmd/TranslateCmd"
 import { Bezier } from "../maths/Bezier"
 import { GrahamScan } from "../maths/GrahamScan"
 import { Matrix } from "../maths/Matrix"
@@ -25,11 +8,27 @@ import { Context } from "../resource/Context"
 import { Texture } from "../resource/Texture"
 import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils"
-import { Graphics } from "./Graphics";
-import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
-import { Draw9GridTexture } from "./cmd/Draw9GridTexture";
-import { ClassUtils } from "../utils/ClassUtils";
+import { AlphaCmd } from "./cmd/AlphaCmd"
+import { Draw9GridTexture } from "./cmd/Draw9GridTexture"
+import { DrawCircleCmd } from "./cmd/DrawCircleCmd"
+import { DrawCurvesCmd } from "./cmd/DrawCurvesCmd"
+import { DrawImageCmd } from "./cmd/DrawImageCmd"
+import { DrawLineCmd } from "./cmd/DrawLineCmd"
+import { DrawLinesCmd } from "./cmd/DrawLinesCmd"
+import { DrawPathCmd } from "./cmd/DrawPathCmd"
+import { DrawPieCmd } from "./cmd/DrawPieCmd"
+import { DrawPolyCmd } from "./cmd/DrawPolyCmd"
+import { DrawRectCmd } from "./cmd/DrawRectCmd"
+import { DrawTextureCmd } from "./cmd/DrawTextureCmd"
+import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd"
+import { FillTextureCmd } from "./cmd/FillTextureCmd"
+import { RestoreCmd } from "./cmd/RestoreCmd"
+import { RotateCmd } from "./cmd/RotateCmd"
 import { SaveCmd } from "./cmd/SaveCmd"
+import { ScaleCmd } from "./cmd/ScaleCmd"
+import { TransformCmd } from "./cmd/TransformCmd"
+import { TranslateCmd } from "./cmd/TranslateCmd"
+import { Graphics } from "./Graphics"
 
 /**
  * @private
@@ -42,7 +41,7 @@ export class GraphicsBounds {
     /**@private */
     private static _initMatrix: Matrix = new Matrix();
     /**@private */
-    private static _tempPoints: any[] = [];
+    private static _tempPoints: Point[] = [];
     /**@private */
     private static _tempMatrixArrays: any[] = [];
     /**@private */
@@ -50,13 +49,13 @@ export class GraphicsBounds {
     /**@private */
     private _temp: any[];
     /**@private */
-    private _bounds: Rectangle;
+    private _bounds: Rectangle|null;
     /**@private */
     private _rstBoundPoints: any[];
     /**@private */
     private _cacheBoundsType: boolean = false;
     /**@internal */
-    _graphics: Graphics;
+    _graphics: Graphics|null;
 
     /**
      * 销毁
@@ -111,7 +110,6 @@ export class GraphicsBounds {
     }
 
     private _getCmdPoints(realSize: boolean = false): any[] {
-        var context: Context = Render._context;
         var cmds: any[] = this._graphics.cmds;
         var rst: any[];
         rst = this._temp || (this._temp = []);
@@ -126,12 +124,12 @@ export class GraphicsBounds {
 
         var matrixs: any[] = GraphicsBounds._tempMatrixArrays;
         matrixs.length = 0;
-        var tMatrix: Matrix = GraphicsBounds._initMatrix;
+        var tMatrix = GraphicsBounds._initMatrix;
         tMatrix.identity();
-        var tempMatrix: Matrix = GraphicsBounds._tempMatrix;
+        var tempMatrix = GraphicsBounds._tempMatrix;
         var cmd: any;
         var tex: Texture;
-        for (var i: number = 0, n: number = cmds.length; i < n; i++) {
+        for (var i = 0, n: number = cmds.length; i < n; i++) {
             cmd = cmds[i];
             switch (cmd.cmdID) {
                 case AlphaCmd.ID:
@@ -191,13 +189,13 @@ export class GraphicsBounds {
                             GraphicsBounds._addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x, cmd.y, tex.width, tex.height), tMatrix);
                         }
                     } else {
-                        var wRate: number = (cmd.width || tex.sourceWidth) / tex.width;
-                        var hRate: number = (cmd.height || tex.sourceHeight) / tex.height;
-                        var oWidth: number = wRate * tex.sourceWidth;
-                        var oHeight: number = hRate * tex.sourceHeight;
+                        var wRate = (cmd.width || tex.sourceWidth) / tex.width;
+                        var hRate = (cmd.height || tex.sourceHeight) / tex.height;
+                        var oWidth = wRate * tex.sourceWidth;
+                        var oHeight = hRate * tex.sourceHeight;
 
-                        var offX: number = tex.offsetX > 0 ? tex.offsetX : 0;
-                        var offY: number = tex.offsetY > 0 ? tex.offsetY : 0;
+                        var offX = tex.offsetX > 0 ? tex.offsetX : 0;
+                        var offY = tex.offsetY > 0 ? tex.offsetY : 0;
 
                         offX *= wRate;
                         offY *= hRate;
@@ -255,8 +253,7 @@ export class GraphicsBounds {
                     break;
                 case DrawLineCmd.ID://drawLine
                     GraphicsBounds._tempPoints.length = 0;
-                    var lineWidth: number;
-                    lineWidth = cmd.lineWidth * 0.5;
+                    var lineWidth = cmd.lineWidth * 0.5;
                     if (cmd.fromX == cmd.toX) {
                         GraphicsBounds._tempPoints.push(cmd.fromX + lineWidth, cmd.fromY, cmd.toX + lineWidth, cmd.toY, cmd.fromX - lineWidth, cmd.fromY, cmd.toX - lineWidth, cmd.toY);
                     } else if (cmd.fromY == cmd.toY) {
@@ -301,15 +298,14 @@ export class GraphicsBounds {
     }
 
     private static _addPointArrToRst(rst: any[], points: any[], matrix: Matrix, dx: number = 0, dy: number = 0): void {
-        var i: number, len: number;
-        len = points.length;
-        for (i = 0; i < len; i += 2) {
+        let len = points.length;
+        for (let i = 0; i < len; i += 2) {
             GraphicsBounds._addPointToRst(rst, points[i] + dx, points[i + 1] + dy, matrix);
         }
     }
 
     private static _addPointToRst(rst: any[], x: number, y: number, matrix: Matrix): void {
-        var _tempPoint: Point = Point.TEMP;
+        var _tempPoint = Point.TEMP;
         _tempPoint.setTo(x ? x : 0, y ? y : 0);
         matrix.transformPoint(_tempPoint);
         rst.push(_tempPoint.x, _tempPoint.y);
@@ -327,8 +323,8 @@ export class GraphicsBounds {
     private _getPiePoints(x: number, y: number, radius: number, startAngle: number, endAngle: number): any[] {
         var rst: any[] = GraphicsBounds._tempPoints;
         GraphicsBounds._tempPoints.length = 0;
-        var k: number = Math.PI / 180;
-        var d1: number = endAngle - startAngle;
+        var k = Math.PI / 180;
+        var d1 = endAngle - startAngle;
         if (d1 >= 360 || d1 <= -360) {
             // 如果满了一圈了
             rst.push(x - radius, y - radius);
@@ -340,15 +336,15 @@ export class GraphicsBounds {
         // 
         rst.push(x, y);	// 中心
 
-        var delta: number = d1 % 360;
+        var delta = d1 % 360;
         if (delta < 0) delta += 360;
 
         // 一定增加，且在360以内的end
-        var end1: number = startAngle + delta;
+        var end1 = startAngle + delta;
 
         // 转成弧度
-        var st: number = startAngle * k;
-        var ed: number = end1 * k;
+        var st = startAngle * k;
+        var ed = end1 * k;
 
         // 起点
         rst.push(x + radius * Math.cos(st), y + radius * Math.sin(st));
@@ -357,10 +353,10 @@ export class GraphicsBounds {
 
         // 圆形的四个边界点
         // 按照90度对齐，看看会经历几个90度
-        var s1: number = Math.ceil(startAngle / 90) * 90;	//开始的。start的下一个90度
-        var s2: number = Math.floor(end1 / 90) * 90;		//结束。end的上一个90度
-        for (var cs: number = s1; cs <= s2; cs += 90) {
-            var csr: number = cs * k;
+        var s1 = Math.ceil(startAngle / 90) * 90;	//开始的。start的下一个90度
+        var s2 = Math.floor(end1 / 90) * 90;		//结束。end的上一个90度
+        for (var cs = s1; cs <= s2; cs += 90) {
+            var csr = cs * k;
             rst.push(x + radius * Math.cos(csr), y + radius * Math.sin(csr));
         }
         return rst;

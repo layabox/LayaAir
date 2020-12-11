@@ -30,17 +30,17 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	/**@internal */
 	private _destroyed: boolean;
 	/** @internal 数据模板*/
-	private _templet: AnimationTemplet;
+	private _templet: AnimationTemplet|null=null;
 	/** @internal 当前精确时间，不包括重播时间*/
 	private _currentTime: number;
 	/** @internal 当前帧时间，不包括重播时间*/
-	private _currentFrameTime: number;	// 这个是根据当前帧数反向计算的时间。
+	private _currentFrameTime: number=0;	// 这个是根据当前帧数反向计算的时间。
 	/** @internal 动画播放的起始时间位置*/
-	private _playStart: number;
+	private _playStart: number=0;
 	/** @internal 动画播放的结束时间位置*/
-	private _playEnd: number;
+	private _playEnd: number=0;
 	/** @internal 动画播放一次的总时间*/
-	private _playDuration: number;
+	private _playDuration: number=0;
 	/** @internal 动画播放总时间*/
 	private _overallDuration: number;
 	/** @internal 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了*/
@@ -54,11 +54,11 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	/** @internal 当前帧数*/
 	private _currentKeyframeIndex: number;
 	/** @internal 是否暂停*/
-	private _paused: boolean;
+	private _paused: boolean = false;
 	/** @internal 默认帧率,必须大于0*/
-	private _cacheFrameRate: number;
+	private _cacheFrameRate: number=30;
 	/** @internal 帧率间隔时间*/
-	private _cacheFrameRateInterval: number;
+	private _cacheFrameRateInterval: number=33;
 	/** @internal 缓存播放速率*/
 	private _cachePlayRate: number;
 
@@ -74,7 +74,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	 * @param	value 动画数据模板
 	 */
 	get templet(): AnimationTemplet {
-		return this._templet;
+		return this._templet!;
 	}
 
 	/**
@@ -217,7 +217,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 			throw new Error("AnimationPlayer:value must large than playStartTime,small than playEndTime.");
 
 		this._startUpdateLoopCount = Stat.loopCount;
-		var cacheFrameInterval: number = this._cacheFrameRateInterval * this._cachePlayRate;
+		var cacheFrameInterval = this._cacheFrameRateInterval * this._cachePlayRate;
 		this._currentTime = value /*% playDuration*/;
 		this._currentKeyframeIndex = Math.floor(this.currentPlayTime / cacheFrameInterval);
 		this._currentFrameTime = this._currentKeyframeIndex * cacheFrameInterval;
@@ -299,6 +299,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	 */
 	private _computeFullKeyframeIndices(): void {
 		return;// 先改成实时计算了。否则占用内存太多
+		/*
 		var templet: AnimationTemplet = this._templet;
 		if (templet._fullFrames)
 			return;
@@ -345,21 +346,22 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 			}
 			anifullFrames.push(aniFullFrame);
 		}
+		*/
 	}
 
 	/**
 	 * @internal
 	 */
-	private _onAnimationTempletLoaded(): void {
-		(this.destroyed) || (this._calculatePlayDuration());
-	}
+	//private _onAnimationTempletLoaded(): void {
+	//	(this.destroyed) || (this._calculatePlayDuration());
+	//}
 
 	/**
 	 * @internal
 	 */
 	private _calculatePlayDuration(): void {
 		if (this.state !== AnimationState.stopped) {//防止动画已停止，异步回调导致BUG
-			var oriDuration: number = this._templet.getAniDuration(this._currentAnimationClipIndex);
+			var oriDuration = this._templet!.getAniDuration(this._currentAnimationClipIndex);
 			(this._playEnd === 0) && (this._playEnd = oriDuration);
 
 			if (this._playEnd > oriDuration)//以毫秒为最小时间单位,取整。FillTextureSprite
@@ -384,7 +386,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	 */
 	private _setPlayParamsWhenStop(currentAniClipPlayDuration: number, cacheFrameInterval: number, playEnd: number = -1): void {
 		this._currentTime = currentAniClipPlayDuration;
-		var endTime: number = playEnd > 0 ? playEnd : currentAniClipPlayDuration;
+		var endTime = playEnd > 0 ? playEnd : currentAniClipPlayDuration;
 		this._currentKeyframeIndex = Math.floor(endTime / cacheFrameInterval + 0.01);
 		this._currentKeyframeIndex = Math.floor(currentAniClipPlayDuration / cacheFrameInterval + 0.01);
 		this._currentFrameTime = this._currentKeyframeIndex * cacheFrameInterval;
@@ -398,12 +400,12 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 		if (this._currentAnimationClipIndex === -1 || this._paused || !this._templet /*|| !_templet.loaded*/)//动画停止或暂停，不更新
 			return;
 
-		var cacheFrameInterval: number = this._cacheFrameRateInterval * this._cachePlayRate;
-		var time: number = 0;	// 时间间隔
+		var cacheFrameInterval = this._cacheFrameRateInterval * this._cachePlayRate;
+		var time = 0;	// 时间间隔
 		// 计算经过的时间
 		(this._startUpdateLoopCount !== Stat.loopCount) && (time = elapsedTime * this.playbackRate, this._elapsedPlaybackTime += time);//elapsedTime为距离上一帧时间,首帧播放如果_startPlayLoopCount===Stat.loopCount，则不累加时间
 
-		var currentAniClipPlayDuration: number = this.playDuration;
+		var currentAniClipPlayDuration = this.playDuration;
 		// 如果设置了总播放时间，并且超过总播放时间了，就发送stop事件
 		// 如果没有设置_overallDuration，且播放时间超过的动画总时间，也发送stop事件？  也就是说单次播放不会发出complete事件？
 		// 如果设置了loop播放，则会设置 _overallDuration 

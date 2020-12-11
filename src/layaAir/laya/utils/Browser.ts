@@ -312,7 +312,7 @@ export class Browser {
      * @param	type 节点类型。
      * @return	创建的节点对象的引用。
      */
-    static createElement(type: string): any {
+    static createElement(type: string): HTMLElement {
         Browser.__init__();
         return Browser._document.createElement(type);
     }

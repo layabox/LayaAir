@@ -49,7 +49,7 @@ export class Render {
 
         this.initRender(Render._mainCanvas, width, height);
         window.requestAnimationFrame(loop);
-        function loop(stamp: number): void {
+        function loop(/*stamp: number*/): void {
             ILaya.stage._loop();
             window.requestAnimationFrame(loop);
         }
@@ -69,9 +69,9 @@ export class Render {
     }
 
     initRender(canvas: HTMLCanvas, w: number, h: number): boolean {
-        function getWebGLContext(canvas: any): WebGLRenderingContext {
-            var gl: WebGLRenderingContext;
-            var names: any[] = ["webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+        function getWebGLContext(canvas: any) {
+            var gl: WebGLRenderingContext|null=null;
+            var names = ["webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
             if (!Config.useWebGL2 || Browser.onBDMiniGame) {//TODO:反向兼容百度
                 names.shift();
             }
@@ -88,7 +88,7 @@ export class Render {
             }
             return null;
         }
-        var gl: WebGLRenderingContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
+        var gl = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
 
         if (!gl)
             return false;
@@ -100,7 +100,7 @@ export class Render {
         Context.__init__();
         SubmitBase.__init__();
 
-        var ctx: Context = new Context();
+        var ctx = new Context();
         ctx.isMain = true;
         Render._context = ctx;
         canvas._setContext(ctx);

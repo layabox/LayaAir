@@ -72,7 +72,7 @@ export class Context {
 	static _MAXSIZE: number = 99999999;
 	private static _MAXVERTNUM: number = 65535;
 
-	static MAXCLIPRECT: Rectangle = null;
+	static MAXCLIPRECT: Rectangle;
 
 	static _COUNT: number = 0;
 
@@ -80,8 +80,6 @@ export class Context {
 	_tmpMatrix: Matrix = new Matrix();		// chrome下静态的访问比从this访问要慢
 
 	private static SEGNUM: number = 32;
-
-	private static _contextcount: number = 0;
 
 	private _drawTexToDrawTri_Vert: Float32Array = new Float32Array(8);		// 从速度考虑，不做成static了
 	private _drawTexToDrawTri_Index: Uint16Array = new Uint16Array([0, 1, 2, 0, 2, 3]);
@@ -95,25 +93,25 @@ export class Context {
 	}
 
 	/**@private */
-	drawImage(...args): void {
+	drawImage(): void {
 	}
 
 	/**@private */
-	getImageData(...args): any {
+	getImageData(): any {
 	}
 
 	/**@private */
-	measureText(text: string): any {
+	measureText(): any {
 		return null;
 	}
 
 	/**@private */
-	setTransform(...args): void {
+	setTransform(): void {
 	}
 
 
 	/**@private */
-	$transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
+	$transform(): void {
 	}
 
 
@@ -256,7 +254,7 @@ export class Context {
 		//var points:Array = args[2];
 		//x += args[0], y += args[1];
 		this.moveTo(x + points[0], y + points[1]);
-		var i: number = 2, n: number = points.length;
+		var i = 2, n = points.length;
 		while (i < n) {
 			this.quadraticCurveTo(x + points[i++], y + points[i++], x + points[i++], y + points[i++]);
 		}
@@ -278,7 +276,7 @@ export class Context {
 		}
 	}
 	/**Math.PI*2的结果缓存 */
-	static PI2: number = 2 * Math.PI;
+	static PI2 = 2 * Math.PI;
 	/**@internal */
 	_drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
 		Stat.renderBatches++;
@@ -359,7 +357,7 @@ export class Context {
 	}
 
 	static set2DRenderConfig(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
+		var gl = LayaGL.instance;
 		WebGLContext.setBlend(gl, true);//还原2D设置
 		WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
 		BlendMode.activeBlendFunction=null;		// 防止submit不设置blend

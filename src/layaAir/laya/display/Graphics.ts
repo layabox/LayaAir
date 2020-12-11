@@ -1,40 +1,39 @@
-import { Sprite } from "./Sprite";
-import { GraphicsBounds } from "./GraphicsBounds";
-import { SpriteConst } from "./SpriteConst";
-import { AlphaCmd } from "./cmd/AlphaCmd"
-import { ClipRectCmd } from "./cmd/ClipRectCmd"
-import { Draw9GridTexture } from "./cmd/Draw9GridTexture"
-import { DrawCircleCmd } from "./cmd/DrawCircleCmd"
-import { DrawCurvesCmd } from "./cmd/DrawCurvesCmd"
-import { DrawImageCmd } from "./cmd/DrawImageCmd"
-import { DrawLineCmd } from "./cmd/DrawLineCmd"
-import { DrawLinesCmd } from "./cmd/DrawLinesCmd"
-import { DrawPathCmd } from "./cmd/DrawPathCmd"
-import { DrawPieCmd } from "./cmd/DrawPieCmd"
-import { DrawPolyCmd } from "./cmd/DrawPolyCmd"
-import { DrawRectCmd } from "./cmd/DrawRectCmd"
-import { DrawTextureCmd } from "./cmd/DrawTextureCmd"
-import { DrawTexturesCmd } from "./cmd/DrawTexturesCmd"
-import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd"
-import { FillTextCmd } from "./cmd/FillTextCmd"
-import { FillTextureCmd } from "./cmd/FillTextureCmd"
-import { RestoreCmd } from "./cmd/RestoreCmd"
-import { RotateCmd } from "./cmd/RotateCmd"
-import { SaveCmd } from "./cmd/SaveCmd"
-import { ScaleCmd } from "./cmd/ScaleCmd"
-import { TransformCmd } from "./cmd/TransformCmd"
-import { TranslateCmd } from "./cmd/TranslateCmd"
-import { Event } from "../events/Event"
-import { Matrix } from "../maths/Matrix"
-import { Point } from "../maths/Point"
-import { Rectangle } from "../maths/Rectangle"
-import { Render } from "../renders/Render"
-import { Context } from "../resource/Context"
-import { Texture } from "../resource/Texture"
-import { Utils } from "../utils/Utils"
-import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
-import { HTMLChar } from "../utils/HTMLChar";
+import { Event } from "../events/Event";
+import { Matrix } from "../maths/Matrix";
+import { Point } from "../maths/Point";
+import { Rectangle } from "../maths/Rectangle";
+import { Render } from "../renders/Render";
+import { Context } from "../resource/Context";
+import { Texture } from "../resource/Texture";
+import { Utils } from "../utils/Utils";
+import { VectorGraphManager } from "../utils/VectorGraphManager";
+import { AlphaCmd } from "./cmd/AlphaCmd";
+import { ClipRectCmd } from "./cmd/ClipRectCmd";
+import { Draw9GridTexture } from "./cmd/Draw9GridTexture";
+import { DrawCircleCmd } from "./cmd/DrawCircleCmd";
+import { DrawCurvesCmd } from "./cmd/DrawCurvesCmd";
+import { DrawImageCmd } from "./cmd/DrawImageCmd";
+import { DrawLineCmd } from "./cmd/DrawLineCmd";
+import { DrawLinesCmd } from "./cmd/DrawLinesCmd";
+import { DrawPathCmd } from "./cmd/DrawPathCmd";
+import { DrawPieCmd } from "./cmd/DrawPieCmd";
+import { DrawPolyCmd } from "./cmd/DrawPolyCmd";
+import { DrawRectCmd } from "./cmd/DrawRectCmd";
+import { DrawTextureCmd } from "./cmd/DrawTextureCmd";
+import { DrawTexturesCmd } from "./cmd/DrawTexturesCmd";
+import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
+import { FillTextCmd } from "./cmd/FillTextCmd";
+import { FillTextureCmd } from "./cmd/FillTextureCmd";
+import { RestoreCmd } from "./cmd/RestoreCmd";
+import { RotateCmd } from "./cmd/RotateCmd";
+import { SaveCmd } from "./cmd/SaveCmd";
+import { ScaleCmd } from "./cmd/ScaleCmd";
+import { TransformCmd } from "./cmd/TransformCmd";
+import { TranslateCmd } from "./cmd/TranslateCmd";
+import { GraphicsBounds } from "./GraphicsBounds";
+import { Sprite } from "./Sprite";
+import { SpriteConst } from "./SpriteConst";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -42,20 +41,18 @@ import { HTMLChar } from "../utils/HTMLChar";
  * @see laya.display.Sprite#graphics
  */
 export class Graphics {
-
-
     /**@internal */
-    _sp: Sprite = null;
+    _sp: Sprite|null = null;
     /**@internal */
     _one: any = null;
     /**@internal */
     _render: (sprite: Sprite, context: Context, x: number, y: number)=>void = this._renderEmpty;
     /**@private */
-    private _cmds: any[] = null;
+    private _cmds: any[]|null = null;
     /**@private */
-    protected _vectorgraphArray: any[] = null;
+    protected _vectorgraphArray: any[]|null = null;
     /**@private */
-    private _graphicBounds: GraphicsBounds = null;
+    private _graphicBounds: GraphicsBounds|null = null;
     /**@private */
     autoDestroy: boolean = false;
 
@@ -187,7 +184,7 @@ export class Graphics {
      */
     getBounds(realSize: boolean = false): Rectangle {
         this._initGraphicBounds();
-        return this._graphicBounds.getBounds(realSize);
+        return this._graphicBounds!.getBounds(realSize);
     }
 
     /**
@@ -197,7 +194,7 @@ export class Graphics {
      */
     getBoundPoints(realSize: boolean = false): any[] {
         this._initGraphicBounds();
-        return this._graphicBounds.getBoundPoints(realSize);
+        return this._graphicBounds!.getBoundPoints(realSize);
     }
 
     /**

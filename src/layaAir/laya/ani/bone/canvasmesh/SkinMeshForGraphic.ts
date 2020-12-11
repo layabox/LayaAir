@@ -15,13 +15,13 @@ export class SkinMeshForGraphic extends MeshData {
 	/**
 	 * 矩阵
 	 */
-    transform: Matrix|null;
+    transform: Matrix|null=null;
 
     init2(texture: Texture, ps: any[], verticles: any[], uvs: any[]): void {
         if (this.transform) {
             this.transform = null;
         }
-        var _ps: any[] = ps || [0, 1, 3, 3, 1, 2];
+        var _ps = ps || [0, 1, 3, 3, 1, 2];
         this.texture = texture;
 
         this.indexes = new Uint16Array(_ps);

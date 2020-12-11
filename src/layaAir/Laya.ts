@@ -1,4 +1,5 @@
-﻿import { ILaya } from "./ILaya";
+﻿import { Config } from "./Config";
+import { ILaya } from "./ILaya";
 import { Graphics } from "./laya/display/Graphics";
 import { GraphicsBounds } from "./laya/display/GraphicsBounds";
 import { Input } from "./laya/display/Input";
@@ -6,11 +7,14 @@ import { Node } from "./laya/display/Node";
 import { Sprite } from "./laya/display/Sprite";
 import { Stage } from "./laya/display/Stage";
 import { Text } from "./laya/display/Text";
+import { Event } from "./laya/events/Event";
+import { EventDispatcher } from "./laya/events/EventDispatcher";
 import { KeyBoardManager } from "./laya/events/KeyBoardManager";
 import { MouseManager } from "./laya/events/MouseManager";
 import { LayaGL } from "./laya/layagl/LayaGL";
-import { LayaGLRunner } from "./laya/layagl/LayaGLRunner";
+import { Matrix } from "./laya/maths/Matrix";
 import { AudioSound } from "./laya/media/h5audio/AudioSound";
+import { SoundChannel } from "./laya/media/SoundChannel";
 import { SoundManager } from "./laya/media/SoundManager";
 import { WebAudioSound } from "./laya/media/webaudio/WebAudioSound";
 import { Loader } from "./laya/net/Loader";
@@ -18,10 +22,12 @@ import { LoaderManager } from "./laya/net/LoaderManager";
 import { LocalStorage } from "./laya/net/LocalStorage";
 import { TTFLoader } from "./laya/net/TTFLoader";
 import { URL } from "./laya/net/URL";
+import { WorkerLoader } from "./laya/net/WorkerLoader";
 import { Render } from "./laya/renders/Render";
 import { RenderSprite } from "./laya/renders/RenderSprite";
 import { Context } from "./laya/resource/Context";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
+import { HTMLImage } from "./laya/resource/HTMLImage";
 import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
 import { Resource } from "./laya/resource/Resource";
 import { Texture } from "./laya/resource/Texture";
@@ -30,7 +36,10 @@ import { CacheManger } from "./laya/utils/CacheManger";
 import { ClassUtils } from "./laya/utils/ClassUtils";
 import { ColorUtils } from "./laya/utils/ColorUtils";
 import { Dragging } from "./laya/utils/Dragging";
+import { Handler } from "./laya/utils/Handler";
+import { Mouse } from "./laya/utils/Mouse";
 import { Pool } from "./laya/utils/Pool";
+import { RunDriver } from "./laya/utils/RunDriver";
 import { SceneUtils } from "./laya/utils/SceneUtils";
 import { Stat } from "./laya/utils/Stat";
 import { StatUI } from "./laya/utils/StatUI";
@@ -45,24 +54,14 @@ import { Value2D } from "./laya/webgl/shader/d2/value/Value2D";
 import { Shader } from "./laya/webgl/shader/Shader";
 import { Submit } from "./laya/webgl/submit/Submit";
 import { TextRender } from "./laya/webgl/text/TextRender";
+import { MeshParticle2D } from "./laya/webgl/utils/MeshParticle2D";
+import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
+import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
+import { MeshVG } from "./laya/webgl/utils/MeshVG";
 import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
 import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
-import { WorkerLoader } from "./laya/net/WorkerLoader";
-import { Mouse } from "./laya/utils/Mouse";
-import { MeshVG } from "./laya/webgl/utils/MeshVG";
-import { MeshParticle2D } from "./laya/webgl/utils/MeshParticle2D";
-import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
-import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
-import { SoundChannel } from "./laya/media/SoundChannel";
-import { EventDispatcher } from "./laya/events/EventDispatcher";
-import { Handler } from "./laya/utils/Handler";
-import { RunDriver } from "./laya/utils/RunDriver";
-import { Matrix } from "./laya/maths/Matrix";
-import { HTMLImage } from "./laya/resource/HTMLImage";
-import { Event } from "./laya/events/Event";
-import { Config } from "./Config";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -71,22 +70,22 @@ import { Config } from "./Config";
 export class Laya {
 	/*[COMPILER OPTIONS:normal]*/
 	/** 舞台对象的引用。*/
-	static stage: Stage = null;
+	static stage: Stage;
 
 	/**@private 系统时钟管理器，引擎内部使用*/
-	static systemTimer: Timer = null;
+	static systemTimer: Timer;
 	/**@private 组件的start时钟管理器*/
-	static startTimer: Timer = null;
+	static startTimer: Timer;
 	/**@private 组件的物理时钟管理器*/
-	static physicsTimer: Timer = null;
+	static physicsTimer: Timer;
 	/**@private 组件的update时钟管理器*/
-	static updateTimer: Timer = null;
+	static updateTimer: Timer;
 	/**@private 组件的lateUpdate时钟管理器*/
-	static lateTimer: Timer = null;
+	static lateTimer: Timer;
 	/**游戏主时针，同时也是管理场景，动画，缓动等效果时钟，通过控制本时针缩放，达到快进慢播效果*/
-	static timer: Timer = null;
+	static timer: Timer;
 	/** 加载管理器的引用。*/
-	static loader: LoaderManager = null;
+	static loader: LoaderManager;
 	/** 当前引擎版本。*/
 
 	static version: string = "2.9.0beta";
@@ -101,7 +100,7 @@ export class Laya {
 	static isWXPosMsg: boolean = false;
 
 	/**@internal*/
-	static __classmap: Object = null;
+	static __classmap: Object|null = null;
 
 	/**@internal*/
 	static Config = Config;    //这种写法是为了防止被混淆掉，不能用其他技巧，例如 assin({Config,Stage,...})
@@ -161,10 +160,9 @@ export class Laya {
 	 * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
 	 * @param	width 初始化的游戏窗口宽度，又称设计宽度。
 	 * @param	height	初始化的游戏窗口高度，又称设计高度。
-	 * @param	plugins 插件列表，比如 WebGL（使用WebGL方式渲染）。
 	 * @return	返回原生canvas引用，方便对canvas属性进行修改
 	 */
-	static init(width: number, height: number, ...plugins): any {
+	static init(width: number, height: number): any {
 		if (Laya._isinit) return;
 		Laya._isinit = true;
 		ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
@@ -216,6 +214,7 @@ export class Laya {
 		Mouse.__init__();
 
 		WebGL.inner_enable();
+		/*
 		if (plugins) {
 			for (var i = 0, n = plugins.length; i < n; i++) {
 				if (plugins[i] && plugins[i].enable) {
@@ -223,6 +222,7 @@ export class Laya {
 				}
 			}
 		}
+		*/
 		if (ILaya.Render.isConchApp) {
 			Laya.enableNative();
 		}
@@ -300,19 +300,19 @@ export class Laya {
 	 * @param	debugJsPath laya.debugtool.js文件路径
 	 */
 	static enableDebugPanel(debugJsPath: string = "libs/laya.debugtool.js"): void {
-		if (!window['Laya']["DebugPanel"]) {
-			var script: any = Browser.createElement("script");
+		if (!(window as any).Laya.DebugPanel) {
+			var script = Browser.createElement("script") as HTMLScriptElement;
 			script.onload = function (): void {
-				window['Laya']["DebugPanel"].enable();
+				(window as any).Laya.DebugPanel.enable();
 			}
 			script.src = debugJsPath;
 			Browser.document.body.appendChild(script);
 		} else {
-			window['Laya']["DebugPanel"].enable();
+			(window as any).Laya.DebugPanel.enable();
 		}
 	}
 
-	private static isNativeRender_enable: boolean = false;
+	private static isNativeRender_enable = false;
 	/**@private */
 	private static enableWebGLPlus(): void {
 		WebGLContext.__init_native();
@@ -331,8 +331,8 @@ export class Laya {
 		RenderState2D.width = Browser.window.innerWidth;
 		RenderState2D.height = Browser.window.innerHeight;
 		Browser.measureText = function (txt: string, font: string): any {
-			window["conchTextCanvas"].font = font;
-			return window["conchTextCanvas"].measureText(txt);
+			(window as any)["conchTextCanvas"].font = font;
+			return (window as any)["conchTextCanvas"].measureText(txt);
 		}
 
 		Stage.clear = function (color: string): void {
@@ -343,6 +343,7 @@ export class Laya {
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 			RenderState2D.clear();
 		}
+
 		Sprite.drawToCanvas = Sprite.drawToTexture = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {
 			offsetX -= sprite.x;
 			offsetY -= sprite.y;
@@ -351,15 +352,18 @@ export class Laya {
 			canvasWidth |= 0;
 			canvasHeight |= 0;
 
-			var canv: HTMLCanvas = new HTMLCanvas(false);
-			var ctx: Context = canv.getContext('2d') as Context;
+			var canv = new HTMLCanvas(false);
+			var ctx = canv.getContext('2d') as Context;
 			canv.size(canvasWidth, canvasHeight);
 
 			ctx.asBitmap = true;
+			//@ts-ignore
 			ctx._targets.start();
 			RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
 			ctx.flush();
+			//@ts-ignore
 			ctx._targets.end();
+			//@ts-ignore
 			ctx._targets.restore();
 			return canv;
 		}
@@ -375,11 +379,14 @@ export class Laya {
 		);
 		HTMLCanvas.prototype.getTexture = function (): Texture {
 			if (!this._texture) {
+				//@ts-ignore
 				this._texture = this.context._targets;
+				//@ts-ignore
 				this._texture.uv = RenderTexture2D.flipyuv;
+				//@ts-ignore
 				this._texture.bitmap = this._texture;
 			}
-			return this._texture;
+			return this._texture!;
 		}
 	}
 }

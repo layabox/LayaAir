@@ -32,47 +32,47 @@ import { Resource } from "./laya/resource/Resource";
  * 使用全局类的时候，避免引用其他模块
  */
  export class ILaya{
-     static Laya:any=null;
-     //static classMap:Object=null;
-     static Timer:typeof Timer = null;
-     static WorkerLoader:typeof WorkerLoader=null;
-     static Dragging:typeof Dragging =null;
-     static GraphicsBounds:typeof GraphicsBounds =null;
-     static Sprite:typeof Sprite = null;
-     static TextRender:typeof TextRender = null;
-     static TextAtlas:typeof TextAtlas = null;
-     static timer:Timer=null;
-     static systemTimer:Timer=null;
-     static startTimer:Timer = null;
-     static updateTimer:Timer=null;
-     static lateTimer:Timer=null;
-     static physicsTimer:Timer = null;
-     static stage:Stage = null;
-     static Loader:typeof Loader=null;
-     static loader:LoaderManager = null;
-     static TTFLoader:typeof TTFLoader = null;
-     static SoundManager:typeof SoundManager=null;
-     static WebAudioSound:typeof WebAudioSound=null;
-     static AudioSound:typeof AudioSound = null;
-     static ShaderCompile: typeof ShaderCompile=null;
-     static ClassUtils:typeof ClassUtils=null;
-     static SceneUtils:typeof SceneUtils=null;
-     static Context:typeof Context = null;
-     static Render:typeof Render = null;
-     static MouseManager:typeof MouseManager=null;
-     static Text:typeof Text = null;
-     static Browser:typeof Browser = null;
-     static WebGL:typeof WebGL = null;
-     static Pool:typeof Pool=null;
-     static Utils:typeof Utils = null;
-     static Graphics:typeof Graphics = null;
-     static Submit:typeof Submit = null;
-     static Stage:typeof Stage=null;
-     static Resource:typeof Resource=null;
+     static Laya:any;
+     //static classMap:Object;
+     static Timer:typeof Timer ;
+     static WorkerLoader:typeof WorkerLoader;
+     static Dragging:typeof Dragging ;
+     static GraphicsBounds:typeof GraphicsBounds ;
+     static Sprite:typeof Sprite ;
+     static TextRender:typeof TextRender ;
+     static TextAtlas:typeof TextAtlas ;
+     static timer:Timer;
+     static systemTimer:Timer;
+     static startTimer:Timer ;
+     static updateTimer:Timer;
+     static lateTimer:Timer;
+     static physicsTimer:Timer ;
+     static stage:Stage ;
+     static Loader:typeof Loader;
+     static loader:LoaderManager ;
+     static TTFLoader:typeof TTFLoader ;
+     static SoundManager:typeof SoundManager;
+     static WebAudioSound:typeof WebAudioSound;
+     static AudioSound:typeof AudioSound ;
+     static ShaderCompile: typeof ShaderCompile;
+     static ClassUtils:typeof ClassUtils;
+     static SceneUtils:typeof SceneUtils;
+     static Context:typeof Context ;
+     static Render:typeof Render ;
+     static MouseManager:typeof MouseManager;
+     static Text:typeof Text ;
+     static Browser:typeof Browser ;
+     static WebGL:typeof WebGL ;
+     static Pool:typeof Pool;
+     static Utils:typeof Utils ;
+     static Graphics:typeof Graphics ;
+     static Submit:typeof Submit ;
+     static Stage:typeof Stage;
+     static Resource:typeof Resource;
 
      /**@internal */
-     static __classMap:Object = {};
-     static regClass(c:any){
+     static __classMap:{[key:string]:Function} = {};
+     static regClass(c:Function){
         ILaya.__classMap[c.name]=c;
      }
  }

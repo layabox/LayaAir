@@ -77,7 +77,7 @@ export class EventDispatcher {
     }
 
     /**@internal */
-    _createListener(type: string, caller: any, listener: Function, args: any[], once: boolean, offBefore: boolean = true): EventDispatcher {
+    _createListener(type: string, caller: any, listener: Function, args: any[]|null, once: boolean, offBefore: boolean = true): EventDispatcher {
         //移除之前相同的监听
         offBefore && this.off(type, caller, listener, once);
 
@@ -200,7 +200,7 @@ class EventHandler extends Handler {
     /**@private handler对象池*/
     protected static _pool: any[] = [];
 
-    constructor(caller: any, method: Function, args: any[], once: boolean) {
+    constructor(caller: any, method: Function, args: any[]|null, once: boolean) {
         super(caller, method, args, once);
     }
 	/**
@@ -221,7 +221,7 @@ class EventHandler extends Handler {
 	 * @param once		（可选）是否只执行一次，如果为true，回调后执行recover()进行回收，默认为true。
 	 * @return 返回创建的handler实例。
 	 */
-    static create(caller: any, method: Function, args: any[] = null, once: boolean = true): Handler {
+    static create(caller: any, method: Function, args: any[]|null = null, once: boolean = true): Handler {
         if (EventHandler._pool.length) return EventHandler._pool.pop().setTo(caller, method, args, once);
         return new EventHandler(caller, method, args, once);
     }

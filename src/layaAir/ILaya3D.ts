@@ -13,13 +13,13 @@ import { ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
  * 使用全局类的时候，避免引用其他模块
  */
 export class ILaya3D {
-    static Shader3D: typeof Shader3D = null;
-    static Scene3D: typeof Scene3D = null;
-    static MeshRenderStaticBatchManager: typeof MeshRenderStaticBatchManager = null;
-    static MeshRenderDynamicBatchManager: typeof MeshRenderDynamicBatchManager = null;
-    static SubMeshDynamicBatch: typeof SubMeshDynamicBatch = null;
-    static Laya3D: typeof Laya3D = null;
-    static Matrix4x4: typeof Matrix4x4 = null;
-    static Physics3D: typeof Physics3D = null;
-    static ShadowLightType: typeof ShadowLightType = null;
+    static Shader3D: typeof Shader3D;
+    static Scene3D: typeof Scene3D;
+    static MeshRenderStaticBatchManager: typeof MeshRenderStaticBatchManager;
+    static MeshRenderDynamicBatchManager: typeof MeshRenderDynamicBatchManager;
+    static SubMeshDynamicBatch: typeof SubMeshDynamicBatch;
+    static Laya3D: typeof Laya3D ;
+    static Matrix4x4: typeof Matrix4x4 ;
+    static Physics3D: typeof Physics3D ;
+    static ShadowLightType: typeof ShadowLightType ;
 }
