@@ -52,8 +52,8 @@ export class Pool {
     /**
      * 返回类的唯一标识
      */
-    private static _getClassSign(cla: new () => any): string {
-        var className: string = cla["__className"] || cla["_$gid"];
+    private static _getClassSign(cla:any): string {
+        var className = cla["__className"] || cla["_$gid"];
         if (!className) {
             cla["_$gid"] = className = Pool._CLSID + "";
             Pool._CLSID++;
