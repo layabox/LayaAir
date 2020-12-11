@@ -124,16 +124,16 @@ export class Panel extends Box {
     /**@private */
     private changeScroll(): void {
         this._scrollChanged = false;
-        var contentW: number = this.contentWidth || 1;
-        var contentH: number = this.contentHeight || 1;
+        var contentW = this.contentWidth || 1;
+        var contentH = this.contentHeight || 1;
 
-        var vscroll: ScrollBar = this._vScrollBar;
-        var hscroll: ScrollBar = this._hScrollBar;
+        var vscroll = this._vScrollBar;
+        var hscroll = this._hScrollBar;
 
-        var vShow: boolean = vscroll && contentH > this._height;
-        var hShow: boolean = hscroll && contentW > this._width;
-        var showWidth: number = vShow ? this._width - vscroll.width : this._width;
-        var showHeight: number = hShow ? this._height - hscroll.height : this._height;
+        var vShow = vscroll && contentH > this._height;
+		var hShow = hscroll && contentW > this._width;
+        var showWidth = vShow ? this._width - vscroll.width : this._width;
+        var showHeight = hShow ? this._height - hscroll.height : this._height;
 
         if (vscroll) {
             vscroll.x = this._width - vscroll.width;
@@ -164,9 +164,9 @@ export class Panel extends Box {
      * 获取内容宽度（以像素为单位）。
      */
     get contentWidth(): number {
-        var max: number = 0;
-        for (var i: number = this._content.numChildren - 1; i > -1; i--) {
-            var comp: Sprite = (<Sprite>this._content.getChildAt(i));
+        var max = 0;
+        for (var i = this._content.numChildren - 1; i > -1; i--) {
+            var comp = <Sprite>this._content.getChildAt(i);
             max = Math.max(comp._x + comp.width * comp.scaleX - comp.pivotX, max);
         }
         return max;
@@ -177,9 +177,9 @@ export class Panel extends Box {
      * 获取内容高度（以像素为单位）。
      */
     get contentHeight(): number {
-        var max: number = 0;
-        for (var i: number = this._content.numChildren - 1; i > -1; i--) {
-            var comp: Sprite = (<Sprite>this._content.getChildAt(i));
+        var max = 0;
+        for (var i = this._content.numChildren - 1; i > -1; i--) {
+            var comp = <Sprite>this._content.getChildAt(i);
             max = Math.max(comp._y + comp.height * comp.scaleY - comp.pivotY, max);
         }
         return max;
@@ -192,7 +192,7 @@ export class Panel extends Box {
      * @param height 高度。
      */
     private setContentSize(width: number, height: number): void {
-        var content: Box = this._content;
+        var content = this._content;
         content.width = width;
         content.height = height;
         content._style.scrollRect || (content.scrollRect = Rectangle.create());
@@ -290,9 +290,9 @@ export class Panel extends Box {
      * @param e Event 对象。
      */
     protected onScrollBarChange(scrollBar: ScrollBar): void {
-        var rect: Rectangle = this._content._style.scrollRect;
+        var rect = this._content._style.scrollRect;
         if (rect) {
-            var start: number = Math.round(scrollBar.value);
+            var start = Math.round(scrollBar.value);
             scrollBar.isVertical ? rect.y = start : rect.x = start;
             this._content.scrollRect = rect;
         }

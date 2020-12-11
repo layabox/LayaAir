@@ -85,14 +85,14 @@ void vertexForward()
 	#ifdef PARALLAXTEXTURE
 		vec3 binormal = cross(a_Normal, a_Tangent0.xyz)*a_Tangent0.w;
 		mat3 objectTBN = mat3(a_Tangent0.xyz, binormal, a_Normal);
-		v_ViewDirForParallax=(worldInvMat*u_CameraPos-position.xyz)*objectTBN;
+		v_ViewDirForParallax =(u_CameraPos*worldInvMat-position.xyz)*objectTBN;
 	#endif
 
 	#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
 		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 	#endif
 
-	#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
+	#if defined(CALCULATE_SPOTSHADOWS)//shader涓嚜瀹氫箟鐨勫畯涓嶅彲鐢╥fdef 蹇呴』鏀规垚if defined
 		v_SpotShadowCoord = u_SpotViewProjectMatrix*vec4(v_PositionWorld,1.0);
 	#endif
 }

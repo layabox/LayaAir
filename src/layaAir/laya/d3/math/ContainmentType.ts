@@ -3,11 +3,11 @@
  */
 export class ContainmentType {
 
-	/*不相交*/
+	/**不相交*/
 	static Disjoint: number = 0;
-	/*包含*/
+	/**包含*/
 	static Contains: number = 1;
-	/*相交*/
+	/**相交*/
 	static Intersects: number = 2;
 
 }

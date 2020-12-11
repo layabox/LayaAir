@@ -450,8 +450,9 @@ export class TimeLine extends EventDispatcher {
 }
 
 
-
-
+/**
+ * @internal
+ */
 class tweenData {
     type: number = 0;//0代表TWEEN,1代表标签
     isTo: boolean = true;
