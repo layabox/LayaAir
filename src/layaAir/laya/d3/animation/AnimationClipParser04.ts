@@ -4,51 +4,48 @@ import { AnimationEvent } from "./AnimationEvent";
 import { FloatKeyframe } from "../core/FloatKeyframe"
 import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
 import { Vector3Keyframe } from "../core/Vector3Keyframe"
-import { ConchQuaternion } from "../math/Native/ConchQuaternion"
-import { ConchVector3 } from "../math/Native/ConchVector3"
 import { Quaternion } from "../math/Quaternion"
 import { Vector3 } from "../math/Vector3"
 import { Vector4 } from "../math/Vector4"
 import { AnimationClip } from "./AnimationClip";
 import { Byte } from "../../utils/Byte";
-import { Render } from "../../renders/Render";
 import { HalfFloatUtils } from "../../utils/HalfFloatUtils";
 
 /**
  * @internal
  */
 export class AnimationClipParser04 {
-	private static _animationClip: AnimationClip;
-	private static _reader: Byte;
+	private static _animationClip: AnimationClip|null;
+	private static _reader: Byte|null;
 	private static _strings: any[] = [];
 	private static _BLOCK: any = { count: 0 };
 	private static _DATA: any = { offset: 0, size: 0 };
-	private static _version: string;
+	private static _version: string|null;
 
 	private static READ_DATA(): void {
-		AnimationClipParser04._DATA.offset = AnimationClipParser04._reader.getUint32();
-		AnimationClipParser04._DATA.size = AnimationClipParser04._reader.getUint32();
+		AnimationClipParser04._DATA.offset = AnimationClipParser04._reader!.getUint32();
+		AnimationClipParser04._DATA.size = AnimationClipParser04._reader!.getUint32();
 	}
 
 	private static READ_BLOCK(): void {
-		var count: number = AnimationClipParser04._BLOCK.count = AnimationClipParser04._reader.getUint16();
+		var count: number = AnimationClipParser04._BLOCK.count = AnimationClipParser04._reader!.getUint16();
 		var blockStarts: any[] = AnimationClipParser04._BLOCK.blockStarts = [];
 		var blockLengths: any[] = AnimationClipParser04._BLOCK.blockLengths = [];
 		for (var i: number = 0; i < count; i++) {
-			blockStarts.push(AnimationClipParser04._reader.getUint32());
-			blockLengths.push(AnimationClipParser04._reader.getUint32());
+			blockStarts.push(AnimationClipParser04._reader!.getUint32());
+			blockLengths.push(AnimationClipParser04._reader!.getUint32());
 		}
 	}
 
 	private static READ_STRINGS(): void {
-		var offset: number = AnimationClipParser04._reader.getUint32();
-		var count: number = AnimationClipParser04._reader.getUint16();
-		var prePos: number = AnimationClipParser04._reader.pos;
-		AnimationClipParser04._reader.pos = offset + AnimationClipParser04._DATA.offset;
+		var offset: number = AnimationClipParser04._reader!.getUint32();
+		var count: number = AnimationClipParser04._reader!.getUint16();
+		var prePos: number = AnimationClipParser04._reader!.pos;
+		AnimationClipParser04._reader!.pos = offset + AnimationClipParser04._DATA.offset;
 
 		for (var i: number = 0; i < count; i++)
-			AnimationClipParser04._strings[i] = AnimationClipParser04._reader.readUTFString();
-		AnimationClipParser04._reader.pos = prePos;
+			AnimationClipParser04._strings[i] = AnimationClipParser04._reader!.readUTFString();
+		AnimationClipParser04._reader!.pos = prePos;
 	}
 
 	/**
@@ -64,7 +61,7 @@ export class AnimationClipParser04 {
 		for (var i: number = 0, n: number = AnimationClipParser04._BLOCK.count; i < n; i++) {
 			var index: number = reader.getUint16();
 			var blockName: string = AnimationClipParser04._strings[index];
-			var fn: Function = AnimationClipParser04["READ_" + blockName];
+			var fn: ()=>void = (AnimationClipParser04 as any)["READ_" + blockName];
 			if (fn == null)
 				throw new Error("model file err,no this function:" + index + " " + blockName);
 			else
@@ -81,8 +78,7 @@ export class AnimationClipParser04 {
 	static READ_ANIMATIONS(): void {
 		var i: number, j: number;
 		var node: KeyframeNode;
-		var reader: Byte = AnimationClipParser04._reader;
-		var buffer: ArrayBuffer = reader.__getBuffer();
+		var reader: Byte = AnimationClipParser04._reader!;
 
 		var startTimeTypes: number[] = [];
 		var startTimeTypeCount: number = reader.getUint16();
@@ -90,13 +86,13 @@ export class AnimationClipParser04 {
 		for (i = 0; i < startTimeTypeCount; i++)
 			startTimeTypes[i] = reader.getFloat32();
 
-		var clip: AnimationClip = AnimationClipParser04._animationClip;
+		var clip: AnimationClip = AnimationClipParser04._animationClip!;
 		clip.name = AnimationClipParser04._strings[reader.getUint16()];
 		var clipDur: number = clip._duration = reader.getFloat32();
 		clip.islooping = !!reader.getByte();
 		clip._frameRate = reader.getInt16();
 		var nodeCount: number = reader.getInt16();
-		var nodes: KeyframeNodeList = clip._nodes;
+		var nodes: KeyframeNodeList = clip._nodes!;
 		nodes.count = nodeCount;
 		var nodesMap: any = clip._nodesMap = {};
 		var nodesDic: any = clip._nodesDic = {};
@@ -253,7 +249,7 @@ export class AnimationClipParser04 {
 			var event: AnimationEvent = new AnimationEvent();
 			event.time = Math.min(clipDur, reader.getFloat32());//TODO:事件时间可能大于动画总时长
 			event.eventName = AnimationClipParser04._strings[reader.getUint16()];
-			var params: any[];
+			var params: Array<number|string|boolean> = [];
 			var paramCount: number = reader.getUint16();
 			(paramCount > 0) && (event.params = params = []);
 
