@@ -68,6 +68,20 @@ export enum CameraEventFlags {
 }
 
 /**
+ * 深度贴图模式
+ */
+export enum DepthTextureMode{
+	/**不生成深度贴图 */
+	None = 0,
+	/**生成深度贴图 */
+	Depth = 1,
+	/**生成深度+法线贴图 */
+	DepthNormals = 2,
+	/**是否应渲染运动矢量  TODO*/
+	MotionVectors = 4
+}
+
+/**
  * <code>Camera</code> 类用于创建摄像机。
  */
 export class Camera extends BaseCamera {
