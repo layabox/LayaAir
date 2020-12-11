@@ -126,7 +126,6 @@ export class AnimationClipParser04 {
 
 			var keyframeCount: number = reader.getUint16();
 			node._setKeyframeCount(keyframeCount);
-			var startTime: number;
 			switch (AnimationClipParser04._version) {
 				case "LAYAANIMATION:04":
 					for (j = 0; j < keyframeCount; j++) {
@@ -134,7 +133,7 @@ export class AnimationClipParser04 {
 							case 0:
 								var floatKeyframe: FloatKeyframe = new FloatKeyframe();
 								node._setKeyframeByIndex(j, floatKeyframe);
-								startTime = floatKeyframe.time = startTimeTypes[reader.getUint16()];
+								floatKeyframe.time = startTimeTypes[reader.getUint16()];
 								floatKeyframe.inTangent = reader.getFloat32();
 								floatKeyframe.outTangent = reader.getFloat32();
 								floatKeyframe.value = reader.getFloat32();
@@ -144,39 +143,39 @@ export class AnimationClipParser04 {
 							case 4:
 								var floatArrayKeyframe: Vector3Keyframe = new Vector3Keyframe();
 								node._setKeyframeByIndex(j, floatArrayKeyframe);
-								startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-									var inTangent: Vector3 = floatArrayKeyframe.inTangent;
-									var outTangent: Vector3 = floatArrayKeyframe.outTangent;
-									var value: Vector3 = floatArrayKeyframe.value;
-									inTangent.x = reader.getFloat32();
-									inTangent.y = reader.getFloat32();
-									inTangent.z = reader.getFloat32();
-									outTangent.x = reader.getFloat32();
-									outTangent.y = reader.getFloat32();
-									outTangent.z = reader.getFloat32();
-									value.x = reader.getFloat32();
-									value.y = reader.getFloat32();
-									value.z = reader.getFloat32();
+								floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+								var inTangent: Vector3 = floatArrayKeyframe.inTangent;
+								var outTangent: Vector3 = floatArrayKeyframe.outTangent;
+								var value: Vector3 = floatArrayKeyframe.value;
+								inTangent.x = reader.getFloat32();
+								inTangent.y = reader.getFloat32();
+								inTangent.z = reader.getFloat32();
+								outTangent.x = reader.getFloat32();
+								outTangent.y = reader.getFloat32();
+								outTangent.z = reader.getFloat32();
+								value.x = reader.getFloat32();
+								value.y = reader.getFloat32();
+								value.z = reader.getFloat32();
 								break;
 							case 2:
 								var quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe();
 								node._setKeyframeByIndex(j, quaternionKeyframe);
-								startTime = quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
-									var inTangentQua: Vector4 = quaternionKeyframe.inTangent;
-									var outTangentQua: Vector4 = quaternionKeyframe.outTangent;
-									var valueQua: Quaternion = quaternionKeyframe.value;
-									inTangentQua.x = reader.getFloat32();
-									inTangentQua.y = reader.getFloat32();
-									inTangentQua.z = reader.getFloat32();
-									inTangentQua.w = reader.getFloat32();
-									outTangentQua.x = reader.getFloat32();
-									outTangentQua.y = reader.getFloat32();
-									outTangentQua.z = reader.getFloat32();
-									outTangentQua.w = reader.getFloat32();
-									valueQua.x = reader.getFloat32();
-									valueQua.y = reader.getFloat32();
-									valueQua.z = reader.getFloat32();
-									valueQua.w = reader.getFloat32();
+								quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
+								var inTangentQua: Vector4 = quaternionKeyframe.inTangent;
+								var outTangentQua: Vector4 = quaternionKeyframe.outTangent;
+								var valueQua: Quaternion = quaternionKeyframe.value;
+								inTangentQua.x = reader.getFloat32();
+								inTangentQua.y = reader.getFloat32();
+								inTangentQua.z = reader.getFloat32();
+								inTangentQua.w = reader.getFloat32();
+								outTangentQua.x = reader.getFloat32();
+								outTangentQua.y = reader.getFloat32();
+								outTangentQua.z = reader.getFloat32();
+								outTangentQua.w = reader.getFloat32();
+								valueQua.x = reader.getFloat32();
+								valueQua.y = reader.getFloat32();
+								valueQua.z = reader.getFloat32();
+								valueQua.w = reader.getFloat32();
 								break;
 							default:
 								throw "AnimationClipParser04:unknown type.";
@@ -189,7 +188,7 @@ export class AnimationClipParser04 {
 							case 0:
 								floatKeyframe = new FloatKeyframe();
 								node._setKeyframeByIndex(j, floatKeyframe);
-								startTime = floatKeyframe.time = startTimeTypes[reader.getUint16()];
+								floatKeyframe.time = startTimeTypes[reader.getUint16()];
 								floatKeyframe.inTangent = HalfFloatUtils.convertToNumber(reader.getUint16());
 								floatKeyframe.outTangent = HalfFloatUtils.convertToNumber(reader.getUint16());
 								floatKeyframe.value = HalfFloatUtils.convertToNumber(reader.getUint16());
@@ -199,41 +198,41 @@ export class AnimationClipParser04 {
 							case 4:
 								floatArrayKeyframe = new Vector3Keyframe();
 								node._setKeyframeByIndex(j, floatArrayKeyframe);
-								startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+								floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
 
-									inTangent = floatArrayKeyframe.inTangent;
-									outTangent = floatArrayKeyframe.outTangent;
-									value = floatArrayKeyframe.value;
-									inTangent.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-									inTangent.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-									inTangent.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-									outTangent.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-									outTangent.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-									outTangent.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-									value.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-									value.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-									value.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+								inTangent = floatArrayKeyframe.inTangent;
+								outTangent = floatArrayKeyframe.outTangent;
+								value = floatArrayKeyframe.value;
+								inTangent.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+								inTangent.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+								inTangent.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+								outTangent.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+								outTangent.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+								outTangent.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+								value.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+								value.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+								value.z = HalfFloatUtils.convertToNumber(reader.getUint16());
 								break;
 							case 2:
 								quaternionKeyframe = new QuaternionKeyframe();
 								node._setKeyframeByIndex(j, quaternionKeyframe);
-								startTime = quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
+								quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
 
-									inTangentQua = quaternionKeyframe.inTangent;
-									outTangentQua = quaternionKeyframe.outTangent;
-									valueQua = quaternionKeyframe.value;
-									inTangentQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-									inTangentQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-									inTangentQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-									inTangentQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
-									outTangentQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-									outTangentQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-									outTangentQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-									outTangentQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
-									valueQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-									valueQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-									valueQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-									valueQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
+								inTangentQua = quaternionKeyframe.inTangent;
+								outTangentQua = quaternionKeyframe.outTangent;
+								valueQua = quaternionKeyframe.value;
+								inTangentQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+								inTangentQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+								inTangentQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+								inTangentQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
+								outTangentQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+								outTangentQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+								outTangentQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+								outTangentQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
+								valueQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+								valueQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+								valueQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+								valueQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
 								break;
 							default:
 								throw "AnimationClipParser04:unknown type.";
