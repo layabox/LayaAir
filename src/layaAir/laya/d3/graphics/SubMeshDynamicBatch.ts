@@ -97,7 +97,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 		element._computeWorldPositionsAndNormals(this._positionOffset, this._normalOffset, multiSubMesh, vertexCount);
 		var worldPositions: Float32Array = element._dynamicWorldPositions;
 		var worldNormals: Float32Array = element._dynamicWorldNormals;
-		var indices: Uint16Array = subMesh._indices;
+		var indices = subMesh._indices;
 		for (var i: number = 0; i < vertexCount; i++) {
 			var index: number = multiSubMesh ? indices[i] : i;
 			var oriOffset: number = index * vertexFloatCount;
@@ -161,7 +161,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	 * @internal
 	 */
 	private _getBatchIndices(batchIndices: Int16Array, batchIndexCount: number, batchVertexCount: number, transform: Transform3D, subMesh: SubMesh, multiSubMesh: boolean): void {
-		var subIndices: Uint16Array = subMesh._indices;
+		var subIndices = subMesh._indices;
 		var k: number, m: number, batchOffset: number;
 		var isInvert: boolean = transform._isFrontFaceInvert;
 		if (multiSubMesh) {

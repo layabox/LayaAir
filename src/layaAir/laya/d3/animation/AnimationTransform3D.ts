@@ -4,9 +4,6 @@ import { Vector3 } from "../math/Vector3"
 import { Utils3D } from "../utils/Utils3D"
 import { Event } from "../../events/Event"
 import { EventDispatcher } from "../../events/EventDispatcher"
-import { Render } from "../../renders/Render"
-import { ConchQuaternion } from "../math/Native/ConchQuaternion"
-import { ConchVector3 } from "../math/Native/ConchVector3"
 /**
  * <code>AnimationTransform3D</code> 类用于实现3D变换。
  */
@@ -36,7 +33,7 @@ export class AnimationTransform3D extends EventDispatcher {
 	 * 创建一个 <code>Transform3D</code> 实例。
 	 * @param owner 所属精灵。
 	 */
-	constructor(owner: AnimationNode, localPosition: Float32Array = null/*[NATIVE]*/, localRotation: Float32Array = null/*[NATIVE]*/, localScale: Float32Array = null/*[NATIVE]*/, worldMatrix: Float32Array = null/*[NATIVE]*/) {
+	constructor(owner: AnimationNode) {
 		super();
 		this._owner = owner;
 		this._children = [];

@@ -2,7 +2,6 @@ import { Component } from "../../components/Component";
 import { Node } from "../../display/Node";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Loader } from "../../net/Loader";
-import { Render } from "../../renders/Render";
 import { Timer } from "../../utils/Timer";
 import { AnimationClip } from "../animation/AnimationClip";
 import { AnimationEvent } from "../animation/AnimationEvent";
@@ -34,11 +33,7 @@ import { ConchVector3 } from "../math/Native/ConchVector3";
  */
 export class Animator extends Component {
 	/**@internal */
-	private static _tempVector30: Vector3 = new Vector3();
-	/**@internal */
 	private static _tempVector31: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempQuaternion0: Quaternion = new Quaternion();
 	/**@internal */
 	private static _tempQuaternion1: Quaternion = new Quaternion();
 

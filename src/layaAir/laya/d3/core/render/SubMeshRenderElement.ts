@@ -84,7 +84,7 @@ export class SubMeshRenderElement extends RenderElement {
 			var oriVertexes: Float32Array = vertexBuffer.getFloat32Data();
 			var worldMat: Matrix4x4 = this._transform.worldMatrix;
 			var rotation: Quaternion = this._transform.rotation;//TODO:是否换成矩阵
-			var indices: Uint16Array = subMesh._indices;
+			var indices = subMesh._indices;
 
 			for (var i: number = 0; i < vertexCount; i++) {
 				var index: number = multiSubMesh ? indices[i] : i;
