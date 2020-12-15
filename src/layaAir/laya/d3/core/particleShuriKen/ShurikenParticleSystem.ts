@@ -141,7 +141,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private _firstRetiredElement: number = 0;
 	/**@internal */
 	private _drawCounter: number = 0;
-	/**@internal */
+	/**@internal 最大粒子数量*/
 	private _bufferMaxParticles: number = 0;
 	/**@internal */
 	private _emission: Emission = null;
@@ -160,7 +160,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private _frameRateTime: number = 0;
 	/**@internal 一次循环内的累计时间。*/
 	private _emissionTime: number = 0;
-	/**@internal */
+	/**@internal 用来计算时间是否超过发射延迟时间*/
 	private _totalDelayTime: number = 0;
 	/**@internal */
 	private _burstsIndex: number = 0;
@@ -1547,6 +1547,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 	/**
 	 * @internal
+	 * 计算粒子更新时间
 	 */
 	private _updateEmission(): void {
 		if (!this.isAlive)
@@ -1563,12 +1564,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 	/**
 	 * @internal
+	 * 传入粒子间隔时间，更新粒子状态
 	 */
 	private _updateParticles(elapsedTime: number): void {
 		if (this._ownerRender.renderMode === 4 && !this._ownerRender.mesh)//renderMode=4且mesh为空时不更新
 			return;
 
-		this._currentTime += elapsedTime;
+		this._currentTime += elapsedTime;//计算目前粒子播放时间啊
 		this._retireActiveParticles();
 		this._freeRetiredParticles();
 
@@ -1642,8 +1644,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private _freeRetiredParticles(): void {
 		while (this._firstRetiredElement != this._firstActiveElement) {
 			var age: number = this._drawCounter - this._vertices[this._firstRetiredElement * this._floatCountPerVertex * this._vertexStride + this._timeIndex];//11为Time
-
-			if (this.isPerformanceMode)
+			//TODO这里会有什么bug
+			if (false)
 				if (age < 3)//GPU从不滞后于CPU两帧，出于显卡驱动BUG等安全因素考虑滞后三帧
 					break;
 
@@ -1654,7 +1656,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * @internal
+	 * @internal5
+	 * 增加爆炸粒子数量
 	 */
 	private _burst(fromTime: number, toTime: number): number {
 		var totalEmitCount: number = 0;
@@ -1705,14 +1708,14 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		} else {
 			totalEmitCount += this._burst(lastEmissionTime, this._emissionTime);
 		}
-
+		//粒子的增加数量，不能超过maxParticles
 		totalEmitCount = Math.min(this.maxParticles - this.aliveParticleCount, totalEmitCount);
 		for (i = 0; i < totalEmitCount; i++)
 			this.emit(emitTime);
-
-
+		//粒子发射速率
 		var emissionRate: number = this.emission.emissionRate;
 		if (emissionRate > 0) {
+			//每多少秒发射一个粒子
 			var minEmissionTime: number = 1 / emissionRate;
 			this._frameRateTime += minEmissionTime;
 			this._frameRateTime = this._currentTime - (this._currentTime - this._frameRateTime) % this._maxStartLifetime;//大于最大声明周期的粒子一定会死亡，所以直接略过,TODO:是否更换机制
@@ -1919,8 +1922,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		return this.addParticle(position, direction, time);//TODO:提前判断优化
 	}
 
+	//增加一个粒子
 	addParticle(position: Vector3, direction: Vector3, time: number): boolean {//TODO:还需优化
 		Vector3.normalize(direction, direction);
+		//下一个粒子
 		var nextFreeParticle: number = this._firstFreeElement + 1;
 		if (nextFreeParticle >= this._bufferMaxParticles)
 			nextFreeParticle = 0;
