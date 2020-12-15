@@ -10,6 +10,9 @@ import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { Sprite3D } from "./Sprite3D";
 import { Scene3D } from "./scene/Scene3D";
+import { Texture2D } from "../../resource/Texture2D";
+import { BaseTexture } from "../../resource/BaseTexture";
+import { ShaderDefine } from "../shader/ShaderDefine";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -33,6 +36,14 @@ export class BaseCamera extends Sprite3D {
 	static VIEWPORT: number = Shader3D.propertyNameToID("u_Viewport");
 	/**@internal */
 	static PROJECTION_PARAMS: number = Shader3D.propertyNameToID("u_ProjectionParams");
+	/**@internal */
+	static DEPTHTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthTexture");
+	/**@internal */
+	static DEPTHNORMALSTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
+	/**@internal */
+	static SHADERDEFINE_DEPTH:ShaderDefine = Shader3D.getDefineByName("DEPTHMAP");
+	/**@internal */
+	static SHADERDEFINE_DEPTHNORMALS:ShaderDefine = Shader3D.getDefineByName("DEPTHNORMALSMAP")
 
 	/**渲染模式,延迟光照渲染，暂未开放。*/
 	static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
@@ -43,8 +54,6 @@ export class BaseCamera extends Sprite3D {
 	protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
 	protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
 
-	//private static const Vector3[] cornersWorldSpace:Vector.<Vector3> = new Vector.<Vector3>(8);
-	//private static const  boundingFrustum:BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
 
 	/** @internal 渲染顺序。*/
@@ -61,6 +70,10 @@ export class BaseCamera extends Sprite3D {
 	private _skyRenderer: SkyRenderer = new SkyRenderer();
 	private _forward: Vector3 = new Vector3();
 	private _up: Vector3 = new Vector3();
+	/** 深度贴图*/
+	private _depthTexture:BaseTexture;
+	/** 深度法线贴图*/
+	private _depthNormalsTexture:BaseTexture;
 
 	/**@internal */
 	protected _orthographic: boolean;
@@ -77,6 +90,32 @@ export class BaseCamera extends Sprite3D {
 	cullingMask: number;
 	/** 渲染时是否用遮挡剔除。 */
 	useOcclusionCulling: boolean;
+
+	/**
+	 * @internal
+	 * 深度贴图
+	 */
+	get depthTexture():BaseTexture{
+		return this._depthTexture;
+	}
+
+	set depthTexture(value:BaseTexture){
+		value = value?value:Texture2D.blackTexture;
+		this._depthTexture = value;
+	}
+
+	/**
+	 * @internal
+	 * 深度法线贴图
+	 */
+	get depthNormalTexture():BaseTexture{
+		return this._depthNormalsTexture;
+	}
+
+	set depthNormalTexture(value:BaseTexture){
+		value = value?value:Texture2D.blackTexture;
+		this._depthNormalsTexture = value;
+	}
 
 	/**
 	 * 天空渲染器。

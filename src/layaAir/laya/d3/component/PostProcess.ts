@@ -55,7 +55,8 @@ export class PostProcess {
 	private _compositeShaderData: ShaderData = new ShaderData();
 	/**@internal */
 	private _effects: PostProcessEffect[] = [];
-
+	/**@internal */
+	private _enable:boolean = true;
 	/**@internal */
 	_context: PostProcessRenderContext = null;
 
@@ -68,6 +69,15 @@ export class PostProcess {
 		this._context.compositeShaderData = this._compositeShaderData;
 		this._context.command = new CommandBuffer();
 	}
+
+	get enable():boolean{
+		return this._enable;
+	}
+
+	set enable(value:boolean){
+		this._enable = value;
+	}
+
 
 	/**
 	 *@internal

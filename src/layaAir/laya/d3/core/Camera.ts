@@ -91,13 +91,18 @@ export class Camera extends BaseCamera {
 	/** @internal */
 	static _updateMark: number = 0;
 
-	/**
+		/**
 	 * 根据相机、scene信息获得scene中某一位置的渲染结果
 	 * @param camera 
 	 * @param scene 
 	 */
-	static drawRenderTextureByScene(camera:Camera,scene:Scene3D):RenderTexture {
-		(!camera.renderTarget)&&(camera.renderTarget = RenderTexture.createFromPool(camera.viewport.width, camera.viewport.height, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE));
+	static drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture):RenderTexture {
+		if(camera.renderTarget!=renderTexture)
+		{
+			camera.renderTarget&&RenderTexture.recoverToPool(camera.renderTarget);
+			camera.renderTarget = renderTexture;
+		}
+		
 		var viewport: Viewport = camera.viewport;
 		var needInternalRT: boolean = camera._needInternalRenderTexture();
 		var gl: WebGLRenderingContext = LayaGL.instance;
@@ -480,7 +485,7 @@ export class Camera extends BaseCamera {
 	 * @internal
 	 */
 	_needInternalRenderTexture(): boolean {
-		return this._postProcess || this._enableHDR ||this._needBuiltInRenderTexture ? true : false;//condition of internal RT
+		return (this._postProcess&&this._postProcess.enable) || this._enableHDR ||this._needBuiltInRenderTexture ? true : false;//condition of internal RT
 	}
 
 	/**
@@ -704,7 +709,8 @@ export class Camera extends BaseCamera {
 
 		scene._preCulling(context, this, shader, replacementTag);
 		scene._clear(gl, context);
-
+		//在这里增加depthTexture,NormalDepthTexture
+		this._renderDepthMode();
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
 		scene._renderScene(context,ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox,context);
@@ -717,7 +723,7 @@ export class Camera extends BaseCamera {
 		(renderTex) && (renderTex._end());
 		
 		if (needInternalRT) {
-			if (this._postProcess) {
+			if (this._postProcess&&this._postProcess.enable) {
 				this._postProcess._render();
 				this._postProcess._applyPostProcessCommandBuffers();
 			} else if (this._enableHDR||this._needBuiltInRenderTexture) {
@@ -731,6 +737,39 @@ export class Camera extends BaseCamera {
 		}
 		this._applyCommandBuffer(CameraEventFlags.AfterEveryThing,context);
 	}
+
+	/**
+	 * 根据camera的深度贴图模式更新深度贴图
+	 * @internal
+	 */
+	_renderDepthMode(){
+		
+	}
+
+	/**
+	 * 渲染深度贴图
+	 */
+	_renderDepthTexture(){
+
+	}
+
+	/**
+	 * 渲染深度法线贴图
+	 */
+	_renderDepthNormalsTexture(){
+
+	}
+
+	/**
+	 * TODO
+	 * 渲染运动贴图
+	 */
+	_renderMotionVectorsTexture(){
+		
+	}
+
+	_renderVec
+
 
 	/**
 	 * @internal
