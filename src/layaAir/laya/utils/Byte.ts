@@ -675,7 +675,21 @@ export class Byte {
         var dPos: number = this.pos - tPos - 2;
         //trace("writeLen:",dPos,"pos:",tPos);
         this._d_.setUint16(tPos, dPos, this._xd_);
+	}
+	
+	/**
+	 * <p>将 UTF-8 字符串写入字节流。先写入以字节表示的 UTF-8 字符串长度（作为 32 位整数），然后写入表示字符串字符的字节。</p>
+	 * @param	value 要写入的字符串值。
+	 */
+    writeUTFString32(value:string):void {
+        var tPos = this.pos;
+        this.writeUint32(1);
+        this.writeUTFBytes(value);
+        var dPos = this.pos - tPos - 4;
+        //trace("writeLen:",dPos,"pos:",tPos);
+        this._d_.setUint32(tPos, dPos, this._xd_);
     }
+
 
     /**
      * @private
@@ -687,6 +701,13 @@ export class Byte {
         //var len:int = getUint16();
         ////trace("readLen:"+len,"pos,",tPos);
         return this.readUTFBytes(this.getUint16());
+    }
+
+	/**
+	 * @private
+	 */
+    readUTFString32():string {
+        return this.readUTFBytes(this.getUint32());
     }
 
     /**

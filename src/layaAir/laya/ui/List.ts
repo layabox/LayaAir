@@ -205,7 +205,7 @@ export class List extends Box implements IRender, IItem {
 	/**@private */
 	protected _array: any[];
 	/**@private */
-	protected _startIndex: number = 0;
+	protected _startIndex: number = -1;
 	/**@private */
 	protected _selectedIndex: number = -1;
 	/**@private */
@@ -802,8 +802,12 @@ export class List extends Box implements IRender, IItem {
 	}
 
 	set startIndex(value: number) {
-		this._startIndex = value > 0 ? value : 0;
-		this.callLater(this.renderItems);
+		let  v = value > 0 ? value : 0;
+		if(this._startIndex !=v){
+			this._startIndex=v;
+			this.callLater(this.renderItems);
+		}
+		
 	}
 
 	/**

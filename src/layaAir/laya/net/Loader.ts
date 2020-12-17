@@ -761,6 +761,7 @@ export class Loader extends EventDispatcher {
 
 	/**
 	 * 缓存资源。
+	 * 如果资源已经存在则缓存失败。
 	 * @param	url 资源地址。
 	 * @param	data 要缓存的内容。
 	 */
@@ -777,6 +778,15 @@ export class Loader extends EventDispatcher {
 				Loader.loadedMap[url] = data;
 			}
 		}
+	}
+
+	/**
+	 * 强制缓存资源。不做任何检查。
+	 * @param url  资源地址。
+	 * @param data  要缓存的内容。
+	 */
+	static cacheResForce(url: string, data: any){
+		Loader.loadedMap[url] = data;
 	}
 
 
