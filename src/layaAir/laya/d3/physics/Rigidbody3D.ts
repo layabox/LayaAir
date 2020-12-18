@@ -13,7 +13,6 @@ import { ILaya3D } from "../../../ILaya3D";
  */
 export class Rigidbody3D extends PhysicsTriggerComponent {
 	/*
-
 	 * 刚体类型_静态。
 	 * 设定为永远不会移动刚体,引擎也不会自动更新。
 	 * 如果你打算移动物理,建议使用TYPE_KINEMATIC。

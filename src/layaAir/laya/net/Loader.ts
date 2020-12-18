@@ -5,7 +5,6 @@ import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Sound } from "../media/Sound";
 import { SoundManager } from "../media/SoundManager";
-import { BaseTexture } from "../resource/BaseTexture";
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
 import { Browser } from "../utils/Browser";
@@ -496,8 +495,8 @@ export class Loader extends EventDispatcher {
 						data = tex;
 					} else {
 						let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
-						tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-						tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+						tex.wrapModeU = WarpMode.Clamp;
+						tex.wrapModeV = WarpMode.Clamp;
 						tex.loadImageSource(data, true);
 						tex._setCreateURL(data.src);
 						data = tex;
