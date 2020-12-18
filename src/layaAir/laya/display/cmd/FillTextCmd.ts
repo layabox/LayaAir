@@ -11,10 +11,10 @@ import { HTMLChar } from "../../utils/HTMLChar";
  */
 export class FillTextCmd {
     static ID: string = "FillText";
-    private _text: string | WordText;
+    private _text: string | WordText|null;
     /**@internal */
     _textIsWorldText = false;
-    _words: HTMLChar[];
+    _words: HTMLChar[]|null;
     /**
      * 开始绘制文本的 x 坐标位置（相对于画布）。
      */
@@ -25,7 +25,7 @@ export class FillTextCmd {
     y: number;
     private _font: string;
     private _color: string;
-    private _borderColor: string;
+    private _borderColor: string|null;
     private _lineWidth: number;
     private _textAlign: string;
     private _fontColor = 0xffffffff;
@@ -35,7 +35,7 @@ export class FillTextCmd {
     private _nTexAlign = 0;
 
     /**@private */
-    static create(text: string | WordText, words: HTMLChar[], x: number, y: number, font: string, color: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
+    static create(text: string | WordText|null, words: HTMLChar[]|null, x: number, y: number, font: string, color: string|null, textAlign: string, lineWidth: number, borderColor: string|null): FillTextCmd {
         var cmd: FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
         cmd.text = text;
         cmd._textIsWorldText = text instanceof WordText;
@@ -64,12 +64,12 @@ export class FillTextCmd {
             this._textIsWorldText && ((<WordText>this._text)).cleanCache();
         }
         if (this._words) {
-            Context._textRender.fillWords(context, this._words, this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth);
+            Context._textRender!.fillWords(context, this._words, this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth);
         } else {
             if (this._textIsWorldText) {// 快速通道
                 context._fast_filltext(((<WordText>this._text)), this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth, this._nTexAlign, 0);
             } else {
-                Context._textRender.filltext(context, this._text, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth, this._textAlign);
+                Context._textRender!.filltext(context, this._text!, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth, this._textAlign);
             }
         }
     }
@@ -82,11 +82,11 @@ export class FillTextCmd {
     /**
      * 在画布上输出的文本。
      */
-    get text(): string | WordText {
+    get text(): string | WordText|null {
         return this._text;
     }
 
-    set text(value: string | WordText) {
+    set text(value: string | WordText|null) {
         //TODO 问题。 怎么通知native
         this._text = value;
         this._textIsWorldText = value instanceof WordText;

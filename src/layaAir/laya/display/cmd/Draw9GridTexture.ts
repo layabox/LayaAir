@@ -63,9 +63,9 @@ export class Draw9GridTexture {
     /**@private */
     get cmdID(): string {
         return Draw9GridTexture.ID;
-    }
+	}
+	
     constructor() {
-
     }
 
 }
