@@ -182,14 +182,14 @@ export class TextRender {
         this._fast_filltext(ctx, (<WordText>data), null, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
     }
 
-    fillWords(ctx: Context, data: HTMLChar[], x: number, y: number, fontStr: string | FontInfo, color: string, strokeColor: string, lineWidth: number): void {
+    fillWords(ctx: Context, data: HTMLChar[], x: number, y: number, fontStr: string | FontInfo, color: string, strokeColor: string|null, lineWidth: number): void {
         if (!data) return;
         if (data.length <= 0) return;
         var font: FontInfo = typeof (fontStr) === 'string' ? FontInfo.Parse(fontStr) : fontStr;
         this._fast_filltext(ctx, null, data, x, y, font, color, strokeColor, lineWidth, 0, 0);
     }
 
-    _fast_filltext(ctx: Context, data: string | WordText|null, htmlchars: HTMLChar[]|null, x: number, y: number, font: FontInfo, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine: number = 0): void {
+    _fast_filltext(ctx: Context, data: string | WordText|null, htmlchars: HTMLChar[]|null, x: number, y: number, font: FontInfo, color: string, strokeColor: string|null, lineWidth: number, textAlign: number, underLine: number = 0): void {
         if (data && !(data.length >= 1)) return;	// length有可能是 undefined
         if (htmlchars && htmlchars.length < 1) return;
         if (lineWidth < 0) lineWidth = 0;
@@ -380,7 +380,7 @@ export class TextRender {
         for(let i in txts){
             var pri = txts[i];
             if (!pri) continue;
-            var tex: TextTexture = ((<TextTexture>pri.tex));
+            var tex = ((<TextTexture>pri.tex));
             if (tex.__destroyed || tex.genID != pri.texgen) {
                 return true;
             }
@@ -388,8 +388,8 @@ export class TextRender {
         return false;
     }
 
-    getCharRenderInfo(str: string, font: FontInfo, color: string, strokeColor: string, lineWidth: number, isoTexture: boolean = false): CharRenderInfo {
-        var fid: any = this.mapFont[font._family];
+    getCharRenderInfo(str: string, font: FontInfo, color: string, strokeColor: string|null, lineWidth: number, isoTexture: boolean = false): CharRenderInfo {
+        var fid = this.mapFont[font._family];
         if (fid == undefined) {
             this.mapFont[font._family] = fid = this.fontID++;
         }
@@ -400,18 +400,18 @@ export class TextRender {
         }
         var scid:int = mapColor[strokeColor];
         */
-        var key: string = str + '_' + fid + '_' + font._size + '_' + color;
+        var key = str + '_' + fid + '_' + font._size + '_' + color;
         if (lineWidth > 0)
-            key += '_' + strokeColor + lineWidth;
+            key += '_' + strokeColor! + lineWidth;
         if (font._bold)
             key += 'P';
         if (this.fontScaleX != 1 || this.fontScaleY != 1) {
             key += (this.fontScaleX * 20 | 0) + '_' + (this.fontScaleY * 20 | 0);	// 这个精度可以控制占用资源的大小，精度越高越能细分缩放。
         }
 
-        var i: number = 0;
+        var i = 0;
         // 遍历所有的大图集看是否存在
-        var sz: number = this.textAtlases.length;
+        var sz = this.textAtlases.length;
         var ri: CharRenderInfo;
         var atlas: TextAtlas;
         if (!isoTexture) {
@@ -429,7 +429,7 @@ export class TextRender {
         this.charRender.scale(this.fontScaleX, this.fontScaleY);
         ri.char = str;
         ri.height = font._size;
-        var margin: number = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
+        var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
         // 如果不存在，就要插入已有的，或者创建新的
         var imgdt: ImageData|null=null;
         // 先大约测量文字宽度 
@@ -437,7 +437,7 @@ export class TextRender {
         if (!lineWidth) {
             lineWidth = 0;
         }
-        var w1: number = Math.ceil((this.charRender.getWidth(this.fontStr, str) + 2 * lineWidth) * this.fontScaleX);
+        var w1 = Math.ceil((this.charRender.getWidth(this.fontStr, str) + 2 * lineWidth) * this.fontScaleX);
         if (w1 > this.charRender.canvasWidth) {
             this.charRender.canvasWidth = Math.min(2048, w1 + margin * 2);
         }
@@ -457,13 +457,13 @@ export class TextRender {
 			}
         } else {
             // 大图集
-            var len: number = str.length;
+            var len = str.length;
             if (len > 1) {
                 // emoji或者组合的
             }
-            var lineExt: number = lineWidth * 1;	// 这里，包括下面的*2 都尽量用整数。否则在取整以后可能有有偏移。
-            var fw: number = Math.ceil((this.fontSizeW + lineExt * 2) * this.fontScaleX); 	//本来只要 lineWidth就行，但是这样安全一些
-            var fh: number = Math.ceil((this.fontSizeH + lineExt * 2) * this.fontScaleY);
+            var lineExt = lineWidth * 1;	// 这里，包括下面的*2 都尽量用整数。否则在取整以后可能有有偏移。
+            var fw = Math.ceil((this.fontSizeW + lineExt * 2) * this.fontScaleX); 	//本来只要 lineWidth就行，但是这样安全一些
+            var fh = Math.ceil((this.fontSizeH + lineExt * 2) * this.fontScaleY);
             TextRender.imgdtRect[0] = ((margin - this.fontSizeOffX - lineExt) * this.fontScaleX) | 0;	// 本来要 lineWidth/2 但是这样一些尖角会有问题，所以大一点
             TextRender.imgdtRect[1] = ((margin - this.fontSizeOffY - lineExt) * this.fontScaleY) | 0;
             if (this.renderPerChar || len == 1) {
