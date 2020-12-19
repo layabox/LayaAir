@@ -50,9 +50,13 @@ import UnlitPS from "./files/Unlit.fs";
 import UnlitVS from "./files/Unlit.vs";
 import WaterPrimaryPS from "./files/WaterPrimary.fs";
 import WaterPrimaryVS from "./files/WaterPrimary.vs";
+import DepthNormalsTextureVS from "./files/DepthNormalsTextureVS.vs";
+import DepthNormalsTextureFS from "./files/DepthNormalsTextureFS.fs";
+import DepthNormalUtil from "./files/DepthNormalUtil.glsl";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";
+
 
 
 
@@ -90,6 +94,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("PBRCore.glsl", PBRCore);
 		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
 		Shader3D.addInclude("LayaUtile.glsl",LayaUtile);
+		Shader3D.addInclude("DepthNormalUtil.glsl",DepthNormalUtil);
 
 		//BLINNPHONG
 		var attributeMap: any = {
@@ -185,7 +190,7 @@ export class ShaderInit3D {
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap, "Forward");
 		var shaderPass: ShaderPass = subShader.addShaderPass(MeshBlinnPhongShadowCasterVS, MeshBlinnPhongShadowCasterPS, stateMap, "ShadowCaster");
-
+		shaderPass = subShader.addShaderPass(DepthNormalsTextureVS,DepthNormalsTextureFS,stateMap,"DepthNormal");
 		//LineShader
 		attributeMap = {
 			'a_Position': VertexMesh.MESH_POSITION0,

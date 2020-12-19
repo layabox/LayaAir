@@ -38,18 +38,6 @@ export class ExtendTerrainMaterial extends Material {
 	static DIFFUSESCALEOFFSET4: number = Shader3D.propertyNameToID("u_DiffuseScaleOffset4");
 	/**@internal */
 	static DIFFUSESCALEOFFSET5: number = Shader3D.propertyNameToID("u_DiffuseScaleOffset5");
-	/**@internal */
-	static CULL: number = Shader3D.propertyNameToID("s_Cull");
-	/**@internal */
-	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
-	/**@internal */
-	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
-	/**@internal */
-	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
-	/**@internal */
-	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
-	/**@internal */
-	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**地形细节宏定义。*/
 	/**@internal */
@@ -210,72 +198,6 @@ export class ExtendTerrainMaterial extends Material {
 		}
 	}
 
-	/**
-	 * 是否写入深度。
-	 */
-	get depthWrite(): boolean {
-		return this._shaderValues.getBool(ExtendTerrainMaterial.DEPTH_WRITE);
-	}
-
-	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(ExtendTerrainMaterial.DEPTH_WRITE, value);
-	}
-
-	/**
-	 * 剔除方式。
-	 */
-	get cull(): number {
-		return this._shaderValues.getInt(ExtendTerrainMaterial.CULL);
-	}
-
-	set cull(value: number) {
-		this._shaderValues.setInt(ExtendTerrainMaterial.CULL, value);
-	}
-
-	/**
-	 * 混合方式。
-	 */
-	get blend(): number {
-		return this._shaderValues.getInt(ExtendTerrainMaterial.BLEND);
-	}
-
-	set blend(value: number) {
-		this._shaderValues.setInt(ExtendTerrainMaterial.BLEND, value);
-	}
-
-	/**
-	 * 混合源。
-	 */
-	get blendSrc(): number {
-		return this._shaderValues.getInt(ExtendTerrainMaterial.BLEND_SRC);
-	}
-
-	set blendSrc(value: number) {
-		this._shaderValues.setInt(ExtendTerrainMaterial.BLEND_SRC, value);
-	}
-
-
-	/**
-	 * 混合目标。
-	 */
-	get blendDst(): number {
-		return this._shaderValues.getInt(ExtendTerrainMaterial.BLEND_DST);
-	}
-
-	set blendDst(value: number) {
-		this._shaderValues.setInt(ExtendTerrainMaterial.BLEND_DST, value);
-	}
-
-	/**
-	 * 深度测试方式。
-	 */
-	get depthTest(): number {
-		return this._shaderValues.getInt(ExtendTerrainMaterial.DEPTH_TEST);
-	}
-
-	set depthTest(value: number) {
-		this._shaderValues.setInt(ExtendTerrainMaterial.DEPTH_TEST, value);
-	}
 	/**
 	 * 创建一个 <code>ExtendTerrainMaterial</code> 实例。
 	 */

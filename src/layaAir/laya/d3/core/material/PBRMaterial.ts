@@ -72,19 +72,6 @@ export class PBRMaterial extends Material {
     /** @internal */
     static EMISSIONCOLOR: number = Shader3D.propertyNameToID("u_EmissionColor");
 
-    /** @internal */
-    static CULL: number = Shader3D.propertyNameToID("s_Cull");
-    /** @internal */
-    static BLEND: number = Shader3D.propertyNameToID("s_Blend");
-    /** @internal */
-    static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
-    /** @internal */
-    static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
-    /** @internal */
-    static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
-    /** @internal */
-    static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
-
     /** 渲染质量。*/
     static renderQuality: PBRRenderQuality = PBRRenderQuality.High;
 
@@ -297,72 +284,7 @@ export class PBRMaterial extends Material {
         this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, value);
     }
 
-    /**
-	 * 是否写入深度。
-	 */
-    get depthWrite(): boolean {
-        return this._shaderValues.getBool(PBRMaterial.DEPTH_WRITE);
-    }
 
-    set depthWrite(value: boolean) {
-        this._shaderValues.setBool(PBRMaterial.DEPTH_WRITE, value);
-    }
-
-	/**
-	 * 剔除方式。
-	 */
-    get cull(): number {
-        return this._shaderValues.getInt(PBRMaterial.CULL);
-    }
-
-    set cull(value: number) {
-        this._shaderValues.setInt(PBRMaterial.CULL, value);
-    }
-
-	/**
-	 * 混合方式。
-	 */
-    get blend(): number {
-        return this._shaderValues.getInt(PBRMaterial.BLEND);
-    }
-
-    set blend(value: number) {
-        this._shaderValues.setInt(PBRMaterial.BLEND, value);
-    }
-
-	/**
-	 * 混合源。
-	 */
-    get blendSrc(): number {
-        return this._shaderValues.getInt(PBRMaterial.BLEND_SRC);
-    }
-
-    set blendSrc(value: number) {
-        this._shaderValues.setInt(PBRMaterial.BLEND_SRC, value);
-    }
-
-	/**
-	 * 混合目标。
-	 */
-    get blendDst(): number {
-        return this._shaderValues.getInt(PBRMaterial.BLEND_DST);
-    }
-
-    set blendDst(value: number) {
-        this._shaderValues.setInt(PBRMaterial.BLEND_DST, value);
-    }
-
-	/**
-	 * 深度测试方式。
-	 */
-    get depthTest(): number {
-        return this._shaderValues.getInt(PBRMaterial.DEPTH_TEST);
-    }
-
-
-    set depthTest(value: number) {
-        this._shaderValues.setInt(PBRMaterial.DEPTH_TEST, value);
-    }
 
     /**
 	 * 渲染模式。

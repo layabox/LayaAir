@@ -32,6 +32,7 @@ import { Transform3D } from "./Transform3D";
 import { ILaya3D } from "../../../ILaya3D";
 import { ShadowUtils } from "./light/ShadowUtils";
 import { SpotLight } from "./light/SpotLight";
+import { DepthPass } from "../depthMap/DepthPass";
 
 /**
  * 相机清除标记。
@@ -90,6 +91,8 @@ export class Camera extends BaseCamera {
 
 	/** @internal */
 	static _updateMark: number = 0;
+	/** @internal 深度贴图管线*/
+	static depthPass:DepthPass = new DepthPass();
 
 		/**
 	 * 根据相机、scene信息获得scene中某一位置的渲染结果
@@ -151,12 +154,17 @@ export class Camera extends BaseCamera {
 	private _projectionParams: Vector4 = new Vector4();
 	/** @internal*/
 	private _needBuiltInRenderTexture:boolean = false;
-
+	
+	/** @internal*/
+	private _depthTextureMode:number;
 	/** @internal */
 	_offScreenRenderTexture: RenderTexture = null;
 	/** @internal */
 	_internalRenderTexture: RenderTexture = null;
-
+	/** 深度贴图*/
+	private _depthTexture:RenderTexture;
+	/** 深度法线贴图*/
+	private _depthNormalsTexture:RenderTexture;
 
 	private _cameraEventCommandBuffer:Object = {};
 
@@ -359,6 +367,16 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
+	 * 深度贴图模式
+	 */
+	get depthTextureMode():number{
+		return this._depthTextureMode;
+	}
+	set depthTextureMode(value:number){
+		this._depthTextureMode = value;
+	}
+
+	/**
 	 * 创建一个 <code>Camera</code> 实例。
 	 * @param	aspectRatio 横纵比。
 	 * @param	nearPlane 近裁面。
@@ -506,7 +524,7 @@ export class Camera extends BaseCamera {
 		super._prepareCameraToRender();
 		var vp: Viewport = this.viewport;
 		this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
-		this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 0);
+		this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 1/this.farPlane);
 		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 	}
@@ -699,7 +717,7 @@ export class Camera extends BaseCamera {
 	_renderMainPass(context:RenderContext3D,viewport:Viewport,scene:Scene3D,shader:Shader3D,replacementTag:string,needInternalRT:boolean){
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
-		(renderTex) && (renderTex._start());
+
 		context.viewport = viewport;
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
@@ -708,9 +726,12 @@ export class Camera extends BaseCamera {
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 
 		scene._preCulling(context, this, shader, replacementTag);
+		
+		this._renderDepthMode(context);
+
+		(renderTex) && (renderTex._start());
 		scene._clear(gl, context);
-		//在这里增加depthTexture,NormalDepthTexture
-		this._renderDepthMode();
+	
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
 		scene._renderScene(context,ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox,context);
@@ -742,33 +763,42 @@ export class Camera extends BaseCamera {
 	 * 根据camera的深度贴图模式更新深度贴图
 	 * @internal
 	 */
-	_renderDepthMode(){
+	_renderDepthMode(context:RenderContext3D){
+		var cameraDepthMode = this._depthTextureMode;
+		if((cameraDepthMode&DepthTextureMode.Depth)!=0){
+			Camera.depthPass.update(this,DepthTextureMode.Depth);
+			Camera.depthPass.render(context,DepthTextureMode.Depth);
+		}
+		if((cameraDepthMode&DepthTextureMode.DepthNormals)!=0){
+			Camera.depthPass.update(this,DepthTextureMode.DepthNormals);
+			Camera.depthPass.render(context,DepthTextureMode.DepthNormals);
+		}
 		
 	}
 
 	/**
-	 * 渲染深度贴图
+	 * @internal
+	 * 深度贴图
 	 */
-	_renderDepthTexture(){
+	get depthTexture():RenderTexture{
+		return this._depthTexture;
+	}
 
+	set depthTexture(value:RenderTexture){
+		this._depthTexture = value;
 	}
 
 	/**
-	 * 渲染深度法线贴图
+	 * @internal
+	 * 深度法线贴图
 	 */
-	_renderDepthNormalsTexture(){
-
+	get depthNormalTexture():RenderTexture{
+		return this._depthNormalsTexture;
 	}
 
-	/**
-	 * TODO
-	 * 渲染运动贴图
-	 */
-	_renderMotionVectorsTexture(){
-		
+	set depthNormalTexture(value:RenderTexture){
+		this._depthNormalsTexture = value;
 	}
-
-	_renderVec
 
 
 	/**
@@ -778,6 +808,7 @@ export class Camera extends BaseCamera {
 	_aftRenderMainPass(needShadowPass:Boolean){
 		if (needShadowPass)
 		ILaya3D.Scene3D._shadowCasterPass.cleanUp();
+		Camera.depthPass.cleanUp();
 	}
 
 
