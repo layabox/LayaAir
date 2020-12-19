@@ -5,8 +5,7 @@
 #endif
 
 #include "DepthNormalUtil.glsl";
-/*camera 传入的Texture*/
-uniform sampler2D u_CameraDepthNormalsTexture;
+
 
 varying vec2 v_Texcoord0;
 
@@ -16,6 +15,6 @@ void main(){
     vec3 normals;
     float depth;
     DecodeDepthNormal(col,depth,normals);
-    col = vec4(normals.x,normals.y,-normals.z,1.0);
+    col = vec4(normals,1.0);
     gl_FragColor = col;
 }
