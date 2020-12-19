@@ -8,6 +8,14 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { ClassUtils } from "../utils/ClassUtils";
 
+/**@private */
+interface ITreeDataSource{
+    x:number;
+    hasChild:boolean;
+    isOpen:boolean;
+    isDirectory:boolean;
+}
+
 /**
  * 实例的 <code>selectedIndex</code> 属性发生变化时调度。
  * @eventType laya.events.Event
@@ -510,10 +518,10 @@ export class Tree extends Box implements IRender {
      * @param index 项的索引。
      */
     protected renderItem(cell: Box, index: number): void {
-        var item: any = cell.dataSource;
+        var item: ITreeDataSource = cell.dataSource;
         if (item) {
             cell.left = item.x;
-            var arrow: Clip = (<Clip>cell.getChildByName("arrow"));
+            var arrow = cell.getChildByName("arrow") as Clip;
             if (arrow) {
                 if (item.hasChild) {
                     arrow.visible = true;
@@ -525,7 +533,7 @@ export class Tree extends Box implements IRender {
                     arrow.visible = false;
                 }
             }
-            var folder: Clip = (<Clip>cell.getChildByName("folder"));
+            var folder = cell.getChildByName("folder") as Clip;
             if (folder) {
                 if (folder.clipY == 2) {
                     folder.index = item.isDirectory ? 0 : 1;

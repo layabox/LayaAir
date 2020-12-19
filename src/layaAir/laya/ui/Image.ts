@@ -99,7 +99,7 @@ export class Image extends UIComponent {
      * 创建一个 <code>Image</code> 实例。
      * @param skin 皮肤资源地址。
      */
-    constructor(skin: string = null) {
+    constructor(skin: string|null = null) {
         super();
         this.skin = skin;
     }
@@ -144,7 +144,7 @@ export class Image extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (value) {
-                var source: Texture = Loader.getRes(value);
+                var source = Loader.getRes(value) as Texture;
                 if (source) {
                     this.source = source;
                     this.onCompResize();

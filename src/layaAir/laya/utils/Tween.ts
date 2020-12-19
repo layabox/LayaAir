@@ -52,7 +52,7 @@ export class Tween {
      * @param	autoRecover 是否自动回收，默认为true，缓动结束之后自动回收到对象池。
      * @return	返回Tween对象。
      */
-    static to(target: any, props: any, duration: number, ease: Function = null, complete: Handler = null, delay: number = 0, coverBefore: boolean = false, autoRecover: boolean = true): Tween {
+    static to(target: any, props: any, duration: number, ease: Function|null = null, complete: Handler|null = null, delay: number = 0, coverBefore: boolean = false, autoRecover: boolean = true): Tween {
         return Pool.getItemByClass("tween", Tween)._create(target, props, duration, ease, complete, delay, coverBefore, true, autoRecover, true);
     }
 
@@ -98,12 +98,12 @@ export class Tween {
      * @param	coverBefore 是否覆盖之前的缓动。
      * @return	返回Tween对象。
      */
-    from(target: any, props: any, duration: number, ease: Function = null, complete: Handler = null, delay: number = 0, coverBefore: boolean = false): Tween {
+    from(target: any, props: any, duration: number, ease: Function|null = null, complete: Handler|null = null, delay: number = 0, coverBefore: boolean = false): Tween {
         return this._create(target, props, duration, ease, complete, delay, coverBefore, false, false, true);
     }
 
     /** @internal */
-    _create(target: any, props: any, duration: number, ease: Function, complete: Handler, delay: number, coverBefore: boolean, isTo: boolean, usePool: boolean, runNow: boolean): Tween {
+    _create(target: any, props: any, duration: number, ease: Function|null, complete: Handler|null, delay: number, coverBefore: boolean, isTo: boolean, usePool: boolean, runNow: boolean): Tween {
         if (!target) throw new Error("Tween:target is null");
         this._target = target;
         this._duration = duration;
