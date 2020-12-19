@@ -9,12 +9,6 @@ import { Vector4 } from "laya/d3/math/Vector4";
 import { BaseTexture } from "laya/resource/BaseTexture";
 
 export class GlassWithoutGrabMaterail extends Material{
-    static CULL: number = Shader3D.propertyNameToID("s_Cull");
-	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
-	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
-	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
-	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
-    static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
     static TINTTEXTURE:number = Shader3D.propertyNameToID("u_tintTexure");
     static NORMALTEXTURE:number = Shader3D.propertyNameToID("u_normalTexture");
     static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
@@ -54,78 +48,6 @@ export class GlassWithoutGrabMaterail extends Material{
         this._shaderValues.setVector(GlassWithoutGrabMaterail.TILINGOFFSET,new Vector4(1,1,0,0));
         this._shaderValues.setTexture(GlassWithoutGrabMaterail.TINTTEXTURE,texture);
     }
-
-
-    /**
-	 * 是否写入深度。
-	 */
-	get depthWrite(): boolean {
-		return this._shaderValues.getBool(GlassWithoutGrabMaterail.DEPTH_WRITE);
-	}
-
-	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(GlassWithoutGrabMaterail.DEPTH_WRITE, value);
-    }
-    
-    
-	/**
-	 * 剔除方式。
-	 */
-	get cull(): number {
-		return this._shaderValues.getInt(GlassWithoutGrabMaterail.CULL);
-	}
-
-	set cull(value: number) {
-		this._shaderValues.setInt(GlassWithoutGrabMaterail.CULL, value);
-	}
-
-    /**
-	 * 混合方式。
-	 */
-	get blend(): number {
-		return this._shaderValues.getInt(GlassWithoutGrabMaterail.BLEND);
-	}
-
-	set blend(value: number) {
-		this._shaderValues.setInt(GlassWithoutGrabMaterail.BLEND, value);
-	}
-
-
-	/**
-	 * 混合源。
-	 */
-	get blendSrc(): number {
-		return this._shaderValues.getInt(GlassWithoutGrabMaterail.BLEND_SRC);
-	}
-
-	set blendSrc(value: number) {
-		this._shaderValues.setInt(GlassWithoutGrabMaterail.BLEND_SRC, value);
-	}
-
-
-
-	/**
-	 * 混合目标。
-	 */
-	get blendDst(): number {
-		return this._shaderValues.getInt(GlassWithoutGrabMaterail.BLEND_DST);
-	}
-
-	set blendDst(value: number) {
-		this._shaderValues.setInt(GlassWithoutGrabMaterail.BLEND_DST, value);
-    }
-    
-    /**
-	 * 深度测试方式。
-	 */
-	get depthTest(): number {
-		return this._shaderValues.getInt(GlassWithoutGrabMaterail.DEPTH_TEST);
-	}
-
-	set depthTest(value: number) {
-		this._shaderValues.setInt(GlassWithoutGrabMaterail.DEPTH_TEST, value);
-	}
-
 
     //渲染模式
     renderModeSet(){
