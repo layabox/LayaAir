@@ -61,26 +61,7 @@
 						}
 					]
 				},
-				"components":[
-					{
-						"type":"PhysicsCollider",
-						"restitution":0,
-						"friction":0.5,
-						"rollingFriction":0,
-						"shapes":[
-							{
-								"type":"SphereColliderShape",
-								"center":[
-									0,
-									0,
-									0
-								],
-								"radius":0.5
-							}
-						],
-						"isTrigger":false
-					}
-				],
+				"components":[],
 				"child":[]
 			},
 			{
@@ -117,26 +98,7 @@
 						}
 					]
 				},
-				"components":[
-					{
-						"type":"PhysicsCollider",
-						"restitution":0,
-						"friction":0.5,
-						"rollingFriction":0,
-						"shapes":[
-							{
-								"type":"SphereColliderShape",
-								"center":[
-									0,
-									0,
-									0
-								],
-								"radius":0.5
-							}
-						],
-						"isTrigger":false
-					}
-				],
+				"components":[],
 				"child":[]
 			},
 			{
@@ -173,26 +135,7 @@
 						}
 					]
 				},
-				"components":[
-					{
-						"type":"PhysicsCollider",
-						"restitution":0,
-						"friction":0.5,
-						"rollingFriction":0,
-						"shapes":[
-							{
-								"type":"SphereColliderShape",
-								"center":[
-									0,
-									0,
-									0
-								],
-								"radius":0.5
-							}
-						],
-						"isTrigger":false
-					}
-				],
+				"components":[],
 				"child":[]
 			},
 			{
@@ -229,26 +172,7 @@
 						}
 					]
 				},
-				"components":[
-					{
-						"type":"PhysicsCollider",
-						"restitution":0,
-						"friction":0.5,
-						"rollingFriction":0,
-						"shapes":[
-							{
-								"type":"SphereColliderShape",
-								"center":[
-									0,
-									0,
-									0
-								],
-								"radius":0.5
-							}
-						],
-						"isTrigger":false
-					}
-				],
+				"components":[],
 				"child":[]
 			},
 			{
@@ -285,26 +209,7 @@
 						}
 					]
 				},
-				"components":[
-					{
-						"type":"PhysicsCollider",
-						"restitution":0,
-						"friction":0.5,
-						"rollingFriction":0,
-						"shapes":[
-							{
-								"type":"SphereColliderShape",
-								"center":[
-									0,
-									0,
-									0
-								],
-								"radius":0.5
-							}
-						],
-						"isTrigger":false
-					}
-				],
+				"components":[],
 				"child":[]
 			},
 			{
@@ -341,21 +246,7 @@
 						}
 					]
 				},
-				"components":[
-					{
-						"type":"PhysicsCollider",
-						"restitution":0,
-						"friction":0.5,
-						"rollingFriction":0,
-						"shapes":[
-							{
-								"type":"MeshColliderShape",
-								"mesh":"Library/unity default resources-Plane.lm"
-							}
-						],
-						"isTrigger":false
-					}
-				],
+				"components":[],
 				"child":[]
 			},
 			{

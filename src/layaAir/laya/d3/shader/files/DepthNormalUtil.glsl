@@ -1,9 +1,15 @@
+#define SAMPLE_DEPTH_TEXTURE(textureName,coord2) (texture2D(textureName,coord2).r)
+//此方法库用来压缩解析深度贴图，法线深度贴图
 
+/*camera 传入的Texture以及*/
+uniform sampler2D u_CameraDepthTexture;
+uniform vec4 u_ZBufferParams;
+uniform sampler2D u_CameraDepthNormalsTexture;
 
 // Encoding/decoding view space normals into 2D 0..1 vector
 vec2 EncodeViewNormalStereo( vec3 n )
 {
-    n.z = -n.z;
+    n.z = abs(n.z);
     float kScale = 1.7777;
     vec2 enc;
     enc = n.xy / (n.z+1.0);

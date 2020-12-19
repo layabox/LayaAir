@@ -11,6 +11,7 @@ import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DepthMaterial } from "./DepthNormalShader/DepthMaterial";
 import { DepthNormalsMaterial } from "./DepthNormalShader/DepthNormalsMaterial";
 
@@ -22,8 +23,6 @@ export class CameraDepthModeTextureDemo{
     private scene:Scene3D;
     private depthPlane:MeshSprite3D;
     private depthNormalPlane:MeshSprite3D;
-    private depthTextureTestMat:DepthMaterial;
-    private depthNormalsTextureTestMat:DepthNormalsMaterial;
     constructor(){
         //初始化引擎
 		Laya3D.init(0, 0);
