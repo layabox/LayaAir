@@ -1,5 +1,12 @@
+#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了
+	precision highp float;
+	precision highp int;
+#else
+	precision mediump float;
+	precision mediump int;
+#endif
+
 #include "Lighting.glsl";
-#include "Shadow.glsl"
 
 attribute vec4 a_Position;
 attribute vec3 a_Normal;
@@ -18,13 +25,13 @@ attribute vec3 a_Normal;
 #endif
 
 uniform mat4 u_ViewProjection;
+uniform vec4 u_ProjectionParams;
 
-#ifdef SHADOW
-	uniform vec3 u_ShadowLightDirection;
-#endif
+//传入法线
+varying vec4 depthNormals;
 
 
-vec4 shadowCasterVertex()
+vec4 depthNormalsVertex()
 {
 	mat4 worldMat;
 	#ifdef GPU_INSTANCE
@@ -57,6 +64,7 @@ vec4 shadowCasterVertex()
 	#endif
 
 	vec4 positionWS = worldMat * a_Position;
+
 	mat3 worldInvMat;
 	#ifdef BONE
 		worldInvMat=INVERSE_MAT(mat3(worldMat*skinTransform));
@@ -65,19 +73,16 @@ vec4 shadowCasterVertex()
 	#endif  
 
 	vec3 normalWS = normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem
-	#ifdef SHADOW
-		positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);
-	#endif
 
+	depthNormals.xyz = normalWS;
 	vec4 positionCS = u_ViewProjection * positionWS;
-	#ifdef SHADOW_SPOT
-		positionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;
-	#endif
-	positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
+	depthNormals.w = (positionCS.z * 2.0 - positionCS.w)*u_ProjectionParams.w;
 	
-	// //TODO没考虑UV动画呢
-	// #if defined(DIFFUSEMAP)&&defined(ALPHATEST)
-	// 	v_Texcoord0=a_Texcoord0;
-	// #endif
     return positionCS;
+}
+
+void main()
+{
+	vec4 positionCS =  depthNormalsVertex();
+	gl_Position=remapGLPositionZ(positionCS);
 }

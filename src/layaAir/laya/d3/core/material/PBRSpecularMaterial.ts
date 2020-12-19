@@ -4,6 +4,8 @@ import PBRPS from "../../shader/files/PBRSpecular.fs";
 import PBRVS from "../../shader/files/PBRSpecular.vs";
 import PBRShadowCasterPS from "../../shader/files/PBRSpecularShadowCaster.fs";
 import PBRShadowCasterVS from "../../shader/files/PBRSpecularShadowCaster.vs";
+import DepthNormalsTextureVS from "../../shader/files/DepthNormalsTextureVS.vs";
+import DepthNormalsTextureFS from "../../shader/files/DepthNormalsTextureFS.fs";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
@@ -152,6 +154,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(PBRVS, PBRPS, stateMap, "Forward");
 		subShader.addShaderPass(PBRShadowCasterVS, PBRShadowCasterPS, stateMap, "ShadowCaster");
+		subShader.addShaderPass(DepthNormalsTextureVS,DepthNormalsTextureFS,stateMap,"DepthNormal");
 	}
 
 	/**

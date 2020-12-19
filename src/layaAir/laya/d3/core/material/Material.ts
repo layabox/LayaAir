@@ -29,7 +29,18 @@ export class Material extends Resource implements IClone {
 
 	/**着色器变量,透明测试值。*/
 	static ALPHATESTVALUE: number = Shader3D.propertyNameToID("u_AlphaTestValue");
-
+	/**@internal */
+	static CULL: number = Shader3D.propertyNameToID("s_Cull");
+	/**@internal */
+	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
+	/**@internal */
+	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
+	/**@internal */
+	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
+	/**@internal */
+	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
+	/**@internal */
+	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 	/**材质级着色器宏定义,透明测试。*/
 	static SHADERDEFINE_ALPHATEST: ShaderDefine = null;
 
@@ -192,6 +203,76 @@ export class Material extends Resource implements IClone {
 			this._shaderValues.addDefine(Material.SHADERDEFINE_ALPHATEST);
 		else
 			this._shaderValues.removeDefine(Material.SHADERDEFINE_ALPHATEST);
+	}
+
+	  /**
+	 * 是否写入深度。
+	 */
+	get depthWrite(): boolean {
+		return this._shaderValues.getBool(Material.DEPTH_WRITE);
+	}
+
+	set depthWrite(value: boolean) {
+		this._shaderValues.setBool(Material.DEPTH_WRITE, value);
+    }
+    
+    
+	/**
+	 * 剔除方式。
+	 */
+	get cull(): number {
+		return this._shaderValues.getInt(Material.CULL);
+	}
+
+	set cull(value: number) {
+		this._shaderValues.setInt(Material.CULL, value);
+	}
+
+    /**
+	 * 混合方式。
+	 */
+	get blend(): number {
+		return this._shaderValues.getInt(Material.BLEND);
+	}
+
+	set blend(value: number) {
+		this._shaderValues.setInt(Material.BLEND, value);
+	}
+
+
+	/**
+	 * 混合源。
+	 */
+	get blendSrc(): number {
+		return this._shaderValues.getInt(Material.BLEND_SRC);
+	}
+
+	set blendSrc(value: number) {
+		this._shaderValues.setInt(Material.BLEND_SRC, value);
+	}
+
+
+
+	/**
+	 * 混合目标。
+	 */
+	get blendDst(): number {
+		return this._shaderValues.getInt(Material.BLEND_DST);
+	}
+
+	set blendDst(value: number) {
+		this._shaderValues.setInt(Material.BLEND_DST, value);
+    }
+    
+    /**
+	 * 深度测试方式。
+	 */
+	get depthTest(): number {
+		return this._shaderValues.getInt(Material.DEPTH_TEST);
+	}
+
+	set depthTest(value: number) {
+		this._shaderValues.setInt(Material.DEPTH_TEST, value);
 	}
 
 	/**

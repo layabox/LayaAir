@@ -41,6 +41,9 @@ export class BaseCamera extends Sprite3D {
 	/**@internal */
 	static DEPTHNORMALSTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
 	/**@internal */
+	static DEPTHZBUFFERPARAMS:number = Shader3D.propertyNameToID("u_ZBufferParams");
+
+	/**@internal */
 	static SHADERDEFINE_DEPTH:ShaderDefine = Shader3D.getDefineByName("DEPTHMAP");
 	/**@internal */
 	static SHADERDEFINE_DEPTHNORMALS:ShaderDefine = Shader3D.getDefineByName("DEPTHNORMALSMAP")
@@ -70,10 +73,6 @@ export class BaseCamera extends Sprite3D {
 	private _skyRenderer: SkyRenderer = new SkyRenderer();
 	private _forward: Vector3 = new Vector3();
 	private _up: Vector3 = new Vector3();
-	/** 深度贴图*/
-	private _depthTexture:BaseTexture;
-	/** 深度法线贴图*/
-	private _depthNormalsTexture:BaseTexture;
 
 	/**@internal */
 	protected _orthographic: boolean;
@@ -91,31 +90,7 @@ export class BaseCamera extends Sprite3D {
 	/** 渲染时是否用遮挡剔除。 */
 	useOcclusionCulling: boolean;
 
-	/**
-	 * @internal
-	 * 深度贴图
-	 */
-	get depthTexture():BaseTexture{
-		return this._depthTexture;
-	}
-
-	set depthTexture(value:BaseTexture){
-		value = value?value:Texture2D.blackTexture;
-		this._depthTexture = value;
-	}
-
-	/**
-	 * @internal
-	 * 深度法线贴图
-	 */
-	get depthNormalTexture():BaseTexture{
-		return this._depthNormalsTexture;
-	}
-
-	set depthNormalTexture(value:BaseTexture){
-		value = value?value:Texture2D.blackTexture;
-		this._depthNormalsTexture = value;
-	}
+	
 
 	/**
 	 * 天空渲染器。

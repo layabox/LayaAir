@@ -27,18 +27,6 @@ export class EffectMaterial extends Material {
 	static TINTCOLOR: number = Shader3D.propertyNameToID("u_AlbedoColor");
 	/**@internal */
 	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
-	/**@internal */
-	static CULL: number = Shader3D.propertyNameToID("s_Cull");
-	/**@internal */
-	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
-	/**@internal */
-	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
-	/**@internal */
-	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
-	/**@internal */
-	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
-	/**@internal */
-	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**
 	 * @internal
@@ -338,72 +326,6 @@ export class EffectMaterial extends Material {
 		this._shaderValues.setVector(EffectMaterial.TILINGOFFSET, value);
 	}
 
-	/**
-	 * 是否写入深度。
-	 */
-	get depthWrite(): boolean {
-		return this._shaderValues.getBool(EffectMaterial.DEPTH_WRITE);
-	}
-
-	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(EffectMaterial.DEPTH_WRITE, value);
-	}
-
-	/**
-	 * 剔除方式。
-	 */
-	get cull(): number {
-		return this._shaderValues.getInt(EffectMaterial.CULL);
-	}
-
-	set cull(value: number) {
-		this._shaderValues.setInt(EffectMaterial.CULL, value);
-	}
-
-	/**
-	 * 混合方式。
-	 */
-	get blend(): number {
-		return this._shaderValues.getInt(EffectMaterial.BLEND);
-	}
-
-	set blend(value: number) {
-		this._shaderValues.setInt(EffectMaterial.BLEND, value);
-	}
-
-	/**
-	 * 混合源。
-	 */
-	get blendSrc(): number {
-		return this._shaderValues.getInt(EffectMaterial.BLEND_SRC);
-	}
-
-
-	set blendSrc(value: number) {
-		this._shaderValues.setInt(EffectMaterial.BLEND_SRC, value);
-	}
-
-	/**
-	 * 混合目标。
-	 */
-	get blendDst(): number {
-		return this._shaderValues.getInt(EffectMaterial.BLEND_DST);
-	}
-
-	set blendDst(value: number) {
-		this._shaderValues.setInt(EffectMaterial.BLEND_DST, value);
-	}
-
-	/**
-	 * 深度测试方式。
-	 */
-	get depthTest(): number {
-		return this._shaderValues.getInt(EffectMaterial.DEPTH_TEST);
-	}
-
-	set depthTest(value: number) {
-		this._shaderValues.setInt(EffectMaterial.DEPTH_TEST, value);
-	}
 
 	/**
 	 * 创建一个 <code>EffectMaterial</code> 实例。
