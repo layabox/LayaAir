@@ -183,7 +183,7 @@ export class CannonRigidbody3D extends CannonPhysicsCollider {
 			var btValue: CANNON.Vec3= this.btColliderObject.angularVelocity;
 			(this.isSleeping)&&(this.wakeUp());
 			btValue.set(value.x,value.y,value.z);
-			this.btColliderObject.velocity = btValue;
+			this.btColliderObject.angularVelocity = btValue;
 		}
 	}
 
