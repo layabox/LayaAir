@@ -108,6 +108,7 @@ import { CommandBuffer_Outline } from "../3d/LayaAir3D_Advance/CommandBuffer_Out
 import { CommandBuffer_BlurryGlass } from "../3d/LayaAir3D_Advance/CommandBuffer_BlurryGlass";
 import { HalfFloatTexture } from "../3d/LayaAir3D_Texture/HalfFloatTexture";
 import { ReflectionProbeDemo } from "../3d/LayaAir3D_Advance/ReflectionProbeDemo";
+import { CameraDepthModeTextureDemo } from "../3d/LayaAir3D_Advance/CameraDepthModeTextureDemo";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -125,8 +126,8 @@ export class IndexView3D extends IndexViewUI {
 
 	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance', 'Demo','PostProcess'];
 	//var s:Secne3DPlayer2D    
-	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,ReflectionProbeDemo];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','ReflectionProbeDemo'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,ReflectionProbeDemo,CameraDepthModeTextureDemo];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','ReflectionProbeDemo','CameraDepthTextureDemo'];//'后期处理之泛光','寻路示例',
 
 	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur];
 	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur'];
