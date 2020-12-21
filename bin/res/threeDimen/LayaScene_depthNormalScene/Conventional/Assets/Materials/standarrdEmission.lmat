@@ -6,7 +6,7 @@
 		"textures":[
 			{
 				"name":"albedoTexture",
-				"path":"../layabox.png",
+				"path":"../layabox.jpg",
 				"constructParams":[
 					128,
 					128,
