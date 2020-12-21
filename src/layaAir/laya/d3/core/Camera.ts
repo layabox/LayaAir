@@ -32,7 +32,7 @@ import { Transform3D } from "./Transform3D";
 import { ILaya3D } from "../../../ILaya3D";
 import { ShadowUtils } from "./light/ShadowUtils";
 import { SpotLight } from "./light/SpotLight";
-import { DepthPass } from "../depthMap/DepthPass";
+import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
 
 /**
  * 相机清除标记。
@@ -66,20 +66,6 @@ export enum CameraEventFlags {
 	BeforeImageEffect = 6,
 	/**所有渲染之后。*/
 	AfterEveryThing = 8,
-}
-
-/**
- * 深度贴图模式
- */
-export enum DepthTextureMode{
-	/**不生成深度贴图 */
-	None = 0,
-	/**生成深度贴图 */
-	Depth = 1,
-	/**生成深度+法线贴图 */
-	DepthNormals = 2,
-	/**是否应渲染运动矢量  TODO*/
-	MotionVectors = 4
 }
 
 /**
@@ -722,11 +708,15 @@ export class Camera extends BaseCamera {
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
-
-		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
-		scene._preCulling(context, this, shader, replacementTag);
 		
-		this._renderDepthMode(context);
+
+		scene._preCulling(context, this, shader, replacementTag);
+		if(this.depthTextureMode!=0){
+			//TODO:是否可以不多次
+			this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+			this._renderDepthMode(context);
+		}
+		
 
 		(renderTex) && (renderTex._start());
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
