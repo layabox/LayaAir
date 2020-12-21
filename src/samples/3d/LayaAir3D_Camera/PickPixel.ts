@@ -52,7 +52,20 @@ export class PickPixel {
 		var out: Uint8Array = new Uint8Array(4);
 		this.renderTargetCamera.renderTarget.getData(posX, posY, 1, 1, out);
 		this.text.text = out[0] + " " + out[1] + " " + out[2] + " " + out[3];
-		let color = `#${out[0].toString(16)}${out[1].toString(16)}${out[2].toString(16)}`
+		let r = out[0].toString(16);
+		let g = out[1].toString(16);
+		let b = out[2].toString(16);
+		if (r.length<2) {
+			r = 0 + r;
+		}
+		if (g.length<2) {
+			g = 0 + g;
+		}
+		if (b.length<2) {
+			b = 0 + b;
+		}
+		let color = `#${r}${g}${b}`
+		console.log(color)
 		this._sp.alpha = out[3]/255;
 		this._sp.graphics.drawRect(0,0,100,100,color,"#ffffff");
 	}
