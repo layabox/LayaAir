@@ -81,6 +81,7 @@ import { DisplayHook } from "./tools/DisplayHook";
 		static tObjKeys:any[] = [];
 		tShowObj:any;
 		preValueO:any = {};
+		
 		static noDisplayKeys:any = {"desginWidth": true, "desginHeight": true};
 		static Bottom:string = "bottom";
 		static Right:string = "right";
@@ -442,7 +443,7 @@ import { DisplayHook } from "./tools/DisplayHook";
 			if (this.tShowObj) {
 				var key:string;
 				key = obj["key"];
-				this.preValueO[key] = this.tShowObj[key] = newValue;
+				this.tShowObj[key] = this.preValueO[key] = newValue;
 			}
 		}
 		
@@ -470,10 +471,10 @@ import { DisplayHook } from "./tools/DisplayHook";
 				this.debug_view.setContents(dataList);
 			}
 			
-			// for (i = 0; i < len; i++) {
-			// 	key = DebugPanel.tObjKeys[i];
-			// 	this.preValueO[key] = tTarget[key];
-			// }
+			for (i = 0; i < len; i++) {
+				key = DebugPanel.tObjKeys[i];
+				this.preValueO[key] = tTarget[key];
+			}
 		}
 		
 		private fromMe:boolean = false;

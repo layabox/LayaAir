@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.emiter = void 0;
 const ts = require("typescript");
 const path = require("path");
 class emiter {
@@ -167,12 +168,17 @@ class emiter {
             return ["\r\n", ""];
         let topPath = path.join(classPath, "../").replace(new RegExp("\\\\|/", "g"), ".");
         classPath = classPath.replace(new RegExp("\\\\|/", "g"), ".");
+        var asstr = "";
         if (importName.length) {
             for (let i = 0; i < importName.length; i++) {
                 this.importArr[importName[i]] = topPath + importName[i];
+                asstr += "\timport " + topPath + importName[i] + ";\r\n";
             }
         }
-        return ["\timport " + classPath + ";\r\n", ""];
+        else {
+            asstr = "\timport " + classPath + ";\r\n";
+        }
+        return [asstr, ""];
     }
     /**
     * 对 = 的import解析
@@ -651,6 +657,13 @@ class emiter {
                 }
                 type += ">";
             }
+            else if (type == "Map") {
+                type = "Map<";
+                for (let i = 0; i < node.typeArguments.length; i++) {
+                    type += (i ? "," : "") + this.emitTsType(node.typeArguments[i]);
+                }
+                type += ">";
+            }
             else if (this.importArr[type])
                 type = this.importArr[type];
         }
@@ -720,10 +733,8 @@ class emiter {
         let arrstr = "";
         //检测数据类型
         for (let i = 0; i < node.typeArguments.length; i++) {
-            let typeText = node.typeArguments[i].getText();
-            if (this.importArr[typeText])
-                typeText = this.importArr[typeText];
-            arrstr += (i ? "|" : "") + typeText;
+            let type = this.emitTsType(node.typeArguments[i]);
+            arrstr += (i ? "|" : "") + type;
         }
         return arrstr;
     }
