@@ -708,14 +708,18 @@ export class Camera extends BaseCamera {
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
-
-		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+		
 
 		scene._preCulling(context, this, shader, replacementTag);
+		if(this.depthTextureMode!=0){
+			//TODO:是否可以不多次
+			this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+			this._renderDepthMode(context);
+		}
 		
-		this._renderDepthMode(context);
 
 		(renderTex) && (renderTex._start());
+		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 		scene._clear(gl, context);
 	
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
