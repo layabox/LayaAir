@@ -724,12 +724,12 @@ export class Camera extends BaseCamera {
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
 
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
-
 		scene._preCulling(context, this, shader, replacementTag);
 		
 		this._renderDepthMode(context);
 
 		(renderTex) && (renderTex._start());
+		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 		scene._clear(gl, context);
 	
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
