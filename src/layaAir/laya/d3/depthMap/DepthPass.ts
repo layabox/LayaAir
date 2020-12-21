@@ -1,6 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
-import { Camera, DepthTextureMode } from "../core/Camera";
+import { Camera } from "../core/Camera";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
@@ -8,6 +8,20 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 
+
+/**
+ * 深度贴图模式
+ */
+export enum DepthTextureMode{
+	/**不生成深度贴图 */
+	None = 0,
+	/**生成深度贴图 */
+	Depth = 1,
+	/**生成深度+法线贴图 */
+	DepthNormals = 2,
+	/**是否应渲染运动矢量  TODO*/
+	MotionVectors = 4
+}
 /**
  * @internal
  * <code>ShadowCasterPass</code> 类用于实现阴影渲染管线

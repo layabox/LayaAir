@@ -1,8 +1,8 @@
 import { Laya } from "Laya";
-import { Camera, DepthTextureMode } from "laya/d3/core/Camera";
+import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { TextureCube } from "laya/d3/resource/TextureCube";
 import { Shader3D } from "laya/d3/shader/Shader3D";
@@ -11,7 +11,6 @@ import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DepthMaterial } from "./DepthNormalShader/DepthMaterial";
 import { DepthNormalsMaterial } from "./DepthNormalShader/DepthNormalsMaterial";
 
