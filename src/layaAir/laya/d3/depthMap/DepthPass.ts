@@ -1,13 +1,12 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
-import { BaseCamera } from "../core/BaseCamera";
 import { Camera, DepthTextureMode } from "../core/Camera";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
+import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
-import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 
 /**
  * @internal
@@ -15,6 +14,14 @@ import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
  */
 export class DepthPass {
 	private static SHADOW_BIAS:Vector4 = new Vector4();
+	/** @internal */
+	static DEFINE_SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
+	/**@internal */
+	static DEPTHTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthTexture");
+	/**@internal */
+	static DEPTHNORMALSTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
+	/**@internal */
+	static DEPTHZBUFFERPARAMS:number = Shader3D.propertyNameToID("u_ZBufferParams");
 	/**@internal */
 	private _depthTexture:RenderTexture;
 	/**@internal */
@@ -76,7 +83,7 @@ export class DepthPass {
 				context.pipelineMode = "ShadowCaster";
 				ShaderData.setRuntimeValueMode(false);
 				this._depthTexture._start();
-				shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS,DepthPass.SHADOW_BIAS);
+				shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS,DepthPass.SHADOW_BIAS);
 				var gl = LayaGL.instance;
 				var offsetX: number = this._viewPort.x;
 				var offsetY: number = this._viewPort.y;
@@ -111,7 +118,6 @@ export class DepthPass {
 				context.pipelineMode = context.configPipeLineMode;
 				break;
 			case DepthTextureMode.MotionVectors:
-
 				break;
 			default:
 				throw("there is UnDefined type of DepthTextureMode")
@@ -128,15 +134,14 @@ export class DepthPass {
 				var far = camera.farPlane;
 				var near = camera.nearPlane;
 				this._zBufferParams.setValue(1.0-far/near,far/near,(near-far)/(near*far),1/near);
-				camera._shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS,DepthPass.SHADOW_BIAS);
-				camera._shaderValues.setTexture(BaseCamera.DEPTHTEXTURE,this._depthTexture);
-				camera._shaderValues.setVector(BaseCamera.DEPTHZBUFFERPARAMS,this._zBufferParams);
+				camera._shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS,DepthPass.SHADOW_BIAS);
+				camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE,this._depthTexture);
+				camera._shaderValues.setVector(DepthPass.DEPTHZBUFFERPARAMS,this._zBufferParams);
 				break;
 			case DepthTextureMode.DepthNormals:
-				camera._shaderValues.setTexture(BaseCamera.DEPTHNORMALSTEXTURE,this._depthNormalsTexture);
+				camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE,this._depthNormalsTexture);
 				break;
 			case DepthTextureMode.MotionVectors:
-
 				break;
 			default:
 				throw("there is UnDefined type of DepthTextureMode")
