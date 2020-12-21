@@ -205,6 +205,9 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * 重力。
 	 */
 	get gravity(): Vector3 {
+		var bt: any = ILaya3D.Physics3D._bullet;
+		Rigidbody3D._btGravity = bt.btRigidBody_getGravity(this._btColliderObject);
+		Utils3D._convertToLayaVec3(Rigidbody3D._btGravity , this._gravity, true);
 		return this._gravity;
 	}
 
