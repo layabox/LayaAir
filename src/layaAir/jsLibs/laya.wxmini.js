@@ -4,10 +4,13 @@ window.wxMiniGame = function (exports, Laya) {
 	class MiniFileMgr {
 	    static isLocalNativeFile(url) {
 	        for (var i = 0, sz = MiniAdpter.nativefiles.length; i < sz; i++) {
-	            if (url.indexOf(MiniAdpter.nativefiles[i]) == 0)
+	            if (url.indexOf(MiniAdpter.nativefiles[i]) != -1)
 	                return true;
 	        }
 	        return false;
+	    }
+	    static isNetFile(url) {
+	        return (url.indexOf("http://") != -1 || url.indexOf("https://") != -1) && url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1;
 	    }
 	    static getFileInfo(fileUrl) {
 	        var fileNativePath = fileUrl;
@@ -127,7 +130,7 @@ window.wxMiniGame = function (exports, Laya) {
 	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
 	        var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
 	        MiniFileMgr.fakeObj[fileurlkey] = { md5: tempFileName, readyUrl: readyUrl, size: 0, times: Laya.Browser.now(), encoding: encoding };
-	        var totalSize = 50 * 1024 * 1024;
+	        var totalSize = MiniAdpter.sizeLimit;
 	        var chaSize = 4 * 1024 * 1024;
 	        var fileUseSize = MiniFileMgr.getCacheUseSize();
 	        if (fileObj) {
@@ -477,7 +480,7 @@ window.wxMiniGame = function (exports, Laya) {
 	            url = Laya.URL.formatURL(url);
 	        }
 	        else {
-	            if (url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1 && (url.indexOf("http://") != -1 || url.indexOf("https://") != -1)) {
+	            if (MiniFileMgr.isNetFile(url)) {
 	                if (MiniFileMgr.loadPath != "") {
 	                    url = url.split(MiniFileMgr.loadPath)[1];
 	                }
@@ -518,19 +521,18 @@ window.wxMiniGame = function (exports, Laya) {
 	                    this.onDownLoadCallBack(url, 0);
 	                }
 	                else {
-	                    if (!MiniFileMgr.isLocalNativeFile(url) && (url.indexOf("http://") == -1 && url.indexOf("https://") == -1)
-	                        || url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) != -1) {
-	                        this.onDownLoadCallBack(url, 0);
+	                    if (MiniFileMgr.isNetFile(url)) {
+	                        MiniFileMgr.downOtherFiles(url, Laya.Handler.create(this, this.onDownLoadCallBack, [url]), url);
 	                    }
 	                    else {
-	                        MiniFileMgr.downOtherFiles(url, Laya.Handler.create(this, this.onDownLoadCallBack, [url]), url);
+	                        this.onDownLoadCallBack(url, 0);
 	                    }
 	                }
 	            }
 	        }
 	    }
 	    onDownLoadCallBack(sourceUrl, errorCode, tempFilePath = null) {
-	        if (!errorCode) {
+	        if (!errorCode && this._sound) {
 	            var fileNativeUrl;
 	            if (MiniAdpter.autoCacheFile) {
 	                if (!tempFilePath) {
@@ -568,7 +570,6 @@ window.wxMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    play(startTime = 0, loops = 0) {
-	        this.isPlaying = true;
 	        if (!this.url)
 	            return null;
 	        var channel = new MiniSoundChannel(this);
@@ -576,7 +577,7 @@ window.wxMiniGame = function (exports, Laya) {
 	        channel.loops = loops;
 	        channel.loop = (loops === 0 ? true : false);
 	        channel.startTime = startTime;
-	        channel.play();
+	        channel.isStopped = false;
 	        Laya.SoundManager.addChannel(channel);
 	        return channel;
 	    }
@@ -692,7 +693,7 @@ window.wxMiniGame = function (exports, Laya) {
 	    _loadResourceFilter(type, url) {
 	        var thisLoader = this;
 	        this.sourceUrl = Laya.URL.formatURL(url);
-	        if (url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1 && (url.indexOf("http://") != -1 || url.indexOf("https://") != -1)) {
+	        if (MiniFileMgr.isNetFile(url)) {
 	            if (MiniFileMgr.loadPath != "") {
 	                url = url.split(MiniFileMgr.loadPath)[1];
 	            }
@@ -743,8 +744,8 @@ window.wxMiniGame = function (exports, Laya) {
 	        else {
 	            var tempurl = Laya.URL.formatURL(url);
 	            if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempurl)) {
-	                if ((tempurl.indexOf("http://") != -1 && tempurl.indexOf("https://") != -1) && (tempurl.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1)) {
-	                    MiniFileMgr.downOtherFiles(encodeURI(tempurl), Laya.Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl, thisLoader]), tempurl);
+	                if (MiniFileMgr.isNetFile(tempurl)) {
+	                    MiniFileMgr.downOtherFiles(tempurl, Laya.Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl, thisLoader]), tempurl);
 	                }
 	                else {
 	                    MiniLoader.onDownLoadCallBack(url, thisLoader, 0);
@@ -807,7 +808,7 @@ window.wxMiniGame = function (exports, Laya) {
 	        else {
 	            var tempurl = Laya.URL.formatURL(url);
 	            if (!MiniAdpter.AutoCacheDownFile) {
-	                if (url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1 && (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1)) {
+	                if (MiniFileMgr.isNetFile(tempurl)) {
 	                    thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
 	                }
 	                else
@@ -815,7 +816,7 @@ window.wxMiniGame = function (exports, Laya) {
 	            }
 	            else {
 	                if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempurl)) {
-	                    if (url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1 && (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1)) {
+	                    if (MiniFileMgr.isNetFile(tempurl)) {
 	                        MiniFileMgr.downFiles(tempurl, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, true);
 	                    }
 	                    else {
@@ -865,7 +866,7 @@ window.wxMiniGame = function (exports, Laya) {
 	        else {
 	            var tempUrl = Laya.URL.formatURL(url);
 	            if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempUrl)) {
-	                if (url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1 && (tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1)) {
+	                if (MiniFileMgr.isNetFile(tempUrl)) {
 	                    MiniFileMgr.downOtherFiles(tempUrl, new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 	                }
 	                else {
@@ -1279,6 +1280,7 @@ window.wxMiniGame = function (exports, Laya) {
 	MiniAdpter._inited = false;
 	MiniAdpter.autoCacheFile = true;
 	MiniAdpter.minClearSize = (5 * 1024 * 1024);
+	MiniAdpter.sizeLimit = (200 * 1024 * 1024);
 	MiniAdpter.nativefiles = ["layaNativeDir", "wxlocal"];
 	MiniAdpter.subNativeFiles = [];
 	MiniAdpter.subNativeheads = [];

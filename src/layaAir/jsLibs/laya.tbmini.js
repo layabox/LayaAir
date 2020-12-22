@@ -511,7 +511,7 @@ window.tbMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    onDownLoadCallBack(sourceUrl, errorCode, tempFilePath = null) {
-	        if (!errorCode) {
+	        if (!errorCode && this._sound) {
 	            var fileNativeUrl;
 	            if (TBMiniAdapter.autoCacheFile) {
 	                if (!tempFilePath) {
@@ -563,7 +563,6 @@ window.tbMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    play(startTime = 0, loops = 0) {
-	        this.isPlaying = true;
 	        if (!this.url)
 	            return null;
 	        var channel = new MiniSoundChannel(this);
@@ -571,7 +570,7 @@ window.tbMiniGame = function (exports, Laya) {
 	        channel.loops = loops;
 	        channel.loop = (loops === 0 ? true : false);
 	        channel.startTime = startTime;
-	        channel.play();
+	        channel.isStopped = false;
 	        Laya.SoundManager.addChannel(channel);
 	        return channel;
 	    }
@@ -875,10 +874,10 @@ window.tbMiniGame = function (exports, Laya) {
 	        MiniLocalStorage.items = MiniLocalStorage;
 	    }
 	    static setItem(key, value) {
-	        TBMiniAdapter.window.my.setStorageSync({ key: key, value: value });
+	        TBMiniAdapter.window.my.setStorageSync({ key: key, data: value });
 	    }
 	    static getItem(key) {
-	        return TBMiniAdapter.window.my.getStorageSync({ "key": key });
+	        return TBMiniAdapter.window.my.getStorageSync({ "key": key }).data;
 	    }
 	    static setJSON(key, value) {
 	        try {
@@ -892,7 +891,7 @@ window.tbMiniGame = function (exports, Laya) {
 	        return JSON.parse(MiniLocalStorage.getItem(key));
 	    }
 	    static removeItem(key) {
-	        TBMiniAdapter.window.my.removeStorageSync(key);
+	        TBMiniAdapter.window.my.removeStorageSync({ key: key });
 	    }
 	    static clear() {
 	        TBMiniAdapter.window.my.clearStorageSync();
