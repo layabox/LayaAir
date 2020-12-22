@@ -46,6 +46,7 @@ var packsDef = [
         'input': [
             './layaAir/laya/d3/animation/**/*.*',
             './layaAir/laya/d3/component/**/*.*',
+            './layaAir/laya/d3/depthMap/*.*',
             './layaAir/laya/d3/core/**/*.*',
             './layaAir/laya/d3/graphics/**/*.*',
             './layaAir/laya/d3/loaders/**/*.*',
