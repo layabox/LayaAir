@@ -335,7 +335,11 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 
 	 */
 	_setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
+		if(!value){
+				(this._indexInOctreeMotionList !== -1) && (this._octreeNode._octree.removeMotionObject(this));
+		}
 		this._octreeNode = value;
+		
 	}
 
 	/**
