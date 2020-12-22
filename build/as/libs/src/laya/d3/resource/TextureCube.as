@@ -11,6 +11,7 @@ package laya.d3.resource {
 		 * TextureCube资源。
 		 */
 		public static var TEXTURECUBE:String;
+		public static var TEXTURECUBEBIN:String;
 
 		/**
 		 * @private 

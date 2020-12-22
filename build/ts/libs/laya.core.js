@@ -18746,10 +18746,7 @@ window.Laya= (function (exports) {
             if (useWorkerLoader)
                 ILaya.WorkerLoader.enableWorkerLoader();
             var cacheRes;
-            if (type == Loader.IMAGE)
-                cacheRes = Loader.textureMap[url];
-            else
-                cacheRes = Loader.loadedMap[url];
+            cacheRes = Loader.loadedMap[url];
             if (!ignoreCache && cacheRes) {
                 this._data = cacheRes;
                 this.event(Event.PROGRESS, 1);
@@ -18987,7 +18984,13 @@ window.Laya= (function (exports) {
                         data.pics = [];
                     }
                     this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
-                    return this._loadResourceFilter(Loader.IMAGE, URL.formatURL(toloadPics.pop()));
+                    var url = URL.formatURL(toloadPics.pop());
+                    var ext = Utils.getFileExtension(url);
+                    var type = Loader.IMAGE;
+                    if (ext == "pvr" || ext == "ktx") {
+                        type = Loader.BUFFER;
+                    }
+                    return this._loadResourceFilter(type, url);
                 }
                 else {
                     if (!(data instanceof Texture2D)) {
@@ -19016,8 +19019,8 @@ window.Laya= (function (exports) {
                         }
                         else {
                             let tex = new Texture2D(data.width, data.height, 1, false, false);
-                            tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-                            tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+                            tex.wrapModeU = exports.WarpMode.Clamp;
+                            tex.wrapModeV = exports.WarpMode.Clamp;
                             tex.loadImageSource(data, true);
                             tex._setCreateURL(data.src);
                             data = tex;
@@ -19026,7 +19029,13 @@ window.Laya= (function (exports) {
                     this._data.pics.push(data);
                     if (this._data.toLoads.length > 0) {
                         this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);
-                        return this._loadResourceFilter(Loader.IMAGE, this._data.toLoads.pop());
+                        var url = URL.formatURL(this._data.toLoads.pop());
+                        var ext = Utils.getFileExtension(url);
+                        var type = Loader.IMAGE;
+                        if (ext == "pvr" || ext == "ktx") {
+                            type = Loader.BUFFER;
+                        }
+                        return this._loadResourceFilter(type, url);
                     }
                     var frames = this._data.frames;
                     var cleanUrl = this._url.split("?")[0];
@@ -22681,7 +22690,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.9.0beta";
+    Laya.version = "2.9.0";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;

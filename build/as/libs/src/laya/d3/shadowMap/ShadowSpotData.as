@@ -2,7 +2,7 @@ package laya.d3.shadowMap {
 	import laya.d3.math.Matrix4x4;
 	import laya.d3.math.Vector3;
 	import laya.d3.shader.ShaderData;
-	import laya.d3.graphics.FrustumCulling;
+	import laya.d3.graphics.CameraCullInfo;
 	public class ShadowSpotData {
 		public var cameraShaderValue:ShaderData;
 		public var position:Vector3;

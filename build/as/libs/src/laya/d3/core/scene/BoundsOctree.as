@@ -5,7 +5,7 @@ package laya.d3.core.scene {
 	import laya.d3.math.Ray;
 	import laya.d3.math.Vector3;
 	import laya.d3.shader.Shader3D;
-	import laya.d3.graphics.FrustumCulling;
+	import laya.d3.graphics.CameraCullInfo;
 
 	/**
 	 * <code>BoundsOctree</code> 类用于创建八叉树。

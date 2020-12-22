@@ -2047,7 +2047,7 @@ declare module laya.d3.component {
 		crossFade(name:string,transitionDuration:number,layerIndex?:number,normalizedTime?:number):void;
 
 		/**
-		 * @deprecated 获取当前的播放状态。
+		 * @deprecated 请使用animator.getControllerLayer(layerIndex).getCurrentPlayState()替换。use animator.getControllerLayer(layerIndex).getCurrentPlayState() instead获取当前的播放状态。
 		 * @param layerIndex 层索引。
 		 * @return 动画播放状态。
 		 */
@@ -16786,11 +16786,17 @@ declare module laya.d3.resource {
 
 declare module laya.d3.resource {
 enum TextureCubeFace {
+    /**+x */
     PositiveX = 0,
+    /**-x */
     NegativeX = 1,
+    /**+y */
     PositiveY = 2,
+    /**-y */
     NegativeY = 3,
+    /**+z */
     PositiveZ = 4,
+    /**-z */
     NegativeZ = 5
 }
 	/**
@@ -16802,6 +16808,7 @@ enum TextureCubeFace {
 		 * TextureCube资源。
 		 */
 		static TEXTURECUBE:string;
+		static TEXTURECUBEBIN:string;
 
 		/**
 		 * @private 
@@ -42129,7 +42136,6 @@ declare module laya.utils {
 		 */
 		protected _createFrameGraphic(frame:number):any;
 		protected _updateNodeGraphic(node:any,frame:number,parentTransfrom:laya.maths.Matrix,g:laya.display.Graphics,alpha?:number):void;
-		protected _updateNoChilds(tNodeG:GraphicNode,g:laya.display.Graphics):void;
 		protected _updateNodeGraphic2(node:any,frame:number,g:laya.display.Graphics):void;
 
 		/**
@@ -42152,7 +42158,6 @@ declare module laya.utils {
 		 * @private 
 		 */
 		private _getObjVar:any;
-		protected _getNodeGraphicData(nodeID:number,frame:number,rst:GraphicNode):GraphicNode;
 		private static _tempMt:any;
 
 		/**
@@ -42177,14 +42182,6 @@ declare module laya.utils {
 		protected _clear():void;
 		static parseAnimationByData(animationObject:any):any;
 		static parseAnimationData(aniData:any):any;
-	}
-	class GraphicNode  {
-		skin:string;
-		transform:laya.maths.Matrix;
-		resultTransform:laya.maths.Matrix;
-		width:number;
-		height:number;
-		alpha:number;
 	}
 
 }
@@ -44886,10 +44883,6 @@ declare module laya.webgl.submit {
 		 * @override 
 		 */
 		releaseRender():void;
-
-		/**
-		 * @override 
-		 */
 		renderSubmit():number;
 		static create(context:laya.resource.Context,mesh:laya.webgl.utils.Mesh2D,sv:laya.webgl.shader.d2.value.Value2D):SubmitTexture;
 	}
@@ -47702,11 +47695,17 @@ enum FrustumCorner {
 	class RenderTexture extends laya.d3.resource.RenderTexture {}
 
 enum TextureCubeFace {
+    /**+x */
     PositiveX = 0,
+    /**-x */
     NegativeX = 1,
+    /**+y */
     PositiveY = 2,
+    /**-y */
     NegativeY = 3,
+    /**+z */
     PositiveZ = 4,
+    /**-z */
     NegativeZ = 5
 }
 
@@ -49801,8 +49800,6 @@ enum WarpMode {
 	 */
 
 	class GraphicAnimation extends laya.utils.GraphicAnimation {}
-
-	class GraphicNode extends laya.utils.GraphicNode {}
 
 	/**
 	 * <code>HalfFloatUtils</code> 类用于创建HalfFloat工具。

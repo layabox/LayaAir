@@ -1197,7 +1197,7 @@
 	            var btValue = this.btColliderObject.angularVelocity;
 	            (this.isSleeping) && (this.wakeUp());
 	            btValue.set(value.x, value.y, value.z);
-	            this.btColliderObject.velocity = btValue;
+	            this.btColliderObject.angularVelocity = btValue;
 	        }
 	    }
 	    get totalTorque() {

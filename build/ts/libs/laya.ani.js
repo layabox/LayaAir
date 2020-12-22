@@ -3326,11 +3326,10 @@
             Laya.ILaya.loader.load(this._loadList, Laya.Handler.create(this, this._textureComplete));
         }
         _textureComplete() {
-            var tTexture;
             var tTextureName;
             for (var i = 0, n = this._loadList.length; i < n; i++) {
                 tTextureName = this._loadList[i];
-                tTexture = this._textureDic[tTextureName] = Laya.ILaya.Loader.getRes(tTextureName);
+                this._textureDic[tTextureName] = Laya.ILaya.Loader.getRes(tTextureName);
             }
             this._parsePublicExtData();
         }

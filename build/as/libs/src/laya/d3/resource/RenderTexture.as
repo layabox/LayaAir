@@ -1,5 +1,6 @@
 package laya.d3.resource {
 	import laya.resource.BaseTexture;
+	import laya.resource.RenderTextureDepthFormat;
 	import laya.resource.RenderTextureFormat;
 
 	/**

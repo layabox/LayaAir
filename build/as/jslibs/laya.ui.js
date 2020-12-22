@@ -82,8 +82,9 @@
 	            this._source = null;
 	            if (this._drawGridCmd) {
 	                if (this._one) {
-	                    if (this._one == this._drawGridCmd)
-	                        this._one = null;
+	                    if (this._one == this._drawGridCmd) {
+	                        this.clear();
+	                    }
 	                }
 	                let cmds = this.cmds;
 	                if (cmds && cmds.length > 0) {

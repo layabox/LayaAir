@@ -6,7 +6,7 @@ package laya.d3.core.render {
 	import laya.d3.math.Vector4;
 	import laya.events.EventDispatcher;
 	import laya.resource.ISingletonElement;
-	import laya.d3.core.reflectionProbe.ReflectionProbe;
+	import laya.d3.core.reflectionProbe.ReflectionProbeMode;
 
 	/**
 	 * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。

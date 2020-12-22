@@ -13,11 +13,7 @@ package laya.webgl.submit {
 		 * @override 
 		 */
 		override public function releaseRender():void{}
-
-		/**
-		 * @override 
-		 */
-		override public function renderSubmit():Number{
+		public function renderSubmit():Number{
 			return null;
 		}
 		public static function create(context:Context,mesh:Mesh2D,sv:Value2D):SubmitTexture{

@@ -13,7 +13,6 @@ import { ILaya3D } from "../../../ILaya3D";
  */
 export class Rigidbody3D extends PhysicsTriggerComponent {
 	/*
-
 	 * 刚体类型_静态。
 	 * 设定为永远不会移动刚体,引擎也不会自动更新。
 	 * 如果你打算移动物理,建议使用TYPE_KINEMATIC。
@@ -206,6 +205,9 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * 重力。
 	 */
 	get gravity(): Vector3 {
+		var bt: any = ILaya3D.Physics3D._bullet;
+		Rigidbody3D._btGravity = bt.btRigidBody_getGravity(this._btColliderObject);
+		Utils3D._convertToLayaVec3(Rigidbody3D._btGravity , this._gravity, true);
 		return this._gravity;
 	}
 

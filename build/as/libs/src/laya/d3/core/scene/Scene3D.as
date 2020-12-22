@@ -15,7 +15,7 @@ package laya.d3.core.scene {
 	import laya.d3.resource.TextureCube;
 	import laya.d3.core.scene.Lightmap;
 	import laya.d3.physicsCannon.CannonPhysicsSimulation;
-	import laya.d3.core.render.command.SetShaderDataCMD;
+	import laya.d3.core.render.command.ShaderDataType;
 
 	/**
 	 * 用于实现3D场景。

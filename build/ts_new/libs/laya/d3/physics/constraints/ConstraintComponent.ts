@@ -106,7 +106,7 @@ export class ConstraintComponent extends Component {
 	/**@internal */
 	set connectedBody(value:Rigidbody3D){
 		this._connectedBody = value;
-		value.constaintRigidbodyB = this;
+		value && (value.constaintRigidbodyB = this);
 	}
 
 	/**
@@ -332,7 +332,7 @@ export class ConstraintComponent extends Component {
 	 */
 	protected _onDestroy(): void {
 		var physics3D: any = Physics3D._bullet;
-		this._removeFromSimulation();
+		this._simulation&&this._removeFromSimulation();
 		if(this._btConstraint&&this._btJointFeedBackObj&&this._simulation){
 			physics3D.btTypedConstraint_destroy(this._btConstraint);
 			physics3D.btJointFeedback_destroy(this._btJointFeedBackObj);
@@ -387,7 +387,7 @@ export class ConstraintComponent extends Component {
 	 */
 	_breakConstrained():void{
 		this.ownBody.constaintRigidbodyA=null;
-		this.connectedBody.constaintRigidbodyB=null;
+		this.connectedBody && (this.connectedBody.constaintRigidbodyB=null);
 		this.destroy();
 	}
 	

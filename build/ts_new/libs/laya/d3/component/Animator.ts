@@ -1220,7 +1220,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated 请使用animator.getControllerLayer(layerIndex).getCurrentPlayState()替换。use animator.getControllerLayer(layerIndex).getCurrentPlayState() instead
 	 * 获取当前的播放状态。
 	 * @param   layerIndex 层索引。
 	 * @return  动画播放状态。

@@ -89,7 +89,6 @@ package laya.utils {
 		 */
 		protected function _createFrameGraphic(frame:Number):*{}
 		protected function _updateNodeGraphic(node:*,frame:Number,parentTransfrom:Matrix,g:Graphics,alpha:Number = null):void{}
-		protected function _updateNoChilds(tNodeG:GraphicNode,g:Graphics):void{}
 		protected function _updateNodeGraphic2(node:*,frame:Number,g:Graphics):void{}
 
 		/**
@@ -114,9 +113,6 @@ package laya.utils {
 		 * @private 
 		 */
 		private var _getObjVar:*;
-		protected function _getNodeGraphicData(nodeID:Number,frame:Number,rst:GraphicNode):GraphicNode{
-			return null;
-		}
 		private static var _tempMt:*;
 
 		/**
