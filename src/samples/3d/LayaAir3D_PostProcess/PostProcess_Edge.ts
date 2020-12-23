@@ -19,6 +19,8 @@ import { HSlider } from "laya/ui/HSlider";
 import { Button } from "laya/ui/Button";
 import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { EdgeEffect, EdgeMode } from "./PostProcess_Edge/EdgeEffect";
+import { Browser } from "laya/utils/Browser";
+import { Event } from "laya/events/Event";
 
 export class PostProcess_Edge {
 
@@ -147,9 +149,9 @@ export class PostProcess_Edge {
         button.labelBold = true;
         button.labelSize = size;
         button.sizeGrid = "4,4,4,4";
-        button.scale(Laya.Browser.pixelRatio, Laya.Browser.pixelRatio);
+        button.scale(Browser.pixelRatio, Browser.pixelRatio);
         button.pos(x, y);
-        button.on(Laya.Event.CLICK, this, clickFunc);
+        button.on(Event.CLICK, this, clickFunc);
         return button;
     }
 

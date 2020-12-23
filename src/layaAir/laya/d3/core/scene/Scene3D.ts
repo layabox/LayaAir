@@ -1429,7 +1429,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			case ShaderDataType.Texture:
 				this._shaderValues.setTexture(shaderOffset, value);
 				break;
-			case ShaderDataType.Vector:
+			case ShaderDataType.Vector4:
 				this._shaderValues.setVector(shaderOffset, value);
 				break;
 			case ShaderDataType.Vector2:
