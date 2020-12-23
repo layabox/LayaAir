@@ -74,7 +74,7 @@ export class CommandBuffer {
 	 * @param value 
 	 */
 	setShaderDataVector(shaderData:ShaderData,nameID:number,value:Vector4):void{
-		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector,this));
+		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector4,this));
 	}
 
 	/**
@@ -84,7 +84,7 @@ export class CommandBuffer {
 	 */
 	setGlobalVector(nameID:number,source: Vector4){
 		
-		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Vector,this));
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Vector4,this));
 	}
 
 	/**

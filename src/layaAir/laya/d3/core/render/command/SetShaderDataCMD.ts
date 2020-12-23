@@ -19,7 +19,7 @@ export enum ShaderDataType{
 	/**3维数结构 */
 	Vector3,
 	/**4维数结构 */
-	Vector,
+	Vector4,
 	/**四元数 */
 	Quaternion,
 	/**矩阵 */
@@ -85,7 +85,7 @@ export class SetShaderDataCMD extends Command {
 			case ShaderDataType.Texture:
 				this._shaderData.setTexture(this._nameID,this._value as BaseTexture);
 				break;
-			case ShaderDataType.Vector:
+			case ShaderDataType.Vector4:
 				this._shaderData.setVector(this._nameID,this._value as Vector4);
 				break;
 			case ShaderDataType.Vector2:

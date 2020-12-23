@@ -123,7 +123,7 @@ export class DepthPass {
 				gl.enable(gl.SCISSOR_TEST);
 				gl.viewport(offsetX, offsetY, this._viewPort.width,this._viewPort.height);
 				gl.scissor(offsetX, offsetY, this._viewPort.width,this._viewPort.height);
-				gl.clearColor(1.0,1.0,1.0,1.0);
+				gl.clearColor(0.0, 0.0, 1.0, 0.0);
 				gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
 				scene._opaqueQueue._render(context);
 				this._depthNormalsTexture._end();
