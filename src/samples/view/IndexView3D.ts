@@ -109,6 +109,7 @@ import { CommandBuffer_BlurryGlass } from "../3d/LayaAir3D_Advance/CommandBuffer
 import { HalfFloatTexture } from "../3d/LayaAir3D_Texture/HalfFloatTexture";
 import { ReflectionProbeDemo } from "../3d/LayaAir3D_Advance/ReflectionProbeDemo";
 import { CameraDepthModeTextureDemo } from "../3d/LayaAir3D_Advance/CameraDepthModeTextureDemo";
+import { PostProcess_Edge } from "../3d/LayaAir3D_PostProcess/PostProcess_Edge";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -129,8 +130,8 @@ export class IndexView3D extends IndexViewUI {
 	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,ReflectionProbeDemo,CameraDepthModeTextureDemo];//PostProcessBloom,AStarFindPath,
 	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','ReflectionProbeDemo','CameraDepthTextureDemo'];//'后期处理之泛光','寻路示例',
 
-	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur];
-	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur'];
+	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge];
+	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge'];
 
 	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample,SimpleSkinAnimationInstance];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample","SimpleSkinAnimationInstance"];
