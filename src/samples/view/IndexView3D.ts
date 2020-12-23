@@ -212,7 +212,8 @@ export class IndexView3D extends IndexViewUI {
 	}
 
 	private initView3D(): void {
-		var lables: string = this._comboxBigArr2.toString()
+		var lables: string = this._comboxBigArr2.toString();
+		this.box1.mouseThrough = true;
 		this.bigComBox.labels = lables;
 		this.bigComBox.selectedIndex = 0;
 		this.bigComBox.visibleNum = 5;//_comboxBigArr.length;
