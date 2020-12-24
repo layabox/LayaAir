@@ -110,6 +110,7 @@ import { HalfFloatTexture } from "../3d/LayaAir3D_Texture/HalfFloatTexture";
 import { ReflectionProbeDemo } from "../3d/LayaAir3D_Advance/ReflectionProbeDemo";
 import { CameraDepthModeTextureDemo } from "../3d/LayaAir3D_Advance/CameraDepthModeTextureDemo";
 import { PostProcess_Edge } from "../3d/LayaAir3D_PostProcess/PostProcess_Edge";
+import { LoadGltfRosource } from "../3d/LayaAir3D_Resource/LoadGltfResource";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -166,8 +167,8 @@ export class IndexView3D extends IndexViewUI {
 	private _cannonPhysicsClsArr: any[] = [CannonPhysicsWorld_BaseCollider, CannonPhysicsWorld_ColliderEvent, CannonPhysicsWorld_PhysicsProperty, CannonPhysicsWorld_RayCheck, ];
 	private _cannonPhysicslArr: any[] = ['CannonPhysicsWorld_BaseCollider', 'CannonPhysicsWorld_ColliderEvent', 'CannonPhysicsWorld_PhysicsProperty', 'CannonPhysicsWorld_RayCheck'];
 
-	private _resourceClsArr: any[] = [GarbageCollection, LoadResourceDemo];
-	private _resourceArr: any[] = ['GarbageCollection', 'LoadResourceDemo'];
+	private _resourceClsArr: any[] = [GarbageCollection, LoadResourceDemo,LoadGltfRosource];
+	private _resourceArr: any[] = ['GarbageCollection', 'LoadResourceDemo','LoadGltfRosource'];
 
 	private _scene3DClsArr: any[] = [EnvironmentalReflection, LightmapScene, SceneLoad1, SceneLoad2];
 	private _scene3DArr: any[] = ['EnvironmentalReflection', 'LightmapScene', 'SceneLoad1', "SceneLoad2"];
