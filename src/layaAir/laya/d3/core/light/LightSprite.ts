@@ -194,6 +194,18 @@ export class LightSprite extends Sprite3D {
 		this.intensity = data.intensity;
 		this.lightmapBakedType = data.lightmapBakedType;
 	}
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
+	_cloneTo(destObject: any, rootSprite: Node, dstSprite: Node){
+		super._cloneTo(destObject, rootSprite, dstSprite);
+		var spriteLight = <LightSprite>destObject;
+		spriteLight.color = this.color.clone();
+		spriteLight.intensity = this.intensity;
+		spriteLight.lightmapBakedType = this.lightmapBakedType;
+	}
 
 	/**
 	 * @internal
@@ -283,5 +295,6 @@ export class LightSprite extends Sprite3D {
 		console.log("LightSprite: discard property,please use color property instead.");
 		this.color = value;
 	}
+	
 }
 
