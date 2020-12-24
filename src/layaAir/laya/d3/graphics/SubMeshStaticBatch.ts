@@ -160,10 +160,8 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 
 			if (sTangentOffset !== -1) {
 				var absSTanegntOffset: number = oriOffset + sTangentOffset;
-				batchVertices[bakeOffset + 14] = oriVertexes[absSTanegntOffset];
-				batchVertices[bakeOffset + 15] = oriVertexes[absSTanegntOffset + 1];
-				batchVertices[bakeOffset + 16] = oriVertexes[absSTanegntOffset + 2];
-				batchVertices[bakeOffset + 17] = oriVertexes[absSTanegntOffset + 3];
+				Utils3D.transformVector3ArrayToVector3ArrayNormal(oriVertexes, absSTanegntOffset, normalMat, batchVertices, bakeOffset + 14);
+				batchVertices[bakeOffset + 17] = oriVertexes[absSTanegntOffset + 3];
 			}
 		}
 		return vertexCount;
