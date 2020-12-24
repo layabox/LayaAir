@@ -1,6 +1,6 @@
 import { Scene3D } from "../scene/Scene3D";
 import { LightSprite, LightType } from "./LightSprite";
-
+import { Node } from "../../../display/Node"
 /**
  * <code>PointLight</code> 类用于创建点光。
  */
@@ -55,6 +55,24 @@ export class PointLight extends LightSprite {
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		this.range = data.range;
+	}
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
+	_cloneTo(destObject: any, rootSprite: Node, dstSprite: Node){
+		super._cloneTo(destObject, rootSprite, dstSprite);
+		var pointlight = <PointLight>destObject;
+		pointlight.range = this.range;
+		pointlight._lightType = LightType.Point;
+	}
+	
+	/**
+	 * @internal
+	 */
+	protected _create(): Node {
+		return new PointLight();
 	}
 }
 
