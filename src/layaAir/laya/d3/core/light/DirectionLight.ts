@@ -2,6 +2,7 @@ import { Vector3 } from "../../math/Vector3";
 import { Scene3D } from "../scene/Scene3D";
 import { LightSprite, LightType } from "./LightSprite";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
+import { Node } from "../../../display/Node";
 
 /**
  * <code>DirectionLight</code> 类用于创建平行光。
@@ -73,6 +74,13 @@ export class DirectionLight extends LightSprite {
 	 */
 	protected _removeFromLightQueue(): void {
 		(<Scene3D>this._scene)._directionLights.remove(this);
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _create(): Node {
+		return new DirectionLight();
 	}
 }
 
