@@ -1,6 +1,7 @@
 import { Vector3 } from "../../math/Vector3";
 import { Scene3D } from "../scene/Scene3D";
 import { LightSprite, LightType } from "./LightSprite";
+import { Node } from "../../../display/Node"
 
 /**
  * <code>SpotLight</code> 类用于创建聚光。
@@ -74,6 +75,26 @@ export class SpotLight extends LightSprite {
 		this.range = data.range;
 		this.spotAngle = data.spotAngle;
 	}
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
+	_cloneTo(destObject: any, rootSprite: Node, dstSprite: Node){
+		super._cloneTo(destObject, rootSprite, dstSprite);
+		var spotLight = <SpotLight>destObject;
+		spotLight.range = this.range;
+		spotLight.spotAngle = this.spotAngle;
+	}
+
+	
+	/**
+	 * @internal
+	 */
+	protected _create(): Node {
+		return new SpotLight();
+	}
+	
 }
 
 
