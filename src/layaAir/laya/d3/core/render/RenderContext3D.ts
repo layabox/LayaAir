@@ -42,7 +42,7 @@ export class RenderContext3D {
 	invertY: boolean = false;
 	/** @internal */
 	pipelineMode: string;
-	/** @internal */
+	/**设置渲染管线 */
 	configPipeLineMode:string = "Forward";
 
 	/**
