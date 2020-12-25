@@ -11531,6 +11531,13 @@
 	        this.intensity = data.intensity;
 	        this.lightmapBakedType = data.lightmapBakedType;
 	    }
+	    _cloneTo(destObject, rootSprite, dstSprite) {
+	        super._cloneTo(destObject, rootSprite, dstSprite);
+	        var spriteLight = destObject;
+	        spriteLight.color = this.color.clone();
+	        spriteLight.intensity = this.intensity;
+	        spriteLight.lightmapBakedType = this.lightmapBakedType;
+	    }
 	    _addToScene() {
 	        var scene = this._scene;
 	        var maxLightCount = Config3D._config.maxLightCount;
@@ -17147,9 +17154,7 @@
 	            }
 	            if (sTangentOffset !== -1) {
 	                var absSTanegntOffset = oriOffset + sTangentOffset;
-	                batchVertices[bakeOffset + 14] = oriVertexes[absSTanegntOffset];
-	                batchVertices[bakeOffset + 15] = oriVertexes[absSTanegntOffset + 1];
-	                batchVertices[bakeOffset + 16] = oriVertexes[absSTanegntOffset + 2];
+	                Utils3D.transformVector3ArrayToVector3ArrayNormal(oriVertexes, absSTanegntOffset, normalMat, batchVertices, bakeOffset + 14);
 	                batchVertices[bakeOffset + 17] = oriVertexes[absSTanegntOffset + 3];
 	            }
 	        }
@@ -30490,6 +30495,9 @@
 	    _removeFromLightQueue() {
 	        this._scene._directionLights.remove(this);
 	    }
+	    _create() {
+	        return new DirectionLight();
+	    }
 	}
 
 	class PointLight extends LightSprite {
@@ -30513,6 +30521,15 @@
 	    _parse(data, spriteMap) {
 	        super._parse(data, spriteMap);
 	        this.range = data.range;
+	    }
+	    _cloneTo(destObject, rootSprite, dstSprite) {
+	        super._cloneTo(destObject, rootSprite, dstSprite);
+	        var pointlight = destObject;
+	        pointlight.range = this.range;
+	        pointlight._lightType = exports.LightType.Point;
+	    }
+	    _create() {
+	        return new PointLight();
 	    }
 	}
 
@@ -30546,6 +30563,15 @@
 	        super._parse(data, spriteMap);
 	        this.range = data.range;
 	        this.spotAngle = data.spotAngle;
+	    }
+	    _cloneTo(destObject, rootSprite, dstSprite) {
+	        super._cloneTo(destObject, rootSprite, dstSprite);
+	        var spotLight = destObject;
+	        spotLight.range = this.range;
+	        spotLight.spotAngle = this.spotAngle;
+	    }
+	    _create() {
+	        return new SpotLight();
 	    }
 	}
 

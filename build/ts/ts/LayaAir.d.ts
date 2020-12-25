@@ -25814,6 +25814,65 @@ declare module laya.filters {
 
 }
 
+declare module laya.gltf {
+
+	/**
+	 * <code>GLTFLoader</code> 类可用来加载 gltf 文件
+	 * 支持 gltf 2.0 非二进制文件 非 相机， 灯光 节点解析
+	 */
+	class GLTFLoader  {
+		static loadedMap:{[key:string]:any;};
+		static textureMap:{[key:string]:any;};
+		private _onLoaded:any;
+
+		/**
+		 * 设置默认材质，节点材质会设置位此材质的克隆 支持解析 PBR 相关参数
+		 */
+		static defaultMatrial:laya.d3.core.material.Material;
+
+		/**
+		 * 扩展解析函数对象
+		 */
+		extraFunc:any;
+
+		constructor();
+
+		/**
+		 * 加载 gltf 资源
+		 * @param url 资源地址或数组 | {url: string, type: JSON}
+		 * @param complate 加载回调函数
+		 */
+		loadGLTF(url:any,complate?:laya.utils.Handler):void;
+
+		/**
+		 * @intrenal 
+		 * @param gltfContext 
+		 * @param allScuess 
+		 * @param succeed 
+		 */
+		collectionLoadItems(gltfContext:any,allScuess:boolean,succeed:boolean):void;
+
+		/**
+		 * @intrenal 
+		 */
+		onLoaded(gltfContext:any,allScuess:boolean,succeed:boolean):void;
+
+		/**
+		 * 获取指定资源地址的资源或纹理。
+		 * @param url 资源地址。
+		 * @return 返回资源。
+		 */
+		static getRes(url:string):any;
+
+		/**
+		 * 清理指定资源地址的缓存。
+		 * @param url 资源地址。
+		 */
+		static clearRes(url:string):void;
+	}
+
+}
+
 declare module laya.html.dom {
 
 	/**
@@ -48462,6 +48521,13 @@ const enum VIDEOTYPE {
 	 */
 
 	class GlowFilterGLRender extends laya.filters.GlowFilterGLRender {}
+
+	/**
+	 * <code>GLTFLoader</code> 类可用来加载 gltf 文件
+	 * 支持 gltf 2.0 非二进制文件 非 相机， 灯光 节点解析
+	 */
+
+	class GLTFLoader extends laya.gltf.GLTFLoader {}
 
 	/**
 	 * HTML图文类，用于显示html内容

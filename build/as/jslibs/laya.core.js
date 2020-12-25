@@ -18756,7 +18756,7 @@ window.Laya= (function (exports) {
             }
             Loader.setGroup(url, "666");
             this._url = url;
-            if (url.indexOf("data:image") === 0)
+            if (url.indexOf("data:image") === 0 && !type)
                 type = Loader.IMAGE;
             else
                 url = URL.formatURL(url);
