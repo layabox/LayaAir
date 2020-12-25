@@ -8043,6 +8043,16 @@ declare module laya.d3.core.pixelLine {
 	class PixelLineSprite3D extends laya.d3.core.RenderableSprite3D  {
 
 		/**
+		 * @private 是否调用active
+		 */
+		private _isRenderActive:any;
+
+		/**
+		 * @private 是否加入渲染队列
+		 */
+		private _isInRenders:any;
+
+		/**
 		 * 最大线数量
 		 */
 		get maxLineCount():number;
@@ -8066,6 +8076,18 @@ declare module laya.d3.core.pixelLine {
 		 */
 
 		constructor(maxCount?:number,name?:string);
+
+		/**
+		 * @inheritDoc 
+		 * @override 
+		 */
+		protected _onInActive():void;
+
+		/**
+		 * @inheritDoc 
+		 * @override 
+		 */
+		protected _onActive():void;
 
 		/**
 		 * @inheritDoc 

@@ -11527,6 +11527,13 @@
 	        this.intensity = data.intensity;
 	        this.lightmapBakedType = data.lightmapBakedType;
 	    }
+	    _cloneTo(destObject, rootSprite, dstSprite) {
+	        super._cloneTo(destObject, rootSprite, dstSprite);
+	        var spriteLight = destObject;
+	        spriteLight.color = this.color.clone();
+	        spriteLight.intensity = this.intensity;
+	        spriteLight.lightmapBakedType = this.lightmapBakedType;
+	    }
 	    _addToScene() {
 	        var scene = this._scene;
 	        var maxLightCount = Config3D._config.maxLightCount;
@@ -17122,9 +17129,7 @@
 	            }
 	            if (sTangentOffset !== -1) {
 	                var absSTanegntOffset = oriOffset + sTangentOffset;
-	                batchVertices[bakeOffset + 14] = oriVertexes[absSTanegntOffset];
-	                batchVertices[bakeOffset + 15] = oriVertexes[absSTanegntOffset + 1];
-	                batchVertices[bakeOffset + 16] = oriVertexes[absSTanegntOffset + 2];
+	                Utils3D.transformVector3ArrayToVector3ArrayNormal(oriVertexes, absSTanegntOffset, normalMat, batchVertices, bakeOffset + 14);
 	                batchVertices[bakeOffset + 17] = oriVertexes[absSTanegntOffset + 3];
 	            }
 	        }
@@ -17703,6 +17708,9 @@
 	        return this._octreeNode;
 	    }
 	    _setOctreeNode(value) {
+	        if (!value) {
+	            (this._indexInOctreeMotionList !== -1) && (this._octreeNode._octree.removeMotionObject(this));
+	        }
 	        this._octreeNode = value;
 	    }
 	    _getIndexInMotionList() {
@@ -17844,6 +17852,8 @@
 	class PixelLineSprite3D extends RenderableSprite3D {
 	    constructor(maxCount = 2, name = null) {
 	        super(name);
+	        this._isRenderActive = false;
+	        this._isInRenders = false;
 	        this._geometryFilter = new PixelLineFilter(this, maxCount);
 	        this._render = new PixelLineRenderer(this);
 	        this._changeRenderObjects(this._render, 0, PixelLineMaterial.defaultMaterial);
@@ -17867,6 +17877,22 @@
 	    get pixelLineRenderer() {
 	        return this._render;
 	    }
+	    _onInActive() {
+	        Laya.Stat.spriteCount--;
+	        if (this._geometryFilter._lineCount != 0 && this._isRenderActive) {
+	            this._scene._removeRenderObject(this._render);
+	            this._isInRenders = false;
+	        }
+	        this._isRenderActive = false;
+	    }
+	    _onActive() {
+	        Laya.Stat.spriteCount++;
+	        this._isRenderActive = true;
+	        if (this._geometryFilter._lineCount != 0) {
+	            this._scene._addRenderObject(this._render);
+	            this._isInRenders = true;
+	        }
+	    }
 	    _changeRenderObjects(sender, index, material) {
 	        var renderObjects = this._render._renderElements;
 	        (material) || (material = PixelLineMaterial.defaultMaterial);
@@ -17882,6 +17908,10 @@
 	            this._geometryFilter._updateLineData(this._geometryFilter._lineCount++, startPosition, endPosition, startColor, endColor);
 	        else
 	            throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+	        if (this._isRenderActive && !this._isInRenders && this._geometryFilter._lineCount > 0) {
+	            this._scene._addRenderObject(this._render);
+	            this._isInRenders = true;
+	        }
 	    }
 	    addLines(lines) {
 	        var lineCount = this._geometryFilter._lineCount;
@@ -17893,12 +17923,20 @@
 	            this._geometryFilter._updateLineDatas(lineCount, lines);
 	            this._geometryFilter._lineCount += addCount;
 	        }
+	        if (this._isRenderActive && !this._isInRenders && this._geometryFilter._lineCount > 0) {
+	            this._scene._addRenderObject(this._render);
+	            this._isInRenders = true;
+	        }
 	    }
 	    removeLine(index) {
 	        if (index < this._geometryFilter._lineCount)
 	            this._geometryFilter._removeLineData(index);
 	        else
 	            throw "PixelLineSprite3D: index must less than lineCount.";
+	        if (this._isRenderActive && this._isInRenders && this._geometryFilter._lineCount == 0) {
+	            this._scene._removeRenderObject(this._render);
+	            this._isInRenders = false;
+	        }
 	    }
 	    setLine(index, startPosition, endPosition, startColor, endColor) {
 	        if (index < this._geometryFilter._lineCount)
@@ -17914,6 +17952,10 @@
 	    }
 	    clear() {
 	        this._geometryFilter._lineCount = 0;
+	        if (this._isRenderActive && this._isInRenders) {
+	            this._scene._removeRenderObject(this._render);
+	            this._isInRenders = false;
+	        }
 	    }
 	    _create() {
 	        return new PixelLineSprite3D();
@@ -30542,6 +30584,9 @@
 	    _removeFromLightQueue() {
 	        this._scene._directionLights.remove(this);
 	    }
+	    _create() {
+	        return new DirectionLight();
+	    }
 	}
 
 	class PointLight extends LightSprite {
@@ -30565,6 +30610,15 @@
 	    _parse(data, spriteMap) {
 	        super._parse(data, spriteMap);
 	        this.range = data.range;
+	    }
+	    _cloneTo(destObject, rootSprite, dstSprite) {
+	        super._cloneTo(destObject, rootSprite, dstSprite);
+	        var pointlight = destObject;
+	        pointlight.range = this.range;
+	        pointlight._lightType = exports.LightType.Point;
+	    }
+	    _create() {
+	        return new PointLight();
 	    }
 	}
 
@@ -30598,6 +30652,15 @@
 	        super._parse(data, spriteMap);
 	        this.range = data.range;
 	        this.spotAngle = data.spotAngle;
+	    }
+	    _cloneTo(destObject, rootSprite, dstSprite) {
+	        super._cloneTo(destObject, rootSprite, dstSprite);
+	        var spotLight = destObject;
+	        spotLight.range = this.range;
+	        spotLight.spotAngle = this.spotAngle;
+	    }
+	    _create() {
+	        return new SpotLight();
 	    }
 	}
 

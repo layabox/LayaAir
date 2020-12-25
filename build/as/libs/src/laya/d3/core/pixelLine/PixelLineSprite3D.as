@@ -12,6 +12,16 @@ package laya.d3.core.pixelLine {
 	public class PixelLineSprite3D extends RenderableSprite3D {
 
 		/**
+		 * @private 是否调用active
+		 */
+		private var _isRenderActive:*;
+
+		/**
+		 * @private 是否加入渲染队列
+		 */
+		private var _isInRenders:*;
+
+		/**
 		 * 最大线数量
 		 */
 		public function get maxLineCount():Number{return null;}
@@ -35,6 +45,18 @@ package laya.d3.core.pixelLine {
 		 */
 
 		public function PixelLineSprite3D(maxCount:Number = undefined,name:String = undefined){}
+
+		/**
+		 * @inheritDoc 
+		 * @override 
+		 */
+		override protected function _onInActive():void{}
+
+		/**
+		 * @inheritDoc 
+		 * @override 
+		 */
+		override protected function _onActive():void{}
 
 		/**
 		 * @inheritDoc 
