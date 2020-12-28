@@ -127,7 +127,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 
 		var boundingBox: Bounds = this.meshFilter.sharedMesh.bounds;
 		var min: Vector3 = boundingBox.getMin();
-		var max: Vector3 = boundingBox.getMax();
 		this._minX = min.x;
 		this._minZ = min.z;
 	}
@@ -138,7 +137,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		this._computeCellSize(boundingBox);
 
 		var min: Vector3 = boundingBox.getMin();
-		var max: Vector3 = boundingBox.getMax();
 		this._minX = min.x;
 		this._minZ = min.z;
 	}

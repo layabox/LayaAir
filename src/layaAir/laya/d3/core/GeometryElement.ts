@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { RenderContext3D } from "./render/RenderContext3D"
 import { IDestroy } from "../../resource/IDestroy"
 

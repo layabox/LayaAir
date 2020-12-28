@@ -1,27 +1,24 @@
-import { Render } from "../../renders/Render";
-import { SingletonList } from "../component/SingletonList";
-import { FrustumCulling } from "../graphics/FrustumCulling";
-import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager";
-import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch";
-import { BoundFrustum } from "../math/BoundFrustum";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Vector3 } from "../math/Vector3";
-import { Mesh } from "../resource/models/Mesh";
-import { Utils3D } from "../utils/Utils3D";
-import { Material } from "./material/Material";
-import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
-import { MeshSprite3D } from "./MeshSprite3D";
-import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
-import { BaseRender } from "./render/BaseRender";
-import { RenderContext3D } from "./render/RenderContext3D";
-import { RenderElement } from "./render/RenderElement";
-import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
-import { RenderableSprite3D } from "./RenderableSprite3D";
-import { Sprite3D } from "./Sprite3D";
-import { Transform3D } from "./Transform3D";
-import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
-import { ReflectionProbeMode, ReflectionProbe } from "./reflectionProbe/ReflectionProbe";
-import { TextureCube } from "../resource/TextureCube";
+import { SingletonList } from "../component/SingletonList"
+import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager"
+import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch"
+import { BoundFrustum } from "../math/BoundFrustum"
+import { Matrix4x4 } from "../math/Matrix4x4"
+import { Mesh } from "../resource/models/Mesh"
+import { Utils3D } from "../utils/Utils3D"
+import { Material } from "./material/Material"
+import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
+import { MeshSprite3D } from "./MeshSprite3D"
+import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration"
+import { BaseRender } from "./render/BaseRender"
+import { RenderContext3D } from "./render/RenderContext3D"
+import { RenderElement } from "./render/RenderElement"
+import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
+import { RenderableSprite3D } from "./RenderableSprite3D"
+import { Sprite3D } from "./Sprite3D"
+import { Transform3D } from "./Transform3D"
+import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
+import { ReflectionProbeMode, ReflectionProbe } from "./reflectionProbe/ReflectionProbe"
+import { TextureCube } from "../resource/TextureCube"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
