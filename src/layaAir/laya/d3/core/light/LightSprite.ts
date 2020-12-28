@@ -237,9 +237,9 @@ export class LightSprite extends Sprite3D {
 			scene._lightCount--;
 			this._removeFromLightQueue();
 			if (scene._alternateLights._length > 0) {
-				var alternateLight: LightSprite = scene._alternateLights.shift();
-				alternateLight._addToLightQueue();
-				alternateLight._isAlternate = false;
+				var alternateLight = scene._alternateLights.shift();
+				alternateLight!._addToLightQueue();
+				alternateLight!._isAlternate = false;
 				scene._lightCount++;
 			}
 		}
