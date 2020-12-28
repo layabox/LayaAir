@@ -18,7 +18,7 @@ export class KeyframeNodeOwner {
 	/**@internal */
 	fullPath: string|null = null;
 	/**@internal */
-	propertyOwner = null;
+	propertyOwner: any = null;
 	/**@internal */
 	property: string[]|null = null;
 	/**@internal */
