@@ -64,7 +64,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 		super(name);
 		this._geometryFilter = new PixelLineFilter(this, maxCount);
 		this._render = new PixelLineRenderer(this);
-		this._changeRenderObjects((<PixelLineRenderer>this._render), 0, PixelLineMaterial.defaultMaterial);
+		this._changeRenderObjects( 0, PixelLineMaterial.defaultMaterial);
 	}
 
 
@@ -98,7 +98,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 */
-	_changeRenderObjects(sender: PixelLineRenderer, index: number, material: Material): void {
+	_changeRenderObjects( index: number, material: Material): void {
 		var renderObjects: RenderElement[] = this._render._renderElements;
 		(material) || (material = PixelLineMaterial.defaultMaterial);
 		var renderElement: RenderElement = renderObjects[index];
