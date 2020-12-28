@@ -12,7 +12,6 @@ import { Transform3D } from "../../Transform3D";
 import { GeometryElement } from "../../GeometryElement";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { DefineDatas } from "../../../shader/DefineDatas";
-import { ShurikenParticleSystem } from "../../particleShuriKen/ShurikenParticleSystem";
 
 
 /**
