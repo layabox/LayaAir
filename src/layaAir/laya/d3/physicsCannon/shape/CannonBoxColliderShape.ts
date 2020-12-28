@@ -6,7 +6,7 @@ import { Vector3 } from "../../math/Vector3";
  */
 export class CannonBoxColliderShape extends CannonColliderShape {
 	/** @internal */
-	private static _btSize: CANNON.Vec3;
+	static _btSize: CANNON.Vec3;
 
 	/**
 	* @internal

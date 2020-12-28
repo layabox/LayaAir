@@ -57,6 +57,8 @@ export class CannonPhysicsSimulation {
 	/** @internal */
 	private static _tempVector30: Vector3 = new Vector3();
 
+	private static _cannonPhysicsSimulation:CannonPhysicsSimulation;
+
 	/*是否禁用所有模拟器。*/
 	static disableSimulation: boolean = false;
 
@@ -106,18 +108,18 @@ export class CannonPhysicsSimulation {
 	/**物理模拟器帧的间隔时间:通过减少fixedTimeStep可增加模拟精度，默认是1.0 / 60.0。*/
 	fixedTimeStep: number = 1.0 / 60.0;
 
-	/**
-	 * 是否进行连续碰撞检测。CCD
-	 */
-	get continuousCollisionDetection(): boolean {
-		//有没有这个东西
-		return false
-	}
+	// /**
+	//  * 是否进行连续碰撞检测。CCD
+	//  */
+	// get continuousCollisionDetection(): boolean {
+	// 	//有没有这个东西
+	// 	return false
+	// }
 
-	set continuousCollisionDetection(value: boolean) {
-		//TODO
-		throw "Simulation:Cannon physical engine does not support this feature";
-	}
+	// set continuousCollisionDetection(value: boolean) {
+	// 	//TODO
+	// 	throw "Simulation:Cannon physical engine does not support this feature";
+	// }
 
 	/**
 	 * 获取重力。
@@ -151,27 +153,27 @@ export class CannonPhysicsSimulation {
 		this._iterations = value;
 	}
 
-	/**
-	 * @internal
-	 */
-	get speculativeContactRestitution(): boolean {
-		//TODO:miner
-		return false;
-	}
+	// /**
+	//  * @internal
+	//  */
+	// get speculativeContactRestitution(): boolean {
+	// 	//TODO:miner
+	// 	return false;
+	// }
 
-	/**
-	 * @internal
-	 */
-	set speculativeContactRestitution(value: boolean) {
-		//TODO:miner
-	}
+	// /**
+	//  * @internal
+	//  */
+	// set speculativeContactRestitution(value: boolean) {
+	// 	//TODO:miner
+	// }
 	
 
 	/**
 	 * @internal
 	 * 创建一个 <code>Simulation</code> 实例。
 	 */
-	constructor(configuration: CannonPhysicsSettings, flags: number = 0) {
+	constructor(configuration: CannonPhysicsSettings) {
 		this.maxSubSteps = configuration.maxSubSteps;
 		this.fixedTimeStep = configuration.fixedTimeStep;
 
@@ -182,6 +184,7 @@ export class CannonPhysicsSimulation {
 		this._btDiscreteDynamicsWorld.defaultContactMaterial.contactEquationRelaxation = configuration.contactEquationRelaxation;
 		this._btDiscreteDynamicsWorld.defaultContactMaterial.contactEquationStiffness = configuration.contactEquationStiffness;
 		this.gravity = this._gravity;
+		CannonPhysicsSimulation._cannonPhysicsSimulation = this;
 	}
 
 	/**
@@ -304,7 +307,7 @@ export class CannonPhysicsSimulation {
 		rayOptions.collisionFilterGroup = collisonGroup;
 		out.length = 0;
 		this._btDiscreteDynamicsWorld.raycastAll(rayFrom,rayTo,rayOptions,function(result:CANNON.RaycastResult){
-			var hitResult: CannonHitResult = this._collisionsUtils.getHitResult();
+			var hitResult: CannonHitResult = CannonPhysicsSimulation._cannonPhysicsSimulation._collisionsUtils.getHitResult();
 			out.push(hitResult);
 			hitResult.succeeded = true
 			hitResult.collider = CannonPhysicsComponent._physicObjectsMap[result.body.layaID];

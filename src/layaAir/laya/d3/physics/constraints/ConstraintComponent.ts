@@ -3,7 +3,6 @@ import { Rigidbody3D } from "../Rigidbody3D";
 import { Physics3D } from "../Physics3D";
 import { PhysicsSimulation } from "../PhysicsSimulation";
 import { Vector3 } from "../../math/Vector3";
-import { Scene3D } from "../../core/scene/Scene3D";
 
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。
@@ -58,7 +57,7 @@ export class ConstraintComponent extends Component {
 	/** @internal */
 	_btframBTrans:number;
 	/**@internal */
-	private _constraintType:number;
+	_constraintType:number;
 	/**@internal */
 	private _connectedBody: Rigidbody3D;
 	/**@internal */
