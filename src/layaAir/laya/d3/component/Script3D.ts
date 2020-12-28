@@ -1,9 +1,8 @@
-
+//@ts-nocheck
 import { Component } from "../../components/Component"
 import { Sprite3D } from "../core/Sprite3D"
 import { Collision } from "../physics/Collision"
 import { PhysicsComponent } from "../physics/PhysicsComponent"
-import { Event } from "../../events/Event"
 import { Laya } from "../../../Laya";
 import { Scene3D } from "../core/scene/Scene3D";
 

@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 export class VertexArrayObject {
     constructor() {
     }
