@@ -8864,6 +8864,11 @@ declare module laya.d3.core.render {
 		static clientHeight:number;
 
 		/**
+		 * 设置渲染管线
+		 */
+		configPipeLineMode:string;
+
+		/**
 		 * 创建一个 <code>RenderContext3D</code> 实例。
 		 */
 

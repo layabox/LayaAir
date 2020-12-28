@@ -16,6 +16,11 @@ package laya.d3.core.render {
 		public static var clientHeight:Number;
 
 		/**
+		 * 设置渲染管线
+		 */
+		public var configPipeLineMode:String;
+
+		/**
 		 * 创建一个 <code>RenderContext3D</code> 实例。
 		 */
 
