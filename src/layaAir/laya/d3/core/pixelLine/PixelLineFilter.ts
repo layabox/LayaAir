@@ -26,8 +26,7 @@ export class PixelLineFilter extends GeometryElement {
 	/** @internal */
 	private _floatCountPerVertices: number = 7;
 
-	/** @internal */
-	private _owner: PixelLineSprite3D;
+
 	/** @internal */
 	private _vertexBuffer: VertexBuffer3D;
 	/** @internal */
@@ -43,6 +42,8 @@ export class PixelLineFilter extends GeometryElement {
 	/** @internal */
 	private _calculateBound: boolean = false;
 
+	/** @internal */
+	_owner: PixelLineSprite3D;
 	/** @internal */
 	_bounds: Bounds;
 	/** @internal */
