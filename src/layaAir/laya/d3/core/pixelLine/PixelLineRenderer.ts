@@ -1,7 +1,4 @@
-import { Render } from "../../../renders/Render";
-import { FrustumCulling } from "../../graphics/FrustumCulling";
 import { Matrix4x4 } from "../../math/Matrix4x4";
-import { Vector3 } from "../../math/Vector3";
 import { ShaderData } from "../../shader/ShaderData";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
