@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { IClone } from "../../../IClone"
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"

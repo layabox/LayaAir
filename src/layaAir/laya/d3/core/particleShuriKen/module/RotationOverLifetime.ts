@@ -1,6 +1,5 @@
 import { GradientAngularVelocity } from "./GradientAngularVelocity";
 import { IClone } from "../../IClone"
-import { Vector3 } from "../../../math/Vector3"
 
 /**
  * <code>RotationOverLifetime</code> 类用于粒子的生命周期旋转。

@@ -1,9 +1,4 @@
-import { Render } from "../../../renders/Render";
-import { FrustumCulling } from "../../graphics/FrustumCulling";
-import { BoundBox } from "../../math/BoundBox";
 import { BoundFrustum } from "../../math/BoundFrustum";
-import { ContainmentType } from "../../math/ContainmentType";
-import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
 import { ShaderData } from "../../shader/ShaderData";
@@ -24,12 +19,6 @@ import { Vector2 } from "../../math/Vector2";
 export class ShurikenParticleRenderer extends BaseRender {
 	/** @internal */
 	private _finalGravity: Vector3 = new Vector3();
-
-	/** @internal */
-	private _tempRotationMatrix: Matrix4x4 = new Matrix4x4();
-
-	/**@internal */
-	private _defaultBoundBox: BoundBox;
 
 	///**排序模式,无。*/
 	//public const SORTINGMODE_NONE:int = 0;
@@ -130,7 +119,6 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 */
 	constructor(owner: ShuriKenParticle3D) {
 		super(owner);
-		this._defaultBoundBox = new BoundBox(new Vector3(), new Vector3());
 		this.renderMode = 0;
 		//sortingMode = SORTINGMODE_NONE;
 		this._supportOctree = false;
