@@ -1,7 +1,6 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 import { ShaderDefine } from "../../shader/ShaderDefine";
@@ -61,10 +60,6 @@ export class ExtendTerrainMaterial extends Material {
 		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM4 = Shader3D.getDefineByName("ExtendTerrain_DETAIL_NUM4");
 		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM5 = Shader3D.getDefineByName("ExtendTerrain_DETAIL_NUM5");
 	}
-
-	/** @internal */
-	private _enableLighting: boolean = true;
-
 	/**
 	 * splatAlpha贴图。
 	 */

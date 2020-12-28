@@ -348,16 +348,4 @@ export class PBRMaterial extends Material {
         this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
         this.renderMode = PBRRenderMode.Opaque;
     }
-
-
-    //---------------------------------------------------------------deprecated------------------------------------------------------------------
-    /**
-	 * @deprecated
-	 */
-    get enableReflection(): boolean {
-        return true;
-    }
-
-    set enableReflection(value: boolean) {
-    }
 }

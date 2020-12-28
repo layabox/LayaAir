@@ -42,7 +42,7 @@ export class Material extends Resource implements IClone {
 	/**@internal */
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 	/**材质级着色器宏定义,透明测试。*/
-	static SHADERDEFINE_ALPHATEST: ShaderDefine = null;
+	static SHADERDEFINE_ALPHATEST: ShaderDefine;
 
 	/**
 	 * 加载材质。
@@ -63,11 +63,11 @@ export class Material extends Resource implements IClone {
 	/**
 	 * @inheritDoc
 	 */
-	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Material {
+	static _parse(data: any): Material {
 		var jsonData: any = data;
 		var props: any = jsonData.props;
 
-		var material: Material;
+		var material;
 		var classType: string = props.type;
 		//var clasPaths: any[] = classType.split('.');
 		//var clas: new () => any = Browser.window;
@@ -90,10 +90,10 @@ export class Material extends Resource implements IClone {
 						case "type":
 							break;
 						case "vectors":
-							var vectors: any[] = props[key];
+							var vectors = props[key];
 							for (i = 0, n = vectors.length; i < n; i++) {
-								var vector: any = vectors[i];
-								var vectorValue: any[] = vector.value;
+								var vector= vectors[i];
+								var vectorValue = vector.value;
 								switch (vectorValue.length) {
 									case 2:
 										material[vector.name] = new Vector2(vectorValue[0], vectorValue[1]);
@@ -167,7 +167,7 @@ export class Material extends Resource implements IClone {
 	/** @internal */
 	_shader: Shader3D;
 	/** @private */
-	_shaderValues: ShaderData = null;//TODO:剥离贴图ShaderValue
+	_shaderValues: ShaderData;//TODO:剥离贴图ShaderValue
 
 	/** 所属渲染队列. */
 	renderQueue: number;
