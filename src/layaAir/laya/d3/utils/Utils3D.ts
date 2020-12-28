@@ -114,7 +114,7 @@ export class Utils3D {
 		se[5] = sy;
 		se[10] = sz;
 
-		var i: number, a: Float32Array, b: Float32Array, e: Float32Array, ai0: number, ai1: number, ai2: number, ai3: number;
+		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
 		//mul(rMat, tMat, tsMat)......................................
 		for (i = 0; i < 4; i++) {
 			ai0 = re[i];
@@ -512,7 +512,7 @@ export class Utils3D {
 	}
 
 	/**@internal */
-	private static angleTo(from: Vector3, location: Vector3, angle: Vector3): void {
+	static angleTo(from: Vector3, location: Vector3, angle: Vector3): void {
 
 		Vector3.subtract(location, from, Quaternion.TEMPVector30);
 		Vector3.normalize(Quaternion.TEMPVector30, Quaternion.TEMPVector30);

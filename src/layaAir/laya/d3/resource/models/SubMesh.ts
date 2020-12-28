@@ -7,7 +7,6 @@ import { SkinnedMeshSprite3D } from "../../core/SkinnedMeshSprite3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Mesh } from "./Mesh";
-import { LayaGPU } from "../../../webgl/LayaGPU";
 import { IndexFormat } from "../../graphics/IndexFormat";
 
 

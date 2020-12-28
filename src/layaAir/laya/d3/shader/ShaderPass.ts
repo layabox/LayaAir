@@ -27,7 +27,7 @@ export class ShaderPass extends ShaderCompile {
 	/** @internal */
 	private _owner: SubShader;
 	/** @internal */
-	_stateMap: object;
+	_stateMap:  {[key:string]:number} ;
 	/** @internal */
 	private _cacheSharders: object = {};
 	/** @internal */
@@ -49,7 +49,7 @@ export class ShaderPass extends ShaderCompile {
 		return this._renderState;
 	}
 
-	constructor(owner: SubShader, vs: string, ps: string, stateMap: object) {
+	constructor(owner: SubShader, vs: string, ps: string, stateMap:  {[key:string]:number} ) {
 		super(vs, ps, null);
 		this._owner = owner;
 		this._stateMap = stateMap;

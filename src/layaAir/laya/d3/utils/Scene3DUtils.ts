@@ -1,6 +1,5 @@
 import { Component } from "../../components/Component";
 import { Node } from "../../display/Node";
-import { Browser } from "../../utils/Browser";
 import { Camera } from "../core/Camera";
 import { DirectionLight } from "../core/light/DirectionLight";
 import { PointLight } from "../core/light/PointLight";
