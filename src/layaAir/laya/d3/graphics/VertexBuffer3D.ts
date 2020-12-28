@@ -1,7 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Buffer } from "../../webgl/utils/Buffer";
 import { VertexDeclaration } from "./VertexDeclaration";
-import { LayaGPU } from "../../webgl/LayaGPU";
 
 
 /**
