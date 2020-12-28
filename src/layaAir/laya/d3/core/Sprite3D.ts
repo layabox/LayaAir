@@ -277,24 +277,24 @@ export class Sprite3D extends Node implements ICreateResource {
 		(data.active !== undefined) && (this.active = data.active);
 		(data.name != undefined) && (this.name = data.name);
 
-		if (data.position !== undefined) {
+		if (data.position != undefined) {
 			var loccalPosition: Vector3 = this.transform.localPosition;
 			loccalPosition.fromArray(data.position);
 			this.transform.localPosition = loccalPosition;
 		}
 
-		if (data.rotationEuler !== undefined) {
+		if (data.rotationEuler != undefined) {
 			var localRotationEuler: Vector3 = this.transform.localRotationEuler;
 			localRotationEuler.fromArray(data.rotationEuler);
 			this.transform.localRotationEuler = localRotationEuler;
 		}
-		if (data.rotation !== undefined) {
+		if (data.rotation != undefined) {
 			var localRotation: Quaternion = this.transform.localRotation;
 			localRotation.fromArray(data.rotation);
 			this.transform.localRotation = localRotation;
 		}
 
-		if (data.scale !== undefined) {
+		if (data.scale != undefined) {
 			var localScale: Vector3 = this.transform.localScale;
 			localScale.fromArray(data.scale);
 			this.transform.localScale = localScale;

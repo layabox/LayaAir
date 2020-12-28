@@ -553,7 +553,7 @@ class emiter {
                 str = "static ";
         }
         else if (type == "PrivateKeyword") {
-            str = "private ";
+            str = "public  ";
         }
         else if (type == "ReadonlyKeyword") {
             if (!i)
