@@ -63,7 +63,7 @@ export class Material extends Resource implements IClone {
 	/**
 	 * @inheritDoc
 	 */
-	static _parse(data: any): Material {
+	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Material {
 		var jsonData: any = data;
 		var props: any = jsonData.props;
 
@@ -167,7 +167,7 @@ export class Material extends Resource implements IClone {
 	/** @internal */
 	_shader: Shader3D;
 	/** @private */
-	_shaderValues: ShaderData;//TODO:剥离贴图ShaderValue
+	_shaderValues: ShaderData|null;//TODO:剥离贴图ShaderValue
 
 	/** 所属渲染队列. */
 	renderQueue: number;

@@ -17,9 +17,6 @@ import { TextureMode } from "../TextureMode";
 import { TrailAlignment } from "./TrailAlignment";
 import { TrailFilter } from "./TrailFilter";
 import { VertexTrail } from "./VertexTrail";
-import { Render } from "../../../renders/Render"
-import { FrustumCulling } from "../../graphics/FrustumCulling"
-import { TrailRenderer } from "./TrailRenderer";
 
 /**
  * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
@@ -400,7 +397,6 @@ export class TrailGeometry extends GeometryElement {
 					this._owner._totalLength -= this._subDistance[nextIndex];//移除分段要减去下一分段到当前分段的距离
 
 				if (this._isTempEndVertex && (nextIndex === count - 1)) {//如果只剩最后一分段要将其转化为固定分段
-					var offset: number = this._floatCountPerVertices1 * i * 2;
 					var fixedPos: Vector3 = this._lastFixedVertexPosition;
 					fixedPos.x = this._vertices1[0];
 					fixedPos.y = this._vertices1[1];
