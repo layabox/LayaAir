@@ -7,7 +7,6 @@ import { ContainmentType } from "../../math/ContainmentType";
 import { Ray } from "../../math/Ray";
 import { Vector3 } from "../../math/Vector3";
 import { Utils3D } from "../../utils/Utils3D";
-import { Camera } from "../Camera";
 import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -23,11 +22,7 @@ import { CameraCullInfo } from "../../graphics/FrustumCulling";
  */
 export class BoundsOctreeNode {
 	/**@internal */
-	private static _tempVector3: Vector3 = new Vector3();
-	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector31: Vector3 = new Vector3();
 	/**@internal */
 	private static _tempColor0: Color = new Color();
 	/**@internal */
