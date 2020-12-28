@@ -94,7 +94,6 @@ export class DrawMeshCMD extends Command {
 			comDef.addDefineDatas(this._renderShaderValue._defineDatas);
 			comDef.addDefineDatas(this._material._shaderValues._defineDatas);
 			var shaderIns: ShaderInstance = context.shader = pass.withCompile(comDef);
-			var switchShader: boolean = shaderIns.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
 			//scene
 			shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, scene._shaderValues,true);
 			//sprite
