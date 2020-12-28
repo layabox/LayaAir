@@ -341,7 +341,7 @@ export class Vector3 implements IClone {
 	 * @param	y  Y轴坐标。
 	 * @param	z  Z轴坐标。
 	 */
-	constructor(x: number = 0, y: number = 0, z: number = 0, nativeElements: Float32Array = null/*[NATIVE]*/) {
+	constructor(x: number = 0, y: number = 0, z: number = 0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
