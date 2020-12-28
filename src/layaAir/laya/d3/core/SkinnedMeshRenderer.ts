@@ -3,7 +3,6 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
 import { AnimationNode } from "../animation/AnimationNode";
 import { Animator } from "../component/Animator";
-import { FrustumCulling } from "../graphics/FrustumCulling";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh";
@@ -18,7 +17,6 @@ import { Transform3D } from "./Transform3D";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-import { Render } from "../../renders/Render";
 import { ReflectionProbeMode, ReflectionProbe } from "./reflectionProbe/ReflectionProbe";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 import { TextureCube } from "../resource/TextureCube";
@@ -386,34 +384,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 				this._cacheAvatar = value;
 			}
 			this._setRootNode();
-		}
-	}
-
-	/**@internal [NATIVE]*/
-	private _cacheAnimationNodeIndices: Uint16Array;
-
-	/**
-	 * @internal [NATIVE]
-	 */
-	private _computeSubSkinnedDataNative(worldMatrixs: Float32Array, cacheAnimationNodeIndices: Uint16Array, inverseBindPosesBuffer: ArrayBuffer, boneIndices: Uint16Array, data: Float32Array): void {
-		(<any>LayaGL.instance).computeSubSkinnedData(worldMatrixs, cacheAnimationNodeIndices, inverseBindPosesBuffer, boneIndices, data);
-	}
-
-	/**
-	 * @internal
-	 */
-	private _computeSkinnedDataForNative(): void {
-		if (this._cacheMesh && this._cacheAvatar/*兼容*/ || this._cacheMesh && !this._cacheAvatar) {
-			var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
-			var pathMarks: skinnedMatrixCache[] = this._cacheMesh._skinnedMatrixCaches;
-			for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
-				var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh.getSubMesh(i)))._boneIndicesList;
-				var subData: Float32Array[] = this._skinnedData[i];
-				for (var j: number = 0, m: number = subMeshBoneIndices.length; j < m; j++) {
-					var boneIndices: Uint16Array = subMeshBoneIndices[j];
-						this._computeSubSkinnedData(bindPoses, boneIndices, subData[j], pathMarks);
-				}
-			}
 		}
 	}
 }

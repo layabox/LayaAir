@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Laya } from "../../../Laya";
 import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
@@ -10,8 +11,6 @@ import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { Sprite3D } from "./Sprite3D";
 import { Scene3D } from "./scene/Scene3D";
-import { Texture2D } from "../../resource/Texture2D";
-import { BaseTexture } from "../../resource/BaseTexture";
 import { ShaderDefine } from "../shader/ShaderDefine";
 
 /**

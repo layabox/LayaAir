@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Node } from "../../display/Node";
 import { Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
