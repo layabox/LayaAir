@@ -7,7 +7,6 @@ import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
 import { VertexDeclaration } from "../../graphics/VertexDeclaration"
 import { LayaGL } from "../../../layagl/LayaGL"
 import { Stat } from "../../../utils/Stat"
-import { WebGLContext } from "../../../webgl/WebGLContext"
 import { IndexFormat } from "../../graphics/IndexFormat";
 
 /**

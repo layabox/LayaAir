@@ -49,6 +49,7 @@ export class Input3D {
 	 */
 	__init__(canvas: any, scene: Scene3D): void {
 		this._scene = scene;
+		//@ts-ignore
 		canvas.oncontextmenu = function (e: any): any {
 			return false;
 		}
