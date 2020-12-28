@@ -703,7 +703,7 @@ export class Matrix4x4 implements IClone {
 	 * @param	cameraForward  相机前向量
 	 * @param	mat            变换矩阵
 	 */
-	static billboard(objectPosition: Vector3, cameraPosition: Vector3, cameraRight: Vector3, cameraUp: Vector3, cameraForward: Vector3, mat: Matrix4x4): void {
+	static billboard(objectPosition: Vector3, cameraPosition: Vector3, cameraUp: Vector3, cameraForward: Vector3, mat: Matrix4x4): void {
 
 		Vector3.subtract(objectPosition, cameraPosition, Matrix4x4._tempVector0);
 
