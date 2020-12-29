@@ -15,11 +15,11 @@ export class LayoutBox extends Box {
     /**@private */
     protected _itemChanged: boolean = false;
 
-		/** 
-		 * @inheritDoc	
-		 * @override
-		*/
-		/*override*/  addChild(child: Node): Node {
+    /** 
+     * @inheritDoc	
+     * @override
+    */
+    addChild(child: Node): Node {
         child.on(Event.RESIZE, this, this.onResize);
         this._setItemChanged();
         return super.addChild(child);
@@ -29,21 +29,21 @@ export class LayoutBox extends Box {
         this._setItemChanged();
     }
 
-		/** 
-		 * @inheritDoc	
-		 * @override
-		*/
-		/*override*/  addChildAt(child: Node, index: number): Node {
+    /** 
+     * @inheritDoc	
+     * @override
+    */
+    addChildAt(child: Node, index: number): Node {
         child.on(Event.RESIZE, this, this.onResize);
         this._setItemChanged();
         return super.addChildAt(child, index);
     }
 
-		/**
-		 *  @inheritDoc	
-		 * @override
-		*/
-		/*override*/  removeChildAt(index: number): Node {
+    /**
+     *  @inheritDoc	
+     * @override
+    */
+    removeChildAt(index: number): Node {
         this.getChildAt(index).off(Event.RESIZE, this, this.onResize);
         this._setItemChanged();
         return super.removeChildAt(index);
