@@ -157,7 +157,7 @@ export class AdvImage extends Image {
 	 * @param {*} minNum 最小值
 	 * @param {*} maxNum 最大值
 	 */
-	static randRange(minNum, maxNum): number {
+	static randRange(minNum:number, maxNum:number): number {
 		return (Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum);
 	}
 

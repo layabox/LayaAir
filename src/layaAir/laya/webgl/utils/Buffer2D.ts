@@ -212,7 +212,7 @@ export class Buffer2D extends Buffer {
 	}
 
 	//TODO:coverage
-	appendEx(data: any, type: new (buf, len) => any): void {
+	appendEx(data: any, type: new (buf:any, len:any) => any): void {
 		this._upload = true;
 		var byteLen: number, n: any;
 		byteLen = data.byteLength;
@@ -224,7 +224,7 @@ export class Buffer2D extends Buffer {
 	}
 
 	//TODO:coverage
-	appendEx2(data: any, type: new (buff, len) => any, dataLen: number, perDataLen: number = 1): void {
+	appendEx2(data: any, type: new (buff:any, len:any) => any, dataLen: number, perDataLen: number = 1): void {
 		this._upload = true;
 		var byteLen: number, n: any;
 		byteLen = dataLen * perDataLen;

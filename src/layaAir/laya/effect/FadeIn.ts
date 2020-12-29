@@ -11,7 +11,7 @@ export class FadeIn extends EffectBase {
 	 */
     protected _doTween(): Tween {
         this.target.alpha = 0;
-        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
+        return Tween.to(this.target, { alpha: 1 }, this.duration, (Ease as any)[this.ease], this._comlete, this.delay);
     }
 }
 

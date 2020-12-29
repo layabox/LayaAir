@@ -258,7 +258,7 @@ export class View extends Scene {
         for (var name in value) {
             var comp: any = this.getChildByName(name);
             if (comp instanceof UIComponent) comp.dataSource = value[name];
-            else if (name in this && !(this[name] instanceof Function)) this[name] = value[name];
+            else if (name in this && !((this as any)[name] instanceof Function)) (this as any)[name] = value[name];
         }
     }
 }

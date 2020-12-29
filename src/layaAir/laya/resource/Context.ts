@@ -95,11 +95,11 @@ export class Context {
 	}
 
 	/**@private */
-	drawImage(...args): void {
+	drawImage(...args:any[]): void {
 	}
 
 	/**@private */
-	getImageData(...args): any {
+	getImageData(...args:any[]): any {
 	}
 
 	/**@private */
@@ -108,7 +108,7 @@ export class Context {
 	}
 
 	/**@private */
-	setTransform(...args): void {
+	setTransform(...args:any[]): void {
 	}
 
 

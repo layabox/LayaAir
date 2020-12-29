@@ -73,7 +73,7 @@ import { Resource } from "./laya/resource/Resource";
      /**@internal */
      static __classMap:Object = {};
      static regClass(c:any){
-        ILaya.__classMap[c.name]=c;
+        (ILaya.__classMap as any)[c.name]=c;
      }
  }
  
