@@ -161,15 +161,15 @@ export class GLTFLoader {
             return true;
         });
 
-        var allScuess: boolean = true;
-        var itemCount: number = gltfItems.length;
-        var loadedCount: number = 0;
-        var loadedFlags: boolean[] = new Array<boolean>(itemCount).fill(false);
+        var allScuess = true;
+        var itemCount = gltfItems.length;
+        var loadedCount = 0;
+        var loadedFlags = new Array<boolean>(itemCount).fill(false);
 
         gltfItems.forEach((item, gltfIndex) => {
             var base: string = URL.getPath(item.url);
 
-            var completehandler = Handler.create(this, function (item: any, content: any = null): void {
+            var completehandler = Handler.create(this, (item: any, content: any = null)=> {
                 loadedCount++;
                 var gltfContext = {
                     urlItem: item,
@@ -208,7 +208,7 @@ export class GLTFLoader {
 
                 // load all assets
                 if (loadItems.length) {
-                    var extraCompletehandler = Handler.create(this, function (item: any, success: boolean): void {
+                    var extraCompletehandler = Handler.create(this, (item: any, success: boolean)=> {
                         success || (allScuess = false);
                         this.collectionLoadItems(gltfContext, allScuess, success);
                     }, [item]);
