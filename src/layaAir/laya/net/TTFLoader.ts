@@ -45,7 +45,7 @@ export class TTFLoader {
 
     //TODO:coverage
     private _onHttpLoaded(data: any = null): void {
-        window["conchTextCanvas"].setFontFaceFromBuffer(this.fontName, data);
+        (window as any)["conchTextCanvas"].setFontFaceFromBuffer(this.fontName, data);
         this._clearHttp();
         this._complete();
     }

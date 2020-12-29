@@ -119,7 +119,7 @@ export class ArabicReshaper {
     }
 
     //TODO:coverage
-    getCombCharRep(c1, c2): boolean {
+    getCombCharRep(c1:number, c2:number): boolean {
         for (var i: number = 0; i < ArabicReshaper.combCharsMap.length; ++i) {
             if (ArabicReshaper.combCharsMap[i][0][0] === c1 && ArabicReshaper.combCharsMap[i][0][1] === c2) {
                 return ArabicReshaper.combCharsMap[i];
@@ -132,7 +132,7 @@ export class ArabicReshaper {
     }
 
     //TODO:coverage
-    isTransparent(c): boolean {
+    isTransparent(c:number): boolean {
         for (var i: number = 0; i < ArabicReshaper.transChars.length; ++i) {
             if (ArabicReshaper.transChars[i] === c) {
                 return true;
@@ -143,7 +143,7 @@ export class ArabicReshaper {
     }
 
     //TODO:coverage
-    getOriginalCharsFromCode(code): string {
+    getOriginalCharsFromCode(code:number): string {
         var j: number;
 
         for (j = 0; j < ArabicReshaper.charsMap.length; ++j) {
@@ -170,7 +170,7 @@ export class ArabicReshaper {
      * 
     */
     //TODO:coverage
-    convertArabic(normal): string {
+    convertArabic(normal:any): string {
         var crep: any,
             combcrep: any,
             shaped: string = '';
@@ -258,7 +258,7 @@ export class ArabicReshaper {
 
     // convert from Arabic Presentation Forms B
     //TODO:coverage
-    convertArabicBack(apfb): string {
+    convertArabicBack(apfb:any): string {
         var toReturn: string = '',
             selectedChar: number;
 

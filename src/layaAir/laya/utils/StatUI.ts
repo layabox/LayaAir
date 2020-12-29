@@ -238,7 +238,7 @@ export class StatUI extends IStatRender {
 					ctx.fillText(one.title, one.x, one.y);
 				}
 				ctx.fillStyle = one.color;
-				value = Stat[one.value];
+				value = (Stat as any)[one.value];
 				(one.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100 + " M");
 				ctx.fillText(value + "", one.x + this._vx, one.y);
 			}
@@ -249,7 +249,7 @@ export class StatUI extends IStatRender {
 		var text: string = "";
 		for (var i: number = 0; i < this._view.length; i++) {
 			var one: any = this._view[i];
-			var value: any = Stat[one.value];
+			var value: any = (Stat as any)[one.value];
 			(one.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100 + " M");
 			(one.units == "K") && (value = Math.floor(value / (1024) * 100) / 100 + " K");
 			text += value + "\n";

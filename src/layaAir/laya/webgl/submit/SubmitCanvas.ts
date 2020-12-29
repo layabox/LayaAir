@@ -66,7 +66,7 @@ export class SubmitCanvas extends SubmitBase {
             RenderState2D.worldFilters = v.filters;
             RenderState2D.worldShaderDefines = v.defines;
         }
-        this.canv['flushsubmit']();
+        (this.canv as any)['flushsubmit']();
         RenderState2D.worldAlpha = preAlpha;
         RenderState2D.worldMatrix4 = preMatrix4;
         RenderState2D.worldMatrix.destroy();

@@ -19,7 +19,7 @@ export class Box extends UIComponent implements IBox {
         for (var name in value) {
             var comp: UIComponent = (<UIComponent>this.getChildByName(name));
             if (comp) comp.dataSource = value[name];
-            else if (name in this && !(this[name] instanceof Function)) this[name] = value[name];
+            else if (name in this && !((this as any)[name] instanceof Function)) (this as any)[name] = value[name];
         }
     }
     /**

@@ -299,7 +299,7 @@ export class TextRender {
                         //分组保存
                         var add = sameTexData[ri.tex.id];
                         if (!add) {
-                            var o1 = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [] };	// 根据genid来减少是否释放的判断量
+                            var o1 = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: new Array() };	// 根据genid来减少是否释放的判断量
                             sameTexData[ri.tex.id] = o1;
                             add = o1.words;
                         } else {

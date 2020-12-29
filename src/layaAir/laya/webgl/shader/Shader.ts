@@ -545,7 +545,7 @@ export class Shader extends BaseShader {
 
         for (var i: number = 0; i < n; i++) {
             one = params[i];
-            if ((value = shaderValue[one.name]) !== null)
+            if ((value = (shaderValue as any)[one.name]) !== null)
 
                 shaderCall += one.fun.call(this, one, value);
 			/*
