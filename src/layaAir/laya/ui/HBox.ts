@@ -55,16 +55,16 @@ export class HBox extends LayoutBox {
 	protected changeItems(): void {
         this._itemChanged = false;
         var items: any[] = [];
-        var maxHeight: number = 0;
-        for (var i: number = 0, n: number = this.numChildren; i < n; i++) {
-            var item: UIComponent = (<UIComponent>this.getChildAt(i));
+        var maxHeight = 0;
+        for (var i = 0, n = this.numChildren; i < n; i++) {
+            var item = (<UIComponent>this.getChildAt(i));
             if (item) {
                 items.push(item);
                 maxHeight = this._height ? this._height : Math.max(maxHeight, item.height * item.scaleY);
             }
         }
         this.sortItem(items);
-        var left: number = 0;
+        var left = 0;
         for (i = 0, n = items.length; i < n; i++) {
             item = items[i];
             item.x = left;

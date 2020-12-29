@@ -94,16 +94,16 @@ export class AdvImage extends Image {
 					path: "",
 					extraData: "",
 					envVersion: "release",
-					success: function success(): void {
+					success: ()=> {
 						console.log("-------------跳转成功--------------");
 					},
-					fail: function fail(): void {
+					fail: ()=> {
 						console.log("-------------跳转失败--------------");
 					},
-					complete: function complete(): void {
+					complete: ()=> {
 						console.log("-------------跳转接口调用成功--------------");
 						this.updateAdvsInfo();
-					}.bind(this)
+					}
 				});
 			}
 		} else if (Browser.onBDMiniGame) {
