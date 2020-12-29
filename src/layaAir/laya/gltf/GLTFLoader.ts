@@ -128,7 +128,7 @@ export class GLTFLoader {
      * @param url 资源地址或数组 | {url: string, type: JSON}
      * @param complate 加载回调函数
      */
-    loadGLTF(url: any, complate?: Handler) {
+    loadGLTF(url:Array<{[key:string]:string}>, complate?: Handler) {
         this._onLoaded = complate;
 
         // todo 
@@ -142,7 +142,7 @@ export class GLTFLoader {
         url.forEach(value => {
 
             if (!value)
-                return true;
+               return true;
 
             var urlStr: string;
             if (typeof (value) == 'string') {
@@ -158,6 +158,7 @@ export class GLTFLoader {
             else {
                 otherItems.push(value);
             }
+            return true;
         });
 
         var allScuess: boolean = true;
@@ -180,10 +181,10 @@ export class GLTFLoader {
                 var loadItems: any[] = [];
                 //只代表gltf文件是否加载成功
                 content || (allScuess = false);
-                var gltfObject: any = Loader.getRes(gltfContext.urlItem.url);
+                var gltfObject = Loader.getRes(gltfContext.urlItem.url) as GLTF;
                 // buffers
                 if (gltfObject.buffers) {
-                    gltfObject.buffers.forEach((buffer, bufferIndex) => {
+                    gltfObject.buffers.forEach((buffer) => {
                         if (!GLTFBase64Tool.isBase64String(buffer.uri)) {
                             loadItems.push({ url: base + buffer.uri, type: Loader.BUFFER });
                         }
@@ -222,7 +223,7 @@ export class GLTFLoader {
 
 
             Laya.loader.create([item], completehandler);
-        });
+        },this);
 
         // 不存在gltf资源， 加载普通资源并回调
         if (gltfItems.length == 0) {
@@ -414,7 +415,7 @@ export class GLTFLoader {
      * @param animation 
      * @param index 
      */
-    gltfParseAniamtion(animation: GLTFAnimation, index: number): Animator {
+    gltfParseAniamtion(animation: GLTFAnimation, index: number): void {
         var channels: GLTFChannel[] = animation.channels;
         var samplers: GLTFAnimationSampler[] = animation.samplers;
 
@@ -651,7 +652,7 @@ export class GLTFLoader {
         }
 
         if (!node) {
-            return;
+            return null;
         }
 
         /**
@@ -966,7 +967,7 @@ export class GLTFLoader {
                 // todo blend shape 名字
                 var targetName: string = targetNames ? targetNames[index] : "target " + index;
                 for (const key in target) {
-                    var targetAccessor: GLTFAccessor = this._gltf.accessors[target[key]];
+                    var targetAccessor: GLTFAccessor = this._gltf.accessors[(target as any)[key]];
                     var buffer: ArrayBuffer = this.getAccessorBuffer(targetAccessor);
                     var targetArray: Float32Array = new Float32Array(buffer);
                     // todo 支持的三个attribute string gltf与laya 一致， 省略转换
@@ -1285,7 +1286,7 @@ export class GLTFLoader {
         var floatArrayLength: number = 0;
         gltfOrder.forEach((key: string, index: number) => {
             if (key in attributes) {
-                var accessor: GLTFAccessor = this._gltf.accessors[attributes[key]];
+                var accessor: GLTFAccessor = this._gltf.accessors[(attributes as any)[key]];
                 // 特殊 处理 color， 与  Morph Target 形变 数据 (POSITION, NORMAL, and TANGENT)
                 count = accessor.count;
                 var buffer = this.getAccessorBuffer(accessor);

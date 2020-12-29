@@ -187,10 +187,10 @@ export class MouseManager {
     }
 
     private onMouseDown(ele: any): void {
-        if (Input.isInputting && ILaya.stage.focus && ILaya.stage.focus["focus"] && !ILaya.stage.focus.contains(this._target)) {
+        if (Input.isInputting && ILaya.stage.focus && (ILaya.stage.focus as any)["focus"] && !ILaya.stage.focus.contains(this._target)) {
             // 从UI Input组件中取得Input引用
             // _tf 是TextInput的属性
-            var pre_input: any = ILaya.stage.focus['_tf'] || ILaya.stage.focus;
+            var pre_input: any = (ILaya.stage.focus as any)['_tf'] || ILaya.stage.focus;
             var new_input: Input = ele['_tf'] || ele;
 
             // 新的焦点是Input的情况下，不需要blur；

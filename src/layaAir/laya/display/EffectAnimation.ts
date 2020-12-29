@@ -99,7 +99,7 @@ export class EffectAnimation extends FrameAnimation {
     set effectClass(classStr: string) {
         this._effectClass = ClassUtils.getClass(classStr);
         if (this._effectClass) {
-            var uiData: any = this._effectClass["uiView"];
+            var uiData: any = (this._effectClass as any)["uiView"];
             if (uiData) {
                 var aniData: any[] = uiData["animations"];
                 if (aniData && aniData[0]) {
@@ -169,7 +169,7 @@ export class EffectAnimation extends FrameAnimation {
                     tKeyFrames = node.keyframes[key];
                     startFrame = tKeyFrames[0];
                     if (startFrame.tween) {
-                        easeFun = Ease[startFrame.tweenMethod];
+                        easeFun = (Ease as any)[startFrame.tweenMethod];
                         if (easeFun == null) easeFun = Ease.linearNone;
                         endFrame = tKeyFrames[1];
                         value = easeFun(frame, this._initData[key], endFrame.value - this._initData[key], endFrame.index);

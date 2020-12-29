@@ -224,7 +224,7 @@ export class Node extends EventDispatcher {
      * 批量增加子节点
      * @param	...args 无数子节点。
      */
-    addChildren(...args): void {
+    addChildren(...args:any[]): void {
         var i: number = 0, n: number = args.length;
         while (i < n) {
             this.addChild(args[i++]);

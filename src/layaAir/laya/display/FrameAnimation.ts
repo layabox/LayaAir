@@ -244,7 +244,7 @@ export class FrameAnimation extends AnimationBase {
         var frames: any[] = this._usedFrames;
         if (end > this._count) this._count = end;
         if (startFrame.tween) {
-            easeFun = Ease[startFrame.tweenMethod];
+            easeFun = (Ease as any)[startFrame.tweenMethod];
             if (easeFun == null) easeFun = Ease.linearNone;
             for (i = start; i < end; i++) {
                 result[i] = easeFun(i - start, startValue, dValue, dLen);
