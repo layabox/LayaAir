@@ -34,7 +34,7 @@ export class SubmitBase implements ISubmit {
 
     clipInfoID: number = -1;	//用来比较clipinfo
     /**@internal */
-    _mesh: Mesh2D = null;			//代替 _vb,_ib
+    _mesh: Mesh2D|null = null;			//代替 _vb,_ib
     /**@internal */
     _blendFn: Function = null;
     protected _id: number = 0;
