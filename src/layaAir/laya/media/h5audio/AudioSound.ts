@@ -79,8 +79,9 @@ export class AudioSound extends EventDispatcher {
         if (url == ILaya.SoundManager._bgMusic) {
             AudioSound._initMusicAudio();
             ad = AudioSound._musicAudio;
-            if (ad.src != url) {
-                AudioSound._audioCache[ad.src] = null;
+            let preUrl=ad.src && ad.src.replace("file:///","");
+            if (preUrl != url) {
+                AudioSound._audioCache[preUrl] = null;
                 ad = null;
             }
         } else {
