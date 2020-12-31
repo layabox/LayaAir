@@ -4,7 +4,6 @@ import { Matrix } from "../maths/Matrix"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 import { ClassUtils } from "../utils/ClassUtils";
-import { TextStyle } from "./css/TextStyle";
 /**
  * 用户输入一个或多个文本字符时后调度。
  * @eventType Event.INPUT
@@ -314,6 +313,14 @@ export class Input extends Text {
         Input.input.parentElement && (Input.inputContainer.removeChild(Input.input));
         Input.area.parentElement && (Input.inputContainer.removeChild(Input.area));
 
+		// 安卓的安全键盘的问题；
+		// 如果设置type='password' 则会弹安全键盘
+		// 就算以后设置type='text' 还是会弹安全键盘，所以对于安卓，干脆全部重新生成
+		if(ILaya.Browser.onAndroid){
+		    Input.input = Input.inputElement = ILaya.Browser.createElement('input');
+		    Input._initInput(Input.input);
+		}
+	
         Input.inputElement = (this._multiline ? Input.area : Input.input);
         Input.inputContainer.appendChild(Input.inputElement);
         if (Text.RightToLeft) {
