@@ -73,9 +73,10 @@ export class FrameAnimation extends AnimationBase {
         return this;
     }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc 
      * @override
-    */
+     */
     protected _displayToIndex(value: number): void {
         if (!this._animationData) return;
         if (value < 0) value = 0;
