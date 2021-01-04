@@ -107,6 +107,10 @@ export class AnimationBase extends Sprite {
 
     /**@private */
     protected _frameLoop(): void {
+        if (!this._controlNode || this._controlNode.destroyed) {
+            this.clearTimer(this, this._frameLoop);
+            return;
+        }
         if (this._isReverse) {
             this._index--;
             if (this._index < 0) {
