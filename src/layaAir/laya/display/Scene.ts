@@ -57,7 +57,7 @@ export class Scene extends Sprite {
      * 加载模式设置uimap
      * @param url uimapJosn的url
      */
-    static setUIMap(url):void{
+    static setUIMap(url:string):void{
         let uimap = ILaya.loader.getRes(url);
         if(uimap){
             for (let key in uimap) {

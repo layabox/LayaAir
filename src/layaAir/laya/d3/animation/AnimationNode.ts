@@ -11,22 +11,22 @@ export class AnimationNode implements IClone {
 	private _children: AnimationNode[];
 
 	/**@internal */
-	_parent: AnimationNode;
+	_parent: AnimationNode|null = null;
 	/**@internal [只读]*/
 	transform: AnimationTransform3D;
 
 	/**节点名称。 */
-	name: string;
+	name: string|null = null;
 
 	/**@internal	[NATIVE]*/
-	_worldMatrixIndex: number;
+	_worldMatrixIndex: number = 0;
 
 	/**
 	 * 创建一个新的 <code>AnimationNode</code> 实例。
 	 */
-	constructor(localPosition: Float32Array = null/*[NATIVE]*/, localRotation: Float32Array = null/*[NATIVE]*/, localScale: Float32Array = null/*[NATIVE]*/, worldMatrix: Float32Array = null/*[NATIVE]*/) {
+	constructor() {
 		this._children = [];
-		this.transform = new AnimationTransform3D(this, localPosition, localRotation, localScale, worldMatrix);
+		this.transform = new AnimationTransform3D(this);
 	}
 
 	/**
@@ -52,7 +52,7 @@ export class AnimationNode implements IClone {
 	 * 根据名字获取子节点。
 	 * @param	name 名字。
 	 */
-	getChildByName(name: string): AnimationNode {
+	getChildByName(name: string): AnimationNode|null {
 		for (var i: number = 0, n: number = this._children.length; i < n; i++) {
 			var child: AnimationNode = this._children[i];
 			if (child.name === name)
@@ -120,11 +120,7 @@ export class AnimationNode implements IClone {
 	_cloneNative(localPositions: Float32Array, localRotations: Float32Array, localScales: Float32Array, animationNodeWorldMatrixs: Float32Array, animationNodeParentIndices: Int16Array, parentIndex: number, avatar: Avatar): any {
 		var curID: number = avatar._nativeCurCloneCount;
 		animationNodeParentIndices[curID] = parentIndex;
-		var localPosition: Float32Array = new Float32Array(localPositions.buffer, curID * 3 * 4, 3);
-		var localRotation: Float32Array = new Float32Array(localRotations.buffer, curID * 4 * 4, 4);
-		var localScale: Float32Array = new Float32Array(localScales.buffer, curID * 3 * 4, 3);
-		var worldMatrix: Float32Array = new Float32Array(animationNodeWorldMatrixs.buffer, curID * 16 * 4, 16);
-		var dest: AnimationNode = new AnimationNode(localPosition, localRotation, localScale, worldMatrix);
+		var dest: AnimationNode = new AnimationNode();
 		dest._worldMatrixIndex = curID;
 		this._cloneToNative(dest, localPositions, localRotations, localScales, animationNodeWorldMatrixs, animationNodeParentIndices, curID, avatar);
 		return dest;

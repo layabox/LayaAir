@@ -1,0 +1,41 @@
+{
+	"version":"LAYAHIERARCHY:02",
+	"data":{
+		"type":"MeshSprite3D",
+		"instanceID":1,
+		"props":{
+			"name":"depthNormalPlane",
+			"active":true,
+			"isStatic":false,
+			"layer":0,
+			"position":[
+				6.46,
+				3.59,
+				-5.13
+			],
+			"rotation":[
+				0,
+				-0.7071068,
+				0.7071068,
+				0
+			],
+			"scale":[
+				0.4206875,
+				0.4206875,
+				0.4206875
+			],
+			"meshPath":"Library/unity default resources-Plane.lm",
+			"enableRender":true,
+			"receiveShadows":true,
+			"castShadow":true,
+			"materials":[
+				{
+					"type":"Laya.BlinnPhongMaterial",
+					"path":"Assets/Materials/depthNormalTextureTest.lmat"
+				}
+			]
+		},
+		"components":[],
+		"child":[]
+	}
+}

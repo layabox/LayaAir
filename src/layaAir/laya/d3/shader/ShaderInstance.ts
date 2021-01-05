@@ -6,7 +6,6 @@ import { BaseTexture } from "../../resource/BaseTexture";
 import { Resource } from "../../resource/Resource";
 import { Stat } from "../../utils/Stat";
 import { WebGLContext } from "../../webgl/WebGLContext";
-import { BaseCamera } from "../core/BaseCamera";
 import { Material } from "../core/material/Material";
 import { RenderState } from "../core/material/RenderState";
 import { BaseRender } from "../core/render/BaseRender";
@@ -26,11 +25,11 @@ import { ShaderVariable } from "./ShaderVariable";
  */
 export class ShaderInstance extends Resource {
 	/**@internal */
-	private _attributeMap: any;
+	private _attributeMap: {[key:string]:number};
 	/**@internal */
-	private _uniformMap: any;
+	private _uniformMap: {[key:string]:number};
 	/**@internal miner 动态添加的uniformMap*/
-	private _globaluniformMap:any;
+	private _globaluniformMap:{[key:string]:number};
 	/**@internal */
 	private _shaderPass: ShaderPass;
 
@@ -85,7 +84,7 @@ export class ShaderInstance extends Resource {
 		this._attributeMap = attributeMap;
 		this._uniformMap = uniformMap;
 		this._shaderPass = shaderPass;
-		this._globaluniformMap = [];
+		this._globaluniformMap = {};
 		this._create();
 		this.lock = true;
 	}
@@ -187,8 +186,7 @@ export class ShaderInstance extends Resource {
 			var custom: ShaderVariable = customParms[i];
 			this._customUniformParamsMap[custom.dataOffset] = custom;
 		}
-
-		var stateMap: object = this._shaderPass._stateMap;
+		var stateMap: {[key:string]:number} = this._shaderPass._stateMap;
 		for (var s in stateMap)
 			this._stateParamsMap[stateMap[s]] = Shader3D.propertyNameToID(s);
 	}

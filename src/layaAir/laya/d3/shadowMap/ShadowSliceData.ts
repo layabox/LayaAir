@@ -3,7 +3,6 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
 import { ShaderData } from "../shader/ShaderData";
-import { BoundFrustum } from "../math/BoundFrustum";
 import { CameraCullInfo } from "../graphics/FrustumCulling";
 
 /**

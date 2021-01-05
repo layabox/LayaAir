@@ -775,7 +775,7 @@ export class Laya3D {
 	private static _loadAnimationClip(loader: Loader): void {
 		loader.on(Event.LOADED, null, function (data: any): void {
 			loader._cache = loader._createCache;
-			var clip: AnimationClip = AnimationClip._parse(data, loader._propertyParams, loader._constructParams);
+			var clip: AnimationClip = AnimationClip._parse(data);
 			Laya3D._endLoad(loader, clip);
 		});
 		loader.load(loader.url, Loader.BUFFER, false, null, true);

@@ -1,2 +1,3 @@
 import { Main } from "./Main";
-new Main(); 
+
+new Main();

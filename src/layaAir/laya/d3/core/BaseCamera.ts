@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Laya } from "../../../Laya";
 import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
@@ -10,6 +11,7 @@ import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { Sprite3D } from "./Sprite3D";
 import { Scene3D } from "./scene/Scene3D";
+import { ShaderDefine } from "../shader/ShaderDefine";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -33,6 +35,17 @@ export class BaseCamera extends Sprite3D {
 	static VIEWPORT: number = Shader3D.propertyNameToID("u_Viewport");
 	/**@internal */
 	static PROJECTION_PARAMS: number = Shader3D.propertyNameToID("u_ProjectionParams");
+	/**@internal */
+	static DEPTHTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthTexture");
+	/**@internal */
+	static DEPTHNORMALSTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
+	/**@internal */
+	static DEPTHZBUFFERPARAMS:number = Shader3D.propertyNameToID("u_ZBufferParams");
+
+	/**@internal */
+	static SHADERDEFINE_DEPTH:ShaderDefine = Shader3D.getDefineByName("DEPTHMAP");
+	/**@internal */
+	static SHADERDEFINE_DEPTHNORMALS:ShaderDefine = Shader3D.getDefineByName("DEPTHNORMALSMAP")
 
 	/**渲染模式,延迟光照渲染，暂未开放。*/
 	static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
@@ -43,8 +56,6 @@ export class BaseCamera extends Sprite3D {
 	protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
 	protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
 
-	//private static const Vector3[] cornersWorldSpace:Vector.<Vector3> = new Vector.<Vector3>(8);
-	//private static const  boundingFrustum:BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
 
 	/** @internal 渲染顺序。*/
@@ -77,6 +88,8 @@ export class BaseCamera extends Sprite3D {
 	cullingMask: number;
 	/** 渲染时是否用遮挡剔除。 */
 	useOcclusionCulling: boolean;
+
+	
 
 	/**
 	 * 天空渲染器。

@@ -1,9 +1,5 @@
-import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { CannonColliderShape } from "./CannonColliderShape";
-import { CannonRigidbody3D } from "../CannonRigidbody3D";
-import { CannonPhysicsCollider } from "../CannonPhysicsCollider";
-import { CannonPhysicsTriggerComponent } from "../CannonPhysicsTriggerComponent";
 import { CannonPhysicsComponent } from "../CannonPhysicsComponent";
 
 /**

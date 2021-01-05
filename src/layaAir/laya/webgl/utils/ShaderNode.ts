@@ -32,7 +32,7 @@ export class ShaderNode {
             this.conditionType = type;
             condition = condition.replace(/(\s*$)/g, "");
             this.condition = function (): boolean {
-                return this[condition];
+                return (this as any)[condition];
             }
             this.condition.__condition = condition;
         }

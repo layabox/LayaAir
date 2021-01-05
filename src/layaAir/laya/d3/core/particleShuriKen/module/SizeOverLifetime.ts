@@ -1,6 +1,5 @@
 import { GradientSize } from "./GradientSize";
 import { IClone } from "../../IClone"
-import { Vector3 } from "../../../math/Vector3"
 
 /**
  * <code>SizeOverLifetime</code> 类用于粒子的生命周期尺寸。

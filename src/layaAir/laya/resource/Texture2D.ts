@@ -434,9 +434,9 @@ export class Texture2D extends BaseTexture {
 	 * 设置之后纹理宽高可能会发生变化。
 	 */
 	loadImageSource(source: any, premultiplyAlpha: boolean = false): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		var width: number = source.width;
-		var height: number = source.height;
+		var gl = LayaGL.instance;
+		var width = source.width;
+		var height = source.height;
 		this._width = width;
 		this._height = height;
 		if (!(this._isPot(width) && this._isPot(height)))
@@ -448,7 +448,7 @@ export class Texture2D extends BaseTexture {
 
 
 		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
-		var glFormat: number = this._getGLFormat();
+		var glFormat = this._getGLFormat();
 
 		if (ILaya.Render.isConchApp) {//[NATIVE]临时
 			if (source.setPremultiplyAlpha) {

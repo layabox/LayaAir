@@ -109,7 +109,7 @@ export class Vector2 implements IClone {
 		return destVector2;
 	}
 
-	forNativeElement(nativeElements: Float32Array = null): void//[NATIVE_TS]
+	forNativeElement(nativeElements: Float32Array|null = null): void//[NATIVE_TS]
 	{
 		if (nativeElements) {
 			(<any>this).elements = nativeElements;

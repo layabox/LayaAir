@@ -11,7 +11,6 @@ import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { VertexElement } from "../../graphics/VertexElement";
 import { BoundBox } from "../../math/BoundBox";
 import { BoundSphere } from "../../math/BoundSphere";
-import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Rand } from "../../math/Rand";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
@@ -85,10 +84,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private static _tempVector36: Vector3 = new Vector3();
 	/**@internal */
 	private static _tempVector37: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector38: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempVector39: Vector3 = new Vector3();
 	/** @internal */
 	private static _tempPosition: Vector3 = new Vector3();
 	/** @internal */
@@ -141,7 +136,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private _firstRetiredElement: number = 0;
 	/**@internal */
 	private _drawCounter: number = 0;
-	/**@internal */
+	/**@internal 最大粒子数量*/
 	private _bufferMaxParticles: number = 0;
 	/**@internal */
 	private _emission: Emission = null;
@@ -160,7 +155,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private _frameRateTime: number = 0;
 	/**@internal 一次循环内的累计时间。*/
 	private _emissionTime: number = 0;
-	/**@internal */
+	/**@internal 用来计算时间是否超过发射延迟时间*/
 	private _totalDelayTime: number = 0;
 	/**@internal */
 	private _burstsIndex: number = 0;
@@ -978,281 +973,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**
 	 * @internal
 	 */
-	_generateBoundingBox(): void {//TODO：应在本类内部处理。			
-		var particle: ShuriKenParticle3D = (<ShuriKenParticle3D>this._owner);
-		var particleRender: ShurikenParticleRenderer = particle.particleRenderer;
-		var boundMin: Vector3 = this._boundingBox.min;
-		var boundMax: Vector3 = this._boundingBox.max;
-		var i: number, n: number;
-
-		//MaxLifeTime
-		var maxStartLifeTime: number;
-		switch (this.startLifetimeType) {
-			case 0:
-				maxStartLifeTime = this.startLifetimeConstant;
-				break;
-			case 1:
-				maxStartLifeTime = -Number.MAX_VALUE;
-				var startLifeTimeGradient: GradientDataNumber = startLifeTimeGradient;
-				for (i = 0, n = startLifeTimeGradient.gradientCount; i < n; i++)
-					maxStartLifeTime = Math.max(maxStartLifeTime, startLifeTimeGradient.getValueByIndex(i));
-				break;
-			case 2:
-				maxStartLifeTime = Math.max(this.startLifetimeConstantMin, this.startLifetimeConstantMax);
-				break;
-			case 3:
-				maxStartLifeTime = -Number.MAX_VALUE;
-				var startLifeTimeGradientMin: GradientDataNumber = startLifeTimeGradientMin;
-				for (i = 0, n = startLifeTimeGradientMin.gradientCount; i < n; i++)
-					maxStartLifeTime = Math.max(maxStartLifeTime, startLifeTimeGradientMin.getValueByIndex(i));
-				var startLifeTimeGradientMax: GradientDataNumber = startLifeTimeGradientMax;
-				for (i = 0, n = startLifeTimeGradientMax.gradientCount; i < n; i++)
-					maxStartLifeTime = Math.max(maxStartLifeTime, startLifeTimeGradientMax.getValueByIndex(i));
-				break;
-		}
-
-		//MinMaxSpeed
-		var minStartSpeed: number, maxStartSpeed: number;
-		switch (this.startSpeedType) {
-			case 0:
-				minStartSpeed = maxStartSpeed = this.startSpeedConstant;
-				break;
-			case 1: //TODO:
-				break;
-			case 2:
-				minStartSpeed = this.startLifetimeConstantMin;
-				maxStartSpeed = this.startLifetimeConstantMax;
-				break;
-			case 3: //TODO:
-				break;
-		}
-
-		//MinMaxPosition、MinMaxDiection
-		var minPosition: Vector3, maxPosition: Vector3, minDirection: Vector3, maxDirection: Vector3;
-		if (this._shape && this._shape.enable) {
-			//TODO:
-		} else {
-			minPosition = maxPosition = Vector3._ZERO;
-			minDirection = Vector3._ZERO;
-			maxDirection = Vector3._UnitZ;
-		}
-
-		var startMinVelocity: Vector3 = new Vector3(minDirection.x * minStartSpeed, minDirection.y * minStartSpeed, minDirection.z * minStartSpeed);
-		var startMaxVelocity: Vector3 = new Vector3(maxDirection.x * maxStartSpeed, maxDirection.y * maxStartSpeed, maxDirection.z * maxStartSpeed);
-
-		if (this._velocityOverLifetime && this._velocityOverLifetime.enable) {
-			var lifeMinVelocity: Vector3;
-			var lifeMaxVelocity: Vector3;
-			var velocity: GradientVelocity = this._velocityOverLifetime.velocity;
-			switch (velocity.type) {
-				case 0:
-					lifeMinVelocity = lifeMaxVelocity = velocity.constant;
-					break;
-				case 1:
-					lifeMinVelocity = lifeMaxVelocity = new Vector3(velocity.gradientX.getAverageValue(), velocity.gradientY.getAverageValue(), velocity.gradientZ.getAverageValue());
-					break;
-				case 2:
-					lifeMinVelocity = velocity.constantMin;//TODO:Min
-					lifeMaxVelocity = velocity.constantMax;
-					break;
-				case 3:
-					lifeMinVelocity = new Vector3(velocity.gradientXMin.getAverageValue(), velocity.gradientYMin.getAverageValue(), velocity.gradientZMin.getAverageValue());
-					lifeMaxVelocity = new Vector3(velocity.gradientXMax.getAverageValue(), velocity.gradientYMax.getAverageValue(), velocity.gradientZMax.getAverageValue());
-					break;
-			}
-		}
-
-		var positionScale: Vector3, velocityScale: Vector3;
-		var transform: Transform3D = this._owner.transform;
-		var worldPosition: Vector3 = transform.position;
-		var sizeScale: Vector3 = ShurikenParticleSystem._tempVector39;
-		var renderMode: number = particleRender.renderMode;
-
-		switch (this.scaleMode) {
-			case 0:
-				var scale: Vector3 = transform.getWorldLossyScale();
-				positionScale = scale;
-				sizeScale.x = scale.x;
-				sizeScale.y = scale.z;
-				sizeScale.z = scale.y;
-				(renderMode === 1) && (velocityScale = scale);
-				break;
-			case 1:
-				var localScale: Vector3 = transform.localScale;
-				positionScale = localScale;
-				sizeScale.x = localScale.x;
-				sizeScale.y = localScale.z;
-				sizeScale.z = localScale.y;
-				(renderMode === 1) && (velocityScale = localScale);
-				break;
-			case 2:
-				positionScale = transform.getWorldLossyScale();
-				sizeScale.x = sizeScale.y = sizeScale.z = 1;
-				(renderMode === 1) && (velocityScale = Vector3._ONE);
-				break;
-		}
-
-		var minStratPosition: Vector3, maxStratPosition: Vector3;
-		if (this._velocityOverLifetime && this._velocityOverLifetime.enable) {
-			//var minLifePosition:Vector3, maxLifePosition:Vector3;
-			//switch (_velocityOverLifetime.velocity.type) {
-			//case 0: 
-			//minStratPosition = new Vector3(startMinVelocity.x * maxStartLifeTime, startMinVelocity.y * maxStartLifeTime, startMinVelocity.z * maxStartLifeTime);
-			//maxStratPosition = new Vector3(startMaxVelocity.x * maxStartLifeTime, startMaxVelocity.y * maxStartLifeTime, startMaxVelocity.z * maxStartLifeTime);
-			//minLifePosition = new Vector3(lifeMinVelocity.x * maxStartLifeTime, lifeMinVelocity.y * maxStartLifeTime, lifeMinVelocity.z * maxStartLifeTime);
-			//maxLifePosition = new Vector3(lifeMaxVelocity.x * maxStartLifeTime, lifeMaxVelocity.y * maxStartLifeTime, lifeMaxVelocity.z * maxStartLifeTime);
-			//break;
-			//}
-			////TODO:
-		} else {
-			minStratPosition = new Vector3(startMinVelocity.x * maxStartLifeTime, startMinVelocity.y * maxStartLifeTime, startMinVelocity.z * maxStartLifeTime);
-			maxStratPosition = new Vector3(startMaxVelocity.x * maxStartLifeTime, startMaxVelocity.y * maxStartLifeTime, startMaxVelocity.z * maxStartLifeTime);
-
-			if (this.scaleMode != 2) {
-				Vector3.add(minPosition, minStratPosition, boundMin);
-				Vector3.multiply(positionScale, boundMin, boundMin);
-				//Vector3.transformQuat(boundMin, worldRotation, boundMin);
-
-				Vector3.add(maxPosition, maxStratPosition, boundMax);
-				Vector3.multiply(positionScale, boundMax, boundMax);
-				//Vector3.transformQuat(boundMax, worldRotation, boundMax);
-			} else {
-				Vector3.multiply(positionScale, minPosition, boundMin);
-				Vector3.add(boundMin, minStratPosition, boundMin);
-				//Vector3.transformQuat(boundMin, worldRotation, boundMin);
-
-				Vector3.multiply(positionScale, maxPosition, boundMax);
-				Vector3.add(boundMax, maxStratPosition, boundMax);
-				//Vector3.transformQuat(boundMax, worldRotation, boundMax);
-			}
-		}
-
-		switch (this.simulationSpace) {
-			case 0:
-				//TODO:不能用次方法计算
-				break;
-			case 1:
-				Vector3.add(boundMin, worldPosition, boundMin);
-				Vector3.add(boundMax, worldPosition, boundMax);
-				break;
-		}
-		//TODO:重力
-
-		// 通过粒子最大尺寸扩充包围盒，最大尺寸为粒子对角线。TODO:HORIZONTALBILLBOARD和VERTICALBILLBOARD缩小cos45
-		var maxSize: number, maxSizeY: number;
-		switch (this.startSizeType) {
-			case 0:
-				if (this.threeDStartSize) {
-					var startSizeConstantSeparate: Vector3 = startSizeConstantSeparate;
-					maxSize = Math.max(startSizeConstantSeparate.x, startSizeConstantSeparate.y);//TODO:是否非Mesh模型下不用考虑Z
-					if (renderMode === 1)
-						maxSizeY = startSizeConstantSeparate.y;
-				} else {
-					maxSize = this.startSizeConstant;
-					if (renderMode === 1)
-						maxSizeY = this.startSizeConstant;
-				}
-				break;
-			case 1://TODO:
-				break;
-			case 2:
-				if (this.threeDStartSize) {
-					var startSizeConstantMaxSeparate: Vector3 = startSizeConstantMaxSeparate;
-					maxSize = Math.max(startSizeConstantMaxSeparate.x, startSizeConstantMaxSeparate.y);
-					if (renderMode === 1)
-						maxSizeY = startSizeConstantMaxSeparate.y;
-				} else {
-					maxSize = this.startSizeConstantMax;//TODO:是否非Mesh模型下不用考虑Z
-					if (renderMode === 1)
-						maxSizeY = this.startSizeConstantMax;
-				}
-				break;
-			case 3://TODO:
-				break;
-		}
-
-		if (this._sizeOverLifetime && this._sizeOverLifetime.enable) {
-			var size: GradientSize = this._sizeOverLifetime.size;
-			maxSize *= this._sizeOverLifetime.size.getMaxSizeInGradient();
-		}
-
-		var threeDMaxSize: Vector3 = ShurikenParticleSystem._tempVector30;
-
-		var rotSize: number, nonRotSize: number;
-		switch (renderMode) {
-			case 0:
-				rotSize = maxSize * ShurikenParticleSystem.halfKSqrtOf2;
-				Vector3.scale(sizeScale, maxSize, threeDMaxSize);
-				Vector3.subtract(boundMin, threeDMaxSize, boundMin);
-				Vector3.add(boundMax, threeDMaxSize, boundMax);
-				break;
-			case 1:
-				var maxStretchPosition: Vector3 = ShurikenParticleSystem._tempVector31;
-				var maxStretchVelocity: Vector3 = ShurikenParticleSystem._tempVector32;
-				var minStretchVelocity: Vector3 = ShurikenParticleSystem._tempVector33;
-				var minStretchPosition: Vector3 = ShurikenParticleSystem._tempVector34;
-
-				if (this._velocityOverLifetime && this._velocityOverLifetime.enable) {
-					//TODO:
-				} else {
-					Vector3.multiply(velocityScale, startMaxVelocity, maxStretchVelocity);
-					Vector3.multiply(velocityScale, startMinVelocity, minStretchVelocity);
-				}
-				var sizeStretch: number = maxSizeY * particleRender.stretchedBillboardLengthScale;
-				var maxStretchLength: number = Vector3.scalarLength(maxStretchVelocity) * particleRender.stretchedBillboardSpeedScale + sizeStretch;
-				var minStretchLength: number = Vector3.scalarLength(minStretchVelocity) * particleRender.stretchedBillboardSpeedScale + sizeStretch;
-				var norMaxStretchVelocity: Vector3 = ShurikenParticleSystem._tempVector35;
-				var norMinStretchVelocity: Vector3 = ShurikenParticleSystem._tempVector36;
-				Vector3.normalize(maxStretchVelocity, norMaxStretchVelocity);
-				Vector3.scale(norMaxStretchVelocity, maxStretchLength, minStretchPosition);
-				Vector3.subtract(maxStratPosition, minStretchPosition, minStretchPosition);
-				Vector3.normalize(minStretchVelocity, norMinStretchVelocity);
-				Vector3.scale(norMinStretchVelocity, minStretchLength, maxStretchPosition);
-				Vector3.add(minStratPosition, maxStretchPosition, maxStretchPosition);
-
-				rotSize = maxSize * ShurikenParticleSystem.halfKSqrtOf2;
-				Vector3.scale(sizeScale, rotSize, threeDMaxSize);
-
-				var halfNorMaxStretchVelocity: Vector3 = ShurikenParticleSystem._tempVector37;
-				var halfNorMinStretchVelocity: Vector3 = ShurikenParticleSystem._tempVector38;
-				Vector3.scale(norMaxStretchVelocity, 0.5, halfNorMaxStretchVelocity);
-				Vector3.scale(norMinStretchVelocity, 0.5, halfNorMinStretchVelocity);
-				Vector3.multiply(halfNorMaxStretchVelocity, sizeScale, halfNorMaxStretchVelocity);
-				Vector3.multiply(halfNorMinStretchVelocity, sizeScale, halfNorMinStretchVelocity);
-
-				Vector3.add(boundMin, halfNorMinStretchVelocity, boundMin);
-				Vector3.min(boundMin, minStretchPosition, boundMin);
-				Vector3.subtract(boundMin, threeDMaxSize, boundMin);
-
-				Vector3.subtract(boundMax, halfNorMaxStretchVelocity, boundMax);
-				Vector3.max(boundMax, maxStretchPosition, boundMax);
-				Vector3.add(boundMax, threeDMaxSize, boundMax);
-				break;
-			case 2:
-				maxSize *= Math.cos(0.78539816339744830961566084581988);
-				nonRotSize = maxSize * 0.5;
-				threeDMaxSize.x = sizeScale.x * nonRotSize;
-				threeDMaxSize.y = sizeScale.z * nonRotSize;
-				Vector3.subtract(boundMin, threeDMaxSize, boundMin);
-				Vector3.add(boundMax, threeDMaxSize, boundMax);
-				break;
-			case 3:
-				maxSize *= Math.cos(0.78539816339744830961566084581988);
-				nonRotSize = maxSize * 0.5;
-				Vector3.scale(sizeScale, nonRotSize, threeDMaxSize);
-				Vector3.subtract(boundMin, threeDMaxSize, boundMin);
-				Vector3.add(boundMax, threeDMaxSize, boundMax);
-				break;
-		}
-
-		//TODO:min
-		//TODO:max
-		this._boundingBox.getCorners(this._boundingBoxCorners);
-	}
-
-	/**
-	 * @internal
-	 */
 	_generateBounds(): void {
 		var particle: ShuriKenParticle3D = (<ShuriKenParticle3D>this._owner);
 		var particleRender: ShurikenParticleRenderer = particle.particleRenderer;
@@ -1547,6 +1267,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 	/**
 	 * @internal
+	 * 计算粒子更新时间
 	 */
 	private _updateEmission(): void {
 		if (!this.isAlive)
@@ -1563,12 +1284,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 	/**
 	 * @internal
+	 * 传入粒子间隔时间，更新粒子状态
 	 */
 	private _updateParticles(elapsedTime: number): void {
 		if (this._ownerRender.renderMode === 4 && !this._ownerRender.mesh)//renderMode=4且mesh为空时不更新
 			return;
 
-		this._currentTime += elapsedTime;
+		this._currentTime += elapsedTime;//计算目前粒子播放时间啊
 		this._retireActiveParticles();
 		this._freeRetiredParticles();
 
@@ -1642,8 +1364,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private _freeRetiredParticles(): void {
 		while (this._firstRetiredElement != this._firstActiveElement) {
 			var age: number = this._drawCounter - this._vertices[this._firstRetiredElement * this._floatCountPerVertex * this._vertexStride + this._timeIndex];//11为Time
-
-			if (this.isPerformanceMode)
+			//TODO这里会有什么bug
+			if (false)
 				if (age < 3)//GPU从不滞后于CPU两帧，出于显卡驱动BUG等安全因素考虑滞后三帧
 					break;
 
@@ -1654,7 +1376,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * @internal
+	 * @internal5
+	 * 增加爆炸粒子数量
 	 */
 	private _burst(fromTime: number, toTime: number): number {
 		var totalEmitCount: number = 0;
@@ -1705,14 +1428,14 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		} else {
 			totalEmitCount += this._burst(lastEmissionTime, this._emissionTime);
 		}
-
+		//粒子的增加数量，不能超过maxParticles
 		totalEmitCount = Math.min(this.maxParticles - this.aliveParticleCount, totalEmitCount);
 		for (i = 0; i < totalEmitCount; i++)
 			this.emit(emitTime);
-
-
+		//粒子发射速率
 		var emissionRate: number = this.emission.emissionRate;
 		if (emissionRate > 0) {
+			//每多少秒发射一个粒子
 			var minEmissionTime: number = 1 / emissionRate;
 			this._frameRateTime += minEmissionTime;
 			this._frameRateTime = this._currentTime - (this._currentTime - this._frameRateTime) % this._maxStartLifetime;//大于最大声明周期的粒子一定会死亡，所以直接略过,TODO:是否更换机制
@@ -1919,8 +1642,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		return this.addParticle(position, direction, time);//TODO:提前判断优化
 	}
 
+	//增加一个粒子
 	addParticle(position: Vector3, direction: Vector3, time: number): boolean {//TODO:还需优化
 		Vector3.normalize(direction, direction);
+		//下一个粒子
 		var nextFreeParticle: number = this._firstFreeElement + 1;
 		if (nextFreeParticle >= this._bufferMaxParticles)
 			nextFreeParticle = 0;
@@ -1929,7 +1654,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			return false;
 
 		var transform: Transform3D = this._owner.transform;
-		ShurikenParticleData.create(this, this._ownerRender, transform);
+		ShurikenParticleData.create(this, this._ownerRender);
 
 		var particleAge: number = this._currentTime - time;
 		if (particleAge >= ShurikenParticleData.startLifeTime)//如果时间已大于声明周期，则直接跳过,TODO:提前优化

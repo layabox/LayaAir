@@ -211,7 +211,7 @@ export class Video extends Sprite {
 		if (this.readyState === 0)
 			return;
 
-		this.htmlVideo['updateTexture']();
+		(this.htmlVideo as any)['updateTexture']();
 
 		this.graphics.clear();
 		this.graphics.drawTexture(this.internalTexture, 0, 0, this.width, this.height);

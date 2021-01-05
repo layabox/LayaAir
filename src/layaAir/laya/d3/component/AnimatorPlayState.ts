@@ -23,7 +23,7 @@ export class AnimatorPlayState {
 	/**@internal */
 	_lastIsFront: boolean;
 	/**@internal */
-	_currentState: AnimatorState = null;
+	_currentState: AnimatorState|null = null;
 
 	/**
 	 * 播放状态的归一化时间,整数为循环次数，小数为单次播放时间。
@@ -43,7 +43,7 @@ export class AnimatorPlayState {
 	 * 动画状态机。
 	 */
 	get animatorState(): AnimatorState {
-		return this._currentState;
+		return this._currentState!;
 	}
 
 	/**

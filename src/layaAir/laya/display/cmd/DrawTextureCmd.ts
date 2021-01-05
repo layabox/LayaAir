@@ -41,18 +41,18 @@ export class DrawTextureCmd {
     /**
      * （可选）颜色滤镜。
      */
-    color: string;
+    color: string|null;
 
     colorFlt: ColorFilter|null = null;
     /**
      * （可选）混合模式。
      */
-    blendMode: string;
+    blendMode: string|null;
 
     uv: number[]|null = null;
 
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix, alpha: number, color: string, blendMode: string, uv?: number[]): DrawTextureCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix|null, alpha: number, color: string|null, blendMode: string|null, uv?: number[]): DrawTextureCmd {
         var cmd: DrawTextureCmd = Pool.getItemByClass("DrawTextureCmd", DrawTextureCmd);
         cmd.texture = texture;
         texture._addReference();

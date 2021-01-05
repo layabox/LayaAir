@@ -108,6 +108,9 @@ import { CommandBuffer_Outline } from "../3d/LayaAir3D_Advance/CommandBuffer_Out
 import { CommandBuffer_BlurryGlass } from "../3d/LayaAir3D_Advance/CommandBuffer_BlurryGlass";
 import { HalfFloatTexture } from "../3d/LayaAir3D_Texture/HalfFloatTexture";
 import { ReflectionProbeDemo } from "../3d/LayaAir3D_Advance/ReflectionProbeDemo";
+import { CameraDepthModeTextureDemo } from "../3d/LayaAir3D_Advance/CameraDepthModeTextureDemo";
+import { PostProcess_Edge } from "../3d/LayaAir3D_PostProcess/PostProcess_Edge";
+import { LoadGltfRosource } from "../3d/LayaAir3D_Resource/LoadGltfResource";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -125,11 +128,11 @@ export class IndexView3D extends IndexViewUI {
 
 	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance', 'Demo','PostProcess'];
 	//var s:Secne3DPlayer2D    
-	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,ReflectionProbeDemo];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','ReflectionProbeDemo'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,ReflectionProbeDemo,CameraDepthModeTextureDemo];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','ReflectionProbeDemo','CameraDepthTextureDemo'];//'后期处理之泛光','寻路示例',
 
-	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur];
-	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur'];
+	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge];
+	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge'];
 
 	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample,SimpleSkinAnimationInstance];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample","SimpleSkinAnimationInstance"];
@@ -164,8 +167,8 @@ export class IndexView3D extends IndexViewUI {
 	private _cannonPhysicsClsArr: any[] = [CannonPhysicsWorld_BaseCollider, CannonPhysicsWorld_ColliderEvent, CannonPhysicsWorld_PhysicsProperty, CannonPhysicsWorld_RayCheck, ];
 	private _cannonPhysicslArr: any[] = ['CannonPhysicsWorld_BaseCollider', 'CannonPhysicsWorld_ColliderEvent', 'CannonPhysicsWorld_PhysicsProperty', 'CannonPhysicsWorld_RayCheck'];
 
-	private _resourceClsArr: any[] = [GarbageCollection, LoadResourceDemo];
-	private _resourceArr: any[] = ['GarbageCollection', 'LoadResourceDemo'];
+	private _resourceClsArr: any[] = [GarbageCollection, LoadResourceDemo,LoadGltfRosource];
+	private _resourceArr: any[] = ['GarbageCollection', 'LoadResourceDemo','LoadGltfRosource'];
 
 	private _scene3DClsArr: any[] = [EnvironmentalReflection, LightmapScene, SceneLoad1, SceneLoad2];
 	private _scene3DArr: any[] = ['EnvironmentalReflection', 'LightmapScene', 'SceneLoad1', "SceneLoad2"];
@@ -209,7 +212,8 @@ export class IndexView3D extends IndexViewUI {
 	}
 
 	private initView3D(): void {
-		var lables: string = this._comboxBigArr2.toString()
+		var lables: string = this._comboxBigArr2.toString();
+		this.box1.mouseThrough = true;
 		this.bigComBox.labels = lables;
 		this.bigComBox.selectedIndex = 0;
 		this.bigComBox.visibleNum = 5;//_comboxBigArr.length;

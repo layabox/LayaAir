@@ -24,12 +24,6 @@ uniform mat4 u_ViewProjection;
 #endif
 
 
-
-#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))||(defined(LIGHTMAP)&&defined(UV))
-	attribute vec2 a_Texcoord0;
-	varying vec2 v_Texcoord0;
-#endif
-
 vec4 shadowCasterVertex()
 {
 	mat4 worldMat;
@@ -63,8 +57,14 @@ vec4 shadowCasterVertex()
 	#endif
 
 	vec4 positionWS = worldMat * a_Position;
-	vec3 normalWS = normalize(a_Normal*INVERSE_MAT(mat3(worldMat)));//if no normalize will cause precision problem
+	mat3 worldInvMat;
+	#ifdef BONE
+		worldInvMat=INVERSE_MAT(mat3(worldMat*skinTransform));
+	#else
+		worldInvMat=INVERSE_MAT(mat3(worldMat));
+	#endif  
 
+	vec3 normalWS = normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem
 	#ifdef SHADOW
 		positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);
 	#endif

@@ -64,7 +64,7 @@ import { DynamicBatchManager } from "../../graphics/DynamicBatchManager";
 import { CannonPhysicsSimulation } from "../../physicsCannon/CannonPhysicsSimulation";
 import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings";
 import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
-import { VideoTexture } from "../../../resource/videoTexture";
+import { VideoTexture } from "../../../resource/VideoTexture";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
 import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
 /**
@@ -1290,7 +1290,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		if (this._octree && render._supportOctree) {
 			this._octree.remove(render);
 		} else {
-			var endRender: BaseRender;
 			this._renders.remove(render);
 		}
 	}
@@ -1359,7 +1358,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @override
 	 * @internal
 	 */
-	render(ctx: Context, x: number, y: number): void {
+	render(ctx: Context): void {
 		//TODO:外层应该设计为接口调用
 		ctx._curSubmit = SubmitBase.RENDERBASE;//打断2D合并的renderKey
 		this._children.length > 0 && ctx.addRenderObject(this);
@@ -1369,7 +1368,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 渲染入口
 	 */
 	renderSubmit(): number {
-		var gl: any = LayaGL.instance;
 		this._prepareSceneToRender();
 		var i: number, n: number, n1: number;
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
@@ -1429,7 +1427,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			case ShaderDataType.Texture:
 				this._shaderValues.setTexture(shaderOffset, value);
 				break;
-			case ShaderDataType.Vector:
+			case ShaderDataType.Vector4:
 				this._shaderValues.setVector(shaderOffset, value);
 				break;
 			case ShaderDataType.Vector2:

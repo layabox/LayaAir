@@ -46,10 +46,10 @@ export class VBox extends LayoutBox {
     protected changeItems(): void {
         this._itemChanged = false;
         var items: any[] = [];
-        var maxWidth: number = 0;
+        var maxWidth = 0;
 
-        for (var i: number = 0, n: number = this.numChildren; i < n; i++) {
-            var item: UIComponent = (<UIComponent>this.getChildAt(i));
+        for (var i = 0, n = this.numChildren; i < n; i++) {
+            var item = (<UIComponent>this.getChildAt(i));
             if (item) {
                 items.push(item);
                 maxWidth = this._width ? this._width : Math.max(maxWidth, item.width * item.scaleX);
@@ -57,7 +57,7 @@ export class VBox extends LayoutBox {
         }
 
         this.sortItem(items);
-        var top: number = 0;
+        var top = 0;
         for (i = 0, n = items.length; i < n; i++) {
             item = items[i];
             item.y = top;

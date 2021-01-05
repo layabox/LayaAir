@@ -31,6 +31,9 @@ uniform vec4 u_DiffuseColor;
 #ifdef LIGHTMAP
 	varying vec2 v_LightMapUV;
 	uniform sampler2D u_LightMap;
+	#ifdef LIGHTMAP_DIRECTIONAL
+		uniform sampler2D u_LightMapDirection;
+	#endif
 #endif
 
 varying vec3 v_Normal;

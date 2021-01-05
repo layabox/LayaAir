@@ -32,6 +32,7 @@ import { Transform3D } from "./Transform3D";
 import { ILaya3D } from "../../../ILaya3D";
 import { ShadowUtils } from "./light/ShadowUtils";
 import { SpotLight } from "./light/SpotLight";
+import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
 
 /**
  * 相机清除标记。
@@ -76,7 +77,42 @@ export class Camera extends BaseCamera {
 
 	/** @internal */
 	static _updateMark: number = 0;
+	/** @internal 深度贴图管线*/
+	static depthPass:DepthPass = new DepthPass();
 
+		/**
+	 * 根据相机、scene信息获得scene中某一位置的渲染结果
+	 * @param camera 
+	 * @param scene 
+	 */
+	static drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture):RenderTexture {
+		if(camera.renderTarget!=renderTexture)
+		{
+			camera.renderTarget&&RenderTexture.recoverToPool(camera.renderTarget);
+			camera.renderTarget = renderTexture;
+		}
+		
+		var viewport: Viewport = camera.viewport;
+		var needInternalRT: boolean = camera._needInternalRenderTexture();
+		var context: RenderContext3D = RenderContext3D._instance;
+		var scene: Scene3D = context.scene = scene
+		context.pipelineMode = context.configPipeLineMode;
+
+		if (needInternalRT) {
+			camera._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16);
+			camera._internalRenderTexture.filterMode = FilterMode.Bilinear;
+		}
+		else {
+			camera._internalRenderTexture = null;
+		}
+		var needShadowCasterPass:boolean = camera._renderShadowMap(scene,context);
+		camera._preRenderMainPass(context,scene,needInternalRT,viewport);
+		camera._renderMainPass(context,viewport,scene,null,null,needInternalRT);
+		camera._aftRenderMainPass(needShadowCasterPass);
+		return camera.renderTarget;
+	}
+	
+	
 	/** @internal */
 	private _aspectRatio: number;
 	/** @internal */
@@ -103,14 +139,19 @@ export class Camera extends BaseCamera {
 	private _projectionParams: Vector4 = new Vector4();
 	/** @internal*/
 	private _needBuiltInRenderTexture:boolean = false;
-
+	
+	/** @internal*/
+	private _depthTextureMode:number;
 	/** @internal */
 	_offScreenRenderTexture: RenderTexture = null;
 	/** @internal */
 	_internalRenderTexture: RenderTexture = null;
+	/** 深度贴图*/
+	private _depthTexture:RenderTexture;
+	/** 深度法线贴图*/
+	private _depthNormalsTexture:RenderTexture;
 
-
-	private _cameraEventCommandBuffer:Object = {};
+	private _cameraEventCommandBuffer:{[key:string]:CommandBuffer[]} = {};
 
 	/** @internal */
 	_clusterXPlanes: Vector3[];
@@ -311,6 +352,16 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
+	 * 深度贴图模式
+	 */
+	get depthTextureMode():number{
+		return this._depthTextureMode;
+	}
+	set depthTextureMode(value:number){
+		this._depthTextureMode = value;
+	}
+
+	/**
 	 * 创建一个 <code>Camera</code> 实例。
 	 * @param	aspectRatio 横纵比。
 	 * @param	nearPlane 近裁面。
@@ -437,7 +488,7 @@ export class Camera extends BaseCamera {
 	 * @internal
 	 */
 	_needInternalRenderTexture(): boolean {
-		return this._postProcess || this._enableHDR ||this._needBuiltInRenderTexture ? true : false;//condition of internal RT
+		return (this._postProcess&&this._postProcess.enable) || this._enableHDR ||this._needBuiltInRenderTexture ? true : false;//condition of internal RT
 	}
 
 	/**
@@ -458,7 +509,7 @@ export class Camera extends BaseCamera {
 		super._prepareCameraToRender();
 		var vp: Viewport = this.viewport;
 		this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
-		this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 0);
+		this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 1/this.farPlane);
 		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 	}
@@ -561,30 +612,15 @@ export class Camera extends BaseCamera {
 		//TODO：优化 恢复渲染区域
 		gl.viewport(0,0,context.viewport.width, context.viewport.height);
 	}
+
+
 	/**
-	 * @override
-	 * @param shader 着色器
-	 * @param replacementTag 替换标记。
+	 * 渲染阴影模式
+	 * @internal
+	 * @param scene 渲染场景
+	 * @param context 渲染上下文
 	 */
-	render(shader: Shader3D = null, replacementTag: string = null): void {
-		if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true
-			return;
-
-		var viewport: Viewport = this.viewport;
-		var needInternalRT: boolean = this._needInternalRenderTexture();
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		var context: RenderContext3D = RenderContext3D._instance;
-		var scene: Scene3D = context.scene = <Scene3D>this._scene;
-		context.pipelineMode = context.configPipeLineMode;
-
-		if (needInternalRT) {
-			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16);
-			this._internalRenderTexture.filterMode = FilterMode.Bilinear;
-		}
-		else {
-			this._internalRenderTexture = null;
-		}
-
+	_renderShadowMap(scene:Scene3D,context:RenderContext3D){
 		//render shadowMap
 		var shadowCasterPass;
 		var mainDirectLight: DirectionLight = scene._mainDirectionLight;
@@ -615,13 +651,23 @@ export class Camera extends BaseCamera {
 			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 		if(spotneedShadowCasterPass)	
 			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+		return needShadowCasterPass||spotneedShadowCasterPass;
+	}
 
-
-
+	/**
+	 * 渲染主流程之前
+	 * @internal
+	 * @param context 渲染上下文
+	 * @param scene 渲染场景
+	 * @param needInternalRT 是否需要内部Rendertarget
+	 * @param viewport 视口
+	 */
+	_preRenderMainPass(context:RenderContext3D,scene:Scene3D,needInternalRT:boolean,viewport:Viewport){
 		context.camera = this;
 		context.cameraShaderValue = this._shaderValues;
 		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		//TODO:webgl2 should use blitFramebuffer
 		//TODO:if adjacent camera param can use same internal RT can merge
 		//if need internal RT and no off screen RT and clearFlag is DepthOnly or Nothing, should grab the backBuffer
@@ -641,18 +687,40 @@ export class Camera extends BaseCamera {
 				gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 			}
 		}
+	}
+
+	/**
+	 * 渲染主流程
+	 * @internal
+	 * @param context 渲染上下文
+	 * @param viewport 视口
+	 * @param scene 场景
+	 * @param shader shader
+	 * @param replacementTag 替换标签
+	 * @param needInternalRT 是否需要内部RT
+	 */
+	_renderMainPass(context:RenderContext3D,viewport:Viewport,scene:Scene3D,shader:Shader3D,replacementTag:string,needInternalRT:boolean){
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
-		(renderTex) && (renderTex._start());
+
 		context.viewport = viewport;
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
-		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(this._scene)));
-
-		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
+		
 
 		scene._preCulling(context, this, shader, replacementTag);
-		scene._clear(gl, context);
+		if(this.depthTextureMode!=0){
+			//TODO:是否可以不多次
+			this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+			this._renderDepthMode(context);
+		}
+		
 
+		(renderTex) && (renderTex._start());
+		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+		scene._clear(gl, context);
+	
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
 		scene._renderScene(context,ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox,context);
@@ -665,7 +733,7 @@ export class Camera extends BaseCamera {
 		(renderTex) && (renderTex._end());
 		
 		if (needInternalRT) {
-			if (this._postProcess) {
+			if (this._postProcess&&this._postProcess.enable) {
 				this._postProcess._render();
 				this._postProcess._applyPostProcessCommandBuffers();
 			} else if (this._enableHDR||this._needBuiltInRenderTexture) {
@@ -678,8 +746,87 @@ export class Camera extends BaseCamera {
 			RenderTexture.recoverToPool(this._internalRenderTexture);
 		}
 		this._applyCommandBuffer(CameraEventFlags.AfterEveryThing,context);
-		if (needShadowCasterPass||spotneedShadowCasterPass)
-			shadowCasterPass.cleanUp();
+	}
+
+	/**
+	 * 根据camera的深度贴图模式更新深度贴图
+	 * @internal
+	 */
+	_renderDepthMode(context:RenderContext3D){
+		var cameraDepthMode = this._depthTextureMode;
+		if((cameraDepthMode&DepthTextureMode.Depth)!=0){
+			Camera.depthPass.update(this,DepthTextureMode.Depth);
+			Camera.depthPass.render(context,DepthTextureMode.Depth);
+		}
+		if((cameraDepthMode&DepthTextureMode.DepthNormals)!=0){
+			Camera.depthPass.update(this,DepthTextureMode.DepthNormals);
+			Camera.depthPass.render(context,DepthTextureMode.DepthNormals);
+		}
+		
+	}
+
+	/**
+	 * @internal
+	 * 深度贴图
+	 */
+	get depthTexture():RenderTexture{
+		return this._depthTexture;
+	}
+
+	set depthTexture(value:RenderTexture){
+		this._depthTexture = value;
+	}
+
+	/**
+	 * @internal
+	 * 深度法线贴图
+	 */
+	get depthNormalTexture():RenderTexture{
+		return this._depthNormalsTexture;
+	}
+
+	set depthNormalTexture(value:RenderTexture){
+		this._depthNormalsTexture = value;
+	}
+
+
+	/**
+	 * @internal
+	 * @param needShadowPass 
+	 */
+	_aftRenderMainPass(needShadowPass:Boolean){
+		if (needShadowPass)
+		ILaya3D.Scene3D._shadowCasterPass.cleanUp();
+		Camera.depthPass.cleanUp();
+	}
+
+
+	/**
+	 * @override
+	 * @param shader 着色器
+	 * @param replacementTag 替换标记。
+	 */
+	render(shader: Shader3D = null, replacementTag: string = null): void {
+		if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true
+			return;
+
+		var viewport: Viewport = this.viewport;
+		var needInternalRT: boolean = this._needInternalRenderTexture();
+		var context: RenderContext3D = RenderContext3D._instance;
+		var scene: Scene3D = context.scene = <Scene3D>this._scene;
+		context.pipelineMode = context.configPipeLineMode;
+		if (needInternalRT) {
+			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16);
+			this._internalRenderTexture.filterMode = FilterMode.Bilinear;
+		}
+		else {
+			this._internalRenderTexture = null;
+		}
+		var needShadowCasterPass:boolean = this._renderShadowMap(scene,context);
+		this._preRenderMainPass(context,scene,needInternalRT,viewport);
+		this._renderMainPass(context,viewport,scene,shader,replacementTag,needInternalRT);
+		 this._aftRenderMainPass(needShadowCasterPass);
+	
 	}
 
 

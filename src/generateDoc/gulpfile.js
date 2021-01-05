@@ -22,6 +22,8 @@ var type = {
     "d3_resource":["3D","Resource"],
     "d3_shader":["3D","Shader"],
     "d3_shadowmap":["Exclude",""],
+    "d3_depthmap":["Exclude",""],
+    "gltf":["3D","GLTF"],
     "d3_text":["3D","RenderGraphics"],
     "d3_touch":["3D","Input3D"],
     "d3_utils":["3D","Utils"],
@@ -112,7 +114,7 @@ function createJS(){
         urlArr = url.split("_");
         file = fs.readFileSync(path.join(htmlout,url),"utf8");
         className = file.substring(file.indexOf(startStr)+7,file.indexOf(endStr));
-        
+        // console.log(className);
         let startIndex = 0;
         let package = "";
         let typeName = "";

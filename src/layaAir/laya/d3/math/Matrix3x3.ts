@@ -284,12 +284,12 @@ export class Matrix3x3 implements IClone {
 	 * @param	out 输出的逆矩阵
 	 */
 	invert(out: Matrix3x3): void {
-		var e: Float32Array = out.elements;
-		var f: Float32Array = this.elements;
+		var e = out.elements;
+		var f = this.elements;
 
-		var a00: number = f[0], a01: number = f[1], a02: number = f[2];
-		var a10: number = f[3], a11: number = f[4], a12: number = f[5];
-		var a20: number = f[6], a21: number = f[7], a22: number = f[8];
+		var a00 = f[0], a01 = f[1], a02 = f[2];
+		var a10 = f[3], a11 = f[4], a12 = f[5];
+		var a20 = f[6], a21 = f[7], a22 = f[8];
 
 		var b01: number = a22 * a11 - a12 * a21;
 		var b11: number = -a22 * a10 + a12 * a20;
@@ -299,7 +299,7 @@ export class Matrix3x3 implements IClone {
 		var det: number = a00 * b01 + a01 * b11 + a02 * b21;
 
 		if (!det) {
-			out = null;
+			return;
 		}
 		det = 1.0 / det;
 

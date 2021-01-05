@@ -64,7 +64,7 @@ export class SetGlobalShaderDataCMD extends Command {
 			case ShaderDataType.Texture:
 				shaderData.setTexture(this._nameID,this._value as BaseTexture);
 				break;
-			case ShaderDataType.Vector:
+			case ShaderDataType.Vector4:
 				shaderData.setVector(this._nameID,this._value as Vector4);
 				break;
 			case ShaderDataType.Vector2:

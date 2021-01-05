@@ -27,7 +27,7 @@ export class WebGL {
     }
 
     //TODO:coverage
-    private static _uint16ArraySlice(...arg): Uint16Array {
+    private static _uint16ArraySlice(...arg:any[]): Uint16Array {
         var _this: any = this;
         var sz: number;
         var dec: Uint16Array;
