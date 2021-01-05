@@ -1,6 +1,7 @@
 import { Vector3 } from "./Vector3";
 import { Matrix4x4 } from "./Matrix4x4";
 import { IClone } from "../core/IClone"
+import { Laya } from "../../../Laya";
 	
 	/**
 	 * <code>BoundBox</code> 类用于创建包围盒。
@@ -21,7 +22,13 @@ import { IClone } from "../core/IClone"
 		 * @param	min 包围盒的最小顶点。
 		 * @param	max 包围盒的最大顶点。
 		 */
-		constructor(min:Vector3, max:Vector3){
+		constructor(min?:Vector3, max?:Vector3){
+			if (!min) {
+				min = new Vector3();
+			}
+			if (!max) {
+				max = new Vector3();
+			}
 			this.min = min;
 			this.max = max;
 		}

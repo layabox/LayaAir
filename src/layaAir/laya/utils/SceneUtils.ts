@@ -312,7 +312,7 @@ class DataWatcher {
 /**
  * @private 场景辅助类
  */
-class InitTool {
+export class InitTool {
     /**@private */
     private _nodeRefList: any[];
     /**@private */
