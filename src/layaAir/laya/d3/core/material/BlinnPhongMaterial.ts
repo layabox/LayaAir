@@ -33,6 +33,10 @@ export class BlinnPhongMaterial extends Material {
 	/**@internal */
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 	/**@internal */
+	static SHADERDEFINE_ENABLETRANSMISSION:ShaderDefine;
+	/**@internal */
+	static SHADERDEFINE_THICKNESSMAP:ShaderDefine;
+	/**@internal */
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_DiffuseTexture");
 	/**@internal */
 	static NORMALTEXTURE: number = Shader3D.propertyNameToID("u_NormalTexture");
@@ -46,7 +50,16 @@ export class BlinnPhongMaterial extends Material {
 	static SHININESS: number = Shader3D.propertyNameToID("u_Shininess");
 	/**@internal */
 	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
-	
+	/**@internal */
+	static TRANSMISSIONRATE:number = Shader3D.propertyNameToID("u_TransmissionRate");
+	/**@internal */
+	static IBACKDIFFUSE:number = Shader3D.propertyNameToID("u_BackDiffuse");
+	/**@internal */
+	static IBACKSCALE:number = Shader3D.propertyNameToID("u_BackScale");
+	/**@internal */
+	static THINKNESSTEXTURE:number = Shader3D.propertyNameToID("u_ThinknessTexture");
+	/**@internal */
+	static TRANSMISSIONCOLOR:number = Shader3D.propertyNameToID("u_TransmissionColor");
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: BlinnPhongMaterial;
@@ -60,12 +73,15 @@ export class BlinnPhongMaterial extends Material {
 		BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP = Shader3D.getDefineByName("SPECULARMAP");
 		BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
+		BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION = Shader3D.getDefineByName("ENABLETRANSMISSION");
+		BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP = Shader3D.getDefineByName("THICKNESSMAP");
 	}
 
 	private _albedoColor: Vector4;
 	private _albedoIntensity: number;
 	private _enableLighting: boolean;
 	private _enableVertexColor: boolean = false;
+	private _enableTransmission:boolean = false;
 
 	/**
 	 * @internal
@@ -578,7 +594,75 @@ export class BlinnPhongMaterial extends Material {
 
 		this._shaderValues.setTexture(BlinnPhongMaterial.SPECULARTEXTURE, value);
 	}
+	/**
+	 * 是否支持顶点色。
+	 */
+	get enableTransmission(): boolean {
+		return this._enableTransmission;
+	}
 
+	set enableTransmission(value: boolean) {
+		this._enableTransmission = value;
+		if (value)
+			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
+		else
+			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
+	}
+
+	/**
+	 * 透光率，会影响漫反射以及透光强度
+	 */
+	get transmissionRate():number{
+		return this._shaderValues.getNumber(BlinnPhongMaterial.TRANSMISSIONRATE);
+	}
+	
+	set transmissionRata(value:number){
+		this._shaderValues.setNumber(BlinnPhongMaterial.TRANSMISSIONRATE,value);
+	}
+
+	/**
+	 * 透射影响范围指数
+	 */
+	get backDiffuse():number{
+		return this._shaderValues.getNumber(BlinnPhongMaterial.IBACKDIFFUSE);
+	}
+	set backDiffuse(value:number){
+		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKDIFFUSE,Math.max(value,1.0));
+	}
+	/**
+	 * 透射光强度
+	 */
+	get backScale():number{
+		return this._shaderValues.getNumber(BlinnPhongMaterial.IBACKSCALE);
+	}
+	set backScale(value:number){
+		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKSCALE,value);
+	}
+
+	/**
+	 * 厚度贴图，会影响透视光，越厚，透射光越弱
+	 */
+	get thinknessTexture():BaseTexture{
+		return this._shaderValues.getTexture(BlinnPhongMaterial.THINKNESSTEXTURE);
+	}
+	set thinknessTexture(value:BaseTexture){
+		if (value)
+			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP);
+		else
+			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP);
+
+		this._shaderValues.setTexture(BlinnPhongMaterial.THINKNESSTEXTURE, value);
+	}
+
+	/**
+	 * 透光颜色。模拟透光物质内部颜色吸收率
+	 */
+	get transmissionColor():Vector4{
+		return this._shaderValues.getVector(BlinnPhongMaterial.TRANSMISSIONCOLOR);
+	}
+	set transmissionColor(value:Vector4){
+		this._shaderValues.setVector(BlinnPhongMaterial.TRANSMISSIONCOLOR,value);
+	}
 
 	/**
 	 * 创建一个 <code>BlinnPhongMaterial</code> 实例。

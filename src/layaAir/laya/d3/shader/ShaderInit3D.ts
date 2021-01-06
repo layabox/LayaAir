@@ -119,6 +119,11 @@ export class ShaderInit3D {
 			'u_MaterialSpecular': Shader3D.PERIOD_MATERIAL,
 			'u_Shininess': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
+			'u_TransmissionRate':Shader3D.PERIOD_MATERIAL,
+			'u_BackDiffuse':Shader3D.PERIOD_MATERIAL,
+			'u_BackScale':Shader3D.PERIOD_MATERIAL,
+			'u_ThinknessTexture':Shader3D.PERIOD_MATERIAL,
+			'u_TransmissionColor':Shader3D.PERIOD_MATERIAL,
 
 			'u_WorldMat': Shader3D.PERIOD_SPRITE,
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,

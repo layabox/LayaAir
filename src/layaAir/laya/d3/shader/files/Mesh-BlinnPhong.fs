@@ -6,6 +6,7 @@
 	precision mediump int;
 #endif
 
+
 #include "Lighting.glsl";
 #include "Shadow.glsl"
 
@@ -24,7 +25,7 @@ uniform vec4 u_DiffuseColor;
 #endif
 
 
-#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
+#if defined(DIFFUSEMAP)||defined(THICKNESSMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
 	varying vec2 v_Texcoord0;
 #endif
 
@@ -132,8 +133,10 @@ void main()
 	
 	vec3 diffuse = vec3(0.0);
 	vec3 specular= vec3(0.0);
+	vec3 transmissionDiffuse = vec3(0.0);
 	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-		vec3 dif,spe;
+		vec3 dif,spe,transmis;
+		float transmissionFactor;
 		#ifdef SPECULARMAP
 			vec3 gloss=texture2D(u_SpecularTexture, v_Texcoord0).rgb;
 		#else
@@ -143,13 +146,16 @@ void main()
 				vec3 gloss=vec3(1.0);
 			#endif
 		#endif
+		#ifdef THICKNESSMAP
+			transmissionFactor = texture2D(u_ThinknessTexture, v_Texcoord0).r;
+		#endif
 	#endif
 
 	
 	
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
-			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
+			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,transmissionFactor,dif,spe,transmis);
 			#if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 				#ifdef SHADOW_CASCADE
 					vec4 shadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
@@ -159,27 +165,32 @@ void main()
 				float shadowAttenuation=sampleShadowmap(shadowCoord);
 				dif *= shadowAttenuation;
 				spe *= shadowAttenuation;
+				transmis *=shadowAttenuation
 			#endif
 			diffuse+=dif;
 			specular+=spe;
+			transmissionDiffuse+=transmis;
 		#endif
 	
 		#ifdef POINTLIGHT
-			LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_PointLight,dif,spe);
+			LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_PointLight,transmissionFactor,dif,spe,transmis);
 			diffuse+=dif;
 			specular+=spe;
+			transmissionDiffuse+=transmis;
 		#endif
 
 		#ifdef SPOTLIGHT
-			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_SpotLight,dif,spe);
+			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_SpotLight,transmissionFactor,dif,spe,transmis);
 			#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 				vec4 spotShadowcoord = v_SpotShadowCoord;
 				float spotShadowAttenuation = sampleSpotShadowmap(spotShadowcoord);
 				dif *= spotShadowAttenuation;
 				spe *= spotShadowAttenuation;
+				transmis *=spotShadowAttenuation
 			#endif
 			diffuse+=dif;
 			specular+=spe;
+			transmissionDiffuse+=transmis;
 		#endif
 	#else
 		#ifdef DIRECTIONLIGHT
@@ -199,9 +210,10 @@ void main()
 						directionLight.color *= sampleShadowmap(shadowCoord);
 					}
 				#endif
-				LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,dif,spe);
+				LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,transmissionFactor,dif,spe,transmis);
 				diffuse+=dif;
 				specular+=spe;
+				transmissionDiffuse+=transmis;
 			}
 		#endif
 		#if defined(POINTLIGHT)||defined(SPOTLIGHT)
@@ -212,9 +224,10 @@ void main()
 					if(i >= clusterInfo.x)//PointLightCount
 						break;
 					PointLight pointLight = getPointLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
-					LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
+					LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,transmissionFactor,dif,spe,transmis);
 					diffuse+=dif;
 					specular+=spe;
+					transmissionDiffuse+=transmis;
 				}
 			#endif
 			#ifdef SPOTLIGHT
@@ -230,9 +243,10 @@ void main()
 							spotLight.color *= sampleSpotShadowmap(spotShadowcoord);
 						}
 					#endif
-					LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
+					LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,transmissionFactor,dif,spe,transmis);
 					diffuse+=dif;
 					specular+=spe;
+					transmissionDiffuse+=transmis;
 				}
 			#endif
 		#endif
@@ -243,10 +257,17 @@ void main()
 	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
 		gl_FragColor.rgb+=specular;
 	#endif
+
+	#ifdef ENABLETRANSMISSION
+		gl_FragColor.rgb+= transmissionDiffuse;
+	#endif
+
 	  
 	#ifdef FOG
 		float lerpFact=clamp((1.0/gl_FragCoord.w-u_FogStart)/u_FogRange,0.0,1.0);
 		gl_FragColor.rgb=mix(gl_FragColor.rgb,u_FogColor,lerpFact);
 	#endif
+
+	//gl_FragColor.rgb =transmissionDiffuse;
 }
 

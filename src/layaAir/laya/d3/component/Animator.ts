@@ -519,7 +519,7 @@ export class Animator extends Component {
 
 					var crossValue: number = srcValue + crossWeight * (desValue - srcValue);
 					nodeOwner.value = crossValue;
-					this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, crossValue);
+					pro && this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, crossValue);
 					break;
 				case 1: //Position
 					var localPos: Vector3 = pro.localPosition;
@@ -581,7 +581,7 @@ export class Animator extends Component {
 								if (!pro)//属性可能或被置空
 									break;
 							}
-							this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]);
+							pro&&this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]);
 							break;
 						case 1: //Position
 							var localPos: Vector3 = pro.localPosition;
