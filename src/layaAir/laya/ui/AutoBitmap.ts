@@ -157,8 +157,8 @@ export class AutoBitmap extends Graphics {
         if (!width) width = texture.sourceWidth;
         if (!height) height = texture.sourceHeight;
         if (texture.getIsReady()) {
-            var wRate: number = width / texture.sourceWidth;
-            var hRate: number = height / texture.sourceHeight;
+            var wRate = width / texture.sourceWidth;
+            var hRate = height / texture.sourceHeight;
             width = texture.width * wRate;
             height = texture.height * hRate;
             if (width <= 0 || height <= 0) return null;

@@ -277,7 +277,7 @@ export class Texture extends EventDispatcher {
     /**
      * @internal
      */
-    _getSource(cb: Function = null): any {
+    _getSource(cb: ()=>void = null): any {
         if (this._destroyed || !this._bitmap)
             return null;
         this.recoverBitmap(cb);
@@ -347,8 +347,8 @@ export class Texture extends EventDispatcher {
         var texh = this._h;
         var sourceWidth = this.sourceWidth;
         var sourceHeight = this.sourceHeight;
-        var tex2dw: number = tex2d.width;
-        var tex2dh: number = tex2d.height;
+        var tex2dw = tex2d.width;
+        var tex2dh = tex2d.height;
         var offsetX = this.offsetX;
         var offsetY = this.offsetY;
         let draww = width;
@@ -365,7 +365,7 @@ export class Texture extends EventDispatcher {
         draww -= marginL; // 考虑图集的情况，只渲染图集中的图片，其大小要减去空白
         drawh -= marginT;
 
-        var wstride: number = width * 4;
+        var wstride = width * 4;
         var pix: Uint8Array = null;
         try {
             pix = <Uint8Array>(tex2d as Texture2D).getPixels();
@@ -393,15 +393,15 @@ export class Texture extends EventDispatcher {
         var ctx = new ILaya.Context();
         ctx.size(width, height);
         ctx.asBitmap = true;
-        var uv: any[] = null;
+        var uv: number[] = null;
         if (x != 0 || y != 0 || width != tex2dw || height != tex2dh) {
-            uv = (this._uv as Array<number>).slice();	// 复制一份uv
-            var stu: number = uv[0];
-            var stv: number = uv[1];
-            var uvw: number = uv[2] - stu;
-            var uvh: number = uv[7] - stv;
-            var uk: number = uvw / texw;
-            var vk: number = uvh / texh;
+            uv = (this._uv as number[]).slice();	// 复制一份uv
+            var stu = uv[0];
+            var stv = uv[1];
+            var uvw = uv[2] - stu;
+            var uvh = uv[7] - stv;
+            var uk = uvw / texw;
+            var vk = uvh / texh;
             uv = [stu + rePosX * uk, stv + rePosY * vk,
                 stu + (rePosX + draww) * uk, stv + rePosY * vk,
                 stu + (rePosX + draww) * uk, stv + (rePosY + drawh) * vk,
@@ -446,15 +446,15 @@ export class Texture extends EventDispatcher {
     /**
      * 通过url强制恢复bitmap。
      */
-    recoverBitmap(onok: Function = null): void {
-        var url: string = this._bitmap.url;
+    recoverBitmap(onok:()=>void = null): void {
+        var url = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
             let tex:Texture2D = ILaya.Loader.loadedMap[url];
             if(tex){
                 this.bitmap = tex;
                 onok && onok();
             }else{
-                ILaya.loader.load(url, Handler.create(this, function (bit: any): void {
+                ILaya.loader.load(url, Handler.create(this, (bit: any)=> {
                     this.bitmap = bit;
                     onok && onok();
                 }), null, "htmlimage", 1, true);
