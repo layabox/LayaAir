@@ -264,7 +264,7 @@ export class Browser {
         }
 
         //处理兼容性			
-        Browser.onMobile = (window as any).isConchApp ? true : u.indexOf("Mobile") > -1;
+        Browser.onMobile = (window as any).conch ? true : u.indexOf("Mobile") > -1;
         Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
         Browser.onIPhone = u.indexOf("iPhone") > -1;
         Browser.onMac = u.indexOf("Mac OS X") > -1;
@@ -279,7 +279,7 @@ export class Browser {
         Browser.onPC = !Browser.onMobile;
         Browser.onMiniGame = u.indexOf('MiniGame') > -1;
         Browser.onBDMiniGame = u.indexOf('SwanGame') > -1;
-        Browser.onLayaRuntime = ! !((<any>Browser.window)).conch;
+        Browser.onLayaRuntime = !!(window as any).conch;
         if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
             Browser.onQGMiniGame = true;//OPPO环境判断
             Browser.onMiniGame = false;
