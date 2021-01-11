@@ -18,7 +18,7 @@ attribute vec4 a_Position;
 	uniform mat4 u_MvpMatrix;
 #endif
 
-#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))||(defined(LIGHTMAP)&&defined(UV))
+#if defined(DIFFUSEMAP)||defined(THICKNESSMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))||(defined(LIGHTMAP)&&defined(UV))
 	attribute vec2 a_Texcoord0;
 	varying vec2 v_Texcoord0;
 #endif
@@ -145,7 +145,7 @@ void main()
 		#endif
 	#endif
 
-	#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
+	#if defined(DIFFUSEMAP)||defined(THICKNESSMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
 		#ifdef TILINGOFFSET
 			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 		#else
