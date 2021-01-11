@@ -1051,17 +1051,18 @@ export class Animator extends Component {
 
 			var animatorState: AnimatorState = name ? controllerLayer._statesMap[name] : defaultState;
 			var clipDuration: number = animatorState._clip!._duration;
+			var calclipduration=animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 			if (curPlayState !== animatorState) {
 				if (normalizedTime !== Number.NEGATIVE_INFINITY)
-					playStateInfo._resetPlayState(clipDuration * normalizedTime);
+					playStateInfo._resetPlayState(clipDuration * normalizedTime,calclipduration);
 				else
-					playStateInfo._resetPlayState(0.0);
+					playStateInfo._resetPlayState(0.0,calclipduration);
 				(curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
 				controllerLayer._playType = 0;
 				playStateInfo._currentState = animatorState;
 			} else {
 				if (normalizedTime !== Number.NEGATIVE_INFINITY) {
-					playStateInfo._resetPlayState(clipDuration * normalizedTime);
+					playStateInfo._resetPlayState(clipDuration * normalizedTime,calclipduration);
 					controllerLayer._playType = 0;
 				}
 			}
@@ -1193,9 +1194,9 @@ export class Animator extends Component {
 				controllerLayer._crossPlayState = destAnimatorState;
 				controllerLayer._crossDuration = srcAnimatorState!._clip!._duration * transitionDuration;
 				if (normalizedTime !== Number.NEGATIVE_INFINITY)
-					crossPlayStateInfo!._resetPlayState(destClip._duration * normalizedTime);
+					crossPlayStateInfo!._resetPlayState(destClip._duration * normalizedTime,controllerLayer._crossDuration);
 				else
-					crossPlayStateInfo!._resetPlayState(0.0);
+					crossPlayStateInfo!._resetPlayState(0.0,controllerLayer._crossDuration);
 
 				var scripts: AnimatorStateScript[] = destAnimatorState._scripts;
 				if (scripts) {
