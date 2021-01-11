@@ -253,7 +253,7 @@ export class Input3D {
 				continue;
 			var touch: Touch = this._getTouch(identifier,flag);
 			
-			if(flag==1 && touch)
+			if(flag==1 && !touch)
 				continue;
 
 			var pos: Vector2 = this._touchPool[identifier]._position;
