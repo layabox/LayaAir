@@ -45,7 +45,7 @@ export class Config {
     /**
      * 是否打印Webgl指令，同时定位webgl报错
      */
-    static printWebglOrder:boolean = true;
+    static printWebglOrder:boolean = false;
     
     /** 是否允许GPUInstance动态合并,仅对3D有效。*/
 	static allowGPUInstanceDynamicBatch: boolean = true;
