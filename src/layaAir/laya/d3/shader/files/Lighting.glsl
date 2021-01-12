@@ -197,8 +197,14 @@ void LayaAirBlinnPhongDiectionLight (in vec3 specColor,in float specColorIntensi
 		diffuseColor *= u_TransmissionRate;
 		transmisColor = SubSurfaceIBack(lightVec, viewDir,thinknessFactor)*light.color.rgb*(1.0-u_TransmissionRate);
 	#endif
-
 }
+
+
+void LayaAirBlinnPhongDiectionLight (in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in DirectionLight light,out vec3 diffuseColor,out vec3 specularColor) {
+	vec3 lightVec=normalize(light.direction);
+	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec,diffuseColor,specularColor);
+}
+
 
 void LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in PointLight light,float thinknessFactor,out vec3 diffuseColor,out vec3 specularColor,out vec3 transmisColor) {
 	vec3 lightVec =  pos-light.position;
@@ -210,6 +216,14 @@ void LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specCol
 		diffuseColor *= u_TransmissionRate;
 		transmisColor = SubSurfaceIBack(lightVec, viewDir,thinknessFactor)*light.color.rgb*(1.0-u_TransmissionRate)*attenuate;
 	#endif
+}
+
+void LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in PointLight light,out vec3 diffuseColor,out vec3 specularColor) {
+	vec3 lightVec =  pos-light.position;
+	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec/length(lightVec),diffuseColor,specularColor);
+	float attenuate = LayaAttenuation(lightVec, 1.0/light.range);
+	diffuseColor *= attenuate;
+	specularColor*= attenuate;
 }
 
 void LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in SpotLight light,float thinknessFactor,out vec3 diffuseColor,out vec3 specularColor,out vec3 transmisColor) {
@@ -227,6 +241,21 @@ void LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColo
 		transmisColor = SubSurfaceIBack(lightVec, viewDir,thinknessFactor)*light.color.rgb*(1.0-u_TransmissionRate)*attenuate;
 	#endif
 }
+
+void LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in SpotLight light,out vec3 diffuseColor,out vec3 specularColor) {
+	vec3 lightVec =  pos-light.position;
+	vec3 normalLightVec=lightVec/length(lightVec);
+	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,normalLightVec,diffuseColor,specularColor);
+	vec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation
+	float dl=dot(normalize(light.direction),normalLightVec);
+	dl*=smoothstep(cosAngles[0],cosAngles[1],dl);
+	float attenuate = LayaAttenuation(lightVec, 1.0/light.range)*dl;
+	diffuseColor *=attenuate;
+	specularColor *=attenuate;
+}
+
+
+
 
 vec3 NormalSampleToWorldSpace(vec3 normalMapSample, vec3 unitNormal, vec3 tangent,vec3 binormal) {
 	vec3 normalT =vec3(2.0*normalMapSample.x - 1.0,1.0-2.0*normalMapSample.y,2.0*normalMapSample.z - 1.0);
