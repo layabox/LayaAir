@@ -11,7 +11,8 @@ attribute vec4 a_Position;
 attribute vec2 a_Texcoord0;
 
 #ifdef GPU_INSTANCE
-	attribute mat4 a_MvpMatrix;
+	uniform mat4 u_ViewProjection;
+	attribute mat4 a_WorldMat;
 #else
 	uniform mat4 u_MvpMatrix;
 #endif
@@ -58,7 +59,7 @@ void main() {
 		position=a_Position;
 	#endif
 	#ifdef GPU_INSTANCE
-		gl_Position = a_MvpMatrix * position;
+		gl_Position =u_ViewProjection * a_WorldMat * position;
 	#else
 		gl_Position = u_MvpMatrix * position;
 	#endif

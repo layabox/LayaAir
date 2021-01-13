@@ -33,18 +33,20 @@ void vertexForward()
 		position=a_Position;
 	#endif
 
-	#ifdef GPU_INSTANCE
-		gl_Position = a_MvpMatrix * position;
-	#else
-		gl_Position = u_MvpMatrix * position;
-	#endif
-
 	mat4 worldMat;
 	#ifdef GPU_INSTANCE
 		worldMat = a_WorldMat;
 	#else
 		worldMat = u_WorldMat;
 	#endif
+
+	#ifdef GPU_INSTANCE
+		gl_Position = u_ViewProjection * worldMat * position;
+	#else
+		gl_Position = u_MvpMatrix * position;
+	#endif
+
+	
 
 	v_PositionWorld=(worldMat*position).xyz;
 
