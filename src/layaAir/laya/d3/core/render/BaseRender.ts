@@ -478,6 +478,13 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 
 	/**
 	 * @internal
+	 * 八叉树节点不需要渲染调用的事件 
+	 */
+	_OctreeNoRender():void{
+	}
+
+	/**
+	 * @internal
 	 */
 	_renderUpdate(context: RenderContext3D, transform: Transform3D): void {
 	}
