@@ -378,8 +378,12 @@ export class BoundsOctreeNode {
 		if (testVisible) {
 			var type: number = frustum.containsBoundBox(this._bounds);
 			Stat.octreeNodeCulling++;
-			if (type === ContainmentType.Disjoint)
+			if (type === ContainmentType.Disjoint){
+				for (var i: number = 0, n: number = this._objects.length; i < n; i++){
+					(this._objects[i] as BaseRender)._OctreeNoRender();
+				}
 				return;
+			}
 			testVisible = (type === ContainmentType.Intersects);
 		}
 		this._isContaion = !testVisible;//[Debug] 用于调试信息,末级无用子节点不渲染、脱节节点看不见,所以无需更新变量
