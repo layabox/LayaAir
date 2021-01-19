@@ -4,7 +4,6 @@ import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch"
 import { BoundFrustum } from "../math/BoundFrustum"
 import { Matrix4x4 } from "../math/Matrix4x4"
 import { Mesh } from "../resource/models/Mesh"
-import { Utils3D } from "../utils/Utils3D"
 import { Material } from "./material/Material"
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
 import { MeshSprite3D } from "./MeshSprite3D"
@@ -46,7 +45,7 @@ export class MeshRenderer extends BaseRender {
 
 	/**
 	 * @internal
-	 */
+	 */	
 	_onMeshChange(mesh: Mesh): void {
 		if (mesh) {
 			var count: number = mesh.subMeshCount;
@@ -136,7 +135,7 @@ export class MeshRenderer extends BaseRender {
 				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 				break;
 		}
-		//更新反射探针
+		//更新反射探针	
 		if(!this._probReflection)
 		return;
 		if(this._reflectionMode==ReflectionProbeMode.off){
