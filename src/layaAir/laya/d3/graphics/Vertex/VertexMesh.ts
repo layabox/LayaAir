@@ -31,27 +31,35 @@ export class VertexMesh {
 	static MESH_WORLDMATRIX_ROW2: number = 10;
 	/**顶点世界矩阵数据Row3 */
 	static MESH_WORLDMATRIX_ROW3: number = 11;
-	/**顶点MVP矩阵数据Row0 */
-	static MESH_MVPMATRIX_ROW0: number = 12;
-	/**顶点MVP矩阵数据Row1 */
-	static MESH_MVPMATRIX_ROW1: number = 13;
-	/**顶点MVP矩阵数据Row2 */
-	static MESH_MVPMATRIX_ROW2: number = 14;
-	/**顶点MVP矩阵数据Row3 */
-	static MESH_MVPMATRIX_ROW3: number = 15;
+
 
 	//TODO：location不够
 	/**简单数据动画数据 */
-	static MESH_SIMPLEANIMATOR:number = 7;
+	static MESH_SIMPLEANIMATOR:number = 12;
 	/**instanceworld顶点描述 */
 	static instanceWorldMatrixDeclaration: VertexDeclaration;
-	/**instanceMVP顶点描述 */
-	static instanceMVPMatrixDeclaration: VertexDeclaration;
 	/**instanceSimple动画数据顶点描述 */
 	static instanceSimpleAnimatorDeclaration: VertexDeclaration;
 
+	
+	/**自定义attribute instance 预留位*/
+	/**顶点自定义数据0 */
+	static MESH_CUSTOME0:number = 12;
+	/**顶点自定义数据1 */
+	static MESH_CUSTOME1:number = 13;
+	/**顶点自定义数据2 */
+	static MESH_CUSTOME2:number = 14;
+	/**顶点自定义数据3 */
+	static MESH_CUSTOME3:number = 15;
+
+
+
+	
 	/**@internal */
 	private static _vertexDeclarationMap: any = {};
+
+	
+
 
 	/**
 	 * @internal
@@ -62,12 +70,6 @@ export class VertexMesh {
 			new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW1),
 			new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW2),
 			new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW3)]);
-
-		VertexMesh.instanceMVPMatrixDeclaration = new VertexDeclaration(64,
-			[new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW0),
-			new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW1),
-			new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW2),
-			new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW3)]);
 		
 		VertexMesh.instanceSimpleAnimatorDeclaration = new VertexDeclaration(16,[new VertexElement(0,VertexElementFormat.Vector4,VertexMesh.MESH_SIMPLEANIMATOR)]);
 	}
