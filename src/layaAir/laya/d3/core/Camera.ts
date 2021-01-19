@@ -597,8 +597,8 @@ export class Camera extends BaseCamera {
 		var commandBufferArray:CommandBuffer[] = this._cameraEventCommandBuffer[event];
 		if(!commandBufferArray||commandBufferArray.length==0)
 			return;
-		if(this._internalRenderTexture)
-			this._internalRenderTexture._end();
+		// if(this._internalRenderTexture)
+		// 	this._internalRenderTexture._end();
 		commandBufferArray.forEach(function(value){
 			value._context = context;
 			value._apply();

@@ -20,6 +20,8 @@ import { BaseRender } from "../BaseRender";
 import { DrawRenderCMD } from "./DrawRenderCMD";
 import { SetGlobalShaderDataCMD } from "./SetGlobalShaderDataCMD";
 import { DrawMeshInstancedCMD } from "./DrawMeshInstancedCMD";
+import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
+import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -50,9 +52,9 @@ export class CommandBuffer {
 
 	/**
 	 * 设置shader图片数据
-	 * @param shaderData 
-	 * @param nameID 
-	 * @param source 
+	 * @param shaderData shader数据集合
+	 * @param nameID 图片UniformID
+	 * @param source 图片源
 	 */
 	setShaderDataTexture(shaderData: ShaderData, nameID: number, source: BaseTexture): void {
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,source,ShaderDataType.Texture,this));
@@ -60,8 +62,8 @@ export class CommandBuffer {
 
 	/**
 	 * 设置全局纹理数据
-	 * @param nameID 
-	 * @param source 
+	 * @param nameID 图片uniformID
+	 * @param source 图片源
 	 */
 	setGlobalTexture(nameID:number,source: BaseTexture){
 		
@@ -70,9 +72,9 @@ export class CommandBuffer {
 
 	/**
 	 * 设置shader Vector4数据
-	 * @param shaderData 
-	 * @param nameID 
-	 * @param value 
+	 * @param shaderData shader数据集合
+	 * @param nameID 数据ID
+	 * @param value 数据
 	 */
 	setShaderDataVector(shaderData:ShaderData,nameID:number,value:Vector4):void{
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector4,this));
@@ -80,8 +82,8 @@ export class CommandBuffer {
 
 	/**
 	 * 设置全局Vector4数据
-	 * @param nameID 
-	 * @param source 
+	 * @param nameID Vector4数据ID
+	 * @param source 数据
 	 */
 	setGlobalVector(nameID:number,source: Vector4){
 		
@@ -90,9 +92,9 @@ export class CommandBuffer {
 
 	/**
 	 * 设置shader Vector3数据
-	 * @param shaderData 
-	 * @param nameID 
-	 * @param value 
+	 * @param shaderData shader数据集合
+	 * @param nameID 数据ID
+	 * @param value 数据
 	 */
 	setShaderDataVector3(shaderData:ShaderData,nameID:number,value:Vector3):void{
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector3,this));
@@ -100,8 +102,8 @@ export class CommandBuffer {
 
 	/**
 	 * 设置全局Vector3数据
-	 * @param nameID 
-	 * @param source 
+	 * @param nameID 数据ID
+	 * @param source 数据
 	 */
 	setGlobalVector3(nameID:number,source:Vector3){
 		
@@ -110,9 +112,9 @@ export class CommandBuffer {
 
 	/**
 	 * 设置shader Vector2数据
-	 * @param shaderData 
-	 * @param nameID 
-	 * @param value 
+	 * @param shaderData shader数据集合
+	 * @param nameID 数据ID
+	 * @param value 数据
 	 */
 	setShaderDataVector2(shaderData:ShaderData,nameID:number,value:Vector2):void{
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Vector2,this));
@@ -120,8 +122,8 @@ export class CommandBuffer {
 
 	/**
 	 * 设置全局Vector2数据
-	 * @param nameID Uniform标记
-	 * @param source 
+	 * @param nameID 数据ID
+	 * @param source 数据
 	 */
 	setGlobalVector2(nameID:number,source:Vector2){
 		
@@ -130,9 +132,9 @@ export class CommandBuffer {
 
 	/**
 	 * 设置shader Number属性
-	 * @param shaderData 
-	 * @param nameID 
-	 * @param value 
+	 * @param shaderData shader数据集合
+	 * @param nameID 数据ID
+	 * @param value 数据
 	 */
 	setShaderDataNumber(shaderData:ShaderData,nameID:number,value:number):void{
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Number,this));
@@ -140,8 +142,8 @@ export class CommandBuffer {
 
 	/**
 	 * 设置全局number属性
-	 * @param nameID 
-	 * @param source 
+	 * @param nameID 数据ID
+	 * @param source 数据
 	 */
 	setGlobalNumber(nameID:number,source:number){
 		
@@ -150,9 +152,9 @@ export class CommandBuffer {
 
 	/**
 	 * 设置shader Int属性
-	 * @param shaderData 
-	 * @param nameID 
-	 * @param value 
+	 * @param shaderData shader数据集合
+	 * @param nameID 数据ID
+	 * @param value 数据
 	 */
 	setShaderDataInt(shaderData:ShaderData,nameID:number,value:number):void{
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Int,this));
@@ -160,8 +162,8 @@ export class CommandBuffer {
 
 	/**
 	 * 设置全局int属性
-	 * @param nameID 
-	 * @param source 
+	 * @param nameID 数据ID
+	 * @param source 数据
 	 */
 	setGlobalInt(nameID:number,source:number){
 		
@@ -170,9 +172,9 @@ export class CommandBuffer {
 
 	/**
 	 * 设置shader Matrix属性
-	 * @param shaderData 
-	 * @param nameID 
-	 * @param value 
+	 * @param shaderData shader数据集合
+	 * @param nameID 数据ID
+	 * @param value 数据
 	 */
 	setShaderDataMatrix(shaderData:ShaderData,nameID:number,value:Matrix4x4):void{
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Matrix4x4,this));
@@ -180,8 +182,8 @@ export class CommandBuffer {
 
 	/**
 	 * 设置全局Matrix属性
-	 * @param nameID 
-	 * @param source 
+	 * @param nameID 数据ID
+	 * @param source 数据
 	 */
 	setGlobalMatrix(nameID:number,source:number){
 		
@@ -190,8 +192,8 @@ export class CommandBuffer {
 
 	/**
 	 * 添加一条通过全屏四边形将源纹理渲染到目标渲染纹理指令。
-	 * @param	source 源纹理。
-	 * @param	dest  目标纹理。
+	 * @param	source 源纹理. 如果为null,前渲染结果为原纹理
+	 * @param	dest  目标纹理. 如果为null，直接渲染到最终画布
 	 * @param	offsetScale 偏移缩放。
 	 * @param	shader 着色器,如果为null使用内部拷贝着色器,不做任何处理。
 	 * @param	shaderData 着色器数据,如果为null只接收sourceTexture。
@@ -203,11 +205,11 @@ export class CommandBuffer {
 
 	/**
 	 * 添加一条通过全屏四边形将源纹理渲染到目标渲染纹理指令。
-	 * @param source 
-	 * @param dest 
-	 * @param offsetScale 
-	 * @param material 
-	 * @param subShader 
+	 * @param source 源纹理 如果为null,前渲染结果为原纹理
+	 * @param dest 目标纹理 如果为null，直接渲染到最终画布
+	 * @param offsetScale 偏移缩放
+	 * @param material 材质
+	 * @param subShader shader索引
 	 */
 	blitScreenQuadByMaterial(source:BaseTexture,dest:RenderTexture,offsetScale:Vector4 = null,material:Material = null,subShader: number = 0):void{
 		var shader:Shader3D;
@@ -234,6 +236,7 @@ export class CommandBuffer {
 
 	/**
 	 * 设置指令渲染目标
+	 * @param renderTexture RT渲染目标
 	 */
 	setRenderTarget(renderTexture: RenderTexture): void {
 		this._commands.push(SetRenderTargetCMD.create(renderTexture));
@@ -252,29 +255,33 @@ export class CommandBuffer {
 	
 	/**
 	 * 渲染一个Mesh
-	 * @param mesh 
-	 * @param matrix 
-	 * @param material 
-	 * @param submeshIndex 
-	 * @param shaderPass 
+	 * @param mesh 原始网格信息
+	 * @param matrix 网格世界矩阵
+	 * @param material 材质
+	 * @param submeshIndex 子网格索引 如果索引为
+	 * @param subShaderIndex 子shader索引 一般为0
 	 */
-	drawMesh(mesh:Mesh,matrix:Matrix4x4, material:Material ,submeshIndex:number,subShaderIndex:number){
+	drawMesh(mesh:Mesh,matrix:Matrix4x4, material:Material ,submeshIndex:number,subShaderIndex:number):void{
 		this._commands.push(DrawMeshCMD.create(mesh,matrix,material,submeshIndex,subShaderIndex,this));
 	}
 
 	/**
 	 * 渲染一个Render
-	 * @param render 
-	 * @param material 
-	 * @param subShaderIndex 
+	 * @param render 渲染器
+	 * @param material 材质
+	 * @param subShaderIndex 子shader索引 一般为0
 	 */
-	drawRender(render:BaseRender,material:Material,subShaderIndex:number){
+	drawRender(render:BaseRender,material:Material,subShaderIndex:number):void{
 		this._commands.push(DrawRenderCMD.create(render,material,subShaderIndex,this));
 	}
 
 
-	drawMeshInstance(mesh:Mesh,subMeshIndex:number,matrixs:Matrix4x4[],material:Material,subShaderIndex:number,instanceProperty:any){
-		this._commands.push(DrawMeshInstancedCMD.create(mesh,subMeshIndex,matrixs,material,subShaderIndex,instanceProperty,this));
+	drawMeshInstance(mesh:Mesh,subMeshIndex:number,matrixs:Matrix4x4[],material:Material,subShaderIndex:number,instanceProperty:MaterialInstancePropertyBlock,drawnums:number):any{
+		if(!LayaGL.layaGPUInstance.supportInstance())
+			return null;
+		var drawMeshInstancedCMD = DrawMeshInstancedCMD.create(mesh,subMeshIndex,matrixs,material,subShaderIndex,instanceProperty,drawnums,this);
+		this._commands.push(drawMeshInstancedCMD);
+		return drawMeshInstancedCMD;
 	}
 
 	/**
