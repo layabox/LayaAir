@@ -13,7 +13,7 @@
 attribute vec4 a_Position;
 
 #ifdef GPU_INSTANCE
-	attribute mat4 a_MvpMatrix;
+	uniform mat4 u_ViewProjection;
 #else
 	uniform mat4 u_MvpMatrix;
 #endif
@@ -110,17 +110,19 @@ void main()
 		position=a_Position;
 	#endif
 
-	#ifdef GPU_INSTANCE
-		gl_Position = a_MvpMatrix * position;
-	#else
-		gl_Position = u_MvpMatrix * position;
-	#endif
+
 	
 	mat4 worldMat;
 	#ifdef GPU_INSTANCE
 		worldMat = a_WorldMat;
 	#else
 		worldMat = u_WorldMat;
+	#endif
+
+	#ifdef GPU_INSTANCE
+		gl_Position = u_ViewProjection * worldMat * position;
+	#else
+		gl_Position = u_MvpMatrix * position;
 	#endif
 
 	mat3 worldInvMat;

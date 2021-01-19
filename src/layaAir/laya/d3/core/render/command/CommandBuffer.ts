@@ -19,6 +19,7 @@ import { ClearRenderTextureCMD } from "./ClearRenderTextureCMD";
 import { BaseRender } from "../BaseRender";
 import { DrawRenderCMD } from "./DrawRenderCMD";
 import { SetGlobalShaderDataCMD } from "./SetGlobalShaderDataCMD";
+import { DrawMeshInstancedCMD } from "./DrawMeshInstancedCMD";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -269,6 +270,11 @@ export class CommandBuffer {
 	 */
 	drawRender(render:BaseRender,material:Material,subShaderIndex:number){
 		this._commands.push(DrawRenderCMD.create(render,material,subShaderIndex,this));
+	}
+
+
+	drawMeshInstance(mesh:Mesh,subMeshIndex:number,matrixs:Matrix4x4[],material:Material,subShaderIndex:number,instanceProperty:any){
+		this._commands.push(DrawMeshInstancedCMD.create(mesh,subMeshIndex,matrixs,material,subShaderIndex,instanceProperty,this));
 	}
 
 	/**

@@ -4,7 +4,6 @@ import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch"
 import { BoundFrustum } from "../math/BoundFrustum"
 import { Matrix4x4 } from "../math/Matrix4x4"
 import { Mesh } from "../resource/models/Mesh"
-import { Utils3D } from "../utils/Utils3D"
 import { Material } from "./material/Material"
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
 import { MeshSprite3D } from "./MeshSprite3D"
@@ -46,7 +45,7 @@ export class MeshRenderer extends BaseRender {
 
 	/**
 	 * @internal
-	 */
+	 */	
 	_onMeshChange(mesh: Mesh): void {
 		if (mesh) {
 			var count: number = mesh.subMeshCount;
@@ -136,7 +135,7 @@ export class MeshRenderer extends BaseRender {
 				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 				break;
 		}
-		//更新反射探针
+		//更新反射探针	
 		if(!this._probReflection)
 		return;
 		if(this._reflectionMode==ReflectionProbeMode.off){
@@ -181,19 +180,19 @@ export class MeshRenderer extends BaseRender {
 						this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
 					}
 					break;
-				case RenderElement.RENDERTYPE_INSTANCEBATCH:
-					var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
-					var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
-					var elements: SubMeshRenderElement[] = insBatches.elements;
-					var count: number = insBatches.length;
-					for (var i: number = 0; i < count; i++) {
-						var worldMat: Matrix4x4 = elements[i]._transform.worldMatrix;
-						Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
-					}
-					var mvpBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer;
-					mvpBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.  TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
-					mvpBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
-					break;
+				// case RenderElement.RENDERTYPE_INSTANCEBATCH:
+				// 	var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
+				// 	var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
+				// 	var elements: SubMeshRenderElement[] = insBatches.elements;
+				// 	var count: number = insBatches.length;
+				// 	for (var i: number = 0; i < count; i++) {
+				// 		var worldMat: Matrix4x4 = elements[i]._transform.worldMatrix;
+				// 		//Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
+				// 	}
+				// 	var mvpBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer;
+				// 	mvpBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.  TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
+				// 	mvpBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
+				// 	break;
 			}
 		}
 	}

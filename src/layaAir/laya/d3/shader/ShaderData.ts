@@ -36,7 +36,7 @@ export class ShaderData implements IClone {
 	 * @internal
 	 */
 	_initData(): void {
-		this._data = new Object();
+		this._data = {};
 	}
 
 	/**

@@ -235,6 +235,8 @@ export class ShaderInit3D {
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
 
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,
+
 			'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
 			'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
 			'u_SimpleAnimatorTextureSize':Shader3D.PERIOD_SPRITE,
@@ -270,6 +272,9 @@ export class ShaderInit3D {
 			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
+
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,
+			
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
 			'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
 			'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
