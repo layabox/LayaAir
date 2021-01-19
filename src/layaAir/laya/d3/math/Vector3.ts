@@ -370,6 +370,18 @@ export class Vector3 implements IClone {
 		this.z = array[offset + 2];
 	}
 
+	
+	/**
+	 * 写入Array数组
+	 * @param array 数组。
+	 * @param offset 数组偏移。 
+	 */
+	toArray(array:Float32Array,offset:number = 0):void{
+		array[offset + 0] = this.x;
+		array[offset + 1] = this.y;
+		array[offset + 2] = this.z;
+	}
+
 	/**
 	 * 克隆。
 	 * @param	destObject 克隆源。
