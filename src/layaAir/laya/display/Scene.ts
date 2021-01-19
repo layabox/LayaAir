@@ -33,7 +33,7 @@ export class Scene extends Sprite {
     /**@private */
     private _viewCreated: boolean = false;
     /**@internal */
-    _idMap: any;
+    _idMap: any = null;
     /**@internal */
     _$componentType: string = "Scene";
 

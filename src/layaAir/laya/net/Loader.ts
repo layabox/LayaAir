@@ -82,7 +82,7 @@ export class Loader extends EventDispatcher {
 	static TERRAINRES = "TERRAIN";
 
 	/**文件后缀和类型对应表。*/
-	static typeMap: { [key: string]: string } = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" };
+	static typeMap: { [key: string]: string } = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" ,"wasm":"arraybuffer"};
 	/**资源解析函数对应表，用来扩展更多类型的资源加载解析。*/
 	static parserMap: any = {};
 	/**每帧加载完成回调使用的最大超时时间，如果超时，则下帧再处理，防止帧卡顿。*/
@@ -168,10 +168,10 @@ export class Loader extends EventDispatcher {
 			ILaya.WorkerLoader.enableWorkerLoader();
 
 		var cacheRes: any;
-		// if (type == Loader.IMAGE)
-		// 	cacheRes = Loader.textureMap[url];
-		// else
-		cacheRes = Loader.loadedMap[url];
+		if (type == Loader.IMAGE)
+			cacheRes = Loader.textureMap[url];
+		else
+			cacheRes = Loader.loadedMap[url];
 		if (!ignoreCache && cacheRes) {
 			this._data = cacheRes;
 			this.event(Event.PROGRESS, 1);
