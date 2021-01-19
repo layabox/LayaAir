@@ -25,14 +25,14 @@ export class DrawMeshCMD extends Command {
 	/**
 	 * @internal
 	 */
-	static create(mesh:Mesh,matrix:Matrix4x4,material:Material,subMeshIndex:number,_subShaderIndex:number,commandBuffer:CommandBuffer):DrawMeshCMD {
+	static create(mesh:Mesh,matrix:Matrix4x4,material:Material,subMeshIndex:number,subShaderIndex:number,commandBuffer:CommandBuffer):DrawMeshCMD {
 		var cmd: DrawMeshCMD;
 		cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop():new DrawMeshCMD();
 		cmd._mesh = mesh;
 		cmd._matrix = matrix;
 		cmd._material = material;
 		cmd._subMeshIndex = subMeshIndex;
-		cmd._subShaderIndex = _subShaderIndex;
+		cmd._subShaderIndex = subShaderIndex;
 		cmd._commandBuffer = commandBuffer;
 		return cmd;
 	}
@@ -51,7 +51,7 @@ export class DrawMeshCMD extends Command {
 	
 	/**@internal */
 	private _projectionViewWorldMatrix:Matrix4x4 = new Matrix4x4();
-	//test
+	/**@internal */
 	private _renderShaderValue:ShaderData = new ShaderData();
 
 
@@ -69,15 +69,12 @@ export class DrawMeshCMD extends Command {
 	 * @override
 	 */
 	run(): void {
-
 		var renderSubShader:SubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
 		this.setContext(this._commandBuffer._context);
 		var context = this._context;
 		var forceInvertFace: boolean = context.invertY;
 		var scene:Scene3D = context.scene;
 		var cameraShaderValue: ShaderData = context.cameraShaderValue;
-		//this.render._renderUpdate(context, transform);
-		//this.render._renderUpdateWithCamera(context, transform);
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
 		Matrix4x4.multiply(projectionView,this._matrix,this._projectionViewWorldMatrix);
 		this._renderShaderValue.setMatrix4x4(Sprite3D.WORLDMATRIX,this._matrix);
@@ -94,6 +91,7 @@ export class DrawMeshCMD extends Command {
 			comDef.addDefineDatas(this._renderShaderValue._defineDatas);
 			comDef.addDefineDatas(this._material._shaderValues._defineDatas);
 			var shaderIns: ShaderInstance = context.shader = pass.withCompile(comDef);
+			shaderIns.bind();
 			//scene
 			shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, scene._shaderValues,true);
 			//sprite

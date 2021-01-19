@@ -12,6 +12,7 @@ import { Transform3D } from "../../Transform3D";
 import { GeometryElement } from "../../GeometryElement";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { DefineDatas } from "../../../shader/DefineDatas";
+import { Shader3D } from "../../../shader/Shader3D";
 
 
 /**
@@ -51,6 +52,7 @@ export class DrawRenderCMD extends Command {
 		var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		var updateMark: number = Camera._updateMark;
 		var scene: Scene3D = context.scene;
+		this._render._scene = context.scene;
 		var cameraShaderValue: ShaderData = context.cameraShaderValue;
 
 		var transform: Transform3D = renderElement._transform;
@@ -151,8 +153,15 @@ export class DrawRenderCMD extends Command {
 		var renderElements:RenderElement[] = this._render._renderElements;
 		for(var i:number = 0,n = renderElements.length;i<n;i++){
 			var renderelement:RenderElement = renderElements[i];
-			renderelement._update(scene,context,this._material._shader,null,this._subShaderIndex);
+			//renderelement._update(scene,context,this._material._shader,null,this._subShaderIndex);
+			this._renderElementUpdate(renderelement);
 			this._elementRender(renderelement,context);
+		}
+	}
+
+	_renderElementUpdate(renderelement:RenderElement){
+		if (this._material) {//材质可能为空
+			renderelement.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
 		}
 	}
 
