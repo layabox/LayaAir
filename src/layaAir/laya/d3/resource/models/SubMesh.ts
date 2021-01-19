@@ -114,7 +114,7 @@ export class SubMesh extends GeometryElement {
 		}
 
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		var skinnedDatas: any[] = (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData;
+		var skinnedDatas: any[] =state.renderElement? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData:null;
 		var glIndexFormat: number;
 		var byteCount: number;
 		switch (mesh.indexFormat) {

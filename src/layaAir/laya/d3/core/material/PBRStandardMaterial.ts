@@ -54,7 +54,6 @@ export class PBRStandardMaterial extends PBRMaterial {
 			'a_Texcoord1': VertexMesh.MESH_TEXTURECOORDINATE1,
 			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
 			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
-			'a_MvpMatrix': VertexMesh.MESH_MVPMATRIX_ROW0,
 			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0
 		};
 		var uniformMap: any = {

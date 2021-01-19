@@ -186,7 +186,7 @@ export class SubMeshRenderElement extends RenderElement {
 				var insBatchIndex: number = insBatchMarks.indexInList;
 				if (insBatchMarks.batched) {
 					var instanceBatchElementList: SingletonList<SubMeshRenderElement> = elements[insBatchIndex].instanceBatchElementList;
-					if (instanceBatchElementList.length === SubMeshInstanceBatch.instance.maxInstanceCount) {
+					if (instanceBatchElementList.length === SubMeshInstanceBatch.maxInstanceCount) {
 						insBatchMarks.updateMark = insManager._updateCountMark;
 						insBatchMarks.indexInList = queueElements.length;
 						insBatchMarks.batched = false;//是否已有大于两个的元素可合并
@@ -308,7 +308,7 @@ export class SubMeshRenderElement extends RenderElement {
 				} else {
 					if (queue.lastTransparentBatched) {
 						var instanceBatchElementList: SingletonList<SubMeshRenderElement> = elements[queueElements.length - 1].instanceBatchElementList;
-						if (instanceBatchElementList.length === SubMeshInstanceBatch.instance.maxInstanceCount) {
+						if (instanceBatchElementList.length === SubMeshInstanceBatch.maxInstanceCount) {
 							queueElements.add(this);
 							queue.lastTransparentBatched = false;
 						} else {
