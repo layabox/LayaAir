@@ -76,6 +76,18 @@ export class Vector4 implements IClone {
 	}
 
 	/**
+	 * 写入Array数组
+	 * @param array 数组。
+	 * @param offset 数组偏移。 
+	 */
+	toArray(array:Float32Array,offset:number = 0):void{
+		array[offset + 0] = this.x;
+		array[offset + 1] = this.y;
+		array[offset + 2] = this.z;
+		array[offset + 3] = this.w;
+	}
+
+	/**
 	 * 克隆。
 	 * @param	destObject 克隆源。
 	 */
