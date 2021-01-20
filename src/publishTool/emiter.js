@@ -288,9 +288,34 @@ class emiter {
             str += result[0];
             tstr += result[1];
         }
+        let tsExtend = "";
+        if (node.heritageClauses) {
+            for (let i = 0; i < node.heritageClauses.length; i++) {
+                let nodeChild = node.heritageClauses[i];
+                let nodetext = "";
+                for (let j = 0; j < nodeChild.types.length; j++) {
+                    let type = nodeChild.types[j];
+                    //对主类型判断
+                    let typeText = type.expression.getText();
+                    let argtext = "";
+                    //如果有进行检测 加
+                    if (type.typeArguments) {
+                        for (let n = 0; n < type.typeArguments.length; n++) {
+                            let typenode = this.emitTsType(type.typeArguments[i]);
+                            argtext += (n ? "|" : "<") + typenode;
+                        }
+                        argtext += ">";
+                    }
+                    if (this.importArr[typeText] && !this.url)
+                        typeText = "Laya." + typeText;
+                    nodetext += (j ? "," : "") + typeText + argtext;
+                }
+                tsExtend += " extends " + nodetext + " ";
+            }
+        }
         let nodeName = this.classNameNow = node.name.getText();
         str = "\tpublic interface " + nodeName + " {\r\n" + str + "\t}\r\n";
-        tstr = "\tinterface " + nodeName + "{\r\n" + tstr + "\t}\r\n";
+        tstr = "\tinterface " + nodeName + tsExtend + "{\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
         // this.outputObj.push({"asCode":note + str,"url":this.url + "\\" + nodeName + ".as"});
         return [note + str, note + tstr];
