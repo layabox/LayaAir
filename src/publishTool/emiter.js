@@ -24,6 +24,8 @@ class emiter {
         this.classNameNow = "";
         /** 输出结构 */
         this.outputObj = [];
+        /** 记录命名空间 */
+        this.nameSpace = {};
         this.VISITORS = {
             "ImportDeclaration": this.emitImport,
             "ClassDeclaration": this.emitClass,
@@ -67,14 +69,12 @@ class emiter {
                 if (!this.innerClass) {
                     this.innerClass = true;
                 }
-                else {
-                    if (this.needimportArr.length) {
-                        for (let i = 0; i < this.needimportArr.length; i++) {
-                            let key = this.needimportArr[i];
-                            if (this.importArr[key] && this.importArr[key] != key) {
-                                //检测是否需要添加引用
-                                this.outString = "\timport " + this.importArr[key] + ";\r\n" + this.outString;
-                            }
+                if (this.needimportArr.length) {
+                    for (let i = 0; i < this.needimportArr.length; i++) {
+                        let key = this.needimportArr[i];
+                        if (this.importArr[key] && this.importArr[key] != key) {
+                            //检测是否需要添加引用
+                            this.outString = "\timport " + this.importArr[key] + ";\r\n" + this.outString;
                         }
                     }
                 }
@@ -140,6 +140,7 @@ class emiter {
         let nodes = node.getChildren();
         let _node, type;
         let importName = [];
+        let namespace = [];
         for (let i = 0; i < nodes.length; i++) {
             _node = nodes[i];
             type = ts.SyntaxKind[_node.kind];
@@ -155,10 +156,17 @@ class emiter {
                 }
             }
             else if (type == "ImportClause") {
-                let importNode = _node.namedBindings;
-                if (importNode.elements) {
-                    for (let j = 0; j < importNode.elements.length; j++) {
-                        importName.push(importNode.elements[j].getText());
+                let importNode = _node.namedBindings; // as ts.NamedImports;
+                type = ts.SyntaxKind[importNode.kind];
+                if (type == "NamespaceImport") {
+                    namespace.push(importNode.name.getText() + ".");
+                }
+                else {
+                    let elements = importNode.elements;
+                    if (elements) {
+                        for (let j = 0; j < elements.length; j++) {
+                            importName.push(elements[j].getText());
+                        }
                     }
                 }
             }
@@ -169,6 +177,11 @@ class emiter {
         let topPath = path.join(classPath, "../").replace(new RegExp("\\\\|/", "g"), ".");
         classPath = classPath.replace(new RegExp("\\\\|/", "g"), ".");
         var asstr = "";
+        if (namespace.length) {
+            for (let i = 0; i < namespace.length; i++) {
+                this.nameSpace[namespace[i]] = topPath;
+            }
+        }
         if (importName.length) {
             for (let i = 0; i < importName.length; i++) {
                 this.importArr[importName[i]] = topPath + importName[i];
@@ -606,6 +619,9 @@ class emiter {
                 if (emiter.jscObj && emiter.jscObj[type]) {
                     type = emiter.jscObj[type];
                 }
+                if (Object.keys(this.nameSpace).length) {
+                    type = this.emitNameSpace(type);
+                }
                 this.needimportArr.indexOf(type) == -1 && this.needimportArr.push(type);
                 return type;
             case "TypeQuery":
@@ -664,6 +680,9 @@ class emiter {
                 }
                 type += ">";
             }
+            else if (Object.keys(this.nameSpace).length) {
+                type = this.emitNameSpace(type);
+            }
             else if (this.importArr[type])
                 type = this.importArr[type];
         }
@@ -672,15 +691,8 @@ class emiter {
             if (type == "ArrayType") {
                 let ele = node.elementType;
                 if (ts.SyntaxKind[ele.kind] == "TypeReference") {
-                    type = ele.getText();
-                    if (this.importArr[type]) {
-                        return this.importArr[type] + "[]";
-                    }
-                    else {
-                        if (emiter._typeArr.indexOf(type) == -1)
-                            console.log("未知类型", type);
-                        return type + "[]";
-                    }
+                    type = this.emitTsType(ele);
+                    return type + "[]";
                 }
                 else
                     type = node.getText();
@@ -758,6 +770,21 @@ class emiter {
             // }
             return ["", str];
         }
+    }
+    /**
+     * 编译namespace相关类型
+     * @param type
+     */
+    emitNameSpace(type) {
+        for (const key in this.nameSpace) {
+            if (type.indexOf(key) === 0) {
+                let needtype = type.replace(key, this.nameSpace[key]);
+                type = type.replace(key, "");
+                this.importArr[type] = needtype;
+                return type;
+            }
+        }
+        return type;
     }
     /**
      * 添加注释
