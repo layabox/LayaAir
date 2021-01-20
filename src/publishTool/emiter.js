@@ -260,6 +260,8 @@ class emiter {
                         argtext += ">";
                     }
                     nodetextAS += (j ? "," : "") + typeText;
+                    if (this.importArr[typeText] && !this.url)
+                        typeText = "Laya." + typeText;
                     nodetext += (j ? "," : "") + typeText + argtext;
                 }
                 if (kind.indexOf("extends") == -1)
@@ -281,9 +283,12 @@ class emiter {
         str = "\tpublic class " + nodeName + " " + extendstr + "{\r\n" + str + "\t}\r\n";
         tstr = "\tclass " + nodeName + typestr + " " + tsExtend + " {\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
-        if (this.url != "")
-            emiter.dtsData += note + tstr; //note + "\r\n\tclass " + nodeName + typestr  + " extends " + this.url.replace(new RegExp("\\\\","g"),".") + "." + nodeName + typestr + " {}\r\n"
-        return [note + str, ""];
+        let tsreturn = note + tstr;
+        if (this.url != "") {
+            emiter.dtsData += tsreturn; //note + "\r\n\tclass " + nodeName + typestr  + " extends " + this.url.replace(new RegExp("\\\\","g"),".") + "." + nodeName + typestr + " {}\r\n"
+            tsreturn = "";
+        }
+        return [note + str, tsreturn];
     }
     /**
      * 生成接口文件
@@ -680,17 +685,16 @@ class emiter {
                     type = arr[arr.length - 1];
                 }
             }
-            // else if(this.importArr[type]){
-            //     type = "Laya." + type;
-            // }
+            else if (this.importArr[type] && !this.url) {
+                type = "Laya." + type;
+            }
         }
         else {
             type = ts.SyntaxKind[node.kind];
             if (type == "ArrayType") {
                 let ele = node.elementType;
                 if (ts.SyntaxKind[ele.kind] == "TypeReference") {
-                    type = this.emitTsType(ele);
-                    return type + "[]";
+                    return this.emitTsType(ele) + "[]";
                 }
                 else
                     type = node.getText();
@@ -735,8 +739,8 @@ class emiter {
                 type = node.getText();
             }
         }
-        // if(this.importArr[type])
-        //     return "Laya." + type;
+        if (this.importArr[type] && !this.url)
+            return "Laya." + type;
         return type;
     }
     emitArray(node) {
