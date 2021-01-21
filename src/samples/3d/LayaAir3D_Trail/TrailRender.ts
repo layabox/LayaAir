@@ -36,9 +36,9 @@ export class TrailRender {
 		directionLight.color = new Vector3(1, 1, 1);
 		directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
 
-		// Sprite3D.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, function (plane: Sprite3D): void {
-		// 	scene.addChild(plane);
-		// }));
+		Sprite3D.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, function (plane: Sprite3D): void {
+			scene.addChild(plane);
+		}));
 
 		Sprite3D.load("res/threeDimen/trail/Cube.lh", Handler.create(this, function (sprite: Sprite3D): void {
 			scene.addChild(sprite);
