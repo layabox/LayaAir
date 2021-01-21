@@ -165,7 +165,7 @@ void main()
 				float shadowAttenuation=sampleShadowmap(shadowCoord);
 				dif *= shadowAttenuation;
 				spe *= shadowAttenuation;
-				transmis *=shadowAttenuation
+				transmis *=shadowAttenuation;
 			#endif
 			diffuse+=dif;
 			specular+=spe;
@@ -186,7 +186,7 @@ void main()
 				float spotShadowAttenuation = sampleSpotShadowmap(spotShadowcoord);
 				dif *= spotShadowAttenuation;
 				spe *= spotShadowAttenuation;
-				transmis *=spotShadowAttenuation
+				transmis *=spotShadowAttenuation;
 			#endif
 			diffuse+=dif;
 			specular+=spe;
