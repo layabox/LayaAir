@@ -199,7 +199,7 @@ export class glTFUtils {
         let extra: { [name: string]: Handler } = glTFUtils.Extras[context] || (glTFUtils.Extras[context] = {});
         if (recoverHandler) {
             let extraHandler: Handler = extra[extraName];
-            extraHandler.recover();
+            extraHandler && extraHandler.recover();
         }
         delete extra[extraName];
     }
