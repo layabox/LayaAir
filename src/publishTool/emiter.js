@@ -106,6 +106,7 @@ class emiter {
     /**
      * 生成枚举
      * @param node
+     * @return 不生成全包代码
      */
     emitEnum(node) {
         let nodeName = node.name.getText();
@@ -129,7 +130,7 @@ class emiter {
         asCode = "\r\n\tpublic class " + nodeName + " {\r\n" + asCode + "\r\n\t}";
         asCode = this.changeIndex(node, "\r\n") + "package " + packageName + " {\r\n" + asCode + "\r\n}";
         this.outputObj.push({ "asCode": asCode, "url": this.url + "\\" + nodeName + ".as" });
-        return ["", tsstr];
+        return ["", ""];
     }
     /**
      * 生成import
@@ -253,16 +254,14 @@ class emiter {
                     //如果有进行检测 加
                     if (type.typeArguments) {
                         for (let n = 0; n < type.typeArguments.length; n++) {
-                            let typenode = type.typeArguments[n].getText();
-                            if (this.importArr[typenode])
-                                typenode = this.importArr[typenode];
+                            let typenode = this.emitTsType(type.typeArguments[i]);
                             argtext += (n ? "|" : "<") + typenode;
                         }
                         argtext += ">";
                     }
                     nodetextAS += (j ? "," : "") + typeText;
-                    if (this.importArr[typeText])
-                        typeText = this.importArr[typeText];
+                    if (this.importArr[typeText] && !this.url)
+                        typeText = "Laya." + typeText;
                     nodetext += (j ? "," : "") + typeText + argtext;
                 }
                 if (kind.indexOf("extends") == -1)
@@ -284,9 +283,12 @@ class emiter {
         str = "\tpublic class " + nodeName + " " + extendstr + "{\r\n" + str + "\t}\r\n";
         tstr = "\tclass " + nodeName + typestr + " " + tsExtend + " {\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
-        if (this.url != "")
-            emiter.dtsData += note + "\r\n\tclass " + nodeName + typestr + " extends " + this.url.replace(new RegExp("\\\\", "g"), ".") + "." + nodeName + typestr + " {}\r\n";
-        return [note + str, note + tstr];
+        let tsreturn = note + tstr;
+        if (this.url != "") {
+            emiter.dtsData += tsreturn; //note + "\r\n\tclass " + nodeName + typestr  + " extends " + this.url.replace(new RegExp("\\\\","g"),".") + "." + nodeName + typestr + " {}\r\n"
+            tsreturn = "";
+        }
+        return [note + str, tsreturn];
     }
     /**
      * 生成接口文件
@@ -301,12 +303,38 @@ class emiter {
             str += result[0];
             tstr += result[1];
         }
+        let tsExtend = "";
+        if (node.heritageClauses) {
+            for (let i = 0; i < node.heritageClauses.length; i++) {
+                let nodeChild = node.heritageClauses[i];
+                let nodetext = "";
+                for (let j = 0; j < nodeChild.types.length; j++) {
+                    let type = nodeChild.types[j];
+                    //对主类型判断
+                    let typeText = type.expression.getText();
+                    let argtext = "";
+                    //如果有进行检测 加
+                    if (type.typeArguments) {
+                        for (let n = 0; n < type.typeArguments.length; n++) {
+                            let typenode = this.emitTsType(type.typeArguments[i]);
+                            argtext += (n ? "|" : "<") + typenode;
+                        }
+                        argtext += ">";
+                    }
+                    if (this.importArr[typeText] && !this.url)
+                        typeText = "Laya." + typeText;
+                    nodetext += (j ? "," : "") + typeText + argtext;
+                }
+                tsExtend += " extends " + nodetext + " ";
+            }
+        }
         let nodeName = this.classNameNow = node.name.getText();
         str = "\tpublic interface " + nodeName + " {\r\n" + str + "\t}\r\n";
-        tstr = "\tinterface " + nodeName + "{\r\n" + tstr + "\t}\r\n";
+        tstr = "\tinterface " + nodeName + tsExtend + "{\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
+        emiter.dtsData += "\r\n" + tstr + "\r\n";
         // this.outputObj.push({"asCode":note + str,"url":this.url + "\\" + nodeName + ".as"});
-        return [note + str, note + tstr];
+        return [note + str, ""];
     }
     /**
      * 生成接口方法
@@ -411,10 +439,10 @@ class emiter {
                 tspro += childnode.getText() + " ";
             }
         }
-        propertystr += "function get ";
+        propertystr += "var ";
         // let isGetset = propertystr.indexOf("function get") != -1;
         let note = this.changeIndex(node, "\r\n\t\t");
-        propertystr += node.name.getText() + "():" + this.emitType(node.type);
+        propertystr += node.name.getText() + ":" + this.emitType(node.type);
         tspro += node.name.getText() + (node.questionToken ? "?" : "") + ":" + this.emitTsType(node.type);
         return [note + propertystr + ";\r\n", note + tspro + ";\r\n"];
     }
@@ -651,12 +679,7 @@ class emiter {
         if (!node)
             return "any";
         if (node.exprName) {
-            type = node.exprName.getText();
-            if (ts.SyntaxKind[node.kind] == "TypeQuery") {
-                if (this.importArr[type])
-                    type = this.importArr[type];
-                return "typeof " + type;
-            }
+            return "typeof " + this.emitTsType(node.exprName);
         }
         else if (node.typeName) {
             type = node.typeName.getText();
@@ -681,18 +704,22 @@ class emiter {
                 type += ">";
             }
             else if (Object.keys(this.nameSpace).length) {
-                type = this.emitNameSpace(type);
+                let newtype = this.emitNameSpace(type);
+                if (type != newtype) {
+                    let arr = newtype.split(".");
+                    type = arr[arr.length - 1];
+                }
             }
-            else if (this.importArr[type])
-                type = this.importArr[type];
+            else if (this.importArr[type] && !this.url) {
+                type = "Laya." + type;
+            }
         }
         else {
             type = ts.SyntaxKind[node.kind];
             if (type == "ArrayType") {
                 let ele = node.elementType;
                 if (ts.SyntaxKind[ele.kind] == "TypeReference") {
-                    type = this.emitTsType(ele);
-                    return type + "[]";
+                    return this.emitTsType(ele) + "[]";
                 }
                 else
                     type = node.getText();
@@ -737,8 +764,8 @@ class emiter {
                 type = node.getText();
             }
         }
-        if (this.importArr[type])
-            return this.importArr[type];
+        if (this.importArr[type] && !this.url)
+            return "Laya." + type;
         return type;
     }
     emitArray(node) {
