@@ -29,8 +29,6 @@ export class BlinnPhongMaterial extends Material {
 	/**@internal */
 	static SHADERDEFINE_SPECULARMAP: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
-	/**@internal */
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_ENABLETRANSMISSION:ShaderDefine;
@@ -71,7 +69,6 @@ export class BlinnPhongMaterial extends Material {
 		BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP = Shader3D.getDefineByName("DIFFUSEMAP");
 		BlinnPhongMaterial.SHADERDEFINE_NORMALMAP = Shader3D.getDefineByName("NORMALMAP");
 		BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP = Shader3D.getDefineByName("SPECULARMAP");
-		BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 		BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION = Shader3D.getDefineByName("ENABLETRANSMISSION");
 		BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP = Shader3D.getDefineByName("THICKNESSMAP");
@@ -404,14 +401,11 @@ export class BlinnPhongMaterial extends Material {
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-				this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET);
-			else
-				this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET);
-		} else {
-			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.setVector(BlinnPhongMaterial.TILINGOFFSET, value);
 		}
-		this._shaderValues.setVector(BlinnPhongMaterial.TILINGOFFSET, value);
+		else {
+			this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
 	}
 
 	/**

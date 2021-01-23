@@ -20,7 +20,6 @@ export class UnlitMaterial extends Material {
 	static RENDERMODE_ADDTIVE: number = 3;
 
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
-	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
@@ -35,7 +34,6 @@ export class UnlitMaterial extends Material {
 	 */
 	static __initDefine__(): void {
 		UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
-		UnlitMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 	}
 
@@ -329,14 +327,11 @@ export class UnlitMaterial extends Material {
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-				this._shaderValues.addDefine(UnlitMaterial.SHADERDEFINE_TILINGOFFSET);
-			else
-				this._shaderValues.removeDefine(UnlitMaterial.SHADERDEFINE_TILINGOFFSET);
-		} else {
-			this._shaderValues.removeDefine(UnlitMaterial.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, value);
 		}
-		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, value);
+		else {
+			this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
 	}
 
 	/**
@@ -394,6 +389,7 @@ export class UnlitMaterial extends Material {
 		super();
 		this.setShaderName("Unlit");
 		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
+		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this.renderMode = UnlitMaterial.RENDERMODE_OPAQUE;
 	}
 

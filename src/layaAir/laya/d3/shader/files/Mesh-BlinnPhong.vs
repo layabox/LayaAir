@@ -76,11 +76,7 @@ varying vec3 v_Normal;
 	varying vec4 v_SpotShadowCoord;
 #endif
 
-#ifdef TILINGOFFSET
-	uniform vec4 u_TilingOffset;
-#endif
-
-
+uniform vec4 u_TilingOffset;
 
 void main()
 {
@@ -148,11 +144,7 @@ void main()
 	#endif
 
 	#if defined(DIFFUSEMAP)||defined(THICKNESSMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
-		#ifdef TILINGOFFSET
-			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
-		#else
-			v_Texcoord0=a_Texcoord0;
-		#endif
+		v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 	#endif
 
 	#ifdef LIGHTMAP
