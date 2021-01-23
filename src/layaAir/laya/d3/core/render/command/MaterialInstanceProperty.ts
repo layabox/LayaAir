@@ -1,10 +1,10 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { SubMeshInstanceBatch } from "../../../graphics/SubMeshInstanceBatch";
 import { VertexBuffer3D } from "../../../graphics/VertexBuffer3D";
 import { VertexDeclaration } from "../../../graphics/VertexDeclaration";
 import { Vector2 } from "../../../math/Vector2";
 import { Vector3 } from "../../../math/Vector3";
 import { Vector4 } from "../../../math/Vector4";
+import { DrawMeshInstancedCMD } from "./DrawMeshInstancedCMD";
 
 /**
  * @internal
@@ -32,7 +32,7 @@ export class MaterialInstanceProperty{
 	 */
 	createInstanceVertexBuffer3D(){
 		var gl = LayaGL.instance;
-		this._instanceData = new Float32Array(SubMeshInstanceBatch.maxInstanceCount*this._vertexStride);
+		this._instanceData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount*this._vertexStride);
 		this._vertexBuffer = new VertexBuffer3D(this._instanceData.length*4,gl.DYNAMIC_DRAW);
 		this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
 	}
@@ -41,7 +41,7 @@ export class MaterialInstanceProperty{
 	 * @internal
 	 * 更新顶点数据
 	 */
-	updateVertexBufferData(){
+	updateVertexBufferData(drawNums:number){
 		//更新数据
 		if(!this._isNeedUpdate)
 			return;
@@ -50,13 +50,16 @@ export class MaterialInstanceProperty{
 		let datalength = this._value.length;
 		let data:Vector2|Vector3|Vector4;
 		let stride = this._vertexStride;
-		switch(stride){
-			case 1:
+		let updateType = 0;
+		if(!(this._value instanceof Float32Array)){
+			updateType = 1;//判断为Vector数据
+		}
+
+		switch(updateType){
+			case 0:
 				instanceData.set(<Float32Array>dataValue,0);
 				break;
-			case 2:
-			case 3:
-			case 4:
+			case 1:
 				for (let i = 0; i < datalength; i++) {
 					data = <Vector2|Vector3|Vector4>dataValue[i];
 					data.toArray(instanceData,i*stride);
@@ -64,6 +67,6 @@ export class MaterialInstanceProperty{
 				break;
 		}
 		this._vertexBuffer.orphanStorage();
-		this._vertexBuffer.setData(instanceData.buffer,0,0,dataValue.length*4*stride);
+		this._vertexBuffer.setData(instanceData.buffer,0,0,drawNums*4*(updateType?stride:1));
 	}
 }

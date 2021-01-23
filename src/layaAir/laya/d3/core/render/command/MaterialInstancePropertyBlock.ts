@@ -76,7 +76,7 @@ export class MaterialInstancePropertyBlock{
 	 * @param arrays 数据
 	 * @param attributeLocation  属性Shader位置（需要与shader中的声明Attribute一一对应）
 	 */
-	setVectorArray(attributeName:string,arrays:Vector4[],attributeLocation:InstanceLocation):void{
+	setVectorArray(attributeName:string,arrays:Vector4[]|Float32Array,attributeLocation:InstanceLocation):void{
 		var prob = this._propertyMap[attributeLocation];
 		if(prob){
 			//判断匹配
@@ -93,7 +93,7 @@ export class MaterialInstancePropertyBlock{
 	 * @param arrays 数据
 	 * @param attributeLocation 属性shader位置（需要与shader中的声明Attribute一一对应）
 	 */
-	setVector3Array(attributeName:string,arrays:Vector3[],attributeLocation:InstanceLocation){
+	setVector3Array(attributeName:string,arrays:Vector3[]|Float32Array,attributeLocation:InstanceLocation){
 		var prob = this._propertyMap[attributeLocation];
 		if(prob){
 			//判断匹配
@@ -110,7 +110,7 @@ export class MaterialInstancePropertyBlock{
 	 * @param arrays 数据
 	 * @param attributeLocation 属性shader位置（需要与shader中的声明Attribute一一对应）
 	 */
-	setVector2Array(attributeName:string,arrays:Vector2[],attributeLocation:InstanceLocation){
+	setVector2Array(attributeName:string,arrays:Vector2[]|Float32Array,attributeLocation:InstanceLocation){
 		var prob = this._propertyMap[attributeLocation];
 		if(prob){
 			//判断匹配
