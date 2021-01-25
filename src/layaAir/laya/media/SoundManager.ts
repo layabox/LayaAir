@@ -323,14 +323,14 @@ export class SoundManager {
             if (SoundManager._soundMuted) return null;
         }
         var tSound: Sound;
-        if (!Browser.isMiniGame) {
+        if (!Browser._isMiniGame) {
             tSound = ILaya.loader.getRes(url);
         }
         if (!soundClass) soundClass = SoundManager._soundClass;
         if (!tSound) {
             tSound = new soundClass();
             tSound.load(url);
-            if (!Browser.isMiniGame) {
+            if (!Browser._isMiniGame) {
                 ILaya.Loader.cacheRes(url, tSound);
             }
         }
