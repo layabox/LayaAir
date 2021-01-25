@@ -18,7 +18,6 @@ export class TrailMaterial extends Material {
 	static defaultMaterial: TrailMaterial;
 
 	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
-	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
 	static MAINTEXTURE: number = Shader3D.propertyNameToID("u_MainTexture");
@@ -31,7 +30,6 @@ export class TrailMaterial extends Material {
 	 */
 	static __initDefine__(): void {
 		TrailMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
-		TrailMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		TrailMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
 	}
 
@@ -371,20 +369,18 @@ export class TrailMaterial extends Material {
 	 */
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-				this._shaderValues.addDefine(TrailMaterial.SHADERDEFINE_TILINGOFFSET);
-			else
-				this._shaderValues.removeDefine(TrailMaterial.SHADERDEFINE_TILINGOFFSET);
-		} else {
-			this._shaderValues.removeDefine(TrailMaterial.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.setVector(TrailMaterial.TILINGOFFSET, value);
 		}
-		this._shaderValues.setVector(TrailMaterial.TILINGOFFSET, value);
+		else {
+			this._shaderValues.getVector(TrailMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
 	}
 
 	constructor() {
 		super();
 		this.setShaderName("Trail");
 		this._color = new Vector4(1.0, 1.0, 1.0, 1.0);
+		this._shaderValues.setVector(TrailMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this._shaderValues.setVector(TrailMaterial.TINTCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = TrailMaterial.RENDERMODE_ALPHABLENDED;
 	}

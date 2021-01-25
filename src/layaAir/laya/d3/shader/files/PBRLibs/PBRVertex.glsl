@@ -51,11 +51,7 @@ void vertexForward()
 	v_PositionWorld=(worldMat*position).xyz;
 
 	#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
-		#ifdef TILINGOFFSET
-			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
-		#else
-			v_Texcoord0=a_Texcoord0;
-		#endif
+		v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 	#endif
 
 	v_EyeVec =u_CameraPos-v_PositionWorld;//will normalize per-pixel

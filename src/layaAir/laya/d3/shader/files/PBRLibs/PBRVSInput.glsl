@@ -54,6 +54,4 @@ varying float v_posViewZ;
 	varying vec4 v_SpotShadowCoord;
 #endif
 
-#ifdef TILINGOFFSET
-	uniform vec4 u_TilingOffset;
-#endif
+uniform vec4 u_TilingOffset;

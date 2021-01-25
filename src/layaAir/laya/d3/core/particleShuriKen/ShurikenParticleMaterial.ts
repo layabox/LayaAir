@@ -19,8 +19,6 @@ export class ShurikenParticleMaterial extends Material {
 	static SHADERDEFINE_DIFFUSEMAP: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_TINTCOLOR: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 	/**@interanl */
 	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
@@ -41,7 +39,6 @@ export class ShurikenParticleMaterial extends Material {
 		ShurikenParticleMaterial.SHADERDEFINE_DIFFUSEMAP = Shader3D.getDefineByName("DIFFUSEMAP");
 		ShurikenParticleMaterial.SHADERDEFINE_TINTCOLOR = Shader3D.getDefineByName("TINTCOLOR");
 		ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
-		ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 	}
 
 	/**@internal */
@@ -344,14 +341,11 @@ export class ShurikenParticleMaterial extends Material {
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-				this._shaderValues.addDefine(ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET);
-			else
-				this._shaderValues.removeDefine(ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET);
-		} else {
-			this._shaderValues.removeDefine(ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.setVector(ShurikenParticleMaterial.TILINGOFFSET, value);
 		}
-		this._shaderValues.setVector(ShurikenParticleMaterial.TILINGOFFSET, value);
+		else {
+			this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
 	}
 
 	/**
@@ -378,6 +372,7 @@ export class ShurikenParticleMaterial extends Material {
 		super();
 		this.setShaderName("PARTICLESHURIKEN");
 		this._color = new Vector4(1.0, 1.0, 1.0, 1.0);
+		this._shaderValues.setVector(ShurikenParticleMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this.renderMode = ShurikenParticleMaterial.RENDERMODE_ALPHABLENDED;//默认加色法会自动加上雾化宏定义，导致非加色法从材质读取完后未移除宏定义。
 	}
 
