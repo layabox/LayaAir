@@ -112,7 +112,7 @@ import { CameraDepthModeTextureDemo } from "../3d/LayaAir3D_Advance/CameraDepthM
 import { PostProcess_Edge } from "../3d/LayaAir3D_PostProcess/PostProcess_Edge";
 import { LoadGltfRosource } from "../3d/LayaAir3D_Resource/LoadGltfResource";
 import { CommandBuffer_DrawCustomInstance } from "../3d/LayaAir3D_Advance/CommandBuffer_DrawCustomInstance";
-import { GrassDemo } from "../3d/LayaAir3D_Advance/GrassRender/GrassDemo";
+import { GrassDemo } from "../3d/LayaAir3D_Demo/GrassRender/GrassDemo";
 import { Blinnphong_Transmission } from "../3d/LayaAir3D_Material/BlinnPhong_Transmission";
 
 export class IndexView3D extends IndexViewUI {
