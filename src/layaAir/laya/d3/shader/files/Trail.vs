@@ -75,11 +75,7 @@ void main()
 {
 	float normalizeTime = (u_CurTime - a_BirthTime) / u_LifeTime;
 	
-	#ifdef TILINGOFFSET
-		v_Texcoord0 = vec2(a_Texcoord0X, 1.0 - a_Texcoord0Y) * u_TilingOffset.xy + u_TilingOffset.zw;
-	#else
-		v_Texcoord0 = vec2(a_Texcoord0X, a_Texcoord0Y);
-	#endif
+	v_Texcoord0 = vec2(a_Texcoord0X, 1.0 - a_Texcoord0Y) * u_TilingOffset.xy + u_TilingOffset.zw;
 	
 	v_Color = a_Color;
 	

@@ -22,9 +22,7 @@ attribute vec2 a_Texcoord0;
 #endif
 varying vec2 v_Texcoord0;
 
-#ifdef TILINGOFFSET
-	uniform vec4 u_TilingOffset;
-#endif
+uniform vec4 u_TilingOffset;
 
 #ifdef BONE
 	const int c_MaxBoneCount = 24;
@@ -67,11 +65,7 @@ void main()
 		gl_Position = u_MvpMatrix * position;
 	#endif
 	
-	#ifdef TILINGOFFSET
-		v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
-	#else
-		v_Texcoord0=a_Texcoord0;
-	#endif
+	v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 		
 	#ifdef COLOR
 		v_Color = a_Color;

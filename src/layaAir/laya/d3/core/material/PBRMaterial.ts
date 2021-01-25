@@ -37,8 +37,6 @@ export class PBRMaterial extends Material {
     /** @internal */
     static SHADERDEFINE_EMISSIONTEXTURE: ShaderDefine;
     /** @internal */
-    static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
-    /** @internal */
     static SHADERDEFINE_TRANSPARENTBLEND: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_LAYA_PBR_BRDF_HIGH: ShaderDefine;
@@ -85,7 +83,6 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = Shader3D.getDefineByName("OCCLUSIONTEXTURE");
         PBRMaterial.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
         PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
-        PBRMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
         PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH = Shader3D.getDefineByName("LAYA_PBR_BRDF_HIGH");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW = Shader3D.getDefineByName("LAYA_PBR_BRDF_LOW");
@@ -274,14 +271,11 @@ export class PBRMaterial extends Material {
 
     set tilingOffset(value: Vector4) {
         if (value) {
-            if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-                this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_TILINGOFFSET);
-            else
-                this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_TILINGOFFSET);
-        } else {
-            this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_TILINGOFFSET);
-        }
-        this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, value);
+			this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, value);
+		}
+		else {
+			this._shaderValues.getVector(PBRMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
     }
 
 
@@ -340,6 +334,7 @@ export class PBRMaterial extends Material {
         super();
         this._shaderValues.setVector(PBRMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
         this._shaderValues.setVector(PBRMaterial.EMISSIONCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
+        this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, 0.5);
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSCALE, 1.0);
         this._shaderValues.setNumber(PBRMaterial.OCCLUSIONSTRENGTH, 1.0);

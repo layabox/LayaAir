@@ -18,8 +18,6 @@ export class EffectMaterial extends Material {
 	/**@internal */
 	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
-	/**@internal */
 	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 	/**@internal */
 	static MAINTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
@@ -33,7 +31,6 @@ export class EffectMaterial extends Material {
 	 */
 	static __initDefine__(): void {
 		EffectMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
-		EffectMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		EffectMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
 	}
 
@@ -316,14 +313,11 @@ export class EffectMaterial extends Material {
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-				this._shaderValues.addDefine(EffectMaterial.SHADERDEFINE_TILINGOFFSET);
-			else
-				this._shaderValues.removeDefine(EffectMaterial.SHADERDEFINE_TILINGOFFSET);
-		} else {
-			this._shaderValues.removeDefine(EffectMaterial.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.setVector(EffectMaterial.TILINGOFFSET, value);
 		}
-		this._shaderValues.setVector(EffectMaterial.TILINGOFFSET, value);
+		else {
+			this._shaderValues.getVector(EffectMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
 	}
 
 
@@ -334,6 +328,7 @@ export class EffectMaterial extends Material {
 		super();
 		this.setShaderName("Effect");
 		this._color = new Vector4(1.0, 1.0, 1.0, 1.0);
+		this._shaderValues.setVector(EffectMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this._shaderValues.setVector(EffectMaterial.TINTCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = EffectMaterial.RENDERMODE_ADDTIVE;
 	}
