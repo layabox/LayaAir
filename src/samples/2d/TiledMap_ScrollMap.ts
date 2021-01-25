@@ -88,7 +88,7 @@ export class TiledMap_ScrollMap {
 		Laya.stage.off(Event.MOUSE_MOVE, this, this.mouseMove);
 		if (this.tiledMap) {
 			this.tiledMap.destroy();
-			Resource.destroyUnusedResources();
+			// Resource.destroyUnusedResources();
 		}
 	}
 }

@@ -40,7 +40,7 @@ export class TiledMap_AnimationTile {
 		if (this.tiledMap) {
 			this.tiledMap.mapSprite().removeChildren();
 			this.tiledMap.destroy();
-			Resource.destroyUnusedResources();
+			// Resource.destroyUnusedResources();
 		}
 	}
 }
