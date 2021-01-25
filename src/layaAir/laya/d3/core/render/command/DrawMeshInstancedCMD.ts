@@ -26,14 +26,18 @@ export class DrawMeshInstancedCMD extends Command {
 	private static _pool: DrawMeshInstancedCMD[] = [];
 	/**@internal */
 	private static _compileDefine:DefineDatas = new DefineDatas();
+
+	/**设置最大DrawInstance数 */
+	static maxInstanceCount = 1024;
+
 	/**
 	 * 创建一个命令流
 	 * @internal
 	 */
 	static create(mesh:Mesh,subMeshIndex:number,matrixs:Matrix4x4[],material:Material,subShaderIndex:number,instanceProperty:MaterialInstancePropertyBlock,drawnums:number,commandBuffer:CommandBuffer):DrawMeshInstancedCMD {
 		var cmd: DrawMeshInstancedCMD;
-		if(matrixs.length>1024||drawnums>1024){
-			throw "Matrixs or the number of renderings exceeds the maximum number of merges";
+		if((matrixs&&matrixs.length>1024)||drawnums>DrawMeshInstancedCMD.maxInstanceCount){
+			throw "the number of renderings exceeds the maximum number of merges";
 		}
 		cmd = DrawMeshInstancedCMD._pool.length > 0 ? DrawMeshInstancedCMD._pool.pop():new DrawMeshInstancedCMD();
 		cmd._mesh = mesh;
@@ -44,7 +48,7 @@ export class DrawMeshInstancedCMD extends Command {
 		cmd._commandBuffer = commandBuffer;
 		cmd._instanceProperty = instanceProperty;
 		cmd._drawnums = drawnums;
-		cmd._updateWorldMatrixBuffer();
+		matrixs||cmd._updateWorldMatrixBuffer();
 		cmd._setInstanceBuffer();
 		return cmd;
 	}
@@ -70,7 +74,7 @@ export class DrawMeshInstancedCMD extends Command {
 	/**@internal */
 	private _renderShaderValue:ShaderData;
 	/**@internal 世界矩阵数据*/
-	private _instanceWorldMatrixData:Float32Array = new Float32Array( SubMeshInstanceBatch.maxInstanceCount*16);
+	private _instanceWorldMatrixData:Float32Array;
 	/**@internal 世界矩阵buffer*/
 	private _instanceWorldMatrixBuffer:VertexBuffer3D;
 
@@ -79,8 +83,8 @@ export class DrawMeshInstancedCMD extends Command {
 		super();
 		this._renderShaderValue = new ShaderData(null);
 		let gl = LayaGL.instance;
+		this._instanceWorldMatrixData = new Float32Array( DrawMeshInstancedCMD.maxInstanceCount*16);
 		this._instanceWorldMatrixBuffer = new VertexBuffer3D(this._instanceWorldMatrixData.length*4,gl.DYNAMIC_DRAW);
-		this._instanceWorldMatrixData = this._instanceWorldMatrixData;
 		this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
 	}
 
@@ -171,7 +175,7 @@ export class DrawMeshInstancedCMD extends Command {
 		let propertyMap = this._instanceProperty._propertyMap;
 		for(let i in propertyMap){
 			//更新自定义Instancebuffer
-			propertyMap[i].updateVertexBufferData();
+			propertyMap[i].updateVertexBufferData(this._drawnums);
 		}
 
 		//drawInstanceElement
@@ -202,7 +206,7 @@ export class DrawMeshInstancedCMD extends Command {
 		if(worldMatrixArray.length<this._drawnums)
 			throw "worldMatrixArray length is less then drawnums";
 		this._matrixs = worldMatrixArray;
-		this._updateWorldMatrixBuffer();
+		this._matrixs&&this._updateWorldMatrixBuffer();
 	}
 
 	/**
@@ -210,10 +214,10 @@ export class DrawMeshInstancedCMD extends Command {
 	 * @param drawNums 
 	 */
 	setDrawNums(drawNums:number):void{
-		if(this._matrixs.length<drawNums)
+		if(this._matrixs&&this._matrixs.length<drawNums)
 			throw "worldMatrixArray length is less then drawnums";
 		this._drawnums = drawNums;
-		this._updateWorldMatrixBuffer();
+		this._matrixs&&this._updateWorldMatrixBuffer();
 	}
 
 	/**
