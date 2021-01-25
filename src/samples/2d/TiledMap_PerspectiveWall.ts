@@ -33,7 +33,7 @@ export class TiledMap_PerspectiveWall {
 		if (this.tiledMap) {
 			this.tiledMap.mapSprite().removeChildren();
 			this.tiledMap.destroy();
-			Resource.destroyUnusedResources();
+			// Resource.destroyUnusedResources();
 		}
 	}
 }
