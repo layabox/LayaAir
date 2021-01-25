@@ -1,8 +1,6 @@
 import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { DrawMeshInstancedCMD } from "laya/d3/core/render/command/DrawMeshInstancedCMD";
 import { InstanceLocation, MaterialInstancePropertyBlock } from "laya/d3/core/render/command/MaterialInstancePropertyBlock";
@@ -81,8 +79,6 @@ export class CommandBuffer_DrawCustomInstance{
          * @param camera 
          */
         createCommandBuffer(camera:Camera){
-            //当需要在流程中拿摄像机渲染效果的时候 设置true
-            //camera.enableBuiltInRenderTexture = true;
             //创建渲染命令流
             let buf:CommandBuffer = new CommandBuffer();
             //初始化数矩阵数组和颜色数组
