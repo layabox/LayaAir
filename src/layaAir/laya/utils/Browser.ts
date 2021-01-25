@@ -87,7 +87,7 @@ export class Browser {
     private static _pixelRatio: number = -1;
 
     /** @private */
-    static mainCanvas: any = null;
+    static mainCanvas: HTMLCanvas = null;
 
     /**@private */
     private static hanzi: RegExp = new RegExp("^[\u4E00-\u9FA5]$");
@@ -120,7 +120,7 @@ export class Browser {
 
         //阿里小游戏
         if ("my" in Browser.window) {
-            if("tb" in Browser.window.my){
+            if(u.indexOf('TB/')>-1||u.indexOf('Taobao/')>-1||u.indexOf('TM/')>-1){
                 //这里需要手动初始化阿里适配库
                 (window as any).tbMiniGame(Laya, Laya);
                 if (!(Laya as any)["TBMiniAdapter"]) {
@@ -306,7 +306,13 @@ export class Browser {
         }
         return win;
     }
-
+    /**
+     * 获取是否为小游戏环境
+     * @returns onMiniGame || onBDMiniGame || onQGMiniGame || onKGMiniGame || onVVMiniGame || onAlipayMiniGame || onQQMiniGame || onBLMiniGame || onTTMiniGame || onHWMiniGame || onTBMiniGame
+     */
+    static get isMiniGame():boolean{
+        return Browser.onMiniGame || Browser.onBDMiniGame || Browser.onQGMiniGame || Browser.onKGMiniGame || Browser.onVVMiniGame || Browser.onAlipayMiniGame || Browser.onQQMiniGame || Browser.onBLMiniGame || Browser.onTTMiniGame || Browser.onHWMiniGame || Browser.onTBMiniGame;
+    }
     /**
      * 创建浏览器原生节点。
      * @param	type 节点类型。
