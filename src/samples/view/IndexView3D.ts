@@ -113,6 +113,7 @@ import { PostProcess_Edge } from "../3d/LayaAir3D_PostProcess/PostProcess_Edge";
 import { LoadGltfRosource } from "../3d/LayaAir3D_Resource/LoadGltfResource";
 import { CommandBuffer_DrawCustomInstance } from "../3d/LayaAir3D_Advance/CommandBuffer_DrawCustomInstance";
 import { GrassDemo } from "../3d/LayaAir3D_Advance/GrassRender/GrassDemo";
+import { Blinnphong_Transmission } from "../3d/LayaAir3D_Material/BlinnPhong_Transmission";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -148,8 +149,8 @@ export class IndexView3D extends IndexViewUI {
 	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow,SpotLightShadowMap,  SpotLightDemo, MultiLight];
 	private _lightingArr: any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLightShadowMap', 'SpotLight', 'MultiLight'];
 
-	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, UnlitMaterialDemo, WaterPrimaryMaterialDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
-	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRMaterial", "UnlitMaterial", "WaterPrimaryMaterial"];
+	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap,Blinnphong_Transmission, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, UnlitMaterialDemo, WaterPrimaryMaterialDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
+	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap","Blinnphong_Transmission", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRMaterial", "UnlitMaterial", "WaterPrimaryMaterial"];
 
 	private _meshClsArr: any[] = [ChangeMesh, CustomMesh, MeshLoad];
 	private _meshArr: any[] = ['ChangeMesh', 'CustomMesh', "MeshLoad"];
