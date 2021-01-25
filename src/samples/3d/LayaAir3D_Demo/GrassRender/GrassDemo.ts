@@ -22,7 +22,7 @@ import { GrassRenderManager } from "./GrassRenderManager";
  */
 export class GrassDemo{
     camera:Camera;
-
+	grassManager:GrassRenderManager;
 	
     constructor(){
         Laya3D.init(0, 0);
@@ -80,22 +80,22 @@ export class GrassDemo{
 	onPreLoadFinish(){
 		this.initScene();
 		//渲染草
-		var grassManager=new GrassRenderManager(this.camera);
-		var grasssize = grassManager.grassCellsize;
+		this.grassManager=new GrassRenderManager(this.camera);
+		var grasssize = this.grassManager.grassCellsize;
 
 		for (let x = -100; x < 100; x+=grasssize) {
 			for (let z = -100; z < 100; z+=grasssize) {
-				grassManager.addGrassCell(new Vector3(x,0,z));
+				this.grassManager.addGrassCell(new Vector3(x,0,z));
 			}
 		}
-		//grassManager.addGrassCell(new Vector3(0,0,0));
 
+		this.grassManager.enable = true;
 
-		grassManager.enable = true;
+		Laya.timer.loop(1,this,this.update,[this.camera]);
+	}
 
-		Laya.timer.loop(1,grassManager,grassManager.update,[this.camera])
-		
-
+	update(camera:Camera){
+		this.grassManager.update(camera);
 	}
     
 
