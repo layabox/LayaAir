@@ -57,14 +57,12 @@ void main() {
     // const
     float minHeight = 2.0;
     float maxHeight = 5.0;
-    //////////////////////////////////////////////////
 
 
     vec4 aposition = a_Position;
     vec3 perGrassPivotPosWS = a_privotPosition;
     float perGrassHeight = mix(minHeight, maxHeight, (sin(perGrassPivotPosWS.x * 23.4643 + perGrassPivotPosWS.z) * 0.45 + 0.55)) * u_grassHeight;
 
-    //vec2 grassBendingUV = ((perGrassPivotPosWS.xz - _PivotPosWS.xz) / boundSize) * 0.5 + 0.5;
 
     vec3 cameraUpWS = normalize(u_CameraUp);
     vec3 cameraForwardWS = normalize(u_CameraDirection);
@@ -75,11 +73,6 @@ void main() {
     //BillBoard y
     positionOS += aposition.y * cameraUpWS;
 
-    // todo 压倒效果
-    // vec3 bendDir = cameraForwardWS;
-    // bendDir.xz *= 0.5;
-    // bendDir.y = min(-0.5, bendDir.y);
-    // positionOS = mix(positionOS.xyz + bendDir * positionOS.y / -bendDir.y, positionOS.xyz, 1.0);
     // 每根草 高度
     positionOS.y *= perGrassHeight;
 
@@ -101,7 +94,6 @@ void main() {
     vec3 positionWS = positionOS + perGrassPivotPosWS;
     vec4 position = u_ViewProjection * vec4(positionWS, 1.0);
 
-    // uniform textureColor * baseColor
 
     //reset Texture 
     vec2 uv = (positionWS.xz-u_BoundSize.xy)/u_BoundSize.zw;
@@ -110,7 +102,6 @@ void main() {
     vec3 albedo = mix(u_GroundColor,baseColor,a_Position.y);
 
     v_Color = vec4(albedo, 1.0);
-    // v_Color = vec4(grassBendingUV, 1.0, 1.0);
 
     gl_Position = position;
     gl_Position=remapGLPositionZ(gl_Position);
