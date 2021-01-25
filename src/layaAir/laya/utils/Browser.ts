@@ -310,7 +310,7 @@ export class Browser {
      * 获取是否为小游戏环境
      * @returns onMiniGame || onBDMiniGame || onQGMiniGame || onKGMiniGame || onVVMiniGame || onAlipayMiniGame || onQQMiniGame || onBLMiniGame || onTTMiniGame || onHWMiniGame || onTBMiniGame
      */
-    static get isMiniGame():boolean{
+    static get _isMiniGame():boolean{
         return Browser.onMiniGame || Browser.onBDMiniGame || Browser.onQGMiniGame || Browser.onKGMiniGame || Browser.onVVMiniGame || Browser.onAlipayMiniGame || Browser.onQQMiniGame || Browser.onBLMiniGame || Browser.onTTMiniGame || Browser.onHWMiniGame || Browser.onTBMiniGame;
     }
     /**
