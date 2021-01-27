@@ -1,4 +1,7 @@
 package laya.ui {
+	import laya.events.Event;
+	import laya.ui.HScrollBar;
+	import laya.ui.VScrollBar;
 	import laya.ui.TextInput;
 	import laya.ui.VScrollBar;
 	import laya.ui.HScrollBar;

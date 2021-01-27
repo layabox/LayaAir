@@ -1,5 +1,6 @@
 package laya.d3.core.pixelLine {
 	import laya.d3.math.Vector4;
+	import laya.d3.math.Vector4;
 	import laya.d3.core.material.Material;
 
 	/**

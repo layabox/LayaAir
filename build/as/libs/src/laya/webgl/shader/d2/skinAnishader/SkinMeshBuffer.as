@@ -1,4 +1,6 @@
 package laya.webgl.shader.d2.skinAnishader {
+	import laya.webgl.utils.VertexBuffer2D;
+	import laya.webgl.utils.IndexBuffer2D;
 	import laya.webgl.utils.IndexBuffer2D;
 	import laya.webgl.utils.VertexBuffer2D;
 	public class SkinMeshBuffer {

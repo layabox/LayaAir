@@ -1,5 +1,6 @@
 package laya.particle {
 	import laya.particle.ParticleSetting;
+	import laya.particle.ParticleSetting;
 
 	/**
 	 * @private 

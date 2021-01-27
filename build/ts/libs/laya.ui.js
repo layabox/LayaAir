@@ -633,7 +633,7 @@
 	        if (super.get_scaleX() == value)
 	            return;
 	        super.set_scaleX(value);
-	        this.event(Laya.Event.RESIZE);
+	        this.callLater(this._sizeChanged);
 	    }
 	    get scaleX() {
 	        return super.scaleX;
@@ -645,7 +645,7 @@
 	        if (super.get_scaleY() == value)
 	            return;
 	        super.set_scaleY(value);
-	        this.event(Laya.Event.RESIZE);
+	        this.callLater(this._sizeChanged);
 	    }
 	    get scaleY() {
 	        return super.scaleY;

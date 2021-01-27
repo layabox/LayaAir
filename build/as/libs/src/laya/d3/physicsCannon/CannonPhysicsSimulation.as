@@ -1,5 +1,8 @@
 package laya.d3.physicsCannon {
 	import laya.d3.math.Ray;
+	import laya.d3.physicsCannon.CannonHitResult;
+	import laya.d3.math.Vector3;
+	import laya.d3.math.Ray;
 	import laya.d3.math.Vector3;
 	import laya.d3.physicsCannon.CannonHitResult;
 

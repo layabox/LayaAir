@@ -1,4 +1,7 @@
 package laya.display {
+	import laya.utils.Timer;
+	import laya.components.Component;
+	import laya.events.EventDispatcher;
 	import laya.components.Component;
 	import laya.events.EventDispatcher;
 	import laya.utils.Timer;

@@ -1,5 +1,6 @@
 package laya.layagl {
 	import laya.resource.Context;
+	import laya.resource.Context;
 
 	/**
 	 * ...

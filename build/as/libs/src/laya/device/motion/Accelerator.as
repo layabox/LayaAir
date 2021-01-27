@@ -1,6 +1,8 @@
 package laya.device.motion {
 	import laya.device.motion.AccelerationInfo;
 	import laya.events.EventDispatcher;
+	import laya.device.motion.AccelerationInfo;
+	import laya.events.EventDispatcher;
 
 	/**
 	 * Accelerator.instance获取唯一的Accelerator引用，请勿调用构造函数。

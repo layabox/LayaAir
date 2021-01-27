@@ -1,4 +1,5 @@
 package laya.net {
+	import laya.utils.Handler;
 	import laya.events.EventDispatcher;
 	import laya.utils.Handler;
 

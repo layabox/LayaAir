@@ -1,4 +1,9 @@
 package laya.d3.utils {
+	import laya.d3.math.Vector3;
+	import laya.d3.math.Ray;
+	import laya.d3.math.Matrix4x4;
+	import laya.d3.math.Viewport;
+	import laya.d3.math.Vector2;
 	import laya.d3.math.Matrix4x4;
 	import laya.d3.math.Ray;
 	import laya.d3.math.Vector2;

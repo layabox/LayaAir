@@ -1,5 +1,6 @@
 package laya.d3.text {
 	import laya.d3.math.Color;
+	import laya.d3.math.Color;
 
 	/**
 	 * <code>TextMesh</code> 类用于创建文本网格。

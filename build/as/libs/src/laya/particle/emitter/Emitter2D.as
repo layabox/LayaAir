@@ -1,4 +1,6 @@
 package laya.particle.emitter {
+	import laya.particle.ParticleTemplateBase;
+	import laya.particle.ParticleSetting;
 	import laya.particle.emitter.EmitterBase;
 	import laya.particle.ParticleSetting;
 	import laya.particle.ParticleTemplateBase;

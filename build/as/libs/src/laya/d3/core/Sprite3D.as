@@ -1,4 +1,9 @@
 package laya.d3.core {
+	import laya.d3.core.Transform3D;
+	import laya.utils.Handler;
+	import laya.d3.math.Quaternion;
+	import laya.d3.math.Vector3;
+	import laya.display.Node;
 	import laya.display.Node;
 	import laya.utils.Handler;
 	import laya.d3.math.Quaternion;

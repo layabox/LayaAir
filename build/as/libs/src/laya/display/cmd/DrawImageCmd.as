@@ -1,6 +1,8 @@
 package laya.display.cmd {
 	import laya.resource.Context;
 	import laya.resource.Texture;
+	import laya.resource.Context;
+	import laya.resource.Texture;
 
 	/**
 	 * 绘制图片

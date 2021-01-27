@@ -1,4 +1,5 @@
 package laya.d3.core {
+	import laya.d3.math.Color;
 	import laya.d3.core.IClone;
 	import laya.d3.math.Color;
 

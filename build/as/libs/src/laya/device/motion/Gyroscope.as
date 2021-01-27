@@ -1,5 +1,6 @@
 package laya.device.motion {
 	import laya.events.EventDispatcher;
+	import laya.events.EventDispatcher;
 
 	/**
 	 * 使用Gyroscope.instance获取唯一的Gyroscope引用，请勿调用构造函数。

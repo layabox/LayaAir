@@ -1,4 +1,7 @@
 package laya.ani.bone.canvasmesh {
+	import laya.maths.Rectangle;
+	import laya.maths.Matrix;
+	import laya.resource.Texture;
 	import laya.resource.Texture;
 	import laya.maths.Matrix;
 	import laya.maths.Rectangle;

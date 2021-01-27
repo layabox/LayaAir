@@ -1,4 +1,6 @@
 package laya.d3.core.pixelLine {
+	import laya.d3.core.pixelLine.PixelLineData;
+	import laya.d3.core.pixelLine.PixelLineSprite3D;
 	import laya.d3.core.GeometryElement;
 	import laya.d3.core.pixelLine.PixelLineData;
 	import laya.d3.core.pixelLine.PixelLineSprite3D;

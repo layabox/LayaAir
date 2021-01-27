@@ -1,5 +1,6 @@
 package laya.html.utils {
 	import laya.html.dom.HTMLElement;
+	import laya.html.dom.HTMLElement;
 
 	/**
 	 * @private HTML的布局类对HTML的显示对象进行排版

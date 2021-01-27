@@ -1,4 +1,8 @@
 package laya.webgl.shader.d2.value {
+	import laya.webgl.shader.d2.Shader2D;
+	import laya.resource.Texture;
+	import laya.webgl.shader.Shader;
+	import laya.webgl.shader.d2.ShaderDefines2D;
 	import laya.resource.Texture;
 	import laya.webgl.shader.Shader;
 	import laya.webgl.shader.d2.Shader2D;

@@ -1,4 +1,11 @@
 package laya.ani.bone {
+	import laya.display.Graphics;
+	import laya.ani.GraphicsAni;
+	import laya.maths.Matrix;
+	import laya.ani.bone.SkinSlotDisplayData;
+	import laya.resource.Texture;
+	import laya.ani.bone.SlotData;
+	import laya.ani.bone.Templet;
 	import laya.ani.bone.Templet;
 	import laya.ani.bone.SlotData;
 	import laya.ani.bone.SkinSlotDisplayData;

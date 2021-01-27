@@ -1,4 +1,15 @@
 package laya.d3.core.render.command {
+	import laya.d3.core.render.BaseRender;
+	import laya.d3.resource.models.Mesh;
+	import laya.d3.core.material.Material;
+	import laya.d3.shader.Shader3D;
+	import laya.d3.resource.RenderTexture;
+	import laya.d3.math.Matrix4x4;
+	import laya.d3.math.Vector2;
+	import laya.d3.math.Vector3;
+	import laya.d3.math.Vector4;
+	import laya.resource.BaseTexture;
+	import laya.d3.shader.ShaderData;
 	import laya.d3.resource.RenderTexture;
 	import laya.d3.shader.Shader3D;
 	import laya.d3.shader.ShaderData;

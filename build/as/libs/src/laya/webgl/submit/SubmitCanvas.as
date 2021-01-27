@@ -1,5 +1,6 @@
 package laya.webgl.submit {
 	import laya.resource.Context;
+	import laya.resource.Context;
 	import laya.webgl.submit.SubmitBase;
 
 	/**

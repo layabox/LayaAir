@@ -1,4 +1,6 @@
 package laya.webgl.shader {
+	import laya.webgl.shader.ShaderValue;
+	import laya.utils.StringKey;
 	import laya.utils.StringKey;
 	import laya.webgl.shader.BaseShader;
 	import laya.webgl.shader.ShaderValue;

@@ -1,5 +1,7 @@
 package laya.d3.core.light {
 	import laya.d3.math.Vector3;
+	import laya.d3.core.light.ShadowCascadesMode;
+	import laya.d3.math.Vector3;
 	import laya.d3.core.light.LightSprite;
 	import laya.d3.core.light.ShadowCascadesMode;
 

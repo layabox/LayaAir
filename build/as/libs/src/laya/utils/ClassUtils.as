@@ -1,6 +1,8 @@
 package laya.utils {
 	import laya.utils.Handler;
 	import laya.display.Node;
+	import laya.utils.Handler;
+	import laya.display.Node;
 
 	/**
 	 * <code>ClassUtils</code> 是一个类工具类。

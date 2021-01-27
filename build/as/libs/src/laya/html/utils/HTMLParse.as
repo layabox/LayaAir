@@ -1,4 +1,6 @@
 package laya.html.utils {
+	import laya.net.URL;
+	import laya.html.dom.HTMLDivParser;
 	import laya.html.dom.HTMLDivParser;
 	import laya.net.URL;
 

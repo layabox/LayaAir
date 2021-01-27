@@ -1,4 +1,6 @@
 package laya.webgl.text {
+	import laya.resource.Texture;
+	import laya.resource.Context;
 	import laya.resource.Context;
 	import laya.resource.Texture;
 

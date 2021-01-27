@@ -1,5 +1,6 @@
 package laya.display {
 	import laya.maths.Rectangle;
+	import laya.maths.Rectangle;
 
 	/**
 	 * @private Graphic bounds数据类

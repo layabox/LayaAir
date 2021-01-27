@@ -1,4 +1,5 @@
 package laya.physics {
+	import laya.physics.RigidBody;
 	import laya.components.Component;
 	import laya.physics.RigidBody;
 

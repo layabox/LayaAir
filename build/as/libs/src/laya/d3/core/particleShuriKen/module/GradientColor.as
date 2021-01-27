@@ -1,5 +1,7 @@
 package laya.d3.core.particleShuriKen.module {
 	import laya.d3.core.Gradient;
+	import laya.d3.math.Vector4;
+	import laya.d3.core.Gradient;
 	import laya.d3.core.IClone;
 	import laya.d3.math.Vector4;
 

@@ -1,5 +1,6 @@
 package laya.d3.core.render.command {
 	import laya.d3.core.render.RenderContext3D;
+	import laya.d3.core.render.RenderContext3D;
 
 	/**
 	 * <code>Command</code> 类用于创建指令。

@@ -1,4 +1,6 @@
 package laya.d3.physics.constraints {
+	import laya.d3.math.Vector3;
+	import laya.d3.physics.Rigidbody3D;
 	import laya.components.Component;
 	import laya.d3.physics.Rigidbody3D;
 	import laya.d3.math.Vector3;

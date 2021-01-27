@@ -1,5 +1,6 @@
 package laya.d3.math {
 	import laya.d3.math.Vector3;
+	import laya.d3.math.Vector3;
 
 	/**
 	 * <code>Ray</code> 类用于创建射线。

@@ -1,4 +1,9 @@
 package laya.ui {
+	import laya.events.Event;
+	import laya.maths.Point;
+	import laya.ui.ScrollBar;
+	import laya.ui.Box;
+	import laya.utils.Handler;
 	import laya.ui.Box;
 	import laya.ui.IRender;
 	import laya.ui.IItem;

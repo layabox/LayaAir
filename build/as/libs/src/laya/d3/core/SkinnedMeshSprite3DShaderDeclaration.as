@@ -1,5 +1,6 @@
 package laya.d3.core {
 	import laya.d3.shader.ShaderDefine;
+	import laya.d3.shader.ShaderDefine;
 	public class SkinnedMeshSprite3DShaderDeclaration {
 
 		/**

@@ -1,4 +1,5 @@
 package laya.d3.physics.constraints {
+	import laya.d3.math.Vector3;
 	import laya.d3.physics.constraints.ConstraintComponent;
 	import laya.d3.math.Vector3;
 

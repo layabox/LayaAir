@@ -1,5 +1,6 @@
 package laya.d3 {
 	import laya.d3.Touch;
+	import laya.d3.Touch;
 
 	/**
 	 * <code>Input3D</code> 类用于实现3D输入。

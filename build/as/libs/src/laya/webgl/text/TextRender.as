@@ -1,4 +1,10 @@
 package laya.webgl.text {
+	import laya.display.Sprite;
+	import laya.webgl.text.TextAtlas;
+	import laya.webgl.text.CharRenderInfo;
+	import laya.utils.WordText;
+	import laya.resource.Context;
+	import laya.utils.FontInfo;
 	import laya.webgl.text.TextAtlas;
 	import laya.display.Sprite;
 	import laya.resource.Context;

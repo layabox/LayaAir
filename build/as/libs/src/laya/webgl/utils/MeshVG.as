@@ -1,5 +1,6 @@
 package laya.webgl.utils {
 	import laya.resource.Context;
+	import laya.resource.Context;
 	import laya.webgl.utils.Mesh2D;
 
 	/**

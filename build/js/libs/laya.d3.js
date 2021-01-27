@@ -2898,7 +2898,7 @@
 	    }
 	    _onEnable() {
 	        this._simulation = this.owner._scene.physicsSimulation;
-	        ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 1e30);
+	        ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
 	        if (this._colliderShape) {
 	            this._derivePhysicsTransformation(true);
 	            this._addToSimulation();
@@ -5968,12 +5968,15 @@
 	    get animatorState() {
 	        return this._currentState;
 	    }
-	    _resetPlayState(startTime) {
+	    _resetPlayState(startTime, clipDuration) {
 	        this._finish = false;
 	        this._startPlayTime = startTime;
 	        this._elapsedTime = startTime;
 	        this._playEventIndex = 0;
 	        this._lastIsFront = true;
+	        this._normalizedTime = this._elapsedTime / clipDuration;
+	        var playTime = this._normalizedTime % 1.0;
+	        this._normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
 	    }
 	    _cloneTo(dest) {
 	        dest._finish = this._finish;
@@ -6644,7 +6647,7 @@
 	                    }
 	                    var crossValue = srcValue + crossWeight * (desValue - srcValue);
 	                    nodeOwner.value = crossValue;
-	                    this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, crossValue);
+	                    pro && this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, crossValue);
 	                    break;
 	                case 1:
 	                    var localPos = pro.localPosition;
@@ -6702,7 +6705,7 @@
 	                                if (!pro)
 	                                    break;
 	                            }
-	                            this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, realtimeDatas[i]);
+	                            pro && this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, realtimeDatas[i]);
 	                            break;
 	                        case 1:
 	                            var localPos = pro.localPosition;
@@ -7076,18 +7079,19 @@
 	            var curPlayState = playStateInfo._currentState;
 	            var animatorState = name ? controllerLayer._statesMap[name] : defaultState;
 	            var clipDuration = animatorState._clip._duration;
+	            var calclipduration = animatorState._clip._duration * (animatorState.clipEnd - animatorState.clipStart);
 	            if (curPlayState !== animatorState) {
 	                if (normalizedTime !== Number.NEGATIVE_INFINITY)
-	                    playStateInfo._resetPlayState(clipDuration * normalizedTime);
+	                    playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
 	                else
-	                    playStateInfo._resetPlayState(0.0);
+	                    playStateInfo._resetPlayState(0.0, calclipduration);
 	                (curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
 	                controllerLayer._playType = 0;
 	                playStateInfo._currentState = animatorState;
 	            }
 	            else {
 	                if (normalizedTime !== Number.NEGATIVE_INFINITY) {
-	                    playStateInfo._resetPlayState(clipDuration * normalizedTime);
+	                    playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
 	                    controllerLayer._playType = 0;
 	                }
 	            }
@@ -7200,9 +7204,9 @@
 	                controllerLayer._crossPlayState = destAnimatorState;
 	                controllerLayer._crossDuration = srcAnimatorState._clip._duration * transitionDuration;
 	                if (normalizedTime !== Number.NEGATIVE_INFINITY)
-	                    crossPlayStateInfo._resetPlayState(destClip._duration * normalizedTime);
+	                    crossPlayStateInfo._resetPlayState(destClip._duration * normalizedTime, controllerLayer._crossDuration);
 	                else
-	                    crossPlayStateInfo._resetPlayState(0.0);
+	                    crossPlayStateInfo._resetPlayState(0.0, controllerLayer._crossDuration);
 	                var scripts = destAnimatorState._scripts;
 	                if (scripts) {
 	                    for (i = 0, n = scripts.length; i < n; i++)
@@ -9115,14 +9119,14 @@
 	        this._renderShaderValue = new ShaderData();
 	        this._renderShaderValue = new ShaderData(null);
 	    }
-	    static create(mesh, matrix, material, subMeshIndex, _subShaderIndex, commandBuffer) {
+	    static create(mesh, matrix, material, subMeshIndex, subShaderIndex, commandBuffer) {
 	        var cmd;
 	        cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop() : new DrawMeshCMD();
 	        cmd._mesh = mesh;
 	        cmd._matrix = matrix;
 	        cmd._material = material;
 	        cmd._subMeshIndex = subMeshIndex;
-	        cmd._subShaderIndex = _subShaderIndex;
+	        cmd._subShaderIndex = subShaderIndex;
 	        cmd._commandBuffer = commandBuffer;
 	        return cmd;
 	    }
@@ -9148,7 +9152,7 @@
 	            comDef.addDefineDatas(this._renderShaderValue._defineDatas);
 	            comDef.addDefineDatas(this._material._shaderValues._defineDatas);
 	            var shaderIns = context.shader = pass.withCompile(comDef);
-	            var switchShader = shaderIns.bind();
+	            shaderIns.bind();
 	            shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, scene._shaderValues, true);
 	            shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this._renderShaderValue, true);
 	            shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderValue, true);
@@ -12036,7 +12040,6 @@
 	        }
 	        var viewport = camera.viewport;
 	        var needInternalRT = camera._needInternalRenderTexture();
-	        var gl = Laya.LayaGL.instance;
 	        var context = RenderContext3D._instance;
 	        var scene = context.scene = scene;
 	        context.pipelineMode = context.configPipeLineMode;
@@ -12331,8 +12334,6 @@
 	        var commandBufferArray = this._cameraEventCommandBuffer[event];
 	        if (!commandBufferArray || commandBufferArray.length == 0)
 	            return;
-	        if (this._internalRenderTexture)
-	            this._internalRenderTexture._end();
 	        commandBufferArray.forEach(function (value) {
 	            value._context = context;
 	            value._apply();
@@ -12473,7 +12474,6 @@
 	            return;
 	        var viewport = this.viewport;
 	        var needInternalRT = this._needInternalRenderTexture();
-	        var gl = Laya.LayaGL.instance;
 	        var context = RenderContext3D._instance;
 	        var scene = context.scene = this._scene;
 	        context.pipelineMode = context.configPipeLineMode;
@@ -12727,6 +12727,7 @@
 	        var lastStateMaterial, lastStateShaderInstance, lastStateRender;
 	        var updateMark = Camera._updateMark;
 	        var scene = context.scene;
+	        this._render._scene = context.scene;
 	        var cameraShaderValue = context.cameraShaderValue;
 	        var transform = renderElement._transform;
 	        var geometry = renderElement._geometry;
@@ -12809,8 +12810,13 @@
 	        var renderElements = this._render._renderElements;
 	        for (var i = 0, n = renderElements.length; i < n; i++) {
 	            var renderelement = renderElements[i];
-	            renderelement._update(scene, context, this._material._shader, null, this._subShaderIndex);
+	            this._renderElementUpdate(renderelement);
 	            this._elementRender(renderelement, context);
+	        }
+	    }
+	    _renderElementUpdate(renderelement) {
+	        if (this._material) {
+	            renderelement.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
 	        }
 	    }
 	    recover() {
@@ -15548,9 +15554,11 @@
 	        for (var j = 0, m = changedTouches.length; j < m; j++) {
 	            var nativeTouch = changedTouches[j];
 	            var identifier = nativeTouch.identifier;
-	            if (!this._multiTouchEnabled && identifier !== 0)
+	            if (!this._multiTouchEnabled && this._touches.length !== 0 && flag == 0)
 	                continue;
 	            var touch = this._getTouch(identifier, flag);
+	            if (flag == 1 && !touch)
+	                continue;
 	            var pos = this._touchPool[identifier]._position;
 	            var mousePoint = Input3D._tempPoint;
 	            mousePoint.setTo(nativeTouch.pageX, nativeTouch.pageY);
@@ -18850,6 +18858,7 @@
 	        this._shadowBias = new Vector4();
 	        this._shadowParams = new Vector4();
 	        this._shadowMapSize = new Vector4();
+	        this._shadowSpotMapSize = new Vector4();
 	        this._shadowMatrices = new Float32Array(16 * (ShadowCasterPass._maxCascades));
 	        this._shadowSpotMatrices = new Matrix4x4();
 	        this._splitBoundSpheres = new Float32Array(ShadowCasterPass._maxCascades * 4);
@@ -18927,7 +18936,7 @@
 	        }
 	        shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._shadowSpotLightMap);
 	        shaderValues.setMatrix4x4(ShadowCasterPass.SHADOW_SPOTMATRICES, this._shadowSpotMatrices);
-	        shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
+	        shaderValues.setVector(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, this._shadowSpotMapSize);
 	        shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
 	    }
 	    update(camera, light, lightType) {
@@ -18992,7 +19001,7 @@
 	                this._shadowMapWidth = shadowResolution;
 	                this._shadowMapHeight = shadowResolution;
 	                var shadowSpotData = this._shadowSpotData;
-	                ShadowUtils.getSpotLightShadowData(shadowSpotData, this._light, shadowResolution, this._shadowParams, this._shadowSpotMatrices, this._shadowMapSize);
+	                ShadowUtils.getSpotLightShadowData(shadowSpotData, this._light, shadowResolution, this._shadowParams, this._shadowSpotMatrices, this._shadowSpotMapSize);
 	                break;
 	            case exports.ShadowLightType.PointLight:
 	                break;
@@ -19092,6 +19101,7 @@
 	ShadowCasterPass.SHADOW_MAP_SIZE = Shader3D.propertyNameToID("u_ShadowMapSize");
 	ShadowCasterPass.SHADOW_MAP = Shader3D.propertyNameToID("u_ShadowMap");
 	ShadowCasterPass.SHADOW_PARAMS = Shader3D.propertyNameToID("u_ShadowParams");
+	ShadowCasterPass.SHADOW_SPOTMAP_SIZE = Shader3D.propertyNameToID("u_SpotShadowMapSize");
 	ShadowCasterPass.SHADOW_SPOTMAP = Shader3D.propertyNameToID("u_SpotShadowMap");
 	ShadowCasterPass.SHADOW_SPOTMATRICES = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
 	ShadowCasterPass._maxCascades = 4;
@@ -29897,7 +29907,7 @@
 
 	var StdLibGLSL = "#define HALF_MAX       65504.0 // (2 - 2^-10) * 2^15\r\n\r\n#define FLT_EPSILON    1.192092896e-07 // Smallest positive number, such that 1.0 + FLT_EPSILON != 1.0\r\n\r\nmediump vec4 safeHDR(mediump vec4 c)\r\n{\r\n    return min(c, HALF_MAX);\r\n}\r\n\r\nfloat max3(float a, float b, float c)\r\n{\r\n    return max(max(a, b), c);\r\n}\r\n\r\nvec3 positivePow(vec3 base, vec3 power)\r\n{\r\n    return pow(max(abs(base), vec3(FLT_EPSILON, FLT_EPSILON, FLT_EPSILON)), power);\r\n}";
 
-	var ShadowGLSL = "#ifndef GRAPHICS_API_GLES3\r\n\t#define NO_NATIVE_SHADOWMAP\r\n#endif\r\n\r\n#if defined(NO_NATIVE_SHADOWMAP)\r\n\t#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2D textureName\r\n\t#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) (texture2D(textureName,coord3.xy).r<coord3.z?0.0:1.0)\r\n\t#define TEXTURE2D_SHADOW_PARAM(shadowMap) mediump sampler2D shadowMap\r\n#else\r\n\t#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2DShadow textureName\r\n\t#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) textureLod(textureName,coord3,0.0)\r\n\t#define TEXTURE2D_SHADOW_PARAM(shadowMap) mediump sampler2DShadow shadowMap\r\n#endif\r\n\r\n#if defined(RECEIVESHADOW)&&defined(SHADOW)\r\n    #define CALCULATE_SHADOWS\r\n#endif\r\n\r\n#if defined(RECEIVESHADOW)&&defined(SHADOW_SPOT)\r\n\t#define CALCULATE_SPOTSHADOWS\r\n#endif\r\n\r\nuniform vec4 u_ShadowBias; // x: depth bias, y: normal bias\r\n\r\n#if defined(CALCULATE_SHADOWS)||defined(CALCULATE_SPOTSHADOWS)\r\n\t#include \"ShadowSampleTent.glsl\"\r\n\tuniform vec4 u_ShadowMapSize;\r\n\tuniform vec4 u_ShadowParams; // x: shadowStrength y: ShadowSpotLightStrength\r\n\r\n\t\r\n\tfloat sampleShdowMapFiltered4(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowMapSize)\r\n\t{\r\n\t\tfloat attenuation;\r\n\t\tvec4 attenuation4;\r\n\t\tvec2 offset=shadowMapSize.xy/2.0;\r\n\t\tvec3 shadowCoord0=shadowCoord + vec3(-offset,0.0);\r\n\t\tvec3 shadowCoord1=shadowCoord + vec3(offset.x,-offset.y,0.0);\r\n\t\tvec3 shadowCoord2=shadowCoord + vec3(-offset.x,offset.y,0.0);\r\n\t\tvec3 shadowCoord3=shadowCoord + vec3(offset,0.0);\r\n\t\tattenuation4.x = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord0);\r\n\t\tattenuation4.y = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord1);\r\n\t\tattenuation4.z = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord2);\r\n\t\tattenuation4.w = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord3);\r\n\t\tattenuation = dot(attenuation4, vec4(0.25));\r\n\t\treturn attenuation;\r\n\t}\r\n\r\n\tfloat sampleShdowMapFiltered9(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowmapSize)\r\n\t{\r\n\t\tfloat attenuation;\r\n\t\tfloat fetchesWeights[9];\r\n\t\tvec2 fetchesUV[9];\r\n\t\tsampleShadowComputeSamplesTent5x5(shadowmapSize, shadowCoord.xy, fetchesWeights, fetchesUV);\r\n\t\tattenuation = fetchesWeights[0] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[0].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[1] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[1].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[2] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[2].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[3] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[3].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[4] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[4].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[5] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[5].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[6] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[6].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[7] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[7].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[8] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[8].xy, shadowCoord.z));\r\n\t\treturn attenuation;\r\n\t}\r\n\r\n#endif\r\n\r\n\r\n\r\n\r\n#if defined(CALCULATE_SHADOWS)\r\n\r\n\tTEXTURE2D_SHADOW(u_ShadowMap);\r\n\r\n\tuniform mat4 u_ShadowMatrices[4];\r\n\tuniform vec4 u_ShadowSplitSpheres[4];// max cascade is 4\r\n\r\n\tmediump int computeCascadeIndex(vec3 positionWS)\r\n\t{\r\n\t\tvec3 fromCenter0 = positionWS - u_ShadowSplitSpheres[0].xyz;\r\n\t\tvec3 fromCenter1 = positionWS - u_ShadowSplitSpheres[1].xyz;\r\n\t\tvec3 fromCenter2 = positionWS - u_ShadowSplitSpheres[2].xyz;\r\n\t\tvec3 fromCenter3 = positionWS - u_ShadowSplitSpheres[3].xyz;\r\n\r\n\t\tmediump vec4 comparison = vec4(\r\n\t\t\tdot(fromCenter0, fromCenter0)<u_ShadowSplitSpheres[0].w,\r\n\t\t\tdot(fromCenter1, fromCenter1)<u_ShadowSplitSpheres[1].w,\r\n\t\t\tdot(fromCenter2, fromCenter2)<u_ShadowSplitSpheres[2].w,\r\n\t\t\tdot(fromCenter3, fromCenter3)<u_ShadowSplitSpheres[3].w);\r\n\t\tcomparison.yzw = clamp(comparison.yzw - comparison.xyz,0.0,1.0);//keep the nearest\r\n\t\tmediump vec4 indexCoefficient = vec4(4.0,3.0,2.0,1.0);\r\n\t\tmediump int index = 4 - int(dot(comparison, indexCoefficient));\r\n\t\treturn index;\r\n\t}\r\n\r\n\tvec4 getShadowCoord(vec4 positionWS)\r\n\t{\r\n\t\t#ifdef SHADOW_CASCADE\r\n\t\t\tmediump int cascadeIndex = computeCascadeIndex(positionWS.xyz);\r\n\t\t\tif(cascadeIndex > 3)// out of shadow range cascadeIndex is 4.\r\n\t\t\t\treturn vec4(0.0);\r\n\t\t\t\r\n\t\t\t#ifdef GRAPHICS_API_GLES3\r\n\t\t\t\treturn u_ShadowMatrices[cascadeIndex] * positionWS;\r\n\t\t\t#else\r\n\t\t\t\tmat4 shadowMat;\r\n\t\t\t\tif(cascadeIndex == 0)\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[0];\r\n\t\t\t\telse if(cascadeIndex == 1)\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[1];\r\n\t\t\t\telse if(cascadeIndex == 2)\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[2];\r\n\t\t\t\telse\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[3];\r\n\t\t\t\treturn shadowMat * positionWS;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\treturn u_ShadowMatrices[0] * positionWS;\r\n\t\t#endif\r\n\t}\r\n\r\n\tfloat sampleShadowmap(vec4 shadowCoord)\r\n\t{\r\n\t\tshadowCoord.xyz /= shadowCoord.w;\r\n\t\tfloat attenuation = 1.0;\r\n\t\tif(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)\r\n\t\t{\r\n\t\t\t#if defined(SHADOW_SOFT_SHADOW_HIGH)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered9(u_ShadowMap,shadowCoord.xyz,u_ShadowMapSize);\r\n\t\t\t#elif defined(SHADOW_SOFT_SHADOW_LOW)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered4(u_ShadowMap,shadowCoord.xyz,u_ShadowMapSize);\r\n\t\t\t#else\r\n\t\t\t\tattenuation = SAMPLE_TEXTURE2D_SHADOW(u_ShadowMap,shadowCoord.xyz);\r\n\t\t\t#endif\r\n\t\t\tattenuation = mix(1.0,attenuation,u_ShadowParams.x);//shadowParams.x:shadow strength\r\n\t\t}\r\n\t\treturn attenuation;\r\n\t}\r\n#endif\r\n\r\n#if defined(CALCULATE_SPOTSHADOWS)//shader���Զ���ĺ겻����ifdef ����ĳ�if defined\r\n\tTEXTURE2D_SHADOW(u_SpotShadowMap);\r\n\tuniform mat4 u_SpotViewProjectMatrix;\r\n\tfloat sampleSpotShadowmap(vec4 shadowCoord)\r\n\t{\r\n\t\tshadowCoord.xyz /= shadowCoord.w;\r\n\t\tfloat attenuation = 1.0;\r\n\t\tshadowCoord.xy +=1.0;\r\n\t\tshadowCoord.xy/=2.0; \r\n\t\tif(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)\r\n\t\t{\r\n\t\t\t#if defined(SHADOW_SPOT_SOFT_SHADOW_HIGH)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered9(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);\r\n\t\t\t#elif defined(SHADOW_SPOT_SOFT_SHADOW_LOW)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered4(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);\r\n\t\t\t#else\r\n\t\t\t\tattenuation = SAMPLE_TEXTURE2D_SHADOW(u_SpotShadowMap,shadowCoord.xyz);\r\n\t\t\t#endif\r\n\t\t\tattenuation = mix(1.0,attenuation,u_ShadowParams.y);//shadowParams.y:shadow strength\r\n\t\t}\r\n\t\treturn attenuation;\r\n\t}\r\n#endif\r\n\r\nvec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)\r\n{\r\n    float invNdotL = 1.0 - clamp(dot(-lightDirection, normalWS),0.0,1.0);\r\n    float scale = invNdotL * u_ShadowBias.y;\r\n\r\n    // normal bias is negative since we want to apply an inset normal offset\r\n    positionWS += -lightDirection * u_ShadowBias.xxx;\r\n    positionWS += normalWS * vec3(scale);\r\n    return positionWS;\r\n}\r\n";
+	var ShadowGLSL = "#ifndef GRAPHICS_API_GLES3\r\n\t#define NO_NATIVE_SHADOWMAP\r\n#endif\r\n\r\n#if defined(NO_NATIVE_SHADOWMAP)\r\n\t#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2D textureName\r\n\t#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) (texture2D(textureName,coord3.xy).r<coord3.z?0.0:1.0)\r\n\t#define TEXTURE2D_SHADOW_PARAM(shadowMap) mediump sampler2D shadowMap\r\n#else\r\n\t#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2DShadow textureName\r\n\t#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) textureLod(textureName,coord3,0.0)\r\n\t#define TEXTURE2D_SHADOW_PARAM(shadowMap) mediump sampler2DShadow shadowMap\r\n#endif\r\n\r\n#if defined(RECEIVESHADOW)&&defined(SHADOW)\r\n    #define CALCULATE_SHADOWS\r\n#endif\r\n\r\n#if defined(RECEIVESHADOW)&&defined(SHADOW_SPOT)\r\n\t#define CALCULATE_SPOTSHADOWS\r\n#endif\r\n\r\nuniform vec4 u_ShadowBias; // x: depth bias, y: normal bias\r\n\r\n#if defined(CALCULATE_SHADOWS)||defined(CALCULATE_SPOTSHADOWS)\r\n\t#include \"ShadowSampleTent.glsl\"\r\n\tuniform vec4 u_ShadowMapSize;\r\n\tuniform vec4 u_SpotShadowMapSize;\r\n\tuniform vec4 u_ShadowParams; // x: shadowStrength y: ShadowSpotLightStrength\r\n\r\n\t\r\n\tfloat sampleShdowMapFiltered4(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowMapSize)\r\n\t{\r\n\t\tfloat attenuation;\r\n\t\tvec4 attenuation4;\r\n\t\tvec2 offset=shadowMapSize.xy/2.0;\r\n\t\tvec3 shadowCoord0=shadowCoord + vec3(-offset,0.0);\r\n\t\tvec3 shadowCoord1=shadowCoord + vec3(offset.x,-offset.y,0.0);\r\n\t\tvec3 shadowCoord2=shadowCoord + vec3(-offset.x,offset.y,0.0);\r\n\t\tvec3 shadowCoord3=shadowCoord + vec3(offset,0.0);\r\n\t\tattenuation4.x = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord0);\r\n\t\tattenuation4.y = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord1);\r\n\t\tattenuation4.z = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord2);\r\n\t\tattenuation4.w = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord3);\r\n\t\tattenuation = dot(attenuation4, vec4(0.25));\r\n\t\treturn attenuation;\r\n\t}\r\n\r\n\tfloat sampleShdowMapFiltered9(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowmapSize)\r\n\t{\r\n\t\tfloat attenuation;\r\n\t\tfloat fetchesWeights[9];\r\n\t\tvec2 fetchesUV[9];\r\n\t\tsampleShadowComputeSamplesTent5x5(shadowmapSize, shadowCoord.xy, fetchesWeights, fetchesUV);\r\n\t\tattenuation = fetchesWeights[0] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[0].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[1] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[1].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[2] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[2].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[3] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[3].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[4] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[4].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[5] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[5].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[6] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[6].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[7] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[7].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[8] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[8].xy, shadowCoord.z));\r\n\t\treturn attenuation;\r\n\t}\r\n\r\n#endif\r\n\r\n\r\n\r\n\r\n#if defined(CALCULATE_SHADOWS)\r\n\r\n\tTEXTURE2D_SHADOW(u_ShadowMap);\r\n\r\n\tuniform mat4 u_ShadowMatrices[4];\r\n\tuniform vec4 u_ShadowSplitSpheres[4];// max cascade is 4\r\n\r\n\tmediump int computeCascadeIndex(vec3 positionWS)\r\n\t{\r\n\t\tvec3 fromCenter0 = positionWS - u_ShadowSplitSpheres[0].xyz;\r\n\t\tvec3 fromCenter1 = positionWS - u_ShadowSplitSpheres[1].xyz;\r\n\t\tvec3 fromCenter2 = positionWS - u_ShadowSplitSpheres[2].xyz;\r\n\t\tvec3 fromCenter3 = positionWS - u_ShadowSplitSpheres[3].xyz;\r\n\r\n\t\tmediump vec4 comparison = vec4(\r\n\t\t\tdot(fromCenter0, fromCenter0)<u_ShadowSplitSpheres[0].w,\r\n\t\t\tdot(fromCenter1, fromCenter1)<u_ShadowSplitSpheres[1].w,\r\n\t\t\tdot(fromCenter2, fromCenter2)<u_ShadowSplitSpheres[2].w,\r\n\t\t\tdot(fromCenter3, fromCenter3)<u_ShadowSplitSpheres[3].w);\r\n\t\tcomparison.yzw = clamp(comparison.yzw - comparison.xyz,0.0,1.0);//keep the nearest\r\n\t\tmediump vec4 indexCoefficient = vec4(4.0,3.0,2.0,1.0);\r\n\t\tmediump int index = 4 - int(dot(comparison, indexCoefficient));\r\n\t\treturn index;\r\n\t}\r\n\r\n\tvec4 getShadowCoord(vec4 positionWS)\r\n\t{\r\n\t\t#ifdef SHADOW_CASCADE\r\n\t\t\tmediump int cascadeIndex = computeCascadeIndex(positionWS.xyz);\r\n\t\t\tif(cascadeIndex > 3)// out of shadow range cascadeIndex is 4.\r\n\t\t\t\treturn vec4(0.0);\r\n\t\t\t\r\n\t\t\t#ifdef GRAPHICS_API_GLES3\r\n\t\t\t\treturn u_ShadowMatrices[cascadeIndex] * positionWS;\r\n\t\t\t#else\r\n\t\t\t\tmat4 shadowMat;\r\n\t\t\t\tif(cascadeIndex == 0)\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[0];\r\n\t\t\t\telse if(cascadeIndex == 1)\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[1];\r\n\t\t\t\telse if(cascadeIndex == 2)\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[2];\r\n\t\t\t\telse\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[3];\r\n\t\t\t\treturn shadowMat * positionWS;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\treturn u_ShadowMatrices[0] * positionWS;\r\n\t\t#endif\r\n\t}\r\n\r\n\tfloat sampleShadowmap(vec4 shadowCoord)\r\n\t{\r\n\t\tshadowCoord.xyz /= shadowCoord.w;\r\n\t\tfloat attenuation = 1.0;\r\n\t\tif(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)\r\n\t\t{\r\n\t\t\t#if defined(SHADOW_SOFT_SHADOW_HIGH)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered9(u_ShadowMap,shadowCoord.xyz,u_ShadowMapSize);\r\n\t\t\t#elif defined(SHADOW_SOFT_SHADOW_LOW)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered4(u_ShadowMap,shadowCoord.xyz,u_ShadowMapSize);\r\n\t\t\t#else\r\n\t\t\t\tattenuation = SAMPLE_TEXTURE2D_SHADOW(u_ShadowMap,shadowCoord.xyz);\r\n\t\t\t#endif\r\n\t\t\tattenuation = mix(1.0,attenuation,u_ShadowParams.x);//shadowParams.x:shadow strength\r\n\t\t}\r\n\t\treturn attenuation;\r\n\t}\r\n#endif\r\n\r\n#if defined(CALCULATE_SPOTSHADOWS)//shader���Զ���ĺ겻����ifdef ����ĳ�if defined\r\n\tTEXTURE2D_SHADOW(u_SpotShadowMap);\r\n\tuniform mat4 u_SpotViewProjectMatrix;\r\n\tfloat sampleSpotShadowmap(vec4 shadowCoord)\r\n\t{\r\n\t\tshadowCoord.xyz /= shadowCoord.w;\r\n\t\tfloat attenuation = 1.0;\r\n\t\tshadowCoord.xy +=1.0;\r\n\t\tshadowCoord.xy/=2.0; \r\n\t\tif(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)\r\n\t\t{\r\n\t\t\t#if defined(SHADOW_SPOT_SOFT_SHADOW_HIGH)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered9(u_SpotShadowMap,shadowCoord.xyz,u_SpotShadowMapSize);\r\n\t\t\t#elif defined(SHADOW_SPOT_SOFT_SHADOW_LOW)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered4(u_SpotShadowMap,shadowCoord.xyz,u_SpotShadowMapSize);\r\n\t\t\t#else\r\n\t\t\t\tattenuation = SAMPLE_TEXTURE2D_SHADOW(u_SpotShadowMap,shadowCoord.xyz);\r\n\t\t\t#endif\r\n\t\t\tattenuation = mix(1.0,attenuation,u_ShadowParams.y);//shadowParams.y:shadow strength\r\n\t\t}\r\n\t\treturn attenuation;\r\n\t}\r\n#endif\r\n\r\nvec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)\r\n{\r\n    float invNdotL = 1.0 - clamp(dot(-lightDirection, normalWS),0.0,1.0);\r\n    float scale = invNdotL * u_ShadowBias.y;\r\n\r\n    // normal bias is negative since we want to apply an inset normal offset\r\n    positionWS += -lightDirection * u_ShadowBias.xxx;\r\n    positionWS += normalWS * vec3(scale);\r\n    return positionWS;\r\n}\r\n";
 
 	var ShadowCasterVSGLSL = "#include \"Lighting.glsl\";\r\n#include \"Shadow.glsl\"\r\n\r\nattribute vec4 a_Position;\r\nattribute vec3 a_Normal;\r\n\r\n#ifdef BONE\r\n\tconst int c_MaxBoneCount = 24;\r\n\tattribute vec4 a_BoneIndices;\r\n\tattribute vec4 a_BoneWeights;\r\n\tuniform mat4 u_Bones[c_MaxBoneCount];\r\n#endif\r\n\r\n#ifdef GPU_INSTANCE\r\n\tattribute mat4 a_WorldMat;\r\n#else\r\n\tuniform mat4 u_WorldMat;\r\n#endif\r\n\r\nuniform mat4 u_ViewProjection;\r\n\r\n#ifdef SHADOW\r\n\tuniform vec3 u_ShadowLightDirection;\r\n#endif\r\n\r\n\r\nvec4 shadowCasterVertex()\r\n{\r\n\tmat4 worldMat;\r\n\t#ifdef GPU_INSTANCE\r\n\t\tworldMat = a_WorldMat;\r\n\t#else\r\n\t\tworldMat = u_WorldMat;\r\n\t#endif\r\n\t\r\n\t#ifdef BONE\r\n\t\tmat4 skinTransform;\r\n\t \t#ifdef SIMPLEBONE\r\n\t\t\tfloat currentPixelPos;\r\n\t\t\t#ifdef GPU_INSTANCE\r\n\t\t\t\tcurrentPixelPos = a_SimpleTextureParams.x+a_SimpleTextureParams.y;\r\n\t\t\t#else\r\n\t\t\t\tcurrentPixelPos = u_SimpleAnimatorParams.x+u_SimpleAnimatorParams.y;\r\n\t\t\t#endif\r\n\t\t\tfloat offset = 1.0/u_SimpleAnimatorTextureSize;\r\n\t\t\tskinTransform =  loadMatFromTexture(currentPixelPos,int(a_BoneIndices.x),offset) * a_BoneWeights.x;\r\n\t\t\tskinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.y),offset) * a_BoneWeights.y;\r\n\t\t\tskinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.z),offset) * a_BoneWeights.z;\r\n\t\t\tskinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.w),offset) * a_BoneWeights.w;\r\n\t\t#else\r\n\t\t\tskinTransform =  u_Bones[int(a_BoneIndices.x)] * a_BoneWeights.x;\r\n\t\t\tskinTransform += u_Bones[int(a_BoneIndices.y)] * a_BoneWeights.y;\r\n\t\t\tskinTransform += u_Bones[int(a_BoneIndices.z)] * a_BoneWeights.z;\r\n\t\t\tskinTransform += u_Bones[int(a_BoneIndices.w)] * a_BoneWeights.w;\r\n\t\t#endif\r\n\t\tworldMat = worldMat * skinTransform;\r\n\t#endif\r\n\r\n\tvec4 positionWS = worldMat * a_Position;\r\n\tmat3 worldInvMat;\r\n\t#ifdef BONE\r\n\t\tworldInvMat=INVERSE_MAT(mat3(worldMat*skinTransform));\r\n\t#else\r\n\t\tworldInvMat=INVERSE_MAT(mat3(worldMat));\r\n\t#endif  \r\n\r\n\tvec3 normalWS = normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem\r\n\t#ifdef SHADOW\r\n\t\tpositionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);\r\n\t#endif\r\n\r\n\tvec4 positionCS = u_ViewProjection * positionWS;\r\n\t#ifdef SHADOW_SPOT\r\n\t\tpositionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;\r\n\t#endif\r\n\tpositionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0\r\n\t\r\n\t// //TODO没考虑UV动画呢\r\n\t// #if defined(DIFFUSEMAP)&&defined(ALPHATEST)\r\n\t// \tv_Texcoord0=a_Texcoord0;\r\n\t// #endif\r\n    return positionCS;\r\n}\r\n";
 
@@ -29913,7 +29923,7 @@
 
 	var TrailPS = "#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了\r\n\tprecision highp float;\r\n#else\r\n\tprecision mediump float;\r\n#endif\r\n\r\nuniform sampler2D u_MainTexture;\r\nuniform vec4 u_MainColor;\r\n\r\nvarying vec2 v_Texcoord0;\r\nvarying vec4 v_Color;\r\n\r\nvoid main()\r\n{\r\n\tvec4 color = 2.0 * u_MainColor * v_Color;\r\n\t#ifdef MAINTEXTURE\r\n\t\tvec4 mainTextureColor = texture2D(u_MainTexture, v_Texcoord0);\r\n\t\tcolor *= mainTextureColor;\r\n\t#endif\r\n\tgl_FragColor = color;\r\n}\r\n\r\n     ";
 
-	var TrailVS = "#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了\r\n\tprecision highp float;\r\n#else\r\n\tprecision mediump float;\r\n#endif\r\n#include \"Lighting.glsl\";\r\n\r\nattribute vec3 a_Position;\r\nattribute vec3 a_OffsetVector;\r\nattribute vec4 a_Color;\r\nattribute float a_Texcoord0X;\r\nattribute float a_Texcoord0Y;\r\nattribute float a_BirthTime;\r\n\r\nuniform mat4 u_View;\r\nuniform mat4 u_Projection;\r\n\r\nuniform vec4 u_TilingOffset;\r\n\r\nuniform float u_CurTime;\r\nuniform float u_LifeTime;\r\nuniform vec4 u_WidthCurve[10];\r\nuniform int u_WidthCurveKeyLength;\r\n\r\nvarying vec2 v_Texcoord0;\r\nvarying vec4 v_Color;\r\n\r\nfloat hermiteInterpolate(float t, float outTangent, float inTangent, float duration, float value1, float value2)\r\n{\r\n\tfloat t2 = t * t;\r\n\tfloat t3 = t2 * t;\r\n\tfloat a = 2.0 * t3 - 3.0 * t2 + 1.0;\r\n\tfloat b = t3 - 2.0 * t2 + t;\r\n\tfloat c = t3 - t2;\r\n\tfloat d = -2.0 * t3 + 3.0 * t2;\r\n\treturn a * value1 + b * outTangent * duration + c * inTangent * duration + d * value2;\r\n}\r\n\r\nfloat getCurWidth(in float normalizeTime)\r\n{\r\n\tfloat width;\r\n\tif(normalizeTime == 0.0){\r\n\t\twidth=u_WidthCurve[0].w;\r\n\t}\r\n\telse if(normalizeTime >= 1.0){\r\n\t\twidth=u_WidthCurve[u_WidthCurveKeyLength - 1].w;\r\n\t}\r\n\telse{\r\n\t\tfor(int i = 0; i < 10; i ++ )\r\n\t\t{\r\n\t\t\tif(normalizeTime == u_WidthCurve[i].x){\r\n\t\t\t\twidth=u_WidthCurve[i].w;\r\n\t\t\t\tbreak;\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\tvec4 lastFrame = u_WidthCurve[i];\r\n\t\t\tvec4 nextFrame = u_WidthCurve[i + 1];\r\n\t\t\tif(normalizeTime > lastFrame.x && normalizeTime < nextFrame.x)\r\n\t\t\t{\r\n\t\t\t\tfloat duration = nextFrame.x - lastFrame.x;\r\n\t\t\t\tfloat t = (normalizeTime - lastFrame.x) / duration;\r\n\t\t\t\tfloat outTangent = lastFrame.z;\r\n\t\t\t\tfloat inTangent = nextFrame.y;\r\n\t\t\t\tfloat value1 = lastFrame.w;\r\n\t\t\t\tfloat value2 = nextFrame.w;\r\n\t\t\t\twidth=hermiteInterpolate(t, outTangent, inTangent, duration, value1, value2);\r\n\t\t\t\tbreak;\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n\treturn width;\r\n}\t\r\n\r\nvoid main()\r\n{\r\n\tfloat normalizeTime = (u_CurTime - a_BirthTime) / u_LifeTime;\r\n\t\r\n\t#ifdef TILINGOFFSET\r\n\t\tv_Texcoord0 = vec2(a_Texcoord0X, 1.0 - a_Texcoord0Y) * u_TilingOffset.xy + u_TilingOffset.zw;\r\n\t#else\r\n\t\tv_Texcoord0 = vec2(a_Texcoord0X, a_Texcoord0Y);\r\n\t#endif\r\n\t\r\n\tv_Color = a_Color;\r\n\t\r\n\tgl_Position = u_Projection * u_View * vec4(a_Position + a_OffsetVector * getCurWidth(normalizeTime),1.0);\r\n\tgl_Position=remapGLPositionZ(gl_Position);\r\n}\r\n";
+	var TrailVS = "#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了\r\n\tprecision highp float;\r\n#else\r\n\tprecision mediump float;\r\n#endif\r\n#include \"Lighting.glsl\";\r\n\r\nattribute vec3 a_Position;\r\nattribute vec3 a_OffsetVector;\r\nattribute vec4 a_Color;\r\nattribute float a_Texcoord0X;\r\nattribute float a_Texcoord0Y;\r\nattribute float a_BirthTime;\r\n\r\nuniform mat4 u_View;\r\nuniform mat4 u_Projection;\r\n\r\nuniform vec4 u_TilingOffset;\r\n\r\nuniform float u_CurTime;\r\nuniform float u_LifeTime;\r\nuniform vec4 u_WidthCurve[10];\r\nuniform int u_WidthCurveKeyLength;\r\n\r\nvarying vec2 v_Texcoord0;\r\nvarying vec4 v_Color;\r\n\r\nfloat hermiteInterpolate(float t, float outTangent, float inTangent, float duration, float value1, float value2)\r\n{\r\n\tfloat t2 = t * t;\r\n\tfloat t3 = t2 * t;\r\n\tfloat a = 2.0 * t3 - 3.0 * t2 + 1.0;\r\n\tfloat b = t3 - 2.0 * t2 + t;\r\n\tfloat c = t3 - t2;\r\n\tfloat d = -2.0 * t3 + 3.0 * t2;\r\n\treturn a * value1 + b * outTangent * duration + c * inTangent * duration + d * value2;\r\n}\r\n\r\nfloat getCurWidth(in float normalizeTime)\r\n{\r\n\tfloat width;\r\n\tif(normalizeTime == 0.0){\r\n\t\twidth=u_WidthCurve[0].w;\r\n\t}\r\n\telse if(normalizeTime >= 1.0){\r\n\t\twidth=u_WidthCurve[u_WidthCurveKeyLength - 1].w;\r\n\t}\r\n\telse{\r\n\t\tfor(int i = 0; i < 10; i ++ )\r\n\t\t{\r\n\t\t\tif(normalizeTime == u_WidthCurve[i].x){\r\n\t\t\t\twidth=u_WidthCurve[i].w;\r\n\t\t\t\tbreak;\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\tvec4 lastFrame = u_WidthCurve[i];\r\n\t\t\tvec4 nextFrame = u_WidthCurve[i + 1];\r\n\t\t\tif(normalizeTime > lastFrame.x && normalizeTime < nextFrame.x)\r\n\t\t\t{\r\n\t\t\t\tfloat duration = nextFrame.x - lastFrame.x;\r\n\t\t\t\tfloat t = (normalizeTime - lastFrame.x) / duration;\r\n\t\t\t\tfloat outTangent = lastFrame.z;\r\n\t\t\t\tfloat inTangent = nextFrame.y;\r\n\t\t\t\tfloat value1 = lastFrame.w;\r\n\t\t\t\tfloat value2 = nextFrame.w;\r\n\t\t\t\twidth=hermiteInterpolate(t, outTangent, inTangent, duration, value1, value2);\r\n\t\t\t\tbreak;\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n\treturn width;\r\n}\t\r\n\r\nvoid main()\r\n{\r\n\tfloat normalizeTime = (u_CurTime - a_BirthTime) / u_LifeTime;\r\n\t\r\n\t#ifdef TILINGOFFSET\r\n\t\tv_Texcoord0 = vec2(a_Texcoord0X, 1.0 - a_Texcoord0Y) * u_TilingOffset.xy + u_TilingOffset.zw;\r\n\t#else\r\n\t\tv_Texcoord0 = vec2(a_Texcoord0X, a_Texcoord0Y);\r\n\t#endif\r\n\t\r\n\tv_Color = a_Color;\r\n\t\r\n\tvec3 cameraPos = (u_View*vec4(a_Position,1.0)).rgb;\r\n\tgl_Position = u_Projection * vec4(cameraPos+a_OffsetVector * getCurWidth(normalizeTime),1.0);\r\n\r\n\tgl_Position=remapGLPositionZ(gl_Position);\r\n}\r\n";
 
 	var UnlitPS = "#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了\r\n\tprecision highp float;\r\n#else\r\n\tprecision mediump float;\r\n#endif\r\n\r\n#if defined(COLOR)&&defined(ENABLEVERTEXCOLOR)\r\n\tvarying vec4 v_Color;\r\n#endif\r\n\r\n#ifdef ALBEDOTEXTURE\r\n\tuniform sampler2D u_AlbedoTexture;\r\n\tvarying vec2 v_Texcoord0;\r\n#endif\r\n\r\nuniform vec4 u_AlbedoColor;\r\n\r\n#ifdef ALPHATEST\r\n\tuniform float u_AlphaTestValue;\r\n#endif\r\n\r\n#ifdef FOG\r\n\tuniform float u_FogStart;\r\n\tuniform float u_FogRange;\r\n\t#ifdef ADDTIVEFOG\r\n\t#else\r\n\t\tuniform vec3 u_FogColor;\r\n\t#endif\r\n#endif\r\n\r\nvoid main()\r\n{\r\n\tvec4 color =  u_AlbedoColor;\r\n\t#ifdef ALBEDOTEXTURE\r\n\t\tcolor *= texture2D(u_AlbedoTexture, v_Texcoord0);\r\n\t#endif\r\n\t#if defined(COLOR)&&defined(ENABLEVERTEXCOLOR)\r\n\t\tcolor *= v_Color;\r\n\t#endif\r\n\t\r\n\t#ifdef ALPHATEST\r\n\t\tif(color.a < u_AlphaTestValue)\r\n\t\t\tdiscard;\r\n\t#endif\r\n\t\r\n\tgl_FragColor = color;\r\n\t\r\n\t#ifdef FOG\r\n\t\tfloat lerpFact = clamp((1.0 / gl_FragCoord.w - u_FogStart) / u_FogRange, 0.0, 1.0);\r\n\t\t#ifdef ADDTIVEFOG\r\n\t\t\tgl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0), lerpFact);\r\n\t\t#else\r\n\t\t\tgl_FragColor.rgb = mix(gl_FragColor.rgb, u_FogColor, lerpFact);\r\n\t\t#endif\r\n\t#endif\r\n\t\r\n}\r\n\r\n";
 

@@ -1,4 +1,6 @@
 package laya.ui {
+	import laya.filters.IFilter;
+	import laya.display.Sprite;
 	import laya.display.Sprite;
 	import laya.filters.IFilter;
 

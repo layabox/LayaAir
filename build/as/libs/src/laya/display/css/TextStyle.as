@@ -1,4 +1,8 @@
 package laya.display.css {
+	import laya.resource.Context;
+	import laya.display.Sprite;
+	import laya.display.css.SpriteStyle;
+	import laya.display.BitmapFont;
 	import laya.display.css.SpriteStyle;
 	import laya.display.BitmapFont;
 	import laya.display.Sprite;

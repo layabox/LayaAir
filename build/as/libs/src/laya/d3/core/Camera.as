@@ -1,4 +1,17 @@
 package laya.d3.core {
+	import laya.d3.core.render.command.CommandBuffer;
+	import laya.d3.math.Vector4;
+	import laya.d3.math.Vector3;
+	import laya.d3.math.Ray;
+	import laya.d3.math.Vector2;
+	import laya.d3.shader.Shader3D;
+	import laya.d3.core.render.RenderContext3D;
+	import laya.d3.component.PostProcess;
+	import laya.d3.math.BoundFrustum;
+	import laya.d3.math.Matrix4x4;
+	import laya.d3.math.Viewport;
+	import laya.d3.resource.RenderTexture;
+	import laya.d3.core.scene.Scene3D;
 	import laya.d3.component.PostProcess;
 	import laya.d3.math.BoundFrustum;
 	import laya.d3.math.Matrix4x4;

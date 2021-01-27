@@ -1,4 +1,5 @@
 package laya.components {
+	import laya.events.Event;
 	import laya.components.Component;
 	import laya.events.Event;
 

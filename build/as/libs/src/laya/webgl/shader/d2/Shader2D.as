@@ -1,4 +1,7 @@
 package laya.webgl.shader.d2 {
+	import laya.webgl.canvas.DrawStyle;
+	import laya.webgl.shader.d2.ShaderDefines2D;
+	import laya.webgl.shader.Shader;
 	import laya.webgl.shader.d2.ShaderDefines2D;
 	import laya.webgl.canvas.DrawStyle;
 	import laya.webgl.shader.Shader;

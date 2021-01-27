@@ -1,4 +1,5 @@
 package laya.d3.core.trail {
+	import laya.d3.graphics.VertexDeclaration;
 	import laya.d3.graphics.IVertex;
 	import laya.d3.graphics.VertexDeclaration;
 

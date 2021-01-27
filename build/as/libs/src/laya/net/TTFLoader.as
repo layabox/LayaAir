@@ -1,5 +1,6 @@
 package laya.net {
 	import laya.utils.Handler;
+	import laya.utils.Handler;
 
 	/**
 	 * @private 

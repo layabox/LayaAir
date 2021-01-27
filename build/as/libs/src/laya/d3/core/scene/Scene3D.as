@@ -1,4 +1,15 @@
 package laya.d3.core.scene {
+	import laya.d3.core.render.command.ShaderDataType;
+	import laya.d3.Input3D;
+	import laya.utils.Timer;
+	import laya.d3.physicsCannon.CannonPhysicsSimulation;
+	import laya.d3.physics.PhysicsSimulation;
+	import laya.d3.resource.models.SkyRenderer;
+	import laya.resource.TextureDecodeFormat;
+	import laya.d3.resource.TextureCube;
+	import laya.d3.graphics.SphericalHarmonicsL2;
+	import laya.utils.Handler;
+	import laya.d3.math.Vector3;
 	import laya.display.Sprite;
 	import laya.resource.ICreateResource;
 	import laya.resource.Texture2D;

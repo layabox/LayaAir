@@ -1,5 +1,6 @@
 package laya.d3.core {
 	import laya.d3.shader.ShaderDefine;
+	import laya.d3.shader.ShaderDefine;
 
 	/**
 	 * 类用来记录精灵数据宏

@@ -1,5 +1,6 @@
 package laya.webgl.text {
 	import laya.maths.Point;
+	import laya.maths.Point;
 	public class AtlasGrid {
 		public var atlasID:Number;
 		private var _width:*;

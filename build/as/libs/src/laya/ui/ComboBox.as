@@ -1,4 +1,9 @@
 package laya.ui {
+	import laya.ui.VScrollBar;
+	import laya.events.Event;
+	import laya.utils.Handler;
+	import laya.ui.List;
+	import laya.ui.Button;
 	import laya.ui.UIComponent;
 	import laya.ui.Button;
 	import laya.ui.List;

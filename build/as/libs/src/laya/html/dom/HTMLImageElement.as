@@ -1,4 +1,6 @@
 package laya.html.dom {
+	import laya.display.Graphics;
+	import laya.html.dom.HTMLElement;
 	import laya.html.dom.HTMLElement;
 	import laya.display.Graphics;
 

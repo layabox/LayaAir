@@ -1,5 +1,6 @@
 package laya.d3.core.scene {
 	import laya.resource.Texture2D;
+	import laya.resource.Texture2D;
 
 	/**
 	 * 光照贴图。

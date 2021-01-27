@@ -1,4 +1,6 @@
 package laya.particle {
+	import laya.resource.Texture;
+	import laya.particle.ParticleSetting;
 	import laya.particle.ParticleSetting;
 	import laya.resource.Texture;
 

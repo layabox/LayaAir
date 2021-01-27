@@ -1,4 +1,7 @@
 package laya.webgl.submit {
+	import laya.webgl.shader.d2.value.Value2D;
+	import laya.webgl.utils.Mesh2D;
+	import laya.resource.Context;
 	import laya.resource.Context;
 	import laya.webgl.shader.d2.value.Value2D;
 	import laya.webgl.utils.Mesh2D;

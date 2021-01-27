@@ -1,5 +1,6 @@
 package laya.resource {
 	import laya.resource.RenderTexture2D;
+	import laya.resource.RenderTexture2D;
 
 	/**
 	 * WebGLRTMgr 管理WebGLRenderTarget的创建和回收

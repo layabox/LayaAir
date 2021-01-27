@@ -1,4 +1,11 @@
 package laya.d3.core.scene {
+	import laya.d3.shader.Shader3D;
+	import laya.d3.core.render.RenderContext3D;
+	import laya.d3.graphics.CameraCullInfo;
+	import laya.d3.math.Ray;
+	import laya.d3.math.BoundBox;
+	import laya.d3.core.scene.IOctreeObject;
+	import laya.d3.math.Vector3;
 	import laya.d3.core.scene.IOctreeObject;
 	import laya.d3.core.render.RenderContext3D;
 	import laya.d3.math.BoundBox;

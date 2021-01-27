@@ -1,4 +1,5 @@
 package laya.d3.resource.models {
+	import laya.d3.resource.models.Mesh;
 	import laya.d3.core.GeometryElement;
 	import laya.d3.resource.models.Mesh;
 

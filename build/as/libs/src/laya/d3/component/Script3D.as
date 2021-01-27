@@ -1,4 +1,6 @@
 package laya.d3.component {
+	import laya.d3.physics.Collision;
+	import laya.d3.physics.PhysicsComponent;
 	import laya.components.Component;
 	import laya.d3.physics.Collision;
 	import laya.d3.physics.PhysicsComponent;

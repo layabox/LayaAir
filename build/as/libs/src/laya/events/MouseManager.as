@@ -1,6 +1,8 @@
 package laya.events {
 	import laya.display.Sprite;
 	import laya.display.Stage;
+	import laya.display.Sprite;
+	import laya.display.Stage;
 
 	/**
 	 * <p><code>MouseManager</code> 是鼠标、触摸交互管理器。</p>

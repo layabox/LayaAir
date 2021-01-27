@@ -1,5 +1,6 @@
 package laya.components {
 	import laya.display.Node;
+	import laya.display.Node;
 	import laya.resource.IDestroy;
 	import laya.resource.ISingletonElement;
 

@@ -1,6 +1,8 @@
 package laya.webgl.utils {
 	import laya.webgl.shader.Shader;
 	import laya.webgl.utils.ShaderNode;
+	import laya.webgl.shader.Shader;
+	import laya.webgl.utils.ShaderNode;
 
 	/**
 	 * @private <code>ShaderCompile</code> 类用于实现Shader编译。

@@ -1,5 +1,6 @@
 package laya.d3 {
 	import laya.d3.math.Vector2;
+	import laya.d3.math.Vector2;
 	import laya.resource.ISingletonElement;
 
 	/**

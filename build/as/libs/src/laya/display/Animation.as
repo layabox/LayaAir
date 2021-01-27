@@ -1,4 +1,6 @@
 package laya.display {
+	import laya.utils.Handler;
+	import laya.display.AnimationBase;
 	import laya.display.AnimationBase;
 	import laya.utils.Handler;
 

@@ -1,4 +1,7 @@
 package laya.d3.core.light {
+	import laya.d3.math.Matrix4x4;
+	import laya.d3.core.light.ShadowMode;
+	import laya.d3.math.Vector3;
 	import laya.d3.math.Vector3;
 	import laya.d3.core.Sprite3D;
 	import laya.d3.core.light.ShadowMode;

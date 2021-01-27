@@ -80,7 +80,7 @@ export class AudioSound extends EventDispatcher {
             AudioSound._initMusicAudio();
             ad = AudioSound._musicAudio;
             if (ad.src != url) {
-                AudioSound._audioCache[ad.src] = null;
+                delete AudioSound._audioCache[ad.src];
                 ad = null;
             }
         } else {
@@ -143,6 +143,10 @@ export class AudioSound extends EventDispatcher {
         var ad: HTMLAudioElement;
         if (this.url == ILaya.SoundManager._bgMusic) {
             ad = AudioSound._musicAudio;
+            if (ad.src != "" && ad.src != this.url) {  //@fix 清除上一次记录 防止它释放时把音乐暂停了
+                delete AudioSound._audioCache[ad.src];
+                AudioSound._audioCache[this.url] = ad;
+            }
         } else {
             ad = AudioSound._audioCache[this.url];
         }

@@ -1,5 +1,6 @@
 package laya.device.media {
 	import laya.display.Sprite;
+	import laya.display.Sprite;
 
 	/**
 	 * <code>Video</code>将视频显示到Canvas上。<code>Video</code>可能不会在所有浏览器有效。

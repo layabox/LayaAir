@@ -1,5 +1,6 @@
 package laya.webgl.text {
 	import laya.webgl.text.CharRenderInfo;
+	import laya.webgl.text.CharRenderInfo;
 	import laya.webgl.text.ICharRender;
 	public class CharRender_Native extends ICharRender {
 		private var lastFont:*;

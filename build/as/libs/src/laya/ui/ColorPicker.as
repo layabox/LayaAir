@@ -1,4 +1,9 @@
 package laya.ui {
+	import laya.ui.Button;
+	import laya.display.Input;
+	import laya.display.Sprite;
+	import laya.ui.Box;
+	import laya.utils.Handler;
 	import laya.ui.UIComponent;
 	import laya.ui.Box;
 	import laya.ui.Button;

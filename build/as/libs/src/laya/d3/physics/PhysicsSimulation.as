@@ -1,4 +1,10 @@
 package laya.d3.physics {
+	import laya.d3.physics.constraints.ConstraintComponent;
+	import laya.d3.math.Quaternion;
+	import laya.d3.physics.shape.ColliderShape;
+	import laya.d3.math.Ray;
+	import laya.d3.physics.HitResult;
+	import laya.d3.math.Vector3;
 	import laya.d3.math.Quaternion;
 	import laya.d3.math.Ray;
 	import laya.d3.math.Vector3;

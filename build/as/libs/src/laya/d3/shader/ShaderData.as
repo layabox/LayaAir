@@ -1,5 +1,12 @@
 package laya.d3.shader {
 	import laya.resource.BaseTexture;
+	import laya.d3.math.Matrix4x4;
+	import laya.d3.math.Quaternion;
+	import laya.d3.math.Vector4;
+	import laya.d3.math.Vector3;
+	import laya.d3.math.Vector2;
+	import laya.d3.shader.ShaderDefine;
+	import laya.resource.BaseTexture;
 	import laya.d3.core.IClone;
 	import laya.d3.math.Matrix4x4;
 	import laya.d3.math.Quaternion;

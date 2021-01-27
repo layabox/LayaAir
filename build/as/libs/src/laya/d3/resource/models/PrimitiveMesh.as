@@ -1,5 +1,6 @@
 package laya.d3.resource.models {
 	import laya.d3.resource.models.Mesh;
+	import laya.d3.resource.models.Mesh;
 
 	/**
 	 * <code>PrimitiveMesh</code> 类用于创建简单网格。

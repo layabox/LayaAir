@@ -1,5 +1,6 @@
 package laya.ui {
 	import laya.events.Event;
+	import laya.events.Event;
 	import laya.ui.Button;
 
 	/**

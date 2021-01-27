@@ -1,4 +1,5 @@
 package laya.resource {
+	import laya.resource.FilterMode;
 	import laya.resource.Bitmap;
 	import laya.resource.FilterMode;
 

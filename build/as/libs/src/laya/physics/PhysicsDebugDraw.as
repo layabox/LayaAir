@@ -1,4 +1,5 @@
 package laya.physics {
+	import laya.resource.Context;
 	import laya.display.Sprite;
 	import laya.resource.Context;
 

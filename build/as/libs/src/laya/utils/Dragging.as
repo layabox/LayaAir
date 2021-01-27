@@ -1,4 +1,6 @@
 package laya.utils {
+	import laya.maths.Rectangle;
+	import laya.display.Sprite;
 	import laya.display.Sprite;
 	import laya.maths.Rectangle;
 

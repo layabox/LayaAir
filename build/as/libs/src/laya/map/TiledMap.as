@@ -1,5 +1,12 @@
 package laya.map {
 	import laya.map.MapLayer;
+	import laya.display.Sprite;
+	import laya.map.GridSprite;
+	import laya.map.TileTexSet;
+	import laya.maths.Point;
+	import laya.utils.Handler;
+	import laya.maths.Rectangle;
+	import laya.map.MapLayer;
 	import laya.map.TileTexSet;
 	import laya.map.GridSprite;
 	import laya.maths.Rectangle;

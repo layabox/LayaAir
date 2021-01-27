@@ -1,4 +1,5 @@
 package laya.effect {
+	import laya.utils.Tween;
 	import laya.effect.EffectBase;
 	import laya.utils.Tween;
 

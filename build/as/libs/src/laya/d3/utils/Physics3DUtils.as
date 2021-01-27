@@ -1,4 +1,6 @@
 package laya.d3.utils {
+	import laya.d3.physics.PhysicsComponent;
+	import laya.d3.math.Vector3;
 	import laya.d3.math.Vector3;
 	import laya.d3.physics.PhysicsComponent;
 

@@ -1,4 +1,7 @@
 package laya.particle {
+	import laya.resource.Context;
+	import laya.particle.ParticleSetting;
+	import laya.webgl.utils.MeshParticle2D;
 	import laya.particle.ParticleTemplateBase;
 	import laya.particle.ParticleSetting;
 	import laya.webgl.utils.MeshParticle2D;

@@ -1,4 +1,7 @@
 package laya.d3.core {
+	import laya.d3.core.HeightMap;
+	import laya.resource.Texture2D;
+	import laya.d3.resource.models.Mesh;
 	import laya.d3.core.MeshSprite3D;
 	import laya.d3.core.HeightMap;
 	import laya.d3.resource.models.Mesh;

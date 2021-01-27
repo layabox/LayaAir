@@ -1,4 +1,7 @@
 package laya.d3.shader {
+	import laya.webgl.utils.ShaderNode;
+	import laya.d3.shader.SubShader;
+	import laya.d3.core.material.RenderState;
 	import laya.webgl.utils.ShaderCompile;
 	import laya.webgl.utils.ShaderNode;
 	import laya.d3.core.material.RenderState;

@@ -1,5 +1,6 @@
 package laya.d3.core.particleShuriKen.module {
 	import laya.d3.core.particleShuriKen.module.GradientSize;
+	import laya.d3.core.particleShuriKen.module.GradientSize;
 	import laya.d3.core.IClone;
 
 	/**

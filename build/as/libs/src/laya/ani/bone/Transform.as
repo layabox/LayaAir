@@ -1,5 +1,6 @@
 package laya.ani.bone {
 	import laya.maths.Matrix;
+	import laya.maths.Matrix;
 	public class Transform {
 
 		/**

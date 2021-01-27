@@ -1,5 +1,6 @@
 package laya.particle.emitter {
 	import laya.particle.ParticleTemplateBase;
+	import laya.particle.ParticleTemplateBase;
 
 	/**
 	 * <code>EmitterBase</code> 类是粒子发射器类

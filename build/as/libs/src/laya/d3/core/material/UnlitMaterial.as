@@ -2,6 +2,9 @@ package laya.d3.core.material {
 	import laya.resource.BaseTexture;
 	import laya.d3.math.Vector4;
 	import laya.d3.shader.ShaderDefine;
+	import laya.resource.BaseTexture;
+	import laya.d3.math.Vector4;
+	import laya.d3.shader.ShaderDefine;
 	import laya.d3.core.material.Material;
 
 	/**

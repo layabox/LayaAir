@@ -1,5 +1,6 @@
 package laya.ani {
 	import laya.ani.bone.canvasmesh.SkinMeshForGraphic;
+	import laya.ani.bone.canvasmesh.SkinMeshForGraphic;
 	import laya.display.Graphics;
 
 	/**

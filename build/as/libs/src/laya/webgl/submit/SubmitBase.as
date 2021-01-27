@@ -1,4 +1,6 @@
 package laya.webgl.submit {
+	import laya.webgl.shader.d2.value.Value2D;
+	import laya.webgl.submit.ISubmit;
 	import laya.webgl.submit.ISubmit;
 	import laya.webgl.shader.d2.value.Value2D;
 	public class SubmitBase implements ISubmit {

@@ -1,6 +1,8 @@
 package laya.d3.core.material {
 	import laya.utils.Handler;
 	import laya.d3.shader.ShaderDefine;
+	import laya.utils.Handler;
+	import laya.d3.shader.ShaderDefine;
 
 	/**
 	 * BaseMaterial has deprecated,please use Material instead废弃的类，请使用Material类.

@@ -1,4 +1,6 @@
 package laya.d3.core {
+	import laya.d3.math.BoundBox;
+	import laya.d3.math.Vector3;
 	import laya.d3.core.IClone;
 	import laya.d3.math.BoundBox;
 	import laya.d3.math.Vector3;

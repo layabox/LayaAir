@@ -1,5 +1,6 @@
 package laya.html.dom {
 	import laya.html.dom.HTMLElement;
+	import laya.html.dom.HTMLElement;
 
 	/**
 	 * @private 

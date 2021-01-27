@@ -83,6 +83,8 @@ void main()
 	
 	v_Color = a_Color;
 	
-	gl_Position = u_Projection * u_View * vec4(a_Position + a_OffsetVector * getCurWidth(normalizeTime),1.0);
+	vec3 cameraPos = (u_View*vec4(a_Position,1.0)).rgb;
+	gl_Position = u_Projection * vec4(cameraPos+a_OffsetVector * getCurWidth(normalizeTime),1.0);
+
 	gl_Position=remapGLPositionZ(gl_Position);
 }

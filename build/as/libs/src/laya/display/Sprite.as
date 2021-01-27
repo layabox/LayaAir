@@ -1,4 +1,18 @@
 package laya.display {
+	import laya.display.Stage;
+	import laya.utils.Handler;
+	import laya.display.Node;
+	import laya.events.EventDispatcher;
+	import laya.maths.Point;
+	import laya.resource.Texture2D;
+	import laya.resource.Texture;
+	import laya.resource.RenderTexture2D;
+	import laya.resource.HTMLCanvas;
+	import laya.resource.Context;
+	import laya.display.Graphics;
+	import laya.maths.Matrix;
+	import laya.display.css.SpriteStyle;
+	import laya.maths.Rectangle;
 	import laya.events.EventDispatcher;
 	import laya.maths.Matrix;
 	import laya.maths.Point;

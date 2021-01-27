@@ -1,5 +1,6 @@
 package laya.effect {
 	import laya.display.Sprite;
+	import laya.display.Sprite;
 
 	/**
 	 * @Script {name:ButtonEffect}

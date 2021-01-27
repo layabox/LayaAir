@@ -1,6 +1,8 @@
 package laya.d3.core.pixelLine {
 	import laya.d3.math.Color;
 	import laya.d3.math.Vector3;
+	import laya.d3.math.Color;
+	import laya.d3.math.Vector3;
 
 	/**
 	 * <code>PixelLineData</code> 类用于表示线数据。

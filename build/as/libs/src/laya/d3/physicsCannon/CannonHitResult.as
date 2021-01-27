@@ -1,4 +1,6 @@
 package laya.d3.physicsCannon {
+	import laya.d3.math.Vector3;
+	import laya.d3.physicsCannon.CannonPhysicsComponent;
 	import laya.d3.physicsCannon.CannonPhysicsComponent;
 	import laya.d3.math.Vector3;
 

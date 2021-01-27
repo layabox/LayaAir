@@ -1,5 +1,6 @@
 package laya.map {
 	import laya.map.TileTexSet;
+	import laya.map.TileTexSet;
 	import laya.display.Sprite;
 
 	/**

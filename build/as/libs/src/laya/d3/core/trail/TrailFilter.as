@@ -1,4 +1,7 @@
 package laya.d3.core.trail {
+	import laya.d3.core.Gradient;
+	import laya.d3.math.Vector3;
+	import laya.d3.core.trail.TrailSprite3D;
 	import laya.d3.math.Vector3;
 	import laya.d3.core.FloatKeyframe;
 	import laya.d3.core.Gradient;

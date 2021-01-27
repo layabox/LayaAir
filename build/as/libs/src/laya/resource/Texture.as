@@ -1,4 +1,7 @@
 package laya.resource {
+	import laya.utils.Handler;
+	import laya.d3.resource.RenderTexture;
+	import laya.resource.Texture2D;
 	import laya.resource.Texture2D;
 	import laya.events.EventDispatcher;
 	import laya.utils.Handler;

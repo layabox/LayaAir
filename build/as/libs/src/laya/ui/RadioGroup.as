@@ -1,4 +1,5 @@
 package laya.ui {
+	import laya.display.Sprite;
 	import laya.ui.UIGroup;
 	import laya.display.Sprite;
 

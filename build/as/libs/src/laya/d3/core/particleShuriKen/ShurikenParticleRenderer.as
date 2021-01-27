@@ -1,4 +1,7 @@
 package laya.d3.core.particleShuriKen {
+	import laya.d3.core.Bounds;
+	import laya.d3.core.particleShuriKen.ShuriKenParticle3D;
+	import laya.d3.resource.models.Mesh;
 	import laya.d3.resource.models.Mesh;
 	import laya.d3.core.Bounds;
 	import laya.d3.core.render.BaseRender;

@@ -1,4 +1,5 @@
 package laya.media.h5audio {
+	import laya.media.SoundChannel;
 	import laya.events.EventDispatcher;
 	import laya.media.SoundChannel;
 

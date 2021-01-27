@@ -1,4 +1,7 @@
 package laya.ui {
+	import laya.resource.Texture;
+	import laya.utils.Handler;
+	import laya.ui.AutoBitmap;
 	import laya.ui.UIComponent;
 	import laya.ui.AutoBitmap;
 	import laya.resource.Texture;

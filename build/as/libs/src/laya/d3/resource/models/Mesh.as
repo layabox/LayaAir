@@ -1,4 +1,9 @@
 package laya.d3.resource.models {
+	import laya.d3.graphics.VertexDeclaration;
+	import laya.d3.resource.models.SubMesh;
+	import laya.d3.graphics.IndexFormat;
+	import laya.d3.core.Bounds;
+	import laya.utils.Handler;
 	import laya.resource.Resource;
 	import laya.utils.Handler;
 	import laya.d3.core.Bounds;

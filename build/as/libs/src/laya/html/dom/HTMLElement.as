@@ -2,6 +2,9 @@ package laya.html.dom {
 	import laya.display.Graphics;
 	import laya.html.utils.HTMLStyle;
 	import laya.net.URL;
+	import laya.display.Graphics;
+	import laya.html.utils.HTMLStyle;
+	import laya.net.URL;
 
 	/**
 	 * @private 

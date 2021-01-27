@@ -1,4 +1,6 @@
 package laya.ui {
+	import laya.ui.Image;
+	import laya.utils.Handler;
 	import laya.ui.UIComponent;
 	import laya.ui.Image;
 	import laya.utils.Handler;

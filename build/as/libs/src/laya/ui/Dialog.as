@@ -1,4 +1,8 @@
 package laya.ui {
+	import laya.ui.UIComponent;
+	import laya.events.Event;
+	import laya.utils.Handler;
+	import laya.ui.DialogManager;
 	import laya.ui.View;
 	import laya.ui.DialogManager;
 	import laya.ui.UIComponent;

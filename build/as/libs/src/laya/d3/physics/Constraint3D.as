@@ -1,5 +1,6 @@
 package laya.d3.physics {
 	import laya.d3.physics.Rigidbody3D;
+	import laya.d3.physics.Rigidbody3D;
 
 	/**
 	 * ...

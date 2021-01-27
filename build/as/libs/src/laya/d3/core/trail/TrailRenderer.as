@@ -1,4 +1,6 @@
 package laya.d3.core.trail {
+	import laya.d3.math.Matrix4x4;
+	import laya.d3.core.trail.TrailSprite3D;
 	import laya.d3.core.trail.TrailSprite3D;
 	import laya.d3.core.render.BaseRender;
 	import laya.d3.math.Matrix4x4;

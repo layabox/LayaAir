@@ -1,6 +1,8 @@
 package laya.webgl.utils {
 	import laya.webgl.utils.IndexBuffer2D;
 	import laya.webgl.utils.VertexBuffer2D;
+	import laya.webgl.utils.IndexBuffer2D;
+	import laya.webgl.utils.VertexBuffer2D;
 
 	/**
 	 * Mesh2d只是保存数据。描述attribute用的。本身不具有渲染功能。

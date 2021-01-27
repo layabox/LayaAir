@@ -1,4 +1,7 @@
 package laya.ui {
+	import laya.display.Sprite;
+	import laya.ui.ISelect;
+	import laya.utils.Handler;
 	import laya.ui.Box;
 	import laya.ui.IItem;
 	import laya.ui.ISelect;

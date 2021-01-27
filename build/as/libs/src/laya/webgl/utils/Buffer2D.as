@@ -1,5 +1,6 @@
 package laya.webgl.utils {
 	import laya.webgl.WebGLContext;
+	import laya.webgl.WebGLContext;
 	import laya.webgl.utils.Buffer;
 	public class Buffer2D extends Buffer {
 		public static var FLOAT32:Number;

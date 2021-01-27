@@ -1,5 +1,6 @@
 package laya.device.media {
 	import laya.utils.Handler;
+	import laya.utils.Handler;
 
 	/**
 	 * Media用于捕捉摄像头和麦克风。可以捕捉任意之一，或者同时捕捉两者。<code>getCamera</code>前可以使用<code>supported()</code>检查当前浏览器是否支持。

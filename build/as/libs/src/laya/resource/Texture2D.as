@@ -1,4 +1,6 @@
 package laya.resource {
+	import laya.resource.BaseTexture;
+	import laya.utils.Handler;
 	import laya.utils.Handler;
 	import laya.resource.BaseTexture;
 	import laya.resource.TextureFormat;

@@ -1,4 +1,9 @@
 package laya.display {
+	import laya.maths.Point;
+	import laya.maths.Rectangle;
+	import laya.display.BitmapFont;
+	import laya.display.css.TextStyle;
+	import laya.display.css.SpriteStyle;
 	import laya.display.Sprite;
 	import laya.display.BitmapFont;
 	import laya.display.css.SpriteStyle;

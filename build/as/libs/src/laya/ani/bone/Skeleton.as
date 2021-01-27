@@ -1,4 +1,9 @@
 package laya.ani.bone {
+	import laya.ani.AnimationPlayer;
+	import laya.resource.Texture;
+	import laya.ani.bone.BoneSlot;
+	import laya.utils.Handler;
+	import laya.ani.bone.Templet;
 	import laya.ani.bone.BoneSlot;
 	import laya.ani.AnimationPlayer;
 	import laya.display.Sprite;

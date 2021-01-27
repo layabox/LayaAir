@@ -1,5 +1,6 @@
 package laya.d3.physics.shape {
 	import laya.d3.physics.shape.ColliderShape;
+	import laya.d3.physics.shape.ColliderShape;
 
 	/**
 	 * <code>CompoundColliderShape</code> 类用于创建组合碰撞器。

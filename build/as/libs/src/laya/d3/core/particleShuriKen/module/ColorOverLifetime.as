@@ -1,5 +1,6 @@
 package laya.d3.core.particleShuriKen.module {
 	import laya.d3.core.particleShuriKen.module.GradientColor;
+	import laya.d3.core.particleShuriKen.module.GradientColor;
 
 	/**
 	 * <code>ColorOverLifetime</code> 类用于粒子的生命周期颜色。

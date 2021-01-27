@@ -1,4 +1,6 @@
 package laya.d3.core.render {
+	import laya.resource.Texture2D;
+	import laya.d3.math.Color;
 	import laya.d3.core.render.PostProcessEffect;
 	import laya.d3.math.Color;
 	import laya.resource.Texture2D;

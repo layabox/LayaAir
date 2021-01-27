@@ -1,4 +1,7 @@
 package laya.html.dom {
+	import laya.maths.Rectangle;
+	import laya.html.dom.HTMLElement;
+	import laya.utils.Handler;
 	import laya.html.dom.HTMLElement;
 	import laya.maths.Rectangle;
 	import laya.utils.Handler;

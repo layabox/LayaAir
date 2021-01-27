@@ -1,4 +1,18 @@
 package laya.resource {
+	import laya.webgl.submit.ISubmit;
+	import laya.webgl.shader.Shader;
+	import laya.webgl.utils.VertexBuffer2D;
+	import laya.webgl.utils.IndexBuffer2D;
+	import laya.webgl.shader.d2.value.Value2D;
+	import laya.resource.HTMLCanvas;
+	import laya.resource.RenderTexture2D;
+	import laya.filters.ColorFilter;
+	import laya.maths.Point;
+	import laya.resource.Texture;
+	import laya.utils.WordText;
+	import laya.display.Sprite;
+	import laya.maths.Matrix;
+	import laya.maths.Rectangle;
 	import laya.display.Sprite;
 	import laya.filters.ColorFilter;
 	import laya.maths.Matrix;

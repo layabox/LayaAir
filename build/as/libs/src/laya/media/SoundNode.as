@@ -1,6 +1,8 @@
 package laya.media {
 	import laya.display.Sprite;
 	import laya.utils.Handler;
+	import laya.display.Sprite;
+	import laya.utils.Handler;
 
 	/**
 	 * @private 

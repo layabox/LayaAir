@@ -1,5 +1,6 @@
 package laya.d3.shader {
 	import laya.d3.shader.Shader3D;
+	import laya.d3.shader.Shader3D;
 
 	/**
 	 * 着色器变种。

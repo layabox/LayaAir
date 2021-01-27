@@ -1,5 +1,6 @@
 package laya.d3.physics.shape {
 	import laya.d3.resource.models.Mesh;
+	import laya.d3.resource.models.Mesh;
 	import laya.d3.physics.shape.ColliderShape;
 
 	/**

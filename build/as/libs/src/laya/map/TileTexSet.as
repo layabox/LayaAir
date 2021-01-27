@@ -1,6 +1,8 @@
 package laya.map {
 	import laya.map.TileAniSprite;
 	import laya.resource.Texture;
+	import laya.map.TileAniSprite;
+	import laya.resource.Texture;
 
 	/**
 	 * 此类是子纹理类，也包括同类动画的管理

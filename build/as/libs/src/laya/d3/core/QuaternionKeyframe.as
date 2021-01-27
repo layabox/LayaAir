@@ -1,4 +1,6 @@
 package laya.d3.core {
+	import laya.d3.math.Quaternion;
+	import laya.d3.math.Vector4;
 	import laya.d3.core.Keyframe;
 	import laya.d3.math.Quaternion;
 	import laya.d3.math.Vector4;

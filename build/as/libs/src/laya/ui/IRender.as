@@ -8,7 +8,7 @@ package laya.ui {
 		/**
 		 * 渲染项。
 		 */
-		function get itemRender():*;
+		var itemRender:*;
 	}
 
 }

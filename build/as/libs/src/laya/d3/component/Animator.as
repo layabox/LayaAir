@@ -1,4 +1,9 @@
 package laya.d3.component {
+	import laya.d3.core.Sprite3D;
+	import laya.d3.core.Avatar;
+	import laya.d3.component.AnimatorPlayState;
+	import laya.d3.component.AnimatorControllerLayer;
+	import laya.d3.component.AnimatorState;
 	import laya.components.Component;
 	import laya.d3.core.Avatar;
 	import laya.d3.core.Sprite3D;

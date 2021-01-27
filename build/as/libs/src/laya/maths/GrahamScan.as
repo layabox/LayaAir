@@ -1,5 +1,6 @@
 package laya.maths {
 	import laya.maths.Point;
+	import laya.maths.Point;
 
 	/**
 	 * @private 凸包算法。

@@ -1,4 +1,7 @@
 package laya.utils {
+	import laya.maths.Rectangle;
+	import laya.display.Sprite;
+	import laya.display.Stage;
 	import laya.display.Sprite;
 	import laya.display.Stage;
 	import laya.maths.Rectangle;

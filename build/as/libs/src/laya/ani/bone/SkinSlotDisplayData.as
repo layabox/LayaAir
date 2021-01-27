@@ -1,4 +1,6 @@
 package laya.ani.bone {
+	import laya.resource.Texture;
+	import laya.ani.bone.Transform;
 	import laya.ani.bone.Transform;
 	import laya.resource.Texture;
 

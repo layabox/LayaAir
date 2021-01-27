@@ -1,4 +1,10 @@
 package laya.ui {
+	import laya.display.Sprite;
+	import laya.ui.ScrollBar;
+	import laya.display.Node;
+	import laya.ui.HScrollBar;
+	import laya.ui.VScrollBar;
+	import laya.ui.Box;
 	import laya.ui.Box;
 	import laya.ui.VScrollBar;
 	import laya.ui.HScrollBar;

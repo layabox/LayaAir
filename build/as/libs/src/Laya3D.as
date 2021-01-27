@@ -1,4 +1,6 @@
 package  {
+	import laya.utils.Handler;
+	import laya.d3.physics.PhysicsSettings;
 
 	import laya.d3.physics.PhysicsSettings;
 	import laya.utils.Handler;

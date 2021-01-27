@@ -1,4 +1,5 @@
 package laya.d3.physicsCannon {
+	import laya.d3.physicsCannon.CannonPhysicsComponent;
 	import laya.d3.physicsCannon.CannonContactPoint;
 	import laya.d3.physicsCannon.CannonPhysicsComponent;
 

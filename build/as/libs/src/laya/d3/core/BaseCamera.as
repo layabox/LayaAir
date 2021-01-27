@@ -1,4 +1,8 @@
 package laya.d3.core {
+	import laya.d3.shader.Shader3D;
+	import laya.d3.resource.models.SkyRenderer;
+	import laya.d3.math.Vector4;
+	import laya.d3.math.Matrix4x4;
 	import laya.d3.math.Matrix4x4;
 	import laya.d3.math.Vector4;
 	import laya.d3.resource.models.SkyRenderer;

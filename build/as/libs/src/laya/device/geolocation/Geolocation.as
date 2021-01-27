@@ -1,5 +1,6 @@
 package laya.device.geolocation {
 	import laya.utils.Handler;
+	import laya.utils.Handler;
 
 	/**
 	 * 使用前可用<code>supported</code>查看浏览器支持。

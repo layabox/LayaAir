@@ -1,4 +1,5 @@
 package laya.d3.physics {
+	import laya.d3.physics.PhysicsComponent;
 	import laya.d3.physics.ContactPoint;
 	import laya.d3.physics.PhysicsComponent;
 

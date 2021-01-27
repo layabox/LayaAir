@@ -1,4 +1,6 @@
 package laya.d3.core.particleShuriKen {
+	import laya.d3.core.particleShuriKen.ShurikenParticleRenderer;
+	import laya.d3.core.particleShuriKen.ShurikenParticleSystem;
 	import laya.d3.core.RenderableSprite3D;
 	import laya.d3.core.particleShuriKen.ShurikenParticleRenderer;
 	import laya.d3.core.particleShuriKen.ShurikenParticleSystem;

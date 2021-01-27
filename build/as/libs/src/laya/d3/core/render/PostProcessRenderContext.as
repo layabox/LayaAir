@@ -1,4 +1,8 @@
 package laya.d3.core.render {
+	import laya.d3.core.render.command.CommandBuffer;
+	import laya.d3.shader.ShaderData;
+	import laya.d3.core.Camera;
+	import laya.d3.resource.RenderTexture;
 	import laya.d3.core.Camera;
 	import laya.d3.core.render.command.CommandBuffer;
 	import laya.d3.resource.RenderTexture;

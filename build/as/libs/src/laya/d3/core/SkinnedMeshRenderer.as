@@ -1,4 +1,7 @@
 package laya.d3.core {
+	import laya.d3.core.RenderableSprite3D;
+	import laya.d3.core.Sprite3D;
+	import laya.d3.core.Bounds;
 	import laya.d3.core.Bounds;
 	import laya.d3.core.MeshRenderer;
 	import laya.d3.core.RenderableSprite3D;

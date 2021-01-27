@@ -1,4 +1,5 @@
 package laya.ani.swf {
+	import laya.utils.Handler;
 	import laya.display.Sprite;
 	import laya.utils.Handler;
 

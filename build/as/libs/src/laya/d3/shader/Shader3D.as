@@ -1,4 +1,7 @@
 package laya.d3.shader {
+	import laya.d3.shader.SubShader;
+	import laya.d3.shader.ShaderDefine;
+	import laya.d3.shader.ShaderVariantCollection;
 	import laya.d3.shader.ShaderDefine;
 	import laya.d3.shader.ShaderVariantCollection;
 	import laya.d3.shader.SubShader;

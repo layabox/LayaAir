@@ -1,6 +1,8 @@
 package laya.webgl.shader.d2 {
 	import laya.webgl.shader.Shader;
 	import laya.webgl.shader.ShaderValue;
+	import laya.webgl.shader.Shader;
+	import laya.webgl.shader.ShaderValue;
 	public class Shader2X extends Shader {
 		public var _params2dQuick2:Array;
 		public var _shaderValueWidth:Number;

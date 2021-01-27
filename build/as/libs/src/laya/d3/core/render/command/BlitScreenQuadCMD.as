@@ -1,4 +1,10 @@
 package laya.d3.core.render.command {
+	import laya.d3.core.render.command.CommandBuffer;
+	import laya.d3.shader.ShaderData;
+	import laya.d3.shader.Shader3D;
+	import laya.d3.math.Vector4;
+	import laya.d3.resource.RenderTexture;
+	import laya.resource.BaseTexture;
 	import laya.resource.BaseTexture;
 	import laya.d3.math.Vector4;
 	import laya.d3.resource.RenderTexture;

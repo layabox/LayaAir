@@ -1,4 +1,8 @@
 package laya.d3.core.reflectionProbe {
+	import laya.d3.core.Bounds;
+	import laya.d3.resource.TextureCube;
+	import laya.d3.math.Vector4;
+	import laya.d3.math.Vector3;
 	import laya.d3.math.Vector4;
 	import laya.d3.resource.TextureCube;
 	import laya.d3.core.Bounds;

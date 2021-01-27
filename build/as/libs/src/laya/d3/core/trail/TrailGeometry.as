@@ -1,4 +1,5 @@
 package laya.d3.core.trail {
+	import laya.d3.core.trail.TrailFilter;
 	import laya.d3.core.GeometryElement;
 	import laya.d3.core.trail.TrailFilter;
 

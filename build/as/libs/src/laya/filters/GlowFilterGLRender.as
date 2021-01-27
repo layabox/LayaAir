@@ -1,4 +1,7 @@
 package laya.filters {
+	import laya.filters.GlowFilter;
+	import laya.resource.Context;
+	import laya.resource.RenderTexture2D;
 	import laya.resource.Context;
 	import laya.resource.RenderTexture2D;
 	import laya.filters.GlowFilter;

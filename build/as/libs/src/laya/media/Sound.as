@@ -1,5 +1,6 @@
 package laya.media {
 	import laya.media.SoundChannel;
+	import laya.media.SoundChannel;
 	import laya.events.EventDispatcher;
 
 	/**

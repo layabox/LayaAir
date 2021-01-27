@@ -1,4 +1,8 @@
 package  {
+	import laya.renders.Render;
+	import laya.net.LoaderManager;
+	import laya.utils.Timer;
+	import laya.display.Stage;
 	import laya.display.Stage;
 	import laya.net.LoaderManager;
 	import laya.renders.Render;

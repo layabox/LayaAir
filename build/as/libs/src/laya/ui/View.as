@@ -1,5 +1,6 @@
 package laya.ui {
 	import laya.ui.Widget;
+	import laya.ui.Widget;
 	import laya.display.Scene;
 
 	/**

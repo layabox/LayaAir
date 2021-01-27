@@ -1,4 +1,5 @@
 package laya.webgl.canvas.save {
+	import laya.resource.Context;
 	import laya.webgl.canvas.save.ISaveData;
 	import laya.resource.Context;
 	public class SaveTranslate implements ISaveData {

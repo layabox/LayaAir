@@ -1,4 +1,5 @@
 package laya.html.dom {
+	import laya.html.utils.HTMLStyle;
 	import laya.display.Sprite;
 	import laya.html.utils.HTMLStyle;
 

@@ -1,4 +1,7 @@
 package laya.effect {
+	import laya.utils.Tween;
+	import laya.utils.Handler;
+	import laya.display.Sprite;
 	import laya.utils.Handler;
 	import laya.display.Sprite;
 	import laya.utils.Tween;

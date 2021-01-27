@@ -1,5 +1,6 @@
 package laya.webgl.canvas {
 	import laya.utils.ColorUtils;
+	import laya.utils.ColorUtils;
 	public class DrawStyle {
 		public static var DEFAULT:DrawStyle;
 		public var _color:ColorUtils;

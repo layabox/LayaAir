@@ -1,4 +1,7 @@
 package laya.particle {
+	import laya.resource.Context;
+	import laya.particle.emitter.EmitterBase;
+	import laya.particle.ParticleSetting;
 	import laya.display.Sprite;
 	import laya.particle.ParticleSetting;
 	import laya.resource.Context;

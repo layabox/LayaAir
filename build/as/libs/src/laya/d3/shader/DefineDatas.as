@@ -1,4 +1,5 @@
 package laya.d3.shader {
+	import laya.d3.shader.ShaderDefine;
 	import laya.d3.core.IClone;
 	import laya.d3.shader.ShaderDefine;
 

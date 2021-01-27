@@ -1,4 +1,7 @@
 package laya.display.cmd {
+	import laya.resource.Context;
+	import laya.maths.Point;
+	import laya.resource.Texture;
 	import laya.maths.Point;
 	import laya.resource.Context;
 	import laya.resource.Texture;

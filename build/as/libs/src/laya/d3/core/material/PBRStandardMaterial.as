@@ -1,5 +1,6 @@
 package laya.d3.core.material {
 	import laya.resource.BaseTexture;
+	import laya.resource.BaseTexture;
 	import laya.d3.core.material.PBRMaterial;
 
 	/**

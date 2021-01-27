@@ -1,4 +1,7 @@
 package laya.d3.core {
+	import laya.resource.Texture2D;
+	import laya.d3.math.Vector2;
+	import laya.d3.resource.models.Mesh;
 	import laya.d3.math.Vector2;
 	import laya.d3.resource.models.Mesh;
 	import laya.resource.Texture2D;

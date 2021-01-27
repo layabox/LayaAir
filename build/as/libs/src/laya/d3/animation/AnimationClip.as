@@ -1,5 +1,7 @@
 package laya.d3.animation {
 	import laya.d3.animation.AnimationEvent;
+	import laya.utils.Handler;
+	import laya.d3.animation.AnimationEvent;
 	import laya.resource.Resource;
 	import laya.utils.Handler;
 

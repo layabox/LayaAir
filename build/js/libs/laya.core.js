@@ -13880,7 +13880,7 @@ window.Laya= (function (exports) {
             if (this._components) {
                 for (var i = 0, n = this._components.length; i < n; i++) {
                     var comp = this._components[i];
-                    comp._setActive(false);
+                    (!comp._isScript()) && comp._setActive(false);
                     (comp._isScript() && comp._enabled) && (activeChangeScripts.push(comp));
                 }
             }
@@ -14268,11 +14268,11 @@ window.Laya= (function (exports) {
             }
             else {
                 pList = Utils.clearArray(this._boundStyle.temBM);
-                if (this._texture) {
-                    rec = Rectangle.TEMP;
-                    rec.setTo(0, 0, this.width || this._texture.width, this.height || this._texture.height);
-                    Utils.concatArray(pList, rec._getBoundPoints());
-                }
+            }
+            if (this._texture) {
+                rec = Rectangle.TEMP;
+                rec.setTo(0, 0, this.width || this._texture.width, this.height || this._texture.height);
+                Utils.concatArray(pList, rec._getBoundPoints());
             }
             var child;
             var cList;
@@ -17744,7 +17744,7 @@ window.Laya= (function (exports) {
                 AudioSound._initMusicAudio();
                 ad = AudioSound._musicAudio;
                 if (ad.src != url) {
-                    AudioSound._audioCache[ad.src] = null;
+                    delete AudioSound._audioCache[ad.src];
                     ad = null;
                 }
             }
@@ -17797,6 +17797,10 @@ window.Laya= (function (exports) {
             var ad;
             if (this.url == ILaya.SoundManager._bgMusic) {
                 ad = AudioSound._musicAudio;
+                if (ad.src != "" && ad.src != this.url) {
+                    delete AudioSound._audioCache[ad.src];
+                    AudioSound._audioCache[this.url] = ad;
+                }
             }
             else {
                 ad = AudioSound._audioCache[this.url];
@@ -18652,7 +18656,9 @@ window.Laya= (function (exports) {
                     http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 else {
                     http.setRequestHeader("Content-Type", "application/json");
-                    isJson = true;
+                    if (!(data instanceof ArrayBuffer) && typeof data !== "string") {
+                        isJson = true;
+                    }
                 }
             }
             let restype = responseType !== "arraybuffer" ? "text" : "arraybuffer";
@@ -18767,7 +18773,10 @@ window.Laya= (function (exports) {
             if (useWorkerLoader)
                 ILaya.WorkerLoader.enableWorkerLoader();
             var cacheRes;
-            cacheRes = Loader.loadedMap[url];
+            if (type == Loader.IMAGE)
+                cacheRes = Loader.textureMap[url];
+            else
+                cacheRes = Loader.loadedMap[url];
             if (!ignoreCache && cacheRes) {
                 this._data = cacheRes;
                 this.event(Event.PROGRESS, 1);
@@ -19317,7 +19326,7 @@ window.Laya= (function (exports) {
     Loader.AVATAR = "AVATAR";
     Loader.TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
     Loader.TERRAINRES = "TERRAIN";
-    Loader.typeMap = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" };
+    Loader.typeMap = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer", "wasm": "arraybuffer" };
     Loader.parserMap = {};
     Loader.maxTimeOut = 100;
     Loader.groupMap = {};
@@ -19457,6 +19466,12 @@ window.Laya= (function (exports) {
         load(url, complete = null, progress = null, type = null, priority = 1, cache = true, group = null, ignoreCache = false, useWorkerLoader = ILaya.WorkerLoader.enable) {
             if (url instanceof Array) {
                 return this._loadAssets(url, complete, progress, type, priority, cache, group);
+            }
+            if (!type) {
+                if (url.indexOf("data:image") === 0)
+                    type = Loader.IMAGE;
+                else
+                    type = Loader.getTypeFromUrl(url);
             }
             var content;
             if (type === Loader.IMAGE)
@@ -20682,6 +20697,10 @@ window.Laya= (function (exports) {
             return 0;
         }
         _frameLoop() {
+            if (!this._controlNode || this._controlNode.destroyed) {
+                this.clearTimer(this, this._frameLoop);
+                return;
+            }
             if (this._isReverse) {
                 this._index--;
                 if (this._index < 0) {
@@ -22714,7 +22733,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.10.0beta";
+    Laya.version = "2.10.0";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;
@@ -23883,6 +23902,7 @@ window.Laya= (function (exports) {
             this.autoDestroyAtClosed = false;
             this.url = null;
             this._viewCreated = false;
+            this._idMap = null;
             this._$componentType = "Scene";
             Scene.unDestroyedScenes.push(this);
             this._scene = this;

@@ -1,4 +1,6 @@
 package laya.map {
+	import laya.map.TileAniSprite;
+	import laya.map.TiledMap;
 	import laya.map.TiledMap;
 	import laya.map.TileAniSprite;
 	import laya.display.Sprite;

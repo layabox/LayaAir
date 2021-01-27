@@ -1,6 +1,8 @@
 package laya.renders {
 	import laya.resource.Context;
 	import laya.resource.HTMLCanvas;
+	import laya.resource.Context;
+	import laya.resource.HTMLCanvas;
 
 	/**
 	 * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。

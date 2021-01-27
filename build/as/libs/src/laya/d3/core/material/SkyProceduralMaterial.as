@@ -1,5 +1,6 @@
 package laya.d3.core.material {
 	import laya.d3.math.Vector4;
+	import laya.d3.math.Vector4;
 	import laya.d3.core.material.Material;
 
 	/**

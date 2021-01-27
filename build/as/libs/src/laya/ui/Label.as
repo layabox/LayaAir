@@ -1,5 +1,6 @@
 package laya.ui {
 	import laya.display.Text;
+	import laya.display.Text;
 	import laya.ui.UIComponent;
 
 	/**

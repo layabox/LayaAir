@@ -1,5 +1,6 @@
 package laya.d3.shader {
 	import laya.d3.shader.ShaderPass;
+	import laya.d3.shader.ShaderPass;
 
 	/**
 	 * <code>SubShader</code> 类用于创建SubShader。

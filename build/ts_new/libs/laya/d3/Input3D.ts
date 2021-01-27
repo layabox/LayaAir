@@ -248,9 +248,13 @@ export class Input3D {
 		for (var j: number = 0, m: number = changedTouches.length; j < m; j++) {
 			var nativeTouch: any = changedTouches[j];
 			var identifier: number = nativeTouch.identifier;
-			if (!this._multiTouchEnabled && identifier !== 0)
+			if (!this._multiTouchEnabled && this._touches.length !== 0 && flag==0)
 				continue;
 			var touch: Touch = this._getTouch(identifier,flag);
+			
+			if(flag==1 && !touch)
+				continue;
+
 			var pos: Vector2 = this._touchPool[identifier]._position;
 			var mousePoint: Point = Input3D._tempPoint;
 			mousePoint.setTo(nativeTouch.pageX, nativeTouch.pageY);

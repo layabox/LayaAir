@@ -1,4 +1,6 @@
 package laya.d3.core.particleShuriKen.module.shape {
+	import laya.d3.math.Rand;
+	import laya.d3.math.Vector3;
 	import laya.d3.core.IClone;
 	import laya.d3.math.Rand;
 	import laya.d3.math.Vector3;

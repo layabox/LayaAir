@@ -1,4 +1,5 @@
 package laya.d3.graphics {
+	import laya.d3.graphics.IndexFormat;
 	import laya.webgl.utils.Buffer;
 	import laya.d3.graphics.IndexFormat;
 

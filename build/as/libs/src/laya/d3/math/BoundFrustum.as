@@ -1,4 +1,9 @@
 package laya.d3.math {
+	import laya.d3.math.BoundSphere;
+	import laya.d3.math.BoundBox;
+	import laya.d3.math.Vector3;
+	import laya.d3.math.Plane;
+	import laya.d3.math.Matrix4x4;
 	import laya.d3.math.Vector3;
 	import laya.d3.math.Matrix4x4;
 	import laya.d3.math.Plane;

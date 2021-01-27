@@ -1,5 +1,6 @@
 package laya.display.cmd {
 	import laya.resource.Context;
+	import laya.resource.Context;
 
 	/**
 	 * 恢复命令，和save配套使用

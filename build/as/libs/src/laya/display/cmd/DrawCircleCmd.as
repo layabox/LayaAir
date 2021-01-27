@@ -1,5 +1,6 @@
 package laya.display.cmd {
 	import laya.resource.Context;
+	import laya.resource.Context;
 
 	/**
 	 * 绘制圆形

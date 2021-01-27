@@ -1,5 +1,7 @@
 package laya.d3.core {
 	import laya.d3.math.Vector4;
+	import laya.d3.shader.ShaderDefine;
+	import laya.d3.math.Vector4;
 	import laya.d3.core.Sprite3D;
 	import laya.d3.shader.ShaderDefine;
 

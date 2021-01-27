@@ -1,4 +1,7 @@
 package laya.d3.core.particleShuriKen.module {
+	import laya.d3.core.particleShuriKen.module.StartFrame;
+	import laya.d3.core.particleShuriKen.module.FrameOverTime;
+	import laya.d3.math.Vector2;
 	import laya.d3.core.particleShuriKen.module.FrameOverTime;
 	import laya.d3.core.particleShuriKen.module.StartFrame;
 	import laya.d3.core.IClone;

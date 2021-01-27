@@ -1,4 +1,6 @@
 package laya.d3.physics {
+	import laya.d3.physics.PhysicsSimulation;
+	import laya.d3.physics.shape.ColliderShape;
 	import laya.components.Component;
 	import laya.d3.physics.PhysicsSimulation;
 	import laya.d3.physics.shape.ColliderShape;

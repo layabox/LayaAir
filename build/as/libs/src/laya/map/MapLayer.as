@@ -1,4 +1,7 @@
 package laya.map {
+	import laya.maths.Point;
+	import laya.map.GridSprite;
+	import laya.map.TiledMap;
 	import laya.map.GridSprite;
 	import laya.map.TiledMap;
 	import laya.display.Sprite;

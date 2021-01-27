@@ -1,4 +1,6 @@
 package laya.utils {
+	import laya.display.Graphics;
+	import laya.maths.Matrix;
 	import laya.display.FrameAnimation;
 	import laya.display.Graphics;
 	import laya.maths.Matrix;

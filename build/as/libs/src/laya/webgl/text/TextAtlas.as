@@ -1,4 +1,6 @@
 package laya.webgl.text {
+	import laya.maths.Point;
+	import laya.webgl.text.TextTexture;
 	import laya.webgl.text.TextTexture;
 	import laya.maths.Point;
 

@@ -1,4 +1,6 @@
 package laya.ani.bone {
+	import laya.maths.Matrix;
+	import laya.ani.bone.Transform;
 	import laya.ani.bone.Transform;
 	import laya.maths.Matrix;
 

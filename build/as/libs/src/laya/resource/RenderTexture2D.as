@@ -1,5 +1,6 @@
 package laya.resource {
 	import laya.resource.BaseTexture;
+	import laya.resource.BaseTexture;
 
 	/**
 	 * <code>RenderTexture</code> 类用于创建渲染目标。

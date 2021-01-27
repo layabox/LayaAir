@@ -1,6 +1,8 @@
 package laya.display {
 	import laya.resource.Texture;
 	import laya.utils.Handler;
+	import laya.resource.Texture;
+	import laya.utils.Handler;
 
 	/**
 	 * <code>BitmapFont</code> 是位图字体类，用于定义位图字体信息。

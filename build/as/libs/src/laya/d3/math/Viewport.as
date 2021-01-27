@@ -1,4 +1,7 @@
 package laya.d3.math {
+	import laya.d3.math.Vector4;
+	import laya.d3.math.Matrix4x4;
+	import laya.d3.math.Vector3;
 	import laya.d3.math.Matrix4x4;
 	import laya.d3.math.Vector3;
 	import laya.d3.math.Vector4;

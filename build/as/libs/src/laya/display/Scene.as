@@ -1,4 +1,7 @@
 package laya.display {
+	import laya.utils.Handler;
+	import laya.utils.Timer;
+	import laya.display.Sprite;
 	import laya.display.Sprite;
 	import laya.utils.Handler;
 	import laya.utils.Timer;

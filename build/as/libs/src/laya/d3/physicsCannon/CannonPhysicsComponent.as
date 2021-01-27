@@ -1,4 +1,6 @@
 package laya.d3.physicsCannon {
+	import laya.d3.physicsCannon.CannonPhysicsSimulation;
+	import laya.d3.physicsCannon.shape.CannonColliderShape;
 	import laya.components.Component;
 	import laya.d3.physicsCannon.CannonPhysicsSimulation;
 	import laya.d3.physicsCannon.shape.CannonColliderShape;

@@ -1,4 +1,5 @@
 package laya.physics.joint {
+	import laya.physics.RigidBody;
 	import laya.physics.joint.JointBase;
 	import laya.physics.RigidBody;
 

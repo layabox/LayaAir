@@ -1,4 +1,5 @@
 package laya.ui {
+	import laya.display.Node;
 	import laya.ui.Box;
 	import laya.display.Node;
 

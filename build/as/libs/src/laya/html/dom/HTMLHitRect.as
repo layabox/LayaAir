@@ -1,5 +1,6 @@
 package laya.html.dom {
 	import laya.maths.Rectangle;
+	import laya.maths.Rectangle;
 
 	/**
 	 * @private 

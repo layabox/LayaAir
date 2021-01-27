@@ -1,5 +1,6 @@
 package laya.net {
 	import laya.utils.Handler;
+	import laya.utils.Handler;
 
 	/**
 	 * <p>资源版本的生成由layacmd或IDE完成，使用 <code>ResourceVersion</code> 简化使用过程。</p>

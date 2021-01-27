@@ -1,5 +1,6 @@
 package laya.d3.animation {
 	import laya.d3.animation.AnimationNode;
+	import laya.d3.animation.AnimationNode;
 	import laya.events.EventDispatcher;
 
 	/**

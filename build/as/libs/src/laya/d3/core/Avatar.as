@@ -1,4 +1,6 @@
 package laya.d3.core {
+	import laya.d3.component.Animator;
+	import laya.utils.Handler;
 	import laya.d3.core.IClone;
 	import laya.d3.component.Animator;
 	import laya.resource.Resource;

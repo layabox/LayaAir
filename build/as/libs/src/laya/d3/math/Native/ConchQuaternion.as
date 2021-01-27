@@ -1,4 +1,7 @@
 package laya.d3.math.Native {
+	import laya.d3.math.Matrix4x4;
+	import laya.d3.math.Matrix3x3;
+	import laya.d3.math.Native.ConchVector3;
 	import laya.d3.math.Native.ConchVector3;
 	import laya.d3.core.IClone;
 	import laya.d3.math.Matrix3x3;

@@ -1,5 +1,6 @@
 package laya.display {
 	import laya.display.AnimationBase;
+	import laya.display.AnimationBase;
 
 	/**
 	 * 动画播放完毕后调度。

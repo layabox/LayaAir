@@ -1,5 +1,6 @@
 package laya.utils {
 	import laya.resource.HTMLCanvas;
+	import laya.resource.HTMLCanvas;
 
 	/**
 	 * <code>Browser</code> 是浏览器代理类。封装浏览器及原生 js 提供的一些功能。

@@ -1,5 +1,6 @@
 package laya.d3.component {
 	import laya.d3.core.render.PostProcessEffect;
+	import laya.d3.core.render.PostProcessEffect;
 
 	/**
 	 * <code>PostProcess</code> 类用于创建后期处理组件。

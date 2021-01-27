@@ -1,6 +1,8 @@
 package laya.d3.math.Native {
 	import laya.d3.math.Native.ConchVector4;
 	import laya.d3.math.Native.ConchQuaternion;
+	import laya.d3.math.Native.ConchVector4;
+	import laya.d3.math.Native.ConchQuaternion;
 	import laya.d3.core.IClone;
 
 	/**

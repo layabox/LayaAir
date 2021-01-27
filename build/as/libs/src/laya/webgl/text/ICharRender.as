@@ -1,5 +1,6 @@
 package laya.webgl.text {
 	import laya.webgl.text.CharRenderInfo;
+	import laya.webgl.text.CharRenderInfo;
 	public class ICharRender {
 		public var fontsz:Number;
 		public function getWidth(font:String,str:String):Number{

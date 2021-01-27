@@ -1,4 +1,6 @@
 package laya.d3.component {
+	import laya.d3.animation.AnimatorStateScript;
+	import laya.d3.animation.AnimationClip;
 	import laya.d3.animation.AnimationClip;
 	import laya.d3.animation.AnimatorStateScript;
 	import laya.d3.core.IClone;

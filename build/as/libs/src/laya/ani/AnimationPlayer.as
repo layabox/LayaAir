@@ -1,5 +1,6 @@
 package laya.ani {
 	import laya.ani.AnimationTemplet;
+	import laya.ani.AnimationTemplet;
 	import laya.resource.IDestroy;
 	import laya.events.EventDispatcher;
 

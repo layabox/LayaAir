@@ -1,5 +1,6 @@
 package laya.particle {
 	import laya.particle.ParticleTemplateBase;
+	import laya.particle.ParticleTemplateBase;
 
 	/**
 	 * @private 

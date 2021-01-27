@@ -1,5 +1,8 @@
 package laya.d3.core {
 	import laya.d3.resource.models.Mesh;
+	import laya.d3.core.SimpleSkinnedMeshRenderer;
+	import laya.d3.core.MeshFilter;
+	import laya.d3.resource.models.Mesh;
 	import laya.d3.core.MeshFilter;
 	import laya.d3.core.RenderableSprite3D;
 	import laya.d3.core.SimpleSkinnedMeshRenderer;

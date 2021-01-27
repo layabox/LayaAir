@@ -1,4 +1,10 @@
 package laya.ui {
+	import laya.events.Event;
+	import laya.maths.Point;
+	import laya.ui.Button;
+	import laya.ui.Image;
+	import laya.utils.Handler;
+	import laya.ui.Label;
 	import laya.ui.UIComponent;
 	import laya.ui.Label;
 	import laya.ui.Image;

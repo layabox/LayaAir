@@ -1,4 +1,7 @@
 package laya.d3.core.material {
+	import laya.resource.TextureDecodeFormat;
+	import laya.resource.Texture2D;
+	import laya.d3.math.Vector4;
 	import laya.resource.Texture2D;
 	import laya.d3.math.Vector4;
 	import laya.d3.core.material.Material;

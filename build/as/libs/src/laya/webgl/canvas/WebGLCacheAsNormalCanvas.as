@@ -1,4 +1,7 @@
 package laya.webgl.canvas {
+	import laya.maths.Matrix;
+	import laya.display.Sprite;
+	import laya.resource.Context;
 	import laya.display.Sprite;
 	import laya.maths.Matrix;
 	import laya.resource.Context;

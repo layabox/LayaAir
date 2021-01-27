@@ -1,5 +1,6 @@
 package laya.physics {
 	import laya.display.Sprite;
+	import laya.display.Sprite;
 	import laya.events.EventDispatcher;
 
 	/**

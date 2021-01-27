@@ -1,5 +1,6 @@
 package laya.utils {
 	import laya.utils.Handler;
+	import laya.utils.Handler;
 
 	/**
 	 * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。

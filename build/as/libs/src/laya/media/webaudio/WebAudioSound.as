@@ -1,4 +1,7 @@
 package laya.media.webaudio {
+	import laya.media.SoundChannel;
+	import laya.media.webaudio.WebAudioSoundChannel;
+	import laya.events.EventDispatcher;
 	import laya.media.webaudio.WebAudioSoundChannel;
 	import laya.events.EventDispatcher;
 	import laya.media.SoundChannel;

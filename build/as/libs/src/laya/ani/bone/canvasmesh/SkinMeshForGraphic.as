@@ -1,4 +1,6 @@
 package laya.ani.bone.canvasmesh {
+	import laya.resource.Texture;
+	import laya.maths.Matrix;
 	import laya.ani.bone.canvasmesh.MeshData;
 	import laya.maths.Matrix;
 	import laya.resource.Texture;

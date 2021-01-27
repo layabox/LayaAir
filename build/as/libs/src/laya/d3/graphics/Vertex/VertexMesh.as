@@ -1,5 +1,6 @@
 package laya.d3.graphics.Vertex {
 	import laya.d3.graphics.VertexDeclaration;
+	import laya.d3.graphics.VertexDeclaration;
 
 	/**
 	 * ...

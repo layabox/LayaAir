@@ -1,4 +1,6 @@
 package laya.net {
+	import laya.resource.Texture;
+	import laya.net.HttpRequest;
 	import laya.events.EventDispatcher;
 	import laya.resource.Texture;
 	import laya.net.HttpRequest;

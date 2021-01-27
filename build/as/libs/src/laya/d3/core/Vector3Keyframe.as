@@ -1,4 +1,5 @@
 package laya.d3.core {
+	import laya.d3.math.Vector3;
 	import laya.d3.core.Keyframe;
 	import laya.d3.math.Vector3;
 

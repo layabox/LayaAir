@@ -1,4 +1,5 @@
 package laya.d3.core.particleShuriKen.module {
+	import laya.d3.core.particleShuriKen.module.Burst;
 	import laya.resource.IDestroy;
 	import laya.d3.core.IClone;
 	import laya.d3.core.particleShuriKen.module.Burst;

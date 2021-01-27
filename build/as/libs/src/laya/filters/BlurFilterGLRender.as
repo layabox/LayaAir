@@ -1,4 +1,8 @@
 package laya.filters {
+	import laya.webgl.shader.d2.value.Value2D;
+	import laya.filters.BlurFilter;
+	import laya.resource.Context;
+	import laya.resource.RenderTexture2D;
 	import laya.resource.Context;
 	import laya.resource.RenderTexture2D;
 	import laya.webgl.shader.d2.value.Value2D;

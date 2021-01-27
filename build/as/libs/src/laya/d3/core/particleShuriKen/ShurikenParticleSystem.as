@@ -1,4 +1,16 @@
 package laya.d3.core.particleShuriKen {
+	import laya.d3.core.Bounds;
+	import laya.d3.core.particleShuriKen.ShuriKenParticle3D;
+	import laya.d3.core.particleShuriKen.module.TextureSheetAnimation;
+	import laya.d3.core.particleShuriKen.module.RotationOverLifetime;
+	import laya.d3.core.particleShuriKen.module.SizeOverLifetime;
+	import laya.d3.core.particleShuriKen.module.ColorOverLifetime;
+	import laya.d3.core.particleShuriKen.module.VelocityOverLifetime;
+	import laya.d3.core.particleShuriKen.module.GradientDataNumber;
+	import laya.d3.core.particleShuriKen.module.shape.BaseShape;
+	import laya.d3.core.particleShuriKen.module.Emission;
+	import laya.d3.math.Vector4;
+	import laya.d3.math.Vector3;
 	import laya.d3.math.Vector3;
 	import laya.d3.math.Vector4;
 	import laya.d3.core.GeometryElement;

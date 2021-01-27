@@ -1,4 +1,6 @@
 package laya.d3.physics.shape {
+	import laya.d3.math.Quaternion;
+	import laya.d3.math.Vector3;
 	import laya.d3.core.IClone;
 	import laya.d3.math.Quaternion;
 	import laya.d3.math.Vector3;

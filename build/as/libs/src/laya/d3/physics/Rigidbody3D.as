@@ -1,5 +1,6 @@
 package laya.d3.physics {
 	import laya.d3.math.Vector3;
+	import laya.d3.math.Vector3;
 	import laya.d3.physics.PhysicsTriggerComponent;
 
 	/**

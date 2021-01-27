@@ -1,4 +1,9 @@
 package laya.d3.core.render {
+	import laya.d3.core.scene.BoundsOctreeNode;
+	import laya.d3.core.reflectionProbe.ReflectionProbeMode;
+	import laya.d3.core.Bounds;
+	import laya.d3.core.material.Material;
+	import laya.d3.math.Vector4;
 	import laya.d3.core.Bounds;
 	import laya.d3.core.material.Material;
 	import laya.d3.core.scene.BoundsOctreeNode;

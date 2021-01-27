@@ -1,4 +1,6 @@
 package laya.d3.resource.models {
+	import laya.d3.resource.models.SkyMesh;
+	import laya.d3.core.material.Material;
 	import laya.d3.core.material.Material;
 	import laya.d3.resource.models.SkyMesh;
 

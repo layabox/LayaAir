@@ -1,4 +1,8 @@
 package laya.ui {
+	import laya.events.Event;
+	import laya.utils.Handler;
+	import laya.display.Text;
+	import laya.ui.AutoBitmap;
 	import laya.ui.UIComponent;
 	import laya.ui.ISelect;
 	import laya.display.Text;

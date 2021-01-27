@@ -1,4 +1,8 @@
 package laya.d3.core.material {
+	import laya.d3.shader.DefineDatas;
+	import laya.d3.shader.ShaderData;
+	import laya.utils.Handler;
+	import laya.d3.shader.ShaderDefine;
 	import laya.resource.Resource;
 	import laya.utils.Handler;
 	import laya.d3.shader.DefineDatas;

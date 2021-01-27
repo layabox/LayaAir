@@ -1,4 +1,5 @@
 package laya.ui {
+	import laya.ui.AutoBitmap;
 	import laya.ui.Label;
 	import laya.ui.AutoBitmap;
 

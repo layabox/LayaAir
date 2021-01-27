@@ -1,4 +1,6 @@
 package laya.d3.core.scene {
+	import laya.d3.core.Bounds;
+	import laya.d3.core.scene.BoundsOctreeNode;
 	import laya.d3.core.scene.BoundsOctreeNode;
 	import laya.d3.core.Bounds;
 
@@ -30,7 +32,7 @@ package laya.d3.core.scene {
 		/**
 		 * 包围盒
 		 */
-		function get bounds():Bounds;
+		var bounds:Bounds;
 	}
 
 }

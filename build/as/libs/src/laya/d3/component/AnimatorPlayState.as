@@ -1,5 +1,6 @@
 package laya.d3.component {
 	import laya.d3.component.AnimatorState;
+	import laya.d3.component.AnimatorState;
 
 	/**
 	 * <code>AnimatorPlayState</code> 类用于创建动画播放状态信息。

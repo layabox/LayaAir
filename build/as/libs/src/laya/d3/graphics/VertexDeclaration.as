@@ -1,5 +1,6 @@
 package laya.d3.graphics {
 	import laya.d3.graphics.VertexElement;
+	import laya.d3.graphics.VertexElement;
 
 	/**
 	 * <code>VertexDeclaration</code> 类用于生成顶点声明。

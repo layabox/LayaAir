@@ -1,4 +1,8 @@
 package laya.d3.core.reflectionProbe {
+	import laya.d3.component.SimpleSingletonList;
+	import laya.d3.core.render.BaseRender;
+	import laya.d3.math.Vector4;
+	import laya.d3.resource.TextureCube;
 	import laya.d3.core.render.BaseRender;
 	import laya.d3.component.SimpleSingletonList;
 	import laya.d3.resource.TextureCube;

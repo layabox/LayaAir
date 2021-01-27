@@ -1,5 +1,6 @@
 package laya.ui {
 	import laya.resource.Texture;
+	import laya.resource.Texture;
 	import laya.ui.UIComponent;
 
 	/**

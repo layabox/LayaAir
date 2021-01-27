@@ -1,5 +1,6 @@
 package laya.events {
 	import laya.display.Sprite;
+	import laya.display.Sprite;
 
 	/**
 	 * <code>Event</code> 是事件类型的集合。一般当发生事件时，<code>Event</code> 对象将作为参数传递给事件侦听器。

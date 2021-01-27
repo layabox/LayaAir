@@ -1,4 +1,6 @@
 package laya.media {
+	import laya.utils.Handler;
+	import laya.media.SoundChannel;
 	import laya.media.SoundChannel;
 	import laya.utils.Handler;
 

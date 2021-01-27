@@ -1,4 +1,6 @@
 package laya.resource {
+	import laya.resource.Texture;
+	import laya.resource.Context;
 	import laya.resource.Bitmap;
 	import laya.resource.Texture;
 	import laya.resource.Context;

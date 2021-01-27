@@ -1,4 +1,5 @@
 package laya.webgl.text {
+	import laya.webgl.text.CharRenderInfo;
 	import laya.resource.Resource;
 	import laya.webgl.text.CharRenderInfo;
 	public class TextTexture extends Resource {
