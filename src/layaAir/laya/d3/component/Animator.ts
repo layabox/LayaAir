@@ -24,7 +24,6 @@ import { AnimatorPlayState } from "./AnimatorPlayState";
 import { AnimatorState } from "./AnimatorState";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 import { Script3D } from "./Script3D";
-import { SimpleSingletonList } from "./SimpleSingletonList";
 import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 import { ConchVector3 } from "../math/Native/ConchVector3";
 
@@ -520,7 +519,7 @@ export class Animator extends Component {
 
 					var crossValue: number = srcValue + crossWeight * (desValue - srcValue);
 					nodeOwner.value = crossValue;
-					this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, crossValue);
+					pro && this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, crossValue);
 					break;
 				case 1: //Position
 					var localPos: Vector3 = pro.localPosition;
@@ -582,7 +581,7 @@ export class Animator extends Component {
 								if (!pro)//属性可能或被置空
 									break;
 							}
-							this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]);
+							pro&&this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]);
 							break;
 						case 1: //Position
 							var localPos: Vector3 = pro.localPosition;
@@ -1054,17 +1053,18 @@ export class Animator extends Component {
 
 			var animatorState: AnimatorState = name ? controllerLayer._statesMap[name] : defaultState;
 			var clipDuration: number = animatorState._clip._duration;
+			var calclipduration=animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 			if (curPlayState !== animatorState) {
 				if (normalizedTime !== Number.NEGATIVE_INFINITY)
-					playStateInfo._resetPlayState(clipDuration * normalizedTime);
+					playStateInfo._resetPlayState(clipDuration * normalizedTime,calclipduration);
 				else
-					playStateInfo._resetPlayState(0.0);
+					playStateInfo._resetPlayState(0.0,calclipduration);
 				(curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
 				controllerLayer._playType = 0;
 				playStateInfo._currentState = animatorState;
 			} else {
 				if (normalizedTime !== Number.NEGATIVE_INFINITY) {
-					playStateInfo._resetPlayState(clipDuration * normalizedTime);
+					playStateInfo._resetPlayState(clipDuration * normalizedTime,calclipduration);
 					controllerLayer._playType = 0;
 				}
 			}
@@ -1195,9 +1195,9 @@ export class Animator extends Component {
 				controllerLayer._crossPlayState = destAnimatorState;
 				controllerLayer._crossDuration = srcAnimatorState._clip._duration * transitionDuration;
 				if (normalizedTime !== Number.NEGATIVE_INFINITY)
-					crossPlayStateInfo._resetPlayState(destClip._duration * normalizedTime);
+					crossPlayStateInfo!._resetPlayState(destClip._duration * normalizedTime,controllerLayer._crossDuration);
 				else
-					crossPlayStateInfo._resetPlayState(0.0);
+					crossPlayStateInfo!._resetPlayState(0.0,controllerLayer._crossDuration);
 
 				var scripts: AnimatorStateScript[] = destAnimatorState._scripts;
 				if (scripts) {
