@@ -45,7 +45,7 @@ export class Animator extends Component {
 	 * @internal
 	 */
 	static _update(scene: Scene3D): void {
-		var pool: SimpleSingletonList = scene._animatorPool;
+		var pool = scene._animatorPool;
 		var elements: Animator[] = pool.elements as Animator[];
 		for (var i: number = 0, n: number = pool.length; i < n; i++) {
 			var animator: Animator = elements[i];
