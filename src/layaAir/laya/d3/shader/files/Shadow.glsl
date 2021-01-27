@@ -25,6 +25,7 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 #if defined(CALCULATE_SHADOWS)||defined(CALCULATE_SPOTSHADOWS)
 	#include "ShadowSampleTent.glsl"
 	uniform vec4 u_ShadowMapSize;
+	uniform vec4 u_SpotShadowMapSize;
 	uniform vec4 u_ShadowParams; // x: shadowStrength y: ShadowSpotLightStrength
 
 	
@@ -150,9 +151,9 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 		if(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)
 		{
 			#if defined(SHADOW_SPOT_SOFT_SHADOW_HIGH)
-				attenuation = sampleShdowMapFiltered9(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);
+				attenuation = sampleShdowMapFiltered9(u_SpotShadowMap,shadowCoord.xyz,u_SpotShadowMapSize);
 			#elif defined(SHADOW_SPOT_SOFT_SHADOW_LOW)
-				attenuation = sampleShdowMapFiltered4(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);
+				attenuation = sampleShdowMapFiltered4(u_SpotShadowMap,shadowCoord.xyz,u_SpotShadowMapSize);
 			#else
 				attenuation = SAMPLE_TEXTURE2D_SHADOW(u_SpotShadowMap,shadowCoord.xyz);
 			#endif

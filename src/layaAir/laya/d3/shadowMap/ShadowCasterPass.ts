@@ -57,6 +57,8 @@ export class ShadowCasterPass {
 	/** @internal */
 	static SHADOW_PARAMS: number = Shader3D.propertyNameToID("u_ShadowParams");
 	/** @internal */
+	static SHADOW_SPOTMAP_SIZE: number = Shader3D.propertyNameToID("u_SpotShadowMapSize");
+	/** @internal */
 	static SHADOW_SPOTMAP:number = Shader3D.propertyNameToID("u_SpotShadowMap");
 	/** @internal */
 	static SHADOW_SPOTMATRICES:number = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
@@ -73,6 +75,8 @@ export class ShadowCasterPass {
 	private _shadowParams: Vector4 = new Vector4();
 	/** @internal */
 	private _shadowMapSize: Vector4 = new Vector4();
+	/** @internal */
+	private _shadowSpotMapSize: Vector4 = new Vector4();
 	/** @internal */
 	private _shadowMatrices: Float32Array = new Float32Array(16 * (ShadowCasterPass._maxCascades));
 	/** @internal */
@@ -197,7 +201,7 @@ export class ShadowCasterPass {
 		}
 		shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP,this._shadowSpotLightMap);
 		shaderValues.setMatrix4x4(ShadowCasterPass.SHADOW_SPOTMATRICES,this._shadowSpotMatrices)
-		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
+		shaderValues.setVector(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, this._shadowSpotMapSize);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS,this._shadowParams);
 	}
 
@@ -274,7 +278,7 @@ export class ShadowCasterPass {
 				this._shadowMapWidth = shadowResolution;
 				this._shadowMapHeight = shadowResolution;
 				var shadowSpotData:ShadowSpotData = this._shadowSpotData;
-				ShadowUtils.getSpotLightShadowData(shadowSpotData,<SpotLight>this._light,shadowResolution,this._shadowParams,this._shadowSpotMatrices,this._shadowMapSize);
+				ShadowUtils.getSpotLightShadowData(shadowSpotData,<SpotLight>this._light,shadowResolution,this._shadowParams,this._shadowSpotMatrices,this._shadowSpotMapSize);
 				break;
 			case ShadowLightType.PointLight:
 				//TODO:
