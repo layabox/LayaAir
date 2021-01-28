@@ -102,7 +102,22 @@ function layaExpPlugin(options) {
     });
 }
 
-let layaFiles = [];
+let baseurl = __dirname;
+
+let layaFiles = [
+    path.join(baseurl, "../","layaAir", "Laya.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "net", "HttpRequest.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "resource", "Resource.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "resource", "Texture.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "media", "SoundChannel.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "events", "EventDispatcher.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "utils", "Browser.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "utils", "RunDriver.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "display", "Input.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "net", "Loader.ts"),
+    path.join(baseurl, "../","layaAir", "laya", "net", "LocalStorage.ts"),
+    path.join(baseurl, "../","layaAir", "Config.ts"),
+];
 let layaexpreplace = '//__LAYARPLACEMENTHERE__//';
 
 var curPackFiles = null;  //当前包的所有的文件
