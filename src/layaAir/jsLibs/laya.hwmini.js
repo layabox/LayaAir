@@ -854,10 +854,10 @@ window.hwMiniGame = function (exports, Laya) {
 	            var tempurl = Laya.URL.formatURL(url);
 	            if (!HWMiniAdapter.AutoCacheDownFile) {
 	                if (MiniFileMgr.isNetFile(tempurl)) {
-	                    thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
+	                    MiniFileMgr.downFiles(HWMiniAdapter.safeEncodeURI(tempurl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, true);
 	                }
 	                else
-	                    MiniFileMgr.readFile(HWMiniAdapter.safeEncodeURI(url), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	            }
 	            else {
 	                if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempurl)) {
@@ -865,7 +865,7 @@ window.hwMiniGame = function (exports, Laya) {
 	                        MiniFileMgr.downFiles(HWMiniAdapter.safeEncodeURI(tempurl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, true);
 	                    }
 	                    else {
-	                        MiniFileMgr.readFile(HWMiniAdapter.safeEncodeURI(url), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                        MiniFileMgr.readFile(url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                    }
 	                }
 	                else {
@@ -874,7 +874,7 @@ window.hwMiniGame = function (exports, Laya) {
 	                    if (fileObj && fileObj.md5) {
 	                        tempUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileObj.md5);
 	                    }
-	                    MiniFileMgr.readFile(HWMiniAdapter.safeEncodeURI(tempUrl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(tempUrl, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
 	            }
 	        }
@@ -1007,7 +1007,7 @@ window.hwMiniGame = function (exports, Laya) {
 	    static downLoadFile(fileUrl, fileType = "", callBack = null, encoding = "utf8") {
 	        var fileObj = MiniFileMgr.getFileInfo(fileUrl);
 	        if (!fileObj)
-	            MiniFileMgr.downLoadFile(encodeURI(fileUrl), fileType, callBack, encoding);
+	            MiniFileMgr.downLoadFile(HWMiniAdapter.safeEncodeURI(fileUrl), fileType, callBack, encoding);
 	        else {
 	            callBack != null && callBack.runWith([0]);
 	        }
@@ -1040,7 +1040,7 @@ window.hwMiniGame = function (exports, Laya) {
 	            MiniFileMgr.filesListObj = {};
 	        }
 	        let files = MiniFileMgr.fs.readdirSync(MiniFileMgr.fileNativeDir);
-	        if (!files.length)
+	        if (!files || !files.length)
 	            return;
 	        var tempMd5ListObj = {};
 	        var fileObj;
