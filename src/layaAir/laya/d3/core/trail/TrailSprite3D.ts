@@ -61,7 +61,9 @@ export class TrailSprite3D extends RenderableSprite3D {
 				sharedMaterials[i] = Loader.getRes(materials[i].path);
 			render.sharedMaterials = sharedMaterials;
 		}
+		//时间
 		filter.time = data.time;
+		//最小顶点距离
 		filter.minVertexDistance = data.minVertexDistance;
 		filter.widthMultiplier = data.widthMultiplier;
 		filter.textureMode = data.textureMode;

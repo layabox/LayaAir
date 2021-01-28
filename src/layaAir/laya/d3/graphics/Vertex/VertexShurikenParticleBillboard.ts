@@ -132,8 +132,8 @@ export class VertexShurikenParticleBillboard extends VertexShuriKenParticle {
 		this._startLifeTime = ageAddScale;
 		this._time = time;
 		this._startSpeed = startSpeed;
-		this._randoms0 = this.random0;
-		this._randoms1 = this.random1;
+		this._randoms0 = randoms0;
+		this._randoms1 = randoms1;
 		this._simulationWorldPostion = simulationWorldPostion;
 	}
 

@@ -1,11 +1,9 @@
-import { Config3D } from "../../../Config3D";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
 import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
-import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
@@ -69,12 +67,12 @@ export class Shader3D {
 	/**@internal */
 	private static _defineCounter: number = 0;
 	/**@internal */
-	private static _defineMap: object = {};
+	private static _defineMap: {[key:string]:ShaderDefine} = {};
 
 	/**@internal */
 	static _preCompileShader: any = {};
 	/**@internal */
-	static _maskMap: Array<object> = [];
+	static _maskMap:Array<{[key:number]:string}> = [];
 	/**@internal */
 	static _debugShaderVariantInfo: ShaderVariant;
 
@@ -94,11 +92,11 @@ export class Shader3D {
 	 * @internal
 	 */
 	static _getNamesByDefineData(defineData: DefineDatas, out: Array<string>): void {
-		var maskMap: object[] = Shader3D._maskMap;
+		var maskMap:Array<{[key:number]:string}> = Shader3D._maskMap;
 		var mask: Array<number> = defineData._mask;
 		out.length = 0;
 		for (var i: number = 0, n: number = defineData._length; i < n; i++) {
-			var subMaskMap: object = maskMap[i];
+			var subMaskMap:{[key:number]:string} = maskMap[i];
 			var subMask: number = mask[i];
 			for (var j: number = 0; j < 32; j++) {
 				var d: number = 1 << j;
@@ -117,7 +115,7 @@ export class Shader3D {
 	static getDefineByName(name: string): ShaderDefine {
 		var define: ShaderDefine = Shader3D._defineMap[name];
 		if (!define) {
-			var maskMap: Array<object> = Shader3D._maskMap;
+			var maskMap = Shader3D._maskMap;
 			var counter: number = Shader3D._defineCounter;
 			var index: number = Math.floor(counter / 32);
 			var value: number = 1 << counter % 32;
@@ -149,30 +147,30 @@ export class Shader3D {
 		}
 	}
 
-	/**
-	 * 通过宏属性动态修改AttributeMap
-	 * @param defineString 
-	 * @param attributeMap 
-	 */
-	static getAttributeMapByDefine(defineString:string[],attributeMap:any):any{
-		var newAttributeMap:any = {};
-		for(var value in attributeMap){
-			newAttributeMap[value] = attributeMap[value];
-		}	
-		for ( var i = 0, n: number = defineString.length; i < n; i++) {
-			var def: string = defineString[i];
-			switch(def){
-				case "SIMPLEBONE":
-				if(attributeMap["a_Texcoord1"]){
-					newAttributeMap["a_SimpleTextureParams"] = attributeMap["a_Texcoord1"];
-					delete newAttributeMap["a_Texcoord1"];
-				}
-				newAttributeMap["a_SimpleTextureParams"] = 7;
-				break;
-			}
-		}
-		return newAttributeMap;
-	}
+	// /**
+	//  * 通过宏属性动态修改AttributeMap
+	//  * @param defineString 
+	//  * @param attributeMap 
+	//  */
+	// static getAttributeMapByDefine(defineString:string[],attributeMap:any):any{
+	// 	var newAttributeMap:any = {};
+	// 	for(var value in attributeMap){
+	// 		newAttributeMap[value] = attributeMap[value];
+	// 	}	
+	// 	// for ( var i = 0, n: number = defineString.length; i < n; i++) {
+	// 	// 	var def: string = defineString[i];
+	// 	// 	switch(def){
+	// 	// 		case "SIMPLEBONE":
+	// 	// 		if(attributeMap["a_Texcoord1"]){
+	// 	// 			newAttributeMap["a_SimpleTextureParams"] = attributeMap["a_Texcoord1"];
+	// 	// 			delete newAttributeMap["a_Texcoord1"];
+	// 	// 		}
+	// 	// 		newAttributeMap["a_SimpleTextureParams"] = 7;
+	// 	// 		break;
+	// 	// 	}
+	// 	// }
+	// 	return newAttributeMap;
+	// }
 
 	/**
 	 * 添加函数库引用。
@@ -285,7 +283,7 @@ export class Shader3D {
 	 * @param   passIndex  通道索引。
 	 * @param	defineMask 宏定义遮罩集合。
 	 */
-	static compileShader(shaderName: string, subShaderIndex: number, passIndex: number, ...defineMask): void {
+	static compileShader(shaderName: string, subShaderIndex: number, passIndex: number, ...defineMask:any[]): void {
 		var shader: Shader3D = Shader3D.find(shaderName);
 		if (shader) {
 			var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);

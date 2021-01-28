@@ -371,10 +371,10 @@ export class Button extends UIComponent implements ISelect {
             console.log("lose skin", this._skin);
             return;
         }
-        var width: number = img.sourceWidth;
-        var height: number = img.sourceHeight / this._stateNum;
+        var width = img.sourceWidth;
+        var height = img.sourceHeight / this._stateNum;
         img.$_GID || (img.$_GID = Utils.getGID());
-        var key: string = img.$_GID + "-" + this._stateNum;
+        var key = img.$_GID + "-" + this._stateNum;
         var clips: any[] = WeakObject.I.get(key);
         if (!Utils.isOkTextureList(clips)) {
             clips = null;
@@ -480,7 +480,7 @@ export class Button extends UIComponent implements ISelect {
     protected changeState(): void {
         this._stateChanged = false;
         this.runCallLater(this.changeClips);
-        var index: number = this._state < this._stateNum ? this._state : this._stateNum - 1;
+        var index = this._state < this._stateNum ? this._state : this._stateNum - 1;
         this._sources && (this._bitmap.source = this._sources[index]);
         if (this.label) {
             this._text.color = this._labelColors[index];

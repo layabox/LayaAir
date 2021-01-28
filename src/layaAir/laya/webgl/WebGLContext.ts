@@ -49,6 +49,8 @@ export class WebGLContext {
     private static _frontFace: number;
     /**@internal */
     private static _activedTextureID: number;
+    /**@internal */
+    private static _maxUniformFragmentVectors:number;
 
     /**@internal */
     static _glTextureIDs: Array<number>;
@@ -74,6 +76,9 @@ export class WebGLContext {
         var maxTexturenum:number = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         WebGLContext._activeTextures = new Array(maxTexturenum);
         WebGLContext._glTextureIDs = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7,gl.TEXTURE8,gl.TEXTURE9,gl.TEXTURE10,gl.TEXTURE11,gl.TEXTURE12,gl.TEXTURE13,gl.TEXTURE14,gl.TEXTURE15,gl.TEXTURE16,gl.TEXTURE17,gl.TEXTURE18,gl.TEXTURE19,gl.TEXTURE20,gl.TEXTURE21,gl.TEXTURE22,gl.TEXTURE23,gl.TEXTURE24,gl.TEXTURE25,gl.TEXTURE26,gl.TEXTURE27,gl.TEXTURE28,gl.TEXTURE29,gl.TEXTURE30,gl.TEXTURE31];
+        var maxVertexUniform:number = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        var maxFragUniform:number = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+        WebGLContext._maxUniformFragmentVectors = Math.min(maxVertexUniform,maxFragUniform);
     }
 
 	/**
@@ -307,6 +312,10 @@ export class WebGLContext {
 	 */
     static bindVertexArrayForNative(gl: WebGLContext, vertexArray: any): void {
         (gl as any).bindVertexArray(vertexArray);
+    }
+
+    static getUniformMaxVector():number{
+        return WebGLContext._maxUniformFragmentVectors;
     }
 
 }

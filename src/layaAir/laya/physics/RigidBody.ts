@@ -150,25 +150,25 @@ export class RigidBody extends Component {
      * @param prop 
      * @param accessor 
      */
-    private accessGetSetFunc(obj: Object, prop: string, accessor: string): any {
+    private accessGetSetFunc(obj: Node, prop: string, accessor: string): any {
         if (["get", "set"].indexOf(accessor) === -1) { // includes
             return;
         }
         let privateProp = `_$${accessor}_${prop}`;
-        if (obj[privateProp]) {
-            return obj[privateProp];
+        if ((obj as any)[privateProp]) {
+            return (obj as any)[privateProp];
         }
         let ObjConstructor = obj.constructor;
         let des;
         while (ObjConstructor) {
             des = Object.getOwnPropertyDescriptor(ObjConstructor.prototype, prop);
-            if (des && des[accessor]) { // 构造函数(包括原型的构造函数)有该属性
-                obj[privateProp] = des[accessor].bind(obj);
+            if (des && (des as any)[accessor]) { // 构造函数(包括原型的构造函数)有该属性
+                (obj as any)[privateProp] = (des as any)[accessor].bind(obj);
                 break;
             }
             ObjConstructor = Object.getPrototypeOf(ObjConstructor);
         }
-        return obj[privateProp];
+        return (obj as any)[privateProp];
     }
 
     /**
@@ -230,7 +230,7 @@ export class RigidBody extends Component {
     }
 
     /**@private */
-    private _overSet(sp: Sprite, prop: string, getfun: any): void {
+    private _overSet(sp: Node, prop: string, getfun: any): void {
         Object.defineProperty(sp, prop, { get: this.accessGetSetFunc(sp, prop, "get"), set: getfun, enumerable: false, configurable: true });;
     }
     /**

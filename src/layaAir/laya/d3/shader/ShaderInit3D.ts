@@ -50,9 +50,13 @@ import UnlitPS from "./files/Unlit.fs";
 import UnlitVS from "./files/Unlit.vs";
 import WaterPrimaryPS from "./files/WaterPrimary.fs";
 import WaterPrimaryVS from "./files/WaterPrimary.vs";
+import DepthNormalsTextureVS from "./files/DepthNormalsTextureVS.vs";
+import DepthNormalsTextureFS from "./files/DepthNormalsTextureFS.fs";
+import DepthNormalUtil from "./files/DepthNormalUtil.glsl";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";
+
 
 
 
@@ -90,6 +94,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("PBRCore.glsl", PBRCore);
 		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
 		Shader3D.addInclude("LayaUtile.glsl",LayaUtile);
+		Shader3D.addInclude("DepthNormalUtil.glsl",DepthNormalUtil);
 
 		//BLINNPHONG
 		var attributeMap: any = {
@@ -101,8 +106,8 @@ export class ShaderInit3D {
 			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
 			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
 			'a_Tangent0': VertexMesh.MESH_TANGENT0,
-			'a_MvpMatrix': VertexMesh.MESH_MVPMATRIX_ROW0,
-			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0
+			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0,
+			'a_SimpleTextureParams':VertexMesh.MESH_SIMPLEANIMATOR
 		};
 		var uniformMap: any = {
 			'u_Bones': Shader3D.PERIOD_CUSTOM,
@@ -114,6 +119,11 @@ export class ShaderInit3D {
 			'u_MaterialSpecular': Shader3D.PERIOD_MATERIAL,
 			'u_Shininess': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
+			'u_TransmissionRate':Shader3D.PERIOD_MATERIAL,
+			'u_BackDiffuse':Shader3D.PERIOD_MATERIAL,
+			'u_BackScale':Shader3D.PERIOD_MATERIAL,
+			'u_ThinknessTexture':Shader3D.PERIOD_MATERIAL,
+			'u_TransmissionColor':Shader3D.PERIOD_MATERIAL,
 
 			'u_WorldMat': Shader3D.PERIOD_SPRITE,
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
@@ -185,7 +195,7 @@ export class ShaderInit3D {
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap, "Forward");
 		var shaderPass: ShaderPass = subShader.addShaderPass(MeshBlinnPhongShadowCasterVS, MeshBlinnPhongShadowCasterPS, stateMap, "ShadowCaster");
-
+		shaderPass = subShader.addShaderPass(DepthNormalsTextureVS,DepthNormalsTextureFS,stateMap,"DepthNormal");
 		//LineShader
 		attributeMap = {
 			'a_Position': VertexMesh.MESH_POSITION0,
@@ -215,7 +225,7 @@ export class ShaderInit3D {
 			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
 			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
 			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
-			'a_MvpMatrix': VertexMesh.MESH_MVPMATRIX_ROW0
+			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0
 		};
 		uniformMap = {
 			'u_Bones': Shader3D.PERIOD_CUSTOM,
@@ -224,6 +234,8 @@ export class ShaderInit3D {
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
+
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,
 
 			'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
 			'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,
@@ -252,7 +264,7 @@ export class ShaderInit3D {
 			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
 			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
 			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
-			'a_MvpMatrix': VertexMesh.MESH_MVPMATRIX_ROW0
+			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0
 		};
 		uniformMap = {
 			'u_Bones': Shader3D.PERIOD_CUSTOM,
@@ -260,6 +272,9 @@ export class ShaderInit3D {
 			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
+
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,
+			
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
 			'u_SimpleAnimatorTexture':Shader3D.PERIOD_SPRITE,
 			'u_SimpleAnimatorParams':Shader3D.PERIOD_SPRITE,

@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { RenderElement } from "./RenderElement";
 import { RenderContext3D } from "./RenderContext3D";
 import { Bounds } from "../Bounds"
@@ -8,16 +9,13 @@ import { Material } from "../material/Material"
 import { BoundsOctreeNode } from "../scene/BoundsOctreeNode"
 import { IOctreeObject } from "../scene/IOctreeObject"
 import { Scene3D } from "../scene/Scene3D"
-import { FrustumCulling } from "../../graphics/FrustumCulling"
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
 import { ShaderData } from "../../shader/ShaderData"
 import { Event } from "../../../events/Event"
 import { EventDispatcher } from "../../../events/EventDispatcher"
-import { Render } from "../../../renders/Render"
 import { ISingletonElement } from "../../../resource/ISingletonElement"
-import { Texture2D } from "../../../resource/Texture2D"
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
 import { Stat } from "../../../utils/Stat";
 import { Lightmap } from "../scene/Lightmap";
@@ -335,7 +333,11 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 
 	 */
 	_setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
+		if(!value){
+				(this._indexInOctreeMotionList !== -1) && (this._octreeNode._octree.removeMotionObject(this));
+		}
 		this._octreeNode = value;
+		
 	}
 
 	/**
@@ -472,6 +474,13 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 */
 	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
 		return true;
+	}
+
+	/**
+	 * @internal
+	 * 八叉树节点不需要渲染调用的事件 
+	 */
+	_OctreeNoRender():void{
 	}
 
 	/**

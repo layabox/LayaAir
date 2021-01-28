@@ -163,9 +163,7 @@ uniform int u_SimulationSpace;
   uniform  vec2 u_TSAMaxGradientUVs[4];//x为key,y为frame
 #endif
 
-#ifdef TILINGOFFSET
-	uniform vec4 u_TilingOffset;
-#endif
+uniform vec4 u_TilingOffset;
 
 vec3 rotationByEuler(in vec3 vector,in vec3 rot)
 {
@@ -763,9 +761,7 @@ void main()
 				v_TextureCoordinate =computeParticleUV(a_MeshTextureCoordinate, normalizedAge);
 			#endif
 			
-			#ifdef TILINGOFFSET
-				v_TextureCoordinate=TransformUV(v_TextureCoordinate,u_TilingOffset);
-			#endif
+			v_TextureCoordinate=TransformUV(v_TextureCoordinate,u_TilingOffset);
 		#endif
    	}
    	else

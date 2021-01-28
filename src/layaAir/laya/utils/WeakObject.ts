@@ -90,6 +90,7 @@ export class WeakObject {
     has(key: any): boolean {
         if (key == null) return false;
         if (WeakObject.supportWeakMap) {
+            return false;
         } else {
             if (typeof (key) == 'string' || typeof (key) == 'number') return this._obj[key as any] != null;
             return this._obj[this._obj.$_GID] != null;

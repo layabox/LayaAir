@@ -4,6 +4,8 @@ import { Texture2D } from "./Texture2D";
 import { Context } from "./Context";
 import { ILaya } from "../../ILaya";
 import { Browser } from "../utils/Browser";
+import { RenderTexture2D } from "./RenderTexture2D";
+import { BaseTexture } from "./BaseTexture";
 
 
 /**
@@ -15,7 +17,7 @@ export class HTMLCanvas extends Bitmap {
     /**@internal */
     _source: HTMLCanvasElement;
     /**@internal */
-    _texture: Texture|null;
+    _texture: Texture;
     /**
      * @inheritDoc
      */
@@ -146,7 +148,7 @@ export class HTMLCanvas extends Bitmap {
     /**
      * 获取texture实例
      */
-    getTexture(): Texture {
+    getTexture(): Texture|null|RenderTexture2D {
         if (!this._texture) {
             var bitmap: Texture2D = new Texture2D();
             bitmap.loadImageSource(this.source);

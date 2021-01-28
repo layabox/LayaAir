@@ -1,7 +1,6 @@
 import { Command } from "./Command";
 import { RenderTexture } from "../../../resource/RenderTexture"
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { Viewport } from "../../../math/Viewport";
 
 /**
  * @internal

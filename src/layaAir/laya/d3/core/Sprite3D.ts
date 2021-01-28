@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Node } from "../../display/Node";
 import { Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
@@ -83,7 +84,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	/**@internal */
 	_transform: Transform3D;
 	/** @internal */
-	_hierarchyAnimator: Animator;
+	_hierarchyAnimator: Animator|null;
 	/** @internal */
 	_needProcessCollisions: boolean = false;
 	/** @internal */
@@ -175,7 +176,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	/**
 	 * @internal
 	 */
-	_setHierarchyAnimator(animator: Animator, parentAnimator: Animator): void {
+	_setHierarchyAnimator(animator: Animator, parentAnimator: Animator|null): void {
 		this._changeHierarchyAnimator(animator);
 		this._changeAnimatorAvatar(animator.avatar);
 		for (var i: number = 0, n: number = this._children.length; i < n; i++) {
@@ -187,7 +188,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	/**
 	 * @internal
 	 */
-	_clearHierarchyAnimator(animator: Animator, parentAnimator: Animator): void {
+	_clearHierarchyAnimator(animator: Animator, parentAnimator: Animator|null): void {
 		this._changeHierarchyAnimator(parentAnimator);
 		this._changeAnimatorAvatar(parentAnimator ? parentAnimator.avatar : null);
 		for (var i: number = 0, n: number = this._children.length; i < n; i++) {
@@ -199,7 +200,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	/**
 	 * @internal
 	 */
-	_changeHierarchyAnimatorAvatar(animator: Animator, avatar: Avatar): void {
+	_changeHierarchyAnimatorAvatar(animator: Animator, avatar: Avatar|null): void {
 		this._changeAnimatorAvatar(avatar);
 		for (var i: number = 0, n: number = this._children.length; i < n; i++) {
 			var child: Sprite3D = this._children[i];
@@ -224,14 +225,14 @@ export class Sprite3D extends Node implements ICreateResource {
 	/**
 	 * @internal
 	 */
-	protected _changeHierarchyAnimator(animator: Animator): void {
+	protected _changeHierarchyAnimator(animator: Animator|null): void {
 		this._hierarchyAnimator = animator;
 	}
 
 	/**
 	 * @internal
 	 */
-	protected _changeAnimatorAvatar(avatar: Avatar): void {
+	protected _changeAnimatorAvatar(avatar: Avatar|null): void {
 	}
 
 	/**

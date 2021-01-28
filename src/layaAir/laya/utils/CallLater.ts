@@ -59,7 +59,7 @@ export class CallLater {
             handler.args = args;
             //索引handler
             var cid: number = caller ? caller.$_GID : 0;
-            var mid: number = method["$_TID"];
+            var mid: number = (method as any)["$_TID"];
             handler.key = cid +'.'+ mid;
             this._map[handler.key] = handler
             //插入队列

@@ -69,7 +69,7 @@ export class TiledMap_IsometricWorld {
 		if (this.tiledMap) {
 			this.tiledMap.mapSprite().removeChildren();
 			this.tiledMap.destroy();
-			Resource.destroyUnusedResources();
+			// Resource.destroyUnusedResources();
 		}
 	}
 }

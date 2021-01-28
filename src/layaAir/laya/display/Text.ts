@@ -646,7 +646,7 @@ export class Text extends Sprite {
     protected _isPassWordMode(): boolean {
         var style: TextStyle = (<TextStyle>this._style);
         var password: boolean = style.asPassword;
-        if (("prompt" in (this as any)) && this['prompt'] == this._text)
+        if (("prompt" in (this as any)) && (this as any)['prompt'] == this._text)
             password = false;
         return password;
     }
@@ -745,7 +745,7 @@ export class Text extends Sprite {
         var style = <TextStyle>this._style;
         var password = style.asPassword;
         // 输入框的prompt始终显示明文
-        if (("prompt" in (this as any)) && this['prompt'] == this._text)
+        if (("prompt" in (this as any)) && (this as any)['prompt'] == this._text)
             password = false;
 
         var x = 0, y = 0;

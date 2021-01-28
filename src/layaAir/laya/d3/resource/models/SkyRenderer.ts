@@ -11,7 +11,6 @@ import { Vector3 } from "../../math/Vector3";
 import { DefineDatas } from "../../shader/DefineDatas";
 import { ShaderData } from "../../shader/ShaderData";
 import { ShaderInstance } from "../../shader/ShaderInstance";
-import { RenderTexture } from "../RenderTexture";
 import { SkyBox } from "./SkyBox";
 import { SkyMesh } from "./SkyMesh";
 
@@ -103,7 +102,6 @@ export class SkyRenderer {
 				shader._uploadScene = scene;
 			}
 
-			var renderTex: RenderTexture = camera._getRenderTexture();
 			var uploadCamera: boolean = (shader._uploadCameraShaderValue !== cameraShaderValue) || switchShaderLoop;
 			if (uploadCamera || switchShader) {
 				var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;

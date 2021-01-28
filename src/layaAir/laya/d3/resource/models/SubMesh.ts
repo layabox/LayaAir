@@ -7,7 +7,6 @@ import { SkinnedMeshSprite3D } from "../../core/SkinnedMeshSprite3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Mesh } from "./Mesh";
-import { LayaGPU } from "../../../webgl/LayaGPU";
 import { IndexFormat } from "../../graphics/IndexFormat";
 
 
@@ -115,7 +114,7 @@ export class SubMesh extends GeometryElement {
 		}
 
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		var skinnedDatas: any[] = (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData;
+		var skinnedDatas: any[] =state.renderElement? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData:null;
 		var glIndexFormat: number;
 		var byteCount: number;
 		switch (mesh.indexFormat) {

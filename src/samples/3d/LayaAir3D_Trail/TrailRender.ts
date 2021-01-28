@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -9,6 +9,7 @@ import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class TrailRender {
 	constructor() {
@@ -27,8 +28,8 @@ export class TrailRender {
 		camera.transform.translate(new Vector3(0, 8, 10));
 		camera.transform.rotate(new Vector3(-45, 0, 0), true, false);
 		//设置相机清除标识为固定颜色
-		camera.clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
-
+		camera.clearFlag = CameraClearFlags.SolidColor;
+		camera.addComponent(CameraMoveScript);
 		//创建平行光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		//设置平行光颜色

@@ -46,6 +46,7 @@ var packsDef = [
         'input': [
             './layaAir/laya/d3/animation/**/*.*',
             './layaAir/laya/d3/component/**/*.*',
+            './layaAir/laya/d3/depthMap/*.*',
             './layaAir/laya/d3/core/**/*.*',
             './layaAir/laya/d3/graphics/**/*.*',
             './layaAir/laya/d3/loaders/**/*.*',
@@ -65,6 +66,13 @@ var packsDef = [
             './layaAir/Laya3D.ts'
         ],
         'out': '../build/js/libs/laya.d3.js'
+    },
+    {
+        'libName': "gltf",
+        'input': [
+            './layaAir/laya/gltf/**/*.*',
+        ],
+        'out': '../build/js/libs/laya.gltf.js'
     },
     {
         'libName': "cannonPhysics",

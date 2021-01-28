@@ -13,12 +13,12 @@
 attribute vec4 a_Position;
 
 #ifdef GPU_INSTANCE
-	attribute mat4 a_MvpMatrix;
+	uniform mat4 u_ViewProjection;
 #else
 	uniform mat4 u_MvpMatrix;
 #endif
 
-#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))||(defined(LIGHTMAP)&&defined(UV))
+#if defined(DIFFUSEMAP)||defined(THICKNESSMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))||(defined(LIGHTMAP)&&defined(UV))
 	attribute vec2 a_Texcoord0;
 	varying vec2 v_Texcoord0;
 #endif
@@ -76,11 +76,7 @@ varying vec3 v_Normal;
 	varying vec4 v_SpotShadowCoord;
 #endif
 
-#ifdef TILINGOFFSET
-	uniform vec4 u_TilingOffset;
-#endif
-
-
+uniform vec4 u_TilingOffset;
 
 void main()
 {
@@ -110,17 +106,19 @@ void main()
 		position=a_Position;
 	#endif
 
-	#ifdef GPU_INSTANCE
-		gl_Position = a_MvpMatrix * position;
-	#else
-		gl_Position = u_MvpMatrix * position;
-	#endif
+
 	
 	mat4 worldMat;
 	#ifdef GPU_INSTANCE
 		worldMat = a_WorldMat;
 	#else
 		worldMat = u_WorldMat;
+	#endif
+
+	#ifdef GPU_INSTANCE
+		gl_Position = u_ViewProjection * worldMat * position;
+	#else
+		gl_Position = u_MvpMatrix * position;
 	#endif
 
 	mat3 worldInvMat;
@@ -145,12 +143,8 @@ void main()
 		#endif
 	#endif
 
-	#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
-		#ifdef TILINGOFFSET
-			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
-		#else
-			v_Texcoord0=a_Texcoord0;
-		#endif
+	#if defined(DIFFUSEMAP)||defined(THICKNESSMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
+		v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 	#endif
 
 	#ifdef LIGHTMAP

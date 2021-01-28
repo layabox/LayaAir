@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -10,7 +9,7 @@ import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Material } from "../../../../bin/tsc/layaAir/laya/d3/core/material/Material";
+import { Material } from "laya/d3/core/material/Material";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class Sky_SkyBox {

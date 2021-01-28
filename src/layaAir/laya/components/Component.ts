@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Node } from "../display/Node"
 import { IDestroy } from "../resource/IDestroy"
 import { ISingletonElement } from "../resource/ISingletonElement"

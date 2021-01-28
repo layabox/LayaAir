@@ -67,8 +67,6 @@ export class EnvironmentalReflection {
 			this.teapot.transform.rotate(new Vector3(-90, 0, 0), false, false);
 			//实例PBR材质
 			var pbrMat: PBRStandardMaterial = new PBRStandardMaterial();
-			//开启该材质的反射
-			pbrMat.enableReflection = true;
 			//设置材质的金属度，尽量高点，反射效果更明显
 			pbrMat.metallic = 1;
 			this.teapot.meshRenderer.material = pbrMat;

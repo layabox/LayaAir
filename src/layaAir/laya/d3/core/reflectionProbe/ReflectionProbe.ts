@@ -1,4 +1,3 @@
-import { Component } from "../../../components/Component";
 import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
 import { Bounds } from "../Bounds";

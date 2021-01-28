@@ -202,6 +202,11 @@ export class LoaderManager extends EventDispatcher {
             return this._loadAssets(url, complete, progress, type, priority, cache, group);
         }
 
+        if (!type) {
+            if (url.indexOf("data:image") === 0) type = Loader.IMAGE;
+            else type = Loader.getTypeFromUrl(url);
+        }
+        
         var content: any;
         if (type === Loader.IMAGE)
             content = Loader.textureMap[URL.formatURL(url)];

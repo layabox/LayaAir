@@ -108,7 +108,7 @@ export class TrailFilter {
 	}
 
 	/**
-	 * 设置宽度曲线。
+	 * 设置宽度曲线。最多10个
 	 * @param value 宽度曲线。
 	 */
 	set widthCurve(value: FloatKeyframe[]) {
@@ -186,13 +186,15 @@ export class TrailFilter {
 	_update(state: RenderContext3D): void {
 		var render: BaseRender = this._owner._render;
 		this._curtime += ((<Scene3D>state.scene)).timer._delta / 1000;
+		//设置颜色
 		render._shaderValues.setNumber(TrailFilter.CURTIME, this._curtime);
-
+		//现在的位置记录
 		var curPos: Vector3 = this._owner.transform.position;
 		var element: TrailGeometry = (<TrailGeometry>render._renderElements[0]._geometry);
 		element._updateDisappear();
 		element._updateTrail((<Camera>state.camera), this._lastPosition, curPos);
 		element._updateVertexBufferUV();
+		//克隆到lastPosition
 		curPos.cloneTo(this._lastPosition);
 	}
 

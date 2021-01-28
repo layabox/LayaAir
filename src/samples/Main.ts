@@ -11,7 +11,6 @@ import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
 import { Texture2D } from 'laya/resource/Texture2D';
-import { Browser } from "laya/utils/Browser";
 
 export class Main {
     private static _box3D: Sprite;

@@ -11,6 +11,7 @@ import { Stage } from "../display/Stage";
 import { LoaderManager } from "../net/LoaderManager";
 import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
+import { Browser } from "../utils/Browser";
 /**
  * <code>SoundManager</code> 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
  * 引擎默认有两套声音方案：WebAudio和H5Audio
@@ -76,7 +77,9 @@ export class SoundManager {
         var supportWebAudio: boolean = win["AudioContext"] || win["webkitAudioContext"] || win["mozAudioContext"] ? true : false;
         if (supportWebAudio) WebAudioSound.initWebAudio();
         SoundManager._soundClass = supportWebAudio ? WebAudioSound : AudioSound;
-        AudioSound._initMusicAudio();
+        if (!Browser.onTBMiniGame) {
+            AudioSound._initMusicAudio();
+        }
         SoundManager._musicClass = AudioSound;
         return supportWebAudio;
     }
@@ -320,14 +323,14 @@ export class SoundManager {
             if (SoundManager._soundMuted) return null;
         }
         var tSound: Sound;
-        if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame &&!ILaya.Browser.onTBMiniGame) {
+        if (!Browser._isMiniGame) {
             tSound = ILaya.loader.getRes(url);
         }
         if (!soundClass) soundClass = SoundManager._soundClass;
         if (!tSound) {
             tSound = new soundClass();
             tSound.load(url);
-            if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame &&!ILaya.Browser.onTBMiniGame) {
+            if (!Browser._isMiniGame) {
                 ILaya.Loader.cacheRes(url, tSound);
             }
         }

@@ -74,7 +74,7 @@ export class LoadResourceDemo {
 			directionLight.transform.rotate(new Vector3(-1.14 / 3, 0, 0));
 
 			//材质加载
-			BaseMaterial.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, function (mat: Material): void {
+			Material.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, function (mat: Material): void {
 				//获取相机的天空渲染器
 				var skyRenderer: SkyRenderer = camera.skyRenderer;
 				//创建天空盒的mesh

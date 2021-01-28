@@ -20,18 +20,11 @@ export class UnlitMaterial extends Material {
 	static RENDERMODE_ADDTIVE: number = 3;
 
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
-	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
 	static ALBEDOCOLOR: number = Shader3D.propertyNameToID("u_AlbedoColor");
 	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
-	static CULL: number = Shader3D.propertyNameToID("s_Cull");
-	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
-	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
-	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
-	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
-	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: UnlitMaterial;
@@ -41,7 +34,6 @@ export class UnlitMaterial extends Material {
 	 */
 	static __initDefine__(): void {
 		UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
-		UnlitMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 	}
 
@@ -335,14 +327,11 @@ export class UnlitMaterial extends Material {
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-				this._shaderValues.addDefine(UnlitMaterial.SHADERDEFINE_TILINGOFFSET);
-			else
-				this._shaderValues.removeDefine(UnlitMaterial.SHADERDEFINE_TILINGOFFSET);
-		} else {
-			this._shaderValues.removeDefine(UnlitMaterial.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, value);
 		}
-		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, value);
+		else {
+			this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
 	}
 
 	/**
@@ -396,85 +385,11 @@ export class UnlitMaterial extends Material {
 		}
 	}
 
-
-
-	/**
-	 * 是否写入深度。
-	 */
-	get depthWrite(): boolean {
-		return this._shaderValues.getBool(UnlitMaterial.DEPTH_WRITE);
-	}
-
-	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(UnlitMaterial.DEPTH_WRITE, value);
-	}
-
-
-
-	/**
-	 * 剔除方式。
-	 */
-	get cull(): number {
-		return this._shaderValues.getInt(UnlitMaterial.CULL);
-	}
-
-	set cull(value: number) {
-		this._shaderValues.setInt(UnlitMaterial.CULL, value);
-	}
-
-
-	/**
-	 * 混合方式。
-	 */
-	get blend(): number {
-		return this._shaderValues.getInt(UnlitMaterial.BLEND);
-	}
-
-	set blend(value: number) {
-		this._shaderValues.setInt(UnlitMaterial.BLEND, value);
-	}
-
-
-	/**
-	 * 混合源。
-	 */
-	get blendSrc(): number {
-		return this._shaderValues.getInt(UnlitMaterial.BLEND_SRC);
-	}
-
-	set blendSrc(value: number) {
-		this._shaderValues.setInt(UnlitMaterial.BLEND_SRC, value);
-	}
-
-
-
-	/**
-	 * 混合目标。
-	 */
-	get blendDst(): number {
-		return this._shaderValues.getInt(UnlitMaterial.BLEND_DST);
-	}
-
-	set blendDst(value: number) {
-		this._shaderValues.setInt(UnlitMaterial.BLEND_DST, value);
-	}
-
-
-	/**
-	 * 深度测试方式。
-	 */
-	get depthTest(): number {
-		return this._shaderValues.getInt(UnlitMaterial.DEPTH_TEST);
-	}
-
-	set depthTest(value: number) {
-		this._shaderValues.setInt(UnlitMaterial.DEPTH_TEST, value);
-	}
-
 	constructor() {
 		super();
 		this.setShaderName("Unlit");
 		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
+		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this.renderMode = UnlitMaterial.RENDERMODE_OPAQUE;
 	}
 

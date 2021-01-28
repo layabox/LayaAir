@@ -2,7 +2,6 @@ import { WebAudioSoundChannel } from "./WebAudioSoundChannel";
 import { Event } from "../../events/Event"
 import { EventDispatcher } from "../../events/EventDispatcher"
 import { SoundChannel } from "../SoundChannel"
-//import { SoundManager } from "../SoundManager"
 import { URL } from "../../net/URL"
 import { ILaya } from "../../../ILaya";
 
@@ -17,12 +16,12 @@ export class WebAudioSound extends EventDispatcher {
     /**
      * 是否支持web audio api
      */
-    static webAudioEnabled: boolean = window["AudioContext"] || window["webkitAudioContext"] || window["mozAudioContext"];
+    static webAudioEnabled: boolean = window["AudioContext"] || (window as any)["webkitAudioContext"] || (window as any)["mozAudioContext"];
 
     /**
      * 播放设备
      */
-    static ctx: any = WebAudioSound.webAudioEnabled ? new (window["AudioContext"] || window["webkitAudioContext"] || window["mozAudioContext"])() : undefined;
+    static ctx: any = WebAudioSound.webAudioEnabled ? new (window["AudioContext"] || (window as any)["webkitAudioContext"] || (window as any)["mozAudioContext"])() : undefined;
 
     /**
      * 当前要解码的声音文件列表
