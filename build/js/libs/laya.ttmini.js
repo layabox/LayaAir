@@ -33,7 +33,7 @@ window.ttMiniGame = function (exports, Laya) {
 	                callBack != null && callBack.runWith([0, data]);
 	            }, fail: function (data) {
 	                if (data && readyUrl != "")
-	                    MiniFileMgr.downFiles(encodeURI(readyUrl), encoding, callBack, readyUrl, isSaveFile, fileType);
+	                    MiniFileMgr.downFiles(TTMiniAdapter.safeEncodeURI(readyUrl), encoding, callBack, readyUrl, isSaveFile, fileType);
 	                else
 	                    callBack != null && callBack.runWith([1]);
 	            } });
@@ -496,7 +496,7 @@ window.ttMiniGame = function (exports, Laya) {
 	                        this.onDownLoadCallBack(url, 0);
 	                    }
 	                    else {
-	                        MiniFileMgr.downOtherFiles(encodeURI(url), Laya.Handler.create(this, this.onDownLoadCallBack, [url]), url);
+	                        MiniFileMgr.downOtherFiles(TTMiniAdapter.safeEncodeURI(url), Laya.Handler.create(this, this.onDownLoadCallBack, [url]), url);
 	                    }
 	                }
 	            }
@@ -787,7 +787,7 @@ window.ttMiniGame = function (exports, Laya) {
 	            var tempurl = Laya.URL.formatURL(url);
 	            if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempurl)) {
 	                if (MiniFileMgr.isNetFile(tempurl)) {
-	                    MiniFileMgr.downOtherFiles(encodeURI(tempurl), Laya.Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl, thisLoader]), tempurl);
+	                    MiniFileMgr.downOtherFiles(TTMiniAdapter.safeEncodeURI(tempurl), Laya.Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl, thisLoader]), tempurl);
 	                }
 	                else {
 	                    MiniLoader.onDownLoadCallBack(url, thisLoader, 0);
@@ -853,15 +853,15 @@ window.ttMiniGame = function (exports, Laya) {
 	                    thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
 	                }
 	                else
-	                    MiniFileMgr.readFile(encodeURI(url), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	            }
 	            else {
 	                if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempurl)) {
 	                    if (MiniFileMgr.isNetFile(tempurl)) {
-	                        MiniFileMgr.downFiles(encodeURI(tempurl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, true);
+	                        MiniFileMgr.downFiles(TTMiniAdapter.safeEncodeURI(tempurl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, true);
 	                    }
 	                    else {
-	                        MiniFileMgr.readFile(encodeURI(url), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                        MiniFileMgr.readFile(url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                    }
 	                }
 	                else {
@@ -870,7 +870,7 @@ window.ttMiniGame = function (exports, Laya) {
 	                    if (fileObj && fileObj.md5) {
 	                        tempUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileObj.md5);
 	                    }
-	                    MiniFileMgr.readFile(encodeURI(tempUrl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(tempUrl, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
 	            }
 	        }
@@ -902,13 +902,13 @@ window.ttMiniGame = function (exports, Laya) {
 	            return;
 	        }
 	        if (!TTMiniAdapter.autoCacheFile) {
-	            thisLoader._loadImage(encodeURI(url));
+	            thisLoader._loadImage(TTMiniAdapter.safeEncodeURI(url));
 	        }
 	        else {
 	            var tempUrl = Laya.URL.formatURL(url);
 	            if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempUrl)) {
 	                if (MiniFileMgr.isNetFile(tempUrl)) {
-	                    MiniFileMgr.downOtherFiles(encodeURI(tempUrl), new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
+	                    MiniFileMgr.downOtherFiles(TTMiniAdapter.safeEncodeURI(tempUrl), new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 	                }
 	                else {
 	                    MiniLoader.onCreateImage(url, thisLoader, true);
@@ -1046,6 +1046,7 @@ window.ttMiniGame = function (exports, Laya) {
 	        TTMiniAdapter.window.CanvasRenderingContext2D.prototype = TTMiniAdapter.window.tt.createCanvas().getContext('2d').__proto__;
 	        TTMiniAdapter.window.document.body.appendChild = function () {
 	        };
+	        Laya.HttpRequest._urlEncode = TTMiniAdapter.safeEncodeURI;
 	        TTMiniAdapter.EnvConfig.pixelRatioInt = 0;
 	        Laya.Browser["_pixelRatio"] = TTMiniAdapter.pixelRatio();
 	        TTMiniAdapter._preCreateElement = Laya.Browser.createElement;
@@ -1134,7 +1135,7 @@ window.ttMiniGame = function (exports, Laya) {
 	            MiniFileMgr.filesListObj = {};
 	        }
 	        let files = MiniFileMgr.fs.readdirSync(MiniFileMgr.fileNativeDir);
-	        if (!files.length)
+	        if (!files || !files.length)
 	            return;
 	        var tempMd5ListObj = {};
 	        var fileObj;
@@ -1316,6 +1317,26 @@ window.ttMiniGame = function (exports, Laya) {
 	        }
 	    }
 	}
+	TTMiniAdapter.IGNORE = new RegExp("[-_.!~*'();/?:@&=+$,#%]|[0-9|A-Z|a-z]");
+	TTMiniAdapter.safeEncodeURI = function (str) {
+	    var strTemp = "";
+	    var length = str.length;
+	    for (var i = 0; i < length; i++) {
+	        var word = str[i];
+	        if (TTMiniAdapter.IGNORE.test(word)) {
+	            strTemp += word;
+	        }
+	        else {
+	            try {
+	                strTemp += encodeURI(word);
+	            }
+	            catch (e) {
+	                console.log("errorInfo", ">>>" + word);
+	            }
+	        }
+	    }
+	    return strTemp;
+	};
 	TTMiniAdapter._inited = false;
 	TTMiniAdapter.autoCacheFile = true;
 	TTMiniAdapter.minClearSize = (5 * 1024 * 1024);

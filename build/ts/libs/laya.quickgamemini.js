@@ -304,17 +304,8 @@ window.qgMiniGame = function (exports, Laya) {
 	        var fileUrl = MiniFileMgr.getFileNativePath(filePath);
 	        var filesListStr;
 	        try {
-	            MiniFileMgr.fs.readFile({
-	                filePath: fileUrl,
-	                encoding: encoding,
-	                success: function (data) {
-	                    filesListStr = data.data;
-	                    callBack != null && callBack.runWith([0, { data: filesListStr }]);
-	                },
-	                fail: function () {
-	                    callBack != null && callBack.runWith([1]);
-	                }
-	            });
+	            filesListStr = MiniFileMgr.fs.readFileSync(fileUrl, encoding);
+	            callBack != null && callBack.runWith([0, { data: filesListStr }]);
 	        }
 	        catch (error) {
 	            callBack != null && callBack.runWith([1]);
@@ -810,7 +801,7 @@ window.qgMiniGame = function (exports, Laya) {
 	            var tempurl = Laya.URL.formatURL(url);
 	            if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempurl)) {
 	                if (MiniFileMgr.isNetFile(tempurl)) {
-	                    MiniFileMgr.downOtherFiles(encodeURI(tempurl), Laya.Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl, thisLoader]), tempurl);
+	                    MiniFileMgr.downOtherFiles(QGMiniAdapter.safeEncodeURI(tempurl), Laya.Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl, thisLoader]), tempurl);
 	                }
 	                else {
 	                    MiniLoader.onDownLoadCallBack(url, thisLoader, 0);
@@ -848,7 +839,7 @@ window.qgMiniGame = function (exports, Laya) {
 	            }
 	            sourceUrl = fileNativeUrl;
 	            var sound = (new Laya.SoundManager._soundClass());
-	            sound.load(encodeURI(sourceUrl));
+	            sound.load(QGMiniAdapter.safeEncodeURI(sourceUrl));
 	            thisLoader.onLoaded(sound);
 	        }
 	        else {
@@ -873,18 +864,18 @@ window.qgMiniGame = function (exports, Laya) {
 	            var tempurl = Laya.URL.formatURL(url);
 	            if (!QGMiniAdapter.AutoCacheDownFile) {
 	                if (MiniFileMgr.isNetFile(tempurl)) {
-	                    thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
+	                    MiniFileMgr.downFiles(QGMiniAdapter.safeEncodeURI(tempurl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, false);
 	                }
 	                else
-	                    MiniFileMgr.readFile(encodeURI(url), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	            }
 	            else {
 	                if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempurl)) {
 	                    if (MiniFileMgr.isNetFile(tempurl)) {
-	                        MiniFileMgr.downFiles(encodeURI(tempurl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, true);
+	                        MiniFileMgr.downFiles(QGMiniAdapter.safeEncodeURI(tempurl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), tempurl, true);
 	                    }
 	                    else {
-	                        MiniFileMgr.readFile(encodeURI(url), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                        MiniFileMgr.readFile(url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                    }
 	                }
 	                else {
@@ -893,7 +884,7 @@ window.qgMiniGame = function (exports, Laya) {
 	                    if (fileObj && fileObj.md5) {
 	                        tempUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileObj.md5);
 	                    }
-	                    MiniFileMgr.readFile(encodeURI(tempUrl), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(tempUrl, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
 	            }
 	        }
@@ -916,7 +907,7 @@ window.qgMiniGame = function (exports, Laya) {
 	            thisLoader.onLoaded(tempData);
 	        }
 	        else if (errorCode == 1) {
-	            thisLoader._loadHttpRequest(url, type, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
+	            thisLoader.onError && thisLoader.onError(data);
 	        }
 	    }
 	    static _transformImgUrl(url, type, thisLoader) {
@@ -925,13 +916,13 @@ window.qgMiniGame = function (exports, Laya) {
 	            return;
 	        }
 	        if (!QGMiniAdapter.autoCacheFile) {
-	            thisLoader._loadImage(encodeURI(url));
+	            thisLoader._loadImage(QGMiniAdapter.safeEncodeURI(url));
 	        }
 	        else {
 	            var tempUrl = Laya.URL.formatURL(url);
 	            if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempUrl)) {
 	                if (MiniFileMgr.isNetFile(tempUrl)) {
-	                    MiniFileMgr.downOtherFiles(encodeURI(tempUrl), new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
+	                    MiniFileMgr.downOtherFiles(QGMiniAdapter.safeEncodeURI(tempUrl), new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 	                }
 	                else {
 	                    MiniLoader.onCreateImage(url, thisLoader, true);
@@ -1026,6 +1017,7 @@ window.qgMiniGame = function (exports, Laya) {
 	        };
 	        QGMiniAdapter.window.document.body.appendChild = function () {
 	        };
+	        Laya.HttpRequest._urlEncode = QGMiniAdapter.safeEncodeURI;
 	        QGMiniAdapter.EnvConfig.pixelRatioInt = 0;
 	        Laya.Browser["_pixelRatio"] = QGMiniAdapter.pixelRatio();
 	        QGMiniAdapter._preCreateElement = Laya.Browser.createElement;
@@ -1104,7 +1096,7 @@ window.qgMiniGame = function (exports, Laya) {
 	    }
 	    static onMkdirCallBack(errorCode, data) {
 	        if (!errorCode) {
-	            MiniFileMgr.filesListObj = JSON.parse(data.data);
+	            MiniFileMgr.filesListObj = JSON.parse(data.data) || {};
 	            MiniFileMgr.fakeObj = JSON.parse(data.data) || {};
 	        }
 	        else {
@@ -1112,7 +1104,7 @@ window.qgMiniGame = function (exports, Laya) {
 	            MiniFileMgr.filesListObj = {};
 	        }
 	        let files = MiniFileMgr.fs.readdirSync(MiniFileMgr.fileNativeDir);
-	        if (!files.length)
+	        if (!files || !files.length)
 	            return;
 	        var tempMd5ListObj = {};
 	        var fileObj;
@@ -1293,6 +1285,26 @@ window.qgMiniGame = function (exports, Laya) {
 	        }
 	    }
 	}
+	QGMiniAdapter.IGNORE = new RegExp("[-_.!~*'();/?:@&=+$,#%]|[0-9|A-Z|a-z]");
+	QGMiniAdapter.safeEncodeURI = function (str) {
+	    var strTemp = "";
+	    var length = str.length;
+	    for (var i = 0; i < length; i++) {
+	        var word = str[i];
+	        if (QGMiniAdapter.IGNORE.test(word)) {
+	            strTemp += word;
+	        }
+	        else {
+	            try {
+	                strTemp += encodeURI(word);
+	            }
+	            catch (e) {
+	                console.log("errorInfo", ">>>" + word);
+	            }
+	        }
+	    }
+	    return strTemp;
+	};
 	QGMiniAdapter._inited = false;
 	QGMiniAdapter.systemInfo = {};
 	QGMiniAdapter.autoCacheFile = true;
