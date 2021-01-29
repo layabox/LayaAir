@@ -8605,6 +8605,17 @@ enum ReflectionProbeMode {
 		 * @param subShaderIndex 子shader索引 一般为0
 		 */
 		drawRender(render:BaseRender,material:Material,subShaderIndex:number):void;
+
+		/**
+		 * 使用instance动态合批的方式渲染一个Mesh
+		 * @param mesh 原始网格信息
+		 * @param subMeshIndex mesh索引
+		 * @param matrixs 渲染的世界矩阵数组，用来描述每个Mesh需要渲染的位置,如果为null，将不创建更新世界矩阵Buffer
+		 * @param material 渲染材质
+		 * @param subShaderIndex 渲染材质shader索引
+		 * @param instanceProperty Instance自定义属性
+		 * @param drawnums 渲染个数
+		 */
 		drawMeshInstance(mesh:Mesh,subMeshIndex:number,matrixs:Matrix4x4[],material:Material,subShaderIndex:number,instanceProperty:MaterialInstancePropertyBlock,drawnums:number):any;
 	}
 

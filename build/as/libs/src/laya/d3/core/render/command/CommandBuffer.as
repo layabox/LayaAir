@@ -204,6 +204,17 @@ package laya.d3.core.render.command {
 		 * @param subShaderIndex 子shader索引 一般为0
 		 */
 		public function drawRender(render:BaseRender,material:Material,subShaderIndex:Number):void{}
+
+		/**
+		 * 使用instance动态合批的方式渲染一个Mesh
+		 * @param mesh 原始网格信息
+		 * @param subMeshIndex mesh索引
+		 * @param matrixs 渲染的世界矩阵数组，用来描述每个Mesh需要渲染的位置,如果为null，将不创建更新世界矩阵Buffer
+		 * @param material 渲染材质
+		 * @param subShaderIndex 渲染材质shader索引
+		 * @param instanceProperty Instance自定义属性
+		 * @param drawnums 渲染个数
+		 */
 		public function drawMeshInstance(mesh:Mesh,subMeshIndex:Number,matrixs:Array,material:Material,subShaderIndex:Number,instanceProperty:MaterialInstancePropertyBlock,drawnums:Number):*{}
 	}
 
