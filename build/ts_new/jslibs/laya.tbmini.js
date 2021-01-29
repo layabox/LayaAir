@@ -1094,7 +1094,7 @@ window.tbMiniGame = function (exports, Laya) {
 	            MiniFileMgr.filesListObj = {};
 	        }
 	        let files = MiniFileMgr.fs.readdirSync(MiniFileMgr.fileNativeDir);
-	        if (!files.length)
+	        if (!files || !files.length)
 	            return;
 	        var tempMd5ListObj = {};
 	        var fileObj;

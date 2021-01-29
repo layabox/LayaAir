@@ -428,6 +428,7 @@
 	    }
 	    _onScaleChange(scale) {
 	        this._colliderShape._setScale(scale);
+	        this._btColliderObject.updateBoundingRadius();
 	    }
 	    _onEnable() {
 	        this._simulation = this.owner._scene._cannonPhysicsSimulation;
