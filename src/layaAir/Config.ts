@@ -40,7 +40,7 @@ export class Config {
     /**
      * 是否使用webgl2
      */
-    static useWebGL2: boolean = false;
+    static useWebGL2: boolean = true;
 
     /**
      * 是否打印Webgl指令，同时定位webgl报错

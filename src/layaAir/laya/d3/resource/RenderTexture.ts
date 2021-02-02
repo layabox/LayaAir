@@ -1,6 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Render } from "../../renders/Render";
 import { BaseTexture } from "../../resource/BaseTexture";
+import { FilterMode } from "../../resource/FilterMode";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
 import { Texture2D } from "../../resource/Texture2D";
 import { LayaGPU } from "../../webgl/LayaGPU";
@@ -144,6 +145,7 @@ export class RenderTexture extends BaseTexture {
 		//depth
 		if (format == RenderTextureFormat.Depth || format == RenderTextureFormat.ShadowMap) {
 			WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
+			this.filterMode = FilterMode.Point;
 			switch (this._depthStencilFormat) {
 				case RenderTextureDepthFormat.DEPTH_16:
 					if (isWebGL2){
