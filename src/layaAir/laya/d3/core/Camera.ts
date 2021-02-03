@@ -604,8 +604,8 @@ export class Camera extends BaseCamera {
 			value._apply();
 		});
 		(RenderTexture.currentActive)&&(RenderTexture.currentActive._end());
-		if(this._internalRenderTexture)
-			this._internalRenderTexture._start();
+		if(this._internalRenderTexture||this._offScreenRenderTexture)
+			this._getRenderTexture()._start();
 		else{
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		}
