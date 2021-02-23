@@ -118,6 +118,8 @@ export class Camera extends BaseCamera {
 	/** @internal */
 	private _viewport: Viewport;
 	/** @internal */
+	private _rayViewport:Viewport;
+	/** @internal */
 	private _normalizedViewport: Viewport;
 	/** @internal */
 	private _viewMatrix: Matrix4x4;
@@ -374,6 +376,7 @@ export class Camera extends BaseCamera {
 		this._projectionViewMatrix = new Matrix4x4();
 		this._viewport = new Viewport(0, 0, 0, 0);
 		this._normalizedViewport = new Viewport(0, 0, 1, 1);
+		this._rayViewport = new Viewport(0, 0, 0, 0);
 		this._aspectRatio = aspectRatio;
 		this._boundFrustum = new BoundFrustum(new Matrix4x4());
 
@@ -836,7 +839,11 @@ export class Camera extends BaseCamera {
 	 * @param out  输出射线。
 	 */
 	viewportPointToRay(point: Vector2, out: Ray): void {
-		Picker.calculateCursorRay(point, this.viewport, this._projectionMatrix, this.viewMatrix, null, out);
+		this._rayViewport.x = this.viewport.x;
+		this._rayViewport.y = this.viewport.y;
+		this._rayViewport.width = Laya.stage._width;
+		this._rayViewport.height = Laya.stage._height;
+		Picker.calculateCursorRay(point, this._rayViewport, this._projectionMatrix, this.viewMatrix, null, out);
 	}
 
 	/**
