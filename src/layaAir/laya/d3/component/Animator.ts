@@ -100,6 +100,11 @@ export class Animator extends Component {
 		this._speed = value;
 	}
 
+
+	get controllerLayerCount():number{
+		return this._controllerLayers.length;
+	}
+
 	/**
 	 * 创建一个 <code>Animation</code> 实例。
 	 */
