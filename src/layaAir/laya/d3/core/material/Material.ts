@@ -275,6 +275,28 @@ export class Material extends Resource implements IClone {
 	}
 
 	/**
+	 * 获得材质属性
+	 */
+	get MaterialProperty():any{
+		let propertyMap:any = {};
+		var shaderValues = this._shaderValues.getData();
+		for(let key in shaderValues){
+			propertyMap[Shader3D._propertyNameMap[parseInt(key)]] = shaderValues[key];
+		}
+		return propertyMap;
+	}
+
+	/**
+	 * 获得材质宏
+	 */
+	get MaterialDefine():Array<string>{
+		let shaderDefineArray = new Array<string>();
+		let defineData = this._shaderValues._defineDatas;
+		Shader3D._getNamesByDefineData(defineData,shaderDefineArray);
+		return shaderDefineArray;
+	}
+
+	/**
 	 * 创建一个 <code>BaseMaterial</code> 实例。
 	 */
 	constructor() {
@@ -344,17 +366,7 @@ export class Material extends Resource implements IClone {
 			throw new Error("BaseMaterial: unknown shader name.");
 	}
 
-	/**
-	 * 获得材质属性
-	 */
-	getMaterialProperty(){
-		let propertyMap:any = {};
-		var shaderValues = this._shaderValues.getData();
-		for(let key in shaderValues){
-			propertyMap[Shader3D._propertyNameMap[parseInt(key)]] = shaderValues[key];
-		}
-		return propertyMap;
-	}
+	
 
 
 	/**
