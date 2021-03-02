@@ -1,4 +1,4 @@
-import Handler = laya.utils.Handler;
+import Handler = Laya.Handler;
 declare module laya.wx.mini {
     class MiniAdpter {
         static EnvConfig: any;
