@@ -84,7 +84,6 @@ export class Material extends Resource implements IClone {
 			case "LAYAMATERIAL:01":
 			case "LAYAMATERIAL:02":
 				var i: number, n: number;
-
 				for (var key in props) {
 					switch (key) {
 						case "type":
@@ -334,6 +333,7 @@ export class Material extends Resource implements IClone {
 
 
 
+
 	/**
 	 * 设置使用Shader名字。
 	 * @param name 名称。
@@ -343,6 +343,19 @@ export class Material extends Resource implements IClone {
 		if (!this._shader)
 			throw new Error("BaseMaterial: unknown shader name.");
 	}
+
+	/**
+	 * 获得材质属性
+	 */
+	getMaterialProperty(){
+		let propertyMap:any = {};
+		var shaderValues = this._shaderValues.getData();
+		for(let key in shaderValues){
+			propertyMap[Shader3D._propertyNameMap[parseInt(key)]] = shaderValues[key];
+		}
+		return propertyMap;
+	}
+
 
 	/**
 	 * 克隆。
@@ -369,6 +382,8 @@ export class Material extends Resource implements IClone {
 	get _defineDatas(): DefineDatas {
 		return this._shaderValues._defineDatas;
 	}
+
+	
 }
 
 
