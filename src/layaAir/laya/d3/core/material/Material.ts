@@ -83,10 +83,6 @@ export class Material extends Resource implements IClone {
 			material.setShaderName(classType);
 		}
 
-			//throw ('_getSprite3DHierarchyInnerUrls 错误: ' + data.type + ' 不是类');
-
-		// let cla = new Material();
-		// cla.setShaderName("BLINNPHONG");
 
 		switch (jsonData.version) {
 			case "LAYAMATERIAL:01":

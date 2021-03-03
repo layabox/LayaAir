@@ -702,6 +702,7 @@ export class Laya3D {
 		switch (version) {
 			case "LAYAMATERIAL:01":
 			case "LAYAMATERIAL:02":
+			case "LAYAMATERIAL:03":
 				var i: number, n: number;
 				var textures: any[] = lmatData.props.textures;
 				if (textures) {
