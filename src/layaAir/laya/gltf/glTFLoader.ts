@@ -128,13 +128,39 @@ export class glTFLoader {
 
     /**
      * @internal
-     * 获取 glTF 内部资源对象url
+     * 获取 glTF 资源对象 数量
+     * @param glTFData 
+     */
+    private static _getglTFInnerUrlsCount(glTFData: glTF.glTF): number {
+        let urlCount: number = 0;
+        // 收集 buffer url
+        if (glTFData.buffers) {
+            glTFData.buffers.forEach(buffer => {
+                if (glTFBase64Tool.isBase64String(buffer.uri)) {
+
+                }
+                else {
+                    urlCount++;
+                }
+            })
+        }
+        // 收集 texture url
+        if (glTFData.textures) {
+            urlCount += glTFData.textures.length;
+        }
+
+        return urlCount;
+    }
+
+    /**
+     * @internal
+     * 获取 glTF 内部 buffer 对象 url
      * @param glTFData 
      * @param bufferUrls 
-     * @param textureUrls 
+     * @param urlVersion 
      * @param glTFBasePath 
      */
-    private static _getglTFInnerUrls(glTFData: glTF.glTF, bufferUrls: any[], textureUrls: any[], subUrls: any[], urlVersion: string, glTFBasePath: string): void {
+    private static _getglTFBufferUrls(glTFData: glTF.glTF, bufferUrls: any[], urlVersion: string, glTFBasePath: string): void {
         // 收集 buffer url
         if (glTFData.buffers) {
             glTFData.buffers.forEach(buffer => {
@@ -147,6 +173,18 @@ export class glTFLoader {
                 }
             })
         }
+    }
+
+    /**
+     * @internal
+     * 获取 glTF 内部 texture 对象 url
+     * @param glTFData 
+     * @param textureUrls 
+     * @param subUrls 
+     * @param urlVersion 
+     * @param glTFBasePath 
+     */
+    private static _getglTFTextureUrls(glTFData: glTF.glTF, textureUrls: any[], subUrls: any[], urlVersion: string, glTFBasePath: string): void {
         // 收集 texture url
         if (glTFData.textures) {
             glTFData.textures.forEach(glTFTexture => {
@@ -154,8 +192,16 @@ export class glTFLoader {
                 let glTFSampler: glTF.glTFSampler = glTFData.samplers ? glTFData.samplers[glTFTexture.sampler] : undefined;
                 let constructParams: any[] = glTFUtils.getTextureConstructParams(glTFImage, glTFSampler);
                 let propertyParams: any[] = glTFUtils.getTexturePropertyParams(glTFSampler);
-                if (glTFImage.bufferView) {
-                    // todo bufferView texture
+                if (glTFImage.bufferView != undefined || glTFImage.bufferView != null) {
+                    let bufferView: glTF.glTFBufferView = glTFData.bufferViews[glTFImage.bufferView];
+                    let glTFBuffer: glTF.glTFBuffer = glTFData.buffers[bufferView.buffer];
+                    let buffer: ArrayBuffer = Loader.getRes(glTFBuffer.uri);
+                    let byteOffset: number = (bufferView.byteOffset || 0);
+                    let byteLength: number = bufferView.byteLength;
+                    let arraybuffer: ArrayBuffer = buffer.slice(byteOffset, byteOffset + byteLength);
+                    let base64: string = glTFBase64Tool.encode(arraybuffer);
+                    let base64url: string = `data:${glTFImage.mimeType};base64,${base64}`;
+                    glTFImage.uri = glTFLoader._addglTFInnerUrls(textureUrls, subUrls, urlVersion, "", base64url, glTFLoader.GLTFBASE64TEX, constructParams, propertyParams);
                 }
                 else if (glTFBase64Tool.isBase64String(glTFImage.uri)) {
                     glTFImage.uri = glTFLoader._addglTFInnerUrls(textureUrls, subUrls, urlVersion, "", glTFImage.uri, glTFLoader.GLTFBASE64TEX, constructParams, propertyParams);
@@ -178,23 +224,20 @@ export class glTFLoader {
         let urlVersion: string = Utils3D.getURLVerion(url);
         let glTFBasePath: string = URL.getPath(url);
         let bufferUrls: any[] = [];
-        let textureUrls: any[] = [];
 
-        let subUrls: any[] = [];
+        glTFLoader._getglTFBufferUrls(glTFData, bufferUrls, urlVersion, glTFBasePath);
 
-        glTFLoader._getglTFInnerUrls(glTFData, bufferUrls, textureUrls, subUrls, urlVersion, glTFBasePath);
-
-        let urlCount: number = bufferUrls.length + textureUrls.length;
+        let urlCount: number = glTFLoader._getglTFInnerUrlsCount(glTFData);
         let totalProcessCount: number = urlCount + 1;
         let weight: number = 1 / totalProcessCount;
         glTFLoader._onProcessChange(loader, 0, weight, 1.0);
         let processCeil: number = urlCount / totalProcessCount;
         if (bufferUrls.length > 0) {
             let processHandler: Handler = Handler.create(null, glTFLoader._onProcessChange, [loader, weight, processCeil], false);
-            glTFLoader._innerBufferLoaderManager._create(bufferUrls, false, Handler.create(null, glTFLoader._onglTFBufferResourceLoaded, [loader, processHandler, glTFData, subUrls, textureUrls, weight + processCeil * bufferUrls.length, processCeil]), processHandler, null, null, null, 1, true);
+            glTFLoader._innerBufferLoaderManager._create(bufferUrls, false, Handler.create(null, glTFLoader._onglTFBufferResourceLoaded, [loader, processHandler, glTFData, urlVersion, glTFBasePath, weight + processCeil * bufferUrls.length, processCeil]), processHandler, null, null, null, 1, true);
         }
         else {
-            glTFLoader._onglTFBufferResourceLoaded(loader, null, glTFData, subUrls, textureUrls, weight, processCeil);
+            glTFLoader._onglTFBufferResourceLoaded(loader, null, glTFData, urlVersion, glTFBasePath, weight, processCeil);
         }
     }
 
@@ -204,13 +247,19 @@ export class glTFLoader {
      * @param loader 
      * @param processHandler 
      * @param glTFData 
-     * @param subUrls 
-     * @param textureUrls 
+     * @param urlVersion 
+     * @param glTFBasePath 
      * @param processOffset 
      * @param processCeil 
      */
-    private static _onglTFBufferResourceLoaded(loader: Loader, processHandler: Handler, glTFData: glTF.glTF, subUrls: any[], textureUrls: any[], processOffset: number, processCeil: number): void {
+    private static _onglTFBufferResourceLoaded(loader: Loader, processHandler: Handler, glTFData: glTF.glTF, urlVersion: string, glTFBasePath: string, processOffset: number, processCeil: number): void {
         (processHandler) && (processHandler.recover());
+
+        let textureUrls: any[] = [];
+        let subUrls: any[] = [];
+
+        glTFLoader._getglTFTextureUrls(glTFData, textureUrls, subUrls, urlVersion, glTFBasePath);
+
         if (textureUrls.length > 0) {
             let process: Handler = Handler.create(null, glTFLoader._onProcessChange, [loader, processOffset, processCeil], false);
             glTFLoader._innerTextureLoaderManager._create(textureUrls, false, Handler.create(null, glTFLoader._onglTFTextureResourceLoaded, [loader, process, glTFData, subUrls]), processHandler, null, null, null, 1, true);
