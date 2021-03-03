@@ -30,6 +30,7 @@ import { QuaternionKeyframe } from "../d3/core/QuaternionKeyframe";
 import { KeyframeNode } from "../d3/animation/KeyframeNode";
 import { AnimatorState } from "../d3/component/AnimatorState";
 import { Handler } from "../utils/Handler";
+import { glTFBase64Tool } from "./glTFBase64Tool";
 
 
 /**
@@ -331,13 +332,7 @@ export class glTFUtils {
             return;
 
         images.forEach((image: glTF.glTFImage, index: number) => {
-            if (image.bufferView) {
-                // todo bufferView image
-                console.warn("glTF Loader: Todo: image bufferView data.")
-            }
-            else {
-                glTFUtils._glTFTextures[index] = Loader.getRes(image.uri);
-            }
+            glTFUtils._glTFTextures[index] = Loader.getRes(image.uri);
         });
     }
 
