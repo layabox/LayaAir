@@ -22,6 +22,8 @@ export class Texture2D extends BaseTexture {
 	static whiteTexture: Texture2D = null;
 	/**纯黑色纹理。*/
 	static blackTexture: Texture2D = null;
+	/**错误纹理 */
+	static erroTextur:Texture2D = null;
 
 	/**
 	 * @internal
@@ -46,6 +48,8 @@ export class Texture2D extends BaseTexture {
 		Texture2D.blackTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
 		Texture2D.blackTexture.setPixels(pixels);
 		Texture2D.blackTexture.lock = true;//锁住资源防止被资源管理释放
+		
+		Texture2D.erroTextur = Texture2D.whiteTexture;
 	}
 
 	/**

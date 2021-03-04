@@ -10,6 +10,7 @@ import { Vector4 } from "../math/Vector4";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { Stat } from "../../utils/Stat";
+import { Texture2D } from "../../resource/Texture2D";
 
 
 /**
@@ -246,11 +247,12 @@ export class ShaderData implements IClone {
 	 */
 	setTexture(index: number, value: BaseTexture): void {
 		var lastValue: BaseTexture = this._data[index];
-		this._data[index] = value;
+		this._data[index] = value?value:Texture2D.erroTextur;
 		if (this._ownerResource && this._ownerResource.referenceCount > 0) {
 			(lastValue) && (lastValue._removeReference());
 			(value) && (value._addReference());
 		}
+		
 	}
 
 	/**
