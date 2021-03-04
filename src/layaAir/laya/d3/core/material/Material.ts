@@ -413,7 +413,21 @@ export class Material extends Resource implements IClone {
 			throw new Error("BaseMaterial: unknown shader name.");
 	}
 
-	
+	/**
+	 * 设置属性值
+	 * @param name 
+	 * @param value 
+	 */
+	setShaderPropertyValue(name:string,value:any){
+		this.shaderData.setValueData(Shader3D.propertyNameToID(name),value);
+	}
+	/**
+	 * 获取属性值
+	 * @param name 
+	 */
+	getShaderPropertyValue(name:string):any{
+		return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
+	}
 
 
 	/**

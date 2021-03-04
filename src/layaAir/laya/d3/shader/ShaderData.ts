@@ -262,6 +262,14 @@ export class ShaderData implements IClone {
 		return this._data[index];
 	}
 
+	setValueData(index:number,value:any){
+		this._data[index] = value;
+	}
+
+	getValueData(index:number):any{
+		return this._data[index];
+	}
+
 	/**
 	 * 设置Attribute。
 	 * @param	index shader索引。
@@ -295,6 +303,7 @@ export class ShaderData implements IClone {
 	setLength(value: number): void {
 		this._data.length = value;
 	}
+
 
 	/**
 	 * 克隆。
