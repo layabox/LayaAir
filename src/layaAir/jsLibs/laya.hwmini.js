@@ -986,8 +986,6 @@ window.hwMiniGame = function (exports, Laya) {
 	        HWMiniAdapter.window.resetShareInfo = function () {
 	        };
 	        Laya.HttpRequest._urlEncode = HWMiniAdapter.safeEncodeURI;
-	        HWMiniAdapter.EnvConfig.pixelRatioInt = 0;
-	        Laya.Browser["_pixelRatio"] = HWMiniAdapter.pixelRatio();
 	        HWMiniAdapter._preCreateElement = Laya.Browser.createElement;
 	        Laya.Browser.createElement = HWMiniAdapter.createElement;
 	        Laya.RunDriver.createShaderCondition = HWMiniAdapter.createShaderCondition;

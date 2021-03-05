@@ -65,9 +65,6 @@ window.tbMiniGame = function (exports, Laya) {
 	                console.log("downloadfile fail:", readyUrl, data);
 	                callBack != null && callBack.runWith([1, data]);
 	            } });
-	        downloadTask.onProgressUpdate(function (data) {
-	            callBack != null && callBack.runWith([2, data.progress]);
-	        });
 	    }
 	    static readFile(filePath, encoding = "utf8", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
 	        filePath = Laya.URL.getAdptedFilePath(filePath);
@@ -489,20 +486,13 @@ window.tbMiniGame = function (exports, Laya) {
 	        this._sound = MiniSound._createSound();
 	    }
 	    static __init__() {
-	        for (let index = 0; index < 10; index++) {
-	            let s = TBMiniAdapter.window.my.createInnerAudioContext();
-	            MiniSound.cachePool.push(s);
-	        }
 	    }
 	    static _createSound() {
-	        if (MiniSound.cachePool.length) {
-	            return MiniSound.cachePool.pop();
-	        }
-	        else {
-	            return TBMiniAdapter.window.my.createInnerAudioContext();
-	        }
+	        return null;
 	    }
 	    load(url) {
+	        this.event(Laya.Event.ERROR, "Not support play sound");
+	        return;
 	        if (!MiniFileMgr.isLocalNativeFile(url)) {
 	            url = Laya.URL.formatURL(url);
 	        }
@@ -612,8 +602,7 @@ window.tbMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    play(startTime = 0, loops = 0) {
-	        if (!this.url)
-	            return null;
+	        return null;
 	        var channel = new MiniSoundChannel(this);
 	        channel.url = this.url;
 	        channel.loops = loops;
@@ -774,6 +763,8 @@ window.tbMiniGame = function (exports, Laya) {
 	        }
 	    }
 	    _loadSound(url) {
+	        thisLoader.event(Laya.Event.ERROR, "not support sound");
+	        return;
 	        var thisLoader = this;
 	        if (!TBMiniAdapter.autoCacheFile) {
 	            MiniLoader.onDownLoadCallBack(url, thisLoader, 0);
@@ -1091,7 +1082,7 @@ window.tbMiniGame = function (exports, Laya) {
 	    }
 	    static onMkdirCallBack(errorCode, data) {
 	        if (!errorCode) {
-	            MiniFileMgr.filesListObj = JSON.parse(data.data);
+	            MiniFileMgr.filesListObj = JSON.parse(data.data) || {};
 	            MiniFileMgr.fakeObj = JSON.parse(data.data) || {};
 	        }
 	        else {
@@ -1225,7 +1216,7 @@ window.tbMiniGame = function (exports, Laya) {
 	    return strTemp;
 	};
 	TBMiniAdapter._inited = false;
-	TBMiniAdapter.autoCacheFile = true;
+	TBMiniAdapter.autoCacheFile = false;
 	TBMiniAdapter.minClearSize = (5 * 1024 * 1024);
 	TBMiniAdapter.sizeLimit = (50 * 1024 * 1024);
 	TBMiniAdapter.nativefiles = ["layaNativeDir"];
@@ -1233,7 +1224,7 @@ window.tbMiniGame = function (exports, Laya) {
 	TBMiniAdapter.subNativeheads = [];
 	TBMiniAdapter.subMaps = [];
 	TBMiniAdapter.AutoCacheDownFile = false;
-	TBMiniAdapter.baseDir = "pages/index/";
+	TBMiniAdapter.baseDir = "component/";
 	TBMiniAdapter.parseXMLFromString = function (value) {
 	    var rst;
 	    value = value.replace(/>\s+</g, '><');
