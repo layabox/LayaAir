@@ -440,7 +440,8 @@ export class glTFUtils {
             console.warn("glTF Loader: non 0 uv channel unsupported.");
         }
 
-        return glTFUtils._glTFTextures[glTFTextureInfo.index];
+        let glTFImage: glTF.glTFTexture =  glTFUtils._glTF.textures[glTFTextureInfo.index];
+        return glTFUtils._glTFTextures[glTFImage.source];
     }
 
     /**
