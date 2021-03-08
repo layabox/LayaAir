@@ -37,56 +37,63 @@ export class UnlitMaterial extends Material {
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 	}
 
-	private _albedoColor: Vector4 = new Vector4(1.0, 1.0, 1.0, 1.0);
-	private _albedoIntensity: number = 1.0;
-	private _enableVertexColor: boolean = false;
+	
+	private _albedoIntensity:number;
 
 	/**
 	 * @internal
+	 * @deprecated
 	 */
 	get _ColorR(): number {
-		return this._albedoColor.x;
+		return this.albedoColor.x;
 	}
 
 	set _ColorR(value: number) {
-		this._albedoColor.x = value;
-		this.albedoColor = this._albedoColor;
+		let albedo = this.albedoColor;
+		albedo.x = value;
+		this.albedoColor = albedo;
 	}
 
 	/**
 	 * @internal
+	 * @deprecated
 	 */
 	get _ColorG(): number {
-		return this._albedoColor.y;
+		return this.albedoColor.y;
 	}
 
 	set _ColorG(value: number) {
-		this._albedoColor.y = value;
-		this.albedoColor = this._albedoColor;
+		let albedo = this.albedoColor;
+		albedo.y = value;
+		this.albedoColor = albedo;
 	}
 
 	/**
 	 * @internal
+	 * @deprecated
 	 */
 	get _ColorB(): number {
-		return this._albedoColor.z;
+		return this.albedoColor.z;
 	}
 
 	set _ColorB(value: number) {
-		this._albedoColor.z = value;
-		this.albedoColor = this._albedoColor;
+		let albedo = this.albedoColor;
+		albedo.z = value;
+		this.albedoColor = albedo;
 	}
 
 	/**
 	 * @internal 
+	 * @deprecated
 	 */
 	get _ColorA(): number {
-		return this._albedoColor.w;
+		return this.albedoColor.w;
 	}
 
 	set _ColorA(value: number) {
-		this._albedoColor.w = value;
-		this.albedoColor = this._albedoColor;
+		let albedo = this.albedoColor;
+		albedo.w = value;
+		this.albedoColor = albedo;
 	}
 
 	/**
@@ -110,7 +117,7 @@ export class UnlitMaterial extends Material {
 	set _AlbedoIntensity(value: number) {
 		if (this._albedoIntensity !== value) {
 			var finalAlbedo: Vector4 = (<Vector4>this._shaderValues.getVector(UnlitMaterial.ALBEDOCOLOR));
-			Vector4.scale(this._albedoColor, value, finalAlbedo);
+			Vector4.scale(this.albedoColor, value, finalAlbedo);
 			this._albedoIntensity = value;
 			this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, finalAlbedo);
 		}
@@ -238,13 +245,12 @@ export class UnlitMaterial extends Material {
 	 * 反照率颜色。
 	 */
 	get albedoColor(): Vector4 {
-		return this._albedoColor;
+		return this._shaderValues.getVector(UnlitMaterial.ALBEDOCOLOR);;
 	}
 
 	set albedoColor(value: Vector4) {
 		var finalAlbedo: Vector4 = (<Vector4>this._shaderValues.getVector(UnlitMaterial.ALBEDOCOLOR));
 		Vector4.scale(value, this._albedoIntensity, finalAlbedo);
-		this._albedoColor = value;
 		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, finalAlbedo);
 	}
 
@@ -338,11 +344,10 @@ export class UnlitMaterial extends Material {
 	 * 是否支持顶点色。
 	 */
 	get enableVertexColor(): boolean {
-		return this._enableVertexColor;
+		return this._shaderValues.hasDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 	}
 
 	set enableVertexColor(value: boolean) {
-		this._enableVertexColor = value;
 		if (value)
 			this._shaderValues.addDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 		else

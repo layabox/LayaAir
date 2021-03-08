@@ -88,8 +88,6 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW = Shader3D.getDefineByName("LAYA_PBR_BRDF_LOW");
     }
 
-    /** @internal */
-    private _enableEmission: boolean = false;
 
     /**
 	 * 漫反射颜色。
@@ -224,7 +222,7 @@ export class PBRMaterial extends Material {
 	 * 是否开启自发光。
 	 */
     get enableEmission(): boolean {
-        return this._enableEmission;
+        return this._shaderValues.hasDefine(PBRMaterial.SHADERDEFINE_EMISSION);
     }
 
     set enableEmission(value: boolean) {
@@ -232,7 +230,6 @@ export class PBRMaterial extends Material {
             this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_EMISSION);
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_EMISSION);
-        this._enableEmission = value;
     }
 
 	/**
