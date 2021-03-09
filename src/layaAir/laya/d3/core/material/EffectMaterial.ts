@@ -334,7 +334,6 @@ export class EffectMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("Effect");
-		this.color = new Vector4(1.0, 1.0, 1.0, 1.0);
 		this._shaderValues.setVector(EffectMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this._shaderValues.setVector(EffectMaterial.TINTCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = EffectMaterial.RENDERMODE_ADDTIVE;
