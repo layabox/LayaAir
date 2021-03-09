@@ -830,6 +830,9 @@ export class glTFUtils {
             indexArray = new Uint16Array(indexCount);
             ibFormat = IndexFormat.UInt16;
         }
+        else {
+            indexArray = new Uint32Array(indexCount);
+        }
 
         glTFUtils.fillMeshBuffers(subDatas, vertexArray, indexArray, vertexFloatStride);
         glTFUtils.generatMesh(vertexArray, indexArray, vertexDeclaration, ibFormat, subDatas, layaMesh);
