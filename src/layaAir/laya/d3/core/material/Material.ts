@@ -163,6 +163,7 @@ export class Material extends Resource implements IClone {
 				for (var key in props) {
 					switch (key) {
 						case "type":
+						case "name":
 							break;
 						case "defines":
 							var defineNames: any[] = props[key];
@@ -181,12 +182,13 @@ export class Material extends Resource implements IClone {
 							break;
 						default:
 							//组织新的
+							debugger;
 							var property = props[key];
 							var uniName = Shader3D.propertyNameToID(key);
-							if(!property.value){
+							if(!property.length){
 								material._shaderValues.setNumber(uniName,props[key]);
 							}else{
-								var vectorValue = property.value;
+								var vectorValue = property;
 								switch (vectorValue.length) {
 									case 2:
 										 material._shaderValues.setVector2(uniName,new Vector2(vectorValue[0], vectorValue[1]));
