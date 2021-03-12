@@ -116,6 +116,7 @@ export class ShaderInit3D {
 			'u_NormalTexture': Shader3D.PERIOD_MATERIAL,
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_DiffuseColor': Shader3D.PERIOD_MATERIAL,
+			'u_AlbedoIntensity': Shader3D.PERIOD_MATERIAL,
 			'u_MaterialSpecular': Shader3D.PERIOD_MATERIAL,
 			'u_Shininess': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,

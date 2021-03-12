@@ -11,6 +11,7 @@
 #include "Shadow.glsl"
 
 uniform vec4 u_DiffuseColor;
+uniform float u_AlbedoIntensity;
 
 #if defined(COLOR)&&defined(ENABLEVERTEXCOLOR)
 	varying vec4 v_Color;
@@ -116,7 +117,7 @@ void main()
 	#endif
 	vec3 globalDiffuse=layaGIBase(giInput,1.0,normal);
 	
-	vec4 mainColor=u_DiffuseColor;
+	vec4 mainColor = u_DiffuseColor * u_AlbedoIntensity;
 	#ifdef DIFFUSEMAP
 		vec4 difTexColor=texture2D(u_DiffuseTexture, v_Texcoord0);
 		mainColor=mainColor*difTexColor;

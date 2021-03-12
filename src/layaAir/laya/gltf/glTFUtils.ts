@@ -30,7 +30,7 @@ import { QuaternionKeyframe } from "../d3/core/QuaternionKeyframe";
 import { KeyframeNode } from "../d3/animation/KeyframeNode";
 import { AnimatorState } from "../d3/component/AnimatorState";
 import { Handler } from "../utils/Handler";
-import { glTFBase64Tool } from "./glTFBase64Tool";
+import { glTFTextureEditor } from "./glTFTextureEditor";
 
 
 /**
@@ -407,6 +407,7 @@ export class glTFUtils {
         constructParams[1] = 0; // height
         constructParams[2] = glTFUtils.getTextureFormat(glTFImage); // format
         constructParams[3] = glTFUtils.getTextureMipmap(glTFSampler);  // mipmap
+        constructParams[4] = true;
         return constructParams;
     }
 
@@ -440,7 +441,7 @@ export class glTFUtils {
             console.warn("glTF Loader: non 0 uv channel unsupported.");
         }
 
-        let glTFImage: glTF.glTFTexture =  glTFUtils._glTF.textures[glTFTextureInfo.index];
+        let glTFImage: glTF.glTFTexture = glTFUtils._glTF.textures[glTFTextureInfo.index];
         return glTFUtils._glTFTextures[glTFImage.source];
     }
 
@@ -494,7 +495,8 @@ export class glTFUtils {
         }
 
         if (glTFMaterial.occlusionTexture) {
-            layaPBRMaterial.occlusionTexture = glTFUtils.getTexturewithInfo(glTFMaterial.occlusionTexture);
+            let occlusionTexture: Texture2D = glTFUtils.getTexturewithInfo(glTFMaterial.occlusionTexture);
+            layaPBRMaterial.occlusionTexture = glTFTextureEditor.glTFOcclusionTrans(occlusionTexture);
             if (glTFMaterial.occlusionTexture.strength != undefined) {
                 layaPBRMaterial.occlusionTextureStrength = glTFMaterial.occlusionTexture.strength;
             }
@@ -557,17 +559,21 @@ export class glTFUtils {
             layaPBRMaterial.albedoTexture = glTFUtils.getTexturewithInfo(pbrMetallicRoughness.baseColorTexture);
         }
 
+        let metallicFactor: number = layaPBRMaterial.metallic = 1.0;
         if (pbrMetallicRoughness.metallicFactor != undefined) {
-            layaPBRMaterial.metallic = pbrMetallicRoughness.metallicFactor;
+            metallicFactor = layaPBRMaterial.metallic = pbrMetallicRoughness.metallicFactor;
         }
 
+        let roughnessFactor = 1.0;
+        layaPBRMaterial.smoothness = 0.0;
         if (pbrMetallicRoughness.roughnessFactor != undefined) {
+            roughnessFactor = pbrMetallicRoughness.roughnessFactor;
             layaPBRMaterial.smoothness = 1.0 - pbrMetallicRoughness.roughnessFactor;
         }
 
         if (pbrMetallicRoughness.metallicRoughnessTexture) {
-            // todo  pbr 标准不一致， 图片数据不一致
-            layaPBRMaterial.metallicGlossTexture = glTFUtils.getTexturewithInfo(pbrMetallicRoughness.metallicRoughnessTexture);
+            let metallicGlossTexture: Texture2D = glTFUtils.getTexturewithInfo(pbrMetallicRoughness.metallicRoughnessTexture);
+            layaPBRMaterial.metallicGlossTexture = glTFTextureEditor.glTFMetallicGlossTrans(metallicGlossTexture, metallicFactor, roughnessFactor);
         }
 
     }
