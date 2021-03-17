@@ -39,6 +39,9 @@ export class VBox extends LayoutBox {
         return super.width;
     }
 
+    /** 兼容以前的changeItems逻辑，是否在发生变动时，使用 sortItem 排序所有item */
+    public isSortItem:boolean = false;
+
     /** 
      * @inheritDoc	
      * @override
@@ -55,8 +58,9 @@ export class VBox extends LayoutBox {
                 maxWidth = this._width ? this._width : Math.max(maxWidth, item.width * item.scaleX);
             }
         }
-
-        this.sortItem(items);
+        if (this.isSortItem) {
+            this.sortItem(items);
+        }
         var top = 0;
         for (i = 0, n = items.length; i < n; i++) {
             item = items[i];
