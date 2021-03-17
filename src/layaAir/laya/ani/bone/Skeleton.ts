@@ -402,7 +402,7 @@ export class Skeleton extends Sprite {
 	 * @param	autoKey true为正常更新，false为index手动更新
 	 */
 	private _update(autoKey: boolean = true): void {
-		if (this._pause) return;
+		if (autoKey && this._pause) return;
 		if (autoKey && this._indexControl) {
 			return;
 		}
@@ -1139,6 +1139,13 @@ export class Skeleton extends Sprite {
 			this._index = value;
 			this._player.currentTime = this._index * 1000 / this._player.cacheFrameRate;
 			this._indexControl = true;
+			if (this._aniClipIndex < 0 || this._aniClipIndex >= this.getAnimNum()) {
+				this._aniClipIndex = 0;
+				this._currAniIndex = 0;
+				this._curOriginalData = new Float32Array(this._templet.getTotalkeyframesLength(this._currAniIndex));
+				this._drawOrder = null;
+				this._eventIndex = 0;
+			}
 			this._update(false);
 		}
 	}
