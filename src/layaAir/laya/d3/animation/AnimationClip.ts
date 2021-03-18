@@ -184,6 +184,12 @@ export class AnimationClip extends Resource {
 
 	/**
 	 * @internal
+	 * @param nodes 动画帧
+	 * @param playCurTime 现在的播放时间
+	 * @param realTimeCurrentFrameIndexes 目前到达了动画的第几帧
+	 * @param addtive 是否是addtive模式
+	 * @param frontPlay 是否是前向播放
+	 * @param outDatas 计算好的动画数据
 	 */
 	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion>): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
