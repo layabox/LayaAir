@@ -181,8 +181,6 @@ export class Material extends Resource implements IClone {
 							}
 							break;
 						default:
-							//组织新的
-							debugger;
 							var property = props[key];
 							var uniName = Shader3D.propertyNameToID(key);
 							if(!property.length){

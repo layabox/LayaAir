@@ -856,7 +856,6 @@ export class Animator extends Component {
 			(play !== undefined) && (animatorLayer.playOnWake = play);
 			//avatarMask
 			let layerMaskData = layerData.avatarMask;
-			debugger;
 			if(layerMaskData){
 				let avaMask =new AvatarMask(this);
 				animatorLayer.avatarMask = avaMask;
@@ -925,7 +924,7 @@ export class Animator extends Component {
 					if (crossWeight >= 1.0) {
 						if (needRender) {
 							this._updateClipDatas(crossState, addtive, crossPlayStateInfo);
-							this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0);
+							this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0,controllerLayer);
 
 							controllerLayer._playType = 0;//完成融合,切换到正常播放状态
 							playStateInfo._currentState = crossState;
@@ -961,7 +960,7 @@ export class Animator extends Component {
 						crossWeight = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
 						if (crossWeight >= 1.0) {
 							this._updateClipDatas(crossState, addtive, crossPlayStateInfo);
-							this._setClipDatasToNode(crossState, addtive, 1.0, i === 0);
+							this._setClipDatasToNode(crossState, addtive, 1.0, i === 0,controllerLayer);
 							controllerLayer._playType = 0;//完成融合,切换到正常播放状态
 							playStateInfo._currentState = crossState;
 							crossPlayStateInfo._cloneTo(playStateInfo);
