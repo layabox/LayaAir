@@ -199,8 +199,8 @@ export class RigidBody extends Component {
             this.accessGetSetFunc(sp, "rotation", "set")(Utils.toAngle(ang) - (<Sprite>sp.parent).globalRotation);
 
             if (ang == 0) {
-                var point: Point = sp.parent.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
-                sp.parent.fromParentPoint(point);
+                var point: Point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
+                point = sp.toParentPoint(point);
                 this.accessGetSetFunc(sp, "x", "set")(point.x);
                 this.accessGetSetFunc(sp, "y", "set")(point.y);
             } else {
