@@ -100,7 +100,8 @@ export class Physics extends EventDispatcher {
     }
 
     private _update(): void {
-        this.world.Step(1 / 60, this.velocityIterations, this.positionIterations, 3);
+        var delta = Laya.timer.delta / 1000;
+        this.world.Step(delta, this.velocityIterations, this.positionIterations, 3);
         var len: number = this._eventList.length;
         if (len > 0) {
             for (var i: number = 0; i < len; i += 2) {
