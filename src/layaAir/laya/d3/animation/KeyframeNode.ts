@@ -17,6 +17,8 @@ export class KeyframeNode {
 	/**@internal */
 	fullPath: string;
 	/**@internal */
+	nodePath: string;
+	/**@internal */
 	propertyOwner: string;
 
 	/**
