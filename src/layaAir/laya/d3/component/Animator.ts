@@ -26,6 +26,7 @@ import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 import { Script3D } from "./Script3D";
 import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 import { ConchVector3 } from "../math/Native/ConchVector3";
+import { AvatarMask } from "./AvatarMask";
 
 /**
  * <code>Animator</code> 类用于创建动画组件。
@@ -340,6 +341,7 @@ export class Animator extends Component {
 	}
 
 	/**
+	 * 更新clip数据
 	 * @internal
 	 */
 	private _updateClipDatas(animatorState: AnimatorState, addtive: boolean, playStateInfo: AnimatorPlayState): void {
@@ -566,15 +568,22 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @internal
+	 * 赋值Node数据
+	 * @param stateInfo 动画状态
+	 * @param additive 是否为addtive
+	 * @param weight state权重
+	 * @param isFirstLayer 是否是第一层
 	 */
-	private _setClipDatasToNode(stateInfo: AnimatorState, additive: boolean, weight: number, isFirstLayer: boolean): void {
+	private _setClipDatasToNode(stateInfo: AnimatorState, additive: boolean, weight: number, isFirstLayer: boolean,controllerLayer:AnimatorControllerLayer = null): void {
 		var realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = stateInfo._realtimeDatas;
 		var nodes: KeyframeNodeList = stateInfo._clip!._nodes!;
 		var nodeOwners: KeyframeNodeOwner[] = stateInfo._nodeOwners;
 		for (var i: number = 0, n: number = nodes.count; i < n; i++) {
 			var nodeOwner: KeyframeNodeOwner = nodeOwners[i];
 			if (nodeOwner) {//骨骼中没有该节点
+				var node = nodes.getNodeByIndex(i);
+				if(controllerLayer.avatarMask&&(!controllerLayer.avatarMask.getTransformActive( node.nodePath)))
+				continue;
 				var pro: any = nodeOwner.propertyOwner;
 				if (pro) {
 					switch (nodeOwner.type) {
@@ -845,6 +854,16 @@ export class Animator extends Component {
 				}
 			}
 			(play !== undefined) && (animatorLayer.playOnWake = play);
+			//avatarMask
+			let layerMaskData = layerData.avatarMask;
+			debugger;
+			if(layerMaskData){
+				let avaMask =new AvatarMask(this);
+				animatorLayer.avatarMask = avaMask;
+				for(var bips in layerMaskData){
+					avaMask.setTransformActive(bips,layerMaskData[bips]);
+				}
+			}
 
 		}
 		var cullingModeData: any = data.cullingMode;
@@ -887,7 +906,7 @@ export class Animator extends Component {
 					if (needRender) {
 						var addtive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 						this._updateClipDatas(animatorState, addtive, playStateInfo);//clipDatas为逐动画文件,防止两个使用同一动画文件的Animator数据错乱,即使动画停止也要updateClipDatas
-						this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i === 0);//多层动画混合时即使动画停止也要设置数据
+						this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i === 0,controllerLayer);//多层动画混合时即使动画停止也要设置数据
 						finish || this._updateEventScript(animatorState, playStateInfo);
 					}
 					break;
