@@ -519,6 +519,7 @@ export class RenderSprite {
 			var tRect: Rectangle = new Rectangle();
 			//裁剪范围是根据mask来定的
 			tRect.copyFrom(mask.getBounds());
+			// 为什么round
 			tRect.width = Math.round(tRect.width);
 			tRect.height = Math.round(tRect.height);
 			tRect.x = Math.round(tRect.x);
@@ -537,7 +538,15 @@ export class RenderSprite {
 				ctx.popRT();
 				//设置裁剪为mask的大小。要考虑pivot。有pivot的话，可能要从负的开始
 				ctx.save();
-				ctx.clipRect(x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
+
+				/**
+				 * 有时候会有浮点误差，例如起点在0.5的时候，有的像素中心正好处于边界，可能会出错。
+				 * 对于mask来说，一般缩小一点点是没有问题的，所以缩小0.1个像素
+				 */
+				let shrink = 0.1;
+				ctx.clipRect(x + tRect.x - sprite.getStyle().pivotX + shrink, y + tRect.y - sprite.getStyle().pivotY + shrink, w-shrink*2, h-shrink*2);
+				//ctx.clipRect(x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
+
 				//画出本节点的内容
 				next._fun.call(next, sprite, ctx, x, y);
 				ctx.restore();
@@ -577,7 +586,7 @@ export class RenderSprite {
 	}
 
 	static setBlendMode(blendMode: string): void {
-		var gl: WebGLContext = WebGLContext.mainContext;
+		var gl = WebGLContext.mainContext;
 		BlendMode.targetFns[BlendMode.TOINT[blendMode]](gl);
 	}
 

@@ -72,7 +72,7 @@ export class AnimationParser02 {
 		for (var i: number = 0, n: number = AnimationParser02._BLOCK.count; i < n; i++) {
 			var index: number = reader.getUint16();
 			var blockName: string = AnimationParser02._strings[index];
-			var fn: Function = AnimationParser02["READ_" + blockName];
+			var fn: Function = (AnimationParser02 as any)["READ_" + blockName];
 			if (fn == null)
 				throw new Error("model file err,no this function:" + index + " " + blockName);
 			else

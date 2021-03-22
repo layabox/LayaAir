@@ -147,6 +147,22 @@ export class HTMLDivElement extends Sprite {
         this._setGraphicDirty();
     }
 
+    set width(value: number) {
+        this._element.width = value;
+    }
+
+    get width():number {
+        return this._element.width;
+    }
+
+    set height(value: number) {
+        this._element.height = value;
+    }
+
+    get height():number {
+        return this._element.height;
+    }
+
     /**
      * 获取內容宽度
      */

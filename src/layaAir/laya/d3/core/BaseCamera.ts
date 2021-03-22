@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Laya } from "../../../Laya";
 import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
@@ -10,21 +11,41 @@ import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { Sprite3D } from "./Sprite3D";
 import { Scene3D } from "./scene/Scene3D";
+import { ShaderDefine } from "../shader/ShaderDefine";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class BaseCamera extends Sprite3D {
+	/**@internal */
 	static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
-
+	/**@internal */
 	static CAMERAPOS: number = Shader3D.propertyNameToID("u_CameraPos");
+	/**@internal */
 	static VIEWMATRIX: number = Shader3D.propertyNameToID("u_View");
+	/**@internal */
 	static PROJECTMATRIX: number = Shader3D.propertyNameToID("u_Projection");
+	/**@internal */
 	static VIEWPROJECTMATRIX: number = Shader3D.propertyNameToID("u_ViewProjection");
+	/**@internal */
 	static CAMERADIRECTION: number = Shader3D.propertyNameToID("u_CameraDirection");
+	/**@internal */
 	static CAMERAUP: number = Shader3D.propertyNameToID("u_CameraUp");
+	/**@internal */
 	static VIEWPORT: number = Shader3D.propertyNameToID("u_Viewport");
+	/**@internal */
 	static PROJECTION_PARAMS: number = Shader3D.propertyNameToID("u_ProjectionParams");
+	/**@internal */
+	static DEPTHTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthTexture");
+	/**@internal */
+	static DEPTHNORMALSTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
+	/**@internal */
+	static DEPTHZBUFFERPARAMS:number = Shader3D.propertyNameToID("u_ZBufferParams");
+
+	/**@internal */
+	static SHADERDEFINE_DEPTH:ShaderDefine = Shader3D.getDefineByName("DEPTHMAP");
+	/**@internal */
+	static SHADERDEFINE_DEPTHNORMALS:ShaderDefine = Shader3D.getDefineByName("DEPTHNORMALSMAP")
 
 	/**渲染模式,延迟光照渲染，暂未开放。*/
 	static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
@@ -35,8 +56,6 @@ export class BaseCamera extends Sprite3D {
 	protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
 	protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
 
-	//private static const Vector3[] cornersWorldSpace:Vector.<Vector3> = new Vector.<Vector3>(8);
-	//private static const  boundingFrustum:BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
 
 	/** @internal 渲染顺序。*/
@@ -60,7 +79,7 @@ export class BaseCamera extends Sprite3D {
 	/**@internal 是否使用用户自定义投影矩阵，如果使用了用户投影矩阵，摄像机投影矩阵相关的参数改变则不改变投影矩阵的值，需调用ResetProjectionMatrix方法。*/
 	protected _useUserProjectionMatrix: boolean;
 
-	/** @internal */
+	/** @internal 着色器数据*/
 	_shaderValues: ShaderData;
 
 	/**摄像机的清除颜色,默认颜色为CornflowerBlue。*/
@@ -69,6 +88,8 @@ export class BaseCamera extends Sprite3D {
 	cullingMask: number;
 	/** 渲染时是否用遮挡剔除。 */
 	useOcclusionCulling: boolean;
+
+	
 
 	/**
 	 * 天空渲染器。
@@ -137,6 +158,9 @@ export class BaseCamera extends Sprite3D {
 		this._calculateProjectionMatrix();
 	}
 
+	/**
+	 * 渲染顺序
+	 */
 	get renderingOrder(): number {
 		return this._renderingOrder;
 	}
@@ -172,6 +196,7 @@ export class BaseCamera extends Sprite3D {
 
 	/**
 	 * 通过RenderingOrder属性对摄像机机型排序。
+	 * @internal
 	 */
 	_sortCamerasByRenderingOrder(): void {
 		if (this.displayedInStage) {
@@ -252,6 +277,9 @@ export class BaseCamera extends Sprite3D {
 		this.cullingMask = 0;
 	}
 
+	/**
+	 * 重算计算投影矩阵
+	 */
 	resetProjectionMatrix(): void {
 		this._useUserProjectionMatrix = false;
 		this._calculateProjectionMatrix();
@@ -334,8 +362,10 @@ export class BaseCamera extends Sprite3D {
 	}
 
 	/**
+	 * 删除相机
 	 * @inheritDoc
 	 * @override
+	 * @param 是否删除节点
 	 */
 	destroy(destroyChild: boolean = true): void {
 		//postProcess = null;

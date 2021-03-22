@@ -4,6 +4,10 @@ import { Handler } from "../utils/Handler";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { BaseTexture } from "./BaseTexture";
 import { TextureFormat } from "./TextureFormat";
+import { Byte } from "../utils/Byte";
+import { FilterMode } from "./FilterMode";
+import { SystemUtils } from "../webgl/SystemUtils";
+import { HalfFloatUtils } from "../utils/HalfFloatUtils";
 
 /**
  * <code>Texture2D</code> 类用于生成2D纹理。
@@ -18,6 +22,8 @@ export class Texture2D extends BaseTexture {
 	static whiteTexture: Texture2D = null;
 	/**纯黑色纹理。*/
 	static blackTexture: Texture2D = null;
+	/**错误纹理 */
+	static erroTextur:Texture2D = null;
 
 	/**
 	 * @internal
@@ -42,6 +48,8 @@ export class Texture2D extends BaseTexture {
 		Texture2D.blackTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
 		Texture2D.blackTexture.setPixels(pixels);
 		Texture2D.blackTexture.lock = true;//锁住资源防止被资源管理释放
+		
+		Texture2D.erroTextur = Texture2D.whiteTexture;
 	}
 
 	/**
@@ -72,6 +80,57 @@ export class Texture2D extends BaseTexture {
 			default:
 				throw "Texture2D:unkonwn format.";
 		}
+		return texture;
+	}
+
+	/**
+	 * @internal
+	 */
+	static _SimpleAnimatorTextureParse(data: any, propertyParams: any = null, constructParams: any[] = null):Texture2D{
+		var byte:Byte = new Byte(data);
+		var version:String = byte.readUTFString();
+		var texture: Texture2D;
+		var pixelDataArrays:Float32Array|Uint16Array;
+		var usePixelData:Float32Array |Uint16Array;
+		switch(version){
+			case "LAYAANIMATORTEXTURE:0000":
+				var textureWidth:number = byte.readInt32();
+				var pixelDataLength:number = byte.readInt32();
+				pixelDataArrays = new Float32Array(textureWidth*textureWidth*4); 
+				usePixelData=new Float32Array(byte.readArrayBuffer(pixelDataLength*4));
+				pixelDataArrays.set(usePixelData,0);
+				var texture: Texture2D = new Texture2D(textureWidth,textureWidth,TextureFormat.R32G32B32A32,false,false);
+				texture.setPixels(pixelDataArrays,0);
+				texture.filterMode = FilterMode.Point;
+				break;
+			case "LAYACOMPRESSANIMATORTEXTURE:0000":
+				var textureWidth:number = byte.readInt32();
+				var pixelDataLength:number = byte.readInt32();
+				pixelDataArrays = new Uint16Array(byte.readArrayBuffer(pixelDataLength*2));
+				if(!SystemUtils.supportTextureFormat(TextureFormat.R16G16B16A16)){
+						console.log( "The platform does not support 16-bit floating-point textures");
+					if(!SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32))
+						console.error( "The platform does not support 32-bit floating-point textures");
+						usePixelData =new Float32Array(textureWidth*textureWidth*4);
+					for(var i = 0,n = pixelDataArrays.length;i<n;i++){
+						usePixelData[i] = HalfFloatUtils.convertToNumber(pixelDataArrays[i]);
+					}
+					texture = new Texture2D(textureWidth,textureWidth,TextureFormat.R32G32B32A32,false,false);
+					texture.setPixels(usePixelData,0);
+					texture.filterMode = FilterMode.Point;
+					
+				}else{
+					usePixelData =new Uint16Array(textureWidth*textureWidth*4);
+					usePixelData.set(pixelDataArrays,0);
+					texture = new Texture2D(textureWidth,textureWidth,TextureFormat.R16G16B16A16,false,false);
+					texture.setPixels(usePixelData,0);
+					texture.filterMode = FilterMode.Point;
+				}
+				break;
+			default:
+				throw "Laya3D:unknow version.";
+		}
+		
 		return texture;
 	}
 
@@ -172,6 +231,12 @@ export class Texture2D extends BaseTexture {
 					gl.texImage2D(textureType, miplevel, (<WebGL2RenderingContext>gl).RGBA32F, width, height, 0, glFormat, gl.FLOAT, pixels);
 				else
 					gl.texImage2D(textureType, miplevel, gl.RGBA, width, height, 0, glFormat, gl.FLOAT, pixels);
+				break;
+			case TextureFormat.R16G16B16A16://todo miner
+				if(LayaGL.layaGPUInstance._isWebGL2)
+					gl.texImage2D(textureType,miplevel,(<WebGL2RenderingContext>gl).RGBA16F,width,height,0,glFormat,(<WebGL2RenderingContext>gl).HALF_FLOAT,pixels);
+				else	
+					gl.texImage2D(textureType,miplevel,gl.RGBA,width,height,0,glFormat,LayaGL.layaGPUInstance._oesTextureHalfFloat.HALF_FLOAT_OES,pixels);	
 				break;
 			default:
 				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
@@ -373,9 +438,9 @@ export class Texture2D extends BaseTexture {
 	 * 设置之后纹理宽高可能会发生变化。
 	 */
 	loadImageSource(source: any, premultiplyAlpha: boolean = false): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		var width: number = source.width;
-		var height: number = source.height;
+		var gl = LayaGL.instance;
+		var width = source.width;
+		var height = source.height;
 		this._width = width;
 		this._height = height;
 		if (!(this._isPot(width) && this._isPot(height)))
@@ -387,7 +452,7 @@ export class Texture2D extends BaseTexture {
 
 
 		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
-		var glFormat: number = this._getGLFormat();
+		var glFormat = this._getGLFormat();
 
 		if (ILaya.Render.isConchApp) {//[NATIVE]临时
 			if (source.setPremultiplyAlpha) {

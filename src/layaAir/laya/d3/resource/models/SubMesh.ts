@@ -7,7 +7,6 @@ import { SkinnedMeshSprite3D } from "../../core/SkinnedMeshSprite3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Mesh } from "./Mesh";
-import { LayaGPU } from "../../../webgl/LayaGPU";
 import { IndexFormat } from "../../graphics/IndexFormat";
 
 
@@ -42,7 +41,7 @@ export class SubMesh extends GeometryElement {
 	/** @internal */
 	_indexCount: number;
 	/** @internal */
-	_indices: Uint16Array;
+	_indices: Uint16Array | Uint32Array;
 	/**@internal [只读]*/
 	_vertexBuffer: VertexBuffer3D;
 	/**@internal [只读]*/
@@ -74,10 +73,15 @@ export class SubMesh extends GeometryElement {
 	/**
 	 * @internal
 	 */
-	_setIndexRange(indexStart: number, indexCount: number): void {
+	_setIndexRange(indexStart: number, indexCount: number, indexFormat: IndexFormat = IndexFormat.UInt16): void {
 		this._indexStart = indexStart;
 		this._indexCount = indexCount;
-		this._indices = new Uint16Array(this._indexBuffer.getData().buffer, indexStart * 2, indexCount);
+		if (indexFormat == IndexFormat.UInt16) {
+			this._indices = new Uint16Array(this._indexBuffer.getData().buffer, indexStart * 2, indexCount);
+		}
+		else {
+			this._indices = new Uint32Array(this._indexBuffer.getData().buffer, indexStart * 4, indexCount);
+		}
 	}
 
 	/**
@@ -110,9 +114,9 @@ export class SubMesh extends GeometryElement {
 		}
 
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		var skinnedDatas: any[] = (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData;
+		var skinnedDatas: any[] =state.renderElement? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData:null;
 		var glIndexFormat: number;
-		var byteCount:number;
+		var byteCount: number;
 		switch (mesh.indexFormat) {
 			case IndexFormat.UInt32:
 				glIndexFormat = gl.UNSIGNED_INT;
@@ -146,7 +150,7 @@ export class SubMesh extends GeometryElement {
 	/**
 	 * 拷贝并获取子网格索引数据的副本。
 	 */
-	getIndices(): Uint16Array {
+	getIndices(): Uint16Array | Uint32Array {
 		if (this._mesh._isReadable)
 			return this._indices.slice();
 		else

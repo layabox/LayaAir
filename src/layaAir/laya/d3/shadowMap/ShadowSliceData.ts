@@ -3,7 +3,6 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
 import { ShaderData } from "../shader/ShaderData";
-import { BoundFrustum } from "../math/BoundFrustum";
 import { CameraCullInfo } from "../graphics/FrustumCulling";
 
 /**
@@ -25,6 +24,10 @@ export class ShadowSliceData {
     sphereCenterZ: number;
 }
 
+/**
+ * @internal
+ * 聚光灯阴影数据。
+ */
 export class ShadowSpotData{
     cameraShaderValue:ShaderData = new ShaderData();
     position:Vector3 = new Vector3;

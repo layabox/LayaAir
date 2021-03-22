@@ -1,5 +1,4 @@
 import { RenderElement } from "./RenderElement";
-import { BaseCamera } from "../BaseCamera"
 import { Scene3D } from "../scene/Scene3D"
 import { Matrix4x4 } from "../../math/Matrix4x4"
 import { Viewport } from "../../math/Viewport"
@@ -42,6 +41,8 @@ export class RenderContext3D {
 	invertY: boolean = false;
 	/** @internal */
 	pipelineMode: string;
+	/**设置渲染管线 */
+	configPipeLineMode:string = "Forward";
 
 	/**
 	 * 创建一个 <code>RenderContext3D</code> 实例。

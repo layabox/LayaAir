@@ -51,15 +51,26 @@ export class WordText {
      * TODO 重用
      */
     cleanCache(): void {
-        // 如果是独占文字贴图的，需要删掉
+		// 如果是独占文字贴图的，需要删掉
+		//TODO 这个效果不对。会造成文字错乱
+		let pagecharse = this.pageChars;
+		for( var i in pagecharse){
+			let p = pagecharse[i];
+            var tex: any = p.tex;
+            var words: any[] = p.words;
+            if (words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
+                tex.destroy();
+            }
+		}
+		/*
         this.pageChars.forEach(function (p: any): void { // 可能有多个
             var tex: any = p.tex;
             var words: any[] = p.words;
-            if (p.words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
+            if (words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
                 tex.destroy();
             }
         });
-
+		*/
         this.pageChars = [];
 		this.startID = 0;
 		this.scalex=1;

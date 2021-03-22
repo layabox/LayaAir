@@ -2,8 +2,6 @@ import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
 import { AnimationNode } from "../animation/AnimationNode";
-import { Animator } from "../component/Animator";
-import { FrustumCulling } from "../graphics/FrustumCulling";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh";
@@ -18,7 +16,10 @@ import { Transform3D } from "./Transform3D";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-import { Render } from "../../renders/Render";
+import { ReflectionProbeMode, ReflectionProbe } from "./reflectionProbe/ReflectionProbe";
+import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
+import { TextureCube } from "../resource/TextureCube";
+import { Animator } from "../component/Animator";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -27,19 +28,19 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
 
 	/**@internal */
-	private _cacheMesh: Mesh;
+	protected _cacheMesh: Mesh;
 	/** @internal */
-	private _bones: Sprite3D[] = [];
+	protected _bones: Sprite3D[] = [];
 	/** @internal */
 	_skinnedData: any[];
 	/** @internal */
 	private _skinnedDataLoopMarks: number[] = [];
 	/**@internal */
-	private _localBounds: Bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
+	protected _localBounds: Bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
 	/**@internal */
-	private _cacheAnimator: Animator;
+	protected _cacheAnimator: Animator;
 	/**@internal */
-	private _cacheRootBone: Sprite3D;
+	protected _cacheRootBone: Sprite3D;
 
 	/**
 	 * 局部边界。
@@ -216,17 +217,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 				super._calculateBoundingBox();
 			}
 		}
-		if (Render.supportWebGLPlusCulling) {//[NATIVE]
-			var min: Vector3 = this._bounds.getMin();
-			var max: Vector3 = this._bounds.getMax();
-			var buffer: Float32Array = FrustumCulling._cullingBuffer;
-			buffer[this._cullingBufferIndex + 1] = min.x;
-			buffer[this._cullingBufferIndex + 2] = min.y;
-			buffer[this._cullingBufferIndex + 3] = min.z;
-			buffer[this._cullingBufferIndex + 4] = max.x;
-			buffer[this._cullingBufferIndex + 5] = max.y;
-			buffer[this._cullingBufferIndex + 6] = max.z;
-		}
 	}
 
 	/**
@@ -245,6 +235,29 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			}
 		} else {
 			this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
+		}
+		//更新反射探针
+		if(!this._probReflection)
+		return;
+		if(this._reflectionMode==ReflectionProbeMode.off){
+			this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
+			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS,ReflectionProbe.defaultTextureHDRDecodeValues);
+			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE,TextureCube.blackTexture);
+		}
+		else{
+			if(!this._probReflection.boxProjection){
+				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
+				
+			}
+			else{
+				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
+				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION,this._probReflection.probePosition);
+				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX,this._probReflection.boundsMax);
+				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN,this._probReflection.boundsMin);
+			}
+			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE,this._probReflection.reflectionTexture);
+			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS,this._probReflection.reflectionHDRParams);
+			
 		}
 	}
 
@@ -322,7 +335,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 * @internal
 	 */
-	private _setRootNode(): void {//[兼容性API]
+	protected _setRootNode(): void {//[兼容性API]
 		var rootNode: AnimationNode;
 		if (this._cacheAnimator && this._rootBone && this._cacheAvatar)
 			rootNode = this._cacheAnimator._avatarNodeMap[this._rootBone];
@@ -346,22 +359,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 		var meshBoneNames: string[] = this._cacheMesh._boneNames;
 		var innerBindPoseCount: number = this._cacheMesh._inverseBindPoses.length;
 
-		if (!Render.supportWebGLPlusAnimation) {
 			this._cacheAnimationNode.length = innerBindPoseCount;
 			var nodeMap: any = this._cacheAnimator._avatarNodeMap;
 			for (var i: number = 0; i < innerBindPoseCount; i++) {
 				var node: AnimationNode = nodeMap[meshBoneNames[i]];
 				this._cacheAnimationNode[i] = node;
 			}
-
-		} else {//[NATIVE]
-			this._cacheAnimationNodeIndices = new Uint16Array(innerBindPoseCount);
-			var nodeMapC: any = this._cacheAnimator._avatarNodeMap;
-			for (i = 0; i < innerBindPoseCount; i++) {
-				var nodeC: AnimationNode = nodeMapC[meshBoneNames[i]];
-				this._cacheAnimationNodeIndices[i] = nodeC ? nodeC._worldMatrixIndex : 0;
-			}
-		}
 	}
 
 
@@ -381,37 +384,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 				this._cacheAvatar = value;
 			}
 			this._setRootNode();
-		}
-	}
-
-	/**@internal [NATIVE]*/
-	private _cacheAnimationNodeIndices: Uint16Array;
-
-	/**
-	 * @internal [NATIVE]
-	 */
-	private _computeSubSkinnedDataNative(worldMatrixs: Float32Array, cacheAnimationNodeIndices: Uint16Array, inverseBindPosesBuffer: ArrayBuffer, boneIndices: Uint16Array, data: Float32Array): void {
-		(<any>LayaGL.instance).computeSubSkinnedData(worldMatrixs, cacheAnimationNodeIndices, inverseBindPosesBuffer, boneIndices, data);
-	}
-
-	/**
-	 * @internal
-	 */
-	private _computeSkinnedDataForNative(): void {
-		if (this._cacheMesh && this._cacheAvatar/*兼容*/ || this._cacheMesh && !this._cacheAvatar) {
-			var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
-			var pathMarks: skinnedMatrixCache[] = this._cacheMesh._skinnedMatrixCaches;
-			for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
-				var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh.getSubMesh(i)))._boneIndicesList;
-				var subData: Float32Array[] = this._skinnedData[i];
-				for (var j: number = 0, m: number = subMeshBoneIndices.length; j < m; j++) {
-					var boneIndices: Uint16Array = subMeshBoneIndices[j];
-					if (this._cacheAvatar && Render.supportWebGLPlusAnimation)//[Native]
-						this._computeSubSkinnedDataNative(this._cacheAnimator._animationNodeWorldMatrixs, this._cacheAnimationNodeIndices, this._cacheMesh._inverseBindPosesBuffer, boneIndices, subData[j]);
-					else
-						this._computeSubSkinnedData(bindPoses, boneIndices, subData[j], pathMarks);
-				}
-			}
 		}
 	}
 }

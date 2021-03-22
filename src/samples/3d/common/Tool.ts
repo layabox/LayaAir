@@ -22,7 +22,7 @@ export class Tool {
 			var mesh: Mesh = meshSprite3D.meshFilter.sharedMesh;
 			var positions: Array<Vector3> = [];
 			mesh.getPositions(positions);
-			var indices: Uint16Array = mesh.getSubMesh(0).getIndices();
+			var indices = mesh.getSubMesh(0).getIndices();
 
 			for (var i: number = 0; i < indices.length; i += 3) {
 				var vertex0: Vector3 = positions[indices[i]];

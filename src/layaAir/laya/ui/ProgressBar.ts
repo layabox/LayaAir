@@ -175,6 +175,9 @@ export class ProgressBar extends UIComponent {
     }
 
     protected _skinLoaded(): void {
+        if (this.destroyed) {
+            return
+        }
         this._bg.skin = this._skin;
         this._bar.skin = this._skin.replace(".png", "$bar.png");
         this.callLater(this.changeValue);

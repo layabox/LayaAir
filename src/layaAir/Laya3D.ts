@@ -47,7 +47,6 @@ import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPosition
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
 import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
-import { HalfFloatUtils } from "./laya/d3/math/HalfFloatUtils";
 import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
 import { BulletInteractive } from "./laya/d3/physics/BulletInteractive";
 import { CharacterController } from "./laya/d3/physics/CharacterController";
@@ -94,6 +93,10 @@ import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
 import { ConfigurableConstraint } from "./laya/d3/physics/constraints/ConfigurableConstraint";
 import { Camera } from "./laya/d3/core/Camera";
 import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
+import { SimpleSkinnedMeshRenderer } from "./laya/d3/core/SimpleSkinnedMeshRenderer";
+import { Utils } from "./laya/utils/Utils";
+import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
+import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -118,6 +121,8 @@ export class Laya3D {
 	static TERRAINHEIGHTDATA: string = "TERRAINHEIGHTDATA";
 	/**Terrain资源。*/
 	static TERRAINRES: string = "TERRAIN";
+	/**SimpleAnimator资源。 */
+	static SIMPLEANIMATORBIN: string = "SIMPLEANIMATOR";
 
 	/**@internal */
 	private static _innerFirstLevelLoaderManager: LoaderManager = new LoaderManager();//Mesh 
@@ -230,6 +235,7 @@ export class Laya3D {
 		RenderableSprite3D.__init__();
 		MeshSprite3D.__init__();
 		SkinnedMeshSprite3D.__init__();
+		SimpleSkinnedMeshSprite3D.__init__();
 		ShuriKenParticle3D.__init__();
 		TrailSprite3D.__init__();
 		PostProcess.__init__();
@@ -331,6 +337,7 @@ export class Laya3D {
 		createMap["ltcb"] = [Laya3D.TEXTURECUBEBIN, TextureCube._parseBin];
 		//为其他平台添加的兼容代码,临时TODO：
 		createMap["ltcb.ls"] = [Laya3D.TEXTURECUBEBIN, TextureCube._parseBin];
+		createMap["lanit.ls"] = [Laya3D.TEXTURE2D,Texture2D._SimpleAnimatorTextureParse];
 
 		var parserMap: any = Loader.parserMap;
 		parserMap[Laya3D.HIERARCHY] = Laya3D._loadHierarchy;
@@ -341,6 +348,7 @@ export class Laya3D {
 		parserMap[Laya3D.TEXTURE2D] = Laya3D._loadTexture2D;
 		parserMap[Laya3D.ANIMATIONCLIP] = Laya3D._loadAnimationClip;
 		parserMap[Laya3D.AVATAR] = Laya3D._loadAvatar;
+		parserMap[Laya3D.SIMPLEANIMATORBIN] = Laya3D._loadSimpleAnimator;
 		//parserMap[Laya3D.TERRAINRES] = _loadTerrain;
 		//parserMap[Laya3D.TERRAINHEIGHTDATA] = _loadTerrain;
 
@@ -390,16 +398,7 @@ export class Laya3D {
 			LayaGLRunner.uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
 		}
 
-		if (Render.supportWebGLPlusCulling) {
-			frustumCulling.renderObjectCulling = FrustumCulling.renderObjectCullingNative;
-		}
 
-		if (Render.supportWebGLPlusAnimation) {
-			avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
-			var animationClip: any = AnimationClip;
-			animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
-			skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
-		}
 	}
 
 	/**
@@ -499,13 +498,18 @@ export class Laya3D {
 			case "TrailSprite3D":
 			case "MeshSprite3D":
 			case "SkinnedMeshSprite3D":
+			case "SimpleSkinnedMeshSprite3D":
 				var meshPath: string = props.meshPath;
 				(meshPath) && (props.meshPath = Laya3D._addHierarchyInnerUrls(firstLevelUrls, subUrls, urlVersion, hierarchyBasePath, meshPath, Laya3D.MESH));
 				var materials: any[] = props.materials;
 				if (materials)
 					for (i = 0, n = materials.length; i < n; i++)
 						materials[i].path = Laya3D._addHierarchyInnerUrls(secondLevelUrls, subUrls, urlVersion, hierarchyBasePath, materials[i].path, Laya3D.MATERIAL);
+				if(node.type=="SimpleSkinnedMeshSprite3D")
+					if(props.animatorTexture)
+						props.animatorTexture = Laya3D._addHierarchyInnerUrls(fourthLelUrls,subUrls,urlVersion, hierarchyBasePath,props.animatorTexture,Laya3D.SIMPLEANIMATORBIN)
 				break;
+			
 			case "ShuriKenParticle3D":
 				if (props.main) {
 					var resources: any = props.renderer.resources;
@@ -522,6 +526,10 @@ export class Laya3D {
 				break;
 			case "Terrain":
 				Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, props.dataPath, Laya3D.TERRAINRES);
+				break;
+			case "ReflectionProbe":
+				var reflection = props.reflection;
+				(reflection) && (props.reflection = Laya3D._addHierarchyInnerUrls(firstLevelUrls, subUrls, urlVersion, hierarchyBasePath, reflection, Laya3D.TEXTURECUBEBIN));
 				break;
 		}
 
@@ -694,6 +702,7 @@ export class Laya3D {
 		switch (version) {
 			case "LAYAMATERIAL:01":
 			case "LAYAMATERIAL:02":
+			case "LAYAMATERIAL:03":
 				var i: number, n: number;
 				var textures: any[] = lmatData.props.textures;
 				if (textures) {
@@ -748,6 +757,18 @@ export class Laya3D {
 		});
 		loader.load(loader.url, Loader.JSON, false, null, true);
 	}
+	
+	/**
+	 *@internal 
+	 */
+	private static _loadSimpleAnimator(loader:Loader):void{
+		loader.on(Event.LOADED,null,function(data:any):void{
+			loader._cache = loader._createCache;
+			var texture: Texture2D = Texture2D._SimpleAnimatorTextureParse(data, loader._propertyParams, loader._constructParams);
+			Laya3D._endLoad(loader,texture);
+		});
+		loader.load(loader.url,Loader.BUFFER,false,null,true)
+	}
 
 	/**
 	 *@internal
@@ -755,7 +776,7 @@ export class Laya3D {
 	private static _loadAnimationClip(loader: Loader): void {
 		loader.on(Event.LOADED, null, function (data: any): void {
 			loader._cache = loader._createCache;
-			var clip: AnimationClip = AnimationClip._parse(data, loader._propertyParams, loader._constructParams);
+			var clip: AnimationClip = AnimationClip._parse(data);
 			Laya3D._endLoad(loader, clip);
 		});
 		loader.load(loader.url, Loader.BUFFER, false, null, true);

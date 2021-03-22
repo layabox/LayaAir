@@ -703,7 +703,7 @@ export class Matrix4x4 implements IClone {
 	 * @param	cameraForward  相机前向量
 	 * @param	mat            变换矩阵
 	 */
-	static billboard(objectPosition: Vector3, cameraPosition: Vector3, cameraRight: Vector3, cameraUp: Vector3, cameraForward: Vector3, mat: Matrix4x4): void {
+	static billboard(objectPosition: Vector3, cameraPosition: Vector3, cameraUp: Vector3, cameraForward: Vector3, mat: Matrix4x4): void {
 
 		Vector3.subtract(objectPosition, cameraPosition, Matrix4x4._tempVector0);
 
@@ -829,6 +829,18 @@ export class Matrix4x4 implements IClone {
 		me[8] = -forward.x;
 		me[9] = -forward.y;
 		me[10] = -forward.z;
+	}
+
+	/**
+	 * 判断此矩阵是否是反向矩阵
+	 */
+	getInvertFront():boolean{
+		this.decomposeTransRotScale(Matrix4x4._tempVector0,Matrix4x4._tempQuaternion,Matrix4x4._tempVector1);
+		var scale:Vector3 = Matrix4x4._tempVector1
+		var isInvert: boolean = scale.x < 0;
+		(scale.y < 0) && (isInvert = !isInvert);
+		(scale.z < 0) && (isInvert = !isInvert);
+		return isInvert;
 	}
 
 }

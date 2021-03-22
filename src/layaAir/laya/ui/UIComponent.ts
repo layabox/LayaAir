@@ -169,8 +169,8 @@ export class UIComponent extends Sprite {
     set_dataSource(value: any) {
         this._dataSource = value;
         for (var prop in this._dataSource) {
-            if (prop in this && !(typeof (this[prop]) == 'function')) {
-                this[prop] = this._dataSource[prop];
+            if (prop in this && !(typeof ((this as any)[prop]) == 'function')) {
+                (this as any)[prop] = this._dataSource[prop];
             }
         }
     }
@@ -387,7 +387,8 @@ export class UIComponent extends Sprite {
     set_scaleX(value: number) {
         if (super.get_scaleX() == value) return;
         super.set_scaleX(value);
-        this.event(Event.RESIZE);
+        this.callLater(this._sizeChanged);
+        // this.event(Event.RESIZE);
     }
     /**
      * @inheritDoc
@@ -410,7 +411,8 @@ export class UIComponent extends Sprite {
     set_scaleY(value: number) {
         if (super.get_scaleY() == value) return;
         super.set_scaleY(value);
-        this.event(Event.RESIZE);
+        this.callLater(this._sizeChanged);
+        // this.event(Event.RESIZE);
     }
     /**
      * @inheritDoc

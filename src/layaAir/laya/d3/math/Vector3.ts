@@ -341,7 +341,7 @@ export class Vector3 implements IClone {
 	 * @param	y  Y轴坐标。
 	 * @param	z  Z轴坐标。
 	 */
-	constructor(x: number = 0, y: number = 0, z: number = 0, nativeElements: Float32Array = null/*[NATIVE]*/) {
+	constructor(x: number = 0, y: number = 0, z: number = 0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -368,6 +368,18 @@ export class Vector3 implements IClone {
 		this.x = array[offset + 0];
 		this.y = array[offset + 1];
 		this.z = array[offset + 2];
+	}
+
+	
+	/**
+	 * 写入Array数组
+	 * @param array 数组。
+	 * @param offset 数组偏移。 
+	 */
+	toArray(array:Float32Array,offset:number = 0):void{
+		array[offset + 0] = this.x;
+		array[offset + 1] = this.y;
+		array[offset + 2] = this.z;
 	}
 
 	/**

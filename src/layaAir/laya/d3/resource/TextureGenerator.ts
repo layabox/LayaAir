@@ -1,10 +1,10 @@
-import { BaseTexture } from "../../resource/BaseTexture"
 import { Texture2D } from "../../resource/Texture2D"
 import { TextureFormat } from "../../resource/TextureFormat";
 
 	
 	/**
-	 * ...
+	 * 贴图生成器
+	 * @internal
 	 * @author
 	 */
 	export class TextureGenerator {

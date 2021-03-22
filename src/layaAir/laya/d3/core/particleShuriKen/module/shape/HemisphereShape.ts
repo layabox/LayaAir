@@ -1,4 +1,4 @@
-import { BaseShape } from "./BaseShape";
+import { BaseShape, ParticleSystemShapeType } from "./BaseShape";
 import { ShapeUtils } from "./ShapeUtils";
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"
@@ -19,6 +19,7 @@ export class HemisphereShape extends BaseShape {
 	 */
 	constructor() {
 		super();
+		this.shapeType = ParticleSystemShapeType.Hemisphere;
 		this.radius = 1.0;
 		this.emitFromShell = false;
 	}

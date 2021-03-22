@@ -1,4 +1,3 @@
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
@@ -37,7 +36,7 @@ export class PrimitiveMesh {
 		mesh._indexBuffer = indexBuffer;
 
 		mesh._setBuffer(vertexBuffer, indexBuffer);
-
+		mesh._setInstanceBuffer(mesh._instanceBufferStateType);
 		subMesh._vertexBuffer = vertexBuffer;
 		subMesh._indexBuffer = indexBuffer;
 		subMesh._setIndexRange(0, indexBuffer.indexCount);

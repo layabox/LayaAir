@@ -135,6 +135,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
+	 * 获取纹理格式的字节数
 	 * @internal
 	 */
 	_getFormatByteCount(): number {
@@ -147,14 +148,18 @@ export class BaseTexture extends Bitmap {
 				return 1;
 			case TextureFormat.Alpha8:
 				return 1;
+			case TextureFormat.R16G16B16A16:
+				return 2;	
 			case TextureFormat.R32G32B32A32:
 				return 4;
+			
 			default:
 				throw "Texture2D: unknown format.";
 		}
 	}
 
 	/**
+	 * 是否是2的幂次方
 	 * @internal
 	 */
 	protected _isPot(size: number): boolean {
@@ -162,6 +167,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
+	 * 获取当前纹理格式(GLFormat)
 	 * @internal
 	 */
 	protected _getGLFormat(): number {
@@ -180,6 +186,7 @@ export class BaseTexture extends Bitmap {
 				glFormat = gl.ALPHA;
 				break;
 			case TextureFormat.R32G32B32A32:
+			case TextureFormat.R16G16B16A16://todo miner
 				glFormat = gl.RGBA;
 				break;
 			case TextureFormat.DXT1:
@@ -231,6 +238,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
+	 * 设置过滤器模式
 	 * @internal
 	 */
 	protected _setFilterMode(value: FilterMode): void {
@@ -264,6 +272,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
+	 * 设置循环模式
 	 * @internal
 	 */
 	protected _setWarpMode(orientation: number, mode: number): void {
@@ -284,6 +293,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
+	 * 设置各向异性等级
 	 * @internal
 	 */
 	protected _setAnisotropy(value: number): void {
@@ -298,6 +308,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
+	 * 处理资源
 	 * @inheritDoc
 	 * @override
 	 */

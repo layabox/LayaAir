@@ -43,6 +43,8 @@ export class SystemUtils {
         switch (format) {
             case TextureFormat.R32G32B32A32:
                 return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureFloat) ? false : true;
+            case TextureFormat.R16G16B16A16:
+                return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureHalfFloat) ? false : true; 
             default:
                 return true;
         }
@@ -56,7 +58,7 @@ export class SystemUtils {
     static supportRenderTextureFormat(format: number): boolean {
         switch (format) {
             case RenderTextureFormat.R16G16B16A16:
-                return (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear) ? true : false;
+                return (((!!LayaGL.layaGPUInstance._isWebGL2)&&(!!LayaGL.layaGPUInstance._extColorBufferFloat)) || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear) ? true : false;
             case RenderTextureFormat.Depth:
                 return (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._webgl_depth_texture) ? true : false;
             case RenderTextureFormat.ShadowMap:

@@ -1,4 +1,4 @@
-import { BaseShape } from "./BaseShape";
+import { BaseShape, ParticleSystemShapeType } from "./BaseShape";
 import { ShapeUtils } from "./ShapeUtils";
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"
@@ -28,6 +28,7 @@ export class ConeShape extends BaseShape {
 	 */
 	constructor() {
 		super();
+		this.shapeType = ParticleSystemShapeType.Cone;
 		this.angle = 25.0 / 180.0 * Math.PI;
 		this.radius = 1.0;
 		this.length = 5.0;

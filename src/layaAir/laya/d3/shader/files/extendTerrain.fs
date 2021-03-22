@@ -1,4 +1,4 @@
-#ifdef GL_FRAGMENT_PRECISION_HIGH
+#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了
 	precision highp float;
 #else
 	precision mediump float;
@@ -40,7 +40,7 @@
 #endif
 
 #include "Shadow.glsl"
-#ifdef CALCULATE_SHADOWS
+#if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 	varying vec4 v_ShadowCoord;
 #endif
 varying float v_posViewZ;
@@ -188,7 +188,7 @@ vec3 globalDiffuse = u_AmbientColor;
 	globalDiffuse += decodeHDR(texture2D(u_LightMap, v_LightMapUV),5.0);
 #endif
 
-#ifdef CALCULATE_SHADOWS
+#if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 	float shadowValue = shadowValue = sampleShadowmap(v_ShadowCoord);
 	gl_FragColor = vec4(gl_FragColor.rgb * (globalDiffuse + diffuse) * shadowValue, gl_FragColor.a);
 #else
@@ -196,7 +196,7 @@ vec3 globalDiffuse = u_AmbientColor;
 #endif
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	#ifdef CALCULATE_SHADOWS
+	#if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 		gl_FragColor.rgb += specular * shadowValue;
 	#else
 		gl_FragColor.rgb += specular;

@@ -1,7 +1,7 @@
 import { ISubmit } from "./ISubmit";
 import { SubmitKey } from "./SubmitKey";
 export class SubmitCMD implements ISubmit {
-    static POOL: any = []; fun: Function;
+    static POOL: SubmitCMD[] = []; fun: Function;
     /**@internal */
     _this: any;
     args: any[];
@@ -30,7 +30,7 @@ export class SubmitCMD implements ISubmit {
     }
 
     static create(args: any[], fun: Function, thisobj: any): SubmitCMD {
-        var o: SubmitCMD = SubmitCMD.POOL._length ? SubmitCMD.POOL[--SubmitCMD.POOL._length] : new SubmitCMD();
+        var o: SubmitCMD = (SubmitCMD.POOL as any)._length ? SubmitCMD.POOL[--(SubmitCMD.POOL as any)._length] : new SubmitCMD();
         o.fun = fun;
         o.args = args;
         o._this = thisobj;
@@ -39,6 +39,6 @@ export class SubmitCMD implements ISubmit {
         return o;
     }
 }
-{ SubmitCMD.POOL._length = 0 }
+{ (SubmitCMD.POOL as any)._length = 0 }
 
 

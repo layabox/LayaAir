@@ -224,7 +224,7 @@ export class Node extends EventDispatcher {
      * 批量增加子节点
      * @param	...args 无数子节点。
      */
-    addChildren(...args): void {
+    addChildren(...args:any[]): void {
         var i: number = 0, n: number = args.length;
         while (i < n) {
             this.addChild(args[i++]);
@@ -379,7 +379,7 @@ export class Node extends EventDispatcher {
                 var arr: any[] = childs;
                 this._children = Node.ARRAY_EMPTY;
             } else {
-                arr = childs.splice(beginIndex, endIndex - beginIndex);
+                arr = childs.splice(beginIndex, endIndex - beginIndex + 1);
             }
             for (var i: number = 0, n: number = arr.length; i < n; i++) {
                 arr[i]._setParent(null);
@@ -802,7 +802,7 @@ export class Node extends EventDispatcher {
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {
                 var comp: Component = this._components[i];
-                comp._setActive(false);
+                (!comp._isScript())&&comp._setActive(false);
                 (comp._isScript() && comp._enabled) && (activeChangeScripts.push(comp));
             }
         }

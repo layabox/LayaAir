@@ -26,8 +26,7 @@ export class PixelLineFilter extends GeometryElement {
 	/** @internal */
 	private _floatCountPerVertices: number = 7;
 
-	/** @internal */
-	private _owner: PixelLineSprite3D;
+
 	/** @internal */
 	private _vertexBuffer: VertexBuffer3D;
 	/** @internal */
@@ -44,12 +43,19 @@ export class PixelLineFilter extends GeometryElement {
 	private _calculateBound: boolean = false;
 
 	/** @internal */
+	_owner: PixelLineSprite3D;
+	/** @internal */
 	_bounds: Bounds;
 	/** @internal */
 	_maxLineCount: number = 0;
 	/** @internal */
 	_lineCount: number = 0;
 
+	/**
+	 * 创建一个PixelLineFilter实例
+	 * @param owner 渲染精灵节点 
+	 * @param maxLineCount 最大线长
+	 */
 	constructor(owner: PixelLineSprite3D, maxLineCount: number) {
 		super();
 		var pointCount: number = maxLineCount * 2;
@@ -73,6 +79,7 @@ export class PixelLineFilter extends GeometryElement {
 	/**
 	 *	{@inheritDoc PixelLineFilter._getType}
 	 *	@override
+	 *  @internal
 	 */
 	_getType(): number {
 		return PixelLineFilter._type;
@@ -290,6 +297,7 @@ export class PixelLineFilter extends GeometryElement {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * 删除
 	 */
 	destroy(): void {
 		if (this._destroyed)

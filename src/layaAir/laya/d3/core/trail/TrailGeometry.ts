@@ -17,9 +17,6 @@ import { TextureMode } from "../TextureMode";
 import { TrailAlignment } from "./TrailAlignment";
 import { TrailFilter } from "./TrailFilter";
 import { VertexTrail } from "./VertexTrail";
-import { Render } from "../../../renders/Render"
-import { FrustumCulling } from "../../graphics/FrustumCulling"
-import { TrailRenderer } from "./TrailRenderer";
 
 /**
  * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
@@ -98,7 +95,6 @@ export class TrailGeometry extends GeometryElement {
 		var sprite3dPosition: Vector3 = this._owner._owner.transform.position;
 		bounds.setMin(sprite3dPosition);
 		bounds.setMax(sprite3dPosition);
-		Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 	}
 
 	/**
@@ -143,10 +139,10 @@ export class TrailGeometry extends GeometryElement {
 		var oldSubBirthTime: Float32Array = new Float32Array(this._subBirthTime.buffer, this._activeIndex * 4, count);//修改出生时间数据
 
 		if (count === this._segementCount) {//当前count=_segementCount表示已满,需要扩充
-			this._vertexBuffer1.destroy();
-			this._vertexBuffer2.destroy();
 			var memorySize: number = this._vertexBuffer1._byteLength + this._vertexBuffer2._byteLength;
 			Resource._addMemory(-memorySize, -memorySize);
+			this._vertexBuffer1.destroy();
+			this._vertexBuffer2.destroy();
 			this._segementCount += this._increaseSegementCount;
 			this._resizeData(this._segementCount, this._bufferState);
 		}
@@ -296,7 +292,6 @@ export class TrailGeometry extends GeometryElement {
 		Vector3.max(max, out, max);
 		bounds.setMax(max);
 
-		Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 
 		var floatCount: number = this._floatCountPerVertices1 * 2;
 		this._vertexBuffer1.setData(this._vertices1.buffer, vertexOffset * 4, vertexOffset * 4, floatCount * 4);
@@ -326,7 +321,6 @@ export class TrailGeometry extends GeometryElement {
 			bounds.setMax(sprite3dPosition);
 			min = bounds.getMin();
 			max = bounds.getMax();
-			Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 		}
 		var vertexCount: number = this._endIndex;
 		var curLength: number = 0;
@@ -386,7 +380,6 @@ export class TrailGeometry extends GeometryElement {
 			bounds.setMin(min);
 			bounds.setMax(max);
 			this._disappearBoundsMode = false;
-			Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 		}
 		var offset: number = this._activeIndex * stride;
 		this._vertexBuffer2.setData(this._vertices2.buffer, offset * 4, offset * 4, (vertexCount * stride - offset) * 4);
@@ -404,7 +397,6 @@ export class TrailGeometry extends GeometryElement {
 					this._owner._totalLength -= this._subDistance[nextIndex];//移除分段要减去下一分段到当前分段的距离
 
 				if (this._isTempEndVertex && (nextIndex === count - 1)) {//如果只剩最后一分段要将其转化为固定分段
-					var offset: number = this._floatCountPerVertices1 * i * 2;
 					var fixedPos: Vector3 = this._lastFixedVertexPosition;
 					fixedPos.x = this._vertices1[0];
 					fixedPos.y = this._vertices1[1];
@@ -472,22 +464,6 @@ export class TrailGeometry extends GeometryElement {
 		this._subDistance = null;
 		this._lastFixedVertexPosition = null;
 		this._disappearBoundsMode = false;
-	}
-	/**
-	 *@internal [NATIVE]
-	 */
-	_calculateBoundingBoxForNative(): void {
-		var trail: TrailRenderer = this._owner._owner.trailRenderer;
-		var bounds: Bounds = trail.bounds;
-		var min: Vector3 = bounds.getMin();
-		var max: Vector3 = bounds.getMax();
-		var buffer: Float32Array = FrustumCulling._cullingBuffer;
-		buffer[trail._cullingBufferIndex + 1] = min.x;
-		buffer[trail._cullingBufferIndex + 2] = min.y;
-		buffer[trail._cullingBufferIndex + 3] = min.z;
-		buffer[trail._cullingBufferIndex + 4] = max.x;
-		buffer[trail._cullingBufferIndex + 5] = max.y;
-		buffer[trail._cullingBufferIndex + 6] = max.z;
 	}
 
 	clear(): void {

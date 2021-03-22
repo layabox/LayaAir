@@ -4,9 +4,6 @@ import { Vector3 } from "../math/Vector3"
 import { Utils3D } from "../utils/Utils3D"
 import { Event } from "../../events/Event"
 import { EventDispatcher } from "../../events/EventDispatcher"
-import { Render } from "../../renders/Render"
-import { ConchQuaternion } from "../math/Native/ConchQuaternion"
-import { ConchVector3 } from "../math/Native/ConchVector3"
 /**
  * <code>AnimationTransform3D</code> 类用于实现3D变换。
  */
@@ -36,33 +33,16 @@ export class AnimationTransform3D extends EventDispatcher {
 	 * 创建一个 <code>Transform3D</code> 实例。
 	 * @param owner 所属精灵。
 	 */
-	constructor(owner: AnimationNode, localPosition: Float32Array = null/*[NATIVE]*/, localRotation: Float32Array = null/*[NATIVE]*/, localScale: Float32Array = null/*[NATIVE]*/, worldMatrix: Float32Array = null/*[NATIVE]*/) {
+	constructor(owner: AnimationNode) {
 		super();
 		this._owner = owner;
 		this._children = [];
 
 		this._localMatrix = new Float32Array(16);
-		if (Render.supportWebGLPlusAnimation) {
-			/*
-			_localPosition = new Vector3(0,0,0);
-			_localPosition.forNativeElement(localPosition);
-			_localRotation = new Quaternion(0,0,0,1);
-			_localRotation.forNativeElement(localRotation);
-			_localScale = new Vector3(0,0,0);
-			_localScale.forNativeElement(localScale);
-			_worldMatrix = worldMatrix;
-			*/
-
-			this._localPosition = new ConchVector3(0,0,0,localPosition) as any as Vector3;
-			this._localRotation = new ConchQuaternion(0,0,0,1,localRotation) as any as Quaternion;
-			this._localScale = new ConchVector3(0,0,0,localScale) as any as Vector3;
-			this._worldMatrix = worldMatrix;
-		} else {
 			this._localPosition = new Vector3();
 			this._localRotation = new Quaternion();
 			this._localScale = new Vector3();
 			this._worldMatrix = new Float32Array(16);
-		}
 		this._localQuaternionUpdate = false;
 		this._locaEulerlUpdate = false;
 		this._localUpdate = false;
@@ -174,7 +154,7 @@ export class AnimationTransform3D extends EventDispatcher {
 	 * @return	世界矩阵。
 	 */
 	getWorldMatrix(): Float32Array {
-		if (!Render.supportWebGLPlusAnimation && this._worldUpdate) {
+		if ( this._worldUpdate) {
 			if (this._parent != null) {
 				Utils3D.matrix4x4MultiplyFFF(this._parent.getWorldMatrix(), this._getlocalMatrix(), this._worldMatrix);
 			} else {
@@ -182,9 +162,6 @@ export class AnimationTransform3D extends EventDispatcher {
 				e[1] = e[2] = e[3] = e[4] = e[6] = e[7] = e[8] = e[9] = e[11] = e[12] = e[13] = e[14] = 0;
 				e[0] = e[5] = e[10] = e[15] = 1;
 			}
-			this._worldUpdate = false;
-		}
-		if (Render.supportWebGLPlusAnimation && this._worldUpdate) {
 			this._worldUpdate = false;
 		}
 		return this._worldMatrix;

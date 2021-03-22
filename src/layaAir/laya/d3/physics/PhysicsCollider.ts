@@ -1,5 +1,4 @@
 import { Sprite3D } from "../core/Sprite3D";
-import { Transform3D } from "../core/Transform3D";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { PhysicsComponent } from "./PhysicsComponent";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";

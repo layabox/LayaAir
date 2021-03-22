@@ -146,7 +146,7 @@ export class ViewStack extends Box implements IItem {
         } else {
             for (var prop in this._dataSource) {
                 if (prop in this) {
-                    this[prop] = this._dataSource[prop];
+                    (this as any)[prop] = this._dataSource[prop];
                 }
             }
         }

@@ -38,7 +38,7 @@ export class DrawTrianglesCmd {
     /**
      * 缩放矩阵。
      */
-    matrix: Matrix;
+    matrix: Matrix|null;
     /**
      * alpha
      */
@@ -47,16 +47,17 @@ export class DrawTrianglesCmd {
     /**
      * blend模式
      */
-    blendMode: string;
+    blendMode: string|null;
     /**
      * 颜色变换
      */
     color: ColorFilter;
 
-    colorNum: number;
+    colorNum: number|null;
 
     /**@private */
-    static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix, alpha: number, color: string, blendMode: string, colorNum: number): DrawTrianglesCmd {
+	static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, 
+			matrix: Matrix|null, alpha: number, color: string|null, blendMode: string|null, colorNum: number|null): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
         cmd.texture = texture;
         cmd.x = x;
@@ -80,9 +81,12 @@ export class DrawTrianglesCmd {
      * 回收到对象池
      */
     recover(): void {
-        this.texture = null;
-        this.vertices = null;
-        this.uvs = null;
+		this.texture = null;
+		//@ts-ignore
+		this.vertices = null;
+		//@ts-ignore
+		this.uvs = null;
+		//@ts-ignore
         this.indices = null;
         this.matrix = null;
         Pool.recover("DrawTrianglesCmd", this);

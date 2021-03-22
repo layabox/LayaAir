@@ -15,21 +15,19 @@ export class ShurikenParticleMaterial extends Material {
 	/**渲染状态_加色法混合。*/
 	static RENDERMODE_ADDTIVE: number = 1;
 
-
+	/**@internal */
 	static SHADERDEFINE_DIFFUSEMAP: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_TINTCOLOR: ShaderDefine;
-	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	/**@interanl */
 	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
+	/**@internal */
 	static DIFFUSETEXTURE: number = Shader3D.propertyNameToID("u_texture");
+	/**@internal */
 	static TINTCOLOR: number = Shader3D.propertyNameToID("u_Tintcolor");
+	/**@internal */
 	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
-	static CULL: number = Shader3D.propertyNameToID("s_Cull");
-	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
-	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
-	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
-	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
-	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: ShurikenParticleMaterial;
@@ -41,11 +39,25 @@ export class ShurikenParticleMaterial extends Material {
 		ShurikenParticleMaterial.SHADERDEFINE_DIFFUSEMAP = Shader3D.getDefineByName("DIFFUSEMAP");
 		ShurikenParticleMaterial.SHADERDEFINE_TINTCOLOR = Shader3D.getDefineByName("TINTCOLOR");
 		ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
-		ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 	}
 
 	/**@internal */
 	private _color: Vector4;
+
+	/**
+	 * @internal
+	 */
+	get _TintColor(): Vector4 {
+		return this.color;
+	}
+
+	/**
+	 * @internal
+	 */
+	set _TintColor(value: Vector4) {
+		this.color = value;
+	}
+
 
 	/**
 	 * @internal
@@ -104,6 +116,23 @@ export class ShurikenParticleMaterial extends Material {
 		this._color.w = value;
 		this.color = this._color;
 	}
+
+	/**
+	 * @internal
+	 */
+	get _MainTex_ST(): Vector4 {
+		return this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET)
+	}
+
+	/**
+	 * @internal
+	 */
+	set _MainTex_ST(value: Vector4) {
+		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET));
+		tilOff.setValue(value.x, value.y, value.z, value.w);
+		this.tilingOffset = tilOff;
+	}
+
 
 	/**
 	 * @internal
@@ -312,14 +341,11 @@ export class ShurikenParticleMaterial extends Material {
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-				this._shaderValues.addDefine(ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET);
-			else
-				this._shaderValues.removeDefine(ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET);
-		} else {
-			this._shaderValues.removeDefine(ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.setVector(ShurikenParticleMaterial.TILINGOFFSET, value);
 		}
-		this._shaderValues.setVector(ShurikenParticleMaterial.TILINGOFFSET, value);
+		else {
+			this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
 	}
 
 	/**
@@ -339,77 +365,14 @@ export class ShurikenParticleMaterial extends Material {
 	}
 
 
-
 	/**
-	 * 是否写入深度。
+	 * 创建一个 <code>ShurikenParticleMaterial</code> 实例。
 	 */
-	get depthWrite(): boolean {
-		return this._shaderValues.getBool(ShurikenParticleMaterial.DEPTH_WRITE);
-	}
-
-	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(ShurikenParticleMaterial.DEPTH_WRITE, value);
-	}
-
-	/**
-	 * 剔除方式。
-	 */
-	get cull(): number {
-		return this._shaderValues.getInt(ShurikenParticleMaterial.CULL);
-	}
-
-	set cull(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.CULL, value);
-	}
-
-	/**
-	 * 混合方式。
-	 */
-	get blend(): number {
-		return this._shaderValues.getInt(ShurikenParticleMaterial.BLEND);
-	}
-
-	set blend(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.BLEND, value);
-	}
-
-	/**
-	 * 混合源。
-	 */
-	get blendSrc(): number {
-		return this._shaderValues.getInt(ShurikenParticleMaterial.BLEND_SRC);
-	}
-
-	set blendSrc(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.BLEND_SRC, value);
-	}
-
-	/**
-	 * 混合目标。
-	 */
-	get blendDst(): number {
-		return this._shaderValues.getInt(ShurikenParticleMaterial.BLEND_DST);
-	}
-
-	set blendDst(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.BLEND_DST, value);
-	}
-
-	/**
-	 * 深度测试方式。
-	 */
-	get depthTest(): number {
-		return this._shaderValues.getInt(ShurikenParticleMaterial.DEPTH_TEST);
-	}
-
-	set depthTest(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.DEPTH_TEST, value);
-	}
-
 	constructor() {
 		super();
 		this.setShaderName("PARTICLESHURIKEN");
 		this._color = new Vector4(1.0, 1.0, 1.0, 1.0);
+		this._shaderValues.setVector(ShurikenParticleMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this.renderMode = ShurikenParticleMaterial.RENDERMODE_ALPHABLENDED;//默认加色法会自动加上雾化宏定义，导致非加色法从材质读取完后未移除宏定义。
 	}
 

@@ -3,7 +3,7 @@ import { Vector2 } from "../../../../math/Vector2"
 import { Vector3 } from "../../../../math/Vector3"
 
 /**
- * ...
+ * @internal
  * @author ...
  */
 export class ShapeUtils {

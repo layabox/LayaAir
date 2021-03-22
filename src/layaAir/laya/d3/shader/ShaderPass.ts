@@ -27,9 +27,9 @@ export class ShaderPass extends ShaderCompile {
 	/** @internal */
 	private _owner: SubShader;
 	/** @internal */
-	_stateMap: object;
+	_stateMap:  {[key:string]:number} ;
 	/** @internal */
-	private _cacheSharders: object = {};
+	private _cacheSharders: {[key:number]:{[key:number]:{[key:number]:ShaderInstance}}} = {};
 	/** @internal */
 	private _cacheShaderHierarchy: number = 1;
 	/** @internal */
@@ -49,7 +49,7 @@ export class ShaderPass extends ShaderCompile {
 		return this._renderState;
 	}
 
-	constructor(owner: SubShader, vs: string, ps: string, stateMap: object) {
+	constructor(owner: SubShader, vs: string, ps: string, stateMap:  {[key:string]:number} ) {
 		super(vs, ps, null);
 		this._owner = owner;
 		this._stateMap = stateMap;
@@ -58,24 +58,24 @@ export class ShaderPass extends ShaderCompile {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * @private
 	 */
 	protected _compileToTree(parent: ShaderNode, lines: any[], start: number, includefiles: any[], defs: any): void {
 		var node: ShaderNode, preNode: ShaderNode;
 		var text: string, name: string, fname: string;
 		var ofs: number, words: any[], noUseNode: ShaderNode;
 		var i: number, n: number, j: number;
+		
 		for (i = start; i < lines.length; i++) {
 			text = lines[i];
 			if (text.length < 1) continue;
 			ofs = text.indexOf("//");
 			if (ofs === 0) continue;
 			if (ofs >= 0) text = text.substr(0, ofs);
-
 			node = noUseNode || new ShaderNode(includefiles);
 			noUseNode = null;
 			node.text = text;
+			node.noCompile = true;
 
 			if ((ofs = text.indexOf("#")) >= 0) {
 				name = "#";
@@ -88,6 +88,15 @@ export class ShaderPass extends ShaderCompile {
 				switch (name) {
 					case "#ifdef":
 					case "#ifndef":
+						node.src = text;
+						node.noCompile = text.match(/[!&|()=<>]/) != null;
+						if (!node.noCompile) {
+							words = text.replace(/^\s*/, '').split(/\s+/);
+							node.setCondition(words[1], name === "#ifdef" ? ShaderCompile.IFDEF_YES : ShaderCompile.IFDEF_ELSE);
+							node.text = "//" + node.text;
+						} else {
+							console.log("function():Boolean{return " + text.substr(ofs + node.name.length) + "}");
+						}
 						node.setParent(parent);
 						parent = node;
 						if (defs) {
@@ -100,8 +109,19 @@ export class ShaderPass extends ShaderCompile {
 						continue;
 					case "#if":
 					case "#elif":
+						node.src = text;
+						node.noCompile = true;
+                        if(name=="#elif"){
+                            parent = parent.parent;
+                            preNode = parent.childs[parent.childs.length - 1];
+                            //匹配"#ifdef"
+                            preNode.text = preNode.src;
+                            preNode.noCompile = true;
+                            preNode.condition = null;
+                        }
 						node.setParent(parent);
-						parent = node;
+                        parent = node;
+                        
 						if (defs) {
 							words = text.substr(j).split(ShaderCompile._splitToWordExps3);
 							for (j = 0; j < words.length; j++) {
@@ -111,14 +131,26 @@ export class ShaderPass extends ShaderCompile {
 						}
 						continue;
 					case "#else":
+						node.src = text;
 						parent = parent.parent;
 						preNode = parent.childs[parent.childs.length - 1];
+						node.noCompile = preNode.noCompile;
+						if (!node.noCompile) {
+							node.condition = preNode.condition;
+							node.conditionType = preNode.conditionType == ShaderCompile.IFDEF_YES ? ShaderCompile.IFDEF_ELSE : ShaderCompile.IFDEF_YES;
+							node.text = "//" + node.text + " " + preNode.text + " " + node.conditionType;
+						}
+						//递归节点树
 						node.setParent(parent);
 						parent = node;
 						continue;
 					case "#endif":
 						parent = parent.parent;
 						preNode = parent.childs[parent.childs.length - 1];
+						node.noCompile = preNode.noCompile;
+						if (!node.noCompile) {
+							node.text = "//" + node.text;
+						}
 						node.setParent(parent);
 						continue;
 					case "#include"://这里有问题,主要是空格
@@ -161,11 +193,11 @@ export class ShaderPass extends ShaderCompile {
 	/**
 	 * @internal
 	 */
-	_resizeCacheShaderMap(cacheMap: object, hierarchy: number, resizeLength: number): void {
+	_resizeCacheShaderMap(cacheMap:any, hierarchy: number, resizeLength: number): void {
 		var end: number = this._cacheShaderHierarchy - 1;
 		if (hierarchy == end) {
 			for (var k in cacheMap) {
-				var shader: ShaderInstance = cacheMap[k];
+				var shader = cacheMap[k];
 				for (var i: number = 0, n: number = resizeLength - end; i < n; i++) {
 					if (i == n - 1)
 						cacheMap[0] = shader;//0替代(i == 0 ? k : 0),只扩不缩
@@ -216,7 +248,7 @@ export class ShaderPass extends ShaderCompile {
 		}
 		compileDefine.addDefineDatas(Scene3D._configDefineValues);
 
-		var cacheShaders: object = this._cacheSharders;
+		var cacheShaders:any = this._cacheSharders;
 		var maskLength: number = compileDefine._length;
 		if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
 			this._resizeCacheShaderMap(cacheShaders, 0, maskLength);
@@ -228,7 +260,7 @@ export class ShaderPass extends ShaderCompile {
 		var maxEndIndex: number = this._cacheShaderHierarchy - 1;
 		for (var i: number = 0; i < maxEndIndex; i++) {
 			var subMask: number = endIndex < i ? 0 : mask[i];
-			var subCacheShaders: object = cacheShaders[subMask];
+			var subCacheShaders = cacheShaders[subMask];
 			(subCacheShaders) || (cacheShaders[subMask] = subCacheShaders = {});
 			cacheShaders = subCacheShaders;
 		}
@@ -313,7 +345,9 @@ export class ShaderPass extends ShaderCompile {
 			psVersion = ps[0] + '\n';
 			ps.shift();
 		}
-		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap || this._owner._owner._attributeMap, this._owner._uniformMap || this._owner._owner._uniformMap, this);
+		//TODO:动态切换Attribute
+		//var attibuteMap = Shader3D.getAttributeMapByDefine(defineString,this._owner._attributeMap);
+		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'),this._owner._attributeMap , this._owner._uniformMap || this._owner._owner._uniformMap, this);
 
 		cacheShaders[cacheKey] = shader;
 

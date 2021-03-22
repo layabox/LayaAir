@@ -26,7 +26,7 @@ export class CircleCollider extends ColliderBase {
     }
 
     private _setShape(re: boolean = true): void {
-        var scale: number = this.owner["scaleX"] || 1;
+        var scale: number = (this.owner as any)["scaleX"] || 1;
         this._shape.m_radius = this._radius / Physics.PIXEL_RATIO * scale;
         this._shape.m_p.Set((this._radius + this._x) / Physics.PIXEL_RATIO * scale, (this._radius + this._y) / Physics.PIXEL_RATIO * scale);
         if (re) this.refresh();

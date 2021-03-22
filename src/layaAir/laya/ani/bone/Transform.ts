@@ -1,18 +1,29 @@
 import { Matrix } from "../../maths/Matrix";
 
-
 export class Transform {
 
+	/**水平方向旋转角度 */
 	skX: number = 0;		// 旋转？
+	/**垂直方向旋转角度 */
 	skY: number = 0;		// 不知道干什么的
+	/**水平方向缩放 */
 	scX: number = 1;		// 缩放
+	/**垂直方向缩放 */
 	scY: number = 1;
+	/**水平方向偏移 */
 	x: number = 0;		// 偏移
+	/**垂直方向偏移 */
 	y: number = 0;
+	/**水平方向倾斜角度 */
 	skewX: number = 0;	// skew
+	/**垂直方向倾斜角度 */
 	skewY: number = 0;
 	private mMatrix: Matrix;
 
+	/**
+	 * 初始化数据
+	 * @param data 
+	 */
 	//TODO:coverage
 	initData(data: any): void {
 		if (data.x != undefined) {
@@ -35,6 +46,9 @@ export class Transform {
 		}
 	}
 
+	/**
+	 * 获取当前矩阵
+	 */
 	//TODO:coverage
 	getMatrix(): Matrix {
 		var tMatrix: Matrix;
@@ -55,6 +69,12 @@ export class Transform {
 		return tMatrix;
 	}
 
+	/**
+	 * 获取倾斜矩阵
+	 * @param m 
+	 * @param x 
+	 * @param y 
+	 */
 	//TODO:coverage
 	skew(m: Matrix, x: number, y: number): Matrix {
 		var sinX: number = Math.sin(y);

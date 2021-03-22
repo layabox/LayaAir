@@ -1,23 +1,39 @@
 import { Transform } from "./Transform";
 import { Texture } from "../../resource/Texture";
 
-
+/**
+ * 插槽显示数据
+ */
 export class SkinSlotDisplayData {
 
+	/**名称 */
 	name: string;
+	/**附件名称 */
 	attachmentName: string;
+	/**类型 */
 	type: number;				//0 硬  1 skin 2 另一种skin? 3 不支持
+	/**变换 */
 	transform: Transform;
+	/**宽度 */
 	width: number;
+	/**高度 */
 	height: number;
+	/**纹理 */
 	texture: Texture;
 
+	/**骨骼数据 */
 	bones: any[];
+	/**uv数据 */
 	uvs: any[];
+	/**权重 */
 	weights: any[];
+	/**三角面数据 */
 	triangles: any[];
+	/**顶点数据 */
 	vertices: any[];
+	/**长度数据 */
 	lengths: any[];
+	/**版本号 */
 	verLen: number;
 
 	createTexture(currTexture: Texture): Texture {

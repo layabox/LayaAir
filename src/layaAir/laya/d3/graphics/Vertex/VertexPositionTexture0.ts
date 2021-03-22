@@ -7,6 +7,7 @@ import { Vector2 } from "../../math/Vector2"
 import { Vector3 } from "../../math/Vector3"
 
 /**
+ * @internal
  * <code>VertexPositionNormalTexture</code> 类用于创建位置、纹理顶点结构。
  */
 export class VertexPositionTexture0 implements IVertex {

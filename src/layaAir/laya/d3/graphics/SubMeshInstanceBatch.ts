@@ -13,6 +13,8 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 export class SubMeshInstanceBatch extends GeometryElement {
 	/** @internal */
 	static instance: SubMeshInstanceBatch;
+	/** @internal */
+	static maxInstanceCount: number = 1024;
 
 	/**
 	 * @internal
@@ -21,17 +23,17 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		SubMeshInstanceBatch.instance = new SubMeshInstanceBatch();
 	}
 
-	/** @internal */
-	maxInstanceCount: number = 1024;
+
 
 	/** @internal */
-	instanceWorldMatrixData: Float32Array = new Float32Array(this.maxInstanceCount * 16);
-	/** @internal */
-	instanceMVPMatrixData: Float32Array = new Float32Array(this.maxInstanceCount * 16);
+	instanceWorldMatrixData: Float32Array = new Float32Array(SubMeshInstanceBatch.maxInstanceCount * 16);
 	/** @internal */
 	instanceWorldMatrixBuffer: VertexBuffer3D;
+	/**SimpleAnimator */
 	/** @internal */
-	instanceMVPMatrixBuffer: VertexBuffer3D;
+	instanceSimpleAnimatorData:Float32Array = new Float32Array(SubMeshInstanceBatch.maxInstanceCount*4);
+	/** @internal */
+	instanceSimpleAnimatorBuffer:VertexBuffer3D;
 
 	/**
 	 * 创建一个 <code>InstanceSubMesh</code> 实例。
@@ -40,9 +42,10 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		super();
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, gl.DYNAMIC_DRAW);
-		this.instanceMVPMatrixBuffer = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, gl.DYNAMIC_DRAW);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
-		this.instanceMVPMatrixBuffer.vertexDeclaration = VertexMesh.instanceMVPMatrixDeclaration;
+		//SImpleAnimator
+		this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length*4,gl.DYNAMIC_DRAW);
+		this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
 	}
 
 	/**
@@ -61,5 +64,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		Stat.savedRenderBatches += count - 1;
 		Stat.trianglesFaces += indexCount * count / 3;
 	}
+
+
 }
 

@@ -345,6 +345,7 @@ export class CannonPhysicsComponent extends Component {
 	 */
 	protected _onScaleChange(scale: Vector3): void {
 		this._colliderShape._setScale(scale);
+		this._btColliderObject.updateBoundingRadius();
 	}
 
 	/**

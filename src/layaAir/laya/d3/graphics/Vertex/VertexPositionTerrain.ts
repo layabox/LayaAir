@@ -6,6 +6,7 @@ import { Vector2 } from "../../math/Vector2"
 import { Vector3 } from "../../math/Vector3"
 
 /**
+ * @internal
  * <code>VertexPositionTerrain</code> 类用于创建位置、法线、纹理1、纹理2顶点结构。
  */
 export class VertexPositionTerrain implements IVertex {

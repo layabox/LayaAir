@@ -3,8 +3,11 @@ import { Keyframe } from "./Keyframe";
 	 * <code>FloatKeyFrame</code> 类用于创建浮点关键帧实例。
 	 */
 export class FloatKeyframe extends Keyframe {
+	/**内切线 */
 	inTangent: number;
+	/**外切线 */
 	outTangent: number;
+	/**帧数据 */
 	value: number;
 
 	/**
@@ -15,6 +18,7 @@ export class FloatKeyframe extends Keyframe {
 	}
 
 	/**
+	 * 克隆数据
 	 * @inheritDoc
 	 * @override
 	 */
@@ -27,16 +31,5 @@ export class FloatKeyframe extends Keyframe {
 	}
 
 }
-
-// native
-/*if ((window as any).conch && (window as any).conchFloatKeyframe) {
-	//@ts-ignore
-	FloatKeyframe = (window as any).conchFloatKeyframe;
-}
-if ((window as any).qq && (window as any).qq.webglPlus) {
-	//@ts-ignore
-	FloatKeyframe = (window as any).qq.webglPlus.conchFloatKeyframe;
-}*/
-
 
 

@@ -1,8 +1,23 @@
+//@ts-nocheck
 import { IClone } from "../../../IClone"
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"
 import { Vector2 } from "../../../../math/Vector2"
 import { Vector3 } from "../../../../math/Vector3"
+
+export enum ParticleSystemShapeType {
+	/**盒体 */
+	Box = 0,
+	/**环形 */
+	Circle = 1,
+	/**锥体 */
+	Cone = 2,
+	/**半球体 */
+	Hemisphere = 3,
+	/**球体 */
+	Sphere = 4
+}
+
 
 /**
  * <code>BaseShape</code> 类用于粒子形状。
@@ -12,6 +27,9 @@ export class BaseShape implements IClone {
 	enable: boolean=true;
 	/**随机方向。*/
 	randomDirection: number=0;
+
+	/**粒子类型 */
+	shapeType: ParticleSystemShapeType;
 
 	/**
 	 * 创建一个 <code>BaseShape</code> 实例。

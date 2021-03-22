@@ -1412,9 +1412,7 @@ export class TiledMap {
 
 }
 
-
-
-
+/**@internal */
 class GRect {
     left: number;
     top: number;
@@ -1426,7 +1424,7 @@ class GRect {
     }
 }
 
-
+/**@internal */
 class TileMapAniData {
     mAniIdArray: any[] = [];
     mDurationTimeArray: any[] = [];
@@ -1434,7 +1432,7 @@ class TileMapAniData {
     image: any;
 }
 
-
+/**@internal */
 class TileSet {
 
     firstgid: number = 0;

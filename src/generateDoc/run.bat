@@ -1,8 +1,13 @@
 @echo off
-set curr_dir=%cd%
-chdir /D "%~dp0"
+if exist .\out (
+    rmdir /s/q .\out
+)
 
-node .\typedoc --mode modules --excludePrivate --excludeProtected --hideGenerator --module commonjs --target ES6 --tsconfig ../layaAir/tsconfig.json --includes ../layaAir --name zqx --theme default --out doc\ --ignoreCompilerErrors
 
-chdir /D "%curr_dir%"
+if exist .\doc (
+    rmdir /s/q .\doc
+)
+
+node typedoc.js
+gulp buildAPI
 @pause

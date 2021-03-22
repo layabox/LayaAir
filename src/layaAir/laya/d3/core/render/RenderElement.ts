@@ -1,7 +1,7 @@
-import { BaseRender } from "./BaseRender";
-import { RenderContext3D } from "./RenderContext3D";
-import { RenderQueue } from "./RenderQueue";
-import { BaseCamera } from "../BaseCamera"
+//@ts-nocheck
+import { BaseRender } from "./BaseRender"
+import { RenderContext3D } from "./RenderContext3D"
+import { RenderQueue } from "./RenderQueue"
 import { Camera } from "../Camera"
 import { GeometryElement } from "../GeometryElement"
 import { Transform3D } from "../Transform3D"
@@ -12,7 +12,7 @@ import { ShaderData } from "../../shader/ShaderData"
 import { ShaderInstance } from "../../shader/ShaderInstance"
 import { ShaderPass } from "../../shader/ShaderPass"
 import { SubShader } from "../../shader/SubShader"
-import { DefineDatas } from "../../shader/DefineDatas";
+import { DefineDatas } from "../../shader/DefineDatas"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。
@@ -94,7 +94,7 @@ export class RenderElement {
 	/**
 	 * @internal
 	 */
-	_update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string): void {
+	_update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string,subshaderIndex:number = 0): void {
 		if (this.material) {//材质可能为空
 			var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
 			this.renderSubShader = null;
@@ -116,7 +116,7 @@ export class RenderElement {
 						return;
 					}
 				} else {
-					this.renderSubShader = customShader.getSubShaderAt(0);//TODO:
+					this.renderSubShader = customShader.getSubShaderAt(subshaderIndex);//TODO:
 				}
 			} else {
 				this.renderSubShader = subShader;

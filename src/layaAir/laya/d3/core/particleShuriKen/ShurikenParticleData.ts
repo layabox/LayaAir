@@ -3,7 +3,6 @@ import { Rand } from "../../math/Rand";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
-import { Transform3D } from "../Transform3D";
 import { ColorOverLifetime } from "./module/ColorOverLifetime";
 import { FrameOverTime } from "./module/FrameOverTime";
 import { GradientColor } from "./module/GradientColor";
@@ -89,7 +88,7 @@ export class ShurikenParticleData {
 	/**
 	 * @internal
 	 */
-	static create(particleSystem: ShurikenParticleSystem, particleRender: ShurikenParticleRenderer, transform: Transform3D): void {
+	static create(particleSystem: ShurikenParticleSystem, particleRender: ShurikenParticleRenderer): void {
 		var autoRandomSeed: boolean = particleSystem.autoRandomSeed;
 		var rand: Rand = particleSystem._rand;
 		var randomSeeds: Uint32Array = particleSystem._randomSeeds;

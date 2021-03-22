@@ -8,18 +8,31 @@ import { Pool } from "../../utils/Pool"
 export class SpriteStyle {
 
     static EMPTY: SpriteStyle = new SpriteStyle();
+    /**水平缩放 */
     scaleX: number;
+    /**垂直缩放 */
     scaleY: number;
+    /**水平倾斜角度 */
     skewX: number;
+    /**垂直倾斜角度 */
     skewY: number;
+    /**X轴心点 */
     pivotX: number;
+    /**Y轴心点 */
     pivotY: number;
+    /**旋转角度 */
     rotation: number;
+    /**透明度 */
     alpha: number;
+    /**滚动区域 */
     scrollRect: Rectangle;
+    /**视口 */
     viewport: Rectangle;
+    /**点击区域 */
     hitArea: any;
+    /**滑动 */
     dragging: Dragging;
+    /**混合模式 */
     blendMode: string;
 
     constructor() {

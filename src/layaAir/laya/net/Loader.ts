@@ -5,7 +5,6 @@ import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Sound } from "../media/Sound";
 import { SoundManager } from "../media/SoundManager";
-import { BaseTexture } from "../resource/BaseTexture";
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
 import { Browser } from "../utils/Browser";
@@ -83,7 +82,7 @@ export class Loader extends EventDispatcher {
 	static TERRAINRES = "TERRAIN";
 
 	/**文件后缀和类型对应表。*/
-	static typeMap: { [key: string]: string } = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" };
+	static typeMap: { [key: string]: string } = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" ,"wasm":"arraybuffer"};
 	/**资源解析函数对应表，用来扩展更多类型的资源加载解析。*/
 	static parserMap: any = {};
 	/**每帧加载完成回调使用的最大超时时间，如果超时，则下帧再处理，防止帧卡顿。*/
@@ -158,7 +157,7 @@ export class Loader extends EventDispatcher {
 		}
 
 		this._url = url;
-		if (url.indexOf("data:image") === 0) type = Loader.IMAGE;
+		if (url.indexOf("data:image") === 0 && !type) type = Loader.IMAGE;
 		else url = URL.formatURL(url);
 		this._type = type || (type = Loader.getTypeFromUrl(this._url));
 		this._cache = cache;
@@ -461,22 +460,58 @@ export class Loader extends EventDispatcher {
 					data.pics = [];
 				}
 				this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
-				return this._loadResourceFilter(Loader.IMAGE, toloadPics.pop() as string);
+				var url = URL.formatURL(toloadPics.pop());
+				var ext = Utils.getFileExtension(url);
+				var type = Loader.IMAGE;
+				if(ext == "pvr"||ext == "ktx"){
+					type = Loader.BUFFER;
+				}
+				return this._loadResourceFilter(type, url);
 			} else {
 				if(!(data instanceof Texture2D))
 				{
-					let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
-					tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-					tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-					tex.loadImageSource(data, true);
-					tex._setCreateURL(data.src);
-					data = tex;
+					if (data instanceof ArrayBuffer) {
+						let url = this._http.url;
+						var ext: string = Utils.getFileExtension(url);
+						let format: TextureFormat;
+						switch (ext) {
+							case "ktx":
+								format = TextureFormat.ETC1RGB;
+								break;
+							case "pvr":
+								format = TextureFormat.PVRTCRGBA_4BPPV;
+								break;
+							default: {
+								console.error('unknown format', ext);
+								return;
+							}
+						}
+						let tex = new Texture2D(0, 0, format, false, false);
+						tex.wrapModeU = WarpMode.Clamp;
+						tex.wrapModeV = WarpMode.Clamp;
+						tex.setCompressData(data);
+						tex._setCreateURL(url);
+						data = tex;
+					} else {
+						let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+						tex.wrapModeU = WarpMode.Clamp;
+						tex.wrapModeV = WarpMode.Clamp;
+						tex.loadImageSource(data, true);
+						tex._setCreateURL(data.src);
+						data = tex;
+					}
 				}
 				this._data.pics.push(data);
 				if (this._data.toLoads.length > 0) {
 					this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);
 					//有图片未加载
-					return this._loadResourceFilter(Loader.IMAGE, this._data.toLoads.pop());
+					var url = URL.formatURL(this._data.toLoads.pop());
+					var ext = Utils.getFileExtension(url);
+					var type = Loader.IMAGE;
+					if(ext == "pvr"||ext == "ktx"){
+						type = Loader.BUFFER;
+					}
+					return this._loadResourceFilter(type, url);
 				}
 				var frames: any = this._data.frames;
 				var cleanUrl: string = this._url.split("?")[0];
@@ -724,6 +759,7 @@ export class Loader extends EventDispatcher {
 
 	/**
 	 * 缓存资源。
+	 * 如果资源已经存在则缓存失败。
 	 * @param	url 资源地址。
 	 * @param	data 要缓存的内容。
 	 */
@@ -740,6 +776,15 @@ export class Loader extends EventDispatcher {
 				Loader.loadedMap[url] = data;
 			}
 		}
+	}
+
+	/**
+	 * 强制缓存资源。不做任何检查。
+	 * @param url  资源地址。
+	 * @param data  要缓存的内容。
+	 */
+	static cacheResForce(url: string, data: any){
+		Loader.loadedMap[url] = data;
 	}
 
 

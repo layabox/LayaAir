@@ -10,7 +10,7 @@ import { Mesh } from "../resource/models/Mesh"
 import { Texture2D } from "../../resource/Texture2D"
 
 /**
- * <code>TerrainMeshSprite3D</code> 类用于创建网格。
+ * <code>TerrainMeshSprite3D</code> 类用于地形节点转换普通mesh渲染。
  */
 export class MeshTerrainSprite3D extends MeshSprite3D {
 	private static _tempVector3: Vector3 = new Vector3();
@@ -34,6 +34,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 	 * @param mesh 网格。
 	 * @param image 高度图。
 	 * @param name 名字。
+	 * @returns 地形渲染节点
 	 */
 	static createFromMeshAndHeightMap(mesh: Mesh, texture: Texture2D, minHeight: number, maxHeight: number, name: string = null): MeshTerrainSprite3D {
 		var meshTerrainSprite3D: MeshTerrainSprite3D = new MeshTerrainSprite3D(mesh, null, name);
@@ -126,7 +127,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 
 		var boundingBox: Bounds = this.meshFilter.sharedMesh.bounds;
 		var min: Vector3 = boundingBox.getMin();
-		var max: Vector3 = boundingBox.getMax();
 		this._minX = min.x;
 		this._minZ = min.z;
 	}
@@ -137,7 +137,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		this._computeCellSize(boundingBox);
 
 		var min: Vector3 = boundingBox.getMin();
-		var max: Vector3 = boundingBox.getMax();
 		this._minX = min.x;
 		this._minZ = min.z;
 	}

@@ -47,7 +47,7 @@ export class LoadModelV04 {
 			LoadModelV04._readData.pos = LoadModelV04._BLOCK.blockStarts[i];
 			var index: number = LoadModelV04._readData.getUint16();
 			var blockName: string = LoadModelV04._strings[index];
-			var fn: Function = LoadModelV04["READ_" + blockName];
+			var fn: Function = (LoadModelV04 as any)["READ_" + blockName];
 			if (fn == null)
 				throw new Error("model file err,no this function:" + index + " " + blockName);
 			else
@@ -110,7 +110,7 @@ export class LoadModelV04 {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var name: string = LoadModelV04._readString();
 		var arrayBuffer: ArrayBuffer = LoadModelV04._readData.__getBuffer();
-		var i: number, n: number;
+		var i: number;
 
 		var memorySize: number = 0;
 		var vertexBufferCount: number = LoadModelV04._readData.getInt16();
@@ -170,9 +170,13 @@ export class LoadModelV04 {
 		var bindPoseDataLength: number = LoadModelV04._readData.getUint32();
 		var bindPoseDatas: Float32Array = new Float32Array(arrayBuffer.slice(offset + bindPoseDataStart, offset + bindPoseDataStart + bindPoseDataLength));
 		var bindPoseFloatCount: number = bindPoseDatas.length;
-		var bindPoseCount: number = bindPoseFloatCount / 16;
 		var bindPoseBuffer: ArrayBuffer = LoadModelV04._mesh._inverseBindPosesBuffer = new ArrayBuffer(bindPoseFloatCount * 4);//TODO:[NATIVE]临时
 		LoadModelV04._mesh._inverseBindPoses = [];
+		if(bindPoseFloatCount!=0) 
+			LoadModelV04._mesh._instanceBufferStateType = Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR;
+		else
+			LoadModelV04._mesh._instanceBufferStateType = Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL;
+		LoadModelV04._mesh._setInstanceBuffer(LoadModelV04._mesh._instanceBufferStateType);
 		for (i = 0; i < bindPoseFloatCount; i += 16) {
 			var inverseGlobalBindPose: Matrix4x4 = new Matrix4x4(bindPoseDatas[i + 0], bindPoseDatas[i + 1], bindPoseDatas[i + 2], bindPoseDatas[i + 3], bindPoseDatas[i + 4], bindPoseDatas[i + 5], bindPoseDatas[i + 6], bindPoseDatas[i + 7], bindPoseDatas[i + 8], bindPoseDatas[i + 9], bindPoseDatas[i + 10], bindPoseDatas[i + 11], bindPoseDatas[i + 12], bindPoseDatas[i + 13], bindPoseDatas[i + 14], bindPoseDatas[i + 15], new Float32Array(bindPoseBuffer, i * 4, 16));
 			LoadModelV04._mesh._inverseBindPoses[i / 16] = inverseGlobalBindPose;

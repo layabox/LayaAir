@@ -16,6 +16,9 @@ export class Bounds implements IClone {
 	/**@internal */
 	static _UPDATE_EXTENT: number = 0x08;
 
+	static TEMP_VECTOR3_MAX0:Vector3 = new Vector3();
+	static TEMP_VECTOR3_MAX1:Vector3 = new Vector3();
+
 	private _updateFlag: number = 0;
 
 	/**@internal	*/
@@ -207,6 +210,31 @@ export class Bounds implements IClone {
 		}
 		return this._boundBox;
 	}
+
+	/**
+	 * @returns -1为不相交 不为0的时候返回值为相交体积
+	 */
+	calculateBoundsintersection(bounds:Bounds):number{
+		var ownMax:Vector3 = this.getMax();
+		var ownMin:Vector3 = this.getMin();
+		var calMax:Vector3 = bounds.getMax();
+		var calMin:Vector3 = bounds.getMin();
+		var tempV0:Vector3 = Bounds.TEMP_VECTOR3_MAX0;
+		var tempV1:Vector3 = Bounds.TEMP_VECTOR3_MAX1;
+		var thisExtends:Vector3 = this.getExtent();
+		var boundExtends:Vector3 =bounds.getExtent();
+		tempV0.setValue(Math.max(ownMax.x,calMax.x)-Math.min(ownMin.x,calMin.x),
+			Math.max(ownMax.y,calMax.y)-Math.min(ownMin.y,calMin.y),
+			Math.max(ownMax.z,calMax.z)-Math.min(ownMin.z,calMin.z));
+		tempV1.setValue((thisExtends.x+boundExtends.x)*2.0,
+			(thisExtends.y+boundExtends.y)*2.0,
+			(thisExtends.z+boundExtends.z)*2.0); 
+		if((tempV0.x)>(tempV1.x)) return -1;
+		if((tempV0.y)>(tempV1.y)) return -1;
+		if((tempV0.z)>(tempV1.z)) return -1;
+		return (tempV1.x-tempV0.x)*(tempV1.y-tempV0.y)*(tempV1.z-tempV0.z);
+	}
+
 
 	/**
 	 * 克隆。

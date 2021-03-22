@@ -3,7 +3,7 @@ import { VertexDeclaration } from "../../graphics/VertexDeclaration"
 import { VertexElement } from "../../graphics/VertexElement"
 import { VertexElementFormat } from "../../graphics/VertexElementFormat"
 /**
- * ...
+ * @internal
  * @author 
  */
 export class PixelLineVertex {

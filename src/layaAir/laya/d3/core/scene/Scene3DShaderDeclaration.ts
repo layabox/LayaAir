@@ -1,5 +1,9 @@
 import { ShaderDefine } from "../../shader/ShaderDefine";
 
+/**
+ * @internal
+ * 场景宏集合
+ */
 export class Scene3DShaderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_FOG: ShaderDefine;

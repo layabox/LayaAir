@@ -4,7 +4,6 @@ import { AnimationTransform3D } from "../animation/AnimationTransform3D"
 import { Animator } from "../component/Animator"
 import { Quaternion } from "../math/Quaternion"
 import { Vector3 } from "../math/Vector3"
-import { Render } from "../../renders/Render"
 import { Resource } from "../../resource/Resource"
 import { Handler } from "../../utils/Handler"
 import { ILaya } from "../../../ILaya";
@@ -20,9 +19,7 @@ export class Avatar extends Resource implements IClone {
 	 */
 	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Avatar {
 		var avatar: Avatar = new Avatar();
-		avatar._rootNode = new AnimationNode(new Float32Array(3), new Float32Array(4), new Float32Array(3), new Float32Array(16));//[NATIVE],需要优化
-		if (Render.supportWebGLPlusAnimation)
-			avatar._nativeNodeCount++;//[NATIVE]
+		avatar._rootNode = new AnimationNode();//[NATIVE],需要优化
 		if (data.version) {
 			var rootNode: any = data.rootNode;
 			(rootNode) && (avatar._parseNode(rootNode, avatar._rootNode));
@@ -80,10 +77,8 @@ export class Avatar extends Resource implements IClone {
 		var childrenData: any[] = nodaData.child;
 		for (var j: number = 0, n: number = childrenData.length; j < n; j++) {
 			var childData: any = childrenData[j];
-			var childBone: AnimationNode = new AnimationNode(new Float32Array(3), new Float32Array(4), new Float32Array(3), new Float32Array(16));//[NATIVE],需要优化
+			var childBone: AnimationNode = new AnimationNode();//[NATIVE],需要优化
 			node.addChild(childBone);
-			if (Render.supportWebGLPlusAnimation)
-				this._nativeNodeCount++;//[NATIVE]
 			this._parseNode(childData, childBone);
 		}
 	}

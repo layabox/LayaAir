@@ -8,7 +8,6 @@ import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
 import { Transform3D } from "../core/Transform3D";
-import { Vector4 } from "../math/Vector4";
 import { SubMesh } from "../resource/models/SubMesh";
 import { IndexBuffer3D } from "./IndexBuffer3D";
 import { VertexMesh } from "./Vertex/VertexMesh";
@@ -57,7 +56,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	/**@internal */
 	private _uv0Offset: number;
 	/**@internal */
-	private _uv1Offset: number;
+	_uv1Offset:number;
 	/**@internal */
 	private _sTangentOffset: number;
 	/**@internal */
@@ -87,17 +86,16 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	/**
 	 * @internal
 	 */
-	private _getBatchVertices(vertexDeclaration: VertexDeclaration, batchVertices: Float32Array, batchOffset: number, transform: Transform3D, element: SubMeshRenderElement, subMesh: SubMesh): void {
+	private _getBatchVertices(vertexDeclaration: VertexDeclaration, batchVertices: Float32Array, batchOffset: number, element: SubMeshRenderElement, subMesh: SubMesh): void {
 		var vertexFloatCount: number = vertexDeclaration.vertexStride / 4;
 		var oriVertexes: Float32Array = subMesh._vertexBuffer.getFloat32Data();
-		var lightmapScaleOffset: Vector4 = element.render.lightmapScaleOffset;
 
 		var multiSubMesh: boolean = element._dynamicMultiSubMesh;
 		var vertexCount: number = element._dynamicVertexCount;
 		element._computeWorldPositionsAndNormals(this._positionOffset, this._normalOffset, multiSubMesh, vertexCount);
 		var worldPositions: Float32Array = element._dynamicWorldPositions;
 		var worldNormals: Float32Array = element._dynamicWorldNormals;
-		var indices: Uint16Array = subMesh._indices;
+		var indices = subMesh._indices;
 		for (var i: number = 0; i < vertexCount; i++) {
 			var index: number = multiSubMesh ? indices[i] : i;
 			var oriOffset: number = index * vertexFloatCount;
@@ -161,7 +159,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	 * @internal
 	 */
 	private _getBatchIndices(batchIndices: Int16Array, batchIndexCount: number, batchVertexCount: number, transform: Transform3D, subMesh: SubMesh, multiSubMesh: boolean): void {
-		var subIndices: Uint16Array = subMesh._indices;
+		var subIndices = subMesh._indices;
 		var k: number, m: number, batchOffset: number;
 		var isInvert: boolean = transform._isFrontFaceInvert;
 		if (multiSubMesh) {
@@ -246,7 +244,6 @@ export class SubMeshDynamicBatch extends GeometryElement {
 
 		var batchVertexCount: number = 0;
 		var batchIndexCount: number = 0;
-		var floatStride: number = vertexDeclaration.vertexStride / 4;
 		var renderBatchCount: number = 0;
 		var elementCount: number = batchElements.length;
 		var elements: SubMeshRenderElement[] = batchElements.elements;
@@ -261,7 +258,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 				batchVertexCount = batchIndexCount = 0;
 			}
 			var transform: Transform3D = subElement._transform;
-			this._getBatchVertices(vertexDeclaration, this._vertices, batchVertexCount, transform, /*(element.render as MeshRender)*/ subElement, subMesh);
+			this._getBatchVertices(vertexDeclaration, this._vertices, batchVertexCount, /*(element.render as MeshRender)*/ subElement, subMesh);
 			this._getBatchIndices(this._indices, batchIndexCount, batchVertexCount, transform, subMesh, subElement._dynamicMultiSubMesh);
 			batchVertexCount += subElement._dynamicVertexCount;
 			batchIndexCount += indexCount;

@@ -26,7 +26,7 @@ import { Sprite } from "laya/display/Sprite"
 		
 		 static renderSpriteToCanvas(sprite:Sprite, canvas:HTMLCanvas, offsetX:number, offsetY:number):void
 		{
-			RenderSprite.renders[(sprite as any)._renderType]._fun(sprite, canvas.context, offsetX, offsetY);
+			(RenderSprite.renders[(sprite as any)._renderType] as any)._fun(sprite, canvas.context, offsetX, offsetY);
 		}
 		
 		 static getImageDataFromCanvas(canvas:HTMLCanvas, x:number = 0, y:number = 0, width:number = 0, height:number = 0):any

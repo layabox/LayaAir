@@ -1,0 +1,8 @@
+{
+	"front":"AllSky_Space_AnotherPlanet Equirect_PositiveZ.png",
+	"back":"AllSky_Space_AnotherPlanet Equirect_NegativeZ.png",
+	"left":"AllSky_Space_AnotherPlanet Equirect_PositiveX.png",
+	"right":"AllSky_Space_AnotherPlanet Equirect_NegativeX.png",
+	"up":"AllSky_Space_AnotherPlanet Equirect_PositiveY.png",
+	"down":"AllSky_Space_AnotherPlanet Equirect_NegativeY.png"
+}

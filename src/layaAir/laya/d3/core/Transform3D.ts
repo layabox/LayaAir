@@ -72,12 +72,12 @@ export class Transform3D extends EventDispatcher {
 	private _worldMatrix: Matrix4x4 = new Matrix4x4();
 
 	/** @internal */
-	private _children: Transform3D[] = null;
+	private _children: Transform3D[]|null = null;
 
 	/** @internal */
-	_parent: Transform3D = null;
+	_parent: Transform3D|null = null;
 	/**@internal */
-	_dummy: AnimationTransform3D = null;
+	_dummy: AnimationTransform3D|null = null;
 	/**@internal */
 	_transformFlag: number = 0;
 
@@ -524,12 +524,12 @@ export class Transform3D extends EventDispatcher {
 	_setParent(value: Transform3D): void {
 		if (this._parent !== value) {
 			if (this._parent) {
-				var parentChilds: Transform3D[] = this._parent._children;
+				var parentChilds: Transform3D[] = this._parent._children!;
 				var index: number = parentChilds.indexOf(this);
 				parentChilds.splice(index, 1);
 			}
 			if (value) {
-				value._children.push(this);
+				value._children!.push(this);
 				(value) && (this._onWorldTransform());
 			}
 			this._parent = value;
@@ -543,8 +543,8 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionRotationTransform();
+			for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+				this._children![i]._onWorldPositionRotationTransform();
 		}
 	}
 
@@ -555,8 +555,8 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionScaleTransform();
+			for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+				this._children![i]._onWorldPositionScaleTransform();
 		}
 	}
 
@@ -567,8 +567,8 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionTransform();
+			for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+				this._children![i]._onWorldPositionTransform();
 		}
 	}
 
@@ -579,8 +579,8 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionRotationTransform();//父节点旋转发生变化，子节点的世界位置和旋转都需要更新
+			for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+				this._children![i]._onWorldPositionRotationTransform();//父节点旋转发生变化，子节点的世界位置和旋转都需要更新
 		}
 	}
 
@@ -591,8 +591,8 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionScaleTransform();//父节点缩放发生变化，子节点的世界位置和缩放都需要更新
+			for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+				this._children![i]._onWorldPositionScaleTransform();//父节点缩放发生变化，子节点的世界位置和缩放都需要更新
 		}
 	}
 
@@ -603,8 +603,8 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldTransform();
+			for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+				this._children![i]._onWorldTransform();
 		}
 	}
 
@@ -652,7 +652,7 @@ export class Transform3D extends EventDispatcher {
 
 	/**
 	 * 获取向前方向。
-	 * @param 前方向。
+	 * @param forward 前方向。
 	 */
 	getForward(forward: Vector3): void {
 		var worldMatElem: Float32Array = this.worldMatrix.elements;
@@ -663,7 +663,7 @@ export class Transform3D extends EventDispatcher {
 
 	/**
 	 * 获取向上方向。
-	 * @param 上方向。
+	 * @param up 上方向。
 	 */
 	getUp(up: Vector3): void {
 		var worldMatElem: Float32Array = this.worldMatrix.elements;

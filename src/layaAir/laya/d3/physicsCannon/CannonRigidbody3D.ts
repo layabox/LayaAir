@@ -48,7 +48,7 @@ export class CannonRigidbody3D extends CannonPhysicsCollider {
 	/** @internal */
 	private _mass: number = 1.0;
 	/** @internal */
-	private _gravity: Vector3 = new Vector3(0, -10, 0);
+	_gravity: Vector3 = new Vector3(0, -10, 0);
 	/** @internal */
 	private _angularDamping: number = 0.0;
 	/** @internal */
@@ -183,7 +183,7 @@ export class CannonRigidbody3D extends CannonPhysicsCollider {
 			var btValue: CANNON.Vec3= this.btColliderObject.angularVelocity;
 			(this.isSleeping)&&(this.wakeUp());
 			btValue.set(value.x,value.y,value.z);
-			this.btColliderObject.velocity = btValue;
+			this.btColliderObject.angularVelocity = btValue;
 		}
 	}
 

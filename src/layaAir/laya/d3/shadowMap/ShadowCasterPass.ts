@@ -24,11 +24,18 @@ import { SpotLight } from "../core/light/SpotLight";
 import { BoundFrustum } from "../math/BoundFrustum";
 
 export enum ShadowLightType{
+	/**直射光 */
 	DirectionLight,
+	/**聚光 */
 	SpotLight,
+	/**点光 */
 	PointLight
 }
 
+/**
+ * @internal
+ * <code>ShadowCasterPass</code> 类用于实现阴影渲染管线
+ */
 export class ShadowCasterPass {
 	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
@@ -50,6 +57,8 @@ export class ShadowCasterPass {
 	/** @internal */
 	static SHADOW_PARAMS: number = Shader3D.propertyNameToID("u_ShadowParams");
 	/** @internal */
+	static SHADOW_SPOTMAP_SIZE: number = Shader3D.propertyNameToID("u_SpotShadowMapSize");
+	/** @internal */
 	static SHADOW_SPOTMAP:number = Shader3D.propertyNameToID("u_SpotShadowMap");
 	/** @internal */
 	static SHADOW_SPOTMATRICES:number = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
@@ -66,6 +75,8 @@ export class ShadowCasterPass {
 	private _shadowParams: Vector4 = new Vector4();
 	/** @internal */
 	private _shadowMapSize: Vector4 = new Vector4();
+	/** @internal */
+	private _shadowSpotMapSize: Vector4 = new Vector4();
 	/** @internal */
 	private _shadowMatrices: Float32Array = new Float32Array(16 * (ShadowCasterPass._maxCascades));
 	/** @internal */
@@ -100,8 +111,16 @@ export class ShadowCasterPass {
 	}
 
 	/**
-     * @internal
-     */
+	 * 设置阴影级联数据模式
+	 * @internal
+	 * @param context 渲染上下文
+	 * @param shaderValues 渲染数据
+	 * @param shadowSliceData 分级数据
+	 * @param LightParam 灯光属性
+	 * @param shadowparams 阴影属性
+	 * @param shadowBias 阴影偏移
+	 * @param lightType 灯光类型
+	 */
 	private _setupShadowCasterShaderValues(context: RenderContext3D, shaderValues: ShaderData, shadowSliceData: any, LightParam: Vector3,shadowparams:Vector4, shadowBias: Vector4,lightType:LightType): void {
 		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
 		switch(lightType)
@@ -128,7 +147,9 @@ export class ShadowCasterPass {
 	
 
 	/**
+	 *设置直射光接受阴影的模式
 	 * @internal
+	 * @param shaderValues 渲染数据
 	 */
 	private _setupShadowReceiverShaderValues(shaderValues: ShaderData): void {
 		var light: DirectionLight = <DirectionLight>this._light;
@@ -158,7 +179,9 @@ export class ShadowCasterPass {
 	}
 
 	/**
-	 * @internal 
+	 * 设置聚光接受阴影的模式
+	 * @internal
+	 * @param shaderValues 渲染数据
 	 */
 	private _setupSpotShadowReceiverShaderValues(shaderValues:ShaderData):void{
 		var spotLight:SpotLight = <SpotLight>this._light;
@@ -178,13 +201,17 @@ export class ShadowCasterPass {
 		}
 		shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP,this._shadowSpotLightMap);
 		shaderValues.setMatrix4x4(ShadowCasterPass.SHADOW_SPOTMATRICES,this._shadowSpotMatrices)
-		shaderValues.setVector(ShadowCasterPass.SHADOW_MAP_SIZE, this._shadowMapSize);
+		shaderValues.setVector(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, this._shadowSpotMapSize);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS,this._shadowParams);
 	}
 
 
 	/**
+	 * 更新阴影数据
 	 * @internal
+	 * @param camera 渲染相机
+	 * @param light 灯光
+	 * @param lightType 灯光类型
 	 */
 	update(camera: Camera, light: LightSprite,lightType:ShadowLightType): void {
 		switch(lightType){
@@ -251,7 +278,7 @@ export class ShadowCasterPass {
 				this._shadowMapWidth = shadowResolution;
 				this._shadowMapHeight = shadowResolution;
 				var shadowSpotData:ShadowSpotData = this._shadowSpotData;
-				ShadowUtils.getSpotLightShadowData(shadowSpotData,<SpotLight>this._light,shadowResolution,this._shadowParams,this._shadowSpotMatrices,this._shadowMapSize);
+				ShadowUtils.getSpotLightShadowData(shadowSpotData,<SpotLight>this._light,shadowResolution,this._shadowParams,this._shadowSpotMatrices,this._shadowSpotMapSize);
 				break;
 			case ShadowLightType.PointLight:
 				//TODO:
@@ -264,7 +291,11 @@ export class ShadowCasterPass {
 	}
 
 	/**
-	 * @interal
+	 * 渲染阴影帧缓存
+	 * @internal
+	 * @param context 渲染上下文
+	 * @param scene 3DScene场景
+	 * @param lightType 阴影类型
 	 */
 	render(context: RenderContext3D, scene: Scene3D,lightType:ShadowLightType): void {
 		switch(lightType){
@@ -304,7 +335,7 @@ export class ShadowCasterPass {
 				shadowMap._end();
 				this._setupShadowReceiverShaderValues(shaderValues);
 				ShaderData.setRuntimeValueMode(true);
-				context.pipelineMode = "Forward";
+				context.pipelineMode = context.configPipeLineMode;
 				break;
 			case ShadowLightType.SpotLight:
 				var shaderValues:ShaderData = scene._shaderValues;
@@ -332,7 +363,7 @@ export class ShadowCasterPass {
 				shadowMap._end();
 				this._setupSpotShadowReceiverShaderValues(shaderValues);
 				ShaderData.setRuntimeValueMode(true);
-				context.pipelineMode = "Forward";
+				context.pipelineMode = context.configPipeLineMode;
 				break;
 			case ShadowLightType.PointLight:
 				//TODO:
@@ -345,6 +376,7 @@ export class ShadowCasterPass {
 	}
 
 	/**
+	 * 清理阴影数据
 	 * @internal
 	 */
 	cleanUp(): void {

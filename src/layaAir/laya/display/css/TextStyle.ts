@@ -108,7 +108,7 @@ export class TextStyle extends SpriteStyle {
 
     /**@inheritDoc	 */
     render(sprite: Sprite, context: Context, x: number, y: number): void {
-        (this.bgColor || this.borderColor) && context.drawRect(x, y, sprite.width, sprite.height, this.bgColor, this.borderColor, 1);
+		(this.bgColor || this.borderColor) && context.drawRect(x-this.pivotX, y-this.pivotY, sprite.width, sprite.height, this.bgColor, this.borderColor, 1);
     }
 }
 

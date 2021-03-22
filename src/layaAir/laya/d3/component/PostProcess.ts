@@ -1,16 +1,13 @@
 import { ILaya } from "../../../ILaya"
-import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat"
 import { Texture2D } from "../../resource/Texture2D"
 import { Camera } from "../core/Camera"
 import { CommandBuffer } from "../core/render/command/CommandBuffer"
 import { PostProcessEffect } from "../core/render/PostProcessEffect"
 import { PostProcessRenderContext } from "../core/render/PostProcessRenderContext"
-import { RenderContext3D } from "../core/render/RenderContext3D"
 import { RenderTexture } from "../resource/RenderTexture"
 import { Shader3D } from "../shader/Shader3D"
 import { ShaderData } from "../shader/ShaderData"
 import { ShaderDefine } from "../shader/ShaderDefine"
-import { Vector4 } from "../math/Vector4"
 import { Viewport } from "../math/Viewport"
 
 /**
@@ -55,9 +52,10 @@ export class PostProcess {
 	private _compositeShaderData: ShaderData = new ShaderData();
 	/**@internal */
 	private _effects: PostProcessEffect[] = [];
-
 	/**@internal */
-	_context: PostProcessRenderContext = null;
+	private _enable:boolean = true;
+	/**@internal */
+	_context: PostProcessRenderContext|null = null;
 
 
 	/**
@@ -66,14 +64,24 @@ export class PostProcess {
 	constructor() {
 		this._context = new PostProcessRenderContext();
 		this._context.compositeShaderData = this._compositeShaderData;
+		this._context.command = new CommandBuffer();
 	}
+
+	get enable():boolean{
+		return this._enable;
+	}
+
+	set enable(value:boolean){
+		this._enable = value;
+	}
+
 
 	/**
 	 *@internal
 	 */
-	_init(camera: Camera, command: CommandBuffer): void {
-		this._context.camera = camera;
-		this._context.command = command;
+	_init(camera: Camera): void {
+		this._context!.camera = camera;
+		this._context!.command!._camera = camera;
 	}
 
 	/**
@@ -83,39 +91,40 @@ export class PostProcess {
 		var noteValue: boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
 		ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
 
-		var camera: Camera = this._context.camera;
-		var viewport: Viewport = camera.viewport;
+		var camera = this._context!.camera;
+		var viewport: Viewport = camera!.viewport;
 
-		var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
-		var cameraTarget: RenderTexture = camera._internalRenderTexture;
-		this._context.command.clear();
-		this._context.source = screenTexture;
-		this._context.destination = cameraTarget;
-		this._context.compositeShaderData.clearDefine();
+		// var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+		
+		var cameraTarget: RenderTexture = camera!._internalRenderTexture;
+		var screenTexture:RenderTexture = cameraTarget;
+		this._context!.command!.clear();
+		this._context!.source = screenTexture;
+		this._context!.destination = cameraTarget;
+		this._context!.compositeShaderData!.clearDefine();
 
-		this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
+		//this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
 
-		this._context.compositeShaderData.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
+		this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
 
 		for (var i: number = 0, n: number = this._effects.length; i < n; i++)
-			this._effects[i].render(this._context);
+			this._effects[i].render(this._context!);
 
 		this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);
 		//dithering.Render(context);
 
-		var offScreenTex: RenderTexture = camera._offScreenRenderTexture;
-		var dest: RenderTexture = offScreenTex ? offScreenTex : null;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
-		this._context.destination = dest;
-		var canvasWidth: number = camera._getCanvasWidth(), canvasHeight: number = camera._getCanvasHeight();
-		camera._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
-		this._context.command.blitScreenTriangle(this._context.source, dest, camera._screenOffsetScale, this._compositeShader, this._compositeShaderData);
-
+		var offScreenTex: RenderTexture = camera!._offScreenRenderTexture;
+		var dest = offScreenTex ? offScreenTex : null;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
+		this._context!.destination = dest;
+		var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
+		camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+		this._context!.command!.blitScreenTriangle(this._context!.source, dest!, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData,0,true);
 		//context.source = context.destination;
 		//context.destination = finalDestination;
-
+		
 		//释放临时纹理
 		RenderTexture.recoverToPool(screenTexture);
-		var tempRenderTextures: RenderTexture[] = this._context.deferredReleaseTextures;
+		var tempRenderTextures: RenderTexture[] = this._context!.deferredReleaseTextures;
 		for (i = 0, n = tempRenderTextures.length; i < n; i++)
 			RenderTexture.recoverToPool(tempRenderTextures[i]);
 		tempRenderTextures.length = 0;
@@ -137,6 +146,14 @@ export class PostProcess {
 		var index: number = this._effects.indexOf(effect);
 		if (index !== -1)
 			this._effects.splice(index, 1);
+	}
+
+	/**
+	 * 调用指令集
+	 * @internal
+	 */
+	_applyPostProcessCommandBuffers():void{
+		this._context!.command!._apply();
 	}
 
 }

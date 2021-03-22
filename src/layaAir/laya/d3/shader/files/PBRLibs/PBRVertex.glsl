@@ -9,19 +9,28 @@ void vertexForward()
 {
 	vec4 position;
 	#ifdef BONE
-		mat4 skinTransform = u_Bones[int(a_BoneIndices.x)] * a_BoneWeights.x;
-		skinTransform += u_Bones[int(a_BoneIndices.y)] * a_BoneWeights.y;
-		skinTransform += u_Bones[int(a_BoneIndices.z)] * a_BoneWeights.z;
-		skinTransform += u_Bones[int(a_BoneIndices.w)] * a_BoneWeights.w;
+		mat4 skinTransform;
+	 	#ifdef SIMPLEBONE
+			float currentPixelPos;
+			#ifdef GPU_INSTANCE
+				currentPixelPos = a_SimpleTextureParams.x+a_SimpleTextureParams.y;
+			#else
+				currentPixelPos = u_SimpleAnimatorParams.x+u_SimpleAnimatorParams.y;
+			#endif
+			float offset = 1.0/u_SimpleAnimatorTextureSize;
+			skinTransform =  loadMatFromTexture(currentPixelPos,int(a_BoneIndices.x),offset) * a_BoneWeights.x;
+			skinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.y),offset) * a_BoneWeights.y;
+			skinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.z),offset) * a_BoneWeights.z;
+			skinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.w),offset) * a_BoneWeights.w;
+		#else
+			skinTransform =  u_Bones[int(a_BoneIndices.x)] * a_BoneWeights.x;
+			skinTransform += u_Bones[int(a_BoneIndices.y)] * a_BoneWeights.y;
+			skinTransform += u_Bones[int(a_BoneIndices.z)] * a_BoneWeights.z;
+			skinTransform += u_Bones[int(a_BoneIndices.w)] * a_BoneWeights.w;
+		#endif
 		position=skinTransform*a_Position;
-	#else
+	 #else
 		position=a_Position;
-	#endif
-
-	#ifdef GPU_INSTANCE
-		gl_Position = a_MvpMatrix * position;
-	#else
-		gl_Position = u_MvpMatrix * position;
 	#endif
 
 	mat4 worldMat;
@@ -31,14 +40,18 @@ void vertexForward()
 		worldMat = u_WorldMat;
 	#endif
 
+	#ifdef GPU_INSTANCE
+		gl_Position = u_ViewProjection * worldMat * position;
+	#else
+		gl_Position = u_MvpMatrix * position;
+	#endif
+
+	
+
 	v_PositionWorld=(worldMat*position).xyz;
 
 	#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
-		#ifdef TILINGOFFSET
-			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
-		#else
-			v_Texcoord0=a_Texcoord0;
-		#endif
+		v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 	#endif
 
 	v_EyeVec =u_CameraPos-v_PositionWorld;//will normalize per-pixel
@@ -70,14 +83,14 @@ void vertexForward()
 	#ifdef PARALLAXTEXTURE
 		vec3 binormal = cross(a_Normal, a_Tangent0.xyz)*a_Tangent0.w;
 		mat3 objectTBN = mat3(a_Tangent0.xyz, binormal, a_Normal);
-		v_ViewDirForParallax=(worldInvMat*u_CameraPos-position.xyz)*objectTBN;
+		v_ViewDirForParallax =(u_CameraPos*worldInvMat-position.xyz)*objectTBN;
 	#endif
 
 	#if defined(CALCULATE_SHADOWS)&&!defined(SHADOW_CASCADE)
 		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld,1.0));
 	#endif
 
-	#ifdef CALCULATE_SPOTSHADOWS
-		v_SpotShadowCoord = u_SpotViewProjectMatrix*vec4(positionWS,1.0);
+	#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
+		v_SpotShadowCoord = u_SpotViewProjectMatrix*vec4(v_PositionWorld,1.0);
 	#endif
 }

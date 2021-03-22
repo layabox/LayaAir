@@ -44,7 +44,7 @@ export class StatUI extends IStatRender {
 	 */
 	show(x: number = 0, y: number = 0): void {
 		var dt: any = Stat;
-		if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame && !Browser.onQQMiniGame && !Browser.onAlipayMiniGame && !Browser.onBLMiniGame && !Browser.onTTMiniGame && !Browser.onHWMiniGame) this._useCanvas = true;
+		if (!Browser._isMiniGame && !ILaya.Render.isConchApp) this._useCanvas = true;
 		this._show = true;
 		Stat._fpsData.length = 60;
 		this._view[0] = { title: "FPS(WebGL)", value: "_fpsStr", color: "yellow", units: "int" };
@@ -238,7 +238,7 @@ export class StatUI extends IStatRender {
 					ctx.fillText(one.title, one.x, one.y);
 				}
 				ctx.fillStyle = one.color;
-				value = Stat[one.value];
+				value = (Stat as any)[one.value];
 				(one.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100 + " M");
 				ctx.fillText(value + "", one.x + this._vx, one.y);
 			}
@@ -249,7 +249,7 @@ export class StatUI extends IStatRender {
 		var text: string = "";
 		for (var i: number = 0; i < this._view.length; i++) {
 			var one: any = this._view[i];
-			var value: any = Stat[one.value];
+			var value: any = (Stat as any)[one.value];
 			(one.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100 + " M");
 			(one.units == "K") && (value = Math.floor(value / (1024) * 100) / 100 + " K");
 			text += value + "\n";

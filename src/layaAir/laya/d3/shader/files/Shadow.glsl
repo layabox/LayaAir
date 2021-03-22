@@ -2,7 +2,7 @@
 	#define NO_NATIVE_SHADOWMAP
 #endif
 
-#ifdef NO_NATIVE_SHADOWMAP
+#if defined(NO_NATIVE_SHADOWMAP)
 	#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2D textureName
 	#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) (texture2D(textureName,coord3.xy).r<coord3.z?0.0:1.0)
 	#define TEXTURE2D_SHADOW_PARAM(shadowMap) mediump sampler2D shadowMap
@@ -25,8 +25,8 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 #if defined(CALCULATE_SHADOWS)||defined(CALCULATE_SPOTSHADOWS)
 	#include "ShadowSampleTent.glsl"
 	uniform vec4 u_ShadowMapSize;
+	uniform vec4 u_SpotShadowMapSize;
 	uniform vec4 u_ShadowParams; // x: shadowStrength y: ShadowSpotLightStrength
-
 	
 	float sampleShdowMapFiltered4(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowMapSize)
 	{
@@ -68,7 +68,7 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 
 
 
-#ifdef CALCULATE_SHADOWS
+#if defined(CALCULATE_SHADOWS)
 
 	TEXTURE2D_SHADOW(u_ShadowMap);
 
@@ -138,7 +138,7 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 	}
 #endif
 
-#ifdef CALCULATE_SPOTSHADOWS
+#if defined(CALCULATE_SPOTSHADOWS)//shader���Զ���ĺ겻����ifdef ����ĳ�if defined
 	TEXTURE2D_SHADOW(u_SpotShadowMap);
 	uniform mat4 u_SpotViewProjectMatrix;
 	float sampleSpotShadowmap(vec4 shadowCoord)
@@ -150,9 +150,9 @@ uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 		if(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)
 		{
 			#if defined(SHADOW_SPOT_SOFT_SHADOW_HIGH)
-				attenuation = sampleShdowMapFiltered9(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);
+				attenuation = sampleShdowMapFiltered9(u_SpotShadowMap,shadowCoord.xyz,u_SpotShadowMapSize);
 			#elif defined(SHADOW_SPOT_SOFT_SHADOW_LOW)
-				attenuation = sampleShdowMapFiltered4(u_SpotShadowMap,shadowCoord.xyz,u_ShadowMapSize);
+				attenuation = sampleShdowMapFiltered4(u_SpotShadowMap,shadowCoord.xyz,u_SpotShadowMapSize);
 			#else
 				attenuation = SAMPLE_TEXTURE2D_SHADOW(u_SpotShadowMap,shadowCoord.xyz);
 			#endif

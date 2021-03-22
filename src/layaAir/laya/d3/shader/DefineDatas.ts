@@ -48,13 +48,7 @@ export class DefineDatas implements IClone {
 			this._length = size;
 		}
 		else {
-			if (size > this._length) {//the real length is this._length, if size is large than real length should use "= instead "|=" to ignore dirty data.
-				mask[index] = define._value;
-				this._length = size;
-			}
-			else {
 				mask[index] |= define._value;
-			}
 		}
 	}
 
@@ -83,18 +77,19 @@ export class DefineDatas implements IClone {
 		var addMask: Array<number> = define._mask;
 		var size: number = define._length;
 		var mask: Array<number> = this._mask;
-		var maskStart: number = mask.length;
+		var maskStart: number = this._length;
 		if (maskStart < size) {
 			mask.length = size;
 			for (var i: number = 0; i < maskStart; i++)
 				mask[i] |= addMask[i];
-			for (; maskStart < size; maskStart++)
-				mask[maskStart] = addMask[maskStart];
+			for (; i < size; i++)
+				mask[i] = addMask[i];
 			this._length = size;
 		} else {
 			for (var i: number = 0; i < size; i++)
+			{
 				mask[i] |= addMask[i];
-			this._length = Math.max(this._length, size);
+			}
 		}
 	}
 
@@ -108,9 +103,8 @@ export class DefineDatas implements IClone {
 		var removeMask: Array<number> = define._mask;
 		var mask: Array<number> = this._mask;
 		var endIndex: number = this._length - 1;
-		for (var i: number = define._length - 1; i >= 0; i--) {
-			if (i > endIndex)
-				continue;
+		var i = Math.min(define._length,endIndex);
+		for (; i >= 0; i--) {
 			var newValue = mask[i] & ~removeMask[i];
 			if (i == endIndex && newValue === 0) {
 				endIndex--;

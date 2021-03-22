@@ -1,6 +1,5 @@
 import { Component } from "../../components/Component";
 import { Node } from "../../display/Node";
-import { Browser } from "../../utils/Browser";
 import { Camera } from "../core/Camera";
 import { DirectionLight } from "../core/light/DirectionLight";
 import { PointLight } from "../core/light/PointLight";
@@ -14,13 +13,22 @@ import { Sprite3D } from "../core/Sprite3D";
 import { TrailSprite3D } from "../core/trail/TrailSprite3D";
 import { StaticBatchManager } from "../graphics/StaticBatchManager";
 import { ClassUtils } from "../../utils/ClassUtils";
+import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
+import { ReflectionProbe } from "../core/reflectionProbe/ReflectionProbe";
 
 
 
 /**
+ * @internal
  * <code>Utils3D</code> 类用于创建3D工具。
  */
 export class Scene3DUtils {
+	/**
+	 * @internal
+	 * @param nodeData 创建数据
+	 * @param spriteMap 精灵集合
+	 * @param outBatchSprites 渲染精灵集合
+	 */
 	private static _createSprite3DInstance(nodeData: any, spriteMap: any, outBatchSprites: RenderableSprite3D[]): Node {
 		var node: Node;
 		switch (nodeData.type) {
@@ -36,6 +44,9 @@ export class Scene3DUtils {
 				break;
 			case "SkinnedMeshSprite3D":
 				node = new SkinnedMeshSprite3D();
+				break;
+			case "SimpleSkinnedMeshSprite3D":
+				node = new SimpleSkinnedMeshSprite3D();
 				break;
 			case "ShuriKenParticle3D":
 				node = new ShuriKenParticle3D();
@@ -55,6 +66,9 @@ export class Scene3DUtils {
 			case "TrailSprite3D":
 				node = new TrailSprite3D();
 				break;
+			case "ReflectionProbe":
+				node = new ReflectionProbe();
+				break;
 			default:
 				throw new Error("Utils3D:unidentified class type in (.lh) file.");
 		}
@@ -71,6 +85,12 @@ export class Scene3DUtils {
 		return node;
 	}
 
+	/**
+	 * @internal
+	 * @param nodeData 
+	 * @param spriteMap 
+	 * @param interactMap 
+	 */
 	private static _createComponentInstance(nodeData: any, spriteMap: any,interactMap:any): void {
 		var node: Node = spriteMap[nodeData.instanceID];
 		node._parse(nodeData.props, spriteMap);

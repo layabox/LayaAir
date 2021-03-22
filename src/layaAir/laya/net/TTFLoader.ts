@@ -22,7 +22,7 @@ export class TTFLoader {
     //TODO:coverage
     load(fontPath: string): void {
         this._url = fontPath;
-        var tArr: any[] = fontPath.split(".ttf")[0].split("/");
+        var tArr: any[] = fontPath.toLowerCase().split(".ttf")[0].split("/");
         this.fontName = tArr[tArr.length - 1];
         if (ILaya.Render.isConchApp) {
             this._loadConch();
@@ -45,7 +45,7 @@ export class TTFLoader {
 
     //TODO:coverage
     private _onHttpLoaded(data: any = null): void {
-        window["conchTextCanvas"].setFontFaceFromBuffer(this.fontName, data);
+        (window as any)["conchTextCanvas"].setFontFaceFromBuffer(this.fontName, data);
         this._clearHttp();
         this._complete();
     }

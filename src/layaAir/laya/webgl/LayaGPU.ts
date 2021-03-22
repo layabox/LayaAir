@@ -40,6 +40,8 @@ export class LayaGPU {
     _compressedTextureEtc1: any = null;
     /**@internal */
     _webgl_depth_texture: any = null;
+    /**@internal webgl1.0开启OES_texture_half_float_linear会默认开启这个扩展*/
+    _extColorBufferFloat:any = null;
 
     /**
      * @internal
@@ -68,9 +70,8 @@ export class LayaGPU {
 
             SystemUtils._shaderCapailityLevel = 30;
         } else {
-            this._getExtension("EXT_color_buffer_float");
+            this._extColorBufferFloat = this._getExtension("EXT_color_buffer_float");
             //this._getExtension("OES_texture_float_linear");
-
             SystemUtils._shaderCapailityLevel = 35;
         }
 

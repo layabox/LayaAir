@@ -199,7 +199,7 @@ export class Stage extends Sprite {
 			this._isFocused = false;
 			this.event(Event.BLUR);
 			this.event(Event.FOCUS_CHANGE);
-			if (this._isInputting()) Input["inputElement"].target.focus = false;
+			if (this._isInputting()) (Input["inputElement"] as any).target.focus = false;
 		});
 
 		// 各种浏览器兼容
@@ -222,7 +222,7 @@ export class Stage extends Sprite {
 		window.document.addEventListener(visibilityChange, ()=> {
 			if (Browser.document[state] == "hidden") {
 				this._isVisibility = false;
-				if (this._isInputting()) Input["inputElement"].target.focus = false;
+				if (this._isInputting()) (Input["inputElement"] as any).target.focus = false;
 			} else {
 				this._isVisibility = true;
 			}
@@ -233,7 +233,7 @@ export class Stage extends Sprite {
 			// 处理屏幕旋转。旋转后收起输入法。
 			var orientation: any = Browser.window.orientation;
 			if (orientation != null && orientation != this._previousOrientation && this._isInputting()) {
-				Input["inputElement"].target.focus = false;
+				(Input["inputElement"] as any).target.focus = false;
 			}
 			this._previousOrientation = orientation;
 
@@ -464,6 +464,8 @@ export class Stage extends Sprite {
 		super.set_transform(this.transform);
 		canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
 		canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
+		canvasStyle.width = canvasWidth;
+		canvasStyle.height = canvasHeight;
 		//修正用户自行设置的偏移
 		if (this._safariOffsetY) mat.translate(0, -this._safariOffsetY);
 		mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);

@@ -4,6 +4,7 @@ import { Vector3 } from "../../math/Vector3";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { ShadowMode } from "./ShadowMode";
+import { Matrix4x4 } from "../../math/Matrix4x4";
 
 /**
  * @internal
@@ -50,6 +51,8 @@ export class LightSprite extends Sprite3D {
 	_lightmapBakedType: number;
 	/** @internal */
 	_lightType: LightType;
+	/** @internal 因为scale会影响裁剪阴影*/
+	_lightWoldMatrix:Matrix4x4 = new Matrix4x4();
 
 	/** 灯光颜色。 */
 	color: Vector3;
@@ -161,6 +164,13 @@ export class LightSprite extends Sprite3D {
 		}
 	}
 
+	get lightWorldMatrix():Matrix4x4{
+		var position = this.transform.position;
+		var quaterian = this.transform.rotation;
+		Matrix4x4.createAffineTransformation(position,quaterian,Vector3._ONE,this._lightWoldMatrix);
+		return this._lightWoldMatrix;
+	}
+
 	/**
 	 * 创建一个 <code>LightSprite</code> 实例。
 	 */
@@ -183,6 +193,18 @@ export class LightSprite extends Sprite3D {
 		this.color.fromArray(colorData);
 		this.intensity = data.intensity;
 		this.lightmapBakedType = data.lightmapBakedType;
+	}
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
+	_cloneTo(destObject: any, rootSprite: Node, dstSprite: Node){
+		super._cloneTo(destObject, rootSprite, dstSprite);
+		var spriteLight = <LightSprite>destObject;
+		spriteLight.color = this.color.clone();
+		spriteLight.intensity = this.intensity;
+		spriteLight.lightmapBakedType = this.lightmapBakedType;
 	}
 
 	/**
@@ -215,9 +237,9 @@ export class LightSprite extends Sprite3D {
 			scene._lightCount--;
 			this._removeFromLightQueue();
 			if (scene._alternateLights._length > 0) {
-				var alternateLight: LightSprite = scene._alternateLights.shift();
-				alternateLight._addToLightQueue();
-				alternateLight._isAlternate = false;
+				var alternateLight = scene._alternateLights.shift();
+				alternateLight!._addToLightQueue();
+				alternateLight!._isAlternate = false;
 				scene._lightCount++;
 			}
 		}
@@ -273,5 +295,6 @@ export class LightSprite extends Sprite3D {
 		console.log("LightSprite: discard property,please use color property instead.");
 		this.color = value;
 	}
+	
 }
 

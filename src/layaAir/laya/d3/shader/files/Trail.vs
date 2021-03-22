@@ -1,3 +1,8 @@
+#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了
+	precision highp float;
+#else
+	precision mediump float;
+#endif
 #include "Lighting.glsl";
 
 attribute vec3 a_Position;
@@ -70,14 +75,12 @@ void main()
 {
 	float normalizeTime = (u_CurTime - a_BirthTime) / u_LifeTime;
 	
-	#ifdef TILINGOFFSET
-		v_Texcoord0 = vec2(a_Texcoord0X, 1.0 - a_Texcoord0Y) * u_TilingOffset.xy + u_TilingOffset.zw;
-	#else
-		v_Texcoord0 = vec2(a_Texcoord0X, a_Texcoord0Y);
-	#endif
+	v_Texcoord0 = vec2(a_Texcoord0X, 1.0 - a_Texcoord0Y) * u_TilingOffset.xy + u_TilingOffset.zw;
 	
 	v_Color = a_Color;
 	
-	gl_Position = u_Projection * u_View * vec4(a_Position + a_OffsetVector * getCurWidth(normalizeTime),1.0);
+	vec3 cameraPos = (u_View*vec4(a_Position,1.0)).rgb;
+	gl_Position = u_Projection * vec4(cameraPos+a_OffsetVector * getCurWidth(normalizeTime),1.0);
+
 	gl_Position=remapGLPositionZ(gl_Position);
 }

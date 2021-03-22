@@ -30,12 +30,12 @@ export class SubmitTarget implements ISubmit {
     constructor() {
     }
 
-    static POOL: any = [];
+    static POOL: SubmitTarget[] = [];
     renderSubmit(): number {
-        var gl: WebGLRenderingContext = WebGLContext.mainContext;
+        var gl = WebGLContext.mainContext;
         this._mesh.useMesh(gl);
 
-        var target: RenderTexture2D = this.srcRT;
+        var target = this.srcRT;
         if (target) {//??为什么会出现为空的情况
             this.shaderValue.texture = target._getSource();
             this.shaderValue.upload();
@@ -49,7 +49,7 @@ export class SubmitTarget implements ISubmit {
 
     blend(): void {
         if (BlendMode.activeBlendFunction !== BlendMode.fns[this.blendType]) {
-            var gl: WebGLRenderingContext = WebGLContext.mainContext;
+            var gl = WebGLContext.mainContext;
             gl.enable(gl.BLEND);
             BlendMode.fns[this.blendType](gl);
             BlendMode.activeBlendFunction = BlendMode.fns[this.blendType];
@@ -68,7 +68,7 @@ export class SubmitTarget implements ISubmit {
     }
 
     static create(context: Context, mesh: Mesh2D, sv: Value2D, rt: RenderTexture2D): SubmitTarget {
-        var o: SubmitTarget = SubmitTarget.POOL._length ? SubmitTarget.POOL[--SubmitTarget.POOL._length] : new SubmitTarget();
+        var o: SubmitTarget = (SubmitTarget.POOL as any)._length ? SubmitTarget.POOL[--(SubmitTarget.POOL as any)._length] : new SubmitTarget();
         o._mesh = mesh;
         o.srcRT = rt;
         o._startIdx = mesh.indexNum * CONST3D2D.BYTES_PIDX;
@@ -82,14 +82,15 @@ export class SubmitTarget implements ISubmit {
         if (context._colorFiler) {
             var ft: ColorFilter = context._colorFiler;
             sv.defines.add(ft.type);
-            ((<TextureSV>sv)).colorMat = ft._mat;
-            ((<TextureSV>sv)).colorAlpha = ft._alpha;
+            (<TextureSV>sv).colorMat = ft._mat;
+            (<TextureSV>sv).colorAlpha = ft._alpha;
         }
         return o;
     }
 }
+
 {
-    SubmitTarget.POOL._length = 0;
+    (SubmitTarget.POOL as any)._length = 0;
 }
 
 

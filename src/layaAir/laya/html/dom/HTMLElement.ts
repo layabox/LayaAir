@@ -11,8 +11,11 @@ import { ILaya } from "../../../ILaya";
 import { IHtml } from "../utils/IHtml";
 import { ClassUtils } from "../../utils/ClassUtils";
 
+/**HTML元素类型 */
 export enum HTMLElementType {
+    /**基础类型 */
     BASE = 0,
+    /**图片类型 */
     IMAGE = 1
 }
 /**
@@ -333,7 +336,7 @@ export class HTMLElement {
                 this.height = parseFloat(value);
                 break;
             default:
-                this[name] = value;
+                (this as any)[name] = value;
         }
     }
 

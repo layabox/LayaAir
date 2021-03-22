@@ -1,0 +1,44 @@
+{
+	"version":"LAYAMATERIAL:02",
+	"props":{
+		"type":"Laya.SkyProceduralMaterial",
+		"name":"New Material",
+		"textures":[],
+		"vectors":[
+			{
+				"name":"skyTint",
+				"value":[
+					0.2264151,
+					0.2264151,
+					0.2264151,
+					1
+				]
+			},
+			{
+				"name":"groundTint",
+				"value":[
+					0.369,
+					0.349,
+					0.341,
+					1
+				]
+			}
+		],
+		"defines":[
+			"SUNDISK_HIGH_QUALITY",
+			"_SUNDISK_HIGH_QUALITY"
+		],
+		"cull":2,
+		"blendSrc":1,
+		"blendDst":0,
+		"blend":0,
+		"depthWrite":true,
+		"depthTest":515,
+		"renderQueue":1000,
+		"sunDisk":2,
+		"sunSize":0.04,
+		"sunSizeConvergence":5,
+		"atmosphereThickness":1,
+		"exposure":1.3
+	}
+}

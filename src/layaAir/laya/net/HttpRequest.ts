@@ -48,7 +48,7 @@ export class HttpRequest extends EventDispatcher {
         this._responseType = responseType;
         this._data = null;
 
-        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame || Browser.onBLMiniGame || Browser.onHWMiniGame || Browser.onTTMiniGame) {
+        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame || Browser.onBLMiniGame || Browser.onHWMiniGame || Browser.onTTMiniGame || Browser.onTBMiniGame) {
             url = HttpRequest._urlEncode(url);
         }
         this._url = url;
@@ -65,8 +65,10 @@ export class HttpRequest extends EventDispatcher {
         } else if (!(((<any>window)).conch)) {
             if (!data || typeof (data) == 'string') http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 			else{ 
-				http.setRequestHeader("Content-Type", "application/json");
-				isJson=true;
+                http.setRequestHeader("Content-Type", "application/json");
+                if (!(data instanceof ArrayBuffer) && typeof data !== "string") {
+                    isJson=true;
+                }
 			}
         }
         let restype: XMLHttpRequestResponseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";

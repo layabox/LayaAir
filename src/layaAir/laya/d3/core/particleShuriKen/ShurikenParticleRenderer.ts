@@ -1,9 +1,4 @@
-import { Render } from "../../../renders/Render";
-import { FrustumCulling } from "../../graphics/FrustumCulling";
-import { BoundBox } from "../../math/BoundBox";
 import { BoundFrustum } from "../../math/BoundFrustum";
-import { ContainmentType } from "../../math/ContainmentType";
-import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
 import { ShaderData } from "../../shader/ShaderData";
@@ -15,6 +10,7 @@ import { Transform3D } from "../Transform3D";
 import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
+import { Vector2 } from "../../math/Vector2";
 
 
 /**
@@ -23,12 +19,6 @@ import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderD
 export class ShurikenParticleRenderer extends BaseRender {
 	/** @internal */
 	private _finalGravity: Vector3 = new Vector3();
-
-	/** @internal */
-	private _tempRotationMatrix: Matrix4x4 = new Matrix4x4();
-
-	/**@internal */
-	private _defaultBoundBox: BoundBox;
 
 	///**排序模式,无。*/
 	//public const SORTINGMODE_NONE:int = 0;
@@ -129,7 +119,6 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 */
 	constructor(owner: ShuriKenParticle3D) {
 		super(owner);
-		this._defaultBoundBox = new BoundBox(new Vector3(), new Vector3());
 		this.renderMode = 0;
 		//sortingMode = SORTINGMODE_NONE;
 		this._supportOctree = false;
@@ -140,36 +129,37 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 * @internal
 	 * @override
 	 */
-	protected _calculateBoundingBox(): void {//TODO:日后需要计算包围盒的更新
-		//var particleSystem:ShurikenParticleSystem = (_owner as ShuriKenParticle3D).particleSystem;
-		//particleSystem._generateBoundingBox();
-		//var rotation:Quaternion = _owner.transform.rotation;
-		//var corners:Vector.<Vector3> = particleSystem._boundingBoxCorners;
-		//for (var i:int = 0; i < 8; i++)
-		//	Vector3.transformQuat(corners[i], rotation, _tempBoudingBoxCorners[i]);
-		//BoundBox.createfromPoints(_tempBoudingBoxCorners, _boundingBox);
+	protected _calculateBoundingBox(): void {
 
-		var min: Vector3 = this._bounds.getMin();
-		min.x = -Number.MAX_VALUE;
-		min.y = -Number.MAX_VALUE;
-		min.z = -Number.MAX_VALUE;
-		this._bounds.setMin(min);
-		var max: Vector3 = this._bounds.getMax();
-		max.x = Number.MAX_VALUE;
-		max.y = Number.MAX_VALUE;
-		max.z = Number.MAX_VALUE;
-		this._bounds.setMax(max);
-
-		if (Render.supportWebGLPlusCulling) {//[NATIVE]
+		var particleSystem: ShurikenParticleSystem = (this._owner as ShuriKenParticle3D).particleSystem;
+		var bounds: Bounds;
+		if (particleSystem._useCustomBounds) {
+			bounds = particleSystem.customBounds;
+			bounds._tranform(this._owner.transform.worldMatrix, this._bounds);
+		}
+		else if (particleSystem._simulationSupported()) {
+			// todo need update Bounds
+			particleSystem._generateBounds();
+			bounds = particleSystem._bounds;
+			bounds._tranform(this._owner.transform.worldMatrix, this._bounds);
+			// 在世界坐标下考虑重力影响
+			if (particleSystem.gravityModifier != 0) {
+				var max: Vector3 = this._bounds.getMax();
+				var min: Vector3 = this._bounds.getMin();
+				var gravityOffset: Vector2 = particleSystem._gravityOffset;
+				max.y -= gravityOffset.x;
+				min.y -= gravityOffset.y;
+				this._bounds.setMax(max);
+				this._bounds.setMin(min);
+			}                               
+		}
+		else {
 			var min: Vector3 = this._bounds.getMin();
+			min.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+			this._bounds.setMin(min);
 			var max: Vector3 = this._bounds.getMax();
-			var buffer: Float32Array = FrustumCulling._cullingBuffer;
-			buffer[this._cullingBufferIndex + 1] = min.x;
-			buffer[this._cullingBufferIndex + 2] = min.y;
-			buffer[this._cullingBufferIndex + 3] = min.z;
-			buffer[this._cullingBufferIndex + 4] = max.x;
-			buffer[this._cullingBufferIndex + 5] = max.y;
-			buffer[this._cullingBufferIndex + 6] = max.z;
+			max.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+			this._bounds.setMax(max);
 		}
 	}
 

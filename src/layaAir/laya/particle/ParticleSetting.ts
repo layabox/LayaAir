@@ -153,7 +153,7 @@ export class ParticleSetting {
         var key: string;
         for (key in ParticleSetting._defaultSetting) {
             if (!(key in setting)) {
-                setting[key] = ParticleSetting._defaultSetting[key];
+                setting[key] = (ParticleSetting._defaultSetting as any)[key];
             }
         }
         //强转一下防止出错。这几个变量会直接传给shader，如果不是数字的话，有的runtime受不了（例如微信）

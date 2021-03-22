@@ -2,7 +2,7 @@ import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
 
 /**
- * <code>ConeColliderShape</code> 类用于创建圆柱碰撞器。
+ * <code>ConeColliderShape</code> 类用于创建圆锥碰撞器。
  */
 export class ConeColliderShape extends ColliderShape {
 	private _orientation: number;
@@ -58,8 +58,10 @@ export class ConeColliderShape extends ColliderShape {
 	}
 
 	/**
+	 * 克隆
 	 * @inheritDoc
 	 * @override
+	 * @returns 克隆的ConeColliderShape实例
 	 */
 	clone(): any {
 		var dest: ConeColliderShape = new ConeColliderShape(this._radius, this._height, this._orientation);

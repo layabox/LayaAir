@@ -8,6 +8,14 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { ClassUtils } from "../utils/ClassUtils";
 
+/**@private */
+interface ITreeDataSource{
+    x:number;
+    hasChild:boolean;
+    isOpen:boolean;
+    isDirectory:boolean;
+}
+
 /**
  * 实例的 <code>selectedIndex</code> 属性发生变化时调度。
  * @eventType laya.events.Event
@@ -452,6 +460,7 @@ export class Tree extends Box implements IRender {
         super.height = value;
         this._list.height = value;
     }
+
     /**
      * @inheritDoc 
      * @override
@@ -510,10 +519,10 @@ export class Tree extends Box implements IRender {
      * @param index 项的索引。
      */
     protected renderItem(cell: Box, index: number): void {
-        var item: any = cell.dataSource;
+        var item: ITreeDataSource = cell.dataSource;
         if (item) {
             cell.left = item.x;
-            var arrow: Clip = (<Clip>cell.getChildByName("arrow"));
+            var arrow = cell.getChildByName("arrow") as Clip;
             if (arrow) {
                 if (item.hasChild) {
                     arrow.visible = true;
@@ -525,7 +534,7 @@ export class Tree extends Box implements IRender {
                     arrow.visible = false;
                 }
             }
-            var folder: Clip = (<Clip>cell.getChildByName("folder"));
+            var folder = cell.getChildByName("folder") as Clip;
             if (folder) {
                 if (folder.clipY == 2) {
                     folder.index = item.isDirectory ? 0 : 1;
@@ -541,8 +550,8 @@ export class Tree extends Box implements IRender {
      * @private
      */
     private onArrowClick(e: Event): void {
-        var arrow: Clip = (<Clip>e.currentTarget);
-        var index: number = arrow.tag;
+        var arrow = (<Clip>e.currentTarget);
+        var index = arrow.tag;
         this._list.array[index].isOpen = !this._list.array[index].isOpen;
         this.event(Event.OPEN);
         this._list.array = this.getArray();
@@ -601,10 +610,10 @@ export class Tree extends Box implements IRender {
     protected parseXml(xml: ChildNode, source: any[], nodeParent: any, isRoot: boolean): void {
         var obj: any;
         var list = xml.childNodes;
-        var childCount: number = list.length;
+        var childCount = list.length;
         if (!isRoot) {
             obj = {};
-            var list2: any = (xml as any).attributes;
+            var list2 = (xml as any).attributes;
             for (let key in list2) {
                 var attrs = list2[key];
                 var prop: string = attrs.nodeName;
@@ -616,7 +625,7 @@ export class Tree extends Box implements IRender {
             obj.hasChild = childCount > 0;
             source.push(obj);
         }
-        for (var i: number = 0; i < childCount; i++) {
+        for (var i = 0; i < childCount; i++) {
             var node = list[i];
             this.parseXml(node, source, obj, false);
         }
@@ -627,11 +636,11 @@ export class Tree extends Box implements IRender {
      * 处理数据项的打开状态。
      */
     protected parseOpenStatus(oldSource: any[], newSource: any[]): void {
-        for (var i: number = 0, n: number = newSource.length; i < n; i++) {
-            var newItem: any = newSource[i];
+        for (var i = 0, n = newSource.length; i < n; i++) {
+            var newItem = newSource[i];
             if (newItem.isDirectory) {
-                for (var j: number = 0, m: number = oldSource.length; j < m; j++) {
-                    var oldItem: any = oldSource[j];
+                for (var j = 0, m = oldSource.length; j < m; j++) {
+                    var oldItem = oldSource[j];
                     if (oldItem.isDirectory && this.isSameParent(oldItem, newItem) && newItem.label == oldItem.label) {
                         newItem.isOpen = oldItem.isOpen;
                         break;

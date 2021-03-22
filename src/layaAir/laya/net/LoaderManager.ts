@@ -202,6 +202,11 @@ export class LoaderManager extends EventDispatcher {
             return this._loadAssets(url, complete, progress, type, priority, cache, group);
         }
 
+        if (!type) {
+            if (url.indexOf("data:image") === 0) type = Loader.IMAGE;
+            else type = Loader.getTypeFromUrl(url);
+        }
+        
         var content: any;
         if (type === Loader.IMAGE)
             content = Loader.textureMap[URL.formatURL(url)];
@@ -580,6 +585,7 @@ export class LoaderManager extends EventDispatcher {
     }
 }
 
+/** @internal */
 class ResInfo extends EventDispatcher {
     url: string;
     type: string|null;
@@ -595,11 +601,18 @@ class ResInfo extends EventDispatcher {
 }
 
 export interface loadItem{
+    /**@internal */
     url:string;
+    /**@internal */
     type?:string;
+    /**@internal */
     size?:number;
+    /**@internal */
     priority?:number;
+    /**@internal */
     useWorkerLoader?:boolean;
+    /**@internal */
     progress?:number;
+    /**@internal */
     group?:string;
 }

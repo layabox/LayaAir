@@ -1,0 +1,33 @@
+{
+	"version":"LAYAMATERIAL:02",
+	"props":{
+		"type":"Laya.BlinnPhongMaterial",
+		"name":"DepthTest",
+		"renderStates":[
+			{
+				"cull":2,
+				"blend":0,
+				"srcBlend":1,
+				"dstBlend":0,
+				"depthWrite":true,
+				"depthTest":515
+			}
+		],
+		"alphaTest":false,
+		"alphaTestValue":0.5,
+		"renderQueue":2000,
+		"textures":[],
+		"vectors":[
+			{
+				"name":"tilingOffset",
+				"value":[
+					1,
+					1,
+					0,
+					0
+				]
+			}
+		],
+		"defines":[]
+	}
+}

@@ -1,7 +1,7 @@
 attribute vec4 a_Position;
 
 #ifdef GPU_INSTANCE
-	attribute mat4 a_MvpMatrix;
+	uniform mat4 u_ViewProjection;
 	attribute mat4 a_WorldMat;
 #else
 	uniform mat4 u_MvpMatrix;
@@ -50,10 +50,8 @@ varying float v_posViewZ;
 	varying vec4 v_ShadowCoord;
 #endif
 
-#ifdef CALCULATE_SPOTSHADOWS
+#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 	varying vec4 v_SpotShadowCoord;
 #endif
 
-#ifdef TILINGOFFSET
-	uniform vec4 u_TilingOffset;
-#endif
+uniform vec4 u_TilingOffset;

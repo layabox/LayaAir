@@ -62,7 +62,7 @@ import { Browser } from "laya/utils/Browser"
 			{
 				DebugTool.showDisBoundToSprite((this as any), DebugInfoLayer.I.cacheViewLayer, DebugConsts.SPRITE_REC_COLOR, DebugConsts.SPRITE_REC_LINEWIDTH);
 			}
-			RenderSprite.renders[this._renderType]._fun(this, context, x + this._x, y + this._y);
+			(RenderSprite.renders[this._renderType] as any)._fun(this, context, x + this._x, y + this._y);
 			this._repaint = 0;
 			RenderAnalyser.I.render((this as any), Browser.now() - preTime);
 		}
