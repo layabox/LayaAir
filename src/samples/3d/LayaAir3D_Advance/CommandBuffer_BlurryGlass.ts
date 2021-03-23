@@ -81,7 +81,7 @@ export class CommandBuffer_BlurryGlass {
 		var downSampleWidth:number = viewPort.width/downSampleFactor;
 		var downSampleheigh:number = viewPort.height/downSampleFactor;
 		//设置模糊材质参数
-		var texSize:Vector4 = new Vector4(1.0/viewPort.width,1.0/viewPort.height,viewPort.width,downSampleheigh);
+		var texSize:Vector4 = new Vector4(1.0/viewPort.width,1.0/viewPort.height,viewPort.width,downSampleheigh);//材质所在坐标位置
 		shaderValue.setNumber(BlurEffect.SHADERVALUE_DOWNSAMPLEVALUE,1);
 		shaderValue.setVector(BlurEffect.SHADERVALUE_TEXELSIZE,texSize);
 		//创建降采样RenderTexture1

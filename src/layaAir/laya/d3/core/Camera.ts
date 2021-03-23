@@ -33,6 +33,7 @@ import { ILaya3D } from "../../../ILaya3D";
 import { ShadowUtils } from "./light/ShadowUtils";
 import { SpotLight } from "./light/SpotLight";
 import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
+import { PerformancePlugin } from "../../../Performance";
 
 /**
  * 相机清除标记。
@@ -596,6 +597,7 @@ export class Camera extends BaseCamera {
 	 * @param context 
 	 */
 	_applyCommandBuffer(event:number,context:RenderContext3D){
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER);
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var commandBufferArray:CommandBuffer[] = this._cameraEventCommandBuffer[event];
 		if(!commandBufferArray||commandBufferArray.length==0)
@@ -614,6 +616,7 @@ export class Camera extends BaseCamera {
 		}
 		//TODO：优化 恢复渲染区域
 		gl.viewport(0,0,context.viewport.width, context.viewport.height);
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER);
 	}
 
 
@@ -624,6 +627,7 @@ export class Camera extends BaseCamera {
 	 * @param context 渲染上下文
 	 */
 	_renderShadowMap(scene:Scene3D,context:RenderContext3D){
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_SHADOWMAP);
 		//render shadowMap
 		var shadowCasterPass;
 		var mainDirectLight: DirectionLight = scene._mainDirectionLight;
@@ -654,7 +658,10 @@ export class Camera extends BaseCamera {
 			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 		if(spotneedShadowCasterPass)	
 			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+		
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_SHADOWMAP);
 		return needShadowCasterPass||spotneedShadowCasterPass;
+		
 	}
 
 	/**
@@ -709,10 +716,12 @@ export class Camera extends BaseCamera {
 		context.viewport = viewport;
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CLUSTER);
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
-		
-
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CLUSTER);		
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
 		scene._preCulling(context, this, shader, replacementTag);
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
 		if(this.depthTextureMode!=0){
 			//TODO:是否可以不多次
 			this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
@@ -725,20 +734,25 @@ export class Camera extends BaseCamera {
 		scene._clear(gl, context);
 	
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
 		scene._renderScene(context,ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox,context);
 		scene._renderScene(context,ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
 		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent,context);
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT);
 		scene._renderScene(context,ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
-		
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT);
 		scene._postRenderScript();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect,context);
 		(renderTex) && (renderTex._end());
 		
 		if (needInternalRT) {
 			if (this._postProcess&&this._postProcess.enable) {
+				PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
 				this._postProcess._render();
 				this._postProcess._applyPostProcessCommandBuffers();
+				PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
 			} else if (this._enableHDR||this._needBuiltInRenderTexture) {
 				var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
 				this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
@@ -756,6 +770,7 @@ export class Camera extends BaseCamera {
 	 * @internal
 	 */
 	_renderDepthMode(context:RenderContext3D){
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE);
 		var cameraDepthMode = this._depthTextureMode;
 		if((cameraDepthMode&DepthTextureMode.Depth)!=0){
 			Camera.depthPass.update(this,DepthTextureMode.Depth);
@@ -765,7 +780,7 @@ export class Camera extends BaseCamera {
 			Camera.depthPass.update(this,DepthTextureMode.DepthNormals);
 			Camera.depthPass.render(context,DepthTextureMode.DepthNormals);
 		}
-		
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE);
 	}
 
 	/**
