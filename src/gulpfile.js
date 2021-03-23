@@ -139,6 +139,13 @@ var packsDef = [
             './extensions/debug/**/*.*'
         ],
         'out': '../build/js/libs/laya.debugtool.js'
+    },
+    {
+        "libName": 'perforManceTool',
+        'input':[
+            './extensions/performanceTool/**/*.*'
+        ],
+        'out':'../build/js/libs/laya.performancetool.js'
     }
 ];
 

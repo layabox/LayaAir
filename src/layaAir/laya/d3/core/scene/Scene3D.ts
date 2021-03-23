@@ -67,6 +67,7 @@ import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsCompone
 import { VideoTexture } from "../../../resource/VideoTexture";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
 import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
+import { PerformancePlugin } from "../../../../Performance";
 /**
  * 环境光模式
  */
@@ -661,22 +662,28 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		var delta: number = this.timer._delta / 1000;
 		this._time += delta;
 		this._shaderValues.setNumber(Scene3D.TIME, this._time);
-
+		//Physics
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS);
 		var simulation: PhysicsSimulation = this._physicsSimulation;
 		if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && !Config3D._config.isUseCannonPhysicsEngine) {
 			simulation._updatePhysicsTransformFromRender();
 			PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
 			//simulate physics
+			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_SIMULATE);
 			simulation._simulate(delta);
+			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_SIMULATE);
 			//update character sprite3D transforms from physics engine simulation
+			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_CHARACTORCOLLISION);
 			simulation._updateCharacters();
 			PhysicsComponent._addUpdateList = true;
-
 			//handle frame contacts
 			simulation._updateCollisions();
-
+			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_CHARACTORCOLLISION);
+			
+			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_EVENTSCRIPTS);
 			//send contact events
 			simulation._eventScripts();
+			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_EVENTSCRIPTS);
 		}
 		if (Physics3D._cannon && Config3D._config.isUseCannonPhysicsEngine) {
 			var cannonSimulation: CannonPhysicsSimulation = this._cannonPhysicsSimulation;
@@ -687,6 +694,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			cannonSimulation._updateCollisions();
 			cannonSimulation._eventScripts();
 		}
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS);
+		//update Scripts
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_UPDATESCRIPT);
 		this._input._update();
 
 		this._clearScript();
@@ -698,6 +708,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		else
 			this._reflectionProbeManager.update();
 		this._lateUpdateScript();
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_UPDATESCRIPT);
 	}
 
 	/**
@@ -1368,15 +1379,20 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 渲染入口
 	 */
 	renderSubmit(): number {
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		this._prepareSceneToRender();
 		var i: number, n: number, n1: number;
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
+			
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
 			if (Render.supportWebGLPlusRendering)
 				ShaderData.setRuntimeValueMode((i == n1) ? true : false);
 			var camera: Camera = (<Camera>this._cameraPool[i]);
 			camera.enableRender && camera.render();
 		}
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
 		Context.set2DRenderConfig();//还原2D配置
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		return 1;
 	}
 
