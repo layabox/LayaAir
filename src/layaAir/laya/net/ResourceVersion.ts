@@ -44,7 +44,6 @@ export class ResourceVersion {
      * @return 格式化后的新路径。
      */
     static addVersionPrefix(originURL: string): string {
-        originURL = URL.getAdptedFilePath(originURL);
         if (ResourceVersion.manifest && ResourceVersion.manifest[originURL]) {
             if (ResourceVersion.type == ResourceVersion.FILENAME_VERSION) return ResourceVersion.manifest[originURL];
             return ResourceVersion.manifest[originURL] + "/" + originURL;
