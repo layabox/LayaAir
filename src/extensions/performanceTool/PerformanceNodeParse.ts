@@ -1,5 +1,5 @@
 import { Byte } from "laya/utils/Byte";
-import { PerformanceDataTool, PerforManceNode } from "./PerformanceData";
+import { PerformanceDataTool, PerforManceNode } from "./PerformanceDataTool";
 
 export class PerformanceNodeParse{
     private static _readData:Byte;

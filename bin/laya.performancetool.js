@@ -136,8 +136,8 @@
         }
         EndSample(samplePath) {
             if (!this.enable)
-                return;
-            this._runtimeNode.getFunEnd(this.getNodePathIndex(samplePath));
+                return 0;
+            return this._runtimeNode.getFunEnd(this.getNodePathIndex(samplePath));
         }
         AddMemory(memoryPath, size) {
             this._memoryDataMap[memoryPath] = this._memoryDataMap[memoryPath] ? (this._memoryDataMap[memoryPath] + size) : size;
@@ -156,6 +156,9 @@
             this._pathColor = {};
             this._pathCount = 0;
         }
+        exportFrontNode(perforNode) {
+            this.exportFrontNodeFn.call(this, perforNode);
+        }
         update() {
             let currentFrame = Laya.Stat.loopCount;
             let nodelenth = ((currentFrame - this._startFram) / this.samplerFramStep) | 0;
@@ -167,6 +170,7 @@
                 for (let i in this._memoryDataMap) {
                     this._runtimeNode.setMemory(this.getNodePathIndex(i), this._memoryDataMap[i]);
                 }
+                this.exportFrontNode(this._runtimeNode);
                 this._runtimeNode = PerforManceNode.create(this._pathCount);
                 this._nodeList.push(this._runtimeNode);
             }
@@ -200,6 +204,8 @@
     PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER = "Laya/3D/Render/RenderCommandBuffer";
     PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT = "Laya/3D/Render/RenderTransparent";
     PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS = "Laya/3D/Render/PostProcess";
+    PerformanceDataTool.text = new Laya.Stat();
+    PerformanceDataTool.text2 = new Laya.Byte();
     PerformanceDataTool._surpport = false;
     class PerforManceNode {
         constructor() {
@@ -241,6 +247,7 @@
                 this.nodeDelty[index] = (this.nodeStart[index] != 0) ? (performance.now() - this.nodeStart[index]) : 0;
                 this.nodeNum = this.nodeDelty.length;
             }
+            return this.nodeDelty[index];
         }
         setMemory(index, value) {
             this.nodeDelty[index] = value;
