@@ -64,7 +64,7 @@ export class DialogManager extends Sprite {
 
     private _closeOnSide(): void {
         var dialog: Dialog = (<Dialog>this.getChildAt(this.numChildren - 1));
-        if (dialog instanceof IUI.Dialog) dialog.close();
+        if (dialog instanceof IUI.Dialog) dialog.close("side");
     }
 
     /**设置锁定界面，如果为空则什么都不显示*/

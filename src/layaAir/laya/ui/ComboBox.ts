@@ -165,11 +165,13 @@ export class ComboBox extends UIComponent {
         this.labels = labels;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  destroy(destroyChild: boolean = true): void {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+	destroy(destroyChild: boolean = true): void {
+        ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
+        ILaya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
         super.destroy(destroyChild);
         this._button && this._button.destroy(destroyChild);
         this._list && this._list.destroy(destroyChild);
@@ -180,11 +182,11 @@ export class ComboBox extends UIComponent {
         this._selectHandler = null;
     }
 
-		/**
-		 * @inheritDoc 
-         * @override
-		*/
-		/*override*/ protected createChildren(): void {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+	protected createChildren(): void {
         this.addChild(this._button = new Button());
         this._button.text.align = "left";
         this._button.labelPadding = "0,0,0,5";
@@ -233,19 +235,19 @@ export class ComboBox extends UIComponent {
         }
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/ protected measureWidth(): number {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+	protected measureWidth(): number {
         return this._button.width;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/ protected measureHeight(): number {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+	protected measureHeight(): number {
         return this._button.height;
     }
 
