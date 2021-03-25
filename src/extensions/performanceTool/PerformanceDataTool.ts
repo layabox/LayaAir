@@ -28,8 +28,8 @@ export class PerformanceDataTool{
     public static PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS:string = "Laya/3D/Render/PostProcess";
 
 
-    
-    
+    private static text:Stat = new Stat();
+    private static text2:Byte = new Byte();
     
     /**数据保存路径 */
     public static exportPath:string;
@@ -54,7 +54,7 @@ export class PerformanceDataTool{
     /**Memory格式的数据 */
     _memoryDataMap:{[key:string]:number} = {};
 
-    
+    exportFrontNodeFn:any;
     /**
      * 数据中存入Laya引擎自身的检测数据
      */
@@ -268,6 +268,11 @@ export class PerformanceDataTool{
         this._pathCount = 0;
     }
 
+    exportFrontNode(perforNode:PerforManceNode){
+        (this.exportFrontNodeFn as Function).call(this,perforNode);
+        
+    }
+
     /**
      * 更新
      */
@@ -284,6 +289,7 @@ export class PerformanceDataTool{
             for(let i in this._memoryDataMap){
                 this._runtimeNode.setMemory(this.getNodePathIndex(i), this._memoryDataMap[i]);
             }
+            this.exportFrontNode(this._runtimeNode);
             this._runtimeNode = PerforManceNode.create(this._pathCount);
             this._nodeList.push(this._runtimeNode);
         }

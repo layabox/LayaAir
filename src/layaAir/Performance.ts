@@ -26,6 +26,7 @@ export class PerformancePlugin{
     static setPerformanceDataTool(tool:any){
       //@ts-ignore
       this.performanceTool = tool;
+      this.performanceTool.exportFrontNodeFn = this.exportFrameInfo;
     }
     //采样时间
     static begainSample(path:string){
@@ -35,7 +36,7 @@ export class PerformancePlugin{
 
     static endSample(path:string):number{
         if(this.performanceTool)
-        return this.performanceTool.enable?this.performanceTool.BegainSample(path):0;
+        return this.performanceTool.enable?this.performanceTool.EndSample(path):0;
         else
         return 0;   
     }
@@ -55,5 +56,9 @@ export class PerformancePlugin{
         return this._enable;
         else
         return false;
+    }
+
+    static exportFrameInfo(ob:any){
+       debugger;
     }
 }

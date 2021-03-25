@@ -121,7 +121,7 @@ export class Render {
     private _replaceWebglcall(gl:any){
         var tempgl:{[key:string]:any} = {};
         for(const key in gl){
-            if(typeof gl[key]=="function"&& key != "getError" && key !="__proto__"){
+            if(typeof gl[key]=="function"&& key != "getError" && key != "__SPECTOR_Origin_getError" && key !="__proto__"){
                 tempgl[key] = gl[key];
                 gl[key] = function() {
                     let arr:IArguments[] = [];

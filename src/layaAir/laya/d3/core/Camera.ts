@@ -834,7 +834,7 @@ export class Camera extends BaseCamera {
 		var scene: Scene3D = context.scene = <Scene3D>this._scene;
 		context.pipelineMode = context.configPipeLineMode;
 		if (needInternalRT) {
-			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16);
+			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16,4);
 			this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 		}
 		else {
