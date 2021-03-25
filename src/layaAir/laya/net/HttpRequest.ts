@@ -55,7 +55,6 @@ export class HttpRequest extends EventDispatcher {
         var _this: HttpRequest = this;
         var http = this._http;
         //临时，因为微信不支持以下文件格式
-        url = URL.getAdptedFilePath(url);
 		http.open(method, url, true);
 		let isJson = false;
         if (headers) {
