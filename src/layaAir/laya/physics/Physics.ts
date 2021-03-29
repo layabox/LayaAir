@@ -101,6 +101,9 @@ export class Physics extends EventDispatcher {
 
     private _update(): void {
         var delta = Laya.timer.delta / 1000;
+        if (delta > .033) { // 时间步太长，会导致错误穿透
+            delta = .033;
+        }
         this.world.Step(delta, this.velocityIterations, this.positionIterations, 3);
         var len: number = this._eventList.length;
         if (len > 0) {
