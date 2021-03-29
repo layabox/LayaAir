@@ -75,6 +75,13 @@ export class Texture2D extends BaseTexture {
 			case TextureFormat.PVRTCRGBA_2BPPV:
 			case TextureFormat.PVRTCRGB_4BPPV:
 			case TextureFormat.PVRTCRGBA_4BPPV:
+			case TextureFormat.ETC2RGB:
+			case TextureFormat.ETC2RGBA:
+			case TextureFormat.ASTC4x4:
+			case TextureFormat.ASTC6x6:
+			case TextureFormat.ASTC8x8:
+			case TextureFormat.ASTC10x10:
+			case TextureFormat.ASTC12x12:
 				texture.setCompressData(data);
 				break;
 			default:
@@ -249,7 +256,6 @@ export class Texture2D extends BaseTexture {
 	private _calcualatesCompressedDataSize(format: number, width: number, height: number): number {
 		switch (format) {
 			case TextureFormat.DXT1:
-			case TextureFormat.ETC1RGB:
 				return ((width + 3) >> 2) * ((height + 3) >> 2) * 8;
 			case TextureFormat.DXT5:
 				return ((width + 3) >> 2) * ((height + 3) >> 2) * 16;
@@ -344,10 +350,30 @@ export class Texture2D extends BaseTexture {
 			case LayaGL.layaGPUInstance._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL:
 				this._format = TextureFormat.ETC1RGB;
 				break;
+			case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_RGBA8_ETC2_EAC:
+				this._format = TextureFormat.ETC2RGBA;
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_RGB8_ETC2:
+				this._format = TextureFormat.ETC2RGB;
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR:
+				this._format = TextureFormat.ASTC4x4;
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR:
+				this._format = TextureFormat.ASTC6x6;
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR:
+				this._format = TextureFormat.ASTC8x8;
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
+				this._format = TextureFormat.ASTC6x6;
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
+				this._format = TextureFormat.ASTC12x12;
+				break;
 			default:
 				throw "unknown texture format.";
 		}
-
 		var mipLevels: number = header[ETC_HEADER_MIPMAPCOUNT];
 		var width: number = header[ETC_HEADER_WIDTH];
 		var height: number = header[ETC_HEADER_HEIGHT];
@@ -355,7 +381,7 @@ export class Texture2D extends BaseTexture {
 		this._height = height;
 
 		var dataOffset: number = 64 + header[ETC_HEADER_METADATA];
-		this._upLoadCompressedTexImage2D(arrayBuffer, width, height, mipLevels, dataOffset, 4);
+		this._upLoadKTXCompressedTexImage2D(arrayBuffer, width, height, mipLevels, dataOffset, 4);
 	}
 
 	/**
@@ -406,29 +432,56 @@ export class Texture2D extends BaseTexture {
 		this._upLoadCompressedTexImage2D(arrayBuffer, width, height, mipLevels, dataOffset, 0);
 	}
 
+		/**
+	 * @internal
+	 */
+		 _upLoadCompressedTexImage2D(data: ArrayBuffer, width: number, height: number, miplevelCount: number, dataOffset: number, imageSizeOffset: number): void {
+			var gl: WebGLRenderingContext = LayaGL.instance;
+			var textureType: number = this._glTextureType;
+			WebGLContext.bindTexture(gl, textureType, this._glTexture);
+			var glFormat: number = this._getGLFormat();
+			var offset: number = dataOffset;
+			for (var i: number = 0; i < miplevelCount; i++) {
+				offset += imageSizeOffset;
+				var mipDataSize: number = this._calcualatesCompressedDataSize(this._format, width, height);
+				var mipData: Uint8Array = new Uint8Array(data, offset, mipDataSize);
+				gl.compressedTexImage2D(textureType, i, glFormat, width, height, 0, mipData);
+				width = Math.max(width >> 1, 1.0);
+				height = Math.max(height >> 1, 1.0);
+				offset += mipDataSize;
+			}
+			var memory: number = offset;
+			this._setGPUMemory(memory);
+	
+			//if (_canRead)
+			//_pixels = pixels;
+			this._readyed = true;
+			this._activeResource();
+		}
+
+
 	/**
 	 * @internal
 	 */
-	_upLoadCompressedTexImage2D(data: ArrayBuffer, width: number, height: number, miplevelCount: number, dataOffset: number, imageSizeOffset: number): void {
+	_upLoadKTXCompressedTexImage2D(data: ArrayBuffer, width: number, height: number, miplevelCount: number, dataOffset: number, imageSizeOffset: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var textureType: number = this._glTextureType;
 		WebGLContext.bindTexture(gl, textureType, this._glTexture);
 		var glFormat: number = this._getGLFormat();
 		var offset: number = dataOffset;
 		for (var i: number = 0; i < miplevelCount; i++) {
+			var mipDataSize: number = new Int32Array(data, offset, 1 )[ 0 ];//this._calcualatesCompressedDataSize(this._format, width, height);
 			offset += imageSizeOffset;
-			var mipDataSize: number = this._calcualatesCompressedDataSize(this._format, width, height);
 			var mipData: Uint8Array = new Uint8Array(data, offset, mipDataSize);
 			gl.compressedTexImage2D(textureType, i, glFormat, width, height, 0, mipData);
 			width = Math.max(width >> 1, 1.0);
 			height = Math.max(height >> 1, 1.0);
 			offset += mipDataSize;
+			offset += 3 - (( mipDataSize + 3 ) % 4 ); 
 		}
 		var memory: number = offset;
 		this._setGPUMemory(memory);
 
-		//if (_canRead)
-		//_pixels = pixels;
 		this._readyed = true;
 		this._activeResource();
 	}
@@ -569,6 +622,13 @@ export class Texture2D extends BaseTexture {
 				this._pharseDDS(data);
 				break;
 			case TextureFormat.ETC1RGB:
+			case TextureFormat.ETC2RGB:
+			case TextureFormat.ETC2RGBA:
+			case TextureFormat.ASTC4x4:
+			case TextureFormat.ASTC6x6:
+			case TextureFormat.ASTC8x8:
+			case TextureFormat.ASTC10x10:
+			case TextureFormat.ASTC12x12:
 				this._pharseKTX(data);
 				break;
 			case TextureFormat.PVRTCRGB_2BPPV:
