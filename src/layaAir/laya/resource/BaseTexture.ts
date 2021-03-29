@@ -207,6 +207,18 @@ export class BaseTexture extends Bitmap {
 				else
 					throw "BaseTexture: not support ETC1RGB format.";
 				break;
+			case TextureFormat.ETC2RGB:
+				if(gpu._compressedTextureETC)
+					glFormat = gpu._compressedTextureETC.COMPRESSED_RGB8_ETC2;
+				else
+					throw "BaseTexture: not support ETC2RGB format.";
+				break;
+			case TextureFormat.ETC2RGBA:
+				if(gpu._compressedTextureETC)
+					glFormat = gpu._compressedTextureETC.COMPRESSED_RGBA8_ETC2_EAC;
+				else
+					throw "BaseTexture: not support ETC2RGBA format.";
+				break;
 			case TextureFormat.PVRTCRGB_2BPPV:
 				if (gpu._compressedTexturePvrtc)
 					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
@@ -230,6 +242,42 @@ export class BaseTexture extends Bitmap {
 					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 				else
 					throw "BaseTexture: not support PVRTCRGBA_4BPPV format.";
+				break;
+			case TextureFormat.ASTC4x4:
+				if(gpu._compressedTextureASTC)
+					glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR;
+				else
+					throw "BaseTexture: not support ASTC4x4 format.";
+				break;
+			case TextureFormat.ASTC4x4_KHR:
+				if(gpu._compressedTextureASTC)
+					glFormat = gpu._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
+				else
+					throw "BaseTexture: not support ASTC4x4_KHR format.";
+				break;
+			case TextureFormat.ASTC6x6:
+				if(gpu._compressedTextureASTC)
+					glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR;
+				else
+					throw "BaseTexture: not support ASTC6x6 format.";
+				break;
+			case TextureFormat.ASTC8x8:
+				if(gpu._compressedTextureASTC)
+				glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR;
+			else
+				throw "BaseTexture: not support ASTC8x8 format.";
+				break;
+			case TextureFormat.ASTC10x10:
+				if(gpu._compressedTextureASTC)
+					glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_10x10_KHR;
+				else
+					throw "BaseTexture: not support ASTC10x10 format.";
+				break;
+			case TextureFormat.ASTC12x12:
+				if(gpu._compressedTextureASTC)
+					glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR;
+				else
+					throw "BaseTexture: not support ASTC12x12 format.";
 				break;
 			default:
 				throw "BaseTexture: unknown texture format.";
