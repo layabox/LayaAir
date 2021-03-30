@@ -5,4 +5,8 @@ node_modules
 /src/generateDoc/doc
 .vscode/chrome
 /src/platform
+/test/libs
+/test/test
+/test/screenshot.png
 build
+.idea
