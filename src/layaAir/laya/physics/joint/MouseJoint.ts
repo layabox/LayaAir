@@ -43,6 +43,7 @@ export class MouseJoint extends JointBase {
         this._createJoint();
         Laya.stage.on(Event.MOUSE_MOVE, this, this.onMouseMove);
         Laya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp);
+        Laya.stage.once(Event.MOUSE_OUT, this, this.onStageMouseUp);
     }
     /**
      * @override
@@ -73,6 +74,8 @@ export class MouseJoint extends JointBase {
 
     private onStageMouseUp(): void {
         Laya.stage.off(Event.MOUSE_MOVE, this, this.onMouseMove);
+        Laya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp);
+        Laya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp);
         super._onDisable();
     }
 
