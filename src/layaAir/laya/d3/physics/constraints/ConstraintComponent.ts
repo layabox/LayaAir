@@ -1,8 +1,8 @@
 import { Component } from "../../../components/Component";
 import { Rigidbody3D } from "../Rigidbody3D";
-import { Physics3D } from "../Physics3D";
 import { PhysicsSimulation } from "../PhysicsSimulation";
 import { Vector3 } from "../../math/Vector3";
+import { Physics3D } from "../../Physics3D";
 
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。

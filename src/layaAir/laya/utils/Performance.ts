@@ -62,3 +62,4 @@ export class PerformancePlugin{
        debugger;
     }
 }
+(window as any).PerformancePlugin = PerformancePlugin;
