@@ -1,5 +1,6 @@
 import { Byte } from "laya/utils/Byte";
 import { Stat } from "laya/utils/Stat";
+import ProfileHelper from "./ProfileHelper";
 
 /**
  * 性能分析数据工具
@@ -108,6 +109,16 @@ export class PerformanceDataTool{
             this._AllPathMap[path] = id;
         }
         return id;
+    }
+
+    /**
+     * 只获得路径  路径颜色数据
+     */
+    public getPathInfo():any{
+        let pathInfo = {};
+        pathInfo["_pathColor"] = this._pathColor;
+        pathInfo["_AllPathMap"] = this._AllPathMap;
+        return pathInfo;
     }
 
 
@@ -290,6 +301,8 @@ export class PerformanceDataTool{
                 this._runtimeNode.setMemory(this.getNodePathIndex(i), this._memoryDataMap[i]);
             }
             this.exportFrontNode(this._runtimeNode);
+            //发送准备好的节点TODO:
+            ProfileHelper.sendFramData( this._runtimeNode);
             this._runtimeNode = PerforManceNode.create(this._pathCount);
             this._nodeList.push(this._runtimeNode);
         }

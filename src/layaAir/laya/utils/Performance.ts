@@ -22,9 +22,7 @@ export class PerformancePlugin{
     public static PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT:string = "Laya/3D/Render/RenderTransparent";
     public static PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS:string = "Laya/3D/Render/PostProcess";
     
-    /**@internal */
     static setPerformanceDataTool(tool:any){
-      //@ts-ignore
       this.performanceTool = tool;
       this.performanceTool.exportFrontNodeFn = this.exportFrameInfo;
     }
