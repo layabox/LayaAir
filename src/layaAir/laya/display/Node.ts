@@ -934,6 +934,9 @@ export class Node extends EventDispatcher {
      */
     addComponent(componentType: typeof Component): any {
         var comp: Component = Pool.createByClass(componentType);
+        if(!comp){
+           throw componentType.toString() + "组件不存在";
+        }
         comp._destroyed = false;
         if (comp.isSingleton && this.getComponent(componentType))
             throw "无法实例" + componentType + "组件" + "，" + componentType + "组件已存在！";

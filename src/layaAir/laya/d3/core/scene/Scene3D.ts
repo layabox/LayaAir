@@ -26,7 +26,6 @@ import { Input3D } from "../../Input3D";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { Viewport } from "../../math/Viewport";
-import { Physics3D } from "../../physics/Physics3D";
 import { PhysicsComponent } from "../../physics/PhysicsComponent";
 import { PhysicsSettings } from "../../physics/PhysicsSettings";
 import { PhysicsSimulation } from "../../physics/PhysicsSimulation";
@@ -67,7 +66,8 @@ import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsCompone
 import { VideoTexture } from "../../../resource/VideoTexture";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
 import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
-import { PerformancePlugin } from "../../../../Performance";
+import { Physics3D } from "../../Physics3D";
+import { PerformancePlugin } from "../../../utils/Performance";
 /**
  * 环境光模式
  */

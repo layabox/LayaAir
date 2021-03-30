@@ -50,9 +50,7 @@ import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
 import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
 import { BulletInteractive } from "./laya/d3/physics/BulletInteractive";
 import { CharacterController } from "./laya/d3/physics/CharacterController";
-import { Physics3D } from "./laya/d3/physics/Physics3D";
 import { PhysicsCollider } from "./laya/d3/physics/PhysicsCollider";
-import { PhysicsSettings } from "./laya/d3/physics/PhysicsSettings";
 import { Rigidbody3D } from "./laya/d3/physics/Rigidbody3D";
 import { Mesh } from "./laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
@@ -91,12 +89,10 @@ import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMateri
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
 import { ConfigurableConstraint } from "./laya/d3/physics/constraints/ConfigurableConstraint";
-import { Camera } from "./laya/d3/core/Camera";
-import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
-import { SimpleSkinnedMeshRenderer } from "./laya/d3/core/SimpleSkinnedMeshRenderer";
-import { Utils } from "./laya/utils/Utils";
+import { ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
 import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
+import { Physics3D } from "./laya/d3/Physics3D";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -139,9 +135,6 @@ export class Laya3D {
 
 	/**@internal */
 	static _editerEnvironment: boolean = false;
-
-	/**@private */
-	static physicsSettings: PhysicsSettings = new PhysicsSettings();//TODO:
 
 	/**
 	 * 获取是否可以启用物理。

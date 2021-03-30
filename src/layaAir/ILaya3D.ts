@@ -5,8 +5,8 @@ import { SubMeshDynamicBatch } from "./laya/d3/graphics/SubMeshDynamicBatch";
 import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
 import { Shader3D } from "./laya/d3/shader/Shader3D";
 import { Laya3D } from "./Laya3D";
-import { Physics3D } from "./laya/d3/physics/Physics3D";
 import { ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
+import { Physics3D } from "./laya/d3/Physics3D";
 
 /**
  * @internal

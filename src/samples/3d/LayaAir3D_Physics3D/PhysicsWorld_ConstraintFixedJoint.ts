@@ -13,7 +13,6 @@ import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
 import { FixedConstraint } from "laya/d3/physics/constraints/FixedConstraint";
 import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { Physics3D } from "laya/d3/physics/Physics3D";
 import { Script3D } from "laya/d3/component/Script3D";
 import { Config3D } from "Config3D";
 

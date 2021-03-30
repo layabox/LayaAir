@@ -33,7 +33,7 @@ import { ILaya3D } from "../../../ILaya3D";
 import { ShadowUtils } from "./light/ShadowUtils";
 import { SpotLight } from "./light/SpotLight";
 import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
-import { PerformancePlugin } from "../../../Performance";
+import { PerformancePlugin } from "../../utils/Performance";
 
 /**
  * 相机清除标记。

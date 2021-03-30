@@ -24,7 +24,7 @@ import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
 import { LayaGL } from "../layagl/LayaGL";
 import { ClassUtils } from "../utils/ClassUtils";
-import { PerformancePlugin } from "../../Performance";
+import { PerformancePlugin } from "../utils/Performance";
 
 /**
  * stage大小经过重新调整时进行调度。

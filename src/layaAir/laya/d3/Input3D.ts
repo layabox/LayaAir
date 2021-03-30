@@ -14,9 +14,9 @@ import { Vector3 } from "./math/Vector3";
 import { Viewport } from "./math/Viewport";
 import { HitResult } from "./physics/HitResult";
 import { PhysicsSimulation } from "./physics/PhysicsSimulation";
-import { Physics3D } from "./physics/Physics3D";
 import { ILaya } from "../../ILaya";
 import { Config3D } from "../../Config3D";
+import { Physics3D } from "./Physics3D";
 
 /**
  * <code>Input3D</code> 类用于实现3D输入。
@@ -29,7 +29,7 @@ export class Input3D {
 	/**@internal */
 	private static _tempRay0: Ray = new Ray(new Vector3(), new Vector3());
 	/**@internal */
-	private static _tempHitResult0: HitResult = new HitResult();
+	private static _tempHitResult0: HitResult;// = new HitResult();
 
 	/**@internal */
 	private _scene: Scene3D;
@@ -49,6 +49,7 @@ export class Input3D {
 	 */
 	__init__(canvas: any, scene: Scene3D): void {
 		this._scene = scene;
+		Input3D._tempHitResult0 = new HitResult();
 		//@ts-ignore
 		canvas.oncontextmenu = function (e: any): any {
 			return false;
