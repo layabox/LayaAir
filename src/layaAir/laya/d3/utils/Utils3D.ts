@@ -13,6 +13,10 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { TextureGenerator } from "../resource/TextureGenerator";
 import { ILaya3D } from "../../../ILaya3D";
+import { RenderTexture } from "../resource/RenderTexture";
+import { RenderTextureFormat } from "../../resource/RenderTextureFormat";
+import { Render } from "../../renders/Render";
+import { HTMLCanvas } from "../../resource/HTMLCanvas";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
@@ -740,6 +744,70 @@ export class Utils3D {
 		}
 		return sprite;
 	}
+
+
+	
+	static uint8ArrayToArrayBuffer(rendertexture: RenderTexture)
+	{
+		
+		let pixelArray:Uint8Array|Float32Array;
+		let width = rendertexture.width;
+		let height = rendertexture.height;
+		switch(rendertexture.format){
+			case RenderTextureFormat.R8G8B8:
+				pixelArray = new Uint8Array(width*height*4);
+				break;
+			case RenderTextureFormat.R8G8B8A8:
+				pixelArray = new Uint8Array(width*height*4);
+				break;
+			case RenderTextureFormat.R16G16B16A16:
+				pixelArray = new Float32Array(width*height*4);
+				break;
+			default:
+				throw "this function is not surpprt "+rendertexture.format.toString()+"format Material";
+		}
+		rendertexture.getData(0,0,rendertexture.width,rendertexture.height,pixelArray);
+		//tranceTo
+		switch(rendertexture.format){
+			case RenderTextureFormat.R16G16B16A16:
+				let ori = pixelArray;
+				let trans = new Uint8Array(width*height*4);
+				for(let i = 0,n = ori.length;i<n;i++){
+					trans[i] =Math.min(Math.floor(ori[i]*255),255);
+				}
+				pixelArray = trans;
+				break;
+		}
+		
+		let pixels = pixelArray;
+		var bs:String;
+		if (Render.isConchApp)
+		{
+			//TODO:
+			//var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
+			//var l = base64img.split(",");
+			//if (isBase64)
+			//	return base64img;
+			//return base.utils.DBUtils.decodeArrayBuffer(l[1]);
+		}
+		else
+		{
+				var canv:HTMLCanvas = new HTMLCanvas(true);
+				canv.lock = true;
+				canv.size(width, height);
+				var ctx2d = canv.getContext('2d');
+				//@ts-ignore
+				var imgdata:ImageData =ctx2d.createImageData(width, height);
+				//@ts-ignore
+				imgdata.data.set(new Uint8ClampedArray(pixels));
+				//@ts-ignore
+				ctx2d.putImageData(imgdata, 0, 0);;
+				bs = canv.source.toDataURL();
+				canv.destroy();
+		}
+		return bs;
+	}
+
 
 
 }

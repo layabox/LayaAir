@@ -650,6 +650,7 @@ export class BlinnPhongMaterial extends Material {
 		sv.setNumber(BlinnPhongMaterial.SHININESS, 0.078125);
 		sv.setNumber(Material.ALPHATESTVALUE, 0.5);
 		sv.setVector(BlinnPhongMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
+		this.albedoIntensity = 1.0;
 		this.renderMode = BlinnPhongMaterial.RENDERMODE_OPAQUE;
 	}
 

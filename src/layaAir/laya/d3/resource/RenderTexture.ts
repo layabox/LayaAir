@@ -44,6 +44,8 @@ export class RenderTexture extends BaseTexture {
 		return tex;
 	}
 
+
+
 	/**
 	 * 回收渲染目标到对象池,释放后可通过createFromPool复用。
 	 */
@@ -53,7 +55,7 @@ export class RenderTexture extends BaseTexture {
 		RenderTexture._pool.push(renderTexture);
 		renderTexture._inPool = true;
 	}
-
+      
 	/** @internal */
 	private _frameBuffer: any;
 	/** @internal */
@@ -89,6 +91,10 @@ export class RenderTexture extends BaseTexture {
 		return Texture2D.grayTexture;
 	}
 
+	get mulSampler():number{
+		return this._mulSampler;
+	}
+
 	/**
 	 * @param width  宽度。
 	 * @param height 高度。
@@ -103,7 +109,7 @@ export class RenderTexture extends BaseTexture {
 		this._height = height;
 		this._depthStencilFormat = depthStencilFormat;
 		this._mipmapCount = 1;//TODO:
-		this._mulSampler = mulSampler;
+		this._mulSampler = mulSampler; 
 		this._create(width, height);
 	}
 
@@ -286,14 +292,11 @@ export class RenderTexture extends BaseTexture {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var gl2: WebGL2RenderingContext = <WebGL2RenderingContext>gl;
 		if(this._mulSamplerRT){
-			//gl.bindFramebuffer()
 			gl2.bindFramebuffer(gl2.READ_FRAMEBUFFER,this._frameBuffer);
 			gl2.bindFramebuffer(gl2.DRAW_FRAMEBUFFER,this._mulFrameBuffer);
 			gl2.clearBufferfv(gl2.COLOR,0,[0.0,0.0,0.0,0.0]);
 			
 			gl2.blitFramebuffer(0,0,this.width,this.height,0,0,this._width,this._height,gl2.COLOR_BUFFER_BIT,gl.NEAREST);
-			// gl2.bindFramebuffer(gl2.READ_FRAMEBUFFER,null);
-			// gl2.bindFramebuffer(gl2.DRAW_FRAMEBUFFER,null);
 		}
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	
@@ -312,11 +315,12 @@ export class RenderTexture extends BaseTexture {
 	 * @param height 高度。
 	 * @return 像素数据。
 	 */
-	getData(x: number, y: number, width: number, height: number, out: Uint8Array): Uint8Array {//TODO:检查长度
+	getData(x: number, y: number, width: number, height: number, out: Uint8Array|Float32Array): Uint8Array|Float32Array {//TODO:检查长度
 		if (Render.isConchApp && (<any>window).conchConfig.threadMode == 2) {
 			throw "native 2 thread mode use getDataAsync";
 		}
 		var gl: WebGLRenderingContext = LayaGL.instance;
+		var gl2:WebGL2RenderingContext = <WebGL2RenderingContext>gl;
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 		var canRead: boolean = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
 
@@ -324,7 +328,18 @@ export class RenderTexture extends BaseTexture {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			return null;
 		}
-		gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
+		switch(this.format){
+			case RenderTextureFormat.R8G8B8:
+				gl.readPixels(x,y,width,height, gl.RGBA,gl.UNSIGNED_BYTE,out);
+				break;
+			case RenderTextureFormat.R8G8B8A8:
+				gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
+				break;
+			case RenderTextureFormat.R16G16B16A16:
+				gl.readPixels(x,y,width,height,gl.RGBA,gl.FLOAT,out);
+				debugger;
+				break;
+		}
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		return out;
 	}
