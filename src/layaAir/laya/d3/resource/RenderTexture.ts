@@ -320,7 +320,6 @@ export class RenderTexture extends BaseTexture {
 			throw "native 2 thread mode use getDataAsync";
 		}
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		var gl2:WebGL2RenderingContext = <WebGL2RenderingContext>gl;
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 		var canRead: boolean = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
 
