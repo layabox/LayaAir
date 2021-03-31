@@ -279,10 +279,36 @@ gulp.task('ConcatBox2dPhysics', function (cb) {
     ], cb);
 });
 
+//合并 cannon.js 和 laya.cannonPhysics.js
+gulp.task('ConcatCannonPhysics', function (cb) {
+    pump([
+        gulp.src([
+            './layaAir/jsLibs/cannon.js',
+            '../build/js/libs/laya.cannonPhysics.js']),
+        concat('laya.cannonPhysics.js'),//合并后的文件名
+        gulp.dest('../build/js/libs/'),
+    ], cb);
+});
+
+//合并 laya.bullet.js 和 laya.physics3D.js
+gulp.task('ConcatBulletPhysics', function (cb) {
+    pump([
+        gulp.src([
+            './layaAir/jsLibs/laya.physics3D.js',
+            '../build/js/libs/laya.bullet.js']),
+        concat('laya.physics3D.js'),//合并后的文件名
+        gulp.dest('../build/js/libs/'),
+    ], function() { // 因为不符合pump的规则，需要将bullet删掉
+        fs.unlinkSync('../build/js/libs/laya.bullet.js');
+        cb();
+    });
+});
+
 //拷贝引擎的第三方js库
 gulp.task('CopyJSLibsToJS', () => {
     return gulp.src([
-        './layaAir/jsLibs/laya.physics3D.wasm.wasm','./layaAir/jsLibs/*.js', '!./layaAir/jsLibs/box2d.js', '!./layaAir/jsLibs/laya.physics.js'])
+        './layaAir/jsLibs/laya.physics3D.wasm.wasm','./layaAir/jsLibs/*.js',
+        '!./layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js}'])
         .pipe(gulp.dest('../build/js/libs'));
 });
 
@@ -310,7 +336,7 @@ gulp.task('CopyTSFileToTS', () => {
 //拷贝第三方库至ts库(未来在数组中补充需要的其他第三方库)
 gulp.task('CopyTSJSLibsFileToTS', () => {
     return gulp.src([
-        './layaAir/jsLibs/**/*.*','../build/js/libs/laya.cannonPhysics.js'])
+        './layaAir/jsLibs/**/*.*', '!./layaAir/jsLibs/{cannon.js,laya.physics3D.js}','../build/js/libs/{laya.cannonPhysics.js,laya.physics3D.js}'])
         .pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
@@ -424,4 +450,4 @@ gulp.task("compresstsnewJs", function () {
         .pipe(gulp.dest("../build/ts_new/jslibs/min"));
 });
 
-gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS', 'compressJs', 'compresstsnewJs'));
+gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'ConcatCannonPhysics', 'ConcatBulletPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS', 'compressJs', 'compresstsnewJs'));
