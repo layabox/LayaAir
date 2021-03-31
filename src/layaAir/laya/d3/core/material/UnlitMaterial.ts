@@ -396,6 +396,7 @@ export class UnlitMaterial extends Material {
 		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this.renderMode = UnlitMaterial.RENDERMODE_OPAQUE;
+		this.albedoIntensity = 1.0;
 	}
 
 	/**
