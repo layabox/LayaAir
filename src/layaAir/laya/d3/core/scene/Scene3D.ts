@@ -659,6 +659,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 *@internal
 	 */
 	private _update(): void {
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		var delta: number = this.timer._delta / 1000;
 		this._time += delta;
 		this._shaderValues.setNumber(Scene3D.TIME, this._time);
@@ -709,6 +710,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._reflectionProbeManager.update();
 		this._lateUpdateScript();
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_UPDATESCRIPT);
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 	}
 
 	/**

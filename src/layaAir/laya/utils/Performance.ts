@@ -57,7 +57,7 @@ export class PerformancePlugin{
     }
 
     static exportFrameInfo(ob:any){
-       debugger;
+    
     }
 }
 (window as any).PerformancePlugin = PerformancePlugin;

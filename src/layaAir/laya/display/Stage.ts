@@ -707,13 +707,11 @@ export class Stage extends Sprite {
 
 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA);
 		if (this.renderingEnabled) {
-			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 			for (var i: number = 0, n: number = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
 				this._scene3Ds[i]._update();
 			context.clear();
 			super.render(context, x, y);
 			Stat._StatRender.renderNotCanvas(context, x, y);
-			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		}
 
 		if (this.renderingEnabled) {
