@@ -66,7 +66,6 @@ export class CommandBuffer {
 	 * @param source 图片源
 	 */
 	setGlobalTexture(nameID:number,source: BaseTexture){
-		
 		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Texture,this));
 	}
 
@@ -199,8 +198,8 @@ export class CommandBuffer {
 	 * @param	shaderData 着色器数据,如果为null只接收sourceTexture。
 	 * @param	subShader subShader索引,默认值为0。
 	 */
-	blitScreenQuad(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
-		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_QUAD,this));
+	blitScreenQuad(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0,definedCanvas:boolean = false): void {
+		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_QUAD,this,definedCanvas));
 	}
 
 	/**
