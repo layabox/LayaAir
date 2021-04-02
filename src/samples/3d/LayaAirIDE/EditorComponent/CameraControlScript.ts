@@ -4,7 +4,6 @@ import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera } from "laya/d3/core/Camera";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Event } from "laya/events/Event";
-import { Timer } from "laya/utils/Timer";
 /**
  * 相机观测方向
  */
@@ -55,7 +54,7 @@ export class CameraControlScript extends Script3D {
 	//旋转半径
 	private _radius:number = 0;
 	//旋转动画长度，总帧数
-	private _animatorSize = 20;
+	private _animatorSize = 10;
 	//目前执行到动画的帧数
 	private _animatorDo = 0;
 	//动画步进值
@@ -65,6 +64,8 @@ export class CameraControlScript extends Script3D {
 
 	rotateSpeed:number = 1;
 	wheelSpeed:number = 1;
+	stepRadius:number = 5;
+	LowWheelSpeed:number = 0.2;
 
 	constructor() {
 		super();
@@ -140,13 +141,13 @@ export class CameraControlScript extends Script3D {
 
 	//根据角度旋转相机，修改相机位置
 	private _updateCameraByRotateValue(){
-		CameraControlScript.calByIcoXYZ(this._rotateTarget,this._currentPosition,this._radius,this._currentRotate,this._camera);
+		CameraControlScript.calByIcoXYZ(this._rotateTarget,this._currentPosition,this.radius,this._currentRotate,this._camera);
 	}
 
 	/**
 	 * 旋转动画
 	 */
-	private doRotateAnimator(directEnum:IDE_RotateDirectFlags){
+	doRotateAnimator(directEnum:IDE_RotateDirectFlags){
 		var targetRotate:Vector3;
 		switch(directEnum){
 			case IDE_RotateDirectFlags.Front:
@@ -195,6 +196,7 @@ export class CameraControlScript extends Script3D {
 	/*override*/  onAwake(): void {
 		Laya.stage.on(Event.RIGHT_MOUSE_DOWN, this, this._mouseDown);
 		Laya.stage.on(Event.RIGHT_MOUSE_UP, this, this._mouseUp);
+		Laya.stage.on(Event.MOUSE_OUT, this, this._mouseUp);
 		Laya.stage.on(Event.MOUSE_WHEEL,this,this._mouseWheel);
 		this._camera = (<Camera>this.owner);
 		CameraControlScript.tempVec3.setValue(0,0,0);
@@ -226,6 +228,7 @@ export class CameraControlScript extends Script3D {
 		/*override*/  onDestroy(): void {
 		Laya.stage.off(Event.RIGHT_MOUSE_DOWN, this, this._mouseDown);
 		Laya.stage.off(Event.RIGHT_MOUSE_UP, this, this._mouseUp);
+		Laya.stage.off(Event.MOUSE_OUT, this, this._mouseUp);
 	}
 
 	private _mouseDown(e: Event): void {
@@ -243,10 +246,28 @@ export class CameraControlScript extends Script3D {
 	}
 
 	private _mouseWheel(e: Event) {
-		this._radius -= e.delta*this.wheelSpeed;
-		this._radius = this._radius<0.5?0.5:this._radius;
+		
+		if(this.radius<this.stepRadius)
+		this.radius = this.radius - e.delta*this.LowWheelSpeed;
+		else
+		this.radius = this.radius - e.delta*this.wheelSpeed;
+	}
+
+	get radius(): number {
+		return  this._radius;
+	}
+
+	set radius(value: number) {
+		this._radius = Math.max(0.5, Math.min(500, value));
 		this._updateRotation(0,0,0);
 	}
+
+
+	setRotateTarget(target:Vector3):void{
+		
+	}
+
+
 	/**
 	 * 向前移动。
 	 * @param distance 移动距离。
