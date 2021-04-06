@@ -138,7 +138,7 @@ const idIsInList = (id: any , list : any[]) => {
     }
     return false;
 } 
-type MsgType = 'frameData' | 'initPerformance'  | 'selectPlayer'; 
+type MsgType = 'frameData' | 'initPerformance'  | 'selectPlayer' | 'start';
 type InternalMsgType = MsgType | 'getPerformanceConf'  | 'getPerformanceConf_back'| 'selectPlayer_back'| 'playerList' | 'onReady' | 'onChangePlayer'  | 'msgList'   | 'onSelectPlayer'; 
 export default class ProfileHelper {
     private socketManager:SocketManager = null as any;
@@ -180,7 +180,6 @@ export default class ProfileHelper {
         } else {
             host = 'localhost';
         } 
-        host = '10.10.82.120';
         this.performanceDataTool = performanceDataTool;
         this.socketManager = new SocketManager(host,port,name, type, {
             retryConnectCount: retryConnectCount || defaultOptions.retryConnnectCount,
@@ -202,17 +201,22 @@ export default class ProfileHelper {
                                     this.sendInternalMsg(
                                         'getPerformanceConf_back', 
                                         eventData.data); 
+                                        
                                     break;
                                 case 'getPerformanceConf_back':
-                                    console.log(eventData); 
+                                    // console.log(eventData); 
                                     this.selectPlayerId = eventData.data.selectPlayer;
                                     this.selectPlayerStatus = 0;
+
                                     break;
                                 case 'selectPlayer_back':   
                                     break;  
 
                                 case 'onReady':  
-                                    this.socketManager.clientId = eventData.data.id;
+                                    this.socketManager.clientId = eventData.data.id; 
+                                    this.sendInternalMsg(
+                                        'start', 
+                                        {}); 
                                     break;
                                 case 'playerList':   
                                     // 自动连接第一个player 
