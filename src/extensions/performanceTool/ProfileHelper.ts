@@ -30,8 +30,7 @@ class SocketManager{
         this.url = 'ws://' + host + ":" + port + '?type=' + type + '&name=' + name; 
         if (options) {
              Object.assign(options, defaultOptions);
-             this.options = options;
-             console.log(options);
+             this.options = options; 
         } else { 
             this.options = defaultOptions; 
         }
@@ -73,7 +72,9 @@ class SocketManager{
     private _delayRetryConnnectTimer: any = 0;
     private delayRetryConnnect() {
         clearTimeout(this._delayRetryConnnectTimer);
-        this._delayRetryConnnectTimer = setTimeout(this._delayRetryConnnect, this.options.retryConnnectDelay)
+        if (ProfileHelper.enable) { 
+            this._delayRetryConnnectTimer = setTimeout(this._delayRetryConnnect, this.options.retryConnnectDelay);
+        }
     }
     private _delayRetryConnnect = ()=> {
         clearTimeout(this._delayRetryConnnectTimer);  
@@ -139,13 +140,49 @@ const idIsInList = (id: any , list : any[]) => {
     return false;
 } 
 type MsgType = 'frameData' | 'initPerformance'  | 'selectPlayer' | 'start';
-type InternalMsgType = MsgType | 'getPerformanceConf'  | 'getPerformanceConf_back'| 'selectPlayer_back'| 'playerList' | 'onReady' | 'onChangePlayer'  | 'msgList'   | 'onSelectPlayer'; 
+type InternalMsgType = MsgType | 'active' | 'heart' | 'getPerformanceConf'  | 'getPerformanceConf_back'| 'selectPlayer_back'| 'playerList' | 'onReady' | 'onChangePlayer'  | 'msgList'   | 'onSelectPlayer'; 
 export default class ProfileHelper {
     private socketManager:SocketManager = null as any;
     private performanceDataTool: any  /** PerformanceDataTool*/; 
     public selectPlayerId: number = 0;
+    private heartIntervalHandler: any;
+    private active: number = 0;
     public selectPlayerStatus: number = 0;/**1pending,2resolve,3reject */
     private static instance: ProfileHelper;
+    private static _enable: boolean 
+    public static set enable(value:boolean){ 
+        if (ProfileHelper._enable === value) {
+            return;
+        }
+        ProfileHelper._enable = value;
+        if (value) {
+            const initOption = ProfileHelper.initOption;
+            if (!initOption) {
+                throw new Error('没有执行初始化init');
+            }
+            const {
+                type,
+                performanceDataTool,
+                onOpen,
+                onMessage,
+                retryConnectCount,
+                retryConnnectDelay
+            } = initOption
+            ProfileHelper.init(
+                type,
+                performanceDataTool,
+                onOpen,
+                onMessage,
+                retryConnectCount,
+                retryConnnectDelay);
+        } else {
+            ProfileHelper.dispose();
+        }
+    }
+
+    public static get enable():boolean {
+        return ProfileHelper._enable;
+    }
     /**初始化 */
     public init(
         type: 'player' | 'profiler' ,
@@ -162,8 +199,8 @@ export default class ProfileHelper {
         var host = '';
         var url = '';
         var href = document.location.href;  
-        var port = getParameterByName('profileSPort', href) || '1040';
-        var name = getParameterByName('profileSName', href) || '';
+        var port = getParameterByName('profilePort', href) || '1050';
+        var name = getParameterByName('profileName', href) || '';
         // 解析服务器名
         if (href.startsWith('http')) {
             var index1 = href.indexOf('//');
@@ -179,14 +216,21 @@ export default class ProfileHelper {
             host = url;
         } else {
             host = 'localhost';
-        } 
+        }  
+        host = getParameterByName('profileHost', href) || host;
         this.performanceDataTool = performanceDataTool;
+        this.heartIntervalHandler = setInterval(() => {
+            this.sendInternalMsg('heart', {})
+        }, 1000 * 10);
         this.socketManager = new SocketManager(host,port,name, type, {
             retryConnectCount: retryConnectCount || defaultOptions.retryConnnectCount,
             retryConnnectDelay: retryConnnectDelay || defaultOptions.retryConnnectDelay,
             onMessage: (ev: MessageEvent) => {
                 // console.log('socketManager onMessage', ev);
 
+                if (!this.socketManager) {
+                    return;
+                }
                 if (typeof ev.data == 'string') {
                     let data: {type: InternalMsgType, data: any, fromId?: any, id: number} = JSON.parse(ev.data) as any;   
                     let msgList = [data];
@@ -217,7 +261,10 @@ export default class ProfileHelper {
                                     this.sendInternalMsg(
                                         'start', 
                                         {}); 
-                                    break;
+                                    break; 
+                                case 'active':   
+                                    this.active = eventData.data.active; 
+                                    break;                                    
                                 case 'playerList':   
                                     // 自动连接第一个player 
                                     // 检测当前链接的id是否还在列表里，不在说明已经离线
@@ -227,7 +274,7 @@ export default class ProfileHelper {
                                             this.selectPlayerStatus = 0;
                                         }
                                     } 
-                                    if (eventData.data.length > 0 && this.selectPlayerStatus == 0) {  
+                                    if (this.selectPlayerId && eventData.data.length > 0 && this.selectPlayerStatus == 0) {  
                                         let playerId = eventData.data[0].id;
                                         this.selectPlayerStatus = 1;
                                         this.sendMsg('selectPlayer', 
@@ -283,6 +330,9 @@ export default class ProfileHelper {
     private frameDataList: any [] = [];
 
     private sendFramData = (data: any /** PerforManceNode*/) => {
+        if (!this.active) {
+            return;
+        }
         this.frameDataList.push(data);
         /**累计到30帧发一次 */
         if (this.frameDataList.length >= 30) { 
@@ -303,12 +353,14 @@ export default class ProfileHelper {
     } 
     dispose() {
 
+        clearInterval(this.heartIntervalHandler);
         if (this.socketManager) {
             this.socketManager.dispose();
             this.socketManager = null as any;
         }
         this.performanceDataTool = null;
     }
+    private static initOption: any;
     /**初始化 */
     public static init(
         type: 'player' | 'profiler' ,
@@ -321,11 +373,25 @@ export default class ProfileHelper {
         if (ProfileHelper.instance) {
             ProfileHelper.instance.dispose();
         }
+        ProfileHelper.initOption = {
+            type,
+            performanceDataTool,
+            onOpen,
+            onMessage,
+            retryConnectCount,
+            retryConnnectDelay
+        };
+        if (!ProfileHelper._enable) {
+            return;
+        }
         ProfileHelper.instance = new ProfileHelper();
         ProfileHelper.instance.init(type, performanceDataTool, onOpen, onMessage, retryConnectCount, retryConnnectDelay);
     }
     /**发送帧数据   */
     public static sendFramData = (data: any | any [] /** PerforManceNode*/) => {
+        if (!ProfileHelper._enable) {
+            return;
+        }
         if (ProfileHelper.instance) { 
             ProfileHelper.instance.sendFramData(data);
         } else {
@@ -346,9 +412,12 @@ export default class ProfileHelper {
  
 //初始化
 ProfileHelper.init('player', performanceDataTool);
+
 //发送帧数据
 ProfileHelper.sendFramData( data | [data]);
-//销毁
-ProfileHelper.dispose(); 
+// 开关
+ProfileHelper.enable = false;
+ProfileHelper.enable = true;
 
 */
+ 
