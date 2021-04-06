@@ -63,6 +63,14 @@ export class PerformanceDataTool{
     public _sp: Sprite = new Sprite();
     public pointArray: any[] = [];
     public fpsArray: any[] = [];
+    // 显示宽度
+    public static DrawWidth: number = 250;
+    // 显示高度
+    public static DrawHeight: number = 250;
+    // 数据数量
+    public static readonly StepLength: number = 250;
+
+    public static stepLengthArrayMap:Array<Array<number>> = new Array();
 
 
     /**
@@ -312,62 +320,56 @@ export class PerformanceDataTool{
         if (!ob || !ob.nodeDelty||pathIndex==-1) {
             return;
         }
+        const width = PerformanceDataTool.DrawWidth;
+        const height = PerformanceDataTool.DrawHeight;
+        const stepLength = PerformanceDataTool.StepLength;
+        const fullStepTime = 33;
 
-        let delta = Laya.timer.delta;
-        // TODO 临时
-        // 首先确定画的范围
-        const width = 860;
-        const height = 40;
-        // 再确定数组大小
-        const stepLength = 1000;
-        // 当前值
-        let value = ob.nodeDelty[pathIndex];
-        let percent = value / 0.033;
-        const fullFPS = 60;
-        let fps = 1000 / delta / fullFPS;
-
-        if (this.pointArray.length >= stepLength) {
-            this.pointArray.shift();
-            this.fpsArray.shift();
-        }
-        this.pointArray.push(percent);
-        this.fpsArray.push(fps);
-        // 样式
         const bgColor = "rgba(150, 150, 150, 0.8)"; // "rgba(150, 150, 150, 0.8)"
-        const fillColor = "#EFC457";
-        const fpsFillColor = "#a8ef9a"; // "rgba(150, 150, 150, 0.8)"
-
-        this.updatelineChart(width, height, stepLength, bgColor, fillColor, 2, fpsFillColor);
+        let array, value, percent;
+        this._sp.graphics.clear();
+        this._sp.graphics.drawRect(0, 0, width, height, bgColor);
+        for (let i = 0, len = ob.nodeDelty.length; i < len; i++) {
+            // 当前值
+            value = ob.nodeDelty[i];
+            percent = value / fullStepTime;
+            if (!this.pointArray[i]) {
+                this.pointArray[i] = [];
+            }
+            array = this.pointArray[i];
+            if (array.length >= stepLength) {
+                array.shift();
+            }
+            array.push(percent);
+            // draw
+            let color = i.toString(16);
+            const fillColor = `#${color}${color}C4${color}${color}`; // ob.xxx.color[i] // #EFC457
+            if(!PerformanceDataTool.stepLengthArrayMap[i]){
+                PerformanceDataTool.stepLengthArrayMap[i] = new Array<number>(PerformanceDataTool.StepLength*2);
+            }
+            this.updatelineChart(width, height, stepLength, array, fillColor, 1,PerformanceDataTool.stepLengthArrayMap[i]);
+        }
+        this._sp.graphics.drawLine(0, height / 2, width, height / 2, "green", 1);
+        this._sp.graphics.drawLine(0, height / 4 * 3, width, height / 4 * 3, "red", 1);
     }
 
-    
-    updatelineChart(width: number, height: number, stepLength: number, bgColor: string, fillColor: string, style: number, fpsFillColor?: string) {
-        this._sp.graphics.clear();
-
-        // 绘制帧率，其实无法绘制，因为不知道满帧是多少
-        // let fpsWidthStep = width / stepLength;
-        // this._sp.graphics.drawRect(0, -height - 10, width, height, bgColor);
-        // for (let i = 0, len = this.fpsArray.length; i < len; i++) {
-        //     this._sp.graphics.drawRect(width / stepLength * i, height + (-height - 10), fpsWidthStep, -Math.min(this.fpsArray[i] * height, height), fpsFillColor);
-        // }
-
+    updatelineChart(width: number, height: number, stepLength: number, array: Array<number>, fillColor: string, style: number,drawArray:Array<number>) {
         // 样式一
         switch (style) {
             case 1:
-                let copy = this.pointArray.concat();
-                for (let i = 0, len = copy.length; i < len; i++) {
-                    copy.splice(i * 2, 0, width / stepLength * i); // 加入x坐标
-                    copy[i * 2 + 1] = Math.max(height - copy[i * 2 + 1] /* / 16*/ * height, 0); // 修改y坐标值，相对于 16ms，反转坐标
+                //let copy = array.concat();
+                let copy = drawArray;
+                for (let i = 0, len = array.length; i < len; i++) {
+                    copy[i*2] = width / stepLength * i; // 加入x坐标
+                    copy[i * 2 + 1] = Math.max(height - array[i] * height, 0); // 修改y坐标值，相对于 16ms，反转坐标
                 }
-                this._sp.graphics.drawRect(0, 0, width, height, bgColor);
                 this._sp.graphics.drawLines(0, 0, copy, fillColor, 1);
                 break;
             case 2:
                 // 样式二
                 let widthStep = width / stepLength;
-                this._sp.graphics.drawRect(0, 0, width, height, bgColor);
-                for (let i = 0, len = this.pointArray.length; i < len; i++) {
-                    this._sp.graphics.drawRect(width / stepLength * i, height, widthStep, -Math.min(this.pointArray[i] /* / 16*/ * height, height), fillColor);
+                for (let i = 0, len = array.length; i < len; i++) {
+                    this._sp.graphics.drawRect(width / stepLength * i, height, widthStep, -Math.min(array[i] /* / 16*/ * height, height), fillColor);
                 }
         }
     }
