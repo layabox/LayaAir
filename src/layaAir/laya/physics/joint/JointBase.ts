@@ -42,6 +42,14 @@ export class JointBase extends Component {
         }
         this._joint = null;
     }
+
+    /**
+     * 获取是否为单实例组件。
+     * @override
+     */
+     get isSingleton(): boolean {
+        return false;
+    }
 }
 
 ClassUtils.regClass("laya.physics.joint.JointBase", JointBase);
