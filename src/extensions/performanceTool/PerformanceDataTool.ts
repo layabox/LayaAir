@@ -11,6 +11,9 @@ export class PerformanceDataTool{
     public static VERSION:string = "PERFORMANCEDATA:01";
     public static instance:PerformanceDataTool = new PerformanceDataTool();
 
+    public static PERFORMANCE_DELTYTIME:string = "deltyTime";
+    public static PERFORMANCE_STARTTIME:string = "startTime";
+
     public static PERFORMANCE_LAYA:string = "Laya";
     public static PERFORMANCE_LAYA_3D:string = "Laya/3D";
     public static PERFORMANCE_LAYA_2D:string = "Laya/2D";
@@ -114,6 +117,9 @@ export class PerformanceDataTool{
 
     set runtimeShowPath(path:string){
         let showPathIndex = this._AllPathMap[path];
+        for(let i in this.pointArray){
+            this.pointArray[i] = null;
+        }
         if(showPathIndex != null)
             this._runtimeShowPathIndex = showPathIndex
         else
@@ -325,9 +331,11 @@ export class PerformanceDataTool{
         let array, value, percent;
         this._sp.graphics.clear();
         this._sp.graphics.drawRect(0, 0, width, height, bgColor);
-        //for (let i = 0, len = ob.nodeDelty.length; i < len; i++) {
-        if(true){
-            let i = pathIndex
+        for (let i = 0, len = ob.nodeDelty.length; i < len; i++) {
+        
+           if(i != pathIndex&&i!=this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_DELTYTIME)){
+               continue;
+           }
             // 当前值
             value = ob.nodeDelty[i];
             percent = value / fullStepTime;
@@ -341,7 +349,10 @@ export class PerformanceDataTool{
             array.push(percent);
             // draw
             let color = i.toString(16);
-            const fillColor = `#${color}${color}C4${color}${color}`; // ob.xxx.color[i] // #EFC457
+            let fillColor = `#${color}${color}C4${color}${color}`; // ob.xxx.color[i] // #EFC457
+            if(i==this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_DELTYTIME)){
+                fillColor = "#FFFFFF";
+            }
             if(!PerformanceDataTool.stepLengthArrayMap[i]){
                 PerformanceDataTool.stepLengthArrayMap[i] = new Array<number>(PerformanceDataTool.StepLength*2);
             }
@@ -381,17 +392,19 @@ export class PerformanceDataTool{
         //如果要更新记录节点
         if(!nodelenth){
             this._runtimeNode = PerforManceNode.create(this._pathCount)
+            this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_STARTTIME)] = performance.now();
             return;
         }
-       
         if(nodelenth != this._nodeList.length){
             for(let i in this._memoryDataMap){
                 this._runtimeNode.setMemory(this.getNodePathIndex(i), this._memoryDataMap[i]);
             }
+            this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_DELTYTIME)]=performance.now() - this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_STARTTIME)];
             this.exportFrontNode(this._runtimeNode,this._runtimeShowPathIndex);
             //发送准备好的节点TODO:
             ProfileHelper.sendFramData( this._runtimeNode);
             this._runtimeNode = PerforManceNode.create(this._pathCount);
+            this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_STARTTIME)] = performance.now();
             this._nodeList.push(this._runtimeNode);
         }
     }
