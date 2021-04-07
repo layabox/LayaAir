@@ -82,6 +82,8 @@ export class Texture2D extends BaseTexture {
 			case TextureFormat.ASTC8x8:
 			case TextureFormat.ASTC10x10:
 			case TextureFormat.ASTC12x12:
+			case TextureFormat.KTXTEXTURE:
+			case TextureFormat.PVRTEXTURE:
 				texture.setCompressData(data);
 				break;
 			default:
@@ -629,17 +631,32 @@ export class Texture2D extends BaseTexture {
 			case TextureFormat.ASTC8x8:
 			case TextureFormat.ASTC10x10:
 			case TextureFormat.ASTC12x12:
+			case TextureFormat.KTXTEXTURE:
 				this._pharseKTX(data);
 				break;
 			case TextureFormat.PVRTCRGB_2BPPV:
 			case TextureFormat.PVRTCRGBA_2BPPV:
 			case TextureFormat.PVRTCRGB_4BPPV:
 			case TextureFormat.PVRTCRGBA_4BPPV:
+			case TextureFormat.PVRTEXTURE:
 				this._pharsePVR(data);
 				break;
 			default:
 				throw "Texture2D:unkonwn format.";
 		}
+		//健壮纹理压缩mipmap
+		if((this.mipmapCount!=1)&&(this.width==(1<<this.mipmapCount-1)||this.height==(1<<(this.mipmapCount)))){
+			this._mipmap = true;
+		}
+		else
+			this._mipmap = false;
+		let gl = LayaGL.instance;
+		this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);//宽高变化后需要重新设置
+		this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);//宽高变化后需要重新设置
+		this._setFilterMode(this._filterMode);//宽高变化后需要重新设置
+
+
+
 	}
 
 	/**

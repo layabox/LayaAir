@@ -42,9 +42,13 @@ export enum TextureFormat {
     /**ASTC 10x10 */
     ASTC10x10 = 21,
     /**ASTC 12x12 */
-    ASTC12x12 = 22
+    ASTC12x12 = 22,
 
 
+    /**ktx图片 */
+    KTXTEXTURE = -1,
+    /**pvr图片 */
+    PVRTEXTURE = -2
 
 
 }

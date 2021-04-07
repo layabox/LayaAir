@@ -794,9 +794,18 @@ export class Laya3D {
 				type = "nativeimage";
 				break;
 			case "dds":
+				type = Loader.BUFFER;
+				//TODO:
+				break;
 			case "ktx":
+				type = Loader.BUFFER;
+				(!loader._constructParams)&&(loader._constructParams = []);
+				loader._constructParams[2] = TextureFormat.KTXTEXTURE;
+				break;
 			case "pvr":
 				type = Loader.BUFFER;
+				(!loader._constructParams)&&(loader._constructParams = []);
+				loader._propertyParams[2] = TextureFormat.PVRTEXTURE;
 				break;
 		}
 
