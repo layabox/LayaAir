@@ -329,7 +329,7 @@ export default class ProfileHelper {
         if (ProfileHelper.instance) { 
             ProfileHelper.instance.sendFramData(data);
         } else {
-            console.warn('ProfileHelper未初始化');
+            //console.warn('ProfileHelper未初始化');
         }
     }  
     /**销毁   */

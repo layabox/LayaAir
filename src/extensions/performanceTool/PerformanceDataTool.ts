@@ -53,13 +53,10 @@ export class PerformanceDataTool{
     /**数据集合 */
     _nodeList:PerforManceNode[] = [];
     /**采样步长 时间是1的话就是每帧都会有数据，不是1的话就会取samplerFrameStep帧数的平均值*/
-    samplerFramStep:number = 1;
+    samplerFramStep:number = 6;
     /**Memory格式的数据 */
     _memoryDataMap:{[key:string]:number} = {};
-    
 
-
-    
     public _sp: Sprite = new Sprite();
     public pointArray: any[] = [];
     public fpsArray: any[] = [];
@@ -98,7 +95,6 @@ export class PerformanceDataTool{
 
     set enable(value:boolean){
         if(value){
-            debugger
             this._startFram = Stat.loopCount;
             this.resetReCordData();
             //加入stage
@@ -329,7 +325,9 @@ export class PerformanceDataTool{
         let array, value, percent;
         this._sp.graphics.clear();
         this._sp.graphics.drawRect(0, 0, width, height, bgColor);
-        for (let i = 0, len = ob.nodeDelty.length; i < len; i++) {
+        //for (let i = 0, len = ob.nodeDelty.length; i < len; i++) {
+        if(true){
+            let i = pathIndex
             // 当前值
             value = ob.nodeDelty[i];
             percent = value / fullStepTime;
@@ -361,7 +359,7 @@ export class PerformanceDataTool{
                 let copy = drawArray;
                 for (let i = 0, len = array.length; i < len; i++) {
                     copy[i*2] = width / stepLength * i; // 加入x坐标
-                    copy[i * 2 + 1] = Math.max(height - array[i] * height, 0); // 修改y坐标值，相对于 16ms，反转坐标
+                    copy[i * 2 + 1] = Math.max(height - array[i] * height/this.samplerFramStep, 0); // 修改y坐标值，相对于 16ms，反转坐标
                 }
                 this._sp.graphics.drawLines(0, 0, copy, fillColor, 1);
                 break;
