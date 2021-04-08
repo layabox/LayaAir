@@ -209,10 +209,9 @@ export class Texture2D extends BaseTexture {
 	 * @internal
 	 */
 	private _gpuCompressFormat(): boolean {
-		return this._format == TextureFormat.DXT1 || this._format == TextureFormat.DXT5 ||
-			this._format == TextureFormat.ETC1RGB ||
-			this._format == TextureFormat.PVRTCRGB_2BPPV || this._format == TextureFormat.PVRTCRGBA_2BPPV ||
-			this._format == TextureFormat.PVRTCRGB_4BPPV || this._format == TextureFormat.PVRTCRGBA_4BPPV;
+		return (this._format != TextureFormat.R8G8B8A8 && this._format != TextureFormat.R8G8B8A8 &&
+			this._format != TextureFormat.R16G16B16A16 &&
+			this._format != TextureFormat.R32G32B32A32 && this._format != TextureFormat.R5G6B5 && this._format != TextureFormat.Alpha8);
 	}
 
 
