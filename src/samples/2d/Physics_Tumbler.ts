@@ -34,16 +34,15 @@ export class Physics_Tumbler {
 		Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
 		Laya.stage.bgColor = "#232628";
 
-		this.initBox();
+		this.createBox();
         this.eventListener();
 	}
 
-    initBox() {
+    createBox() {
+        const width = 300, height = 20;
         const 
-            posx = BoxInfo.posx,
-            posy = BoxInfo.posy,
-            width = BoxInfo.width,
-            height = BoxInfo.height;
+            posx = Browser.width / 2,
+            posy = Browser.height / 2;
 
         let box = this.box = new Sprite();
         box.size(width + height * 2, width + height * 2);
@@ -91,7 +90,7 @@ export class Physics_Tumbler {
         this.Main.box2D.addChild(sp);
         sp.x = box.x;
         sp.y=  box.y;
-        let body = sp.addComponent(RigidBody);
+        sp.addComponent(RigidBody);
         let collider = sp.addComponent(BoxCollider);
         collider.width = 5;
         collider.height = 5;
@@ -114,11 +113,4 @@ export class Physics_Tumbler {
         Laya.stage.offAll(Event.DOUBLE_CLICK);
         Laya.stage.removeChild(this.label);
     }
-}
-
-enum BoxInfo {
-    width = 300,
-    height = 20,
-    posx = Browser.width / 2,
-    posy = Browser.height / 2
 }
