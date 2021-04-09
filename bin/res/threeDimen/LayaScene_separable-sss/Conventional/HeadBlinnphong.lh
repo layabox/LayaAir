@@ -1,0 +1,40 @@
+{
+	"version":"LAYAHIERARCHY:02",
+	"data":{
+		"type":"MeshSprite3D",
+		"instanceID":0,
+		"props":{
+			"name":"HeadBlinnphong",
+			"active":true,
+			"isStatic":false,
+			"layer":0,
+			"position":[
+				0,
+				0,
+				0
+			],
+			"rotation":[
+				0,
+				0,
+				0,
+				-1
+			],
+			"scale":[
+				3,
+				3,
+				3
+			],
+			"meshPath":"Assets/SeparableSubsurfaceScatter/Demo/Mesh/Head2-head_Mesh.lm",
+			"enableRender":true,
+			"receiveShadows":true,
+			"castShadow":true,
+			"materials":[
+				{
+					"path":"Assets/Materials/diffuseMap 3.lmat"
+				}
+			]
+		},
+		"components":[],
+		"child":[]
+	}
+}
