@@ -344,14 +344,15 @@ export class Animator extends Component {
 	 * 更新clip数据
 	 * @internal
 	 */
-	private _updateClipDatas(animatorState: AnimatorState, addtive: boolean, playStateInfo: AnimatorPlayState): void {
+	private _updateClipDatas(animatorState: AnimatorState, addtive: boolean, playStateInfo: AnimatorPlayState,animatorMask:AvatarMask = null): void {
 		var clip = animatorState._clip;
 		var clipDuration = clip!._duration;
 
 		var curPlayTime = animatorState.clipStart * clipDuration + playStateInfo._normalizedPlayTime * playStateInfo._duration;
 		var currentFrameIndices = animatorState._currentFrameIndices;
 		var frontPlay = playStateInfo._elapsedTime > playStateInfo._lastElapsedTime;
-		clip!._evaluateClipDatasRealTime(clip!._nodes!, curPlayTime, currentFrameIndices!, addtive, frontPlay, animatorState._realtimeDatas);
+		clip!._evaluateClipDatasRealTime(clip!._nodes!, curPlayTime, currentFrameIndices!, addtive, frontPlay, animatorState._realtimeDatas,animatorMask);
+		
 	}
 
 	/**
@@ -583,7 +584,7 @@ export class Animator extends Component {
 			if (nodeOwner) {//骨骼中没有该节点
 				var node = nodes.getNodeByIndex(i);
 				if(controllerLayer.avatarMask&&(!controllerLayer.avatarMask.getTransformActive( node.nodePath)))
-				continue;
+					continue;
 				var pro: any = nodeOwner.propertyOwner;
 				if (pro) {
 					switch (nodeOwner.type) {
@@ -904,7 +905,7 @@ export class Animator extends Component {
 					finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
 					if (needRender) {
 						var addtive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
-						this._updateClipDatas(animatorState, addtive, playStateInfo);//clipDatas为逐动画文件,防止两个使用同一动画文件的Animator数据错乱,即使动画停止也要updateClipDatas
+						this._updateClipDatas(animatorState, addtive, playStateInfo,controllerLayer.avatarMask);//clipDatas为逐动画文件,防止两个使用同一动画文件的Animator数据错乱,即使动画停止也要updateClipDatas
 						this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i === 0,controllerLayer);//多层动画混合时即使动画停止也要设置数据
 						finish || this._updateEventScript(animatorState, playStateInfo);
 					}
@@ -923,7 +924,7 @@ export class Animator extends Component {
 					var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
 					if (crossWeight >= 1.0) {
 						if (needRender) {
-							this._updateClipDatas(crossState, addtive, crossPlayStateInfo);
+							this._updateClipDatas(crossState, addtive, crossPlayStateInfo,controllerLayer.avatarMask);
 							this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0,controllerLayer);
 
 							controllerLayer._playType = 0;//完成融合,切换到正常播放状态
@@ -935,10 +936,10 @@ export class Animator extends Component {
 							speed = this._speed * animatorState.speed;
 							this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
 							if (needRender)
-								this._updateClipDatas(animatorState, addtive, playStateInfo);
+								this._updateClipDatas(animatorState, addtive, playStateInfo,controllerLayer.avatarMask);
 						}
 						if (needRender) {
-							this._updateClipDatas(crossState, addtive, crossPlayStateInfo);
+							this._updateClipDatas(crossState, addtive, crossPlayStateInfo,controllerLayer.avatarMask);
 							this._setCrossClipDatasToNode(controllerLayer, animatorState, crossState, crossWeight, i === 0);
 						}
 					}
@@ -959,13 +960,13 @@ export class Animator extends Component {
 					if (needRender) {
 						crossWeight = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
 						if (crossWeight >= 1.0) {
-							this._updateClipDatas(crossState, addtive, crossPlayStateInfo);
+							this._updateClipDatas(crossState, addtive, crossPlayStateInfo,controllerLayer.avatarMask);
 							this._setClipDatasToNode(crossState, addtive, 1.0, i === 0,controllerLayer);
 							controllerLayer._playType = 0;//完成融合,切换到正常播放状态
 							playStateInfo._currentState = crossState;
 							crossPlayStateInfo._cloneTo(playStateInfo);
 						} else {
-							this._updateClipDatas(crossState, addtive, crossPlayStateInfo);
+							this._updateClipDatas(crossState, addtive, crossPlayStateInfo,controllerLayer.avatarMask);
 							this._setFixedCrossClipDatasToNode(controllerLayer, crossState, crossWeight, i === 0);
 						}
 						this._updateEventScript(crossState, crossPlayStateInfo);

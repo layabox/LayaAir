@@ -1,3 +1,5 @@
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite";
 import { Byte } from "laya/utils/Byte";
 import { Stat } from "laya/utils/Stat";
 import ProfileHelper from "./ProfileHelper";
@@ -8,6 +10,9 @@ import ProfileHelper from "./ProfileHelper";
 export class PerformanceDataTool{
     public static VERSION:string = "PERFORMANCEDATA:01";
     public static instance:PerformanceDataTool = new PerformanceDataTool();
+
+    public static PERFORMANCE_DELTYTIME:string = "deltyTime";
+    public static PERFORMANCE_STARTTIME:string = "startTime";
 
     public static PERFORMANCE_LAYA:string = "Laya";
     public static PERFORMANCE_LAYA_3D:string = "Laya/3D";
@@ -27,10 +32,6 @@ export class PerformanceDataTool{
     public static PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER:string = "Laya/3D/Render/RenderCommandBuffer";
     public static PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT:string = "Laya/3D/Render/RenderTransparent";
     public static PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS:string = "Laya/3D/Render/PostProcess";
-
-
-    private static text:Stat = new Stat();
-    private static text2:Byte = new Byte();
     
     /**数据保存路径 */
     public static exportPath:string;
@@ -47,15 +48,31 @@ export class PerformanceDataTool{
     private _AllPathMap:{[key:string]:number} = {};
     //自定义颜色map
     private _pathColor:{[key:string]:number[]} = {};
+    //统计数据数量
     private _pathCount:number = 0;
+    //简单数据表现 实时
+    private _runtimeShowPathIndex:number = -1;
+    
     /**数据集合 */
     _nodeList:PerforManceNode[] = [];
     /**采样步长 时间是1的话就是每帧都会有数据，不是1的话就会取samplerFrameStep帧数的平均值*/
-    samplerFramStep:number = 1;
+    samplerFramStep:number = 6;
     /**Memory格式的数据 */
     _memoryDataMap:{[key:string]:number} = {};
 
-    exportFrontNodeFn:any;
+    public _sp: Sprite = new Sprite();
+    public pointArray: any[] = [];
+    public fpsArray: any[] = [];
+    // 显示宽度
+    public static DrawWidth: number = 250;
+    // 显示高度
+    public static DrawHeight: number = 250;
+    // 数据数量
+    public static readonly StepLength: number = 250;
+
+    public static stepLengthArrayMap:Array<Array<number>> = new Array();
+
+
     /**
      * 数据中存入Laya引擎自身的检测数据
      */
@@ -83,6 +100,12 @@ export class PerformanceDataTool{
         if(value){
             this._startFram = Stat.loopCount;
             this.resetReCordData();
+            //加入stage
+            this._sp.pos(0, 400).zOrder = 99;
+            Laya.stage.addChild(this._sp);
+        }
+        else{
+            Laya.stage.removeChild(this._sp);
         }
         this._enable = value;
     }
@@ -90,6 +113,19 @@ export class PerformanceDataTool{
     get enable():boolean{
         return this._enable;
     }
+
+
+    set runtimeShowPath(path:string){
+        let showPathIndex = this._AllPathMap[path];
+        for(let i in this.pointArray){
+            this.pointArray[i] = null;
+        }
+        if(showPathIndex != null)
+            this._runtimeShowPathIndex = showPathIndex
+        else
+            this._runtimeShowPathIndex = -1;
+    }
+
 
     constructor(){
 
@@ -124,12 +160,11 @@ export class PerformanceDataTool{
 
 
     /**
-     * 输出数据
+     * 输出所有调试数据为ArrayBuffer
      */
     exportPerformanceFile(){
         PerformanceDataTool.InitLayaPerformanceInfo();
         this.enable = false;
-        debugger;
         //TODO:输出数据导出
         let blockstr:string[] = [];
         let blockStart:number[] = [];
@@ -279,9 +314,73 @@ export class PerformanceDataTool{
         this._pathCount = 0;
     }
 
-    exportFrontNode(perforNode:PerforManceNode){
-        (this.exportFrontNodeFn as Function).call(this,perforNode);
+    /**
+     * 实时绘制前一帧的数据在面板上面
+     * @param perforNode 
+     */
+    exportFrontNode(ob:PerforManceNode,pathIndex:number){
+        if (!ob || !ob.nodeDelty||pathIndex==-1) {
+            return;
+        }
+        const width = PerformanceDataTool.DrawWidth;
+        const height = PerformanceDataTool.DrawHeight;
+        const stepLength = PerformanceDataTool.StepLength;
+        const fullStepTime = 33;
+
+        const bgColor = "rgba(150, 150, 150, 0.8)"; // "rgba(150, 150, 150, 0.8)"
+        let array, value, percent;
+        this._sp.graphics.clear();
+        this._sp.graphics.drawRect(0, 0, width, height, bgColor);
+        for (let i = 0, len = ob.nodeDelty.length; i < len; i++) {
         
+           if(i != pathIndex&&i!=this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_DELTYTIME)){
+               continue;
+           }
+            // 当前值
+            value = ob.nodeDelty[i];
+            percent = value / fullStepTime;
+            if (!this.pointArray[i]) {
+                this.pointArray[i] = [];
+            }
+            array = this.pointArray[i];
+            if (array.length >= stepLength) {
+                array.shift();
+            }
+            array.push(percent);
+            // draw
+            let color = i.toString(16);
+            let fillColor = `#${color}${color}C4${color}${color}`; // ob.xxx.color[i] // #EFC457
+            if(i==this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_DELTYTIME)){
+                fillColor = "#FFFFFF";
+            }
+            if(!PerformanceDataTool.stepLengthArrayMap[i]){
+                PerformanceDataTool.stepLengthArrayMap[i] = new Array<number>(PerformanceDataTool.StepLength*2);
+            }
+            this.updatelineChart(width, height, stepLength, array, fillColor, 1,PerformanceDataTool.stepLengthArrayMap[i]);
+        }
+        this._sp.graphics.drawLine(0, height / 2, width, height / 2, "green", 1);
+        this._sp.graphics.drawLine(0, height / 4 * 3, width, height / 4 * 3, "red", 1);
+    }
+
+    updatelineChart(width: number, height: number, stepLength: number, array: Array<number>, fillColor: string, style: number,drawArray:Array<number>) {
+        // 样式一
+        switch (style) {
+            case 1:
+                //let copy = array.concat();
+                let copy = drawArray;
+                for (let i = 0, len = array.length; i < len; i++) {
+                    copy[i*2] = width / stepLength * i; // 加入x坐标
+                    copy[i * 2 + 1] = Math.max(height - array[i] * height/this.samplerFramStep, 0); // 修改y坐标值，相对于 16ms，反转坐标
+                }
+                this._sp.graphics.drawLines(0, 0, copy, fillColor, 1);
+                break;
+            case 2:
+                // 样式二
+                let widthStep = width / stepLength;
+                for (let i = 0, len = array.length; i < len; i++) {
+                    this._sp.graphics.drawRect(width / stepLength * i, height, widthStep, -Math.min(array[i] /* / 16*/ * height, height), fillColor);
+                }
+        }
     }
 
     /**
@@ -293,28 +392,30 @@ export class PerformanceDataTool{
         //如果要更新记录节点
         if(!nodelenth){
             this._runtimeNode = PerforManceNode.create(this._pathCount)
+            this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_STARTTIME)] = performance.now();
             return;
         }
-       
         if(nodelenth != this._nodeList.length){
             for(let i in this._memoryDataMap){
                 this._runtimeNode.setMemory(this.getNodePathIndex(i), this._memoryDataMap[i]);
             }
-            this.exportFrontNode(this._runtimeNode);
+            this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_DELTYTIME)]=performance.now() - this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_STARTTIME)];
+            this.exportFrontNode(this._runtimeNode,this._runtimeShowPathIndex);
             //发送准备好的节点TODO:
             ProfileHelper.sendFramData( this._runtimeNode);
             this._runtimeNode = PerforManceNode.create(this._pathCount);
+            this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_STARTTIME)] = performance.now();
             this._nodeList.push(this._runtimeNode);
         }
     }
 
-    /**
-     * TODO:快捷显示一个Memory组的值
-     * @param memoryGroup 
-     */
-    static showMemoryGroupData(memoryGroup:string){
+    // /**
+    //  * TODO:快捷显示一个Memory组的值
+    //  * @param memoryGroup 
+    //  */
+    // static showMemoryGroupData(memoryGroup:string){
 
-    }
+    // }
 
     /**
      * TODO:快捷显示一个MemeryData的值
@@ -325,10 +426,10 @@ export class PerformanceDataTool{
 
     }
 
-    /**
-     * TODO：快捷显示一个路径组的时间线
-     * @param groupPath 
-     */
+    // /**
+    //  * TODO：快捷显示一个路径组的时间线
+    //  * @param groupPath 
+    //  */
     static showFunSampleGroup(groupPath:string){
         
     }
@@ -338,8 +439,8 @@ export class PerformanceDataTool{
      * @param groupPath 
      * @param samplePath 
      */
-    static showFunSampleFun(samplePath:string){
-        
+    showFunSampleFun(samplePath:string){
+        this.runtimeShowPath = samplePath;
     }
 
 }

@@ -170,7 +170,7 @@ export class RenderTexture extends BaseTexture {
 					break;
 				case RenderTextureFormat.Alpha8:
 					if (isWebGL2)
-						gl2.texStorage2D(glTextureType, 0, gl2.R8, width, height);
+						gl2.texStorage2D(glTextureType, this.mipmapCount, gl2.R8, width, height);
 					else
 						gl.texImage2D(glTextureType, 0, gl.ALPHA, width, height, 0, gl.ALPHA, gl.UNSIGNED_BYTE, null);
 					break;

@@ -15,6 +15,7 @@ import { Handler } from "../../utils/Handler"
 import { ILaya } from "../../../ILaya";
 import { ConchVector3 } from "../math/Native/ConchVector3";
 import { ConchQuaternion } from "../math/Native/ConchQuaternion";
+import { AvatarMask } from "../component/AvatarMask";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。
@@ -191,7 +192,7 @@ export class AnimationClip extends Resource {
 	 * @param frontPlay 是否是前向播放
 	 * @param outDatas 计算好的动画数据
 	 */
-	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion>): void {
+	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion>,avatarMask:AvatarMask): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
 			var node = nodes.getNodeByIndex(i);
 			var type = node.type;
@@ -199,7 +200,9 @@ export class AnimationClip extends Resource {
 			var keyFrames = node._keyFrames;
 			var keyFramesCount = keyFrames.length;
 			var frameIndex = realTimeCurrentFrameIndexes[i];
-
+			if(avatarMask&&(!avatarMask.getTransformActive(node.nodePath))){
+				continue;
+			}
 			if (frontPlay) {
 				if ((frameIndex !== -1) && (playCurTime < keyFrames[frameIndex].time)) {//重置正向循环
 					frameIndex = -1;

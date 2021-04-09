@@ -22,9 +22,10 @@ export class PerformancePlugin{
     public static PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT:string = "Laya/3D/Render/RenderTransparent";
     public static PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS:string = "Laya/3D/Render/PostProcess";
     
+    
     static setPerformanceDataTool(tool:any){
       this.performanceTool = tool;
-      this.performanceTool.exportFrontNodeFn = this.exportFrameInfo;
+      //this.performanceTool.exportFrontNodeFn = this.exportFrameInfo;
     }
     //采样时间
     static begainSample(path:string){
@@ -44,9 +45,15 @@ export class PerformancePlugin{
             return this.performanceTool.enable?this.performanceTool.exportPerformanceFile():null;
     }
 
+    static showFunSampleFun(path:string){
+        this.performanceTool.showFunSampleFun(path);
+    }
+
+
     static set enable(value:boolean){
         if(this.performanceTool)
         this.performanceTool.enable = value;
+     
     }
 
     static get enable():boolean{
@@ -54,10 +61,6 @@ export class PerformancePlugin{
         return this._enable;
         else
         return false;
-    }
-
-    static exportFrameInfo(ob:any){
-       debugger;
     }
 }
 (window as any).PerformancePlugin = PerformancePlugin;

@@ -401,11 +401,9 @@ export default class ProfileHelper {
         }
         if (ProfileHelper.instance) { 
             ProfileHelper.instance.sendFramData(data);
-        } else {
-            //console.warn('ProfileHelper未初始化');
-        }
+        } 
     }   
-    /**发送帧数据   */
+    /**发送配置   */
     public static sendConfigData = (data: any | any [] /** PerforManceNode*/) => {
         if (!ProfileHelper._enable) {
             return;
