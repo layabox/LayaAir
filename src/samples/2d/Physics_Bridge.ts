@@ -36,7 +36,7 @@ export class Physics_Bridge {
     }
 
     createBridge() {
-        const startPosX = 250, startPosY = 500;
+        const startPosX = 250, startPosY = 450;
 
         let ground = new Sprite();
         this.Main.box2D.addChild(ground);
@@ -123,7 +123,7 @@ export class Physics_Bridge {
             let circlePosy = circleCollider.y / Physics.PIXEL_RATIO;
             let velocityX = targetX - circlePosx;
             let velocityY = targetY - circlePosy;
-            circleBody.linearVelocity = {x: velocityX * 5, y: velocityY * 5};
+            circleBody.linearVelocity = {x: velocityX * 3, y: velocityY * 3};
             Laya.timer.frameOnce(120, this, function() {
                 newBall.destroy();
             });
