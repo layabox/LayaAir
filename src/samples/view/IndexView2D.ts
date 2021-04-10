@@ -101,6 +101,8 @@ import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
 import { Physics_Tumbler } from "../2d/PhySics_Tumbler";
 import { Physics_CollisionFiltering } from "../2d/Physics_CollisionFiltering";
 import { Physics_Strandbeests } from "../2d/Physics_Strandbeests";
+import { Physics_Bridge } from "../2d/Physics_Bridge";
+import { Physics_CollisionEvent } from "../2d/Physics_CollisionEvent";
 	
 	/**
 	 * 首页View 
@@ -209,8 +211,8 @@ import { Physics_Strandbeests } from "../2d/Physics_Strandbeests";
 		/************************IDE-end***************************/
 
 		/************************Particle-start***************************/
-		private _comboBoxPhysicsClsArr:any[] = [Physics_Tumbler, Physics_CollisionFiltering, Physics_Strandbeests];
-		private _comboBoxPhysicsArr:any[] = ['复合碰撞器', '碰撞过滤器', '仿生机器人'];
+		private _comboBoxPhysicsClsArr:any[] = [Physics_Tumbler, Physics_CollisionFiltering, Physics_CollisionEvent, Physics_Bridge, Physics_Strandbeests];
+		private _comboBoxPhysicsArr:any[] = ['复合碰撞器', '碰撞过滤器', '碰撞事件与传感器', '桥', '仿生机器人'];
 		/************************Particle-end***************************/
 	
 		//private _VIPClsArr:any[] = [VIPMergeBinary_as,VIPMergeText,VIPTexturetrans_as_a,VIPTexturetrans_as_b];
