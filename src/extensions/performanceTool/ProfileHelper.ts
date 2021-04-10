@@ -140,7 +140,7 @@ const idIsInList = (id: any , list : any[]) => {
     return false;
 } 
 type MsgType = 'frameData' | 'initPerformance'  | 'selectPlayer' | 'start';
-type InternalMsgType = MsgType | 'active' | 'heart' | 'getPerformanceConf'  | 'getPerformanceConf_back'| 'selectPlayer_back'| 'playerList' | 'onReady' | 'onChangePlayer'  | 'msgList'   | 'onSelectPlayer'; 
+type InternalMsgType = MsgType | 'onSelectMe' | 'onSelectMe_back' | 'active' | 'heart' | 'getPerformanceConf'  | 'getPerformanceConf_back'| 'selectPlayer_back'| 'playerList' | 'onReady' | 'onChangePlayer'  | 'msgList'   | 'onSelectPlayer'; 
 export default class ProfileHelper {
     private socketManager:SocketManager = null as any;
     private performanceDataTool: any  /** PerformanceDataTool*/; 
@@ -240,20 +240,19 @@ export default class ProfileHelper {
                     msgList.forEach(
                         (eventData) => { 
                             switch(eventData.type) {
-                                case 'getPerformanceConf':
-                                    eventData.data.performanceConf = this.performanceDataTool;
+                                case 'onSelectMe': 
                                     this.sendInternalMsg(
-                                        'getPerformanceConf_back', 
-                                        eventData.data); 
-                                        
-                                    break;
-                                case 'getPerformanceConf_back':
-                                    // console.log(eventData); 
+                                        'onSelectMe_back', 
+                                        eventData.data
+                                    );
+                                    break; 
+                                
+                                case 'getPerformanceConf':
+                                    this.sendConfigData();
+                                    break; 
+                                case 'selectPlayer_back':   
                                     this.selectPlayerId = eventData.data.selectPlayer;
                                     this.selectPlayerStatus = 0;
-
-                                    break;
-                                case 'selectPlayer_back':   
                                     break;  
 
                                 case 'onReady':  
@@ -328,7 +327,7 @@ export default class ProfileHelper {
         );
     } 
     private frameDataList: any [] = [];
-
+    
     private sendFramData = (data: any /** PerforManceNode*/) => {
         if (!this.active) {
             return;
@@ -342,6 +341,14 @@ export default class ProfileHelper {
         // ProfileHelper.sendMsg("frameData", data); 
     } 
 
+    private sendConfigData = (data: any = null /** PerforManceNode*/) => { 
+        if (data) { 
+            this.performanceDataTool = data;
+        }
+        this.sendInternalMsg(
+            'getPerformanceConf_back', 
+            this.performanceDataTool); 
+    } 
     public sendFramDataList = (dataList: any [] ) => {
         let list =  dataList.map((data) => {
             return {
@@ -394,10 +401,17 @@ export default class ProfileHelper {
         }
         if (ProfileHelper.instance) { 
             ProfileHelper.instance.sendFramData(data);
-        } else {
-            //console.warn('ProfileHelper未初始化');
+        } 
+    }   
+    /**发送配置   */
+    public static sendConfigData = (data: any | any [] /** PerforManceNode*/) => {
+        if (!ProfileHelper._enable) {
+            return;
         }
-    }  
+        if (ProfileHelper.instance) { 
+            ProfileHelper.instance.sendConfigData(data);
+        }  
+    }      
     /**销毁   */
     public static dispose = () => {
         if (ProfileHelper.instance) { 
