@@ -393,7 +393,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_addReflectionProbeUpdate(){
 		//TODO目前暂时不支持混合以及与天空盒模式，只支持simple和off
 		if(this._surportReflectionProbe&&this._reflectionMode==1){
-			this._scene._reflectionProbeManager.addMotionObject(this);
+			this._scene && this._scene._reflectionProbeManager.addMotionObject(this);
 		}
 	}
 

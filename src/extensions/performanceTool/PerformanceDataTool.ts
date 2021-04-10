@@ -121,7 +121,7 @@ export class PerformanceDataTool{
             this.pointArray[i] = null;
         }
         if(showPathIndex != null)
-            this._runtimeShowPathIndex = showPathIndex
+            this._runtimeShowPathIndex = showPathIndex;
         else
             this._runtimeShowPathIndex = -1;
     }

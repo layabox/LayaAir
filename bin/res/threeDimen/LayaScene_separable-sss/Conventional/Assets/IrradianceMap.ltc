@@ -1,0 +1,8 @@
+{
+	"front":"IrradianceMap_PositiveZ.png",
+	"back":"IrradianceMap_NegativeZ.png",
+	"left":"IrradianceMap_PositiveX.png",
+	"right":"IrradianceMap_NegativeX.png",
+	"up":"IrradianceMap_PositiveY.png",
+	"down":"IrradianceMap_NegativeY.png"
+}

@@ -1,0 +1,40 @@
+{
+	"version":"LAYAHIERARCHY:02",
+	"data":{
+		"type":"SpotLight",
+		"instanceID":2,
+		"props":{
+			"name":"Spot Light",
+			"active":true,
+			"isStatic":false,
+			"layer":0,
+			"position":[
+				1.322,
+				0.483,
+				0.074
+			],
+			"rotation":[
+				0.03073921,
+				-0.7116982,
+				-0.03122295,
+				-0.7011176
+			],
+			"scale":[
+				1,
+				1,
+				1
+			],
+			"intensity":4.32,
+			"lightmapBakedType":0,
+			"range":2.788045,
+			"spotAngle":75.9265,
+			"color":[
+				1,
+				0.9356204,
+				0.8726415
+			]
+		},
+		"components":[],
+		"child":[]
+	}
+}

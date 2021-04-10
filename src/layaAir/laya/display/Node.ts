@@ -820,7 +820,7 @@ export class Node extends EventDispatcher {
      */
     private _inActiveScripts(): void {
         for (var i: number = 0, n: number = this._activeChangeScripts.length; i < n; i++)
-            this._activeChangeScripts[i].onDisable();
+            this._activeChangeScripts[i]._onDisable();
         this._activeChangeScripts.length = 0;
     }
 
