@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Material } from "laya/d3/core/material/Material";
@@ -46,7 +45,7 @@ export class CameraDemo {
 		//开启统计信息
 		Stat.show();
 		//预加载所有资源
-		var resource: any[] = ["res/threeDimen/texture/layabox.png", "res/threeDimen/skyBox/skyBox2/skyBox2.lmat"];
+		var resource: any[] = ["res/threeDimen/texture/layabox.png", "res/threeDimen/skyBox/skyBox2/SkyBox2.lmat"];
 		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
 	}
 
@@ -61,7 +60,7 @@ export class CameraDemo {
 		this.camera.transform.rotate(this._rotation, true, false);
 		this.camera.useOcclusionCulling = false;
 		//相机设置清楚标记,使用固定颜色
-		this.camera.clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
+		this.camera.clearFlag = CameraClearFlags.SolidColor;
 		//使用默认颜色
 		//camera.clearColor = _clearColor;
 		//设置摄像机视野范围（角度）
@@ -132,9 +131,9 @@ export class CameraDemo {
 				this.index2++;
 				if (this.index2 % 2 === 1) {
 					//设置相机的清除标识为天空盒
-					this.camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
+					this.camera.clearFlag = CameraClearFlags.Sky;
 					//使用加载天空盒材质
-					var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
+					var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/SkyBox2.lmat"));
 					//获取相机的天空渲染器
 					var skyRenderer: SkyRenderer = this.camera.skyRenderer;
 					//设置相机的天空渲染器的mesh
@@ -143,7 +142,7 @@ export class CameraDemo {
 					skyRenderer.material = skyboxMaterial;
 				} else {
 					//设置相机的清除标识为为固定颜色
-					this.camera.clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
+					this.camera.clearFlag = CameraClearFlags.SolidColor;
 				}
 			});
 
