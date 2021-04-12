@@ -357,8 +357,26 @@ export class Texture2D extends BaseTexture {
 			case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_RGB8_ETC2:
 				this._format = TextureFormat.ETC2RGB;
 				break;
+			case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
+				this._format = TextureFormat.ETC2RGB_Alpha8;
+				break;
 			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR:
 				this._format = TextureFormat.ASTC4x4;
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
+				this._format = TextureFormat.ASTC4x4SRGB;
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
+				this._format = TextureFormat.ASTC6x6SRGB;
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
+				this._format = TextureFormat.ASTC8x8SRGB;	
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
+				this._format = TextureFormat.ASTC10x10SRGB;	
+				break;
+			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
+				this._format = TextureFormat.ASTC12x12SRGB;	
 				break;
 			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR:
 				this._format = TextureFormat.ASTC6x6;
@@ -625,11 +643,17 @@ export class Texture2D extends BaseTexture {
 			case TextureFormat.ETC1RGB:
 			case TextureFormat.ETC2RGB:
 			case TextureFormat.ETC2RGBA:
+			case TextureFormat.ETC2RGB_Alpha8:
 			case TextureFormat.ASTC4x4:
+			case TextureFormat.ASTC4x4SRGB:	
 			case TextureFormat.ASTC6x6:
+			case TextureFormat.ASTC6x6SRGB:
 			case TextureFormat.ASTC8x8:
+			case TextureFormat.ASTC8x8SRGB:
 			case TextureFormat.ASTC10x10:
+			case TextureFormat.ASTC10x10SRGB:
 			case TextureFormat.ASTC12x12:
+			case TextureFormat.ASTC12x12SRGB:
 			case TextureFormat.KTXTEXTURE:
 				this._pharseKTX(data);
 				break;
