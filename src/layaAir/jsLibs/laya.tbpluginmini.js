@@ -493,61 +493,6 @@ window.tbMiniGame = function (exports, Laya) {
 	    load(url) {
 	        this.event(Laya.Event.ERROR, "Not support play sound");
 	        return;
-	        if (!MiniFileMgr.isLocalNativeFile(url)) {
-	            url = Laya.URL.formatURL(url);
-	        }
-	        else {
-	            if (url.indexOf(TBMiniAdapter.window.my.env.USER_DATA_PATH) == -1 && (url.indexOf("http://") != -1 || url.indexOf("https://") != -1)) {
-	                if (MiniFileMgr.loadPath != "") {
-	                    url = url.split(MiniFileMgr.loadPath)[1];
-	                }
-	                else {
-	                    var tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
-	                    if (tempStr != "")
-	                        url = url.split(tempStr)[1];
-	                }
-	            }
-	        }
-	        this.url = url;
-	        this.readyUrl = url;
-	        if (TBMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(url)) {
-	            this.onDownLoadCallBack(url, 0);
-	        }
-	        else {
-	            if (!TBMiniAdapter.autoCacheFile) {
-	                this.onDownLoadCallBack(url, 0);
-	            }
-	            else {
-	                if (MiniFileMgr.isLocalNativeFile(url)) {
-	                    if (TBMiniAdapter.subNativeFiles && TBMiniAdapter.subNativeheads.length == 0) {
-	                        for (var key in TBMiniAdapter.subNativeFiles) {
-	                            var tempArr = TBMiniAdapter.subNativeFiles[key];
-	                            TBMiniAdapter.subNativeheads = TBMiniAdapter.subNativeheads.concat(tempArr);
-	                            for (let i = 0; i < tempArr.length; i++) {
-	                                TBMiniAdapter.subMaps[tempArr[i]] = key + "/" + tempArr[i];
-	                            }
-	                        }
-	                    }
-	                    if (TBMiniAdapter.subNativeFiles && url.indexOf("/") != -1) {
-	                        var curfileHead = url.split("/")[0] + "/";
-	                        if (curfileHead && TBMiniAdapter.subNativeheads.indexOf(curfileHead) != -1) {
-	                            var newfileHead = TBMiniAdapter.subMaps[curfileHead];
-	                            url = url.replace(curfileHead, newfileHead);
-	                        }
-	                    }
-	                    this.onDownLoadCallBack(url, 0);
-	                }
-	                else {
-	                    if ((url.indexOf("http://") == -1 && url.indexOf("https://") == -1)
-	                        || url.indexOf(TBMiniAdapter.window.my.env.USER_DATA_PATH) != -1) {
-	                        this.onDownLoadCallBack(url, 0);
-	                    }
-	                    else {
-	                        MiniFileMgr.downOtherFiles(url, Laya.Handler.create(this, this.onDownLoadCallBack, [url]), url, TBMiniAdapter.autoCacheFile);
-	                    }
-	                }
-	            }
-	        }
 	    }
 	    onDownLoadCallBack(sourceUrl, errorCode, tempFilePath = null) {
 	        if (!errorCode && this._sound) {
@@ -603,14 +548,6 @@ window.tbMiniGame = function (exports, Laya) {
 	    }
 	    play(startTime = 0, loops = 0) {
 	        return null;
-	        var channel = new MiniSoundChannel(this);
-	        channel.url = this.url;
-	        channel.loops = loops;
-	        channel.loop = (loops === 0 ? true : false);
-	        channel.startTime = startTime;
-	        channel.isStopped = false;
-	        Laya.SoundManager.addChannel(channel);
-	        return channel;
 	    }
 	    get duration() {
 	        return this._sound.duration;
@@ -658,43 +595,6 @@ window.tbMiniGame = function (exports, Laya) {
 	    }
 	    static wxinputFocus(e) {
 	        return;
-	        var _inputTarget = Laya.Input['inputElement'].target;
-	        if (_inputTarget && !_inputTarget.editable) {
-	            return;
-	        }
-	        TBMiniAdapter.window.my.showKeyboard({ defaultValue: _inputTarget.text, maxLength: _inputTarget.maxChars, multiple: _inputTarget.multiline, confirmHold: true, confirmType: _inputTarget["confirmType"] || 'done', success: function (res) {
-	            }, fail: function (res) {
-	            } });
-	        TBMiniAdapter.window.my.onKeyboardConfirm(function (res) {
-	            var str = res ? res.value : "";
-	            if (_inputTarget._restrictPattern) {
-	                str = str.replace(/\u2006|\x27/g, "");
-	                if (_inputTarget._restrictPattern.test(str)) {
-	                    str = str.replace(_inputTarget._restrictPattern, "");
-	                }
-	            }
-	            _inputTarget.text = str;
-	            _inputTarget.event(Laya.Event.INPUT);
-	            MiniInput.inputEnter();
-	            _inputTarget.event("confirm");
-	        });
-	        TBMiniAdapter.window.my.onKeyboardInput(function (res) {
-	            var str = res ? res.value : "";
-	            if (!_inputTarget.multiline) {
-	                if (str.indexOf("\n") != -1) {
-	                    MiniInput.inputEnter();
-	                    return;
-	                }
-	            }
-	            if (_inputTarget._restrictPattern) {
-	                str = str.replace(/\u2006|\x27/g, "");
-	                if (_inputTarget._restrictPattern.test(str)) {
-	                    str = str.replace(_inputTarget._restrictPattern, "");
-	                }
-	            }
-	            _inputTarget.text = str;
-	            _inputTarget.event(Laya.Event.INPUT);
-	        });
 	    }
 	    static inputEnter() {
 	        Laya.Input['inputElement'].target.focus = false;
@@ -704,11 +604,6 @@ window.tbMiniGame = function (exports, Laya) {
 	    }
 	    static hideKeyboard() {
 	        return;
-	        TBMiniAdapter.window.my.hideKeyboard({ success: function (res) {
-	                console.log('隐藏键盘');
-	            }, fail: function (res) {
-	                console.log("隐藏键盘出错:" + (res ? res.errMsg : ""));
-	            } });
 	    }
 	}
 
@@ -766,32 +661,6 @@ window.tbMiniGame = function (exports, Laya) {
 	        thisLoader.event(Laya.Event.ERROR, "not support sound");
 	        return;
 	        var thisLoader = this;
-	        if (!TBMiniAdapter.autoCacheFile) {
-	            MiniLoader.onDownLoadCallBack(url, thisLoader, 0);
-	        }
-	        else {
-	            var tempurl = Laya.URL.formatURL(url);
-	            if (MiniFileMgr.getFileInfo(tempurl)) {
-	                MiniLoader.onDownLoadCallBack(url, thisLoader, 0);
-	            }
-	            else {
-	                if (!MiniFileMgr.isLocalNativeFile(url)) {
-	                    if (MiniFileMgr.isNetFile(tempurl)) {
-	                        MiniFileMgr.downOtherFiles(TBMiniAdapter.safeEncodeURI(tempurl), Laya.Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl, thisLoader]), tempurl, TBMiniAdapter.autoCacheFile);
-	                    }
-	                    else {
-	                        MiniLoader.onDownLoadCallBack(TBMiniAdapter.baseDir + url, thisLoader, 0);
-	                    }
-	                }
-	                else {
-	                    if (tempurl.indexOf(TBMiniAdapter.window.my.env.USER_DATA_PATH) == -1) {
-	                        MiniLoader.onDownLoadCallBack(TBMiniAdapter.baseDir + url, thisLoader, 0);
-	                    }
-	                    else
-	                        MiniLoader.onDownLoadCallBack(url, thisLoader, 0);
-	                }
-	            }
-	        }
 	    }
 	    static onDownLoadCallBack(sourceUrl, thisLoader, errorCode, tempFilePath = null) {
 	        if (!errorCode) {
