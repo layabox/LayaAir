@@ -118,7 +118,8 @@ export class PerformanceDataTool{
     set runtimeShowPath(path:string){
         let showPathIndex = this._AllPathMap[path];
         for(let i in this.pointArray){
-            this.pointArray[i] = null;
+           delete this.pointArray[i] ;
+           delete PerformanceDataTool.stepLengthArrayMap[i];
         }
         if(showPathIndex != null)
             this._runtimeShowPathIndex = showPathIndex;

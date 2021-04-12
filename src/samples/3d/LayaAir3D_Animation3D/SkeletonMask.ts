@@ -9,10 +9,8 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Browser } from "laya/utils/Browser"
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { BitmapFont } from "laya/display/BitmapFont";
 import { Text } from "laya/display/Text";
-import { textChangeRangeIsUnchanged } from "../../../../node_modules/typescript/lib/typescript";
 import { Event } from "laya/events/Event";
 
 
