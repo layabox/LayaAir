@@ -114,6 +114,11 @@ import { LoadGltfRosource } from "../3d/LayaAir3D_Resource/LoadGltfResource";
 import { CommandBuffer_DrawCustomInstance } from "../3d/LayaAir3D_Advance/CommandBuffer_DrawCustomInstance";
 import { GrassDemo } from "../3d/LayaAir3D_Demo/GrassRender/GrassDemo";
 import { Blinnphong_Transmission } from "../3d/LayaAir3D_Material/BlinnPhong_Transmission";
+import { GPUCompression_ETC2 } from "../3d/LayaAir3D_Texture/GPUCompression_ETC2";
+import { GPUCompression_ASTC } from "../3d/LayaAir3D_Texture/GPUCompression_ASTC";
+import { SeparableSSS_RenderDemo } from "../3d/LayaAir3D_Advance/SeparableSSS_RenderDemo";
+import { PerformancePluginDemo } from "../3d/LayaAir3D_Performance/PerformancePluginDemo";
+import { PostProcessDoF } from "../3d/LayaAir3D_PostProcess/PostProcess_DoF";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -131,11 +136,11 @@ export class IndexView3D extends IndexViewUI {
 
 	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance', 'Demo','PostProcess'];
 	//var s:Secne3DPlayer2D    
-	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,CommandBuffer_DrawCustomInstance,ReflectionProbeDemo,CameraDepthModeTextureDemo];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','CommandBuffer_DrawCustomInstance','ReflectionProbeDemo','CameraDepthTextureDemo'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,CommandBuffer_DrawCustomInstance,ReflectionProbeDemo,CameraDepthModeTextureDemo,SeparableSSS_RenderDemo];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','CommandBuffer_DrawCustomInstance','ReflectionProbeDemo','CameraDepthTextureDemo','SeparableScreenSSS'];//'后期处理之泛光','寻路示例',
 
-	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge];
-	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge'];
+	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge,PostProcessDoF];
+	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge','PostProcessDOF'];
 
 	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample,SimpleSkinAnimationInstance];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample","SimpleSkinAnimationInstance"];
@@ -161,8 +166,8 @@ export class IndexView3D extends IndexViewUI {
 	private _particleClsArr: any[] = [Particle_BurningGround, Particle_EternalLight];
 	private _particleArr: any[] = ['Particle_BurningGround', 'Particle_EternalLight'];
 
-	private _performanceClsArr: any[] = [StaticBatchingTest, DynamicBatchTest];
-	private _performanceArr: any[] = ['StaticBatchingTest', 'DynamicBatchTest'];
+	private _performanceClsArr: any[] = [StaticBatchingTest, DynamicBatchTest,PerformancePluginDemo];
+	private _performanceArr: any[] = ['StaticBatchingTest', 'DynamicBatchTest','PerformanceDemo'];
 
 	private _physicsClsArr: any[] = [PhysicsWorld_BaseCollider, PhysicsWorld_BuildingBlocks, PhysicsWorld_Character, PhysicsWorld_CollisionFiflter, PhysicsWorld_CompoundCollider, PhysicsWorld_ContinueCollisionDetection, PhysicsWorld_Kinematic, PhysicsWorld_MeshCollider, PhysicsWorld_RayShapeCast, PhysicsWorld_TriggerAndCollisionEvent, PhysicsWorld_ConstraintFixedJoint, PhysicsWorld_ConfigurableJoint];
 	private _physicslArr: any[] = ['PhysicsWorld_BaseCollider', 'PhysicsWorld_BuildingBlocks', 'PhysicsWorld_Character', 'PhysicsWorld_CollisionFiflter', 'PhysicsWorld_CompoundCollider', 'PhysicsWorld_ContinueCollisionDetection', 'PhysicsWorld_Kinematic', 'PhysicsWorld_MeshCollider', 'PhysicsWorld_RayShapeCast', 'PhysicsWorld_TriggerAndCollisionEvent', 'PhysicsWorld_ConstraintFixedJoint', 'PhysicsWorld_ConfigurableJoint'];
@@ -188,8 +193,8 @@ export class IndexView3D extends IndexViewUI {
 	private _sprite3DClsArr: any[] = [PixelLineSprite3DDemo, SkinnedMeshSprite3DDemo, Sprite3DClone, Sprite3DLoad, Sprite3DParent, TransformDemo];
 	private _sprite3DArr: any[] = ['PixelLineSprite3D', 'SkinnedMeshSprite3D', "Sprite3DClone", 'Sprite3DLoad', 'Sprite3DParent', 'Transform'];
 
-	private _textureClsArr: any[] = [TextureDemo, HalfFloatTexture,TextureGPUCompression];
-	private _textureArr: any[] = ['Texture', 'HalfFloatTexture','TextureGPUCompression'];
+	private _textureClsArr: any[] = [TextureDemo, HalfFloatTexture,TextureGPUCompression,GPUCompression_ETC2,GPUCompression_ASTC];
+	private _textureArr: any[] = ['Texture', 'HalfFloatTexture','TextureGPUCompression','ETC2Texture','ASTCTexture'];
 
 	private _trailClsArr: any[] = [TrailDemo, TrailRender];
 	private _trailArr: any[] = ['Trail', 'TrailRender'];
