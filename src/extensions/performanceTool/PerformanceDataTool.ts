@@ -77,25 +77,28 @@ export class PerformanceDataTool{
      * 数据中存入Laya引擎自身的检测数据
      */
      static InitLayaPerformanceInfo(){
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_2D,[255,128,128,255]);//pick
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D,[255,255,128,255]);//yellow
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER,[128,255,128,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_UPDATESCRIPT,[128,255,255,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_PHYSICS,[0,128,255,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_PHYSICS_SIMULATE,[255,0,0,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_PHYSICS_CHARACTORCOLLISION,[255,128,0,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_PHYSICS_EVENTSCRIPTS,[128,0,0,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER,[64,128,128,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_SHADOWMAP,[192,192,192,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_CLUSTER,[128,64,64,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_CULLING,[0,64,128,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE,[128,0,64,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE,[128,0,255,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER,[128,128,64,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT,[128,0,255,255]);
-        PerformanceDataTool.instance.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS,[0,255,0,255]);
+        PerformanceDataTool.instance.InitLayaPerformanceInfo();
     }
-
+    public InitLayaPerformanceInfo() {
+        
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_2D,[255,128,128,255]);//pick
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D,[255,255,128,255]);//yellow
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER,[128,255,128,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_UPDATESCRIPT,[128,255,255,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_PHYSICS,[0,128,255,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_PHYSICS_SIMULATE,[255,0,0,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_PHYSICS_CHARACTORCOLLISION,[255,128,0,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_PHYSICS_EVENTSCRIPTS,[128,0,0,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER,[64,128,128,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_SHADOWMAP,[192,192,192,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_CLUSTER,[128,64,64,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_CULLING,[0,64,128,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE,[128,0,64,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE,[128,0,255,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER,[128,128,64,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT,[128,0,255,255]);
+        this.setPathDataColor(PerformanceDataTool.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS,[0,255,0,255]);
+    }
     set enable(value:boolean){
         if(value){
             this._startFram = Stat.loopCount;
@@ -112,6 +115,20 @@ export class PerformanceDataTool{
 
     get enable():boolean{
         return this._enable;
+    }
+    private _enableDataExport:boolean;
+    get enableDataExport():boolean{
+        return this._enableDataExport;
+    } 
+    set enableDataExport(value:boolean){
+        if(value){ 
+            ProfileHelper.init('player', this);
+            ProfileHelper.enable = value;
+        }
+        else{ 
+            ProfileHelper.enable = value;
+        }
+        this._enableDataExport = value;
     }
 
 
@@ -144,6 +161,7 @@ export class PerformanceDataTool{
         else{ 
             id = this._pathCount++;
             this._AllPathMap[path] = id;
+            ProfileHelper.sendConfigData(this.getPathInfo());
         }
         return id;
     }
@@ -153,6 +171,10 @@ export class PerformanceDataTool{
      */
     public getPathInfo():any{
         let pathInfo = {};
+        // 如果路径颜色未初始化
+        if (Object.keys(this._pathColor).length == 0) {
+            this.InitLayaPerformanceInfo();
+        }
         pathInfo["_pathColor"] = this._pathColor;
         pathInfo["_AllPathMap"] = this._AllPathMap;
         return pathInfo;

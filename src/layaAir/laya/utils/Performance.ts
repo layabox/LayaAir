@@ -51,8 +51,9 @@ export class PerformancePlugin{
 
 
     static set enable(value:boolean){
-        if(this.performanceTool)
-        this.performanceTool.enable = value;
+        if(this.performanceTool) { 
+            this.performanceTool.enable = value; 
+        }
      
     }
 
@@ -60,6 +61,18 @@ export class PerformancePlugin{
         if(this.performanceTool)
         return this._enable;
         else
+        return false;
+    }
+    static set enableDataExport(value:boolean){
+        if(this.performanceTool) { 
+            this.performanceTool.enableDataExport = value; 
+        }
+     
+    }
+
+    static get enableDataExport():boolean{
+        if(this.performanceTool)
+        return this.performanceTool.enableDataExport; 
         return false;
     }
 }
