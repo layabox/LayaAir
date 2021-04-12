@@ -422,10 +422,12 @@ export class PerformanceDataTool{
             for(let i in this._memoryDataMap){
                 this._runtimeNode.setMemory(this.getNodePathIndex(i), this._memoryDataMap[i]);
             }
-            this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_DELTYTIME)]=performance.now() - this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_STARTTIME)];
-            this.exportFrontNode(this._runtimeNode,this._runtimeShowPathIndex);
-            //发送准备好的节点TODO:
-            ProfileHelper.sendFramData( this._runtimeNode);
+            if(this._runtimeNode){
+                this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_DELTYTIME)]=performance.now() - this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_STARTTIME)];
+                this.exportFrontNode(this._runtimeNode,this._runtimeShowPathIndex);
+                //发送准备好的节点TODO:
+                ProfileHelper.sendFramData( this._runtimeNode);
+            }
             this._runtimeNode = PerforManceNode.create(this._pathCount);
             this._runtimeNode.nodeDelty[this.getNodePathIndex(PerformanceDataTool.PERFORMANCE_STARTTIME)] = performance.now();
             this._nodeList.push(this._runtimeNode);
