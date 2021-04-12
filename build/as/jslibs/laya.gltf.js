@@ -321,7 +321,6 @@
 	                layaPBRMaterial.renderMode = Laya.PBRRenderMode.Cutout;
 	                break;
 	            }
-	            default:
 	        }
 	        if (glTFMaterial.alphaCutoff != undefined) {
 	            layaPBRMaterial.alphaTestValue = glTFMaterial.alphaCutoff;
@@ -992,8 +991,6 @@
 	                case "scale":
 	                    clipNode.propertise.push("localScale");
 	                    clipNode.type = 3;
-	                    break;
-	                default:
 	                    break;
 	            }
 	            clipNode.duration = clipNode.timeArray[clipNode.timeArray.length - 1];

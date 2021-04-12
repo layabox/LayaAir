@@ -342,46 +342,6 @@
         }
         _computeFullKeyframeIndices() {
             return;
-            var templet = this._templet;
-            if (templet._fullFrames)
-                return;
-            var anifullFrames = this._templet._fullFrames = [];
-            var cacheFrameInterval = this._cacheFrameRateInterval * this._cachePlayRate;
-            for (var i = 0, iNum = templet.getAnimationCount(); i < iNum; i++) {
-                var aniFullFrame = [];
-                if (!templet.getAnimation(i).nodes) {
-                    anifullFrames.push(aniFullFrame);
-                    continue;
-                }
-                for (var j = 0, jNum = templet.getAnimation(i).nodes.length; j < jNum; j++) {
-                    var node = templet.getAnimation(i).nodes[j];
-                    var frameCount = Math.round(node.playTime / cacheFrameInterval);
-                    var nodeFullFrames = new Uint16Array(frameCount + 1);
-                    var stidx = -1;
-                    var nodeframes = node.keyFrame;
-                    for (var n = 0, nNum = nodeframes.length; n < nNum; n++) {
-                        var keyFrame = nodeframes[n];
-                        var pos = Math.round(keyFrame.startTime / cacheFrameInterval);
-                        if (stidx < 0 && pos > 0) {
-                            stidx = pos;
-                        }
-                        if (pos <= frameCount) {
-                            nodeFullFrames[pos] = n;
-                        }
-                    }
-                    var cf = 0;
-                    for (n = stidx; n < frameCount; n++) {
-                        if (nodeFullFrames[n] == 0) {
-                            nodeFullFrames[n] = cf;
-                        }
-                        else {
-                            cf = nodeFullFrames[n];
-                        }
-                    }
-                    aniFullFrame.push(nodeFullFrames);
-                }
-                anifullFrames.push(aniFullFrame);
-            }
         }
         _onAnimationTempletLoaded() {
             (this.destroyed) || (this._calculatePlayDuration());
@@ -682,7 +642,6 @@
                 }
                 return cid;
             }
-            return 0;
         }
         getOriginalData(aniIndex, originalData, nodesFrameIndices, frameIndex, playCurTime) {
             var oneAni = this._anis[aniIndex];
@@ -1373,8 +1332,6 @@
                     }
                     this.skinMesh(boneMatrixArray, tSkinSprite);
                     graphics.drawSkin(tSkinSprite, alpha);
-                    break;
-                case 3:
                     break;
             }
         }

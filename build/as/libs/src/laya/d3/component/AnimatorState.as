@@ -44,24 +44,24 @@ package laya.d3.component {
 		public function AnimatorState(){}
 
 		/**
-		 * @implements IReferenceCounter
+		 * @implements 
 		 */
 		public function _getReferenceCount():Number{
 			return null;
 		}
 
 		/**
-		 * @implements IReferenceCounter
+		 * @implements 
 		 */
 		public function _addReference(count:Number):void{}
 
 		/**
-		 * @implements IReferenceCounter
+		 * @implements 
 		 */
 		public function _removeReference(count:Number):void{}
 
 		/**
-		 * @implements IReferenceCounter
+		 * @implements 
 		 */
 		public function _clearReference():void{}
 

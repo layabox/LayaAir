@@ -19,7 +19,6 @@ window.vvMiniGame = function (exports, Laya) {
 	            return null;
 	        else
 	            return fileObj;
-	        return null;
 	    }
 	    static read(filePath, encoding = "utf8", callBack = null, readyUrl = "", isSaveFile = false, fileType = "") {
 	        var fileUrl;
