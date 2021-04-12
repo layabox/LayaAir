@@ -21,9 +21,9 @@ import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { CameraMoveScript } from "../../common/CameraMoveScript";
-import { SeparableSSS_BlitMaterial } from "./Material/SeparableSSS_BlitMaterial";
-import { SeparableSSSRenderMaterial } from "./Material/SeparableSSS_RenderMaterial";
+import { CameraMoveScript } from "../common/CameraMoveScript";
+import { SeparableSSS_BlitMaterial } from "./SeparableSSSRender/Material/SeparableSSS_BlitMaterial";
+import { SeparableSSSRenderMaterial } from "./SeparableSSSRender/Material/SeparableSSS_RenderMaterial";
 import { Event } from "laya/events/Event";
 
 export class SeparableSSS_RenderDemo{
