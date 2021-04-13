@@ -104,12 +104,6 @@ The following command execution directories are the root directory of the LayaAi
 
 ### Environment Preparation
 
-##### Install Gulp globally
-
-```
-npm install -g gulp
-```
-
 ##### Install dependencies
 
 ```
@@ -117,8 +111,6 @@ npm install
 ```
 
 ### Build the project
-
-#### windows:
 
 - ##### Publishing Engine
 
