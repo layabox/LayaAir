@@ -290,6 +290,19 @@ gulp.task('ConcatCannonPhysics', function (cb) {
     ], cb);
 });
 
+//合并 laya.bullet.js 和 laya.physics3D.wasm.js
+gulp.task('ConcatBulletPhysics.wasm', function (cb) {
+    pump([
+        gulp.src([
+            './layaAir/jsLibs/laya.physics3D.wasm.js',
+            '../build/js/libs/laya.bullet.js']),
+        concat('laya.physics3D.wasm.js'),//合并后的文件名
+        gulp.dest('../build/js/libs/'),
+    ], function() {   
+        cb();
+    });
+});
+
 //合并 laya.bullet.js 和 laya.physics3D.js
 gulp.task('ConcatBulletPhysics', function (cb) {
     pump([
@@ -308,7 +321,7 @@ gulp.task('ConcatBulletPhysics', function (cb) {
 gulp.task('CopyJSLibsToJS', () => {
     return gulp.src([
         './layaAir/jsLibs/laya.physics3D.wasm.wasm','./layaAir/jsLibs/*.js',
-        '!./layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js}'])
+        '!./layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,laya.physics3D.wasm.js}'])
         .pipe(gulp.dest('../build/js/libs'));
 });
 
@@ -336,7 +349,7 @@ gulp.task('CopyTSFileToTS', () => {
 //拷贝第三方库至ts库(未来在数组中补充需要的其他第三方库)
 gulp.task('CopyTSJSLibsFileToTS', () => {
     return gulp.src([
-        './layaAir/jsLibs/**/*.*', '!./layaAir/jsLibs/{cannon.js,laya.physics3D.js}','../build/js/libs/{laya.cannonPhysics.js,laya.physics3D.js}'])
+        './layaAir/jsLibs/**/*.*', '!./layaAir/jsLibs/{cannon.js,laya.physics3D.js,laya.physics3D.wasm.js}','../build/js/libs/{laya.cannonPhysics.js,laya.physics3D.js,laya.physics3D.wasm.js}'])
         .pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
@@ -450,4 +463,4 @@ gulp.task("compresstsnewJs", function () {
         .pipe(gulp.dest("../build/ts_new/jslibs/min"));
 });
 
-gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'ConcatCannonPhysics', 'ConcatBulletPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS', 'compressJs', 'compresstsnewJs'));
+gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'ConcatCannonPhysics','ConcatBulletPhysics.wasm',  'ConcatBulletPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS', 'compressJs', 'compresstsnewJs'));
