@@ -349,7 +349,7 @@ gulp.task('CopyTSFileToTS', () => {
 //拷贝第三方库至ts库(未来在数组中补充需要的其他第三方库)
 gulp.task('CopyTSJSLibsFileToTS', () => {
     return gulp.src([
-        './layaAir/jsLibs/**/*.*', '!./layaAir/jsLibs/{cannon.js,laya.physics3D.js,laya.physics3D.wasm.js}','../build/js/libs/{laya.cannonPhysics.js,laya.physics3D.js,laya.physics3D.wasm.js}'])
+        './layaAir/jsLibs/**/*.*'])
         .pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
@@ -463,4 +463,10 @@ gulp.task("compresstsnewJs", function () {
         .pipe(gulp.dest("../build/ts_new/jslibs/min"));
 });
 
-gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'ConcatCannonPhysics','ConcatBulletPhysics.wasm',  'ConcatBulletPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS', 'compressJs', 'compresstsnewJs'));
+gulp.task('build', 
+gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 
+            'ConcatCannonPhysics','ConcatBulletPhysics.wasm',  
+            'ConcatBulletPhysics', 'CopyJSLibsToJS', 
+            'CopyTSFileToTS', 'CopyJSFileToAS', 
+            'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 
+            'CopyDTS', 'compressJs', 'compresstsnewJs'));
