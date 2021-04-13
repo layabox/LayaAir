@@ -13,16 +13,15 @@ uniform vec4 u_MainTex_TexelSize;
 varying vec2 v_Texcoord0;
 
 const int kCount = 5;
-const vec2 kTaps[5] = vec2[5](
-    vec2( 0.0,  0.0),
-    vec2( 0.9, -0.4),
-    vec2(-0.9,  0.4),
-    vec2( 0.4,  0.9),
-    vec2(-0.4, -0.9)
-);
+vec2 kTaps[5];
 
 void main () {
-    // todo _HIGH_QUALITY_SAMPLING
+
+    kTaps[0] = vec2( 0.0,  0.0);
+    kTaps[1] = vec2( 0.9, -0.4);
+    kTaps[2] = vec2(-0.9,  0.4);
+    kTaps[3] = vec2( 0.4,  0.9);
+    kTaps[4] = vec2(-0.4, -0.9);
 
     vec3 colorAcc = vec3(0.0);
     float farCoCAcc = 0.0;

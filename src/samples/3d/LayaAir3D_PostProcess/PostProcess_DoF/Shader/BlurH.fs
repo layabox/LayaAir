@@ -14,21 +14,20 @@ uniform vec3 u_CoCParams;
 
 varying vec2 v_Texcoord0;
 
-// todo 3 & 5
 const int kTapCount = 3;
-const float kOffsets[3] = float[3](
-    -1.33333333,
-    0.00000000,
-    1.33333333
-);
-const float kCoeffs[3] = float[3](
-    0.35294118,
-    0.29411765,
-    0.35294118
-);
-
+float kOffsets[3];
+float kCoeffs[3];
 
 vec4 Blur(vec2 dir, float premultiply) {
+
+    kOffsets[0] = -1.33333333;
+    kOffsets[1] = 0.00000000;
+    kOffsets[2] = 1.33333333;
+
+    kCoeffs[0] = 0.35294118;
+    kCoeffs[1] = 0.29411765;
+    kCoeffs[2] = 0.3529411;
+
     vec2 uv = v_Texcoord0;
     // ivec2 positionSS = ivec2(u_SourceSize.xy * uv);
 
