@@ -60,7 +60,7 @@ export class PerformanceDataTool{
     /**Memory格式的数据 */
     _memoryDataMap:{[key:string]:number} = {};
 
-    public _sp: Sprite = new Sprite();
+    public _sp: Sprite;
     public pointArray: any[] = [];
     public fpsArray: any[] = [];
     // 显示宽度
@@ -104,6 +104,7 @@ export class PerformanceDataTool{
             this._startFram = Stat.loopCount;
             this.resetReCordData();
             //加入stage
+            this._sp = new Sprite();
             this._sp.pos(0, 400).zOrder = 99;
             Laya.stage.addChild(this._sp);
         }
