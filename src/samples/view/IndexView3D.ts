@@ -119,6 +119,7 @@ import { GPUCompression_ASTC } from "../3d/LayaAir3D_Texture/GPUCompression_ASTC
 import { SeparableSSS_RenderDemo } from "../3d/LayaAir3D_Advance/SeparableSSS_RenderDemo";
 import { PerformancePluginDemo } from "../3d/LayaAir3D_Performance/PerformancePluginDemo";
 import { PostProcessDoF } from "../3d/LayaAir3D_PostProcess/PostProcess_DoF";
+import { SkeletonMask } from "../3d/LayaAir3D_Animation3D/SkeletonMask";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -142,8 +143,8 @@ export class IndexView3D extends IndexViewUI {
 	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge,PostProcessDoF];
 	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge','PostProcessDOF'];
 
-	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample,SimpleSkinAnimationInstance];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
-	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample","SimpleSkinAnimationInstance"];
+	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample,SimpleSkinAnimationInstance,SkeletonMask];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
+	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample","SimpleSkinAnimationInstance,SkinMask"];
 
 	private _cameraClsArr: any[] = [CameraDemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, PickPixel, RenderTargetCamera];
 	private _cameraArr: any[] = ['Camera', 'CameraLayer', 'CameraLookAt', 'CameraRay', 'D3SpaceToD2Space', 'MultiCamera', 'OrthographicCamera', 'PickPixel', 'RenderTargetCamera'];
