@@ -93,6 +93,9 @@ import { ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
 import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
 import { Physics3D } from "./laya/d3/Physics3D";
+import { Camera } from "./laya/d3/core/Camera";
+import { CommandBuffer } from "./laya/d3/core/render/command/CommandBuffer";
+import { RenderElement } from "./laya/d3/core/render/RenderElement";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -198,6 +201,9 @@ export class Laya3D {
 		ILaya3D.Matrix4x4 = Matrix4x4;
 		ILaya3D.Physics3D = Physics3D;
 		ILaya3D.ShadowLightType = ShadowLightType;
+		ILaya3D.Camera = Camera;
+		ILaya3D.CommandBuffer = CommandBuffer;
+		ILaya3D.RenderElement = RenderElement;
 		//函数里面会有判断isConchApp
 		Laya3D.enableNative3D();
 
