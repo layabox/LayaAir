@@ -27,7 +27,9 @@ export class PerformancePluginDemo {
 		Stat.show();
 
         PerformancePlugin.setPerformanceDataTool(PerformanceDataTool.instance);
-        PerformancePlugin.enable = true;
+        PerformancePlugin.enable = true; 
+        PerformancePlugin.enableDataExport = true;
+		PerformanceDataTool.instance.samplerFramStep = 1;
         
 		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 		scene.ambientColor = new Vector3(1, 1, 1);

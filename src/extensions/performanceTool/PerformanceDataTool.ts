@@ -186,9 +186,12 @@ export class PerformanceDataTool{
     /**
      * 输出所有调试数据为ArrayBuffer
      */
-    exportPerformanceFile(){
+    exportPerformanceFile(fromProfiler: boolean = false){
         PerformanceDataTool.InitLayaPerformanceInfo();
-        this.enable = false;
+        if (!fromProfiler) { 
+            // 从性能分析器调用时，不可设置enable
+            this.enable = false;
+        }
         //TODO:输出数据导出
         let blockstr:string[] = [];
         let blockStart:number[] = [];
