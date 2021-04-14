@@ -54,8 +54,9 @@ export class SkeletonMask {
 		txt.width = 250;
 		txt.wordWrap = true;
 		txt.text = "带有骨骼遮罩的动画";
-		txt.font = font;
+		txt.color = "#FFFFFFFF";
 		txt.leading = 5;
+		txt.fontSize = 10;
 		txt.zOrder = 999999999;
 		txt.scale(Browser.pixelRatio, Browser.pixelRatio);
 		txt.pos(Laya.stage.width / 2-50,Laya.stage.height/2);
@@ -69,8 +70,10 @@ export class SkeletonMask {
 		txt.width = 250;
 		txt.wordWrap = true;
 		txt.text = "正常动画一";
-		txt.font = font;
+		txt.color = "#FFFFFFFF";
+		txt.size(200,300);
 		txt.leading = 5;
+		txt.fontSize = 15;
 		txt.zOrder = 999999999;
 		txt.pos(Laya.stage.width / 2 - 240, Laya.stage.height/2);
 		Laya.stage.on(Event.RESIZE,txt,()=>{
@@ -83,9 +86,10 @@ export class SkeletonMask {
 		txt.width = 250;
 		txt.wordWrap = true;
 		txt.text = "正常动画二";
-		txt.font = font;
+		txt.color = "#FFFFFFFF";
 		txt.leading = 5;
 		txt.zOrder = 999999999;
+		txt.fontSize = 15;
 		txt.pos(Laya.stage.width / 2 + 140, Laya.stage.height/2);
 		Laya.stage.on(Event.RESIZE,txt,()=>{
 			txt.pos(Laya.stage.width / 2 + 140,Laya.stage.height/2);
