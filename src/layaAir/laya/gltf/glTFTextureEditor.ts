@@ -83,9 +83,9 @@ export class glTFTextureEditor {
 
         let layaTex: Texture2D = glTFTextureEditor.GenerateTexture2DWithPixel(layaTexPixels, glTFMetallicGloss.width, glTFMetallicGloss.height, TextureFormat.R8G8B8A8, glTFMetallicGloss.mipmap);
 
-        let base64url: string = glTFTextureEditor.PixelArrayToBase64(layaTexPixels, glTFMetallicGloss.width, glTFMetallicGloss.height);
-        layaTex._setCreateURL(base64url);
-        Loader.cacheRes(base64url, layaTex);
+        // let base64url: string = glTFTextureEditor.PixelArrayToBase64(layaTexPixels, glTFMetallicGloss.width, glTFMetallicGloss.height);
+        // layaTex._setCreateURL(base64url);
+        // Loader.cacheRes(base64url, layaTex);
 
         return layaTex;
     }
