@@ -1,3 +1,5 @@
+import { PerformanceDataTool } from "./PerformanceDataTool";
+
 interface SocketManagerOptions {
     onMessage?: (ev: MessageEvent) => void;
     onOpen?: (ev: Event) => void;
@@ -143,10 +145,11 @@ type MsgType = 'frameData' | 'initPerformance'  | 'selectPlayer' | 'start';
 type InternalMsgType = MsgType | 'onSelectMe' | 'onSelectMe_back' | 'active' | 'heart' | 'getPerformanceConf'  | 'getPerformanceConf_back'| 'selectPlayer_back'| 'playerList' | 'onReady' | 'onChangePlayer'  | 'msgList'   | 'onSelectPlayer'; 
 export default class ProfileHelper {
     private socketManager:SocketManager = null as any;
-    private performanceDataTool: any  /** PerformanceDataTool*/; 
+    private performanceDataTool: PerformanceDataTool  /** PerformanceDataTool*/; 
     public selectPlayerId: number = 0;
     private heartIntervalHandler: any;
     private active: number = 0;
+    static Host: string;
     public selectPlayerStatus: number = 0;/**1pending,2resolve,3reject */
     private static instance: ProfileHelper;
     private static _enable: boolean 
@@ -198,26 +201,33 @@ export default class ProfileHelper {
         }
         var host = '';
         var url = '';
-        var href = document.location.href;  
-        var port = getParameterByName('profilePort', href) || '1050';
+        var href = '';  
+        if (window && window.location && window.location.href) {
+            href = window.location.href;
+        }
         var name = getParameterByName('profileName', href) || '';
-        // 解析服务器名
-        if (href.startsWith('http')) {
-            var index1 = href.indexOf('//');
-            var index2 = href.indexOf('/', index1 + 3);
-            if (index2 === -1) {
-                index2 = href.length;
-            }
-            url = href.substring(index1 + 2, index2); 
-            index2 = url.indexOf(':');
-            if (index2 >= 0) {
-                url = url.substring(0, index2); 
-            }
-            host = url;
+        var port = getParameterByName('profilePort', href) || '1050';
+        if (ProfileHelper.Host || getParameterByName('profileHost', href)) { 
+            host = ProfileHelper.Host || getParameterByName('profileHost', href);
         } else {
-            host = 'localhost';
-        }  
-        host = getParameterByName('profileHost', href) || host;
+            // 解析服务器名
+            if (href.startsWith('http')) {
+                var index1 = href.indexOf('//');
+                var index2 = href.indexOf('/', index1 + 3);
+                if (index2 === -1) {
+                    index2 = href.length;
+                }
+                url = href.substring(index1 + 2, index2); 
+                index2 = url.indexOf(':');
+                if (index2 >= 0) {
+                    url = url.substring(0, index2); 
+                }
+                host = url;
+            } else {
+                host = 'localhost';
+            }              
+        }
+        
         this.performanceDataTool = performanceDataTool;
         this.heartIntervalHandler = setInterval(() => {
             this.sendInternalMsg('heart', {})
@@ -341,13 +351,11 @@ export default class ProfileHelper {
         // ProfileHelper.sendMsg("frameData", data); 
     } 
 
-    private sendConfigData = (data: any = null /** PerforManceNode*/) => { 
-        if (data) { 
-            this.performanceDataTool = data;
-        }
+    private sendConfigData = (data: any = null /** PerforManceNode*/) => {  
+        let configData = this.performanceDataTool.getPathInfo();
         this.sendInternalMsg(
             'getPerformanceConf_back', 
-            this.performanceDataTool); 
+            configData); 
     } 
     public sendFramDataList = (dataList: any [] ) => {
         let list =  dataList.map((data) => {

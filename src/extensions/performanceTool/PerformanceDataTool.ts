@@ -131,7 +131,9 @@ export class PerformanceDataTool{
         }
         this._enableDataExport = value;
     }
-
+    public static setDataExportHost(host: string) {
+        ProfileHelper.Host = host;
+    }
 
     set runtimeShowPath(path:string){
         let showPathIndex = this._AllPathMap[path];
