@@ -125,6 +125,7 @@ export class PerformanceDataTool{
         if(value){ 
             ProfileHelper.init('player', this);
             ProfileHelper.enable = value;
+            this.samplerFramStep = 1;
         }
         else{ 
             ProfileHelper.enable = value;

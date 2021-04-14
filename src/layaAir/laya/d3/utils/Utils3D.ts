@@ -746,7 +746,11 @@ export class Utils3D {
 	}
 
 
-	
+	/**
+	 * 将RenderTexture转换为Base64
+	 * @param rendertexture 渲染Buffer
+	 * @returns 
+	 */
 	static uint8ArrayToArrayBuffer(rendertexture: RenderTexture)
 	{
 		
