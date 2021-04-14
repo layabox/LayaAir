@@ -124,7 +124,9 @@ export class PerformanceDataTool{
     set enableDataExport(value:boolean){
         if(value){ 
             ProfileHelper.init('player', this);
-            ProfileHelper.enable = value;
+            ProfileHelper.enable = value;  
+            //开启性能数据传输,自动设置为1
+            this.samplerFramStep = 1;
         }
         else{ 
             ProfileHelper.enable = value;
