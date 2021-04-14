@@ -8,6 +8,7 @@ import { Byte } from "../utils/Byte";
 import { FilterMode } from "./FilterMode";
 import { SystemUtils } from "../webgl/SystemUtils";
 import { HalfFloatUtils } from "../utils/HalfFloatUtils";
+import { Browser } from "../utils/Browser";
 
 /**
  * <code>Texture2D</code> 类用于生成2D纹理。
@@ -347,52 +348,60 @@ export class Texture2D extends BaseTexture {
 			throw ("Invalid fileIdentifier in KTX header");
 		var header: Int32Array = new Int32Array(id.buffer, id.length, ETC_HEADER_LENGTH);
 		var compressedFormat: number = header[ETC_HEADER_FORMAT];
-		switch (compressedFormat) {
-			case LayaGL.layaGPUInstance._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL:
-				this._format = TextureFormat.ETC1RGB;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_RGBA8_ETC2_EAC:
-				this._format = TextureFormat.ETC2RGBA;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_RGB8_ETC2:
-				this._format = TextureFormat.ETC2RGB;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
-				this._format = TextureFormat.ETC2RGB_Alpha8;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR:
-				this._format = TextureFormat.ASTC4x4;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
-				this._format = TextureFormat.ASTC4x4SRGB;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
-				this._format = TextureFormat.ASTC6x6SRGB;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
-				this._format = TextureFormat.ASTC8x8SRGB;	
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
-				this._format = TextureFormat.ASTC10x10SRGB;	
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
-				this._format = TextureFormat.ASTC12x12SRGB;	
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR:
-				this._format = TextureFormat.ASTC6x6;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR:
-				this._format = TextureFormat.ASTC8x8;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
-				this._format = TextureFormat.ASTC6x6;
-				break;
-			case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
-				this._format = TextureFormat.ASTC12x12;
-				break;
-			default:
-				throw "unknown texture format.";
+		if(Browser.onIOS){
+			switch (compressedFormat) {
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR:
+					this._format = TextureFormat.ASTC4x4;
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
+					this._format = TextureFormat.ASTC4x4SRGB;
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
+					this._format = TextureFormat.ASTC6x6SRGB;
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
+					this._format = TextureFormat.ASTC8x8SRGB;	
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
+					this._format = TextureFormat.ASTC10x10SRGB;	
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
+					this._format = TextureFormat.ASTC12x12SRGB;	
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR:
+					this._format = TextureFormat.ASTC6x6;
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR:
+					this._format = TextureFormat.ASTC8x8;
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
+					this._format = TextureFormat.ASTC6x6;
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
+					this._format = TextureFormat.ASTC12x12;
+					break;
+				default:
+					throw "unknown texture format.";
+			}
+		}else if(Browser.onAndroid){
+			switch (compressedFormat) {
+				case LayaGL.layaGPUInstance._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL:
+					this._format = TextureFormat.ETC1RGB;
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_RGBA8_ETC2_EAC:
+					this._format = TextureFormat.ETC2RGBA;
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_RGB8_ETC2:
+					this._format = TextureFormat.ETC2RGB;
+					break;
+				case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
+					this._format = TextureFormat.ETC2RGB_Alpha8;
+					break;
+				default:
+					throw "unknown texture format.";
+			}
 		}
+	
 		var mipLevels: number = header[ETC_HEADER_MIPMAPCOUNT];
 		var width: number = header[ETC_HEADER_WIDTH];
 		var height: number = header[ETC_HEADER_HEIGHT];
@@ -628,7 +637,6 @@ export class Texture2D extends BaseTexture {
 		this._readyed = true;
 		this._activeResource();
 	}
-
 	/**
 	 * 通过压缩数据填充纹理。
 	 * @param	data 压缩数据。
@@ -681,7 +689,6 @@ export class Texture2D extends BaseTexture {
 
 
 	}
-
 	/**
 	 * 返回图片像素。
 	 * @return 图片像素。
@@ -692,7 +699,6 @@ export class Texture2D extends BaseTexture {
 		else
 			throw new Error("Texture2D: must set texture canRead is true.");
 	}
-
 }
 
 
