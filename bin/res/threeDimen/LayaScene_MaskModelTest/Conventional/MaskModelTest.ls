@@ -63,15 +63,15 @@
 					"isStatic":false,
 					"layer":0,
 					"position":[
-						-0.1772235,
-						4.3204,
-						6.049501
+						-0.2038842,
+						4.779437,
+						9.105288
 					],
 					"rotation":[
-						-0.2943716,
-						-0.008313566,
-						-0.002560803,
-						0.9556515
+						-0.2262843,
+						-0.02016057,
+						-0.004684541,
+						0.9738414
 					],
 					"scale":[
 						1,
@@ -110,15 +110,15 @@
 					"isStatic":false,
 					"layer":0,
 					"position":[
-						0.00781253,
-						5.41,
-						0.01820524
+						-0.185986,
+						4.566991,
+						8.673192
 					],
 					"rotation":[
-						-0.1216624,
-						0.2001898,
-						0.9449533,
-						-0.2284416
+						-0.226283,
+						-0.02016059,
+						-0.004684466,
+						0.9738417
 					],
 					"scale":[
 						1,
@@ -169,10 +169,95 @@
 								"name":"up",
 								"weight":0,
 								"blendingMode":0,
+								"avatarMask":{
+									"":true,
+									"Bip01":false,
+									"Bip01/Bip01 Pelvis":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot/Bip01 L Toe0":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot/Bip01 L Toe0/Bip01 L Toe0Nub":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot/Bip01 R Toe0":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot/Bip01 R Toe0/Bip01 R Toe0Nub":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 Head":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 Head/Bip01 HeadNub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger0":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger0/Bip01 L Finger0Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger1":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger1/Bip01 L Finger1Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger0":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger0/Bip01 R Finger0Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger1":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger1/Bip01 R Finger1Nub":true,
+									"business01_m_lowpoly":true
+								},
 								"states":[
 									{
 										"name":"Take 001",
-										"clipPath":"Assets/AllSkyFree/newModleMask/asdf-asdf.lani"
+										"clipPath":"Assets/AllSkyFree/newModleMask/dajia-Take 001.lani"
+									}
+								]
+							},
+							{
+								"name":"down",
+								"weight":0.61,
+								"blendingMode":1,
+								"avatarMask":{
+									"":true,
+									"Bip01":true,
+									"Bip01/Bip01 Pelvis":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot/Bip01 L Toe0":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot/Bip01 L Toe0/Bip01 L Toe0Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot/Bip01 R Toe0":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot/Bip01 R Toe0/Bip01 R Toe0Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 Head":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 Head/Bip01 HeadNub":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger0":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger0/Bip01 L Finger0Nub":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger1":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger1/Bip01 L Finger1Nub":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger0":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger0/Bip01 R Finger0Nub":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger1":false,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger1/Bip01 R Finger1Nub":false,
+									"business01_m_lowpoly":true
+								},
+								"states":[
+									{
+										"name":"Take 001",
+										"clipPath":"Assets/AllSkyFree/newModleMask/Take 001-Take 001.lani"
 									}
 								]
 							}
@@ -1141,7 +1226,7 @@
 							"isStatic":false,
 							"layer":0,
 							"position":[
-								0,
+								0.699,
 								0,
 								0
 							],
@@ -1223,12 +1308,12 @@
 				"type":"Sprite3D",
 				"instanceID":37,
 				"props":{
-					"name":"gaoxing (1)",
+					"name":"dajia",
 					"active":true,
 					"isStatic":false,
 					"layer":0,
 					"position":[
-						-2.14,
+						-2,
 						0,
 						0
 					],
@@ -1248,6 +1333,1147 @@
 					{
 						"type":"Animator",
 						"layers":[
+							{
+								"name":"up",
+								"weight":0,
+								"blendingMode":0,
+								"states":[
+									{
+										"name":"Take 001",
+										"clipPath":"Assets/AllSkyFree/newModleMask/dajia-Take 001.lani"
+									}
+								]
+							},
+							{
+								"name":"down",
+								"weight":1,
+								"blendingMode":0,
+								"avatarMask":{
+									"":true,
+									"Bip01":true,
+									"Bip01/Bip01 Pelvis":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot/Bip01 L Toe0":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot/Bip01 L Toe0/Bip01 L Toe0Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot/Bip01 R Toe0":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot/Bip01 R Toe0/Bip01 R Toe0Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 Head":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 Head/Bip01 HeadNub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger0":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger0/Bip01 L Finger0Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger1":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger1/Bip01 L Finger1Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger0":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger0/Bip01 R Finger0Nub":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger1":true,
+									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger1/Bip01 R Finger1Nub":true,
+									"business01_m_lowpoly":true
+								},
+								"states":[
+									{
+										"name":"New State"
+									}
+								]
+							}
+						],
+						"cullingMode":0,
+						"playOnWake":true
+					}
+				],
+				"child":[
+					{
+						"type":"Sprite3D",
+						"instanceID":38,
+						"props":{
+							"name":"Bip01",
+							"active":true,
+							"isStatic":false,
+							"layer":0,
+							"position":[
+								0,
+								0.8388994,
+								0
+							],
+							"rotation":[
+								0.4537199,
+								0.4537192,
+								0.5423452,
+								-0.5423458
+							],
+							"scale":[
+								1,
+								1,
+								1
+							]
+						},
+						"components":[],
+						"child":[
+							{
+								"type":"Sprite3D",
+								"instanceID":39,
+								"props":{
+									"name":"Bip01 Pelvis",
+									"active":true,
+									"isStatic":false,
+									"layer":0,
+									"position":[
+										0,
+										0,
+										0
+									],
+									"rotation":[
+										0.5028878,
+										0.5028884,
+										0.4970948,
+										-0.4970954
+									],
+									"scale":[
+										1,
+										1,
+										1
+									]
+								},
+								"components":[],
+								"child":[
+									{
+										"type":"Sprite3D",
+										"instanceID":40,
+										"props":{
+											"name":"Bip01 Spine",
+											"active":true,
+											"isStatic":false,
+											"layer":0,
+											"position":[
+												0.1304961,
+												-0.02925849,
+												-0.001512305
+											],
+											"rotation":[
+												-0.0009876989,
+												-0.006113624,
+												0.01526947,
+												-0.9998643
+											],
+											"scale":[
+												0.9999999,
+												1,
+												1
+											]
+										},
+										"components":[],
+										"child":[
+											{
+												"type":"Sprite3D",
+												"instanceID":41,
+												"props":{
+													"name":"Bip01 L Thigh",
+													"active":true,
+													"isStatic":false,
+													"layer":0,
+													"position":[
+														-0.1323813,
+														0.02541378,
+														0.08505313
+													],
+													"rotation":[
+														0.3543695,
+														0.9345955,
+														-0.01388515,
+														-0.02758173
+													],
+													"scale":[
+														0.9999999,
+														0.9999999,
+														1
+													]
+												},
+												"components":[],
+												"child":[
+													{
+														"type":"Sprite3D",
+														"instanceID":42,
+														"props":{
+															"name":"Bip01 L Calf",
+															"active":true,
+															"isStatic":false,
+															"layer":0,
+															"position":[
+																0.3897842,
+																7.629394E-08,
+																1.907349E-08
+															],
+															"rotation":[
+																0,
+																0,
+																0.3780755,
+																-0.9257748
+															],
+															"scale":[
+																1,
+																1,
+																1
+															]
+														},
+														"components":[],
+														"child":[
+															{
+																"type":"Sprite3D",
+																"instanceID":43,
+																"props":{
+																	"name":"Bip01 L Foot",
+																	"active":true,
+																	"isStatic":false,
+																	"layer":0,
+																	"position":[
+																		0.4221381,
+																		-1.907349E-08,
+																		0
+																	],
+																	"rotation":[
+																		0.1184875,
+																		0.05827439,
+																		-0.06877695,
+																		-0.9888552
+																	],
+																	"scale":[
+																		1,
+																		0.9999999,
+																		0.9999999
+																	]
+																},
+																"components":[],
+																"child":[
+																	{
+																		"type":"Sprite3D",
+																		"instanceID":44,
+																		"props":{
+																			"name":"Bip01 L Toe0",
+																			"active":true,
+																			"isStatic":false,
+																			"layer":0,
+																			"position":[
+																				0.07767559,
+																				0.1238897,
+																				-9.536743E-09
+																			],
+																			"rotation":[
+																				-0.003291628,
+																				-0.003100522,
+																				-0.727901,
+																				-0.6856674
+																			],
+																			"scale":[
+																				1,
+																				1,
+																				1
+																			]
+																		},
+																		"components":[],
+																		"child":[
+																			{
+																				"type":"Sprite3D",
+																				"instanceID":45,
+																				"props":{
+																					"name":"Bip01 L Toe0Nub",
+																					"active":true,
+																					"isStatic":false,
+																					"layer":0,
+																					"position":[
+																						0.08441857,
+																						-1.192093E-09,
+																						9.536743E-09
+																					],
+																					"rotation":[
+																						-2.808519E-09,
+																						9.313227E-10,
+																						1,
+																						-5.86167E-17
+																					],
+																					"scale":[
+																						-1,
+																						-0.9999999,
+																						-1
+																					]
+																				},
+																				"components":[],
+																				"child":[]
+																			}
+																		]
+																	}
+																]
+															}
+														]
+													}
+												]
+											},
+											{
+												"type":"Sprite3D",
+												"instanceID":46,
+												"props":{
+													"name":"Bip01 R Thigh",
+													"active":true,
+													"isStatic":false,
+													"layer":0,
+													"position":[
+														-0.1302926,
+														0.02510878,
+														-0.08533816
+													],
+													"rotation":[
+														0.1531491,
+														0.9870697,
+														0.004058444,
+														0.04714237
+													],
+													"scale":[
+														1,
+														0.9999998,
+														1
+													]
+												},
+												"components":[],
+												"child":[
+													{
+														"type":"Sprite3D",
+														"instanceID":47,
+														"props":{
+															"name":"Bip01 R Calf",
+															"active":true,
+															"isStatic":false,
+															"layer":0,
+															"position":[
+																0.389784,
+																0,
+																0
+															],
+															"rotation":[
+																1.155955E-09,
+																3.541406E-09,
+																0.3102994,
+																-0.9506389
+															],
+															"scale":[
+																1,
+																1,
+																1
+															]
+														},
+														"components":[],
+														"child":[
+															{
+																"type":"Sprite3D",
+																"instanceID":48,
+																"props":{
+																	"name":"Bip01 R Foot",
+																	"active":true,
+																	"isStatic":false,
+																	"layer":0,
+																	"position":[
+																		0.4221382,
+																		9.536743E-09,
+																		0
+																	],
+																	"rotation":[
+																		-0.05383671,
+																		-0.06079679,
+																		-0.2292735,
+																		-0.9699686
+																	],
+																	"scale":[
+																		1,
+																		0.9999999,
+																		0.9999999
+																	]
+																},
+																"components":[],
+																"child":[
+																	{
+																		"type":"Sprite3D",
+																		"instanceID":49,
+																		"props":{
+																			"name":"Bip01 R Toe0",
+																			"active":true,
+																			"isStatic":false,
+																			"layer":0,
+																			"position":[
+																				0.0776756,
+																				0.1238897,
+																				0
+																			],
+																			"rotation":[
+																				-1.053671E-07,
+																				2.107342E-08,
+																				-0.7071067,
+																				-0.7071068
+																			],
+																			"scale":[
+																				1,
+																				1,
+																				1
+																			]
+																		},
+																		"components":[],
+																		"child":[
+																			{
+																				"type":"Sprite3D",
+																				"instanceID":50,
+																				"props":{
+																					"name":"Bip01 R Toe0Nub",
+																					"active":true,
+																					"isStatic":false,
+																					"layer":0,
+																					"position":[
+																						0.08441852,
+																						-2.980232E-10,
+																						0
+																					],
+																					"rotation":[
+																						-1.421085E-14,
+																						-9.650801E-15,
+																						1.371461E-28,
+																						-1
+																					],
+																					"scale":[
+																						0.9999999,
+																						1,
+																						0.9999999
+																					]
+																				},
+																				"components":[],
+																				"child":[]
+																			}
+																		]
+																	}
+																]
+															}
+														]
+													}
+												]
+											},
+											{
+												"type":"Sprite3D",
+												"instanceID":51,
+												"props":{
+													"name":"Bip01 Spine1",
+													"active":true,
+													"isStatic":false,
+													"layer":0,
+													"position":[
+														0.2186006,
+														-0.000193634,
+														-5.013496E-07
+													],
+													"rotation":[
+														-0.001248355,
+														0.003048954,
+														0.01410973,
+														-0.999895
+													],
+													"scale":[
+														0.9999999,
+														0.9999998,
+														1
+													]
+												},
+												"components":[],
+												"child":[
+													{
+														"type":"Sprite3D",
+														"instanceID":52,
+														"props":{
+															"name":"Bip01 Neck",
+															"active":true,
+															"isStatic":false,
+															"layer":0,
+															"position":[
+																0.2432877,
+																-8.201599E-05,
+																-1.192093E-09
+															],
+															"rotation":[
+																-3.67202E-10,
+																2.79374E-08,
+																-0.01001783,
+																-0.9999498
+															],
+															"scale":[
+																1,
+																1,
+																1
+															]
+														},
+														"components":[],
+														"child":[
+															{
+																"type":"Sprite3D",
+																"instanceID":53,
+																"props":{
+																	"name":"Bip01 Head",
+																	"active":true,
+																	"isStatic":false,
+																	"layer":0,
+																	"position":[
+																		0.103006,
+																		2.861023E-08,
+																		0
+																	],
+																	"rotation":[
+																		0.007041352,
+																		-0.0128275,
+																		-0.09413302,
+																		-0.9954521
+																	],
+																	"scale":[
+																		0.9999999,
+																		1,
+																		0.9999999
+																	]
+																},
+																"components":[],
+																"child":[
+																	{
+																		"type":"Sprite3D",
+																		"instanceID":54,
+																		"props":{
+																			"name":"Bip01 HeadNub",
+																			"active":true,
+																			"isStatic":false,
+																			"layer":0,
+																			"position":[
+																				0.2203061,
+																				-3.814697E-08,
+																				0
+																			],
+																			"rotation":[
+																				-2.328306E-10,
+																				-1.862645E-09,
+																				4.336808E-19,
+																				-1
+																			],
+																			"scale":[
+																				1,
+																				1,
+																				1
+																			]
+																		},
+																		"components":[],
+																		"child":[]
+																	}
+																]
+															},
+															{
+																"type":"Sprite3D",
+																"instanceID":55,
+																"props":{
+																	"name":"Bip01 L Clavicle",
+																	"active":true,
+																	"isStatic":false,
+																	"layer":0,
+																	"position":[
+																		-0.00824646,
+																		-0.005722055,
+																		0.03916532
+																	],
+																	"rotation":[
+																		-0.7237957,
+																		-0.03284275,
+																		-0.6874434,
+																		-0.04962629
+																	],
+																	"scale":[
+																		1,
+																		1,
+																		1
+																	]
+																},
+																"components":[],
+																"child":[
+																	{
+																		"type":"Sprite3D",
+																		"instanceID":56,
+																		"props":{
+																			"name":"Bip01 L UpperArm",
+																			"active":true,
+																			"isStatic":false,
+																			"layer":0,
+																			"position":[
+																				0.1453974,
+																				-1.907349E-08,
+																				-1.525879E-07
+																			],
+																			"rotation":[
+																				0.259066,
+																				-0.6455281,
+																				-0.03588424,
+																				-0.7175587
+																			],
+																			"scale":[
+																				1,
+																				1,
+																				0.9999999
+																			]
+																		},
+																		"components":[],
+																		"child":[
+																			{
+																				"type":"Sprite3D",
+																				"instanceID":57,
+																				"props":{
+																					"name":"Bip01 L Forearm",
+																					"active":true,
+																					"isStatic":false,
+																					"layer":0,
+																					"position":[
+																						0.2808211,
+																						0,
+																						-1.907349E-08
+																					],
+																					"rotation":[
+																						1.029308E-08,
+																						-1.552408E-08,
+																						0.8334429,
+																						-0.5526056
+																					],
+																					"scale":[
+																						0.9999998,
+																						1,
+																						1
+																					]
+																				},
+																				"components":[],
+																				"child":[
+																					{
+																						"type":"Sprite3D",
+																						"instanceID":58,
+																						"props":{
+																							"name":"Bip01 L Hand",
+																							"active":true,
+																							"isStatic":false,
+																							"layer":0,
+																							"position":[
+																								0.2834978,
+																								0,
+																								0
+																							],
+																							"rotation":[
+																								0.7045887,
+																								0.08948811,
+																								0.01549385,
+																								-0.7037803
+																							],
+																							"scale":[
+																								1,
+																								0.9999999,
+																								1
+																							]
+																						},
+																						"components":[],
+																						"child":[
+																							{
+																								"type":"Sprite3D",
+																								"instanceID":59,
+																								"props":{
+																									"name":"Bip01 L Finger0",
+																									"active":true,
+																									"isStatic":false,
+																									"layer":0,
+																									"position":[
+																										0.05025391,
+																										0.02203668,
+																										-0.03871567
+																									],
+																									"rotation":[
+																										0.05588822,
+																										-0.2747294,
+																										-0.1641576,
+																										-0.9457551
+																									],
+																									"scale":[
+																										0.9999999,
+																										0.9999997,
+																										0.9999993
+																									]
+																								},
+																								"components":[],
+																								"child":[
+																									{
+																										"type":"Sprite3D",
+																										"instanceID":60,
+																										"props":{
+																											"name":"Bip01 L Finger0Nub",
+																											"active":true,
+																											"isStatic":false,
+																											"layer":0,
+																											"position":[
+																												0.0765097,
+																												0,
+																												0
+																											],
+																											"rotation":[
+																												-3.72529E-09,
+																												-1.490116E-08,
+																												-7.45058E-09,
+																												-1
+																											],
+																											"scale":[
+																												1,
+																												1,
+																												1
+																											]
+																										},
+																										"components":[],
+																										"child":[]
+																									}
+																								]
+																							},
+																							{
+																								"type":"Sprite3D",
+																								"instanceID":61,
+																								"props":{
+																									"name":"Bip01 L Finger1",
+																									"active":true,
+																									"isStatic":false,
+																									"layer":0,
+																									"position":[
+																										0.09465645,
+																										-3.663063E-05,
+																										0.005927505
+																									],
+																									"rotation":[
+																										0.0002596907,
+																										-0.0003017783,
+																										-0.7580044,
+																										-0.6522493
+																									],
+																									"scale":[
+																										0.9999997,
+																										0.9999998,
+																										1
+																									]
+																								},
+																								"components":[],
+																								"child":[
+																									{
+																										"type":"Sprite3D",
+																										"instanceID":62,
+																										"props":{
+																											"name":"Bip01 L Finger1Nub",
+																											"active":true,
+																											"isStatic":false,
+																											"layer":0,
+																											"position":[
+																												0.1032437,
+																												0,
+																												0
+																											],
+																											"rotation":[
+																												1.490116E-08,
+																												3.72529E-09,
+																												-5.587935E-09,
+																												-1
+																											],
+																											"scale":[
+																												1,
+																												1,
+																												1
+																											]
+																										},
+																										"components":[],
+																										"child":[]
+																									}
+																								]
+																							}
+																						]
+																					}
+																				]
+																			}
+																		]
+																	}
+																]
+															},
+															{
+																"type":"Sprite3D",
+																"instanceID":63,
+																"props":{
+																	"name":"Bip01 R Clavicle",
+																	"active":true,
+																	"isStatic":false,
+																	"layer":0,
+																	"position":[
+																		-0.008246613,
+																		-0.005721827,
+																		-0.03916533
+																	],
+																	"rotation":[
+																		-0.6994025,
+																		-0.01908521,
+																		0.7136987,
+																		0.03325673
+																	],
+																	"scale":[
+																		0.9999999,
+																		1,
+																		0.9999999
+																	]
+																},
+																"components":[],
+																"child":[
+																	{
+																		"type":"Sprite3D",
+																		"instanceID":64,
+																		"props":{
+																			"name":"Bip01 R UpperArm",
+																			"active":true,
+																			"isStatic":false,
+																			"layer":0,
+																			"position":[
+																				0.1453974,
+																				9.536743E-09,
+																				-1.525879E-07
+																			],
+																			"rotation":[
+																				-0.1581619,
+																				0.6611931,
+																				-0.1005905,
+																				-0.7264227
+																			],
+																			"scale":[
+																				1,
+																				1,
+																				1
+																			]
+																		},
+																		"components":[],
+																		"child":[
+																			{
+																				"type":"Sprite3D",
+																				"instanceID":65,
+																				"props":{
+																					"name":"Bip01 R Forearm",
+																					"active":true,
+																					"isStatic":false,
+																					"layer":0,
+																					"position":[
+																						0.2808213,
+																						0,
+																						-1.907349E-08
+																					],
+																					"rotation":[
+																						-2.846712E-08,
+																						-1.15461E-08,
+																						0.8078517,
+																						-0.5893859
+																					],
+																					"scale":[
+																						1,
+																						1,
+																						1
+																					]
+																				},
+																				"components":[],
+																				"child":[
+																					{
+																						"type":"Sprite3D",
+																						"instanceID":66,
+																						"props":{
+																							"name":"Bip01 R Hand",
+																							"active":true,
+																							"isStatic":false,
+																							"layer":0,
+																							"position":[
+																								0.2834977,
+																								0,
+																								3.814697E-08
+																							],
+																							"rotation":[
+																								-0.7045885,
+																								-0.08948813,
+																								0.01549383,
+																								-0.7037804
+																							],
+																							"scale":[
+																								1,
+																								0.9999999,
+																								0.9999999
+																							]
+																						},
+																						"components":[],
+																						"child":[
+																							{
+																								"type":"Sprite3D",
+																								"instanceID":67,
+																								"props":{
+																									"name":"Bip01 R Finger0",
+																									"active":true,
+																									"isStatic":false,
+																									"layer":0,
+																									"position":[
+																										0.05025391,
+																										0.02203667,
+																										0.03871574
+																									],
+																									"rotation":[
+																										-0.05588821,
+																										0.2747295,
+																										-0.1641575,
+																										-0.9457551
+																									],
+																									"scale":[
+																										0.9999999,
+																										0.9999996,
+																										0.9999993
+																									]
+																								},
+																								"components":[],
+																								"child":[
+																									{
+																										"type":"Sprite3D",
+																										"instanceID":68,
+																										"props":{
+																											"name":"Bip01 R Finger0Nub",
+																											"active":true,
+																											"isStatic":false,
+																											"layer":0,
+																											"position":[
+																												0.07650962,
+																												0,
+																												0
+																											],
+																											"rotation":[
+																												-2.281082E-25,
+																												-3.72529E-09,
+																												1,
+																												6.123234E-17
+																											],
+																											"scale":[
+																												-1,
+																												-1,
+																												-1
+																											]
+																										},
+																										"components":[],
+																										"child":[]
+																									}
+																								]
+																							},
+																							{
+																								"type":"Sprite3D",
+																								"instanceID":69,
+																								"props":{
+																									"name":"Bip01 R Finger1",
+																									"active":true,
+																									"isStatic":false,
+																									"layer":0,
+																									"position":[
+																										0.09465645,
+																										-3.665924E-05,
+																										-0.005927429
+																									],
+																									"rotation":[
+																										-0.0002596837,
+																										0.000301792,
+																										-0.7580044,
+																										-0.6522493
+																									],
+																									"scale":[
+																										0.9999998,
+																										0.9999996,
+																										0.9999999
+																									]
+																								},
+																								"components":[],
+																								"child":[
+																									{
+																										"type":"Sprite3D",
+																										"instanceID":70,
+																										"props":{
+																											"name":"Bip01 R Finger1Nub",
+																											"active":true,
+																											"isStatic":false,
+																											"layer":0,
+																											"position":[
+																												0.1032436,
+																												0,
+																												0
+																											],
+																											"rotation":[
+																												3.72529E-09,
+																												-2.281083E-25,
+																												1,
+																												6.123234E-17
+																											],
+																											"scale":[
+																												-1,
+																												-0.9999999,
+																												-1
+																											]
+																										},
+																										"components":[],
+																										"child":[]
+																									}
+																								]
+																							}
+																						]
+																					}
+																				]
+																			}
+																		]
+																	}
+																]
+															}
+														]
+													}
+												]
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						"type":"SkinnedMeshSprite3D",
+						"instanceID":71,
+						"props":{
+							"name":"business01_m_lowpoly",
+							"active":true,
+							"isStatic":false,
+							"layer":0,
+							"position":[
+								-0.378,
+								0,
+								0
+							],
+							"rotation":[
+								0.7071068,
+								0,
+								0,
+								-0.7071068
+							],
+							"scale":[
+								1,
+								1,
+								1
+							],
+							"rootBone":39,
+							"boundBox":{
+								"min":[
+									-0.882745,
+									-0.1701409,
+									-0.3627419
+								],
+								"max":[
+									0.9430974,
+									0.4701656,
+									0.3607974
+								]
+							},
+							"boundSphere":{
+								"center":[
+									0.03017619,
+									0.1500123,
+									-0.000972271
+								],
+								"radius":1.03286
+							},
+							"bones":[
+								51,
+								52,
+								53,
+								39,
+								40,
+								46,
+								56,
+								55,
+								41,
+								42,
+								43,
+								44,
+								57,
+								58,
+								59,
+								61,
+								64,
+								63,
+								47,
+								48,
+								49,
+								65,
+								66,
+								67,
+								69
+							],
+							"enableRender":true,
+							"receiveShadows":true,
+							"castShadow":true,
+							"materials":[
+								{
+									"path":"Assets/AllSkyFree/newModleMask/body.lmat"
+								}
+							],
+							"meshPath":"Assets/AllSkyFree/newModleMask/dajia-business01_m_lowpoly.lm"
+						},
+						"components":[],
+						"child":[]
+					}
+				]
+			},
+			{
+				"type":"Sprite3D",
+				"instanceID":72,
+				"props":{
+					"name":"gaoxing (1)",
+					"active":true,
+					"isStatic":false,
+					"layer":0,
+					"position":[
+						2,
+						0,
+						0
+					],
+					"rotation":[
+						0,
+						0,
+						0,
+						-1
+					],
+					"scale":[
+						1,
+						1,
+						1
+					]
+				},
+				"components":[
+					{
+						"type":"Animator",
+						"layers":[
+							{
+								"name":"up",
+								"weight":0,
+								"blendingMode":0,
+								"states":[
+									{
+										"name":"Take 001",
+										"clipPath":"Assets/AllSkyFree/newModleMask/Take 001-Take 001.lani"
+									}
+								]
+							},
 							{
 								"name":"down",
 								"weight":1,
@@ -1292,1127 +2518,7 @@
 								"states":[
 									{
 										"name":"Take 001",
-										"clipPath":"Assets/AllSkyFree/newModleMask/asdf-asdf.lani"
-									}
-								]
-							}
-						],
-						"cullingMode":0,
-						"playOnWake":true
-					}
-				],
-				"child":[
-					{
-						"type":"Sprite3D",
-						"instanceID":38,
-						"props":{
-							"name":"Bip01",
-							"active":true,
-							"isStatic":false,
-							"layer":0,
-							"position":[
-								0.04569838,
-								0.876405,
-								0
-							],
-							"rotation":[
-								0.5000004,
-								0.4999997,
-								0.4999997,
-								-0.5000004
-							],
-							"scale":[
-								1,
-								1,
-								1
-							]
-						},
-						"components":[],
-						"child":[
-							{
-								"type":"Sprite3D",
-								"instanceID":39,
-								"props":{
-									"name":"Bip01 Pelvis",
-									"active":true,
-									"isStatic":false,
-									"layer":0,
-									"position":[
-										0,
-										0,
-										0
-									],
-									"rotation":[
-										0.5034081,
-										0.5034087,
-										0.4965679,
-										-0.4965685
-									],
-									"scale":[
-										1,
-										1,
-										1
-									]
-								},
-								"components":[],
-								"child":[
-									{
-										"type":"Sprite3D",
-										"instanceID":40,
-										"props":{
-											"name":"Bip01 Spine",
-											"active":true,
-											"isStatic":false,
-											"layer":0,
-											"position":[
-												0.130498,
-												-0.02925857,
-												-0.001785722
-											],
-											"rotation":[
-												-0.001155876,
-												-0.003683309,
-												-0.0003472398,
-												-0.9999925
-											],
-											"scale":[
-												1,
-												1,
-												1
-											]
-										},
-										"components":[],
-										"child":[
-											{
-												"type":"Sprite3D",
-												"instanceID":41,
-												"props":{
-													"name":"Bip01 L Thigh",
-													"active":true,
-													"isStatic":false,
-													"layer":0,
-													"position":[
-														-0.1311146,
-														0.02954947,
-														0.08595632
-													],
-													"rotation":[
-														0.07417938,
-														0.9972407,
-														0.001925162,
-														0.002182814
-													],
-													"scale":[
-														1,
-														1,
-														1
-													]
-												},
-												"components":[],
-												"child":[
-													{
-														"type":"Sprite3D",
-														"instanceID":42,
-														"props":{
-															"name":"Bip01 L Calf",
-															"active":true,
-															"isStatic":false,
-															"layer":0,
-															"position":[
-																0.3897842,
-																9.536743E-09,
-																0
-															],
-															"rotation":[
-																-6.47697E-10,
-																-8.152857E-10,
-																0.206205,
-																-0.9785088
-															],
-															"scale":[
-																1,
-																1,
-																0.9999999
-															]
-														},
-														"components":[],
-														"child":[
-															{
-																"type":"Sprite3D",
-																"instanceID":43,
-																"props":{
-																	"name":"Bip01 L Foot",
-																	"active":true,
-																	"isStatic":false,
-																	"layer":0,
-																	"position":[
-																		0.4221382,
-																		4.768371E-09,
-																		0
-																	],
-																	"rotation":[
-																		0.2534862,
-																		0.04092649,
-																		-0.1028362,
-																		-0.9609863
-																	],
-																	"scale":[
-																		1,
-																		1,
-																		1
-																	]
-																},
-																"components":[],
-																"child":[
-																	{
-																		"type":"Sprite3D",
-																		"instanceID":44,
-																		"props":{
-																			"name":"Bip01 L Toe0",
-																			"active":true,
-																			"isStatic":false,
-																			"layer":0,
-																			"position":[
-																				0.0776756,
-																				0.1238897,
-																				-9.536743E-09
-																			],
-																			"rotation":[
-																				-0.003291666,
-																				-0.003100537,
-																				-0.727901,
-																				-0.6856673
-																			],
-																			"scale":[
-																				1,
-																				1,
-																				1
-																			]
-																		},
-																		"components":[],
-																		"child":[
-																			{
-																				"type":"Sprite3D",
-																				"instanceID":45,
-																				"props":{
-																					"name":"Bip01 L Toe0Nub",
-																					"active":true,
-																					"isStatic":false,
-																					"layer":0,
-																					"position":[
-																						0.08441852,
-																						-1.490116E-10,
-																						-9.536743E-09
-																					],
-																					"rotation":[
-																						6.018286E-14,
-																						3.685138E-30,
-																						1,
-																						-6.123234E-17
-																					],
-																					"scale":[
-																						-1,
-																						-1,
-																						-1
-																					]
-																				},
-																				"components":[],
-																				"child":[]
-																			}
-																		]
-																	}
-																]
-															}
-														]
-													}
-												]
-											},
-											{
-												"type":"Sprite3D",
-												"instanceID":46,
-												"props":{
-													"name":"Bip01 R Thigh",
-													"active":true,
-													"isStatic":false,
-													"layer":0,
-													"position":[
-														-0.1298592,
-														0.02915487,
-														-0.08444297
-													],
-													"rotation":[
-														0.082858,
-														0.9964926,
-														-0.006547443,
-														-0.009712841
-													],
-													"scale":[
-														1,
-														1,
-														1
-													]
-												},
-												"components":[],
-												"child":[
-													{
-														"type":"Sprite3D",
-														"instanceID":47,
-														"props":{
-															"name":"Bip01 R Calf",
-															"active":true,
-															"isStatic":false,
-															"layer":0,
-															"position":[
-																0.3897841,
-																9.536743E-09,
-																0
-															],
-															"rotation":[
-																8.104249E-11,
-																4.585548E-10,
-																0.1740374,
-																-0.9847391
-															],
-															"scale":[
-																1,
-																1,
-																1
-															]
-														},
-														"components":[],
-														"child":[
-															{
-																"type":"Sprite3D",
-																"instanceID":48,
-																"props":{
-																	"name":"Bip01 R Foot",
-																	"active":true,
-																	"isStatic":false,
-																	"layer":0,
-																	"position":[
-																		0.4221382,
-																		-9.536743E-09,
-																		-2.384186E-09
-																	],
-																	"rotation":[
-																		-0.0576938,
-																		0.001736853,
-																		-0.0924684,
-																		-0.9940413
-																	],
-																	"scale":[
-																		1,
-																		1,
-																		1
-																	]
-																},
-																"components":[],
-																"child":[
-																	{
-																		"type":"Sprite3D",
-																		"instanceID":49,
-																		"props":{
-																			"name":"Bip01 R Toe0",
-																			"active":true,
-																			"isStatic":false,
-																			"layer":0,
-																			"position":[
-																				0.0776756,
-																				0.1238897,
-																				2.384186E-09
-																			],
-																			"rotation":[
-																				-1.053671E-07,
-																				1.053672E-07,
-																				-0.7071068,
-																				-0.7071068
-																			],
-																			"scale":[
-																				1,
-																				1,
-																				1
-																			]
-																		},
-																		"components":[],
-																		"child":[
-																			{
-																				"type":"Sprite3D",
-																				"instanceID":50,
-																				"props":{
-																					"name":"Bip01 R Toe0Nub",
-																					"active":true,
-																					"isStatic":false,
-																					"layer":0,
-																					"position":[
-																						0.08441854,
-																						0,
-																						0
-																					],
-																					"rotation":[
-																						0,
-																						-5.571351E-15,
-																						0,
-																						-1
-																					],
-																					"scale":[
-																						1,
-																						1,
-																						1
-																					]
-																				},
-																				"components":[],
-																				"child":[]
-																			}
-																		]
-																	}
-																]
-															}
-														]
-													}
-												]
-											},
-											{
-												"type":"Sprite3D",
-												"instanceID":51,
-												"props":{
-													"name":"Bip01 Spine1",
-													"active":true,
-													"isStatic":false,
-													"layer":0,
-													"position":[
-														0.2186066,
-														-0.0001937199,
-														-4.529953E-07
-													],
-													"rotation":[
-														-0.001147062,
-														-0.01340029,
-														-0.001509503,
-														-0.9999084
-													],
-													"scale":[
-														1,
-														1,
-														1
-													]
-												},
-												"components":[],
-												"child":[
-													{
-														"type":"Sprite3D",
-														"instanceID":52,
-														"props":{
-															"name":"Bip01 Neck",
-															"active":true,
-															"isStatic":false,
-															"layer":0,
-															"position":[
-																0.2432874,
-																-8.200169E-05,
-																-4.768371E-09
-															],
-															"rotation":[
-																-6.684851E-11,
-																2.700904E-08,
-																-0.01001783,
-																-0.9999498
-															],
-															"scale":[
-																1,
-																1,
-																1
-															]
-														},
-														"components":[],
-														"child":[
-															{
-																"type":"Sprite3D",
-																"instanceID":53,
-																"props":{
-																	"name":"Bip01 Head",
-																	"active":true,
-																	"isStatic":false,
-																	"layer":0,
-																	"position":[
-																		0.1030063,
-																		0,
-																		0
-																	],
-																	"rotation":[
-																		0.003194427,
-																		0.002785868,
-																		-0.03881829,
-																		-0.9992373
-																	],
-																	"scale":[
-																		1,
-																		1,
-																		1
-																	]
-																},
-																"components":[],
-																"child":[
-																	{
-																		"type":"Sprite3D",
-																		"instanceID":54,
-																		"props":{
-																			"name":"Bip01 HeadNub",
-																			"active":true,
-																			"isStatic":false,
-																			"layer":0,
-																			"position":[
-																				0.2203059,
-																				0,
-																				0
-																			],
-																			"rotation":[
-																				0,
-																				0,
-																				3.725291E-09,
-																				-1
-																			],
-																			"scale":[
-																				0.9999999,
-																				0.9999999,
-																				1
-																			]
-																		},
-																		"components":[],
-																		"child":[]
-																	}
-																]
-															},
-															{
-																"type":"Sprite3D",
-																"instanceID":55,
-																"props":{
-																	"name":"Bip01 L Clavicle",
-																	"active":true,
-																	"isStatic":false,
-																	"layer":0,
-																	"position":[
-																		-0.008246307,
-																		-0.005722084,
-																		0.03916533
-																	],
-																	"rotation":[
-																		0.6572499,
-																		-0.006847314,
-																		0.7536007,
-																		0.007848995
-																	],
-																	"scale":[
-																		1,
-																		1,
-																		1
-																	]
-																},
-																"components":[],
-																"child":[
-																	{
-																		"type":"Sprite3D",
-																		"instanceID":56,
-																		"props":{
-																			"name":"Bip01 L UpperArm",
-																			"active":true,
-																			"isStatic":false,
-																			"layer":0,
-																			"position":[
-																				0.1453974,
-																				-2.384186E-09,
-																				0
-																			],
-																			"rotation":[
-																				0.05508772,
-																				-0.587428,
-																				-0.1361576,
-																				-0.795836
-																			],
-																			"scale":[
-																				1,
-																				1,
-																				1
-																			]
-																		},
-																		"components":[],
-																		"child":[
-																			{
-																				"type":"Sprite3D",
-																				"instanceID":57,
-																				"props":{
-																					"name":"Bip01 L Forearm",
-																					"active":true,
-																					"isStatic":false,
-																					"layer":0,
-																					"position":[
-																						0.2808211,
-																						0,
-																						3.814697E-08
-																					],
-																					"rotation":[
-																						1.74397E-08,
-																						-9.915282E-09,
-																						0.1360413,
-																						-0.9907032
-																					],
-																					"scale":[
-																						0.9999999,
-																						0.9999999,
-																						1
-																					]
-																				},
-																				"components":[],
-																				"child":[
-																					{
-																						"type":"Sprite3D",
-																						"instanceID":58,
-																						"props":{
-																							"name":"Bip01 L Hand",
-																							"active":true,
-																							"isStatic":false,
-																							"layer":0,
-																							"position":[
-																								0.2834977,
-																								0,
-																								0
-																							],
-																							"rotation":[
-																								0.7066532,
-																								0.07518497,
-																								0.09155311,
-																								-0.6975718
-																							],
-																							"scale":[
-																								1,
-																								1,
-																								1
-																							]
-																						},
-																						"components":[],
-																						"child":[
-																							{
-																								"type":"Sprite3D",
-																								"instanceID":59,
-																								"props":{
-																									"name":"Bip01 L Finger0",
-																									"active":true,
-																									"isStatic":false,
-																									"layer":0,
-																									"position":[
-																										0.05025391,
-																										0.02203667,
-																										-0.03871567
-																									],
-																									"rotation":[
-																										0.09707883,
-																										-0.1473023,
-																										-0.1918097,
-																										-0.9654465
-																									],
-																									"scale":[
-																										0.9999998,
-																										0.9999995,
-																										0.9999993
-																									]
-																								},
-																								"components":[],
-																								"child":[
-																									{
-																										"type":"Sprite3D",
-																										"instanceID":60,
-																										"props":{
-																											"name":"Bip01 L Finger0Nub",
-																											"active":true,
-																											"isStatic":false,
-																											"layer":0,
-																											"position":[
-																												0.07650959,
-																												3.814697E-08,
-																												3.814697E-08
-																											],
-																											"rotation":[
-																												-2.153683E-09,
-																												1.490116E-08,
-																												6.752089E-09,
-																												-1
-																											],
-																											"scale":[
-																												1,
-																												1,
-																												1
-																											]
-																										},
-																										"components":[],
-																										"child":[]
-																									}
-																								]
-																							},
-																							{
-																								"type":"Sprite3D",
-																								"instanceID":61,
-																								"props":{
-																									"name":"Bip01 L Finger1",
-																									"active":true,
-																									"isStatic":false,
-																									"layer":0,
-																									"position":[
-																										0.09465637,
-																										-3.669739E-05,
-																										0.005927486
-																									],
-																									"rotation":[
-																										0.0003845885,
-																										-0.0001030522,
-																										-0.2588191,
-																										-0.9659258
-																									],
-																									"scale":[
-																										0.9999996,
-																										0.9999996,
-																										0.9999999
-																									]
-																								},
-																								"components":[],
-																								"child":[
-																									{
-																										"type":"Sprite3D",
-																										"instanceID":62,
-																										"props":{
-																											"name":"Bip01 L Finger1Nub",
-																											"active":true,
-																											"isStatic":false,
-																											"layer":0,
-																											"position":[
-																												0.1032437,
-																												-1.907349E-08,
-																												3.814697E-08
-																											],
-																											"rotation":[
-																												-1.303851E-08,
-																												-4.857225E-17,
-																												-3.72529E-09,
-																												-1
-																											],
-																											"scale":[
-																												1,
-																												1,
-																												1
-																											]
-																										},
-																										"components":[],
-																										"child":[]
-																									}
-																								]
-																							}
-																						]
-																					}
-																				]
-																			}
-																		]
-																	}
-																]
-															},
-															{
-																"type":"Sprite3D",
-																"instanceID":63,
-																"props":{
-																	"name":"Bip01 R Clavicle",
-																	"active":true,
-																	"isStatic":false,
-																	"layer":0,
-																	"position":[
-																		-0.008246307,
-																		-0.005721865,
-																		-0.03916534
-																	],
-																	"rotation":[
-																		-0.6572499,
-																		0.006845251,
-																		0.7536007,
-																		0.007850847
-																	],
-																	"scale":[
-																		0.9999999,
-																		1,
-																		0.9999999
-																	]
-																},
-																"components":[],
-																"child":[
-																	{
-																		"type":"Sprite3D",
-																		"instanceID":64,
-																		"props":{
-																			"name":"Bip01 R UpperArm",
-																			"active":true,
-																			"isStatic":false,
-																			"layer":0,
-																			"position":[
-																				0.1453974,
-																				4.768371E-09,
-																				0
-																			],
-																			"rotation":[
-																				0.01112225,
-																				0.5821462,
-																				-0.07044948,
-																				-0.8099501
-																			],
-																			"scale":[
-																				1,
-																				1,
-																				1
-																			]
-																		},
-																		"components":[],
-																		"child":[
-																			{
-																				"type":"Sprite3D",
-																				"instanceID":65,
-																				"props":{
-																					"name":"Bip01 R Forearm",
-																					"active":true,
-																					"isStatic":false,
-																					"layer":0,
-																					"position":[
-																						0.2808213,
-																						0,
-																						0
-																					],
-																					"rotation":[
-																						9.218404E-10,
-																						-1.325602E-10,
-																						0.1423354,
-																						-0.9898185
-																					],
-																					"scale":[
-																						0.9999999,
-																						0.9999999,
-																						0.9999999
-																					]
-																				},
-																				"components":[],
-																				"child":[
-																					{
-																						"type":"Sprite3D",
-																						"instanceID":66,
-																						"props":{
-																							"name":"Bip01 R Hand",
-																							"active":true,
-																							"isStatic":false,
-																							"layer":0,
-																							"position":[
-																								0.2834977,
-																								9.536743E-09,
-																								0
-																							],
-																							"rotation":[
-																								-0.7045885,
-																								-0.08948813,
-																								0.01549384,
-																								-0.7037804
-																							],
-																							"scale":[
-																								0.9999999,
-																								0.9999999,
-																								0.9999998
-																							]
-																						},
-																						"components":[],
-																						"child":[
-																							{
-																								"type":"Sprite3D",
-																								"instanceID":67,
-																								"props":{
-																									"name":"Bip01 R Finger0",
-																									"active":true,
-																									"isStatic":false,
-																									"layer":0,
-																									"position":[
-																										0.05025391,
-																										0.02203667,
-																										0.03871565
-																									],
-																									"rotation":[
-																										-0.0970788,
-																										0.1473023,
-																										-0.1918097,
-																										-0.9654465
-																									],
-																									"scale":[
-																										0.9999999,
-																										0.9999997,
-																										0.9999995
-																									]
-																								},
-																								"components":[],
-																								"child":[
-																									{
-																										"type":"Sprite3D",
-																										"instanceID":68,
-																										"props":{
-																											"name":"Bip01 R Finger0Nub",
-																											"active":true,
-																											"isStatic":false,
-																											"layer":0,
-																											"position":[
-																												0.07650962,
-																												0,
-																												3.814697E-08
-																											],
-																											"rotation":[
-																												0,
-																												0,
-																												1,
-																												-6.123234E-17
-																											],
-																											"scale":[
-																												-1,
-																												-1,
-																												-1
-																											]
-																										},
-																										"components":[],
-																										"child":[]
-																									}
-																								]
-																							},
-																							{
-																								"type":"Sprite3D",
-																								"instanceID":69,
-																								"props":{
-																									"name":"Bip01 R Finger1",
-																									"active":true,
-																									"isStatic":false,
-																									"layer":0,
-																									"position":[
-																										0.09465652,
-																										-3.665924E-05,
-																										-0.005927501
-																									],
-																									"rotation":[
-																										-0.000384568,
-																										0.0001030441,
-																										-0.2588191,
-																										-0.9659258
-																									],
-																									"scale":[
-																										0.9999998,
-																										0.9999997,
-																										1
-																									]
-																								},
-																								"components":[],
-																								"child":[
-																									{
-																										"type":"Sprite3D",
-																										"instanceID":70,
-																										"props":{
-																											"name":"Bip01 R Finger1Nub",
-																											"active":true,
-																											"isStatic":false,
-																											"layer":0,
-																											"position":[
-																												0.1032436,
-																												9.536743E-09,
-																												2.384186E-09
-																											],
-																											"rotation":[
-																												-1.862645E-09,
-																												-1.140541E-25,
-																												1,
-																												-6.123234E-17
-																											],
-																											"scale":[
-																												-1,
-																												-1,
-																												-1
-																											]
-																										},
-																										"components":[],
-																										"child":[]
-																									}
-																								]
-																							}
-																						]
-																					}
-																				]
-																			}
-																		]
-																	}
-																]
-															}
-														]
-													}
-												]
-											}
-										]
-									}
-								]
-							}
-						]
-					},
-					{
-						"type":"SkinnedMeshSprite3D",
-						"instanceID":71,
-						"props":{
-							"name":"business01_m_lowpoly",
-							"active":true,
-							"isStatic":false,
-							"layer":0,
-							"position":[
-								0,
-								0,
-								0
-							],
-							"rotation":[
-								0.7071068,
-								0,
-								0,
-								-0.7071068
-							],
-							"scale":[
-								1,
-								1,
-								1
-							],
-							"rootBone":39,
-							"boundBox":{
-								"min":[
-									-0.9014466,
-									-0.178605,
-									-0.3506941
-								],
-								"max":[
-									0.9395308,
-									0.2072125,
-									0.3808609
-								]
-							},
-							"boundSphere":{
-								"center":[
-									0.01904207,
-									0.01430374,
-									0.01508345
-								],
-								"radius":1.009112
-							},
-							"bones":[
-								51,
-								52,
-								53,
-								39,
-								40,
-								46,
-								56,
-								55,
-								41,
-								42,
-								43,
-								44,
-								57,
-								58,
-								59,
-								61,
-								64,
-								63,
-								47,
-								48,
-								49,
-								65,
-								66,
-								67,
-								69
-							],
-							"enableRender":true,
-							"receiveShadows":true,
-							"castShadow":true,
-							"materials":[
-								{
-									"path":"Assets/AllSkyFree/newModleMask/gaoxing.lmat"
-								}
-							],
-							"meshPath":"Assets/AllSkyFree/newModleMask/gaoxing-business01_m_lowpoly.lm"
-						},
-						"components":[],
-						"child":[]
-					}
-				]
-			},
-			{
-				"type":"Sprite3D",
-				"instanceID":72,
-				"props":{
-					"name":"gaoxing (2)",
-					"active":true,
-					"isStatic":false,
-					"layer":0,
-					"position":[
-						1.908,
-						0,
-						0
-					],
-					"rotation":[
-						0,
-						0,
-						0,
-						-1
-					],
-					"scale":[
-						1,
-						1,
-						1
-					]
-				},
-				"components":[
-					{
-						"type":"Animator",
-						"layers":[
-							{
-								"name":"up",
-								"weight":0,
-								"blendingMode":0,
-								"avatarMask":{
-									"":true,
-									"Bip01":false,
-									"Bip01/Bip01 Pelvis":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot/Bip01 L Toe0":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 L Thigh/Bip01 L Calf/Bip01 L Foot/Bip01 L Toe0/Bip01 L Toe0Nub":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot/Bip01 R Toe0":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 R Thigh/Bip01 R Calf/Bip01 R Foot/Bip01 R Toe0/Bip01 R Toe0Nub":false,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 Head":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 Head/Bip01 HeadNub":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger0":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger0/Bip01 L Finger0Nub":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger1":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 L Clavicle/Bip01 L UpperArm/Bip01 L Forearm/Bip01 L Hand/Bip01 L Finger1/Bip01 L Finger1Nub":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger0":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger0/Bip01 R Finger0Nub":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger1":true,
-									"Bip01/Bip01 Pelvis/Bip01 Spine/Bip01 Spine1/Bip01 Neck/Bip01 R Clavicle/Bip01 R UpperArm/Bip01 R Forearm/Bip01 R Hand/Bip01 R Finger1/Bip01 R Finger1Nub":true,
-									"business01_m_lowpoly":true
-								},
-								"states":[
-									{
-										"name":"Take 001",
-										"clipPath":"Assets/AllSkyFree/newModleMask/asdf-asdf.lani"
+										"clipPath":"Assets/AllSkyFree/newModleMask/gaoxing-Take 001.lani"
 									}
 								]
 							}
@@ -3175,7 +3281,7 @@
 																			"rotation":[
 																				0.01112225,
 																				0.5821462,
-																				-0.07044948,
+																				-0.07044949,
 																				-0.8099501
 																			],
 																			"scale":[
@@ -3449,7 +3555,7 @@
 							"castShadow":true,
 							"materials":[
 								{
-									"path":"Assets/AllSkyFree/newModleMask/gaoxing.lmat"
+									"path":"Assets/AllSkyFree/newModleMask/body.lmat"
 								}
 							],
 							"meshPath":"Assets/AllSkyFree/newModleMask/gaoxing-business01_m_lowpoly.lm"
