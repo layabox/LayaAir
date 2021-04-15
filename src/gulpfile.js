@@ -301,8 +301,19 @@ gulp.task('ConcatBulletPhysics.wasm', function (cb) {
     ], function() {   
         cb();
     });
+}); 
+//合并 laya.bullet.js 和 laya.physics3D.wasm-wx.js
+gulp.task('ConcatBulletPhysics.wasm-wx', function (cb) {
+    pump([
+        gulp.src([
+            './layaAir/jsLibs/laya.physics3D.wasm-wx.js',
+            '../build/js/libs/laya.bullet.js']),
+        concat('laya.physics3D.wasm-wx.js'),//合并后的文件名
+        gulp.dest('../build/js/libs/'),
+    ], function() {   
+        cb();
+    });
 });
-
 //合并 laya.bullet.js 和 laya.physics3D.js
 gulp.task('ConcatBulletPhysics', function (cb) {
     pump([
@@ -321,7 +332,7 @@ gulp.task('ConcatBulletPhysics', function (cb) {
 gulp.task('CopyJSLibsToJS', () => {
     return gulp.src([
         './layaAir/jsLibs/laya.physics3D.wasm.wasm','./layaAir/jsLibs/*.js',
-        '!./layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,laya.physics3D.wasm.js}'])
+        '!./layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,laya.physics3D.wasm.js,laya.physics3D.wasm-wx.js}'])
         .pipe(gulp.dest('../build/js/libs'));
 });
 
@@ -465,7 +476,7 @@ gulp.task("compresstsnewJs", function () {
 
 gulp.task('build', 
 gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 
-            'ConcatCannonPhysics','ConcatBulletPhysics.wasm',  
+            'ConcatCannonPhysics','ConcatBulletPhysics.wasm', 'ConcatBulletPhysics.wasm-wx',  
             'ConcatBulletPhysics', 'CopyJSLibsToJS', 
             'CopyTSFileToTS', 'CopyJSFileToAS', 
             'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 
