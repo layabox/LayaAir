@@ -13,7 +13,7 @@ var through = require('through2');
 var concat = require('gulp-concat'),pump = require('pump');
 const uglify = require('gulp-uglify-es').default;
 const rename = require('gulp-rename');
-
+var Stream = require('stream');
 
 //编译新的库文件只需要在packsDef中配置一下新的库就可以了
 var packsDef = [
@@ -423,7 +423,24 @@ gulp.task('buildJS', async function () {
         }
     }
 });
-
+// 修改laya.physics3D.wasm-wx.js 里的路径
+function changeWxWasmPath() {
+    var stream = new Stream.Transform({ objectMode: true });
+    stream._transform = function (originalFile, unused, callback) {
+        let fPath = originalFile.path;
+        if (fPath.indexOf('laya.physics3D.wasm-wx.js') >= 0) {
+            var stringData = String(originalFile.contents); 
+            stringData = stringData.replace('libs/laya.physics3D.wasm.wasm', 'libs/min/laya.physics3D.wasm.wasm');
+            var file = originalFile.clone({ contents: false });
+            var finalBinaryData = Buffer.from(stringData);
+            file.contents = finalBinaryData;
+            callback(null, file);
+        } else {
+            callback(null, originalFile);
+        } 
+    }; 
+    return stream;
+}
 // 压缩
 // 下面两个方法，最好能合并
 gulp.task("compressJs", function () {
@@ -447,6 +464,7 @@ gulp.task("compressJs", function () {
         .on('error', function (err) {
             console.warn(err.toString());
         })
+        .pipe(changeWxWasmPath()) 
         .pipe(rename({extname: ".min.js"}))
         .pipe(gulp.dest("../build/as/jslibs/min"))
         .pipe(gulp.dest("../build/js/libs/min"))
@@ -470,6 +488,7 @@ gulp.task("compresstsnewJs", function () {
         .on('error', function (err) {
             console.warn(err.toString());
         })
+        .pipe(changeWxWasmPath()) 
         .pipe(rename({extname: ".min.js"}))
         .pipe(gulp.dest("../build/ts_new/jslibs/min"));
 });
