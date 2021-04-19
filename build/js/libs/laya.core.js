@@ -2913,6 +2913,36 @@ window.Laya= (function (exports) {
                     case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
                         this._format = exports.TextureFormat.ETC2RGB_Alpha8;
                         break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR:
+                        this._format = exports.TextureFormat.ASTC4x4;
+                        break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
+                        this._format = exports.TextureFormat.ASTC4x4SRGB;
+                        break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
+                        this._format = exports.TextureFormat.ASTC6x6SRGB;
+                        break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
+                        this._format = exports.TextureFormat.ASTC8x8SRGB;
+                        break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
+                        this._format = exports.TextureFormat.ASTC10x10SRGB;
+                        break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
+                        this._format = exports.TextureFormat.ASTC12x12SRGB;
+                        break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR:
+                        this._format = exports.TextureFormat.ASTC6x6;
+                        break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR:
+                        this._format = exports.TextureFormat.ASTC8x8;
+                        break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
+                        this._format = exports.TextureFormat.ASTC6x6;
+                        break;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
+                        this._format = exports.TextureFormat.ASTC12x12;
+                        break;
                     default:
                         throw "unknown texture format.";
                 }
