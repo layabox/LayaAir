@@ -2343,272 +2343,6 @@ window.Laya= (function (exports) {
     HalfFloatUtils._exponentTable = new Uint32Array(64);
     HalfFloatUtils._offsetTable = new Uint32Array(64);
 
-    class Browser {
-        static __init__() {
-            var Laya = window.Laya || ILaya.Laya;
-            if (Browser._window)
-                return Browser._window;
-            var win = Browser._window = window;
-            var doc = Browser._document = win.document;
-            var u = Browser.userAgent = win.navigator.userAgent;
-            var maxTouchPoints = win.navigator.maxTouchPoints || 0;
-            var platform = win.navigator.platform;
-            if ("my" in Browser.window) {
-                if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {
-                    window.tbMiniGame(Laya, Laya);
-                    if (!Laya["TBMiniAdapter"]) {
-                        console.error("请先添加淘宝适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
-                    }
-                    else {
-                        Laya["TBMiniAdapter"].enable();
-                    }
-                }
-                else if (u.indexOf('AlipayMiniGame') > -1) {
-                    window.aliPayMiniGame(Laya, Laya);
-                    if (!Laya["ALIMiniAdapter"]) {
-                        console.error("请先添加阿里小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
-                    }
-                    else {
-                        Laya["ALIMiniAdapter"].enable();
-                    }
-                }
-            }
-            if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
-                if ("tt" in Browser.window) {
-                    window.ttMiniGame(Laya, Laya);
-                    if (!Laya["TTMiniAdapter"]) {
-                        console.error("请引入字节跳动小游戏的适配库");
-                    }
-                    else {
-                        Laya["TTMiniAdapter"].enable();
-                    }
-                }
-                else if ("bl" in Browser.window) {
-                    window.biliMiniGame(Laya, Laya);
-                    if (!Laya["BLMiniAdapter"]) {
-                        console.error("请引入bilibili小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-7-0");
-                    }
-                    else {
-                        Laya["BLMiniAdapter"].enable();
-                    }
-                }
-                else if ("qq" in Browser.window) {
-                    window.qqMiniGame(Laya, Laya);
-                    if (!Laya["QQMiniAdapter"]) {
-                        console.error("请引入手机QQ小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-0-0");
-                    }
-                    else {
-                        Laya["QQMiniAdapter"].enable();
-                    }
-                }
-                else {
-                    window.wxMiniGame(Laya, Laya);
-                    if (!Laya["MiniAdpter"]) {
-                        console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
-                    }
-                    else {
-                        Laya["MiniAdpter"].enable();
-                    }
-                }
-            }
-            if ("hbs" in Browser.window) {
-                window.hwMiniGame(Laya, Laya);
-                if (!Laya["HWMiniAdapter"]) {
-                    console.error("请先添加小游戏适配库!");
-                }
-                else {
-                    Laya["HWMiniAdapter"].enable();
-                }
-            }
-            if (u.indexOf("SwanGame") > -1) {
-                window.bdMiniGame(Laya, Laya);
-                if (!Laya["BMiniAdapter"]) {
-                    console.error("请先添加百度小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-1-0");
-                }
-                else {
-                    Laya["BMiniAdapter"].enable();
-                }
-            }
-            if (u.indexOf('QuickGame') > -1) {
-                window.miMiniGame(Laya, Laya);
-                if (!Laya["KGMiniAdapter"]) {
-                    console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-2-0");
-                }
-                else {
-                    Laya["KGMiniAdapter"].enable();
-                }
-            }
-            if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
-                window.qgMiniGame(Laya, Laya);
-                if (!Laya["QGMiniAdapter"]) {
-                    console.error("请先添加OPPO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-3-0");
-                }
-                else {
-                    Laya["QGMiniAdapter"].enable();
-                }
-            }
-            if (u.indexOf('VVGame') > -1) {
-                window.vvMiniGame(Laya, Laya);
-                if (!Laya["VVMiniAdapter"]) {
-                    console.error("请先添加VIVO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-4-0");
-                }
-                else {
-                    Laya["VVMiniAdapter"].enable();
-                }
-            }
-            win.trace = console.log;
-            win.requestAnimationFrame = win.requestAnimationFrame || win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame || win.oRequestAnimationFrame || win.msRequestAnimationFrame || function (fun) {
-                return win.setTimeout(fun, 1000 / 60);
-            };
-            var bodyStyle = doc.body.style;
-            bodyStyle.margin = 0;
-            bodyStyle.overflow = 'hidden';
-            bodyStyle['-webkit-user-select'] = 'none';
-            bodyStyle['-webkit-tap-highlight-color'] = 'rgba(200,200,200,0)';
-            var metas = doc.getElementsByTagName('meta');
-            var i = 0, flag = false, content = 'width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no';
-            while (i < metas.length) {
-                var meta = metas[i];
-                if (meta.name == 'viewport') {
-                    meta.content = content;
-                    flag = true;
-                    break;
-                }
-                i++;
-            }
-            if (!flag) {
-                meta = doc.createElement('meta');
-                meta.name = 'viewport', meta.content = content;
-                doc.getElementsByTagName('head')[0].appendChild(meta);
-            }
-            Browser.onMobile = window.conch ? true : u.indexOf("Mobile") > -1;
-            Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
-            Browser.onIPhone = u.indexOf("iPhone") > -1;
-            Browser.onMac = u.indexOf("Mac OS X") > -1;
-            Browser.onIPad = u.indexOf("iPad") > -1 || (platform === 'MacIntel' && maxTouchPoints > 1);
-            Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
-            Browser.onWP = u.indexOf("Windows Phone") > -1;
-            Browser.onQQBrowser = u.indexOf("QQBrowser") > -1;
-            Browser.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
-            Browser.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
-            Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
-            Browser.onSafari = u.indexOf("Safari") > -1;
-            Browser.onPC = !Browser.onMobile;
-            Browser.onMiniGame = u.indexOf('MiniGame') > -1;
-            Browser.onBDMiniGame = u.indexOf('SwanGame') > -1;
-            Browser.onLayaRuntime = !!window.conch;
-            if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
-                Browser.onQGMiniGame = true;
-                Browser.onMiniGame = false;
-            }
-            else if ("qq" in Browser.window && u.indexOf('MiniGame') > -1) {
-                Browser.onQQMiniGame = true;
-                Browser.onMiniGame = false;
-            }
-            else if ("bl" in Browser.window && u.indexOf('MiniGame') > -1) {
-                Browser.onBLMiniGame = true;
-                Browser.onMiniGame = false;
-            }
-            else if ("tt" in Browser.window && u.indexOf('MiniGame') > -1) {
-                Browser.onTTMiniGame = true;
-                Browser.onMiniGame = false;
-            }
-            Browser.onHWMiniGame = "hbs" in Browser.window;
-            Browser.onVVMiniGame = u.indexOf('VVGame') > -1;
-            Browser.onKGMiniGame = u.indexOf('QuickGame') > -1;
-            if (u.indexOf('AlipayMiniGame') > -1) {
-                Browser.onAlipayMiniGame = true;
-                Browser.onMiniGame = false;
-            }
-            if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {
-                Browser.onTBMiniGame = true;
-            }
-            return win;
-        }
-        static get _isMiniGame() {
-            return Browser.onMiniGame || Browser.onBDMiniGame || Browser.onQGMiniGame || Browser.onKGMiniGame || Browser.onVVMiniGame || Browser.onAlipayMiniGame || Browser.onQQMiniGame || Browser.onBLMiniGame || Browser.onTTMiniGame || Browser.onHWMiniGame || Browser.onTBMiniGame;
-        }
-        static createElement(type) {
-            Browser.__init__();
-            return Browser._document.createElement(type);
-        }
-        static getElementById(type) {
-            Browser.__init__();
-            return Browser._document.getElementById(type);
-        }
-        static removeElement(ele) {
-            if (ele && ele.parentNode)
-                ele.parentNode.removeChild(ele);
-        }
-        static now() {
-            return Date.now();
-        }
-        static get clientWidth() {
-            Browser.__init__();
-            return Browser._window.innerWidth || Browser._document.body.clientWidth;
-        }
-        static get clientHeight() {
-            Browser.__init__();
-            return Browser._window.innerHeight || Browser._document.body.clientHeight || Browser._document.documentElement.clientHeight;
-        }
-        static get width() {
-            Browser.__init__();
-            return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientHeight : Browser.clientWidth) * Browser.pixelRatio;
-        }
-        static get height() {
-            Browser.__init__();
-            return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientWidth : Browser.clientHeight) * Browser.pixelRatio;
-        }
-        static get pixelRatio() {
-            if (Browser._pixelRatio < 0) {
-                Browser.__init__();
-                if (Browser.userAgent.indexOf("Mozilla/6.0(Linux; Android 6.0; HUAWEI NXT-AL10 Build/HUAWEINXT-AL10)") > -1)
-                    Browser._pixelRatio = 2;
-                else {
-                    Browser._pixelRatio = (Browser._window.devicePixelRatio || 1);
-                    if (Browser._pixelRatio < 1)
-                        Browser._pixelRatio = 1;
-                }
-            }
-            return Browser._pixelRatio;
-        }
-        static get container() {
-            if (!Browser._container) {
-                Browser.__init__();
-                Browser._container = Browser.createElement("div");
-                Browser._container.id = "layaContainer";
-                Browser._document.body.appendChild(Browser._container);
-            }
-            return Browser._container;
-        }
-        static set container(value) {
-            Browser._container = value;
-        }
-        static get window() {
-            return Browser._window || Browser.__init__();
-        }
-        static get document() {
-            Browser.__init__();
-            return Browser._document;
-        }
-    }
-    Browser._pixelRatio = -1;
-    Browser.mainCanvas = null;
-    Browser.hanzi = new RegExp("^[\u4E00-\u9FA5]$");
-    Browser.fontMap = {};
-    Browser.measureText = function (txt, font) {
-        var isChinese = Browser.hanzi.test(txt);
-        if (isChinese && Browser.fontMap[font]) {
-            return Browser.fontMap[font];
-        }
-        var ctx = Browser.context;
-        ctx.font = font;
-        var r = ctx.measureText(txt);
-        if (isChinese)
-            Browser.fontMap[font] = r;
-        return r;
-    };
-
     class Texture2D extends BaseTexture {
         constructor(width = 0, height = 0, format = exports.TextureFormat.R8G8B8A8, mipmap = true, canRead = false) {
             super(format, mipmap);
@@ -2863,7 +2597,8 @@ window.Laya= (function (exports) {
                 throw ("Invalid fileIdentifier in KTX header");
             var header = new Int32Array(id.buffer, id.length, ETC_HEADER_LENGTH);
             var compressedFormat = header[ETC_HEADER_FORMAT];
-            if (Browser.onIOS) {
+            this._format = -1;
+            if (LayaGL.layaGPUInstance._compressedTextureASTC) {
                 switch (compressedFormat) {
                     case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR:
                         this._format = exports.TextureFormat.ASTC4x4;
@@ -2889,21 +2624,23 @@ window.Laya= (function (exports) {
                     case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR:
                         this._format = exports.TextureFormat.ASTC8x8;
                         break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
-                        this._format = exports.TextureFormat.ASTC6x6;
+                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_10x10_KHR:
+                        this._format = exports.TextureFormat.ASTC10x10;
                         break;
                     case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
                         this._format = exports.TextureFormat.ASTC12x12;
                         break;
-                    default:
-                        throw "unknown texture format.";
                 }
             }
-            else if (Browser.onAndroid) {
+            if (LayaGL.layaGPUInstance._compressedTextureEtc1) {
                 switch (compressedFormat) {
                     case LayaGL.layaGPUInstance._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL:
                         this._format = exports.TextureFormat.ETC1RGB;
                         break;
+                }
+            }
+            if (LayaGL.layaGPUInstance._compressedTextureETC) {
+                switch (compressedFormat) {
                     case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_RGBA8_ETC2_EAC:
                         this._format = exports.TextureFormat.ETC2RGBA;
                         break;
@@ -2913,39 +2650,10 @@ window.Laya= (function (exports) {
                     case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
                         this._format = exports.TextureFormat.ETC2RGB_Alpha8;
                         break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR:
-                        this._format = exports.TextureFormat.ASTC4x4;
-                        break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
-                        this._format = exports.TextureFormat.ASTC4x4SRGB;
-                        break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
-                        this._format = exports.TextureFormat.ASTC6x6SRGB;
-                        break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
-                        this._format = exports.TextureFormat.ASTC8x8SRGB;
-                        break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
-                        this._format = exports.TextureFormat.ASTC10x10SRGB;
-                        break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
-                        this._format = exports.TextureFormat.ASTC12x12SRGB;
-                        break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR:
-                        this._format = exports.TextureFormat.ASTC6x6;
-                        break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR:
-                        this._format = exports.TextureFormat.ASTC8x8;
-                        break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
-                        this._format = exports.TextureFormat.ASTC6x6;
-                        break;
-                    case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
-                        this._format = exports.TextureFormat.ASTC12x12;
-                        break;
-                    default:
-                        throw "unknown texture format.";
                 }
+            }
+            if (this._format == -1) {
+                throw "unknown texture format.";
             }
             var mipLevels = header[ETC_HEADER_MIPMAPCOUNT];
             var width = header[ETC_HEADER_WIDTH];
@@ -8239,6 +7947,272 @@ window.Laya= (function (exports) {
             return null;
         }
     }
+
+    class Browser {
+        static __init__() {
+            var Laya = window.Laya || ILaya.Laya;
+            if (Browser._window)
+                return Browser._window;
+            var win = Browser._window = window;
+            var doc = Browser._document = win.document;
+            var u = Browser.userAgent = win.navigator.userAgent;
+            var maxTouchPoints = win.navigator.maxTouchPoints || 0;
+            var platform = win.navigator.platform;
+            if ("my" in Browser.window) {
+                if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {
+                    window.tbMiniGame(Laya, Laya);
+                    if (!Laya["TBMiniAdapter"]) {
+                        console.error("请先添加淘宝适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+                    }
+                    else {
+                        Laya["TBMiniAdapter"].enable();
+                    }
+                }
+                else if (u.indexOf('AlipayMiniGame') > -1) {
+                    window.aliPayMiniGame(Laya, Laya);
+                    if (!Laya["ALIMiniAdapter"]) {
+                        console.error("请先添加阿里小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+                    }
+                    else {
+                        Laya["ALIMiniAdapter"].enable();
+                    }
+                }
+            }
+            if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
+                if ("tt" in Browser.window) {
+                    window.ttMiniGame(Laya, Laya);
+                    if (!Laya["TTMiniAdapter"]) {
+                        console.error("请引入字节跳动小游戏的适配库");
+                    }
+                    else {
+                        Laya["TTMiniAdapter"].enable();
+                    }
+                }
+                else if ("bl" in Browser.window) {
+                    window.biliMiniGame(Laya, Laya);
+                    if (!Laya["BLMiniAdapter"]) {
+                        console.error("请引入bilibili小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-7-0");
+                    }
+                    else {
+                        Laya["BLMiniAdapter"].enable();
+                    }
+                }
+                else if ("qq" in Browser.window) {
+                    window.qqMiniGame(Laya, Laya);
+                    if (!Laya["QQMiniAdapter"]) {
+                        console.error("请引入手机QQ小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-0-0");
+                    }
+                    else {
+                        Laya["QQMiniAdapter"].enable();
+                    }
+                }
+                else {
+                    window.wxMiniGame(Laya, Laya);
+                    if (!Laya["MiniAdpter"]) {
+                        console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
+                    }
+                    else {
+                        Laya["MiniAdpter"].enable();
+                    }
+                }
+            }
+            if ("hbs" in Browser.window) {
+                window.hwMiniGame(Laya, Laya);
+                if (!Laya["HWMiniAdapter"]) {
+                    console.error("请先添加小游戏适配库!");
+                }
+                else {
+                    Laya["HWMiniAdapter"].enable();
+                }
+            }
+            if (u.indexOf("SwanGame") > -1) {
+                window.bdMiniGame(Laya, Laya);
+                if (!Laya["BMiniAdapter"]) {
+                    console.error("请先添加百度小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-1-0");
+                }
+                else {
+                    Laya["BMiniAdapter"].enable();
+                }
+            }
+            if (u.indexOf('QuickGame') > -1) {
+                window.miMiniGame(Laya, Laya);
+                if (!Laya["KGMiniAdapter"]) {
+                    console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-2-0");
+                }
+                else {
+                    Laya["KGMiniAdapter"].enable();
+                }
+            }
+            if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
+                window.qgMiniGame(Laya, Laya);
+                if (!Laya["QGMiniAdapter"]) {
+                    console.error("请先添加OPPO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-3-0");
+                }
+                else {
+                    Laya["QGMiniAdapter"].enable();
+                }
+            }
+            if (u.indexOf('VVGame') > -1) {
+                window.vvMiniGame(Laya, Laya);
+                if (!Laya["VVMiniAdapter"]) {
+                    console.error("请先添加VIVO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-4-0");
+                }
+                else {
+                    Laya["VVMiniAdapter"].enable();
+                }
+            }
+            win.trace = console.log;
+            win.requestAnimationFrame = win.requestAnimationFrame || win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame || win.oRequestAnimationFrame || win.msRequestAnimationFrame || function (fun) {
+                return win.setTimeout(fun, 1000 / 60);
+            };
+            var bodyStyle = doc.body.style;
+            bodyStyle.margin = 0;
+            bodyStyle.overflow = 'hidden';
+            bodyStyle['-webkit-user-select'] = 'none';
+            bodyStyle['-webkit-tap-highlight-color'] = 'rgba(200,200,200,0)';
+            var metas = doc.getElementsByTagName('meta');
+            var i = 0, flag = false, content = 'width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no';
+            while (i < metas.length) {
+                var meta = metas[i];
+                if (meta.name == 'viewport') {
+                    meta.content = content;
+                    flag = true;
+                    break;
+                }
+                i++;
+            }
+            if (!flag) {
+                meta = doc.createElement('meta');
+                meta.name = 'viewport', meta.content = content;
+                doc.getElementsByTagName('head')[0].appendChild(meta);
+            }
+            Browser.onMobile = window.conch ? true : u.indexOf("Mobile") > -1;
+            Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+            Browser.onIPhone = u.indexOf("iPhone") > -1;
+            Browser.onMac = u.indexOf("Mac OS X") > -1;
+            Browser.onIPad = u.indexOf("iPad") > -1 || (platform === 'MacIntel' && maxTouchPoints > 1);
+            Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
+            Browser.onWP = u.indexOf("Windows Phone") > -1;
+            Browser.onQQBrowser = u.indexOf("QQBrowser") > -1;
+            Browser.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
+            Browser.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
+            Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
+            Browser.onSafari = u.indexOf("Safari") > -1;
+            Browser.onPC = !Browser.onMobile;
+            Browser.onMiniGame = u.indexOf('MiniGame') > -1;
+            Browser.onBDMiniGame = u.indexOf('SwanGame') > -1;
+            Browser.onLayaRuntime = !!window.conch;
+            if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
+                Browser.onQGMiniGame = true;
+                Browser.onMiniGame = false;
+            }
+            else if ("qq" in Browser.window && u.indexOf('MiniGame') > -1) {
+                Browser.onQQMiniGame = true;
+                Browser.onMiniGame = false;
+            }
+            else if ("bl" in Browser.window && u.indexOf('MiniGame') > -1) {
+                Browser.onBLMiniGame = true;
+                Browser.onMiniGame = false;
+            }
+            else if ("tt" in Browser.window && u.indexOf('MiniGame') > -1) {
+                Browser.onTTMiniGame = true;
+                Browser.onMiniGame = false;
+            }
+            Browser.onHWMiniGame = "hbs" in Browser.window;
+            Browser.onVVMiniGame = u.indexOf('VVGame') > -1;
+            Browser.onKGMiniGame = u.indexOf('QuickGame') > -1;
+            if (u.indexOf('AlipayMiniGame') > -1) {
+                Browser.onAlipayMiniGame = true;
+                Browser.onMiniGame = false;
+            }
+            if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {
+                Browser.onTBMiniGame = true;
+            }
+            return win;
+        }
+        static get _isMiniGame() {
+            return Browser.onMiniGame || Browser.onBDMiniGame || Browser.onQGMiniGame || Browser.onKGMiniGame || Browser.onVVMiniGame || Browser.onAlipayMiniGame || Browser.onQQMiniGame || Browser.onBLMiniGame || Browser.onTTMiniGame || Browser.onHWMiniGame || Browser.onTBMiniGame;
+        }
+        static createElement(type) {
+            Browser.__init__();
+            return Browser._document.createElement(type);
+        }
+        static getElementById(type) {
+            Browser.__init__();
+            return Browser._document.getElementById(type);
+        }
+        static removeElement(ele) {
+            if (ele && ele.parentNode)
+                ele.parentNode.removeChild(ele);
+        }
+        static now() {
+            return Date.now();
+        }
+        static get clientWidth() {
+            Browser.__init__();
+            return Browser._window.innerWidth || Browser._document.body.clientWidth;
+        }
+        static get clientHeight() {
+            Browser.__init__();
+            return Browser._window.innerHeight || Browser._document.body.clientHeight || Browser._document.documentElement.clientHeight;
+        }
+        static get width() {
+            Browser.__init__();
+            return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientHeight : Browser.clientWidth) * Browser.pixelRatio;
+        }
+        static get height() {
+            Browser.__init__();
+            return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientWidth : Browser.clientHeight) * Browser.pixelRatio;
+        }
+        static get pixelRatio() {
+            if (Browser._pixelRatio < 0) {
+                Browser.__init__();
+                if (Browser.userAgent.indexOf("Mozilla/6.0(Linux; Android 6.0; HUAWEI NXT-AL10 Build/HUAWEINXT-AL10)") > -1)
+                    Browser._pixelRatio = 2;
+                else {
+                    Browser._pixelRatio = (Browser._window.devicePixelRatio || 1);
+                    if (Browser._pixelRatio < 1)
+                        Browser._pixelRatio = 1;
+                }
+            }
+            return Browser._pixelRatio;
+        }
+        static get container() {
+            if (!Browser._container) {
+                Browser.__init__();
+                Browser._container = Browser.createElement("div");
+                Browser._container.id = "layaContainer";
+                Browser._document.body.appendChild(Browser._container);
+            }
+            return Browser._container;
+        }
+        static set container(value) {
+            Browser._container = value;
+        }
+        static get window() {
+            return Browser._window || Browser.__init__();
+        }
+        static get document() {
+            Browser.__init__();
+            return Browser._document;
+        }
+    }
+    Browser._pixelRatio = -1;
+    Browser.mainCanvas = null;
+    Browser.hanzi = new RegExp("^[\u4E00-\u9FA5]$");
+    Browser.fontMap = {};
+    Browser.measureText = function (txt, font) {
+        var isChinese = Browser.hanzi.test(txt);
+        if (isChinese && Browser.fontMap[font]) {
+            return Browser.fontMap[font];
+        }
+        var ctx = Browser.context;
+        ctx.font = font;
+        var r = ctx.measureText(txt);
+        if (isChinese)
+            Browser.fontMap[font] = r;
+        return r;
+    };
 
     class CharRender_Canvas extends ICharRender {
         constructor(maxw, maxh, scalefont = true, useImageData = true, showdbg = false) {
