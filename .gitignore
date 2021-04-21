@@ -6,3 +6,5 @@ node_modules
 .vscode/chrome
 /src/platform
 .DS_Store
+build
+.history
