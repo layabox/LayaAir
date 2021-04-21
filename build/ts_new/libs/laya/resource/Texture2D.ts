@@ -348,7 +348,8 @@ export class Texture2D extends BaseTexture {
 			throw ("Invalid fileIdentifier in KTX header");
 		var header: Int32Array = new Int32Array(id.buffer, id.length, ETC_HEADER_LENGTH);
 		var compressedFormat: number = header[ETC_HEADER_FORMAT];
-		if(Browser.onIOS){
+		this._format = -1;
+		if(LayaGL.layaGPUInstance._compressedTextureASTC){
 			switch (compressedFormat) {
 				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR:
 					this._format = TextureFormat.ASTC4x4;
@@ -374,20 +375,23 @@ export class Texture2D extends BaseTexture {
 				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR:
 					this._format = TextureFormat.ASTC8x8;
 					break;
-				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
-					this._format = TextureFormat.ASTC6x6;
+				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_10x10_KHR:
+					this._format = TextureFormat.ASTC10x10;
 					break;
 				case LayaGL.layaGPUInstance._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR:
 					this._format = TextureFormat.ASTC12x12;
 					break;
-				default:
-					throw "unknown texture format.";
 			}
-		}else if(Browser.onAndroid){
+		}
+		if(LayaGL.layaGPUInstance._compressedTextureEtc1){
 			switch (compressedFormat) {
 				case LayaGL.layaGPUInstance._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL:
 					this._format = TextureFormat.ETC1RGB;
 					break;
+			}
+		}
+		if(LayaGL.layaGPUInstance._compressedTextureETC){
+			switch (compressedFormat) {
 				case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_RGBA8_ETC2_EAC:
 					this._format = TextureFormat.ETC2RGBA;
 					break;
@@ -397,9 +401,11 @@ export class Texture2D extends BaseTexture {
 				case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
 					this._format = TextureFormat.ETC2RGB_Alpha8;
 					break;
-				default:
-					throw "unknown texture format.";
 			}
+		}
+
+		if(this._format==-1){
+			throw "unknown texture format.";
 		}
 	
 		var mipLevels: number = header[ETC_HEADER_MIPMAPCOUNT];
