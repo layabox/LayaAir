@@ -225,6 +225,12 @@ export class BaseTexture extends Bitmap {
 				else
 					throw "BaseTexture: not support ETC2SRGB_Alpha8 format.";
 				break;
+			case TextureFormat.ETC2SRGB:
+				if(gpu._compressedTextureETC)
+					glFormat = gpu._compressedTextureETC.COMPRESSED_SRGB8_ETC2;
+				else
+					throw "BaseTexture: not support ETC2SRGB format.";
+				break;
 			case TextureFormat.PVRTCRGB_2BPPV:
 				if (gpu._compressedTexturePvrtc)
 					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
