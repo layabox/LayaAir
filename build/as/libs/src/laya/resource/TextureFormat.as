@@ -47,6 +47,7 @@ package laya.resource {
 		 * 纹理格式_PVRTCRGB_2BPPV。
 		 */
 		public static var ETC2RGB_Alpha8:Number = 8;
+		public static var ETC2SRGB:Number = 28;
 		public static var PVRTCRGB_2BPPV:Number = 9;
 
 		/**
