@@ -17,6 +17,7 @@ import { PhysicsSimulation } from "./physics/PhysicsSimulation";
 import { ILaya } from "../../ILaya";
 import { Config3D } from "../../Config3D";
 import { Physics3D } from "./Physics3D";
+import { Laya } from "../../Laya";
 
 /**
  * <code>Input3D</code> 类用于实现3D输入。
@@ -49,7 +50,7 @@ export class Input3D {
 	 */
 	__init__(canvas: any, scene: Scene3D): void {
 		this._scene = scene;
-		Input3D._tempHitResult0 = new HitResult();
+		Physics3D._bullet && (Input3D._tempHitResult0 = new HitResult());
 		//@ts-ignore
 		canvas.oncontextmenu = function (e: any): any {
 			return false;
@@ -194,6 +195,8 @@ export class Input3D {
 	 * @internal
 	 */
 	private _mouseTouchRayCast(cameras: BaseCamera[]): void {
+		if(Physics3D._bullet||Physics3D._cannon)
+		return;
 		var touchHitResult: HitResult = Input3D._tempHitResult0;
 		var touchPos: Vector2 = Input3D._tempVector20;
 		var touchRay: Ray = Input3D._tempRay0;
