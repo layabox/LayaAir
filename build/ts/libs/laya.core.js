@@ -1439,6 +1439,7 @@ window.Laya= (function (exports) {
         TextureFormat[TextureFormat["ETC2RGB"] = 6] = "ETC2RGB";
         TextureFormat[TextureFormat["ETC2RGBA"] = 7] = "ETC2RGBA";
         TextureFormat[TextureFormat["ETC2RGB_Alpha8"] = 8] = "ETC2RGB_Alpha8";
+        TextureFormat[TextureFormat["ETC2SRGB"] = 28] = "ETC2SRGB";
         TextureFormat[TextureFormat["PVRTCRGB_2BPPV"] = 9] = "PVRTCRGB_2BPPV";
         TextureFormat[TextureFormat["PVRTCRGBA_2BPPV"] = 10] = "PVRTCRGBA_2BPPV";
         TextureFormat[TextureFormat["PVRTCRGB_4BPPV"] = 11] = "PVRTCRGB_4BPPV";
@@ -1601,6 +1602,12 @@ window.Laya= (function (exports) {
                         glFormat = gpu._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
                     else
                         throw "BaseTexture: not support ETC2SRGB_Alpha8 format.";
+                    break;
+                case exports.TextureFormat.ETC2SRGB:
+                    if (gpu._compressedTextureETC)
+                        glFormat = gpu._compressedTextureETC.COMPRESSED_SRGB8_ETC2;
+                    else
+                        throw "BaseTexture: not support ETC2SRGB format.";
                     break;
                 case exports.TextureFormat.PVRTCRGB_2BPPV:
                     if (gpu._compressedTexturePvrtc)
@@ -2416,6 +2423,7 @@ window.Laya= (function (exports) {
                 case exports.TextureFormat.PVRTCRGBA_4BPPV:
                 case exports.TextureFormat.ETC2RGB:
                 case exports.TextureFormat.ETC2RGBA:
+                case exports.TextureFormat.ETC2SRGB:
                 case exports.TextureFormat.ASTC4x4:
                 case exports.TextureFormat.ASTC6x6:
                 case exports.TextureFormat.ASTC8x8:
@@ -2650,6 +2658,9 @@ window.Laya= (function (exports) {
                     case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
                         this._format = exports.TextureFormat.ETC2RGB_Alpha8;
                         break;
+                    case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ETC2:
+                        this._format = exports.TextureFormat.ETC2SRGB;
+                        break;
                 }
             }
             if (this._format == -1) {
@@ -2848,6 +2859,7 @@ window.Laya= (function (exports) {
                 case exports.TextureFormat.ETC2RGB:
                 case exports.TextureFormat.ETC2RGBA:
                 case exports.TextureFormat.ETC2RGB_Alpha8:
+                case exports.TextureFormat.ETC2SRGB:
                 case exports.TextureFormat.ASTC4x4:
                 case exports.TextureFormat.ASTC4x4SRGB:
                 case exports.TextureFormat.ASTC6x6:
