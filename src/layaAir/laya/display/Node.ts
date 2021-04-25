@@ -8,6 +8,7 @@ import { Timer } from "../utils/Timer"
 import { Sprite } from "./Sprite";
 import { ILaya } from "../../ILaya";
 import { ClassUtils } from "../utils/ClassUtils";
+import { Script } from "../components/Script"
 
 /**
  * 添加到父对象后调度。
@@ -820,7 +821,7 @@ export class Node extends EventDispatcher {
      */
     private _inActiveScripts(): void {
         for (var i: number = 0, n: number = this._activeChangeScripts.length; i < n; i++)
-            this._activeChangeScripts[i]._onDisable();
+        ((this._activeChangeScripts[i]).owner) && this._activeChangeScripts[i]._onDisable();
         this._activeChangeScripts.length = 0;
     }
 

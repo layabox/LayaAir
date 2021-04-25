@@ -236,6 +236,27 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
+     * @private
+     */
+	protected _onInActiveInScene(): void {
+		super._onInActiveInScene();
+		if(!this._scripts)
+			return;
+		for(let i = 0,n =this._scripts.length;i<n;i++)
+		this.scene._removeScript(this._scripts[i]);
+	}
+
+	// /**
+    //  * @private
+    //  */
+	// protected _onActiveInScene():void{
+	// 	super._onActiveInScene();
+	// 	for(let i = 0,n =this._scripts.length;i<n;i++)
+	// 	this.scene._addScript(this._scripts[i]);
+	// }
+
+
+	/**
 	 * @inheritDoc
 	 * @override
 	 */
