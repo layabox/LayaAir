@@ -81,7 +81,7 @@ export class Script3D extends Component {
 	 * @override
 	 */
 	protected _onDisable(): void {
-		if(!this._enableState)
+		if(!this._enableState||this._indexInPool==-1)
 			return;
 		(<Scene3D>this.owner._scene)._removeScript(this);
 		this.owner.offAllCaller(this);

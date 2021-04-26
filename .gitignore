@@ -5,5 +5,6 @@ node_modules
 /src/generateDoc/doc
 .vscode/chrome
 /src/platform
-build
 .DS_Store
+build
+.history

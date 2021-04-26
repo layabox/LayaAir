@@ -224,9 +224,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				throw "Scene3D:unknown shader quality.";
 		}
 		if (config.isUseCannonPhysicsEngine) {
-			Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
+			Physics3D._cannon && (Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings());
 		} else {
-			Scene3D.physicsSettings = new PhysicsSettings();
+			Physics3D._bullet && (Scene3D.physicsSettings = new PhysicsSettings());
 		}
 	}
 
@@ -1019,6 +1019,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_addScript(script: Script3D): void {
+		if(script._indexInPool!=-1)
+			return;
 		var scripts: Script3D[] = this._scriptPool;
 		script._indexInPool = scripts.length;
 		scripts.push(script);
@@ -1028,7 +1030,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_removeScript(script: Script3D): void {
-		this._scriptPool[script._indexInPool] = null;
+		if(script._indexInPool==-1)
+			return;
+		this._scriptPool[script._indexInPool]=null;
 		script._indexInPool = -1;
 		this._needClearScriptPool = true;
 	}

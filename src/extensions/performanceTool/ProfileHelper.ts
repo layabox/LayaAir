@@ -19,11 +19,12 @@ const defaultOptions: SocketManagerOptions = {
     retryConnnectCount: 0,
     retryConnnectDelay: 10000
 }
+let WebSocketCls: any = (window as any).WebSocket as any;
 class SocketManager{ 
     private url:string; 
     public clientId: number = 0;
     private options: SocketManagerOptions;
-    private socket: WebSocket = null as any;
+    private socket: any = null as any;
     private isSupport:boolean = false;
     private status: number = 0; // 0关闭1链接2错误
     private retryConnnectCount : number = 0;
@@ -35,15 +36,15 @@ class SocketManager{
              this.options = options; 
         } else { 
             this.options = defaultOptions; 
-        }
-        
-        this.isSupport = (typeof (window as any).WebSocket != 'undefined');
+        } 
+        WebSocketCls  = (window as any).WebSocket as any;
+        this.isSupport = (typeof WebSocketCls != 'undefined');
         if (this.isSupport) { 
             this.reConnect();
             
         } else {
             console.log('not support websocket');
-        }
+        } 
     } 
     private closeConnect() {
         this.retryConnnectCount = 0;
@@ -89,8 +90,7 @@ class SocketManager{
             onMessage(ev);
         }
     }
-    private onError = (ev: Event) => {
-
+    private onError = (ev: Event) => { 
         const {onError} = this.options;
         if (onError) {
             onError(ev);
@@ -106,7 +106,7 @@ class SocketManager{
     }
     private reConnect() { 
 
-        let socket = new WebSocket(this.url);
+        let socket = new WebSocketCls(this.url);
         this.socket = socket; 
         socket.onclose = this.onClose;
         socket.onmessage = this.onMessage;
