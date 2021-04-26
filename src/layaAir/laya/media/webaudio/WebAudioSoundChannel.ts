@@ -68,7 +68,7 @@ export class WebAudioSoundChannel extends SoundChannel {
         this.isStopped = false;
         this._clearBufferSource();
         if (!this.audioBuffer) return;
-        if (this.startTime >= this.duration) return stop();
+        if (this.startTime >= this.duration) return this.stop();
         var context: any = this.context;
         var gain: any = this.gain;
         var bufferSource: any = context.createBufferSource();
