@@ -22,6 +22,7 @@ export class Physics_Bridge {
 
     constructor(maincls: typeof Main) {
         this.Main = maincls;
+        Laya.Config.isAntialias = true;
         Laya.init(1200, 700, WebGL);
         Stat.show();
         Physics.enable();

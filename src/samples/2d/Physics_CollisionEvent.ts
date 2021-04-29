@@ -25,6 +25,7 @@ export class Physics_CollisionEvent {
 
     constructor(maincls: typeof Main) {
         this.Main = maincls;
+        Laya.Config.isAntialias = true;
         Laya.init(1200, 700, WebGL);
         Stat.show();
         Physics.enable();

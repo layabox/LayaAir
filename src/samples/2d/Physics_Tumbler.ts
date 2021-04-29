@@ -23,6 +23,7 @@ export class Physics_Tumbler {
 
     constructor(maincls: typeof Main) {
 		this.Main = maincls;
+        Laya.Config.isAntialias = true;
 		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
         Stat.show();
         Physics.enable({
