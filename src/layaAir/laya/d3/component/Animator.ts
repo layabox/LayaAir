@@ -920,7 +920,7 @@ export class Animator extends Component {
 						this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i === 0,controllerLayer);//多层动画混合时即使动画停止也要设置数据
 						finish || this._updateEventScript(animatorState, playStateInfo);
 					}
-					this._updateStateFinish(animatorState, playStateInfo);
+					finish || this._updateStateFinish(animatorState, playStateInfo);
 					break;
 				case 1:
 					animatorState = playStateInfo._currentState!;
