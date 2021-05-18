@@ -205,11 +205,11 @@ export class ShaderPass extends ShaderCompile {
 						cacheMap = cacheMap[i == 0 ? k : 0] = {};
 				}
 			}
-			this._cacheShaderHierarchy = resizeLength;
 		}
 		else {
+			++hierarchy;
 			for (var k in cacheMap)
-				this._resizeCacheShaderMap(cacheMap[k], ++hierarchy, resizeLength);
+				this._resizeCacheShaderMap(cacheMap[k], hierarchy, resizeLength);
 		}
 	}
 
