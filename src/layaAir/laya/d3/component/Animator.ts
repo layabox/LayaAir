@@ -16,17 +16,17 @@ import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Transform3D } from "../core/Transform3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
+import { ConchQuaternion } from "../math/Native/ConchQuaternion";
+import { ConchVector3 } from "../math/Native/ConchVector3";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Utils3D } from "../utils/Utils3D";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorPlayState } from "./AnimatorPlayState";
 import { AnimatorState } from "./AnimatorState";
+import { AvatarMask } from "./AvatarMask";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 import { Script3D } from "./Script3D";
-import { ConchQuaternion } from "../math/Native/ConchQuaternion";
-import { ConchVector3 } from "../math/Native/ConchVector3";
-import { AvatarMask } from "./AvatarMask";
 
 /**
  * <code>Animator</code> 类用于创建动画组件。
@@ -253,17 +253,28 @@ export class Animator extends Component {
 			playState._finish = true;
 			playState._elapsedTime = clipDuration;
 			playState._normalizedPlayTime = 1.0;
-
-			if (scripts) {
-				for (var i: number = 0, n: number = scripts.length; i < n; i++)
-					scripts[i].onStateExit();
-			}
 			return;
 		}
 
 		if (scripts) {
-			for (i = 0, n = scripts.length; i < n; i++)
+			for (var i = 0, n = scripts.length; i < n; i++)
 				scripts[i].onStateUpdate();
+		}
+	}
+
+	/**
+	 * @internal
+	 * @param animatorState 
+	 * @param playState 
+	 */
+	private _updateStateFinish(animatorState: AnimatorState, playState: AnimatorPlayState): void {
+		if (playState._finish) {
+			var scripts: AnimatorStateScript[] | null = animatorState._scripts;
+			if (scripts) {
+				for (var i = 0, n = scripts.length; i < n; i++) {
+					scripts[i].onStateExit();
+				}
+			}
 		}
 	}
 
@@ -909,6 +920,7 @@ export class Animator extends Component {
 						this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i === 0,controllerLayer);//多层动画混合时即使动画停止也要设置数据
 						finish || this._updateEventScript(animatorState, playStateInfo);
 					}
+					finish || this._updateStateFinish(animatorState, playStateInfo);
 					break;
 				case 1:
 					animatorState = playStateInfo._currentState!;
@@ -922,6 +934,7 @@ export class Animator extends Component {
 					var crossSpeed: number = this._speed * crossState.speed;
 					this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
 					var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
+					var needUpdateFinishcurrentState = false;
 					if (crossWeight >= 1.0) {
 						if (needRender) {
 							this._updateClipDatas(crossState, addtive, crossPlayStateInfo,controllerLayer.avatarMask);
@@ -934,6 +947,7 @@ export class Animator extends Component {
 					} else {
 						if (!playStateInfo._finish) {
 							speed = this._speed * animatorState.speed;
+							needUpdateFinishcurrentState = true;
 							this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
 							if (needRender)
 								this._updateClipDatas(animatorState, addtive, playStateInfo,controllerLayer.avatarMask);
@@ -947,6 +961,8 @@ export class Animator extends Component {
 						this._updateEventScript(animatorState, playStateInfo);
 						this._updateEventScript(crossState, crossPlayStateInfo);
 					}
+					this._updateStateFinish(crossState, crossPlayStateInfo);
+					needUpdateFinishcurrentState && this._updateStateFinish(playStateInfo._currentState, playStateInfo);
 					break;
 				case 2:
 					crossState = controllerLayer._crossPlayState;
@@ -971,6 +987,7 @@ export class Animator extends Component {
 						}
 						this._updateEventScript(crossState, crossPlayStateInfo);
 					}
+					this._updateStateFinish(crossState, crossPlayStateInfo);
 					break;
 			}
 		}
