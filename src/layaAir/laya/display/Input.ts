@@ -294,8 +294,8 @@ export class Input extends Text {
                 } else {
                     this._setInputMethod();
                 }
+                input = this.nativeInput;
                 (input as any).target = this;
-
                 this._focusIn();
             } else {
                 (input as any).target = null;
