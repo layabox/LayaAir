@@ -1,4 +1,5 @@
 #include "Lighting.glsl";
+#include "LayaUtile.glsl"
 #include "Shadow.glsl"
 
 attribute vec4 a_Position;

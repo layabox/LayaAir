@@ -7,6 +7,7 @@
 #endif
 
 #include "Lighting.glsl";
+#include "LayaUtile.glsl"
 
 attribute vec4 a_Position;
 attribute vec3 a_Normal;

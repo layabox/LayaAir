@@ -201,7 +201,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/** @internal */
 	private _bufferState: BufferState = new BufferState();
 	/**@internal */
-	private _updateMask:number = 0;
+	private _updateMask: number = 0;
 
 	/**@internal */
 	_currentTime: number = 0;
@@ -1216,8 +1216,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			var speedZOffsetY = speedZOffset.y - gravityOffset;
 			var speedFOffsetY = speedFOffset.y + gravityOffset;
 
-			speedZOffsetY = speedZOffsetY > 0 ? speedZOffsetY: 0;
-			speedFOffsetY = speedFOffsetY > 0 ? speedFOffsetY: 0;
+			speedZOffsetY = speedZOffsetY > 0 ? speedZOffsetY : 0;
+			speedFOffsetY = speedFOffsetY > 0 ? speedFOffsetY : 0;
 
 			this._gravityOffset.setValue(speedZOffset.y - speedZOffsetY, speedFOffsetY - speedFOffset.y);
 		}
@@ -1456,7 +1456,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		if (this._vertexBuffer) {//修改了maxCount以及renderMode以及Mesh等需要清空
 			var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
 			this._vertexBuffer.destroy();
-			this._indexBuffer.destroy();		
+			this._indexBuffer.destroy();
 			Resource._addMemory(-memorySize, -memorySize);
 			//TODO:some time use clone will cause this call twice(from 'maxParticleCount' and 'renderMode'),this should optimization rewrite with special clone fun.
 		}
@@ -1584,11 +1584,20 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 */
 	destroy(): void {
 		super.destroy();
-		var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
-		Resource._addMemory(-memorySize, -memorySize);
+		if (this._vertexBuffer) {
+			var memorySize: number = this._vertexBuffer._byteLength;
+			Resource._addMemory(-memorySize, -memorySize);
+			this._vertexBuffer.destroy();
+			this._vertexBuffer = null;
+		}
+		if (this._indexBuffer) {
+			var memorySize: number = this._indexBuffer._byteLength;
+			Resource._addMemory(-memorySize, -memorySize);
+			this._indexBuffer.destroy();
+			this._indexBuffer = null;
+		}
+
 		this._bufferState.destroy();
-		this._vertexBuffer.destroy();
-		this._indexBuffer.destroy();
 		this._emission.destroy();
 		this._boundingBox = null;
 		this._boundingSphere = null;
@@ -1596,8 +1605,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._bounds = null;
 		this._customBounds = null;
 		this._bufferState = null;
-		this._vertexBuffer = null;
-		this._indexBuffer = null;
 		this._owner = null;
 		this._vertices = null;
 		this._indexBuffer = null;
@@ -1936,7 +1943,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 * @internal
 	 */
 	_prepareRender(state: RenderContext3D): boolean {
-		if(this._updateMask!=Stat.loopCount){
+		if (this._updateMask != Stat.loopCount) {
 			this._updateMask = Stat.loopCount;
 			this._updateEmission();
 			//设备丢失时, setData  here
@@ -1944,7 +1951,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				this.addNewParticlesToVertexBuffer();
 			this._drawCounter++;
 		}
-			
+
 		if (this._firstActiveElement != this._firstFreeElement)
 			return true;
 		else
@@ -2058,7 +2065,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var dest: ShurikenParticleSystem = (<ShurikenParticleSystem>destObject);
 
 		dest._useCustomBounds = this._useCustomBounds;
-		(this._customBounds) && (this._customBounds.cloneTo(dest._customBounds));		
+		(this._customBounds) && (this._customBounds.cloneTo(dest._customBounds));
 
 		dest.duration = this.duration;
 		dest.looping = this.looping;
