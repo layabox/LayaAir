@@ -1,5 +1,6 @@
 
 
+import { Config } from "Config";
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
@@ -35,7 +36,7 @@ export class Physics_Strandbeests {
 
     constructor(maincls: typeof Main) {
         this.Main = maincls;
-        Laya.Config.isAntialias = true;
+        Config.isAntialias = true;
         Laya.init(1200, 700, WebGL);
         Stat.show();
         Physics.enable();
