@@ -1,4 +1,4 @@
-var box2d = (function (exports) {
+var box2d = window.box2d = (function (exports) {
   'use strict';
 
   /*
