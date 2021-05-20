@@ -47,7 +47,7 @@ export class DistanceJoint extends JointBase {
             var p1: any = def.bodyA.GetWorldPoint(def.localAnchorA, new box2d.b2Vec2());
             var p2: any = def.bodyB.GetWorldPoint(def.localAnchorB, new box2d.b2Vec2());
             def.length = this._length / Physics.PIXEL_RATIO || box2d.b2Vec2.SubVV(p2, p1, new box2d.b2Vec2()).Length();
-
+            def.maxLength = def.minLength = def.length;
             this._joint = Physics.I._createJoint(def);
         }
     }
