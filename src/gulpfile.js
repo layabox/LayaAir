@@ -133,6 +133,13 @@ var packsDef = [
         'out': '../build/js/libs/laya.ui.js'
     },
     {
+        'libName': 'spine',
+        'input': [
+            './layaAir/laya/spine/**/*.*'
+        ],
+        'out': '../build/js/libs/laya.spine.js'
+    },
+    {
         'libName': 'ani',
         'input': [
             './layaAir/laya/ani/**/*.*'
