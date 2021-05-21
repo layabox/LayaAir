@@ -5,7 +5,6 @@ import { Texture2D } from "../resource/Texture2D";
 import { BaseTexture } from "../resource/BaseTexture";
 import { Resource } from "../resource/Resource";
 import SharedAssetManager = spine.SharedAssetManager;
-import SkeletonData = spine.SkeletonData;
 import TextureAtlas = spine.TextureAtlas;
 import AtlasAttachmentLoader = spine.AtlasAttachmentLoader;
 import SkeletonJson = spine.SkeletonJson;
@@ -26,7 +25,7 @@ import { Laya } from "../../Laya";
 export class SpineTemplet extends Resource {
     private clientId: string;
 	private assetManager: SharedAssetManager;
-	public skeletonData: SkeletonData;
+	public skeletonData: spine.SkeletonData;
 	private skeletonJson: SkeletonJson;
 	private atlasUrl: string;
 	private jsonUrl: string;

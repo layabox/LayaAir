@@ -5,7 +5,6 @@ import { Texture2D } from "../resource/Texture2D";
 import { BaseTexture } from "../resource/BaseTexture";
 import { Resource } from "../resource/Resource";
 import AssetManager = spine.AssetManager;
-import SkeletonData = spine.SkeletonData;
 import AtlasAttachmentLoader = spine.AtlasAttachmentLoader;
 import SkeletonBinary = spine.SkeletonBinary;
 import { Texture } from "../resource/Texture";
@@ -25,7 +24,7 @@ import { Laya } from "../../Laya";
 export class SpineTempletBinary extends Resource {
     private pathPrefix: string;
 	private assetManager: AssetManager;
-	public skeletonData: SkeletonData;
+	public skeletonData: spine.SkeletonData;
 	private skeletonBinary: SkeletonBinary;
 	private skelUrl: string;
 	private atlasUrl: string;

@@ -1,5 +1,4 @@
 import Skeleton = spine.Skeleton;
-import VertexEffect = spine.VertexEffect;
 import Color = spine.Color;
 import SkeletonClipping = spine.SkeletonClipping;
 import Vector2 = spine.Vector2;
@@ -21,7 +20,7 @@ export class SpineSkeletonRenderer {
 	static QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 
 	premultipliedAlpha:boolean;
-	vertexEffect: VertexEffect = null;
+	vertexEffect: spine.VertexEffect = null;
 	private tempColor = new Color();
 	private tempColor2 = new Color();
 	private vertices:ArrayLike<number>;

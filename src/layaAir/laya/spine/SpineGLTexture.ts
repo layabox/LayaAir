@@ -1,7 +1,5 @@
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
-import TextureFilter = spine.TextureFilter;
-import TextureWrap = spine.TextureWrap;
 
 export class SpineGLTexture extends Texture {
 	constructor (tex: Texture2D | Texture) {
@@ -15,11 +13,11 @@ export class SpineGLTexture extends Texture {
 		};
 	}
 
-	setFilters (minFilter: TextureFilter, magFilter: TextureFilter) {
+	setFilters (minFilter: spine.TextureFilter, magFilter: spine.TextureFilter) {
 
 	}
 
-	setWraps (uWrap: TextureWrap, vWrap: TextureWrap) {
+	setWraps (uWrap: spine.TextureWrap, vWrap: spine.TextureWrap) {
 
 	}
 }
