@@ -2538,6 +2538,8 @@ declare class b2Fixture {
     m_isSensor: boolean;
     m_userData: any;
     constructor(body: b2Body, def: b2IFixtureDef);
+    Create(allocator: any, body: any, def: any): void;
+    Destroy(): void;
     Reset(): void;
     GetType(): b2ShapeType;
     GetShape(): b2Shape;
@@ -2566,6 +2568,7 @@ declare class b2Fixture {
     CreateProxies(): void;
     DestroyProxies(): void;
     TouchProxies(): void;
+    Synchronize(broadPhase: any, transform1: b2Transform, transform2: b2Transform): void;
     SynchronizeProxies(transform1: b2Transform, transform2: b2Transform): void;
 }
 
