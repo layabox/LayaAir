@@ -148,7 +148,7 @@ export class Text extends Sprite {
     /**@private 表示文本的高度，以像素为单位。*/
     protected _textHeight: number = 0;
     /**@private 存储文字行数信息。*/
-    protected _lines: any[]|null = [];
+    protected _lines: string[]|null = [];
     /**@private 保存每行宽度*/
     protected _lineWidths: number[]|null = [];
     /**@private 文本的内容位置 X 轴信息。*/
@@ -754,8 +754,9 @@ export class Text extends Sprite {
             var word = lines[i];
             var _word: any;
             if (password) {
+				let len = word.length;
                 word = "";
-                for (var j = word.length; j > 0; j--) {
+                for (var j = len; j > 0; j--) {
                     word += "●";
                 }
             }
