@@ -22,9 +22,9 @@ export class DistanceJoint extends JointBase {
 
     /**约束的目标静止长度*/
     private _length: number = 0;
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-    private _frequency: number = 0;
-    /**刚体在回归到节点过程中受到的阻尼，建议取值0~1*/
+    /**线性刚度*/
+    private _stiffness: number = 0;
+    /**线性阻尼，单位: N*s/m*/
     private _damping: number = 0;
 
     /**
@@ -41,8 +41,8 @@ export class DistanceJoint extends JointBase {
             def.bodyB = this.selfBody.getBody();
             def.localAnchorA.Set(this.otherAnchor[0] / Physics.PIXEL_RATIO, this.otherAnchor[1] / Physics.PIXEL_RATIO);
             def.localAnchorB.Set(this.selfAnchor[0] / Physics.PIXEL_RATIO, this.selfAnchor[1] / Physics.PIXEL_RATIO);
-            def.frequencyHz = this._frequency;
-            def.dampingRatio = this._damping;
+            def.stiffness = this._stiffness;
+            def.damping = this._damping;
             def.collideConnected = this.collideConnected;
             var p1: any = def.bodyA.GetWorldPoint(def.localAnchorA, new box2d.b2Vec2());
             var p2: any = def.bodyB.GetWorldPoint(def.localAnchorB, new box2d.b2Vec2());
@@ -62,24 +62,24 @@ export class DistanceJoint extends JointBase {
         if (this._joint) this._joint.SetLength(value / Physics.PIXEL_RATIO);
     }
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-    get frequency(): number {
-        return this._frequency;
+    /**线性刚度*/
+    get stiffness(): number {
+        return this._stiffness;
     }
 
-    set frequency(value: number) {
-        this._frequency = value;
-        if (this._joint) this._joint.SetFrequency(value);
+    set stiffness(value: number) {
+        this._stiffness = value;
+        if (this._joint) this._joint.SetStiffness(value);
     }
 
-    /**刚体在回归到节点过程中受到的阻尼，建议取值0~1*/
+    /**线性阻尼，单位: N*s/m*/
     get damping(): number {
         return this._damping;
     }
 
     set damping(value: number) {
         this._damping = value;
-        if (this._joint) this._joint.SetDampingRatio(value);
+        if (this._joint) this._joint.SetDamping(value);
     }
 }
 

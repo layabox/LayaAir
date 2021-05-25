@@ -20,9 +20,9 @@ export class MouseJoint extends JointBase {
 
     /**鼠标关节在拖曳刚体bodyB时施加的最大作用力*/
     private _maxForce: number = 10000;
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-    private _frequency: number = 5;
-    /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+    /**线性刚度*/
+    private _stiffness: number = 5;
+    /**线性阻尼，单位: N*s/m*/
     private _damping: number = 0.7;
     /**
      * @override
@@ -65,7 +65,7 @@ export class MouseJoint extends JointBase {
             def.bodyA = Physics.I._emptyBody;
             def.bodyB = this.selfBody.getBody();
             def.target = anchorVec;
-            def.frequencyHz = this._frequency;
+            def.stiffness = this._stiffness;
             def.damping = this._damping;
             def.maxForce = this._maxForce;
             this._joint = Physics.I._createJoint(def);
@@ -101,24 +101,24 @@ export class MouseJoint extends JointBase {
         if (this._joint) this._joint.SetMaxForce(value);
     }
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-    get frequency(): number {
-        return this._frequency;
+    /**线性刚度*/
+    get stiffness(): number {
+        return this._stiffness;
     }
 
-    set frequency(value: number) {
-        this._frequency = value;
-        if (this._joint) this._joint.SetFrequency(value);
+    set stiffness(value: number) {
+        this._stiffness = value;
+        if (this._joint) this._joint.SetStiffness(value);
     }
 
-    /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+    /**线性阻尼，单位: N*s/m*/
     get damping(): number {
         return this._damping;
     }
 
     set damping(value: number) {
         this._damping = value;
-        if (this._joint) this._joint.SetDampingRatio(value);
+        if (this._joint) this._joint.SetDamping(value);
     }
 }
 

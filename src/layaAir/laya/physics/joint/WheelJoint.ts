@@ -22,9 +22,9 @@ export class WheelJoint extends JointBase {
     /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
     axis: any[] = [1, 0];
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-    private _frequency: number = 5;
-    /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+    /**悬架刚度。单位通常为N/m*/
+    private _stiffness: number = 5;
+    /**悬架阻尼。单位通常为N*s/m*/
     private _damping: number = 0.7;
 
     /**是否开启马达，开启马达可使目标刚体运动*/
@@ -34,6 +34,13 @@ export class WheelJoint extends JointBase {
     /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
     private _maxMotorTorque: number = 10000;
 
+     /**是否对刚体的移动范围加以约束*/
+     private _enableLimit: boolean = true;
+     /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
+     private _lowerTranslation: number = 0;
+     /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
+     private _upperTranslation: number = 0;
+     
     /**
      * @override
      */
@@ -51,32 +58,35 @@ export class WheelJoint extends JointBase {
             def.enableMotor = this._enableMotor;
             def.motorSpeed = this._motorSpeed;
             def.maxMotorTorque = this._maxMotorTorque;
-            def.frequencyHz = this._frequency;
-            def.dampingRatio = this._damping;
+            def.stiffness = this._stiffness;
+            def.damping = this._damping;
             def.collideConnected = this.collideConnected;
+            def.enableLimit = this._enableLimit;
+            def.lowerTranslation = this._lowerTranslation / Physics.PIXEL_RATIO;
+            def.upperTranslation = this._upperTranslation / Physics.PIXEL_RATIO;
 
             this._joint = Physics.I._createJoint(def);
         }
     }
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-    get frequency(): number {
-        return this._frequency;
+    /**悬架刚度。单位通常为N/m*/
+    get stiffness(): number {
+        return this._stiffness;
     }
 
-    set frequency(value: number) {
-        this._frequency = value;
-        if (this._joint) this._joint.SetSpringFrequencyHz(value);
+    set stiffness(value: number) {
+        this._stiffness = value;
+        if (this._joint) this._joint.SetStiffness(value);
     }
 
-    /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+    /**悬架阻尼。单位通常为N*s/m*/
     get damping(): number {
         return this._damping;
     }
 
     set damping(value: number) {
         this._damping = value;
-        if (this._joint) this._joint.SetSpringDampingRatio(value);
+        if (this._joint) this._joint.SetDamping(value);
     }
 
     /**是否开启马达，开启马达可使目标刚体运动*/
@@ -107,6 +117,36 @@ export class WheelJoint extends JointBase {
     set maxMotorTorque(value: number) {
         this._maxMotorTorque = value;
         if (this._joint) this._joint.SetMaxMotorTorque(value);
+    }
+
+    /**是否对刚体的移动范围加以约束*/
+    get enableLimit(): boolean {
+        return this._enableLimit;
+    }
+
+    set enableLimit(value: boolean) {
+        this._enableLimit = value;
+        if (this._joint) this._joint.EnableLimit(value);
+    }
+
+    /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
+    get lowerTranslation(): number {
+        return this._lowerTranslation;
+    }
+
+    set lowerTranslation(value: number) {
+        this._lowerTranslation = value;
+        if (this._joint) this._joint.SetLimits(value, this._upperTranslation);
+    }
+
+    /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
+    get upperTranslation(): number {
+        return this._upperTranslation;
+    }
+
+    set upperTranslation(value: number) {
+        this._upperTranslation = value;
+        if (this._joint) this._joint.SetLimits(this._lowerTranslation, value);
     }
 }
 
