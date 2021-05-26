@@ -25,7 +25,7 @@ export class WheelJoint extends JointBase {
     /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
     private _frequency: number = 5;
     /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
-    private _dampingRatio: number = 0;
+    private _dampingRatio: number = 0.7;
 
     /**是否开启马达，开启马达可使目标刚体运动*/
     private _enableMotor: boolean = false;
