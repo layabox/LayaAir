@@ -22,10 +22,10 @@ export class WheelJoint extends JointBase {
     /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
     axis: any[] = [1, 0];
 
-    /**悬架刚度。单位通常为N/m*/
-    private _stiffness: number = 5;
-    /**悬架阻尼。单位通常为N*s/m*/
-    private _damping: number = 0.7;
+    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
+    private _frequency: number = 5;
+    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
+    private _dampingRatio: number = 0;
 
     /**是否开启马达，开启马达可使目标刚体运动*/
     private _enableMotor: boolean = false;
@@ -58,8 +58,9 @@ export class WheelJoint extends JointBase {
             def.enableMotor = this._enableMotor;
             def.motorSpeed = this._motorSpeed;
             def.maxMotorTorque = this._maxMotorTorque;
-            def.stiffness = this._stiffness;
-            def.damping = this._damping;
+            box2d.b2LinearStiffness(def, this._frequency, this._dampingRatio, def.bodyA, def.bodyB);
+            // def.stiffness = this._stiffness;
+            // def.damping = this._damping;
             def.collideConnected = this.collideConnected;
             def.enableLimit = this._enableLimit;
             def.lowerTranslation = this._lowerTranslation / Physics.PIXEL_RATIO;
@@ -69,24 +70,42 @@ export class WheelJoint extends JointBase {
         }
     }
 
-    /**悬架刚度。单位通常为N/m*/
-    get stiffness(): number {
-        return this._stiffness;
+    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
+    get frequency(): number {
+        return this._frequency;
     }
 
-    set stiffness(value: number) {
-        this._stiffness = value;
-        if (this._joint) this._joint.SetStiffness(value);
+    set frequency(value: number) {
+        this._frequency = value;
+        if (this._joint) {
+            let out: any = {};
+            let box2d: any = (<any>window).box2d;
+            let bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
+            let bodyB = this.selfBody.getBody();
+            box2d.b2LinearStiffness(out, this._frequency, this._dampingRatio, bodyA, bodyB);
+
+            this._joint.SetStiffness(out.stiffness);
+            this._joint.SetDamping(out.damping);
+        }
     }
 
-    /**悬架阻尼。单位通常为N*s/m*/
+    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     get damping(): number {
-        return this._damping;
+        return this._dampingRatio;
     }
 
     set damping(value: number) {
-        this._damping = value;
-        if (this._joint) this._joint.SetDamping(value);
+        this._dampingRatio = value;
+        if (this._joint) {
+            let out: any = {};
+            let box2d: any = (<any>window).box2d;
+            let bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
+            let bodyB = this.selfBody.getBody();
+            box2d.b2LinearStiffness(out, this._frequency, this._dampingRatio, bodyA, bodyB);
+
+            // this._joint.SetStiffness(out.stiffness); // 修改 dampingRatio 最终只影响 damping
+            this._joint.SetDamping(out.damping);
+        }
     }
 
     /**是否开启马达，开启马达可使目标刚体运动*/
