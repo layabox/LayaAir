@@ -473,7 +473,9 @@ import { DisplayHook } from "./tools/DisplayHook";
 			
 			for (i = 0; i < len; i++) {
 				key = DebugPanel.tObjKeys[i];
-				this.preValueO[key] = tTarget[key];
+				if (key !== "__proto__") {
+					this.preValueO[key] = tTarget[key];
+				}
 			}
 		}
 		
