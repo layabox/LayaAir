@@ -1993,10 +1993,10 @@ declare class b2WheelJoint extends b2Joint {
     constructor(def: b2IWheelJointDef);
     GetMotorSpeed(): number;
     GetMaxMotorTorque(): number;
-    SetSpringFrequencyHz(hz: number): void;
-    GetSpringFrequencyHz(): number;
-    SetSpringDampingRatio(ratio: number): void;
-    GetSpringDampingRatio(): number;
+    SetStiffness(hz: number): void;
+    GetStiffness(): number;
+    SetDamping(ratio: number): void;
+    GetDamping(): number;
     private static InitVelocityConstraints_s_d;
     private static InitVelocityConstraints_s_P;
     InitVelocityConstraints(data: b2SolverData): void;
