@@ -13308,16 +13308,16 @@ var box2d = window.box2d = (function (exports) {
       GetMaxMotorTorque() {
           return this.m_maxMotorTorque;
       }
-      SetSpringFrequencyHz(hz) {
+      SetStiffness(hz) {
           this.m_stiffness = hz;
       }
-      GetSpringFrequencyHz() {
+      GetStiffness() {
           return this.m_stiffness;
       }
-      SetSpringDampingRatio(ratio) {
+      SetDamping(ratio) {
           this.m_damping = ratio;
       }
-      GetSpringDampingRatio() {
+      GetDamping() {
           return this.m_damping;
       }
       InitVelocityConstraints(data) {
