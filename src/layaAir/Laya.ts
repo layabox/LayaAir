@@ -342,7 +342,7 @@ export class Laya {
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 			RenderState2D.clear();
 		}
-		Sprite.drawToCanvas = Sprite.drawToTexture = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {
+		Sprite.drawToCanvas = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {
 			offsetX -= sprite.x;
 			offsetY -= sprite.y;
 			offsetX |= 0;
