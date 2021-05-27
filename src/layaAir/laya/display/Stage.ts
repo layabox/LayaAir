@@ -734,6 +734,7 @@ export class Stage extends Sprite {
 			}
 			return;
 		}
+		this._frameStartTime = Browser.now();
 		//update
 		CallLater.I._update();
 		Stat.loopCount++;
