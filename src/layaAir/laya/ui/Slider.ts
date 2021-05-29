@@ -349,8 +349,14 @@ export class Slider extends UIComponent {
             var pow: number = Math.pow(10, (this._tick + "").length - 1);
             this._value = Math.round(Math.round(this._value / this._tick) * this._tick * pow) / pow;
         }
-
-        this._value = this._value > this._max ? this._max : this._value < this._min ? this._min : this._value;
+        
+        if (this._max >= this._max) {
+            // this._max >= this._min 时
+            this._value = this._value > this._max ? this._max : this._value < this._min ? this._min : this._value; 
+        } else { 
+            // this._max < this._min 时
+			this._value = this._value > this._min ? this._min : this._value < this._max ? this._max : this._value;
+        }
         var num: number = this._max - this._min;
         if (num === 0) num = 1;
         if (this.isVertical) {

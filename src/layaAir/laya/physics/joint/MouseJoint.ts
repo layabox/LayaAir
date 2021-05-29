@@ -20,10 +20,10 @@ export class MouseJoint extends JointBase {
 
     /**鼠标关节在拖曳刚体bodyB时施加的最大作用力*/
     private _maxForce: number = 10000;
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
+    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
     private _frequency: number = 5;
-    /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
-    private _damping: number = 0.7;
+    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
+    private _dampingRatio: number = 0.7;
     /**
      * @override
      * @internal
@@ -65,8 +65,9 @@ export class MouseJoint extends JointBase {
             def.bodyA = Physics.I._emptyBody;
             def.bodyB = this.selfBody.getBody();
             def.target = anchorVec;
-            def.frequencyHz = this._frequency;
-            def.damping = this._damping;
+            box2d.b2LinearStiffness(def, this._frequency, this._dampingRatio, def.bodyA, def.bodyB);
+            // def.stiffness = this._stiffness;
+            // def.damping = this._damping;
             def.maxForce = this._maxForce;
             this._joint = Physics.I._createJoint(def);
         }
@@ -101,24 +102,42 @@ export class MouseJoint extends JointBase {
         if (this._joint) this._joint.SetMaxForce(value);
     }
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
+    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
     get frequency(): number {
         return this._frequency;
     }
 
     set frequency(value: number) {
         this._frequency = value;
-        if (this._joint) this._joint.SetFrequency(value);
+        if (this._joint) {
+            let out: any = {};
+            let box2d: any = (<any>window).box2d;
+            let bodyA = Physics.I._emptyBody;
+            let bodyB = this.selfBody.getBody();
+            box2d.b2LinearStiffness(out, this._frequency, this._dampingRatio, bodyA, bodyB);
+
+            this._joint.SetStiffness(out.stiffness);
+            this._joint.SetDamping(out.damping);
+        }
     }
 
-    /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     get damping(): number {
-        return this._damping;
+        return this._dampingRatio;
     }
 
     set damping(value: number) {
-        this._damping = value;
-        if (this._joint) this._joint.SetDampingRatio(value);
+        this._dampingRatio = value;
+        if (this._joint) {
+            let out: any = {};
+            let box2d: any = (<any>window).box2d;
+            let bodyA = Physics.I._emptyBody;
+            let bodyB = this.selfBody.getBody();
+            box2d.b2LinearStiffness(out, this._frequency, this._dampingRatio, bodyA, bodyB);
+
+            // this._joint.SetStiffness(out.stiffness); // 修改 dampingRatio 最终只影响 damping
+            this._joint.SetDamping(out.damping);
+        }
     }
 }
 

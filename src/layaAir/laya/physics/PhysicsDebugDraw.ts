@@ -86,7 +86,10 @@ export class PhysicsDebugDraw extends Sprite {
             this._mG.save();
             this._mG.scale(Physics.PIXEL_RATIO, Physics.PIXEL_RATIO);
             this.lineWidth = 1 / Physics.PIXEL_RATIO;
-            this.world.DrawDebugData();
+            if (this.world.DebugDraw) // ts源码版box2d
+                this.world.DebugDraw();
+            else
+                this.world.DrawDebugData();
             this._mG.restore();
         }
     }

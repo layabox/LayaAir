@@ -81,12 +81,14 @@ export class Camera extends BaseCamera {
 	/** @internal 深度贴图管线*/
 	static depthPass:DepthPass = new DepthPass();
 
-		/**
+	/**
 	 * 根据相机、scene信息获得scene中某一位置的渲染结果
-	 * @param camera 
-	 * @param scene 
+	 * @param camera 相机
+	 * @param scene 需要渲染的场景
+	 * @param shader 着色器
+	 * @param replacementTag 替换标记。
 	 */
-	static drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture):RenderTexture {
+	static drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture,shader: Shader3D = null, replacementTag: string = null):RenderTexture {
 		if(camera.renderTarget!=renderTexture)
 		{
 			camera.renderTarget&&RenderTexture.recoverToPool(camera.renderTarget);
@@ -108,7 +110,7 @@ export class Camera extends BaseCamera {
 		}
 		var needShadowCasterPass:boolean = camera._renderShadowMap(scene,context);
 		camera._preRenderMainPass(context,scene,needInternalRT,viewport);
-		camera._renderMainPass(context,viewport,scene,null,null,needInternalRT);
+		camera._renderMainPass(context,viewport,scene,shader,replacementTag,needInternalRT);
 		camera._aftRenderMainPass(needShadowCasterPass);
 		return camera.renderTarget;
 	}

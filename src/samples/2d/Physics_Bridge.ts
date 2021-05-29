@@ -1,3 +1,4 @@
+import { Config } from "Config";
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
@@ -22,6 +23,7 @@ export class Physics_Bridge {
 
     constructor(maincls: typeof Main) {
         this.Main = maincls;
+        Config.isAntialias = true;
         Laya.init(1200, 700, WebGL);
         Stat.show();
         Physics.enable();

@@ -9,7 +9,7 @@ export class Config {
     /**
      * 设置是否抗锯齿，只对2D(WebGL)、3D有效。
      */
-    static isAntialias: boolean = false;
+    static isAntialias: boolean = true;
     /**
      * 设置画布是否透明，只对2D(WebGL)、3D有效。
      */

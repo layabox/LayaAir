@@ -133,6 +133,13 @@ var packsDef = [
         'out': '../build/js/libs/laya.ui.js'
     },
     {
+        'libName': 'spine',
+        'input': [
+            './layaAir/laya/spine/**/*.*'
+        ],
+        'out': '../build/js/libs/laya.spine.js'
+    },
+    {
         'libName': 'ani',
         'input': [
             './layaAir/laya/ani/**/*.*'
@@ -472,14 +479,14 @@ gulp.task("compressJs", function () {
 });
 
 gulp.task("compresstsnewJs", function () {
-    gulp.src("../build/ts_new/jslibs/{laya.physics3D.js,box2d.js}")
+    gulp.src("../build/ts_new/jslibs/laya.physics3D.js")
         .pipe(rename({extname: ".min.js"}))
         .pipe(gulp.dest("../build/ts_new/jslibs/min"));
 
     gulp.src("../build/ts_new/jslibs/laya.physics3D.wasm.wasm")
         .pipe(gulp.dest("../build/ts_new/jslibs/min"));
 
-    return gulp.src(["../build/ts_new/jslibs/*.js", "!../build/ts_new/jslibs/{laya.physics3D.js,box2d.js}"])
+    return gulp.src(["../build/ts_new/jslibs/*.js", "!../build/ts_new/jslibs/laya.physics3D.js"])
         .pipe(uglify({
             mangle: {
                 keep_fnames: true

@@ -12,6 +12,7 @@ import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
 import { Stat } from "laya/utils/Stat";
 import { Label } from "laya/ui/Label";
 import { Event } from "laya/events/Event";
+import { Config } from "Config";
 
 
 export class Physics_Tumbler {
@@ -23,6 +24,7 @@ export class Physics_Tumbler {
 
     constructor(maincls: typeof Main) {
 		this.Main = maincls;
+        Config.isAntialias = true;
 		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
         Stat.show();
         Physics.enable({

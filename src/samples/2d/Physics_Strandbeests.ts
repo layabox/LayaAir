@@ -1,5 +1,6 @@
 
 
+import { Config } from "Config";
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
@@ -35,6 +36,7 @@ export class Physics_Strandbeests {
 
     constructor(maincls: typeof Main) {
         this.Main = maincls;
+        Config.isAntialias = true;
         Laya.init(1200, 700, WebGL);
         Stat.show();
         Physics.enable();
@@ -160,6 +162,7 @@ export class Physics_Strandbeests {
         distanceJoint1.frequency = frequencyHz;
         distanceJoint1.damping = dampingRatio;
         leg1.addComponentIntance(distanceJoint1);
+        distanceJoint1.maxLength = distanceJoint1.minLength = distanceJoint1.length || distanceJoint1.joint.GetLength() * Physics.PIXEL_RATIO;
 
         let distanceJoint2: DistanceJoint = new DistanceJoint();
         distanceJoint2.otherBody = legBody2;
@@ -168,6 +171,7 @@ export class Physics_Strandbeests {
         distanceJoint2.frequency = frequencyHz;
         distanceJoint2.damping = dampingRatio;
         leg1.addComponentIntance(distanceJoint2);
+        distanceJoint2.maxLength = distanceJoint2.minLength = distanceJoint2.length || distanceJoint2.joint.GetLength() * Physics.PIXEL_RATIO;;
 
         let localAnchor = new box2d.b2Vec2();
         wheelBody.getBody().GetLocalPoint({x: (this.pos[0] + this.m_offset[0]) / Physics.PIXEL_RATIO, y: (this.pos[1] + this.m_offset[1]) / Physics.PIXEL_RATIO}, localAnchor);
@@ -180,6 +184,7 @@ export class Physics_Strandbeests {
         distanceJoint3.frequency = frequencyHz;
         distanceJoint3.damping = dampingRatio;
         leg1.addComponentIntance(distanceJoint3);
+        distanceJoint3.maxLength = distanceJoint3.minLength = distanceJoint3.length || distanceJoint3.joint.GetLength() * Physics.PIXEL_RATIO;;
 
         let distanceJoint4: DistanceJoint = new DistanceJoint();
         distanceJoint4.otherBody = wheelBody;
@@ -188,6 +193,7 @@ export class Physics_Strandbeests {
         distanceJoint4.frequency = frequencyHz;
         distanceJoint4.damping = dampingRatio;
         leg2.addComponentIntance(distanceJoint4);
+        distanceJoint4.maxLength = distanceJoint4.minLength = distanceJoint4.length || distanceJoint4.joint.GetLength() * Physics.PIXEL_RATIO;;
 
         let revoluteJoint: RevoluteJoint = new RevoluteJoint();
         revoluteJoint.otherBody = legBody2;

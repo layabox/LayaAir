@@ -148,7 +148,7 @@ export class Text extends Sprite {
     /**@private 表示文本的高度，以像素为单位。*/
     protected _textHeight: number = 0;
     /**@private 存储文字行数信息。*/
-    protected _lines: any[]|null = [];
+    protected _lines: string[]|null = [];
     /**@private 保存每行宽度*/
     protected _lineWidths: number[]|null = [];
     /**@private 文本的内容位置 X 轴信息。*/
@@ -754,8 +754,9 @@ export class Text extends Sprite {
             var word = lines[i];
             var _word: any;
             if (password) {
+				let len = word.length;
                 word = "";
-                for (var j = word.length; j > 0; j--) {
+                for (var j = len; j > 0; j--) {
                     word += "●";
                 }
             }
@@ -916,12 +917,12 @@ export class Text extends Sprite {
      */
     protected _parseLines(text: string): void {
         //自动换行和HIDDEN都需要计算换行位置或截断位置
-        var needWordWrapOrTruncate: boolean = this.wordWrap || this.overflow == Text.HIDDEN;
+        var needWordWrapOrTruncate = this.wordWrap || this.overflow == Text.HIDDEN;
         if (needWordWrapOrTruncate) {
-            var wordWrapWidth: number = this._getWordWrapWidth();
+            var wordWrapWidth = this._getWordWrapWidth();
         }
 
-        var bitmapFont: BitmapFont = ((<TextStyle>this._style)).currBitmapFont;
+        var bitmapFont = ((<TextStyle>this._style)).currBitmapFont;
         if (bitmapFont) {
             this._charSize.width = bitmapFont.getMaxWidth();
             this._charSize.height = bitmapFont.getMaxHeight();
@@ -938,8 +939,8 @@ export class Text extends Sprite {
         }
 
         var lines: any[] = text.replace(/\r\n/g, "\n").split("\n");
-        for (var i: number = 0, n: number = lines.length; i < n; i++) {
-            var line: string = lines[i];
+        for (var i = 0, n = lines.length; i < n; i++) {
+            var line = lines[i];
             // 开启了自动换行需要计算换行位置
             // overflow为hidden需要计算截断位置
             if (needWordWrapOrTruncate)
@@ -958,12 +959,12 @@ export class Text extends Sprite {
      * @param	wordWrapWidth 文本的显示宽度。
      */
     protected _parseLine(line: string, wordWrapWidth: number): void {
-        var lines: any[] = this._lines;
+        var lines = this._lines;
 
-        var maybeIndex: number = 0;
-        var charsWidth: number = 0;
-        var wordWidth: number = 0;
-        var startIndex: number = 0;
+        var maybeIndex = 0;
+        var charsWidth = 0;
+        var wordWidth = 0;
+        var startIndex = 0;
 
         charsWidth = this._getTextWidth(line);
         //优化1，如果一行小于宽度，则直接跳过遍历
@@ -979,25 +980,32 @@ export class Text extends Sprite {
         (maybeIndex == 0) && (maybeIndex = 1);
         charsWidth = this._getTextWidth(line.substring(0, maybeIndex));
         wordWidth = charsWidth;
-        for (var j: number = maybeIndex, m: number = line.length; j < m; j++) {
+        for (var j = maybeIndex, m = line.length; j < m; j++) {
             // 逐字符测量后加入到总宽度中，在某些情况下自动换行不准确。
             // 目前已知在全是字符1的自动换行就会出现这种情况。
             // 考虑性能，保留这种非方式。
             charsWidth = this._getTextWidth(line.charAt(j));
             wordWidth += charsWidth;
+			// 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
             if (wordWidth > wordWrapWidth) {
                 if (this.wordWrap) {
                     //截断换行单词
-                    var newLine: string = line.substring(startIndex, j);
-                    if (newLine.charCodeAt(newLine.length - 1) < 255) {
+                    var newLine = line.substring(startIndex, j);
+					// 如果最后一个是中文则直接截断，否则找空格或者-来拆分
+					var ccode = newLine.charCodeAt(newLine.length-1)
+					if (ccode<0x4e00 || ccode>0x9fa5){
+                    //if (newLine.charCodeAt(newLine.length - 1) < 255) {
                         //按照英文单词字边界截取 因此将会无视中文
-                        var execResult = /(?:\w|-)+$/.exec(newLine);
+                        //var execResult = /(?:\w|-)+$/.exec(newLine);
+						var execResult=/(?:[^\s\!-\/])+$/.exec(newLine);// 找不是 空格和标点符号的
                         if (execResult) {
                             j = execResult.index + startIndex;
                             //此行只够容纳这一个单词 强制换行
-                            if (execResult.index == 0) j += newLine.length;
+                            if (execResult.index == 0) 
+								j += newLine.length;
                             //此行有多个单词 按单词分行
-                            else newLine = line.substring(startIndex, j);
+                            else 
+								newLine = line.substring(startIndex, j);
                         }
                     }
 
