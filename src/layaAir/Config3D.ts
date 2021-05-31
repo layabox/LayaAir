@@ -57,6 +57,9 @@ export class Config3D implements IClone {
 	octreeMinNodeSize: number = 2.0;
 	/** 八叉树松散值。*/
 	octreeLooseness: number = 1.25;
+
+	/** 是否进行静态合并 */
+	StaticBactchEnable:boolean = true;
 	
 
 	/** 
