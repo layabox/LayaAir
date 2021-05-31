@@ -15,6 +15,7 @@ import { StaticBatchManager } from "../graphics/StaticBatchManager";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
 import { ReflectionProbe } from "../core/reflectionProbe/ReflectionProbe";
+import { Config3D } from "../../../Config3D";
 
 
 
@@ -156,7 +157,7 @@ export class Scene3DUtils {
 				sprite = (<Sprite3D>Scene3DUtils._createNodeByJson(json, outBatchSprits));
 		}
 
-		StaticBatchManager.combine(sprite, outBatchSprits);
+		Config3D._config.StaticBactchEnable && StaticBatchManager.combine(sprite, outBatchSprits);
 		return sprite;
 	}
 
@@ -175,7 +176,7 @@ export class Scene3DUtils {
 				scene = <Scene3D>Scene3DUtils._createNodeByJson(json, outBatchSprits);
 		}
 
-		StaticBatchManager.combine(null, outBatchSprits);
+		Config3D._config.StaticBactchEnable && StaticBatchManager.combine(null, outBatchSprits);
 		return scene;
 	}
 
