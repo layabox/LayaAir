@@ -464,6 +464,18 @@ export class Camera extends BaseCamera {
 		(enableHDR !== undefined) && (this.enableHDR = enableHDR);
 	}
 
+	clone():Camera{
+		let camera = <Camera>super.clone();
+		camera.clearFlag = this.clearFlag;
+		camera.viewport = this.viewport;
+		this.normalizedViewport.cloneTo(camera.normalizedViewport);
+		camera.enableHDR = this.enableHDR;
+		camera.farPlane = this.farPlane;
+		camera.nearPlane = this.nearPlane;
+		camera.fieldOfView = this.fieldOfView;
+		camera.orthographic = this.orthographic;
+		return camera;
+	}
 
 	/**
 	 * @internal
