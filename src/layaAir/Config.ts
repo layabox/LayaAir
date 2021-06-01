@@ -49,6 +49,8 @@ export class Config {
     
     /** 是否允许GPUInstance动态合并,仅对3D有效。*/
 	static allowGPUInstanceDynamicBatch: boolean = true;
+    /** 是否允许静态合并 */
+    static enableStaticBatch:boolean = true;
 
     static useRetinalCanvas: boolean = false;
 }
