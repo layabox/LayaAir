@@ -4,6 +4,7 @@ import { PBRRenderQuality } from "./laya/d3/core/material/PBRRenderQuality";
 import { ILaya3D } from "./ILaya3D";
 import { CannonPhysicsSettings } from "./laya/d3/physicsCannon/CannonPhysicsSettings";
 import { Physics3D } from "./laya/d3/Physics3D";
+import { SubMeshRenderElement } from "./laya/d3/core/render/SubMeshRenderElement";
 
 /**
  * <code>Config3D</code> 类用于创建3D初始化配置。
@@ -23,6 +24,24 @@ export class Config3D implements IClone {
 			if(!ILaya3D.Scene3D.cannonPhysicsSettings) ILaya3D.Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
 		}	
 	}
+
+	static set enableDynamicManager(value:boolean){
+		SubMeshRenderElement.enableDynamicBatch = value;
+	}
+
+	static get enableDynamicManager():boolean{
+		return SubMeshRenderElement.enableDynamicBatch;
+	}
+
+	static set enableStaticManager(value:boolean){
+		SubMeshRenderElement.enableStaticBatch = value;
+	}
+
+	static get enableStaticManager():boolean{
+		return SubMeshRenderElement.enableStaticBatch;
+		
+	}
+
 	/**@internal*/
 	private _defaultPhysicsMemory: number = 16;
 	/**@internal*/
@@ -58,8 +77,6 @@ export class Config3D implements IClone {
 	/** 八叉树松散值。*/
 	octreeLooseness: number = 1.25;
 
-	/** 是否进行静态合并 */
-	StaticBactchEnable:boolean = true;
 	
 
 	/** 

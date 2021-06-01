@@ -157,7 +157,7 @@ export class Scene3DUtils {
 				sprite = (<Sprite3D>Scene3DUtils._createNodeByJson(json, outBatchSprits));
 		}
 
-		Config3D._config.StaticBactchEnable && StaticBatchManager.combine(sprite, outBatchSprits);
+		StaticBatchManager.combine(sprite, outBatchSprits);
 		return sprite;
 	}
 
@@ -176,7 +176,7 @@ export class Scene3DUtils {
 				scene = <Scene3D>Scene3DUtils._createNodeByJson(json, outBatchSprits);
 		}
 
-		Config3D._config.StaticBactchEnable && StaticBatchManager.combine(null, outBatchSprits);
+		StaticBatchManager.combine(null, outBatchSprits);
 		return scene;
 	}
 
