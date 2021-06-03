@@ -15,7 +15,8 @@ import { IOctreeObject } from "./IOctreeObject";
 import { Scene3D } from "./Scene3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Shader3D } from "../../shader/Shader3D";
-import { CameraCullInfo } from "../../graphics/FrustumCulling";
+import { CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
+import { Plane } from "../../math/Plane";
 
 /**
  * <code>BoundsOctreeNode</code> 类用于创建八叉树节点。
@@ -366,11 +367,6 @@ export class BoundsOctreeNode {
 	 * @internal
 	 */
 	private _getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, testVisible: boolean, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
-		//if (_children === null && _objects.length == 0) {//无用末级节不需要检查，调试用
-		//debugger;
-		//return;
-		//}
-
 		var frustum: BoundFrustum = cameraCullInfo.boundFrustum;
 		var camPos: Vector3 = cameraCullInfo.position;
 		var cullMask: number = cameraCullInfo.cullingMask;
@@ -420,6 +416,65 @@ export class BoundsOctreeNode {
 			for (i = 0; i < 8; i++) {
 				var child: BoundsOctreeNode = this._children[i];
 				child && child._getCollidingWithFrustum(cameraCullInfo, context, testVisible, customShader, replacementTag, isShadowCasterCull);
+			}
+		}
+	}
+
+	private _getCollidingWithCastShadowFrustum(cullInfo:ShadowCullInfo,context: RenderContext3D){
+		var cullPlaneCount: number = cullInfo.cullPlaneCount;
+		var cullPlanes: Plane[] = cullInfo.cullPlanes;
+		var min: Vector3 = this._bounds.min;
+		var max: Vector3 = this._bounds.max;
+		var minX: number = min.x;
+		var minY: number = min.y;
+		var minZ: number = min.z;
+		var maxX: number = max.x;
+		var maxY: number = max.y;
+		var maxZ: number = max.z;
+
+		var pass: boolean = true;
+		for (var j: number = 0; j < cullPlaneCount; j++) {
+			var plane: Plane = cullPlanes[j];
+			var normal: Vector3 = plane.normal;
+			if (plane.distance + (normal.x * (normal.x < 0.0 ? minX : maxX)) + (normal.y * (normal.y < 0.0 ? minY : maxY)) + (normal.z * (normal.z < 0.0 ? minZ : maxZ)) < 0.0) {
+				pass = false;
+				break;
+			}
+		}
+		if(!pass) return;
+
+		//检查节点中的对象
+		var scene: Scene3D = context.scene;
+		var loopCount: number = Stat.loopCount;
+		for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
+			var render: BaseRender = <BaseRender>this._objects[i];
+			var canPass: boolean;
+			let pass = true;
+			canPass = render._castShadow && render._enable;
+			if(canPass){
+				for (var j: number = 0; j < cullPlaneCount; j++) {
+					var plane: Plane = cullPlanes[j];
+					var normal: Vector3 = plane.normal;
+					if (plane.distance + (normal.x * (normal.x < 0.0 ? minX : maxX)) + (normal.y * (normal.y < 0.0 ? minY : maxY)) + (normal.z * (normal.z < 0.0 ? minZ : maxZ)) < 0.0) {
+						pass = false;
+						break;
+					}
+				}
+			}
+			if(!pass) continue;
+
+			render._renderMark = loopCount;
+			render._distanceForSort = Vector3.distance(render.bounds.getCenter(), cullInfo.position);//TODO:合并计算浪费,或者合并后取平均值
+			var elements: RenderElement[] = render._renderElements;
+			for (var j: number = 0, m: number = elements.length; j < m; j++) {
+				var element: RenderElement = elements[j];
+				element._update(scene, context, null,null);
+			}
+		}
+		if (this._children != null) {
+			for (i = 0; i < 8; i++) {
+				var child: BoundsOctreeNode = this._children[i];
+				child && child._getCollidingWithCastShadowFrustum(cullInfo, context);
 			}
 		}
 	}
@@ -652,6 +707,10 @@ export class BoundsOctreeNode {
 	 */
 	getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		this._getCollidingWithFrustum(cameraCullInfo, context, true, customShader, replacementTag, isShadowCasterCull);
+	}
+
+	getCollidingWithCastShadowFrustum(cameraCullInfo:ShadowCullInfo,contect:RenderContext3D){
+		this._getCollidingWithCastShadowFrustum(cameraCullInfo,contect);
 	}
 
 	/**
