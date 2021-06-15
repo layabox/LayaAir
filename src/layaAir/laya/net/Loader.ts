@@ -441,7 +441,11 @@ export class Loader extends EventDispatcher {
 							changeType = ".ktx";
 						}
 						if (Browser.onIOS && data.meta.compressTextureIOS) {
-							changeType = ".pvr";
+							if (data.meta.astc) { 
+								changeType = ".ktx";
+							} else { 
+								changeType = ".pvr";
+							}
 						}
 						//idx = _url.indexOf("?");
 						//var ver:String;
