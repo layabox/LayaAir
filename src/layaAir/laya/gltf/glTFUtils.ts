@@ -1113,6 +1113,8 @@ export class glTFUtils {
         layaMesh._setSubMeshes(subMeshes);
         layaMesh.calculateBounds();
 
+        layaMesh._setInstanceBuffer(Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL);
+
         // 资源面板
         // todo mesh.read = flase ? 
         let memorySize: number = vertexBuffer._byteLength + indexBuffer._byteLength;
@@ -1143,7 +1145,6 @@ export class glTFUtils {
 
         mesh._inverseBindPoses = [];
         mesh._inverseBindPosesBuffer = inverseBindMatricesArray.buffer;
-        mesh._setInstanceBuffer(Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL);
         for (let index = 0; index < boneCount; index++) {
             let bindPosesArrayOffset: number = 16 * index;
             let matElement: Float32Array = inverseBindMatricesArray.slice(bindPosesArrayOffset, bindPosesArrayOffset + 16);
