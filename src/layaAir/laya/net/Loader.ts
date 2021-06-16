@@ -170,7 +170,7 @@ export class Loader extends EventDispatcher {
 		var cacheRes: any;
 		if (type == Loader.IMAGE){
 			cacheRes = Loader.textureMap[url];
-			if (cacheRes && (cacheRes as Texture).bitmap && (cacheRes as Texture).bitmap.destroyed) {
+			if (cacheRes && (!(cacheRes as Texture).bitmap || ((cacheRes as Texture).bitmap && (cacheRes as Texture).bitmap.destroyed))) {
                 cacheRes = null;
             }
 		}

@@ -207,7 +207,7 @@ export class LoaderManager extends EventDispatcher {
         var content: any;
         if (type === Loader.IMAGE){
             content = Loader.textureMap[URL.formatURL(url)];
-            if (content && (content as Texture).bitmap && (content as Texture).bitmap.destroyed) {
+            if (content && (!(content as Texture).bitmap || ((content as Texture).bitmap && (content as Texture).bitmap.destroyed))) {
                 content = null;
             }
         }
