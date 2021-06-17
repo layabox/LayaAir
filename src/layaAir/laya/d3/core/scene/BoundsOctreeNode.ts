@@ -461,7 +461,7 @@ export class BoundsOctreeNode {
 					}
 				}
 			}
-			if(!pass) continue;
+			if(!pass||!canPass) continue;
 
 			render._renderMark = loopCount;
 			render._distanceForSort = Vector3.distance(render.bounds.getCenter(), cullInfo.position);//TODO:合并计算浪费,或者合并后取平均值
