@@ -480,7 +480,7 @@ export class Loader extends EventDispatcher {
 				if(!(data instanceof Texture2D))
 				{
 					if (data instanceof ArrayBuffer) {
-						let url = this._http.url;
+						let url = this._http ? this._http.url : this._url;
 						var ext: string = Utils.getFileExtension(url);
 						let format: TextureFormat;
 						switch (ext) {
