@@ -317,6 +317,9 @@ export class Loader extends EventDispatcher {
 		} else {
 			
 			 var ext: string = Utils.getFileExtension(url);
+			 if (ext == 'bin' && this._url) {
+				 ext = Utils.getFileExtension(this._url);
+			 }
 			 if (ext === "ktx" || ext === "pvr") 
 				this._loadHttpRequest(url, Loader.BUFFER, this, this.onLoaded, this, this.onProgress, this, this.onError);
 			else
