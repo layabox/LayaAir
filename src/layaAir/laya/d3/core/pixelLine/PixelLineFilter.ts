@@ -111,6 +111,9 @@ export class PixelLineFilter extends GeometryElement {
 		this._bufferState.bind();
 		this._bufferState.applyVertexBuffer(this._vertexBuffer);
 		this._bufferState.unBind();
+
+		this._minUpdate = Number.MAX_VALUE;
+		this._maxUpdate = Number.MIN_VALUE;
 	}
 
 	/**
