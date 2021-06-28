@@ -36,10 +36,10 @@ export class SpineTempletBinary extends Resource {
 	private _layaPremultipliedAlpha: boolean;
 	public _spinePremultipliedAlpha: boolean;
 
-	constructor(layaPremultipliedAlpha:boolean = true, spinePremultipliedAlpha:boolean = false) {
+	constructor() {
 		super();
-		this._layaPremultipliedAlpha = layaPremultipliedAlpha;
-		this._spinePremultipliedAlpha = spinePremultipliedAlpha;
+		this._layaPremultipliedAlpha = true;
+		this._spinePremultipliedAlpha = false;
 	}
 
     loadAni(skelUrl: string, textureUrlList: Array<string> = null) {
