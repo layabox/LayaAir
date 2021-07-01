@@ -277,6 +277,8 @@ export class Browser {
         Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
         Browser.onSafari = u.indexOf("Safari") > -1;
         Browser.onPC = !Browser.onMobile;
+        Browser.onFirefox = u.indexOf('Firefox') > -1;
+		Browser.onEdge = u.indexOf('Edge') > -1;
         Browser.onMiniGame = u.indexOf('MiniGame') > -1;
         Browser.onBDMiniGame = u.indexOf('SwanGame') > -1;
         Browser.onLayaRuntime = !!(window as any).conch;

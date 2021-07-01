@@ -16,6 +16,7 @@ const path = require("path");
 const gulp = require("gulp");
 const child_process = require("child_process");
 const emiter_1 = require("./emiter");
+const { exit } = require("process");
 class Main {
     constructor() {
         this.outfileAS = "./as/libs/src/";
@@ -61,6 +62,7 @@ class Main {
             }
             else {
                 console.log("compile fail!");
+                exit(1);// 在publish.sh中检测编译成功与否
             }
         });
     }
@@ -89,6 +91,10 @@ class Main {
                 let tsConfigUrl = this.tsCongfig[i];
                 let cmd = ["-b", tsConfigUrl];
                 let tscurl = path.join(this.BaseURL.split("bin")[0], "./node_modules/.bin/tsc.cmd");
+                if  (process.platform === 'darwin') {
+                    // mac版本
+                    tscurl = path.join(this.BaseURL.split("bin")[0], "./node_modules/.bin/tsc");
+                }
                 child_process.execFile(tscurl, cmd, (err, stdout, stderr) => {
                     if (err) {
                         console.log(err, '\n', stdout, '\n', stderr);
@@ -188,11 +194,13 @@ class Main {
                 fs.writeFile(tsout, this.dtsObj, err => {
                     if (err) {
                         console.log("create ts d.ts fail");
+                        exit(1);
                         return;
                     }
                     fs.writeFile(jsout, this.dtsObj, (err) => __awaiter(this, void 0, void 0, function* () {
                         if (err) {
                             console.log("create js d.ts fail");
+                            exit(1);
                             return;
                         }
                         console.log("create d.ts success");
@@ -292,6 +300,7 @@ class Main {
                 fs.writeFile(outUrl, data, err => {
                     if (err) {
                         console.log("write file fail", url, err);
+                        exit(1);
                     }
                     this.progress++;
                     // delete this.Testobj[url.replace(".as","")]

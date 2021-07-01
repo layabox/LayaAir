@@ -1113,6 +1113,8 @@ export class glTFUtils {
         layaMesh._setSubMeshes(subMeshes);
         layaMesh.calculateBounds();
 
+        layaMesh._setInstanceBuffer(Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL);
+
         // 资源面板
         // todo mesh.read = flase ? 
         let memorySize: number = vertexBuffer._byteLength + indexBuffer._byteLength;
@@ -1143,7 +1145,6 @@ export class glTFUtils {
 
         mesh._inverseBindPoses = [];
         mesh._inverseBindPosesBuffer = inverseBindMatricesArray.buffer;
-        mesh._setInstanceBuffer(Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL);
         for (let index = 0; index < boneCount; index++) {
             let bindPosesArrayOffset: number = 16 * index;
             let matElement: Float32Array = inverseBindMatricesArray.slice(bindPosesArrayOffset, bindPosesArrayOffset + 16);
@@ -1359,9 +1360,14 @@ export class glTFUtils {
         let min: Vector3 = new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
         let max: Vector3 = new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
 
-        positions.forEach((pos: Vector3, index: number) => {
+        for (let index = 0; index < positions.length; index++) {
+            let pos: Vector3 = positions[index];
             let boneIndex: Vector4 = oriBoneIndeices[index];
             let boneWeight: Vector4 = boneWeights[index];
+
+            if (!(boneIndex && boneWeight)) {
+                continue;
+            }
 
             for (let ei = 0; ei < 16; ei++) {
                 skinTransform.elements[ei] = ubones[boneIndex.x].elements[ei] * boneWeight.x;
@@ -1372,7 +1378,23 @@ export class glTFUtils {
             Vector3.transformV3ToV3(pos, skinTransform, resPos);
             Vector3.min(min, resPos, min);
             Vector3.max(max, resPos, max);
-        });
+
+        }
+
+        // positions.forEach((pos: Vector3, index: number) => {
+        //     let boneIndex: Vector4 = oriBoneIndeices[index];
+        //     let boneWeight: Vector4 = boneWeights[index];
+
+        //     for (let ei = 0; ei < 16; ei++) {
+        //         skinTransform.elements[ei] = ubones[boneIndex.x].elements[ei] * boneWeight.x;
+        //         skinTransform.elements[ei] += ubones[boneIndex.y].elements[ei] * boneWeight.y;
+        //         skinTransform.elements[ei] += ubones[boneIndex.z].elements[ei] * boneWeight.z;
+        //         skinTransform.elements[ei] += ubones[boneIndex.w].elements[ei] * boneWeight.w;
+        //     }
+        //     Vector3.transformV3ToV3(pos, skinTransform, resPos);
+        //     Vector3.min(min, resPos, min);
+        //     Vector3.max(max, resPos, max);
+        // });
 
         positions = null;
         boneIndices = boneWeights = oriBoneIndeices = null;
@@ -1492,20 +1514,59 @@ export class glTFUtils {
      */
     static _createAnimator(animation: glTF.glTFAnimation): Animator {
 
-        let animator: Animator = new Animator();
-
         let channels: glTF.glTFAnimationChannel[] = animation.channels;
         let samplers: glTF.glTFAnimationSampler[] = animation.samplers;
 
         let animatorRoot: Sprite3D = glTFUtils.getAnimationRoot(channels);
 
         if (!animatorRoot) {
-            return animator;
+            return null;
         }
 
-        animatorRoot.addComponentIntance(animator);
+        let animator: Animator = animatorRoot.getComponent(Animator);
+        if (!animator) {
+            animator = animatorRoot.addComponent(Animator);
+            let animatorLayer: AnimatorControllerLayer = new AnimatorControllerLayer("glTF_AnimatorLayer");
+            animator.addControllerLayer(animatorLayer);
+            animatorLayer.defaultWeight = 1.0;
+        }
+
+        let clip: AnimationClip = glTFUtils._createAnimatorClip(animation, animatorRoot);
+        let animatorLayer: AnimatorControllerLayer = animator.getControllerLayer();
+
+        let animationName: string = clip.name;
+        
+        let stateMap: { [stateName: string]: AnimatorState } = animatorLayer._statesMap;
+        if (stateMap[animationName]) {
+            animationName = clip.name = glTFUtils.getNodeRandomName(animationName);
+        }
+
+        let animatorState: AnimatorState = new AnimatorState();
+        // todo  state name
+        animatorState.name = animationName;
+        animatorState.clip = clip;
+        animatorLayer.addState(animatorState);
+        animatorLayer.defaultState = animatorState;
+        animatorLayer.playOnWake = true;
+        
+        return animator;
+    }
+
+    /**
+     * @internal
+     * 创建 AnimationClip
+     * @param animation 
+     * @param animatorRoot 
+     * @returns 
+     */
+    static _createAnimatorClip(animation: glTF.glTFAnimation, animatorRoot: Sprite3D): AnimationClip {
+
+        let clip: AnimationClip = new AnimationClip();
 
         let duration: number = 0;
+
+        let channels: glTF.glTFAnimationChannel[] = animation.channels;
+        let samplers: glTF.glTFAnimationSampler[] = animation.samplers;
 
         let clipNodes: ClipNode[] = new Array<ClipNode>(channels.length);
         channels.forEach((channel: glTF.glTFAnimationChannel, index: number) => {
@@ -1549,11 +1610,7 @@ export class glTFUtils {
             duration = Math.max(duration, clipNode.duration);
         });
 
-        let layerName: string = animation.name ? animation.name : "Aniamtor";
-        let animatorLayer: AnimatorControllerLayer = new AnimatorControllerLayer(layerName);
-
-        let clip: AnimationClip = new AnimationClip();
-        clip.name = "clip name";
+        clip.name = animation.name ? animation.name : glTFUtils.getNodeRandomName("glTF_Animation");
         clip._duration = duration;
         clip.islooping = true;
         clip._frameRate = 30;
@@ -1631,18 +1688,7 @@ export class glTFUtils {
             }
         }
 
-        let animatorState: AnimatorState = new AnimatorState();
-        // todo  state name
-        animatorState.name = "state name";
-        animatorState.clip = clip;
-        animatorLayer.addState(animatorState);
-        animatorLayer.defaultState = animatorState;
-        animatorLayer.playOnWake = true;
-
-        animator.addControllerLayer(animatorLayer);
-        animatorLayer.defaultWeight = 1.0;
-
-        return animator;
+        return clip;
     }
 
 }

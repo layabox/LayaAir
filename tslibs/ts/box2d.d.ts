@@ -1,4 +1,4 @@
-declare function b2Assert(condition: boolean, ...args: any[]): asserts condition;
+declare function b2Assert(condition: boolean, ...args: any[]): void /**asserts condition*/;
 declare function b2Maybe<T>(value: T | undefined, def: T): T;
 declare const b2_maxFloat: number;
 declare const b2_epsilon: number;

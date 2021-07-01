@@ -170,7 +170,7 @@ export class Loader extends EventDispatcher {
 		var cacheRes: any;
 		if (type == Loader.IMAGE){
 			cacheRes = Loader.textureMap[url];
-			if (cacheRes && (cacheRes as Texture).bitmap && (cacheRes as Texture).bitmap.destroyed) {
+			if (cacheRes && (!(cacheRes as Texture).bitmap || ((cacheRes as Texture).bitmap && (cacheRes as Texture).bitmap.destroyed))) {
                 cacheRes = null;
             }
 		}
@@ -317,6 +317,9 @@ export class Loader extends EventDispatcher {
 		} else {
 			
 			 var ext: string = Utils.getFileExtension(url);
+			 if (ext == 'bin' && this._url) {
+				 ext = Utils.getFileExtension(this._url);
+			 }
 			 if (ext === "ktx" || ext === "pvr") 
 				this._loadHttpRequest(url, Loader.BUFFER, this, this.onLoaded, this, this.onProgress, this, this.onError);
 			else
@@ -441,7 +444,11 @@ export class Loader extends EventDispatcher {
 							changeType = ".ktx";
 						}
 						if (Browser.onIOS && data.meta.compressTextureIOS) {
-							changeType = ".pvr";
+							if (data.meta.astc) {
+								changeType = ".ktx";
+							} else {
+								changeType = ".pvr";
+							}
 						}
 						//idx = _url.indexOf("?");
 						//var ver:String;
@@ -476,7 +483,7 @@ export class Loader extends EventDispatcher {
 				if(!(data instanceof Texture2D))
 				{
 					if (data instanceof ArrayBuffer) {
-						let url = this._http.url;
+						let url = this._http ? this._http.url : this._url;
 						var ext: string = Utils.getFileExtension(url);
 						let format: TextureFormat;
 						switch (ext) {

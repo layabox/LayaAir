@@ -131,7 +131,9 @@ export class Filter implements IFilter {
                 }
                 webglctx.popRT();
             } else {
-                tIsHaveGlowFilter = sprite._cacheStyle.hasGlowFilter || false;
+
+                // tIsHaveGlowFilter = sprite._cacheStyle.hasGlowFilter || false;
+                tIsHaveGlowFilter = sprite._isHaveGlowFilter() || false;
                 if (tIsHaveGlowFilter) {
                     tPadding = 50;
                     tHalfPadding = 25;
@@ -140,8 +142,11 @@ export class Filter implements IFilter {
                 if (b.width <= 0 || b.height <= 0) {
                     return;
                 }
-                b.width += tPadding;
-                b.height += tPadding;
+                //edit
+                b.width += (tPadding + 8);//增加宽度 blur  由于blur系数为9
+                b.height += (tPadding + 8);//增加高度 blur
+                b.x -= sprite.pivotX + 4; //blur 
+                b.y -= sprite.pivotY + 4;//blur 
                 p.x = b.x * mat.a + b.y * mat.c;
                 p.y = b.y * mat.d + b.x * mat.b;
                 b.x = p.x;
