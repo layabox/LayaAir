@@ -68,13 +68,15 @@ vec4 shadowCasterVertex()
 	vec3 normalWS = normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem
 	#ifdef SHADOW
 		positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);
+		positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
 	#endif
 
 	vec4 positionCS = u_ViewProjection * positionWS;
 	#ifdef SHADOW_SPOT
 		positionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;
+		positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
 	#endif
-	positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
+	
 	
 	// //TODO没考虑UV动画呢
 	// #if defined(DIFFUSEMAP)&&defined(ALPHATEST)
