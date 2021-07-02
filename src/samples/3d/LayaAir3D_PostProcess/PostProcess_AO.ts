@@ -89,6 +89,9 @@ export class ProstProcess_AO{
         camera.postProcess = postProcess;
 
         let ao: ScalableAO = new ScalableAO();
+        ao.radius = 0.15;
+        ao.aoColor = new Vector3(0.0,0.0,0.0);
+        ao.instance = 0.5;
         postProcess.addEffect(ao);
     }
 

@@ -27,6 +27,9 @@ export class ScalableAO extends PostProcessEffect {
     static BlurDelty: number = Shader3D.propertyNameToID("u_Delty");
     static AOColor:number = Shader3D.propertyNameToID("u_AOColor");
     static aoTexture:number = Shader3D.propertyNameToID("u_compositionAoTexture");
+    static radius:number = Shader3D.propertyNameToID("u_radius");
+    static instance:number = Shader3D.propertyNameToID("u_Intensity");
+
     //scalable AO shader
     private _shader: Shader3D;
     private _shaderData: ShaderData;
@@ -56,6 +59,8 @@ export class ScalableAO extends PostProcessEffect {
             'u_Time': Shader3D.PERIOD_MATERIAL,
             'u_CameraDepthTexture': Shader3D.PERIOD_MATERIAL,
             'u_CameraDepthNormalsTexture': Shader3D.PERIOD_MATERIAL,
+            'u_radius':Shader3D.PERIOD_MATERIAL,
+            'u_Intensity':Shader3D.PERIOD_MATERIAL,
 
             'u_MainTex': Shader3D.PERIOD_MATERIAL,
             'u_OffsetScale': Shader3D.PERIOD_MATERIAL,
@@ -104,7 +109,20 @@ export class ScalableAO extends PostProcessEffect {
 
     }
 
-    _aoColor:Vector3 = new Vector3();
+    //_aoColor:Vector3 = new Vector3();
+
+    set aoColor(value:Vector3){
+        this._shaderData.setVector3(ScalableAO.AOColor,value);
+    }
+
+    set instance(value:number){
+        this._shaderData.setNumber(ScalableAO.instance,value);
+    }
+
+    set radius(value:number){
+        this._shaderData.setNumber(ScalableAO.radius,value);
+    }
+
     constructor() {
         super();
         ScalableAO.HasInit || ScalableAO.init();
@@ -118,11 +136,8 @@ export class ScalableAO extends PostProcessEffect {
     }
     
     setUniform(camera: Camera) {
-        // todo  scene null
         let scene: Scene3D = camera.scene;
-
         let shaderData: ShaderData = this._shaderData;
-
         // camera
         //@ts-ignore
         shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, camera._shaderValues.getMatrix4x4(BaseCamera.VIEWPROJECTMATRIX));
@@ -138,11 +153,7 @@ export class ScalableAO extends PostProcessEffect {
         shaderData.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera._shaderValues.getTexture(DepthPass.DEPTHNORMALSTEXTURE));
         //@ts-ignore
         shaderData.setTexture(DepthPass.DEPTHTEXTURE, camera._shaderValues.getTexture(DepthPass.DEPTHTEXTURE));
-
         shaderData.setVector2(ScalableAO.BlurDelty,ScalableAO.deltyHorizontal);
-
-        shaderData.setVector3(ScalableAO.AOColor,this._aoColor);
-        // scene
         //@ts-ignore
         shaderData.setNumber(Scene3D.TIME, scene._shaderValues.getNumber(Scene3D.TIME));
 
@@ -183,7 +194,6 @@ export class ScalableAO extends PostProcessEffect {
 
         let shader: Shader3D = this._shader;
         let shaderData: ShaderData = this._shaderData;
-
         this.setUniform(camera);
         //depthTexture;
         //depthNormalTexture;
@@ -198,10 +208,7 @@ export class ScalableAO extends PostProcessEffect {
         //blur Composition
         cmd.setShaderDataTexture(shaderData,ScalableAO.aoTexture,finalTex);
         cmd.blitScreenTriangle(null,blurTex,null,this._aoComposition,this._shaderData,0);
-
-
         context.source = blurTex;
-
         context.deferredReleaseTextures.push(finalTex);
         context.deferredReleaseTextures.push(blurTex);
     }
