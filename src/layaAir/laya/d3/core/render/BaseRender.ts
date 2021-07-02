@@ -468,6 +468,10 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._scene = scene;
 	}
 
+	_setUnBelongScene(){
+		this._scene = null;
+	}
+
 	/**
 	 * @internal
 	 * @param boundFrustum 如果boundFrustum为空则为摄像机不裁剪模式。

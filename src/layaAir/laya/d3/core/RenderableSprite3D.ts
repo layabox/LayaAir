@@ -115,6 +115,7 @@ export class RenderableSprite3D extends Sprite3D {
 	 */
 	_setUnBelongScene(): void {
 		this._render._shaderValues.removeDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+		this._render._setUnBelongScene();
 		super._setUnBelongScene();
 	}
 
