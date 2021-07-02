@@ -16,25 +16,24 @@
 
 // define const
 #define SAMPLE_COUNT 6.0
-#define RADIUS 0.15 //todo  uniform
-#define INTENSITY  0.5 // todo uniform
 #define TWO_PI 6.28318530718
 #define EPSILON 1.0e-4
-
 const float kBeta = 0.002;
 const float kContrast = 0.6;
-
 // varying
 varying vec2 v_Texcoord0;
 varying mat4 v_inverseProj;
 // uniform
 uniform sampler2D u_MainTex;
+uniform float u_radius;
+uniform float u_Intensity;
+
 
 uniform mat4 u_Projection;
 uniform vec4 u_ProjectionParams;
 uniform mat4 u_ViewProjection;
 uniform mat4 u_View;
-uniform float u_Time; // sceoned
+uniform float u_Time;
 
 // 采样 depthNormalTexture, 返回 positionCS.z, normalVS
 float GetDepthCSNormalVS(vec2 uv, out vec3 normalVS) {
@@ -69,13 +68,13 @@ float UVRandom(float u, float v) {
 vec3 PickSamplePoint(vec2 uv, int i) {
     float index = float(i);
 
-    float time = u_Time/20.0;
+    float time =sin(u_Time*2.0);
     // todo  采样 noise 代替计算随机?
     float u = UVRandom(uv.x + time, uv.y + index) * 2.0 - 1.0;
     float theta = UVRandom(-uv.x - time, uv.y + index) * TWO_PI;
 
     vec3 v = vec3(vec2(cos(theta), sin(theta)) * sqrt(1.0 - u * u), u);
-    float l = sqrt((index + 1.0) / SAMPLE_COUNT) * RADIUS;
+    float l = sqrt((index + 1.0) / SAMPLE_COUNT) * u_radius;
     return v * l;
 }
 
@@ -95,10 +94,6 @@ void main() {
     //获得观察空间的位置
     vec3 positionVS = GetPositionVS(uv, depthCS);
 
-    // float dtd = SAMPLE_DEPTH_TEXTURE(u_CameraDepthTexture, uv);
-    //世界法线
-    //vec3 normalWS = mat3(INVERSE_MAT(u_View)) * normalVS;
-
     float ao = 0.0;
     vec3 tempNormalVS;
     
@@ -113,13 +108,9 @@ void main() {
 
         // 将偏移后view space 坐标 乘上投影矩阵转换到 clip space
         vec3 positionCS_S = (u_Projection * vec4(positionVS_S, 1.0)).xyz;
-        // todo 平行投影 depth 取 1.0
         // 获取 偏移点 的屏幕 uv
         vec2 uv_S = (positionCS_S.xy / (-positionVS_S.z) + 1.0) * 0.5;
         // 采样 uv_S 获取 深度值
-        // vec3 normalVS_S = vec3(0.0);
-        // float depthCS_S = GetDepthCSNormalVS(uv_S, normalVS_S);
-        // float depthVS_S = GetDepthVS(depthCS_S);
         //取得深度
         float depthCS_S = SAMPLE_DEPTH_TEXTURE(u_CameraDepthTexture, uv_S);
         if (uv_S.x < 0.0 || uv_S.y > 1.0) {
@@ -127,20 +118,15 @@ void main() {
         }
         //得到采样点的世界坐标
         vec3 positionVS_S2 = GetPositionVS(uv_S, depthCS_S);
-
         vec3 sampleOffset2 = positionVS_S2 - positionVS;
-
         float a1 = max(dot(sampleOffset2, normalVS) - kBeta * depthVS, 0.0);
         float a2 = dot(sampleOffset2, sampleOffset2) + EPSILON;
         ao += a1/ a2;
-        //   if(abs(depthCS_S-depthCS)>0.5){
-        //     ao-=a1/ a2;
-        // }
     }
 
-    ao *= RADIUS;
+    ao *= u_radius;
 
-    ao = pow(abs(ao * INTENSITY / SAMPLE_COUNT), kContrast);
+    ao = pow(abs(ao * u_Intensity / SAMPLE_COUNT), kContrast);
 
      gl_FragColor = PackAONormal(ao, normalVS);
 }
