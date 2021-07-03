@@ -136,7 +136,7 @@ export class GrassRenderManager{
                 offset =this.grassMap[array[j]].setGrassCellData(this.dataArrayBuffer,offset);
             }
         }
-        this.drawArrayLength = offset;
+        this.drawArrayLength = offset/3;
         this.glassRender.changeDrawNums();
     }
     

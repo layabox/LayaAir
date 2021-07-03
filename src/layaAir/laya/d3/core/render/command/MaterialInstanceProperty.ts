@@ -67,6 +67,6 @@ export class MaterialInstanceProperty{
 				break;
 		}
 		this._vertexBuffer.orphanStorage();
-		this._vertexBuffer.setData(instanceData.buffer,0,0,drawNums*4*(updateType?stride:1));
+		this._vertexBuffer.setData(instanceData.buffer,0,0,drawNums*4*stride);
 	}
 }
