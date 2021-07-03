@@ -120,6 +120,7 @@ import { SeparableSSS_RenderDemo } from "../3d/LayaAir3D_Advance/SeparableSSS_Re
 import { PerformancePluginDemo } from "../3d/LayaAir3D_Performance/PerformancePluginDemo";
 import { PostProcessDoF } from "../3d/LayaAir3D_PostProcess/PostProcess_DoF";
 import { SkeletonMask } from "../3d/LayaAir3D_Animation3D/SkeletonMask";
+import { ProstProcess_AO } from "../3d/LayaAir3D_PostProcess/PostProcess_AO";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -140,8 +141,8 @@ export class IndexView3D extends IndexViewUI {
 	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,CommandBuffer_DrawCustomInstance,ReflectionProbeDemo,CameraDepthModeTextureDemo,SeparableSSS_RenderDemo];//PostProcessBloom,AStarFindPath,
 	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','CommandBuffer_DrawCustomInstance','ReflectionProbeDemo','CameraDepthTextureDemo','SeparableScreenSSS'];//'后期处理之泛光','寻路示例',
 
-	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge,PostProcessDoF];
-	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge','PostProcessDOF'];
+	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge,PostProcessDoF,ProstProcess_AO];
+	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge','PostProcessDOF','PostProcessAO'];
 
 	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample,SimpleSkinAnimationInstance,SkeletonMask];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample","SimpleSkinAnimationInstance,SkinMask"];
