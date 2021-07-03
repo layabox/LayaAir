@@ -521,6 +521,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._sharedMaterials = null;
 		this._bounds = null;
 		this._lightmapScaleOffset = null;
+		this._scene = null;
 	}
 
 	/**
