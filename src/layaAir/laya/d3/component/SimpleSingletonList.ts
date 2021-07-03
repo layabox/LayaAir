@@ -48,6 +48,11 @@ export class SimpleSingletonList extends SingletonList<ISingletonElement> {
 		this.length = 0;
 	}
 
+	clearElement(){
+		this.elements=null;
+		this.length = 0;
+	}
+
 }
 
 
