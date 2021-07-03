@@ -80,6 +80,11 @@ package laya.d3.core {
 		public function _setCreateURL(url:String):void{}
 
 		/**
+		 * @private 
+		 */
+		protected function _onInActiveInScene():void{}
+
+		/**
 		 * @inheritDoc 
 		 * @override 
 		 */

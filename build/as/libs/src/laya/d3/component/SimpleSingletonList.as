@@ -12,6 +12,7 @@ package laya.d3.component {
 		 */
 
 		public function SimpleSingletonList(){}
+		public function clearElement():void{}
 	}
 
 }

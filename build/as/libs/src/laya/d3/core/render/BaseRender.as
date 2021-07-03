@@ -130,6 +130,7 @@ package laya.d3.core.render {
 		 * [实现ISingletonElement接口]
 		 */
 		public function _setIndexInList(index:Number):void{}
+		public function _setUnBelongScene():void{}
 
 		/**
 		 * 标记为非静态,静态合并后可用于取消静态限制。

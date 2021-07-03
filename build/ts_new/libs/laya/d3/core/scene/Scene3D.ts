@@ -1019,6 +1019,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_addScript(script: Script3D): void {
+		if(script._indexInPool!=-1)
+			return;
 		var scripts: Script3D[] = this._scriptPool;
 		script._indexInPool = scripts.length;
 		scripts.push(script);
@@ -1028,7 +1030,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_removeScript(script: Script3D): void {
-		this._scriptPool[script._indexInPool] = null;
+		if(script._indexInPool==-1)
+			return;
+		this._scriptPool[script._indexInPool]=null;
 		script._indexInPool = -1;
 		this._needClearScriptPool = true;
 	}
@@ -1347,7 +1351,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._spotLights = null;
 		this._alternateLights = null;
 		this._shaderValues = null;
+		this._renders.clearElement();
+		this._animatorPool.clearElement();
 		this._renders = null;
+		this._animatorPool = null;
 		this._cameraPool = null;
 		this._octree = null;
 		this._physicsSimulation && this._physicsSimulation._destroy();

@@ -59,6 +59,11 @@ package  {
 		 * 是否允许GPUInstance动态合并,仅对3D有效。
 		 */
 		public static var allowGPUInstanceDynamicBatch:Boolean;
+
+		/**
+		 * 是否允许静态合并
+		 */
+		public static var enableStaticBatch:Boolean;
 		public static var useRetinalCanvas:Boolean;
 	}
 

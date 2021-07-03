@@ -1,4 +1,5 @@
 package laya.d3.core.scene {
+	import laya.d3.graphics.ShadowCullInfo;
 	import laya.d3.shader.Shader3D;
 	import laya.d3.core.render.RenderContext3D;
 	import laya.d3.graphics.CameraCullInfo;
@@ -15,6 +16,7 @@ package laya.d3.core.scene {
 	import laya.d3.core.scene.BoundsOctree;
 	import laya.d3.shader.Shader3D;
 	import laya.d3.graphics.CameraCullInfo;
+	import laya.d3.graphics.ShadowCullInfo;
 
 	/**
 	 * <code>BoundsOctreeNode</code> 类用于创建八叉树节点。
@@ -30,6 +32,7 @@ package laya.d3.core.scene {
 		 */
 
 		public function BoundsOctreeNode(octree:BoundsOctree = undefined,parent:BoundsOctreeNode = undefined,baseLength:Number = undefined,center:Vector3 = undefined){}
+		private var _getCollidingWithCastShadowFrustum:*;
 
 		/**
 		 * 添加指定物体。
@@ -97,6 +100,7 @@ package laya.d3.core.scene {
 		 * @param result 相交物体列表。
 		 */
 		public function getCollidingWithFrustum(cameraCullInfo:CameraCullInfo,context:RenderContext3D,customShader:Shader3D,replacementTag:String,isShadowCasterCull:Boolean):void{}
+		public function getCollidingWithCastShadowFrustum(cameraCullInfo:ShadowCullInfo,contect:RenderContext3D):void{}
 
 		/**
 		 * 获取是否与指定包围盒相交。

@@ -2,7 +2,9 @@ package laya.d3.graphics {
 	import laya.d3.math.BoundFrustum;
 	import laya.d3.math.Vector3;
 	import laya.d3.math.BoundFrustum;
+	import laya.d3.math.Plane;
 	import laya.d3.math.Vector3;
+	import laya.d3.math.BoundSphere;
 
 	/**
 	 * camera裁剪数据

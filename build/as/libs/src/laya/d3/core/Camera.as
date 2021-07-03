@@ -4,12 +4,12 @@ package laya.d3.core {
 	import laya.d3.math.Vector3;
 	import laya.d3.math.Ray;
 	import laya.d3.math.Vector2;
-	import laya.d3.shader.Shader3D;
 	import laya.d3.core.render.RenderContext3D;
 	import laya.d3.component.PostProcess;
 	import laya.d3.math.BoundFrustum;
 	import laya.d3.math.Matrix4x4;
 	import laya.d3.math.Viewport;
+	import laya.d3.shader.Shader3D;
 	import laya.d3.resource.RenderTexture;
 	import laya.d3.core.scene.Scene3D;
 	import laya.d3.component.PostProcess;
@@ -34,10 +34,12 @@ package laya.d3.core {
 
 		/**
 		 * 根据相机、scene信息获得scene中某一位置的渲染结果
-		 * @param camera 
-		 * @param scene 
+		 * @param camera 相机
+		 * @param scene 需要渲染的场景
+		 * @param shader 着色器
+		 * @param replacementTag 替换标记。
 		 */
-		public static function drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture):RenderTexture{
+		public static function drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture,shader:Shader3D = null,replacementTag:String = null):RenderTexture{
 			return null;
 		}
 
@@ -148,6 +150,9 @@ package laya.d3.core {
 		 * @return 是否显示。
 		 */
 		public function _isLayerVisible(layer:Number):Boolean{
+			return null;
+		}
+		public function clone():Camera{
 			return null;
 		}
 

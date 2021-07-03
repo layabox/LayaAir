@@ -9,7 +9,7 @@ export class Config {
     /**
      * 设置是否抗锯齿，只对2D(WebGL)、3D有效。
      */
-    static isAntialias: boolean = false;
+    static isAntialias: boolean = true;
     /**
      * 设置画布是否透明，只对2D(WebGL)、3D有效。
      */
@@ -49,6 +49,8 @@ export class Config {
     
     /** 是否允许GPUInstance动态合并,仅对3D有效。*/
 	static allowGPUInstanceDynamicBatch: boolean = true;
+    /** 是否允许静态合并 */
+    static enableStaticBatch:boolean = true;
 
     static useRetinalCanvas: boolean = false;
 }

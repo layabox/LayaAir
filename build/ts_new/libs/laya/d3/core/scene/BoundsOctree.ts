@@ -18,8 +18,7 @@ export class BoundsOctree {
 
 	/**@internal */
 	private _initialSize: number;
-	/**@internal */
-	private _rootNode: BoundsOctreeNode;
+	
 	/**@internal */
 	private _motionObjects: OctreeMotionList = new OctreeMotionList();
 
@@ -30,6 +29,8 @@ export class BoundsOctree {
 
 	/**@internal [只读]*/
 	count: number = 0;
+	/**@internal */
+	_rootNode: BoundsOctreeNode;
 
 	/**
 	 * 创建一个 <code>BoundsOctree</code> 实例。

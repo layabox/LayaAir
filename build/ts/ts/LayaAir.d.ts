@@ -58,6 +58,11 @@
 		 * 是否允许GPUInstance动态合并,仅对3D有效。
 		 */
 		static allowGPUInstanceDynamicBatch:boolean;
+
+		/**
+		 * 是否允许静态合并
+		 */
+		static enableStaticBatch:boolean;
 		static useRetinalCanvas:boolean;
 	}
 
@@ -67,6 +72,10 @@
 	declare class Config3D implements Laya.IClone  {
 		static get useCannonPhysics():boolean;
 		static set useCannonPhysics(value:boolean);
+		static set enableDynamicManager(value:boolean);
+		static get enableDynamicManager():boolean;
+		static set enableStaticManager(value:boolean);
+		static get enableStaticManager():boolean;
 
 		/**
 		 * 是否开启抗锯齿。
@@ -2898,6 +2907,7 @@ declare module Laya {
 		 */
 
 		constructor();
+		clearElement():void;
 	}
 
 	/**
@@ -3271,10 +3281,12 @@ enum CameraEventFlags {
 
 		/**
 		 * 根据相机、scene信息获得scene中某一位置的渲染结果
-		 * @param camera 
-		 * @param scene 
+		 * @param camera 相机
+		 * @param scene 需要渲染的场景
+		 * @param shader 着色器
+		 * @param replacementTag 替换标记。
 		 */
-		static drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture):RenderTexture;
+		static drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture,shader?:Shader3D,replacementTag?:string):RenderTexture;
 
 		/**
 		 * 深度贴图
@@ -3383,6 +3395,7 @@ enum CameraEventFlags {
 		 * @return 是否显示。
 		 */
 		_isLayerVisible(layer:number):boolean;
+		clone():Camera;
 
 		/**
 		 * 调用渲染命令流
@@ -8319,6 +8332,7 @@ enum ReflectionProbeMode {
 		 * [实现ISingletonElement接口]
 		 */
 		_setIndexInList(index:number):void;
+		_setUnBelongScene():void;
 
 		/**
 		 * 标记为非静态,静态合并后可用于取消静态限制。
@@ -9143,6 +9157,7 @@ enum ShaderDataType {
 		 */
 
 		constructor(octree:BoundsOctree,parent:BoundsOctreeNode,baseLength:number,center:Vector3);
+		private _getCollidingWithCastShadowFrustum:any;
 
 		/**
 		 * 添加指定物体。
@@ -9200,6 +9215,7 @@ enum ShaderDataType {
 		 * @param result 相交物体列表。
 		 */
 		getCollidingWithFrustum(cameraCullInfo:CameraCullInfo,context:RenderContext3D,customShader:Shader3D,replacementTag:string,isShadowCasterCull:boolean):void;
+		getCollidingWithCastShadowFrustum(cameraCullInfo:ShadowCullInfo,contect:RenderContext3D):void;
 
 		/**
 		 * 获取是否与指定包围盒相交。
@@ -9719,6 +9735,11 @@ enum AmbientMode {
 		/**
 		 */
 		_setCreateURL(url:string):void;
+
+		/**
+		 * @private 
+		 */
+		protected _onInActiveInScene():void;
 
 		/**
 		 * @inheritDoc 
@@ -10409,6 +10430,17 @@ enum DepthTextureMode {
 		 * 遮挡标记
 		 */
 		cullingMask:number;
+	}
+
+	/**
+	 * 阴影裁剪数据
+	 */
+	class ShadowCullInfo  {
+		position:Vector3;
+		cullPlanes:Plane[];
+		cullSphere:BoundSphere;
+		cullPlaneCount:number;
+		direction:Vector3;
 	}
 
 	/**

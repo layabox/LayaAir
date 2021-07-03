@@ -11,6 +11,10 @@ package  {
 	public class Config3D implements IClone {
 		public static function get useCannonPhysics():Boolean{return null;}
 		public static function set useCannonPhysics(value:Boolean):void{}
+		public static function set enableDynamicManager(value:Boolean):void{}
+		public static function get enableDynamicManager():Boolean{return null;}
+		public static function set enableStaticManager(value:Boolean):void{}
+		public static function get enableStaticManager():Boolean{return null;}
 
 		/**
 		 * 是否开启抗锯齿。
