@@ -68,6 +68,7 @@ import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManage
 import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
 import { Physics3D } from "../../Physics3D";
 import { PerformancePlugin } from "../../../utils/Performance";
+import { Sprite3D } from "../Sprite3D";
 /**
  * 环境光模式
  */
@@ -239,7 +240,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static load(url: string, complete: Handler): void {
 		ILaya.loader.create(url, complete, null, Scene3D.HIERARCHY);
 	}
-
+	/** @internal */
+	private _oriScripte:Script3D;
 	/** @internal */
 	private _url: string;
 	/** @internal */
@@ -310,7 +312,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	_animatorPool: SimpleSingletonList = new SimpleSingletonList();
 	/** @internal */
-	_scriptPool: Script3D[] = new Array<Script3D>();
+	_updateScriptPool: Script3D[] = new Array<Script3D>();
+	/** @internal */
+	_lateUpdateScriptPool: Script3D[] = new Array<Script3D>();
+	/** @internal */
+	_preRenderScriptPool: Script3D[] = new Array<Script3D>();
+	/** @internal */
+	_postRenderScriptPool: Script3D[] = new Array<Script3D>();
+	/** @internal */
+	_scriptPool:Script3D[] = new Array<Script3D>();
+
 	/** @internal */
 	_tempScriptPool: Script3D[] = new Array<Script3D>();
 	/** @internal */
@@ -601,6 +612,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
 		this.reflection = TextureCube.blackTexture;
+		this._oriScripte = Script3D._instance;
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
 
@@ -813,6 +825,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 			this._scriptPool = this._tempScriptPool;
 			scripts.length = 0;
+			this._updateScriptPool.length = 0;
+			this._lateUpdateScriptPool.length = 0;
+			this._preRenderScriptPool.length = 0;
+			this._postRenderScriptPool.length = 0;
 			this._tempScriptPool = scripts;
 
 			this._needClearScriptPool = false;
@@ -823,7 +839,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	private _updateScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
+		var scripts: Script3D[] = this._updateScriptPool;
 		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
 			var script: Script3D = scripts[i];
 			(script && script.enabled) && (script.onUpdate());
@@ -834,7 +850,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	private _lateUpdateScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
+		var scripts: Script3D[] = this._lateUpdateScriptPool;
 		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
 			var script: Script3D = (<Script3D>scripts[i]);
 			(script && script.enabled) && (script.onLateUpdate());
@@ -1015,6 +1031,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 	}
 
+	private _removeScriptInPool(scriptPool:Script3D[],script:Script3D){
+		let index = scriptPool.indexOf(script);
+		if(index!=-1){
+			scriptPool.splice(index,0);
+		}
+	}
+
 	/**
 	 * @internal
 	 */
@@ -1024,6 +1047,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		var scripts: Script3D[] = this._scriptPool;
 		script._indexInPool = scripts.length;
 		scripts.push(script);
+		if(script.onUpdate!==this._oriScripte.onUpdate)
+			this._updateScriptPool.push(script);
+		if(script.onLateUpdate!==this._oriScripte.onLateUpdate)
+			this._lateUpdateScriptPool.push(script);
+		if(script.onPreRender!==this._oriScripte.onPreRender)
+			this._preRenderScriptPool.push(script);
+		if(script.onPostRender!==this._oriScripte.onPostRender)
+			this._postRenderScriptPool.push(script);
+		
 	}
 
 	/**
@@ -1035,13 +1067,19 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._scriptPool[script._indexInPool]=null;
 		script._indexInPool = -1;
 		this._needClearScriptPool = true;
+		this._removeScriptInPool(this._updateScriptPool,script);
+		this._removeScriptInPool(this._lateUpdateScriptPool,script);
+		this._removeScriptInPool(this._preRenderScriptPool,script);
+		this._removeScriptInPool(this._postRenderScriptPool,script);
 	}
+
+	
 
 	/**
 	 * @internal
 	 */
 	_preRenderScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
+		var scripts: Script3D[] = this._preRenderScriptPool;
 		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
 			var script: Script3D = scripts[i];
 			(script && script.enabled) && (script.onPreRender());
@@ -1052,7 +1090,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_postRenderScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
+		var scripts: Script3D[] = this._postRenderScriptPool;
 		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
 			var script: Script3D = scripts[i];
 			(script && script.enabled) && (script.onPostRender());
