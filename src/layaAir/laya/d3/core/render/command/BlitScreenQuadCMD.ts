@@ -115,9 +115,15 @@ export class BlitScreenQuadCMD extends Command {
 		//如果已经有绑定的帧buffer  要解绑
 		(RenderTexture.currentActive)&&(RenderTexture.currentActive._end());
 		(dest) && (dest._start());
+		this.setContext(this._commandBuffer._context);
+		var context = this._context;
+		var currentPipelineMode:string = context.pipelineMode;
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
 		for (var i: number = 0, n: number = passes.length; i < n; i++) {
+			var pass:ShaderPass = passes[i];
+			if (pass._pipelineMode !== currentPipelineMode)
+				continue;
 			var comDef: DefineDatas = BlitScreenQuadCMD._compileDefine;
 			shaderData._defineDatas.cloneTo(comDef);
 			var shaderPass: ShaderInstance = passes[i].withCompile(comDef);//TODO:define处理
