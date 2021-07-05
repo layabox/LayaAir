@@ -10,6 +10,7 @@ import { Physics3D } from "./laya/d3/Physics3D";
 import { RenderElement } from "./laya/d3/core/render/RenderElement";
 import { CommandBuffer } from "./laya/d3/core/render/command/CommandBuffer";
 import { Camera } from "./laya/d3/core/Camera";
+import { SubMeshRenderElement } from "./laya/d3/core/render/SubMeshRenderElement";
 
 /**
  * @internal
@@ -28,4 +29,5 @@ export class ILaya3D {
     static RenderElement: typeof RenderElement = null;
     static CommandBuffer:typeof CommandBuffer = null;
     static Camera:typeof Camera = null
+    static SubMeshRenderElement:typeof SubMeshRenderElement = null;
 }
