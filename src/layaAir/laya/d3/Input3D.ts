@@ -195,7 +195,7 @@ export class Input3D {
 	 * @internal
 	 */
 	private _mouseTouchRayCast(cameras: BaseCamera[]): void {
-		if(Physics3D._bullet||Physics3D._cannon)
+		if(!Physics3D._bullet||!Physics3D._cannon)
 		return;
 		var touchHitResult: HitResult = Input3D._tempHitResult0;
 		var touchPos: Vector2 = Input3D._tempVector20;
