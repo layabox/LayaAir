@@ -4,12 +4,6 @@
 	precision mediump float;
 #endif
 
-#ifdef GRAPHICS_API_GLES3
-	#define INVERSE_MAT(mat) inverse(mat)
-#else
-	#define INVERSE_MAT(mat) inverseMat(mat)
-#endif
-
 #include "Lighting.glsl";
 
 #define SHADER_NAME ScalableAO:VS
