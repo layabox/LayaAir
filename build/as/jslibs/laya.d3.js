@@ -495,6 +495,7 @@
 	ILaya3D.RenderElement = null;
 	ILaya3D.CommandBuffer = null;
 	ILaya3D.Camera = null;
+	ILaya3D.SubMeshRenderElement = null;
 
 	class Physics3D {
 	    static __bulletinit__() {
@@ -526,158 +527,197 @@
 	Physics3D._cannon = null;
 	Physics3D._enablePhysics = false;
 
-	class GeometryElement {
+	class Config3D {
 	    constructor() {
-	        this._destroyed = false;
+	        this._defaultPhysicsMemory = 16;
+	        this._maxLightCount = 32;
+	        this._lightClusterCount = new Vector3(12, 12, 12);
+	        this._editerEnvironment = false;
+	        this.isAntialias = true;
+	        this.isAlpha = false;
+	        this.premultipliedAlpha = true;
+	        this.isStencil = true;
+	        this.enableMultiLight = true;
+	        this.octreeCulling = false;
+	        this.octreeInitialSize = 64.0;
+	        this.octreeInitialCenter = new Vector3(0, 0, 0);
+	        this.octreeMinNodeSize = 2.0;
+	        this.octreeLooseness = 1.25;
+	        this.debugFrustumCulling = false;
+	        this.pbrRenderQuality = exports.PBRRenderQuality.High;
+	        this.isUseCannonPhysicsEngine = false;
+	        this._maxAreaLightCountPerClusterAverage = Math.min(Math.floor(2048 / this._lightClusterCount.z - 1) * 4, this._maxLightCount);
 	    }
-	    get destroyed() {
-	        return this._destroyed;
+	    static get useCannonPhysics() {
+	        return Config3D._config.isUseCannonPhysicsEngine;
 	    }
-	    _getType() {
-	        throw "GeometryElement:must override it.";
+	    static set useCannonPhysics(value) {
+	        Config3D._config.isUseCannonPhysicsEngine = value;
+	        if (value) {
+	            Physics3D.__cannoninit__();
+	            if (!ILaya3D.Scene3D.cannonPhysicsSettings)
+	                ILaya3D.Scene3D.cannonPhysicsSettings = new Laya.CannonPhysicsSettings();
+	        }
 	    }
-	    _prepareRender(state) {
-	        return true;
+	    static set enableDynamicManager(value) {
+	        ILaya3D.SubMeshRenderElement.enableDynamicBatch = value;
 	    }
-	    _render(state) {
-	        throw "GeometryElement:must override it.";
+	    static get enableDynamicManager() {
+	        return ILaya3D.SubMeshRenderElement.enableDynamicBatch;
 	    }
-	    destroy() {
-	        if (this._destroyed)
-	            return;
-	        this._destroyed = true;
+	    static set enableStaticManager(value) {
+	        ILaya3D.SubMeshRenderElement.enableStaticBatch = value;
+	    }
+	    static get enableStaticManager() {
+	        return ILaya3D.SubMeshRenderElement.enableStaticBatch;
+	    }
+	    get defaultPhysicsMemory() {
+	        return this._defaultPhysicsMemory;
+	    }
+	    set defaultPhysicsMemory(value) {
+	        if (value < 16)
+	            throw "defaultPhysicsMemory must large than 16M";
+	        this._defaultPhysicsMemory = value;
+	    }
+	    get maxLightCount() {
+	        return this._maxLightCount;
+	    }
+	    set maxLightCount(value) {
+	        if (value > 2048) {
+	            this._maxLightCount = 2048;
+	            console.warn("Config3D: maxLightCount must less equal 2048.");
+	        }
+	        else {
+	            this._maxLightCount = value;
+	        }
+	    }
+	    get lightClusterCount() {
+	        return this._lightClusterCount;
+	    }
+	    set lightClusterCount(value) {
+	        if (value.x > 128 || value.y > 128 || value.z > 128) {
+	            this._lightClusterCount.setValue(Math.min(value.x, 128), Math.min(value.y, 128), Math.min(value.z, 128));
+	            console.warn("Config3D: lightClusterCount X and Y、Z must less equal 128.");
+	        }
+	        else {
+	            value.cloneTo(this._lightClusterCount);
+	        }
+	        var maxAreaLightCountWithZ = Math.floor(2048 / this._lightClusterCount.z - 1) * 4;
+	        if (maxAreaLightCountWithZ < this._maxLightCount)
+	            console.warn("Config3D: if the area light(PointLight、SpotLight) count is large than " + maxAreaLightCountWithZ + ",maybe the far away culster will ingonre some light.");
+	        this._maxAreaLightCountPerClusterAverage = Math.min(maxAreaLightCountWithZ, this._maxLightCount);
+	    }
+	    cloneTo(dest) {
+	        var destConfig3D = dest;
+	        destConfig3D._defaultPhysicsMemory = this._defaultPhysicsMemory;
+	        destConfig3D._editerEnvironment = this._editerEnvironment;
+	        destConfig3D.isAntialias = this.isAntialias;
+	        destConfig3D.isAlpha = this.isAlpha;
+	        destConfig3D.premultipliedAlpha = this.premultipliedAlpha;
+	        destConfig3D.isStencil = this.isStencil;
+	        destConfig3D.octreeCulling = this.octreeCulling;
+	        this.octreeInitialCenter.cloneTo(destConfig3D.octreeInitialCenter);
+	        destConfig3D.octreeInitialSize = this.octreeInitialSize;
+	        destConfig3D.octreeMinNodeSize = this.octreeMinNodeSize;
+	        destConfig3D.octreeLooseness = this.octreeLooseness;
+	        destConfig3D.debugFrustumCulling = this.debugFrustumCulling;
+	        destConfig3D.maxLightCount = this.maxLightCount;
+	        destConfig3D.enableMultiLight = this.enableMultiLight;
+	        var lightClusterCount = destConfig3D.lightClusterCount;
+	        this.lightClusterCount.cloneTo(lightClusterCount);
+	        destConfig3D.lightClusterCount = lightClusterCount;
+	        destConfig3D.pbrRenderQuality = this.pbrRenderQuality;
+	    }
+	    clone() {
+	        var dest = new Config3D();
+	        this.cloneTo(dest);
+	        return dest;
 	    }
 	}
-	GeometryElement._typeCounter = 0;
+	Config3D._config = new Config3D();
+	window.Config3D = Config3D;
 
-	class VertexBuffer3D extends Laya.Buffer {
-	    constructor(byteLength, bufferUsage, canRead = false) {
+	class KeyframeNode {
+	    constructor() {
+	        this._ownerPath = [];
+	        this._propertys = [];
+	        this._keyFrames = [];
+	    }
+	    get ownerPathCount() {
+	        return this._ownerPath.length;
+	    }
+	    get propertyCount() {
+	        return this._propertys.length;
+	    }
+	    get keyFramesCount() {
+	        return this._keyFrames.length;
+	    }
+	    _setOwnerPathCount(value) {
+	        this._ownerPath.length = value;
+	    }
+	    _setOwnerPathByIndex(index, value) {
+	        this._ownerPath[index] = value;
+	    }
+	    _joinOwnerPath(sep) {
+	        return this._ownerPath.join(sep);
+	    }
+	    _setPropertyCount(value) {
+	        this._propertys.length = value;
+	    }
+	    _setPropertyByIndex(index, value) {
+	        this._propertys[index] = value;
+	    }
+	    _joinProperty(sep) {
+	        return this._propertys.join(sep);
+	    }
+	    _setKeyframeCount(value) {
+	        this._keyFrames.length = value;
+	    }
+	    _setKeyframeByIndex(index, value) {
+	        this._keyFrames[index] = value;
+	    }
+	    getOwnerPathByIndex(index) {
+	        return this._ownerPath[index];
+	    }
+	    getPropertyByIndex(index) {
+	        return this._propertys[index];
+	    }
+	    getKeyframeByIndex(index) {
+	        return this._keyFrames[index];
+	    }
+	}
+
+	class AnimationEvent {
+	    constructor() {
+	    }
+	}
+
+	class Keyframe {
+	    constructor() {
+	    }
+	    cloneTo(destObject) {
+	        var destKeyFrame = destObject;
+	        destKeyFrame.time = this.time;
+	    }
+	    clone() {
+	        var dest = new Keyframe();
+	        this.cloneTo(dest);
+	        return dest;
+	    }
+	}
+
+	class FloatKeyframe extends Keyframe {
+	    constructor() {
 	        super();
-	        this._vertexDeclaration = null;
-	        this._float32Reader = null;
-	        var gl = Laya.LayaGL.instance;
-	        this._bufferUsage = bufferUsage;
-	        this._bufferType = gl.ARRAY_BUFFER;
-	        this._canRead = canRead;
-	        this._byteLength = byteLength;
-	        this.bind();
-	        gl.bufferData(this._bufferType, this._byteLength, this._bufferUsage);
-	        if (canRead) {
-	            this._buffer = new Uint8Array(byteLength);
-	            this._float32Reader = new Float32Array(this._buffer.buffer);
-	        }
 	    }
-	    get vertexDeclaration() {
-	        return this._vertexDeclaration;
-	    }
-	    set vertexDeclaration(value) {
-	        this._vertexDeclaration = value;
-	    }
-	    get canRead() {
-	        return this._canRead;
-	    }
-	    bind() {
-	        if (Laya.Buffer._bindedVertexBuffer !== this._glBuffer) {
-	            var gl = Laya.LayaGL.instance;
-	            gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
-	            Laya.Buffer._bindedVertexBuffer = this._glBuffer;
-	            return true;
-	        }
-	        else {
-	            return false;
-	        }
-	    }
-	    orphanStorage() {
-	        this.bind();
-	        Laya.LayaGL.instance.bufferData(this._bufferType, this._byteLength, this._bufferUsage);
-	    }
-	    setData(buffer, bufferOffset = 0, dataStartIndex = 0, dataCount = Number.MAX_SAFE_INTEGER) {
-	        this.bind();
-	        var needSubData = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
-	        if (needSubData) {
-	            var subData = new Uint8Array(buffer, dataStartIndex, dataCount);
-	            Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, subData);
-	            if (this._canRead)
-	                this._buffer.set(subData, bufferOffset);
-	        }
-	        else {
-	            Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, buffer);
-	            if (this._canRead)
-	                this._buffer.set(new Uint8Array(buffer), bufferOffset);
-	        }
-	    }
-	    getUint8Data() {
-	        if (this._canRead)
-	            return this._buffer;
-	        else
-	            throw new Error("Can't read data from VertexBuffer with only write flag!");
-	    }
-	    getFloat32Data() {
-	        if (this._canRead)
-	            return this._float32Reader;
-	        else
-	            throw new Error("Can't read data from VertexBuffer with only write flag!");
-	    }
-	    markAsUnreadbale() {
-	        this._canRead = false;
-	        this._buffer = null;
-	        this._float32Reader = null;
-	    }
-	    destroy() {
-	        super.destroy();
-	        this._buffer = null;
-	        this._float32Reader = null;
-	        this._vertexDeclaration = null;
-	        this._byteLength = 0;
+	    cloneTo(destObject) {
+	        super.cloneTo(destObject);
+	        var destKeyFrame = destObject;
+	        destKeyFrame.inTangent = this.inTangent;
+	        destKeyFrame.outTangent = this.outTangent;
+	        destKeyFrame.value = this.value;
 	    }
 	}
-	VertexBuffer3D.DATATYPE_FLOAT32ARRAY = 0;
-	VertexBuffer3D.DATATYPE_UINT8ARRAY = 1;
-
-	class VertexElementFormat {
-	    static __init__() {
-	        var gl = Laya.LayaGL.instance;
-	        VertexElementFormat._elementInfos = {
-	            "single": [1, gl.FLOAT, 0],
-	            "vector2": [2, gl.FLOAT, 0],
-	            "vector3": [3, gl.FLOAT, 0],
-	            "vector4": [4, gl.FLOAT, 0],
-	            "color": [4, gl.FLOAT, 0],
-	            "byte4": [4, gl.UNSIGNED_BYTE, 0],
-	            "byte3": [3, gl.UNSIGNED_BYTE, 0],
-	            "byte2": [2, gl.UNSIGNED_BYTE, 0],
-	            "byte": [1, gl.UNSIGNED_BYTE, 0],
-	            "short2": [2, gl.FLOAT, 0],
-	            "short4": [4, gl.FLOAT, 0],
-	            "normalizedshort2": [2, gl.FLOAT, 0],
-	            "normalizedshort4": [4, gl.FLOAT, 0],
-	            "halfvector2": [2, gl.FLOAT, 0],
-	            "halfvector4": [4, gl.FLOAT, 0]
-	        };
-	    }
-	    static getElementInfos(element) {
-	        var info = VertexElementFormat._elementInfos[element];
-	        if (info)
-	            return info;
-	        else
-	            throw "VertexElementFormat: this vertexElementFormat is not implement.";
-	    }
-	}
-	VertexElementFormat.Single = "single";
-	VertexElementFormat.Vector2 = "vector2";
-	VertexElementFormat.Vector3 = "vector3";
-	VertexElementFormat.Vector4 = "vector4";
-	VertexElementFormat.Color = "color";
-	VertexElementFormat.Byte4 = "byte4";
-	VertexElementFormat.Byte3 = "byte3";
-	VertexElementFormat.Byte2 = "byte2";
-	VertexElementFormat.ByteOne = "byte";
-	VertexElementFormat.Short2 = "short2";
-	VertexElementFormat.Short4 = "short4";
-	VertexElementFormat.NormalizedShort2 = "normalizedshort2";
-	VertexElementFormat.NormalizedShort4 = "normalizedshort4";
-	VertexElementFormat.HalfVector2 = "halfvector2";
-	VertexElementFormat.HalfVector4 = "halfvector4";
 
 	class Matrix3x3 {
 	    constructor() {
@@ -1311,1237 +1351,459 @@
 	Quaternion.DEFAULT = new Quaternion();
 	Quaternion.NAN = new Quaternion(NaN, NaN, NaN, NaN);
 
-	class Matrix4x4 {
-	    constructor(m11 = 1, m12 = 0, m13 = 0, m14 = 0, m21 = 0, m22 = 1, m23 = 0, m24 = 0, m31 = 0, m32 = 0, m33 = 1, m34 = 0, m41 = 0, m42 = 0, m43 = 0, m44 = 1, elements = null) {
-	        var e = elements ? this.elements = elements : this.elements = new Float32Array(16);
-	        e[0] = m11;
-	        e[1] = m12;
-	        e[2] = m13;
-	        e[3] = m14;
-	        e[4] = m21;
-	        e[5] = m22;
-	        e[6] = m23;
-	        e[7] = m24;
-	        e[8] = m31;
-	        e[9] = m32;
-	        e[10] = m33;
-	        e[11] = m34;
-	        e[12] = m41;
-	        e[13] = m42;
-	        e[14] = m43;
-	        e[15] = m44;
-	    }
-	    static createRotationX(rad, out) {
-	        var oe = out.elements;
-	        var s = Math.sin(rad), c = Math.cos(rad);
-	        oe[1] = oe[2] = oe[3] = oe[4] = oe[7] = oe[8] = oe[11] = oe[12] = oe[13] = oe[14] = 0;
-	        oe[0] = oe[15] = 1;
-	        oe[5] = oe[10] = c;
-	        oe[6] = s;
-	        oe[9] = -s;
-	    }
-	    static createRotationY(rad, out) {
-	        var oe = out.elements;
-	        var s = Math.sin(rad), c = Math.cos(rad);
-	        oe[1] = oe[3] = oe[4] = oe[6] = oe[7] = oe[9] = oe[11] = oe[12] = oe[13] = oe[14] = 0;
-	        oe[5] = oe[15] = 1;
-	        oe[0] = oe[10] = c;
-	        oe[2] = -s;
-	        oe[8] = s;
-	    }
-	    static createRotationZ(rad, out) {
-	        var oe = out.elements;
-	        var s = Math.sin(rad), c = Math.cos(rad);
-	        oe[2] = oe[3] = oe[6] = oe[7] = oe[8] = oe[9] = oe[11] = oe[12] = oe[13] = oe[14] = 0;
-	        oe[10] = oe[15] = 1;
-	        oe[0] = oe[5] = c;
-	        oe[1] = s;
-	        oe[4] = -s;
-	    }
-	    static createRotationYawPitchRoll(yaw, pitch, roll, result) {
-	        Quaternion.createFromYawPitchRoll(yaw, pitch, roll, Matrix4x4._tempQuaternion);
-	        Matrix4x4.createRotationQuaternion(Matrix4x4._tempQuaternion, result);
-	    }
-	    static createRotationAxis(axis, angle, result) {
-	        var x = axis.x;
-	        var y = axis.y;
-	        var z = axis.z;
-	        var cos = Math.cos(angle);
-	        var sin = Math.sin(angle);
-	        var xx = x * x;
-	        var yy = y * y;
-	        var zz = z * z;
-	        var xy = x * y;
-	        var xz = x * z;
-	        var yz = y * z;
-	        var resultE = result.elements;
-	        resultE[3] = resultE[7] = resultE[11] = resultE[12] = resultE[13] = resultE[14] = 0;
-	        resultE[15] = 1.0;
-	        resultE[0] = xx + (cos * (1.0 - xx));
-	        resultE[1] = (xy - (cos * xy)) + (sin * z);
-	        resultE[2] = (xz - (cos * xz)) - (sin * y);
-	        resultE[4] = (xy - (cos * xy)) - (sin * z);
-	        resultE[5] = yy + (cos * (1.0 - yy));
-	        resultE[6] = (yz - (cos * yz)) + (sin * x);
-	        resultE[8] = (xz - (cos * xz)) + (sin * y);
-	        resultE[9] = (yz - (cos * yz)) - (sin * x);
-	        resultE[10] = zz + (cos * (1.0 - zz));
-	    }
-	    setRotation(rotation) {
-	        var rotationX = rotation.x;
-	        var rotationY = rotation.y;
-	        var rotationZ = rotation.z;
-	        var rotationW = rotation.w;
-	        var xx = rotationX * rotationX;
-	        var yy = rotationY * rotationY;
-	        var zz = rotationZ * rotationZ;
-	        var xy = rotationX * rotationY;
-	        var zw = rotationZ * rotationW;
-	        var zx = rotationZ * rotationX;
-	        var yw = rotationY * rotationW;
-	        var yz = rotationY * rotationZ;
-	        var xw = rotationX * rotationW;
-	        var e = this.elements;
-	        e[0] = 1.0 - (2.0 * (yy + zz));
-	        e[1] = 2.0 * (xy + zw);
-	        e[2] = 2.0 * (zx - yw);
-	        e[4] = 2.0 * (xy - zw);
-	        e[5] = 1.0 - (2.0 * (zz + xx));
-	        e[6] = 2.0 * (yz + xw);
-	        e[8] = 2.0 * (zx + yw);
-	        e[9] = 2.0 * (yz - xw);
-	        e[10] = 1.0 - (2.0 * (yy + xx));
-	    }
-	    setPosition(position) {
-	        var e = this.elements;
-	        e[12] = position.x;
-	        e[13] = position.y;
-	        e[14] = position.z;
-	    }
-	    static createRotationQuaternion(rotation, result) {
-	        var resultE = result.elements;
-	        var rotationX = rotation.x;
-	        var rotationY = rotation.y;
-	        var rotationZ = rotation.z;
-	        var rotationW = rotation.w;
-	        var xx = rotationX * rotationX;
-	        var yy = rotationY * rotationY;
-	        var zz = rotationZ * rotationZ;
-	        var xy = rotationX * rotationY;
-	        var zw = rotationZ * rotationW;
-	        var zx = rotationZ * rotationX;
-	        var yw = rotationY * rotationW;
-	        var yz = rotationY * rotationZ;
-	        var xw = rotationX * rotationW;
-	        resultE[3] = resultE[7] = resultE[11] = resultE[12] = resultE[13] = resultE[14] = 0;
-	        resultE[15] = 1.0;
-	        resultE[0] = 1.0 - (2.0 * (yy + zz));
-	        resultE[1] = 2.0 * (xy + zw);
-	        resultE[2] = 2.0 * (zx - yw);
-	        resultE[4] = 2.0 * (xy - zw);
-	        resultE[5] = 1.0 - (2.0 * (zz + xx));
-	        resultE[6] = 2.0 * (yz + xw);
-	        resultE[8] = 2.0 * (zx + yw);
-	        resultE[9] = 2.0 * (yz - xw);
-	        resultE[10] = 1.0 - (2.0 * (yy + xx));
-	    }
-	    static createTranslate(trans, out) {
-	        var oe = out.elements;
-	        oe[4] = oe[8] = oe[1] = oe[9] = oe[2] = oe[6] = oe[3] = oe[7] = oe[11] = 0;
-	        oe[0] = oe[5] = oe[10] = oe[15] = 1;
-	        oe[12] = trans.x;
-	        oe[13] = trans.y;
-	        oe[14] = trans.z;
-	    }
-	    static createScaling(scale, out) {
-	        var oe = out.elements;
-	        oe[0] = scale.x;
-	        oe[5] = scale.y;
-	        oe[10] = scale.z;
-	        oe[1] = oe[4] = oe[8] = oe[12] = oe[9] = oe[13] = oe[2] = oe[6] = oe[14] = oe[3] = oe[7] = oe[11] = 0;
-	        oe[15] = 1;
-	    }
-	    static multiply(left, right, out) {
-	        var l = right.elements;
-	        var r = left.elements;
-	        var e = out.elements;
-	        var l11 = l[0], l12 = l[1], l13 = l[2], l14 = l[3];
-	        var l21 = l[4], l22 = l[5], l23 = l[6], l24 = l[7];
-	        var l31 = l[8], l32 = l[9], l33 = l[10], l34 = l[11];
-	        var l41 = l[12], l42 = l[13], l43 = l[14], l44 = l[15];
-	        var r11 = r[0], r12 = r[1], r13 = r[2], r14 = r[3];
-	        var r21 = r[4], r22 = r[5], r23 = r[6], r24 = r[7];
-	        var r31 = r[8], r32 = r[9], r33 = r[10], r34 = r[11];
-	        var r41 = r[12], r42 = r[13], r43 = r[14], r44 = r[15];
-	        e[0] = (l11 * r11) + (l12 * r21) + (l13 * r31) + (l14 * r41);
-	        e[1] = (l11 * r12) + (l12 * r22) + (l13 * r32) + (l14 * r42);
-	        e[2] = (l11 * r13) + (l12 * r23) + (l13 * r33) + (l14 * r43);
-	        e[3] = (l11 * r14) + (l12 * r24) + (l13 * r34) + (l14 * r44);
-	        e[4] = (l21 * r11) + (l22 * r21) + (l23 * r31) + (l24 * r41);
-	        e[5] = (l21 * r12) + (l22 * r22) + (l23 * r32) + (l24 * r42);
-	        e[6] = (l21 * r13) + (l22 * r23) + (l23 * r33) + (l24 * r43);
-	        e[7] = (l21 * r14) + (l22 * r24) + (l23 * r34) + (l24 * r44);
-	        e[8] = (l31 * r11) + (l32 * r21) + (l33 * r31) + (l34 * r41);
-	        e[9] = (l31 * r12) + (l32 * r22) + (l33 * r32) + (l34 * r42);
-	        e[10] = (l31 * r13) + (l32 * r23) + (l33 * r33) + (l34 * r43);
-	        e[11] = (l31 * r14) + (l32 * r24) + (l33 * r34) + (l34 * r44);
-	        e[12] = (l41 * r11) + (l42 * r21) + (l43 * r31) + (l44 * r41);
-	        e[13] = (l41 * r12) + (l42 * r22) + (l43 * r32) + (l44 * r42);
-	        e[14] = (l41 * r13) + (l42 * r23) + (l43 * r33) + (l44 * r43);
-	        e[15] = (l41 * r14) + (l42 * r24) + (l43 * r34) + (l44 * r44);
-	    }
-	    static multiplyForNative(left, right, out) {
-	        Laya.LayaGL.instance.matrix4x4Multiply(left.elements, right.elements, out.elements);
-	    }
-	    static createFromQuaternion(rotation, out) {
-	        var e = out.elements;
-	        var x = rotation.x, y = rotation.y, z = rotation.z, w = rotation.w;
-	        var x2 = x + x;
-	        var y2 = y + y;
-	        var z2 = z + z;
-	        var xx = x * x2;
-	        var yx = y * x2;
-	        var yy = y * y2;
-	        var zx = z * x2;
-	        var zy = z * y2;
-	        var zz = z * z2;
-	        var wx = w * x2;
-	        var wy = w * y2;
-	        var wz = w * z2;
-	        e[0] = 1 - yy - zz;
-	        e[1] = yx + wz;
-	        e[2] = zx - wy;
-	        e[3] = 0;
-	        e[4] = yx - wz;
-	        e[5] = 1 - xx - zz;
-	        e[6] = zy + wx;
-	        e[7] = 0;
-	        e[8] = zx + wy;
-	        e[9] = zy - wx;
-	        e[10] = 1 - xx - yy;
-	        e[11] = 0;
-	        e[12] = 0;
-	        e[13] = 0;
-	        e[14] = 0;
-	        e[15] = 1;
-	    }
-	    static createAffineTransformation(trans, rot, scale, out) {
-	        var oe = out.elements;
-	        var x = rot.x, y = rot.y, z = rot.z, w = rot.w, x2 = x + x, y2 = y + y, z2 = z + z;
-	        var xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2;
-	        var wx = w * x2, wy = w * y2, wz = w * z2, sx = scale.x, sy = scale.y, sz = scale.z;
-	        oe[0] = (1 - (yy + zz)) * sx;
-	        oe[1] = (xy + wz) * sx;
-	        oe[2] = (xz - wy) * sx;
-	        oe[3] = 0;
-	        oe[4] = (xy - wz) * sy;
-	        oe[5] = (1 - (xx + zz)) * sy;
-	        oe[6] = (yz + wx) * sy;
-	        oe[7] = 0;
-	        oe[8] = (xz + wy) * sz;
-	        oe[9] = (yz - wx) * sz;
-	        oe[10] = (1 - (xx + yy)) * sz;
-	        oe[11] = 0;
-	        oe[12] = trans.x;
-	        oe[13] = trans.y;
-	        oe[14] = trans.z;
-	        oe[15] = 1;
-	    }
-	    static createLookAt(eye, target, up, out) {
-	        var oE = out.elements;
-	        var xaxis = Matrix4x4._tempVector0;
-	        var yaxis = Matrix4x4._tempVector1;
-	        var zaxis = Matrix4x4._tempVector2;
-	        Vector3.subtract(eye, target, zaxis);
-	        Vector3.normalize(zaxis, zaxis);
-	        Vector3.cross(up, zaxis, xaxis);
-	        Vector3.normalize(xaxis, xaxis);
-	        Vector3.cross(zaxis, xaxis, yaxis);
-	        oE[3] = oE[7] = oE[11] = 0;
-	        oE[15] = 1;
-	        oE[0] = xaxis.x;
-	        oE[4] = xaxis.y;
-	        oE[8] = xaxis.z;
-	        oE[1] = yaxis.x;
-	        oE[5] = yaxis.y;
-	        oE[9] = yaxis.z;
-	        oE[2] = zaxis.x;
-	        oE[6] = zaxis.y;
-	        oE[10] = zaxis.z;
-	        oE[12] = -Vector3.dot(xaxis, eye);
-	        oE[13] = -Vector3.dot(yaxis, eye);
-	        oE[14] = -Vector3.dot(zaxis, eye);
-	    }
-	    static createPerspective(fov, aspect, znear, zfar, out) {
-	        var yScale = 1.0 / Math.tan(fov * 0.5);
-	        var xScale = yScale / aspect;
-	        var halfWidth = znear / xScale;
-	        var halfHeight = znear / yScale;
-	        Matrix4x4.createPerspectiveOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, znear, zfar, out);
-	    }
-	    static createPerspectiveOffCenter(left, right, bottom, top, znear, zfar, out) {
-	        var oe = out.elements;
-	        var zRange = zfar / (zfar - znear);
-	        oe[1] = oe[2] = oe[3] = oe[4] = oe[6] = oe[7] = oe[12] = oe[13] = oe[15] = 0;
-	        oe[0] = 2.0 * znear / (right - left);
-	        oe[5] = 2.0 * znear / (top - bottom);
-	        oe[8] = (left + right) / (right - left);
-	        oe[9] = (top + bottom) / (top - bottom);
-	        oe[10] = -zRange;
-	        oe[11] = -1.0;
-	        oe[14] = -znear * zRange;
-	    }
-	    static createOrthoOffCenter(left, right, bottom, top, znear, zfar, out) {
-	        var oe = out.elements;
-	        var zRange = 1.0 / (zfar - znear);
-	        oe[1] = oe[2] = oe[3] = oe[4] = oe[6] = oe[8] = oe[7] = oe[9] = oe[11] = 0;
-	        oe[15] = 1;
-	        oe[0] = 2.0 / (right - left);
-	        oe[5] = 2.0 / (top - bottom);
-	        oe[10] = -zRange;
-	        oe[12] = (left + right) / (left - right);
-	        oe[13] = (top + bottom) / (bottom - top);
-	        oe[14] = -znear * zRange;
-	    }
-	    getElementByRowColumn(row, column) {
-	        if (row < 0 || row > 3)
-	            throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
-	        if (column < 0 || column > 3)
-	            throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
-	        return this.elements[(row * 4) + column];
-	    }
-	    setElementByRowColumn(row, column, value) {
-	        if (row < 0 || row > 3)
-	            throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
-	        if (column < 0 || column > 3)
-	            throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
-	        this.elements[(row * 4) + column] = value;
-	    }
-	    equalsOtherMatrix(other) {
-	        var e = this.elements;
-	        var oe = other.elements;
-	        return (MathUtils3D.nearEqual(e[0], oe[0]) && MathUtils3D.nearEqual(e[1], oe[1]) && MathUtils3D.nearEqual(e[2], oe[2]) && MathUtils3D.nearEqual(e[3], oe[3]) && MathUtils3D.nearEqual(e[4], oe[4]) && MathUtils3D.nearEqual(e[5], oe[5]) && MathUtils3D.nearEqual(e[6], oe[6]) && MathUtils3D.nearEqual(e[7], oe[7]) && MathUtils3D.nearEqual(e[8], oe[8]) && MathUtils3D.nearEqual(e[9], oe[9]) && MathUtils3D.nearEqual(e[10], oe[10]) && MathUtils3D.nearEqual(e[11], oe[11]) && MathUtils3D.nearEqual(e[12], oe[12]) && MathUtils3D.nearEqual(e[13], oe[13]) && MathUtils3D.nearEqual(e[14], oe[14]) && MathUtils3D.nearEqual(e[15], oe[15]));
-	    }
-	    decomposeTransRotScale(translation, rotation, scale) {
-	        var rotationMatrix = Matrix4x4._tempMatrix4x4;
-	        if (this.decomposeTransRotMatScale(translation, rotationMatrix, scale)) {
-	            Quaternion.createFromMatrix4x4(rotationMatrix, rotation);
-	            return true;
-	        }
-	        else {
-	            rotation.identity();
-	            return false;
-	        }
-	    }
-	    decomposeTransRotMatScale(translation, rotationMatrix, scale) {
-	        var e = this.elements;
-	        var te = translation;
-	        var re = rotationMatrix.elements;
-	        var se = scale;
-	        te.x = e[12];
-	        te.y = e[13];
-	        te.z = e[14];
-	        var m11 = e[0], m12 = e[1], m13 = e[2];
-	        var m21 = e[4], m22 = e[5], m23 = e[6];
-	        var m31 = e[8], m32 = e[9], m33 = e[10];
-	        var sX = se.x = Math.sqrt((m11 * m11) + (m12 * m12) + (m13 * m13));
-	        var sY = se.y = Math.sqrt((m21 * m21) + (m22 * m22) + (m23 * m23));
-	        var sZ = se.z = Math.sqrt((m31 * m31) + (m32 * m32) + (m33 * m33));
-	        if (MathUtils3D.isZero(sX) || MathUtils3D.isZero(sY) || MathUtils3D.isZero(sZ)) {
-	            re[1] = re[2] = re[3] = re[4] = re[6] = re[7] = re[8] = re[9] = re[11] = re[12] = re[13] = re[14] = 0;
-	            re[0] = re[5] = re[10] = re[15] = 1;
-	            return false;
-	        }
-	        var at = Matrix4x4._tempVector0;
-	        at.x = m31 / sZ;
-	        at.y = m32 / sZ;
-	        at.z = m33 / sZ;
-	        var tempRight = Matrix4x4._tempVector1;
-	        tempRight.x = m11 / sX;
-	        tempRight.y = m12 / sX;
-	        tempRight.z = m13 / sX;
-	        var up = Matrix4x4._tempVector2;
-	        Vector3.cross(at, tempRight, up);
-	        var right = Matrix4x4._tempVector1;
-	        Vector3.cross(up, at, right);
-	        re[3] = re[7] = re[11] = re[12] = re[13] = re[14] = 0;
-	        re[15] = 1;
-	        re[0] = right.x;
-	        re[1] = right.y;
-	        re[2] = right.z;
-	        re[4] = up.x;
-	        re[5] = up.y;
-	        re[6] = up.z;
-	        re[8] = at.x;
-	        re[9] = at.y;
-	        re[10] = at.z;
-	        ((re[0] * m11 + re[1] * m12 + re[2] * m13) < 0.0) && (se.x = -sX);
-	        ((re[4] * m21 + re[5] * m22 + re[6] * m23) < 0.0) && (se.y = -sY);
-	        ((re[8] * m31 + re[9] * m32 + re[10] * m33) < 0.0) && (se.z = -sZ);
-	        return true;
-	    }
-	    decomposeYawPitchRoll(yawPitchRoll) {
-	        var pitch = Math.asin(-this.elements[9]);
-	        yawPitchRoll.y = pitch;
-	        var test = Math.cos(pitch);
-	        if (test > MathUtils3D.zeroTolerance) {
-	            yawPitchRoll.z = Math.atan2(this.elements[1], this.elements[5]);
-	            yawPitchRoll.x = Math.atan2(this.elements[8], this.elements[10]);
-	        }
-	        else {
-	            yawPitchRoll.z = Math.atan2(-this.elements[4], this.elements[0]);
-	            yawPitchRoll.x = 0.0;
-	        }
-	    }
-	    normalize() {
-	        var v = this.elements;
-	        var c = v[0], d = v[1], e = v[2], g = Math.sqrt(c * c + d * d + e * e);
-	        if (g) {
-	            if (g == 1)
-	                return;
-	        }
-	        else {
-	            v[0] = 0;
-	            v[1] = 0;
-	            v[2] = 0;
-	            return;
-	        }
-	        g = 1 / g;
-	        v[0] = c * g;
-	        v[1] = d * g;
-	        v[2] = e * g;
-	    }
-	    transpose() {
-	        var e, t;
-	        e = this.elements;
-	        t = e[1];
-	        e[1] = e[4];
-	        e[4] = t;
-	        t = e[2];
-	        e[2] = e[8];
-	        e[8] = t;
-	        t = e[3];
-	        e[3] = e[12];
-	        e[12] = t;
-	        t = e[6];
-	        e[6] = e[9];
-	        e[9] = t;
-	        t = e[7];
-	        e[7] = e[13];
-	        e[13] = t;
-	        t = e[11];
-	        e[11] = e[14];
-	        e[14] = t;
-	        return this;
-	    }
-	    invert(out) {
-	        var ae = this.elements;
-	        var oe = out.elements;
-	        var a00 = ae[0], a01 = ae[1], a02 = ae[2], a03 = ae[3], a10 = ae[4], a11 = ae[5], a12 = ae[6], a13 = ae[7], a20 = ae[8], a21 = ae[9], a22 = ae[10], a23 = ae[11], a30 = ae[12], a31 = ae[13], a32 = ae[14], a33 = ae[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32, det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-	        if (Math.abs(det) === 0.0) {
-	            return;
-	        }
-	        det = 1.0 / det;
-	        oe[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
-	        oe[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
-	        oe[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
-	        oe[3] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
-	        oe[4] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
-	        oe[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
-	        oe[6] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
-	        oe[7] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
-	        oe[8] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
-	        oe[9] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
-	        oe[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
-	        oe[11] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
-	        oe[12] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
-	        oe[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
-	        oe[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
-	        oe[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
-	    }
-	    static billboard(objectPosition, cameraPosition, cameraUp, cameraForward, mat) {
-	        Vector3.subtract(objectPosition, cameraPosition, Matrix4x4._tempVector0);
-	        var lengthSq = Vector3.scalarLengthSquared(Matrix4x4._tempVector0);
-	        if (MathUtils3D.isZero(lengthSq)) {
-	            Vector3.scale(cameraForward, -1, Matrix4x4._tempVector1);
-	            Matrix4x4._tempVector1.cloneTo(Matrix4x4._tempVector0);
-	        }
-	        else {
-	            Vector3.scale(Matrix4x4._tempVector0, 1 / Math.sqrt(lengthSq), Matrix4x4._tempVector0);
-	        }
-	        Vector3.cross(cameraUp, Matrix4x4._tempVector0, Matrix4x4._tempVector2);
-	        Vector3.normalize(Matrix4x4._tempVector2, Matrix4x4._tempVector2);
-	        Vector3.cross(Matrix4x4._tempVector0, Matrix4x4._tempVector2, Matrix4x4._tempVector3);
-	        var crosse = Matrix4x4._tempVector2;
-	        var finale = Matrix4x4._tempVector3;
-	        var diffee = Matrix4x4._tempVector0;
-	        var obpose = objectPosition;
-	        var mate = mat.elements;
-	        mate[0] = crosse.x;
-	        mate[1] = crosse.y;
-	        mate[2] = crosse.z;
-	        mate[3] = 0.0;
-	        mate[4] = finale.x;
-	        mate[5] = finale.y;
-	        mate[6] = finale.z;
-	        mate[7] = 0.0;
-	        mate[8] = diffee.x;
-	        mate[9] = diffee.y;
-	        mate[10] = diffee.z;
-	        mate[11] = 0.0;
-	        mate[12] = obpose.x;
-	        mate[13] = obpose.y;
-	        mate[14] = obpose.z;
-	        mate[15] = 1.0;
-	    }
-	    identity() {
-	        var e = this.elements;
-	        e[1] = e[2] = e[3] = e[4] = e[6] = e[7] = e[8] = e[9] = e[11] = e[12] = e[13] = e[14] = 0;
-	        e[0] = e[5] = e[10] = e[15] = 1;
-	    }
-	    cloneTo(destObject) {
-	        var i, s, d;
-	        s = this.elements;
-	        d = destObject.elements;
-	        if (s === d) {
-	            return;
-	        }
-	        for (i = 0; i < 16; ++i) {
-	            d[i] = s[i];
-	        }
-	    }
-	    clone() {
-	        var dest = new Matrix4x4();
-	        this.cloneTo(dest);
-	        return dest;
-	    }
-	    static translation(v3, out) {
-	        var oe = out.elements;
-	        oe[0] = oe[5] = oe[10] = oe[15] = 1;
-	        oe[12] = v3.x;
-	        oe[13] = v3.y;
-	        oe[14] = v3.z;
-	    }
-	    getTranslationVector(out) {
-	        var me = this.elements;
-	        out.x = me[12];
-	        out.y = me[13];
-	        out.z = me[14];
-	    }
-	    setTranslationVector(translate) {
-	        var me = this.elements;
-	        var ve = translate;
-	        me[12] = ve.x;
-	        me[13] = ve.y;
-	        me[14] = ve.z;
-	    }
-	    getForward(out) {
-	        var me = this.elements;
-	        out.x = -me[8];
-	        out.y = -me[9];
-	        out.z = -me[10];
-	    }
-	    setForward(forward) {
-	        var me = this.elements;
-	        me[8] = -forward.x;
-	        me[9] = -forward.y;
-	        me[10] = -forward.z;
-	    }
-	    getInvertFront() {
-	        this.decomposeTransRotScale(Matrix4x4._tempVector0, Matrix4x4._tempQuaternion, Matrix4x4._tempVector1);
-	        var scale = Matrix4x4._tempVector1;
-	        var isInvert = scale.x < 0;
-	        (scale.y < 0) && (isInvert = !isInvert);
-	        (scale.z < 0) && (isInvert = !isInvert);
-	        return isInvert;
-	    }
-	}
-	Matrix4x4._tempMatrix4x4 = new Matrix4x4();
-	Matrix4x4.TEMPMatrix0 = new Matrix4x4();
-	Matrix4x4.TEMPMatrix1 = new Matrix4x4();
-	Matrix4x4._tempVector0 = new Vector3();
-	Matrix4x4._tempVector1 = new Vector3();
-	Matrix4x4._tempVector2 = new Vector3();
-	Matrix4x4._tempVector3 = new Vector3();
-	Matrix4x4._tempQuaternion = new Quaternion();
-	Matrix4x4.DEFAULT = new Matrix4x4();
-	Matrix4x4.ZERO = new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-
-	class DefineDatas {
-	    constructor() {
-	        this._mask = [];
-	        this._length = 0;
-	    }
-	    _intersectionDefineDatas(define) {
-	        var unionMask = define._mask;
-	        var mask = this._mask;
-	        for (var i = this._length - 1; i >= 0; i--) {
-	            var value = mask[i] & unionMask[i];
-	            if (value == 0 && i == this._length - 1)
-	                this._length--;
-	            else
-	                mask[i] = value;
-	        }
-	    }
-	    add(define) {
-	        var index = define._index;
-	        var size = index + 1;
-	        var mask = this._mask;
-	        var maskStart = this._length;
-	        if (maskStart < size) {
-	            (mask.length < size) && (mask.length = size);
-	            for (; maskStart < index; maskStart++)
-	                mask[maskStart] = 0;
-	            mask[index] = define._value;
-	            this._length = size;
-	        }
-	        else {
-	            mask[index] |= define._value;
-	        }
-	    }
-	    remove(define) {
-	        var index = define._index;
-	        var mask = this._mask;
-	        var endIndex = this._length - 1;
-	        if (index > endIndex)
-	            return;
-	        var newValue = mask[index] & ~define._value;
-	        if (index == endIndex && newValue === 0)
-	            this._length--;
-	        else
-	            mask[index] = newValue;
-	    }
-	    addDefineDatas(define) {
-	        var addMask = define._mask;
-	        var size = define._length;
-	        var mask = this._mask;
-	        var maskStart = this._length;
-	        if (maskStart < size) {
-	            mask.length = size;
-	            for (var i = 0; i < maskStart; i++)
-	                mask[i] |= addMask[i];
-	            for (; i < size; i++)
-	                mask[i] = addMask[i];
-	            this._length = size;
-	        }
-	        else {
-	            for (var i = 0; i < size; i++) {
-	                mask[i] |= addMask[i];
-	            }
-	        }
-	    }
-	    removeDefineDatas(define) {
-	        var removeMask = define._mask;
-	        var mask = this._mask;
-	        var endIndex = this._length - 1;
-	        var i = Math.min(define._length, endIndex);
-	        for (; i >= 0; i--) {
-	            var newValue = mask[i] & ~removeMask[i];
-	            if (i == endIndex && newValue === 0) {
-	                endIndex--;
-	                this._length--;
-	            }
-	            else {
-	                mask[i] = newValue;
-	            }
-	        }
-	    }
-	    has(define) {
-	        var index = define._index;
-	        if (index >= this._length)
-	            return false;
-	        return (this._mask[index] & define._value) !== 0;
-	    }
-	    clear() {
-	        this._length = 0;
-	    }
-	    cloneTo(destObject) {
-	        var destDefineData = destObject;
-	        var destMask = destDefineData._mask;
-	        var mask = this._mask;
-	        var count = this._length;
-	        destMask.length = count;
-	        for (var i = 0; i < count; i++)
-	            destMask[i] = mask[i];
-	        destDefineData._length = count;
-	    }
-	    clone() {
-	        var dest = new DefineDatas();
-	        this.cloneTo(dest);
-	        return dest;
-	    }
-	}
-
-	class ShaderData {
-	    constructor(ownerResource = null) {
-	        this._ownerResource = null;
-	        this._data = null;
-	        this._defineDatas = new DefineDatas();
-	        this._runtimeCopyValues = [];
-	        this._ownerResource = ownerResource;
-	        this._initData();
-	    }
-	    _initData() {
-	        this._data = {};
-	    }
-	    getData() {
-	        return this._data;
-	    }
-	    addDefine(define) {
-	        this._defineDatas.add(define);
-	    }
-	    removeDefine(define) {
-	        this._defineDatas.remove(define);
-	    }
-	    hasDefine(define) {
-	        return this._defineDatas.has(define);
-	    }
-	    clearDefine() {
-	        this._defineDatas.clear();
-	    }
-	    getBool(index) {
-	        return this._data[index];
-	    }
-	    setBool(index, value) {
-	        this._data[index] = value;
-	    }
-	    getInt(index) {
-	        return this._data[index];
-	    }
-	    setInt(index, value) {
-	        this._data[index] = value;
-	    }
-	    getNumber(index) {
-	        return this._data[index];
-	    }
-	    setNumber(index, value) {
-	        this._data[index] = value;
-	    }
-	    getVector2(index) {
-	        return this._data[index];
-	    }
-	    setVector2(index, value) {
-	        this._data[index] = value;
-	    }
-	    getVector3(index) {
-	        return this._data[index];
-	    }
-	    setVector3(index, value) {
-	        this._data[index] = value;
-	    }
-	    getVector(index) {
-	        return this._data[index];
-	    }
-	    setVector(index, value) {
-	        this._data[index] = value;
-	    }
-	    getQuaternion(index) {
-	        return this._data[index];
-	    }
-	    setQuaternion(index, value) {
-	        this._data[index] = value;
-	    }
-	    getMatrix4x4(index) {
-	        return this._data[index];
-	    }
-	    setMatrix4x4(index, value) {
-	        this._data[index] = value;
-	    }
-	    getBuffer(shaderIndex) {
-	        return this._data[shaderIndex];
-	    }
-	    setBuffer(index, value) {
-	        this._data[index] = value;
-	    }
-	    setTexture(index, value) {
-	        var lastValue = this._data[index];
-	        this._data[index] = value ? value : Laya.Texture2D.erroTextur;
-	        if (this._ownerResource && this._ownerResource.referenceCount > 0) {
-	            (lastValue) && (lastValue._removeReference());
-	            (value) && (value._addReference());
-	        }
-	    }
-	    getTexture(index) {
-	        return this._data[index];
-	    }
-	    setValueData(index, value) {
-	        this._data[index] = value;
-	    }
-	    getValueData(index) {
-	        return this._data[index];
-	    }
-	    setAttribute(index, value) {
-	        this._data[index] = value;
-	    }
-	    getAttribute(index) {
-	        return this._data[index];
-	    }
-	    getLength() {
-	        return this._data.length;
-	    }
-	    setLength(value) {
-	        this._data.length = value;
-	    }
-	    cloneTo(destObject) {
-	        var dest = destObject;
-	        var destData = dest._data;
-	        for (var k in this._data) {
-	            var value = this._data[k];
-	            if (value != null) {
-	                if (typeof (value) == 'number') {
-	                    destData[k] = value;
-	                }
-	                else if (typeof (value) == 'number') {
-	                    destData[k] = value;
-	                }
-	                else if (typeof (value) == "boolean") {
-	                    destData[k] = value;
-	                }
-	                else if (value instanceof Vector2) {
-	                    var v2 = (destData[k]) || (destData[k] = new Vector2());
-	                    value.cloneTo(v2);
-	                    destData[k] = v2;
-	                }
-	                else if (value instanceof Vector3) {
-	                    var v3 = (destData[k]) || (destData[k] = new Vector3());
-	                    value.cloneTo(v3);
-	                    destData[k] = v3;
-	                }
-	                else if (value instanceof Vector4) {
-	                    var v4 = (destData[k]) || (destData[k] = new Vector4());
-	                    value.cloneTo(v4);
-	                    destData[k] = v4;
-	                }
-	                else if (value instanceof Matrix4x4) {
-	                    var mat = (destData[k]) || (destData[k] = new Matrix4x4());
-	                    value.cloneTo(mat);
-	                    destData[k] = mat;
-	                }
-	                else if (value instanceof Laya.BaseTexture) {
-	                    destData[k] = value;
-	                }
-	            }
-	        }
-	        this._defineDatas.cloneTo(dest._defineDatas);
-	    }
-	    clone() {
-	        var dest = new ShaderData();
-	        this.cloneTo(dest);
-	        return dest;
-	    }
-	    cloneToForNative(destObject) {
-	        var dest = destObject;
-	        var diffSize = this._int32Data.length - dest._int32Data.length;
-	        if (diffSize > 0) {
-	            dest.needRenewArrayBufferForNative(this._int32Data.length);
-	        }
-	        dest._int32Data.set(this._int32Data, 0);
-	        var destData = dest._nativeArray;
-	        var dataCount = this._nativeArray.length;
-	        destData.length = dataCount;
-	        for (var i = 0; i < dataCount; i++) {
-	            var value = this._nativeArray[i];
-	            if (value) {
-	                if (typeof (value) == 'number') {
-	                    destData[i] = value;
-	                    dest.setNumber(i, value);
-	                }
-	                else if (typeof (value) == 'number') {
-	                    destData[i] = value;
-	                    dest.setInt(i, value);
-	                }
-	                else if (typeof (value) == "boolean") {
-	                    destData[i] = value;
-	                    dest.setBool(i, value);
-	                }
-	                else if (value instanceof Vector2) {
-	                    var v2 = (destData[i]) || (destData[i] = new Vector2());
-	                    value.cloneTo(v2);
-	                    destData[i] = v2;
-	                    dest.setVector2(i, v2);
-	                }
-	                else if (value instanceof Vector3) {
-	                    var v3 = (destData[i]) || (destData[i] = new Vector3());
-	                    value.cloneTo(v3);
-	                    destData[i] = v3;
-	                    dest.setVector3(i, v3);
-	                }
-	                else if (value instanceof Vector4) {
-	                    var v4 = (destData[i]) || (destData[i] = new Vector4());
-	                    value.cloneTo(v4);
-	                    destData[i] = v4;
-	                    dest.setVector(i, v4);
-	                }
-	                else if (value instanceof Matrix4x4) {
-	                    var mat = (destData[i]) || (destData[i] = new Matrix4x4());
-	                    value.cloneTo(mat);
-	                    destData[i] = mat;
-	                    dest.setMatrix4x4(i, mat);
-	                }
-	                else if (value instanceof Laya.BaseTexture) {
-	                    destData[i] = value;
-	                    dest.setTexture(i, value);
-	                }
-	            }
-	        }
-	        this._defineDatas.cloneTo(dest._defineDatas);
-	    }
-	    _initDataForNative() {
-	        var length = 8;
-	        this._frameCount = -1;
-	        this._runtimeCopyValues.length = 0;
-	        this._nativeArray = [];
-	        this._data = new ArrayBuffer(length * 4);
-	        this._int32Data = new Int32Array(this._data);
-	        this._float32Data = new Float32Array(this._data);
-	        Laya.LayaGL.instance.createArrayBufferRef(this._data, Laya.LayaGL.ARRAY_BUFFER_TYPE_DATA, true);
-	    }
-	    needRenewArrayBufferForNative(index) {
-	        if (index >= this._int32Data.length) {
-	            var nByteLen = (index + 1) * 4;
-	            var pre = this._int32Data;
-	            var preConchRef = this._data["conchRef"];
-	            var prePtrID = this._data["_ptrID"];
-	            this._data = new ArrayBuffer(nByteLen);
-	            this._int32Data = new Int32Array(this._data);
-	            this._float32Data = new Float32Array(this._data);
-	            this._data["conchRef"] = preConchRef;
-	            this._data["_ptrID"] = prePtrID;
-	            pre && this._int32Data.set(pre, 0);
-	            var layagl = Laya.LayaGL.instance;
-	            if (layagl.updateArrayBufferRef) {
-	                layagl.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
-	            }
-	            else {
-	                window.conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
-	            }
-	        }
-	    }
-	    getDataForNative() {
-	        return this._nativeArray;
-	    }
-	    getIntForNative(index) {
-	        return this._int32Data[index];
-	    }
-	    setIntForNative(index, value) {
-	        this.needRenewArrayBufferForNative(index);
-	        this._int32Data[index] = value;
-	        this._nativeArray[index] = value;
-	    }
-	    getBoolForNative(index) {
-	        return this._int32Data[index] == 1;
-	    }
-	    setBoolForNative(index, value) {
-	        this.needRenewArrayBufferForNative(index);
-	        this._int32Data[index] = value ? 1 : 0;
-	        this._nativeArray[index] = value;
-	    }
-	    getNumberForNative(index) {
-	        return this._float32Data[index];
-	    }
-	    setNumberForNative(index, value) {
-	        this.needRenewArrayBufferForNative(index);
-	        this._float32Data[index] = value;
-	        this._nativeArray[index] = value;
-	    }
-	    getMatrix4x4ForNative(index) {
-	        return this._nativeArray[index];
-	    }
-	    setMatrix4x4ForNative(index, value) {
-	        this.needRenewArrayBufferForNative(index);
-	        this._nativeArray[index] = value;
-	        var nPtrID = this.setReferenceForNative(value.elements);
-	        this._int32Data[index] = nPtrID;
-	    }
-	    getVectorForNative(index) {
-	        return this._nativeArray[index];
-	    }
-	    setVectorForNative(index, value) {
-	        this.needRenewArrayBufferForNative(index);
-	        this._nativeArray[index] = value;
-	        if (!value.elements) {
-	            value.forNativeElement();
-	        }
-	        var nPtrID = this.setReferenceForNative(value.elements);
-	        this._int32Data[index] = nPtrID;
-	    }
-	    getVector2ForNative(index) {
-	        return this._nativeArray[index];
-	    }
-	    setVector2ForNative(index, value) {
-	        this.needRenewArrayBufferForNative(index);
-	        this._nativeArray[index] = value;
-	        if (!value.elements) {
-	            value.forNativeElement();
-	        }
-	        var nPtrID = this.setReferenceForNative(value.elements);
-	        this._int32Data[index] = nPtrID;
-	    }
-	    getVector3ForNative(index) {
-	        return this._nativeArray[index];
-	    }
-	    setVector3ForNative(index, value) {
-	        this.needRenewArrayBufferForNative(index);
-	        this._nativeArray[index] = value;
-	        if (!value.elements) {
-	            value.forNativeElement();
-	        }
-	        var nPtrID = this.setReferenceForNative(value.elements);
-	        this._int32Data[index] = nPtrID;
-	    }
-	    getQuaternionForNative(index) {
-	        return this._nativeArray[index];
-	    }
-	    setQuaternionForNative(index, value) {
-	        this.needRenewArrayBufferForNative(index);
-	        this._nativeArray[index] = value;
-	        if (!value.elements) {
-	            value.forNativeElement();
-	        }
-	        var nPtrID = this.setReferenceForNative(value.elements);
-	        this._int32Data[index] = nPtrID;
-	    }
-	    getBufferForNative(shaderIndex) {
-	        return this._nativeArray[shaderIndex];
-	    }
-	    setBufferForNative(index, value) {
-	        this.needRenewArrayBufferForNative(index);
-	        this._nativeArray[index] = value;
-	        var nPtrID = this.setReferenceForNative(value);
-	        this._int32Data[index] = nPtrID;
-	    }
-	    getAttributeForNative(index) {
-	        return this._nativeArray[index];
-	    }
-	    setAttributeForNative(index, value) {
-	        this._nativeArray[index] = value;
-	        if (!value["_ptrID"]) {
-	            Laya.LayaGL.instance.createArrayBufferRef(value, Laya.LayaGL.ARRAY_BUFFER_TYPE_DATA, true);
-	        }
-	        Laya.LayaGL.instance.syncBufferToRenderThread(value);
-	        this._int32Data[index] = value["_ptrID"];
-	    }
-	    getTextureForNative(index) {
-	        return this._nativeArray[index];
-	    }
-	    setTextureForNative(index, value) {
-	        if (!value)
-	            return;
-	        this.needRenewArrayBufferForNative(index);
-	        var lastValue = this._nativeArray[index];
-	        this._nativeArray[index] = value;
-	        var glTexture = value._getSource() || value.defaulteTexture._getSource();
-	        this._int32Data[index] = glTexture.id;
-	        if (this._ownerResource && this._ownerResource.referenceCount > 0) {
-	            (lastValue) && (lastValue._removeReference());
-	            (value) && (value._addReference());
-	        }
-	    }
-	    setReferenceForNative(value) {
-	        this.clearRuntimeCopyArray();
-	        var nRefID = 0;
-	        var nPtrID = 0;
-	        if (ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_) {
-	            Laya.LayaGL.instance.createArrayBufferRefs(value, Laya.LayaGL.ARRAY_BUFFER_TYPE_DATA, true, Laya.LayaGL.ARRAY_BUFFER_REF_REFERENCE);
-	            nRefID = 0;
-	            nPtrID = value.getPtrID(nRefID);
-	        }
-	        else {
-	            Laya.LayaGL.instance.createArrayBufferRefs(value, Laya.LayaGL.ARRAY_BUFFER_TYPE_DATA, true, Laya.LayaGL.ARRAY_BUFFER_REF_COPY);
-	            nRefID = value.getRefNum() - 1;
-	            nPtrID = value.getPtrID(nRefID);
-	            this._runtimeCopyValues.push({ "obj": value, "refID": nRefID, "ptrID": nPtrID });
-	        }
-	        Laya.LayaGL.instance.syncBufferToRenderThread(value, nRefID);
-	        return nPtrID;
-	    }
-	    static setRuntimeValueMode(bReference) {
-	        ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_ = bReference;
-	    }
-	    clearRuntimeCopyArray() {
-	        var currentFrame = Laya.Stat.loopCount;
-	        if (this._frameCount != currentFrame) {
-	            this._frameCount = currentFrame;
-	            for (var i = 0, n = this._runtimeCopyValues.length; i < n; i++) {
-	                var obj = this._runtimeCopyValues[i];
-	                obj.obj.clearRefNum();
-	            }
-	            this._runtimeCopyValues.length = 0;
-	        }
-	    }
-	}
-	ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_ = true;
-
-	class VertexDeclaration {
-	    constructor(vertexStride, vertexElements) {
-	        this._id = ++VertexDeclaration._uniqueIDCounter;
-	        this._vertexElementsDic = {};
-	        this._vertexStride = vertexStride;
-	        this._vertexElements = vertexElements;
-	        var count = vertexElements.length;
-	        this._shaderValues = new ShaderData(null);
-	        for (var j = 0; j < count; j++) {
-	            var vertexElement = vertexElements[j];
-	            var name = vertexElement._elementUsage;
-	            this._vertexElementsDic[name] = vertexElement;
-	            var value = new Int32Array(5);
-	            var elmentInfo = VertexElementFormat.getElementInfos(vertexElement._elementFormat);
-	            value[0] = elmentInfo[0];
-	            value[1] = elmentInfo[1];
-	            value[2] = elmentInfo[2];
-	            value[3] = this._vertexStride;
-	            value[4] = vertexElement._offset;
-	            this._shaderValues.setAttribute(name, value);
-	        }
-	    }
-	    get id() {
-	        return this._id;
-	    }
-	    get vertexStride() {
-	        return this._vertexStride;
-	    }
-	    get vertexElementCount() {
-	        return this._vertexElements.length;
-	    }
-	    getVertexElementByIndex(index) {
-	        return this._vertexElements[index];
-	    }
-	    getVertexElementByUsage(usage) {
-	        return this._vertexElementsDic[usage];
-	    }
-	}
-	VertexDeclaration._uniqueIDCounter = 1;
-
-	class VertexElement {
-	    constructor(offset, elementFormat, elementUsage) {
-	        this._offset = offset;
-	        this._elementFormat = elementFormat;
-	        this._elementUsage = elementUsage;
-	    }
-	    get offset() {
-	        return this._offset;
-	    }
-	    get elementFormat() {
-	        return this._elementFormat;
-	    }
-	    get elementUsage() {
-	        return this._elementUsage;
-	    }
-	}
-
-	class VertexMesh {
-	    static __init__() {
-	        VertexMesh.instanceWorldMatrixDeclaration = new VertexDeclaration(64, [new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW0),
-	            new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW1),
-	            new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW2),
-	            new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW3)]);
-	        VertexMesh.instanceSimpleAnimatorDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_SIMPLEANIMATOR)]);
-	    }
-	    static getVertexDeclaration(vertexFlag, compatible = true) {
-	        var verDec = VertexMesh._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")];
-	        if (!verDec) {
-	            var subFlags = vertexFlag.split(",");
-	            var offset = 0;
-	            var elements = [];
-	            for (var i = 0, n = subFlags.length; i < n; i++) {
-	                var element;
-	                switch (subFlags[i]) {
-	                    case "POSITION":
-	                        element = new VertexElement(offset, VertexElementFormat.Vector3, VertexMesh.MESH_POSITION0);
-	                        offset += 12;
-	                        break;
-	                    case "NORMAL":
-	                        element = new VertexElement(offset, VertexElementFormat.Vector3, VertexMesh.MESH_NORMAL0);
-	                        offset += 12;
-	                        break;
-	                    case "COLOR":
-	                        element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_COLOR0);
-	                        offset += 16;
-	                        break;
-	                    case "UV":
-	                        element = new VertexElement(offset, VertexElementFormat.Vector2, VertexMesh.MESH_TEXTURECOORDINATE0);
-	                        offset += 8;
-	                        break;
-	                    case "UV1":
-	                        element = new VertexElement(offset, VertexElementFormat.Vector2, VertexMesh.MESH_TEXTURECOORDINATE1);
-	                        offset += 8;
-	                        break;
-	                    case "BLENDWEIGHT":
-	                        element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_BLENDWEIGHT0);
-	                        offset += 16;
-	                        break;
-	                    case "BLENDINDICES":
-	                        if (compatible) {
-	                            element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_BLENDINDICES0);
-	                            offset += 16;
-	                        }
-	                        else {
-	                            element = new VertexElement(offset, VertexElementFormat.Byte4, VertexMesh.MESH_BLENDINDICES0);
-	                            offset += 4;
-	                        }
-	                        break;
-	                    case "TANGENT":
-	                        element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_TANGENT0);
-	                        offset += 16;
-	                        break;
-	                    default:
-	                        throw "VertexMesh: unknown vertex flag.";
-	                }
-	                elements.push(element);
-	            }
-	            verDec = new VertexDeclaration(offset, elements);
-	            VertexMesh._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")] = verDec;
-	        }
-	        return verDec;
-	    }
-	}
-	VertexMesh.MESH_POSITION0 = 0;
-	VertexMesh.MESH_COLOR0 = 1;
-	VertexMesh.MESH_TEXTURECOORDINATE0 = 2;
-	VertexMesh.MESH_NORMAL0 = 3;
-	VertexMesh.MESH_TANGENT0 = 4;
-	VertexMesh.MESH_BLENDINDICES0 = 5;
-	VertexMesh.MESH_BLENDWEIGHT0 = 6;
-	VertexMesh.MESH_TEXTURECOORDINATE1 = 7;
-	VertexMesh.MESH_WORLDMATRIX_ROW0 = 8;
-	VertexMesh.MESH_WORLDMATRIX_ROW1 = 9;
-	VertexMesh.MESH_WORLDMATRIX_ROW2 = 10;
-	VertexMesh.MESH_WORLDMATRIX_ROW3 = 11;
-	VertexMesh.MESH_SIMPLEANIMATOR = 12;
-	VertexMesh.MESH_CUSTOME0 = 12;
-	VertexMesh.MESH_CUSTOME1 = 13;
-	VertexMesh.MESH_CUSTOME2 = 14;
-	VertexMesh.MESH_CUSTOME3 = 15;
-	VertexMesh._vertexDeclarationMap = {};
-
-	class SubMeshInstanceBatch extends GeometryElement {
+	class QuaternionKeyframe extends Keyframe {
 	    constructor() {
 	        super();
-	        this.instanceWorldMatrixData = new Float32Array(SubMeshInstanceBatch.maxInstanceCount * 16);
-	        this.instanceSimpleAnimatorData = new Float32Array(SubMeshInstanceBatch.maxInstanceCount * 4);
-	        var gl = Laya.LayaGL.instance;
-	        this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, gl.DYNAMIC_DRAW);
-	        this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
-	        this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length * 4, gl.DYNAMIC_DRAW);
-	        this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
+	        this.inTangent = new Vector4();
+	        this.outTangent = new Vector4();
+	        this.value = new Quaternion();
 	    }
-	    static __init__() {
-	        SubMeshInstanceBatch.instance = new SubMeshInstanceBatch();
-	    }
-	    _render(state) {
-	        var gl = Laya.LayaGL.instance;
-	        var element = state.renderElement;
-	        var subMesh = element.instanceSubMesh;
-	        var count = element.instanceBatchElementList.length;
-	        var indexCount = subMesh._indexCount;
-	        subMesh._mesh._instanceBufferState.bind();
-	        Laya.LayaGL.layaGPUInstance.drawElementsInstanced(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
-	        Laya.Stat.renderBatches++;
-	        Laya.Stat.savedRenderBatches += count - 1;
-	        Laya.Stat.trianglesFaces += indexCount * count / 3;
+	    cloneTo(dest) {
+	        super.cloneTo(dest);
+	        var destKeyFarme = dest;
+	        this.inTangent.cloneTo(destKeyFarme.inTangent);
+	        this.outTangent.cloneTo(destKeyFarme.outTangent);
+	        this.value.cloneTo(destKeyFarme.value);
 	    }
 	}
-	SubMeshInstanceBatch.maxInstanceCount = 1024;
+
+	class Vector3Keyframe extends Keyframe {
+	    constructor() {
+	        super();
+	        this.inTangent = new Vector3();
+	        this.outTangent = new Vector3();
+	        this.value = new Vector3();
+	    }
+	    cloneTo(dest) {
+	        super.cloneTo(dest);
+	        var destKeyFarme = dest;
+	        this.inTangent.cloneTo(destKeyFarme.inTangent);
+	        this.outTangent.cloneTo(destKeyFarme.outTangent);
+	        this.value.cloneTo(destKeyFarme.value);
+	    }
+	}
+
+	class AnimationClipParser03 {
+	    static READ_DATA() {
+	        AnimationClipParser03._DATA.offset = AnimationClipParser03._reader.getUint32();
+	        AnimationClipParser03._DATA.size = AnimationClipParser03._reader.getUint32();
+	    }
+	    static READ_BLOCK() {
+	        var count = AnimationClipParser03._BLOCK.count = AnimationClipParser03._reader.getUint16();
+	        var blockStarts = AnimationClipParser03._BLOCK.blockStarts = [];
+	        var blockLengths = AnimationClipParser03._BLOCK.blockLengths = [];
+	        for (var i = 0; i < count; i++) {
+	            blockStarts.push(AnimationClipParser03._reader.getUint32());
+	            blockLengths.push(AnimationClipParser03._reader.getUint32());
+	        }
+	    }
+	    static READ_STRINGS() {
+	        var offset = AnimationClipParser03._reader.getUint32();
+	        var count = AnimationClipParser03._reader.getUint16();
+	        var prePos = AnimationClipParser03._reader.pos;
+	        AnimationClipParser03._reader.pos = offset + AnimationClipParser03._DATA.offset;
+	        for (var i = 0; i < count; i++)
+	            AnimationClipParser03._strings[i] = AnimationClipParser03._reader.readUTFString();
+	        AnimationClipParser03._reader.pos = prePos;
+	    }
+	    static parse(clip, reader) {
+	        AnimationClipParser03._animationClip = clip;
+	        AnimationClipParser03._reader = reader;
+	        AnimationClipParser03.READ_DATA();
+	        AnimationClipParser03.READ_BLOCK();
+	        AnimationClipParser03.READ_STRINGS();
+	        for (var i = 0, n = AnimationClipParser03._BLOCK.count; i < n; i++) {
+	            var index = reader.getUint16();
+	            var blockName = AnimationClipParser03._strings[index];
+	            var fn = AnimationClipParser03["READ_" + blockName];
+	            if (fn == null)
+	                throw new Error("model file err,no this function:" + index + " " + blockName);
+	            else
+	                fn.call(null);
+	        }
+	    }
+	    static READ_ANIMATIONS() {
+	        var i, j;
+	        var node;
+	        var reader = AnimationClipParser03._reader;
+	        var startTimeTypes = [];
+	        var startTimeTypeCount = reader.getUint16();
+	        startTimeTypes.length = startTimeTypeCount;
+	        for (i = 0; i < startTimeTypeCount; i++)
+	            startTimeTypes[i] = reader.getFloat32();
+	        var clip = AnimationClipParser03._animationClip;
+	        clip.name = AnimationClipParser03._strings[reader.getUint16()];
+	        var clipDur = clip._duration = reader.getFloat32();
+	        clip.islooping = !!reader.getByte();
+	        clip._frameRate = reader.getInt16();
+	        var nodeCount = reader.getInt16();
+	        var nodes = clip._nodes;
+	        nodes.count = nodeCount;
+	        var nodesMap = clip._nodesMap = {};
+	        var nodesDic = clip._nodesDic = {};
+	        for (i = 0; i < nodeCount; i++) {
+	            node = new KeyframeNode();
+	            nodes.setNodeByIndex(i, node);
+	            node._indexInList = i;
+	            var type = node.type = reader.getUint8();
+	            var pathLength = reader.getUint16();
+	            node._setOwnerPathCount(pathLength);
+	            for (j = 0; j < pathLength; j++)
+	                node._setOwnerPathByIndex(j, AnimationClipParser03._strings[reader.getUint16()]);
+	            var nodePath = node._joinOwnerPath("/");
+	            var mapArray = nodesMap[nodePath];
+	            (mapArray) || (nodesMap[nodePath] = mapArray = []);
+	            mapArray.push(node);
+	            node.propertyOwner = AnimationClipParser03._strings[reader.getUint16()];
+	            var propertyLength = reader.getUint16();
+	            node._setPropertyCount(propertyLength);
+	            for (j = 0; j < propertyLength; j++)
+	                node._setPropertyByIndex(j, AnimationClipParser03._strings[reader.getUint16()]);
+	            var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
+	            nodesDic[fullPath] = node;
+	            node.fullPath = fullPath;
+	            var keyframeCount = reader.getUint16();
+	            node._setKeyframeCount(keyframeCount);
+	            for (j = 0; j < keyframeCount; j++) {
+	                switch (type) {
+	                    case 0:
+	                        var floatKeyframe = new FloatKeyframe();
+	                        node._setKeyframeByIndex(j, floatKeyframe);
+	                        floatKeyframe.time = startTimeTypes[reader.getUint16()];
+	                        floatKeyframe.inTangent = reader.getFloat32();
+	                        floatKeyframe.outTangent = reader.getFloat32();
+	                        floatKeyframe.value = reader.getFloat32();
+	                        break;
+	                    case 1:
+	                    case 3:
+	                    case 4:
+	                        var floatArrayKeyframe = new Vector3Keyframe();
+	                        node._setKeyframeByIndex(j, floatArrayKeyframe);
+	                        floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+	                        var inTangent = floatArrayKeyframe.inTangent;
+	                        var outTangent = floatArrayKeyframe.outTangent;
+	                        var value = floatArrayKeyframe.value;
+	                        inTangent.x = reader.getFloat32();
+	                        inTangent.y = reader.getFloat32();
+	                        inTangent.z = reader.getFloat32();
+	                        outTangent.x = reader.getFloat32();
+	                        outTangent.y = reader.getFloat32();
+	                        outTangent.z = reader.getFloat32();
+	                        value.x = reader.getFloat32();
+	                        value.y = reader.getFloat32();
+	                        value.z = reader.getFloat32();
+	                        break;
+	                    case 2:
+	                        var quaArrayKeyframe = new QuaternionKeyframe();
+	                        node._setKeyframeByIndex(j, quaArrayKeyframe);
+	                        quaArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+	                        var inTangentQua = quaArrayKeyframe.inTangent;
+	                        var outTangentQua = quaArrayKeyframe.outTangent;
+	                        var valueQua = quaArrayKeyframe.value;
+	                        inTangentQua.x = reader.getFloat32();
+	                        inTangentQua.y = reader.getFloat32();
+	                        inTangentQua.z = reader.getFloat32();
+	                        inTangentQua.w = reader.getFloat32();
+	                        outTangentQua.x = reader.getFloat32();
+	                        outTangentQua.y = reader.getFloat32();
+	                        outTangentQua.z = reader.getFloat32();
+	                        outTangentQua.w = reader.getFloat32();
+	                        valueQua.x = reader.getFloat32();
+	                        valueQua.y = reader.getFloat32();
+	                        valueQua.z = reader.getFloat32();
+	                        valueQua.w = reader.getFloat32();
+	                        break;
+	                    default:
+	                        throw "AnimationClipParser03:unknown type.";
+	                }
+	            }
+	        }
+	        var eventCount = reader.getUint16();
+	        for (i = 0; i < eventCount; i++) {
+	            var event = new AnimationEvent();
+	            event.time = Math.min(clipDur, reader.getFloat32());
+	            event.eventName = AnimationClipParser03._strings[reader.getUint16()];
+	            var params = [];
+	            var paramCount = reader.getUint16();
+	            (paramCount > 0) && (event.params = params = []);
+	            for (j = 0; j < paramCount; j++) {
+	                var eventType = reader.getByte();
+	                switch (eventType) {
+	                    case 0:
+	                        params.push(!!reader.getByte());
+	                        break;
+	                    case 1:
+	                        params.push(reader.getInt32());
+	                        break;
+	                    case 2:
+	                        params.push(reader.getFloat32());
+	                        break;
+	                    case 3:
+	                        params.push(AnimationClipParser03._strings[reader.getUint16()]);
+	                        break;
+	                    default:
+	                        throw new Error("unknown type.");
+	                }
+	            }
+	            clip.addEvent(event);
+	        }
+	    }
+	}
+	AnimationClipParser03._strings = [];
+	AnimationClipParser03._BLOCK = { count: 0 };
+	AnimationClipParser03._DATA = { offset: 0, size: 0 };
+
+	class AnimationClipParser04 {
+	    static READ_DATA() {
+	        AnimationClipParser04._DATA.offset = AnimationClipParser04._reader.getUint32();
+	        AnimationClipParser04._DATA.size = AnimationClipParser04._reader.getUint32();
+	    }
+	    static READ_BLOCK() {
+	        var count = AnimationClipParser04._BLOCK.count = AnimationClipParser04._reader.getUint16();
+	        var blockStarts = AnimationClipParser04._BLOCK.blockStarts = [];
+	        var blockLengths = AnimationClipParser04._BLOCK.blockLengths = [];
+	        for (var i = 0; i < count; i++) {
+	            blockStarts.push(AnimationClipParser04._reader.getUint32());
+	            blockLengths.push(AnimationClipParser04._reader.getUint32());
+	        }
+	    }
+	    static READ_STRINGS() {
+	        var offset = AnimationClipParser04._reader.getUint32();
+	        var count = AnimationClipParser04._reader.getUint16();
+	        var prePos = AnimationClipParser04._reader.pos;
+	        AnimationClipParser04._reader.pos = offset + AnimationClipParser04._DATA.offset;
+	        for (var i = 0; i < count; i++)
+	            AnimationClipParser04._strings[i] = AnimationClipParser04._reader.readUTFString();
+	        AnimationClipParser04._reader.pos = prePos;
+	    }
+	    static parse(clip, reader, version) {
+	        AnimationClipParser04._animationClip = clip;
+	        AnimationClipParser04._reader = reader;
+	        AnimationClipParser04._version = version;
+	        AnimationClipParser04.READ_DATA();
+	        AnimationClipParser04.READ_BLOCK();
+	        AnimationClipParser04.READ_STRINGS();
+	        for (var i = 0, n = AnimationClipParser04._BLOCK.count; i < n; i++) {
+	            var index = reader.getUint16();
+	            var blockName = AnimationClipParser04._strings[index];
+	            var fn = AnimationClipParser04["READ_" + blockName];
+	            if (fn == null)
+	                throw new Error("model file err,no this function:" + index + " " + blockName);
+	            else
+	                fn.call(null);
+	        }
+	        AnimationClipParser04._version = null;
+	        AnimationClipParser04._reader = null;
+	        AnimationClipParser04._animationClip = null;
+	    }
+	    static READ_ANIMATIONS() {
+	        var i, j;
+	        var node;
+	        var reader = AnimationClipParser04._reader;
+	        var startTimeTypes = [];
+	        var startTimeTypeCount = reader.getUint16();
+	        startTimeTypes.length = startTimeTypeCount;
+	        for (i = 0; i < startTimeTypeCount; i++)
+	            startTimeTypes[i] = reader.getFloat32();
+	        var clip = AnimationClipParser04._animationClip;
+	        clip.name = AnimationClipParser04._strings[reader.getUint16()];
+	        var clipDur = clip._duration = reader.getFloat32();
+	        clip.islooping = !!reader.getByte();
+	        clip._frameRate = reader.getInt16();
+	        var nodeCount = reader.getInt16();
+	        var nodes = clip._nodes;
+	        nodes.count = nodeCount;
+	        var nodesMap = clip._nodesMap = {};
+	        var nodesDic = clip._nodesDic = {};
+	        for (i = 0; i < nodeCount; i++) {
+	            node = new KeyframeNode();
+	            nodes.setNodeByIndex(i, node);
+	            node._indexInList = i;
+	            var type = node.type = reader.getUint8();
+	            var pathLength = reader.getUint16();
+	            node._setOwnerPathCount(pathLength);
+	            for (j = 0; j < pathLength; j++)
+	                node._setOwnerPathByIndex(j, AnimationClipParser04._strings[reader.getUint16()]);
+	            var nodePath = node._joinOwnerPath("/");
+	            var mapArray = nodesMap[nodePath];
+	            (mapArray) || (nodesMap[nodePath] = mapArray = []);
+	            mapArray.push(node);
+	            node.propertyOwner = AnimationClipParser04._strings[reader.getUint16()];
+	            var propertyLength = reader.getUint16();
+	            node._setPropertyCount(propertyLength);
+	            for (j = 0; j < propertyLength; j++)
+	                node._setPropertyByIndex(j, AnimationClipParser04._strings[reader.getUint16()]);
+	            var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
+	            nodesDic[fullPath] = node;
+	            node.fullPath = fullPath;
+	            node.nodePath = nodePath;
+	            var keyframeCount = reader.getUint16();
+	            node._setKeyframeCount(keyframeCount);
+	            switch (AnimationClipParser04._version) {
+	                case "LAYAANIMATION:04":
+	                    for (j = 0; j < keyframeCount; j++) {
+	                        switch (type) {
+	                            case 0:
+	                                var floatKeyframe = new FloatKeyframe();
+	                                node._setKeyframeByIndex(j, floatKeyframe);
+	                                floatKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                floatKeyframe.inTangent = reader.getFloat32();
+	                                floatKeyframe.outTangent = reader.getFloat32();
+	                                floatKeyframe.value = reader.getFloat32();
+	                                break;
+	                            case 1:
+	                            case 3:
+	                            case 4:
+	                                var floatArrayKeyframe = new Vector3Keyframe();
+	                                node._setKeyframeByIndex(j, floatArrayKeyframe);
+	                                floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                var inTangent = floatArrayKeyframe.inTangent;
+	                                var outTangent = floatArrayKeyframe.outTangent;
+	                                var value = floatArrayKeyframe.value;
+	                                inTangent.x = reader.getFloat32();
+	                                inTangent.y = reader.getFloat32();
+	                                inTangent.z = reader.getFloat32();
+	                                outTangent.x = reader.getFloat32();
+	                                outTangent.y = reader.getFloat32();
+	                                outTangent.z = reader.getFloat32();
+	                                value.x = reader.getFloat32();
+	                                value.y = reader.getFloat32();
+	                                value.z = reader.getFloat32();
+	                                break;
+	                            case 2:
+	                                var quaternionKeyframe = new QuaternionKeyframe();
+	                                node._setKeyframeByIndex(j, quaternionKeyframe);
+	                                quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                var inTangentQua = quaternionKeyframe.inTangent;
+	                                var outTangentQua = quaternionKeyframe.outTangent;
+	                                var valueQua = quaternionKeyframe.value;
+	                                inTangentQua.x = reader.getFloat32();
+	                                inTangentQua.y = reader.getFloat32();
+	                                inTangentQua.z = reader.getFloat32();
+	                                inTangentQua.w = reader.getFloat32();
+	                                outTangentQua.x = reader.getFloat32();
+	                                outTangentQua.y = reader.getFloat32();
+	                                outTangentQua.z = reader.getFloat32();
+	                                outTangentQua.w = reader.getFloat32();
+	                                valueQua.x = reader.getFloat32();
+	                                valueQua.y = reader.getFloat32();
+	                                valueQua.z = reader.getFloat32();
+	                                valueQua.w = reader.getFloat32();
+	                                break;
+	                            default:
+	                                throw "AnimationClipParser04:unknown type.";
+	                        }
+	                    }
+	                    break;
+	                case "LAYAANIMATION:COMPRESSION_04":
+	                    for (j = 0; j < keyframeCount; j++) {
+	                        switch (type) {
+	                            case 0:
+	                                floatKeyframe = new FloatKeyframe();
+	                                node._setKeyframeByIndex(j, floatKeyframe);
+	                                floatKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                floatKeyframe.inTangent = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                floatKeyframe.outTangent = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                floatKeyframe.value = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                break;
+	                            case 1:
+	                            case 3:
+	                            case 4:
+	                                floatArrayKeyframe = new Vector3Keyframe();
+	                                node._setKeyframeByIndex(j, floatArrayKeyframe);
+	                                floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                inTangent = floatArrayKeyframe.inTangent;
+	                                outTangent = floatArrayKeyframe.outTangent;
+	                                value = floatArrayKeyframe.value;
+	                                inTangent.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                inTangent.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                inTangent.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                outTangent.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                outTangent.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                outTangent.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                value.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                value.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                value.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                break;
+	                            case 2:
+	                                quaternionKeyframe = new QuaternionKeyframe();
+	                                node._setKeyframeByIndex(j, quaternionKeyframe);
+	                                quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                inTangentQua = quaternionKeyframe.inTangent;
+	                                outTangentQua = quaternionKeyframe.outTangent;
+	                                valueQua = quaternionKeyframe.value;
+	                                inTangentQua.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                inTangentQua.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                inTangentQua.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                inTangentQua.w = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                outTangentQua.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                outTangentQua.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                outTangentQua.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                outTangentQua.w = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                valueQua.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                valueQua.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                valueQua.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                valueQua.w = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                break;
+	                            default:
+	                                throw "AnimationClipParser04:unknown type.";
+	                        }
+	                    }
+	                    break;
+	            }
+	        }
+	        var eventCount = reader.getUint16();
+	        for (i = 0; i < eventCount; i++) {
+	            var event = new AnimationEvent();
+	            event.time = Math.min(clipDur, reader.getFloat32());
+	            event.eventName = AnimationClipParser04._strings[reader.getUint16()];
+	            var params = [];
+	            var paramCount = reader.getUint16();
+	            (paramCount > 0) && (event.params = params = []);
+	            for (j = 0; j < paramCount; j++) {
+	                var eventType = reader.getByte();
+	                switch (eventType) {
+	                    case 0:
+	                        params.push(!!reader.getByte());
+	                        break;
+	                    case 1:
+	                        params.push(reader.getInt32());
+	                        break;
+	                    case 2:
+	                        params.push(reader.getFloat32());
+	                        break;
+	                    case 3:
+	                        params.push(AnimationClipParser04._strings[reader.getUint16()]);
+	                        break;
+	                    default:
+	                        throw new Error("unknown type.");
+	                }
+	            }
+	            clip.addEvent(event);
+	        }
+	    }
+	}
+	AnimationClipParser04._strings = [];
+	AnimationClipParser04._BLOCK = { count: 0 };
+	AnimationClipParser04._DATA = { offset: 0, size: 0 };
+
+	class KeyframeNodeList {
+	    constructor() {
+	        this._nodes = [];
+	    }
+	    get count() {
+	        return this._nodes.length;
+	    }
+	    set count(value) {
+	        this._nodes.length = value;
+	    }
+	    getNodeByIndex(index) {
+	        return this._nodes[index];
+	    }
+	    setNodeByIndex(index, node) {
+	        this._nodes[index] = node;
+	    }
+	}
 
 	class TextureGenerator {
 	    constructor() {
@@ -3091,2568 +2353,300 @@
 	Utils3D._tempArray16_3 = new Float32Array(16);
 	Utils3D._compIdToNode = new Object();
 
-	class LightBound {
-	}
-	class ClusterData {
+	class AnimationClip extends Laya.Resource {
 	    constructor() {
-	        this.updateMark = -1;
-	        this.pointLightCount = 0;
-	        this.spotLightCount = 0;
-	        this.indices = [];
+	        super();
+	        this._duration = 0;
+	        this._frameRate = 0;
+	        this._nodes = new KeyframeNodeList();
+	        this.islooping = false;
+	        this._animationEvents = [];
 	    }
-	}
-	class Cluster {
-	    constructor(xSlices, ySlices, zSlices, maxLightsPerClusterAverage) {
-	        this._updateMark = 0;
-	        this._depthSliceParam = new Vector2();
-	        this._xSlices = xSlices;
-	        this._ySlices = ySlices;
-	        this._zSlices = zSlices;
-	        var clusterTexWidth = xSlices * ySlices;
-	        var clisterTexHeight = zSlices * (1 + Math.ceil(maxLightsPerClusterAverage / 4));
-	        this._clusterTexture = Utils3D._createFloatTextureBuffer(clusterTexWidth, clisterTexHeight);
-	        this._clusterTexture.lock = true;
-	        this._clusterPixels = new Float32Array(clusterTexWidth * clisterTexHeight * 4);
-	        var clusterDatas = new Array(this._zSlices);
-	        for (var z = 0; z < this._zSlices; z++) {
-	            clusterDatas[z] = new Array(this._ySlices);
-	            for (var y = 0; y < this._ySlices; y++) {
-	                clusterDatas[z][y] = new Array(this._xSlices);
-	                for (var x = 0; x < this._xSlices; x++)
-	                    clusterDatas[z][y][x] = new ClusterData();
-	            }
+	    static _parse(data) {
+	        var clip = new AnimationClip();
+	        var reader = new Laya.Byte(data);
+	        var version = reader.readUTFString();
+	        switch (version) {
+	            case "LAYAANIMATION:03":
+	                AnimationClipParser03.parse(clip, reader);
+	                break;
+	            case "LAYAANIMATION:04":
+	            case "LAYAANIMATION:COMPRESSION_04":
+	                AnimationClipParser04.parse(clip, reader, version);
+	                break;
+	            default:
+	                throw "unknown animationClip version.";
 	        }
-	        this._clusterDatas = clusterDatas;
+	        return clip;
 	    }
-	    _placePointLightToClusters(lightIndex, lightBound) {
-	        var clusterDatas = this._clusterDatas;
-	        var updateMark = this._updateMark;
-	        for (var z = lightBound.zMin, zEnd = lightBound.zMax; z < zEnd; z++) {
-	            for (var y = lightBound.yMin, yEnd = lightBound.yMax; y < yEnd; y++) {
-	                for (var x = lightBound.xMin, xEnd = lightBound.xMax; x < xEnd; x++) {
-	                    var data = clusterDatas[z][y][x];
-	                    if (data.updateMark != updateMark) {
-	                        data.pointLightCount = 0;
-	                        data.spotLightCount = 0;
-	                        data.updateMark = updateMark;
-	                    }
-	                    var indices = data.indices;
-	                    var lightCount = data.pointLightCount++;
-	                    if (lightCount < indices.length)
-	                        indices[lightCount] = lightIndex;
-	                    else
-	                        indices.push(lightIndex);
+	    static load(url, complete) {
+	        Laya.ILaya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
+	    }
+	    duration() {
+	        return this._duration;
+	    }
+	    _hermiteInterpolate(frame, nextFrame, t, dur) {
+	        var t0 = frame.outTangent, t1 = nextFrame.inTangent;
+	        if (Number.isFinite(t0) && Number.isFinite(t1)) {
+	            var t2 = t * t;
+	            var t3 = t2 * t;
+	            var a = 2.0 * t3 - 3.0 * t2 + 1.0;
+	            var b = t3 - 2.0 * t2 + t;
+	            var c = t3 - t2;
+	            var d = -2.0 * t3 + 3.0 * t2;
+	            return a * frame.value + b * t0 * dur + c * t1 * dur + d * nextFrame.value;
+	        }
+	        else
+	            return frame.value;
+	    }
+	    _hermiteInterpolateVector3(frame, nextFrame, t, dur, out) {
+	        var p0 = frame.value;
+	        var tan0 = frame.outTangent;
+	        var p1 = nextFrame.value;
+	        var tan1 = nextFrame.inTangent;
+	        var t2 = t * t;
+	        var t3 = t2 * t;
+	        var a = 2.0 * t3 - 3.0 * t2 + 1.0;
+	        var b = t3 - 2.0 * t2 + t;
+	        var c = t3 - t2;
+	        var d = -2.0 * t3 + 3.0 * t2;
+	        var t0 = tan0.x, t1 = tan1.x;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
+	        else
+	            out.x = p0.x;
+	        t0 = tan0.y, t1 = tan1.y;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
+	        else
+	            out.y = p0.y;
+	        t0 = tan0.z, t1 = tan1.z;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
+	        else
+	            out.z = p0.z;
+	    }
+	    _hermiteInterpolateQuaternion(frame, nextFrame, t, dur, out) {
+	        var p0 = frame.value;
+	        var tan0 = frame.outTangent;
+	        var p1 = nextFrame.value;
+	        var tan1 = nextFrame.inTangent;
+	        var t2 = t * t;
+	        var t3 = t2 * t;
+	        var a = 2.0 * t3 - 3.0 * t2 + 1.0;
+	        var b = t3 - 2.0 * t2 + t;
+	        var c = t3 - t2;
+	        var d = -2.0 * t3 + 3.0 * t2;
+	        var t0 = tan0.x, t1 = tan1.x;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
+	        else
+	            out.x = p0.x;
+	        t0 = tan0.y, t1 = tan1.y;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
+	        else
+	            out.y = p0.y;
+	        t0 = tan0.z, t1 = tan1.z;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
+	        else
+	            out.z = p0.z;
+	        t0 = tan0.w, t1 = tan1.w;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.w = a * p0.w + b * t0 * dur + c * t1 * dur + d * p1.w;
+	        else
+	            out.w = p0.w;
+	    }
+	    _evaluateClipDatasRealTime(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive, frontPlay, outDatas, avatarMask) {
+	        for (var i = 0, n = nodes.count; i < n; i++) {
+	            var node = nodes.getNodeByIndex(i);
+	            var type = node.type;
+	            var nextFrameIndex;
+	            var keyFrames = node._keyFrames;
+	            var keyFramesCount = keyFrames.length;
+	            var frameIndex = realTimeCurrentFrameIndexes[i];
+	            if (avatarMask && (!avatarMask.getTransformActive(node.nodePath))) {
+	                continue;
+	            }
+	            if (frontPlay) {
+	                if ((frameIndex !== -1) && (playCurTime < keyFrames[frameIndex].time)) {
+	                    frameIndex = -1;
+	                    realTimeCurrentFrameIndexes[i] = frameIndex;
+	                }
+	                nextFrameIndex = frameIndex + 1;
+	                while (nextFrameIndex < keyFramesCount) {
+	                    if (keyFrames[nextFrameIndex].time > playCurTime)
+	                        break;
+	                    frameIndex++;
+	                    nextFrameIndex++;
+	                    realTimeCurrentFrameIndexes[i] = frameIndex;
 	                }
 	            }
-	        }
-	    }
-	    _placeSpotLightToClusters(lightIndex, lightBound) {
-	        var clusterDatas = this._clusterDatas;
-	        var updateMark = this._updateMark;
-	        for (var z = lightBound.zMin, zEnd = lightBound.zMax; z < zEnd; z++) {
-	            for (var y = lightBound.yMin, yEnd = lightBound.yMax; y < yEnd; y++) {
-	                for (var x = lightBound.xMin, xEnd = lightBound.xMax; x < xEnd; x++) {
-	                    var data = clusterDatas[z][y][x];
-	                    if (data.updateMark != updateMark) {
-	                        data.pointLightCount = 0;
-	                        data.spotLightCount = 0;
-	                        data.updateMark = updateMark;
-	                    }
-	                    var indices = data.indices;
-	                    var lightCount = data.pointLightCount + data.spotLightCount++;
-	                    if (lightCount < indices.length)
-	                        indices[lightCount] = lightIndex;
-	                    else
-	                        indices.push(lightIndex);
+	            else {
+	                nextFrameIndex = frameIndex + 1;
+	                if ((nextFrameIndex !== keyFramesCount) && (playCurTime > keyFrames[nextFrameIndex].time)) {
+	                    frameIndex = keyFramesCount - 1;
+	                    realTimeCurrentFrameIndexes[i] = frameIndex;
+	                }
+	                nextFrameIndex = frameIndex + 1;
+	                while (frameIndex > -1) {
+	                    if (keyFrames[frameIndex].time < playCurTime)
+	                        break;
+	                    frameIndex--;
+	                    nextFrameIndex--;
+	                    realTimeCurrentFrameIndexes[i] = frameIndex;
 	                }
 	            }
-	        }
-	    }
-	    _insertConePlane(origin, forward, radius, halfAngle, pNor) {
-	        var V1 = Cluster._tempVector36;
-	        var V2 = Cluster._tempVector37;
-	        Vector3.cross(pNor, forward, V1);
-	        Vector3.cross(V1, forward, V2);
-	        Vector3.normalize(V2, V2);
-	        var tanR = radius * Math.tan(halfAngle);
-	        var capRimX = origin.x + radius * forward.x + tanR * V2.x;
-	        var capRimY = origin.y + radius * forward.y + tanR * V2.y;
-	        var capRimZ = origin.z + radius * forward.z + tanR * V2.z;
-	        return capRimX * pNor.x + capRimY * pNor.y + capRimZ * pNor.z <= 0 || origin.x * pNor.x + origin.y * pNor.y + origin.z * pNor.z <= 0;
-	    }
-	    _shrinkSphereLightZPerspective(near, far, lightviewPos, radius, lightBound) {
-	        var lvZ = lightviewPos.z;
-	        var minZ = lvZ - radius;
-	        var maxZ = lvZ + radius;
-	        if ((minZ > far) || (maxZ <= near))
-	            return false;
-	        var depthSliceParam = this._depthSliceParam;
-	        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
-	        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
-	        return true;
-	    }
-	    _shrinkSpotLightZPerspective(near, far, viewLightPos, viewConeCap, radius, halfAngle, lightBound) {
-	        var pbX = viewConeCap.x, pbY = viewConeCap.y, pbZ = viewConeCap.z;
-	        var rb = Math.tan(halfAngle) * radius;
-	        var paX = viewLightPos.x, paY = viewLightPos.y, paZ = viewLightPos.z;
-	        var aX = pbX - paX, aY = pbY - paY, aZ = pbZ - paZ;
-	        var dotA = aX * aX + aY * aY + aZ * aZ;
-	        var eZ = Math.sqrt(1.0 - aZ * aZ / dotA);
-	        var minZ = Math.max(Math.min(paZ, pbZ - eZ * rb), viewLightPos.z - radius);
-	        var maxZ = Math.min(Math.max(paZ, pbZ + eZ * rb), viewLightPos.z + radius);
-	        if ((minZ > far) || (maxZ <= near))
-	            return false;
-	        var depthSliceParam = this._depthSliceParam;
-	        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
-	        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
-	        return true;
-	    }
-	    _shrinkSphereLightByBoundOrth(halfX, halfY, near, far, lightviewPos, radius, lightBound) {
-	        var lvZ = lightviewPos.z;
-	        var minZ = lvZ - radius, maxZ = lvZ + radius;
-	        if ((minZ > far) || (maxZ <= near))
-	            return false;
-	        var lvX = lightviewPos.x;
-	        var minX = lvX - radius, maxX = lvX + radius;
-	        if ((minX > halfX) || (maxX <= -halfX))
-	            return false;
-	        var lvY = lightviewPos.y;
-	        var minY = lvY - radius, maxY = lvY + radius;
-	        if ((minY > halfY) || (maxY <= -halfY))
-	            return false;
-	        var xSlices = this._xSlices, ySlices = this._ySlices;
-	        var depthSliceParam = this._depthSliceParam;
-	        var xStride = halfX * 2 / xSlices, yStride = halfY * 2 / ySlices;
-	        lightBound.xMin = Math.max(Math.floor((minX + halfX) / xStride), 0);
-	        lightBound.xMax = Math.min(Math.ceil((maxX + halfX) / xStride), xSlices);
-	        lightBound.yMin = Math.max(Math.floor((halfY - maxY) / yStride), 0);
-	        lightBound.yMax = Math.min(Math.ceil((halfY - minY) / yStride), ySlices);
-	        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
-	        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
-	        return true;
-	    }
-	    _shrinkSpotLightByBoundOrth(halfX, halfY, near, far, viewLightPos, viewConeCap, radius, halfAngle, lightBound) {
-	        var pbX = viewConeCap.x, pbY = viewConeCap.y, pbZ = viewConeCap.z;
-	        var rb = Math.tan(halfAngle) * radius;
-	        var paX = viewLightPos.x, paY = viewLightPos.y, paZ = viewLightPos.z;
-	        var aX = pbX - paX, aY = pbY - paY, aZ = pbZ - paZ;
-	        var dotA = aX * aX + aY * aY + aZ * aZ;
-	        var eZ = Math.sqrt(1.0 - aZ * aZ / dotA);
-	        var minZ = Math.max(Math.min(paZ, pbZ - eZ * rb), viewLightPos.z - radius);
-	        var maxZ = Math.min(Math.max(paZ, pbZ + eZ * rb), viewLightPos.z + radius);
-	        if ((minZ > far) || (maxZ <= near))
-	            return false;
-	        var eX = Math.sqrt(1.0 - aX * aX / dotA);
-	        var minX = Math.max(Math.min(paX, pbX - eX * rb), viewLightPos.x - radius);
-	        var maxX = Math.min(Math.max(paX, pbX + eX * rb), viewLightPos.x + radius);
-	        if ((minX > halfX) || (maxX <= -halfX))
-	            return false;
-	        var eY = Math.sqrt(1.0 - aY * aY / dotA);
-	        var minY = Math.max(Math.min(paY, pbY - eY * rb), viewLightPos.y - radius);
-	        var maxY = Math.min(Math.max(paY, pbY + eY * rb), viewLightPos.y + radius);
-	        if ((minY > halfY) || (maxY <= -halfY))
-	            return false;
-	        var xSlices = this._xSlices, ySlices = this._ySlices;
-	        var depthSliceParam = this._depthSliceParam;
-	        var xStride = halfX * 2 / xSlices, yStride = halfY * 2 / ySlices;
-	        lightBound.xMin = Math.max(Math.floor((minX + halfX) / xStride), 0);
-	        lightBound.xMax = Math.min(Math.ceil((maxX + halfX) / xStride), xSlices);
-	        lightBound.yMin = Math.max(Math.floor((halfY - maxY) / yStride), 0);
-	        lightBound.yMax = Math.min(Math.ceil((halfY - minY) / yStride), ySlices);
-	        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
-	        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
-	        return true;
-	    }
-	    _shrinkXYByRadiusPerspective(lightviewPos, radius, lightBound, xPlanes, yPlanes) {
-	        var xMin, yMin;
-	        var xMax, yMax;
-	        var lvX = lightviewPos.x, lvY = lightviewPos.y, lvZ = lightviewPos.z;
-	        var i;
-	        var n = this._ySlices + 1;
-	        for (i = 0; i < n; i++) {
-	            var plane = yPlanes[i];
-	            if (lvY * plane.y + lvZ * plane.z < radius) {
-	                yMin = Math.max(0, i - 1);
-	                break;
-	            }
-	        }
-	        if (i == n)
-	            return false;
-	        yMax = this._ySlices;
-	        for (i = yMin + 1; i < n; i++) {
-	            var plane = yPlanes[i];
-	            if (lvY * plane.y + lvZ * plane.z <= -radius) {
-	                yMax = Math.max(0, i);
-	                break;
-	            }
-	        }
-	        n = this._xSlices + 1;
-	        for (i = 0; i < n; i++) {
-	            var plane = xPlanes[i];
-	            if (lvX * plane.x + lvZ * plane.z < radius) {
-	                xMin = Math.max(0, i - 1);
-	                break;
-	            }
-	        }
-	        xMax = this._xSlices;
-	        for (i = xMin + 1; i < n; i++) {
-	            var plane = xPlanes[i];
-	            if (lvX * plane.x + lvZ * plane.z <= -radius) {
-	                xMax = Math.max(0, i);
-	                break;
-	            }
-	        }
-	        lightBound.xMin = xMin;
-	        lightBound.xMax = xMax;
-	        lightBound.yMin = yMin;
-	        lightBound.yMax = yMax;
-	        return true;
-	    }
-	    _shrinkSpotXYByConePerspective(lightviewPos, viewForward, radius, halfAngle, lightBound, xPlanes, yPlanes) {
-	        var xMin, yMin;
-	        var xMax, yMax;
-	        var normal = Cluster._tempVector32;
-	        var n = lightBound.yMax + 1;
-	        for (var i = lightBound.yMin + 1; i < n; i++) {
-	            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, yPlanes[i])) {
-	                yMin = Math.max(0, i - 1);
-	                break;
-	            }
-	        }
-	        yMax = lightBound.yMax;
-	        for (var i = yMin + 1; i < n; i++) {
-	            var plane = yPlanes[i];
-	            normal.setValue(0, -plane.y, -plane.z);
-	            if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
-	                yMax = Math.max(0, i);
-	                break;
-	            }
-	        }
-	        n = lightBound.xMax + 1;
-	        for (var i = lightBound.xMin + 1; i < n; i++) {
-	            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, xPlanes[i])) {
-	                xMin = Math.max(0, i - 1);
-	                break;
-	            }
-	        }
-	        xMax = lightBound.xMax;
-	        for (var i = xMin + 1; i < n; i++) {
-	            var plane = xPlanes[i];
-	            normal.setValue(-plane.x, 0, -plane.z);
-	            if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
-	                xMax = Math.max(0, i);
-	                break;
-	            }
-	        }
-	        lightBound.xMin = xMin;
-	        lightBound.xMax = xMax;
-	        lightBound.yMin = yMin;
-	        lightBound.yMax = yMax;
-	    }
-	    _updatePointLightPerspective(near, far, viewMat, pointLight, lightIndex, xPlanes, yPlanes) {
-	        var lightBound = Cluster._tempLightBound;
-	        var lightviewPos = Cluster._tempVector30;
-	        Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);
-	        lightviewPos.z *= -1;
-	        if (!this._shrinkSphereLightZPerspective(near, far, lightviewPos, pointLight.range, lightBound))
-	            return;
-	        if (!this._shrinkXYByRadiusPerspective(lightviewPos, pointLight.range, lightBound, xPlanes, yPlanes))
-	            return;
-	        this._placePointLightToClusters(lightIndex, lightBound);
-	    }
-	    _updateSpotLightPerspective(near, far, viewMat, spotLight, lightIndex, xPlanes, yPlanes) {
-	        var lightBound = Cluster._tempLightBound;
-	        var viewPos = Cluster._tempVector30;
-	        var forward = Cluster._tempVector31;
-	        var viewConeCap = Cluster._tempVector34;
-	        var position = spotLight._transform.position;
-	        var range = spotLight.range;
-	        spotLight._transform.worldMatrix.getForward(forward);
-	        Vector3.normalize(forward, forward);
-	        Vector3.scale(forward, range, viewConeCap);
-	        Vector3.add(position, viewConeCap, viewConeCap);
-	        Vector3.transformV3ToV3(position, viewMat, viewPos);
-	        Vector3.transformV3ToV3(viewConeCap, viewMat, viewConeCap);
-	        viewPos.z *= -1;
-	        viewConeCap.z *= -1;
-	        var halfAngle = (spotLight.spotAngle / 2) * Math.PI / 180;
-	        if (!this._shrinkSpotLightZPerspective(near, far, viewPos, viewConeCap, range, halfAngle, lightBound))
-	            return;
-	        if (!this._shrinkXYByRadiusPerspective(viewPos, range, lightBound, xPlanes, yPlanes))
-	            return;
-	        var viewFor = Cluster._tempVector33;
-	        viewFor.x = viewConeCap.x - viewPos.x, viewFor.y = viewConeCap.y - viewPos.y, viewFor.z = viewConeCap.z - viewPos.z;
-	        Vector3.normalize(viewFor, viewFor);
-	        this._shrinkSpotXYByConePerspective(viewPos, viewFor, range, halfAngle, lightBound, xPlanes, yPlanes);
-	        this._placeSpotLightToClusters(lightIndex, lightBound);
-	    }
-	    _updatePointLightOrth(halfX, halfY, near, far, viewMat, pointLight, lightIndex) {
-	        var lightBound = Cluster._tempLightBound;
-	        var lightviewPos = Cluster._tempVector30;
-	        Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);
-	        lightviewPos.z *= -1;
-	        if (!this._shrinkSphereLightByBoundOrth(halfX, halfY, near, far, lightviewPos, pointLight.range, lightBound))
-	            return;
-	        this._placePointLightToClusters(lightIndex, lightBound);
-	    }
-	    _updateSpotLightOrth(halfX, halfY, near, far, viewMat, spotLight, lightIndex) {
-	        var lightBound = Cluster._tempLightBound;
-	        var viewPos = Cluster._tempVector30;
-	        var forward = Cluster._tempVector31;
-	        var viewConeCap = Cluster._tempVector34;
-	        var position = spotLight._transform.position;
-	        var range = spotLight.range;
-	        spotLight._transform.worldMatrix.getForward(forward);
-	        Vector3.normalize(forward, forward);
-	        Vector3.scale(forward, range, viewConeCap);
-	        Vector3.add(position, viewConeCap, viewConeCap);
-	        Vector3.transformV3ToV3(position, viewMat, viewPos);
-	        Vector3.transformV3ToV3(viewConeCap, viewMat, viewConeCap);
-	        viewPos.z *= -1;
-	        viewConeCap.z *= -1;
-	        var halfAngle = (spotLight.spotAngle / 2) * Math.PI / 180;
-	        if (!this._shrinkSpotLightByBoundOrth(halfX, halfY, near, far, viewPos, viewConeCap, range, halfAngle, lightBound))
-	            return;
-	        this._placeSpotLightToClusters(lightIndex, lightBound);
-	    }
-	    update(camera, scene) {
-	        this._updateMark++;
-	        var camNear = camera.nearPlane;
-	        this._depthSliceParam.x = Config3D._config.lightClusterCount.z / Math.log2(camera.farPlane / camNear);
-	        this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
-	        var near = camera.nearPlane;
-	        var far = camera.farPlane;
-	        var viewMat = camera.viewMatrix;
-	        var curCount = scene._directionLights._length;
-	        var pointLights = scene._pointLights;
-	        var poiCount = pointLights._length;
-	        var poiElements = pointLights._elements;
-	        var spotLights = scene._spotLights;
-	        var spoCount = spotLights._length;
-	        var spoElements = spotLights._elements;
-	        if (camera.orthographic) {
-	            var halfY = camera.orthographicVerticalSize / 2.0;
-	            var halfX = halfY * camera.aspectRatio;
-	            for (var i = 0; i < poiCount; i++, curCount++)
-	                this._updatePointLightOrth(halfX, halfY, near, far, viewMat, poiElements[i], curCount);
-	            for (var i = 0; i < spoCount; i++, curCount++)
-	                this._updateSpotLightOrth(halfX, halfY, near, far, viewMat, spoElements[i], curCount);
-	        }
-	        else {
-	            camera._updateClusterPlaneXY();
-	            var xPlanes = camera._clusterXPlanes;
-	            var yPlanes = camera._clusterYPlanes;
-	            for (var i = 0; i < poiCount; i++, curCount++)
-	                this._updatePointLightPerspective(near, far, viewMat, poiElements[i], curCount, xPlanes, yPlanes);
-	            for (var i = 0; i < spoCount; i++, curCount++)
-	                this._updateSpotLightPerspective(near, far, viewMat, spoElements[i], curCount, xPlanes, yPlanes);
-	        }
-	        if (poiCount + spoCount > 0) {
-	            var xSlices = this._xSlices, ySlices = this._ySlices, zSlices = this._zSlices;
-	            var widthFloat = xSlices * ySlices * 4;
-	            var lightOff = widthFloat * zSlices;
-	            var clusterPixels = this._clusterPixels;
-	            var clusterPixelsCount = clusterPixels.length;
-	            var clusterDatas = this._clusterDatas;
-	            var updateMark = this._updateMark;
-	            var freeSpace = true;
-	            for (var z = 0; z < zSlices; z++) {
-	                for (var y = 0; y < ySlices; y++) {
-	                    for (var x = 0; x < xSlices; x++) {
-	                        var data = clusterDatas[z][y][x];
-	                        var clusterOff = (x + y * xSlices + z * xSlices * ySlices) * 4;
-	                        if (data.updateMark !== updateMark) {
-	                            clusterPixels[clusterOff] = 0;
-	                            clusterPixels[clusterOff + 1] = 0;
+	            var isEnd = nextFrameIndex === keyFramesCount;
+	            switch (type) {
+	                case 0:
+	                    if (frameIndex !== -1) {
+	                        var frame = keyFrames[frameIndex];
+	                        if (isEnd) {
+	                            outDatas[i] = frame.value;
 	                        }
 	                        else {
-	                            if (freeSpace) {
-	                                var indices = data.indices;
-	                                var pCount = data.pointLightCount;
-	                                var sCount = data.spotLightCount;
-	                                var count = pCount + sCount;
-	                                if (lightOff + count < clusterPixelsCount) {
-	                                    clusterPixels[clusterOff] = pCount;
-	                                    clusterPixels[clusterOff + 1] = sCount;
-	                                    clusterPixels[clusterOff + 2] = Math.floor(lightOff / widthFloat);
-	                                    clusterPixels[clusterOff + 3] = lightOff % widthFloat;
-	                                    for (var i = 0; i < count; i++)
-	                                        clusterPixels[lightOff++] = indices[i];
-	                                }
-	                                else {
-	                                    count = clusterPixelsCount - (lightOff + count);
-	                                    pCount = Math.min(pCount, count);
-	                                    clusterPixels[clusterOff] = pCount;
-	                                    clusterPixels[clusterOff + 1] = Math.min(sCount, count - pCount);
-	                                    clusterPixels[clusterOff + 2] = Math.floor(lightOff / widthFloat);
-	                                    clusterPixels[clusterOff + 3] = lightOff % widthFloat;
-	                                    for (var i = 0; i < count; i++)
-	                                        clusterPixels[lightOff++] = indices[i];
-	                                    freeSpace = false;
-	                                }
-	                            }
+	                            var nextFarme = keyFrames[nextFrameIndex];
+	                            var d = nextFarme.time - frame.time;
+	                            var t;
+	                            if (d !== 0)
+	                                t = (playCurTime - frame.time) / d;
+	                            else
+	                                t = 0;
+	                            outDatas[i] = this._hermiteInterpolate(frame, nextFarme, t, d);
 	                        }
 	                    }
-	                }
-	            }
-	            var width = this._clusterTexture.width;
-	            this._clusterTexture.setSubPixels(0, 0, width, Math.ceil(lightOff / (4 * width)), clusterPixels);
-	        }
-	    }
-	}
-	Cluster._tempVector30 = new Vector3();
-	Cluster._tempVector31 = new Vector3();
-	Cluster._tempVector32 = new Vector3();
-	Cluster._tempVector33 = new Vector3();
-	Cluster._tempVector34 = new Vector3();
-	Cluster._tempVector35 = new Vector3();
-	Cluster._tempVector36 = new Vector3();
-	Cluster._tempVector37 = new Vector3();
-	Cluster._tempLightBound = new LightBound();
-
-	class Plane {
-	    constructor(normal, d = 0) {
-	        this.normal = normal;
-	        this.distance = d;
-	    }
-	    static createPlaneBy3P(point0, point1, point2, out) {
-	        var x1 = point1.x - point0.x;
-	        var y1 = point1.y - point0.y;
-	        var z1 = point1.z - point0.z;
-	        var x2 = point2.x - point0.x;
-	        var y2 = point2.y - point0.y;
-	        var z2 = point2.z - point0.z;
-	        var yz = (y1 * z2) - (z1 * y2);
-	        var xz = (z1 * x2) - (x1 * z2);
-	        var xy = (x1 * y2) - (y1 * x2);
-	        var invPyth = 1.0 / (Math.sqrt((yz * yz) + (xz * xz) + (xy * xy)));
-	        var x = yz * invPyth;
-	        var y = xz * invPyth;
-	        var z = xy * invPyth;
-	        var normal = out.normal;
-	        normal.x = x;
-	        normal.y = y;
-	        normal.z = z;
-	        out.distance = -((x * point0.x) + (y * point0.y) + (z * point0.z));
-	    }
-	    normalize() {
-	        var normalEX = this.normal.x;
-	        var normalEY = this.normal.y;
-	        var normalEZ = this.normal.z;
-	        var magnitude = 1.0 / Math.sqrt(normalEX * normalEX + normalEY * normalEY + normalEZ * normalEZ);
-	        this.normal.x = normalEX * magnitude;
-	        this.normal.y = normalEY * magnitude;
-	        this.normal.z = normalEZ * magnitude;
-	        this.distance *= magnitude;
-	    }
-	    cloneTo(destObject) {
-	        var dest = destObject;
-	        this.normal.cloneTo(dest.normal);
-	        dest.distance = this.distance;
-	    }
-	    clone() {
-	        var dest = new Plane(new Vector3());
-	        this.cloneTo(dest);
-	        return dest;
-	    }
-	}
-	Plane.PlaneIntersectionType_Back = 0;
-	Plane.PlaneIntersectionType_Front = 1;
-	Plane.PlaneIntersectionType_Intersecting = 2;
-
-	class Ray {
-	    constructor(origin, direction) {
-	        this.origin = origin;
-	        this.direction = direction;
-	    }
-	}
-
-	class ContainmentType {
-	}
-	ContainmentType.Disjoint = 0;
-	ContainmentType.Contains = 1;
-	ContainmentType.Intersects = 2;
-
-	class CollisionUtils {
-	    constructor() {
-	    }
-	    static distancePlaneToPoint(plane, point) {
-	        var dot = Vector3.dot(plane.normal, point);
-	        return dot - plane.distance;
-	    }
-	    static distanceBoxToPoint(box, point) {
-	        var boxMin = box.min;
-	        var boxMineX = boxMin.x;
-	        var boxMineY = boxMin.y;
-	        var boxMineZ = boxMin.z;
-	        var boxMax = box.max;
-	        var boxMaxeX = boxMax.x;
-	        var boxMaxeY = boxMax.y;
-	        var boxMaxeZ = boxMax.z;
-	        var pointeX = point.x;
-	        var pointeY = point.y;
-	        var pointeZ = point.z;
-	        var distance = 0;
-	        if (pointeX < boxMineX)
-	            distance += (boxMineX - pointeX) * (boxMineX - pointeX);
-	        if (pointeX > boxMaxeX)
-	            distance += (boxMaxeX - pointeX) * (boxMaxeX - pointeX);
-	        if (pointeY < boxMineY)
-	            distance += (boxMineY - pointeY) * (boxMineY - pointeY);
-	        if (pointeY > boxMaxeY)
-	            distance += (boxMaxeY - pointeY) * (boxMaxeY - pointeY);
-	        if (pointeZ < boxMineZ)
-	            distance += (boxMineZ - pointeZ) * (boxMineZ - pointeZ);
-	        if (pointeZ > boxMaxeZ)
-	            distance += (boxMaxeZ - pointeZ) * (boxMaxeZ - pointeZ);
-	        return Math.sqrt(distance);
-	    }
-	    static distanceBoxToBox(box1, box2) {
-	        var box1Mine = box1.min;
-	        var box1MineX = box1Mine.x;
-	        var box1MineY = box1Mine.y;
-	        var box1MineZ = box1Mine.z;
-	        var box1Maxe = box1.max;
-	        var box1MaxeX = box1Maxe.x;
-	        var box1MaxeY = box1Maxe.y;
-	        var box1MaxeZ = box1Maxe.z;
-	        var box2Mine = box2.min;
-	        var box2MineX = box2Mine.x;
-	        var box2MineY = box2Mine.y;
-	        var box2MineZ = box2Mine.z;
-	        var box2Maxe = box2.max;
-	        var box2MaxeX = box2Maxe.x;
-	        var box2MaxeY = box2Maxe.y;
-	        var box2MaxeZ = box2Maxe.z;
-	        var distance = 0;
-	        var delta;
-	        if (box1MineX > box2MaxeX) {
-	            delta = box1MineX - box2MaxeX;
-	            distance += delta * delta;
-	        }
-	        else if (box2MineX > box1MaxeX) {
-	            delta = box2MineX - box1MaxeX;
-	            distance += delta * delta;
-	        }
-	        if (box1MineY > box2MaxeY) {
-	            delta = box1MineY - box2MaxeY;
-	            distance += delta * delta;
-	        }
-	        else if (box2MineY > box1MaxeY) {
-	            delta = box2MineY - box1MaxeY;
-	            distance += delta * delta;
-	        }
-	        if (box1MineZ > box2MaxeZ) {
-	            delta = box1MineZ - box2MaxeZ;
-	            distance += delta * delta;
-	        }
-	        else if (box2MineZ > box1MaxeZ) {
-	            delta = box2MineZ - box1MaxeZ;
-	            distance += delta * delta;
-	        }
-	        return Math.sqrt(distance);
-	    }
-	    static distanceSphereToPoint(sphere, point) {
-	        var distance = Math.sqrt(Vector3.distanceSquared(sphere.center, point));
-	        distance -= sphere.radius;
-	        return Math.max(distance, 0);
-	    }
-	    static distanceSphereToSphere(sphere1, sphere2) {
-	        var distance = Math.sqrt(Vector3.distanceSquared(sphere1.center, sphere2.center));
-	        distance -= sphere1.radius + sphere2.radius;
-	        return Math.max(distance, 0);
-	    }
-	    static intersectsRayAndTriangleRD(ray, vertex1, vertex2, vertex3, out) {
-	        var rayO = ray.origin;
-	        var rayOeX = rayO.x;
-	        var rayOeY = rayO.y;
-	        var rayOeZ = rayO.z;
-	        var rayD = ray.direction;
-	        var rayDeX = rayD.x;
-	        var rayDeY = rayD.y;
-	        var rayDeZ = rayD.z;
-	        var v1eX = vertex1.x;
-	        var v1eY = vertex1.y;
-	        var v1eZ = vertex1.z;
-	        var v2eX = vertex2.x;
-	        var v2eY = vertex2.y;
-	        var v2eZ = vertex2.z;
-	        var v3eX = vertex3.x;
-	        var v3eY = vertex3.y;
-	        var v3eZ = vertex3.z;
-	        var _tempV30eX = CollisionUtils._tempV30.x;
-	        var _tempV30eY = CollisionUtils._tempV30.y;
-	        var _tempV30eZ = CollisionUtils._tempV30.z;
-	        _tempV30eX = v2eX - v1eX;
-	        _tempV30eY = v2eY - v1eY;
-	        _tempV30eZ = v2eZ - v1eZ;
-	        var _tempV31eX = CollisionUtils._tempV31.x;
-	        var _tempV31eY = CollisionUtils._tempV31.y;
-	        var _tempV31eZ = CollisionUtils._tempV31.z;
-	        _tempV31eX = v3eX - v1eX;
-	        _tempV31eY = v3eY - v1eY;
-	        _tempV31eZ = v3eZ - v1eZ;
-	        var _tempV32eX = CollisionUtils._tempV32.x;
-	        var _tempV32eY = CollisionUtils._tempV32.y;
-	        var _tempV32eZ = CollisionUtils._tempV32.z;
-	        _tempV32eX = (rayDeY * _tempV31eZ) - (rayDeZ * _tempV31eY);
-	        _tempV32eY = (rayDeZ * _tempV31eX) - (rayDeX * _tempV31eZ);
-	        _tempV32eZ = (rayDeX * _tempV31eY) - (rayDeY * _tempV31eX);
-	        var determinant = (_tempV30eX * _tempV32eX) + (_tempV30eY * _tempV32eY) + (_tempV30eZ * _tempV32eZ);
-	        if (MathUtils3D.isZero(determinant)) {
-	            return false;
-	        }
-	        var inversedeterminant = 1 / determinant;
-	        var _tempV33eX = CollisionUtils._tempV33.x;
-	        var _tempV33eY = CollisionUtils._tempV33.y;
-	        var _tempV33eZ = CollisionUtils._tempV33.z;
-	        _tempV33eX = rayOeX - v1eX;
-	        _tempV33eY = rayOeY - v1eY;
-	        _tempV33eZ = rayOeZ - v1eZ;
-	        var triangleU = (_tempV33eX * _tempV32eX) + (_tempV33eY * _tempV32eY) + (_tempV33eZ * _tempV32eZ);
-	        triangleU *= inversedeterminant;
-	        if (triangleU < 0 || triangleU > 1) {
-	            return false;
-	        }
-	        var _tempV34eX = CollisionUtils._tempV34.x;
-	        var _tempV34eY = CollisionUtils._tempV34.y;
-	        var _tempV34eZ = CollisionUtils._tempV34.z;
-	        _tempV34eX = (_tempV33eY * _tempV30eZ) - (_tempV33eZ * _tempV30eY);
-	        _tempV34eY = (_tempV33eZ * _tempV30eX) - (_tempV33eX * _tempV30eZ);
-	        _tempV34eZ = (_tempV33eX * _tempV30eY) - (_tempV33eY * _tempV30eX);
-	        var triangleV = ((rayDeX * _tempV34eX) + (rayDeY * _tempV34eY)) + (rayDeZ * _tempV34eZ);
-	        triangleV *= inversedeterminant;
-	        if (triangleV < 0 || triangleU + triangleV > 1) {
-	            return false;
-	        }
-	        var raydistance = (_tempV31eX * _tempV34eX) + (_tempV31eY * _tempV34eY) + (_tempV31eZ * _tempV34eZ);
-	        raydistance *= inversedeterminant;
-	        if (raydistance < 0) {
-	            return false;
-	        }
-	        return true;
-	    }
-	    static intersectsRayAndTriangleRP(ray, vertex1, vertex2, vertex3, out) {
-	        var distance;
-	        if (!CollisionUtils.intersectsRayAndTriangleRD(ray, vertex1, vertex2, vertex3, distance)) {
-	            out = Vector3._ZERO;
-	            return false;
-	        }
-	        Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
-	        Vector3.add(ray.origin, CollisionUtils._tempV30, out);
-	        return true;
-	    }
-	    static intersectsRayAndPoint(ray, point) {
-	        Vector3.subtract(ray.origin, point, CollisionUtils._tempV30);
-	        var b = Vector3.dot(CollisionUtils._tempV30, ray.direction);
-	        var c = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV30) - MathUtils3D.zeroTolerance;
-	        if (c > 0 && b > 0)
-	            return false;
-	        var discriminant = b * b - c;
-	        if (discriminant < 0)
-	            return false;
-	        return true;
-	    }
-	    static intersectsRayAndRay(ray1, ray2, out) {
-	        var ray1o = ray1.origin;
-	        var ray1oeX = ray1o.x;
-	        var ray1oeY = ray1o.y;
-	        var ray1oeZ = ray1o.z;
-	        var ray1d = ray1.direction;
-	        var ray1deX = ray1d.x;
-	        var ray1deY = ray1d.y;
-	        var ray1deZ = ray1d.z;
-	        var ray2o = ray2.origin;
-	        var ray2oeX = ray2o.x;
-	        var ray2oeY = ray2o.y;
-	        var ray2oeZ = ray2o.z;
-	        var ray2d = ray2.direction;
-	        var ray2deX = ray2d.x;
-	        var ray2deY = ray2d.y;
-	        var ray2deZ = ray2d.z;
-	        Vector3.cross(ray1d, ray2d, CollisionUtils._tempV30);
-	        var tempV3 = CollisionUtils._tempV30;
-	        var denominator = Vector3.scalarLength(CollisionUtils._tempV30);
-	        if (MathUtils3D.isZero(denominator)) {
-	            if (MathUtils3D.nearEqual(ray2oeX, ray1oeX) && MathUtils3D.nearEqual(ray2oeY, ray1oeY) && MathUtils3D.nearEqual(ray2oeZ, ray1oeZ)) {
-	                return true;
-	            }
-	        }
-	        denominator = denominator * denominator;
-	        var m11 = ray2oeX - ray1oeX;
-	        var m12 = ray2oeY - ray1oeY;
-	        var m13 = ray2oeZ - ray1oeZ;
-	        var m21 = ray2deX;
-	        var m22 = ray2deY;
-	        var m23 = ray2deZ;
-	        var m31 = tempV3.x;
-	        var m32 = tempV3.y;
-	        var m33 = tempV3.z;
-	        var dets = m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 - m13 * m22 * m31;
-	        m21 = ray1deX;
-	        m22 = ray1deY;
-	        m23 = ray1deZ;
-	        var s = dets / denominator;
-	        Vector3.scale(ray1d, s, CollisionUtils._tempV30);
-	        Vector3.scale(ray2d, s, CollisionUtils._tempV31);
-	        Vector3.add(ray1o, CollisionUtils._tempV30, CollisionUtils._tempV32);
-	        Vector3.add(ray2o, CollisionUtils._tempV31, CollisionUtils._tempV33);
-	        var point1e = CollisionUtils._tempV32;
-	        var point2e = CollisionUtils._tempV33;
-	        if (!MathUtils3D.nearEqual(point2e.x, point1e.x) || !MathUtils3D.nearEqual(point2e.y, point1e.y) || !MathUtils3D.nearEqual(point2e.z, point1e.z)) {
-	            return false;
-	        }
-	        return true;
-	    }
-	    static intersectsPlaneAndTriangle(plane, vertex1, vertex2, vertex3) {
-	        var test1 = CollisionUtils.intersectsPlaneAndPoint(plane, vertex1);
-	        var test2 = CollisionUtils.intersectsPlaneAndPoint(plane, vertex2);
-	        var test3 = CollisionUtils.intersectsPlaneAndPoint(plane, vertex3);
-	        if (test1 == Plane.PlaneIntersectionType_Front && test2 == Plane.PlaneIntersectionType_Front && test3 == Plane.PlaneIntersectionType_Front)
-	            return Plane.PlaneIntersectionType_Front;
-	        if (test1 == Plane.PlaneIntersectionType_Back && test2 == Plane.PlaneIntersectionType_Back && test3 == Plane.PlaneIntersectionType_Back)
-	            return Plane.PlaneIntersectionType_Back;
-	        return Plane.PlaneIntersectionType_Intersecting;
-	    }
-	    static intersectsRayAndPlaneRD(ray, plane) {
-	        var planeNor = plane.normal;
-	        var direction = Vector3.dot(planeNor, ray.direction);
-	        if (Math.abs(direction) < MathUtils3D.zeroTolerance)
-	            return -1;
-	        var position = Vector3.dot(planeNor, ray.origin);
-	        var distance = (-plane.distance - position) / direction;
-	        if (distance < 0) {
-	            if (distance < -MathUtils3D.zeroTolerance)
-	                return -1;
-	            distance = 0;
-	        }
-	        return distance;
-	    }
-	    static intersectsRayAndPlaneRP(ray, plane, out) {
-	        var distance = CollisionUtils.intersectsRayAndPlaneRD(ray, plane);
-	        if (distance == -1) {
-	            out.setValue(0, 0, 0);
-	            return false;
-	        }
-	        var scaDis = CollisionUtils._tempV30;
-	        Vector3.scale(ray.direction, distance, scaDis);
-	        Vector3.add(ray.origin, scaDis, out);
-	        return true;
-	    }
-	    static intersectsRayAndBoxRD(ray, box) {
-	        var rayoe = ray.origin;
-	        var rayoeX = rayoe.x;
-	        var rayoeY = rayoe.y;
-	        var rayoeZ = rayoe.z;
-	        var rayde = ray.direction;
-	        var raydeX = rayde.x;
-	        var raydeY = rayde.y;
-	        var raydeZ = rayde.z;
-	        var boxMine = box.min;
-	        var boxMineX = boxMine.x;
-	        var boxMineY = boxMine.y;
-	        var boxMineZ = boxMine.z;
-	        var boxMaxe = box.max;
-	        var boxMaxeX = boxMaxe.x;
-	        var boxMaxeY = boxMaxe.y;
-	        var boxMaxeZ = boxMaxe.z;
-	        var out = 0;
-	        var tmax = MathUtils3D.MaxValue;
-	        if (MathUtils3D.isZero(raydeX)) {
-	            if (rayoeX < boxMineX || rayoeX > boxMaxeX) {
-	                return -1;
-	            }
-	        }
-	        else {
-	            var inverse = 1 / raydeX;
-	            var t1 = (boxMineX - rayoeX) * inverse;
-	            var t2 = (boxMaxeX - rayoeX) * inverse;
-	            if (t1 > t2) {
-	                var temp = t1;
-	                t1 = t2;
-	                t2 = temp;
-	            }
-	            out = Math.max(t1, out);
-	            tmax = Math.min(t2, tmax);
-	            if (out > tmax) {
-	                return -1;
-	            }
-	        }
-	        if (MathUtils3D.isZero(raydeY)) {
-	            if (rayoeY < boxMineY || rayoeY > boxMaxeY) {
-	                return -1;
-	            }
-	        }
-	        else {
-	            var inverse1 = 1 / raydeY;
-	            var t3 = (boxMineY - rayoeY) * inverse1;
-	            var t4 = (boxMaxeY - rayoeY) * inverse1;
-	            if (t3 > t4) {
-	                var temp1 = t3;
-	                t3 = t4;
-	                t4 = temp1;
-	            }
-	            out = Math.max(t3, out);
-	            tmax = Math.min(t4, tmax);
-	            if (out > tmax) {
-	                return -1;
-	            }
-	        }
-	        if (MathUtils3D.isZero(raydeZ)) {
-	            if (rayoeZ < boxMineZ || rayoeZ > boxMaxeZ) {
-	                return -1;
-	            }
-	        }
-	        else {
-	            var inverse2 = 1 / raydeZ;
-	            var t5 = (boxMineZ - rayoeZ) * inverse2;
-	            var t6 = (boxMaxeZ - rayoeZ) * inverse2;
-	            if (t5 > t6) {
-	                var temp2 = t5;
-	                t5 = t6;
-	                t6 = temp2;
-	            }
-	            out = Math.max(t5, out);
-	            tmax = Math.min(t6, tmax);
-	            if (out > tmax) {
-	                return -1;
-	            }
-	        }
-	        return out;
-	    }
-	    static intersectsRayAndBoxRP(ray, box, out) {
-	        var distance = CollisionUtils.intersectsRayAndBoxRD(ray, box);
-	        if (distance === -1) {
-	            Vector3._ZERO.cloneTo(out);
-	            return distance;
-	        }
-	        Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
-	        Vector3.add(ray.origin, CollisionUtils._tempV30, CollisionUtils._tempV31);
-	        CollisionUtils._tempV31.cloneTo(out);
-	        return distance;
-	    }
-	    static intersectsRayAndSphereRD(ray, sphere) {
-	        var sphereR = sphere.radius;
-	        Vector3.subtract(ray.origin, sphere.center, CollisionUtils._tempV30);
-	        var b = Vector3.dot(CollisionUtils._tempV30, ray.direction);
-	        var c = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV30) - (sphereR * sphereR);
-	        if (c > 0 && b > 0) {
-	            return -1;
-	        }
-	        var discriminant = b * b - c;
-	        if (discriminant < 0) {
-	            return -1;
-	        }
-	        var distance = -b - Math.sqrt(discriminant);
-	        if (distance < 0)
-	            distance = 0;
-	        return distance;
-	    }
-	    static intersectsRayAndSphereRP(ray, sphere, out) {
-	        var distance = CollisionUtils.intersectsRayAndSphereRD(ray, sphere);
-	        if (distance === -1) {
-	            Vector3._ZERO.cloneTo(out);
-	            return distance;
-	        }
-	        Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
-	        Vector3.add(ray.origin, CollisionUtils._tempV30, CollisionUtils._tempV31);
-	        CollisionUtils._tempV31.cloneTo(out);
-	        return distance;
-	    }
-	    static intersectsSphereAndTriangle(sphere, vertex1, vertex2, vertex3) {
-	        var sphereC = sphere.center;
-	        var sphereR = sphere.radius;
-	        CollisionUtils.closestPointPointTriangle(sphereC, vertex1, vertex2, vertex3, CollisionUtils._tempV30);
-	        Vector3.subtract(CollisionUtils._tempV30, sphereC, CollisionUtils._tempV31);
-	        var dot = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV31);
-	        return dot <= sphereR * sphereR;
-	    }
-	    static intersectsPlaneAndPoint(plane, point) {
-	        var distance = Vector3.dot(plane.normal, point) + plane.distance;
-	        if (distance > 0)
-	            return Plane.PlaneIntersectionType_Front;
-	        if (distance < 0)
-	            return Plane.PlaneIntersectionType_Back;
-	        return Plane.PlaneIntersectionType_Intersecting;
-	    }
-	    static intersectsPlaneAndPlane(plane1, plane2) {
-	        Vector3.cross(plane1.normal, plane2.normal, CollisionUtils._tempV30);
-	        var denominator = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV30);
-	        if (MathUtils3D.isZero(denominator))
-	            return false;
-	        return true;
-	    }
-	    static intersectsPlaneAndPlaneRL(plane1, plane2, line) {
-	        var plane1nor = plane1.normal;
-	        var plane2nor = plane2.normal;
-	        Vector3.cross(plane1nor, plane2nor, CollisionUtils._tempV34);
-	        var denominator = Vector3.dot(CollisionUtils._tempV34, CollisionUtils._tempV34);
-	        if (MathUtils3D.isZero(denominator))
-	            return false;
-	        Vector3.scale(plane2nor, plane1.distance, CollisionUtils._tempV30);
-	        Vector3.scale(plane1nor, plane2.distance, CollisionUtils._tempV31);
-	        Vector3.subtract(CollisionUtils._tempV30, CollisionUtils._tempV31, CollisionUtils._tempV32);
-	        Vector3.cross(CollisionUtils._tempV32, CollisionUtils._tempV34, CollisionUtils._tempV33);
-	        Vector3.normalize(CollisionUtils._tempV34, CollisionUtils._tempV34);
-	        return true;
-	    }
-	    static intersectsPlaneAndBox(plane, box) {
-	        var planeD = plane.distance;
-	        var planeNor = plane.normal;
-	        var planeNoreX = planeNor.x;
-	        var planeNoreY = planeNor.y;
-	        var planeNoreZ = planeNor.z;
-	        var boxMine = box.min;
-	        var boxMineX = boxMine.x;
-	        var boxMineY = boxMine.y;
-	        var boxMineZ = boxMine.z;
-	        var boxMaxe = box.max;
-	        var boxMaxeX = boxMaxe.x;
-	        var boxMaxeY = boxMaxe.y;
-	        var boxMaxeZ = boxMaxe.z;
-	        CollisionUtils._tempV30.x = (planeNoreX > 0) ? boxMineX : boxMaxeX;
-	        CollisionUtils._tempV30.y = (planeNoreY > 0) ? boxMineY : boxMaxeY;
-	        CollisionUtils._tempV30.z = (planeNoreZ > 0) ? boxMineZ : boxMaxeZ;
-	        CollisionUtils._tempV31.x = (planeNoreX > 0) ? boxMaxeX : boxMineX;
-	        CollisionUtils._tempV31.y = (planeNoreY > 0) ? boxMaxeY : boxMineY;
-	        CollisionUtils._tempV31.z = (planeNoreZ > 0) ? boxMaxeZ : boxMineZ;
-	        var distance = Vector3.dot(planeNor, CollisionUtils._tempV30);
-	        if (distance + planeD > 0)
-	            return Plane.PlaneIntersectionType_Front;
-	        distance = Vector3.dot(planeNor, CollisionUtils._tempV31);
-	        if (distance + planeD < 0)
-	            return Plane.PlaneIntersectionType_Back;
-	        return Plane.PlaneIntersectionType_Intersecting;
-	    }
-	    static intersectsPlaneAndSphere(plane, sphere) {
-	        var sphereR = sphere.radius;
-	        var distance = Vector3.dot(plane.normal, sphere.center) + plane.distance;
-	        if (distance > sphereR)
-	            return Plane.PlaneIntersectionType_Front;
-	        if (distance < -sphereR)
-	            return Plane.PlaneIntersectionType_Back;
-	        return Plane.PlaneIntersectionType_Intersecting;
-	    }
-	    static intersectsBoxAndBox(box1, box2) {
-	        var box1Mine = box1.min;
-	        var box1Maxe = box1.max;
-	        var box2Mine = box2.min;
-	        var box2Maxe = box2.max;
-	        if (box1Mine.x > box2Maxe.x || box2Mine.x > box1Maxe.x)
-	            return false;
-	        if (box1Mine.y > box2Maxe.y || box2Mine.y > box1Maxe.y)
-	            return false;
-	        if (box1Mine.z > box2Maxe.z || box2Mine.z > box1Maxe.z)
-	            return false;
-	        return true;
-	    }
-	    static intersectsBoxAndSphere(box, sphere) {
-	        var center = sphere.center;
-	        var radius = sphere.radius;
-	        var nearest = CollisionUtils._tempV30;
-	        Vector3.Clamp(center, box.min, box.max, nearest);
-	        var distance = Vector3.distanceSquared(center, nearest);
-	        return distance <= radius * radius;
-	    }
-	    static intersectsSphereAndSphere(sphere1, sphere2) {
-	        var radiisum = sphere1.radius + sphere2.radius;
-	        return Vector3.distanceSquared(sphere1.center, sphere2.center) <= radiisum * radiisum;
-	    }
-	    static boxContainsPoint(box, point) {
-	        var boxMine = box.min;
-	        var boxMaxe = box.max;
-	        if (boxMine.x <= point.x && boxMaxe.x >= point.x && boxMine.y <= point.y && boxMaxe.y >= point.y && boxMine.z <= point.z && boxMaxe.z >= point.z)
-	            return ContainmentType.Contains;
-	        return ContainmentType.Disjoint;
-	    }
-	    static boxContainsBox(box1, box2) {
-	        var box1Mine = box1.min;
-	        var box1MineX = box1Mine.x;
-	        var box1MineY = box1Mine.y;
-	        var box1MineZ = box1Mine.z;
-	        var box1Maxe = box1.max;
-	        var box1MaxeX = box1Maxe.x;
-	        var box1MaxeY = box1Maxe.y;
-	        var box1MaxeZ = box1Maxe.z;
-	        var box2Mine = box2.min;
-	        var box2MineX = box2Mine.x;
-	        var box2MineY = box2Mine.y;
-	        var box2MineZ = box2Mine.z;
-	        var box2Maxe = box2.max;
-	        var box2MaxeX = box2Maxe.x;
-	        var box2MaxeY = box2Maxe.y;
-	        var box2MaxeZ = box2Maxe.z;
-	        if (box1MaxeX < box2MineX || box1MineX > box2MaxeX)
-	            return ContainmentType.Disjoint;
-	        if (box1MaxeY < box2MineY || box1MineY > box2MaxeY)
-	            return ContainmentType.Disjoint;
-	        if (box1MaxeZ < box2MineZ || box1MineZ > box2MaxeZ)
-	            return ContainmentType.Disjoint;
-	        if (box1MineX <= box2MineX && box2MaxeX <= box1MaxeX && box1MineY <= box2MineY && box2MaxeY <= box1MaxeY && box1MineZ <= box2MineZ && box2MaxeZ <= box1MaxeZ) {
-	            return ContainmentType.Contains;
-	        }
-	        return ContainmentType.Intersects;
-	    }
-	    static boxContainsSphere(box, sphere) {
-	        var boxMin = box.min;
-	        var boxMineX = boxMin.x;
-	        var boxMineY = boxMin.y;
-	        var boxMineZ = boxMin.z;
-	        var boxMax = box.max;
-	        var boxMaxeX = boxMax.x;
-	        var boxMaxeY = boxMax.y;
-	        var boxMaxeZ = boxMax.z;
-	        var sphereC = sphere.center;
-	        var sphereCeX = sphereC.x;
-	        var sphereCeY = sphereC.y;
-	        var sphereCeZ = sphereC.z;
-	        var sphereR = sphere.radius;
-	        Vector3.Clamp(sphereC, boxMin, boxMax, CollisionUtils._tempV30);
-	        var distance = Vector3.distanceSquared(sphereC, CollisionUtils._tempV30);
-	        if (distance > sphereR * sphereR)
-	            return ContainmentType.Disjoint;
-	        if ((((boxMineX + sphereR <= sphereCeX) && (sphereCeX <= boxMaxeX - sphereR)) && ((boxMaxeX - boxMineX > sphereR) &&
-	            (boxMineY + sphereR <= sphereCeY))) && (((sphereCeY <= boxMaxeY - sphereR) && (boxMaxeY - boxMineY > sphereR)) &&
-	            (((boxMineZ + sphereR <= sphereCeZ) && (sphereCeZ <= boxMaxeZ - sphereR)) && (boxMaxeZ - boxMineZ > sphereR))))
-	            return ContainmentType.Contains;
-	        return ContainmentType.Intersects;
-	    }
-	    static sphereContainsPoint(sphere, point) {
-	        if (Vector3.distanceSquared(point, sphere.center) <= sphere.radius * sphere.radius)
-	            return ContainmentType.Contains;
-	        return ContainmentType.Disjoint;
-	    }
-	    static sphereContainsTriangle(sphere, vertex1, vertex2, vertex3) {
-	        var test1 = CollisionUtils.sphereContainsPoint(sphere, vertex1);
-	        var test2 = CollisionUtils.sphereContainsPoint(sphere, vertex2);
-	        var test3 = CollisionUtils.sphereContainsPoint(sphere, vertex3);
-	        if (test1 == ContainmentType.Contains && test2 == ContainmentType.Contains && test3 == ContainmentType.Contains)
-	            return ContainmentType.Contains;
-	        if (CollisionUtils.intersectsSphereAndTriangle(sphere, vertex1, vertex2, vertex3))
-	            return ContainmentType.Intersects;
-	        return ContainmentType.Disjoint;
-	    }
-	    static sphereContainsBox(sphere, box) {
-	        var sphereC = sphere.center;
-	        var sphereCeX = sphereC.x;
-	        var sphereCeY = sphereC.y;
-	        var sphereCeZ = sphereC.z;
-	        var sphereR = sphere.radius;
-	        var boxMin = box.min;
-	        var boxMineX = boxMin.x;
-	        var boxMineY = boxMin.y;
-	        var boxMineZ = boxMin.z;
-	        var boxMax = box.max;
-	        var boxMaxeX = boxMax.x;
-	        var boxMaxeY = boxMax.y;
-	        var boxMaxeZ = boxMax.z;
-	        var _tempV30e = CollisionUtils._tempV30;
-	        var _tempV30eX = _tempV30e.x;
-	        var _tempV30eY = _tempV30e.y;
-	        var _tempV30eZ = _tempV30e.z;
-	        if (!CollisionUtils.intersectsBoxAndSphere(box, sphere))
-	            return ContainmentType.Disjoint;
-	        var radiusSquared = sphereR * sphereR;
-	        _tempV30eX = sphereCeX - boxMineX;
-	        _tempV30eY = sphereCeY - boxMaxeY;
-	        _tempV30eZ = sphereCeZ - boxMaxeZ;
-	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
-	            return ContainmentType.Intersects;
-	        _tempV30eX = sphereCeX - boxMaxeX;
-	        _tempV30eY = sphereCeY - boxMaxeY;
-	        _tempV30eZ = sphereCeZ - boxMaxeZ;
-	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
-	            return ContainmentType.Intersects;
-	        _tempV30eX = sphereCeX - boxMaxeX;
-	        _tempV30eY = sphereCeY - boxMineY;
-	        _tempV30eZ = sphereCeZ - boxMaxeZ;
-	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
-	            return ContainmentType.Intersects;
-	        _tempV30eX = sphereCeX - boxMineX;
-	        _tempV30eY = sphereCeY - boxMineY;
-	        _tempV30eZ = sphereCeZ - boxMaxeZ;
-	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
-	            return ContainmentType.Intersects;
-	        _tempV30eX = sphereCeX - boxMineX;
-	        _tempV30eY = sphereCeY - boxMaxeY;
-	        _tempV30eZ = sphereCeZ - boxMineZ;
-	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
-	            return ContainmentType.Intersects;
-	        _tempV30eX = sphereCeX - boxMaxeX;
-	        _tempV30eY = sphereCeY - boxMaxeY;
-	        _tempV30eZ = sphereCeZ - boxMineZ;
-	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
-	            return ContainmentType.Intersects;
-	        _tempV30eX = sphereCeX - boxMaxeX;
-	        _tempV30eY = sphereCeY - boxMineY;
-	        _tempV30eZ = sphereCeZ - boxMineZ;
-	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
-	            return ContainmentType.Intersects;
-	        _tempV30eX = sphereCeX - boxMineX;
-	        _tempV30eY = sphereCeY - boxMineY;
-	        _tempV30eZ = sphereCeZ - boxMineZ;
-	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
-	            return ContainmentType.Intersects;
-	        return ContainmentType.Contains;
-	    }
-	    static sphereContainsSphere(sphere1, sphere2) {
-	        var sphere1R = sphere1.radius;
-	        var sphere2R = sphere2.radius;
-	        var distance = Vector3.distance(sphere1.center, sphere2.center);
-	        if (sphere1R + sphere2R < distance)
-	            return ContainmentType.Disjoint;
-	        if (sphere1R - sphere2R < distance)
-	            return ContainmentType.Intersects;
-	        return ContainmentType.Contains;
-	    }
-	    static closestPointPointTriangle(point, vertex1, vertex2, vertex3, out) {
-	        Vector3.subtract(vertex2, vertex1, CollisionUtils._tempV30);
-	        Vector3.subtract(vertex3, vertex1, CollisionUtils._tempV31);
-	        Vector3.subtract(point, vertex1, CollisionUtils._tempV32);
-	        Vector3.subtract(point, vertex2, CollisionUtils._tempV33);
-	        Vector3.subtract(point, vertex3, CollisionUtils._tempV34);
-	        var d1 = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV32);
-	        var d2 = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV32);
-	        var d3 = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV33);
-	        var d4 = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV33);
-	        var d5 = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV34);
-	        var d6 = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV34);
-	        if (d1 <= 0 && d2 <= 0) {
-	            vertex1.cloneTo(out);
-	            return;
-	        }
-	        if (d3 >= 0 && d4 <= d3) {
-	            vertex2.cloneTo(out);
-	            return;
-	        }
-	        var vc = d1 * d4 - d3 * d2;
-	        if (vc <= 0 && d1 >= 0 && d3 <= 0) {
-	            var v = d1 / (d1 - d3);
-	            Vector3.scale(CollisionUtils._tempV30, v, out);
-	            Vector3.add(vertex1, out, out);
-	            return;
-	        }
-	        if (d6 >= 0 && d5 <= d6) {
-	            vertex3.cloneTo(out);
-	            return;
-	        }
-	        var vb = d5 * d2 - d1 * d6;
-	        if (vb <= 0 && d2 >= 0 && d6 <= 0) {
-	            var w = d2 / (d2 - d6);
-	            Vector3.scale(CollisionUtils._tempV31, w, out);
-	            Vector3.add(vertex1, out, out);
-	            return;
-	        }
-	        var va = d3 * d6 - d5 * d4;
-	        if (va <= 0 && (d4 - d3) >= 0 && (d5 - d6) >= 0) {
-	            var w3 = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-	            Vector3.subtract(vertex3, vertex2, out);
-	            Vector3.scale(out, w3, out);
-	            Vector3.add(vertex2, out, out);
-	            return;
-	        }
-	        var denom = 1 / (va + vb + vc);
-	        var v2 = vb * denom;
-	        var w2 = vc * denom;
-	        Vector3.scale(CollisionUtils._tempV30, v2, CollisionUtils._tempV35);
-	        Vector3.scale(CollisionUtils._tempV31, w2, CollisionUtils._tempV36);
-	        Vector3.add(CollisionUtils._tempV35, CollisionUtils._tempV36, out);
-	        Vector3.add(vertex1, out, out);
-	    }
-	    static closestPointPlanePoint(plane, point, out) {
-	        var planeN = plane.normal;
-	        var t = Vector3.dot(planeN, point) - plane.distance;
-	        Vector3.scale(planeN, t, CollisionUtils._tempV30);
-	        Vector3.subtract(point, CollisionUtils._tempV30, out);
-	    }
-	    static closestPointBoxPoint(box, point, out) {
-	        Vector3.max(point, box.min, CollisionUtils._tempV30);
-	        Vector3.min(CollisionUtils._tempV30, box.max, out);
-	    }
-	    static closestPointSpherePoint(sphere, point, out) {
-	        var sphereC = sphere.center;
-	        Vector3.subtract(point, sphereC, out);
-	        Vector3.normalize(out, out);
-	        Vector3.scale(out, sphere.radius, out);
-	        Vector3.add(out, sphereC, out);
-	    }
-	    static closestPointSphereSphere(sphere1, sphere2, out) {
-	        var sphere1C = sphere1.center;
-	        Vector3.subtract(sphere2.center, sphere1C, out);
-	        Vector3.normalize(out, out);
-	        Vector3.scale(out, sphere1.radius, out);
-	        Vector3.add(out, sphere1C, out);
-	    }
-	}
-	CollisionUtils._tempV30 = new Vector3();
-	CollisionUtils._tempV31 = new Vector3();
-	CollisionUtils._tempV32 = new Vector3();
-	CollisionUtils._tempV33 = new Vector3();
-	CollisionUtils._tempV34 = new Vector3();
-	CollisionUtils._tempV35 = new Vector3();
-	CollisionUtils._tempV36 = new Vector3();
-
-	(function (FrustumCorner) {
-	    FrustumCorner[FrustumCorner["FarBottomLeft"] = 0] = "FarBottomLeft";
-	    FrustumCorner[FrustumCorner["FarTopLeft"] = 1] = "FarTopLeft";
-	    FrustumCorner[FrustumCorner["FarTopRight"] = 2] = "FarTopRight";
-	    FrustumCorner[FrustumCorner["FarBottomRight"] = 3] = "FarBottomRight";
-	    FrustumCorner[FrustumCorner["nearBottomLeft"] = 4] = "nearBottomLeft";
-	    FrustumCorner[FrustumCorner["nearTopLeft"] = 5] = "nearTopLeft";
-	    FrustumCorner[FrustumCorner["nearTopRight"] = 6] = "nearTopRight";
-	    FrustumCorner[FrustumCorner["nearBottomRight"] = 7] = "nearBottomRight";
-	    FrustumCorner[FrustumCorner["unknown"] = 8] = "unknown";
-	})(exports.FrustumCorner || (exports.FrustumCorner = {}));
-	class BoundFrustum {
-	    constructor(matrix) {
-	        this._matrix = matrix;
-	        this._near = new Plane(new Vector3());
-	        this._far = new Plane(new Vector3());
-	        this._left = new Plane(new Vector3());
-	        this._right = new Plane(new Vector3());
-	        this._top = new Plane(new Vector3());
-	        this._bottom = new Plane(new Vector3());
-	        BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
-	    }
-	    static getPlanesFromMatrix(m, np, fp, lp, rp, tp, bp) {
-	        var matrixE = m.elements;
-	        var m11 = matrixE[0];
-	        var m12 = matrixE[1];
-	        var m13 = matrixE[2];
-	        var m14 = matrixE[3];
-	        var m21 = matrixE[4];
-	        var m22 = matrixE[5];
-	        var m23 = matrixE[6];
-	        var m24 = matrixE[7];
-	        var m31 = matrixE[8];
-	        var m32 = matrixE[9];
-	        var m33 = matrixE[10];
-	        var m34 = matrixE[11];
-	        var m41 = matrixE[12];
-	        var m42 = matrixE[13];
-	        var m43 = matrixE[14];
-	        var m44 = matrixE[15];
-	        var nearNorE = np.normal;
-	        nearNorE.x = m13;
-	        nearNorE.y = m23;
-	        nearNorE.z = m33;
-	        np.distance = m43;
-	        np.normalize();
-	        var farNorE = fp.normal;
-	        farNorE.x = m14 - m13;
-	        farNorE.y = m24 - m23;
-	        farNorE.z = m34 - m33;
-	        fp.distance = m44 - m43;
-	        fp.normalize();
-	        var leftNorE = lp.normal;
-	        leftNorE.x = m14 + m11;
-	        leftNorE.y = m24 + m21;
-	        leftNorE.z = m34 + m31;
-	        lp.distance = m44 + m41;
-	        lp.normalize();
-	        var rightNorE = rp.normal;
-	        rightNorE.x = m14 - m11;
-	        rightNorE.y = m24 - m21;
-	        rightNorE.z = m34 - m31;
-	        rp.distance = m44 - m41;
-	        rp.normalize();
-	        var topNorE = tp.normal;
-	        topNorE.x = m14 - m12;
-	        topNorE.y = m24 - m22;
-	        topNorE.z = m34 - m32;
-	        tp.distance = m44 - m42;
-	        tp.normalize();
-	        var bottomNorE = bp.normal;
-	        bottomNorE.x = m14 + m12;
-	        bottomNorE.y = m24 + m22;
-	        bottomNorE.z = m34 + m32;
-	        bp.distance = m44 + m42;
-	        bp.normalize();
-	    }
-	    get matrix() {
-	        return this._matrix;
-	    }
-	    set matrix(matrix) {
-	        matrix.cloneTo(this._matrix);
-	        BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
-	    }
-	    get near() {
-	        return this._near;
-	    }
-	    get far() {
-	        return this._far;
-	    }
-	    get left() {
-	        return this._left;
-	    }
-	    get right() {
-	        return this._right;
-	    }
-	    get top() {
-	        return this._top;
-	    }
-	    get bottom() {
-	        return this._bottom;
-	    }
-	    equalsBoundFrustum(other) {
-	        return this._matrix.equalsOtherMatrix(other.matrix);
-	    }
-	    equalsObj(obj) {
-	        if (obj instanceof BoundFrustum) {
-	            var bf = obj;
-	            return this.equalsBoundFrustum(bf);
-	        }
-	        return false;
-	    }
-	    getPlane(index) {
-	        switch (index) {
-	            case 0:
-	                return this._near;
-	            case 1:
-	                return this._far;
-	            case 2:
-	                return this._left;
-	            case 3:
-	                return this._right;
-	            case 4:
-	                return this._top;
-	            case 5:
-	                return this._bottom;
-	            default:
-	                return null;
-	        }
-	    }
-	    static get3PlaneInterPoint(p1, p2, p3, out) {
-	        var p1Nor = p1.normal;
-	        var p2Nor = p2.normal;
-	        var p3Nor = p3.normal;
-	        Vector3.cross(p2Nor, p3Nor, BoundFrustum._tempV30);
-	        Vector3.cross(p3Nor, p1Nor, BoundFrustum._tempV31);
-	        Vector3.cross(p1Nor, p2Nor, BoundFrustum._tempV32);
-	        var a = Vector3.dot(p1Nor, BoundFrustum._tempV30);
-	        var b = Vector3.dot(p2Nor, BoundFrustum._tempV31);
-	        var c = Vector3.dot(p3Nor, BoundFrustum._tempV32);
-	        Vector3.scale(BoundFrustum._tempV30, -p1.distance / a, BoundFrustum._tempV33);
-	        Vector3.scale(BoundFrustum._tempV31, -p2.distance / b, BoundFrustum._tempV34);
-	        Vector3.scale(BoundFrustum._tempV32, -p3.distance / c, BoundFrustum._tempV35);
-	        Vector3.add(BoundFrustum._tempV33, BoundFrustum._tempV34, BoundFrustum._tempV36);
-	        Vector3.add(BoundFrustum._tempV35, BoundFrustum._tempV36, out);
-	    }
-	    getCorners(corners) {
-	        BoundFrustum.get3PlaneInterPoint(this._near, this._bottom, this._right, corners[exports.FrustumCorner.nearBottomRight]);
-	        BoundFrustum.get3PlaneInterPoint(this._near, this._top, this._right, corners[exports.FrustumCorner.nearTopRight]);
-	        BoundFrustum.get3PlaneInterPoint(this._near, this._top, this._left, corners[exports.FrustumCorner.nearTopLeft]);
-	        BoundFrustum.get3PlaneInterPoint(this._near, this._bottom, this._left, corners[exports.FrustumCorner.nearBottomLeft]);
-	        BoundFrustum.get3PlaneInterPoint(this._far, this._bottom, this._right, corners[exports.FrustumCorner.FarBottomRight]);
-	        BoundFrustum.get3PlaneInterPoint(this._far, this._top, this._right, corners[exports.FrustumCorner.FarTopRight]);
-	        BoundFrustum.get3PlaneInterPoint(this._far, this._top, this._left, corners[exports.FrustumCorner.FarTopLeft]);
-	        BoundFrustum.get3PlaneInterPoint(this._far, this._bottom, this._left, corners[exports.FrustumCorner.FarBottomLeft]);
-	    }
-	    containsPoint(point) {
-	        var result = Plane.PlaneIntersectionType_Front;
-	        var planeResult = Plane.PlaneIntersectionType_Front;
-	        for (var i = 0; i < 6; i++) {
-	            switch (i) {
-	                case 0:
-	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._near, point);
-	                    break;
-	                case 1:
-	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._far, point);
-	                    break;
-	                case 2:
-	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._left, point);
-	                    break;
-	                case 3:
-	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._right, point);
-	                    break;
-	                case 4:
-	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._top, point);
-	                    break;
-	                case 5:
-	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._bottom, point);
-	                    break;
-	            }
-	            switch (planeResult) {
-	                case Plane.PlaneIntersectionType_Back:
-	                    return ContainmentType.Disjoint;
-	                case Plane.PlaneIntersectionType_Intersecting:
-	                    result = Plane.PlaneIntersectionType_Intersecting;
-	                    break;
-	            }
-	        }
-	        switch (result) {
-	            case Plane.PlaneIntersectionType_Intersecting:
-	                return ContainmentType.Intersects;
-	            default:
-	                return ContainmentType.Contains;
-	        }
-	    }
-	    intersects(box) {
-	        var min = box.min;
-	        var max = box.max;
-	        var minX = min.x;
-	        var minY = min.y;
-	        var minZ = min.z;
-	        var maxX = max.x;
-	        var maxY = max.y;
-	        var maxZ = max.z;
-	        var nearNormal = this._near.normal;
-	        if (this._near.distance + (nearNormal.x * (nearNormal.x < 0 ? minX : maxX)) + (nearNormal.y * (nearNormal.y < 0 ? minY : maxY)) + (nearNormal.z * (nearNormal.z < 0 ? minZ : maxZ)) < 0)
-	            return false;
-	        var leftNormal = this._left.normal;
-	        if (this._left.distance + (leftNormal.x * (leftNormal.x < 0 ? minX : maxX)) + (leftNormal.y * (leftNormal.y < 0 ? minY : maxY)) + (leftNormal.z * (leftNormal.z < 0 ? minZ : maxZ)) < 0)
-	            return false;
-	        var rightNormal = this._right.normal;
-	        if (this._right.distance + (rightNormal.x * (rightNormal.x < 0 ? minX : maxX)) + (rightNormal.y * (rightNormal.y < 0 ? minY : maxY)) + (rightNormal.z * (rightNormal.z < 0 ? minZ : maxZ)) < 0)
-	            return false;
-	        var bottomNormal = this._bottom.normal;
-	        if (this._bottom.distance + (bottomNormal.x * (bottomNormal.x < 0 ? minX : maxX)) + (bottomNormal.y * (bottomNormal.y < 0 ? minY : maxY)) + (bottomNormal.z * (bottomNormal.z < 0 ? minZ : maxZ)) < 0)
-	            return false;
-	        var topNormal = this._top.normal;
-	        if (this._top.distance + (topNormal.x * (topNormal.x < 0 ? minX : maxX)) + (topNormal.y * (topNormal.y < 0 ? minY : maxY)) + (topNormal.z * (topNormal.z < 0 ? minZ : maxZ)) < 0)
-	            return false;
-	        var farNormal = this._far.normal;
-	        if (this._far.distance + (farNormal.x * (farNormal.x < 0 ? minX : maxX)) + (farNormal.y * (farNormal.y < 0 ? minY : maxY)) + (farNormal.z * (farNormal.z < 0 ? minZ : maxZ)) < 0)
-	            return false;
-	        return true;
-	    }
-	    containsBoundBox(box) {
-	        var p = BoundFrustum._tempV30, n = BoundFrustum._tempV31;
-	        var boxMin = box.min;
-	        var boxMax = box.max;
-	        var result = ContainmentType.Contains;
-	        for (var i = 0; i < 6; i++) {
-	            var plane = this.getPlane(i);
-	            var planeNor = plane.normal;
-	            if (planeNor.x >= 0) {
-	                p.x = boxMax.x;
-	                n.x = boxMin.x;
-	            }
-	            else {
-	                p.x = boxMin.x;
-	                n.x = boxMax.x;
-	            }
-	            if (planeNor.y >= 0) {
-	                p.y = boxMax.y;
-	                n.y = boxMin.y;
-	            }
-	            else {
-	                p.y = boxMin.y;
-	                n.y = boxMax.y;
-	            }
-	            if (planeNor.z >= 0) {
-	                p.z = boxMax.z;
-	                n.z = boxMin.z;
-	            }
-	            else {
-	                p.z = boxMin.z;
-	                n.z = boxMax.z;
-	            }
-	            if (CollisionUtils.intersectsPlaneAndPoint(plane, p) === Plane.PlaneIntersectionType_Back)
-	                return ContainmentType.Disjoint;
-	            if (CollisionUtils.intersectsPlaneAndPoint(plane, n) === Plane.PlaneIntersectionType_Back)
-	                result = ContainmentType.Intersects;
-	        }
-	        return result;
-	    }
-	    containsBoundSphere(sphere) {
-	        var result = Plane.PlaneIntersectionType_Front;
-	        var planeResult = Plane.PlaneIntersectionType_Front;
-	        for (var i = 0; i < 6; i++) {
-	            switch (i) {
-	                case 0:
-	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._near, sphere);
-	                    break;
-	                case 1:
-	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._far, sphere);
-	                    break;
-	                case 2:
-	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._left, sphere);
-	                    break;
-	                case 3:
-	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._right, sphere);
-	                    break;
-	                case 4:
-	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._top, sphere);
-	                    break;
-	                case 5:
-	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._bottom, sphere);
-	                    break;
-	            }
-	            switch (planeResult) {
-	                case Plane.PlaneIntersectionType_Back:
-	                    return ContainmentType.Disjoint;
-	                case Plane.PlaneIntersectionType_Intersecting:
-	                    result = Plane.PlaneIntersectionType_Intersecting;
-	                    break;
-	            }
-	        }
-	        switch (result) {
-	            case Plane.PlaneIntersectionType_Intersecting:
-	                return ContainmentType.Intersects;
-	            default:
-	                return ContainmentType.Contains;
-	        }
-	    }
-	}
-	BoundFrustum._tempV30 = new Vector3();
-	BoundFrustum._tempV31 = new Vector3();
-	BoundFrustum._tempV32 = new Vector3();
-	BoundFrustum._tempV33 = new Vector3();
-	BoundFrustum._tempV34 = new Vector3();
-	BoundFrustum._tempV35 = new Vector3();
-	BoundFrustum._tempV36 = new Vector3();
-
-	class Viewport {
-	    constructor(x, y, width, height) {
-	        this.minDepth = 0.0;
-	        this.maxDepth = 1.0;
-	        this.x = x;
-	        this.y = y;
-	        this.width = width;
-	        this.height = height;
-	    }
-	    project(source, matrix, out) {
-	        Vector3.transformV3ToV4(source, matrix, out);
-	        var x = out.x, y = out.y, z = out.z;
-	        var w = out.w;
-	        if (w !== 1.0) {
-	            x = x / w;
-	            y = y / w;
-	            z = z / w;
-	        }
-	        out.x = (x + 1.0) * 0.5 * this.width + this.x;
-	        out.y = (-y + 1.0) * 0.5 * this.height + this.y;
-	        out.z = z * (this.maxDepth - this.minDepth) + this.minDepth;
-	    }
-	    unprojectFromMat(source, matrix, out) {
-	        var matrixEleme = matrix.elements;
-	        out.x = (((source.x - this.x) / this.width) * 2.0) - 1.0;
-	        out.y = -((((source.y - this.y) / this.height) * 2.0) - 1.0);
-	        out.z = (source.z - this.minDepth) / (this.maxDepth - this.minDepth);
-	        var a = (((out.x * matrixEleme[3]) + (out.y * matrixEleme[7])) + (out.z * matrixEleme[11])) + matrixEleme[15];
-	        Vector3.transformV3ToV3(out, matrix, out);
-	        if (a !== 1.0) {
-	            out.x = out.x / a;
-	            out.y = out.y / a;
-	            out.z = out.z / a;
-	        }
-	    }
-	    unprojectFromWVP(source, projection, view, world, out) {
-	        Matrix4x4.multiply(projection, view, Viewport._tempMatrix4x4);
-	        (world) && (Matrix4x4.multiply(Viewport._tempMatrix4x4, world, Viewport._tempMatrix4x4));
-	        Viewport._tempMatrix4x4.invert(Viewport._tempMatrix4x4);
-	        this.unprojectFromMat(source, Viewport._tempMatrix4x4, out);
-	    }
-	    cloneTo(out) {
-	        out.x = this.x;
-	        out.y = this.y;
-	        out.width = this.width;
-	        out.height = this.height;
-	        out.minDepth = this.minDepth;
-	        out.maxDepth = this.maxDepth;
-	    }
-	}
-	Viewport._tempMatrix4x4 = new Matrix4x4();
-
-	class RenderContext3D {
-	    constructor() {
-	        this.invertY = false;
-	        this.configPipeLineMode = "Forward";
-	    }
-	}
-	RenderContext3D._instance = new RenderContext3D();
-
-	class RenderTexture extends Laya.BaseTexture {
-	    constructor(width, height, format = Laya.RenderTextureFormat.R8G8B8, depthStencilFormat = Laya.RenderTextureDepthFormat.DEPTH_16, mulSampler = 1) {
-	        super(format, false);
-	        this._inPool = false;
-	        this._mulSampler = 1;
-	        this._mulSamplerRT = false;
-	        this._isCameraTarget = false;
-	        this._glTextureType = Laya.LayaGL.instance.TEXTURE_2D;
-	        this._width = width;
-	        this._height = height;
-	        this._depthStencilFormat = depthStencilFormat;
-	        this._mipmapCount = 1;
-	        this._mulSampler = mulSampler;
-	        this._create(width, height);
-	    }
-	    static get currentActive() {
-	        return RenderTexture._currentActive;
-	    }
-	    static createFromPool(width, height, format = Laya.RenderTextureFormat.R8G8B8, depthStencilFormat = Laya.RenderTextureDepthFormat.DEPTH_16, mulSamples = 1) {
-	        var tex;
-	        for (var i = 0, n = RenderTexture._pool.length; i < n; i++) {
-	            tex = RenderTexture._pool[i];
-	            if (tex._width == width && tex._height == height && tex._format == format && tex._depthStencilFormat == depthStencilFormat && tex._mulSampler == mulSamples) {
-	                tex._inPool = false;
-	                var end = RenderTexture._pool[n - 1];
-	                RenderTexture._pool[i] = end;
-	                RenderTexture._pool.length -= 1;
-	                return tex;
-	            }
-	        }
-	        tex = new RenderTexture(width, height, format, depthStencilFormat, mulSamples);
-	        tex.lock = true;
-	        return tex;
-	    }
-	    static recoverToPool(renderTexture) {
-	        if (renderTexture._inPool)
-	            return;
-	        RenderTexture._pool.push(renderTexture);
-	        renderTexture._inPool = true;
-	    }
-	    get depthStencilFormat() {
-	        return this._depthStencilFormat;
-	    }
-	    get defaulteTexture() {
-	        return Laya.Texture2D.grayTexture;
-	    }
-	    get mulSampler() {
-	        return this._mulSampler;
-	    }
-	    _create(width, height) {
-	        var gl = Laya.LayaGL.instance;
-	        var gl2 = gl;
-	        var glTextureType = this._glTextureType;
-	        var layaGPU = Laya.LayaGL.layaGPUInstance;
-	        var isWebGL2 = layaGPU._isWebGL2;
-	        var format = this._format;
-	        this._frameBuffer = gl.createFramebuffer();
-	        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-	        this._mulSamplerRT = isWebGL2 && (this._mulSampler > 1);
-	        if (format !== Laya.RenderTextureFormat.Depth && format !== Laya.RenderTextureFormat.ShadowMap) {
-	            if (this._mulSamplerRT) {
-	                this._mulRenderBuffer = gl2.createRenderbuffer();
-	                gl2.bindRenderbuffer(gl2.RENDERBUFFER, this._mulRenderBuffer);
-	                switch (format) {
-	                    case Laya.RenderTextureFormat.R8G8B8:
-	                        gl2.renderbufferStorageMultisample(gl2.RENDERBUFFER, this._mulSampler, gl2.RGB8, width, height);
-	                        break;
-	                    case Laya.RenderTextureFormat.R8G8B8A8:
-	                        gl2.renderbufferStorageMultisample(gl2.RENDERBUFFER, this._mulSampler, gl2.RGBA8, width, height);
-	                        break;
-	                    case Laya.RenderTextureFormat.Alpha8:
-	                        gl2.renderbufferStorageMultisample(gl2.RENDERBUFFER, this._mulSampler, gl2.ALPHA, width, height);
-	                        break;
-	                    case Laya.RenderTextureFormat.R16G16B16A16:
-	                        gl2.renderbufferStorageMultisample(gl2.RENDERBUFFER, this._mulSampler, gl2.RGBA16F, width, height);
-	                        break;
-	                }
-	                gl2.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, this._mulRenderBuffer);
-	            }
-	            Laya.WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
-	            switch (format) {
-	                case Laya.RenderTextureFormat.R8G8B8:
-	                    if (isWebGL2)
-	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.RGB8, width, height);
-	                    else
-	                        gl.texImage2D(glTextureType, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
-	                    break;
-	                case Laya.RenderTextureFormat.R8G8B8A8:
-	                    if (isWebGL2)
-	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.RGBA8, width, height);
-	                    else
-	                        gl.texImage2D(glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-	                    break;
-	                case Laya.RenderTextureFormat.Alpha8:
-	                    if (isWebGL2)
-	                        gl2.texStorage2D(glTextureType, this.mipmapCount, gl2.R8, width, height);
-	                    else
-	                        gl.texImage2D(glTextureType, 0, gl.ALPHA, width, height, 0, gl.ALPHA, gl.UNSIGNED_BYTE, null);
-	                    break;
-	                case Laya.RenderTextureFormat.R16G16B16A16:
-	                    if (isWebGL2)
-	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.RGBA16F, width, height);
-	                    else
-	                        gl.texImage2D(glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, layaGPU._oesTextureHalfFloat.HALF_FLOAT_OES, null);
-	                    break;
-	            }
-	            if (this._mulSamplerRT) {
-	                this._mulFrameBuffer = gl2.createFramebuffer();
-	                gl.bindFramebuffer(gl.FRAMEBUFFER, this._mulFrameBuffer);
-	                gl.framebufferTexture2D(gl2.FRAMEBUFFER, gl2.COLOR_ATTACHMENT0, gl2.TEXTURE_2D, this._glTexture, 0);
-	            }
-	            else
-	                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._glTexture, 0);
-	        }
-	        if (format == Laya.RenderTextureFormat.Depth || format == Laya.RenderTextureFormat.ShadowMap) {
-	            gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-	            Laya.WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
-	            this.filterMode = Laya.FilterMode.Point;
-	            switch (this._depthStencilFormat) {
-	                case Laya.RenderTextureDepthFormat.DEPTH_16:
-	                    if (isWebGL2) {
-	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.DEPTH_COMPONENT16, width, height);
+	                    else {
+	                        outDatas[i] = keyFrames[0].value;
 	                    }
-	                    else
-	                        gl.texImage2D(glTextureType, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
-	                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this._glTexture, 0);
+	                    if (addtive)
+	                        outDatas[i] = outDatas[i] - keyFrames[0].value;
 	                    break;
-	                case Laya.RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
-	                    if (isWebGL2)
-	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.DEPTH24_STENCIL8, width, height);
-	                    else
-	                        gl.texImage2D(glTextureType, 0, gl.DEPTH_STENCIL, width, height, 0, gl.DEPTH_STENCIL, layaGPU._webgl_depth_texture.UNSIGNED_INT_24_8_WEBGL, null);
-	                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, this._glTexture, 0);
+	                case 1:
+	                case 4:
+	                    var clipData = outDatas[i];
+	                    this._evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipData);
+	                    if (addtive) {
+	                        var firstFrameValue = keyFrames[0].value;
+	                        clipData.x -= firstFrameValue.x;
+	                        clipData.y -= firstFrameValue.y;
+	                        clipData.z -= firstFrameValue.z;
+	                    }
+	                    break;
+	                case 2:
+	                    var clipQuat = outDatas[i];
+	                    this._evaluateFrameNodeQuaternionDatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipQuat);
+	                    if (addtive) {
+	                        var tempQuat = AnimationClip._tempQuaternion0;
+	                        var firstFrameValueQua = keyFrames[0].value;
+	                        Utils3D.quaternionConjugate(firstFrameValueQua, tempQuat);
+	                        Quaternion.multiply(tempQuat, clipQuat, clipQuat);
+	                    }
+	                    break;
+	                case 3:
+	                    clipData = outDatas[i];
+	                    this._evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipData);
+	                    if (addtive) {
+	                        firstFrameValue = keyFrames[0].value;
+	                        clipData.x /= firstFrameValue.x;
+	                        clipData.y /= firstFrameValue.y;
+	                        clipData.z /= firstFrameValue.z;
+	                    }
 	                    break;
 	                default:
-	                    throw "RenderTexture: depth format RenderTexture must use depthFormat with DEPTH_16 and DEPTHSTENCIL_16_8.";
+	                    throw "AnimationClip:unknown node type.";
 	            }
-	            if (isWebGL2 && format == Laya.RenderTextureFormat.ShadowMap)
-	                gl2.texParameteri(glTextureType, gl2.TEXTURE_COMPARE_MODE, gl2.COMPARE_REF_TO_TEXTURE);
+	        }
+	    }
+	    _evaluateClipDatasRealTimeForNative(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive) {
+	        Laya.LayaGL.instance.evaluateClipDatasRealTime(nodes._nativeObj, playCurTime, realTimeCurrentFrameIndexes, addtive);
+	    }
+	    _evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
+	        if (frameIndex !== -1) {
+	            var frame = keyFrames[frameIndex];
+	            if (isEnd) {
+	                var frameData = frame.value;
+	                outDatas.x = frameData.x;
+	                outDatas.y = frameData.y;
+	                outDatas.z = frameData.z;
+	            }
+	            else {
+	                var nextKeyFrame = keyFrames[frameIndex + 1];
+	                var t;
+	                var startTime = frame.time;
+	                var d = nextKeyFrame.time - startTime;
+	                if (d !== 0)
+	                    t = (playCurTime - startTime) / d;
+	                else
+	                    t = 0;
+	                this._hermiteInterpolateVector3(frame, nextKeyFrame, t, d, outDatas);
+	            }
 	        }
 	        else {
-	            gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-	            if (this._depthStencilFormat !== Laya.RenderTextureDepthFormat.DEPTHSTENCIL_NONE) {
-	                this._depthStencilBuffer = gl.createRenderbuffer();
-	                gl.bindRenderbuffer(gl.RENDERBUFFER, this._depthStencilBuffer);
-	                if (this._mulSamplerRT) {
-	                    switch (this._depthStencilFormat) {
-	                        case Laya.RenderTextureDepthFormat.DEPTH_16:
-	                            gl2.renderbufferStorageMultisample(gl.RENDERBUFFER, this._mulSampler, gl2.DEPTH_COMPONENT16, width, height);
-	                            gl2.framebufferRenderbuffer(gl.FRAMEBUFFER, gl2.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
-	                            break;
-	                        case Laya.RenderTextureDepthFormat.STENCIL_8:
-	                            gl2.renderbufferStorageMultisample(gl.RENDERBUFFER, this._mulSampler, gl2.STENCIL_INDEX8, width, height);
-	                            gl2.framebufferRenderbuffer(gl.FRAMEBUFFER, gl2.STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
-	                            break;
-	                        case Laya.RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
-	                            gl2.renderbufferStorageMultisample(gl.RENDERBUFFER, this._mulSampler, gl2.DEPTH_STENCIL, width, height);
-	                            gl2.framebufferRenderbuffer(gl.FRAMEBUFFER, gl2.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
-	                            break;
-	                        default:
-	                            throw "RenderTexture: unkonw depth format.";
-	                    }
-	                }
-	                else {
-	                    switch (this._depthStencilFormat) {
-	                        case Laya.RenderTextureDepthFormat.DEPTH_16:
-	                            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
-	                            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl2.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
-	                            break;
-	                        case Laya.RenderTextureDepthFormat.STENCIL_8:
-	                            gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
-	                            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
-	                            break;
-	                        case Laya.RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
-	                            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
-	                            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
-	                            break;
-	                        default:
-	                            throw "RenderTexture: unkonw depth format.";
-	                    }
-	                }
-	                gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+	            var firstFrameDatas = keyFrames[0].value;
+	            outDatas.x = firstFrameDatas.x;
+	            outDatas.y = firstFrameDatas.y;
+	            outDatas.z = firstFrameDatas.z;
+	        }
+	    }
+	    _evaluateFrameNodeQuaternionDatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
+	        if (frameIndex !== -1) {
+	            var frame = keyFrames[frameIndex];
+	            if (isEnd) {
+	                var frameData = frame.value;
+	                outDatas.x = frameData.x;
+	                outDatas.y = frameData.y;
+	                outDatas.z = frameData.z;
+	                outDatas.w = frameData.w;
+	            }
+	            else {
+	                var nextKeyFrame = keyFrames[frameIndex + 1];
+	                var t;
+	                var startTime = frame.time;
+	                var d = nextKeyFrame.time - startTime;
+	                if (d !== 0)
+	                    t = (playCurTime - startTime) / d;
+	                else
+	                    t = 0;
+	                this._hermiteInterpolateQuaternion(frame, nextKeyFrame, t, d, outDatas);
 	            }
 	        }
-	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	        this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
-	        this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
-	        this._setFilterMode(this._filterMode);
-	        this._setAnisotropy(this._anisoLevel);
-	        this._readyed = true;
-	        this._activeResource();
-	        this._setGPUMemory(width * height * 4);
+	        else {
+	            var firstFrameDatas = keyFrames[0].value;
+	            outDatas.x = firstFrameDatas.x;
+	            outDatas.y = firstFrameDatas.y;
+	            outDatas.z = firstFrameDatas.z;
+	            outDatas.w = firstFrameDatas.w;
+	        }
 	    }
-	    _start() {
-	        var gl = Laya.LayaGL.instance;
-	        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-	        RenderTexture._currentActive = this;
-	        (this._isCameraTarget) && (RenderContext3D._instance.invertY = true);
-	        this._readyed = false;
+	    _binarySearchEventIndex(time) {
+	        var start = 0;
+	        var end = this._animationEvents.length - 1;
+	        var mid;
+	        while (start <= end) {
+	            mid = Math.floor((start + end) / 2);
+	            var midValue = this._animationEvents[mid].time;
+	            if (midValue == time)
+	                return mid;
+	            else if (midValue > time)
+	                end = mid - 1;
+	            else
+	                start = mid + 1;
+	        }
+	        return start;
 	    }
-	    _end() {
-	        var gl = Laya.LayaGL.instance;
-	        var gl2 = gl;
-	        if (this._mulSamplerRT) {
-	            gl2.bindFramebuffer(gl2.READ_FRAMEBUFFER, this._frameBuffer);
-	            gl2.bindFramebuffer(gl2.DRAW_FRAMEBUFFER, this._mulFrameBuffer);
-	            gl2.clearBufferfv(gl2.COLOR, 0, [0.0, 0.0, 0.0, 0.0]);
-	            gl2.blitFramebuffer(0, 0, this.width, this.height, 0, 0, this._width, this._height, gl2.COLOR_BUFFER_BIT, gl.NEAREST);
-	        }
-	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	        RenderTexture._currentActive = null;
-	        (this._isCameraTarget) && (RenderContext3D._instance.invertY = false);
-	        this._readyed = true;
-	    }
-	    getData(x, y, width, height, out) {
-	        if (Laya.Render.isConchApp && window.conchConfig.threadMode == 2) {
-	            throw "native 2 thread mode use getDataAsync";
-	        }
-	        var gl = Laya.LayaGL.instance;
-	        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-	        var canRead = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
-	        if (!canRead) {
-	            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	            return null;
-	        }
-	        switch (this.format) {
-	            case Laya.RenderTextureFormat.R8G8B8:
-	                gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
-	                break;
-	            case Laya.RenderTextureFormat.R8G8B8A8:
-	                gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
-	                break;
-	            case Laya.RenderTextureFormat.R16G16B16A16:
-	                gl.readPixels(x, y, width, height, gl.RGBA, gl.FLOAT, out);
-	                debugger;
-	                break;
-	        }
-	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	        return out;
+	    addEvent(event) {
+	        var index = this._binarySearchEventIndex(event.time);
+	        this._animationEvents.splice(index, 0, event);
 	    }
 	    _disposeResource() {
-	        if (this._frameBuffer) {
-	            var gl = Laya.LayaGL.instance;
-	            gl.deleteTexture(this._glTexture);
-	            gl.deleteFramebuffer(this._frameBuffer);
-	            gl.deleteRenderbuffer(this._depthStencilBuffer);
-	            this._glTexture = null;
-	            this._frameBuffer = null;
-	            this._depthStencilBuffer = null;
-	            this._setGPUMemory(0);
-	        }
-	    }
-	    getDataAsync(x, y, width, height, callBack) {
-	        var gl = Laya.LayaGL.instance;
-	        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-	        gl.readPixelsAsync(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, function (data) {
-	            callBack(new Uint8Array(data));
-	        });
-	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	        this._nodes = null;
+	        this._nodesMap = null;
 	    }
 	}
-	RenderTexture._pool = [];
-
-	class Picker {
-	    constructor() {
-	    }
-	    static calculateCursorRay(point, viewPort, projectionMatrix, viewMatrix, world, out) {
-	        var x = point.x;
-	        var y = point.y;
-	        var nearSource = Picker._tempVector30;
-	        var nerSourceE = nearSource;
-	        nerSourceE.x = x;
-	        nerSourceE.y = y;
-	        nerSourceE.z = viewPort.minDepth;
-	        var farSource = Picker._tempVector31;
-	        var farSourceE = farSource;
-	        farSourceE.x = x;
-	        farSourceE.y = y;
-	        farSourceE.z = viewPort.maxDepth;
-	        var nearPoint = out.origin;
-	        var farPoint = Picker._tempVector32;
-	        viewPort.unprojectFromWVP(nearSource, projectionMatrix, viewMatrix, world, nearPoint);
-	        viewPort.unprojectFromWVP(farSource, projectionMatrix, viewMatrix, world, farPoint);
-	        var outDire = out.direction;
-	        outDire.x = farPoint.x - nearPoint.x;
-	        outDire.y = farPoint.y - nearPoint.y;
-	        outDire.z = farPoint.z - nearPoint.z;
-	        Vector3.normalize(out.direction, out.direction);
-	    }
-	    static rayIntersectsTriangle(ray, vertex1, vertex2, vertex3) {
-	        var result;
-	        var edge1 = Picker._tempVector30, edge2 = Picker._tempVector31;
-	        Vector3.subtract(vertex2, vertex1, edge1);
-	        Vector3.subtract(vertex3, vertex1, edge2);
-	        var directionCrossEdge2 = Picker._tempVector32;
-	        Vector3.cross(ray.direction, edge2, directionCrossEdge2);
-	        var determinant;
-	        determinant = Vector3.dot(edge1, directionCrossEdge2);
-	        if (determinant > -Number.MIN_VALUE && determinant < Number.MIN_VALUE) {
-	            result = Number.NaN;
-	            return result;
-	        }
-	        var inverseDeterminant = 1.0 / determinant;
-	        var distanceVector = Picker._tempVector33;
-	        Vector3.subtract(ray.origin, vertex1, distanceVector);
-	        var triangleU;
-	        triangleU = Vector3.dot(distanceVector, directionCrossEdge2);
-	        triangleU *= inverseDeterminant;
-	        if (triangleU < 0 || triangleU > 1) {
-	            result = Number.NaN;
-	            return result;
-	        }
-	        var distanceCrossEdge1 = Picker._tempVector34;
-	        Vector3.cross(distanceVector, edge1, distanceCrossEdge1);
-	        var triangleV;
-	        triangleV = Vector3.dot(ray.direction, distanceCrossEdge1);
-	        triangleV *= inverseDeterminant;
-	        if (triangleV < 0 || triangleU + triangleV > 1) {
-	            result = Number.NaN;
-	            return result;
-	        }
-	        var rayDistance;
-	        rayDistance = Vector3.dot(edge2, distanceCrossEdge1);
-	        rayDistance *= inverseDeterminant;
-	        if (rayDistance < 0) {
-	            result = Number.NaN;
-	            return result;
-	        }
-	        result = rayDistance;
-	        return result;
-	    }
-	}
-	Picker._tempVector30 = new Vector3();
-	Picker._tempVector31 = new Vector3();
-	Picker._tempVector32 = new Vector3();
-	Picker._tempVector33 = new Vector3();
-	Picker._tempVector34 = new Vector3();
-
-	class BufferState extends Laya.BufferStateBase {
-	    constructor() {
-	        super();
-	    }
-	    applyVertexBuffer(vertexBuffer) {
-	        if (Laya.BufferStateBase._curBindedBufferState === this) {
-	            var gl = Laya.LayaGL.instance;
-	            var verDec = vertexBuffer.vertexDeclaration;
-	            var valueData = verDec._shaderValues.getData();
-	            this.vertexDeclaration = verDec;
-	            vertexBuffer.bind();
-	            for (var k in valueData) {
-	                var loc = parseInt(k);
-	                var attribute = valueData[k];
-	                gl.enableVertexAttribArray(loc);
-	                gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
-	            }
-	        }
-	        else {
-	            throw "BufferState: must call bind() function first.";
-	        }
-	    }
-	    applyVertexBuffers(vertexBuffers) {
-	        if (Laya.BufferStateBase._curBindedBufferState === this) {
-	            var gl = Laya.LayaGL.instance;
-	            for (var i = 0, n = vertexBuffers.length; i < n; i++) {
-	                var verBuf = vertexBuffers[i];
-	                var verDec = verBuf.vertexDeclaration;
-	                var valueData = verDec._shaderValues.getData();
-	                verBuf.bind();
-	                for (var k in valueData) {
-	                    var loc = parseInt(k);
-	                    var attribute = valueData[k];
-	                    gl.enableVertexAttribArray(loc);
-	                    gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
-	                }
-	            }
-	        }
-	        else {
-	            throw "BufferState: must call bind() function first.";
-	        }
-	    }
-	    applyInstanceVertexBuffer(vertexBuffer) {
-	        if (Laya.LayaGL.layaGPUInstance.supportInstance()) {
-	            if (Laya.BufferStateBase._curBindedBufferState === this) {
-	                var gl = Laya.LayaGL.instance;
-	                var verDec = vertexBuffer.vertexDeclaration;
-	                var valueData = verDec._shaderValues.getData();
-	                vertexBuffer.bind();
-	                for (var k in valueData) {
-	                    var loc = parseInt(k);
-	                    var attribute = valueData[k];
-	                    gl.enableVertexAttribArray(loc);
-	                    gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
-	                    Laya.LayaGL.layaGPUInstance.vertexAttribDivisor(loc, 1);
-	                }
-	            }
-	            else {
-	                throw "BufferState: must call bind() function first.";
-	            }
-	        }
-	    }
-	    applyIndexBuffer(indexBuffer) {
-	        if (Laya.BufferStateBase._curBindedBufferState === this) {
-	            if (this._bindedIndexBuffer !== indexBuffer) {
-	                indexBuffer._bindForVAO();
-	                this._bindedIndexBuffer = indexBuffer;
-	            }
-	        }
-	        else {
-	            throw "BufferState: must call bind() function first.";
-	        }
-	    }
-	}
-
-	(function (IndexFormat) {
-	    IndexFormat[IndexFormat["UInt8"] = 0] = "UInt8";
-	    IndexFormat[IndexFormat["UInt16"] = 1] = "UInt16";
-	    IndexFormat[IndexFormat["UInt32"] = 2] = "UInt32";
-	})(exports.IndexFormat || (exports.IndexFormat = {}));
-
-	class IndexBuffer3D extends Laya.Buffer {
-	    constructor(indexType, indexCount, bufferUsage = 0x88E4, canRead = false) {
-	        super();
-	        this._indexType = indexType;
-	        this._indexCount = indexCount;
-	        this._bufferUsage = bufferUsage;
-	        this._bufferType = Laya.LayaGL.instance.ELEMENT_ARRAY_BUFFER;
-	        this._canRead = canRead;
-	        switch (indexType) {
-	            case exports.IndexFormat.UInt32:
-	                this._indexTypeByteCount = 4;
-	                break;
-	            case exports.IndexFormat.UInt16:
-	                this._indexTypeByteCount = 2;
-	                break;
-	            case exports.IndexFormat.UInt8:
-	                this._indexTypeByteCount = 1;
-	                break;
-	            default:
-	                throw new Error("unidentification index type.");
-	        }
-	        var byteLength = this._indexTypeByteCount * indexCount;
-	        var curBufSta = Laya.BufferStateBase._curBindedBufferState;
-	        this._byteLength = byteLength;
-	        if (curBufSta) {
-	            if (curBufSta._bindedIndexBuffer === this) {
-	                Laya.LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
-	            }
-	            else {
-	                curBufSta.unBind();
-	                this.bind();
-	                Laya.LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
-	                curBufSta.bind();
-	            }
-	        }
-	        else {
-	            this.bind();
-	            Laya.LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
-	        }
-	        if (canRead) {
-	            switch (indexType) {
-	                case exports.IndexFormat.UInt32:
-	                    this._buffer = new Uint32Array(indexCount);
-	                    break;
-	                case exports.IndexFormat.UInt16:
-	                    this._buffer = new Uint16Array(indexCount);
-	                    break;
-	                case exports.IndexFormat.UInt8:
-	                    this._buffer = new Uint8Array(indexCount);
-	                    break;
-	            }
-	        }
-	    }
-	    get indexType() {
-	        return this._indexType;
-	    }
-	    get indexTypeByteCount() {
-	        return this._indexTypeByteCount;
-	    }
-	    get indexCount() {
-	        return this._indexCount;
-	    }
-	    get canRead() {
-	        return this._canRead;
-	    }
-	    _bindForVAO() {
-	        if (Laya.BufferStateBase._curBindedBufferState) {
-	            var gl = Laya.LayaGL.instance;
-	            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
-	        }
-	        else {
-	            throw "IndexBuffer3D: must bind current BufferState.";
-	        }
-	    }
-	    bind() {
-	        if (Laya.BufferStateBase._curBindedBufferState) {
-	            throw "IndexBuffer3D: must unbind current BufferState.";
-	        }
-	        else {
-	            if (Laya.Buffer._bindedIndexBuffer !== this._glBuffer) {
-	                var gl = Laya.LayaGL.instance;
-	                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
-	                Laya.Buffer._bindedIndexBuffer = this._glBuffer;
-	                return true;
-	            }
-	            else {
-	                return false;
-	            }
-	        }
-	    }
-	    setData(data, bufferOffset = 0, dataStartIndex = 0, dataCount = 4294967295) {
-	        var byteCount = this._indexTypeByteCount;
-	        if (dataStartIndex !== 0 || dataCount !== 4294967295) {
-	            switch (this._indexType) {
-	                case exports.IndexFormat.UInt32:
-	                    data = new Uint32Array(data.buffer, dataStartIndex * byteCount, dataCount);
-	                    break;
-	                case exports.IndexFormat.UInt16:
-	                    data = new Uint16Array(data.buffer, dataStartIndex * byteCount, dataCount);
-	                    break;
-	                case exports.IndexFormat.UInt8:
-	                    data = new Uint8Array(data.buffer, dataStartIndex * byteCount, dataCount);
-	                    break;
-	            }
-	        }
-	        var curBufSta = Laya.BufferStateBase._curBindedBufferState;
-	        if (curBufSta) {
-	            if (curBufSta._bindedIndexBuffer === this) {
-	                Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * byteCount, data);
-	            }
-	            else {
-	                curBufSta.unBind();
-	                this.bind();
-	                Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * byteCount, data);
-	                curBufSta.bind();
-	            }
-	        }
-	        else {
-	            this.bind();
-	            Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * byteCount, data);
-	        }
-	        if (this._canRead) {
-	            if (bufferOffset !== 0 || dataStartIndex !== 0 || dataCount !== 4294967295) {
-	                var maxLength = this._buffer.length - bufferOffset;
-	                if (dataCount > maxLength)
-	                    dataCount = maxLength;
-	                for (var i = 0; i < dataCount; i++)
-	                    this._buffer[bufferOffset + i] = data[i];
-	            }
-	            else {
-	                this._buffer = data;
-	            }
-	        }
-	    }
-	    getData() {
-	        if (this._canRead)
-	            return this._buffer;
-	        else
-	            throw new Error("Can't read data from VertexBuffer with only write flag!");
-	    }
-	    destroy() {
-	        super.destroy();
-	        this._buffer = null;
-	        this._byteLength = 0;
-	        this._indexCount = 0;
-	    }
-	}
-
-	class SkyMesh {
-	    constructor() {
-	    }
-	    _render(state) {
-	    }
-	}
-
-	class SkyBox extends SkyMesh {
-	    constructor() {
-	        super();
-	        var gl = Laya.LayaGL.instance;
-	        var halfHeight = 1.0;
-	        var halfWidth = 1.0;
-	        var halfDepth = 1.0;
-	        var vertices = new Float32Array([-halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, halfWidth, -halfDepth, halfHeight, halfWidth,
-	            -halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, halfWidth, -halfDepth, -halfHeight, halfWidth]);
-	        var indices = new Uint8Array([
-	            0, 1, 2, 2, 3, 0,
-	            4, 7, 6, 6, 5, 4,
-	            0, 3, 7, 7, 4, 0,
-	            1, 5, 6, 6, 2, 1,
-	            3, 2, 6, 6, 7, 3,
-	            0, 4, 5, 5, 1, 0
-	        ]);
-	        var verDec = VertexMesh.getVertexDeclaration("POSITION");
-	        this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, gl.STATIC_DRAW, false);
-	        this._vertexBuffer.vertexDeclaration = verDec;
-	        this._indexBuffer = new IndexBuffer3D(exports.IndexFormat.UInt8, 36, gl.STATIC_DRAW, false);
-	        this._vertexBuffer.setData(vertices.buffer);
-	        this._indexBuffer.setData(indices);
-	        var bufferState = new BufferState();
-	        bufferState.bind();
-	        bufferState.applyVertexBuffer(this._vertexBuffer);
-	        bufferState.applyIndexBuffer(this._indexBuffer);
-	        bufferState.unBind();
-	        this._bufferState = bufferState;
-	    }
-	    static __init__() {
-	        SkyBox.instance = new SkyBox();
-	    }
-	    _render(state) {
-	        var gl = Laya.LayaGL.instance;
-	        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
-	        Laya.Stat.trianglesFaces += 12;
-	        Laya.Stat.renderBatches++;
-	    }
-	}
-
-	class SkyRenderer {
-	    constructor() {
-	        this._mesh = SkyBox.instance;
-	    }
-	    get material() {
-	        return this._material;
-	    }
-	    set material(value) {
-	        if (this._material !== value) {
-	            (this._material) && (this._material._removeReference());
-	            (value) && (value._addReference());
-	            this._material = value;
-	        }
-	    }
-	    get mesh() {
-	        return this._mesh;
-	    }
-	    set mesh(value) {
-	        if (this._mesh !== value) {
-	            this._mesh = value;
-	        }
-	    }
-	    _isAvailable() {
-	        return this._material && this._mesh ? true : false;
-	    }
-	    _render(context) {
-	        if (this._material && this._mesh) {
-	            var gl = Laya.LayaGL.instance;
-	            var scene = context.scene;
-	            var cameraShaderValue = context.cameraShaderValue;
-	            var camera = context.camera;
-	            var noteValue = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
-	            Laya.ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
-	            Laya.WebGLContext.setCullFace(gl, false);
-	            Laya.WebGLContext.setDepthFunc(gl, gl.LEQUAL);
-	            Laya.WebGLContext.setDepthMask(gl, false);
-	            var comDef = SkyRenderer._compileDefine;
-	            this._material._shaderValues._defineDatas.cloneTo(comDef);
-	            var shader = context.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(comDef);
-	            var switchShader = shader.bind();
-	            var switchShaderLoop = (Laya.Stat.loopCount !== shader._uploadMark);
-	            var uploadScene = (shader._uploadScene !== scene) || switchShaderLoop;
-	            if (uploadScene || switchShader) {
-	                shader.uploadUniforms(shader._sceneUniformParamsMap, scene._shaderValues, uploadScene);
-	                shader._uploadScene = scene;
-	            }
-	            var uploadCamera = (shader._uploadCameraShaderValue !== cameraShaderValue) || switchShaderLoop;
-	            if (uploadCamera || switchShader) {
-	                var viewMatrix = SkyRenderer._tempMatrix0;
-	                var projectionMatrix = SkyRenderer._tempMatrix1;
-	                camera.viewMatrix.cloneTo(viewMatrix);
-	                camera.projectionMatrix.cloneTo(projectionMatrix);
-	                viewMatrix.setTranslationVector(Vector3._ZERO);
-	                if (camera.orthographic)
-	                    Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
-	                var epsilon = 1e-6;
-	                var yScale = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
-	                projectionMatrix.elements[0] = yScale / camera.aspectRatio;
-	                projectionMatrix.elements[5] = yScale;
-	                projectionMatrix.elements[10] = epsilon - 1.0;
-	                projectionMatrix.elements[11] = -1.0;
-	                projectionMatrix.elements[14] = -0;
-	                camera._applyViewProject(context, viewMatrix, projectionMatrix);
-	                shader.uploadUniforms(shader._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
-	                shader._uploadCameraShaderValue = cameraShaderValue;
-	            }
-	            var uploadMaterial = (shader._uploadMaterial !== this._material) || switchShaderLoop;
-	            if (uploadMaterial || switchShader) {
-	                shader.uploadUniforms(shader._materialUniformParamsMap, this._material._shaderValues, uploadMaterial);
-	                shader._uploadMaterial = this._material;
-	            }
-	            this._mesh._bufferState.bind();
-	            this._mesh._render(context);
-	            Laya.ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
-	            Laya.WebGLContext.setDepthFunc(gl, gl.LESS);
-	            Laya.WebGLContext.setDepthMask(gl, true);
-	            camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
-	        }
-	    }
-	    destroy() {
-	        if (this._material) {
-	            this._material._removeReference();
-	            this._material = null;
-	        }
-	    }
-	}
-	SkyRenderer._tempMatrix0 = new Matrix4x4();
-	SkyRenderer._tempMatrix1 = new Matrix4x4();
-	SkyRenderer._compileDefine = new DefineDatas();
-
-	class ShaderDefine {
-	    constructor(index, value) {
-	        this._index = index;
-	        this._value = value;
-	    }
-	}
-
-	class ShaderVariant {
-	    constructor(shader, subShaderIndex, passIndex, defines) {
-	        this._subShaderIndex = 0;
-	        this._passIndex = 0;
-	        this.setValue(shader, subShaderIndex, passIndex, defines);
-	    }
-	    get shader() {
-	        return this._shader;
-	    }
-	    get subShaderIndex() {
-	        return this._subShaderIndex;
-	    }
-	    get passIndex() {
-	        return this._passIndex;
-	    }
-	    get defineNames() {
-	        return this._defineNames;
-	    }
-	    setValue(shader, subShaderIndex, passIndex, defineNames) {
-	        if (shader) {
-	            var subShader = shader.getSubShaderAt(subShaderIndex);
-	            if (subShader) {
-	                var pass = subShader._passes[passIndex];
-	                if (pass) {
-	                    var validDefine = pass._validDefine;
-	                    for (var i = 0, n = defineNames.length; i < n; i++) {
-	                        var defname = defineNames[i];
-	                        if (!validDefine.has(ILaya3D.Shader3D.getDefineByName(defname)))
-	                            throw `ShaderVariantInfo:Invalid defineName ${defname} in ${shader._name} subShaderIndex of ${subShaderIndex} passIndex of ${passIndex}.`;
-	                    }
-	                }
-	                else {
-	                    throw `ShaderVariantInfo:Shader don't have passIndex of ${passIndex}.`;
-	                }
-	            }
-	            else {
-	                throw `ShaderVariantInfo:Shader don't have subShaderIndex of ${subShaderIndex}.`;
-	            }
-	        }
-	        else {
-	            throw `ShaderVariantInfo:Shader can't be null.`;
-	        }
-	        this._shader = shader;
-	        this._subShaderIndex = subShaderIndex;
-	        this._passIndex = passIndex;
-	        this._defineNames = defineNames;
-	    }
-	    equal(other) {
-	        if (this._shader !== other._shader || this._subShaderIndex !== other._subShaderIndex || this._passIndex !== other._passIndex)
-	            return false;
-	        var defines = this._defineNames;
-	        var otherDefines = other._defineNames;
-	        if (defines.length !== otherDefines.length)
-	            return false;
-	        for (var i = 0, n = this._defineNames.length; i < n; i++) {
-	            if (defines[i] !== otherDefines[i])
-	                return false;
-	        }
-	        return true;
-	    }
-	    clone() {
-	        var dest = new ShaderVariant(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
-	        return dest;
-	    }
-	}
-	class ShaderVariantCollection {
-	    constructor() {
-	        this._allCompiled = false;
-	        this._variants = [];
-	    }
-	    get allCompiled() {
-	        return this._allCompiled;
-	    }
-	    get variantCount() {
-	        return this._variants.length;
-	    }
-	    add(variant) {
-	        for (var i = 0, n = this._variants.length; i < n; i++) {
-	            if (this._variants[i].equal(variant))
-	                return false;
-	        }
-	        this._variants.push(variant.clone());
-	        this._allCompiled = false;
-	        return true;
-	    }
-	    remove(variant) {
-	        for (var i = 0, n = this._variants.length; i < n; i++) {
-	            if (this._variants[i].equal(variant)) {
-	                this._variants.splice(i, 1);
-	                return true;
-	            }
-	        }
-	        return false;
-	    }
-	    contatins(variant) {
-	        for (var i = 0, n = this._variants.length; i < n; i++) {
-	            if (this._variants[i].equal(variant))
-	                return true;
-	        }
-	        return false;
-	    }
-	    getByIndex(index) {
-	        return this._variants[index];
-	    }
-	    clear() {
-	        this._variants.length = 0;
-	    }
-	    compile() {
-	        if (!this._allCompiled) {
-	            var variants = this._variants;
-	            for (var i = 0, n = variants.length; i < n; i++) {
-	                var variant = variants[i];
-	                ILaya3D.Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames);
-	            }
-	            this._allCompiled = true;
-	        }
-	    }
-	}
-
-	class Shader3D {
-	    constructor(name, attributeMap, uniformMap, enableInstancing, supportReflectionProbe) {
-	        this._attributeMap = null;
-	        this._uniformMap = null;
-	        this._enableInstancing = false;
-	        this._supportReflectionProbe = false;
-	        this._subShaders = [];
-	        this._name = name;
-	        this._attributeMap = attributeMap;
-	        this._uniformMap = uniformMap;
-	        this._enableInstancing = enableInstancing;
-	        this._supportReflectionProbe = supportReflectionProbe;
-	    }
-	    static _getNamesByDefineData(defineData, out) {
-	        var maskMap = Shader3D._maskMap;
-	        var mask = defineData._mask;
-	        out.length = 0;
-	        for (var i = 0, n = defineData._length; i < n; i++) {
-	            var subMaskMap = maskMap[i];
-	            var subMask = mask[i];
-	            for (var j = 0; j < 32; j++) {
-	                var d = 1 << j;
-	                if (subMask > 0 && d > subMask)
-	                    break;
-	                if (subMask & d)
-	                    out.push(subMaskMap[d]);
-	            }
-	        }
-	    }
-	    static getDefineByName(name) {
-	        var define = Shader3D._defineMap[name];
-	        if (!define) {
-	            var maskMap = Shader3D._maskMap;
-	            var counter = Shader3D._defineCounter;
-	            var index = Math.floor(counter / 32);
-	            var value = 1 << counter % 32;
-	            define = new ShaderDefine(index, value);
-	            Shader3D._defineMap[name] = define;
-	            if (index == maskMap.length) {
-	                maskMap.length++;
-	                maskMap[index] = {};
-	            }
-	            maskMap[index][value] = name;
-	            Shader3D._defineCounter++;
-	        }
-	        return define;
-	    }
-	    static propertyNameToID(name) {
-	        if (Shader3D._propertyNameMap[name] != null) {
-	            return Shader3D._propertyNameMap[name];
-	        }
-	        else {
-	            var id = Shader3D._propertyNameCounter++;
-	            Shader3D._propertyNameMap[name] = id;
-	            Shader3D._propertyNameMap[id] = name;
-	            return id;
-	        }
-	    }
-	    static addInclude(fileName, txt) {
-	        txt = txt.replace(Laya.ShaderCompile._clearCR, "");
-	        Laya.ShaderCompile.addInclude(fileName, txt);
-	    }
-	    static compileShaderByDefineNames(shaderName, subShaderIndex, passIndex, defineNames) {
-	        var shader = Shader3D.find(shaderName);
-	        if (shader) {
-	            var subShader = shader.getSubShaderAt(subShaderIndex);
-	            if (subShader) {
-	                var pass = subShader._passes[passIndex];
-	                if (pass) {
-	                    var compileDefineDatas = Shader3D._compileDefineDatas;
-	                    compileDefineDatas.clear();
-	                    for (var i = 0, n = defineNames.length; i < n; i++)
-	                        compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
-	                    pass.withCompile(compileDefineDatas);
-	                }
-	                else {
-	                    console.warn("Shader3D: unknown passIndex.");
-	                }
-	            }
-	            else {
-	                console.warn("Shader3D: unknown subShaderIndex.");
-	            }
-	        }
-	        else {
-	            console.warn("Shader3D: unknown shader name.");
-	        }
-	    }
-	    static add(name, attributeMap = null, uniformMap = null, enableInstancing = false, supportReflectionProbe = false) {
-	        return Shader3D._preCompileShader[name] = new Shader3D(name, attributeMap, uniformMap, enableInstancing, supportReflectionProbe);
-	    }
-	    static find(name) {
-	        return Shader3D._preCompileShader[name];
-	    }
-	    get name() {
-	        return this._name;
-	    }
-	    addSubShader(subShader) {
-	        this._subShaders.push(subShader);
-	        subShader._owner = this;
-	    }
-	    getSubShaderAt(index) {
-	        return this._subShaders[index];
-	    }
-	    static compileShader(shaderName, subShaderIndex, passIndex, ...defineMask) {
-	        var shader = Shader3D.find(shaderName);
-	        if (shader) {
-	            var subShader = shader.getSubShaderAt(subShaderIndex);
-	            if (subShader) {
-	                var pass = subShader._passes[passIndex];
-	                if (pass) {
-	                    var compileDefineDatas = Shader3D._compileDefineDatas;
-	                    var mask = compileDefineDatas._mask;
-	                    mask.length = 0;
-	                    for (var i = 0, n = defineMask.length; i < n; i++)
-	                        mask.push(defineMask[i]);
-	                    compileDefineDatas._length = defineMask.length;
-	                    pass.withCompile(compileDefineDatas);
-	                }
-	                else {
-	                    console.warn("Shader3D: unknown passIndex.");
-	                }
-	            }
-	            else {
-	                console.warn("Shader3D: unknown subShaderIndex.");
-	            }
-	        }
-	        else {
-	            console.warn("Shader3D: unknown shader name.");
-	        }
-	    }
-	}
-	Shader3D._compileDefineDatas = new DefineDatas();
-	Shader3D.RENDER_STATE_CULL = 0;
-	Shader3D.RENDER_STATE_BLEND = 1;
-	Shader3D.RENDER_STATE_BLEND_SRC = 2;
-	Shader3D.RENDER_STATE_BLEND_DST = 3;
-	Shader3D.RENDER_STATE_BLEND_SRC_RGB = 4;
-	Shader3D.RENDER_STATE_BLEND_DST_RGB = 5;
-	Shader3D.RENDER_STATE_BLEND_SRC_ALPHA = 6;
-	Shader3D.RENDER_STATE_BLEND_DST_ALPHA = 7;
-	Shader3D.RENDER_STATE_BLEND_CONST_COLOR = 8;
-	Shader3D.RENDER_STATE_BLEND_EQUATION = 9;
-	Shader3D.RENDER_STATE_BLEND_EQUATION_RGB = 10;
-	Shader3D.RENDER_STATE_BLEND_EQUATION_ALPHA = 11;
-	Shader3D.RENDER_STATE_DEPTH_TEST = 12;
-	Shader3D.RENDER_STATE_DEPTH_WRITE = 13;
-	Shader3D.PERIOD_CUSTOM = 0;
-	Shader3D.PERIOD_MATERIAL = 1;
-	Shader3D.PERIOD_SPRITE = 2;
-	Shader3D.PERIOD_CAMERA = 3;
-	Shader3D.PERIOD_SCENE = 4;
-	Shader3D._propertyNameMap = {};
-	Shader3D._propertyNameCounter = 0;
-	Shader3D._defineCounter = 0;
-	Shader3D._defineMap = {};
-	Shader3D._preCompileShader = {};
-	Shader3D._maskMap = [];
-	Shader3D.debugMode = false;
-	Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
+	AnimationClip.ANIMATIONCLIP = "ANIMATIONCLIP";
+	AnimationClip._tempQuaternion0 = new Quaternion();
 
 	class AnimatorPlayState {
 	    constructor() {
@@ -7086,6 +4080,2203 @@
 	Animator.CULLINGMODE_ALWAYSANIMATE = 0;
 	Animator.CULLINGMODE_CULLCOMPLETELY = 2;
 
+	class RenderContext3D {
+	    constructor() {
+	        this.invertY = false;
+	        this.configPipeLineMode = "Forward";
+	    }
+	}
+	RenderContext3D._instance = new RenderContext3D();
+
+	class RenderTexture extends Laya.BaseTexture {
+	    constructor(width, height, format = Laya.RenderTextureFormat.R8G8B8, depthStencilFormat = Laya.RenderTextureDepthFormat.DEPTH_16, mulSampler = 1) {
+	        super(format, false);
+	        this._inPool = false;
+	        this._mulSampler = 1;
+	        this._mulSamplerRT = false;
+	        this._isCameraTarget = false;
+	        this._glTextureType = Laya.LayaGL.instance.TEXTURE_2D;
+	        this._width = width;
+	        this._height = height;
+	        this._depthStencilFormat = depthStencilFormat;
+	        this._mipmapCount = 1;
+	        this._mulSampler = mulSampler;
+	        this._create(width, height);
+	    }
+	    static get currentActive() {
+	        return RenderTexture._currentActive;
+	    }
+	    static createFromPool(width, height, format = Laya.RenderTextureFormat.R8G8B8, depthStencilFormat = Laya.RenderTextureDepthFormat.DEPTH_16, mulSamples = 1) {
+	        var tex;
+	        for (var i = 0, n = RenderTexture._pool.length; i < n; i++) {
+	            tex = RenderTexture._pool[i];
+	            if (tex._width == width && tex._height == height && tex._format == format && tex._depthStencilFormat == depthStencilFormat && tex._mulSampler == mulSamples) {
+	                tex._inPool = false;
+	                var end = RenderTexture._pool[n - 1];
+	                RenderTexture._pool[i] = end;
+	                RenderTexture._pool.length -= 1;
+	                return tex;
+	            }
+	        }
+	        tex = new RenderTexture(width, height, format, depthStencilFormat, mulSamples);
+	        tex.lock = true;
+	        return tex;
+	    }
+	    static recoverToPool(renderTexture) {
+	        if (renderTexture._inPool)
+	            return;
+	        RenderTexture._pool.push(renderTexture);
+	        renderTexture._inPool = true;
+	    }
+	    get depthStencilFormat() {
+	        return this._depthStencilFormat;
+	    }
+	    get defaulteTexture() {
+	        return Laya.Texture2D.grayTexture;
+	    }
+	    get mulSampler() {
+	        return this._mulSampler;
+	    }
+	    _create(width, height) {
+	        var gl = Laya.LayaGL.instance;
+	        var gl2 = gl;
+	        var glTextureType = this._glTextureType;
+	        var layaGPU = Laya.LayaGL.layaGPUInstance;
+	        var isWebGL2 = layaGPU._isWebGL2;
+	        var format = this._format;
+	        this._frameBuffer = gl.createFramebuffer();
+	        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+	        this._mulSamplerRT = isWebGL2 && (this._mulSampler > 1);
+	        if (format !== Laya.RenderTextureFormat.Depth && format !== Laya.RenderTextureFormat.ShadowMap) {
+	            if (this._mulSamplerRT) {
+	                this._mulRenderBuffer = gl2.createRenderbuffer();
+	                gl2.bindRenderbuffer(gl2.RENDERBUFFER, this._mulRenderBuffer);
+	                switch (format) {
+	                    case Laya.RenderTextureFormat.R8G8B8:
+	                        gl2.renderbufferStorageMultisample(gl2.RENDERBUFFER, this._mulSampler, gl2.RGB8, width, height);
+	                        break;
+	                    case Laya.RenderTextureFormat.R8G8B8A8:
+	                        gl2.renderbufferStorageMultisample(gl2.RENDERBUFFER, this._mulSampler, gl2.RGBA8, width, height);
+	                        break;
+	                    case Laya.RenderTextureFormat.Alpha8:
+	                        gl2.renderbufferStorageMultisample(gl2.RENDERBUFFER, this._mulSampler, gl2.ALPHA, width, height);
+	                        break;
+	                    case Laya.RenderTextureFormat.R16G16B16A16:
+	                        gl2.renderbufferStorageMultisample(gl2.RENDERBUFFER, this._mulSampler, gl2.RGBA16F, width, height);
+	                        break;
+	                }
+	                gl2.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, this._mulRenderBuffer);
+	            }
+	            Laya.WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
+	            switch (format) {
+	                case Laya.RenderTextureFormat.R8G8B8:
+	                    if (isWebGL2)
+	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.RGB8, width, height);
+	                    else
+	                        gl.texImage2D(glTextureType, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
+	                    break;
+	                case Laya.RenderTextureFormat.R8G8B8A8:
+	                    if (isWebGL2)
+	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.RGBA8, width, height);
+	                    else
+	                        gl.texImage2D(glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+	                    break;
+	                case Laya.RenderTextureFormat.Alpha8:
+	                    if (isWebGL2)
+	                        gl2.texStorage2D(glTextureType, this.mipmapCount, gl2.R8, width, height);
+	                    else
+	                        gl.texImage2D(glTextureType, 0, gl.ALPHA, width, height, 0, gl.ALPHA, gl.UNSIGNED_BYTE, null);
+	                    break;
+	                case Laya.RenderTextureFormat.R16G16B16A16:
+	                    if (isWebGL2)
+	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.RGBA16F, width, height);
+	                    else
+	                        gl.texImage2D(glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, layaGPU._oesTextureHalfFloat.HALF_FLOAT_OES, null);
+	                    break;
+	            }
+	            if (this._mulSamplerRT) {
+	                this._mulFrameBuffer = gl2.createFramebuffer();
+	                gl.bindFramebuffer(gl.FRAMEBUFFER, this._mulFrameBuffer);
+	                gl.framebufferTexture2D(gl2.FRAMEBUFFER, gl2.COLOR_ATTACHMENT0, gl2.TEXTURE_2D, this._glTexture, 0);
+	            }
+	            else
+	                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._glTexture, 0);
+	        }
+	        if (format == Laya.RenderTextureFormat.Depth || format == Laya.RenderTextureFormat.ShadowMap) {
+	            gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+	            Laya.WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
+	            this.filterMode = Laya.FilterMode.Point;
+	            switch (this._depthStencilFormat) {
+	                case Laya.RenderTextureDepthFormat.DEPTH_16:
+	                    if (isWebGL2) {
+	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.DEPTH_COMPONENT16, width, height);
+	                    }
+	                    else
+	                        gl.texImage2D(glTextureType, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
+	                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this._glTexture, 0);
+	                    break;
+	                case Laya.RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
+	                    if (isWebGL2)
+	                        gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.DEPTH24_STENCIL8, width, height);
+	                    else
+	                        gl.texImage2D(glTextureType, 0, gl.DEPTH_STENCIL, width, height, 0, gl.DEPTH_STENCIL, layaGPU._webgl_depth_texture.UNSIGNED_INT_24_8_WEBGL, null);
+	                    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, this._glTexture, 0);
+	                    break;
+	                default:
+	                    throw "RenderTexture: depth format RenderTexture must use depthFormat with DEPTH_16 and DEPTHSTENCIL_16_8.";
+	            }
+	            if (isWebGL2 && format == Laya.RenderTextureFormat.ShadowMap)
+	                gl2.texParameteri(glTextureType, gl2.TEXTURE_COMPARE_MODE, gl2.COMPARE_REF_TO_TEXTURE);
+	        }
+	        else {
+	            gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+	            if (this._depthStencilFormat !== Laya.RenderTextureDepthFormat.DEPTHSTENCIL_NONE) {
+	                this._depthStencilBuffer = gl.createRenderbuffer();
+	                gl.bindRenderbuffer(gl.RENDERBUFFER, this._depthStencilBuffer);
+	                if (this._mulSamplerRT) {
+	                    switch (this._depthStencilFormat) {
+	                        case Laya.RenderTextureDepthFormat.DEPTH_16:
+	                            gl2.renderbufferStorageMultisample(gl.RENDERBUFFER, this._mulSampler, gl2.DEPTH_COMPONENT16, width, height);
+	                            gl2.framebufferRenderbuffer(gl.FRAMEBUFFER, gl2.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
+	                            break;
+	                        case Laya.RenderTextureDepthFormat.STENCIL_8:
+	                            gl2.renderbufferStorageMultisample(gl.RENDERBUFFER, this._mulSampler, gl2.STENCIL_INDEX8, width, height);
+	                            gl2.framebufferRenderbuffer(gl.FRAMEBUFFER, gl2.STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
+	                            break;
+	                        case Laya.RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
+	                            gl2.renderbufferStorageMultisample(gl.RENDERBUFFER, this._mulSampler, gl2.DEPTH_STENCIL, width, height);
+	                            gl2.framebufferRenderbuffer(gl.FRAMEBUFFER, gl2.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
+	                            break;
+	                        default:
+	                            throw "RenderTexture: unkonw depth format.";
+	                    }
+	                }
+	                else {
+	                    switch (this._depthStencilFormat) {
+	                        case Laya.RenderTextureDepthFormat.DEPTH_16:
+	                            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+	                            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl2.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
+	                            break;
+	                        case Laya.RenderTextureDepthFormat.STENCIL_8:
+	                            gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
+	                            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
+	                            break;
+	                        case Laya.RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
+	                            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
+	                            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
+	                            break;
+	                        default:
+	                            throw "RenderTexture: unkonw depth format.";
+	                    }
+	                }
+	                gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+	            }
+	        }
+	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	        this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
+	        this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
+	        this._setFilterMode(this._filterMode);
+	        this._setAnisotropy(this._anisoLevel);
+	        this._readyed = true;
+	        this._activeResource();
+	        this._setGPUMemory(width * height * 4);
+	    }
+	    _start() {
+	        var gl = Laya.LayaGL.instance;
+	        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+	        RenderTexture._currentActive = this;
+	        (this._isCameraTarget) && (RenderContext3D._instance.invertY = true);
+	        this._readyed = false;
+	    }
+	    _end() {
+	        var gl = Laya.LayaGL.instance;
+	        var gl2 = gl;
+	        if (this._mulSamplerRT) {
+	            gl2.bindFramebuffer(gl2.READ_FRAMEBUFFER, this._frameBuffer);
+	            gl2.bindFramebuffer(gl2.DRAW_FRAMEBUFFER, this._mulFrameBuffer);
+	            gl2.clearBufferfv(gl2.COLOR, 0, [0.0, 0.0, 0.0, 0.0]);
+	            gl2.blitFramebuffer(0, 0, this.width, this.height, 0, 0, this._width, this._height, gl2.COLOR_BUFFER_BIT, gl.NEAREST);
+	        }
+	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	        RenderTexture._currentActive = null;
+	        (this._isCameraTarget) && (RenderContext3D._instance.invertY = false);
+	        this._readyed = true;
+	    }
+	    getData(x, y, width, height, out) {
+	        if (Laya.Render.isConchApp && window.conchConfig.threadMode == 2) {
+	            throw "native 2 thread mode use getDataAsync";
+	        }
+	        var gl = Laya.LayaGL.instance;
+	        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+	        var canRead = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
+	        if (!canRead) {
+	            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	            return null;
+	        }
+	        switch (this.format) {
+	            case Laya.RenderTextureFormat.R8G8B8:
+	                gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
+	                break;
+	            case Laya.RenderTextureFormat.R8G8B8A8:
+	                gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
+	                break;
+	            case Laya.RenderTextureFormat.R16G16B16A16:
+	                gl.readPixels(x, y, width, height, gl.RGBA, gl.FLOAT, out);
+	                debugger;
+	                break;
+	        }
+	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	        return out;
+	    }
+	    _disposeResource() {
+	        if (this._frameBuffer) {
+	            var gl = Laya.LayaGL.instance;
+	            gl.deleteTexture(this._glTexture);
+	            gl.deleteFramebuffer(this._frameBuffer);
+	            gl.deleteRenderbuffer(this._depthStencilBuffer);
+	            this._glTexture = null;
+	            this._frameBuffer = null;
+	            this._depthStencilBuffer = null;
+	            this._setGPUMemory(0);
+	        }
+	    }
+	    getDataAsync(x, y, width, height, callBack) {
+	        var gl = Laya.LayaGL.instance;
+	        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+	        gl.readPixelsAsync(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, function (data) {
+	            callBack(new Uint8Array(data));
+	        });
+	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	    }
+	}
+	RenderTexture._pool = [];
+
+	class DefineDatas {
+	    constructor() {
+	        this._mask = [];
+	        this._length = 0;
+	    }
+	    _intersectionDefineDatas(define) {
+	        var unionMask = define._mask;
+	        var mask = this._mask;
+	        for (var i = this._length - 1; i >= 0; i--) {
+	            var value = mask[i] & unionMask[i];
+	            if (value == 0 && i == this._length - 1)
+	                this._length--;
+	            else
+	                mask[i] = value;
+	        }
+	    }
+	    add(define) {
+	        var index = define._index;
+	        var size = index + 1;
+	        var mask = this._mask;
+	        var maskStart = this._length;
+	        if (maskStart < size) {
+	            (mask.length < size) && (mask.length = size);
+	            for (; maskStart < index; maskStart++)
+	                mask[maskStart] = 0;
+	            mask[index] = define._value;
+	            this._length = size;
+	        }
+	        else {
+	            mask[index] |= define._value;
+	        }
+	    }
+	    remove(define) {
+	        var index = define._index;
+	        var mask = this._mask;
+	        var endIndex = this._length - 1;
+	        if (index > endIndex)
+	            return;
+	        var newValue = mask[index] & ~define._value;
+	        if (index == endIndex && newValue === 0)
+	            this._length--;
+	        else
+	            mask[index] = newValue;
+	    }
+	    addDefineDatas(define) {
+	        var addMask = define._mask;
+	        var size = define._length;
+	        var mask = this._mask;
+	        var maskStart = this._length;
+	        if (maskStart < size) {
+	            mask.length = size;
+	            for (var i = 0; i < maskStart; i++)
+	                mask[i] |= addMask[i];
+	            for (; i < size; i++)
+	                mask[i] = addMask[i];
+	            this._length = size;
+	        }
+	        else {
+	            for (var i = 0; i < size; i++) {
+	                mask[i] |= addMask[i];
+	            }
+	        }
+	    }
+	    removeDefineDatas(define) {
+	        var removeMask = define._mask;
+	        var mask = this._mask;
+	        var endIndex = this._length - 1;
+	        var i = Math.min(define._length, endIndex);
+	        for (; i >= 0; i--) {
+	            var newValue = mask[i] & ~removeMask[i];
+	            if (i == endIndex && newValue === 0) {
+	                endIndex--;
+	                this._length--;
+	            }
+	            else {
+	                mask[i] = newValue;
+	            }
+	        }
+	    }
+	    has(define) {
+	        var index = define._index;
+	        if (index >= this._length)
+	            return false;
+	        return (this._mask[index] & define._value) !== 0;
+	    }
+	    clear() {
+	        this._length = 0;
+	    }
+	    cloneTo(destObject) {
+	        var destDefineData = destObject;
+	        var destMask = destDefineData._mask;
+	        var mask = this._mask;
+	        var count = this._length;
+	        destMask.length = count;
+	        for (var i = 0; i < count; i++)
+	            destMask[i] = mask[i];
+	        destDefineData._length = count;
+	    }
+	    clone() {
+	        var dest = new DefineDatas();
+	        this.cloneTo(dest);
+	        return dest;
+	    }
+	}
+
+	class VertexBuffer3D extends Laya.Buffer {
+	    constructor(byteLength, bufferUsage, canRead = false) {
+	        super();
+	        this._vertexDeclaration = null;
+	        this._float32Reader = null;
+	        var gl = Laya.LayaGL.instance;
+	        this._bufferUsage = bufferUsage;
+	        this._bufferType = gl.ARRAY_BUFFER;
+	        this._canRead = canRead;
+	        this._byteLength = byteLength;
+	        this.bind();
+	        gl.bufferData(this._bufferType, this._byteLength, this._bufferUsage);
+	        if (canRead) {
+	            this._buffer = new Uint8Array(byteLength);
+	            this._float32Reader = new Float32Array(this._buffer.buffer);
+	        }
+	    }
+	    get vertexDeclaration() {
+	        return this._vertexDeclaration;
+	    }
+	    set vertexDeclaration(value) {
+	        this._vertexDeclaration = value;
+	    }
+	    get canRead() {
+	        return this._canRead;
+	    }
+	    bind() {
+	        if (Laya.Buffer._bindedVertexBuffer !== this._glBuffer) {
+	            var gl = Laya.LayaGL.instance;
+	            gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
+	            Laya.Buffer._bindedVertexBuffer = this._glBuffer;
+	            return true;
+	        }
+	        else {
+	            return false;
+	        }
+	    }
+	    orphanStorage() {
+	        this.bind();
+	        Laya.LayaGL.instance.bufferData(this._bufferType, this._byteLength, this._bufferUsage);
+	    }
+	    setData(buffer, bufferOffset = 0, dataStartIndex = 0, dataCount = Number.MAX_SAFE_INTEGER) {
+	        this.bind();
+	        var needSubData = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
+	        if (needSubData) {
+	            var subData = new Uint8Array(buffer, dataStartIndex, dataCount);
+	            Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, subData);
+	            if (this._canRead)
+	                this._buffer.set(subData, bufferOffset);
+	        }
+	        else {
+	            Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, buffer);
+	            if (this._canRead)
+	                this._buffer.set(new Uint8Array(buffer), bufferOffset);
+	        }
+	    }
+	    getUint8Data() {
+	        if (this._canRead)
+	            return this._buffer;
+	        else
+	            throw new Error("Can't read data from VertexBuffer with only write flag!");
+	    }
+	    getFloat32Data() {
+	        if (this._canRead)
+	            return this._float32Reader;
+	        else
+	            throw new Error("Can't read data from VertexBuffer with only write flag!");
+	    }
+	    markAsUnreadbale() {
+	        this._canRead = false;
+	        this._buffer = null;
+	        this._float32Reader = null;
+	    }
+	    destroy() {
+	        super.destroy();
+	        this._buffer = null;
+	        this._float32Reader = null;
+	        this._vertexDeclaration = null;
+	        this._byteLength = 0;
+	    }
+	}
+	VertexBuffer3D.DATATYPE_FLOAT32ARRAY = 0;
+	VertexBuffer3D.DATATYPE_UINT8ARRAY = 1;
+
+	class VertexElementFormat {
+	    static __init__() {
+	        var gl = Laya.LayaGL.instance;
+	        VertexElementFormat._elementInfos = {
+	            "single": [1, gl.FLOAT, 0],
+	            "vector2": [2, gl.FLOAT, 0],
+	            "vector3": [3, gl.FLOAT, 0],
+	            "vector4": [4, gl.FLOAT, 0],
+	            "color": [4, gl.FLOAT, 0],
+	            "byte4": [4, gl.UNSIGNED_BYTE, 0],
+	            "byte3": [3, gl.UNSIGNED_BYTE, 0],
+	            "byte2": [2, gl.UNSIGNED_BYTE, 0],
+	            "byte": [1, gl.UNSIGNED_BYTE, 0],
+	            "short2": [2, gl.FLOAT, 0],
+	            "short4": [4, gl.FLOAT, 0],
+	            "normalizedshort2": [2, gl.FLOAT, 0],
+	            "normalizedshort4": [4, gl.FLOAT, 0],
+	            "halfvector2": [2, gl.FLOAT, 0],
+	            "halfvector4": [4, gl.FLOAT, 0]
+	        };
+	    }
+	    static getElementInfos(element) {
+	        var info = VertexElementFormat._elementInfos[element];
+	        if (info)
+	            return info;
+	        else
+	            throw "VertexElementFormat: this vertexElementFormat is not implement.";
+	    }
+	}
+	VertexElementFormat.Single = "single";
+	VertexElementFormat.Vector2 = "vector2";
+	VertexElementFormat.Vector3 = "vector3";
+	VertexElementFormat.Vector4 = "vector4";
+	VertexElementFormat.Color = "color";
+	VertexElementFormat.Byte4 = "byte4";
+	VertexElementFormat.Byte3 = "byte3";
+	VertexElementFormat.Byte2 = "byte2";
+	VertexElementFormat.ByteOne = "byte";
+	VertexElementFormat.Short2 = "short2";
+	VertexElementFormat.Short4 = "short4";
+	VertexElementFormat.NormalizedShort2 = "normalizedshort2";
+	VertexElementFormat.NormalizedShort4 = "normalizedshort4";
+	VertexElementFormat.HalfVector2 = "halfvector2";
+	VertexElementFormat.HalfVector4 = "halfvector4";
+
+	class Matrix4x4 {
+	    constructor(m11 = 1, m12 = 0, m13 = 0, m14 = 0, m21 = 0, m22 = 1, m23 = 0, m24 = 0, m31 = 0, m32 = 0, m33 = 1, m34 = 0, m41 = 0, m42 = 0, m43 = 0, m44 = 1, elements = null) {
+	        var e = elements ? this.elements = elements : this.elements = new Float32Array(16);
+	        e[0] = m11;
+	        e[1] = m12;
+	        e[2] = m13;
+	        e[3] = m14;
+	        e[4] = m21;
+	        e[5] = m22;
+	        e[6] = m23;
+	        e[7] = m24;
+	        e[8] = m31;
+	        e[9] = m32;
+	        e[10] = m33;
+	        e[11] = m34;
+	        e[12] = m41;
+	        e[13] = m42;
+	        e[14] = m43;
+	        e[15] = m44;
+	    }
+	    static createRotationX(rad, out) {
+	        var oe = out.elements;
+	        var s = Math.sin(rad), c = Math.cos(rad);
+	        oe[1] = oe[2] = oe[3] = oe[4] = oe[7] = oe[8] = oe[11] = oe[12] = oe[13] = oe[14] = 0;
+	        oe[0] = oe[15] = 1;
+	        oe[5] = oe[10] = c;
+	        oe[6] = s;
+	        oe[9] = -s;
+	    }
+	    static createRotationY(rad, out) {
+	        var oe = out.elements;
+	        var s = Math.sin(rad), c = Math.cos(rad);
+	        oe[1] = oe[3] = oe[4] = oe[6] = oe[7] = oe[9] = oe[11] = oe[12] = oe[13] = oe[14] = 0;
+	        oe[5] = oe[15] = 1;
+	        oe[0] = oe[10] = c;
+	        oe[2] = -s;
+	        oe[8] = s;
+	    }
+	    static createRotationZ(rad, out) {
+	        var oe = out.elements;
+	        var s = Math.sin(rad), c = Math.cos(rad);
+	        oe[2] = oe[3] = oe[6] = oe[7] = oe[8] = oe[9] = oe[11] = oe[12] = oe[13] = oe[14] = 0;
+	        oe[10] = oe[15] = 1;
+	        oe[0] = oe[5] = c;
+	        oe[1] = s;
+	        oe[4] = -s;
+	    }
+	    static createRotationYawPitchRoll(yaw, pitch, roll, result) {
+	        Quaternion.createFromYawPitchRoll(yaw, pitch, roll, Matrix4x4._tempQuaternion);
+	        Matrix4x4.createRotationQuaternion(Matrix4x4._tempQuaternion, result);
+	    }
+	    static createRotationAxis(axis, angle, result) {
+	        var x = axis.x;
+	        var y = axis.y;
+	        var z = axis.z;
+	        var cos = Math.cos(angle);
+	        var sin = Math.sin(angle);
+	        var xx = x * x;
+	        var yy = y * y;
+	        var zz = z * z;
+	        var xy = x * y;
+	        var xz = x * z;
+	        var yz = y * z;
+	        var resultE = result.elements;
+	        resultE[3] = resultE[7] = resultE[11] = resultE[12] = resultE[13] = resultE[14] = 0;
+	        resultE[15] = 1.0;
+	        resultE[0] = xx + (cos * (1.0 - xx));
+	        resultE[1] = (xy - (cos * xy)) + (sin * z);
+	        resultE[2] = (xz - (cos * xz)) - (sin * y);
+	        resultE[4] = (xy - (cos * xy)) - (sin * z);
+	        resultE[5] = yy + (cos * (1.0 - yy));
+	        resultE[6] = (yz - (cos * yz)) + (sin * x);
+	        resultE[8] = (xz - (cos * xz)) + (sin * y);
+	        resultE[9] = (yz - (cos * yz)) - (sin * x);
+	        resultE[10] = zz + (cos * (1.0 - zz));
+	    }
+	    setRotation(rotation) {
+	        var rotationX = rotation.x;
+	        var rotationY = rotation.y;
+	        var rotationZ = rotation.z;
+	        var rotationW = rotation.w;
+	        var xx = rotationX * rotationX;
+	        var yy = rotationY * rotationY;
+	        var zz = rotationZ * rotationZ;
+	        var xy = rotationX * rotationY;
+	        var zw = rotationZ * rotationW;
+	        var zx = rotationZ * rotationX;
+	        var yw = rotationY * rotationW;
+	        var yz = rotationY * rotationZ;
+	        var xw = rotationX * rotationW;
+	        var e = this.elements;
+	        e[0] = 1.0 - (2.0 * (yy + zz));
+	        e[1] = 2.0 * (xy + zw);
+	        e[2] = 2.0 * (zx - yw);
+	        e[4] = 2.0 * (xy - zw);
+	        e[5] = 1.0 - (2.0 * (zz + xx));
+	        e[6] = 2.0 * (yz + xw);
+	        e[8] = 2.0 * (zx + yw);
+	        e[9] = 2.0 * (yz - xw);
+	        e[10] = 1.0 - (2.0 * (yy + xx));
+	    }
+	    setPosition(position) {
+	        var e = this.elements;
+	        e[12] = position.x;
+	        e[13] = position.y;
+	        e[14] = position.z;
+	    }
+	    static createRotationQuaternion(rotation, result) {
+	        var resultE = result.elements;
+	        var rotationX = rotation.x;
+	        var rotationY = rotation.y;
+	        var rotationZ = rotation.z;
+	        var rotationW = rotation.w;
+	        var xx = rotationX * rotationX;
+	        var yy = rotationY * rotationY;
+	        var zz = rotationZ * rotationZ;
+	        var xy = rotationX * rotationY;
+	        var zw = rotationZ * rotationW;
+	        var zx = rotationZ * rotationX;
+	        var yw = rotationY * rotationW;
+	        var yz = rotationY * rotationZ;
+	        var xw = rotationX * rotationW;
+	        resultE[3] = resultE[7] = resultE[11] = resultE[12] = resultE[13] = resultE[14] = 0;
+	        resultE[15] = 1.0;
+	        resultE[0] = 1.0 - (2.0 * (yy + zz));
+	        resultE[1] = 2.0 * (xy + zw);
+	        resultE[2] = 2.0 * (zx - yw);
+	        resultE[4] = 2.0 * (xy - zw);
+	        resultE[5] = 1.0 - (2.0 * (zz + xx));
+	        resultE[6] = 2.0 * (yz + xw);
+	        resultE[8] = 2.0 * (zx + yw);
+	        resultE[9] = 2.0 * (yz - xw);
+	        resultE[10] = 1.0 - (2.0 * (yy + xx));
+	    }
+	    static createTranslate(trans, out) {
+	        var oe = out.elements;
+	        oe[4] = oe[8] = oe[1] = oe[9] = oe[2] = oe[6] = oe[3] = oe[7] = oe[11] = 0;
+	        oe[0] = oe[5] = oe[10] = oe[15] = 1;
+	        oe[12] = trans.x;
+	        oe[13] = trans.y;
+	        oe[14] = trans.z;
+	    }
+	    static createScaling(scale, out) {
+	        var oe = out.elements;
+	        oe[0] = scale.x;
+	        oe[5] = scale.y;
+	        oe[10] = scale.z;
+	        oe[1] = oe[4] = oe[8] = oe[12] = oe[9] = oe[13] = oe[2] = oe[6] = oe[14] = oe[3] = oe[7] = oe[11] = 0;
+	        oe[15] = 1;
+	    }
+	    static multiply(left, right, out) {
+	        var l = right.elements;
+	        var r = left.elements;
+	        var e = out.elements;
+	        var l11 = l[0], l12 = l[1], l13 = l[2], l14 = l[3];
+	        var l21 = l[4], l22 = l[5], l23 = l[6], l24 = l[7];
+	        var l31 = l[8], l32 = l[9], l33 = l[10], l34 = l[11];
+	        var l41 = l[12], l42 = l[13], l43 = l[14], l44 = l[15];
+	        var r11 = r[0], r12 = r[1], r13 = r[2], r14 = r[3];
+	        var r21 = r[4], r22 = r[5], r23 = r[6], r24 = r[7];
+	        var r31 = r[8], r32 = r[9], r33 = r[10], r34 = r[11];
+	        var r41 = r[12], r42 = r[13], r43 = r[14], r44 = r[15];
+	        e[0] = (l11 * r11) + (l12 * r21) + (l13 * r31) + (l14 * r41);
+	        e[1] = (l11 * r12) + (l12 * r22) + (l13 * r32) + (l14 * r42);
+	        e[2] = (l11 * r13) + (l12 * r23) + (l13 * r33) + (l14 * r43);
+	        e[3] = (l11 * r14) + (l12 * r24) + (l13 * r34) + (l14 * r44);
+	        e[4] = (l21 * r11) + (l22 * r21) + (l23 * r31) + (l24 * r41);
+	        e[5] = (l21 * r12) + (l22 * r22) + (l23 * r32) + (l24 * r42);
+	        e[6] = (l21 * r13) + (l22 * r23) + (l23 * r33) + (l24 * r43);
+	        e[7] = (l21 * r14) + (l22 * r24) + (l23 * r34) + (l24 * r44);
+	        e[8] = (l31 * r11) + (l32 * r21) + (l33 * r31) + (l34 * r41);
+	        e[9] = (l31 * r12) + (l32 * r22) + (l33 * r32) + (l34 * r42);
+	        e[10] = (l31 * r13) + (l32 * r23) + (l33 * r33) + (l34 * r43);
+	        e[11] = (l31 * r14) + (l32 * r24) + (l33 * r34) + (l34 * r44);
+	        e[12] = (l41 * r11) + (l42 * r21) + (l43 * r31) + (l44 * r41);
+	        e[13] = (l41 * r12) + (l42 * r22) + (l43 * r32) + (l44 * r42);
+	        e[14] = (l41 * r13) + (l42 * r23) + (l43 * r33) + (l44 * r43);
+	        e[15] = (l41 * r14) + (l42 * r24) + (l43 * r34) + (l44 * r44);
+	    }
+	    static multiplyForNative(left, right, out) {
+	        Laya.LayaGL.instance.matrix4x4Multiply(left.elements, right.elements, out.elements);
+	    }
+	    static createFromQuaternion(rotation, out) {
+	        var e = out.elements;
+	        var x = rotation.x, y = rotation.y, z = rotation.z, w = rotation.w;
+	        var x2 = x + x;
+	        var y2 = y + y;
+	        var z2 = z + z;
+	        var xx = x * x2;
+	        var yx = y * x2;
+	        var yy = y * y2;
+	        var zx = z * x2;
+	        var zy = z * y2;
+	        var zz = z * z2;
+	        var wx = w * x2;
+	        var wy = w * y2;
+	        var wz = w * z2;
+	        e[0] = 1 - yy - zz;
+	        e[1] = yx + wz;
+	        e[2] = zx - wy;
+	        e[3] = 0;
+	        e[4] = yx - wz;
+	        e[5] = 1 - xx - zz;
+	        e[6] = zy + wx;
+	        e[7] = 0;
+	        e[8] = zx + wy;
+	        e[9] = zy - wx;
+	        e[10] = 1 - xx - yy;
+	        e[11] = 0;
+	        e[12] = 0;
+	        e[13] = 0;
+	        e[14] = 0;
+	        e[15] = 1;
+	    }
+	    static createAffineTransformation(trans, rot, scale, out) {
+	        var oe = out.elements;
+	        var x = rot.x, y = rot.y, z = rot.z, w = rot.w, x2 = x + x, y2 = y + y, z2 = z + z;
+	        var xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2;
+	        var wx = w * x2, wy = w * y2, wz = w * z2, sx = scale.x, sy = scale.y, sz = scale.z;
+	        oe[0] = (1 - (yy + zz)) * sx;
+	        oe[1] = (xy + wz) * sx;
+	        oe[2] = (xz - wy) * sx;
+	        oe[3] = 0;
+	        oe[4] = (xy - wz) * sy;
+	        oe[5] = (1 - (xx + zz)) * sy;
+	        oe[6] = (yz + wx) * sy;
+	        oe[7] = 0;
+	        oe[8] = (xz + wy) * sz;
+	        oe[9] = (yz - wx) * sz;
+	        oe[10] = (1 - (xx + yy)) * sz;
+	        oe[11] = 0;
+	        oe[12] = trans.x;
+	        oe[13] = trans.y;
+	        oe[14] = trans.z;
+	        oe[15] = 1;
+	    }
+	    static createLookAt(eye, target, up, out) {
+	        var oE = out.elements;
+	        var xaxis = Matrix4x4._tempVector0;
+	        var yaxis = Matrix4x4._tempVector1;
+	        var zaxis = Matrix4x4._tempVector2;
+	        Vector3.subtract(eye, target, zaxis);
+	        Vector3.normalize(zaxis, zaxis);
+	        Vector3.cross(up, zaxis, xaxis);
+	        Vector3.normalize(xaxis, xaxis);
+	        Vector3.cross(zaxis, xaxis, yaxis);
+	        oE[3] = oE[7] = oE[11] = 0;
+	        oE[15] = 1;
+	        oE[0] = xaxis.x;
+	        oE[4] = xaxis.y;
+	        oE[8] = xaxis.z;
+	        oE[1] = yaxis.x;
+	        oE[5] = yaxis.y;
+	        oE[9] = yaxis.z;
+	        oE[2] = zaxis.x;
+	        oE[6] = zaxis.y;
+	        oE[10] = zaxis.z;
+	        oE[12] = -Vector3.dot(xaxis, eye);
+	        oE[13] = -Vector3.dot(yaxis, eye);
+	        oE[14] = -Vector3.dot(zaxis, eye);
+	    }
+	    static createPerspective(fov, aspect, znear, zfar, out) {
+	        var yScale = 1.0 / Math.tan(fov * 0.5);
+	        var xScale = yScale / aspect;
+	        var halfWidth = znear / xScale;
+	        var halfHeight = znear / yScale;
+	        Matrix4x4.createPerspectiveOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, znear, zfar, out);
+	    }
+	    static createPerspectiveOffCenter(left, right, bottom, top, znear, zfar, out) {
+	        var oe = out.elements;
+	        var zRange = zfar / (zfar - znear);
+	        oe[1] = oe[2] = oe[3] = oe[4] = oe[6] = oe[7] = oe[12] = oe[13] = oe[15] = 0;
+	        oe[0] = 2.0 * znear / (right - left);
+	        oe[5] = 2.0 * znear / (top - bottom);
+	        oe[8] = (left + right) / (right - left);
+	        oe[9] = (top + bottom) / (top - bottom);
+	        oe[10] = -zRange;
+	        oe[11] = -1.0;
+	        oe[14] = -znear * zRange;
+	    }
+	    static createOrthoOffCenter(left, right, bottom, top, znear, zfar, out) {
+	        var oe = out.elements;
+	        var zRange = 1.0 / (zfar - znear);
+	        oe[1] = oe[2] = oe[3] = oe[4] = oe[6] = oe[8] = oe[7] = oe[9] = oe[11] = 0;
+	        oe[15] = 1;
+	        oe[0] = 2.0 / (right - left);
+	        oe[5] = 2.0 / (top - bottom);
+	        oe[10] = -zRange;
+	        oe[12] = (left + right) / (left - right);
+	        oe[13] = (top + bottom) / (bottom - top);
+	        oe[14] = -znear * zRange;
+	    }
+	    getElementByRowColumn(row, column) {
+	        if (row < 0 || row > 3)
+	            throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
+	        if (column < 0 || column > 3)
+	            throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
+	        return this.elements[(row * 4) + column];
+	    }
+	    setElementByRowColumn(row, column, value) {
+	        if (row < 0 || row > 3)
+	            throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
+	        if (column < 0 || column > 3)
+	            throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
+	        this.elements[(row * 4) + column] = value;
+	    }
+	    equalsOtherMatrix(other) {
+	        var e = this.elements;
+	        var oe = other.elements;
+	        return (MathUtils3D.nearEqual(e[0], oe[0]) && MathUtils3D.nearEqual(e[1], oe[1]) && MathUtils3D.nearEqual(e[2], oe[2]) && MathUtils3D.nearEqual(e[3], oe[3]) && MathUtils3D.nearEqual(e[4], oe[4]) && MathUtils3D.nearEqual(e[5], oe[5]) && MathUtils3D.nearEqual(e[6], oe[6]) && MathUtils3D.nearEqual(e[7], oe[7]) && MathUtils3D.nearEqual(e[8], oe[8]) && MathUtils3D.nearEqual(e[9], oe[9]) && MathUtils3D.nearEqual(e[10], oe[10]) && MathUtils3D.nearEqual(e[11], oe[11]) && MathUtils3D.nearEqual(e[12], oe[12]) && MathUtils3D.nearEqual(e[13], oe[13]) && MathUtils3D.nearEqual(e[14], oe[14]) && MathUtils3D.nearEqual(e[15], oe[15]));
+	    }
+	    decomposeTransRotScale(translation, rotation, scale) {
+	        var rotationMatrix = Matrix4x4._tempMatrix4x4;
+	        if (this.decomposeTransRotMatScale(translation, rotationMatrix, scale)) {
+	            Quaternion.createFromMatrix4x4(rotationMatrix, rotation);
+	            return true;
+	        }
+	        else {
+	            rotation.identity();
+	            return false;
+	        }
+	    }
+	    decomposeTransRotMatScale(translation, rotationMatrix, scale) {
+	        var e = this.elements;
+	        var te = translation;
+	        var re = rotationMatrix.elements;
+	        var se = scale;
+	        te.x = e[12];
+	        te.y = e[13];
+	        te.z = e[14];
+	        var m11 = e[0], m12 = e[1], m13 = e[2];
+	        var m21 = e[4], m22 = e[5], m23 = e[6];
+	        var m31 = e[8], m32 = e[9], m33 = e[10];
+	        var sX = se.x = Math.sqrt((m11 * m11) + (m12 * m12) + (m13 * m13));
+	        var sY = se.y = Math.sqrt((m21 * m21) + (m22 * m22) + (m23 * m23));
+	        var sZ = se.z = Math.sqrt((m31 * m31) + (m32 * m32) + (m33 * m33));
+	        if (MathUtils3D.isZero(sX) || MathUtils3D.isZero(sY) || MathUtils3D.isZero(sZ)) {
+	            re[1] = re[2] = re[3] = re[4] = re[6] = re[7] = re[8] = re[9] = re[11] = re[12] = re[13] = re[14] = 0;
+	            re[0] = re[5] = re[10] = re[15] = 1;
+	            return false;
+	        }
+	        var at = Matrix4x4._tempVector0;
+	        at.x = m31 / sZ;
+	        at.y = m32 / sZ;
+	        at.z = m33 / sZ;
+	        var tempRight = Matrix4x4._tempVector1;
+	        tempRight.x = m11 / sX;
+	        tempRight.y = m12 / sX;
+	        tempRight.z = m13 / sX;
+	        var up = Matrix4x4._tempVector2;
+	        Vector3.cross(at, tempRight, up);
+	        var right = Matrix4x4._tempVector1;
+	        Vector3.cross(up, at, right);
+	        re[3] = re[7] = re[11] = re[12] = re[13] = re[14] = 0;
+	        re[15] = 1;
+	        re[0] = right.x;
+	        re[1] = right.y;
+	        re[2] = right.z;
+	        re[4] = up.x;
+	        re[5] = up.y;
+	        re[6] = up.z;
+	        re[8] = at.x;
+	        re[9] = at.y;
+	        re[10] = at.z;
+	        ((re[0] * m11 + re[1] * m12 + re[2] * m13) < 0.0) && (se.x = -sX);
+	        ((re[4] * m21 + re[5] * m22 + re[6] * m23) < 0.0) && (se.y = -sY);
+	        ((re[8] * m31 + re[9] * m32 + re[10] * m33) < 0.0) && (se.z = -sZ);
+	        return true;
+	    }
+	    decomposeYawPitchRoll(yawPitchRoll) {
+	        var pitch = Math.asin(-this.elements[9]);
+	        yawPitchRoll.y = pitch;
+	        var test = Math.cos(pitch);
+	        if (test > MathUtils3D.zeroTolerance) {
+	            yawPitchRoll.z = Math.atan2(this.elements[1], this.elements[5]);
+	            yawPitchRoll.x = Math.atan2(this.elements[8], this.elements[10]);
+	        }
+	        else {
+	            yawPitchRoll.z = Math.atan2(-this.elements[4], this.elements[0]);
+	            yawPitchRoll.x = 0.0;
+	        }
+	    }
+	    normalize() {
+	        var v = this.elements;
+	        var c = v[0], d = v[1], e = v[2], g = Math.sqrt(c * c + d * d + e * e);
+	        if (g) {
+	            if (g == 1)
+	                return;
+	        }
+	        else {
+	            v[0] = 0;
+	            v[1] = 0;
+	            v[2] = 0;
+	            return;
+	        }
+	        g = 1 / g;
+	        v[0] = c * g;
+	        v[1] = d * g;
+	        v[2] = e * g;
+	    }
+	    transpose() {
+	        var e, t;
+	        e = this.elements;
+	        t = e[1];
+	        e[1] = e[4];
+	        e[4] = t;
+	        t = e[2];
+	        e[2] = e[8];
+	        e[8] = t;
+	        t = e[3];
+	        e[3] = e[12];
+	        e[12] = t;
+	        t = e[6];
+	        e[6] = e[9];
+	        e[9] = t;
+	        t = e[7];
+	        e[7] = e[13];
+	        e[13] = t;
+	        t = e[11];
+	        e[11] = e[14];
+	        e[14] = t;
+	        return this;
+	    }
+	    invert(out) {
+	        var ae = this.elements;
+	        var oe = out.elements;
+	        var a00 = ae[0], a01 = ae[1], a02 = ae[2], a03 = ae[3], a10 = ae[4], a11 = ae[5], a12 = ae[6], a13 = ae[7], a20 = ae[8], a21 = ae[9], a22 = ae[10], a23 = ae[11], a30 = ae[12], a31 = ae[13], a32 = ae[14], a33 = ae[15], b00 = a00 * a11 - a01 * a10, b01 = a00 * a12 - a02 * a10, b02 = a00 * a13 - a03 * a10, b03 = a01 * a12 - a02 * a11, b04 = a01 * a13 - a03 * a11, b05 = a02 * a13 - a03 * a12, b06 = a20 * a31 - a21 * a30, b07 = a20 * a32 - a22 * a30, b08 = a20 * a33 - a23 * a30, b09 = a21 * a32 - a22 * a31, b10 = a21 * a33 - a23 * a31, b11 = a22 * a33 - a23 * a32, det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+	        if (Math.abs(det) === 0.0) {
+	            return;
+	        }
+	        det = 1.0 / det;
+	        oe[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+	        oe[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+	        oe[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+	        oe[3] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+	        oe[4] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+	        oe[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+	        oe[6] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+	        oe[7] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+	        oe[8] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+	        oe[9] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+	        oe[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+	        oe[11] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+	        oe[12] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+	        oe[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+	        oe[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+	        oe[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
+	    }
+	    static billboard(objectPosition, cameraPosition, cameraUp, cameraForward, mat) {
+	        Vector3.subtract(objectPosition, cameraPosition, Matrix4x4._tempVector0);
+	        var lengthSq = Vector3.scalarLengthSquared(Matrix4x4._tempVector0);
+	        if (MathUtils3D.isZero(lengthSq)) {
+	            Vector3.scale(cameraForward, -1, Matrix4x4._tempVector1);
+	            Matrix4x4._tempVector1.cloneTo(Matrix4x4._tempVector0);
+	        }
+	        else {
+	            Vector3.scale(Matrix4x4._tempVector0, 1 / Math.sqrt(lengthSq), Matrix4x4._tempVector0);
+	        }
+	        Vector3.cross(cameraUp, Matrix4x4._tempVector0, Matrix4x4._tempVector2);
+	        Vector3.normalize(Matrix4x4._tempVector2, Matrix4x4._tempVector2);
+	        Vector3.cross(Matrix4x4._tempVector0, Matrix4x4._tempVector2, Matrix4x4._tempVector3);
+	        var crosse = Matrix4x4._tempVector2;
+	        var finale = Matrix4x4._tempVector3;
+	        var diffee = Matrix4x4._tempVector0;
+	        var obpose = objectPosition;
+	        var mate = mat.elements;
+	        mate[0] = crosse.x;
+	        mate[1] = crosse.y;
+	        mate[2] = crosse.z;
+	        mate[3] = 0.0;
+	        mate[4] = finale.x;
+	        mate[5] = finale.y;
+	        mate[6] = finale.z;
+	        mate[7] = 0.0;
+	        mate[8] = diffee.x;
+	        mate[9] = diffee.y;
+	        mate[10] = diffee.z;
+	        mate[11] = 0.0;
+	        mate[12] = obpose.x;
+	        mate[13] = obpose.y;
+	        mate[14] = obpose.z;
+	        mate[15] = 1.0;
+	    }
+	    identity() {
+	        var e = this.elements;
+	        e[1] = e[2] = e[3] = e[4] = e[6] = e[7] = e[8] = e[9] = e[11] = e[12] = e[13] = e[14] = 0;
+	        e[0] = e[5] = e[10] = e[15] = 1;
+	    }
+	    cloneTo(destObject) {
+	        var i, s, d;
+	        s = this.elements;
+	        d = destObject.elements;
+	        if (s === d) {
+	            return;
+	        }
+	        for (i = 0; i < 16; ++i) {
+	            d[i] = s[i];
+	        }
+	    }
+	    clone() {
+	        var dest = new Matrix4x4();
+	        this.cloneTo(dest);
+	        return dest;
+	    }
+	    static translation(v3, out) {
+	        var oe = out.elements;
+	        oe[0] = oe[5] = oe[10] = oe[15] = 1;
+	        oe[12] = v3.x;
+	        oe[13] = v3.y;
+	        oe[14] = v3.z;
+	    }
+	    getTranslationVector(out) {
+	        var me = this.elements;
+	        out.x = me[12];
+	        out.y = me[13];
+	        out.z = me[14];
+	    }
+	    setTranslationVector(translate) {
+	        var me = this.elements;
+	        var ve = translate;
+	        me[12] = ve.x;
+	        me[13] = ve.y;
+	        me[14] = ve.z;
+	    }
+	    getForward(out) {
+	        var me = this.elements;
+	        out.x = -me[8];
+	        out.y = -me[9];
+	        out.z = -me[10];
+	    }
+	    setForward(forward) {
+	        var me = this.elements;
+	        me[8] = -forward.x;
+	        me[9] = -forward.y;
+	        me[10] = -forward.z;
+	    }
+	    getInvertFront() {
+	        this.decomposeTransRotScale(Matrix4x4._tempVector0, Matrix4x4._tempQuaternion, Matrix4x4._tempVector1);
+	        var scale = Matrix4x4._tempVector1;
+	        var isInvert = scale.x < 0;
+	        (scale.y < 0) && (isInvert = !isInvert);
+	        (scale.z < 0) && (isInvert = !isInvert);
+	        return isInvert;
+	    }
+	}
+	Matrix4x4._tempMatrix4x4 = new Matrix4x4();
+	Matrix4x4.TEMPMatrix0 = new Matrix4x4();
+	Matrix4x4.TEMPMatrix1 = new Matrix4x4();
+	Matrix4x4._tempVector0 = new Vector3();
+	Matrix4x4._tempVector1 = new Vector3();
+	Matrix4x4._tempVector2 = new Vector3();
+	Matrix4x4._tempVector3 = new Vector3();
+	Matrix4x4._tempQuaternion = new Quaternion();
+	Matrix4x4.DEFAULT = new Matrix4x4();
+	Matrix4x4.ZERO = new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+	class ShaderData {
+	    constructor(ownerResource = null) {
+	        this._ownerResource = null;
+	        this._data = null;
+	        this._defineDatas = new DefineDatas();
+	        this._runtimeCopyValues = [];
+	        this._ownerResource = ownerResource;
+	        this._initData();
+	    }
+	    _initData() {
+	        this._data = {};
+	    }
+	    getData() {
+	        return this._data;
+	    }
+	    addDefine(define) {
+	        this._defineDatas.add(define);
+	    }
+	    removeDefine(define) {
+	        this._defineDatas.remove(define);
+	    }
+	    hasDefine(define) {
+	        return this._defineDatas.has(define);
+	    }
+	    clearDefine() {
+	        this._defineDatas.clear();
+	    }
+	    getBool(index) {
+	        return this._data[index];
+	    }
+	    setBool(index, value) {
+	        this._data[index] = value;
+	    }
+	    getInt(index) {
+	        return this._data[index];
+	    }
+	    setInt(index, value) {
+	        this._data[index] = value;
+	    }
+	    getNumber(index) {
+	        return this._data[index];
+	    }
+	    setNumber(index, value) {
+	        this._data[index] = value;
+	    }
+	    getVector2(index) {
+	        return this._data[index];
+	    }
+	    setVector2(index, value) {
+	        this._data[index] = value;
+	    }
+	    getVector3(index) {
+	        return this._data[index];
+	    }
+	    setVector3(index, value) {
+	        this._data[index] = value;
+	    }
+	    getVector(index) {
+	        return this._data[index];
+	    }
+	    setVector(index, value) {
+	        this._data[index] = value;
+	    }
+	    getQuaternion(index) {
+	        return this._data[index];
+	    }
+	    setQuaternion(index, value) {
+	        this._data[index] = value;
+	    }
+	    getMatrix4x4(index) {
+	        return this._data[index];
+	    }
+	    setMatrix4x4(index, value) {
+	        this._data[index] = value;
+	    }
+	    getBuffer(shaderIndex) {
+	        return this._data[shaderIndex];
+	    }
+	    setBuffer(index, value) {
+	        this._data[index] = value;
+	    }
+	    setTexture(index, value) {
+	        var lastValue = this._data[index];
+	        this._data[index] = value ? value : Laya.Texture2D.erroTextur;
+	        if (this._ownerResource && this._ownerResource.referenceCount > 0) {
+	            (lastValue) && (lastValue._removeReference());
+	            (value) && (value._addReference());
+	        }
+	    }
+	    getTexture(index) {
+	        return this._data[index];
+	    }
+	    setValueData(index, value) {
+	        this._data[index] = value;
+	    }
+	    getValueData(index) {
+	        return this._data[index];
+	    }
+	    setAttribute(index, value) {
+	        this._data[index] = value;
+	    }
+	    getAttribute(index) {
+	        return this._data[index];
+	    }
+	    getLength() {
+	        return this._data.length;
+	    }
+	    setLength(value) {
+	        this._data.length = value;
+	    }
+	    cloneTo(destObject) {
+	        var dest = destObject;
+	        var destData = dest._data;
+	        for (var k in this._data) {
+	            var value = this._data[k];
+	            if (value != null) {
+	                if (typeof (value) == 'number') {
+	                    destData[k] = value;
+	                }
+	                else if (typeof (value) == 'number') {
+	                    destData[k] = value;
+	                }
+	                else if (typeof (value) == "boolean") {
+	                    destData[k] = value;
+	                }
+	                else if (value instanceof Vector2) {
+	                    var v2 = (destData[k]) || (destData[k] = new Vector2());
+	                    value.cloneTo(v2);
+	                    destData[k] = v2;
+	                }
+	                else if (value instanceof Vector3) {
+	                    var v3 = (destData[k]) || (destData[k] = new Vector3());
+	                    value.cloneTo(v3);
+	                    destData[k] = v3;
+	                }
+	                else if (value instanceof Vector4) {
+	                    var v4 = (destData[k]) || (destData[k] = new Vector4());
+	                    value.cloneTo(v4);
+	                    destData[k] = v4;
+	                }
+	                else if (value instanceof Matrix4x4) {
+	                    var mat = (destData[k]) || (destData[k] = new Matrix4x4());
+	                    value.cloneTo(mat);
+	                    destData[k] = mat;
+	                }
+	                else if (value instanceof Laya.BaseTexture) {
+	                    destData[k] = value;
+	                }
+	            }
+	        }
+	        this._defineDatas.cloneTo(dest._defineDatas);
+	    }
+	    clone() {
+	        var dest = new ShaderData();
+	        this.cloneTo(dest);
+	        return dest;
+	    }
+	    cloneToForNative(destObject) {
+	        var dest = destObject;
+	        var diffSize = this._int32Data.length - dest._int32Data.length;
+	        if (diffSize > 0) {
+	            dest.needRenewArrayBufferForNative(this._int32Data.length);
+	        }
+	        dest._int32Data.set(this._int32Data, 0);
+	        var destData = dest._nativeArray;
+	        var dataCount = this._nativeArray.length;
+	        destData.length = dataCount;
+	        for (var i = 0; i < dataCount; i++) {
+	            var value = this._nativeArray[i];
+	            if (value) {
+	                if (typeof (value) == 'number') {
+	                    destData[i] = value;
+	                    dest.setNumber(i, value);
+	                }
+	                else if (typeof (value) == 'number') {
+	                    destData[i] = value;
+	                    dest.setInt(i, value);
+	                }
+	                else if (typeof (value) == "boolean") {
+	                    destData[i] = value;
+	                    dest.setBool(i, value);
+	                }
+	                else if (value instanceof Vector2) {
+	                    var v2 = (destData[i]) || (destData[i] = new Vector2());
+	                    value.cloneTo(v2);
+	                    destData[i] = v2;
+	                    dest.setVector2(i, v2);
+	                }
+	                else if (value instanceof Vector3) {
+	                    var v3 = (destData[i]) || (destData[i] = new Vector3());
+	                    value.cloneTo(v3);
+	                    destData[i] = v3;
+	                    dest.setVector3(i, v3);
+	                }
+	                else if (value instanceof Vector4) {
+	                    var v4 = (destData[i]) || (destData[i] = new Vector4());
+	                    value.cloneTo(v4);
+	                    destData[i] = v4;
+	                    dest.setVector(i, v4);
+	                }
+	                else if (value instanceof Matrix4x4) {
+	                    var mat = (destData[i]) || (destData[i] = new Matrix4x4());
+	                    value.cloneTo(mat);
+	                    destData[i] = mat;
+	                    dest.setMatrix4x4(i, mat);
+	                }
+	                else if (value instanceof Laya.BaseTexture) {
+	                    destData[i] = value;
+	                    dest.setTexture(i, value);
+	                }
+	            }
+	        }
+	        this._defineDatas.cloneTo(dest._defineDatas);
+	    }
+	    _initDataForNative() {
+	        var length = 8;
+	        this._frameCount = -1;
+	        this._runtimeCopyValues.length = 0;
+	        this._nativeArray = [];
+	        this._data = new ArrayBuffer(length * 4);
+	        this._int32Data = new Int32Array(this._data);
+	        this._float32Data = new Float32Array(this._data);
+	        Laya.LayaGL.instance.createArrayBufferRef(this._data, Laya.LayaGL.ARRAY_BUFFER_TYPE_DATA, true);
+	    }
+	    needRenewArrayBufferForNative(index) {
+	        if (index >= this._int32Data.length) {
+	            var nByteLen = (index + 1) * 4;
+	            var pre = this._int32Data;
+	            var preConchRef = this._data["conchRef"];
+	            var prePtrID = this._data["_ptrID"];
+	            this._data = new ArrayBuffer(nByteLen);
+	            this._int32Data = new Int32Array(this._data);
+	            this._float32Data = new Float32Array(this._data);
+	            this._data["conchRef"] = preConchRef;
+	            this._data["_ptrID"] = prePtrID;
+	            pre && this._int32Data.set(pre, 0);
+	            var layagl = Laya.LayaGL.instance;
+	            if (layagl.updateArrayBufferRef) {
+	                layagl.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+	            }
+	            else {
+	                window.conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+	            }
+	        }
+	    }
+	    getDataForNative() {
+	        return this._nativeArray;
+	    }
+	    getIntForNative(index) {
+	        return this._int32Data[index];
+	    }
+	    setIntForNative(index, value) {
+	        this.needRenewArrayBufferForNative(index);
+	        this._int32Data[index] = value;
+	        this._nativeArray[index] = value;
+	    }
+	    getBoolForNative(index) {
+	        return this._int32Data[index] == 1;
+	    }
+	    setBoolForNative(index, value) {
+	        this.needRenewArrayBufferForNative(index);
+	        this._int32Data[index] = value ? 1 : 0;
+	        this._nativeArray[index] = value;
+	    }
+	    getNumberForNative(index) {
+	        return this._float32Data[index];
+	    }
+	    setNumberForNative(index, value) {
+	        this.needRenewArrayBufferForNative(index);
+	        this._float32Data[index] = value;
+	        this._nativeArray[index] = value;
+	    }
+	    getMatrix4x4ForNative(index) {
+	        return this._nativeArray[index];
+	    }
+	    setMatrix4x4ForNative(index, value) {
+	        this.needRenewArrayBufferForNative(index);
+	        this._nativeArray[index] = value;
+	        var nPtrID = this.setReferenceForNative(value.elements);
+	        this._int32Data[index] = nPtrID;
+	    }
+	    getVectorForNative(index) {
+	        return this._nativeArray[index];
+	    }
+	    setVectorForNative(index, value) {
+	        this.needRenewArrayBufferForNative(index);
+	        this._nativeArray[index] = value;
+	        if (!value.elements) {
+	            value.forNativeElement();
+	        }
+	        var nPtrID = this.setReferenceForNative(value.elements);
+	        this._int32Data[index] = nPtrID;
+	    }
+	    getVector2ForNative(index) {
+	        return this._nativeArray[index];
+	    }
+	    setVector2ForNative(index, value) {
+	        this.needRenewArrayBufferForNative(index);
+	        this._nativeArray[index] = value;
+	        if (!value.elements) {
+	            value.forNativeElement();
+	        }
+	        var nPtrID = this.setReferenceForNative(value.elements);
+	        this._int32Data[index] = nPtrID;
+	    }
+	    getVector3ForNative(index) {
+	        return this._nativeArray[index];
+	    }
+	    setVector3ForNative(index, value) {
+	        this.needRenewArrayBufferForNative(index);
+	        this._nativeArray[index] = value;
+	        if (!value.elements) {
+	            value.forNativeElement();
+	        }
+	        var nPtrID = this.setReferenceForNative(value.elements);
+	        this._int32Data[index] = nPtrID;
+	    }
+	    getQuaternionForNative(index) {
+	        return this._nativeArray[index];
+	    }
+	    setQuaternionForNative(index, value) {
+	        this.needRenewArrayBufferForNative(index);
+	        this._nativeArray[index] = value;
+	        if (!value.elements) {
+	            value.forNativeElement();
+	        }
+	        var nPtrID = this.setReferenceForNative(value.elements);
+	        this._int32Data[index] = nPtrID;
+	    }
+	    getBufferForNative(shaderIndex) {
+	        return this._nativeArray[shaderIndex];
+	    }
+	    setBufferForNative(index, value) {
+	        this.needRenewArrayBufferForNative(index);
+	        this._nativeArray[index] = value;
+	        var nPtrID = this.setReferenceForNative(value);
+	        this._int32Data[index] = nPtrID;
+	    }
+	    getAttributeForNative(index) {
+	        return this._nativeArray[index];
+	    }
+	    setAttributeForNative(index, value) {
+	        this._nativeArray[index] = value;
+	        if (!value["_ptrID"]) {
+	            Laya.LayaGL.instance.createArrayBufferRef(value, Laya.LayaGL.ARRAY_BUFFER_TYPE_DATA, true);
+	        }
+	        Laya.LayaGL.instance.syncBufferToRenderThread(value);
+	        this._int32Data[index] = value["_ptrID"];
+	    }
+	    getTextureForNative(index) {
+	        return this._nativeArray[index];
+	    }
+	    setTextureForNative(index, value) {
+	        if (!value)
+	            return;
+	        this.needRenewArrayBufferForNative(index);
+	        var lastValue = this._nativeArray[index];
+	        this._nativeArray[index] = value;
+	        var glTexture = value._getSource() || value.defaulteTexture._getSource();
+	        this._int32Data[index] = glTexture.id;
+	        if (this._ownerResource && this._ownerResource.referenceCount > 0) {
+	            (lastValue) && (lastValue._removeReference());
+	            (value) && (value._addReference());
+	        }
+	    }
+	    setReferenceForNative(value) {
+	        this.clearRuntimeCopyArray();
+	        var nRefID = 0;
+	        var nPtrID = 0;
+	        if (ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_) {
+	            Laya.LayaGL.instance.createArrayBufferRefs(value, Laya.LayaGL.ARRAY_BUFFER_TYPE_DATA, true, Laya.LayaGL.ARRAY_BUFFER_REF_REFERENCE);
+	            nRefID = 0;
+	            nPtrID = value.getPtrID(nRefID);
+	        }
+	        else {
+	            Laya.LayaGL.instance.createArrayBufferRefs(value, Laya.LayaGL.ARRAY_BUFFER_TYPE_DATA, true, Laya.LayaGL.ARRAY_BUFFER_REF_COPY);
+	            nRefID = value.getRefNum() - 1;
+	            nPtrID = value.getPtrID(nRefID);
+	            this._runtimeCopyValues.push({ "obj": value, "refID": nRefID, "ptrID": nPtrID });
+	        }
+	        Laya.LayaGL.instance.syncBufferToRenderThread(value, nRefID);
+	        return nPtrID;
+	    }
+	    static setRuntimeValueMode(bReference) {
+	        ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_ = bReference;
+	    }
+	    clearRuntimeCopyArray() {
+	        var currentFrame = Laya.Stat.loopCount;
+	        if (this._frameCount != currentFrame) {
+	            this._frameCount = currentFrame;
+	            for (var i = 0, n = this._runtimeCopyValues.length; i < n; i++) {
+	                var obj = this._runtimeCopyValues[i];
+	                obj.obj.clearRefNum();
+	            }
+	            this._runtimeCopyValues.length = 0;
+	        }
+	    }
+	}
+	ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_ = true;
+
+	class VertexDeclaration {
+	    constructor(vertexStride, vertexElements) {
+	        this._id = ++VertexDeclaration._uniqueIDCounter;
+	        this._vertexElementsDic = {};
+	        this._vertexStride = vertexStride;
+	        this._vertexElements = vertexElements;
+	        var count = vertexElements.length;
+	        this._shaderValues = new ShaderData(null);
+	        for (var j = 0; j < count; j++) {
+	            var vertexElement = vertexElements[j];
+	            var name = vertexElement._elementUsage;
+	            this._vertexElementsDic[name] = vertexElement;
+	            var value = new Int32Array(5);
+	            var elmentInfo = VertexElementFormat.getElementInfos(vertexElement._elementFormat);
+	            value[0] = elmentInfo[0];
+	            value[1] = elmentInfo[1];
+	            value[2] = elmentInfo[2];
+	            value[3] = this._vertexStride;
+	            value[4] = vertexElement._offset;
+	            this._shaderValues.setAttribute(name, value);
+	        }
+	    }
+	    get id() {
+	        return this._id;
+	    }
+	    get vertexStride() {
+	        return this._vertexStride;
+	    }
+	    get vertexElementCount() {
+	        return this._vertexElements.length;
+	    }
+	    getVertexElementByIndex(index) {
+	        return this._vertexElements[index];
+	    }
+	    getVertexElementByUsage(usage) {
+	        return this._vertexElementsDic[usage];
+	    }
+	}
+	VertexDeclaration._uniqueIDCounter = 1;
+
+	class VertexElement {
+	    constructor(offset, elementFormat, elementUsage) {
+	        this._offset = offset;
+	        this._elementFormat = elementFormat;
+	        this._elementUsage = elementUsage;
+	    }
+	    get offset() {
+	        return this._offset;
+	    }
+	    get elementFormat() {
+	        return this._elementFormat;
+	    }
+	    get elementUsage() {
+	        return this._elementUsage;
+	    }
+	}
+
+	class BufferState extends Laya.BufferStateBase {
+	    constructor() {
+	        super();
+	    }
+	    applyVertexBuffer(vertexBuffer) {
+	        if (Laya.BufferStateBase._curBindedBufferState === this) {
+	            var gl = Laya.LayaGL.instance;
+	            var verDec = vertexBuffer.vertexDeclaration;
+	            var valueData = verDec._shaderValues.getData();
+	            this.vertexDeclaration = verDec;
+	            vertexBuffer.bind();
+	            for (var k in valueData) {
+	                var loc = parseInt(k);
+	                var attribute = valueData[k];
+	                gl.enableVertexAttribArray(loc);
+	                gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
+	            }
+	        }
+	        else {
+	            throw "BufferState: must call bind() function first.";
+	        }
+	    }
+	    applyVertexBuffers(vertexBuffers) {
+	        if (Laya.BufferStateBase._curBindedBufferState === this) {
+	            var gl = Laya.LayaGL.instance;
+	            for (var i = 0, n = vertexBuffers.length; i < n; i++) {
+	                var verBuf = vertexBuffers[i];
+	                var verDec = verBuf.vertexDeclaration;
+	                var valueData = verDec._shaderValues.getData();
+	                verBuf.bind();
+	                for (var k in valueData) {
+	                    var loc = parseInt(k);
+	                    var attribute = valueData[k];
+	                    gl.enableVertexAttribArray(loc);
+	                    gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
+	                }
+	            }
+	        }
+	        else {
+	            throw "BufferState: must call bind() function first.";
+	        }
+	    }
+	    applyInstanceVertexBuffer(vertexBuffer) {
+	        if (Laya.LayaGL.layaGPUInstance.supportInstance()) {
+	            if (Laya.BufferStateBase._curBindedBufferState === this) {
+	                var gl = Laya.LayaGL.instance;
+	                var verDec = vertexBuffer.vertexDeclaration;
+	                var valueData = verDec._shaderValues.getData();
+	                vertexBuffer.bind();
+	                for (var k in valueData) {
+	                    var loc = parseInt(k);
+	                    var attribute = valueData[k];
+	                    gl.enableVertexAttribArray(loc);
+	                    gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
+	                    Laya.LayaGL.layaGPUInstance.vertexAttribDivisor(loc, 1);
+	                }
+	            }
+	            else {
+	                throw "BufferState: must call bind() function first.";
+	            }
+	        }
+	    }
+	    applyIndexBuffer(indexBuffer) {
+	        if (Laya.BufferStateBase._curBindedBufferState === this) {
+	            if (this._bindedIndexBuffer !== indexBuffer) {
+	                indexBuffer._bindForVAO();
+	                this._bindedIndexBuffer = indexBuffer;
+	            }
+	        }
+	        else {
+	            throw "BufferState: must call bind() function first.";
+	        }
+	    }
+	}
+
+	class ScreenQuad extends Laya.Resource {
+	    constructor() {
+	        super();
+	        this._bufferState = new BufferState();
+	        this._bufferStateInvertUV = new BufferState();
+	        var gl = Laya.LayaGL.instance;
+	        this._vertexBuffer = new VertexBuffer3D(16 * 4, gl.STATIC_DRAW, false);
+	        this._vertexBuffer.vertexDeclaration = ScreenQuad._vertexDeclaration;
+	        this._vertexBuffer.setData(ScreenQuad._vertices.buffer);
+	        this._bufferState.bind();
+	        this._bufferState.applyVertexBuffer(this._vertexBuffer);
+	        this._bufferState.unBind();
+	        this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, gl.STATIC_DRAW, false);
+	        this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
+	        this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
+	        this._bufferStateInvertUV.bind();
+	        this._bufferStateInvertUV.applyVertexBuffer(this._vertexBufferInvertUV);
+	        this._bufferStateInvertUV.unBind();
+	        this._setGPUMemory(this._vertexBuffer._byteLength + this._vertexBufferInvertUV._byteLength);
+	    }
+	    static __init__() {
+	        ScreenQuad._vertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenQuad.SCREENQUAD_POSITION_UV)]);
+	        ScreenQuad.instance = new ScreenQuad();
+	        ScreenQuad.instance.lock = true;
+	    }
+	    render() {
+	        var gl = Laya.LayaGL.instance;
+	        this._bufferState.bind();
+	        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	        Laya.Stat.renderBatches++;
+	    }
+	    renderInvertUV() {
+	        var gl = Laya.LayaGL.instance;
+	        this._bufferStateInvertUV.bind();
+	        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	        Laya.Stat.renderBatches++;
+	    }
+	    destroy() {
+	        super.destroy();
+	        this._bufferState.destroy();
+	        this._vertexBuffer.destroy();
+	        this._bufferStateInvertUV.destroy();
+	        this._vertexBufferInvertUV.destroy();
+	        this._setGPUMemory(0);
+	    }
+	}
+	ScreenQuad.SCREENQUAD_POSITION_UV = 0;
+	ScreenQuad._vertices = new Float32Array([1, 1, 1, 1, 1, -1, 1, 0, -1, 1, 0, 1, -1, -1, 0, 0]);
+	ScreenQuad._verticesInvertUV = new Float32Array([1, 1, 1, 0, 1, -1, 1, 1, -1, 1, 0, 0, -1, -1, 0, 1]);
+
+	class ScreenTriangle extends Laya.Resource {
+	    constructor() {
+	        super();
+	        this._bufferState = new BufferState();
+	        this._bufferStateInvertUV = new BufferState();
+	        var gl = Laya.LayaGL.instance;
+	        this._vertexBuffer = new VertexBuffer3D(12 * 4, gl.STATIC_DRAW, false);
+	        this._vertexBuffer.vertexDeclaration = ScreenTriangle._vertexDeclaration;
+	        this._vertexBuffer.setData(ScreenTriangle._vertices.buffer);
+	        this._bufferState.bind();
+	        this._bufferState.applyVertexBuffer(this._vertexBuffer);
+	        this._bufferState.unBind();
+	        this._vertexBufferInvertUV = new VertexBuffer3D(12 * 4, gl.STATIC_DRAW, false);
+	        this._vertexBufferInvertUV.vertexDeclaration = ScreenTriangle._vertexDeclaration;
+	        this._vertexBufferInvertUV.setData(ScreenTriangle._verticesInvertUV.buffer);
+	        this._bufferStateInvertUV.bind();
+	        this._bufferStateInvertUV.applyVertexBuffer(this._vertexBufferInvertUV);
+	        this._bufferStateInvertUV.unBind();
+	        this._setGPUMemory(this._vertexBuffer._byteLength + this._vertexBufferInvertUV._byteLength);
+	    }
+	    static __init__() {
+	        ScreenTriangle._vertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenTriangle.SCREENTRIANGLE_POSITION_UV)]);
+	        ScreenTriangle.instance = new ScreenTriangle();
+	        ScreenTriangle.instance.lock = true;
+	    }
+	    render() {
+	        var gl = Laya.LayaGL.instance;
+	        this._bufferState.bind();
+	        gl.drawArrays(gl.TRIANGLES, 0, 3);
+	        Laya.Stat.renderBatches++;
+	    }
+	    renderInvertUV() {
+	        var gl = Laya.LayaGL.instance;
+	        this._bufferStateInvertUV.bind();
+	        gl.drawArrays(gl.TRIANGLES, 0, 3);
+	        Laya.Stat.renderBatches++;
+	    }
+	    destroy() {
+	        super.destroy();
+	        this._bufferState.destroy();
+	        this._vertexBuffer.destroy();
+	        this._bufferStateInvertUV.destroy();
+	        this._vertexBufferInvertUV.destroy();
+	        this._setGPUMemory(0);
+	    }
+	}
+	ScreenTriangle.SCREENTRIANGLE_POSITION_UV = 0;
+	ScreenTriangle._vertices = new Float32Array([-1, -1, 0, 0, -1, 3, 0, 2, 3, -1, 2, 0]);
+	ScreenTriangle._verticesInvertUV = new Float32Array([-1, -1, 0, 1, -1, 3, 0, -1, 3, -1, 2, 1]);
+
+	class ShaderDefine {
+	    constructor(index, value) {
+	        this._index = index;
+	        this._value = value;
+	    }
+	}
+
+	class ShaderVariant {
+	    constructor(shader, subShaderIndex, passIndex, defines) {
+	        this._subShaderIndex = 0;
+	        this._passIndex = 0;
+	        this.setValue(shader, subShaderIndex, passIndex, defines);
+	    }
+	    get shader() {
+	        return this._shader;
+	    }
+	    get subShaderIndex() {
+	        return this._subShaderIndex;
+	    }
+	    get passIndex() {
+	        return this._passIndex;
+	    }
+	    get defineNames() {
+	        return this._defineNames;
+	    }
+	    setValue(shader, subShaderIndex, passIndex, defineNames) {
+	        if (shader) {
+	            var subShader = shader.getSubShaderAt(subShaderIndex);
+	            if (subShader) {
+	                var pass = subShader._passes[passIndex];
+	                if (pass) {
+	                    var validDefine = pass._validDefine;
+	                    for (var i = 0, n = defineNames.length; i < n; i++) {
+	                        var defname = defineNames[i];
+	                        if (!validDefine.has(ILaya3D.Shader3D.getDefineByName(defname)))
+	                            throw `ShaderVariantInfo:Invalid defineName ${defname} in ${shader._name} subShaderIndex of ${subShaderIndex} passIndex of ${passIndex}.`;
+	                    }
+	                }
+	                else {
+	                    throw `ShaderVariantInfo:Shader don't have passIndex of ${passIndex}.`;
+	                }
+	            }
+	            else {
+	                throw `ShaderVariantInfo:Shader don't have subShaderIndex of ${subShaderIndex}.`;
+	            }
+	        }
+	        else {
+	            throw `ShaderVariantInfo:Shader can't be null.`;
+	        }
+	        this._shader = shader;
+	        this._subShaderIndex = subShaderIndex;
+	        this._passIndex = passIndex;
+	        this._defineNames = defineNames;
+	    }
+	    equal(other) {
+	        if (this._shader !== other._shader || this._subShaderIndex !== other._subShaderIndex || this._passIndex !== other._passIndex)
+	            return false;
+	        var defines = this._defineNames;
+	        var otherDefines = other._defineNames;
+	        if (defines.length !== otherDefines.length)
+	            return false;
+	        for (var i = 0, n = this._defineNames.length; i < n; i++) {
+	            if (defines[i] !== otherDefines[i])
+	                return false;
+	        }
+	        return true;
+	    }
+	    clone() {
+	        var dest = new ShaderVariant(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
+	        return dest;
+	    }
+	}
+	class ShaderVariantCollection {
+	    constructor() {
+	        this._allCompiled = false;
+	        this._variants = [];
+	    }
+	    get allCompiled() {
+	        return this._allCompiled;
+	    }
+	    get variantCount() {
+	        return this._variants.length;
+	    }
+	    add(variant) {
+	        for (var i = 0, n = this._variants.length; i < n; i++) {
+	            if (this._variants[i].equal(variant))
+	                return false;
+	        }
+	        this._variants.push(variant.clone());
+	        this._allCompiled = false;
+	        return true;
+	    }
+	    remove(variant) {
+	        for (var i = 0, n = this._variants.length; i < n; i++) {
+	            if (this._variants[i].equal(variant)) {
+	                this._variants.splice(i, 1);
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
+	    contatins(variant) {
+	        for (var i = 0, n = this._variants.length; i < n; i++) {
+	            if (this._variants[i].equal(variant))
+	                return true;
+	        }
+	        return false;
+	    }
+	    getByIndex(index) {
+	        return this._variants[index];
+	    }
+	    clear() {
+	        this._variants.length = 0;
+	    }
+	    compile() {
+	        if (!this._allCompiled) {
+	            var variants = this._variants;
+	            for (var i = 0, n = variants.length; i < n; i++) {
+	                var variant = variants[i];
+	                ILaya3D.Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames);
+	            }
+	            this._allCompiled = true;
+	        }
+	    }
+	}
+
+	class Shader3D {
+	    constructor(name, attributeMap, uniformMap, enableInstancing, supportReflectionProbe) {
+	        this._attributeMap = null;
+	        this._uniformMap = null;
+	        this._enableInstancing = false;
+	        this._supportReflectionProbe = false;
+	        this._subShaders = [];
+	        this._name = name;
+	        this._attributeMap = attributeMap;
+	        this._uniformMap = uniformMap;
+	        this._enableInstancing = enableInstancing;
+	        this._supportReflectionProbe = supportReflectionProbe;
+	    }
+	    static _getNamesByDefineData(defineData, out) {
+	        var maskMap = Shader3D._maskMap;
+	        var mask = defineData._mask;
+	        out.length = 0;
+	        for (var i = 0, n = defineData._length; i < n; i++) {
+	            var subMaskMap = maskMap[i];
+	            var subMask = mask[i];
+	            for (var j = 0; j < 32; j++) {
+	                var d = 1 << j;
+	                if (subMask > 0 && d > subMask)
+	                    break;
+	                if (subMask & d)
+	                    out.push(subMaskMap[d]);
+	            }
+	        }
+	    }
+	    static getDefineByName(name) {
+	        var define = Shader3D._defineMap[name];
+	        if (!define) {
+	            var maskMap = Shader3D._maskMap;
+	            var counter = Shader3D._defineCounter;
+	            var index = Math.floor(counter / 32);
+	            var value = 1 << counter % 32;
+	            define = new ShaderDefine(index, value);
+	            Shader3D._defineMap[name] = define;
+	            if (index == maskMap.length) {
+	                maskMap.length++;
+	                maskMap[index] = {};
+	            }
+	            maskMap[index][value] = name;
+	            Shader3D._defineCounter++;
+	        }
+	        return define;
+	    }
+	    static propertyNameToID(name) {
+	        if (Shader3D._propertyNameMap[name] != null) {
+	            return Shader3D._propertyNameMap[name];
+	        }
+	        else {
+	            var id = Shader3D._propertyNameCounter++;
+	            Shader3D._propertyNameMap[name] = id;
+	            Shader3D._propertyNameMap[id] = name;
+	            return id;
+	        }
+	    }
+	    static addInclude(fileName, txt) {
+	        txt = txt.replace(Laya.ShaderCompile._clearCR, "");
+	        Laya.ShaderCompile.addInclude(fileName, txt);
+	    }
+	    static compileShaderByDefineNames(shaderName, subShaderIndex, passIndex, defineNames) {
+	        var shader = Shader3D.find(shaderName);
+	        if (shader) {
+	            var subShader = shader.getSubShaderAt(subShaderIndex);
+	            if (subShader) {
+	                var pass = subShader._passes[passIndex];
+	                if (pass) {
+	                    var compileDefineDatas = Shader3D._compileDefineDatas;
+	                    compileDefineDatas.clear();
+	                    for (var i = 0, n = defineNames.length; i < n; i++)
+	                        compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
+	                    pass.withCompile(compileDefineDatas);
+	                }
+	                else {
+	                    console.warn("Shader3D: unknown passIndex.");
+	                }
+	            }
+	            else {
+	                console.warn("Shader3D: unknown subShaderIndex.");
+	            }
+	        }
+	        else {
+	            console.warn("Shader3D: unknown shader name.");
+	        }
+	    }
+	    static add(name, attributeMap = null, uniformMap = null, enableInstancing = false, supportReflectionProbe = false) {
+	        return Shader3D._preCompileShader[name] = new Shader3D(name, attributeMap, uniformMap, enableInstancing, supportReflectionProbe);
+	    }
+	    static find(name) {
+	        return Shader3D._preCompileShader[name];
+	    }
+	    get name() {
+	        return this._name;
+	    }
+	    addSubShader(subShader) {
+	        this._subShaders.push(subShader);
+	        subShader._owner = this;
+	    }
+	    getSubShaderAt(index) {
+	        return this._subShaders[index];
+	    }
+	    static compileShader(shaderName, subShaderIndex, passIndex, ...defineMask) {
+	        var shader = Shader3D.find(shaderName);
+	        if (shader) {
+	            var subShader = shader.getSubShaderAt(subShaderIndex);
+	            if (subShader) {
+	                var pass = subShader._passes[passIndex];
+	                if (pass) {
+	                    var compileDefineDatas = Shader3D._compileDefineDatas;
+	                    var mask = compileDefineDatas._mask;
+	                    mask.length = 0;
+	                    for (var i = 0, n = defineMask.length; i < n; i++)
+	                        mask.push(defineMask[i]);
+	                    compileDefineDatas._length = defineMask.length;
+	                    pass.withCompile(compileDefineDatas);
+	                }
+	                else {
+	                    console.warn("Shader3D: unknown passIndex.");
+	                }
+	            }
+	            else {
+	                console.warn("Shader3D: unknown subShaderIndex.");
+	            }
+	        }
+	        else {
+	            console.warn("Shader3D: unknown shader name.");
+	        }
+	    }
+	}
+	Shader3D._compileDefineDatas = new DefineDatas();
+	Shader3D.RENDER_STATE_CULL = 0;
+	Shader3D.RENDER_STATE_BLEND = 1;
+	Shader3D.RENDER_STATE_BLEND_SRC = 2;
+	Shader3D.RENDER_STATE_BLEND_DST = 3;
+	Shader3D.RENDER_STATE_BLEND_SRC_RGB = 4;
+	Shader3D.RENDER_STATE_BLEND_DST_RGB = 5;
+	Shader3D.RENDER_STATE_BLEND_SRC_ALPHA = 6;
+	Shader3D.RENDER_STATE_BLEND_DST_ALPHA = 7;
+	Shader3D.RENDER_STATE_BLEND_CONST_COLOR = 8;
+	Shader3D.RENDER_STATE_BLEND_EQUATION = 9;
+	Shader3D.RENDER_STATE_BLEND_EQUATION_RGB = 10;
+	Shader3D.RENDER_STATE_BLEND_EQUATION_ALPHA = 11;
+	Shader3D.RENDER_STATE_DEPTH_TEST = 12;
+	Shader3D.RENDER_STATE_DEPTH_WRITE = 13;
+	Shader3D.PERIOD_CUSTOM = 0;
+	Shader3D.PERIOD_MATERIAL = 1;
+	Shader3D.PERIOD_SPRITE = 2;
+	Shader3D.PERIOD_CAMERA = 3;
+	Shader3D.PERIOD_SCENE = 4;
+	Shader3D._propertyNameMap = {};
+	Shader3D._propertyNameCounter = 0;
+	Shader3D._defineCounter = 0;
+	Shader3D._defineMap = {};
+	Shader3D._preCompileShader = {};
+	Shader3D._maskMap = [];
+	Shader3D.debugMode = false;
+	Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
+
+	class Command {
+	    constructor() {
+	        this._commandBuffer = null;
+	    }
+	    static __init__() {
+	        Command._screenShaderData = new ShaderData();
+	        Command._screenShader = Shader3D.find("BlitScreen");
+	    }
+	    run() {
+	    }
+	    recover() {
+	        this._commandBuffer = null;
+	    }
+	    setContext(context) {
+	        this._context = context;
+	    }
+	}
+	Command.SCREENTEXTURE_NAME = "u_MainTex";
+	Command.SCREENTEXTUREOFFSETSCALE_NAME = "u_OffsetScale";
+	Command.MAINTEXTURE_TEXELSIZE_NAME = "u_MainTex_TexelSize";
+	Command.SCREENTEXTURE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME);
+	Command.SCREENTEXTUREOFFSETSCALE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTUREOFFSETSCALE_NAME);
+	Command.MAINTEXTURE_TEXELSIZE_ID = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME);
+
+	class BlitScreenQuadCMD extends Command {
+	    constructor() {
+	        super(...arguments);
+	        this._source = null;
+	        this._dest = null;
+	        this._offsetScale = null;
+	        this._shader = null;
+	        this._shaderData = null;
+	        this._subShader = 0;
+	        this._sourceTexelSize = new Vector4();
+	        this._screenType = 0;
+	        this._drawDefineCavans = false;
+	    }
+	    static create(source, dest, offsetScale = null, shader = null, shaderData = null, subShader = 0, screenType = BlitScreenQuadCMD._SCREENTYPE_QUAD, commandbuffer = null, definedCanvas = false) {
+	        var cmd;
+	        cmd = BlitScreenQuadCMD._pool.length > 0 ? BlitScreenQuadCMD._pool.pop() : new BlitScreenQuadCMD();
+	        cmd._source = source;
+	        cmd._dest = dest;
+	        cmd._offsetScale = offsetScale;
+	        cmd._shader = shader;
+	        cmd._shaderData = shaderData;
+	        cmd._subShader = subShader;
+	        cmd._screenType = screenType;
+	        cmd._commandBuffer = commandbuffer;
+	        cmd._drawDefineCavans = definedCanvas;
+	        return cmd;
+	    }
+	    run() {
+	        var source;
+	        if (!this._source) {
+	            if (!this._commandBuffer._camera._internalRenderTexture)
+	                throw "camera internalRenderTexture is null,please set camera enableBuiltInRenderTexture";
+	            source = this._commandBuffer._camera._internalRenderTexture;
+	        }
+	        else
+	            source = this._source;
+	        var shader = this._shader || Command._screenShader;
+	        var shaderData = this._shaderData || Command._screenShaderData;
+	        var dest = this._dest ? this._dest : (this._drawDefineCavans ? this._dest : this._commandBuffer._camera._internalRenderTexture);
+	        if (dest) {
+	            Laya.LayaGL.instance.viewport(0, 0, dest.width, dest.height);
+	        }
+	        else {
+	            let camera = this._commandBuffer._camera;
+	            let viewport = camera.viewport;
+	            let vpH = viewport.height;
+	            let vpY = RenderContext3D.clientHeight - viewport.y - vpH;
+	            Laya.LayaGL.instance.viewport(viewport.x, vpY, viewport.width, vpH);
+	        }
+	        shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
+	        shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitScreenQuadCMD._defaultOffsetScale);
+	        this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
+	        shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
+	        (RenderTexture.currentActive) && (RenderTexture.currentActive._end());
+	        (dest) && (dest._start());
+	        var subShader = shader.getSubShaderAt(this._subShader);
+	        var passes = subShader._passes;
+	        for (var i = 0, n = passes.length; i < n; i++) {
+	            var comDef = BlitScreenQuadCMD._compileDefine;
+	            shaderData._defineDatas.cloneTo(comDef);
+	            var shaderPass = passes[i].withCompile(comDef);
+	            shaderPass.bind();
+	            shaderPass.uploadUniforms(shaderPass._materialUniformParamsMap, shaderData, true);
+	            shaderPass.uploadRenderStateBlendDepth(shaderData);
+	            shaderPass.uploadRenderStateFrontFace(shaderData, false, null);
+	            switch (this._screenType) {
+	                case BlitScreenQuadCMD._SCREENTYPE_QUAD:
+	                    RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
+	                    break;
+	                case BlitScreenQuadCMD._SCREENTYPE_TRIANGLE:
+	                    RenderContext3D._instance.invertY ? ScreenTriangle.instance.renderInvertUV() : ScreenTriangle.instance.render();
+	                    break;
+	                default:
+	                    throw "BlitScreenQuadCMD:unknown screen Type.";
+	            }
+	        }
+	        (dest) && (dest._end());
+	    }
+	    recover() {
+	        BlitScreenQuadCMD._pool.push(this);
+	        this._source = null;
+	        this._dest = null;
+	        this._offsetScale = null;
+	        this._shader = null;
+	        this._shaderData = null;
+	        this._drawDefineCavans = false;
+	        super.recover();
+	    }
+	}
+	BlitScreenQuadCMD._SCREENTYPE_QUAD = 0;
+	BlitScreenQuadCMD._SCREENTYPE_TRIANGLE = 1;
+	BlitScreenQuadCMD._compileDefine = new DefineDatas();
+	BlitScreenQuadCMD._pool = [];
+	BlitScreenQuadCMD._defaultOffsetScale = new Vector4(0, 0, 1, 1);
+
+	class SetRenderTargetCMD extends Command {
+	    constructor() {
+	        super(...arguments);
+	        this._renderTexture = null;
+	    }
+	    static create(renderTexture) {
+	        var cmd;
+	        cmd = SetRenderTargetCMD._pool.length > 0 ? SetRenderTargetCMD._pool.pop() : new SetRenderTargetCMD();
+	        cmd._renderTexture = renderTexture;
+	        return cmd;
+	    }
+	    run() {
+	        (RenderTexture.currentActive) && (RenderTexture.currentActive._end());
+	        Laya.LayaGL.instance.viewport(0, 0, this._renderTexture.width, this._renderTexture.height);
+	        this._renderTexture._start();
+	    }
+	    recover() {
+	        SetRenderTargetCMD._pool.push(this);
+	        this._renderTexture = null;
+	    }
+	}
+	SetRenderTargetCMD._pool = [];
+
+	(function (ShaderDataType) {
+	    ShaderDataType[ShaderDataType["Int"] = 0] = "Int";
+	    ShaderDataType[ShaderDataType["Bool"] = 1] = "Bool";
+	    ShaderDataType[ShaderDataType["Number"] = 2] = "Number";
+	    ShaderDataType[ShaderDataType["Vector2"] = 3] = "Vector2";
+	    ShaderDataType[ShaderDataType["Vector3"] = 4] = "Vector3";
+	    ShaderDataType[ShaderDataType["Vector4"] = 5] = "Vector4";
+	    ShaderDataType[ShaderDataType["Quaternion"] = 6] = "Quaternion";
+	    ShaderDataType[ShaderDataType["Matrix4x4"] = 7] = "Matrix4x4";
+	    ShaderDataType[ShaderDataType["Buffer"] = 8] = "Buffer";
+	    ShaderDataType[ShaderDataType["Texture"] = 9] = "Texture";
+	})(exports.ShaderDataType || (exports.ShaderDataType = {}));
+	class SetShaderDataCMD extends Command {
+	    constructor() {
+	        super(...arguments);
+	        this._shaderData = null;
+	        this._nameID = 0;
+	        this._value = null;
+	        this._dataType = -1;
+	    }
+	    static create(shaderData, nameID, value, shaderDataType, commandBuffer) {
+	        var cmd;
+	        cmd = SetShaderDataCMD._pool.length > 0 ? SetShaderDataCMD._pool.pop() : new SetShaderDataCMD();
+	        cmd._shaderData = shaderData;
+	        cmd._nameID = nameID;
+	        cmd._value = value;
+	        cmd._dataType = shaderDataType;
+	        cmd._commandBuffer = commandBuffer;
+	        return cmd;
+	    }
+	    run() {
+	        switch (this._dataType) {
+	            case exports.ShaderDataType.Int:
+	                this._shaderData.setInt(this._nameID, this._value);
+	                break;
+	            case exports.ShaderDataType.Number:
+	                this._shaderData.setNumber(this._nameID, this._value);
+	                break;
+	            case exports.ShaderDataType.Bool:
+	                this._shaderData.setBool(this._nameID, this._value);
+	                break;
+	            case exports.ShaderDataType.Matrix4x4:
+	                this._shaderData.setMatrix4x4(this._nameID, this._value);
+	                break;
+	            case exports.ShaderDataType.Quaternion:
+	                this._shaderData.setQuaternion(this._nameID, this._value);
+	                break;
+	            case exports.ShaderDataType.Texture:
+	                this._shaderData.setTexture(this._nameID, this._value);
+	                break;
+	            case exports.ShaderDataType.Vector4:
+	                this._shaderData.setVector(this._nameID, this._value);
+	                break;
+	            case exports.ShaderDataType.Vector2:
+	                this._shaderData.setVector2(this._nameID, this._value);
+	                break;
+	            case exports.ShaderDataType.Vector3:
+	                this._shaderData.setVector3(this._nameID, this._value);
+	                break;
+	            case exports.ShaderDataType.Buffer:
+	                this._shaderData.setBuffer(this._nameID, this._value);
+	                break;
+	            default:
+	                throw "no type shaderValue on this CommendBuffer";
+	        }
+	    }
+	    recover() {
+	        SetShaderDataCMD._pool.push(this);
+	        this._shaderData = null;
+	        this._nameID = 0;
+	        this._value = null;
+	        this._dataType = -1;
+	    }
+	}
+	SetShaderDataCMD._pool = [];
+
 	class Transform3D extends Laya.EventDispatcher {
 	    constructor(owner) {
 	        super();
@@ -7805,494 +6996,6 @@
 	Sprite3D.MVPMATRIX = Shader3D.propertyNameToID("u_MvpMatrix");
 	Sprite3D._uniqueIDCounter = 0;
 
-	class BaseCamera extends Sprite3D {
-	    constructor(nearPlane = 0.3, farPlane = 1000) {
-	        super();
-	        this._skyRenderer = new SkyRenderer();
-	        this._forward = new Vector3();
-	        this._up = new Vector3();
-	        this.clearColor = new Vector4(100 / 255, 149 / 255, 237 / 255, 255 / 255);
-	        this._shaderValues = new ShaderData(null);
-	        this._fieldOfView = 60;
-	        this._useUserProjectionMatrix = false;
-	        this._orthographic = false;
-	        this._orthographicVerticalSize = 10;
-	        this.renderingOrder = 0;
-	        this._nearPlane = nearPlane;
-	        this._farPlane = farPlane;
-	        this.cullingMask = 2147483647;
-	        this.useOcclusionCulling = true;
-	    }
-	    get skyRenderer() {
-	        return this._skyRenderer;
-	    }
-	    get fieldOfView() {
-	        return this._fieldOfView;
-	    }
-	    set fieldOfView(value) {
-	        this._fieldOfView = value;
-	        this._calculateProjectionMatrix();
-	    }
-	    get nearPlane() {
-	        return this._nearPlane;
-	    }
-	    set nearPlane(value) {
-	        this._nearPlane = value;
-	        this._calculateProjectionMatrix();
-	    }
-	    get farPlane() {
-	        return this._farPlane;
-	    }
-	    set farPlane(vaule) {
-	        this._farPlane = vaule;
-	        this._calculateProjectionMatrix();
-	    }
-	    get orthographic() {
-	        return this._orthographic;
-	    }
-	    set orthographic(vaule) {
-	        this._orthographic = vaule;
-	        this._calculateProjectionMatrix();
-	    }
-	    get orthographicVerticalSize() {
-	        return this._orthographicVerticalSize;
-	    }
-	    set orthographicVerticalSize(vaule) {
-	        this._orthographicVerticalSize = vaule;
-	        this._calculateProjectionMatrix();
-	    }
-	    get renderingOrder() {
-	        return this._renderingOrder;
-	    }
-	    set renderingOrder(value) {
-	        this._renderingOrder = value;
-	        this._sortCamerasByRenderingOrder();
-	    }
-	    _sortCamerasByRenderingOrder() {
-	        if (this.displayedInStage) {
-	            var cameraPool = this.scene._cameraPool;
-	            var n = cameraPool.length - 1;
-	            for (var i = 0; i < n; i++) {
-	                if (cameraPool[i].renderingOrder > cameraPool[n].renderingOrder) {
-	                    var tempCamera = cameraPool[i];
-	                    cameraPool[i] = cameraPool[n];
-	                    cameraPool[n] = tempCamera;
-	                }
-	            }
-	        }
-	    }
-	    _calculateProjectionMatrix() {
-	    }
-	    _onScreenSizeChanged() {
-	        this._calculateProjectionMatrix();
-	    }
-	    _prepareCameraToRender() {
-	        var cameraSV = this._shaderValues;
-	        this.transform.getForward(this._forward);
-	        this.transform.getUp(this._up);
-	        cameraSV.setVector3(BaseCamera.CAMERAPOS, this.transform.position);
-	        cameraSV.setVector3(BaseCamera.CAMERADIRECTION, this._forward);
-	        cameraSV.setVector3(BaseCamera.CAMERAUP, this._up);
-	    }
-	    render(shader = null, replacementTag = null) {
-	    }
-	    addLayer(layer) {
-	        this.cullingMask |= Math.pow(2, layer);
-	    }
-	    removeLayer(layer) {
-	        this.cullingMask &= ~Math.pow(2, layer);
-	    }
-	    addAllLayers() {
-	        this.cullingMask = 2147483647;
-	    }
-	    removeAllLayers() {
-	        this.cullingMask = 0;
-	    }
-	    resetProjectionMatrix() {
-	        this._useUserProjectionMatrix = false;
-	        this._calculateProjectionMatrix();
-	    }
-	    _onActive() {
-	        this._scene._addCamera(this);
-	        super._onActive();
-	    }
-	    _onInActive() {
-	        this._scene._removeCamera(this);
-	        super._onInActive();
-	    }
-	    _parse(data, spriteMap) {
-	        super._parse(data, spriteMap);
-	        this.orthographic = data.orthographic;
-	        (data.orthographicVerticalSize !== undefined) && (this.orthographicVerticalSize = data.orthographicVerticalSize);
-	        (data.fieldOfView !== undefined) && (this.fieldOfView = data.fieldOfView);
-	        this.nearPlane = data.nearPlane;
-	        this.farPlane = data.farPlane;
-	        var color = data.clearColor;
-	        this.clearColor = new Vector4(color[0], color[1], color[2], color[3]);
-	        var skyboxMaterial = data.skyboxMaterial;
-	        if (skyboxMaterial) {
-	            this._skyRenderer.material = Laya.Loader.getRes(skyboxMaterial.path);
-	        }
-	    }
-	    destroy(destroyChild = true) {
-	        this._skyRenderer.destroy();
-	        this._skyRenderer = null;
-	        Laya.Laya.stage.off(Laya.Event.RESIZE, this, this._onScreenSizeChanged);
-	        super.destroy(destroyChild);
-	    }
-	    _create() {
-	        return new BaseCamera();
-	    }
-	}
-	BaseCamera._tempMatrix4x40 = new Matrix4x4();
-	BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
-	BaseCamera.VIEWMATRIX = Shader3D.propertyNameToID("u_View");
-	BaseCamera.PROJECTMATRIX = Shader3D.propertyNameToID("u_Projection");
-	BaseCamera.VIEWPROJECTMATRIX = Shader3D.propertyNameToID("u_ViewProjection");
-	BaseCamera.CAMERADIRECTION = Shader3D.propertyNameToID("u_CameraDirection");
-	BaseCamera.CAMERAUP = Shader3D.propertyNameToID("u_CameraUp");
-	BaseCamera.VIEWPORT = Shader3D.propertyNameToID("u_Viewport");
-	BaseCamera.PROJECTION_PARAMS = Shader3D.propertyNameToID("u_ProjectionParams");
-	BaseCamera.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
-	BaseCamera.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
-	BaseCamera.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
-	BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
-	BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
-	BaseCamera.RENDERINGTYPE_DEFERREDLIGHTING = "DEFERREDLIGHTING";
-	BaseCamera.RENDERINGTYPE_FORWARDRENDERING = "FORWARDRENDERING";
-	BaseCamera._invertYScaleMatrix = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	BaseCamera._invertYProjectionMatrix = new Matrix4x4();
-	BaseCamera._invertYProjectionViewMatrix = new Matrix4x4();
-	BaseCamera.CLEARFLAG_SOLIDCOLOR = 0;
-	BaseCamera.CLEARFLAG_SKY = 1;
-	BaseCamera.CLEARFLAG_DEPTHONLY = 2;
-	BaseCamera.CLEARFLAG_NONE = 3;
-
-	(function (ShadowMode) {
-	    ShadowMode[ShadowMode["None"] = 0] = "None";
-	    ShadowMode[ShadowMode["Hard"] = 1] = "Hard";
-	    ShadowMode[ShadowMode["SoftLow"] = 2] = "SoftLow";
-	    ShadowMode[ShadowMode["SoftHigh"] = 3] = "SoftHigh";
-	})(exports.ShadowMode || (exports.ShadowMode = {}));
-
-	class ScreenQuad extends Laya.Resource {
-	    constructor() {
-	        super();
-	        this._bufferState = new BufferState();
-	        this._bufferStateInvertUV = new BufferState();
-	        var gl = Laya.LayaGL.instance;
-	        this._vertexBuffer = new VertexBuffer3D(16 * 4, gl.STATIC_DRAW, false);
-	        this._vertexBuffer.vertexDeclaration = ScreenQuad._vertexDeclaration;
-	        this._vertexBuffer.setData(ScreenQuad._vertices.buffer);
-	        this._bufferState.bind();
-	        this._bufferState.applyVertexBuffer(this._vertexBuffer);
-	        this._bufferState.unBind();
-	        this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, gl.STATIC_DRAW, false);
-	        this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
-	        this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
-	        this._bufferStateInvertUV.bind();
-	        this._bufferStateInvertUV.applyVertexBuffer(this._vertexBufferInvertUV);
-	        this._bufferStateInvertUV.unBind();
-	        this._setGPUMemory(this._vertexBuffer._byteLength + this._vertexBufferInvertUV._byteLength);
-	    }
-	    static __init__() {
-	        ScreenQuad._vertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenQuad.SCREENQUAD_POSITION_UV)]);
-	        ScreenQuad.instance = new ScreenQuad();
-	        ScreenQuad.instance.lock = true;
-	    }
-	    render() {
-	        var gl = Laya.LayaGL.instance;
-	        this._bufferState.bind();
-	        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	        Laya.Stat.renderBatches++;
-	    }
-	    renderInvertUV() {
-	        var gl = Laya.LayaGL.instance;
-	        this._bufferStateInvertUV.bind();
-	        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	        Laya.Stat.renderBatches++;
-	    }
-	    destroy() {
-	        super.destroy();
-	        this._bufferState.destroy();
-	        this._vertexBuffer.destroy();
-	        this._bufferStateInvertUV.destroy();
-	        this._vertexBufferInvertUV.destroy();
-	        this._setGPUMemory(0);
-	    }
-	}
-	ScreenQuad.SCREENQUAD_POSITION_UV = 0;
-	ScreenQuad._vertices = new Float32Array([1, 1, 1, 1, 1, -1, 1, 0, -1, 1, 0, 1, -1, -1, 0, 0]);
-	ScreenQuad._verticesInvertUV = new Float32Array([1, 1, 1, 0, 1, -1, 1, 1, -1, 1, 0, 0, -1, -1, 0, 1]);
-
-	class ScreenTriangle extends Laya.Resource {
-	    constructor() {
-	        super();
-	        this._bufferState = new BufferState();
-	        this._bufferStateInvertUV = new BufferState();
-	        var gl = Laya.LayaGL.instance;
-	        this._vertexBuffer = new VertexBuffer3D(12 * 4, gl.STATIC_DRAW, false);
-	        this._vertexBuffer.vertexDeclaration = ScreenTriangle._vertexDeclaration;
-	        this._vertexBuffer.setData(ScreenTriangle._vertices.buffer);
-	        this._bufferState.bind();
-	        this._bufferState.applyVertexBuffer(this._vertexBuffer);
-	        this._bufferState.unBind();
-	        this._vertexBufferInvertUV = new VertexBuffer3D(12 * 4, gl.STATIC_DRAW, false);
-	        this._vertexBufferInvertUV.vertexDeclaration = ScreenTriangle._vertexDeclaration;
-	        this._vertexBufferInvertUV.setData(ScreenTriangle._verticesInvertUV.buffer);
-	        this._bufferStateInvertUV.bind();
-	        this._bufferStateInvertUV.applyVertexBuffer(this._vertexBufferInvertUV);
-	        this._bufferStateInvertUV.unBind();
-	        this._setGPUMemory(this._vertexBuffer._byteLength + this._vertexBufferInvertUV._byteLength);
-	    }
-	    static __init__() {
-	        ScreenTriangle._vertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenTriangle.SCREENTRIANGLE_POSITION_UV)]);
-	        ScreenTriangle.instance = new ScreenTriangle();
-	        ScreenTriangle.instance.lock = true;
-	    }
-	    render() {
-	        var gl = Laya.LayaGL.instance;
-	        this._bufferState.bind();
-	        gl.drawArrays(gl.TRIANGLES, 0, 3);
-	        Laya.Stat.renderBatches++;
-	    }
-	    renderInvertUV() {
-	        var gl = Laya.LayaGL.instance;
-	        this._bufferStateInvertUV.bind();
-	        gl.drawArrays(gl.TRIANGLES, 0, 3);
-	        Laya.Stat.renderBatches++;
-	    }
-	    destroy() {
-	        super.destroy();
-	        this._bufferState.destroy();
-	        this._vertexBuffer.destroy();
-	        this._bufferStateInvertUV.destroy();
-	        this._vertexBufferInvertUV.destroy();
-	        this._setGPUMemory(0);
-	    }
-	}
-	ScreenTriangle.SCREENTRIANGLE_POSITION_UV = 0;
-	ScreenTriangle._vertices = new Float32Array([-1, -1, 0, 0, -1, 3, 0, 2, 3, -1, 2, 0]);
-	ScreenTriangle._verticesInvertUV = new Float32Array([-1, -1, 0, 1, -1, 3, 0, -1, 3, -1, 2, 1]);
-
-	class Command {
-	    constructor() {
-	        this._commandBuffer = null;
-	    }
-	    static __init__() {
-	        Command._screenShaderData = new ShaderData();
-	        Command._screenShader = Shader3D.find("BlitScreen");
-	    }
-	    run() {
-	    }
-	    recover() {
-	        this._commandBuffer = null;
-	    }
-	    setContext(context) {
-	        this._context = context;
-	    }
-	}
-	Command.SCREENTEXTURE_NAME = "u_MainTex";
-	Command.SCREENTEXTUREOFFSETSCALE_NAME = "u_OffsetScale";
-	Command.MAINTEXTURE_TEXELSIZE_NAME = "u_MainTex_TexelSize";
-	Command.SCREENTEXTURE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME);
-	Command.SCREENTEXTUREOFFSETSCALE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTUREOFFSETSCALE_NAME);
-	Command.MAINTEXTURE_TEXELSIZE_ID = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME);
-
-	class BlitScreenQuadCMD extends Command {
-	    constructor() {
-	        super(...arguments);
-	        this._source = null;
-	        this._dest = null;
-	        this._offsetScale = null;
-	        this._shader = null;
-	        this._shaderData = null;
-	        this._subShader = 0;
-	        this._sourceTexelSize = new Vector4();
-	        this._screenType = 0;
-	        this._drawDefineCavans = false;
-	    }
-	    static create(source, dest, offsetScale = null, shader = null, shaderData = null, subShader = 0, screenType = BlitScreenQuadCMD._SCREENTYPE_QUAD, commandbuffer = null, definedCanvas = false) {
-	        var cmd;
-	        cmd = BlitScreenQuadCMD._pool.length > 0 ? BlitScreenQuadCMD._pool.pop() : new BlitScreenQuadCMD();
-	        cmd._source = source;
-	        cmd._dest = dest;
-	        cmd._offsetScale = offsetScale;
-	        cmd._shader = shader;
-	        cmd._shaderData = shaderData;
-	        cmd._subShader = subShader;
-	        cmd._screenType = screenType;
-	        cmd._commandBuffer = commandbuffer;
-	        cmd._drawDefineCavans = definedCanvas;
-	        return cmd;
-	    }
-	    run() {
-	        var source;
-	        if (!this._source) {
-	            if (!this._commandBuffer._camera._internalRenderTexture)
-	                throw "camera internalRenderTexture is null,please set camera enableBuiltInRenderTexture";
-	            source = this._commandBuffer._camera._internalRenderTexture;
-	        }
-	        else
-	            source = this._source;
-	        var shader = this._shader || Command._screenShader;
-	        var shaderData = this._shaderData || Command._screenShaderData;
-	        var dest = this._dest ? this._dest : (this._drawDefineCavans ? this._dest : this._commandBuffer._camera._internalRenderTexture);
-	        if (dest) {
-	            Laya.LayaGL.instance.viewport(0, 0, dest.width, dest.height);
-	        }
-	        else {
-	            let camera = this._commandBuffer._camera;
-	            let viewport = camera.viewport;
-	            let vpH = viewport.height;
-	            let vpY = RenderContext3D.clientHeight - viewport.y - vpH;
-	            Laya.LayaGL.instance.viewport(viewport.x, vpY, viewport.width, vpH);
-	        }
-	        shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
-	        shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitScreenQuadCMD._defaultOffsetScale);
-	        this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
-	        shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
-	        (RenderTexture.currentActive) && (RenderTexture.currentActive._end());
-	        (dest) && (dest._start());
-	        var subShader = shader.getSubShaderAt(this._subShader);
-	        var passes = subShader._passes;
-	        for (var i = 0, n = passes.length; i < n; i++) {
-	            var comDef = BlitScreenQuadCMD._compileDefine;
-	            shaderData._defineDatas.cloneTo(comDef);
-	            var shaderPass = passes[i].withCompile(comDef);
-	            shaderPass.bind();
-	            shaderPass.uploadUniforms(shaderPass._materialUniformParamsMap, shaderData, true);
-	            shaderPass.uploadRenderStateBlendDepth(shaderData);
-	            shaderPass.uploadRenderStateFrontFace(shaderData, false, null);
-	            switch (this._screenType) {
-	                case BlitScreenQuadCMD._SCREENTYPE_QUAD:
-	                    RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
-	                    break;
-	                case BlitScreenQuadCMD._SCREENTYPE_TRIANGLE:
-	                    RenderContext3D._instance.invertY ? ScreenTriangle.instance.renderInvertUV() : ScreenTriangle.instance.render();
-	                    break;
-	                default:
-	                    throw "BlitScreenQuadCMD:unknown screen Type.";
-	            }
-	        }
-	        (dest) && (dest._end());
-	    }
-	    recover() {
-	        BlitScreenQuadCMD._pool.push(this);
-	        this._source = null;
-	        this._dest = null;
-	        this._offsetScale = null;
-	        this._shader = null;
-	        this._shaderData = null;
-	        this._drawDefineCavans = false;
-	        super.recover();
-	    }
-	}
-	BlitScreenQuadCMD._SCREENTYPE_QUAD = 0;
-	BlitScreenQuadCMD._SCREENTYPE_TRIANGLE = 1;
-	BlitScreenQuadCMD._compileDefine = new DefineDatas();
-	BlitScreenQuadCMD._pool = [];
-	BlitScreenQuadCMD._defaultOffsetScale = new Vector4(0, 0, 1, 1);
-
-	class SetRenderTargetCMD extends Command {
-	    constructor() {
-	        super(...arguments);
-	        this._renderTexture = null;
-	    }
-	    static create(renderTexture) {
-	        var cmd;
-	        cmd = SetRenderTargetCMD._pool.length > 0 ? SetRenderTargetCMD._pool.pop() : new SetRenderTargetCMD();
-	        cmd._renderTexture = renderTexture;
-	        return cmd;
-	    }
-	    run() {
-	        (RenderTexture.currentActive) && (RenderTexture.currentActive._end());
-	        Laya.LayaGL.instance.viewport(0, 0, this._renderTexture.width, this._renderTexture.height);
-	        this._renderTexture._start();
-	    }
-	    recover() {
-	        SetRenderTargetCMD._pool.push(this);
-	        this._renderTexture = null;
-	    }
-	}
-	SetRenderTargetCMD._pool = [];
-
-	(function (ShaderDataType) {
-	    ShaderDataType[ShaderDataType["Int"] = 0] = "Int";
-	    ShaderDataType[ShaderDataType["Bool"] = 1] = "Bool";
-	    ShaderDataType[ShaderDataType["Number"] = 2] = "Number";
-	    ShaderDataType[ShaderDataType["Vector2"] = 3] = "Vector2";
-	    ShaderDataType[ShaderDataType["Vector3"] = 4] = "Vector3";
-	    ShaderDataType[ShaderDataType["Vector4"] = 5] = "Vector4";
-	    ShaderDataType[ShaderDataType["Quaternion"] = 6] = "Quaternion";
-	    ShaderDataType[ShaderDataType["Matrix4x4"] = 7] = "Matrix4x4";
-	    ShaderDataType[ShaderDataType["Buffer"] = 8] = "Buffer";
-	    ShaderDataType[ShaderDataType["Texture"] = 9] = "Texture";
-	})(exports.ShaderDataType || (exports.ShaderDataType = {}));
-	class SetShaderDataCMD extends Command {
-	    constructor() {
-	        super(...arguments);
-	        this._shaderData = null;
-	        this._nameID = 0;
-	        this._value = null;
-	        this._dataType = -1;
-	    }
-	    static create(shaderData, nameID, value, shaderDataType, commandBuffer) {
-	        var cmd;
-	        cmd = SetShaderDataCMD._pool.length > 0 ? SetShaderDataCMD._pool.pop() : new SetShaderDataCMD();
-	        cmd._shaderData = shaderData;
-	        cmd._nameID = nameID;
-	        cmd._value = value;
-	        cmd._dataType = shaderDataType;
-	        cmd._commandBuffer = commandBuffer;
-	        return cmd;
-	    }
-	    run() {
-	        switch (this._dataType) {
-	            case exports.ShaderDataType.Int:
-	                this._shaderData.setInt(this._nameID, this._value);
-	                break;
-	            case exports.ShaderDataType.Number:
-	                this._shaderData.setNumber(this._nameID, this._value);
-	                break;
-	            case exports.ShaderDataType.Bool:
-	                this._shaderData.setBool(this._nameID, this._value);
-	                break;
-	            case exports.ShaderDataType.Matrix4x4:
-	                this._shaderData.setMatrix4x4(this._nameID, this._value);
-	                break;
-	            case exports.ShaderDataType.Quaternion:
-	                this._shaderData.setQuaternion(this._nameID, this._value);
-	                break;
-	            case exports.ShaderDataType.Texture:
-	                this._shaderData.setTexture(this._nameID, this._value);
-	                break;
-	            case exports.ShaderDataType.Vector4:
-	                this._shaderData.setVector(this._nameID, this._value);
-	                break;
-	            case exports.ShaderDataType.Vector2:
-	                this._shaderData.setVector2(this._nameID, this._value);
-	                break;
-	            case exports.ShaderDataType.Vector3:
-	                this._shaderData.setVector3(this._nameID, this._value);
-	                break;
-	            case exports.ShaderDataType.Buffer:
-	                this._shaderData.setBuffer(this._nameID, this._value);
-	                break;
-	            default:
-	                throw "no type shaderValue on this CommendBuffer";
-	        }
-	    }
-	    recover() {
-	        SetShaderDataCMD._pool.push(this);
-	        this._shaderData = null;
-	        this._nameID = 0;
-	        this._value = null;
-	        this._dataType = -1;
-	    }
-	}
-	SetShaderDataCMD._pool = [];
-
 	class DrawMeshCMD extends Command {
 	    constructor() {
 	        super();
@@ -8587,6 +7290,91 @@
 	class MeshSprite3DShaderDeclaration {
 	}
 
+	class VertexMesh {
+	    static __init__() {
+	        VertexMesh.instanceWorldMatrixDeclaration = new VertexDeclaration(64, [new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW0),
+	            new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW1),
+	            new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW2),
+	            new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW3)]);
+	        VertexMesh.instanceSimpleAnimatorDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_SIMPLEANIMATOR)]);
+	    }
+	    static getVertexDeclaration(vertexFlag, compatible = true) {
+	        var verDec = VertexMesh._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")];
+	        if (!verDec) {
+	            var subFlags = vertexFlag.split(",");
+	            var offset = 0;
+	            var elements = [];
+	            for (var i = 0, n = subFlags.length; i < n; i++) {
+	                var element;
+	                switch (subFlags[i]) {
+	                    case "POSITION":
+	                        element = new VertexElement(offset, VertexElementFormat.Vector3, VertexMesh.MESH_POSITION0);
+	                        offset += 12;
+	                        break;
+	                    case "NORMAL":
+	                        element = new VertexElement(offset, VertexElementFormat.Vector3, VertexMesh.MESH_NORMAL0);
+	                        offset += 12;
+	                        break;
+	                    case "COLOR":
+	                        element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_COLOR0);
+	                        offset += 16;
+	                        break;
+	                    case "UV":
+	                        element = new VertexElement(offset, VertexElementFormat.Vector2, VertexMesh.MESH_TEXTURECOORDINATE0);
+	                        offset += 8;
+	                        break;
+	                    case "UV1":
+	                        element = new VertexElement(offset, VertexElementFormat.Vector2, VertexMesh.MESH_TEXTURECOORDINATE1);
+	                        offset += 8;
+	                        break;
+	                    case "BLENDWEIGHT":
+	                        element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_BLENDWEIGHT0);
+	                        offset += 16;
+	                        break;
+	                    case "BLENDINDICES":
+	                        if (compatible) {
+	                            element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_BLENDINDICES0);
+	                            offset += 16;
+	                        }
+	                        else {
+	                            element = new VertexElement(offset, VertexElementFormat.Byte4, VertexMesh.MESH_BLENDINDICES0);
+	                            offset += 4;
+	                        }
+	                        break;
+	                    case "TANGENT":
+	                        element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_TANGENT0);
+	                        offset += 16;
+	                        break;
+	                    default:
+	                        throw "VertexMesh: unknown vertex flag.";
+	                }
+	                elements.push(element);
+	            }
+	            verDec = new VertexDeclaration(offset, elements);
+	            VertexMesh._vertexDeclarationMap[vertexFlag + (compatible ? "_0" : "_1")] = verDec;
+	        }
+	        return verDec;
+	    }
+	}
+	VertexMesh.MESH_POSITION0 = 0;
+	VertexMesh.MESH_COLOR0 = 1;
+	VertexMesh.MESH_TEXTURECOORDINATE0 = 2;
+	VertexMesh.MESH_NORMAL0 = 3;
+	VertexMesh.MESH_TANGENT0 = 4;
+	VertexMesh.MESH_BLENDINDICES0 = 5;
+	VertexMesh.MESH_BLENDWEIGHT0 = 6;
+	VertexMesh.MESH_TEXTURECOORDINATE1 = 7;
+	VertexMesh.MESH_WORLDMATRIX_ROW0 = 8;
+	VertexMesh.MESH_WORLDMATRIX_ROW1 = 9;
+	VertexMesh.MESH_WORLDMATRIX_ROW2 = 10;
+	VertexMesh.MESH_WORLDMATRIX_ROW3 = 11;
+	VertexMesh.MESH_SIMPLEANIMATOR = 12;
+	VertexMesh.MESH_CUSTOME0 = 12;
+	VertexMesh.MESH_CUSTOME1 = 13;
+	VertexMesh.MESH_CUSTOME2 = 14;
+	VertexMesh.MESH_CUSTOME3 = 15;
+	VertexMesh._vertexDeclarationMap = {};
+
 	class DrawMeshInstancedCMD extends Command {
 	    constructor() {
 	        super();
@@ -8810,2592 +7598,6 @@
 	        this._commands.length = 0;
 	    }
 	}
-
-	class Scene3DShaderDeclaration {
-	}
-
-	(function (LightType) {
-	    LightType[LightType["Directional"] = 0] = "Directional";
-	    LightType[LightType["Spot"] = 1] = "Spot";
-	    LightType[LightType["Point"] = 2] = "Point";
-	})(exports.LightType || (exports.LightType = {}));
-	class LightSprite extends Sprite3D {
-	    constructor() {
-	        super();
-	        this._shadowMode = exports.ShadowMode.None;
-	        this._isAlternate = false;
-	        this._shadowResolution = 2048;
-	        this._shadowDistance = 50.0;
-	        this._shadowDepthBias = 1.0;
-	        this._shadowNormalBias = 1.0;
-	        this._shadowNearPlane = 0.1;
-	        this._shadowStrength = 1.0;
-	        this._lightWoldMatrix = new Matrix4x4();
-	        this._intensity = 1.0;
-	        this._intensityColor = new Vector3();
-	        this.color = new Vector3(1.0, 1.0, 1.0);
-	        this._lightmapBakedType = LightSprite.LIGHTMAPBAKEDTYPE_REALTIME;
-	    }
-	    get intensity() {
-	        return this._intensity;
-	    }
-	    set intensity(value) {
-	        this._intensity = value;
-	    }
-	    get shadowMode() {
-	        return this._shadowMode;
-	    }
-	    set shadowMode(value) {
-	        this._shadowMode = value;
-	    }
-	    get shadowDistance() {
-	        return this._shadowDistance;
-	    }
-	    set shadowDistance(value) {
-	        this._shadowDistance = value;
-	    }
-	    get shadowResolution() {
-	        return this._shadowResolution;
-	    }
-	    set shadowResolution(value) {
-	        this._shadowResolution = value;
-	    }
-	    get shadowDepthBias() {
-	        return this._shadowDepthBias;
-	    }
-	    set shadowDepthBias(value) {
-	        this._shadowDepthBias = value;
-	    }
-	    get shadowNormalBias() {
-	        return this._shadowNormalBias;
-	    }
-	    set shadowNormalBias(value) {
-	        this._shadowNormalBias = value;
-	    }
-	    get shadowStrength() {
-	        return this._shadowStrength;
-	    }
-	    set shadowStrength(value) {
-	        this._shadowStrength = value;
-	    }
-	    get shadowNearPlane() {
-	        return this._shadowNearPlane;
-	    }
-	    set shadowNearPlane(value) {
-	        this._shadowNearPlane = value;
-	    }
-	    get lightmapBakedType() {
-	        return this._lightmapBakedType;
-	    }
-	    set lightmapBakedType(value) {
-	        if (this._lightmapBakedType !== value) {
-	            this._lightmapBakedType = value;
-	            if (this.activeInHierarchy) {
-	                if (value !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED)
-	                    this._addToScene();
-	                else
-	                    this._removeFromScene();
-	            }
-	        }
-	    }
-	    get lightWorldMatrix() {
-	        var position = this.transform.position;
-	        var quaterian = this.transform.rotation;
-	        Matrix4x4.createAffineTransformation(position, quaterian, Vector3._ONE, this._lightWoldMatrix);
-	        return this._lightWoldMatrix;
-	    }
-	    _parse(data, spriteMap) {
-	        super._parse(data, spriteMap);
-	        var colorData = data.color;
-	        this.color.fromArray(colorData);
-	        this.intensity = data.intensity;
-	        this.lightmapBakedType = data.lightmapBakedType;
-	    }
-	    _cloneTo(destObject, rootSprite, dstSprite) {
-	        super._cloneTo(destObject, rootSprite, dstSprite);
-	        var spriteLight = destObject;
-	        spriteLight.color = this.color.clone();
-	        spriteLight.intensity = this.intensity;
-	        spriteLight.lightmapBakedType = this.lightmapBakedType;
-	    }
-	    _addToScene() {
-	        var scene = this._scene;
-	        var maxLightCount = Config3D._config.maxLightCount;
-	        if (scene._lightCount < maxLightCount) {
-	            scene._lightCount++;
-	            this._addToLightQueue();
-	            this._isAlternate = false;
-	        }
-	        else {
-	            scene._alternateLights.add(this);
-	            this._isAlternate = true;
-	            console.warn("LightSprite:light count has large than maxLightCount,the latest added light will be ignore.");
-	        }
-	    }
-	    _removeFromScene() {
-	        var scene = this._scene;
-	        if (this._isAlternate) {
-	            scene._alternateLights.remove(this);
-	        }
-	        else {
-	            scene._lightCount--;
-	            this._removeFromLightQueue();
-	            if (scene._alternateLights._length > 0) {
-	                var alternateLight = scene._alternateLights.shift();
-	                alternateLight._addToLightQueue();
-	                alternateLight._isAlternate = false;
-	                scene._lightCount++;
-	            }
-	        }
-	    }
-	    _addToLightQueue() {
-	    }
-	    _removeFromLightQueue() {
-	    }
-	    _onActive() {
-	        super._onActive();
-	        (this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (this._addToScene());
-	    }
-	    _onInActive() {
-	        super._onInActive();
-	        (this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (this._removeFromScene());
-	    }
-	    _create() {
-	        return new LightSprite();
-	    }
-	    get diffuseColor() {
-	        console.log("LightSprite: discard property,please use color property instead.");
-	        return this.color;
-	    }
-	    set diffuseColor(value) {
-	        console.log("LightSprite: discard property,please use color property instead.");
-	        this.color = value;
-	    }
-	}
-	LightSprite.LIGHTMAPBAKEDTYPE_REALTIME = 0;
-	LightSprite.LIGHTMAPBAKEDTYPE_MIXED = 1;
-	LightSprite.LIGHTMAPBAKEDTYPE_BAKED = 2;
-
-	(function (ShadowCascadesMode) {
-	    ShadowCascadesMode[ShadowCascadesMode["NoCascades"] = 0] = "NoCascades";
-	    ShadowCascadesMode[ShadowCascadesMode["TwoCascades"] = 1] = "TwoCascades";
-	    ShadowCascadesMode[ShadowCascadesMode["FourCascades"] = 2] = "FourCascades";
-	})(exports.ShadowCascadesMode || (exports.ShadowCascadesMode = {}));
-
-	var FrustumFace;
-	(function (FrustumFace) {
-	    FrustumFace[FrustumFace["Near"] = 0] = "Near";
-	    FrustumFace[FrustumFace["Far"] = 1] = "Far";
-	    FrustumFace[FrustumFace["Left"] = 2] = "Left";
-	    FrustumFace[FrustumFace["Right"] = 3] = "Right";
-	    FrustumFace[FrustumFace["Bottom"] = 4] = "Bottom";
-	    FrustumFace[FrustumFace["Top"] = 5] = "Top";
-	})(FrustumFace || (FrustumFace = {}));
-	class ShadowUtils {
-	    static supportShadow() {
-	        return Laya.LayaGL.layaGPUInstance._isWebGL2 || Laya.SystemUtils.supportRenderTextureFormat(Laya.RenderTextureFormat.Depth);
-	    }
-	    static init() {
-	        if (Laya.LayaGL.layaGPUInstance._isWebGL2)
-	            ShadowUtils._shadowTextureFormat = Laya.RenderTextureFormat.ShadowMap;
-	        else
-	            ShadowUtils._shadowTextureFormat = Laya.RenderTextureFormat.Depth;
-	    }
-	    static getTemporaryShadowTexture(witdh, height, depthFormat) {
-	        var shadowMap = RenderTexture.createFromPool(witdh, height, ShadowUtils._shadowTextureFormat, depthFormat);
-	        shadowMap.filterMode = Laya.FilterMode.Bilinear;
-	        shadowMap.wrapModeU = Laya.WarpMode.Clamp;
-	        shadowMap.wrapModeV = Laya.WarpMode.Clamp;
-	        return shadowMap;
-	    }
-	    static getShadowBias(light, shadowProjectionMatrix, shadowResolution, out) {
-	        var frustumSize;
-	        if (light._lightType == exports.LightType.Directional) {
-	            frustumSize = 2.0 / shadowProjectionMatrix.elements[0];
-	        }
-	        else if (light._lightType == exports.LightType.Spot) {
-	            frustumSize = Math.tan(light.spotAngle * 0.5 * MathUtils3D.Deg2Rad) * light.range;
-	        }
-	        else {
-	            console.warn("ShadowUtils:Only spot and directional shadow casters are supported now.");
-	            frustumSize = 0.0;
-	        }
-	        var texelSize = frustumSize / shadowResolution;
-	        var depthBias = -light._shadowDepthBias * texelSize;
-	        var normalBias = -light._shadowNormalBias * texelSize;
-	        if (light.shadowMode == exports.ShadowMode.SoftHigh) {
-	            const kernelRadius = 2.5;
-	            depthBias *= kernelRadius;
-	            normalBias *= kernelRadius;
-	        }
-	        out.setValue(depthBias, normalBias, 0.0, 0.0);
-	    }
-	    static getCameraFrustumPlanes(cameraViewProjectMatrix, frustumPlanes) {
-	        BoundFrustum.getPlanesFromMatrix(cameraViewProjectMatrix, frustumPlanes[FrustumFace.Near], frustumPlanes[FrustumFace.Far], frustumPlanes[FrustumFace.Left], frustumPlanes[FrustumFace.Right], frustumPlanes[FrustumFace.Top], frustumPlanes[FrustumFace.Bottom]);
-	    }
-	    static getFarWithRadius(radius, denominator) {
-	        return Math.sqrt(radius * radius / denominator);
-	    }
-	    static getCascadesSplitDistance(twoSplitRatio, fourSplitRatio, cameraNear, shadowFar, fov, aspectRatio, cascadesMode, out) {
-	        out[0] = cameraNear;
-	        var range = shadowFar - cameraNear;
-	        var tFov = Math.tan(fov * 0.5);
-	        var denominator = 1.0 + tFov * tFov * (aspectRatio * aspectRatio + 1.0);
-	        switch (cascadesMode) {
-	            case exports.ShadowCascadesMode.NoCascades:
-	                out[1] = ShadowUtils.getFarWithRadius(shadowFar, denominator);
-	                break;
-	            case exports.ShadowCascadesMode.TwoCascades:
-	                out[1] = ShadowUtils.getFarWithRadius(cameraNear + range * twoSplitRatio, denominator);
-	                out[2] = ShadowUtils.getFarWithRadius(shadowFar, denominator);
-	                break;
-	            case exports.ShadowCascadesMode.FourCascades:
-	                out[1] = ShadowUtils.getFarWithRadius(cameraNear + range * fourSplitRatio.x, denominator);
-	                out[2] = ShadowUtils.getFarWithRadius(cameraNear + range * fourSplitRatio.y, denominator);
-	                out[3] = ShadowUtils.getFarWithRadius(cameraNear + range * fourSplitRatio.z, denominator);
-	                out[4] = ShadowUtils.getFarWithRadius(shadowFar, denominator);
-	                break;
-	        }
-	    }
-	    static applySliceTransform(shadowSliceData, atlasWidth, atlasHeight, cascadeIndex, outShadowMatrices) {
-	        var sliceE = ShadowUtils._tempMatrix0.elements;
-	        var oneOverAtlasWidth = 1.0 / atlasWidth;
-	        var oneOverAtlasHeight = 1.0 / atlasHeight;
-	        sliceE[0] = shadowSliceData.resolution * oneOverAtlasWidth;
-	        sliceE[5] = shadowSliceData.resolution * oneOverAtlasHeight;
-	        sliceE[12] = shadowSliceData.offsetX * oneOverAtlasWidth;
-	        sliceE[13] = shadowSliceData.offsetY * oneOverAtlasHeight;
-	        sliceE[1] = sliceE[2] = sliceE[2] = sliceE[4] = sliceE[6] = sliceE[7] = sliceE[8] = sliceE[9] = sliceE[11] = sliceE[14] = 0;
-	        sliceE[10] = sliceE[15] = 1;
-	        var offset = cascadeIndex * 16;
-	        Utils3D._mulMatrixArray(sliceE, outShadowMatrices, offset, outShadowMatrices, offset);
-	    }
-	    static getDirectionLightShadowCullPlanes(cameraFrustumPlanes, cascadeIndex, splitDistance, cameraNear, direction, shadowSliceData) {
-	        var frustumCorners = ShadowUtils._frustumCorners;
-	        var backPlaneFaces = ShadowUtils._backPlaneFaces;
-	        var planeNeighbors = ShadowUtils._frustumPlaneNeighbors;
-	        var twoPlaneCorners = ShadowUtils._frustumTwoPlaneCorners;
-	        var edgePlanePoint2 = ShadowUtils._edgePlanePoint2;
-	        var out = shadowSliceData.cullPlanes;
-	        var near = cameraFrustumPlanes[FrustumFace.Near], far = cameraFrustumPlanes[FrustumFace.Far];
-	        var left = cameraFrustumPlanes[FrustumFace.Left], right = cameraFrustumPlanes[FrustumFace.Right];
-	        var bottom = cameraFrustumPlanes[FrustumFace.Bottom], top = cameraFrustumPlanes[FrustumFace.Top];
-	        var splitNearDistance = splitDistance[cascadeIndex] - cameraNear;
-	        var splitNear = ShadowUtils._adjustNearPlane;
-	        var splitFar = ShadowUtils._adjustFarPlane;
-	        near.normal.cloneTo(splitNear.normal);
-	        far.normal.cloneTo(splitFar.normal);
-	        splitNear.distance = near.distance - splitNearDistance;
-	        splitFar.distance = Math.min(-near.distance + shadowSliceData.sphereCenterZ + shadowSliceData.splitBoundSphere.radius, far.distance);
-	        BoundFrustum.get3PlaneInterPoint(splitNear, bottom, right, frustumCorners[exports.FrustumCorner.nearBottomRight]);
-	        BoundFrustum.get3PlaneInterPoint(splitNear, top, right, frustumCorners[exports.FrustumCorner.nearTopRight]);
-	        BoundFrustum.get3PlaneInterPoint(splitNear, top, left, frustumCorners[exports.FrustumCorner.nearTopLeft]);
-	        BoundFrustum.get3PlaneInterPoint(splitNear, bottom, left, frustumCorners[exports.FrustumCorner.nearBottomLeft]);
-	        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, right, frustumCorners[exports.FrustumCorner.FarBottomRight]);
-	        BoundFrustum.get3PlaneInterPoint(splitFar, top, right, frustumCorners[exports.FrustumCorner.FarTopRight]);
-	        BoundFrustum.get3PlaneInterPoint(splitFar, top, left, frustumCorners[exports.FrustumCorner.FarTopLeft]);
-	        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, left, frustumCorners[exports.FrustumCorner.FarBottomLeft]);
-	        var backIndex = 0;
-	        for (var i = 0; i < 6; i++) {
-	            var plane;
-	            switch (i) {
-	                case FrustumFace.Near:
-	                    plane = splitNear;
-	                    break;
-	                case FrustumFace.Far:
-	                    plane = splitFar;
-	                    break;
-	                default:
-	                    plane = cameraFrustumPlanes[i];
-	                    break;
-	            }
-	            if (Vector3.dot(plane.normal, direction) < 0.0) {
-	                plane.cloneTo(out[backIndex]);
-	                backPlaneFaces[backIndex] = i;
-	                backIndex++;
-	            }
-	        }
-	        var edgeIndex = backIndex;
-	        for (var i = 0; i < backIndex; i++) {
-	            var backFace = backPlaneFaces[i];
-	            var neighborFaces = planeNeighbors[backFace];
-	            for (var j = 0; j < 4; j++) {
-	                var neighborFace = neighborFaces[j];
-	                var notBackFace = true;
-	                for (var k = 0; k < backIndex; k++)
-	                    if (neighborFace == backPlaneFaces[k]) {
-	                        notBackFace = false;
-	                        break;
-	                    }
-	                if (notBackFace) {
-	                    var corners = twoPlaneCorners[backFace][neighborFace];
-	                    var point0 = frustumCorners[corners[0]];
-	                    var point1 = frustumCorners[corners[1]];
-	                    Vector3.add(point0, direction, edgePlanePoint2);
-	                    Plane.createPlaneBy3P(point0, point1, edgePlanePoint2, out[edgeIndex++]);
-	                }
-	            }
-	        }
-	        shadowSliceData.cullPlaneCount = edgeIndex;
-	    }
-	    static getBoundSphereByFrustum(near, far, fov, aspectRatio, cameraPos, forward, outBoundSphere) {
-	        var centerZ;
-	        var radius;
-	        var k = Math.sqrt(1.0 + aspectRatio * aspectRatio) * Math.tan(fov / 2.0);
-	        var k2 = k * k;
-	        var farSNear = far - near;
-	        var farANear = far + near;
-	        if (k2 > farSNear / farANear) {
-	            centerZ = far;
-	            radius = far * k;
-	        }
-	        else {
-	            centerZ = 0.5 * farANear * (1 + k2);
-	            radius = 0.5 * Math.sqrt(farSNear * farSNear + 2.0 * (far * far + near * near) * k2 + farANear * farANear * k2 * k2);
-	        }
-	        var center = outBoundSphere.center;
-	        outBoundSphere.radius = radius;
-	        Vector3.scale(forward, centerZ, center);
-	        Vector3.add(cameraPos, center, center);
-	        return centerZ;
-	    }
-	    static getMaxTileResolutionInAtlas(atlasWidth, atlasHeight, tileCount) {
-	        var resolution = Math.min(atlasWidth, atlasHeight);
-	        var currentTileCount = Math.floor(atlasWidth / resolution) * Math.floor(atlasHeight / resolution);
-	        while (currentTileCount < tileCount) {
-	            resolution = Math.floor(resolution >> 1);
-	            currentTileCount = Math.floor(atlasWidth / resolution) * Math.floor(atlasHeight / resolution);
-	        }
-	        return resolution;
-	    }
-	    static getDirectionalLightMatrices(lightUp, lightSide, lightForward, cascadeIndex, nearPlane, shadowResolution, shadowSliceData, shadowMatrices) {
-	        var boundSphere = shadowSliceData.splitBoundSphere;
-	        var center = boundSphere.center;
-	        var radius = boundSphere.radius;
-	        var halfShadowResolution = shadowResolution / 2;
-	        var borderRadius = radius * halfShadowResolution / (halfShadowResolution - ShadowUtils.atlasBorderSize);
-	        var borderDiam = borderRadius * 2.0;
-	        var sizeUnit = shadowResolution / borderDiam;
-	        var radiusUnit = borderDiam / shadowResolution;
-	        var upLen = Math.ceil(Vector3.dot(center, lightUp) * sizeUnit) * radiusUnit;
-	        var sideLen = Math.ceil(Vector3.dot(center, lightSide) * sizeUnit) * radiusUnit;
-	        var forwardLen = Vector3.dot(center, lightForward);
-	        center.x = lightUp.x * upLen + lightSide.x * sideLen + lightForward.x * forwardLen;
-	        center.y = lightUp.y * upLen + lightSide.y * sideLen + lightForward.y * forwardLen;
-	        center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
-	        var origin = shadowSliceData.position;
-	        var viewMatrix = shadowSliceData.viewMatrix;
-	        var projectMatrix = shadowSliceData.projectionMatrix;
-	        var viewProjectMatrix = shadowSliceData.viewProjectMatrix;
-	        shadowSliceData.resolution = shadowResolution;
-	        shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
-	        shadowSliceData.offsetY = Math.floor(cascadeIndex / 2) * shadowResolution;
-	        Vector3.scale(lightForward, radius + nearPlane, origin);
-	        Vector3.subtract(center, origin, origin);
-	        Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
-	        Matrix4x4.createOrthoOffCenter(-borderRadius, borderRadius, -borderRadius, borderRadius, 0.0, radius * 2.0 + nearPlane, projectMatrix);
-	        Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
-	        Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
-	    }
-	    static getSpotLightShadowData(shadowSpotData, spotLight, resolution, shadowParams, shadowSpotMatrices, shadowMapSize) {
-	        var out = shadowSpotData.position = spotLight.transform.position;
-	        shadowSpotData.resolution = resolution;
-	        shadowMapSize.setValue(1.0 / resolution, 1.0 / resolution, resolution, resolution);
-	        shadowSpotData.offsetX = 0;
-	        shadowSpotData.offsetY = 0;
-	        var spotWorldMatrix = spotLight.lightWorldMatrix;
-	        var viewMatrix = shadowSpotData.viewMatrix;
-	        var projectMatrix = shadowSpotData.projectionMatrix;
-	        var viewProjectMatrix = shadowSpotData.viewProjectMatrix;
-	        var BoundFrustum = shadowSpotData.cameraCullInfo.boundFrustum;
-	        spotWorldMatrix.invert(viewMatrix);
-	        Matrix4x4.createPerspective(3.1416 * spotLight.spotAngle / 180.0, 1, 0.1, spotLight.range, projectMatrix);
-	        shadowParams.y = spotLight.shadowStrength;
-	        Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
-	        BoundFrustum.matrix = viewProjectMatrix;
-	        viewProjectMatrix.cloneTo(shadowSpotMatrices);
-	        shadowSpotData.cameraCullInfo.position = out;
-	    }
-	    static prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, shadowSliceDatas, cascadeCount, shadowMapSize, shadowParams, shadowMatrices, splitBoundSpheres) {
-	        shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
-	        shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
-	        if (cascadeCount > 1) {
-	            const matrixFloatCount = 16;
-	            for (var i = cascadeCount * matrixFloatCount, n = 4 * matrixFloatCount; i < n; i++)
-	                shadowMatrices[i] = 0.0;
-	            for (var i = 0; i < cascadeCount; i++) {
-	                var boundSphere = shadowSliceDatas[i].splitBoundSphere;
-	                var center = boundSphere.center;
-	                var radius = boundSphere.radius;
-	                var offset = i * 4;
-	                splitBoundSpheres[offset] = center.x;
-	                splitBoundSpheres[offset + 1] = center.y;
-	                splitBoundSpheres[offset + 2] = center.z;
-	                splitBoundSpheres[offset + 3] = radius * radius;
-	            }
-	            const sphereFloatCount = 4;
-	            for (var i = cascadeCount * sphereFloatCount, n = 4 * sphereFloatCount; i < n; i++)
-	                splitBoundSpheres[i] = 0.0;
-	        }
-	    }
-	}
-	ShadowUtils._tempMatrix0 = new Matrix4x4();
-	ShadowUtils._shadowMapScaleOffsetMatrix = new Matrix4x4(0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.5, 0.0, 1.0);
-	ShadowUtils._frustumCorners = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
-	ShadowUtils._adjustNearPlane = new Plane(new Vector3());
-	ShadowUtils._adjustFarPlane = new Plane(new Vector3());
-	ShadowUtils._backPlaneFaces = new Array(5);
-	ShadowUtils._edgePlanePoint2 = new Vector3();
-	ShadowUtils._frustumPlaneNeighbors = [
-	    [FrustumFace.Left, FrustumFace.Right, FrustumFace.Top, FrustumFace.Bottom],
-	    [FrustumFace.Left, FrustumFace.Right, FrustumFace.Top, FrustumFace.Bottom],
-	    [FrustumFace.Near, FrustumFace.Far, FrustumFace.Top, FrustumFace.Bottom],
-	    [FrustumFace.Near, FrustumFace.Far, FrustumFace.Top, FrustumFace.Bottom],
-	    [FrustumFace.Near, FrustumFace.Far, FrustumFace.Left, FrustumFace.Right],
-	    [FrustumFace.Near, FrustumFace.Far, FrustumFace.Left, FrustumFace.Right]
-	];
-	ShadowUtils._frustumTwoPlaneCorners = [
-	    [[exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.nearBottomLeft, exports.FrustumCorner.nearTopLeft], [exports.FrustumCorner.nearTopRight, exports.FrustumCorner.nearBottomRight], [exports.FrustumCorner.nearBottomRight, exports.FrustumCorner.nearBottomLeft], [exports.FrustumCorner.nearTopLeft, exports.FrustumCorner.nearTopRight]],
-	    [[exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.FarTopLeft, exports.FrustumCorner.FarBottomLeft], [exports.FrustumCorner.FarBottomRight, exports.FrustumCorner.FarTopRight], [exports.FrustumCorner.FarBottomLeft, exports.FrustumCorner.FarBottomRight], [exports.FrustumCorner.FarTopRight, exports.FrustumCorner.FarTopLeft]],
-	    [[exports.FrustumCorner.nearTopLeft, exports.FrustumCorner.nearBottomLeft], [exports.FrustumCorner.FarBottomLeft, exports.FrustumCorner.FarTopLeft], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.nearBottomLeft, exports.FrustumCorner.FarBottomLeft], [exports.FrustumCorner.FarTopLeft, exports.FrustumCorner.nearTopLeft]],
-	    [[exports.FrustumCorner.nearBottomRight, exports.FrustumCorner.nearTopRight], [exports.FrustumCorner.FarTopRight, exports.FrustumCorner.FarBottomRight], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.FarBottomRight, exports.FrustumCorner.nearBottomRight], [exports.FrustumCorner.nearTopRight, exports.FrustumCorner.FarTopRight]],
-	    [[exports.FrustumCorner.nearBottomLeft, exports.FrustumCorner.nearBottomRight], [exports.FrustumCorner.FarBottomRight, exports.FrustumCorner.FarBottomLeft], [exports.FrustumCorner.FarBottomLeft, exports.FrustumCorner.nearBottomLeft], [exports.FrustumCorner.nearBottomRight, exports.FrustumCorner.FarBottomRight], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown]],
-	    [[exports.FrustumCorner.nearTopRight, exports.FrustumCorner.nearTopLeft], [exports.FrustumCorner.FarTopLeft, exports.FrustumCorner.FarTopRight], [exports.FrustumCorner.nearTopLeft, exports.FrustumCorner.FarTopLeft], [exports.FrustumCorner.FarTopRight, exports.FrustumCorner.nearTopRight], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown]]
-	];
-	ShadowUtils.atlasBorderSize = 4.0;
-
-	(function (DepthTextureMode) {
-	    DepthTextureMode[DepthTextureMode["None"] = 0] = "None";
-	    DepthTextureMode[DepthTextureMode["Depth"] = 1] = "Depth";
-	    DepthTextureMode[DepthTextureMode["DepthNormals"] = 2] = "DepthNormals";
-	    DepthTextureMode[DepthTextureMode["MotionVectors"] = 4] = "MotionVectors";
-	})(exports.DepthTextureMode || (exports.DepthTextureMode = {}));
-	class DepthPass {
-	    constructor() {
-	        this._zBufferParams = new Vector4();
-	    }
-	    update(camera, depthType) {
-	        this._viewPort = camera.viewport;
-	        this._camera = camera;
-	        switch (depthType) {
-	            case exports.DepthTextureMode.Depth:
-	                camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, Laya.RenderTextureFormat.Depth, Laya.RenderTextureDepthFormat.DEPTH_16);
-	                break;
-	            case exports.DepthTextureMode.DepthNormals:
-	                camera.depthNormalTexture = this._depthNormalsTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, Laya.RenderTextureFormat.R8G8B8A8, Laya.RenderTextureDepthFormat.DEPTH_16);
-	                break;
-	            case exports.DepthTextureMode.MotionVectors:
-	                break;
-	            default:
-	                throw ("there is UnDefined type of DepthTextureMode");
-	        }
-	    }
-	    render(context, depthType) {
-	        var scene = context.scene;
-	        switch (depthType) {
-	            case exports.DepthTextureMode.Depth:
-	                var shaderValues = scene._shaderValues;
-	                context.pipelineMode = "ShadowCaster";
-	                ShaderData.setRuntimeValueMode(false);
-	                this._depthTexture._start();
-	                shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
-	                var gl = Laya.LayaGL.instance;
-	                var offsetX = this._viewPort.x;
-	                var offsetY = this._viewPort.y;
-	                gl.enable(gl.SCISSOR_TEST);
-	                gl.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-	                gl.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-	                gl.clear(gl.DEPTH_BUFFER_BIT);
-	                scene._opaqueQueue._render(context);
-	                this._depthTexture._end();
-	                ShaderData.setRuntimeValueMode(true);
-	                this._setupDepthModeShaderValue(depthType, this._camera);
-	                context.pipelineMode = context.configPipeLineMode;
-	                break;
-	            case exports.DepthTextureMode.DepthNormals:
-	                var shaderValues = scene._shaderValues;
-	                context.pipelineMode = "DepthNormal";
-	                ShaderData.setRuntimeValueMode(false);
-	                this._depthNormalsTexture._start();
-	                var gl = Laya.LayaGL.instance;
-	                var offsetX = this._viewPort.x;
-	                var offsetY = this._viewPort.y;
-	                gl.enable(gl.SCISSOR_TEST);
-	                gl.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-	                gl.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-	                gl.clearColor(0.5, 0.5, 1.0, 0.0);
-	                gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
-	                scene._opaqueQueue._render(context);
-	                this._depthNormalsTexture._end();
-	                ShaderData.setRuntimeValueMode(true);
-	                this._setupDepthModeShaderValue(depthType, this._camera);
-	                context.pipelineMode = context.configPipeLineMode;
-	                break;
-	            case exports.DepthTextureMode.MotionVectors:
-	                break;
-	            default:
-	                throw ("there is UnDefined type of DepthTextureMode");
-	        }
-	    }
-	    _setupDepthModeShaderValue(depthType, camera) {
-	        switch (depthType) {
-	            case exports.DepthTextureMode.Depth:
-	                var far = camera.farPlane;
-	                var near = camera.nearPlane;
-	                this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
-	                camera._shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
-	                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._depthTexture);
-	                camera._shaderValues.setVector(DepthPass.DEPTHZBUFFERPARAMS, this._zBufferParams);
-	                break;
-	            case exports.DepthTextureMode.DepthNormals:
-	                camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, this._depthNormalsTexture);
-	                break;
-	            case exports.DepthTextureMode.MotionVectors:
-	                break;
-	            default:
-	                throw ("there is UnDefined type of DepthTextureMode");
-	        }
-	    }
-	    cleanUp() {
-	        this._depthTexture && RenderTexture.recoverToPool(this._depthTexture);
-	        this._depthNormalsTexture && RenderTexture.recoverToPool(this._depthNormalsTexture);
-	        this._depthTexture = null;
-	        this._depthNormalsTexture = null;
-	    }
-	}
-	DepthPass.SHADOW_BIAS = new Vector4();
-	DepthPass.DEFINE_SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
-	DepthPass.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
-	DepthPass.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
-	DepthPass.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
-
-	(function (CameraClearFlags) {
-	    CameraClearFlags[CameraClearFlags["SolidColor"] = 0] = "SolidColor";
-	    CameraClearFlags[CameraClearFlags["Sky"] = 1] = "Sky";
-	    CameraClearFlags[CameraClearFlags["DepthOnly"] = 2] = "DepthOnly";
-	    CameraClearFlags[CameraClearFlags["Nothing"] = 3] = "Nothing";
-	})(exports.CameraClearFlags || (exports.CameraClearFlags = {}));
-	(function (CameraEventFlags) {
-	    CameraEventFlags[CameraEventFlags["BeforeForwardOpaque"] = 0] = "BeforeForwardOpaque";
-	    CameraEventFlags[CameraEventFlags["BeforeSkyBox"] = 2] = "BeforeSkyBox";
-	    CameraEventFlags[CameraEventFlags["BeforeTransparent"] = 4] = "BeforeTransparent";
-	    CameraEventFlags[CameraEventFlags["BeforeImageEffect"] = 6] = "BeforeImageEffect";
-	    CameraEventFlags[CameraEventFlags["AfterEveryThing"] = 8] = "AfterEveryThing";
-	})(exports.CameraEventFlags || (exports.CameraEventFlags = {}));
-	class Camera extends BaseCamera {
-	    constructor(aspectRatio = 0, nearPlane = 0.3, farPlane = 1000) {
-	        super(nearPlane, farPlane);
-	        this._updateViewMatrix = true;
-	        this._postProcess = null;
-	        this._enableHDR = false;
-	        this._viewportParams = new Vector4();
-	        this._projectionParams = new Vector4();
-	        this._needBuiltInRenderTexture = false;
-	        this._offScreenRenderTexture = null;
-	        this._internalRenderTexture = null;
-	        this._internalCommandBuffer = new CommandBuffer();
-	        this._cameraEventCommandBuffer = {};
-	        this._clusterPlaneCacheFlag = new Vector2(-1, -1);
-	        this._screenOffsetScale = new Vector4();
-	        this.enableRender = true;
-	        this.clearFlag = exports.CameraClearFlags.SolidColor;
-	        this._viewMatrix = new Matrix4x4();
-	        this._projectionMatrix = new Matrix4x4();
-	        this._projectionViewMatrix = new Matrix4x4();
-	        this._viewport = new Viewport(0, 0, 0, 0);
-	        this._normalizedViewport = new Viewport(0, 0, 1, 1);
-	        this._rayViewport = new Viewport(0, 0, 0, 0);
-	        this._aspectRatio = aspectRatio;
-	        this._boundFrustum = new BoundFrustum(new Matrix4x4());
-	        this._calculateProjectionMatrix();
-	        Laya.Laya.stage.on(Laya.Event.RESIZE, this, this._onScreenSizeChanged);
-	        this.transform.on(Laya.Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-	    }
-	    static drawRenderTextureByScene(camera, scene, renderTexture, shader = null, replacementTag = null) {
-	        if (camera.renderTarget != renderTexture) {
-	            camera.renderTarget && RenderTexture.recoverToPool(camera.renderTarget);
-	            camera.renderTarget = renderTexture;
-	        }
-	        var viewport = camera.viewport;
-	        var needInternalRT = camera._needInternalRenderTexture();
-	        var context = RenderContext3D._instance;
-	        var scene = context.scene = scene;
-	        context.pipelineMode = context.configPipeLineMode;
-	        if (needInternalRT) {
-	            camera._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, camera._getRenderTextureFormat(), Laya.RenderTextureDepthFormat.DEPTH_16);
-	            camera._internalRenderTexture.filterMode = Laya.FilterMode.Bilinear;
-	        }
-	        else {
-	            camera._internalRenderTexture = null;
-	        }
-	        var needShadowCasterPass = camera._renderShadowMap(scene, context);
-	        camera._preRenderMainPass(context, scene, needInternalRT, viewport);
-	        camera._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
-	        camera._aftRenderMainPass(needShadowCasterPass);
-	        return camera.renderTarget;
-	    }
-	    get aspectRatio() {
-	        if (this._aspectRatio === 0) {
-	            var vp = this.viewport;
-	            return vp.width / vp.height;
-	        }
-	        return this._aspectRatio;
-	    }
-	    set aspectRatio(value) {
-	        if (value < 0)
-	            throw new Error("Camera: the aspect ratio has to be a positive real number.");
-	        this._aspectRatio = value;
-	        this._calculateProjectionMatrix();
-	    }
-	    get viewport() {
-	        if (this._offScreenRenderTexture)
-	            this._calculationViewport(this._normalizedViewport, this._offScreenRenderTexture.width, this._offScreenRenderTexture.height);
-	        else
-	            this._calculationViewport(this._normalizedViewport, RenderContext3D.clientWidth, RenderContext3D.clientHeight);
-	        return this._viewport;
-	    }
-	    set viewport(value) {
-	        var width;
-	        var height;
-	        if (this._offScreenRenderTexture) {
-	            width = this._offScreenRenderTexture.width;
-	            height = this._offScreenRenderTexture.height;
-	        }
-	        else {
-	            width = RenderContext3D.clientWidth;
-	            height = RenderContext3D.clientHeight;
-	        }
-	        this._normalizedViewport.x = value.x / width;
-	        this._normalizedViewport.y = value.y / height;
-	        this._normalizedViewport.width = value.width / width;
-	        this._normalizedViewport.height = value.height / height;
-	        this._calculationViewport(this._normalizedViewport, width, height);
-	        this._calculateProjectionMatrix();
-	    }
-	    get normalizedViewport() {
-	        return this._normalizedViewport;
-	    }
-	    set normalizedViewport(value) {
-	        var width;
-	        var height;
-	        if (this._offScreenRenderTexture) {
-	            width = this._offScreenRenderTexture.width;
-	            height = this._offScreenRenderTexture.height;
-	        }
-	        else {
-	            width = RenderContext3D.clientWidth;
-	            height = RenderContext3D.clientHeight;
-	        }
-	        if (this._normalizedViewport !== value)
-	            value.cloneTo(this._normalizedViewport);
-	        this._calculationViewport(value, width, height);
-	        this._calculateProjectionMatrix();
-	    }
-	    get viewMatrix() {
-	        if (this._updateViewMatrix) {
-	            var scale = this.transform.getWorldLossyScale();
-	            var scaleX = scale.x;
-	            var scaleY = scale.y;
-	            var scaleZ = scale.z;
-	            var viewMatE = this._viewMatrix.elements;
-	            this.transform.worldMatrix.cloneTo(this._viewMatrix);
-	            viewMatE[0] /= scaleX;
-	            viewMatE[1] /= scaleX;
-	            viewMatE[2] /= scaleX;
-	            viewMatE[4] /= scaleY;
-	            viewMatE[5] /= scaleY;
-	            viewMatE[6] /= scaleY;
-	            viewMatE[8] /= scaleZ;
-	            viewMatE[9] /= scaleZ;
-	            viewMatE[10] /= scaleZ;
-	            this._viewMatrix.invert(this._viewMatrix);
-	            this._updateViewMatrix = false;
-	        }
-	        return this._viewMatrix;
-	    }
-	    get projectionMatrix() {
-	        return this._projectionMatrix;
-	    }
-	    set projectionMatrix(value) {
-	        this._projectionMatrix = value;
-	        this._useUserProjectionMatrix = true;
-	    }
-	    get projectionViewMatrix() {
-	        Matrix4x4.multiply(this.projectionMatrix, this.viewMatrix, this._projectionViewMatrix);
-	        return this._projectionViewMatrix;
-	    }
-	    get boundFrustum() {
-	        this._boundFrustum.matrix = this.projectionViewMatrix;
-	        return this._boundFrustum;
-	    }
-	    get renderTarget() {
-	        return this._offScreenRenderTexture;
-	    }
-	    set renderTarget(value) {
-	        var lastValue = this._offScreenRenderTexture;
-	        if (lastValue !== value) {
-	            (lastValue) && (lastValue._isCameraTarget = false);
-	            (value) && (value._isCameraTarget = true);
-	            this._offScreenRenderTexture = value;
-	            this._calculateProjectionMatrix();
-	        }
-	    }
-	    get postProcess() {
-	        return this._postProcess;
-	    }
-	    set postProcess(value) {
-	        this._postProcess = value;
-	        if (!value)
-	            return;
-	        value && value._init(this);
-	    }
-	    get enableHDR() {
-	        return this._enableHDR;
-	    }
-	    set enableHDR(value) {
-	        if (value && !Laya.SystemUtils.supportRenderTextureFormat(Laya.RenderTextureFormat.R16G16B16A16)) {
-	            console.warn("Camera:can't enable HDR in this device.");
-	            return;
-	        }
-	        this._enableHDR = value;
-	    }
-	    get enableBuiltInRenderTexture() {
-	        return this._needBuiltInRenderTexture;
-	    }
-	    set enableBuiltInRenderTexture(value) {
-	        this._needBuiltInRenderTexture = value;
-	    }
-	    get depthTextureMode() {
-	        return this._depthTextureMode;
-	    }
-	    set depthTextureMode(value) {
-	        this._depthTextureMode = value;
-	    }
-	    _calculationViewport(normalizedViewport, width, height) {
-	        var lx = normalizedViewport.x * width;
-	        var ly = normalizedViewport.y * height;
-	        var rx = lx + Math.max(normalizedViewport.width * width, 0);
-	        var ry = ly + Math.max(normalizedViewport.height * height, 0);
-	        var ceilLeftX = Math.ceil(lx);
-	        var ceilLeftY = Math.ceil(ly);
-	        var floorRightX = Math.floor(rx);
-	        var floorRightY = Math.floor(ry);
-	        var pixelLeftX = ceilLeftX - lx >= 0.5 ? Math.floor(lx) : ceilLeftX;
-	        var pixelLeftY = ceilLeftY - ly >= 0.5 ? Math.floor(ly) : ceilLeftY;
-	        var pixelRightX = rx - floorRightX >= 0.5 ? Math.ceil(rx) : floorRightX;
-	        var pixelRightY = ry - floorRightY >= 0.5 ? Math.ceil(ry) : floorRightY;
-	        this._viewport.x = pixelLeftX;
-	        this._viewport.y = pixelLeftY;
-	        this._viewport.width = pixelRightX - pixelLeftX;
-	        this._viewport.height = pixelRightY - pixelLeftY;
-	    }
-	    _calculateProjectionMatrix() {
-	        if (!this._useUserProjectionMatrix) {
-	            if (this._orthographic) {
-	                var halfHeight = this.orthographicVerticalSize * 0.5;
-	                var halfWidth = halfHeight * this.aspectRatio;
-	                Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, this.nearPlane, this.farPlane, this._projectionMatrix);
-	            }
-	            else {
-	                Matrix4x4.createPerspective(3.1416 * this.fieldOfView / 180.0, this.aspectRatio, this.nearPlane, this.farPlane, this._projectionMatrix);
-	            }
-	        }
-	    }
-	    _isLayerVisible(layer) {
-	        return (Math.pow(2, layer) & this.cullingMask) != 0;
-	    }
-	    _onTransformChanged(flag) {
-	        flag &= Transform3D.TRANSFORM_WORLDMATRIX;
-	        (flag) && (this._updateViewMatrix = true);
-	    }
-	    _parse(data, spriteMap) {
-	        super._parse(data, spriteMap);
-	        var clearFlagData = data.clearFlag;
-	        (clearFlagData !== undefined) && (this.clearFlag = clearFlagData);
-	        var viewport = data.viewport;
-	        this.normalizedViewport = new Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-	        var enableHDR = data.enableHDR;
-	        (enableHDR !== undefined) && (this.enableHDR = enableHDR);
-	    }
-	    clone() {
-	        let camera = super.clone();
-	        camera.clearFlag = this.clearFlag;
-	        camera.viewport = this.viewport;
-	        this.normalizedViewport.cloneTo(camera.normalizedViewport);
-	        camera.enableHDR = this.enableHDR;
-	        camera.farPlane = this.farPlane;
-	        camera.nearPlane = this.nearPlane;
-	        camera.fieldOfView = this.fieldOfView;
-	        camera.orthographic = this.orthographic;
-	        return camera;
-	    }
-	    _getCanvasWidth() {
-	        if (this._offScreenRenderTexture)
-	            return this._offScreenRenderTexture.width;
-	        else
-	            return RenderContext3D.clientWidth;
-	    }
-	    _getCanvasHeight() {
-	        if (this._offScreenRenderTexture)
-	            return this._offScreenRenderTexture.height;
-	        else
-	            return RenderContext3D.clientHeight;
-	    }
-	    _getRenderTexture() {
-	        return this._internalRenderTexture || this._offScreenRenderTexture;
-	    }
-	    _needInternalRenderTexture() {
-	        return (this._postProcess && this._postProcess.enable) || this._enableHDR || this._needBuiltInRenderTexture ? true : false;
-	    }
-	    _getRenderTextureFormat() {
-	        if (this._enableHDR)
-	            return Laya.RenderTextureFormat.R16G16B16A16;
-	        else
-	            return Laya.RenderTextureFormat.R8G8B8;
-	    }
-	    _prepareCameraToRender() {
-	        super._prepareCameraToRender();
-	        var vp = this.viewport;
-	        this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
-	        this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 1 / this.farPlane);
-	        this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
-	        this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
-	    }
-	    _applyViewProject(context, viewMat, proMat) {
-	        var projectView;
-	        var shaderData = this._shaderValues;
-	        if (context.invertY) {
-	            Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
-	            Matrix4x4.multiply(BaseCamera._invertYProjectionMatrix, viewMat, BaseCamera._invertYProjectionViewMatrix);
-	            proMat = BaseCamera._invertYProjectionMatrix;
-	            projectView = BaseCamera._invertYProjectionViewMatrix;
-	        }
-	        else {
-	            Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
-	            projectView = this._projectionViewMatrix;
-	        }
-	        context.viewMatrix = viewMat;
-	        context.projectionMatrix = proMat;
-	        context.projectionViewMatrix = projectView;
-	        shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
-	        shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
-	        shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
-	    }
-	    _updateClusterPlaneXY() {
-	        var fieldOfView = this.fieldOfView;
-	        var aspectRatio = this.aspectRatio;
-	        if (this._clusterPlaneCacheFlag.x !== fieldOfView || this._clusterPlaneCacheFlag.y !== aspectRatio) {
-	            var clusterCount = Config3D._config.lightClusterCount;
-	            var xSlixe = clusterCount.x, ySlice = clusterCount.y;
-	            var xCount = xSlixe + 1, yCount = ySlice + 1;
-	            var xPlanes = this._clusterXPlanes, yPlanes = this._clusterYPlanes;
-	            if (!xPlanes) {
-	                xPlanes = this._clusterXPlanes = new Array(xCount);
-	                yPlanes = this._clusterYPlanes = new Array(yCount);
-	                for (var i = 0; i < xCount; i++)
-	                    xPlanes[i] = new Vector3();
-	                for (var i = 0; i < yCount; i++)
-	                    yPlanes[i] = new Vector3();
-	            }
-	            var halfY = Math.tan((this.fieldOfView / 2) * Math.PI / 180);
-	            var halfX = this.aspectRatio * halfY;
-	            var yLengthPerCluster = 2 * halfY / xSlixe;
-	            var xLengthPerCluster = 2 * halfX / ySlice;
-	            for (var i = 0; i < xCount; i++) {
-	                var angle = -halfX + xLengthPerCluster * i;
-	                var bigHypot = Math.sqrt(1 + angle * angle);
-	                var normX = 1 / bigHypot;
-	                var xPlane = xPlanes[i];
-	                xPlane.setValue(normX, 0, -angle * normX);
-	            }
-	            for (var i = 0; i < yCount; i++) {
-	                var angle = halfY - yLengthPerCluster * i;
-	                var bigHypot = Math.sqrt(1 + angle * angle);
-	                var normY = -1 / bigHypot;
-	                var yPlane = yPlanes[i];
-	                yPlane.setValue(0, normY, -angle * normY);
-	            }
-	            this._clusterPlaneCacheFlag.x = fieldOfView;
-	            this._clusterPlaneCacheFlag.y = aspectRatio;
-	        }
-	    }
-	    _applyCommandBuffer(event, context) {
-	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER);
-	        var gl = Laya.LayaGL.instance;
-	        var commandBufferArray = this._cameraEventCommandBuffer[event];
-	        if (!commandBufferArray || commandBufferArray.length == 0)
-	            return;
-	        commandBufferArray.forEach(function (value) {
-	            value._context = context;
-	            value._apply();
-	        });
-	        (RenderTexture.currentActive) && (RenderTexture.currentActive._end());
-	        if (this._internalRenderTexture || this._offScreenRenderTexture)
-	            this._getRenderTexture()._start();
-	        else {
-	            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	        }
-	        gl.viewport(0, 0, context.viewport.width, context.viewport.height);
-	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER);
-	    }
-	    _renderShadowMap(scene, context) {
-	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_SHADOWMAP);
-	        var shadowCasterPass;
-	        var mainDirectLight = scene._mainDirectionLight;
-	        var needShadowCasterPass = mainDirectLight && mainDirectLight.shadowMode !== exports.ShadowMode.None && ShadowUtils.supportShadow();
-	        if (needShadowCasterPass) {
-	            scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-	            scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-	            shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
-	            shadowCasterPass.update(this, mainDirectLight, ILaya3D.ShadowLightType.DirectionLight);
-	            shadowCasterPass.render(context, scene, ILaya3D.ShadowLightType.DirectionLight);
-	        }
-	        else {
-	            scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-	        }
-	        var spotMainLight = scene._mainSpotLight;
-	        var spotneedShadowCasterPass = spotMainLight && spotMainLight.shadowMode !== exports.ShadowMode.None && ShadowUtils.supportShadow();
-	        if (spotneedShadowCasterPass) {
-	            scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-	            scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-	            shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
-	            shadowCasterPass.update(this, spotMainLight, ILaya3D.ShadowLightType.SpotLight);
-	            shadowCasterPass.render(context, scene, ILaya3D.ShadowLightType.SpotLight);
-	        }
-	        else {
-	            scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-	        }
-	        if (needShadowCasterPass)
-	            scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-	        if (spotneedShadowCasterPass)
-	            scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_SHADOWMAP);
-	        return needShadowCasterPass || spotneedShadowCasterPass;
-	    }
-	    _preRenderMainPass(context, scene, needInternalRT, viewport) {
-	        context.camera = this;
-	        context.cameraShaderValue = this._shaderValues;
-	        Camera._updateMark++;
-	        scene._preRenderScript();
-	        var gl = Laya.LayaGL.instance;
-	        if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == exports.CameraClearFlags.DepthOnly || this.clearFlag == exports.CameraClearFlags.Nothing)) {
-	            if (this._enableHDR) {
-	                var grabTexture = RenderTexture.createFromPool(viewport.width, viewport.height, Laya.RenderTextureFormat.R8G8B8, Laya.RenderTextureDepthFormat.DEPTH_16);
-	                grabTexture.filterMode = Laya.FilterMode.Bilinear;
-	                Laya.WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
-	                gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
-	                var blit = BlitScreenQuadCMD.create(grabTexture, this._internalRenderTexture);
-	                blit.run();
-	                blit.recover();
-	                RenderTexture.recoverToPool(grabTexture);
-	            }
-	            else {
-	                Laya.WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._internalRenderTexture._getSource());
-	                gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
-	            }
-	        }
-	    }
-	    _renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT) {
-	        var gl = Laya.LayaGL.instance;
-	        var renderTex = this._getRenderTexture();
-	        context.viewport = viewport;
-	        this._prepareCameraToRender();
-	        var multiLighting = Config3D._config._multiLighting;
-	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CLUSTER);
-	        (multiLighting) && (Cluster.instance.update(this, (scene)));
-	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CLUSTER);
-	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
-	        scene._preCulling(context, this, shader, replacementTag);
-	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
-	        if (this.depthTextureMode != 0) {
-	            this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
-	            this._renderDepthMode(context);
-	        }
-	        (renderTex) && (renderTex._start());
-	        this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
-	        scene._clear(gl, context);
-	        this._applyCommandBuffer(exports.CameraEventFlags.BeforeForwardOpaque, context);
-	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
-	        scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
-	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
-	        this._applyCommandBuffer(exports.CameraEventFlags.BeforeSkyBox, context);
-	        scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
-	        this._applyCommandBuffer(exports.CameraEventFlags.BeforeTransparent, context);
-	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT);
-	        scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
-	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT);
-	        scene._postRenderScript();
-	        this._applyCommandBuffer(exports.CameraEventFlags.BeforeImageEffect, context);
-	        (renderTex) && (renderTex._end());
-	        if (needInternalRT) {
-	            if (this._postProcess && this._postProcess.enable) {
-	                Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
-	                this._postProcess._render();
-	                this._postProcess._applyPostProcessCommandBuffers();
-	                Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
-	            }
-	            else if (this._enableHDR || this._needBuiltInRenderTexture) {
-	                var canvasWidth = this._getCanvasWidth(), canvasHeight = this._getCanvasHeight();
-	                this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
-	                this._internalCommandBuffer._camera = this;
-	                this._internalCommandBuffer.blitScreenQuad(this._internalRenderTexture, this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale, null, null, 0, true);
-	                this._internalCommandBuffer._apply();
-	                this._internalCommandBuffer.clear();
-	            }
-	            RenderTexture.recoverToPool(this._internalRenderTexture);
-	        }
-	        this._applyCommandBuffer(exports.CameraEventFlags.AfterEveryThing, context);
-	    }
-	    _renderDepthMode(context) {
-	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE);
-	        var cameraDepthMode = this._depthTextureMode;
-	        if ((cameraDepthMode & exports.DepthTextureMode.Depth) != 0) {
-	            Camera.depthPass.update(this, exports.DepthTextureMode.Depth);
-	            Camera.depthPass.render(context, exports.DepthTextureMode.Depth);
-	        }
-	        if ((cameraDepthMode & exports.DepthTextureMode.DepthNormals) != 0) {
-	            Camera.depthPass.update(this, exports.DepthTextureMode.DepthNormals);
-	            Camera.depthPass.render(context, exports.DepthTextureMode.DepthNormals);
-	        }
-	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE);
-	    }
-	    get depthTexture() {
-	        return this._depthTexture;
-	    }
-	    set depthTexture(value) {
-	        this._depthTexture = value;
-	    }
-	    get depthNormalTexture() {
-	        return this._depthNormalsTexture;
-	    }
-	    set depthNormalTexture(value) {
-	        this._depthNormalsTexture = value;
-	    }
-	    _aftRenderMainPass(needShadowPass) {
-	        if (needShadowPass)
-	            ILaya3D.Scene3D._shadowCasterPass.cleanUp();
-	        Camera.depthPass.cleanUp();
-	    }
-	    render(shader = null, replacementTag = null) {
-	        if (!this.activeInHierarchy)
-	            return;
-	        var viewport = this.viewport;
-	        var needInternalRT = this._needInternalRenderTexture();
-	        var context = RenderContext3D._instance;
-	        var scene = context.scene = this._scene;
-	        context.pipelineMode = context.configPipeLineMode;
-	        if (needInternalRT) {
-	            this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), Laya.RenderTextureDepthFormat.DEPTH_16, 4);
-	            this._internalRenderTexture.filterMode = Laya.FilterMode.Bilinear;
-	        }
-	        else {
-	            this._internalRenderTexture = null;
-	        }
-	        var needShadowCasterPass = this._renderShadowMap(scene, context);
-	        this._preRenderMainPass(context, scene, needInternalRT, viewport);
-	        this._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
-	        this._aftRenderMainPass(needShadowCasterPass);
-	    }
-	    viewportPointToRay(point, out) {
-	        this._rayViewport.x = this.viewport.x;
-	        this._rayViewport.y = this.viewport.y;
-	        this._rayViewport.width = Laya.Laya.stage._width;
-	        this._rayViewport.height = Laya.Laya.stage._height;
-	        Picker.calculateCursorRay(point, this._rayViewport, this._projectionMatrix, this.viewMatrix, null, out);
-	    }
-	    normalizedViewportPointToRay(point, out) {
-	        var finalPoint = Camera._tempVector20;
-	        var vp = this.viewport;
-	        finalPoint.x = point.x * vp.width;
-	        finalPoint.y = point.y * vp.height;
-	        Picker.calculateCursorRay(finalPoint, this.viewport, this._projectionMatrix, this.viewMatrix, null, out);
-	    }
-	    worldToViewportPoint(position, out) {
-	        Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
-	        this.viewport.project(position, this._projectionViewMatrix, out);
-	        out.x = out.x / Laya.Laya.stage.clientScaleX;
-	        out.y = out.y / Laya.Laya.stage.clientScaleY;
-	    }
-	    worldToNormalizedViewportPoint(position, out) {
-	        Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
-	        this.normalizedViewport.project(position, this._projectionViewMatrix, out);
-	        out.x = out.x / Laya.Laya.stage.clientScaleX;
-	        out.y = out.y / Laya.Laya.stage.clientScaleY;
-	    }
-	    convertScreenCoordToOrthographicCoord(source, out) {
-	        if (this._orthographic) {
-	            var clientWidth = RenderContext3D.clientWidth;
-	            var clientHeight = RenderContext3D.clientHeight;
-	            var ratioX = this.orthographicVerticalSize * this.aspectRatio / clientWidth;
-	            var ratioY = this.orthographicVerticalSize / clientHeight;
-	            out.x = (-clientWidth / 2 + source.x * Laya.Laya.stage.clientScaleX) * ratioX;
-	            out.y = (clientHeight / 2 - source.y * Laya.Laya.stage.clientScaleY) * ratioY;
-	            out.z = (this.nearPlane - this.farPlane) * (source.z + 1) / 2 - this.nearPlane;
-	            Vector3.transformCoordinate(out, this.transform.worldMatrix, out);
-	            return true;
-	        }
-	        else {
-	            return false;
-	        }
-	    }
-	    destroy(destroyChild = true) {
-	        this._offScreenRenderTexture = null;
-	        this.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-	        super.destroy(destroyChild);
-	    }
-	    addCommandBuffer(event, commandBuffer) {
-	        var commandBufferArray = this._cameraEventCommandBuffer[event];
-	        if (!commandBufferArray)
-	            commandBufferArray = this._cameraEventCommandBuffer[event] = [];
-	        if (commandBufferArray.indexOf(commandBuffer) < 0)
-	            commandBufferArray.push(commandBuffer);
-	        commandBuffer._camera = this;
-	    }
-	    removeCommandBuffer(event, commandBuffer) {
-	        var commandBufferArray = this._cameraEventCommandBuffer[event];
-	        if (commandBufferArray) {
-	            var index = commandBufferArray.indexOf(commandBuffer);
-	            if (index != -1)
-	                commandBufferArray.splice(index, 1);
-	        }
-	        else
-	            throw "Camera:unknown event.";
-	    }
-	    removeCommandBuffers(event) {
-	        if (this._cameraEventCommandBuffer[event])
-	            this._cameraEventCommandBuffer[event].length = 0;
-	    }
-	    _create() {
-	        return new Camera();
-	    }
-	}
-	Camera._tempVector20 = new Vector2();
-	Camera._updateMark = 0;
-	Camera.depthPass = new DepthPass();
-
-	class RenderElement {
-	    constructor() {
-	        this.renderSubShader = null;
-	        this.renderType = RenderElement.RENDERTYPE_NORMAL;
-	    }
-	    getInvertFront() {
-	        return this._transform._isFrontFaceInvert;
-	    }
-	    setTransform(transform) {
-	        this._transform = transform;
-	    }
-	    setGeometry(geometry) {
-	        this._geometry = geometry;
-	    }
-	    addToOpaqueRenderQueue(context, queue) {
-	        queue.elements.add(this);
-	    }
-	    addToTransparentRenderQueue(context, queue) {
-	        queue.elements.add(this);
-	        queue.lastTransparentBatched = false;
-	        queue.lastTransparentRenderElement = this;
-	    }
-	    _update(scene, context, customShader, replacementTag, subshaderIndex = 0) {
-	        if (this.material) {
-	            var subShader = this.material._shader.getSubShaderAt(0);
-	            this.renderSubShader = null;
-	            if (customShader) {
-	                if (replacementTag) {
-	                    var oriTag = subShader.getFlag(replacementTag);
-	                    if (oriTag) {
-	                        var customSubShaders = customShader._subShaders;
-	                        for (var k = 0, p = customSubShaders.length; k < p; k++) {
-	                            var customSubShader = customSubShaders[k];
-	                            if (oriTag === customSubShader.getFlag(replacementTag)) {
-	                                this.renderSubShader = customSubShader;
-	                                break;
-	                            }
-	                        }
-	                        if (!this.renderSubShader)
-	                            return;
-	                    }
-	                    else {
-	                        return;
-	                    }
-	                }
-	                else {
-	                    this.renderSubShader = customShader.getSubShaderAt(subshaderIndex);
-	                }
-	            }
-	            else {
-	                this.renderSubShader = subShader;
-	            }
-	            var renderQueue = scene._getRenderQueue(this.material.renderQueue);
-	            if (renderQueue.isTransparent)
-	                this.addToTransparentRenderQueue(context, renderQueue);
-	            else
-	                this.addToOpaqueRenderQueue(context, renderQueue);
-	        }
-	    }
-	    _render(context) {
-	        var forceInvertFace = context.invertY;
-	        var lastStateMaterial, lastStateShaderInstance, lastStateRender;
-	        var updateMark = Camera._updateMark;
-	        var scene = context.scene;
-	        var cameraShaderValue = context.cameraShaderValue;
-	        var transform = this._transform;
-	        var geometry = this._geometry;
-	        context.renderElement = this;
-	        var updateRender = updateMark !== this.render._updateMark || this.renderType !== this.render._updateRenderType;
-	        if (updateRender) {
-	            this.render._renderUpdate(context, transform);
-	            this.render._renderUpdateWithCamera(context, transform);
-	            this.render._updateMark = updateMark;
-	            this.render._updateRenderType = this.renderType;
-	        }
-	        else {
-	            if (this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH) {
-	                this.render._renderUpdate(context, transform);
-	                this.render._renderUpdateWithCamera(context, transform);
-	            }
-	        }
-	        var currentPipelineMode = context.pipelineMode;
-	        if (geometry._prepareRender(context)) {
-	            var passes = this.renderSubShader._passes;
-	            for (var j = 0, m = passes.length; j < m; j++) {
-	                var pass = passes[j];
-	                if (pass._pipelineMode !== currentPipelineMode)
-	                    continue;
-	                var comDef = RenderElement._compileDefine;
-	                scene._shaderValues._defineDatas.cloneTo(comDef);
-	                comDef.addDefineDatas(this.render._shaderValues._defineDatas);
-	                comDef.addDefineDatas(this.material._shaderValues._defineDatas);
-	                var shaderIns = context.shader = pass.withCompile(comDef);
-	                var switchShader = shaderIns.bind();
-	                var switchUpdateMark = (updateMark !== shaderIns._uploadMark);
-	                var uploadScene = (shaderIns._uploadScene !== scene) || switchUpdateMark;
-	                if (uploadScene || switchShader) {
-	                    shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, scene._shaderValues, uploadScene);
-	                    shaderIns._uploadScene = scene;
-	                }
-	                var uploadSprite3D = (shaderIns._uploadRender !== this.render || shaderIns._uploadRenderType !== this.renderType) || switchUpdateMark;
-	                if (uploadSprite3D || switchShader) {
-	                    shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this.render._shaderValues, uploadSprite3D);
-	                    shaderIns._uploadRender = this.render;
-	                    shaderIns._uploadRenderType = this.renderType;
-	                }
-	                var uploadCamera = shaderIns._uploadCameraShaderValue !== cameraShaderValue || switchUpdateMark;
-	                if (uploadCamera || switchShader) {
-	                    shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
-	                    shaderIns._uploadCameraShaderValue = cameraShaderValue;
-	                }
-	                var uploadMaterial = (shaderIns._uploadMaterial !== this.material) || switchUpdateMark;
-	                if (uploadMaterial || switchShader) {
-	                    shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this.material._shaderValues, uploadMaterial);
-	                    shaderIns._uploadMaterial = this.material;
-	                }
-	                var matValues = this.material._shaderValues;
-	                if (lastStateMaterial !== this.material || lastStateShaderInstance !== shaderIns) {
-	                    shaderIns.uploadRenderStateBlendDepth(matValues);
-	                    shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this.getInvertFront());
-	                    lastStateMaterial = this.material;
-	                    lastStateShaderInstance = shaderIns;
-	                    lastStateRender = this.render;
-	                }
-	                else {
-	                    if (lastStateRender !== this.render) {
-	                        shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this.getInvertFront());
-	                        lastStateRender = this.render;
-	                    }
-	                }
-	                geometry._render(context);
-	                shaderIns._uploadMark = updateMark;
-	            }
-	        }
-	        if (this.renderType !== RenderElement.RENDERTYPE_NORMAL)
-	            this.render._revertBatchRenderUpdate(context);
-	    }
-	    destroy() {
-	        this._transform = null;
-	        this._geometry = null;
-	        this.material = null;
-	        this.render = null;
-	    }
-	}
-	RenderElement.RENDERTYPE_NORMAL = 0;
-	RenderElement.RENDERTYPE_STATICBATCH = 1;
-	RenderElement.RENDERTYPE_INSTANCEBATCH = 2;
-	RenderElement.RENDERTYPE_VERTEXBATCH = 3;
-	RenderElement._compileDefine = new DefineDatas();
-
-	class SubMeshRenderElement extends RenderElement {
-	    constructor() {
-	        super();
-	        this._dynamicWorldPositionNormalNeedUpdate = true;
-	    }
-	    _onWorldMatrixChanged() {
-	        this._dynamicWorldPositionNormalNeedUpdate = true;
-	    }
-	    _computeWorldPositionsAndNormals(positionOffset, normalOffset, multiSubMesh, vertexCount) {
-	        if (this._dynamicWorldPositionNormalNeedUpdate) {
-	            var subMesh = this._geometry;
-	            var vertexBuffer = subMesh._vertexBuffer;
-	            var vertexFloatCount = vertexBuffer.vertexDeclaration.vertexStride / 4;
-	            var oriVertexes = vertexBuffer.getFloat32Data();
-	            var worldMat = this._transform.worldMatrix;
-	            var rotation = this._transform.rotation;
-	            var indices = subMesh._indices;
-	            for (var i = 0; i < vertexCount; i++) {
-	                var index = multiSubMesh ? indices[i] : i;
-	                var oriOffset = index * vertexFloatCount;
-	                var bakeOffset = i * 3;
-	                Utils3D.transformVector3ArrayToVector3ArrayCoordinate(oriVertexes, oriOffset + positionOffset, worldMat, this._dynamicWorldPositions, bakeOffset);
-	                (normalOffset !== -1) && (Utils3D.transformVector3ArrayByQuat(oriVertexes, oriOffset + normalOffset, rotation, this._dynamicWorldNormals, bakeOffset));
-	            }
-	            this._dynamicWorldPositionNormalNeedUpdate = false;
-	        }
-	    }
-	    setTransform(transform) {
-	        if (this._transform !== transform) {
-	            (this._transform) && (this._transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
-	            (transform) && (transform.on(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
-	            this._dynamicWorldPositionNormalNeedUpdate = true;
-	            this._transform = transform;
-	        }
-	    }
-	    setGeometry(geometry) {
-	        if (this._geometry !== geometry) {
-	            var subMesh = geometry;
-	            var mesh = subMesh._mesh;
-	            if (mesh) {
-	                var multiSubMesh = mesh._subMeshes.length > 1;
-	                var dynBatVerCount = multiSubMesh ? subMesh._indexCount : mesh._vertexCount;
-	                if (dynBatVerCount <= ILaya3D.SubMeshDynamicBatch.maxAllowVertexCount) {
-	                    var length = dynBatVerCount * 3;
-	                    this._dynamicVertexBatch = true;
-	                    this._dynamicWorldPositions = new Float32Array(length);
-	                    this._dynamicWorldNormals = new Float32Array(length);
-	                    this._dynamicVertexCount = dynBatVerCount;
-	                    this._dynamicMultiSubMesh = multiSubMesh;
-	                }
-	                else {
-	                    this._dynamicVertexBatch = false;
-	                }
-	            }
-	            this._geometry = geometry;
-	        }
-	    }
-	    addToOpaqueRenderQueue(context, queue) {
-	        var subMeshStaticBatch = this.staticBatch;
-	        var queueElements = queue.elements;
-	        var elements = queueElements.elements;
-	        if (subMeshStaticBatch && (!this.render._probReflection || this.render._probReflection._isScene) && SubMeshRenderElement.enableStaticBatch) {
-	            var staManager = ILaya3D.MeshRenderStaticBatchManager.instance;
-	            var staBatchMarks = staManager.getBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, subMeshStaticBatch._batchID);
-	            if (staManager._updateCountMark === staBatchMarks.updateMark) {
-	                var staBatchIndex = staBatchMarks.indexInList;
-	                if (staBatchMarks.batched) {
-	                    elements[staBatchIndex].staticBatchElementList.add(this);
-	                }
-	                else {
-	                    var staOriElement = elements[staBatchIndex];
-	                    var staOriRender = staOriElement.render;
-	                    var staBatchElement = staManager._getBatchRenderElementFromPool();
-	                    staBatchElement.renderType = RenderElement.RENDERTYPE_STATICBATCH;
-	                    staBatchElement.setGeometry(subMeshStaticBatch);
-	                    staBatchElement.material = staOriElement.material;
-	                    var staRootOwner = subMeshStaticBatch.batchOwner;
-	                    var staBatchTransform = staRootOwner ? staRootOwner._transform : null;
-	                    staBatchElement.setTransform(staBatchTransform);
-	                    staBatchElement.render = staOriRender;
-	                    staBatchElement.renderSubShader = staOriElement.renderSubShader;
-	                    var staBatchList = staBatchElement.staticBatchElementList;
-	                    staBatchList.length = 0;
-	                    staBatchList.add(staOriElement);
-	                    staBatchList.add(this);
-	                    elements[staBatchIndex] = staBatchElement;
-	                    staBatchMarks.batched = true;
-	                }
-	            }
-	            else {
-	                staBatchMarks.updateMark = staManager._updateCountMark;
-	                staBatchMarks.indexInList = queueElements.length;
-	                staBatchMarks.batched = false;
-	                queueElements.add(this);
-	            }
-	        }
-	        else if (SubMeshRenderElement.enableDynamicBatch && this.renderSubShader._owner._enableInstancing && Laya.LayaGL.layaGPUInstance.supportInstance() && this.render.lightmapIndex < 0 && (!this.render._probReflection || this.render._probReflection._isScene)) {
-	            var subMesh = this._geometry;
-	            var insManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
-	            var insBatchMarks = insManager.getInstanceBatchOpaquaMark(this.render.receiveShadow, this.material.id, subMesh._id, this._transform._isFrontFaceInvert);
-	            if (insManager._updateCountMark === insBatchMarks.updateMark) {
-	                var insBatchIndex = insBatchMarks.indexInList;
-	                if (insBatchMarks.batched) {
-	                    var instanceBatchElementList = elements[insBatchIndex].instanceBatchElementList;
-	                    if (instanceBatchElementList.length === SubMeshInstanceBatch.maxInstanceCount) {
-	                        insBatchMarks.updateMark = insManager._updateCountMark;
-	                        insBatchMarks.indexInList = queueElements.length;
-	                        insBatchMarks.batched = false;
-	                        queueElements.add(this);
-	                    }
-	                    else {
-	                        instanceBatchElementList.add(this);
-	                    }
-	                }
-	                else {
-	                    var insOriElement = elements[insBatchIndex];
-	                    var insOriRender = insOriElement.render;
-	                    var insBatchElement = insManager._getBatchRenderElementFromPool();
-	                    insBatchElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
-	                    insBatchElement.setGeometry(SubMeshInstanceBatch.instance);
-	                    insBatchElement.material = insOriElement.material;
-	                    insBatchElement.setTransform(null);
-	                    insBatchElement.render = insOriRender;
-	                    insBatchElement.instanceSubMesh = subMesh;
-	                    insBatchElement.renderSubShader = insOriElement.renderSubShader;
-	                    var insBatchList = insBatchElement.instanceBatchElementList;
-	                    insBatchList.length = 0;
-	                    insBatchList.add(insOriElement);
-	                    insBatchList.add(this);
-	                    elements[insBatchIndex] = insBatchElement;
-	                    insBatchMarks.batched = true;
-	                }
-	            }
-	            else {
-	                insBatchMarks.updateMark = insManager._updateCountMark;
-	                insBatchMarks.indexInList = queueElements.length;
-	                insBatchMarks.batched = false;
-	                queueElements.add(this);
-	            }
-	        }
-	        else if (this._dynamicVertexBatch && SubMeshRenderElement.enableDynamicBatch) {
-	            var verDec = this._geometry._vertexBuffer.vertexDeclaration;
-	            var dynManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
-	            var dynBatchMarks = dynManager.getVertexBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, verDec.id);
-	            if (dynManager._updateCountMark === dynBatchMarks.updateMark) {
-	                var dynBatchIndex = dynBatchMarks.indexInList;
-	                if (dynBatchMarks.batched) {
-	                    elements[dynBatchIndex].vertexBatchElementList.add(this);
-	                }
-	                else {
-	                    var dynOriElement = elements[dynBatchIndex];
-	                    var dynOriRender = dynOriElement.render;
-	                    var dynBatchElement = dynManager._getBatchRenderElementFromPool();
-	                    dynBatchElement.renderType = RenderElement.RENDERTYPE_VERTEXBATCH;
-	                    dynBatchElement.setGeometry(ILaya3D.SubMeshDynamicBatch.instance);
-	                    dynBatchElement.material = dynOriElement.material;
-	                    dynBatchElement.setTransform(null);
-	                    dynBatchElement.render = dynOriRender;
-	                    dynBatchElement.vertexBatchVertexDeclaration = verDec;
-	                    dynBatchElement.renderSubShader = dynOriElement.renderSubShader;
-	                    var dynBatchList = dynBatchElement.vertexBatchElementList;
-	                    dynBatchList.length = 0;
-	                    dynBatchList.add(dynOriElement);
-	                    dynBatchList.add(this);
-	                    elements[dynBatchIndex] = dynBatchElement;
-	                    dynBatchMarks.batched = true;
-	                }
-	            }
-	            else {
-	                dynBatchMarks.updateMark = dynManager._updateCountMark;
-	                dynBatchMarks.indexInList = queueElements.length;
-	                dynBatchMarks.batched = false;
-	                queueElements.add(this);
-	            }
-	        }
-	        else {
-	            queueElements.add(this);
-	        }
-	    }
-	    addToTransparentRenderQueue(context, queue) {
-	        var subMeshStaticBatch = this.staticBatch;
-	        var queueElements = queue.elements;
-	        var elements = queueElements.elements;
-	        if (subMeshStaticBatch && SubMeshRenderElement.enableStaticBatch) {
-	            var staManager = ILaya3D.MeshRenderStaticBatchManager.instance;
-	            var staLastElement = queue.lastTransparentRenderElement;
-	            if (staLastElement) {
-	                var staLastRender = staLastElement.render;
-	                if (staLastElement._geometry._getType() !== this._geometry._getType() || staLastElement.staticBatch !== subMeshStaticBatch || staLastElement.material !== this.material || staLastRender.receiveShadow !== this.render.receiveShadow || staLastRender.lightmapIndex !== this.render.lightmapIndex) {
-	                    queueElements.add(this);
-	                    queue.lastTransparentBatched = false;
-	                }
-	                else {
-	                    if (queue.lastTransparentBatched) {
-	                        elements[queueElements.length - 1].staticBatchElementList.add((this));
-	                    }
-	                    else {
-	                        var staBatchElement = staManager._getBatchRenderElementFromPool();
-	                        staBatchElement.renderType = RenderElement.RENDERTYPE_STATICBATCH;
-	                        staBatchElement.setGeometry(subMeshStaticBatch);
-	                        staBatchElement.material = staLastElement.material;
-	                        var staRootOwner = subMeshStaticBatch.batchOwner;
-	                        var staBatchTransform = staRootOwner ? staRootOwner._transform : null;
-	                        staBatchElement.setTransform(staBatchTransform);
-	                        staBatchElement.render = this.render;
-	                        staBatchElement.renderSubShader = staLastElement.renderSubShader;
-	                        var staBatchList = staBatchElement.staticBatchElementList;
-	                        staBatchList.length = 0;
-	                        staBatchList.add(staLastElement);
-	                        staBatchList.add(this);
-	                        elements[queueElements.length - 1] = staBatchElement;
-	                    }
-	                    queue.lastTransparentBatched = true;
-	                }
-	            }
-	            else {
-	                queueElements.add(this);
-	                queue.lastTransparentBatched = false;
-	            }
-	        }
-	        else if (SubMeshRenderElement.enableDynamicBatch && this.renderSubShader._owner._enableInstancing && Laya.LayaGL.layaGPUInstance.supportInstance() && this.render.lightmapIndex < 0 && (!this.render._probReflection || this.render._probReflection._isScene)) {
-	            var subMesh = this._geometry;
-	            var insManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
-	            var insLastElement = queue.lastTransparentRenderElement;
-	            if (insLastElement) {
-	                var insLastRender = insLastElement.render;
-	                if (insLastElement._geometry._getType() !== this._geometry._getType() || insLastElement._geometry !== subMesh || insLastElement.material !== this.material || insLastRender.receiveShadow !== this.render.receiveShadow) {
-	                    queueElements.add(this);
-	                    queue.lastTransparentBatched = false;
-	                }
-	                else {
-	                    if (queue.lastTransparentBatched) {
-	                        var instanceBatchElementList = elements[queueElements.length - 1].instanceBatchElementList;
-	                        if (instanceBatchElementList.length === SubMeshInstanceBatch.maxInstanceCount) {
-	                            queueElements.add(this);
-	                            queue.lastTransparentBatched = false;
-	                        }
-	                        else {
-	                            instanceBatchElementList.add(this);
-	                            queue.lastTransparentBatched = true;
-	                        }
-	                    }
-	                    else {
-	                        var insBatchElement = insManager._getBatchRenderElementFromPool();
-	                        insBatchElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
-	                        insBatchElement.setGeometry(SubMeshInstanceBatch.instance);
-	                        insBatchElement.material = insLastElement.material;
-	                        insBatchElement.setTransform(null);
-	                        insBatchElement.render = this.render;
-	                        insBatchElement.instanceSubMesh = subMesh;
-	                        insBatchElement.renderSubShader = insLastElement.renderSubShader;
-	                        var insBatchList = insBatchElement.instanceBatchElementList;
-	                        insBatchList.length = 0;
-	                        insBatchList.add(insLastElement);
-	                        insBatchList.add(this);
-	                        elements[queueElements.length - 1] = insBatchElement;
-	                        queue.lastTransparentBatched = true;
-	                    }
-	                }
-	            }
-	            else {
-	                queueElements.add(this);
-	                queue.lastTransparentBatched = false;
-	            }
-	        }
-	        else if (this._dynamicVertexBatch && SubMeshRenderElement.enableDynamicBatch) {
-	            var verDec = this._geometry._vertexBuffer.vertexDeclaration;
-	            var dynManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
-	            var dynLastElement = queue.lastTransparentRenderElement;
-	            if (dynLastElement) {
-	                var dynLastRender = dynLastElement.render;
-	                if (!dynLastElement._dynamicVertexBatch || dynLastElement._geometry._getType() !== this._geometry._getType() || dynLastElement._geometry._vertexBuffer._vertexDeclaration !== verDec || dynLastElement.material !== this.material || dynLastRender.receiveShadow !== this.render.receiveShadow || dynLastRender.lightmapIndex !== this.render.lightmapIndex) {
-	                    queueElements.add(this);
-	                    queue.lastTransparentBatched = false;
-	                }
-	                else {
-	                    if (queue.lastTransparentBatched) {
-	                        elements[queueElements.length - 1].vertexBatchElementList.add((this));
-	                    }
-	                    else {
-	                        var dynBatchElement = dynManager._getBatchRenderElementFromPool();
-	                        dynBatchElement.renderType = RenderElement.RENDERTYPE_VERTEXBATCH;
-	                        dynBatchElement.setGeometry(ILaya3D.SubMeshDynamicBatch.instance);
-	                        dynBatchElement.material = dynLastElement.material;
-	                        dynBatchElement.setTransform(null);
-	                        dynBatchElement.render = this.render;
-	                        dynBatchElement.vertexBatchVertexDeclaration = verDec;
-	                        dynBatchElement.renderSubShader = dynLastElement.renderSubShader;
-	                        var dynBatchList = dynBatchElement.vertexBatchElementList;
-	                        dynBatchList.length = 0;
-	                        dynBatchList.add(dynLastElement);
-	                        dynBatchList.add(this);
-	                        elements[queueElements.length - 1] = dynBatchElement;
-	                    }
-	                    queue.lastTransparentBatched = true;
-	                }
-	            }
-	            else {
-	                queueElements.add(this);
-	                queue.lastTransparentBatched = false;
-	            }
-	        }
-	        else {
-	            queueElements.add(this);
-	        }
-	        queue.lastTransparentRenderElement = this;
-	    }
-	    getInvertFront() {
-	        switch (this.renderType) {
-	            case RenderElement.RENDERTYPE_NORMAL:
-	                return this._transform._isFrontFaceInvert;
-	            case RenderElement.RENDERTYPE_STATICBATCH:
-	            case RenderElement.RENDERTYPE_VERTEXBATCH:
-	                return false;
-	            case RenderElement.RENDERTYPE_INSTANCEBATCH:
-	                return this.instanceBatchElementList.elements[0]._transform._isFrontFaceInvert;
-	            default:
-	                throw "SubMeshRenderElement: unknown renderType";
-	        }
-	    }
-	    destroy() {
-	        super.destroy();
-	        this._dynamicWorldPositions = null;
-	        this._dynamicWorldNormals = null;
-	        this.staticBatch = null;
-	        this.staticBatchElementList = null;
-	        this.vertexBatchElementList = null;
-	        this.vertexBatchVertexDeclaration = null;
-	    }
-	}
-	SubMeshRenderElement.enableDynamicBatch = true;
-	SubMeshRenderElement.enableStaticBatch = true;
-
-	class Config3D {
-	    constructor() {
-	        this._defaultPhysicsMemory = 16;
-	        this._maxLightCount = 32;
-	        this._lightClusterCount = new Vector3(12, 12, 12);
-	        this._editerEnvironment = false;
-	        this.isAntialias = true;
-	        this.isAlpha = false;
-	        this.premultipliedAlpha = true;
-	        this.isStencil = true;
-	        this.enableMultiLight = true;
-	        this.octreeCulling = false;
-	        this.octreeInitialSize = 64.0;
-	        this.octreeInitialCenter = new Vector3(0, 0, 0);
-	        this.octreeMinNodeSize = 2.0;
-	        this.octreeLooseness = 1.25;
-	        this.debugFrustumCulling = false;
-	        this.pbrRenderQuality = exports.PBRRenderQuality.High;
-	        this.isUseCannonPhysicsEngine = false;
-	        this._maxAreaLightCountPerClusterAverage = Math.min(Math.floor(2048 / this._lightClusterCount.z - 1) * 4, this._maxLightCount);
-	    }
-	    static get useCannonPhysics() {
-	        return Config3D._config.isUseCannonPhysicsEngine;
-	    }
-	    static set useCannonPhysics(value) {
-	        Config3D._config.isUseCannonPhysicsEngine = value;
-	        if (value) {
-	            Physics3D.__cannoninit__();
-	            if (!ILaya3D.Scene3D.cannonPhysicsSettings)
-	                ILaya3D.Scene3D.cannonPhysicsSettings = new Laya.CannonPhysicsSettings();
-	        }
-	    }
-	    static set enableDynamicManager(value) {
-	        SubMeshRenderElement.enableDynamicBatch = value;
-	    }
-	    static get enableDynamicManager() {
-	        return SubMeshRenderElement.enableDynamicBatch;
-	    }
-	    static set enableStaticManager(value) {
-	        SubMeshRenderElement.enableStaticBatch = value;
-	    }
-	    static get enableStaticManager() {
-	        return SubMeshRenderElement.enableStaticBatch;
-	    }
-	    get defaultPhysicsMemory() {
-	        return this._defaultPhysicsMemory;
-	    }
-	    set defaultPhysicsMemory(value) {
-	        if (value < 16)
-	            throw "defaultPhysicsMemory must large than 16M";
-	        this._defaultPhysicsMemory = value;
-	    }
-	    get maxLightCount() {
-	        return this._maxLightCount;
-	    }
-	    set maxLightCount(value) {
-	        if (value > 2048) {
-	            this._maxLightCount = 2048;
-	            console.warn("Config3D: maxLightCount must less equal 2048.");
-	        }
-	        else {
-	            this._maxLightCount = value;
-	        }
-	    }
-	    get lightClusterCount() {
-	        return this._lightClusterCount;
-	    }
-	    set lightClusterCount(value) {
-	        if (value.x > 128 || value.y > 128 || value.z > 128) {
-	            this._lightClusterCount.setValue(Math.min(value.x, 128), Math.min(value.y, 128), Math.min(value.z, 128));
-	            console.warn("Config3D: lightClusterCount X and Y、Z must less equal 128.");
-	        }
-	        else {
-	            value.cloneTo(this._lightClusterCount);
-	        }
-	        var maxAreaLightCountWithZ = Math.floor(2048 / this._lightClusterCount.z - 1) * 4;
-	        if (maxAreaLightCountWithZ < this._maxLightCount)
-	            console.warn("Config3D: if the area light(PointLight、SpotLight) count is large than " + maxAreaLightCountWithZ + ",maybe the far away culster will ingonre some light.");
-	        this._maxAreaLightCountPerClusterAverage = Math.min(maxAreaLightCountWithZ, this._maxLightCount);
-	    }
-	    cloneTo(dest) {
-	        var destConfig3D = dest;
-	        destConfig3D._defaultPhysicsMemory = this._defaultPhysicsMemory;
-	        destConfig3D._editerEnvironment = this._editerEnvironment;
-	        destConfig3D.isAntialias = this.isAntialias;
-	        destConfig3D.isAlpha = this.isAlpha;
-	        destConfig3D.premultipliedAlpha = this.premultipliedAlpha;
-	        destConfig3D.isStencil = this.isStencil;
-	        destConfig3D.octreeCulling = this.octreeCulling;
-	        this.octreeInitialCenter.cloneTo(destConfig3D.octreeInitialCenter);
-	        destConfig3D.octreeInitialSize = this.octreeInitialSize;
-	        destConfig3D.octreeMinNodeSize = this.octreeMinNodeSize;
-	        destConfig3D.octreeLooseness = this.octreeLooseness;
-	        destConfig3D.debugFrustumCulling = this.debugFrustumCulling;
-	        destConfig3D.maxLightCount = this.maxLightCount;
-	        destConfig3D.enableMultiLight = this.enableMultiLight;
-	        var lightClusterCount = destConfig3D.lightClusterCount;
-	        this.lightClusterCount.cloneTo(lightClusterCount);
-	        destConfig3D.lightClusterCount = lightClusterCount;
-	        destConfig3D.pbrRenderQuality = this.pbrRenderQuality;
-	    }
-	    clone() {
-	        var dest = new Config3D();
-	        this.cloneTo(dest);
-	        return dest;
-	    }
-	}
-	Config3D._config = new Config3D();
-	window.Config3D = Config3D;
-
-	class KeyframeNode {
-	    constructor() {
-	        this._ownerPath = [];
-	        this._propertys = [];
-	        this._keyFrames = [];
-	    }
-	    get ownerPathCount() {
-	        return this._ownerPath.length;
-	    }
-	    get propertyCount() {
-	        return this._propertys.length;
-	    }
-	    get keyFramesCount() {
-	        return this._keyFrames.length;
-	    }
-	    _setOwnerPathCount(value) {
-	        this._ownerPath.length = value;
-	    }
-	    _setOwnerPathByIndex(index, value) {
-	        this._ownerPath[index] = value;
-	    }
-	    _joinOwnerPath(sep) {
-	        return this._ownerPath.join(sep);
-	    }
-	    _setPropertyCount(value) {
-	        this._propertys.length = value;
-	    }
-	    _setPropertyByIndex(index, value) {
-	        this._propertys[index] = value;
-	    }
-	    _joinProperty(sep) {
-	        return this._propertys.join(sep);
-	    }
-	    _setKeyframeCount(value) {
-	        this._keyFrames.length = value;
-	    }
-	    _setKeyframeByIndex(index, value) {
-	        this._keyFrames[index] = value;
-	    }
-	    getOwnerPathByIndex(index) {
-	        return this._ownerPath[index];
-	    }
-	    getPropertyByIndex(index) {
-	        return this._propertys[index];
-	    }
-	    getKeyframeByIndex(index) {
-	        return this._keyFrames[index];
-	    }
-	}
-
-	class AnimationEvent {
-	    constructor() {
-	    }
-	}
-
-	class Keyframe {
-	    constructor() {
-	    }
-	    cloneTo(destObject) {
-	        var destKeyFrame = destObject;
-	        destKeyFrame.time = this.time;
-	    }
-	    clone() {
-	        var dest = new Keyframe();
-	        this.cloneTo(dest);
-	        return dest;
-	    }
-	}
-
-	class FloatKeyframe extends Keyframe {
-	    constructor() {
-	        super();
-	    }
-	    cloneTo(destObject) {
-	        super.cloneTo(destObject);
-	        var destKeyFrame = destObject;
-	        destKeyFrame.inTangent = this.inTangent;
-	        destKeyFrame.outTangent = this.outTangent;
-	        destKeyFrame.value = this.value;
-	    }
-	}
-
-	class QuaternionKeyframe extends Keyframe {
-	    constructor() {
-	        super();
-	        this.inTangent = new Vector4();
-	        this.outTangent = new Vector4();
-	        this.value = new Quaternion();
-	    }
-	    cloneTo(dest) {
-	        super.cloneTo(dest);
-	        var destKeyFarme = dest;
-	        this.inTangent.cloneTo(destKeyFarme.inTangent);
-	        this.outTangent.cloneTo(destKeyFarme.outTangent);
-	        this.value.cloneTo(destKeyFarme.value);
-	    }
-	}
-
-	class Vector3Keyframe extends Keyframe {
-	    constructor() {
-	        super();
-	        this.inTangent = new Vector3();
-	        this.outTangent = new Vector3();
-	        this.value = new Vector3();
-	    }
-	    cloneTo(dest) {
-	        super.cloneTo(dest);
-	        var destKeyFarme = dest;
-	        this.inTangent.cloneTo(destKeyFarme.inTangent);
-	        this.outTangent.cloneTo(destKeyFarme.outTangent);
-	        this.value.cloneTo(destKeyFarme.value);
-	    }
-	}
-
-	class AnimationClipParser03 {
-	    static READ_DATA() {
-	        AnimationClipParser03._DATA.offset = AnimationClipParser03._reader.getUint32();
-	        AnimationClipParser03._DATA.size = AnimationClipParser03._reader.getUint32();
-	    }
-	    static READ_BLOCK() {
-	        var count = AnimationClipParser03._BLOCK.count = AnimationClipParser03._reader.getUint16();
-	        var blockStarts = AnimationClipParser03._BLOCK.blockStarts = [];
-	        var blockLengths = AnimationClipParser03._BLOCK.blockLengths = [];
-	        for (var i = 0; i < count; i++) {
-	            blockStarts.push(AnimationClipParser03._reader.getUint32());
-	            blockLengths.push(AnimationClipParser03._reader.getUint32());
-	        }
-	    }
-	    static READ_STRINGS() {
-	        var offset = AnimationClipParser03._reader.getUint32();
-	        var count = AnimationClipParser03._reader.getUint16();
-	        var prePos = AnimationClipParser03._reader.pos;
-	        AnimationClipParser03._reader.pos = offset + AnimationClipParser03._DATA.offset;
-	        for (var i = 0; i < count; i++)
-	            AnimationClipParser03._strings[i] = AnimationClipParser03._reader.readUTFString();
-	        AnimationClipParser03._reader.pos = prePos;
-	    }
-	    static parse(clip, reader) {
-	        AnimationClipParser03._animationClip = clip;
-	        AnimationClipParser03._reader = reader;
-	        AnimationClipParser03.READ_DATA();
-	        AnimationClipParser03.READ_BLOCK();
-	        AnimationClipParser03.READ_STRINGS();
-	        for (var i = 0, n = AnimationClipParser03._BLOCK.count; i < n; i++) {
-	            var index = reader.getUint16();
-	            var blockName = AnimationClipParser03._strings[index];
-	            var fn = AnimationClipParser03["READ_" + blockName];
-	            if (fn == null)
-	                throw new Error("model file err,no this function:" + index + " " + blockName);
-	            else
-	                fn.call(null);
-	        }
-	    }
-	    static READ_ANIMATIONS() {
-	        var i, j;
-	        var node;
-	        var reader = AnimationClipParser03._reader;
-	        var startTimeTypes = [];
-	        var startTimeTypeCount = reader.getUint16();
-	        startTimeTypes.length = startTimeTypeCount;
-	        for (i = 0; i < startTimeTypeCount; i++)
-	            startTimeTypes[i] = reader.getFloat32();
-	        var clip = AnimationClipParser03._animationClip;
-	        clip.name = AnimationClipParser03._strings[reader.getUint16()];
-	        var clipDur = clip._duration = reader.getFloat32();
-	        clip.islooping = !!reader.getByte();
-	        clip._frameRate = reader.getInt16();
-	        var nodeCount = reader.getInt16();
-	        var nodes = clip._nodes;
-	        nodes.count = nodeCount;
-	        var nodesMap = clip._nodesMap = {};
-	        var nodesDic = clip._nodesDic = {};
-	        for (i = 0; i < nodeCount; i++) {
-	            node = new KeyframeNode();
-	            nodes.setNodeByIndex(i, node);
-	            node._indexInList = i;
-	            var type = node.type = reader.getUint8();
-	            var pathLength = reader.getUint16();
-	            node._setOwnerPathCount(pathLength);
-	            for (j = 0; j < pathLength; j++)
-	                node._setOwnerPathByIndex(j, AnimationClipParser03._strings[reader.getUint16()]);
-	            var nodePath = node._joinOwnerPath("/");
-	            var mapArray = nodesMap[nodePath];
-	            (mapArray) || (nodesMap[nodePath] = mapArray = []);
-	            mapArray.push(node);
-	            node.propertyOwner = AnimationClipParser03._strings[reader.getUint16()];
-	            var propertyLength = reader.getUint16();
-	            node._setPropertyCount(propertyLength);
-	            for (j = 0; j < propertyLength; j++)
-	                node._setPropertyByIndex(j, AnimationClipParser03._strings[reader.getUint16()]);
-	            var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
-	            nodesDic[fullPath] = node;
-	            node.fullPath = fullPath;
-	            var keyframeCount = reader.getUint16();
-	            node._setKeyframeCount(keyframeCount);
-	            for (j = 0; j < keyframeCount; j++) {
-	                switch (type) {
-	                    case 0:
-	                        var floatKeyframe = new FloatKeyframe();
-	                        node._setKeyframeByIndex(j, floatKeyframe);
-	                        floatKeyframe.time = startTimeTypes[reader.getUint16()];
-	                        floatKeyframe.inTangent = reader.getFloat32();
-	                        floatKeyframe.outTangent = reader.getFloat32();
-	                        floatKeyframe.value = reader.getFloat32();
-	                        break;
-	                    case 1:
-	                    case 3:
-	                    case 4:
-	                        var floatArrayKeyframe = new Vector3Keyframe();
-	                        node._setKeyframeByIndex(j, floatArrayKeyframe);
-	                        floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-	                        var inTangent = floatArrayKeyframe.inTangent;
-	                        var outTangent = floatArrayKeyframe.outTangent;
-	                        var value = floatArrayKeyframe.value;
-	                        inTangent.x = reader.getFloat32();
-	                        inTangent.y = reader.getFloat32();
-	                        inTangent.z = reader.getFloat32();
-	                        outTangent.x = reader.getFloat32();
-	                        outTangent.y = reader.getFloat32();
-	                        outTangent.z = reader.getFloat32();
-	                        value.x = reader.getFloat32();
-	                        value.y = reader.getFloat32();
-	                        value.z = reader.getFloat32();
-	                        break;
-	                    case 2:
-	                        var quaArrayKeyframe = new QuaternionKeyframe();
-	                        node._setKeyframeByIndex(j, quaArrayKeyframe);
-	                        quaArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-	                        var inTangentQua = quaArrayKeyframe.inTangent;
-	                        var outTangentQua = quaArrayKeyframe.outTangent;
-	                        var valueQua = quaArrayKeyframe.value;
-	                        inTangentQua.x = reader.getFloat32();
-	                        inTangentQua.y = reader.getFloat32();
-	                        inTangentQua.z = reader.getFloat32();
-	                        inTangentQua.w = reader.getFloat32();
-	                        outTangentQua.x = reader.getFloat32();
-	                        outTangentQua.y = reader.getFloat32();
-	                        outTangentQua.z = reader.getFloat32();
-	                        outTangentQua.w = reader.getFloat32();
-	                        valueQua.x = reader.getFloat32();
-	                        valueQua.y = reader.getFloat32();
-	                        valueQua.z = reader.getFloat32();
-	                        valueQua.w = reader.getFloat32();
-	                        break;
-	                    default:
-	                        throw "AnimationClipParser03:unknown type.";
-	                }
-	            }
-	        }
-	        var eventCount = reader.getUint16();
-	        for (i = 0; i < eventCount; i++) {
-	            var event = new AnimationEvent();
-	            event.time = Math.min(clipDur, reader.getFloat32());
-	            event.eventName = AnimationClipParser03._strings[reader.getUint16()];
-	            var params = [];
-	            var paramCount = reader.getUint16();
-	            (paramCount > 0) && (event.params = params = []);
-	            for (j = 0; j < paramCount; j++) {
-	                var eventType = reader.getByte();
-	                switch (eventType) {
-	                    case 0:
-	                        params.push(!!reader.getByte());
-	                        break;
-	                    case 1:
-	                        params.push(reader.getInt32());
-	                        break;
-	                    case 2:
-	                        params.push(reader.getFloat32());
-	                        break;
-	                    case 3:
-	                        params.push(AnimationClipParser03._strings[reader.getUint16()]);
-	                        break;
-	                    default:
-	                        throw new Error("unknown type.");
-	                }
-	            }
-	            clip.addEvent(event);
-	        }
-	    }
-	}
-	AnimationClipParser03._strings = [];
-	AnimationClipParser03._BLOCK = { count: 0 };
-	AnimationClipParser03._DATA = { offset: 0, size: 0 };
-
-	class AnimationClipParser04 {
-	    static READ_DATA() {
-	        AnimationClipParser04._DATA.offset = AnimationClipParser04._reader.getUint32();
-	        AnimationClipParser04._DATA.size = AnimationClipParser04._reader.getUint32();
-	    }
-	    static READ_BLOCK() {
-	        var count = AnimationClipParser04._BLOCK.count = AnimationClipParser04._reader.getUint16();
-	        var blockStarts = AnimationClipParser04._BLOCK.blockStarts = [];
-	        var blockLengths = AnimationClipParser04._BLOCK.blockLengths = [];
-	        for (var i = 0; i < count; i++) {
-	            blockStarts.push(AnimationClipParser04._reader.getUint32());
-	            blockLengths.push(AnimationClipParser04._reader.getUint32());
-	        }
-	    }
-	    static READ_STRINGS() {
-	        var offset = AnimationClipParser04._reader.getUint32();
-	        var count = AnimationClipParser04._reader.getUint16();
-	        var prePos = AnimationClipParser04._reader.pos;
-	        AnimationClipParser04._reader.pos = offset + AnimationClipParser04._DATA.offset;
-	        for (var i = 0; i < count; i++)
-	            AnimationClipParser04._strings[i] = AnimationClipParser04._reader.readUTFString();
-	        AnimationClipParser04._reader.pos = prePos;
-	    }
-	    static parse(clip, reader, version) {
-	        AnimationClipParser04._animationClip = clip;
-	        AnimationClipParser04._reader = reader;
-	        AnimationClipParser04._version = version;
-	        AnimationClipParser04.READ_DATA();
-	        AnimationClipParser04.READ_BLOCK();
-	        AnimationClipParser04.READ_STRINGS();
-	        for (var i = 0, n = AnimationClipParser04._BLOCK.count; i < n; i++) {
-	            var index = reader.getUint16();
-	            var blockName = AnimationClipParser04._strings[index];
-	            var fn = AnimationClipParser04["READ_" + blockName];
-	            if (fn == null)
-	                throw new Error("model file err,no this function:" + index + " " + blockName);
-	            else
-	                fn.call(null);
-	        }
-	        AnimationClipParser04._version = null;
-	        AnimationClipParser04._reader = null;
-	        AnimationClipParser04._animationClip = null;
-	    }
-	    static READ_ANIMATIONS() {
-	        var i, j;
-	        var node;
-	        var reader = AnimationClipParser04._reader;
-	        var startTimeTypes = [];
-	        var startTimeTypeCount = reader.getUint16();
-	        startTimeTypes.length = startTimeTypeCount;
-	        for (i = 0; i < startTimeTypeCount; i++)
-	            startTimeTypes[i] = reader.getFloat32();
-	        var clip = AnimationClipParser04._animationClip;
-	        clip.name = AnimationClipParser04._strings[reader.getUint16()];
-	        var clipDur = clip._duration = reader.getFloat32();
-	        clip.islooping = !!reader.getByte();
-	        clip._frameRate = reader.getInt16();
-	        var nodeCount = reader.getInt16();
-	        var nodes = clip._nodes;
-	        nodes.count = nodeCount;
-	        var nodesMap = clip._nodesMap = {};
-	        var nodesDic = clip._nodesDic = {};
-	        for (i = 0; i < nodeCount; i++) {
-	            node = new KeyframeNode();
-	            nodes.setNodeByIndex(i, node);
-	            node._indexInList = i;
-	            var type = node.type = reader.getUint8();
-	            var pathLength = reader.getUint16();
-	            node._setOwnerPathCount(pathLength);
-	            for (j = 0; j < pathLength; j++)
-	                node._setOwnerPathByIndex(j, AnimationClipParser04._strings[reader.getUint16()]);
-	            var nodePath = node._joinOwnerPath("/");
-	            var mapArray = nodesMap[nodePath];
-	            (mapArray) || (nodesMap[nodePath] = mapArray = []);
-	            mapArray.push(node);
-	            node.propertyOwner = AnimationClipParser04._strings[reader.getUint16()];
-	            var propertyLength = reader.getUint16();
-	            node._setPropertyCount(propertyLength);
-	            for (j = 0; j < propertyLength; j++)
-	                node._setPropertyByIndex(j, AnimationClipParser04._strings[reader.getUint16()]);
-	            var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
-	            nodesDic[fullPath] = node;
-	            node.fullPath = fullPath;
-	            node.nodePath = nodePath;
-	            var keyframeCount = reader.getUint16();
-	            node._setKeyframeCount(keyframeCount);
-	            switch (AnimationClipParser04._version) {
-	                case "LAYAANIMATION:04":
-	                    for (j = 0; j < keyframeCount; j++) {
-	                        switch (type) {
-	                            case 0:
-	                                var floatKeyframe = new FloatKeyframe();
-	                                node._setKeyframeByIndex(j, floatKeyframe);
-	                                floatKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                floatKeyframe.inTangent = reader.getFloat32();
-	                                floatKeyframe.outTangent = reader.getFloat32();
-	                                floatKeyframe.value = reader.getFloat32();
-	                                break;
-	                            case 1:
-	                            case 3:
-	                            case 4:
-	                                var floatArrayKeyframe = new Vector3Keyframe();
-	                                node._setKeyframeByIndex(j, floatArrayKeyframe);
-	                                floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                var inTangent = floatArrayKeyframe.inTangent;
-	                                var outTangent = floatArrayKeyframe.outTangent;
-	                                var value = floatArrayKeyframe.value;
-	                                inTangent.x = reader.getFloat32();
-	                                inTangent.y = reader.getFloat32();
-	                                inTangent.z = reader.getFloat32();
-	                                outTangent.x = reader.getFloat32();
-	                                outTangent.y = reader.getFloat32();
-	                                outTangent.z = reader.getFloat32();
-	                                value.x = reader.getFloat32();
-	                                value.y = reader.getFloat32();
-	                                value.z = reader.getFloat32();
-	                                break;
-	                            case 2:
-	                                var quaternionKeyframe = new QuaternionKeyframe();
-	                                node._setKeyframeByIndex(j, quaternionKeyframe);
-	                                quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                var inTangentQua = quaternionKeyframe.inTangent;
-	                                var outTangentQua = quaternionKeyframe.outTangent;
-	                                var valueQua = quaternionKeyframe.value;
-	                                inTangentQua.x = reader.getFloat32();
-	                                inTangentQua.y = reader.getFloat32();
-	                                inTangentQua.z = reader.getFloat32();
-	                                inTangentQua.w = reader.getFloat32();
-	                                outTangentQua.x = reader.getFloat32();
-	                                outTangentQua.y = reader.getFloat32();
-	                                outTangentQua.z = reader.getFloat32();
-	                                outTangentQua.w = reader.getFloat32();
-	                                valueQua.x = reader.getFloat32();
-	                                valueQua.y = reader.getFloat32();
-	                                valueQua.z = reader.getFloat32();
-	                                valueQua.w = reader.getFloat32();
-	                                break;
-	                            default:
-	                                throw "AnimationClipParser04:unknown type.";
-	                        }
-	                    }
-	                    break;
-	                case "LAYAANIMATION:COMPRESSION_04":
-	                    for (j = 0; j < keyframeCount; j++) {
-	                        switch (type) {
-	                            case 0:
-	                                floatKeyframe = new FloatKeyframe();
-	                                node._setKeyframeByIndex(j, floatKeyframe);
-	                                floatKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                floatKeyframe.inTangent = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                floatKeyframe.outTangent = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                floatKeyframe.value = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                break;
-	                            case 1:
-	                            case 3:
-	                            case 4:
-	                                floatArrayKeyframe = new Vector3Keyframe();
-	                                node._setKeyframeByIndex(j, floatArrayKeyframe);
-	                                floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                inTangent = floatArrayKeyframe.inTangent;
-	                                outTangent = floatArrayKeyframe.outTangent;
-	                                value = floatArrayKeyframe.value;
-	                                inTangent.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                inTangent.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                inTangent.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                outTangent.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                outTangent.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                outTangent.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                value.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                value.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                value.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                break;
-	                            case 2:
-	                                quaternionKeyframe = new QuaternionKeyframe();
-	                                node._setKeyframeByIndex(j, quaternionKeyframe);
-	                                quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                inTangentQua = quaternionKeyframe.inTangent;
-	                                outTangentQua = quaternionKeyframe.outTangent;
-	                                valueQua = quaternionKeyframe.value;
-	                                inTangentQua.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                inTangentQua.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                inTangentQua.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                inTangentQua.w = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                outTangentQua.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                outTangentQua.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                outTangentQua.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                outTangentQua.w = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                valueQua.x = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                valueQua.y = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                valueQua.z = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                valueQua.w = Laya.HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                break;
-	                            default:
-	                                throw "AnimationClipParser04:unknown type.";
-	                        }
-	                    }
-	                    break;
-	            }
-	        }
-	        var eventCount = reader.getUint16();
-	        for (i = 0; i < eventCount; i++) {
-	            var event = new AnimationEvent();
-	            event.time = Math.min(clipDur, reader.getFloat32());
-	            event.eventName = AnimationClipParser04._strings[reader.getUint16()];
-	            var params = [];
-	            var paramCount = reader.getUint16();
-	            (paramCount > 0) && (event.params = params = []);
-	            for (j = 0; j < paramCount; j++) {
-	                var eventType = reader.getByte();
-	                switch (eventType) {
-	                    case 0:
-	                        params.push(!!reader.getByte());
-	                        break;
-	                    case 1:
-	                        params.push(reader.getInt32());
-	                        break;
-	                    case 2:
-	                        params.push(reader.getFloat32());
-	                        break;
-	                    case 3:
-	                        params.push(AnimationClipParser04._strings[reader.getUint16()]);
-	                        break;
-	                    default:
-	                        throw new Error("unknown type.");
-	                }
-	            }
-	            clip.addEvent(event);
-	        }
-	    }
-	}
-	AnimationClipParser04._strings = [];
-	AnimationClipParser04._BLOCK = { count: 0 };
-	AnimationClipParser04._DATA = { offset: 0, size: 0 };
-
-	class KeyframeNodeList {
-	    constructor() {
-	        this._nodes = [];
-	    }
-	    get count() {
-	        return this._nodes.length;
-	    }
-	    set count(value) {
-	        this._nodes.length = value;
-	    }
-	    getNodeByIndex(index) {
-	        return this._nodes[index];
-	    }
-	    setNodeByIndex(index, node) {
-	        this._nodes[index] = node;
-	    }
-	}
-
-	class AnimationClip extends Laya.Resource {
-	    constructor() {
-	        super();
-	        this._duration = 0;
-	        this._frameRate = 0;
-	        this._nodes = new KeyframeNodeList();
-	        this.islooping = false;
-	        this._animationEvents = [];
-	    }
-	    static _parse(data) {
-	        var clip = new AnimationClip();
-	        var reader = new Laya.Byte(data);
-	        var version = reader.readUTFString();
-	        switch (version) {
-	            case "LAYAANIMATION:03":
-	                AnimationClipParser03.parse(clip, reader);
-	                break;
-	            case "LAYAANIMATION:04":
-	            case "LAYAANIMATION:COMPRESSION_04":
-	                AnimationClipParser04.parse(clip, reader, version);
-	                break;
-	            default:
-	                throw "unknown animationClip version.";
-	        }
-	        return clip;
-	    }
-	    static load(url, complete) {
-	        Laya.ILaya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
-	    }
-	    duration() {
-	        return this._duration;
-	    }
-	    _hermiteInterpolate(frame, nextFrame, t, dur) {
-	        var t0 = frame.outTangent, t1 = nextFrame.inTangent;
-	        if (Number.isFinite(t0) && Number.isFinite(t1)) {
-	            var t2 = t * t;
-	            var t3 = t2 * t;
-	            var a = 2.0 * t3 - 3.0 * t2 + 1.0;
-	            var b = t3 - 2.0 * t2 + t;
-	            var c = t3 - t2;
-	            var d = -2.0 * t3 + 3.0 * t2;
-	            return a * frame.value + b * t0 * dur + c * t1 * dur + d * nextFrame.value;
-	        }
-	        else
-	            return frame.value;
-	    }
-	    _hermiteInterpolateVector3(frame, nextFrame, t, dur, out) {
-	        var p0 = frame.value;
-	        var tan0 = frame.outTangent;
-	        var p1 = nextFrame.value;
-	        var tan1 = nextFrame.inTangent;
-	        var t2 = t * t;
-	        var t3 = t2 * t;
-	        var a = 2.0 * t3 - 3.0 * t2 + 1.0;
-	        var b = t3 - 2.0 * t2 + t;
-	        var c = t3 - t2;
-	        var d = -2.0 * t3 + 3.0 * t2;
-	        var t0 = tan0.x, t1 = tan1.x;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
-	        else
-	            out.x = p0.x;
-	        t0 = tan0.y, t1 = tan1.y;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
-	        else
-	            out.y = p0.y;
-	        t0 = tan0.z, t1 = tan1.z;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
-	        else
-	            out.z = p0.z;
-	    }
-	    _hermiteInterpolateQuaternion(frame, nextFrame, t, dur, out) {
-	        var p0 = frame.value;
-	        var tan0 = frame.outTangent;
-	        var p1 = nextFrame.value;
-	        var tan1 = nextFrame.inTangent;
-	        var t2 = t * t;
-	        var t3 = t2 * t;
-	        var a = 2.0 * t3 - 3.0 * t2 + 1.0;
-	        var b = t3 - 2.0 * t2 + t;
-	        var c = t3 - t2;
-	        var d = -2.0 * t3 + 3.0 * t2;
-	        var t0 = tan0.x, t1 = tan1.x;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
-	        else
-	            out.x = p0.x;
-	        t0 = tan0.y, t1 = tan1.y;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
-	        else
-	            out.y = p0.y;
-	        t0 = tan0.z, t1 = tan1.z;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
-	        else
-	            out.z = p0.z;
-	        t0 = tan0.w, t1 = tan1.w;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.w = a * p0.w + b * t0 * dur + c * t1 * dur + d * p1.w;
-	        else
-	            out.w = p0.w;
-	    }
-	    _evaluateClipDatasRealTime(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive, frontPlay, outDatas, avatarMask) {
-	        for (var i = 0, n = nodes.count; i < n; i++) {
-	            var node = nodes.getNodeByIndex(i);
-	            var type = node.type;
-	            var nextFrameIndex;
-	            var keyFrames = node._keyFrames;
-	            var keyFramesCount = keyFrames.length;
-	            var frameIndex = realTimeCurrentFrameIndexes[i];
-	            if (avatarMask && (!avatarMask.getTransformActive(node.nodePath))) {
-	                continue;
-	            }
-	            if (frontPlay) {
-	                if ((frameIndex !== -1) && (playCurTime < keyFrames[frameIndex].time)) {
-	                    frameIndex = -1;
-	                    realTimeCurrentFrameIndexes[i] = frameIndex;
-	                }
-	                nextFrameIndex = frameIndex + 1;
-	                while (nextFrameIndex < keyFramesCount) {
-	                    if (keyFrames[nextFrameIndex].time > playCurTime)
-	                        break;
-	                    frameIndex++;
-	                    nextFrameIndex++;
-	                    realTimeCurrentFrameIndexes[i] = frameIndex;
-	                }
-	            }
-	            else {
-	                nextFrameIndex = frameIndex + 1;
-	                if ((nextFrameIndex !== keyFramesCount) && (playCurTime > keyFrames[nextFrameIndex].time)) {
-	                    frameIndex = keyFramesCount - 1;
-	                    realTimeCurrentFrameIndexes[i] = frameIndex;
-	                }
-	                nextFrameIndex = frameIndex + 1;
-	                while (frameIndex > -1) {
-	                    if (keyFrames[frameIndex].time < playCurTime)
-	                        break;
-	                    frameIndex--;
-	                    nextFrameIndex--;
-	                    realTimeCurrentFrameIndexes[i] = frameIndex;
-	                }
-	            }
-	            var isEnd = nextFrameIndex === keyFramesCount;
-	            switch (type) {
-	                case 0:
-	                    if (frameIndex !== -1) {
-	                        var frame = keyFrames[frameIndex];
-	                        if (isEnd) {
-	                            outDatas[i] = frame.value;
-	                        }
-	                        else {
-	                            var nextFarme = keyFrames[nextFrameIndex];
-	                            var d = nextFarme.time - frame.time;
-	                            var t;
-	                            if (d !== 0)
-	                                t = (playCurTime - frame.time) / d;
-	                            else
-	                                t = 0;
-	                            outDatas[i] = this._hermiteInterpolate(frame, nextFarme, t, d);
-	                        }
-	                    }
-	                    else {
-	                        outDatas[i] = keyFrames[0].value;
-	                    }
-	                    if (addtive)
-	                        outDatas[i] = outDatas[i] - keyFrames[0].value;
-	                    break;
-	                case 1:
-	                case 4:
-	                    var clipData = outDatas[i];
-	                    this._evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipData);
-	                    if (addtive) {
-	                        var firstFrameValue = keyFrames[0].value;
-	                        clipData.x -= firstFrameValue.x;
-	                        clipData.y -= firstFrameValue.y;
-	                        clipData.z -= firstFrameValue.z;
-	                    }
-	                    break;
-	                case 2:
-	                    var clipQuat = outDatas[i];
-	                    this._evaluateFrameNodeQuaternionDatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipQuat);
-	                    if (addtive) {
-	                        var tempQuat = AnimationClip._tempQuaternion0;
-	                        var firstFrameValueQua = keyFrames[0].value;
-	                        Utils3D.quaternionConjugate(firstFrameValueQua, tempQuat);
-	                        Quaternion.multiply(tempQuat, clipQuat, clipQuat);
-	                    }
-	                    break;
-	                case 3:
-	                    clipData = outDatas[i];
-	                    this._evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipData);
-	                    if (addtive) {
-	                        firstFrameValue = keyFrames[0].value;
-	                        clipData.x /= firstFrameValue.x;
-	                        clipData.y /= firstFrameValue.y;
-	                        clipData.z /= firstFrameValue.z;
-	                    }
-	                    break;
-	                default:
-	                    throw "AnimationClip:unknown node type.";
-	            }
-	        }
-	    }
-	    _evaluateClipDatasRealTimeForNative(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive) {
-	        Laya.LayaGL.instance.evaluateClipDatasRealTime(nodes._nativeObj, playCurTime, realTimeCurrentFrameIndexes, addtive);
-	    }
-	    _evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
-	        if (frameIndex !== -1) {
-	            var frame = keyFrames[frameIndex];
-	            if (isEnd) {
-	                var frameData = frame.value;
-	                outDatas.x = frameData.x;
-	                outDatas.y = frameData.y;
-	                outDatas.z = frameData.z;
-	            }
-	            else {
-	                var nextKeyFrame = keyFrames[frameIndex + 1];
-	                var t;
-	                var startTime = frame.time;
-	                var d = nextKeyFrame.time - startTime;
-	                if (d !== 0)
-	                    t = (playCurTime - startTime) / d;
-	                else
-	                    t = 0;
-	                this._hermiteInterpolateVector3(frame, nextKeyFrame, t, d, outDatas);
-	            }
-	        }
-	        else {
-	            var firstFrameDatas = keyFrames[0].value;
-	            outDatas.x = firstFrameDatas.x;
-	            outDatas.y = firstFrameDatas.y;
-	            outDatas.z = firstFrameDatas.z;
-	        }
-	    }
-	    _evaluateFrameNodeQuaternionDatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
-	        if (frameIndex !== -1) {
-	            var frame = keyFrames[frameIndex];
-	            if (isEnd) {
-	                var frameData = frame.value;
-	                outDatas.x = frameData.x;
-	                outDatas.y = frameData.y;
-	                outDatas.z = frameData.z;
-	                outDatas.w = frameData.w;
-	            }
-	            else {
-	                var nextKeyFrame = keyFrames[frameIndex + 1];
-	                var t;
-	                var startTime = frame.time;
-	                var d = nextKeyFrame.time - startTime;
-	                if (d !== 0)
-	                    t = (playCurTime - startTime) / d;
-	                else
-	                    t = 0;
-	                this._hermiteInterpolateQuaternion(frame, nextKeyFrame, t, d, outDatas);
-	            }
-	        }
-	        else {
-	            var firstFrameDatas = keyFrames[0].value;
-	            outDatas.x = firstFrameDatas.x;
-	            outDatas.y = firstFrameDatas.y;
-	            outDatas.z = firstFrameDatas.z;
-	            outDatas.w = firstFrameDatas.w;
-	        }
-	    }
-	    _binarySearchEventIndex(time) {
-	        var start = 0;
-	        var end = this._animationEvents.length - 1;
-	        var mid;
-	        while (start <= end) {
-	            mid = Math.floor((start + end) / 2);
-	            var midValue = this._animationEvents[mid].time;
-	            if (midValue == time)
-	                return mid;
-	            else if (midValue > time)
-	                end = mid - 1;
-	            else
-	                start = mid + 1;
-	        }
-	        return start;
-	    }
-	    addEvent(event) {
-	        var index = this._binarySearchEventIndex(event.time);
-	        this._animationEvents.splice(index, 0, event);
-	    }
-	    _disposeResource() {
-	        this._nodes = null;
-	        this._nodesMap = null;
-	    }
-	}
-	AnimationClip.ANIMATIONCLIP = "ANIMATIONCLIP";
-	AnimationClip._tempQuaternion0 = new Quaternion();
 
 	class PostProcessRenderContext {
 	    constructor() {
@@ -13891,6 +10093,425 @@
 	FrustumCulling._shadowCullInfo = new ShadowCullInfo();
 	FrustumCulling.debugFrustumCulling = false;
 
+	class LightBound {
+	}
+	class ClusterData {
+	    constructor() {
+	        this.updateMark = -1;
+	        this.pointLightCount = 0;
+	        this.spotLightCount = 0;
+	        this.indices = [];
+	    }
+	}
+	class Cluster {
+	    constructor(xSlices, ySlices, zSlices, maxLightsPerClusterAverage) {
+	        this._updateMark = 0;
+	        this._depthSliceParam = new Vector2();
+	        this._xSlices = xSlices;
+	        this._ySlices = ySlices;
+	        this._zSlices = zSlices;
+	        var clusterTexWidth = xSlices * ySlices;
+	        var clisterTexHeight = zSlices * (1 + Math.ceil(maxLightsPerClusterAverage / 4));
+	        this._clusterTexture = Utils3D._createFloatTextureBuffer(clusterTexWidth, clisterTexHeight);
+	        this._clusterTexture.lock = true;
+	        this._clusterPixels = new Float32Array(clusterTexWidth * clisterTexHeight * 4);
+	        var clusterDatas = new Array(this._zSlices);
+	        for (var z = 0; z < this._zSlices; z++) {
+	            clusterDatas[z] = new Array(this._ySlices);
+	            for (var y = 0; y < this._ySlices; y++) {
+	                clusterDatas[z][y] = new Array(this._xSlices);
+	                for (var x = 0; x < this._xSlices; x++)
+	                    clusterDatas[z][y][x] = new ClusterData();
+	            }
+	        }
+	        this._clusterDatas = clusterDatas;
+	    }
+	    _placePointLightToClusters(lightIndex, lightBound) {
+	        var clusterDatas = this._clusterDatas;
+	        var updateMark = this._updateMark;
+	        for (var z = lightBound.zMin, zEnd = lightBound.zMax; z < zEnd; z++) {
+	            for (var y = lightBound.yMin, yEnd = lightBound.yMax; y < yEnd; y++) {
+	                for (var x = lightBound.xMin, xEnd = lightBound.xMax; x < xEnd; x++) {
+	                    var data = clusterDatas[z][y][x];
+	                    if (data.updateMark != updateMark) {
+	                        data.pointLightCount = 0;
+	                        data.spotLightCount = 0;
+	                        data.updateMark = updateMark;
+	                    }
+	                    var indices = data.indices;
+	                    var lightCount = data.pointLightCount++;
+	                    if (lightCount < indices.length)
+	                        indices[lightCount] = lightIndex;
+	                    else
+	                        indices.push(lightIndex);
+	                }
+	            }
+	        }
+	    }
+	    _placeSpotLightToClusters(lightIndex, lightBound) {
+	        var clusterDatas = this._clusterDatas;
+	        var updateMark = this._updateMark;
+	        for (var z = lightBound.zMin, zEnd = lightBound.zMax; z < zEnd; z++) {
+	            for (var y = lightBound.yMin, yEnd = lightBound.yMax; y < yEnd; y++) {
+	                for (var x = lightBound.xMin, xEnd = lightBound.xMax; x < xEnd; x++) {
+	                    var data = clusterDatas[z][y][x];
+	                    if (data.updateMark != updateMark) {
+	                        data.pointLightCount = 0;
+	                        data.spotLightCount = 0;
+	                        data.updateMark = updateMark;
+	                    }
+	                    var indices = data.indices;
+	                    var lightCount = data.pointLightCount + data.spotLightCount++;
+	                    if (lightCount < indices.length)
+	                        indices[lightCount] = lightIndex;
+	                    else
+	                        indices.push(lightIndex);
+	                }
+	            }
+	        }
+	    }
+	    _insertConePlane(origin, forward, radius, halfAngle, pNor) {
+	        var V1 = Cluster._tempVector36;
+	        var V2 = Cluster._tempVector37;
+	        Vector3.cross(pNor, forward, V1);
+	        Vector3.cross(V1, forward, V2);
+	        Vector3.normalize(V2, V2);
+	        var tanR = radius * Math.tan(halfAngle);
+	        var capRimX = origin.x + radius * forward.x + tanR * V2.x;
+	        var capRimY = origin.y + radius * forward.y + tanR * V2.y;
+	        var capRimZ = origin.z + radius * forward.z + tanR * V2.z;
+	        return capRimX * pNor.x + capRimY * pNor.y + capRimZ * pNor.z <= 0 || origin.x * pNor.x + origin.y * pNor.y + origin.z * pNor.z <= 0;
+	    }
+	    _shrinkSphereLightZPerspective(near, far, lightviewPos, radius, lightBound) {
+	        var lvZ = lightviewPos.z;
+	        var minZ = lvZ - radius;
+	        var maxZ = lvZ + radius;
+	        if ((minZ > far) || (maxZ <= near))
+	            return false;
+	        var depthSliceParam = this._depthSliceParam;
+	        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
+	        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
+	        return true;
+	    }
+	    _shrinkSpotLightZPerspective(near, far, viewLightPos, viewConeCap, radius, halfAngle, lightBound) {
+	        var pbX = viewConeCap.x, pbY = viewConeCap.y, pbZ = viewConeCap.z;
+	        var rb = Math.tan(halfAngle) * radius;
+	        var paX = viewLightPos.x, paY = viewLightPos.y, paZ = viewLightPos.z;
+	        var aX = pbX - paX, aY = pbY - paY, aZ = pbZ - paZ;
+	        var dotA = aX * aX + aY * aY + aZ * aZ;
+	        var eZ = Math.sqrt(1.0 - aZ * aZ / dotA);
+	        var minZ = Math.max(Math.min(paZ, pbZ - eZ * rb), viewLightPos.z - radius);
+	        var maxZ = Math.min(Math.max(paZ, pbZ + eZ * rb), viewLightPos.z + radius);
+	        if ((minZ > far) || (maxZ <= near))
+	            return false;
+	        var depthSliceParam = this._depthSliceParam;
+	        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
+	        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
+	        return true;
+	    }
+	    _shrinkSphereLightByBoundOrth(halfX, halfY, near, far, lightviewPos, radius, lightBound) {
+	        var lvZ = lightviewPos.z;
+	        var minZ = lvZ - radius, maxZ = lvZ + radius;
+	        if ((minZ > far) || (maxZ <= near))
+	            return false;
+	        var lvX = lightviewPos.x;
+	        var minX = lvX - radius, maxX = lvX + radius;
+	        if ((minX > halfX) || (maxX <= -halfX))
+	            return false;
+	        var lvY = lightviewPos.y;
+	        var minY = lvY - radius, maxY = lvY + radius;
+	        if ((minY > halfY) || (maxY <= -halfY))
+	            return false;
+	        var xSlices = this._xSlices, ySlices = this._ySlices;
+	        var depthSliceParam = this._depthSliceParam;
+	        var xStride = halfX * 2 / xSlices, yStride = halfY * 2 / ySlices;
+	        lightBound.xMin = Math.max(Math.floor((minX + halfX) / xStride), 0);
+	        lightBound.xMax = Math.min(Math.ceil((maxX + halfX) / xStride), xSlices);
+	        lightBound.yMin = Math.max(Math.floor((halfY - maxY) / yStride), 0);
+	        lightBound.yMax = Math.min(Math.ceil((halfY - minY) / yStride), ySlices);
+	        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
+	        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
+	        return true;
+	    }
+	    _shrinkSpotLightByBoundOrth(halfX, halfY, near, far, viewLightPos, viewConeCap, radius, halfAngle, lightBound) {
+	        var pbX = viewConeCap.x, pbY = viewConeCap.y, pbZ = viewConeCap.z;
+	        var rb = Math.tan(halfAngle) * radius;
+	        var paX = viewLightPos.x, paY = viewLightPos.y, paZ = viewLightPos.z;
+	        var aX = pbX - paX, aY = pbY - paY, aZ = pbZ - paZ;
+	        var dotA = aX * aX + aY * aY + aZ * aZ;
+	        var eZ = Math.sqrt(1.0 - aZ * aZ / dotA);
+	        var minZ = Math.max(Math.min(paZ, pbZ - eZ * rb), viewLightPos.z - radius);
+	        var maxZ = Math.min(Math.max(paZ, pbZ + eZ * rb), viewLightPos.z + radius);
+	        if ((minZ > far) || (maxZ <= near))
+	            return false;
+	        var eX = Math.sqrt(1.0 - aX * aX / dotA);
+	        var minX = Math.max(Math.min(paX, pbX - eX * rb), viewLightPos.x - radius);
+	        var maxX = Math.min(Math.max(paX, pbX + eX * rb), viewLightPos.x + radius);
+	        if ((minX > halfX) || (maxX <= -halfX))
+	            return false;
+	        var eY = Math.sqrt(1.0 - aY * aY / dotA);
+	        var minY = Math.max(Math.min(paY, pbY - eY * rb), viewLightPos.y - radius);
+	        var maxY = Math.min(Math.max(paY, pbY + eY * rb), viewLightPos.y + radius);
+	        if ((minY > halfY) || (maxY <= -halfY))
+	            return false;
+	        var xSlices = this._xSlices, ySlices = this._ySlices;
+	        var depthSliceParam = this._depthSliceParam;
+	        var xStride = halfX * 2 / xSlices, yStride = halfY * 2 / ySlices;
+	        lightBound.xMin = Math.max(Math.floor((minX + halfX) / xStride), 0);
+	        lightBound.xMax = Math.min(Math.ceil((maxX + halfX) / xStride), xSlices);
+	        lightBound.yMin = Math.max(Math.floor((halfY - maxY) / yStride), 0);
+	        lightBound.yMax = Math.min(Math.ceil((halfY - minY) / yStride), ySlices);
+	        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
+	        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
+	        return true;
+	    }
+	    _shrinkXYByRadiusPerspective(lightviewPos, radius, lightBound, xPlanes, yPlanes) {
+	        var xMin, yMin;
+	        var xMax, yMax;
+	        var lvX = lightviewPos.x, lvY = lightviewPos.y, lvZ = lightviewPos.z;
+	        var i;
+	        var n = this._ySlices + 1;
+	        for (i = 0; i < n; i++) {
+	            var plane = yPlanes[i];
+	            if (lvY * plane.y + lvZ * plane.z < radius) {
+	                yMin = Math.max(0, i - 1);
+	                break;
+	            }
+	        }
+	        if (i == n)
+	            return false;
+	        yMax = this._ySlices;
+	        for (i = yMin + 1; i < n; i++) {
+	            var plane = yPlanes[i];
+	            if (lvY * plane.y + lvZ * plane.z <= -radius) {
+	                yMax = Math.max(0, i);
+	                break;
+	            }
+	        }
+	        n = this._xSlices + 1;
+	        for (i = 0; i < n; i++) {
+	            var plane = xPlanes[i];
+	            if (lvX * plane.x + lvZ * plane.z < radius) {
+	                xMin = Math.max(0, i - 1);
+	                break;
+	            }
+	        }
+	        xMax = this._xSlices;
+	        for (i = xMin + 1; i < n; i++) {
+	            var plane = xPlanes[i];
+	            if (lvX * plane.x + lvZ * plane.z <= -radius) {
+	                xMax = Math.max(0, i);
+	                break;
+	            }
+	        }
+	        lightBound.xMin = xMin;
+	        lightBound.xMax = xMax;
+	        lightBound.yMin = yMin;
+	        lightBound.yMax = yMax;
+	        return true;
+	    }
+	    _shrinkSpotXYByConePerspective(lightviewPos, viewForward, radius, halfAngle, lightBound, xPlanes, yPlanes) {
+	        var xMin, yMin;
+	        var xMax, yMax;
+	        var normal = Cluster._tempVector32;
+	        var n = lightBound.yMax + 1;
+	        for (var i = lightBound.yMin + 1; i < n; i++) {
+	            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, yPlanes[i])) {
+	                yMin = Math.max(0, i - 1);
+	                break;
+	            }
+	        }
+	        yMax = lightBound.yMax;
+	        for (var i = yMin + 1; i < n; i++) {
+	            var plane = yPlanes[i];
+	            normal.setValue(0, -plane.y, -plane.z);
+	            if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
+	                yMax = Math.max(0, i);
+	                break;
+	            }
+	        }
+	        n = lightBound.xMax + 1;
+	        for (var i = lightBound.xMin + 1; i < n; i++) {
+	            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, xPlanes[i])) {
+	                xMin = Math.max(0, i - 1);
+	                break;
+	            }
+	        }
+	        xMax = lightBound.xMax;
+	        for (var i = xMin + 1; i < n; i++) {
+	            var plane = xPlanes[i];
+	            normal.setValue(-plane.x, 0, -plane.z);
+	            if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
+	                xMax = Math.max(0, i);
+	                break;
+	            }
+	        }
+	        lightBound.xMin = xMin;
+	        lightBound.xMax = xMax;
+	        lightBound.yMin = yMin;
+	        lightBound.yMax = yMax;
+	    }
+	    _updatePointLightPerspective(near, far, viewMat, pointLight, lightIndex, xPlanes, yPlanes) {
+	        var lightBound = Cluster._tempLightBound;
+	        var lightviewPos = Cluster._tempVector30;
+	        Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);
+	        lightviewPos.z *= -1;
+	        if (!this._shrinkSphereLightZPerspective(near, far, lightviewPos, pointLight.range, lightBound))
+	            return;
+	        if (!this._shrinkXYByRadiusPerspective(lightviewPos, pointLight.range, lightBound, xPlanes, yPlanes))
+	            return;
+	        this._placePointLightToClusters(lightIndex, lightBound);
+	    }
+	    _updateSpotLightPerspective(near, far, viewMat, spotLight, lightIndex, xPlanes, yPlanes) {
+	        var lightBound = Cluster._tempLightBound;
+	        var viewPos = Cluster._tempVector30;
+	        var forward = Cluster._tempVector31;
+	        var viewConeCap = Cluster._tempVector34;
+	        var position = spotLight._transform.position;
+	        var range = spotLight.range;
+	        spotLight._transform.worldMatrix.getForward(forward);
+	        Vector3.normalize(forward, forward);
+	        Vector3.scale(forward, range, viewConeCap);
+	        Vector3.add(position, viewConeCap, viewConeCap);
+	        Vector3.transformV3ToV3(position, viewMat, viewPos);
+	        Vector3.transformV3ToV3(viewConeCap, viewMat, viewConeCap);
+	        viewPos.z *= -1;
+	        viewConeCap.z *= -1;
+	        var halfAngle = (spotLight.spotAngle / 2) * Math.PI / 180;
+	        if (!this._shrinkSpotLightZPerspective(near, far, viewPos, viewConeCap, range, halfAngle, lightBound))
+	            return;
+	        if (!this._shrinkXYByRadiusPerspective(viewPos, range, lightBound, xPlanes, yPlanes))
+	            return;
+	        var viewFor = Cluster._tempVector33;
+	        viewFor.x = viewConeCap.x - viewPos.x, viewFor.y = viewConeCap.y - viewPos.y, viewFor.z = viewConeCap.z - viewPos.z;
+	        Vector3.normalize(viewFor, viewFor);
+	        this._shrinkSpotXYByConePerspective(viewPos, viewFor, range, halfAngle, lightBound, xPlanes, yPlanes);
+	        this._placeSpotLightToClusters(lightIndex, lightBound);
+	    }
+	    _updatePointLightOrth(halfX, halfY, near, far, viewMat, pointLight, lightIndex) {
+	        var lightBound = Cluster._tempLightBound;
+	        var lightviewPos = Cluster._tempVector30;
+	        Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);
+	        lightviewPos.z *= -1;
+	        if (!this._shrinkSphereLightByBoundOrth(halfX, halfY, near, far, lightviewPos, pointLight.range, lightBound))
+	            return;
+	        this._placePointLightToClusters(lightIndex, lightBound);
+	    }
+	    _updateSpotLightOrth(halfX, halfY, near, far, viewMat, spotLight, lightIndex) {
+	        var lightBound = Cluster._tempLightBound;
+	        var viewPos = Cluster._tempVector30;
+	        var forward = Cluster._tempVector31;
+	        var viewConeCap = Cluster._tempVector34;
+	        var position = spotLight._transform.position;
+	        var range = spotLight.range;
+	        spotLight._transform.worldMatrix.getForward(forward);
+	        Vector3.normalize(forward, forward);
+	        Vector3.scale(forward, range, viewConeCap);
+	        Vector3.add(position, viewConeCap, viewConeCap);
+	        Vector3.transformV3ToV3(position, viewMat, viewPos);
+	        Vector3.transformV3ToV3(viewConeCap, viewMat, viewConeCap);
+	        viewPos.z *= -1;
+	        viewConeCap.z *= -1;
+	        var halfAngle = (spotLight.spotAngle / 2) * Math.PI / 180;
+	        if (!this._shrinkSpotLightByBoundOrth(halfX, halfY, near, far, viewPos, viewConeCap, range, halfAngle, lightBound))
+	            return;
+	        this._placeSpotLightToClusters(lightIndex, lightBound);
+	    }
+	    update(camera, scene) {
+	        this._updateMark++;
+	        var camNear = camera.nearPlane;
+	        this._depthSliceParam.x = Config3D._config.lightClusterCount.z / Math.log2(camera.farPlane / camNear);
+	        this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
+	        var near = camera.nearPlane;
+	        var far = camera.farPlane;
+	        var viewMat = camera.viewMatrix;
+	        var curCount = scene._directionLights._length;
+	        var pointLights = scene._pointLights;
+	        var poiCount = pointLights._length;
+	        var poiElements = pointLights._elements;
+	        var spotLights = scene._spotLights;
+	        var spoCount = spotLights._length;
+	        var spoElements = spotLights._elements;
+	        if (camera.orthographic) {
+	            var halfY = camera.orthographicVerticalSize / 2.0;
+	            var halfX = halfY * camera.aspectRatio;
+	            for (var i = 0; i < poiCount; i++, curCount++)
+	                this._updatePointLightOrth(halfX, halfY, near, far, viewMat, poiElements[i], curCount);
+	            for (var i = 0; i < spoCount; i++, curCount++)
+	                this._updateSpotLightOrth(halfX, halfY, near, far, viewMat, spoElements[i], curCount);
+	        }
+	        else {
+	            camera._updateClusterPlaneXY();
+	            var xPlanes = camera._clusterXPlanes;
+	            var yPlanes = camera._clusterYPlanes;
+	            for (var i = 0; i < poiCount; i++, curCount++)
+	                this._updatePointLightPerspective(near, far, viewMat, poiElements[i], curCount, xPlanes, yPlanes);
+	            for (var i = 0; i < spoCount; i++, curCount++)
+	                this._updateSpotLightPerspective(near, far, viewMat, spoElements[i], curCount, xPlanes, yPlanes);
+	        }
+	        if (poiCount + spoCount > 0) {
+	            var xSlices = this._xSlices, ySlices = this._ySlices, zSlices = this._zSlices;
+	            var widthFloat = xSlices * ySlices * 4;
+	            var lightOff = widthFloat * zSlices;
+	            var clusterPixels = this._clusterPixels;
+	            var clusterPixelsCount = clusterPixels.length;
+	            var clusterDatas = this._clusterDatas;
+	            var updateMark = this._updateMark;
+	            var freeSpace = true;
+	            for (var z = 0; z < zSlices; z++) {
+	                for (var y = 0; y < ySlices; y++) {
+	                    for (var x = 0; x < xSlices; x++) {
+	                        var data = clusterDatas[z][y][x];
+	                        var clusterOff = (x + y * xSlices + z * xSlices * ySlices) * 4;
+	                        if (data.updateMark !== updateMark) {
+	                            clusterPixels[clusterOff] = 0;
+	                            clusterPixels[clusterOff + 1] = 0;
+	                        }
+	                        else {
+	                            if (freeSpace) {
+	                                var indices = data.indices;
+	                                var pCount = data.pointLightCount;
+	                                var sCount = data.spotLightCount;
+	                                var count = pCount + sCount;
+	                                if (lightOff + count < clusterPixelsCount) {
+	                                    clusterPixels[clusterOff] = pCount;
+	                                    clusterPixels[clusterOff + 1] = sCount;
+	                                    clusterPixels[clusterOff + 2] = Math.floor(lightOff / widthFloat);
+	                                    clusterPixels[clusterOff + 3] = lightOff % widthFloat;
+	                                    for (var i = 0; i < count; i++)
+	                                        clusterPixels[lightOff++] = indices[i];
+	                                }
+	                                else {
+	                                    count = clusterPixelsCount - (lightOff + count);
+	                                    pCount = Math.min(pCount, count);
+	                                    clusterPixels[clusterOff] = pCount;
+	                                    clusterPixels[clusterOff + 1] = Math.min(sCount, count - pCount);
+	                                    clusterPixels[clusterOff + 2] = Math.floor(lightOff / widthFloat);
+	                                    clusterPixels[clusterOff + 3] = lightOff % widthFloat;
+	                                    for (var i = 0; i < count; i++)
+	                                        clusterPixels[lightOff++] = indices[i];
+	                                    freeSpace = false;
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	            var width = this._clusterTexture.width;
+	            this._clusterTexture.setSubPixels(0, 0, width, Math.ceil(lightOff / (4 * width)), clusterPixels);
+	        }
+	    }
+	}
+	Cluster._tempVector30 = new Vector3();
+	Cluster._tempVector31 = new Vector3();
+	Cluster._tempVector32 = new Vector3();
+	Cluster._tempVector33 = new Vector3();
+	Cluster._tempVector34 = new Vector3();
+	Cluster._tempVector35 = new Vector3();
+	Cluster._tempVector36 = new Vector3();
+	Cluster._tempVector37 = new Vector3();
+	Cluster._tempLightBound = new LightBound();
+
 	class SphericalHarmonicsL2 {
 	    constructor() {
 	        this._coefficients = new Float32Array(27);
@@ -13953,6 +10574,2850 @@
 	        this._indexInList = index;
 	    }
 	}
+
+	class Plane {
+	    constructor(normal, d = 0) {
+	        this.normal = normal;
+	        this.distance = d;
+	    }
+	    static createPlaneBy3P(point0, point1, point2, out) {
+	        var x1 = point1.x - point0.x;
+	        var y1 = point1.y - point0.y;
+	        var z1 = point1.z - point0.z;
+	        var x2 = point2.x - point0.x;
+	        var y2 = point2.y - point0.y;
+	        var z2 = point2.z - point0.z;
+	        var yz = (y1 * z2) - (z1 * y2);
+	        var xz = (z1 * x2) - (x1 * z2);
+	        var xy = (x1 * y2) - (y1 * x2);
+	        var invPyth = 1.0 / (Math.sqrt((yz * yz) + (xz * xz) + (xy * xy)));
+	        var x = yz * invPyth;
+	        var y = xz * invPyth;
+	        var z = xy * invPyth;
+	        var normal = out.normal;
+	        normal.x = x;
+	        normal.y = y;
+	        normal.z = z;
+	        out.distance = -((x * point0.x) + (y * point0.y) + (z * point0.z));
+	    }
+	    normalize() {
+	        var normalEX = this.normal.x;
+	        var normalEY = this.normal.y;
+	        var normalEZ = this.normal.z;
+	        var magnitude = 1.0 / Math.sqrt(normalEX * normalEX + normalEY * normalEY + normalEZ * normalEZ);
+	        this.normal.x = normalEX * magnitude;
+	        this.normal.y = normalEY * magnitude;
+	        this.normal.z = normalEZ * magnitude;
+	        this.distance *= magnitude;
+	    }
+	    cloneTo(destObject) {
+	        var dest = destObject;
+	        this.normal.cloneTo(dest.normal);
+	        dest.distance = this.distance;
+	    }
+	    clone() {
+	        var dest = new Plane(new Vector3());
+	        this.cloneTo(dest);
+	        return dest;
+	    }
+	}
+	Plane.PlaneIntersectionType_Back = 0;
+	Plane.PlaneIntersectionType_Front = 1;
+	Plane.PlaneIntersectionType_Intersecting = 2;
+
+	class Ray {
+	    constructor(origin, direction) {
+	        this.origin = origin;
+	        this.direction = direction;
+	    }
+	}
+
+	class ContainmentType {
+	}
+	ContainmentType.Disjoint = 0;
+	ContainmentType.Contains = 1;
+	ContainmentType.Intersects = 2;
+
+	class CollisionUtils {
+	    constructor() {
+	    }
+	    static distancePlaneToPoint(plane, point) {
+	        var dot = Vector3.dot(plane.normal, point);
+	        return dot - plane.distance;
+	    }
+	    static distanceBoxToPoint(box, point) {
+	        var boxMin = box.min;
+	        var boxMineX = boxMin.x;
+	        var boxMineY = boxMin.y;
+	        var boxMineZ = boxMin.z;
+	        var boxMax = box.max;
+	        var boxMaxeX = boxMax.x;
+	        var boxMaxeY = boxMax.y;
+	        var boxMaxeZ = boxMax.z;
+	        var pointeX = point.x;
+	        var pointeY = point.y;
+	        var pointeZ = point.z;
+	        var distance = 0;
+	        if (pointeX < boxMineX)
+	            distance += (boxMineX - pointeX) * (boxMineX - pointeX);
+	        if (pointeX > boxMaxeX)
+	            distance += (boxMaxeX - pointeX) * (boxMaxeX - pointeX);
+	        if (pointeY < boxMineY)
+	            distance += (boxMineY - pointeY) * (boxMineY - pointeY);
+	        if (pointeY > boxMaxeY)
+	            distance += (boxMaxeY - pointeY) * (boxMaxeY - pointeY);
+	        if (pointeZ < boxMineZ)
+	            distance += (boxMineZ - pointeZ) * (boxMineZ - pointeZ);
+	        if (pointeZ > boxMaxeZ)
+	            distance += (boxMaxeZ - pointeZ) * (boxMaxeZ - pointeZ);
+	        return Math.sqrt(distance);
+	    }
+	    static distanceBoxToBox(box1, box2) {
+	        var box1Mine = box1.min;
+	        var box1MineX = box1Mine.x;
+	        var box1MineY = box1Mine.y;
+	        var box1MineZ = box1Mine.z;
+	        var box1Maxe = box1.max;
+	        var box1MaxeX = box1Maxe.x;
+	        var box1MaxeY = box1Maxe.y;
+	        var box1MaxeZ = box1Maxe.z;
+	        var box2Mine = box2.min;
+	        var box2MineX = box2Mine.x;
+	        var box2MineY = box2Mine.y;
+	        var box2MineZ = box2Mine.z;
+	        var box2Maxe = box2.max;
+	        var box2MaxeX = box2Maxe.x;
+	        var box2MaxeY = box2Maxe.y;
+	        var box2MaxeZ = box2Maxe.z;
+	        var distance = 0;
+	        var delta;
+	        if (box1MineX > box2MaxeX) {
+	            delta = box1MineX - box2MaxeX;
+	            distance += delta * delta;
+	        }
+	        else if (box2MineX > box1MaxeX) {
+	            delta = box2MineX - box1MaxeX;
+	            distance += delta * delta;
+	        }
+	        if (box1MineY > box2MaxeY) {
+	            delta = box1MineY - box2MaxeY;
+	            distance += delta * delta;
+	        }
+	        else if (box2MineY > box1MaxeY) {
+	            delta = box2MineY - box1MaxeY;
+	            distance += delta * delta;
+	        }
+	        if (box1MineZ > box2MaxeZ) {
+	            delta = box1MineZ - box2MaxeZ;
+	            distance += delta * delta;
+	        }
+	        else if (box2MineZ > box1MaxeZ) {
+	            delta = box2MineZ - box1MaxeZ;
+	            distance += delta * delta;
+	        }
+	        return Math.sqrt(distance);
+	    }
+	    static distanceSphereToPoint(sphere, point) {
+	        var distance = Math.sqrt(Vector3.distanceSquared(sphere.center, point));
+	        distance -= sphere.radius;
+	        return Math.max(distance, 0);
+	    }
+	    static distanceSphereToSphere(sphere1, sphere2) {
+	        var distance = Math.sqrt(Vector3.distanceSquared(sphere1.center, sphere2.center));
+	        distance -= sphere1.radius + sphere2.radius;
+	        return Math.max(distance, 0);
+	    }
+	    static intersectsRayAndTriangleRD(ray, vertex1, vertex2, vertex3, out) {
+	        var rayO = ray.origin;
+	        var rayOeX = rayO.x;
+	        var rayOeY = rayO.y;
+	        var rayOeZ = rayO.z;
+	        var rayD = ray.direction;
+	        var rayDeX = rayD.x;
+	        var rayDeY = rayD.y;
+	        var rayDeZ = rayD.z;
+	        var v1eX = vertex1.x;
+	        var v1eY = vertex1.y;
+	        var v1eZ = vertex1.z;
+	        var v2eX = vertex2.x;
+	        var v2eY = vertex2.y;
+	        var v2eZ = vertex2.z;
+	        var v3eX = vertex3.x;
+	        var v3eY = vertex3.y;
+	        var v3eZ = vertex3.z;
+	        var _tempV30eX = CollisionUtils._tempV30.x;
+	        var _tempV30eY = CollisionUtils._tempV30.y;
+	        var _tempV30eZ = CollisionUtils._tempV30.z;
+	        _tempV30eX = v2eX - v1eX;
+	        _tempV30eY = v2eY - v1eY;
+	        _tempV30eZ = v2eZ - v1eZ;
+	        var _tempV31eX = CollisionUtils._tempV31.x;
+	        var _tempV31eY = CollisionUtils._tempV31.y;
+	        var _tempV31eZ = CollisionUtils._tempV31.z;
+	        _tempV31eX = v3eX - v1eX;
+	        _tempV31eY = v3eY - v1eY;
+	        _tempV31eZ = v3eZ - v1eZ;
+	        var _tempV32eX = CollisionUtils._tempV32.x;
+	        var _tempV32eY = CollisionUtils._tempV32.y;
+	        var _tempV32eZ = CollisionUtils._tempV32.z;
+	        _tempV32eX = (rayDeY * _tempV31eZ) - (rayDeZ * _tempV31eY);
+	        _tempV32eY = (rayDeZ * _tempV31eX) - (rayDeX * _tempV31eZ);
+	        _tempV32eZ = (rayDeX * _tempV31eY) - (rayDeY * _tempV31eX);
+	        var determinant = (_tempV30eX * _tempV32eX) + (_tempV30eY * _tempV32eY) + (_tempV30eZ * _tempV32eZ);
+	        if (MathUtils3D.isZero(determinant)) {
+	            return false;
+	        }
+	        var inversedeterminant = 1 / determinant;
+	        var _tempV33eX = CollisionUtils._tempV33.x;
+	        var _tempV33eY = CollisionUtils._tempV33.y;
+	        var _tempV33eZ = CollisionUtils._tempV33.z;
+	        _tempV33eX = rayOeX - v1eX;
+	        _tempV33eY = rayOeY - v1eY;
+	        _tempV33eZ = rayOeZ - v1eZ;
+	        var triangleU = (_tempV33eX * _tempV32eX) + (_tempV33eY * _tempV32eY) + (_tempV33eZ * _tempV32eZ);
+	        triangleU *= inversedeterminant;
+	        if (triangleU < 0 || triangleU > 1) {
+	            return false;
+	        }
+	        var _tempV34eX = CollisionUtils._tempV34.x;
+	        var _tempV34eY = CollisionUtils._tempV34.y;
+	        var _tempV34eZ = CollisionUtils._tempV34.z;
+	        _tempV34eX = (_tempV33eY * _tempV30eZ) - (_tempV33eZ * _tempV30eY);
+	        _tempV34eY = (_tempV33eZ * _tempV30eX) - (_tempV33eX * _tempV30eZ);
+	        _tempV34eZ = (_tempV33eX * _tempV30eY) - (_tempV33eY * _tempV30eX);
+	        var triangleV = ((rayDeX * _tempV34eX) + (rayDeY * _tempV34eY)) + (rayDeZ * _tempV34eZ);
+	        triangleV *= inversedeterminant;
+	        if (triangleV < 0 || triangleU + triangleV > 1) {
+	            return false;
+	        }
+	        var raydistance = (_tempV31eX * _tempV34eX) + (_tempV31eY * _tempV34eY) + (_tempV31eZ * _tempV34eZ);
+	        raydistance *= inversedeterminant;
+	        if (raydistance < 0) {
+	            return false;
+	        }
+	        return true;
+	    }
+	    static intersectsRayAndTriangleRP(ray, vertex1, vertex2, vertex3, out) {
+	        var distance;
+	        if (!CollisionUtils.intersectsRayAndTriangleRD(ray, vertex1, vertex2, vertex3, distance)) {
+	            out = Vector3._ZERO;
+	            return false;
+	        }
+	        Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
+	        Vector3.add(ray.origin, CollisionUtils._tempV30, out);
+	        return true;
+	    }
+	    static intersectsRayAndPoint(ray, point) {
+	        Vector3.subtract(ray.origin, point, CollisionUtils._tempV30);
+	        var b = Vector3.dot(CollisionUtils._tempV30, ray.direction);
+	        var c = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV30) - MathUtils3D.zeroTolerance;
+	        if (c > 0 && b > 0)
+	            return false;
+	        var discriminant = b * b - c;
+	        if (discriminant < 0)
+	            return false;
+	        return true;
+	    }
+	    static intersectsRayAndRay(ray1, ray2, out) {
+	        var ray1o = ray1.origin;
+	        var ray1oeX = ray1o.x;
+	        var ray1oeY = ray1o.y;
+	        var ray1oeZ = ray1o.z;
+	        var ray1d = ray1.direction;
+	        var ray1deX = ray1d.x;
+	        var ray1deY = ray1d.y;
+	        var ray1deZ = ray1d.z;
+	        var ray2o = ray2.origin;
+	        var ray2oeX = ray2o.x;
+	        var ray2oeY = ray2o.y;
+	        var ray2oeZ = ray2o.z;
+	        var ray2d = ray2.direction;
+	        var ray2deX = ray2d.x;
+	        var ray2deY = ray2d.y;
+	        var ray2deZ = ray2d.z;
+	        Vector3.cross(ray1d, ray2d, CollisionUtils._tempV30);
+	        var tempV3 = CollisionUtils._tempV30;
+	        var denominator = Vector3.scalarLength(CollisionUtils._tempV30);
+	        if (MathUtils3D.isZero(denominator)) {
+	            if (MathUtils3D.nearEqual(ray2oeX, ray1oeX) && MathUtils3D.nearEqual(ray2oeY, ray1oeY) && MathUtils3D.nearEqual(ray2oeZ, ray1oeZ)) {
+	                return true;
+	            }
+	        }
+	        denominator = denominator * denominator;
+	        var m11 = ray2oeX - ray1oeX;
+	        var m12 = ray2oeY - ray1oeY;
+	        var m13 = ray2oeZ - ray1oeZ;
+	        var m21 = ray2deX;
+	        var m22 = ray2deY;
+	        var m23 = ray2deZ;
+	        var m31 = tempV3.x;
+	        var m32 = tempV3.y;
+	        var m33 = tempV3.z;
+	        var dets = m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 - m13 * m22 * m31;
+	        m21 = ray1deX;
+	        m22 = ray1deY;
+	        m23 = ray1deZ;
+	        var s = dets / denominator;
+	        Vector3.scale(ray1d, s, CollisionUtils._tempV30);
+	        Vector3.scale(ray2d, s, CollisionUtils._tempV31);
+	        Vector3.add(ray1o, CollisionUtils._tempV30, CollisionUtils._tempV32);
+	        Vector3.add(ray2o, CollisionUtils._tempV31, CollisionUtils._tempV33);
+	        var point1e = CollisionUtils._tempV32;
+	        var point2e = CollisionUtils._tempV33;
+	        if (!MathUtils3D.nearEqual(point2e.x, point1e.x) || !MathUtils3D.nearEqual(point2e.y, point1e.y) || !MathUtils3D.nearEqual(point2e.z, point1e.z)) {
+	            return false;
+	        }
+	        return true;
+	    }
+	    static intersectsPlaneAndTriangle(plane, vertex1, vertex2, vertex3) {
+	        var test1 = CollisionUtils.intersectsPlaneAndPoint(plane, vertex1);
+	        var test2 = CollisionUtils.intersectsPlaneAndPoint(plane, vertex2);
+	        var test3 = CollisionUtils.intersectsPlaneAndPoint(plane, vertex3);
+	        if (test1 == Plane.PlaneIntersectionType_Front && test2 == Plane.PlaneIntersectionType_Front && test3 == Plane.PlaneIntersectionType_Front)
+	            return Plane.PlaneIntersectionType_Front;
+	        if (test1 == Plane.PlaneIntersectionType_Back && test2 == Plane.PlaneIntersectionType_Back && test3 == Plane.PlaneIntersectionType_Back)
+	            return Plane.PlaneIntersectionType_Back;
+	        return Plane.PlaneIntersectionType_Intersecting;
+	    }
+	    static intersectsRayAndPlaneRD(ray, plane) {
+	        var planeNor = plane.normal;
+	        var direction = Vector3.dot(planeNor, ray.direction);
+	        if (Math.abs(direction) < MathUtils3D.zeroTolerance)
+	            return -1;
+	        var position = Vector3.dot(planeNor, ray.origin);
+	        var distance = (-plane.distance - position) / direction;
+	        if (distance < 0) {
+	            if (distance < -MathUtils3D.zeroTolerance)
+	                return -1;
+	            distance = 0;
+	        }
+	        return distance;
+	    }
+	    static intersectsRayAndPlaneRP(ray, plane, out) {
+	        var distance = CollisionUtils.intersectsRayAndPlaneRD(ray, plane);
+	        if (distance == -1) {
+	            out.setValue(0, 0, 0);
+	            return false;
+	        }
+	        var scaDis = CollisionUtils._tempV30;
+	        Vector3.scale(ray.direction, distance, scaDis);
+	        Vector3.add(ray.origin, scaDis, out);
+	        return true;
+	    }
+	    static intersectsRayAndBoxRD(ray, box) {
+	        var rayoe = ray.origin;
+	        var rayoeX = rayoe.x;
+	        var rayoeY = rayoe.y;
+	        var rayoeZ = rayoe.z;
+	        var rayde = ray.direction;
+	        var raydeX = rayde.x;
+	        var raydeY = rayde.y;
+	        var raydeZ = rayde.z;
+	        var boxMine = box.min;
+	        var boxMineX = boxMine.x;
+	        var boxMineY = boxMine.y;
+	        var boxMineZ = boxMine.z;
+	        var boxMaxe = box.max;
+	        var boxMaxeX = boxMaxe.x;
+	        var boxMaxeY = boxMaxe.y;
+	        var boxMaxeZ = boxMaxe.z;
+	        var out = 0;
+	        var tmax = MathUtils3D.MaxValue;
+	        if (MathUtils3D.isZero(raydeX)) {
+	            if (rayoeX < boxMineX || rayoeX > boxMaxeX) {
+	                return -1;
+	            }
+	        }
+	        else {
+	            var inverse = 1 / raydeX;
+	            var t1 = (boxMineX - rayoeX) * inverse;
+	            var t2 = (boxMaxeX - rayoeX) * inverse;
+	            if (t1 > t2) {
+	                var temp = t1;
+	                t1 = t2;
+	                t2 = temp;
+	            }
+	            out = Math.max(t1, out);
+	            tmax = Math.min(t2, tmax);
+	            if (out > tmax) {
+	                return -1;
+	            }
+	        }
+	        if (MathUtils3D.isZero(raydeY)) {
+	            if (rayoeY < boxMineY || rayoeY > boxMaxeY) {
+	                return -1;
+	            }
+	        }
+	        else {
+	            var inverse1 = 1 / raydeY;
+	            var t3 = (boxMineY - rayoeY) * inverse1;
+	            var t4 = (boxMaxeY - rayoeY) * inverse1;
+	            if (t3 > t4) {
+	                var temp1 = t3;
+	                t3 = t4;
+	                t4 = temp1;
+	            }
+	            out = Math.max(t3, out);
+	            tmax = Math.min(t4, tmax);
+	            if (out > tmax) {
+	                return -1;
+	            }
+	        }
+	        if (MathUtils3D.isZero(raydeZ)) {
+	            if (rayoeZ < boxMineZ || rayoeZ > boxMaxeZ) {
+	                return -1;
+	            }
+	        }
+	        else {
+	            var inverse2 = 1 / raydeZ;
+	            var t5 = (boxMineZ - rayoeZ) * inverse2;
+	            var t6 = (boxMaxeZ - rayoeZ) * inverse2;
+	            if (t5 > t6) {
+	                var temp2 = t5;
+	                t5 = t6;
+	                t6 = temp2;
+	            }
+	            out = Math.max(t5, out);
+	            tmax = Math.min(t6, tmax);
+	            if (out > tmax) {
+	                return -1;
+	            }
+	        }
+	        return out;
+	    }
+	    static intersectsRayAndBoxRP(ray, box, out) {
+	        var distance = CollisionUtils.intersectsRayAndBoxRD(ray, box);
+	        if (distance === -1) {
+	            Vector3._ZERO.cloneTo(out);
+	            return distance;
+	        }
+	        Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
+	        Vector3.add(ray.origin, CollisionUtils._tempV30, CollisionUtils._tempV31);
+	        CollisionUtils._tempV31.cloneTo(out);
+	        return distance;
+	    }
+	    static intersectsRayAndSphereRD(ray, sphere) {
+	        var sphereR = sphere.radius;
+	        Vector3.subtract(ray.origin, sphere.center, CollisionUtils._tempV30);
+	        var b = Vector3.dot(CollisionUtils._tempV30, ray.direction);
+	        var c = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV30) - (sphereR * sphereR);
+	        if (c > 0 && b > 0) {
+	            return -1;
+	        }
+	        var discriminant = b * b - c;
+	        if (discriminant < 0) {
+	            return -1;
+	        }
+	        var distance = -b - Math.sqrt(discriminant);
+	        if (distance < 0)
+	            distance = 0;
+	        return distance;
+	    }
+	    static intersectsRayAndSphereRP(ray, sphere, out) {
+	        var distance = CollisionUtils.intersectsRayAndSphereRD(ray, sphere);
+	        if (distance === -1) {
+	            Vector3._ZERO.cloneTo(out);
+	            return distance;
+	        }
+	        Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
+	        Vector3.add(ray.origin, CollisionUtils._tempV30, CollisionUtils._tempV31);
+	        CollisionUtils._tempV31.cloneTo(out);
+	        return distance;
+	    }
+	    static intersectsSphereAndTriangle(sphere, vertex1, vertex2, vertex3) {
+	        var sphereC = sphere.center;
+	        var sphereR = sphere.radius;
+	        CollisionUtils.closestPointPointTriangle(sphereC, vertex1, vertex2, vertex3, CollisionUtils._tempV30);
+	        Vector3.subtract(CollisionUtils._tempV30, sphereC, CollisionUtils._tempV31);
+	        var dot = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV31);
+	        return dot <= sphereR * sphereR;
+	    }
+	    static intersectsPlaneAndPoint(plane, point) {
+	        var distance = Vector3.dot(plane.normal, point) + plane.distance;
+	        if (distance > 0)
+	            return Plane.PlaneIntersectionType_Front;
+	        if (distance < 0)
+	            return Plane.PlaneIntersectionType_Back;
+	        return Plane.PlaneIntersectionType_Intersecting;
+	    }
+	    static intersectsPlaneAndPlane(plane1, plane2) {
+	        Vector3.cross(plane1.normal, plane2.normal, CollisionUtils._tempV30);
+	        var denominator = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV30);
+	        if (MathUtils3D.isZero(denominator))
+	            return false;
+	        return true;
+	    }
+	    static intersectsPlaneAndPlaneRL(plane1, plane2, line) {
+	        var plane1nor = plane1.normal;
+	        var plane2nor = plane2.normal;
+	        Vector3.cross(plane1nor, plane2nor, CollisionUtils._tempV34);
+	        var denominator = Vector3.dot(CollisionUtils._tempV34, CollisionUtils._tempV34);
+	        if (MathUtils3D.isZero(denominator))
+	            return false;
+	        Vector3.scale(plane2nor, plane1.distance, CollisionUtils._tempV30);
+	        Vector3.scale(plane1nor, plane2.distance, CollisionUtils._tempV31);
+	        Vector3.subtract(CollisionUtils._tempV30, CollisionUtils._tempV31, CollisionUtils._tempV32);
+	        Vector3.cross(CollisionUtils._tempV32, CollisionUtils._tempV34, CollisionUtils._tempV33);
+	        Vector3.normalize(CollisionUtils._tempV34, CollisionUtils._tempV34);
+	        return true;
+	    }
+	    static intersectsPlaneAndBox(plane, box) {
+	        var planeD = plane.distance;
+	        var planeNor = plane.normal;
+	        var planeNoreX = planeNor.x;
+	        var planeNoreY = planeNor.y;
+	        var planeNoreZ = planeNor.z;
+	        var boxMine = box.min;
+	        var boxMineX = boxMine.x;
+	        var boxMineY = boxMine.y;
+	        var boxMineZ = boxMine.z;
+	        var boxMaxe = box.max;
+	        var boxMaxeX = boxMaxe.x;
+	        var boxMaxeY = boxMaxe.y;
+	        var boxMaxeZ = boxMaxe.z;
+	        CollisionUtils._tempV30.x = (planeNoreX > 0) ? boxMineX : boxMaxeX;
+	        CollisionUtils._tempV30.y = (planeNoreY > 0) ? boxMineY : boxMaxeY;
+	        CollisionUtils._tempV30.z = (planeNoreZ > 0) ? boxMineZ : boxMaxeZ;
+	        CollisionUtils._tempV31.x = (planeNoreX > 0) ? boxMaxeX : boxMineX;
+	        CollisionUtils._tempV31.y = (planeNoreY > 0) ? boxMaxeY : boxMineY;
+	        CollisionUtils._tempV31.z = (planeNoreZ > 0) ? boxMaxeZ : boxMineZ;
+	        var distance = Vector3.dot(planeNor, CollisionUtils._tempV30);
+	        if (distance + planeD > 0)
+	            return Plane.PlaneIntersectionType_Front;
+	        distance = Vector3.dot(planeNor, CollisionUtils._tempV31);
+	        if (distance + planeD < 0)
+	            return Plane.PlaneIntersectionType_Back;
+	        return Plane.PlaneIntersectionType_Intersecting;
+	    }
+	    static intersectsPlaneAndSphere(plane, sphere) {
+	        var sphereR = sphere.radius;
+	        var distance = Vector3.dot(plane.normal, sphere.center) + plane.distance;
+	        if (distance > sphereR)
+	            return Plane.PlaneIntersectionType_Front;
+	        if (distance < -sphereR)
+	            return Plane.PlaneIntersectionType_Back;
+	        return Plane.PlaneIntersectionType_Intersecting;
+	    }
+	    static intersectsBoxAndBox(box1, box2) {
+	        var box1Mine = box1.min;
+	        var box1Maxe = box1.max;
+	        var box2Mine = box2.min;
+	        var box2Maxe = box2.max;
+	        if (box1Mine.x > box2Maxe.x || box2Mine.x > box1Maxe.x)
+	            return false;
+	        if (box1Mine.y > box2Maxe.y || box2Mine.y > box1Maxe.y)
+	            return false;
+	        if (box1Mine.z > box2Maxe.z || box2Mine.z > box1Maxe.z)
+	            return false;
+	        return true;
+	    }
+	    static intersectsBoxAndSphere(box, sphere) {
+	        var center = sphere.center;
+	        var radius = sphere.radius;
+	        var nearest = CollisionUtils._tempV30;
+	        Vector3.Clamp(center, box.min, box.max, nearest);
+	        var distance = Vector3.distanceSquared(center, nearest);
+	        return distance <= radius * radius;
+	    }
+	    static intersectsSphereAndSphere(sphere1, sphere2) {
+	        var radiisum = sphere1.radius + sphere2.radius;
+	        return Vector3.distanceSquared(sphere1.center, sphere2.center) <= radiisum * radiisum;
+	    }
+	    static boxContainsPoint(box, point) {
+	        var boxMine = box.min;
+	        var boxMaxe = box.max;
+	        if (boxMine.x <= point.x && boxMaxe.x >= point.x && boxMine.y <= point.y && boxMaxe.y >= point.y && boxMine.z <= point.z && boxMaxe.z >= point.z)
+	            return ContainmentType.Contains;
+	        return ContainmentType.Disjoint;
+	    }
+	    static boxContainsBox(box1, box2) {
+	        var box1Mine = box1.min;
+	        var box1MineX = box1Mine.x;
+	        var box1MineY = box1Mine.y;
+	        var box1MineZ = box1Mine.z;
+	        var box1Maxe = box1.max;
+	        var box1MaxeX = box1Maxe.x;
+	        var box1MaxeY = box1Maxe.y;
+	        var box1MaxeZ = box1Maxe.z;
+	        var box2Mine = box2.min;
+	        var box2MineX = box2Mine.x;
+	        var box2MineY = box2Mine.y;
+	        var box2MineZ = box2Mine.z;
+	        var box2Maxe = box2.max;
+	        var box2MaxeX = box2Maxe.x;
+	        var box2MaxeY = box2Maxe.y;
+	        var box2MaxeZ = box2Maxe.z;
+	        if (box1MaxeX < box2MineX || box1MineX > box2MaxeX)
+	            return ContainmentType.Disjoint;
+	        if (box1MaxeY < box2MineY || box1MineY > box2MaxeY)
+	            return ContainmentType.Disjoint;
+	        if (box1MaxeZ < box2MineZ || box1MineZ > box2MaxeZ)
+	            return ContainmentType.Disjoint;
+	        if (box1MineX <= box2MineX && box2MaxeX <= box1MaxeX && box1MineY <= box2MineY && box2MaxeY <= box1MaxeY && box1MineZ <= box2MineZ && box2MaxeZ <= box1MaxeZ) {
+	            return ContainmentType.Contains;
+	        }
+	        return ContainmentType.Intersects;
+	    }
+	    static boxContainsSphere(box, sphere) {
+	        var boxMin = box.min;
+	        var boxMineX = boxMin.x;
+	        var boxMineY = boxMin.y;
+	        var boxMineZ = boxMin.z;
+	        var boxMax = box.max;
+	        var boxMaxeX = boxMax.x;
+	        var boxMaxeY = boxMax.y;
+	        var boxMaxeZ = boxMax.z;
+	        var sphereC = sphere.center;
+	        var sphereCeX = sphereC.x;
+	        var sphereCeY = sphereC.y;
+	        var sphereCeZ = sphereC.z;
+	        var sphereR = sphere.radius;
+	        Vector3.Clamp(sphereC, boxMin, boxMax, CollisionUtils._tempV30);
+	        var distance = Vector3.distanceSquared(sphereC, CollisionUtils._tempV30);
+	        if (distance > sphereR * sphereR)
+	            return ContainmentType.Disjoint;
+	        if ((((boxMineX + sphereR <= sphereCeX) && (sphereCeX <= boxMaxeX - sphereR)) && ((boxMaxeX - boxMineX > sphereR) &&
+	            (boxMineY + sphereR <= sphereCeY))) && (((sphereCeY <= boxMaxeY - sphereR) && (boxMaxeY - boxMineY > sphereR)) &&
+	            (((boxMineZ + sphereR <= sphereCeZ) && (sphereCeZ <= boxMaxeZ - sphereR)) && (boxMaxeZ - boxMineZ > sphereR))))
+	            return ContainmentType.Contains;
+	        return ContainmentType.Intersects;
+	    }
+	    static sphereContainsPoint(sphere, point) {
+	        if (Vector3.distanceSquared(point, sphere.center) <= sphere.radius * sphere.radius)
+	            return ContainmentType.Contains;
+	        return ContainmentType.Disjoint;
+	    }
+	    static sphereContainsTriangle(sphere, vertex1, vertex2, vertex3) {
+	        var test1 = CollisionUtils.sphereContainsPoint(sphere, vertex1);
+	        var test2 = CollisionUtils.sphereContainsPoint(sphere, vertex2);
+	        var test3 = CollisionUtils.sphereContainsPoint(sphere, vertex3);
+	        if (test1 == ContainmentType.Contains && test2 == ContainmentType.Contains && test3 == ContainmentType.Contains)
+	            return ContainmentType.Contains;
+	        if (CollisionUtils.intersectsSphereAndTriangle(sphere, vertex1, vertex2, vertex3))
+	            return ContainmentType.Intersects;
+	        return ContainmentType.Disjoint;
+	    }
+	    static sphereContainsBox(sphere, box) {
+	        var sphereC = sphere.center;
+	        var sphereCeX = sphereC.x;
+	        var sphereCeY = sphereC.y;
+	        var sphereCeZ = sphereC.z;
+	        var sphereR = sphere.radius;
+	        var boxMin = box.min;
+	        var boxMineX = boxMin.x;
+	        var boxMineY = boxMin.y;
+	        var boxMineZ = boxMin.z;
+	        var boxMax = box.max;
+	        var boxMaxeX = boxMax.x;
+	        var boxMaxeY = boxMax.y;
+	        var boxMaxeZ = boxMax.z;
+	        var _tempV30e = CollisionUtils._tempV30;
+	        var _tempV30eX = _tempV30e.x;
+	        var _tempV30eY = _tempV30e.y;
+	        var _tempV30eZ = _tempV30e.z;
+	        if (!CollisionUtils.intersectsBoxAndSphere(box, sphere))
+	            return ContainmentType.Disjoint;
+	        var radiusSquared = sphereR * sphereR;
+	        _tempV30eX = sphereCeX - boxMineX;
+	        _tempV30eY = sphereCeY - boxMaxeY;
+	        _tempV30eZ = sphereCeZ - boxMaxeZ;
+	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+	            return ContainmentType.Intersects;
+	        _tempV30eX = sphereCeX - boxMaxeX;
+	        _tempV30eY = sphereCeY - boxMaxeY;
+	        _tempV30eZ = sphereCeZ - boxMaxeZ;
+	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+	            return ContainmentType.Intersects;
+	        _tempV30eX = sphereCeX - boxMaxeX;
+	        _tempV30eY = sphereCeY - boxMineY;
+	        _tempV30eZ = sphereCeZ - boxMaxeZ;
+	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+	            return ContainmentType.Intersects;
+	        _tempV30eX = sphereCeX - boxMineX;
+	        _tempV30eY = sphereCeY - boxMineY;
+	        _tempV30eZ = sphereCeZ - boxMaxeZ;
+	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+	            return ContainmentType.Intersects;
+	        _tempV30eX = sphereCeX - boxMineX;
+	        _tempV30eY = sphereCeY - boxMaxeY;
+	        _tempV30eZ = sphereCeZ - boxMineZ;
+	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+	            return ContainmentType.Intersects;
+	        _tempV30eX = sphereCeX - boxMaxeX;
+	        _tempV30eY = sphereCeY - boxMaxeY;
+	        _tempV30eZ = sphereCeZ - boxMineZ;
+	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+	            return ContainmentType.Intersects;
+	        _tempV30eX = sphereCeX - boxMaxeX;
+	        _tempV30eY = sphereCeY - boxMineY;
+	        _tempV30eZ = sphereCeZ - boxMineZ;
+	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+	            return ContainmentType.Intersects;
+	        _tempV30eX = sphereCeX - boxMineX;
+	        _tempV30eY = sphereCeY - boxMineY;
+	        _tempV30eZ = sphereCeZ - boxMineZ;
+	        if (Vector3.scalarLengthSquared(CollisionUtils._tempV30) > radiusSquared)
+	            return ContainmentType.Intersects;
+	        return ContainmentType.Contains;
+	    }
+	    static sphereContainsSphere(sphere1, sphere2) {
+	        var sphere1R = sphere1.radius;
+	        var sphere2R = sphere2.radius;
+	        var distance = Vector3.distance(sphere1.center, sphere2.center);
+	        if (sphere1R + sphere2R < distance)
+	            return ContainmentType.Disjoint;
+	        if (sphere1R - sphere2R < distance)
+	            return ContainmentType.Intersects;
+	        return ContainmentType.Contains;
+	    }
+	    static closestPointPointTriangle(point, vertex1, vertex2, vertex3, out) {
+	        Vector3.subtract(vertex2, vertex1, CollisionUtils._tempV30);
+	        Vector3.subtract(vertex3, vertex1, CollisionUtils._tempV31);
+	        Vector3.subtract(point, vertex1, CollisionUtils._tempV32);
+	        Vector3.subtract(point, vertex2, CollisionUtils._tempV33);
+	        Vector3.subtract(point, vertex3, CollisionUtils._tempV34);
+	        var d1 = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV32);
+	        var d2 = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV32);
+	        var d3 = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV33);
+	        var d4 = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV33);
+	        var d5 = Vector3.dot(CollisionUtils._tempV30, CollisionUtils._tempV34);
+	        var d6 = Vector3.dot(CollisionUtils._tempV31, CollisionUtils._tempV34);
+	        if (d1 <= 0 && d2 <= 0) {
+	            vertex1.cloneTo(out);
+	            return;
+	        }
+	        if (d3 >= 0 && d4 <= d3) {
+	            vertex2.cloneTo(out);
+	            return;
+	        }
+	        var vc = d1 * d4 - d3 * d2;
+	        if (vc <= 0 && d1 >= 0 && d3 <= 0) {
+	            var v = d1 / (d1 - d3);
+	            Vector3.scale(CollisionUtils._tempV30, v, out);
+	            Vector3.add(vertex1, out, out);
+	            return;
+	        }
+	        if (d6 >= 0 && d5 <= d6) {
+	            vertex3.cloneTo(out);
+	            return;
+	        }
+	        var vb = d5 * d2 - d1 * d6;
+	        if (vb <= 0 && d2 >= 0 && d6 <= 0) {
+	            var w = d2 / (d2 - d6);
+	            Vector3.scale(CollisionUtils._tempV31, w, out);
+	            Vector3.add(vertex1, out, out);
+	            return;
+	        }
+	        var va = d3 * d6 - d5 * d4;
+	        if (va <= 0 && (d4 - d3) >= 0 && (d5 - d6) >= 0) {
+	            var w3 = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+	            Vector3.subtract(vertex3, vertex2, out);
+	            Vector3.scale(out, w3, out);
+	            Vector3.add(vertex2, out, out);
+	            return;
+	        }
+	        var denom = 1 / (va + vb + vc);
+	        var v2 = vb * denom;
+	        var w2 = vc * denom;
+	        Vector3.scale(CollisionUtils._tempV30, v2, CollisionUtils._tempV35);
+	        Vector3.scale(CollisionUtils._tempV31, w2, CollisionUtils._tempV36);
+	        Vector3.add(CollisionUtils._tempV35, CollisionUtils._tempV36, out);
+	        Vector3.add(vertex1, out, out);
+	    }
+	    static closestPointPlanePoint(plane, point, out) {
+	        var planeN = plane.normal;
+	        var t = Vector3.dot(planeN, point) - plane.distance;
+	        Vector3.scale(planeN, t, CollisionUtils._tempV30);
+	        Vector3.subtract(point, CollisionUtils._tempV30, out);
+	    }
+	    static closestPointBoxPoint(box, point, out) {
+	        Vector3.max(point, box.min, CollisionUtils._tempV30);
+	        Vector3.min(CollisionUtils._tempV30, box.max, out);
+	    }
+	    static closestPointSpherePoint(sphere, point, out) {
+	        var sphereC = sphere.center;
+	        Vector3.subtract(point, sphereC, out);
+	        Vector3.normalize(out, out);
+	        Vector3.scale(out, sphere.radius, out);
+	        Vector3.add(out, sphereC, out);
+	    }
+	    static closestPointSphereSphere(sphere1, sphere2, out) {
+	        var sphere1C = sphere1.center;
+	        Vector3.subtract(sphere2.center, sphere1C, out);
+	        Vector3.normalize(out, out);
+	        Vector3.scale(out, sphere1.radius, out);
+	        Vector3.add(out, sphere1C, out);
+	    }
+	}
+	CollisionUtils._tempV30 = new Vector3();
+	CollisionUtils._tempV31 = new Vector3();
+	CollisionUtils._tempV32 = new Vector3();
+	CollisionUtils._tempV33 = new Vector3();
+	CollisionUtils._tempV34 = new Vector3();
+	CollisionUtils._tempV35 = new Vector3();
+	CollisionUtils._tempV36 = new Vector3();
+
+	(function (FrustumCorner) {
+	    FrustumCorner[FrustumCorner["FarBottomLeft"] = 0] = "FarBottomLeft";
+	    FrustumCorner[FrustumCorner["FarTopLeft"] = 1] = "FarTopLeft";
+	    FrustumCorner[FrustumCorner["FarTopRight"] = 2] = "FarTopRight";
+	    FrustumCorner[FrustumCorner["FarBottomRight"] = 3] = "FarBottomRight";
+	    FrustumCorner[FrustumCorner["nearBottomLeft"] = 4] = "nearBottomLeft";
+	    FrustumCorner[FrustumCorner["nearTopLeft"] = 5] = "nearTopLeft";
+	    FrustumCorner[FrustumCorner["nearTopRight"] = 6] = "nearTopRight";
+	    FrustumCorner[FrustumCorner["nearBottomRight"] = 7] = "nearBottomRight";
+	    FrustumCorner[FrustumCorner["unknown"] = 8] = "unknown";
+	})(exports.FrustumCorner || (exports.FrustumCorner = {}));
+	class BoundFrustum {
+	    constructor(matrix) {
+	        this._matrix = matrix;
+	        this._near = new Plane(new Vector3());
+	        this._far = new Plane(new Vector3());
+	        this._left = new Plane(new Vector3());
+	        this._right = new Plane(new Vector3());
+	        this._top = new Plane(new Vector3());
+	        this._bottom = new Plane(new Vector3());
+	        BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
+	    }
+	    static getPlanesFromMatrix(m, np, fp, lp, rp, tp, bp) {
+	        var matrixE = m.elements;
+	        var m11 = matrixE[0];
+	        var m12 = matrixE[1];
+	        var m13 = matrixE[2];
+	        var m14 = matrixE[3];
+	        var m21 = matrixE[4];
+	        var m22 = matrixE[5];
+	        var m23 = matrixE[6];
+	        var m24 = matrixE[7];
+	        var m31 = matrixE[8];
+	        var m32 = matrixE[9];
+	        var m33 = matrixE[10];
+	        var m34 = matrixE[11];
+	        var m41 = matrixE[12];
+	        var m42 = matrixE[13];
+	        var m43 = matrixE[14];
+	        var m44 = matrixE[15];
+	        var nearNorE = np.normal;
+	        nearNorE.x = m13;
+	        nearNorE.y = m23;
+	        nearNorE.z = m33;
+	        np.distance = m43;
+	        np.normalize();
+	        var farNorE = fp.normal;
+	        farNorE.x = m14 - m13;
+	        farNorE.y = m24 - m23;
+	        farNorE.z = m34 - m33;
+	        fp.distance = m44 - m43;
+	        fp.normalize();
+	        var leftNorE = lp.normal;
+	        leftNorE.x = m14 + m11;
+	        leftNorE.y = m24 + m21;
+	        leftNorE.z = m34 + m31;
+	        lp.distance = m44 + m41;
+	        lp.normalize();
+	        var rightNorE = rp.normal;
+	        rightNorE.x = m14 - m11;
+	        rightNorE.y = m24 - m21;
+	        rightNorE.z = m34 - m31;
+	        rp.distance = m44 - m41;
+	        rp.normalize();
+	        var topNorE = tp.normal;
+	        topNorE.x = m14 - m12;
+	        topNorE.y = m24 - m22;
+	        topNorE.z = m34 - m32;
+	        tp.distance = m44 - m42;
+	        tp.normalize();
+	        var bottomNorE = bp.normal;
+	        bottomNorE.x = m14 + m12;
+	        bottomNorE.y = m24 + m22;
+	        bottomNorE.z = m34 + m32;
+	        bp.distance = m44 + m42;
+	        bp.normalize();
+	    }
+	    get matrix() {
+	        return this._matrix;
+	    }
+	    set matrix(matrix) {
+	        matrix.cloneTo(this._matrix);
+	        BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
+	    }
+	    get near() {
+	        return this._near;
+	    }
+	    get far() {
+	        return this._far;
+	    }
+	    get left() {
+	        return this._left;
+	    }
+	    get right() {
+	        return this._right;
+	    }
+	    get top() {
+	        return this._top;
+	    }
+	    get bottom() {
+	        return this._bottom;
+	    }
+	    equalsBoundFrustum(other) {
+	        return this._matrix.equalsOtherMatrix(other.matrix);
+	    }
+	    equalsObj(obj) {
+	        if (obj instanceof BoundFrustum) {
+	            var bf = obj;
+	            return this.equalsBoundFrustum(bf);
+	        }
+	        return false;
+	    }
+	    getPlane(index) {
+	        switch (index) {
+	            case 0:
+	                return this._near;
+	            case 1:
+	                return this._far;
+	            case 2:
+	                return this._left;
+	            case 3:
+	                return this._right;
+	            case 4:
+	                return this._top;
+	            case 5:
+	                return this._bottom;
+	            default:
+	                return null;
+	        }
+	    }
+	    static get3PlaneInterPoint(p1, p2, p3, out) {
+	        var p1Nor = p1.normal;
+	        var p2Nor = p2.normal;
+	        var p3Nor = p3.normal;
+	        Vector3.cross(p2Nor, p3Nor, BoundFrustum._tempV30);
+	        Vector3.cross(p3Nor, p1Nor, BoundFrustum._tempV31);
+	        Vector3.cross(p1Nor, p2Nor, BoundFrustum._tempV32);
+	        var a = Vector3.dot(p1Nor, BoundFrustum._tempV30);
+	        var b = Vector3.dot(p2Nor, BoundFrustum._tempV31);
+	        var c = Vector3.dot(p3Nor, BoundFrustum._tempV32);
+	        Vector3.scale(BoundFrustum._tempV30, -p1.distance / a, BoundFrustum._tempV33);
+	        Vector3.scale(BoundFrustum._tempV31, -p2.distance / b, BoundFrustum._tempV34);
+	        Vector3.scale(BoundFrustum._tempV32, -p3.distance / c, BoundFrustum._tempV35);
+	        Vector3.add(BoundFrustum._tempV33, BoundFrustum._tempV34, BoundFrustum._tempV36);
+	        Vector3.add(BoundFrustum._tempV35, BoundFrustum._tempV36, out);
+	    }
+	    getCorners(corners) {
+	        BoundFrustum.get3PlaneInterPoint(this._near, this._bottom, this._right, corners[exports.FrustumCorner.nearBottomRight]);
+	        BoundFrustum.get3PlaneInterPoint(this._near, this._top, this._right, corners[exports.FrustumCorner.nearTopRight]);
+	        BoundFrustum.get3PlaneInterPoint(this._near, this._top, this._left, corners[exports.FrustumCorner.nearTopLeft]);
+	        BoundFrustum.get3PlaneInterPoint(this._near, this._bottom, this._left, corners[exports.FrustumCorner.nearBottomLeft]);
+	        BoundFrustum.get3PlaneInterPoint(this._far, this._bottom, this._right, corners[exports.FrustumCorner.FarBottomRight]);
+	        BoundFrustum.get3PlaneInterPoint(this._far, this._top, this._right, corners[exports.FrustumCorner.FarTopRight]);
+	        BoundFrustum.get3PlaneInterPoint(this._far, this._top, this._left, corners[exports.FrustumCorner.FarTopLeft]);
+	        BoundFrustum.get3PlaneInterPoint(this._far, this._bottom, this._left, corners[exports.FrustumCorner.FarBottomLeft]);
+	    }
+	    containsPoint(point) {
+	        var result = Plane.PlaneIntersectionType_Front;
+	        var planeResult = Plane.PlaneIntersectionType_Front;
+	        for (var i = 0; i < 6; i++) {
+	            switch (i) {
+	                case 0:
+	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._near, point);
+	                    break;
+	                case 1:
+	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._far, point);
+	                    break;
+	                case 2:
+	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._left, point);
+	                    break;
+	                case 3:
+	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._right, point);
+	                    break;
+	                case 4:
+	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._top, point);
+	                    break;
+	                case 5:
+	                    planeResult = CollisionUtils.intersectsPlaneAndPoint(this._bottom, point);
+	                    break;
+	            }
+	            switch (planeResult) {
+	                case Plane.PlaneIntersectionType_Back:
+	                    return ContainmentType.Disjoint;
+	                case Plane.PlaneIntersectionType_Intersecting:
+	                    result = Plane.PlaneIntersectionType_Intersecting;
+	                    break;
+	            }
+	        }
+	        switch (result) {
+	            case Plane.PlaneIntersectionType_Intersecting:
+	                return ContainmentType.Intersects;
+	            default:
+	                return ContainmentType.Contains;
+	        }
+	    }
+	    intersects(box) {
+	        var min = box.min;
+	        var max = box.max;
+	        var minX = min.x;
+	        var minY = min.y;
+	        var minZ = min.z;
+	        var maxX = max.x;
+	        var maxY = max.y;
+	        var maxZ = max.z;
+	        var nearNormal = this._near.normal;
+	        if (this._near.distance + (nearNormal.x * (nearNormal.x < 0 ? minX : maxX)) + (nearNormal.y * (nearNormal.y < 0 ? minY : maxY)) + (nearNormal.z * (nearNormal.z < 0 ? minZ : maxZ)) < 0)
+	            return false;
+	        var leftNormal = this._left.normal;
+	        if (this._left.distance + (leftNormal.x * (leftNormal.x < 0 ? minX : maxX)) + (leftNormal.y * (leftNormal.y < 0 ? minY : maxY)) + (leftNormal.z * (leftNormal.z < 0 ? minZ : maxZ)) < 0)
+	            return false;
+	        var rightNormal = this._right.normal;
+	        if (this._right.distance + (rightNormal.x * (rightNormal.x < 0 ? minX : maxX)) + (rightNormal.y * (rightNormal.y < 0 ? minY : maxY)) + (rightNormal.z * (rightNormal.z < 0 ? minZ : maxZ)) < 0)
+	            return false;
+	        var bottomNormal = this._bottom.normal;
+	        if (this._bottom.distance + (bottomNormal.x * (bottomNormal.x < 0 ? minX : maxX)) + (bottomNormal.y * (bottomNormal.y < 0 ? minY : maxY)) + (bottomNormal.z * (bottomNormal.z < 0 ? minZ : maxZ)) < 0)
+	            return false;
+	        var topNormal = this._top.normal;
+	        if (this._top.distance + (topNormal.x * (topNormal.x < 0 ? minX : maxX)) + (topNormal.y * (topNormal.y < 0 ? minY : maxY)) + (topNormal.z * (topNormal.z < 0 ? minZ : maxZ)) < 0)
+	            return false;
+	        var farNormal = this._far.normal;
+	        if (this._far.distance + (farNormal.x * (farNormal.x < 0 ? minX : maxX)) + (farNormal.y * (farNormal.y < 0 ? minY : maxY)) + (farNormal.z * (farNormal.z < 0 ? minZ : maxZ)) < 0)
+	            return false;
+	        return true;
+	    }
+	    containsBoundBox(box) {
+	        var p = BoundFrustum._tempV30, n = BoundFrustum._tempV31;
+	        var boxMin = box.min;
+	        var boxMax = box.max;
+	        var result = ContainmentType.Contains;
+	        for (var i = 0; i < 6; i++) {
+	            var plane = this.getPlane(i);
+	            var planeNor = plane.normal;
+	            if (planeNor.x >= 0) {
+	                p.x = boxMax.x;
+	                n.x = boxMin.x;
+	            }
+	            else {
+	                p.x = boxMin.x;
+	                n.x = boxMax.x;
+	            }
+	            if (planeNor.y >= 0) {
+	                p.y = boxMax.y;
+	                n.y = boxMin.y;
+	            }
+	            else {
+	                p.y = boxMin.y;
+	                n.y = boxMax.y;
+	            }
+	            if (planeNor.z >= 0) {
+	                p.z = boxMax.z;
+	                n.z = boxMin.z;
+	            }
+	            else {
+	                p.z = boxMin.z;
+	                n.z = boxMax.z;
+	            }
+	            if (CollisionUtils.intersectsPlaneAndPoint(plane, p) === Plane.PlaneIntersectionType_Back)
+	                return ContainmentType.Disjoint;
+	            if (CollisionUtils.intersectsPlaneAndPoint(plane, n) === Plane.PlaneIntersectionType_Back)
+	                result = ContainmentType.Intersects;
+	        }
+	        return result;
+	    }
+	    containsBoundSphere(sphere) {
+	        var result = Plane.PlaneIntersectionType_Front;
+	        var planeResult = Plane.PlaneIntersectionType_Front;
+	        for (var i = 0; i < 6; i++) {
+	            switch (i) {
+	                case 0:
+	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._near, sphere);
+	                    break;
+	                case 1:
+	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._far, sphere);
+	                    break;
+	                case 2:
+	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._left, sphere);
+	                    break;
+	                case 3:
+	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._right, sphere);
+	                    break;
+	                case 4:
+	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._top, sphere);
+	                    break;
+	                case 5:
+	                    planeResult = CollisionUtils.intersectsPlaneAndSphere(this._bottom, sphere);
+	                    break;
+	            }
+	            switch (planeResult) {
+	                case Plane.PlaneIntersectionType_Back:
+	                    return ContainmentType.Disjoint;
+	                case Plane.PlaneIntersectionType_Intersecting:
+	                    result = Plane.PlaneIntersectionType_Intersecting;
+	                    break;
+	            }
+	        }
+	        switch (result) {
+	            case Plane.PlaneIntersectionType_Intersecting:
+	                return ContainmentType.Intersects;
+	            default:
+	                return ContainmentType.Contains;
+	        }
+	    }
+	}
+	BoundFrustum._tempV30 = new Vector3();
+	BoundFrustum._tempV31 = new Vector3();
+	BoundFrustum._tempV32 = new Vector3();
+	BoundFrustum._tempV33 = new Vector3();
+	BoundFrustum._tempV34 = new Vector3();
+	BoundFrustum._tempV35 = new Vector3();
+	BoundFrustum._tempV36 = new Vector3();
+
+	class Viewport {
+	    constructor(x, y, width, height) {
+	        this.minDepth = 0.0;
+	        this.maxDepth = 1.0;
+	        this.x = x;
+	        this.y = y;
+	        this.width = width;
+	        this.height = height;
+	    }
+	    project(source, matrix, out) {
+	        Vector3.transformV3ToV4(source, matrix, out);
+	        var x = out.x, y = out.y, z = out.z;
+	        var w = out.w;
+	        if (w !== 1.0) {
+	            x = x / w;
+	            y = y / w;
+	            z = z / w;
+	        }
+	        out.x = (x + 1.0) * 0.5 * this.width + this.x;
+	        out.y = (-y + 1.0) * 0.5 * this.height + this.y;
+	        out.z = z * (this.maxDepth - this.minDepth) + this.minDepth;
+	    }
+	    unprojectFromMat(source, matrix, out) {
+	        var matrixEleme = matrix.elements;
+	        out.x = (((source.x - this.x) / this.width) * 2.0) - 1.0;
+	        out.y = -((((source.y - this.y) / this.height) * 2.0) - 1.0);
+	        out.z = (source.z - this.minDepth) / (this.maxDepth - this.minDepth);
+	        var a = (((out.x * matrixEleme[3]) + (out.y * matrixEleme[7])) + (out.z * matrixEleme[11])) + matrixEleme[15];
+	        Vector3.transformV3ToV3(out, matrix, out);
+	        if (a !== 1.0) {
+	            out.x = out.x / a;
+	            out.y = out.y / a;
+	            out.z = out.z / a;
+	        }
+	    }
+	    unprojectFromWVP(source, projection, view, world, out) {
+	        Matrix4x4.multiply(projection, view, Viewport._tempMatrix4x4);
+	        (world) && (Matrix4x4.multiply(Viewport._tempMatrix4x4, world, Viewport._tempMatrix4x4));
+	        Viewport._tempMatrix4x4.invert(Viewport._tempMatrix4x4);
+	        this.unprojectFromMat(source, Viewport._tempMatrix4x4, out);
+	    }
+	    cloneTo(out) {
+	        out.x = this.x;
+	        out.y = this.y;
+	        out.width = this.width;
+	        out.height = this.height;
+	        out.minDepth = this.minDepth;
+	        out.maxDepth = this.maxDepth;
+	    }
+	}
+	Viewport._tempMatrix4x4 = new Matrix4x4();
+
+	class Picker {
+	    constructor() {
+	    }
+	    static calculateCursorRay(point, viewPort, projectionMatrix, viewMatrix, world, out) {
+	        var x = point.x;
+	        var y = point.y;
+	        var nearSource = Picker._tempVector30;
+	        var nerSourceE = nearSource;
+	        nerSourceE.x = x;
+	        nerSourceE.y = y;
+	        nerSourceE.z = viewPort.minDepth;
+	        var farSource = Picker._tempVector31;
+	        var farSourceE = farSource;
+	        farSourceE.x = x;
+	        farSourceE.y = y;
+	        farSourceE.z = viewPort.maxDepth;
+	        var nearPoint = out.origin;
+	        var farPoint = Picker._tempVector32;
+	        viewPort.unprojectFromWVP(nearSource, projectionMatrix, viewMatrix, world, nearPoint);
+	        viewPort.unprojectFromWVP(farSource, projectionMatrix, viewMatrix, world, farPoint);
+	        var outDire = out.direction;
+	        outDire.x = farPoint.x - nearPoint.x;
+	        outDire.y = farPoint.y - nearPoint.y;
+	        outDire.z = farPoint.z - nearPoint.z;
+	        Vector3.normalize(out.direction, out.direction);
+	    }
+	    static rayIntersectsTriangle(ray, vertex1, vertex2, vertex3) {
+	        var result;
+	        var edge1 = Picker._tempVector30, edge2 = Picker._tempVector31;
+	        Vector3.subtract(vertex2, vertex1, edge1);
+	        Vector3.subtract(vertex3, vertex1, edge2);
+	        var directionCrossEdge2 = Picker._tempVector32;
+	        Vector3.cross(ray.direction, edge2, directionCrossEdge2);
+	        var determinant;
+	        determinant = Vector3.dot(edge1, directionCrossEdge2);
+	        if (determinant > -Number.MIN_VALUE && determinant < Number.MIN_VALUE) {
+	            result = Number.NaN;
+	            return result;
+	        }
+	        var inverseDeterminant = 1.0 / determinant;
+	        var distanceVector = Picker._tempVector33;
+	        Vector3.subtract(ray.origin, vertex1, distanceVector);
+	        var triangleU;
+	        triangleU = Vector3.dot(distanceVector, directionCrossEdge2);
+	        triangleU *= inverseDeterminant;
+	        if (triangleU < 0 || triangleU > 1) {
+	            result = Number.NaN;
+	            return result;
+	        }
+	        var distanceCrossEdge1 = Picker._tempVector34;
+	        Vector3.cross(distanceVector, edge1, distanceCrossEdge1);
+	        var triangleV;
+	        triangleV = Vector3.dot(ray.direction, distanceCrossEdge1);
+	        triangleV *= inverseDeterminant;
+	        if (triangleV < 0 || triangleU + triangleV > 1) {
+	            result = Number.NaN;
+	            return result;
+	        }
+	        var rayDistance;
+	        rayDistance = Vector3.dot(edge2, distanceCrossEdge1);
+	        rayDistance *= inverseDeterminant;
+	        if (rayDistance < 0) {
+	            result = Number.NaN;
+	            return result;
+	        }
+	        result = rayDistance;
+	        return result;
+	    }
+	}
+	Picker._tempVector30 = new Vector3();
+	Picker._tempVector31 = new Vector3();
+	Picker._tempVector32 = new Vector3();
+	Picker._tempVector33 = new Vector3();
+	Picker._tempVector34 = new Vector3();
+
+	(function (IndexFormat) {
+	    IndexFormat[IndexFormat["UInt8"] = 0] = "UInt8";
+	    IndexFormat[IndexFormat["UInt16"] = 1] = "UInt16";
+	    IndexFormat[IndexFormat["UInt32"] = 2] = "UInt32";
+	})(exports.IndexFormat || (exports.IndexFormat = {}));
+
+	class IndexBuffer3D extends Laya.Buffer {
+	    constructor(indexType, indexCount, bufferUsage = 0x88E4, canRead = false) {
+	        super();
+	        this._indexType = indexType;
+	        this._indexCount = indexCount;
+	        this._bufferUsage = bufferUsage;
+	        this._bufferType = Laya.LayaGL.instance.ELEMENT_ARRAY_BUFFER;
+	        this._canRead = canRead;
+	        switch (indexType) {
+	            case exports.IndexFormat.UInt32:
+	                this._indexTypeByteCount = 4;
+	                break;
+	            case exports.IndexFormat.UInt16:
+	                this._indexTypeByteCount = 2;
+	                break;
+	            case exports.IndexFormat.UInt8:
+	                this._indexTypeByteCount = 1;
+	                break;
+	            default:
+	                throw new Error("unidentification index type.");
+	        }
+	        var byteLength = this._indexTypeByteCount * indexCount;
+	        var curBufSta = Laya.BufferStateBase._curBindedBufferState;
+	        this._byteLength = byteLength;
+	        if (curBufSta) {
+	            if (curBufSta._bindedIndexBuffer === this) {
+	                Laya.LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
+	            }
+	            else {
+	                curBufSta.unBind();
+	                this.bind();
+	                Laya.LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
+	                curBufSta.bind();
+	            }
+	        }
+	        else {
+	            this.bind();
+	            Laya.LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
+	        }
+	        if (canRead) {
+	            switch (indexType) {
+	                case exports.IndexFormat.UInt32:
+	                    this._buffer = new Uint32Array(indexCount);
+	                    break;
+	                case exports.IndexFormat.UInt16:
+	                    this._buffer = new Uint16Array(indexCount);
+	                    break;
+	                case exports.IndexFormat.UInt8:
+	                    this._buffer = new Uint8Array(indexCount);
+	                    break;
+	            }
+	        }
+	    }
+	    get indexType() {
+	        return this._indexType;
+	    }
+	    get indexTypeByteCount() {
+	        return this._indexTypeByteCount;
+	    }
+	    get indexCount() {
+	        return this._indexCount;
+	    }
+	    get canRead() {
+	        return this._canRead;
+	    }
+	    _bindForVAO() {
+	        if (Laya.BufferStateBase._curBindedBufferState) {
+	            var gl = Laya.LayaGL.instance;
+	            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+	        }
+	        else {
+	            throw "IndexBuffer3D: must bind current BufferState.";
+	        }
+	    }
+	    bind() {
+	        if (Laya.BufferStateBase._curBindedBufferState) {
+	            throw "IndexBuffer3D: must unbind current BufferState.";
+	        }
+	        else {
+	            if (Laya.Buffer._bindedIndexBuffer !== this._glBuffer) {
+	                var gl = Laya.LayaGL.instance;
+	                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+	                Laya.Buffer._bindedIndexBuffer = this._glBuffer;
+	                return true;
+	            }
+	            else {
+	                return false;
+	            }
+	        }
+	    }
+	    setData(data, bufferOffset = 0, dataStartIndex = 0, dataCount = 4294967295) {
+	        var byteCount = this._indexTypeByteCount;
+	        if (dataStartIndex !== 0 || dataCount !== 4294967295) {
+	            switch (this._indexType) {
+	                case exports.IndexFormat.UInt32:
+	                    data = new Uint32Array(data.buffer, dataStartIndex * byteCount, dataCount);
+	                    break;
+	                case exports.IndexFormat.UInt16:
+	                    data = new Uint16Array(data.buffer, dataStartIndex * byteCount, dataCount);
+	                    break;
+	                case exports.IndexFormat.UInt8:
+	                    data = new Uint8Array(data.buffer, dataStartIndex * byteCount, dataCount);
+	                    break;
+	            }
+	        }
+	        var curBufSta = Laya.BufferStateBase._curBindedBufferState;
+	        if (curBufSta) {
+	            if (curBufSta._bindedIndexBuffer === this) {
+	                Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * byteCount, data);
+	            }
+	            else {
+	                curBufSta.unBind();
+	                this.bind();
+	                Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * byteCount, data);
+	                curBufSta.bind();
+	            }
+	        }
+	        else {
+	            this.bind();
+	            Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * byteCount, data);
+	        }
+	        if (this._canRead) {
+	            if (bufferOffset !== 0 || dataStartIndex !== 0 || dataCount !== 4294967295) {
+	                var maxLength = this._buffer.length - bufferOffset;
+	                if (dataCount > maxLength)
+	                    dataCount = maxLength;
+	                for (var i = 0; i < dataCount; i++)
+	                    this._buffer[bufferOffset + i] = data[i];
+	            }
+	            else {
+	                this._buffer = data;
+	            }
+	        }
+	    }
+	    getData() {
+	        if (this._canRead)
+	            return this._buffer;
+	        else
+	            throw new Error("Can't read data from VertexBuffer with only write flag!");
+	    }
+	    destroy() {
+	        super.destroy();
+	        this._buffer = null;
+	        this._byteLength = 0;
+	        this._indexCount = 0;
+	    }
+	}
+
+	class SkyMesh {
+	    constructor() {
+	    }
+	    _render(state) {
+	    }
+	}
+
+	class SkyBox extends SkyMesh {
+	    constructor() {
+	        super();
+	        var gl = Laya.LayaGL.instance;
+	        var halfHeight = 1.0;
+	        var halfWidth = 1.0;
+	        var halfDepth = 1.0;
+	        var vertices = new Float32Array([-halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, halfWidth, -halfDepth, halfHeight, halfWidth,
+	            -halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, halfWidth, -halfDepth, -halfHeight, halfWidth]);
+	        var indices = new Uint8Array([
+	            0, 1, 2, 2, 3, 0,
+	            4, 7, 6, 6, 5, 4,
+	            0, 3, 7, 7, 4, 0,
+	            1, 5, 6, 6, 2, 1,
+	            3, 2, 6, 6, 7, 3,
+	            0, 4, 5, 5, 1, 0
+	        ]);
+	        var verDec = VertexMesh.getVertexDeclaration("POSITION");
+	        this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, gl.STATIC_DRAW, false);
+	        this._vertexBuffer.vertexDeclaration = verDec;
+	        this._indexBuffer = new IndexBuffer3D(exports.IndexFormat.UInt8, 36, gl.STATIC_DRAW, false);
+	        this._vertexBuffer.setData(vertices.buffer);
+	        this._indexBuffer.setData(indices);
+	        var bufferState = new BufferState();
+	        bufferState.bind();
+	        bufferState.applyVertexBuffer(this._vertexBuffer);
+	        bufferState.applyIndexBuffer(this._indexBuffer);
+	        bufferState.unBind();
+	        this._bufferState = bufferState;
+	    }
+	    static __init__() {
+	        SkyBox.instance = new SkyBox();
+	    }
+	    _render(state) {
+	        var gl = Laya.LayaGL.instance;
+	        gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
+	        Laya.Stat.trianglesFaces += 12;
+	        Laya.Stat.renderBatches++;
+	    }
+	}
+
+	class SkyRenderer {
+	    constructor() {
+	        this._mesh = SkyBox.instance;
+	    }
+	    get material() {
+	        return this._material;
+	    }
+	    set material(value) {
+	        if (this._material !== value) {
+	            (this._material) && (this._material._removeReference());
+	            (value) && (value._addReference());
+	            this._material = value;
+	        }
+	    }
+	    get mesh() {
+	        return this._mesh;
+	    }
+	    set mesh(value) {
+	        if (this._mesh !== value) {
+	            this._mesh = value;
+	        }
+	    }
+	    _isAvailable() {
+	        return this._material && this._mesh ? true : false;
+	    }
+	    _render(context) {
+	        if (this._material && this._mesh) {
+	            var gl = Laya.LayaGL.instance;
+	            var scene = context.scene;
+	            var cameraShaderValue = context.cameraShaderValue;
+	            var camera = context.camera;
+	            var noteValue = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
+	            Laya.ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
+	            Laya.WebGLContext.setCullFace(gl, false);
+	            Laya.WebGLContext.setDepthFunc(gl, gl.LEQUAL);
+	            Laya.WebGLContext.setDepthMask(gl, false);
+	            var comDef = SkyRenderer._compileDefine;
+	            this._material._shaderValues._defineDatas.cloneTo(comDef);
+	            var shader = context.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(comDef);
+	            var switchShader = shader.bind();
+	            var switchShaderLoop = (Laya.Stat.loopCount !== shader._uploadMark);
+	            var uploadScene = (shader._uploadScene !== scene) || switchShaderLoop;
+	            if (uploadScene || switchShader) {
+	                shader.uploadUniforms(shader._sceneUniformParamsMap, scene._shaderValues, uploadScene);
+	                shader._uploadScene = scene;
+	            }
+	            var uploadCamera = (shader._uploadCameraShaderValue !== cameraShaderValue) || switchShaderLoop;
+	            if (uploadCamera || switchShader) {
+	                var viewMatrix = SkyRenderer._tempMatrix0;
+	                var projectionMatrix = SkyRenderer._tempMatrix1;
+	                camera.viewMatrix.cloneTo(viewMatrix);
+	                camera.projectionMatrix.cloneTo(projectionMatrix);
+	                viewMatrix.setTranslationVector(Vector3._ZERO);
+	                if (camera.orthographic)
+	                    Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
+	                var epsilon = 1e-6;
+	                var yScale = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
+	                projectionMatrix.elements[0] = yScale / camera.aspectRatio;
+	                projectionMatrix.elements[5] = yScale;
+	                projectionMatrix.elements[10] = epsilon - 1.0;
+	                projectionMatrix.elements[11] = -1.0;
+	                projectionMatrix.elements[14] = -0;
+	                camera._applyViewProject(context, viewMatrix, projectionMatrix);
+	                shader.uploadUniforms(shader._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
+	                shader._uploadCameraShaderValue = cameraShaderValue;
+	            }
+	            var uploadMaterial = (shader._uploadMaterial !== this._material) || switchShaderLoop;
+	            if (uploadMaterial || switchShader) {
+	                shader.uploadUniforms(shader._materialUniformParamsMap, this._material._shaderValues, uploadMaterial);
+	                shader._uploadMaterial = this._material;
+	            }
+	            this._mesh._bufferState.bind();
+	            this._mesh._render(context);
+	            Laya.ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
+	            Laya.WebGLContext.setDepthFunc(gl, gl.LESS);
+	            Laya.WebGLContext.setDepthMask(gl, true);
+	            camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
+	        }
+	    }
+	    destroy() {
+	        if (this._material) {
+	            this._material._removeReference();
+	            this._material = null;
+	        }
+	    }
+	}
+	SkyRenderer._tempMatrix0 = new Matrix4x4();
+	SkyRenderer._tempMatrix1 = new Matrix4x4();
+	SkyRenderer._compileDefine = new DefineDatas();
+
+	class BaseCamera extends Sprite3D {
+	    constructor(nearPlane = 0.3, farPlane = 1000) {
+	        super();
+	        this._skyRenderer = new SkyRenderer();
+	        this._forward = new Vector3();
+	        this._up = new Vector3();
+	        this.clearColor = new Vector4(100 / 255, 149 / 255, 237 / 255, 255 / 255);
+	        this._shaderValues = new ShaderData(null);
+	        this._fieldOfView = 60;
+	        this._useUserProjectionMatrix = false;
+	        this._orthographic = false;
+	        this._orthographicVerticalSize = 10;
+	        this.renderingOrder = 0;
+	        this._nearPlane = nearPlane;
+	        this._farPlane = farPlane;
+	        this.cullingMask = 2147483647;
+	        this.useOcclusionCulling = true;
+	    }
+	    get skyRenderer() {
+	        return this._skyRenderer;
+	    }
+	    get fieldOfView() {
+	        return this._fieldOfView;
+	    }
+	    set fieldOfView(value) {
+	        this._fieldOfView = value;
+	        this._calculateProjectionMatrix();
+	    }
+	    get nearPlane() {
+	        return this._nearPlane;
+	    }
+	    set nearPlane(value) {
+	        this._nearPlane = value;
+	        this._calculateProjectionMatrix();
+	    }
+	    get farPlane() {
+	        return this._farPlane;
+	    }
+	    set farPlane(vaule) {
+	        this._farPlane = vaule;
+	        this._calculateProjectionMatrix();
+	    }
+	    get orthographic() {
+	        return this._orthographic;
+	    }
+	    set orthographic(vaule) {
+	        this._orthographic = vaule;
+	        this._calculateProjectionMatrix();
+	    }
+	    get orthographicVerticalSize() {
+	        return this._orthographicVerticalSize;
+	    }
+	    set orthographicVerticalSize(vaule) {
+	        this._orthographicVerticalSize = vaule;
+	        this._calculateProjectionMatrix();
+	    }
+	    get renderingOrder() {
+	        return this._renderingOrder;
+	    }
+	    set renderingOrder(value) {
+	        this._renderingOrder = value;
+	        this._sortCamerasByRenderingOrder();
+	    }
+	    _sortCamerasByRenderingOrder() {
+	        if (this.displayedInStage) {
+	            var cameraPool = this.scene._cameraPool;
+	            var n = cameraPool.length - 1;
+	            for (var i = 0; i < n; i++) {
+	                if (cameraPool[i].renderingOrder > cameraPool[n].renderingOrder) {
+	                    var tempCamera = cameraPool[i];
+	                    cameraPool[i] = cameraPool[n];
+	                    cameraPool[n] = tempCamera;
+	                }
+	            }
+	        }
+	    }
+	    _calculateProjectionMatrix() {
+	    }
+	    _onScreenSizeChanged() {
+	        this._calculateProjectionMatrix();
+	    }
+	    _prepareCameraToRender() {
+	        var cameraSV = this._shaderValues;
+	        this.transform.getForward(this._forward);
+	        this.transform.getUp(this._up);
+	        cameraSV.setVector3(BaseCamera.CAMERAPOS, this.transform.position);
+	        cameraSV.setVector3(BaseCamera.CAMERADIRECTION, this._forward);
+	        cameraSV.setVector3(BaseCamera.CAMERAUP, this._up);
+	    }
+	    render(shader = null, replacementTag = null) {
+	    }
+	    addLayer(layer) {
+	        this.cullingMask |= Math.pow(2, layer);
+	    }
+	    removeLayer(layer) {
+	        this.cullingMask &= ~Math.pow(2, layer);
+	    }
+	    addAllLayers() {
+	        this.cullingMask = 2147483647;
+	    }
+	    removeAllLayers() {
+	        this.cullingMask = 0;
+	    }
+	    resetProjectionMatrix() {
+	        this._useUserProjectionMatrix = false;
+	        this._calculateProjectionMatrix();
+	    }
+	    _onActive() {
+	        this._scene._addCamera(this);
+	        super._onActive();
+	    }
+	    _onInActive() {
+	        this._scene._removeCamera(this);
+	        super._onInActive();
+	    }
+	    _parse(data, spriteMap) {
+	        super._parse(data, spriteMap);
+	        this.orthographic = data.orthographic;
+	        (data.orthographicVerticalSize !== undefined) && (this.orthographicVerticalSize = data.orthographicVerticalSize);
+	        (data.fieldOfView !== undefined) && (this.fieldOfView = data.fieldOfView);
+	        this.nearPlane = data.nearPlane;
+	        this.farPlane = data.farPlane;
+	        var color = data.clearColor;
+	        this.clearColor = new Vector4(color[0], color[1], color[2], color[3]);
+	        var skyboxMaterial = data.skyboxMaterial;
+	        if (skyboxMaterial) {
+	            this._skyRenderer.material = Laya.Loader.getRes(skyboxMaterial.path);
+	        }
+	    }
+	    destroy(destroyChild = true) {
+	        this._skyRenderer.destroy();
+	        this._skyRenderer = null;
+	        Laya.Laya.stage.off(Laya.Event.RESIZE, this, this._onScreenSizeChanged);
+	        super.destroy(destroyChild);
+	    }
+	    _create() {
+	        return new BaseCamera();
+	    }
+	}
+	BaseCamera._tempMatrix4x40 = new Matrix4x4();
+	BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
+	BaseCamera.VIEWMATRIX = Shader3D.propertyNameToID("u_View");
+	BaseCamera.PROJECTMATRIX = Shader3D.propertyNameToID("u_Projection");
+	BaseCamera.VIEWPROJECTMATRIX = Shader3D.propertyNameToID("u_ViewProjection");
+	BaseCamera.CAMERADIRECTION = Shader3D.propertyNameToID("u_CameraDirection");
+	BaseCamera.CAMERAUP = Shader3D.propertyNameToID("u_CameraUp");
+	BaseCamera.VIEWPORT = Shader3D.propertyNameToID("u_Viewport");
+	BaseCamera.PROJECTION_PARAMS = Shader3D.propertyNameToID("u_ProjectionParams");
+	BaseCamera.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
+	BaseCamera.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
+	BaseCamera.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
+	BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
+	BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
+	BaseCamera.RENDERINGTYPE_DEFERREDLIGHTING = "DEFERREDLIGHTING";
+	BaseCamera.RENDERINGTYPE_FORWARDRENDERING = "FORWARDRENDERING";
+	BaseCamera._invertYScaleMatrix = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	BaseCamera._invertYProjectionMatrix = new Matrix4x4();
+	BaseCamera._invertYProjectionViewMatrix = new Matrix4x4();
+	BaseCamera.CLEARFLAG_SOLIDCOLOR = 0;
+	BaseCamera.CLEARFLAG_SKY = 1;
+	BaseCamera.CLEARFLAG_DEPTHONLY = 2;
+	BaseCamera.CLEARFLAG_NONE = 3;
+
+	(function (ShadowMode) {
+	    ShadowMode[ShadowMode["None"] = 0] = "None";
+	    ShadowMode[ShadowMode["Hard"] = 1] = "Hard";
+	    ShadowMode[ShadowMode["SoftLow"] = 2] = "SoftLow";
+	    ShadowMode[ShadowMode["SoftHigh"] = 3] = "SoftHigh";
+	})(exports.ShadowMode || (exports.ShadowMode = {}));
+
+	class Scene3DShaderDeclaration {
+	}
+
+	(function (LightType) {
+	    LightType[LightType["Directional"] = 0] = "Directional";
+	    LightType[LightType["Spot"] = 1] = "Spot";
+	    LightType[LightType["Point"] = 2] = "Point";
+	})(exports.LightType || (exports.LightType = {}));
+	class LightSprite extends Sprite3D {
+	    constructor() {
+	        super();
+	        this._shadowMode = exports.ShadowMode.None;
+	        this._isAlternate = false;
+	        this._shadowResolution = 2048;
+	        this._shadowDistance = 50.0;
+	        this._shadowDepthBias = 1.0;
+	        this._shadowNormalBias = 1.0;
+	        this._shadowNearPlane = 0.1;
+	        this._shadowStrength = 1.0;
+	        this._lightWoldMatrix = new Matrix4x4();
+	        this._intensity = 1.0;
+	        this._intensityColor = new Vector3();
+	        this.color = new Vector3(1.0, 1.0, 1.0);
+	        this._lightmapBakedType = LightSprite.LIGHTMAPBAKEDTYPE_REALTIME;
+	    }
+	    get intensity() {
+	        return this._intensity;
+	    }
+	    set intensity(value) {
+	        this._intensity = value;
+	    }
+	    get shadowMode() {
+	        return this._shadowMode;
+	    }
+	    set shadowMode(value) {
+	        this._shadowMode = value;
+	    }
+	    get shadowDistance() {
+	        return this._shadowDistance;
+	    }
+	    set shadowDistance(value) {
+	        this._shadowDistance = value;
+	    }
+	    get shadowResolution() {
+	        return this._shadowResolution;
+	    }
+	    set shadowResolution(value) {
+	        this._shadowResolution = value;
+	    }
+	    get shadowDepthBias() {
+	        return this._shadowDepthBias;
+	    }
+	    set shadowDepthBias(value) {
+	        this._shadowDepthBias = value;
+	    }
+	    get shadowNormalBias() {
+	        return this._shadowNormalBias;
+	    }
+	    set shadowNormalBias(value) {
+	        this._shadowNormalBias = value;
+	    }
+	    get shadowStrength() {
+	        return this._shadowStrength;
+	    }
+	    set shadowStrength(value) {
+	        this._shadowStrength = value;
+	    }
+	    get shadowNearPlane() {
+	        return this._shadowNearPlane;
+	    }
+	    set shadowNearPlane(value) {
+	        this._shadowNearPlane = value;
+	    }
+	    get lightmapBakedType() {
+	        return this._lightmapBakedType;
+	    }
+	    set lightmapBakedType(value) {
+	        if (this._lightmapBakedType !== value) {
+	            this._lightmapBakedType = value;
+	            if (this.activeInHierarchy) {
+	                if (value !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED)
+	                    this._addToScene();
+	                else
+	                    this._removeFromScene();
+	            }
+	        }
+	    }
+	    get lightWorldMatrix() {
+	        var position = this.transform.position;
+	        var quaterian = this.transform.rotation;
+	        Matrix4x4.createAffineTransformation(position, quaterian, Vector3._ONE, this._lightWoldMatrix);
+	        return this._lightWoldMatrix;
+	    }
+	    _parse(data, spriteMap) {
+	        super._parse(data, spriteMap);
+	        var colorData = data.color;
+	        this.color.fromArray(colorData);
+	        this.intensity = data.intensity;
+	        this.lightmapBakedType = data.lightmapBakedType;
+	    }
+	    _cloneTo(destObject, rootSprite, dstSprite) {
+	        super._cloneTo(destObject, rootSprite, dstSprite);
+	        var spriteLight = destObject;
+	        spriteLight.color = this.color.clone();
+	        spriteLight.intensity = this.intensity;
+	        spriteLight.lightmapBakedType = this.lightmapBakedType;
+	    }
+	    _addToScene() {
+	        var scene = this._scene;
+	        var maxLightCount = Config3D._config.maxLightCount;
+	        if (scene._lightCount < maxLightCount) {
+	            scene._lightCount++;
+	            this._addToLightQueue();
+	            this._isAlternate = false;
+	        }
+	        else {
+	            scene._alternateLights.add(this);
+	            this._isAlternate = true;
+	            console.warn("LightSprite:light count has large than maxLightCount,the latest added light will be ignore.");
+	        }
+	    }
+	    _removeFromScene() {
+	        var scene = this._scene;
+	        if (this._isAlternate) {
+	            scene._alternateLights.remove(this);
+	        }
+	        else {
+	            scene._lightCount--;
+	            this._removeFromLightQueue();
+	            if (scene._alternateLights._length > 0) {
+	                var alternateLight = scene._alternateLights.shift();
+	                alternateLight._addToLightQueue();
+	                alternateLight._isAlternate = false;
+	                scene._lightCount++;
+	            }
+	        }
+	    }
+	    _addToLightQueue() {
+	    }
+	    _removeFromLightQueue() {
+	    }
+	    _onActive() {
+	        super._onActive();
+	        (this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (this._addToScene());
+	    }
+	    _onInActive() {
+	        super._onInActive();
+	        (this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (this._removeFromScene());
+	    }
+	    _create() {
+	        return new LightSprite();
+	    }
+	    get diffuseColor() {
+	        console.log("LightSprite: discard property,please use color property instead.");
+	        return this.color;
+	    }
+	    set diffuseColor(value) {
+	        console.log("LightSprite: discard property,please use color property instead.");
+	        this.color = value;
+	    }
+	}
+	LightSprite.LIGHTMAPBAKEDTYPE_REALTIME = 0;
+	LightSprite.LIGHTMAPBAKEDTYPE_MIXED = 1;
+	LightSprite.LIGHTMAPBAKEDTYPE_BAKED = 2;
+
+	(function (ShadowCascadesMode) {
+	    ShadowCascadesMode[ShadowCascadesMode["NoCascades"] = 0] = "NoCascades";
+	    ShadowCascadesMode[ShadowCascadesMode["TwoCascades"] = 1] = "TwoCascades";
+	    ShadowCascadesMode[ShadowCascadesMode["FourCascades"] = 2] = "FourCascades";
+	})(exports.ShadowCascadesMode || (exports.ShadowCascadesMode = {}));
+
+	var FrustumFace;
+	(function (FrustumFace) {
+	    FrustumFace[FrustumFace["Near"] = 0] = "Near";
+	    FrustumFace[FrustumFace["Far"] = 1] = "Far";
+	    FrustumFace[FrustumFace["Left"] = 2] = "Left";
+	    FrustumFace[FrustumFace["Right"] = 3] = "Right";
+	    FrustumFace[FrustumFace["Bottom"] = 4] = "Bottom";
+	    FrustumFace[FrustumFace["Top"] = 5] = "Top";
+	})(FrustumFace || (FrustumFace = {}));
+	class ShadowUtils {
+	    static supportShadow() {
+	        return Laya.LayaGL.layaGPUInstance._isWebGL2 || Laya.SystemUtils.supportRenderTextureFormat(Laya.RenderTextureFormat.Depth);
+	    }
+	    static init() {
+	        if (Laya.LayaGL.layaGPUInstance._isWebGL2)
+	            ShadowUtils._shadowTextureFormat = Laya.RenderTextureFormat.ShadowMap;
+	        else
+	            ShadowUtils._shadowTextureFormat = Laya.RenderTextureFormat.Depth;
+	    }
+	    static getTemporaryShadowTexture(witdh, height, depthFormat) {
+	        var shadowMap = RenderTexture.createFromPool(witdh, height, ShadowUtils._shadowTextureFormat, depthFormat);
+	        shadowMap.filterMode = Laya.FilterMode.Bilinear;
+	        shadowMap.wrapModeU = Laya.WarpMode.Clamp;
+	        shadowMap.wrapModeV = Laya.WarpMode.Clamp;
+	        return shadowMap;
+	    }
+	    static getShadowBias(light, shadowProjectionMatrix, shadowResolution, out) {
+	        var frustumSize;
+	        if (light._lightType == exports.LightType.Directional) {
+	            frustumSize = 2.0 / shadowProjectionMatrix.elements[0];
+	        }
+	        else if (light._lightType == exports.LightType.Spot) {
+	            frustumSize = Math.tan(light.spotAngle * 0.5 * MathUtils3D.Deg2Rad) * light.range;
+	        }
+	        else {
+	            console.warn("ShadowUtils:Only spot and directional shadow casters are supported now.");
+	            frustumSize = 0.0;
+	        }
+	        var texelSize = frustumSize / shadowResolution;
+	        var depthBias = -light._shadowDepthBias * texelSize;
+	        var normalBias = -light._shadowNormalBias * texelSize;
+	        if (light.shadowMode == exports.ShadowMode.SoftHigh) {
+	            const kernelRadius = 2.5;
+	            depthBias *= kernelRadius;
+	            normalBias *= kernelRadius;
+	        }
+	        out.setValue(depthBias, normalBias, 0.0, 0.0);
+	    }
+	    static getCameraFrustumPlanes(cameraViewProjectMatrix, frustumPlanes) {
+	        BoundFrustum.getPlanesFromMatrix(cameraViewProjectMatrix, frustumPlanes[FrustumFace.Near], frustumPlanes[FrustumFace.Far], frustumPlanes[FrustumFace.Left], frustumPlanes[FrustumFace.Right], frustumPlanes[FrustumFace.Top], frustumPlanes[FrustumFace.Bottom]);
+	    }
+	    static getFarWithRadius(radius, denominator) {
+	        return Math.sqrt(radius * radius / denominator);
+	    }
+	    static getCascadesSplitDistance(twoSplitRatio, fourSplitRatio, cameraNear, shadowFar, fov, aspectRatio, cascadesMode, out) {
+	        out[0] = cameraNear;
+	        var range = shadowFar - cameraNear;
+	        var tFov = Math.tan(fov * 0.5);
+	        var denominator = 1.0 + tFov * tFov * (aspectRatio * aspectRatio + 1.0);
+	        switch (cascadesMode) {
+	            case exports.ShadowCascadesMode.NoCascades:
+	                out[1] = ShadowUtils.getFarWithRadius(shadowFar, denominator);
+	                break;
+	            case exports.ShadowCascadesMode.TwoCascades:
+	                out[1] = ShadowUtils.getFarWithRadius(cameraNear + range * twoSplitRatio, denominator);
+	                out[2] = ShadowUtils.getFarWithRadius(shadowFar, denominator);
+	                break;
+	            case exports.ShadowCascadesMode.FourCascades:
+	                out[1] = ShadowUtils.getFarWithRadius(cameraNear + range * fourSplitRatio.x, denominator);
+	                out[2] = ShadowUtils.getFarWithRadius(cameraNear + range * fourSplitRatio.y, denominator);
+	                out[3] = ShadowUtils.getFarWithRadius(cameraNear + range * fourSplitRatio.z, denominator);
+	                out[4] = ShadowUtils.getFarWithRadius(shadowFar, denominator);
+	                break;
+	        }
+	    }
+	    static applySliceTransform(shadowSliceData, atlasWidth, atlasHeight, cascadeIndex, outShadowMatrices) {
+	        var sliceE = ShadowUtils._tempMatrix0.elements;
+	        var oneOverAtlasWidth = 1.0 / atlasWidth;
+	        var oneOverAtlasHeight = 1.0 / atlasHeight;
+	        sliceE[0] = shadowSliceData.resolution * oneOverAtlasWidth;
+	        sliceE[5] = shadowSliceData.resolution * oneOverAtlasHeight;
+	        sliceE[12] = shadowSliceData.offsetX * oneOverAtlasWidth;
+	        sliceE[13] = shadowSliceData.offsetY * oneOverAtlasHeight;
+	        sliceE[1] = sliceE[2] = sliceE[2] = sliceE[4] = sliceE[6] = sliceE[7] = sliceE[8] = sliceE[9] = sliceE[11] = sliceE[14] = 0;
+	        sliceE[10] = sliceE[15] = 1;
+	        var offset = cascadeIndex * 16;
+	        Utils3D._mulMatrixArray(sliceE, outShadowMatrices, offset, outShadowMatrices, offset);
+	    }
+	    static getDirectionLightShadowCullPlanes(cameraFrustumPlanes, cascadeIndex, splitDistance, cameraNear, direction, shadowSliceData) {
+	        var frustumCorners = ShadowUtils._frustumCorners;
+	        var backPlaneFaces = ShadowUtils._backPlaneFaces;
+	        var planeNeighbors = ShadowUtils._frustumPlaneNeighbors;
+	        var twoPlaneCorners = ShadowUtils._frustumTwoPlaneCorners;
+	        var edgePlanePoint2 = ShadowUtils._edgePlanePoint2;
+	        var out = shadowSliceData.cullPlanes;
+	        var near = cameraFrustumPlanes[FrustumFace.Near], far = cameraFrustumPlanes[FrustumFace.Far];
+	        var left = cameraFrustumPlanes[FrustumFace.Left], right = cameraFrustumPlanes[FrustumFace.Right];
+	        var bottom = cameraFrustumPlanes[FrustumFace.Bottom], top = cameraFrustumPlanes[FrustumFace.Top];
+	        var splitNearDistance = splitDistance[cascadeIndex] - cameraNear;
+	        var splitNear = ShadowUtils._adjustNearPlane;
+	        var splitFar = ShadowUtils._adjustFarPlane;
+	        near.normal.cloneTo(splitNear.normal);
+	        far.normal.cloneTo(splitFar.normal);
+	        splitNear.distance = near.distance - splitNearDistance;
+	        splitFar.distance = Math.min(-near.distance + shadowSliceData.sphereCenterZ + shadowSliceData.splitBoundSphere.radius, far.distance);
+	        BoundFrustum.get3PlaneInterPoint(splitNear, bottom, right, frustumCorners[exports.FrustumCorner.nearBottomRight]);
+	        BoundFrustum.get3PlaneInterPoint(splitNear, top, right, frustumCorners[exports.FrustumCorner.nearTopRight]);
+	        BoundFrustum.get3PlaneInterPoint(splitNear, top, left, frustumCorners[exports.FrustumCorner.nearTopLeft]);
+	        BoundFrustum.get3PlaneInterPoint(splitNear, bottom, left, frustumCorners[exports.FrustumCorner.nearBottomLeft]);
+	        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, right, frustumCorners[exports.FrustumCorner.FarBottomRight]);
+	        BoundFrustum.get3PlaneInterPoint(splitFar, top, right, frustumCorners[exports.FrustumCorner.FarTopRight]);
+	        BoundFrustum.get3PlaneInterPoint(splitFar, top, left, frustumCorners[exports.FrustumCorner.FarTopLeft]);
+	        BoundFrustum.get3PlaneInterPoint(splitFar, bottom, left, frustumCorners[exports.FrustumCorner.FarBottomLeft]);
+	        var backIndex = 0;
+	        for (var i = 0; i < 6; i++) {
+	            var plane;
+	            switch (i) {
+	                case FrustumFace.Near:
+	                    plane = splitNear;
+	                    break;
+	                case FrustumFace.Far:
+	                    plane = splitFar;
+	                    break;
+	                default:
+	                    plane = cameraFrustumPlanes[i];
+	                    break;
+	            }
+	            if (Vector3.dot(plane.normal, direction) < 0.0) {
+	                plane.cloneTo(out[backIndex]);
+	                backPlaneFaces[backIndex] = i;
+	                backIndex++;
+	            }
+	        }
+	        var edgeIndex = backIndex;
+	        for (var i = 0; i < backIndex; i++) {
+	            var backFace = backPlaneFaces[i];
+	            var neighborFaces = planeNeighbors[backFace];
+	            for (var j = 0; j < 4; j++) {
+	                var neighborFace = neighborFaces[j];
+	                var notBackFace = true;
+	                for (var k = 0; k < backIndex; k++)
+	                    if (neighborFace == backPlaneFaces[k]) {
+	                        notBackFace = false;
+	                        break;
+	                    }
+	                if (notBackFace) {
+	                    var corners = twoPlaneCorners[backFace][neighborFace];
+	                    var point0 = frustumCorners[corners[0]];
+	                    var point1 = frustumCorners[corners[1]];
+	                    Vector3.add(point0, direction, edgePlanePoint2);
+	                    Plane.createPlaneBy3P(point0, point1, edgePlanePoint2, out[edgeIndex++]);
+	                }
+	            }
+	        }
+	        shadowSliceData.cullPlaneCount = edgeIndex;
+	    }
+	    static getBoundSphereByFrustum(near, far, fov, aspectRatio, cameraPos, forward, outBoundSphere) {
+	        var centerZ;
+	        var radius;
+	        var k = Math.sqrt(1.0 + aspectRatio * aspectRatio) * Math.tan(fov / 2.0);
+	        var k2 = k * k;
+	        var farSNear = far - near;
+	        var farANear = far + near;
+	        if (k2 > farSNear / farANear) {
+	            centerZ = far;
+	            radius = far * k;
+	        }
+	        else {
+	            centerZ = 0.5 * farANear * (1 + k2);
+	            radius = 0.5 * Math.sqrt(farSNear * farSNear + 2.0 * (far * far + near * near) * k2 + farANear * farANear * k2 * k2);
+	        }
+	        var center = outBoundSphere.center;
+	        outBoundSphere.radius = radius;
+	        Vector3.scale(forward, centerZ, center);
+	        Vector3.add(cameraPos, center, center);
+	        return centerZ;
+	    }
+	    static getMaxTileResolutionInAtlas(atlasWidth, atlasHeight, tileCount) {
+	        var resolution = Math.min(atlasWidth, atlasHeight);
+	        var currentTileCount = Math.floor(atlasWidth / resolution) * Math.floor(atlasHeight / resolution);
+	        while (currentTileCount < tileCount) {
+	            resolution = Math.floor(resolution >> 1);
+	            currentTileCount = Math.floor(atlasWidth / resolution) * Math.floor(atlasHeight / resolution);
+	        }
+	        return resolution;
+	    }
+	    static getDirectionalLightMatrices(lightUp, lightSide, lightForward, cascadeIndex, nearPlane, shadowResolution, shadowSliceData, shadowMatrices) {
+	        var boundSphere = shadowSliceData.splitBoundSphere;
+	        var center = boundSphere.center;
+	        var radius = boundSphere.radius;
+	        var halfShadowResolution = shadowResolution / 2;
+	        var borderRadius = radius * halfShadowResolution / (halfShadowResolution - ShadowUtils.atlasBorderSize);
+	        var borderDiam = borderRadius * 2.0;
+	        var sizeUnit = shadowResolution / borderDiam;
+	        var radiusUnit = borderDiam / shadowResolution;
+	        var upLen = Math.ceil(Vector3.dot(center, lightUp) * sizeUnit) * radiusUnit;
+	        var sideLen = Math.ceil(Vector3.dot(center, lightSide) * sizeUnit) * radiusUnit;
+	        var forwardLen = Vector3.dot(center, lightForward);
+	        center.x = lightUp.x * upLen + lightSide.x * sideLen + lightForward.x * forwardLen;
+	        center.y = lightUp.y * upLen + lightSide.y * sideLen + lightForward.y * forwardLen;
+	        center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
+	        var origin = shadowSliceData.position;
+	        var viewMatrix = shadowSliceData.viewMatrix;
+	        var projectMatrix = shadowSliceData.projectionMatrix;
+	        var viewProjectMatrix = shadowSliceData.viewProjectMatrix;
+	        shadowSliceData.resolution = shadowResolution;
+	        shadowSliceData.offsetX = (cascadeIndex % 2) * shadowResolution;
+	        shadowSliceData.offsetY = Math.floor(cascadeIndex / 2) * shadowResolution;
+	        Vector3.scale(lightForward, radius + nearPlane, origin);
+	        Vector3.subtract(center, origin, origin);
+	        Matrix4x4.createLookAt(origin, center, lightUp, viewMatrix);
+	        Matrix4x4.createOrthoOffCenter(-borderRadius, borderRadius, -borderRadius, borderRadius, 0.0, radius * 2.0 + nearPlane, projectMatrix);
+	        Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
+	        Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
+	    }
+	    static getSpotLightShadowData(shadowSpotData, spotLight, resolution, shadowParams, shadowSpotMatrices, shadowMapSize) {
+	        var out = shadowSpotData.position = spotLight.transform.position;
+	        shadowSpotData.resolution = resolution;
+	        shadowMapSize.setValue(1.0 / resolution, 1.0 / resolution, resolution, resolution);
+	        shadowSpotData.offsetX = 0;
+	        shadowSpotData.offsetY = 0;
+	        var spotWorldMatrix = spotLight.lightWorldMatrix;
+	        var viewMatrix = shadowSpotData.viewMatrix;
+	        var projectMatrix = shadowSpotData.projectionMatrix;
+	        var viewProjectMatrix = shadowSpotData.viewProjectMatrix;
+	        var BoundFrustum = shadowSpotData.cameraCullInfo.boundFrustum;
+	        spotWorldMatrix.invert(viewMatrix);
+	        Matrix4x4.createPerspective(3.1416 * spotLight.spotAngle / 180.0, 1, 0.1, spotLight.range, projectMatrix);
+	        shadowParams.y = spotLight.shadowStrength;
+	        Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
+	        BoundFrustum.matrix = viewProjectMatrix;
+	        viewProjectMatrix.cloneTo(shadowSpotMatrices);
+	        shadowSpotData.cameraCullInfo.position = out;
+	    }
+	    static prepareShadowReceiverShaderValues(light, shadowMapWidth, shadowMapHeight, shadowSliceDatas, cascadeCount, shadowMapSize, shadowParams, shadowMatrices, splitBoundSpheres) {
+	        shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
+	        shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
+	        if (cascadeCount > 1) {
+	            const matrixFloatCount = 16;
+	            for (var i = cascadeCount * matrixFloatCount, n = 4 * matrixFloatCount; i < n; i++)
+	                shadowMatrices[i] = 0.0;
+	            for (var i = 0; i < cascadeCount; i++) {
+	                var boundSphere = shadowSliceDatas[i].splitBoundSphere;
+	                var center = boundSphere.center;
+	                var radius = boundSphere.radius;
+	                var offset = i * 4;
+	                splitBoundSpheres[offset] = center.x;
+	                splitBoundSpheres[offset + 1] = center.y;
+	                splitBoundSpheres[offset + 2] = center.z;
+	                splitBoundSpheres[offset + 3] = radius * radius;
+	            }
+	            const sphereFloatCount = 4;
+	            for (var i = cascadeCount * sphereFloatCount, n = 4 * sphereFloatCount; i < n; i++)
+	                splitBoundSpheres[i] = 0.0;
+	        }
+	    }
+	}
+	ShadowUtils._tempMatrix0 = new Matrix4x4();
+	ShadowUtils._shadowMapScaleOffsetMatrix = new Matrix4x4(0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.5, 0.0, 1.0);
+	ShadowUtils._frustumCorners = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
+	ShadowUtils._adjustNearPlane = new Plane(new Vector3());
+	ShadowUtils._adjustFarPlane = new Plane(new Vector3());
+	ShadowUtils._backPlaneFaces = new Array(5);
+	ShadowUtils._edgePlanePoint2 = new Vector3();
+	ShadowUtils._frustumPlaneNeighbors = [
+	    [FrustumFace.Left, FrustumFace.Right, FrustumFace.Top, FrustumFace.Bottom],
+	    [FrustumFace.Left, FrustumFace.Right, FrustumFace.Top, FrustumFace.Bottom],
+	    [FrustumFace.Near, FrustumFace.Far, FrustumFace.Top, FrustumFace.Bottom],
+	    [FrustumFace.Near, FrustumFace.Far, FrustumFace.Top, FrustumFace.Bottom],
+	    [FrustumFace.Near, FrustumFace.Far, FrustumFace.Left, FrustumFace.Right],
+	    [FrustumFace.Near, FrustumFace.Far, FrustumFace.Left, FrustumFace.Right]
+	];
+	ShadowUtils._frustumTwoPlaneCorners = [
+	    [[exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.nearBottomLeft, exports.FrustumCorner.nearTopLeft], [exports.FrustumCorner.nearTopRight, exports.FrustumCorner.nearBottomRight], [exports.FrustumCorner.nearBottomRight, exports.FrustumCorner.nearBottomLeft], [exports.FrustumCorner.nearTopLeft, exports.FrustumCorner.nearTopRight]],
+	    [[exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.FarTopLeft, exports.FrustumCorner.FarBottomLeft], [exports.FrustumCorner.FarBottomRight, exports.FrustumCorner.FarTopRight], [exports.FrustumCorner.FarBottomLeft, exports.FrustumCorner.FarBottomRight], [exports.FrustumCorner.FarTopRight, exports.FrustumCorner.FarTopLeft]],
+	    [[exports.FrustumCorner.nearTopLeft, exports.FrustumCorner.nearBottomLeft], [exports.FrustumCorner.FarBottomLeft, exports.FrustumCorner.FarTopLeft], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.nearBottomLeft, exports.FrustumCorner.FarBottomLeft], [exports.FrustumCorner.FarTopLeft, exports.FrustumCorner.nearTopLeft]],
+	    [[exports.FrustumCorner.nearBottomRight, exports.FrustumCorner.nearTopRight], [exports.FrustumCorner.FarTopRight, exports.FrustumCorner.FarBottomRight], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.FarBottomRight, exports.FrustumCorner.nearBottomRight], [exports.FrustumCorner.nearTopRight, exports.FrustumCorner.FarTopRight]],
+	    [[exports.FrustumCorner.nearBottomLeft, exports.FrustumCorner.nearBottomRight], [exports.FrustumCorner.FarBottomRight, exports.FrustumCorner.FarBottomLeft], [exports.FrustumCorner.FarBottomLeft, exports.FrustumCorner.nearBottomLeft], [exports.FrustumCorner.nearBottomRight, exports.FrustumCorner.FarBottomRight], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown]],
+	    [[exports.FrustumCorner.nearTopRight, exports.FrustumCorner.nearTopLeft], [exports.FrustumCorner.FarTopLeft, exports.FrustumCorner.FarTopRight], [exports.FrustumCorner.nearTopLeft, exports.FrustumCorner.FarTopLeft], [exports.FrustumCorner.FarTopRight, exports.FrustumCorner.nearTopRight], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown], [exports.FrustumCorner.unknown, exports.FrustumCorner.unknown]]
+	];
+	ShadowUtils.atlasBorderSize = 4.0;
+
+	(function (DepthTextureMode) {
+	    DepthTextureMode[DepthTextureMode["None"] = 0] = "None";
+	    DepthTextureMode[DepthTextureMode["Depth"] = 1] = "Depth";
+	    DepthTextureMode[DepthTextureMode["DepthNormals"] = 2] = "DepthNormals";
+	    DepthTextureMode[DepthTextureMode["MotionVectors"] = 4] = "MotionVectors";
+	})(exports.DepthTextureMode || (exports.DepthTextureMode = {}));
+	class DepthPass {
+	    constructor() {
+	        this._zBufferParams = new Vector4();
+	    }
+	    update(camera, depthType) {
+	        this._viewPort = camera.viewport;
+	        this._camera = camera;
+	        switch (depthType) {
+	            case exports.DepthTextureMode.Depth:
+	                camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, Laya.RenderTextureFormat.Depth, Laya.RenderTextureDepthFormat.DEPTH_16);
+	                break;
+	            case exports.DepthTextureMode.DepthNormals:
+	                camera.depthNormalTexture = this._depthNormalsTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, Laya.RenderTextureFormat.R8G8B8A8, Laya.RenderTextureDepthFormat.DEPTH_16);
+	                break;
+	            case exports.DepthTextureMode.MotionVectors:
+	                break;
+	            default:
+	                throw ("there is UnDefined type of DepthTextureMode");
+	        }
+	    }
+	    render(context, depthType) {
+	        var scene = context.scene;
+	        switch (depthType) {
+	            case exports.DepthTextureMode.Depth:
+	                var shaderValues = scene._shaderValues;
+	                context.pipelineMode = "ShadowCaster";
+	                ShaderData.setRuntimeValueMode(false);
+	                this._depthTexture._start();
+	                shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
+	                var gl = Laya.LayaGL.instance;
+	                var offsetX = this._viewPort.x;
+	                var offsetY = this._viewPort.y;
+	                gl.enable(gl.SCISSOR_TEST);
+	                gl.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+	                gl.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+	                gl.clear(gl.DEPTH_BUFFER_BIT);
+	                scene._opaqueQueue._render(context);
+	                this._depthTexture._end();
+	                ShaderData.setRuntimeValueMode(true);
+	                this._setupDepthModeShaderValue(depthType, this._camera);
+	                context.pipelineMode = context.configPipeLineMode;
+	                break;
+	            case exports.DepthTextureMode.DepthNormals:
+	                var shaderValues = scene._shaderValues;
+	                context.pipelineMode = "DepthNormal";
+	                ShaderData.setRuntimeValueMode(false);
+	                this._depthNormalsTexture._start();
+	                var gl = Laya.LayaGL.instance;
+	                var offsetX = this._viewPort.x;
+	                var offsetY = this._viewPort.y;
+	                gl.enable(gl.SCISSOR_TEST);
+	                gl.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+	                gl.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+	                gl.clearColor(0.5, 0.5, 1.0, 0.0);
+	                gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+	                scene._opaqueQueue._render(context);
+	                this._depthNormalsTexture._end();
+	                ShaderData.setRuntimeValueMode(true);
+	                this._setupDepthModeShaderValue(depthType, this._camera);
+	                context.pipelineMode = context.configPipeLineMode;
+	                break;
+	            case exports.DepthTextureMode.MotionVectors:
+	                break;
+	            default:
+	                throw ("there is UnDefined type of DepthTextureMode");
+	        }
+	    }
+	    _setupDepthModeShaderValue(depthType, camera) {
+	        switch (depthType) {
+	            case exports.DepthTextureMode.Depth:
+	                var far = camera.farPlane;
+	                var near = camera.nearPlane;
+	                this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
+	                camera._shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
+	                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._depthTexture);
+	                camera._shaderValues.setVector(DepthPass.DEPTHZBUFFERPARAMS, this._zBufferParams);
+	                break;
+	            case exports.DepthTextureMode.DepthNormals:
+	                camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, this._depthNormalsTexture);
+	                break;
+	            case exports.DepthTextureMode.MotionVectors:
+	                break;
+	            default:
+	                throw ("there is UnDefined type of DepthTextureMode");
+	        }
+	    }
+	    cleanUp() {
+	        this._depthTexture && RenderTexture.recoverToPool(this._depthTexture);
+	        this._depthNormalsTexture && RenderTexture.recoverToPool(this._depthNormalsTexture);
+	        this._depthTexture = null;
+	        this._depthNormalsTexture = null;
+	    }
+	}
+	DepthPass.SHADOW_BIAS = new Vector4();
+	DepthPass.DEFINE_SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
+	DepthPass.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
+	DepthPass.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
+	DepthPass.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
+
+	(function (CameraClearFlags) {
+	    CameraClearFlags[CameraClearFlags["SolidColor"] = 0] = "SolidColor";
+	    CameraClearFlags[CameraClearFlags["Sky"] = 1] = "Sky";
+	    CameraClearFlags[CameraClearFlags["DepthOnly"] = 2] = "DepthOnly";
+	    CameraClearFlags[CameraClearFlags["Nothing"] = 3] = "Nothing";
+	})(exports.CameraClearFlags || (exports.CameraClearFlags = {}));
+	(function (CameraEventFlags) {
+	    CameraEventFlags[CameraEventFlags["BeforeForwardOpaque"] = 0] = "BeforeForwardOpaque";
+	    CameraEventFlags[CameraEventFlags["BeforeSkyBox"] = 2] = "BeforeSkyBox";
+	    CameraEventFlags[CameraEventFlags["BeforeTransparent"] = 4] = "BeforeTransparent";
+	    CameraEventFlags[CameraEventFlags["BeforeImageEffect"] = 6] = "BeforeImageEffect";
+	    CameraEventFlags[CameraEventFlags["AfterEveryThing"] = 8] = "AfterEveryThing";
+	})(exports.CameraEventFlags || (exports.CameraEventFlags = {}));
+	class Camera extends BaseCamera {
+	    constructor(aspectRatio = 0, nearPlane = 0.3, farPlane = 1000) {
+	        super(nearPlane, farPlane);
+	        this._updateViewMatrix = true;
+	        this._postProcess = null;
+	        this._enableHDR = false;
+	        this._viewportParams = new Vector4();
+	        this._projectionParams = new Vector4();
+	        this._needBuiltInRenderTexture = false;
+	        this._offScreenRenderTexture = null;
+	        this._internalRenderTexture = null;
+	        this._internalCommandBuffer = new CommandBuffer();
+	        this._cameraEventCommandBuffer = {};
+	        this._clusterPlaneCacheFlag = new Vector2(-1, -1);
+	        this._screenOffsetScale = new Vector4();
+	        this.enableRender = true;
+	        this.clearFlag = exports.CameraClearFlags.SolidColor;
+	        this._viewMatrix = new Matrix4x4();
+	        this._projectionMatrix = new Matrix4x4();
+	        this._projectionViewMatrix = new Matrix4x4();
+	        this._viewport = new Viewport(0, 0, 0, 0);
+	        this._normalizedViewport = new Viewport(0, 0, 1, 1);
+	        this._rayViewport = new Viewport(0, 0, 0, 0);
+	        this._aspectRatio = aspectRatio;
+	        this._boundFrustum = new BoundFrustum(new Matrix4x4());
+	        this._calculateProjectionMatrix();
+	        Laya.Laya.stage.on(Laya.Event.RESIZE, this, this._onScreenSizeChanged);
+	        this.transform.on(Laya.Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+	    }
+	    static drawRenderTextureByScene(camera, scene, renderTexture, shader = null, replacementTag = null) {
+	        if (camera.renderTarget != renderTexture) {
+	            camera.renderTarget && RenderTexture.recoverToPool(camera.renderTarget);
+	            camera.renderTarget = renderTexture;
+	        }
+	        var viewport = camera.viewport;
+	        var needInternalRT = camera._needInternalRenderTexture();
+	        var context = RenderContext3D._instance;
+	        var scene = context.scene = scene;
+	        context.pipelineMode = context.configPipeLineMode;
+	        if (needInternalRT) {
+	            camera._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, camera._getRenderTextureFormat(), Laya.RenderTextureDepthFormat.DEPTH_16);
+	            camera._internalRenderTexture.filterMode = Laya.FilterMode.Bilinear;
+	        }
+	        else {
+	            camera._internalRenderTexture = null;
+	        }
+	        var needShadowCasterPass = camera._renderShadowMap(scene, context);
+	        camera._preRenderMainPass(context, scene, needInternalRT, viewport);
+	        camera._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
+	        camera._aftRenderMainPass(needShadowCasterPass);
+	        return camera.renderTarget;
+	    }
+	    get aspectRatio() {
+	        if (this._aspectRatio === 0) {
+	            var vp = this.viewport;
+	            return vp.width / vp.height;
+	        }
+	        return this._aspectRatio;
+	    }
+	    set aspectRatio(value) {
+	        if (value < 0)
+	            throw new Error("Camera: the aspect ratio has to be a positive real number.");
+	        this._aspectRatio = value;
+	        this._calculateProjectionMatrix();
+	    }
+	    get viewport() {
+	        if (this._offScreenRenderTexture)
+	            this._calculationViewport(this._normalizedViewport, this._offScreenRenderTexture.width, this._offScreenRenderTexture.height);
+	        else
+	            this._calculationViewport(this._normalizedViewport, RenderContext3D.clientWidth, RenderContext3D.clientHeight);
+	        return this._viewport;
+	    }
+	    set viewport(value) {
+	        var width;
+	        var height;
+	        if (this._offScreenRenderTexture) {
+	            width = this._offScreenRenderTexture.width;
+	            height = this._offScreenRenderTexture.height;
+	        }
+	        else {
+	            width = RenderContext3D.clientWidth;
+	            height = RenderContext3D.clientHeight;
+	        }
+	        this._normalizedViewport.x = value.x / width;
+	        this._normalizedViewport.y = value.y / height;
+	        this._normalizedViewport.width = value.width / width;
+	        this._normalizedViewport.height = value.height / height;
+	        this._calculationViewport(this._normalizedViewport, width, height);
+	        this._calculateProjectionMatrix();
+	    }
+	    get normalizedViewport() {
+	        return this._normalizedViewport;
+	    }
+	    set normalizedViewport(value) {
+	        var width;
+	        var height;
+	        if (this._offScreenRenderTexture) {
+	            width = this._offScreenRenderTexture.width;
+	            height = this._offScreenRenderTexture.height;
+	        }
+	        else {
+	            width = RenderContext3D.clientWidth;
+	            height = RenderContext3D.clientHeight;
+	        }
+	        if (this._normalizedViewport !== value)
+	            value.cloneTo(this._normalizedViewport);
+	        this._calculationViewport(value, width, height);
+	        this._calculateProjectionMatrix();
+	    }
+	    get viewMatrix() {
+	        if (this._updateViewMatrix) {
+	            var scale = this.transform.getWorldLossyScale();
+	            var scaleX = scale.x;
+	            var scaleY = scale.y;
+	            var scaleZ = scale.z;
+	            var viewMatE = this._viewMatrix.elements;
+	            this.transform.worldMatrix.cloneTo(this._viewMatrix);
+	            viewMatE[0] /= scaleX;
+	            viewMatE[1] /= scaleX;
+	            viewMatE[2] /= scaleX;
+	            viewMatE[4] /= scaleY;
+	            viewMatE[5] /= scaleY;
+	            viewMatE[6] /= scaleY;
+	            viewMatE[8] /= scaleZ;
+	            viewMatE[9] /= scaleZ;
+	            viewMatE[10] /= scaleZ;
+	            this._viewMatrix.invert(this._viewMatrix);
+	            this._updateViewMatrix = false;
+	        }
+	        return this._viewMatrix;
+	    }
+	    get projectionMatrix() {
+	        return this._projectionMatrix;
+	    }
+	    set projectionMatrix(value) {
+	        this._projectionMatrix = value;
+	        this._useUserProjectionMatrix = true;
+	    }
+	    get projectionViewMatrix() {
+	        Matrix4x4.multiply(this.projectionMatrix, this.viewMatrix, this._projectionViewMatrix);
+	        return this._projectionViewMatrix;
+	    }
+	    get boundFrustum() {
+	        this._boundFrustum.matrix = this.projectionViewMatrix;
+	        return this._boundFrustum;
+	    }
+	    get renderTarget() {
+	        return this._offScreenRenderTexture;
+	    }
+	    set renderTarget(value) {
+	        var lastValue = this._offScreenRenderTexture;
+	        if (lastValue !== value) {
+	            (lastValue) && (lastValue._isCameraTarget = false);
+	            (value) && (value._isCameraTarget = true);
+	            this._offScreenRenderTexture = value;
+	            this._calculateProjectionMatrix();
+	        }
+	    }
+	    get postProcess() {
+	        return this._postProcess;
+	    }
+	    set postProcess(value) {
+	        this._postProcess = value;
+	        if (!value)
+	            return;
+	        value && value._init(this);
+	    }
+	    get enableHDR() {
+	        return this._enableHDR;
+	    }
+	    set enableHDR(value) {
+	        if (value && !Laya.SystemUtils.supportRenderTextureFormat(Laya.RenderTextureFormat.R16G16B16A16)) {
+	            console.warn("Camera:can't enable HDR in this device.");
+	            return;
+	        }
+	        this._enableHDR = value;
+	    }
+	    get enableBuiltInRenderTexture() {
+	        return this._needBuiltInRenderTexture;
+	    }
+	    set enableBuiltInRenderTexture(value) {
+	        this._needBuiltInRenderTexture = value;
+	    }
+	    get depthTextureMode() {
+	        return this._depthTextureMode;
+	    }
+	    set depthTextureMode(value) {
+	        this._depthTextureMode = value;
+	    }
+	    _calculationViewport(normalizedViewport, width, height) {
+	        var lx = normalizedViewport.x * width;
+	        var ly = normalizedViewport.y * height;
+	        var rx = lx + Math.max(normalizedViewport.width * width, 0);
+	        var ry = ly + Math.max(normalizedViewport.height * height, 0);
+	        var ceilLeftX = Math.ceil(lx);
+	        var ceilLeftY = Math.ceil(ly);
+	        var floorRightX = Math.floor(rx);
+	        var floorRightY = Math.floor(ry);
+	        var pixelLeftX = ceilLeftX - lx >= 0.5 ? Math.floor(lx) : ceilLeftX;
+	        var pixelLeftY = ceilLeftY - ly >= 0.5 ? Math.floor(ly) : ceilLeftY;
+	        var pixelRightX = rx - floorRightX >= 0.5 ? Math.ceil(rx) : floorRightX;
+	        var pixelRightY = ry - floorRightY >= 0.5 ? Math.ceil(ry) : floorRightY;
+	        this._viewport.x = pixelLeftX;
+	        this._viewport.y = pixelLeftY;
+	        this._viewport.width = pixelRightX - pixelLeftX;
+	        this._viewport.height = pixelRightY - pixelLeftY;
+	    }
+	    _calculateProjectionMatrix() {
+	        if (!this._useUserProjectionMatrix) {
+	            if (this._orthographic) {
+	                var halfHeight = this.orthographicVerticalSize * 0.5;
+	                var halfWidth = halfHeight * this.aspectRatio;
+	                Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, this.nearPlane, this.farPlane, this._projectionMatrix);
+	            }
+	            else {
+	                Matrix4x4.createPerspective(3.1416 * this.fieldOfView / 180.0, this.aspectRatio, this.nearPlane, this.farPlane, this._projectionMatrix);
+	            }
+	        }
+	    }
+	    _isLayerVisible(layer) {
+	        return (Math.pow(2, layer) & this.cullingMask) != 0;
+	    }
+	    _onTransformChanged(flag) {
+	        flag &= Transform3D.TRANSFORM_WORLDMATRIX;
+	        (flag) && (this._updateViewMatrix = true);
+	    }
+	    _parse(data, spriteMap) {
+	        super._parse(data, spriteMap);
+	        var clearFlagData = data.clearFlag;
+	        (clearFlagData !== undefined) && (this.clearFlag = clearFlagData);
+	        var viewport = data.viewport;
+	        this.normalizedViewport = new Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	        var enableHDR = data.enableHDR;
+	        (enableHDR !== undefined) && (this.enableHDR = enableHDR);
+	    }
+	    clone() {
+	        let camera = super.clone();
+	        camera.clearFlag = this.clearFlag;
+	        camera.viewport = this.viewport;
+	        this.normalizedViewport.cloneTo(camera.normalizedViewport);
+	        camera.enableHDR = this.enableHDR;
+	        camera.farPlane = this.farPlane;
+	        camera.nearPlane = this.nearPlane;
+	        camera.fieldOfView = this.fieldOfView;
+	        camera.orthographic = this.orthographic;
+	        return camera;
+	    }
+	    _getCanvasWidth() {
+	        if (this._offScreenRenderTexture)
+	            return this._offScreenRenderTexture.width;
+	        else
+	            return RenderContext3D.clientWidth;
+	    }
+	    _getCanvasHeight() {
+	        if (this._offScreenRenderTexture)
+	            return this._offScreenRenderTexture.height;
+	        else
+	            return RenderContext3D.clientHeight;
+	    }
+	    _getRenderTexture() {
+	        return this._internalRenderTexture || this._offScreenRenderTexture;
+	    }
+	    _needInternalRenderTexture() {
+	        return (this._postProcess && this._postProcess.enable) || this._enableHDR || this._needBuiltInRenderTexture ? true : false;
+	    }
+	    _getRenderTextureFormat() {
+	        if (this._enableHDR)
+	            return Laya.RenderTextureFormat.R16G16B16A16;
+	        else
+	            return Laya.RenderTextureFormat.R8G8B8;
+	    }
+	    _prepareCameraToRender() {
+	        super._prepareCameraToRender();
+	        var vp = this.viewport;
+	        this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
+	        this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 1 / this.farPlane);
+	        this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
+	        this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
+	    }
+	    _applyViewProject(context, viewMat, proMat) {
+	        var projectView;
+	        var shaderData = this._shaderValues;
+	        if (context.invertY) {
+	            Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
+	            Matrix4x4.multiply(BaseCamera._invertYProjectionMatrix, viewMat, BaseCamera._invertYProjectionViewMatrix);
+	            proMat = BaseCamera._invertYProjectionMatrix;
+	            projectView = BaseCamera._invertYProjectionViewMatrix;
+	        }
+	        else {
+	            Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
+	            projectView = this._projectionViewMatrix;
+	        }
+	        context.viewMatrix = viewMat;
+	        context.projectionMatrix = proMat;
+	        context.projectionViewMatrix = projectView;
+	        shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
+	        shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
+	        shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
+	    }
+	    _updateClusterPlaneXY() {
+	        var fieldOfView = this.fieldOfView;
+	        var aspectRatio = this.aspectRatio;
+	        if (this._clusterPlaneCacheFlag.x !== fieldOfView || this._clusterPlaneCacheFlag.y !== aspectRatio) {
+	            var clusterCount = Config3D._config.lightClusterCount;
+	            var xSlixe = clusterCount.x, ySlice = clusterCount.y;
+	            var xCount = xSlixe + 1, yCount = ySlice + 1;
+	            var xPlanes = this._clusterXPlanes, yPlanes = this._clusterYPlanes;
+	            if (!xPlanes) {
+	                xPlanes = this._clusterXPlanes = new Array(xCount);
+	                yPlanes = this._clusterYPlanes = new Array(yCount);
+	                for (var i = 0; i < xCount; i++)
+	                    xPlanes[i] = new Vector3();
+	                for (var i = 0; i < yCount; i++)
+	                    yPlanes[i] = new Vector3();
+	            }
+	            var halfY = Math.tan((this.fieldOfView / 2) * Math.PI / 180);
+	            var halfX = this.aspectRatio * halfY;
+	            var yLengthPerCluster = 2 * halfY / xSlixe;
+	            var xLengthPerCluster = 2 * halfX / ySlice;
+	            for (var i = 0; i < xCount; i++) {
+	                var angle = -halfX + xLengthPerCluster * i;
+	                var bigHypot = Math.sqrt(1 + angle * angle);
+	                var normX = 1 / bigHypot;
+	                var xPlane = xPlanes[i];
+	                xPlane.setValue(normX, 0, -angle * normX);
+	            }
+	            for (var i = 0; i < yCount; i++) {
+	                var angle = halfY - yLengthPerCluster * i;
+	                var bigHypot = Math.sqrt(1 + angle * angle);
+	                var normY = -1 / bigHypot;
+	                var yPlane = yPlanes[i];
+	                yPlane.setValue(0, normY, -angle * normY);
+	            }
+	            this._clusterPlaneCacheFlag.x = fieldOfView;
+	            this._clusterPlaneCacheFlag.y = aspectRatio;
+	        }
+	    }
+	    _applyCommandBuffer(event, context) {
+	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER);
+	        var gl = Laya.LayaGL.instance;
+	        var commandBufferArray = this._cameraEventCommandBuffer[event];
+	        if (!commandBufferArray || commandBufferArray.length == 0)
+	            return;
+	        commandBufferArray.forEach(function (value) {
+	            value._context = context;
+	            value._apply();
+	        });
+	        (RenderTexture.currentActive) && (RenderTexture.currentActive._end());
+	        if (this._internalRenderTexture || this._offScreenRenderTexture)
+	            this._getRenderTexture()._start();
+	        else {
+	            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	        }
+	        gl.viewport(0, 0, context.viewport.width, context.viewport.height);
+	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERCOMMANDBUFFER);
+	    }
+	    _renderShadowMap(scene, context) {
+	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_SHADOWMAP);
+	        var shadowCasterPass;
+	        var mainDirectLight = scene._mainDirectionLight;
+	        var needShadowCasterPass = mainDirectLight && mainDirectLight.shadowMode !== exports.ShadowMode.None && ShadowUtils.supportShadow();
+	        if (needShadowCasterPass) {
+	            scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+	            scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+	            shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
+	            shadowCasterPass.update(this, mainDirectLight, ILaya3D.ShadowLightType.DirectionLight);
+	            shadowCasterPass.render(context, scene, ILaya3D.ShadowLightType.DirectionLight);
+	        }
+	        else {
+	            scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+	        }
+	        var spotMainLight = scene._mainSpotLight;
+	        var spotneedShadowCasterPass = spotMainLight && spotMainLight.shadowMode !== exports.ShadowMode.None && ShadowUtils.supportShadow();
+	        if (spotneedShadowCasterPass) {
+	            scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+	            scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+	            shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
+	            shadowCasterPass.update(this, spotMainLight, ILaya3D.ShadowLightType.SpotLight);
+	            shadowCasterPass.render(context, scene, ILaya3D.ShadowLightType.SpotLight);
+	        }
+	        else {
+	            scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+	        }
+	        if (needShadowCasterPass)
+	            scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+	        if (spotneedShadowCasterPass)
+	            scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
+	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_SHADOWMAP);
+	        return needShadowCasterPass || spotneedShadowCasterPass;
+	    }
+	    _preRenderMainPass(context, scene, needInternalRT, viewport) {
+	        context.camera = this;
+	        context.cameraShaderValue = this._shaderValues;
+	        Camera._updateMark++;
+	        scene._preRenderScript();
+	        var gl = Laya.LayaGL.instance;
+	        if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == exports.CameraClearFlags.DepthOnly || this.clearFlag == exports.CameraClearFlags.Nothing)) {
+	            if (this._enableHDR) {
+	                var grabTexture = RenderTexture.createFromPool(viewport.width, viewport.height, Laya.RenderTextureFormat.R8G8B8, Laya.RenderTextureDepthFormat.DEPTH_16);
+	                grabTexture.filterMode = Laya.FilterMode.Bilinear;
+	                Laya.WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
+	                gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
+	                var blit = BlitScreenQuadCMD.create(grabTexture, this._internalRenderTexture);
+	                blit.run();
+	                blit.recover();
+	                RenderTexture.recoverToPool(grabTexture);
+	            }
+	            else {
+	                Laya.WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._internalRenderTexture._getSource());
+	                gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
+	            }
+	        }
+	    }
+	    _renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT) {
+	        var gl = Laya.LayaGL.instance;
+	        var renderTex = this._getRenderTexture();
+	        context.viewport = viewport;
+	        this._prepareCameraToRender();
+	        var multiLighting = Config3D._config._multiLighting;
+	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CLUSTER);
+	        (multiLighting) && (Cluster.instance.update(this, (scene)));
+	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CLUSTER);
+	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
+	        scene._preCulling(context, this, shader, replacementTag);
+	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
+	        if (this.depthTextureMode != 0) {
+	            this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+	            this._renderDepthMode(context);
+	        }
+	        (renderTex) && (renderTex._start());
+	        this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+	        scene._clear(gl, context);
+	        this._applyCommandBuffer(exports.CameraEventFlags.BeforeForwardOpaque, context);
+	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
+	        scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
+	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
+	        this._applyCommandBuffer(exports.CameraEventFlags.BeforeSkyBox, context);
+	        scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
+	        this._applyCommandBuffer(exports.CameraEventFlags.BeforeTransparent, context);
+	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT);
+	        scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
+	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT);
+	        scene._postRenderScript();
+	        this._applyCommandBuffer(exports.CameraEventFlags.BeforeImageEffect, context);
+	        (renderTex) && (renderTex._end());
+	        if (needInternalRT) {
+	            if (this._postProcess && this._postProcess.enable) {
+	                Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
+	                this._postProcess._render();
+	                this._postProcess._applyPostProcessCommandBuffers();
+	                Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
+	            }
+	            else if (this._enableHDR || this._needBuiltInRenderTexture) {
+	                var canvasWidth = this._getCanvasWidth(), canvasHeight = this._getCanvasHeight();
+	                this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+	                this._internalCommandBuffer._camera = this;
+	                this._internalCommandBuffer.blitScreenQuad(this._internalRenderTexture, this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale, null, null, 0, true);
+	                this._internalCommandBuffer._apply();
+	                this._internalCommandBuffer.clear();
+	            }
+	            RenderTexture.recoverToPool(this._internalRenderTexture);
+	        }
+	        this._applyCommandBuffer(exports.CameraEventFlags.AfterEveryThing, context);
+	    }
+	    _renderDepthMode(context) {
+	        Laya.PerformancePlugin.begainSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE);
+	        var cameraDepthMode = this._depthTextureMode;
+	        if ((cameraDepthMode & exports.DepthTextureMode.Depth) != 0) {
+	            Camera.depthPass.update(this, exports.DepthTextureMode.Depth);
+	            Camera.depthPass.render(context, exports.DepthTextureMode.Depth);
+	        }
+	        if ((cameraDepthMode & exports.DepthTextureMode.DepthNormals) != 0) {
+	            Camera.depthPass.update(this, exports.DepthTextureMode.DepthNormals);
+	            Camera.depthPass.render(context, exports.DepthTextureMode.DepthNormals);
+	        }
+	        Laya.PerformancePlugin.endSample(Laya.PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE);
+	    }
+	    get depthTexture() {
+	        return this._depthTexture;
+	    }
+	    set depthTexture(value) {
+	        this._depthTexture = value;
+	    }
+	    get depthNormalTexture() {
+	        return this._depthNormalsTexture;
+	    }
+	    set depthNormalTexture(value) {
+	        this._depthNormalsTexture = value;
+	    }
+	    _aftRenderMainPass(needShadowPass) {
+	        if (needShadowPass)
+	            ILaya3D.Scene3D._shadowCasterPass.cleanUp();
+	        Camera.depthPass.cleanUp();
+	    }
+	    render(shader = null, replacementTag = null) {
+	        if (!this.activeInHierarchy)
+	            return;
+	        var viewport = this.viewport;
+	        var needInternalRT = this._needInternalRenderTexture();
+	        var context = RenderContext3D._instance;
+	        var scene = context.scene = this._scene;
+	        context.pipelineMode = context.configPipeLineMode;
+	        if (needInternalRT) {
+	            this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), Laya.RenderTextureDepthFormat.DEPTH_16, 4);
+	            this._internalRenderTexture.filterMode = Laya.FilterMode.Bilinear;
+	        }
+	        else {
+	            this._internalRenderTexture = null;
+	        }
+	        var needShadowCasterPass = this._renderShadowMap(scene, context);
+	        this._preRenderMainPass(context, scene, needInternalRT, viewport);
+	        this._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
+	        this._aftRenderMainPass(needShadowCasterPass);
+	    }
+	    viewportPointToRay(point, out) {
+	        this._rayViewport.x = this.viewport.x;
+	        this._rayViewport.y = this.viewport.y;
+	        this._rayViewport.width = Laya.Laya.stage._width;
+	        this._rayViewport.height = Laya.Laya.stage._height;
+	        Picker.calculateCursorRay(point, this._rayViewport, this._projectionMatrix, this.viewMatrix, null, out);
+	    }
+	    normalizedViewportPointToRay(point, out) {
+	        var finalPoint = Camera._tempVector20;
+	        var vp = this.viewport;
+	        finalPoint.x = point.x * vp.width;
+	        finalPoint.y = point.y * vp.height;
+	        Picker.calculateCursorRay(finalPoint, this.viewport, this._projectionMatrix, this.viewMatrix, null, out);
+	    }
+	    worldToViewportPoint(position, out) {
+	        Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
+	        this.viewport.project(position, this._projectionViewMatrix, out);
+	        out.x = out.x / Laya.Laya.stage.clientScaleX;
+	        out.y = out.y / Laya.Laya.stage.clientScaleY;
+	    }
+	    worldToNormalizedViewportPoint(position, out) {
+	        Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
+	        this.normalizedViewport.project(position, this._projectionViewMatrix, out);
+	        out.x = out.x / Laya.Laya.stage.clientScaleX;
+	        out.y = out.y / Laya.Laya.stage.clientScaleY;
+	    }
+	    convertScreenCoordToOrthographicCoord(source, out) {
+	        if (this._orthographic) {
+	            var clientWidth = RenderContext3D.clientWidth;
+	            var clientHeight = RenderContext3D.clientHeight;
+	            var ratioX = this.orthographicVerticalSize * this.aspectRatio / clientWidth;
+	            var ratioY = this.orthographicVerticalSize / clientHeight;
+	            out.x = (-clientWidth / 2 + source.x * Laya.Laya.stage.clientScaleX) * ratioX;
+	            out.y = (clientHeight / 2 - source.y * Laya.Laya.stage.clientScaleY) * ratioY;
+	            out.z = (this.nearPlane - this.farPlane) * (source.z + 1) / 2 - this.nearPlane;
+	            Vector3.transformCoordinate(out, this.transform.worldMatrix, out);
+	            return true;
+	        }
+	        else {
+	            return false;
+	        }
+	    }
+	    destroy(destroyChild = true) {
+	        this._offScreenRenderTexture = null;
+	        this.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+	        super.destroy(destroyChild);
+	    }
+	    addCommandBuffer(event, commandBuffer) {
+	        var commandBufferArray = this._cameraEventCommandBuffer[event];
+	        if (!commandBufferArray)
+	            commandBufferArray = this._cameraEventCommandBuffer[event] = [];
+	        if (commandBufferArray.indexOf(commandBuffer) < 0)
+	            commandBufferArray.push(commandBuffer);
+	        commandBuffer._camera = this;
+	    }
+	    removeCommandBuffer(event, commandBuffer) {
+	        var commandBufferArray = this._cameraEventCommandBuffer[event];
+	        if (commandBufferArray) {
+	            var index = commandBufferArray.indexOf(commandBuffer);
+	            if (index != -1)
+	                commandBufferArray.splice(index, 1);
+	        }
+	        else
+	            throw "Camera:unknown event.";
+	    }
+	    removeCommandBuffers(event) {
+	        if (this._cameraEventCommandBuffer[event])
+	            this._cameraEventCommandBuffer[event].length = 0;
+	    }
+	    _create() {
+	        return new Camera();
+	    }
+	}
+	Camera._tempVector20 = new Vector2();
+	Camera._updateMark = 0;
+	Camera.depthPass = new DepthPass();
 
 	class Input3D {
 	    constructor() {
@@ -14053,7 +13518,7 @@
 	        }
 	    }
 	    _mouseTouchRayCast(cameras) {
-	        if (Physics3D._bullet || Physics3D._cannon)
+	        if (!Physics3D._bullet && !Physics3D._cannon)
 	            return;
 	        var touchHitResult = Input3D._tempHitResult0;
 	        var touchPos = Input3D._tempVector20;
@@ -14861,6 +14326,30 @@
 	Bounds.TEMP_VECTOR3_MAX0 = new Vector3();
 	Bounds.TEMP_VECTOR3_MAX1 = new Vector3();
 
+	class GeometryElement {
+	    constructor() {
+	        this._destroyed = false;
+	    }
+	    get destroyed() {
+	        return this._destroyed;
+	    }
+	    _getType() {
+	        throw "GeometryElement:must override it.";
+	    }
+	    _prepareRender(state) {
+	        return true;
+	    }
+	    _render(state) {
+	        throw "GeometryElement:must override it.";
+	    }
+	    destroy() {
+	        if (this._destroyed)
+	            return;
+	        this._destroyed = true;
+	    }
+	}
+	GeometryElement._typeCounter = 0;
+
 	class PixelLineVertex {
 	    constructor() {
 	    }
@@ -15149,6 +14638,518 @@
 	        this.batched = false;
 	    }
 	}
+
+	class SubMeshInstanceBatch extends GeometryElement {
+	    constructor() {
+	        super();
+	        this.instanceWorldMatrixData = new Float32Array(SubMeshInstanceBatch.maxInstanceCount * 16);
+	        this.instanceSimpleAnimatorData = new Float32Array(SubMeshInstanceBatch.maxInstanceCount * 4);
+	        var gl = Laya.LayaGL.instance;
+	        this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, gl.DYNAMIC_DRAW);
+	        this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+	        this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length * 4, gl.DYNAMIC_DRAW);
+	        this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
+	    }
+	    static __init__() {
+	        SubMeshInstanceBatch.instance = new SubMeshInstanceBatch();
+	    }
+	    _render(state) {
+	        var gl = Laya.LayaGL.instance;
+	        var element = state.renderElement;
+	        var subMesh = element.instanceSubMesh;
+	        var count = element.instanceBatchElementList.length;
+	        var indexCount = subMesh._indexCount;
+	        subMesh._mesh._instanceBufferState.bind();
+	        Laya.LayaGL.layaGPUInstance.drawElementsInstanced(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
+	        Laya.Stat.renderBatches++;
+	        Laya.Stat.savedRenderBatches += count - 1;
+	        Laya.Stat.trianglesFaces += indexCount * count / 3;
+	    }
+	}
+	SubMeshInstanceBatch.maxInstanceCount = 1024;
+
+	class RenderElement {
+	    constructor() {
+	        this.renderSubShader = null;
+	        this.renderType = RenderElement.RENDERTYPE_NORMAL;
+	    }
+	    getInvertFront() {
+	        return this._transform._isFrontFaceInvert;
+	    }
+	    setTransform(transform) {
+	        this._transform = transform;
+	    }
+	    setGeometry(geometry) {
+	        this._geometry = geometry;
+	    }
+	    addToOpaqueRenderQueue(context, queue) {
+	        queue.elements.add(this);
+	    }
+	    addToTransparentRenderQueue(context, queue) {
+	        queue.elements.add(this);
+	        queue.lastTransparentBatched = false;
+	        queue.lastTransparentRenderElement = this;
+	    }
+	    _update(scene, context, customShader, replacementTag, subshaderIndex = 0) {
+	        if (this.material) {
+	            var subShader = this.material._shader.getSubShaderAt(0);
+	            this.renderSubShader = null;
+	            if (customShader) {
+	                if (replacementTag) {
+	                    var oriTag = subShader.getFlag(replacementTag);
+	                    if (oriTag) {
+	                        var customSubShaders = customShader._subShaders;
+	                        for (var k = 0, p = customSubShaders.length; k < p; k++) {
+	                            var customSubShader = customSubShaders[k];
+	                            if (oriTag === customSubShader.getFlag(replacementTag)) {
+	                                this.renderSubShader = customSubShader;
+	                                break;
+	                            }
+	                        }
+	                        if (!this.renderSubShader)
+	                            return;
+	                    }
+	                    else {
+	                        return;
+	                    }
+	                }
+	                else {
+	                    this.renderSubShader = customShader.getSubShaderAt(subshaderIndex);
+	                }
+	            }
+	            else {
+	                this.renderSubShader = subShader;
+	            }
+	            var renderQueue = scene._getRenderQueue(this.material.renderQueue);
+	            if (renderQueue.isTransparent)
+	                this.addToTransparentRenderQueue(context, renderQueue);
+	            else
+	                this.addToOpaqueRenderQueue(context, renderQueue);
+	        }
+	    }
+	    _render(context) {
+	        var forceInvertFace = context.invertY;
+	        var lastStateMaterial, lastStateShaderInstance, lastStateRender;
+	        var updateMark = Camera._updateMark;
+	        var scene = context.scene;
+	        var cameraShaderValue = context.cameraShaderValue;
+	        var transform = this._transform;
+	        var geometry = this._geometry;
+	        context.renderElement = this;
+	        var updateRender = updateMark !== this.render._updateMark || this.renderType !== this.render._updateRenderType;
+	        if (updateRender) {
+	            this.render._renderUpdate(context, transform);
+	            this.render._renderUpdateWithCamera(context, transform);
+	            this.render._updateMark = updateMark;
+	            this.render._updateRenderType = this.renderType;
+	        }
+	        else {
+	            if (this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH) {
+	                this.render._renderUpdate(context, transform);
+	                this.render._renderUpdateWithCamera(context, transform);
+	            }
+	        }
+	        var currentPipelineMode = context.pipelineMode;
+	        if (geometry._prepareRender(context)) {
+	            var passes = this.renderSubShader._passes;
+	            for (var j = 0, m = passes.length; j < m; j++) {
+	                var pass = passes[j];
+	                if (pass._pipelineMode !== currentPipelineMode)
+	                    continue;
+	                var comDef = RenderElement._compileDefine;
+	                scene._shaderValues._defineDatas.cloneTo(comDef);
+	                comDef.addDefineDatas(this.render._shaderValues._defineDatas);
+	                comDef.addDefineDatas(this.material._shaderValues._defineDatas);
+	                var shaderIns = context.shader = pass.withCompile(comDef);
+	                var switchShader = shaderIns.bind();
+	                var switchUpdateMark = (updateMark !== shaderIns._uploadMark);
+	                var uploadScene = (shaderIns._uploadScene !== scene) || switchUpdateMark;
+	                if (uploadScene || switchShader) {
+	                    shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, scene._shaderValues, uploadScene);
+	                    shaderIns._uploadScene = scene;
+	                }
+	                var uploadSprite3D = (shaderIns._uploadRender !== this.render || shaderIns._uploadRenderType !== this.renderType) || switchUpdateMark;
+	                if (uploadSprite3D || switchShader) {
+	                    shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this.render._shaderValues, uploadSprite3D);
+	                    shaderIns._uploadRender = this.render;
+	                    shaderIns._uploadRenderType = this.renderType;
+	                }
+	                var uploadCamera = shaderIns._uploadCameraShaderValue !== cameraShaderValue || switchUpdateMark;
+	                if (uploadCamera || switchShader) {
+	                    shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
+	                    shaderIns._uploadCameraShaderValue = cameraShaderValue;
+	                }
+	                var uploadMaterial = (shaderIns._uploadMaterial !== this.material) || switchUpdateMark;
+	                if (uploadMaterial || switchShader) {
+	                    shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this.material._shaderValues, uploadMaterial);
+	                    shaderIns._uploadMaterial = this.material;
+	                }
+	                var matValues = this.material._shaderValues;
+	                if (lastStateMaterial !== this.material || lastStateShaderInstance !== shaderIns) {
+	                    shaderIns.uploadRenderStateBlendDepth(matValues);
+	                    shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this.getInvertFront());
+	                    lastStateMaterial = this.material;
+	                    lastStateShaderInstance = shaderIns;
+	                    lastStateRender = this.render;
+	                }
+	                else {
+	                    if (lastStateRender !== this.render) {
+	                        shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this.getInvertFront());
+	                        lastStateRender = this.render;
+	                    }
+	                }
+	                geometry._render(context);
+	                shaderIns._uploadMark = updateMark;
+	            }
+	        }
+	        if (this.renderType !== RenderElement.RENDERTYPE_NORMAL)
+	            this.render._revertBatchRenderUpdate(context);
+	    }
+	    destroy() {
+	        this._transform = null;
+	        this._geometry = null;
+	        this.material = null;
+	        this.render = null;
+	    }
+	}
+	RenderElement.RENDERTYPE_NORMAL = 0;
+	RenderElement.RENDERTYPE_STATICBATCH = 1;
+	RenderElement.RENDERTYPE_INSTANCEBATCH = 2;
+	RenderElement.RENDERTYPE_VERTEXBATCH = 3;
+	RenderElement._compileDefine = new DefineDatas();
+
+	class SubMeshRenderElement extends RenderElement {
+	    constructor() {
+	        super();
+	        this._dynamicWorldPositionNormalNeedUpdate = true;
+	    }
+	    _onWorldMatrixChanged() {
+	        this._dynamicWorldPositionNormalNeedUpdate = true;
+	    }
+	    _computeWorldPositionsAndNormals(positionOffset, normalOffset, multiSubMesh, vertexCount) {
+	        if (this._dynamicWorldPositionNormalNeedUpdate) {
+	            var subMesh = this._geometry;
+	            var vertexBuffer = subMesh._vertexBuffer;
+	            var vertexFloatCount = vertexBuffer.vertexDeclaration.vertexStride / 4;
+	            var oriVertexes = vertexBuffer.getFloat32Data();
+	            var worldMat = this._transform.worldMatrix;
+	            var rotation = this._transform.rotation;
+	            var indices = subMesh._indices;
+	            for (var i = 0; i < vertexCount; i++) {
+	                var index = multiSubMesh ? indices[i] : i;
+	                var oriOffset = index * vertexFloatCount;
+	                var bakeOffset = i * 3;
+	                Utils3D.transformVector3ArrayToVector3ArrayCoordinate(oriVertexes, oriOffset + positionOffset, worldMat, this._dynamicWorldPositions, bakeOffset);
+	                (normalOffset !== -1) && (Utils3D.transformVector3ArrayByQuat(oriVertexes, oriOffset + normalOffset, rotation, this._dynamicWorldNormals, bakeOffset));
+	            }
+	            this._dynamicWorldPositionNormalNeedUpdate = false;
+	        }
+	    }
+	    setTransform(transform) {
+	        if (this._transform !== transform) {
+	            (this._transform) && (this._transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
+	            (transform) && (transform.on(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
+	            this._dynamicWorldPositionNormalNeedUpdate = true;
+	            this._transform = transform;
+	        }
+	    }
+	    setGeometry(geometry) {
+	        if (this._geometry !== geometry) {
+	            var subMesh = geometry;
+	            var mesh = subMesh._mesh;
+	            if (mesh) {
+	                var multiSubMesh = mesh._subMeshes.length > 1;
+	                var dynBatVerCount = multiSubMesh ? subMesh._indexCount : mesh._vertexCount;
+	                if (dynBatVerCount <= ILaya3D.SubMeshDynamicBatch.maxAllowVertexCount) {
+	                    var length = dynBatVerCount * 3;
+	                    this._dynamicVertexBatch = true;
+	                    this._dynamicWorldPositions = new Float32Array(length);
+	                    this._dynamicWorldNormals = new Float32Array(length);
+	                    this._dynamicVertexCount = dynBatVerCount;
+	                    this._dynamicMultiSubMesh = multiSubMesh;
+	                }
+	                else {
+	                    this._dynamicVertexBatch = false;
+	                }
+	            }
+	            this._geometry = geometry;
+	        }
+	    }
+	    addToOpaqueRenderQueue(context, queue) {
+	        var subMeshStaticBatch = this.staticBatch;
+	        var queueElements = queue.elements;
+	        var elements = queueElements.elements;
+	        if (subMeshStaticBatch && (!this.render._probReflection || this.render._probReflection._isScene) && SubMeshRenderElement.enableStaticBatch) {
+	            var staManager = ILaya3D.MeshRenderStaticBatchManager.instance;
+	            var staBatchMarks = staManager.getBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, subMeshStaticBatch._batchID);
+	            if (staManager._updateCountMark === staBatchMarks.updateMark) {
+	                var staBatchIndex = staBatchMarks.indexInList;
+	                if (staBatchMarks.batched) {
+	                    elements[staBatchIndex].staticBatchElementList.add(this);
+	                }
+	                else {
+	                    var staOriElement = elements[staBatchIndex];
+	                    var staOriRender = staOriElement.render;
+	                    var staBatchElement = staManager._getBatchRenderElementFromPool();
+	                    staBatchElement.renderType = RenderElement.RENDERTYPE_STATICBATCH;
+	                    staBatchElement.setGeometry(subMeshStaticBatch);
+	                    staBatchElement.material = staOriElement.material;
+	                    var staRootOwner = subMeshStaticBatch.batchOwner;
+	                    var staBatchTransform = staRootOwner ? staRootOwner._transform : null;
+	                    staBatchElement.setTransform(staBatchTransform);
+	                    staBatchElement.render = staOriRender;
+	                    staBatchElement.renderSubShader = staOriElement.renderSubShader;
+	                    var staBatchList = staBatchElement.staticBatchElementList;
+	                    staBatchList.length = 0;
+	                    staBatchList.add(staOriElement);
+	                    staBatchList.add(this);
+	                    elements[staBatchIndex] = staBatchElement;
+	                    staBatchMarks.batched = true;
+	                }
+	            }
+	            else {
+	                staBatchMarks.updateMark = staManager._updateCountMark;
+	                staBatchMarks.indexInList = queueElements.length;
+	                staBatchMarks.batched = false;
+	                queueElements.add(this);
+	            }
+	        }
+	        else if (SubMeshRenderElement.enableDynamicBatch && this.renderSubShader._owner._enableInstancing && Laya.LayaGL.layaGPUInstance.supportInstance() && this.render.lightmapIndex < 0 && (!this.render._probReflection || this.render._probReflection._isScene)) {
+	            var subMesh = this._geometry;
+	            var insManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
+	            var insBatchMarks = insManager.getInstanceBatchOpaquaMark(this.render.receiveShadow, this.material.id, subMesh._id, this._transform._isFrontFaceInvert);
+	            if (insManager._updateCountMark === insBatchMarks.updateMark) {
+	                var insBatchIndex = insBatchMarks.indexInList;
+	                if (insBatchMarks.batched) {
+	                    var instanceBatchElementList = elements[insBatchIndex].instanceBatchElementList;
+	                    if (instanceBatchElementList.length === SubMeshInstanceBatch.maxInstanceCount) {
+	                        insBatchMarks.updateMark = insManager._updateCountMark;
+	                        insBatchMarks.indexInList = queueElements.length;
+	                        insBatchMarks.batched = false;
+	                        queueElements.add(this);
+	                    }
+	                    else {
+	                        instanceBatchElementList.add(this);
+	                    }
+	                }
+	                else {
+	                    var insOriElement = elements[insBatchIndex];
+	                    var insOriRender = insOriElement.render;
+	                    var insBatchElement = insManager._getBatchRenderElementFromPool();
+	                    insBatchElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
+	                    insBatchElement.setGeometry(SubMeshInstanceBatch.instance);
+	                    insBatchElement.material = insOriElement.material;
+	                    insBatchElement.setTransform(null);
+	                    insBatchElement.render = insOriRender;
+	                    insBatchElement.instanceSubMesh = subMesh;
+	                    insBatchElement.renderSubShader = insOriElement.renderSubShader;
+	                    var insBatchList = insBatchElement.instanceBatchElementList;
+	                    insBatchList.length = 0;
+	                    insBatchList.add(insOriElement);
+	                    insBatchList.add(this);
+	                    elements[insBatchIndex] = insBatchElement;
+	                    insBatchMarks.batched = true;
+	                }
+	            }
+	            else {
+	                insBatchMarks.updateMark = insManager._updateCountMark;
+	                insBatchMarks.indexInList = queueElements.length;
+	                insBatchMarks.batched = false;
+	                queueElements.add(this);
+	            }
+	        }
+	        else if (this._dynamicVertexBatch && SubMeshRenderElement.enableDynamicBatch) {
+	            var verDec = this._geometry._vertexBuffer.vertexDeclaration;
+	            var dynManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
+	            var dynBatchMarks = dynManager.getVertexBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, verDec.id);
+	            if (dynManager._updateCountMark === dynBatchMarks.updateMark) {
+	                var dynBatchIndex = dynBatchMarks.indexInList;
+	                if (dynBatchMarks.batched) {
+	                    elements[dynBatchIndex].vertexBatchElementList.add(this);
+	                }
+	                else {
+	                    var dynOriElement = elements[dynBatchIndex];
+	                    var dynOriRender = dynOriElement.render;
+	                    var dynBatchElement = dynManager._getBatchRenderElementFromPool();
+	                    dynBatchElement.renderType = RenderElement.RENDERTYPE_VERTEXBATCH;
+	                    dynBatchElement.setGeometry(ILaya3D.SubMeshDynamicBatch.instance);
+	                    dynBatchElement.material = dynOriElement.material;
+	                    dynBatchElement.setTransform(null);
+	                    dynBatchElement.render = dynOriRender;
+	                    dynBatchElement.vertexBatchVertexDeclaration = verDec;
+	                    dynBatchElement.renderSubShader = dynOriElement.renderSubShader;
+	                    var dynBatchList = dynBatchElement.vertexBatchElementList;
+	                    dynBatchList.length = 0;
+	                    dynBatchList.add(dynOriElement);
+	                    dynBatchList.add(this);
+	                    elements[dynBatchIndex] = dynBatchElement;
+	                    dynBatchMarks.batched = true;
+	                }
+	            }
+	            else {
+	                dynBatchMarks.updateMark = dynManager._updateCountMark;
+	                dynBatchMarks.indexInList = queueElements.length;
+	                dynBatchMarks.batched = false;
+	                queueElements.add(this);
+	            }
+	        }
+	        else {
+	            queueElements.add(this);
+	        }
+	    }
+	    addToTransparentRenderQueue(context, queue) {
+	        var subMeshStaticBatch = this.staticBatch;
+	        var queueElements = queue.elements;
+	        var elements = queueElements.elements;
+	        if (subMeshStaticBatch && SubMeshRenderElement.enableStaticBatch) {
+	            var staManager = ILaya3D.MeshRenderStaticBatchManager.instance;
+	            var staLastElement = queue.lastTransparentRenderElement;
+	            if (staLastElement) {
+	                var staLastRender = staLastElement.render;
+	                if (staLastElement._geometry._getType() !== this._geometry._getType() || staLastElement.staticBatch !== subMeshStaticBatch || staLastElement.material !== this.material || staLastRender.receiveShadow !== this.render.receiveShadow || staLastRender.lightmapIndex !== this.render.lightmapIndex) {
+	                    queueElements.add(this);
+	                    queue.lastTransparentBatched = false;
+	                }
+	                else {
+	                    if (queue.lastTransparentBatched) {
+	                        elements[queueElements.length - 1].staticBatchElementList.add((this));
+	                    }
+	                    else {
+	                        var staBatchElement = staManager._getBatchRenderElementFromPool();
+	                        staBatchElement.renderType = RenderElement.RENDERTYPE_STATICBATCH;
+	                        staBatchElement.setGeometry(subMeshStaticBatch);
+	                        staBatchElement.material = staLastElement.material;
+	                        var staRootOwner = subMeshStaticBatch.batchOwner;
+	                        var staBatchTransform = staRootOwner ? staRootOwner._transform : null;
+	                        staBatchElement.setTransform(staBatchTransform);
+	                        staBatchElement.render = this.render;
+	                        staBatchElement.renderSubShader = staLastElement.renderSubShader;
+	                        var staBatchList = staBatchElement.staticBatchElementList;
+	                        staBatchList.length = 0;
+	                        staBatchList.add(staLastElement);
+	                        staBatchList.add(this);
+	                        elements[queueElements.length - 1] = staBatchElement;
+	                    }
+	                    queue.lastTransparentBatched = true;
+	                }
+	            }
+	            else {
+	                queueElements.add(this);
+	                queue.lastTransparentBatched = false;
+	            }
+	        }
+	        else if (SubMeshRenderElement.enableDynamicBatch && this.renderSubShader._owner._enableInstancing && Laya.LayaGL.layaGPUInstance.supportInstance() && this.render.lightmapIndex < 0 && (!this.render._probReflection || this.render._probReflection._isScene)) {
+	            var subMesh = this._geometry;
+	            var insManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
+	            var insLastElement = queue.lastTransparentRenderElement;
+	            if (insLastElement) {
+	                var insLastRender = insLastElement.render;
+	                if (insLastElement._geometry._getType() !== this._geometry._getType() || insLastElement._geometry !== subMesh || insLastElement.material !== this.material || insLastRender.receiveShadow !== this.render.receiveShadow) {
+	                    queueElements.add(this);
+	                    queue.lastTransparentBatched = false;
+	                }
+	                else {
+	                    if (queue.lastTransparentBatched) {
+	                        var instanceBatchElementList = elements[queueElements.length - 1].instanceBatchElementList;
+	                        if (instanceBatchElementList.length === SubMeshInstanceBatch.maxInstanceCount) {
+	                            queueElements.add(this);
+	                            queue.lastTransparentBatched = false;
+	                        }
+	                        else {
+	                            instanceBatchElementList.add(this);
+	                            queue.lastTransparentBatched = true;
+	                        }
+	                    }
+	                    else {
+	                        var insBatchElement = insManager._getBatchRenderElementFromPool();
+	                        insBatchElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
+	                        insBatchElement.setGeometry(SubMeshInstanceBatch.instance);
+	                        insBatchElement.material = insLastElement.material;
+	                        insBatchElement.setTransform(null);
+	                        insBatchElement.render = this.render;
+	                        insBatchElement.instanceSubMesh = subMesh;
+	                        insBatchElement.renderSubShader = insLastElement.renderSubShader;
+	                        var insBatchList = insBatchElement.instanceBatchElementList;
+	                        insBatchList.length = 0;
+	                        insBatchList.add(insLastElement);
+	                        insBatchList.add(this);
+	                        elements[queueElements.length - 1] = insBatchElement;
+	                        queue.lastTransparentBatched = true;
+	                    }
+	                }
+	            }
+	            else {
+	                queueElements.add(this);
+	                queue.lastTransparentBatched = false;
+	            }
+	        }
+	        else if (this._dynamicVertexBatch && SubMeshRenderElement.enableDynamicBatch) {
+	            var verDec = this._geometry._vertexBuffer.vertexDeclaration;
+	            var dynManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
+	            var dynLastElement = queue.lastTransparentRenderElement;
+	            if (dynLastElement) {
+	                var dynLastRender = dynLastElement.render;
+	                if (!dynLastElement._dynamicVertexBatch || dynLastElement._geometry._getType() !== this._geometry._getType() || dynLastElement._geometry._vertexBuffer._vertexDeclaration !== verDec || dynLastElement.material !== this.material || dynLastRender.receiveShadow !== this.render.receiveShadow || dynLastRender.lightmapIndex !== this.render.lightmapIndex) {
+	                    queueElements.add(this);
+	                    queue.lastTransparentBatched = false;
+	                }
+	                else {
+	                    if (queue.lastTransparentBatched) {
+	                        elements[queueElements.length - 1].vertexBatchElementList.add((this));
+	                    }
+	                    else {
+	                        var dynBatchElement = dynManager._getBatchRenderElementFromPool();
+	                        dynBatchElement.renderType = RenderElement.RENDERTYPE_VERTEXBATCH;
+	                        dynBatchElement.setGeometry(ILaya3D.SubMeshDynamicBatch.instance);
+	                        dynBatchElement.material = dynLastElement.material;
+	                        dynBatchElement.setTransform(null);
+	                        dynBatchElement.render = this.render;
+	                        dynBatchElement.vertexBatchVertexDeclaration = verDec;
+	                        dynBatchElement.renderSubShader = dynLastElement.renderSubShader;
+	                        var dynBatchList = dynBatchElement.vertexBatchElementList;
+	                        dynBatchList.length = 0;
+	                        dynBatchList.add(dynLastElement);
+	                        dynBatchList.add(this);
+	                        elements[queueElements.length - 1] = dynBatchElement;
+	                    }
+	                    queue.lastTransparentBatched = true;
+	                }
+	            }
+	            else {
+	                queueElements.add(this);
+	                queue.lastTransparentBatched = false;
+	            }
+	        }
+	        else {
+	            queueElements.add(this);
+	        }
+	        queue.lastTransparentRenderElement = this;
+	    }
+	    getInvertFront() {
+	        switch (this.renderType) {
+	            case RenderElement.RENDERTYPE_NORMAL:
+	                return this._transform._isFrontFaceInvert;
+	            case RenderElement.RENDERTYPE_STATICBATCH:
+	            case RenderElement.RENDERTYPE_VERTEXBATCH:
+	                return false;
+	            case RenderElement.RENDERTYPE_INSTANCEBATCH:
+	                return this.instanceBatchElementList.elements[0]._transform._isFrontFaceInvert;
+	            default:
+	                throw "SubMeshRenderElement: unknown renderType";
+	        }
+	    }
+	    destroy() {
+	        super.destroy();
+	        this._dynamicWorldPositions = null;
+	        this._dynamicWorldNormals = null;
+	        this.staticBatch = null;
+	        this.staticBatchElementList = null;
+	        this.vertexBatchElementList = null;
+	        this.vertexBatchVertexDeclaration = null;
+	    }
+	}
+	SubMeshRenderElement.enableDynamicBatch = true;
+	SubMeshRenderElement.enableStaticBatch = true;
 
 	class StaticBatchManager {
 	    constructor() {
@@ -27766,7 +27767,7 @@
 
 	var GlobalIllumination = "struct LayaGIInput\r\n{\r\n\tvec2 lightmapUV;\r\n\tvec3 worldPos;\r\n};\r\n\r\n#define LAYA_SPECCUBE_LOD_STEPS 6.0\r\n\r\nuniform vec3 u_AmbientColor;\r\n\r\n#if defined(GI_AMBIENT_SH)\r\n\tuniform vec4 u_AmbientSHAr;\r\n\tuniform vec4 u_AmbientSHAg;\r\n\tuniform vec4 u_AmbientSHAb;\r\n\tuniform vec4 u_AmbientSHBr;\r\n\tuniform vec4 u_AmbientSHBg;\r\n\tuniform vec4 u_AmbientSHBb;\r\n\tuniform vec4 u_AmbientSHC;\r\n#endif\r\n\r\nuniform samplerCube u_ReflectTexture;\r\nuniform vec4 u_ReflectCubeHDRParams;\r\n\r\n#ifdef SPECCUBE_BOX_PROJECTION\r\n\tuniform vec3 u_SpecCubeProbePosition;\r\n\tuniform vec3 u_SpecCubeBoxMax;\r\n\tuniform vec3 u_SpecCubeBoxMin;\r\n#endif\r\n\r\n\r\n#ifdef GI_AMBIENT_SH\r\n\tmediump vec3 shEvalLinearL0L1(mediump vec4 normal)\r\n\t{\r\n\t\tmediump vec3 x;\r\n\t\t// Linear (L1) + constant (L0) polynomial terms\r\n\t\tx.r = dot(u_AmbientSHAr, normal);\r\n\t\tx.g = dot(u_AmbientSHAg, normal);\r\n\t\tx.b = dot(u_AmbientSHAb, normal);\r\n\t\treturn x;\r\n\t}\r\n\r\n\tmediump vec3 shEvalLinearL2(mediump vec4 normal)\r\n\t{\r\n\t\tmediump vec3 x1,x2;\r\n\t\t// 4 of the quadratic (L2) polynomials\r\n\t\tmediump vec4 vB = normal.xyzz * normal.yzzx;\r\n\t\tx1.r = dot(u_AmbientSHBr, vB);\r\n\t\tx1.g = dot(u_AmbientSHBg, vB);\r\n\t\tx1.b = dot(u_AmbientSHBb, vB);\r\n\r\n\t\t// Final (5th) quadratic (L2) polynomial\r\n\t\tmediump float vC = normal.x*normal.x - normal.y*normal.y;\r\n\t\tx2 = u_AmbientSHC.rgb * vC;\r\n\r\n\t\treturn x1 + x2;\r\n\t}\r\n\t\r\n\tmediump vec3 shadeSHPerPixel(mediump vec3 normal)\r\n\t{\r\n\t\tmediump vec3 ambientContrib;\r\n\t\tmediump vec4 normalV4=vec4(-normal.x,normal.yz, 1.0);//Note:SH Data is left-hand,so x need inverse\r\n\t\tambientContrib = shEvalLinearL0L1(normalV4);\r\n\t\tambientContrib += shEvalLinearL2(normalV4);\r\n\t\tmediump vec3 ambient = max(vec3(0.0), ambientContrib);\r\n\t\tambient = layaLinearToGammaSpace(ambient);\r\n\t\treturn ambient;\r\n\t}\r\n#endif\r\n\r\n\r\n\r\n mediump vec3 BoxProjectedCubemapDirection(mediump vec3 worldRefl,mediump vec3 worldPos,mediump vec3 cubemapCenter,mediump vec3 boxMin,mediump vec3 boxMax){\r\n\t mediump vec3 nrdir = normalize(worldRefl);\r\n\t mediump vec3 rbmax = (boxMax - worldPos);\r\n\t mediump vec3 rbmin = (boxMin - worldPos);\r\n\t mediump vec3 select = step(vec3(0.0), worldRefl);\r\n\t mediump vec3 rbminmax = mix(rbmin, rbmax, select);\r\n\trbminmax = rbminmax / nrdir;\r\n\tmediump float scalar = min(min(rbminmax.x, rbminmax.y), rbminmax.z);\r\n\t mediump vec3 worldChangeRefl = nrdir * scalar + (worldPos - cubemapCenter);\r\n\treturn worldChangeRefl;\r\n}\r\n\r\n\r\nmediump vec3 layaDecodeDirectionalLightmap (mediump vec3 color, lowp vec4 dirTex, mediump vec3 normalWorld)\r\n{\r\n    // In directional (non-specular) mode Enlighten bakes dominant light direction\r\n    // in a way, that using it for half Lambert and then dividing by a \"rebalancing coefficient\"\r\n    // gives a result close to plain diffuse response lightmaps, but normalmapped.\r\n\r\n    // Note that dir is not unit length on purpose. Its length is \"directionality\", like\r\n    // for the directional specular lightmaps.\r\n\tlowp vec3 directional=dirTex.xyz - 0.5;\r\n\tdirectional.x=-directional.x;//NOTE:because coord System\r\n    mediump float halfLambert = dot(normalWorld,directional) + 0.5;\r\n\r\n    return color * halfLambert / max(1e-4, dirTex.w);\r\n}\r\n\r\nvec3 layaGIBase(LayaGIInput giInput,mediump float occlusion, mediump vec3 normalWorld)\r\n{\r\n\tvec3 indirectDiffuse;\r\n\t#ifdef LIGHTMAP\t\r\n\t\tmediump vec3 bakedColor =decodeHDR(texture2D(u_LightMap, giInput.lightmapUV),5.0);\r\n\t\t#ifdef LIGHTMAP_DIRECTIONAL\r\n\t\t\tlowp vec4 bakedDirTex = texture2D (u_LightMapDirection, giInput.lightmapUV);\r\n            indirectDiffuse = layaDecodeDirectionalLightmap (bakedColor, bakedDirTex, normalWorld);\r\n\t\t#else //unDirectional lightmap\r\n\t\t\tindirectDiffuse = bakedColor;\r\n\t\t#endif\r\n\t#else\r\n\t\t#ifdef GI_AMBIENT_SH\r\n\t\t\tindirectDiffuse = shadeSHPerPixel(normalWorld);\r\n\t\t#else\r\n\t\t\tindirectDiffuse = u_AmbientColor; //already in gamma space\r\n\t\t#endif\r\n\t#endif\r\n\r\n\tindirectDiffuse*=occlusion;\r\n\treturn indirectDiffuse;\r\n}\r\n\r\nmediump vec3 layaGlossyEnvironment(mediump vec4 glossIn)\r\n{\r\n\tmediump float perceptualRoughness = glossIn.a;\r\n\r\n\t// use approximation to solve,below is more reasonable,but maybe slow. \r\n\t// float m = perceptualRoughnessToRoughness(perceptualRoughness); // m is the real roughness parameter\r\n    // const float fEps = 1.192092896e-07F;        // smallest such that 1.0+FLT_EPSILON != 1.0  (+1e-4h is NOT good here. is visibly very wrong)\r\n    // float n =  (2.0/max(fEps, m*m))-2.0;        // remap to spec power. See eq. 21 in --> https://dl.dropboxusercontent.com/u/55891920/papers/mm_brdf.pdf\r\n    // n /= 4;                                     // remap from n_dot_h formulatino to n_dot_r. See section \"Pre-convolved Cube Maps vs Path Tracers\" --> https://s3.amazonaws.com/docs.knaldtech.com/knald/1.0.0/lys_power_drops.html\r\n    // perceptualRoughness = pow( 2/(n+2), 0.25);  // remap back to square root of real roughness (0.25 include both the sqrt root of the conversion and sqrt for going from roughness to perceptualRoughness)\r\n\tperceptualRoughness = perceptualRoughness * (1.7 - 0.7*perceptualRoughness);//just a approximation,but fast.\r\n \r\n\tmediump float mip = perceptualRoughness * LAYA_SPECCUBE_LOD_STEPS;\r\n\tmediump vec3 uvw = glossIn.rgb;\r\n\tuvw.x=-uvw.x;//Note:reflectCube is left-hand,so x need inverse\r\n\tmediump vec4 rgbm=textureCubeLodEXT(u_ReflectTexture,uvw,mip);\r\n\treturn decodeHDR(rgbm,u_ReflectCubeHDRParams.x);\r\n}\r\n\r\nmediump vec3 layaGIIndirectSpecular(LayaGIInput giInput,mediump float occlusion, vec4 glossIn)\r\n{\r\n\t#ifdef SPECCUBE_BOX_PROJECTION\r\n\t\tvec3 originalReflUVW = glossIn.xyz;\r\n\t\tglossIn.xyz =BoxProjectedCubemapDirection(originalReflUVW,giInput.worldPos,u_SpecCubeProbePosition,u_SpecCubeBoxMin,u_SpecCubeBoxMax);\r\n\t#endif\r\n\tmediump vec3 specular = layaGlossyEnvironment(glossIn);\r\n\treturn specular * occlusion;\r\n}\r\n\r\n\r\nLayaGI layaGlobalIllumination(LayaGIInput giInput,mediump float occlusion, mediump vec3 normalWorld,mediump vec4 uvwRoughness)\r\n{\r\n\tLayaGI gi;\r\n\tgi.diffuse = layaGIBase(giInput,occlusion, normalWorld);\r\n\tgi.specular = layaGIIndirectSpecular(giInput,occlusion, uvwRoughness);\r\n\treturn gi;\r\n}\r\n\r\n\r\n";
 
-	var LightingGLSL = "#ifdef GRAPHICS_API_GLES3\r\n\t#define INVERSE_MAT(mat) inverse(mat)\r\n#else\r\n\t#define INVERSE_MAT(mat) inverseMat(mat)\r\n#endif\r\n\r\nstruct DirectionLight {\r\n\tvec3 color;\r\n\tvec3 direction;\r\n};\r\n\r\nstruct PointLight {\r\n\tvec3 color;\r\n\tvec3 position;\r\n\tfloat range;\r\n};\r\n\r\nstruct SpotLight {\r\n\tvec3 color;\r\n\tvec3 position;\r\n\tfloat range;\r\n\tvec3 direction;\r\n\tfloat spot;\r\n};\r\n\r\nstruct LayaGI{\r\n\tvec3 diffuse;\r\n\tvec3 specular;\r\n};\r\n\r\nstruct LayaLight{\r\n\tvec3 color;\r\n\tvec3 dir;\r\n};\r\n\r\nconst int c_ClusterBufferWidth = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;\r\nconst int c_ClusterBufferHeight = CLUSTER_Z_COUNT*(1+int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER)/4.0)));\r\nconst int c_ClusterBufferFloatWidth = c_ClusterBufferWidth*4;\r\n\r\n#ifndef GRAPHICS_API_GLES3\r\n\tmat3 inverseMat(mat3 m) {\r\n\t\tfloat a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];\r\n\t\tfloat a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];\r\n\t\tfloat a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];\r\n\r\n\t\tfloat b01 = a22 * a11 - a12 * a21;\r\n\t\tfloat b11 = -a22 * a10 + a12 * a20;\r\n\t\tfloat b21 = a21 * a10 - a11 * a20;\r\n\r\n\t\tfloat det = a00 * b01 + a01 * b11 + a02 * b21;\r\n\r\n\t\treturn mat3(b01, (-a22 * a01 + a02 * a21), (a12 * a01 - a02 * a11),\r\n\t\t\t\t\tb11, (a22 * a00 - a02 * a20), (-a12 * a00 + a02 * a10),\r\n\t\t\t\t\tb21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;\r\n\t}\r\n#endif\r\n\r\n\t#ifdef THICKNESSMAP\r\n\t\tuniform sampler2D u_ThinknessTexture;\r\n\t#endif\r\n#ifdef ENABLETRANSMISSION\r\n\tuniform float u_TransmissionRate;\r\n\tuniform float u_BackDiffuse;\r\n\tuniform float u_BackScale;\r\n\tuniform vec4 u_TransmissionColor;\r\n\r\n\r\n\tvec3 SubSurfaceIBack(vec3 lightDir,vec3 viewDir,float thinknessFactor){\r\n\t\tvec3 H = normalize(lightDir);\r\n\t\tfloat VdotH = pow(clamp(dot(viewDir,H),0.0,1.0),u_BackDiffuse)*u_BackScale;\r\n\t\tvec3 I;\r\n\t\t#ifdef THICKNESSMAP\r\n\t\t\tI = u_TransmissionColor.rgb*VdotH*thinknessFactor;\r\n\t\t#else\r\n\t\t\tI = u_TransmissionColor.rgb*VdotH;\r\n\t\t#endif\r\n\t\treturn I;\r\n\t}\r\n#endif\r\n\r\nivec4 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,vec4 projectParams)\r\n{\r\n\tvec3 viewPos = vec3(viewMatrix*vec4(position, 1.0)); //position in viewspace\r\n\r\n\tint clusterXIndex = int(floor(fragCoord.x/ (float(viewport.z)/float(CLUSTER_X_COUNT))));\r\n    int clusterYIndex = int(floor((viewport.w * (projectParams.z <0.0? 0.0 : 1.0) - fragCoord.y * projectParams.z)/ (float(viewport.w)/float(CLUSTER_Y_COUNT))));//Maybe Flipped ProjectMatrix\r\n\tfloat zSliceParam =float(CLUSTER_Z_COUNT)/log2(projectParams.y / projectParams.x);\r\n \tint clusterZIndex = int(floor(log2(-viewPos.z) * zSliceParam- log2(projectParams.x) * zSliceParam));//projectParams x:cameraNear y:cameraFar\r\n\r\n\tvec2 uv= vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT)+0.5)/float(c_ClusterBufferWidth),\r\n\t\t\t\t(float(clusterZIndex)+0.5)/float(c_ClusterBufferHeight));\r\n\tvec4 clusterPixel=texture2D(clusterBuffer, uv);\r\n\treturn ivec4(clusterPixel);//X:Point Count Y:Spot Count Z、W:Light Offset\r\n}\r\n\r\n\r\nint getLightIndex(sampler2D clusterBuffer,int offset,int index) \r\n{\r\n\tint totalOffset=offset+index;\r\n\tint row=totalOffset/c_ClusterBufferFloatWidth;\r\n\tint lastRowFloat=totalOffset-row*c_ClusterBufferFloatWidth;\r\n\tint col=lastRowFloat/4;\r\n\tvec2 uv=vec2((float(col)+0.5)/float(c_ClusterBufferWidth),\r\n\t\t\t\t(float(row)+0.5)/float(c_ClusterBufferHeight));\r\n\tvec4 texel = texture2D(clusterBuffer, uv);\r\n    int pixelComponent = lastRowFloat-col*4;\r\n    if (pixelComponent == 0) \r\n      return int(texel.x);\r\n    else if (pixelComponent == 1) \r\n      return int(texel.y);\r\n    else if (pixelComponent == 2) \r\n      return int(texel.z);\r\n    else //pixelComponent==3\r\n      return int(texel.w);\r\n}\r\n\r\nDirectionLight getDirectionLight(sampler2D lightBuffer,int index) \r\n{\r\n    DirectionLight light;\r\n    float v = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);\r\n    vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));\r\n    vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));\r\n\tlight.color=p1.rgb;\r\n    light.direction = p2.rgb;\r\n    return light;\r\n}\r\n\r\nPointLight getPointLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clusterInfo,int index) \r\n{\r\n    PointLight light;\r\n\tint pointIndex=getLightIndex(clusterBuffer,clusterInfo.z*c_ClusterBufferFloatWidth+clusterInfo.w,index);\r\n    float v = (float(pointIndex)+0.5)/ float(MAX_LIGHT_COUNT);\r\n    vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));\r\n    vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));\r\n\tlight.color=p1.rgb;\r\n\tlight.range = p1.a;\r\n    light.position = p2.rgb;\r\n    return light;\r\n}\r\n\r\nSpotLight getSpotLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clusterInfo,int index) \r\n{\r\n    SpotLight light;\r\n\tint spoIndex=getLightIndex(clusterBuffer,clusterInfo.z*c_ClusterBufferFloatWidth+clusterInfo.w,clusterInfo.x+index);\r\n    float v = (float(spoIndex)+0.5)/ float(MAX_LIGHT_COUNT);\r\n    vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));\r\n    vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));\r\n\tvec4 p3 = texture2D(lightBuffer, vec2(0.625,v));\r\n    light.color = p1.rgb;\r\n\tlight.range=p1.a;\r\n    light.position = p2.rgb;\r\n\tlight.spot = p2.a;\r\n\tlight.direction = p3.rgb;\r\n    return light;\r\n}\r\n\r\n// Laya中使用衰减纹理\r\nfloat LayaAttenuation(in vec3 L,in float invLightRadius) {\r\n\tfloat fRatio = clamp(length(L) * invLightRadius,0.0,1.0);\r\n\tfRatio *= fRatio;\r\n\treturn 1.0 / (1.0 + 25.0 * fRatio)* clamp(4.0*(1.0 - fRatio),0.0,1.0); //fade to black as if 4 pixel texture\r\n}\r\n\r\n// Same as Just Cause 2 and Crysis 2 (you can read GPU Pro 1 book for more information)\r\nfloat BasicAttenuation(in vec3 L,in float invLightRadius) {\r\n\tvec3 distance = L * invLightRadius;\r\n\tfloat attenuation = clamp(1.0 - dot(distance, distance),0.0,1.0); // Equals float attenuation = saturate(1.0f - dot(L, L) / (lightRadius *  lightRadius));\r\n\treturn attenuation * attenuation;\r\n}\r\n\r\n// Inspired on http://fools.slindev.com/viewtopic.php?f=11&t=21&view=unread#unread\r\nfloat NaturalAttenuation(in vec3 L,in float invLightRadius) {\r\n\tfloat attenuationFactor = 30.0;\r\n\tvec3 distance = L * invLightRadius;\r\n\tfloat attenuation = dot(distance, distance); // Equals float attenuation = dot(L, L) / (lightRadius *  lightRadius);\r\n\tattenuation = 1.0 / (attenuation * attenuationFactor + 1.0);\r\n\t// Second we move down the function therewith it reaches zero at abscissa 1:\r\n\tattenuationFactor = 1.0 / (attenuationFactor + 1.0); //attenuationFactor contains now the value we have to subtract\r\n\tattenuation = max(attenuation - attenuationFactor, 0.0); // The max fixes a bug.\r\n\t// Finally we expand the equation along the y-axis so that it starts with a function value of 1 again.\r\n\tattenuation /= 1.0 - attenuationFactor;\r\n\treturn attenuation;\r\n}\r\n\r\nvoid LayaAirBlinnPhongLight (in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir,in vec3 lightColor, in vec3 lightVec,out vec3 diffuseColor,out vec3 specularColor) {\r\n\tmediump vec3 h = normalize(viewDir-lightVec);\r\n\tlowp float ln = max (0.0, dot (-lightVec,normal));\r\n\tfloat nh = max (0.0, dot (h,normal));\r\n\tdiffuseColor=lightColor * ln;\r\n\tspecularColor=lightColor *specColor*pow (nh, specColorIntensity*128.0) * gloss;\r\n}\r\n\r\nvoid LayaAirBlinnPhongDiectionLight (in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in DirectionLight light,float thinknessFactor,out vec3 diffuseColor,out vec3 specularColor,out vec3 transmisColor) {\r\n\tvec3 lightVec=normalize(light.direction);\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec,diffuseColor,specularColor);\r\n\t#ifdef ENABLETRANSMISSION\r\n\t\tdiffuseColor *= u_TransmissionRate;\r\n\t\ttransmisColor = SubSurfaceIBack(lightVec, viewDir,thinknessFactor)*light.color.rgb*(1.0-u_TransmissionRate);\r\n\t#endif\r\n}\r\n\r\n\r\nvoid LayaAirBlinnPhongDiectionLight (in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in DirectionLight light,out vec3 diffuseColor,out vec3 specularColor) {\r\n\tvec3 lightVec=normalize(light.direction);\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec,diffuseColor,specularColor);\r\n}\r\n\r\n\r\nvoid LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in PointLight light,float thinknessFactor,out vec3 diffuseColor,out vec3 specularColor,out vec3 transmisColor) {\r\n\tvec3 lightVec =  pos-light.position;\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec/length(lightVec),diffuseColor,specularColor);\r\n\tfloat attenuate = LayaAttenuation(lightVec, 1.0/light.range);\r\n\tdiffuseColor *= attenuate;\r\n\tspecularColor*= attenuate;\r\n\t#ifdef ENABLETRANSMISSION\r\n\t\tdiffuseColor *= u_TransmissionRate;\r\n\t\ttransmisColor = SubSurfaceIBack(lightVec, viewDir,thinknessFactor)*light.color.rgb*(1.0-u_TransmissionRate)*attenuate;\r\n\t#endif\r\n}\r\n\r\nvoid LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in PointLight light,out vec3 diffuseColor,out vec3 specularColor) {\r\n\tvec3 lightVec =  pos-light.position;\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec/length(lightVec),diffuseColor,specularColor);\r\n\tfloat attenuate = LayaAttenuation(lightVec, 1.0/light.range);\r\n\tdiffuseColor *= attenuate;\r\n\tspecularColor*= attenuate;\r\n}\r\n\r\nvoid LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in SpotLight light,float thinknessFactor,out vec3 diffuseColor,out vec3 specularColor,out vec3 transmisColor) {\r\n\tvec3 lightVec =  pos-light.position;\r\n\tvec3 normalLightVec=lightVec/length(lightVec);\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,normalLightVec,diffuseColor,specularColor);\r\n\tvec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation\r\n\tfloat dl=dot(normalize(light.direction),normalLightVec);\r\n\tdl*=smoothstep(cosAngles[0],cosAngles[1],dl);\r\n\tfloat attenuate = LayaAttenuation(lightVec, 1.0/light.range)*dl;\r\n\tdiffuseColor *=attenuate;\r\n\tspecularColor *=attenuate;\r\n\t#ifdef ENABLETRANSMISSION\r\n\t\tdiffuseColor *= u_TransmissionRate;\r\n\t\ttransmisColor = SubSurfaceIBack(lightVec, viewDir,thinknessFactor)*light.color.rgb*(1.0-u_TransmissionRate)*attenuate;\r\n\t#endif\r\n}\r\n\r\nvoid LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in SpotLight light,out vec3 diffuseColor,out vec3 specularColor) {\r\n\tvec3 lightVec =  pos-light.position;\r\n\tvec3 normalLightVec=lightVec/length(lightVec);\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,normalLightVec,diffuseColor,specularColor);\r\n\tvec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation\r\n\tfloat dl=dot(normalize(light.direction),normalLightVec);\r\n\tdl*=smoothstep(cosAngles[0],cosAngles[1],dl);\r\n\tfloat attenuate = LayaAttenuation(lightVec, 1.0/light.range)*dl;\r\n\tdiffuseColor *=attenuate;\r\n\tspecularColor *=attenuate;\r\n}\r\n\r\n\r\n\r\n\r\nvec3 NormalSampleToWorldSpace(vec3 normalMapSample, vec3 unitNormal, vec3 tangent,vec3 binormal) {\r\n\tvec3 normalT =vec3(2.0*normalMapSample.x - 1.0,1.0-2.0*normalMapSample.y,2.0*normalMapSample.z - 1.0);\r\n\tmediump vec3 N = unitNormal;\r\n\tmediump vec3 T = tangent;\r\n\tmediump vec3 B = binormal;\r\n\tmat3 TBN = mat3(T, B, N);\r\n\r\n\t// Transform from tangent space to world space.\r\n\tvec3 bumpedNormal =normalize(TBN*normalT);\r\n\treturn bumpedNormal;\r\n}\r\n\r\nvec3 NormalSampleToWorldSpace1(vec4 normalMapSample, vec3 tangent, vec3 binormal, vec3 unitNormal) {\r\n\tvec3 normalT;\r\n\tnormalT.x = 2.0 * normalMapSample.x - 1.0;\r\n\tnormalT.y = 1.0 - 2.0 * normalMapSample.y;\r\n\tnormalT.z = sqrt(1.0 - clamp(dot(normalT.xy, normalT.xy), 0.0, 1.0));\r\n\r\n\tvec3 T = normalize(tangent);\r\n\tvec3 B = normalize(binormal);\r\n\tvec3 N = normalize(unitNormal);\r\n\tmat3 TBN = mat3(T, B, N);\r\n\r\n\t// Transform from tangent space to world space.\r\n\tvec3 bumpedNormal = TBN * normalize(normalT);\r\n\r\n\treturn bumpedNormal;\r\n}\r\n\r\nvec3 DecodeLightmap(vec4 color) {\r\n\treturn color.rgb*color.a*5.0;\r\n}\r\n\r\nvec3 decodeHDR(vec4 color,float range) {\r\n\treturn color.rgb*color.a*range;\r\n}\r\n\r\nvec2 TransformUV(vec2 texcoord,vec4 tilingOffset) {\r\n\tvec2 transTexcoord=vec2(texcoord.x,texcoord.y-1.0)*tilingOffset.xy+vec2(tilingOffset.z,-tilingOffset.w);\r\n\ttransTexcoord.y+=1.0;\r\n\treturn transTexcoord;\r\n}\r\n\r\nvec4 remapGLPositionZ(vec4 position) {\r\n\tposition.z=position.z * 2.0 - position.w;\r\n\treturn position;\r\n}\r\n\r\nmediump vec3 layaLinearToGammaSpace (mediump vec3 linRGB)\r\n{\r\n    linRGB = max(linRGB, vec3(0.0));\r\n    // An almost-perfect approximation from http://chilliant.blogspot.com.au/2012/08/srgb-approximations-for-hlsl.html?m=1\r\n    return max(1.055 * pow(linRGB,vec3(0.416666667)) - 0.055, 0.0);   \r\n}\r\n\r\nLayaLight layaDirectionLightToLight(in DirectionLight light,in float attenuate)\r\n{\r\n\tLayaLight relight;\r\n\trelight.color = light.color*attenuate;\r\n\trelight.dir = light.direction;\r\n\treturn relight;\r\n}\r\n\r\nLayaLight layaPointLightToLight(in vec3 pos,in vec3 normal, in PointLight light,in float attenuate)\r\n{\r\n\tLayaLight relight;\r\n\tvec3 lightVec =  pos-light.position;\r\n\tattenuate *= LayaAttenuation(lightVec, 1.0/light.range);\r\n\trelight.color = light.color*attenuate;\r\n\trelight.dir = normalize(lightVec);\r\n\treturn relight;\r\n}\r\n\r\nLayaLight layaSpotLightToLight(in vec3 pos,in vec3 normal, in SpotLight light,in float attenuate)\r\n{\r\n\tLayaLight relight;\r\n\tvec3 lightVec =  pos-light.position;\r\n\tvec3 normalLightVec=lightVec/length(lightVec);\r\n\tvec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation\r\n\tfloat dl=dot(normalize(light.direction),normalLightVec);\r\n\tdl*=smoothstep(cosAngles[0],cosAngles[1],dl);\r\n\tattenuate *= LayaAttenuation(lightVec, 1.0/light.range)*dl;\r\n\trelight.dir = normalLightVec;\r\n\trelight.color = light.color*attenuate;\r\n\treturn relight;\r\n}\r\n\r\n\r\n\r\n\r\n";
+	var LightingGLSL = "#ifdef GRAPHICS_API_GLES3\r\n\t#define INVERSE_MAT(mat) inverse(mat)\r\n#else\r\n\t#define INVERSE_MAT(mat) inverseMat(mat)\r\n#endif\r\n\r\nstruct DirectionLight {\r\n\tvec3 color;\r\n\tvec3 direction;\r\n};\r\n\r\nstruct PointLight {\r\n\tvec3 color;\r\n\tvec3 position;\r\n\tfloat range;\r\n};\r\n\r\nstruct SpotLight {\r\n\tvec3 color;\r\n\tvec3 position;\r\n\tfloat range;\r\n\tvec3 direction;\r\n\tfloat spot;\r\n};\r\n\r\nstruct LayaGI{\r\n\tvec3 diffuse;\r\n\tvec3 specular;\r\n};\r\n\r\nstruct LayaLight{\r\n\tvec3 color;\r\n\tvec3 dir;\r\n};\r\n\r\nconst int c_ClusterBufferWidth = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;\r\nconst int c_ClusterBufferHeight = CLUSTER_Z_COUNT*(1+int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER)/4.0)));\r\nconst int c_ClusterBufferFloatWidth = c_ClusterBufferWidth*4;\r\n\r\n#ifndef GRAPHICS_API_GLES3\r\n\tmat2 inverseMat(mat2 m) {\r\n\t\treturn mat2(m[1][1],-m[0][1],\r\n\t\t\t\t-m[1][0], m[0][0]) / (m[0][0]*m[1][1] - m[0][1]*m[1][0]);\r\n\t}\r\n\tmat3 inverseMat(mat3 m) {\r\n\t\tfloat a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];\r\n\t\tfloat a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];\r\n\t\tfloat a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];\r\n\r\n\t\tfloat b01 = a22 * a11 - a12 * a21;\r\n\t\tfloat b11 = -a22 * a10 + a12 * a20;\r\n\t\tfloat b21 = a21 * a10 - a11 * a20;\r\n\r\n\t\tfloat det = a00 * b01 + a01 * b11 + a02 * b21;\r\n\r\n\t\treturn mat3(b01, (-a22 * a01 + a02 * a21), (a12 * a01 - a02 * a11),\r\n\t\t\t\t\tb11, (a22 * a00 - a02 * a20), (-a12 * a00 + a02 * a10),\r\n\t\t\t\t\tb21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;\r\n\t}\r\n\tmat4 inverseMat(mat4 m) {\r\n\t\tfloat\r\n\t\t\ta00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],\r\n\t\t\ta10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],\r\n\t\t\ta20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],\r\n\t\t\ta30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3],\r\n\r\n\t\t\tb00 = a00 * a11 - a01 * a10,\r\n\t\t\tb01 = a00 * a12 - a02 * a10,\r\n\t\t\tb02 = a00 * a13 - a03 * a10,\r\n\t\t\tb03 = a01 * a12 - a02 * a11,\r\n\t\t\tb04 = a01 * a13 - a03 * a11,\r\n\t\t\tb05 = a02 * a13 - a03 * a12,\r\n\t\t\tb06 = a20 * a31 - a21 * a30,\r\n\t\t\tb07 = a20 * a32 - a22 * a30,\r\n\t\t\tb08 = a20 * a33 - a23 * a30,\r\n\t\t\tb09 = a21 * a32 - a22 * a31,\r\n\t\t\tb10 = a21 * a33 - a23 * a31,\r\n\t\t\tb11 = a22 * a33 - a23 * a32,\r\n\r\n\t\t\tdet = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;\r\n\r\n\t\treturn mat4(\r\n\t\t\ta11 * b11 - a12 * b10 + a13 * b09,\r\n\t\t\ta02 * b10 - a01 * b11 - a03 * b09,\r\n\t\t\ta31 * b05 - a32 * b04 + a33 * b03,\r\n\t\t\ta22 * b04 - a21 * b05 - a23 * b03,\r\n\t\t\ta12 * b08 - a10 * b11 - a13 * b07,\r\n\t\t\ta00 * b11 - a02 * b08 + a03 * b07,\r\n\t\t\ta32 * b02 - a30 * b05 - a33 * b01,\r\n\t\t\ta20 * b05 - a22 * b02 + a23 * b01,\r\n\t\t\ta10 * b10 - a11 * b08 + a13 * b06,\r\n\t\t\ta01 * b08 - a00 * b10 - a03 * b06,\r\n\t\t\ta30 * b04 - a31 * b02 + a33 * b00,\r\n\t\t\ta21 * b02 - a20 * b04 - a23 * b00,\r\n\t\t\ta11 * b07 - a10 * b09 - a12 * b06,\r\n\t\t\ta00 * b09 - a01 * b07 + a02 * b06,\r\n\t\t\ta31 * b01 - a30 * b03 - a32 * b00,\r\n\t\t\ta20 * b03 - a21 * b01 + a22 * b00) / det;\r\n\t}\r\n#endif\r\n\r\n\t#ifdef THICKNESSMAP\r\n\t\tuniform sampler2D u_ThinknessTexture;\r\n\t#endif\r\n#ifdef ENABLETRANSMISSION\r\n\tuniform float u_TransmissionRate;\r\n\tuniform float u_BackDiffuse;\r\n\tuniform float u_BackScale;\r\n\tuniform vec4 u_TransmissionColor;\r\n\r\n\r\n\tvec3 SubSurfaceIBack(vec3 lightDir,vec3 viewDir,float thinknessFactor){\r\n\t\tvec3 H = normalize(lightDir);\r\n\t\tfloat VdotH = pow(clamp(dot(viewDir,H),0.0,1.0),u_BackDiffuse)*u_BackScale;\r\n\t\tvec3 I;\r\n\t\t#ifdef THICKNESSMAP\r\n\t\t\tI = u_TransmissionColor.rgb*VdotH*thinknessFactor;\r\n\t\t#else\r\n\t\t\tI = u_TransmissionColor.rgb*VdotH;\r\n\t\t#endif\r\n\t\treturn I;\r\n\t}\r\n#endif\r\n\r\nivec4 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,vec4 projectParams)\r\n{\r\n\tvec3 viewPos = vec3(viewMatrix*vec4(position, 1.0)); //position in viewspace\r\n\r\n\tint clusterXIndex = int(floor(fragCoord.x/ (float(viewport.z)/float(CLUSTER_X_COUNT))));\r\n    int clusterYIndex = int(floor((viewport.w * (projectParams.z <0.0? 0.0 : 1.0) - fragCoord.y * projectParams.z)/ (float(viewport.w)/float(CLUSTER_Y_COUNT))));//Maybe Flipped ProjectMatrix\r\n\tfloat zSliceParam =float(CLUSTER_Z_COUNT)/log2(projectParams.y / projectParams.x);\r\n \tint clusterZIndex = int(floor(log2(-viewPos.z) * zSliceParam- log2(projectParams.x) * zSliceParam));//projectParams x:cameraNear y:cameraFar\r\n\r\n\tvec2 uv= vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT)+0.5)/float(c_ClusterBufferWidth),\r\n\t\t\t\t(float(clusterZIndex)+0.5)/float(c_ClusterBufferHeight));\r\n\tvec4 clusterPixel=texture2D(clusterBuffer, uv);\r\n\treturn ivec4(clusterPixel);//X:Point Count Y:Spot Count Z、W:Light Offset\r\n}\r\n\r\n\r\nint getLightIndex(sampler2D clusterBuffer,int offset,int index) \r\n{\r\n\tint totalOffset=offset+index;\r\n\tint row=totalOffset/c_ClusterBufferFloatWidth;\r\n\tint lastRowFloat=totalOffset-row*c_ClusterBufferFloatWidth;\r\n\tint col=lastRowFloat/4;\r\n\tvec2 uv=vec2((float(col)+0.5)/float(c_ClusterBufferWidth),\r\n\t\t\t\t(float(row)+0.5)/float(c_ClusterBufferHeight));\r\n\tvec4 texel = texture2D(clusterBuffer, uv);\r\n    int pixelComponent = lastRowFloat-col*4;\r\n    if (pixelComponent == 0) \r\n      return int(texel.x);\r\n    else if (pixelComponent == 1) \r\n      return int(texel.y);\r\n    else if (pixelComponent == 2) \r\n      return int(texel.z);\r\n    else //pixelComponent==3\r\n      return int(texel.w);\r\n}\r\n\r\nDirectionLight getDirectionLight(sampler2D lightBuffer,int index) \r\n{\r\n    DirectionLight light;\r\n    float v = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);\r\n    vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));\r\n    vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));\r\n\tlight.color=p1.rgb;\r\n    light.direction = p2.rgb;\r\n    return light;\r\n}\r\n\r\nPointLight getPointLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clusterInfo,int index) \r\n{\r\n    PointLight light;\r\n\tint pointIndex=getLightIndex(clusterBuffer,clusterInfo.z*c_ClusterBufferFloatWidth+clusterInfo.w,index);\r\n    float v = (float(pointIndex)+0.5)/ float(MAX_LIGHT_COUNT);\r\n    vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));\r\n    vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));\r\n\tlight.color=p1.rgb;\r\n\tlight.range = p1.a;\r\n    light.position = p2.rgb;\r\n    return light;\r\n}\r\n\r\nSpotLight getSpotLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clusterInfo,int index) \r\n{\r\n    SpotLight light;\r\n\tint spoIndex=getLightIndex(clusterBuffer,clusterInfo.z*c_ClusterBufferFloatWidth+clusterInfo.w,clusterInfo.x+index);\r\n    float v = (float(spoIndex)+0.5)/ float(MAX_LIGHT_COUNT);\r\n    vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));\r\n    vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));\r\n\tvec4 p3 = texture2D(lightBuffer, vec2(0.625,v));\r\n    light.color = p1.rgb;\r\n\tlight.range=p1.a;\r\n    light.position = p2.rgb;\r\n\tlight.spot = p2.a;\r\n\tlight.direction = p3.rgb;\r\n    return light;\r\n}\r\n\r\n// Laya中使用衰减纹理\r\nfloat LayaAttenuation(in vec3 L,in float invLightRadius) {\r\n\tfloat fRatio = clamp(length(L) * invLightRadius,0.0,1.0);\r\n\tfRatio *= fRatio;\r\n\treturn 1.0 / (1.0 + 25.0 * fRatio)* clamp(4.0*(1.0 - fRatio),0.0,1.0); //fade to black as if 4 pixel texture\r\n}\r\n\r\n// Same as Just Cause 2 and Crysis 2 (you can read GPU Pro 1 book for more information)\r\nfloat BasicAttenuation(in vec3 L,in float invLightRadius) {\r\n\tvec3 distance = L * invLightRadius;\r\n\tfloat attenuation = clamp(1.0 - dot(distance, distance),0.0,1.0); // Equals float attenuation = saturate(1.0f - dot(L, L) / (lightRadius *  lightRadius));\r\n\treturn attenuation * attenuation;\r\n}\r\n\r\n// Inspired on http://fools.slindev.com/viewtopic.php?f=11&t=21&view=unread#unread\r\nfloat NaturalAttenuation(in vec3 L,in float invLightRadius) {\r\n\tfloat attenuationFactor = 30.0;\r\n\tvec3 distance = L * invLightRadius;\r\n\tfloat attenuation = dot(distance, distance); // Equals float attenuation = dot(L, L) / (lightRadius *  lightRadius);\r\n\tattenuation = 1.0 / (attenuation * attenuationFactor + 1.0);\r\n\t// Second we move down the function therewith it reaches zero at abscissa 1:\r\n\tattenuationFactor = 1.0 / (attenuationFactor + 1.0); //attenuationFactor contains now the value we have to subtract\r\n\tattenuation = max(attenuation - attenuationFactor, 0.0); // The max fixes a bug.\r\n\t// Finally we expand the equation along the y-axis so that it starts with a function value of 1 again.\r\n\tattenuation /= 1.0 - attenuationFactor;\r\n\treturn attenuation;\r\n}\r\n\r\nvoid LayaAirBlinnPhongLight (in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir,in vec3 lightColor, in vec3 lightVec,out vec3 diffuseColor,out vec3 specularColor) {\r\n\tmediump vec3 h = normalize(viewDir-lightVec);\r\n\tlowp float ln = max (0.0, dot (-lightVec,normal));\r\n\tfloat nh = max (0.0, dot (h,normal));\r\n\tdiffuseColor=lightColor * ln;\r\n\tspecularColor=lightColor *specColor*pow (nh, specColorIntensity*128.0) * gloss;\r\n}\r\n\r\nvoid LayaAirBlinnPhongDiectionLight (in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in DirectionLight light,float thinknessFactor,out vec3 diffuseColor,out vec3 specularColor,out vec3 transmisColor) {\r\n\tvec3 lightVec=normalize(light.direction);\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec,diffuseColor,specularColor);\r\n\t#ifdef ENABLETRANSMISSION\r\n\t\tdiffuseColor *= u_TransmissionRate;\r\n\t\ttransmisColor = SubSurfaceIBack(lightVec, viewDir,thinknessFactor)*light.color.rgb*(1.0-u_TransmissionRate);\r\n\t#endif\r\n}\r\n\r\n\r\nvoid LayaAirBlinnPhongDiectionLight (in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in DirectionLight light,out vec3 diffuseColor,out vec3 specularColor) {\r\n\tvec3 lightVec=normalize(light.direction);\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec,diffuseColor,specularColor);\r\n}\r\n\r\n\r\nvoid LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in PointLight light,float thinknessFactor,out vec3 diffuseColor,out vec3 specularColor,out vec3 transmisColor) {\r\n\tvec3 lightVec =  pos-light.position;\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec/length(lightVec),diffuseColor,specularColor);\r\n\tfloat attenuate = LayaAttenuation(lightVec, 1.0/light.range);\r\n\tdiffuseColor *= attenuate;\r\n\tspecularColor*= attenuate;\r\n\t#ifdef ENABLETRANSMISSION\r\n\t\tdiffuseColor *= u_TransmissionRate;\r\n\t\ttransmisColor = SubSurfaceIBack(lightVec, viewDir,thinknessFactor)*light.color.rgb*(1.0-u_TransmissionRate)*attenuate;\r\n\t#endif\r\n}\r\n\r\nvoid LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in PointLight light,out vec3 diffuseColor,out vec3 specularColor) {\r\n\tvec3 lightVec =  pos-light.position;\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec/length(lightVec),diffuseColor,specularColor);\r\n\tfloat attenuate = LayaAttenuation(lightVec, 1.0/light.range);\r\n\tdiffuseColor *= attenuate;\r\n\tspecularColor*= attenuate;\r\n}\r\n\r\nvoid LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in SpotLight light,float thinknessFactor,out vec3 diffuseColor,out vec3 specularColor,out vec3 transmisColor) {\r\n\tvec3 lightVec =  pos-light.position;\r\n\tvec3 normalLightVec=lightVec/length(lightVec);\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,normalLightVec,diffuseColor,specularColor);\r\n\tvec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation\r\n\tfloat dl=dot(normalize(light.direction),normalLightVec);\r\n\tdl*=smoothstep(cosAngles[0],cosAngles[1],dl);\r\n\tfloat attenuate = LayaAttenuation(lightVec, 1.0/light.range)*dl;\r\n\tdiffuseColor *=attenuate;\r\n\tspecularColor *=attenuate;\r\n\t#ifdef ENABLETRANSMISSION\r\n\t\tdiffuseColor *= u_TransmissionRate;\r\n\t\ttransmisColor = SubSurfaceIBack(lightVec, viewDir,thinknessFactor)*light.color.rgb*(1.0-u_TransmissionRate)*attenuate;\r\n\t#endif\r\n}\r\n\r\nvoid LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in SpotLight light,out vec3 diffuseColor,out vec3 specularColor) {\r\n\tvec3 lightVec =  pos-light.position;\r\n\tvec3 normalLightVec=lightVec/length(lightVec);\r\n\tLayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,normalLightVec,diffuseColor,specularColor);\r\n\tvec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation\r\n\tfloat dl=dot(normalize(light.direction),normalLightVec);\r\n\tdl*=smoothstep(cosAngles[0],cosAngles[1],dl);\r\n\tfloat attenuate = LayaAttenuation(lightVec, 1.0/light.range)*dl;\r\n\tdiffuseColor *=attenuate;\r\n\tspecularColor *=attenuate;\r\n}\r\n\r\n\r\n\r\n\r\nvec3 NormalSampleToWorldSpace(vec3 normalMapSample, vec3 unitNormal, vec3 tangent,vec3 binormal) {\r\n\tvec3 normalT =vec3(2.0*normalMapSample.x - 1.0,1.0-2.0*normalMapSample.y,2.0*normalMapSample.z - 1.0);\r\n\tmediump vec3 N = unitNormal;\r\n\tmediump vec3 T = tangent;\r\n\tmediump vec3 B = binormal;\r\n\tmat3 TBN = mat3(T, B, N);\r\n\r\n\t// Transform from tangent space to world space.\r\n\tvec3 bumpedNormal =normalize(TBN*normalT);\r\n\treturn bumpedNormal;\r\n}\r\n\r\nvec3 NormalSampleToWorldSpace1(vec4 normalMapSample, vec3 tangent, vec3 binormal, vec3 unitNormal) {\r\n\tvec3 normalT;\r\n\tnormalT.x = 2.0 * normalMapSample.x - 1.0;\r\n\tnormalT.y = 1.0 - 2.0 * normalMapSample.y;\r\n\tnormalT.z = sqrt(1.0 - clamp(dot(normalT.xy, normalT.xy), 0.0, 1.0));\r\n\r\n\tvec3 T = normalize(tangent);\r\n\tvec3 B = normalize(binormal);\r\n\tvec3 N = normalize(unitNormal);\r\n\tmat3 TBN = mat3(T, B, N);\r\n\r\n\t// Transform from tangent space to world space.\r\n\tvec3 bumpedNormal = TBN * normalize(normalT);\r\n\r\n\treturn bumpedNormal;\r\n}\r\n\r\nvec3 DecodeLightmap(vec4 color) {\r\n\treturn color.rgb*color.a*5.0;\r\n}\r\n\r\nvec3 decodeHDR(vec4 color,float range) {\r\n\treturn color.rgb*color.a*range;\r\n}\r\n\r\nvec2 TransformUV(vec2 texcoord,vec4 tilingOffset) {\r\n\tvec2 transTexcoord=vec2(texcoord.x,texcoord.y-1.0)*tilingOffset.xy+vec2(tilingOffset.z,-tilingOffset.w);\r\n\ttransTexcoord.y+=1.0;\r\n\treturn transTexcoord;\r\n}\r\n\r\nvec4 remapGLPositionZ(vec4 position) {\r\n\tposition.z=position.z * 2.0 - position.w;\r\n\treturn position;\r\n}\r\n\r\nmediump vec3 layaLinearToGammaSpace (mediump vec3 linRGB)\r\n{\r\n    linRGB = max(linRGB, vec3(0.0));\r\n    // An almost-perfect approximation from http://chilliant.blogspot.com.au/2012/08/srgb-approximations-for-hlsl.html?m=1\r\n    return max(1.055 * pow(linRGB,vec3(0.416666667)) - 0.055, 0.0);   \r\n}\r\n\r\nLayaLight layaDirectionLightToLight(in DirectionLight light,in float attenuate)\r\n{\r\n\tLayaLight relight;\r\n\trelight.color = light.color*attenuate;\r\n\trelight.dir = light.direction;\r\n\treturn relight;\r\n}\r\n\r\nLayaLight layaPointLightToLight(in vec3 pos,in vec3 normal, in PointLight light,in float attenuate)\r\n{\r\n\tLayaLight relight;\r\n\tvec3 lightVec =  pos-light.position;\r\n\tattenuate *= LayaAttenuation(lightVec, 1.0/light.range);\r\n\trelight.color = light.color*attenuate;\r\n\trelight.dir = normalize(lightVec);\r\n\treturn relight;\r\n}\r\n\r\nLayaLight layaSpotLightToLight(in vec3 pos,in vec3 normal, in SpotLight light,in float attenuate)\r\n{\r\n\tLayaLight relight;\r\n\tvec3 lightVec =  pos-light.position;\r\n\tvec3 normalLightVec=lightVec/length(lightVec);\r\n\tvec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation\r\n\tfloat dl=dot(normalize(light.direction),normalLightVec);\r\n\tdl*=smoothstep(cosAngles[0],cosAngles[1],dl);\r\n\tattenuate *= LayaAttenuation(lightVec, 1.0/light.range)*dl;\r\n\trelight.dir = normalLightVec;\r\n\trelight.color = light.color*attenuate;\r\n\treturn relight;\r\n}\r\n\r\n\r\n\r\n\r\n";
 
 	var ShadowSampleTentGLSL = "// ------------------------------------------------------------------\r\n//  PCF Filtering Tent Functions\r\n// ------------------------------------------------------------------\r\n\r\n// Assuming a isoceles right angled triangle of height \"triangleHeight\" (as drawn below).\r\n// This function return the area of the triangle above the first texel(in Y the first texel).\r\n//\r\n// |\\      <-- 45 degree slop isosceles right angled triangle\r\n// | \\\r\n// ----    <-- length of this side is \"triangleHeight\"\r\n// _ _ _ _ <-- texels\r\nfloat sampleShadowGetIRTriangleTexelArea(float triangleHeight)\r\n{\r\n    return triangleHeight - 0.5;\r\n}\r\n\r\n// Assuming a isoceles triangle of 1.5 texels height and 3 texels wide lying on 4 texels.\r\n// This function return the area of the triangle above each of those texels.\r\n//    |    <-- offset from -0.5 to 0.5, 0 meaning triangle is exactly in the center\r\n//   / \\   <-- 45 degree slop isosceles triangle (ie tent projected in 2D)\r\n//  /   \\\r\n// _ _ _ _ <-- texels\r\n// X Y Z W <-- result indices (in computedArea.xyzw and computedAreaUncut.xyzw)\r\n// Top point at (right,top) in a texel,left bottom point at (middle,middle) in a texel,right bottom point at (middle,middle) in a texel.\r\nvoid sampleShadowGetTexelAreasTent3x3(float offset, out vec4 computedArea, out vec4 computedAreaUncut)\r\n{\r\n    // Compute the exterior areas,a and h is same.\r\n    float a = offset + 0.5;\r\n    float offsetSquaredHalved = a * a * 0.5;\r\n    computedAreaUncut.x = computedArea.x = offsetSquaredHalved - offset;\r\n    computedAreaUncut.w = computedArea.w = offsetSquaredHalved;\r\n\r\n    // Compute the middle areas\r\n    // For Y : We find the area in Y of as if the left section of the isoceles triangle would\r\n    // intersect the axis between Y and Z (ie where offset = 0).\r\n    computedAreaUncut.y = sampleShadowGetIRTriangleTexelArea(1.5 - offset);\r\n    // This area is superior to the one we are looking for if (offset < 0) thus we need to\r\n    // subtract the area of the triangle defined by (0,1.5-offset), (0,1.5+offset), (-offset,1.5).\r\n    float clampedOffsetLeft = min(offset,0.0);\r\n    float areaOfSmallLeftTriangle = clampedOffsetLeft * clampedOffsetLeft;\r\n    computedArea.y = computedAreaUncut.y - areaOfSmallLeftTriangle;\r\n\r\n    // We do the same for the Z but with the right part of the isoceles triangle\r\n    computedAreaUncut.z = sampleShadowGetIRTriangleTexelArea(1.5 + offset);\r\n    float clampedOffsetRight = max(offset,0.0);\r\n    float areaOfSmallRightTriangle = clampedOffsetRight * clampedOffsetRight;\r\n    computedArea.z = computedAreaUncut.z - areaOfSmallRightTriangle;\r\n}\r\n\r\n// Assuming a isoceles triangle of 2.5 texel height and 5 texels wide lying on 6 texels.\r\n// This function return the weight of each texels area relative to the full triangle area.\r\n//  /       \\\r\n// _ _ _ _ _ _ <-- texels\r\n// 0 1 2 3 4 5 <-- computed area indices (in texelsWeights[])\r\n// Top point at (right,top) in a texel,left bottom point at (middle,middle) in a texel,right bottom point at (middle,middle) in a texel.\r\nvoid sampleShadowGetTexelWeightsTent5x5(float offset, out vec3 texelsWeightsA, out vec3 texelsWeightsB)\r\n{\r\n    vec4 areaFrom3texelTriangle;\r\n    vec4 areaUncutFrom3texelTriangle;\r\n    sampleShadowGetTexelAreasTent3x3(offset, areaFrom3texelTriangle, areaUncutFrom3texelTriangle);\r\n\r\n    // Triangle slope is 45 degree thus we can almost reuse the result of the 3 texel wide computation.\r\n    // the 5 texel wide triangle can be seen as the 3 texel wide one but shifted up by one unit/texel.\r\n    // 0.16 is 1/(the triangle area)\r\n    texelsWeightsA.x = 0.16 * (areaFrom3texelTriangle.x);\r\n    texelsWeightsA.y = 0.16 * (areaUncutFrom3texelTriangle.y);\r\n    texelsWeightsA.z = 0.16 * (areaFrom3texelTriangle.y + 1.0);\r\n    texelsWeightsB.x = 0.16 * (areaFrom3texelTriangle.z + 1.0);\r\n    texelsWeightsB.y = 0.16 * (areaUncutFrom3texelTriangle.z);\r\n    texelsWeightsB.z = 0.16 * (areaFrom3texelTriangle.w);\r\n}\r\n\r\n// 5x5 Tent filter (45 degree sloped triangles in U and V)\r\nvoid sampleShadowComputeSamplesTent5x5(vec4 shadowMapTextureTexelSize, vec2 coord, out float fetchesWeights[9], out vec2 fetchesUV[9])\r\n{\r\n    // tent base is 5x5 base thus covering from 25 to 36 texels, thus we need 9 bilinear PCF fetches\r\n    vec2 tentCenterInTexelSpace = coord.xy * shadowMapTextureTexelSize.zw;\r\n    vec2 centerOfFetchesInTexelSpace = floor(tentCenterInTexelSpace + 0.5);\r\n    vec2 offsetFromTentCenterToCenterOfFetches = tentCenterInTexelSpace - centerOfFetchesInTexelSpace;\r\n\r\n    // find the weight of each texel based on the area of a 45 degree slop tent above each of them.\r\n    vec3 texelsWeightsUA, texelsWeightsUB;\r\n    vec3 texelsWeightsVA, texelsWeightsVB;\r\n    sampleShadowGetTexelWeightsTent5x5(offsetFromTentCenterToCenterOfFetches.x, texelsWeightsUA, texelsWeightsUB);\r\n    sampleShadowGetTexelWeightsTent5x5(offsetFromTentCenterToCenterOfFetches.y, texelsWeightsVA, texelsWeightsVB);\r\n\r\n    // each fetch will cover a group of 2x2 texels, the weight of each group is the sum of the weights of the texels\r\n    vec3 fetchesWeightsU = vec3(texelsWeightsUA.xz, texelsWeightsUB.y) + vec3(texelsWeightsUA.y, texelsWeightsUB.xz);\r\n    vec3 fetchesWeightsV = vec3(texelsWeightsVA.xz, texelsWeightsVB.y) + vec3(texelsWeightsVA.y, texelsWeightsVB.xz);\r\n\r\n    // move the PCF bilinear fetches to respect texels weights\r\n    vec3 fetchesOffsetsU = vec3(texelsWeightsUA.y, texelsWeightsUB.xz) / fetchesWeightsU.xyz + vec3(-2.5,-0.5,1.5);\r\n    vec3 fetchesOffsetsV = vec3(texelsWeightsVA.y, texelsWeightsVB.xz) / fetchesWeightsV.xyz + vec3(-2.5,-0.5,1.5);\r\n    fetchesOffsetsU *= shadowMapTextureTexelSize.xxx;\r\n    fetchesOffsetsV *= shadowMapTextureTexelSize.yyy;\r\n\r\n    vec2 bilinearFetchOrigin = centerOfFetchesInTexelSpace * shadowMapTextureTexelSize.xy;\r\n    fetchesUV[0] = bilinearFetchOrigin + vec2(fetchesOffsetsU.x, fetchesOffsetsV.x);\r\n    fetchesUV[1] = bilinearFetchOrigin + vec2(fetchesOffsetsU.y, fetchesOffsetsV.x);\r\n    fetchesUV[2] = bilinearFetchOrigin + vec2(fetchesOffsetsU.z, fetchesOffsetsV.x);\r\n    fetchesUV[3] = bilinearFetchOrigin + vec2(fetchesOffsetsU.x, fetchesOffsetsV.y);\r\n    fetchesUV[4] = bilinearFetchOrigin + vec2(fetchesOffsetsU.y, fetchesOffsetsV.y);\r\n    fetchesUV[5] = bilinearFetchOrigin + vec2(fetchesOffsetsU.z, fetchesOffsetsV.y);\r\n    fetchesUV[6] = bilinearFetchOrigin + vec2(fetchesOffsetsU.x, fetchesOffsetsV.z);\r\n    fetchesUV[7] = bilinearFetchOrigin + vec2(fetchesOffsetsU.y, fetchesOffsetsV.z);\r\n    fetchesUV[8] = bilinearFetchOrigin + vec2(fetchesOffsetsU.z, fetchesOffsetsV.z);\r\n\r\n    fetchesWeights[0] = fetchesWeightsU.x * fetchesWeightsV.x;\r\n    fetchesWeights[1] = fetchesWeightsU.y * fetchesWeightsV.x;\r\n    fetchesWeights[2] = fetchesWeightsU.z * fetchesWeightsV.x;\r\n    fetchesWeights[3] = fetchesWeightsU.x * fetchesWeightsV.y;\r\n    fetchesWeights[4] = fetchesWeightsU.y * fetchesWeightsV.y;\r\n    fetchesWeights[5] = fetchesWeightsU.z * fetchesWeightsV.y;\r\n    fetchesWeights[6] = fetchesWeightsU.x * fetchesWeightsV.z;\r\n    fetchesWeights[7] = fetchesWeightsU.y * fetchesWeightsV.z;\r\n    fetchesWeights[8] = fetchesWeightsU.z * fetchesWeightsV.z;\r\n}";
 
@@ -27824,7 +27825,7 @@
 
 	var ShadowGLSL = "#ifndef GRAPHICS_API_GLES3\r\n\t#define NO_NATIVE_SHADOWMAP\r\n#endif\r\n\r\n#if defined(NO_NATIVE_SHADOWMAP)\r\n\t#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2D textureName\r\n\t#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) (texture2D(textureName,coord3.xy).r<coord3.z?0.0:1.0)\r\n\t#define TEXTURE2D_SHADOW_PARAM(shadowMap) mediump sampler2D shadowMap\r\n#else\r\n\t#define TEXTURE2D_SHADOW(textureName) uniform mediump sampler2DShadow textureName\r\n\t#define SAMPLE_TEXTURE2D_SHADOW(textureName, coord3) textureLod(textureName,coord3,0.0)\r\n\t#define TEXTURE2D_SHADOW_PARAM(shadowMap) mediump sampler2DShadow shadowMap\r\n#endif\r\n\r\n#if defined(RECEIVESHADOW)&&defined(SHADOW)\r\n    #define CALCULATE_SHADOWS\r\n#endif\r\n\r\n#if defined(RECEIVESHADOW)&&defined(SHADOW_SPOT)\r\n\t#define CALCULATE_SPOTSHADOWS\r\n#endif\r\n\r\nuniform vec4 u_ShadowBias; // x: depth bias, y: normal bias\r\n\r\n#if defined(CALCULATE_SHADOWS)||defined(CALCULATE_SPOTSHADOWS)\r\n\t#include \"ShadowSampleTent.glsl\"\r\n\tuniform vec4 u_ShadowMapSize;\r\n\tuniform vec4 u_SpotShadowMapSize;\r\n\tuniform vec4 u_ShadowParams; // x: shadowStrength y: ShadowSpotLightStrength\r\n\t\r\n\tfloat sampleShdowMapFiltered4(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowMapSize)\r\n\t{\r\n\t\tfloat attenuation;\r\n\t\tvec4 attenuation4;\r\n\t\tvec2 offset=shadowMapSize.xy/2.0;\r\n\t\tvec3 shadowCoord0=shadowCoord + vec3(-offset,0.0);\r\n\t\tvec3 shadowCoord1=shadowCoord + vec3(offset.x,-offset.y,0.0);\r\n\t\tvec3 shadowCoord2=shadowCoord + vec3(-offset.x,offset.y,0.0);\r\n\t\tvec3 shadowCoord3=shadowCoord + vec3(offset,0.0);\r\n\t\tattenuation4.x = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord0);\r\n\t\tattenuation4.y = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord1);\r\n\t\tattenuation4.z = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord2);\r\n\t\tattenuation4.w = SAMPLE_TEXTURE2D_SHADOW(shadowMap, shadowCoord3);\r\n\t\tattenuation = dot(attenuation4, vec4(0.25));\r\n\t\treturn attenuation;\r\n\t}\r\n\r\n\tfloat sampleShdowMapFiltered9(TEXTURE2D_SHADOW_PARAM(shadowMap),vec3 shadowCoord,vec4 shadowmapSize)\r\n\t{\r\n\t\tfloat attenuation;\r\n\t\tfloat fetchesWeights[9];\r\n\t\tvec2 fetchesUV[9];\r\n\t\tsampleShadowComputeSamplesTent5x5(shadowmapSize, shadowCoord.xy, fetchesWeights, fetchesUV);\r\n\t\tattenuation = fetchesWeights[0] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[0].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[1] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[1].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[2] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[2].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[3] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[3].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[4] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[4].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[5] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[5].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[6] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[6].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[7] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[7].xy, shadowCoord.z));\r\n\t\tattenuation += fetchesWeights[8] * SAMPLE_TEXTURE2D_SHADOW(shadowMap, vec3(fetchesUV[8].xy, shadowCoord.z));\r\n\t\treturn attenuation;\r\n\t}\r\n\r\n#endif\r\n\r\n\r\n\r\n\r\n#if defined(CALCULATE_SHADOWS)\r\n\r\n\tTEXTURE2D_SHADOW(u_ShadowMap);\r\n\r\n\tuniform mat4 u_ShadowMatrices[4];\r\n\tuniform vec4 u_ShadowSplitSpheres[4];// max cascade is 4\r\n\r\n\tmediump int computeCascadeIndex(vec3 positionWS)\r\n\t{\r\n\t\tvec3 fromCenter0 = positionWS - u_ShadowSplitSpheres[0].xyz;\r\n\t\tvec3 fromCenter1 = positionWS - u_ShadowSplitSpheres[1].xyz;\r\n\t\tvec3 fromCenter2 = positionWS - u_ShadowSplitSpheres[2].xyz;\r\n\t\tvec3 fromCenter3 = positionWS - u_ShadowSplitSpheres[3].xyz;\r\n\r\n\t\tmediump vec4 comparison = vec4(\r\n\t\t\tdot(fromCenter0, fromCenter0)<u_ShadowSplitSpheres[0].w,\r\n\t\t\tdot(fromCenter1, fromCenter1)<u_ShadowSplitSpheres[1].w,\r\n\t\t\tdot(fromCenter2, fromCenter2)<u_ShadowSplitSpheres[2].w,\r\n\t\t\tdot(fromCenter3, fromCenter3)<u_ShadowSplitSpheres[3].w);\r\n\t\tcomparison.yzw = clamp(comparison.yzw - comparison.xyz,0.0,1.0);//keep the nearest\r\n\t\tmediump vec4 indexCoefficient = vec4(4.0,3.0,2.0,1.0);\r\n\t\tmediump int index = 4 - int(dot(comparison, indexCoefficient));\r\n\t\treturn index;\r\n\t}\r\n\r\n\tvec4 getShadowCoord(vec4 positionWS)\r\n\t{\r\n\t\t#ifdef SHADOW_CASCADE\r\n\t\t\tmediump int cascadeIndex = computeCascadeIndex(positionWS.xyz);\r\n\t\t\tif(cascadeIndex > 3)// out of shadow range cascadeIndex is 4.\r\n\t\t\t\treturn vec4(0.0);\r\n\t\t\t\r\n\t\t\t#ifdef GRAPHICS_API_GLES3\r\n\t\t\t\treturn u_ShadowMatrices[cascadeIndex] * positionWS;\r\n\t\t\t#else\r\n\t\t\t\tmat4 shadowMat;\r\n\t\t\t\tif(cascadeIndex == 0)\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[0];\r\n\t\t\t\telse if(cascadeIndex == 1)\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[1];\r\n\t\t\t\telse if(cascadeIndex == 2)\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[2];\r\n\t\t\t\telse\r\n\t\t\t\t\tshadowMat = u_ShadowMatrices[3];\r\n\t\t\t\treturn shadowMat * positionWS;\r\n\t\t\t#endif\r\n\t\t#else\r\n\t\t\treturn u_ShadowMatrices[0] * positionWS;\r\n\t\t#endif\r\n\t}\r\n\r\n\tfloat sampleShadowmap(vec4 shadowCoord)\r\n\t{\r\n\t\tshadowCoord.xyz /= shadowCoord.w;\r\n\t\tfloat attenuation = 1.0;\r\n\t\tif(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)\r\n\t\t{\r\n\t\t\t#if defined(SHADOW_SOFT_SHADOW_HIGH)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered9(u_ShadowMap,shadowCoord.xyz,u_ShadowMapSize);\r\n\t\t\t#elif defined(SHADOW_SOFT_SHADOW_LOW)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered4(u_ShadowMap,shadowCoord.xyz,u_ShadowMapSize);\r\n\t\t\t#else\r\n\t\t\t\tattenuation = SAMPLE_TEXTURE2D_SHADOW(u_ShadowMap,shadowCoord.xyz);\r\n\t\t\t#endif\r\n\t\t\tattenuation = mix(1.0,attenuation,u_ShadowParams.x);//shadowParams.x:shadow strength\r\n\t\t}\r\n\t\treturn attenuation;\r\n\t}\r\n#endif\r\n\r\n#if defined(CALCULATE_SPOTSHADOWS)//shader���Զ���ĺ겻����ifdef ����ĳ�if defined\r\n\tTEXTURE2D_SHADOW(u_SpotShadowMap);\r\n\tuniform mat4 u_SpotViewProjectMatrix;\r\n\tfloat sampleSpotShadowmap(vec4 shadowCoord)\r\n\t{\r\n\t\tshadowCoord.xyz /= shadowCoord.w;\r\n\t\tfloat attenuation = 1.0;\r\n\t\tshadowCoord.xy +=1.0;\r\n\t\tshadowCoord.xy/=2.0; \r\n\t\tif(shadowCoord.z > 0.0 && shadowCoord.z < 1.0)\r\n\t\t{\r\n\t\t\t#if defined(SHADOW_SPOT_SOFT_SHADOW_HIGH)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered9(u_SpotShadowMap,shadowCoord.xyz,u_SpotShadowMapSize);\r\n\t\t\t#elif defined(SHADOW_SPOT_SOFT_SHADOW_LOW)\r\n\t\t\t\tattenuation = sampleShdowMapFiltered4(u_SpotShadowMap,shadowCoord.xyz,u_SpotShadowMapSize);\r\n\t\t\t#else\r\n\t\t\t\tattenuation = SAMPLE_TEXTURE2D_SHADOW(u_SpotShadowMap,shadowCoord.xyz);\r\n\t\t\t#endif\r\n\t\t\tattenuation = mix(1.0,attenuation,u_ShadowParams.y);//shadowParams.y:shadow strength\r\n\t\t}\r\n\t\treturn attenuation;\r\n\t}\r\n#endif\r\n\r\nvec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)\r\n{\r\n    float invNdotL = 1.0 - clamp(dot(-lightDirection, normalWS),0.0,1.0);\r\n    float scale = invNdotL * u_ShadowBias.y;\r\n\r\n    // normal bias is negative since we want to apply an inset normal offset\r\n    positionWS += -lightDirection * u_ShadowBias.xxx;\r\n    positionWS += normalWS * vec3(scale);\r\n    return positionWS;\r\n}\r\n";
 
-	var ShadowCasterVSGLSL = "#include \"Lighting.glsl\";\r\n#include \"LayaUtile.glsl\"\r\n#include \"Shadow.glsl\"\r\n\r\nattribute vec4 a_Position;\r\nattribute vec3 a_Normal;\r\n\r\n#ifdef BONE\r\n\tconst int c_MaxBoneCount = 24;\r\n\tattribute vec4 a_BoneIndices;\r\n\tattribute vec4 a_BoneWeights;\r\n\tuniform mat4 u_Bones[c_MaxBoneCount];\r\n#endif\r\n\r\n#ifdef GPU_INSTANCE\r\n\tattribute mat4 a_WorldMat;\r\n#else\r\n\tuniform mat4 u_WorldMat;\r\n#endif\r\n\r\nuniform mat4 u_ViewProjection;\r\n\r\n#ifdef SHADOW\r\n\tuniform vec3 u_ShadowLightDirection;\r\n#endif\r\n\r\n\r\nvec4 shadowCasterVertex()\r\n{\r\n\tmat4 worldMat;\r\n\t#ifdef GPU_INSTANCE\r\n\t\tworldMat = a_WorldMat;\r\n\t#else\r\n\t\tworldMat = u_WorldMat;\r\n\t#endif\r\n\t\r\n\t#ifdef BONE\r\n\t\tmat4 skinTransform;\r\n\t \t#ifdef SIMPLEBONE\r\n\t\t\tfloat currentPixelPos;\r\n\t\t\t#ifdef GPU_INSTANCE\r\n\t\t\t\tcurrentPixelPos = a_SimpleTextureParams.x+a_SimpleTextureParams.y;\r\n\t\t\t#else\r\n\t\t\t\tcurrentPixelPos = u_SimpleAnimatorParams.x+u_SimpleAnimatorParams.y;\r\n\t\t\t#endif\r\n\t\t\tfloat offset = 1.0/u_SimpleAnimatorTextureSize;\r\n\t\t\tskinTransform =  loadMatFromTexture(currentPixelPos,int(a_BoneIndices.x),offset) * a_BoneWeights.x;\r\n\t\t\tskinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.y),offset) * a_BoneWeights.y;\r\n\t\t\tskinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.z),offset) * a_BoneWeights.z;\r\n\t\t\tskinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.w),offset) * a_BoneWeights.w;\r\n\t\t#else\r\n\t\t\tskinTransform =  u_Bones[int(a_BoneIndices.x)] * a_BoneWeights.x;\r\n\t\t\tskinTransform += u_Bones[int(a_BoneIndices.y)] * a_BoneWeights.y;\r\n\t\t\tskinTransform += u_Bones[int(a_BoneIndices.z)] * a_BoneWeights.z;\r\n\t\t\tskinTransform += u_Bones[int(a_BoneIndices.w)] * a_BoneWeights.w;\r\n\t\t#endif\r\n\t\tworldMat = worldMat * skinTransform;\r\n\t#endif\r\n\r\n\tvec4 positionWS = worldMat * a_Position;\r\n\tmat3 worldInvMat;\r\n\t#ifdef BONE\r\n\t\tworldInvMat=INVERSE_MAT(mat3(worldMat*skinTransform));\r\n\t#else\r\n\t\tworldInvMat=INVERSE_MAT(mat3(worldMat));\r\n\t#endif  \r\n\r\n\tvec3 normalWS = normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem\r\n\t#ifdef SHADOW\r\n\t\tpositionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);\r\n\t\tpositionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0\r\n\t#endif\r\n\r\n\tvec4 positionCS = u_ViewProjection * positionWS;\r\n\t#ifdef SHADOW_SPOT\r\n\t\tpositionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;\r\n\t\tpositionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0\r\n\t#endif\r\n\t\r\n\t\r\n\t// //TODO没考虑UV动画呢\r\n\t// #if defined(DIFFUSEMAP)&&defined(ALPHATEST)\r\n\t// \tv_Texcoord0=a_Texcoord0;\r\n\t// #endif\r\n    return positionCS;\r\n}\r\n";
+	var ShadowCasterVSGLSL = "#include \"Lighting.glsl\";\r\n#include \"LayaUtile.glsl\"\r\n#include \"Shadow.glsl\"\r\n\r\nattribute vec4 a_Position;\r\nattribute vec3 a_Normal;\r\n\r\n#ifdef BONE\r\n\tconst int c_MaxBoneCount = 24;\r\n\tattribute vec4 a_BoneIndices;\r\n\tattribute vec4 a_BoneWeights;\r\n\tuniform mat4 u_Bones[c_MaxBoneCount];\r\n#endif\r\n\r\n#ifdef GPU_INSTANCE\r\n\tattribute mat4 a_WorldMat;\r\n#else\r\n\tuniform mat4 u_WorldMat;\r\n#endif\r\n\r\nuniform mat4 u_ViewProjection;\r\n\r\n#ifdef SHADOW\r\n\tuniform vec3 u_ShadowLightDirection;\r\n#endif\r\n\r\n\r\nvec4 shadowCasterVertex()\r\n{\r\n\tmat4 worldMat;\r\n\t#ifdef GPU_INSTANCE\r\n\t\tworldMat = a_WorldMat;\r\n\t#else\r\n\t\tworldMat = u_WorldMat;\r\n\t#endif\r\n\t\r\n\t#ifdef BONE\r\n\t\tmat4 skinTransform;\r\n\t \t#ifdef SIMPLEBONE\r\n\t\t\tfloat currentPixelPos;\r\n\t\t\t#ifdef GPU_INSTANCE\r\n\t\t\t\tcurrentPixelPos = a_SimpleTextureParams.x+a_SimpleTextureParams.y;\r\n\t\t\t#else\r\n\t\t\t\tcurrentPixelPos = u_SimpleAnimatorParams.x+u_SimpleAnimatorParams.y;\r\n\t\t\t#endif\r\n\t\t\tfloat offset = 1.0/u_SimpleAnimatorTextureSize;\r\n\t\t\tskinTransform =  loadMatFromTexture(currentPixelPos,int(a_BoneIndices.x),offset) * a_BoneWeights.x;\r\n\t\t\tskinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.y),offset) * a_BoneWeights.y;\r\n\t\t\tskinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.z),offset) * a_BoneWeights.z;\r\n\t\t\tskinTransform += loadMatFromTexture(currentPixelPos,int(a_BoneIndices.w),offset) * a_BoneWeights.w;\r\n\t\t#else\r\n\t\t\tskinTransform =  u_Bones[int(a_BoneIndices.x)] * a_BoneWeights.x;\r\n\t\t\tskinTransform += u_Bones[int(a_BoneIndices.y)] * a_BoneWeights.y;\r\n\t\t\tskinTransform += u_Bones[int(a_BoneIndices.z)] * a_BoneWeights.z;\r\n\t\t\tskinTransform += u_Bones[int(a_BoneIndices.w)] * a_BoneWeights.w;\r\n\t\t#endif\r\n\t\tworldMat = worldMat * skinTransform;\r\n\t#endif\r\n\r\n\tvec4 positionWS = worldMat * a_Position;\r\n\tmat3 worldInvMat;\r\n\t#ifdef BONE\r\n\t\tworldInvMat=INVERSE_MAT(mat3(worldMat*skinTransform));\r\n\t#else\r\n\t\tworldInvMat=INVERSE_MAT(mat3(worldMat));\r\n\t#endif  \r\n\r\n\tvec3 normalWS = normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem\r\n\tvec4 positionCS = u_ViewProjection * positionWS;\r\n\t#ifdef SHADOW\r\n\t\tpositionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);\r\n\t\tpositionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0\r\n\t#endif\r\n\r\n\t\r\n\t#ifdef SHADOW_SPOT\r\n\t\tpositionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;\r\n\t\tpositionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0\r\n\t#endif\r\n\t\r\n\t\r\n\t// //TODO没考虑UV动画呢\r\n\t// #if defined(DIFFUSEMAP)&&defined(ALPHATEST)\r\n\t// \tv_Texcoord0=a_Texcoord0;\r\n\t// #endif\r\n    return positionCS;\r\n}\r\n";
 
 	var ShadowCasterFSGLSL = "vec4 shadowCasterFragment()\r\n{\r\n    return vec4(0.0);\r\n}\r\n";
 
@@ -29518,6 +29519,7 @@
 	        ILaya3D.Camera = Camera;
 	        ILaya3D.CommandBuffer = CommandBuffer;
 	        ILaya3D.RenderElement = RenderElement;
+	        ILaya3D.SubMeshRenderElement = SubMeshRenderElement;
 	        Laya3D.enableNative3D();
 	        if (config.isUseCannonPhysicsEngine)
 	            Physics3D.__cannoninit__();

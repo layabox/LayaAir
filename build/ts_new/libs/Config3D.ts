@@ -4,7 +4,7 @@ import { PBRRenderQuality } from "./laya/d3/core/material/PBRRenderQuality";
 import { ILaya3D } from "./ILaya3D";
 import { CannonPhysicsSettings } from "./laya/d3/physicsCannon/CannonPhysicsSettings";
 import { Physics3D } from "./laya/d3/Physics3D";
-import { SubMeshRenderElement } from "./laya/d3/core/render/SubMeshRenderElement";
+
 
 /**
  * <code>Config3D</code> 类用于创建3D初始化配置。
@@ -26,19 +26,19 @@ export class Config3D implements IClone {
 	}
 
 	static set enableDynamicManager(value:boolean){
-		SubMeshRenderElement.enableDynamicBatch = value;
+		ILaya3D.SubMeshRenderElement.enableDynamicBatch = value;
 	}
 
 	static get enableDynamicManager():boolean{
-		return SubMeshRenderElement.enableDynamicBatch;
+		return ILaya3D.SubMeshRenderElement.enableDynamicBatch;
 	}
 
 	static set enableStaticManager(value:boolean){
-		SubMeshRenderElement.enableStaticBatch = value;
+		ILaya3D.SubMeshRenderElement.enableStaticBatch = value;
 	}
 
 	static get enableStaticManager():boolean{
-		return SubMeshRenderElement.enableStaticBatch;
+		return ILaya3D.SubMeshRenderElement.enableStaticBatch;
 		
 	}
 

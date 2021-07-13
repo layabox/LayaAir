@@ -11,6 +11,7 @@ attribute vec3 a_Normal;
 	attribute vec4 a_BoneWeights;
 	uniform mat4 u_Bones[c_MaxBoneCount];
 #endif
+
 #ifdef GPU_INSTANCE
 	attribute mat4 a_WorldMat;
 #else
@@ -71,6 +72,7 @@ vec4 shadowCasterVertex()
 		positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
 	#endif
 
+	
 	#ifdef SHADOW_SPOT
 		positionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;
 		positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
