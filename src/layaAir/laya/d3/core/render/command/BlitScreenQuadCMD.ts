@@ -1,6 +1,7 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Vector4 } from "../../../math/Vector4";
+import { Viewport } from "../../../math/Viewport";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { DefineDatas } from "../../../shader/DefineDatas";
 import { Shader3D } from "../../../shader/Shader3D";
@@ -8,6 +9,7 @@ import { ShaderData } from "../../../shader/ShaderData";
 import { ShaderInstance } from "../../../shader/ShaderInstance";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { SubShader } from "../../../shader/SubShader";
+import { Camera } from "../../Camera";
 import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { ScreenTriangle } from "../ScreenTriangle";
@@ -94,7 +96,17 @@ export class BlitScreenQuadCMD extends Command {
 		//当this.dest为null时，会自动绑定摄像机内部的渲染目标，如果this._drawDefineCavans为true，会画入默认cavans
 		var dest: RenderTexture =this._dest?this._dest:(this._drawDefineCavans?this._dest:this._commandBuffer._camera._internalRenderTexture);
 
-		LayaGL.instance.viewport(0, 0, dest ? dest.width : RenderContext3D.clientWidth, dest ? dest.height : RenderContext3D.clientHeight);//TODO:是否在此
+		if (dest) {
+			LayaGL.instance.viewport(0, 0, dest.width, dest.height);
+		}
+		else {
+			let camera: Camera = this._commandBuffer._camera;
+			let viewport: Viewport = camera.viewport;
+			let vpH = viewport.height;
+			let vpY = RenderContext3D.clientHeight - viewport.y - vpH;
+			LayaGL.instance.viewport(viewport.x, vpY, viewport.width, vpH);
+		}
+
 		//TODO:优化
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitScreenQuadCMD._defaultOffsetScale);
@@ -103,9 +115,15 @@ export class BlitScreenQuadCMD extends Command {
 		//如果已经有绑定的帧buffer  要解绑
 		(RenderTexture.currentActive)&&(RenderTexture.currentActive._end());
 		(dest) && (dest._start());
+		this.setContext(this._commandBuffer._context);
+		var context = this._context;
+		var currentPipelineMode:string = context.pipelineMode;
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
 		for (var i: number = 0, n: number = passes.length; i < n; i++) {
+			var pass:ShaderPass = passes[i];
+			if (pass._pipelineMode !== currentPipelineMode)
+				continue;
 			var comDef: DefineDatas = BlitScreenQuadCMD._compileDefine;
 			shaderData._defineDatas.cloneTo(comDef);
 			var shaderPass: ShaderInstance = passes[i].withCompile(comDef);//TODO:define处理

@@ -1,17 +1,18 @@
-import { CannonColliderShape } from "../physicsCannon/shape/CannonColliderShape";
-import { CannonPhysicsComponent } from "../physicsCannon/CannonPhysicsComponent";
-import { CannonPhysicsSimulation } from "../physicsCannon/CannonPhysicsSimulation";
-import { CannonBoxColliderShape } from "../physicsCannon/shape/CannonBoxColliderShape";
-import { CannonRigidbody3D } from "../physicsCannon/CannonRigidbody3D";
-import { StaticPlaneColliderShape } from "./shape/StaticPlaneColliderShape";
-import { ColliderShape } from "./shape/ColliderShape";
-import { CompoundColliderShape } from "./shape/CompoundColliderShape";
-import { PhysicsComponent } from "./PhysicsComponent";
-import { PhysicsSimulation } from "./PhysicsSimulation";
-import { BoxColliderShape } from "./shape/BoxColliderShape";
-import { CylinderColliderShape } from "./shape/CylinderColliderShape";
-import { CharacterController } from "./CharacterController";
-import { Rigidbody3D } from "./Rigidbody3D";
+import { CharacterController } from "./physics/CharacterController";
+import { PhysicsComponent } from "./physics/PhysicsComponent";
+import { PhysicsSimulation } from "./physics/PhysicsSimulation";
+import { Rigidbody3D } from "./physics/Rigidbody3D";
+import { BoxColliderShape } from "./physics/shape/BoxColliderShape";
+import { ColliderShape } from "./physics/shape/ColliderShape";
+import { CompoundColliderShape } from "./physics/shape/CompoundColliderShape";
+import { CylinderColliderShape } from "./physics/shape/CylinderColliderShape";
+import { StaticPlaneColliderShape } from "./physics/shape/StaticPlaneColliderShape";
+import { CannonPhysicsComponent } from "./physicsCannon/CannonPhysicsComponent";
+import { CannonPhysicsSimulation } from "./physicsCannon/CannonPhysicsSimulation";
+import { CannonRigidbody3D } from "./physicsCannon/CannonRigidbody3D";
+import { CannonBoxColliderShape } from "./physicsCannon/shape/CannonBoxColliderShape";
+import { CannonColliderShape } from "./physicsCannon/shape/CannonColliderShape";
+
 
 /**
  * Laya物理类

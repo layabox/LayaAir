@@ -86,6 +86,7 @@ import { PerformanceTest_Maggots } from "./../2d/PerformanceTest_Maggots";
 import { PerformanceTest_Cartoon } from "./../2d/PerformanceTest_Cartoon";
 import { PerformanceTest_Cartoon2 } from "./../2d/PerformanceTest_Cartoon2";
 import { PerformanceTest_Skeleton } from "./../2d/PerformanceTest_Skeleton";
+import { Spine_SkeletonDemo } from "./../2d/Spine_SkeletonDemo";
 import { IDE_Project } from "./../2d/IDE_Project";
 import { Laya } from "Laya";
 import { Event } from "laya/events/Event"
@@ -98,6 +99,11 @@ import { Event } from "laya/events/Event"
 import { Sprite } from "laya/display/Sprite";
 import { Main } from "../Main";
 import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
+import { Physics_Tumbler } from "../2d/PhySics_Tumbler";
+import { Physics_CollisionFiltering } from "../2d/Physics_CollisionFiltering";
+import { Physics_Strandbeests } from "../2d/Physics_Strandbeests";
+import { Physics_Bridge } from "../2d/Physics_Bridge";
+import { Physics_CollisionEvent } from "../2d/Physics_CollisionEvent";
 	
 	/**
 	 * 首页View 
@@ -114,7 +120,7 @@ import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
 		
 		//---------------------------------------------------------------------------------2D------------开始---------------------------------------------
 		
-		private _comboxBigArr:any[] = ['Sprite','动画','骨骼动画','混合模式','区块地图','滤镜','粒子','音频','文本','UI','计时器','缓动','鼠标交互','屏幕适配','网络和格式','调试','性能测试','IDE'];
+		private _comboxBigArr:any[] = ['Sprite','动画','骨骼动画','混合模式','区块地图','滤镜','粒子','音频','文本','UI','计时器','缓动','鼠标交互','屏幕适配','网络和格式','调试','性能测试','IDE', '物理'];
 		/************************sprite-start***************************/
 		private _comboBoxSpriteClsArr:any[] = [Sprite_DisplayImage,Sprite_Container,Sprite_RoateAndScale,Sprite_DrawPath,Sprite_MagnifyingGlass,Sprite_DrawShapes,Sprite_Cache,Sprite_NodeControl,Sprite_Pivot,Sprite_SwitchTexture,Sprite_ScreenShot];
 		private _comboBoxSpriteArr:any[] = ['显示图片','容器','旋转缩放','根据数据绘制路径','遮罩-放大镜','绘制各种形状','缓存为静态图像','节点控制','轴中心','切换纹理','截图'];
@@ -126,8 +132,8 @@ import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
 		/************************Animation-end***************************/
 		
 		/************************Skeleton-start***************************/
-		private _comboBoxSkeletonClsArr:any[] = [Skeleton_MultiTexture,Skeleton_SpineEvent,Skeleton_SpineIkMesh,Skeleton_SpineVine,Skeleton_ChangeSkin];
-		private _comboBoxSkeletonArr:any[] = ['多纹理','Spine事件','橡胶人','藤蔓','换装'];
+		private _comboBoxSkeletonClsArr:any[] = [Skeleton_MultiTexture,Skeleton_SpineEvent,Skeleton_SpineIkMesh,Skeleton_SpineVine,Skeleton_ChangeSkin,Spine_SkeletonDemo];
+		private _comboBoxSkeletonArr:any[] = ['多纹理','Spine事件','橡胶人','藤蔓','换装','SpineDemo'];
 		/************************Skeleton-end***************************/
 		
 		/************************BlendMode-start***************************/
@@ -204,6 +210,11 @@ import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
 		private _comboBoxIDEClsArr:any[] = [IDE_Project];
 		private _comboBoxIDEArr:any[] = ['显示IDE创建的界面'];
 		/************************IDE-end***************************/
+
+		/************************Particle-start***************************/
+		private _comboBoxPhysicsClsArr:any[] = [Physics_Tumbler, Physics_CollisionFiltering, Physics_CollisionEvent, Physics_Bridge, Physics_Strandbeests];
+		private _comboBoxPhysicsArr:any[] = ['复合碰撞器', '碰撞过滤器', '碰撞事件与传感器', '桥', '仿生机器人'];
+		/************************Particle-end***************************/
 	
 		//private _VIPClsArr:any[] = [VIPMergeBinary_as,VIPMergeText,VIPTexturetrans_as_a,VIPTexturetrans_as_b];
 		private _VIPArr:any[] = ['VIP_MergeBinary',"VIP_MergeText","VIP_Texturetrans_a","VIP_Texturetrans_b"];
@@ -405,9 +416,9 @@ import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
 						this._oldView = new this._comboBoxIDEClsArr[index](this.Main);
 						this.b_length = this._comboBoxIDEClsArr.length - 1;
 						break;
-					case 18://IDE
-						//this._oldView = new this._VIPClsArr[index];
-						//this.b_length = this._VIPArr.length - 1;
+					case 18: // Physics
+						this._oldView = new this._comboBoxPhysicsClsArr[index](this.Main);
+						this.b_length = this._comboBoxPhysicsClsArr.length - 1;
 						break;
 					default:
 						break;
@@ -490,8 +501,8 @@ import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
 					case 17://IDE
 						labelStr = this._comboBoxIDEArr.toString();
 						break;
-					case 18://IDE
-						//labelStr = this._VIPArr.toString();
+					case 18://Physics
+						labelStr = this._comboBoxPhysicsArr.toString();
 						break;
 				}
 				this.smallComBox.labels = labelStr;

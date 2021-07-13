@@ -20,10 +20,10 @@ export class WeldJoint extends JointBase {
     /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
     collideConnected: boolean = false;
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-    private _frequency: number = 5;
-    /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
-    private _damping: number = 0.7;
+   /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
+   private _frequency: number = 5;
+   /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
+   private _dampingRatio: number = 0.7;
     /**
      * @override
      */
@@ -38,32 +38,51 @@ export class WeldJoint extends JointBase {
             var anchorPos: Point = (<Sprite>this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
             var anchorVec: any = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
             def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), anchorVec);
-            def.frequencyHz = this._frequency;
-            def.dampingRatio = this._damping;
+            box2d.b2AngularStiffness(def, this._frequency, this._dampingRatio, def.bodyA, def.bodyB);
+            // def.stiffness = this._stiffness;
+            // def.damping = this._damping;
             def.collideConnected = this.collideConnected;
 
             this._joint = Physics.I._createJoint(def);
         }
     }
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
+    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
     get frequency(): number {
         return this._frequency;
     }
 
     set frequency(value: number) {
         this._frequency = value;
-        if (this._joint) this._joint.SetFrequency(value);
+        if (this._joint) {
+            let out: any = {};
+            let box2d: any = (<any>window).box2d;
+            let bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
+            let bodyB = this.selfBody.getBody();
+            box2d.b2AngularStiffness(out, this._frequency, this._dampingRatio, bodyA, bodyB);
+
+            this._joint.SetStiffness(out.stiffness);
+            this._joint.SetDamping(out.damping);
+        }
     }
 
-    /**刚体在回归到节点过程中受到的阻尼，建议取值0~1*/
+    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     get damping(): number {
-        return this._damping;
+        return this._dampingRatio;
     }
 
     set damping(value: number) {
-        this._damping = value;
-        if (this._joint) this._joint.SetDampingRatio(value);
+        this._dampingRatio = value;
+        if (this._joint) {
+            let out: any = {};
+            let box2d: any = (<any>window).box2d;
+            let bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
+            let bodyB = this.selfBody.getBody();
+            box2d.b2AngularStiffness(out, this._frequency, this._dampingRatio, bodyA, bodyB);
+
+            // this._joint.SetStiffness(out.stiffness); // 修改 dampingRatio 最终只影响 damping
+            this._joint.SetDamping(out.damping);
+        }
     }
 }
 

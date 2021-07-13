@@ -15,6 +15,7 @@ import { StaticBatchManager } from "../graphics/StaticBatchManager";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
 import { ReflectionProbe } from "../core/reflectionProbe/ReflectionProbe";
+import { Config3D } from "../../../Config3D";
 
 
 

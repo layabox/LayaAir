@@ -23,7 +23,6 @@ export enum DepthTextureMode{
 	MotionVectors = 4
 }
 /**
- * @internal
  * <code>ShadowCasterPass</code> 类用于实现阴影渲染管线
  */
 export class DepthPass {
@@ -123,7 +122,7 @@ export class DepthPass {
 				gl.enable(gl.SCISSOR_TEST);
 				gl.viewport(offsetX, offsetY, this._viewPort.width,this._viewPort.height);
 				gl.scissor(offsetX, offsetY, this._viewPort.width,this._viewPort.height);
-				gl.clearColor(0.0, 0.0, 1.0, 0.0);
+				gl.clearColor(0.5, 0.5, 1.0, 0.0);
 				gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
 				scene._opaqueQueue._render(context);
 				this._depthNormalsTexture._end();

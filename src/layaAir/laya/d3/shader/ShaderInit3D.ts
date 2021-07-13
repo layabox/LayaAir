@@ -116,6 +116,7 @@ export class ShaderInit3D {
 			'u_NormalTexture': Shader3D.PERIOD_MATERIAL,
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_DiffuseColor': Shader3D.PERIOD_MATERIAL,
+			'u_AlbedoIntensity': Shader3D.PERIOD_MATERIAL,
 			'u_MaterialSpecular': Shader3D.PERIOD_MATERIAL,
 			'u_Shininess': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
@@ -225,7 +226,8 @@ export class ShaderInit3D {
 			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
 			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
 			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
-			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0
+			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0,
+			'a_SimpleTextureParams':VertexMesh.MESH_SIMPLEANIMATOR
 		};
 		uniformMap = {
 			'u_Bones': Shader3D.PERIOD_CUSTOM,
@@ -264,7 +266,8 @@ export class ShaderInit3D {
 			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
 			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
 			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
-			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0
+			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0,
+			'a_SimpleTextureParams':VertexMesh.MESH_SIMPLEANIMATOR
 		};
 		uniformMap = {
 			'u_Bones': Shader3D.PERIOD_CUSTOM,

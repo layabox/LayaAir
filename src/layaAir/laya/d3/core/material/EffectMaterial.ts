@@ -34,54 +34,61 @@ export class EffectMaterial extends Material {
 		EffectMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
 	}
 
-	private _color: Vector4;
 
 	/**
 	 * @internal
+	 * @deprecated
 	 */
 	get _TintColorR(): number {
-		return this._color.x;
+		return this.color.x;
 	}
 
 	set _TintColorR(value: number) {
-		this._color.x = value;
-		this.color = this._color;
+		let co = this.color;
+		co.x = value;
+		this.color = co;
 	}
 
 	/**
 	 * @internal
+	 * @deprecated
 	 */
 	get _TintColorG(): number {
-		return this._color.y;
+		return this.color.y;
 	}
 
 	set _TintColorG(value: number) {
-		this._color.y = value;
-		this.color = this._color;
+		let co = this.color;
+		co.y = value;
+		this.color = co;
 	}
 
 	/**
 	 * @internal
+	 * @deprecated
 	 */
 	get _TintColorB(): number {
-		return this._color.z;
+		return this.color.z;
 	}
 
 	set _TintColorB(value: number) {
-		this._color.z = value;
-		this.color = this._color;
+		let co = this.color;
+		co.z= value;
+		this.color = co;
 	}
 
 	/**
 	 * @internal 
+	 * @deprecated
 	 */
 	get _TintColorA(): number {
-		return this._color.w;
+		return this.color.w;
 	}
 
 	set _TintColorA(value: number) {
-		this._color.w = value;
-		this.color = this._color;
+		let co = this.color;
+		co.w = value;
+		this.color = co;
 	}
 
 	/**
@@ -327,7 +334,6 @@ export class EffectMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("Effect");
-		this._color = new Vector4(1.0, 1.0, 1.0, 1.0);
 		this._shaderValues.setVector(EffectMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this._shaderValues.setVector(EffectMaterial.TINTCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = EffectMaterial.RENDERMODE_ADDTIVE;

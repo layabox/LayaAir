@@ -194,6 +194,9 @@ export class ScrollBar extends UIComponent {
     }
 
     protected _skinLoaded(): void {
+        if (this.destroyed) {
+            return
+        }
         this.slider.skin = this._skin;
         this.callLater(this.changeScrollBar);
         this._sizeChanged();

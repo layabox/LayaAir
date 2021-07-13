@@ -129,7 +129,7 @@ window.wxMiniGame = function (exports, Laya) {
 	        var fileurlkey = readyUrl;
 	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
 	        var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
-	        MiniFileMgr.fakeObj[fileurlkey] = { md5: tempFileName, readyUrl: readyUrl, size: 0, times: Laya.Browser.now(), encoding: encoding };
+	        MiniFileMgr.fakeObj[fileurlkey] = { md5: tempFileName, readyUrl: readyUrl, size: 0, times: Laya.Browser.now(), encoding: encoding, tempFilePath: tempFilePath };
 	        var totalSize = MiniAdpter.sizeLimit;
 	        var chaSize = 4 * 1024 * 1024;
 	        var fileUseSize = MiniFileMgr.getCacheUseSize();
@@ -241,7 +241,7 @@ window.wxMiniGame = function (exports, Laya) {
 	            MiniFileMgr.filesListObj['fileUsedSize'] = 0;
 	        if (isAdd) {
 	            var fileNativeName = MiniFileMgr.getFileNativePath(md5Name);
-	            MiniFileMgr.filesListObj[fileurlkey] = { md5: md5Name, readyUrl: readyUrl, size: fileSize, times: Laya.Browser.now(), encoding: encoding };
+	            MiniFileMgr.filesListObj[fileurlkey] = { md5: md5Name, readyUrl: readyUrl, size: fileSize, times: Laya.Browser.now(), encoding: encoding, tempFilePath: fileNativeName };
 	            MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) + fileSize;
 	            MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), true);
 	            callBack != null && callBack.runWith([0]);
@@ -548,8 +548,7 @@ window.wxMiniGame = function (exports, Laya) {
 	                    else {
 	                        var fileObj = MiniFileMgr.getFileInfo(sourceUrl);
 	                        if (fileObj && fileObj.md5) {
-	                            var fileMd5Name = fileObj.md5;
-	                            fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+	                            fileNativeUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileObj.md5);
 	                        }
 	                        else {
 	                            fileNativeUrl = sourceUrl;
@@ -767,8 +766,7 @@ window.wxMiniGame = function (exports, Laya) {
 	                    else {
 	                        var fileObj = MiniFileMgr.getFileInfo(sourceUrl);
 	                        if (fileObj && fileObj.md5) {
-	                            var fileMd5Name = fileObj.md5;
-	                            fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+	                            fileNativeUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileObj.md5);
 	                        }
 	                        else {
 	                            fileNativeUrl = sourceUrl;
@@ -827,7 +825,7 @@ window.wxMiniGame = function (exports, Laya) {
 	                    var tempUrl = url;
 	                    var fileObj = MiniFileMgr.getFileInfo(tempurl);
 	                    if (fileObj && fileObj.md5) {
-	                        tempUrl = MiniFileMgr.getFileNativePath(fileObj.md5);
+	                        tempUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileObj.md5);
 	                    }
 	                    MiniFileMgr.readFile(tempUrl, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
@@ -894,8 +892,7 @@ window.wxMiniGame = function (exports, Laya) {
 	                }
 	                else {
 	                    var fileObj = MiniFileMgr.getFileInfo(Laya.URL.formatURL(sourceUrl));
-	                    var fileMd5Name = fileObj.md5;
-	                    fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+	                    fileNativeUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileObj.md5);
 	                }
 	            }
 	            else if (MiniAdpter.isZiYu) {
@@ -1232,8 +1229,7 @@ window.wxMiniGame = function (exports, Laya) {
 	        var textureUrl = atlaspngUrl;
 	        var fileObj = MiniFileMgr.getFileInfo(Laya.URL.formatURL(atlaspngUrl));
 	        if (fileObj) {
-	            var fileMd5Name = fileObj.md5;
-	            var fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+	            var fileNativeUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileObj.md5);
 	        }
 	        else {
 	            fileNativeUrl = textureUrl;
@@ -1249,8 +1245,7 @@ window.wxMiniGame = function (exports, Laya) {
 	        var tempTextureUrl = Laya.URL.formatURL(url);
 	        var fileObj = MiniFileMgr.getFileInfo(tempTextureUrl);
 	        if (fileObj) {
-	            var fileMd5Name = fileObj.md5;
-	            var fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+	            var fileNativeUrl = fileObj.tempFilePath || MiniFileMgr.getFileNativePath(fileObj.md5);
 	            url = tempTextureUrl;
 	        }
 	        else {

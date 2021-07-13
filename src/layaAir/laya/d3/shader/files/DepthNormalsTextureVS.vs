@@ -7,6 +7,7 @@
 #endif
 
 #include "Lighting.glsl";
+#include "LayaUtile.glsl"
 
 attribute vec4 a_Position;
 attribute vec3 a_Normal;
@@ -23,7 +24,7 @@ attribute vec3 a_Normal;
 #else
 	uniform mat4 u_WorldMat;
 #endif
-
+uniform mat4 u_View;
 uniform mat4 u_ViewProjection;
 uniform vec4 u_ProjectionParams;
 
@@ -73,8 +74,11 @@ vec4 depthNormalsVertex()
 	#endif  
 
 	vec3 normalWS = normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem
-
-	depthNormals.xyz = normalWS;
+	//depthNormals.xyz = normalWS;
+	//存储View空间法线
+	vec3 normalVS = mat3(u_View) * normalWS;
+	depthNormals.xyz = normalVS;
+	
 	vec4 positionCS = u_ViewProjection * positionWS;
 	depthNormals.w = (positionCS.z * 2.0 - positionCS.w)*u_ProjectionParams.w;
 	

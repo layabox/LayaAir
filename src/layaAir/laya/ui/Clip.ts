@@ -280,7 +280,7 @@ export class Clip extends UIComponent {
      */
     protected changeClip(): void {
         this._clipChanged = false;
-        if (!this._skin) return;
+        if (!this._skin || this.destroyed) return;
         var img: any = Loader.getRes(this._skin);
         if (img) {
             this.loadComplete(this._skin, img);

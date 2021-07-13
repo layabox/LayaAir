@@ -44,7 +44,7 @@ export class UIComponent extends Sprite {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._dataSource = null;
@@ -388,7 +388,6 @@ export class UIComponent extends Sprite {
         if (super.get_scaleX() == value) return;
         super.set_scaleX(value);
         this.callLater(this._sizeChanged);
-        // this.event(Event.RESIZE);
     }
     /**
      * @inheritDoc
@@ -412,7 +411,6 @@ export class UIComponent extends Sprite {
         if (super.get_scaleY() == value) return;
         super.set_scaleY(value);
         this.callLater(this._sizeChanged);
-        // this.event(Event.RESIZE);
     }
     /**
      * @inheritDoc

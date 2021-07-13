@@ -4,6 +4,7 @@ import { IReferenceCounter } from "../resource/IReferenceCounter";
 import { Animator } from "./Animator";
 import { AnimatorPlayState } from "./AnimatorPlayState";
 import { AnimatorState } from "./AnimatorState";
+import { AvatarMask } from "./AvatarMask";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 
 
@@ -50,7 +51,8 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	_playStateInfo: AnimatorPlayState|null = new AnimatorPlayState();
 	/**@internal */
 	_crossPlayStateInfo: AnimatorPlayState|null = new AnimatorPlayState();
-
+	/**@internal */
+	_avatarMask:AvatarMask;
 	/** 层的名称。*/
 	name: string;
 	/** 混合模式。*/
@@ -70,6 +72,17 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	set defaultState(value: AnimatorState) {
 		this._defaultState = value;
 		this._statesMap[value.name] = value;
+	}
+
+	/**
+	 * 骨骼遮罩
+	 */
+	get avatarMask():AvatarMask{
+		return this._avatarMask;
+	}
+
+	set avatarMask(value:AvatarMask){
+		this._avatarMask = value;
 	}
 
 	/**

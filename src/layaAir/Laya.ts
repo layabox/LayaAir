@@ -88,7 +88,7 @@ export class Laya {
 	static loader: LoaderManager = null;
 	/** 当前引擎版本。*/
 
-	static version: string = "2.11.0beta";
+	static version: string = "2.12.1beta";
 
 	/**@private Render 类的引用。*/
 	static render: Render;
@@ -342,7 +342,7 @@ export class Laya {
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 			RenderState2D.clear();
 		}
-		Sprite.drawToCanvas = Sprite.drawToTexture = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {
+		Sprite.drawToCanvas = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {
 			offsetX -= sprite.x;
 			offsetY -= sprite.y;
 			offsetX |= 0;

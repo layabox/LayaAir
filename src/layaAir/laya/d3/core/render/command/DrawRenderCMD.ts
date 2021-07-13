@@ -2,7 +2,6 @@ import { Command } from "./Command";
 import { Material } from "../../material/Material";
 import { BaseRender } from "../BaseRender";
 import { CommandBuffer } from "./CommandBuffer";
-import { RenderElement } from "../RenderElement";
 import { Scene3D } from "../../scene/Scene3D";
 import { RenderContext3D } from "../RenderContext3D";
 import { ShaderInstance } from "../../../shader/ShaderInstance";
@@ -12,7 +11,8 @@ import { Transform3D } from "../../Transform3D";
 import { GeometryElement } from "../../GeometryElement";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { DefineDatas } from "../../../shader/DefineDatas";
-import { Shader3D } from "../../../shader/Shader3D";
+import { ILaya3D } from "../../../../../ILaya3D";
+import { ILaya } from "../../../../../ILaya";
 
 
 /**
@@ -47,10 +47,10 @@ export class DrawRenderCMD extends Command {
 	/**
 	 * @internal
 	 */
-	private _elementRender(renderElement:RenderElement,context: RenderContext3D): void {
+	private _elementRender(renderElement:any,context: RenderContext3D): void {
 		var forceInvertFace: boolean = context.invertY;
 		var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
-		var updateMark: number = Camera._updateMark;
+		var updateMark: number = ILaya3D.Camera._updateMark;
 		var scene: Scene3D = context.scene;
 		this._render._scene = context.scene;
 		var cameraShaderValue: ShaderData = context.cameraShaderValue;
@@ -68,7 +68,7 @@ export class DrawRenderCMD extends Command {
 		else {
 			//InstanceBatch should update worldMatrix every renderElement,
 			//because the instance matrix buffer is always different.
-			if (renderElement.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH) {
+			if (renderElement.renderType == ILaya3D.RenderElement.RENDERTYPE_INSTANCEBATCH) {
 				renderElement.render._renderUpdate(context, transform);
 				renderElement.render._renderUpdateWithCamera(context, transform);
 			}
@@ -134,7 +134,7 @@ export class DrawRenderCMD extends Command {
 				shaderIns._uploadMark = updateMark;
 			}
 		}
-		if (renderElement.renderType !== RenderElement.RENDERTYPE_NORMAL)
+		if (renderElement.renderType !== ILaya3D.RenderElement.RENDERTYPE_NORMAL)
 			renderElement.render._revertBatchRenderUpdate(context);//还原因合并导致的数据变化
 	}
 
@@ -150,16 +150,16 @@ export class DrawRenderCMD extends Command {
 		this.setContext(this._commandBuffer._context);
 		var context = this._context;
 		var scene:Scene3D = context.scene;
-		var renderElements:RenderElement[] = this._render._renderElements;
+		var renderElements = this._render._renderElements;
 		for(var i:number = 0,n = renderElements.length;i<n;i++){
-			var renderelement:RenderElement = renderElements[i];
+			var renderelement = renderElements[i];
 			//renderelement._update(scene,context,this._material._shader,null,this._subShaderIndex);
 			this._renderElementUpdate(renderelement);
 			this._elementRender(renderelement,context);
 		}
 	}
 
-	_renderElementUpdate(renderelement:RenderElement){
+	_renderElementUpdate(renderelement:any){
 		if (this._material) {//材质可能为空
 			renderelement.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
 		}

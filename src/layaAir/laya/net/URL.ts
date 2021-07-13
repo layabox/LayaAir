@@ -66,6 +66,8 @@ export class URL {
         if (!url) return "null path";
         //如果是全路径，直接返回，提高性能
         if (url.indexOf(":") > 0) return url;
+        //exportSceneToJson == true 变更后缀名
+        if (URL.exportSceneToJson) url = URL.getAdptedFilePath(url);
         //自定义路径格式化
         if (URL.customFormat != null) url = URL.customFormat(url);
         //如果是全路径，直接返回，提高性能

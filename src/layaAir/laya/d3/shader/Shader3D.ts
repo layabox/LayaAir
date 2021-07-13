@@ -59,11 +59,13 @@ export class Shader3D {
 	static SHADERDEFINE_GRAPHICS_API_GLES2: ShaderDefine;
 	/**@internal 图形API为WebGL2.0/OPENGLES3.0。*/
 	static SHADERDEFINE_GRAPHICS_API_GLES3: ShaderDefine;
+	
+	/**@internal */
+	static _propertyNameMap: any = {};
 
 	/**@internal */
 	private static _propertyNameCounter: number = 0;
-	/**@internal */
-	private static _propertyNameMap: any = {};
+	
 	/**@internal */
 	private static _defineCounter: number = 0;
 	/**@internal */
@@ -143,34 +145,10 @@ export class Shader3D {
 		} else {
 			var id: number = Shader3D._propertyNameCounter++;
 			Shader3D._propertyNameMap[name] = id;
+			Shader3D._propertyNameMap[id] = name;
 			return id;
 		}
 	}
-
-	// /**
-	//  * 通过宏属性动态修改AttributeMap
-	//  * @param defineString 
-	//  * @param attributeMap 
-	//  */
-	// static getAttributeMapByDefine(defineString:string[],attributeMap:any):any{
-	// 	var newAttributeMap:any = {};
-	// 	for(var value in attributeMap){
-	// 		newAttributeMap[value] = attributeMap[value];
-	// 	}	
-	// 	// for ( var i = 0, n: number = defineString.length; i < n; i++) {
-	// 	// 	var def: string = defineString[i];
-	// 	// 	switch(def){
-	// 	// 		case "SIMPLEBONE":
-	// 	// 		if(attributeMap["a_Texcoord1"]){
-	// 	// 			newAttributeMap["a_SimpleTextureParams"] = attributeMap["a_Texcoord1"];
-	// 	// 			delete newAttributeMap["a_Texcoord1"];
-	// 	// 		}
-	// 	// 		newAttributeMap["a_SimpleTextureParams"] = 7;
-	// 	// 		break;
-	// 	// 	}
-	// 	// }
-	// 	return newAttributeMap;
-	// }
 
 	/**
 	 * 添加函数库引用。

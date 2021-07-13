@@ -41,9 +41,6 @@ export class ShurikenParticleMaterial extends Material {
 		ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
 	}
 
-	/**@internal */
-	private _color: Vector4;
-
 	/**
 	 * @internal
 	 */
@@ -63,58 +60,54 @@ export class ShurikenParticleMaterial extends Material {
 	 * @internal
 	 */
 	get _TintColorR(): number {
-		return this._color.x;
+		return this.color.x;
 	}
 
 	/**
 	 * @internal
 	 */
 	set _TintColorR(value: number) {
-		this._color.x = value;
-		this.color = this._color;
+		this.color.x = value;
 	}
 
 	/**
 	 * @internal
 	 */
 	get _TintColorG(): number {
-		return this._color.y;
+		return this.color.y;
 	}
 
 	/**
 	 * @internal
 	 */
 	set _TintColorG(value: number) {
-		this._color.y = value;
-		this.color = this._color;
+		this.color.y = value;
 	}
 
 	/**
 	 * @internal
 	 */
 	get _TintColorB(): number {
-		return this._color.z;
+		return this.color.z;
 	}
 
 	/**
 	 * @internal
 	 */
 	set _TintColorB(value: number) {
-		this._color.z = value;
-		this.color = this._color;
+		this.color.z = value;
 	}
 
 	/**@internal */
 	get _TintColorA(): number {
-		return this._color.w;
+		return this.color.w;
 	}
 
 	/**
 	 * @internal
 	 */
 	set _TintColorA(value: number) {
-		this._color.w = value;
-		this.color = this._color;
+		this.color.w = value;
 	}
 
 	/**
@@ -371,7 +364,7 @@ export class ShurikenParticleMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("PARTICLESHURIKEN");
-		this._color = new Vector4(1.0, 1.0, 1.0, 1.0);
+		this._shaderValues.setVector(ShurikenParticleMaterial.TINTCOLOR, new Vector4(0.5, 0.5, 0.5, 0.5));
 		this._shaderValues.setVector(ShurikenParticleMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this.renderMode = ShurikenParticleMaterial.RENDERMODE_ALPHABLENDED;//默认加色法会自动加上雾化宏定义，导致非加色法从材质读取完后未移除宏定义。
 	}

@@ -10,9 +10,12 @@ import { Scene3D } from "../core/scene/Scene3D";
  * <code>Script3D</code> 类用于创建脚本的父类,该类为抽象类,不允许实例。
  */
 export class Script3D extends Component {
+	/**@internal */
+	static _instance:Script3D = new Script3D();
 	/**@internal*/
 	public _indexInPool: number = -1;
-
+	/**@internal 避免重复调用enable disable*/
+	private _enableState:boolean = false;
 	/**
 	 * @inheritDoc
 	 * @override
@@ -66,8 +69,12 @@ export class Script3D extends Component {
 	 * @override
 	 */
 	_onEnable(): void {
+		if(this._enableState)
+			return;
 		(<Scene3D>this.owner._scene)._addScript(this);
+		this._enableState = true;
 		this.onEnable();
+	
 	}
 
 	/**
@@ -76,9 +83,13 @@ export class Script3D extends Component {
 	 * @override
 	 */
 	protected _onDisable(): void {
+		if(!this._enableState||this._indexInPool==-1)
+			return;
 		(<Scene3D>this.owner._scene)._removeScript(this);
 		this.owner.offAllCaller(this);
+		this._enableState = false;
 		this.onDisable();
+	
 	}
 
 	/**

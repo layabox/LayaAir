@@ -26,7 +26,6 @@ import { Input3D } from "../../Input3D";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { Viewport } from "../../math/Viewport";
-import { Physics3D } from "../../physics/Physics3D";
 import { PhysicsComponent } from "../../physics/PhysicsComponent";
 import { PhysicsSettings } from "../../physics/PhysicsSettings";
 import { PhysicsSimulation } from "../../physics/PhysicsSimulation";
@@ -54,7 +53,6 @@ import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
 import { RenderQueue } from "../render/RenderQueue";
-import { BoundsOctree } from "./BoundsOctree";
 import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
@@ -67,6 +65,11 @@ import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsCompone
 import { VideoTexture } from "../../../resource/VideoTexture";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
 import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
+import { Physics3D } from "../../Physics3D";
+import { PerformancePlugin } from "../../../utils/Performance";
+import { Sprite3D } from "../Sprite3D";
+import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
+import { BoundsOctree } from "./BoundsOctree";
 /**
  * 环境光模式
  */
@@ -223,9 +226,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				throw "Scene3D:unknown shader quality.";
 		}
 		if (config.isUseCannonPhysicsEngine) {
-			Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
+			Physics3D._cannon && (Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings());
 		} else {
-			Scene3D.physicsSettings = new PhysicsSettings();
+			Physics3D._bullet && (Scene3D.physicsSettings = new PhysicsSettings());
 		}
 	}
 
@@ -238,7 +241,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static load(url: string, complete: Handler): void {
 		ILaya.loader.create(url, complete, null, Scene3D.HIERARCHY);
 	}
-
+	/** @internal */
+	private _oriScripte:Script3D;
 	/** @internal */
 	private _url: string;
 	/** @internal */
@@ -292,7 +296,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	_cannonPhysicsSimulation: CannonPhysicsSimulation;
 	/** @internal */
-	_octree: BoundsOctree;
+	_octree: ISceneRenderManager;
 	/** @internal 只读,不允许修改。*/
 	_collsionTestList: number[] = [];
 
@@ -309,7 +313,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	_animatorPool: SimpleSingletonList = new SimpleSingletonList();
 	/** @internal */
-	_scriptPool: Script3D[] = new Array<Script3D>();
+	_updateScriptPool: Script3D[] = new Array<Script3D>();
+	/** @internal */
+	_lateUpdateScriptPool: Script3D[] = new Array<Script3D>();
+	/** @internal */
+	_preRenderScriptPool: Script3D[] = new Array<Script3D>();
+	/** @internal */
+	_postRenderScriptPool: Script3D[] = new Array<Script3D>();
+	/** @internal */
+	_scriptPool:Script3D[] = new Array<Script3D>();
+
 	/** @internal */
 	_tempScriptPool: Script3D[] = new Array<Script3D>();
 	/** @internal */
@@ -600,6 +613,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
 		this.reflection = TextureCube.blackTexture;
+		this._oriScripte = Script3D._instance;
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
 
@@ -658,25 +672,32 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 *@internal
 	 */
 	private _update(): void {
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		var delta: number = this.timer._delta / 1000;
 		this._time += delta;
 		this._shaderValues.setNumber(Scene3D.TIME, this._time);
-
+		//Physics
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS);
 		var simulation: PhysicsSimulation = this._physicsSimulation;
 		if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && !Config3D._config.isUseCannonPhysicsEngine) {
 			simulation._updatePhysicsTransformFromRender();
 			PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
 			//simulate physics
+			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_SIMULATE);
 			simulation._simulate(delta);
+			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_SIMULATE);
 			//update character sprite3D transforms from physics engine simulation
+			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_CHARACTORCOLLISION);
 			simulation._updateCharacters();
 			PhysicsComponent._addUpdateList = true;
-
 			//handle frame contacts
 			simulation._updateCollisions();
-
+			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_CHARACTORCOLLISION);
+			
+			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_EVENTSCRIPTS);
 			//send contact events
 			simulation._eventScripts();
+			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_EVENTSCRIPTS);
 		}
 		if (Physics3D._cannon && Config3D._config.isUseCannonPhysicsEngine) {
 			var cannonSimulation: CannonPhysicsSimulation = this._cannonPhysicsSimulation;
@@ -687,6 +708,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			cannonSimulation._updateCollisions();
 			cannonSimulation._eventScripts();
 		}
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS);
+		//update Scripts
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_UPDATESCRIPT);
 		this._input._update();
 
 		this._clearScript();
@@ -698,6 +722,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		else
 			this._reflectionProbeManager.update();
 		this._lateUpdateScript();
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_UPDATESCRIPT);
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 	}
 
 	/**
@@ -800,6 +826,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 			this._scriptPool = this._tempScriptPool;
 			scripts.length = 0;
+			this._updateScriptPool.length = 0;
+			this._lateUpdateScriptPool.length = 0;
+			this._preRenderScriptPool.length = 0;
+			this._postRenderScriptPool.length = 0;
 			this._tempScriptPool = scripts;
 
 			this._needClearScriptPool = false;
@@ -810,7 +840,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	private _updateScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
+		var scripts: Script3D[] = this._updateScriptPool;
 		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
 			var script: Script3D = scripts[i];
 			(script && script.enabled) && (script.onUpdate());
@@ -821,7 +851,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	private _lateUpdateScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
+		var scripts: Script3D[] = this._lateUpdateScriptPool;
 		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
 			var script: Script3D = (<Script3D>scripts[i]);
 			(script && script.enabled) && (script.onLateUpdate());
@@ -1002,29 +1032,55 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 	}
 
+	private _removeScriptInPool(scriptPool:Script3D[],script:Script3D){
+		let index = scriptPool.indexOf(script);
+		if(index!=-1){
+			scriptPool.splice(index,0);
+		}
+	}
+
 	/**
 	 * @internal
 	 */
 	_addScript(script: Script3D): void {
+		if(script._indexInPool!=-1)
+			return;
 		var scripts: Script3D[] = this._scriptPool;
 		script._indexInPool = scripts.length;
 		scripts.push(script);
+		if(script.onUpdate!==this._oriScripte.onUpdate)
+			this._updateScriptPool.push(script);
+		if(script.onLateUpdate!==this._oriScripte.onLateUpdate)
+			this._lateUpdateScriptPool.push(script);
+		if(script.onPreRender!==this._oriScripte.onPreRender)
+			this._preRenderScriptPool.push(script);
+		if(script.onPostRender!==this._oriScripte.onPostRender)
+			this._postRenderScriptPool.push(script);
+		
 	}
 
 	/**
 	 * @internal
 	 */
 	_removeScript(script: Script3D): void {
-		this._scriptPool[script._indexInPool] = null;
+		if(script._indexInPool==-1)
+			return;
+		this._scriptPool[script._indexInPool]=null;
 		script._indexInPool = -1;
 		this._needClearScriptPool = true;
+		this._removeScriptInPool(this._updateScriptPool,script);
+		this._removeScriptInPool(this._lateUpdateScriptPool,script);
+		this._removeScriptInPool(this._preRenderScriptPool,script);
+		this._removeScriptInPool(this._postRenderScriptPool,script);
 	}
+
+	
 
 	/**
 	 * @internal
 	 */
 	_preRenderScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
+		var scripts: Script3D[] = this._preRenderScriptPool;
 		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
 			var script: Script3D = scripts[i];
 			(script && script.enabled) && (script.onPreRender());
@@ -1035,7 +1091,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_postRenderScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
+		var scripts: Script3D[] = this._postRenderScriptPool;
 		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
 			var script: Script3D = scripts[i];
 			(script && script.enabled) && (script.onPostRender());
@@ -1276,7 +1332,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_addRenderObject(render: BaseRender): void {
 		if (this._octree && render._supportOctree) {
-			this._octree.add(render);
+			this._octree.addRender(render);
 		} else {
 			this._renders.add(render);
 		}
@@ -1288,7 +1344,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_removeRenderObject(render: BaseRender): void {
 		if (this._octree && render._supportOctree) {
-			this._octree.remove(render);
+			this._octree.removeRender(render);
 		} else {
 			this._renders.remove(render);
 		}
@@ -1334,7 +1390,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._spotLights = null;
 		this._alternateLights = null;
 		this._shaderValues = null;
+		this._renders.clearElement();
+		this._animatorPool.clearElement();
 		this._renders = null;
+		this._animatorPool = null;
 		this._cameraPool = null;
 		this._octree = null;
 		this._physicsSimulation && this._physicsSimulation._destroy();
@@ -1368,15 +1427,20 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 渲染入口
 	 */
 	renderSubmit(): number {
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		this._prepareSceneToRender();
 		var i: number, n: number, n1: number;
+		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
+			
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
 			if (Render.supportWebGLPlusRendering)
 				ShaderData.setRuntimeValueMode((i == n1) ? true : false);
 			var camera: Camera = (<Camera>this._cameraPool[i]);
 			camera.enableRender && camera.render();
 		}
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
 		Context.set2DRenderConfig();//还原2D配置
+		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		return 1;
 	}
 

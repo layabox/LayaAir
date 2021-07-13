@@ -262,14 +262,16 @@ export class Sprite extends Node {
      */
     hitTestPrior: boolean = false;
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc 
      * @override
-    */
+     */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._style && this._style.recover();
         this._cacheStyle && this._cacheStyle.recover();
         this._boundStyle && this._boundStyle.recover();
+        this._transform && this._transform.recover();
         this._style = null;
         this._cacheStyle = null;
         this._boundStyle = null;

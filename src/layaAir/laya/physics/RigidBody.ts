@@ -198,19 +198,19 @@ export class RigidBody extends Component {
             //if (label == "tank") console.log("get",ang);
             this.accessGetSetFunc(sp, "rotation", "set")(Utils.toAngle(ang) - (<Sprite>sp.parent).globalRotation);
 
-            if (ang == 0) {
-                var point: Point = sp.parent.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
-                sp.parent.fromParentPoint(point);
-                this.accessGetSetFunc(sp, "x", "set")(point.x);
-                this.accessGetSetFunc(sp, "y", "set")(point.y);
-            } else {
-                point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO, pos.y * IPhysics.Physics.PIXEL_RATIO), false, IPhysics.Physics.I.worldRoot);
+            // if (ang == 0) {
+            //     var point: Point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
+            //     point = sp.toParentPoint(point);
+            //     this.accessGetSetFunc(sp, "x", "set")(point.x);
+            //     this.accessGetSetFunc(sp, "y", "set")(point.y);
+            // } else {
+                var point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO, pos.y * IPhysics.Physics.PIXEL_RATIO), false, IPhysics.Physics.I.worldRoot);
                 point.x += sp.pivotX;
                 point.y += sp.pivotY;
                 point = sp.toParentPoint(point);
                 this.accessGetSetFunc(sp, "x", "set")(point.x);
                 this.accessGetSetFunc(sp, "y", "set")(point.y);
-            }
+            // }
         }
     }
 

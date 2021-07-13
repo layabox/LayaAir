@@ -2,6 +2,8 @@ import { Loader } from "./Loader";
 import { URL } from "./URL";
 import { EventDispatcher } from "../events/EventDispatcher"
 import { Texture2D } from "../resource/Texture2D"
+import { WarpMode } from "../resource/WrapMode";
+import { Laya } from "../../Laya";
 
 /**
  * @private
@@ -145,7 +147,9 @@ export class WorkerLoader extends EventDispatcher {
                 var image:any = imageData;
                 if (type !== "nativeimage") {
                     image = new Texture2D();
-                    image.loadImageSource(imageData);
+					(image as Texture2D).wrapModeU = WarpMode.Clamp;
+					(image as Texture2D).wrapModeV = WarpMode.Clamp;
+                    image.loadImageSource(imageData,true);
                 }
                 
                 _this["onLoaded"](image);

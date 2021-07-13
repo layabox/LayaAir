@@ -17,6 +17,12 @@ export class VertexElementFormat {
 	static Color: string = "color";
 	/**字节数组4 */
 	static Byte4: string = "byte4";
+	/**字节数组3 */
+	static Byte3: string = "byte3";
+	/**字节数组2 */
+	static Byte2: string = "byte2";
+	/**字节数组1 */
+	static ByteOne:string = "byte";
 	/**半精度浮点数数组2 */
 	static Short2: string = "short2";
 	/**半精度浮点数数组4 */
@@ -43,6 +49,9 @@ export class VertexElementFormat {
 			"vector4": [4, gl.FLOAT, 0],
 			"color": [4, gl.FLOAT, 0],
 			"byte4": [4, gl.UNSIGNED_BYTE, 0],
+			"byte3": [3, gl.UNSIGNED_BYTE, 0],
+			"byte2": [2, gl.UNSIGNED_BYTE, 0],
+			"byte": [1, gl.UNSIGNED_BYTE, 0],
 			"short2": [2, gl.FLOAT, 0],
 			"short4": [4, gl.FLOAT, 0],
 			"normalizedshort2": [2, gl.FLOAT, 0],

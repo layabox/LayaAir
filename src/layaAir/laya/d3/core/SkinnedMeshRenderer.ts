@@ -2,7 +2,6 @@ import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
 import { AnimationNode } from "../animation/AnimationNode";
-import { Animator } from "../component/Animator";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh";
@@ -20,6 +19,7 @@ import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShade
 import { ReflectionProbeMode, ReflectionProbe } from "./reflectionProbe/ReflectionProbe";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 import { TextureCube } from "../resource/TextureCube";
+import { Animator } from "../component/Animator";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
