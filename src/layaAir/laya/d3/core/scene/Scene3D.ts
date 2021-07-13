@@ -53,7 +53,6 @@ import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
 import { RenderQueue } from "../render/RenderQueue";
-import { BoundsOctree } from "./BoundsOctree";
 import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
@@ -69,6 +68,8 @@ import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
 import { Physics3D } from "../../Physics3D";
 import { PerformancePlugin } from "../../../utils/Performance";
 import { Sprite3D } from "../Sprite3D";
+import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
+import { BoundsOctree } from "./BoundsOctree";
 /**
  * 环境光模式
  */
@@ -295,7 +296,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	_cannonPhysicsSimulation: CannonPhysicsSimulation;
 	/** @internal */
-	_octree: BoundsOctree;
+	_octree: ISceneRenderManager;
 	/** @internal 只读,不允许修改。*/
 	_collsionTestList: number[] = [];
 
@@ -1331,7 +1332,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_addRenderObject(render: BaseRender): void {
 		if (this._octree && render._supportOctree) {
-			this._octree.add(render);
+			this._octree.addRender(render);
 		} else {
 			this._renders.add(render);
 		}
@@ -1343,7 +1344,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_removeRenderObject(render: BaseRender): void {
 		if (this._octree && render._supportOctree) {
-			this._octree.remove(render);
+			this._octree.removeRender(render);
 		} else {
 			this._renders.remove(render);
 		}
