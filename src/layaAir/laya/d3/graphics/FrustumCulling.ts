@@ -9,7 +9,6 @@ import { BaseRender } from "../core/render/BaseRender";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { RenderElement } from "../core/render/RenderElement";
 import { RenderQueue } from "../core/render/RenderQueue";
-import { BoundsOctree } from "../core/scene/BoundsOctree";
 import { Scene3D } from "../core/scene/Scene3D";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Color } from "../math/Color";
@@ -19,6 +18,7 @@ import { Shader3D } from "../shader/Shader3D";
 import { Utils3D } from "../utils/Utils3D";
 import { Bounds } from "../core/Bounds";
 import { BoundSphere } from "../math/BoundSphere";
+import { ISceneRenderManager } from "../core/scene/SceneRenderManager/ISceneRenderManager";
 
 
 /**
@@ -120,10 +120,9 @@ export class FrustumCulling {
 		var transparentQueue: RenderQueue = scene._transparentQueue;
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
 		scene._clearRenderQueue();
-		var octree: BoundsOctree = scene._octree;
+		var octree: ISceneRenderManager = scene._octree;
 		if (octree) {
-			octree.updateMotionObjects();
-			octree.shrinkRootIfPossible();
+			octree.preFruUpdate();
 			octree.getCollidingWithFrustum(cameraCullInfo, context, customShader, replacementTag, isShadowCasterCull);
 		}
 		//else {//包围盒不完善的节点走遍历裁剪
@@ -182,10 +181,9 @@ export class FrustumCulling {
 		else{
 			//八叉树裁剪
 			let octree = scene._octree;
-			octree.updateMotionObjects();
-			octree.shrinkRootIfPossible();
-			octree._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context);
-
+			octree.preFruUpdate();
+			//octree._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context);
+			octree.cullingShadow(cullInfo,context);
 		}
 			
 		return opaqueQueue.elements.length > 0 ? true : false;
@@ -248,8 +246,7 @@ export class FrustumCulling {
 		}else{
 			//八叉数裁剪
 			let octree = scene._octree;
-			octree.updateMotionObjects();
-			octree.shrinkRootIfPossible();
+			octree.preFruUpdate();
 			octree.getCollidingWithFrustum(cameraCullInfo, context, null, null,true);
 		}
 
