@@ -1,5 +1,4 @@
 #include "Lighting.glsl";
-#include "LayaUtile.glsl"
 #include "Shadow.glsl"
 
 attribute vec4 a_Position;
@@ -11,6 +10,7 @@ attribute vec3 a_Normal;
 	attribute vec4 a_BoneWeights;
 	uniform mat4 u_Bones[c_MaxBoneCount];
 #endif
+
 #ifdef GPU_INSTANCE
 	attribute mat4 a_WorldMat;
 #else
@@ -65,17 +65,15 @@ vec4 shadowCasterVertex()
 	#endif  
 
 	vec3 normalWS = normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem
-	vec4 positionCS = u_ViewProjection * positionWS;
 	#ifdef SHADOW
 		positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);
-		positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
 	#endif
 
+	vec4 positionCS = u_ViewProjection * positionWS;
 	#ifdef SHADOW_SPOT
 		positionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;
-		positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
 	#endif
-	
+	positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
 	
 	// //TODO没考虑UV动画呢
 	// #if defined(DIFFUSEMAP)&&defined(ALPHATEST)
