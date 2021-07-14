@@ -1,3 +1,4 @@
+// @ts-ignore
 declare module spine {
     class Animation {
         name: string;
@@ -21,7 +22,9 @@ declare module spine {
         add = 3
     }
     enum MixDirection {
+        // @ts-ignore
         mixIn = 0,
+        // @ts-ignore
         mixOut = 1
     }
     enum TimelineType {
@@ -41,6 +44,7 @@ declare module spine {
         pathConstraintMix = 13,
         twoColor = 14
     }
+    // @ts-ignore
     abstract class CurveTimeline implements Timeline {
         static LINEAR: number;
         static STEPPED: number;
@@ -135,6 +139,7 @@ declare module spine {
         setFrame(frameIndex: number, time: number, r: number, g: number, b: number, a: number, r2: number, g2: number, b2: number): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
+    // @ts-ignore
     class AttachmentTimeline implements Timeline {
         slotIndex: number;
         frames: ArrayLike<number>;
@@ -156,6 +161,7 @@ declare module spine {
         setFrame(frameIndex: number, time: number, vertices: ArrayLike<number>): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
+    // @ts-ignore
     class EventTimeline implements Timeline {
         frames: ArrayLike<number>;
         events: Array<Event>;
@@ -165,6 +171,7 @@ declare module spine {
         setFrame(frameIndex: number, event: Event): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
+    // @ts-ignore
     class DrawOrderTimeline implements Timeline {
         frames: ArrayLike<number>;
         drawOrders: Array<Array<number>>;
@@ -249,7 +256,8 @@ declare module spine {
         static emptyAnimation: Animation;
         static SUBSEQUENT: number;
         static FIRST: number;
-        static HOLD: number;
+        static HOLD_SUBSEQUENT: number;
+        static HOLD_FIRST: number;
         static HOLD_MIX: number;
         static SETUP: number;
         static CURRENT: number;
@@ -360,6 +368,7 @@ declare module spine {
         complete(entry: TrackEntry): void;
         event(entry: TrackEntry, event: Event): void;
     }
+    // @ts-ignore
     abstract class AnimationStateAdapter implements AnimationStateListener {
         start(entry: TrackEntry): void;
         interrupt(entry: TrackEntry): void;
@@ -502,6 +511,7 @@ declare module spine {
     }
 }
 declare module spine {
+    // @ts-ignore
     abstract class ConstraintData {
         name: string;
         order: number;
@@ -635,7 +645,7 @@ declare module spine {
         private queueAsset;
         loadText(clientId: string, path: string): void;
         loadJson(clientId: string, path: string): void;
-        loadTexture(clientId: string, textureLoader: (image: HTMLImageElement) => any, path: string): void;
+        loadTexture(clientId: string, textureLoader: (image: HTMLImageElement | ImageBitmap) => any, path: string): void;
         get(clientId: string, path: string): any;
         private updateClientAssets;
         isLoadingComplete(clientId: string): boolean;
@@ -693,6 +703,7 @@ declare module spine {
     }
 }
 declare module spine {
+    // @ts-ignore
     class SkeletonBinary {
         static AttachmentTypeValues: number[];
         static TransformModeValues: TransformMode[];
@@ -824,6 +835,7 @@ declare module spine {
     }
 }
 declare module spine {
+    // @ts-ignore
     class SkinEntry {
         slotIndex: number;
         name: string;
@@ -880,9 +892,9 @@ declare module spine {
 }
 declare module spine {
     abstract class Texture {
-        protected _image: HTMLImageElement;
-        constructor(image: HTMLImageElement);
-        getImage(): HTMLImageElement;
+        protected _image: HTMLImageElement | ImageBitmap;
+        constructor(image: HTMLImageElement | ImageBitmap);
+        getImage(): HTMLImageElement | ImageBitmap;
         abstract setFilters(minFilter: TextureFilter, magFilter: TextureFilter): void;
         abstract setWraps(uWrap: TextureWrap, vWrap: TextureWrap): void;
         abstract dispose(): void;
@@ -1017,6 +1029,7 @@ declare module spine {
 }
 declare module spine {
     interface Map<T> {
+        // @ts-ignore
         [key: string]: T;
     }
     class IntSet {
@@ -1125,6 +1138,7 @@ declare module spine {
     }
     interface ArrayLike<T> {
         length: number;
+        // @ts-ignore
         [n: number]: T;
     }
     class WindowedMean {

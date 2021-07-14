@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { WebGLContext } from "../../../../webgl/WebGLContext";
 import { Vector4 } from "../../../math/Vector4";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
@@ -49,6 +50,7 @@ export class ClearRenderTextureCMD extends Command {
 		if(this._clearDepth){
 			gl.clearDepth(this._depth);
 			flag|=gl.DEPTH_BUFFER_BIT;
+			WebGLContext.setDepthMask(gl, true);
 		}
 		if(this._clearColor||this._clearDepth){
 			gl.clear(flag);

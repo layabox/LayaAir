@@ -766,6 +766,7 @@ export class Camera extends BaseCamera {
 		if (needInternalRT) {
 			if (this._postProcess&&this._postProcess.enable) {
 				PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
+				this._postProcess.commandContext = context;
 				this._postProcess._render();
 				this._postProcess._applyPostProcessCommandBuffers();
 				PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);

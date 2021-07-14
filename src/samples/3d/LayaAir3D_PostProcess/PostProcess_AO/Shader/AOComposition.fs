@@ -4,12 +4,6 @@
 	precision mediump float;
 #endif
 
-#ifdef GRAPHICS_API_GLES3
-	#define INVERSE_MAT(mat) inverse(mat)
-#else
-	#define INVERSE_MAT(mat) inverseMat(mat)
-#endif
-
 #define SHADER_NAME AOBlurHorizontal
 //质量
 #define BLUR_HIGH_QUALITY 0

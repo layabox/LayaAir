@@ -4,12 +4,6 @@
 	precision mediump float;
 #endif
 
-#ifdef GRAPHICS_API_GLES3
-	#define INVERSE_MAT(mat) inverse(mat)
-#else
-	#define INVERSE_MAT(mat) inverseMat(mat)
-#endif
-
 #define SHADER_NAME AOBlurHorizontal
 //质量
 #define BLUR_HIGH_QUALITY 0
@@ -95,9 +89,9 @@ void main() {
 
 	vec2 uvtran = uv;
     vec4 p0  = texture2D(u_MainTex,uv);
-	uvtran = uv-delta * 1.3846153846);
+	uvtran = uv-delta * 1.3846153846;
     vec4 p1a = texture2D(u_MainTex,uvtran);
-	uvtran = uv+delta * 1.3846153846);
+	uvtran = uv+delta * 1.3846153846;
     vec4 p1b = texture2D(u_MainTex,uvtran);
 	uvtran = uv-delta*3.2307692308;
     vec4 p2a =  texture2D(u_MainTex,uvtran);

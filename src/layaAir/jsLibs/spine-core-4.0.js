@@ -30,22 +30,28 @@ var spine;
 (function (spine) {
     class Animation {
         constructor(name, timelines, duration) {
-            if (name == null)
+            if (!name)
                 throw new Error("name cannot be null.");
-            if (timelines == null)
-                throw new Error("timelines cannot be null.");
             this.name = name;
-            this.timelines = timelines;
-            this.timelineIds = [];
-            for (var i = 0; i < timelines.length; i++)
-                this.timelineIds[timelines[i].getPropertyId()] = true;
+            this.setTimelines(timelines);
             this.duration = duration;
         }
-        hasTimeline(id) {
-            return this.timelineIds[id] == true;
+        setTimelines(timelines) {
+            if (!timelines)
+                throw new Error("timelines cannot be null.");
+            this.timelines = timelines;
+            this.timelineIds = new spine.StringSet();
+            for (var i = 0; i < timelines.length; i++)
+                this.timelineIds.addAll(timelines[i].getPropertyIds());
+        }
+        hasTimeline(ids) {
+            for (let i = 0; i < ids.length; i++)
+                if (this.timelineIds.contains(ids[i]))
+                    return true;
+            return false;
         }
         apply(skeleton, lastTime, time, loop, events, alpha, blend, direction) {
-            if (skeleton == null)
+            if (!skeleton)
                 throw new Error("skeleton cannot be null.");
             if (loop && this.duration != 0) {
                 time %= this.duration;
@@ -55,28 +61,6 @@ var spine;
             let timelines = this.timelines;
             for (let i = 0, n = timelines.length; i < n; i++)
                 timelines[i].apply(skeleton, lastTime, time, events, alpha, blend, direction);
-        }
-        static binarySearch(values, target, step = 1) {
-            let low = 0;
-            let high = values.length / step - 2;
-            if (high == 0)
-                return step;
-            let current = high >>> 1;
-            while (true) {
-                if (values[(current + 1) * step] <= target)
-                    low = current + 1;
-                else
-                    high = current;
-                if (low == high)
-                    return (low + 1) * step;
-                current = (low + high) >>> 1;
-            }
-        }
-        static linearSearch(values, target, step) {
-            for (let i = 0, last = values.length - step; i <= last; i += step)
-                if (values[i] > target)
-                    return i;
-            return -1;
         }
     }
     spine.Animation = Animation;
@@ -92,191 +76,214 @@ var spine;
         MixDirection[MixDirection["mixIn"] = 0] = "mixIn";
         MixDirection[MixDirection["mixOut"] = 1] = "mixOut";
     })(MixDirection = spine.MixDirection || (spine.MixDirection = {}));
-    let TimelineType;
-    (function (TimelineType) {
-        TimelineType[TimelineType["rotate"] = 0] = "rotate";
-        TimelineType[TimelineType["translate"] = 1] = "translate";
-        TimelineType[TimelineType["scale"] = 2] = "scale";
-        TimelineType[TimelineType["shear"] = 3] = "shear";
-        TimelineType[TimelineType["attachment"] = 4] = "attachment";
-        TimelineType[TimelineType["color"] = 5] = "color";
-        TimelineType[TimelineType["deform"] = 6] = "deform";
-        TimelineType[TimelineType["event"] = 7] = "event";
-        TimelineType[TimelineType["drawOrder"] = 8] = "drawOrder";
-        TimelineType[TimelineType["ikConstraint"] = 9] = "ikConstraint";
-        TimelineType[TimelineType["transformConstraint"] = 10] = "transformConstraint";
-        TimelineType[TimelineType["pathConstraintPosition"] = 11] = "pathConstraintPosition";
-        TimelineType[TimelineType["pathConstraintSpacing"] = 12] = "pathConstraintSpacing";
-        TimelineType[TimelineType["pathConstraintMix"] = 13] = "pathConstraintMix";
-        TimelineType[TimelineType["twoColor"] = 14] = "twoColor";
-    })(TimelineType = spine.TimelineType || (spine.TimelineType = {}));
-    class CurveTimeline {
-        constructor(frameCount) {
-            if (frameCount <= 0)
-                throw new Error("frameCount must be > 0: " + frameCount);
-            this.curves = spine.Utils.newFloatArray((frameCount - 1) * CurveTimeline.BEZIER_SIZE);
+    const Property = {
+        rotate: 0,
+        x: 1,
+        y: 2,
+        scaleX: 3,
+        scaleY: 4,
+        shearX: 5,
+        shearY: 6,
+        rgb: 7,
+        alpha: 8,
+        rgb2: 9,
+        attachment: 10,
+        deform: 11,
+        event: 12,
+        drawOrder: 13,
+        ikConstraint: 14,
+        transformConstraint: 15,
+        pathConstraintPosition: 16,
+        pathConstraintSpacing: 17,
+        pathConstraintMix: 18
+    };
+    class Timeline {
+        constructor(frameCount, propertyIds) {
+            this.propertyIds = propertyIds;
+            this.frames = spine.Utils.newFloatArray(frameCount * this.getFrameEntries());
+        }
+        getPropertyIds() {
+            return this.propertyIds;
+        }
+        getFrameEntries() {
+            return 1;
         }
         getFrameCount() {
-            return this.curves.length / CurveTimeline.BEZIER_SIZE + 1;
+            return this.frames.length / this.getFrameEntries();
         }
-        setLinear(frameIndex) {
-            this.curves[frameIndex * CurveTimeline.BEZIER_SIZE] = CurveTimeline.LINEAR;
+        getDuration() {
+            return this.frames[this.frames.length - this.getFrameEntries()];
         }
-        setStepped(frameIndex) {
-            this.curves[frameIndex * CurveTimeline.BEZIER_SIZE] = CurveTimeline.STEPPED;
+        static search1(frames, time) {
+            let n = frames.length;
+            for (let i = 1; i < n; i++)
+                if (frames[i] > time)
+                    return i - 1;
+            return n - 1;
         }
-        getCurveType(frameIndex) {
-            let index = frameIndex * CurveTimeline.BEZIER_SIZE;
-            if (index == this.curves.length)
-                return CurveTimeline.LINEAR;
-            let type = this.curves[index];
-            if (type == CurveTimeline.LINEAR)
-                return CurveTimeline.LINEAR;
-            if (type == CurveTimeline.STEPPED)
-                return CurveTimeline.STEPPED;
-            return CurveTimeline.BEZIER;
-        }
-        setCurve(frameIndex, cx1, cy1, cx2, cy2) {
-            let tmpx = (-cx1 * 2 + cx2) * 0.03, tmpy = (-cy1 * 2 + cy2) * 0.03;
-            let dddfx = ((cx1 - cx2) * 3 + 1) * 0.006, dddfy = ((cy1 - cy2) * 3 + 1) * 0.006;
-            let ddfx = tmpx * 2 + dddfx, ddfy = tmpy * 2 + dddfy;
-            let dfx = cx1 * 0.3 + tmpx + dddfx * 0.16666667, dfy = cy1 * 0.3 + tmpy + dddfy * 0.16666667;
-            let i = frameIndex * CurveTimeline.BEZIER_SIZE;
-            let curves = this.curves;
-            curves[i++] = CurveTimeline.BEZIER;
-            let x = dfx, y = dfy;
-            for (let n = i + CurveTimeline.BEZIER_SIZE - 1; i < n; i += 2) {
-                curves[i] = x;
-                curves[i + 1] = y;
-                dfx += ddfx;
-                dfy += ddfy;
-                ddfx += dddfx;
-                ddfy += dddfy;
-                x += dfx;
-                y += dfy;
-            }
-        }
-        getCurvePercent(frameIndex, percent) {
-            percent = spine.MathUtils.clamp(percent, 0, 1);
-            let curves = this.curves;
-            let i = frameIndex * CurveTimeline.BEZIER_SIZE;
-            let type = curves[i];
-            if (type == CurveTimeline.LINEAR)
-                return percent;
-            if (type == CurveTimeline.STEPPED)
-                return 0;
-            i++;
-            let x = 0;
-            for (let start = i, n = i + CurveTimeline.BEZIER_SIZE - 1; i < n; i += 2) {
-                x = curves[i];
-                if (x >= percent) {
-                    let prevX, prevY;
-                    if (i == start) {
-                        prevX = 0;
-                        prevY = 0;
-                    }
-                    else {
-                        prevX = curves[i - 2];
-                        prevY = curves[i - 1];
-                    }
-                    return prevY + (curves[i + 1] - prevY) * (percent - prevX) / (x - prevX);
-                }
-            }
-            let y = curves[i - 1];
-            return y + (1 - y) * (percent - x) / (1 - x);
+        static search(frames, time, step) {
+            let n = frames.length;
+            for (let i = step; i < n; i += step)
+                if (frames[i] > time)
+                    return i - step;
+            return n - step;
         }
     }
-    CurveTimeline.LINEAR = 0;
-    CurveTimeline.STEPPED = 1;
-    CurveTimeline.BEZIER = 2;
-    CurveTimeline.BEZIER_SIZE = 10 * 2 - 1;
+    spine.Timeline = Timeline;
+    class CurveTimeline extends Timeline {
+        constructor(frameCount, bezierCount, propertyIds) {
+            super(frameCount, propertyIds);
+            this.curves = spine.Utils.newFloatArray(frameCount + bezierCount * 18);
+            this.curves[frameCount - 1] = 1;
+        }
+        setLinear(frame) {
+            this.curves[frame] = 0;
+        }
+        setStepped(frame) {
+            this.curves[frame] = 1;
+        }
+        shrink(bezierCount) {
+            let size = this.getFrameCount() + bezierCount * 18;
+            if (this.curves.length > size) {
+                let newCurves = spine.Utils.newFloatArray(size);
+                spine.Utils.arrayCopy(this.curves, 0, newCurves, 0, size);
+                this.curves = newCurves;
+            }
+        }
+        setBezier(bezier, frame, value, time1, value1, cx1, cy1, cx2, cy2, time2, value2) {
+            let curves = this.curves;
+            let i = this.getFrameCount() + bezier * 18;
+            if (value == 0)
+                curves[frame] = 2 + i;
+            let tmpx = (time1 - cx1 * 2 + cx2) * 0.03, tmpy = (value1 - cy1 * 2 + cy2) * 0.03;
+            let dddx = ((cx1 - cx2) * 3 - time1 + time2) * 0.006, dddy = ((cy1 - cy2) * 3 - value1 + value2) * 0.006;
+            let ddx = tmpx * 2 + dddx, ddy = tmpy * 2 + dddy;
+            let dx = (cx1 - time1) * 0.3 + tmpx + dddx * 0.16666667, dy = (cy1 - value1) * 0.3 + tmpy + dddy * 0.16666667;
+            let x = time1 + dx, y = value1 + dy;
+            for (let n = i + 18; i < n; i += 2) {
+                curves[i] = x;
+                curves[i + 1] = y;
+                dx += ddx;
+                dy += ddy;
+                ddx += dddx;
+                ddy += dddy;
+                x += dx;
+                y += dy;
+            }
+        }
+        getBezierValue(time, frameIndex, valueOffset, i) {
+            let curves = this.curves;
+            if (curves[i] > time) {
+                let x = this.frames[frameIndex], y = this.frames[frameIndex + valueOffset];
+                return y + (time - x) / (curves[i] - x) * (curves[i + 1] - y);
+            }
+            let n = i + 18;
+            for (i += 2; i < n; i += 2) {
+                if (curves[i] >= time) {
+                    let x = curves[i - 2], y = curves[i - 1];
+                    return y + (time - x) / (curves[i] - x) * (curves[i + 1] - y);
+                }
+            }
+            frameIndex += this.getFrameEntries();
+            let x = curves[n - 2], y = curves[n - 1];
+            return y + (time - x) / (this.frames[frameIndex] - x) * (this.frames[frameIndex + valueOffset] - y);
+        }
+    }
     spine.CurveTimeline = CurveTimeline;
-    class RotateTimeline extends CurveTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-            this.frames = spine.Utils.newFloatArray(frameCount << 1);
+    class CurveTimeline1 extends CurveTimeline {
+        constructor(frameCount, bezierCount, propertyId) {
+            super(frameCount, bezierCount, [propertyId]);
         }
-        getPropertyId() {
-            return (TimelineType.rotate << 24) + this.boneIndex;
+        getFrameEntries() {
+            return 2;
         }
-        setFrame(frameIndex, time, degrees) {
-            frameIndex <<= 1;
-            this.frames[frameIndex] = time;
-            this.frames[frameIndex + RotateTimeline.ROTATION] = degrees;
+        setFrame(frame, time, value) {
+            frame <<= 1;
+            this.frames[frame] = time;
+            this.frames[frame + 1] = value;
+        }
+        getCurveValue(time) {
+            let frames = this.frames;
+            let i = frames.length - 2;
+            for (let ii = 2; ii <= i; ii += 2) {
+                if (frames[ii] > time) {
+                    i = ii - 2;
+                    break;
+                }
+            }
+            let curveType = this.curves[i >> 1];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i], value = frames[i + 1];
+                    return value + (time - before) / (frames[i + 2] - before) * (frames[i + 2 + 1] - value);
+                case 1:
+                    return frames[i + 1];
+            }
+            return this.getBezierValue(time, i, 1, curveType - 2);
+        }
+    }
+    spine.CurveTimeline1 = CurveTimeline1;
+    class CurveTimeline2 extends CurveTimeline {
+        constructor(frameCount, bezierCount, propertyId1, propertyId2) {
+            super(frameCount, bezierCount, [propertyId1, propertyId2]);
+        }
+        getFrameEntries() {
+            return 3;
+        }
+        setFrame(frame, time, value1, value2) {
+            frame *= 3;
+            this.frames[frame] = time;
+            this.frames[frame + 1] = value1;
+            this.frames[frame + 2] = value2;
+        }
+    }
+    spine.CurveTimeline2 = CurveTimeline2;
+    class RotateTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.rotate + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
         }
         apply(skeleton, lastTime, time, events, alpha, blend, direction) {
-            let frames = this.frames;
             let bone = skeleton.bones[this.boneIndex];
             if (!bone.active)
                 return;
+            let frames = this.frames;
             if (time < frames[0]) {
                 switch (blend) {
                     case MixBlend.setup:
                         bone.rotation = bone.data.rotation;
                         return;
                     case MixBlend.first:
-                        let r = bone.data.rotation - bone.rotation;
-                        bone.rotation += (r - (16384 - ((16384.499999999996 - r / 360) | 0)) * 360) * alpha;
+                        bone.rotation += (bone.data.rotation - bone.rotation) * alpha;
                 }
                 return;
             }
-            if (time >= frames[frames.length - RotateTimeline.ENTRIES]) {
-                let r = frames[frames.length + RotateTimeline.PREV_ROTATION];
-                switch (blend) {
-                    case MixBlend.setup:
-                        bone.rotation = bone.data.rotation + r * alpha;
-                        break;
-                    case MixBlend.first:
-                    case MixBlend.replace:
-                        r += bone.data.rotation - bone.rotation;
-                        r -= (16384 - ((16384.499999999996 - r / 360) | 0)) * 360;
-                    case MixBlend.add:
-                        bone.rotation += r * alpha;
-                }
-                return;
-            }
-            let frame = Animation.binarySearch(frames, time, RotateTimeline.ENTRIES);
-            let prevRotation = frames[frame + RotateTimeline.PREV_ROTATION];
-            let frameTime = frames[frame];
-            let percent = this.getCurvePercent((frame >> 1) - 1, 1 - (time - frameTime) / (frames[frame + RotateTimeline.PREV_TIME] - frameTime));
-            let r = frames[frame + RotateTimeline.ROTATION] - prevRotation;
-            r = prevRotation + (r - (16384 - ((16384.499999999996 - r / 360) | 0)) * 360) * percent;
+            let r = this.getCurveValue(time);
             switch (blend) {
                 case MixBlend.setup:
-                    bone.rotation = bone.data.rotation + (r - (16384 - ((16384.499999999996 - r / 360) | 0)) * 360) * alpha;
+                    bone.rotation = bone.data.rotation + r * alpha;
                     break;
                 case MixBlend.first:
                 case MixBlend.replace:
                     r += bone.data.rotation - bone.rotation;
                 case MixBlend.add:
-                    bone.rotation += (r - (16384 - ((16384.499999999996 - r / 360) | 0)) * 360) * alpha;
+                    bone.rotation += r * alpha;
             }
         }
     }
-    RotateTimeline.ENTRIES = 2;
-    RotateTimeline.PREV_TIME = -2;
-    RotateTimeline.PREV_ROTATION = -1;
-    RotateTimeline.ROTATION = 1;
     spine.RotateTimeline = RotateTimeline;
-    class TranslateTimeline extends CurveTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-            this.frames = spine.Utils.newFloatArray(frameCount * TranslateTimeline.ENTRIES);
-        }
-        getPropertyId() {
-            return (TimelineType.translate << 24) + this.boneIndex;
-        }
-        setFrame(frameIndex, time, x, y) {
-            frameIndex *= TranslateTimeline.ENTRIES;
-            this.frames[frameIndex] = time;
-            this.frames[frameIndex + TranslateTimeline.X] = x;
-            this.frames[frameIndex + TranslateTimeline.Y] = y;
+    class TranslateTimeline extends CurveTimeline2 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.x + "|" + boneIndex, Property.y + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
         }
         apply(skeleton, lastTime, time, events, alpha, blend, direction) {
-            let frames = this.frames;
             let bone = skeleton.bones[this.boneIndex];
             if (!bone.active)
                 return;
+            let frames = this.frames;
             if (time < frames[0]) {
                 switch (blend) {
                     case MixBlend.setup:
@@ -290,18 +297,24 @@ var spine;
                 return;
             }
             let x = 0, y = 0;
-            if (time >= frames[frames.length - TranslateTimeline.ENTRIES]) {
-                x = frames[frames.length + TranslateTimeline.PREV_X];
-                y = frames[frames.length + TranslateTimeline.PREV_Y];
-            }
-            else {
-                let frame = Animation.binarySearch(frames, time, TranslateTimeline.ENTRIES);
-                x = frames[frame + TranslateTimeline.PREV_X];
-                y = frames[frame + TranslateTimeline.PREV_Y];
-                let frameTime = frames[frame];
-                let percent = this.getCurvePercent(frame / TranslateTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + TranslateTimeline.PREV_TIME] - frameTime));
-                x += (frames[frame + TranslateTimeline.X] - x) * percent;
-                y += (frames[frame + TranslateTimeline.Y] - y) * percent;
+            let i = Timeline.search(frames, time, 3);
+            let curveType = this.curves[i / 3];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    x = frames[i + 1];
+                    y = frames[i + 2];
+                    let t = (time - before) / (frames[i + 3] - before);
+                    x += (frames[i + 3 + 1] - x) * t;
+                    y += (frames[i + 3 + 2] - y) * t;
+                    break;
+                case 1:
+                    x = frames[i + 1];
+                    y = frames[i + 2];
+                    break;
+                default:
+                    x = this.getBezierValue(time, i, 1, curveType - 2);
+                    y = this.getBezierValue(time, i, 2, curveType + 18 - 2);
             }
             switch (blend) {
                 case MixBlend.setup:
@@ -319,25 +332,90 @@ var spine;
             }
         }
     }
-    TranslateTimeline.ENTRIES = 3;
-    TranslateTimeline.PREV_TIME = -3;
-    TranslateTimeline.PREV_X = -2;
-    TranslateTimeline.PREV_Y = -1;
-    TranslateTimeline.X = 1;
-    TranslateTimeline.Y = 2;
     spine.TranslateTimeline = TranslateTimeline;
-    class ScaleTimeline extends TranslateTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-        }
-        getPropertyId() {
-            return (TimelineType.scale << 24) + this.boneIndex;
+    class TranslateXTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.x + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
         }
         apply(skeleton, lastTime, time, events, alpha, blend, direction) {
-            let frames = this.frames;
             let bone = skeleton.bones[this.boneIndex];
             if (!bone.active)
                 return;
+            let frames = this.frames;
+            if (time < frames[0]) {
+                switch (blend) {
+                    case MixBlend.setup:
+                        bone.x = bone.data.x;
+                        return;
+                    case MixBlend.first:
+                        bone.x += (bone.data.x - bone.x) * alpha;
+                }
+                return;
+            }
+            let x = this.getCurveValue(time);
+            switch (blend) {
+                case MixBlend.setup:
+                    bone.x = bone.data.x + x * alpha;
+                    break;
+                case MixBlend.first:
+                case MixBlend.replace:
+                    bone.x += (bone.data.x + x - bone.x) * alpha;
+                    break;
+                case MixBlend.add:
+                    bone.x += x * alpha;
+            }
+        }
+    }
+    spine.TranslateXTimeline = TranslateXTimeline;
+    class TranslateYTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.y + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
+        }
+        apply(skeleton, lastTime, time, events, alpha, blend, direction) {
+            let bone = skeleton.bones[this.boneIndex];
+            if (!bone.active)
+                return;
+            let frames = this.frames;
+            if (time < frames[0]) {
+                switch (blend) {
+                    case MixBlend.setup:
+                        bone.y = bone.data.y;
+                        return;
+                    case MixBlend.first:
+                        bone.y += (bone.data.y - bone.y) * alpha;
+                }
+                return;
+            }
+            let y = this.getCurveValue(time);
+            switch (blend) {
+                case MixBlend.setup:
+                    bone.y = bone.data.y + y * alpha;
+                    break;
+                case MixBlend.first:
+                case MixBlend.replace:
+                    bone.y += (bone.data.y + y - bone.y) * alpha;
+                    break;
+                case MixBlend.add:
+                    bone.y += y * alpha;
+            }
+        }
+    }
+    spine.TranslateYTimeline = TranslateYTimeline;
+    class ScaleTimeline extends CurveTimeline2 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.scaleX + "|" + boneIndex, Property.scaleY + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
+        }
+        apply(skeleton, lastTime, time, events, alpha, blend, direction) {
+            let bone = skeleton.bones[this.boneIndex];
+            if (!bone.active)
+                return;
+            let frames = this.frames;
             if (time < frames[0]) {
                 switch (blend) {
                     case MixBlend.setup:
@@ -350,20 +428,28 @@ var spine;
                 }
                 return;
             }
-            let x = 0, y = 0;
-            if (time >= frames[frames.length - ScaleTimeline.ENTRIES]) {
-                x = frames[frames.length + ScaleTimeline.PREV_X] * bone.data.scaleX;
-                y = frames[frames.length + ScaleTimeline.PREV_Y] * bone.data.scaleY;
+            let x, y;
+            let i = Timeline.search(frames, time, 3);
+            let curveType = this.curves[i / 3];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    x = frames[i + 1];
+                    y = frames[i + 2];
+                    let t = (time - before) / (frames[i + 3] - before);
+                    x += (frames[i + 3 + 1] - x) * t;
+                    y += (frames[i + 3 + 2] - y) * t;
+                    break;
+                case 1:
+                    x = frames[i + 1];
+                    y = frames[i + 2];
+                    break;
+                default:
+                    x = this.getBezierValue(time, i, 1, curveType - 2);
+                    y = this.getBezierValue(time, i, 2, curveType + 18 - 2);
             }
-            else {
-                let frame = Animation.binarySearch(frames, time, ScaleTimeline.ENTRIES);
-                x = frames[frame + ScaleTimeline.PREV_X];
-                y = frames[frame + ScaleTimeline.PREV_Y];
-                let frameTime = frames[frame];
-                let percent = this.getCurvePercent(frame / ScaleTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + ScaleTimeline.PREV_TIME] - frameTime));
-                x = (x + (frames[frame + ScaleTimeline.X] - x) * percent) * bone.data.scaleX;
-                y = (y + (frames[frame + ScaleTimeline.Y] - y) * percent) * bone.data.scaleY;
-            }
+            x *= bone.data.scaleX;
+            y *= bone.data.scaleY;
             if (alpha == 1) {
                 if (blend == MixBlend.add) {
                     bone.scaleX += x - bone.data.scaleX;
@@ -424,18 +510,149 @@ var spine;
         }
     }
     spine.ScaleTimeline = ScaleTimeline;
-    class ShearTimeline extends TranslateTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-        }
-        getPropertyId() {
-            return (TimelineType.shear << 24) + this.boneIndex;
+    class ScaleXTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.scaleX + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
         }
         apply(skeleton, lastTime, time, events, alpha, blend, direction) {
-            let frames = this.frames;
             let bone = skeleton.bones[this.boneIndex];
             if (!bone.active)
                 return;
+            let frames = this.frames;
+            if (time < frames[0]) {
+                switch (blend) {
+                    case MixBlend.setup:
+                        bone.scaleX = bone.data.scaleX;
+                        return;
+                    case MixBlend.first:
+                        bone.scaleX += (bone.data.scaleX - bone.scaleX) * alpha;
+                }
+                return;
+            }
+            let x = this.getCurveValue(time) * bone.data.scaleX;
+            if (alpha == 1) {
+                if (blend == MixBlend.add)
+                    bone.scaleX += x - bone.data.scaleX;
+                else
+                    bone.scaleX = x;
+            }
+            else {
+                let bx = 0;
+                if (direction == MixDirection.mixOut) {
+                    switch (blend) {
+                        case MixBlend.setup:
+                            bx = bone.data.scaleX;
+                            bone.scaleX = bx + (Math.abs(x) * spine.MathUtils.signum(bx) - bx) * alpha;
+                            break;
+                        case MixBlend.first:
+                        case MixBlend.replace:
+                            bx = bone.scaleX;
+                            bone.scaleX = bx + (Math.abs(x) * spine.MathUtils.signum(bx) - bx) * alpha;
+                            break;
+                        case MixBlend.add:
+                            bx = bone.scaleX;
+                            bone.scaleX = bx + (Math.abs(x) * spine.MathUtils.signum(bx) - bone.data.scaleX) * alpha;
+                    }
+                }
+                else {
+                    switch (blend) {
+                        case MixBlend.setup:
+                            bx = Math.abs(bone.data.scaleX) * spine.MathUtils.signum(x);
+                            bone.scaleX = bx + (x - bx) * alpha;
+                            break;
+                        case MixBlend.first:
+                        case MixBlend.replace:
+                            bx = Math.abs(bone.scaleX) * spine.MathUtils.signum(x);
+                            bone.scaleX = bx + (x - bx) * alpha;
+                            break;
+                        case MixBlend.add:
+                            bx = spine.MathUtils.signum(x);
+                            bone.scaleX = Math.abs(bone.scaleX) * bx + (x - Math.abs(bone.data.scaleX) * bx) * alpha;
+                    }
+                }
+            }
+        }
+    }
+    spine.ScaleXTimeline = ScaleXTimeline;
+    class ScaleYTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.scaleY + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
+        }
+        apply(skeleton, lastTime, time, events, alpha, blend, direction) {
+            let bone = skeleton.bones[this.boneIndex];
+            if (!bone.active)
+                return;
+            let frames = this.frames;
+            if (time < frames[0]) {
+                switch (blend) {
+                    case MixBlend.setup:
+                        bone.scaleY = bone.data.scaleY;
+                        return;
+                    case MixBlend.first:
+                        bone.scaleY += (bone.data.scaleY - bone.scaleY) * alpha;
+                }
+                return;
+            }
+            let y = this.getCurveValue(time) * bone.data.scaleY;
+            if (alpha == 1) {
+                if (blend == MixBlend.add)
+                    bone.scaleY += y - bone.data.scaleY;
+                else
+                    bone.scaleY = y;
+            }
+            else {
+                let by = 0;
+                if (direction == MixDirection.mixOut) {
+                    switch (blend) {
+                        case MixBlend.setup:
+                            by = bone.data.scaleY;
+                            bone.scaleY = by + (Math.abs(y) * spine.MathUtils.signum(by) - by) * alpha;
+                            break;
+                        case MixBlend.first:
+                        case MixBlend.replace:
+                            by = bone.scaleY;
+                            bone.scaleY = by + (Math.abs(y) * spine.MathUtils.signum(by) - by) * alpha;
+                            break;
+                        case MixBlend.add:
+                            by = bone.scaleY;
+                            bone.scaleY = by + (Math.abs(y) * spine.MathUtils.signum(by) - bone.data.scaleY) * alpha;
+                    }
+                }
+                else {
+                    switch (blend) {
+                        case MixBlend.setup:
+                            by = Math.abs(bone.data.scaleY) * spine.MathUtils.signum(y);
+                            bone.scaleY = by + (y - by) * alpha;
+                            break;
+                        case MixBlend.first:
+                        case MixBlend.replace:
+                            by = Math.abs(bone.scaleY) * spine.MathUtils.signum(y);
+                            bone.scaleY = by + (y - by) * alpha;
+                            break;
+                        case MixBlend.add:
+                            by = spine.MathUtils.signum(y);
+                            bone.scaleY = Math.abs(bone.scaleY) * by + (y - Math.abs(bone.data.scaleY) * by) * alpha;
+                    }
+                }
+            }
+        }
+    }
+    spine.ScaleYTimeline = ScaleYTimeline;
+    class ShearTimeline extends CurveTimeline2 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.shearX + "|" + boneIndex, Property.shearY + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
+        }
+        apply(skeleton, lastTime, time, events, alpha, blend, direction) {
+            let bone = skeleton.bones[this.boneIndex];
+            if (!bone.active)
+                return;
+            let frames = this.frames;
             if (time < frames[0]) {
                 switch (blend) {
                     case MixBlend.setup:
@@ -449,18 +666,24 @@ var spine;
                 return;
             }
             let x = 0, y = 0;
-            if (time >= frames[frames.length - ShearTimeline.ENTRIES]) {
-                x = frames[frames.length + ShearTimeline.PREV_X];
-                y = frames[frames.length + ShearTimeline.PREV_Y];
-            }
-            else {
-                let frame = Animation.binarySearch(frames, time, ShearTimeline.ENTRIES);
-                x = frames[frame + ShearTimeline.PREV_X];
-                y = frames[frame + ShearTimeline.PREV_Y];
-                let frameTime = frames[frame];
-                let percent = this.getCurvePercent(frame / ShearTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + ShearTimeline.PREV_TIME] - frameTime));
-                x = x + (frames[frame + ShearTimeline.X] - x) * percent;
-                y = y + (frames[frame + ShearTimeline.Y] - y) * percent;
+            let i = Timeline.search(frames, time, 3);
+            let curveType = this.curves[i / 3];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    x = frames[i + 1];
+                    y = frames[i + 2];
+                    let t = (time - before) / (frames[i + 3] - before);
+                    x += (frames[i + 3 + 1] - x) * t;
+                    y += (frames[i + 3 + 2] - y) * t;
+                    break;
+                case 1:
+                    x = frames[i + 1];
+                    y = frames[i + 2];
+                    break;
+                default:
+                    x = this.getBezierValue(time, i, 1, curveType - 2);
+                    y = this.getBezierValue(time, i, 2, curveType + 18 - 2);
             }
             switch (blend) {
                 case MixBlend.setup:
@@ -479,193 +702,505 @@ var spine;
         }
     }
     spine.ShearTimeline = ShearTimeline;
-    class ColorTimeline extends CurveTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-            this.frames = spine.Utils.newFloatArray(frameCount * ColorTimeline.ENTRIES);
+    class ShearXTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.shearX + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
         }
-        getPropertyId() {
-            return (TimelineType.color << 24) + this.slotIndex;
+        apply(skeleton, lastTime, time, events, alpha, blend, direction) {
+            let bone = skeleton.bones[this.boneIndex];
+            if (!bone.active)
+                return;
+            let frames = this.frames;
+            if (time < frames[0]) {
+                switch (blend) {
+                    case MixBlend.setup:
+                        bone.shearX = bone.data.shearX;
+                        return;
+                    case MixBlend.first:
+                        bone.shearX += (bone.data.shearX - bone.shearX) * alpha;
+                }
+                return;
+            }
+            let x = this.getCurveValue(time);
+            switch (blend) {
+                case MixBlend.setup:
+                    bone.shearX = bone.data.shearX + x * alpha;
+                    break;
+                case MixBlend.first:
+                case MixBlend.replace:
+                    bone.shearX += (bone.data.shearX + x - bone.shearX) * alpha;
+                    break;
+                case MixBlend.add:
+                    bone.shearX += x * alpha;
+            }
         }
-        setFrame(frameIndex, time, r, g, b, a) {
-            frameIndex *= ColorTimeline.ENTRIES;
-            this.frames[frameIndex] = time;
-            this.frames[frameIndex + ColorTimeline.R] = r;
-            this.frames[frameIndex + ColorTimeline.G] = g;
-            this.frames[frameIndex + ColorTimeline.B] = b;
-            this.frames[frameIndex + ColorTimeline.A] = a;
+    }
+    spine.ShearXTimeline = ShearXTimeline;
+    class ShearYTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, boneIndex) {
+            super(frameCount, bezierCount, Property.shearY + "|" + boneIndex);
+            this.boneIndex = 0;
+            this.boneIndex = boneIndex;
+        }
+        apply(skeleton, lastTime, time, events, alpha, blend, direction) {
+            let bone = skeleton.bones[this.boneIndex];
+            if (!bone.active)
+                return;
+            let frames = this.frames;
+            if (time < frames[0]) {
+                switch (blend) {
+                    case MixBlend.setup:
+                        bone.shearY = bone.data.shearY;
+                        return;
+                    case MixBlend.first:
+                        bone.shearY += (bone.data.shearY - bone.shearY) * alpha;
+                }
+                return;
+            }
+            let y = this.getCurveValue(time);
+            switch (blend) {
+                case MixBlend.setup:
+                    bone.shearY = bone.data.shearY + y * alpha;
+                    break;
+                case MixBlend.first:
+                case MixBlend.replace:
+                    bone.shearY += (bone.data.shearY + y - bone.shearY) * alpha;
+                    break;
+                case MixBlend.add:
+                    bone.shearY += y * alpha;
+            }
+        }
+    }
+    spine.ShearYTimeline = ShearYTimeline;
+    class RGBATimeline extends CurveTimeline {
+        constructor(frameCount, bezierCount, slotIndex) {
+            super(frameCount, bezierCount, [
+                Property.rgb + "|" + slotIndex,
+                Property.alpha + "|" + slotIndex
+            ]);
+            this.slotIndex = 0;
+            this.slotIndex = slotIndex;
+        }
+        getFrameEntries() {
+            return 5;
+        }
+        setFrame(frame, time, r, g, b, a) {
+            frame *= 5;
+            this.frames[frame] = time;
+            this.frames[frame + 1] = r;
+            this.frames[frame + 2] = g;
+            this.frames[frame + 3] = b;
+            this.frames[frame + 4] = a;
         }
         apply(skeleton, lastTime, time, events, alpha, blend, direction) {
             let slot = skeleton.slots[this.slotIndex];
             if (!slot.bone.active)
                 return;
             let frames = this.frames;
+            let color = slot.color;
             if (time < frames[0]) {
+                let setup = slot.data.color;
                 switch (blend) {
                     case MixBlend.setup:
-                        slot.color.setFromColor(slot.data.color);
+                        color.setFromColor(setup);
                         return;
                     case MixBlend.first:
-                        let color = slot.color, setup = slot.data.color;
                         color.add((setup.r - color.r) * alpha, (setup.g - color.g) * alpha, (setup.b - color.b) * alpha, (setup.a - color.a) * alpha);
                 }
                 return;
             }
             let r = 0, g = 0, b = 0, a = 0;
-            if (time >= frames[frames.length - ColorTimeline.ENTRIES]) {
-                let i = frames.length;
-                r = frames[i + ColorTimeline.PREV_R];
-                g = frames[i + ColorTimeline.PREV_G];
-                b = frames[i + ColorTimeline.PREV_B];
-                a = frames[i + ColorTimeline.PREV_A];
-            }
-            else {
-                let frame = Animation.binarySearch(frames, time, ColorTimeline.ENTRIES);
-                r = frames[frame + ColorTimeline.PREV_R];
-                g = frames[frame + ColorTimeline.PREV_G];
-                b = frames[frame + ColorTimeline.PREV_B];
-                a = frames[frame + ColorTimeline.PREV_A];
-                let frameTime = frames[frame];
-                let percent = this.getCurvePercent(frame / ColorTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + ColorTimeline.PREV_TIME] - frameTime));
-                r += (frames[frame + ColorTimeline.R] - r) * percent;
-                g += (frames[frame + ColorTimeline.G] - g) * percent;
-                b += (frames[frame + ColorTimeline.B] - b) * percent;
-                a += (frames[frame + ColorTimeline.A] - a) * percent;
+            let i = Timeline.search(frames, time, 5);
+            let curveType = this.curves[i / 5];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    r = frames[i + 1];
+                    g = frames[i + 2];
+                    b = frames[i + 3];
+                    a = frames[i + 4];
+                    let t = (time - before) / (frames[i + 5] - before);
+                    r += (frames[i + 5 + 1] - r) * t;
+                    g += (frames[i + 5 + 2] - g) * t;
+                    b += (frames[i + 5 + 3] - b) * t;
+                    a += (frames[i + 5 + 4] - a) * t;
+                    break;
+                case 1:
+                    r = frames[i + 1];
+                    g = frames[i + 2];
+                    b = frames[i + 3];
+                    a = frames[i + 4];
+                    break;
+                default:
+                    r = this.getBezierValue(time, i, 1, curveType - 2);
+                    g = this.getBezierValue(time, i, 2, curveType + 18 - 2);
+                    b = this.getBezierValue(time, i, 3, curveType + 18 * 2 - 2);
+                    a = this.getBezierValue(time, i, 4, curveType + 18 * 3 - 2);
             }
             if (alpha == 1)
-                slot.color.set(r, g, b, a);
+                color.set(r, g, b, a);
             else {
-                let color = slot.color;
                 if (blend == MixBlend.setup)
                     color.setFromColor(slot.data.color);
                 color.add((r - color.r) * alpha, (g - color.g) * alpha, (b - color.b) * alpha, (a - color.a) * alpha);
             }
         }
     }
-    ColorTimeline.ENTRIES = 5;
-    ColorTimeline.PREV_TIME = -5;
-    ColorTimeline.PREV_R = -4;
-    ColorTimeline.PREV_G = -3;
-    ColorTimeline.PREV_B = -2;
-    ColorTimeline.PREV_A = -1;
-    ColorTimeline.R = 1;
-    ColorTimeline.G = 2;
-    ColorTimeline.B = 3;
-    ColorTimeline.A = 4;
-    spine.ColorTimeline = ColorTimeline;
-    class TwoColorTimeline extends CurveTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-            this.frames = spine.Utils.newFloatArray(frameCount * TwoColorTimeline.ENTRIES);
+    spine.RGBATimeline = RGBATimeline;
+    class RGBTimeline extends CurveTimeline {
+        constructor(frameCount, bezierCount, slotIndex) {
+            super(frameCount, bezierCount, [
+                Property.rgb + "|" + slotIndex
+            ]);
+            this.slotIndex = 0;
+            this.slotIndex = slotIndex;
         }
-        getPropertyId() {
-            return (TimelineType.twoColor << 24) + this.slotIndex;
+        getFrameEntries() {
+            return 4;
         }
-        setFrame(frameIndex, time, r, g, b, a, r2, g2, b2) {
-            frameIndex *= TwoColorTimeline.ENTRIES;
-            this.frames[frameIndex] = time;
-            this.frames[frameIndex + TwoColorTimeline.R] = r;
-            this.frames[frameIndex + TwoColorTimeline.G] = g;
-            this.frames[frameIndex + TwoColorTimeline.B] = b;
-            this.frames[frameIndex + TwoColorTimeline.A] = a;
-            this.frames[frameIndex + TwoColorTimeline.R2] = r2;
-            this.frames[frameIndex + TwoColorTimeline.G2] = g2;
-            this.frames[frameIndex + TwoColorTimeline.B2] = b2;
+        setFrame(frame, time, r, g, b) {
+            frame <<= 2;
+            this.frames[frame] = time;
+            this.frames[frame + 1] = r;
+            this.frames[frame + 2] = g;
+            this.frames[frame + 3] = b;
         }
         apply(skeleton, lastTime, time, events, alpha, blend, direction) {
             let slot = skeleton.slots[this.slotIndex];
             if (!slot.bone.active)
                 return;
             let frames = this.frames;
+            let color = slot.color;
             if (time < frames[0]) {
+                let setup = slot.data.color;
                 switch (blend) {
                     case MixBlend.setup:
-                        slot.color.setFromColor(slot.data.color);
-                        slot.darkColor.setFromColor(slot.data.darkColor);
+                        color.r = setup.r;
+                        color.g = setup.g;
+                        color.b = setup.b;
                         return;
                     case MixBlend.first:
-                        let light = slot.color, dark = slot.darkColor, setupLight = slot.data.color, setupDark = slot.data.darkColor;
+                        color.r += (setup.r - color.r) * alpha;
+                        color.g += (setup.g - color.g) * alpha;
+                        color.b += (setup.b - color.b) * alpha;
+                }
+                return;
+            }
+            let r = 0, g = 0, b = 0;
+            let i = Timeline.search(frames, time, 4);
+            let curveType = this.curves[i >> 2];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    r = frames[i + 1];
+                    g = frames[i + 2];
+                    b = frames[i + 3];
+                    let t = (time - before) / (frames[i + 4] - before);
+                    r += (frames[i + 4 + 1] - r) * t;
+                    g += (frames[i + 4 + 2] - g) * t;
+                    b += (frames[i + 4 + 3] - b) * t;
+                    break;
+                case 1:
+                    r = frames[i + 1];
+                    g = frames[i + 2];
+                    b = frames[i + 3];
+                    break;
+                default:
+                    r = this.getBezierValue(time, i, 1, curveType - 2);
+                    g = this.getBezierValue(time, i, 2, curveType + 18 - 2);
+                    b = this.getBezierValue(time, i, 3, curveType + 18 * 2 - 2);
+            }
+            if (alpha == 1) {
+                color.r = r;
+                color.g = g;
+                color.b = b;
+            }
+            else {
+                if (blend == MixBlend.setup) {
+                    let setup = slot.data.color;
+                    color.r = setup.r;
+                    color.g = setup.g;
+                    color.b = setup.b;
+                }
+                color.r += (r - color.r) * alpha;
+                color.g += (g - color.g) * alpha;
+                color.b += (b - color.b) * alpha;
+            }
+        }
+    }
+    spine.RGBTimeline = RGBTimeline;
+    class AlphaTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, slotIndex) {
+            super(frameCount, bezierCount, Property.alpha + "|" + slotIndex);
+            this.slotIndex = 0;
+            this.slotIndex = slotIndex;
+        }
+        apply(skeleton, lastTime, time, events, alpha, blend, direction) {
+            let slot = skeleton.slots[this.slotIndex];
+            if (!slot.bone.active)
+                return;
+            let color = slot.color;
+            if (time < this.frames[0]) {
+                let setup = slot.data.color;
+                switch (blend) {
+                    case MixBlend.setup:
+                        color.a = setup.a;
+                        return;
+                    case MixBlend.first:
+                        color.a += (setup.a - color.a) * alpha;
+                }
+                return;
+            }
+            let a = this.getCurveValue(time);
+            if (alpha == 1)
+                color.a = a;
+            else {
+                if (blend == MixBlend.setup)
+                    color.a = slot.data.color.a;
+                color.a += (a - color.a) * alpha;
+            }
+        }
+    }
+    spine.AlphaTimeline = AlphaTimeline;
+    class RGBA2Timeline extends CurveTimeline {
+        constructor(frameCount, bezierCount, slotIndex) {
+            super(frameCount, bezierCount, [
+                Property.rgb + "|" + slotIndex,
+                Property.alpha + "|" + slotIndex,
+                Property.rgb2 + "|" + slotIndex
+            ]);
+            this.slotIndex = 0;
+            this.slotIndex = slotIndex;
+        }
+        getFrameEntries() {
+            return 8;
+        }
+        setFrame(frame, time, r, g, b, a, r2, g2, b2) {
+            frame <<= 3;
+            this.frames[frame] = time;
+            this.frames[frame + 1] = r;
+            this.frames[frame + 2] = g;
+            this.frames[frame + 3] = b;
+            this.frames[frame + 4] = a;
+            this.frames[frame + 5] = r2;
+            this.frames[frame + 6] = g2;
+            this.frames[frame + 7] = b2;
+        }
+        apply(skeleton, lastTime, time, events, alpha, blend, direction) {
+            let slot = skeleton.slots[this.slotIndex];
+            if (!slot.bone.active)
+                return;
+            let frames = this.frames;
+            let light = slot.color, dark = slot.darkColor;
+            if (time < frames[0]) {
+                let setupLight = slot.data.color, setupDark = slot.data.darkColor;
+                switch (blend) {
+                    case MixBlend.setup:
+                        light.setFromColor(setupLight);
+                        dark.r = setupDark.r;
+                        dark.g = setupDark.g;
+                        dark.b = setupDark.b;
+                        return;
+                    case MixBlend.first:
                         light.add((setupLight.r - light.r) * alpha, (setupLight.g - light.g) * alpha, (setupLight.b - light.b) * alpha, (setupLight.a - light.a) * alpha);
-                        dark.add((setupDark.r - dark.r) * alpha, (setupDark.g - dark.g) * alpha, (setupDark.b - dark.b) * alpha, 0);
+                        dark.r += (setupDark.r - dark.r) * alpha;
+                        dark.g += (setupDark.g - dark.g) * alpha;
+                        dark.b += (setupDark.b - dark.b) * alpha;
                 }
                 return;
             }
             let r = 0, g = 0, b = 0, a = 0, r2 = 0, g2 = 0, b2 = 0;
-            if (time >= frames[frames.length - TwoColorTimeline.ENTRIES]) {
-                let i = frames.length;
-                r = frames[i + TwoColorTimeline.PREV_R];
-                g = frames[i + TwoColorTimeline.PREV_G];
-                b = frames[i + TwoColorTimeline.PREV_B];
-                a = frames[i + TwoColorTimeline.PREV_A];
-                r2 = frames[i + TwoColorTimeline.PREV_R2];
-                g2 = frames[i + TwoColorTimeline.PREV_G2];
-                b2 = frames[i + TwoColorTimeline.PREV_B2];
-            }
-            else {
-                let frame = Animation.binarySearch(frames, time, TwoColorTimeline.ENTRIES);
-                r = frames[frame + TwoColorTimeline.PREV_R];
-                g = frames[frame + TwoColorTimeline.PREV_G];
-                b = frames[frame + TwoColorTimeline.PREV_B];
-                a = frames[frame + TwoColorTimeline.PREV_A];
-                r2 = frames[frame + TwoColorTimeline.PREV_R2];
-                g2 = frames[frame + TwoColorTimeline.PREV_G2];
-                b2 = frames[frame + TwoColorTimeline.PREV_B2];
-                let frameTime = frames[frame];
-                let percent = this.getCurvePercent(frame / TwoColorTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + TwoColorTimeline.PREV_TIME] - frameTime));
-                r += (frames[frame + TwoColorTimeline.R] - r) * percent;
-                g += (frames[frame + TwoColorTimeline.G] - g) * percent;
-                b += (frames[frame + TwoColorTimeline.B] - b) * percent;
-                a += (frames[frame + TwoColorTimeline.A] - a) * percent;
-                r2 += (frames[frame + TwoColorTimeline.R2] - r2) * percent;
-                g2 += (frames[frame + TwoColorTimeline.G2] - g2) * percent;
-                b2 += (frames[frame + TwoColorTimeline.B2] - b2) * percent;
+            let i = Timeline.search(frames, time, 8);
+            let curveType = this.curves[i >> 3];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    r = frames[i + 1];
+                    g = frames[i + 2];
+                    b = frames[i + 3];
+                    a = frames[i + 4];
+                    r2 = frames[i + 5];
+                    g2 = frames[i + 6];
+                    b2 = frames[i + 7];
+                    let t = (time - before) / (frames[i + 8] - before);
+                    r += (frames[i + 8 + 1] - r) * t;
+                    g += (frames[i + 8 + 2] - g) * t;
+                    b += (frames[i + 8 + 3] - b) * t;
+                    a += (frames[i + 8 + 4] - a) * t;
+                    r2 += (frames[i + 8 + 5] - r2) * t;
+                    g2 += (frames[i + 8 + 6] - g2) * t;
+                    b2 += (frames[i + 8 + 7] - b2) * t;
+                    break;
+                case 1:
+                    r = frames[i + 1];
+                    g = frames[i + 2];
+                    b = frames[i + 3];
+                    a = frames[i + 4];
+                    r2 = frames[i + 5];
+                    g2 = frames[i + 6];
+                    b2 = frames[i + 7];
+                    break;
+                default:
+                    r = this.getBezierValue(time, i, 1, curveType - 2);
+                    g = this.getBezierValue(time, i, 2, curveType + 18 - 2);
+                    b = this.getBezierValue(time, i, 3, curveType + 18 * 2 - 2);
+                    a = this.getBezierValue(time, i, 4, curveType + 18 * 3 - 2);
+                    r2 = this.getBezierValue(time, i, 5, curveType + 18 * 4 - 2);
+                    g2 = this.getBezierValue(time, i, 6, curveType + 18 * 5 - 2);
+                    b2 = this.getBezierValue(time, i, 7, curveType + 18 * 6 - 2);
             }
             if (alpha == 1) {
-                slot.color.set(r, g, b, a);
-                slot.darkColor.set(r2, g2, b2, 1);
+                light.set(r, g, b, a);
+                dark.r = r2;
+                dark.g = g2;
+                dark.b = b2;
             }
             else {
-                let light = slot.color, dark = slot.darkColor;
                 if (blend == MixBlend.setup) {
                     light.setFromColor(slot.data.color);
-                    dark.setFromColor(slot.data.darkColor);
+                    let setupDark = slot.data.darkColor;
+                    dark.r = setupDark.r;
+                    dark.g = setupDark.g;
+                    dark.b = setupDark.b;
                 }
                 light.add((r - light.r) * alpha, (g - light.g) * alpha, (b - light.b) * alpha, (a - light.a) * alpha);
-                dark.add((r2 - dark.r) * alpha, (g2 - dark.g) * alpha, (b2 - dark.b) * alpha, 0);
+                dark.r += (r2 - dark.r) * alpha;
+                dark.g += (g2 - dark.g) * alpha;
+                dark.b += (b2 - dark.b) * alpha;
             }
         }
     }
-    TwoColorTimeline.ENTRIES = 8;
-    TwoColorTimeline.PREV_TIME = -8;
-    TwoColorTimeline.PREV_R = -7;
-    TwoColorTimeline.PREV_G = -6;
-    TwoColorTimeline.PREV_B = -5;
-    TwoColorTimeline.PREV_A = -4;
-    TwoColorTimeline.PREV_R2 = -3;
-    TwoColorTimeline.PREV_G2 = -2;
-    TwoColorTimeline.PREV_B2 = -1;
-    TwoColorTimeline.R = 1;
-    TwoColorTimeline.G = 2;
-    TwoColorTimeline.B = 3;
-    TwoColorTimeline.A = 4;
-    TwoColorTimeline.R2 = 5;
-    TwoColorTimeline.G2 = 6;
-    TwoColorTimeline.B2 = 7;
-    spine.TwoColorTimeline = TwoColorTimeline;
-    class AttachmentTimeline {
-        constructor(frameCount) {
-            this.frames = spine.Utils.newFloatArray(frameCount);
-            this.attachmentNames = new Array(frameCount);
+    spine.RGBA2Timeline = RGBA2Timeline;
+    class RGB2Timeline extends CurveTimeline {
+        constructor(frameCount, bezierCount, slotIndex) {
+            super(frameCount, bezierCount, [
+                Property.rgb + "|" + slotIndex,
+                Property.rgb2 + "|" + slotIndex
+            ]);
+            this.slotIndex = 0;
+            this.slotIndex = slotIndex;
         }
-        getPropertyId() {
-            return (TimelineType.attachment << 24) + this.slotIndex;
+        getFrameEntries() {
+            return 7;
+        }
+        setFrame(frame, time, r, g, b, r2, g2, b2) {
+            frame *= 7;
+            this.frames[frame] = time;
+            this.frames[frame + 1] = r;
+            this.frames[frame + 2] = g;
+            this.frames[frame + 3] = b;
+            this.frames[frame + 4] = r2;
+            this.frames[frame + 5] = g2;
+            this.frames[frame + 6] = b2;
+        }
+        apply(skeleton, lastTime, time, events, alpha, blend, direction) {
+            let slot = skeleton.slots[this.slotIndex];
+            if (!slot.bone.active)
+                return;
+            let frames = this.frames;
+            let light = slot.color, dark = slot.darkColor;
+            if (time < frames[0]) {
+                let setupLight = slot.data.color, setupDark = slot.data.darkColor;
+                switch (blend) {
+                    case MixBlend.setup:
+                        light.r = setupLight.r;
+                        light.g = setupLight.g;
+                        light.b = setupLight.b;
+                        dark.r = setupDark.r;
+                        dark.g = setupDark.g;
+                        dark.b = setupDark.b;
+                        return;
+                    case MixBlend.first:
+                        light.r += (setupLight.r - light.r) * alpha;
+                        light.g += (setupLight.g - light.g) * alpha;
+                        light.b += (setupLight.b - light.b) * alpha;
+                        dark.r += (setupDark.r - dark.r) * alpha;
+                        dark.g += (setupDark.g - dark.g) * alpha;
+                        dark.b += (setupDark.b - dark.b) * alpha;
+                }
+                return;
+            }
+            let r = 0, g = 0, b = 0, a = 0, r2 = 0, g2 = 0, b2 = 0;
+            let i = Timeline.search(frames, time, 7);
+            let curveType = this.curves[i / 7];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    r = frames[i + 1];
+                    g = frames[i + 2];
+                    b = frames[i + 3];
+                    r2 = frames[i + 4];
+                    g2 = frames[i + 5];
+                    b2 = frames[i + 6];
+                    let t = (time - before) / (frames[i + 7] - before);
+                    r += (frames[i + 7 + 1] - r) * t;
+                    g += (frames[i + 7 + 2] - g) * t;
+                    b += (frames[i + 7 + 3] - b) * t;
+                    r2 += (frames[i + 7 + 4] - r2) * t;
+                    g2 += (frames[i + 7 + 5] - g2) * t;
+                    b2 += (frames[i + 7 + 6] - b2) * t;
+                    break;
+                case 1:
+                    r = frames[i + 1];
+                    g = frames[i + 2];
+                    b = frames[i + 3];
+                    r2 = frames[i + 4];
+                    g2 = frames[i + 5];
+                    b2 = frames[i + 6];
+                    break;
+                default:
+                    r = this.getBezierValue(time, i, 1, curveType - 2);
+                    g = this.getBezierValue(time, i, 2, curveType + 18 - 2);
+                    b = this.getBezierValue(time, i, 3, curveType + 18 * 2 - 2);
+                    r2 = this.getBezierValue(time, i, 4, curveType + 18 * 3 - 2);
+                    g2 = this.getBezierValue(time, i, 5, curveType + 18 * 4 - 2);
+                    b2 = this.getBezierValue(time, i, 6, curveType + 18 * 5 - 2);
+            }
+            if (alpha == 1) {
+                light.r = r;
+                light.g = g;
+                light.b = b;
+                dark.r = r2;
+                dark.g = g2;
+                dark.b = b2;
+            }
+            else {
+                if (blend == MixBlend.setup) {
+                    let setupLight = slot.data.color, setupDark = slot.data.darkColor;
+                    light.r = setupLight.r;
+                    light.g = setupLight.g;
+                    light.b = setupLight.b;
+                    dark.r = setupDark.r;
+                    dark.g = setupDark.g;
+                    dark.b = setupDark.b;
+                }
+                light.r += (r - light.r) * alpha;
+                light.g += (g - light.g) * alpha;
+                light.b += (b - light.b) * alpha;
+                dark.r += (r2 - dark.r) * alpha;
+                dark.g += (g2 - dark.g) * alpha;
+                dark.b += (b2 - dark.b) * alpha;
+            }
+        }
+    }
+    spine.RGB2Timeline = RGB2Timeline;
+    class AttachmentTimeline extends Timeline {
+        constructor(frameCount, slotIndex) {
+            super(frameCount, [
+                Property.attachment + "|" + slotIndex
+            ]);
+            this.slotIndex = 0;
+            this.slotIndex = slotIndex;
+            this.attachmentNames = new Array(frameCount);
         }
         getFrameCount() {
             return this.frames.length;
         }
-        setFrame(frameIndex, time, attachmentName) {
-            this.frames[frameIndex] = time;
-            this.attachmentNames[frameIndex] = attachmentName;
+        setFrame(frame, time, attachmentName) {
+            this.frames[frame] = time;
+            this.attachmentNames[frame] = attachmentName;
         }
         apply(skeleton, lastTime, time, events, alpha, blend, direction) {
             let slot = skeleton.slots[this.slotIndex];
@@ -676,68 +1211,107 @@ var spine;
                     this.setAttachment(skeleton, slot, slot.data.attachmentName);
                 return;
             }
-            let frames = this.frames;
-            if (time < frames[0]) {
+            if (time < this.frames[0]) {
                 if (blend == MixBlend.setup || blend == MixBlend.first)
                     this.setAttachment(skeleton, slot, slot.data.attachmentName);
                 return;
             }
-            let frameIndex = 0;
-            if (time >= frames[frames.length - 1])
-                frameIndex = frames.length - 1;
-            else
-                frameIndex = Animation.binarySearch(frames, time, 1) - 1;
-            let attachmentName = this.attachmentNames[frameIndex];
-            skeleton.slots[this.slotIndex]
-                .setAttachment(attachmentName == null ? null : skeleton.getAttachment(this.slotIndex, attachmentName));
+            this.setAttachment(skeleton, slot, this.attachmentNames[Timeline.search1(this.frames, time)]);
         }
         setAttachment(skeleton, slot, attachmentName) {
-            slot.attachment = attachmentName == null ? null : skeleton.getAttachment(this.slotIndex, attachmentName);
+            slot.setAttachment(!attachmentName ? null : skeleton.getAttachment(this.slotIndex, attachmentName));
         }
     }
     spine.AttachmentTimeline = AttachmentTimeline;
-    let zeros = null;
     class DeformTimeline extends CurveTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-            this.frames = spine.Utils.newFloatArray(frameCount);
-            this.frameVertices = new Array(frameCount);
-            if (zeros == null)
-                zeros = spine.Utils.newFloatArray(64);
+        constructor(frameCount, bezierCount, slotIndex, attachment) {
+            super(frameCount, bezierCount, [
+                Property.deform + "|" + slotIndex + "|" + attachment.id
+            ]);
+            this.slotIndex = 0;
+            this.slotIndex = slotIndex;
+            this.attachment = attachment;
+            this.vertices = new Array(frameCount);
         }
-        getPropertyId() {
-            return (TimelineType.deform << 27) + +this.attachment.id + this.slotIndex;
+        getFrameCount() {
+            return this.frames.length;
         }
-        setFrame(frameIndex, time, vertices) {
-            this.frames[frameIndex] = time;
-            this.frameVertices[frameIndex] = vertices;
+        setFrame(frame, time, vertices) {
+            this.frames[frame] = time;
+            this.vertices[frame] = vertices;
+        }
+        setBezier(bezier, frame, value, time1, value1, cx1, cy1, cx2, cy2, time2, value2) {
+            let curves = this.curves;
+            let i = this.getFrameCount() + bezier * 18;
+            if (value == 0)
+                curves[frame] = 2 + i;
+            let tmpx = (time1 - cx1 * 2 + cx2) * 0.03, tmpy = cy2 * 0.03 - cy1 * 0.06;
+            let dddx = ((cx1 - cx2) * 3 - time1 + time2) * 0.006, dddy = (cy1 - cy2 + 0.33333333) * 0.018;
+            let ddx = tmpx * 2 + dddx, ddy = tmpy * 2 + dddy;
+            let dx = (cx1 - time1) * 0.3 + tmpx + dddx * 0.16666667, dy = cy1 * 0.3 + tmpy + dddy * 0.16666667;
+            let x = time1 + dx, y = dy;
+            for (let n = i + 18; i < n; i += 2) {
+                curves[i] = x;
+                curves[i + 1] = y;
+                dx += ddx;
+                dy += ddy;
+                ddx += dddx;
+                ddy += dddy;
+                x += dx;
+                y += dy;
+            }
+        }
+        getCurvePercent(time, frame) {
+            let curves = this.curves;
+            let i = curves[frame];
+            switch (i) {
+                case 0:
+                    let x = this.frames[frame];
+                    return (time - x) / (this.frames[frame + this.getFrameEntries()] - x);
+                case 1:
+                    return 0;
+            }
+            i -= 2;
+            if (curves[i] > time) {
+                let x = this.frames[frame];
+                return curves[i + 1] * (time - x) / (curves[i] - x);
+            }
+            let n = i + 18;
+            for (i += 2; i < n; i += 2) {
+                if (curves[i] >= time) {
+                    let x = curves[i - 2], y = curves[i - 1];
+                    return y + (time - x) / (curves[i] - x) * (curves[i + 1] - y);
+                }
+            }
+            let x = curves[n - 2], y = curves[n - 1];
+            return y + (1 - y) * (time - x) / (this.frames[frame + this.getFrameEntries()] - x);
         }
         apply(skeleton, lastTime, time, firedEvents, alpha, blend, direction) {
             let slot = skeleton.slots[this.slotIndex];
             if (!slot.bone.active)
                 return;
             let slotAttachment = slot.getAttachment();
-            if (!(slotAttachment instanceof spine.VertexAttachment) || !(slotAttachment.deformAttachment == this.attachment))
+            if (!(slotAttachment instanceof spine.VertexAttachment) || slotAttachment.deformAttachment != this.attachment)
                 return;
-            let deformArray = slot.deform;
-            if (deformArray.length == 0)
+            let deform = slot.deform;
+            if (deform.length == 0)
                 blend = MixBlend.setup;
-            let frameVertices = this.frameVertices;
-            let vertexCount = frameVertices[0].length;
+            let vertices = this.vertices;
+            let vertexCount = vertices[0].length;
             let frames = this.frames;
             if (time < frames[0]) {
                 let vertexAttachment = slotAttachment;
                 switch (blend) {
                     case MixBlend.setup:
-                        deformArray.length = 0;
+                        deform.length = 0;
                         return;
                     case MixBlend.first:
                         if (alpha == 1) {
-                            deformArray.length = 0;
-                            break;
+                            deform.length = 0;
+                            return;
                         }
-                        let deform = spine.Utils.setArraySize(deformArray, vertexCount);
-                        if (vertexAttachment.bones == null) {
+                        deform.length = vertexCount;
+                        if (!vertexAttachment.bones) {
                             let setupVertices = vertexAttachment.vertices;
                             for (var i = 0; i < vertexCount; i++)
                                 deform[i] += (setupVertices[i] - deform[i]) * alpha;
@@ -750,32 +1324,30 @@ var spine;
                 }
                 return;
             }
-            let deform = spine.Utils.setArraySize(deformArray, vertexCount);
+            deform.length = vertexCount;
             if (time >= frames[frames.length - 1]) {
-                let lastVertices = frameVertices[frames.length - 1];
+                let lastVertices = vertices[frames.length - 1];
                 if (alpha == 1) {
                     if (blend == MixBlend.add) {
                         let vertexAttachment = slotAttachment;
-                        if (vertexAttachment.bones == null) {
+                        if (!vertexAttachment.bones) {
                             let setupVertices = vertexAttachment.vertices;
-                            for (let i = 0; i < vertexCount; i++) {
+                            for (let i = 0; i < vertexCount; i++)
                                 deform[i] += lastVertices[i] - setupVertices[i];
-                            }
                         }
                         else {
                             for (let i = 0; i < vertexCount; i++)
                                 deform[i] += lastVertices[i];
                         }
                     }
-                    else {
+                    else
                         spine.Utils.arrayCopy(lastVertices, 0, deform, 0, vertexCount);
-                    }
                 }
                 else {
                     switch (blend) {
                         case MixBlend.setup: {
                             let vertexAttachment = slotAttachment;
-                            if (vertexAttachment.bones == null) {
+                            if (!vertexAttachment.bones) {
                                 let setupVertices = vertexAttachment.vertices;
                                 for (let i = 0; i < vertexCount; i++) {
                                     let setup = setupVertices[i];
@@ -795,11 +1367,10 @@ var spine;
                             break;
                         case MixBlend.add:
                             let vertexAttachment = slotAttachment;
-                            if (vertexAttachment.bones == null) {
+                            if (!vertexAttachment.bones) {
                                 let setupVertices = vertexAttachment.vertices;
-                                for (let i = 0; i < vertexCount; i++) {
+                                for (let i = 0; i < vertexCount; i++)
                                     deform[i] += (lastVertices[i] - setupVertices[i]) * alpha;
-                                }
                             }
                             else {
                                 for (let i = 0; i < vertexCount; i++)
@@ -809,15 +1380,14 @@ var spine;
                 }
                 return;
             }
-            let frame = Animation.binarySearch(frames, time);
-            let prevVertices = frameVertices[frame - 1];
-            let nextVertices = frameVertices[frame];
-            let frameTime = frames[frame];
-            let percent = this.getCurvePercent(frame - 1, 1 - (time - frameTime) / (frames[frame - 1] - frameTime));
+            let frame = Timeline.search1(frames, time);
+            let percent = this.getCurvePercent(time, frame);
+            let prevVertices = vertices[frame];
+            let nextVertices = vertices[frame + 1];
             if (alpha == 1) {
                 if (blend == MixBlend.add) {
                     let vertexAttachment = slotAttachment;
-                    if (vertexAttachment.bones == null) {
+                    if (!vertexAttachment.bones) {
                         let setupVertices = vertexAttachment.vertices;
                         for (let i = 0; i < vertexCount; i++) {
                             let prev = prevVertices[i];
@@ -842,7 +1412,7 @@ var spine;
                 switch (blend) {
                     case MixBlend.setup: {
                         let vertexAttachment = slotAttachment;
-                        if (vertexAttachment.bones == null) {
+                        if (!vertexAttachment.bones) {
                             let setupVertices = vertexAttachment.vertices;
                             for (let i = 0; i < vertexCount; i++) {
                                 let prev = prevVertices[i], setup = setupVertices[i];
@@ -866,7 +1436,7 @@ var spine;
                         break;
                     case MixBlend.add:
                         let vertexAttachment = slotAttachment;
-                        if (vertexAttachment.bones == null) {
+                        if (!vertexAttachment.bones) {
                             let setupVertices = vertexAttachment.vertices;
                             for (let i = 0; i < vertexCount; i++) {
                                 let prev = prevVertices[i];
@@ -884,23 +1454,20 @@ var spine;
         }
     }
     spine.DeformTimeline = DeformTimeline;
-    class EventTimeline {
+    class EventTimeline extends Timeline {
         constructor(frameCount) {
-            this.frames = spine.Utils.newFloatArray(frameCount);
+            super(frameCount, EventTimeline.propertyIds);
             this.events = new Array(frameCount);
-        }
-        getPropertyId() {
-            return TimelineType.event << 24;
         }
         getFrameCount() {
             return this.frames.length;
         }
-        setFrame(frameIndex, event) {
-            this.frames[frameIndex] = event.time;
-            this.events[frameIndex] = event;
+        setFrame(frame, event) {
+            this.frames[frame] = event.time;
+            this.events[frame] = event;
         }
         apply(skeleton, lastTime, time, firedEvents, alpha, blend, direction) {
-            if (firedEvents == null)
+            if (!firedEvents)
                 return;
             let frames = this.frames;
             let frameCount = this.frames.length;
@@ -912,89 +1479,84 @@ var spine;
                 return;
             if (time < frames[0])
                 return;
-            let frame = 0;
+            let i = 0;
             if (lastTime < frames[0])
-                frame = 0;
+                i = 0;
             else {
-                frame = Animation.binarySearch(frames, lastTime);
-                let frameTime = frames[frame];
-                while (frame > 0) {
-                    if (frames[frame - 1] != frameTime)
+                i = Timeline.search1(frames, lastTime) + 1;
+                let frameTime = frames[i];
+                while (i > 0) {
+                    if (frames[i - 1] != frameTime)
                         break;
-                    frame--;
+                    i--;
                 }
             }
-            for (; frame < frameCount && time >= frames[frame]; frame++)
-                firedEvents.push(this.events[frame]);
+            for (; i < frameCount && time >= frames[i]; i++)
+                firedEvents.push(this.events[i]);
         }
     }
+    EventTimeline.propertyIds = ["" + Property.event];
     spine.EventTimeline = EventTimeline;
-    class DrawOrderTimeline {
+    class DrawOrderTimeline extends Timeline {
         constructor(frameCount) {
-            this.frames = spine.Utils.newFloatArray(frameCount);
+            super(frameCount, DrawOrderTimeline.propertyIds);
             this.drawOrders = new Array(frameCount);
-        }
-        getPropertyId() {
-            return TimelineType.drawOrder << 24;
         }
         getFrameCount() {
             return this.frames.length;
         }
-        setFrame(frameIndex, time, drawOrder) {
-            this.frames[frameIndex] = time;
-            this.drawOrders[frameIndex] = drawOrder;
+        setFrame(frame, time, drawOrder) {
+            this.frames[frame] = time;
+            this.drawOrders[frame] = drawOrder;
         }
         apply(skeleton, lastTime, time, firedEvents, alpha, blend, direction) {
-            let drawOrder = skeleton.drawOrder;
-            let slots = skeleton.slots;
             if (direction == MixDirection.mixOut) {
                 if (blend == MixBlend.setup)
                     spine.Utils.arrayCopy(skeleton.slots, 0, skeleton.drawOrder, 0, skeleton.slots.length);
                 return;
             }
-            let frames = this.frames;
-            if (time < frames[0]) {
+            if (time < this.frames[0]) {
                 if (blend == MixBlend.setup || blend == MixBlend.first)
                     spine.Utils.arrayCopy(skeleton.slots, 0, skeleton.drawOrder, 0, skeleton.slots.length);
                 return;
             }
-            let frame = 0;
-            if (time >= frames[frames.length - 1])
-                frame = frames.length - 1;
-            else
-                frame = Animation.binarySearch(frames, time) - 1;
-            let drawOrderToSetupIndex = this.drawOrders[frame];
-            if (drawOrderToSetupIndex == null)
-                spine.Utils.arrayCopy(slots, 0, drawOrder, 0, slots.length);
+            let drawOrderToSetupIndex = this.drawOrders[Timeline.search1(this.frames, time)];
+            if (!drawOrderToSetupIndex)
+                spine.Utils.arrayCopy(skeleton.slots, 0, skeleton.drawOrder, 0, skeleton.slots.length);
             else {
+                let drawOrder = skeleton.drawOrder;
+                let slots = skeleton.slots;
                 for (let i = 0, n = drawOrderToSetupIndex.length; i < n; i++)
                     drawOrder[i] = slots[drawOrderToSetupIndex[i]];
             }
         }
     }
+    DrawOrderTimeline.propertyIds = ["" + Property.drawOrder];
     spine.DrawOrderTimeline = DrawOrderTimeline;
     class IkConstraintTimeline extends CurveTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-            this.frames = spine.Utils.newFloatArray(frameCount * IkConstraintTimeline.ENTRIES);
+        constructor(frameCount, bezierCount, ikConstraintIndex) {
+            super(frameCount, bezierCount, [
+                Property.ikConstraint + "|" + ikConstraintIndex
+            ]);
+            this.ikConstraintIndex = ikConstraintIndex;
         }
-        getPropertyId() {
-            return (TimelineType.ikConstraint << 24) + this.ikConstraintIndex;
+        getFrameEntries() {
+            return 6;
         }
-        setFrame(frameIndex, time, mix, softness, bendDirection, compress, stretch) {
-            frameIndex *= IkConstraintTimeline.ENTRIES;
-            this.frames[frameIndex] = time;
-            this.frames[frameIndex + IkConstraintTimeline.MIX] = mix;
-            this.frames[frameIndex + IkConstraintTimeline.SOFTNESS] = softness;
-            this.frames[frameIndex + IkConstraintTimeline.BEND_DIRECTION] = bendDirection;
-            this.frames[frameIndex + IkConstraintTimeline.COMPRESS] = compress ? 1 : 0;
-            this.frames[frameIndex + IkConstraintTimeline.STRETCH] = stretch ? 1 : 0;
+        setFrame(frame, time, mix, softness, bendDirection, compress, stretch) {
+            frame *= 6;
+            this.frames[frame] = time;
+            this.frames[frame + 1] = mix;
+            this.frames[frame + 2] = softness;
+            this.frames[frame + 3] = bendDirection;
+            this.frames[frame + 4] = compress ? 1 : 0;
+            this.frames[frame + 5] = stretch ? 1 : 0;
         }
         apply(skeleton, lastTime, time, firedEvents, alpha, blend, direction) {
-            let frames = this.frames;
             let constraint = skeleton.ikConstraints[this.ikConstraintIndex];
             if (!constraint.active)
                 return;
+            let frames = this.frames;
             if (time < frames[0]) {
                 switch (blend) {
                     case MixBlend.setup:
@@ -1013,180 +1575,165 @@ var spine;
                 }
                 return;
             }
-            if (time >= frames[frames.length - IkConstraintTimeline.ENTRIES]) {
-                if (blend == MixBlend.setup) {
-                    constraint.mix = constraint.data.mix + (frames[frames.length + IkConstraintTimeline.PREV_MIX] - constraint.data.mix) * alpha;
-                    constraint.softness = constraint.data.softness
-                        + (frames[frames.length + IkConstraintTimeline.PREV_SOFTNESS] - constraint.data.softness) * alpha;
-                    if (direction == MixDirection.mixOut) {
-                        constraint.bendDirection = constraint.data.bendDirection;
-                        constraint.compress = constraint.data.compress;
-                        constraint.stretch = constraint.data.stretch;
-                    }
-                    else {
-                        constraint.bendDirection = frames[frames.length + IkConstraintTimeline.PREV_BEND_DIRECTION];
-                        constraint.compress = frames[frames.length + IkConstraintTimeline.PREV_COMPRESS] != 0;
-                        constraint.stretch = frames[frames.length + IkConstraintTimeline.PREV_STRETCH] != 0;
-                    }
-                }
-                else {
-                    constraint.mix += (frames[frames.length + IkConstraintTimeline.PREV_MIX] - constraint.mix) * alpha;
-                    constraint.softness += (frames[frames.length + IkConstraintTimeline.PREV_SOFTNESS] - constraint.softness) * alpha;
-                    if (direction == MixDirection.mixIn) {
-                        constraint.bendDirection = frames[frames.length + IkConstraintTimeline.PREV_BEND_DIRECTION];
-                        constraint.compress = frames[frames.length + IkConstraintTimeline.PREV_COMPRESS] != 0;
-                        constraint.stretch = frames[frames.length + IkConstraintTimeline.PREV_STRETCH] != 0;
-                    }
-                }
-                return;
+            let mix = 0, softness = 0;
+            let i = Timeline.search(frames, time, 6);
+            let curveType = this.curves[i / 6];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    mix = frames[i + 1];
+                    softness = frames[i + 2];
+                    let t = (time - before) / (frames[i + 6] - before);
+                    mix += (frames[i + 6 + 1] - mix) * t;
+                    softness += (frames[i + 6 + 2] - softness) * t;
+                    break;
+                case 1:
+                    mix = frames[i + 1];
+                    softness = frames[i + 2];
+                    break;
+                default:
+                    mix = this.getBezierValue(time, i, 1, curveType - 2);
+                    softness = this.getBezierValue(time, i, 2, curveType + 18 - 2);
             }
-            let frame = Animation.binarySearch(frames, time, IkConstraintTimeline.ENTRIES);
-            let mix = frames[frame + IkConstraintTimeline.PREV_MIX];
-            let softness = frames[frame + IkConstraintTimeline.PREV_SOFTNESS];
-            let frameTime = frames[frame];
-            let percent = this.getCurvePercent(frame / IkConstraintTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + IkConstraintTimeline.PREV_TIME] - frameTime));
             if (blend == MixBlend.setup) {
-                constraint.mix = constraint.data.mix + (mix + (frames[frame + IkConstraintTimeline.MIX] - mix) * percent - constraint.data.mix) * alpha;
-                constraint.softness = constraint.data.softness
-                    + (softness + (frames[frame + IkConstraintTimeline.SOFTNESS] - softness) * percent - constraint.data.softness) * alpha;
+                constraint.mix = constraint.data.mix + (mix - constraint.data.mix) * alpha;
+                constraint.softness = constraint.data.softness + (softness - constraint.data.softness) * alpha;
                 if (direction == MixDirection.mixOut) {
                     constraint.bendDirection = constraint.data.bendDirection;
                     constraint.compress = constraint.data.compress;
                     constraint.stretch = constraint.data.stretch;
                 }
                 else {
-                    constraint.bendDirection = frames[frame + IkConstraintTimeline.PREV_BEND_DIRECTION];
-                    constraint.compress = frames[frame + IkConstraintTimeline.PREV_COMPRESS] != 0;
-                    constraint.stretch = frames[frame + IkConstraintTimeline.PREV_STRETCH] != 0;
+                    constraint.bendDirection = frames[i + 3];
+                    constraint.compress = frames[i + 4] != 0;
+                    constraint.stretch = frames[i + 5] != 0;
                 }
             }
             else {
-                constraint.mix += (mix + (frames[frame + IkConstraintTimeline.MIX] - mix) * percent - constraint.mix) * alpha;
-                constraint.softness += (softness + (frames[frame + IkConstraintTimeline.SOFTNESS] - softness) * percent - constraint.softness) * alpha;
+                constraint.mix += (mix - constraint.mix) * alpha;
+                constraint.softness += (softness - constraint.softness) * alpha;
                 if (direction == MixDirection.mixIn) {
-                    constraint.bendDirection = frames[frame + IkConstraintTimeline.PREV_BEND_DIRECTION];
-                    constraint.compress = frames[frame + IkConstraintTimeline.PREV_COMPRESS] != 0;
-                    constraint.stretch = frames[frame + IkConstraintTimeline.PREV_STRETCH] != 0;
+                    constraint.bendDirection = frames[i + 3];
+                    constraint.compress = frames[i + 4] != 0;
+                    constraint.stretch = frames[i + 5] != 0;
                 }
             }
         }
     }
-    IkConstraintTimeline.ENTRIES = 6;
-    IkConstraintTimeline.PREV_TIME = -6;
-    IkConstraintTimeline.PREV_MIX = -5;
-    IkConstraintTimeline.PREV_SOFTNESS = -4;
-    IkConstraintTimeline.PREV_BEND_DIRECTION = -3;
-    IkConstraintTimeline.PREV_COMPRESS = -2;
-    IkConstraintTimeline.PREV_STRETCH = -1;
-    IkConstraintTimeline.MIX = 1;
-    IkConstraintTimeline.SOFTNESS = 2;
-    IkConstraintTimeline.BEND_DIRECTION = 3;
-    IkConstraintTimeline.COMPRESS = 4;
-    IkConstraintTimeline.STRETCH = 5;
     spine.IkConstraintTimeline = IkConstraintTimeline;
     class TransformConstraintTimeline extends CurveTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-            this.frames = spine.Utils.newFloatArray(frameCount * TransformConstraintTimeline.ENTRIES);
+        constructor(frameCount, bezierCount, transformConstraintIndex) {
+            super(frameCount, bezierCount, [
+                Property.transformConstraint + "|" + transformConstraintIndex
+            ]);
+            this.transformConstraintIndex = transformConstraintIndex;
         }
-        getPropertyId() {
-            return (TimelineType.transformConstraint << 24) + this.transformConstraintIndex;
+        getFrameEntries() {
+            return 7;
         }
-        setFrame(frameIndex, time, rotateMix, translateMix, scaleMix, shearMix) {
-            frameIndex *= TransformConstraintTimeline.ENTRIES;
-            this.frames[frameIndex] = time;
-            this.frames[frameIndex + TransformConstraintTimeline.ROTATE] = rotateMix;
-            this.frames[frameIndex + TransformConstraintTimeline.TRANSLATE] = translateMix;
-            this.frames[frameIndex + TransformConstraintTimeline.SCALE] = scaleMix;
-            this.frames[frameIndex + TransformConstraintTimeline.SHEAR] = shearMix;
+        setFrame(frame, time, mixRotate, mixX, mixY, mixScaleX, mixScaleY, mixShearY) {
+            let frames = this.frames;
+            frame *= 7;
+            frames[frame] = time;
+            frames[frame + 1] = mixRotate;
+            frames[frame + 2] = mixX;
+            frames[frame + 3] = mixY;
+            frames[frame + 4] = mixScaleX;
+            frames[frame + 5] = mixScaleY;
+            frames[frame + 6] = mixShearY;
         }
         apply(skeleton, lastTime, time, firedEvents, alpha, blend, direction) {
-            let frames = this.frames;
             let constraint = skeleton.transformConstraints[this.transformConstraintIndex];
             if (!constraint.active)
                 return;
+            let frames = this.frames;
             if (time < frames[0]) {
                 let data = constraint.data;
                 switch (blend) {
                     case MixBlend.setup:
-                        constraint.rotateMix = data.rotateMix;
-                        constraint.translateMix = data.translateMix;
-                        constraint.scaleMix = data.scaleMix;
-                        constraint.shearMix = data.shearMix;
+                        constraint.mixRotate = data.mixRotate;
+                        constraint.mixX = data.mixX;
+                        constraint.mixY = data.mixY;
+                        constraint.mixScaleX = data.mixScaleX;
+                        constraint.mixScaleY = data.mixScaleY;
+                        constraint.mixShearY = data.mixShearY;
                         return;
                     case MixBlend.first:
-                        constraint.rotateMix += (data.rotateMix - constraint.rotateMix) * alpha;
-                        constraint.translateMix += (data.translateMix - constraint.translateMix) * alpha;
-                        constraint.scaleMix += (data.scaleMix - constraint.scaleMix) * alpha;
-                        constraint.shearMix += (data.shearMix - constraint.shearMix) * alpha;
+                        constraint.mixRotate += (data.mixRotate - constraint.mixRotate) * alpha;
+                        constraint.mixX += (data.mixX - constraint.mixX) * alpha;
+                        constraint.mixY += (data.mixY - constraint.mixY) * alpha;
+                        constraint.mixScaleX += (data.mixScaleX - constraint.mixScaleX) * alpha;
+                        constraint.mixScaleY += (data.mixScaleY - constraint.mixScaleY) * alpha;
+                        constraint.mixShearY += (data.mixShearY - constraint.mixShearY) * alpha;
                 }
                 return;
             }
-            let rotate = 0, translate = 0, scale = 0, shear = 0;
-            if (time >= frames[frames.length - TransformConstraintTimeline.ENTRIES]) {
-                let i = frames.length;
-                rotate = frames[i + TransformConstraintTimeline.PREV_ROTATE];
-                translate = frames[i + TransformConstraintTimeline.PREV_TRANSLATE];
-                scale = frames[i + TransformConstraintTimeline.PREV_SCALE];
-                shear = frames[i + TransformConstraintTimeline.PREV_SHEAR];
-            }
-            else {
-                let frame = Animation.binarySearch(frames, time, TransformConstraintTimeline.ENTRIES);
-                rotate = frames[frame + TransformConstraintTimeline.PREV_ROTATE];
-                translate = frames[frame + TransformConstraintTimeline.PREV_TRANSLATE];
-                scale = frames[frame + TransformConstraintTimeline.PREV_SCALE];
-                shear = frames[frame + TransformConstraintTimeline.PREV_SHEAR];
-                let frameTime = frames[frame];
-                let percent = this.getCurvePercent(frame / TransformConstraintTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + TransformConstraintTimeline.PREV_TIME] - frameTime));
-                rotate += (frames[frame + TransformConstraintTimeline.ROTATE] - rotate) * percent;
-                translate += (frames[frame + TransformConstraintTimeline.TRANSLATE] - translate) * percent;
-                scale += (frames[frame + TransformConstraintTimeline.SCALE] - scale) * percent;
-                shear += (frames[frame + TransformConstraintTimeline.SHEAR] - shear) * percent;
+            let rotate, x, y, scaleX, scaleY, shearY;
+            let i = Timeline.search(frames, time, 7);
+            let curveType = this.curves[i / 7];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    rotate = frames[i + 1];
+                    x = frames[i + 2];
+                    y = frames[i + 3];
+                    scaleX = frames[i + 4];
+                    scaleY = frames[i + 5];
+                    shearY = frames[i + 6];
+                    let t = (time - before) / (frames[i + 7] - before);
+                    rotate += (frames[i + 7 + 1] - rotate) * t;
+                    x += (frames[i + 7 + 2] - x) * t;
+                    y += (frames[i + 7 + 3] - y) * t;
+                    scaleX += (frames[i + 7 + 4] - scaleX) * t;
+                    scaleY += (frames[i + 7 + 5] - scaleY) * t;
+                    shearY += (frames[i + 7 + 6] - shearY) * t;
+                    break;
+                case 1:
+                    rotate = frames[i + 1];
+                    x = frames[i + 2];
+                    y = frames[i + 3];
+                    scaleX = frames[i + 4];
+                    scaleY = frames[i + 5];
+                    shearY = frames[i + 6];
+                    break;
+                default:
+                    rotate = this.getBezierValue(time, i, 1, curveType - 2);
+                    x = this.getBezierValue(time, i, 2, curveType + 18 - 2);
+                    y = this.getBezierValue(time, i, 3, curveType + 18 * 2 - 2);
+                    scaleX = this.getBezierValue(time, i, 4, curveType + 18 * 3 - 2);
+                    scaleY = this.getBezierValue(time, i, 5, curveType + 18 * 4 - 2);
+                    shearY = this.getBezierValue(time, i, 6, curveType + 18 * 5 - 2);
             }
             if (blend == MixBlend.setup) {
                 let data = constraint.data;
-                constraint.rotateMix = data.rotateMix + (rotate - data.rotateMix) * alpha;
-                constraint.translateMix = data.translateMix + (translate - data.translateMix) * alpha;
-                constraint.scaleMix = data.scaleMix + (scale - data.scaleMix) * alpha;
-                constraint.shearMix = data.shearMix + (shear - data.shearMix) * alpha;
+                constraint.mixRotate = data.mixRotate + (rotate - data.mixRotate) * alpha;
+                constraint.mixX = data.mixX + (x - data.mixX) * alpha;
+                constraint.mixY = data.mixY + (y - data.mixY) * alpha;
+                constraint.mixScaleX = data.mixScaleX + (scaleX - data.mixScaleX) * alpha;
+                constraint.mixScaleY = data.mixScaleY + (scaleY - data.mixScaleY) * alpha;
+                constraint.mixShearY = data.mixShearY + (shearY - data.mixShearY) * alpha;
             }
             else {
-                constraint.rotateMix += (rotate - constraint.rotateMix) * alpha;
-                constraint.translateMix += (translate - constraint.translateMix) * alpha;
-                constraint.scaleMix += (scale - constraint.scaleMix) * alpha;
-                constraint.shearMix += (shear - constraint.shearMix) * alpha;
+                constraint.mixRotate += (rotate - constraint.mixRotate) * alpha;
+                constraint.mixX += (x - constraint.mixX) * alpha;
+                constraint.mixY += (y - constraint.mixY) * alpha;
+                constraint.mixScaleX += (scaleX - constraint.mixScaleX) * alpha;
+                constraint.mixScaleY += (scaleY - constraint.mixScaleY) * alpha;
+                constraint.mixShearY += (shearY - constraint.mixShearY) * alpha;
             }
         }
     }
-    TransformConstraintTimeline.ENTRIES = 5;
-    TransformConstraintTimeline.PREV_TIME = -5;
-    TransformConstraintTimeline.PREV_ROTATE = -4;
-    TransformConstraintTimeline.PREV_TRANSLATE = -3;
-    TransformConstraintTimeline.PREV_SCALE = -2;
-    TransformConstraintTimeline.PREV_SHEAR = -1;
-    TransformConstraintTimeline.ROTATE = 1;
-    TransformConstraintTimeline.TRANSLATE = 2;
-    TransformConstraintTimeline.SCALE = 3;
-    TransformConstraintTimeline.SHEAR = 4;
     spine.TransformConstraintTimeline = TransformConstraintTimeline;
-    class PathConstraintPositionTimeline extends CurveTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-            this.frames = spine.Utils.newFloatArray(frameCount * PathConstraintPositionTimeline.ENTRIES);
-        }
-        getPropertyId() {
-            return (TimelineType.pathConstraintPosition << 24) + this.pathConstraintIndex;
-        }
-        setFrame(frameIndex, time, value) {
-            frameIndex *= PathConstraintPositionTimeline.ENTRIES;
-            this.frames[frameIndex] = time;
-            this.frames[frameIndex + PathConstraintPositionTimeline.VALUE] = value;
+    class PathConstraintPositionTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, pathConstraintIndex) {
+            super(frameCount, bezierCount, Property.pathConstraintPosition + "|" + pathConstraintIndex);
+            this.pathConstraintIndex = pathConstraintIndex;
         }
         apply(skeleton, lastTime, time, firedEvents, alpha, blend, direction) {
-            let frames = this.frames;
             let constraint = skeleton.pathConstraints[this.pathConstraintIndex];
             if (!constraint.active)
                 return;
+            let frames = this.frames;
             if (time < frames[0]) {
                 switch (blend) {
                     case MixBlend.setup:
@@ -1197,39 +1744,25 @@ var spine;
                 }
                 return;
             }
-            let position = 0;
-            if (time >= frames[frames.length - PathConstraintPositionTimeline.ENTRIES])
-                position = frames[frames.length + PathConstraintPositionTimeline.PREV_VALUE];
-            else {
-                let frame = Animation.binarySearch(frames, time, PathConstraintPositionTimeline.ENTRIES);
-                position = frames[frame + PathConstraintPositionTimeline.PREV_VALUE];
-                let frameTime = frames[frame];
-                let percent = this.getCurvePercent(frame / PathConstraintPositionTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + PathConstraintPositionTimeline.PREV_TIME] - frameTime));
-                position += (frames[frame + PathConstraintPositionTimeline.VALUE] - position) * percent;
-            }
+            let position = this.getCurveValue(time);
             if (blend == MixBlend.setup)
                 constraint.position = constraint.data.position + (position - constraint.data.position) * alpha;
             else
                 constraint.position += (position - constraint.position) * alpha;
         }
     }
-    PathConstraintPositionTimeline.ENTRIES = 2;
-    PathConstraintPositionTimeline.PREV_TIME = -2;
-    PathConstraintPositionTimeline.PREV_VALUE = -1;
-    PathConstraintPositionTimeline.VALUE = 1;
     spine.PathConstraintPositionTimeline = PathConstraintPositionTimeline;
-    class PathConstraintSpacingTimeline extends PathConstraintPositionTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-        }
-        getPropertyId() {
-            return (TimelineType.pathConstraintSpacing << 24) + this.pathConstraintIndex;
+    class PathConstraintSpacingTimeline extends CurveTimeline1 {
+        constructor(frameCount, bezierCount, pathConstraintIndex) {
+            super(frameCount, bezierCount, Property.pathConstraintSpacing + "|" + pathConstraintIndex);
+            this.pathConstraintIndex = 0;
+            this.pathConstraintIndex = pathConstraintIndex;
         }
         apply(skeleton, lastTime, time, firedEvents, alpha, blend, direction) {
-            let frames = this.frames;
             let constraint = skeleton.pathConstraints[this.pathConstraintIndex];
             if (!constraint.active)
                 return;
+            let frames = this.frames;
             if (time < frames[0]) {
                 switch (blend) {
                     case MixBlend.setup:
@@ -1240,16 +1773,7 @@ var spine;
                 }
                 return;
             }
-            let spacing = 0;
-            if (time >= frames[frames.length - PathConstraintSpacingTimeline.ENTRIES])
-                spacing = frames[frames.length + PathConstraintSpacingTimeline.PREV_VALUE];
-            else {
-                let frame = Animation.binarySearch(frames, time, PathConstraintSpacingTimeline.ENTRIES);
-                spacing = frames[frame + PathConstraintSpacingTimeline.PREV_VALUE];
-                let frameTime = frames[frame];
-                let percent = this.getCurvePercent(frame / PathConstraintSpacingTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + PathConstraintSpacingTimeline.PREV_TIME] - frameTime));
-                spacing += (frames[frame + PathConstraintSpacingTimeline.VALUE] - spacing) * percent;
-            }
+            let spacing = this.getCurveValue(time);
             if (blend == MixBlend.setup)
                 constraint.spacing = constraint.data.spacing + (spacing - constraint.data.spacing) * alpha;
             else
@@ -1258,66 +1782,80 @@ var spine;
     }
     spine.PathConstraintSpacingTimeline = PathConstraintSpacingTimeline;
     class PathConstraintMixTimeline extends CurveTimeline {
-        constructor(frameCount) {
-            super(frameCount);
-            this.frames = spine.Utils.newFloatArray(frameCount * PathConstraintMixTimeline.ENTRIES);
+        constructor(frameCount, bezierCount, pathConstraintIndex) {
+            super(frameCount, bezierCount, [
+                Property.pathConstraintMix + "|" + pathConstraintIndex
+            ]);
+            this.pathConstraintIndex = 0;
+            this.pathConstraintIndex = pathConstraintIndex;
         }
-        getPropertyId() {
-            return (TimelineType.pathConstraintMix << 24) + this.pathConstraintIndex;
+        getFrameEntries() {
+            return 4;
         }
-        setFrame(frameIndex, time, rotateMix, translateMix) {
-            frameIndex *= PathConstraintMixTimeline.ENTRIES;
-            this.frames[frameIndex] = time;
-            this.frames[frameIndex + PathConstraintMixTimeline.ROTATE] = rotateMix;
-            this.frames[frameIndex + PathConstraintMixTimeline.TRANSLATE] = translateMix;
+        setFrame(frame, time, mixRotate, mixX, mixY) {
+            let frames = this.frames;
+            frame <<= 2;
+            frames[frame] = time;
+            frames[frame + 1] = mixRotate;
+            frames[frame + 2] = mixX;
+            frames[frame + 3] = mixY;
         }
         apply(skeleton, lastTime, time, firedEvents, alpha, blend, direction) {
-            let frames = this.frames;
             let constraint = skeleton.pathConstraints[this.pathConstraintIndex];
             if (!constraint.active)
                 return;
+            let frames = this.frames;
             if (time < frames[0]) {
                 switch (blend) {
                     case MixBlend.setup:
-                        constraint.rotateMix = constraint.data.rotateMix;
-                        constraint.translateMix = constraint.data.translateMix;
+                        constraint.mixRotate = constraint.data.mixRotate;
+                        constraint.mixX = constraint.data.mixX;
+                        constraint.mixY = constraint.data.mixY;
                         return;
                     case MixBlend.first:
-                        constraint.rotateMix += (constraint.data.rotateMix - constraint.rotateMix) * alpha;
-                        constraint.translateMix += (constraint.data.translateMix - constraint.translateMix) * alpha;
+                        constraint.mixRotate += (constraint.data.mixRotate - constraint.mixRotate) * alpha;
+                        constraint.mixX += (constraint.data.mixX - constraint.mixX) * alpha;
+                        constraint.mixY += (constraint.data.mixY - constraint.mixY) * alpha;
                 }
                 return;
             }
-            let rotate = 0, translate = 0;
-            if (time >= frames[frames.length - PathConstraintMixTimeline.ENTRIES]) {
-                rotate = frames[frames.length + PathConstraintMixTimeline.PREV_ROTATE];
-                translate = frames[frames.length + PathConstraintMixTimeline.PREV_TRANSLATE];
-            }
-            else {
-                let frame = Animation.binarySearch(frames, time, PathConstraintMixTimeline.ENTRIES);
-                rotate = frames[frame + PathConstraintMixTimeline.PREV_ROTATE];
-                translate = frames[frame + PathConstraintMixTimeline.PREV_TRANSLATE];
-                let frameTime = frames[frame];
-                let percent = this.getCurvePercent(frame / PathConstraintMixTimeline.ENTRIES - 1, 1 - (time - frameTime) / (frames[frame + PathConstraintMixTimeline.PREV_TIME] - frameTime));
-                rotate += (frames[frame + PathConstraintMixTimeline.ROTATE] - rotate) * percent;
-                translate += (frames[frame + PathConstraintMixTimeline.TRANSLATE] - translate) * percent;
+            let rotate, x, y;
+            let i = Timeline.search(frames, time, 4);
+            let curveType = this.curves[i >> 2];
+            switch (curveType) {
+                case 0:
+                    let before = frames[i];
+                    rotate = frames[i + 1];
+                    x = frames[i + 2];
+                    y = frames[i + 3];
+                    let t = (time - before) / (frames[i + 4] - before);
+                    rotate += (frames[i + 4 + 1] - rotate) * t;
+                    x += (frames[i + 4 + 2] - x) * t;
+                    y += (frames[i + 4 + 3] - y) * t;
+                    break;
+                case 1:
+                    rotate = frames[i + 1];
+                    x = frames[i + 2];
+                    y = frames[i + 3];
+                    break;
+                default:
+                    rotate = this.getBezierValue(time, i, 1, curveType - 2);
+                    x = this.getBezierValue(time, i, 2, curveType + 18 - 2);
+                    y = this.getBezierValue(time, i, 3, curveType + 18 * 2 - 2);
             }
             if (blend == MixBlend.setup) {
-                constraint.rotateMix = constraint.data.rotateMix + (rotate - constraint.data.rotateMix) * alpha;
-                constraint.translateMix = constraint.data.translateMix + (translate - constraint.data.translateMix) * alpha;
+                let data = constraint.data;
+                constraint.mixRotate = data.mixRotate + (rotate - data.mixRotate) * alpha;
+                constraint.mixX = data.mixX + (x - data.mixX) * alpha;
+                constraint.mixY = data.mixY + (y - data.mixY) * alpha;
             }
             else {
-                constraint.rotateMix += (rotate - constraint.rotateMix) * alpha;
-                constraint.translateMix += (translate - constraint.translateMix) * alpha;
+                constraint.mixRotate += (rotate - constraint.mixRotate) * alpha;
+                constraint.mixX += (x - constraint.mixX) * alpha;
+                constraint.mixY += (y - constraint.mixY) * alpha;
             }
         }
     }
-    PathConstraintMixTimeline.ENTRIES = 3;
-    PathConstraintMixTimeline.PREV_TIME = -3;
-    PathConstraintMixTimeline.PREV_ROTATE = -2;
-    PathConstraintMixTimeline.PREV_TRANSLATE = -1;
-    PathConstraintMixTimeline.ROTATE = 1;
-    PathConstraintMixTimeline.TRANSLATE = 2;
     spine.PathConstraintMixTimeline = PathConstraintMixTimeline;
 })(spine || (spine = {}));
 var spine;
@@ -1330,17 +1868,22 @@ var spine;
             this.events = new Array();
             this.listeners = new Array();
             this.queue = new EventQueue(this);
-            this.propertyIDs = new spine.IntSet();
+            this.propertyIDs = new spine.StringSet();
             this.animationsChanged = false;
             this.trackEntryPool = new spine.Pool(() => new TrackEntry());
             this.data = data;
+        }
+        static emptyAnimation() {
+            if (!_emptyAnimation)
+                _emptyAnimation = new spine.Animation("<empty>", [], 0);
+            return _emptyAnimation;
         }
         update(delta) {
             delta *= this.timeScale;
             let tracks = this.tracks;
             for (let i = 0, n = tracks.length; i < n; i++) {
                 let current = tracks[i];
-                if (current == null)
+                if (!current)
                     continue;
                 current.animationLast = current.nextAnimationLast;
                 current.trackLast = current.nextTrackLast;
@@ -1353,32 +1896,32 @@ var spine;
                     current.delay = 0;
                 }
                 let next = current.next;
-                if (next != null) {
+                if (next) {
                     let nextTime = current.trackLast - next.delay;
                     if (nextTime >= 0) {
                         next.delay = 0;
                         next.trackTime += current.timeScale == 0 ? 0 : (nextTime / current.timeScale + delta) * next.timeScale;
                         current.trackTime += currentDelta;
                         this.setCurrent(i, next, true);
-                        while (next.mixingFrom != null) {
+                        while (next.mixingFrom) {
                             next.mixTime += delta;
                             next = next.mixingFrom;
                         }
                         continue;
                     }
                 }
-                else if (current.trackLast >= current.trackEnd && current.mixingFrom == null) {
+                else if (current.trackLast >= current.trackEnd && !current.mixingFrom) {
                     tracks[i] = null;
                     this.queue.end(current);
-                    this.disposeNext(current);
+                    this.clearNext(current);
                     continue;
                 }
-                if (current.mixingFrom != null && this.updateMixingFrom(current, delta)) {
+                if (current.mixingFrom && this.updateMixingFrom(current, delta)) {
                     let from = current.mixingFrom;
                     current.mixingFrom = null;
-                    if (from != null)
+                    if (from)
                         from.mixingTo = null;
-                    while (from != null) {
+                    while (from) {
                         this.queue.end(from);
                         from = from.mixingFrom;
                     }
@@ -1389,7 +1932,7 @@ var spine;
         }
         updateMixingFrom(to, delta) {
             let from = to.mixingFrom;
-            if (from == null)
+            if (!from)
                 return true;
             let finished = this.updateMixingFrom(from, delta);
             from.animationLast = from.nextAnimationLast;
@@ -1397,7 +1940,7 @@ var spine;
             if (to.mixTime > 0 && to.mixTime >= to.mixDuration) {
                 if (from.totalAlpha == 0 || to.mixDuration == 0) {
                     to.mixingFrom = from.mixingFrom;
-                    if (from.mixingFrom != null)
+                    if (from.mixingFrom)
                         from.mixingFrom.mixingTo = to;
                     to.interruptAlpha = from.interruptAlpha;
                     this.queue.end(from);
@@ -1409,7 +1952,7 @@ var spine;
             return false;
         }
         apply(skeleton) {
-            if (skeleton == null)
+            if (!skeleton)
                 throw new Error("skeleton cannot be null.");
             if (this.animationsChanged)
                 this._animationsChanged();
@@ -1418,46 +1961,50 @@ var spine;
             let applied = false;
             for (let i = 0, n = tracks.length; i < n; i++) {
                 let current = tracks[i];
-                if (current == null || current.delay > 0)
+                if (!current || current.delay > 0)
                     continue;
                 applied = true;
                 let blend = i == 0 ? spine.MixBlend.first : current.mixBlend;
                 let mix = current.alpha;
-                if (current.mixingFrom != null)
+                if (current.mixingFrom)
                     mix *= this.applyMixingFrom(current, skeleton, blend);
-                else if (current.trackTime >= current.trackEnd && current.next == null)
+                else if (current.trackTime >= current.trackEnd && !current.next)
                     mix = 0;
-                let animationLast = current.animationLast, animationTime = current.getAnimationTime();
-                let timelineCount = current.animation.timelines.length;
+                let animationLast = current.animationLast, animationTime = current.getAnimationTime(), applyTime = animationTime;
+                let applyEvents = events;
+                if (current.reverse) {
+                    applyTime = current.animation.duration - applyTime;
+                    applyEvents = null;
+                }
                 let timelines = current.animation.timelines;
+                let timelineCount = timelines.length;
                 if ((i == 0 && mix == 1) || blend == spine.MixBlend.add) {
                     for (let ii = 0; ii < timelineCount; ii++) {
                         spine.Utils.webkit602BugfixHelper(mix, blend);
                         var timeline = timelines[ii];
                         if (timeline instanceof spine.AttachmentTimeline)
-                            this.applyAttachmentTimeline(timeline, skeleton, animationTime, blend, true);
+                            this.applyAttachmentTimeline(timeline, skeleton, applyTime, blend, true);
                         else
-                            timeline.apply(skeleton, animationLast, animationTime, events, mix, blend, spine.MixDirection.mixIn);
+                            timeline.apply(skeleton, animationLast, applyTime, applyEvents, mix, blend, spine.MixDirection.mixIn);
                     }
                 }
                 else {
                     let timelineMode = current.timelineMode;
-                    let firstFrame = current.timelinesRotation.length == 0;
+                    let firstFrame = current.timelinesRotation.length != timelineCount << 1;
                     if (firstFrame)
-                        spine.Utils.setArraySize(current.timelinesRotation, timelineCount << 1, null);
-                    let timelinesRotation = current.timelinesRotation;
+                        current.timelinesRotation.length = timelineCount << 1;
                     for (let ii = 0; ii < timelineCount; ii++) {
                         let timeline = timelines[ii];
-                        let timelineBlend = timelineMode[ii] == AnimationState.SUBSEQUENT ? blend : spine.MixBlend.setup;
+                        let timelineBlend = timelineMode[ii] == SUBSEQUENT ? blend : spine.MixBlend.setup;
                         if (timeline instanceof spine.RotateTimeline) {
-                            this.applyRotateTimeline(timeline, skeleton, animationTime, mix, timelineBlend, timelinesRotation, ii << 1, firstFrame);
+                            this.applyRotateTimeline(timeline, skeleton, applyTime, mix, timelineBlend, current.timelinesRotation, ii << 1, firstFrame);
                         }
                         else if (timeline instanceof spine.AttachmentTimeline) {
-                            this.applyAttachmentTimeline(timeline, skeleton, animationTime, blend, true);
+                            this.applyAttachmentTimeline(timeline, skeleton, applyTime, blend, true);
                         }
                         else {
                             spine.Utils.webkit602BugfixHelper(mix, blend);
-                            timeline.apply(skeleton, animationLast, animationTime, events, mix, timelineBlend, spine.MixDirection.mixIn);
+                            timeline.apply(skeleton, animationLast, applyTime, applyEvents, mix, timelineBlend, spine.MixDirection.mixIn);
                         }
                     }
                 }
@@ -1466,13 +2013,13 @@ var spine;
                 current.nextAnimationLast = animationTime;
                 current.nextTrackLast = current.trackTime;
             }
-            var setupState = this.unkeyedState + AnimationState.SETUP;
+            var setupState = this.unkeyedState + SETUP;
             var slots = skeleton.slots;
             for (var i = 0, n = skeleton.slots.length; i < n; i++) {
                 var slot = slots[i];
                 if (slot.attachmentState == setupState) {
                     var attachmentName = slot.data.attachmentName;
-                    slot.attachment = (attachmentName == null ? null : skeleton.getAttachment(slot.data.index, attachmentName));
+                    slot.setAttachment(!attachmentName ? null : skeleton.getAttachment(slot.data.index, attachmentName));
                 }
             }
             this.unkeyedState += 2;
@@ -1481,7 +2028,7 @@ var spine;
         }
         applyMixingFrom(to, skeleton, blend) {
             let from = to.mixingFrom;
-            if (from.mixingFrom != null)
+            if (from.mixingFrom)
                 this.applyMixingFrom(from, skeleton, blend);
             let mix = 0;
             if (to.mixDuration == 0) {
@@ -1496,23 +2043,26 @@ var spine;
                 if (blend != spine.MixBlend.first)
                     blend = from.mixBlend;
             }
-            let events = mix < from.eventThreshold ? this.events : null;
             let attachments = mix < from.attachmentThreshold, drawOrder = mix < from.drawOrderThreshold;
-            let animationLast = from.animationLast, animationTime = from.getAnimationTime();
-            let timelineCount = from.animation.timelines.length;
             let timelines = from.animation.timelines;
+            let timelineCount = timelines.length;
             let alphaHold = from.alpha * to.interruptAlpha, alphaMix = alphaHold * (1 - mix);
+            let animationLast = from.animationLast, animationTime = from.getAnimationTime(), applyTime = animationTime;
+            let events = null;
+            if (from.reverse)
+                applyTime = from.animation.duration - applyTime;
+            else if (mix < from.eventThreshold)
+                events = this.events;
             if (blend == spine.MixBlend.add) {
                 for (let i = 0; i < timelineCount; i++)
-                    timelines[i].apply(skeleton, animationLast, animationTime, events, alphaMix, blend, spine.MixDirection.mixOut);
+                    timelines[i].apply(skeleton, animationLast, applyTime, events, alphaMix, blend, spine.MixDirection.mixOut);
             }
             else {
                 let timelineMode = from.timelineMode;
                 let timelineHoldMix = from.timelineHoldMix;
-                let firstFrame = from.timelinesRotation.length == 0;
+                let firstFrame = from.timelinesRotation.length != timelineCount << 1;
                 if (firstFrame)
-                    spine.Utils.setArraySize(from.timelinesRotation, timelineCount << 1, null);
-                let timelinesRotation = from.timelinesRotation;
+                    from.timelinesRotation.length = timelineCount << 1;
                 from.totalAlpha = 0;
                 for (let i = 0; i < timelineCount; i++) {
                     let timeline = timelines[i];
@@ -1520,21 +2070,21 @@ var spine;
                     let timelineBlend;
                     let alpha = 0;
                     switch (timelineMode[i]) {
-                        case AnimationState.SUBSEQUENT:
+                        case SUBSEQUENT:
                             if (!drawOrder && timeline instanceof spine.DrawOrderTimeline)
                                 continue;
                             timelineBlend = blend;
                             alpha = alphaMix;
                             break;
-                        case AnimationState.FIRST:
+                        case FIRST:
                             timelineBlend = spine.MixBlend.setup;
                             alpha = alphaMix;
                             break;
-                        case AnimationState.HOLD_SUBSEQUENT:
+                        case HOLD_SUBSEQUENT:
                             timelineBlend = blend;
                             alpha = alphaHold;
                             break;
-                        case AnimationState.HOLD_FIRST:
+                        case HOLD_FIRST:
                             timelineBlend = spine.MixBlend.setup;
                             alpha = alphaHold;
                             break;
@@ -1546,14 +2096,14 @@ var spine;
                     }
                     from.totalAlpha += alpha;
                     if (timeline instanceof spine.RotateTimeline)
-                        this.applyRotateTimeline(timeline, skeleton, animationTime, alpha, timelineBlend, timelinesRotation, i << 1, firstFrame);
+                        this.applyRotateTimeline(timeline, skeleton, applyTime, alpha, timelineBlend, from.timelinesRotation, i << 1, firstFrame);
                     else if (timeline instanceof spine.AttachmentTimeline)
-                        this.applyAttachmentTimeline(timeline, skeleton, animationTime, timelineBlend, attachments);
+                        this.applyAttachmentTimeline(timeline, skeleton, applyTime, timelineBlend, attachments);
                     else {
                         spine.Utils.webkit602BugfixHelper(alpha, blend);
                         if (drawOrder && timeline instanceof spine.DrawOrderTimeline && timelineBlend == spine.MixBlend.setup)
                             direction = spine.MixDirection.mixIn;
-                        timeline.apply(skeleton, animationLast, animationTime, events, alpha, timelineBlend, direction);
+                        timeline.apply(skeleton, animationLast, applyTime, events, alpha, timelineBlend, direction);
                     }
                 }
             }
@@ -1568,26 +2118,19 @@ var spine;
             var slot = skeleton.slots[timeline.slotIndex];
             if (!slot.bone.active)
                 return;
-            var frames = timeline.frames;
-            if (time < frames[0]) {
+            if (time < timeline.frames[0]) {
                 if (blend == spine.MixBlend.setup || blend == spine.MixBlend.first)
                     this.setAttachment(skeleton, slot, slot.data.attachmentName, attachments);
             }
-            else {
-                var frameIndex;
-                if (time >= frames[frames.length - 1])
-                    frameIndex = frames.length - 1;
-                else
-                    frameIndex = spine.Animation.binarySearch(frames, time) - 1;
-                this.setAttachment(skeleton, slot, timeline.attachmentNames[frameIndex], attachments);
-            }
+            else
+                this.setAttachment(skeleton, slot, timeline.attachmentNames[spine.Timeline.search1(timeline.frames, time)], attachments);
             if (slot.attachmentState <= this.unkeyedState)
-                slot.attachmentState = this.unkeyedState + AnimationState.SETUP;
+                slot.attachmentState = this.unkeyedState + SETUP;
         }
         setAttachment(skeleton, slot, attachmentName, attachments) {
-            slot.setAttachment(attachmentName == null ? null : skeleton.getAttachment(slot.data.index, attachmentName));
+            slot.setAttachment(!attachmentName ? null : skeleton.getAttachment(slot.data.index, attachmentName));
             if (attachments)
-                slot.attachmentState = this.unkeyedState + AnimationState.CURRENT;
+                slot.attachmentState = this.unkeyedState + CURRENT;
         }
         applyRotateTimeline(timeline, skeleton, time, alpha, blend, timelinesRotation, i, firstFrame) {
             if (firstFrame)
@@ -1596,11 +2139,10 @@ var spine;
                 timeline.apply(skeleton, 0, time, null, 1, blend, spine.MixDirection.mixIn);
                 return;
             }
-            let rotateTimeline = timeline;
-            let frames = rotateTimeline.frames;
-            let bone = skeleton.bones[rotateTimeline.boneIndex];
+            let bone = skeleton.bones[timeline.boneIndex];
             if (!bone.active)
                 return;
+            let frames = timeline.frames;
             let r1 = 0, r2 = 0;
             if (time < frames[0]) {
                 switch (blend) {
@@ -1615,18 +2157,7 @@ var spine;
             }
             else {
                 r1 = blend == spine.MixBlend.setup ? bone.data.rotation : bone.rotation;
-                if (time >= frames[frames.length - spine.RotateTimeline.ENTRIES])
-                    r2 = bone.data.rotation + frames[frames.length + spine.RotateTimeline.PREV_ROTATION];
-                else {
-                    let frame = spine.Animation.binarySearch(frames, time, spine.RotateTimeline.ENTRIES);
-                    let prevRotation = frames[frame + spine.RotateTimeline.PREV_ROTATION];
-                    let frameTime = frames[frame];
-                    let percent = rotateTimeline.getCurvePercent((frame >> 1) - 1, 1 - (time - frameTime) / (frames[frame + spine.RotateTimeline.PREV_TIME] - frameTime));
-                    r2 = frames[frame + spine.RotateTimeline.ROTATION] - prevRotation;
-                    r2 -= (16384 - ((16384.499999999996 - r2 / 360) | 0)) * 360;
-                    r2 = prevRotation + r2 * percent + bone.data.rotation;
-                    r2 -= (16384 - ((16384.499999999996 - r2 / 360) | 0)) * 360;
-                }
+                r2 = bone.data.rotation + timeline.getCurveValue(time);
             }
             let total = 0, diff = r2 - r1;
             diff -= (16384 - ((16384.499999999996 - diff / 360) | 0)) * 360;
@@ -1655,8 +2186,7 @@ var spine;
                 timelinesRotation[i] = total;
             }
             timelinesRotation[i + 1] = diff;
-            r1 += total * alpha;
-            bone.rotation = r1 - (16384 - ((16384.499999999996 - r1 / 360) | 0)) * 360;
+            bone.rotation = r1 + total * alpha;
         }
         queueEvents(entry, animationTime) {
             let animationStart = entry.animationStart, animationEnd = entry.animationEnd;
@@ -1683,7 +2213,7 @@ var spine;
                 let event = events[i];
                 if (event.time < animationStart)
                     continue;
-                this.queue.event(entry, events[i]);
+                this.queue.event(entry, event);
             }
         }
         clearTracks() {
@@ -1699,14 +2229,14 @@ var spine;
             if (trackIndex >= this.tracks.length)
                 return;
             let current = this.tracks[trackIndex];
-            if (current == null)
+            if (!current)
                 return;
             this.queue.end(current);
-            this.disposeNext(current);
+            this.clearNext(current);
             let entry = current;
             while (true) {
                 let from = entry.mixingFrom;
-                if (from == null)
+                if (!from)
                     break;
                 this.queue.end(from);
                 entry.mixingFrom = null;
@@ -1719,103 +2249,95 @@ var spine;
         setCurrent(index, current, interrupt) {
             let from = this.expandToIndex(index);
             this.tracks[index] = current;
-            if (from != null) {
+            current.previous = null;
+            if (from) {
                 if (interrupt)
                     this.queue.interrupt(from);
                 current.mixingFrom = from;
                 from.mixingTo = current;
                 current.mixTime = 0;
-                if (from.mixingFrom != null && from.mixDuration > 0)
+                if (from.mixingFrom && from.mixDuration > 0)
                     current.interruptAlpha *= Math.min(1, from.mixTime / from.mixDuration);
                 from.timelinesRotation.length = 0;
             }
             this.queue.start(current);
         }
-        setAnimation(trackIndex, animationName, loop) {
+        setAnimation(trackIndex, animationName, loop = false) {
             let animation = this.data.skeletonData.findAnimation(animationName);
-            if (animation == null)
+            if (!animation)
                 throw new Error("Animation not found: " + animationName);
             return this.setAnimationWith(trackIndex, animation, loop);
         }
-        setAnimationWith(trackIndex, animation, loop) {
-            if (animation == null)
+        setAnimationWith(trackIndex, animation, loop = false) {
+            if (!animation)
                 throw new Error("animation cannot be null.");
             let interrupt = true;
             let current = this.expandToIndex(trackIndex);
-            if (current != null) {
+            if (current) {
                 if (current.nextTrackLast == -1) {
                     this.tracks[trackIndex] = current.mixingFrom;
                     this.queue.interrupt(current);
                     this.queue.end(current);
-                    this.disposeNext(current);
+                    this.clearNext(current);
                     current = current.mixingFrom;
                     interrupt = false;
                 }
                 else
-                    this.disposeNext(current);
+                    this.clearNext(current);
             }
             let entry = this.trackEntry(trackIndex, animation, loop, current);
             this.setCurrent(trackIndex, entry, interrupt);
             this.queue.drain();
             return entry;
         }
-        addAnimation(trackIndex, animationName, loop, delay) {
+        addAnimation(trackIndex, animationName, loop = false, delay = 0) {
             let animation = this.data.skeletonData.findAnimation(animationName);
-            if (animation == null)
+            if (!animation)
                 throw new Error("Animation not found: " + animationName);
             return this.addAnimationWith(trackIndex, animation, loop, delay);
         }
-        addAnimationWith(trackIndex, animation, loop, delay) {
-            if (animation == null)
+        addAnimationWith(trackIndex, animation, loop = false, delay = 0) {
+            if (!animation)
                 throw new Error("animation cannot be null.");
             let last = this.expandToIndex(trackIndex);
-            if (last != null) {
-                while (last.next != null)
+            if (last) {
+                while (last.next)
                     last = last.next;
             }
             let entry = this.trackEntry(trackIndex, animation, loop, last);
-            if (last == null) {
+            if (!last) {
                 this.setCurrent(trackIndex, entry, true);
                 this.queue.drain();
             }
             else {
                 last.next = entry;
-                if (delay <= 0) {
-                    let duration = last.animationEnd - last.animationStart;
-                    if (duration != 0) {
-                        if (last.loop)
-                            delay += duration * (1 + ((last.trackTime / duration) | 0));
-                        else
-                            delay += Math.max(duration, last.trackTime);
-                        delay -= this.data.getMix(last.animation, animation);
-                    }
-                    else
-                        delay = last.trackTime;
-                }
+                entry.previous = last;
+                if (delay <= 0)
+                    delay += last.getTrackComplete() - entry.mixDuration;
             }
             entry.delay = delay;
             return entry;
         }
-        setEmptyAnimation(trackIndex, mixDuration) {
-            let entry = this.setAnimationWith(trackIndex, AnimationState.emptyAnimation, false);
+        setEmptyAnimation(trackIndex, mixDuration = 0) {
+            let entry = this.setAnimationWith(trackIndex, AnimationState.emptyAnimation(), false);
             entry.mixDuration = mixDuration;
             entry.trackEnd = mixDuration;
             return entry;
         }
-        addEmptyAnimation(trackIndex, mixDuration, delay) {
-            if (delay <= 0)
-                delay -= mixDuration;
-            let entry = this.addAnimationWith(trackIndex, AnimationState.emptyAnimation, false, delay);
+        addEmptyAnimation(trackIndex, mixDuration = 0, delay = 0) {
+            let entry = this.addAnimationWith(trackIndex, AnimationState.emptyAnimation(), false, delay <= 0 ? 1 : delay);
             entry.mixDuration = mixDuration;
             entry.trackEnd = mixDuration;
+            if (delay <= 0 && entry.previous)
+                entry.delay = entry.previous.getTrackComplete() - entry.mixDuration + delay;
             return entry;
         }
-        setEmptyAnimations(mixDuration) {
+        setEmptyAnimations(mixDuration = 0) {
             let oldDrainDisabled = this.queue.drainDisabled;
             this.queue.drainDisabled = true;
             for (let i = 0, n = this.tracks.length; i < n; i++) {
                 let current = this.tracks[i];
-                if (current != null)
+                if (current)
                     this.setEmptyAnimation(current.trackIndex, mixDuration);
             }
             this.queue.drainDisabled = oldDrainDisabled;
@@ -1850,13 +2372,13 @@ var spine;
             entry.alpha = 1;
             entry.interruptAlpha = 1;
             entry.mixTime = 0;
-            entry.mixDuration = last == null ? 0 : this.data.getMix(last.animation, animation);
+            entry.mixDuration = !last ? 0 : this.data.getMix(last.animation, animation);
             entry.mixBlend = spine.MixBlend.replace;
             return entry;
         }
-        disposeNext(entry) {
+        clearNext(entry) {
             let next = entry.next;
-            while (next != null) {
+            while (next) {
                 this.queue.dispose(next);
                 next = next.next;
             }
@@ -1865,54 +2387,55 @@ var spine;
         _animationsChanged() {
             this.animationsChanged = false;
             this.propertyIDs.clear();
-            for (let i = 0, n = this.tracks.length; i < n; i++) {
-                let entry = this.tracks[i];
-                if (entry == null)
+            let tracks = this.tracks;
+            for (let i = 0, n = tracks.length; i < n; i++) {
+                let entry = tracks[i];
+                if (!entry)
                     continue;
-                while (entry.mixingFrom != null)
+                while (entry.mixingFrom)
                     entry = entry.mixingFrom;
                 do {
-                    if (entry.mixingFrom == null || entry.mixBlend != spine.MixBlend.add)
+                    if (!entry.mixingTo || entry.mixBlend != spine.MixBlend.add)
                         this.computeHold(entry);
                     entry = entry.mixingTo;
-                } while (entry != null);
+                } while (entry);
             }
         }
         computeHold(entry) {
             let to = entry.mixingTo;
             let timelines = entry.animation.timelines;
             let timelinesCount = entry.animation.timelines.length;
-            let timelineMode = spine.Utils.setArraySize(entry.timelineMode, timelinesCount);
-            entry.timelineHoldMix.length = 0;
-            let timelineDipMix = spine.Utils.setArraySize(entry.timelineHoldMix, timelinesCount);
+            let timelineMode = entry.timelineMode;
+            timelineMode.length = timelinesCount;
+            let timelineHoldMix = entry.timelineHoldMix;
+            timelineHoldMix.length = 0;
             let propertyIDs = this.propertyIDs;
-            if (to != null && to.holdPrevious) {
-                for (let i = 0; i < timelinesCount; i++) {
-                    timelineMode[i] = propertyIDs.add(timelines[i].getPropertyId()) ? AnimationState.HOLD_FIRST : AnimationState.HOLD_SUBSEQUENT;
-                }
+            if (to && to.holdPrevious) {
+                for (let i = 0; i < timelinesCount; i++)
+                    timelineMode[i] = propertyIDs.addAll(timelines[i].getPropertyIds()) ? HOLD_FIRST : HOLD_SUBSEQUENT;
                 return;
             }
             outer: for (let i = 0; i < timelinesCount; i++) {
                 let timeline = timelines[i];
-                let id = timeline.getPropertyId();
-                if (!propertyIDs.add(id))
-                    timelineMode[i] = AnimationState.SUBSEQUENT;
-                else if (to == null || timeline instanceof spine.AttachmentTimeline || timeline instanceof spine.DrawOrderTimeline
-                    || timeline instanceof spine.EventTimeline || !to.animation.hasTimeline(id)) {
-                    timelineMode[i] = AnimationState.FIRST;
+                let ids = timeline.getPropertyIds();
+                if (!propertyIDs.addAll(ids))
+                    timelineMode[i] = SUBSEQUENT;
+                else if (!to || timeline instanceof spine.AttachmentTimeline || timeline instanceof spine.DrawOrderTimeline
+                    || timeline instanceof spine.EventTimeline || !to.animation.hasTimeline(ids)) {
+                    timelineMode[i] = FIRST;
                 }
                 else {
-                    for (let next = to.mixingTo; next != null; next = next.mixingTo) {
-                        if (next.animation.hasTimeline(id))
+                    for (let next = to.mixingTo; next; next = next.mixingTo) {
+                        if (next.animation.hasTimeline(ids))
                             continue;
                         if (entry.mixDuration > 0) {
-                            timelineMode[i] = AnimationState.HOLD_MIX;
-                            timelineDipMix[i] = next;
+                            timelineMode[i] = HOLD_MIX;
+                            timelineHoldMix[i] = next;
                             continue outer;
                         }
                         break;
                     }
-                    timelineMode[i] = AnimationState.HOLD_FIRST;
+                    timelineMode[i] = HOLD_FIRST;
                 }
             }
         }
@@ -1922,7 +2445,7 @@ var spine;
             return this.tracks[trackIndex];
         }
         addListener(listener) {
-            if (listener == null)
+            if (!listener)
                 throw new Error("listener cannot be null.");
             this.listeners.push(listener);
         }
@@ -1938,14 +2461,6 @@ var spine;
             this.queue.clear();
         }
     }
-    AnimationState.emptyAnimation = new spine.Animation("<empty>", [], 0);
-    AnimationState.SUBSEQUENT = 0;
-    AnimationState.FIRST = 1;
-    AnimationState.HOLD_SUBSEQUENT = 2;
-    AnimationState.HOLD_FIRST = 3;
-    AnimationState.HOLD_MIX = 4;
-    AnimationState.SETUP = 1;
-    AnimationState.CURRENT = 2;
     spine.AnimationState = AnimationState;
     class TrackEntry {
         constructor() {
@@ -1956,6 +2471,7 @@ var spine;
         }
         reset() {
             this.next = null;
+            this.previous = null;
             this.mixingFrom = null;
             this.mixingTo = null;
             this.animation = null;
@@ -1982,6 +2498,16 @@ var spine;
         }
         resetRotationDirections() {
             this.timelinesRotation.length = 0;
+        }
+        getTrackComplete() {
+            let duration = this.animationEnd - this.animationStart;
+            if (duration != 0) {
+                if (this.loop)
+                    return duration * (1 + ((this.trackTime / duration) | 0));
+                if (this.trackTime < duration)
+                    return duration;
+            }
+            return this.trackTime;
         }
     }
     spine.TrackEntry = TrackEntry;
@@ -2029,27 +2555,27 @@ var spine;
                 let entry = objects[i + 1];
                 switch (type) {
                     case EventType.start:
-                        if (entry.listener != null && entry.listener.start)
+                        if (entry.listener && entry.listener.start)
                             entry.listener.start(entry);
                         for (let ii = 0; ii < listeners.length; ii++)
                             if (listeners[ii].start)
                                 listeners[ii].start(entry);
                         break;
                     case EventType.interrupt:
-                        if (entry.listener != null && entry.listener.interrupt)
+                        if (entry.listener && entry.listener.interrupt)
                             entry.listener.interrupt(entry);
                         for (let ii = 0; ii < listeners.length; ii++)
                             if (listeners[ii].interrupt)
                                 listeners[ii].interrupt(entry);
                         break;
                     case EventType.end:
-                        if (entry.listener != null && entry.listener.end)
+                        if (entry.listener && entry.listener.end)
                             entry.listener.end(entry);
                         for (let ii = 0; ii < listeners.length; ii++)
                             if (listeners[ii].end)
                                 listeners[ii].end(entry);
                     case EventType.dispose:
-                        if (entry.listener != null && entry.listener.dispose)
+                        if (entry.listener && entry.listener.dispose)
                             entry.listener.dispose(entry);
                         for (let ii = 0; ii < listeners.length; ii++)
                             if (listeners[ii].dispose)
@@ -2057,7 +2583,7 @@ var spine;
                         this.animState.trackEntryPool.free(entry);
                         break;
                     case EventType.complete:
-                        if (entry.listener != null && entry.listener.complete)
+                        if (entry.listener && entry.listener.complete)
                             entry.listener.complete(entry);
                         for (let ii = 0; ii < listeners.length; ii++)
                             if (listeners[ii].complete)
@@ -2065,7 +2591,7 @@ var spine;
                         break;
                     case EventType.event:
                         let event = objects[i++ + 2];
-                        if (entry.listener != null && entry.listener.event)
+                        if (entry.listener && entry.listener.event)
                             entry.listener.event(entry, event);
                         for (let ii = 0; ii < listeners.length; ii++)
                             if (listeners[ii].event)
@@ -2105,6 +2631,14 @@ var spine;
         }
     }
     spine.AnimationStateAdapter = AnimationStateAdapter;
+    const SUBSEQUENT = 0;
+    const FIRST = 1;
+    const HOLD_SUBSEQUENT = 2;
+    const HOLD_FIRST = 3;
+    const HOLD_MIX = 4;
+    const SETUP = 1;
+    const CURRENT = 2;
+    let _emptyAnimation = null;
 })(spine || (spine = {}));
 var spine;
 (function (spine) {
@@ -2112,23 +2646,23 @@ var spine;
         constructor(skeletonData) {
             this.animationToMixTime = {};
             this.defaultMix = 0;
-            if (skeletonData == null)
+            if (!skeletonData)
                 throw new Error("skeletonData cannot be null.");
             this.skeletonData = skeletonData;
         }
         setMix(fromName, toName, duration) {
             let from = this.skeletonData.findAnimation(fromName);
-            if (from == null)
+            if (!from)
                 throw new Error("Animation not found: " + fromName);
             let to = this.skeletonData.findAnimation(toName);
-            if (to == null)
+            if (!to)
                 throw new Error("Animation not found: " + toName);
             this.setMixWith(from, to, duration);
         }
         setMixWith(from, to, duration) {
-            if (from == null)
+            if (!from)
                 throw new Error("from cannot be null.");
-            if (to == null)
+            if (!to)
                 throw new Error("to cannot be null.");
             let key = from.name + "." + to.name;
             this.animationToMixTime[key] = duration;
@@ -2144,241 +2678,149 @@ var spine;
 var spine;
 (function (spine) {
     class AssetManager {
-        constructor(textureLoader, pathPrefix = "") {
+        constructor(textureLoader, pathPrefix = "", downloader = null) {
             this.assets = {};
             this.errors = {};
             this.toLoad = 0;
             this.loaded = 0;
-            this.rawDataUris = {};
             this.textureLoader = textureLoader;
             this.pathPrefix = pathPrefix;
+            this.downloader = downloader || new Downloader();
         }
-        downloadText(url, success, error) {
-            // LayaBox_Modify
-            // let request = new XMLHttpRequest();
-            // request.overrideMimeType("text/html");
-            // if (this.rawDataUris[url])
-            //     url = this.rawDataUris[url];
-            // request.open("GET", url, true);
-            // request.onload = () => {
-            //     if (request.status == 200) {
-            //         success(request.responseText);
-            //     }
-            //     else {
-            //         error(request.status, request.responseText);
-            //     }
-            // };
-            // request.onerror = () => {
-            //     error(request.status, request.responseText);
-            // };
-            // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.TEXT, url: url}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    success(_Laya.loader.getRes(url));
-                } else {
-                    error("download text error: ", url);
-                }
-            }));
+        start(path) {
+            this.toLoad++;
+            return this.pathPrefix + path;
         }
-        downloadBinary(url, success, error) {
-            // LayaBox_Modify
-            // let request = new XMLHttpRequest();
-            // if (this.rawDataUris[url])
-            //     url = this.rawDataUris[url];
-            // request.open("GET", url, true);
-            // request.responseType = "arraybuffer";
-            // request.onload = () => {
-            //     if (request.status == 200) {
-            //         success(new Uint8Array(request.response));
-            //     }
-            //     else {
-            //         error(request.status, request.responseText);
-            //     }
-            // };
-            // request.onerror = () => {
-            //     error(request.status, request.responseText);
-            // };
-            // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.BUFFER, url: url}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    success(new Uint8Array(_Laya.loader.getRes(url)));
-                } else {
-                    error("download binary error: ", url);
-                }
-            }));
+        success(callback, path, asset) {
+            this.toLoad--;
+            this.loaded++;
+            this.assets[path] = asset;
+            if (callback)
+                callback(path, asset);
+        }
+        error(callback, path, message) {
+            this.toLoad--;
+            this.loaded++;
+            this.errors[path] = message;
+            if (callback)
+                callback(path, message);
         }
         setRawDataURI(path, data) {
-            this.rawDataUris[this.pathPrefix + path] = data;
+            this.downloader.rawDataUris[this.pathPrefix + path] = data;
         }
         loadBinary(path, success = null, error = null) {
-            path = this.pathPrefix + path;
-            this.toLoad++;
-            this.downloadBinary(path, (data) => {
-                this.assets[path] = data;
-                if (success)
-                    success(path, data);
-                this.toLoad--;
-                this.loaded++;
-            }, (status, responseText) => { // LayaBox_Modify
-                this.errors[path] = `Couldn't load binary ${path}: status ${status}, ${responseText}`;
-                if (error)
-                    error(path, `Couldn't load binary ${path}: status ${status}, ${responseText}`);
-                this.toLoad--;
-                this.loaded++;
+            path = this.start(path);
+            this.downloader.downloadBinary(path, (data) => {
+                this.success(success, path, data);
+            }, (status, responseText) => {
+                this.error(error, path, `Couldn't load binary ${path}: status ${status}, ${responseText}`);
             });
         }
         loadText(path, success = null, error = null) {
-            path = this.pathPrefix + path;
-            this.toLoad++;
-            this.downloadText(path, (data) => {
-                this.assets[path] = data;
-                if (success)
-                    success(path, data);
-                this.toLoad--;
-                this.loaded++;
-            }, (state, responseText) => {
-                this.errors[path] = `Couldn't load text ${path}: status ${status}, ${responseText}`;
-                if (error)
-                    error(path, `Couldn't load text ${path}: status ${status}, ${responseText}`);
-                this.toLoad--;
-                this.loaded++;
+            path = this.start(path);
+            this.downloader.downloadText(path, (data) => {
+                this.success(success, path, data);
+            }, (status, responseText) => {
+                this.error(error, path, `Couldn't load text ${path}: status ${status}, ${responseText}`);
+            });
+        }
+        loadJson(path, success = null, error = null) {
+            path = this.start(path);
+            this.downloader.downloadJson(path, (data) => {
+                this.success(success, path, data);
+            }, (status, responseText) => {
+                this.error(error, path, `Couldn't load JSON ${path}: status ${status}, ${responseText}`);
             });
         }
         loadTexture(path, success = null, error = null) {
-            path = this.pathPrefix + path;
-            let storagePath = path;
-            this.toLoad++;
             // LayaBox_Modify
-            // let img = new Image();
-            // img.crossOrigin = "anonymous";
-            // img.onload = (ev) => {
-            //     let texture = this.textureLoader(img);
-            //     this.assets[storagePath] = texture;
-            //     this.toLoad--;
-            //     this.loaded++;
-            //     if (success)
-            //         success(path, img);
-            // };
-            // img.onerror = (ev) => {
-            //     this.errors[path] = `Couldn't load image ${path}`;
-            //     this.toLoad--;
-            //     this.loaded++;
-            //     if (error)
-            //         error(path, `Couldn't load image ${path}`);
-            // };
-            // if (this.rawDataUris[path])
-            //     path = this.rawDataUris[path];
-            // img.src = path;
+            let oriPath = path;
+            path = this.start(path);
+            // let isBrowser = !!(typeof window !== 'undefined' && typeof navigator !== 'undefined' && window.document);
+            // let isWebWorker = !isBrowser && typeof importScripts !== 'undefined';
+            // if (isWebWorker) {
+            //     fetch(path, { mode: "cors" }).then((response) => {
+            //         if (response.ok)
+            //             return response.blob();
+            //         this.error(error, path, `Couldn't load image: ${path}`);
+            //         return null;
+            //     }).then((blob) => {
+            //         return blob ? createImageBitmap(blob, { premultiplyAlpha: "none", colorSpaceConversion: "none" }) : null;
+            //     }).then((bitmap) => {
+            //         if (bitmap)
+            //             this.success(success, path, this.textureLoader(bitmap));
+            //     });
+            // }
+            // else {
+            //     let image = new Image();
+            //     image.crossOrigin = "anonymous";
+            //     image.onload = () => {
+            //         this.success(success, path, this.textureLoader(image));
+            //     };
+            //     image.onerror = () => {
+            //         this.error(error, path, `Couldn't load image: ${path}`);
+            //     };
+            //     if (this.downloader.rawDataUris[path])
+            //         path = this.downloader.rawDataUris[path];
+            //     image.src = path;
+            // }
             let _Laya = Laya.Laya ? Laya.Laya : Laya;
             _Laya.loader.load([{type: _Laya.Loader.IMAGE, url: path}], _Laya.Handler.create(this, (re) => {
                 if (re) {
-                    let texture = this.textureLoader(_Laya.loader.getRes(path));
-                    this.assets[path] = texture;
-                    this.toLoad--;
-                    this.loaded++;
-                    if (success)
-                        success(path, texture);
+                    let texture = this.textureLoader(_Laya.loader.getRes(path), oriPath);
+                    this.success(success, path, texture);
                 } else {
-                    this.errors[path] = `Couldn't load image ${path}`;
-                    this.toLoad--;
-                    this.loaded++;
-                    if (error)
-                        error(path, `Couldn't load image ${path}`);
+                    this.error(error, path, `Couldn't load image: ${path}`);
                 }
             }));
         }
         loadTextureAtlas(path, success = null, error = null) {
-            let parent = path.lastIndexOf("/") >= 0 ? path.substring(0, path.lastIndexOf("/")) : "";
-            path = this.pathPrefix + path;
-            this.toLoad++;
-            this.downloadText(path, (atlasData) => {
-                let pagesLoaded = { count: 0 };
-                let atlasPages = new Array();
+            let index = path.lastIndexOf("/");
+            let parent = index >= 0 ? path.substring(0, index + 1) : "";
+            path = this.start(path);
+            this.downloader.downloadText(path, (atlasText) => {
                 try {
-                    let atlas = new spine.TextureAtlas(atlasData, (path) => {
-                        atlasPages.push(parent == "" ? path : parent + "/" + path);
-                        let image = document.createElement("img");
-                        // LayaBox_Modify
-                        // QQ平台报错，无法设置width height
-                        // image.width = 16;
-                        // image.height = 16;
-                        return new spine.FakeTexture(image);
-                    });
+                    let atlas = new spine.TextureAtlas(atlasText);
+                    let toLoad = atlas.pages.length, abort = false;
+                    for (let page of atlas.pages) {
+                        this.loadTexture(parent + page.name, (imagePath, texture) => {
+                            if (!abort) {
+                                page.setTexture(texture);
+                                if (--toLoad == 0)
+                                    this.success(success, path, atlas);
+                            }
+                        }, (imagePath, message) => {
+                            if (!abort)
+                                this.error(error, path, `Couldn't load texture atlas ${path} page image: ${imagePath}`);
+                            abort = true;
+                        });
+                    }
                 }
                 catch (e) {
-                    let ex = e;
-                    this.errors[path] = `Couldn't load texture atlas ${path}: ${ex.message}`;
-                    if (error)
-                        error(path, `Couldn't load texture atlas ${path}: ${ex.message}`);
-                    this.toLoad--;
-                    this.loaded++;
-                    return;
+                    this.error(error, path, `Couldn't parse texture atlas ${path}: ${e.message}`);
                 }
-                for (let atlasPage of atlasPages) {
-                    let pageLoadError = false;
-                    this.loadTexture(atlasPage, (imagePath, image) => {
-                        pagesLoaded.count++;
-                        if (pagesLoaded.count == atlasPages.length) {
-                            if (!pageLoadError) {
-                                try {
-                                    let atlas = new spine.TextureAtlas(atlasData, (path) => {
-                                        return this.get(parent == "" ? path : parent + "/" + path);
-                                    });
-                                    this.assets[path] = atlas;
-                                    if (success)
-                                        success(path, atlas);
-                                    this.toLoad--;
-                                    this.loaded++;
-                                }
-                                catch (e) {
-                                    let ex = e;
-                                    this.errors[path] = `Couldn't load texture atlas ${path}: ${ex.message}`;
-                                    if (error)
-                                        error(path, `Couldn't load texture atlas ${path}: ${ex.message}`);
-                                    this.toLoad--;
-                                    this.loaded++;
-                                }
-                            }
-                            else {
-                                this.errors[path] = `Couldn't load texture atlas page ${imagePath}} of atlas ${path}`;
-                                if (error)
-                                    error(path, `Couldn't load texture atlas page ${imagePath} of atlas ${path}`);
-                                this.toLoad--;
-                                this.loaded++;
-                            }
-                        }
-                    }, (imagePath, errorMessage) => {
-                        pageLoadError = true;
-                        pagesLoaded.count++;
-                        if (pagesLoaded.count == atlasPages.length) {
-                            this.errors[path] = `Couldn't load texture atlas page ${imagePath}} of atlas ${path}`;
-                            if (error)
-                                error(path, `Couldn't load texture atlas page ${imagePath} of atlas ${path}`);
-                            this.toLoad--;
-                            this.loaded++;
-                        }
-                    });
-                }
-            }, (state, responseText) => {
-                this.errors[path] = `Couldn't load texture atlas ${path}: status ${status}, ${responseText}`;
-                if (error)
-                    error(path, `Couldn't load texture atlas ${path}: status ${status}, ${responseText}`);
-                this.toLoad--;
-                this.loaded++;
+            }, (status, responseText) => {
+                this.error(error, path, `Couldn't load texture atlas ${path}: status ${status}, ${responseText}`);
             });
         }
         get(path) {
+            return this.assets[this.pathPrefix + path];
+        }
+        require(path) {
             path = this.pathPrefix + path;
-            return this.assets[path];
+            let asset = this.assets[path];
+            if (asset)
+                return asset;
+            let error = this.errors[path];
+            throw Error("Asset not found: " + path + (error ? "\n" + error : ""));
         }
         remove(path) {
             path = this.pathPrefix + path;
             let asset = this.assets[path];
             if (asset.dispose)
                 asset.dispose();
-            this.assets[path] = null;
+            delete this.assets[path];
+            return asset;
         }
         removeAll() {
             for (let key in this.assets) {
@@ -2408,6 +2850,89 @@ var spine;
         }
     }
     spine.AssetManager = AssetManager;
+    class Downloader {
+        constructor() {
+            this.callbacks = {};
+            this.rawDataUris = {};
+        }
+        downloadText(url, success, error) {
+            if (this.rawDataUris[url])
+                url = this.rawDataUris[url];
+            if (this.start(url, success, error))
+                return;
+            // LayaBox_Modify
+            // let request = new XMLHttpRequest();
+            // request.overrideMimeType("text/html");
+            // request.open("GET", url, true);
+            // let done = () => {
+            //     this.finish(url, request.status, request.responseText);
+            // };
+            // request.onload = done;
+            // request.onerror = done;
+            // request.send();
+            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            _Laya.loader.load([{type: _Laya.Loader.TEXT, url: url}], _Laya.Handler.create(this, (re) => {
+                if (re) {
+                    this.finish(url, 200, _Laya.loader.getRes(url));
+                } else {
+                    this.finish(url, 400, "download text error: ", url);
+                }
+            }));
+        }
+        downloadJson(url, success, error) {
+            this.downloadText(url, (data) => {
+                success(JSON.parse(data));
+            }, error);
+        }
+        downloadBinary(url, success, error) {
+            if (this.rawDataUris[url])
+                url = this.rawDataUris[url];
+            if (this.start(url, success, error))
+                return;
+            // LayaBox_Modify
+            // let request = new XMLHttpRequest();
+            // request.open("GET", url, true);
+            // request.responseType = "arraybuffer";
+            // let onerror = () => {
+            //     this.finish(url, request.status, request.responseText);
+            // };
+            // request.onload = () => {
+            //     if (request.status == 200)
+            //         this.finish(url, 200, new Uint8Array(request.response));
+            //     else
+            //         onerror();
+            // };
+            // request.onerror = onerror;
+            // request.send();
+            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            _Laya.loader.load([{type: _Laya.Loader.BUFFER, url: url}], _Laya.Handler.create(this, (re) => {
+                if (re) {
+                    this.finish(url, 200, new Uint8Array(_Laya.loader.getRes(url)));
+                } else {
+                    this.finish(url, 400, `Couldn't load binary ${url}`);
+                }
+            }));
+        }
+        start(url, success, error) {
+            let callbacks = this.callbacks[url];
+            try {
+                if (callbacks)
+                    return true;
+                this.callbacks[url] = callbacks = [];
+            }
+            finally {
+                callbacks.push(success, error);
+            }
+        }
+        finish(url, status, data) {
+            let callbacks = this.callbacks[url];
+            delete this.callbacks[url];
+            let args = status == 200 ? [data] : [status, data];
+            for (let i = args.length - 1, n = callbacks.length; i < n; i += 2)
+                callbacks[i].apply(null, args);
+        }
+    }
+    spine.Downloader = Downloader;
 })(spine || (spine = {}));
 var spine;
 (function (spine) {
@@ -2417,7 +2942,7 @@ var spine;
         }
         newRegionAttachment(skin, name, path) {
             let region = this.atlas.findRegion(path);
-            if (region == null)
+            if (!region)
                 throw new Error("Region not found in atlas: " + path + " (region attachment: " + name + ")");
             region.renderObject = region;
             let attachment = new spine.RegionAttachment(name);
@@ -2426,7 +2951,7 @@ var spine;
         }
         newMeshAttachment(skin, name, path) {
             let region = this.atlas.findRegion(path);
-            if (region == null)
+            if (!region)
                 throw new Error("Region not found in atlas: " + path + " (mesh attachment: " + name + ")");
             region.renderObject = region;
             let attachment = new spine.MeshAttachment(name);
@@ -2450,16 +2975,6 @@ var spine;
 })(spine || (spine = {}));
 var spine;
 (function (spine) {
-    let BlendMode;
-    (function (BlendMode) {
-        BlendMode[BlendMode["Normal"] = 0] = "Normal";
-        BlendMode[BlendMode["Additive"] = 1] = "Additive";
-        BlendMode[BlendMode["Multiply"] = 2] = "Multiply";
-        BlendMode[BlendMode["Screen"] = 3] = "Screen";
-    })(BlendMode = spine.BlendMode || (spine.BlendMode = {}));
-})(spine || (spine = {}));
-var spine;
-(function (spine) {
     class Bone {
         constructor(data, skeleton, parent) {
             this.children = new Array();
@@ -2477,7 +2992,6 @@ var spine;
             this.ascaleY = 0;
             this.ashearX = 0;
             this.ashearY = 0;
-            this.appliedValid = false;
             this.a = 0;
             this.b = 0;
             this.c = 0;
@@ -2486,9 +3000,9 @@ var spine;
             this.worldX = 0;
             this.sorted = false;
             this.active = false;
-            if (data == null)
+            if (!data)
                 throw new Error("data cannot be null.");
-            if (skeleton == null)
+            if (!skeleton)
                 throw new Error("skeleton cannot be null.");
             this.data = data;
             this.skeleton = skeleton;
@@ -2499,7 +3013,7 @@ var spine;
             return this.active;
         }
         update() {
-            this.updateWorldTransformWith(this.x, this.y, this.rotation, this.scaleX, this.scaleY, this.shearX, this.shearY);
+            this.updateWorldTransformWith(this.ax, this.ay, this.arotation, this.ascaleX, this.ascaleY, this.ashearX, this.ashearY);
         }
         updateWorldTransform() {
             this.updateWorldTransformWith(this.x, this.y, this.rotation, this.scaleX, this.scaleY, this.shearX, this.shearY);
@@ -2512,9 +3026,8 @@ var spine;
             this.ascaleY = scaleY;
             this.ashearX = shearX;
             this.ashearY = shearY;
-            this.appliedValid = true;
             let parent = this.parent;
-            if (parent == null) {
+            if (!parent) {
                 let skeleton = this.skeleton;
                 let rotationY = rotation + 90 + shearY;
                 let sx = skeleton.scaleX;
@@ -2636,9 +3149,8 @@ var spine;
             return Math.sqrt(this.b * this.b + this.d * this.d);
         }
         updateAppliedTransform() {
-            this.appliedValid = true;
             let parent = this.parent;
-            if (parent == null) {
+            if (!parent) {
                 this.ax = this.worldX;
                 this.ay = this.worldY;
                 this.arotation = Math.atan2(this.c, this.a) * spine.MathUtils.radDeg;
@@ -2677,11 +3189,10 @@ var spine;
             }
         }
         worldToLocal(world) {
-            let a = this.a, b = this.b, c = this.c, d = this.d;
-            let invDet = 1 / (a * d - b * c);
+            let invDet = 1 / (this.a * this.d - this.b * this.c);
             let x = world.x - this.worldX, y = world.y - this.worldY;
-            world.x = (x * d * invDet - y * b * invDet);
-            world.y = (y * a * invDet - x * c * invDet);
+            world.x = x * this.d * invDet - y * this.b * invDet;
+            world.y = y * this.a * invDet - x * this.c * invDet;
             return world;
         }
         localToWorld(local) {
@@ -2706,7 +3217,6 @@ var spine;
             this.b = cos * b - sin * d;
             this.c = sin * a + cos * c;
             this.d = sin * b + cos * d;
-            this.appliedValid = false;
         }
     }
     spine.Bone = Bone;
@@ -2727,7 +3237,7 @@ var spine;
             this.color = new spine.Color();
             if (index < 0)
                 throw new Error("index must be >= 0.");
-            if (name == null)
+            if (!name)
                 throw new Error("name cannot be null.");
             this.index = index;
             this.name = name;
@@ -2759,7 +3269,7 @@ var spine;
 (function (spine) {
     class Event {
         constructor(time, data) {
-            if (data == null)
+            if (!data)
                 throw new Error("data cannot be null.");
             this.time = time;
             this.data = data;
@@ -2786,9 +3296,9 @@ var spine;
             this.mix = 1;
             this.softness = 0;
             this.active = false;
-            if (data == null)
+            if (!data)
                 throw new Error("data cannot be null.");
-            if (skeleton == null)
+            if (!skeleton)
                 throw new Error("skeleton cannot be null.");
             this.data = data;
             this.mix = data.mix;
@@ -2804,10 +3314,9 @@ var spine;
         isActive() {
             return this.active;
         }
-        apply() {
-            this.update();
-        }
         update() {
+            if (this.mix == 0)
+                return;
             let target = this.target;
             let bones = this.bones;
             switch (bones.length) {
@@ -2815,13 +3324,11 @@ var spine;
                     this.apply1(bones[0], target.worldX, target.worldY, this.compress, this.stretch, this.data.uniform, this.mix);
                     break;
                 case 2:
-                    this.apply2(bones[0], bones[1], target.worldX, target.worldY, this.bendDirection, this.stretch, this.softness, this.mix);
+                    this.apply2(bones[0], bones[1], target.worldX, target.worldY, this.bendDirection, this.stretch, this.data.uniform, this.softness, this.mix);
                     break;
             }
         }
         apply1(bone, targetX, targetY, compress, stretch, uniform, alpha) {
-            if (!bone.appliedValid)
-                bone.updateAppliedTransform();
             let p = bone.parent;
             let pa = p.a, pb = p.b, pc = p.c, pd = p.d;
             let rotationIK = -bone.ashearX - bone.arotation, tx = 0, ty = 0;
@@ -2868,16 +3375,8 @@ var spine;
             }
             bone.updateWorldTransformWith(bone.ax, bone.ay, bone.arotation + rotationIK * alpha, sx, sy, bone.ashearX, bone.ashearY);
         }
-        apply2(parent, child, targetX, targetY, bendDir, stretch, softness, alpha) {
-            if (alpha == 0) {
-                child.updateWorldTransform();
-                return;
-            }
-            if (!parent.appliedValid)
-                parent.updateAppliedTransform();
-            if (!child.appliedValid)
-                child.updateAppliedTransform();
-            let px = parent.ax, py = parent.ay, psx = parent.ascaleX, sx = psx, psy = parent.ascaleY, csx = child.ascaleX;
+        apply2(parent, child, targetX, targetY, bendDir, stretch, uniform, softness, alpha) {
+            let px = parent.ax, py = parent.ay, psx = parent.ascaleX, psy = parent.ascaleY, sx = psx, sy = psy, csx = child.ascaleX;
             let os1 = 0, os2 = 0, s2 = 0;
             if (psx < 0) {
                 psx = -psx;
@@ -2900,7 +3399,7 @@ var spine;
                 os2 = 0;
             let cx = child.ax, cy = 0, cwx = 0, cwy = 0, a = parent.a, b = parent.b, c = parent.c, d = parent.d;
             let u = Math.abs(psx - psy) <= 0.0001;
-            if (!u) {
+            if (!u || stretch) {
                 cy = 0;
                 cwx = a * cx + parent.worldX;
                 cwy = c * cx + parent.worldY;
@@ -2928,7 +3427,7 @@ var spine;
             let tx = (x * d - y * b) * id - px, ty = (y * a - x * c) * id - py;
             let dd = tx * tx + ty * ty;
             if (softness != 0) {
-                softness *= psx * (csx + 1) / 2;
+                softness *= psx * (csx + 1) * 0.5;
                 let td = Math.sqrt(dd), sd = td - l1 - l2 * psx + softness;
                 if (sd > 0) {
                     let p = Math.min(1, sd / (softness * 2)) - 1;
@@ -2941,14 +3440,22 @@ var spine;
             outer: if (u) {
                 l2 *= psx;
                 let cos = (dd - l1 * l1 - l2 * l2) / (2 * l1 * l2);
-                if (cos < -1)
+                if (cos < -1) {
                     cos = -1;
+                    a2 = Math.PI * bendDir;
+                }
                 else if (cos > 1) {
                     cos = 1;
-                    if (stretch)
-                        sx *= (Math.sqrt(dd) / (l1 + l2) - 1) * alpha + 1;
+                    a2 = 0;
+                    if (stretch) {
+                        a = (Math.sqrt(dd) / (l1 + l2) - 1) * alpha + 1;
+                        sx *= a;
+                        if (uniform)
+                            sy *= a;
+                    }
                 }
-                a2 = Math.acos(cos) * bendDir;
+                else
+                    a2 = Math.acos(cos) * bendDir;
                 a = l1 + l2 * cos;
                 b = l2 * Math.sin(a2);
                 a1 = Math.atan2(ty * a - tx * b, tx * a + ty * b);
@@ -2964,7 +3471,7 @@ var spine;
                     let q = Math.sqrt(d);
                     if (c1 < 0)
                         q = -q;
-                    q = -(c1 + q) / 2;
+                    q = -(c1 + q) * 0.5;
                     let r0 = q / c2, r1 = c / q;
                     let r = Math.abs(r0) < Math.abs(r1) ? r0 : r1;
                     if (r * r <= dd) {
@@ -2995,7 +3502,7 @@ var spine;
                         maxY = y;
                     }
                 }
-                if (dd <= (minDist + maxDist) / 2) {
+                if (dd <= (minDist + maxDist) * 0.5) {
                     a1 = ta - Math.atan2(minY * bendDir, minX);
                     a2 = minAngle * bendDir;
                 }
@@ -3011,7 +3518,7 @@ var spine;
                 a1 -= 360;
             else if (a1 < -180)
                 a1 += 360;
-            parent.updateWorldTransformWith(px, py, rotation + a1 * alpha, sx, parent.ascaleY, 0, 0);
+            parent.updateWorldTransformWith(px, py, rotation + a1 * alpha, sx, sy, 0, 0);
             rotation = child.arotation;
             a2 = ((a2 + os) * spine.MathUtils.radDeg - child.ashearX) * s2 + os2 - rotation;
             if (a2 > 180)
@@ -3045,8 +3552,9 @@ var spine;
         constructor(data, skeleton) {
             this.position = 0;
             this.spacing = 0;
-            this.rotateMix = 0;
-            this.translateMix = 0;
+            this.mixRotate = 0;
+            this.mixX = 0;
+            this.mixY = 0;
             this.spaces = new Array();
             this.positions = new Array();
             this.world = new Array();
@@ -3054,9 +3562,9 @@ var spine;
             this.lengths = new Array();
             this.segments = new Array();
             this.active = false;
-            if (data == null)
+            if (!data)
                 throw new Error("data cannot be null.");
-            if (skeleton == null)
+            if (!skeleton)
                 throw new Error("skeleton cannot be null.");
             this.data = data;
             this.bones = new Array();
@@ -3065,69 +3573,91 @@ var spine;
             this.target = skeleton.findSlot(data.target.name);
             this.position = data.position;
             this.spacing = data.spacing;
-            this.rotateMix = data.rotateMix;
-            this.translateMix = data.translateMix;
+            this.mixRotate = data.mixRotate;
+            this.mixX = data.mixX;
+            this.mixY = data.mixY;
         }
         isActive() {
             return this.active;
-        }
-        apply() {
-            this.update();
         }
         update() {
             let attachment = this.target.getAttachment();
             if (!(attachment instanceof spine.PathAttachment))
                 return;
-            let rotateMix = this.rotateMix, translateMix = this.translateMix;
-            let translate = translateMix > 0, rotate = rotateMix > 0;
-            if (!translate && !rotate)
+            let mixRotate = this.mixRotate, mixX = this.mixX, mixY = this.mixY;
+            if (mixRotate == 0 && mixX == 0 && mixY == 0)
                 return;
             let data = this.data;
-            let percentSpacing = data.spacingMode == spine.SpacingMode.Percent;
-            let rotateMode = data.rotateMode;
-            let tangents = rotateMode == spine.RotateMode.Tangent, scale = rotateMode == spine.RotateMode.ChainScale;
-            let boneCount = this.bones.length, spacesCount = tangents ? boneCount : boneCount + 1;
+            let tangents = data.rotateMode == spine.RotateMode.Tangent, scale = data.rotateMode == spine.RotateMode.ChainScale;
             let bones = this.bones;
-            let spaces = spine.Utils.setArraySize(this.spaces, spacesCount), lengths = null;
+            let boneCount = bones.length, spacesCount = tangents ? boneCount : boneCount + 1;
+            let spaces = spine.Utils.setArraySize(this.spaces, spacesCount), lengths = scale ? this.lengths = spine.Utils.setArraySize(this.lengths, boneCount) : null;
             let spacing = this.spacing;
-            if (scale || !percentSpacing) {
-                if (scale)
-                    lengths = spine.Utils.setArraySize(this.lengths, boneCount);
-                let lengthSpacing = data.spacingMode == spine.SpacingMode.Length;
-                for (let i = 0, n = spacesCount - 1; i < n;) {
-                    let bone = bones[i];
-                    let setupLength = bone.data.length;
-                    if (setupLength < PathConstraint.epsilon) {
-                        if (scale)
-                            lengths[i] = 0;
-                        spaces[++i] = 0;
+            switch (data.spacingMode) {
+                case spine.SpacingMode.Percent:
+                    if (scale) {
+                        for (let i = 0, n = spacesCount - 1; i < n; i++) {
+                            let bone = bones[i];
+                            let setupLength = bone.data.length;
+                            if (setupLength < PathConstraint.epsilon)
+                                lengths[i] = 0;
+                            else {
+                                let x = setupLength * bone.a, y = setupLength * bone.c;
+                                lengths[i] = Math.sqrt(x * x + y * y);
+                            }
+                        }
                     }
-                    else if (percentSpacing) {
-                        if (scale) {
+                    spine.Utils.arrayFill(spaces, 1, spacesCount, spacing);
+                    break;
+                case spine.SpacingMode.Proportional:
+                    let sum = 0;
+                    for (let i = 0, n = spacesCount - 1; i < n;) {
+                        let bone = bones[i];
+                        let setupLength = bone.data.length;
+                        if (setupLength < PathConstraint.epsilon) {
+                            if (scale)
+                                lengths[i] = 0;
+                            spaces[++i] = spacing;
+                        }
+                        else {
                             let x = setupLength * bone.a, y = setupLength * bone.c;
                             let length = Math.sqrt(x * x + y * y);
-                            lengths[i] = length;
+                            if (scale)
+                                lengths[i] = length;
+                            spaces[++i] = length;
+                            sum += length;
                         }
-                        spaces[++i] = spacing;
                     }
-                    else {
-                        let x = setupLength * bone.a, y = setupLength * bone.c;
-                        let length = Math.sqrt(x * x + y * y);
-                        if (scale)
-                            lengths[i] = length;
-                        spaces[++i] = (lengthSpacing ? setupLength + spacing : spacing) * length / setupLength;
+                    if (sum > 0) {
+                        sum = spacesCount / sum * spacing;
+                        for (let i = 1; i < spacesCount; i++)
+                            spaces[i] *= sum;
                     }
-                }
+                    break;
+                default:
+                    let lengthSpacing = data.spacingMode == spine.SpacingMode.Length;
+                    for (let i = 0, n = spacesCount - 1; i < n;) {
+                        let bone = bones[i];
+                        let setupLength = bone.data.length;
+                        if (setupLength < PathConstraint.epsilon) {
+                            if (scale)
+                                lengths[i] = 0;
+                            spaces[++i] = spacing;
+                        }
+                        else {
+                            let x = setupLength * bone.a, y = setupLength * bone.c;
+                            let length = Math.sqrt(x * x + y * y);
+                            if (scale)
+                                lengths[i] = length;
+                            spaces[++i] = (lengthSpacing ? setupLength + spacing : spacing) * length / setupLength;
+                        }
+                    }
             }
-            else {
-                for (let i = 1; i < spacesCount; i++)
-                    spaces[i] = spacing;
-            }
-            let positions = this.computeWorldPositions(attachment, spacesCount, tangents, data.positionMode == spine.PositionMode.Percent, percentSpacing);
+            let positions = this.computeWorldPositions(attachment, spacesCount, tangents);
             let boneX = positions[0], boneY = positions[1], offsetRotation = data.offsetRotation;
             let tip = false;
             if (offsetRotation == 0)
-                tip = rotateMode == spine.RotateMode.Chain;
+                tip = data.rotateMode == spine.RotateMode.Chain;
             else {
                 tip = false;
                 let p = this.target.bone;
@@ -3135,20 +3665,20 @@ var spine;
             }
             for (let i = 0, p = 3; i < boneCount; i++, p += 3) {
                 let bone = bones[i];
-                bone.worldX += (boneX - bone.worldX) * translateMix;
-                bone.worldY += (boneY - bone.worldY) * translateMix;
+                bone.worldX += (boneX - bone.worldX) * mixX;
+                bone.worldY += (boneY - bone.worldY) * mixY;
                 let x = positions[p], y = positions[p + 1], dx = x - boneX, dy = y - boneY;
                 if (scale) {
                     let length = lengths[i];
                     if (length != 0) {
-                        let s = (Math.sqrt(dx * dx + dy * dy) / length - 1) * rotateMix + 1;
+                        let s = (Math.sqrt(dx * dx + dy * dy) / length - 1) * mixRotate + 1;
                         bone.a *= s;
                         bone.c *= s;
                     }
                 }
                 boneX = x;
                 boneY = y;
-                if (rotate) {
+                if (mixRotate > 0) {
                     let a = bone.a, b = bone.b, c = bone.c, d = bone.d, r = 0, cos = 0, sin = 0;
                     if (tangents)
                         r = positions[p - 1];
@@ -3161,8 +3691,8 @@ var spine;
                         cos = Math.cos(r);
                         sin = Math.sin(r);
                         let length = bone.data.length;
-                        boneX += (length * (cos * a - sin * c) - dx) * rotateMix;
-                        boneY += (length * (sin * a + cos * c) - dy) * rotateMix;
+                        boneX += (length * (cos * a - sin * c) - dx) * mixRotate;
+                        boneY += (length * (sin * a + cos * c) - dy) * mixRotate;
                     }
                     else {
                         r += offsetRotation;
@@ -3171,7 +3701,7 @@ var spine;
                         r -= spine.MathUtils.PI2;
                     else if (r < -spine.MathUtils.PI)
                         r += spine.MathUtils.PI2;
-                    r *= rotateMix;
+                    r *= mixRotate;
                     cos = Math.cos(r);
                     sin = Math.sin(r);
                     bone.a = cos * a - sin * c;
@@ -3179,10 +3709,10 @@ var spine;
                     bone.c = sin * a + cos * c;
                     bone.d = sin * b + cos * d;
                 }
-                bone.appliedValid = false;
+                bone.updateAppliedTransform();
             }
         }
-        computeWorldPositions(path, spacesCount, tangents, percentPosition, percentSpacing) {
+        computeWorldPositions(path, spacesCount, tangents) {
             let target = this.target;
             let position = this.position;
             let spaces = this.spaces, out = spine.Utils.setArraySize(this.positions, spacesCount * 3 + 2), world = null;
@@ -3192,15 +3722,22 @@ var spine;
                 let lengths = path.lengths;
                 curveCount -= closed ? 1 : 2;
                 let pathLength = lengths[curveCount];
-                if (percentPosition)
+                if (this.data.positionMode == spine.PositionMode.Percent)
                     position *= pathLength;
-                if (percentSpacing) {
-                    for (let i = 1; i < spacesCount; i++)
-                        spaces[i] *= pathLength;
+                let multiplier;
+                switch (this.data.spacingMode) {
+                    case spine.SpacingMode.Percent:
+                        multiplier = pathLength;
+                        break;
+                    case spine.SpacingMode.Proportional:
+                        multiplier = pathLength / spacesCount;
+                        break;
+                    default:
+                        multiplier = 1;
                 }
                 world = spine.Utils.setArraySize(this.world, 8);
                 for (let i = 0, o = 0, curve = 0; i < spacesCount; i++, o += 3) {
-                    let space = spaces[i];
+                    let space = spaces[i] * multiplier;
                     position += space;
                     let p = position;
                     if (closed) {
@@ -3299,18 +3836,23 @@ var spine;
                 x1 = x2;
                 y1 = y2;
             }
-            if (percentPosition)
+            if (this.data.positionMode == spine.PositionMode.Percent)
                 position *= pathLength;
-            else
-                position *= pathLength / path.lengths[curveCount - 1];
-            if (percentSpacing) {
-                for (let i = 1; i < spacesCount; i++)
-                    spaces[i] *= pathLength;
+            let multiplier;
+            switch (this.data.spacingMode) {
+                case spine.SpacingMode.Percent:
+                    multiplier = pathLength;
+                    break;
+                case spine.SpacingMode.Proportional:
+                    multiplier = pathLength / spacesCount;
+                    break;
+                default:
+                    multiplier = 1;
             }
             let segments = this.segments;
             let curveLength = 0;
             for (let i = 0, o = 0, curve = 0, segment = 0; i < spacesCount; i++, o += 3) {
-                let space = spaces[i];
+                let space = spaces[i] * multiplier;
                 position += space;
                 let p = position;
                 if (closed) {
@@ -3439,6 +3981,9 @@ var spine;
         constructor(name) {
             super(name, 0, false);
             this.bones = new Array();
+            this.mixRotate = 0;
+            this.mixX = 0;
+            this.mixY = 0;
         }
     }
     spine.PathConstraintData = PathConstraintData;
@@ -3452,6 +3997,7 @@ var spine;
         SpacingMode[SpacingMode["Length"] = 0] = "Length";
         SpacingMode[SpacingMode["Fixed"] = 1] = "Fixed";
         SpacingMode[SpacingMode["Percent"] = 2] = "Percent";
+        SpacingMode[SpacingMode["Proportional"] = 3] = "Proportional";
     })(SpacingMode = spine.SpacingMode || (spine.SpacingMode = {}));
     let RotateMode;
     (function (RotateMode) {
@@ -3462,189 +4008,22 @@ var spine;
 })(spine || (spine = {}));
 var spine;
 (function (spine) {
-    class Assets {
-        constructor(clientId) {
-            this.toLoad = new Array();
-            this.assets = {};
-            this.clientId = clientId;
-        }
-        loaded() {
-            let i = 0;
-            for (let v in this.assets)
-                i++;
-            return i;
-        }
-    }
-    class SharedAssetManager {
-        constructor(pathPrefix = "") {
-            this.clientAssets = {};
-            this.queuedAssets = {};
-            this.rawAssets = {};
-            this.errors = {};
-            this.pathPrefix = pathPrefix;
-        }
-        queueAsset(clientId, textureLoader, path) {
-            let clientAssets = this.clientAssets[clientId];
-            if (clientAssets === null || clientAssets === undefined) {
-                clientAssets = new Assets(clientId);
-                this.clientAssets[clientId] = clientAssets;
-            }
-            if (textureLoader !== null)
-                clientAssets.textureLoader = textureLoader;
-            clientAssets.toLoad.push(path);
-            if (this.queuedAssets[path] === path) {
-                return false;
-            }
-            else {
-                this.queuedAssets[path] = path;
-                return true;
-            }
-        }
-        loadText(clientId, path) {
-            path = this.pathPrefix + path;
-            if (!this.queueAsset(clientId, null, path))
-                return;
-            let request = new XMLHttpRequest();
-            request.overrideMimeType("text/html");
-            request.onreadystatechange = () => {
-                if (request.readyState == XMLHttpRequest.DONE) {
-                    if (request.status >= 200 && request.status < 300) {
-                        this.rawAssets[path] = request.responseText;
-                    }
-                    else {
-                        this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
-                    }
-                }
-            };
-            request.open("GET", path, true);
-            request.send();
-        }
-        loadJson(clientId, path) {
-            path = this.pathPrefix + path;
-            if (!this.queueAsset(clientId, null, path))
-                return;
-            let request = new XMLHttpRequest();
-            request.overrideMimeType("text/html");
-            request.onreadystatechange = () => {
-                if (request.readyState == XMLHttpRequest.DONE) {
-                    if (request.status >= 200 && request.status < 300) {
-                        this.rawAssets[path] = JSON.parse(request.responseText);
-                    }
-                    else {
-                        this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
-                    }
-                }
-            };
-            request.open("GET", path, true);
-            request.send();
-        }
-        loadTexture(clientId, textureLoader, path) {
-            path = this.pathPrefix + path;
-            if (!this.queueAsset(clientId, textureLoader, path))
-                return;
-            let isBrowser = !!(typeof window !== 'undefined' && typeof navigator !== 'undefined' && window.document);
-            let isWebWorker = !isBrowser && typeof importScripts !== 'undefined';
-            if (isWebWorker) {
-                const options = { mode: "cors" };
-                fetch(path, options).then((response) => {
-                    if (!response.ok) {
-                        this.errors[path] = "Couldn't load image " + path;
-                    }
-                    return response.blob();
-                }).then((blob) => {
-                    return createImageBitmap(blob, {
-                        premultiplyAlpha: 'none',
-                        colorSpaceConversion: 'none',
-                    });
-                }).then((bitmap) => {
-                    this.rawAssets[path] = bitmap;
-                });
-            }
-            else {
-                let img = new Image();
-                img.crossOrigin = "anonymous";
-                img.onload = (ev) => {
-                    this.rawAssets[path] = img;
-                };
-                img.onerror = (ev) => {
-                    this.errors[path] = `Couldn't load image ${path}`;
-                };
-                img.src = path;
-            }
-        }
-        get(clientId, path) {
-            path = this.pathPrefix + path;
-            let clientAssets = this.clientAssets[clientId];
-            if (clientAssets === null || clientAssets === undefined)
-                return true;
-            return clientAssets.assets[path];
-        }
-        updateClientAssets(clientAssets) {
-            let isBrowser = !!(typeof window !== 'undefined' && typeof navigator !== 'undefined' && window.document);
-            let isWebWorker = !isBrowser && typeof importScripts !== 'undefined';
-            for (let i = 0; i < clientAssets.toLoad.length; i++) {
-                let path = clientAssets.toLoad[i];
-                let asset = clientAssets.assets[path];
-                if (asset === null || asset === undefined) {
-                    let rawAsset = this.rawAssets[path];
-                    if (rawAsset === null || rawAsset === undefined)
-                        continue;
-                    if (isWebWorker) {
-                        if (rawAsset instanceof ImageBitmap) {
-                            clientAssets.assets[path] = clientAssets.textureLoader(rawAsset);
-                        }
-                        else {
-                            clientAssets.assets[path] = rawAsset;
-                        }
-                    }
-                    else {
-                        if (rawAsset instanceof HTMLImageElement) {
-                            clientAssets.assets[path] = clientAssets.textureLoader(rawAsset);
-                        }
-                        else {
-                            clientAssets.assets[path] = rawAsset;
-                        }
-                    }
-                }
-            }
-        }
-        isLoadingComplete(clientId) {
-            let clientAssets = this.clientAssets[clientId];
-            if (clientAssets === null || clientAssets === undefined)
-                return true;
-            this.updateClientAssets(clientAssets);
-            return clientAssets.toLoad.length == clientAssets.loaded();
-        }
-        dispose() {
-        }
-        hasErrors() {
-            return Object.keys(this.errors).length > 0;
-        }
-        getErrors() {
-            return this.errors;
-        }
-    }
-    spine.SharedAssetManager = SharedAssetManager;
-})(spine || (spine = {}));
-var spine;
-(function (spine) {
     class Skeleton {
         constructor(data) {
             this._updateCache = new Array();
-            this.updateCacheReset = new Array();
             this.time = 0;
             this.scaleX = 1;
             this.scaleY = 1;
             this.x = 0;
             this.y = 0;
-            if (data == null)
+            if (!data)
                 throw new Error("data cannot be null.");
             this.data = data;
             this.bones = new Array();
             for (let i = 0; i < data.bones.length; i++) {
                 let boneData = data.bones[i];
                 let bone;
-                if (boneData.parent == null)
+                if (!boneData.parent)
                     bone = new spine.Bone(boneData, this, null);
                 else {
                     let parent = this.bones[boneData.parent.index];
@@ -3683,14 +4062,13 @@ var spine;
         updateCache() {
             let updateCache = this._updateCache;
             updateCache.length = 0;
-            this.updateCacheReset.length = 0;
             let bones = this.bones;
             for (let i = 0, n = bones.length; i < n; i++) {
                 let bone = bones[i];
                 bone.sorted = bone.data.skinRequired;
                 bone.active = !bone.sorted;
             }
-            if (this.skin != null) {
+            if (this.skin) {
                 let skinBones = this.skin.bones;
                 for (let i = 0, n = this.skin.bones.length; i < n; i++) {
                     let bone = this.bones[skinBones[i].index];
@@ -3698,7 +4076,7 @@ var spine;
                         bone.sorted = false;
                         bone.active = true;
                         bone = bone.parent;
-                    } while (bone != null);
+                    } while (bone);
                 }
             }
             let ikConstraints = this.ikConstraints;
@@ -3733,7 +4111,7 @@ var spine;
                 this.sortBone(bones[i]);
         }
         sortIkConstraint(constraint) {
-            constraint.active = constraint.target.isActive() && (!constraint.data.skinRequired || (this.skin != null && spine.Utils.contains(this.skin.constraints, constraint.data, true)));
+            constraint.active = constraint.target.isActive() && (!constraint.data.skinRequired || (this.skin && spine.Utils.contains(this.skin.constraints, constraint.data, true)));
             if (!constraint.active)
                 return;
             let target = constraint.target;
@@ -3741,25 +4119,28 @@ var spine;
             let constrained = constraint.bones;
             let parent = constrained[0];
             this.sortBone(parent);
-            if (constrained.length > 1) {
-                let child = constrained[constrained.length - 1];
-                if (!(this._updateCache.indexOf(child) > -1))
-                    this.updateCacheReset.push(child);
+            if (constrained.length == 1) {
+                this._updateCache.push(constraint);
+                this.sortReset(parent.children);
             }
-            this._updateCache.push(constraint);
-            this.sortReset(parent.children);
-            constrained[constrained.length - 1].sorted = true;
+            else {
+                let child = constrained[constrained.length - 1];
+                this.sortBone(child);
+                this._updateCache.push(constraint);
+                this.sortReset(parent.children);
+                child.sorted = true;
+            }
         }
         sortPathConstraint(constraint) {
-            constraint.active = constraint.target.bone.isActive() && (!constraint.data.skinRequired || (this.skin != null && spine.Utils.contains(this.skin.constraints, constraint.data, true)));
+            constraint.active = constraint.target.bone.isActive() && (!constraint.data.skinRequired || (this.skin && spine.Utils.contains(this.skin.constraints, constraint.data, true)));
             if (!constraint.active)
                 return;
             let slot = constraint.target;
             let slotIndex = slot.data.index;
             let slotBone = slot.bone;
-            if (this.skin != null)
+            if (this.skin)
                 this.sortPathConstraintAttachment(this.skin, slotIndex, slotBone);
-            if (this.data.defaultSkin != null && this.data.defaultSkin != this.skin)
+            if (this.data.defaultSkin && this.data.defaultSkin != this.skin)
                 this.sortPathConstraintAttachment(this.data.defaultSkin, slotIndex, slotBone);
             for (let i = 0, n = this.data.skins.length; i < n; i++)
                 this.sortPathConstraintAttachment(this.data.skins[i], slotIndex, slotBone);
@@ -3777,7 +4158,7 @@ var spine;
                 constrained[i].sorted = true;
         }
         sortTransformConstraint(constraint) {
-            constraint.active = constraint.target.isActive() && (!constraint.data.skinRequired || (this.skin != null && spine.Utils.contains(this.skin.constraints, constraint.data, true)));
+            constraint.active = constraint.target.isActive() && (!constraint.data.skinRequired || (this.skin && spine.Utils.contains(this.skin.constraints, constraint.data, true)));
             if (!constraint.active)
                 return;
             this.sortBone(constraint.target);
@@ -3787,8 +4168,7 @@ var spine;
                 for (let i = 0; i < boneCount; i++) {
                     let child = constrained[i];
                     this.sortBone(child.parent);
-                    if (!(this._updateCache.indexOf(child) > -1))
-                        this.updateCacheReset.push(child);
+                    this.sortBone(child);
                 }
             }
             else {
@@ -3797,10 +4177,10 @@ var spine;
                 }
             }
             this._updateCache.push(constraint);
-            for (let ii = 0; ii < boneCount; ii++)
-                this.sortReset(constrained[ii].children);
-            for (let ii = 0; ii < boneCount; ii++)
-                constrained[ii].sorted = true;
+            for (let i = 0; i < boneCount; i++)
+                this.sortReset(constrained[i].children);
+            for (let i = 0; i < boneCount; i++)
+                constrained[i].sorted = true;
         }
         sortPathConstraintAttachment(skin, slotIndex, slotBone) {
             let attachments = skin.attachments[slotIndex];
@@ -3814,17 +4194,15 @@ var spine;
             if (!(attachment instanceof spine.PathAttachment))
                 return;
             let pathBones = attachment.bones;
-            if (pathBones == null)
+            if (!pathBones)
                 this.sortBone(slotBone);
             else {
                 let bones = this.bones;
-                let i = 0;
-                while (i < pathBones.length) {
-                    let boneCount = pathBones[i++];
-                    for (let n = i + boneCount; i < n; i++) {
-                        let boneIndex = pathBones[i];
-                        this.sortBone(bones[boneIndex]);
-                    }
+                for (let i = 0, n = pathBones.length; i < n;) {
+                    let nn = pathBones[i++];
+                    nn += i;
+                    while (i < nn)
+                        this.sortBone(bones[pathBones[i++]]);
                 }
             }
         }
@@ -3832,7 +4210,7 @@ var spine;
             if (bone.sorted)
                 return;
             let parent = bone.parent;
-            if (parent != null)
+            if (parent)
                 this.sortBone(parent);
             bone.sorted = true;
             this._updateCache.push(bone);
@@ -3848,9 +4226,9 @@ var spine;
             }
         }
         updateWorldTransform() {
-            let updateCacheReset = this.updateCacheReset;
-            for (let i = 0, n = updateCacheReset.length; i < n; i++) {
-                let bone = updateCacheReset[i];
+            let bones = this.bones;
+            for (let i = 0, n = bones.length; i < n; i++) {
+                let bone = bones[i];
                 bone.ax = bone.x;
                 bone.ay = bone.y;
                 bone.arotation = bone.rotation;
@@ -3858,11 +4236,31 @@ var spine;
                 bone.ascaleY = bone.scaleY;
                 bone.ashearX = bone.shearX;
                 bone.ashearY = bone.shearY;
-                bone.appliedValid = true;
             }
             let updateCache = this._updateCache;
             for (let i = 0, n = updateCache.length; i < n; i++)
                 updateCache[i].update();
+        }
+        updateWorldTransformWith(parent) {
+            let rootBone = this.getRootBone();
+            let pa = parent.a, pb = parent.b, pc = parent.c, pd = parent.d;
+            rootBone.worldX = pa * this.x + pb * this.y + parent.worldX;
+            rootBone.worldY = pc * this.x + pd * this.y + parent.worldY;
+            let rotationY = rootBone.rotation + 90 + rootBone.shearY;
+            let la = spine.MathUtils.cosDeg(rootBone.rotation + rootBone.shearX) * rootBone.scaleX;
+            let lb = spine.MathUtils.cosDeg(rotationY) * rootBone.scaleY;
+            let lc = spine.MathUtils.sinDeg(rootBone.rotation + rootBone.shearX) * rootBone.scaleX;
+            let ld = spine.MathUtils.sinDeg(rotationY) * rootBone.scaleY;
+            rootBone.a = (pa * la + pb * lc) * this.scaleX;
+            rootBone.b = (pa * lb + pb * ld) * this.scaleX;
+            rootBone.c = (pc * la + pd * lc) * this.scaleY;
+            rootBone.d = (pc * lb + pd * ld) * this.scaleY;
+            let updateCache = this._updateCache;
+            for (let i = 0, n = updateCache.length; i < n; i++) {
+                let updatable = updateCache[i];
+                if (updatable != rootBone)
+                    updatable.update();
+            }
         }
         setToSetupPose() {
             this.setBonesToSetupPose();
@@ -3885,10 +4283,12 @@ var spine;
             for (let i = 0, n = transformConstraints.length; i < n; i++) {
                 let constraint = transformConstraints[i];
                 let data = constraint.data;
-                constraint.rotateMix = data.rotateMix;
-                constraint.translateMix = data.translateMix;
-                constraint.scaleMix = data.scaleMix;
-                constraint.shearMix = data.shearMix;
+                constraint.mixRotate = data.mixRotate;
+                constraint.mixX = data.mixX;
+                constraint.mixY = data.mixY;
+                constraint.mixScaleX = data.mixScaleX;
+                constraint.mixScaleY = data.mixScaleY;
+                constraint.mixShearY = data.mixShearY;
             }
             let pathConstraints = this.pathConstraints;
             for (let i = 0, n = pathConstraints.length; i < n; i++) {
@@ -3896,8 +4296,9 @@ var spine;
                 let data = constraint.data;
                 constraint.position = data.position;
                 constraint.spacing = data.spacing;
-                constraint.rotateMix = data.rotateMix;
-                constraint.translateMix = data.translateMix;
+                constraint.mixRotate = data.mixRotate;
+                constraint.mixX = data.mixX;
+                constraint.mixY = data.mixY;
             }
         }
         setSlotsToSetupPose() {
@@ -3912,7 +4313,7 @@ var spine;
             return this.bones[0];
         }
         findBone(boneName) {
-            if (boneName == null)
+            if (!boneName)
                 throw new Error("boneName cannot be null.");
             let bones = this.bones;
             for (let i = 0, n = bones.length; i < n; i++) {
@@ -3923,7 +4324,7 @@ var spine;
             return null;
         }
         findBoneIndex(boneName) {
-            if (boneName == null)
+            if (!boneName)
                 throw new Error("boneName cannot be null.");
             let bones = this.bones;
             for (let i = 0, n = bones.length; i < n; i++)
@@ -3932,7 +4333,7 @@ var spine;
             return -1;
         }
         findSlot(slotName) {
-            if (slotName == null)
+            if (!slotName)
                 throw new Error("slotName cannot be null.");
             let slots = this.slots;
             for (let i = 0, n = slots.length; i < n; i++) {
@@ -3943,7 +4344,7 @@ var spine;
             return null;
         }
         findSlotIndex(slotName) {
-            if (slotName == null)
+            if (!slotName)
                 throw new Error("slotName cannot be null.");
             let slots = this.slots;
             for (let i = 0, n = slots.length; i < n; i++)
@@ -3953,24 +4354,24 @@ var spine;
         }
         setSkinByName(skinName) {
             let skin = this.data.findSkin(skinName);
-            if (skin == null)
+            if (!skin)
                 throw new Error("Skin not found: " + skinName);
             this.setSkin(skin);
         }
         setSkin(newSkin) {
             if (newSkin == this.skin)
                 return;
-            if (newSkin != null) {
-                if (this.skin != null)
+            if (newSkin) {
+                if (this.skin)
                     newSkin.attachAll(this, this.skin);
                 else {
                     let slots = this.slots;
                     for (let i = 0, n = slots.length; i < n; i++) {
                         let slot = slots[i];
                         let name = slot.data.attachmentName;
-                        if (name != null) {
+                        if (name) {
                             let attachment = newSkin.getAttachment(i, name);
-                            if (attachment != null)
+                            if (attachment)
                                 slot.setAttachment(attachment);
                         }
                     }
@@ -3983,28 +4384,28 @@ var spine;
             return this.getAttachment(this.data.findSlotIndex(slotName), attachmentName);
         }
         getAttachment(slotIndex, attachmentName) {
-            if (attachmentName == null)
+            if (!attachmentName)
                 throw new Error("attachmentName cannot be null.");
-            if (this.skin != null) {
+            if (this.skin) {
                 let attachment = this.skin.getAttachment(slotIndex, attachmentName);
-                if (attachment != null)
+                if (attachment)
                     return attachment;
             }
-            if (this.data.defaultSkin != null)
+            if (this.data.defaultSkin)
                 return this.data.defaultSkin.getAttachment(slotIndex, attachmentName);
             return null;
         }
         setAttachment(slotName, attachmentName) {
-            if (slotName == null)
+            if (!slotName)
                 throw new Error("slotName cannot be null.");
             let slots = this.slots;
             for (let i = 0, n = slots.length; i < n; i++) {
                 let slot = slots[i];
                 if (slot.data.name == slotName) {
                     let attachment = null;
-                    if (attachmentName != null) {
+                    if (attachmentName) {
                         attachment = this.getAttachment(i, attachmentName);
-                        if (attachment == null)
+                        if (!attachment)
                             throw new Error("Attachment not found: " + attachmentName + ", for slot: " + slotName);
                     }
                     slot.setAttachment(attachment);
@@ -4014,7 +4415,7 @@ var spine;
             throw new Error("Slot not found: " + slotName);
         }
         findIkConstraint(constraintName) {
-            if (constraintName == null)
+            if (!constraintName)
                 throw new Error("constraintName cannot be null.");
             let ikConstraints = this.ikConstraints;
             for (let i = 0, n = ikConstraints.length; i < n; i++) {
@@ -4025,7 +4426,7 @@ var spine;
             return null;
         }
         findTransformConstraint(constraintName) {
-            if (constraintName == null)
+            if (!constraintName)
                 throw new Error("constraintName cannot be null.");
             let transformConstraints = this.transformConstraints;
             for (let i = 0, n = transformConstraints.length; i < n; i++) {
@@ -4036,7 +4437,7 @@ var spine;
             return null;
         }
         findPathConstraint(constraintName) {
-            if (constraintName == null)
+            if (!constraintName)
                 throw new Error("constraintName cannot be null.");
             let pathConstraints = this.pathConstraints;
             for (let i = 0, n = pathConstraints.length; i < n; i++) {
@@ -4047,9 +4448,9 @@ var spine;
             return null;
         }
         getBounds(offset, size, temp = new Array(2)) {
-            if (offset == null)
+            if (!offset)
                 throw new Error("offset cannot be null.");
-            if (size == null)
+            if (!size)
                 throw new Error("size cannot be null.");
             let drawOrder = this.drawOrder;
             let minX = Number.POSITIVE_INFINITY, minY = Number.POSITIVE_INFINITY, maxX = Number.NEGATIVE_INFINITY, maxY = Number.NEGATIVE_INFINITY;
@@ -4071,7 +4472,7 @@ var spine;
                     vertices = spine.Utils.setArraySize(temp, verticesLength, 0);
                     mesh.computeWorldVertices(slot, 0, verticesLength, vertices, 0, 2);
                 }
-                if (vertices != null) {
+                if (vertices) {
                     for (let ii = 0, nn = vertices.length; ii < nn; ii += 2) {
                         let x = vertices[ii], y = vertices[ii + 1];
                         minX = Math.min(minX, x);
@@ -4103,10 +4504,10 @@ var spine;
             let skeletonData = new spine.SkeletonData();
             skeletonData.name = "";
             let input = new BinaryInput(binary);
-            skeletonData.hash = input.readString();
+            let lowHash = input.readInt32();
+            let highHash = input.readInt32();
+            skeletonData.hash = highHash == 0 && lowHash == 0 ? null : highHash.toString(16) + lowHash.toString(16);
             skeletonData.version = input.readString();
-            if ("3.8.75" == skeletonData.version)
-                throw new Error("Unsupported skeleton data, please export with a newer version of Spine.");
             skeletonData.x = input.readFloat();
             skeletonData.y = input.readFloat();
             skeletonData.width = input.readFloat();
@@ -4134,7 +4535,7 @@ var spine;
                 data.shearX = input.readFloat();
                 data.shearY = input.readFloat();
                 data.length = input.readFloat() * scale;
-                data.transformMode = SkeletonBinary.TransformModeValues[input.readInt(true)];
+                data.transformMode = input.readInt(true);
                 data.skinRequired = input.readBoolean();
                 if (nonessential)
                     spine.Color.rgba8888ToColor(data.color, input.readInt32());
@@ -4150,7 +4551,7 @@ var spine;
                 if (darkColor != -1)
                     spine.Color.rgb888ToColor(data.darkColor = new spine.Color(), darkColor);
                 data.attachmentName = input.readStringRef();
-                data.blendMode = SkeletonBinary.BlendModeValues[input.readInt(true)];
+                data.blendMode = input.readInt(true);
                 skeletonData.slots.push(data);
             }
             n = input.readInt(true);
@@ -4187,10 +4588,12 @@ var spine;
                 data.offsetScaleX = input.readFloat();
                 data.offsetScaleY = input.readFloat();
                 data.offsetShearY = input.readFloat();
-                data.rotateMix = input.readFloat();
-                data.translateMix = input.readFloat();
-                data.scaleMix = input.readFloat();
-                data.shearMix = input.readFloat();
+                data.mixRotate = input.readFloat();
+                data.mixX = input.readFloat();
+                data.mixY = input.readFloat();
+                data.mixScaleX = input.readFloat();
+                data.mixScaleY = input.readFloat();
+                data.mixShearY = input.readFloat();
                 skeletonData.transformConstraints.push(data);
             }
             n = input.readInt(true);
@@ -4202,9 +4605,9 @@ var spine;
                 for (let ii = 0; ii < nn; ii++)
                     data.bones.push(skeletonData.bones[input.readInt(true)]);
                 data.target = skeletonData.slots[input.readInt(true)];
-                data.positionMode = SkeletonBinary.PositionModeValues[input.readInt(true)];
-                data.spacingMode = SkeletonBinary.SpacingModeValues[input.readInt(true)];
-                data.rotateMode = SkeletonBinary.RotateModeValues[input.readInt(true)];
+                data.positionMode = input.readInt(true);
+                data.spacingMode = input.readInt(true);
+                data.rotateMode = input.readInt(true);
                 data.offsetRotation = input.readFloat();
                 data.position = input.readFloat();
                 if (data.positionMode == spine.PositionMode.Fixed)
@@ -4212,12 +4615,13 @@ var spine;
                 data.spacing = input.readFloat();
                 if (data.spacingMode == spine.SpacingMode.Length || data.spacingMode == spine.SpacingMode.Fixed)
                     data.spacing *= scale;
-                data.rotateMix = input.readFloat();
-                data.translateMix = input.readFloat();
+                data.mixRotate = input.readFloat();
+                data.mixX = input.readFloat();
+                data.mixY = input.readFloat();
                 skeletonData.pathConstraints.push(data);
             }
             let defaultSkin = this.readSkin(input, skeletonData, true, nonessential);
-            if (defaultSkin != null) {
+            if (defaultSkin) {
                 skeletonData.defaultSkin = defaultSkin;
                 skeletonData.skins.push(defaultSkin);
             }
@@ -4230,12 +4634,8 @@ var spine;
             n = this.linkedMeshes.length;
             for (let i = 0; i < n; i++) {
                 let linkedMesh = this.linkedMeshes[i];
-                let skin = linkedMesh.skin == null ? skeletonData.defaultSkin : skeletonData.findSkin(linkedMesh.skin);
-                if (skin == null)
-                    throw new Error("Skin not found: " + linkedMesh.skin);
+                let skin = !linkedMesh.skin ? skeletonData.defaultSkin : skeletonData.findSkin(linkedMesh.skin);
                 let parent = skin.getAttachment(linkedMesh.slotIndex, linkedMesh.parent);
-                if (parent == null)
-                    throw new Error("Parent mesh not found: " + linkedMesh.parent);
                 linkedMesh.mesh.deformAttachment = linkedMesh.inheritDeform ? parent : linkedMesh.mesh;
                 linkedMesh.mesh.setParentMesh(parent);
                 linkedMesh.mesh.updateUVs();
@@ -4248,7 +4648,7 @@ var spine;
                 data.floatValue = input.readFloat();
                 data.stringValue = input.readString();
                 data.audioPath = input.readString();
-                if (data.audioPath != null) {
+                if (data.audioPath) {
                     data.volume = input.readFloat();
                     data.balance = input.readFloat();
                 }
@@ -4286,7 +4686,7 @@ var spine;
                 for (let ii = 0, nn = input.readInt(true); ii < nn; ii++) {
                     let name = input.readStringRef();
                     let attachment = this.readAttachment(input, skeletonData, skin, slotIndex, name, nonessential);
-                    if (attachment != null)
+                    if (attachment)
                         skin.setAttachment(slotIndex, name, attachment);
                 }
             }
@@ -4295,12 +4695,10 @@ var spine;
         readAttachment(input, skeletonData, skin, slotIndex, attachmentName, nonessential) {
             let scale = this.scale;
             let name = input.readStringRef();
-            if (name == null)
+            if (!name)
                 name = attachmentName;
-            let typeIndex = input.readByte();
-            let type = SkeletonBinary.AttachmentTypeValues[typeIndex];
-            switch (type) {
-                case spine.AttachmentType.Region: {
+            switch (input.readByte()) {
+                case AttachmentType.Region: {
                     let path = input.readStringRef();
                     let rotation = input.readFloat();
                     let x = input.readFloat();
@@ -4310,10 +4708,10 @@ var spine;
                     let width = input.readFloat();
                     let height = input.readFloat();
                     let color = input.readInt32();
-                    if (path == null)
+                    if (!path)
                         path = name;
                     let region = this.attachmentLoader.newRegionAttachment(skin, name, path);
-                    if (region == null)
+                    if (!region)
                         return null;
                     region.path = path;
                     region.x = x * scale;
@@ -4327,12 +4725,12 @@ var spine;
                     region.updateOffset();
                     return region;
                 }
-                case spine.AttachmentType.BoundingBox: {
+                case AttachmentType.BoundingBox: {
                     let vertexCount = input.readInt(true);
                     let vertices = this.readVertices(input, vertexCount);
                     let color = nonessential ? input.readInt32() : 0;
                     let box = this.attachmentLoader.newBoundingBoxAttachment(skin, name);
-                    if (box == null)
+                    if (!box)
                         return null;
                     box.worldVerticesLength = vertexCount << 1;
                     box.vertices = vertices.vertices;
@@ -4341,7 +4739,7 @@ var spine;
                         spine.Color.rgba8888ToColor(box.color, color);
                     return box;
                 }
-                case spine.AttachmentType.Mesh: {
+                case AttachmentType.Mesh: {
                     let path = input.readStringRef();
                     let color = input.readInt32();
                     let vertexCount = input.readInt(true);
@@ -4356,10 +4754,10 @@ var spine;
                         width = input.readFloat();
                         height = input.readFloat();
                     }
-                    if (path == null)
+                    if (!path)
                         path = name;
                     let mesh = this.attachmentLoader.newMeshAttachment(skin, name, path);
-                    if (mesh == null)
+                    if (!mesh)
                         return null;
                     mesh.path = path;
                     spine.Color.rgba8888ToColor(mesh.color, color);
@@ -4377,7 +4775,7 @@ var spine;
                     }
                     return mesh;
                 }
-                case spine.AttachmentType.LinkedMesh: {
+                case AttachmentType.LinkedMesh: {
                     let path = input.readStringRef();
                     let color = input.readInt32();
                     let skinName = input.readStringRef();
@@ -4388,10 +4786,10 @@ var spine;
                         width = input.readFloat();
                         height = input.readFloat();
                     }
-                    if (path == null)
+                    if (!path)
                         path = name;
                     let mesh = this.attachmentLoader.newMeshAttachment(skin, name, path);
-                    if (mesh == null)
+                    if (!mesh)
                         return null;
                     mesh.path = path;
                     spine.Color.rgba8888ToColor(mesh.color, color);
@@ -4402,7 +4800,7 @@ var spine;
                     this.linkedMeshes.push(new LinkedMesh(mesh, skinName, slotIndex, parent, inheritDeform));
                     return mesh;
                 }
-                case spine.AttachmentType.Path: {
+                case AttachmentType.Path: {
                     let closed = input.readBoolean();
                     let constantSpeed = input.readBoolean();
                     let vertexCount = input.readInt(true);
@@ -4412,7 +4810,7 @@ var spine;
                         lengths[i] = input.readFloat() * scale;
                     let color = nonessential ? input.readInt32() : 0;
                     let path = this.attachmentLoader.newPathAttachment(skin, name);
-                    if (path == null)
+                    if (!path)
                         return null;
                     path.closed = closed;
                     path.constantSpeed = constantSpeed;
@@ -4424,13 +4822,13 @@ var spine;
                         spine.Color.rgba8888ToColor(path.color, color);
                     return path;
                 }
-                case spine.AttachmentType.Point: {
+                case AttachmentType.Point: {
                     let rotation = input.readFloat();
                     let x = input.readFloat();
                     let y = input.readFloat();
                     let color = nonessential ? input.readInt32() : 0;
                     let point = this.attachmentLoader.newPointAttachment(skin, name);
-                    if (point == null)
+                    if (!point)
                         return null;
                     point.x = x * scale;
                     point.y = y * scale;
@@ -4439,13 +4837,13 @@ var spine;
                         spine.Color.rgba8888ToColor(point.color, color);
                     return point;
                 }
-                case spine.AttachmentType.Clipping: {
+                case AttachmentType.Clipping: {
                     let endSlotIndex = input.readInt(true);
                     let vertexCount = input.readInt(true);
                     let vertices = this.readVertices(input, vertexCount);
                     let color = nonessential ? input.readInt32() : 0;
                     let clip = this.attachmentLoader.newClippingAttachment(skin, name);
-                    if (clip == null)
+                    if (!clip)
                         return null;
                     clip.endSlot = skeletonData.slots[endSlotIndex];
                     clip.worldVerticesLength = vertexCount << 1;
@@ -4459,9 +4857,9 @@ var spine;
             return null;
         }
         readVertices(input, vertexCount) {
+            let scale = this.scale;
             let verticesLength = vertexCount << 1;
             let vertices = new Vertices();
-            let scale = this.scale;
             if (!input.readBoolean()) {
                 vertices.vertices = this.readFloatArray(input, verticesLength, scale);
                 return vertices;
@@ -4502,9 +4900,9 @@ var spine;
             return array;
         }
         readAnimation(input, name, skeletonData) {
+            input.readInt(true);
             let timelines = new Array();
             let scale = this.scale;
-            let duration = 0;
             let tempColor1 = new spine.Color();
             let tempColor2 = new spine.Color();
             for (let i = 0, n = input.readInt(true); i < n; i++) {
@@ -4512,43 +4910,195 @@ var spine;
                 for (let ii = 0, nn = input.readInt(true); ii < nn; ii++) {
                     let timelineType = input.readByte();
                     let frameCount = input.readInt(true);
+                    let frameLast = frameCount - 1;
                     switch (timelineType) {
-                        case SkeletonBinary.SLOT_ATTACHMENT: {
-                            let timeline = new spine.AttachmentTimeline(frameCount);
-                            timeline.slotIndex = slotIndex;
-                            for (let frameIndex = 0; frameIndex < frameCount; frameIndex++)
-                                timeline.setFrame(frameIndex, input.readFloat(), input.readStringRef());
+                        case SLOT_ATTACHMENT: {
+                            let timeline = new spine.AttachmentTimeline(frameCount, slotIndex);
+                            for (let frame = 0; frame < frameCount; frame++)
+                                timeline.setFrame(frame, input.readFloat(), input.readStringRef());
                             timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[frameCount - 1]);
                             break;
                         }
-                        case SkeletonBinary.SLOT_COLOR: {
-                            let timeline = new spine.ColorTimeline(frameCount);
-                            timeline.slotIndex = slotIndex;
-                            for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                                let time = input.readFloat();
-                                spine.Color.rgba8888ToColor(tempColor1, input.readInt32());
-                                timeline.setFrame(frameIndex, time, tempColor1.r, tempColor1.g, tempColor1.b, tempColor1.a);
-                                if (frameIndex < frameCount - 1)
-                                    this.readCurve(input, frameIndex, timeline);
+                        case SLOT_RGBA: {
+                            let bezierCount = input.readInt(true);
+                            let timeline = new spine.RGBATimeline(frameCount, bezierCount, slotIndex);
+                            let time = input.readFloat();
+                            let r = input.readUnsignedByte() / 255.0;
+                            let g = input.readUnsignedByte() / 255.0;
+                            let b = input.readUnsignedByte() / 255.0;
+                            let a = input.readUnsignedByte() / 255.0;
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, r, g, b, a);
+                                if (frame == frameLast)
+                                    break;
+                                let time2 = input.readFloat();
+                                let r2 = input.readUnsignedByte() / 255.0;
+                                let g2 = input.readUnsignedByte() / 255.0;
+                                let b2 = input.readUnsignedByte() / 255.0;
+                                let a2 = input.readUnsignedByte() / 255.0;
+                                switch (input.readByte()) {
+                                    case CURVE_STEPPED:
+                                        timeline.setStepped(frame);
+                                        break;
+                                    case CURVE_BEZIER:
+                                        setBezier(input, timeline, bezier++, frame, 0, time, time2, r, r2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 1, time, time2, g, g2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 2, time, time2, b, b2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 3, time, time2, a, a2, 1);
+                                }
+                                time = time2;
+                                r = r2;
+                                g = g2;
+                                b = b2;
+                                a = a2;
                             }
                             timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(frameCount - 1) * spine.ColorTimeline.ENTRIES]);
                             break;
                         }
-                        case SkeletonBinary.SLOT_TWO_COLOR: {
-                            let timeline = new spine.TwoColorTimeline(frameCount);
-                            timeline.slotIndex = slotIndex;
-                            for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                                let time = input.readFloat();
-                                spine.Color.rgba8888ToColor(tempColor1, input.readInt32());
-                                spine.Color.rgb888ToColor(tempColor2, input.readInt32());
-                                timeline.setFrame(frameIndex, time, tempColor1.r, tempColor1.g, tempColor1.b, tempColor1.a, tempColor2.r, tempColor2.g, tempColor2.b);
-                                if (frameIndex < frameCount - 1)
-                                    this.readCurve(input, frameIndex, timeline);
+                        case SLOT_RGB: {
+                            let bezierCount = input.readInt(true);
+                            let timeline = new spine.RGBTimeline(frameCount, bezierCount, slotIndex);
+                            let time = input.readFloat();
+                            let r = input.readUnsignedByte() / 255.0;
+                            let g = input.readUnsignedByte() / 255.0;
+                            let b = input.readUnsignedByte() / 255.0;
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, r, g, b);
+                                if (frame == frameLast)
+                                    break;
+                                let time2 = input.readFloat();
+                                let r2 = input.readUnsignedByte() / 255.0;
+                                let g2 = input.readUnsignedByte() / 255.0;
+                                let b2 = input.readUnsignedByte() / 255.0;
+                                switch (input.readByte()) {
+                                    case CURVE_STEPPED:
+                                        timeline.setStepped(frame);
+                                        break;
+                                    case CURVE_BEZIER:
+                                        setBezier(input, timeline, bezier++, frame, 0, time, time2, r, r2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 1, time, time2, g, g2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 2, time, time2, b, b2, 1);
+                                }
+                                time = time2;
+                                r = r2;
+                                g = g2;
+                                b = b2;
                             }
                             timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(frameCount - 1) * spine.TwoColorTimeline.ENTRIES]);
+                            break;
+                        }
+                        case SLOT_RGBA2: {
+                            let bezierCount = input.readInt(true);
+                            let timeline = new spine.RGBA2Timeline(frameCount, bezierCount, slotIndex);
+                            let time = input.readFloat();
+                            let r = input.readUnsignedByte() / 255.0;
+                            let g = input.readUnsignedByte() / 255.0;
+                            let b = input.readUnsignedByte() / 255.0;
+                            let a = input.readUnsignedByte() / 255.0;
+                            let r2 = input.readUnsignedByte() / 255.0;
+                            let g2 = input.readUnsignedByte() / 255.0;
+                            let b2 = input.readUnsignedByte() / 255.0;
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, r, g, b, a, r2, g2, b2);
+                                if (frame == frameLast)
+                                    break;
+                                let time2 = input.readFloat();
+                                let nr = input.readUnsignedByte() / 255.0;
+                                let ng = input.readUnsignedByte() / 255.0;
+                                let nb = input.readUnsignedByte() / 255.0;
+                                let na = input.readUnsignedByte() / 255.0;
+                                let nr2 = input.readUnsignedByte() / 255.0;
+                                let ng2 = input.readUnsignedByte() / 255.0;
+                                let nb2 = input.readUnsignedByte() / 255.0;
+                                switch (input.readByte()) {
+                                    case CURVE_STEPPED:
+                                        timeline.setStepped(frame);
+                                        break;
+                                    case CURVE_BEZIER:
+                                        setBezier(input, timeline, bezier++, frame, 0, time, time2, r, nr, 1);
+                                        setBezier(input, timeline, bezier++, frame, 1, time, time2, g, ng, 1);
+                                        setBezier(input, timeline, bezier++, frame, 2, time, time2, b, nb, 1);
+                                        setBezier(input, timeline, bezier++, frame, 3, time, time2, a, na, 1);
+                                        setBezier(input, timeline, bezier++, frame, 4, time, time2, r2, nr2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 5, time, time2, g2, ng2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 6, time, time2, b2, nb2, 1);
+                                }
+                                time = time2;
+                                r = nr;
+                                g = ng;
+                                b = nb;
+                                a = na;
+                                r2 = nr2;
+                                g2 = ng2;
+                                b2 = nb2;
+                            }
+                            timelines.push(timeline);
+                            break;
+                        }
+                        case SLOT_RGB2: {
+                            let bezierCount = input.readInt(true);
+                            let timeline = new spine.RGB2Timeline(frameCount, bezierCount, slotIndex);
+                            let time = input.readFloat();
+                            let r = input.readUnsignedByte() / 255.0;
+                            let g = input.readUnsignedByte() / 255.0;
+                            let b = input.readUnsignedByte() / 255.0;
+                            let r2 = input.readUnsignedByte() / 255.0;
+                            let g2 = input.readUnsignedByte() / 255.0;
+                            let b2 = input.readUnsignedByte() / 255.0;
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, r, g, b, r2, g2, b2);
+                                if (frame == frameLast)
+                                    break;
+                                let time2 = input.readFloat();
+                                let nr = input.readUnsignedByte() / 255.0;
+                                let ng = input.readUnsignedByte() / 255.0;
+                                let nb = input.readUnsignedByte() / 255.0;
+                                let nr2 = input.readUnsignedByte() / 255.0;
+                                let ng2 = input.readUnsignedByte() / 255.0;
+                                let nb2 = input.readUnsignedByte() / 255.0;
+                                switch (input.readByte()) {
+                                    case CURVE_STEPPED:
+                                        timeline.setStepped(frame);
+                                        break;
+                                    case CURVE_BEZIER:
+                                        setBezier(input, timeline, bezier++, frame, 0, time, time2, r, nr, 1);
+                                        setBezier(input, timeline, bezier++, frame, 1, time, time2, g, ng, 1);
+                                        setBezier(input, timeline, bezier++, frame, 2, time, time2, b, nb, 1);
+                                        setBezier(input, timeline, bezier++, frame, 3, time, time2, r2, nr2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 4, time, time2, g2, ng2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 5, time, time2, b2, nb2, 1);
+                                }
+                                time = time2;
+                                r = nr;
+                                g = ng;
+                                b = nb;
+                                r2 = nr2;
+                                g2 = ng2;
+                                b2 = nb2;
+                            }
+                            timelines.push(timeline);
+                            break;
+                        }
+                        case SLOT_ALPHA: {
+                            let timeline = new spine.AlphaTimeline(frameCount, input.readInt(true), slotIndex);
+                            let time = input.readFloat(), a = input.readUnsignedByte() / 255;
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, a);
+                                if (frame == frameLast)
+                                    break;
+                                let time2 = input.readFloat();
+                                let a2 = input.readUnsignedByte() / 255;
+                                switch (input.readByte()) {
+                                    case CURVE_STEPPED:
+                                        timeline.setStepped(frame);
+                                        break;
+                                    case CURVE_BEZIER:
+                                        setBezier(input, timeline, bezier++, frame, 0, time, time2, a, a2, 1);
+                                }
+                                time = time2;
+                                a = a2;
+                            }
+                            timelines.push(timeline);
                             break;
                         }
                     }
@@ -4557,116 +5107,130 @@ var spine;
             for (let i = 0, n = input.readInt(true); i < n; i++) {
                 let boneIndex = input.readInt(true);
                 for (let ii = 0, nn = input.readInt(true); ii < nn; ii++) {
-                    let timelineType = input.readByte();
-                    let frameCount = input.readInt(true);
-                    switch (timelineType) {
-                        case SkeletonBinary.BONE_ROTATE: {
-                            let timeline = new spine.RotateTimeline(frameCount);
-                            timeline.boneIndex = boneIndex;
-                            for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                                timeline.setFrame(frameIndex, input.readFloat(), input.readFloat());
-                                if (frameIndex < frameCount - 1)
-                                    this.readCurve(input, frameIndex, timeline);
-                            }
-                            timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(frameCount - 1) * spine.RotateTimeline.ENTRIES]);
+                    let type = input.readByte(), frameCount = input.readInt(true), bezierCount = input.readInt(true);
+                    switch (type) {
+                        case BONE_ROTATE:
+                            timelines.push(readTimeline1(input, new spine.RotateTimeline(frameCount, bezierCount, boneIndex), 1));
                             break;
-                        }
-                        case SkeletonBinary.BONE_TRANSLATE:
-                        case SkeletonBinary.BONE_SCALE:
-                        case SkeletonBinary.BONE_SHEAR: {
-                            let timeline;
-                            let timelineScale = 1;
-                            if (timelineType == SkeletonBinary.BONE_SCALE)
-                                timeline = new spine.ScaleTimeline(frameCount);
-                            else if (timelineType == SkeletonBinary.BONE_SHEAR)
-                                timeline = new spine.ShearTimeline(frameCount);
-                            else {
-                                timeline = new spine.TranslateTimeline(frameCount);
-                                timelineScale = scale;
-                            }
-                            timeline.boneIndex = boneIndex;
-                            for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                                timeline.setFrame(frameIndex, input.readFloat(), input.readFloat() * timelineScale, input.readFloat() * timelineScale);
-                                if (frameIndex < frameCount - 1)
-                                    this.readCurve(input, frameIndex, timeline);
-                            }
-                            timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(frameCount - 1) * spine.TranslateTimeline.ENTRIES]);
+                        case BONE_TRANSLATE:
+                            timelines.push(readTimeline2(input, new spine.TranslateTimeline(frameCount, bezierCount, boneIndex), scale));
                             break;
-                        }
+                        case BONE_TRANSLATEX:
+                            timelines.push(readTimeline1(input, new spine.TranslateXTimeline(frameCount, bezierCount, boneIndex), scale));
+                            break;
+                        case BONE_TRANSLATEY:
+                            timelines.push(readTimeline1(input, new spine.TranslateYTimeline(frameCount, bezierCount, boneIndex), scale));
+                            break;
+                        case BONE_SCALE:
+                            timelines.push(readTimeline2(input, new spine.ScaleTimeline(frameCount, bezierCount, boneIndex), 1));
+                            break;
+                        case BONE_SCALEX:
+                            timelines.push(readTimeline1(input, new spine.ScaleXTimeline(frameCount, bezierCount, boneIndex), 1));
+                            break;
+                        case BONE_SCALEY:
+                            timelines.push(readTimeline1(input, new spine.ScaleYTimeline(frameCount, bezierCount, boneIndex), 1));
+                            break;
+                        case BONE_SHEAR:
+                            timelines.push(readTimeline2(input, new spine.ShearTimeline(frameCount, bezierCount, boneIndex), 1));
+                            break;
+                        case BONE_SHEARX:
+                            timelines.push(readTimeline1(input, new spine.ShearXTimeline(frameCount, bezierCount, boneIndex), 1));
+                            break;
+                        case BONE_SHEARY:
+                            timelines.push(readTimeline1(input, new spine.ShearYTimeline(frameCount, bezierCount, boneIndex), 1));
                     }
                 }
             }
             for (let i = 0, n = input.readInt(true); i < n; i++) {
-                let index = input.readInt(true);
-                let frameCount = input.readInt(true);
-                let timeline = new spine.IkConstraintTimeline(frameCount);
-                timeline.ikConstraintIndex = index;
-                for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                    timeline.setFrame(frameIndex, input.readFloat(), input.readFloat(), input.readFloat() * scale, input.readByte(), input.readBoolean(), input.readBoolean());
-                    if (frameIndex < frameCount - 1)
-                        this.readCurve(input, frameIndex, timeline);
+                let index = input.readInt(true), frameCount = input.readInt(true), frameLast = frameCount - 1;
+                let timeline = new spine.IkConstraintTimeline(frameCount, input.readInt(true), index);
+                let time = input.readFloat(), mix = input.readFloat(), softness = input.readFloat() * scale;
+                for (let frame = 0, bezier = 0;; frame++) {
+                    timeline.setFrame(frame, time, mix, softness, input.readByte(), input.readBoolean(), input.readBoolean());
+                    if (frame == frameLast)
+                        break;
+                    let time2 = input.readFloat(), mix2 = input.readFloat(), softness2 = input.readFloat() * scale;
+                    switch (input.readByte()) {
+                        case CURVE_STEPPED:
+                            timeline.setStepped(frame);
+                            break;
+                        case CURVE_BEZIER:
+                            setBezier(input, timeline, bezier++, frame, 0, time, time2, mix, mix2, 1);
+                            setBezier(input, timeline, bezier++, frame, 1, time, time2, softness, softness2, scale);
+                    }
+                    time = time2;
+                    mix = mix2;
+                    softness = softness2;
                 }
                 timelines.push(timeline);
-                duration = Math.max(duration, timeline.frames[(frameCount - 1) * spine.IkConstraintTimeline.ENTRIES]);
             }
             for (let i = 0, n = input.readInt(true); i < n; i++) {
-                let index = input.readInt(true);
-                let frameCount = input.readInt(true);
-                let timeline = new spine.TransformConstraintTimeline(frameCount);
-                timeline.transformConstraintIndex = index;
-                for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                    timeline.setFrame(frameIndex, input.readFloat(), input.readFloat(), input.readFloat(), input.readFloat(), input.readFloat());
-                    if (frameIndex < frameCount - 1)
-                        this.readCurve(input, frameIndex, timeline);
+                let index = input.readInt(true), frameCount = input.readInt(true), frameLast = frameCount - 1;
+                let timeline = new spine.TransformConstraintTimeline(frameCount, input.readInt(true), index);
+                let time = input.readFloat(), mixRotate = input.readFloat(), mixX = input.readFloat(), mixY = input.readFloat(), mixScaleX = input.readFloat(), mixScaleY = input.readFloat(), mixShearY = input.readFloat();
+                for (let frame = 0, bezier = 0;; frame++) {
+                    timeline.setFrame(frame, time, mixRotate, mixX, mixY, mixScaleX, mixScaleY, mixShearY);
+                    if (frame == frameLast)
+                        break;
+                    let time2 = input.readFloat(), mixRotate2 = input.readFloat(), mixX2 = input.readFloat(), mixY2 = input.readFloat(), mixScaleX2 = input.readFloat(), mixScaleY2 = input.readFloat(), mixShearY2 = input.readFloat();
+                    switch (input.readByte()) {
+                        case CURVE_STEPPED:
+                            timeline.setStepped(frame);
+                            break;
+                        case CURVE_BEZIER:
+                            setBezier(input, timeline, bezier++, frame, 0, time, time2, mixRotate, mixRotate2, 1);
+                            setBezier(input, timeline, bezier++, frame, 1, time, time2, mixX, mixX2, 1);
+                            setBezier(input, timeline, bezier++, frame, 2, time, time2, mixY, mixY2, 1);
+                            setBezier(input, timeline, bezier++, frame, 3, time, time2, mixScaleX, mixScaleX2, 1);
+                            setBezier(input, timeline, bezier++, frame, 4, time, time2, mixScaleY, mixScaleY2, 1);
+                            setBezier(input, timeline, bezier++, frame, 5, time, time2, mixShearY, mixShearY2, 1);
+                    }
+                    time = time2;
+                    mixRotate = mixRotate2;
+                    mixX = mixX2;
+                    mixY = mixY2;
+                    mixScaleX = mixScaleX2;
+                    mixScaleY = mixScaleY2;
+                    mixShearY = mixShearY2;
                 }
                 timelines.push(timeline);
-                duration = Math.max(duration, timeline.frames[(frameCount - 1) * spine.TransformConstraintTimeline.ENTRIES]);
             }
             for (let i = 0, n = input.readInt(true); i < n; i++) {
                 let index = input.readInt(true);
                 let data = skeletonData.pathConstraints[index];
                 for (let ii = 0, nn = input.readInt(true); ii < nn; ii++) {
-                    let timelineType = input.readByte();
-                    let frameCount = input.readInt(true);
-                    switch (timelineType) {
-                        case SkeletonBinary.PATH_POSITION:
-                        case SkeletonBinary.PATH_SPACING: {
-                            let timeline;
-                            let timelineScale = 1;
-                            if (timelineType == SkeletonBinary.PATH_SPACING) {
-                                timeline = new spine.PathConstraintSpacingTimeline(frameCount);
-                                if (data.spacingMode == spine.SpacingMode.Length || data.spacingMode == spine.SpacingMode.Fixed)
-                                    timelineScale = scale;
-                            }
-                            else {
-                                timeline = new spine.PathConstraintPositionTimeline(frameCount);
-                                if (data.positionMode == spine.PositionMode.Fixed)
-                                    timelineScale = scale;
-                            }
-                            timeline.pathConstraintIndex = index;
-                            for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                                timeline.setFrame(frameIndex, input.readFloat(), input.readFloat() * timelineScale);
-                                if (frameIndex < frameCount - 1)
-                                    this.readCurve(input, frameIndex, timeline);
+                    switch (input.readByte()) {
+                        case PATH_POSITION:
+                            timelines
+                                .push(readTimeline1(input, new spine.PathConstraintPositionTimeline(input.readInt(true), input.readInt(true), index), data.positionMode == spine.PositionMode.Fixed ? scale : 1));
+                            break;
+                        case PATH_SPACING:
+                            timelines
+                                .push(readTimeline1(input, new spine.PathConstraintSpacingTimeline(input.readInt(true), input.readInt(true), index), data.spacingMode == spine.SpacingMode.Length || data.spacingMode == spine.SpacingMode.Fixed ? scale : 1));
+                            break;
+                        case PATH_MIX:
+                            let timeline = new spine.PathConstraintMixTimeline(input.readInt(true), input.readInt(true), index);
+                            let time = input.readFloat(), mixRotate = input.readFloat(), mixX = input.readFloat(), mixY = input.readFloat();
+                            for (let frame = 0, bezier = 0, frameLast = timeline.getFrameCount() - 1;; frame++) {
+                                timeline.setFrame(frame, time, mixRotate, mixX, mixY);
+                                if (frame == frameLast)
+                                    break;
+                                let time2 = input.readFloat(), mixRotate2 = input.readFloat(), mixX2 = input.readFloat(), mixY2 = input.readFloat();
+                                switch (input.readByte()) {
+                                    case CURVE_STEPPED:
+                                        timeline.setStepped(frame);
+                                        break;
+                                    case CURVE_BEZIER:
+                                        setBezier(input, timeline, bezier++, frame, 0, time, time2, mixRotate, mixRotate2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 1, time, time2, mixX, mixX2, 1);
+                                        setBezier(input, timeline, bezier++, frame, 2, time, time2, mixY, mixY2, 1);
+                                }
+                                time = time2;
+                                mixRotate = mixRotate2;
+                                mixX = mixX2;
+                                mixY = mixY2;
                             }
                             timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(frameCount - 1) * spine.PathConstraintPositionTimeline.ENTRIES]);
-                            break;
-                        }
-                        case SkeletonBinary.PATH_MIX: {
-                            let timeline = new spine.PathConstraintMixTimeline(frameCount);
-                            timeline.pathConstraintIndex = index;
-                            for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                                timeline.setFrame(frameIndex, input.readFloat(), input.readFloat(), input.readFloat());
-                                if (frameIndex < frameCount - 1)
-                                    this.readCurve(input, frameIndex, timeline);
-                            }
-                            timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(frameCount - 1) * spine.PathConstraintMixTimeline.ENTRIES]);
-                            break;
-                        }
                     }
                 }
             }
@@ -4675,16 +5239,17 @@ var spine;
                 for (let ii = 0, nn = input.readInt(true); ii < nn; ii++) {
                     let slotIndex = input.readInt(true);
                     for (let iii = 0, nnn = input.readInt(true); iii < nnn; iii++) {
-                        let attachment = skin.getAttachment(slotIndex, input.readStringRef());
-                        let weighted = attachment.bones != null;
+                        let attachmentName = input.readStringRef();
+                        let attachment = skin.getAttachment(slotIndex, attachmentName);
+                        let weighted = attachment.bones;
                         let vertices = attachment.vertices;
                         let deformLength = weighted ? vertices.length / 3 * 2 : vertices.length;
                         let frameCount = input.readInt(true);
-                        let timeline = new spine.DeformTimeline(frameCount);
-                        timeline.slotIndex = slotIndex;
-                        timeline.attachment = attachment;
-                        for (let frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                            let time = input.readFloat();
+                        let frameLast = frameCount - 1;
+                        let bezierCount = input.readInt(true);
+                        let timeline = new spine.DeformTimeline(frameCount, bezierCount, slotIndex, attachment);
+                        let time = input.readFloat();
+                        for (let frame = 0, bezier = 0;; frame++) {
                             let deform;
                             let end = input.readInt(true);
                             if (end == 0)
@@ -4706,12 +5271,20 @@ var spine;
                                         deform[v] += vertices[v];
                                 }
                             }
-                            timeline.setFrame(frameIndex, time, deform);
-                            if (frameIndex < frameCount - 1)
-                                this.readCurve(input, frameIndex, timeline);
+                            timeline.setFrame(frame, time, deform);
+                            if (frame == frameLast)
+                                break;
+                            let time2 = input.readFloat();
+                            switch (input.readByte()) {
+                                case CURVE_STEPPED:
+                                    timeline.setStepped(frame);
+                                    break;
+                                case CURVE_BEZIER:
+                                    setBezier(input, timeline, bezier++, frame, 0, time, time2, 0, 1, 1);
+                            }
+                            time = time2;
                         }
                         timelines.push(timeline);
-                        duration = Math.max(duration, timeline.frames[frameCount - 1]);
                     }
                 }
             }
@@ -4741,7 +5314,6 @@ var spine;
                     timeline.setFrame(i, time, drawOrder);
                 }
                 timelines.push(timeline);
-                duration = Math.max(duration, timeline.frames[drawOrderCount - 1]);
             }
             let eventCount = input.readInt(true);
             if (eventCount > 0) {
@@ -4753,50 +5325,20 @@ var spine;
                     event.intValue = input.readInt(false);
                     event.floatValue = input.readFloat();
                     event.stringValue = input.readBoolean() ? input.readString() : eventData.stringValue;
-                    if (event.data.audioPath != null) {
+                    if (event.data.audioPath) {
                         event.volume = input.readFloat();
                         event.balance = input.readFloat();
                     }
                     timeline.setFrame(i, event);
                 }
                 timelines.push(timeline);
-                duration = Math.max(duration, timeline.frames[eventCount - 1]);
             }
+            let duration = 0;
+            for (let i = 0, n = timelines.length; i < n; i++)
+                duration = Math.max(duration, timelines[i].getDuration());
             return new spine.Animation(name, timelines, duration);
         }
-        readCurve(input, frameIndex, timeline) {
-            switch (input.readByte()) {
-                case SkeletonBinary.CURVE_STEPPED:
-                    timeline.setStepped(frameIndex);
-                    break;
-                case SkeletonBinary.CURVE_BEZIER:
-                    this.setCurve(timeline, frameIndex, input.readFloat(), input.readFloat(), input.readFloat(), input.readFloat());
-                    break;
-            }
-        }
-        setCurve(timeline, frameIndex, cx1, cy1, cx2, cy2) {
-            timeline.setCurve(frameIndex, cx1, cy1, cx2, cy2);
-        }
     }
-    SkeletonBinary.AttachmentTypeValues = [0, 1, 2, 3, 4, 5, 6];
-    SkeletonBinary.TransformModeValues = [spine.TransformMode.Normal, spine.TransformMode.OnlyTranslation, spine.TransformMode.NoRotationOrReflection, spine.TransformMode.NoScale, spine.TransformMode.NoScaleOrReflection];
-    SkeletonBinary.PositionModeValues = [spine.PositionMode.Fixed, spine.PositionMode.Percent];
-    SkeletonBinary.SpacingModeValues = [spine.SpacingMode.Length, spine.SpacingMode.Fixed, spine.SpacingMode.Percent];
-    SkeletonBinary.RotateModeValues = [spine.RotateMode.Tangent, spine.RotateMode.Chain, spine.RotateMode.ChainScale];
-    SkeletonBinary.BlendModeValues = [spine.BlendMode.Normal, spine.BlendMode.Additive, spine.BlendMode.Multiply, spine.BlendMode.Screen];
-    SkeletonBinary.BONE_ROTATE = 0;
-    SkeletonBinary.BONE_TRANSLATE = 1;
-    SkeletonBinary.BONE_SCALE = 2;
-    SkeletonBinary.BONE_SHEAR = 3;
-    SkeletonBinary.SLOT_ATTACHMENT = 0;
-    SkeletonBinary.SLOT_COLOR = 1;
-    SkeletonBinary.SLOT_TWO_COLOR = 2;
-    SkeletonBinary.PATH_POSITION = 0;
-    SkeletonBinary.PATH_SPACING = 1;
-    SkeletonBinary.PATH_MIX = 2;
-    SkeletonBinary.CURVE_LINEAR = 0;
-    SkeletonBinary.CURVE_STEPPED = 1;
-    SkeletonBinary.CURVE_BEZIER = 2;
     spine.SkeletonBinary = SkeletonBinary;
     class BinaryInput {
         constructor(data, strings = new Array(), index = 0, buffer = new DataView(data.buffer)) {
@@ -4806,6 +5348,9 @@ var spine;
         }
         readByte() {
             return this.buffer.getInt8(this.index++);
+        }
+        readUnsignedByte() {
+            return this.buffer.getUint8(this.index++);
         }
         readShort() {
             let value = this.buffer.getInt16(this.index);
@@ -4896,6 +5441,81 @@ var spine;
             this.vertices = vertices;
         }
     }
+    let AttachmentType;
+    (function (AttachmentType) {
+        AttachmentType[AttachmentType["Region"] = 0] = "Region";
+        AttachmentType[AttachmentType["BoundingBox"] = 1] = "BoundingBox";
+        AttachmentType[AttachmentType["Mesh"] = 2] = "Mesh";
+        AttachmentType[AttachmentType["LinkedMesh"] = 3] = "LinkedMesh";
+        AttachmentType[AttachmentType["Path"] = 4] = "Path";
+        AttachmentType[AttachmentType["Point"] = 5] = "Point";
+        AttachmentType[AttachmentType["Clipping"] = 6] = "Clipping";
+    })(AttachmentType || (AttachmentType = {}));
+    function readTimeline1(input, timeline, scale) {
+        let time = input.readFloat(), value = input.readFloat() * scale;
+        for (let frame = 0, bezier = 0, frameLast = timeline.getFrameCount() - 1;; frame++) {
+            timeline.setFrame(frame, time, value);
+            if (frame == frameLast)
+                break;
+            let time2 = input.readFloat(), value2 = input.readFloat() * scale;
+            switch (input.readByte()) {
+                case CURVE_STEPPED:
+                    timeline.setStepped(frame);
+                    break;
+                case CURVE_BEZIER:
+                    setBezier(input, timeline, bezier++, frame, 0, time, time2, value, value2, 1);
+            }
+            time = time2;
+            value = value2;
+        }
+        return timeline;
+    }
+    function readTimeline2(input, timeline, scale) {
+        let time = input.readFloat(), value1 = input.readFloat() * scale, value2 = input.readFloat() * scale;
+        for (let frame = 0, bezier = 0, frameLast = timeline.getFrameCount() - 1;; frame++) {
+            timeline.setFrame(frame, time, value1, value2);
+            if (frame == frameLast)
+                break;
+            let time2 = input.readFloat(), nvalue1 = input.readFloat() * scale, nvalue2 = input.readFloat() * scale;
+            switch (input.readByte()) {
+                case CURVE_STEPPED:
+                    timeline.setStepped(frame);
+                    break;
+                case CURVE_BEZIER:
+                    setBezier(input, timeline, bezier++, frame, 0, time, time2, value1, nvalue1, scale);
+                    setBezier(input, timeline, bezier++, frame, 1, time, time2, value2, nvalue2, scale);
+            }
+            time = time2;
+            value1 = nvalue1;
+            value2 = nvalue2;
+        }
+        return timeline;
+    }
+    function setBezier(input, timeline, bezier, frame, value, time1, time2, value1, value2, scale) {
+        timeline.setBezier(bezier, frame, value, time1, value1, input.readFloat(), input.readFloat() * scale, input.readFloat(), input.readFloat() * scale, time2, value2);
+    }
+    const BONE_ROTATE = 0;
+    const BONE_TRANSLATE = 1;
+    const BONE_TRANSLATEX = 2;
+    const BONE_TRANSLATEY = 3;
+    const BONE_SCALE = 4;
+    const BONE_SCALEX = 5;
+    const BONE_SCALEY = 6;
+    const BONE_SHEAR = 7;
+    const BONE_SHEARX = 8;
+    const BONE_SHEARY = 9;
+    const SLOT_ATTACHMENT = 0;
+    const SLOT_RGBA = 1;
+    const SLOT_RGB = 2;
+    const SLOT_RGBA2 = 3;
+    const SLOT_RGB2 = 4;
+    const SLOT_ALPHA = 5;
+    const PATH_POSITION = 0;
+    const PATH_SPACING = 1;
+    const PATH_MIX = 2;
+    const CURVE_LINEAR = 0;
+    const CURVE_STEPPED = 1;
+    const CURVE_BEZIER = 2;
 })(spine || (spine = {}));
 var spine;
 (function (spine) {
@@ -4912,7 +5532,7 @@ var spine;
             });
         }
         update(skeleton, updateAabb) {
-            if (skeleton == null)
+            if (!skeleton)
                 throw new Error("skeleton cannot be null.");
             let boundingBoxes = this.boundingBoxes;
             let polygons = this.polygons;
@@ -5050,7 +5670,7 @@ var spine;
             return false;
         }
         getPolygon(boundingBox) {
-            if (boundingBox == null)
+            if (!boundingBox)
                 throw new Error("boundingBox cannot be null.");
             let index = this.boundingBoxes.indexOf(boundingBox);
             return index == -1 ? null : this.polygons[index];
@@ -5076,7 +5696,7 @@ var spine;
             this.scratch = new Array();
         }
         clipStart(slot, clip) {
-            if (this.clipAttachment != null)
+            if (this.clipAttachment)
                 return 0;
             this.clipAttachment = clip;
             let n = clip.worldVerticesLength;
@@ -5094,11 +5714,11 @@ var spine;
             return clippingPolygons.length;
         }
         clipEndWithSlot(slot) {
-            if (this.clipAttachment != null && this.clipAttachment.endSlot == slot.data)
+            if (this.clipAttachment && this.clipAttachment.endSlot == slot.data)
                 this.clipEnd();
         }
         clipEnd() {
-            if (this.clipAttachment == null)
+            if (!this.clipAttachment)
                 return;
             this.clipAttachment = null;
             this.clippingPolygons = null;
@@ -5372,7 +5992,7 @@ var spine;
             this.fps = 0;
         }
         findBone(boneName) {
-            if (boneName == null)
+            if (!boneName)
                 throw new Error("boneName cannot be null.");
             let bones = this.bones;
             for (let i = 0, n = bones.length; i < n; i++) {
@@ -5383,7 +6003,7 @@ var spine;
             return null;
         }
         findBoneIndex(boneName) {
-            if (boneName == null)
+            if (!boneName)
                 throw new Error("boneName cannot be null.");
             let bones = this.bones;
             for (let i = 0, n = bones.length; i < n; i++)
@@ -5392,7 +6012,7 @@ var spine;
             return -1;
         }
         findSlot(slotName) {
-            if (slotName == null)
+            if (!slotName)
                 throw new Error("slotName cannot be null.");
             let slots = this.slots;
             for (let i = 0, n = slots.length; i < n; i++) {
@@ -5403,7 +6023,7 @@ var spine;
             return null;
         }
         findSlotIndex(slotName) {
-            if (slotName == null)
+            if (!slotName)
                 throw new Error("slotName cannot be null.");
             let slots = this.slots;
             for (let i = 0, n = slots.length; i < n; i++)
@@ -5412,7 +6032,7 @@ var spine;
             return -1;
         }
         findSkin(skinName) {
-            if (skinName == null)
+            if (!skinName)
                 throw new Error("skinName cannot be null.");
             let skins = this.skins;
             for (let i = 0, n = skins.length; i < n; i++) {
@@ -5423,7 +6043,7 @@ var spine;
             return null;
         }
         findEvent(eventDataName) {
-            if (eventDataName == null)
+            if (!eventDataName)
                 throw new Error("eventDataName cannot be null.");
             let events = this.events;
             for (let i = 0, n = events.length; i < n; i++) {
@@ -5434,7 +6054,7 @@ var spine;
             return null;
         }
         findAnimation(animationName) {
-            if (animationName == null)
+            if (!animationName)
                 throw new Error("animationName cannot be null.");
             let animations = this.animations;
             for (let i = 0, n = animations.length; i < n; i++) {
@@ -5445,7 +6065,7 @@ var spine;
             return null;
         }
         findIkConstraint(constraintName) {
-            if (constraintName == null)
+            if (!constraintName)
                 throw new Error("constraintName cannot be null.");
             let ikConstraints = this.ikConstraints;
             for (let i = 0, n = ikConstraints.length; i < n; i++) {
@@ -5456,7 +6076,7 @@ var spine;
             return null;
         }
         findTransformConstraint(constraintName) {
-            if (constraintName == null)
+            if (!constraintName)
                 throw new Error("constraintName cannot be null.");
             let transformConstraints = this.transformConstraints;
             for (let i = 0, n = transformConstraints.length; i < n; i++) {
@@ -5467,7 +6087,7 @@ var spine;
             return null;
         }
         findPathConstraint(constraintName) {
-            if (constraintName == null)
+            if (!constraintName)
                 throw new Error("constraintName cannot be null.");
             let pathConstraints = this.pathConstraints;
             for (let i = 0, n = pathConstraints.length; i < n; i++) {
@@ -5476,15 +6096,6 @@ var spine;
                     return constraint;
             }
             return null;
-        }
-        findPathConstraintIndex(pathConstraintName) {
-            if (pathConstraintName == null)
-                throw new Error("pathConstraintName cannot be null.");
-            let pathConstraints = this.pathConstraints;
-            for (let i = 0, n = pathConstraints.length; i < n; i++)
-                if (pathConstraints[i].name == pathConstraintName)
-                    return i;
-            return -1;
         }
     }
     spine.SkeletonData = SkeletonData;
@@ -5502,11 +6113,9 @@ var spine;
             let skeletonData = new spine.SkeletonData();
             let root = typeof (json) === "string" ? JSON.parse(json) : json;
             let skeletonMap = root.skeleton;
-            if (skeletonMap != null) {
+            if (skeletonMap) {
                 skeletonData.hash = skeletonMap.hash;
                 skeletonData.version = skeletonMap.spine;
-                if ("3.8.75" == skeletonData.version)
-                    throw new Error("Unsupported skeleton data, please export with a newer version of Spine.");
                 skeletonData.x = skeletonMap.x;
                 skeletonData.y = skeletonMap.y;
                 skeletonData.width = skeletonMap.width;
@@ -5518,45 +6127,39 @@ var spine;
                 for (let i = 0; i < root.bones.length; i++) {
                     let boneMap = root.bones[i];
                     let parent = null;
-                    let parentName = this.getValue(boneMap, "parent", null);
-                    if (parentName != null) {
+                    let parentName = getValue(boneMap, "parent", null);
+                    if (parentName)
                         parent = skeletonData.findBone(parentName);
-                        if (parent == null)
-                            throw new Error("Parent bone not found: " + parentName);
-                    }
                     let data = new spine.BoneData(skeletonData.bones.length, boneMap.name, parent);
-                    data.length = this.getValue(boneMap, "length", 0) * scale;
-                    data.x = this.getValue(boneMap, "x", 0) * scale;
-                    data.y = this.getValue(boneMap, "y", 0) * scale;
-                    data.rotation = this.getValue(boneMap, "rotation", 0);
-                    data.scaleX = this.getValue(boneMap, "scaleX", 1);
-                    data.scaleY = this.getValue(boneMap, "scaleY", 1);
-                    data.shearX = this.getValue(boneMap, "shearX", 0);
-                    data.shearY = this.getValue(boneMap, "shearY", 0);
-                    data.transformMode = SkeletonJson.transformModeFromString(this.getValue(boneMap, "transform", "normal"));
-                    data.skinRequired = this.getValue(boneMap, "skin", false);
+                    data.length = getValue(boneMap, "length", 0) * scale;
+                    data.x = getValue(boneMap, "x", 0) * scale;
+                    data.y = getValue(boneMap, "y", 0) * scale;
+                    data.rotation = getValue(boneMap, "rotation", 0);
+                    data.scaleX = getValue(boneMap, "scaleX", 1);
+                    data.scaleY = getValue(boneMap, "scaleY", 1);
+                    data.shearX = getValue(boneMap, "shearX", 0);
+                    data.shearY = getValue(boneMap, "shearY", 0);
+                    data.transformMode = spine.Utils.enumValue(spine.TransformMode, getValue(boneMap, "transform", "Normal"));
+                    data.skinRequired = getValue(boneMap, "skin", false);
+                    let color = getValue(boneMap, "color", null);
+                    if (color)
+                        data.color.setFromString(color);
                     skeletonData.bones.push(data);
                 }
             }
             if (root.slots) {
                 for (let i = 0; i < root.slots.length; i++) {
                     let slotMap = root.slots[i];
-                    let slotName = slotMap.name;
-                    let boneName = slotMap.bone;
-                    let boneData = skeletonData.findBone(boneName);
-                    if (boneData == null)
-                        throw new Error("Slot bone not found: " + boneName);
-                    let data = new spine.SlotData(skeletonData.slots.length, slotName, boneData);
-                    let color = this.getValue(slotMap, "color", null);
-                    if (color != null)
+                    let boneData = skeletonData.findBone(slotMap.bone);
+                    let data = new spine.SlotData(skeletonData.slots.length, slotMap.name, boneData);
+                    let color = getValue(slotMap, "color", null);
+                    if (color)
                         data.color.setFromString(color);
-                    let dark = this.getValue(slotMap, "dark", null);
-                    if (dark != null) {
-                        data.darkColor = new spine.Color(1, 1, 1, 1);
-                        data.darkColor.setFromString(dark);
-                    }
-                    data.attachmentName = this.getValue(slotMap, "attachment", null);
-                    data.blendMode = SkeletonJson.blendModeFromString(this.getValue(slotMap, "blend", "normal"));
+                    let dark = getValue(slotMap, "dark", null);
+                    if (dark)
+                        data.darkColor = spine.Color.fromString(dark);
+                    data.attachmentName = getValue(slotMap, "attachment", null);
+                    data.blendMode = spine.Utils.enumValue(spine.BlendMode, getValue(slotMap, "blend", "normal"));
                     skeletonData.slots.push(data);
                 }
             }
@@ -5564,25 +6167,17 @@ var spine;
                 for (let i = 0; i < root.ik.length; i++) {
                     let constraintMap = root.ik[i];
                     let data = new spine.IkConstraintData(constraintMap.name);
-                    data.order = this.getValue(constraintMap, "order", 0);
-                    data.skinRequired = this.getValue(constraintMap, "skin", false);
-                    for (let j = 0; j < constraintMap.bones.length; j++) {
-                        let boneName = constraintMap.bones[j];
-                        let bone = skeletonData.findBone(boneName);
-                        if (bone == null)
-                            throw new Error("IK bone not found: " + boneName);
-                        data.bones.push(bone);
-                    }
-                    let targetName = constraintMap.target;
-                    data.target = skeletonData.findBone(targetName);
-                    if (data.target == null)
-                        throw new Error("IK target bone not found: " + targetName);
-                    data.mix = this.getValue(constraintMap, "mix", 1);
-                    data.softness = this.getValue(constraintMap, "softness", 0) * scale;
-                    data.bendDirection = this.getValue(constraintMap, "bendPositive", true) ? 1 : -1;
-                    data.compress = this.getValue(constraintMap, "compress", false);
-                    data.stretch = this.getValue(constraintMap, "stretch", false);
-                    data.uniform = this.getValue(constraintMap, "uniform", false);
+                    data.order = getValue(constraintMap, "order", 0);
+                    data.skinRequired = getValue(constraintMap, "skin", false);
+                    for (let ii = 0; ii < constraintMap.bones.length; ii++)
+                        data.bones.push(skeletonData.findBone(constraintMap.bones[ii]));
+                    data.target = skeletonData.findBone(constraintMap.target);
+                    data.mix = getValue(constraintMap, "mix", 1);
+                    data.softness = getValue(constraintMap, "softness", 0) * scale;
+                    data.bendDirection = getValue(constraintMap, "bendPositive", true) ? 1 : -1;
+                    data.compress = getValue(constraintMap, "compress", false);
+                    data.stretch = getValue(constraintMap, "stretch", false);
+                    data.uniform = getValue(constraintMap, "uniform", false);
                     skeletonData.ikConstraints.push(data);
                 }
             }
@@ -5590,31 +6185,26 @@ var spine;
                 for (let i = 0; i < root.transform.length; i++) {
                     let constraintMap = root.transform[i];
                     let data = new spine.TransformConstraintData(constraintMap.name);
-                    data.order = this.getValue(constraintMap, "order", 0);
-                    data.skinRequired = this.getValue(constraintMap, "skin", false);
-                    for (let j = 0; j < constraintMap.bones.length; j++) {
-                        let boneName = constraintMap.bones[j];
-                        let bone = skeletonData.findBone(boneName);
-                        if (bone == null)
-                            throw new Error("Transform constraint bone not found: " + boneName);
-                        data.bones.push(bone);
-                    }
+                    data.order = getValue(constraintMap, "order", 0);
+                    data.skinRequired = getValue(constraintMap, "skin", false);
+                    for (let ii = 0; ii < constraintMap.bones.length; ii++)
+                        data.bones.push(skeletonData.findBone(constraintMap.bones[ii]));
                     let targetName = constraintMap.target;
                     data.target = skeletonData.findBone(targetName);
-                    if (data.target == null)
-                        throw new Error("Transform constraint target bone not found: " + targetName);
-                    data.local = this.getValue(constraintMap, "local", false);
-                    data.relative = this.getValue(constraintMap, "relative", false);
-                    data.offsetRotation = this.getValue(constraintMap, "rotation", 0);
-                    data.offsetX = this.getValue(constraintMap, "x", 0) * scale;
-                    data.offsetY = this.getValue(constraintMap, "y", 0) * scale;
-                    data.offsetScaleX = this.getValue(constraintMap, "scaleX", 0);
-                    data.offsetScaleY = this.getValue(constraintMap, "scaleY", 0);
-                    data.offsetShearY = this.getValue(constraintMap, "shearY", 0);
-                    data.rotateMix = this.getValue(constraintMap, "rotateMix", 1);
-                    data.translateMix = this.getValue(constraintMap, "translateMix", 1);
-                    data.scaleMix = this.getValue(constraintMap, "scaleMix", 1);
-                    data.shearMix = this.getValue(constraintMap, "shearMix", 1);
+                    data.local = getValue(constraintMap, "local", false);
+                    data.relative = getValue(constraintMap, "relative", false);
+                    data.offsetRotation = getValue(constraintMap, "rotation", 0);
+                    data.offsetX = getValue(constraintMap, "x", 0) * scale;
+                    data.offsetY = getValue(constraintMap, "y", 0) * scale;
+                    data.offsetScaleX = getValue(constraintMap, "scaleX", 0);
+                    data.offsetScaleY = getValue(constraintMap, "scaleY", 0);
+                    data.offsetShearY = getValue(constraintMap, "shearY", 0);
+                    data.mixRotate = getValue(constraintMap, "mixRotate", 1);
+                    data.mixX = getValue(constraintMap, "mixX", 1);
+                    data.mixY = getValue(constraintMap, "mixY", data.mixX);
+                    data.mixScaleX = getValue(constraintMap, "mixScaleX", 1);
+                    data.mixScaleY = getValue(constraintMap, "mixScaleY", data.mixScaleX);
+                    data.mixShearY = getValue(constraintMap, "mixShearY", 1);
                     skeletonData.transformConstraints.push(data);
                 }
             }
@@ -5622,31 +6212,25 @@ var spine;
                 for (let i = 0; i < root.path.length; i++) {
                     let constraintMap = root.path[i];
                     let data = new spine.PathConstraintData(constraintMap.name);
-                    data.order = this.getValue(constraintMap, "order", 0);
-                    data.skinRequired = this.getValue(constraintMap, "skin", false);
-                    for (let j = 0; j < constraintMap.bones.length; j++) {
-                        let boneName = constraintMap.bones[j];
-                        let bone = skeletonData.findBone(boneName);
-                        if (bone == null)
-                            throw new Error("Transform constraint bone not found: " + boneName);
-                        data.bones.push(bone);
-                    }
+                    data.order = getValue(constraintMap, "order", 0);
+                    data.skinRequired = getValue(constraintMap, "skin", false);
+                    for (let ii = 0; ii < constraintMap.bones.length; ii++)
+                        data.bones.push(skeletonData.findBone(constraintMap.bones[ii]));
                     let targetName = constraintMap.target;
                     data.target = skeletonData.findSlot(targetName);
-                    if (data.target == null)
-                        throw new Error("Path target slot not found: " + targetName);
-                    data.positionMode = SkeletonJson.positionModeFromString(this.getValue(constraintMap, "positionMode", "percent"));
-                    data.spacingMode = SkeletonJson.spacingModeFromString(this.getValue(constraintMap, "spacingMode", "length"));
-                    data.rotateMode = SkeletonJson.rotateModeFromString(this.getValue(constraintMap, "rotateMode", "tangent"));
-                    data.offsetRotation = this.getValue(constraintMap, "rotation", 0);
-                    data.position = this.getValue(constraintMap, "position", 0);
+                    data.positionMode = spine.Utils.enumValue(spine.PositionMode, getValue(constraintMap, "positionMode", "Percent"));
+                    data.spacingMode = spine.Utils.enumValue(spine.SpacingMode, getValue(constraintMap, "spacingMode", "Length"));
+                    data.rotateMode = spine.Utils.enumValue(spine.RotateMode, getValue(constraintMap, "rotateMode", "Tangent"));
+                    data.offsetRotation = getValue(constraintMap, "rotation", 0);
+                    data.position = getValue(constraintMap, "position", 0);
                     if (data.positionMode == spine.PositionMode.Fixed)
                         data.position *= scale;
-                    data.spacing = this.getValue(constraintMap, "spacing", 0);
+                    data.spacing = getValue(constraintMap, "spacing", 0);
                     if (data.spacingMode == spine.SpacingMode.Length || data.spacingMode == spine.SpacingMode.Fixed)
                         data.spacing *= scale;
-                    data.rotateMix = this.getValue(constraintMap, "rotateMix", 1);
-                    data.translateMix = this.getValue(constraintMap, "translateMix", 1);
+                    data.mixRotate = getValue(constraintMap, "mixRotate", 1);
+                    data.mixX = getValue(constraintMap, "mixX", 1);
+                    data.mixY = getValue(constraintMap, "mixY", data.mixX);
                     skeletonData.pathConstraints.push(data);
                 }
             }
@@ -5655,45 +6239,27 @@ var spine;
                     let skinMap = root.skins[i];
                     let skin = new spine.Skin(skinMap.name);
                     if (skinMap.bones) {
-                        for (let ii = 0; ii < skinMap.bones.length; ii++) {
-                            let bone = skeletonData.findBone(skinMap.bones[ii]);
-                            if (bone == null)
-                                throw new Error("Skin bone not found: " + skinMap.bones[i]);
-                            skin.bones.push(bone);
-                        }
+                        for (let ii = 0; ii < skinMap.bones.length; ii++)
+                            skin.bones.push(skeletonData.findBone(skinMap.bones[ii]));
                     }
                     if (skinMap.ik) {
-                        for (let ii = 0; ii < skinMap.ik.length; ii++) {
-                            let constraint = skeletonData.findIkConstraint(skinMap.ik[ii]);
-                            if (constraint == null)
-                                throw new Error("Skin IK constraint not found: " + skinMap.ik[i]);
-                            skin.constraints.push(constraint);
-                        }
+                        for (let ii = 0; ii < skinMap.ik.length; ii++)
+                            skin.constraints.push(skeletonData.findIkConstraint(skinMap.ik[ii]));
                     }
                     if (skinMap.transform) {
-                        for (let ii = 0; ii < skinMap.transform.length; ii++) {
-                            let constraint = skeletonData.findTransformConstraint(skinMap.transform[ii]);
-                            if (constraint == null)
-                                throw new Error("Skin transform constraint not found: " + skinMap.transform[i]);
-                            skin.constraints.push(constraint);
-                        }
+                        for (let ii = 0; ii < skinMap.transform.length; ii++)
+                            skin.constraints.push(skeletonData.findTransformConstraint(skinMap.transform[ii]));
                     }
                     if (skinMap.path) {
-                        for (let ii = 0; ii < skinMap.path.length; ii++) {
-                            let constraint = skeletonData.findPathConstraint(skinMap.path[ii]);
-                            if (constraint == null)
-                                throw new Error("Skin path constraint not found: " + skinMap.path[i]);
-                            skin.constraints.push(constraint);
-                        }
+                        for (let ii = 0; ii < skinMap.path.length; ii++)
+                            skin.constraints.push(skeletonData.findPathConstraint(skinMap.path[ii]));
                     }
                     for (let slotName in skinMap.attachments) {
                         let slot = skeletonData.findSlot(slotName);
-                        if (slot == null)
-                            throw new Error("Slot not found: " + slotName);
                         let slotMap = skinMap.attachments[slotName];
                         for (let entryName in slotMap) {
                             let attachment = this.readAttachment(slotMap[entryName], skin, slot.index, entryName, skeletonData);
-                            if (attachment != null)
+                            if (attachment)
                                 skin.setAttachment(slot.index, entryName, attachment);
                         }
                     }
@@ -5704,12 +6270,8 @@ var spine;
             }
             for (let i = 0, n = this.linkedMeshes.length; i < n; i++) {
                 let linkedMesh = this.linkedMeshes[i];
-                let skin = linkedMesh.skin == null ? skeletonData.defaultSkin : skeletonData.findSkin(linkedMesh.skin);
-                if (skin == null)
-                    throw new Error("Skin not found: " + linkedMesh.skin);
+                let skin = !linkedMesh.skin ? skeletonData.defaultSkin : skeletonData.findSkin(linkedMesh.skin);
                 let parent = skin.getAttachment(linkedMesh.slotIndex, linkedMesh.parent);
-                if (parent == null)
-                    throw new Error("Parent mesh not found: " + linkedMesh.parent);
                 linkedMesh.mesh.deformAttachment = linkedMesh.inheritDeform ? parent : linkedMesh.mesh;
                 linkedMesh.mesh.setParentMesh(parent);
                 linkedMesh.mesh.updateUVs();
@@ -5719,13 +6281,13 @@ var spine;
                 for (let eventName in root.events) {
                     let eventMap = root.events[eventName];
                     let data = new spine.EventData(eventName);
-                    data.intValue = this.getValue(eventMap, "int", 0);
-                    data.floatValue = this.getValue(eventMap, "float", 0);
-                    data.stringValue = this.getValue(eventMap, "string", "");
-                    data.audioPath = this.getValue(eventMap, "audio", null);
-                    if (data.audioPath != null) {
-                        data.volume = this.getValue(eventMap, "volume", 1);
-                        data.balance = this.getValue(eventMap, "balance", 0);
+                    data.intValue = getValue(eventMap, "int", 0);
+                    data.floatValue = getValue(eventMap, "float", 0);
+                    data.stringValue = getValue(eventMap, "string", "");
+                    data.audioPath = getValue(eventMap, "audio", null);
+                    if (data.audioPath) {
+                        data.volume = getValue(eventMap, "volume", 1);
+                        data.balance = getValue(eventMap, "balance", 0);
                     }
                     skeletonData.events.push(data);
                 }
@@ -5740,53 +6302,52 @@ var spine;
         }
         readAttachment(map, skin, slotIndex, name, skeletonData) {
             let scale = this.scale;
-            name = this.getValue(map, "name", name);
-            let type = this.getValue(map, "type", "region");
-            switch (type) {
+            name = getValue(map, "name", name);
+            switch (getValue(map, "type", "region")) {
                 case "region": {
-                    let path = this.getValue(map, "path", name);
+                    let path = getValue(map, "path", name);
                     let region = this.attachmentLoader.newRegionAttachment(skin, name, path);
-                    if (region == null)
+                    if (!region)
                         return null;
                     region.path = path;
-                    region.x = this.getValue(map, "x", 0) * scale;
-                    region.y = this.getValue(map, "y", 0) * scale;
-                    region.scaleX = this.getValue(map, "scaleX", 1);
-                    region.scaleY = this.getValue(map, "scaleY", 1);
-                    region.rotation = this.getValue(map, "rotation", 0);
+                    region.x = getValue(map, "x", 0) * scale;
+                    region.y = getValue(map, "y", 0) * scale;
+                    region.scaleX = getValue(map, "scaleX", 1);
+                    region.scaleY = getValue(map, "scaleY", 1);
+                    region.rotation = getValue(map, "rotation", 0);
                     region.width = map.width * scale;
                     region.height = map.height * scale;
-                    let color = this.getValue(map, "color", null);
-                    if (color != null)
+                    let color = getValue(map, "color", null);
+                    if (color)
                         region.color.setFromString(color);
                     region.updateOffset();
                     return region;
                 }
                 case "boundingbox": {
                     let box = this.attachmentLoader.newBoundingBoxAttachment(skin, name);
-                    if (box == null)
+                    if (!box)
                         return null;
                     this.readVertices(map, box, map.vertexCount << 1);
-                    let color = this.getValue(map, "color", null);
-                    if (color != null)
+                    let color = getValue(map, "color", null);
+                    if (color)
                         box.color.setFromString(color);
                     return box;
                 }
                 case "mesh":
                 case "linkedmesh": {
-                    let path = this.getValue(map, "path", name);
+                    let path = getValue(map, "path", name);
                     let mesh = this.attachmentLoader.newMeshAttachment(skin, name, path);
-                    if (mesh == null)
+                    if (!mesh)
                         return null;
                     mesh.path = path;
-                    let color = this.getValue(map, "color", null);
-                    if (color != null)
+                    let color = getValue(map, "color", null);
+                    if (color)
                         mesh.color.setFromString(color);
-                    mesh.width = this.getValue(map, "width", 0) * scale;
-                    mesh.height = this.getValue(map, "height", 0) * scale;
-                    let parent = this.getValue(map, "parent", null);
-                    if (parent != null) {
-                        this.linkedMeshes.push(new LinkedMesh(mesh, this.getValue(map, "skin", null), slotIndex, parent, this.getValue(map, "deform", true)));
+                    mesh.width = getValue(map, "width", 0) * scale;
+                    mesh.height = getValue(map, "height", 0) * scale;
+                    let parent = getValue(map, "parent", null);
+                    if (parent) {
+                        this.linkedMeshes.push(new LinkedMesh(mesh, getValue(map, "skin", null), slotIndex, parent, getValue(map, "deform", true)));
                         return mesh;
                     }
                     let uvs = map.uvs;
@@ -5794,54 +6355,50 @@ var spine;
                     mesh.triangles = map.triangles;
                     mesh.regionUVs = uvs;
                     mesh.updateUVs();
-                    mesh.edges = this.getValue(map, "edges", null);
-                    mesh.hullLength = this.getValue(map, "hull", 0) * 2;
+                    mesh.edges = getValue(map, "edges", null);
+                    mesh.hullLength = getValue(map, "hull", 0) * 2;
                     return mesh;
                 }
                 case "path": {
                     let path = this.attachmentLoader.newPathAttachment(skin, name);
-                    if (path == null)
+                    if (!path)
                         return null;
-                    path.closed = this.getValue(map, "closed", false);
-                    path.constantSpeed = this.getValue(map, "constantSpeed", true);
+                    path.closed = getValue(map, "closed", false);
+                    path.constantSpeed = getValue(map, "constantSpeed", true);
                     let vertexCount = map.vertexCount;
                     this.readVertices(map, path, vertexCount << 1);
                     let lengths = spine.Utils.newArray(vertexCount / 3, 0);
                     for (let i = 0; i < map.lengths.length; i++)
                         lengths[i] = map.lengths[i] * scale;
                     path.lengths = lengths;
-                    let color = this.getValue(map, "color", null);
-                    if (color != null)
+                    let color = getValue(map, "color", null);
+                    if (color)
                         path.color.setFromString(color);
                     return path;
                 }
                 case "point": {
                     let point = this.attachmentLoader.newPointAttachment(skin, name);
-                    if (point == null)
+                    if (!point)
                         return null;
-                    point.x = this.getValue(map, "x", 0) * scale;
-                    point.y = this.getValue(map, "y", 0) * scale;
-                    point.rotation = this.getValue(map, "rotation", 0);
-                    let color = this.getValue(map, "color", null);
-                    if (color != null)
+                    point.x = getValue(map, "x", 0) * scale;
+                    point.y = getValue(map, "y", 0) * scale;
+                    point.rotation = getValue(map, "rotation", 0);
+                    let color = getValue(map, "color", null);
+                    if (color)
                         point.color.setFromString(color);
                     return point;
                 }
                 case "clipping": {
                     let clip = this.attachmentLoader.newClippingAttachment(skin, name);
-                    if (clip == null)
+                    if (!clip)
                         return null;
-                    let end = this.getValue(map, "end", null);
-                    if (end != null) {
-                        let slot = skeletonData.findSlot(end);
-                        if (slot == null)
-                            throw new Error("Clipping end slot not found: " + end);
-                        clip.endSlot = slot;
-                    }
+                    let end = getValue(map, "end", null);
+                    if (end)
+                        clip.endSlot = skeletonData.findSlot(end);
                     let vertexCount = map.vertexCount;
                     this.readVertices(map, clip, vertexCount << 1);
-                    let color = this.getValue(map, "color", null);
-                    if (color != null)
+                    let color = getValue(map, "color", null);
+                    if (color)
                         clip.color.setFromString(color);
                     return clip;
                 }
@@ -5879,60 +6436,143 @@ var spine;
         readAnimation(map, name, skeletonData) {
             let scale = this.scale;
             let timelines = new Array();
-            let duration = 0;
             if (map.slots) {
                 for (let slotName in map.slots) {
                     let slotMap = map.slots[slotName];
                     let slotIndex = skeletonData.findSlotIndex(slotName);
-                    if (slotIndex == -1)
-                        throw new Error("Slot not found: " + slotName);
                     for (let timelineName in slotMap) {
                         let timelineMap = slotMap[timelineName];
+                        if (!timelineMap)
+                            continue;
                         if (timelineName == "attachment") {
-                            let timeline = new spine.AttachmentTimeline(timelineMap.length);
-                            timeline.slotIndex = slotIndex;
-                            let frameIndex = 0;
-                            for (let i = 0; i < timelineMap.length; i++) {
-                                let valueMap = timelineMap[i];
-                                timeline.setFrame(frameIndex++, this.getValue(valueMap, "time", 0), valueMap.name);
+                            let timeline = new spine.AttachmentTimeline(timelineMap.length, slotIndex);
+                            for (let frame = 0; frame < timelineMap.length; frame++) {
+                                let keyMap = timelineMap[frame];
+                                timeline.setFrame(frame, getValue(keyMap, "time", 0), keyMap.name);
                             }
                             timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[timeline.getFrameCount() - 1]);
                         }
-                        else if (timelineName == "color") {
-                            let timeline = new spine.ColorTimeline(timelineMap.length);
-                            timeline.slotIndex = slotIndex;
-                            let frameIndex = 0;
-                            for (let i = 0; i < timelineMap.length; i++) {
-                                let valueMap = timelineMap[i];
-                                let color = new spine.Color();
-                                color.setFromString(valueMap.color);
-                                timeline.setFrame(frameIndex, this.getValue(valueMap, "time", 0), color.r, color.g, color.b, color.a);
-                                this.readCurve(valueMap, timeline, frameIndex);
-                                frameIndex++;
+                        else if (timelineName == "rgba") {
+                            let timeline = new spine.RGBATimeline(timelineMap.length, timelineMap.length << 2, slotIndex);
+                            let keyMap = timelineMap[0];
+                            let time = getValue(keyMap, "time", 0);
+                            let color = spine.Color.fromString(keyMap.color);
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, color.r, color.g, color.b, color.a);
+                                let nextMap = timelineMap[frame + 1];
+                                if (!nextMap) {
+                                    timeline.shrink(bezier);
+                                    break;
+                                }
+                                let time2 = getValue(nextMap, "time", 0);
+                                let newColor = spine.Color.fromString(nextMap.color);
+                                let curve = keyMap.curve;
+                                if (curve) {
+                                    bezier = readCurve(curve, timeline, bezier, frame, 0, time, time2, color.r, newColor.r, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 1, time, time2, color.g, newColor.g, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 2, time, time2, color.b, newColor.b, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 3, time, time2, color.a, newColor.a, 1);
+                                }
+                                time = time2;
+                                color = newColor;
+                                keyMap = nextMap;
                             }
                             timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(timeline.getFrameCount() - 1) * spine.ColorTimeline.ENTRIES]);
                         }
-                        else if (timelineName == "twoColor") {
-                            let timeline = new spine.TwoColorTimeline(timelineMap.length);
-                            timeline.slotIndex = slotIndex;
-                            let frameIndex = 0;
-                            for (let i = 0; i < timelineMap.length; i++) {
-                                let valueMap = timelineMap[i];
-                                let light = new spine.Color();
-                                let dark = new spine.Color();
-                                light.setFromString(valueMap.light);
-                                dark.setFromString(valueMap.dark);
-                                timeline.setFrame(frameIndex, this.getValue(valueMap, "time", 0), light.r, light.g, light.b, light.a, dark.r, dark.g, dark.b);
-                                this.readCurve(valueMap, timeline, frameIndex);
-                                frameIndex++;
+                        else if (timelineName == "rgb") {
+                            let timeline = new spine.RGBTimeline(timelineMap.length, timelineMap.length * 3, slotIndex);
+                            let keyMap = timelineMap[0];
+                            let time = getValue(keyMap, "time", 0);
+                            let color = spine.Color.fromString(keyMap.color);
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, color.r, color.g, color.b);
+                                let nextMap = timelineMap[frame + 1];
+                                if (!nextMap) {
+                                    timeline.shrink(bezier);
+                                    break;
+                                }
+                                let time2 = getValue(nextMap, "time", 0);
+                                let newColor = spine.Color.fromString(nextMap.color);
+                                let curve = keyMap.curve;
+                                if (curve) {
+                                    bezier = readCurve(curve, timeline, bezier, frame, 0, time, time2, color.r, newColor.r, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 1, time, time2, color.g, newColor.g, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 2, time, time2, color.b, newColor.b, 1);
+                                }
+                                time = time2;
+                                color = newColor;
+                                keyMap = nextMap;
                             }
                             timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(timeline.getFrameCount() - 1) * spine.TwoColorTimeline.ENTRIES]);
                         }
-                        else
-                            throw new Error("Invalid timeline type for a slot: " + timelineName + " (" + slotName + ")");
+                        else if (timelineName == "alpha") {
+                            timelines.push(readTimeline1(timelineMap, new spine.AlphaTimeline(timelineMap.length, timelineMap.length, slotIndex), 0, 1));
+                        }
+                        else if (timelineName == "rgba2") {
+                            let timeline = new spine.RGBA2Timeline(timelineMap.length, timelineMap.length * 7, slotIndex);
+                            let keyMap = timelineMap[0];
+                            let time = getValue(keyMap, "time", 0);
+                            let color = spine.Color.fromString(keyMap.light);
+                            let color2 = spine.Color.fromString(keyMap.dark);
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, color.r, color.g, color.b, color.a, color2.r, color2.g, color2.b);
+                                let nextMap = timelineMap[frame + 1];
+                                if (!nextMap) {
+                                    timeline.shrink(bezier);
+                                    break;
+                                }
+                                let time2 = getValue(nextMap, "time", 0);
+                                let newColor = spine.Color.fromString(nextMap.light);
+                                let newColor2 = spine.Color.fromString(nextMap.dark);
+                                let curve = keyMap.curve;
+                                if (curve) {
+                                    bezier = readCurve(curve, timeline, bezier, frame, 0, time, time2, color.r, newColor.r, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 1, time, time2, color.g, newColor.g, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 2, time, time2, color.b, newColor.b, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 3, time, time2, color.a, newColor.a, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 4, time, time2, color2.r, newColor2.r, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 5, time, time2, color2.g, newColor2.g, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 6, time, time2, color2.b, newColor2.b, 1);
+                                }
+                                time = time2;
+                                color = newColor;
+                                color2 = newColor2;
+                                keyMap = nextMap;
+                            }
+                            timelines.push(timeline);
+                        }
+                        else if (timelineName == "rgb2") {
+                            let timeline = new spine.RGB2Timeline(timelineMap.length, timelineMap.length * 6, slotIndex);
+                            let keyMap = timelineMap[0];
+                            let time = getValue(keyMap, "time", 0);
+                            let color = spine.Color.fromString(keyMap.light);
+                            let color2 = spine.Color.fromString(keyMap.dark);
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, color.r, color.g, color.b, color2.r, color2.g, color2.b);
+                                let nextMap = timelineMap[frame + 1];
+                                if (!nextMap) {
+                                    timeline.shrink(bezier);
+                                    break;
+                                }
+                                let time2 = getValue(nextMap, "time", 0);
+                                let newColor = spine.Color.fromString(nextMap.light);
+                                let newColor2 = spine.Color.fromString(nextMap.dark);
+                                let curve = keyMap.curve;
+                                if (curve) {
+                                    bezier = readCurve(curve, timeline, bezier, frame, 0, time, time2, color.r, newColor.r, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 1, time, time2, color.g, newColor.g, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 2, time, time2, color.b, newColor.b, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 3, time, time2, color2.r, newColor2.r, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 4, time, time2, color2.g, newColor2.g, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 5, time, time2, color2.b, newColor2.b, 1);
+                                }
+                                time = time2;
+                                color = newColor;
+                                color2 = newColor2;
+                                keyMap = nextMap;
+                            }
+                            timelines.push(timeline);
+                        }
                     }
                 }
             }
@@ -5940,132 +6580,186 @@ var spine;
                 for (let boneName in map.bones) {
                     let boneMap = map.bones[boneName];
                     let boneIndex = skeletonData.findBoneIndex(boneName);
-                    if (boneIndex == -1)
-                        throw new Error("Bone not found: " + boneName);
                     for (let timelineName in boneMap) {
                         let timelineMap = boneMap[timelineName];
+                        if (timelineMap.length == 0)
+                            continue;
                         if (timelineName === "rotate") {
-                            let timeline = new spine.RotateTimeline(timelineMap.length);
-                            timeline.boneIndex = boneIndex;
-                            let frameIndex = 0;
-                            for (let i = 0; i < timelineMap.length; i++) {
-                                let valueMap = timelineMap[i];
-                                timeline.setFrame(frameIndex, this.getValue(valueMap, "time", 0), this.getValue(valueMap, "angle", 0));
-                                this.readCurve(valueMap, timeline, frameIndex);
-                                frameIndex++;
-                            }
-                            timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(timeline.getFrameCount() - 1) * spine.RotateTimeline.ENTRIES]);
+                            timelines.push(readTimeline1(timelineMap, new spine.RotateTimeline(timelineMap.length, timelineMap.length, boneIndex), 0, 1));
                         }
-                        else if (timelineName === "translate" || timelineName === "scale" || timelineName === "shear") {
-                            let timeline = null;
-                            let timelineScale = 1, defaultValue = 0;
-                            if (timelineName === "scale") {
-                                timeline = new spine.ScaleTimeline(timelineMap.length);
-                                defaultValue = 1;
-                            }
-                            else if (timelineName === "shear")
-                                timeline = new spine.ShearTimeline(timelineMap.length);
-                            else {
-                                timeline = new spine.TranslateTimeline(timelineMap.length);
-                                timelineScale = scale;
-                            }
-                            timeline.boneIndex = boneIndex;
-                            let frameIndex = 0;
-                            for (let i = 0; i < timelineMap.length; i++) {
-                                let valueMap = timelineMap[i];
-                                let x = this.getValue(valueMap, "x", defaultValue), y = this.getValue(valueMap, "y", defaultValue);
-                                timeline.setFrame(frameIndex, this.getValue(valueMap, "time", 0), x * timelineScale, y * timelineScale);
-                                this.readCurve(valueMap, timeline, frameIndex);
-                                frameIndex++;
-                            }
-                            timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(timeline.getFrameCount() - 1) * spine.TranslateTimeline.ENTRIES]);
+                        else if (timelineName === "translate") {
+                            let timeline = new spine.TranslateTimeline(timelineMap.length, timelineMap.length << 1, boneIndex);
+                            timelines.push(readTimeline2(timelineMap, timeline, "x", "y", 0, scale));
                         }
-                        else
-                            throw new Error("Invalid timeline type for a bone: " + timelineName + " (" + boneName + ")");
+                        else if (timelineName === "translatex") {
+                            let timeline = new spine.TranslateXTimeline(timelineMap.length, timelineMap.length, boneIndex);
+                            timelines.push(readTimeline1(timelineMap, timeline, 0, scale));
+                        }
+                        else if (timelineName === "translatey") {
+                            let timeline = new spine.TranslateYTimeline(timelineMap.length, timelineMap.length, boneIndex);
+                            timelines.push(readTimeline1(timelineMap, timeline, 0, scale));
+                        }
+                        else if (timelineName === "scale") {
+                            let timeline = new spine.ScaleTimeline(timelineMap.length, timelineMap.length << 1, boneIndex);
+                            timelines.push(readTimeline2(timelineMap, timeline, "x", "y", 1, 1));
+                        }
+                        else if (timelineName === "scalex") {
+                            let timeline = new spine.ScaleXTimeline(timelineMap.length, timelineMap.length, boneIndex);
+                            timelines.push(readTimeline1(timelineMap, timeline, 1, 1));
+                        }
+                        else if (timelineName === "scaley") {
+                            let timeline = new spine.ScaleYTimeline(timelineMap.length, timelineMap.length, boneIndex);
+                            timelines.push(readTimeline1(timelineMap, timeline, 1, 1));
+                        }
+                        else if (timelineName === "shear") {
+                            let timeline = new spine.ShearTimeline(timelineMap.length, timelineMap.length << 1, boneIndex);
+                            timelines.push(readTimeline2(timelineMap, timeline, "x", "y", 0, 1));
+                        }
+                        else if (timelineName === "shearx") {
+                            let timeline = new spine.ShearXTimeline(timelineMap.length, timelineMap.length, boneIndex);
+                            timelines.push(readTimeline1(timelineMap, timeline, 0, 1));
+                        }
+                        else if (timelineName === "sheary") {
+                            let timeline = new spine.ShearYTimeline(timelineMap.length, timelineMap.length, boneIndex);
+                            timelines.push(readTimeline1(timelineMap, timeline, 0, 1));
+                        }
                     }
                 }
             }
             if (map.ik) {
                 for (let constraintName in map.ik) {
                     let constraintMap = map.ik[constraintName];
+                    let keyMap = constraintMap[0];
+                    if (!keyMap)
+                        continue;
                     let constraint = skeletonData.findIkConstraint(constraintName);
-                    let timeline = new spine.IkConstraintTimeline(constraintMap.length);
-                    timeline.ikConstraintIndex = skeletonData.ikConstraints.indexOf(constraint);
-                    let frameIndex = 0;
-                    for (let i = 0; i < constraintMap.length; i++) {
-                        let valueMap = constraintMap[i];
-                        timeline.setFrame(frameIndex, this.getValue(valueMap, "time", 0), this.getValue(valueMap, "mix", 1), this.getValue(valueMap, "softness", 0) * scale, this.getValue(valueMap, "bendPositive", true) ? 1 : -1, this.getValue(valueMap, "compress", false), this.getValue(valueMap, "stretch", false));
-                        this.readCurve(valueMap, timeline, frameIndex);
-                        frameIndex++;
+                    let constraintIndex = skeletonData.ikConstraints.indexOf(constraint);
+                    let timeline = new spine.IkConstraintTimeline(constraintMap.length, constraintMap.length << 1, constraintIndex);
+                    let time = getValue(keyMap, "time", 0);
+                    let mix = getValue(keyMap, "mix", 1);
+                    let softness = getValue(keyMap, "softness", 0) * scale;
+                    for (let frame = 0, bezier = 0;; frame++) {
+                        timeline.setFrame(frame, time, mix, softness, getValue(keyMap, "bendPositive", true) ? 1 : -1, getValue(keyMap, "compress", false), getValue(keyMap, "stretch", false));
+                        let nextMap = constraintMap[frame + 1];
+                        if (!nextMap) {
+                            timeline.shrink(bezier);
+                            break;
+                        }
+                        let time2 = getValue(nextMap, "time", 0);
+                        let mix2 = getValue(nextMap, "mix", 1);
+                        let softness2 = getValue(nextMap, "softness", 0) * scale;
+                        let curve = keyMap.curve;
+                        if (curve) {
+                            bezier = readCurve(curve, timeline, bezier, frame, 0, time, time2, mix, mix2, 1);
+                            bezier = readCurve(curve, timeline, bezier, frame, 1, time, time2, softness, softness2, scale);
+                        }
+                        time = time2;
+                        mix = mix2;
+                        softness = softness2;
+                        keyMap = nextMap;
                     }
                     timelines.push(timeline);
-                    duration = Math.max(duration, timeline.frames[(timeline.getFrameCount() - 1) * spine.IkConstraintTimeline.ENTRIES]);
                 }
             }
             if (map.transform) {
                 for (let constraintName in map.transform) {
-                    let constraintMap = map.transform[constraintName];
+                    let timelineMap = map.transform[constraintName];
+                    let keyMap = timelineMap[0];
+                    if (!keyMap)
+                        continue;
                     let constraint = skeletonData.findTransformConstraint(constraintName);
-                    let timeline = new spine.TransformConstraintTimeline(constraintMap.length);
-                    timeline.transformConstraintIndex = skeletonData.transformConstraints.indexOf(constraint);
-                    let frameIndex = 0;
-                    for (let i = 0; i < constraintMap.length; i++) {
-                        let valueMap = constraintMap[i];
-                        timeline.setFrame(frameIndex, this.getValue(valueMap, "time", 0), this.getValue(valueMap, "rotateMix", 1), this.getValue(valueMap, "translateMix", 1), this.getValue(valueMap, "scaleMix", 1), this.getValue(valueMap, "shearMix", 1));
-                        this.readCurve(valueMap, timeline, frameIndex);
-                        frameIndex++;
+                    let constraintIndex = skeletonData.transformConstraints.indexOf(constraint);
+                    let timeline = new spine.TransformConstraintTimeline(timelineMap.length, timelineMap.length << 2, constraintIndex);
+                    let time = getValue(keyMap, "time", 0);
+                    let mixRotate = getValue(keyMap, "mixRotate", 1);
+                    let mixX = getValue(keyMap, "mixX", 1);
+                    let mixY = getValue(keyMap, "mixY", mixX);
+                    let mixScaleX = getValue(keyMap, "mixScaleX", 1);
+                    let mixScaleY = getValue(keyMap, "mixScaleY", mixScaleX);
+                    let mixShearY = getValue(keyMap, "mixShearY", 1);
+                    for (let frame = 0, bezier = 0;; frame++) {
+                        timeline.setFrame(frame, time, mixRotate, mixX, mixY, mixScaleX, mixScaleY, mixShearY);
+                        let nextMap = timelineMap[frame + 1];
+                        if (!nextMap) {
+                            timeline.shrink(bezier);
+                            break;
+                        }
+                        let time2 = getValue(nextMap, "time", 0);
+                        let mixRotate2 = getValue(nextMap, "mixRotate", 1);
+                        let mixX2 = getValue(nextMap, "mixX", 1);
+                        let mixY2 = getValue(nextMap, "mixY", mixX2);
+                        let mixScaleX2 = getValue(nextMap, "mixScaleX", 1);
+                        let mixScaleY2 = getValue(nextMap, "mixScaleY", mixScaleX2);
+                        let mixShearY2 = getValue(nextMap, "mixShearY", 1);
+                        let curve = keyMap.curve;
+                        if (curve) {
+                            bezier = readCurve(curve, timeline, bezier, frame, 0, time, time2, mixRotate, mixRotate2, 1);
+                            bezier = readCurve(curve, timeline, bezier, frame, 1, time, time2, mixX, mixX2, 1);
+                            bezier = readCurve(curve, timeline, bezier, frame, 2, time, time2, mixY, mixY2, 1);
+                            bezier = readCurve(curve, timeline, bezier, frame, 3, time, time2, mixScaleX, mixScaleX2, 1);
+                            bezier = readCurve(curve, timeline, bezier, frame, 4, time, time2, mixScaleY, mixScaleY2, 1);
+                            bezier = readCurve(curve, timeline, bezier, frame, 5, time, time2, mixShearY, mixShearY2, 1);
+                        }
+                        time = time2;
+                        mixRotate = mixRotate2;
+                        mixX = mixX2;
+                        mixY = mixY2;
+                        mixScaleX = mixScaleX2;
+                        mixScaleY = mixScaleY2;
+                        mixScaleX = mixScaleX2;
+                        keyMap = nextMap;
                     }
                     timelines.push(timeline);
-                    duration = Math.max(duration, timeline.frames[(timeline.getFrameCount() - 1) * spine.TransformConstraintTimeline.ENTRIES]);
                 }
             }
             if (map.path) {
                 for (let constraintName in map.path) {
                     let constraintMap = map.path[constraintName];
-                    let index = skeletonData.findPathConstraintIndex(constraintName);
-                    if (index == -1)
-                        throw new Error("Path constraint not found: " + constraintName);
-                    let data = skeletonData.pathConstraints[index];
+                    let constraint = skeletonData.findPathConstraint(constraintName);
+                    let constraintIndex = skeletonData.pathConstraints.indexOf(constraint);
                     for (let timelineName in constraintMap) {
                         let timelineMap = constraintMap[timelineName];
-                        if (timelineName === "position" || timelineName === "spacing") {
-                            let timeline = null;
-                            let timelineScale = 1;
-                            if (timelineName === "spacing") {
-                                timeline = new spine.PathConstraintSpacingTimeline(timelineMap.length);
-                                if (data.spacingMode == spine.SpacingMode.Length || data.spacingMode == spine.SpacingMode.Fixed)
-                                    timelineScale = scale;
-                            }
-                            else {
-                                timeline = new spine.PathConstraintPositionTimeline(timelineMap.length);
-                                if (data.positionMode == spine.PositionMode.Fixed)
-                                    timelineScale = scale;
-                            }
-                            timeline.pathConstraintIndex = index;
-                            let frameIndex = 0;
-                            for (let i = 0; i < timelineMap.length; i++) {
-                                let valueMap = timelineMap[i];
-                                timeline.setFrame(frameIndex, this.getValue(valueMap, "time", 0), this.getValue(valueMap, timelineName, 0) * timelineScale);
-                                this.readCurve(valueMap, timeline, frameIndex);
-                                frameIndex++;
-                            }
-                            timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(timeline.getFrameCount() - 1) * spine.PathConstraintPositionTimeline.ENTRIES]);
+                        let keyMap = timelineMap[0];
+                        if (!keyMap)
+                            continue;
+                        if (timelineName === "position") {
+                            let timeline = new spine.PathConstraintPositionTimeline(timelineMap.length, timelineMap.length, constraintIndex);
+                            timelines.push(readTimeline1(timelineMap, timeline, 0, constraint.positionMode == spine.PositionMode.Fixed ? scale : 1));
+                        }
+                        else if (timelineName === "spacing") {
+                            let timeline = new spine.PathConstraintSpacingTimeline(timelineMap.length, timelineMap.length, constraintIndex);
+                            timelines.push(readTimeline1(timelineMap, timeline, 0, constraint.spacingMode == spine.SpacingMode.Length || constraint.spacingMode == spine.SpacingMode.Fixed ? scale : 1));
                         }
                         else if (timelineName === "mix") {
-                            let timeline = new spine.PathConstraintMixTimeline(timelineMap.length);
-                            timeline.pathConstraintIndex = index;
-                            let frameIndex = 0;
-                            for (let i = 0; i < timelineMap.length; i++) {
-                                let valueMap = timelineMap[i];
-                                timeline.setFrame(frameIndex, this.getValue(valueMap, "time", 0), this.getValue(valueMap, "rotateMix", 1), this.getValue(valueMap, "translateMix", 1));
-                                this.readCurve(valueMap, timeline, frameIndex);
-                                frameIndex++;
+                            let timeline = new spine.PathConstraintMixTimeline(timelineMap.size, timelineMap.size * 3, constraintIndex);
+                            let time = getValue(keyMap, "time", 0);
+                            let mixRotate = getValue(keyMap, "mixRotate", 1);
+                            let mixX = getValue(keyMap, "mixX", 1);
+                            let mixY = getValue(keyMap, "mixY", mixX);
+                            for (let frame = 0, bezier = 0;; frame++) {
+                                timeline.setFrame(frame, time, mixRotate, mixX, mixY);
+                                let nextMap = timelineMap[frame + 1];
+                                if (!nextMap) {
+                                    timeline.shrink(bezier);
+                                    break;
+                                }
+                                let time2 = getValue(nextMap, "time", 0);
+                                let mixRotate2 = getValue(nextMap, "mixRotate", 1);
+                                let mixX2 = getValue(nextMap, "mixX", 1);
+                                let mixY2 = getValue(nextMap, "mixY", mixX2);
+                                let curve = keyMap.curve;
+                                if (curve) {
+                                    bezier = readCurve(curve, timeline, bezier, frame, 0, time, time2, mixRotate, mixRotate2, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 1, time, time2, mixX, mixX2, 1);
+                                    bezier = readCurve(curve, timeline, bezier, frame, 2, time, time2, mixY, mixY2, 1);
+                                }
+                                time = time2;
+                                mixRotate = mixRotate2;
+                                mixX = mixX2;
+                                mixY = mixY2;
+                                keyMap = nextMap;
                             }
                             timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[(timeline.getFrameCount() - 1) * spine.PathConstraintMixTimeline.ENTRIES]);
                         }
                     }
                 }
@@ -6074,34 +6768,28 @@ var spine;
                 for (let deformName in map.deform) {
                     let deformMap = map.deform[deformName];
                     let skin = skeletonData.findSkin(deformName);
-                    if (skin == null)
-                        throw new Error("Skin not found: " + deformName);
                     for (let slotName in deformMap) {
                         let slotMap = deformMap[slotName];
                         let slotIndex = skeletonData.findSlotIndex(slotName);
-                        if (slotIndex == -1)
-                            throw new Error("Slot not found: " + slotMap.name);
                         for (let timelineName in slotMap) {
                             let timelineMap = slotMap[timelineName];
+                            let keyMap = timelineMap[0];
+                            if (!keyMap)
+                                continue;
                             let attachment = skin.getAttachment(slotIndex, timelineName);
-                            if (attachment == null)
-                                throw new Error("Deform attachment not found: " + timelineMap.name);
-                            let weighted = attachment.bones != null;
+                            let weighted = attachment.bones;
                             let vertices = attachment.vertices;
                             let deformLength = weighted ? vertices.length / 3 * 2 : vertices.length;
-                            let timeline = new spine.DeformTimeline(timelineMap.length);
-                            timeline.slotIndex = slotIndex;
-                            timeline.attachment = attachment;
-                            let frameIndex = 0;
-                            for (let j = 0; j < timelineMap.length; j++) {
-                                let valueMap = timelineMap[j];
+                            let timeline = new spine.DeformTimeline(timelineMap.length, timelineMap.length, slotIndex, attachment);
+                            let time = getValue(keyMap, "time", 0);
+                            for (let frame = 0, bezier = 0;; frame++) {
                                 let deform;
-                                let verticesValue = this.getValue(valueMap, "vertices", null);
-                                if (verticesValue == null)
+                                let verticesValue = getValue(keyMap, "vertices", null);
+                                if (!verticesValue)
                                     deform = weighted ? spine.Utils.newFloatArray(deformLength) : vertices;
                                 else {
                                     deform = spine.Utils.newFloatArray(deformLength);
-                                    let start = this.getValue(valueMap, "offset", 0);
+                                    let start = getValue(keyMap, "offset", 0);
                                     spine.Utils.arrayCopy(verticesValue, 0, deform, start, verticesValue.length);
                                     if (scale != 1) {
                                         for (let i = start, n = i + verticesValue.length; i < n; i++)
@@ -6112,143 +6800,75 @@ var spine;
                                             deform[i] += vertices[i];
                                     }
                                 }
-                                timeline.setFrame(frameIndex, this.getValue(valueMap, "time", 0), deform);
-                                this.readCurve(valueMap, timeline, frameIndex);
-                                frameIndex++;
+                                timeline.setFrame(frame, time, deform);
+                                let nextMap = timelineMap[frame + 1];
+                                if (!nextMap) {
+                                    timeline.shrink(bezier);
+                                    break;
+                                }
+                                let time2 = getValue(nextMap, "time", 0);
+                                let curve = keyMap.curve;
+                                if (curve)
+                                    bezier = readCurve(curve, timeline, bezier, frame, 0, time, time2, 0, 1, 1);
+                                time = time2;
+                                keyMap = nextMap;
                             }
                             timelines.push(timeline);
-                            duration = Math.max(duration, timeline.frames[timeline.getFrameCount() - 1]);
                         }
                     }
                 }
             }
-            let drawOrderNode = map.drawOrder;
-            if (drawOrderNode == null)
-                drawOrderNode = map.draworder;
-            if (drawOrderNode != null) {
-                let timeline = new spine.DrawOrderTimeline(drawOrderNode.length);
+            if (map.drawOrder) {
+                let timeline = new spine.DrawOrderTimeline(map.drawOrder.length);
                 let slotCount = skeletonData.slots.length;
-                let frameIndex = 0;
-                for (let j = 0; j < drawOrderNode.length; j++) {
-                    let drawOrderMap = drawOrderNode[j];
+                let frame = 0;
+                for (let i = 0; i < map.drawOrder.length; i++, frame++) {
+                    let drawOrderMap = map.drawOrder[i];
                     let drawOrder = null;
-                    let offsets = this.getValue(drawOrderMap, "offsets", null);
-                    if (offsets != null) {
+                    let offsets = getValue(drawOrderMap, "offsets", null);
+                    if (offsets) {
                         drawOrder = spine.Utils.newArray(slotCount, -1);
                         let unchanged = spine.Utils.newArray(slotCount - offsets.length, 0);
                         let originalIndex = 0, unchangedIndex = 0;
-                        for (let i = 0; i < offsets.length; i++) {
-                            let offsetMap = offsets[i];
+                        for (let ii = 0; ii < offsets.length; ii++) {
+                            let offsetMap = offsets[ii];
                             let slotIndex = skeletonData.findSlotIndex(offsetMap.slot);
-                            if (slotIndex == -1)
-                                throw new Error("Slot not found: " + offsetMap.slot);
                             while (originalIndex != slotIndex)
                                 unchanged[unchangedIndex++] = originalIndex++;
                             drawOrder[originalIndex + offsetMap.offset] = originalIndex++;
                         }
                         while (originalIndex < slotCount)
                             unchanged[unchangedIndex++] = originalIndex++;
-                        for (let i = slotCount - 1; i >= 0; i--)
-                            if (drawOrder[i] == -1)
-                                drawOrder[i] = unchanged[--unchangedIndex];
+                        for (let ii = slotCount - 1; ii >= 0; ii--)
+                            if (drawOrder[ii] == -1)
+                                drawOrder[ii] = unchanged[--unchangedIndex];
                     }
-                    timeline.setFrame(frameIndex++, this.getValue(drawOrderMap, "time", 0), drawOrder);
+                    timeline.setFrame(frame, getValue(drawOrderMap, "time", 0), drawOrder);
                 }
                 timelines.push(timeline);
-                duration = Math.max(duration, timeline.frames[timeline.getFrameCount() - 1]);
             }
             if (map.events) {
                 let timeline = new spine.EventTimeline(map.events.length);
-                let frameIndex = 0;
-                for (let i = 0; i < map.events.length; i++) {
+                let frame = 0;
+                for (let i = 0; i < map.events.length; i++, frame++) {
                     let eventMap = map.events[i];
                     let eventData = skeletonData.findEvent(eventMap.name);
-                    if (eventData == null)
-                        throw new Error("Event not found: " + eventMap.name);
-                    let event = new spine.Event(spine.Utils.toSinglePrecision(this.getValue(eventMap, "time", 0)), eventData);
-                    event.intValue = this.getValue(eventMap, "int", eventData.intValue);
-                    event.floatValue = this.getValue(eventMap, "float", eventData.floatValue);
-                    event.stringValue = this.getValue(eventMap, "string", eventData.stringValue);
-                    if (event.data.audioPath != null) {
-                        event.volume = this.getValue(eventMap, "volume", 1);
-                        event.balance = this.getValue(eventMap, "balance", 0);
+                    let event = new spine.Event(spine.Utils.toSinglePrecision(getValue(eventMap, "time", 0)), eventData);
+                    event.intValue = getValue(eventMap, "int", eventData.intValue);
+                    event.floatValue = getValue(eventMap, "float", eventData.floatValue);
+                    event.stringValue = getValue(eventMap, "string", eventData.stringValue);
+                    if (event.data.audioPath) {
+                        event.volume = getValue(eventMap, "volume", 1);
+                        event.balance = getValue(eventMap, "balance", 0);
                     }
-                    timeline.setFrame(frameIndex++, event);
+                    timeline.setFrame(frame, event);
                 }
                 timelines.push(timeline);
-                duration = Math.max(duration, timeline.frames[timeline.getFrameCount() - 1]);
             }
-            if (isNaN(duration)) {
-                throw new Error("Error while parsing animation, duration is NaN");
-            }
+            let duration = 0;
+            for (let i = 0, n = timelines.length; i < n; i++)
+                duration = Math.max(duration, timelines[i].getDuration());
             skeletonData.animations.push(new spine.Animation(name, timelines, duration));
-        }
-        readCurve(map, timeline, frameIndex) {
-            if (!map.hasOwnProperty("curve"))
-                return;
-            if (map.curve == "stepped")
-                timeline.setStepped(frameIndex);
-            else {
-                let curve = map.curve;
-                timeline.setCurve(frameIndex, curve, this.getValue(map, "c2", 0), this.getValue(map, "c3", 1), this.getValue(map, "c4", 1));
-            }
-        }
-        getValue(map, prop, defaultValue) {
-            return map[prop] !== undefined ? map[prop] : defaultValue;
-        }
-        static blendModeFromString(str) {
-            str = str.toLowerCase();
-            if (str == "normal")
-                return spine.BlendMode.Normal;
-            if (str == "additive")
-                return spine.BlendMode.Additive;
-            if (str == "multiply")
-                return spine.BlendMode.Multiply;
-            if (str == "screen")
-                return spine.BlendMode.Screen;
-            throw new Error(`Unknown blend mode: ${str}`);
-        }
-        static positionModeFromString(str) {
-            str = str.toLowerCase();
-            if (str == "fixed")
-                return spine.PositionMode.Fixed;
-            if (str == "percent")
-                return spine.PositionMode.Percent;
-            throw new Error(`Unknown position mode: ${str}`);
-        }
-        static spacingModeFromString(str) {
-            str = str.toLowerCase();
-            if (str == "length")
-                return spine.SpacingMode.Length;
-            if (str == "fixed")
-                return spine.SpacingMode.Fixed;
-            if (str == "percent")
-                return spine.SpacingMode.Percent;
-            throw new Error(`Unknown position mode: ${str}`);
-        }
-        static rotateModeFromString(str) {
-            str = str.toLowerCase();
-            if (str == "tangent")
-                return spine.RotateMode.Tangent;
-            if (str == "chain")
-                return spine.RotateMode.Chain;
-            if (str == "chainscale")
-                return spine.RotateMode.ChainScale;
-            throw new Error(`Unknown rotate mode: ${str}`);
-        }
-        static transformModeFromString(str) {
-            str = str.toLowerCase();
-            if (str == "normal")
-                return spine.TransformMode.Normal;
-            if (str == "onlytranslation")
-                return spine.TransformMode.OnlyTranslation;
-            if (str == "norotationorreflection")
-                return spine.TransformMode.NoRotationOrReflection;
-            if (str == "noscale")
-                return spine.TransformMode.NoScale;
-            if (str == "noscaleorreflection")
-                return spine.TransformMode.NoScaleOrReflection;
-            throw new Error(`Unknown transform mode: ${str}`);
         }
     }
     spine.SkeletonJson = SkeletonJson;
@@ -6260,6 +6880,70 @@ var spine;
             this.parent = parent;
             this.inheritDeform = inheritDeform;
         }
+    }
+    function readTimeline1(keys, timeline, defaultValue, scale) {
+        let keyMap = keys[0];
+        let time = getValue(keyMap, "time", 0);
+        let value = getValue(keyMap, "value", defaultValue) * scale;
+        let bezier = 0;
+        for (let frame = 0;; frame++) {
+            timeline.setFrame(frame, time, value);
+            let nextMap = keys[frame + 1];
+            if (!nextMap) {
+                timeline.shrink(bezier);
+                return timeline;
+            }
+            let time2 = getValue(nextMap, "time", 0);
+            let value2 = getValue(nextMap, "value", defaultValue) * scale;
+            if (keyMap.curve)
+                bezier = readCurve(keyMap.curve, timeline, bezier, frame, 0, time, time2, value, value2, scale);
+            time = time2;
+            value = value2;
+            keyMap = nextMap;
+        }
+    }
+    function readTimeline2(keys, timeline, name1, name2, defaultValue, scale) {
+        let keyMap = keys[0];
+        let time = getValue(keyMap, "time", 0);
+        let value1 = getValue(keyMap, name1, defaultValue) * scale;
+        let value2 = getValue(keyMap, name2, defaultValue) * scale;
+        let bezier = 0;
+        for (let frame = 0;; frame++) {
+            timeline.setFrame(frame, time, value1, value2);
+            let nextMap = keys[frame + 1];
+            if (!nextMap) {
+                timeline.shrink(bezier);
+                return timeline;
+            }
+            let time2 = getValue(nextMap, "time", 0);
+            let nvalue1 = getValue(nextMap, name1, defaultValue) * scale;
+            let nvalue2 = getValue(nextMap, name2, defaultValue) * scale;
+            let curve = keyMap.curve;
+            if (curve) {
+                bezier = readCurve(curve, timeline, bezier, frame, 0, time, time2, value1, nvalue1, scale);
+                bezier = readCurve(curve, timeline, bezier, frame, 1, time, time2, value2, nvalue2, scale);
+            }
+            time = time2;
+            value1 = nvalue1;
+            value2 = nvalue2;
+            keyMap = nextMap;
+        }
+    }
+    function readCurve(curve, timeline, bezier, frame, value, time1, time2, value1, value2, scale) {
+        if (curve == "stepped") {
+            timeline.setStepped(frame);
+            return bezier;
+        }
+        let i = value << 2;
+        let cx1 = curve[i];
+        let cy1 = curve[i + 1] * scale;
+        let cx2 = curve[i + 2];
+        let cy2 = curve[i + 3] * scale;
+        timeline.setBezier(bezier, frame, value, time1, value1, cx1, cy1, cx2, cy2, time2, value2);
+        return bezier + 1;
+    }
+    function getValue(map, property, defaultValue) {
+        return map[property] !== undefined ? map[property] : defaultValue;
     }
 })(spine || (spine = {}));
 var spine;
@@ -6277,12 +6961,12 @@ var spine;
             this.attachments = new Array();
             this.bones = Array();
             this.constraints = new Array();
-            if (name == null)
+            if (!name)
                 throw new Error("name cannot be null.");
             this.name = name;
         }
         setAttachment(slotIndex, name, attachment) {
-            if (attachment == null)
+            if (!attachment)
                 throw new Error("attachment cannot be null.");
             let attachments = this.attachments;
             if (slotIndex >= attachments.length)
@@ -6295,8 +6979,8 @@ var spine;
             for (let i = 0; i < skin.bones.length; i++) {
                 let bone = skin.bones[i];
                 let contained = false;
-                for (let j = 0; j < this.bones.length; j++) {
-                    if (this.bones[j] == bone) {
+                for (let ii = 0; ii < this.bones.length; ii++) {
+                    if (this.bones[ii] == bone) {
                         contained = true;
                         break;
                     }
@@ -6307,8 +6991,8 @@ var spine;
             for (let i = 0; i < skin.constraints.length; i++) {
                 let constraint = skin.constraints[i];
                 let contained = false;
-                for (let j = 0; j < this.constraints.length; j++) {
-                    if (this.constraints[j] == constraint) {
+                for (let ii = 0; ii < this.constraints.length; ii++) {
+                    if (this.constraints[ii] == constraint) {
                         contained = true;
                         break;
                     }
@@ -6326,8 +7010,8 @@ var spine;
             for (let i = 0; i < skin.bones.length; i++) {
                 let bone = skin.bones[i];
                 let contained = false;
-                for (let j = 0; j < this.bones.length; j++) {
-                    if (this.bones[j] == bone) {
+                for (let ii = 0; ii < this.bones.length; ii++) {
+                    if (this.bones[ii] == bone) {
                         contained = true;
                         break;
                     }
@@ -6338,8 +7022,8 @@ var spine;
             for (let i = 0; i < skin.constraints.length; i++) {
                 let constraint = skin.constraints[i];
                 let contained = false;
-                for (let j = 0; j < this.constraints.length; j++) {
-                    if (this.constraints[j] == constraint) {
+                for (let ii = 0; ii < this.constraints.length; ii++) {
+                    if (this.constraints[ii] == constraint) {
                         contained = true;
                         break;
                     }
@@ -6350,7 +7034,7 @@ var spine;
             let attachments = skin.getAttachments();
             for (let i = 0; i < attachments.length; i++) {
                 var attachment = attachments[i];
-                if (attachment.attachment == null)
+                if (!attachment.attachment)
                     continue;
                 if (attachment.attachment instanceof spine.MeshAttachment) {
                     attachment.attachment = attachment.attachment.newLinkedMesh();
@@ -6411,7 +7095,7 @@ var spine;
                         let skinAttachment = dictionary[key];
                         if (slotAttachment == skinAttachment) {
                             let attachment = this.getAttachment(slotIndex, key);
-                            if (attachment != null)
+                            if (attachment)
                                 slot.setAttachment(attachment);
                             break;
                         }
@@ -6428,14 +7112,14 @@ var spine;
     class Slot {
         constructor(data, bone) {
             this.deform = new Array();
-            if (data == null)
+            if (!data)
                 throw new Error("data cannot be null.");
-            if (bone == null)
+            if (!bone)
                 throw new Error("bone cannot be null.");
             this.data = data;
             this.bone = bone;
             this.color = new spine.Color();
-            this.darkColor = data.darkColor == null ? null : new spine.Color();
+            this.darkColor = !data.darkColor ? null : new spine.Color();
             this.setToSetupPose();
         }
         getSkeleton() {
@@ -6447,9 +7131,12 @@ var spine;
         setAttachment(attachment) {
             if (this.attachment == attachment)
                 return;
+            if (!(attachment instanceof spine.VertexAttachment) || !(this.attachment instanceof spine.VertexAttachment)
+                || attachment.deformAttachment != this.attachment.deformAttachment) {
+                this.deform.length = 0;
+            }
             this.attachment = attachment;
             this.attachmentTime = this.bone.skeleton.time;
-            this.deform.length = 0;
         }
         setAttachmentTime(time) {
             this.attachmentTime = this.bone.skeleton.time - time;
@@ -6459,9 +7146,9 @@ var spine;
         }
         setToSetupPose() {
             this.color.setFromColor(this.data.color);
-            if (this.darkColor != null)
+            if (this.darkColor)
                 this.darkColor.setFromColor(this.data.darkColor);
-            if (this.data.attachmentName == null)
+            if (!this.data.attachmentName)
                 this.attachment = null;
             else {
                 this.attachment = null;
@@ -6478,9 +7165,9 @@ var spine;
             this.color = new spine.Color(1, 1, 1, 1);
             if (index < 0)
                 throw new Error("index must be >= 0.");
-            if (name == null)
+            if (!name)
                 throw new Error("name cannot be null.");
-            if (boneData == null)
+            if (!boneData)
                 throw new Error("boneData cannot be null.");
             this.index = index;
             this.name = name;
@@ -6488,6 +7175,13 @@ var spine;
         }
     }
     spine.SlotData = SlotData;
+    let BlendMode;
+    (function (BlendMode) {
+        BlendMode[BlendMode["Normal"] = 0] = "Normal";
+        BlendMode[BlendMode["Additive"] = 1] = "Additive";
+        BlendMode[BlendMode["Multiply"] = 2] = "Multiply";
+        BlendMode[BlendMode["Screen"] = 3] = "Screen";
+    })(BlendMode = spine.BlendMode || (spine.BlendMode = {}));
 })(spine || (spine = {}));
 var spine;
 (function (spine) {
@@ -6497,26 +7191,6 @@ var spine;
         }
         getImage() {
             return this._image;
-        }
-        static filterFromString(text) {
-            switch (text.toLowerCase()) {
-                case "nearest": return TextureFilter.Nearest;
-                case "linear": return TextureFilter.Linear;
-                case "mipmap": return TextureFilter.MipMap;
-                case "mipmapnearestnearest": return TextureFilter.MipMapNearestNearest;
-                case "mipmaplinearnearest": return TextureFilter.MipMapLinearNearest;
-                case "mipmapnearestlinear": return TextureFilter.MipMapNearestLinear;
-                case "mipmaplinearlinear": return TextureFilter.MipMapLinearLinear;
-                default: throw new Error(`Unknown texture filter ${text}`);
-            }
-        }
-        static wrapFromString(text) {
-            switch (text.toLowerCase()) {
-                case "mirroredtepeat": return TextureWrap.MirroredRepeat;
-                case "clamptoedge": return TextureWrap.ClampToEdge;
-                case "repeat": return TextureWrap.Repeat;
-                default: throw new Error(`Unknown texture wrap ${text}`);
-            }
         }
     }
     spine.Texture = Texture;
@@ -6544,7 +7218,7 @@ var spine;
             this.v2 = 0;
             this.width = 0;
             this.height = 0;
-            this.rotate = false;
+            this.degrees = 0;
             this.offsetX = 0;
             this.offsetY = 0;
             this.originalWidth = 0;
@@ -6562,98 +7236,146 @@ var spine;
 var spine;
 (function (spine) {
     class TextureAtlas {
-        constructor(atlasText, textureLoader) {
+        constructor(atlasText) {
             this.pages = new Array();
             this.regions = new Array();
-            this.load(atlasText, textureLoader);
-        }
-        load(atlasText, textureLoader) {
-            if (textureLoader == null)
-                throw new Error("textureLoader cannot be null.");
             let reader = new TextureAtlasReader(atlasText);
-            let tuple = new Array(4);
+            let entry = new Array(4);
             let page = null;
+            let region = null;
+            let pageFields = {};
+            pageFields["size"] = () => {
+                page.width = parseInt(entry[1]);
+                page.height = parseInt(entry[2]);
+            };
+            pageFields["format"] = () => {
+            };
+            pageFields["filter"] = () => {
+                page.minFilter = spine.Utils.enumValue(spine.TextureFilter, entry[1]);
+                page.magFilter = spine.Utils.enumValue(spine.TextureFilter, entry[2]);
+            };
+            pageFields["repeat"] = () => {
+                if (entry[1].indexOf('x') != -1)
+                    page.uWrap = spine.TextureWrap.Repeat;
+                if (entry[1].indexOf('y') != -1)
+                    page.vWrap = spine.TextureWrap.Repeat;
+            };
+            pageFields["pma"] = () => {
+                page.pma = entry[1] == "true";
+            };
+            var regionFields = {};
+            regionFields["xy"] = () => {
+                region.x = parseInt(entry[1]);
+                region.y = parseInt(entry[2]);
+            };
+            regionFields["size"] = () => {
+                region.width = parseInt(entry[1]);
+                region.height = parseInt(entry[2]);
+            };
+            regionFields["bounds"] = () => {
+                region.x = parseInt(entry[1]);
+                region.y = parseInt(entry[2]);
+                region.width = parseInt(entry[3]);
+                region.height = parseInt(entry[4]);
+            };
+            regionFields["offset"] = () => {
+                region.offsetX = parseInt(entry[1]);
+                region.offsetY = parseInt(entry[2]);
+            };
+            regionFields["orig"] = () => {
+                region.originalWidth = parseInt(entry[1]);
+                region.originalHeight = parseInt(entry[2]);
+            };
+            regionFields["offsets"] = () => {
+                region.offsetX = parseInt(entry[1]);
+                region.offsetY = parseInt(entry[2]);
+                region.originalWidth = parseInt(entry[3]);
+                region.originalHeight = parseInt(entry[4]);
+            };
+            regionFields["rotate"] = () => {
+                let value = entry[1];
+                if (value == "true")
+                    region.degrees = 90;
+                else if (value != "false")
+                    region.degrees = parseInt(value);
+            };
+            regionFields["index"] = () => {
+                region.index = parseInt(entry[1]);
+            };
+            let line = reader.readLine();
+            while (line && line.trim().length == 0)
+                line = reader.readLine();
             while (true) {
-                let line = reader.readLine();
-                if (line == null)
+                if (!line || line.trim().length == 0)
                     break;
-                line = line.trim();
-                if (line.length == 0)
+                if (reader.readEntry(entry, line) == 0)
+                    break;
+                line = reader.readLine();
+            }
+            let names = null;
+            let values = null;
+            while (true) {
+                if (line === null)
+                    break;
+                if (line.trim().length == 0) {
                     page = null;
+                    line = reader.readLine();
+                }
                 else if (!page) {
                     page = new TextureAtlasPage();
-                    page.name = line;
-                    if (reader.readTuple(tuple) == 2) {
-                        page.width = parseInt(tuple[0]);
-                        page.height = parseInt(tuple[1]);
-                        reader.readTuple(tuple);
+                    page.name = line.trim();
+                    while (true) {
+                        if (reader.readEntry(entry, line = reader.readLine()) == 0)
+                            break;
+                        let field = pageFields[entry[0]];
+                        if (field)
+                            field();
                     }
-                    reader.readTuple(tuple);
-                    page.minFilter = spine.Texture.filterFromString(tuple[0]);
-                    page.magFilter = spine.Texture.filterFromString(tuple[1]);
-                    let direction = reader.readValue();
-                    page.uWrap = spine.TextureWrap.ClampToEdge;
-                    page.vWrap = spine.TextureWrap.ClampToEdge;
-                    if (direction == "x")
-                        page.uWrap = spine.TextureWrap.Repeat;
-                    else if (direction == "y")
-                        page.vWrap = spine.TextureWrap.Repeat;
-                    else if (direction == "xy")
-                        page.uWrap = page.vWrap = spine.TextureWrap.Repeat;
-                    page.texture = textureLoader(line);
-                    page.texture.setFilters(page.minFilter, page.magFilter);
-                    page.texture.setWraps(page.uWrap, page.vWrap);
-                    page.width = page.texture.getImage().width;
-                    page.height = page.texture.getImage().height;
                     this.pages.push(page);
                 }
                 else {
-                    let region = new TextureAtlasRegion();
-                    region.name = line;
+                    region = new TextureAtlasRegion();
                     region.page = page;
-                    let rotateValue = reader.readValue();
-                    if (rotateValue.toLocaleLowerCase() == "true") {
-                        region.degrees = 90;
-                    }
-                    else if (rotateValue.toLocaleLowerCase() == "false") {
-                        region.degrees = 0;
-                    }
-                    else {
-                        region.degrees = parseFloat(rotateValue);
-                    }
-                    region.rotate = region.degrees == 90;
-                    reader.readTuple(tuple);
-                    let x = parseInt(tuple[0]);
-                    let y = parseInt(tuple[1]);
-                    reader.readTuple(tuple);
-                    let width = parseInt(tuple[0]);
-                    let height = parseInt(tuple[1]);
-                    region.u = x / page.width;
-                    region.v = y / page.height;
-                    if (region.rotate) {
-                        region.u2 = (x + height) / page.width;
-                        region.v2 = (y + width) / page.height;
-                    }
-                    else {
-                        region.u2 = (x + width) / page.width;
-                        region.v2 = (y + height) / page.height;
-                    }
-                    region.x = x;
-                    region.y = y;
-                    region.width = Math.abs(width);
-                    region.height = Math.abs(height);
-                    if (reader.readTuple(tuple) == 4) {
-                        if (reader.readTuple(tuple) == 4) {
-                            reader.readTuple(tuple);
+                    region.name = line;
+                    while (true) {
+                        let count = reader.readEntry(entry, line = reader.readLine());
+                        if (count == 0)
+                            break;
+                        let field = regionFields[entry[0]];
+                        if (field)
+                            field();
+                        else {
+                            if (!names) {
+                                names = [];
+                                values = [];
+                            }
+                            names.push(entry[0]);
+                            let entryValues = [];
+                            for (let i = 0; i < count; i++)
+                                entryValues.push(parseInt(entry[i + 1]));
+                            values.push(entryValues);
                         }
                     }
-                    region.originalWidth = parseInt(tuple[0]);
-                    region.originalHeight = parseInt(tuple[1]);
-                    reader.readTuple(tuple);
-                    region.offsetX = parseInt(tuple[0]);
-                    region.offsetY = parseInt(tuple[1]);
-                    region.index = parseInt(reader.readValue());
-                    region.texture = page.texture;
+                    if (region.originalWidth == 0 && region.originalHeight == 0) {
+                        region.originalWidth = region.width;
+                        region.originalHeight = region.height;
+                    }
+                    if (names && names.length > 0) {
+                        region.names = names;
+                        region.values = values;
+                        names = null;
+                        values = null;
+                    }
+                    region.u = region.x / page.width;
+                    region.v = region.y / page.height;
+                    if (region.degrees == 90) {
+                        region.u2 = (region.x + region.height) / page.width;
+                        region.v2 = (region.y + region.width) / page.height;
+                    }
+                    else {
+                        region.u2 = (region.x + region.width) / page.width;
+                        region.v2 = (region.y + region.height) / page.height;
+                    }
                     this.regions.push(region);
                 }
             }
@@ -6665,6 +7387,10 @@ var spine;
                 }
             }
             return null;
+        }
+        setTextures(assetManager, pathPrefix = "") {
+            for (let page of this.pages)
+                page.setTexture(assetManager.get(pathPrefix + page.name));
         }
         dispose() {
             for (let i = 0; i < this.pages.length; i++) {
@@ -6683,31 +7409,41 @@ var spine;
                 return null;
             return this.lines[this.index++];
         }
-        readValue() {
-            let line = this.readLine();
-            let colon = line.indexOf(":");
+        readEntry(entry, line) {
+            if (!line)
+                return 0;
+            line = line.trim();
+            if (line.length == 0)
+                return 0;
+            let colon = line.indexOf(':');
             if (colon == -1)
-                throw new Error("Invalid line: " + line);
-            return line.substring(colon + 1).trim();
-        }
-        readTuple(tuple) {
-            let line = this.readLine();
-            let colon = line.indexOf(":");
-            if (colon == -1)
-                throw new Error("Invalid line: " + line);
-            let i = 0, lastMatch = colon + 1;
-            for (; i < 3; i++) {
-                let comma = line.indexOf(",", lastMatch);
-                if (comma == -1)
-                    break;
-                tuple[i] = line.substr(lastMatch, comma - lastMatch).trim();
+                return 0;
+            entry[0] = line.substr(0, colon).trim();
+            for (let i = 1, lastMatch = colon + 1;; i++) {
+                let comma = line.indexOf(',', lastMatch);
+                if (comma == -1) {
+                    entry[i] = line.substr(lastMatch).trim();
+                    return i;
+                }
+                entry[i] = line.substr(lastMatch, comma - lastMatch).trim();
                 lastMatch = comma + 1;
+                if (i == 4)
+                    return 4;
             }
-            tuple[i] = line.substring(lastMatch).trim();
-            return i + 1;
         }
     }
     class TextureAtlasPage {
+        constructor() {
+            this.minFilter = spine.TextureFilter.Nearest;
+            this.magFilter = spine.TextureFilter.Nearest;
+            this.uWrap = spine.TextureWrap.ClampToEdge;
+            this.vWrap = spine.TextureWrap.ClampToEdge;
+        }
+        setTexture(texture) {
+            this.texture = texture;
+            texture.setFilters(this.minFilter, this.magFilter);
+            texture.setWraps(this.uWrap, this.vWrap);
+        }
     }
     spine.TextureAtlasPage = TextureAtlasPage;
     class TextureAtlasRegion extends spine.TextureRegion {
@@ -6718,21 +7454,25 @@ var spine;
 (function (spine) {
     class TransformConstraint {
         constructor(data, skeleton) {
-            this.rotateMix = 0;
-            this.translateMix = 0;
-            this.scaleMix = 0;
-            this.shearMix = 0;
+            this.mixRotate = 0;
+            this.mixX = 0;
+            this.mixY = 0;
+            this.mixScaleX = 0;
+            this.mixScaleY = 0;
+            this.mixShearY = 0;
             this.temp = new spine.Vector2();
             this.active = false;
-            if (data == null)
+            if (!data)
                 throw new Error("data cannot be null.");
-            if (skeleton == null)
+            if (!skeleton)
                 throw new Error("skeleton cannot be null.");
             this.data = data;
-            this.rotateMix = data.rotateMix;
-            this.translateMix = data.translateMix;
-            this.scaleMix = data.scaleMix;
-            this.shearMix = data.shearMix;
+            this.mixRotate = data.mixRotate;
+            this.mixX = data.mixX;
+            this.mixY = data.mixY;
+            this.mixScaleX = data.mixScaleX;
+            this.mixScaleY = data.mixScaleY;
+            this.mixShearY = data.mixShearY;
             this.bones = new Array();
             for (let i = 0; i < data.bones.length; i++)
                 this.bones.push(skeleton.findBone(data.bones[i].name));
@@ -6741,10 +7481,9 @@ var spine;
         isActive() {
             return this.active;
         }
-        apply() {
-            this.update();
-        }
         update() {
+            if (this.mixRotate == 0 && this.mixX == 0 && this.mixY == 0 && this.mixScaleX == 0 && this.mixScaleX == 0 && this.mixShearY == 0)
+                return;
             if (this.data.local) {
                 if (this.data.relative)
                     this.applyRelativeLocal();
@@ -6759,7 +7498,8 @@ var spine;
             }
         }
         applyAbsoluteWorld() {
-            let rotateMix = this.rotateMix, translateMix = this.translateMix, scaleMix = this.scaleMix, shearMix = this.shearMix;
+            let mixRotate = this.mixRotate, mixX = this.mixX, mixY = this.mixY, mixScaleX = this.mixScaleX, mixScaleY = this.mixScaleY, mixShearY = this.mixShearY;
+            let translate = mixX != 0 || mixY != 0;
             let target = this.target;
             let ta = target.a, tb = target.b, tc = target.c, td = target.d;
             let degRadReflect = ta * td - tb * tc > 0 ? spine.MathUtils.degRad : -spine.MathUtils.degRad;
@@ -6768,45 +7508,41 @@ var spine;
             let bones = this.bones;
             for (let i = 0, n = bones.length; i < n; i++) {
                 let bone = bones[i];
-                let modified = false;
-                if (rotateMix != 0) {
+                if (mixRotate != 0) {
                     let a = bone.a, b = bone.b, c = bone.c, d = bone.d;
                     let r = Math.atan2(tc, ta) - Math.atan2(c, a) + offsetRotation;
                     if (r > spine.MathUtils.PI)
                         r -= spine.MathUtils.PI2;
                     else if (r < -spine.MathUtils.PI)
                         r += spine.MathUtils.PI2;
-                    r *= rotateMix;
+                    r *= mixRotate;
                     let cos = Math.cos(r), sin = Math.sin(r);
                     bone.a = cos * a - sin * c;
                     bone.b = cos * b - sin * d;
                     bone.c = sin * a + cos * c;
                     bone.d = sin * b + cos * d;
-                    modified = true;
                 }
-                if (translateMix != 0) {
+                if (translate) {
                     let temp = this.temp;
                     target.localToWorld(temp.set(this.data.offsetX, this.data.offsetY));
-                    bone.worldX += (temp.x - bone.worldX) * translateMix;
-                    bone.worldY += (temp.y - bone.worldY) * translateMix;
-                    modified = true;
+                    bone.worldX += (temp.x - bone.worldX) * mixX;
+                    bone.worldY += (temp.y - bone.worldY) * mixY;
                 }
-                if (scaleMix > 0) {
+                if (mixScaleX != 0) {
                     let s = Math.sqrt(bone.a * bone.a + bone.c * bone.c);
-                    let ts = Math.sqrt(ta * ta + tc * tc);
-                    if (s > 0.00001)
-                        s = (s + (ts - s + this.data.offsetScaleX) * scaleMix) / s;
+                    if (s != 0)
+                        s = (s + (Math.sqrt(ta * ta + tc * tc) - s + this.data.offsetScaleX) * mixScaleX) / s;
                     bone.a *= s;
                     bone.c *= s;
-                    s = Math.sqrt(bone.b * bone.b + bone.d * bone.d);
-                    ts = Math.sqrt(tb * tb + td * td);
-                    if (s > 0.00001)
-                        s = (s + (ts - s + this.data.offsetScaleY) * scaleMix) / s;
+                }
+                if (mixScaleY != 0) {
+                    let s = Math.sqrt(bone.b * bone.b + bone.d * bone.d);
+                    if (s != 0)
+                        s = (s + (Math.sqrt(tb * tb + td * td) - s + this.data.offsetScaleY) * mixScaleY) / s;
                     bone.b *= s;
                     bone.d *= s;
-                    modified = true;
                 }
-                if (shearMix > 0) {
+                if (mixShearY > 0) {
                     let b = bone.b, d = bone.d;
                     let by = Math.atan2(d, b);
                     let r = Math.atan2(td, tb) - Math.atan2(tc, ta) - (by - Math.atan2(bone.c, bone.a));
@@ -6814,18 +7550,17 @@ var spine;
                         r -= spine.MathUtils.PI2;
                     else if (r < -spine.MathUtils.PI)
                         r += spine.MathUtils.PI2;
-                    r = by + (r + offsetShearY) * shearMix;
+                    r = by + (r + offsetShearY) * mixShearY;
                     let s = Math.sqrt(b * b + d * d);
                     bone.b = Math.cos(r) * s;
                     bone.d = Math.sin(r) * s;
-                    modified = true;
                 }
-                if (modified)
-                    bone.appliedValid = false;
+                bone.updateAppliedTransform();
             }
         }
         applyRelativeWorld() {
-            let rotateMix = this.rotateMix, translateMix = this.translateMix, scaleMix = this.scaleMix, shearMix = this.shearMix;
+            let mixRotate = this.mixRotate, mixX = this.mixX, mixY = this.mixY, mixScaleX = this.mixScaleX, mixScaleY = this.mixScaleY, mixShearY = this.mixShearY;
+            let translate = mixX != 0 || mixY != 0;
             let target = this.target;
             let ta = target.a, tb = target.b, tc = target.c, td = target.d;
             let degRadReflect = ta * td - tb * tc > 0 ? spine.MathUtils.degRad : -spine.MathUtils.degRad;
@@ -6833,120 +7568,92 @@ var spine;
             let bones = this.bones;
             for (let i = 0, n = bones.length; i < n; i++) {
                 let bone = bones[i];
-                let modified = false;
-                if (rotateMix != 0) {
+                if (mixRotate != 0) {
                     let a = bone.a, b = bone.b, c = bone.c, d = bone.d;
                     let r = Math.atan2(tc, ta) + offsetRotation;
                     if (r > spine.MathUtils.PI)
                         r -= spine.MathUtils.PI2;
                     else if (r < -spine.MathUtils.PI)
                         r += spine.MathUtils.PI2;
-                    r *= rotateMix;
+                    r *= mixRotate;
                     let cos = Math.cos(r), sin = Math.sin(r);
                     bone.a = cos * a - sin * c;
                     bone.b = cos * b - sin * d;
                     bone.c = sin * a + cos * c;
                     bone.d = sin * b + cos * d;
-                    modified = true;
                 }
-                if (translateMix != 0) {
+                if (translate) {
                     let temp = this.temp;
                     target.localToWorld(temp.set(this.data.offsetX, this.data.offsetY));
-                    bone.worldX += temp.x * translateMix;
-                    bone.worldY += temp.y * translateMix;
-                    modified = true;
+                    bone.worldX += temp.x * mixX;
+                    bone.worldY += temp.y * mixY;
                 }
-                if (scaleMix > 0) {
-                    let s = (Math.sqrt(ta * ta + tc * tc) - 1 + this.data.offsetScaleX) * scaleMix + 1;
+                if (mixScaleX != 0) {
+                    let s = (Math.sqrt(ta * ta + tc * tc) - 1 + this.data.offsetScaleX) * mixScaleX + 1;
                     bone.a *= s;
                     bone.c *= s;
-                    s = (Math.sqrt(tb * tb + td * td) - 1 + this.data.offsetScaleY) * scaleMix + 1;
+                }
+                if (mixScaleY != 0) {
+                    let s = (Math.sqrt(tb * tb + td * td) - 1 + this.data.offsetScaleY) * mixScaleY + 1;
                     bone.b *= s;
                     bone.d *= s;
-                    modified = true;
                 }
-                if (shearMix > 0) {
+                if (mixShearY > 0) {
                     let r = Math.atan2(td, tb) - Math.atan2(tc, ta);
                     if (r > spine.MathUtils.PI)
                         r -= spine.MathUtils.PI2;
                     else if (r < -spine.MathUtils.PI)
                         r += spine.MathUtils.PI2;
                     let b = bone.b, d = bone.d;
-                    r = Math.atan2(d, b) + (r - spine.MathUtils.PI / 2 + offsetShearY) * shearMix;
+                    r = Math.atan2(d, b) + (r - spine.MathUtils.PI / 2 + offsetShearY) * mixShearY;
                     let s = Math.sqrt(b * b + d * d);
                     bone.b = Math.cos(r) * s;
                     bone.d = Math.sin(r) * s;
-                    modified = true;
                 }
-                if (modified)
-                    bone.appliedValid = false;
+                bone.updateAppliedTransform();
             }
         }
         applyAbsoluteLocal() {
-            let rotateMix = this.rotateMix, translateMix = this.translateMix, scaleMix = this.scaleMix, shearMix = this.shearMix;
+            let mixRotate = this.mixRotate, mixX = this.mixX, mixY = this.mixY, mixScaleX = this.mixScaleX, mixScaleY = this.mixScaleY, mixShearY = this.mixShearY;
             let target = this.target;
-            if (!target.appliedValid)
-                target.updateAppliedTransform();
             let bones = this.bones;
             for (let i = 0, n = bones.length; i < n; i++) {
                 let bone = bones[i];
-                if (!bone.appliedValid)
-                    bone.updateAppliedTransform();
                 let rotation = bone.arotation;
-                if (rotateMix != 0) {
+                if (mixRotate != 0) {
                     let r = target.arotation - rotation + this.data.offsetRotation;
                     r -= (16384 - ((16384.499999999996 - r / 360) | 0)) * 360;
-                    rotation += r * rotateMix;
+                    rotation += r * mixRotate;
                 }
                 let x = bone.ax, y = bone.ay;
-                if (translateMix != 0) {
-                    x += (target.ax - x + this.data.offsetX) * translateMix;
-                    y += (target.ay - y + this.data.offsetY) * translateMix;
-                }
+                x += (target.ax - x + this.data.offsetX) * mixX;
+                y += (target.ay - y + this.data.offsetY) * mixY;
                 let scaleX = bone.ascaleX, scaleY = bone.ascaleY;
-                if (scaleMix != 0) {
-                    if (scaleX > 0.00001)
-                        scaleX = (scaleX + (target.ascaleX - scaleX + this.data.offsetScaleX) * scaleMix) / scaleX;
-                    if (scaleY > 0.00001)
-                        scaleY = (scaleY + (target.ascaleY - scaleY + this.data.offsetScaleY) * scaleMix) / scaleY;
-                }
+                if (mixScaleX != 0 && scaleX != 0)
+                    scaleX = (scaleX + (target.ascaleX - scaleX + this.data.offsetScaleX) * mixScaleX) / scaleX;
+                if (mixScaleY != 0 && scaleY != 0)
+                    scaleY = (scaleY + (target.ascaleY - scaleY + this.data.offsetScaleY) * mixScaleY) / scaleY;
                 let shearY = bone.ashearY;
-                if (shearMix != 0) {
+                if (mixShearY != 0) {
                     let r = target.ashearY - shearY + this.data.offsetShearY;
                     r -= (16384 - ((16384.499999999996 - r / 360) | 0)) * 360;
-                    bone.shearY += r * shearMix;
+                    shearY += r * mixShearY;
                 }
                 bone.updateWorldTransformWith(x, y, rotation, scaleX, scaleY, bone.ashearX, shearY);
             }
         }
         applyRelativeLocal() {
-            let rotateMix = this.rotateMix, translateMix = this.translateMix, scaleMix = this.scaleMix, shearMix = this.shearMix;
+            let mixRotate = this.mixRotate, mixX = this.mixX, mixY = this.mixY, mixScaleX = this.mixScaleX, mixScaleY = this.mixScaleY, mixShearY = this.mixShearY;
             let target = this.target;
-            if (!target.appliedValid)
-                target.updateAppliedTransform();
             let bones = this.bones;
             for (let i = 0, n = bones.length; i < n; i++) {
                 let bone = bones[i];
-                if (!bone.appliedValid)
-                    bone.updateAppliedTransform();
-                let rotation = bone.arotation;
-                if (rotateMix != 0)
-                    rotation += (target.arotation + this.data.offsetRotation) * rotateMix;
-                let x = bone.ax, y = bone.ay;
-                if (translateMix != 0) {
-                    x += (target.ax + this.data.offsetX) * translateMix;
-                    y += (target.ay + this.data.offsetY) * translateMix;
-                }
-                let scaleX = bone.ascaleX, scaleY = bone.ascaleY;
-                if (scaleMix != 0) {
-                    if (scaleX > 0.00001)
-                        scaleX *= ((target.ascaleX - 1 + this.data.offsetScaleX) * scaleMix) + 1;
-                    if (scaleY > 0.00001)
-                        scaleY *= ((target.ascaleY - 1 + this.data.offsetScaleY) * scaleMix) + 1;
-                }
-                let shearY = bone.ashearY;
-                if (shearMix != 0)
-                    shearY += (target.ashearY + this.data.offsetShearY) * shearMix;
+                let rotation = bone.arotation + (target.arotation + this.data.offsetRotation) * mixRotate;
+                let x = bone.ax + (target.ax + this.data.offsetX) * mixX;
+                let y = bone.ay + (target.ay + this.data.offsetY) * mixY;
+                let scaleX = (bone.ascaleX * ((target.ascaleX - 1 + this.data.offsetScaleX) * mixScaleX) + 1);
+                let scaleY = (bone.ascaleY * ((target.ascaleY - 1 + this.data.offsetScaleY) * mixScaleY) + 1);
+                let shearY = bone.ashearY + (target.ashearY + this.data.offsetShearY) * mixShearY;
                 bone.updateWorldTransformWith(x, y, rotation, scaleX, scaleY, bone.ashearX, shearY);
             }
         }
@@ -6959,10 +7666,12 @@ var spine;
         constructor(name) {
             super(name, 0, false);
             this.bones = new Array();
-            this.rotateMix = 0;
-            this.translateMix = 0;
-            this.scaleMix = 0;
-            this.shearMix = 0;
+            this.mixRotate = 0;
+            this.mixX = 0;
+            this.mixY = 0;
+            this.mixScaleX = 0;
+            this.mixScaleY = 0;
+            this.mixShearY = 0;
             this.offsetRotation = 0;
             this.offsetX = 0;
             this.offsetY = 0;
@@ -7208,6 +7917,35 @@ var spine;
         }
     }
     spine.IntSet = IntSet;
+    class StringSet {
+        constructor() {
+            this.entries = {};
+            this.size = 0;
+        }
+        add(value) {
+            let contains = this.entries[value];
+            this.entries[value] = true;
+            if (!contains) {
+                this.size++;
+                return true;
+            }
+            return false;
+        }
+        addAll(values) {
+            let oldSize = this.size;
+            for (var i = 0, n = values.length; i < n; i++)
+                this.add(values[i]);
+            return oldSize != this.size;
+        }
+        contains(value) {
+            return this.entries[value];
+        }
+        clear() {
+            this.entries = {};
+            this.size = 0;
+        }
+    }
+    spine.StringSet = StringSet;
     class Color {
         constructor(r = 0, g = 0, b = 0, a = 0) {
             this.r = r;
@@ -7220,8 +7958,7 @@ var spine;
             this.g = g;
             this.b = b;
             this.a = a;
-            this.clamp();
-            return this;
+            return this.clamp();
         }
         setFromColor(c) {
             this.r = c.r;
@@ -7232,10 +7969,10 @@ var spine;
         }
         setFromString(hex) {
             hex = hex.charAt(0) == '#' ? hex.substr(1) : hex;
-            this.r = parseInt(hex.substr(0, 2), 16) / 255.0;
-            this.g = parseInt(hex.substr(2, 2), 16) / 255.0;
-            this.b = parseInt(hex.substr(4, 2), 16) / 255.0;
-            this.a = (hex.length != 8 ? 255 : parseInt(hex.substr(6, 2), 16)) / 255.0;
+            this.r = parseInt(hex.substr(0, 2), 16) / 255;
+            this.g = parseInt(hex.substr(2, 2), 16) / 255;
+            this.b = parseInt(hex.substr(4, 2), 16) / 255;
+            this.a = hex.length != 8 ? 1 : parseInt(hex.substr(6, 2), 16) / 255;
             return this;
         }
         add(r, g, b, a) {
@@ -7243,8 +7980,7 @@ var spine;
             this.g += g;
             this.b += b;
             this.a += a;
-            this.clamp();
-            return this;
+            return this.clamp();
         }
         clamp() {
             if (this.r < 0)
@@ -7275,6 +8011,9 @@ var spine;
             color.r = ((value & 0x00ff0000) >>> 16) / 255;
             color.g = ((value & 0x0000ff00) >>> 8) / 255;
             color.b = ((value & 0x000000ff)) / 255;
+        }
+        static fromString(hex) {
+            return new Color().setFromString(hex);
         }
     }
     Color.WHITE = new Color(1, 1, 1, 1);
@@ -7316,6 +8055,9 @@ var spine;
             if (u <= (mode - min) / d)
                 return min + Math.sqrt(u * d * (mode - min));
             return max - Math.sqrt((1 - u) * d * (max - mode));
+        }
+        static isPowerOfTwo(value) {
+            return value && (value & (value - 1)) === 0;
         }
     }
     MathUtils.PI = 3.1415927;
@@ -7359,6 +8101,10 @@ var spine;
                 dest[j] = source[i];
             }
         }
+        static arrayFill(array, fromIndex, toIndex, value) {
+            for (let i = fromIndex; i < toIndex; i++)
+                array[i] = value;
+        }
         static setArraySize(array, size, value = 0) {
             let oldSize = array.length;
             if (oldSize == size)
@@ -7382,9 +8128,8 @@ var spine;
             return array;
         }
         static newFloatArray(size) {
-            if (Utils.SUPPORTS_TYPED_ARRAYS) {
+            if (Utils.SUPPORTS_TYPED_ARRAYS)
                 return new Float32Array(size);
-            }
             else {
                 let array = new Array(size);
                 for (let i = 0; i < array.length; i++)
@@ -7393,9 +8138,8 @@ var spine;
             }
         }
         static newShortArray(size) {
-            if (Utils.SUPPORTS_TYPED_ARRAYS) {
+            if (Utils.SUPPORTS_TYPED_ARRAYS)
                 return new Int16Array(size);
-            }
             else {
                 let array = new Array(size);
                 for (let i = 0; i < array.length; i++)
@@ -7412,11 +8156,13 @@ var spine;
         static webkit602BugfixHelper(alpha, blend) {
         }
         static contains(array, element, identity = true) {
-            for (var i = 0; i < array.length; i++) {
+            for (var i = 0; i < array.length; i++)
                 if (array[i] == element)
                     return true;
-            }
             return false;
+        }
+        static enumValue(type, name) {
+            return type[name[0].toUpperCase() + name.slice(1)];
         }
     }
     Utils.SUPPORTS_TYPED_ARRAYS = typeof (Float32Array) !== "undefined";
@@ -7444,9 +8190,8 @@ var spine;
             this.items.push(item);
         }
         freeAll(items) {
-            for (let i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++)
                 this.free(items[i]);
-            }
         }
         clear() {
             this.items.length = 0;
@@ -7528,17 +8273,14 @@ var spine;
             if (this.hasEnoughData()) {
                 if (this.dirty) {
                     let mean = 0;
-                    for (let i = 0; i < this.values.length; i++) {
+                    for (let i = 0; i < this.values.length; i++)
                         mean += this.values[i];
-                    }
                     this.mean = mean / this.values.length;
                     this.dirty = false;
                 }
                 return this.mean;
             }
-            else {
-                return 0;
-            }
+            return 0;
         }
     }
     spine.WindowedMean = WindowedMean;
@@ -7556,7 +8298,7 @@ var spine;
 (function (spine) {
     class Attachment {
         constructor(name) {
-            if (name == null)
+            if (!name)
                 throw new Error("name cannot be null.");
             this.name = name;
         }
@@ -7565,7 +8307,7 @@ var spine;
     class VertexAttachment extends Attachment {
         constructor(name) {
             super(name);
-            this.id = (VertexAttachment.nextID++ & 65535) << 11;
+            this.id = VertexAttachment.nextID++;
             this.worldVerticesLength = 0;
             this.deformAttachment = this;
         }
@@ -7575,7 +8317,7 @@ var spine;
             let deformArray = slot.deform;
             let vertices = this.vertices;
             let bones = this.bones;
-            if (bones == null) {
+            if (!bones) {
                 if (deformArray.length > 0)
                     vertices = deformArray;
                 let bone = slot.bone;
@@ -7629,13 +8371,13 @@ var spine;
             }
         }
         copyTo(attachment) {
-            if (this.bones != null) {
+            if (this.bones) {
                 attachment.bones = new Array(this.bones.length);
                 spine.Utils.arrayCopy(this.bones, 0, attachment.bones, 0, this.bones.length);
             }
             else
                 attachment.bones = null;
-            if (this.vertices != null) {
+            if (this.vertices) {
                 attachment.vertices = spine.Utils.newFloatArray(this.vertices.length);
                 spine.Utils.arrayCopy(this.vertices, 0, attachment.vertices, 0, this.vertices.length);
             }
@@ -7647,19 +8389,6 @@ var spine;
     }
     VertexAttachment.nextID = 0;
     spine.VertexAttachment = VertexAttachment;
-})(spine || (spine = {}));
-var spine;
-(function (spine) {
-    let AttachmentType;
-    (function (AttachmentType) {
-        AttachmentType[AttachmentType["Region"] = 0] = "Region";
-        AttachmentType[AttachmentType["BoundingBox"] = 1] = "BoundingBox";
-        AttachmentType[AttachmentType["Mesh"] = 2] = "Mesh";
-        AttachmentType[AttachmentType["LinkedMesh"] = 3] = "LinkedMesh";
-        AttachmentType[AttachmentType["Path"] = 4] = "Path";
-        AttachmentType[AttachmentType["Point"] = 5] = "Point";
-        AttachmentType[AttachmentType["Clipping"] = 6] = "Clipping";
-    })(AttachmentType = spine.AttachmentType || (spine.AttachmentType = {}));
 })(spine || (spine = {}));
 var spine;
 (function (spine) {
@@ -7704,14 +8433,14 @@ var spine;
         }
         updateUVs() {
             let regionUVs = this.regionUVs;
-            if (this.uvs == null || this.uvs.length != regionUVs.length)
+            if (!this.uvs || this.uvs.length != regionUVs.length)
                 this.uvs = spine.Utils.newFloatArray(regionUVs.length);
             let uvs = this.uvs;
             let n = this.uvs.length;
             let u = this.region.u, v = this.region.v, width = 0, height = 0;
             if (this.region instanceof spine.TextureAtlasRegion) {
-                let region = this.region;
-                let textureWidth = region.texture.getImage().width, textureHeight = region.texture.getImage().height;
+                let region = this.region, image = region.page.texture.getImage();
+                let textureWidth = image.width, textureHeight = image.height;
                 switch (region.degrees) {
                     case 90:
                         u -= (region.originalHeight - region.offsetY - region.height) / textureWidth;
@@ -7749,7 +8478,7 @@ var spine;
                 width = region.originalWidth / textureWidth;
                 height = region.originalHeight / textureHeight;
             }
-            else if (this.region == null) {
+            else if (!this.region) {
                 u = v = 0;
                 width = height = 1;
             }
@@ -7767,7 +8496,7 @@ var spine;
         }
         setParentMesh(parentMesh) {
             this.parentMesh = parentMesh;
-            if (parentMesh != null) {
+            if (parentMesh) {
                 this.bones = parentMesh.bones;
                 this.vertices = parentMesh.vertices;
                 this.worldVerticesLength = parentMesh.worldVerticesLength;
@@ -7778,7 +8507,7 @@ var spine;
             }
         }
         copy() {
-            if (this.parentMesh != null)
+            if (this.parentMesh)
                 return this.newLinkedMesh();
             let copy = new MeshAttachment(this.name);
             copy.region = this.region;
@@ -7792,7 +8521,7 @@ var spine;
             copy.triangles = new Array(this.triangles.length);
             spine.Utils.arrayCopy(this.triangles, 0, copy.triangles, 0, this.triangles.length);
             copy.hullLength = this.hullLength;
-            if (this.edges != null) {
+            if (this.edges) {
                 copy.edges = new Array(this.edges.length);
                 spine.Utils.arrayCopy(this.edges, 0, copy.edges, 0, this.edges.length);
             }
@@ -7806,7 +8535,7 @@ var spine;
             copy.path = this.path;
             copy.color.setFromColor(this.color);
             copy.deformAttachment = this.deformAttachment;
-            copy.setParentMesh(this.parentMesh != null ? this.parentMesh : this);
+            copy.setParentMesh(this.parentMesh ? this.parentMesh : this);
             copy.updateUVs();
             return copy;
         }
@@ -7882,6 +8611,7 @@ var spine;
             this.tempColor = new spine.Color(1, 1, 1, 1);
         }
         updateOffset() {
+            let region = this.region;
             let regionScaleX = this.width / this.region.originalWidth * this.scaleX;
             let regionScaleY = this.height / this.region.originalHeight * this.scaleY;
             let localX = -this.width / 2 * this.scaleX + this.region.offsetX * regionScaleX;
@@ -7891,28 +8621,29 @@ var spine;
             let radians = this.rotation * Math.PI / 180;
             let cos = Math.cos(radians);
             let sin = Math.sin(radians);
-            let localXCos = localX * cos + this.x;
+            let x = this.x, y = this.y;
+            let localXCos = localX * cos + x;
             let localXSin = localX * sin;
-            let localYCos = localY * cos + this.y;
+            let localYCos = localY * cos + y;
             let localYSin = localY * sin;
-            let localX2Cos = localX2 * cos + this.x;
+            let localX2Cos = localX2 * cos + x;
             let localX2Sin = localX2 * sin;
-            let localY2Cos = localY2 * cos + this.y;
+            let localY2Cos = localY2 * cos + y;
             let localY2Sin = localY2 * sin;
             let offset = this.offset;
-            offset[RegionAttachment.OX1] = localXCos - localYSin;
-            offset[RegionAttachment.OY1] = localYCos + localXSin;
-            offset[RegionAttachment.OX2] = localXCos - localY2Sin;
-            offset[RegionAttachment.OY2] = localY2Cos + localXSin;
-            offset[RegionAttachment.OX3] = localX2Cos - localY2Sin;
-            offset[RegionAttachment.OY3] = localY2Cos + localX2Sin;
-            offset[RegionAttachment.OX4] = localX2Cos - localYSin;
-            offset[RegionAttachment.OY4] = localYCos + localX2Sin;
+            offset[0] = localXCos - localYSin;
+            offset[1] = localYCos + localXSin;
+            offset[2] = localXCos - localY2Sin;
+            offset[3] = localY2Cos + localXSin;
+            offset[4] = localX2Cos - localY2Sin;
+            offset[5] = localY2Cos + localX2Sin;
+            offset[6] = localX2Cos - localYSin;
+            offset[7] = localYCos + localX2Sin;
         }
         setRegion(region) {
             this.region = region;
             let uvs = this.uvs;
-            if (region.rotate) {
+            if (region.degrees == 90) {
                 uvs[2] = region.u;
                 uvs[3] = region.v2;
                 uvs[4] = region.u;
@@ -7938,23 +8669,23 @@ var spine;
             let x = bone.worldX, y = bone.worldY;
             let a = bone.a, b = bone.b, c = bone.c, d = bone.d;
             let offsetX = 0, offsetY = 0;
-            offsetX = vertexOffset[RegionAttachment.OX1];
-            offsetY = vertexOffset[RegionAttachment.OY1];
+            offsetX = vertexOffset[0];
+            offsetY = vertexOffset[1];
             worldVertices[offset] = offsetX * a + offsetY * b + x;
             worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
             offset += stride;
-            offsetX = vertexOffset[RegionAttachment.OX2];
-            offsetY = vertexOffset[RegionAttachment.OY2];
+            offsetX = vertexOffset[2];
+            offsetY = vertexOffset[3];
             worldVertices[offset] = offsetX * a + offsetY * b + x;
             worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
             offset += stride;
-            offsetX = vertexOffset[RegionAttachment.OX3];
-            offsetY = vertexOffset[RegionAttachment.OY3];
+            offsetX = vertexOffset[4];
+            offsetY = vertexOffset[5];
             worldVertices[offset] = offsetX * a + offsetY * b + x;
             worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
             offset += stride;
-            offsetX = vertexOffset[RegionAttachment.OX4];
-            offsetY = vertexOffset[RegionAttachment.OY4];
+            offsetX = vertexOffset[6];
+            offsetY = vertexOffset[7];
             worldVertices[offset] = offsetX * a + offsetY * b + x;
             worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
         }
@@ -7976,14 +8707,6 @@ var spine;
             return copy;
         }
     }
-    RegionAttachment.OX1 = 0;
-    RegionAttachment.OY1 = 1;
-    RegionAttachment.OX2 = 2;
-    RegionAttachment.OY2 = 3;
-    RegionAttachment.OX3 = 4;
-    RegionAttachment.OY3 = 5;
-    RegionAttachment.OX4 = 6;
-    RegionAttachment.OY4 = 7;
     RegionAttachment.X1 = 0;
     RegionAttachment.Y1 = 1;
     RegionAttachment.C1R = 2;

@@ -9,6 +9,7 @@ import { Shader3D } from "../shader/Shader3D"
 import { ShaderData } from "../shader/ShaderData"
 import { ShaderDefine } from "../shader/ShaderDefine"
 import { Viewport } from "../math/Viewport"
+import { RenderContext3D } from "../core/render/RenderContext3D"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -73,6 +74,10 @@ export class PostProcess {
 
 	set enable(value:boolean){
 		this._enable = value;
+	}
+
+	set commandContext(oriContext:RenderContext3D){
+		this._context.command._context = oriContext;
 	}
 
 
