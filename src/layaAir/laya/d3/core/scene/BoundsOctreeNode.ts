@@ -17,12 +17,13 @@ import { BoundsOctree } from "./BoundsOctree";
 import { Shader3D } from "../../shader/Shader3D";
 import { CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
 import { Plane } from "../../math/Plane";
-import { IRenderMagNodeObject } from "./SceneRenderManager/IRenderNodeObject";
+import { IRenderNodeObject } from "./SceneRenderManager/IRenderNodeObject";
+
 
 /**
  * <code>BoundsOctreeNode</code> 类用于创建八叉树节点。
  */
-export class BoundsOctreeNode implements IRenderMagNodeObject {
+export class BoundsOctreeNode implements IRenderNodeObject {
 	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
 	/**@internal */

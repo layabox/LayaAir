@@ -143,13 +143,13 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 		if (this._octreeNode) {
 			if (this._cacheAvatar) {//兼容性 
 				if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
-					this._octreeNode._octree.addMotionObject(this);
+					this._octreeNode.getManagerNode().addMotionObject(this);
 			}
 			else {
 				flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
 				if (flag) {
 					if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
-						this._octreeNode._octree.addMotionObject(this);
+						this._octreeNode.getManagerNode().addMotionObject(this);
 				}
 			}
 		}
