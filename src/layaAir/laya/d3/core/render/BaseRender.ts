@@ -20,6 +20,7 @@ import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBat
 import { Stat } from "../../../utils/Stat";
 import { Lightmap } from "../scene/Lightmap";
 import { ReflectionProbe, ReflectionProbeMode } from "../reflectionProbe/ReflectionProbe";
+import { IRenderNodeObject } from "../scene/SceneRenderManager/IRenderNodeObject";
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -70,14 +71,14 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_scene: Scene3D;
 	/** @internal */
 	_owner: RenderableSprite3D;
-	/** @internal */
+
 	_renderElements: RenderElement[];
 	/** @internal */
 	_distanceForSort: number;
 	/** @internal */
 	_renderMark: number = -1;//TODO:初始值为-1强制更新,否则会造成第一帧动画不更新等,待优化
 	/** @internal */
-	_octreeNode: IRenderMagNodeObject;
+	_octreeNode: IRenderNodeObject;
 	/** @internal */
 	_indexInOctreeMotionList: number = -1;
 	/** @internal 是否需要反射探针*/
