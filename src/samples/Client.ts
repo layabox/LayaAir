@@ -42,6 +42,7 @@ export default class Client {
      */
     send(data)
     {
+        if(!Client.instance)return;
         if(this.socket)
         {
             this.socket.send(JSON.stringify(data));
