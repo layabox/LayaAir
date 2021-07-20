@@ -360,6 +360,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return this._url;
 	}
 
+	set sceneRenderableManager(manager:ISceneRenderManager){
+		this._octree = manager;
+		for(let i = 0,n = this._renders.length;i<n;i++) {
+			let render = <BaseRender>this._renders.elements[i];
+			this._renders.remove(render);
+			this._addRenderObject(render);
+		}
+	}
+
 	/**
 	 * 是否允许雾化。
 	 */

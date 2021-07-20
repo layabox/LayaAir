@@ -10,6 +10,10 @@ export interface ISceneRenderManager {
     addRender(object: IOctreeObject):void
     /**减少一个渲染节点 */
     removeRender(object: IOctreeObject):void
+    /**添加运动物体。 */
+    addMotionObject(object: IOctreeObject): void 
+    /**移除运动物体。 */
+    removeMotionObject(object: IOctreeObject): void 
     /**释放一个管理节点 */
     destroy():void
     /**裁剪之前的更新 */
