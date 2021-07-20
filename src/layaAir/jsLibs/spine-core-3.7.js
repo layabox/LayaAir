@@ -1,3 +1,31 @@
+/******************************************************************************
+ * Spine Runtimes License Agreement
+ * Last updated January 1, 2020. Replaces all prior versions.
+ *
+ * Copyright (c) 2013-2020, Esoteric Software LLC
+ *
+ * Integration of the Spine Runtimes into software or otherwise creating
+ * derivative works of the Spine Runtimes is permitted under the terms and
+ * conditions of Section 2 of the Spine Editor License Agreement:
+ * http://esotericsoftware.com/spine-editor-license
+ *
+ * Otherwise, it is permitted to integrate the Spine Runtimes into software
+ * or otherwise create derivative works of the Spine Runtimes (collectively,
+ * "Products"), provided that each user of the Products must obtain their own
+ * Spine Editor license and redistribution of the Products in any form must
+ * include this license and copyright notice.
+ *
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *****************************************************************************/
 var spine;
 (function (spine) {
     class Animation {
@@ -2036,37 +2064,55 @@ var spine;
             this.pathPrefix = pathPrefix;
         }
         static downloadText(url, success, error) {
-            let request = new XMLHttpRequest();
-            request.open("GET", url, true);
-            request.onload = () => {
-                if (request.status == 200) {
-                    success(request.responseText);
+            // LayaBox_Modify
+            // let request = new XMLHttpRequest();
+            // request.open("GET", url, true);
+            // request.onload = () => {
+            //     if (request.status == 200) {
+            //         success(request.responseText);
+            //     }
+            //     else {
+            //         error(request.status, request.responseText);
+            //     }
+            // };
+            // request.onerror = () => {
+            //     error(request.status, request.responseText);
+            // };
+            // request.send();
+            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            _Laya.loader.load([{type: _Laya.Loader.TEXT, url: url}], _Laya.Handler.create(this, (re) => {
+                if (re) {
+                    success(_Laya.loader.getRes(url));
+                } else {
+                    error(400, "download text error: " + url);
                 }
-                else {
-                    error(request.status, request.responseText);
-                }
-            };
-            request.onerror = () => {
-                error(request.status, request.responseText);
-            };
-            request.send();
+            }));
         }
         static downloadBinary(url, success, error) {
-            let request = new XMLHttpRequest();
-            request.open("GET", url, true);
-            request.responseType = "arraybuffer";
-            request.onload = () => {
-                if (request.status == 200) {
-                    success(new Uint8Array(request.response));
+            // LayaBox_Modify
+            // let request = new XMLHttpRequest();
+            // request.open("GET", url, true);
+            // request.responseType = "arraybuffer";
+            // request.onload = () => {
+            //     if (request.status == 200) {
+            //         success(new Uint8Array(request.response));
+            //     }
+            //     else {
+            //         error(request.status, request.responseText);
+            //     }
+            // };
+            // request.onerror = () => {
+            //     error(request.status, request.responseText);
+            // };
+            // request.send();
+            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            _Laya.loader.load([{type: _Laya.Loader.BUFFER, url: url}], _Laya.Handler.create(this, (re) => {
+                if (re) {
+                    success(new Uint8Array(_Laya.loader.getRes(url)));
+                } else {
+                    error(400, "download binary error: " + url);
                 }
-                else {
-                    error(request.status, request.responseText);
-                }
-            };
-            request.onerror = () => {
-                error(request.status, request.responseText);
-            };
-            request.send();
+            }));
         }
         loadText(path, success = null, error = null) {
             path = this.pathPrefix + path;
@@ -2088,24 +2134,42 @@ var spine;
         loadTexture(path, success = null, error = null) {
             path = this.pathPrefix + path;
             this.toLoad++;
-            let img = new Image();
-            img.crossOrigin = "anonymous";
-            img.onload = (ev) => {
-                let texture = this.textureLoader(img);
-                this.assets[path] = texture;
-                this.toLoad--;
-                this.loaded++;
-                if (success)
-                    success(path, img);
-            };
-            img.onerror = (ev) => {
-                this.errors[path] = `Couldn't load image ${path}`;
-                this.toLoad--;
-                this.loaded++;
-                if (error)
-                    error(path, `Couldn't load image ${path}`);
-            };
-            img.src = path;
+            // LayaBox_Modify
+            // let img = new Image();
+            // img.crossOrigin = "anonymous";
+            // img.onload = (ev) => {
+            //     let texture = this.textureLoader(img);
+            //     this.assets[path] = texture;
+            //     this.toLoad--;
+            //     this.loaded++;
+            //     if (success)
+            //         success(path, img);
+            // };
+            // img.onerror = (ev) => {
+            //     this.errors[path] = `Couldn't load image ${path}`;
+            //     this.toLoad--;
+            //     this.loaded++;
+            //     if (error)
+            //         error(path, `Couldn't load image ${path}`);
+            // };
+            // img.src = path;
+            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            _Laya.loader.load([{type: _Laya.Loader.IMAGE, url: path}], _Laya.Handler.create(this, (re) => {
+                if (re) {
+                    let texture = this.textureLoader(_Laya.loader.getRes(path));
+                    this.assets[path] = texture;
+                    this.toLoad--;
+                    this.loaded++;
+                    if (success)
+                        success(path, texture);
+                } else {
+                    this.errors[path] = `Couldn't load image ${path}`;
+                    this.toLoad--;
+                    this.loaded++;
+                    if (error)
+                        error(path, `Couldn't load image ${path}`);
+                }
+            }));
         }
         loadTextureData(path, data, success = null, error = null) {
             path = this.pathPrefix + path;
@@ -2137,10 +2201,12 @@ var spine;
                 let atlasPages = new Array();
                 try {
                     let atlas = new spine.TextureAtlas(atlasData, (path) => {
-                        atlasPages.push(parent + "/" + path);
+                        // LayaBox_Modify
+                        atlasPages.push(parent == "" ? path : parent + "/" + path);
                         let image = document.createElement("img");
-                        image.width = 16;
-                        image.height = 16;
+                        // QQ平台报错，无法设置width height
+                        // image.width = 16;
+                        // image.height = 16;
                         return new spine.FakeTexture(image);
                     });
                 }
@@ -2161,7 +2227,8 @@ var spine;
                             if (!pageLoadError) {
                                 try {
                                     let atlas = new spine.TextureAtlas(atlasData, (path) => {
-                                        return this.get(parent + "/" + path);
+                                        // LayaBox_Modify
+                                        return this.get(parent == "" ? path : parent + "/" + path);
                                     });
                                     this.assets[path] = atlas;
                                     if (success)
@@ -3279,83 +3346,51 @@ var spine;
             path = this.pathPrefix + path;
             if (!this.queueAsset(clientId, null, path))
                 return;
-            // LayaBox_Modify
-            // let request = new XMLHttpRequest();
-            // request.onreadystatechange = () => {
-            //     if (request.readyState == 4 /* XMLHttpRequest.DONE */) {
-            //         if (request.status >= 200 && request.status < 300 || request.status == 0) {
-            //             this.rawAssets[path] = request.responseText;
-            //         }
-            //         else {
-            //             this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
-            //         }
-            //     }
-            // };
-            // request.open("GET", path, true);
-            // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.TEXT, url: path}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    this.rawAssets[path] = _Laya.loader.getRes(path);
-                } else {
-                    this.errors[path] = `Couldn't load text ${path}`;
+            let request = new XMLHttpRequest();
+            request.onreadystatechange = () => {
+                if (request.readyState == XMLHttpRequest.DONE) {
+                    if (request.status >= 200 && request.status < 300) {
+                        this.rawAssets[path] = request.responseText;
+                    }
+                    else {
+                        this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
+                    }
                 }
-            }));
+            };
+            request.open("GET", path, true);
+            request.send();
         }
         loadJson(clientId, path) {
             path = this.pathPrefix + path;
             if (!this.queueAsset(clientId, null, path))
                 return;
-            // LayaBox_Modify
-            // let request = new XMLHttpRequest();
-            // request.onreadystatechange = () => {
-            //     if (request.readyState == 4 /* XMLHttpRequest.DONE */) {
-            //         if (request.status >= 200 && request.status < 300 || request.status == 0) {
-            //             this.rawAssets[path] = JSON.parse(request.responseText);
-            //         }
-            //         else {
-            //             this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
-            //         }
-            //     }
-            // };
-            // request.open("GET", path, true);
-            // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.JSON, url: path}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    this.rawAssets[path] = _Laya.loader.getRes(path);
-                } else {
-                    this.errors[path] = `Couldn't load text ${path}`;
+            let request = new XMLHttpRequest();
+            request.onreadystatechange = () => {
+                if (request.readyState == XMLHttpRequest.DONE) {
+                    if (request.status >= 200 && request.status < 300) {
+                        this.rawAssets[path] = JSON.parse(request.responseText);
+                    }
+                    else {
+                        this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
+                    }
                 }
-            }));
+            };
+            request.open("GET", path, true);
+            request.send();
         }
         loadTexture(clientId, textureLoader, path) {
             path = this.pathPrefix + path;
             if (!this.queueAsset(clientId, textureLoader, path))
                 return;
-            // LayaBox_Modify
-            // let img = new Image();
-            // img.crossOrigin = "anonymous";
-            // img.onload = (ev) => {
-            //     this.rawAssets[path] = img;
-            // };
-            // img.onerror = (ev) => {
-            //     this.errors[path] = `Couldn't load image ${path}`;
-            // };
-            // img.src = path;
-            // if(!window._imgref)
-			// 	window._imgref = {};
-			// if(!window._imgref[clientId])
-			// 	window._imgref[clientId] = [];
-            // window._imgref[clientId].push(img);
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.IMAGE, url: path}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    this.rawAssets[path] = _Laya.loader.getRes(path);
-                } else {
-                    this.errors[path] = `Couldn't load text ${path}`;
-                }
-            }));
+            let img = new Image();
+            img.src = path;
+            img.crossOrigin = "anonymous";
+            img.onload = (ev) => {
+                this.rawAssets[path] = img;
+            };
+            img.onerror = (ev) => {
+                this.errors[path] = `Couldn't load image ${path}`;
+            };
         }
         get(clientId, path) {
             path = this.pathPrefix + path;
@@ -3372,9 +3407,7 @@ var spine;
                     let rawAsset = this.rawAssets[path];
                     if (rawAsset === null || rawAsset === undefined)
                         continue;
-                    // LayaBox_Modify
-                    // if (rawAsset instanceof HTMLImageElement) {
-                    if (typeof rawAsset == "object" && !!rawAsset._bitmap) {
+                    if (rawAsset instanceof HTMLImageElement) {
                         clientAssets.assets[path] = clientAssets.textureLoader(rawAsset);
                     }
                     else {
@@ -3385,16 +3418,10 @@ var spine;
         }
         isLoadingComplete(clientId) {
             let clientAssets = this.clientAssets[clientId];
-            if (clientAssets === null || clientAssets === undefined) {
-                this.destoryImg(clientId);
+            if (clientAssets === null || clientAssets === undefined)
                 return true;
-            }
             this.updateClientAssets(clientAssets);
-            if (clientAssets.toLoad.length == clientAssets.loaded()) {
-				this.destoryImg(clientId);
-				return true;
-			}
-			return false;
+            return clientAssets.toLoad.length == clientAssets.loaded();
         }
         dispose() {
         }
@@ -3403,11 +3430,6 @@ var spine;
         }
         getErrors() {
             return this.errors;
-        }
-        destoryImg(clientId) {
-            if(!window._imgref || !window._imgref[clientId])
-                return;
-            delete window._imgref[clientId];
         }
     }
     spine.SharedAssetManager = SharedAssetManager;
@@ -6718,5 +6740,5 @@ var spine;
     SwirlEffect.interpolation = new spine.PowOut(2);
     spine.SwirlEffect = SwirlEffect;
 })(spine || (spine = {}));
+// LayaBox_Modify
 window.spine = spine;
-//# sourceMappingURL=spine-core.js.map

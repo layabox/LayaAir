@@ -1,3 +1,6 @@
+import { Matrix } from "../maths/Matrix";
+import { SpineGLTexture } from "./SpineGLTexture";
+import { SpineSkeleton } from "./SpineSkeleton";
 import Skeleton = spine.Skeleton;
 import Color = spine.Color;
 import SkeletonClipping = spine.SkeletonClipping;
@@ -8,9 +11,6 @@ import RegionAttachment = spine.RegionAttachment;
 import MeshAttachment = spine.MeshAttachment;
 import ClippingAttachment = spine.ClippingAttachment;
 import ArrayLike = spine.ArrayLike;
-import { Matrix } from "../maths/Matrix";
-import { SpineSkeleton } from "./SpineSkeleton";
-import { SpineGLTexture } from "./SpineGLTexture";
 
 class Renderable {
 	constructor(public vertices: ArrayLike<number>, public numVertices: number, public numFloats: number) {}

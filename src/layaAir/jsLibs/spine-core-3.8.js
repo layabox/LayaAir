@@ -1,3 +1,31 @@
+/******************************************************************************
+ * Spine Runtimes License Agreement
+ * Last updated January 1, 2020. Replaces all prior versions.
+ *
+ * Copyright (c) 2013-2020, Esoteric Software LLC
+ *
+ * Integration of the Spine Runtimes into software or otherwise creating
+ * derivative works of the Spine Runtimes is permitted under the terms and
+ * conditions of Section 2 of the Spine Editor License Agreement:
+ * http://esotericsoftware.com/spine-editor-license
+ *
+ * Otherwise, it is permitted to integrate the Spine Runtimes into software
+ * or otherwise create derivative works of the Spine Runtimes (collectively,
+ * "Products"), provided that each user of the Products must obtain their own
+ * Spine Editor license and redistribution of the Products in any form must
+ * include this license and copyright notice.
+ *
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *****************************************************************************/
 var spine;
 (function (spine) {
     class Animation {
@@ -1502,7 +1530,11 @@ var spine;
                             timelineBlend = spine.MixBlend.setup;
                             alpha = alphaMix;
                             break;
-                        case AnimationState.HOLD:
+                        case AnimationState.HOLD_SUBSEQUENT:
+                            timelineBlend = blend;
+                            alpha = alphaHold;
+                            break;
+                        case AnimationState.HOLD_FIRST:
                             timelineBlend = spine.MixBlend.setup;
                             alpha = alphaHold;
                             break;
@@ -1553,7 +1585,7 @@ var spine;
                 slot.attachmentState = this.unkeyedState + AnimationState.SETUP;
         }
         setAttachment(skeleton, slot, attachmentName, attachments) {
-            slot.attachment = attachmentName == null ? null : skeleton.getAttachment(slot.data.index, attachmentName);
+            slot.setAttachment(attachmentName == null ? null : skeleton.getAttachment(slot.data.index, attachmentName));
             if (attachments)
                 slot.attachmentState = this.unkeyedState + AnimationState.CURRENT;
         }
@@ -1856,8 +1888,7 @@ var spine;
             let propertyIDs = this.propertyIDs;
             if (to != null && to.holdPrevious) {
                 for (let i = 0; i < timelinesCount; i++) {
-                    propertyIDs.add(timelines[i].getPropertyId());
-                    timelineMode[i] = AnimationState.HOLD;
+                    timelineMode[i] = propertyIDs.add(timelines[i].getPropertyId()) ? AnimationState.HOLD_FIRST : AnimationState.HOLD_SUBSEQUENT;
                 }
                 return;
             }
@@ -1881,7 +1912,7 @@ var spine;
                         }
                         break;
                     }
-                    timelineMode[i] = AnimationState.HOLD;
+                    timelineMode[i] = AnimationState.HOLD_FIRST;
                 }
             }
         }
@@ -1910,8 +1941,9 @@ var spine;
     AnimationState.emptyAnimation = new spine.Animation("<empty>", [], 0);
     AnimationState.SUBSEQUENT = 0;
     AnimationState.FIRST = 1;
-    AnimationState.HOLD = 2;
-    AnimationState.HOLD_MIX = 3;
+    AnimationState.HOLD_SUBSEQUENT = 2;
+    AnimationState.HOLD_FIRST = 3;
+    AnimationState.HOLD_MIX = 4;
     AnimationState.SETUP = 1;
     AnimationState.CURRENT = 2;
     spine.AnimationState = AnimationState;
@@ -2189,7 +2221,7 @@ var spine;
                     success(path, data);
                 this.toLoad--;
                 this.loaded++;
-            }, (status, responseText) => {
+            }, (status, responseText) => { // LayaBox_Modify
                 this.errors[path] = `Couldn't load binary ${path}: status ${status}, ${responseText}`;
                 if (error)
                     error(path, `Couldn't load binary ${path}: status ${status}, ${responseText}`);
@@ -2249,7 +2281,7 @@ var spine;
                     if (success)
                         success(path, texture);
                 } else {
-                    this.errors[path] = `Couldn't load text ${path}`;
+                    this.errors[path] = `Couldn't load image ${path}`;
                     this.toLoad--;
                     this.loaded++;
                     if (error)
@@ -2269,7 +2301,7 @@ var spine;
                         atlasPages.push(parent == "" ? path : parent + "/" + path);
                         let image = document.createElement("img");
                         // LayaBox_Modify
-                        // QQ骞冲彴鎶ラ敊锛屾棤娉曡缃畐idth height
+                        // QQ平台报错，无法设置width height
                         // image.width = 16;
                         // image.height = 16;
                         return new spine.FakeTexture(image);
@@ -2524,6 +2556,8 @@ var spine;
                     let prx = 0;
                     if (s > 0.0001) {
                         s = Math.abs(pa * pd - pb * pc) / s;
+                        pa /= this.skeleton.scaleX;
+                        pc /= this.skeleton.scaleY;
                         pb = pc * s;
                         pd = pa * s;
                         prx = Math.atan2(pc, pa) * spine.MathUtils.radDeg;
@@ -2543,7 +2577,7 @@ var spine;
                     this.b = pa * lb - pb * ld;
                     this.c = pc * la + pd * lc;
                     this.d = pc * lb + pd * ld;
-                    return;
+                    break;
                 }
                 case spine.TransformMode.NoScale:
                 case spine.TransformMode.NoScaleOrReflection: {
@@ -2797,10 +2831,12 @@ var spine;
                     ty = targetY - bone.worldY;
                     break;
                 case spine.TransformMode.NoRotationOrReflection:
-                    rotationIK += Math.atan2(pc, pa) * spine.MathUtils.radDeg;
-                    let ps = Math.abs(pa * pd - pb * pc) / (pa * pa + pc * pc);
-                    pb = -pc * ps;
-                    pd = pa * ps;
+                    let s = Math.abs(pa * pd - pb * pc) / (pa * pa + pc * pc);
+                    let sa = pa / bone.skeleton.scaleX;
+                    let sc = pc / bone.skeleton.scaleY;
+                    pb = -sc * s * bone.skeleton.scaleX;
+                    pd = sa * s * bone.skeleton.scaleY;
+                    rotationIK += Math.atan2(sc, sa) * spine.MathUtils.radDeg;
                 default:
                     let x = targetX - p.worldX, y = targetY - p.worldY;
                     let d = pa * pd - pb * pc;
@@ -3468,80 +3504,73 @@ var spine;
             path = this.pathPrefix + path;
             if (!this.queueAsset(clientId, null, path))
                 return;
-            // LayaBox_Modify
-            // let request = new XMLHttpRequest();
-            // request.overrideMimeType("text/html");
-            // request.onreadystatechange = () => {
-            //     if (request.readyState == XMLHttpRequest.DONE) {
-            //         if (request.status >= 200 && request.status < 300) {
-            //             this.rawAssets[path] = request.responseText;
-            //         }
-            //         else {
-            //             this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
-            //         }
-            //     }
-            // };
-            // request.open("GET", path, true);
-            // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.TEXT, url: path}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    this.rawAssets[path] = _Laya.loader.getRes(path);
-                } else {
-                    this.errors[path] = `Couldn't load text ${path}`;
+            let request = new XMLHttpRequest();
+            request.overrideMimeType("text/html");
+            request.onreadystatechange = () => {
+                if (request.readyState == XMLHttpRequest.DONE) {
+                    if (request.status >= 200 && request.status < 300) {
+                        this.rawAssets[path] = request.responseText;
+                    }
+                    else {
+                        this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
+                    }
                 }
-            }));
+            };
+            request.open("GET", path, true);
+            request.send();
         }
         loadJson(clientId, path) {
             path = this.pathPrefix + path;
             if (!this.queueAsset(clientId, null, path))
                 return;
-            // LayaBox_Modify
-            // let request = new XMLHttpRequest();
-            // request.overrideMimeType("text/html");
-            // request.onreadystatechange = () => {
-            //     if (request.readyState == XMLHttpRequest.DONE) {
-            //         if (request.status >= 200 && request.status < 300) {
-            //             this.rawAssets[path] = JSON.parse(request.responseText);
-            //         }
-            //         else {
-            //             this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
-            //         }
-            //     }
-            // };
-            // request.open("GET", path, true);
-            // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.JSON, url: path}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    this.rawAssets[path] = _Laya.loader.getRes(path);
-                } else {
-                    this.errors[path] = `Couldn't load text ${path}`;
+            let request = new XMLHttpRequest();
+            request.overrideMimeType("text/html");
+            request.onreadystatechange = () => {
+                if (request.readyState == XMLHttpRequest.DONE) {
+                    if (request.status >= 200 && request.status < 300) {
+                        this.rawAssets[path] = JSON.parse(request.responseText);
+                    }
+                    else {
+                        this.errors[path] = `Couldn't load text ${path}: status ${request.status}, ${request.responseText}`;
+                    }
                 }
-            }));
+            };
+            request.open("GET", path, true);
+            request.send();
         }
         loadTexture(clientId, textureLoader, path) {
             path = this.pathPrefix + path;
             if (!this.queueAsset(clientId, textureLoader, path))
                 return;
-            // LayaBox_Modify
-            // let img = new Image();
-            // img.crossOrigin = "anonymous";
-            // img.onload = (ev) => {
-            //     this.rawAssets[path] = img;
-            // };
-            // img.onerror = (ev) => {
-            //     this.errors[path] = `Couldn't load image ${path}`;
-            // };
-            // img.src = path;
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.IMAGE, url: path}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    this.rawAssets[path] = _Laya.loader.getRes(path);
-                } else {
-                    this.errors[path] = `Couldn't load text ${path}`;
-                }
-            }));
+            let isBrowser = !!(typeof window !== 'undefined' && typeof navigator !== 'undefined' && window.document);
+            let isWebWorker = !isBrowser && typeof importScripts !== 'undefined';
+            if (isWebWorker) {
+                const options = { mode: "cors" };
+                fetch(path, options).then((response) => {
+                    if (!response.ok) {
+                        this.errors[path] = "Couldn't load image " + path;
+                    }
+                    return response.blob();
+                }).then((blob) => {
+                    return createImageBitmap(blob, {
+                        premultiplyAlpha: 'none',
+                        colorSpaceConversion: 'none',
+                    });
+                }).then((bitmap) => {
+                    this.rawAssets[path] = bitmap;
+                });
+            }
+            else {
+                let img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = (ev) => {
+                    this.rawAssets[path] = img;
+                };
+                img.onerror = (ev) => {
+                    this.errors[path] = `Couldn't load image ${path}`;
+                };
+                img.src = path;
+            }
         }
         get(clientId, path) {
             path = this.pathPrefix + path;
@@ -3551,6 +3580,8 @@ var spine;
             return clientAssets.assets[path];
         }
         updateClientAssets(clientAssets) {
+            let isBrowser = !!(typeof window !== 'undefined' && typeof navigator !== 'undefined' && window.document);
+            let isWebWorker = !isBrowser && typeof importScripts !== 'undefined';
             for (let i = 0; i < clientAssets.toLoad.length; i++) {
                 let path = clientAssets.toLoad[i];
                 let asset = clientAssets.assets[path];
@@ -3558,13 +3589,21 @@ var spine;
                     let rawAsset = this.rawAssets[path];
                     if (rawAsset === null || rawAsset === undefined)
                         continue;
-                    // LayaBox_Modify
-                    // if (rawAsset instanceof HTMLImageElement) {
-                    if (typeof rawAsset == "object" && !!rawAsset._bitmap) {
-                        clientAssets.assets[path] = clientAssets.textureLoader(rawAsset);
+                    if (isWebWorker) {
+                        if (rawAsset instanceof ImageBitmap) {
+                            clientAssets.assets[path] = clientAssets.textureLoader(rawAsset);
+                        }
+                        else {
+                            clientAssets.assets[path] = rawAsset;
+                        }
                     }
                     else {
-                        clientAssets.assets[path] = rawAsset;
+                        if (rawAsset instanceof HTMLImageElement) {
+                            clientAssets.assets[path] = clientAssets.textureLoader(rawAsset);
+                        }
+                        else {
+                            clientAssets.assets[path] = rawAsset;
+                        }
                     }
                 }
             }
@@ -7406,9 +7445,7 @@ var spine;
         }
         freeAll(items) {
             for (let i = 0; i < items.length; i++) {
-                if (items[i].reset)
-                    items[i].reset();
-                this.items[i] = items[i];
+                this.free(items[i]);
             }
         }
         clear() {
@@ -7632,7 +7669,7 @@ var spine;
             this.color = new spine.Color(1, 1, 1, 1);
         }
         copy() {
-            let copy = new BoundingBoxAttachment(name);
+            let copy = new BoundingBoxAttachment(this.name);
             this.copyTo(copy);
             copy.color.setFromColor(this.color);
             return copy;
@@ -7648,7 +7685,7 @@ var spine;
             this.color = new spine.Color(0.2275, 0.2275, 0.8078, 1);
         }
         copy() {
-            let copy = new ClippingAttachment(name);
+            let copy = new ClippingAttachment(this.name);
             this.copyTo(copy);
             copy.endSlot = this.endSlot;
             copy.color.setFromColor(this.color);
@@ -7786,7 +7823,7 @@ var spine;
             this.color = new spine.Color(1, 1, 1, 1);
         }
         copy() {
-            let copy = new PathAttachment(name);
+            let copy = new PathAttachment(this.name);
             this.copyTo(copy);
             copy.lengths = new Array(this.lengths.length);
             spine.Utils.arrayCopy(this.lengths, 0, copy.lengths, 0, this.lengths.length);
@@ -7817,7 +7854,7 @@ var spine;
             return Math.atan2(y, x) * spine.MathUtils.radDeg;
         }
         copy() {
-            let copy = new PointAttachment(name);
+            let copy = new PointAttachment(this.name);
             copy.x = this.x;
             copy.y = this.y;
             copy.rotation = this.rotation;
@@ -7922,7 +7959,7 @@ var spine;
             worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
         }
         copy() {
-            let copy = new RegionAttachment(name);
+            let copy = new RegionAttachment(this.name);
             copy.region = this.region;
             copy.rendererObject = this.rendererObject;
             copy.path = this.path;
@@ -8036,4 +8073,5 @@ var spine;
     SwirlEffect.interpolation = new spine.PowOut(2);
     spine.SwirlEffect = SwirlEffect;
 })(spine || (spine = {}));
+// LayaBox_Modify
 window.spine = spine;

@@ -1,13 +1,12 @@
-import { Sprite } from "../display/Sprite";
-import { SpineTemplet } from "./SpineTemplet";
-import { SpineTempletBinary } from "./SpineTempletBinary";
-import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
-import { Event } from "../events/Event";
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
-import { SoundManager } from "../media/SoundManager";
+import { Sprite } from "../display/Sprite";
+import { Event } from "../events/Event";
 import { SoundChannel } from "../media/SoundChannel";
+import { SoundManager } from "../media/SoundManager";
+import { ClassUtils } from "../utils/ClassUtils";
 import { Handler } from "../utils/Handler";
+import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
+import { SpineTempletBase } from "./SpineTempletBase";
 import TimeKeeper = spine.TimeKeeper;
 import Skeleton = spine.Skeleton;
 import AnimationState = spine.AnimationState;
@@ -37,7 +36,7 @@ export class SpineSkeleton extends Sprite {
 	static paused: number = 1;
 	static playing: number = 2;
 
-    private _templet: SpineTemplet | SpineTempletBinary;
+    private _templet: SpineTempletBase;
     private timeKeeper: TimeKeeper;
 	private skeleton: Skeleton;
 	private state: AnimationState;
@@ -69,14 +68,14 @@ export class SpineSkeleton extends Sprite {
 	 *
 	 * @param	templet	骨骼动画模板
 	 */
-    constructor(templet: SpineTemplet | SpineTempletBinary = null) {
+    constructor(templet: SpineTempletBase = null) {
 		super();
         if (templet) this.init(templet);
         this._ins = this;
 	}
     
-    init(templet: SpineTemplet | SpineTempletBinary): void {
-        var that = this;
+    init(templet: SpineTempletBase): void {
+        let that = this;
         this._templet = templet;
         // 骨架，被执行或被计算的一个类，里面存放数据等信息
         this.skeleton = new Skeleton(this._templet.skeletonData);
@@ -85,21 +84,21 @@ export class SpineSkeleton extends Sprite {
         this.state = new AnimationState(this.stateData);
         this.skeletonRenderer = new SpineSkeletonRenderer(false);
         this.timeKeeper = new TimeKeeper();
-        this.skeletonRenderer.premultipliedAlpha = this._templet._spinePremultipliedAlpha;
+        this.skeletonRenderer.premultipliedAlpha = this._templet.spinePremultipliedAlpha;
         this.state.addListener({
-            start: function(entry) {
+            start: function(entry: any) {
                 // console.log("started:", entry);
             },
-            interrupt: function(entry) {
+            interrupt: function(entry: any) {
                 // console.log("interrupt:", entry);
             },
-            end: function(entry) {
+            end: function(entry: any) {
                 // console.log("end:", entry);
             },
-            dispose: function(entry) {
+            dispose: function(entry: any) {
                 // console.log("dispose:", entry);
             },
-            complete: function(entry) {
+            complete: function(entry: any) {
                 // console.log("complete:", entry);
                 if (entry.loop) { // 如果多次播放,发送complete事件
                     that.event(Event.COMPLETE);
@@ -108,8 +107,8 @@ export class SpineSkeleton extends Sprite {
                     that.event(Event.STOPPED);
                 }
             },
-            event: function(entry, event) {
-                var eventData = {
+            event: function(entry: any, event: any) {
+                let eventData = {
                     audioValue: event.data.audioPath,
                     audioPath: event.data.audioPath,
                     floatValue: event.floatValue,
@@ -122,7 +121,7 @@ export class SpineSkeleton extends Sprite {
                 };
                 // console.log("event:", entry, event);
                 that.event(Event.LABEL, eventData);
-                var _soundChannel: SoundChannel;
+                let _soundChannel: SoundChannel;
                 if (that._playAudio && eventData.audioValue) {
                     _soundChannel = SoundManager.playSound(templet._textureDic.root + eventData.audioValue, 1, Handler.create(that, that._onAniSoundStoped), null,  (that.currentPlayTime * 1000 - eventData.time) / 1000);
                     SoundManager.playbackRate = that._playbackRate;
@@ -147,7 +146,7 @@ export class SpineSkeleton extends Sprite {
         this._playAudio = playAudio;
         start /= 1000;
         end /= 1000;
-        var animationName = nameOrIndex;
+        let animationName = nameOrIndex;
         if (start < 0 || end < 0)
 			throw new Error("SpineSkeleton: start and end must large than zero.");
 		if ((end !== 0) && (start > end))
@@ -280,8 +279,8 @@ export class SpineSkeleton extends Sprite {
             this.timer.clear(this, this._update);
             this.event(Event.PAUSED);
             if (this._soundChannelArr.length > 0) { // 有正在播放的声音
-				var _soundChannel: SoundChannel;
-				for (var len: number = this._soundChannelArr.length, i: number = 0; i < len; i++) {
+				let _soundChannel: SoundChannel;
+				for (let len: number = this._soundChannelArr.length, i: number = 0; i < len; i++) {
 					_soundChannel = this._soundChannelArr[i];
 					if (!_soundChannel.isStopped) {
 						_soundChannel.pause();
@@ -300,8 +299,8 @@ export class SpineSkeleton extends Sprite {
 			this._pause = false;
             this.timer.frameLoop(1, this, this._update, null, true);
             if (this._soundChannelArr.length > 0) { // 有正在播放的声音
-				var _soundChannel: SoundChannel;
-				for (var len: number = this._soundChannelArr.length, i: number = 0; i < len; i++) {
+				let _soundChannel: SoundChannel;
+				for (let len: number = this._soundChannelArr.length, i: number = 0; i < len; i++) {
 					_soundChannel = this._soundChannelArr[i];
 					if ((_soundChannel as any).audioBuffer) {
 						_soundChannel.resume();
@@ -317,8 +316,8 @@ export class SpineSkeleton extends Sprite {
 	 * @param force 是否强制删掉所有的声音channel
 	 */
 	private _onAniSoundStoped(force: boolean): void {
-		var _channel: SoundChannel;
-		for (var len: number = this._soundChannelArr.length, i: number = 0; i < len; i++) {
+		let _channel: SoundChannel;
+		for (let len: number = this._soundChannelArr.length, i: number = 0; i < len; i++) {
 			_channel = this._soundChannelArr[i];
 			if (_channel.isStopped || force) {
 				!_channel.isStopped && _channel.stop();
@@ -352,7 +351,7 @@ export class SpineSkeleton extends Sprite {
 	 * 得到动画模板的引用
 	 * @return templet
 	 */
-	get templet(): SpineTemplet | SpineTempletBinary {
+	get templet(): SpineTempletBase {
 		return this._templet;
     }
 
@@ -365,7 +364,7 @@ export class SpineSkeleton extends Sprite {
      */
     addAnimation(nameOrIndex: any, loop: boolean = false, delay: number = 0) {
         delay /= 1000;
-        var animationName = nameOrIndex;
+        let animationName = nameOrIndex;
         if (typeof animationName == "number") {
             animationName = this.getAniNameByIndex(animationName);
         }
@@ -381,11 +380,11 @@ export class SpineSkeleton extends Sprite {
      */
     setMix(fromNameOrIndex: any, toNameOrIndex: any, duration: number) {
         duration /= 1000;
-        var fromName = fromNameOrIndex;
+        let fromName = fromNameOrIndex;
         if (typeof fromName == "number") {
             fromName = this.getAniNameByIndex(fromName);
         }
-        var toName = toNameOrIndex;
+        let toName = toNameOrIndex;
         if (typeof toName == "number") {
             toName = this.getAniNameByIndex(toName);
         }

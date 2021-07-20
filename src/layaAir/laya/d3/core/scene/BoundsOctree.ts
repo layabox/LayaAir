@@ -7,12 +7,13 @@ import { BoundBox } from "../../math/BoundBox";
 import { Ray } from "../../math/Ray";
 import { Vector3 } from "../../math/Vector3";
 import { Shader3D } from "../../shader/Shader3D";
-import { CameraCullInfo } from "../../graphics/FrustumCulling";
+import { CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
+import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
 
 /**
  * <code>BoundsOctree</code> 类用于创建八叉树。
  */
-export class BoundsOctree {
+export class BoundsOctree implements ISceneRenderManager{
 	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
 
@@ -100,7 +101,7 @@ export class BoundsOctree {
 	 * 添加物体
 	 * @param	object
 	 */
-	add(object: IOctreeObject): void {
+	 addRender(object: IOctreeObject): void {
 		var count: number = 0;
 		while (!this._rootNode.add(object)) {
 			var growCenter: Vector3 = BoundsOctree._tempVector30;
@@ -117,8 +118,8 @@ export class BoundsOctree {
 	 * 移除物体
 	 * @return 是否成功
 	 */
-	remove(object: IOctreeObject): boolean {
-		var removed: boolean = object._getOctreeNode().remove(object);
+	 removeRender(object: IOctreeObject): boolean {
+		var removed: boolean = (object._getOctreeNode() as BoundsOctreeNode).remove(object);
 		if (removed) {
 			this.count--;
 		}
@@ -130,7 +131,7 @@ export class BoundsOctree {
 	 */
 	update(object: IOctreeObject): boolean {
 		var count: number = 0;
-		var octreeNode: BoundsOctreeNode = object._getOctreeNode();
+		var octreeNode: BoundsOctreeNode = object._getOctreeNode() as BoundsOctreeNode;
 		if (octreeNode) {
 			while (!octreeNode._update(object)) {
 				var growCenter: Vector3 = BoundsOctree._tempVector30;
@@ -168,6 +169,21 @@ export class BoundsOctree {
 	 */
 	removeMotionObject(object: IOctreeObject): void {
 		this._motionObjects.remove(object);
+	}
+
+	/**
+	 * 裁剪更新
+	 */
+	preFruUpdate():void{
+		this.updateMotionObjects();
+		this.shrinkRootIfPossible();
+	}
+
+	/**
+	 * 直射光阴影裁剪
+	 */
+	cullingShadow(cullInfo:ShadowCullInfo,context:RenderContext3D):void{
+		this._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context)
 	}
 
 	/**
@@ -253,6 +269,10 @@ export class BoundsOctree {
 	drawAllObjects(pixelLine: PixelLineSprite3D): void {
 		var maxDepth: number = this._getMaxDepth(this._rootNode, -1);
 		this._rootNode.drawAllObjects(pixelLine, -1, maxDepth);
+	}
+
+	destroy(){
+
 	}
 
 }
