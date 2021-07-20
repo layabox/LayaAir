@@ -121,6 +121,8 @@ import { PerformancePluginDemo } from "../3d/LayaAir3D_Performance/PerformancePl
 import { PostProcessDoF } from "../3d/LayaAir3D_PostProcess/PostProcess_DoF";
 import { SkeletonMask } from "../3d/LayaAir3D_Animation3D/SkeletonMask";
 import { ProstProcess_AO } from "../3d/LayaAir3D_PostProcess/PostProcess_AO";
+import { Utils } from "laya/utils/Utils";
+import Client from "../Client";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -219,6 +221,15 @@ export class IndexView3D extends IndexViewUI {
 	private initEvent(): void {
 		this.bigComBox.selectHandler = new Handler(this, this.onBigComBoxSelectHandler);
 		this.smallComBox.selectHandler = new Handler(this, this.onSmallBoxSelectHandler);
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	onNext(data:any)
+	{
+		if(!data.isMaster)return;//拒绝非主控制器推送消息
+		this.a_length = data.bigType;
+		var smallType:number = data.smallType;
+		this.switchFunc(this.a_length, smallType);
 	}
 
 	private initView3D(): void {
@@ -262,19 +273,30 @@ export class IndexView3D extends IndexViewUI {
 	}
 	private i: number = 0;
 	private nextBtn(): void {
-		var i_length: number;
+		//_bigIndex += 1;
+		var isMaster:any = Utils.getQueryString("isMaster");
+		var i_length:number;
 		this.a_length = this._bigIndex;
-		if (this.smallComBox.selectedIndex == this.b_length) {
+		if (this.smallComBox.selectedIndex == this.b_length)
+		{
 			this.a_length += 1;
 			i_length = 0;
 		}
-		else {
-			i_length = this.smallComBox.selectedIndex + 1;
+		else
+		{
+			i_length = this.smallComBox.selectedIndex+1;
 		}
-
-		//i++;
-
-		this.switchFunc(this.a_length, i_length);
+		var bigType:number = this.a_length;
+		var smallType:number = i_length;
+		if(parseInt(isMaster)==1)
+		{
+			//主控制推送
+			Client.instance.send({type:"next",bigType:bigType,smallType:smallType,isMaster:isMaster});
+		}else
+		{
+			
+			this.switchFunc(this.a_length, i_length);
+		}
 
 	}
 
