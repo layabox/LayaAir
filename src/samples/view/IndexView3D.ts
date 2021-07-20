@@ -123,6 +123,7 @@ import { SkeletonMask } from "../3d/LayaAir3D_Animation3D/SkeletonMask";
 import { ProstProcess_AO } from "../3d/LayaAir3D_PostProcess/PostProcess_AO";
 import { Utils } from "laya/utils/Utils";
 import Client from "../Client";
+import { Main } from "../Main";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -288,7 +289,7 @@ export class IndexView3D extends IndexViewUI {
 		}
 		var bigType:number = this.a_length;
 		var smallType:number = i_length;
-		if(parseInt(isMaster)==1)
+		if(Main.isOpenSocket && parseInt(isMaster)==1)
 		{
 			//主控制推送
 			Client.instance.send({type:"next",bigType:bigType,smallType:smallType,isMaster:isMaster});

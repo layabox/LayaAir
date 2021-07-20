@@ -34,7 +34,7 @@ export class Main {
     private _isType: boolean = false;
     static isWXAPP: boolean = false;
     private _isReadNetWorkRes: boolean = true;
-    private isOpenSocket:boolean = false;
+    static isOpenSocket:boolean = false;
     constructor(isType:boolean = false,isReadNetWorkRes:boolean = false) {
         //false为2D true为3D
         this._isType = isType;
@@ -50,7 +50,7 @@ export class Main {
         Stat.show();
 
         //初始化socket连接
-        if(this.isOpenSocket)
+        if(Main.isOpenSocket)
             Client.init();
 
         //这里改成true就会从外部加载资源
@@ -63,8 +63,8 @@ export class Main {
     }
 
     private onLoaded(): void {
-        
-        Client.instance.send({type:"login"});
+        if(Main.isOpenSocket)
+            Client.instance.send({type:"login"});
 
         let texture: Texture = Laya.loader.getRes("comp/button.png");
         (texture.bitmap as Texture2D).lock = true;
