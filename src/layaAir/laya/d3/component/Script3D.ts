@@ -10,8 +10,6 @@ import { Scene3D } from "../core/scene/Scene3D";
  * <code>Script3D</code> 类用于创建脚本的父类,该类为抽象类,不允许实例。
  */
 export class Script3D extends Component {
-	/**@internal */
-	static _instance:Script3D = new Script3D();
 	/**@internal*/
 	public _indexInPool: number = -1;
 	/**@internal 避免重复调用enable disable*/
