@@ -1,14 +1,14 @@
 import { SpineSkeleton } from "laya/spine/SpineSkeleton";
-import { SpineTempletBinary } from "laya/spine/SpineTempletBinary";
 import { Browser } from "laya/utils/Browser"
 import { Event } from "laya/events/Event";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "./../Main";
+import { SpineTemplet, SpineVersion } from "laya/spine/SpineTemplet";
 
 export class Spine_SkeletonDemo {
 
 	private aniPath = "res/spine/spineboy-pma.skel";
-	private templet:SpineTempletBinary;
+	private templet:SpineTemplet;
 	private skeleton:SpineSkeleton;
 	private index: number = -1;
 
@@ -24,7 +24,7 @@ export class Spine_SkeletonDemo {
 	}
 
 	private startFun(): void {
-		this.templet = new SpineTempletBinary();
+		this.templet = new SpineTemplet(SpineVersion.v3_8);
 		this.templet.loadAni(this.aniPath);
 		this.templet.on(Event.COMPLETE, this, this.parseComplete);
 		this.templet.on(Event.ERROR, this, this.onError)
@@ -44,7 +44,6 @@ export class Spine_SkeletonDemo {
 	}
 
 	private play(): void {
-		console.log("1111111111");
 		if(++this.index >= this.skeleton.getAnimNum()) {
 			this.index = 0
 		}

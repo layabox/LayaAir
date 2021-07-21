@@ -289,7 +289,7 @@ import Client from "../Client";
 			}
 			var bigType:number = this.a_length;
 			var smallType:number = i_length;
-			if(parseInt(isMaster)==1)
+			if(Main.isOpenSocket && parseInt(isMaster)==1)
 			{
 				//主控制推送
 				Client.instance.send({type:"next",bigType:bigType,smallType:smallType,isMaster:isMaster});
