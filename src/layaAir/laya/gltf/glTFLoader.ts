@@ -74,8 +74,8 @@ export class glTFLoader {
 
         loader.on(Event.LOADED, null, function (image: any): void {
             loader._cache = loader._createCache;
-            let tex: Texture2D = Texture2D._parse(image, loader._propertyParams, loader._constructParams);
-            glTFLoader._endLoad(loader, tex);
+            // let tex: Texture2D = Texture2D._parse(image, loader._propertyParams, loader._constructParams);
+            glTFLoader._endLoad(loader, image);
         });
         loader.load(url, type, false, null, true);
     }
@@ -177,21 +177,17 @@ export class glTFLoader {
 
     /**
      * @internal
-     * 获取 glTF 内部 texture 对象 url
+     * 获取 glTF 内部 image 对象 url
      * @param glTFData 
-     * @param textureUrls 
+     * @param imageUrls 
      * @param subUrls 
      * @param urlVersion 
      * @param glTFBasePath 
      */
-    private static _getglTFTextureUrls(glTFData: glTF.glTF, textureUrls: any[], subUrls: any[], urlVersion: string, glTFBasePath: string): void {
-        // 收集 texture url
-        if (glTFData.textures) {
-            glTFData.textures.forEach(glTFTexture => {
-                let glTFImage: glTF.glTFImage = glTFData.images[glTFTexture.source];
-                let glTFSampler: glTF.glTFSampler = glTFData.samplers ? glTFData.samplers[glTFTexture.sampler] : undefined;
-                let constructParams: any[] = glTFUtils.getTextureConstructParams(glTFImage, glTFSampler);
-                let propertyParams: any[] = glTFUtils.getTexturePropertyParams(glTFSampler);
+    private static _getglTFImageUrls(glTFData: glTF.glTF, imageUrls: any[], subUrls: any[], urlVersion: string, glTFBasePath: string): void {
+        // 收集 image url
+        if (glTFData.images) {
+            glTFData.images.forEach(glTFImage => {
                 if (glTFImage.bufferView != undefined || glTFImage.bufferView != null) {
                     let bufferView: glTF.glTFBufferView = glTFData.bufferViews[glTFImage.bufferView];
                     let glTFBuffer: glTF.glTFBuffer = glTFData.buffers[bufferView.buffer];
@@ -201,13 +197,14 @@ export class glTFLoader {
                     let arraybuffer: ArrayBuffer = buffer.slice(byteOffset, byteOffset + byteLength);
                     let base64: string = glTFBase64Tool.encode(arraybuffer);
                     let base64url: string = `data:${glTFImage.mimeType};base64,${base64}`;
-                    glTFImage.uri = glTFLoader._addglTFInnerUrls(textureUrls, subUrls, urlVersion, "", base64url, glTFLoader.GLTFBASE64TEX, constructParams, propertyParams);
+                    // todo img 类型资源管理 ?
+                    glTFImage.uri = glTFLoader._addglTFInnerUrls(imageUrls, null, urlVersion, "", base64url, "nativeimage");
                 }
                 else if (glTFBase64Tool.isBase64String(glTFImage.uri)) {
-                    glTFImage.uri = glTFLoader._addglTFInnerUrls(textureUrls, subUrls, urlVersion, "", glTFImage.uri, glTFLoader.GLTFBASE64TEX, constructParams, propertyParams);
+                    glTFImage.uri = glTFLoader._addglTFInnerUrls(imageUrls, null, urlVersion, "", glTFImage.uri, "nativeimage");
                 }
                 else {
-                    glTFImage.uri = glTFLoader._addglTFInnerUrls(textureUrls, subUrls, urlVersion, glTFBasePath, glTFImage.uri, Loader.TEXTURE2D, constructParams, propertyParams);
+                    glTFImage.uri = glTFLoader._addglTFInnerUrls(imageUrls, null, urlVersion, glTFBasePath, glTFImage.uri, "nativeimage");
                 }
             })
         }
@@ -255,14 +252,14 @@ export class glTFLoader {
     private static _onglTFBufferResourceLoaded(loader: Loader, processHandler: Handler, glTFData: glTF.glTF, urlVersion: string, glTFBasePath: string, processOffset: number, processCeil: number): void {
         (processHandler) && (processHandler.recover());
 
-        let textureUrls: any[] = [];
+        let imageUrls: any[] = [];
         let subUrls: any[] = [];
 
-        glTFLoader._getglTFTextureUrls(glTFData, textureUrls, subUrls, urlVersion, glTFBasePath);
+        glTFLoader._getglTFImageUrls(glTFData, imageUrls, subUrls, urlVersion, glTFBasePath);
 
-        if (textureUrls.length > 0) {
+        if (imageUrls.length > 0) {
             let process: Handler = Handler.create(null, glTFLoader._onProcessChange, [loader, processOffset, processCeil], false);
-            glTFLoader._innerTextureLoaderManager._create(textureUrls, false, Handler.create(null, glTFLoader._onglTFTextureResourceLoaded, [loader, process, glTFData, subUrls]), processHandler, null, null, null, 1, true);
+            glTFLoader._innerTextureLoaderManager._create(imageUrls, false, Handler.create(null, glTFLoader._onglTFTextureResourceLoaded, [loader, process, glTFData, subUrls]), processHandler, null, null, null, 1, true);
         }
         else {
             glTFLoader._onglTFTextureResourceLoaded(loader, processHandler, glTFData, subUrls);
