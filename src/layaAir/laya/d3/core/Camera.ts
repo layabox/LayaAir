@@ -774,6 +774,7 @@ export class Camera extends BaseCamera {
 				var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
 				this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
 				this._internalCommandBuffer._camera = this;
+				this._internalCommandBuffer._context = context;
 				this._internalCommandBuffer.blitScreenQuad(this._internalRenderTexture,this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale,null,null,0,true);
 				this._internalCommandBuffer._apply();
 				this._internalCommandBuffer.clear();
