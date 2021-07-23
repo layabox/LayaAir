@@ -813,7 +813,7 @@ export class Laya3D {
 			case "pvr":
 				type = Loader.BUFFER;
 				(!loader._constructParams)&&(loader._constructParams = []);
-				loader._propertyParams[2] = TextureFormat.PVRTEXTURE;
+				loader._constructParams[2] = TextureFormat.PVRTEXTURE;
 				break;
 		}
 
