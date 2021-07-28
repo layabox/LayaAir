@@ -89,11 +89,9 @@ export class Camera extends BaseCamera {
 	 * @param replacementTag 替换标记。
 	 */
 	static drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture,shader: Shader3D = null, replacementTag: string = null):RenderTexture {
-		if(camera.renderTarget!=renderTexture)
-		{
-			camera.renderTarget&&RenderTexture.recoverToPool(camera.renderTarget);
-			camera.renderTarget = renderTexture;
-		}
+		if(!renderTexture) return null;
+		let recoverTexture = camera.renderTarget;
+		camera.renderTarget = renderTexture;
 		
 		var viewport: Viewport = camera.viewport;
 		var needInternalRT: boolean = camera._needInternalRenderTexture();
@@ -112,6 +110,8 @@ export class Camera extends BaseCamera {
 		camera._preRenderMainPass(context,scene,needInternalRT,viewport);
 		camera._renderMainPass(context,viewport,scene,shader,replacementTag,needInternalRT);
 		camera._aftRenderMainPass(needShadowCasterPass);
+		
+		camera.renderTarget = recoverTexture;
 		return camera.renderTarget;
 	}
 	
