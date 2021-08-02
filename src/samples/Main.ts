@@ -35,7 +35,7 @@ export class Main {
     static isWXAPP: boolean = false;
     private _isReadNetWorkRes: boolean = true;
     static isOpenSocket:boolean = false;
-    constructor(isType:boolean = false,isReadNetWorkRes:boolean = false) {
+    constructor(isType:boolean = true,isReadNetWorkRes:boolean = false) {
         //false为2D true为3D
         this._isType = isType;
         if (!this._isType) {
