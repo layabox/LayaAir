@@ -48,7 +48,7 @@ export class DrawMeshInstancedCMD extends Command {
 		cmd._commandBuffer = commandBuffer;
 		cmd._instanceProperty = instanceProperty;
 		cmd._drawnums = drawnums;
-		matrixs||cmd._updateWorldMatrixBuffer();
+		matrixs&&cmd._updateWorldMatrixBuffer();
 		cmd._setInstanceBuffer();
 		return cmd;
 	}
