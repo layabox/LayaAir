@@ -83,6 +83,14 @@ export class Transform3D extends EventDispatcher {
 	/**@internal */
 	_transformFlag: number = 0;
 
+
+	/**@internal */
+	get isDefaultMatrix():boolean{
+		if(this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)){
+			let localMat = this.localMatrix;
+		}
+		return this._isDefaultMatrix;
+	}
 	/**
 	 * @internal
 	 */
@@ -457,7 +465,8 @@ export class Transform3D extends EventDispatcher {
 			if (this._parent != null){
 				//这里将剔除单位矩阵的计算
 				let effectiveTrans = this._parent;
-				while(effectiveTrans._parent && effectiveTrans._isDefaultMatrix){
+				
+				while(effectiveTrans._parent && effectiveTrans.isDefaultMatrix){
 					effectiveTrans = effectiveTrans._parent;
 				}
 				Matrix4x4.multiply(effectiveTrans.worldMatrix, this.localMatrix, this._worldMatrix);
