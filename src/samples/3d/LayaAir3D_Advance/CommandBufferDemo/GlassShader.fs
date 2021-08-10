@@ -8,12 +8,12 @@ uniform sampler2D u_tintTexure;
 uniform sampler2D u_screenTexture;
 varying vec2 v_Texcoord0;
 uniform float u_tintAmount;
-varying vec2 v_ScreenTexcoord;
+varying vec4 v_ScreenTexcoord;
 
 void main()
 {
 	vec4 color;
-	color =mix(texture2D(u_screenTexture,v_ScreenTexcoord),texture2D(u_tintTexure, v_Texcoord0),0.5);
+	color =mix(texture2D(u_screenTexture,v_ScreenTexcoord.xy/v_ScreenTexcoord.w),texture2D(u_tintTexure, v_Texcoord0),0.5);
 
 	gl_FragColor = color;
 }
