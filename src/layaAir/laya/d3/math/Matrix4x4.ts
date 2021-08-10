@@ -25,6 +25,7 @@ export class Matrix4x4 implements IClone {
 	/**@internal */
 	private static _tempQuaternion: Quaternion = new Quaternion();
 
+	
 	/**默认矩阵,禁止修改*/
 	static DEFAULT: Matrix4x4 = new Matrix4x4();
 	/**默认矩阵,禁止修改*/
@@ -751,6 +752,21 @@ export class Matrix4x4 implements IClone {
 		e[0] = e[5] = e[10] = e[15] = 1;
 	}
 
+	/**判断是否是单位矩阵 */
+	isIdentity():boolean{
+		let delty = function(num0:number,num1:number){
+			return Math.abs(num0-num1)<1e-7;
+		}
+		let e = this.elements;
+		let defined = Matrix4x4.DEFAULT.elements;
+		for(let i =0,n=e.length;i<n;i++){
+			if(!delty(e[i],defined[i]))
+				return false;
+		}
+		return true;
+
+	}
+
 	/**
 	 * 克隆。
 	 * @param	destObject 克隆源。
@@ -845,3 +861,5 @@ export class Matrix4x4 implements IClone {
 
 }
 
+//@ts-ignore
+window.Matrix4x4 = Matrix4x4;
