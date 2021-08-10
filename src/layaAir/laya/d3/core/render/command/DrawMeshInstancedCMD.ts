@@ -36,7 +36,7 @@ export class DrawMeshInstancedCMD extends Command {
 	 */
 	static create(mesh:Mesh,subMeshIndex:number,matrixs:Matrix4x4[],material:Material,subShaderIndex:number,instanceProperty:MaterialInstancePropertyBlock,drawnums:number,commandBuffer:CommandBuffer):DrawMeshInstancedCMD {
 		var cmd: DrawMeshInstancedCMD;
-		if((matrixs&&matrixs.length>1024)||drawnums>DrawMeshInstancedCMD.maxInstanceCount){
+		if((matrixs&&matrixs.length>DrawMeshInstancedCMD.maxInstanceCount)||drawnums>DrawMeshInstancedCMD.maxInstanceCount){
 			throw "the number of renderings exceeds the maximum number of merges";
 		}
 		cmd = DrawMeshInstancedCMD._pool.length > 0 ? DrawMeshInstancedCMD._pool.pop():new DrawMeshInstancedCMD();
