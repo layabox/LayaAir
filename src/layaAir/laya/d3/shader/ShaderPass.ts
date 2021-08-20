@@ -286,6 +286,7 @@ export class ShaderPass extends ShaderCompile {
 				`#version 300 es\n
 				#define attribute in
 				#define varying out
+				#define textureCube texture
 				#define texture2D texture\n`;
 			fragmentHead =
 				`#version 300 es\n

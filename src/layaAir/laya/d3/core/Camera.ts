@@ -738,15 +738,18 @@ export class Camera extends BaseCamera {
 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
 		scene._preCulling(context, this, shader, replacementTag);
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
+		
+		if(renderTex&&renderTex._isCameraTarget)//保证反转Y状态正确
+			context.invertY = true;
+		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 		if(this.depthTextureMode!=0){
 			//TODO:是否可以不多次
-			this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 			this._renderDepthMode(context);
 		}
 		
 
 		(renderTex) && (renderTex._start());
-		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+		//this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 		scene._clear(gl, context);
 	
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
