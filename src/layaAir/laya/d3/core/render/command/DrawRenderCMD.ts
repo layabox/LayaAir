@@ -76,7 +76,7 @@ export class DrawRenderCMD extends Command {
 
 		var currentPipelineMode: string = context.pipelineMode;//NORE:can covert string to int.
 		if (geometry._prepareRender(context)) {
-			var passes: ShaderPass[] = renderElement.renderSubShader._passes;
+			var passes: ShaderPass[] =  this._material._shader.getSubShaderAt(this._subShaderIndex)._passes;
 			for (var j: number = 0, m: number = passes.length; j < m; j++) {
 				var pass: ShaderPass = passes[j];
 				//NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
@@ -154,16 +154,10 @@ export class DrawRenderCMD extends Command {
 		for(var i:number = 0,n = renderElements.length;i<n;i++){
 			var renderelement = renderElements[i];
 			//renderelement._update(scene,context,this._material._shader,null,this._subShaderIndex);
-			this._renderElementUpdate(renderelement);
 			this._elementRender(renderelement,context);
 		}
 	}
 
-	_renderElementUpdate(renderelement:any){
-		if (this._material) {//材质可能为空
-			renderelement.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
-		}
-	}
 
 
 

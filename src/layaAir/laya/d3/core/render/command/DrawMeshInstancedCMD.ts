@@ -59,6 +59,8 @@ export class DrawMeshInstancedCMD extends Command {
 	/**@internal */
 	private _matrixs:Matrix4x4[];
 	/**@internal */
+	private _matrixsBuffer:Float32Array;
+	/**@internal */
 	private _subMeshIndex:number;
 	/**@internal */
 	private _subShaderIndex:number;
@@ -86,6 +88,10 @@ export class DrawMeshInstancedCMD extends Command {
 		this._instanceWorldMatrixData = new Float32Array( DrawMeshInstancedCMD.maxInstanceCount*16);
 		this._instanceWorldMatrixBuffer = new VertexBuffer3D(this._instanceWorldMatrixData.length*4,gl.DYNAMIC_DRAW);
 		this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+	}
+
+	get bufferState(){
+		return this._instanceWorldMatrixBuffer;
 	}
 
 	/**
@@ -118,6 +124,7 @@ export class DrawMeshInstancedCMD extends Command {
 		worldBuffer.orphanStorage();
 		worldBuffer.setData(worldMatrixData.buffer,0,0,count*64);
 	}
+
 
 	/**
 	 * @internal
