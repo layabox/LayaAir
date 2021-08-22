@@ -115,6 +115,7 @@ export class AudioSoundChannel extends SoundChannel {
                 (this._audio as any).stop();
             }
         this._audio.pause();
+        this._audio.currentTime = 0;
         this._audio.removeEventListener("ended", this._onEnd as EventListener);
         this._audio.removeEventListener("canplay", this._resumePlay);
         //ie下使用对象池可能会导致后面的声音播放不出来
