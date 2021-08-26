@@ -112,6 +112,7 @@ export class Script extends Component {
 		ILaya.startTimer.clearAll(this);
 		ILaya.updateTimer.clearAll(this);
 		ILaya.lateTimer.clearAll(this);
+		this.onDisable();
 	}
 
 	/**

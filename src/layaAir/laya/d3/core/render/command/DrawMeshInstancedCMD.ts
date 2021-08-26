@@ -36,7 +36,7 @@ export class DrawMeshInstancedCMD extends Command {
 	 */
 	static create(mesh:Mesh,subMeshIndex:number,matrixs:Matrix4x4[],material:Material,subShaderIndex:number,instanceProperty:MaterialInstancePropertyBlock,drawnums:number,commandBuffer:CommandBuffer):DrawMeshInstancedCMD {
 		var cmd: DrawMeshInstancedCMD;
-		if((matrixs&&matrixs.length>1024)||drawnums>DrawMeshInstancedCMD.maxInstanceCount){
+		if((matrixs&&matrixs.length>DrawMeshInstancedCMD.maxInstanceCount)||drawnums>DrawMeshInstancedCMD.maxInstanceCount){
 			throw "the number of renderings exceeds the maximum number of merges";
 		}
 		cmd = DrawMeshInstancedCMD._pool.length > 0 ? DrawMeshInstancedCMD._pool.pop():new DrawMeshInstancedCMD();
@@ -48,7 +48,7 @@ export class DrawMeshInstancedCMD extends Command {
 		cmd._commandBuffer = commandBuffer;
 		cmd._instanceProperty = instanceProperty;
 		cmd._drawnums = drawnums;
-		matrixs||cmd._updateWorldMatrixBuffer();
+		matrixs&&cmd._updateWorldMatrixBuffer();
 		cmd._setInstanceBuffer();
 		return cmd;
 	}
@@ -58,6 +58,8 @@ export class DrawMeshInstancedCMD extends Command {
 	private _material:Material;
 	/**@internal */
 	private _matrixs:Matrix4x4[];
+	/**@internal */
+	private _matrixsBuffer:Float32Array;
 	/**@internal */
 	private _subMeshIndex:number;
 	/**@internal */
@@ -86,6 +88,10 @@ export class DrawMeshInstancedCMD extends Command {
 		this._instanceWorldMatrixData = new Float32Array( DrawMeshInstancedCMD.maxInstanceCount*16);
 		this._instanceWorldMatrixBuffer = new VertexBuffer3D(this._instanceWorldMatrixData.length*4,gl.DYNAMIC_DRAW);
 		this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+	}
+
+	get bufferState(){
+		return this._instanceWorldMatrixBuffer;
 	}
 
 	/**
@@ -118,6 +124,7 @@ export class DrawMeshInstancedCMD extends Command {
 		worldBuffer.orphanStorage();
 		worldBuffer.setData(worldMatrixData.buffer,0,0,count*64);
 	}
+
 
 	/**
 	 * @internal

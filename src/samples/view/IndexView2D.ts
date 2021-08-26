@@ -104,6 +104,8 @@ import { Physics_CollisionFiltering } from "../2d/Physics_CollisionFiltering";
 import { Physics_Strandbeests } from "../2d/Physics_Strandbeests";
 import { Physics_Bridge } from "../2d/Physics_Bridge";
 import { Physics_CollisionEvent } from "../2d/Physics_CollisionEvent";
+import { Utils } from "laya/utils/Utils";
+import Client from "../Client";
 	
 	/**
 	 * 首页View 
@@ -270,9 +272,11 @@ import { Physics_CollisionEvent } from "../2d/Physics_CollisionEvent";
 			this.btn.on(Event.MOUSE_DOWN, this, this.nextBtn);
 		}
 		
-		private nextBtn():void {
+		private nextBtn():void{
 			//_bigIndex += 1;
-			var i_length:number
+			var isMaster:any = Utils.getQueryString("isMaster");
+			
+			var i_length:number;
 			this.a_length = this._bigIndex;
 			if (this.smallComBox.selectedIndex == this.b_length)
 			{
@@ -283,8 +287,17 @@ import { Physics_CollisionEvent } from "../2d/Physics_CollisionEvent";
 			{
 				i_length = this.smallComBox.selectedIndex+1;
 			}
-			this.switchFunc(this.a_length, i_length);
-			
+			var bigType:number = this.a_length;
+			var smallType:number = i_length;
+			if(Main.isOpenSocket && parseInt(isMaster)==1)
+			{
+				//主控制推送
+				Client.instance.send({type:"next",bigType:bigType,smallType:smallType,isMaster:isMaster});
+			}else
+			{
+				
+				this.switchFunc(this.a_length, i_length);
+			}
 		}
 		
 		private initEvent():void
@@ -292,6 +305,15 @@ import { Physics_CollisionEvent } from "../2d/Physics_CollisionEvent";
 			
 			this.bigComBox.selectHandler = new Handler(this,this.onBigComBoxSelectHandler);
 			this.smallComBox.selectHandler = new Handler(this,this.onSmallBoxSelectHandler);
+			Laya.stage.on("next",this,this.onNext);
+		}
+
+		onNext(data:any)
+		{
+			if(!data.isMaster)return;//拒绝非主控制器推送消息
+			this.a_length = data.bigType;
+			var smallType:number = data.smallType;
+			this.switchFunc(this.a_length, smallType);
 		}
 		
 		private onClearPreBox():void

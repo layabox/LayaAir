@@ -242,8 +242,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		ILaya.loader.create(url, complete, null, Scene3D.HIERARCHY);
 	}
 	/** @internal */
-	private _oriScripte:Script3D;
-	/** @internal */
 	private _url: string;
 	/** @internal */
 	private _group: string;
@@ -358,6 +356,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	get url(): string {
 		return this._url;
+	}
+
+	set sceneRenderableManager(manager:ISceneRenderManager){
+		this._octree = manager;
+		for(let i = 0,n = this._renders.length;i<n;i++) {
+			let render = <BaseRender>this._renders.elements[i];
+			this._renders.remove(render);
+			this._addRenderObject(render);
+		}
 	}
 
 	/**
@@ -613,7 +620,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
 		this.reflection = TextureCube.blackTexture;
-		this._oriScripte = Script3D._instance;
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
 
@@ -826,10 +832,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 			this._scriptPool = this._tempScriptPool;
 			scripts.length = 0;
-			this._updateScriptPool.length = 0;
-			this._lateUpdateScriptPool.length = 0;
-			this._preRenderScriptPool.length = 0;
-			this._postRenderScriptPool.length = 0;
+
 			this._tempScriptPool = scripts;
 
 			this._needClearScriptPool = false;
@@ -1048,13 +1051,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		var scripts: Script3D[] = this._scriptPool;
 		script._indexInPool = scripts.length;
 		scripts.push(script);
-		if(script.onUpdate!==this._oriScripte.onUpdate)
+		if(script.onUpdate!==Script3D.prototype.onUpdate)
 			this._updateScriptPool.push(script);
-		if(script.onLateUpdate!==this._oriScripte.onLateUpdate)
+		if(script.onLateUpdate!==Script3D.prototype.onLateUpdate)
 			this._lateUpdateScriptPool.push(script);
-		if(script.onPreRender!==this._oriScripte.onPreRender)
+		if(script.onPreRender!==Script3D.prototype.onPreRender)
 			this._preRenderScriptPool.push(script);
-		if(script.onPostRender!==this._oriScripte.onPostRender)
+		if(script.onPostRender!==Script3D.prototype.onPostRender)
 			this._postRenderScriptPool.push(script);
 		
 	}
@@ -1312,7 +1315,17 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.ambientSphericalHarmonics = ambientSH;
 		}
 		var reflectionData: string = data.reflection;
-		(reflectionData != undefined) && (this.reflection = Loader.getRes(reflectionData));
+		if(reflectionData != undefined){
+			let tex = Loader.getRes(reflectionData);
+			if(tex){
+				this.reflection = tex;
+			}else{
+				let h = Handler.create(this,()=>{
+					this.reflection = Loader.getRes(reflectionData);
+				})
+				ILaya.loader.create(reflectionData, h);
+			}
+		}
 
 		var reflectionDecodingFormatData: number = data.reflectionDecodingFormat;
 		(reflectionDecodingFormatData != undefined) && (this.reflectionDecodingFormat = reflectionDecodingFormatData);

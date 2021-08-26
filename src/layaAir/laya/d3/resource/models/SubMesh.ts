@@ -76,11 +76,13 @@ export class SubMesh extends GeometryElement {
 	_setIndexRange(indexStart: number, indexCount: number, indexFormat: IndexFormat = IndexFormat.UInt16): void {
 		this._indexStart = indexStart;
 		this._indexCount = indexCount;
-		if (indexFormat == IndexFormat.UInt16) {
-			this._indices = new Uint16Array(this._indexBuffer.getData().buffer, indexStart * 2, indexCount);
-		}
-		else {
-			this._indices = new Uint32Array(this._indexBuffer.getData().buffer, indexStart * 4, indexCount);
+		if(this._indexBuffer.canRead){
+			if (indexFormat == IndexFormat.UInt16) {
+				this._indices = new Uint16Array(this._indexBuffer.getData().buffer, indexStart * 2, indexCount);
+			}
+			else {
+				this._indices = new Uint32Array(this._indexBuffer.getData().buffer, indexStart * 4, indexCount);
+			}
 		}
 	}
 

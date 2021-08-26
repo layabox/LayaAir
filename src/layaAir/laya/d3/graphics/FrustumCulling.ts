@@ -155,35 +155,33 @@ export class FrustumCulling {
 		scene._clearRenderQueue();
 		var opaqueQueue = scene._opaqueQueue;
 
-		if(!scene._octree){
-			var renderList: SingletonList<ISingletonElement> = scene._renders;
-			var position: Vector3 = cullInfo.position;
-			// var cullPlaneCount: number = cullInfo.cullPlaneCount;
-			// var cullPlanes: Plane[] = cullInfo.cullPlanes;
-			var renders: ISingletonElement[] = renderList.elements;
-			var loopCount: number = Stat.loopCount;
-			for (var i: number = 0, n: number = renderList.length; i < n; i++) {
-				var render: BaseRender = <BaseRender>renders[i];
-				var canPass: boolean = render._castShadow && render._enable;
-				if (canPass) {
-					Stat.frustumCulling++;
-					let pass = FrustumCulling.cullingRenderBounds(render.bounds,cullInfo);
-					if (pass) {
-						render._renderMark = loopCount;
-						render._distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
-						var elements: RenderElement[] = render._renderElements;
-						for (var j: number = 0, m: number = elements.length; j < m; j++)
-							elements[j]._update(scene, context, null, null);
-					}
-				}
-			}
-		}
-		else{
+		if(scene._octree){
 			//八叉树裁剪
 			let octree = scene._octree;
 			octree.preFruUpdate();
 			//octree._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context);
 			octree.cullingShadow(cullInfo,context);
+		}
+		var renderList: SingletonList<ISingletonElement> = scene._renders;
+		var position: Vector3 = cullInfo.position;
+		// var cullPlaneCount: number = cullInfo.cullPlaneCount;
+		// var cullPlanes: Plane[] = cullInfo.cullPlanes;
+		var renders: ISingletonElement[] = renderList.elements;
+		var loopCount: number = Stat.loopCount;
+		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
+			var render: BaseRender = <BaseRender>renders[i];
+			var canPass: boolean = render._castShadow && render._enable;
+			if (canPass) {
+				Stat.frustumCulling++;
+				let pass = FrustumCulling.cullingRenderBounds(render.bounds,cullInfo);
+				if (pass) {
+					render._renderMark = loopCount;
+					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
+					var elements: RenderElement[] = render._renderElements;
+					for (var j: number = 0, m: number = elements.length; j < m; j++)
+						elements[j]._update(scene, context, null, null);
+				}
+			}
 		}
 			
 		return opaqueQueue.elements.length > 0 ? true : false;

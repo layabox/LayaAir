@@ -89,11 +89,9 @@ export class Camera extends BaseCamera {
 	 * @param replacementTag 替换标记。
 	 */
 	static drawRenderTextureByScene(camera:Camera,scene:Scene3D,renderTexture:RenderTexture,shader: Shader3D = null, replacementTag: string = null):RenderTexture {
-		if(camera.renderTarget!=renderTexture)
-		{
-			camera.renderTarget&&RenderTexture.recoverToPool(camera.renderTarget);
-			camera.renderTarget = renderTexture;
-		}
+		if(!renderTexture) return null;
+		let recoverTexture = camera.renderTarget;
+		camera.renderTarget = renderTexture;
 		
 		var viewport: Viewport = camera.viewport;
 		var needInternalRT: boolean = camera._needInternalRenderTexture();
@@ -112,6 +110,8 @@ export class Camera extends BaseCamera {
 		camera._preRenderMainPass(context,scene,needInternalRT,viewport);
 		camera._renderMainPass(context,viewport,scene,shader,replacementTag,needInternalRT);
 		camera._aftRenderMainPass(needShadowCasterPass);
+		
+		camera.renderTarget = recoverTexture;
 		return camera.renderTarget;
 	}
 	
@@ -738,15 +738,18 @@ export class Camera extends BaseCamera {
 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
 		scene._preCulling(context, this, shader, replacementTag);
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
+		
+		if(renderTex&&renderTex._isCameraTarget)//保证反转Y状态正确
+			context.invertY = true;
+		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 		if(this.depthTextureMode!=0){
 			//TODO:是否可以不多次
-			this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 			this._renderDepthMode(context);
 		}
 		
 
 		(renderTex) && (renderTex._start());
-		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+		//this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 		scene._clear(gl, context);
 	
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque,context);
@@ -774,6 +777,7 @@ export class Camera extends BaseCamera {
 				var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
 				this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
 				this._internalCommandBuffer._camera = this;
+				this._internalCommandBuffer._context = context;
 				this._internalCommandBuffer.blitScreenQuad(this._internalRenderTexture,this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale,null,null,0,true);
 				this._internalCommandBuffer._apply();
 				this._internalCommandBuffer.clear();

@@ -371,6 +371,8 @@ export class BaseTexture extends Bitmap {
 				case WarpMode.Clamp:
 					gl.texParameteri(this._glTextureType, orientation, gl.CLAMP_TO_EDGE);
 					break;
+				case WarpMode.Mirrored:
+					gl.texParameteri(this._glTextureType, orientation, gl.MIRRORED_REPEAT);
 			}
 		} else {
 			gl.texParameteri(this._glTextureType, orientation, gl.CLAMP_TO_EDGE);

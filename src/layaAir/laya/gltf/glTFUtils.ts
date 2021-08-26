@@ -122,7 +122,7 @@ export class glTFUtils {
 
         // buffer and texture recourse
         glTFUtils._initBufferData(glTFData.buffers);
-        glTFUtils._initTextureData(glTFData.images);
+        glTFUtils._initTextureData(glTFData.textures, glTFData.images, glTFData.samplers);
 
         glTFUtils._loadMaterials(glTFData.materials);
         glTFUtils._loadNodes(glTFData.nodes);
@@ -325,14 +325,23 @@ export class glTFUtils {
     /**
      * @internal
      * 初始化 texture 对象 数组
-     * @param images 
+     * @param textures 
      */
-    static _initTextureData(images?: glTF.glTFImage[]): void {
-        if (!images)
+    static _initTextureData(textures?: glTF.glTFTexture[], images?: glTF.glTFImage[], samplers?: glTF.glTFSampler[]): void {
+        if (!textures || !images)
             return;
 
-        images.forEach((image: glTF.glTFImage, index: number) => {
-            glTFUtils._glTFTextures[index] = Loader.getRes(image.uri);
+        textures.forEach((tex: glTF.glTFTexture, index: number) => {
+            let imgSource = tex.source;
+            let glTFImg = images[imgSource];
+            let samplerSource = tex.sampler;
+            let glTFSampler = samplers ? samplers[samplerSource] : undefined;
+            let img = Loader.getRes(glTFImg.uri);
+            let constructParams: any[] = glTFUtils.getTextureConstructParams(glTFImg, glTFSampler);
+            let propertyParams: any[] = glTFUtils.getTexturePropertyParams(glTFSampler);
+
+            let tex2d: Texture2D = Texture2D._parse(img, propertyParams, constructParams);
+            glTFUtils._glTFTextures[index] = tex2d;
         });
     }
 
@@ -441,8 +450,8 @@ export class glTFUtils {
             console.warn("glTF Loader: non 0 uv channel unsupported.");
         }
 
-        let glTFImage: glTF.glTFTexture = glTFUtils._glTF.textures[glTFTextureInfo.index];
-        return glTFUtils._glTFTextures[glTFImage.source];
+        // let glTFImage: glTF.glTFTexture = glTFUtils._glTF.textures[glTFTextureInfo.index];
+        return glTFUtils._glTFTextures[glTFTextureInfo.index];
     }
 
     /**
@@ -1535,7 +1544,7 @@ export class glTFUtils {
         let animatorLayer: AnimatorControllerLayer = animator.getControllerLayer();
 
         let animationName: string = clip.name;
-        
+
         let stateMap: { [stateName: string]: AnimatorState } = animatorLayer._statesMap;
         if (stateMap[animationName]) {
             animationName = clip.name = glTFUtils.getNodeRandomName(animationName);
@@ -1548,7 +1557,7 @@ export class glTFUtils {
         animatorLayer.addState(animatorState);
         animatorLayer.defaultState = animatorState;
         animatorLayer.playOnWake = true;
-        
+
         return animator;
     }
 

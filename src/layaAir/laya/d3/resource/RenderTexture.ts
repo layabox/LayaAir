@@ -204,6 +204,15 @@ export class RenderTexture extends BaseTexture {
 						gl.texImage2D(glTextureType, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
 					gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this._glTexture, 0);
 					break;
+				case RenderTextureDepthFormat.DEPTH_32:
+					if (isWebGL2){
+						gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.DEPTH_COMPONENT32F, width, height);
+						//gl2.texImage2D(glTextureType, 0, gl2.DEPTH_COMPONENT16, width, height,0,gl2.DEPTH_COMPONENT,gl2.UNSIGNED_SHORT,null);
+					}
+					else
+						gl.texImage2D(glTextureType, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
+					gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this._glTexture, 0);
+					break;
 				case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
 					if (isWebGL2)
 						gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.DEPTH24_STENCIL8, width, height);
