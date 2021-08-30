@@ -58,7 +58,7 @@ export class WordText {
 			let p = pagecharse[i];
             var tex: any = p.tex;
             var words: any[] = p.words;
-            if (words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
+            if (words&&words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
                 tex.destroy();
             }
 		}

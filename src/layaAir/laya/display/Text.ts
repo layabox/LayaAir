@@ -585,7 +585,7 @@ export class Text extends Sprite {
      * 文本边框背景颜色，以字符串表示。
      */
     get borderColor(): string {
-        return ((<TextStyle>this._style)).borderColor;
+        return ((<TextStyle>this._style))&&((<TextStyle>this._style)).borderColor;
     }
 
     set borderColor(value: string) {

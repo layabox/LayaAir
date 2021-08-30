@@ -34,7 +34,7 @@ import { Loader } from "./Loader";
  */
 export class LoaderManager extends EventDispatcher {
     /**@private */
-    private static _resMap: {[key:string]:ResInfo} = {};
+    private static _resMap: { [key: string]: ResInfo } = {};
     /**@private */
     static createMap: any = { atlas: [null, Loader.ATLAS] };
 
@@ -94,25 +94,25 @@ export class LoaderManager extends EventDispatcher {
      * @param	cache		是否缓存加载的资源。
      * @return	如果url为数组，返回true；否则返回指定的资源类对象。
      */
-    create(url: string|(string|createItem)[], complete: Handler|null = null, progress: Handler|null = null, type: string|null = null, constructParams: any[]|null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true): void {
+    create(url: string | (string | createItem)[], complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, constructParams: any[] | null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true): void {
         this._create(url, true, complete, progress, type, constructParams, propertyParams, priority, cache);
     }
 
     /**
      * @internal
      */
-    _create(url: string|(string|createItem)[], mainResou: boolean, complete: Handler|null = null, progress: Handler|null = null, type: string|null = null, constructParams: any[]|null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true): void {
+    _create(url: string | (string | createItem)[], mainResou: boolean, complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, constructParams: any[] | null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true): void {
         if (url instanceof Array) {
             var allScuess: boolean = true;
-            var items: (string|createItem)[] = url;
+            var items: (string | createItem)[] = url;
             var itemCount: number = items.length;
             var loadedCount: number = 0;
             if (progress) {
-                var progress2: Handler = Handler.create(progress.caller, progress?progress.method:null, progress.args, false);
+                var progress2: Handler = Handler.create(progress.caller, progress ? progress.method : null, progress.args, false);
             }
 
             for (var i: number = 0; i < itemCount; i++) {
-                var item: string|createItem = items[i];
+                var item: string | createItem = items[i];
                 if (typeof (item) == 'string')
                     item = items[i] = { url: item };
                 item.progress = 0;
@@ -147,11 +147,11 @@ export class LoaderManager extends EventDispatcher {
     /**
      * @private
      */
-    private _createOne(url: string, mainResou: boolean, complete: Handler|null = null, progress: Handler|null = null, type: string|null = null, constructParams: any[]|null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true): void {
+    private _createOne(url: string, mainResou: boolean, complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, constructParams: any[] | null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true): void {
         var item: any = this.getRes(url);
         if (!item) {
-            var extension: string =(LoaderManager.createMap[Utils.getFilecompatibleExtension(url)])?Utils.getFilecompatibleExtension(url):Utils.getFileExtension(url);
-            
+            var extension: string = (LoaderManager.createMap[Utils.getFilecompatibleExtension(url)]) ? Utils.getFilecompatibleExtension(url) : Utils.getFileExtension(url);
+
             (type) || (type = LoaderManager.createMap[extension] ? LoaderManager.createMap[extension][0] : null);
 
             if (!type) {
@@ -194,18 +194,19 @@ export class LoaderManager extends EventDispatcher {
      * @param	useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
      * @return 此 LoaderManager 对象本身。
      */
-    load(url: string|(string|loadItem)[], complete: Handler|null = null, progress: Handler|null = null, type: string|null = null, priority: number = 1, cache: boolean = true, group: string|null = null, ignoreCache: boolean = false, useWorkerLoader: boolean = ILaya.WorkerLoader.enable): LoaderManager {
+    load(url: string | (string | loadItem)[], complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, priority: number = 1, cache: boolean = true, group: string | null = null, ignoreCache: boolean = false, useWorkerLoader: boolean = ILaya.WorkerLoader.enable): LoaderManager {
         if (url instanceof Array) {
             return this._loadAssets(url, complete, progress, type, priority, cache, group);
         }
 
         if (!type) {
-            if (url.indexOf("data:image") === 0) type = Loader.IMAGE;
-            else type = Loader.getTypeFromUrl(url);
+            if (url != undefined || url != null) {
+                if (url.indexOf("data:image") === 0) type = Loader.IMAGE;
+                else type = Loader.getTypeFromUrl(url);
+            }
         }
-        
         var content: any;
-        if (type === Loader.IMAGE){
+        if (type === Loader.IMAGE) {
             content = Loader.textureMap[URL.formatURL(url)];
             if (content && (!(content as Texture).bitmap || ((content as Texture).bitmap && (content as Texture).bitmap.destroyed))) {
                 content = null;
@@ -214,16 +215,16 @@ export class LoaderManager extends EventDispatcher {
         else
             content = Loader.loadedMap[URL.formatURL(url)];
 
-        if (!ignoreCache && content != null) {
+        if (!ignoreCache && content != null || url == undefined || url == null) {
             //增加延迟回掉，防止快速回掉导致执行顺序错误
-            ILaya.systemTimer.callLater(this, function (this:LoaderManager): void {
+            ILaya.systemTimer.callLater(this, function (this: LoaderManager): void {
                 progress && progress.runWith(1);
                 complete && complete.runWith(content instanceof Array ? [content] : content);
                 //判断是否全部加载，如果是则抛出complete事件
-                this._loaderCount|| this.event(Event.COMPLETE);
+                this._loaderCount || this.event(Event.COMPLETE);
             });
         } else {
-            var original: string|null;
+            var original: string | null;
             original = url;
             url = AtlasInfoManager.getFileLoadPath(url);
             if (url != original && type !== "nativeimage") {
@@ -270,12 +271,12 @@ export class LoaderManager extends EventDispatcher {
     /**
      * @internal
      */
-    _createLoad(url: any, complete: Handler|null = null, progress: Handler|null = null, type: string|null = null, constructParams: any[]|null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true, ignoreCache: boolean = false): LoaderManager {
+    _createLoad(url: any, complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, constructParams: any[] | null = null, propertyParams: any = null, priority: number = 1, cache: boolean = true, ignoreCache: boolean = false): LoaderManager {
         if (url instanceof Array) return this._loadAssets((<any[]>url), complete, progress, type, priority, cache);
         var content: any = Loader.getRes(url);
         if (content != null) {
             //增加延迟回掉
-            ILaya.systemTimer.frameOnce(1, this, function (this:LoaderManager): void {
+            ILaya.systemTimer.frameOnce(1, this, function (this: LoaderManager): void {
                 progress && progress.runWith(1);
                 complete && complete.runWith(content);
                 //判断是否全部加载，如果是则抛出complete事件
@@ -499,7 +500,7 @@ export class LoaderManager extends EventDispatcher {
      * @private
      * 加载数组里面的资源。
      * @param arr 简单：["a.png","b.png"]，复杂[{url:"a.png",type:Loader.IMAGE,size:100,priority:1,useWorkerLoader:true},{url:"b.json",type:Loader.JSON,size:50,priority:1}]*/
-    private _loadAssets(arr:(string|loadItem)[], complete: Handler|null = null, progress: Handler|null = null, type: string|null = null, priority: number = 1, cache: boolean = true, group: string|null = null): LoaderManager {
+    private _loadAssets(arr: (string | loadItem)[], complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, priority: number = 1, cache: boolean = true, group: string | null = null): LoaderManager {
         var itemCount = arr.length;
         var loadedCount = 0;
         var totalSize = 0;
@@ -507,7 +508,7 @@ export class LoaderManager extends EventDispatcher {
         var success = true;
         for (var i = 0; i < itemCount; i++) {
             let url = arr[i];
-            let item:loadItem;
+            let item: loadItem;
             if (typeof (url) == 'string') item = { url: url, type: type, size: 1, priority: priority };
             else
                 item = url;
@@ -534,11 +535,11 @@ export class LoaderManager extends EventDispatcher {
                 item.progress = value;
                 var num = 0;
                 for (var j = 0; j < items.length; j++) {
-					var item1 = items[j];
-					if(item1){
-                    	let prog = item1.progress==undefined?0:item1.progress;
-						num += item1.size==undefined?0:item1.size * prog;
-					}
+                    var item1 = items[j];
+                    if (item1) {
+                        let prog = item1.progress == undefined ? 0 : item1.progress;
+                        num += item1.size == undefined ? 0 : item1.size * prog;
+                    }
                 }
                 var v = num / totalSize;
                 progress.runWith(v);
@@ -589,44 +590,44 @@ export class LoaderManager extends EventDispatcher {
 /** @internal */
 class ResInfo extends EventDispatcher {
     url: string;
-    type: string|null;
+    type: string | null;
     cache: boolean;
-    group: string|null;
+    group: string | null;
     ignoreCache: boolean;
     useWorkerLoader: boolean;
-    originalUrl: string|null;
+    originalUrl: string | null;
 
     createCache: boolean;
-    createConstructParams: any[]|null;
+    createConstructParams: any[] | null;
     createPropertyParams: any;
 }
 
-export interface loadItem{
+export interface loadItem {
     /**@internal */
-    url:string;
+    url: string;
     /**@internal */
-    type?:string;
+    type?: string;
     /**@internal */
-    size?:number;
+    size?: number;
     /**@internal */
-    priority?:number;
+    priority?: number;
     /**@internal */
-    useWorkerLoader?:boolean;
+    useWorkerLoader?: boolean;
     /**@internal */
-    progress?:number;
+    progress?: number;
     /**@internal */
-    group?:string;
+    group?: string;
 }
 
-export interface createItem{
-    url:string;
+export interface createItem {
+    url: string;
     /** 资源类型 */
-    type?:string;
-    priority?:number;
-    group?:string;
+    type?: string;
+    priority?: number;
+    group?: string;
     /** 资源属性参数。 */
-    propertyParams?:any[];
+    propertyParams?: any[];
     /** 资源构造函数参数。 */
-    constructParams?:any[];
-    progress?:number;
+    constructParams?: any[];
+    progress?: number;
 }
