@@ -50,6 +50,7 @@ import { HemisphereShape } from "./module/shape/HemisphereShape";
 import { ConeShape } from "./module/shape/ConeShape";
 import { CircleShape } from "./module/shape/CircleShape";
 import { BoxShape } from "./module/shape/BoxShape";
+import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenParticle";
 
 
 /**
@@ -60,37 +61,37 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	static _RANDOMOFFSET: Uint32Array = new Uint32Array([0x23571a3e, 0xc34f56fe, 0x13371337, 0x12460f3b, 0x6aed452e, 0xdec4aea1, 0x96aa4de3, 0x8d2c8431, 0xf3857f6f, 0xe0fbd834, 0x13740583, 0x591bc05c, 0x40eb95e4, 0xbc524e5f, 0xaf502044, 0xa614b381, 0x1034e524, 0xfc524e5f]);
 
 	/** @internal */
-	private static halfKSqrtOf2: number = 1.42 * 0.5;
+	protected static halfKSqrtOf2: number = 1.42 * 0.5;
 
 	/** @internal */
-	private static g: number = 9.8;
+	protected static g: number = 9.8;
 
 	/** @internal */
 	static _maxElapsedTime: number = 1.0 / 3.0;
 
 	/**@internal */
-	private static _tempVector30: Vector3 = new Vector3();
+	protected static _tempVector30: Vector3 = new Vector3();
 	/**@internal */
-	private static _tempVector31: Vector3 = new Vector3();
+	protected static _tempVector31: Vector3 = new Vector3();
 	/**@internal */
-	private static _tempVector32: Vector3 = new Vector3();
+	protected static _tempVector32: Vector3 = new Vector3();
 	/**@internal */
-	private static _tempVector33: Vector3 = new Vector3();
+	protected static _tempVector33: Vector3 = new Vector3();
 	/**@internal */
-	private static _tempVector34: Vector3 = new Vector3();
+	protected static _tempVector34: Vector3 = new Vector3();
 	/**@internal */
-	private static _tempVector35: Vector3 = new Vector3();
+	protected static _tempVector35: Vector3 = new Vector3();
 	/**@internal */
-	private static _tempVector36: Vector3 = new Vector3();
+	protected static _tempVector36: Vector3 = new Vector3();
 	/**@internal */
-	private static _tempVector37: Vector3 = new Vector3();
+	protected static _tempVector37: Vector3 = new Vector3();
 	/** @internal */
-	private static _tempPosition: Vector3 = new Vector3();
+	protected static _tempPosition: Vector3 = new Vector3();
 	/** @internal */
-	private static _tempDirection: Vector3 = new Vector3();
+	protected static _tempDirection: Vector3 = new Vector3();
 
 	/**@internal */
-	private static _type: number = GeometryElement._typeCounter++;
+	protected static _type: number = GeometryElement._typeCounter++;
 
 	/** @internal */
 	_boundingSphere: BoundSphere = null;
@@ -111,97 +112,100 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	_useCustomBounds: boolean = false;
 
 	/** @internal */
-	private _owner: ShuriKenParticle3D = null;
+	protected _owner: ShuriKenParticle3D = null;
 	/** @internal */
-	private _ownerRender: ShurikenParticleRenderer = null;
+	protected _ownerRender: ShurikenParticleRenderer = null;
 	/**@internal */
-	private _vertices: Float32Array = null;
+	protected _vertices: Float32Array = null;
 	/**@internal */
-	private _floatCountPerVertex: number = 0;
+	protected _floatCountPerVertex: number = 0;
 	/**@internal */
-	private _startLifeTimeIndex: number = 0;
+	protected _startLifeTimeIndex: number = 0;
 	/**@internal */
-	private _timeIndex: number = 0;
+	protected _timeIndex: number = 0;
 	/**@internal */
-	private _simulateUpdate: boolean = false;
+	protected _simulationUV_Index:number = 0
+	/**@internal */
+	protected _simulateUpdate: boolean = false;
 
 
 	/**@internal */
-	private _firstActiveElement: number = 0;
+	protected _firstActiveElement: number = 0;
 	/**@internal */
-	private _firstNewElement: number = 0;
+	protected _firstNewElement: number = 0;
 	/**@internal */
-	private _firstFreeElement: number = 0;
+	protected _firstFreeElement: number = 0;
 	/**@internal */
-	private _firstRetiredElement: number = 0;
+	protected _firstRetiredElement: number = 0;
 	/**@internal */
-	private _drawCounter: number = 0;
+	protected _drawCounter: number = 0;
 	/**@internal 最大粒子数量*/
-	private _bufferMaxParticles: number = 0;
+	protected _bufferMaxParticles: number = 0;
 	/**@internal */
-	private _emission: Emission = null;
+	protected _emission: Emission = null;
 	/**@internal */
-	private _shape: BaseShape = null;
+	protected _shape: BaseShape = null;
 
 	/**@internal */
-	private _isEmitting: boolean = false;
+	protected _isEmitting: boolean = false;
 	/**@internal */
-	private _isPlaying: boolean = false;
+	protected _isPlaying: boolean = false;
 	/**@internal */
-	private _isPaused: boolean = false;
+	protected _isPaused: boolean = false;
 	/**@internal */
-	private _playStartDelay: number = 0;
+	protected _playStartDelay: number = 0;
 	/**@internal 发射的累计时间。*/
-	private _frameRateTime: number = 0;
+	protected _frameRateTime: number = 0;
 	/**@internal 一次循环内的累计时间。*/
-	private _emissionTime: number = 0;
+	protected _emissionTime: number = 0;
 	/**@internal 用来计算时间是否超过发射延迟时间*/
-	private _totalDelayTime: number = 0;
+	protected _totalDelayTime: number = 0;
 	/**@internal */
-	private _burstsIndex: number = 0;
+	protected _burstsIndex: number = 0;
 	///**@internal 发射粒子最小时间间隔。*/
-	//private var _minEmissionTime:Number;
+	//protected var _minEmissionTime:Number;
 	/**@internal */
-	private _velocityOverLifetime: VelocityOverLifetime = null;
+	protected _velocityOverLifetime: VelocityOverLifetime = null;
 	/**@internal */
-	private _colorOverLifetime: ColorOverLifetime = null;
+	protected _colorOverLifetime: ColorOverLifetime = null;
 	/**@internal */
-	private _sizeOverLifetime: SizeOverLifetime = null;
+	protected _sizeOverLifetime: SizeOverLifetime = null;
 	/**@internal */
-	private _rotationOverLifetime: RotationOverLifetime = null;
+	protected _rotationOverLifetime: RotationOverLifetime = null;
 	/**@internal */
-	private _textureSheetAnimation: TextureSheetAnimation = null;
+	protected _textureSheetAnimation: TextureSheetAnimation = null;
 	/**@internal */
-	private _startLifetimeType: number = 0;
+	protected _startLifetimeType: number = 0;
 	/**@internal */
-	private _startLifetimeConstant: number = 0;
+	protected _startLifetimeConstant: number = 0;
 	/**@internal */
-	private _startLifeTimeGradient: GradientDataNumber = null;
+	protected _startLifeTimeGradient: GradientDataNumber = null;
 	/**@internal */
-	private _startLifetimeConstantMin: number = 0;
+	protected _startLifetimeConstantMin: number = 0;
 	/**@internal */
-	private _startLifetimeConstantMax: number = 0;
+	protected _startLifetimeConstantMax: number = 0;
 	/**@internal */
-	private _startLifeTimeGradientMin: GradientDataNumber = null;
+	protected _startLifeTimeGradientMin: GradientDataNumber = null;
 	/**@internal */
-	private _startLifeTimeGradientMax: GradientDataNumber = null;
+	protected _startLifeTimeGradientMax: GradientDataNumber = null;
 	/**@internal */
-	private _maxStartLifetime: number = 0;
+	protected _maxStartLifetime: number = 0;
 
 	/** @internal */
-	private _uvLength: Vector2 = new Vector2();//TODO:
+	protected _uvLength: Vector2 = new Vector2();//TODO:
 	/** @internal */
-	private _vertexStride: number = 0;
+	protected _vertexStride: number = 0;
 	/** @internal */
-	private _indexStride: number = 0;
+	protected _indexStride: number = 0;
 	/**@internal */
-	private _vertexBuffer: VertexBuffer3D = null;
+	protected _vertexBuffer: VertexBuffer3D = null;
 	/**@internal */
-	private _indexBuffer: IndexBuffer3D = null;
+	protected _indexBuffer: IndexBuffer3D = null;
 	/** @internal */
-	private _bufferState: BufferState = new BufferState();
+	protected _bufferState: BufferState = new BufferState();
+
 	/**@internal */
-	private _updateMask: number = 0;
+	protected _updateMask: number = 0;
 
 	/**@internal */
 	_currentTime: number = 0;
@@ -1269,7 +1273,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 * @internal
 	 * 计算粒子更新时间
 	 */
-	private _updateEmission(): void {
+	protected _updateEmission(): void {
 		if (!this.isAlive)
 			return;
 		if (this._simulateUpdate) {
@@ -1286,7 +1290,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 * @internal
 	 * 传入粒子间隔时间，更新粒子状态
 	 */
-	private _updateParticles(elapsedTime: number): void {
+	protected _updateParticles(elapsedTime: number): void {
 		if (this._ownerRender.renderMode === 4 && !this._ownerRender.mesh)//renderMode=4且mesh为空时不更新
 			return;
 
@@ -1314,7 +1318,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**
 	 * @internal
 	 */
-	private _updateParticlesSimulationRestart(time: number): void {
+	protected _updateParticlesSimulationRestart(time: number): void {
 		this._firstActiveElement = 0;
 		this._firstNewElement = 0;
 		this._firstFreeElement = 0;
@@ -1341,7 +1345,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**
 	 * @internal
 	 */
-	private _retireActiveParticles(): void {
+	protected _retireActiveParticles(): void {
 		const epsilon: number = 0.0001;
 		while (this._firstActiveElement != this._firstNewElement) {
 			var index: number = this._firstActiveElement * this._floatCountPerVertex * this._vertexStride;
@@ -1361,7 +1365,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**
 	 * @internal
 	 */
-	private _freeRetiredParticles(): void {
+	protected _freeRetiredParticles(): void {
 		while (this._firstRetiredElement != this._firstActiveElement) {
 			var age: number = this._drawCounter - this._vertices[this._firstRetiredElement * this._floatCountPerVertex * this._vertexStride + this._timeIndex];//11为Time
 			//TODO这里会有什么bug
@@ -1379,7 +1383,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 * @internal5
 	 * 增加爆炸粒子数量
 	 */
-	private _burst(fromTime: number, toTime: number): number {
+	protected _burst(fromTime: number, toTime: number): number {
 		var totalEmitCount: number = 0;
 		var bursts: Burst[] = this._emission._bursts;
 		for (var n: number = bursts.length; this._burstsIndex < n; this._burstsIndex++) {//TODO:_burstsIndex问题
@@ -1405,7 +1409,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**
 	 * @internal
 	 */
-	private _advanceTime(elapsedTime: number, emitTime: number): void {
+	protected _advanceTime(elapsedTime: number, emitTime: number): void {
 		var i: number;
 		var lastEmissionTime: number = this._emissionTime;
 		this._emissionTime += elapsedTime;
@@ -1463,6 +1467,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var render: ShurikenParticleRenderer = this._ownerRender;
 		var renderMode: number = render.renderMode;
+		
 		if (renderMode !== -1 && this.maxParticles > 0) {
 			var indices: Uint16Array, i: number, j: number, m: number, indexOffset: number, perPartOffset: number, vertexDeclaration: VertexDeclaration;
 			var vbMemorySize: number = 0, memorySize: number = 0;
@@ -1475,6 +1480,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					// } else {
 					vertexDeclaration = VertexShurikenParticleMesh.vertexDeclaration;
 					this._floatCountPerVertex = vertexDeclaration.vertexStride / 4;
+					this._simulationUV_Index = vertexDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset/4;
 					this._startLifeTimeIndex = 12;
 					this._timeIndex = 16;
 					this._vertexStride = mesh._vertexCount;
@@ -1490,6 +1496,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					this._vertexBuffer.vertexDeclaration = vertexDeclaration;
 					this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
 
+					// if (render.renderMode == 4) {
+					// 	this.initVertexWithMesh(this._vertices, mesh);
+					// }
 
 					this._indexStride = mesh._indexBuffer.indexCount;
 					var indexDatas: Uint16Array = mesh._indexBuffer.getData();
@@ -1517,6 +1526,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				vertexDeclaration = VertexShurikenParticleBillboard.vertexDeclaration;
 				this._floatCountPerVertex = vertexDeclaration.vertexStride / 4;
 				this._startLifeTimeIndex = 7;
+				this._simulationUV_Index = vertexDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset/4;
 				this._timeIndex = 11;
 				this._vertexStride = 4;
 				vbMemorySize = vertexDeclaration.vertexStride * this._bufferMaxParticles * this._vertexStride;
@@ -1801,18 +1811,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			meshUVOffset = uvElement ? uvElement._offset / 4 : -1;
 			meshVertexStride = meshVertexDeclaration.vertexStride / 4;
 			meshVertexIndex = 0;
-		} else {
-			this._vertices[startIndex + 2] = startU;
-			this._vertices[startIndex + 3] = startV + subV;
-			var secondOffset: number = startIndex + this._floatCountPerVertex;
-			this._vertices[secondOffset + 2] = startU + subU;
-			this._vertices[secondOffset + 3] = startV + subV;
-			var thirdOffset: number = secondOffset + this._floatCountPerVertex;
-			this._vertices[thirdOffset + 2] = startU + subU;
-			this._vertices[thirdOffset + 3] = startV;
-			var fourthOffset: number = thirdOffset + this._floatCountPerVertex;
-			this._vertices[fourthOffset + 2] = startU;
-			this._vertices[fourthOffset + 3] = startV;
 		}
 
 		for (var i: number = startIndex, n: number = startIndex + this._floatCountPerVertex * this._vertexStride; i < n; i += this._floatCountPerVertex) {
@@ -1843,8 +1841,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				}
 				else {
 					meshOffset = vertexOffset + meshUVOffset;
-					this._vertices[offset++] = startU + meshVertices[meshOffset++] * subU;
-					this._vertices[offset++] = startV + meshVertices[meshOffset] * subV;
+					this._vertices[offset++] = meshVertices[meshOffset++] ;
+					this._vertices[offset++] = meshVertices[meshOffset];
 				}
 			} else {
 				offset = i + 4;
@@ -1904,6 +1902,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				default:
 					throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
 			}
+			offset = i  + this._simulationUV_Index;
+			debugger;
+			this._vertices[offset++] = startU;
+			this._vertices[offset++] = startV;
+			this._vertices[offset++] = subU;
+			this._vertices[offset] = subV;
 		}
 
 		this._firstFreeElement = nextFreeParticle;
