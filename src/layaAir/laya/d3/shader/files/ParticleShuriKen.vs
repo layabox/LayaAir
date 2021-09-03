@@ -762,7 +762,7 @@ void main()
 				v_TextureCoordinate =computeParticleUV(simulateUV, normalizedAge);
 			#endif
 			#ifdef RENDERMODE_MESH
-				simulateUV =a_MeshTextureCoordinate.xy + a_CornerTextureCoordinate.zw*a_SimulationUV.zw;
+				simulateUV =a_SimulationUV.xy + a_MeshTextureCoordinate*a_SimulationUV.zw;
 				v_TextureCoordinate =computeParticleUV(simulateUV, normalizedAge);
 			#endif
 			v_TextureCoordinate=TransformUV(v_TextureCoordinate,u_TilingOffset);
