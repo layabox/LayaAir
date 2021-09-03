@@ -38,7 +38,7 @@ export class VertexShurikenParticleMesh extends VertexShuriKenParticle {
 			new VertexElement(28, VertexElementFormat.Vector2, VertexShuriKenParticle.PARTICLE_TEXTURECOORDINATE0)
 		]);
 
-		VertexShurikenParticleMesh._vertexInstanceParticleDeclaration = new VertexDeclaration(136, [
+		VertexShurikenParticleMesh._vertexInstanceParticleDeclaration = new VertexDeclaration(152, [
 			new VertexElement(0, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SHAPEPOSITIONSTARTLIFETIME),
 			new VertexElement(16, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_DIRECTIONTIME),
 			new VertexElement(32, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_STARTCOLOR0),
