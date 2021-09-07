@@ -1038,7 +1038,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _removeScriptInPool(scriptPool:Script3D[],script:Script3D){
 		let index = scriptPool.indexOf(script);
 		if(index!=-1){
-			scriptPool.splice(index,0);
+			scriptPool.splice(index,1);
 		}
 	}
 
