@@ -175,8 +175,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationX(x: number) {
-		this._localRotation.x = x;
-		this.localRotation = this._localRotation;
+		let rot = this.localRotation;
+		rot.x = x;
+		this.localRotation = rot;
 	}
 
 	/**
@@ -187,8 +188,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationY(y: number) {
-		this._localRotation.y = y;
-		this.localRotation = this._localRotation;
+		let rot = this.localRotation;
+		rot.y = y;
+		this.localRotation = rot;
 	}
 
 	/**
@@ -199,8 +201,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationZ(z: number) {
-		this._localRotation.z = z;
-		this.localRotation = this._localRotation;
+		let rot = this.localRotation;
+		rot.z = z;
+		this.localRotation = rot;
 	}
 
 	/**
@@ -211,8 +214,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationW(w: number) {
-		this._localRotation.w = w;
-		this.localRotation = this._localRotation;
+		let rot = this.localRotation;
+		rot.w = w;
+		this.localRotation = rot;
 	}
 
 	/**
@@ -294,8 +298,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationEulerX(value: number) {
-		this._localRotationEuler.x = value;
-		this.localRotationEuler = this._localRotationEuler;
+		let rot = this.localRotationEuler;
+		rot.x = value;
+		this.localRotationEuler = rot;
 	}
 
 	/**
@@ -306,8 +311,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationEulerY(value: number) {
-		this._localRotationEuler.y = value;
-		this.localRotationEuler = this._localRotationEuler;
+		let rot = this.localRotationEuler;
+		rot.y = value;
+		this.localRotationEuler = rot;
 	}
 
 	/**
@@ -318,8 +324,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationEulerZ(value: number) {
-		this._localRotationEuler.z = value;
-		this.localRotationEuler = this._localRotationEuler;
+		let rot = this.localRotationEuler;
+		rot.z = value;
+		this.localRotationEuler = rot;
 	}                                                                                                      
 
 	/**
