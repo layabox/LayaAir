@@ -37,8 +37,6 @@ export class PBRMaterial extends Material {
     /** @internal */
     static SHADERDEFINE_EMISSIONTEXTURE: ShaderDefine;
     /** @internal */
-    static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
-    /** @internal */
     static SHADERDEFINE_TRANSPARENTBLEND: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_LAYA_PBR_BRDF_HIGH: ShaderDefine;
@@ -72,19 +70,6 @@ export class PBRMaterial extends Material {
     /** @internal */
     static EMISSIONCOLOR: number = Shader3D.propertyNameToID("u_EmissionColor");
 
-    /** @internal */
-    static CULL: number = Shader3D.propertyNameToID("s_Cull");
-    /** @internal */
-    static BLEND: number = Shader3D.propertyNameToID("s_Blend");
-    /** @internal */
-    static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
-    /** @internal */
-    static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
-    /** @internal */
-    static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
-    /** @internal */
-    static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
-
     /** 渲染质量。*/
     static renderQuality: PBRRenderQuality = PBRRenderQuality.High;
 
@@ -98,14 +83,11 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = Shader3D.getDefineByName("OCCLUSIONTEXTURE");
         PBRMaterial.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
         PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
-        PBRMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
         PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH = Shader3D.getDefineByName("LAYA_PBR_BRDF_HIGH");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW = Shader3D.getDefineByName("LAYA_PBR_BRDF_LOW");
     }
 
-    /** @internal */
-    private _enableEmission: boolean = false;
 
     /**
 	 * 漫反射颜色。
@@ -240,7 +222,7 @@ export class PBRMaterial extends Material {
 	 * 是否开启自发光。
 	 */
     get enableEmission(): boolean {
-        return this._enableEmission;
+        return this._shaderValues.hasDefine(PBRMaterial.SHADERDEFINE_EMISSION);
     }
 
     set enableEmission(value: boolean) {
@@ -248,7 +230,6 @@ export class PBRMaterial extends Material {
             this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_EMISSION);
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_EMISSION);
-        this._enableEmission = value;
     }
 
 	/**
@@ -287,82 +268,14 @@ export class PBRMaterial extends Material {
 
     set tilingOffset(value: Vector4) {
         if (value) {
-            if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-                this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_TILINGOFFSET);
-            else
-                this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_TILINGOFFSET);
-        } else {
-            this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_TILINGOFFSET);
-        }
-        this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, value);
-    }
-
-    /**
-	 * 是否写入深度。
-	 */
-    get depthWrite(): boolean {
-        return this._shaderValues.getBool(PBRMaterial.DEPTH_WRITE);
-    }
-
-    set depthWrite(value: boolean) {
-        this._shaderValues.setBool(PBRMaterial.DEPTH_WRITE, value);
-    }
-
-	/**
-	 * 剔除方式。
-	 */
-    get cull(): number {
-        return this._shaderValues.getInt(PBRMaterial.CULL);
-    }
-
-    set cull(value: number) {
-        this._shaderValues.setInt(PBRMaterial.CULL, value);
-    }
-
-	/**
-	 * 混合方式。
-	 */
-    get blend(): number {
-        return this._shaderValues.getInt(PBRMaterial.BLEND);
-    }
-
-    set blend(value: number) {
-        this._shaderValues.setInt(PBRMaterial.BLEND, value);
-    }
-
-	/**
-	 * 混合源。
-	 */
-    get blendSrc(): number {
-        return this._shaderValues.getInt(PBRMaterial.BLEND_SRC);
-    }
-
-    set blendSrc(value: number) {
-        this._shaderValues.setInt(PBRMaterial.BLEND_SRC, value);
-    }
-
-	/**
-	 * 混合目标。
-	 */
-    get blendDst(): number {
-        return this._shaderValues.getInt(PBRMaterial.BLEND_DST);
-    }
-
-    set blendDst(value: number) {
-        this._shaderValues.setInt(PBRMaterial.BLEND_DST, value);
-    }
-
-	/**
-	 * 深度测试方式。
-	 */
-    get depthTest(): number {
-        return this._shaderValues.getInt(PBRMaterial.DEPTH_TEST);
+			this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, value);
+		}
+		else {
+			this._shaderValues.getVector(PBRMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
     }
 
 
-    set depthTest(value: number) {
-        this._shaderValues.setInt(PBRMaterial.DEPTH_TEST, value);
-    }
 
     /**
 	 * 渲染模式。
@@ -418,6 +331,7 @@ export class PBRMaterial extends Material {
         super();
         this._shaderValues.setVector(PBRMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
         this._shaderValues.setVector(PBRMaterial.EMISSIONCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
+        this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, 0.5);
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSCALE, 1.0);
         this._shaderValues.setNumber(PBRMaterial.OCCLUSIONSTRENGTH, 1.0);
@@ -425,17 +339,5 @@ export class PBRMaterial extends Material {
         this._shaderValues.setNumber(PBRMaterial.PARALLAXSCALE, 0.001);
         this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
         this.renderMode = PBRRenderMode.Opaque;
-    }
-
-
-    //---------------------------------------------------------------deprecated------------------------------------------------------------------
-    /**
-	 * @deprecated
-	 */
-    get enableReflection(): boolean {
-        return true;
-    }
-
-    set enableReflection(value: boolean) {
     }
 }

@@ -1,9 +1,8 @@
-
+//@ts-nocheck
 import { Component } from "../../components/Component"
 import { Sprite3D } from "../core/Sprite3D"
 import { Collision } from "../physics/Collision"
 import { PhysicsComponent } from "../physics/PhysicsComponent"
-import { Event } from "../../events/Event"
 import { Laya } from "../../../Laya";
 import { Scene3D } from "../core/scene/Scene3D";
 
@@ -13,7 +12,8 @@ import { Scene3D } from "../core/scene/Scene3D";
 export class Script3D extends Component {
 	/**@internal*/
 	public _indexInPool: number = -1;
-
+	/**@internal 避免重复调用enable disable*/
+	private _enableState:boolean = false;
 	/**
 	 * @inheritDoc
 	 * @override
@@ -67,8 +67,12 @@ export class Script3D extends Component {
 	 * @override
 	 */
 	_onEnable(): void {
+		if(this._enableState)
+			return;
 		(<Scene3D>this.owner._scene)._addScript(this);
+		this._enableState = true;
 		this.onEnable();
+	
 	}
 
 	/**
@@ -77,9 +81,13 @@ export class Script3D extends Component {
 	 * @override
 	 */
 	protected _onDisable(): void {
+		if(!this._enableState||this._indexInPool==-1)
+			return;
 		(<Scene3D>this.owner._scene)._removeScript(this);
 		this.owner.offAllCaller(this);
+		this._enableState = false;
 		this.onDisable();
+	
 	}
 
 	/**

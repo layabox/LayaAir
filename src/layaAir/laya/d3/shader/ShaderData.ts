@@ -10,6 +10,7 @@ import { Vector4 } from "../math/Vector4";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { Stat } from "../../utils/Stat";
+import { Texture2D } from "../../resource/Texture2D";
 
 
 /**
@@ -36,7 +37,7 @@ export class ShaderData implements IClone {
 	 * @internal
 	 */
 	_initData(): void {
-		this._data = new Object();
+		this._data = {};
 	}
 
 	/**
@@ -246,11 +247,12 @@ export class ShaderData implements IClone {
 	 */
 	setTexture(index: number, value: BaseTexture): void {
 		var lastValue: BaseTexture = this._data[index];
-		this._data[index] = value;
+		this._data[index] = value?value:Texture2D.erroTextur;
 		if (this._ownerResource && this._ownerResource.referenceCount > 0) {
 			(lastValue) && (lastValue._removeReference());
 			(value) && (value._addReference());
 		}
+		
 	}
 
 	/**
@@ -259,6 +261,14 @@ export class ShaderData implements IClone {
 	 * @return  纹理。
 	 */
 	getTexture(index: number): BaseTexture {
+		return this._data[index];
+	}
+
+	setValueData(index:number,value:any){
+		this._data[index] = value;
+	}
+
+	getValueData(index:number):any{
 		return this._data[index];
 	}
 
@@ -296,13 +306,14 @@ export class ShaderData implements IClone {
 		this._data.length = value;
 	}
 
+
 	/**
 	 * 克隆。
 	 * @param	destObject 克隆源。
 	 */
-	cloneTo(destObject: any): void {
+	cloneTo(destObject: ShaderData): void {
 		var dest: ShaderData = <ShaderData>destObject;
-		var destData: any[] = dest._data;
+		var destData: {[key:string]:number|boolean|Vector2|Vector3|Vector4|Matrix4x4|BaseTexture} = dest._data;
 		for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
 			var value: any = this._data[k];
 			if (value != null) {
@@ -313,19 +324,19 @@ export class ShaderData implements IClone {
 				} else if (typeof (value) == "boolean") {
 					destData[k] = value;
 				} else if (value instanceof Vector2) {
-					var v2: Vector2 = (destData[k]) || (destData[k] = new Vector2());
+					var v2 = (destData[k]) || (destData[k] = new Vector2());
 					((<Vector2>value)).cloneTo(v2);
 					destData[k] = v2;
 				} else if (value instanceof Vector3) {
-					var v3: Vector3 = (destData[k]) || (destData[k] = new Vector3());
+					var v3 = (destData[k]) || (destData[k] = new Vector3());
 					((<Vector3>value)).cloneTo(v3);
 					destData[k] = v3;
 				} else if (value instanceof Vector4) {
-					var v4: Vector4 = (destData[k]) || (destData[k] = new Vector4());
+					var v4 = (destData[k]) || (destData[k] = new Vector4());
 					((<Vector4>value)).cloneTo(v4);
 					destData[k] = v4;
 				} else if (value instanceof Matrix4x4) {
-					var mat: Matrix4x4 = (destData[k]) || (destData[k] = new Matrix4x4());
+					var mat = (destData[k]) || (destData[k] = new Matrix4x4());
 					((<Matrix4x4>value)).cloneTo(mat);
 					destData[k] = mat;
 				} else if (value instanceof BaseTexture) {
@@ -637,10 +648,12 @@ export class ShaderData implements IClone {
 	 */
 	setAttributeForNative(index: number, value: Int32Array): void {//[NATIVE]
 		this._nativeArray[index] = value;//保存引用
+		//@ts-ignore
 		if (!value["_ptrID"]) {
 			(<any>LayaGL.instance).createArrayBufferRef(value, LayaGL.ARRAY_BUFFER_TYPE_DATA, true);
 		}
 		(<any>LayaGL.instance).syncBufferToRenderThread(value);
+		//@ts-ignore
 		this._int32Data[index] = value["_ptrID"];
 	}
 

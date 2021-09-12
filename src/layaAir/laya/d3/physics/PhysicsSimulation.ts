@@ -116,7 +116,7 @@ export class PhysicsSimulation {
 	/** @internal */
 	private _btBroadphase: number;
 	/** @internal */
-	private _btSolverInfo: number;
+	_btSolverInfo: number;
 	/** @internal */
 	private _btDispatchInfo: number;
 	/** @internal */
@@ -208,7 +208,7 @@ export class PhysicsSimulation {
 	 * @internal
 	 * 创建一个 <code>Simulation</code> 实例。
 	 */
-	constructor(configuration: PhysicsSettings, flags: number = 0) {
+	constructor(configuration: PhysicsSettings) {
 		this.maxSubSteps = configuration.maxSubSteps;
 		this.fixedTimeStep = configuration.fixedTimeStep;
 

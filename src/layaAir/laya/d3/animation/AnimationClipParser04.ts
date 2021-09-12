@@ -123,6 +123,7 @@ export class AnimationClipParser04 {
 			var fullPath: string = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
 			nodesDic[fullPath] = node;
 			node.fullPath = fullPath;
+			node.nodePath = nodePath;
 
 			var keyframeCount: number = reader.getUint16();
 			node._setKeyframeCount(keyframeCount);

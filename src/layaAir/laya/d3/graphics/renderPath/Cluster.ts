@@ -98,28 +98,28 @@ export class Cluster {
         */
     }
 
-    private _insertSpotLightSphere(origin: Vector3, forward: Vector3, size: number, angle: number, testSphere: Vector4): boolean {
-        //combine cone cull and sphere range cull
-        var V: Vector3 = Cluster._tempVector35;
-        V.x = testSphere.x - origin.x;
-        V.y = testSphere.y - origin.y;
-        V.z = testSphere.z - origin.z;
+    // private _insertSpotLightSphere(origin: Vector3, forward: Vector3, size: number, angle: number, testSphere: Vector4): boolean {
+    //     //combine cone cull and sphere range cull
+    //     var V: Vector3 = Cluster._tempVector35;
+    //     V.x = testSphere.x - origin.x;
+    //     V.y = testSphere.y - origin.y;
+    //     V.z = testSphere.z - origin.z;
 
-        var VlenSq = Vector3.dot(V, V);
-        var sphereRadius: number = testSphere.w;
+    //     var VlenSq = Vector3.dot(V, V);
+    //     var sphereRadius: number = testSphere.w;
 
-        var rangeCull: boolean = VlenSq > sphereRadius * sphereRadius;
-        if (!rangeCull)
-            return false;
+    //     var rangeCull: boolean = VlenSq > sphereRadius * sphereRadius;
+    //     if (!rangeCull)
+    //         return false;
 
-        var V1len: number = Vector3.dot(V, forward);
-        var distanceClosestPoint: number = Math.cos(angle) * Math.sqrt(VlenSq - V1len * V1len) - V1len * Math.sin(angle);
+    //     var V1len: number = Vector3.dot(V, forward);
+    //     var distanceClosestPoint: number = Math.cos(angle) * Math.sqrt(VlenSq - V1len * V1len) - V1len * Math.sin(angle);
 
-        var angleCull: boolean = distanceClosestPoint > sphereRadius;
-        var frontCull: boolean = V1len > sphereRadius + size;
-        var backCull: boolean = V1len < -sphereRadius;
-        return !(angleCull || frontCull || backCull);
-    }
+    //     var angleCull: boolean = distanceClosestPoint > sphereRadius;
+    //     var frontCull: boolean = V1len > sphereRadius + size;
+    //     var backCull: boolean = V1len < -sphereRadius;
+    //     return !(angleCull || frontCull || backCull);
+    // }
 
     private _placePointLightToClusters(lightIndex: number, lightBound: LightBound): void {
         var clusterDatas: ClusterData[][][] = this._clusterDatas;

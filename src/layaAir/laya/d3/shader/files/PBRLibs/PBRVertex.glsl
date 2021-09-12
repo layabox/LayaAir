@@ -33,12 +33,6 @@ void vertexForward()
 		position=a_Position;
 	#endif
 
-	#ifdef GPU_INSTANCE
-		gl_Position = a_MvpMatrix * position;
-	#else
-		gl_Position = u_MvpMatrix * position;
-	#endif
-
 	mat4 worldMat;
 	#ifdef GPU_INSTANCE
 		worldMat = a_WorldMat;
@@ -46,14 +40,18 @@ void vertexForward()
 		worldMat = u_WorldMat;
 	#endif
 
+	#ifdef GPU_INSTANCE
+		gl_Position = u_ViewProjection * worldMat * position;
+	#else
+		gl_Position = u_MvpMatrix * position;
+	#endif
+
+	
+
 	v_PositionWorld=(worldMat*position).xyz;
 
 	#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
-		#ifdef TILINGOFFSET
-			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
-		#else
-			v_Texcoord0=a_Texcoord0;
-		#endif
+		v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 	#endif
 
 	v_EyeVec =u_CameraPos-v_PositionWorld;//will normalize per-pixel

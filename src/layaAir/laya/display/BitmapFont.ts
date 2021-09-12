@@ -116,18 +116,18 @@ export class BitmapFont {
         var i: number = 0;
         for (i = 0; i < chars.length; i++) {
             var tAttribute = chars[i].attributes;
-            var tId: number = parseInt(tAttribute["id"].nodeValue);
+            var tId: number = parseInt((tAttribute as any)["id"].nodeValue);
 
-            var xOffset: number = parseInt(tAttribute["xoffset"].nodeValue) / tScale;
-            var yOffset: number = parseInt(tAttribute["yoffset"].nodeValue) / tScale;
+            var xOffset: number = parseInt((tAttribute as any)["xoffset"].nodeValue) / tScale;
+            var yOffset: number = parseInt((tAttribute as any)["yoffset"].nodeValue) / tScale;
 
-            var xAdvance: number = parseInt(tAttribute["xadvance"].nodeValue) / tScale;
+            var xAdvance: number = parseInt((tAttribute as any)["xadvance"].nodeValue) / tScale;
 
             var region: Rectangle = new Rectangle();
-            region.x = parseInt(tAttribute["x"].nodeValue);
-            region.y = parseInt(tAttribute["y"].nodeValue);
-            region.width = parseInt(tAttribute["width"].nodeValue);
-            region.height = parseInt(tAttribute["height"].nodeValue);
+            region.x = parseInt((tAttribute as any)["x"].nodeValue);
+            region.y = parseInt((tAttribute as any)["y"].nodeValue);
+            region.width = parseInt((tAttribute as any)["width"].nodeValue);
+            region.height = parseInt((tAttribute as any)["height"].nodeValue);
 
             var tTexture: Texture = Texture.create(texture, region.x, region.y, region.width, region.height, xOffset, yOffset);
             this._maxWidth = Math.max(this._maxWidth, xAdvance + this.letterSpacing);

@@ -75,6 +75,7 @@ export class Widget extends Component {
             } else if (!isNaN(this.left)) {
                 owner.x = Math.round(this.left + owner.pivotX * owner.scaleX);
                 if (!isNaN(this.right)) {
+                    if (!parent._width) return false;
                     //TODO:如果用width，会死循环
                     var temp: number = (parent._width - this.left - this.right) / (owner.scaleX || 0.01);
                     if (temp != owner.width) {
@@ -103,6 +104,7 @@ export class Widget extends Component {
             } else if (!isNaN(this.top)) {
                 owner.y = Math.round(this.top + owner.pivotY * owner.scaleY);
                 if (!isNaN(this.bottom)) {
+                    if (!parent._height) return false;
                     //TODO:
                     var temp: number = (parent._height - this.top - this.bottom) / (owner.scaleY || 0.01);
                     if (temp != owner.height) {

@@ -1,4 +1,3 @@
-import { BaseTexture } from "../../resource/BaseTexture"
 import { Texture2D } from "../../resource/Texture2D"
 import { TextureFormat } from "../../resource/TextureFormat";
 

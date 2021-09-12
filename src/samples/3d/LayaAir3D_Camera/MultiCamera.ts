@@ -1,8 +1,9 @@
 import { Laya } from "Laya";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
+import { Material } from "laya/d3/core/material/Material";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -52,8 +53,8 @@ export class MultiCamera {
 		//相机添加视角控制组件(脚本)
 		camera2.addComponent(CameraMoveScript);
 		//设置相机清除标志，使用天空
-		camera2.clearFlag = BaseCamera.CLEARFLAG_SKY;
-		BaseMaterial.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
+		camera2.clearFlag = CameraClearFlags.Sky;
+		Material.load("res/threeDimen/skyBox/skyBox2/SkyBox2.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
 			var skyRenderer: SkyRenderer = camera2.skyRenderer;
 			skyRenderer.mesh = SkyBox.instance;
 			skyRenderer.material = mat;

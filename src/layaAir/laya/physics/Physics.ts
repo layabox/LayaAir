@@ -16,7 +16,6 @@ import { MouseJoint } from "./joint/MouseJoint"
 import { PrismaticJoint } from "./joint/PrismaticJoint"
 import { PulleyJoint } from "./joint/PulleyJoint"
 import { RevoluteJoint } from "./joint/RevoluteJoint"
-import { RopeJoint } from "./joint/RopeJoint"
 import { WeldJoint } from "./joint/WeldJoint"
 import { WheelJoint } from "./joint/WheelJoint"
 import { ClassUtils } from "../utils/ClassUtils"
@@ -100,7 +99,11 @@ export class Physics extends EventDispatcher {
     }
 
     private _update(): void {
-        this.world.Step(1 / 60, this.velocityIterations, this.positionIterations, 3);
+        var delta = Laya.timer.delta / 1000;
+        if (delta > .033) { // 时间步太长，会导致错误穿透
+            delta = .033;
+        }
+        this.world.Step(delta, this.velocityIterations, this.positionIterations, 3);
         var len: number = this._eventList.length;
         if (len > 0) {
             for (var i: number = 0; i < len; i += 2) {

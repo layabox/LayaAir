@@ -262,14 +262,16 @@ export class Sprite extends Node {
      */
     hitTestPrior: boolean = false;
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc 
      * @override
-    */
+     */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._style && this._style.recover();
         this._cacheStyle && this._cacheStyle.recover();
         this._boundStyle && this._boundStyle.recover();
+        this._transform && this._transform.recover();
         this._style = null;
         this._cacheStyle = null;
         this._boundStyle = null;
@@ -618,11 +620,11 @@ export class Sprite extends Node {
             pList = this._graphics.getBoundPoints();
         } else {
             pList = Utils.clearArray(this._boundStyle.temBM);
-            if (this._texture) {
-                rec = Rectangle.TEMP;
-                rec.setTo(0, 0, this.width || this._texture.width, this.height || this._texture.height);
-                Utils.concatArray(pList, rec._getBoundPoints());
-            }
+        }
+        if (this._texture) {
+            rec = Rectangle.TEMP;
+            rec.setTo(0, 0, this.width || this._texture.width, this.height || this._texture.height);
+            Utils.concatArray(pList, rec._getBoundPoints());
         }
         //处理子对象区域
         var child: Sprite;

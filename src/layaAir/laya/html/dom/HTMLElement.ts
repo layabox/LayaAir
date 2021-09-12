@@ -336,7 +336,7 @@ export class HTMLElement {
                 this.height = parseFloat(value);
                 break;
             default:
-                this[name] = value;
+                (this as any)[name] = value;
         }
     }
 

@@ -1,7 +1,6 @@
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
-import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 import { BaseTexture } from "../../../resource/BaseTexture";
@@ -30,9 +29,11 @@ export class BlinnPhongMaterial extends Material {
 	/**@internal */
 	static SHADERDEFINE_SPECULARMAP: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
-	/**@internal */
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
+	/**@internal */
+	static SHADERDEFINE_ENABLETRANSMISSION:ShaderDefine;
+	/**@internal */
+	static SHADERDEFINE_THICKNESSMAP:ShaderDefine;
 	/**@internal */
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_DiffuseTexture");
 	/**@internal */
@@ -48,17 +49,17 @@ export class BlinnPhongMaterial extends Material {
 	/**@internal */
 	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
 	/**@internal */
-	static CULL: number = Shader3D.propertyNameToID("s_Cull");
+	static TRANSMISSIONRATE:number = Shader3D.propertyNameToID("u_TransmissionRate");
 	/**@internal */
-	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
+	static IBACKDIFFUSE:number = Shader3D.propertyNameToID("u_BackDiffuse");
 	/**@internal */
-	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
+	static IBACKSCALE:number = Shader3D.propertyNameToID("u_BackScale");
 	/**@internal */
-	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
+	static THINKNESSTEXTURE:number = Shader3D.propertyNameToID("u_ThinknessTexture");
 	/**@internal */
-	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
+	static TRANSMISSIONCOLOR:number = Shader3D.propertyNameToID("u_TransmissionColor");
 	/**@internal */
-	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
+	static AlbedoIntensity: number = Shader3D.propertyNameToID("u_AlbedoIntensity");
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: BlinnPhongMaterial;
@@ -70,61 +71,61 @@ export class BlinnPhongMaterial extends Material {
 		BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP = Shader3D.getDefineByName("DIFFUSEMAP");
 		BlinnPhongMaterial.SHADERDEFINE_NORMALMAP = Shader3D.getDefineByName("NORMALMAP");
 		BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP = Shader3D.getDefineByName("SPECULARMAP");
-		BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
+		BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION = Shader3D.getDefineByName("ENABLETRANSMISSION");
+		BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP = Shader3D.getDefineByName("THICKNESSMAP");
 	}
-
-	private _albedoColor: Vector4;
-	private _albedoIntensity: number;
-	private _enableLighting: boolean;
-	private _enableVertexColor: boolean = false;
 
 	/**
 	 * @internal
 	 */
 	get _ColorR(): number {
-		return this._albedoColor.x;
+		return this.albedoColor.x;
 	}
 
 	set _ColorR(value: number) {
-		this._albedoColor.x = value;
-		this.albedoColor = this._albedoColor;
+		let albedoColor = this.albedoColor;
+		albedoColor.x = value;
+		this.albedoColor = albedoColor;
 	}
 
 	/**
 	 * @internal
 	 */
 	get _ColorG(): number {
-		return this._albedoColor.y;
+		return this.albedoColor.y;
 	}
 
 	set _ColorG(value: number) {
-		this._albedoColor.y = value;
-		this.albedoColor = this._albedoColor;
+		let albedoColor = this.albedoColor;
+		albedoColor.y = value;
+		this.albedoColor = albedoColor;
 	}
 
 	/**
 	 * @internal
 	 */
 	get _ColorB(): number {
-		return this._albedoColor.z;
+		return this.albedoColor.z;
 	}
 
 	set _ColorB(value: number) {
-		this._albedoColor.z = value;
-		this.albedoColor = this._albedoColor;
+		let albedoColor = this.albedoColor;
+		albedoColor.z = value;
+		this.albedoColor = albedoColor;
 	}
 
 	/**
 	 * @internal
 	 */
 	get _ColorA(): number {
-		return this._albedoColor.w;
+		return this.albedoColor.w;
 	}
 
 	set _ColorA(value: number) {
-		this._albedoColor.w = value;
-		this.albedoColor = this._albedoColor;
+		let albedoColor = this.albedoColor;
+		albedoColor.w = value;
+		this.albedoColor = albedoColor;
 	}
 
 	/**
@@ -191,22 +192,6 @@ export class BlinnPhongMaterial extends Material {
 
 	set _SpecColor(value: Vector4) {
 		this.specularColor = value;
-	}
-
-	/**
-	 * @internal
-	 */
-	get _AlbedoIntensity(): number {
-		return this._albedoIntensity;
-	}
-
-	set _AlbedoIntensity(value: number) {
-		if (this._albedoIntensity !== value) {
-			var finalAlbedo: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.ALBEDOCOLOR));
-			Vector4.scale(this._albedoColor, value, finalAlbedo);
-			this._albedoIntensity = value;
-			this._shaderValues.setVector(BlinnPhongMaterial.ALBEDOCOLOR, finalAlbedo);//修改值后必须调用此接口,否则NATIVE不生效
-		}
 	}
 
 	/**
@@ -336,11 +321,10 @@ export class BlinnPhongMaterial extends Material {
 	 * 是否支持顶点色。
 	 */
 	get enableVertexColor(): boolean {
-		return this._enableVertexColor;
+		return this._shaderValues.hasDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 	}
 
 	set enableVertexColor(value: boolean) {
-		this._enableVertexColor = value;
 		if (value)
 			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 		else
@@ -400,14 +384,11 @@ export class BlinnPhongMaterial extends Material {
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-				this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET);
-			else
-				this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET);
-		} else {
-			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.setVector(BlinnPhongMaterial.TILINGOFFSET, value);
 		}
-		this._shaderValues.setVector(BlinnPhongMaterial.TILINGOFFSET, value);
+		else {
+			this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
 	}
 
 	/**
@@ -458,25 +439,22 @@ export class BlinnPhongMaterial extends Material {
 	 * 反照率颜色。
 	 */
 	get albedoColor(): Vector4 {
-		return this._albedoColor;
+		return this._shaderValues.getVector(BlinnPhongMaterial.ALBEDOCOLOR);
 	}
 
 	set albedoColor(value: Vector4) {
-		var finalAlbedo: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.ALBEDOCOLOR));
-		Vector4.scale(value, this._albedoIntensity, finalAlbedo);
-		this._albedoColor = value;
-		this._shaderValues.setVector(BlinnPhongMaterial.ALBEDOCOLOR, finalAlbedo);//修改值后必须调用此接口,否则NATIVE不生效
+		this._shaderValues.setVector(BlinnPhongMaterial.ALBEDOCOLOR, value);//修改值后必须调用此接口,否则NATIVE不生效
 	}
 
 	/**
 	 * 反照率强度。
 	 */
 	get albedoIntensity(): number {
-		return this._albedoIntensity;
+		return this._shaderValues.getNumber(BlinnPhongMaterial.AlbedoIntensity);
 	}
 
 	set albedoIntensity(value: number) {
-		this._AlbedoIntensity = value;
+		this._shaderValues.setNumber(BlinnPhongMaterial.AlbedoIntensity, value);
 	}
 
 	/**
@@ -590,75 +568,74 @@ export class BlinnPhongMaterial extends Material {
 
 		this._shaderValues.setTexture(BlinnPhongMaterial.SPECULARTEXTURE, value);
 	}
-
 	/**
-	 * 是否写入深度。
+	 * 是否支持顶点色。
 	 */
-	get depthWrite(): boolean {
-		return this._shaderValues.getBool(BlinnPhongMaterial.DEPTH_WRITE);
+	get enableTransmission(): boolean {
+		return this._shaderValues.hasDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
 	}
 
-	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(BlinnPhongMaterial.DEPTH_WRITE, value);
-	}
-
-	/**
-	 * 剔除方式。
-	 */
-	get cull(): number {
-		return this._shaderValues.getInt(BlinnPhongMaterial.CULL);
-	}
-
-	set cull(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.CULL, value);
-	}
-
-
-	/**
-	 * 混合方式。
-	 */
-	get blend(): number {
-		return this._shaderValues.getInt(BlinnPhongMaterial.BLEND);
-	}
-
-	set blend(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.BLEND, value);
-	}
-
-
-	/**
-	 * 混合源。
-	 */
-	get blendSrc(): number {
-		return this._shaderValues.getInt(BlinnPhongMaterial.BLEND_SRC);
-	}
-
-	set blendSrc(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.BLEND_SRC, value);
+	set enableTransmission(value: boolean) {
+		if (value)
+			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
+		else
+			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
 	}
 
 	/**
-	 * 混合目标。
+	 * 透光率，会影响漫反射以及透光强度
 	 */
-	get blendDst(): number {
-		return this._shaderValues.getInt(BlinnPhongMaterial.BLEND_DST);
+	get transmissionRate():number{
+		return this._shaderValues.getNumber(BlinnPhongMaterial.TRANSMISSIONRATE);
 	}
-
-	set blendDst(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.BLEND_DST, value);
+	
+	set transmissionRata(value:number){
+		this._shaderValues.setNumber(BlinnPhongMaterial.TRANSMISSIONRATE,value);
 	}
 
 	/**
-	 * 深度测试方式。
+	 * 透射影响范围指数
 	 */
-	get depthTest(): number {
-		return this._shaderValues.getInt(BlinnPhongMaterial.DEPTH_TEST);
+	get backDiffuse():number{
+		return this._shaderValues.getNumber(BlinnPhongMaterial.IBACKDIFFUSE);
+	}
+	set backDiffuse(value:number){
+		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKDIFFUSE,Math.max(value,1.0));
+	}
+	/**
+	 * 透射光强度
+	 */
+	get backScale():number{
+		return this._shaderValues.getNumber(BlinnPhongMaterial.IBACKSCALE);
+	}
+	set backScale(value:number){
+		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKSCALE,value);
 	}
 
-	set depthTest(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.DEPTH_TEST, value);
+	/**
+	 * 厚度贴图，会影响透视光，越厚，透射光越弱
+	 */
+	get thinknessTexture():BaseTexture{
+		return this._shaderValues.getTexture(BlinnPhongMaterial.THINKNESSTEXTURE);
+	}
+	set thinknessTexture(value:BaseTexture){
+		if (value)
+			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP);
+		else
+			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP);
+
+		this._shaderValues.setTexture(BlinnPhongMaterial.THINKNESSTEXTURE, value);
 	}
 
+	/**
+	 * 透光颜色。模拟透光物质内部颜色吸收率
+	 */
+	get transmissionColor():Vector4{
+		return this._shaderValues.getVector(BlinnPhongMaterial.TRANSMISSIONCOLOR);
+	}
+	set transmissionColor(value:Vector4){
+		this._shaderValues.setVector(BlinnPhongMaterial.TRANSMISSIONCOLOR,value);
+	}
 
 	/**
 	 * 创建一个 <code>BlinnPhongMaterial</code> 实例。
@@ -666,15 +643,14 @@ export class BlinnPhongMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("BLINNPHONG");
-		this._albedoIntensity = 1.0;
-		this._albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
+		this.albedoIntensity = 1.0;
 		var sv: ShaderData = this._shaderValues;
 		sv.setVector(BlinnPhongMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		sv.setVector(BlinnPhongMaterial.MATERIALSPECULAR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		sv.setNumber(BlinnPhongMaterial.SHININESS, 0.078125);
 		sv.setNumber(Material.ALPHATESTVALUE, 0.5);
 		sv.setVector(BlinnPhongMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
-		this._enableLighting = true;
+		this.albedoIntensity = 1.0;
 		this.renderMode = BlinnPhongMaterial.RENDERMODE_OPAQUE;
 	}
 
@@ -696,10 +672,9 @@ export class BlinnPhongMaterial extends Material {
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
 		var destMaterial: BlinnPhongMaterial = (<BlinnPhongMaterial>destObject);
-		destMaterial._enableLighting = this._enableLighting;
-		destMaterial._albedoIntensity = this._albedoIntensity;
-		destMaterial._enableVertexColor = this._enableVertexColor;
-		this._albedoColor.cloneTo(destMaterial._albedoColor);
+		destMaterial.albedoIntensity = this.albedoIntensity;
+		destMaterial.enableVertexColor = this.enableVertexColor;
+		this.albedoColor.cloneTo(destMaterial.albedoColor);
 	}
 }
 

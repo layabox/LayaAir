@@ -25,6 +25,7 @@ export class Matrix4x4 implements IClone {
 	/**@internal */
 	private static _tempQuaternion: Quaternion = new Quaternion();
 
+	
 	/**默认矩阵,禁止修改*/
 	static DEFAULT: Matrix4x4 = new Matrix4x4();
 	/**默认矩阵,禁止修改*/
@@ -703,7 +704,7 @@ export class Matrix4x4 implements IClone {
 	 * @param	cameraForward  相机前向量
 	 * @param	mat            变换矩阵
 	 */
-	static billboard(objectPosition: Vector3, cameraPosition: Vector3, cameraRight: Vector3, cameraUp: Vector3, cameraForward: Vector3, mat: Matrix4x4): void {
+	static billboard(objectPosition: Vector3, cameraPosition: Vector3, cameraUp: Vector3, cameraForward: Vector3, mat: Matrix4x4): void {
 
 		Vector3.subtract(objectPosition, cameraPosition, Matrix4x4._tempVector0);
 
@@ -749,6 +750,21 @@ export class Matrix4x4 implements IClone {
 		var e: Float32Array = this.elements;
 		e[1] = e[2] = e[3] = e[4] = e[6] = e[7] = e[8] = e[9] = e[11] = e[12] = e[13] = e[14] = 0;
 		e[0] = e[5] = e[10] = e[15] = 1;
+	}
+
+	/**判断是否是单位矩阵 */
+	isIdentity():boolean{
+		let delty = function(num0:number,num1:number){
+			return Math.abs(num0-num1)<1e-7;
+		}
+		let e = this.elements;
+		let defined = Matrix4x4.DEFAULT.elements;
+		for(let i =0,n=e.length;i<n;i++){
+			if(!delty(e[i],defined[i]))
+				return false;
+		}
+		return true;
+
 	}
 
 	/**
@@ -845,3 +861,5 @@ export class Matrix4x4 implements IClone {
 
 }
 
+//@ts-ignore
+window.Matrix4x4 = Matrix4x4;

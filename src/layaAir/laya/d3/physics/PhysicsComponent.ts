@@ -396,7 +396,7 @@ export class PhysicsComponent extends Component {
 	 */
 	_onEnable(): void {
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
-		ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 1e30);
+		ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
 		if (this._colliderShape) {
 			this._derivePhysicsTransformation(true);
 			this._addToSimulation();

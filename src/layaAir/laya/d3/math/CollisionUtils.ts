@@ -391,10 +391,8 @@ export class CollisionUtils {
 		m22 = ray1deY;
 		m23 = ray1deZ;
 
-		var dett: number = m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 - m13 * m22 * m31;
 
 		var s: number = dets / denominator;
-		var t: number = dett / denominator;
 
 		Vector3.scale(ray1d, s, CollisionUtils._tempV30);
 		Vector3.scale(ray2d, s, CollisionUtils._tempV31);

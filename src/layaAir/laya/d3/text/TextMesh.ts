@@ -1,15 +1,9 @@
-import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
-	import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
-	import { Color } from "../math/Color"
+import { Color } from "../math/Color"
 	
 	/**
 	 * <code>TextMesh</code> 类用于创建文本网格。
 	 */
 	export class TextMesh {
-		private static _indexBuffer:IndexBuffer3D;
-		
-		private _vertices:Float32Array;
-		private _vertexBuffer:VertexBuffer3D;
 		private _text:string;
 		private _fontSize:number;
 		private _color:Color;
@@ -70,33 +64,18 @@ import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 		}
 		
 	
-		private _createVertexBuffer(charCount:number):void {
-			//var verDec:VertexDeclaration = vertexbu.vertexDeclaration;
-			//var newVertices:Float32Array = new Float32Array(verticesCount * FLOATCOUNTPERVERTEX);
-			//var newVertecBuffer:VertexBuffer3D = new VertexBuffer3D(verDec.vertexStride * verticesCount, WebGLContext.DYNAMIC_DRAW, false);
-			//var bufferState:BufferState = new BufferState();
-			//newVertecBuffer.vertexDeclaration = verDec;
-			//
-			//bufferState.bind();
-			//bufferState.applyVertexBuffer(newVertecBuffer);
-			//bufferState.applyIndexBuffer(_indexBuffer);
-			//bufferState.unBind();
-			//
-			//_vertices.push(newVertices);
-			//_vertexbuffers.push(newVertecBuffer);
-			//_vertexUpdateFlag.push([2147483647/*int.MAX_VALUE*/, -2147483647/*int.MIN_VALUE*/]);//0:startUpdate,1:endUpdate
-			//_bufferStates.push(bufferState);
-		}
+		// private _createVertexBuffer(charCount:number):void {
+		// }
 		
 	
-		private _resizeVertexBuffer(charCount:number):void {
+		// private _resizeVertexBuffer(charCount:number):void {
 		
-		}
+		// }
 		
 	
-		private _addChar():void {
-			//_vertexBuffer
-		}
+		// private _addChar():void {
+		// 	//_vertexBuffer
+		// }
 	
 	}
 

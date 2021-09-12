@@ -50,7 +50,7 @@ export class LoadModelV05 {
 			LoadModelV05._readData.pos = LoadModelV05._BLOCK.blockStarts[i];
 			var index: number = LoadModelV05._readData.getUint16();
 			var blockName: string = LoadModelV05._strings[index];
-			var fn: Function = LoadModelV05["READ_" + blockName];
+			var fn: Function = (LoadModelV05 as any)["READ_" + blockName];
 			if (fn == null)
 				throw new Error("model file err,no this function:" + index + " " + blockName);
 			else
@@ -111,7 +111,7 @@ export class LoadModelV05 {
 	 */
 	private static READ_MESH(): boolean {
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		var i: number, n: number;
+		var i: number;
 		var memorySize: number = 0;
 		var name: string = LoadModelV05._readString();
 		var reader: Byte = LoadModelV05._readData;
@@ -274,7 +274,6 @@ export class LoadModelV05 {
 		var bindPoseDataLength: number = reader.getUint32();
 		var bindPoseDatas: Float32Array = new Float32Array(arrayBuffer.slice(offset + bindPoseDataStart, offset + bindPoseDataStart + bindPoseDataLength));
 		var bindPoseFloatCount: number = bindPoseDatas.length;
-		var bindPoseCount: number = bindPoseFloatCount / 16;
 		var bindPoseBuffer: ArrayBuffer = mesh._inverseBindPosesBuffer = new ArrayBuffer(bindPoseFloatCount * 4);//TODO:[NATIVE]临时
 		mesh._inverseBindPoses = [];
 		if(bindPoseFloatCount!=0) 

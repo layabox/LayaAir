@@ -4,7 +4,7 @@ import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
 
 /**
- * <code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
+ * <code>CompoundColliderShape</code> 类用于创建组合碰撞器。
  */
 export class CompoundColliderShape extends ColliderShape {
 	/**@internal */

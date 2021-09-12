@@ -72,15 +72,25 @@ export class Transform3D extends EventDispatcher {
 	private _worldMatrix: Matrix4x4 = new Matrix4x4();
 
 	/** @internal */
-	private _children: Transform3D[] = null;
+	private _children: Transform3D[]|null = null;
+	/**@internal 如果为true 表示自身相对于父节点并无任何改变，将通过这个参数忽略计算*/
+	private _isDefaultMatrix:boolean = false;
 
 	/** @internal */
-	_parent: Transform3D = null;
+	_parent: Transform3D|null = null;
 	/**@internal */
-	_dummy: AnimationTransform3D = null;
+	_dummy: AnimationTransform3D|null = null;
 	/**@internal */
 	_transformFlag: number = 0;
 
+
+	/**@internal */
+	get isDefaultMatrix():boolean{
+		if(this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)){
+			let localMat = this.localMatrix;
+		}
+		return this._isDefaultMatrix;
+	}
 	/**
 	 * @internal
 	 */
@@ -165,8 +175,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationX(x: number) {
-		this._localRotation.x = x;
-		this.localRotation = this._localRotation;
+		let rot = this.localRotation;
+		rot.x = x;
+		this.localRotation = rot;
 	}
 
 	/**
@@ -177,8 +188,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationY(y: number) {
-		this._localRotation.y = y;
-		this.localRotation = this._localRotation;
+		let rot = this.localRotation;
+		rot.y = y;
+		this.localRotation = rot;
 	}
 
 	/**
@@ -189,8 +201,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationZ(z: number) {
-		this._localRotation.z = z;
-		this.localRotation = this._localRotation;
+		let rot = this.localRotation;
+		rot.z = z;
+		this.localRotation = rot;
 	}
 
 	/**
@@ -201,8 +214,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationW(w: number) {
-		this._localRotation.w = w;
-		this.localRotation = this._localRotation;
+		let rot = this.localRotation;
+		rot.w = w;
+		this.localRotation = rot;
 	}
 
 	/**
@@ -284,8 +298,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationEulerX(value: number) {
-		this._localRotationEuler.x = value;
-		this.localRotationEuler = this._localRotationEuler;
+		let rot = this.localRotationEuler;
+		rot.x = value;
+		this.localRotationEuler = rot;
 	}
 
 	/**
@@ -296,8 +311,9 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationEulerY(value: number) {
-		this._localRotationEuler.y = value;
-		this.localRotationEuler = this._localRotationEuler;
+		let rot = this.localRotationEuler;
+		rot.y = value;
+		this.localRotationEuler = rot;
 	}
 
 	/**
@@ -308,9 +324,10 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	set localRotationEulerZ(value: number) {
-		this._localRotationEuler.z = value;
-		this.localRotationEuler = this._localRotationEuler;
-	}
+		let rot = this.localRotationEuler;
+		rot.z = value;
+		this.localRotationEuler = rot;
+	}                                                                                                      
 
 	/**
 	 * 局部空间欧拉角。
@@ -342,6 +359,7 @@ export class Transform3D extends EventDispatcher {
 	get localMatrix(): Matrix4x4 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)) {
 			Matrix4x4.createAffineTransformation(this._localPosition, this.localRotation, this._localScale, this._localMatrix);
+			this._isDefaultMatrix = this._localMatrix.isIdentity();
 			this._setTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX, false);
 		}
 		return this._localMatrix;
@@ -350,6 +368,7 @@ export class Transform3D extends EventDispatcher {
 	set localMatrix(value: Matrix4x4) {
 		if (this._localMatrix !== value)
 			value.cloneTo(this._localMatrix);
+		this._isDefaultMatrix = this._localMatrix.isIdentity();
 		this._localMatrix.decomposeTransRotScale(this._localPosition, this._localRotation, this._localScale);
 		this._setTransformFlag(Transform3D.TRANSFORM_LOCALEULER, true);
 		this._setTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX, false);
@@ -450,8 +469,15 @@ export class Transform3D extends EventDispatcher {
 	 */
 	get worldMatrix(): Matrix4x4 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX)) {
-			if (this._parent != null)
-				Matrix4x4.multiply(this._parent.worldMatrix, this.localMatrix, this._worldMatrix);
+			if (this._parent != null){
+				//这里将剔除单位矩阵的计算
+				let effectiveTrans = this._parent;
+				
+				while(effectiveTrans._parent && effectiveTrans.isDefaultMatrix){
+					effectiveTrans = effectiveTrans._parent;
+				}
+				Matrix4x4.multiply(effectiveTrans.worldMatrix, this.localMatrix, this._worldMatrix);
+			}
 			else
 				this.localMatrix.cloneTo(this._worldMatrix);
 
@@ -524,12 +550,12 @@ export class Transform3D extends EventDispatcher {
 	_setParent(value: Transform3D): void {
 		if (this._parent !== value) {
 			if (this._parent) {
-				var parentChilds: Transform3D[] = this._parent._children;
+				var parentChilds: Transform3D[] = this._parent._children!;
 				var index: number = parentChilds.indexOf(this);
 				parentChilds.splice(index, 1);
 			}
 			if (value) {
-				value._children.push(this);
+				value._children!.push(this);
 				(value) && (this._onWorldTransform());
 			}
 			this._parent = value;
@@ -543,9 +569,9 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionRotationTransform();
 		}
+		for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+			this._children![i]._onWorldPositionRotationTransform();
 	}
 
 	/**
@@ -555,9 +581,9 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionScaleTransform();
 		}
+		for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+			this._children![i]._onWorldPositionScaleTransform();
 	}
 
 	/**
@@ -567,9 +593,9 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionTransform();
 		}
+		for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+			this._children![i]._onWorldPositionTransform();
 	}
 
 	/**
@@ -579,9 +605,9 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionRotationTransform();//父节点旋转发生变化，子节点的世界位置和旋转都需要更新
 		}
+		for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+			this._children![i]._onWorldPositionRotationTransform();//父节点旋转发生变化，子节点的世界位置和旋转都需要更新
 	}
 
 	/**
@@ -591,9 +617,9 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldPositionScaleTransform();//父节点缩放发生变化，子节点的世界位置和缩放都需要更新
 		}
+		for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+			this._children![i]._onWorldPositionScaleTransform();//父节点缩放发生变化，子节点的世界位置和缩放都需要更新
 	}
 
 	/**
@@ -603,9 +629,9 @@ export class Transform3D extends EventDispatcher {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
-			for (var i: number = 0, n: number = this._children.length; i < n; i++)
-				this._children[i]._onWorldTransform();
 		}
+		for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+			this._children![i]._onWorldTransform();
 	}
 
 	/**
@@ -775,6 +801,94 @@ export class Transform3D extends EventDispatcher {
 		this.setWorldLossyScale(value);
 	}
 
+	localToGlobal(value:Vector3,out:Vector3):void
+	{
+		Vector3.transformV3ToV3(value,this.worldMatrix,out);
+	}
+
+	/**
+	 *转化成局部坐标
+		* @param pos
+		* @param out
+		* 
+		*/
+	globalToLocal(pos:Vector3,out:Vector3):void
+	{
+		this.worldMatrix.invert(Transform3D._tempMatrix0);
+		Vector3.transformV3ToV3(pos,Transform3D._tempMatrix0,out);
+	}
+
+	/**
+	 *转化成局部向量 
+	 * @param pos
+	 * @param out
+	 * 
+	 */		
+	toLocalNormal(pos:Vector3,out:Vector3):void
+	{
+		this.worldMatrix.invert(Transform3D._tempMatrix0);
+		Vector3.TransformNormal(pos,Transform3D._tempMatrix0,out);
+	}
+
+	toDir(forward:Vector3, dir:Vector3){
+		//TODO 判断一样么
+		var wmat:Matrix4x4 = this.worldMatrix;
+		//var newForward:Vector3 = new Vector3();
+		//var newRot:Quaternion = new Quaternion();
+
+		//Vector3.TransformNormal(forward,wmat,newForward);
+		//Vector3.normalize(newForward,newForward);
+		//rotationTo(newRot,newForward,dir);
+		this.rotationTo(this.rotation,forward,dir);
+		//Quaternion.multiply(rotation,newRot,rotation)
+		//DEBUG
+		//Quaternion.createFromAxisAngle(new Vector3(0,1,0),75*Math.PI/180,newRot)
+		//DEBUG
+		this.rotation = this.rotation;
+	}
+
+	static  tmpVec3:Vector3 = new Vector3();
+	/**
+	 * 这是一个 glmatrix中的函数
+	 * a,b都是规格化以后的向量
+	 * Sets a quaternion to represent the shortest rotation from one
+	 * vector to another.
+	 *
+	 * Both vectors are assumed to be unit length.
+	 *
+	 * @param {quat} out the receiving quaternion.
+	 * @param {vec3} a the initial vector
+	 * @param {vec3} b the destination vector
+	 * @returns {quat} out
+	 */
+	rotationTo(out:Quaternion, a:Vector3, b:Vector3):boolean {
+		var dot:number = Vector3.dot(a, b);
+		Vector3._Up
+		if (dot < -0.999999) {// 180度了，可以选择多个轴旋转
+			Vector3.cross(Vector3._UnitX, a, Transform3D.tmpVec3);
+			if (Vector3.scalarLength( Transform3D.tmpVec3) < 0.000001)
+				Vector3.cross(Vector3._UnitY, a, Transform3D.tmpVec3);
+			Vector3.normalize(Transform3D.tmpVec3, Transform3D.tmpVec3);
+			Quaternion.createFromAxisAngle(Transform3D.tmpVec3, Math.PI, out);
+			return true
+		} else if (dot > 0.999999) {// 没有变化
+			out.x = 0;
+			out.y = 0;
+			out.z = 0;
+			out.w = 1;
+			return false;
+		} else {
+			// 下面是求这个四元数，这是一个简化求法，根据cos(a/2)=√((1+dot)/2), cos(a/2)sin(a/2)=sin(a)/2 就能推导出来
+			Vector3.cross(a, b, Transform3D.tmpVec3);
+			out.x = Transform3D.tmpVec3.x;
+			out.y = Transform3D.tmpVec3.y;
+			out.z = Transform3D.tmpVec3.z;
+			out.w = 1 + dot;
+			out.normalize(out);
+			return true;
+		}
+		return false;
+	}
 }
 
 

@@ -5,9 +5,6 @@ import { BaseRender } from "../render/BaseRender"
 import { RenderContext3D } from "../render/RenderContext3D"
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Matrix4x4 } from "../../math/Matrix4x4"
-import { Vector3 } from "../../math/Vector3"
-import { Render } from "../../../renders/Render"
-import { FrustumCulling } from "../../graphics/FrustumCulling"
 
 /**
  * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
@@ -31,7 +28,6 @@ export class TrailRenderer extends BaseRender {
 	 * @override
 	 */
 	_needRender(boundFrustum: BoundFrustum,context: RenderContext3D): boolean {
-		(<TrailSprite3D>this._owner).trailFilter._update(context);
 		if (boundFrustum)
 			return boundFrustum.intersects(this.bounds._getBoundBox());
 		else
@@ -49,6 +45,7 @@ export class TrailRenderer extends BaseRender {
 	 * @override
 	 */
 	_renderUpdate(state: RenderContext3D, transform: Transform3D): void {
+		(<TrailSprite3D>this._owner).trailFilter._update(state);
 		super._renderUpdate(state, transform);
 	}
 	protected _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();

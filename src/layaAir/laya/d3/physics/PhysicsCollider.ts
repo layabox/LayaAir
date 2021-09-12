@@ -1,9 +1,8 @@
 import { Sprite3D } from "../core/Sprite3D";
-import { Transform3D } from "../core/Transform3D";
+import { Physics3D } from "../Physics3D";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { PhysicsComponent } from "./PhysicsComponent";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
-import { Physics3D } from "./Physics3D";
 
 /**
  * <code>PhysicsCollider</code> 类用于创建物理碰撞器。

@@ -134,6 +134,8 @@ export class AudioSoundChannel extends SoundChannel {
     pause(): void {
         this.isStopped = true;
         ILaya.SoundManager.removeChannel(this);
+        if (!this._audio)
+            return;
         if ("pause" in this._audio)
             this._audio.pause();
         if (ILaya.SoundManager.autoReleaseSound)

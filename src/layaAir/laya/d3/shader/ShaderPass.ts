@@ -27,9 +27,9 @@ export class ShaderPass extends ShaderCompile {
 	/** @internal */
 	private _owner: SubShader;
 	/** @internal */
-	_stateMap: object;
+	_stateMap:  {[key:string]:number} ;
 	/** @internal */
-	private _cacheSharders: object = {};
+	private _cacheSharders: {[key:number]:{[key:number]:{[key:number]:ShaderInstance}}} = {};
 	/** @internal */
 	private _cacheShaderHierarchy: number = 1;
 	/** @internal */
@@ -49,7 +49,7 @@ export class ShaderPass extends ShaderCompile {
 		return this._renderState;
 	}
 
-	constructor(owner: SubShader, vs: string, ps: string, stateMap: object) {
+	constructor(owner: SubShader, vs: string, ps: string, stateMap:  {[key:string]:number} ) {
 		super(vs, ps, null);
 		this._owner = owner;
 		this._stateMap = stateMap;
@@ -193,11 +193,11 @@ export class ShaderPass extends ShaderCompile {
 	/**
 	 * @internal
 	 */
-	_resizeCacheShaderMap(cacheMap: object, hierarchy: number, resizeLength: number): void {
+	_resizeCacheShaderMap(cacheMap:any, hierarchy: number, resizeLength: number): void {
 		var end: number = this._cacheShaderHierarchy - 1;
 		if (hierarchy == end) {
 			for (var k in cacheMap) {
-				var shader: ShaderInstance = cacheMap[k];
+				var shader = cacheMap[k];
 				for (var i: number = 0, n: number = resizeLength - end; i < n; i++) {
 					if (i == n - 1)
 						cacheMap[0] = shader;//0替代(i == 0 ? k : 0),只扩不缩
@@ -205,11 +205,11 @@ export class ShaderPass extends ShaderCompile {
 						cacheMap = cacheMap[i == 0 ? k : 0] = {};
 				}
 			}
-			this._cacheShaderHierarchy = resizeLength;
 		}
 		else {
+			++hierarchy;
 			for (var k in cacheMap)
-				this._resizeCacheShaderMap(cacheMap[k], ++hierarchy, resizeLength);
+				this._resizeCacheShaderMap(cacheMap[k], hierarchy, resizeLength);
 		}
 	}
 
@@ -248,7 +248,7 @@ export class ShaderPass extends ShaderCompile {
 		}
 		compileDefine.addDefineDatas(Scene3D._configDefineValues);
 
-		var cacheShaders: object = this._cacheSharders;
+		var cacheShaders:any = this._cacheSharders;
 		var maskLength: number = compileDefine._length;
 		if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
 			this._resizeCacheShaderMap(cacheShaders, 0, maskLength);
@@ -260,7 +260,7 @@ export class ShaderPass extends ShaderCompile {
 		var maxEndIndex: number = this._cacheShaderHierarchy - 1;
 		for (var i: number = 0; i < maxEndIndex; i++) {
 			var subMask: number = endIndex < i ? 0 : mask[i];
-			var subCacheShaders: object = cacheShaders[subMask];
+			var subCacheShaders = cacheShaders[subMask];
 			(subCacheShaders) || (cacheShaders[subMask] = subCacheShaders = {});
 			cacheShaders = subCacheShaders;
 		}
@@ -286,6 +286,7 @@ export class ShaderPass extends ShaderCompile {
 				`#version 300 es\n
 				#define attribute in
 				#define varying out
+				#define textureCube texture
 				#define texture2D texture\n`;
 			fragmentHead =
 				`#version 300 es\n
@@ -345,9 +346,9 @@ export class ShaderPass extends ShaderCompile {
 			psVersion = ps[0] + '\n';
 			ps.shift();
 		}
-
-		var attibuteMap = Shader3D.getAttributeMapByDefine(defineString,this._owner._attributeMap);
-		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'),attibuteMap , this._owner._uniformMap || this._owner._owner._uniformMap, this);
+		//TODO:动态切换Attribute
+		//var attibuteMap = Shader3D.getAttributeMapByDefine(defineString,this._owner._attributeMap);
+		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'),this._owner._attributeMap , this._owner._uniformMap || this._owner._owner._uniformMap, this);
 
 		cacheShaders[cacheKey] = shader;
 

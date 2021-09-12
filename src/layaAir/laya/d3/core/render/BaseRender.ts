@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { RenderElement } from "./RenderElement";
 import { RenderContext3D } from "./RenderContext3D";
 import { Bounds } from "../Bounds"
@@ -8,20 +9,18 @@ import { Material } from "../material/Material"
 import { BoundsOctreeNode } from "../scene/BoundsOctreeNode"
 import { IOctreeObject } from "../scene/IOctreeObject"
 import { Scene3D } from "../scene/Scene3D"
-import { FrustumCulling } from "../../graphics/FrustumCulling"
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
 import { ShaderData } from "../../shader/ShaderData"
 import { Event } from "../../../events/Event"
 import { EventDispatcher } from "../../../events/EventDispatcher"
-import { Render } from "../../../renders/Render"
 import { ISingletonElement } from "../../../resource/ISingletonElement"
-import { Texture2D } from "../../../resource/Texture2D"
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
 import { Stat } from "../../../utils/Stat";
 import { Lightmap } from "../scene/Lightmap";
 import { ReflectionProbe, ReflectionProbeMode } from "../reflectionProbe/ReflectionProbe";
+import { IRenderNodeObject } from "../scene/SceneRenderManager/IRenderNodeObject";
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -72,20 +71,20 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_scene: Scene3D;
 	/** @internal */
 	_owner: RenderableSprite3D;
-	/** @internal */
+
 	_renderElements: RenderElement[];
 	/** @internal */
 	_distanceForSort: number;
 	/** @internal */
 	_renderMark: number = -1;//TODO:初始值为-1强制更新,否则会造成第一帧动画不更新等,待优化
 	/** @internal */
-	_octreeNode: BoundsOctreeNode;
+	_octreeNode: IRenderNodeObject;
 	/** @internal */
 	_indexInOctreeMotionList: number = -1;
 	/** @internal 是否需要反射探针*/
 	_probReflection:ReflectionProbe;
 	/** @internal 材质是否支持反射探针*/
-	_surportReflectionProbe:Boolean;
+	_surportReflectionProbe:boolean;
 	/** @internal 设置是反射探针模式 off  simple */
 	_reflectionMode:number = ReflectionProbeMode.simple;
 
@@ -335,7 +334,11 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 
 	 */
 	_setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
+		if(!value){
+				(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
+		}
 		this._octreeNode = value;
+		
 	}
 
 	/**
@@ -391,7 +394,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_addReflectionProbeUpdate(){
 		//TODO目前暂时不支持混合以及与天空盒模式，只支持simple和off
 		if(this._surportReflectionProbe&&this._reflectionMode==1){
-			this._scene._reflectionProbeManager.addMotionObject(this);
+			this._scene && this._scene._reflectionProbeManager.addMotionObject(this);
 		}
 	}
 
@@ -428,7 +431,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 			flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
 			if (flag) {
 				if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
-					this._octreeNode._octree.addMotionObject(this);
+					this._octreeNode.getManagerNode().addMotionObject(this);
 			}
 		}
 		this._addReflectionProbeUpdate();
@@ -466,12 +469,23 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._scene = scene;
 	}
 
+	_setUnBelongScene(){
+		this._scene = null;
+	}
+
 	/**
 	 * @internal
 	 * @param boundFrustum 如果boundFrustum为空则为摄像机不裁剪模式。
 	 */
 	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
 		return true;
+	}
+
+	/**
+	 * @internal
+	 * 八叉树节点不需要渲染调用的事件 
+	 */
+	_OctreeNoRender():void{
 	}
 
 	/**
@@ -496,7 +510,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * @internal
 	 */
 	_destroy(): void {
-		(this._indexInOctreeMotionList !== -1) && (this._octreeNode._octree.removeMotionObject(this));
+		(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
 		this.offAll();
 		var i: number = 0, n: number = 0;
 		for (i = 0, n = this._renderElements.length; i < n; i++)
@@ -508,6 +522,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._sharedMaterials = null;
 		this._bounds = null;
 		this._lightmapScaleOffset = null;
+		this._scene = null;
 	}
 
 	/**

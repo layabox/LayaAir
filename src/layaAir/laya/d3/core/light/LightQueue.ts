@@ -1,6 +1,4 @@
-import { DirectionLight } from "./DirectionLight";
 import { LightSprite } from "./LightSprite";
-import { SpotLight } from "./SpotLight";
 
 
 /**
@@ -27,12 +25,12 @@ export class LightQueue<T extends LightSprite> {
         }
     }
 
-    shift(): T {
+    shift(): T|undefined {
         this._length--;
         return this._elements.shift();
     }
 
-    getBrightestLight():number{
+    getBrightestLight():number|undefined{
         var maxIntIndex;
         var maxIntensity:number = -1;
         var elements:T[] = this._elements;
@@ -47,7 +45,6 @@ export class LightQueue<T extends LightSprite> {
         return maxIntIndex;
     }
     normalLightOrdering(brightestIndex:number){
-        var slements:T[] = this._elements;
         var firstLight:T = this._elements[0];
         this._elements[0] = this._elements[brightestIndex];
         this._elements[brightestIndex] = firstLight;

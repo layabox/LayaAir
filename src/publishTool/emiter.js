@@ -24,6 +24,8 @@ class emiter {
         this.classNameNow = "";
         /** 输出结构 */
         this.outputObj = [];
+        /** 记录命名空间 */
+        this.nameSpace = {};
         this.VISITORS = {
             "ImportDeclaration": this.emitImport,
             "ClassDeclaration": this.emitClass,
@@ -67,14 +69,12 @@ class emiter {
                 if (!this.innerClass) {
                     this.innerClass = true;
                 }
-                else {
-                    if (this.needimportArr.length) {
-                        for (let i = 0; i < this.needimportArr.length; i++) {
-                            let key = this.needimportArr[i];
-                            if (this.importArr[key] && this.importArr[key] != key) {
-                                //检测是否需要添加引用
-                                this.outString = "\timport " + this.importArr[key] + ";\r\n" + this.outString;
-                            }
+                if (this.needimportArr.length) {
+                    for (let i = 0; i < this.needimportArr.length; i++) {
+                        let key = this.needimportArr[i];
+                        if (this.importArr[key] && this.importArr[key] != key) {
+                            //检测是否需要添加引用
+                            this.outString = "\timport " + this.importArr[key] + ";\r\n" + this.outString;
                         }
                     }
                 }
@@ -106,6 +106,7 @@ class emiter {
     /**
      * 生成枚举
      * @param node
+     * @return 不生成全包代码
      */
     emitEnum(node) {
         let nodeName = node.name.getText();
@@ -129,7 +130,7 @@ class emiter {
         asCode = "\r\n\tpublic class " + nodeName + " {\r\n" + asCode + "\r\n\t}";
         asCode = this.changeIndex(node, "\r\n") + "package " + packageName + " {\r\n" + asCode + "\r\n}";
         this.outputObj.push({ "asCode": asCode, "url": this.url + "\\" + nodeName + ".as" });
-        return ["", tsstr];
+        return ["", ""];
     }
     /**
      * 生成import
@@ -140,6 +141,7 @@ class emiter {
         let nodes = node.getChildren();
         let _node, type;
         let importName = [];
+        let namespace = [];
         for (let i = 0; i < nodes.length; i++) {
             _node = nodes[i];
             type = ts.SyntaxKind[_node.kind];
@@ -155,10 +157,17 @@ class emiter {
                 }
             }
             else if (type == "ImportClause") {
-                let importNode = _node.namedBindings;
-                if (importNode.elements) {
-                    for (let j = 0; j < importNode.elements.length; j++) {
-                        importName.push(importNode.elements[j].getText());
+                let importNode = _node.namedBindings; // as ts.NamedImports;
+                type = ts.SyntaxKind[importNode.kind];
+                if (type == "NamespaceImport") {
+                    namespace.push(importNode.name.getText() + ".");
+                }
+                else {
+                    let elements = importNode.elements;
+                    if (elements) {
+                        for (let j = 0; j < elements.length; j++) {
+                            importName.push(elements[j].getText());
+                        }
                     }
                 }
             }
@@ -169,6 +178,11 @@ class emiter {
         let topPath = path.join(classPath, "../").replace(new RegExp("\\\\|/", "g"), ".");
         classPath = classPath.replace(new RegExp("\\\\|/", "g"), ".");
         var asstr = "";
+        if (namespace.length) {
+            for (let i = 0; i < namespace.length; i++) {
+                this.nameSpace[namespace[i]] = topPath;
+            }
+        }
         if (importName.length) {
             for (let i = 0; i < importName.length; i++) {
                 this.importArr[importName[i]] = topPath + importName[i];
@@ -240,16 +254,14 @@ class emiter {
                     //如果有进行检测 加
                     if (type.typeArguments) {
                         for (let n = 0; n < type.typeArguments.length; n++) {
-                            let typenode = type.typeArguments[n].getText();
-                            if (this.importArr[typenode])
-                                typenode = this.importArr[typenode];
+                            let typenode = this.emitTsType(type.typeArguments[i]);
                             argtext += (n ? "|" : "<") + typenode;
                         }
                         argtext += ">";
                     }
                     nodetextAS += (j ? "," : "") + typeText;
-                    if (this.importArr[typeText])
-                        typeText = this.importArr[typeText];
+                    if (this.importArr[typeText] && !this.url)
+                        typeText = "Laya." + typeText;
                     nodetext += (j ? "," : "") + typeText + argtext;
                 }
                 if (kind.indexOf("extends") == -1)
@@ -271,9 +283,12 @@ class emiter {
         str = "\tpublic class " + nodeName + " " + extendstr + "{\r\n" + str + "\t}\r\n";
         tstr = "\tclass " + nodeName + typestr + " " + tsExtend + " {\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
-        if (this.url != "")
-            emiter.dtsData += note + "\r\n\tclass " + nodeName + typestr + " extends " + this.url.replace(new RegExp("\\\\", "g"), ".") + "." + nodeName + typestr + " {}\r\n";
-        return [note + str, note + tstr];
+        let tsreturn = note + tstr;
+        if (this.url != "") {
+            emiter.dtsData += tsreturn; //note + "\r\n\tclass " + nodeName + typestr  + " extends " + this.url.replace(new RegExp("\\\\","g"),".") + "." + nodeName + typestr + " {}\r\n"
+            tsreturn = "";
+        }
+        return [note + str, tsreturn];
     }
     /**
      * 生成接口文件
@@ -288,12 +303,38 @@ class emiter {
             str += result[0];
             tstr += result[1];
         }
+        let tsExtend = "";
+        if (node.heritageClauses) {
+            for (let i = 0; i < node.heritageClauses.length; i++) {
+                let nodeChild = node.heritageClauses[i];
+                let nodetext = "";
+                for (let j = 0; j < nodeChild.types.length; j++) {
+                    let type = nodeChild.types[j];
+                    //对主类型判断
+                    let typeText = type.expression.getText();
+                    let argtext = "";
+                    //如果有进行检测 加
+                    if (type.typeArguments) {
+                        for (let n = 0; n < type.typeArguments.length; n++) {
+                            let typenode = this.emitTsType(type.typeArguments[i]);
+                            argtext += (n ? "|" : "<") + typenode;
+                        }
+                        argtext += ">";
+                    }
+                    if (this.importArr[typeText] && !this.url)
+                        typeText = "Laya." + typeText;
+                    nodetext += (j ? "," : "") + typeText + argtext;
+                }
+                tsExtend += " extends " + nodetext + " ";
+            }
+        }
         let nodeName = this.classNameNow = node.name.getText();
         str = "\tpublic interface " + nodeName + " {\r\n" + str + "\t}\r\n";
-        tstr = "\tinterface " + nodeName + "{\r\n" + tstr + "\t}\r\n";
+        tstr = "\tinterface " + nodeName + tsExtend + "{\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
+        emiter.dtsData += "\r\n" + tstr + "\r\n";
         // this.outputObj.push({"asCode":note + str,"url":this.url + "\\" + nodeName + ".as"});
-        return [note + str, note + tstr];
+        return [note + str, ""];
     }
     /**
      * 生成接口方法
@@ -398,10 +439,10 @@ class emiter {
                 tspro += childnode.getText() + " ";
             }
         }
-        propertystr += "function get ";
+        propertystr += "var ";
         // let isGetset = propertystr.indexOf("function get") != -1;
         let note = this.changeIndex(node, "\r\n\t\t");
-        propertystr += node.name.getText() + "():" + this.emitType(node.type);
+        propertystr += node.name.getText() + ":" + this.emitType(node.type);
         tspro += node.name.getText() + (node.questionToken ? "?" : "") + ":" + this.emitTsType(node.type);
         return [note + propertystr + ";\r\n", note + tspro + ";\r\n"];
     }
@@ -606,6 +647,9 @@ class emiter {
                 if (emiter.jscObj && emiter.jscObj[type]) {
                     type = emiter.jscObj[type];
                 }
+                if (Object.keys(this.nameSpace).length) {
+                    type = this.emitNameSpace(type);
+                }
                 this.needimportArr.indexOf(type) == -1 && this.needimportArr.push(type);
                 return type;
             case "TypeQuery":
@@ -635,12 +679,7 @@ class emiter {
         if (!node)
             return "any";
         if (node.exprName) {
-            type = node.exprName.getText();
-            if (ts.SyntaxKind[node.kind] == "TypeQuery") {
-                if (this.importArr[type])
-                    type = this.importArr[type];
-                return "typeof " + type;
-            }
+            return "typeof " + this.emitTsType(node.exprName);
         }
         else if (node.typeName) {
             type = node.typeName.getText();
@@ -664,23 +703,23 @@ class emiter {
                 }
                 type += ">";
             }
-            else if (this.importArr[type])
-                type = this.importArr[type];
+            else if (Object.keys(this.nameSpace).length) {
+                let newtype = this.emitNameSpace(type);
+                if (type != newtype) {
+                    let arr = newtype.split(".");
+                    type = arr[arr.length - 1];
+                }
+            }
+            else if (this.importArr[type] && !this.url) {
+                type = "Laya." + type;
+            }
         }
         else {
             type = ts.SyntaxKind[node.kind];
             if (type == "ArrayType") {
                 let ele = node.elementType;
                 if (ts.SyntaxKind[ele.kind] == "TypeReference") {
-                    type = ele.getText();
-                    if (this.importArr[type]) {
-                        return this.importArr[type] + "[]";
-                    }
-                    else {
-                        if (emiter._typeArr.indexOf(type) == -1)
-                            console.log("未知类型", type);
-                        return type + "[]";
-                    }
+                    return this.emitTsType(ele) + "[]";
                 }
                 else
                     type = node.getText();
@@ -725,8 +764,8 @@ class emiter {
                 type = node.getText();
             }
         }
-        if (this.importArr[type])
-            return this.importArr[type];
+        if (this.importArr[type] && !this.url)
+            return "Laya." + type;
         return type;
     }
     emitArray(node) {
@@ -758,6 +797,21 @@ class emiter {
             // }
             return ["", str];
         }
+    }
+    /**
+     * 编译namespace相关类型
+     * @param type
+     */
+    emitNameSpace(type) {
+        for (const key in this.nameSpace) {
+            if (type.indexOf(key) === 0) {
+                let needtype = type.replace(key, this.nameSpace[key]);
+                type = type.replace(key, "");
+                this.importArr[type] = needtype;
+                return type;
+            }
+        }
+        return type;
     }
     /**
      * 添加注释

@@ -121,13 +121,13 @@ export class AnimationClipParser03 {
 
 			var keyframeCount: number = reader.getUint16();
 			node._setKeyframeCount(keyframeCount);
-			var startTime: number;
+
 			for (j = 0; j < keyframeCount; j++) {
 				switch (type) {
 					case 0:
 						var floatKeyframe: FloatKeyframe = new FloatKeyframe();
 						node._setKeyframeByIndex(j, floatKeyframe);
-						startTime = floatKeyframe.time = startTimeTypes[reader.getUint16()];
+						floatKeyframe.time = startTimeTypes[reader.getUint16()];
 						floatKeyframe.inTangent = reader.getFloat32();
 						floatKeyframe.outTangent = reader.getFloat32();
 						floatKeyframe.value = reader.getFloat32();
@@ -138,7 +138,7 @@ export class AnimationClipParser03 {
 						var floatArrayKeyframe: Vector3Keyframe = new Vector3Keyframe();
 						node._setKeyframeByIndex(j, floatArrayKeyframe);
 
-						startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+						floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
 
 
 							var inTangent: Vector3 = floatArrayKeyframe.inTangent;
@@ -158,7 +158,7 @@ export class AnimationClipParser03 {
 					case 2:
 						var quaArrayKeyframe: QuaternionKeyframe = new QuaternionKeyframe();
 						node._setKeyframeByIndex(j, quaArrayKeyframe);
-						startTime = quaArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+						quaArrayKeyframe.time = startTimeTypes[reader.getUint16()];
 
 							var inTangentQua: Vector4 = quaArrayKeyframe.inTangent;
 							var outTangentQua: Vector4 = quaArrayKeyframe.outTangent;

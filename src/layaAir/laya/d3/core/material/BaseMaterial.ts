@@ -21,7 +21,7 @@ export class BaseMaterial {
 	/** @deprecated 废弃请使用Material类 use Material.ALPHATESTVALUE instead*/
 	static ALPHATESTVALUE: number = Shader3D.propertyNameToID("u_AlphaTestValue");
 	/** @deprecated 废弃请使用Material类 use Material.SHADERDEFINE_ALPHATEST instead*/
-	static SHADERDEFINE_ALPHATEST: ShaderDefine = null;
+	static SHADERDEFINE_ALPHATEST: ShaderDefine;
 
 	/**
 	 * @deprecated 

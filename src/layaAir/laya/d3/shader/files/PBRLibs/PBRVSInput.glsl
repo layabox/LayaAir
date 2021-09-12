@@ -1,7 +1,7 @@
 attribute vec4 a_Position;
 
 #ifdef GPU_INSTANCE
-	attribute mat4 a_MvpMatrix;
+	uniform mat4 u_ViewProjection;
 	attribute mat4 a_WorldMat;
 #else
 	uniform mat4 u_MvpMatrix;
@@ -54,6 +54,4 @@ varying float v_posViewZ;
 	varying vec4 v_SpotShadowCoord;
 #endif
 
-#ifdef TILINGOFFSET
-	uniform vec4 u_TilingOffset;
-#endif
+uniform vec4 u_TilingOffset;

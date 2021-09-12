@@ -42,7 +42,10 @@ export class WebGLVideo extends HtmlVideo {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.bindTexture(this.gl, gl.TEXTURE_2D, this._source);
 
+		//yung: 加个预乘，bug：在ios10下，播放视频会导致整个游戏渲染卡在不动，后续无法操作
+		this.gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
 		this.gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this.video);
+		this.gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);
 
 		WebGLVideo.curBindSource = this._source;
 	}

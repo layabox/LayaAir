@@ -148,8 +148,9 @@ export class AutoBitmap extends Graphics {
             if(this._drawGridCmd){
                 // 去掉 this._drawGridCmd
                 if(this._one){
-                    if(this._one == this._drawGridCmd)
-                        this._one=null;
+                    if(this._one == this._drawGridCmd){
+						this.clear();
+					}
                 }
                 let cmds = this.cmds;
                 if(cmds && cmds.length>0){
@@ -176,8 +177,8 @@ export class AutoBitmap extends Graphics {
         if (!width) width = texture.sourceWidth;
         if (!height) height = texture.sourceHeight;
         if (texture.getIsReady()) {
-            var wRate: number = width / texture.sourceWidth;
-            var hRate: number = height / texture.sourceHeight;
+            var wRate = width / texture.sourceWidth;
+            var hRate = height / texture.sourceHeight;
             width = texture.width * wRate;
             height = texture.height * hRate;
             if (width <= 0 || height <= 0) return null;

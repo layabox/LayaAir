@@ -18,18 +18,11 @@ export class TrailMaterial extends Material {
 	static defaultMaterial: TrailMaterial;
 
 	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
-	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
 	static MAINTEXTURE: number = Shader3D.propertyNameToID("u_MainTexture");
 	static TINTCOLOR: number = Shader3D.propertyNameToID("u_MainColor");
 	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
-	static CULL: number = Shader3D.propertyNameToID("s_Cull");
-	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
-	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
-	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
-	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
-	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 
 	/**
@@ -37,7 +30,6 @@ export class TrailMaterial extends Material {
 	 */
 	static __initDefine__(): void {
 		TrailMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
-		TrailMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		TrailMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
 	}
 
@@ -377,116 +369,18 @@ export class TrailMaterial extends Material {
 	 */
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
-				this._shaderValues.addDefine(TrailMaterial.SHADERDEFINE_TILINGOFFSET);
-			else
-				this._shaderValues.removeDefine(TrailMaterial.SHADERDEFINE_TILINGOFFSET);
-		} else {
-			this._shaderValues.removeDefine(TrailMaterial.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.setVector(TrailMaterial.TILINGOFFSET, value);
 		}
-		this._shaderValues.setVector(TrailMaterial.TILINGOFFSET, value);
-	}
-
-	/**
-	 * 设置是否写入深度。
-	 * @param value 是否写入深度。
-	 */
-	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(TrailMaterial.DEPTH_WRITE, value);
-	}
-
-	/**
-	 * 获取是否写入深度。
-	 * @return 是否写入深度。
-	 */
-	get depthWrite(): boolean {
-		return this._shaderValues.getBool(TrailMaterial.DEPTH_WRITE);
-	}
-
-	/**
-	 * 设置剔除方式。
-	 * @param value 剔除方式。
-	 */
-	set cull(value: number) {
-		this._shaderValues.setInt(TrailMaterial.CULL, value);
-	}
-
-	/**
-	 * 获取剔除方式。
-	 * @return 剔除方式。
-	 */
-	get cull(): number {
-		return this._shaderValues.getInt(TrailMaterial.CULL);
-	}
-
-	/**
-	 * 设置混合方式。
-	 * @param value 混合方式。
-	 */
-	set blend(value: number) {
-		this._shaderValues.setInt(TrailMaterial.BLEND, value);
-	}
-
-	/**
-	 * 获取混合方式。
-	 * @return 混合方式。
-	 */
-	get blend(): number {
-		return this._shaderValues.getInt(TrailMaterial.BLEND);
-	}
-
-	/**
-	 * 设置混合源。
-	 * @param value 混合源
-	 */
-	set blendSrc(value: number) {
-		this._shaderValues.setInt(TrailMaterial.BLEND_SRC, value);
-	}
-
-	/**
-	 * 获取混合源。
-	 * @return 混合源。
-	 */
-	get blendSrc(): number {
-		return this._shaderValues.getInt(TrailMaterial.BLEND_SRC);
-	}
-
-	/**
-	 * 设置混合目标。
-	 * @param value 混合目标
-	 */
-	set blendDst(value: number) {
-		this._shaderValues.setInt(TrailMaterial.BLEND_DST, value);
-	}
-
-	/**
-	 * 获取混合目标。
-	 * @return 混合目标。
-	 */
-	get blendDst(): number {
-		return this._shaderValues.getInt(TrailMaterial.BLEND_DST);
-	}
-
-	/**
-	 * 设置深度测试方式。
-	 * @param value 深度测试方式
-	 */
-	set depthTest(value: number) {
-		this._shaderValues.setInt(TrailMaterial.DEPTH_TEST, value);
-	}
-
-	/**
-	 * 获取深度测试方式。
-	 * @return 深度测试方式。
-	 */
-	get depthTest(): number {
-		return this._shaderValues.getInt(TrailMaterial.DEPTH_TEST);
+		else {
+			this._shaderValues.getVector(TrailMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+		}
 	}
 
 	constructor() {
 		super();
 		this.setShaderName("Trail");
 		this._color = new Vector4(1.0, 1.0, 1.0, 1.0);
+		this._shaderValues.setVector(TrailMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this._shaderValues.setVector(TrailMaterial.TINTCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = TrailMaterial.RENDERMODE_ALPHABLENDED;
 	}

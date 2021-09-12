@@ -1,6 +1,5 @@
 import { Component } from "../../components/Component";
 import { Node } from "../../display/Node";
-import { Browser } from "../../utils/Browser";
 import { Camera } from "../core/Camera";
 import { DirectionLight } from "../core/light/DirectionLight";
 import { PointLight } from "../core/light/PointLight";
@@ -16,6 +15,7 @@ import { StaticBatchManager } from "../graphics/StaticBatchManager";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
 import { ReflectionProbe } from "../core/reflectionProbe/ReflectionProbe";
+import { Config3D } from "../../../Config3D";
 
 
 

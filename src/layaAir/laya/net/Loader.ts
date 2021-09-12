@@ -82,7 +82,7 @@ export class Loader extends EventDispatcher {
 	static TERRAINRES = "TERRAIN";
 
 	/**文件后缀和类型对应表。*/
-	static typeMap: { [key: string]: string } = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" };
+	static typeMap: { [key: string]: string } = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" ,"wasm":"arraybuffer"};
 	/**资源解析函数对应表，用来扩展更多类型的资源加载解析。*/
 	static parserMap: any = {};
 	/**每帧加载完成回调使用的最大超时时间，如果超时，则下帧再处理，防止帧卡顿。*/
@@ -158,7 +158,7 @@ export class Loader extends EventDispatcher {
 
 		Loader.setGroup(url, "666");
 		this._url = url;
-		if (url.indexOf("data:image") === 0) type = Loader.IMAGE;
+		if (url.indexOf("data:image") === 0 && !type) type = Loader.IMAGE;
 		else url = URL.formatURL(url);
 		this._type = type || (type = Loader.getTypeFromUrl(this._url));
 		this._cache = cache;
@@ -168,10 +168,14 @@ export class Loader extends EventDispatcher {
 			ILaya.WorkerLoader.enableWorkerLoader();
 
 		var cacheRes: any;
-		// if (type == Loader.IMAGE)
-		// 	cacheRes = Loader.textureMap[url];
-		// else
-		cacheRes = Loader.loadedMap[url];
+		if (type == Loader.IMAGE){
+			cacheRes = Loader.textureMap[url];
+			if (cacheRes && (!(cacheRes as Texture).bitmap || ((cacheRes as Texture).bitmap && (cacheRes as Texture).bitmap.destroyed))) {
+                cacheRes = null;
+            }
+		}
+		else
+			cacheRes = Loader.loadedMap[url];
 		if (!ignoreCache && cacheRes) {
 			this._data = cacheRes;
 			this.event(Event.PROGRESS, 1);
@@ -313,6 +317,9 @@ export class Loader extends EventDispatcher {
 		} else {
 			
 			 var ext: string = Utils.getFileExtension(url);
+			 if (ext == 'bin' && this._url) {
+				 ext = Utils.getFileExtension(this._url);
+			 }
 			 if (ext === "ktx" || ext === "pvr") 
 				this._loadHttpRequest(url, Loader.BUFFER, this, this.onLoaded, this, this.onProgress, this, this.onError);
 			else
@@ -437,7 +444,11 @@ export class Loader extends EventDispatcher {
 							changeType = ".ktx";
 						}
 						if (Browser.onIOS && data.meta.compressTextureIOS) {
-							changeType = ".pvr";
+							if (data.meta.astc) {
+								changeType = ".ktx";
+							} else {
+								changeType = ".pvr";
+							}
 						}
 						//idx = _url.indexOf("?");
 						//var ver:String;
@@ -472,7 +483,7 @@ export class Loader extends EventDispatcher {
 				if(!(data instanceof Texture2D))
 				{
 					if (data instanceof ArrayBuffer) {
-						let url = this._http.url;
+						let url = this._http ? this._http.url : this._url;
 						var ext: string = Utils.getFileExtension(url);
 						let format: TextureFormat;
 						switch (ext) {

@@ -1,5 +1,4 @@
 import { ILaya } from "../../../../ILaya";
-import { Physics3D } from "../../../d3/physics/Physics3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
@@ -19,6 +18,7 @@ import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
+import { Physics3D } from "../../Physics3D";
 import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "./SubMesh";
 
@@ -376,7 +376,7 @@ export class Mesh extends Resource implements IClone {
 		instanceBufferState.bind();
 		instanceBufferState.applyVertexBuffer(this._vertexBuffer);
 		instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
-		instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer);
+		//instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer);
 		switch(instanceBufferStateType){
 			case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
 				instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer)

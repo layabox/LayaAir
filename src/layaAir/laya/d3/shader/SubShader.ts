@@ -54,7 +54,7 @@ export class SubShader {
 	 * @param stateMap 
 	 * @param pipelineMode 渲染管线模式。 
 	 */
-	addShaderPass(vs: string, ps: string, stateMap: object = null, pipelineMode: string = "Forward"): ShaderPass {
+	addShaderPass(vs: string, ps: string, stateMap:  {[key:string]:number}  = null, pipelineMode: string = "Forward"): ShaderPass {
 		var shaderPass: ShaderPass = new ShaderPass(this, vs, ps, stateMap);
 		shaderPass._pipelineMode = pipelineMode;
 		this._passes.push(shaderPass);

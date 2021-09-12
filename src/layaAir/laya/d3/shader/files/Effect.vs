@@ -11,7 +11,8 @@ attribute vec4 a_Color;
 attribute vec2 a_Texcoord0;
 
 #ifdef GPU_INSTANCE
-	attribute mat4 a_MvpMatrix;
+	uniform mat4 u_ViewProjection;
+	attribute mat4 a_WorldMat;
 #else
 	uniform mat4 u_MvpMatrix;
 #endif
@@ -21,9 +22,7 @@ attribute vec2 a_Texcoord0;
 #endif
 varying vec2 v_Texcoord0;
 
-#ifdef TILINGOFFSET
-	uniform vec4 u_TilingOffset;
-#endif
+uniform vec4 u_TilingOffset;
 
 #ifdef BONE
 	const int c_MaxBoneCount = 24;
@@ -61,16 +60,12 @@ void main()
 		position=a_Position;
 	#endif
 	#ifdef GPU_INSTANCE
-		gl_Position = a_MvpMatrix * position;
+		gl_Position = u_ViewProjection * a_WorldMat * position;
 	#else
 		gl_Position = u_MvpMatrix * position;
 	#endif
 	
-	#ifdef TILINGOFFSET
-		v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
-	#else
-		v_Texcoord0=a_Texcoord0;
-	#endif
+	v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 		
 	#ifdef COLOR
 		v_Color = a_Color;

@@ -1,9 +1,10 @@
 import { IClone } from "./laya/d3/core/IClone"
 import { Vector3 } from "./laya/d3/math/Vector3"
 import { PBRRenderQuality } from "./laya/d3/core/material/PBRRenderQuality";
-import { Physics3D } from "./laya/d3/physics/Physics3D";
 import { ILaya3D } from "./ILaya3D";
 import { CannonPhysicsSettings } from "./laya/d3/physicsCannon/CannonPhysicsSettings";
+import { Physics3D } from "./laya/d3/Physics3D";
+
 
 /**
  * <code>Config3D</code> 类用于创建3D初始化配置。
@@ -23,6 +24,24 @@ export class Config3D implements IClone {
 			if(!ILaya3D.Scene3D.cannonPhysicsSettings) ILaya3D.Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
 		}	
 	}
+
+	static set enableDynamicManager(value:boolean){
+		ILaya3D.SubMeshRenderElement.enableDynamicBatch = value;
+	}
+
+	static get enableDynamicManager():boolean{
+		return ILaya3D.SubMeshRenderElement.enableDynamicBatch;
+	}
+
+	static set enableStaticManager(value:boolean){
+		ILaya3D.SubMeshRenderElement.enableStaticBatch = value;
+	}
+
+	static get enableStaticManager():boolean{
+		return ILaya3D.SubMeshRenderElement.enableStaticBatch;
+		
+	}
+
 	/**@internal*/
 	private _defaultPhysicsMemory: number = 16;
 	/**@internal*/
@@ -57,6 +76,7 @@ export class Config3D implements IClone {
 	octreeMinNodeSize: number = 2.0;
 	/** 八叉树松散值。*/
 	octreeLooseness: number = 1.25;
+
 	
 
 	/** 

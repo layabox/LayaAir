@@ -12,7 +12,7 @@ import { ChinarMirrorPlane } from "../common/ChinarMirrorPlane";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { HtmlVideo } from "laya/device/media/HtmlVideo";
 import { VIDEOTYPE } from "laya/device/media/Video";
-import { VideoTexture } from "laya/resource/videoTexture";
+import { VideoTexture } from "laya/resource/VideoTexture";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 
 export class VideoPlayIn3DWorld {
