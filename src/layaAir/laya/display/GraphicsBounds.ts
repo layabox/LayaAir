@@ -30,6 +30,7 @@ import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
 import { Draw9GridTexture } from "./cmd/Draw9GridTexture";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SaveCmd } from "./cmd/SaveCmd"
+import {DrawSymmetricTexture} from "./cmd/DrawSymmetricTexture";
 
 /**
  * @private
@@ -150,7 +151,7 @@ export class GraphicsBounds {
 
                     this._switchMatrix(tMatrix, tempMatrix);
                     break;
-                case RotateCmd.ID://case context._rotate: 
+                case RotateCmd.ID://case context._rotate:
                     tempMatrix.identity();
                     tempMatrix.translate(-cmd.pivotX, -cmd.pivotY);
                     tempMatrix.rotate(cmd.angle);
@@ -172,11 +173,11 @@ export class GraphicsBounds {
 
                     this._switchMatrix(tMatrix, tempMatrix);
                     break;
-                case DrawImageCmd.ID://case context._drawTexture: 
+                case DrawImageCmd.ID://case context._drawTexture:
                 case FillTextureCmd.ID://case context._fillTexture
                     GraphicsBounds._addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x, cmd.y, cmd.width, cmd.height), tMatrix);
                     break;
-                case DrawTextureCmd.ID://case context._drawTextureTransform: 
+                case DrawTextureCmd.ID://case context._drawTextureTransform:
                     tMatrix.copyTo(tempMatrix);
                     if (cmd.matrix)
                         tempMatrix.concat(cmd.matrix);
@@ -267,7 +268,7 @@ export class GraphicsBounds {
 
                     GraphicsBounds._addPointArrToRst(rst, GraphicsBounds._tempPoints, tMatrix);
                     break;
-                case DrawCurvesCmd.ID://context._drawCurves:					
+                case DrawCurvesCmd.ID://context._drawCurves:
                     GraphicsBounds._addPointArrToRst(rst, Bezier.I.getBezierPoints(cmd.points), tMatrix, cmd.x, cmd.y);
                     break;
                 case DrawLinesCmd.ID://drawpoly
@@ -284,6 +285,10 @@ export class GraphicsBounds {
                     GraphicsBounds._addPointArrToRst(rst, this._getTriAngBBXPoints((cmd as DrawTrianglesCmd).vertices), tMatrix);
                     break;
                 case Draw9GridTexture.ID:
+                    GraphicsBounds._addPointArrToRst(rst, this._getDraw9GridBBXPoints(cmd as Draw9GridTexture), tMatrix);
+                    break;
+                case DrawSymmetricTexture.ID:
+                    //这两个的绘制原理差不多，因此获取包围盒的方式也用一样的
                     GraphicsBounds._addPointArrToRst(rst, this._getDraw9GridBBXPoints(cmd as Draw9GridTexture), tMatrix);
                     break;
             }
@@ -337,7 +342,7 @@ export class GraphicsBounds {
             rst.push(x - radius, y + radius);
             return rst;
         }
-        // 
+        //
         rst.push(x, y);	// 中心
 
         var delta: number = d1 % 360;
@@ -366,13 +371,13 @@ export class GraphicsBounds {
         return rst;
         /*
         var segnum:int = 32;
-        var step:Number = delta / segnum;		
+        var step:Number = delta / segnum;
         var i:Number;
         var angle:Number = startAngle;
         for (i = 0; i <= segnum; i++) {
             rst.push(x + radius * Math.cos(angle), y + radius * Math.sin(angle));
             angle += step;
-        }		
+        }
         */
     }
 

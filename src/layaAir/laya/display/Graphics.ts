@@ -34,7 +34,7 @@ import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
-import { HTMLChar } from "../utils/HTMLChar";
+import { DrawSymmetricTexture } from "./cmd/DrawSymmetricTexture";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -739,5 +739,19 @@ export class Graphics {
      */
     draw9Grid(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, sizeGrid: any[] = null): void {
         this._saveToCmd(null, Draw9GridTexture.create(texture, x, y, width, height, sizeGrid));
+    }
+
+    /**
+     * @private
+     * 绘制对称填充纹理的图片
+     * @param texture
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param type
+     */
+    drawSymmetric(texture:Texture, x=0,y=0,width=0,height=0,type=0) {
+        this._saveToCmd(null, DrawSymmetricTexture.create(texture, x, y, width, height, type));
     }
 }
