@@ -103,7 +103,6 @@ export class SeparableSSS_RenderDemo{
         //在延迟渲染管线中  可以一下把三张图直接搞出来
         //在我们前向渲染管线中  多浪费了几次drawMesh的性能
         //深度贴图
-        debugger;
         let depthTexture = RenderTexture.createFromPool(viewPort.width,viewPort.height,RenderTextureFormat.Depth);
         buf.setRenderTarget(depthTexture);
         buf.clearRenderTarget(true,true,new Vector4(0.5,0.5,0.5,1.0));
