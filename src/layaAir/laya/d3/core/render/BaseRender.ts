@@ -89,6 +89,8 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_reflectionMode:number = ReflectionProbeMode.simple;
 
 	/** @internal */
+	_sceneUpdateMark:number = -1;
+		/** @internal 属于相机的标记*/
 	_updateMark: number = -1;
 	/** @internal */
 	_updateRenderType: number = -1;
