@@ -65,6 +65,9 @@ export class MeshRenderer extends BaseRender {
 			this._renderElements.length = 0;
 		}
 		this._boundsChange = true;
+		if(this._octreeNode&&this._indexInOctreeMotionList===-1){
+			this._octreeNode.getManagerNode().addMotionObject(this);
+		}
 	}
 
 	/**
