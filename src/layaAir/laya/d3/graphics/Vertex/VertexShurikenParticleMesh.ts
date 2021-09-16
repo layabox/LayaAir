@@ -17,7 +17,7 @@ export class VertexShurikenParticleMesh extends VertexShuriKenParticle {
   * @internal
   */
 	static __init__(): void {
-		VertexShurikenParticleMesh._vertexDeclaration = new VertexDeclaration(172, [new VertexElement(0, VertexElementFormat.Vector3, VertexShuriKenParticle.PARTICLE_POSITION0),
+		VertexShurikenParticleMesh._vertexDeclaration = new VertexDeclaration(188, [new VertexElement(0, VertexElementFormat.Vector3, VertexShuriKenParticle.PARTICLE_POSITION0),
 		new VertexElement(12, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_COLOR0),
 		new VertexElement(28, VertexElementFormat.Vector2, VertexShuriKenParticle.PARTICLE_TEXTURECOORDINATE0),
 		new VertexElement(36, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SHAPEPOSITIONSTARTLIFETIME),
@@ -29,8 +29,9 @@ export class VertexShurikenParticleMesh extends VertexShuriKenParticle {
 		new VertexElement(112, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_RANDOM0),
 		new VertexElement(128, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_RANDOM1),
 		new VertexElement(144, VertexElementFormat.Vector3, VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDPOSTION),//TODO:local模式下可省去内存
-		new VertexElement(156, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDROTATION)]);
-		new VertexElement(172,VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SIMULATIONUV)
+		new VertexElement(156, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDROTATION),
+		new VertexElement(172,VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SIMULATIONUV)]);
+		
 		
 		VertexShurikenParticleMesh._vertexInstanceMeshDeclaration = new VertexDeclaration(36, [
 			new VertexElement(0, VertexElementFormat.Vector3, VertexShuriKenParticle.PARTICLE_POSITION0),

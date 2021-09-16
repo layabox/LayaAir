@@ -1903,7 +1903,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
 			}
 			offset = i  + this._simulationUV_Index;
-			debugger;
 			this._vertices[offset++] = startU;
 			this._vertices[offset++] = startV;
 			this._vertices[offset++] = subU;
