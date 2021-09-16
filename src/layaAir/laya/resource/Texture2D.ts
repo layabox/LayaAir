@@ -227,6 +227,7 @@ export class Texture2D extends BaseTexture {
 		WebGLContext.bindTexture(gl, textureType, this._glTexture);
 		switch (this.format) {
 			case TextureFormat.R8G8B8:
+			case TextureFormat.R8G8B8A8:
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
 				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);

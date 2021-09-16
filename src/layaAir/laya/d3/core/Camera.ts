@@ -396,7 +396,11 @@ export class Camera extends BaseCamera {
 	 */
 	set enableBlitDepth(value:boolean){
 		this._canBlitDepth = value;
+		if(value)
 		this._internalRenderTexture&&(this._internalRenderTexture.depthAttachMode = RTDEPTHATTACHMODE.TEXTURE);
+		else
+		this._internalRenderTexture&&(this._internalRenderTexture.depthAttachMode = RTDEPTHATTACHMODE.RENDERBUFFER);
+
 	}
 
 	get canblitDepth(){
