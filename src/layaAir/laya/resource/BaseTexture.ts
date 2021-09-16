@@ -13,10 +13,7 @@ export class BaseTexture extends Bitmap {
 	/** @internal */
 	static _rgbmRange: number = 5.0;
 
-	/** @internal */
-	protected _readyed: boolean;
-	/** @internal */
-	protected _glTextureType: number;
+	
 	/** @internal */
 	protected _glTexture: any;
 	/** @internal */
@@ -34,6 +31,10 @@ export class BaseTexture extends Bitmap {
 	/** @internal */
 	protected _mipmapCount: number;
 
+	/** @internal */
+	_glTextureType: number;
+	/** @internal */
+	_readyed: boolean;
 	/**
 	 * 是否使用mipLevel
 	 */
@@ -110,6 +111,10 @@ export class BaseTexture extends Bitmap {
 	 */
 	get mipmapCount(): number {
 		return this._mipmapCount;
+	}
+
+	set mipmapCount(value:number){
+		this._mipmapCount = value;
 	}
 
 	get defaulteTexture(): BaseTexture {

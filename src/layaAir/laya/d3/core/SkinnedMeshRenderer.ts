@@ -92,10 +92,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 
-	/**
-	 * @internal
-	 */
-	private _computeSkinnedData(): void {
+
+	protected _computeSkinnedData(): void {
 		if (this._cacheMesh && this._cacheAvatar/*兼容*/ || this._cacheMesh && !this._cacheAvatar) {
 			var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
 			var pathMarks: skinnedMatrixCache[] = this._cacheMesh._skinnedMatrixCaches;
