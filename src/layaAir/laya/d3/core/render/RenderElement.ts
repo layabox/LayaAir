@@ -137,15 +137,27 @@ export class RenderElement {
 		var forceInvertFace: boolean = context.invertY;
 		var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		var updateMark: number = Camera._updateMark;
+		var sceneMark:number = Scene3D._updateMark;
 		var scene: Scene3D = context.scene;
 		var cameraShaderValue: ShaderData = context.cameraShaderValue;
 
 		var transform: Transform3D = this._transform;
 		var geometry: GeometryElement = this._geometry;
 		context.renderElement = this;
+
+		var sceneDataRender:boolean = sceneMark!==this.render._sceneUpdateMark|| this.renderType !== this.render._updateRenderType;
+		if(sceneDataRender){
+			this.render._renderUpdate(context, transform);
+			this.render._sceneUpdateMark = sceneMark;
+		}else{
+			if (this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH) {
+				this.render._renderUpdate(context, transform);
+			}
+		}
+
 		var updateRender: boolean = updateMark !== this.render._updateMark || this.renderType !== this.render._updateRenderType;
 		if (updateRender) {//此处处理更新为裁剪和合并后的，可避免浪费
-			this.render._renderUpdate(context, transform);
+			//this.render._renderUpdate(context, transform);
 			this.render._renderUpdateWithCamera(context, transform);
 			this.render._updateMark = updateMark;
 			this.render._updateRenderType = this.renderType;
@@ -154,7 +166,7 @@ export class RenderElement {
 			//InstanceBatch should update worldMatrix every renderElement,
 			//because the instance matrix buffer is always different.
 			if (this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH) {
-				this.render._renderUpdate(context, transform);
+				//this.render._renderUpdate(context, transform);
 				this.render._renderUpdateWithCamera(context, transform);
 			}
 		}

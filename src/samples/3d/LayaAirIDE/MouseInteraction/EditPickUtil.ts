@@ -137,7 +137,7 @@ export class EditPickUtil {
 		var oriTargetTexture: RenderTexture = camera.renderTarget;
 		var pickTargetTexture: RenderTexture = EditPickUtil.pickCamera.renderTarget;
 		if (!oriTargetTexture) {
-			isOriCamraRenderTarget&& (oriTargetTexture = camera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16,4));
+			isOriCamraRenderTarget&& (oriTargetTexture = camera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16));
 			if (!pickTargetTexture)
 				pickTargetTexture = EditPickUtil.pickCamera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16);
 		}
@@ -148,7 +148,7 @@ export class EditPickUtil {
 			//这里用对象池会内存吃紧
 			oriTargetTexture&&oriTargetTexture.destroy();
 			pickTargetTexture && pickTargetTexture.destroy();
-			oriTargetTexture&&(camera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16,4));
+			oriTargetTexture&&(camera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16));
 			EditPickUtil.pickCamera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16);
 
 			camera.render();
