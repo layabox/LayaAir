@@ -172,7 +172,7 @@ export class GaussianDoF extends PostProcessEffect {
         this._shaderData.setVector(GaussianDoF.ZBUFFERPARAMS, this._zBufferParams);
 
         if (camera.depthTextureMode & DepthTextureMode.Depth) {
-            let depthTexture: RenderTexture = camera.depthTexture;
+            let depthTexture = camera.depthTexture;
             this._shaderData.setTexture(GaussianDoF.DEPTHTEXTURE, depthTexture);
             this._shaderData.removeDefine(GaussianDoF.SHADERDEFINE_DEPTHNORMALTEXTURE);
         }

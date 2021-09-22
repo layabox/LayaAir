@@ -30,3 +30,8 @@ export enum RenderTextureDepthFormat {
     /** @deprecated*/
     DEPTHSTENCIL_16_8 = 2,
 }
+
+export enum RTDEPTHATTACHMODE{
+    RENDERBUFFER = 0,
+    TEXTURE = 1
+}

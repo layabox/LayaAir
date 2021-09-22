@@ -2,6 +2,7 @@ import { Component } from "../../components/Component";
 import { Node } from "../../display/Node";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Loader } from "../../net/Loader";
+import { Stat } from "../../utils/Stat";
 import { Timer } from "../../utils/Timer";
 import { AnimationClip } from "../animation/AnimationClip";
 import { AnimationEvent } from "../animation/AnimationEvent";
@@ -27,6 +28,17 @@ import { AnimatorState } from "./AnimatorState";
 import { AvatarMask } from "./AvatarMask";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 import { Script3D } from "./Script3D";
+/**
+ * 动画更新模式
+ */
+ export enum AnimatorUpdateMode {
+	/**正常更新。*/
+	Normal = 0,
+	/**低频率更新 */
+	LowFrame = 1,
+	/**不更新 */
+	UnScaleTime = 2
+}
 
 /**
  * <code>Animator</code> 类用于创建动画组件。
@@ -64,7 +76,10 @@ export class Animator extends Component {
 	private _updateMark: number;
 	/**@internal */
 	private _controllerLayers: AnimatorControllerLayer[];
-
+	/**@internal 更新模式*/
+	private _updateMode:AnimatorUpdateMode = AnimatorUpdateMode.Normal;
+	/**@internal 降低更新频率调整值*/
+	private _lowUpdateDelty:number = 20;
 	/**@internal */
 	_linkSprites: any;
 	/**@internal	*/
@@ -97,8 +112,20 @@ export class Animator extends Component {
 		return this._speed;
 	}
 
+	
 	set speed(value: number) {
 		this._speed = value;
+	}
+
+	/**
+	 * 设置更新模式
+	 */
+	set updateMode(value:AnimatorUpdateMode){
+		 this._updateMode = value;
+	}
+
+	set lowUpdateDelty(value:number){
+		this._lowUpdateDelty = value;
 	}
 
 
@@ -788,6 +815,22 @@ export class Animator extends Component {
 		}
 	}
 
+	private _applyUpdateMode(delta:number):number{
+		let ret;
+		switch(this._updateMode){
+			case AnimatorUpdateMode.Normal:
+				ret = delta;
+				break;
+			case AnimatorUpdateMode.LowFrame:
+				ret = (Stat.loopCount%this._lowUpdateDelty==0)?delta*this._lowUpdateDelty:0;
+				break;
+			case AnimatorUpdateMode.UnScaleTime:
+				ret = 0;
+				break;
+		}
+		return ret;
+	}
+
 	/**
 	 * @inheritDoc
 	 * @internal
@@ -887,6 +930,7 @@ export class Animator extends Component {
 	_update(): void {
 		var timer: Timer = ((<Scene3D>this.owner._scene)).timer;
 		var delta: number = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale
+		delta =  this._applyUpdateMode(delta);
 		if (this._speed === 0 || delta === 0)//delta为0无需更新,可能造成crossWeight计算值为NaN
 			return;
 		var needRender: boolean;
@@ -920,7 +964,7 @@ export class Animator extends Component {
 						this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i === 0,controllerLayer);//多层动画混合时即使动画停止也要设置数据
 						finish || this._updateEventScript(animatorState, playStateInfo);
 					}
-					playStateInfo._finish || this._updateStateFinish(animatorState, playStateInfo);
+					finish || this._updateStateFinish(animatorState, playStateInfo);
 					break;
 				case 1:
 					animatorState = playStateInfo._currentState!;
