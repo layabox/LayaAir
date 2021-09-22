@@ -12,6 +12,7 @@ import { ShaderInstance } from "../../shader/ShaderInstance"
 import { ShaderPass } from "../../shader/ShaderPass"
 import { SubShader } from "../../shader/SubShader"
 import { DefineDatas } from "../../shader/DefineDatas"
+import { ILaya3D } from "../../../../ILaya3D"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。
@@ -93,7 +94,7 @@ export class RenderElement {
 	/**
 	 * @internal
 	 */
-	_update(scene: any, context: RenderContext3D, customShader: Shader3D, replacementTag: string,subshaderIndex:number = 0): void {
+	_update(scene, context: RenderContext3D, customShader: Shader3D, replacementTag: string,subshaderIndex:number = 0): void {
 		if (this.material) {//材质可能为空
 			var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
 			this.renderSubShader = null;
@@ -136,7 +137,7 @@ export class RenderElement {
 		var forceInvertFace: boolean = context.invertY;
 		var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		var updateMark: number = Camera._updateMark;
-		var sceneMark:number = Scene3D._updateMark;
+		var sceneMark:number = ILaya3D.Scene3D._updateMark;
 		var scene = context.scene;
 		var cameraShaderValue: ShaderData = context.cameraShaderValue;
 
