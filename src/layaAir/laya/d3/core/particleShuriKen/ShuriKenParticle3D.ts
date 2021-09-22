@@ -1,7 +1,6 @@
 import { Node } from "../../../display/Node";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
-import { LayaGPU } from "../../../webgl/LayaGPU";
 import { Color } from "../../math/Color";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";

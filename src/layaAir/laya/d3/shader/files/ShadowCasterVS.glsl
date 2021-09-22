@@ -74,16 +74,21 @@ vec4 shadowCasterVertex()
 	
 
 	#ifdef SHADOW
-		positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);
+		#ifndef DEPTHPASS
+			positionWS.xyz = applyShadowBias(positionWS.xyz,normalWS,u_ShadowLightDirection);
+		#endif
 		positionCS = u_ViewProjection * positionWS;
-		positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
+		#ifndef DEPTHPASS
+			positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
+		#endif
 	#endif
 
 	
 	#ifdef SHADOW_SPOT
-	
-		positionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;
-		positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
+		#ifndef DEPTHPASS
+			positionCS.z = positionCS.z-u_ShadowBias.x/positionCS.w;
+			positionCS.z = max(positionCS.z, 0.0);//min ndc z is 0.0
+		#endif
 	#endif
 	
 	
