@@ -70,8 +70,6 @@ export class URL {
         if (URL.exportSceneToJson) url = URL.getAdptedFilePath(url);
         //自定义路径格式化
         if (URL.customFormat != null) url = URL.customFormat(url);
-        //如果是全路径，直接返回，提高性能
-        if (url.indexOf(":") > 0) return url;
 
         var char1: string = url.charAt(0);
         if (char1 === ".") {
