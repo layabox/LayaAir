@@ -15,7 +15,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomAnimatorStateScript } from "../common/CustomAnimatorStateScript";
 
@@ -25,6 +27,10 @@ import { CustomAnimatorStateScript } from "../common/CustomAnimatorStateScript";
  */
 export class AnimatorDemo {
 
+	/**实例类型*/
+	private btype:any = "AnimatorDemo";
+	/**场景内按钮类型*/
+	private stype:any = 0;
 	private _scene: Scene3D;
 	private _animator: Animator;
 	private _changeActionButton: Button;
@@ -38,7 +44,7 @@ export class AnimatorDemo {
 	private _translate: Vector3 = new Vector3(0, 3, 5);
 	private _rotation: Vector3 = new Vector3(-15, 0, 0);
 	private _forward: Vector3 = new Vector3(-1.0, -1.0, -1.0);
-
+	isMaster:any;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -54,6 +60,32 @@ export class AnimatorDemo {
 		var resource: any[] = ["res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh", "res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh", "res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
 		Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			if(data.stype == 0)
+			{
+				this.stypeFun0(data.value);
+			}else if(data.stype == 1)
+			{
+				this.stypeFun1(data.value);
+			}
+		}
 	}
 
 	private onLoadFinish(): void {
@@ -185,20 +217,7 @@ export class AnimatorDemo {
 			this._changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this._changeActionButton.pos(Laya.stage.width / 2 - this._changeActionButton.width * Browser.pixelRatio / 2 - 100, Laya.stage.height - 100 * Browser.pixelRatio);
 
-			this._changeActionButton.on(Event.CLICK, this, function (): void {
-
-				this._PlayStopIndex++;
-				if (this._changeActionButton.label === "暂停动画") {
-					this._changeActionButton.label = "播放动画";
-					//暂停动画
-					this._animator.speed = 0.0;
-				} else if (this._changeActionButton.label === "播放动画") {
-					this._changeActionButton.label = "暂停动画";
-					this._animator.play(this._curActionName);
-					//播放动画
-					this._animator.speed = 1.0;
-				}
-			});
+			this._changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 
 			this._changeActionButton2 = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "切换动作状态")));
 			this._changeActionButton2.size(200, 40);
@@ -208,56 +227,82 @@ export class AnimatorDemo {
 			this._changeActionButton2.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this._changeActionButton2.pos(Laya.stage.width / 2 - this._changeActionButton2.width * Browser.pixelRatio / 2 + 100, Laya.stage.height - 100 * Browser.pixelRatio);
 
-			this._changeActionButton2.on(Event.CLICK, this, function (): void {
-
-				this._curStateIndex++;
-				if (this._curStateIndex % 6 == 0) {
-					this._changeActionButton.label = "暂停动画";
-					this._animator.speed = 0.0;
-					this._animator.play("hello");
-					this._curActionName = "hello";
-					this._textName.text = "当前动作状态名称:" + "hello";
-					this._animator.speed = 1.0;
-				} else if (this._curStateIndex % 6 == 1) {
-					this._changeActionButton.label = "暂停动画";
-					this._animator.speed = 0.0;
-					this._animator.play("ride");
-					this._curActionName = "ride";
-					this._textName.text = "当前动作状态名称:" + "ride";
-					this._animator.speed = 1.0;
-				} else if (this._curStateIndex % 6 == 2) {
-					this._changeActionButton.label = "暂停动画";
-					this._animator.speed = 0.0;
-					this._animator.play("动作状态三");
-					this._curActionName = "动作状态三";
-					this._textName.text = "当前动作状态名称:" + "动作状态三";
-					this._animator.speed = 1.0;
-				} else if (this._curStateIndex % 6 == 3) {
-					this._changeActionButton.label = "暂停动画";
-					this._animator.speed = 0.0;
-					this._animator.play("动作状态四");
-					this._curActionName = "动作状态四";
-					this._textName.text = "当前动作状态名称:" + "动作状态四";
-					this._animator.speed = 1.0;
-				} else if (this._curStateIndex % 6 == 4) {
-					this._changeActionButton.label = "暂停动画";
-					this._animator.speed = 0.0;
-					this._animator.play("动作状态五");
-					this._curActionName = "动作状态五";
-					this._textName.text = "当前动作状态名称:" + "动作状态五";
-					this._animator.speed = 1.0;
-				} else if (this._curStateIndex % 6 == 5) {
-					this._changeActionButton.label = "暂停动画";
-					this._animator.speed = 0.0;
-					this._animator.play("动作状态六");
-					this._curActionName = "动作状态六";
-					this._textName.text = "当前动作状态名称:" + "动作状态六";
-					this._animator.speed = 1.0;
-				}
-			});
+			this._changeActionButton2.on(Event.CLICK, this, this.stypeFun1);
 
 		}));
 	}
+
+	stypeFun0(label:string = "播放动画")
+	{
+		this._PlayStopIndex++;
+		if (this._changeActionButton.label === "暂停动画") {
+			this._changeActionButton.label = "播放动画";
+			//暂停动画
+			this._animator.speed = 0.0;
+		} else if (this._changeActionButton.label === "播放动画") {
+			this._changeActionButton.label = "暂停动画";
+			this._animator.play(this._curActionName);
+			//播放动画
+			this._animator.speed = 1.0;
+		}
+		label = this._changeActionButton.label;
+		if(this.isMaster)
+			Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});
+	}
+
+	stypeFun1(curStateIndex:any =0)
+	{
+		this._curStateIndex++;
+		if (this._curStateIndex % 6 == 0) {
+			this._changeActionButton.label = "暂停动画";
+			this._animator.speed = 0.0;
+			this._animator.play("hello");
+			this._curActionName = "hello";
+			this._textName.text = "当前动作状态名称:" + "hello";
+			this._animator.speed = 1.0;
+		} else if (this._curStateIndex % 6 == 1) {
+			this._changeActionButton.label = "暂停动画";
+			this._animator.speed = 0.0;
+			this._animator.play("ride");
+			this._curActionName = "ride";
+			this._textName.text = "当前动作状态名称:" + "ride";
+			this._animator.speed = 1.0;
+		} else if (this._curStateIndex % 6 == 2) {
+			this._changeActionButton.label = "暂停动画";
+			this._animator.speed = 0.0;
+			this._animator.play("动作状态三");
+			this._curActionName = "动作状态三";
+			this._textName.text = "当前动作状态名称:" + "动作状态三";
+			this._animator.speed = 1.0;
+		} else if (this._curStateIndex % 6 == 3) {
+			this._changeActionButton.label = "暂停动画";
+			this._animator.speed = 0.0;
+			this._animator.play("动作状态四");
+			this._curActionName = "动作状态四";
+			this._textName.text = "当前动作状态名称:" + "动作状态四";
+			this._animator.speed = 1.0;
+		} else if (this._curStateIndex % 6 == 4) {
+			this._changeActionButton.label = "暂停动画";
+			this._animator.speed = 0.0;
+			this._animator.play("动作状态五");
+			this._curActionName = "动作状态五";
+			this._textName.text = "当前动作状态名称:" + "动作状态五";
+			this._animator.speed = 1.0;
+		} else if (this._curStateIndex % 6 == 5) {
+			this._changeActionButton.label = "暂停动画";
+			this._animator.speed = 0.0;
+			this._animator.play("动作状态六");
+			this._curActionName = "动作状态六";
+			this._textName.text = "当前动作状态名称:" + "动作状态六";
+			this._animator.speed = 1.0;
+		}
+		curStateIndex = this._curStateIndex;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:1,value:curStateIndex});
+	}
+
+
+
 
 	private onFrame(): void {
 		if (this._animator.speed > 0.0) {

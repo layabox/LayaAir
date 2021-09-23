@@ -29,6 +29,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Config3D } from "Config3D";
+import Client from "../../Client";
+import { Utils } from "laya/utils/Utils";
 
 export class PhysicsWorld_RayShapeCast {
 	//声明一些使用到的全局变量
@@ -48,6 +50,17 @@ export class PhysicsWorld_RayShapeCast {
 	//private mat3: BlinnPhongMaterial;
 	private tex: Texture2D;
 	private tex1: Texture2D;
+
+	private changeActionButton0:Button;
+	private changeActionButton1:Button;
+	private changeActionButton2:Button;
+
+	/**实例类型*/
+	private btype:any = "PhysicsWorld_RayShapeCast";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster: any;
+
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
@@ -105,172 +118,232 @@ export class PhysicsWorld_RayShapeCast {
 			for (var i: number = 0; i < 60; i++) {
 				this.addBox();
 				this.addCapsule();
+			}			
+		}));
+		this.loadUI();
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			if(data.stype == 0)
+			{
+				this.stypeFun0(data.value);
+			} else if(data.stype == 1) 
+			{
+				this.stypeFun1(data.value);
+			} else if(data.stype ==2) 
+			{
+				this.stypeFun2(data.value);
 			}
-
-			//创建按钮，以及绑定事件
-			this.addButton(200, 200, 160, 40, "射线模式", function (e: Event): void {
-				this.castType++;
-				this.castType %= 4;
-				switch (this.castType) {
-					case 0:
-						((<Button>e.target)).label = "射线模式";
-						break;
-					case 1:
-						((<Button>e.target)).label = "盒子模式";
-						break;
-					case 2:
-						((<Button>e.target)).label = "球模式";
-						break;
-					case 3:
-						((<Button>e.target)).label = "胶囊模式";
-						break;
-				}
-			});
-
-			this.addButton(200, 300, 160, 40, "不穿透", function (e: Event): void {
-				if (this.castAll) {
-					((<Button>e.target)).label = "不穿透";
-					this.castAll = false;
-				} else {
-					((<Button>e.target)).label = "穿透";
-					this.castAll = true;
-				}
-			});
-
-			this.addButton(200, 400, 160, 40, "检测", function (e: Event): void {
-				if (this.hitResult.succeeded)
-					((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
-
-				if (this.hitResults.length > 0) {
-					for (var i: number = 0, n: number = this.hitResults.length; i < n; i++)
-						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
-					this.hitResults.length = 0;
-				}
-
-				if (this.debugSprites.length > 0) {
-					for (i = 0, n = this.debugSprites.length; i < n; i++)
-						this.debugSprites[i].destroy();
-					this.debugSprites.length = 0;
-				}
+		}
+	}
 
 
-				switch (this.castType) {
-					case 0:
-						//创建线性射线
-						var lineSprite: PixelLineSprite3D = (<PixelLineSprite3D>this.scene.addChild(new PixelLineSprite3D(1)));
-						//设置射线的起始点和颜色
-						lineSprite.addLine(this.from, this.to, Color.RED, Color.RED);
-						this.debugSprites.push(lineSprite);
-						if (this.castAll) {
-							//进行射线检测,检测所有碰撞的物体
-							this.scene.physicsSimulation.raycastAllFromTo(this.from, this.to, this.hitResults);
-							//遍历射线检测的结果
-							for (i = 0, n = this.hitResults.length; i < n; i++)
-								//将射线碰撞到的物体设置为红色
-								((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
-						} else {
-							//进行射线检测,检测第一个碰撞物体
-							this.scene.physicsSimulation.raycastFromTo(this.from, this.to, this.hitResult);
-							//将检测到的物体设置为红色
-							((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
-						}
-						break;
-					case 1:
-						//创建盒型碰撞器
-						var boxCollider: BoxColliderShape = new BoxColliderShape(1.0, 1.0, 1.0);
-						for (i = 0; i < 21; i++) {
-							//创建进行射线检测的盒子精灵
-							var boxSprite: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(1.0, 1.0, 1.0))));
-							//创建BlinnPhong材质
-							var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
-							//设置材质的颜色
-							mat.albedoColor = this._albedoColor;
-							//设置材质的渲染模式
-							mat.renderMode = BlinnPhongMaterial.RENDERMODE_TRANSPARENT;
-							boxSprite.meshRenderer.material = mat;
-							Vector3.lerp(this.from, this.to, i / 20, this._position);
-							boxSprite.transform.localPosition = this._position;
-							this.debugSprites.push(boxSprite);
-						}
-						//使用盒型碰撞器进行形状检测
-						if (this.castAll) {
-							//进行形状检测,检测所有碰撞的物体
-							this.scene.physicsSimulation.shapeCastAll(boxCollider, this.from, this.to, this.hitResults);
-							//遍历检测到的所有物体，并将其设置为红色
-							for (i = 0, n = this.hitResults.length; i < n; i++)
-								((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
-						} else {
-							//进行形状检测,检测第一个碰撞物体
-							if (this.scene.physicsSimulation.shapeCast(boxCollider, this.from, this.to, this.hitResult))
-								((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
-						}
-						break;
-					case 2:
-						//创建球型碰撞器
-						var sphereCollider: SphereColliderShape = new SphereColliderShape(0.5);
-						for (i = 0; i < 41; i++) {
-							var sphereSprite: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(0.5))));
-							var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
-							mat.albedoColor = this._albedoColor;
-							mat.renderMode = BlinnPhongMaterial.RENDERMODE_TRANSPARENT;
-							sphereSprite.meshRenderer.material = mat;
-							Vector3.lerp(this.from, this.to, i / 40, this._position);
-							sphereSprite.transform.localPosition = this._position;
-							this.debugSprites.push(sphereSprite);
-						}
-						//使用球型碰撞器进行形状检测
-						if (this.castAll) {
-							//进行形状检测,检测所有碰撞的物体
-							this.scene.physicsSimulation.shapeCastAll(sphereCollider, this.from, this.to, this.hitResults);
-							for (i = 0, n = this.hitResults.length; i < n; i++)
-								((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
-						} else {
-							//进行形状检测,检测第一个碰撞物体
-							if (this.scene.physicsSimulation.shapeCast(sphereCollider, this.from, this.to, this.hitResult))
-								((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
-						}
-						break;
-					case 3:
-						//创建胶囊型碰撞器
-						var capsuleCollider: CapsuleColliderShape = new CapsuleColliderShape(0.25, 1.0);
-						for (i = 0; i < 41; i++) {
-							var capsuleSprite: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(0.25, 1.0))));
-							var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
-							mat.albedoColor = this._albedoColor;
-							mat.renderMode = BlinnPhongMaterial.RENDERMODE_TRANSPARENT;
-							capsuleSprite.meshRenderer.material = mat;
-							Vector3.lerp(this.from, this.to, i / 40, this._position);
-							capsuleSprite.transform.localPosition = this._position;
-							this.debugSprites.push(capsuleSprite);
-						}
-						//使用胶囊碰撞器进行形状检测
-						if (this.castAll) {
-							//进行形状检测,检测所有碰撞的物体
-							this.scene.physicsSimulation.shapeCastAll(capsuleCollider, this.from, this.to, this.hitResults);
-							for (i = 0, n = this.hitResults.length; i < n; i++)
-								((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
-						} else {
-							//进行形状检测,检测第一个碰撞物体
-							if (this.scene.physicsSimulation.shapeCast(capsuleCollider, this.from, this.to, this.hitResult))
-								((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
-						}
-						break;
-				}
-			});
+	private loadUI(): void {
+		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
+			this.changeActionButton0 = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "射线模式")));
+			this.changeActionButton0.size(160, 40);
+			this.changeActionButton0.labelBold = true;
+			this.changeActionButton0.labelSize = 30;
+			this.changeActionButton0.sizeGrid = "4,4,4,4";
+			this.changeActionButton0.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.changeActionButton0.pos(200, 200);
+			this.changeActionButton0.on(Event.CLICK, this, this.stypeFun0);
+
+			this.changeActionButton1 = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "不穿透")));
+			this.changeActionButton1.size(160, 40);
+			this.changeActionButton1.labelBold = true;
+			this.changeActionButton1.labelSize = 30;
+			this.changeActionButton1.sizeGrid = "4,4,4,4";
+			this.changeActionButton1.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.changeActionButton1.pos(200, 300);
+			this.changeActionButton1.on(Event.CLICK, this, this.stypeFun1);
+
+			this.changeActionButton2 = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "检测")));
+			this.changeActionButton2.size(160, 40);
+			this.changeActionButton2.labelBold = true;
+			this.changeActionButton2.labelSize = 30;
+			this.changeActionButton2.sizeGrid = "4,4,4,4";
+			this.changeActionButton2.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.changeActionButton2.pos(200, 400);
+			this.changeActionButton2.on(Event.CLICK, this, this.stypeFun2);
 		}));
 	}
 
-	private addButton(x: number, y: number, width: number, height: number, text: string, clickFun: Function): void {
-		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
-			var changeActionButton: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", text)));
-			changeActionButton.size(width, height);
-			changeActionButton.labelBold = true;
-			changeActionButton.labelSize = 30;
-			changeActionButton.sizeGrid = "4,4,4,4";
-			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
-			changeActionButton.pos(x, y);
-			changeActionButton.on(Event.CLICK, this, clickFun);
-		}));
+	stypeFun0(label:string = "射线模式") {
+		this.castType++;
+		this.castType %= 4;
+		switch (this.castType) {
+			case 0:
+				this.changeActionButton0.label = "射线模式";
+				break;
+			case 1:
+				this.changeActionButton0.label = "盒子模式";
+				break;
+			case 2:
+				this.changeActionButton0.label = "球模式";
+				break;
+			case 3:
+				this.changeActionButton0.label = "胶囊模式";
+				break;
+		}
+
+		label = this.changeActionButton0.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+
+	}
+
+	stypeFun1(label:string = "不穿透") {
+		if (this.castAll) {
+			this.changeActionButton1.label = "不穿透";
+			this.castAll = false;
+		} else {
+			this.changeActionButton1.label = "穿透";
+			this.castAll = true;
+		}
+		label = this.changeActionButton1.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:1,value:label});
+	}
+
+	stypeFun2(castType:number = 0) {
+		if (this.hitResult.succeeded)
+				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
+
+		if (this.hitResults.length > 0) {
+			for (var i: number = 0, n: number = this.hitResults.length; i < n; i++)
+				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
+			this.hitResults.length = 0;
+		}
+
+		if (this.debugSprites.length > 0) {
+			for (i = 0, n = this.debugSprites.length; i < n; i++)
+				this.debugSprites[i].destroy();
+			this.debugSprites.length = 0;
+		}
+
+
+		switch (this.castType) {
+			case 0:
+				//创建线性射线
+				var lineSprite: PixelLineSprite3D = (<PixelLineSprite3D>this.scene.addChild(new PixelLineSprite3D(1)));
+				//设置射线的起始点和颜色
+				lineSprite.addLine(this.from, this.to, Color.RED, Color.RED);
+				this.debugSprites.push(lineSprite);
+				if (this.castAll) {
+					//进行射线检测,检测所有碰撞的物体
+					this.scene.physicsSimulation.raycastAllFromTo(this.from, this.to, this.hitResults);
+					//遍历射线检测的结果
+					for (i = 0, n = this.hitResults.length; i < n; i++)
+						//将射线碰撞到的物体设置为红色
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+				} else {
+					//进行射线检测,检测第一个碰撞物体
+					this.scene.physicsSimulation.raycastFromTo(this.from, this.to, this.hitResult);
+					//将检测到的物体设置为红色
+					((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+				}
+				break;
+			case 1:
+				//创建盒型碰撞器
+				var boxCollider: BoxColliderShape = new BoxColliderShape(1.0, 1.0, 1.0);
+				for (i = 0; i < 21; i++) {
+					//创建进行射线检测的盒子精灵
+					var boxSprite: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(1.0, 1.0, 1.0))));
+					//创建BlinnPhong材质
+					var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
+					//设置材质的颜色
+					mat.albedoColor = this._albedoColor;
+					//设置材质的渲染模式
+					mat.renderMode = BlinnPhongMaterial.RENDERMODE_TRANSPARENT;
+					boxSprite.meshRenderer.material = mat;
+					Vector3.lerp(this.from, this.to, i / 20, this._position);
+					boxSprite.transform.localPosition = this._position;
+					this.debugSprites.push(boxSprite);
+				}
+				//使用盒型碰撞器进行形状检测
+				if (this.castAll) {
+					//进行形状检测,检测所有碰撞的物体
+					this.scene.physicsSimulation.shapeCastAll(boxCollider, this.from, this.to, this.hitResults);
+					//遍历检测到的所有物体，并将其设置为红色
+					for (i = 0, n = this.hitResults.length; i < n; i++)
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+				} else {
+					//进行形状检测,检测第一个碰撞物体
+					if (this.scene.physicsSimulation.shapeCast(boxCollider, this.from, this.to, this.hitResult))
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+				}
+				break;
+			case 2:
+				//创建球型碰撞器
+				var sphereCollider: SphereColliderShape = new SphereColliderShape(0.5);
+				for (i = 0; i < 41; i++) {
+					var sphereSprite: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(0.5))));
+					var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
+					mat.albedoColor = this._albedoColor;
+					mat.renderMode = BlinnPhongMaterial.RENDERMODE_TRANSPARENT;
+					sphereSprite.meshRenderer.material = mat;
+					Vector3.lerp(this.from, this.to, i / 40, this._position);
+					sphereSprite.transform.localPosition = this._position;
+					this.debugSprites.push(sphereSprite);
+				}
+				//使用球型碰撞器进行形状检测
+				if (this.castAll) {
+					//进行形状检测,检测所有碰撞的物体
+					this.scene.physicsSimulation.shapeCastAll(sphereCollider, this.from, this.to, this.hitResults);
+					for (i = 0, n = this.hitResults.length; i < n; i++)
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+				} else {
+					//进行形状检测,检测第一个碰撞物体
+					if (this.scene.physicsSimulation.shapeCast(sphereCollider, this.from, this.to, this.hitResult))
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+				}
+				break;
+			case 3:
+				//创建胶囊型碰撞器
+				var capsuleCollider: CapsuleColliderShape = new CapsuleColliderShape(0.25, 1.0);
+				for (i = 0; i < 41; i++) {
+					var capsuleSprite: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(0.25, 1.0))));
+					var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
+					mat.albedoColor = this._albedoColor;
+					mat.renderMode = BlinnPhongMaterial.RENDERMODE_TRANSPARENT;
+					capsuleSprite.meshRenderer.material = mat;
+					Vector3.lerp(this.from, this.to, i / 40, this._position);
+					capsuleSprite.transform.localPosition = this._position;
+					this.debugSprites.push(capsuleSprite);
+				}
+				//使用胶囊碰撞器进行形状检测
+				if (this.castAll) {
+					//进行形状检测,检测所有碰撞的物体
+					this.scene.physicsSimulation.shapeCastAll(capsuleCollider, this.from, this.to, this.hitResults);
+					for (i = 0, n = this.hitResults.length; i < n; i++)
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+				} else {
+					//进行形状检测,检测第一个碰撞物体
+					if (this.scene.physicsSimulation.shapeCast(capsuleCollider, this.from, this.to, this.hitResult))
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+				}
+				break;
+		}
+
+		castType = this.castType;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:2,value:castType});
 	}
 
 	addBox(): void {

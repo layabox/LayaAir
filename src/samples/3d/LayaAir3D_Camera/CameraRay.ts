@@ -21,7 +21,9 @@ import { MouseManager } from "laya/events/MouseManager";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 
@@ -49,6 +51,12 @@ export class CameraRay {
 
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
 	private tmpVector2: Vector3 = new Vector3(0, 0, 0);
+
+	/**实例类型*/
+	private btype:any = "CameraLayer";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster:any;
 
 	constructor() {
 		//初始化引擎,使用物理的wasm库需要调用回调的方式来初始化
@@ -101,8 +109,28 @@ export class CameraRay {
 			//射线初始化（必须初始化）
 			this._ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
 		}));
+
+	    this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
 	}
 
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.onMouseDown();
+		}
+	}
 	addBoxXYZ(x: number, y: number, z: number): void {
 		var mat1: BlinnPhongMaterial = new BlinnPhongMaterial();
 		Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
@@ -153,6 +181,8 @@ export class CameraRay {
 				this.addBoxXYZ(this.outs[i].point.x, this.outs[i].point.y, this.outs[i].point.z);
 			}
 		}
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0})
 
 	}
 

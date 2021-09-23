@@ -11,11 +11,20 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class PostProcessBloom {
 	camera: Camera = null;
+
+	/**实例类型*/
+	private btype:any = "PostProcessBloom";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	private button:Button;
+	isMaster: any;
 
 	/**
 	 *@private
@@ -57,30 +66,57 @@ export class PostProcessBloom {
 			//加载UI
 			this.loadUI();
 		}));
+
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
 	}
 
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
+	}
 	/**
 	 *@private
 	 */
 	loadUI(): void {
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
-			var button: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "关闭HDR")));
-			button.size(200, 40);
-			button.labelBold = true;
-			button.labelSize = 30;
-			button.sizeGrid = "4,4,4,4";
-			button.scale(Browser.pixelRatio, Browser.pixelRatio);
-			button.pos(Laya.stage.width / 2 - button.width * Browser.pixelRatio / 2, Laya.stage.height - 60 * Browser.pixelRatio);
-			button.on(Event.CLICK, this, function (): void {
-				var enableHDR: boolean = this.camera.enableHDR;
-				if (enableHDR)
-					button.label = "开启HDR";
-				else
-					button.label = "关闭HDR";
-				this.camera.enableHDR = !enableHDR;
-			});
+			this.button = Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "关闭HDR"));
+			this.button.size(200, 40);
+			this.button.labelBold = true;
+			this.button.labelSize = 30;
+			this.button.sizeGrid = "4,4,4,4";
+			this.button.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.button.pos(Laya.stage.width / 2 - this.button.width * Browser.pixelRatio / 2, Laya.stage.height - 60 * Browser.pixelRatio);
+			this.button.on(Event.CLICK, this, this.stypeFun);
 
 		}));
 	}
+
+	stypeFun(label:string = "关闭HDR"): void {
+		var enableHDR: boolean = this.camera.enableHDR;
+		if (enableHDR) {
+			this.button.label = "开启HDR";
+		} else{
+			this.button.label = "关闭HDR";
+		}
+		this.camera.enableHDR = !enableHDR;
+
+		label = this.button.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});
+	}	
 }
 

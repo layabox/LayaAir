@@ -18,8 +18,17 @@ import {PerformanceDataTool} from "../../../extensions/performanceTool/Performan
 import { Button } from "laya/ui/Button";
 import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
+import { Utils } from "laya/utils/Utils";
+import Client from "../../Client";
 
 export class PerformancePluginDemo {
+
+	/**实例类型*/
+	private btype:any = "PerformancePluginDemo";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	private changeActionButton:Button;
+	isMaster: any;
 	constructor() {
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
@@ -65,6 +74,27 @@ export class PerformancePluginDemo {
 				}
 			}
 		}));
+
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
 	}
 
 	private curStateIndex = 0
@@ -72,32 +102,37 @@ export class PerformancePluginDemo {
 
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
 
-			var changeActionButton: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "Laya3D性能曲线")));
-			changeActionButton.size(250, 40);
-			changeActionButton.labelBold = true;
-			changeActionButton.labelSize = 30;
-			changeActionButton.sizeGrid = "4,4,4,4";
-			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
-			changeActionButton.pos(Laya.stage.width / 2 - changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			changeActionButton.on(Event.CLICK, this, function (): void {
-				if (this.curStateIndex % 4 == 0) {
-					changeActionButton.label = "Laya3D渲染非透明物体曲线";
-                    PerformancePlugin.showFunSampleFun(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
-				} else if(this.curStateIndex % 4 == 1){
-					changeActionButton.label = "Laya3D渲染裁剪曲线";
-                    PerformancePlugin.showFunSampleFun(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
-				}else if(this.curStateIndex % 4 == 2){
-                    changeActionButton.label = "Laya3D渲染渲染总体曲线";
-                    PerformancePlugin.showFunSampleFun(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
-                }else if(this.curStateIndex % 4 == 3){
-                    changeActionButton.label = "Laya3D性能曲线";
-                    PerformancePlugin.showFunSampleFun(PerformancePlugin.PERFORMANCE_LAYA_3D);
-                }
-                
-                this.curStateIndex++;
-			});
+			this.changeActionButton = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "Laya3D性能曲线")));
+			this.changeActionButton.size(250, 40);
+			this.changeActionButton.labelBold = true;
+			this.changeActionButton.labelSize = 30;
+			this.changeActionButton.sizeGrid = "4,4,4,4";
+			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
 		}));
 
-}
+	}
+
+	stypeFun(label:string = "Laya3D性能曲线"): void {
+		if (this.curStateIndex % 4 == 0) {
+			this.changeActionButton.label = "Laya3D渲染非透明物体曲线";
+			PerformancePlugin.showFunSampleFun(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
+		} else if(this.curStateIndex % 4 == 1){
+			this.changeActionButton.label = "Laya3D渲染裁剪曲线";
+			PerformancePlugin.showFunSampleFun(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
+		}else if(this.curStateIndex % 4 == 2){
+			this.changeActionButton.label = "Laya3D渲染渲染总体曲线";
+			PerformancePlugin.showFunSampleFun(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
+		}else if(this.curStateIndex % 4 == 3){
+			this.changeActionButton.label = "Laya3D性能曲线";
+			PerformancePlugin.showFunSampleFun(PerformancePlugin.PERFORMANCE_LAYA_3D);
+		}
+		
+		this.curStateIndex++;
+		label = this.changeActionButton.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+	}
 }
 

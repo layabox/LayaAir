@@ -19,7 +19,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 
@@ -37,6 +39,12 @@ export class CameraDemo {
 	private _rotation3: Vector3 = new Vector3(0, 45, 0);
 	private _clearColor: Vector4 = new Vector4(0, 0.2, 0.6, 1);
 
+	/**实例类型*/
+	private btype:any = "CameraDemo";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster:any;
+
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -45,8 +53,34 @@ export class CameraDemo {
 		//开启统计信息
 		Stat.show();
 		//预加载所有资源
-		var resource: any[] = ["res/threeDimen/texture/layabox.png", "res/threeDimen/skyBox/skyBox2/SkyBox2.lmat"];
+		var resource: any[] = ["res/threeDimen/texture/layabox.png", "res/threeDimen/skyBox/skyBox2/skyBox2.lmat"];
 		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			if(data.stype == 0)
+			{
+				this.stypeFun0(data.value);
+			}else if(data.stype == 1)
+			{
+				this.stypeFun1(data.value);
+			}
+		}
 	}
 
 	private onPreLoadFinish(): void {
@@ -106,18 +140,7 @@ export class CameraDemo {
 			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			changeActionButton.pos(Laya.stage.width / 2 - changeActionButton.width * Browser.pixelRatio / 2 - 100, Laya.stage.height - 100 * Browser.pixelRatio);
 
-			changeActionButton.on(Event.CLICK, this, function (): void {
-				this.index++;
-				if (this.index % 2 === 1) {
-					//正交投影属性设置
-					this.camera.orthographic = true;
-					//正交垂直矩阵距离,控制3D物体远近与显示大小
-					this.camera.orthographicVerticalSize = 7;
-				} else {
-					//正交投影属性设置,关闭
-					this.camera.orthographic = false;
-				}
-			});
+			changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 
 			var changeActionButton2: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "切换背景")));
 			changeActionButton2.size(160, 40);
@@ -127,26 +150,46 @@ export class CameraDemo {
 			changeActionButton2.scale(Browser.pixelRatio, Browser.pixelRatio);
 			changeActionButton2.pos(Laya.stage.width / 2 - changeActionButton2.width * Browser.pixelRatio / 2 + 100, Laya.stage.height - 100 * Browser.pixelRatio);
 
-			changeActionButton2.on(Event.CLICK, this, function (): void {
-				this.index2++;
-				if (this.index2 % 2 === 1) {
-					//设置相机的清除标识为天空盒
-					this.camera.clearFlag = CameraClearFlags.Sky;
-					//使用加载天空盒材质
-					var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/SkyBox2.lmat"));
-					//获取相机的天空渲染器
-					var skyRenderer: SkyRenderer = this.camera.skyRenderer;
-					//设置相机的天空渲染器的mesh
-					skyRenderer.mesh = SkyBox.instance;
-					//设置相机的天空渲染器的material
-					skyRenderer.material = skyboxMaterial;
-				} else {
-					//设置相机的清除标识为为固定颜色
-					this.camera.clearFlag = CameraClearFlags.SolidColor;
-				}
-			});
-
+			changeActionButton2.on(Event.CLICK, this, this.stypeFun1);
 		}));
+	}
+
+	stypeFun0(index:number = 0) {
+		this.index++;
+		if (this.index % 2 === 1) {
+			//正交投影属性设置
+			this.camera.orthographic = true;
+			//正交垂直矩阵距离,控制3D物体远近与显示大小
+			this.camera.orthographicVerticalSize = 7;
+		} else {
+			//正交投影属性设置,关闭
+			this.camera.orthographic = false;
+		}
+		index = this.index;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:index});
+	}
+
+	stypeFun1(index2:number = 0): void {
+		this.index2++;
+		if (this.index2 % 2 === 1) {
+			//设置相机的清除标识为天空盒
+			this.camera.clearFlag = CameraClearFlags.Sky;
+			//使用加载天空盒材质
+			var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
+			//获取相机的天空渲染器
+			var skyRenderer: SkyRenderer = this.camera.skyRenderer;
+			//设置相机的天空渲染器的mesh
+			skyRenderer.mesh = SkyBox.instance;
+			//设置相机的天空渲染器的material
+			skyRenderer.material = skyboxMaterial;
+		} else {
+			//设置相机的清除标识为为固定颜色
+			this.camera.clearFlag = CameraClearFlags.SolidColor;
+		}
+		index2 = this.index2;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:1,value:index2});
 	}
 
 }
