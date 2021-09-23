@@ -25,6 +25,8 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { SeparableSSS_BlitMaterial } from "./SeparableSSSRender/Material/SeparableSSS_BlitMaterial";
 import { SeparableSSSRenderMaterial } from "./SeparableSSSRender/Material/SeparableSSS_RenderMaterial";
 import { Event } from "laya/events/Event";
+import { Utils } from "laya/utils/Utils";
+import Client from "../../Client";
 
 export class SeparableSSS_RenderDemo{
     scene:Scene3D;
@@ -38,6 +40,13 @@ export class SeparableSSS_RenderDemo{
     planeMat:UnlitMaterial;
     sssssBlitMaterail:SeparableSSS_BlitMaterial;
     sssssRenderMaterial:SeparableSSSRenderMaterial;
+
+    /**实例类型*/
+	private btype:any = "SeparableSSS_RenderDemo";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+    private changeActionButton:Button;
+    isMaster: any;
    
     //reference:https://github.com/iryoku/separable-sss 
     //流程：分别渲染皮肤Mesh的漫反射部分以及渲染皮肤Mesh的高光部分,分别存储在不同的FrameBuffer中
@@ -56,7 +65,27 @@ export class SeparableSSS_RenderDemo{
         this.sssssRenderMaterial = new SeparableSSSRenderMaterial();
         this.PreloadingRes();
         
-    }
+        this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
+	}
 
     //批量预加载方式
 	PreloadingRes() {
@@ -153,24 +182,29 @@ export class SeparableSSS_RenderDemo{
 
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
 
-			var changeActionButton: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "次表面散射模式")));
-			changeActionButton.size(160, 40);
-			changeActionButton.labelBold = true;
-			changeActionButton.labelSize = 30;
-			changeActionButton.sizeGrid = "4,4,4,4";
-			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
-			changeActionButton.pos(Laya.stage.width / 2 - changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			changeActionButton.on(Event.CLICK, this, function (): void {
-				if (++this.curStateIndex % 2 == 1) {
-					this.blinnphongCharacter.active = true;
-					this.SSSSSCharacter.active = false;
-					changeActionButton.label = "正常模式";
-				} else {
-					this.blinnphongCharacter.active = false;
-					this.SSSSSCharacter.active = true;
-					changeActionButton.label = "次表面散射模式";
-				}
-			});
+			this.changeActionButton = Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "次表面散射模式"));
+			this.changeActionButton.size(160, 40);
+			this.changeActionButton.labelBold = true;
+			this.changeActionButton.labelSize = 30;
+			this.changeActionButton.sizeGrid = "4,4,4,4";
+			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
 		}));
 	}
+
+    stypeFun(label:string = "次表面散射模式"): void {
+        if (++this.curStateIndex % 2 == 1) {
+            this.blinnphongCharacter.active = true;
+            this.SSSSSCharacter.active = false;
+            this.changeActionButton.label = "正常模式";
+        } else {
+            this.blinnphongCharacter.active = false;
+            this.SSSSSCharacter.active = true;
+            this.changeActionButton.label = "次表面散射模式";
+        }
+        label = this.changeActionButton.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});		
+    }
 }

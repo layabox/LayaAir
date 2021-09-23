@@ -27,6 +27,8 @@ import { Ray } from "laya/d3/math/Ray";
 import { CannonHitResult } from "laya/d3/physicsCannon/CannonHitResult";
 import { Color } from "laya/d3/math/Color";
 import { Config3D } from "Config3D";
+import { Utils } from "laya/utils/Utils";
+import Client from "../../Client";
 
 /**
  * 射线示例测试   点击左键 选中的物体会变红
@@ -42,6 +44,12 @@ export class CannonPhysicsWorld_RayCheck{
 	private colorRed:Vector4 = new Vector4(1,0,0,1);
 	private colorWrite:Vector4 = new Vector4(1,1,1,1);
 	private oldSelectMesh:MeshSprite3D;
+
+	/**实例类型*/
+	private btype:any = "CannonPhysicsWorld_RayCheck";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster: any;
     constructor(){
         Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Config3D.useCannonPhysics = true;
@@ -102,7 +110,29 @@ export class CannonPhysicsWorld_RayCheck{
 			this.addCompoundColliderShape();
 			Laya.stage.on(Event.MOUSE_DOWN, this, this.mouseDown);
         }));
-    }
+
+
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.mouseDown();
+		}
+	}
     addBox(){
         var sX: number =1;
 		var sY: number =1;
@@ -203,5 +233,8 @@ export class CannonPhysicsWorld_RayCheck{
 			this.oldSelectMesh = selectSprite3D;
 		}
 		
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0});	
+
 	}
 }

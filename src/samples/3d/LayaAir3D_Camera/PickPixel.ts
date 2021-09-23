@@ -18,6 +18,8 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Config } from "Config";
 import { Sprite } from "laya/display/Sprite";
+import { Utils } from "laya/utils/Utils";
+import Client from "../../Client";
 
 export class PickPixel {
 	private isPick: boolean = false;
@@ -26,6 +28,12 @@ export class PickPixel {
 	private text: Text = new Text();
 	private renderTargetCamera: Camera;
 	private _sp:Sprite;
+
+	/**实例类型*/
+	private btype:any = "CameraDemo";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster: any;
 	constructor() {
 		//初始化引擎
 		Config.useRetinalCanvas = true;
@@ -41,6 +49,33 @@ export class PickPixel {
 		this._sp.zOrder = 10;
 		//预加载资源
 		Laya.loader.create(["res/threeDimen/scene/CourtyardScene/Courtyard.ls", "res/threeDimen/texture/earth.png"], Handler.create(this, this.onComplete));
+		
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			if(data.stype == 0) 
+			{
+			   this.stypeFun(data.value);
+			}else if(data.stype == 1) 
+			{
+			   this.onMouseDown();
+			}
+		}
 	}
 
 	private onMouseDown(): void {
@@ -68,6 +103,8 @@ export class PickPixel {
 		console.log(color)
 		this._sp.alpha = out[3]/255;
 		this._sp.graphics.drawRect(0,0,100,100,color,"#ffffff");
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:1})
 	}
 
 	private onResize(): void {
@@ -114,19 +151,7 @@ export class PickPixel {
 			this.changeActionButton.sizeGrid = "4,4,4,4";
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			this.changeActionButton.on(Event.CLICK, this, function (): void {
-				if (this.isPick) {
-					Laya.stage.off(Event.MOUSE_DOWN, this, this.onMouseDown);
-					this.changeActionButton.label = "拾取像素";
-					this.isPick = false;
-				}
-				else {
-					//鼠标事件监听
-					Laya.stage.on(Event.MOUSE_DOWN, this, this.onMouseDown);
-					this.changeActionButton.label = "结束拾取";
-					this.isPick = true;
-				}
-			});
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
 		}));
 		this.text.x = Laya.stage.width / 2 - 50;
 		this.text.y = 50;
@@ -140,6 +165,25 @@ export class PickPixel {
 		Laya.stage.addChild(this.text);
 		//添加舞台RESIZE事件
 		Laya.stage.on(Event.RESIZE, this, this.onResize);
+		
+	}
+
+	stypeFun(label:string = "拾取像素"): void {
+		if (this.isPick) {
+			Laya.stage.off(Event.MOUSE_DOWN, this, this.onMouseDown);
+			this.changeActionButton.label = "拾取像素";
+			this.isPick = false;
+		}
+		else {
+			//鼠标事件监听
+			Laya.stage.on(Event.MOUSE_DOWN, this, this.onMouseDown);
+			this.changeActionButton.label = "结束拾取";
+			this.isPick = true;
+		}
+		
+		label = this.changeActionButton.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label})
 	}
 }
 

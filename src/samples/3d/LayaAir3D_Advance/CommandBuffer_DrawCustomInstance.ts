@@ -20,6 +20,8 @@ import { Laya3D } from "Laya3D";
 import { Event } from "laya/events/Event";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomInstanceMaterial } from "./DrawCustomInstanceDemo/CustomInstanceMaterial";
+import { Utils } from "laya/utils/Utils";
+import Client from "../../Client";
 
 export class CommandBuffer_DrawCustomInstance{
     mat:CustomInstanceMaterial;
@@ -32,6 +34,13 @@ export class CommandBuffer_DrawCustomInstance{
 
     currentColor:Vector4[] = [];
     currentMatrix:Matrix4x4[] = [];
+
+    /**实例类型*/
+	private btype:any = "CommandBuffer_DrawCustomInstance";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+    private changeActionButton:Button;
+    isMaster: any;
 
 
 
@@ -72,7 +81,28 @@ export class CommandBuffer_DrawCustomInstance{
         this.loadUI();
         //初始化动作
         Laya.timer.frameLoop(1,this,this.changetwoon);
-    }
+        
+        this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
+	}
     
         /**
          * 创建CommandBuffer命令缓存流
@@ -157,23 +187,28 @@ export class CommandBuffer_DrawCustomInstance{
 
             Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
     
-                var changeActionButton: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "切换颜色位置1")));
-                changeActionButton.size(160, 40);
-                changeActionButton.labelBold = true;
-                changeActionButton.labelSize = 30;
-                changeActionButton.sizeGrid = "4,4,4,4";
-                changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
-                changeActionButton.pos(Laya.stage.width / 2 - changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-                changeActionButton.on(Event.CLICK, this, function (): void {
-                    if (++this.curStateIndex % 2 == 1) {
-                        changeActionButton.label = "颜色位置1";
-                        this.delta = -0.01;
-                    } else {
-                        changeActionButton.label = "颜色位置2";
-                        this.delta = 0.01;
-                    }
-                });
+                this.changeActionButton = Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "切换颜色位置1"));
+                this.changeActionButton.size(160, 40);
+                this.changeActionButton.labelBold = true;
+                this.changeActionButton.labelSize = 30;
+                this.changeActionButton.sizeGrid = "4,4,4,4";
+                this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
+                this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
+                this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
             }));
+        }
+
+        stypeFun (label:string = "颜色位置2"): void {
+            if (++this.curStateIndex % 2 == 1) {
+                this.changeActionButton.label = "颜色位置1";
+                this.delta = -0.01;
+            } else {
+                this.changeActionButton.label = "颜色位置2";
+                this.delta = 0.01;
+            }
+            label = this.changeActionButton.label;
+            if(this.isMaster)
+            Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
         }
     
 }

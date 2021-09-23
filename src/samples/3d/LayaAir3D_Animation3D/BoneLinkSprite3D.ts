@@ -15,7 +15,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 /**
@@ -43,6 +45,12 @@ export class BoneLinkSprite3D {
 	private changeActionButton: Button;
 	private curStateIndex: number = 0;
 
+	/**实例类型*/
+	private btype:any = "BoneLinkSprite3D";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster: any;
+
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -60,8 +68,27 @@ export class BoneLinkSprite3D {
 			"res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
 		Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
 	}
 
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:"类名"，为了区分案例}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
+	}
 	private onLoadFinish(): void {
 		//初始化场景
 		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
@@ -153,62 +180,68 @@ export class BoneLinkSprite3D {
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
 
-			this.changeActionButton.on(Event.CLICK, this, function (): void {
-
-				this.curStateIndex++;
-				if (this.curStateIndex % 3 == 1) {
-
-					this.changeActionButton.label = "切换坐骑";
-
-					this.scene.addChild(this.dragon1);
-					this.aniSprte3D1.addChild(this.role);
-
-					//关联精灵节点到Avatar节点
-					this.dragonAnimator1.linkSprite3DToAvatarNode("point", this.role);
-
-					this.animator.play("ride");
-					this.dragonAnimator1.play("run");
-
-					this.pangzi.transform.localRotation = this._rotation;
-					this.pangzi.transform.localPosition = this._position;
-					this.pangzi.transform.localScale = this._scale;
-				}
-				else if (this.curStateIndex % 3 == 2) {
-
-					this.changeActionButton.label = "卸下坐骑";
-
-					//骨骼取消关联节点
-					this.dragonAnimator1.unLinkSprite3DToAvatarNode(this.role);
-					this.aniSprte3D1.removeChild(this.role);
-					this.dragon1.removeSelf();
-
-					this.scene.addChild(this.dragon2);
-					this.aniSprte3D2.addChild(this.role);
-					//骨骼关联节点
-					this.dragonAnimator2.linkSprite3DToAvatarNode("point", this.role);
-
-					this.animator.play("ride");
-					this.dragonAnimator2.play("run");
-
-					this.pangzi.transform.localRotation = this._rotation;
-					this.pangzi.transform.localPosition = this._position;
-					this.pangzi.transform.localScale = this._scale;
-				}
-				else {
-
-					this.changeActionButton.label = "乘骑坐骑";
-
-					//骨骼取消关联节点
-					this.dragonAnimator2.unLinkSprite3DToAvatarNode(this.role);
-					this.aniSprte3D2.removeChild(this.role);
-					this.dragon2.removeSelf();
-
-					this.scene.addChild(this.role);
-					this.animator.play("hello");
-				}
-			});
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
 
 		}));
+	}
+
+	stypeFun(label:string = "乘骑坐骑"): void {
+
+		this.curStateIndex++;
+		if (this.curStateIndex % 3 == 1) {
+
+			this.changeActionButton.label = "切换坐骑";
+
+			this.scene.addChild(this.dragon1);
+			this.aniSprte3D1.addChild(this.role);
+
+			//关联精灵节点到Avatar节点
+			this.dragonAnimator1.linkSprite3DToAvatarNode("point", this.role);
+
+			this.animator.play("ride");
+			this.dragonAnimator1.play("run");
+
+			this.pangzi.transform.localRotation = this._rotation;
+			this.pangzi.transform.localPosition = this._position;
+			this.pangzi.transform.localScale = this._scale;
+		}
+		else if (this.curStateIndex % 3 == 2) {
+
+			this.changeActionButton.label = "卸下坐骑";
+
+			//骨骼取消关联节点
+			this.dragonAnimator1.unLinkSprite3DToAvatarNode(this.role);
+			this.aniSprte3D1.removeChild(this.role);
+			this.dragon1.removeSelf();
+
+			this.scene.addChild(this.dragon2);
+			this.aniSprte3D2.addChild(this.role);
+			//骨骼关联节点
+			this.dragonAnimator2.linkSprite3DToAvatarNode("point", this.role);
+
+			this.animator.play("ride");
+			this.dragonAnimator2.play("run");
+
+			this.pangzi.transform.localRotation = this._rotation;
+			this.pangzi.transform.localPosition = this._position;
+			this.pangzi.transform.localScale = this._scale;
+		}
+		else {
+
+			this.changeActionButton.label = "乘骑坐骑";
+
+			//骨骼取消关联节点
+			this.dragonAnimator2.unLinkSprite3DToAvatarNode(this.role);
+			this.aniSprte3D2.removeChild(this.role);
+			this.dragon2.removeSelf();
+
+			this.scene.addChild(this.role);
+			this.animator.play("hello");
+		}
+
+		label = this.changeActionButton.label
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});
 	}
 }
 
