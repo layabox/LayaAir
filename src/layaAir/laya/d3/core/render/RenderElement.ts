@@ -150,7 +150,7 @@ export class RenderElement {
 			this.render._renderUpdate(context, transform);
 			this.render._sceneUpdateMark = sceneMark;
 		}else{
-			if (this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH) {
+			if (this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH||this.renderType == RenderElement.RENDERTYPE_STATICBATCH) {
 				this.render._renderUpdate(context, transform);
 			}
 		}
