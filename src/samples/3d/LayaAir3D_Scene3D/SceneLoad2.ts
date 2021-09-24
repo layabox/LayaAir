@@ -60,7 +60,7 @@ export class SceneLoad2 {
 			camera.addComponent(CameraMoveScript);
 
 			//加载相机天空盒材质
-			BaseMaterial.load("res/threeDimen/skyBox/skyBox2/SkyBox2.lmat", Handler.create(this, function (mat: Material): void {
+			BaseMaterial.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, function (mat: Material): void {
 				var skyRenderer: SkyRenderer = camera.skyRenderer;
 				skyRenderer.mesh = SkyBox.instance;
 				skyRenderer.material = mat;

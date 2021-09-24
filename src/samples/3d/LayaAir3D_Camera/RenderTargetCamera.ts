@@ -17,10 +17,20 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class RenderTargetCamera {
+
+	/**实例类型*/
+	private btype:any = "CameraDemo";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster:any;
+	private scene:Scene3D;
+	private mat:UnlitMaterial;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -31,6 +41,27 @@ export class RenderTargetCamera {
 
 		//预加载资源
 		Laya.loader.create(["res/threeDimen/scene/LayaScene_city01/Conventional/city01.ls"], Handler.create(this, this.onComplete));
+
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun();
+		}
 	}
 
 	private onComplete(): void {
@@ -67,21 +98,26 @@ export class RenderTargetCamera {
 			changeActionButton.sizeGrid = "4,4,4,4";
 			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			changeActionButton.pos(Laya.stage.width / 2 - changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			changeActionButton.on(Event.CLICK, this, function (): void {
-				//渲染到纹理的相机
-				var renderTargetCamera: Camera = <Camera>scene.addChild(new Camera(0, 0.3, 1000));
-				renderTargetCamera.transform.position = new Vector3(-28.8, 8, -60);
-				renderTargetCamera.transform.rotate(new Vector3(0, 180, 0), true, false);
-				//选择渲染目标为纹理
-				renderTargetCamera.renderTarget = new RenderTexture(512, 512);
-				//渲染顺序
-				renderTargetCamera.renderingOrder = -1;
-				//清除标记
-				renderTargetCamera.clearFlag = BaseCamera.CLEARFLAG_SKY;
-				//设置网格精灵的纹理
-				mat.albedoTexture = renderTargetCamera.renderTarget;
-			});
+			changeActionButton.on(Event.CLICK, this, this.stypeFun);
 		}));
+		this.scene = scene;
+		this.mat = mat
+	}
+	stypeFun (): void {
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0});
+		//渲染到纹理的相机
+		var renderTargetCamera: Camera = <Camera>this.scene.addChild(new Camera(0, 0.3, 1000));
+		renderTargetCamera.transform.position = new Vector3(-28.8, 8, -60);
+		renderTargetCamera.transform.rotate(new Vector3(0, 180, 0), true, false);
+		//选择渲染目标为纹理
+		renderTargetCamera.renderTarget = new RenderTexture(512, 512);
+		//渲染顺序
+		renderTargetCamera.renderingOrder = -1;
+		//清除标记
+		renderTargetCamera.clearFlag = BaseCamera.CLEARFLAG_SKY;
+		//设置网格精灵的纹理
+		this.mat.albedoTexture = renderTargetCamera.renderTarget;
 	}
 }
 

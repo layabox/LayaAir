@@ -175,7 +175,7 @@ export class ScalableAO extends PostProcessEffect {
         camera.depthTextureMode |= DepthTextureMode.Depth;
 
         let depthNormalTexture: RenderTexture = camera.depthNormalTexture;
-        let depthTexture: RenderTexture = camera.depthTexture;
+        let depthTexture = camera.depthTexture;
 
         if (!depthNormalTexture || !depthTexture) {
             return;

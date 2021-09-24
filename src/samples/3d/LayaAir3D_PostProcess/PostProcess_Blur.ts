@@ -13,8 +13,18 @@ import { Shader3D } from "laya/d3/shader/Shader3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { BlurEffect } from "./BlurShader/BlurEffect";
+import { Utils } from "laya/utils/Utils";
+import Client from "../../Client";
 
 export class PostProcess_Blur {
+	/**实例类型*/
+	private btype:any = "PostProcess_Blur";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	private button:Button;
+	private camera:Camera;
+	private postProcess:PostProcess;
+	isMaster: any;
 	/**
 	 *@private
 	 */
@@ -61,6 +71,27 @@ export class PostProcess_Blur {
 			//加载UI
 			this.loadUI();
 		}));
+		
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
 	}
 
 	/**
@@ -68,30 +99,34 @@ export class PostProcess_Blur {
 	 */
 	loadUI(): void {
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
-			var button: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "关闭高斯模糊")));
-			button.size(200, 40);
-			button.labelBold = true;
-			button.labelSize = 30;
-			button.sizeGrid = "4,4,4,4";
-			button.scale(Browser.pixelRatio, Browser.pixelRatio);
-			button.pos(Laya.stage.width / 2 - button.width * Browser.pixelRatio / 2, Laya.stage.height - 60 * Browser.pixelRatio);
-			button.on(Event.CLICK, this, function (): void {
-				var enableHDR: boolean = !!this.camera.postProcess;
-				if (enableHDR)
-				{
-					button.label = "开启高斯模糊";
-					this.camera.postProcess = null;
-
-				}
-				else{
-					button.label = "关闭高斯模糊";
-					this.camera.postProcess = this.postProcess;
-				}
-					
-				
-			});
+			this.button = Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "关闭高斯模糊"));
+			this.button.size(200, 40);
+			this.button.labelBold = true;
+			this.button.labelSize = 30;
+			this.button.sizeGrid = "4,4,4,4";
+			this.button.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.button.pos(Laya.stage.width / 2 - this.button.width * Browser.pixelRatio / 2, Laya.stage.height - 60 * Browser.pixelRatio);
+			this.button.on(Event.CLICK, this, this.stypeFun);
 
 		}));
+	}
+
+	stypeFun(label:string = "关闭高斯模糊"): void {
+		var enableHDR: boolean = !!this.camera.postProcess;
+		if (enableHDR)
+		{
+			this.button.label = "开启高斯模糊";
+			this.camera.postProcess = null;
+
+		}
+		else{
+			this.button.label = "关闭高斯模糊";
+			this.camera.postProcess = this.postProcess;
+		}
+		label = this.button.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});		
+		
 	}
 }
 

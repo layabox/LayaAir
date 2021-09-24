@@ -17,7 +17,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Tool } from "../common/Tool";
 
@@ -30,6 +32,13 @@ export class CustomMesh {
 
 	private sprite3D: Sprite3D;
 	private lineSprite3D: Sprite3D;
+
+	/**实例类型*/
+	private btype:any = "CustomMesh";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	private changeActionButton:Button;
+	isMaster: any;
 
 	constructor() {
 		Laya3D.init(0, 0);
@@ -98,6 +107,27 @@ export class CustomMesh {
 
 		this.lineSprite3D.active = false;
 		this.loadUI();
+
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
 	}
 
 	private curStateIndex: number = 0;
@@ -106,25 +136,30 @@ export class CustomMesh {
 
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
 
-			var changeActionButton: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "正常模式")));
-			changeActionButton.size(160, 40);
-			changeActionButton.labelBold = true;
-			changeActionButton.labelSize = 30;
-			changeActionButton.sizeGrid = "4,4,4,4";
-			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
-			changeActionButton.pos(Laya.stage.width / 2 - changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			changeActionButton.on(Event.CLICK, this, function (): void {
-				if (++this.curStateIndex % 2 == 1) {
-					this.sprite3D.active = false;
-					this.lineSprite3D.active = true;
-					changeActionButton.label = "网格模式";
-				} else {
-					this.sprite3D.active = true;
-					this.lineSprite3D.active = false;
-					changeActionButton.label = "正常模式";
-				}
-			});
+			this.changeActionButton = Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "正常模式"));
+			this.changeActionButton.size(160, 40);
+			this.changeActionButton.labelBold = true;
+			this.changeActionButton.labelSize = 30;
+			this.changeActionButton.sizeGrid = "4,4,4,4";
+			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
 		}));
+	}
+
+	stypeFun(label:string = "正常模式"): void {
+		if (++this.curStateIndex % 2 == 1) {
+			this.sprite3D.active = false;
+			this.lineSprite3D.active = true;
+			this.changeActionButton.label = "网格模式";
+		} else {
+			this.sprite3D.active = true;
+			this.lineSprite3D.active = false;
+			this.changeActionButton.label = "正常模式";
+		}
+		label = this.changeActionButton.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
 	}
 }
 

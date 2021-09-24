@@ -1,4 +1,5 @@
 import { Node } from "../../../display/Node";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
 import { Color } from "../../math/Color";
 import { Vector2 } from "../../math/Vector2";
@@ -30,6 +31,7 @@ import { StartFrame } from "./module/StartFrame";
 import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
 import { VelocityOverLifetime } from "./module/VelocityOverLifetime";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
+import { ShurikenParticleInstanceSystem } from "./ShurikenParticleInstanceSystem";
 import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
@@ -93,8 +95,12 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	constructor() {
 		super(null);
 		this._render = new ShurikenParticleRenderer(this);
-
-		this._particleSystem = new ShurikenParticleSystem(this);
+		if(!LayaGL.layaGPUInstance.supportInstance()){
+			this._particleSystem = new ShurikenParticleSystem(this);
+		}else
+			this._particleSystem = new ShurikenParticleInstanceSystem(this);
+		
+		
 
 		var elements: RenderElement[] = this._render._renderElements;
 		var element: RenderElement = elements[0] = new RenderElement();

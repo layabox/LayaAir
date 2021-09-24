@@ -315,7 +315,8 @@ export class ShaderInit3D {
 			'a_Random0': VertexShuriKenParticle.PARTICLE_RANDOM0,
 			'a_Random1': VertexShuriKenParticle.PARTICLE_RANDOM1,
 			'a_SimulationWorldPostion': VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDPOSTION,
-			'a_SimulationWorldRotation': VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDROTATION
+			'a_SimulationWorldRotation': VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDROTATION,
+			'a_SimulationUV':VertexShuriKenParticle.PARTICLE_SIMULATIONUV
 		};
 		uniformMap = {
 			'u_Tintcolor': Shader3D.PERIOD_MATERIAL,

@@ -9,7 +9,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 /**
@@ -22,6 +24,13 @@ export class GarbageCollection {
 	/**@private */
 	private _castType: number = 0;
 
+	/**实例类型*/
+	private btype:any = "CommandBuffer_Outline";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	private changeActionButton:Button;
+	isMaster: any;
+
 	/**
 	 * @private
 	 */
@@ -32,37 +41,64 @@ export class GarbageCollection {
 		Stat.show();
 
 		this.loadScene();
-		this.addButton(200, 200, 160, 40, "释放显存", function (e: Event): void {
-			this._castType++;
-			this._castType %= 2;
-			switch (this._castType) {
-				case 0:
-					((<Button>e.target)).label = "释放显存";
-					this.loadScene();
-					break;
-				case 1:
-					((<Button>e.target)).label = "加载场景";
-					if (this._scene)//_scene不为空表示场景已加载完成
-						this.garbageCollection();
-					break;
-			}
-		});
+		this.loadUI();
+
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
 	}
 
 	/**
 	 * @private
 	 */
-	addButton(x: number, y: number, width: number, height: number, text: string, clickFun: Function): void {
+	 loadUI(): void {
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
-			var changeActionButton: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", text)));
-			changeActionButton.size(width, height);
-			changeActionButton.labelBold = true;
-			changeActionButton.labelSize = 30;
-			changeActionButton.sizeGrid = "4,4,4,4";
-			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
-			changeActionButton.pos(x, y);
-			changeActionButton.on(Event.CLICK, this, clickFun);
+			this.changeActionButton = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "释放显存")));
+			this.changeActionButton .size(160, 40);
+			this.changeActionButton .labelBold = true;
+			this.changeActionButton .labelSize = 30;
+			this.changeActionButton .sizeGrid = "4,4,4,4";
+			this.changeActionButton .scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.changeActionButton .pos(200, 200);
+			this.changeActionButton .on(Event.CLICK, this, this.stypeFun);
 		}));
+	}
+
+	stypeFun(label:string = "加载场景") {
+		this._castType++;
+		this._castType %= 2;
+		switch (this._castType) {
+			case 0:
+				this.changeActionButton .label = "释放显存";
+				this.loadScene();
+				break;
+			case 1:
+				this.changeActionButton .label = "加载场景";
+				if (this._scene)//_scene不为空表示场景已加载完成
+					this.garbageCollection();
+				break;
+	    }
+		label = this.changeActionButton.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+
 	}
 
 	/**

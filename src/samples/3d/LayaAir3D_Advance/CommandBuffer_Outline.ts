@@ -24,12 +24,21 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Event } from "laya/events/Event";
+import { Utils } from "laya/utils/Utils";
+import Client from "../../Client";
 
 export class CommandBuffer_Outline {
 	private commandBuffer:CommandBuffer;
 	private cameraEventFlag:CameraEventFlags = CameraEventFlags.BeforeImageEffect;
 	private camera:Camera;
 	private enableCommandBuffer:boolean = false;
+	private button:Button;
+
+	/**实例类型*/
+	private btype:any = "CommandBuffer_Outline";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster: any;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -71,6 +80,27 @@ export class CommandBuffer_Outline {
 			//加载UI
 			this.loadUI();
 		}));
+		
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
 	}
 
 	createDrawMeshCommandBuffer(camera:Camera,renders:BaseRender[],materials:Material[]):CommandBuffer{
@@ -137,31 +167,35 @@ export class CommandBuffer_Outline {
 	 */
 	loadUI(): void {
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
-			var button: Button = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "关闭描边")));
-			button.size(200, 40);
-			button.labelBold = true;
-			button.labelSize = 30;
-			button.sizeGrid = "4,4,4,4";
-			button.scale(Browser.pixelRatio, Browser.pixelRatio);
-			button.pos(Laya.stage.width / 2 - button.width * Browser.pixelRatio / 2, Laya.stage.height - 60 * Browser.pixelRatio);
-			button.on(Event.CLICK, this, function (): void {
-				this.enableCommandBuffer = !this.enableCommandBuffer;
-				if (this.enableCommandBuffer)
-				{
-					button.label = "开启描边";
-					this.camera.removeCommandBuffer(this.cameraEventFlag,this.commandBuffer);
-
-				}
-				else{
-					button.label = "关闭描边";
-					this.camera.addCommandBuffer(this.cameraEventFlag,this.commandBuffer);
-
-				}
-					
-				
-			});
+			this.button = Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "关闭描边"));
+			this.button.size(200, 40);
+			this.button.labelBold = true;
+			this.button.labelSize = 30;
+			this.button.sizeGrid = "4,4,4,4";
+			this.button.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.button.pos(Laya.stage.width / 2 - this.button.width * Browser.pixelRatio / 2, Laya.stage.height - 60 * Browser.pixelRatio);
+			this.button.on(Event.CLICK, this, this.stypeFun);
 
 		}));
+	}
+
+	stypeFun(label:string = "关闭描边"): void {
+		this.enableCommandBuffer = !this.enableCommandBuffer;
+		if (this.enableCommandBuffer)
+		{
+			this.button.label = "开启描边";
+			this.camera.removeCommandBuffer(this.cameraEventFlag,this.commandBuffer);
+
+		}
+		else{
+			this.button.label = "关闭描边";
+			this.camera.addCommandBuffer(this.cameraEventFlag,this.commandBuffer);
+
+		}
+		
+		label = this.button.label;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});		
 	}
 }
 

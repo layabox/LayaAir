@@ -86,8 +86,7 @@ export class UIComponent extends Sprite {
      */
     get_width(): number {
         if (this._width) return this._width;
-        this._width = this.measureWidth();
-        return this._width;
+        return this.measureWidth();
     }
 
     /**
@@ -127,8 +126,7 @@ export class UIComponent extends Sprite {
      */
     get_height(): number {
         if (this._height) return this._height;
-        this._height = this.measureHeight();
-        return this._height;
+        return this.measureHeight();
     }
 
     /**

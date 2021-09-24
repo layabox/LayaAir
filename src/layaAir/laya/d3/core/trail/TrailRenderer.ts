@@ -28,7 +28,6 @@ export class TrailRenderer extends BaseRender {
 	 * @override
 	 */
 	_needRender(boundFrustum: BoundFrustum,context: RenderContext3D): boolean {
-		(<TrailSprite3D>this._owner).trailFilter._update(context);
 		if (boundFrustum)
 			return boundFrustum.intersects(this.bounds._getBoundBox());
 		else
@@ -46,6 +45,7 @@ export class TrailRenderer extends BaseRender {
 	 * @override
 	 */
 	_renderUpdate(state: RenderContext3D, transform: Transform3D): void {
+		(<TrailSprite3D>this._owner).trailFilter._update(state);
 		super._renderUpdate(state, transform);
 	}
 	protected _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();

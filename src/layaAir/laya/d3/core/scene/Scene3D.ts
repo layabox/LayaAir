@@ -178,7 +178,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	static _configDefineValues: DefineDatas = new DefineDatas();
 
+	/** @internal 场景更新标记*/
+	static __updateMark: number = 0;
+	static set _updateMark(value: number) {
+		Scene3D.__updateMark = value;
+	}
 
+	static get _updateMark(): number {
+		return Scene3D.__updateMark;
+	}
 	/**
 	 * @internal
 	 */
@@ -1038,7 +1046,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _removeScriptInPool(scriptPool:Script3D[],script:Script3D){
 		let index = scriptPool.indexOf(script);
 		if(index!=-1){
-			scriptPool.splice(index,0);
+			scriptPool.splice(index,1);
 		}
 	}
 
@@ -1444,7 +1452,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._prepareSceneToRender();
 		var i: number, n: number, n1: number;
 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
-			
+		Scene3D._updateMark++;
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
 			if (Render.supportWebGLPlusRendering)
 				ShaderData.setRuntimeValueMode((i == n1) ? true : false);
