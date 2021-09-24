@@ -19,7 +19,7 @@ export class TextRender {
     static useOldCharBook = false;
     static atlasWidth = 1024;
     static noAtlas = false;				// 一串文字用独立贴图
-    static forceSplitRender = false;	    // 强制把一句话拆开渲染
+    static forceSplitRender = true;	    // 强制把一句话拆开渲染
     static forceWholeRender = false; 	// 强制整句话渲染
     static scaleFontWithCtx = true;		// 如果有缩放，则修改字体，以保证清晰度
     static standardFontSize = 32;			// 测量的时候使用的字体大小
@@ -52,6 +52,7 @@ export class TextRender {
     //private var charMaps:Object = {};	// 所有的都放到一起
 
     private _curStrPos: number = 0;		//解开一个字符串的时候用的。表示当前解到什么位置了
+    private _curStrPos2: number = 0;		//解开一个UBB字符串的时候用的。表示当前解到什么位置了
     static textRenderInst: TextRender;	//debug
 
     textAtlases: TextAtlas[] = [];		// 所有的大图集
@@ -159,6 +160,103 @@ export class TextRender {
         }
         this._curStrPos = i;
         return str.substring(start, i);
+    }
+
+    getNextUBBChar(txt: string): { txt: string, info: { color?: string, font?: string } } {
+        let re = /\[u (.+?)\](.+?)\[\/u\]/ig;
+        let txts: any[] = [];
+        let ubbs = txt.match(re)
+        let lastIndex = 0;
+        let resObj: any = null;
+        let getChat: Function = () => {
+            let showTxt = txts[this._curStrPos];
+            if (!showTxt) {
+                return;
+            }
+            let reqRes = re.exec(showTxt);
+            let res = reqRes && reqRes[1].split(" ") || null;
+            let ChildChat
+            if (res) {
+                resObj = {};
+                for (let i = 0; i < res.length; i++) {
+                    const element = res[i].split("=");
+                    resObj[element[0]] = element[1];
+                }
+                ChildChat = reqRes[2];
+            }
+            else {
+                resObj = null;
+                ChildChat = showTxt;
+            }
+
+            let _getNextChar = this.getUBBNextChar(ChildChat);
+            if (!_getNextChar) {
+                this._curStrPos++;
+                return getChat();
+            }
+            else {
+                return { txt: _getNextChar, info: resObj };
+            }
+        };
+        let getChildChat: Function = (str: string) => {
+            let _getNextChar = this.getUBBNextChar(str);
+            if (!_getNextChar) {
+                this._curStrPos++;
+                return null;
+            }
+            else {
+                return { txt: _getNextChar, info: resObj };
+            }
+        };
+        if (!ubbs) {
+            resObj = null;
+            return getChildChat(txt);
+        }
+        for (let i = 0; i < ubbs.length; i++) {
+            let index = txt.indexOf(ubbs[i]);
+            if (lastIndex == index) {
+                txts.push(ubbs[i]);
+            } else {
+                txts.push(txt.substring(lastIndex, index), ubbs[i])
+            }
+            lastIndex = index + ubbs[i].length;
+            if (i == ubbs.length - 1) {
+                txts.push(txt.substring(lastIndex))
+            }
+            if (txts.length > this._curStrPos) {
+                break
+            }
+        }
+        return getChat()
+    }
+
+
+    getUBBNextChar(txt: string) {
+        let len = txt.length;
+        let lastCharCode: number = -1;
+        let str = "";
+        let strs = [];
+        for (let i = 0; i < txt.length; i++) {
+            let chartype = txt[i].charCodeAt(0) >>> 11;
+            if (lastCharCode == chartype || lastCharCode == -1 || txt[i].charCodeAt(0) == 32) {
+            } else {
+                strs.push(str)
+                str = "";
+            }
+            if (txt[i].charCodeAt(0) != 32) {
+                lastCharCode = chartype;
+            }
+            str += txt[i];
+            if (i == len - 1) {
+                strs.push(str)
+            }
+        }
+        let result = strs[this._curStrPos2]
+        this._curStrPos2++
+        if (!result) {
+            this._curStrPos2 = 0;
+        }
+        return result
     }
 
     filltext(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string, underLine: number = 0): void {
@@ -271,6 +369,13 @@ export class TextRender {
 
                 this._curStrPos = 0;
                 var curstr: string | null;
+                let UBBInfo: {
+                    txt: string;
+                    info: {
+                        color?: string;
+                        font?: string;
+                    };
+                }
                 while (true) {
                     if (htmlchars) {
                         var chc = htmlchars[this._curStrPos++];
@@ -282,15 +387,29 @@ export class TextRender {
                             curstr = null;
                         }
                     } else {
-                        curstr = this.getNextChar(str);
+                        UBBInfo = this.getNextUBBChar(str);
+                        curstr = UBBInfo && UBBInfo.txt || null;
                     }
                     if (!curstr)
                         break;
-                    ri = this.getCharRenderInfo(curstr, font, color, strokeColor, lineWidth, false);
+
+                    let font_temp: FontInfo = null;
+                    let color_temp: string = null;
+                    if (UBBInfo && UBBInfo.info) {
+                        if (UBBInfo.info.font) {
+                            font_temp = FontInfo.Parse(UBBInfo.info.font.replace(",", " "))
+                            this.setFont(font_temp);
+                        }
+                        if (UBBInfo.info.color) {
+                            color_temp = UBBInfo.info.color;
+                        }
+                    }
+                    ri = this.getCharRenderInfo(curstr, font_temp || font, color_temp || color, strokeColor, lineWidth, false);
                     if (!ri) {
                         // 没有分配到。。。
                         break;
                     }
+
                     if (ri.isSpace) {	// 空格什么都不做
                     } else {
                         //分组保存
@@ -380,7 +499,7 @@ export class TextRender {
             var pri = txts[i];
             if (!pri) continue;
             var tex = (<TextTexture>pri.tex);
-            if(!tex){
+            if (!tex) {
                 continue;
             }
             if (tex.__destroyed || tex.genID != pri.texgen) {
@@ -454,6 +573,9 @@ export class TextRender {
                 ri.tex = tex;
                 ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
                 ri.oriy = margin;
+                if (new RegExp(/[\u0E00-\u0E7F]+/).test(str)) {
+                    ri.oriy = margin + 6;
+                }
                 tex.ri = ri;
                 this.isoTextures.push(tex);
             }
@@ -490,6 +612,9 @@ export class TextRender {
                     // 取下来的imagedata的原点在哪
                     ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
                     ri.oriy = (this.fontSizeOffY + lineExt);
+                    if (new RegExp(/[\u0E00-\u0E7F]+/).test(str)) {//泰文
+                        ri.oriy = (this.fontSizeOffY + lineExt) + 6;
+                    }
                 }
                 atlas.charMaps[key] = ri;
             }
