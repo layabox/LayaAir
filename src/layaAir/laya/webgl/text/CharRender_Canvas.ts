@@ -100,7 +100,6 @@ export class CharRender_Canvas extends ICharRender {
 	 */
 	getCharBmp(char: string, font: string, lineWidth: number, colStr: string, strokeColStr: string, cri: CharRenderInfo,
 		margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] | null = null): ImageData | null {
-		font = this.isThai(char, font);
 		if (!this.supportImageData)
 			return this.getCharCanvas(char, font, lineWidth, colStr, strokeColStr, cri, margin_left, margin_top, margin_right, margin_bottom);
 		var ctx: any = this.ctx;
@@ -159,6 +158,11 @@ export class CharRender_Canvas extends ICharRender {
 			if (rect[2] <= 0) rect[2] = 1;	// 有的字体在处理不存在文字的时候，测量宽度为0，会导致getImageData出错
 		}
 		var imgdt: ImageData = rect ? (ctx.getImageData(rect[0], rect[1], rect[2], rect[3] + 1)) : (ctx.getImageData(0, 0, w, h + 1));
+		if (char.charCodeAt(0) >>> 11 == 0x1) {//泰文
+			imgdt = rect ? (ctx.getImageData(rect[0], rect[1] - 9, rect[2], rect[3] + 1 + 12)) : (ctx.getImageData(0, 0, w, h + 1 + 9));
+		} else {
+			imgdt = rect ? (ctx.getImageData(rect[0], rect[1] - 3, rect[2], rect[3] + 1 + 6)) : (ctx.getImageData(0, 0, w, h + 1 + 3));
+		}
 		ctx.restore();
 		cri.bmpWidth = imgdt.width;
 		cri.bmpHeight = imgdt.height;
