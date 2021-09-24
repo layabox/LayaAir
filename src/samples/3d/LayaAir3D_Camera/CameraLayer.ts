@@ -13,7 +13,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 /**
  * 精灵图层示例
@@ -30,6 +32,12 @@ export class CameraLayer {
 	private _rotation3: Quaternion = new Quaternion(0.7071068, 0, 0, -0.7071067);
 	private _rotation4: Vector3 = new Vector3(0, 60, 0);
 	private _position: Vector3 = new Vector3(0.0, 0, 0.5);
+
+	/**实例类型*/
+	private btype:any = "CameraLayer";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster:any;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -60,6 +68,26 @@ export class CameraLayer {
 
 		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh",
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
 	}
 	private onComplete(): void {
 
@@ -118,15 +146,19 @@ export class CameraLayer {
 			this.changeActionButton.sizeGrid = "4,4,4,4";
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			this.changeActionButton.on(Event.CLICK, this, function (): void {
-				this.camera.removeAllLayers();
-				this.layerIndex++;
-				this.camera.addLayer(this.layerIndex % 4);
-				this.camera.addLayer(5);
-
-			});
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
 
 		}));
+	}
+
+	stypeFun (layerIndex:number = 0): void {
+		this.camera.removeAllLayers();
+		this.layerIndex++;
+		this.camera.addLayer(this.layerIndex % 4);
+		this.camera.addLayer(5);
+		layerIndex = this.layerIndex;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:layerIndex});
 	}
 
 }

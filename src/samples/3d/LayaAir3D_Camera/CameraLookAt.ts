@@ -16,7 +16,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 /**
  * ...
@@ -36,6 +38,12 @@ export class CameraLookAt {
 	private _position2: Vector3 = new Vector3(-1.5, 0.0, 2);
 	private _position3: Vector3 = new Vector3(0.0, 0.0, 2);
 	private _up: Vector3 = new Vector3(0, 1, 0);
+
+	/**实例类型*/
+	private btype:any = "CameraLookAt";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster: any;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -48,6 +56,27 @@ export class CameraLookAt {
 		var resource: any[] = ["res/threeDimen/texture/layabox.png",
 			"res/threeDimen/skyBox/skyBox3/skyBox3.lmat"];
 		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
+
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
+	}
+	
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:""}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
 	}
 
 	private onPreLoadFinish(): void {
@@ -118,23 +147,28 @@ export class CameraLookAt {
 			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			changeActionButton.pos(Laya.stage.width / 2 - changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
 
-			changeActionButton.on(Event.CLICK, this, function (): void {
-				this.index++;
-				if (this.index % 3 === 1) {
-					//摄像机捕捉模型目标
-					this.camera.transform.lookAt(this.box.transform.position, this._up);
-				}
-				else if (this.index % 3 === 2) {
-					//摄像机捕捉模型目标
-					this.camera.transform.lookAt(this.cylinder.transform.position, this._up);
-				}
-				else {
-					//摄像机捕捉模型目标
-					this.camera.transform.lookAt(this.capsule.transform.position, this._up);
-				}
-			});
+			changeActionButton.on(Event.CLICK, this, this.stypeFun);
 
 		}));
+	}
+	stypeFun(index:number = 0) {
+		this.index++;
+		if (this.index % 3 === 1) {
+			//摄像机捕捉模型目标
+			this.camera.transform.lookAt(this.box.transform.position, this._up);
+		}
+		else if (this.index % 3 === 2) {
+			//摄像机捕捉模型目标
+			this.camera.transform.lookAt(this.cylinder.transform.position, this._up);
+		}
+		else {
+			//摄像机捕捉模型目标
+			this.camera.transform.lookAt(this.capsule.transform.position, this._up);
+		}
+
+		index = this.index;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:index})
 	}
 
 }

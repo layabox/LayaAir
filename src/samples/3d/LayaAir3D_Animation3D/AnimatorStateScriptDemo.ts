@@ -18,6 +18,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { AnimatorStateScriptTest } from "../common/AnimatorStateScriptTest";
+import Client from "../../Client";
+import { Utils } from "laya/utils/Utils";
 
 /**
  * ...
@@ -39,6 +41,11 @@ export class AnimatorStateScriptDemo {
 	private _rotation: Vector3 = new Vector3(-15, 0, 0);
 	private _forward: Vector3 = new Vector3(-1.0, -1.0, -1.0);
 
+	private btype:any = "AnimatorDemo";
+	/**场景内按钮类型*/
+	private stype:any = 0;
+	isMaster: any;
+
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -53,7 +60,28 @@ export class AnimatorStateScriptDemo {
 		var resource: any[] = ["res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh", "res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh", "res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
 		Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
+		this.isMaster = Utils.getQueryString("isMaster");
+		this.initEvent();
 	}
+
+	initEvent()
+	{
+		Laya.stage.on("next",this,this.onNext);
+	}
+
+	/**
+	 * 
+	 * @param data {btype:"类名"，为了区分案例}
+	 */
+	onNext(data:any)
+	{
+		if(this.isMaster)return;//拒绝非主控制器推送消息
+		if(data.btype == this.btype)
+		{
+			this.stypeFun(data.value);
+		}
+	}
+
 
 	private onLoadFinish(): void {
 		//初始化场景
@@ -156,32 +184,35 @@ export class AnimatorStateScriptDemo {
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
 
-			this.changeActionButton.on(Event.CLICK, this, function (): void {
-
-				this.curStateIndex++;
-				if (this.curStateIndex % 3 == 0) {
-					this.animator.speed = 0.0;
-					this.animator.play("hello");
-					this.curActionName = "hello";
-					this.textName.text = "当前动作状态名称:" + "hello";
-					this.animator.speed = 1.0;
-				} else if (this.curStateIndex % 3 == 1) {
-					this.animator.speed = 0.0;
-					this.animator.play("ride");
-					this.curActionName = "ride";
-					this.textName.text = "当前动作状态名称:" + "ride";
-					this.animator.speed = 1.0;
-				} else if (this.curStateIndex % 3 == 2) {
-					this.animator.speed = 0.0;
-					this.animator.play("动作状态三");
-					this.curActionName = "动作状态三";
-					this.textName.text = "当前动作状态名称:" + "动作状态三";
-					this.animator.speed = 1.0;
-				}
-
-			});
-
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
 		}));
+	}
+	
+	stypeFun(curStateIndex:any = 0) {
+
+		this.curStateIndex++;
+		if (this.curStateIndex % 3 == 0) {
+			this.animator.speed = 0.0;
+			this.animator.play("hello");
+			this.curActionName = "hello";
+			this.textName.text = "当前动作状态名称:" + "hello";
+			this.animator.speed = 1.0;
+		} else if (this.curStateIndex % 3 == 1) {
+			this.animator.speed = 0.0;
+			this.animator.play("ride");
+			this.curActionName = "ride";
+			this.textName.text = "当前动作状态名称:" + "ride";
+			this.animator.speed = 1.0;
+		} else if (this.curStateIndex % 3 == 2) {
+			this.animator.speed = 0.0;
+			this.animator.play("动作状态三");
+			this.curActionName = "动作状态三";
+			this.textName.text = "当前动作状态名称:" + "动作状态三";
+			this.animator.speed = 1.0;
+		}
+		curStateIndex = this.curStateIndex;
+		if(this.isMaster)
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:curStateIndex});
 	}
 }
 

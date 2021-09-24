@@ -437,6 +437,25 @@ export class Input extends Text {
         }
     }
 
+    /**
+     * 小游戏专用(解决键盘输入框内容和游戏输入框内容不同步的bug)
+     * @param value 
+     */
+     miniGameTxt(value:string)
+     {
+         super.set_color(this._originColor);
+         value += '';
+         if (!this._multiline)
+             value = value.replace(/\r?\n/g, '');
+         this._content = value;
+         if (value)
+             super.set_text(value);
+         else {
+             super.set_text(this._prompt);
+             super.set_color(this.promptColor);
+         }
+     }
+
     /**@inheritDoc 
      * @override
     */
