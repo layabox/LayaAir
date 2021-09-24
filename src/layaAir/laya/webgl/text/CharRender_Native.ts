@@ -50,7 +50,7 @@ export class CharRender_Native extends ICharRender {
 	 */
 	getCharBmp(char: string, font: string, lineWidth: number, colStr: string, strokeColStr: string, size: CharRenderInfo,
 		margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] | null = null): ImageData | null {
-		font = this.isThai(char, font);
+		// font = this.isThai(char, font);
 		if (!(window as any).conchTextCanvas) return null;
 		//window.conchTextCanvas.getTextBitmapData();
 
