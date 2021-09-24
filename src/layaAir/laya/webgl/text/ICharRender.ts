@@ -26,47 +26,47 @@ export class ICharRender {
     }
 
     /** 是否泰文 */
-    isThai(char: string, font: string): string {
+    isThai(char: string, font: string): { font: string, size: number } {
         var _words = font.split(' ');
-        if (new RegExp(/[\u0E00-\u0E7F]+/).test(char)) {
-            var l = _words.length;
-            let size = 14;
-            var szpos = -1;
-            let dw = "px";
-            if (l < 2) {
-                if (l == 1) {
-                    if (_words[0].indexOf('px') > 0 || _words[i].indexOf('pt') > 0) {
-                        if (_words[i].indexOf('pt') > 0) {
-                            dw = "pt"
-                        }
-                        size = parseInt(_words[0]);
-                        szpos = 0;
+        var l = _words.length;
+        let size = 30;
+        var szpos = -1;
+        let dw = "px";
+        if (l < 2) {
+            if (l == 1) {
+                if (_words[0].indexOf('px') > 0 || _words[i].indexOf('pt') > 0) {
+                    if (_words[i].indexOf('pt') > 0) {
+                        dw = "pt"
                     }
-                }
-            } else {
-                for (var i = 0; i < l; i++) {
-                    if (_words[i].indexOf('px') > 0 || _words[i].indexOf('pt') > 0) {
-                        if (_words[i].indexOf('pt') > 0) {
-                            dw = "pt"
-                        }
-                        szpos = i;
-                        size = parseInt(_words[i]);
-                        if (size <= 0) {
-                            console.error('font parse error:' + font);
-                            size = 14;
-                        }
-                        break;
-                    }
+                    size = parseInt(_words[0]);
+                    szpos = 0;
                 }
             }
-            size *= 0.75;
-            if(ILaya.Render.isConchApp){
-                this.fontsz=size;
+        } else {
+            for (var i = 0; i < l; i++) {
+                if (_words[i].indexOf('px') > 0 || _words[i].indexOf('pt') > 0) {
+                    if (_words[i].indexOf('pt') > 0) {
+                        dw = "pt"
+                    }
+                    szpos = i;
+                    size = parseInt(_words[i]);
+                    if (size <= 0) {
+                        console.error('font parse error:' + font);
+                        size = 14;
+                    }
+                    break;
+                }
             }
-            _words[szpos] = size + dw;
         }
 
-        return _words.join(" ");
+        if (new RegExp(/[\u0E00-\u0E7F]+/).test(char)) {
+            if (ILaya.Render.isConchApp) {
+                size *= 1.5;
+                this.fontsz = size;
+            }
+        }
+        _words[szpos] = Math.floor(size) + dw;
+        return { font: _words.join(" "), size: Math.floor(size) };
     }
 }
 
