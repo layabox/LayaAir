@@ -110,7 +110,7 @@ export class Timer {
 
     /** @private */
     private _recoverHandler(handler: TimerHandler): void {
-        if (this._map[handler.key] == handler) this._map[handler.key] = null;
+        if (this._map[handler.key] == handler)delete this._map[handler.key];
         handler.clear();
         Timer._pool.push(handler);
     }
@@ -230,8 +230,6 @@ export class Timer {
     clear(caller: any, method: Function): void {
         var handler: TimerHandler = this._getHandler(caller, method);
         if (handler) {
-            this._map[handler.key] = null;
-            handler.key = "";//0
             handler.clear();
         }
     }
@@ -245,8 +243,6 @@ export class Timer {
         for (var i: number = 0, n: number = this._handlers.length; i < n; i++) {
             var handler: TimerHandler = this._handlers[i];
             if (handler.caller === caller) {
-                this._map[handler.key] = null;
-                handler.key = "";//0;
                 handler.clear();
             }
         }
