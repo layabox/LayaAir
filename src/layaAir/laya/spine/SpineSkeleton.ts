@@ -77,6 +77,7 @@ export class SpineSkeleton extends Sprite {
     init(templet: SpineTempletBase): void {
         let that = this;
         this._templet = templet;
+        this._templet._addReference(1);
         // 骨架，被执行或被计算的一个类，里面存放数据等信息
         this.skeleton = new Skeleton(this._templet.skeletonData);
         this.stateData = new AnimationStateData(this.skeleton.data);

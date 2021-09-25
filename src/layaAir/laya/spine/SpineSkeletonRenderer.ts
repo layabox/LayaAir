@@ -181,7 +181,6 @@ export class SpineSkeletonRenderer {
 							vi += this.vertexSize;
 						}
 					}
-					let alpha = 1;
 					let color = null;
 					let colorNum = null;
 					let blendMode;
@@ -198,8 +197,8 @@ export class SpineSkeletonRenderer {
 						default:
 							blendMode = "normal";
 					}
-					colorNum = ((colors[3]*255)<<24)+colors[0]*255|0+((colors[1]*255)<<8)+((colors[2]*255)<<16);
-					spineSkeletonIns.graphics.drawTriangles(texture, 0, 0, <any>mVertices, <any>mUVs, new Uint16Array(clippedTriangles), Matrix.EMPTY, alpha, color, blendMode, colorNum);
+					colorNum = (255<<24)+colors[0]*255|0+((colors[1]*255)<<8)+((colors[2]*255)<<16);
+					spineSkeletonIns.graphics.drawTriangles(texture, 0, 0, <any>mVertices, <any>mUVs, new Uint16Array(clippedTriangles), Matrix.EMPTY, colors[3], color, blendMode, colorNum);
 				} else {
 					let verts = renderable.vertices;
 					let mVertices = [];
@@ -246,7 +245,6 @@ export class SpineSkeletonRenderer {
 							}
 						}
 					}
-					let alpha = 1;
 					let color = null;
 					let colorNum = null;
 					let blendMode;
@@ -263,8 +261,8 @@ export class SpineSkeletonRenderer {
 						default:
 							blendMode = "normal";
 					}
-					colorNum = ((colors[3]*255)<<24)+colors[0]*255|0+((colors[1]*255)<<8)+((colors[2]*255)<<16);
-					spineSkeletonIns.graphics.drawTriangles(texture, 0, 0, <any>mVertices, <any>mUVs, new Uint16Array(triangles), Matrix.EMPTY, alpha, color, blendMode, colorNum);
+					colorNum = (255<<24)+colors[0]*255|0+((colors[1]*255)<<8)+((colors[2]*255)<<16);
+					spineSkeletonIns.graphics.drawTriangles(texture, 0, 0, <any>mVertices, <any>mUVs, new Uint16Array(triangles), Matrix.EMPTY, colors[3], color, blendMode, colorNum);
 				}
 			}
 
