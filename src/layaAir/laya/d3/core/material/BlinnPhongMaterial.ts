@@ -569,7 +569,7 @@ export class BlinnPhongMaterial extends Material {
 		this._shaderValues.setTexture(BlinnPhongMaterial.SPECULARTEXTURE, value);
 	}
 	/**
-	 * 是否支持顶点色。
+	 * 是否支持透光色。
 	 */
 	get enableTransmission(): boolean {
 		return this._shaderValues.hasDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
