@@ -115,7 +115,7 @@ export class BlitScreenQuadCMD extends Command {
 		//如果已经有绑定的帧buffer  要解绑
 		(RenderTexture.currentActive)&&(RenderTexture.currentActive._end());
 		(dest) && (dest._start());
-		this.setContext(this._commandBuffer._context);
+		this._commandBuffer&&(this.setContext(this._commandBuffer._context));
 		var context = this._context;
 		var currentPipelineMode:string = context.pipelineMode;
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
