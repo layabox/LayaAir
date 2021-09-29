@@ -739,6 +739,7 @@ export class Camera extends BaseCamera {
 		if ( needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == CameraClearFlags.DepthOnly || this.clearFlag == CameraClearFlags.Nothing)) {
 			if(RenderTexture.bindCanvasRender){//解决iOS中使用CopyTexSubImage2D特别慢的bug
 				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(RenderTexture.bindCanvasRender, this._internalRenderTexture);
+				blit.setContext(context);
 				blit.run();
 				blit.recover();
 			}else{
@@ -748,6 +749,7 @@ export class Camera extends BaseCamera {
 					WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
 					gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 					var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(grabTexture, this._internalRenderTexture);
+					blit.setContext(context);
 					blit.run();
 					blit.recover();
 					RenderTexture.recoverToPool(grabTexture);

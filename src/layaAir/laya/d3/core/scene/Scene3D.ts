@@ -1323,17 +1323,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.ambientSphericalHarmonics = ambientSH;
 		}
 		var reflectionData: string = data.reflection;
-		if(reflectionData != undefined){
-			let tex = Loader.getRes(reflectionData);
-			if(tex){
-				this.reflection = tex;
-			}else{
-				let h = Handler.create(this,()=>{
-					this.reflection = Loader.getRes(reflectionData);
-				})
-				ILaya.loader.create(reflectionData, h);
-			}
-		}
+		(reflectionData != undefined) && (this.reflection = Loader.getRes(reflectionData));
 
 		var reflectionDecodingFormatData: number = data.reflectionDecodingFormat;
 		(reflectionDecodingFormatData != undefined) && (this.reflectionDecodingFormat = reflectionDecodingFormatData);
