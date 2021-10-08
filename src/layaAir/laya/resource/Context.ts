@@ -369,6 +369,8 @@ export class Context {
 		WebGLContext.setDepthMask(gl, true);
 		WebGLContext.setFrontFace(gl, gl.CCW);
 		gl.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
+		gl.enable(gl.SCISSOR_TEST);
+        gl.scissor(0, 0, RenderState2D.width, RenderState2D.height);
 	}
 
 	/**@internal */
