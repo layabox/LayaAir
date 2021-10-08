@@ -1,5 +1,6 @@
 import { Laya } from "Laya";
 import { Socket } from "laya/net/Socket";
+import { Utils } from "laya/utils/Utils";
 
 /**
 * socket客户端
@@ -25,7 +26,7 @@ export default class Client {
     initEvent()
     {
         //备注：这里测试的时候需要把192.168.1.138改成socket服务端的ip即可
-        var host:string = "192.168.1.138";
+        var host:string = "192.168.1.60";
         var post:number = 10000;
         var websocketurl:string = "ws://"+host+":"+post+"/";
         this.socket = new Socket();
@@ -42,8 +43,11 @@ export default class Client {
      */
     send(data)
     {
+        var isMaster:any = parseInt(Utils.getQueryString("isMaster"))||0;
+        if(!isMaster)return;
         if(this.socket)
         {
+            data.isMaster = isMaster;//主控制端
             this.socket.send(JSON.stringify(data));
         }
     }

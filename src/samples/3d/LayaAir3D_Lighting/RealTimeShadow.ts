@@ -51,6 +51,7 @@ export class RealTimeShadow {
 	private stype:any = 0;
 	private rotationButton:Button;
 	private rottaionState:boolean = true;
+	private rotationScript:RotationScript;
 	isMaster: any;
 	constructor() {
 		//Init engine.
@@ -111,7 +112,7 @@ export class RealTimeShadow {
 		directionLight.shadowNormalBias = 4;
 
 		// Add rotation script to light.
-		var rotationScript: RotationScript = directionLight.addComponent(RotationScript);
+		this.rotationScript = directionLight.addComponent(RotationScript);
 
 		// A plane receive shadow.
 		var grid: Sprite3D = <Sprite3D>scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh"));
@@ -129,7 +130,6 @@ export class RealTimeShadow {
 		// Add Light controll UI.
 		this.loadUI();
 	}
-
 	/**
 	 * Add one with smoothness and metallic sphere.
 	 */
@@ -161,7 +161,7 @@ export class RealTimeShadow {
 	}
 
 	stypeFun(label:string = "Stop Rotation"): void {
-		if (this.rottaionState) {
+		if (this.rotationScript.rotation) {
 			this.rotationButton.label = "Start Rotation";
 			this.rottaionState = false;
 		} else {

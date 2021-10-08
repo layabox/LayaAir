@@ -310,10 +310,21 @@ import Client from "../Client";
 
 		onNext(data:any)
 		{
-			if(!data.isMaster)return;//拒绝非主控制器推送消息
-			this.a_length = data.bigType;
-			var smallType:number = data.smallType;
-			this.switchFunc(this.a_length, smallType);
+			
+			if(data.hasOwnProperty("bigType"))
+			{
+				//示例切换
+				this.a_length = data.bigType;
+				var smallType:number = data.smallType;
+				this.switchFunc(this.a_length, smallType);
+			}
+			else
+			{
+				var isMaster:any = parseInt(Utils.getQueryString("isMaster"))||0;
+				if(isMaster)return;
+				//示例内单独小类型切换
+				this._oldView && this._oldView['stypeFun'+data.stype] && this._oldView['stypeFun'+data.stype](data.value);
+			}
 		}
 		
 		private onClearPreBox():void
@@ -353,6 +364,11 @@ import Client from "../Client";
 			if ( this.btnOn && this.m_length != 0)
 			{
 				return;
+			}
+			var isMaster:any = parseInt(Utils.getQueryString("isMaster"))||0;
+			if(Main.isOpenSocket && !this.btnOn && isMaster)
+			{
+				this.onDirectSwitch();
 			}
 			this.m_length += 1;
 			this.onClearPreBox();
@@ -452,19 +468,24 @@ import Client from "../Client";
 			}
 		}
 		
-		 switchFunc(bigListIndex:number,smallListIndex:number):void
+		 switchFunc(bigListIndex:number,smallListIndex:number,isAutoSwitch:boolean = true):void
 		{
 			this.btnOn = true;
 			this.m_length = 0;
 			this.bigComBox.selectedIndex = bigListIndex;
-			this.onBigComBoxSelectHandler(bigListIndex,smallListIndex);
+			this.onBigComBoxSelectHandler(bigListIndex,smallListIndex,isAutoSwitch);
 			this.btnOn = false;
 		}
 		
-		private onBigComBoxSelectHandler(index:number,smallIndex:number = 0):void
+		private onBigComBoxSelectHandler(index:number,smallIndex:number = 0,isAutoSwitch:boolean = false):void
 		{
 			if(this._bigIndex!=index){
-
+				var isMaster:any = parseInt(Utils.getQueryString("isMaster"))||0;
+				if(Main.isOpenSocket && !isAutoSwitch && isMaster)
+				{
+					this.onDirectSwitch();
+					return;
+				}
 				this._bigIndex = index;
 				var labelStr:string;
 				switch(index)
@@ -531,6 +552,16 @@ import Client from "../Client";
 			}
 			this.smallComBox.selectedIndex = smallIndex;
 		}
+
+		onDirectSwitch()
+	{
+		var smallType:number = this.smallComBox.selectedIndex;
+		var bigType:number = this.bigComBox.selectedIndex;
+		if(this._bigIndex != this.bigComBox.selectedIndex)
+			smallType = 0;
+		//主控制推送
+		Client.instance.send({type:"next",bigType:bigType,smallType:smallType});
+	}
 		
 		private onRightBtnClick():void
 		{

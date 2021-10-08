@@ -38,6 +38,7 @@ export class ChangeMesh {
 	isMaster: any;
 
 	constructor() {
+
 		//初始化引擎
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;

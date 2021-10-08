@@ -37,36 +37,6 @@ export class AnimationLayerBlend {
 
 		//加载场景资源
 		Scene3D.load("res/threeDimen/scene/LayaScene_Sniper/Sniper.ls", Handler.create(this, this.sceneLoaded));
-
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			if(data.stype == 0)
-			{
-				this.stypeFun0(data.value);
-			}else if(data.stype == 1)
-			{
-				this.stypeFun1(data.value);
-			}else if(data.stype == 2)
-			{
-				this.stypeFun2(data.value);
-			}
-		}
 	}
 
 	private sceneLoaded(scene: Scene3D): void {
@@ -115,7 +85,6 @@ export class AnimationLayerBlend {
 		    this.changeActionButton0.label = "动画过渡:否";
 
 		label = this.changeActionButton0.label;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
 	}
 
@@ -135,7 +104,6 @@ export class AnimationLayerBlend {
 		}
 
 		label = this.changeActionButton1.label;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:1,value:label});	
 	}
 
@@ -175,7 +143,6 @@ export class AnimationLayerBlend {
 		(this._motionIndex === this._motions.length) && (this._motionIndex = 0);
 
 		label = this.changeActionButton2.label;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:2,value:label});	
 	}
 }
