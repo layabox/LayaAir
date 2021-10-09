@@ -359,6 +359,7 @@ export class BaseTexture extends Bitmap {
 			default:
 				throw new Error("BaseTexture:unknown filterMode value.");
 		}
+		WebGLContext.bindTexture(gl, this._glTextureType, null);
 	}
 
 	/**
@@ -382,6 +383,7 @@ export class BaseTexture extends Bitmap {
 		} else {
 			gl.texParameteri(this._glTextureType, orientation, gl.CLAMP_TO_EDGE);
 		}
+		WebGLContext.bindTexture(gl, this._glTextureType, null);
 	}
 
 	/**
@@ -396,6 +398,7 @@ export class BaseTexture extends Bitmap {
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			value = Math.min(gl.getParameter(anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT), value);
 			gl.texParameterf(this._glTextureType, anisotropic.TEXTURE_MAX_ANISOTROPY_EXT, value);
+			WebGLContext.bindTexture(gl, this._glTextureType, null);
 		}
 	}
 
