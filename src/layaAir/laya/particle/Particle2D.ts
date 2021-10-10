@@ -130,6 +130,7 @@ export class Particle2D extends Sprite {
         this._matrix4[5] = context._curMat.d;
         this._matrix4[12] = context._curMat.tx;
         this._matrix4[13] = context._curMat.ty;
+        if(!this._particleTemplate)return;
         var sv: any = ((<ParticleTemplate2D>this._particleTemplate)).sv;
         sv.u_mmat = this._matrix4;
 
