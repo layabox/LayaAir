@@ -254,6 +254,7 @@ export class RenderTexture extends BaseTexture {
 		}else if(format == RenderTextureFormat.Depth || format == RenderTextureFormat.ShadowMap){
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 			this.filterMode = FilterMode.Point;
+			WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
 			switch (this._depthStencilFormat) {
 				case RenderTextureDepthFormat.DEPTH_16:
 					if (isWebGL2){
