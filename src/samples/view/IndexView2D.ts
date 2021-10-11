@@ -86,7 +86,7 @@ import { PerformanceTest_Maggots } from "./../2d/PerformanceTest_Maggots";
 import { PerformanceTest_Cartoon } from "./../2d/PerformanceTest_Cartoon";
 import { PerformanceTest_Cartoon2 } from "./../2d/PerformanceTest_Cartoon2";
 import { PerformanceTest_Skeleton } from "./../2d/PerformanceTest_Skeleton";
-import { Spine_SkeletonDemo } from "./../2d/Spine_SkeletonDemo";
+import { Skeleton_SpineAdapted } from "../2d/Skeleton_SpineAdapted";
 import { IDE_Project } from "./../2d/IDE_Project";
 import { Laya } from "Laya";
 import { Event } from "laya/events/Event"
@@ -134,7 +134,7 @@ import Client from "../Client";
 		/************************Animation-end***************************/
 		
 		/************************Skeleton-start***************************/
-		private _comboBoxSkeletonClsArr:any[] = [Skeleton_MultiTexture,Skeleton_SpineEvent,Skeleton_SpineIkMesh,Skeleton_SpineVine,Skeleton_ChangeSkin,Spine_SkeletonDemo];
+		private _comboBoxSkeletonClsArr:any[] = [Skeleton_MultiTexture,Skeleton_SpineEvent,Skeleton_SpineIkMesh,Skeleton_SpineVine,Skeleton_ChangeSkin,Skeleton_SpineAdapted];
 		private _comboBoxSkeletonArr:any[] = ['多纹理','Spine事件','橡胶人','藤蔓','换装','SpineDemo'];
 		/************************Skeleton-end***************************/
 		

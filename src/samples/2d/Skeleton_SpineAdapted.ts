@@ -2,10 +2,10 @@ import { SpineSkeleton } from "laya/spine/SpineSkeleton";
 import { Browser } from "laya/utils/Browser"
 import { Event } from "laya/events/Event";
 import { Stat } from "laya/utils/Stat";
-import { Main } from "./../Main";
+import { Main } from "../Main";
 import { SpineTemplet, SpineVersion } from "laya/spine/SpineTemplet";
 
-export class Spine_SkeletonDemo {
+export class Skeleton_SpineAdapted {
 
 	private aniPath = "res/spine/spineboy-pma.skel";
 	private templet:SpineTemplet;
