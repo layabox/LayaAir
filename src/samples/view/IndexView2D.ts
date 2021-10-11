@@ -98,7 +98,7 @@ import { Event } from "laya/events/Event"
 	import { IndexViewUI } from "../ui/IndexViewUI"
 import { Sprite } from "laya/display/Sprite";
 import { Main } from "../Main";
-import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
+import Sprite_ScreenShot from "../2d/Sprite_ScreenShot";
 import { Physics_Tumbler } from "../2d/PhySics_Tumbler";
 import { Physics_CollisionFiltering } from "../2d/Physics_CollisionFiltering";
 import { Physics_Strandbeests } from "../2d/Physics_Strandbeests";
