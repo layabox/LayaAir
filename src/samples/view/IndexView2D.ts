@@ -106,6 +106,7 @@ import { Physics_Bridge } from "../2d/Physics_Bridge";
 import { Physics_CollisionEvent } from "../2d/Physics_CollisionEvent";
 import { Utils } from "laya/utils/Utils";
 import Client from "../Client";
+import { UI_FontClip } from "../2d/UI_FontClip";
 	
 	/**
 	 * 首页View 
@@ -169,8 +170,8 @@ import Client from "../Client";
 		/************************Text-end***************************/
 		
 		/************************UI-start***************************/
-		private _comboBoxUIClsArr:any[] = [UI_Label,UI_Button,UI_RadioGroup,UI_CheckBox,UI_Clip,UI_ColorPicker,UI_ComboBox,UI_Dialog,UI_ScrollBar,UI_Slider,UI_Image,UI_List,UI_ProgressBar,UI_Tab,UI_Input,UI_TextArea,UI_Tree];
-		private _comboBoxUIArr:any[] = ['Label','Button','RadioGroup','CheckBox','Clip','ColorPicker','ComboBox','Dialog','ScrollBar','Slider','Image','List','ProgressBar','Tab','Input','TextArea','Tree'];
+		private _comboBoxUIClsArr:any[] = [UI_Label,UI_Button,UI_RadioGroup,UI_CheckBox,UI_Clip,UI_FontClip,UI_ColorPicker,UI_ComboBox,UI_Dialog,UI_ScrollBar,UI_Slider,UI_Image,UI_List,UI_ProgressBar,UI_Tab,UI_Input,UI_TextArea,UI_Tree];
+		private _comboBoxUIArr:any[] = ['Label','Button','RadioGroup','CheckBox','Clip','FontClip','ColorPicker','ComboBox','Dialog','ScrollBar','Slider','Image','List','ProgressBar','Tab','Input','TextArea','Tree'];
 		/************************UI-end***************************/
 		
 		/************************Timer-start***************************/
