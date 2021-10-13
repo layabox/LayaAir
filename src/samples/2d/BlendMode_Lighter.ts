@@ -3,6 +3,7 @@ import { Animation } from "laya/display/Animation";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Tween } from "laya/utils/Tween";
+import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class BlendMode_Lighter {
@@ -12,14 +13,14 @@ export class BlendMode_Lighter {
 
 	private bgColorTweener: Tween = new Tween();
 	private gradientInterval: number = 2000;
-	private bgColorChannels: any = { r: 99, g: 0, b: 0xFF };
+	private bgColorChannels: any = { 'r': 99, 'g': 0, 'b': 0xFF };
 
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
 		// 不支持WebGL时自动切换至Canvas
-		//			Laya.init(phoenixWidth * 2, phoenixHeight, WebGL);
+		Laya.init(this.phoenixWidth * 2, this.phoenixHeight, WebGL);
 
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 		Laya.stage.alignH = Stage.ALIGN_CENTER;
@@ -78,7 +79,6 @@ export class BlendMode_Lighter {
 
 		return animation;
 	}
-
 	private preFixNumber(num: number, strLen: number): string {
 		return ("0000000000" + num).slice(-strLen);
 	}
@@ -86,7 +86,7 @@ export class BlendMode_Lighter {
 	private evalBgColor(): void {
 		var color: number = Math.random() * 0xFFFFFF;
 		var channels: any[] = this.getColorChannals(color);
-		this.bgColorTweener.to(this.bgColorChannels, { r: channels[0], g: channels[1], b: channels[2] }, this.gradientInterval, null, Handler.create(this, this.onTweenComplete));
+		this.bgColorTweener.to(this.bgColorChannels, { "r": channels[0], "g": channels[1], "b": channels[2] }, this.gradientInterval, null, Handler.create(this, this.onTweenComplete));
 	}
 
 	private getColorChannals(color: number): any[] {

@@ -38,10 +38,10 @@ export class Tween_SimpleSample {
 		this.Main.box2D.graphics.drawLine(terminalX, 0, terminalX, Laya.stage.height, "#FFFFFF");
 
 		// characterA使用Tween.to缓动
-		Tween.to(characterA, { x: terminalX }, 1000);
+		Tween.to(characterA, { "x": terminalX }, 1000);
 		// characterB使用Tween.from缓动
 		characterB.x = terminalX;
-		Tween.from(characterB, { x: 0 }, 1000);
+		Tween.from(characterB, { "x": 0 }, 1000);
 	}
 
 	private createCharacter(skin: string): Sprite {

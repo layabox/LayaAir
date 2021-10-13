@@ -22,15 +22,15 @@ import { Main } from "../Main";
  */
 export class Physics_CollisionFiltering {
     Main: typeof Main = null;
-    public static readonly k_smallGroup = 1;
-    public static readonly k_middleGroup = 0;
-    public static readonly k_largeGroup = -1;
-    public static readonly k_triangleCategory = 0x2;
-    public static readonly k_boxCategory = 0x4;
-    public static readonly k_circleCategory = 0x8;
-    public static readonly k_triangleMask = 0xF;
-    public static readonly k_boxMask = 0xF ^ Physics_CollisionFiltering.k_circleCategory;
-    public static readonly k_circleMask = Physics_CollisionFiltering.k_triangleCategory | Physics_CollisionFiltering.k_boxCategory | 0x01; // 0x01为house刚体默认的category，若不设置，则会穿透house
+    public static  k_smallGroup = 1;
+    public static  k_middleGroup = 0;
+    public static  k_largeGroup = -1;
+    public static  k_triangleCategory = 0x2;
+    public static  k_boxCategory = 0x4;
+    public static  k_circleCategory = 0x8;
+    public static  k_triangleMask = 0xF;
+    public static  k_boxMask = 0xF ^ Physics_CollisionFiltering.k_circleCategory;
+    public static  k_circleMask = Physics_CollisionFiltering.k_triangleCategory | Physics_CollisionFiltering.k_boxCategory | 0x01; // 0x01为house刚体默认的category，若不设置，则会穿透house
     private curTarget: Sprite;
     private preMovementX: number = 0;
     private preMovementY: number = 0;

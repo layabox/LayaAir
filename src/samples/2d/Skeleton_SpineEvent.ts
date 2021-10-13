@@ -1,8 +1,10 @@
+import { Laya } from "Laya";
 import { EventData } from "laya/ani/bone/EventData";
 import { Skeleton } from "laya/ani/bone/Skeleton";
 import { Templet } from "laya/ani/bone/Templet";
 import { Sprite } from "laya/display/Sprite";
 import { Event } from "laya/events/Event";
+import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Tween } from "laya/utils/Tween";
@@ -26,9 +28,8 @@ export class Skeleton_SpineEvent {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		//			WebGL.enable();
-		//			Laya.init(Browser.width, Browser.height);
-		//			Laya.stage.bgColor = "#ffffff";
+		Laya.init( Browser.width, Browser.height);
+		Laya.stage.bgColor = "#ffffff";
 		Stat.show();
 		this.mLabelSprite = new Sprite();
 		this.startFun();
@@ -79,7 +80,7 @@ export class Skeleton_SpineEvent {
 		this.mLabelSprite.y = this.mStartY;
 		this.mLabelSprite.graphics.clear();
 		this.mLabelSprite.graphics.fillText(tEventData.name, 0, 0, "20px Arial", "#ff0000", "center");
-		Tween.to(this.mLabelSprite, { y: this.mStartY - 200 }, 1000, null, Handler.create(this, this.playEnd))
+		Tween.to(this.mLabelSprite, { "y": this.mStartY - 200 }, 1000, null, Handler.create(this, this.playEnd))
 	}
 
 	private playEnd(): void {

@@ -10,9 +10,9 @@ export class Sprite_Guide {
 	private tipContainer: Sprite;
 
 	private guideSteps: any[] =
-		[{ x: 151, y: 575, radius: 150, tip: "res/guide/help6.png", tipx: 200, tipy: 250 },
-		{ x: 883, y: 620, radius: 100, tip: "res/guide/help4.png", tipx: 730, tipy: 380 },
-		{ x: 1128, y: 583, radius: 110, tip: "res/guide/help3.png", tipx: 900, tipy: 300 }];
+		[{ 'x': 151, 'y': 575, 'radius': 150, 'tip': "res/guide/help6.png", 'tipx': 200, 'tipy': 250 },
+		{ 'x': 883, 'y': 620, 'radius': 100, 'tip': "res/guide/help4.png", 'tipx': 730, 'tipy': 380 },
+		{ 'x': 1128, 'y': 583, 'radius': 110, 'tip': "res/guide/help3.png", 'tipx': 900, 'tipy': 300 }];
 	private guideStep: number = 0;
 	private hitArea: HitArea;
 	private interactionArea: Sprite;
@@ -21,7 +21,7 @@ export class Sprite_Guide {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		//			Laya.init(1285, 727);
+		Laya.init(1285, 727);
 		Laya.stage.alignH = Stage.ALIGN_CENTER;
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 

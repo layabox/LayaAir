@@ -61,7 +61,7 @@ export class Physics_CollisionEvent {
             let rb: RigidBody = sp.addComponent(RigidBody);
             this.bodys.push(rb);
             this.touching[i] = false;
-            rb.getBody().SetUserData({pointer: i});
+            rb.getBody().SetUserData({'pointer': i});
             let circleCollider: CircleCollider = sp.addComponent(CircleCollider);
             circleCollider.radius = 20;
             sp.addComponent(MouseJoint);

@@ -28,7 +28,7 @@ export class Physics_Tumbler {
 		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
         Stat.show();
         Physics.enable({
-            gravity: 0
+            'gravity': 0
         });
         PhysicsDebugDraw.enable();
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
@@ -76,7 +76,7 @@ export class Physics_Tumbler {
 
         let revoluteJoint = new RevoluteJoint();
         revoluteJoint.anchor = [box.width / 2, box.width / 2];
-        revoluteJoint.motorSpeed = .05 * Math.PI;
+        revoluteJoint.motorSpeed = 0.05 * Math.PI;
         revoluteJoint.maxMotorTorque = 1e8;
         revoluteJoint.enableMotor = true;
         box.addComponentIntance(revoluteJoint);

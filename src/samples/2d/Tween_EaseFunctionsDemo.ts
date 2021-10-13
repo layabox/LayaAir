@@ -10,6 +10,7 @@ import { List } from "laya/ui/List";
 import { Ease } from "laya/utils/Ease";
 import { Handler } from "laya/utils/Handler";
 import { Tween } from "laya/utils/Tween";
+import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Tween_EaseFunctionsDemo {
@@ -22,7 +23,7 @@ export class Tween_EaseFunctionsDemo {
 		this.Main = maincls;
 
 		// 不支持WebGL时自动切换至Canvas
-		//			Laya.init(550, 400, WebGL);
+		Laya.init(550, 400, WebGL);
 		//
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 		Laya.stage.alignH = Stage.ALIGN_CENTER;
@@ -88,7 +89,7 @@ export class Tween_EaseFunctionsDemo {
 		this.character.pos(100, 50);
 
 		this.tween && this.tween.clear();
-		this.tween = Tween.to(this.character, { x: 350, y: 250 }, this.duration, Ease[list.selectedItem]);
+		this.tween = Tween.to(this.character, { "x": 350, "y": 250 }, this.duration, Ease[list.selectedItem]);
 	}
 
 	private createDurationCrontroller(): void {

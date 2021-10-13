@@ -36,7 +36,7 @@ export class Tween_Letters {
 			var letterText: Text = this.createLetter(demoString.charAt(i));
 			letterText.x = w / len * i + offset;
 
-			Tween.to(letterText, { y: endY }, 1000, Ease.elasticOut, null, i * 1000);
+			Tween.to(letterText, { "y": endY }, 1000, Ease.elasticOut, null, i * 1000);
 		}
 	}
 

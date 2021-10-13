@@ -13,7 +13,7 @@ export class Sprite_MagnifyingGlass {
 		this.Main = maincls;
 
 		// 不支持WebGL时自动切换至Canvas
-		//			Laya.init(1136, 640, WebGL);
+		Laya.init(1136, 640);
 		//
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 		Laya.stage.alignH = Stage.ALIGN_CENTER;

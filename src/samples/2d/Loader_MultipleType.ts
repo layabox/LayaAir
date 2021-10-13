@@ -11,8 +11,8 @@ export class Loader_MultipleType {
 		Laya.init(100, 100);
 
 		var assets: any[] = [];
-		assets.push({ url: this.ROBOT_DATA_PATH, type: Loader.BUFFER });
-		assets.push({ url: this.ROBOT_TEXTURE_PATH, type: Loader.IMAGE });
+		assets.push({ "url": this.ROBOT_DATA_PATH, "type": Loader.BUFFER });
+		assets.push({ "url": this.ROBOT_TEXTURE_PATH, "type": Loader.IMAGE });
 
 		Laya.loader.load(assets, Handler.create(this, this.onAssetsLoaded));
 	}

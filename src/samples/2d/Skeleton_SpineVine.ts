@@ -1,6 +1,8 @@
+import { Laya } from "Laya";
 import { Skeleton } from "laya/ani/bone/Skeleton";
 import { Templet } from "laya/ani/bone/Templet";
 import { Event } from "laya/events/Event";
+import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "./../Main";
 
@@ -21,9 +23,8 @@ export class Skeleton_SpineVine {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		//			WebGL.enable();
-		//			Laya.init(Browser.width, Browser.height);
-		//			Laya.stage.bgColor = "#ffffff";
+		Laya.init( Browser.width, Browser.height);
+		Laya.stage.bgColor = "#ffffff";
 		Stat.show();
 		this.startFun();
 	}

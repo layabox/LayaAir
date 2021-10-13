@@ -35,7 +35,7 @@ export class UI_Tree {
 
 	private onLoadComplete(e: any = null): void {
 		// 组装tree的数据
-		var treeData: string = "<data>";
+		var treeData:string = "<data>";
 		for (var i: number = 0; i < 5; ++i) {
 			treeData += "<item label='Directory " + (i + 1) + "' isOpen='true'>";
 			for (var j: number = 0; j < 5; ++j) {

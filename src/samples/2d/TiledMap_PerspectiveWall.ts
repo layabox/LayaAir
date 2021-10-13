@@ -10,7 +10,7 @@ export class TiledMap_PerspectiveWall {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		//			Laya.init(700, 500, WebGL);
+		Laya.init(700, 500);
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 		Laya.stage.alignH = Stage.ALIGN_CENTER;
 

@@ -174,7 +174,7 @@ export class Physics_Strandbeests {
         distanceJoint2.maxLength = distanceJoint2.minLength = distanceJoint2.length || distanceJoint2.joint.GetLength() * Physics.PIXEL_RATIO;;
 
         let localAnchor = new box2d.b2Vec2();
-        wheelBody.getBody().GetLocalPoint({x: (this.pos[0] + this.m_offset[0]) / Physics.PIXEL_RATIO, y: (this.pos[1] + this.m_offset[1]) / Physics.PIXEL_RATIO}, localAnchor);
+        wheelBody.getBody().GetLocalPoint({'x': (this.pos[0] + this.m_offset[0]) / Physics.PIXEL_RATIO, 'y': (this.pos[1] + this.m_offset[1]) / Physics.PIXEL_RATIO}, localAnchor);
         let anchor = [-localAnchor.x * Physics.PIXEL_RATIO, -localAnchor.y * Physics.PIXEL_RATIO];
 
         let distanceJoint3: DistanceJoint = new DistanceJoint();
@@ -222,7 +222,7 @@ export class Physics_Strandbeests {
             let circlePosy = circleCollider.y / Physics.PIXEL_RATIO;
             let velocityX = chassisPos.x - circlePosx;
             let velocityY = chassisPos.y - circlePosy;
-            circleBody.linearVelocity = {x: velocityX * 5, y: velocityY * 5};
+            circleBody.linearVelocity = {"x": velocityX * 5, "y": velocityY * 5};
             Laya.timer.frameOnce(120, this, function() {
                 newBall.destroy();
             });

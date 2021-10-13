@@ -7,7 +7,7 @@ export class SmartScale_Align_Contral {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		//			Laya.init(100, 100);
+		Laya.init(100, 100);
 		Laya.stage.scaleMode = Stage.SCALE_NOSCALE;
 
 		Laya.stage.alignH = Stage.ALIGN_CENTER;

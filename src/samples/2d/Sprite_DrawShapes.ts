@@ -11,7 +11,7 @@ export class Sprite_DrawShapes {
 		this.Main = maincls;
 
 		// 不支持WebGL时自动切换至Canvas
-		//			Laya.init(740, 400, WebGL);
+		Laya.init(740, 400);
 		//
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 		Laya.stage.alignH = Stage.ALIGN_CENTER;

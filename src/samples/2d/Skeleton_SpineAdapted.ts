@@ -3,7 +3,8 @@ import { Browser } from "laya/utils/Browser"
 import { Event } from "laya/events/Event";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
-import { SpineTemplet, SpineVersion } from "laya/spine/SpineTemplet";
+import { SpineTemplet, SpineVersion} from "laya/spine/SpineTemplet";
+import { Laya } from "Laya";
 
 export class Skeleton_SpineAdapted {
 
@@ -16,9 +17,8 @@ export class Skeleton_SpineAdapted {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// WebGL.enable();
-		// Laya.init(Browser.width, Browser.height);
-		// Laya.stage.bgColor = "#ffffff";
+		Laya.init( Browser.width, Browser.height);
+		Laya.stage.bgColor = "#ffffff";
 		Stat.show();
 		this.startFun();
 	}

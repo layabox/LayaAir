@@ -1,9 +1,9 @@
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
+import { Stage } from "laya/display/Stage";
 import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Sprite_DisplayImage {
@@ -12,12 +12,12 @@ export class Sprite_DisplayImage {
 		this.Main = maincls;
 
 		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
+		Laya.init( Browser.clientWidth, Browser.clientHeight);
 
-		//			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		//			Laya.stage.alignH = Stage.ALIGN_CENTER;
-		//
-		//			Laya.stage.scaleMode = "showall";
+		//Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+		//Laya.stage.alignH = Stage.ALIGN_CENTER;
+
+		//Laya.stage.scaleMode = "showall";
 		Laya.stage.bgColor = "#232628";
 
 		this.showApe();

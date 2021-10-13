@@ -11,12 +11,12 @@ export class InputDevice_Media {
 		if (Media.supported() === false)
 			alert("当前浏览器不支持");
 		else {
-			var options: any = {
-				audio: false,
-				video:
+			var options = {
+				"audio": false,
+				"video":
 				{
-					width: Browser.width,
-					height: Browser.height
+					"width": Browser.width,
+					"height": Browser.height
 				}
 			};
 

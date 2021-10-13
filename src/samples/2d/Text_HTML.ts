@@ -11,7 +11,7 @@ export class Text_HTML {
 		this.Main = maincls;
 
 		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
+		Laya.init( Browser.clientWidth, Browser.clientHeight, WebGL);
 
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 		Laya.stage.alignH = Stage.ALIGN_CENTER;
@@ -33,7 +33,7 @@ export class Text_HTML {
 		p.style.fontSize = 30;
 
 		var html: string = "<span color='#e3d26a'>使用</span>";
-		html += "<span style='color:#FFFFFF;font-weight:bold'>HTMLDivElement</span>";
+		html += "<span style='color:#FFFFFF;font-weight :bold'>HTMLDivElement</span>";
 		html += "<span color='#6ad2e3'>创建的</span><br/>";
 		html += "<span color='#d26ae3'>HTML文本</span>";
 

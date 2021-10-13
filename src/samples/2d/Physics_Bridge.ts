@@ -67,7 +67,7 @@ export class Physics_Bridge {
             bc.width = width;
             bc.height = height;
             bc.density = 20;
-            bc.friction = .2;
+            bc.friction = 0.2;
             bc.y = -height / 2;
             let rj = new RevoluteJoint();
             rj.otherBody = preBody;
@@ -125,7 +125,7 @@ export class Physics_Bridge {
             let circlePosy = circleCollider.y / Physics.PIXEL_RATIO;
             let velocityX = targetX - circlePosx;
             let velocityY = targetY - circlePosy;
-            circleBody.linearVelocity = {x: velocityX * 3, y: velocityY * 3};
+            circleBody.linearVelocity = {"x": velocityX * 3, "y": velocityY * 3};
             Laya.timer.frameOnce(120, this, function() {
                 newBall.destroy();
             });

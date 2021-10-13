@@ -14,7 +14,7 @@ export class TiledMap_AnimationTile {
 		this.Main = maincls;
 
 		// 不支持WebGL时自动切换至Canvas
-		//			Laya.init(1100, 800, WebGL);
+		Laya.init(1100, 800);
 
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 		Laya.stage.alignH = Stage.ALIGN_CENTER;

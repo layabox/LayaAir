@@ -73,7 +73,7 @@ export class InputDevice_Map {
 		// 创建标注物
 		this.marker = new this.BMap.Marker(new this.BMap.Point(0, 0));
 		this.map.addOverlay(this.marker);
-		var label: any = new this.BMap.Label("当前位置", { offset: new this.BMap.Size(-15, 30) });
+		var label: any = new this.BMap.Label("当前位置", { "offset": new this.BMap.Size(-15, 30) });
 		this.marker.setLabel(label);
 	}
 

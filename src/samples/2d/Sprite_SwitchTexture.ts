@@ -43,7 +43,8 @@ export class Sprite_SwitchTexture {
 	}
 
 	private switchTexture(e: any = null): void {
-		var textureUrl: string = (this.flag = !this.flag) ? this.texture1 : this.texture2;
+		var textureUrl: string = (this.flag = !this.flag) ? this.texture1 : 
+		this.texture2;
 
 		// 更换纹理
 		this.ape.graphics.clear();

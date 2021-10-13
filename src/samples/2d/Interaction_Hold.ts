@@ -1,5 +1,6 @@
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
+import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
@@ -23,10 +24,10 @@ export class Interaction_Hold {
 		// 不支持WebGL时自动切换至Canvas
 		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 		//
-		//			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		//			Laya.stage.alignH = Stage.ALIGN_CENTER;
-		//
-		//			Laya.stage.scaleMode = "showall";
+		//Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+		//Laya.stage.alignH = Stage.ALIGN_CENTER;
+
+		//Laya.stage.scaleMode = "showall";
 		Laya.stage.bgColor = "#232628";
 
 		Laya.loader.load(this.apePath, Handler.create(this, this.createApe));

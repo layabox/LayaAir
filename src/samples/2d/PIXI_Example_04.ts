@@ -40,7 +40,7 @@ export class PIXI_Example_04 {
 			tempBall.y = (Math.random() * this.h) - this.slideY;
 			tempBall.pivot(16, 16);
 
-			this.stars.push({ sprite: tempBall, x: tempBall.x, y: tempBall.y });
+			this.stars.push({ "sprite": tempBall, "x": tempBall.x, "y": tempBall.y });
 
 			this.Main.box2D.addChild(tempBall);
 		}

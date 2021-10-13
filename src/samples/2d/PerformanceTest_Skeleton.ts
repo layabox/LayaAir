@@ -38,7 +38,7 @@ export class PerformanceTest_Skeleton {
 
 		this.mTexturePath = "res/skeleton/" + this.fileName + "/" + this.fileName + ".png";
 		this.mAniPath = "res/skeleton/" + this.fileName + "/" + this.fileName + ".sk";
-		Laya.loader.load([{ url: this.mTexturePath, type: Loader.IMAGE }, { url: this.mAniPath, type: Loader.BUFFER }], Handler.create(this, this.onAssetsLoaded));
+		Laya.loader.load([{ "url": this.mTexturePath, "type": Loader.IMAGE }, { "url": this.mAniPath, "type": Loader.BUFFER }], Handler.create(this, this.onAssetsLoaded));
 	}
 
 	onAssetsLoaded(e: any = null): void {

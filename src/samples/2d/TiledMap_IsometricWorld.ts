@@ -19,7 +19,7 @@ export class TiledMap_IsometricWorld {
 		this.Main = maincls;
 
 		// 不支持WebGL时自动切换至Canvas
-		//			Laya.init(1600, 800, WebGL);
+		Laya.init(1600, 800);
 
 		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 		Laya.stage.alignH = Stage.ALIGN_CENTER;
