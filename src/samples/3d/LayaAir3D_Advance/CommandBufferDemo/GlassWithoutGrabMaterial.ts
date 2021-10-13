@@ -8,7 +8,7 @@ import { RenderState } from "laya/d3/core/material/RenderState";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { BaseTexture } from "laya/resource/BaseTexture";
 
-export class GlassWithoutGrabMaterail extends Material{
+export class GlassWithoutGrabMaterial extends Material{
     static TINTTEXTURE:number = Shader3D.propertyNameToID("u_tintTexure");
     static NORMALTEXTURE:number = Shader3D.propertyNameToID("u_normalTexture");
     static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
@@ -45,8 +45,8 @@ export class GlassWithoutGrabMaterail extends Material{
         super();
         this.setShaderName("GlassShader");
         this.renderModeSet();
-        this._shaderValues.setVector(GlassWithoutGrabMaterail.TILINGOFFSET,new Vector4(1,1,0,0));
-        this._shaderValues.setTexture(GlassWithoutGrabMaterail.TINTTEXTURE,texture);
+        this._shaderValues.setVector(GlassWithoutGrabMaterial.TILINGOFFSET,new Vector4(1,1,0,0));
+        this._shaderValues.setTexture(GlassWithoutGrabMaterial.TINTTEXTURE,texture);
     }
 
     //渲染模式

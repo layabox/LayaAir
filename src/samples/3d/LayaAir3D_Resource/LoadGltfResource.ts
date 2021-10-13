@@ -15,7 +15,7 @@ import { Loader } from "laya/net/Loader";
 import { TextureCube } from "laya/d3/resource/TextureCube";
 import { glTFLoader } from "laya/gltf/glTFLoader";
 
-export class LoadGltfRosource {
+export class LoadGltfResource {
 
     scene: Scene3D;
     camera: Camera;
@@ -54,7 +54,7 @@ export class LoadGltfRosource {
         // 初始化 glTFLoader
         glTFLoader.init();
 
-        var gltfResource = [
+        var gltfResource:any[] = [
             "res/threeDimen/gltf/RiggedFigure/RiggedFigure.gltf",
             "res/threeDimen/gltf/Duck/Duck.gltf",
             "res/threeDimen/gltf/AnimatedCube/AnimatedCube.gltf"

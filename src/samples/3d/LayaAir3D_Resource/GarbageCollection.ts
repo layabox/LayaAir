@@ -71,13 +71,13 @@ export class GarbageCollection {
 	 loadUI(): void {
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
 			this.changeActionButton = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "释放显存")));
-			this.changeActionButton .size(160, 40);
-			this.changeActionButton .labelBold = true;
-			this.changeActionButton .labelSize = 30;
-			this.changeActionButton .sizeGrid = "4,4,4,4";
-			this.changeActionButton .scale(Browser.pixelRatio, Browser.pixelRatio);
-			this.changeActionButton .pos(200, 200);
-			this.changeActionButton .on(Event.CLICK, this, this.stypeFun);
+			this.changeActionButton.size(160, 40);
+			this.changeActionButton.labelBold = true;
+			this.changeActionButton.labelSize = 30;
+			this.changeActionButton.sizeGrid = "4,4,4,4";
+			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
+			this.changeActionButton.pos(200, 200);
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
 		}));
 	}
 
@@ -86,18 +86,18 @@ export class GarbageCollection {
 		this._castType %= 2;
 		switch (this._castType) {
 			case 0:
-				this.changeActionButton .label = "释放显存";
+				this.changeActionButton.label = "释放显存";
 				this.loadScene();
 				break;
 			case 1:
-				this.changeActionButton .label = "加载场景";
+				this.changeActionButton.label = "加载场景";
 				if (this._scene)//_scene不为空表示场景已加载完成
 					this.garbageCollection();
 				break;
 	    }
 		label = this.changeActionButton.label;
 		if(this.isMaster)
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+		Client.instance.send({"type":"next","btype":this.btype,"stype":0,"value":label});	
 
 	}
 
