@@ -32,7 +32,7 @@ export class SpineTempletBase extends Resource {
     }
 
     set isDestroyed(value: boolean) {
-        this._spinePremultipliedAlpha = value;
+		this._isDestroyed = value;
     }
 
 	get spinePremultipliedAlpha() {
@@ -40,7 +40,7 @@ export class SpineTempletBase extends Resource {
     }
 
     set spinePremultipliedAlpha(value: boolean) {
-        this._isDestroyed = value;
+        this._spinePremultipliedAlpha = value;
     }
 
     /**
