@@ -179,6 +179,10 @@ export class CommandBuffer {
 		this._commands.push(SetShaderDataCMD.create(shaderData,nameID,value,ShaderDataType.Matrix4x4,this));
 	}
 
+	setShaderDefine(shaderData:ShaderData,define:string,value:boolean):void{
+		this._commands.push(SetShaderDataCMD.create(shaderData,define,value,ShaderDataType.ShaderDefine,this));
+	}
+
 	/**
 	 * 设置全局Matrix属性
 	 * @param nameID 数据ID
@@ -188,6 +192,8 @@ export class CommandBuffer {
 		
 		this._commands.push(SetGlobalShaderDataCMD.create(nameID,source,ShaderDataType.Matrix4x4,this));
 	}
+
+	
 
 	/**
 	 * 添加一条通过全屏四边形将源纹理渲染到目标渲染纹理指令。

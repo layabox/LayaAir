@@ -98,6 +98,7 @@ export class BlitScreenQuadCMD extends Command {
 
 		if (dest) {
 			LayaGL.instance.viewport(0, 0, dest.width, dest.height);
+			LayaGL.instance.scissor(0, 0, dest.width, dest.height);
 		}
 		else {
 			let camera: Camera = this._commandBuffer._camera;
@@ -105,6 +106,7 @@ export class BlitScreenQuadCMD extends Command {
 			let vpH = viewport.height;
 			let vpY = RenderContext3D.clientHeight - viewport.y - vpH;
 			LayaGL.instance.viewport(viewport.x, vpY, viewport.width, vpH);
+			LayaGL.instance.scissor(viewport.x, vpY, viewport.width, vpH);
 		}
 
 		//TODO:优化

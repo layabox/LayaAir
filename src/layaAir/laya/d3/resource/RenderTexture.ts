@@ -254,6 +254,7 @@ export class RenderTexture extends BaseTexture {
 		}else if(format == RenderTextureFormat.Depth || format == RenderTextureFormat.ShadowMap){
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 			this.filterMode = FilterMode.Point;
+			WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
 			switch (this._depthStencilFormat) {
 				case RenderTextureDepthFormat.DEPTH_16:
 					if (isWebGL2){
@@ -281,9 +282,10 @@ export class RenderTexture extends BaseTexture {
 				default:
 					throw "RenderTexture: depth format RenderTexture must use depthFormat with DEPTH_16 and DEPTHSTENCIL_16_8.";
 			}
-			if (isWebGL2 && format == RenderTextureFormat.ShadowMap)
+			if (isWebGL2 && format == RenderTextureFormat.ShadowMap){
 				gl2.texParameteri(glTextureType, gl2.TEXTURE_COMPARE_MODE, gl2.COMPARE_REF_TO_TEXTURE);
 				gl2.texParameteri(glTextureType, gl2.TEXTURE_COMPARE_FUNC, gl2.LESS);
+			}
 		}
 	}
 
