@@ -14,7 +14,7 @@ uniform sampler2D texture;
 varying vec2 cliped;
 
 #ifdef BLUR_FILTER
-uniform vec4 strength_sig2_2sig2_gauss1;
+uniform vec4 strength_sig2_2sig2_gauss1;//TODO模糊的过程中会导致变暗变亮  
 uniform vec2 blurInfo;
 
 #define PI 3.141593
@@ -40,6 +40,7 @@ vec4 blur(){
         }
         ctexcoord.y+=step.y;
     }
+    vec4Color.w=1.0;
     return vec4Color;
 }
 #endif

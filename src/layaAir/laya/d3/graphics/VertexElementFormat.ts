@@ -52,10 +52,10 @@ export class VertexElementFormat {
 			"byte3": [3, gl.UNSIGNED_BYTE, 0],
 			"byte2": [2, gl.UNSIGNED_BYTE, 0],
 			"byte": [1, gl.UNSIGNED_BYTE, 0],
-			"short2": [2, gl.FLOAT, 0],
-			"short4": [4, gl.FLOAT, 0],
-			"normalizedshort2": [2, gl.FLOAT, 0],
-			"normalizedshort4": [4, gl.FLOAT, 0],
+			"short2": [2, gl.UNSIGNED_SHORT, 0],
+			"short4": [4, gl.UNSIGNED_SHORT, 0],
+			"normalizedshort2": [2, gl.UNSIGNED_SHORT, 1],
+			"normalizedshort4": [4, gl.UNSIGNED_SHORT, 1],
 			"halfvector2": [2, gl.FLOAT, 0],
 			"halfvector4": [4, gl.FLOAT, 0]
 		};
