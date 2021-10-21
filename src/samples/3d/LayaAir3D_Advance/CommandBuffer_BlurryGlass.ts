@@ -15,12 +15,13 @@ import { ShaderData } from "laya/d3/shader/ShaderData";
 import { FilterMode } from "laya/resource/FilterMode";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
-import { GlassWithoutGrabMaterail } from "./CommandBufferDemo/GlassWithoutGrabMaterial";
+
 import { BlurEffect } from "../LayaAir3D_PostProcess/BlurShader/BlurEffect";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { GlassWithoutGrabMaterial } from "./CommandBufferDemo/GlassWithoutGrabMaterial";
 
 export class CommandBuffer_BlurryGlass {
-	mat:GlassWithoutGrabMaterail;
+	mat:GlassWithoutGrabMaterial;
 	texture:RenderTexture;
 	constructor() {
 		//初始化引擎
@@ -32,7 +33,7 @@ export class CommandBuffer_BlurryGlass {
 		
 		//材质初始化
 		BlurEffect.init();
-		GlassWithoutGrabMaterail.init();
+		GlassWithoutGrabMaterial.init();
 
 		//加载场景
 		Scene3D.load("res/threeDimen/BlurryRefraction/Conventional/BlurryGlass.ls", Handler.create(this, function (scene: Scene3D): void {
@@ -47,8 +48,7 @@ export class CommandBuffer_BlurryGlass {
 			//在这里切换了材质
 			var pbrStandard:PBRStandardMaterial = glass01.meshRenderer.sharedMaterial as PBRStandardMaterial;
 			//将图片设置到玻璃材质
-			var glassMaterial:GlassWithoutGrabMaterail = new GlassWithoutGrabMaterail(pbrStandard.albedoTexture);
-		
+			var glassMaterial = new GlassWithoutGrabMaterial(pbrStandard.albedoTexture);
 			//给模型赋毛玻璃材质
 			glass01.meshRenderer.sharedMaterial = glassMaterial;
 			glass02.meshRenderer.sharedMaterial = glassMaterial;
