@@ -158,7 +158,7 @@ export class CharRender_Canvas extends ICharRender {
 			if(rect[2]<=0) rect[2]=1;	// 有的字体在处理不存在文字的时候，测量宽度为0，会导致getImageData出错
 		}
 		//getImageData的宽，高参数不能为0，所以W||1。h为什么+1忘了
-		var imgdt: ImageData = rect ? (ctx.getImageData(rect[0], rect[1], rect[2], rect[3]+1)) : (ctx.getImageData(0, 0, w||1, h+1));
+		var imgdt: ImageData = rect ? (ctx.getImageData(rect[0], rect[1], rect[2], rect[3]+1)) : (ctx.getImageData(0, 0, w<=0?1:w, h+1));
 		ctx.restore();
 		cri.bmpWidth = imgdt.width;
 		cri.bmpHeight = imgdt.height;
