@@ -28,7 +28,7 @@ export class RenderTexture extends BaseTexture {
 	/**
 	 *从对象池获取临时渲染目标。
 	 */
-	 static createFromPool(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16, mulSamples: number = 1): RenderTexture {
+	static createFromPool(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16, mulSamples: number = 1): RenderTexture {
 		var tex: RenderTexture;
 		for (var i: number = 0, n: number = RenderTexture._pool.length; i < n; i++) {
 			tex = RenderTexture._pool[i];
@@ -40,8 +40,8 @@ export class RenderTexture extends BaseTexture {
 				return tex;
 			}
 		}
-		if(LayaGL.layaGPUInstance._isWebGL2&&mulSamples!=1){
-			
+		if (LayaGL.layaGPUInstance._isWebGL2 && mulSamples != 1) {
+
 		}
 		tex = new RenderTexture(width, height, format, depthStencilFormat);
 		tex.lock = true;//TODO:资源不加锁会被GC掉,或GC时对象池清空
@@ -61,7 +61,7 @@ export class RenderTexture extends BaseTexture {
 	}
 
 	/** @internal 最后绑定到主画布上的结果 此值可能为null*/
-	private static _bindCanvasRender:RenderTexture;
+	private static _bindCanvasRender: RenderTexture;
 	/**
 	 * 绑定到主画布上的RenderTexture
 	 */
@@ -69,14 +69,14 @@ export class RenderTexture extends BaseTexture {
 		return RenderTexture._bindCanvasRender;
 	}
 
-	static set bindCanvasRender(value:RenderTexture){
-		if(value!=this._bindCanvasRender)
-			(this._bindCanvasRender)&&RenderTexture.recoverToPool(this._bindCanvasRender);
+	static set bindCanvasRender(value: RenderTexture) {
+		if (value != this._bindCanvasRender)
+			(this._bindCanvasRender) && RenderTexture.recoverToPool(this._bindCanvasRender);
 		this._bindCanvasRender = value;
 	}
 
 
-      
+
 	/** @internal */
 	protected _frameBuffer: any;
 	/** @internal */
@@ -88,13 +88,13 @@ export class RenderTexture extends BaseTexture {
 	/** @internal */
 	protected _inPool: boolean = false;
 
-	
+
 	protected _mulSampler: number = 1;
 
 	/** @inrernal 是否使用多重采样*/
-	protected _mulSamplerRT:boolean = false;
-	
-	protected _depthAttachMode:RTDEPTHATTACHMODE = RTDEPTHATTACHMODE.RENDERBUFFER;
+	protected _mulSamplerRT: boolean = false;
+
+	protected _depthAttachMode: RTDEPTHATTACHMODE = RTDEPTHATTACHMODE.RENDERBUFFER;
 
 	/** @internal */
 	_isCameraTarget: boolean = false;
@@ -112,33 +112,33 @@ export class RenderTexture extends BaseTexture {
 		return Texture2D.grayTexture;
 	}
 
-	get mulSampler():number{
+	get mulSampler(): number {
 		return this._mulSampler;
 	}
 
-	get depthStencilTexture():BaseTexture{
+	get depthStencilTexture(): BaseTexture {
 		return this._depthStencilTexture;
 	}
 
 	/**
 	 * FramBuffer的DepthAttach绑定模式
 	 */
-	set depthAttachMode(value:RTDEPTHATTACHMODE){
-		if(this._depthAttachMode!=value){
+	set depthAttachMode(value: RTDEPTHATTACHMODE) {
+		if (this._depthAttachMode != value) {
 			this._depthAttachMode = value;
-			switch(value){
+			switch (value) {
 				case RTDEPTHATTACHMODE.RENDERBUFFER:
-					this._createGLDepthRenderbuffer(this.width,this.height);
-					if(this._depthStencilTexture){
+					this._createGLDepthRenderbuffer(this.width, this.height);
+					if (this._depthStencilTexture) {
 						var gl: WebGLRenderingContext = LayaGL.instance;
 						gl.deleteTexture(this._glTexture);
 						this._depthStencilTexture = null;
 					}
-					
+
 					break;
 				case RTDEPTHATTACHMODE.TEXTURE:
-					this._createGLDepthTexture(this.width,this.height);
-					if(this._depthStencilBuffer){
+					this._createGLDepthTexture(this.width, this.height);
+					if (this._depthStencilBuffer) {
 						var gl: WebGLRenderingContext = LayaGL.instance;
 						gl.deleteRenderbuffer(this._depthStencilBuffer);
 						this._depthStencilBuffer = null;
@@ -148,7 +148,7 @@ export class RenderTexture extends BaseTexture {
 		}
 	}
 
-	get depthAttachMode(){
+	get depthAttachMode() {
 		return this._depthAttachMode;
 	}
 
@@ -176,7 +176,7 @@ export class RenderTexture extends BaseTexture {
 	protected _create(width: number, height: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var gl2: WebGL2RenderingContext = <WebGL2RenderingContext>gl;
-		
+
 		var layaGPU: LayaGPU = LayaGL.layaGPUInstance;
 		var isWebGL2: Boolean = layaGPU._isWebGL2;
 		var format: number = this._format;
@@ -184,16 +184,16 @@ export class RenderTexture extends BaseTexture {
 		this._frameBuffer = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 		//set gl_Texture
-		this._creatGlTexture(width,height);
+		this._creatGlTexture(width, height);
 		if (format !== RenderTextureFormat.Depth && format !== RenderTextureFormat.ShadowMap) {
 			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._glTexture, 0);
 			//set Depth_Gl
-			this._createGLDepthRenderbuffer(width,height);
+			this._createGLDepthRenderbuffer(width, height);
 		}
 
-		
-		
-		
+
+
+
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
 		this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
@@ -210,7 +210,7 @@ export class RenderTexture extends BaseTexture {
 	 * @param width 
 	 * @param height 
 	 */
-	protected _creatGlTexture(width: number, height: number){
+	protected _creatGlTexture(width: number, height: number) {
 		var glTextureType: number = this._glTextureType;
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var gl2: WebGL2RenderingContext = <WebGL2RenderingContext>gl;
@@ -251,13 +251,13 @@ export class RenderTexture extends BaseTexture {
 			// 	gl.framebufferTexture2D(gl2.FRAMEBUFFER,gl2.COLOR_ATTACHMENT0,gl2.TEXTURE_2D,this._glTexture,0);
 			// }else
 			// 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._glTexture, 0);
-		}else if(format == RenderTextureFormat.Depth || format == RenderTextureFormat.ShadowMap){
+		} else if (format == RenderTextureFormat.Depth || format == RenderTextureFormat.ShadowMap) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 			this.filterMode = FilterMode.Point;
 			WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
 			switch (this._depthStencilFormat) {
 				case RenderTextureDepthFormat.DEPTH_16:
-					if (isWebGL2){
+					if (isWebGL2) {
 						gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.DEPTH_COMPONENT16, width, height);
 					}
 					else
@@ -265,7 +265,7 @@ export class RenderTexture extends BaseTexture {
 					gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this._glTexture, 0);
 					break;
 				case RenderTextureDepthFormat.DEPTH_32:
-					if (isWebGL2){
+					if (isWebGL2) {
 						gl2.texStorage2D(glTextureType, this._mipmapCount, gl2.DEPTH_COMPONENT32F, width, height);
 					}
 					else
@@ -282,11 +282,13 @@ export class RenderTexture extends BaseTexture {
 				default:
 					throw "RenderTexture: depth format RenderTexture must use depthFormat with DEPTH_16 and DEPTHSTENCIL_16_8.";
 			}
-			if (isWebGL2 && format == RenderTextureFormat.ShadowMap){
+			if (isWebGL2 && format == RenderTextureFormat.ShadowMap) {
 				gl2.texParameteri(glTextureType, gl2.TEXTURE_COMPARE_MODE, gl2.COMPARE_REF_TO_TEXTURE);
 				gl2.texParameteri(glTextureType, gl2.TEXTURE_COMPARE_FUNC, gl2.LESS);
 			}
+
 		}
+		WebGLContext.bindTexture(gl, glTextureType, null)
 	}
 
 
@@ -295,7 +297,7 @@ export class RenderTexture extends BaseTexture {
 	 * @param width 
 	 * @param height 
 	 */
-	protected _createGLDepthTexture(width:number,height:number){
+	protected _createGLDepthTexture(width: number, height: number) {
 		var glTextureType: number = this._glTextureType;
 		var layaGPU: LayaGPU = LayaGL.layaGPUInstance;
 		var isWebGL2: Boolean = layaGPU._isWebGL2;
@@ -303,7 +305,7 @@ export class RenderTexture extends BaseTexture {
 		var gl2: WebGL2RenderingContext = <WebGL2RenderingContext>gl;
 		if (this._depthStencilFormat !== RenderTextureDepthFormat.DEPTHSTENCIL_NONE) {
 			//creat depth_gl_Texture
-			this._depthStencilTexture = new BaseTexture(RenderTextureFormat.Depth,false);
+			this._depthStencilTexture = new BaseTexture(RenderTextureFormat.Depth, false);
 			this._depthStencilTexture.lock = true;
 			this._depthStencilTexture.width = width;
 			this._depthStencilTexture.height = height;
@@ -315,7 +317,7 @@ export class RenderTexture extends BaseTexture {
 			this._depthStencilTexture.filterMode = FilterMode.Point;
 			this._depthStencilTexture.wrapModeU = WarpMode.Clamp;
 			this._depthStencilTexture.wrapModeV = WarpMode.Clamp;
-			
+
 			WebGLContext.bindTexture(gl, this._depthStencilTexture._glTextureType, this._depthStencilTexture._getSource());
 			switch (this._depthStencilFormat) {
 				case RenderTextureDepthFormat.DEPTH_16:
@@ -356,7 +358,7 @@ export class RenderTexture extends BaseTexture {
 	 * @param width 
 	 * @param height 
 	 */
-	protected _createGLDepthRenderbuffer(width:number,height:number){
+	protected _createGLDepthRenderbuffer(width: number, height: number) {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var gl2: WebGL2RenderingContext = <WebGL2RenderingContext>gl;
 		if (this._depthStencilFormat !== RenderTextureDepthFormat.DEPTHSTENCIL_NONE) {
@@ -403,11 +405,11 @@ export class RenderTexture extends BaseTexture {
 		// 	gl2.bindFramebuffer(gl2.READ_FRAMEBUFFER,this._frameBuffer);
 		// 	gl2.bindFramebuffer(gl2.DRAW_FRAMEBUFFER,this._mulFrameBuffer);
 		// 	gl2.clearBufferfv(gl2.COLOR,0,[0.0,0.0,0.0,0.0]);
-			
+
 		// 	gl2.blitFramebuffer(0,0,this.width,this.height,0,0,this._width,this._height,gl2.COLOR_BUFFER_BIT,gl.NEAREST);
 		// }
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	
+
 		RenderTexture._currentActive = null;
 		(this._isCameraTarget) && (RenderContext3D._instance.invertY = false);
 		this._readyed = true;
@@ -423,7 +425,7 @@ export class RenderTexture extends BaseTexture {
 	 * @param height 高度。
 	 * @return 像素数据。
 	 */
-	getData(x: number, y: number, width: number, height: number, out: Uint8Array|Float32Array): Uint8Array|Float32Array {//TODO:检查长度
+	getData(x: number, y: number, width: number, height: number, out: Uint8Array | Float32Array): Uint8Array | Float32Array {//TODO:检查长度
 		if (Render.isConchApp && (<any>window).conchConfig.threadMode == 2) {
 			throw "native 2 thread mode use getDataAsync";
 		}
@@ -435,15 +437,15 @@ export class RenderTexture extends BaseTexture {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			return null;
 		}
-		switch(this.format){
+		switch (this.format) {
 			case RenderTextureFormat.R8G8B8:
-				gl.readPixels(x,y,width,height, gl.RGBA,gl.UNSIGNED_BYTE,out);
+				gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
 				break;
 			case RenderTextureFormat.R8G8B8A8:
 				gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
 				break;
 			case RenderTextureFormat.R16G16B16A16:
-				gl.readPixels(x,y,width,height,gl.RGBA,gl.FLOAT,out);
+				gl.readPixels(x, y, width, height, gl.RGBA, gl.FLOAT, out);
 				break;
 		}
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);

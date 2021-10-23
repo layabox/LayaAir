@@ -1054,21 +1054,13 @@ export class Animator extends Component {
 
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
 			var controllLayer: AnimatorControllerLayer = this._controllerLayers[i];
-			var cloneLayer: AnimatorControllerLayer = controllLayer.clone();
-			animator.addControllerLayer(cloneLayer);
+			animator.addControllerLayer(controllLayer.clone());
 			var animatorStates: AnimatorState[] = controllLayer._states;
 			for (var j: number = 0, m: number = animatorStates.length; j < m; j++) {
 				var state: AnimatorState = animatorStates[j].clone();
+				var cloneLayer: AnimatorControllerLayer = animator.getControllerLayer(i);
 				cloneLayer.addState(state);
 				(j == 0) && (cloneLayer.defaultState = state);
-			}
-			if (controllLayer.avatarMask) {
-				let maskPath = controllLayer.avatarMask.getAllTranfromPath();
-				let cloneMask = new AvatarMask(animator);
-				cloneLayer.avatarMask = cloneMask;
-				for (let bips in maskPath) {
-					cloneMask.setTransformActive(bips, maskPath[bips]);
-				}
 			}
 		}
 		animator._linkSprites = this._linkSprites;//TODO:需要统一概念
