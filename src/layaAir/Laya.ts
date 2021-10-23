@@ -90,6 +90,7 @@ export class Laya {
 
 	static version: string = "2.12.2beta2";
 
+
 	/**@private Render 类的引用。*/
 	static render: Render;
 	/**@internal */
