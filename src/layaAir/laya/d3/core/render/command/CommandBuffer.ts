@@ -50,6 +50,21 @@ export class CommandBuffer {
 			this._commands[i].run();
 	}
 
+	_applyOne(): boolean {
+		if(this._commands.length)
+		{
+			var cmd=this._commands.shift();			
+			cmd.run();
+			cmd.recover();
+		}
+		return this._commands.length>0;
+	}
+
+	getCommandsSize():number
+	{
+		return this._commands.length;
+	}
+
 	/**
 	 * 设置shader图片数据
 	 * @param shaderData shader数据集合

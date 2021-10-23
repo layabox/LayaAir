@@ -2,7 +2,7 @@
 //此方法库用来压缩解析深度贴图，法线深度贴图
 
 /*camera 传入的Texture以及*/
-uniform sampler2D u_CameraDepthTexture;
+uniform highp sampler2D u_CameraDepthTexture;
 uniform vec4 u_ZBufferParams;
 uniform sampler2D u_CameraDepthNormalsTexture;
 
