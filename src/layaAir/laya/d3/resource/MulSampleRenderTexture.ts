@@ -21,8 +21,17 @@ export class MulSampleRenderTexture extends RenderTexture{
 	/** @internal 用来拷贝的frameBuffer*/
 	protected _mulFrameBuffer: any;
 
-    constructor(width: number, height: number, format: RenderTextureFormat = RenderTextureFormat.R8G8B8, depthStencilFormat: RenderTextureDepthFormat = RenderTextureDepthFormat.DEPTH_16,mulSampler:number = 1){
-        super(width, height, format, depthStencilFormat);
+    /**
+     * 创建一个 <code>MulSampleRenderTexture</code> 实例。
+	 * @param width  宽度。
+	 * @param height 高度。
+	 * @param format 纹理格式。
+	 * @param depthStencilFormat 深度格式。
+     * @param mulSampler 多重采样点个数。
+     * @param mipmap 是否生成mipmap。
+     */
+    constructor(width: number, height: number, format: RenderTextureFormat = RenderTextureFormat.R8G8B8, depthStencilFormat: RenderTextureDepthFormat = RenderTextureDepthFormat.DEPTH_16,mulSampler:number = 1, mipmap: boolean = false){
+        super(width, height, format, depthStencilFormat, mipmap);
         this._mulSampler = mulSampler;
     }
 
@@ -67,6 +76,20 @@ export class MulSampleRenderTexture extends RenderTexture{
         //set Depth_Gl
         this._createGLDepthRenderbuffer(width,height);
 
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
+		this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
+		this._setFilterMode(this._filterMode);
+		this._setAnisotropy(this._anisoLevel);
+
+        this._readyed = true;
+		this._activeResource();
+        // todo ?
+        let gpuMemory = width * height * 4;
+		if (this._mipmap) {
+			gpuMemory *= 4 / 3;
+		}
+		this._setGPUMemory(gpuMemory);
     }
 
     protected _createGLDepthRenderbuffer(width:number,height:number){
@@ -164,8 +187,15 @@ export class MulSampleRenderTexture extends RenderTexture{
             gl2.bindFramebuffer(gl2.READ_FRAMEBUFFER,this._frameBuffer);
             gl2.bindFramebuffer(gl2.DRAW_FRAMEBUFFER,this._mulFrameBuffer);
             gl2.clearBufferfi(gl.DEPTH_STENCIL, 0, 1.0, 0);
-            gl2.blitFramebuffer(0,0,this.width,this.height,0,0,this._width,this._height,gl2.DEPTH_BUFFER_BIT,gl.NEAREST)
+            gl2.blitFramebuffer(0,0,this.width,this.height,0,0,this._width,this._height,gl2.DEPTH_BUFFER_BIT,gl.NEAREST);
         }
+
+        if (this.mipmap) {
+            WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
+            gl.generateMipmap(this._glTextureType);
+			WebGLContext.bindTexture(gl, this._glTextureType, null);
+        }
+
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	
 		RenderTexture._currentActive = null;
