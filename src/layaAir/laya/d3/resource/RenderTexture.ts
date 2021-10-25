@@ -28,11 +28,15 @@ export class RenderTexture extends BaseTexture {
 	/**
 	 *从对象池获取临时渲染目标。
 	 */
-	static createFromPool(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16, mulSamples: number = 1): RenderTexture {
+	static createFromPool(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16, mulSamples: number = 1, mipmap: boolean = false): RenderTexture {
 		var tex: RenderTexture;
+		
+		// todo mipmap 判断
+		mipmap = mipmap && (width & (width -1)) === 0 && (height & (height -1)) === 0;
+
 		for (var i: number = 0, n: number = RenderTexture._pool.length; i < n; i++) {
 			tex = RenderTexture._pool[i];
-			if (tex._width == width && tex._height == height && tex._format == format && tex._depthStencilFormat == depthStencilFormat && tex._mulSampler == mulSamples) {
+			if (tex._width == width && tex._height == height && tex._format == format && tex._depthStencilFormat == depthStencilFormat && tex._mulSampler == mulSamples && tex._mipmap == mipmap) {
 				tex._inPool = false;
 				var end: RenderTexture = RenderTexture._pool[n - 1];
 				RenderTexture._pool[i] = end;
@@ -153,20 +157,26 @@ export class RenderTexture extends BaseTexture {
 	}
 
 	/**
+	 * 创建一个 <code>RenderTexture</code> 实例。
 	 * @param width  宽度。
 	 * @param height 高度。
 	 * @param format 纹理格式。
 	 * @param depthStencilFormat 深度格式。
-	 * 创建一个 <code>RenderTexture</code> 实例。
+	 * @param mipmap 是否生成mipmap。
 	 */
-	constructor(width: number, height: number, format: RenderTextureFormat = RenderTextureFormat.R8G8B8, depthStencilFormat: RenderTextureDepthFormat = RenderTextureDepthFormat.DEPTH_16) {
+	constructor(width: number, height: number, format: RenderTextureFormat = RenderTextureFormat.R8G8B8, depthStencilFormat: RenderTextureDepthFormat = RenderTextureDepthFormat.DEPTH_16, mipmap: boolean = false) {
 		super(format, false);
 		this._glTextureType = LayaGL.instance.TEXTURE_2D;
 		this._width = width;
 		this._height = height;
 		this._depthStencilFormat = depthStencilFormat;
-		this._mipmapCount = 1;//TODO:
-		//this._mulSampler = mulSampler; 
+		this._mipmapCount = 1;
+		if (mipmap && this._isPot(width) && this._isPot(height)) {
+			this._mipmap = mipmap;
+			let mipmapCount = Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1);
+			this._mipmapCount = mipmapCount;
+		}
+
 		this._create(width, height);
 	}
 
@@ -191,9 +201,6 @@ export class RenderTexture extends BaseTexture {
 			this._createGLDepthRenderbuffer(width, height);
 		}
 
-
-
-
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
 		this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
@@ -202,7 +209,12 @@ export class RenderTexture extends BaseTexture {
 
 		this._readyed = true;
 		this._activeResource();
-		this._setGPUMemory(width * height * 4);
+		// todo ?
+		let gpuMemory = width * height * 4;
+		if (this._mipmap) {
+			gpuMemory *= 4 / 3;
+		}
+		this._setGPUMemory(gpuMemory);
 	}
 
 	/**
@@ -245,13 +257,8 @@ export class RenderTexture extends BaseTexture {
 						gl.texImage2D(glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, layaGPU._oesTextureHalfFloat.HALF_FLOAT_OES, null);//内部格式仍为RGBA
 					break;
 			}
-			// if(this._mulSamplerRT){//texture绑到另外的地方
-			// 	this._mulFrameBuffer = gl2.createFramebuffer();
-			// 	gl.bindFramebuffer(gl.FRAMEBUFFER,this._mulFrameBuffer);
-			// 	gl.framebufferTexture2D(gl2.FRAMEBUFFER,gl2.COLOR_ATTACHMENT0,gl2.TEXTURE_2D,this._glTexture,0);
-			// }else
-			// 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._glTexture, 0);
-		} else if (format == RenderTextureFormat.Depth || format == RenderTextureFormat.ShadowMap) {
+		}
+		else if (format == RenderTextureFormat.Depth || format == RenderTextureFormat.ShadowMap) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 			this.filterMode = FilterMode.Point;
 			WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
@@ -400,14 +407,13 @@ export class RenderTexture extends BaseTexture {
 	 */
 	_end(): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		// var gl2: WebGL2RenderingContext = <WebGL2RenderingContext>gl;
-		// if(this._mulSamplerRT){
-		// 	gl2.bindFramebuffer(gl2.READ_FRAMEBUFFER,this._frameBuffer);
-		// 	gl2.bindFramebuffer(gl2.DRAW_FRAMEBUFFER,this._mulFrameBuffer);
-		// 	gl2.clearBufferfv(gl2.COLOR,0,[0.0,0.0,0.0,0.0]);
 
-		// 	gl2.blitFramebuffer(0,0,this.width,this.height,0,0,this._width,this._height,gl2.COLOR_BUFFER_BIT,gl.NEAREST);
-		// }
+		if (this.mipmap) {
+			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
+			gl.generateMipmap(this._glTextureType);
+			WebGLContext.bindTexture(gl, this._glTextureType, null);
+		}
+
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
 		RenderTexture._currentActive = null;
