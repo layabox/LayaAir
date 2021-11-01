@@ -513,7 +513,7 @@ float computeParticleRotationFloat(in float rotation,in float age,in float norma
 	        rotation+=ageRot;
 	    #endif
 		#ifdef ROTATIONOVERLIFETIMERANDOMCURVES
-			rotation+=mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,normalizedAge),getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxZ,normalizedAge),a_Random0.w));
+			rotation+=mix(getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientZ,normalizedAge),getTotalValueFromGradientFloat(u_ROLAngularVelocityGradientMaxZ,normalizedAge),a_Random0.w);
 		#endif
 	#endif
 	return rotation;
