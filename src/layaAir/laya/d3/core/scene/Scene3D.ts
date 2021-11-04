@@ -70,6 +70,9 @@ import { PerformancePlugin } from "../../../utils/Performance";
 import { Sprite3D } from "../Sprite3D";
 import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
 import { BoundsOctree } from "./BoundsOctree";
+import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
+import { BaseTexture } from "../../../resource/BaseTexture";
+import { FilterMode } from "../../../resource/FilterMode";
 /**
  * 环境光模式
  */
@@ -180,6 +183,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/** @internal 场景更新标记*/
 	static __updateMark: number = 0;
+	static _blitTransRT:RenderTexture;//旋转RT
+	static mainCavansViewPort:Viewport = new Viewport(0,0,1,1);
 	static set _updateMark(value: number) {
 		Scene3D.__updateMark = value;
 	}
@@ -374,6 +379,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._addRenderObject(render);
 		}
 	}
+
+
 
 	/**
 	 * 是否允许雾化。
@@ -1447,12 +1454,25 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			if (Render.supportWebGLPlusRendering)
 				ShaderData.setRuntimeValueMode((i == n1) ? true : false);
 			var camera: Camera = (<Camera>this._cameraPool[i]);
-			camera.enableRender && camera.render();
+			camera.enableBuiltInRenderTexture = true;//TODO:可能会有性能问题
+			camera.enableRender && camera.render();	
+			(camera.enableRender&&!camera.renderTarget)&&(Scene3D._blitTransRT = camera._internalRenderTexture);
 		}
+		this.blitMainCanvans(Scene3D._blitTransRT);
+
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
 		Context.set2DRenderConfig();//还原2D配置
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		return 1;
+	}
+
+	blitMainCanvans(source:BaseTexture){
+		Scene3D.mainCavansViewPort.width = RenderContext3D.clientWidth;
+		Scene3D.mainCavansViewPort.height = RenderContext3D.clientHeight;
+		source.filterMode = FilterMode.Trilinear;
+		var cmd = BlitFrameBufferCMD.create(source,null,Scene3D.mainCavansViewPort);
+		cmd.run();
+		cmd.recover();
 	}
 
 	/**
