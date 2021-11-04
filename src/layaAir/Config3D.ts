@@ -14,32 +14,32 @@ export class Config3D implements IClone {
 	static _config: Config3D = new Config3D();
 
 
-	static get useCannonPhysics():boolean{
+	static get useCannonPhysics(): boolean {
 		return Config3D._config.isUseCannonPhysicsEngine;
 	}
-	static set useCannonPhysics(value:boolean){
+	static set useCannonPhysics(value: boolean) {
 		Config3D._config.isUseCannonPhysicsEngine = value;
-		if(value) {
+		if (value) {
 			Physics3D.__cannoninit__();
-			if(!ILaya3D.Scene3D.cannonPhysicsSettings) ILaya3D.Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
-		}	
+			if (!ILaya3D.Scene3D.cannonPhysicsSettings) ILaya3D.Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
+		}
 	}
 
-	static set enableDynamicManager(value:boolean){
+	static set enableDynamicManager(value: boolean) {
 		ILaya3D.SubMeshRenderElement.enableDynamicBatch = value;
 	}
 
-	static get enableDynamicManager():boolean{
+	static get enableDynamicManager(): boolean {
 		return ILaya3D.SubMeshRenderElement.enableDynamicBatch;
 	}
 
-	static set enableStaticManager(value:boolean){
+	static set enableStaticManager(value: boolean) {
 		ILaya3D.SubMeshRenderElement.enableStaticBatch = value;
 	}
 
-	static get enableStaticManager():boolean{
+	static get enableStaticManager(): boolean {
 		return ILaya3D.SubMeshRenderElement.enableStaticBatch;
-		
+
 	}
 
 	/**@internal*/
@@ -48,6 +48,16 @@ export class Config3D implements IClone {
 	private _maxLightCount: number = 32;
 	/**@internal*/
 	private _lightClusterCount: Vector3 = new Vector3(12, 12, 12);
+
+	/**@internal 设置分辨率宽度*/
+	private _resoluWidth: number = -1;
+	/**@internal 设置分辨率高度*/
+	private _resoluHeight: number = -1;
+	/**@internal 设置分辨率倍数*/
+	private _resoluRatio: number = 0.8;
+	/**@internal 设置分辨率*/
+	private _customPixel: boolean = false;
+
 
 	/**@internal*/
 	_editerEnvironment: boolean = false;
@@ -77,7 +87,7 @@ export class Config3D implements IClone {
 	/** 八叉树松散值。*/
 	octreeLooseness: number = 1.25;
 
-	
+
 
 	/** 
 	 * 是否开启视锥裁剪调试。
@@ -88,7 +98,7 @@ export class Config3D implements IClone {
 	/** PBR材质渲染质量。*/
 	pbrRenderQuality: PBRRenderQuality = PBRRenderQuality.High;
 	/** 是否使用CANNONJS物理引擎*/
-	isUseCannonPhysicsEngine:boolean = false;
+	isUseCannonPhysicsEngine: boolean = false;
 	/**
 	 * 默认物理功能初始化内存，单位为M。
 	 */
@@ -100,6 +110,64 @@ export class Config3D implements IClone {
 		if (value < 16)//必须大于16M
 			throw "defaultPhysicsMemory must large than 16M";
 		this._defaultPhysicsMemory = value;
+	}
+
+
+	/**
+	 * 设置分辨率大小（并不是实际渲染分辨率）
+	 * @param width 
+	 * @param height 
+	 */
+	setResSize(width: number, height: number) {
+		this._customPixel = true;
+		this._resoluWidth = width;
+		this._resoluHeight = height;
+	}
+
+
+	/**
+	 * 分辨率宽
+	 */
+	get pixResolWidth(): number {
+		return this._resoluRatio * this._resoluWidth;
+	}
+	/**
+	 * 设置分辨率宽
+	 */
+	get pixResolHeight(): number {
+		return this._resoluRatio * this._resoluHeight
+	}
+	/**
+	 * 分辨率倍率
+	 */
+	get pixelResol() {
+		return this._resoluRatio;
+	}
+
+	set pixelResol(ratio: number) {
+		this._resoluRatio = ratio;
+	}
+
+	/**
+	 * 分辨率倍率
+	 */
+	set pixelRatio(ratio: number) {
+		this._resoluRatio = ratio;
+	}
+
+	get pixelRatio(): number {
+		return this._resoluRatio;
+	}
+
+	/**
+	 * 自定义渲染像素
+	 */
+	set customPixel(value: boolean) {
+		this._customPixel = value;
+	}
+
+	get customPixel(): boolean {
+		return this._customPixel;
 	}
 
 	/**
