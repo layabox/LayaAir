@@ -213,7 +213,7 @@ export class Camera extends BaseCamera {
 		if (this._offScreenRenderTexture)
 			this._calculationViewport(this._normalizedViewport, this._offScreenRenderTexture.width, this._offScreenRenderTexture.height);
 		else
-			this._calculationViewport(this._normalizedViewport, RenderContext3D.clientWidth, RenderContext3D.clientHeight);//屏幕尺寸会动态变化,需要重置
+			this._calculationViewport(this._normalizedViewport, this.clientWidth, this.clientHeight);//屏幕尺寸会动态变化,需要重置
 		return this._viewport;
 	}
 
@@ -224,8 +224,8 @@ export class Camera extends BaseCamera {
 			width = this._offScreenRenderTexture.width;
 			height = this._offScreenRenderTexture.height;
 		} else {
-			width = RenderContext3D.clientWidth;
-			height = RenderContext3D.clientHeight;
+			width = this.clientWidth;
+			height = this.clientHeight;
 		}
 		this._normalizedViewport.x = value.x / width;
 		this._normalizedViewport.y = value.y / height;
@@ -233,6 +233,20 @@ export class Camera extends BaseCamera {
 		this._normalizedViewport.height = value.height / height;
 		this._calculationViewport(this._normalizedViewport, width, height);
 		this._calculateProjectionMatrix();
+	}
+
+	get clientWidth():number{
+		if(Config3D._config.customPixel)
+			return Config3D._config.pixResolWidth|0;
+		else
+			return RenderContext3D.clientWidth*Config3D._config.pixelRatio|0;
+	}
+
+	get clientHeight():number{
+		if(Config3D._config.customPixel)
+			return Config3D._config.pixResolHeight|0;
+		else
+			return RenderContext3D.clientHeight*Config3D._config.pixelRatio|0;
 	}
 
 	/**
@@ -249,8 +263,8 @@ export class Camera extends BaseCamera {
 			width = this._offScreenRenderTexture.width;
 			height = this._offScreenRenderTexture.height;
 		} else {
-			width = RenderContext3D.clientWidth;
-			height = RenderContext3D.clientHeight;
+			width = this.clientWidth;
+			height = this.clientHeight;
 		}
 		if (this._normalizedViewport !== value)
 			value.cloneTo(this._normalizedViewport);
@@ -523,7 +537,7 @@ export class Camera extends BaseCamera {
 		if (this._offScreenRenderTexture)
 			return this._offScreenRenderTexture.width;
 		else
-			return RenderContext3D.clientWidth;
+			return this.clientWidth;
 	}
 
 	/**
@@ -533,7 +547,7 @@ export class Camera extends BaseCamera {
 		if (this._offScreenRenderTexture)
 			return this._offScreenRenderTexture.height;
 		else
-			return RenderContext3D.clientHeight;
+			return this.clientHeight;
 	}
 
 	/**
@@ -822,15 +836,16 @@ export class Camera extends BaseCamera {
 				this._postProcess._render();
 				this._postProcess._applyPostProcessCommandBuffers();
 				PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
-			} else if (this._enableHDR || this._needBuiltInRenderTexture) {
-				var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
-				this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
-				this._internalCommandBuffer._camera = this;
-				this._internalCommandBuffer._context = context;
-				this._internalCommandBuffer.blitScreenQuad(this._internalRenderTexture, this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale, null, null, 0, true);
-				this._internalCommandBuffer._apply();
-				this._internalCommandBuffer.clear();
 			}
+			// } else if (this._enableHDR || this._needBuiltInRenderTexture) {
+				// var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
+				// this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+				// this._internalCommandBuffer._camera = this;
+				// this._internalCommandBuffer._context = context;
+				// this._internalCommandBuffer.blitScreenQuad(this._internalRenderTexture, this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale, null, null, 0, true);
+				// this._internalCommandBuffer._apply();
+				// this._internalCommandBuffer.clear();
+			// }
 			RenderTexture.bindCanvasRender = this._internalRenderTexture;
 			//RenderTexture.recoverToPool(this._internalRenderTexture);
 		}else{
@@ -991,8 +1006,8 @@ export class Camera extends BaseCamera {
 	 */
 	convertScreenCoordToOrthographicCoord(source: Vector3, out: Vector3): boolean {//TODO:是否应该使用viewport宽高
 		if (this._orthographic) {
-			var clientWidth: number = RenderContext3D.clientWidth;
-			var clientHeight: number = RenderContext3D.clientHeight;
+			var clientWidth: number = this.clientWidth;
+			var clientHeight: number = this.clientHeight;
 			var ratioX: number = this.orthographicVerticalSize * this.aspectRatio / clientWidth;
 			var ratioY: number = this.orthographicVerticalSize / clientHeight;
 			out.x = (-clientWidth / 2 + source.x * Laya.stage.clientScaleX) * ratioX;

@@ -585,7 +585,7 @@ export class BlinnPhongMaterial extends Material {
 	/**
 	 * 透光率，会影响漫反射以及透光强度
 	 */
-	get transmissionRate():number{
+	get transmissionRata():number{
 		return this._shaderValues.getNumber(BlinnPhongMaterial.TRANSMISSIONRATE);
 	}
 	

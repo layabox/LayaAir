@@ -58,7 +58,7 @@ export class RenderTexture extends BaseTexture {
 	 * 回收渲染目标到对象池,释放后可通过createFromPool复用。
 	 */
 	static recoverToPool(renderTexture: RenderTexture): void {
-		if (renderTexture._inPool)
+		if (renderTexture._inPool||renderTexture.destroyed)
 			return;
 		RenderTexture._pool.push(renderTexture);
 		renderTexture._inPool = true;
