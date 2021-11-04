@@ -105,7 +105,9 @@ export class Graphics {
                     tCmd = this._cmds[i];
                     tCmd.recover();
                 }
-                this._cmds.length = 0;
+                //修复替换文本内容和颜色失效的bug
+                // this._cmds.length = 0;
+                this._cmds = null;
             } else if (tCmd) {
                 tCmd.recover();
             }
