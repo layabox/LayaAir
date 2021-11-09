@@ -278,6 +278,7 @@ export class Node extends EventDispatcher {
         if (nodes) {
             for (var i: number = 0, n: number = nodes.length; i < n; i++) {
                 var node: Node = nodes[i];
+                if(!node)continue;
                 if (node.name === name) return node;
             }
         }
@@ -490,6 +491,7 @@ export class Node extends EventDispatcher {
         if (childs) {
             for (var i: number = 0, n: number = childs.length; i < n; i++) {
                 var child: Node = childs[i];
+                if(!child)continue;
                 if (!child._getBit(Const.DISPLAY)) continue;
                 if (child._children.length > 0) {
                     this._displayChild(child, display);
@@ -776,12 +778,15 @@ export class Node extends EventDispatcher {
      */
     private _activeScripts(): void {
         for (var i: number = 0, n: number = this._activeChangeScripts.length; i < n; i++) {
-            var comp: Component = this._activeChangeScripts[i]
-            if (!comp._awaked) {
+            var comp: Component = this._activeChangeScripts[i];
+            //修复在onAwake里,子级removeSelf导致错误调用_onEnable的问题
+            var owner = comp.owner;
+            if (owner && !comp._awaked) {
                 comp._awaked = true;
                 comp._onAwake();
             }
-            comp._onEnable();
+            if(owner && owner.activeInHierarchy)
+                comp._onEnable();
         }
         this._activeChangeScripts.length = 0;
     }
