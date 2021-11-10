@@ -676,6 +676,14 @@ export class BlinnPhongMaterial extends Material {
 		destMaterial.enableVertexColor = this.enableVertexColor;
 		this.albedoColor.cloneTo(destMaterial.albedoColor);
 	}
+
+	/**
+	 * 请使用transmissionRata
+	 * @deprecated
+	 */
+	get transmissionRate():number{
+		return this._shaderValues.getNumber(BlinnPhongMaterial.TRANSMISSIONRATE);
+	}
 }
 
 
