@@ -33,6 +33,8 @@ export class CameraCullInfo {
 	boundFrustum: BoundFrustum;
 	/**遮挡标记 */
 	cullingMask: number;
+	/**是否正交 */
+	orthographic:boolean;
 }
 /**
  * 阴影裁剪数据
@@ -103,7 +105,14 @@ export class FrustumCulling {
 				Stat.frustumCulling++;
 				if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
 					render._renderMark = loopCount;
-					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
+
+					//@fix 修复正交相机下 物体距离计算错误 导致排序出错
+					if (cameraCullInfo.orthographic) {
+						render._distanceForSort = Vector3.dot(boundFrustum.near.normal, render.bounds.getCenter());
+					} else {
+						render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
+					}
+					
 					var elements: RenderElement[] = render._renderElements;
 					for (var j: number = 0, m: number = elements.length; j < m; j++)
 						elements[j]._update(scene, context, customShader, replacementTag);
