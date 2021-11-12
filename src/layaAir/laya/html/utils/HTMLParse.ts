@@ -34,7 +34,9 @@ export class HTMLParse {
      * @param type
      */
     static getInstance(type: string): any {
-        var rst: any = Pool.getItem(HTMLParse._htmlClassMapShort[type]);
+	var cls = HTMLParse._htmlClassMapShort[type];
+	var clsName = HTMLElement.getClassName(cls);
+        var rst: any = Pool.getItemByClass(clsName, cls);
         if (!rst) {
             rst = ClassUtils.getInstance(type);
         }
