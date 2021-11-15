@@ -100,7 +100,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**@internal */
 	static physicsSettings: PhysicsSettings;
 	/**@internal */
-	static cannonPhysicsSettings:CannonPhysicsSettings;
+	static cannonPhysicsSettings: CannonPhysicsSettings;
 	/** 是否开启八叉树裁剪。*/
 	static octreeCulling: boolean = false;
 	/** 八叉树初始化尺寸。*/
@@ -183,8 +183,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/** @internal 场景更新标记*/
 	static __updateMark: number = 0;
-	static _blitTransRT:RenderTexture;//旋转RT
-	static mainCavansViewPort:Viewport = new Viewport(0,0,1,1);
+	static _blitTransRT: RenderTexture;
+	static _blitOffset: Vector4 = new Vector4();
+	static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
 	static set _updateMark(value: number) {
 		Scene3D.__updateMark = value;
 	}
@@ -332,7 +333,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	_postRenderScriptPool: Script3D[] = new Array<Script3D>();
 	/** @internal */
-	_scriptPool:Script3D[] = new Array<Script3D>();
+	_scriptPool: Script3D[] = new Array<Script3D>();
 
 	/** @internal */
 	_tempScriptPool: Script3D[] = new Array<Script3D>();
@@ -371,9 +372,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return this._url;
 	}
 
-	set sceneRenderableManager(manager:ISceneRenderManager){
+	set sceneRenderableManager(manager: ISceneRenderManager) {
 		this._octree = manager;
-		for(let i = 0,n = this._renders.length;i<n;i++) {
+		for (let i = 0, n = this._renders.length; i < n; i++) {
 			let render = <BaseRender>this._renders.elements[i];
 			this._renders.remove(render);
 			this._addRenderObject(render);
@@ -714,7 +715,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			//handle frame contacts
 			simulation._updateCollisions();
 			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_CHARACTORCOLLISION);
-			
+
 			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_EVENTSCRIPTS);
 			//send contact events
 			simulation._eventScripts();
@@ -1050,10 +1051,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 	}
 
-	private _removeScriptInPool(scriptPool:Script3D[],script:Script3D){
+	private _removeScriptInPool(scriptPool: Script3D[], script: Script3D) {
 		let index = scriptPool.indexOf(script);
-		if(index!=-1){
-			scriptPool.splice(index,1);
+		if (index != -1) {
+			scriptPool.splice(index, 1);
 		}
 	}
 
@@ -1061,38 +1062,38 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_addScript(script: Script3D): void {
-		if(script._indexInPool!=-1)
+		if (script._indexInPool != -1)
 			return;
 		var scripts: Script3D[] = this._scriptPool;
 		script._indexInPool = scripts.length;
 		scripts.push(script);
-		if(script.onUpdate!==Script3D.prototype.onUpdate)
+		if (script.onUpdate !== Script3D.prototype.onUpdate)
 			this._updateScriptPool.push(script);
-		if(script.onLateUpdate!==Script3D.prototype.onLateUpdate)
+		if (script.onLateUpdate !== Script3D.prototype.onLateUpdate)
 			this._lateUpdateScriptPool.push(script);
-		if(script.onPreRender!==Script3D.prototype.onPreRender)
+		if (script.onPreRender !== Script3D.prototype.onPreRender)
 			this._preRenderScriptPool.push(script);
-		if(script.onPostRender!==Script3D.prototype.onPostRender)
+		if (script.onPostRender !== Script3D.prototype.onPostRender)
 			this._postRenderScriptPool.push(script);
-		
+
 	}
 
 	/**
 	 * @internal
 	 */
 	_removeScript(script: Script3D): void {
-		if(script._indexInPool==-1)
+		if (script._indexInPool == -1)
 			return;
-		this._scriptPool[script._indexInPool]=null;
+		this._scriptPool[script._indexInPool] = null;
 		script._indexInPool = -1;
 		this._needClearScriptPool = true;
-		this._removeScriptInPool(this._updateScriptPool,script);
-		this._removeScriptInPool(this._lateUpdateScriptPool,script);
-		this._removeScriptInPool(this._preRenderScriptPool,script);
-		this._removeScriptInPool(this._postRenderScriptPool,script);
+		this._removeScriptInPool(this._updateScriptPool, script);
+		this._removeScriptInPool(this._lateUpdateScriptPool, script);
+		this._removeScriptInPool(this._preRenderScriptPool, script);
+		this._removeScriptInPool(this._postRenderScriptPool, script);
 	}
 
-	
+
 
 	/**
 	 * @internal
@@ -1454,11 +1455,23 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			if (Render.supportWebGLPlusRendering)
 				ShaderData.setRuntimeValueMode((i == n1) ? true : false);
 			var camera: Camera = (<Camera>this._cameraPool[i]);
-			camera.enableBuiltInRenderTexture = true;//TODO:可能会有性能问题
-			camera.enableRender && camera.render();	
-			(camera.enableRender&&!camera.renderTarget)&&(Scene3D._blitTransRT = camera._internalRenderTexture);
+
+			if (camera.renderTarget)
+				(camera.enableBuiltInRenderTexture = false);//TODO:可能会有性能问题
+			else
+				camera.enableBuiltInRenderTexture = true;
+
+			camera.enableRender && camera.render();
+			Scene3D._blitTransRT = null;
+			if (camera.enableRender && !camera.renderTarget) {
+				(Scene3D._blitTransRT = camera._internalRenderTexture);
+				var canvasWidth: number = camera._getCanvasWidth(), canvasHeight: number = camera._getCanvasHeight();
+				Scene3D._blitOffset.setValue(camera.viewport.x / canvasWidth, camera.viewport.y / canvasHeight, camera.viewport.width / canvasWidth, camera.viewport.height / canvasHeight);
+				this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport);
+			}
+
 		}
-		this.blitMainCanvans(Scene3D._blitTransRT);
+
 
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
 		Context.set2DRenderConfig();//还原2D配置
@@ -1466,11 +1479,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return 1;
 	}
 
-	blitMainCanvans(source:BaseTexture){
-		Scene3D.mainCavansViewPort.width = RenderContext3D.clientWidth;
-		Scene3D.mainCavansViewPort.height = RenderContext3D.clientHeight;
+	blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport) {
+		if (!source)
+			return;
+		Scene3D.mainCavansViewPort.x = RenderContext3D.clientWidth * normalizeViewPort.x | 0;
+		Scene3D.mainCavansViewPort.y = RenderContext3D.clientHeight * normalizeViewPort.y | 0;
+		Scene3D.mainCavansViewPort.width = RenderContext3D.clientWidth * normalizeViewPort.width | 0;
+		Scene3D.mainCavansViewPort.height = RenderContext3D.clientHeight * normalizeViewPort.height | 0;
+
 		source.filterMode = FilterMode.Trilinear;
-		var cmd = BlitFrameBufferCMD.create(source,null,Scene3D.mainCavansViewPort);
+		var cmd = BlitFrameBufferCMD.create(source, null, Scene3D.mainCavansViewPort);
 		cmd.run();
 		cmd.recover();
 	}
