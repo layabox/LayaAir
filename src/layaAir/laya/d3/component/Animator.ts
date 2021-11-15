@@ -978,35 +978,38 @@ export class Animator extends Component {
 					var crossSpeed: number = this._speed * crossState.speed;
 					this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
 					var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
-					var needUpdateFinishcurrentState = false;
 					if (crossWeight >= 1.0) {
 						if (needRender) {
 							this._updateClipDatas(crossState, addtive, crossPlayStateInfo,controllerLayer.avatarMask);
 							this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0,controllerLayer);
+							
+							if (!playStateInfo._finish) {
+								playStateInfo._finish = true;
+								this._updateStateFinish(playStateInfo._currentState, playStateInfo);
+							}
 
 							controllerLayer._playType = 0;//完成融合,切换到正常播放状态
 							playStateInfo._currentState = crossState;
 							crossPlayStateInfo._cloneTo(playStateInfo);
+
+							this._updateEventScript(crossState, crossPlayStateInfo);
 						}
 					} else {
 						if (!playStateInfo._finish) {
 							speed = this._speed * animatorState.speed;
-							needUpdateFinishcurrentState = true;
 							this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
 							if (needRender)
 								this._updateClipDatas(animatorState, addtive, playStateInfo,controllerLayer.avatarMask);
+
+							this._updateEventScript(animatorState, playStateInfo);
 						}
 						if (needRender) {
 							this._updateClipDatas(crossState, addtive, crossPlayStateInfo,controllerLayer.avatarMask);
 							this._setCrossClipDatasToNode(controllerLayer, animatorState, crossState, crossWeight, i === 0);
+							this._updateEventScript(crossState, crossPlayStateInfo);
 						}
 					}
-					if (needRender) {
-						this._updateEventScript(animatorState, playStateInfo);
-						this._updateEventScript(crossState, crossPlayStateInfo);
-					}
 					this._updateStateFinish(crossState, crossPlayStateInfo);
-					needUpdateFinishcurrentState && this._updateStateFinish(playStateInfo._currentState, playStateInfo);
 					break;
 				case 2:
 					crossState = controllerLayer._crossPlayState;
