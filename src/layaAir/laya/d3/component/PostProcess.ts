@@ -54,9 +54,9 @@ export class PostProcess {
 	/**@internal */
 	private _effects: PostProcessEffect[] = [];
 	/**@internal */
-	private _enable:boolean = true;
+	private _enable: boolean = true;
 	/**@internal */
-	_context: PostProcessRenderContext|null = null;
+	_context: PostProcessRenderContext | null = null;
 
 
 	/**
@@ -68,15 +68,15 @@ export class PostProcess {
 		this._context.command = new CommandBuffer();
 	}
 
-	get enable():boolean{
+	get enable(): boolean {
 		return this._enable;
 	}
 
-	set enable(value:boolean){
+	set enable(value: boolean) {
 		this._enable = value;
 	}
 
-	set commandContext(oriContext:RenderContext3D){
+	set commandContext(oriContext: RenderContext3D) {
 		this._context.command._context = oriContext;
 	}
 
@@ -100,9 +100,9 @@ export class PostProcess {
 		var viewport: Viewport = camera!.viewport;
 
 		// var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
-		
+
 		var cameraTarget: RenderTexture = camera!._internalRenderTexture;
-		var screenTexture:RenderTexture = cameraTarget;
+		var screenTexture: RenderTexture = cameraTarget;
 		this._context!.command!.clear();
 		this._context!.source = screenTexture;
 		this._context!.destination = cameraTarget;
@@ -123,10 +123,11 @@ export class PostProcess {
 		this._context!.destination = dest;
 		var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
 		camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
-		this._context!.command!.blitScreenTriangle(this._context!.source, dest!, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData,0,true);
+		if (dest)
+			this._context!.command!.blitScreenTriangle(this._context!.source, dest!, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0, true);
 		//context.source = context.destination;
 		//context.destination = finalDestination;
-		
+
 		//释放临时纹理
 		RenderTexture.recoverToPool(screenTexture);
 		var tempRenderTextures: RenderTexture[] = this._context!.deferredReleaseTextures;
@@ -157,7 +158,7 @@ export class PostProcess {
 	 * 调用指令集
 	 * @internal
 	 */
-	_applyPostProcessCommandBuffers():void{
+	_applyPostProcessCommandBuffers(): void {
 		this._context!.command!._apply();
 	}
 
