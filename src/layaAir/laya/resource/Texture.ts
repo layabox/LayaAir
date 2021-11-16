@@ -33,7 +33,7 @@ export class Texture extends EventDispatcher {
     /**@private */
     private _destroyed: boolean = false;
     /**@private */
-    private _bitmap: Texture2D | Texture| RenderTexture;
+    private _bitmap: Texture2D | Texture | RenderTexture;
     /**@internal */
     public _uv: ArrayLike<number>;
     /**@private */
@@ -151,6 +151,8 @@ export class Texture extends EventDispatcher {
             tex.width /= bitmapScale;
             tex.height /= bitmapScale;
             tex.scaleRate = bitmapScale;
+            tex.offsetX /= bitmapScale;
+            tex.offsetY /= bitmapScale;
         } else {
             tex.scaleRate = 1;
         }
@@ -226,7 +228,7 @@ export class Texture extends EventDispatcher {
      * 获取位图。
      * @return 位图。
      */
-    get bitmap(): Texture2D | Texture |RenderTexture{
+    get bitmap(): Texture2D | Texture | RenderTexture {
         return this._bitmap;
     }
 
@@ -277,7 +279,7 @@ export class Texture extends EventDispatcher {
     /**
      * @internal
      */
-    _getSource(cb: ()=>void = null): any {
+    _getSource(cb: () => void = null): any {
         if (this._destroyed || !this._bitmap)
             return null;
         this.recoverBitmap(cb);
@@ -315,7 +317,7 @@ export class Texture extends EventDispatcher {
      * @param	bitmap 位图资源
      * @param	uv UV数据信息
      */
-    setTo(bitmap: Texture2D | Texture | RenderTexture= null, uv: ArrayLike<number> = null, sourceWidth: number = 0, sourceHeight: number = 0): void {
+    setTo(bitmap: Texture2D | Texture | RenderTexture = null, uv: ArrayLike<number> = null, sourceWidth: number = 0, sourceHeight: number = 0): void {
         this.bitmap = bitmap;
         this.sourceWidth = sourceWidth;
         this.sourceHeight = sourceHeight;
@@ -403,9 +405,9 @@ export class Texture extends EventDispatcher {
             var uk = uvw / texw;
             var vk = uvh / texh;
             uv = [stu + rePosX * uk, stv + rePosY * vk,
-                stu + (rePosX + draww) * uk, stv + rePosY * vk,
-                stu + (rePosX + draww) * uk, stv + (rePosY + drawh) * vk,
-                stu + rePosX * uk, stv + (rePosY + drawh) * vk];
+            stu + (rePosX + draww) * uk, stv + rePosY * vk,
+            stu + (rePosX + draww) * uk, stv + (rePosY + drawh) * vk,
+            stu + rePosX * uk, stv + (rePosY + drawh) * vk];
         }
         ctx._drawTextureM(this, marginL, marginT, draww, drawh, null, 1.0, uv);
         //ctx.drawTexture(value, -x, -y, x + width, y + height);
@@ -446,15 +448,15 @@ export class Texture extends EventDispatcher {
     /**
      * 通过url强制恢复bitmap。
      */
-    recoverBitmap(onok:()=>void = null): void {
+    recoverBitmap(onok: () => void = null): void {
         var url = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
-            let tex:Texture2D = ILaya.Loader.loadedMap[url];
-            if(tex){
+            let tex: Texture2D = ILaya.Loader.loadedMap[url];
+            if (tex) {
                 this.bitmap = tex;
                 onok && onok();
-            }else{
-                ILaya.loader.load(url, Handler.create(this, (bit: any)=> {
+            } else {
+                ILaya.loader.load(url, Handler.create(this, (bit: any) => {
                     this.bitmap = bit;
                     onok && onok();
                 }), null, "htmlimage", 1, true);

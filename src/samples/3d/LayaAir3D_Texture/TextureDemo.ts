@@ -54,7 +54,7 @@ export class TextureDemo {
 		box.transform.rotate(new Vector3(0, 0, 0), false, false);
 		var mat1: BlinnPhongMaterial = new BlinnPhongMaterial();
 		//漫反射贴图
-		Texture2D.load("res/threeDimen/texture/layabox.png", Handler.create(this, function (texture: Texture2D): void {
+		Texture2D.load("res/LayaScene_SampleScene/Conventional/Assets/test/test/T_container_01_Normal.png", Handler.create(this, function (texture: Texture2D): void {
 			//在U方向上使用WARPMODE_CLAMP
 			texture.wrapModeU = WarpMode.Repeat;
 			//在V方向使用WARPMODE_REPEAT

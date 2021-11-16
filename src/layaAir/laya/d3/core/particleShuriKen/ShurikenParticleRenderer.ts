@@ -171,7 +171,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
 		if (boundFrustum) {
 			if (boundFrustum.intersects(this.bounds._getBoundBox())) {
-				if (((<ShuriKenParticle3D>this._owner)).particleSystem.isAlive)
+				if ((<ShuriKenParticle3D>this._owner).particleSystem.isAlive)
 					return true;
 				else
 					return false;
