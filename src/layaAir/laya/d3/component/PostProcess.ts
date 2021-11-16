@@ -10,6 +10,7 @@ import { ShaderData } from "../shader/ShaderData"
 import { ShaderDefine } from "../shader/ShaderDefine"
 import { Viewport } from "../math/Viewport"
 import { RenderContext3D } from "../core/render/RenderContext3D"
+import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -99,16 +100,16 @@ export class PostProcess {
 		var camera = this._context!.camera;
 		var viewport: Viewport = camera!.viewport;
 
-		// var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+		 var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
 
 		var cameraTarget: RenderTexture = camera!._internalRenderTexture;
-		var screenTexture: RenderTexture = cameraTarget;
+		//var screenTexture: RenderTexture = cameraTarget;
 		this._context!.command!.clear();
 		this._context!.source = screenTexture;
 		this._context!.destination = cameraTarget;
 		this._context!.compositeShaderData!.clearDefine();
 
-		//this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
+		this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
 
 		this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
 
@@ -119,12 +120,15 @@ export class PostProcess {
 		//dithering.Render(context);
 
 		var offScreenTex: RenderTexture = camera!._offScreenRenderTexture;
-		var dest = offScreenTex ? offScreenTex : null;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
+		var dest = offScreenTex ? offScreenTex : cameraTarget;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
 		this._context!.destination = dest;
 		var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
 		camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+
+		
 		if (dest)
-			this._context!.command!.blitScreenTriangle(this._context!.source, dest!, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0, true);
+			this._context!.command!.blitScreenTriangle(screenTexture, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0, true);
+
 		//context.source = context.destination;
 		//context.destination = finalDestination;
 
