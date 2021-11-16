@@ -19,7 +19,6 @@ import { Stat } from "laya/utils/Stat";
 import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Tool } from "../common/Tool";
 
 /**
@@ -55,7 +54,7 @@ export class MeshLoad {
 		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
 		camera.transform.translate(new Vector3(0, 0.8, 1.5));
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
-		camera.addComponent(CameraMoveScript);
+
 		//添加平行光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		directionLight.color = new Vector3(0.6, 0.6, 0.6);
@@ -65,27 +64,26 @@ export class MeshLoad {
 		this.lineSprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
 
 		//加载mesh
-		Mesh.load("res/hammer_low.lm", Handler.create(this, function (mesh: Mesh): void {
+		Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
 			var layaMonkey: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(mesh)));
 			layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
 			layaMonkey.transform.rotation = new Quaternion(0.7071068, 0, 0, -0.7071067);
-			console.log(mesh.vertexCount);
-			console.log(mesh.indexCount);
+
 			//创建像素线渲染精灵
 			var layaMonkeyLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(5000)));
 			//设置像素线渲染精灵线模式
 			Tool.linearModel(layaMonkey, layaMonkeyLineSprite3D, Color.GREEN);
 
-			// var plane: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(6, 6, 10, 10))));
-			// plane.transform.position = new Vector3(0, 0, -1);
-			// var planeLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(1000)));
-			// Tool.linearModel(plane, planeLineSprite3D, Color.GRAY);
+			var plane: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(6, 6, 10, 10))));
+			plane.transform.position = new Vector3(0, 0, -1);
+			var planeLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(1000)));
+			Tool.linearModel(plane, planeLineSprite3D, Color.GRAY);
 
-			// //设置时钟定时执行
-			// Laya.timer.frameLoop(1, this, function (): void {
-			// 	layaMonkeyLineSprite3D.transform.rotate(this.rotation, false);
-			// 	layaMonkey.transform.rotate(this.rotation, false);
-			// });
+			//设置时钟定时执行
+			Laya.timer.frameLoop(1, this, function (): void {
+				layaMonkeyLineSprite3D.transform.rotate(this.rotation, false);
+				layaMonkey.transform.rotate(this.rotation, false);
+			});
 
 			this.lineSprite3D.active = false;
 			this.loadUI();
@@ -133,7 +131,7 @@ export class MeshLoad {
 
 	stypeFun(label:string = "正常模式"): void {
 		if (++this.curStateIndex % 2 == 1) {
-			this.sprite3D.active = true;
+			this.sprite3D.active = false;
 			this.lineSprite3D.active = true;
 			this.changeActionButton.label = "网格模式";
 		} else {

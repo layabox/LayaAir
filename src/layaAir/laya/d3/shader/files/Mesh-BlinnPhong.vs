@@ -38,7 +38,7 @@ attribute vec4 a_Position;
 #endif
 
 #ifdef BONE
-	const int c_MaxBoneCount = 50;
+	const int c_MaxBoneCount = 24;
 	attribute vec4 a_BoneIndices;
 	attribute vec4 a_BoneWeights;
 	uniform mat4 u_Bones[c_MaxBoneCount];
