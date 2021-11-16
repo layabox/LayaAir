@@ -144,7 +144,7 @@ export class AnimationClip extends Resource {
 				out.x = p0.x;
 		} else {
 			out.x = this._hermiteCurveSplineWeight(frame.value.x, frame.time, frame.outWeight.x, frame.outTangent.x,
-				nextFrame.value.x, nextFrame.time, nextFrame.outWeight.x, nextFrame.outTangent.x, t);
+				nextFrame.value.x, nextFrame.time, nextFrame.inWeight.x, nextFrame.inTangent.x, t);
 		}
 
 		t0 = tan0.y, t1 = tan1.y;
@@ -155,7 +155,7 @@ export class AnimationClip extends Resource {
 				out.y = p0.y;
 		} else {
 			out.y = this._hermiteCurveSplineWeight(frame.value.y, frame.time, frame.outWeight.y, frame.outTangent.y,
-				nextFrame.value.y, nextFrame.time, nextFrame.outWeight.y, nextFrame.outTangent.y, t);
+				nextFrame.value.y, nextFrame.time, nextFrame.inWeight.y, nextFrame.inTangent.y, t);
 		}
 
 		t0 = tan0.z, t1 = tan1.z;
@@ -166,7 +166,7 @@ export class AnimationClip extends Resource {
 				out.z = p0.z;
 		} else {
 			out.z = this._hermiteCurveSplineWeight(frame.value.z, frame.time, frame.outWeight.z, frame.outTangent.z,
-				nextFrame.value.z, nextFrame.time, nextFrame.outWeight.z, nextFrame.outTangent.z, t);
+				nextFrame.value.z, nextFrame.time, nextFrame.inWeight.z, nextFrame.inTangent.z, t);
 		}
 	}
 
@@ -194,7 +194,7 @@ export class AnimationClip extends Resource {
 				out.x = p0.x;
 		} else {
 			out.x = this._hermiteCurveSplineWeight(frame.value.x, frame.time, frame.outWeight.x, frame.outTangent.x,
-				nextFrame.value.x, nextFrame.time, nextFrame.outWeight.x, nextFrame.outTangent.x, t);
+				nextFrame.value.x, nextFrame.time, nextFrame.inWeight.x, nextFrame.inTangent.x, t);
 		}
 
 
@@ -206,7 +206,7 @@ export class AnimationClip extends Resource {
 				out.y = p0.y;
 		} else {
 			out.y = this._hermiteCurveSplineWeight(frame.value.y, frame.time, frame.outWeight.y, frame.outTangent.y,
-				nextFrame.value.y, nextFrame.time, nextFrame.outWeight.y, nextFrame.outTangent.y, t);
+				nextFrame.value.y, nextFrame.time, nextFrame.inWeight.y, nextFrame.inTangent.y, t);
 		}
 
 		t0 = tan0.z, t1 = tan1.z;
@@ -217,7 +217,7 @@ export class AnimationClip extends Resource {
 				out.z = p0.z;
 		} else {
 			out.z = this._hermiteCurveSplineWeight(frame.value.z, frame.time, frame.outWeight.z, frame.outTangent.z,
-				nextFrame.value.z, nextFrame.time, nextFrame.outWeight.z, nextFrame.outTangent.z, t);
+				nextFrame.value.z, nextFrame.time, nextFrame.inWeight.z, nextFrame.inTangent.z, t);
 		}
 
 		t0 = tan0.w, t1 = tan1.w;
@@ -228,7 +228,7 @@ export class AnimationClip extends Resource {
 				out.w = p0.w;
 		} else {
 			out.w = this._hermiteCurveSplineWeight(frame.value.w, frame.time, frame.outWeight.w, frame.outTangent.w,
-				nextFrame.value.w, nextFrame.time, nextFrame.outWeight.w, nextFrame.outTangent.w, t);
+				nextFrame.value.w, nextFrame.time, nextFrame.inWeight.w, nextFrame.inTangent.w, t);
 		}
 	}
 
@@ -294,7 +294,7 @@ export class AnimationClip extends Resource {
 		} else {
 			//weight
 			return this._hermiteCurveSplineWeight(frame.value, frame.time, frame.outWeight, frame.outTangent,
-				nextFrame.value, nextFrame.time, nextFrame.outWeight, nextFrame.outTangent, t);
+				nextFrame.value, nextFrame.time, nextFrame.inWeight, nextFrame.inTangent, t);
 		}
 
 	}
