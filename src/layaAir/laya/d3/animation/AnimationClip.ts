@@ -16,6 +16,7 @@ import { ILaya } from "../../../ILaya";
 import { ConchVector3 } from "../math/Native/ConchVector3";
 import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 import { AvatarMask } from "../component/AvatarMask";
+import { WeightedMode } from "../core/Keyframe";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。
@@ -63,7 +64,7 @@ export class AnimationClip extends Resource {
 	/**@internal */
 	_frameRate: number = 0;
 	/**@internal */
-	_nodes: KeyframeNodeList|null = new KeyframeNodeList();
+	_nodes: KeyframeNodeList | null = new KeyframeNodeList();
 	/**@internal */
 	_nodesDic: any;
 	/**@internal */
@@ -89,6 +90,18 @@ export class AnimationClip extends Resource {
 		super();
 		this._animationEvents = [];
 	}
+
+	/**
+	 * 是否是Weight模式
+	 * @param weightMode 
+	 * @param nextweightMode 
+	 * @returns true 此段动画插值使用埃尔米特插值
+	 */
+	private _weightModeHermite(weightMode: number, nextweightMode: number): boolean {
+		return (((weightMode & WeightedMode.Out) == 0) && ((nextweightMode & WeightedMode.In) == 0));
+	}
+
+
 
 	/**
 	 * @internal
@@ -124,22 +137,37 @@ export class AnimationClip extends Resource {
 		var d = -2.0 * t3 + 3.0 * t2;
 
 		var t0 = tan0.x, t1 = tan1.x;
-		if (Number.isFinite(t0) && Number.isFinite(t1))
-			out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
-		else
-			out.x = p0.x;
+		if (this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
+			else
+				out.x = p0.x;
+		} else {
+			out.x = this._hermiteCurveSplineWeight(frame.value.x, frame.time, frame.outWeight.x, frame.outTangent.x,
+				nextFrame.value.x, nextFrame.time, nextFrame.outWeight.x, nextFrame.outTangent.x, t);
+		}
 
 		t0 = tan0.y, t1 = tan1.y;
-		if (Number.isFinite(t0) && Number.isFinite(t1))
-			out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
-		else
-			out.y = p0.y;
+		if (this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
+			else
+				out.y = p0.y;
+		} else {
+			out.y = this._hermiteCurveSplineWeight(frame.value.y, frame.time, frame.outWeight.y, frame.outTangent.y,
+				nextFrame.value.y, nextFrame.time, nextFrame.outWeight.y, nextFrame.outTangent.y, t);
+		}
 
 		t0 = tan0.z, t1 = tan1.z;
-		if (Number.isFinite(t0) && Number.isFinite(t1))
-			out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
-		else
-			out.z = p0.z;
+		if (this._weightModeHermite(frame.weightedMode.z, nextFrame.weightedMode.z)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
+			else
+				out.z = p0.z;
+		} else {
+			out.z = this._hermiteCurveSplineWeight(frame.value.z, frame.time, frame.outWeight.z, frame.outTangent.z,
+				nextFrame.value.z, nextFrame.time, nextFrame.outWeight.z, nextFrame.outTangent.z, t);
+		}
 	}
 
 	/**
@@ -159,28 +187,116 @@ export class AnimationClip extends Resource {
 		var d = -2.0 * t3 + 3.0 * t2;
 
 		var t0 = tan0.x, t1 = tan1.x;
-		if (Number.isFinite(t0) && Number.isFinite(t1))
-			out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
-		else
-			out.x = p0.x;
+		if (this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
+			else
+				out.x = p0.x;
+		} else {
+			out.x = this._hermiteCurveSplineWeight(frame.value.x, frame.time, frame.outWeight.x, frame.outTangent.x,
+				nextFrame.value.x, nextFrame.time, nextFrame.outWeight.x, nextFrame.outTangent.x, t);
+		}
+
 
 		t0 = tan0.y, t1 = tan1.y;
-		if (Number.isFinite(t0) && Number.isFinite(t1))
-			out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
-		else
-			out.y = p0.y;
+		if (this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
+			else
+				out.y = p0.y;
+		} else {
+			out.y = this._hermiteCurveSplineWeight(frame.value.y, frame.time, frame.outWeight.y, frame.outTangent.y,
+				nextFrame.value.y, nextFrame.time, nextFrame.outWeight.y, nextFrame.outTangent.y, t);
+		}
 
 		t0 = tan0.z, t1 = tan1.z;
-		if (Number.isFinite(t0) && Number.isFinite(t1))
-			out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
-		else
-			out.z = p0.z;
+		if (this._weightModeHermite(frame.weightedMode.z, nextFrame.weightedMode.z)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
+			else
+				out.z = p0.z;
+		} else {
+			out.z = this._hermiteCurveSplineWeight(frame.value.z, frame.time, frame.outWeight.z, frame.outTangent.z,
+				nextFrame.value.z, nextFrame.time, nextFrame.outWeight.z, nextFrame.outTangent.z, t);
+		}
 
 		t0 = tan0.w, t1 = tan1.w;
-		if (Number.isFinite(t0) && Number.isFinite(t1))
-			out.w = a * p0.w + b * t0 * dur + c * t1 * dur + d * p1.w;
-		else
-			out.w = p0.w;
+		if (this._weightModeHermite(frame.weightedMode.w, nextFrame.weightedMode.w)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.w = a * p0.w + b * t0 * dur + c * t1 * dur + d * p1.w;
+			else
+				out.w = p0.w;
+		} else {
+			out.w = this._hermiteCurveSplineWeight(frame.value.w, frame.time, frame.outWeight.w, frame.outTangent.w,
+				nextFrame.value.w, nextFrame.time, nextFrame.outWeight.w, nextFrame.outTangent.w, t);
+		}
+	}
+
+	private _hermiteCurveSplineWeight(frameValue: number, frametime: number, frameOutWeight: number, frameOutTangent: number, nextframeValue: number, nextframetime: number, nextframeInweight: number, nextframeIntangent: number, t: number) {
+		let Eps = 2.22e-16;
+
+		let x = t;
+		let x1 = frametime;
+		let y1 = frameValue;
+		let wt1 = frameOutWeight;
+		let x2 = nextframetime;
+		let y2 = nextframeValue;
+		let wt2 = nextframeInweight;
+
+		let dx = x2 - x1;
+		let dy = y2 - y1;
+
+		x = (x - x1) / dx;
+
+		let yp1 = frameOutTangent;
+		let yp2 = nextframeIntangent;
+
+		if (Number.isFinite(yp1) && Number.isFinite(yp2)) {
+			return frameValue;
+		}
+
+		yp1 = yp1 * dx / dy;
+		yp2 = yp2 * dx / dy;
+
+		let wt2s = 1 - wt2;
+
+		t = 0.5;
+		let t2 = 0;
+
+		if (wt1 == 1 / 3.0 && wt2 == 1 / 3.0) {
+			t = x;
+			t2 = 1 - t;
+		}
+		else {
+			while (true) {
+				t2 = (1 - t);
+				let fg = 3 * t2 * t2 * t * wt1 + 3 * t2 * t * t * wt2s + t * t * t - x;
+				if (Math.abs(fg) <= 2.5 * Eps)
+					break;
+
+				// third order householder method
+				let fpg = 3 * t2 * t2 * wt1 + 6 * t2 * t * (wt2s - wt1) + 3 * t * t * (1 - wt2s);
+				let fppg = 6 * t2 * (wt2s - 2 * wt1) + 6 * t * (1 - 2 * wt2s + wt1);
+				let fpppg = 18 * wt1 - 18 * wt2s + 6;
+
+				t -= (6 * fg * fpg * fpg - 3 * fg * fg * fppg) / (6 * fpg * fpg * fpg - 6 * fg * fpg * fppg + fg * fg * fpppg);
+			}
+		}
+
+		let y = 3 * t2 * t2 * t * wt1 * yp1 + 3 * t2 * t * t * (1 - wt2 * yp2) + t * t * t;
+
+		return y * dy + y1;
+	}
+
+	private _curveInterpolate(frame: FloatKeyframe, nextFrame: FloatKeyframe, t: number, dur: number): number {
+		if (this._weightModeHermite(frame.weightedMode, nextFrame.weightedMode)) {
+			return this._hermiteInterpolate(frame, nextFrame, t, dur);
+		} else {
+			//weight
+			return this._hermiteCurveSplineWeight(frame.value, frame.time, frame.outWeight, frame.outTangent,
+				nextFrame.value, nextFrame.time, nextFrame.outWeight, nextFrame.outTangent, t);
+		}
+
 	}
 
 	/**
@@ -192,7 +308,7 @@ export class AnimationClip extends Resource {
 	 * @param frontPlay 是否是前向播放
 	 * @param outDatas 计算好的动画数据
 	 */
-	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion>,avatarMask:AvatarMask): void {
+	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion>, avatarMask: AvatarMask): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
 			var node = nodes.getNodeByIndex(i);
 			var type = node.type;
@@ -200,7 +316,7 @@ export class AnimationClip extends Resource {
 			var keyFrames = node._keyFrames;
 			var keyFramesCount = keyFrames.length;
 			var frameIndex = realTimeCurrentFrameIndexes[i];
-			if(avatarMask&&(!avatarMask.getTransformActive(node.nodePath))){
+			if (avatarMask && (!avatarMask.getTransformActive(node.nodePath))) {
 				continue;
 			}
 			if (frontPlay) {
@@ -249,7 +365,7 @@ export class AnimationClip extends Resource {
 								t = (playCurTime - frame.time) / d;
 							else
 								t = 0;
-							outDatas[i] = this._hermiteInterpolate(frame, nextFarme, t, d);
+							outDatas[i] = this._curveInterpolate(frame, nextFarme, t, d);
 						}
 
 					} else {
@@ -297,7 +413,7 @@ export class AnimationClip extends Resource {
 		}
 	}
 
-	
+
 	/**
 	 * @internal
 	 * @param nodes 

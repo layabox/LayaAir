@@ -1,8 +1,24 @@
 import { IClone } from "./IClone";
 /**
-	 * <code>KeyFrame</code> 类用于创建关键帧实例。
-	 */
+ * 动画权重模式
+ */
+ export enum WeightedMode {
+	
+	
+	/**仅深度。*/
+	None = 0,
+	/**天空。*/
+	In = 1,
+	/**不清除。*/
+	Out = 2,
+	/**固定颜色。*/
+	Both = 3,
+}
+/**
+ * <code>KeyFrame</code> 类用于创建关键帧实例。
+ */
 export class Keyframe implements IClone {
+	static defaultWeight:number = 0.33333;
 	/**时间。*/
 	time: number;
 
