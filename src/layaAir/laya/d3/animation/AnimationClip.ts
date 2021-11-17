@@ -42,6 +42,7 @@ export class AnimationClip extends Resource {
 				break;
 			case "LAYAANIMATION:04":
 			case "LAYAANIMATION:COMPRESSION_04":
+			case "LAYAANIMATION:WEIGHT_04":
 				AnimationClipParser04.parse(clip, reader, version);
 				break;
 			default:
@@ -244,14 +245,13 @@ export class AnimationClip extends Resource {
 		let wt2 = nextframeInweight;
 
 		let dx = x2 - x1;
-		let dy = y2 - y1;
-
+		let dy = Math.max(y2 - y1, Eps);
 		x = (x - x1) / dx;
 
 		let yp1 = frameOutTangent;
 		let yp2 = nextframeIntangent;
 
-		if (Number.isFinite(yp1) && Number.isFinite(yp2)) {
+		if (!Number.isFinite(yp1) || Number.isFinite(yp2)) {
 			return frameValue;
 		}
 

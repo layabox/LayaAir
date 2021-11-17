@@ -183,6 +183,91 @@ export class AnimationClipParser04 {
 						}
 					}
 					break;
+				case "LAYAANIMATION:WEIGHT_04":
+					for (j = 0; j < keyframeCount; j++) {
+						switch (type) {
+							case 0:
+								var floatKeyframe: FloatKeyframe = new FloatKeyframe();
+								node._setKeyframeByIndex(j, floatKeyframe);
+								floatKeyframe.time = startTimeTypes[reader.getUint16()];
+								floatKeyframe.inTangent = reader.getFloat32();
+								floatKeyframe.outTangent = reader.getFloat32();
+								floatKeyframe.value = reader.getFloat32();
+								floatKeyframe.weightedMode = reader.getUint8();
+								floatKeyframe.inWeight = reader.getFloat32();
+								floatKeyframe.outWeight = reader.getFloat32();
+								break;
+							case 1:
+							case 3:
+							case 4:
+								var floatArrayKeyframe: Vector3Keyframe = new Vector3Keyframe();
+								node._setKeyframeByIndex(j, floatArrayKeyframe);
+								floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+								var inTangent: Vector3 = floatArrayKeyframe.inTangent;
+								var outTangent: Vector3 = floatArrayKeyframe.outTangent;
+								var value: Vector3 = floatArrayKeyframe.value;
+								let weidhtMode = floatArrayKeyframe.weightedMode;
+								let inWeight = floatArrayKeyframe.inWeight;
+								let outWeight = floatArrayKeyframe.outWeight;
+								inTangent.x = reader.getFloat32();
+								inTangent.y = reader.getFloat32();
+								inTangent.z = reader.getFloat32();
+								outTangent.x = reader.getFloat32();
+								outTangent.y = reader.getFloat32();
+								outTangent.z = reader.getFloat32();
+								value.x = reader.getFloat32();
+								value.y = reader.getFloat32();
+								value.z = reader.getFloat32();
+								weidhtMode.x = reader.getUint8();
+								weidhtMode.y = reader.getUint8();
+								weidhtMode.z = reader.getUint8();
+								inWeight.x = reader.getFloat32();
+								inWeight.y = reader.getFloat32();
+								inWeight.z = reader.getFloat32();
+								outWeight.x = reader.getFloat32();
+								outWeight.y = reader.getFloat32();
+								outWeight.z = reader.getFloat32();
+								break;
+							case 2:
+								var quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe();
+								node._setKeyframeByIndex(j, quaternionKeyframe);
+								quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
+								var inTangentQua: Vector4 = quaternionKeyframe.inTangent;
+								var outTangentQua: Vector4 = quaternionKeyframe.outTangent;
+								var valueQua: Quaternion = quaternionKeyframe.value;
+								let weightModeV4 = quaternionKeyframe.weightedMode;
+								let inWeightQua = quaternionKeyframe.inWeight;
+								let outWeightQua = quaternionKeyframe.outWeight;
+								inTangentQua.x = reader.getFloat32();
+								inTangentQua.y = reader.getFloat32();
+								inTangentQua.z = reader.getFloat32();
+								inTangentQua.w = reader.getFloat32();
+								outTangentQua.x = reader.getFloat32();
+								outTangentQua.y = reader.getFloat32();
+								outTangentQua.z = reader.getFloat32();
+								outTangentQua.w = reader.getFloat32();
+								valueQua.x = reader.getFloat32();
+								valueQua.y = reader.getFloat32();
+								valueQua.z = reader.getFloat32();
+								valueQua.w = reader.getFloat32();
+								weightModeV4.x = reader.getUint8();
+								weightModeV4.y = reader.getUint8();
+								weightModeV4.z = reader.getUint8();
+								weightModeV4.w = reader.getUint8();
+								inWeightQua.x = reader.getFloat32();
+								inWeightQua.y = reader.getFloat32();
+								inWeightQua.z = reader.getFloat32();
+								inWeightQua.w = reader.getFloat32();
+								outWeightQua.x = reader.getFloat32();
+								outWeightQua.y = reader.getFloat32();
+								outWeightQua.z = reader.getFloat32();
+								outWeightQua.w = reader.getFloat32();
+								break;
+							default:
+								throw "AnimationClipParser04:unknown type.";
+						}
+					}
+					break;
 				case "LAYAANIMATION:COMPRESSION_04":
 					for (j = 0; j < keyframeCount; j++) {
 						switch (type) {
