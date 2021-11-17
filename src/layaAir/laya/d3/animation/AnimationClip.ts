@@ -251,7 +251,7 @@ export class AnimationClip extends Resource {
 		let yp1 = frameOutTangent;
 		let yp2 = nextframeIntangent;
 
-		if (!Number.isFinite(yp1) || Number.isFinite(yp2)) {
+		if (!Number.isFinite(yp1) || !Number.isFinite(yp2)) {
 			return frameValue;
 		}
 
