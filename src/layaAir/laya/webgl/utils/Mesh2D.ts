@@ -150,8 +150,9 @@ export class Mesh2D {
         this._vb._bindForVAO();
 
         //_vb._bind(); 这个有相同优化，不适用于vao
-        this._ib.setNeedUpload();	//vao的话，必须要绑定ib。即使是共享的别人的。
-        this._ib._bind_uploadForVAO();
+
+        // this._ib.setNeedUpload();	//vao的话，必须要绑定ib。即使是共享的别人的。
+        // this._ib._bind_uploadForVAO();
         //gl.bindBuffer(WebGLContext.ARRAY_BUFFER,_vb);
         //gl.bindBuffer(WebGLContext.ELEMENT_ARRAY_BUFFER, _ib);
         var attribNum: number = this._attribInfo.length / 3;
@@ -187,7 +188,7 @@ export class Mesh2D {
         //gl.bindVertexArray(_vao);
 
         this._vb.bind();	//vao必须要再bind vb,否则下面的操作可能是在操作其他的mesh
-        this._ib._bind_upload() || this._ib.bind();
+        this._ib._bind_upload() || this._ib._bindForVAO();
         this._vb._bind_upload() || this._vb.bind();
     }
 
