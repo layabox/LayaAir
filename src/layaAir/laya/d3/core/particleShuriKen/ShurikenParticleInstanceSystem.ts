@@ -24,7 +24,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
     private _instanceParticleVertexBuffer: VertexBuffer3D = null;
     private _instanceVertex: Float32Array = null;
-    
+
     private _instanceBufferState: BufferState = new BufferState();
 
     private _meshIndexCount: number;
@@ -51,7 +51,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
         let colorElement: VertexElement = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_COLOR0);
         let meshColorOffset = colorElement ? colorElement._offset / 4 : -1;
-        
+
         let uvElement: VertexElement = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE0);
         let meshUVOffset = uvElement ? uvElement._offset / 4 : -1;
 
@@ -129,7 +129,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
                 this._meshIndexCount = mesh.indexCount;
                 //this._meshFloatCountPreVertex = meshDeclaration.vertexStride / 4;
-                this._simulationUV_Index = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset/4;
+                this._simulationUV_Index = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset / 4;
                 this._floatCountPerParticleData = particleDeclaration.vertexStride / 4;
                 this._startLifeTimeIndex = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SHAPEPOSITIONSTARTLIFETIME)._offset / 4 + 3;
                 this._timeIndex = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_DIRECTIONTIME)._offset / 4 + 3;
@@ -170,7 +170,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
             this._meshIndexCount = 6;
             //this._meshFloatCountPreVertex = billboardDeclaration.vertexStride / 4;
-            this._simulationUV_Index = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset/4;
+            this._simulationUV_Index = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset / 4;
             this._floatCountPerParticleData = particleDeclaration.vertexStride / 4;
             this._startLifeTimeIndex = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SHAPEPOSITIONSTARTLIFETIME)._offset / 4 + 3;
             this._timeIndex = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_DIRECTIONTIME)._offset / 4 + 3;
@@ -205,6 +205,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
     protected _retireActiveParticles(): void {
         const epsilon: number = 0.0001;
+        let firstActive = this._firstActiveElement;
         while (this._firstActiveElement != this._firstNewElement) {
             let index = this._firstActiveElement * this._floatCountPerParticleData;
             let timeIndex = index + this._timeIndex;
@@ -218,6 +219,23 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             this._firstActiveElement++;
             if (this._firstActiveElement >= this._bufferMaxParticles) {
                 this._firstActiveElement = 0;
+            }
+        }
+        
+        if (this._firstActiveElement != firstActive) {
+            let byteStride = this._floatCountPerParticleData * 4;
+            if (this._firstActiveElement < this._firstFreeElement) {
+                let activeStart = this._firstActiveElement * byteStride;
+                this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer, 0, activeStart, (this._firstFreeElement - this._firstActiveElement) * byteStride);
+            }
+            else {
+                let start = this._firstActiveElement * byteStride;
+                let a = this._bufferMaxParticles - this._firstActiveElement;
+                this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer, 0, start, a * byteStride);
+
+                if (this._firstFreeElement > 0) {
+                    this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer, a * byteStride, 0, this._firstFreeElement * byteStride);
+                }
             }
         }
     }
@@ -466,7 +484,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             default:
                 throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
         }
-        offset = startIndex+this._simulationUV_Index;
+        offset = startIndex + this._simulationUV_Index;
         this._instanceVertex[offset++] = startU;
         this._instanceVertex[offset++] = startV;
         this._instanceVertex[offset++] = subU;
@@ -477,7 +495,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
     }
 
     addNewParticlesToVertexBuffer(): void {
-        let start: number;
         let byteStride = this._floatCountPerParticleData * 4;
         // instance buffer 绘制不能偏移, 每次 从 0 更新整个 buffer
         if (this._firstActiveElement < this._firstFreeElement) {

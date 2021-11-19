@@ -61,16 +61,16 @@ export class IndexBuffer3D extends Buffer {
 
 		switch (indexType) {
 			case IndexFormat.UInt32:
-					this._indexTypeByteCount = 4;
+				this._indexTypeByteCount = 4;
 				break;
 			case IndexFormat.UInt16:
-					this._indexTypeByteCount = 2;
+				this._indexTypeByteCount = 2;
 				break;
 			case IndexFormat.UInt8:
-					this._indexTypeByteCount = 1;
+				this._indexTypeByteCount = 1;
 				break;
 			default:
-					throw new Error("unidentification index type.");
+				throw new Error("unidentification index type.");
 		}
 		var byteLength: number = this._indexTypeByteCount * indexCount;
 		var curBufSta: BufferStateBase = BufferStateBase._curBindedBufferState;
@@ -179,8 +179,11 @@ export class IndexBuffer3D extends Buffer {
 				var maxLength: number = this._buffer.length - bufferOffset;
 				if (dataCount > maxLength)
 					dataCount = maxLength;
-				for (var i: number = 0; i < dataCount; i++)
-					this._buffer[bufferOffset + i] = data[i];
+				if (typeof data == typeof this._buffer && data.length == dataCount)
+					this._buffer.set(data, bufferOffset);
+				else
+					for (var i: number = 0; i < dataCount; i++)
+						this._buffer[bufferOffset + i] = data[i];
 			} else {
 				this._buffer = data;
 			}
