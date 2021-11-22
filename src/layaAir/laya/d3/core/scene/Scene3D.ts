@@ -1182,7 +1182,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 				else
 					gl.clearColor(0, 0, 0, 0);
-				gl.clearStencil(255);
+				gl.clearStencil(0);
 				if (renderTex) {
 					flag = gl.COLOR_BUFFER_BIT;
 					switch (renderTex.depthStencilFormat) {
