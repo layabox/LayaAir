@@ -4,7 +4,7 @@
 /*camera 传入的Texture以及*/
 uniform highp sampler2D u_CameraDepthTexture;
 uniform vec4 u_ZBufferParams;
-uniform sampler2D u_CameraDepthNormalsTexture;
+uniform mediump sampler2D u_CameraDepthNormalsTexture;
 
 // Encoding/decoding view space normals into 2D 0..1 vector
 vec2 EncodeViewNormalStereo( vec3 n )

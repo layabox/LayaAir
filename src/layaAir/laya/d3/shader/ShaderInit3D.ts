@@ -65,6 +65,7 @@ import { SubShader } from "./SubShader";
  * <code>ShaderInit</code> 类用于初始化内置Shader。
  */
 export class ShaderInit3D {
+	static stateMap:any;
 	/**
 	 * 创建一个 <code>ShaderInit</code> 实例。
 	 */
@@ -95,6 +96,19 @@ export class ShaderInit3D {
 		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
 		Shader3D.addInclude("LayaUtile.glsl",LayaUtile);
 		Shader3D.addInclude("DepthNormalUtil.glsl",DepthNormalUtil);
+		let stateMap = ShaderInit3D.stateMap = {
+			's_Cull': Shader3D.RENDER_STATE_CULL,
+			's_Blend': Shader3D.RENDER_STATE_BLEND,
+			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
+			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
+			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
+			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE,
+			's_StencilTest':Shader3D.RENDER_STATE_STENCIL_TEST,
+			's_StencilWrite':Shader3D.RENDER_STATE_STENCIL_WRITE,
+			's_StencilRef':Shader3D.RENDER_STATE_STENCIL_REF,
+			's_StencilOp':Shader3D.RENDER_STATE_STENCIL_OP
+			
+		}
 
 		//BLINNPHONG
 		var attributeMap: any = {
@@ -183,14 +197,7 @@ export class ShaderInit3D {
 			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.color': Shader3D.PERIOD_SCENE
 		};
-		var stateMap: any = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		}
+	
 		var shader: Shader3D = Shader3D.add("BLINNPHONG", null, null, true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -206,14 +213,7 @@ export class ShaderInit3D {
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
 			'u_Color': Shader3D.PERIOD_MATERIAL
 		};
-		stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		}
+	
 		shader = Shader3D.add("LineShader");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -247,14 +247,7 @@ export class ShaderInit3D {
 			'u_FogRange': Shader3D.PERIOD_SCENE,
 			'u_FogColor': Shader3D.PERIOD_SCENE
 		};
-		stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		}
+		
 		shader = Shader3D.add("Unlit", null, null, true);
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -286,14 +279,7 @@ export class ShaderInit3D {
 			'u_FogRange': Shader3D.PERIOD_SCENE,
 			'u_FogColor': Shader3D.PERIOD_SCENE
 		};
-		stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		}
+		
 		shader = Shader3D.add("Effect", null, null, true);
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -380,14 +366,7 @@ export class ShaderInit3D {
 			'u_FogRange': Shader3D.PERIOD_SCENE,
 			'u_FogColor': Shader3D.PERIOD_SCENE
 		};
-		stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		};
+	
 		shader = Shader3D.add("PARTICLESHURIKEN");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -480,14 +459,7 @@ export class ShaderInit3D {
 			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.color': Shader3D.PERIOD_SCENE
 		};
-		stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		};
+	
 		shader = Shader3D.add("ExtendTerrain");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -516,14 +488,7 @@ export class ShaderInit3D {
 			'u_GradientColorkey': Shader3D.PERIOD_SPRITE,
 			'u_GradientAlphakey': Shader3D.PERIOD_SPRITE
 		};
-		stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		};
+		
 		shader = Shader3D.add("Trail");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);

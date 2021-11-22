@@ -1,5 +1,6 @@
 import { IClone } from "../IClone"
 import { Vector4 } from "../../math/Vector4"
+import { Vector3 } from "../../math/Vector3";
 
 
 /**
@@ -69,6 +70,40 @@ export class RenderState implements IClone {
 	/**深度测试函数枚举_总是通过。*/
 	static DEPTHTEST_ALWAYS: number = 0x0207/*WebGLContext.ALWAYS*/;
 
+	
+	static STENCILTEST_OFF:number = 0;
+	/**深度测试函数枚举_从不通过。*/
+	static STENCILTEST_NEVER: number = 0x0200/*WebGLContext.NEVER*/;
+	/**深度测试函数枚举_小于时通过。*/
+	static STENCILTEST_LESS: number = 0x0201/*WebGLContext.LESS*/;
+	/**深度测试函数枚举_等于时通过。*/
+	static STENCILTEST_EQUAL: number = 0x0202/*WebGLContext.EQUAL*/;
+	/**深度测试函数枚举_小于等于时通过。*/
+	static STENCILTEST_LEQUAL: number = 0x0203/*WebGLContext.LEQUAL*/;
+	/**深度测试函数枚举_大于时通过。*/
+	static STENCILTEST_GREATER: number = 0x0204/*WebGLContext.GREATER*/;
+	/**深度测试函数枚举_不等于时通过。*/
+	static STENCILTEST_NOTEQUAL: number = 0x0205/*WebGLContext.NOTEQUAL*/;
+	/**深度测试函数枚举_大于等于时通过。*/
+	static STENCILTEST_GEQUAL: number = 0x0206/*WebGLContext.GEQUAL*/;
+	/**深度测试函数枚举_总是通过。*/
+	static STENCILTEST_ALWAYS: number = 0x0207/*WebGLContext.ALWAYS*/;
+	/**保持当前值*/
+	static STENCILOP_KEEP:number;
+	/**将模板缓冲区值设置为0*/
+	static STENCILOP_ZERO:number;
+	/**将模具缓冲区值设置为指定的参考值*/
+	static STENCILOP_REPLACE:number;
+	/**增加当前模具缓冲区值+1 */
+	static STENCILOP_INCR:number;
+	/**增加当前模具缓冲区值,超过最大值的时候循环*/
+	static STENCILOP_INCR_WRAP:number;
+	/**递减当前模板缓冲区的值*/
+	static STENCILOP_DECR:number;
+	/**递减当前模板缓冲去的值，小于0时会循环*/
+	static STENCILOP_DECR_WRAP:number;
+	/**按位反转当前的模板缓冲区的值*/
+	static STENCILOP_INVERT:number;
 	/**渲染剔除状态。*/
 	cull: number;
 	/**透明混合。*/
@@ -95,8 +130,31 @@ export class RenderState implements IClone {
 	blendEquationAlpha: number;
 	/**深度测试函数。*/
 	depthTest: number;
-	/**是否深度写入。*/
+	/**是否深度测试。*/
 	depthWrite: boolean;
+	/**是否模板写入 */
+	stencilWrite:boolean;
+	/**是否开启模板测试 */
+	stencilTest:number;
+	/**模板值 一般会在0-255*/
+	stencilRef:number;
+	/**模板设置值 */
+	stencilOp:Vector3;
+
+
+	/**
+	 * RenderState init data
+	 */
+	static __init__(gl:WebGLRenderingContext){
+		RenderState.STENCILOP_KEEP = gl.KEEP;
+		RenderState.STENCILOP_ZERO = gl.ZERO;
+		RenderState.STENCILOP_REPLACE = gl.REPLACE;
+		RenderState.STENCILOP_INCR = gl.INCR;
+		RenderState.STENCILOP_INCR_WRAP = gl.INCR_WRAP;
+		RenderState.STENCILOP_DECR = gl.DECR;
+		RenderState.STENCILOP_DECR_WRAP = gl.DECR_WRAP;
+		RenderState.STENCILOP_INVERT = gl.INVERT;
+	}
 
 	/**
 	 * 创建一个 <code>RenderState</code> 实例。
@@ -116,6 +174,10 @@ export class RenderState implements IClone {
 		this.blendEquationAlpha = RenderState.BLENDEQUATION_ADD;
 		this.depthTest = RenderState.DEPTHTEST_LEQUAL;
 		this.depthWrite = true;
+		this.stencilRef = 1;
+		this.stencilTest =RenderState.STENCILTEST_OFF;
+		this.stencilWrite = false;
+		this.stencilOp = new Vector3(RenderState.STENCILOP_KEEP,RenderState.STENCILOP_KEEP,RenderState.STENCILOP_REPLACE);
 	}
 
 	/**
