@@ -42,6 +42,18 @@ export class Material extends Resource implements IClone {
 	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
 	/**@internal */
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
+	/**@internal */
+	static STENCIL_TEST: number = Shader3D.propertyNameToID("s_StencilTest");
+	/**@internal */
+	static STENCIL_WRITE: number = Shader3D.propertyNameToID("s_StencilWrite");
+	/**@internal */
+	static STENCIL_Ref: number = Shader3D.propertyNameToID("s_StencilRef");
+	/**@internal */
+	static STENCIL_Op:number = Shader3D.propertyNameToID("s_StencilOp");
+
+	/**@internal */
+	
+
 	/**材质级着色器宏定义,透明测试。*/
 	static SHADERDEFINE_ALPHATEST: ShaderDefine;
 
@@ -215,7 +227,6 @@ export class Material extends Resource implements IClone {
 	_shader: Shader3D;
 	/** @private */
 	_shaderValues: ShaderData|null;//TODO:剥离贴图ShaderValue
-
 	/** 所属渲染队列. */
 	renderQueue: number;
 
@@ -251,7 +262,7 @@ export class Material extends Resource implements IClone {
 			this._shaderValues.removeDefine(Material.SHADERDEFINE_ALPHATEST);
 	}
 
-	  /**
+	/**
 	 * 是否写入深度。
 	 */
 	get depthWrite(): boolean {
@@ -320,6 +331,56 @@ export class Material extends Resource implements IClone {
 	set depthTest(value: number) {
 		this._shaderValues.setInt(Material.DEPTH_TEST, value);
 	}
+
+	/**
+	 * 模板测试方式
+	 */
+	get stencilTest(): number {
+		return this._shaderValues.getInt(Material.STENCIL_TEST);
+	}
+
+	set stencilTest(value: number) {
+		this._shaderValues.setInt(Material.STENCIL_TEST, value);
+	}
+
+	/**
+	 * 是否写入模板。
+	 */
+	 get stencilWrite(): boolean {
+		return this._shaderValues.getBool(Material.STENCIL_WRITE);
+	}
+
+	set stencilWrite(value: boolean) {
+		this._shaderValues.setBool(Material.STENCIL_WRITE, value);
+    }
+
+	/**
+	 * 写入模板值
+	 */
+	set stencilRef(value:number){
+		this._shaderValues.setInt(Material.STENCIL_Ref,value);
+	}
+
+	get stencilRef():number{
+		return this._shaderValues.getInt(Material.STENCIL_Ref);
+	}
+
+	/** */
+	/**
+	 * 写入模板测试设置
+	 * vector(fail, zfail, zpass)
+	 */
+	set stencilOp(value:Vector3){
+		this._shaderValues.setVector3(Material.STENCIL_Op,value);
+	}
+
+	get stencilOp():Vector3{
+		return this._shaderValues.getVector3(Material.STENCIL_Op);
+	}
+    
+
+
+
 
 	/**
 	 * 获得材质属性

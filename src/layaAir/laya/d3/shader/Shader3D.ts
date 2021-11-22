@@ -41,6 +41,15 @@ export class Shader3D {
 	static RENDER_STATE_DEPTH_TEST: number = 12;
 	/**渲染状态_深度写入。*/
 	static RENDER_STATE_DEPTH_WRITE: number = 13;
+	/**渲染状态_模板测试。*/
+	static RENDER_STATE_STENCIL_TEST:number = 14;
+	/**渲染状态_模板写入 */
+	static RENDER_STATE_STENCIL_WRITE:number = 15;
+	/**渲染状态_模板写入值 */
+	static RENDER_STATE_STENCIL_REF:number = 16;
+	/**渲染状态_模板写入设置 */
+	static RENDER_STATE_STENCIL_OP:number = 17;
+
 
 	/**shader变量提交周期，自定义。*/
 	static PERIOD_CUSTOM: number = 0;

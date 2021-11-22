@@ -97,6 +97,7 @@ import { Camera } from "./laya/d3/core/Camera";
 import { CommandBuffer } from "./laya/d3/core/render/command/CommandBuffer";
 import { RenderElement } from "./laya/d3/core/render/RenderElement";
 import { SubMeshRenderElement } from "./laya/d3/core/render/SubMeshRenderElement";
+import { RenderState } from "./laya/d3/core/material/RenderState";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -224,6 +225,7 @@ export class Laya3D {
 		PixelLineVertex.__init__();
 		SubMeshInstanceBatch.__init__();
 		SubMeshDynamicBatch.__init__();
+		RenderState.__init__(LayaGL.instance);
 		ShaderInit3D.__init__();
 		ShadowUtils.init();
 		PBRMaterial.__init__();
