@@ -221,6 +221,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 		dest.blendingMode = this.blendingMode;
 		dest.defaultWeight = this.defaultWeight;
 		dest.playOnWake = this.playOnWake;
+		this.avatarMask && (dest.avatarMask = this._avatarMask.clone());
 	}
 
 	/**
