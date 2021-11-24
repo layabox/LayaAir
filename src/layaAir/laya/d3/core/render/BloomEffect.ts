@@ -302,6 +302,10 @@ export class BloomEffect extends PostProcessEffect {
 		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOMTEX, lastUpTexture);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOMTEX_TEXELSIZE, this._bloomTextureTexelSize);
 
+		let _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
+
+		cmd.blitScreenTriangle(context.source, context.destination, context.camera._screenOffsetScale, _compositeShader ,compositeShaderData, 0, true);
+
 
 		//释放渲染纹理
 		for (i = 0; i < iterations; i++) {

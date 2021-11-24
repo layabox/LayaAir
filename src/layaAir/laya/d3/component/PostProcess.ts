@@ -120,14 +120,14 @@ export class PostProcess {
 		//dithering.Render(context);
 
 		var offScreenTex: RenderTexture = camera!._offScreenRenderTexture;
-		var dest = offScreenTex ? offScreenTex : cameraTarget;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
+		var dest = offScreenTex ? offScreenTex : null;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
 		this._context!.destination = dest;
 		var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
 		camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
 
 		
 		if (dest)
-			this._context!.command!.blitScreenTriangle(screenTexture, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0, true);
+		this._context!.command!.blitScreenTriangle(screenTexture, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0, true);
 
 		//context.source = context.destination;
 		//context.destination = finalDestination;
