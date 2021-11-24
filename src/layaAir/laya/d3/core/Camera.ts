@@ -1001,13 +1001,6 @@ export class Camera extends BaseCamera {
 	 * @param out  x、y、z为归一化视口空间坐标,w为相对于摄像机的z轴坐标。
 	 */
 	worldToNormalizedViewportPoint(position: Vector3, out: Vector4): void {
-		// Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
-		// this.normalizedViewport.project(position, this._projectionViewMatrix, out);
-		
-		// this.viewport.x/Laya.stage.width
-
-		// out.x = (out.x / Laya.stage.clientScaleX/Config3D._config.pixelRatio)|0;
-		// out.y = (out.y / Laya.stage.clientScaleY/Config3D._config.pixelRatio)|0;
 		this.worldToViewportPoint(position,out);
 		out.x = out.x/Laya.stage.width;
 		out.y = out.y/Laya.stage.height;
