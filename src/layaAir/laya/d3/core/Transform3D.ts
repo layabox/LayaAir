@@ -715,27 +715,48 @@ export class Transform3D extends EventDispatcher {
 	 * @param	up 向上向量。
 	 * @param	isLocal 是否局部空间。
 	 */
-	lookAt(target: Vector3, up: Vector3, isLocal: boolean = false): void {
+	lookAt(target: Vector3, up: Vector3, isLocal: boolean = false,isCamera:boolean = true): void {
 		var eye: Vector3;
 		if (isLocal) {
 			eye = this._localPosition;
 			if (Math.abs(eye.x - target.x) < MathUtils3D.zeroTolerance && Math.abs(eye.y - target.y) < MathUtils3D.zeroTolerance && Math.abs(eye.z - target.z) < MathUtils3D.zeroTolerance)
 				return;
+			if(isCamera){
+				Quaternion.lookAt(this._localPosition, target, up, this._localRotation);
+				this._localRotation.invert(this._localRotation);
+			}else{
+				Vector3.subtract(this.localPosition,target,Transform3D._tempVector30);
+				Quaternion.rotationLookAt(Transform3D._tempVector30,up,this.localRotation);
+			}
 
-			Quaternion.lookAt(this._localPosition, target, up, this._localRotation);
-			this._localRotation.invert(this._localRotation);
 			this.localRotation = this._localRotation;
 		} else {
 			var worldPosition: Vector3 = this.position;
 			eye = worldPosition;
 			if (Math.abs(eye.x - target.x) < MathUtils3D.zeroTolerance && Math.abs(eye.y - target.y) < MathUtils3D.zeroTolerance && Math.abs(eye.z - target.z) < MathUtils3D.zeroTolerance)
 				return;
-
-			Quaternion.lookAt(worldPosition, target, up, this._rotation);
-			this._rotation.invert(this._rotation);
+			if(isCamera){
+				Quaternion.lookAt(worldPosition, target, up, this._rotation);
+				this._rotation.invert(this._rotation);
+			}else{
+				Vector3.subtract(this.position,target,Transform3D._tempVector30);
+				Quaternion.rotationLookAt(Transform3D._tempVector30,up,this._rotation);
+			}
 			this.rotation = this._rotation;
 		}
 	}
+
+	/**
+	 * 对象朝向目标
+	 * @param target 
+	 * @param up 
+	 * @param isLocal 
+	 */
+	objLookat(target: Vector3, up: Vector3, isLocal: boolean = false):void{
+
+	}
+
+	
 
 	/**
 	 * 世界缩放。
