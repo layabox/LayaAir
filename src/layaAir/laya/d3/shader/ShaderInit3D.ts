@@ -386,7 +386,7 @@ export class ShaderInit3D {
 		shader = Shader3D.add("SkyBox");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(SkyBoxVS, SkyBoxPS);
+		subShader.addShaderPass(SkyBoxVS, SkyBoxPS,stateMap);
 
 		//SkyBoxProcedural
 		attributeMap = {
@@ -406,7 +406,7 @@ export class ShaderInit3D {
 		shader = Shader3D.add("SkyBoxProcedural");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(SkyBoxProceduralVS, SkyBoxProceduralPS);
+		subShader.addShaderPass(SkyBoxProceduralVS, SkyBoxProceduralPS,stateMap);
 
 		//extendTerrain的shader
 		attributeMap = {
@@ -514,7 +514,7 @@ export class ShaderInit3D {
 		shader = Shader3D.add("WaterPrimary");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(WaterPrimaryVS, WaterPrimaryPS);
+		subShader.addShaderPass(WaterPrimaryVS, WaterPrimaryPS,stateMap);
 
 
 		//BlitScreen
@@ -528,7 +528,7 @@ export class ShaderInit3D {
 		shader = Shader3D.add("BlitScreen");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		var shaderPass: ShaderPass = subShader.addShaderPass(BlitScreenVS, BlitScreenPS);
+		var shaderPass: ShaderPass = subShader.addShaderPass(BlitScreenVS, BlitScreenPS,stateMap);
 		var renderState: RenderState = shaderPass.renderState;
 		renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 		renderState.depthWrite = false;
@@ -623,7 +623,7 @@ export class ShaderInit3D {
 
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		shaderPass = subShader.addShaderPass(CompositeVS, CompositePS);
+		shaderPass = subShader.addShaderPass(CompositeVS, CompositePS,stateMap);
 		renderState = shaderPass.renderState;
 		renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 		renderState.depthWrite = false;
