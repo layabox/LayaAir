@@ -968,7 +968,7 @@ export class Camera extends BaseCamera {
 	 */
 	normalizedViewportPointToRay(point: Vector2, out: Ray): void {
 		var finalPoint: Vector2 = Camera._tempVector20;
-		var vp: Viewport = this.viewport;
+		var vp: Viewport = this.normalizedViewport;
 		point.x = point.x*Config3D._config.pixelRatio;
 		point.y = point.y*Config3D._config.pixelRatio;
 		finalPoint.x = point.x * vp.width;
