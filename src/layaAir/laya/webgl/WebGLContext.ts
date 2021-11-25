@@ -166,7 +166,7 @@ export class WebGLContext {
         if(WebGLContext._stencilOp_fail!=fail||WebGLContext._stencilOp_zfail!=zfail||WebGLContext._stencilOp_zpass!=zpass){
             WebGLContext._stencilOp_fail=fail;
             WebGLContext._stencilOp_zfail=zfail;
-            WebGLContext._stencilOp_zpass!=zpass;
+            WebGLContext._stencilOp_zpass=zpass;
             gl.stencilOp(fail, zfail, zpass);
         }
         

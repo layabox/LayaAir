@@ -625,9 +625,13 @@ export class ShaderInstance extends Resource {
 			WebGLContext.setStencilTest(gl,false);
 		}else{
 			WebGLContext.setStencilTest(gl,true);
-			WebGLContext.setstencilOp(gl,stencilOp.x,stencilOp.y,stencilOp.z);
 			WebGLContext.setStencilFunc(gl,stencilTest,stencilRef);
+			
 		}
+		WebGLContext.setstencilOp(gl,stencilOp.x,stencilOp.y,stencilOp.z);
+		
+		
+		
 	}
 
 	/**

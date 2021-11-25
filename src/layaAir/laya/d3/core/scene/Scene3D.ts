@@ -1182,7 +1182,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 				else
 					gl.clearColor(0, 0, 0, 0);
-				gl.clearStencil(0);
+				
 				if (renderTex) {
 					flag = gl.COLOR_BUFFER_BIT;
 					switch (renderTex.depthStencilFormat) {
@@ -1196,6 +1196,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 							flag |= gl.DEPTH_BUFFER_BIT;
 							flag |= gl.STENCIL_BUFFER_BIT;
 							//打开模板缓存 再清理
+							gl.clearStencil(0);
 							WebGLContext.setStencilMask(gl,true);
 							break;
 					}
@@ -1219,6 +1220,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 							flag = gl.STENCIL_BUFFER_BIT;
 							break;
 						case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
+							//打开模板缓存 再清理
+							gl.clearStencil(0);
+							WebGLContext.setStencilMask(gl,true);
 							flag = gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT;
 							break;
 					}

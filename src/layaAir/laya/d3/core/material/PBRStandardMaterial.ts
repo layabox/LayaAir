@@ -10,6 +10,7 @@ import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
 import { PBRMaterial } from "./PBRMaterial";
+import { ShaderInit3D } from "../../shader/ShaderInit3D";
 
 /**
  * 金属度PBR材质光滑度数据源。
@@ -144,14 +145,7 @@ export class PBRStandardMaterial extends PBRMaterial {
 			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.color': Shader3D.PERIOD_SCENE
 		};
-		var stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		}
+		var stateMap = ShaderInit3D.stateMap;
 		var shader: Shader3D = Shader3D.add("PBR",attributeMap,uniformMap,true,true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
