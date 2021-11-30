@@ -1354,6 +1354,17 @@ export class Context {
 			out[2] = a2 * ma + a3 * mc + tx; out[3] = a2 * mb + a3 * md + ty;
 			out[4] = a4 * ma + a5 * mc + tx; out[5] = a4 * mb + a5 * md + ty;
 			out[6] = a6 * ma + a7 * mc + tx; out[7] = a6 * mb + a7 * md + ty;
+			let dx = out[2] - out[0];
+			let minw = 1;	// 限制最小宽度为1，防止细线在缩小的情况下消失。
+			if (dx < minw) {
+				dx = minw - dx;
+				out[2] += dx;
+			}
+			dx = out[4] - out[6];
+			if (dx < minw) {
+				dx = minw - dx;
+				out[4] += dx;
+			}
 		} else {
 			out[0] = a0 + tx; out[1] = a1 + ty;
 			out[2] = a2 + tx; out[3] = a3 + ty;
