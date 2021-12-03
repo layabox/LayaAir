@@ -1,17 +1,18 @@
-import { Vector4 } from "laya/d3/math/Vector4";
-import { Viewport } from "laya/d3/math/Viewport";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { DefineDatas } from "laya/d3/shader/DefineDatas";
-import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderData } from "laya/d3/shader/ShaderData";
-import { ShaderInstance } from "laya/d3/shader/ShaderInstance";
-import { ShaderPass } from "laya/d3/shader/ShaderPass";
-import { SubShader } from "laya/d3/shader/SubShader";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { BaseTexture } from "laya/resource/BaseTexture";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { BaseTexture } from "../../../../resource/BaseTexture";
+import { Vector4 } from "../../../math/Vector4";
+import { Viewport } from "../../../math/Viewport";
+import { RenderTexture } from "../../../resource/RenderTexture";
+import { DefineDatas } from "../../../shader/DefineDatas";
+import { Shader3D } from "../../../shader/Shader3D";
+import { ShaderData } from "../../../shader/ShaderData";
+import { ShaderInstance } from "../../../shader/ShaderInstance";
+import { ShaderPass } from "../../../shader/ShaderPass";
+import { SubShader } from "../../../shader/SubShader";
 import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
+
 
 /**
  * 类用于创建从渲染源输出到渲染目标的指令
