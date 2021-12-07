@@ -21,7 +21,7 @@ import { Script3D } from "../../component/Script3D";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
 import { FrustumCulling, CameraCullInfo } from "../../graphics/FrustumCulling";
 import { Cluster } from "../../graphics/renderPath/Cluster";
-import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
+import { SphericalHarmonicsL2, SphericalHarmonicsL2Generater } from "../../graphics/SphericalHarmonicsL2";
 import { Input3D } from "../../Input3D";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
@@ -79,8 +79,10 @@ import { FilterMode } from "../../../resource/FilterMode";
 export enum AmbientMode {
 	/** 固定颜色。*/
 	SolidColor,
-	/** 球谐光照,例如通过天空盒生成的球谐数据。 */
-	SphericalHarmonics
+	/** 球谐光照, 通过天空盒生成的球谐数据。 */
+	SphericalHarmonics,
+	/** 分别设置天空, 地平线, 地面的环境光颜色 */
+	TripleColor
 }
 
 
@@ -291,6 +293,14 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _ambientSphericalHarmonicsIntensity: number = 1.0;
 	/** @internal */
+	private _ambientSkyColor: Vector3 = new Vector3();
+	/** @internal */
+	private _ambientEquatorColor: Vector3 = new Vector3();
+	/** @internal */
+	private _ambientGroundColor: Vector3 = new Vector3();
+	/** @internal */
+	private _ambientTripleColorSphericalHarmonics: SphericalHarmonicsL2;
+	/** @internal */
 	private _reflection: TextureCube;
 	/** @internal */
 	private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
@@ -449,6 +459,14 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					break;
 				case AmbientMode.SphericalHarmonics:
 					this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
+					let sh = this.ambientSphericalHarmonics || SphericalHarmonicsL2._default;
+					let intensity = this.ambientSphericalHarmonicsIntensity;
+					this._applySHCoefficients(sh, Math.pow(intensity, 2.2));
+					break;
+				case AmbientMode.TripleColor:
+					this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
+					let gradientSH = this._ambientTripleColorSphericalHarmonics || SphericalHarmonicsL2._default;
+					this._applySHCoefficients(gradientSH, 1.0);
 					break;
 				default:
 					throw "Scene3D: unknown ambientMode.";
@@ -466,6 +484,27 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set ambientColor(value: Vector3) {
 		this._shaderValues.setVector3(Scene3D.AMBIENTCOLOR, value);
+	}
+
+	/**
+	 * 天空环境光颜色
+	 */
+	get ambientSkyColor(): Vector3 {
+		return this._ambientSkyColor;
+	}
+
+	/**
+	 * 地平线环境光颜色
+	 */
+	get ambientEquatorColor(): Vector3 {
+		return this._ambientEquatorColor;
+	}
+
+	/**
+	 * 地面环境光颜色
+	 */
+	get ambientGroundColor(): Vector3 {
+		return this._ambientGroundColor;
 	}
 
 	/**
@@ -491,11 +530,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set ambientSphericalHarmonicsIntensity(value: number) {
 		value = Math.max(Math.min(value, 8.0), 0.0);
-		if (this._ambientSphericalHarmonicsIntensity !== value) {
+		if (this.ambientMode == AmbientMode.SphericalHarmonics && this._ambientSphericalHarmonicsIntensity !== value) {
 			var originalSH: SphericalHarmonicsL2 = this._ambientSphericalHarmonics || SphericalHarmonicsL2._default;
 			this._applySHCoefficients(originalSH, Math.pow(value, 2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
-			this._ambientSphericalHarmonicsIntensity = value;
 		}
+		this._ambientSphericalHarmonicsIntensity = value;
 	}
 
 	/**
@@ -688,6 +727,22 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		shaderValues.setVector(Scene3D.AMBIENTSHBG, optSH[4]);
 		shaderValues.setVector(Scene3D.AMBIENTSHBB, optSH[5]);
 		shaderValues.setVector(Scene3D.AMBIENTSHC, optSH[6]);
+	}
+
+	/**
+	 * 设置 天空， 地平线， 地面 环境光颜色
+	 */
+	public setGradientAmbient(skyColor: Vector3, equatorColor: Vector3, groundColor: Vector3) {
+		this._ambientSkyColor = skyColor;
+		this._ambientEquatorColor = equatorColor;
+		this._ambientGroundColor = groundColor;
+
+		let gradientSH = SphericalHarmonicsL2Generater.CalGradientSH(skyColor, equatorColor, groundColor, true);
+		this._ambientTripleColorSphericalHarmonics = gradientSH;
+
+		if (this.ambientMode == AmbientMode.TripleColor) {
+			this._applySHCoefficients(gradientSH, 1.0);
+		}
 	}
 
 	/**
@@ -1182,7 +1237,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 				else
 					gl.clearColor(0, 0, 0, 0);
-				
+
 				if (renderTex) {
 					flag = gl.COLOR_BUFFER_BIT;
 					switch (renderTex.depthStencilFormat) {
@@ -1197,7 +1252,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 							flag |= gl.STENCIL_BUFFER_BIT;
 							//打开模板缓存 再清理
 							gl.clearStencil(0);
-							WebGLContext.setStencilMask(gl,true);
+							WebGLContext.setStencilMask(gl, true);
 							break;
 					}
 				} else {
@@ -1222,7 +1277,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 						case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
 							//打开模板缓存 再清理
 							gl.clearStencil(0);
-							WebGLContext.setStencilMask(gl,true);
+							WebGLContext.setStencilMask(gl, true);
 							flag = gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT;
 							break;
 					}
@@ -1296,13 +1351,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.lightmaps = lightmaps;
 		}
 
-		var ambientColorData: any[] = data.ambientColor;
-		if (ambientColorData) {
-			var ambCol: Vector3 = this.ambientColor;
-			ambCol.fromArray(ambientColorData);
-			this.ambientColor = ambCol;
-		}
-
 		var skyData: any = data.sky;
 		if (skyData) {
 			this._skyRenderer.material = Loader.getRes(skyData.material.path);
@@ -1328,6 +1376,32 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.fogColor = fogCol;
 		}
 
+		// 环境光 模式
+		var ambientModeData: AmbientMode = data.ambientMode;
+
+		// 单颜色
+		var ambientColorData: any[] = data.ambientColor;
+		if (ambientColorData) {
+			var ambCol: Vector3 = this.ambientColor;
+			ambCol.fromArray(ambientColorData);
+			this.ambientColor = ambCol;
+		}
+
+		if (ambientModeData == AmbientMode.TripleColor) {
+			// 三颜色
+			let ambientSkyColor: number[] = data.ambientSkyColor;
+			this._ambientSkyColor.fromArray(ambientSkyColor);
+
+			let ambientEquatorColor: number[] = data.ambientEquatorColor;
+			this._ambientEquatorColor.fromArray(ambientEquatorColor);
+
+			let ambientGroundColor: number[] = data.ambientGroundColor;
+			this._ambientGroundColor.fromArray(ambientGroundColor);
+
+			this.setGradientAmbient(this._ambientSkyColor, this._ambientEquatorColor, this._ambientGroundColor);
+		}
+
+		// skybox
 		var ambientSphericalHarmonicsData: Array<number> = data.ambientSphericalHarmonics;
 		if (ambientSphericalHarmonicsData) {
 			var ambientSH: SphericalHarmonicsL2 = this.ambientSphericalHarmonics;
@@ -1337,14 +1411,14 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 			this.ambientSphericalHarmonics = ambientSH;
 		}
+
+		(ambientModeData != undefined) && (this.ambientMode = ambientModeData);
+
 		var reflectionData: string = data.reflection;
 		(reflectionData != undefined) && (this.reflection = Loader.getRes(reflectionData));
 
 		var reflectionDecodingFormatData: number = data.reflectionDecodingFormat;
 		(reflectionDecodingFormatData != undefined) && (this.reflectionDecodingFormat = reflectionDecodingFormatData);
-
-		var ambientModeData: AmbientMode = data.ambientMode;
-		(ambientModeData != undefined) && (this.ambientMode = ambientModeData);
 
 		var ambientSphericalHarmonicsIntensityData: number = data.ambientSphericalHarmonicsIntensity;
 		(ambientSphericalHarmonicsIntensityData != undefined) && (this.ambientSphericalHarmonicsIntensity = ambientSphericalHarmonicsIntensityData);
