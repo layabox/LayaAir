@@ -565,9 +565,17 @@ export class ShaderInstance extends Resource {
 		var depthWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_WRITE);
 		var depthTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_TEST);
 		var blend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND);
+		var stencilRef:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_REF);
+		var stencilTest:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_TEST);
+		var stencilWrite:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_WRITE);
+		var stencilOp:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_OP);
 		depthWrite == null && (depthWrite = renderState.depthWrite);
 		depthTest == null && (depthTest = renderState.depthTest);
 		blend == null && (blend = renderState.blend);
+		stencilRef == null && (stencilRef = renderState.stencilRef);
+		stencilTest ==null && (stencilTest = renderState.stencilTest);
+		stencilWrite == null && (stencilTest = renderState.stencilWrite);
+		stencilOp ==null && (stencilOp = renderState.stencilOp);
 
 		WebGLContext.setDepthMask(gl, depthWrite);
 		if (depthTest === RenderState.DEPTHTEST_OFF)
@@ -576,7 +584,7 @@ export class ShaderInstance extends Resource {
 			WebGLContext.setDepthTest(gl, true);
 			WebGLContext.setDepthFunc(gl, depthTest);
 		}
-
+		//blend
 		switch (blend) {
 			case RenderState.BLEND_DISABLE:
 				WebGLContext.setBlend(gl, false);
@@ -610,6 +618,20 @@ export class ShaderInstance extends Resource {
 				WebGLContext.setBlendFuncSeperate(gl, srcRGB, dstRGB, srcAlpha, dstAlpha);
 				break;
 		}
+
+		//Stencil
+		WebGLContext.setStencilMask(gl, stencilWrite);
+		if(stencilTest==RenderState.STENCILTEST_OFF){
+			WebGLContext.setStencilTest(gl,false);
+		}else{
+			WebGLContext.setStencilTest(gl,true);
+			WebGLContext.setStencilFunc(gl,stencilTest,stencilRef);
+			
+		}
+		WebGLContext.setstencilOp(gl,stencilOp.x,stencilOp.y,stencilOp.z);
+		
+		
+		
 	}
 
 	/**

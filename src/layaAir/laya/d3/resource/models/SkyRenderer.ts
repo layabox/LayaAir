@@ -90,6 +90,9 @@ export class SkyRenderer {
 			WebGLContext.setCullFace(gl, false);
 			WebGLContext.setDepthFunc(gl, gl.LEQUAL);
 			WebGLContext.setDepthMask(gl, false);
+			//模板设置
+			WebGLContext.setStencilMask(gl,false);
+
 			var comDef: DefineDatas = SkyRenderer._compileDefine;
 			this._material._shaderValues._defineDatas.cloneTo(comDef);
 			var shader: ShaderInstance = context.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(comDef);//TODO:调整SubShader代码

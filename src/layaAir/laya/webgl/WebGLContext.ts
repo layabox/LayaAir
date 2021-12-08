@@ -24,6 +24,23 @@ export class WebGLContext {
     /**@internal */
     private static _depthFunc: number;
     /**@internal */
+    private static _stencilTest: boolean = false;
+    /**@internal */
+    private static _stencilFunc:number;
+    /**@internal */
+    private static _stencilMask:boolean;
+    /**@internal */
+    private static _stencilRef:number
+    /**@internal */
+    private static _stencilOp:number;
+    /**@internal */
+    private static _stencilOp_fail:number;
+    /**@internal */
+    private static _stencilOp_zfail:number;
+    /**@internal */
+    private static _stencilOp_zpass:number;
+    
+    /**@internal */
     private static _blend: boolean = false;
     /**@internal */
     private static _blendEquation: number;
@@ -113,6 +130,49 @@ export class WebGLContext {
     static setDepthFunc(gl: WebGLRenderingContext, value: number): void {
         value !== WebGLContext._depthFunc && (WebGLContext._depthFunc = value, gl.depthFunc(value));
     }
+
+    /**
+     * @internal
+     */
+    static setStencilTest(gl: WebGLRenderingContext, value: boolean):void{
+        value !==WebGLContext._stencilTest && (WebGLContext._stencilTest = value,value?gl.enable(gl.STENCIL_TEST):gl.disable(gl.STENCIL_TEST));
+    }
+
+    /**
+     * 模板写入开关
+     * @param gl 
+     * @param value 
+     */
+    static setStencilMask(gl: WebGLRenderingContext, value: boolean): void {
+
+        value !== WebGLContext._stencilMask && (WebGLContext._stencilMask = value, value?gl.stencilMask(0xff):gl.stencilMask(0x00));
+    }
+
+    /**
+     * @internal
+     */
+    static setStencilFunc(gl:WebGLRenderingContext, fun: number,ref:number):void{
+        if(fun!=WebGLContext._stencilFunc||ref!=WebGLContext._stencilRef){
+            WebGLContext._stencilFunc = fun;
+            WebGLContext._stencilRef = ref;
+            gl.stencilFunc(fun,ref,0xff);
+        }
+    }
+
+     /**
+     * @internal
+     */
+    static setstencilOp(gl:WebGLRenderingContext,fail:number,zfail:number,zpass:number){
+        if(WebGLContext._stencilOp_fail!=fail||WebGLContext._stencilOp_zfail!=zfail||WebGLContext._stencilOp_zpass!=zpass){
+            WebGLContext._stencilOp_fail=fail;
+            WebGLContext._stencilOp_zfail=zfail;
+            WebGLContext._stencilOp_zpass=zpass;
+            gl.stencilOp(fail, zfail, zpass);
+        }
+        
+    }
+
+
 
 	/**
 	 * @internal

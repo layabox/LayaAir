@@ -268,7 +268,7 @@ export class AnimationClip extends Resource {
 			t2 = 1 - t;
 		}
 		else {
-			while (true) {
+			while (t>0&&t<=1) {
 				t2 = (1 - t);
 				let fg = 3 * t2 * t2 * t * wt1 + 3 * t2 * t * t * wt2s + t * t * t - x;
 				if (Math.abs(fg) <= 2.5 * Eps)

@@ -54,7 +54,7 @@ export class Config3D implements IClone {
 	/**@internal 设置分辨率高度*/
 	private _resoluHeight: number = -1;
 	/**@internal 设置分辨率倍数*/
-	private _resoluRatio: number = 0.8;
+	private _resoluRatio: number = 1;
 	/**@internal 设置分辨率*/
 	private _customPixel: boolean = false;
 

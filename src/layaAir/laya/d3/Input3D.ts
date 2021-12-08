@@ -209,7 +209,8 @@ export class Input3D {
 		for (var i: number = cameras.length - 1; i >= 0; i--) {
 			var camera: Camera = (<Camera>cameras[i]);
 			var viewport: Viewport = camera.viewport;
-			if (touchPos.x >= viewport.x && touchPos.y >= viewport.y && touchPos.x <= viewport.width && touchPos.y <= viewport.height) {
+			var ratio = Config3D._config.pixelResol;
+			if (touchPos.x >= viewport.x && touchPos.y >= viewport.y && touchPos.x <= viewport.width/ratio && touchPos.y <= viewport.height/ratio) {
 				camera.viewportPointToRay(touchPos, touchRay);
 
 				var sucess: boolean = this._scene._physicsSimulation.rayCast(touchRay, touchHitResult);
