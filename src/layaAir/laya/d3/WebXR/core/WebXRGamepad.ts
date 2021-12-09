@@ -1,49 +1,75 @@
 import { Vector2 } from "laya/d3/math/Vector2";
 import { EventDispatcher } from "laya/events/EventDispatcher";
-
+/**
+ * 类用来描述gamepad Axis
+ */
 export class AxiGamepad extends EventDispatcher {
-    static EVENT_OUTPUT:string = "outputAxi_id";
+    static EVENT_OUTPUT: string = "outputAxi_id";
     /**
-     * The handness of the AxiGamepad
+     * 轴设备名字
      */
-     public handness: string;
-     
-     public axisData:Array<Vector2> = new Array();
+    public handness: string;
+    /**
+     * 轴数量
+     */
+    public axisLength: number;
+    /**
+     * axis Array
+     */
+    private axisData: Array<Vector2> = new Array();
 
-     public axisLength:number;
-    
-    
-    constructor(handness:string,length:number) {
+    /**
+     * 类用于创建轴数据
+     * @internal
+     * @param handness 轴设备名字
+     * @param length 轴数量
+     */
+    constructor(handness: string, length: number) {
         super();
         this.handness = handness;
         this.axisData.length = length;
         this.axisLength = length;
     }
 
-    update(padGameAxi:any) {
-        
-        for (let i = 0, j = 0; i < padGameAxi.axes.length; i+=2, ++j) {
-            if(!this.axisData[j])
+    /**
+     * @internal
+     * @param padGameAxi 轴数据
+     */
+    update(padGameAxi: any) {
+        for (let i = 0, j = 0; i < padGameAxi.axes.length; i += 2, ++j) {
+            if (!this.axisData[j])
                 this.axisData[j] = new Vector2();
-            this.axisData[j].setValue(padGameAxi.axes[i],padGameAxi.axes[i+1]);
-            this.outPutStickValue(this.axisData[j],j);
+            this.axisData[j].setValue(padGameAxi.axes[i], padGameAxi.axes[i + 1]);
+            this.outPutStickValue(this.axisData[j], j);
         }
-        
     }
 
-    outPutStickValue(value:Vector2,index:number) {
-        const eventnam = AxiGamepad.EVENT_OUTPUT+index.toString();
-        this.event(eventnam,[value]);
+    /**
+     * 派发轴事件
+     * @internal
+     * @param value 
+     * @param index 
+     */
+    outPutStickValue(value: Vector2, index: number) {
+        const eventnam = AxiGamepad.EVENT_OUTPUT + index.toString();
+        this.event(eventnam, [value]);
     }
 
+    /**
+     * destroy
+     */
     destroy() {
-        for(let i = 0;i<this.axisLength;i++){
-            let eventname = AxiGamepad.EVENT_OUTPUT+i.toString();
+        for (let i = 0; i < this.axisLength; i++) {
+            let eventname = AxiGamepad.EVENT_OUTPUT + i.toString();
             this.offAll(eventname);
         }
     }
+
 }
 
+/**
+ * 类用来描述gamepad Button
+ */
 export class ButtonGamepad extends EventDispatcher {
     static EVENT_TOUCH_ENTER: string = "touchEnter";
     static EVENT_TOUCH_STAY: string = "touchStay";
@@ -62,15 +88,26 @@ export class ButtonGamepad extends EventDispatcher {
     */
     public index: number;
 
-    lastTouch: boolean = false;
-    lastPress: boolean = false;
-    lastPressValue: number = 0;
+    /**
+     * front touch state
+     */
+    private lastTouch: boolean = false;
+    private lastPress: boolean = false;
+    private lastPressValue: number = 0;
 
-    touch: boolean = false;
-    press: boolean = false;
-    pressValue: number = 0;
+    /**
+     * current touch state
+     */
+    private touch: boolean = false;
+    private press: boolean = false;
+    private pressValue: number = 0;
 
 
+    /**
+     * 类用于创建Button对象
+     * @param handness 设备名称
+     * @param index button缩影
+     */
     constructor(handness: string, index: number) {
         super();
         this.handness = handness;
@@ -78,9 +115,10 @@ export class ButtonGamepad extends EventDispatcher {
     }
 
     /**
-     * GamePadButton
+     * @internal
+     * GamePadButton update
      */
-    update(padButton:any) {
+    update(padButton: any) {
         //set Data
         this.lastTouch = this.touch;
         this.lastPress = this.press;
@@ -88,7 +126,7 @@ export class ButtonGamepad extends EventDispatcher {
         this.touch = padButton.touched;
         this.press = padButton.pressed;
         this.pressValue = padButton.value;
-        if(!this.lastTouch&&!this.touch){
+        if (!this.lastTouch && !this.touch) {
             return;
         }
         if (this.lastTouch != this.touch && this.touch) {
@@ -110,34 +148,65 @@ export class ButtonGamepad extends EventDispatcher {
         }
     }
 
-    touchEnter() {
+    /**
+     * @internal
+     * event touch enter
+     */
+    private touchEnter() {
         this.event(ButtonGamepad.EVENT_TOUCH_ENTER);
     }
 
-    touchStay() {
+    /**
+     * @internal
+     * event touch Stay
+     */
+    private touchStay() {
         this.event(ButtonGamepad.EVENT_TOUCH_STAY);
     }
 
-    touchOut() {
+    /**
+     * @internal
+     * event touch Out
+     */
+    private touchOut() {
         this.event(ButtonGamepad.EVENT_TOUCH_OUT);
     }
 
-    pressEnter() {
+    /**
+     * @internal
+     * event press enter
+     */
+    private pressEnter() {
         this.event(ButtonGamepad.EVENT_PRESS_ENTER);
     }
 
-    pressStay() {
+    /**
+     * @internal
+     * event press Stay
+     */
+    private pressStay() {
         this.event(ButtonGamepad.EVENT_PRESS_STAY);
     }
 
-    pressOut() {
+    /**
+     * @internal
+     * event press Out
+     */
+    private pressOut() {
         this.event(ButtonGamepad.EVENT_PRESS_OUT);
     }
 
-    outpressed() {
+    /**
+     * @internal
+     * event press value
+     */
+    private outpressed() {
         this.event(ButtonGamepad.EVENT_PRESS_VALUE, [this.pressValue]);
     }
 
+    /**
+     * destroy
+     */
     destroy() {
         this.offAll(ButtonGamepad.EVENT_PRESS_ENTER);
         this.offAll(ButtonGamepad.EVENT_PRESS_STAY);

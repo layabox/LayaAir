@@ -22,7 +22,7 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 
 import { Vector2 } from "laya/d3/math/Vector2";
-import { cameraInfo, WebXRExperienceHelper } from "laya/d3/WebXR/core/WebXRExperienceHelper";
+import { WebXRCameraInfo, WebXRExperienceHelper } from "laya/d3/WebXR/core/WebXRExperienceHelper";
 import { WebXRInputManager } from "laya/d3/WebXR/core/WebXRInputManager";
 import { WebXRInput } from "laya/d3/WebXR/core/WebXRInput";
 import { AxiGamepad, ButtonGamepad } from "laya/d3/WebXR/core/WebXRGamepad";
@@ -91,10 +91,10 @@ export class testInitXR{
 		this.initXR();
 	}
     async initXR(){
-		let caInfo:cameraInfo = new cameraInfo();
+		let caInfo:WebXRCameraInfo = new WebXRCameraInfo();
 		caInfo.depthFar =this.camera.farPlane;
 		caInfo.depthNear =this.camera.nearPlane;
-        let webXRSessionManager = await WebXRExperienceHelper.enterXRAsync("immersive-vr","local",LayaGL.instance,caInfo);
+        let webXRSessionManager = await WebXRExperienceHelper.enterXRAsync("immersive-vr","local",caInfo);
 		let webXRCameraManager = WebXRExperienceHelper.setWebXRCamera(this.camera,webXRSessionManager);
 		let WebXRInput = WebXRExperienceHelper.setWebXRInput(webXRSessionManager,webXRCameraManager);
 		this.bindMeshRender(WebXRInput);
@@ -118,7 +118,7 @@ export class testInitXR{
 		webXRInput.bindRayNode(pixelright,WebXRInput.HANDNESS_RIGHT);
 
 		//获得xrInput的帧循环方案
-		webXRInput.getController(WebXRInput.HANDNESS_RIGHT).on("frameXRInputUpdate",this,this.getRightInput);
+		webXRInput.getController(WebXRInput.HANDNESS_RIGHT).on(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT,this,this.getRightInput);
 
 		let xrInput = webXRInput.getController(WebXRInput.HANDNESS_LEFT);
 
@@ -140,13 +140,4 @@ export class testInitXR{
 	axisEvent(value:Vector2){
 		//console.log(value.x);
 	}
-
-	
-
-
-
-
-
-	  
-
 }
