@@ -396,6 +396,7 @@ gulp.task('buildJS', async function () {
             plugins: [
                 myMultiInput(),
                 typescript({
+                    include: /.*(.d.ts|.ts|.js)$/,
                     tsconfig: "./layaAir/tsconfig.json",
                     check: false,
                     tsconfigOverride: { compilerOptions: { removeComments: true } }
@@ -406,6 +407,8 @@ gulp.task('buildJS', async function () {
                     compress: false
                 }),
             ]
+        }).catch(e => {
+            console.log(e);
         });
 
         if (packsDef[i].libName == "core") {
