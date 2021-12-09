@@ -100,9 +100,10 @@ export class PostProcess {
 		var camera = this._context!.camera;
 		var viewport: Viewport = camera!.viewport;
 
-		 var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+		 
 
 		var cameraTarget: RenderTexture = camera!._internalRenderTexture;
+		var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
 		//var screenTexture: RenderTexture = cameraTarget;
 		this._context!.command!.clear();
 		this._context!.source = screenTexture;

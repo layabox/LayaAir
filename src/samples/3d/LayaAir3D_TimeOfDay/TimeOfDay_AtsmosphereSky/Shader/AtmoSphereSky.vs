@@ -20,5 +20,5 @@ void main(){
     vec3 vertex = normalize(a_Position.xyz);
     skyColor = vertex;
     gl_Position = u_ViewProjection*a_Position;
-    gl_Position=remapGLPositionZ(gl_Position);
+    gl_Position=skyRemapGLPositionZ(gl_Position);
 }

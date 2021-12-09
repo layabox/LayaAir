@@ -127,33 +127,33 @@ export class Camera extends BaseCamera {
 
 
 	/** @internal */
-	private _aspectRatio: number;
+	protected _aspectRatio: number;
 	/** @internal */
-	private _viewport: Viewport;
+	protected _viewport: Viewport;
 	/** @internal */
-	private _rayViewport: Viewport;
+	protected _rayViewport: Viewport;
 	/** @internal */
-	private _normalizedViewport: Viewport;
+	protected _normalizedViewport: Viewport;
 	/** @internal */
-	private _viewMatrix: Matrix4x4;
+	protected _viewMatrix: Matrix4x4;
 	/** @internal */
-	private _projectionMatrix: Matrix4x4;
+	protected _projectionMatrix: Matrix4x4;
 	/** @internal */
-	private _projectionViewMatrix: Matrix4x4;
+	protected _projectionViewMatrix: Matrix4x4;
 	/** @internal */
-	private _boundFrustum: BoundFrustum;
+	protected _boundFrustum: BoundFrustum;
 	/** @internal */
 	private _updateViewMatrix: boolean = true;
 	/** @internal */
-	private _postProcess: PostProcess = null;
+	protected _postProcess: PostProcess = null;
 	/** @internal */
-	private _enableHDR: boolean = false;
+	protected _enableHDR: boolean = false;
 	/** @internal */
 	private _viewportParams: Vector4 = new Vector4();
 	/** @internal */
 	private _projectionParams: Vector4 = new Vector4();
 	/** @internal*/
-	private _needBuiltInRenderTexture: boolean = false;
+	protected _needBuiltInRenderTexture: boolean = false;
 
 	/** @internal*/
 	private _depthTextureMode: number;
@@ -166,7 +166,7 @@ export class Camera extends BaseCamera {
 	/**@internal */
 	_internalCommandBuffer: CommandBuffer = new CommandBuffer();
 	/**深度贴图模式 */
-	private _depthTextureFormat: RenderTextureDepthFormat = RenderTextureDepthFormat.DEPTH_16;
+	protected _depthTextureFormat: RenderTextureDepthFormat = RenderTextureDepthFormat.DEPTH_16;
 	/** 深度贴图*/
 	private _depthTexture: BaseTexture;
 	/** 深度法线贴图*/

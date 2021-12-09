@@ -25,5 +25,5 @@ void main()
 	vec4 position=rotateAroundYInDegrees(a_Position,u_Rotation);
 	gl_Position = u_ViewProjection*position;
 	v_Texcoord=vec3(-a_Position.x,a_Position.yz);//转换坐标系
-	gl_Position=remapGLPositionZ(gl_Position);
+	gl_Position=skyRemapGLPositionZ(gl_Position);
 }

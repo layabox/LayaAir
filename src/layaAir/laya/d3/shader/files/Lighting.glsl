@@ -349,6 +349,11 @@ vec4 remapGLPositionZ(vec4 position) {
 	return position;
 }
 
+vec4 skyRemapGLPositionZ(vec4 position){
+	position.z = position.w;
+	return position;
+}
+
 mediump vec3 layaLinearToGammaSpace (mediump vec3 linRGB)
 {
     linRGB = max(linRGB, vec3(0.0));
