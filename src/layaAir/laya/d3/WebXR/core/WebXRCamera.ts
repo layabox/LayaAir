@@ -15,24 +15,38 @@ import { WebXRRenderTexture } from "./WebXRRenderTexture";
 
 /**
  * @author miner
- * 此类用来生成一个WebXR的Camera
+ * 类用于创建WebXR摄像机。
  */
 export class WebXRCamera extends Camera {
-    public webXRManager:WebXRCameraManager
-    private _clientWidth:number;
-	private _clientHeight:number;
+	/**
+	 * @internal
+	 */
 	public isWebXR = true;
+	/**
+	 * WebXRSessionManager
+	 */
+	private _webXRManager: WebXRCameraManager;
+
+	/**
+	 * override client
+	 */
+	private _clientWidth: number;
+	/**
+	 * override client
+	 */
+	private _clientHeight: number;
+
 	/**
 	 * 自定义渲染场景的渲染目标。
 	 */
-	get renderTarget():RenderTexture {
+	get renderTarget(): RenderTexture {
 		return this._internalRenderTexture;
 	}
 
 	/**
 	 * @internal
 	 */
-    set renderTarget(value:RenderTexture){
+	set renderTarget(value: RenderTexture) {
 		this._internalRenderTexture = value;
 	}
 
@@ -45,7 +59,7 @@ export class WebXRCamera extends Camera {
 	/**
 	 * @internal
 	 */
-	set clientHeight(value: number){
+	set clientHeight(value: number) {
 		this._clientHeight = value;
 	}
 	/**
@@ -60,14 +74,36 @@ export class WebXRCamera extends Camera {
 	get clientHeight(): number {
 		return this._clientHeight;
 	}
-    
-    /**
-     * @override
-     * @param shader 
-     * @param replacementTag 
-     */
-    render(shader: Shader3D = null, replacementTag: string = null): void {
-        if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true
+
+	/**
+	 * restore view state
+	 * @internal
+	 */
+	private _restoreView(gl: WebGLRenderingContext) {
+		//恢复渲染区
+		var viewport: Viewport = this.viewport;
+		var vpX: number, vpY: number;
+		var vpW: number = viewport.width;
+		var vpH: number = viewport.height;
+		if (this._needInternalRenderTexture()) {
+			vpX = 0;
+			vpY = 0;
+		}
+		else {
+			vpX = viewport.x;
+			vpY = this._getCanvasHeight() - viewport.y - vpH;
+		}
+		gl.viewport(vpX, vpY, vpW, vpH);
+	}
+
+	/**
+	 * 渲染
+	 * @override
+	 * @param shader 
+	 * @param replacementTag 
+	 */
+	render(shader: Shader3D = null, replacementTag: string = null): void {
+		if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true
 			return;
 
 		var viewport: Viewport = this.viewport;
@@ -81,18 +117,18 @@ export class WebXRCamera extends Camera {
 		this._preRenderMainPass(context, scene, needInternalRT, viewport);
 		this._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
 		this._aftRenderMainPass(needShadowCasterPass);
-    }
+	}
 
-  	/**
-	 * 渲染主流程
-	 * @internal
-	 * @param context 渲染上下文
-	 * @param viewport 视口
-	 * @param scene 场景
-	 * @param shader shader
-	 * @param replacementTag 替换标签
-	 * @param needInternalRT 是否需要内部RT
-	 */
+	/**
+ * 渲染主流程
+ * @internal
+ * @param context 渲染上下文
+ * @param viewport 视口
+ * @param scene 场景
+ * @param shader shader
+ * @param replacementTag 替换标签
+ * @param needInternalRT 是否需要内部RT
+ */
 	_renderMainPass(context: RenderContext3D, viewport: Viewport, scene: Scene3D, shader: Shader3D, replacementTag: string, needInternalRT: boolean) {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderTex: RenderTexture = this._internalRenderTexture;
@@ -114,16 +150,13 @@ export class WebXRCamera extends Camera {
 			//TODO:是否可以不多次
 			this._renderDepthMode(context);
 		}
-
-
-		
 		(renderTex) && (renderTex._start());
-		if((renderTex as WebXRRenderTexture).frameLoop != Scene3D._updateMark){
+		if ((renderTex as WebXRRenderTexture).frameLoop != Scene3D._updateMark) {
 			(renderTex as WebXRRenderTexture).frameLoop = Scene3D._updateMark;
 			//scene._clear(gl, context);
 			this.clear(gl);
 		}
-		this.restoreView(gl);
+		this._restoreView(gl);
 		this._prepareCameraToRender();
 
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);
@@ -139,8 +172,7 @@ export class WebXRCamera extends Camera {
 		scene._postRenderScript();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
 		(renderTex) && (renderTex._end());
-
-        //屏蔽掉后期处理
+		//PostProcess TODO
 		// if (needInternalRT) {
 		// 	if (this._postProcess && this._postProcess.enable) {
 		// 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
@@ -167,42 +199,28 @@ export class WebXRCamera extends Camera {
 		this._applyCommandBuffer(CameraEventFlags.AfterEveryThing, context);
 	}
 
+	/**
+	 * null function
+	 */
 	protected _calculateProjectionMatrix(): void {
-		//null
 	}
 
 	/**
 	 * @internal
 	 */
-	clear(gl:WebGLRenderingContext){
-		
-		gl.viewport(0, 0, this._clientWidth,this._clientHeight);
-		gl.scissor(0, 0, this._clientWidth,this._clientHeight);
+	clear(gl: WebGLRenderingContext) {
+		gl.viewport(0, 0, this._clientWidth, this._clientHeight);
+		gl.scissor(0, 0, this._clientWidth, this._clientHeight);
 		gl.clearColor(this.clearColor.x, this.clearColor.y, this.clearColor.z, this.clearColor.w);
 		WebGLContext.setDepthMask(gl, true);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-		
-		
 	}
+
 	/**
-	 * @internal
+	 * destroy
 	 */
-	restoreView(gl:WebGLRenderingContext){
-		//恢复渲染区
-		var viewport: Viewport = this.viewport;
-		var vpX: number, vpY: number;
-		var vpW: number = viewport.width;
-		var vpH: number = viewport.height;
-		if (this._needInternalRenderTexture()) {
-			vpX = 0;
-			vpY = 0;
-		}
-		else {
-			vpX = viewport.x;
-			vpY = this._getCanvasHeight() - viewport.y - vpH;
-		}
-		gl.viewport(vpX, vpY, vpW, vpH);
+	destroy() {
+		super.destroy(true);
 	}
 }
 

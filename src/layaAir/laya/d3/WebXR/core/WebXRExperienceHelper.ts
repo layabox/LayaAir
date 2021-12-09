@@ -1,17 +1,34 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Camera } from "../../core/Camera";
 import { WebXRCameraManager } from "./WebXRCameraManager";
 import { WebXRInputManager } from "./WebXRInputManager";
 import { WebXRSessionManager } from "./WebXRSessionManager";
-export class cameraInfo {
+export class WebXRCameraInfo {
+    /**depth far */
     depthFar: number;
+    /**depth near */
     depthNear: number;
+    /**camera */
     camera: any;
 }
 
+/**
+ * 类用来管理WebXR
+ * @author miner
+ */
 export class WebXRExperienceHelper {
-
+    /**
+     * single XRManager 
+     */
     public static xr_Manager = new WebXRSessionManager();
+    /**
+     * support webXR
+     */
     public static supported = false;
+    /**
+     * default WebLayer option
+     * XRWebGLLayerInit
+     */
     public static canvasOptions = {
         antialias: true,
         depth: true,
@@ -19,58 +36,66 @@ export class WebXRExperienceHelper {
         alpha: true,
         multiview: false,
         framebufferScaleFactor: 1,
-    };//XRWebGLLayerInit;
+    };
+
     /**
-     * 判断是否
-     * @param scene the scene to attach the experience helper to
-     * @returns a promise for the experience helper
+     * 支持XRSession模式
+     * @param sessionMode XRSessionMode = "inline" | "immersive-vr" | "immersive-ar";
+     * @returns 
      */
-    public static CreateAsync(): Promise<void> {
-        return WebXRExperienceHelper.xr_Manager
-            .initializeAsync()
-            .then(() => {
-                WebXRExperienceHelper.supported = true;
-                Promise.resolve();
-            })
-            .catch((e) => {
-                throw e;
-            });
-    }
-
     public static async supportXR(sessionMode: string) {
-        return await WebXRExperienceHelper.xr_Manager.isSessionSupportedAsync(sessionMode);
+        WebXRExperienceHelper.supported = await WebXRExperienceHelper.xr_Manager.isSessionSupportedAsync(sessionMode);
+        return WebXRExperienceHelper.supported
     }
 
-    //type XRSessionMode = "inline" | "immersive-vr" | "immersive-ar";
-    //type XRReferenceSpaceType = "viewer" | "local" | "local-floor" | "unbounded";
-    public static async enterXRAsync(sessionMode: string, referenceSpaceType: string, gl: WebGLRenderingContext, cameraInfo: cameraInfo): Promise<WebXRSessionManager> {
-
+    /**
+     * 申请WewXR交互
+     * @param sessionMode XRSessionMode
+     * @param referenceSpaceType referenceType = "viewer" | "local" | "local-floor" | "unbounded";
+     * @param cameraInfo WebXRCameraInfo webXRCamera设置
+     * @returns Promise<WebXRSessionManager> 
+     */
+    public static async enterXRAsync(sessionMode: string, referenceSpaceType: string, cameraInfo: WebXRCameraInfo): Promise<WebXRSessionManager> {
         if (sessionMode === "immersive-ar" && referenceSpaceType !== "unbounded") {
             console.warn("We recommend using 'unbounded' reference space type when using 'immersive-ar' session mode");
         }
         try {
-            let ss = await WebXRExperienceHelper.xr_Manager.initializeSessionAsync(sessionMode);
-            let space = await WebXRExperienceHelper.xr_Manager.setReferenceSpaceTypeAsync(referenceSpaceType);
-            let webglSurport = await WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, gl);
+            //session
+            await WebXRExperienceHelper.xr_Manager.initializeSessionAsync(sessionMode);
+            //refernceSpace
+            await WebXRExperienceHelper.xr_Manager.setReferenceSpaceTypeAsync(referenceSpaceType);
+            //webglSurport
+            await WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, LayaGL.instance);
             await WebXRExperienceHelper.xr_Manager.updateRenderStateAsync({
                 depthFar: cameraInfo.depthFar,
                 depthNear: cameraInfo.depthNear,
                 //@ts-ignore
-                baseLayer: new XRWebGLLayer(WebXRExperienceHelper.xr_Manager.session, gl),
+                baseLayer: new XRWebGLLayer(WebXRExperienceHelper.xr_Manager.session, LayaGL.instance),
             });
             WebXRExperienceHelper.xr_Manager.runXRRenderLoop();
-
             return WebXRExperienceHelper.xr_Manager;
         } catch (e) {
             throw e;
         }
     }
 
-    public static setWebXRCamera(camera:Camera, manager: WebXRSessionManager) {
+    /**
+     * config WebXRCameraManager
+     * @param camera Camera
+     * @param manager WebXRSessionManager
+     * @returns 
+     */
+    public static setWebXRCamera(camera: Camera, manager: WebXRSessionManager): WebXRCameraManager {
         return new WebXRCameraManager(camera, manager);
     }
 
-    public static setWebXRInput(sessionManager: WebXRSessionManager,cameraManager:WebXRCameraManager){
-        return new WebXRInputManager(sessionManager,cameraManager);
+    /**
+     * config WebXRInputManager
+     * @param sessionManager WebXRSessionManager
+     * @param cameraManager WebXRCameraManager
+     * @returns 
+     */
+    public static setWebXRInput(sessionManager: WebXRSessionManager, cameraManager: WebXRCameraManager): WebXRInputManager {
+        return new WebXRInputManager(sessionManager, cameraManager);
     }
 }
