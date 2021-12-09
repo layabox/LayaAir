@@ -282,6 +282,19 @@ export class Quaternion implements IClone {
 	}
 
 	/**
+	 * 设置四元数的值。
+	 * @param	x X值。
+	 * @param	y Y值。
+	 * @param	z Z值。
+	 */
+	setValue(x: number, y: number, z: number, w: number): void {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.w = w;
+	}
+
+	/**
 	 * 根据缩放值缩放四元数
 	 * @param	scale 缩放值
 	 * @param	out 输出四元数

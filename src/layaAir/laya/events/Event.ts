@@ -132,6 +132,8 @@ export class Event {
     static TRIGGER_STAY: string = "triggerstay";
     /**物理碰撞结束*/
     static TRIGGER_EXIT: string = "triggerexit";
+    /**WebXR帧循环 */
+    static WEBXR_LOOP_EVENT:string = "xrFrameLoop";
 
     /** 事件类型。*/
     type: string;

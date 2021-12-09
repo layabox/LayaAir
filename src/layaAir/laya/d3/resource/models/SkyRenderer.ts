@@ -143,8 +143,12 @@ export class SkyRenderer {
 				projectionMatrix.elements[10] = epsilon - 1.0;
 				projectionMatrix.elements[11] = -1.0;
 				projectionMatrix.elements[14] = -0;//znear无穷小
-
-				(<Camera>camera)._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
+				if((camera as any).isWebXR){
+					(<Camera>camera)._applyViewProject(context, viewMatrix, camera.projectionMatrix);//TODO:优化 不应设置给Camera直接提交
+				}else{
+					(<Camera>camera)._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
+				}
+				
 				shader.uploadUniforms(shader._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
 				shader._uploadCameraShaderValue = cameraShaderValue;
 			}

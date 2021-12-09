@@ -772,7 +772,6 @@ export class Matrix4x4 implements IClone {
 	 * @param	destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
-
 		var i: number, s: Float32Array, d: Float32Array;
 		s = this.elements;
 		d = destObject.elements;
@@ -781,6 +780,15 @@ export class Matrix4x4 implements IClone {
 		}
 		for (i = 0; i < 16; ++i) {
 			d[i] = s[i];
+		}
+	}
+
+	cloneByArray(destObject:Float32Array){
+		let s = this.elements;
+		let d = destObject;
+		
+		for (let i = 0; i < 16; ++i) {
+			s[i] = d[i];
 		}
 	}
 

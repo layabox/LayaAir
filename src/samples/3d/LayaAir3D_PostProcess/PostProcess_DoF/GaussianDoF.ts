@@ -232,7 +232,7 @@ export class GaussianDoF extends PostProcessEffect {
         fullCoC.filterMode = FilterMode.Point;
         this._shaderData.setTexture(GaussianDoF.BLURCOCTEXTURE, blurVTex);
         let finalTex: RenderTexture = RenderTexture.createFromPool(source.width, source.height, source.format, source.depthStencilFormat, 1);
-        cmd.blitScreenTriangle(source, finalTex, null, this._shader, this._shaderData, 4);
+        cmd.blitScreenTriangle(source, context.destination, null, this._shader, this._shaderData, 4);
 
         context.source = finalTex;
 

@@ -31,13 +31,26 @@ export class Render {
     static isConchApp: boolean = false;
     /** 表示是否是 3D 模式。*/
     static is3DMode: boolean;
+    /**自定义帧循环 */
+    static _customRequestAnimationFrame:any;
+    /**帧循环函数 */
+    static _loopFunction:any;
 
+    static _Render:Render;
+
+    static customRequestAnimationFrame(value:any,loopFun:any){
+        Render._customRequestAnimationFrame = value;
+        Render._loopFunction = loopFun;
+    }
+
+    
 	/**
 	 * 初始化引擎。
 	 * @param	width 游戏窗口宽度。
 	 * @param	height	游戏窗口高度。
 	 */
     constructor(width: number, height: number, mainCanv: HTMLCanvas) {
+        Render._Render = this;
         Render._mainCanvas = mainCanv;
         let source: HTMLCanvasElement = Render._mainCanvas.source as HTMLCanvasElement;
         //创建主画布。改到Browser中了，因为为了runtime，主画布必须是第一个
@@ -52,6 +65,10 @@ export class Render {
         window.requestAnimationFrame(loop);
         function loop(stamp: number): void {
             ILaya.stage._loop();
+            if(!!Render._customRequestAnimationFrame&&!!Render._loopFunction){
+                Render._customRequestAnimationFrame(Render._loopFunction);
+            }
+            else
             window.requestAnimationFrame(loop);
         }
         ILaya.stage.on("visibilitychange", this, this._onVisibilitychange);
