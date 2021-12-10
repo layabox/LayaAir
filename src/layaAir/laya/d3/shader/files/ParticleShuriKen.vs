@@ -34,9 +34,9 @@ attribute vec4 a_StartColor;
 attribute vec3 a_StartSize;
 attribute vec3 a_StartRotation0;
 attribute float a_StartSpeed;
-#if defined(COLOROVERLIFETIME) || defined(RANDOMCOLOROVERLIFETIME) || defined(SIZEOVERLIFETIMERANDOMCURVES) || defined(SIZEOVERLIFETIMERANDOMCURVESSEPERATE) || defined(ROTATIONOVERLIFETIMERANDOMCONSTANTS) || defined(ROTATIONOVERLIFETIMERANDOMCURVES)
+//#if defined(COLOROVERLIFETIME) || defined(RANDOMCOLOROVERLIFETIME) || defined(SIZEOVERLIFETIMERANDOMCURVES) || defined(SIZEOVERLIFETIMERANDOMCURVESSEPERATE) || defined(ROTATIONOVERLIFETIMERANDOMCONSTANTS) || defined(ROTATIONOVERLIFETIMERANDOMCURVES)
 attribute vec4 a_Random0;
-#endif
+//#endif
 #if defined(TEXTURESHEETANIMATIONRANDOMCURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
 attribute vec4 a_Random1;
 #endif
@@ -51,7 +51,7 @@ varying vec2 v_TextureCoordinate;
 
 uniform float u_CurrentTime;
 uniform vec3 u_Gravity;
-
+uniform vec2 u_DragConstanct;
 uniform vec3 u_WorldPosition;
 uniform vec4 u_WorldRotation;
 uniform bool u_ThreeDStartRotation;
@@ -299,15 +299,15 @@ vec4 getColorFromGradient(in vec2 gradientAlphas[COLORCOUNT],
 {
     vec4 overTimeColor;
     for (int i = 1; i < COLORCOUNT; i++) {
-	vec2 gradientAlpha = gradientAlphas[i];
-	float alphaKey = gradientAlpha.x;
-	if (alphaKey >= normalizedAge) {
-	    vec2 lastGradientAlpha = gradientAlphas[i - 1];
-	    float lastAlphaKey = lastGradientAlpha.x;
-	    float age = (normalizedAge - lastAlphaKey) / (alphaKey - lastAlphaKey);
-	    overTimeColor.a = mix(lastGradientAlpha.y, gradientAlpha.y, age);
-	    break;
-	}
+		vec2 gradientAlpha = gradientAlphas[i];
+		float alphaKey = gradientAlpha.x;
+		if (alphaKey >= normalizedAge) {
+			vec2 lastGradientAlpha = gradientAlphas[i - 1];
+			float lastAlphaKey = lastGradientAlpha.x;
+			float age = (normalizedAge - lastAlphaKey) / (alphaKey - lastAlphaKey);
+			overTimeColor.a = mix(lastGradientAlpha.y, gradientAlpha.y, age);
+			break;
+		}
     }
 
     for (int i = 1; i < COLORCOUNT; i++) {
@@ -378,32 +378,35 @@ vec3 computeParticleLifeVelocity(in float normalizedAge)
 }
 #endif
 
-vec3 computeParticlePosition(in vec3 startVelocity,
-    in vec3 lifeVelocity,
-    in float age,
-    in float normalizedAge,
-    vec3 gravityVelocity,
-    vec4 worldRotation)
+//drag
+vec3 getStartPosition(vec3 startVelocity,float age,vec3 dragData){
+	vec3 startPosition;
+	float lasttime =min(startVelocity.x/dragData.x,age);
+	startPosition = lasttime*(startVelocity-0.5*dragData*lasttime);
+	return startPosition;
+}
+
+vec3 computeParticlePosition(in vec3 startVelocity, in vec3 lifeVelocity,in float age,in float normalizedAge,vec3 gravityVelocity,vec4 worldRotation,vec3 dragData)
 {
-    vec3 startPosition;
+   vec3 startPosition = getStartPosition(startVelocity,age,dragData);
     vec3 lifePosition;
 #if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
     #ifdef VELOCITYOVERLIFETIMECONSTANT
-    startPosition = startVelocity * age;
+    //startPosition = startVelocity * age;
     lifePosition = lifeVelocity * age;
     #endif
     #ifdef VELOCITYOVERLIFETIMECURVE
-    startPosition = startVelocity * age;
+    //startPosition = startVelocity * age;
     lifePosition = vec3(getTotalValueFromGradientFloat(u_VOLVelocityGradientX, normalizedAge),
 	getTotalValueFromGradientFloat(u_VOLVelocityGradientY, normalizedAge),
 	getTotalValueFromGradientFloat(u_VOLVelocityGradientZ, normalizedAge));
     #endif
     #ifdef VELOCITYOVERLIFETIMERANDOMCONSTANT
-    startPosition = startVelocity * age;
+    //startPosition = startVelocity * age;
     lifePosition = lifeVelocity * age;
     #endif
     #ifdef VELOCITYOVERLIFETIMERANDOMCURVE
-    startPosition = startVelocity * age;
+    //startPosition = startVelocity * age;
     lifePosition = vec3(
 	mix(
 	    getTotalValueFromGradientFloat(u_VOLVelocityGradientX, normalizedAge),
@@ -442,7 +445,7 @@ vec3 computeParticlePosition(in vec3 startVelocity,
 		+ lifePosition;
     }
 #else
-    startPosition = startVelocity * age;
+    //startPosition = startVelocity * age;
     vec3 finalPosition;
     if (u_ScalingMode != 2)
 	finalPosition = rotationByQuaternions(
@@ -702,12 +705,9 @@ void main()
 	else
 	    worldRotation = u_WorldRotation;
 
-	vec3 center = computeParticlePosition(startVelocity,
-	    lifeVelocity,
-	    age,
-	    normalizedAge,
-	    gravityVelocity,
-	    worldRotation); //计算粒子位置
+	//drag
+	vec3 dragData = a_DirectionTime.xyz*mix(u_DragConstanct.x,u_DragConstanct.y,a_Random0.x);
+	vec3 center=computeParticlePosition(startVelocity, lifeVelocity, age, normalizedAge,gravityVelocity,worldRotation,dragData);//计算粒子位置
 
 #ifdef SPHERHBILLBOARD
 	vec2 corner = a_CornerTextureCoordinate.xy; // Billboard模式z轴无效
