@@ -124,7 +124,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**@internal */
 	protected _timeIndex: number = 0;
 	/**@internal */
-	protected _simulationUV_Index:number = 0
+	protected _simulationUV_Index: number = 0
 	/**@internal */
 	protected _simulateUpdate: boolean = false;
 
@@ -239,6 +239,17 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	startSpeedConstantMin: number = 0;
 	/**最大开始速度,1模式。*/
 	startSpeedConstantMax: number = 0;
+
+	/**阻力模式，0为恒定速度，2为两个恒定速度的随机插值*/
+	dragType: number = 0;
+	/**开始速度,0模式。*/
+	dragConstant: number = 0;
+	/**最小开始速度,1模式。*/
+	dragSpeedConstantMin: number = 0;
+	/**最大开始速度,1模式。*/
+	dragSpeedConstantMax: number = 0;
+
+
 
 	/**开始尺寸是否为3D模式。*/
 	threeDStartSize: boolean = false;
@@ -732,10 +743,14 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			var rotationSeparate: boolean = rotation.separateAxes;
 			var rotationType: number = rotation.type;
 			if (value.enable) {
-				if (rotationSeparate)
+				if (rotationSeparate) {
 					shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE);
-				else
+					shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME);
+				}
+				else {
 					shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME);
+					shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE);
+				}
 				switch (rotationType) {
 					case 0:
 						shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT);
@@ -926,6 +941,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this.startSpeedConstant = 5.0;
 		this.startSpeedConstantMin = 0.0;
 		this.startSpeedConstantMax = 5.0;
+
+		//drag
+		this.dragType = 0;
+		this.dragConstant = 0;
+		this.dragSpeedConstantMin = 0;
+		this.dragSpeedConstantMax = 0;
+
 		this.threeDStartSize = false;
 		this.startSizeType = 0;
 		this.startSizeConstant = 1;
@@ -1479,7 +1501,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var render: ShurikenParticleRenderer = this._ownerRender;
 		var renderMode: number = render.renderMode;
-		
+
 		if (renderMode !== -1 && this.maxParticles > 0) {
 			var indices: Uint16Array, i: number, j: number, m: number, indexOffset: number, perPartOffset: number, vertexDeclaration: VertexDeclaration;
 			var vbMemorySize: number = 0, memorySize: number = 0;
@@ -1492,7 +1514,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					// } else {
 					vertexDeclaration = VertexShurikenParticleMesh.vertexDeclaration;
 					this._floatCountPerVertex = vertexDeclaration.vertexStride / 4;
-					this._simulationUV_Index = vertexDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset/4;
+					this._simulationUV_Index = vertexDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset / 4;
 					this._startLifeTimeIndex = 12;
 					this._timeIndex = 16;
 					this._vertexStride = mesh._vertexCount;
@@ -1538,7 +1560,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				vertexDeclaration = VertexShurikenParticleBillboard.vertexDeclaration;
 				this._floatCountPerVertex = vertexDeclaration.vertexStride / 4;
 				this._startLifeTimeIndex = 7;
-				this._simulationUV_Index = vertexDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset/4;
+				this._simulationUV_Index = vertexDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset / 4;
 				this._timeIndex = 11;
 				this._vertexStride = 4;
 				vbMemorySize = vertexDeclaration.vertexStride * this._bufferMaxParticles * this._vertexStride;
@@ -1853,7 +1875,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				}
 				else {
 					meshOffset = vertexOffset + meshUVOffset;
-					this._vertices[offset++] = meshVertices[meshOffset++] ;
+					this._vertices[offset++] = meshVertices[meshOffset++];
 					this._vertices[offset++] = meshVertices[meshOffset];
 				}
 			} else {
@@ -1887,7 +1909,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			//StartSpeed
 			this._vertices[offset++] = startSpeed;
 
-			// (_vertices[offset] = XX);TODO:29预留
+			//this._vertices[offset] = Math.random();
+
+
 			needRandomColor && (this._vertices[offset + 1] = randomColor);
 			needRandomSize && (this._vertices[offset + 2] = randomSize);
 			needRandomRotation && (this._vertices[offset + 3] = randomRotation);
@@ -1914,7 +1938,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				default:
 					throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
 			}
-			offset = i  + this._simulationUV_Index;
+			offset = i + this._simulationUV_Index;
 			this._vertices[offset++] = startU;
 			this._vertices[offset++] = startV;
 			this._vertices[offset++] = subU;
@@ -2103,6 +2127,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		dest.startSpeedConstant = this.startSpeedConstant;
 		dest.startSpeedConstantMin = this.startSpeedConstantMin;
 		dest.startSpeedConstantMax = this.startSpeedConstantMax;
+
+		dest.dragType = this.dragType;
+		dest.dragConstant = this.dragConstant;
+		dest.dragSpeedConstantMax = this.dragSpeedConstantMax;
+		dest.dragSpeedConstantMin = this.dragSpeedConstantMin;
 
 		dest.threeDStartSize = this.threeDStartSize;
 		dest.startSizeType = this.startSizeType;
