@@ -14,6 +14,8 @@ export class ShuriKenParticle3DShaderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_RENDERMODE_VERTICALBILLBOARD: ShaderDefine;
 	/**@internal */
+	static SHADERDEFINE_COLORKEYCOUNT_8: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_COLOROVERLIFETIME: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_RANDOMCOLOROVERLIFETIME: ShaderDefine;
@@ -80,7 +82,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 	static CURRENTTIME: number = Shader3D.propertyNameToID("u_CurrentTime");
 	/**@internal */
 	static DRAG:number = Shader3D.propertyNameToID("u_DragConstanct");
-
 
 	//VelocityOverLifetime
 	/**@internal */

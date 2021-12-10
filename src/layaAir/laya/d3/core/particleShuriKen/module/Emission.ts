@@ -11,6 +11,8 @@ export class Emission implements IClone, IDestroy {
 	/** @internal */
 	private _emissionRate: number = 10;
 
+	private _emissionRateOverDistance: number = 0;
+
 	/**@internal 粒子的爆裂,不允许修改。*/
 	_bursts: Burst[];
 
@@ -33,6 +35,15 @@ export class Emission implements IClone, IDestroy {
 	 */
 	get emissionRate(): number {
 		return this._emissionRate;
+	}
+
+	get emissionRateOverDistance(): number {
+		return this._emissionRateOverDistance;
+	}
+
+	set emissionRateOverDistance(value: number) {
+		value = Math.max(0, value);
+		this._emissionRateOverDistance = value;
 	}
 
 	/**
@@ -134,6 +145,7 @@ export class Emission implements IClone, IDestroy {
 		}
 
 		destEmission._emissionRate = this._emissionRate;
+		destEmission._emissionRateOverDistance = this._emissionRateOverDistance;
 		destEmission.enable = this.enable;
 	}
 
