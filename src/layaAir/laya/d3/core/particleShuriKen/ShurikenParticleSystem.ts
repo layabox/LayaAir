@@ -160,6 +160,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	protected _emissionTime: number = 0;
 	/**@internal 用来计算时间是否超过发射延迟时间*/
 	protected _totalDelayTime: number = 0;
+	/** @internal 上次发射到当前的移动总距离，每次根据距离发射粒子后清空 */
+	protected _emissionDistance: number = 0;
+	protected _emissionLastPosition: Vector3 = new Vector3();
 	/**@internal */
 	protected _burstsIndex: number = 0;
 	///**@internal 发射粒子最小时间间隔。*/
@@ -632,6 +635,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					var gradientColor: Gradient = color.gradient;
 					shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, gradientColor._alphaElements);
 					shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, gradientColor._rgbElements);
+					if (gradientColor.maxColorAlphaKeysCount == 8) {
+						shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+					}
+					else {
+						shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+					}
 					break;
 				case 3:
 					var minGradientColor: Gradient = color.gradientMin;
@@ -640,6 +649,15 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minGradientColor._rgbElements);
 					shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxGradientColor._alphaElements);
 					shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, maxGradientColor._rgbElements);
+
+					let maxkeyCount = Math.max(minGradientColor.maxColorAlphaKeysCount, maxGradientColor.maxColorAlphaKeysCount);
+					if (maxkeyCount == 8) {
+						shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+					}
+					else {
+						shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+					}
+
 					break;
 			}
 		} else {
@@ -1345,8 +1363,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		}
 
 
-		if (this._emission.enable && this._isEmitting && !this._isPaused)
+		if (this._emission.enable && this._isEmitting && !this._isPaused) {
 			this._advanceTime(elapsedTime, this._currentTime);
+			if (this.emission.emissionRateOverDistance > 0) {
+				this._advanceDistance(this._currentTime);
+			}
+		}
 	}
 
 	/**
@@ -1361,6 +1383,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._burstsIndex = 0;
 		this._frameRateTime = time;//TOD0:零还是time待 验证
 		this._emissionTime = 0;
+		this._emissionDistance = 0;
 		this._totalDelayTime = 0;
 		this._currentTime = time;
 
@@ -1371,8 +1394,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			return;
 		}
 
-		if (this._emission.enable)
+		if (this._emission.enable) {
 			this._advanceTime(time, time);//TODO:如果time，time均为零brust无效
+			if (this.emission.emissionRateOverDistance > 0) {
+				this._advanceDistance(this._currentTime);
+			}
+		}
 	}
 
 
@@ -1485,6 +1512,36 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			}
 			this._frameRateTime = Math.floor(emitTime / minEmissionTime) * minEmissionTime;
 		}
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _advanceDistance(emitTime: number): void {
+		let position = this._owner.transform.position;
+		let offsetDistance: number = Vector3.distance(position, this._emissionLastPosition);
+
+		let rateOverDistance = this.emission.emissionRateOverDistance;
+
+		let distance = this._emissionDistance + offsetDistance;
+
+		let ed = 1.0 / rateOverDistance;
+		if (distance > ed) {
+			let emitCount = distance * rateOverDistance;
+			emitCount = Math.floor(emitCount);
+			emitCount = Math.min(this.maxParticles - this.aliveParticleCount, emitCount);
+			for (let index = 0; index < emitCount; index++) {
+				this.emit(emitTime);
+			}
+			// console.log("emission distance: ", distance, ", count: ", emitCount);
+
+			this._emissionDistance = 0;
+		}
+		else {
+			this._emissionDistance = distance;
+		}
+
+		position.cloneTo(this._emissionLastPosition);
 	}
 
 	/**
@@ -2033,6 +2090,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._isPlaying = true;
 		this._isPaused = false;
 		this._emissionTime = 0;
+		this._emissionDistance = 0;
+		this._owner.transform.position.cloneTo(this._emissionLastPosition);
 		this._totalDelayTime = 0;
 
 		if (!this.autoRandomSeed) {
