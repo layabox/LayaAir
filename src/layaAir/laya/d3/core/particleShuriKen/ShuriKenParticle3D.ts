@@ -555,6 +555,8 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		particleSystem.startSpeedConstantMin = data.startSpeedConstantMin;
 		particleSystem.startSpeedConstantMax = data.startSpeedConstantMax;
 
+		//parse Drag TODO:
+
 		particleSystem.threeDStartSize = data.threeDStartSize;
 		particleSystem.startSizeType = data.startSizeType;
 		particleSystem.startSizeConstant = data.startSizeConstant;
