@@ -78,6 +78,9 @@ export class ShuriKenParticle3DShaderDeclaration {
 	static SIMULATIONSPACE: number = Shader3D.propertyNameToID("u_SimulationSpace");
 	/**@internal */
 	static CURRENTTIME: number = Shader3D.propertyNameToID("u_CurrentTime");
+	/**@internal */
+	static DRAG:number = Shader3D.propertyNameToID("u_DragConstanct");
+
 
 	//VelocityOverLifetime
 	/**@internal */

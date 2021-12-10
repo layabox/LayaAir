@@ -19,6 +19,7 @@ import { Vector2 } from "../../math/Vector2";
 export class ShurikenParticleRenderer extends BaseRender {
 	/** @internal */
 	private _finalGravity: Vector3 = new Vector3();
+	private _dragConstant:Vector2 = new Vector2();
 
 	///**排序模式,无。*/
 	//public const SORTINGMODE_NONE:int = 0;
@@ -217,6 +218,20 @@ export class ShurikenParticleRenderer extends BaseRender {
 			case 2:
 				sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, transform.getWorldLossyScale());
 				sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, Vector3._ONE);
+				break;
+		}
+
+		switch(particleSystem.dragType){
+			case 0:
+				this._dragConstant.setValue(particleSystem.dragSpeedConstantMin,particleSystem.dragSpeedConstantMin);
+				sv.setVector2(ShuriKenParticle3DShaderDeclaration.DRAG,this._dragConstant);
+				break;
+			case 2:
+				this._dragConstant.setValue(particleSystem.dragSpeedConstantMin,particleSystem.dragSpeedConstantMax);
+				sv.setVector2(ShuriKenParticle3DShaderDeclaration.DRAG,this._dragConstant);
+				break;
+			default:
+				this._dragConstant.setValue(0,0);
 				break;
 		}
 
