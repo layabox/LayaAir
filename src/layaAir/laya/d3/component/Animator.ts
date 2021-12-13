@@ -903,6 +903,7 @@ export class Animator extends Component {
 						var animatorState: AnimatorState = new AnimatorState();
 						animatorState.name = name;
 						animatorState.clip = motion;
+						state.speed && (animatorState.speed = state.speed);
 						animatorLayer.addState(animatorState);
 						(j === 0) && (this.getControllerLayer(i).defaultState = animatorState);
 					}
