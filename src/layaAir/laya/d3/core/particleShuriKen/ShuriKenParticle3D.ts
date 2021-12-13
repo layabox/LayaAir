@@ -304,6 +304,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 
 			if (colorOverLifetimeData) {
 				var colorData: any = colorOverLifetimeData.color;
+				let maxKeyCount = colorData.maxKeyCount;
 				var color: GradientColor;
 				switch (colorData.type) {
 					case 0:
@@ -311,7 +312,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						color = GradientColor.createByConstant(constColorData ? new Vector4(constColorData[0], constColorData[1], constColorData[2], constColorData[3]) : new Vector4(0, 0, 0, 0));
 						break;
 					case 1:
-						color = GradientColor.createByGradient(this._initParticleColor(colorData.gradient, 8));
+						color = GradientColor.createByGradient(this._initParticleColor(colorData.gradient, maxKeyCount));
 						break;
 					case 2:
 						var minConstColorData: any[] = colorData.constantMin;
@@ -319,7 +320,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						color = GradientColor.createByRandomTwoConstant(minConstColorData ? new Vector4(minConstColorData[0], minConstColorData[1], minConstColorData[2], minConstColorData[3]) : new Vector4(0, 0, 0, 0), minConstColorData ? new Vector4(maxConstColorData[0], maxConstColorData[1], maxConstColorData[2], maxConstColorData[3]) : new Vector4(0, 0, 0, 0));
 						break;
 					case 3:
-						color = GradientColor.createByRandomTwoGradient(this._initParticleColor(colorData.gradientMin, 8), this._initParticleColor(colorData.gradientMax, 8));
+						color = GradientColor.createByRandomTwoGradient(this._initParticleColor(colorData.gradientMin, maxKeyCount), this._initParticleColor(colorData.gradientMax, maxKeyCount));
 						break;
 				}
 				var colorOverLifetime: ColorOverLifetime = new ColorOverLifetime(color);

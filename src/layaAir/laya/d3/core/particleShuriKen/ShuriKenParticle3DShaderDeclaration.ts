@@ -81,7 +81,7 @@ export class ShuriKenParticle3DShaderDeclaration {
 	/**@internal */
 	static CURRENTTIME: number = Shader3D.propertyNameToID("u_CurrentTime");
 	/**@internal */
-	static DRAG:number = Shader3D.propertyNameToID("u_DragConstanct");
+	static DRAG: number = Shader3D.propertyNameToID("u_DragConstanct");
 
 	//VelocityOverLifetime
 	/**@internal */
@@ -109,9 +109,13 @@ export class ShuriKenParticle3DShaderDeclaration {
 	/**@internal */
 	static COLOROVERLIFEGRADIENTCOLORS: number = Shader3D.propertyNameToID("u_ColorOverLifeGradientColors");
 	/**@internal */
+	static COLOROVERLIFEGRADIENTRANGES: number = Shader3D.propertyNameToID("u_ColorOverLifeGradientRanges");
+	/**@internal */
 	static MAXCOLOROVERLIFEGRADIENTALPHAS: number = Shader3D.propertyNameToID("u_MaxColorOverLifeGradientAlphas");
 	/**@internal */
 	static MAXCOLOROVERLIFEGRADIENTCOLORS: number = Shader3D.propertyNameToID("u_MaxColorOverLifeGradientColors");
+	/**@internal */
+	static MAXCOLOROVERLIFEGRADIENTRANGES: number = Shader3D.propertyNameToID("u_MaxColorOverLifeGradientRanges");
 
 	//SizeOverLifetime
 	/**@internal */
