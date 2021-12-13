@@ -1,126 +1,118 @@
 #if defined(GL_FRAGMENT_PRECISION_HIGH)
-	precision highp float;
+precision highp float;
 #else
-	precision mediump float;
+precision mediump float;
 #endif
 
-#define SHADER_NAME FragAO
+#define SHADER_NAME OcclusionEstimation:FS
 
 #include "DepthNormalUtil.glsl";
 
-// define const
-#define SAMPLE_COUNT 6.0
-#define TWO_PI 6.28318530718
-#define EPSILON 1.0e-4
-const float kBeta = 0.002;
-const float kContrast = 0.6;
-// varying
-varying vec2 v_Texcoord0;
-varying mat4 v_inverseProj;
-// uniform
-uniform sampler2D u_MainTex;
-uniform float u_radius;
-uniform float u_Intensity;
+#include "AmbientOcclusion.glsl";
 
+#define FIX_SAMPLING_PATTERN
 
-uniform mat4 u_Projection;
-uniform vec4 u_ProjectionParams;
-uniform mat4 u_ViewProjection;
-uniform mat4 u_View;
-uniform float u_Time;
-
-// 采样 depthNormalTexture, 返回 positionCS.z, normalVS
-float GetDepthCSNormalVS(vec2 uv, out vec3 normalVS) {
-    vec4 env = texture2D(u_CameraDepthNormalsTexture, uv);
-    float depthCS = 0.0;
-    DecodeDepthNormal(env, depthCS, normalVS);
-    normalVS = normalize(normalVS);
-    return depthCS;
+// Check if the camera is perspective.
+// (returns 1.0 when orthographic)
+float CheckPerspective(float x)
+{   
+    // todo ortho
+    return mix(x, 1.0, 0.0);
 }
 
-// 返回 观察空间深度
-float GetDepthVS(float depthCS) {
-
-    return LinearEyeDepth(depthCS, u_ZBufferParams);
-    // return depthCS * 20.0;
+vec3 ReconstructViewPos(vec2 uv, float depth, vec2 p11_22, vec2 p13_31)
+{
+    return vec3((uv * 2.0 - 1.0 - p13_31) / p11_22 * CheckPerspective(depth), depth);
 }
 
-// 根据屏幕uv和深度值，计算 观察空间坐标
-vec3 GetPositionVS(vec2 uv, float depthCS) {
-    vec3 positionNDC = vec3(uv * 2.0 - 1.0, depthCS);
-
-    vec4 positionVS = v_inverseProj * vec4(positionNDC, 1.0);
-    return positionVS.xyz / positionVS.w;
-}
-
+// Pseudo random number generator with 2D coordinates
+// https://stackoverflow.com/questions/12964279/whats-the-origin-of-this-glsl-rand-one-liner
 float UVRandom(float u, float v) {
     float f = dot(vec2(12.9898, 78.233), vec2(u, v));
     return fract(43758.5453 * sin(f));
 }
 
-// 获取随机偏移
-vec3 PickSamplePoint(vec2 uv, int i) {
-    float index = float(i);
+vec2 CosSin(float theta)
+{
+    // float sn, cs;
+    // sincos(theta, sn, cs);
+    float sn = sin(theta);
+    float cs = cos(theta);
+    return vec2(cs, sn);
+}
 
-    float time =sin(u_Time*2.0);
-    // todo  采样 noise 代替计算随机?
-    float u = UVRandom(uv.x + time, uv.y + index) * 2.0 - 1.0;
-    float theta = UVRandom(-uv.x - time, uv.y + index) * TWO_PI;
+float GradientNoise(vec2 uv)
+{
+    uv = floor(uv * u_MainTex_TexelSize.zw);
+    float f = dot(vec2(0.06711056, 0.00583715), uv);
+    return fract(52.9829189 * fract(f));
+}
 
-    vec3 v = vec3(vec2(cos(theta), sin(theta)) * sqrt(1.0 - u * u), u);
-    float l = sqrt((index + 1.0) / SAMPLE_COUNT) * u_radius;
+// Sample point picker
+vec3 PickSamplePoint(vec2 uv, float index) 
+{
+    #if defined(FIX_SAMPLING_PATTERN)
+        float gn = GradientNoise(uv * DOWNSAMPLE);
+        float u = fract(UVRandom(0.0, index + uv.x * 1e-10) + gn) * 2.0 - 1.0;
+        float theta = (UVRandom(1.0, index + uv.x * 1e-10) + gn) * TWO_PI;
+    #else
+        float u = UVRandom(uv.x + u_PlugTime.x, uv.y + index) * 2.0 - 1.0;
+        float theta = UVRandom(-uv.x - u_PlugTime.x, uv.y + index) * TWO_PI;
+    #endif
+
+    vec3 v = vec3(CosSin(theta) * sqrt(1.0 - u * u), u);
+    float l = sqrt((index + 1.0) / float(SAMPLE_COUNT)) * RADIUS;
     return v * l;
 }
 
-vec4 PackAONormal(float ao, vec3 normal) {
-    return vec4(ao, normal * 0.5 + 0.5);
-}
-
-void main() {
+void main()
+{
     vec2 uv = v_Texcoord0;
-    //法线
-    vec3 normalVS = vec3(0.0);
-    float depthCS = GetDepthCSNormalVS(uv, normalVS);
-    //非线性深度
-    depthCS = SAMPLE_DEPTH_TEXTURE(u_CameraDepthTexture, uv);
-    //线性深度
-    float depthVS = GetDepthVS(depthCS);
-    //获得观察空间的位置
-    vec3 positionVS = GetPositionVS(uv, depthCS);
+
+    mat3 proj = mat3(u_Projection);
+    vec2 p11_22 = vec2(u_Projection[0][0], u_Projection[1][1]);
+    vec2 p13_31 = vec2(u_Projection[2][0], u_Projection[2][1]);
+
+    vec3 norm_o;
+    float depth_o = SampleDepthNormal(uv, norm_o);
+
+    // Reconstruct the view-space position.
+    vec3 vpos_o = ReconstructViewPos(uv, depth_o, p11_22, p13_31);
 
     float ao = 0.0;
-    vec3 tempNormalVS;
-    
+
     for (int s = 0; s < int(SAMPLE_COUNT); s++) {
-        // 随机偏移
-        vec3 sampleOffset = PickSamplePoint(uv, s);
-        // 调整偏移方向， 与 normalVS 同向,保证半球
-        sampleOffset = -sampleOffset * sign(dot(-normalVS , sampleOffset));
-        sampleOffset = sampleOffset*0.5;
+        float s_float = float(s);
+        vec3 v_s1 = PickSamplePoint(uv, s_float);
 
-        vec3 positionVS_S = sampleOffset + positionVS;
+        v_s1 = faceforward(v_s1, -norm_o, v_s1);
+        vec3 vpos_s1 = vpos_o + v_s1;
 
-        // 将偏移后view space 坐标 乘上投影矩阵转换到 clip space
-        vec3 positionCS_S = (u_Projection * vec4(positionVS_S, 1.0)).xyz;
-        // 获取 偏移点 的屏幕 uv
-        vec2 uv_S = (positionCS_S.xy / (-positionVS_S.z) + 1.0) * 0.5;
-        // 采样 uv_S 获取 深度值
-        //取得深度
-        float depthCS_S = SAMPLE_DEPTH_TEXTURE(u_CameraDepthTexture, uv_S);
-        if (uv_S.x < 0.0 || uv_S.y > 1.0) {
-            depthCS_S += 1.0e8;
-        }
-        //得到采样点的世界坐标
-        vec3 positionVS_S2 = GetPositionVS(uv_S, depthCS_S);
-        vec3 sampleOffset2 = positionVS_S2 - positionVS;
-        float a1 = max(dot(sampleOffset2, normalVS) - kBeta * depthVS, 0.0);
-        float a2 = dot(sampleOffset2, sampleOffset2) + EPSILON;
-        ao += a1/ a2;
+        // Reproject the sample point
+        vec3 spos_s1 = proj * vpos_s1;
+        vec2 uv_s1_01 = (spos_s1.xy / CheckPerspective(vpos_s1.z) + 1.0) * 0.5;
+
+        float depth_s1 = SampleDepth(uv_s1_01);
+
+        vec3 vpos_s2 = ReconstructViewPos(uv_s1_01, depth_s1, p11_22, p13_31);
+        vec3 v_s2 = vpos_s2 - vpos_o;
+
+        float a1 = max(dot(v_s2, norm_o) - kBeta * depth_o, 0.0);
+        float a2 = dot(v_s2, v_s2) + EPSILON;
+
+        ao += a1 / a2;
     }
 
-    ao *= u_radius;
+    ao *= RADIUS;
 
-    ao = pow(abs(ao * u_Intensity / SAMPLE_COUNT), kContrast);
+    ao = PositivePow(ao * INTENSITY / float(SAMPLE_COUNT), kContrast);
 
-     gl_FragColor = PackAONormal(ao, normalVS);
+    gl_FragColor = PackAONormal(ao, norm_o);
 }
+
+/**
+    0.8741,     0,          0,          0, 
+    0,          1.7320,     0,          0, 
+    0,          0,          -1.0152,    -1, 
+    0,          0,          -0.3046,    0
+**/

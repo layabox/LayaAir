@@ -22,13 +22,17 @@ import BlitScreenVS from "./Shader/BlitScreen.vs";
 import FragAO from "./Shader/FragAO.fs";
 import AoBlurHorizontal from "./Shader/AoBlurHorizontal.fs";
 import AOComposition from "./Shader/AOComposition.fs";
+import AmbientOcclusion from "./Shader/AmbientOcclusion.glsl";
 
 export class ScalableAO extends PostProcessEffect {
     static BlurDelty: number = Shader3D.propertyNameToID("u_Delty");
     static AOColor:number = Shader3D.propertyNameToID("u_AOColor");
     static aoTexture:number = Shader3D.propertyNameToID("u_compositionAoTexture");
-    static radius:number = Shader3D.propertyNameToID("u_radius");
-    static instance:number = Shader3D.propertyNameToID("u_Intensity");
+    //static radius:number = Shader3D.propertyNameToID("u_radius");
+    //static instance:number = Shader3D.propertyNameToID("u_Intensity");
+
+    static AOParams: number = Shader3D.propertyNameToID('u_AOParams');
+    static SourceTex: number = Shader3D.propertyNameToID('u_SourceTex');
 
     //scalable AO shader
     private _shader: Shader3D;
@@ -38,6 +42,7 @@ export class ScalableAO extends PostProcessEffect {
     private _aoBlurHorizontalShader:Shader3D;
     private _aoComposition:Shader3D;
 
+    private _aoParams:Vector3 = new Vector3();
     private static HasInit: boolean = false;
 
     static deltyHorizontal:Vector2 = new Vector2(1.0,0.0);
@@ -45,26 +50,26 @@ export class ScalableAO extends PostProcessEffect {
 
     static init() {
 
+        Shader3D.addInclude("AmbientOcclusion.glsl", AmbientOcclusion);
         //scalableAoShader
         let attributeMap: any = {
             'a_PositionTexcoord': VertexMesh.MESH_POSITION0
         };
-        let uniformMap: any = {
-            // camera
-            'u_Projection': Shader3D.PERIOD_MATERIAL,
-            'u_ProjectionParams': Shader3D.PERIOD_MATERIAL,
-            'u_ViewProjection': Shader3D.PERIOD_MATERIAL,
-            'u_ZBufferParams': Shader3D.PERIOD_MATERIAL,
-            'u_View': Shader3D.PERIOD_MATERIAL,
-            'u_Time': Shader3D.PERIOD_MATERIAL,
+        let uniformMap:any = {
+            'u_MainTex': Shader3D.PERIOD_MATERIAL,
+            'u_MainTex_TexelSize': Shader3D.PERIOD_MATERIAL,
+            'u_OffsetScale': Shader3D.PERIOD_MATERIAL,
             'u_CameraDepthTexture': Shader3D.PERIOD_MATERIAL,
             'u_CameraDepthNormalsTexture': Shader3D.PERIOD_MATERIAL,
-            'u_radius':Shader3D.PERIOD_MATERIAL,
-            'u_Intensity':Shader3D.PERIOD_MATERIAL,
+            'u_ZBufferParams': Shader3D.PERIOD_MATERIAL,
+            'u_Projection': Shader3D.PERIOD_MATERIAL,
+            'u_ProjectionParams': Shader3D.PERIOD_MATERIAL,
+            'u_Time': Shader3D.PERIOD_MATERIAL,
+            'u_PlugTime': Shader3D.PERIOD_MATERIAL,
 
-            'u_MainTex': Shader3D.PERIOD_MATERIAL,
-            'u_OffsetScale': Shader3D.PERIOD_MATERIAL,
-        };
+            'u_AOParams': Shader3D.PERIOD_MATERIAL,
+            'u_SourceTex': Shader3D.PERIOD_MATERIAL
+        }
 
         let shader: Shader3D = Shader3D.add("ScalableAO");
         let subShader: SubShader = new SubShader(attributeMap, uniformMap);
@@ -116,11 +121,14 @@ export class ScalableAO extends PostProcessEffect {
     }
 
     set instance(value:number){
-        this._shaderData.setNumber(ScalableAO.instance,value);
+        //this._shaderData.setNumber(ScalableAO.AOParams,value);
+        this._aoParams.x = value;
+        this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
     }
 
     set radius(value:number){
-        this._shaderData.setNumber(ScalableAO.radius,value);
+        this._aoParams.y = value;
+        this._shaderData.setVector3(ScalableAO.AOParams,this._aoParams);
     }
 
     constructor() {
@@ -128,6 +136,8 @@ export class ScalableAO extends PostProcessEffect {
         ScalableAO.HasInit || ScalableAO.init();
         this._shader = Shader3D.find("ScalableAO");
         this._shaderData = new ShaderData();
+        this._aoParams = new Vector3(0.52, 0.25, 1);
+        this._shaderData.setVector3(ScalableAO.AOParams,this._aoParams);
         //@ts-ignore
         this._shaderData.setVector(BaseCamera.DEPTHZBUFFERPARAMS, new Vector4());
         this._aoBlurHorizontalShader = Shader3D.find("AOBlurHorizontal");
@@ -207,8 +217,8 @@ export class ScalableAO extends PostProcessEffect {
         cmd.blitScreenTriangle(blurTex,finalTex,null,this._aoBlurHorizontalShader,this._shaderData,0);
         //blur Composition
         cmd.setShaderDataTexture(shaderData,ScalableAO.aoTexture,finalTex);
-        cmd.blitScreenTriangle(null,blurTex,null,this._aoComposition,this._shaderData,0);
-        context.source = blurTex;
+        cmd.blitScreenTriangle(context.source,context.destination,null,this._aoComposition,this._shaderData,0);
+        //context.source = blurTex;
         context.deferredReleaseTextures.push(finalTex);
         context.deferredReleaseTextures.push(blurTex);
     }
