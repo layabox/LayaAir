@@ -93,7 +93,8 @@ export class WebXRInputManager {
             let xrInput: WebXRInput;
             if (!this.controllers.has(key)) {
                 xrInput = this.getController(key);
-            }
+            }else
+                xrInput = this.controllers.get(key);
             if(xrInput){
                 xrInput = this.controllers.get(key);
                 xrInput._inputSource = inputSource;
