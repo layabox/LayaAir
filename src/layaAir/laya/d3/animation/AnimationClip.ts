@@ -245,7 +245,8 @@ export class AnimationClip extends Resource {
 		let wt2 = nextframeInweight;
 
 		let dx = x2 - x1;
-		let dy = Math.max(y2 - y1, Eps);
+		let dy = y2 - y1;
+		dy = Math.max(Math.abs(dy), Eps) * (dy < 0 ? -1 : 1);
 		x = (x - x1) / dx;
 
 		let yp1 = frameOutTangent;
@@ -268,7 +269,7 @@ export class AnimationClip extends Resource {
 			t2 = 1 - t;
 		}
 		else {
-			while (t>0&&t<=1) {
+			while (true) {
 				t2 = (1 - t);
 				let fg = 3 * t2 * t2 * t * wt1 + 3 * t2 * t * t * wt2s + t * t * t - x;
 				if (Math.abs(fg) <= 2.5 * Eps)
