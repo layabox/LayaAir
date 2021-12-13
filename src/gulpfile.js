@@ -63,7 +63,8 @@ var packsDef = [
             './layaAir/Config3D.ts',
             './layaAir/laya/d3/Physics3D.ts',
             './layaAir/ILaya3D.ts',
-            './layaAir/Laya3D.ts'
+            './layaAir/Laya3D.ts',
+            './layaAir/laya/d3/WebXR/**/*.*'
         ],
         'out': '../build/js/libs/laya.d3.js'
     },
