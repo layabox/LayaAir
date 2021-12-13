@@ -35,6 +35,7 @@ import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
 import { PerformancePlugin } from "../../utils/Performance";
 import { Shader3D } from "../shader/Shader3D";
 import { BaseTexture } from "laya/resource/BaseTexture";
+import { MulSampleRenderTexture } from "../resource/MulSampleRenderTexture";
 
 /**
  * 相机清除标记。
@@ -154,6 +155,8 @@ export class Camera extends BaseCamera {
 	private _projectionParams: Vector4 = new Vector4();
 	/** @internal*/
 	protected _needBuiltInRenderTexture: boolean = false;
+	/**@internal */
+	protected _msaa:boolean = true;
 
 	/** @internal*/
 	private _depthTextureMode: number;
@@ -247,6 +250,17 @@ export class Camera extends BaseCamera {
 			return Config3D._config.pixResolHeight | 0;
 		else
 			return RenderContext3D.clientHeight * Config3D._config.pixelRatio | 0;
+	}
+
+	/**
+	 * 多重采样抗锯齿
+	 */
+	set msaa(value:boolean){
+		LayaGL.layaGPUInstance._isWebGL2?this._msaa = value:this._msaa = false;
+	}
+
+	get msaa():boolean{
+		return this._msaa;
 	}
 
 	/**
@@ -934,8 +948,15 @@ export class Camera extends BaseCamera {
 		context.replaceTag = replacementTag;
 		context.customShader = shader;
 		if (needInternalRT) {
-			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
-			this._internalRenderTexture.filterMode = FilterMode.Bilinear;
+			if(this._msaa&&LayaGL.layaGPUInstance._isWebGL2)
+			{
+				this._internalRenderTexture = MulSampleRenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
+				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
+			}else{
+				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
+				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
+			}
+			
 		}
 		else {
 			this._internalRenderTexture = null;

@@ -21,6 +21,31 @@ export class MulSampleRenderTexture extends RenderTexture{
 	/** @internal 用来拷贝的frameBuffer*/
 	protected _mulFrameBuffer: any;
 
+
+    static createFromPool(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16, mulSamples: number = 4, mipmap: boolean = false): MulSampleRenderTexture {
+        var tex;
+		if (!LayaGL.layaGPUInstance._isWebGL2 || mulSamples == 1) {
+            throw "dont support msaa RT";
+        }
+        
+        // todo mipmap 判断
+		mipmap = mipmap && (width & (width -1)) === 0 && (height & (height -1)) === 0;
+
+		for (var i: number = 0, n: number = RenderTexture._pool.length; i < n; i++) {
+			tex = RenderTexture._pool[i];
+			if ((tex instanceof MulSampleRenderTexture)&&tex.width == width && tex.height == height && tex.format == format && tex.depthStencilFormat == depthStencilFormat && tex.mulSampler == mulSamples && tex.mipmap == mipmap) {
+				tex._inPool = false;
+				var end: RenderTexture = RenderTexture._pool[n - 1];
+				RenderTexture._pool[i] = end;
+				RenderTexture._pool.length -= 1;
+				return tex;
+			}
+		}
+		tex = new MulSampleRenderTexture(width, height, format, depthStencilFormat,mulSamples,mipmap);
+		tex.lock = true;//TODO:资源不加锁会被GC掉,或GC时对象池清空
+		return tex;
+    }
+
     /**
      * 创建一个 <code>MulSampleRenderTexture</code> 实例。
 	 * @param width  宽度。
@@ -31,8 +56,10 @@ export class MulSampleRenderTexture extends RenderTexture{
      * @param mipmap 是否生成mipmap。
      */
     constructor(width: number, height: number, format: RenderTextureFormat = RenderTextureFormat.R8G8B8, depthStencilFormat: RenderTextureDepthFormat = RenderTextureDepthFormat.DEPTH_16,mulSampler:number = 1, mipmap: boolean = false){
+        
         super(width, height, format, depthStencilFormat, mipmap);
         this._mulSampler = mulSampler;
+        
     }
 
     protected _create(width:number,height:number):void{
@@ -42,7 +69,7 @@ export class MulSampleRenderTexture extends RenderTexture{
 		var layaGPU: LayaGPU = LayaGL.layaGPUInstance;
 		var isWebGL2: Boolean = layaGPU._isWebGL2;
 		var format: number = this._format;
-        
+        this._mulSampler = 4;
         this._frameBuffer = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
         

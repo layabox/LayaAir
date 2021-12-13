@@ -14,7 +14,7 @@ import { RenderContext3D } from "../core/render/RenderContext3D";
  */
 export class RenderTexture extends BaseTexture {
 	/** @internal */
-	private static _pool: any[] = [];
+	protected static _pool: any[] = [];
 	/** @internal */
 	protected static _currentActive: RenderTexture;
 
@@ -44,9 +44,9 @@ export class RenderTexture extends BaseTexture {
 				return tex;
 			}
 		}
-		if (LayaGL.layaGPUInstance._isWebGL2 && mulSamples != 1) {
+		// if (LayaGL.layaGPUInstance._isWebGL2 && mulSamples != 1) {
 
-		}
+		// }
 		tex = new RenderTexture(width, height, format, depthStencilFormat);
 		tex.lock = true;//TODO:资源不加锁会被GC掉,或GC时对象池清空
 		return tex;
