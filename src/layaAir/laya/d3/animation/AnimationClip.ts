@@ -233,10 +233,10 @@ export class AnimationClip extends Resource {
 		}
 	}
 
-	private _hermiteCurveSplineWeight(frameValue: number, frametime: number, frameOutWeight: number, frameOutTangent: number, nextframeValue: number, nextframetime: number, nextframeInweight: number, nextframeIntangent: number, t: number) {
+	private _hermiteCurveSplineWeight(frameValue: number, frametime: number, frameOutWeight: number, frameOutTangent: number, nextframeValue: number, nextframetime: number, nextframeInweight: number, nextframeIntangent: number, time: number) {
 		let Eps = 2.22e-16;
 
-		let x = t;
+		let x = time;
 		let x1 = frametime;
 		let y1 = frameValue;
 		let wt1 = frameOutWeight;
@@ -247,7 +247,6 @@ export class AnimationClip extends Resource {
 		let dx = x2 - x1;
 		let dy = y2 - y1;
 		dy = Math.max(Math.abs(dy), Eps) * (dy < 0 ? -1 : 1);
-		x = (x - x1) / dx;
 
 		let yp1 = frameOutTangent;
 		let yp2 = nextframeIntangent;
@@ -261,10 +260,10 @@ export class AnimationClip extends Resource {
 
 		let wt2s = 1 - wt2;
 
-		t = 0.5;
+		let t = 0.5;
 		let t2 = 0;
 
-		if (wt1 == 1 / 3.0 && wt2 == 1 / 3.0) {
+		if (Math.abs(wt1 - 0.33333334) < 0.0001 && Math.abs(wt2 - 0.33333334) < 0.0001) {
 			t = x;
 			t2 = 1 - t;
 		}
