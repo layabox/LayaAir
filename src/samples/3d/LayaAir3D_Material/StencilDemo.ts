@@ -5,10 +5,8 @@ import { RenderState } from "laya/d3/core/material/RenderState";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
-import { ShaderData } from "laya/d3/shader/ShaderData";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { RenderTextureDepthFormat } from "laya/resource/RenderTextureFormat";
@@ -22,7 +20,7 @@ import { Button } from "laya/ui/Button";
 import Client from "../../Client";
 
 /**
- * 
+ * 模板测试示例
  * @author miner
  */
 export class StencilDemo {
@@ -111,3 +109,4 @@ export class StencilDemo {
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
 	}
 }
+

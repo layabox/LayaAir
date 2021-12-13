@@ -28,8 +28,6 @@ export class ScalableAO extends PostProcessEffect {
     static BlurDelty: number = Shader3D.propertyNameToID("u_Delty");
     static AOColor:number = Shader3D.propertyNameToID("u_AOColor");
     static aoTexture:number = Shader3D.propertyNameToID("u_compositionAoTexture");
-    //static radius:number = Shader3D.propertyNameToID("u_radius");
-    //static instance:number = Shader3D.propertyNameToID("u_Intensity");
 
     static AOParams: number = Shader3D.propertyNameToID('u_AOParams');
     static SourceTex: number = Shader3D.propertyNameToID('u_SourceTex');
@@ -136,7 +134,7 @@ export class ScalableAO extends PostProcessEffect {
         ScalableAO.HasInit || ScalableAO.init();
         this._shader = Shader3D.find("ScalableAO");
         this._shaderData = new ShaderData();
-        this._aoParams = new Vector3(0.52, 0.25, 1);
+        this._aoParams = new Vector3(0.12, 0.15, 1);
         this._shaderData.setVector3(ScalableAO.AOParams,this._aoParams);
         //@ts-ignore
         this._shaderData.setVector(BaseCamera.DEPTHZBUFFERPARAMS, new Vector4());

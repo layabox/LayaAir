@@ -5,13 +5,9 @@ import { IClone } from "./IClone";
  export enum WeightedMode {
 	
 	
-	/**仅深度。*/
 	None = 0,
-	/**天空。*/
 	In = 1,
-	/**不清除。*/
 	Out = 2,
-	/**固定颜色。*/
 	Both = 3,
 }
 /**
