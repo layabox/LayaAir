@@ -357,6 +357,7 @@ export class ShaderInit3D {
 			'u_TSASubUVLength': Shader3D.PERIOD_SPRITE,
 			'u_TSAGradientUVs': Shader3D.PERIOD_SPRITE,
 			'u_TSAMaxGradientUVs': Shader3D.PERIOD_SPRITE,
+			'u_DragConstanct':Shader3D.PERIOD_SPRITE,
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
 			'u_CameraDirection': Shader3D.PERIOD_CAMERA,
 			'u_CameraUp': Shader3D.PERIOD_CAMERA,
