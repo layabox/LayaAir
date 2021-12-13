@@ -1,6 +1,7 @@
+import { Color } from "../math/Color";
+import { Vector4 } from "../math/Vector4";
 import { GradientMode } from "./GradientMode";
-import { IClone } from "./IClone"
-import { Color } from "../math/Color"
+import { IClone } from "./IClone";
 
 
 /**
@@ -12,6 +13,16 @@ export class Gradient implements IClone {
 	private _maxColorAlphaKeysCount: number = 0;
 	private _colorRGBKeysCount: number = 0;
 	private _colorAlphaKeysCount: number = 0;
+
+	/**
+	 * @internal 
+	 * element key range
+	 * x: colorkey min
+	 * y: colorkey max
+	 * z: alphakey min
+	 * w: alphakey max
+	*/
+	_keyRanges: Vector4 = new Vector4(1, 0, 1, 0);
 
 	/**@internal */
 	_alphaElements: Float32Array = null;
@@ -362,7 +373,6 @@ export class Gradient implements IClone {
 		var destRGBElements: Float32Array = destGradientDataColor._rgbElements;
 		for (i = 0, n = this._rgbElements.length; i < n; i++)
 			destRGBElements[i] = this._rgbElements[i];
-
 	}
 
 	/**

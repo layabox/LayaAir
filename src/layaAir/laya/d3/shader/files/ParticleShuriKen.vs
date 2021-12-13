@@ -91,7 +91,6 @@ uniform vec2 u_VOLVelocityGradientMaxY[4]; // x为key,y为速度
 uniform vec2 u_VOLVelocityGradientMaxZ[4]; // x为key,y为速度
 #endif
 
-
 #ifdef COLORKEYCOUNT_8
     #define COLORCOUNT 8
 #else
@@ -101,12 +100,15 @@ uniform vec2 u_VOLVelocityGradientMaxZ[4]; // x为key,y为速度
 #ifdef COLOROVERLIFETIME
 uniform vec4 u_ColorOverLifeGradientColors[COLORCOUNT]; // x为key,yzw为Color
 uniform vec2 u_ColorOverLifeGradientAlphas[COLORCOUNT]; // x为key,y为Alpha
+uniform vec4 u_ColorOverLifeGradientRanges;
 #endif
 #ifdef RANDOMCOLOROVERLIFETIME
 uniform vec4 u_ColorOverLifeGradientColors[COLORCOUNT]; // x为key,yzw为Color
 uniform vec2 u_ColorOverLifeGradientAlphas[COLORCOUNT]; // x为key,y为Alpha
+uniform vec4 u_ColorOverLifeGradientRanges;
 uniform vec4 u_MaxColorOverLifeGradientColors[COLORCOUNT]; // x为key,yzw为Color
 uniform vec2 u_MaxColorOverLifeGradientAlphas[COLORCOUNT]; // x为key,y为Alpha
+uniform vec4 u_MaxColorOverLifeGradientRanges;
 #endif
 
 #if defined(SIZEOVERLIFETIMECURVE) || defined(SIZEOVERLIFETIMERANDOMCURVES)
@@ -295,28 +297,30 @@ float getTotalValueFromGradientFloat(in vec2 gradientNumbers[4],
 #if defined(COLOROVERLIFETIME) || defined(RANDOMCOLOROVERLIFETIME)
 vec4 getColorFromGradient(in vec2 gradientAlphas[COLORCOUNT],
     in vec4 gradientColors[COLORCOUNT],
-    in float normalizedAge)
+    in float normalizedAge, in vec4 keyRanges)
 {
+    float alphaAge = clamp(normalizedAge, keyRanges.z, keyRanges.w);
     vec4 overTimeColor;
     for (int i = 1; i < COLORCOUNT; i++) {
-		vec2 gradientAlpha = gradientAlphas[i];
-		float alphaKey = gradientAlpha.x;
-		if (alphaKey >= normalizedAge) {
-			vec2 lastGradientAlpha = gradientAlphas[i - 1];
-			float lastAlphaKey = lastGradientAlpha.x;
-			float age = (normalizedAge - lastAlphaKey) / (alphaKey - lastAlphaKey);
-			overTimeColor.a = mix(lastGradientAlpha.y, gradientAlpha.y, age);
-			break;
-		}
+	vec2 gradientAlpha = gradientAlphas[i];
+	float alphaKey = gradientAlpha.x;
+	if (alphaKey >= alphaAge) {
+	    vec2 lastGradientAlpha = gradientAlphas[i - 1];
+	    float lastAlphaKey = lastGradientAlpha.x;
+	    float age = (alphaAge - lastAlphaKey) / (alphaKey - lastAlphaKey);
+	    overTimeColor.a = mix(lastGradientAlpha.y, gradientAlpha.y, age);
+	    break;
+	}
     }
 
+    float colorAge = clamp(normalizedAge, keyRanges.x, keyRanges.y);
     for (int i = 1; i < COLORCOUNT; i++) {
 	vec4 gradientColor = gradientColors[i];
 	float colorKey = gradientColor.x;
-	if (colorKey >= normalizedAge) {
+	if (colorKey >= colorAge) {
 	    vec4 lastGradientColor = gradientColors[i - 1];
 	    float lastColorKey = lastGradientColor.x;
-	    float age = (normalizedAge - lastColorKey) / (colorKey - lastColorKey);
+	    float age = (colorAge - lastColorKey) / (colorKey - lastColorKey);
 	    overTimeColor.rgb = mix(gradientColors[i - 1].yzw, gradientColor.yzw, age);
 	    break;
 	}
@@ -379,16 +383,17 @@ vec3 computeParticleLifeVelocity(in float normalizedAge)
 #endif
 
 //drag
-vec3 getStartPosition(vec3 startVelocity,float age,vec3 dragData){
-	vec3 startPosition;
-	float lasttime =min(startVelocity.x/dragData.x,age);
-	startPosition = lasttime*(startVelocity-0.5*dragData*lasttime);
-	return startPosition;
+vec3 getStartPosition(vec3 startVelocity, float age, vec3 dragData)
+{
+    vec3 startPosition;
+    float lasttime = min(startVelocity.x / dragData.x, age);
+    startPosition = lasttime * (startVelocity - 0.5 * dragData * lasttime);
+    return startPosition;
 }
 
-vec3 computeParticlePosition(in vec3 startVelocity, in vec3 lifeVelocity,in float age,in float normalizedAge,vec3 gravityVelocity,vec4 worldRotation,vec3 dragData)
+vec3 computeParticlePosition(in vec3 startVelocity, in vec3 lifeVelocity, in float age, in float normalizedAge, vec3 gravityVelocity, vec4 worldRotation, vec3 dragData)
 {
-   vec3 startPosition = getStartPosition(startVelocity,age,dragData);
+    vec3 startPosition = getStartPosition(startVelocity, age, dragData);
     vec3 lifePosition;
 #if defined(VELOCITYOVERLIFETIMECONSTANT) || defined(VELOCITYOVERLIFETIMECURVE) || defined(VELOCITYOVERLIFETIMERANDOMCONSTANT) || defined(VELOCITYOVERLIFETIMERANDOMCURVE)
     #ifdef VELOCITYOVERLIFETIMECONSTANT
@@ -472,16 +477,16 @@ vec4 computeParticleColor(in vec4 color, in float normalizedAge)
 #ifdef COLOROVERLIFETIME
     color *= getColorFromGradient(u_ColorOverLifeGradientAlphas,
 	u_ColorOverLifeGradientColors,
-	normalizedAge);
+	normalizedAge, u_ColorOverLifeGradientRanges);
 #endif
 
 #ifdef RANDOMCOLOROVERLIFETIME
     color *= mix(getColorFromGradient(u_ColorOverLifeGradientAlphas,
 		     u_ColorOverLifeGradientColors,
-		     normalizedAge),
+		     normalizedAge, u_ColorOverLifeGradientRanges),
 	getColorFromGradient(u_MaxColorOverLifeGradientAlphas,
 	    u_MaxColorOverLifeGradientColors,
-	    normalizedAge),
+	    normalizedAge, u_MaxColorOverLifeGradientRanges),
 	a_Random0.y);
 #endif
 
@@ -706,8 +711,8 @@ void main()
 	    worldRotation = u_WorldRotation;
 
 	//drag
-	vec3 dragData = a_DirectionTime.xyz*mix(u_DragConstanct.x,u_DragConstanct.y,a_Random0.x);
-	vec3 center=computeParticlePosition(startVelocity, lifeVelocity, age, normalizedAge,gravityVelocity,worldRotation,dragData);//计算粒子位置
+	vec3 dragData = a_DirectionTime.xyz * mix(u_DragConstanct.x, u_DragConstanct.y, a_Random0.x);
+	vec3 center = computeParticlePosition(startVelocity, lifeVelocity, age, normalizedAge, gravityVelocity, worldRotation, dragData); //计算粒子位置
 
 #ifdef SPHERHBILLBOARD
 	vec2 corner = a_CornerTextureCoordinate.xy; // Billboard模式z轴无效
