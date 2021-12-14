@@ -575,6 +575,7 @@ export class Laya3D {
 		}
 
 		var children: any[] = node.child;
+		if(!children) return;
 		for (i = 0, n = children.length; i < n; i++)
 			Laya3D._getSprite3DHierarchyInnerUrls(children[i], firstLevelUrls, secondLevelUrls, thirdLevelUrls, fourthLelUrls, subUrls, urlVersion, hierarchyBasePath);
 	}
