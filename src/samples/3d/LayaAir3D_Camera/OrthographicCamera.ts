@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -36,7 +36,7 @@ export class OrthographicCamera {
 		camera.transform.rotate(new Vector3(-45, 0, 0), false, false);
 		camera.transform.translate(new Vector3(5, -10, 1));
 		camera.orthographic = true;
-		camera.clearFlag = BaseCamera.CLEARFLAG_DEPTHONLY;
+		camera.clearFlag = CameraClearFlags.SolidColor;
 		//正交投影垂直矩阵尺寸
 		camera.orthographicVerticalSize = 10;
 
