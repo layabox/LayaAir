@@ -1,7 +1,6 @@
-import { RenderContext3D } from "laya/d3/core/render/RenderContext3D";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { WebGLContext } from "laya/webgl/WebGLContext";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { RenderTexture } from "../../resource/RenderTexture";
+
 
 /**
  * @author miner

@@ -1,9 +1,9 @@
-
-import { Quaternion } from "laya/d3/math/Quaternion";
-import { Vector3 } from "laya/d3/math/Vector3";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
 import { WebXRCamera } from "./WebXRCamera";
 import { WebXRRenderTexture } from "./WebXRRenderTexture";
 import { WebXRSessionManager } from "./WebXRSessionManager";
+
 
 /**
  * @author miner

@@ -1,5 +1,6 @@
-import { Vector2 } from "laya/d3/math/Vector2";
-import { EventDispatcher } from "laya/events/EventDispatcher";
+import { EventDispatcher } from "../../../events/EventDispatcher";
+import { Vector2 } from "../../math/Vector2";
+
 /**
  * 类用来描述gamepad Axis
  */
