@@ -124,6 +124,10 @@ import { ProstProcess_AO } from "../3d/LayaAir3D_PostProcess/PostProcess_AO";
 import { Utils } from "laya/utils/Utils";
 import Client from "../Client";
 import { Main } from "../Main";
+import { StencilDemo } from "../3d/LayaAir3D_Material/StencilDemo";
+import { WebXRStart } from "../3d/WebXR/WebXRStart";
+import { WebXRControllerDemo } from "../3d/WebXR/WebXRControllerDemo";
+import { GriendSkyAmbientDemo } from "../3d/LayaAir3D_Scene3D/GriendSkyAmbientDemo";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -139,7 +143,7 @@ export class IndexView3D extends IndexViewUI {
 	private b_length: number;
 	private m_length: number;
 
-	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance', 'Demo','PostProcess'];
+	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance', 'Demo','PostProcess','WebXR'];
 	//var s:Secne3DPlayer2D    
 	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,CommandBuffer_DrawCustomInstance,ReflectionProbeDemo,CameraDepthModeTextureDemo,SeparableSSS_RenderDemo];//PostProcessBloom,AStarFindPath,
 	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','CommandBuffer_DrawCustomInstance','ReflectionProbeDemo','CameraDepthTextureDemo','SeparableScreenSSS'];//'后期处理之泛光','寻路示例',
@@ -159,8 +163,8 @@ export class IndexView3D extends IndexViewUI {
 	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow,SpotLightShadowMap,  SpotLightDemo, MultiLight];
 	private _lightingArr: any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLightShadowMap', 'SpotLight', 'MultiLight'];
 
-	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap,Blinnphong_Transmission, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, UnlitMaterialDemo, WaterPrimaryMaterialDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
-	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap","Blinnphong_Transmission", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRMaterial", "UnlitMaterial", "WaterPrimaryMaterial"];
+	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap,Blinnphong_Transmission, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, UnlitMaterialDemo, WaterPrimaryMaterialDemo,StencilDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
+	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap","Blinnphong_Transmission", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRMaterial", "UnlitMaterial", "WaterPrimaryMaterial","StencilDemo"];
 
 	private _meshClsArr: any[] = [ChangeMesh, CustomMesh, MeshLoad];
 	private _meshArr: any[] = ['ChangeMesh', 'CustomMesh', "MeshLoad"];
@@ -192,8 +196,8 @@ export class IndexView3D extends IndexViewUI {
 	private _shaderClsArr: any[] = [Shader_MultiplePassOutline, Shader_GlowingEdge, Shader_Simple, Shader_Terrain];
 	private _shaderArr: any[] = ['Shader_MultiplePassOutline', 'Shader_GlowingEdge', 'Shader_Simple', "Shader_Terrain"];
 
-	private _skyClsArr: any[] = [Sky_Procedural, Sky_SkyBox];
-	private _skyArr: any[] = ['Sky_Procedural', 'Sky_SkyBox'];
+	private _skyClsArr: any[] = [Sky_Procedural, Sky_SkyBox,GriendSkyAmbientDemo];
+	private _skyArr: any[] = ['Sky_Procedural', 'Sky_SkyBox','GriendSkyAmbientDemo'];
 
 	private _sprite3DClsArr: any[] = [PixelLineSprite3DDemo, SkinnedMeshSprite3DDemo, Sprite3DClone, Sprite3DLoad, Sprite3DParent, TransformDemo];
 	private _sprite3DArr: any[] = ['PixelLineSprite3D', 'SkinnedMeshSprite3D', "Sprite3DClone", 'Sprite3DLoad', 'Sprite3DParent', 'Transform'];
@@ -203,6 +207,10 @@ export class IndexView3D extends IndexViewUI {
 
 	private _trailClsArr: any[] = [TrailDemo, TrailRender];
 	private _trailArr: any[] = ['Trail', 'TrailRender'];
+
+	private _webXRClsArr:any[] = [WebXRStart,WebXRControllerDemo];
+	private _WebXRArr: any[] = ['WebXRStart', 'WebXRControllerDemo'];
+
 
 	// private _testPerformanceClsArr:any[] = [ArrayObjectPerformance,DataViewPerformance,MemoryTest,SkinAnimationPerformance,StaticBatchTest,];
 	// private _testPerformanceArr:any[] = ['ArrayObjectPerformance','DataViewPerformance','MemoryTest','SkinAnimationPerformance','StaticBatchTest'];
@@ -334,7 +342,7 @@ export class IndexView3D extends IndexViewUI {
 		}
 		else {
 
-			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D','CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Performance', 'Advance', 'Demo','PostProcess'];
+			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D','CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Performance', 'Advance', 'Demo','PostProcess','WebXR'];
 			Config3D.useCannonPhysics = false;
 			switch (this._bigIndex) {
 				case 0:
@@ -420,7 +428,11 @@ export class IndexView3D extends IndexViewUI {
 				case 20:
 					this._oldView = new this._postProcessClsArr[index];
 					this.b_length = this._postProcessClsArr.length-1;
-				// case 19:
+					break;
+				case 21:
+					this._oldView = new this._webXRClsArr[index];
+					this.b_length = this._webXRClsArr.length-1;
+					break;
 				// 	this._oldView = new this._testPerformanceClsArr[index];
 				// 	this.b_length = this._testPerformanceClsArr.length - 1;
 				// 	break;
@@ -538,6 +550,10 @@ export class IndexView3D extends IndexViewUI {
 					break;
 				case 20:
 					labelStr = this._postProcessArr.toString();
+					break;
+				case 21:
+					labelStr = this._WebXRArr.toString();
+					break;
 				// case 19: //advanced
 				// 	labelStr = this._testPerformanceArr.toString();
 				// 	break;
