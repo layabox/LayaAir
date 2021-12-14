@@ -137,7 +137,7 @@ export class MulSampleRenderTexture extends RenderTexture{
                     gl2.framebufferRenderbuffer(gl.FRAMEBUFFER,gl2.STENCIL_ATTACHMENT,gl.RENDERBUFFER,this._depthStencilBuffer);
                     break;
                 case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
-                    gl2.renderbufferStorageMultisample(gl.RENDERBUFFER,this._mulSampler,gl2.DEPTH_STENCIL,width,height);
+                    gl2.renderbufferStorageMultisample(gl.RENDERBUFFER,this._mulSampler,gl2.DEPTH24_STENCIL8,width,height);
                     gl2.framebufferRenderbuffer(gl.FRAMEBUFFER,gl2.DEPTH_STENCIL_ATTACHMENT,gl.RENDERBUFFER,this._depthStencilBuffer);
                     break;
                 default:
@@ -146,7 +146,7 @@ export class MulSampleRenderTexture extends RenderTexture{
         }
     }
 
-    protected _createGLDepthTexture(width:number,height:number){
+    protected  (width:number,height:number){
         var glTextureType: number = this._glTextureType;
 		var layaGPU: LayaGPU = LayaGL.layaGPUInstance;
 		var isWebGL2: Boolean = layaGPU._isWebGL2;
