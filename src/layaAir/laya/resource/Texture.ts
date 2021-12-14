@@ -150,7 +150,9 @@ export class Texture extends EventDispatcher {
             tex.sourceHeight /= bitmapScale;
             tex.width /= bitmapScale;
             tex.height /= bitmapScale;
-            tex.scaleRate = bitmapScale;
+            tex.scaleRate = bitmapScale; 
+            tex.offsetX /= bitmapScale;
+            tex.offsetY /= bitmapScale;
         } else {
             tex.scaleRate = 1;
         }
