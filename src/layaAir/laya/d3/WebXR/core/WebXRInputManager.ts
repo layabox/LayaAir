@@ -1,10 +1,11 @@
-import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
-import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Color } from "laya/d3/math/Color";
-import { Vector3 } from "laya/d3/math/Vector3";
+import { PixelLineSprite3D } from "../../core/pixelLine/PixelLineSprite3D";
+import { Sprite3D } from "../../core/Sprite3D";
+import { Color } from "../../math/Color";
+import { Vector3 } from "../../math/Vector3";
 import { WebXRCameraManager } from "./WebXRCameraManager";
 import { WebXRInput } from "./WebXRInput";
 import { WebXRSessionManager } from "./WebXRSessionManager";
+
 
 /**
  * @author miner

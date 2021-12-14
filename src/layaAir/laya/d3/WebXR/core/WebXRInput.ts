@@ -1,8 +1,9 @@
-import { Quaternion } from "laya/d3/math/Quaternion";
-import { Ray } from "laya/d3/math/Ray";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { EventDispatcher } from "laya/events/EventDispatcher";
-import { AxiGamepad, ButtonGamepad } from "./WebXRGamepad";
+import { EventDispatcher } from "../../../events/EventDispatcher";
+import { Quaternion } from "../../math/Quaternion";
+import { Ray } from "../../math/Ray";
+import { Vector3 } from "../../math/Vector3";
+import { ButtonGamepad, AxiGamepad } from "./WebXRGamepad";
+
 
 /**
  * @author miner

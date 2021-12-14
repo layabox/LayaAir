@@ -1,6 +1,6 @@
-import { ILaya } from "ILaya";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { EventDispatcher } from "laya/events/EventDispatcher";
+import { ILaya } from "../../../../ILaya";
+import { EventDispatcher } from "../../../events/EventDispatcher";
+
 /**
  * Manages an XRSession to work with layaAir engine
  * @author miner

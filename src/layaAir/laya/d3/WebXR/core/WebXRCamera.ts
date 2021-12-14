@@ -1,17 +1,18 @@
-import { Config3D } from "Config3D";
-import { ILaya3D } from "ILaya3D";
-import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
-import { RenderContext3D } from "laya/d3/core/render/RenderContext3D";
-import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Cluster } from "laya/d3/graphics/renderPath/Cluster";
-import { Viewport } from "laya/d3/math/Viewport";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { Shader3D } from "laya/d3/shader/Shader3D";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { PerformancePlugin } from "laya/utils/Performance";
-import { WebGLContext } from "laya/webgl/WebGLContext";
+import { Config3D } from "../../../../Config3D";
+import { ILaya3D } from "../../../../ILaya3D";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { PerformancePlugin } from "../../../utils/Performance";
+import { WebGLContext } from "../../../webgl/WebGLContext";
+import { Camera, CameraEventFlags } from "../../core/Camera";
+import { RenderContext3D } from "../../core/render/RenderContext3D";
+import { Scene3D } from "../../core/scene/Scene3D";
+import { Cluster } from "../../graphics/renderPath/Cluster";
+import { Viewport } from "../../math/Viewport";
+import { RenderTexture } from "../../resource/RenderTexture";
+import { Shader3D } from "../../shader/Shader3D";
 import { WebXRCameraManager } from "./WebXRCameraManager";
 import { WebXRRenderTexture } from "./WebXRRenderTexture";
+
 
 /**
  * @author miner
