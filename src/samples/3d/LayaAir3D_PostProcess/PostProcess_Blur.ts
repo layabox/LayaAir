@@ -24,7 +24,6 @@ export class PostProcess_Blur {
 	private button:Button;
 	private camera:Camera;
 	private postProcess:PostProcess;
-	isMaster: any;
 	/**
 	 *@private
 	 */
@@ -71,27 +70,6 @@ export class PostProcess_Blur {
 			//加载UI
 			this.loadUI();
 		}));
-		
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun(data.value);
-		}
 	}
 
 	/**
@@ -106,12 +84,12 @@ export class PostProcess_Blur {
 			this.button.sizeGrid = "4,4,4,4";
 			this.button.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.button.pos(Laya.stage.width / 2 - this.button.width * Browser.pixelRatio / 2, Laya.stage.height - 60 * Browser.pixelRatio);
-			this.button.on(Event.CLICK, this, this.stypeFun);
+			this.button.on(Event.CLICK, this, this.stypeFun0);
 
 		}));
 	}
 
-	stypeFun(label:string = "关闭高斯模糊"): void {
+	stypeFun0(label:string = "关闭高斯模糊"): void {
 		var enableHDR: boolean = !!this.camera.postProcess;
 		if (enableHDR)
 		{
@@ -124,7 +102,6 @@ export class PostProcess_Blur {
 			this.camera.postProcess = this.postProcess;
 		}
 		label = this.button.label;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});		
 		
 	}

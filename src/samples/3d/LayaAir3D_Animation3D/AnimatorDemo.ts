@@ -44,7 +44,6 @@ export class AnimatorDemo {
 	private _translate: Vector3 = new Vector3(0, 3, 5);
 	private _rotation: Vector3 = new Vector3(-15, 0, 0);
 	private _forward: Vector3 = new Vector3(-1.0, -1.0, -1.0);
-	isMaster:any;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -60,32 +59,6 @@ export class AnimatorDemo {
 		var resource: any[] = ["res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh", "res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh", "res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
 		Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			if(data.stype == 0)
-			{
-				this.stypeFun0(data.value);
-			}else if(data.stype == 1)
-			{
-				this.stypeFun1(data.value);
-			}
-		}
 	}
 
 	private onLoadFinish(): void {
@@ -246,8 +219,7 @@ export class AnimatorDemo {
 			this._animator.speed = 1.0;
 		}
 		label = this._changeActionButton.label;
-		if(this.isMaster)
-			Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});
 	}
 
 	stypeFun1(curStateIndex:any =0)
@@ -297,7 +269,6 @@ export class AnimatorDemo {
 			this._animator.speed = 1.0;
 		}
 		curStateIndex = this._curStateIndex;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:1,value:curStateIndex});
 	}
 

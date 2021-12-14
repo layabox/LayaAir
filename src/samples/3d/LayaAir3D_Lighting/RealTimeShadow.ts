@@ -50,9 +50,7 @@ export class RealTimeShadow {
 	/**场景内按钮类型*/
 	private stype:any = 0;
 	private rotationButton:Button;
-	private rottaionState:boolean = true;
 	private rotationScript:RotationScript;
-	isMaster: any;
 	constructor() {
 		//Init engine.
 		Laya3D.init(0, 0);
@@ -66,26 +64,6 @@ export class RealTimeShadow {
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"
 		], Handler.create(this, this.onComplete));
 
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun(data.value);
-		}
 	}
 
 	private onComplete(): void {
@@ -156,21 +134,19 @@ export class RealTimeShadow {
 			this.rotationButton.sizeGrid = "4,4,4,4";
 			this.rotationButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.rotationButton.pos(Laya.stage.width / 2 - this.rotationButton.width * Browser.pixelRatio / 2, Laya.stage.height - 40 * Browser.pixelRatio);
-			this.rotationButton.on(Event.CLICK, this, this.stypeFun);
+			this.rotationButton.on(Event.CLICK, this, this.stypeFun0);
 		}));
 	}
 
-	stypeFun(label:string = "Stop Rotation"): void {
+	stypeFun0(label:string = "Stop Rotation"): void {
 		if (this.rotationScript.rotation) {
 			this.rotationButton.label = "Start Rotation";
-			this.rottaionState = false;
+			this.rotationScript.rotation = false;
 		} else {
 			this.rotationButton.label = "Stop Rotation";
-			this.rottaionState = true;
+			this.rotationScript.rotation = true;
 		}
-
 		label = this.rotationButton.label;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
 	}
 }

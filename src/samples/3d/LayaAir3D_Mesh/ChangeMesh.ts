@@ -35,7 +35,6 @@ export class ChangeMesh {
 	private btype:any = "ChangeMesh";
 	/**场景内按钮类型*/
 	private stype:any = 0;
-	isMaster: any;
 
 	constructor() {
 
@@ -48,27 +47,6 @@ export class ChangeMesh {
 		//预加载所有资源
 		var resource: any[] = ["res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls"];
 		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
-
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun(data.value);
-		}
 	}
 
 	onPreLoadFinish() {
@@ -104,11 +82,11 @@ export class ChangeMesh {
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
 
-			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 		}));
 	}
 
-	stypeFun(index: number = 0): void {
+	stypeFun0(index: number = 0): void {
 		this.index++;
 		if (this.index % 5 === 1) {
 			//切换mesh
@@ -127,7 +105,6 @@ export class ChangeMesh {
 			this.sphere.meshFilter.sharedMesh = this.sphereMesh;
 		}
 		index = this.index;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:index});
 	}
 

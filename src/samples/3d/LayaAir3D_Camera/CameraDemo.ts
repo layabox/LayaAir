@@ -43,7 +43,6 @@ export class CameraDemo {
 	private btype:any = "CameraDemo";
 	/**场景内按钮类型*/
 	private stype:any = 0;
-	isMaster:any;
 
 	constructor() {
 		//初始化引擎
@@ -55,32 +54,6 @@ export class CameraDemo {
 		//预加载所有资源
 		var resource: any[] = ["res/threeDimen/texture/layabox.png", "res/threeDimen/skyBox/skyBox2/skyBox2.lmat"];
 		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			if(data.stype == 0)
-			{
-				this.stypeFun0(data.value);
-			}else if(data.stype == 1)
-			{
-				this.stypeFun1(data.value);
-			}
-		}
 	}
 
 	private onPreLoadFinish(): void {
@@ -166,7 +139,6 @@ export class CameraDemo {
 			this.camera.orthographic = false;
 		}
 		index = this.index;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:index});
 	}
 
@@ -188,7 +160,6 @@ export class CameraDemo {
 			this.camera.clearFlag = CameraClearFlags.SolidColor;
 		}
 		index2 = this.index2;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:1,value:index2});
 	}
 

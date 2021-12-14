@@ -13,6 +13,7 @@ import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
+import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 /**
@@ -27,6 +28,11 @@ export class SkinAnimationSample {
 	private _translate: Vector3 = new Vector3(0, 1.5, 4);
 	private _rotation: Vector3 = new Vector3(-15, 0, 0);
 	private _forward: Vector3 = new Vector3(-1.0, -1.0, -1.0);
+
+	/**实例类型*/
+	private btype:any = "SkinAnimationSample";
+	/**场景内按钮类型*/
+	private stype:any = 0;
 
 	constructor() {
 		Laya3D.init(0, 0);
@@ -70,12 +76,15 @@ export class SkinAnimationSample {
 			this.changeActionButton.sizeGrid = "4,4,4,4";
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			this.changeActionButton.on(Event.CLICK, this, function (): void {
-				//根据名称播放动画
-				this.zombieAnimator.play(this.clipName[++this.curStateIndex % this.clipName.length]);
-			});
-
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 		}));
+	}
+
+	stypeFun0(curStateIndex:number) {
+		//根据名称播放动画
+		this.zombieAnimator.play(this.clipName[++this.curStateIndex % this.clipName.length]);
+		curStateIndex = this.curStateIndex;
+		Client.instance.send({type:"next",btype:this.btype,stype:0,value:curStateIndex});
 	}
 
 }
