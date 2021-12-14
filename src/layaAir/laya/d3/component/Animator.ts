@@ -912,7 +912,7 @@ export class Animator extends Component {
 			//avatarMask
 			let layerMaskData = layerData.avatarMask;
 			if (layerMaskData) {
-				let avaMask = new AvatarMask(this);
+				let avaMask = new AvatarMask();
 				animatorLayer.avatarMask = avaMask;
 				for (var bips in layerMaskData) {
 					avaMask.setTransformActive(bips, layerMaskData[bips]);
