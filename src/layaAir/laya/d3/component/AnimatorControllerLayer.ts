@@ -175,7 +175,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 			this._states.push(state);
 
 			if (this._animator) {
-				state._clip!._addReference();
+				(state._clip)&&(state._clip!._addReference());
 				this._animator._getOwnersByClip(state);
 			}
 		}
@@ -221,6 +221,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 		dest.blendingMode = this.blendingMode;
 		dest.defaultWeight = this.defaultWeight;
 		dest.playOnWake = this.playOnWake;
+		this.avatarMask && (dest.avatarMask = this._avatarMask.clone());
 	}
 
 	/**
