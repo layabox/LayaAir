@@ -776,8 +776,12 @@ export class Camera extends BaseCamera {
 	_renderMainPass(context: RenderContext3D, viewport: Viewport, scene: Scene3D, shader: Shader3D, replacementTag: string, needInternalRT: boolean) {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
-
+		
 		context.viewport = viewport;
+		
+		if(renderTex&&renderTex._isCameraTarget)//保证反转Y状态正确
+			context.invertY = true;
+
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CLUSTER);
@@ -787,8 +791,7 @@ export class Camera extends BaseCamera {
 		scene._preCulling(context, this, shader, replacementTag);
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
 		
-		if(renderTex&&renderTex._isCameraTarget)//保证反转Y状态正确
-			context.invertY = true;
+	
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 		if(this.depthTextureMode!=0){
 			//TODO:是否可以不多次
