@@ -92,9 +92,9 @@
 						1
 					],
 					"clearColor":[
-						0.1921569,
-						0.3019608,
-						0.4745098,
+						0.9304467,
+						0.9716981,
+						0.967179,
 						0
 					]
 				},
@@ -2288,6 +2288,7 @@
 					"castShadow":true,
 					"materials":[
 						{
+							"type":"Laya.BlinnPhongMaterial",
 							"path":"Resources/unity_builtin_extra.lmat"
 						}
 					]
@@ -2543,66 +2544,6 @@
 									0
 								],
 								"radius":0.5
-							}
-						],
-						"isTrigger":false
-					}
-				],
-				"child":[]
-			},
-			{
-				"type":"MeshSprite3D",
-				"instanceID":39,
-				"props":{
-					"name":"Cube (1)",
-					"active":true,
-					"isStatic":false,
-					"layer":0,
-					"position":[
-						0,
-						0,
-						0
-					],
-					"rotation":[
-						0,
-						0,
-						0,
-						-1
-					],
-					"scale":[
-						1,
-						43.6092,
-						1
-					],
-					"meshPath":"Library/unity default resources-Cube.lm",
-					"enableRender":true,
-					"receiveShadows":true,
-					"castShadow":true,
-					"materials":[
-						{
-							"path":"Resources/unity_builtin_extra.lmat"
-						}
-					]
-				},
-				"components":[
-					{
-						"type":"PhysicsCollider",
-						"restitution":0,
-						"friction":0.5,
-						"rollingFriction":0,
-						"shapes":[
-							{
-								"type":"BoxColliderShape",
-								"center":[
-									0,
-									0,
-									0
-								],
-								"size":[
-									1,
-									1,
-									1
-								]
 							}
 						],
 						"isTrigger":false

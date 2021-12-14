@@ -22,7 +22,7 @@ import { Laya } from "Laya";
 import { Loader } from "laya/net/Loader";
 import { HitResult } from "laya/d3/physics/HitResult";
 
-export class testInitXR{
+export class WebXRControllerDemo{
     public camera:Camera;
 	public scene:Scene3D;
 	// 是否选中物体中
@@ -67,7 +67,7 @@ export class testInitXR{
 		//设置摄像机视野范围（角度）
 		this.camera.fieldOfView = 60;
 		//设置背景颜色
-		this.camera.clearColor = new Vector4(0, 0, 0.6, 1);
+		this.camera.clearColor = new Vector4(0.7, 0.8, 0.9, 0);
 		this.camera.nearPlane = 0.01;
 		//加入摄像机移动控制脚本
 		this.camera.addComponent(CameraMoveScript);

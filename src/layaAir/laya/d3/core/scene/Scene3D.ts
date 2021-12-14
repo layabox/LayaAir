@@ -70,9 +70,9 @@ import { PerformancePlugin } from "../../../utils/Performance";
 import { Sprite3D } from "../Sprite3D";
 import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
 import { BoundsOctree } from "./BoundsOctree";
-import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { FilterMode } from "../../../resource/FilterMode";
+import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
 /**
  * 环境光模式
  */

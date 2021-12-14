@@ -153,6 +153,7 @@ export class WebXRCameraManager {
             //add camera
             var xrcamera = new WebXRCamera(this.owner.aspectRatio, this.owner.nearPlane, this.owner.farPlane);
             xrcamera.clearFlag = this.owner.clearFlag;
+            xrcamera.clearColor = this.owner.clearColor;
             this.owner.addChild(xrcamera);
             this.rigCameras.push(xrcamera);
         }
