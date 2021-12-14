@@ -7,19 +7,11 @@ import { Animator } from "./Animator";
 export class AvatarMask{
     /**@internal */
     private _avatarPathMap:{[key:string]:boolean} = {};
-    private _catchAnimator:Animator;
     /**
      * 创建一个<code>AvatarMask</code>实例
      */
-    constructor(animator:Animator){
-        this._catchAnimator = animator;
-    }
-
-    /**
-     * 获得动态
-     */
-    get getCatchAnimator():Animator{
-        return this._catchAnimator;
+    constructor(){
+        
     }
 
     /**
@@ -47,5 +39,26 @@ export class AvatarMask{
     getAllTranfromPath(){
         return this._avatarPathMap;
     }
+
+      /**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: AvatarMask = new AvatarMask();
+        this.cloneTo(dest);
+		return dest;
+	}
+	/**
+	 * 克隆。
+	 * @param	destObject 克隆源。
+	 */
+     cloneTo(destObject: any): void {
+		var dest: AvatarMask = (<AvatarMask>destObject);
+        for(var key in this._avatarPathMap){
+            dest.setTransformActive(key,this._avatarPathMap[key]);
+        }
+		
+	}
 
 }
