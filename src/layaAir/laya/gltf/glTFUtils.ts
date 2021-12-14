@@ -302,6 +302,22 @@ export class glTFUtils {
     }
 
     /**
+     * @internal
+     * 获取 accessor data Type byte stride
+     * @param componentType 
+     */
+    static _getAccessorDateByteStride(componentType: glTF.glTFAccessorComponentType) {
+        switch (componentType) {
+            case glTF.glTFAccessorComponentType.BYTE: return 1;
+            case glTF.glTFAccessorComponentType.UNSIGNED_BYTE: return 1;
+            case glTF.glTFAccessorComponentType.SHORT: return 2;
+            case glTF.glTFAccessorComponentType.UNSIGNED_SHORT: return 2;
+            case glTF.glTFAccessorComponentType.UNSIGNED_INT: return 4;
+            case glTF.glTFAccessorComponentType.FLOAT: return 4;
+        }
+    }
+
+    /**
      * 获取 accessor buffer 数据
      * @param accessorIndex 
      */
@@ -314,12 +330,36 @@ export class glTFUtils {
         let buffer: ArrayBuffer = glTFUtils._glTFBuffers[bufferView.buffer];
 
         let count: number = accessor.count;
-        let contentStride: number = glTFUtils.getAccessorComponentsNum(accessor.type);
-        let byteOffset: number = (bufferView.byteOffset || 0) + (accessor.byteOffset || 0);
-        let byteLength: number = count * contentStride;
+        let componentCount: number = glTFUtils.getAccessorComponentsNum(accessor.type);
+        let accessorDataCount: number = count * componentCount;
 
         const constructor = glTFUtils._getTypedArrayConstructor(accessor.componentType);
-        return new constructor(buffer, byteOffset, byteLength);
+
+        if (bufferView.byteStride) {
+
+            let vertexStride = bufferView.byteStride;
+            let dataByteStride = glTFUtils._getAccessorDateByteStride(accessor.componentType);
+            let dataStride = vertexStride / dataByteStride;
+
+            let elementByteOffset = accessor.byteOffset || 0;
+            let elementOffset = elementByteOffset / dataByteStride;
+
+            // let d = new ArrayBuffer(dataStride * accessorDataCount);
+            let dataReader = new constructor(buffer, bufferView.byteOffset || 0);
+            let res = new constructor(accessorDataCount);
+            let resIndex = 0;
+            for (let index = 0; index < count; index++) {
+                let componentOffset = index * dataStride;
+                for (let i = 0; i < componentCount; i++) {
+                    res[resIndex++] = dataReader[componentOffset + elementOffset + i];
+                }
+            }
+            return res;
+        }
+        else {
+            let byteOffset: number = (bufferView.byteOffset || 0) + (accessor.byteOffset || 0);
+            return new constructor(buffer, byteOffset, accessorDataCount);
+        }
     }
 
     /**

@@ -194,36 +194,6 @@ export class SphericalHarmonicsL2Generater {
             default:
                 return 0;
         }
-
-        let k0 = 0.28209479177387814;//sqrt(1/4pi);
-        let k1 = 0.4886025119029199;//sqrt(3/4pi)
-        let k2 = 1.0925484305920792;//sqrt(15/4pi)
-        let k3 = 0.31539156525252005;//sqrt(5/16pi)
-        let k4 = 0.5462742152960396;//sqrt(15/16pi)
-
-        switch (i) {
-            case 0:
-                return k0;
-            case 1:
-                return -y * k1;
-            case 2:
-                return z * k1;
-            case 3:
-                return -x * k1;
-            case 4:
-                return x * y * k2;
-            case 5:
-                return -y * z * k2;
-            case 6:
-                return (3.0 * z * z - 1.0) * k3;
-            case 7:
-                return -x * z * k2;
-            case 8:
-                return (x * x - y * y) * k4;
-            default:
-                return 0;
-
-        }
     }
 
     /**
