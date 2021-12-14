@@ -25,10 +25,9 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 export class RenderTargetCamera {
 
 	/**实例类型*/
-	private btype:any = "CameraDemo";
+	private btype:any = "RenderTargetCamera";
 	/**场景内按钮类型*/
 	private stype:any = 0;
-	isMaster:any;
 	private scene:Scene3D;
 	private mat:UnlitMaterial;
 	constructor() {
@@ -41,27 +40,6 @@ export class RenderTargetCamera {
 
 		//预加载资源
 		Laya.loader.create(["res/threeDimen/scene/LayaScene_city01/Conventional/city01.ls"], Handler.create(this, this.onComplete));
-
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun();
-		}
 	}
 
 	private onComplete(): void {
@@ -98,13 +76,12 @@ export class RenderTargetCamera {
 			changeActionButton.sizeGrid = "4,4,4,4";
 			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			changeActionButton.pos(Laya.stage.width / 2 - changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			changeActionButton.on(Event.CLICK, this, this.stypeFun);
+			changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 		}));
 		this.scene = scene;
 		this.mat = mat
 	}
-	stypeFun (): void {
-		if(this.isMaster)
+	stypeFun0():void {
 		Client.instance.send({type:"next",btype:this.btype,stype:0});
 		//渲染到纹理的相机
 		var renderTargetCamera: Camera = <Camera>this.scene.addChild(new Camera(0, 0.3, 1000));

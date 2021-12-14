@@ -43,7 +43,6 @@ export class CameraLookAt {
 	private btype:any = "CameraLookAt";
 	/**场景内按钮类型*/
 	private stype:any = 0;
-	isMaster: any;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -56,27 +55,6 @@ export class CameraLookAt {
 		var resource: any[] = ["res/threeDimen/texture/layabox.png",
 			"res/threeDimen/skyBox/skyBox3/skyBox3.lmat"];
 		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
-
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun(data.value);
-		}
 	}
 
 	private onPreLoadFinish(): void {
@@ -147,11 +125,11 @@ export class CameraLookAt {
 			changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			changeActionButton.pos(Laya.stage.width / 2 - changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
 
-			changeActionButton.on(Event.CLICK, this, this.stypeFun);
+			changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 
 		}));
 	}
-	stypeFun(index:number = 0) {
+	stypeFun0(index:number = 0) {
 		this.index++;
 		if (this.index % 3 === 1) {
 			//摄像机捕捉模型目标
@@ -167,7 +145,6 @@ export class CameraLookAt {
 		}
 
 		index = this.index;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:index})
 	}
 

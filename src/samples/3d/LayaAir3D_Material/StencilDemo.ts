@@ -86,7 +86,7 @@ export class StencilDemo {
 			this.changeActionButton.sizeGrid = "4,4,4,4";
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 		}));
 	}
 
@@ -95,7 +95,7 @@ export class StencilDemo {
     isMaster: any;
     /**实例类型*/
 	private btype:any = "StencilDemo";
-    stypeFun(label:string = "Stencil开启"): void {
+    stypeFun0(label:string = "Stencil开启"): void {
 		if (++this.curStateIndex % 2 == 1) {
 			this.changeActionButton.label = "Stencil开启";
             this.stencilMat.stencilTest = RenderState.STENCILTEST_OFF;
@@ -105,7 +105,7 @@ export class StencilDemo {
             this.stencilMat.stencilTest = RenderState.STENCILTEST_GEQUAL;
 		}
 		label = this.changeActionButton.label;
-		if(this.isMaster)
+		
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
 	}
 }

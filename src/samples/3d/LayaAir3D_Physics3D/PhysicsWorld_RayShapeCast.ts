@@ -59,8 +59,6 @@ export class PhysicsWorld_RayShapeCast {
 	private btype:any = "PhysicsWorld_RayShapeCast";
 	/**场景内按钮类型*/
 	private stype:any = 0;
-	isMaster: any;
-
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
@@ -121,35 +119,6 @@ export class PhysicsWorld_RayShapeCast {
 			}			
 		}));
 		this.loadUI();
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			if(data.stype == 0)
-			{
-				this.stypeFun0(data.value);
-			} else if(data.stype == 1) 
-			{
-				this.stypeFun1(data.value);
-			} else if(data.stype ==2) 
-			{
-				this.stypeFun2(data.value);
-			}
-		}
 	}
 
 
@@ -203,7 +172,6 @@ export class PhysicsWorld_RayShapeCast {
 		}
 
 		label = this.changeActionButton0.label;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
 
 	}
@@ -217,7 +185,6 @@ export class PhysicsWorld_RayShapeCast {
 			this.castAll = true;
 		}
 		label = this.changeActionButton1.label;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:1,value:label});
 	}
 
@@ -342,7 +309,6 @@ export class PhysicsWorld_RayShapeCast {
 		}
 
 		castType = this.castType;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:2,value:castType});
 	}
 

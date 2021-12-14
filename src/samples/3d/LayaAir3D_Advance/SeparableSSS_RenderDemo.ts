@@ -46,7 +46,6 @@ export class SeparableSSS_RenderDemo{
 	/**场景内按钮类型*/
 	private stype:any = 0;
     private changeActionButton:Button;
-    isMaster: any;
    
     //reference:https://github.com/iryoku/separable-sss 
     //流程：分别渲染皮肤Mesh的漫反射部分以及渲染皮肤Mesh的高光部分,分别存储在不同的FrameBuffer中
@@ -64,27 +63,6 @@ export class SeparableSSS_RenderDemo{
         this.sssssBlitMaterail = new SeparableSSS_BlitMaterial();
         this.sssssRenderMaterial = new SeparableSSSRenderMaterial();
         this.PreloadingRes();
-        
-        this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun(data.value);
-		}
 	}
 
     //批量预加载方式
@@ -189,11 +167,11 @@ export class SeparableSSS_RenderDemo{
 			this.changeActionButton.sizeGrid = "4,4,4,4";
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 		}));
 	}
 
-    stypeFun(label:string = "次表面散射模式"): void {
+    stypeFun0(label:string = "次表面散射模式"): void {
         if (++this.curStateIndex % 2 == 1) {
             this.blinnphongCharacter.active = true;
             this.SSSSSCharacter.active = false;
@@ -204,7 +182,6 @@ export class SeparableSSS_RenderDemo{
             this.changeActionButton.label = "次表面散射模式";
         }
         label = this.changeActionButton.label;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});		
     }
 }

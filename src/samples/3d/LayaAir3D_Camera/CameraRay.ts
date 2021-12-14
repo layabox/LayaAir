@@ -53,10 +53,9 @@ export class CameraRay {
 	private tmpVector2: Vector3 = new Vector3(0, 0, 0);
 
 	/**实例类型*/
-	private btype:any = "CameraLayer";
+	private btype:any = "CameraRay";
 	/**场景内按钮类型*/
 	private stype:any = 0;
-	isMaster:any;
 
 	constructor() {
 		//初始化引擎,使用物理的wasm库需要调用回调的方式来初始化
@@ -109,27 +108,6 @@ export class CameraRay {
 			//射线初始化（必须初始化）
 			this._ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
 		}));
-
-	    this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.onMouseDown();
-		}
 	}
 	addBoxXYZ(x: number, y: number, z: number): void {
 		var mat1: BlinnPhongMaterial = new BlinnPhongMaterial();
@@ -181,7 +159,6 @@ export class CameraRay {
 				this.addBoxXYZ(this.outs[i].point.x, this.outs[i].point.y, this.outs[i].point.z);
 			}
 		}
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0})
 
 	}

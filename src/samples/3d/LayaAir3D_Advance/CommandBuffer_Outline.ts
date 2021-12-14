@@ -38,7 +38,6 @@ export class CommandBuffer_Outline {
 	private btype:any = "CommandBuffer_Outline";
 	/**场景内按钮类型*/
 	private stype:any = 0;
-	isMaster: any;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -80,27 +79,6 @@ export class CommandBuffer_Outline {
 			//加载UI
 			this.loadUI();
 		}));
-		
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun(data.value);
-		}
 	}
 
 	createDrawMeshCommandBuffer(camera:Camera,renders:BaseRender[],materials:Material[]):CommandBuffer{
@@ -174,12 +152,12 @@ export class CommandBuffer_Outline {
 			this.button.sizeGrid = "4,4,4,4";
 			this.button.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.button.pos(Laya.stage.width / 2 - this.button.width * Browser.pixelRatio / 2, Laya.stage.height - 60 * Browser.pixelRatio);
-			this.button.on(Event.CLICK, this, this.stypeFun);
+			this.button.on(Event.CLICK, this, this.stypeFun0);
 
 		}));
 	}
 
-	stypeFun(label:string = "关闭描边"): void {
+	stypeFun0(label:string = "关闭描边"): void {
 		this.enableCommandBuffer = !this.enableCommandBuffer;
 		if (this.enableCommandBuffer)
 		{
@@ -194,7 +172,6 @@ export class CommandBuffer_Outline {
 		}
 		
 		label = this.button.label;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});		
 	}
 }

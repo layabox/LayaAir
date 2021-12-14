@@ -37,7 +37,6 @@ export class CameraLayer {
 	private btype:any = "CameraLayer";
 	/**场景内按钮类型*/
 	private stype:any = 0;
-	isMaster:any;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -68,26 +67,6 @@ export class CameraLayer {
 
 		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh",
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun(data.value);
-		}
 	}
 	private onComplete(): void {
 
@@ -146,18 +125,17 @@ export class CameraLayer {
 			this.changeActionButton.sizeGrid = "4,4,4,4";
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 
 		}));
 	}
 
-	stypeFun (layerIndex:number = 0): void {
+	stypeFun0 (layerIndex:number = 0): void {
 		this.camera.removeAllLayers();
 		this.layerIndex++;
 		this.camera.addLayer(this.layerIndex % 4);
 		this.camera.addLayer(5);
 		layerIndex = this.layerIndex;
-		if(this.isMaster)
 		Client.instance.send({type:"next",btype:this.btype,stype:0,value:layerIndex});
 	}
 

@@ -40,7 +40,6 @@ export class CommandBuffer_DrawCustomInstance{
 	/**场景内按钮类型*/
 	private stype:any = 0;
     private changeActionButton:Button;
-    isMaster: any;
 
 
 
@@ -81,27 +80,6 @@ export class CommandBuffer_DrawCustomInstance{
         this.loadUI();
         //初始化动作
         Laya.timer.frameLoop(1,this,this.changetwoon);
-        
-        this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
-	}
-	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun(data.value);
-		}
 	}
     
         /**
@@ -194,11 +172,11 @@ export class CommandBuffer_DrawCustomInstance{
                 this.changeActionButton.sizeGrid = "4,4,4,4";
                 this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
                 this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
-                this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
+                this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
             }));
         }
 
-        stypeFun (label:string = "颜色位置2"): void {
+        stypeFun0 (label:string = "颜色位置2"): void {
             if (++this.curStateIndex % 2 == 1) {
                 this.changeActionButton.label = "颜色位置1";
                 this.delta = -0.01;
@@ -207,7 +185,6 @@ export class CommandBuffer_DrawCustomInstance{
                 this.delta = 0.01;
             }
             label = this.changeActionButton.label;
-            if(this.isMaster)
             Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
         }
     
