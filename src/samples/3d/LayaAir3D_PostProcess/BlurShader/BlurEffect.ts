@@ -193,6 +193,7 @@ export class BlurEffect extends PostProcessEffect{
            this._tempRenderTexture[i*2+2] = blurTexture;
         }
         context.source = lastDownTexture;
+        cmd.blitScreenTriangle(context.source,context.destination);
         var maxTexture = this._blurIterations*2+1;
         //释放渲染纹理
 		for (i = 0; i < maxTexture; i++) {
