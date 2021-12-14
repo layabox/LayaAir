@@ -156,7 +156,7 @@ export class Camera extends BaseCamera {
 	/** @internal*/
 	protected _needBuiltInRenderTexture: boolean = false;
 	/**@internal */
-	protected _msaa:boolean = true;
+	protected _msaa:boolean = false;
 
 	/** @internal*/
 	private _depthTextureMode: number;
