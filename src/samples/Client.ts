@@ -9,24 +9,33 @@ import { Utils } from "laya/utils/Utils";
 */
 export default class Client {
 
-    static instance:Client = null;
+    static _instance:Client = null;
     socket:Socket;
     constructor() {
     }
 
+    static get instance():Client{
+        if(!Client._instance)
+        {
+            Client._instance = new Client();
+            Client._instance.initEvent();
+        }
+        return Client._instance;
+    }
+
     static init()
     {
-        if(!Client.instance)
-        {
-            Client.instance = new Client();
-            Client.instance.initEvent();
-        }
+        // if(!Client.instance)
+        // {
+        //     Client.instance = new Client();
+        //     Client.instance.initEvent();
+        // }
     }
 
     initEvent()
     {
         //备注：这里测试的时候需要把192.168.1.138改成socket服务端的ip即可
-        var host:string = "192.168.1.60";
+        var host:string = "10.10.20.80";
         var post:number = 10000;
         var websocketurl:string = "ws://"+host+":"+post+"/";
         this.socket = new Socket();
