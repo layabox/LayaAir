@@ -175,9 +175,9 @@ export class EdgeEffect extends PostProcessEffect {
         this._depthBufferparam.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
         this._shaderData.setVector(EdgeEffect.DEPTHBUFFERPARAMS, this._depthBufferparam);
 
-        cmd.blitScreenTriangle(source, renderTexture, null, this._shader, this._shaderData, 0);
+        cmd.blitScreenTriangle(source, context.destination, null, this._shader, this._shaderData, 0);
 
-        context.source = renderTexture;
+        //context.source = renderTexture;
         context.deferredReleaseTextures.push(renderTexture);
 
     }
