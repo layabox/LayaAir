@@ -40,7 +40,7 @@ vec4 blur(){
         }
         ctexcoord.y+=step.y;
     }
-    vec4Color.w=1.0;
+    //vec4Color.w=1.0;  这个会导致丢失alpha。以后有时间再找模糊会导致透明的问题
     return vec4Color;
 }
 #endif
