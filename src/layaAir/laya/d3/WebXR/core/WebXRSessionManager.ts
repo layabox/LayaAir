@@ -108,7 +108,7 @@ export class WebXRSessionManager extends EventDispatcher {
      * @param sessionMode "inline" | "immersive-vr" | "immersive-ar"
      * @returns A Promise that resolves to true if supported and false if not
      */
-    public isSessionSupportedAsync(sessionMode: string): Promise<boolean> {
+    public async isSessionSupportedAsync(sessionMode: string): Promise<boolean> {
         if (!(navigator as any).xr) {
             return Promise.resolve(false);
         } else {
@@ -118,11 +118,9 @@ export class WebXRSessionManager extends EventDispatcher {
         if (!functionToUse)
             return Promise.resolve(false);
         else {
-            (navigator as any).xr.isSessionSupported(sessionMode).then((supported: any) => {
-                return Promise.resolve(supported);
-            });
+            let support = await (navigator as any).xr.isSessionSupported(sessionMode);
+            return Promise.resolve(support);
         }
-        return Promise.resolve(false);
     }
 
     /**
