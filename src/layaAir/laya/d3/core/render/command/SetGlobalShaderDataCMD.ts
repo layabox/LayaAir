@@ -9,6 +9,8 @@ import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { CommandBuffer } from "./CommandBuffer";
 import { ShaderDataType } from "./SetShaderDataCMD";
 import { Scene3D } from "../../scene/Scene3D";
+import { CommandUniformMap } from "../../scene/Scene3DShaderDeclaration";
+import { Shader3D } from "../../../shader/Shader3D";
 
 /**
  * @internal
@@ -17,8 +19,6 @@ import { Scene3D } from "../../scene/Scene3D";
 export class SetGlobalShaderDataCMD extends Command {
 	/**@internal */
 	private static _pool: any[] = [];
-
-
 	/**@internal */
 	private _nameID: number = 0;
 	/**@internal */
@@ -30,6 +30,8 @@ export class SetGlobalShaderDataCMD extends Command {
 	 * @internal
 	 */
 	static create(nameID: number, value:any,shaderDataType:ShaderDataType,commandBuffer:CommandBuffer): SetGlobalShaderDataCMD {
+		const comandMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
+		comandMap.addShaderUniform(nameID,Shader3D._propertyNameMap[nameID]);
 		var cmd: SetGlobalShaderDataCMD;
 		cmd = SetGlobalShaderDataCMD._pool.length > 0 ? SetGlobalShaderDataCMD._pool.pop() : new SetGlobalShaderDataCMD();
 		cmd._nameID = nameID;
