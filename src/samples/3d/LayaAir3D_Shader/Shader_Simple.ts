@@ -56,11 +56,8 @@ export class Shader_Simple {
 	}
 
 	private initShader(): void {
-
-		var attributeMap: any = { 'a_Position': VertexMesh.MESH_POSITION0, 'a_Normal': VertexMesh.MESH_NORMAL0 };
-		var uniformMap: any = { 'u_MvpMatrix': Shader3D.PERIOD_SPRITE, 'u_WorldMat': Shader3D.PERIOD_SPRITE };
 		var customShader: Shader3D = Shader3D.add("CustomShader");
-		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
+		var subShader: SubShader = new SubShader();
 		customShader.addSubShader(subShader);
 		subShader.addShaderPass(SimpleShaderVS, SimpleShaderFS);
 	}

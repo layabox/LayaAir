@@ -15,6 +15,7 @@ import { TrailMaterial } from "./TrailMaterial";
 import { TrailRenderer } from "./TrailRenderer";
 import { TrailSprite3D } from "./TrailSprite3D";
 import { Shader3D } from "../../../d3/shader/Shader3D";
+import { CommandUniformMap } from "../scene/Scene3DShaderDeclaration";
 
 /**
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。
@@ -24,6 +25,14 @@ export class TrailFilter {
 	static LIFETIME: number = Shader3D.propertyNameToID("u_LifeTime");
 	static WIDTHCURVE: number = Shader3D.propertyNameToID("u_WidthCurve");
 	static WIDTHCURVEKEYLENGTH: number = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
+
+	static __init__(){
+		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+		spriteParms.addShaderUniform(TrailFilter.CURTIME,"u_CurTime");
+		spriteParms.addShaderUniform(TrailFilter.LIFETIME,"u_LifeTime");
+		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE,"u_WidthCurve");
+		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVEKEYLENGTH,"u_WidthCurveKeyLength");
+	}
 
 	/**@internal */
 	private _minVertexDistance: number;

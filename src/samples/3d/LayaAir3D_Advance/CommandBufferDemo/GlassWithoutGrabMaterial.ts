@@ -9,10 +9,15 @@ import { Vector4 } from "laya/d3/math/Vector4";
 import { BaseTexture } from "laya/resource/BaseTexture";
 
 export class GlassWithoutGrabMaterial extends Material{
+    /** tintTexure */
     static TINTTEXTURE:number = Shader3D.propertyNameToID("u_tintTexure");
+    /** normalTexture" */
     static NORMALTEXTURE:number = Shader3D.propertyNameToID("u_normalTexture");
+    /** TilingOffset */
     static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+    /** tintAmount */
     static ALBEDOCOLOR: number = Shader3D.propertyNameToID("u_tintAmount");
+    
     static init(){
         var attributeMap: any = {
 			'a_Position': VertexMesh.MESH_POSITION0,
@@ -20,27 +25,15 @@ export class GlassWithoutGrabMaterial extends Material{
 			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
 			'a_Tangent0': VertexMesh.MESH_TANGENT0,
         };
-        var uniformMap = {
-            'u_tintTexure': Shader3D.PERIOD_MATERIAL,
-            'u_normalTexture': Shader3D.PERIOD_MATERIAL,
-			'u_tintAmount': Shader3D.PERIOD_MATERIAL,
-			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
-			'u_MvpMatrix': Shader3D.PERIOD_SPRITE
-		};
-		var stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		}
-        var shader: Shader3D = Shader3D.add("GlassShader", null, null,false);
-		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
+        var shader: Shader3D = Shader3D.add("GlassShader",false);
+		var subShader: SubShader = new SubShader(attributeMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(GlassShaderVS, GlassShaderFS, stateMap, "Forward");
+		subShader.addShaderPass(GlassShaderVS, GlassShaderFS);
     }
 
+    /**
+     * @param texture 
+     */
     constructor(texture:BaseTexture){
         super();
         this.setShaderName("GlassShader");
@@ -49,7 +42,9 @@ export class GlassWithoutGrabMaterial extends Material{
         this._shaderValues.setTexture(GlassWithoutGrabMaterial.TINTTEXTURE,texture);
     }
 
-    //渲染模式
+    /**
+     * RenderMode
+     */
     renderModeSet(){
         this.alphaTest = false;//深度测试关闭
         this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;//渲染顺序放在后面

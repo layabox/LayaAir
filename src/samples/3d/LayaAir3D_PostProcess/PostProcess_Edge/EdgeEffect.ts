@@ -28,32 +28,22 @@ export enum EdgeMode {
 }
 
 export class EdgeEffect extends PostProcessEffect {
-
     private _shader: Shader3D = null;
-
     private static _isShaderInit: boolean = false;
-
     private _shaderData: ShaderData = new ShaderData();
-
     static DEPTHTEXTURE: number = Shader3D.propertyNameToID("u_DepthTex");
     static DEPTHNORMALTEXTURE: number = Shader3D.propertyNameToID("u_DepthNormalTex");
     static DEPTHBUFFERPARAMS: number = Shader3D.propertyNameToID("u_DepthBufferParams");
-
     static EDGECOLOR: number = Shader3D.propertyNameToID("u_EdgeColor");
-
     static COLORHOLD: number = Shader3D.propertyNameToID("u_ColorHold");
     static DEPTHHOLD: number = Shader3D.propertyNameToID("u_Depthhold");
     static NORMALHOLD: number = Shader3D.propertyNameToID("u_NormalHold");
-
     static SHADERDEFINE_DEPTHNORMAL: ShaderDefine;
     static SHADERDEFINE_DEPTH: ShaderDefine;
-
     static SHADERDEFINE_DEPTHEDGE: ShaderDefine;
     static SHADERDEFINE_NORMALEDGE: ShaderDefine;
     static SHADERDEFINE_COLOREDGE: ShaderDefine;
-
     static SHADERDEFINE_SOURCE: ShaderDefine;
-
     _depthBufferparam: Vector4 = new Vector4();
 
     _edgeMode: EdgeMode = EdgeMode.NormalEdge;
@@ -65,7 +55,7 @@ export class EdgeEffect extends PostProcessEffect {
             EdgeEffect.EdgeEffectShaderInit();
         }
         this._shader = Shader3D.find("PostProcessEdge");
-        this.edgeColor = new Vector3(0.2, 0.2, 0.2);
+        this.edgeColor = new Vector3(0.0, 0.0, 0.0);
         this.colorHold = 0.7;
         this.normalHold = 0.7;
         this.depthHold = 0.7;
@@ -192,27 +182,11 @@ export class EdgeEffect extends PostProcessEffect {
         EdgeEffect.SHADERDEFINE_COLOREDGE = Shader3D.getDefineByName("COLOREDGE");
 
         EdgeEffect.SHADERDEFINE_SOURCE = Shader3D.getDefineByName("SOURCE");
-
         let attributeMap: any = {
             'a_PositionTexcoord': VertexMesh.MESH_POSITION0
         };
-
-        let uniformMap: any = {
-            'u_MainTex': Shader3D.PERIOD_MATERIAL, // source
-            'u_OffsetScale': Shader3D.PERIOD_MATERIAL,
-            'u_MainTex_TexelSize': Shader3D.PERIOD_MATERIAL,
-
-            'u_DepthTex': Shader3D.PERIOD_MATERIAL,
-            'u_DepthNormalTex': Shader3D.PERIOD_MATERIAL,
-            'u_DepthBufferParams': Shader3D.PERIOD_MATERIAL,
-
-            'u_ColorHold': Shader3D.PERIOD_MATERIAL,
-            'u_Depthhold': Shader3D.PERIOD_MATERIAL,
-            'u_NormalHold': Shader3D.PERIOD_MATERIAL
-        };
-
         let shader: Shader3D = Shader3D.add("PostProcessEdge");
-        let subShader: SubShader = new SubShader(attributeMap, uniformMap);
+        let subShader: SubShader = new SubShader(attributeMap);
         shader.addSubShader(subShader);
         let pass: ShaderPass = subShader.addShaderPass(EdgeEffectVS, EdgeEffectFS);
         pass.renderState.depthWrite = false;

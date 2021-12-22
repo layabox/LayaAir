@@ -8,30 +8,10 @@ import DepthNormalFS from "../DepthNormalShader/DepthNormalsTextureTest.fs";
 
 export class DepthNormalsMaterial extends Material{
     static init(){
-        var attributeMap = {
-			'a_Position': VertexMesh.MESH_POSITION0,
-			'a_Normal': VertexMesh.MESH_NORMAL0,
-			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
-			'a_Tangent0': VertexMesh.MESH_TANGENT0
-        };
-        var uniformMap = {
-            'u_CameraDepthNormalsTexture':Shader3D.PERIOD_CAMERA,
-            'u_CameraDepthTexture':Shader3D.PERIOD_CAMERA,
-            'u_MvpMatrix': Shader3D.PERIOD_SPRITE
-        }
-        var stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-        }
-        var shader:Shader3D = Shader3D.add("DepthNormalShader",null,null,false,false);
-        var subShader:SubShader = new SubShader(attributeMap,uniformMap);
+        var shader:Shader3D = Shader3D.add("DepthNormalShader",false,false);
+        var subShader:SubShader = new SubShader();
         shader.addSubShader(subShader);
-        //TODO:
-        subShader.addShaderPass(DepthNormalVS,DepthNormalFS,stateMap,"Forward");
+        subShader.addShaderPass(DepthNormalVS,DepthNormalFS,"Forward");
     }
 
     constructor(){
