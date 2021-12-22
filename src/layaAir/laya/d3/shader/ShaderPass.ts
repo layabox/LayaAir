@@ -17,6 +17,7 @@ import { Scene3D } from "../core/scene/Scene3D";
  * <code>ShaderPass</code> 类用于实现ShaderPass。
  */
 export class ShaderPass extends ShaderCompile {
+
 	/** @internal */
 	private static _defineString: Array<string> = [];
 	/** @internal */
@@ -49,7 +50,7 @@ export class ShaderPass extends ShaderCompile {
 		return this._renderState;
 	}
 
-	constructor(owner: SubShader, vs: string, ps: string, stateMap:  {[key:string]:number} ) {
+	constructor(owner: SubShader, vs: string, ps: string, stateMap:  {[key:string]:number}) {
 		super(vs, ps, null);
 		this._owner = owner;
 		this._stateMap = stateMap;
@@ -348,7 +349,7 @@ export class ShaderPass extends ShaderCompile {
 		}
 		//TODO:动态切换Attribute
 		//var attibuteMap = Shader3D.getAttributeMapByDefine(defineString,this._owner._attributeMap);
-		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'),this._owner._attributeMap , this._owner._uniformMap || this._owner._owner._uniformMap, this);
+		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'),this._owner._attributeMap,this);
 
 		cacheShaders[cacheKey] = shader;
 

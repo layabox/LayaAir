@@ -8,7 +8,7 @@ import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowUtils } from "../core/light/ShadowUtils";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { Scene3D } from "../core/scene/Scene3D";
-import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
+import { CommandUniformMap, Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
 import { FrustumCulling, ShadowCullInfo } from "../graphics/FrustumCulling";
 import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
@@ -69,6 +69,29 @@ export class ShadowCasterPass {
 	/** @internal */
 	private static _frustumPlanes: Plane[] = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
 
+	static __init__(){
+		const sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
+		ShadowCasterPass.SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS,"u_ShadowBias");
+		ShadowCasterPass.SHADOW_LIGHT_DIRECTION = Shader3D.propertyNameToID("u_ShadowLightDirection");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_LIGHT_DIRECTION,"u_ShadowLightDirection");
+		ShadowCasterPass.SHADOW_SPLIT_SPHERES = Shader3D.propertyNameToID("u_ShadowSplitSpheres");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPLIT_SPHERES,"u_ShadowSplitSpheres");
+		ShadowCasterPass.SHADOW_MATRICES = Shader3D.propertyNameToID("u_ShadowMatrices");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MATRICES,"u_ShadowMatrices");
+		ShadowCasterPass.SHADOW_MAP_SIZE = Shader3D.propertyNameToID("u_ShadowMapSize");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP_SIZE,"u_ShadowMapSize");
+		ShadowCasterPass.SHADOW_MAP = Shader3D.propertyNameToID("u_ShadowMap");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP,"u_ShadowMap");
+		ShadowCasterPass.SHADOW_PARAMS = Shader3D.propertyNameToID("u_ShadowParams");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_PARAMS,"u_ShadowParams");
+		ShadowCasterPass.SHADOW_SPOTMAP_SIZE = Shader3D.propertyNameToID("u_SpotShadowMapSize");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP_SIZE,"u_SpotShadowMapSize");
+		ShadowCasterPass.SHADOW_SPOTMAP = Shader3D.propertyNameToID("u_SpotShadowMap");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP,"u_SpotShadowMap");
+		ShadowCasterPass.SHADOW_SPOTMATRICES = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMATRICES,"u_SpotViewProjectMatrix");
+	}
 	/** @internal */
 	private _shadowBias: Vector4 = new Vector4();
 	/** @internal */

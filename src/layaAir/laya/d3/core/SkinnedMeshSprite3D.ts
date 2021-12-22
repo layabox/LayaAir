@@ -15,6 +15,7 @@ import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
 import { Sprite3D } from "./Sprite3D";
 import { Material } from "./material/Material";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
+import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 
 
 
@@ -26,17 +27,16 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	static _tempArray0: any[] = [];
 
 	/**着色器变量名，蒙皮动画。*/
-	static BONES: number = Shader3D.propertyNameToID("u_Bones");
-	/**简单动画变量名，贴图蒙皮动画*/
-	static SIMPLE_SIMPLEANIMATORTEXTURE:number = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
-	static SIMPLE_SIMPLEANIMATORPARAMS:number = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
-	static SIMPLE_SIMPLEANIMATORTEXTURESIZE:number = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
+	static BONES: number;
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
 		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = Shader3D.getDefineByName("BONE");
 		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
+		const commandUniform = CommandUniformMap.createGlobalUniformMap("Custom");
+		SkinnedMeshSprite3D.BONES = Shader3D.propertyNameToID("u_Bones");
+		commandUniform.addShaderUniform(SkinnedMeshSprite3D.BONES, "u_Bones");
 	}
 
 	/** @internal */

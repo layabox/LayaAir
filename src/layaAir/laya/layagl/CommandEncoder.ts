@@ -8,7 +8,7 @@ export class CommandEncoder {
     _idata: any[] = [];
 
     //TODO:coverage
-    constructor(layagl: any, reserveSize: number, adjustSize: number, isSyncToRenderThread: boolean) {
+    constructor() {
     }
 
     //TODO:coverage
