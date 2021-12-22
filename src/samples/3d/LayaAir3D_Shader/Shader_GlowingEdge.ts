@@ -116,27 +116,10 @@ export class Shader_GlowingEdge {
 
 	//初始化shader
 	private initShader(): void {
-
-		var attributeMap: any = { 
-			'a_Position': VertexMesh.MESH_POSITION0, 
-			'a_Normal': VertexMesh.MESH_NORMAL0, 
-			'a_Texcoord': VertexMesh.MESH_TEXTURECOORDINATE0, 
-			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0, 
-			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0 
-		};
-		var uniformMap: any = { 
-			'u_Bones': Shader3D.PERIOD_CUSTOM, 
-			'u_CameraPos': Shader3D.PERIOD_CAMERA, 
-			'u_MvpMatrix': Shader3D.PERIOD_SPRITE, 
-			'u_WorldMat': Shader3D.PERIOD_SPRITE, 
-			'u_texture': Shader3D.PERIOD_MATERIAL, 
-			'u_marginalColor': Shader3D.PERIOD_MATERIAL, 
-			'u_SunLight.color': Shader3D.PERIOD_SCENE,
-		};
 		//创建自定义shader
 		var glowingEdgeShader: Shader3D = Shader3D.add("GlowingEdgeMaterial");
 		//为当前自定义的shader添加SubShader
-		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
+		var subShader: SubShader = new SubShader();
 		glowingEdgeShader.addSubShader(subShader);
 		//SubShader添加ShaderPass
 		(<ShaderPass>subShader.addShaderPass(GlowingEdgeShaderVS, GlowingEdgeShaderFS));

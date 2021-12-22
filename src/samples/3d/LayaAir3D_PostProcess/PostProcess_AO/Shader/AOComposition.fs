@@ -4,8 +4,7 @@
 	precision mediump float;
 #endif
 
-#define SHADER_NAME AOBlurHorizontal
-//质量
+#define SHADER_NAME AOComposition
 #define BLUR_HIGH_QUALITY 0
 
 uniform sampler2D u_MainTex;
@@ -26,6 +25,7 @@ float GetPackedAO(vec4 p)
 {
     return p.r;
 }
+
 // Geometry-aware bilateral filter (single pass/small kernel)
 float BlurSmall(sampler2D tex, vec2 uv, vec2 delta)
 {

@@ -22,6 +22,7 @@ import BlurEdgeSub from "./EdgeSub.fs";
 import { Material } from "laya/d3/core/material/Material";
 import { BaseTexture } from "laya/resource/BaseTexture";
 export class BlurEffect extends PostProcessEffect{
+
     static BLUR_TYPE_GaussianBlur:number = 0;
     static BLUR_TYPE_Simple:number = 1;
     static SHADERVALUE_MAINTEX:number = Shader3D.propertyNameToID("u_MainTex");
@@ -33,16 +34,9 @@ export class BlurEffect extends PostProcessEffect{
         var attributeMap:any = {
 			'a_PositionTexcoord': VertexMesh.MESH_POSITION0
         };
-        var uniformMap = {
-            'u_MainTex': Shader3D.PERIOD_MATERIAL,
-            'u_MainTex_TexelSize':Shader3D.PERIOD_MATERIAL,
-            'u_DownSampleValue':Shader3D.PERIOD_MATERIAL,
-            'u_sourceTexture0':Shader3D.PERIOD_MATERIAL,
-            'u_sourceTexture1':Shader3D.PERIOD_MATERIAL
-        }
         var shader:Shader3D = Shader3D.add("blurEffect");
         //subShader0  降采样
-        var subShader:SubShader = new SubShader(attributeMap,uniformMap);
+        var subShader:SubShader = new SubShader(attributeMap);
         shader.addSubShader(subShader);
         var shaderpass:ShaderPass = subShader.addShaderPass(BlurDownSampleVS,BlurDownSampleFS);
         var renderState:RenderState = shaderpass.renderState;
@@ -51,7 +45,7 @@ export class BlurEffect extends PostProcessEffect{
         renderState.cull = RenderState.CULL_NONE;
         renderState.blend = RenderState.BLEND_DISABLE;
         //subShader1 垂直反向模糊
-        subShader = new SubShader(attributeMap,uniformMap);
+        subShader = new SubShader(attributeMap);
         shader.addSubShader(subShader);
         shaderpass = subShader.addShaderPass(BlurVS,BlurVerticalFS);
         renderState = shaderpass.renderState;
@@ -60,7 +54,7 @@ export class BlurEffect extends PostProcessEffect{
         renderState.cull = RenderState.CULL_NONE;
         renderState.blend = RenderState.BLEND_DISABLE;
         //subShader2 水平方向模糊
-        subShader = new SubShader(attributeMap,uniformMap);
+        subShader = new SubShader(attributeMap);
         shader.addSubShader(subShader);
         shaderpass = subShader.addShaderPass(BlurVS,BlurHorizentalFS);
         renderState = shaderpass.renderState;
@@ -69,7 +63,7 @@ export class BlurEffect extends PostProcessEffect{
         renderState.cull = RenderState.CULL_NONE;
         renderState.blend = RenderState.BLEND_DISABLE;
         //subShader3 subTexture
-        subShader = new SubShader(attributeMap,uniformMap);
+        subShader = new SubShader(attributeMap);
         shader.addSubShader(subShader);
         shaderpass = subShader.addShaderPass(BlurVS,BlurEdgeSub);
         renderState = shaderpass.renderState;
@@ -78,7 +72,7 @@ export class BlurEffect extends PostProcessEffect{
         renderState.cull = RenderState.CULL_NONE;
         renderState.blend = RenderState.BLEND_DISABLE;
         //subShader4 addTexture
-        subShader = new SubShader(attributeMap,uniformMap);
+        subShader = new SubShader(attributeMap);
         shader.addSubShader(subShader);
         shaderpass = subShader.addShaderPass(BlurVS,BlurEdgeAdd);
         renderState = shaderpass.renderState;
@@ -203,16 +197,12 @@ export class BlurEffect extends PostProcessEffect{
     }
 }
 
-
 export class BlurMaterial extends Material{
     static SHADERVALUE_MAINTEX:number = Shader3D.propertyNameToID("u_MainTex");
     static SHADERVALUE_TEXELSIZE:number = Shader3D.propertyNameToID("u_MainTex_TexelSize");
     static SHADERVALUE_DOWNSAMPLEVALUE:number = Shader3D.propertyNameToID("u_DownSampleValue");
     static SHADERVALUE_SOURCETEXTURE0:number = Shader3D.propertyNameToID("u_sourceTexture0");
     static ShADERVALUE_SOURCETEXTURE1:number = Shader3D.propertyNameToID("u_sourceTexture1");
-    
-    private texelSize:Vector4 = new Vector4();
-    private doSamplevalue:number = 0;
 
     constructor(texelSize:Vector4,offset:number){
         super();

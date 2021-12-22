@@ -13,6 +13,7 @@ import SeprableSSSFS from "../shader/SeparableSSS_GasBlur.fs";
 import SeprableSSSVS from "../shader/SeparableSSS_GasBlur.vs";
 
 export class SeparableSSS_BlitMaterial extends Material{
+
 	static SHADERVALUE_COLORTEX:number = Shader3D.propertyNameToID("u_MainTex");
 	static SHADERVALUE_DEPTHTEX:number = Shader3D.propertyNameToID("u_depthTex");
 	static SHADERVALUE_BLURDIR:number = Shader3D.propertyNameToID("u_blurDir");
@@ -25,18 +26,8 @@ export class SeparableSSS_BlitMaterial extends Material{
 		var attributeMap = {
 			'a_PositionTexcoord':VertexMesh.MESH_POSITION0
 		}
-		var uniformMap = {
-			'u_MainTex':Shader3D.PERIOD_MATERIAL,
-			'u_depthTex':Shader3D.PERIOD_MATERIAL,
-			'u_blurDir':Shader3D.PERIOD_MATERIAL,
-			'u_sssWidth':Shader3D.PERIOD_MATERIAL,
-			//下面这个是啥？？
-			'u_distanceToProjectionWindow':Shader3D.PERIOD_MATERIAL,
-			'u_kernel':Shader3D.PERIOD_MATERIAL
-		}
 		var shader:Shader3D = Shader3D.add("SeparableSSS");
-		//subShader0
-		var subShader:SubShader = new SubShader(attributeMap,uniformMap);
+		var subShader:SubShader = new SubShader(attributeMap);
 		shader.addSubShader(subShader);
 		var shaderpass = subShader.addShaderPass(SeprableSSSVS,SeprableSSSFS);
         var renderState = shaderpass.renderState;
@@ -46,7 +37,6 @@ export class SeparableSSS_BlitMaterial extends Material{
         renderState.cull = RenderState.CULL_NONE;
         renderState.blend = RenderState.BLEND_DISABLE;
 	}
-
 
 	private _fallOff:Vector3;
 	private _strength:Vector3;
@@ -69,10 +59,12 @@ export class SeparableSSS_BlitMaterial extends Material{
 		this.shaderData.setTexture(SeparableSSS_BlitMaterial.SHADERVALUE_COLORTEX,value);
 		
 	}
+
     //模糊采样方向  一般是horizontal一次 vertical一次
 	set blurDir(value:Vector2){
 		this.shaderData.setVector2(SeparableSSS_BlitMaterial.SHADERVALUE_BLURDIR,value);
 	}
+
 	//深度贴图
 	set depthTex(value:BaseTexture){
 		this.shaderData.setTexture(SeparableSSS_BlitMaterial.SHADERVALUE_DEPTHTEX,value);
@@ -122,6 +114,7 @@ export class SeparableSSS_BlitMaterial extends Material{
 		this._nSampler = value;
 		this.kenel = this.calculateKernel(this._nSampler,this._fallOff,this._strength);
 	}
+
 	//camera的view角度
 	set cameraFiledOfView(value:number){
 		let distanceToProject = 1.0/Math.tan(0.5*value*MathUtils3D.Deg2Rad);
@@ -195,7 +188,6 @@ export class SeparableSSS_BlitMaterial extends Material{
 
 		return Kernel;
 	}
-
 
     /**
      * @internal
