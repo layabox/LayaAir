@@ -12,32 +12,23 @@ import { ShaderInstance } from "./ShaderInstance";
 import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
 import { Scene3D } from "../core/scene/Scene3D";
+import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
  */
-export class ShaderPass extends ShaderCompile {
+export class ShaderPass extends ShaderCompileDefineBase {
 
 	/** @internal */
-	private static _defineString: Array<string> = [];
+	private static _defineStrings: Array<string> = [];
 	/** @internal */
-	private static _debugDefineString: string[] = [];
+	private static _debugDefineStrings: string[] = [];
 	/** @internal */
-	private static _debugDefineMask: number[] = [];
-
-	/** @internal */
-	private _owner: SubShader;
+	private static _debugDefineMasks: number[] = [];
 	/** @internal */
 	_stateMap:  {[key:string]:number} ;
 	/** @internal */
-	private _cacheSharders: {[key:number]:{[key:number]:{[key:number]:ShaderInstance}}} = {};
-	/** @internal */
-	private _cacheShaderHierarchy: number = 1;
-	/** @internal */
 	private _renderState: RenderState = new RenderState();
-
-	/** @internal */
-	_validDefine: DefineDatas = new DefineDatas();
 	/** @internal */
 	_tags: any = {};
 	/** @internal */
@@ -51,167 +42,8 @@ export class ShaderPass extends ShaderCompile {
 	}
 
 	constructor(owner: SubShader, vs: string, ps: string, stateMap:  {[key:string]:number}) {
-		super(vs, ps, null);
-		this._owner = owner;
+		super(owner,vs, ps, null);
 		this._stateMap = stateMap;
-		for (var k in this.defs)
-			this._validDefine.add(Shader3D.getDefineByName(k));
-	}
-
-	/**
-	 * @private
-	 */
-	protected _compileToTree(parent: ShaderNode, lines: any[], start: number, includefiles: any[], defs: any): void {
-		var node: ShaderNode, preNode: ShaderNode;
-		var text: string, name: string, fname: string;
-		var ofs: number, words: any[], noUseNode: ShaderNode;
-		var i: number, n: number, j: number;
-		
-		for (i = start; i < lines.length; i++) {
-			text = lines[i];
-			if (text.length < 1) continue;
-			ofs = text.indexOf("//");
-			if (ofs === 0) continue;
-			if (ofs >= 0) text = text.substr(0, ofs);
-			node = noUseNode || new ShaderNode(includefiles);
-			noUseNode = null;
-			node.text = text;
-			node.noCompile = true;
-
-			if ((ofs = text.indexOf("#")) >= 0) {
-				name = "#";
-				for (j = ofs + 1, n = text.length; j < n; j++) {
-					var c: string = text.charAt(j);
-					if (c === ' ' || c === '\t' || c === '?') break;
-					name += c;
-				}
-				node.name = name;
-				switch (name) {
-					case "#ifdef":
-					case "#ifndef":
-						node.src = text;
-						node.noCompile = text.match(/[!&|()=<>]/) != null;
-						if (!node.noCompile) {
-							words = text.replace(/^\s*/, '').split(/\s+/);
-							node.setCondition(words[1], name === "#ifdef" ? ShaderCompile.IFDEF_YES : ShaderCompile.IFDEF_ELSE);
-							node.text = "//" + node.text;
-						} else {
-							console.log("function():Boolean{return " + text.substr(ofs + node.name.length) + "}");
-						}
-						node.setParent(parent);
-						parent = node;
-						if (defs) {
-							words = text.substr(j).split(ShaderCompile._splitToWordExps3);
-							for (j = 0; j < words.length; j++) {
-								text = words[j];
-								text.length && (defs[text] = true);
-							}
-						}
-						continue;
-					case "#if":
-					case "#elif":
-						node.src = text;
-						node.noCompile = true;
-                        if(name=="#elif"){
-                            parent = parent.parent;
-                            preNode = parent.childs[parent.childs.length - 1];
-                            //匹配"#ifdef"
-                            preNode.text = preNode.src;
-                            preNode.noCompile = true;
-                            preNode.condition = null;
-                        }
-						node.setParent(parent);
-                        parent = node;
-                        
-						if (defs) {
-							words = text.substr(j).split(ShaderCompile._splitToWordExps3);
-							for (j = 0; j < words.length; j++) {
-								text = words[j];
-								text.length && text != "defined" && (defs[text] = true);
-							}
-						}
-						continue;
-					case "#else":
-						node.src = text;
-						parent = parent.parent;
-						preNode = parent.childs[parent.childs.length - 1];
-						node.noCompile = preNode.noCompile;
-						if (!node.noCompile) {
-							node.condition = preNode.condition;
-							node.conditionType = preNode.conditionType == ShaderCompile.IFDEF_YES ? ShaderCompile.IFDEF_ELSE : ShaderCompile.IFDEF_YES;
-							node.text = "//" + node.text + " " + preNode.text + " " + node.conditionType;
-						}
-						//递归节点树
-						node.setParent(parent);
-						parent = node;
-						continue;
-					case "#endif":
-						parent = parent.parent;
-						preNode = parent.childs[parent.childs.length - 1];
-						node.noCompile = preNode.noCompile;
-						if (!node.noCompile) {
-							node.text = "//" + node.text;
-						}
-						node.setParent(parent);
-						continue;
-					case "#include"://这里有问题,主要是空格
-						words = ShaderCompile.splitToWords(text, null);
-						var inlcudeFile: InlcudeFile = ShaderCompile.includes[words[1]];
-						if (!inlcudeFile) {
-							throw "ShaderCompile error no this include file:" + words[1];
-						}
-						if ((ofs = words[0].indexOf("?")) < 0) {
-							node.setParent(parent);
-							text = inlcudeFile.getWith(words[2] == 'with' ? words[3] : null);
-							this._compileToTree(node, text.split('\n'), 0, includefiles, defs);
-							node.text = "";
-							continue;
-						}
-						node.setCondition(words[0].substr(ofs + 1), ShaderCompile.IFDEF_YES);
-						node.text = inlcudeFile.getWith(words[2] == 'with' ? words[3] : null);
-						break;
-					case "#import":
-						words = ShaderCompile.splitToWords(text, null);
-						fname = words[1];
-						includefiles.push({ node: node, file: ShaderCompile.includes[fname], ofs: node.text.length });
-						continue;
-				}
-			} else {
-				preNode = parent.childs[parent.childs.length - 1];
-				if (preNode && !preNode.name) {
-					includefiles.length > 0 && ShaderCompile.splitToWords(text, preNode);
-					noUseNode = node;
-					preNode.text += "\n" + text;
-					continue;
-				}
-				includefiles.length > 0 && ShaderCompile.splitToWords(text, node);
-			}
-			node.setParent(parent);
-		}
-	}
-
-
-	/**
-	 * @internal
-	 */
-	_resizeCacheShaderMap(cacheMap:any, hierarchy: number, resizeLength: number): void {
-		var end: number = this._cacheShaderHierarchy - 1;
-		if (hierarchy == end) {
-			for (var k in cacheMap) {
-				var shader = cacheMap[k];
-				for (var i: number = 0, n: number = resizeLength - end; i < n; i++) {
-					if (i == n - 1)
-						cacheMap[0] = shader;//0替代(i == 0 ? k : 0),只扩不缩
-					else
-						cacheMap = cacheMap[i == 0 ? k : 0] = {};
-				}
-			}
-		}
-		else {
-			++hierarchy;
-			for (var k in cacheMap)
-				this._resizeCacheShaderMap(cacheMap[k], hierarchy, resizeLength);
-		}
 	}
 
 	/**
@@ -234,13 +66,13 @@ export class ShaderPass extends ShaderCompile {
 		Shader3D.debugShaderVariantCollection.add(dbugShaderVariantInfo);
 	}
 
-
 	/**
+	 * @override
 	 * @internal
 	 */
 	withCompile(compileDefine: DefineDatas): ShaderInstance {
-		var debugDefineString: string[] = ShaderPass._debugDefineString;
-		var debugDefineMask: number[] = ShaderPass._debugDefineMask;
+		var debugDefineString: string[] = ShaderPass._debugDefineStrings;
+		var debugDefineMask: number[] = ShaderPass._debugDefineMasks;
 		var debugMaskLength: number;
 		compileDefine._intersectionDefineDatas(this._validDefine);
 		if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
@@ -271,7 +103,7 @@ export class ShaderPass extends ShaderCompile {
 		if (shader)
 			return shader;
 
-		var defineString: string[] = ShaderPass._defineString;
+		var defineString: string[] = ShaderPass._defineStrings;
 		Shader3D._getNamesByDefineData(compileDefine, defineString);
 
 		var config: Config3D = Config3D._config;
@@ -347,8 +179,6 @@ export class ShaderPass extends ShaderCompile {
 			psVersion = ps[0] + '\n';
 			ps.shift();
 		}
-		//TODO:动态切换Attribute
-		//var attibuteMap = Shader3D.getAttributeMapByDefine(defineString,this._owner._attributeMap);
 		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'),this._owner._attributeMap,this);
 
 		cacheShaders[cacheKey] = shader;
@@ -366,26 +196,6 @@ export class ShaderPass extends ShaderCompile {
 		}
 
 		return shader;
-	}
-
-	/**
-	 * 添加标记。
-	 * @param key 标记键。
-	 * @param value 标记值。
-	 */
-	setTag(key: string, value: string): void {
-		if (value)
-			this._tags[key] = value;
-		else
-			delete this._tags[key];
-	}
-
-	/**
-	 * 获取标记值。
-	 * @return key 标记键。
-	 */
-	getTag(key: string): string {
-		return this._tags[key];
 	}
 }
 
