@@ -565,6 +565,7 @@ export class Loader extends EventDispatcher {
 			//处理位图字体
 			if (!data._source) {
 				this._data = data;
+				this._type = Loader.IMAGE;
 				this.event(Event.PROGRESS, 0.5);
 				return this._loadResourceFilter(Loader.IMAGE, this._url.replace(".fnt", ".png"));
 			} else {
@@ -723,6 +724,7 @@ export class Loader extends EventDispatcher {
 	 * 销毁Texture使用的图片资源，保留texture壳，如果下次渲染的时候，发现texture使用的图片资源不存在，则会自动恢复
 	 * 相比clearRes，clearTextureRes只是清理texture里面使用的图片资源，并不销毁texture，再次使用到的时候会自动恢复图片资源
 	 * 而clearRes会彻底销毁texture，导致不能再使用；clearTextureRes能确保立即销毁图片资源，并且不用担心销毁错误，clearRes则采用引用计数方式销毁
+	 * 【注意】如果图片本身在自动合集里面（默认图片小于512*512），内存是不能被销毁的，此图片被大图合集管理器管理
 	 * @param	url	图集地址或者texture地址，比如 Loader.clearTextureRes("res/atlas/comp.atlas"); Loader.clearTextureRes("hall/bg.jpg");
 	 */
 	static clearTextureRes(url: string): void {
