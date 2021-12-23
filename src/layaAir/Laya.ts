@@ -320,6 +320,7 @@ export class Laya {
 	private static enableNative(): void {
 		if (Laya.isNativeRender_enable)
 			return;
+		Config.useRetinalCanvas = true;
 		Laya.isNativeRender_enable = true;
 		if (Render.supportWebGLPlusRendering) {
 			Shader.prototype.uploadTexture2D = function (value: any): void {
