@@ -22,8 +22,8 @@ import { Handler } from "laya/utils/Handler";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Stat } from "laya/utils/Stat";
+import { Utils } from "laya/utils/Utils";
 import Client from "../../Client";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 
 /**
  * Light rotation script.
@@ -58,6 +58,7 @@ export class RealTimeShadow {
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		//show stat.
 		Stat.show();
+
 		Laya.loader.create([
 			"res/threeDimen/staticModel/grid/plane.lh",
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"
@@ -107,7 +108,6 @@ export class RealTimeShadow {
 		// Add Light controll UI.
 		this.loadUI();
 	}
-	
 	/**
 	 * Add one with smoothness and metallic sphere.
 	 */

@@ -59,6 +59,20 @@ export class GaussianDoF extends PostProcessEffect {
         let attributeMap: any = {
             'a_PositionTexcoord': VertexMesh.MESH_POSITION0
         };
+        let uniformMap: any = {
+            'u_MainTex': Shader3D.PERIOD_MATERIAL,
+            'u_OffsetScale': Shader3D.PERIOD_MATERIAL,
+            'u_ZBufferParams': Shader3D.PERIOD_MATERIAL,
+            'u_CoCParams': Shader3D.PERIOD_MATERIAL,
+            'u_CameraDepthTexture': Shader3D.PERIOD_MATERIAL,
+            'u_CameraDepthNormalTexture': Shader3D.PERIOD_MATERIAL,
+            'u_FullCoCTex': Shader3D.PERIOD_MATERIAL,
+            'u_SourceSize': Shader3D.PERIOD_MATERIAL,
+            'u_DownSampleScale': Shader3D.PERIOD_MATERIAL,
+            'u_BlurCoCTex': Shader3D.PERIOD_MATERIAL,
+            'u_MainTex_TexelSize': Shader3D.PERIOD_MATERIAL,
+        };
+
         let shader: Shader3D = Shader3D.add("GaussianDoF");
 
         /**
@@ -68,7 +82,7 @@ export class GaussianDoF extends PostProcessEffect {
          * Camera nearPlane---------FarStart---------FarEnd---------Camera farplane
          *       0         ---------   0    ---------   1  ---------      1
          */
-        let cocSubShader: SubShader = new SubShader(attributeMap);
+        let cocSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(cocSubShader);
         let cocPass: ShaderPass = cocSubShader.addShaderPass(FullScreenVert, CoCFS);
 
@@ -76,7 +90,7 @@ export class GaussianDoF extends PostProcessEffect {
          * Prefilter pass
          * 
          */
-        let prefilterSubShader: SubShader = new SubShader(attributeMap);
+        let prefilterSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(prefilterSubShader);
         let prefilterPass: ShaderPass = prefilterSubShader.addShaderPass(FullScreenVert, PrefilterFS);
 
@@ -84,21 +98,21 @@ export class GaussianDoF extends PostProcessEffect {
         /**
          * blurH pass
          */
-        let blurHSubShader: SubShader = new SubShader(attributeMap);
+        let blurHSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(blurHSubShader);
         let blurHPass: ShaderPass = blurHSubShader.addShaderPass(FullScreenVert, BlurHFS);
 
         /**
          * blurV pass
          */
-        let blurVSubShader: SubShader = new SubShader(attributeMap);
+        let blurVSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(blurVSubShader);
         let blurVPass: ShaderPass = blurVSubShader.addShaderPass(FullScreenVert, BlurVFS);
 
         /**
          * Composite pass
          */
-        let compositeSubShader: SubShader = new SubShader(attributeMap);
+        let compositeSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(compositeSubShader);
         let compositePass: ShaderPass = compositeSubShader.addShaderPass(FullScreenVert, CompositeFS);
 
@@ -156,6 +170,21 @@ export class GaussianDoF extends PostProcessEffect {
         let near = camera.nearPlane;
         this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
         this._shaderData.setVector(GaussianDoF.ZBUFFERPARAMS, this._zBufferParams);
+
+        if (camera.depthTextureMode & DepthTextureMode.Depth) {
+            let depthTexture = camera.depthTexture;
+            this._shaderData.setTexture(GaussianDoF.DEPTHTEXTURE, depthTexture);
+            this._shaderData.removeDefine(GaussianDoF.SHADERDEFINE_DEPTHNORMALTEXTURE);
+        }
+        else if (camera.depthTextureMode & DepthTextureMode.DepthNormals) {
+            let depthNormalTexture: RenderTexture = camera.depthNormalTexture;
+            this._shaderData.setTexture(GaussianDoF.NORMALDEPTHTEXTURE, depthNormalTexture);
+            this._shaderData.addDefine(GaussianDoF.SHADERDEFINE_DEPTHNORMALTEXTURE);
+        }
+        else {
+            camera.depthTextureMode |= DepthTextureMode.Depth;
+        }
+
     }
 
     render(context: PostProcessRenderContext): void {
@@ -171,25 +200,32 @@ export class GaussianDoF extends PostProcessEffect {
         let shaderData: ShaderData = this._shaderData;
 
         let dataTexFormat: RenderTextureFormat = RenderTextureFormat.R16G16B16A16;
+
         // todo fullCoC format: R16
         let fullCoC: RenderTexture = RenderTexture.createFromPool(source.width, source.height, dataTexFormat, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, 1);
+
         // coc pass
         cmd.blitScreenTriangle(source, fullCoC, null, shader, shaderData, 0);
+
         // Prefilter pass
         fullCoC.filterMode = FilterMode.Bilinear;
         this._shaderData.setTexture(GaussianDoF.FULLCOCTEXTURE, fullCoC);
         let prefilterTex: RenderTexture = RenderTexture.createFromPool(source.width / 2, source.height / 2, dataTexFormat, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, 1);
         cmd.blitScreenTriangle(source, prefilterTex, null, shader, shaderData, 1);
+
         // blur
         prefilterTex.filterMode = FilterMode.Bilinear;
         this._sourceSize.setValue(prefilterTex.width, prefilterTex.height, 1.0 / prefilterTex.width, 1.0 / prefilterTex.height);
         this._shaderData.setValueData(GaussianDoF.SOURCESIZE, this._sourceSize);
+
         // blur H
         let blurHTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, 1);
         cmd.blitScreenTriangle(prefilterTex, blurHTex, null, this._shader, this._shaderData, 2);
+
         // blur V
         let blurVTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, 1);
         cmd.blitScreenTriangle(blurHTex, blurVTex, null, this._shader, this._shaderData, 3);
+
         // composite
         blurVTex.filterMode = FilterMode.Bilinear;
         blurVTex.anisoLevel = 1;
@@ -197,13 +233,16 @@ export class GaussianDoF extends PostProcessEffect {
         this._shaderData.setTexture(GaussianDoF.BLURCOCTEXTURE, blurVTex);
         let finalTex: RenderTexture = RenderTexture.createFromPool(source.width, source.height, source.format, source.depthStencilFormat, 1);
         cmd.blitScreenTriangle(source, context.destination, null, this._shader, this._shaderData, 4);
+
         context.source = finalTex;
+
         // recover render texture
         RenderTexture.recoverToPool(fullCoC);
         RenderTexture.recoverToPool(prefilterTex);
         RenderTexture.recoverToPool(blurHTex);
         RenderTexture.recoverToPool(blurVTex);
         context.deferredReleaseTextures.push(finalTex);
+
     }
 
 }

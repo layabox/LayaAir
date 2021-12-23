@@ -24,12 +24,14 @@ export class BlitScreenQuadCMD extends Command {
 	static _SCREENTYPE_QUAD: number = 0;
 	/**@internal */
 	static _SCREENTYPE_TRIANGLE: number = 1;
+
 	/** @internal */
 	private static _compileDefine: DefineDatas = new DefineDatas();
 	/**@internal */
 	private static _pool: any[] = [];
 	/** @internal */
 	private static _defaultOffsetScale: Vector4 = new Vector4(0, 0, 1, 1);
+
 	/**@internal */
 	private _source: BaseTexture = null;
 	/**@internal */
@@ -47,7 +49,7 @@ export class BlitScreenQuadCMD extends Command {
 	/**@internal */
 	private _screenType: number = 0;
 	/**@internal 为了兼容老的Camera里面的一个流程*/
-	private _drawDefineCavans: boolean = false;
+	private _drawDefineCavans:boolean = false;
 
 	/**
 	 * 创建命令流
@@ -59,7 +61,7 @@ export class BlitScreenQuadCMD extends Command {
 	 * @param subShader subshader的节点
 	 * @param screenType 
 	 */
-	static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD, commandbuffer: CommandBuffer = null, definedCanvas: boolean = false): BlitScreenQuadCMD {
+	static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD,commandbuffer:CommandBuffer = null,definedCanvas:boolean = false): BlitScreenQuadCMD {
 		var cmd: BlitScreenQuadCMD;
 		cmd = BlitScreenQuadCMD._pool.length > 0 ? BlitScreenQuadCMD._pool.pop() : new BlitScreenQuadCMD();
 		cmd._source = source;
@@ -80,19 +82,25 @@ export class BlitScreenQuadCMD extends Command {
 	 */
 	run(): void {//TODO:相机的UV
 		var source;
-		if (!this._source) {
-			if (!this._commandBuffer._camera._internalRenderTexture)//source null, Bind define FrameBuffer
+		//当this.source为null时，会自动绑定摄像机内部渲染目标
+		if(!this._source){
+			if(!this._commandBuffer._camera._internalRenderTexture)
 				throw "camera internalRenderTexture is null,please set camera enableBuiltInRenderTexture";
 			source = this._commandBuffer._camera._internalRenderTexture;
-		}else
+		}
+		else
 			source = this._source;
+
 		var shader: Shader3D = this._shader || Command._screenShader;
 		var shaderData: ShaderData = this._shaderData || Command._screenShaderData;
-		var dest: RenderTexture = this._dest ? this._dest : (this._drawDefineCavans ? this._dest : this._commandBuffer._camera._internalRenderTexture);//set dest
-		if (dest) {//set viewport
+		//当this.dest为null时，会自动绑定摄像机内部的渲染目标，如果this._drawDefineCavans为true，会画入默认cavans
+		var dest: RenderTexture =this._dest?this._dest:(this._drawDefineCavans?this._dest:this._commandBuffer._camera._internalRenderTexture);
+
+		if (dest) {
 			LayaGL.instance.viewport(0, 0, dest.width, dest.height);
 			LayaGL.instance.scissor(0, 0, dest.width, dest.height);
-		}else {
+		}
+		else {
 			let camera: Camera = this._commandBuffer._camera;
 			let viewport: Viewport = camera.viewport;
 			let vpH = viewport.height;
@@ -100,34 +108,31 @@ export class BlitScreenQuadCMD extends Command {
 			LayaGL.instance.viewport(viewport.x, vpY, viewport.width, vpH);
 			LayaGL.instance.scissor(viewport.x, vpY, viewport.width, vpH);
 		}
+
 		//TODO:优化
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitScreenQuadCMD._defaultOffsetScale);
 		this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
-		(RenderTexture.currentActive) && (RenderTexture.currentActive._end());
+		//如果已经有绑定的帧buffer  要解绑
+		(RenderTexture.currentActive)&&(RenderTexture.currentActive._end());
 		(dest) && (dest._start());
-		this._commandBuffer && (this.setContext(this._commandBuffer._context));
+		this._commandBuffer&&(this.setContext(this._commandBuffer._context));
 		var context = this._context;
-		var currentPipelineMode: string = context.pipelineMode;
+		var currentPipelineMode:string = context.pipelineMode;
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
 		for (var i: number = 0, n: number = passes.length; i < n; i++) {
-			var pass: ShaderPass = passes[i];
+			var pass:ShaderPass = passes[i];
 			if (pass._pipelineMode !== currentPipelineMode)
 				continue;
 			var comDef: DefineDatas = BlitScreenQuadCMD._compileDefine;
 			shaderData._defineDatas.cloneTo(comDef);
-			var shaderPass: ShaderInstance = passes[i].withCompile(comDef);//TODO:define handle
+			var shaderPass: ShaderInstance = passes[i].withCompile(comDef);//TODO:define处理
 			shaderPass.bind();
-			//scene
-			!!context.scene && shaderPass.uploadUniforms(shaderPass._sceneUniformParamsMap, context.scene._shaderValues, true);
-			//camera
-			!!context.camera && shaderPass.uploadUniforms(shaderPass._cameraUniformParamsMap, context.camera._shaderValues, true);
-			//material
-			shaderPass.uploadUniforms(shaderPass._materialUniformParamsMap, shaderData, true);//TODO:last params handle
+			shaderPass.uploadUniforms(shaderPass._materialUniformParamsMap, shaderData, true);//TODO:最后一个参数处理
 			shaderPass.uploadRenderStateBlendDepth(shaderData);
-			shaderPass.uploadRenderStateFrontFace(shaderData, false, null);//TODO: //invert uv
+			shaderPass.uploadRenderStateFrontFace(shaderData, false, null);//TODO: //利用UV翻转,无需设置为true
 			switch (this._screenType) {
 				case BlitScreenQuadCMD._SCREENTYPE_QUAD:
 					RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();

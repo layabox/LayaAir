@@ -1,4 +1,3 @@
-import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
 
@@ -6,32 +5,10 @@ import { ShaderPass } from "./ShaderPass";
  * <code>SubShader</code> 类用于创建SubShader。
  */
 export class SubShader {
-	private static DefaultShaderStateMap: any = {
-		's_Cull': Shader3D.RENDER_STATE_CULL,
-		's_Blend': Shader3D.RENDER_STATE_BLEND,
-		's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-		's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-		's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-		's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE,
-		's_StencilTest': Shader3D.RENDER_STATE_STENCIL_TEST,
-		's_StencilWrite': Shader3D.RENDER_STATE_STENCIL_WRITE,
-		's_StencilRef': Shader3D.RENDER_STATE_STENCIL_REF,
-		's_StencilOp': Shader3D.RENDER_STATE_STENCIL_OP
-	}
-
-	private static DefaultAttributeMap: any = {
-		'a_Position': VertexMesh.MESH_POSITION0,
-		'a_Normal': VertexMesh.MESH_NORMAL0,
-		'a_Tangent0': VertexMesh.MESH_TANGENT0,
-		'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
-		'a_Texcoord1': VertexMesh.MESH_TEXTURECOORDINATE1,
-		'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
-		'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
-		'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0,
-		'a_SimpleTextureParams': VertexMesh.MESH_SIMPLEANIMATOR
-	}
 	/**@internal */
 	_attributeMap: any;
+	/**@internal */
+	_uniformMap: any;
 
 	/**@internal */
 	_owner: Shader3D;
@@ -45,8 +22,9 @@ export class SubShader {
 	 * @param	attributeMap  顶点属性表。
 	 * @param	uniformMap  uniform属性表。
 	 */
-	constructor(attributeMap: any = SubShader.DefaultAttributeMap) {
+	constructor(attributeMap: any, uniformMap: any) {
 		this._attributeMap = attributeMap;
+		this._uniformMap = uniformMap;
 	}
 
 	/**
@@ -76,7 +54,7 @@ export class SubShader {
 	 * @param stateMap 
 	 * @param pipelineMode 渲染管线模式。 
 	 */
-	addShaderPass(vs: string, ps: string, pipelineMode: string = "Forward", stateMap: { [key: string]: number } = SubShader.DefaultShaderStateMap): ShaderPass {
+	addShaderPass(vs: string, ps: string, stateMap:  {[key:string]:number}  = null, pipelineMode: string = "Forward"): ShaderPass {
 		var shaderPass: ShaderPass = new ShaderPass(this, vs, ps, stateMap);
 		shaderPass._pipelineMode = pipelineMode;
 		this._passes.push(shaderPass);

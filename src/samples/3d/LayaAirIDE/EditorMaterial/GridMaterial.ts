@@ -16,11 +16,26 @@ export class GridMaterial extends Material {
     static STEP: number = Shader3D.propertyNameToID("u_Step");
 
     static __init__(): void {
-        var shader: Shader3D = Shader3D.add("_GridShader",  false, false);
-        var subShader: SubShader = new SubShader();
+        var attributeMap: any = {
+            'a_Position': VertexMesh.MESH_POSITION0,
+            'a_Color': VertexMesh.MESH_COLOR0
+        };
+
+        var uniformMap: any = {
+            'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
+
+            'u_View': Shader3D.PERIOD_CAMERA,
+            'u_CameraPos': Shader3D.PERIOD_CAMERA,
+
+            'u_Color': Shader3D.PERIOD_MATERIAL,
+            'u_Step': Shader3D.PERIOD_MATERIAL // todo  位置
+        };
+
+        var shader: Shader3D = Shader3D.add("_GridShader", attributeMap, uniformMap, false, false);
+        var subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
-        
         var shaderPass: ShaderPass = subShader.addShaderPass(GridLineVS, GridLineFS);
+
         shaderPass.renderState.depthWrite = false;
         shaderPass.renderState.blend = RenderState.BLEND_ENABLE_ALL;
         shaderPass.renderState.srcBlend = RenderState.BLENDPARAM_SRC_ALPHA;

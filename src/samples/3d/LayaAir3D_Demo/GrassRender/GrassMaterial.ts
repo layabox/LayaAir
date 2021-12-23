@@ -24,6 +24,7 @@ export class GrassMaterial extends Material {
     static WINDATILING:number = Shader3D.propertyNameToID("u_WindATiling");
     /**@internal */
     static WINDAWRAP:number = Shader3D.propertyNameToID("u_WindAWrap");
+
 	/**@internal */
     static WINDBINTENSITY: number = Shader3D.propertyNameToID("u_WindBIntensity");
     /**@internal */
@@ -32,6 +33,7 @@ export class GrassMaterial extends Material {
     static WINDBTILING:number = Shader3D.propertyNameToID("u_WindBTiling");
     /**@internal */
     static WINDBWRAP:number = Shader3D.propertyNameToID("u_WindBWrap");
+
     /**@internal */
     static WINDCINTENSITY: number = Shader3D.propertyNameToID("u_WindCIntensity");
     /**@internal */
@@ -40,6 +42,7 @@ export class GrassMaterial extends Material {
     static WINDCTILING:number = Shader3D.propertyNameToID("u_WindCTiling");
     /**@internal */
     static WINDCWRAP:number = Shader3D.propertyNameToID("u_WindCWrap");
+
     //grass hight width
     static GRASSHEIGHT:number = Shader3D.propertyNameToID("u_grassHeight");
     static GRASSWIDTH:number = Shader3D.propertyNameToID("u_grassWidth");
@@ -49,7 +52,10 @@ export class GrassMaterial extends Material {
     static GROUNDCOLOR:number = Shader3D.propertyNameToID("u_GroundColor");
     static ALBEDOTEXTURE:number = Shader3D.propertyNameToID("u_albedoTexture");
 
+
+
     static __init__(): void {
+
         var attributeMap: any = {
             'a_Position': VertexMesh.MESH_POSITION0,
             'a_Normal': VertexMesh.MESH_NORMAL0,
@@ -57,18 +63,68 @@ export class GrassMaterial extends Material {
             'a_Tangent0': VertexMesh.MESH_TANGENT0,
             'a_privotPosition':VertexMesh.MESH_CUSTOME0
         };
-        var shader: Shader3D = Shader3D.add("GrassShader",  false, false);
-        var subShader: SubShader = new SubShader(attributeMap);
+
+        var uniformMap: any = {
+            'u_AlbedoTexture': Shader3D.PERIOD_MATERIAL,
+            'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
+            'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
+            'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
+            'u_CameraDirection': Shader3D.PERIOD_CAMERA,
+            'u_CameraUp': Shader3D.PERIOD_CAMERA,
+            'u_CameraPos': Shader3D.PERIOD_CAMERA,
+            'u_View': Shader3D.PERIOD_CAMERA,
+            'u_Projection': Shader3D.PERIOD_CAMERA,
+            "u_Time": Shader3D.PERIOD_SCENE,
+            'u_ViewProjection': Shader3D.PERIOD_CAMERA,
+            //wind
+            "u_WindAIntensity":Shader3D.PERIOD_MATERIAL,
+            "u_WindAFrequency":Shader3D.PERIOD_MATERIAL,
+            "u_WindATiling":Shader3D.PERIOD_MATERIAL,
+            "u_WindAWrap":Shader3D.PERIOD_MATERIAL,
+            "u_WindBIntensity":Shader3D.PERIOD_MATERIAL,
+            "u_WindBFrequency":Shader3D.PERIOD_MATERIAL,
+            "u_WindBTiling":Shader3D.PERIOD_MATERIAL,
+            "u_WindBWrap":Shader3D.PERIOD_MATERIAL,
+            "u_WindCIntensity":Shader3D.PERIOD_MATERIAL,
+            "u_WindCFrequency":Shader3D.PERIOD_MATERIAL,
+            "u_WindCTiling":Shader3D.PERIOD_MATERIAL,
+            "u_WindCWrap":Shader3D.PERIOD_MATERIAL,
+            //grass
+            "u_grassHeight":Shader3D.PERIOD_MATERIAL,
+            "u_grassWidth":Shader3D.PERIOD_MATERIAL,
+            "u_BoundSize":Shader3D.PERIOD_MATERIAL,
+            "u_GroundColor":Shader3D.PERIOD_MATERIAL,
+            "u_albedoTexture":Shader3D.PERIOD_MATERIAL
+
+        };
+
+        var stateMap = {
+            's_Cull': Shader3D.RENDER_STATE_CULL,
+            's_Blend': Shader3D.RENDER_STATE_BLEND,
+            's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
+            's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
+            's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
+            's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
+        };
+
+        var shader: Shader3D = Shader3D.add("GrassShader", attributeMap, uniformMap, false, false);
+        var subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
-        var pass: ShaderPass = subShader.addShaderPass(UnityGrassVS, UnityGrassFS,"Forward");
+        var pass: ShaderPass = subShader.addShaderPass(UnityGrassVS, UnityGrassFS, stateMap, "Forward");
         pass.renderState.cull = RenderState.CULL_BACK;
+
     }
 
+
+
+
     constructor() {
+
         if (!GrassMaterial.hasInited) {
             GrassMaterial.__init__();
             GrassMaterial.hasInited = true;
         }
+
         super();
         this.setShaderName("GrassShader");
         // todo  渲染队列选择
@@ -128,5 +184,7 @@ export class GrassMaterial extends Material {
     set albedoTexture(value:BaseTexture){
         this._shaderValues.setTexture(GrassMaterial.ALBEDOTEXTURE,value);
     }
+
+
     
 }
