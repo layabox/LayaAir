@@ -12,6 +12,7 @@ import OutlineVS from "../customShader/outline.vs";
 import Outline02FS from "../customShader/outline02.fs";
 import Outline02VS from "../customShader/outline02.vs";
 
+
 /**
  * ...
  * @author ...
@@ -76,8 +77,22 @@ export class MultiplePassOutlineMaterial extends Material {
 
 	static initShader(): void {
 		MultiplePassOutlineMaterial.__init__();
+		var attributeMap: any = {
+			'a_Position': VertexMesh.MESH_POSITION0,
+			'a_Normal': VertexMesh.MESH_NORMAL0,
+			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0
+		};
+		var uniformMap: any = {
+			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
+			'u_WorldMat': Shader3D.PERIOD_SPRITE,
+			'u_OutlineWidth': Shader3D.PERIOD_MATERIAL,
+			'u_OutlineLightness': Shader3D.PERIOD_MATERIAL,
+			'u_OutlineColor': Shader3D.PERIOD_MATERIAL,
+			'u_AlbedoTexture': Shader3D.PERIOD_MATERIAL
+		};
+
 		var customShader: Shader3D = Shader3D.add("MultiplePassOutlineShader");
-		var subShader: SubShader = new SubShader();
+		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		customShader.addSubShader(subShader);
 		var pass1: ShaderPass = subShader.addShaderPass(OutlineVS, OutlineFS);
 		pass1.renderState.cull = RenderState.CULL_FRONT;

@@ -50,10 +50,38 @@ export class AtmosphereSkyMaterial extends Material{
     static init(){
         AtmosphereSkyMaterial.ISINIT = true;
         Shader3D.addInclude("SkyUtil.glsl", SkyUtil);
+        let attributeMap = {
+			'a_Position': VertexMesh.MESH_POSITION0
+		};
+		let uniformMap = {
+			'u_kradius': Shader3D.PERIOD_MATERIAL,
+			'u_kScale': Shader3D.PERIOD_MATERIAL,
+			'u_k4PI': Shader3D.PERIOD_MATERIAL,
+			'u_kSun': Shader3D.PERIOD_MATERIAL,
+			
+            'u_SunSkyColor': Shader3D.PERIOD_MATERIAL,
+			'u_MoonSkyColor': Shader3D.PERIOD_MATERIAL,
+            'u_LocalSunDirection': Shader3D.PERIOD_MATERIAL,
+			'u_LocalMoonDirection': Shader3D.PERIOD_MATERIAL,
+			
+            'u_kBetaMie': Shader3D.PERIOD_MATERIAL,
+			'u_MoonHaloPower': Shader3D.PERIOD_MATERIAL,
+			'u_MoonHaloColor': Shader3D.PERIOD_MATERIAL,
+			'u_GroundColor': Shader3D.PERIOD_MATERIAL,
+
+            'u_FogColor': Shader3D.PERIOD_MATERIAL,
+            'u_Contrast':Shader3D.PERIOD_MATERIAL,
+			'u_Brightness': Shader3D.PERIOD_MATERIAL,
+			'u_Fogginess': Shader3D.PERIOD_MATERIAL,
+			'u_noonColor': Shader3D.PERIOD_MATERIAL,
+
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,//TODO:优化
+		};
 		let shader = Shader3D.add("AtmosphereSky");
-		let subShader = new SubShader();
+		let subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(LensFlaresVS, LensFlaresFS);
+
     }
     constructor(){
         if(!AtmosphereSkyMaterial.ISINIT){

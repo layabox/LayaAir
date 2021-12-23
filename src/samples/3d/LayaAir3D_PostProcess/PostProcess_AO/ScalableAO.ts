@@ -11,6 +11,7 @@ import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ShaderData } from "laya/d3/shader/ShaderData";
+import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "laya/resource/RenderTextureFormat";
 import { WarpMode } from "laya/resource/WrapMode";
@@ -52,16 +53,41 @@ export class ScalableAO extends PostProcessEffect {
         let attributeMap: any = {
             'a_PositionTexcoord': VertexMesh.MESH_POSITION0
         };
+        let uniformMap:any = {
+            'u_MainTex': Shader3D.PERIOD_MATERIAL,
+            'u_MainTex_TexelSize': Shader3D.PERIOD_MATERIAL,
+            'u_OffsetScale': Shader3D.PERIOD_MATERIAL,
+            'u_CameraDepthTexture': Shader3D.PERIOD_MATERIAL,
+            'u_CameraDepthNormalsTexture': Shader3D.PERIOD_MATERIAL,
+            'u_ZBufferParams': Shader3D.PERIOD_MATERIAL,
+            'u_Projection': Shader3D.PERIOD_MATERIAL,
+            'u_ProjectionParams': Shader3D.PERIOD_MATERIAL,
+            'u_Time': Shader3D.PERIOD_MATERIAL,
+            'u_PlugTime': Shader3D.PERIOD_MATERIAL,
+
+            'u_AOParams': Shader3D.PERIOD_MATERIAL,
+            'u_SourceTex': Shader3D.PERIOD_MATERIAL
+        }
+
         let shader: Shader3D = Shader3D.add("ScalableAO");
-        let subShader: SubShader = new SubShader(attributeMap);
+        let subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(BlitScreenVS, FragAO);
+
         //BlurShader
         attributeMap = {
             'a_PositionTexcoord': VertexMesh.MESH_POSITION0
         };
+        uniformMap = {
+            'u_MainTex': Shader3D.PERIOD_MATERIAL,
+            'u_OffsetScale': Shader3D.PERIOD_MATERIAL,
+            'u_View': Shader3D.PERIOD_MATERIAL,
+            'u_Projection': Shader3D.PERIOD_MATERIAL,
+            'u_Delty':Shader3D.PERIOD_MATERIAL,
+            'u_MainTex_TexelSize':Shader3D.PERIOD_MATERIAL
+        };
         shader = Shader3D.add("AOBlurHorizontal");
-        subShader = new SubShader(attributeMap);
+        subShader = new SubShader(attributeMap,uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(BlitScreenVS,AoBlurHorizontal);
 
@@ -69,19 +95,31 @@ export class ScalableAO extends PostProcessEffect {
         attributeMap = {
             'a_PositionTexcoord': VertexMesh.MESH_POSITION0
         };
+        uniformMap = {
+            'u_MainTex': Shader3D.PERIOD_MATERIAL,
+            'u_OffsetScale': Shader3D.PERIOD_MATERIAL,
+            'u_View': Shader3D.PERIOD_MATERIAL,
+            'u_Projection': Shader3D.PERIOD_MATERIAL,
+            'u_Delty':Shader3D.PERIOD_MATERIAL,
+            'u_MainTex_TexelSize':Shader3D.PERIOD_MATERIAL,
+            'u_AOColor':Shader3D.PERIOD_MATERIAL,
+            'u_compositionAoTexture':Shader3D.PERIOD_MATERIAL
+        };
         shader = Shader3D.add("AOComposition");
-        subShader = new SubShader(attributeMap);
+        subShader = new SubShader(attributeMap,uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(BlitScreenVS,AOComposition);
 
     }
 
     //_aoColor:Vector3 = new Vector3();
+
     set aoColor(value:Vector3){
         this._shaderData.setVector3(ScalableAO.AOColor,value);
     }
 
     set instance(value:number){
+        //this._shaderData.setNumber(ScalableAO.AOParams,value);
         this._aoParams.x = value;
         this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
     }
@@ -102,6 +140,32 @@ export class ScalableAO extends PostProcessEffect {
         this._shaderData.setVector(BaseCamera.DEPTHZBUFFERPARAMS, new Vector4());
         this._aoBlurHorizontalShader = Shader3D.find("AOBlurHorizontal");
         this._aoComposition = Shader3D.find("AOComposition");
+
+    }
+    
+    setUniform(camera: Camera) {
+        let scene: Scene3D = camera.scene;
+        let shaderData: ShaderData = this._shaderData;
+        // camera
+        //@ts-ignore
+        shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, camera._shaderValues.getMatrix4x4(BaseCamera.VIEWPROJECTMATRIX));
+        //@ts-ignore
+        shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, camera._shaderValues.getMatrix4x4(BaseCamera.PROJECTMATRIX));
+        //@ts-ignore
+        shaderData.setVector(BaseCamera.DEPTHZBUFFERPARAMS, camera._shaderValues.getVector(BaseCamera.DEPTHZBUFFERPARAMS));
+        //@ts-ignore
+        shaderData.setVector(BaseCamera.PROJECTION_PARAMS, camera._shaderValues.getVector(BaseCamera.PROJECTION_PARAMS));
+        //@ts-ignore
+        shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, camera._shaderValues.getMatrix4x4(BaseCamera.VIEWMATRIX));
+        //@ts-ignore
+        shaderData.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera._shaderValues.getTexture(DepthPass.DEPTHNORMALSTEXTURE));
+        //@ts-ignore
+        shaderData.setTexture(DepthPass.DEPTHTEXTURE, camera._shaderValues.getTexture(DepthPass.DEPTHTEXTURE));
+        shaderData.setVector2(ScalableAO.BlurDelty,ScalableAO.deltyHorizontal);
+        //@ts-ignore
+        shaderData.setNumber(Scene3D.TIME, scene._shaderValues.getNumber(Scene3D.TIME));
+
+
 
     }
 
@@ -138,6 +202,7 @@ export class ScalableAO extends PostProcessEffect {
 
         let shader: Shader3D = this._shader;
         let shaderData: ShaderData = this._shaderData;
+        this.setUniform(camera);
         //depthTexture;
         //depthNormalTexture;
         cmd.blitScreenTriangle(null, finalTex, null, shader, shaderData, 0);

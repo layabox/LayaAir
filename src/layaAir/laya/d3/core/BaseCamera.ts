@@ -12,96 +12,55 @@ import { ShaderData } from "../shader/ShaderData";
 import { Sprite3D } from "./Sprite3D";
 import { Scene3D } from "./scene/Scene3D";
 import { ShaderDefine } from "../shader/ShaderDefine";
-import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class BaseCamera extends Sprite3D {
-	/** @internal CameraUniformBlock Map */
-	static cameraUniformMap: CommandUniformMap;
-	/**Camera Uniform PropertyID */
 	/**@internal */
-	static CAMERAPOS: number;
+	static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
 	/**@internal */
-	static VIEWMATRIX: number;
+	static CAMERAPOS: number = Shader3D.propertyNameToID("u_CameraPos");
 	/**@internal */
-	static PROJECTMATRIX: number;
+	static VIEWMATRIX: number = Shader3D.propertyNameToID("u_View");
 	/**@internal */
-	static VIEWPROJECTMATRIX: number;
+	static PROJECTMATRIX: number = Shader3D.propertyNameToID("u_Projection");
 	/**@internal */
-	static CAMERADIRECTION: number;
+	static VIEWPROJECTMATRIX: number = Shader3D.propertyNameToID("u_ViewProjection");
 	/**@internal */
-	static CAMERAUP: number;
+	static CAMERADIRECTION: number = Shader3D.propertyNameToID("u_CameraDirection");
 	/**@internal */
-	static VIEWPORT: number;
+	static CAMERAUP: number = Shader3D.propertyNameToID("u_CameraUp");
 	/**@internal */
-	static PROJECTION_PARAMS;
+	static VIEWPORT: number = Shader3D.propertyNameToID("u_Viewport");
 	/**@internal */
-	static DEPTHTEXTURE: number;
+	static PROJECTION_PARAMS: number = Shader3D.propertyNameToID("u_ProjectionParams");
 	/**@internal */
-	static DEPTHNORMALSTEXTURE: number;
+	static DEPTHTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthTexture");
 	/**@internal */
-	static DEPTHZBUFFERPARAMS: number;
-	/**Camera Define*/
+	static DEPTHNORMALSTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
 	/**@internal */
-	static SHADERDEFINE_DEPTH: ShaderDefine;
+	static DEPTHZBUFFERPARAMS:number = Shader3D.propertyNameToID("u_ZBufferParams");
+
 	/**@internal */
-	static SHADERDEFINE_DEPTHNORMALS: ShaderDefine;
+	static SHADERDEFINE_DEPTH:ShaderDefine = Shader3D.getDefineByName("DEPTHMAP");
+	/**@internal */
+	static SHADERDEFINE_DEPTHNORMALS:ShaderDefine = Shader3D.getDefineByName("DEPTHNORMALSMAP")
+
 	/**渲染模式,延迟光照渲染，暂未开放。*/
 	static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
 	/**渲染模式,前向渲染。*/
 	static RENDERINGTYPE_FORWARDRENDERING: string = "FORWARDRENDERING";
-	/**@internal */
+
 	protected static _invertYScaleMatrix: Matrix4x4 = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);//Matrix4x4.createScaling(new Vector3(1, -1, 1), _invertYScaleMatrix);
-	/**@internal */
 	protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
-	/**@internal */
 	protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
-	/**@internal */
-	static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
 
-	/**
-	 * @internal
-	 * shaderInfo init
-	 */
-	static shaderValueInit() {
-		BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
-		BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
-		BaseCamera.cameraUniformMap = CommandUniformMap.createGlobalUniformMap("BaseCamera");
-		BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.CAMERAPOS, "u_CameraPos");
-		BaseCamera.VIEWMATRIX = Shader3D.propertyNameToID("u_View");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.VIEWMATRIX, "u_View");
-		BaseCamera.PROJECTMATRIX = Shader3D.propertyNameToID("u_Projection");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.PROJECTMATRIX, "u_Projection");
-		BaseCamera.VIEWPROJECTMATRIX = Shader3D.propertyNameToID("u_ViewProjection");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.VIEWPROJECTMATRIX, "u_ViewProjection");
-		BaseCamera.CAMERADIRECTION = Shader3D.propertyNameToID("u_CameraDirection");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.CAMERADIRECTION, "u_CameraDirection");
-		BaseCamera.CAMERAUP = Shader3D.propertyNameToID("u_CameraUp");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.CAMERAUP, "u_CameraUp");
-		BaseCamera.VIEWPORT = Shader3D.propertyNameToID("u_Viewport");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.VIEWPORT, "u_Viewport");
-		BaseCamera.PROJECTION_PARAMS = Shader3D.propertyNameToID("u_ProjectionParams");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.PROJECTION_PARAMS, "u_ProjectionParams");
-		BaseCamera.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.DEPTHTEXTURE, "u_CameraDepthTexture");
-		BaseCamera.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.DEPTHNORMALSTEXTURE, "u_CameraDepthNormalsTexture");
-		BaseCamera.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.DEPTHZBUFFERPARAMS, "u_ZBufferParams");
-	}
 
-	/**
-	 * Camera Init
-	 */
-	static __init__() {
-		BaseCamera.shaderValueInit();
-	}
 
 	/** @internal 渲染顺序。*/
 	_renderingOrder: number
+
 	/** 近裁剪面。*/
 	protected _nearPlane: number;
 	/** 远裁剪面。*/
@@ -110,14 +69,13 @@ export class BaseCamera extends Sprite3D {
 	private _fieldOfView: number;
 	/** 正交投影的垂直尺寸。*/
 	private _orthographicVerticalSize: number;
-	/** skyRender */
 	private _skyRenderer: SkyRenderer = new SkyRenderer();
-	/** 前向量*/
 	private _forward: Vector3 = new Vector3();
-	/** up向量 */
 	private _up: Vector3 = new Vector3();
-	/** 是否正交 */
+
+	/**@internal */
 	protected _orthographic: boolean;
+
 	/**@internal 是否使用用户自定义投影矩阵，如果使用了用户投影矩阵，摄像机投影矩阵相关的参数改变则不改变投影矩阵的值，需调用ResetProjectionMatrix方法。*/
 	protected _useUserProjectionMatrix: boolean;
 
@@ -130,6 +88,8 @@ export class BaseCamera extends Sprite3D {
 	cullingMask: number;
 	/** 渲染时是否用遮挡剔除。 */
 	useOcclusionCulling: boolean;
+
+	
 
 	/**
 	 * 天空渲染器。
@@ -234,28 +194,6 @@ export class BaseCamera extends Sprite3D {
 		this.useOcclusionCulling = true;
 	}
 
-
-
-	/**
-	 * @internal
-	 */
-	protected _calculateProjectionMatrix(): void {
-	}
-
-	/**
-	 * @internal
-	 */
-	protected _onScreenSizeChanged(): void {
-		this._calculateProjectionMatrix();
-	}
-
-	/**
-	 * @internal
-	 */
-	protected _create(): Node {
-		return new BaseCamera();
-	}
-
 	/**
 	 * 通过RenderingOrder属性对摄像机机型排序。
 	 * @internal
@@ -272,6 +210,20 @@ export class BaseCamera extends Sprite3D {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _calculateProjectionMatrix(): void {
+
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _onScreenSizeChanged(): void {
+		this._calculateProjectionMatrix();
 	}
 
 	/**
@@ -333,6 +285,42 @@ export class BaseCamera extends Sprite3D {
 		this._calculateProjectionMatrix();
 	}
 
+	//public void BoundingFrustumViewSpace(Vector3[] cornersViewSpace)
+	//{
+	//if (cornersViewSpace.Length != 4)
+	//throw new ArgumentOutOfRangeException("cornersViewSpace");
+	//boundingFrustum.Matrix = ViewMatrix * ProjectionMatrix;
+	//boundingFrustum.GetCorners(cornersWorldSpace);
+	//// Transform form world space to view space
+	//for (int i = 0; i < 4; i++)
+	//{
+	//cornersViewSpace[i] = Vector3.Transform(cornersWorldSpace[i + 4], ViewMatrix);
+	//}
+	//
+	//// Swap the last 2 values.
+	//Vector3 temp = cornersViewSpace[3];
+	//cornersViewSpace[3] = cornersViewSpace[2];
+	//cornersViewSpace[2] = temp;
+	//} // BoundingFrustumViewSpace
+
+	//public void BoundingFrustumWorldSpace(Vector3[] cornersWorldSpaceResult)
+	//{
+	//if (cornersWorldSpaceResult.Length != 4)
+	//throw new ArgumentOutOfRangeException("cornersViewSpace");
+	//boundingFrustum.Matrix = ViewMatrix * ProjectionMatrix;
+	//boundingFrustum.GetCorners(cornersWorldSpace);
+	//// Transform form world space to view space
+	//for (int i = 0; i < 4; i++)
+	//{
+	//cornersWorldSpaceResult[i] = cornersWorldSpace[i + 4];
+	//}
+	//
+	//// Swap the last 2 values.
+	//Vector3 temp = cornersWorldSpaceResult[3];
+	//cornersWorldSpaceResult[3] = cornersWorldSpaceResult[2];
+	//cornersWorldSpaceResult[2] = temp;
+	//} // BoundingFrustumWorldSpace
+
 	/**
 	 * @inheritDoc
 	 * @override
@@ -387,6 +375,13 @@ export class BaseCamera extends Sprite3D {
 
 		Laya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);
 		super.destroy(destroyChild);
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _create(): Node {
+		return new BaseCamera();
 	}
 
 	/** @deprecated plaease use CameraClearFlags.SolidColor instead.*/

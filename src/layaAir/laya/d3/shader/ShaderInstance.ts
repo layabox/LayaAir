@@ -1,4 +1,3 @@
-import { ShaderInstanceBase } from "../../display/ShaderInstanceBase";
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { LayaGL } from "../../layagl/LayaGL";
 import { LayaGLRunner } from "../../layagl/LayaGLRunner";
@@ -11,7 +10,6 @@ import { Material } from "../core/material/Material";
 import { RenderState } from "../core/material/RenderState";
 import { BaseRender } from "../core/render/BaseRender";
 import { Scene3D } from "../core/scene/Scene3D";
-import { CommandUniformMap, Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
@@ -25,16 +23,30 @@ import { ShaderVariable } from "./ShaderVariable";
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class ShaderInstance extends ShaderInstanceBase {
-
+export class ShaderInstance extends Resource {
+	/**@internal */
+	private _attributeMap: {[key:string]:number};
+	/**@internal */
+	private _uniformMap: {[key:string]:number};
 	/**@internal miner 动态添加的uniformMap*/
 	private _globaluniformMap:{[key:string]:number};
 	/**@internal */
 	private _shaderPass: ShaderPass;
 
-	
+	/**@internal */
+	private _vs: string
+	/**@internal */
+	private _ps: string;
+	/**@internal */
+	private _curActTexIndex: number;
 
-	
+	/**@internal */
+	private _vshader: any;
+	/**@internal */
+	private _pshader: any
+	/**@internal */
+	private _program: any;
+
 	/**@internal */
 	_sceneUniformParamsMap: CommandEncoder;
 	/**@internal */
@@ -52,74 +64,143 @@ export class ShaderInstance extends ShaderInstanceBase {
 	_uploadMark: number = -1;
 	/**@internal */
 	_uploadMaterial: Material;
-	/**@internal RenderIDTODO*/
+	/**@internal */
 	_uploadRender: BaseRender;
 	/** @internal */
 	_uploadRenderType: number = -1;
-	/**@internal CamneraTOD*/
+	/**@internal */
 	_uploadCameraShaderValue: ShaderData;
-	/**@internal SceneIDTODO*/
+	/**@internal */
 	_uploadScene: Scene3D;
 
 	/**
 	 * 创建一个 <code>ShaderInstance</code> 实例。
 	 */
-	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderPass) {
-		
-		
-		super(vs,ps,attributeMap);
+	constructor(vs: string, ps: string, attributeMap: any, uniformMap: any, shaderPass: ShaderPass) {
+
+		super();
+		this._vs = vs;
+		this._ps = ps;
+		this._attributeMap = attributeMap;
+		this._uniformMap = uniformMap;
 		this._shaderPass = shaderPass;
+		this._globaluniformMap = {};
 		this._create();
 		this.lock = true;
 	}
 
 	/**
-	 * @internal TODO3D
+	 *@internal
 	 */
-	protected _create(): void {
-		super._create();
-		this.splitUnifromData();
-		//Native版本分别存入funid、webglFunid,location、type、offset, +4是因为第一个存长度了 所以是*4*5+4
-		this._sceneUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder();
-		this._cameraUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder();
-		this._spriteUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder();
-		this._materialUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder();
-		const sceneParams = CommandUniformMap.createGlobalUniformMap("Scene3D");
-		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
-		const cameraParams = CommandUniformMap.createGlobalUniformMap("BaseCamera");
-		const customParams = CommandUniformMap.createGlobalUniformMap("Custom");
-		let i,n;
-		let data = this._uniformMap.getArrayData();
-		for(i=0,n=this._uniformMap.getCount();i<n;i++){
-			let one:ShaderVariable = data[i];
-			if(sceneParams.hasPtrID(one.dataOffset)){
-				this._sceneUniformParamsMap.addShaderUniform(one);
-			}else if(cameraParams.hasPtrID(one.dataOffset)){
-				this._cameraUniformParamsMap.addShaderUniform(one);
-			}else if(spriteParms.hasPtrID(one.dataOffset)){
-				this._spriteUniformParamsMap.addShaderUniform(one);
-			}else if(customParams.hasPtrID(one.dataOffset)){
-				this._customUniformParamsMap||(this._customUniformParamsMap = []);
-				this._customUniformParamsMap[one.dataOffset] = one;
-			}else{
-				this._materialUniformParamsMap.addShaderUniform(one);
+	private _create(): void {
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		this._program = gl.createProgram();
+		this._vshader = this._createShader(gl, this._vs, gl.VERTEX_SHADER);
+		this._pshader = this._createShader(gl, this._ps, gl.FRAGMENT_SHADER);
+		gl.attachShader(this._program, this._vshader);
+		gl.attachShader(this._program, this._pshader);
+
+		for (var k in this._attributeMap)//根据声明调整location,便于VAO使用
+			gl.bindAttribLocation(this._program, this._attributeMap[k], k);
+
+		gl.linkProgram(this._program);
+		if (!Render.isConchApp && Shader3D.debugMode && !gl.getProgramParameter(this._program, gl.LINK_STATUS))
+			throw gl.getProgramInfoLog(this._program);
+
+		var sceneParms: any[] = [];
+		var cameraParms: any[] = [];
+		var spriteParms: any[] = [];
+		var materialParms: any[] = [];
+		var customParms: any[] = [];
+		this._customUniformParamsMap = [];
+
+		var nUniformNum: number = gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS);
+		WebGLContext.useProgram(gl, this._program);
+		this._curActTexIndex = 0;
+		var one: ShaderVariable, i: number, n: number;
+		for (i = 0; i < nUniformNum; i++) {
+			var uniformData: any = gl.getActiveUniform(this._program, i);
+			var uniName: string = uniformData.name;
+			one = new ShaderVariable();
+			one.location = gl.getUniformLocation(this._program, uniName);
+
+			if (uniName.indexOf('[0]') > 0) {
+				one.name = uniName = uniName.substr(0, uniName.length - 3);
+				one.isArray = true;
+			} else {
+				one.name = uniName;
+				one.isArray = false;
 			}
+			one.type = uniformData.type;
+			this._addShaderUnifiormFun(one);
+			var uniformPeriod: number = this._uniformMap[uniName];
+			if (uniformPeriod != null) {
+				one.dataOffset = Shader3D.propertyNameToID(uniName);
+				switch (uniformPeriod) {
+					case Shader3D.PERIOD_CUSTOM:
+						customParms.push(one);
+						break;
+					case Shader3D.PERIOD_MATERIAL:
+						materialParms.push(one);
+						break;
+					case Shader3D.PERIOD_SPRITE:
+						spriteParms.push(one);
+						break;
+					case Shader3D.PERIOD_CAMERA:
+						cameraParms.push(one);
+						break;
+					case Shader3D.PERIOD_SCENE:
+						sceneParms.push(one);
+						break;
+					default:
+						throw new Error("Shader3D: period is unkonw.");
+				}
+			}
+			else{
+				//没有涉及到的uniform加入sceneParms,全局传入
+				one.dataOffset = Shader3D.propertyNameToID(uniName);
+				this._globaluniformMap[uniName] = Shader3D.PERIOD_SCENE;
+				sceneParms.push(one);
+			}
+		}
+
+		//Native版本分别存入funid、webglFunid,location、type、offset, +4是因为第一个存长度了 所以是*4*5+4
+		this._sceneUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder(sceneParms.length * 4 * 5 + 4, 64, true);
+		for (i = 0, n = sceneParms.length; i < n; i++)
+			this._sceneUniformParamsMap.addShaderUniform(sceneParms[i]);
+
+		this._cameraUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder(cameraParms.length * 4 * 5 + 4, 64, true);
+		for (i = 0, n = cameraParms.length; i < n; i++)
+			this._cameraUniformParamsMap.addShaderUniform(cameraParms[i]);
+
+		this._spriteUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder(spriteParms.length * 4 * 5 + 4, 64, true);
+		for (i = 0, n = spriteParms.length; i < n; i++)
+			this._spriteUniformParamsMap.addShaderUniform(spriteParms[i]);
+
+		this._materialUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder(materialParms.length * 4 * 5 + 4, 64, true);
+		for (i = 0, n = materialParms.length; i < n; i++)
+			this._materialUniformParamsMap.addShaderUniform(materialParms[i]);
+
+		this._customUniformParamsMap.length = customParms.length;
+		for (i = 0, n = customParms.length; i < n; i++) {
+			var custom: ShaderVariable = customParms[i];
+			this._customUniformParamsMap[custom.dataOffset] = custom;
 		}
 		var stateMap: {[key:string]:number} = this._shaderPass._stateMap;
 		for (var s in stateMap)
 			this._stateParamsMap[stateMap[s]] = Shader3D.propertyNameToID(s);
 	}
 
-	protected splitUnifromData() {
-		var sceneParms: any[] = [];
-		var cameraParms: any[] = [];
-		var spriteParms: any[] = [];
-		var materialParms: any[] = [];
-		var customParms: any[] = [];
-    }
-
-
-	
+	/**
+	 * @internal
+	 */
+	private _getRenderState(shaderDatas: any, stateIndex: number): any {
+		var stateID: any = this._stateParamsMap[stateIndex];
+		if (stateID == null)
+			return null;
+		else
+			return shaderDatas[stateID];
+	}
 
 	/**
 	 * @inheritDoc
@@ -133,19 +214,344 @@ export class ShaderInstance extends ShaderInstanceBase {
 		this._setGPUMemory(0);
 		this._curActTexIndex = 0;
 	}
-	
-
-	//miner RenderState  removeTODO
 
 	/**
 	 * @internal
 	 */
-	 private _getRenderState(shaderDatas: any, stateIndex: number): any {
-		var stateID: any = this._stateParamsMap[stateIndex];
-		if (stateID == null)
-			return null;
-		else
-			return shaderDatas[stateID];
+	_addShaderUnifiormFun(one: ShaderVariable): void {
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		one.caller = this;
+		var isArray: boolean = one.isArray;
+		switch (one.type) {
+			case gl.BOOL:
+				one.fun = this._uniform1i;
+				one.uploadedValue = new Array(1);
+				break;
+			case gl.INT:
+				one.fun = isArray ? this._uniform1iv : this._uniform1i;//TODO:优化
+				one.uploadedValue = new Array(1);
+				break;
+			case gl.FLOAT:
+				one.fun = isArray ? this._uniform1fv : this._uniform1f;
+				one.uploadedValue = new Array(1);
+				break;
+			case gl.FLOAT_VEC2:
+				one.fun = isArray ? this._uniform_vec2v : this._uniform_vec2;
+				one.uploadedValue = new Array(2);
+				break;
+			case gl.FLOAT_VEC3:
+				one.fun = isArray ? this._uniform_vec3v : this._uniform_vec3;
+				one.uploadedValue = new Array(3);
+				break;
+			case gl.FLOAT_VEC4:
+				one.fun = isArray ? this._uniform_vec4v : this._uniform_vec4;
+				one.uploadedValue = new Array(4);
+				break;
+			case gl.FLOAT_MAT2:
+				one.fun = this._uniformMatrix2fv;
+				break;
+			case gl.FLOAT_MAT3:
+				one.fun = this._uniformMatrix3fv;
+				break;
+			case gl.FLOAT_MAT4:
+				one.fun = isArray ? this._uniformMatrix4fv : this._uniformMatrix4f;
+				break;
+			case gl.SAMPLER_2D:
+			case (<WebGL2RenderingContext>gl).SAMPLER_2D_SHADOW:
+				gl.uniform1i(one.location, this._curActTexIndex);
+				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
+				one.fun = this._uniform_sampler2D;
+				break;
+			case 0x8b5f://sampler3D
+				gl.uniform1i(one.location, this._curActTexIndex);
+				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
+				one.fun = this._uniform_sampler3D;
+				break;
+			case gl.SAMPLER_CUBE:
+				gl.uniform1i(one.location, this._curActTexIndex);
+				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
+				one.fun = this._uniform_samplerCube;
+				break;
+			default:
+				throw new Error("compile shader err!");
+				break;
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	private _createShader(gl: WebGLRenderingContext, str: string, type: any): any {
+		var shader: any = gl.createShader(type);
+		gl.shaderSource(shader, str);
+		gl.compileShader(shader);
+		if (Shader3D.debugMode && !gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+			throw gl.getShaderInfoLog(shader);
+
+		return shader;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform1f(one: any, value: any): number {
+		var uploadedValue: any[] = one.uploadedValue;
+		if (uploadedValue[0] !== value) {
+			LayaGL.instance.uniform1f(one.location, uploadedValue[0] = value);
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform1fv(one: any, value: any): number {
+		if (value.length < 4) {
+			var uploadedValue: any[] = one.uploadedValue;
+			if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2] || uploadedValue[3] !== value[3]) {
+				LayaGL.instance.uniform1fv(one.location, value);
+				uploadedValue[0] = value[0];
+				uploadedValue[1] = value[1];
+				uploadedValue[2] = value[2];
+				uploadedValue[3] = value[3];
+				return 1;
+			}
+			return 0;
+		} else {
+			LayaGL.instance.uniform1fv(one.location, value);
+			return 1;
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec2(one: any, v: Vector2): number {
+		var uploadedValue: any[] = one.uploadedValue;
+		if (uploadedValue[0] !== v.x || uploadedValue[1] !== v.y) {
+			LayaGL.instance.uniform2f(one.location, uploadedValue[0] = v.x, uploadedValue[1] = v.y);
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec2v(one: any, value: Float32Array): number {
+		if (value.length < 2) {
+			var uploadedValue: any[] = one.uploadedValue;
+			if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2] || uploadedValue[3] !== value[3]) {
+				LayaGL.instance.uniform2fv(one.location, value);
+				uploadedValue[0] = value[0];
+				uploadedValue[1] = value[1];
+				uploadedValue[2] = value[2];
+				uploadedValue[3] = value[3];
+				return 1;
+			}
+			return 0;
+		} else {
+			LayaGL.instance.uniform2fv(one.location, value);
+			return 1;
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec3(one: any, v: Vector3): number {
+		var uploadedValue: any[] = one.uploadedValue;
+		if (uploadedValue[0] !== v.x || uploadedValue[1] !== v.y || uploadedValue[2] !== v.z) {
+			LayaGL.instance.uniform3f(one.location, uploadedValue[0] = v.x, uploadedValue[1] = v.y, uploadedValue[2] = v.z);
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec3v(one: any, v: Float32Array): number {
+		LayaGL.instance.uniform3fv(one.location, v);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec4(one: any, v: Vector4): number {
+		var uploadedValue: any[] = one.uploadedValue;
+		if (uploadedValue[0] !== v.x || uploadedValue[1] !== v.y || uploadedValue[2] !== v.z || uploadedValue[3] !== v.w) {
+			LayaGL.instance.uniform4f(one.location, uploadedValue[0] = v.x, uploadedValue[1] = v.y, uploadedValue[2] = v.z, uploadedValue[3] = v.w);
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec4v(one: any, v: Float32Array): number {
+		LayaGL.instance.uniform4fv(one.location, v);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniformMatrix2fv(one: any, value: any): number {
+		LayaGL.instance.uniformMatrix2fv(one.location, false, value);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniformMatrix3fv(one: any, value: any): number {
+		LayaGL.instance.uniformMatrix3fv(one.location, false, value);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniformMatrix4f(one: any, m: Matrix4x4): number {
+		var value: Float32Array = m.elements;
+		LayaGL.instance.uniformMatrix4fv(one.location, false, value);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniformMatrix4fv(one: any, m: Float32Array): number {
+		LayaGL.instance.uniformMatrix4fv(one.location, false, m);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform1i(one: any, value: any): number {
+		var uploadedValue: any[] = one.uploadedValue;
+		if (uploadedValue[0] !== value) {
+			LayaGL.instance.uniform1i(one.location, uploadedValue[0] = value);
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform1iv(one: any, value: any): number {
+		LayaGL.instance.uniform1iv(one.location, value);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_ivec2(one: any, value: any): number {
+		var uploadedValue: any[] = one.uploadedValue;
+		if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1]) {
+			LayaGL.instance.uniform2i(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1]);
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_ivec2v(one: any, value: any): number {
+		LayaGL.instance.uniform2iv(one.location, value);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec3i(one: any, value: any): number {
+		var uploadedValue: any[] = one.uploadedValue;
+		if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2]) {
+			LayaGL.instance.uniform3i(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2]);
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec3vi(one: any, value: any): number {
+		LayaGL.instance.uniform3iv(one.location, value);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec4i(one: any, value: any): number {
+		var uploadedValue: any[] = one.uploadedValue;
+		if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2] || uploadedValue[3] !== value[3]) {
+			LayaGL.instance.uniform4i(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2], uploadedValue[3] = value[3]);
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_vec4vi(one: any, value: any): number {
+		LayaGL.instance.uniform4iv(one.location, value);
+		return 1;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_sampler2D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
+		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		WebGLContext.activeTexture(gl, one.textureID);
+		WebGLContext.bindTexture(gl, gl.TEXTURE_2D, value);
+		return 0;
+	}
+
+	_uniform_sampler3D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
+		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		WebGLContext.activeTexture(gl, one.textureID);
+		WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_3D, value);
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_uniform_samplerCube(one: any, texture: BaseTexture): number {//TODO:TEXTURTECUBE ARRAY
+		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		WebGLContext.activeTexture(gl, one.textureID);
+		WebGLContext.bindTexture(gl, gl.TEXTURE_CUBE_MAP, value);
+		return 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	bind(): boolean {
+		return WebGLContext.useProgram(LayaGL.instance, this._program);
+	}
+
+	/**
+	 * @internal
+	 */
+	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean): void {
+		Stat.shaderCall += LayaGLRunner.uploadShaderUniforms((<any>LayaGL.instance), shaderUniform, shaderDatas, uploadUnTexture);
 	}
 
 	/**

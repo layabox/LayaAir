@@ -33,10 +33,39 @@ export class BillboardMaterial extends Material{
 	static init(): void {
 		BillboardMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
 		BillboardMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
-		let shader = Shader3D.add("BILLBOARDMAT", false,false);
-		let subShader = new SubShader();
+        //创建shader
+        let attributeMap = {
+			'a_Position': VertexMesh.MESH_POSITION0,
+			'a_Color': VertexMesh.MESH_COLOR0,
+			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0
+		};
+		let uniformMap = {
+			'u_AlbedoTexture': Shader3D.PERIOD_MATERIAL,
+			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
+			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
+			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
+			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
+            'u_WorldMat':Shader3D.PERIOD_SPRITE,
+
+            'u_CameraPos': Shader3D.PERIOD_CAMERA,
+			'u_CameraDirection': Shader3D.PERIOD_CAMERA,
+			'u_CameraUp': Shader3D.PERIOD_CAMERA,
+            'u_View': Shader3D.PERIOD_CAMERA,
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,
+            'u_Projection': Shader3D.PERIOD_CAMERA
+		};
+		let stateMap = {
+			's_Cull': Shader3D.RENDER_STATE_CULL,
+			's_Blend': Shader3D.RENDER_STATE_BLEND,
+			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
+			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
+			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
+			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
+		}
+		let shader = Shader3D.add("BILLBOARDMAT", null, null,false,false);
+		let subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(BOLLBOARDVS, BOLLBOARDFS);
+		subShader.addShaderPass(BOLLBOARDVS, BOLLBOARDFS, stateMap);
 	}
 
 

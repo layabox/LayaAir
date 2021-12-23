@@ -89,7 +89,7 @@ import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMateri
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
 import { ConfigurableConstraint } from "./laya/d3/physics/constraints/ConfigurableConstraint";
-import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
+import { ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
 import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
 import { Physics3D } from "./laya/d3/Physics3D";
@@ -98,9 +98,6 @@ import { CommandBuffer } from "./laya/d3/core/render/command/CommandBuffer";
 import { RenderElement } from "./laya/d3/core/render/RenderElement";
 import { SubMeshRenderElement } from "./laya/d3/core/render/SubMeshRenderElement";
 import { RenderState } from "./laya/d3/core/material/RenderState";
-import { BaseCamera } from "./laya/d3/core/BaseCamera";
-import { ShuriKenParticle3DShaderDeclaration } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3DShaderDeclaration";
-import { TrailFilter } from "./laya/d3/core/trail/TrailFilter";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -192,7 +189,7 @@ export class Laya3D {
 		if (!Render.supportWebGLPlusRendering) {
 			LayaGL.instance = WebGLContext.mainContext;
 			(<any>LayaGL.instance).createCommandEncoder = function (reserveSize: number = 128, adjustSize: number = 64, isSyncToRenderThread: boolean = false): CommandEncoder {
-				return new CommandEncoder();
+				return new CommandEncoder(this, reserveSize, adjustSize, isSyncToRenderThread);
 			}
 		}
 		config._multiLighting = config.enableMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
@@ -231,8 +228,6 @@ export class Laya3D {
 		RenderState.__init__(LayaGL.instance);
 		ShaderInit3D.__init__();
 		ShadowUtils.init();
-		ShuriKenParticle3DShaderDeclaration.__init__();
-		SimpleSkinnedMeshSprite3D.__init__();
 		PBRMaterial.__init__();
 		PBRStandardMaterial.__init__();
 		PBRSpecularMaterial.__init__();
@@ -244,13 +239,10 @@ export class Laya3D {
 		MeshSprite3D.__init__();
 		SkinnedMeshSprite3D.__init__();
 		SimpleSkinnedMeshSprite3D.__init__();
-		TrailFilter.__init__();
 		ShuriKenParticle3D.__init__();
 		TrailSprite3D.__init__();
 		PostProcess.__init__();
 		Scene3D.__init__();
-		ShadowCasterPass.__init__();
-		BaseCamera.__init__();
 		MeshRenderStaticBatchManager.__init__();
 
 		Material.__initDefine__();

@@ -1,4 +1,5 @@
 import { Texture2D } from "../../../resource/Texture2D";
+import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { Vector4 } from "../../math/Vector4";
 import SkyPanoramicFS from "../../shader/files/SkyPanoramic.fs";
 import SkyPanoramicVS from "../../shader/files/SkyPanoramic.vs";
@@ -20,15 +21,25 @@ export class SkyPanoramicMaterial extends Material {
     static TEXTURE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_TextureHDRParams");
 
     /**
-     * @internal
-     */
+	 * @internal
+	 */
     static __init__(): void {
+        var attributeMap: any = {
+            'a_Position': VertexMesh.MESH_POSITION0
+        };
+        var uniformMap: any = {
+            'u_TintColor': Shader3D.PERIOD_MATERIAL,
+            'u_TextureHDRParams': Shader3D.PERIOD_MATERIAL,
+            'u_Rotation': Shader3D.PERIOD_MATERIAL,
+            'u_Texture': Shader3D.PERIOD_MATERIAL,
+            'u_ViewProjection': Shader3D.PERIOD_CAMERA
+        };
         var shader: Shader3D = Shader3D.add("SkyPanoramic");
-        var subShader: SubShader = new SubShader();
+        var subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(SkyPanoramicVS, SkyPanoramicFS);
     }
-    
+
     /** @internal */
     private _exposure: number = 1.0;
     /** @internal */
@@ -47,9 +58,9 @@ export class SkyPanoramicMaterial extends Material {
         this._shaderValues.setVector(SkyPanoramicMaterial.TINTCOLOR, value);
     }
 
-    /**
-     * 曝光强度。
-     */
+	/**
+	 * 曝光强度。
+	 */
     get exposure(): number {
         return this._exposure;
     }
@@ -64,9 +75,9 @@ export class SkyPanoramicMaterial extends Material {
         }
     }
 
-    /**
-     * 旋转角度。
-     */
+	/**
+	 * 旋转角度。
+	 */
     get rotation(): number {
         return this._shaderValues.getNumber(SkyPanoramicMaterial.ROTATION);
     }
@@ -75,9 +86,9 @@ export class SkyPanoramicMaterial extends Material {
         this._shaderValues.setNumber(SkyPanoramicMaterial.ROTATION, value);
     }
 
-    /**
-     * 全景天空纹理。
-     */
+	/**
+	 * 全景天空纹理。
+	 */
     get panoramicTexture(): Texture2D {
         return <Texture2D>this._shaderValues.getTexture(SkyPanoramicMaterial.TEXTURE);
     }
@@ -87,8 +98,8 @@ export class SkyPanoramicMaterial extends Material {
     }
 
     /**
-     * 全景天空纹理解码格式。
-     */
+	 * 全景天空纹理解码格式。
+	 */
     get panoramicTextureDecodeFormat(): TextureDecodeFormat {
         return this._textureDecodeFormat;
     }
@@ -104,8 +115,8 @@ export class SkyPanoramicMaterial extends Material {
     }
 
     /**
-     * 创建一个 <code>SkyPanoramicMaterial</code> 实例。
-     */
+	 * 创建一个 <code>SkyPanoramicMaterial</code> 实例。
+	 */
     constructor() {
         super();
         this.setShaderName("SkyPanoramic");

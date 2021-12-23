@@ -14,7 +14,6 @@ import { Sprite3D } from "./Sprite3D";
 import { Material } from "./material/Material";
 import { SimpleSkinnedMeshRenderer } from "./SimpleSkinnedMeshRenderer";
 import { Texture2D } from "../../resource/Texture2D";
-import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 
 
 
@@ -26,9 +25,9 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 	static _tempArray0: any[] = [];
 
 	/** */
-	static SIMPLE_SIMPLEANIMATORTEXTURE: number;
-	static SIMPLE_SIMPLEANIMATORPARAMS: number;
-	static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
+	static SIMPLE_SIMPLEANIMATORTEXTURE:number = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
+	static SIMPLE_SIMPLEANIMATORPARAMS:number = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
+	static SIMPLE_SIMPLEANIMATORTEXTURESIZE:number = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
 	/**
 	 * @internal
 	 */
@@ -36,13 +35,6 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 		SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS = SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS;
 		SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURE = SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE;
 		SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORTEXTURESIZE = SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE;
-		const commandUniform = CommandUniformMap.createGlobalUniformMap("Sprite3D");
-		SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE = Shader3D.propertyNameToID("u_SimpleAnimatorTexture");
-		commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture");
-		SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
-		commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams");
-		SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
-		commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize");
 	}
 
 	/** @internal */
@@ -121,13 +113,14 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 			for (i = 0, n = bonesData.length; i < n; i++)
 				render.bones.push(spriteMap[bonesData[i]]);
 
-			render._bonesNums = data.bonesNums ? data.bonesNums : render.bones.length;
+			render._bonesNums = data.bonesNums? data.bonesNums:render.bones.length;
 		} else {//[兼容代码]
 			(data.rootBone) && (render._setRootBone(data.rootBone));//[兼容性]
 		}
-		var animatorTexture: string = data.animatorTexture;
-		if (animatorTexture) {
-			var animatortexture: Texture2D = Loader.getRes(animatorTexture);
+		var animatorTexture:string = data.animatorTexture;
+		if(animatorTexture)
+		{
+			var animatortexture:Texture2D = Loader.getRes(animatorTexture);
 			(render as SimpleSkinnedMeshRenderer).simpleAnimatorTexture = animatortexture;
 		}
 	}
@@ -186,7 +179,7 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 
 		var lbb: Bounds = meshRender.localBounds;
 		(lbb) && (lbb.cloneTo(destMeshRender.localBounds));
-
+		
 
 		destMeshRender.simpleAnimatorOffset = meshRender.simpleAnimatorOffset;
 		destMeshRender.simpleAnimatorTexture = meshRender.simpleAnimatorTexture;

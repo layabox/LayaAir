@@ -9,7 +9,7 @@
 #include "Lighting.glsl";
 
 attribute vec4 a_Position;
-attribute vec2 a_Texcoord0;
+attribute vec2 a_Texcoord;
 attribute vec3 a_Normal;
 
 uniform mat4 u_MvpMatrix;
@@ -45,7 +45,7 @@ void main()
 		mat3 worldMat=mat3(u_WorldMat);
 	#endif
 	
-	v_Texcoord=a_Texcoord0;
+	v_Texcoord=a_Texcoord;
 	v_Normal=worldMat*a_Normal;
 	
 	#if defined(DIRECTIONLIGHT)
