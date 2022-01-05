@@ -1,32 +1,63 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Buffer } from "../../webgl/utils/Buffer";
 import { UnifromBufferData } from "./UniformBufferData";
+/**
+ * 类封装WebGL2UniformBufferObect
+ */
 export class UniformBufferObject extends Buffer {
+
+    /**@internal */
     private static _Map: Map<string, UniformBufferObject> = new Map<string, UniformBufferObject>();
+
+    /**@internal bind GL Pointer*/
     private static glPointerID: number = 0;
+
+    /**
+     * has Buffer 
+     * @param uniformBlockName 
+     * @returns 
+     */
     static hasBuffer(uniformBlockName: string): boolean {
         return UniformBufferObject._Map.has(uniformBlockName)
     }
 
+    /**
+     * create Uniform Buffer
+     * @param name Uniform block name(must pitch Shader)
+     * @param bufferUsage config usage
+     * @param bytelength byte length
+     * @returns 
+     */
     static creat(name: string, bufferUsage: number, bytelength: number) {
         UniformBufferObject._Map.set(name, new UniformBufferObject(UniformBufferObject.glPointerID++, bufferUsage, bytelength));
         return UniformBufferObject._Map.get(name);
     }
 
+    /**
+     * get Uniform Buffer by name
+     * @param name Uniform block name(must pitch Shader)
+     * @returns 
+     */
     static getBuffer(name: string) {
         return UniformBufferObject._Map.get(name);
     }
 
-    glPointer: number;
+    /**@interanl */
+    _glPointer: number;
 
+    /**@internal */
+    _updateDataInfo: UnifromBufferData;
+
+    /**byte length */
     byteLength: number;
 
-    UpdateDataInfo: UnifromBufferData;
-    
+    /**
+     * @interanl
+     */
     constructor(glPointer: number, bufferUsage: number, byteLength: number) {
         super();
         var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
-        this.glPointer = glPointer;
+        this._glPointer = glPointer;
         this._bufferUsage = bufferUsage;
         this._bufferType = gl.UNIFORM_BUFFER;
         this.byteLength = byteLength;
@@ -36,6 +67,20 @@ export class UniformBufferObject extends Buffer {
         this._buffer = new Uint8Array(this.byteLength);
     }
 
+    private bindUniformBuffer() {
+        var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
+        gl.bindBuffer(gl.UNIFORM_BUFFER, this._glBuffer);
+    }
+
+    private bindUniformBufferBase() {
+        var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
+        gl.bindBufferBase(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer);
+    }
+
+    /**
+     * @inheritDoc
+     * @override
+     */
     bind(): boolean {
         if (Buffer._bindedVertexBuffer !== this._glBuffer) {
             this.bindUniformBuffer();
@@ -46,40 +91,39 @@ export class UniformBufferObject extends Buffer {
 
     }
 
-    private bindUniformBuffer() {
-        var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
-        gl.bindBuffer(gl.UNIFORM_BUFFER, this._glBuffer);
-    }
-
-    private bindUniformBufferBase() {
-        var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
-        gl.bindBufferBase(gl.UNIFORM_BUFFER, this.glPointer, this._glBuffer);
-    }
-
-
-    setData(buffer: Float32Array, bufferOffset: number = 0, dataCount: number = Number.MAX_SAFE_INTEGER): void {
-        if (dataCount < 0) return;
+    /**
+     * set UniformBuffer data by UniformBufferData
+     * @param buffer Float32Array data
+     * @param bufferOffset byteOffset
+     * @param byteCount  byteCount
+     * @returns 
+     */
+    setData(buffer: Float32Array, bufferOffset: number = 0, byteCount: number = Number.MAX_SAFE_INTEGER): void {
+        if (byteCount < 0) return;
         this.bind();
-        var needSubData: boolean = !(bufferOffset == 0 && dataCount == this.byteLength);
+        var needSubData: boolean = !(bufferOffset == 0 && byteCount == this.byteLength);
         if (needSubData) {
-            bufferOffset*=4;
-            var subData: Uint8Array = new Uint8Array(buffer.buffer, bufferOffset, dataCount);
+            var subData: Uint8Array = new Uint8Array(buffer.buffer, bufferOffset, byteCount);
             LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, subData);
         }
         else {
             let gl = (LayaGL.instance as WebGL2RenderingContext);
-             gl.bufferSubData(this._bufferType, bufferOffset,buffer,0,dataCount/4);
+            gl.bufferSubData(this._bufferType, bufferOffset, buffer, 0, byteCount / 4);
         }
     }
 
+    /**
+     * set UniformBuffer data by UniformBufferData
+     * @param bufferData 
+     */
     setDataByUniformBufferData(bufferData: UnifromBufferData) {
-        if (this.UpdateDataInfo == bufferData) {
-            this.setData(bufferData._buffer, bufferData._updateFlag.x, (bufferData._updateFlag.y - bufferData._updateFlag.x)*4);
+        if (this._updateDataInfo == bufferData) {
+            this.setData(bufferData._buffer, bufferData._updateFlag.x * 4, (bufferData._updateFlag.y - bufferData._updateFlag.x) * 4);
             bufferData._resetUpdateFlag();
         } else {
             this.setData(bufferData._buffer, 0, this.byteLength);
             bufferData._resetUpdateFlag();
-            this.UpdateDataInfo = bufferData;
+            this._updateDataInfo = bufferData;
         }
     }
 
