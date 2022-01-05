@@ -3,7 +3,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-#include "LayaSceneInput.glsl";
+#include "LayaComInput.glsl";
 //修改这里剔除没有用到的光照函数，增加粒子的编译速度
 vec2 TransformUV(vec2 texcoord, vec4 tilingOffset)
 {

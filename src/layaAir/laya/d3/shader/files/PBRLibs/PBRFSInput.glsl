@@ -1,4 +1,4 @@
-#include LayaSceneInput.glsl;
+#include LayaComInput.glsl;
 #ifdef ALPHATEST
 	uniform float u_AlphaTestValue;
 #endif
