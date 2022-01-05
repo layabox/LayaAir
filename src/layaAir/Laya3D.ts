@@ -196,7 +196,7 @@ export class Laya3D {
 			}
 		}
 		config._multiLighting = config.enableMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
-
+		config._uniformBlock = config.enableUniformBufferObject && LayaGL.layaGPUInstance._isWebGL2;
 		ILaya3D.Shader3D = Shader3D;
 		ILaya3D.Scene3D = Scene3D;
 		ILaya3D.MeshRenderStaticBatchManager = MeshRenderStaticBatchManager;
@@ -251,6 +251,7 @@ export class Laya3D {
 		Scene3D.__init__();
 		ShadowCasterPass.__init__();
 		BaseCamera.__init__();
+		Camera.__init__();
 		MeshRenderStaticBatchManager.__init__();
 
 		Material.__initDefine__();

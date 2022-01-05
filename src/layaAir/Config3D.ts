@@ -65,6 +65,8 @@ export class Config3D implements IClone {
 	_multiLighting: boolean;
 	/**@internal*/
 	_maxAreaLightCountPerClusterAverage: number;
+	/**@internal */
+	_uniformBlock:boolean;
 
 	/** 是否开启抗锯齿。*/
 	isAntialias: boolean = true;
@@ -76,6 +78,8 @@ export class Config3D implements IClone {
 	isStencil: boolean = true;
 	/** 是否开启多光源,如果场景不需要多光源，关闭后可提升性能。*/
 	enableMultiLight: boolean = true;
+	/** 是否开启UniformBuffer*/
+	enableUniformBufferObject = true;
 	/** 是否开启八叉树裁剪。*/
 	octreeCulling: boolean = false;
 	/** 八叉树初始化尺寸。*/
