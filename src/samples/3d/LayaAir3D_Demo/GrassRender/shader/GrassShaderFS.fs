@@ -4,12 +4,8 @@
 	precision mediump float;
 #endif
 
+#include "LayaSceneInput.glsl";
 varying vec4 v_Color;
-#ifdef FOG
-	uniform float u_FogStart;
-	uniform float u_FogRange;
-	uniform vec3 u_FogColor;
-#endif
 
 void main() {
 

@@ -6,10 +6,10 @@ attribute vec4 a_Tangent0;
 
 uniform mat4 u_MvpMatrix;
 uniform mat4 u_WorldMat;
-uniform vec3 u_CameraPos;
 uniform float u_WaveScale;
 uniform vec4 u_WaveSpeed;
 uniform float u_Time;
+uniform vec3 u_CameraPos;
 
 varying vec3 v_Normal;
 varying vec3 v_Tangent;

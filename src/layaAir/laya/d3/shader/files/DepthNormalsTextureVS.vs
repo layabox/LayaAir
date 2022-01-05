@@ -6,8 +6,9 @@
 	precision mediump int;
 #endif
 
+#include "LayaSceneInput.glsl";
 #include "Lighting.glsl";
-#include "LayaUtile.glsl"
+#include "LayaUtile.glsl";
 
 attribute vec4 a_Position;
 attribute vec3 a_Normal;
@@ -24,9 +25,6 @@ attribute vec3 a_Normal;
 #else
 	uniform mat4 u_WorldMat;
 #endif
-uniform mat4 u_View;
-uniform mat4 u_ViewProjection;
-uniform vec4 u_ProjectionParams;
 
 //传入法线
 varying vec4 depthNormals;

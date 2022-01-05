@@ -6,8 +6,8 @@ precision mediump float;
 #include "Lighting.glsl";
 
 attribute vec4 a_Position;
-uniform mat4 u_ViewProjection;
 uniform float u_Rotation;
+uniform mat4 u_ViewProjection;
 varying vec3 v_Texcoord;
 
 

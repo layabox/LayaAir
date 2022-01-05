@@ -1,3 +1,4 @@
+#include LayaSceneInput.glsl;
 #ifdef ALPHATEST
 	uniform float u_AlphaTestValue;
 #endif
@@ -58,40 +59,12 @@ uniform float u_SmoothnessScale;
 
 varying vec3 v_Normal; 
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	#ifdef LEGACYSINGLELIGHTING
-		#ifdef DIRECTIONLIGHT
-			uniform DirectionLight u_DirectionLight;
-		#endif
-		#ifdef POINTLIGHT
-			uniform PointLight u_PointLight;
-		#endif
-		#ifdef SPOTLIGHT
-			uniform SpotLight u_SpotLight;
-		#endif
-	#else
-		uniform mat4 u_View;
-		uniform vec4 u_ProjectionParams;
-		uniform vec4 u_Viewport;
-		uniform int u_DirationLightCount;
-		uniform sampler2D u_LightBuffer;
-		uniform sampler2D u_LightClusterBuffer;
-	#endif
-#endif
-
 varying vec3 v_EyeVec;
 
 #ifdef NORMALTEXTURE
 	varying vec3 v_Tangent;
 	varying vec3 v_Binormal;
 #endif
-
-#ifdef FOG
-	uniform float u_FogStart;
-	uniform float u_FogRange;
-	uniform vec3 u_FogColor;
-#endif
-
 
 //后面考虑宏TODO
 varying vec3 v_PositionWorld;

@@ -45,7 +45,6 @@ export class ProstProcess_AO{
 
     onResComplate() {
         this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-		//this.scene.ambientColor = new Vector3(1, 1, 1);
 		var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 1000)));
 		camera.transform.translate(new Vector3(0, 1, 5));
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);

@@ -47,14 +47,11 @@ uniform bool u_ThreeDStartRotation;
 uniform int u_ScalingMode;
 uniform vec3 u_PositionScale;
 uniform vec3 u_SizeScale;
-uniform mat4 u_View;
-uniform mat4 u_Projection;
 
 #ifdef STRETCHEDBILLBOARD
 	uniform vec3 u_CameraPosition;
 #endif
-uniform vec3 u_CameraDirection;//TODO:只有几种广告牌模式需要用
-uniform vec3 u_CameraUp;
+
 
 uniform  float u_StretchedBillboardLengthScale;
 uniform  float u_StretchedBillboardSpeedScale;

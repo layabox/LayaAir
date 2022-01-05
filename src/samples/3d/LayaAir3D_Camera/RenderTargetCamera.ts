@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { RenderState } from "laya/d3/core/material/RenderState";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -17,7 +16,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
@@ -92,7 +90,7 @@ export class RenderTargetCamera {
 		//渲染顺序
 		renderTargetCamera.renderingOrder = -1;
 		//清除标记
-		renderTargetCamera.clearFlag = BaseCamera.CLEARFLAG_SKY;
+		renderTargetCamera.clearFlag = CameraClearFlags.Sky;
 		//设置网格精灵的纹理
 		this.mat.albedoTexture = renderTargetCamera.renderTarget;
 	}

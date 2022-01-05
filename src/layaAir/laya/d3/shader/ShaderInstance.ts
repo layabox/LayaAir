@@ -2,20 +2,13 @@ import { ShaderInstanceBase } from "../../display/ShaderInstanceBase";
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { LayaGL } from "../../layagl/LayaGL";
 import { LayaGLRunner } from "../../layagl/LayaGLRunner";
-import { Render } from "../../renders/Render";
-import { BaseTexture } from "../../resource/BaseTexture";
-import { Resource } from "../../resource/Resource";
 import { Stat } from "../../utils/Stat";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { Material } from "../core/material/Material";
 import { RenderState } from "../core/material/RenderState";
 import { BaseRender } from "../core/render/BaseRender";
 import { Scene3D } from "../core/scene/Scene3D";
-import { CommandUniformMap, Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Vector2 } from "../math/Vector2";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
+import { CommandUniformMap } from "../core/scene/Scene3DShaderDeclaration";
 import { Shader3D } from "./Shader3D";
 import { ShaderData } from "./ShaderData";
 import { ShaderPass } from "./ShaderPass";
@@ -26,15 +19,8 @@ import { ShaderVariable } from "./ShaderVariable";
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
 export class ShaderInstance extends ShaderInstanceBase {
-
-	/**@internal miner 动态添加的uniformMap*/
-	private _globaluniformMap:{[key:string]:number};
 	/**@internal */
 	private _shaderPass: ShaderPass;
-
-	
-
-	
 	/**@internal */
 	_sceneUniformParamsMap: CommandEncoder;
 	/**@internal */
@@ -44,7 +30,7 @@ export class ShaderInstance extends ShaderInstanceBase {
 	/**@internal */
 	_materialUniformParamsMap: CommandEncoder;
 	/**@internal */
-	private _customUniformParamsMap: any[];
+	private _customUniformParamsMap: any[] = [];
 	/**@internal */
 	private _stateParamsMap: any[] = [];
 

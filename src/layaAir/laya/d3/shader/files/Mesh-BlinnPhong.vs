@@ -5,6 +5,8 @@
 	precision mediump float;
 	precision mediump int;
 #endif
+
+#include "LayaSceneInput.glsl";
 #include "Lighting.glsl";
 #include "LayaUtile.glsl"
 #include "Shadow.glsl";
@@ -12,9 +14,7 @@
 
 attribute vec4 a_Position;
 
-#ifdef GPU_INSTANCE
-	uniform mat4 u_ViewProjection;
-#else
+#ifndef GPU_INSTANCE
 	uniform mat4 u_MvpMatrix;
 #endif
 
@@ -48,7 +48,6 @@ attribute vec3 a_Normal;
 varying vec3 v_Normal; 
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	uniform vec3 u_CameraPos;
 	varying vec3 v_ViewDir; 
 #endif
 

@@ -1,7 +1,7 @@
+#include "LayaSceneInput.glsl";
 attribute vec4 a_Position;
 
 #ifdef GPU_INSTANCE
-	uniform mat4 u_ViewProjection;
 	attribute mat4 a_WorldMat;
 #else
 	uniform mat4 u_MvpMatrix;
@@ -41,7 +41,6 @@ varying vec3 v_Normal;
 	varying vec2 v_LightMapUV;
 #endif
 
-uniform vec3 u_CameraPos;
 varying vec3 v_EyeVec;
 varying vec3 v_PositionWorld;
 varying float v_posViewZ;

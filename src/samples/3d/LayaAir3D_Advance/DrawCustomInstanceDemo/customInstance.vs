@@ -3,13 +3,14 @@
 #else
 	precision mediump float;
 #endif
+
+#include "LayaSceneInput.glsl";
 #include "Lighting.glsl";
 #include "LayaUtile.glsl";
 
 attribute vec4 a_Position;
 
 #ifdef GPU_INSTANCE
-	uniform mat4 u_ViewProjection;
 	attribute mat4 a_WorldMat;
 #else
 	uniform mat4 u_MvpMatrix;

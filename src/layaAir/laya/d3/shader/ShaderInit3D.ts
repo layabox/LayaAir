@@ -53,6 +53,8 @@ import WaterPrimaryVS from "./files/WaterPrimary.vs";
 import DepthNormalsTextureVS from "./files/DepthNormalsTextureVS.vs";
 import DepthNormalsTextureFS from "./files/DepthNormalsTextureFS.fs";
 import DepthNormalUtil from "./files/DepthNormalUtil.glsl";
+import LayaSceneInput from "./files/glslInput/LayaSceneInput.glsl";
+import DepthCasterInput from "./files/glslInput/DepthCasterInput.glsl";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";
@@ -69,10 +71,12 @@ export class ShaderInit3D {
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
 		Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2 = Shader3D.getDefineByName("GRAPHICS_API_GLES2");
 		Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3 = Shader3D.getDefineByName("GRAPHICS_API_GLES3");
-
+		Shader3D.SHADERDEFINE_ENUNIFORMBLOCK = Shader3D.getDefineByName("ENUNIFORMBLOCK");
+		Shader3D.addInclude("LayaSceneInput.glsl", LayaSceneInput);
+		Shader3D.addInclude("DepthCasterInput.glsl", DepthCasterInput);
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
 		Shader3D.addInclude("ShadowSampleTent.glsl", ShadowSampleTentGLSL);
-		Shader3D.addInclude("GlobalIllumination.glsl", GlobalIllumination)
+		Shader3D.addInclude("GlobalIllumination.glsl", GlobalIllumination);
 		Shader3D.addInclude("Shadow.glsl", ShadowGLSL);
 		Shader3D.addInclude("ShadowCasterVS.glsl", ShadowCasterVSGLSL);
 		Shader3D.addInclude("ShadowCasterFS.glsl", ShadowCasterFSGLSL);
@@ -84,15 +88,15 @@ export class ShaderInit3D {
 		Shader3D.addInclude("LayaPBRBRDF.glsl", LayaPBRBRDF);
 		Shader3D.addInclude("PBRCore.glsl", PBRCore);
 		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
-		Shader3D.addInclude("LayaUtile.glsl",LayaUtile);
-		Shader3D.addInclude("DepthNormalUtil.glsl",DepthNormalUtil);
+		Shader3D.addInclude("LayaUtile.glsl", LayaUtile);
+		Shader3D.addInclude("DepthNormalUtil.glsl", DepthNormalUtil);
 		//Blinnphong
 		var shader: Shader3D = Shader3D.add("BLINNPHONG", true);
 		var subShader: SubShader = new SubShader();
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, "Forward");
-		var shaderPass: ShaderPass = subShader.addShaderPass(MeshBlinnPhongShadowCasterVS, MeshBlinnPhongShadowCasterPS,"ShadowCaster");
-		shaderPass = subShader.addShaderPass(DepthNormalsTextureVS,DepthNormalsTextureFS,"DepthNormal");
+		var shaderPass: ShaderPass = subShader.addShaderPass(MeshBlinnPhongShadowCasterVS, MeshBlinnPhongShadowCasterPS, "ShadowCaster");
+		shaderPass = subShader.addShaderPass(DepthNormalsTextureVS, DepthNormalsTextureFS, "DepthNormal");
 		//LineShader
 		shader = Shader3D.add("LineShader");
 		subShader = new SubShader();
@@ -126,7 +130,7 @@ export class ShaderInit3D {
 			'a_Random1': VertexShuriKenParticle.PARTICLE_RANDOM1,
 			'a_SimulationWorldPostion': VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDPOSTION,
 			'a_SimulationWorldRotation': VertexShuriKenParticle.PARTICLE_SIMULATIONWORLDROTATION,
-			'a_SimulationUV':VertexShuriKenParticle.PARTICLE_SIMULATIONUV
+			'a_SimulationUV': VertexShuriKenParticle.PARTICLE_SIMULATIONUV
 		};
 		shader = Shader3D.add("PARTICLESHURIKEN");
 		subShader = new SubShader(attributeMap);

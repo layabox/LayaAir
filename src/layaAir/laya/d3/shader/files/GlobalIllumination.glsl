@@ -6,18 +6,6 @@ struct LayaGIInput
 
 #define LAYA_SPECCUBE_LOD_STEPS 6.0
 
-uniform vec3 u_AmbientColor;
-
-#if defined(GI_AMBIENT_SH)
-	uniform vec4 u_AmbientSHAr;
-	uniform vec4 u_AmbientSHAg;
-	uniform vec4 u_AmbientSHAb;
-	uniform vec4 u_AmbientSHBr;
-	uniform vec4 u_AmbientSHBg;
-	uniform vec4 u_AmbientSHBb;
-	uniform vec4 u_AmbientSHC;
-#endif
-
 uniform samplerCube u_ReflectTexture;
 uniform vec4 u_ReflectCubeHDRParams;
 

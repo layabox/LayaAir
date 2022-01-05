@@ -4,6 +4,8 @@
 	precision mediump float;
 #endif
 
+#include "LayaSceneInput.glsl";
+
 #if defined(COLOR)&&defined(ENABLEVERTEXCOLOR)
 	varying vec4 v_Color;
 #endif
@@ -19,14 +21,6 @@ uniform vec4 u_AlbedoColor;
 	uniform float u_AlphaTestValue;
 #endif
 
-#ifdef FOG
-	uniform float u_FogStart;
-	uniform float u_FogRange;
-	#ifdef ADDTIVEFOG
-	#else
-		uniform vec3 u_FogColor;
-	#endif
-#endif
 
 void main()
 {

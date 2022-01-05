@@ -3,7 +3,7 @@ import { AnimationClip } from "laya/d3/animation/AnimationClip";
 import { Animator } from "laya/d3/component/Animator";
 import { AnimatorState } from "laya/d3/component/AnimatorState";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -63,7 +63,7 @@ export class LoadResourceDemo {
 			var camera: Camera = new Camera();
 			scene.addChild(camera);
 			//设置相机清楚标记，使用天空
-			camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
+			camera.clearFlag = CameraClearFlags.Sky;
 			//调整相机的位置
 			camera.transform.translate(new Vector3(3, 20, 47));
 			//相机视角控制组件(脚本)

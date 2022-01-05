@@ -13,7 +13,6 @@ uniform sampler2D u_texture;
 varying vec3 v_Normal;
 
 #if defined(DIRECTIONLIGHT)
-uniform vec3 u_CameraPos;
 varying vec3 v_PositionWorld;
 uniform DirectionLight u_DirectionLight;
 #endif

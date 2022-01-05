@@ -5,7 +5,6 @@
 #endif
 
 #include "SkyUtil.glsl";
-
 uniform mat4 u_ViewProjection;
 attribute vec4 a_Position;
 varying vec3 skyColor;

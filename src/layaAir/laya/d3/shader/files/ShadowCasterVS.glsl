@@ -1,6 +1,6 @@
+#include "DepthCasterInput.glsl";
 #include "Lighting.glsl";
 #include "LayaUtile.glsl"
-#include "Shadow.glsl"
 
 attribute vec4 a_Position;
 attribute vec3 a_Normal;
@@ -18,11 +18,18 @@ attribute vec3 a_Normal;
 	uniform mat4 u_WorldMat;
 #endif
 
-uniform mat4 u_ViewProjection;
 
-#ifdef SHADOW
-	uniform vec3 u_ShadowLightDirection;
-#endif
+vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
+{
+    float invNdotL = 1.0 - clamp(dot(-lightDirection, normalWS),0.0,1.0);
+    float scale = invNdotL * u_ShadowBias.y;
+
+    // normal bias is negative since we want to apply an inset normal offset
+    positionWS += -lightDirection * u_ShadowBias.xxx;
+    positionWS += normalWS * vec3(scale);
+    return positionWS;
+}
+
 
 
 vec4 shadowCasterVertex()

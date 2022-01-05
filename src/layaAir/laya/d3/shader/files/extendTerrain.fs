@@ -4,40 +4,15 @@
 	precision mediump float;
 #endif
 
+#include "LayaSceneInput.glsl";
 #include "Lighting.glsl";
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(FOG)
-	uniform vec3 u_CameraPos;
 	varying vec3 v_Normal;
 	varying vec3 v_PositionWorld;
 #endif
 
-#ifdef FOG
-	uniform float u_FogStart;
-	uniform float u_FogRange;
-	uniform vec3 u_FogColor;
-#endif
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	#ifdef LEGACYSINGLELIGHTING
-		#ifdef DIRECTIONLIGHT
-			uniform DirectionLight u_DirectionLight;
-		#endif
-		#ifdef POINTLIGHT
-			uniform PointLight u_PointLight;
-		#endif
-		#ifdef SPOTLIGHT
-			uniform SpotLight u_SpotLight;
-		#endif
-	#else
-		uniform mat4 u_View;
-		uniform vec4 u_ProjectionParams;
-		uniform vec4 u_Viewport;
-		uniform int u_DirationLightCount;
-		uniform sampler2D u_LightBuffer;
-		uniform sampler2D u_LightClusterBuffer;
-	#endif
-#endif
 
 #include "Shadow.glsl"
 #if defined(CALCULATE_SHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
@@ -45,7 +20,6 @@
 #endif
 varying float v_posViewZ;
 
-uniform vec3 u_AmbientColor;
 
 uniform sampler2D u_SplatAlphaTexture;
 
