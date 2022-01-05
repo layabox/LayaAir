@@ -66,6 +66,8 @@ export class Shader3D {
 	static SHADERDEFINE_GRAPHICS_API_GLES2: ShaderDefine;
 	/**@internal 图形API为WebGL2.0/OPENGLES3.0。*/
 	static SHADERDEFINE_GRAPHICS_API_GLES3: ShaderDefine;
+	/**@internal 图形数据传输使用UniformBlock的方式 */
+	static SHADERDEFINE_ENUNIFORMBLOCK:ShaderDefine;
 
 	/**@internal */
 	static _propertyNameMap: any = {};

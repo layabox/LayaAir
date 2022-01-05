@@ -21,12 +21,12 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 	/** @internal */
 	protected _owner: SubShader;
 	/** @internal */
-	name:string;
+	name: string;
 	/** @internal */
 	protected _cacheSharders: { [key: number]: { [key: number]: { [key: number]: ShaderInstanceBase } } } = {};
 
 
-	constructor(owner:any,vs: string, ps: string,name:string,) {
+	constructor(owner: any, vs: string, ps: string, name: string,) {
 		super(vs, ps, null);
 		this._owner = owner;
 		this.name = name;
@@ -310,12 +310,12 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 			for (var i: number = 0, n: number = debugDefineString.length; i < n; i++)
 				(i == n - 1) ? defStr += debugDefineString[i] : defStr += debugDefineString[i] + ",";
 
-			console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this.name + " " +  " DefineMask:[" + defMask + "]" + " DefineNames:[" + defStr + "]", "color:green");
+			console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this.name + " " + " DefineMask:[" + defMask + "]" + " DefineNames:[" + defStr + "]", "color:green");
 		}
 
 		return shader;
 	}
 
-	
+
 
 }

@@ -12,7 +12,6 @@ import { IClone } from "../IClone";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { Laya } from "../../../../Laya";
 import { ShaderDefine } from "../../shader/ShaderDefine";
-import { ShaderValue } from "../../../webgl/shader/ShaderValue";
 
 /**
  * <code>Material</code> 类用于创建材质。
@@ -49,10 +48,10 @@ export class Material extends Resource implements IClone {
 	/**@internal */
 	static STENCIL_Ref: number = Shader3D.propertyNameToID("s_StencilRef");
 	/**@internal */
-	static STENCIL_Op:number = Shader3D.propertyNameToID("s_StencilOp");
+	static STENCIL_Op: number = Shader3D.propertyNameToID("s_StencilOp");
 
 	/**@internal */
-	
+
 
 	/**材质级着色器宏定义,透明测试。*/
 	static SHADERDEFINE_ALPHATEST: ShaderDefine;
@@ -90,7 +89,7 @@ export class Material extends Resource implements IClone {
 		var clas: any = ClassUtils.getRegClass(classType);
 		if (clas)
 			material = new clas();
-		else{
+		else {
 			material = new Material();
 			material.setShaderName(classType);
 		}
@@ -107,7 +106,7 @@ export class Material extends Resource implements IClone {
 						case "vectors":
 							var vectors = props[key];
 							for (i = 0, n = vectors.length; i < n; i++) {
-								var vector= vectors[i];
+								var vector = vectors[i];
 								var vectorValue = vector.value;
 								switch (vectorValue.length) {
 									case 2:
@@ -182,38 +181,38 @@ export class Material extends Resource implements IClone {
 							for (i = 0, n = defineNames.length; i < n; i++) {
 								var define: ShaderDefine = Shader3D.getDefineByName(defineNames[i]);//TODO:是否取消defines
 								material._shaderValues.addDefine(define);
-							}	
+							}
 							break;
 						case "textures":
 							var textures: any[] = props[key];
 							for (i = 0, n = textures.length; i < n; i++) {
 								var texture: any = textures[i];
 								var path: string = texture.path;
-								(path) && (material._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name),Loader.getRes(path)));
+								(path) && (material._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name), Loader.getRes(path)));
 							}
 							break;
 						default:
 							var property = props[key];
 							var uniName = Shader3D.propertyNameToID(key);
-							if(!property.length){
-								material._shaderValues.setNumber(uniName,props[key]);
-							}else{
+							if (!property.length) {
+								material._shaderValues.setNumber(uniName, props[key]);
+							} else {
 								var vectorValue = property;
 								switch (vectorValue.length) {
 									case 2:
-										 material._shaderValues.setVector2(uniName,new Vector2(vectorValue[0], vectorValue[1]));
+										material._shaderValues.setVector2(uniName, new Vector2(vectorValue[0], vectorValue[1]));
 										break;
 									case 3:
-										material._shaderValues.setVector3(uniName,new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
+										material._shaderValues.setVector3(uniName, new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
 										break;
 									case 4:
-										material._shaderValues.setVector(uniName,new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
+										material._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
 										break;
 									default:
 										throw new Error("BaseMaterial:unkonwn color length.");
 								}
 							}
-						}
+					}
 				}
 				break;
 			default:
@@ -226,7 +225,7 @@ export class Material extends Resource implements IClone {
 	/** @internal */
 	_shader: Shader3D;
 	/** @private */
-	_shaderValues: ShaderData|null;//TODO:剥离贴图ShaderValue
+	_shaderValues: ShaderData | null;//TODO:剥离贴图ShaderValue
 	/** 所属渲染队列. */
 	renderQueue: number;
 
@@ -271,9 +270,9 @@ export class Material extends Resource implements IClone {
 
 	set depthWrite(value: boolean) {
 		this._shaderValues.setBool(Material.DEPTH_WRITE, value);
-    }
-    
-    
+	}
+
+
 	/**
 	 * 剔除方式。
 	 */
@@ -285,7 +284,7 @@ export class Material extends Resource implements IClone {
 		this._shaderValues.setInt(Material.CULL, value);
 	}
 
-    /**
+	/**
 	 * 混合方式。
 	 */
 	get blend(): number {
@@ -319,9 +318,9 @@ export class Material extends Resource implements IClone {
 
 	set blendDst(value: number) {
 		this._shaderValues.setInt(Material.BLEND_DST, value);
-    }
-    
-    /**
+	}
+
+	/**
 	 * 深度测试方式。
 	 */
 	get depthTest(): number {
@@ -346,22 +345,22 @@ export class Material extends Resource implements IClone {
 	/**
 	 * 是否写入模板。
 	 */
-	 get stencilWrite(): boolean {
+	get stencilWrite(): boolean {
 		return this._shaderValues.getBool(Material.STENCIL_WRITE);
 	}
 
 	set stencilWrite(value: boolean) {
 		this._shaderValues.setBool(Material.STENCIL_WRITE, value);
-    }
+	}
 
 	/**
 	 * 写入模板值
 	 */
-	set stencilRef(value:number){
-		this._shaderValues.setInt(Material.STENCIL_Ref,value);
+	set stencilRef(value: number) {
+		this._shaderValues.setInt(Material.STENCIL_Ref, value);
 	}
 
-	get stencilRef():number{
+	get stencilRef(): number {
 		return this._shaderValues.getInt(Material.STENCIL_Ref);
 	}
 
@@ -370,14 +369,14 @@ export class Material extends Resource implements IClone {
 	 * 写入模板测试设置
 	 * vector(fail, zfail, zpass)
 	 */
-	set stencilOp(value:Vector3){
-		this._shaderValues.setVector3(Material.STENCIL_Op,value);
+	set stencilOp(value: Vector3) {
+		this._shaderValues.setVector3(Material.STENCIL_Op, value);
 	}
 
-	get stencilOp():Vector3{
+	get stencilOp(): Vector3 {
 		return this._shaderValues.getVector3(Material.STENCIL_Op);
 	}
-    
+
 
 
 
@@ -385,10 +384,10 @@ export class Material extends Resource implements IClone {
 	/**
 	 * 获得材质属性
 	 */
-	get MaterialProperty():any{
-		let propertyMap:any = {};
+	get MaterialProperty(): any {
+		let propertyMap: any = {};
 		var shaderValues = this._shaderValues.getData();
-		for(let key in shaderValues){
+		for (let key in shaderValues) {
 			propertyMap[Shader3D._propertyNameMap[parseInt(key)]] = shaderValues[key];
 		}
 		return propertyMap;
@@ -397,10 +396,10 @@ export class Material extends Resource implements IClone {
 	/**
 	 * 获得材质宏
 	 */
-	get MaterialDefine():Array<string>{
+	get MaterialDefine(): Array<string> {
 		let shaderDefineArray = new Array<string>();
 		let defineData = this._shaderValues._defineDatas;
-		Shader3D._getNamesByDefineData(defineData,shaderDefineArray);
+		Shader3D._getNamesByDefineData(defineData, shaderDefineArray);
 		return shaderDefineArray;
 	}
 
@@ -479,14 +478,14 @@ export class Material extends Resource implements IClone {
 	 * @param name 
 	 * @param value 
 	 */
-	setShaderPropertyValue(name:string,value:any){
-		this.shaderData.setValueData(Shader3D.propertyNameToID(name),value);
+	setShaderPropertyValue(name: string, value: any) {
+		this.shaderData.setValueData(Shader3D.propertyNameToID(name), value);
 	}
 	/**
 	 * 获取属性值
 	 * @param name 
 	 */
-	getShaderPropertyValue(name:string):any{
+	getShaderPropertyValue(name: string): any {
 		return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
 	}
 
@@ -517,7 +516,7 @@ export class Material extends Resource implements IClone {
 		return this._shaderValues._defineDatas;
 	}
 
-	
+
 }
 
 

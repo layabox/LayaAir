@@ -17,7 +17,6 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
-import { ShaderData } from "../shader/ShaderData";
 import { Picker } from "../utils/Picker";
 import { BaseCamera } from "./BaseCamera";
 import { DirectionLight } from "./light/DirectionLight";
@@ -36,6 +35,8 @@ import { PerformancePlugin } from "../../utils/Performance";
 import { Shader3D } from "../shader/Shader3D";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { MulSampleRenderTexture } from "../resource/MulSampleRenderTexture";
+import { ShaderDataType } from "./render/command/SetShaderDataCMD";
+import { UniformBufferObject } from "../graphics/UniformBufferObject";
 
 /**
  * 相机清除标记。
@@ -87,8 +88,9 @@ export class Camera extends BaseCamera {
 	static get _updateMark(): number {
 		return Camera.__updateMark;
 	}
+
 	/** @internal 深度贴图管线*/
-	static depthPass: DepthPass = new DepthPass();
+	static depthPass: DepthPass;
 
 	/**
 	 * 根据相机、scene信息获得scene中某一位置的渲染结果
@@ -126,6 +128,13 @@ export class Camera extends BaseCamera {
 		return camera.renderTarget;
 	}
 
+	/**
+	 * @internal
+	 */
+	static __init__(): void {
+		Camera.depthPass = new DepthPass();
+	}
+
 
 	/** @internal */
 	protected _aspectRatio: number;
@@ -156,7 +165,7 @@ export class Camera extends BaseCamera {
 	/** @internal*/
 	protected _needBuiltInRenderTexture: boolean = false;
 	/**@internal */
-	protected _msaa:boolean = false;
+	protected _msaa: boolean = false;
 
 	/** @internal*/
 	private _depthTextureMode: number;
@@ -255,11 +264,11 @@ export class Camera extends BaseCamera {
 	/**
 	 * 多重采样抗锯齿
 	 */
-	set msaa(value:boolean){
-		LayaGL.layaGPUInstance._isWebGL2?this._msaa = value:this._msaa = false;
+	set msaa(value: boolean) {
+		LayaGL.layaGPUInstance._isWebGL2 ? this._msaa = value : this._msaa = false;
 	}
 
-	get msaa():boolean{
+	get msaa(): boolean {
 		return this._msaa;
 	}
 
@@ -597,8 +606,8 @@ export class Camera extends BaseCamera {
 		var vp: Viewport = this.viewport;
 		this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
 		this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 1 / this.farPlane);
-		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
-		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
+		this._setShaderValue(BaseCamera.VIEWPORT, ShaderDataType.Vector4, this._viewportParams);
+		this._setShaderValue(BaseCamera.PROJECTION_PARAMS, ShaderDataType.Vector4, this._projectionParams);
 	}
 
 	/**
@@ -606,7 +615,6 @@ export class Camera extends BaseCamera {
 	 */
 	_applyViewProject(context: RenderContext3D, viewMat: Matrix4x4, proMat: Matrix4x4): void {
 		var projectView: Matrix4x4;
-		var shaderData: ShaderData = this._shaderValues;
 		if (context.invertY) {
 			Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
 			Matrix4x4.multiply(BaseCamera._invertYProjectionMatrix, viewMat, BaseCamera._invertYProjectionViewMatrix);
@@ -621,9 +629,9 @@ export class Camera extends BaseCamera {
 		context.viewMatrix = viewMat;
 		context.projectionMatrix = proMat;
 		context.projectionViewMatrix = projectView;
-		shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
-		shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
-		shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
+		this._setShaderValue(BaseCamera.VIEWMATRIX, ShaderDataType.Matrix4x4, viewMat);
+		this._setShaderValue(BaseCamera.PROJECTMATRIX, ShaderDataType.Matrix4x4, proMat);
+		this._setShaderValue(BaseCamera.VIEWPROJECTMATRIX, ShaderDataType.Matrix4x4, projectView);
 	}
 
 	/**
@@ -817,8 +825,11 @@ export class Camera extends BaseCamera {
 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
 		scene._preCulling(context, this, shader, replacementTag);
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
-
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+		if (this._cameraUniformBlock) {//需要在Depth之前更新数据
+			let cameraUBO = UniformBufferObject.getBuffer("CameraUniformBlock");
+			cameraUBO && cameraUBO.setDataByUniformBufferData(this._cameraUniformBlock);
+		}
 		if (this.depthTextureMode != 0) {
 			//TODO:是否可以不多次
 			this._renderDepthMode(context);
@@ -948,15 +959,14 @@ export class Camera extends BaseCamera {
 		context.replaceTag = replacementTag;
 		context.customShader = shader;
 		if (needInternalRT) {
-			if(this._msaa&&LayaGL.layaGPUInstance._isWebGL2)
-			{
+			if (this._msaa && LayaGL.layaGPUInstance._isWebGL2) {
 				this._internalRenderTexture = MulSampleRenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
-			}else{
+			} else {
 				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			}
-			
+
 		}
 		else {
 			this._internalRenderTexture = null;

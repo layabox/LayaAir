@@ -1,13 +1,20 @@
+import { Config3D } from "../../../Config3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
+import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
+import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
 import { RenderContext3D } from "../core/render/RenderContext3D";
+import { UnifromBufferData } from "../graphics/UniformBufferData";
+import { UniformBufferObject } from "../graphics/UniformBufferObject";
+import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ShaderDefine } from "../shader/ShaderDefine";
+import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 
 
 /**
@@ -46,7 +53,8 @@ export class DepthPass {
 	private _viewPort: Viewport;
 	/**@internal */
 	private _camera: Camera;
-
+	/** @internal */
+	private _castDepthBuffer: UnifromBufferData;
 	// Values used to linearize the Z buffer (http://www.humus.name/temp/Linearize%20depth.txt)
 	// x = 1-far/near
 	// y = far/near
@@ -61,6 +69,9 @@ export class DepthPass {
 	private _zBufferParams: Vector4 = new Vector4();
 
 	constructor() {
+		if (Config3D._config._uniformBlock) {
+			this._castDepthBuffer = ShadowCasterPass.createDepthCasterUniformBlock();
+		}
 	}
 
 	/**
@@ -68,7 +79,7 @@ export class DepthPass {
 	 * @param camera 
 	 * @param depthType 
 	 */
-	update(camera: Camera, depthType: DepthTextureMode,depthTextureFormat:RenderTextureDepthFormat): void {
+	update(camera: Camera, depthType: DepthTextureMode, depthTextureFormat: RenderTextureDepthFormat): void {
 		this._viewPort = camera.viewport;
 		this._camera = camera;
 		switch (depthType) {
@@ -102,6 +113,13 @@ export class DepthPass {
 				ShaderData.setRuntimeValueMode(false);
 				this._depthTexture._start();
 				shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
+				if (this._castDepthBuffer) {
+					this._castDepthBuffer._setData(DepthPass.DEFINE_SHADOW_BIAS, ShaderDataType.Vector4, DepthPass.SHADOW_BIAS);
+					this._castDepthBuffer._setData(BaseCamera.VIEWPROJECTMATRIX, ShaderDataType.Matrix4x4, context.projectionViewMatrix);
+					this._castDepthBuffer.setVector3("u_ShadowLightDirection", Vector3._ZERO);
+					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock");
+					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
+				}
 				var gl = LayaGL.instance;
 				var offsetX: number = this._viewPort.x;
 				var offsetY: number = this._viewPort.y;
@@ -153,12 +171,12 @@ export class DepthPass {
 				var far = camera.farPlane;
 				var near = camera.nearPlane;
 				this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
-				camera._shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
-				camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._depthTexture);
-				camera._shaderValues.setVector(DepthPass.DEPTHZBUFFERPARAMS, this._zBufferParams);
+				camera._setShaderValue(DepthPass.DEFINE_SHADOW_BIAS, ShaderDataType.Vector4, DepthPass.SHADOW_BIAS);
+				camera._setShaderValue(DepthPass.DEPTHTEXTURE, ShaderDataType.Texture, this._depthTexture);
+				camera._setShaderValue(DepthPass.DEPTHZBUFFERPARAMS, ShaderDataType.Vector4, this._zBufferParams);
 				break;
 			case DepthTextureMode.DepthNormals:
-				camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, this._depthNormalsTexture);
+				camera._setShaderValue(DepthPass.DEPTHNORMALSTEXTURE, ShaderDataType.Vector4, this._depthNormalsTexture);
 				break;
 			case DepthTextureMode.MotionVectors:
 				break;

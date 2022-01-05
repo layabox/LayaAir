@@ -13,6 +13,8 @@ import { Sprite3D } from "./Sprite3D";
 import { Scene3D } from "./scene/Scene3D";
 import { ShaderDefine } from "../shader/ShaderDefine";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
+import { UniformBufferParamsType, UnifromBufferData } from "../graphics/UniformBufferData";
+import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -94,6 +96,23 @@ export class BaseCamera extends Sprite3D {
 	}
 
 	/**
+	 * create BaseCamera UniformBuffer
+	 * @internal
+	 * @returns 
+	 */
+	static createSceneUniformBlock() {
+		let uniformPara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+		uniformPara.set("u_View", UniformBufferParamsType.Matrix4x4);
+		uniformPara.set("u_Projection", UniformBufferParamsType.Matrix4x4);
+		uniformPara.set("u_ViewProjection", UniformBufferParamsType.Matrix4x4);
+		uniformPara.set("u_ProjectionParams", UniformBufferParamsType.Vector4);
+		uniformPara.set("u_Viewport", UniformBufferParamsType.Vector4);
+		uniformPara.set("u_CameraDirection", UniformBufferParamsType.Vector3);
+		uniformPara.set("u_CameraUp", UniformBufferParamsType.Vector3);
+		uniformPara.set("u_CameraPos", UniformBufferParamsType.Vector3);
+		return new UnifromBufferData(uniformPara);
+	}
+	/**
 	 * Camera Init
 	 */
 	static __init__() {
@@ -102,6 +121,8 @@ export class BaseCamera extends Sprite3D {
 
 	/** @internal 渲染顺序。*/
 	_renderingOrder: number
+	/** @internal */
+	_cameraUniformBlock: UnifromBufferData;
 	/** 近裁剪面。*/
 	protected _nearPlane: number;
 	/** 远裁剪面。*/
@@ -232,6 +253,9 @@ export class BaseCamera extends Sprite3D {
 
 		this.cullingMask = 2147483647/*int.MAX_VALUE*/;
 		this.useOcclusionCulling = true;
+		if (Config3D._config._uniformBlock) {
+			this._cameraUniformBlock = BaseCamera.createSceneUniformBlock();
+		}
 	}
 
 
@@ -278,12 +302,28 @@ export class BaseCamera extends Sprite3D {
 	 * @internal
 	 */
 	_prepareCameraToRender(): void {
-		var cameraSV: ShaderData = this._shaderValues;
+		//var cameraSV: ShaderData = this._shaderValues;
 		this.transform.getForward(this._forward);
 		this.transform.getUp(this._up);
-		cameraSV.setVector3(BaseCamera.CAMERAPOS, this.transform.position);
-		cameraSV.setVector3(BaseCamera.CAMERADIRECTION, this._forward);
-		cameraSV.setVector3(BaseCamera.CAMERAUP, this._up);
+		this._setShaderValue(BaseCamera.CAMERAPOS, ShaderDataType.Vector3, this.transform.position);
+		this._setShaderValue(BaseCamera.CAMERADIRECTION, ShaderDataType.Vector3, this._forward);
+		this._setShaderValue(BaseCamera.CAMERAUP, ShaderDataType.Vector3, this._up);
+	}
+
+	/**
+	 * @internal
+	 */
+	_setShaderValue(index: number, shaderDataType: ShaderDataType, value: any) {
+		if (this._cameraUniformBlock && this._cameraUniformBlock._has(index))
+			this._cameraUniformBlock._setData(index, shaderDataType, value);
+		this._shaderValues.setValueData(index, value);
+	}
+
+	/**
+	 * @internal
+	 */
+	_getShaderValue(index: number): any {
+		return this._shaderValues.getValueData(index);
 	}
 
 
