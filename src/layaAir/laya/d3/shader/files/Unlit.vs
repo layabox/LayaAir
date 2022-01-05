@@ -11,7 +11,6 @@ attribute vec4 a_Position;
 attribute vec2 a_Texcoord0;
 
 #ifdef GPU_INSTANCE
-	uniform mat4 u_ViewProjection;
 	attribute mat4 a_WorldMat;
 #else
 	uniform mat4 u_MvpMatrix;

@@ -4,12 +4,13 @@
 
 attribute vec4 a_Position;
 
-uniform mat4 u_ViewProjection;
 uniform float u_Rotation;
 
 varying vec3 v_Texcoord;
 varying vec2 v_Image180ScaleAndCutoff;
 varying vec4 v_Layout3DScaleAndOffset;
+
+uniform mat4 u_ViewProjection;
 
 vec4 rotateAroundYInDegrees (vec4 vertex, float degrees)
 {

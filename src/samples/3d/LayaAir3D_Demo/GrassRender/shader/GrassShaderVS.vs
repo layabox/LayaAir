@@ -4,6 +4,7 @@
 	precision mediump float;
 #endif
 
+#include "LayaSceneInput.glsl";
 #include "Lighting.glsl";
 
 //attribute
@@ -12,14 +13,7 @@ attribute vec3 a_privotPosition;
 
 //camera
 uniform mat4 u_MvpMatrix;
-uniform mat4 u_ViewProjection;
-uniform mat4 u_View;
-uniform mat4 u_Projection;
 
-uniform vec3 u_CameraDirection;
-uniform vec3 u_CameraUp;
-uniform vec3 u_CameraPos;
-uniform float u_Time;
 
 //wind
 uniform float u_WindAIntensity;

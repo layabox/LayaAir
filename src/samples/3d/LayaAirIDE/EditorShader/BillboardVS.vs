@@ -13,9 +13,6 @@ attribute vec4 a_Position;
 attribute vec2 a_Texcoord0;
 
 uniform mat4 u_MvpMatrix;
-uniform vec3 u_CameraDirection;
-uniform vec3 u_CameraUp;
-uniform vec3 u_CameraPos;
 
 varying vec2 v_Texcoord0;
 

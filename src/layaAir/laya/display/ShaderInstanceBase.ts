@@ -1,9 +1,10 @@
+import { UnifromBufferData } from "../d3/graphics/UniformBufferData";
+import { UniformBufferObject } from "../d3/graphics/UniformBufferObject";
 import { Matrix4x4 } from "../d3/math/Matrix4x4";
 import { Vector2 } from "../d3/math/Vector2";
 import { Vector3 } from "../d3/math/Vector3";
 import { Vector4 } from "../d3/math/Vector4";
 import { Shader3D } from "../d3/shader/Shader3D";
-
 import { ShaderData } from "../d3/shader/ShaderData";
 import { ShaderVariable } from "../d3/shader/ShaderVariable";
 import { CommandEncoder } from "../layagl/CommandEncoder";
@@ -35,8 +36,10 @@ export class ShaderInstanceBase extends Resource {
     protected _program: any;
     /**@internal */
     protected _attributeMap: { [key: string]: number };
+    /**@internal */
     protected _uniformMap: CommandEncoder;
-
+    /**@internal */
+    protected _uniformObjectMap: any = [];
 
     constructor(vs: string, ps: string, attributeMap: any) {
         super();
@@ -59,9 +62,17 @@ export class ShaderInstanceBase extends Resource {
             gl.bindAttribLocation(this._program, this._attributeMap[k], k);
 
         gl.linkProgram(this._program);
+        var bo = gl.getProgramParameter(this._program, gl.LINK_STATUS);
+        if (!bo) {
+            var info = gl.getProgramInfoLog(this._program);
+            throw new Error('Could not compile WebGL program. \n\n' + info);
+        }
         //Uniform
+        //Unifrom Objcet
         var nUniformNum: number = gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS);
+
         WebGLContext.useProgram(gl, this._program);
+
         this._curActTexIndex = 0;
         var one: ShaderVariable, i: number, n: number;
         for (i = 0; i < nUniformNum; i++) {
@@ -81,6 +92,30 @@ export class ShaderInstanceBase extends Resource {
             this._uniformMap.addShaderUniform(one);
             one.dataOffset = Shader3D.propertyNameToID(uniName);
         }
+        if (LayaGL.layaGPUInstance._isWebGL2) {
+            var nUniformBlock: number = gl.getProgramParameter(this._program, (gl as WebGL2RenderingContext).ACTIVE_UNIFORM_BLOCKS);
+            for (i = 0; i < nUniformBlock; i++) {
+                let gl2 = (gl as WebGL2RenderingContext);
+                var uniformBlockName: string = gl2.getActiveUniformBlockName(this._program, i);
+                one = new ShaderVariable();
+                one.name = uniformBlockName;
+                one.isArray = false;
+                one.type = (gl as WebGL2RenderingContext).UNIFORM_BUFFER;
+                one.dataOffset = Shader3D.propertyNameToID(uniformBlockName);
+                let location = one.location = gl2.getUniformBlockIndex(this._program, uniformBlockName);
+                if (UniformBufferObject.hasBuffer(uniformBlockName)) {
+                    let indexPoint = UniformBufferObject.getBuffer(uniformBlockName);
+                    gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
+                } else {
+                    var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
+                    let buffer: UniformBufferObject = UniformBufferObject.creat(uniformBlockName, gl.DYNAMIC_DRAW, bytelength);
+                    gl2.uniformBlockBinding(this._program, location, buffer._glPointer);
+                }
+                this._uniformObjectMap[one.name] = one;
+                this._uniformMap.addShaderUniform(one);
+                this._addShaderUnifiormFun(one);
+            }
+        }
     }
 
     protected splitUnifromData() {
@@ -93,8 +128,10 @@ export class ShaderInstanceBase extends Resource {
         var shader: any = gl.createShader(type);
         gl.shaderSource(shader, str);
         gl.compileShader(shader);
-        if (Shader3D.debugMode && !gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+        if (Shader3D.debugMode && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             throw gl.getShaderInfoLog(shader);
+        }
+
         return shader;
     }
 
@@ -155,9 +192,11 @@ export class ShaderInstanceBase extends Resource {
                 one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
                 one.fun = this._uniform_samplerCube;
                 break;
+            case (gl as WebGL2RenderingContext).UNIFORM_BUFFER:
+                one.fun = this._uniform_UniformBuffer;
+                break;
             default:
                 throw new Error("compile shader err!");
-                break;
         }
     }
 
@@ -170,11 +209,11 @@ export class ShaderInstanceBase extends Resource {
     }
 
     /**
-	 * @internal
-	 */
-	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean): void {
-		Stat.shaderCall += LayaGLRunner.uploadShaderUniforms((<any>LayaGL.instance), shaderUniform, shaderDatas, uploadUnTexture);
-	}
+     * @internal
+     */
+    uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean): void {
+        Stat.shaderCall += LayaGLRunner.uploadShaderUniforms((<any>LayaGL.instance), shaderUniform, shaderDatas, uploadUnTexture);
+    }
 
     /**
      * @internal
@@ -425,6 +464,16 @@ export class ShaderInstanceBase extends Resource {
         return 0;
     }
 
-
-
+    /**
+     * @internal
+     * @param one 
+     * @param value 
+     * @returns 
+     */
+    _uniform_UniformBuffer(one: any, value: UnifromBufferData) {
+        let buffer = UniformBufferObject.getBuffer(one.name);
+        if (!buffer || !(value instanceof UnifromBufferData)) return 0;
+        buffer.setDataByUniformBufferData(value);
+        return 1;
+    }
 }

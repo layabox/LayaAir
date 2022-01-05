@@ -117,12 +117,14 @@ export class ShaderPass extends ShaderCompileDefineBase {
 		if (WebGL._isWebGL2) {
 			vertexHead =
 				`#version 300 es\n
+				layout(std140, column_major) uniform;
 				#define attribute in
 				#define varying out
 				#define textureCube texture
 				#define texture2D texture\n`;
 			fragmentHead =
 				`#version 300 es\n
+				layout(std140, column_major) uniform;
 				#define varying in
 				out highp vec4 pc_fragColor;
 				#define gl_FragColor pc_fragColor

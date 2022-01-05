@@ -3,7 +3,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-
+#include "LayaSceneInput.glsl";
 //修改这里剔除没有用到的光照函数，增加粒子的编译速度
 vec2 TransformUV(vec2 texcoord, vec4 tilingOffset)
 {
@@ -58,14 +58,9 @@ uniform bool u_ThreeDStartRotation;
 uniform int u_ScalingMode;
 uniform vec3 u_PositionScale;
 uniform vec3 u_SizeScale;
-uniform mat4 u_View;
-uniform mat4 u_Projection;
 
 #ifdef STRETCHEDBILLBOARD
-uniform vec3 u_CameraPos;
 #endif
-uniform vec3 u_CameraDirection; // TODO:只有几种广告牌模式需要用
-uniform vec3 u_CameraUp;
 
 uniform float u_StretchedBillboardLengthScale;
 uniform float u_StretchedBillboardSpeedScale;

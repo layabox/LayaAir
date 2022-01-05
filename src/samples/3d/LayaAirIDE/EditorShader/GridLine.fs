@@ -10,7 +10,6 @@ varying vec4 v_Color;
 varying vec4 v_PositionWS;
 
 uniform float u_Step;
-uniform vec3 u_CameraPos;
 
 void main()
 {

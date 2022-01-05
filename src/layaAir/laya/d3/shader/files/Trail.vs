@@ -3,6 +3,7 @@
 #else
 	precision mediump float;
 #endif
+#include "LayaSceneInput.glsl";
 #include "Lighting.glsl";
 
 attribute vec3 a_Position;
@@ -12,8 +13,6 @@ attribute float a_Texcoord0X;
 attribute float a_Texcoord0Y;
 attribute float a_BirthTime;
 
-uniform mat4 u_View;
-uniform mat4 u_Projection;
 
 uniform vec4 u_TilingOffset;
 

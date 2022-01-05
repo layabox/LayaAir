@@ -1,3 +1,4 @@
+#include "LayaSceneInput.glsl";
 #include "Lighting.glsl";
 
 attribute vec4 a_Position;
@@ -22,7 +23,7 @@ varying vec2 v_Texcoord0;
 	uniform vec4 u_LightmapScaleOffset;
 #endif
 
-#if defined(CALCULATE_SHADOWS)//shaderÖÐ×Ô¶¨ÒåµÄºê²»¿ÉÓÃifdef ±ØÐë¸Ä³Éif defined
+#if defined(CALCULATE_SHADOWS)//shaderï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½Äºê²»ï¿½ï¿½ï¿½ï¿½ifdef ï¿½ï¿½ï¿½ï¿½Ä³ï¿½if defined
 	varying vec4 v_ShadowCoord;
 #endif
 
@@ -45,7 +46,7 @@ void main()
 		v_PositionWorld=(u_WorldMat*a_Position).xyz;
 	#endif
 
-	#if defined(CALCULATE_SHADOWS)//shaderÖÐ×Ô¶¨ÒåµÄºê²»¿ÉÓÃifdef ±ØÐë¸Ä³Éif defined
+	#if defined(CALCULATE_SHADOWS)//shaderï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½Äºê²»ï¿½ï¿½ï¿½ï¿½ifdef ï¿½ï¿½ï¿½ï¿½Ä³ï¿½if defined
 		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld));
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);

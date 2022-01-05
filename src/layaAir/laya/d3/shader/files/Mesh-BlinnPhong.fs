@@ -6,7 +6,7 @@
 	precision mediump int;
 #endif
 
-
+#include "LayaSceneInput.glsl";
 #include "Lighting.glsl";
 #include "Shadow.glsl"
 
@@ -44,26 +44,6 @@ varying vec3 v_Normal;
 
 	uniform vec3 u_MaterialSpecular;
 	uniform float u_Shininess;
-
-	#ifdef LEGACYSINGLELIGHTING
-		#ifdef DIRECTIONLIGHT
-			uniform DirectionLight u_DirectionLight;
-		#endif
-		#ifdef POINTLIGHT
-			uniform PointLight u_PointLight;
-		#endif
-		#ifdef SPOTLIGHT
-			uniform SpotLight u_SpotLight;
-		#endif
-	#else
-		uniform mat4 u_View;
-		uniform vec4 u_ProjectionParams;
-		uniform vec4 u_Viewport;
-		uniform int u_DirationLightCount;
-		uniform sampler2D u_LightBuffer;
-		uniform sampler2D u_LightClusterBuffer;
-	#endif
-
 	#ifdef SPECULARMAP 
 		uniform sampler2D u_SpecularTexture;
 	#endif
@@ -75,11 +55,7 @@ varying vec3 v_Normal;
 	varying vec3 v_Binormal;
 #endif
 
-#ifdef FOG
-	uniform float u_FogStart;
-	uniform float u_FogRange;
-	uniform vec3 u_FogColor;
-#endif
+
 
 #if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))||defined(CALCULATE_SPOTSHADOWS)
 	varying vec3 v_PositionWorld;

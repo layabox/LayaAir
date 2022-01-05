@@ -3,7 +3,6 @@
 #else
 	#define INVERSE_MAT(mat) inverseMat(mat)
 #endif
-
 struct DirectionLight {
 	vec3 color;
 	vec3 direction;
@@ -22,6 +21,23 @@ struct SpotLight {
 	vec3 direction;
 	float spot;
 };
+
+
+#ifdef LEGACYSINGLELIGHTING
+   	#ifdef DIRECTIONLIGHT
+			uniform DirectionLight u_DirectionLight;
+    #endif
+    #ifdef POINTLIGHT
+        uniform PointLight u_PointLight;
+    #endif
+    #ifdef SPOTLIGHT
+        uniform SpotLight u_SpotLight;
+    #endif
+#else
+    uniform int u_DirationLightCount;
+      uniform sampler2D u_LightBuffer;
+    uniform sampler2D u_LightClusterBuffer;
+#endif
 
 struct LayaGI{
 	vec3 diffuse;
