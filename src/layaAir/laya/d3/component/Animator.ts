@@ -190,6 +190,7 @@ export class Animator extends Component {
 			keyframeNodeOwner.indexInList = this._keyframeNodeOwners.length;
 			keyframeNodeOwner.referenceCount = 1;
 			keyframeNodeOwner.propertyOwner = propertyOwner;
+			keyframeNodeOwner.nodePath = node.nodePath;
 			var propertyCount = node.propertyCount;
 			var propertys: string[] = [];
 			for (i = 0; i < propertyCount; i++)
@@ -621,8 +622,9 @@ export class Animator extends Component {
 			var nodeOwner: KeyframeNodeOwner = nodeOwners[i];
 			if (nodeOwner) {//骨骼中没有该节点
 				var node = nodes.getNodeByIndex(i);
-				if (controllerLayer.avatarMask && (!controllerLayer.avatarMask.getTransformActive(node.nodePath)))
+				if (controllerLayer.avatarMask && (!controllerLayer.avatarMask.getTransformActive(node.nodePath))) {
 					continue;
+				}
 				var pro: any = nodeOwner.propertyOwner;
 				if (pro) {
 					switch (nodeOwner.type) {
@@ -686,7 +688,9 @@ export class Animator extends Component {
 				var destIndex: number = destDataIndices[i];
 				var srcValue: any = srcIndex !== -1 ? srcRealtimeDatas[srcIndex] : destNodeOwners[destIndex].defaultValue;
 				var desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : srcNodeOwners[srcIndex].defaultValue;
-				this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
+				if (!controllerLayer.avatarMask || controllerLayer.avatarMask.getTransformActive(nodeOwner.nodePath)) {
+					this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
+				}
 			}
 		}
 	}
