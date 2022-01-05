@@ -4,7 +4,7 @@
 	precision mediump float;
 #endif
 
-#include "LayaSceneInput.glsl";
+#include "LayaComInput.glsl";
 
 #ifdef ALBEDOTEXTURE
 	uniform sampler2D u_AlbedoTexture;

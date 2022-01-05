@@ -4,7 +4,7 @@
 	precision mediump float;
 #endif
 
-#include "LayaSceneInput.glsl";
+#include "LayaComInput.glsl";
 
 #if defined(COLOR)&&defined(ENABLEVERTEXCOLOR)
 	varying vec4 v_Color;

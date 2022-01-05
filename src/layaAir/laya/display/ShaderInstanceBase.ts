@@ -65,6 +65,7 @@ export class ShaderInstanceBase extends Resource {
         var bo = gl.getProgramParameter(this._program, gl.LINK_STATUS);
         if (!bo) {
             var info = gl.getProgramInfoLog(this._program);
+            debugger;
             throw new Error('Could not compile WebGL program. \n\n' + info);
         }
         //Uniform

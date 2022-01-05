@@ -1,4 +1,4 @@
-#include "LayaSceneInput.glsl";
+#include "LayaComInput.glsl";
 attribute vec4 a_Position;
 
 #ifdef GPU_INSTANCE

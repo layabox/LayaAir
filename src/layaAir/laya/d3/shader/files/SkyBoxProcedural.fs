@@ -12,8 +12,9 @@ const float SKY_GROUND_THRESHOLD = 0.02;
 
 uniform float u_SunSize;
 uniform float u_SunSizeConvergence;
-uniform DirectionLight u_SunLight;
 
+uniform vec3 u_SunLight_direction;
+uniform vec3 u_SunLight_color;
 
 varying vec3 v_GroundColor;
 varying vec3 v_SkyColor;
@@ -74,7 +75,7 @@ void main() {
 
 	#if defined(SUN_HIGH_QUALITY)||defined(SUN_SIMPLE)
 		if (y < 0.0)
-			col += v_SunColor * calcSunAttenuation(-u_SunLight.direction, -ray);
+			col += v_SunColor * calcSunAttenuation(-u_SunLight_direction, -ray);
 	#endif
 
 	col = sqrt(col);//linear space convert to gamma space

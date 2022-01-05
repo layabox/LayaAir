@@ -53,7 +53,7 @@ import WaterPrimaryVS from "./files/WaterPrimary.vs";
 import DepthNormalsTextureVS from "./files/DepthNormalsTextureVS.vs";
 import DepthNormalsTextureFS from "./files/DepthNormalsTextureFS.fs";
 import DepthNormalUtil from "./files/DepthNormalUtil.glsl";
-import LayaSceneInput from "./files/glslInput/LayaSceneInput.glsl";
+import LayaComInput from "./files/glslInput/LayaComInput.glsl";
 import DepthCasterInput from "./files/glslInput/DepthCasterInput.glsl";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
@@ -72,7 +72,7 @@ export class ShaderInit3D {
 		Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2 = Shader3D.getDefineByName("GRAPHICS_API_GLES2");
 		Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3 = Shader3D.getDefineByName("GRAPHICS_API_GLES3");
 		Shader3D.SHADERDEFINE_ENUNIFORMBLOCK = Shader3D.getDefineByName("ENUNIFORMBLOCK");
-		Shader3D.addInclude("LayaSceneInput.glsl", LayaSceneInput);
+		Shader3D.addInclude("LayaComInput.glsl", LayaComInput);
 		Shader3D.addInclude("DepthCasterInput.glsl", DepthCasterInput);
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
 		Shader3D.addInclude("ShadowSampleTent.glsl", ShadowSampleTentGLSL);

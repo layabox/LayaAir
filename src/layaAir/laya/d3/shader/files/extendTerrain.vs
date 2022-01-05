@@ -1,4 +1,4 @@
-#include "LayaSceneInput.glsl";
+#include "LayaComInput.glsl";
 #include "Lighting.glsl";
 
 attribute vec4 a_Position;

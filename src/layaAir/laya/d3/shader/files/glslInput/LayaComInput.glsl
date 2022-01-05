@@ -47,21 +47,8 @@
 #endif
 
 //Light
-// #ifdef LEGACYSINGLELIGHTING
 
-// #else
-//     uniform int u_DirationLightCount;
-//     uniform sampler2D u_LightBuffer;
-//     uniform sampler2D u_LightClusterBuffer;
-// #endif
 //=======Scene End=======
-
-
-
-// //=======Shadow=======
-
-// //=======Shadow end=======
-
 //=======Camera=======
 #ifdef ENUNIFORMBLOCK
     uniform CameraUniformBlock{
@@ -85,4 +72,3 @@
     uniform vec3 u_CameraPos;
 #endif
 //=======Camera end=======
-// //camera DepthTexture在DepthNormalUtil里面

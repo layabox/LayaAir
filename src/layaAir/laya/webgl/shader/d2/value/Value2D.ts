@@ -6,7 +6,6 @@ import { Shader2X } from "../Shader2X"
 import { ShaderDefines2D } from "../ShaderDefines2D"
 import { RenderState2D } from "../../../utils/RenderState2D"
 import { ILaya } from "../../../../../ILaya";
-import { Material2D } from "../../../../display/Material2D"
 
 export class Value2D {
 

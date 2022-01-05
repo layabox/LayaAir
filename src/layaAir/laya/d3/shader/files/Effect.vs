@@ -3,7 +3,7 @@
 #else
 	precision mediump float;
 #endif
-#include "LayaSceneInput.glsl";
+#include "LayaComInput.glsl";
 #include "Lighting.glsl";
 #include "LayaUtile.glsl";
 
