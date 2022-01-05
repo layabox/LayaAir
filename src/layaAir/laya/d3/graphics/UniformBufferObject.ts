@@ -67,11 +67,17 @@ export class UniformBufferObject extends Buffer {
         this._buffer = new Uint8Array(this.byteLength);
     }
 
+    /**
+     * @interanl
+     */
     private bindUniformBuffer() {
         var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
         gl.bindBuffer(gl.UNIFORM_BUFFER, this._glBuffer);
     }
 
+    /**
+     * @internal
+     */
     private bindUniformBufferBase() {
         var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
         gl.bindBufferBase(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer);
@@ -126,7 +132,5 @@ export class UniformBufferObject extends Buffer {
             this._updateDataInfo = bufferData;
         }
     }
-
-
 
 }
