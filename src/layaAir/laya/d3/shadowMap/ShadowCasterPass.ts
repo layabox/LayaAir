@@ -22,8 +22,15 @@ import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
 import { LightSprite, LightType } from "../core/light/LightSprite";
 import { SpotLight } from "../core/light/SpotLight";
 import { BoundFrustum } from "../math/BoundFrustum";
+import { UniformBufferParamsType, UnifromBufferData } from "../graphics/UniformBufferData";
+import { Config3D } from "../../../Config3D";
+import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
+import { UniformBufferObject } from "../graphics/UniformBufferObject";
 
-export enum ShadowLightType{
+/**
+ * Shadow Light enum
+ */
+export enum ShadowLightType {
 	/**直射光 */
 	DirectionLight,
 	/**聚光 */
@@ -41,7 +48,6 @@ export class ShadowCasterPass {
 	private static _tempVector30: Vector3 = new Vector3();
 	/**@internal */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
-
 	/** @internal */
 	static SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
 	/** @internal */
@@ -59,9 +65,9 @@ export class ShadowCasterPass {
 	/** @internal */
 	static SHADOW_SPOTMAP_SIZE: number = Shader3D.propertyNameToID("u_SpotShadowMapSize");
 	/** @internal */
-	static SHADOW_SPOTMAP:number = Shader3D.propertyNameToID("u_SpotShadowMap");
+	static SHADOW_SPOTMAP: number = Shader3D.propertyNameToID("u_SpotShadowMap");
 	/** @internal */
-	static SHADOW_SPOTMATRICES:number = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
+	static SHADOW_SPOTMATRICES: number = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
 	/** @internal */
 	private static _maxCascades: number = 4;
 	/**@internal */
@@ -69,29 +75,47 @@ export class ShadowCasterPass {
 	/** @internal */
 	private static _frustumPlanes: Plane[] = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
 
-	static __init__(){
+	/**
+	 * @internal
+	 * init Scene UniformMap
+	 */
+	static __init__() {
 		const sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
 		ShadowCasterPass.SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS,"u_ShadowBias");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS, "u_ShadowBias");
 		ShadowCasterPass.SHADOW_LIGHT_DIRECTION = Shader3D.propertyNameToID("u_ShadowLightDirection");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_LIGHT_DIRECTION,"u_ShadowLightDirection");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, "u_ShadowLightDirection");
 		ShadowCasterPass.SHADOW_SPLIT_SPHERES = Shader3D.propertyNameToID("u_ShadowSplitSpheres");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPLIT_SPHERES,"u_ShadowSplitSpheres");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPLIT_SPHERES, "u_ShadowSplitSpheres");
 		ShadowCasterPass.SHADOW_MATRICES = Shader3D.propertyNameToID("u_ShadowMatrices");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MATRICES,"u_ShadowMatrices");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MATRICES, "u_ShadowMatrices");
 		ShadowCasterPass.SHADOW_MAP_SIZE = Shader3D.propertyNameToID("u_ShadowMapSize");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP_SIZE,"u_ShadowMapSize");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP_SIZE, "u_ShadowMapSize");
 		ShadowCasterPass.SHADOW_MAP = Shader3D.propertyNameToID("u_ShadowMap");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP,"u_ShadowMap");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP, "u_ShadowMap");
 		ShadowCasterPass.SHADOW_PARAMS = Shader3D.propertyNameToID("u_ShadowParams");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_PARAMS,"u_ShadowParams");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_PARAMS, "u_ShadowParams");
 		ShadowCasterPass.SHADOW_SPOTMAP_SIZE = Shader3D.propertyNameToID("u_SpotShadowMapSize");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP_SIZE,"u_SpotShadowMapSize");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, "u_SpotShadowMapSize");
 		ShadowCasterPass.SHADOW_SPOTMAP = Shader3D.propertyNameToID("u_SpotShadowMap");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP,"u_SpotShadowMap");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP, "u_SpotShadowMap");
 		ShadowCasterPass.SHADOW_SPOTMATRICES = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMATRICES,"u_SpotViewProjectMatrix");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMATRICES, "u_SpotViewProjectMatrix");
 	}
+
+	/**
+	 * create DepthCaster UniformBuffer
+	 * @internal
+	 * @returns 
+	 */
+	static createDepthCasterUniformBlock(): UnifromBufferData {
+		let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+		uniformpara.set("u_ShadowBias", UniformBufferParamsType.Vector4);
+		uniformpara.set("u_ViewProjection", UniformBufferParamsType.Matrix4x4);
+		uniformpara.set("u_ShadowLightDirection", UniformBufferParamsType.Vector3);
+		return new UnifromBufferData(uniformpara);
+	}
+
 	/** @internal */
 	private _shadowBias: Vector4 = new Vector4();
 	/** @internal */
@@ -103,7 +127,7 @@ export class ShadowCasterPass {
 	/** @internal */
 	private _shadowMatrices: Float32Array = new Float32Array(16 * (ShadowCasterPass._maxCascades));
 	/** @internal */
-	private _shadowSpotMatrices:Matrix4x4 = new Matrix4x4();
+	private _shadowSpotMatrices: Matrix4x4 = new Matrix4x4();
 	/**@internal */
 	private _splitBoundSpheres: Float32Array = new Float32Array(ShadowCasterPass._maxCascades * 4);
 	/** @internal */
@@ -115,11 +139,11 @@ export class ShadowCasterPass {
 	/** @internal */
 	private _shadowDirectLightMap: RenderTexture;
 	/** @internal */
-	private _shadowSpotLightMap:RenderTexture;
+	private _shadowSpotLightMap: RenderTexture;
 	/** @internal */
 	private _shadowSliceDatas: ShadowSliceData[] = [new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData(), new ShadowSliceData()];
 	/** @internal */
-	private _shadowSpotData:ShadowSpotData = new ShadowSpotData();
+	private _shadowSpotData: ShadowSpotData = new ShadowSpotData();
 	/**@internal */
 	private _light: LightSprite;
 	/** @internal */
@@ -128,9 +152,13 @@ export class ShadowCasterPass {
 	private _lightSide: Vector3 = new Vector3();
 	/** @internal */
 	private _lightForward: Vector3 = new Vector3();
-
+	/** @internal */
+	private _castDepthBuffer: UnifromBufferData;
 	constructor() {
 		this._shadowSpotData.cameraCullInfo.boundFrustum = new BoundFrustum(new Matrix4x4());
+		if (Config3D._config._uniformBlock) {
+			this._castDepthBuffer = ShadowCasterPass.createDepthCasterUniformBlock();
+		}
 	}
 
 	/**
@@ -144,30 +172,30 @@ export class ShadowCasterPass {
 	 * @param shadowBias 阴影偏移
 	 * @param lightType 灯光类型
 	 */
-	private _setupShadowCasterShaderValues(context: RenderContext3D, shaderValues: ShaderData, shadowSliceData: any, LightParam: Vector3,shadowparams:Vector4, shadowBias: Vector4,lightType:LightType): void {
+	private _setupShadowCasterShaderValues(context: RenderContext3D, shaderValues: ShaderData, shadowSliceData: any, LightParam: Vector3, shadowparams: Vector4, shadowBias: Vector4, lightType: LightType): void {
 		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
-		switch(lightType)
-		{
+		this._setcommandBlockData(ShadowCasterPass.SHADOW_BIAS, ShaderDataType.Vector4, shadowBias);
+		switch (lightType) {
 			case LightType.Directional:
 				shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, LightParam);
+				this._setcommandBlockData(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, ShaderDataType.Vector3, LightParam);
 				break;
 			case LightType.Spot:
-				shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS,shadowparams);
+				shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowparams);
 				break;
 			case LightType.Point:
 				break;
 		}
-		
-
 		var cameraSV: ShaderData = shadowSliceData.cameraShaderValue;//TODO:should optimization with shader upload.
 		cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
+		this._setcommandBlockData(BaseCamera.VIEWPROJECTMATRIX, ShaderDataType.Matrix4x4, shadowSliceData.viewProjectMatrix);
 		context.viewMatrix = shadowSliceData.viewMatrix;
 		context.projectionMatrix = shadowSliceData.projectionMatrix;
 		context.projectionViewMatrix = shadowSliceData.viewProjectMatrix;
 	}
-	
+
 
 	/**
 	 *设置直射光接受阴影的模式
@@ -206,9 +234,9 @@ export class ShadowCasterPass {
 	 * @internal
 	 * @param shaderValues 渲染数据
 	 */
-	private _setupSpotShadowReceiverShaderValues(shaderValues:ShaderData):void{
-		var spotLight:SpotLight = <SpotLight>this._light;
-		switch(spotLight.shadowMode){
+	private _setupSpotShadowReceiverShaderValues(shaderValues: ShaderData): void {
+		var spotLight: SpotLight = <SpotLight>this._light;
+		switch (spotLight.shadowMode) {
 			case ShadowMode.Hard:
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH);
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW);
@@ -222,10 +250,18 @@ export class ShadowCasterPass {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW);
 				break;
 		}
-		shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP,this._shadowSpotLightMap);
-		shaderValues.setMatrix4x4(ShadowCasterPass.SHADOW_SPOTMATRICES,this._shadowSpotMatrices)
+		shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._shadowSpotLightMap);
+		shaderValues.setMatrix4x4(ShadowCasterPass.SHADOW_SPOTMATRICES, this._shadowSpotMatrices)
 		shaderValues.setVector(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, this._shadowSpotMapSize);
-		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS,this._shadowParams);
+		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
+	}
+
+	/**
+	 * set castDepthBuffer data
+	 */
+	private _setcommandBlockData(index: number, shaderDataType: ShaderDataType, value: any) {
+		if (this._castDepthBuffer && this._castDepthBuffer._has(index))
+			this._castDepthBuffer._setData(index, shaderDataType, value);
 	}
 
 
@@ -236,8 +272,8 @@ export class ShadowCasterPass {
 	 * @param light 灯光
 	 * @param lightType 灯光类型
 	 */
-	update(camera: Camera, light: LightSprite,lightType:ShadowLightType): void {
-		switch(lightType){
+	update(camera: Camera, light: LightSprite, lightType: ShadowLightType): void {
+		switch (lightType) {
 			case ShadowLightType.DirectionLight:
 				this._light = light;
 				var lightWorld: Matrix4x4 = ShadowCasterPass._tempMatrix0;
@@ -271,7 +307,7 @@ export class ShadowCasterPass {
 				this._cascadeCount = cascadesCount;
 				this._shadowMapWidth = shadowMapWidth;
 				this._shadowMapHeight = shadowMapHeight;
-		
+
 				var splitDistance: number[] = ShadowCasterPass._cascadesSplitDistance;
 				var frustumPlanes: Plane[] = ShadowCasterPass._frustumPlanes;
 				var cameraNear: number = camera.nearPlane;
@@ -295,13 +331,13 @@ export class ShadowCasterPass {
 				break;
 			case ShadowLightType.SpotLight:
 				this._light = light;
-				var lightWorld:Matrix4x4 = ShadowCasterPass._tempMatrix0;
-				var lightForward:Vector3 = this._lightForward;
-				var shadowResolution:number = this._light._shadowResolution;
+				var lightWorld: Matrix4x4 = ShadowCasterPass._tempMatrix0;
+				var lightForward: Vector3 = this._lightForward;
+				var shadowResolution: number = this._light._shadowResolution;
 				this._shadowMapWidth = shadowResolution;
 				this._shadowMapHeight = shadowResolution;
-				var shadowSpotData:ShadowSpotData = this._shadowSpotData;
-				ShadowUtils.getSpotLightShadowData(shadowSpotData,<SpotLight>this._light,shadowResolution,this._shadowParams,this._shadowSpotMatrices,this._shadowSpotMapSize);
+				var shadowSpotData: ShadowSpotData = this._shadowSpotData;
+				ShadowUtils.getSpotLightShadowData(shadowSpotData, <SpotLight>this._light, shadowResolution, this._shadowParams, this._shadowSpotMatrices, this._shadowSpotMapSize);
 				break;
 			case ShadowLightType.PointLight:
 				//TODO:
@@ -310,7 +346,7 @@ export class ShadowCasterPass {
 				throw ("There is no shadow of this type")
 				break;
 		}
-	
+
 	}
 
 	/**
@@ -320,8 +356,8 @@ export class ShadowCasterPass {
 	 * @param scene 3DScene场景
 	 * @param lightType 阴影类型
 	 */
-	render(context: RenderContext3D, scene: Scene3D,lightType:ShadowLightType): void {
-		switch(lightType){
+	render(context: RenderContext3D, scene: Scene3D, lightType: ShadowLightType): void {
+		switch (lightType) {
 			case ShadowLightType.DirectionLight:
 				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
@@ -332,7 +368,7 @@ export class ShadowCasterPass {
 				for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
 					var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
 					ShadowUtils.getShadowBias(light, sliceData.projectionMatrix, sliceData.resolution, this._shadowBias);
-					this._setupShadowCasterShaderValues(context, shaderValues, sliceData, this._lightForward,this._shadowParams, this._shadowBias,LightType.Directional);
+					this._setupShadowCasterShaderValues(context, shaderValues, sliceData, this._lightForward, this._shadowParams, this._shadowBias, LightType.Directional);
 					var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
 					shadowCullInfo.position = sliceData.position;
 					shadowCullInfo.cullPlanes = sliceData.cullPlanes;
@@ -342,6 +378,10 @@ export class ShadowCasterPass {
 					var needRender: boolean = FrustumCulling.cullingShadow(shadowCullInfo, scene, context);
 					context.cameraShaderValue = sliceData.cameraShaderValue;
 					Camera._updateMark++;
+					if (this._castDepthBuffer) {
+						let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock");
+						depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
+					}
 					var gl = LayaGL.instance;
 					var resolution: number = sliceData.resolution;
 					var offsetX: number = sliceData.offsetX;
@@ -361,26 +401,30 @@ export class ShadowCasterPass {
 				context.pipelineMode = context.configPipeLineMode;
 				break;
 			case ShadowLightType.SpotLight:
-				var shaderValues:ShaderData = scene._shaderValues;
+				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
 				ShaderData.setRuntimeValueMode(false);
 				var spotlight: SpotLight = <SpotLight>this._light;
-				var shadowMap:RenderTexture = this._shadowSpotLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth,this._shadowMapHeight,RenderTextureDepthFormat.DEPTH_16);
+				var shadowMap: RenderTexture = this._shadowSpotLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTextureDepthFormat.DEPTH_16);
 				shadowMap._start();
-				var shadowSpotData:ShadowSpotData = this._shadowSpotData;
-				ShadowUtils.getShadowBias(spotlight,shadowSpotData.projectionMatrix,shadowSpotData.resolution,this._shadowBias);
-				this._setupShadowCasterShaderValues(context,shaderValues,shadowSpotData,this._light.transform.position,this._shadowParams,this._shadowBias,LightType.Spot);
-				var needRender:boolean = FrustumCulling.cullingSpotShadow(shadowSpotData.cameraCullInfo,scene,context);
+				var shadowSpotData: ShadowSpotData = this._shadowSpotData;
+				ShadowUtils.getShadowBias(spotlight, shadowSpotData.projectionMatrix, shadowSpotData.resolution, this._shadowBias);
+				this._setupShadowCasterShaderValues(context, shaderValues, shadowSpotData, this._light.transform.position, this._shadowParams, this._shadowBias, LightType.Spot);
+				var needRender: boolean = FrustumCulling.cullingSpotShadow(shadowSpotData.cameraCullInfo, scene, context);
 				context.cameraShaderValue = shadowSpotData.cameraShaderValue;
 				Camera._updateMark++;
+				if (this._castDepthBuffer) {
+					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock");
+					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
+				}
 				var gl = LayaGL.instance;
 				gl.enable(gl.SCISSOR_TEST);
 				gl.viewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-				gl.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY,shadowSpotData.resolution, shadowSpotData.resolution);
+				gl.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 				gl.clear(gl.DEPTH_BUFFER_BIT);
-			
-				if(needRender){
-					 gl.scissor(shadowSpotData.offsetX,shadowSpotData.offsetY,shadowSpotData.resolution,shadowSpotData.resolution);
+
+				if (needRender) {
+					gl.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 					scene._opaqueQueue._render(context);
 				}
 				shadowMap._end();
@@ -395,7 +439,7 @@ export class ShadowCasterPass {
 				throw ("There is no shadow of this type")
 				break;
 		}
-	
+
 	}
 
 	/**
@@ -408,7 +452,7 @@ export class ShadowCasterPass {
 		this._shadowDirectLightMap = null;
 		this._shadowSpotLightMap = null;
 		this._light = null;
-		
+
 	}
 }
 

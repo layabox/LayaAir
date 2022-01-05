@@ -1,3 +1,4 @@
+import { ShaderVariable } from "../d3/shader/ShaderVariable";
 import { CommandEncoder } from "./CommandEncoder";
 import { LayaGL } from "./LayaGL";
 
@@ -28,7 +29,7 @@ export class LayaGLRunner {
 
     /**
      * @private
-     * 上传ShaderUniform。
+     * 上传更新所有ShaderUniform。
      */
     static uploadCustomUniform(layaGL: LayaGL, custom: any[], index: number, data: any): number {
         var shaderCall: number = 0;
@@ -50,6 +51,5 @@ export class LayaGLRunner {
         var data: any = shaderData._data;
         return (<any>LayaGL.instance).uploadShaderUniforms(commandEncoder, data, nType);
     }
-
 }
 
