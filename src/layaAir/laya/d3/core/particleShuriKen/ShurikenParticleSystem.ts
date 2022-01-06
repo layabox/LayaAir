@@ -1353,7 +1353,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 */
 	_simulationSupported(): boolean {
 
-		if (this.simulationSpace == 0) {
+		if (this.simulationSpace == 0 && this.emission.emissionRateOverDistance > 0) {
 			return false;
 		}
 

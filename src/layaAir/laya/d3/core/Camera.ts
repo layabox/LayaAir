@@ -654,11 +654,10 @@ export class Camera extends BaseCamera {
 				for (var i: number = 0; i < yCount; i++)
 					yPlanes[i] = new Vector3();
 			}
-
 			var halfY = Math.tan((this.fieldOfView / 2) * Math.PI / 180);
-			var halfX = this.aspectRatio * halfY;
-			var yLengthPerCluster = 2 * halfY / xSlixe;
-			var xLengthPerCluster = 2 * halfX / ySlice;
+			var halfX = this.aspectRatio * halfY;			
+			var yLengthPerCluster = 2 * halfY / ySlice;
+			var xLengthPerCluster = 2 * halfX / xSlixe;
 			for (var i: number = 0; i < xCount; i++) {
 				var angle: number = -halfX + xLengthPerCluster * i;
 				var bigHypot: number = Math.sqrt(1 + angle * angle);

@@ -45,7 +45,7 @@ export class MeshRenderer extends BaseRender {
 
 	/**
 	 * @internal
-	 */	
+	 */
 	_onMeshChange(mesh: Mesh): void {
 		if (mesh) {
 			var count: number = mesh.subMeshCount;
@@ -65,7 +65,51 @@ export class MeshRenderer extends BaseRender {
 			this._renderElements.length = 0;
 		}
 		this._boundsChange = true;
-		if(this._octreeNode&&this._indexInOctreeMotionList===-1){
+		if (this._octreeNode && this._indexInOctreeMotionList === -1) {
+			this._octreeNode.getManagerNode().addMotionObject(this);
+		}
+	}
+
+	updateMulPassRender(): void {
+		let mesh = (this._owner as MeshSprite3D).meshFilter.sharedMesh;
+		if (mesh) {
+			var subCount: number = mesh.subMeshCount;
+			var matCount = this._sharedMaterials.length;
+			if (subCount > matCount) {
+				let count = subCount
+				this._renderElements.length = count;
+				for (var i: number = 0; i < count; i++) {
+					var renderElement: RenderElement = this._renderElements[i];
+					if (!renderElement) {
+						var material: Material = this.sharedMaterials[i];
+						renderElement = this._renderElements[i] = this._createRenderElement();
+						renderElement.setTransform(this._owner._transform);
+						renderElement.render = this;
+						renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
+					}
+					renderElement.setGeometry(mesh.getSubMesh(i));
+				}
+			}else{
+				let count = matCount;
+				this._renderElements.length = count;
+				for (var i: number = 0; i < count; i++) {
+					var renderElement: RenderElement = this._renderElements[i];
+					if (!renderElement) {
+						var material: Material = this.sharedMaterials[i];
+						renderElement = this._renderElements[i] = this._createRenderElement();
+						renderElement.setTransform(this._owner._transform);
+						renderElement.render = this;
+						renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
+					}
+				}
+				renderElement.setGeometry(mesh.getSubMesh(count%subCount));
+			}
+
+		} else {
+			this._renderElements.length = 0;
+		}
+		this._boundsChange = true;
+		if (this._octreeNode && this._indexInOctreeMotionList === -1) {
 			this._octreeNode.getManagerNode().addMotionObject(this);
 		}
 	}
@@ -139,27 +183,27 @@ export class MeshRenderer extends BaseRender {
 				break;
 		}
 		//更新反射探针	
-		if(!this._probReflection)
-		return;
-		if(this._reflectionMode==ReflectionProbeMode.off){
+		if (!this._probReflection)
+			return;
+		if (this._reflectionMode == ReflectionProbeMode.off) {
 			this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS,ReflectionProbe.defaultTextureHDRDecodeValues);
-			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE,TextureCube.blackTexture);
+			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ReflectionProbe.defaultTextureHDRDecodeValues);
+			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE, TextureCube.blackTexture);
 		}
-		else{
-			if(!this._probReflection.boxProjection){
+		else {
+			if (!this._probReflection.boxProjection) {
 				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-				
+
 			}
-			else{
+			else {
 				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION,this._probReflection.probePosition);
-				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX,this._probReflection.boundsMax);
-				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN,this._probReflection.boundsMin);
+				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, this._probReflection.probePosition);
+				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, this._probReflection.boundsMax);
+				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, this._probReflection.boundsMin);
 			}
-			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE,this._probReflection.reflectionTexture);
-			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS,this._probReflection.reflectionHDRParams);
-			
+			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE, this._probReflection.reflectionTexture);
+			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, this._probReflection.reflectionHDRParams);
+
 		}
 	}
 
