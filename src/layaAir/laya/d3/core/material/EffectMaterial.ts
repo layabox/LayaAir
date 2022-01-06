@@ -178,7 +178,7 @@ export class EffectMaterial extends Material {
 				this.blend = RenderState.BLEND_ENABLE_ALL;
 				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
 				this.blendDst = RenderState.BLENDPARAM_ONE;
-				this.depthTest = RenderState.DEPTHTEST_LESS;
+				this.depthTest = RenderState.DEPTHTEST_LEQUAL;
 				this._shaderValues.addDefine(EffectMaterial.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			case EffectMaterial.RENDERMODE_ALPHABLENDED:
@@ -189,7 +189,7 @@ export class EffectMaterial extends Material {
 				this.blend = RenderState.BLEND_ENABLE_ALL;
 				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
 				this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
-				this.depthTest = RenderState.DEPTHTEST_LESS;
+				this.depthTest = RenderState.DEPTHTEST_LEQUAL;
 				this._shaderValues.removeDefine(EffectMaterial.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			default:
