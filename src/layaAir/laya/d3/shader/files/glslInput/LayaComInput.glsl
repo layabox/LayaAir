@@ -72,3 +72,19 @@
     uniform vec3 u_CameraPos;
 #endif
 //=======Camera end=======
+
+//=======Sprite3D==========
+#ifdef ENUNIFORMBLOCK
+    uniform SpriteUniformBlock{
+        mat4 u_WorldMat;
+        //light map
+        vec4 u_LightmapScaleOffset;
+        vec4 u_ReflectCubeHDRParams;
+    };
+#else
+    uniform mat4 u_WorldMat;
+    //light map
+    uniform vec4 u_LightmapScaleOffset;
+    uniform vec4 u_ReflectCubeHDRParams;
+#endif
+//=======Sprite3D End======

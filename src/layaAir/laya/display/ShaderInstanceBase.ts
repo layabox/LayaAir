@@ -79,8 +79,11 @@ export class ShaderInstanceBase extends Resource {
         for (i = 0; i < nUniformNum; i++) {
             var uniformData: any = gl.getActiveUniform(this._program, i);
             var uniName: string = uniformData.name;
+            let location = gl.getUniformLocation(this._program, uniName);
+            if(!location&&location!=0)
+                continue;
             one = new ShaderVariable();
-            one.location = gl.getUniformLocation(this._program, uniName);
+            one.location = location;
             if (uniName.indexOf('[0]') > 0) {
                 one.name = uniName = uniName.substr(0, uniName.length - 3);
                 one.isArray = true;
@@ -104,12 +107,12 @@ export class ShaderInstanceBase extends Resource {
                 one.type = (gl as WebGL2RenderingContext).UNIFORM_BUFFER;
                 one.dataOffset = Shader3D.propertyNameToID(uniformBlockName);
                 let location = one.location = gl2.getUniformBlockIndex(this._program, uniformBlockName);
-                if (UniformBufferObject.hasBuffer(uniformBlockName)) {
-                    let indexPoint = UniformBufferObject.getBuffer(uniformBlockName);
+                if (!!UniformBufferObject.getBuffer(uniformBlockName,0)) {
+                    let indexPoint = UniformBufferObject.getBuffer(uniformBlockName,0);
                     gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
                 } else {
                     var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
-                    let buffer: UniformBufferObject = UniformBufferObject.creat(uniformBlockName, gl.DYNAMIC_DRAW, bytelength);
+                    let buffer: UniformBufferObject = UniformBufferObject.creat(uniformBlockName, gl.DYNAMIC_DRAW, bytelength,UniformBufferObject.isCommon(uniformBlockName));
                     gl2.uniformBlockBinding(this._program, location, buffer._glPointer);
                 }
                 this._uniformObjectMap[one.name] = one;
@@ -472,9 +475,9 @@ export class ShaderInstanceBase extends Resource {
      * @returns 
      */
     _uniform_UniformBuffer(one: any, value: UnifromBufferData) {
-        let buffer = UniformBufferObject.getBuffer(one.name);
-        if (!buffer || !(value instanceof UnifromBufferData)) return 0;
-        buffer.setDataByUniformBufferData(value);
-        return 1;
+        // let buffer = UniformBufferObject.getBuffer(one.name);
+        // if (!buffer || !(value instanceof UnifromBufferData)) return 0;
+        // buffer.setDataByUniformBufferData(value);
+        // return 1;
     }
 }

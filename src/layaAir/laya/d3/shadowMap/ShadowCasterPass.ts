@@ -379,7 +379,7 @@ export class ShadowCasterPass {
 					context.cameraShaderValue = sliceData.cameraShaderValue;
 					Camera._updateMark++;
 					if (this._castDepthBuffer) {
-						let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock");
+						let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock",0);
 						depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
 					}
 					var gl = LayaGL.instance;
@@ -414,7 +414,7 @@ export class ShadowCasterPass {
 				context.cameraShaderValue = shadowSpotData.cameraShaderValue;
 				Camera._updateMark++;
 				if (this._castDepthBuffer) {
-					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock");
+					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock",0);
 					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
 				}
 				var gl = LayaGL.instance;

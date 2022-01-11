@@ -1,3 +1,4 @@
+import { DestructionListener } from "../../physics/DestructionListener";
 import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector2 } from "../math/Vector2";
@@ -27,19 +28,19 @@ export class UnifromBufferData {
      * @internal
      * key: UniformID,value: x:offset y:length z:
      */
-    private _layoutMap: any;
+    protected _layoutMap: any;
 
     /**
      * @internal
      * data length
      */
-    private _bytelength: number;
+    protected _bytelength: number;
 
     /**
      * @internal
      * params describe
      */
-    private _uniformParamsState: Map<string, UniformBufferParamsType>;
+    protected _uniformParamsState: Map<string, UniformBufferParamsType>;
 
     /**
      * @internal
@@ -67,7 +68,7 @@ export class UnifromBufferData {
      * @internal 
      * createBuffer
      */
-    private _createBuffer() {
+    protected _createBuffer() {
         var dataPos = 0;
         this._layoutMap = {};
         const elementSize = 4;
@@ -81,7 +82,7 @@ export class UnifromBufferData {
     /**
      * @internal
      */
-    private _getArraySize(key: string) {
+    protected _getArraySize(key: string) {
         let left = key.indexOf("[");
         let right = key.indexOf("]");
         if (left != -1 && right != -1 && left < right) {
@@ -94,7 +95,7 @@ export class UnifromBufferData {
      * @interanl
      * layout UniformBuffer pitch std140
      */
-    private _addUniformParams(key: string, value: UniformBufferParamsType, offset: number): number {
+     protected _addUniformParams(key: string, value: UniformBufferParamsType, offset: number): number {
         let size: number = 0;
         let posAdd: number = 0;
         const uniformID: number = Shader3D.propertyNameToID(key);
@@ -194,6 +195,13 @@ export class UnifromBufferData {
         if (max > this._updateFlag.y)
             this._updateFlag.y = max;
 
+    }
+
+    /**
+     * @internal
+     */
+    destroy(){
+        delete this._buffer;
     }
 
     /**
