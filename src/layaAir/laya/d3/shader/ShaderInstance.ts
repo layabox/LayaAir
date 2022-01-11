@@ -51,8 +51,6 @@ export class ShaderInstance extends ShaderInstanceBase {
 	 * 创建一个 <code>ShaderInstance</code> 实例。
 	 */
 	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderPass) {
-		
-		
 		super(vs,ps,attributeMap);
 		this._shaderPass = shaderPass;
 		this._create();

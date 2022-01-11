@@ -655,7 +655,7 @@ export class Camera extends BaseCamera {
 					yPlanes[i] = new Vector3();
 			}
 			var halfY = Math.tan((this.fieldOfView / 2) * Math.PI / 180);
-			var halfX = this.aspectRatio * halfY;			
+			var halfX = this.aspectRatio * halfY;
 			var yLengthPerCluster = 2 * halfY / ySlice;
 			var xLengthPerCluster = 2 * halfX / xSlixe;
 			for (var i: number = 0; i < xCount; i++) {
@@ -826,7 +826,7 @@ export class Camera extends BaseCamera {
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 		if (this._cameraUniformBlock) {//需要在Depth之前更新数据
-			let cameraUBO = UniformBufferObject.getBuffer("CameraUniformBlock");
+			let cameraUBO = UniformBufferObject.getBuffer("CameraUniformBlock", 0);
 			cameraUBO && cameraUBO.setDataByUniformBufferData(this._cameraUniformBlock);
 		}
 		if (this.depthTextureMode != 0) {

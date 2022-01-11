@@ -1401,6 +1401,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					var renderElements: RenderElement[] = this._debugTool._render._renderElements;
 					for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
 						renderElements[i]._update(this, context, null, null);
+						renderElements[i]._renderUpdatePre(context);
 						renderElements[i]._render(context);
 					}
 				}
@@ -1620,7 +1621,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
 		Scene3D._updateMark++;
 		if (this._sceneUniformBlock) {
-			let sceneUBO = UniformBufferObject.getBuffer("SceneUniformBlock");
+			let sceneUBO = UniformBufferObject.getBuffer("SceneUniformBlock",0);
 			sceneUBO && sceneUBO.setDataByUniformBufferData(this._sceneUniformBlock);
 		}
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {

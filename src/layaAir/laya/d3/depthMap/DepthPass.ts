@@ -117,7 +117,7 @@ export class DepthPass {
 					this._castDepthBuffer._setData(DepthPass.DEFINE_SHADOW_BIAS, ShaderDataType.Vector4, DepthPass.SHADOW_BIAS);
 					this._castDepthBuffer._setData(BaseCamera.VIEWPROJECTMATRIX, ShaderDataType.Matrix4x4, context.projectionViewMatrix);
 					this._castDepthBuffer.setVector3("u_ShadowLightDirection", Vector3._ZERO);
-					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock");
+					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock",0);
 					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
 				}
 				var gl = LayaGL.instance;
