@@ -34,7 +34,7 @@ struct SpotLight {
         uniform SpotLight u_SpotLight;
     #endif
 #else
-    uniform int u_DirationLightCount;
+    uniform mediump int u_DirationLightCount;
       uniform sampler2D u_LightBuffer;
     uniform sampler2D u_LightClusterBuffer;
 #endif

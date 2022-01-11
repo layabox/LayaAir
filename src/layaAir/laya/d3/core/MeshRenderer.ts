@@ -18,6 +18,7 @@ import { Transform3D } from "./Transform3D"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
 import { ReflectionProbeMode, ReflectionProbe } from "./reflectionProbe/ReflectionProbe"
 import { TextureCube } from "../resource/TextureCube"
+import { ShaderDataType } from "./render/command/SetShaderDataCMD"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -89,7 +90,7 @@ export class MeshRenderer extends BaseRender {
 					}
 					renderElement.setGeometry(mesh.getSubMesh(i));
 				}
-			}else{
+			} else {
 				let count = matCount;
 				this._renderElements.length = count;
 				for (var i: number = 0; i < count; i++) {
@@ -102,7 +103,7 @@ export class MeshRenderer extends BaseRender {
 						renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
 					}
 				}
-				renderElement.setGeometry(mesh.getSubMesh(count%subCount));
+				renderElement.setGeometry(mesh.getSubMesh(count % subCount));
 			}
 
 		} else {
@@ -149,13 +150,13 @@ export class MeshRenderer extends BaseRender {
 		var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
 		switch (element.renderType) {
 			case RenderElement.RENDERTYPE_NORMAL:
-				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
+				this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
 				break;
 			case RenderElement.RENDERTYPE_STATICBATCH:
 				if (transform)
-					this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
+					this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
 				else
-					this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
+					this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
 				if (!this._shaderValues.hasDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1)) {
 					this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
 					this._revertStaticBatchDefineUV1 = true;
@@ -166,7 +167,7 @@ export class MeshRenderer extends BaseRender {
 				this._shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, BaseRender._defaultLightmapScaleOffset);
 				break;
 			case RenderElement.RENDERTYPE_VERTEXBATCH:
-				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
+				this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				var worldMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceWorldMatrixData;
@@ -181,29 +182,6 @@ export class MeshRenderer extends BaseRender {
 				worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
 				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 				break;
-		}
-		//更新反射探针	
-		if (!this._probReflection)
-			return;
-		if (this._reflectionMode == ReflectionProbeMode.off) {
-			this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ReflectionProbe.defaultTextureHDRDecodeValues);
-			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE, TextureCube.blackTexture);
-		}
-		else {
-			if (!this._probReflection.boxProjection) {
-				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-
-			}
-			else {
-				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, this._probReflection.probePosition);
-				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, this._probReflection.boundsMax);
-				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, this._probReflection.boundsMin);
-			}
-			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE, this._probReflection.reflectionTexture);
-			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, this._probReflection.reflectionHDRParams);
-
 		}
 	}
 
@@ -227,19 +205,6 @@ export class MeshRenderer extends BaseRender {
 						this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
 					}
 					break;
-				// case RenderElement.RENDERTYPE_INSTANCEBATCH:
-				// 	var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
-				// 	var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
-				// 	var elements: SubMeshRenderElement[] = insBatches.elements;
-				// 	var count: number = insBatches.length;
-				// 	for (var i: number = 0; i < count; i++) {
-				// 		var worldMat: Matrix4x4 = elements[i]._transform.worldMatrix;
-				// 		//Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
-				// 	}
-				// 	var mvpBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer;
-				// 	mvpBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.  TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
-				// 	mvpBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
-				// 	break;
 			}
 		}
 	}

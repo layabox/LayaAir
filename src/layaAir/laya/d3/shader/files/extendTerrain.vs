@@ -14,16 +14,14 @@ varying vec2 v_Texcoord0;
 #endif
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(FOG)||(defined(CALCULATE_SHADOWS)&&defined(SHADOWMAP_PSSM1))
-	uniform mat4 u_WorldMat;
 	varying vec3 v_PositionWorld;
 #endif
 
 #ifdef LIGHTMAP
 	varying vec2 v_LightMapUV;
-	uniform vec4 u_LightmapScaleOffset;
 #endif
 
-#if defined(CALCULATE_SHADOWS)//shader���Զ���ĺ겻����ifdef ����ĳ�if defined
+#if defined(CALCULATE_SHADOWS)
 	varying vec4 v_ShadowCoord;
 #endif
 
@@ -46,7 +44,7 @@ void main()
 		v_PositionWorld=(u_WorldMat*a_Position).xyz;
 	#endif
 
-	#if defined(CALCULATE_SHADOWS)//shader���Զ���ĺ겻����ifdef ����ĳ�if defined
+	#if defined(CALCULATE_SHADOWS)
 		v_ShadowCoord = getShadowCoord(vec4(v_PositionWorld));
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);

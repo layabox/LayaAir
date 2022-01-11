@@ -14,8 +14,6 @@ attribute vec3 a_Normal;
 
 #ifdef GPU_INSTANCE
 	attribute mat4 a_WorldMat;
-#else
-	uniform mat4 u_WorldMat;
 #endif
 
 

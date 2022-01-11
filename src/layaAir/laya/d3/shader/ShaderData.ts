@@ -147,7 +147,7 @@ export class ShaderData implements IClone {
 	 * @param	value Vector2向量。
 	 */
 	setVector2(index: number, value: Vector2): void {
-		this._data[index] = value;
+		this._data[index] = value.clone();
 	}
 
 	/**
@@ -165,7 +165,7 @@ export class ShaderData implements IClone {
 	 * @param	value Vector3向量。
 	 */
 	setVector3(index: number, value: Vector3): void {
-		this._data[index] = value;
+		this._data[index] = value.clone();
 	}
 
 	/**
@@ -183,7 +183,7 @@ export class ShaderData implements IClone {
 	 * @param	value 向量。
 	 */
 	setVector(index: number, value: Vector4): void {
-		this._data[index] = value;
+		this._data[index] = value.clone();
 	}
 
 	/**
@@ -201,7 +201,7 @@ export class ShaderData implements IClone {
 	 * @param	value 四元数。
 	 */
 	setQuaternion(index: number, value: Quaternion): void {
-		this._data[index] = value;
+		this._data[index] = value.clone();
 	}
 
 	/**
@@ -219,7 +219,7 @@ export class ShaderData implements IClone {
 	 * @param	value  矩阵。
 	 */
 	setMatrix4x4(index: number, value: Matrix4x4): void {
-		this._data[index] = value;
+		this._data[index] = value.clone();
 	}
 
 	/**
@@ -252,7 +252,6 @@ export class ShaderData implements IClone {
 			(lastValue) && (lastValue._removeReference());
 			(value) && (value._addReference());
 		}
-		
 	}
 
 	/**
@@ -264,10 +263,23 @@ export class ShaderData implements IClone {
 		return this._data[index];
 	}
 
+	/**
+	 * set shader data
+	 * @param index uniformID
+	 * @param value data
+	 */
 	setValueData(index:number,value:any){
-		this._data[index] = value;
+		if(!!value.clone)
+			this._data[index] = value.clone();
+		else
+			this._data[index] = value;
 	}
 
+	/**
+	 * get shader data
+	 * @param index uniform ID
+	 * @returns 
+	 */
 	getValueData(index:number):any{
 		return this._data[index];
 	}
@@ -305,7 +317,6 @@ export class ShaderData implements IClone {
 	setLength(value: number): void {
 		this._data.length = value;
 	}
-
 
 	/**
 	 * 克隆。
@@ -356,7 +367,6 @@ export class ShaderData implements IClone {
 		this.cloneTo(dest);
 		return dest;
 	}
-
 	//------------------------------------------------------------------------------------------------------------------------------------
 
 	/**@internal [NATIVE]*/

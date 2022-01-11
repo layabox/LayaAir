@@ -28,7 +28,7 @@ export class SkyPanoramicMaterial extends Material {
         shader.addSubShader(subShader);
         subShader.addShaderPass(SkyPanoramicVS, SkyPanoramicFS);
     }
-    
+
     /** @internal */
     private _exposure: number = 1.0;
     /** @internal */
@@ -62,6 +62,7 @@ export class SkyPanoramicMaterial extends Material {
             else
                 this._textureHDRParams.x = value;
         }
+        this._shaderValues.setVector(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
     }
 
     /**
@@ -101,6 +102,7 @@ export class SkyPanoramicMaterial extends Material {
             else
                 this._textureHDRParams.x = this._exposure;
         }
+        this._shaderValues.setVector(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
     }
 
     /**

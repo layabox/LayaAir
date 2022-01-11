@@ -20,6 +20,7 @@ import { ReflectionProbeMode, ReflectionProbe } from "./reflectionProbe/Reflecti
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 import { TextureCube } from "../resource/TextureCube";
 import { Animator } from "../component/Animator";
+import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -123,9 +124,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 					data[dstIndex + d] = preData[srcIndex + d];
 			} else {
 				if (!this._cacheAvatar) {
-					Utils3D._mulMatrixArray(this._bones[index].transform.worldMatrix.elements, bindPoses[index].elements,0, data, k * 16);
+					Utils3D._mulMatrixArray(this._bones[index].transform.worldMatrix.elements, bindPoses[index].elements, 0, data, k * 16);
 				} else {//[兼容代码]
-					Utils3D._mulMatrixArray(this._cacheAnimationNode[index].transform.getWorldMatrix(), bindPoses[index].elements,0, data, k * 16);
+					Utils3D._mulMatrixArray(this._cacheAnimationNode[index].transform.getWorldMatrix(), bindPoses[index].elements, 0, data, k * 16);
 				}
 				this._skinnedDataLoopMarks[index] = Stat.loopCount;
 			}
@@ -227,35 +228,17 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			this._computeSkinnedData();
 			if (!this._cacheAvatar) {
 				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
+				this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
 			} else {//[兼容性]
 				var aniOwnerTrans: Transform3D = ((<Sprite3D>this._cacheAnimator.owner))._transform;
-				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, aniOwnerTrans.worldMatrix);
+				if (this._subUniformBufferData) {
+					let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
+					this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(aniOwnerTrans.worldMatrix) : true;
+				}
+				this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, aniOwnerTrans.worldMatrix);
 			}
 		} else {
-			this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
-		}
-		//更新反射探针
-		if(!this._probReflection)
-		return;
-		if(this._reflectionMode==ReflectionProbeMode.off){
-			this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS,ReflectionProbe.defaultTextureHDRDecodeValues);
-			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE,TextureCube.blackTexture);
-		}
-		else{
-			if(!this._probReflection.boxProjection){
-				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-				
-			}
-			else{
-				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION,this._probReflection.probePosition);
-				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX,this._probReflection.boundsMax);
-				this._shaderValues.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN,this._probReflection.boundsMin);
-			}
-			this._shaderValues.setTexture(RenderableSprite3D.REFLECTIONTEXTURE,this._probReflection.reflectionTexture);
-			this._shaderValues.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS,this._probReflection.reflectionHDRParams);
-			
+			this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
 		}
 	}
 
@@ -357,12 +340,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 		var meshBoneNames: string[] = this._cacheMesh._boneNames;
 		var innerBindPoseCount: number = this._cacheMesh._inverseBindPoses.length;
 
-			this._cacheAnimationNode.length = innerBindPoseCount;
-			var nodeMap: any = this._cacheAnimator._avatarNodeMap;
-			for (var i: number = 0; i < innerBindPoseCount; i++) {
-				var node: AnimationNode = nodeMap[meshBoneNames[i]];
-				this._cacheAnimationNode[i] = node;
-			}
+		this._cacheAnimationNode.length = innerBindPoseCount;
+		var nodeMap: any = this._cacheAnimator._avatarNodeMap;
+		for (var i: number = 0; i < innerBindPoseCount; i++) {
+			var node: AnimationNode = nodeMap[meshBoneNames[i]];
+			this._cacheAnimationNode[i] = node;
+		}
 	}
 
 

@@ -76,7 +76,7 @@ export class SubMesh extends GeometryElement {
 	_setIndexRange(indexStart: number, indexCount: number, indexFormat: IndexFormat = IndexFormat.UInt16): void {
 		this._indexStart = indexStart;
 		this._indexCount = indexCount;
-		if(this._indexBuffer.canRead){
+		if (this._indexBuffer.canRead) {
 			if (indexFormat == IndexFormat.UInt16) {
 				this._indices = new Uint16Array(this._indexBuffer.getData().buffer, indexStart * 2, indexCount);
 			}
@@ -116,7 +116,7 @@ export class SubMesh extends GeometryElement {
 		}
 
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		var skinnedDatas: any[] =state.renderElement? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData:null;
+		var skinnedDatas: any[] = (state.renderElement && !!(<SkinnedMeshRenderer>state.renderElement.render)) ? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData : null;
 		var glIndexFormat: number;
 		var byteCount: number;
 		switch (mesh.indexFormat) {
