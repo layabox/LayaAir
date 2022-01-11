@@ -1,3 +1,4 @@
+#include "LayaComInput.glsl";
 #include "Lighting.glsl";
 
 attribute vec4 a_Position;
@@ -5,7 +6,7 @@ attribute vec2 a_Texcoord;
 attribute vec3 a_Normal;
 
 uniform mat4 u_MvpMatrix;
-uniform mat4 u_WorldMat;
+//uniform mat4 u_WorldMat;
 
 varying vec2 v_Texcoord;
 varying vec3 v_Normal;

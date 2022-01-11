@@ -21,6 +21,16 @@ import { Stat } from "../../../utils/Stat";
 import { Lightmap } from "../scene/Lightmap";
 import { ReflectionProbe, ReflectionProbeMode } from "../reflectionProbe/ReflectionProbe";
 import { IRenderNodeObject } from "../scene/SceneRenderManager/IRenderNodeObject";
+import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
+import { TextureCube } from "../../resource/TextureCube";
+import { SubUniformBufferData } from "../../graphics/subUniformBufferData";
+import { Config3D } from "../../../../Config3D";
+import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
+import { UniformBufferObject } from "../../graphics/UniformBufferObject";
+import { ShaderDataType } from "./command/SetShaderDataCMD";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { UniformBufferParamsType } from "../../graphics/UniformBufferData";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -36,66 +46,116 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	static _defaultLightmapScaleOffset: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);
 
 	/**@internal */
+	static _transLargeUbO: TransLargeUBOUtils;
+
+	/**
+	 * BaseRender Init
+	 */
+	static __init__() {
+		if (Config3D._config._uniformBlock)
+			BaseRender.initRenderableLargeUniformBlock();
+	}
+
+	/**
+	 * init Renderable Block
+	 */
+	static initRenderableLargeUniformBlock() {
+		let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+		uniformpara.set("u_WorldMat", UniformBufferParamsType.Matrix4x4);
+		uniformpara.set("u_LightmapScaleOffset", UniformBufferParamsType.Vector4);
+		uniformpara.set("u_ReflectCubeHDRParams", UniformBufferParamsType.Vector4);
+		let subUBOData = new SubUniformBufferData(uniformpara, 0);
+		//createUBO Buffer
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		let ubo = UniformBufferObject.creat("SpriteUniformBlock", gl.DYNAMIC_DRAW, subUBOData.getbyteLength(), true);
+		//bind manager
+		BaseRender._transLargeUbO = new TransLargeUBOUtils(ubo, uniformpara, subUBOData);
+	}
+
+	/**@internal */
 	private _id: number;
+
 	/** @internal */
 	private _lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
+
 	/** @internal */
 	private _lightmapIndex: number;
+
 	/** @internal */
 	private _receiveShadow: boolean;
+
 	/** @internal */
 	private _materialsInstance: boolean[];
+
 	/** @internal  [实现IListPool接口]*/
 	private _indexInList: number = -1;
+
+	/** @internal */
+	protected _bounds: Bounds;
+
+	/** @internal */
+	protected _boundsChange: boolean = true;
+
 	/** @internal */
 	_indexInCastShadowList: number = -1;
 
 	/** @internal */
-	protected _bounds: Bounds;
-	/** @internal */
-	protected _boundsChange: boolean = true;
-
-
-	/** @internal */
 	_castShadow: boolean = false;
+
 	/** @internal */
 	_supportOctree: boolean = true;
+
 	/** @internal */
 	_enable: boolean;
+
 	/** @internal */
 	_shaderValues: ShaderData;
 
 	/** @internal */
 	_sharedMaterials: Material[] = [];
+
 	/** @internal */
 	_scene: Scene3D;
+
 	/** @internal */
 	_owner: RenderableSprite3D;
 
+	/**@internal */
 	_renderElements: RenderElement[];
-	/** @internal */
-	_distanceForSort: number;
-	/** @internal */
-	_renderMark: number = -1;//TODO:初始值为-1强制更新,否则会造成第一帧动画不更新等,待优化
-	/** @internal */
-	_octreeNode: IRenderNodeObject;
-	/** @internal */
-	_indexInOctreeMotionList: number = -1;
-	/** @internal 是否需要反射探针*/
-	_probReflection:ReflectionProbe;
-	/** @internal 材质是否支持反射探针*/
-	_surportReflectionProbe:boolean;
-	/** @internal 设置是反射探针模式 off  simple */
-	_reflectionMode:number = ReflectionProbeMode.simple;
 
 	/** @internal */
-	_sceneUpdateMark:number = -1;
-		/** @internal 属于相机的标记*/
+	_distanceForSort: number;
+
+	/** @internal */
+	_renderMark: number = -1;//TODO:初始值为-1强制更新,否则会造成第一帧动画不更新等,待优化
+
+	/** @internal */
+	_octreeNode: IRenderNodeObject;
+
+	/** @internal */
+	_indexInOctreeMotionList: number = -1;
+
+	/** @internal 是否需要反射探针*/
+	_probReflection: ReflectionProbe;
+
+	/** @internal 材质是否支持反射探针*/
+	_surportReflectionProbe: boolean;
+
+	/** @internal 设置是反射探针模式 off  simple */
+	_reflectionMode: number = ReflectionProbeMode.simple;
+
+	/** @internal */
+	_sceneUpdateMark: number = -1;
+
+	/** @internal 属于相机的标记*/
 	_updateMark: number = -1;
+
 	/** @internal */
 	_updateRenderType: number = -1;
+
 	/** @internal */
 	_isPartOfStaticBatch: boolean = false;
+
 	/** @internal */
 	_staticBatch: GeometryElement = null;
 
@@ -104,6 +164,12 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 
 	/**@internal	[NATIVE]*/
 	_cullingBufferIndex: number;
+
+	/**@internal */
+	_transIsChange: boolean = false;
+
+	/**@internal */
+	_subUniformBufferData: SubUniformBufferData;
 
 	/**
 	 * 获取唯一标识ID,通常用于识别。
@@ -134,7 +200,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		if (!value)
 			throw "BaseRender: lightmapScaleOffset can't be null.";
 		this._lightmapScaleOffset = value;
-		this._shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, value);
+		this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4, value);
 	}
 
 	/**
@@ -296,16 +362,48 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		return this._renderMark == -1 || this._renderMark == (Stat.loopCount - 1);
 	}
 
-	set reflectionMode(value:ReflectionProbeMode){
+	/**
+	 * 反射模式
+	 */
+	set reflectionMode(value: ReflectionProbeMode) {
 		this._reflectionMode = value;
 	}
 
-	get reflectionMode():ReflectionProbeMode{
+	get reflectionMode(): ReflectionProbeMode {
 		return this._reflectionMode;
 	}
 
 	/**
-	 * @internal
+	 * 设置反射球
+	 */
+	set probReflection(voluemProbe: ReflectionProbe) {
+		this._probReflection = voluemProbe;
+		//更新反射探针
+		if (!this._probReflection)
+			return;
+		if (this._reflectionMode == ReflectionProbeMode.off) {
+			this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, ReflectionProbe.defaultTextureHDRDecodeValues);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.Texture, TextureCube.blackTexture);
+		}
+		else {
+			if (!this._probReflection.boxProjection) {
+				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
+
+			}
+			else {
+				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
+				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, ShaderDataType.Vector3, this._probReflection.probePosition);
+				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, ShaderDataType.Vector3, this._probReflection.boundsMax);
+				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, ShaderDataType.Vector3, this._probReflection.boundsMin);
+			}
+			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.Texture, this._probReflection.reflectionTexture);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, this._probReflection.reflectionHDRParams);
+		}
+		this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
+	}
+
+	/**
 	 * 创建一个新的 <code>BaseRender</code> 实例。
 	 */
 	constructor(owner: RenderableSprite3D) {
@@ -323,38 +421,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this.receiveShadow = false;
 		this.sortingFudge = 0.0;
 		(owner) && (this._owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));//如果为合并BaseRender,owner可能为空
-	}
-
-	/**
-	 * 
-	 */
-	_getOctreeNode(): BoundsOctreeNode {//[实现IOctreeObject接口]
-		return this._octreeNode;
-	}
-
-	/**
-	 * 
-	 */
-	_setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
-		if(!value){
-				(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
-		}
-		this._octreeNode = value;
-		
-	}
-
-	/**
-	 * 
-	 */
-	_getIndexInMotionList(): number {//[实现IOctreeObject接口]
-		return this._indexInOctreeMotionList;
-	}
-
-	/**
-	 *
-	 */
-	_setIndexInMotionList(value: number): void {//[实现IOctreeObject接口]
-		this._indexInOctreeMotionList = value;
 	}
 
 	/**
@@ -380,22 +446,87 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/**
 	 * @internal
 	 */
-	private _isSupportReflection(){
+	private _isSupportReflection() {
 		this._surportReflectionProbe = false;
 		var sharedMats: Material[] = this._sharedMaterials;
 		for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
 			var mat: Material = sharedMats[i];
-			this._surportReflectionProbe= (this._surportReflectionProbe||(mat&&mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
+			this._surportReflectionProbe = (this._surportReflectionProbe || (mat && mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
 		}
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _onWorldMatNeedChange(flag: number): void {
+		this._boundsChange = true;
+		if (this._octreeNode) {
+			flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
+			if (flag) {
+				if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
+					this._octreeNode.getManagerNode().addMotionObject(this);
+			}
+		}
+		this._addReflectionProbeUpdate();
+		this._transIsChange = true;
+		this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
+	}
+	
+	/**
+	 * @internal
+	 */
+	protected _calculateBoundingBox(): void {
+		throw ("BaseRender: must override it.");
+	}
+
+	/**
+	 * scene manager Node get
+	 */
+	 _getOctreeNode(): BoundsOctreeNode {//[实现IOctreeObject接口]
+		return this._octreeNode;
+	}
+
+	/**
+	 * scene manager Node Set
+	 */
+	_setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
+		if (!value) {
+			(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
+		}
+		this._octreeNode = value;
+	}
+
+	/**
+	 * motion list id get
+	 */
+	_getIndexInMotionList(): number {//[实现IOctreeObject接口]
+		return this._indexInOctreeMotionList;
+	}
+
+	/**
+	 * motion list id set
+	 */
+	_setIndexInMotionList(value: number): void {//[实现IOctreeObject接口]
+		this._indexInOctreeMotionList = value;
+	}
+
+
+	/**
+	 * @internal
+	 */
+	_setShaderValue(index: number, shaderDataType: ShaderDataType, value: any) {
+		if (this._subUniformBufferData && this._subUniformBufferData._has(index))
+			this._subUniformBufferData._setData(index, shaderDataType, value);
+		this._shaderValues.setValueData(index, value);
 	}
 
 	/**
 	 * 渲染器添加到更新反射探针队列
 	 * @internal
 	 */
-	_addReflectionProbeUpdate(){
+	_addReflectionProbeUpdate() {
 		//TODO目前暂时不支持混合以及与天空盒模式，只支持simple和off
-		if(this._surportReflectionProbe&&this._reflectionMode==1){
+		if (this._surportReflectionProbe && this._reflectionMode == 1) {
 			this._scene && this._scene._reflectionProbeManager.addMotionObject(this);
 		}
 	}
@@ -425,32 +556,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @internal
-	 */
-	protected _onWorldMatNeedChange(flag: number): void {
-		this._boundsChange = true;
-		if (this._octreeNode) {
-			flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
-			if (flag) {
-				if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
-					this._octreeNode.getManagerNode().addMotionObject(this);
-			}
-		}
-		this._addReflectionProbeUpdate();
-		
-	}
-
-
-	
-
-	/**
-	 * @internal
-	 */
-	protected _calculateBoundingBox(): void {
-		throw ("BaseRender: must override it.");
-	}
-
-	/**
 	 *  [实现ISingletonElement接口]
 	 */
 	_getIndexInList(): number {
@@ -469,10 +574,24 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 */
 	_setBelongScene(scene: Scene3D): void {
 		this._scene = scene;
+		if (Config3D._config._uniformBlock) {
+			this._subUniformBufferData = BaseRender._transLargeUbO.create();
+			this._subUniformBufferData.setMatrix("u_WorldMat", Matrix4x4.DEFAULT);
+			this.probReflection = this._probReflection;
+			this.lightmapScaleOffset = this._lightmapScaleOffset;
+			this._subUniformBufferData._needUpdate = true;
+		}
 	}
 
-	_setUnBelongScene(){
+	/**
+	 * @internal
+	 */
+	_setUnBelongScene() {
 		this._scene = null;
+		if (Config3D._config._uniformBlock) {
+			this._subUniformBufferData && BaseRender._transLargeUbO.recover(this._subUniformBufferData);
+			this._subUniformBufferData = null;
+		}
 	}
 
 	/**
@@ -487,7 +606,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * @internal
 	 * 八叉树节点不需要渲染调用的事件 
 	 */
-	_OctreeNoRender():void{
+	_OctreeNoRender(): void {
 	}
 
 	/**
@@ -525,6 +644,11 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._bounds = null;
 		this._lightmapScaleOffset = null;
 		this._scene = null;
+
+		if (this._subUniformBufferData) {
+			BaseRender._transLargeUbO.recover(this._subUniformBufferData);
+			this._subUniformBufferData = null;
+		}
 	}
 
 	/**

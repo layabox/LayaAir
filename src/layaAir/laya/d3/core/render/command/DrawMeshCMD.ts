@@ -9,6 +9,7 @@ import { SubShader } from "../../../shader/SubShader";
 import { Material } from "../../material/Material";
 import { Scene3D } from "../../scene/Scene3D";
 import { Sprite3D } from "../../Sprite3D";
+import { BaseRender } from "../BaseRender";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 
@@ -77,6 +78,12 @@ export class DrawMeshCMD extends Command {
 		var cameraShaderValue: ShaderData = context.cameraShaderValue;
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
 		Matrix4x4.multiply(projectionView, this._matrix, this._projectionViewWorldMatrix);
+		if(BaseRender._transLargeUbO){
+			let subdata = BaseRender._transLargeUbO.defaultSubData;
+			subdata.setMatrixbyIndex(Sprite3D.WORLDMATRIX,  this._matrix);
+			BaseRender._transLargeUbO.updateSubData(subdata);
+			BaseRender._transLargeUbO.updateBindRange(subdata);
+		}
 		this._renderShaderValue.setMatrix4x4(Sprite3D.WORLDMATRIX, this._matrix);
 		this._renderShaderValue.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
 		var currentPipelineMode: string = context.pipelineMode;

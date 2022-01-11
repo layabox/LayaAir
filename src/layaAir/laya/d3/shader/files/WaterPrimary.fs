@@ -21,7 +21,7 @@ varying vec3 v_ViewDir;
 varying vec2 v_Texcoord0;
 varying vec2 v_Texcoord1;
 
-
+#include "LayaComInput.glsl"
 #include "Lighting.glsl"
 
 

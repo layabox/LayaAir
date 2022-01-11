@@ -7,7 +7,6 @@ struct LayaGIInput
 #define LAYA_SPECCUBE_LOD_STEPS 6.0
 
 uniform samplerCube u_ReflectTexture;
-uniform vec4 u_ReflectCubeHDRParams;
 
 #ifdef SPECCUBE_BOX_PROJECTION
 	uniform vec3 u_SpecCubeProbePosition;

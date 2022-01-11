@@ -139,6 +139,7 @@ export class BlinnPhongMaterial extends Material {
 		this.albedoColor = value;
 	}
 
+
 	/**
 	 * @internal
 	 */

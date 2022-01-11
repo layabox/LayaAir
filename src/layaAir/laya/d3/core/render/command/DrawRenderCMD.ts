@@ -5,14 +5,12 @@ import { CommandBuffer } from "./CommandBuffer";
 import { Scene3D } from "../../scene/Scene3D";
 import { RenderContext3D } from "../RenderContext3D";
 import { ShaderInstance } from "../../../shader/ShaderInstance";
-import { Camera } from "../../Camera";
 import { ShaderData } from "../../../shader/ShaderData";
 import { Transform3D } from "../../Transform3D";
 import { GeometryElement } from "../../GeometryElement";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { DefineDatas } from "../../../shader/DefineDatas";
 import { ILaya3D } from "../../../../../ILaya3D";
-import { ILaya } from "../../../../../ILaya";
 
 
 /**
@@ -59,6 +57,7 @@ export class DrawRenderCMD extends Command {
 		var geometry: GeometryElement = renderElement._geometry;
 		context.renderElement = renderElement;
 		var updateRender: boolean = updateMark !== renderElement.render._updateMark || renderElement.renderType !== renderElement.render._updateRenderType;
+		
 		if (updateRender) {//此处处理更新为裁剪和合并后的，可避免浪费
 			renderElement.render._renderUpdate(context, transform);
 			renderElement.render._renderUpdateWithCamera(context, transform);

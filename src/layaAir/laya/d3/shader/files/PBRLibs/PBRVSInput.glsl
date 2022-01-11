@@ -5,7 +5,6 @@ attribute vec4 a_Position;
 	attribute mat4 a_WorldMat;
 #else
 	uniform mat4 u_MvpMatrix;
-	uniform mat4 u_WorldMat;
 #endif
 
 #ifdef BONE
@@ -37,7 +36,6 @@ varying vec3 v_Normal;
 #endif
 
 #ifdef LIGHTMAP
-	uniform vec4 u_LightmapScaleOffset;
 	varying vec2 v_LightMapUV;
 #endif
 

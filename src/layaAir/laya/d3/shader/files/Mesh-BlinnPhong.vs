@@ -6,6 +6,10 @@
 	precision mediump int;
 #endif
 
+
+
+
+
 #include "LayaComInput.glsl";
 #include "Lighting.glsl";
 #include "LayaUtile.glsl"
@@ -28,7 +32,6 @@ attribute vec4 a_Position;
 #endif
 
 #ifdef LIGHTMAP
-	uniform vec4 u_LightmapScaleOffset;
 	varying vec2 v_LightMapUV;
 #endif
 
@@ -59,8 +62,6 @@ varying vec3 v_Normal;
 
 #ifdef GPU_INSTANCE
 	attribute mat4 a_WorldMat;
-#else
-	uniform mat4 u_WorldMat;
 #endif
 
 #if defined(POINTLIGHT)||defined(SPOTLIGHT)||(defined(CALCULATE_SHADOWS)&&defined(SHADOW_CASCADE))||defined(CALCULATE_SPOTSHADOWS)
