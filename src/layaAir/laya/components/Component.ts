@@ -186,7 +186,10 @@ export class Component implements ISingletonElement, IDestroy {
 				this._awaked = true;
 				this._onAwake();
 			}
-			this._enabled && this._onEnable();
+			if(this.owner.activeInHierarchy){
+				this._enabled && this._onEnable();
+			}
+			
 		} else {
 			this._enabled && this._onDisable();
 		}

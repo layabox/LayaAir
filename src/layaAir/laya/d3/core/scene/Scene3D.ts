@@ -66,7 +66,6 @@ import { VideoTexture } from "../../../resource/VideoTexture";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
 import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
 import { Physics3D } from "../../Physics3D";
-import { PerformancePlugin } from "../../../utils/Performance";
 import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
 import { BoundsOctree } from "./BoundsOctree";
 import { BaseTexture } from "../../../resource/BaseTexture";
@@ -841,31 +840,23 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 *@internal
 	 */
 	private _update(): void {
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		var delta: number = this.timer._delta / 1000;
 		this._time += delta;
 		this._setShaderValue(Scene3D.TIME, ShaderDataType.Number, this._time);
 		//Physics
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS);
 		var simulation: PhysicsSimulation = this._physicsSimulation;
 		if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && !Config3D._config.isUseCannonPhysicsEngine) {
 			simulation._updatePhysicsTransformFromRender();
 			PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
 			//simulate physics
-			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_SIMULATE);
 			simulation._simulate(delta);
-			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_SIMULATE);
 			//update character sprite3D transforms from physics engine simulation
-			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_CHARACTORCOLLISION);
 			simulation._updateCharacters();
 			PhysicsComponent._addUpdateList = true;
 			//handle frame contacts
 			simulation._updateCollisions();
-			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_CHARACTORCOLLISION);
-			PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_EVENTSCRIPTS);
 			//send contact events
 			simulation._eventScripts();
-			PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS_EVENTSCRIPTS);
 		}
 		if (Physics3D._cannon && Config3D._config.isUseCannonPhysicsEngine) {
 			var cannonSimulation: CannonPhysicsSimulation = this._cannonPhysicsSimulation;
@@ -876,9 +867,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			cannonSimulation._updateCollisions();
 			cannonSimulation._eventScripts();
 		}
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_PHYSICS);
 		//update Scripts
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_UPDATESCRIPT);
 		this._input._update();
 		this._clearScript();
 		this._updateScript();
@@ -889,8 +878,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		else
 			this._reflectionProbeManager.update();
 		this._lateUpdateScript();
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_UPDATESCRIPT);
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 	}
 
 	/**
@@ -1615,10 +1602,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 渲染入口
 	 */
 	renderSubmit(): number {
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		this._prepareSceneToRender();
 		var i: number, n: number, n1: number;
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
 		Scene3D._updateMark++;
 		if (this._sceneUniformBlock) {
 			let sceneUBO = UniformBufferObject.getBuffer("SceneUniformBlock",0);
@@ -1644,9 +1629,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 
 		}
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER);
 		Context.set2DRenderConfig();//还原2D配置
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D);
 		return 1;
 	}
 

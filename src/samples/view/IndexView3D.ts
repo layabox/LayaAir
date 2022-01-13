@@ -117,7 +117,6 @@ import { Blinnphong_Transmission } from "../3d/LayaAir3D_Material/BlinnPhong_Tra
 import { GPUCompression_ETC2 } from "../3d/LayaAir3D_Texture/GPUCompression_ETC2";
 import { GPUCompression_ASTC } from "../3d/LayaAir3D_Texture/GPUCompression_ASTC";
 import { SeparableSSS_RenderDemo } from "../3d/LayaAir3D_Advance/SeparableSSS_RenderDemo";
-import { PerformancePluginDemo } from "../3d/LayaAir3D_Performance/PerformancePluginDemo";
 import { PostProcessDoF } from "../3d/LayaAir3D_PostProcess/PostProcess_DoF";
 import { SkeletonMask } from "../3d/LayaAir3D_Animation3D/SkeletonMask";
 import { ProstProcess_AO } from "../3d/LayaAir3D_PostProcess/PostProcess_AO";
@@ -175,8 +174,8 @@ export class IndexView3D extends IndexViewUI {
 	private _particleClsArr: any[] = [Particle_BurningGround, Particle_EternalLight];
 	private _particleArr: any[] = ['Particle_BurningGround', 'Particle_EternalLight'];
 
-	private _performanceClsArr: any[] = [StaticBatchingTest, DynamicBatchTest,PerformancePluginDemo];
-	private _performanceArr: any[] = ['StaticBatchingTest', 'DynamicBatchTest','PerformanceDemo'];
+	private _performanceClsArr: any[] = [StaticBatchingTest, DynamicBatchTest];
+	private _performanceArr: any[] = ['StaticBatchingTest', 'DynamicBatchTest'];
 
 	private _physicsClsArr: any[] = [PhysicsWorld_BaseCollider, PhysicsWorld_BuildingBlocks, PhysicsWorld_Character, PhysicsWorld_CollisionFiflter, PhysicsWorld_CompoundCollider, PhysicsWorld_ContinueCollisionDetection, PhysicsWorld_Kinematic, PhysicsWorld_MeshCollider, PhysicsWorld_RayShapeCast, PhysicsWorld_TriggerAndCollisionEvent, PhysicsWorld_ConstraintFixedJoint, PhysicsWorld_ConfigurableJoint];
 	private _physicslArr: any[] = ['PhysicsWorld_BaseCollider', 'PhysicsWorld_BuildingBlocks', 'PhysicsWorld_Character', 'PhysicsWorld_CollisionFiflter', 'PhysicsWorld_CompoundCollider', 'PhysicsWorld_ContinueCollisionDetection', 'PhysicsWorld_Kinematic', 'PhysicsWorld_MeshCollider', 'PhysicsWorld_RayShapeCast', 'PhysicsWorld_TriggerAndCollisionEvent', 'PhysicsWorld_ConstraintFixedJoint', 'PhysicsWorld_ConfigurableJoint'];
