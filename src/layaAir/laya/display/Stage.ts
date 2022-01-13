@@ -18,13 +18,10 @@ import { ColorUtils } from "../utils/ColorUtils"
 import { RunDriver } from "../utils/RunDriver"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { RenderState2D } from "../webgl/utils/RenderState2D";
-import { WebGLContext } from "../webgl/WebGLContext";
 import { Stat } from "../utils/Stat";
-import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
 import { LayaGL } from "../layagl/LayaGL";
 import { ClassUtils } from "../utils/ClassUtils";
-import { PerformancePlugin } from "../utils/Performance";
 
 /**
  * stage大小经过重新调整时进行调度。
@@ -705,7 +702,6 @@ export class Stage extends Sprite {
 		Stat.loopCount++;
 		RenderInfo.loopCount = Stat.loopCount;
 
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA);
 		if (this.renderingEnabled) {
 			for (var i: number = 0, n: number = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
 				this._scene3Ds[i]._update();
@@ -720,7 +716,6 @@ export class Stage extends Sprite {
 			VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
 		}
 		this._updateTimers();
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA);
 	}
 
 	renderToNative(context: Context, x: number, y: number): void {

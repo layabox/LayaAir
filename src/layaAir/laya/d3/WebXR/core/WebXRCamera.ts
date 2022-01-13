@@ -1,7 +1,6 @@
 import { Config3D } from "../../../../Config3D";
 import { ILaya3D } from "../../../../ILaya3D";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { PerformancePlugin } from "../../../utils/Performance";
 import { WebGLContext } from "../../../webgl/WebGLContext";
 import { Camera, CameraEventFlags } from "../../core/Camera";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
@@ -137,12 +136,8 @@ export class WebXRCamera extends Camera {
 		context.viewport = viewport;
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CLUSTER);
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CLUSTER);
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
 		scene._preCulling(context, this, shader, replacementTag);
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_CULLING);
 
 		if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
 			context.invertY = true;
@@ -161,26 +156,20 @@ export class WebXRCamera extends Camera {
 		this._prepareCameraToRender();
 
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox, context);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
 		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
-		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
-		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERTRANSPARENT);
 		scene._postRenderScript();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
 		(renderTex) && (renderTex._end());
 		//PostProcess TODO
 		// if (needInternalRT) {
 		// 	if (this._postProcess && this._postProcess.enable) {
-		// 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
 		// 		this._postProcess.commandContext = context;
 		// 		this._postProcess._render();
 		// 		this._postProcess._applyPostProcessCommandBuffers();
-		// 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_POSTPROCESS);
 		// 	} else if (this._enableHDR || this._needBuiltInRenderTexture) {
 		// 		var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
 		// 		if (this._offScreenRenderTexture) {
