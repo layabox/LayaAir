@@ -9,6 +9,7 @@ export enum TextureFormat {
     Alpha8 = 2,
     /**纹理格式_DXT1。*/
     DXT1 = 3,
+    DXT3,
     /**纹理格式_DXT5。*/
     DXT5 = 4,
     /**纹理格式_ETC2RGB。*/

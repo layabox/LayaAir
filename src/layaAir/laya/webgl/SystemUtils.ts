@@ -40,6 +40,7 @@ export class SystemUtils {
      * @returns 是否支持。
      */
     static supportTextureFormat(format: number): boolean {
+        // todo
         switch (format) {
             case TextureFormat.R32G32B32A32:
                 return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureFloat) ? false : true;
@@ -60,6 +61,20 @@ export class SystemUtils {
             }
         }
         return true;
+    }
+
+    static supportDDSTexture(): boolean {
+        if (LayaGL.layaGPUInstance._compressedTextureS3tc) {
+            return true;
+        }
+        return false;
+    }
+
+    static supportDDS_srgb(): boolean {
+        if (LayaGL.layaGPUInstance._compressdTextureS3tc_srgb) {
+            return true;
+        }
+        return false;
     }
 
     /**

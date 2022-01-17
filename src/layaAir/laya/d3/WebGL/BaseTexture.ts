@@ -2,7 +2,6 @@ import { Bitmap } from "../../resource/Bitmap";
 import { FilterMode } from "../../resource/FilterMode";
 import { TextureFormat } from "../../resource/TextureFormat";
 import { WarpMode } from "../../resource/WrapMode";
-import { SystemUtils } from "../../webgl/SystemUtils";
 import { InternalTexture, TextureDimension } from "./InternalTexture";
 
 export class BaseTexture extends Bitmap {
@@ -14,60 +13,92 @@ export class BaseTexture extends Bitmap {
         return this._format;
     }
 
-    constructor(width: number, height: number, format: TextureFormat) {
+    constructor(width: number, height: number, format: TextureFormat, mipmap: boolean) {
         super();
         this._width = width;
         this._height = height;
         this._format = format;
+        this._mipmap = mipmap
     }
 
-    get dimension(): TextureDimension {
-        return this._texture.dimension;
+    protected _dimension: TextureDimension;
+    public get dimension(): TextureDimension {
+        return this._dimension;
     }
 
-    get filterMode(): FilterMode {
-        return this._texture.filterMode;
+    protected _filterMode: FilterMode = FilterMode.Bilinear;
+    public get filterMode(): FilterMode {
+        return this._filterMode;
+    }
+    public set filterMode(value: FilterMode) {
+        this._filterMode = value;
     }
 
-    set filterMode(value: FilterMode) {
-        this._texture.filterMode = value;
+    protected _warpModeU: WarpMode = WarpMode.Repeat;
+    public get warpModeU(): WarpMode {
+        return this._warpModeU;
+    }
+    public set warpModeU(value: WarpMode) {
+        if (this._warpModeU != value && this._texture) {
+            this._texture.warpModeU = value;
+        }
     }
 
-    get warpModeU(): WarpMode {
-        return this._texture.warpModeU;
+    protected _warpModeV: WarpMode = WarpMode.Repeat;
+    public get warpModeV(): WarpMode {
+        return this._warpModeV;
     }
-    set warpModeU(value: WarpMode) {
-        this._texture.warpModeU = value;
-    }
-
-    get warpModeV(): WarpMode {
-        return this._texture.warpModeV;
-    }
-    set warpModeV(value: WarpMode) {
-        this._texture.warpModeV = value;
+    public set warpModeV(value: WarpMode) {
+        this._warpModeV = value;
     }
 
-    get anisoLevel(): number {
-        return this._texture.anisoLevel;
+    protected _warpModeW: WarpMode = WarpMode.Repeat;
+    public get warpModeW(): WarpMode {
+        return this._warpModeW;
     }
-    set anisoLevel(value: number) {
-        this._texture.anisoLevel = value;
-    }
-
-    get mipmap(): boolean {
-        return this._texture.mipmap;
+    public set warpModeW(value: WarpMode) {
+        this._warpModeW = value;
     }
 
-    get mipmapCount(): number {
-        return this._texture.mipmapCount;
+    protected _anisoLevel: number = 4;
+    public get anisoLevel(): number {
+        return this._anisoLevel;
+    }
+    public set anisoLevel(value: number) {
+        this._anisoLevel = value;
     }
 
-    get premultiplyAlpha(): boolean {
-        return this._texture.premultiplyAlpha;
+    protected _mipmap: boolean = true;
+    public get mipmap(): boolean {
+        return this._mipmap;
     }
 
-    get gammaCorrection(): number {
+    protected _mipmapCount: number = 1;
+    public get mipmapCount(): number {
+        return this._mipmapCount;
+    }
+
+    protected _premultiplyAlpha: boolean = false;
+    public get premultiplyAlpha(): boolean {
+        return this._premultiplyAlpha;
+    }
+
+    protected _invertY: boolean = false;
+    public get invertY(): boolean {
+        return this._invertY;
+    }
+
+    public get gammaCorrection(): number {
         return this._texture.gammaCorrection;
+    }
+
+    protected _gammaSpace: boolean = false;
+    public get gammaSpace(): boolean {
+        return this._gammaSpace;
+    }
+    // todo  允许动态更改？ 只在加载时设置？ 
+    public set gammaSpace(value: boolean) {
+        this._gammaSpace = value;
     }
 
     gpuCompressFormat(): boolean {

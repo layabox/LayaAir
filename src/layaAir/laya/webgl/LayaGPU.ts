@@ -33,7 +33,9 @@ export class LayaGPU {
     /**@internal */
     _extTextureFilterAnisotropic: any = null;
     /**@internal */
-    _compressedTextureS3tc: any = null;
+    _compressedTextureS3tc: WEBGL_compressed_texture_s3tc = null;
+    /**@internal */
+    _compressdTextureS3tc_srgb: WEBGL_compressed_texture_s3tc_srgb = null;
     /**@internal */
     _compressedTexturePvrtc: any = null;
     /**@internal */
@@ -47,7 +49,7 @@ export class LayaGPU {
     /**@internal webgl1.0开启OES_texture_half_float_linear会默认开启这个扩展*/
     _extColorBufferFloat: any = null;
     /** @internal */
-    _sRGB: any = null;
+    _sRGB: EXT_sRGB = null;
 
     /**
      * @internal
@@ -85,6 +87,7 @@ export class LayaGPU {
         //_getExtension("EXT_float_blend");
         this._extTextureFilterAnisotropic = this._getExtension("EXT_texture_filter_anisotropic");
         this._compressedTextureS3tc = this._getExtension("WEBGL_compressed_texture_s3tc");
+        this._compressdTextureS3tc_srgb = this._getExtension("WEBGL_compressed_texture_s3tc_srgb");
         this._compressedTexturePvrtc = this._getExtension("WEBGL_compressed_texture_pvrtc");
         this._compressedTextureEtc1 = this._getExtension("WEBGL_compressed_texture_etc1");
         this._compressedTextureETC = this._getExtension("WEBGL_compressed_texture_etc");

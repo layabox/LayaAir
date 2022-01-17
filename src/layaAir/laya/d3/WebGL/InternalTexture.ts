@@ -23,8 +23,6 @@ export interface InternalTexture {
      */
     resource: any;
 
-    dimension: TextureDimension;
-
     width: number;
 
     height: number;
@@ -62,6 +60,12 @@ export interface InternalTexture {
     _setSampler(): void;
 
     generateMipmap(): boolean;
+
+    updataSubImageData(source: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap, xoffset: number, yoffset: number, mipmapLevel: number): void;
+
+    updataSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number): void;
+
+    updataCompressSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number): void;
 
     dispose(): void;
 }

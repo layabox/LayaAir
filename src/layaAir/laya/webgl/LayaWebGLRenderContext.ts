@@ -3,8 +3,10 @@ import { Texture2D } from "../d3/WebGL/Texture2D";
 import { WebGL1Texture } from "../d3/WebGL/WebGL1Texture";
 import { LayaGL } from "../layagl/LayaGL";
 import { FilterMode } from "../resource/FilterMode";
+import { RenderTextureFormat } from "../resource/RenderTextureFormat";
 import { TextureFormat } from "../resource/TextureFormat";
 import { WarpMode } from "../resource/WrapMode";
+import { DDSTextureInfo } from "./DDSTextureInfo";
 import { LayaRenderContext } from "./LayaRenderContext";
 import { SystemUtils } from "./SystemUtils";
 import { WebGLContext } from "./WebGLContext";
@@ -30,19 +32,19 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
     glGLParam(format: TextureFormat, useSRGB: boolean) {
         let gl = this.gl;
 
-        let sRGBExt = LayaGL.layaGPUInstance._sRGB;
-
+        let layaGPU = LayaGL.layaGPUInstance;
+        ;
         this._glParam.internalFormat = null;
         this._glParam.format = null;
         this._glParam.type = null;
         switch (format) {
             case TextureFormat.R8G8B8:
-                this._glParam.internalFormat = useSRGB ? sRGBExt.SRGB_EXT : gl.RGB;
+                this._glParam.internalFormat = useSRGB ? layaGPU._sRGB.SRGB_EXT : gl.RGB;
                 this._glParam.format = this._glParam.internalFormat;
                 this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.R8G8B8A8:
-                this._glParam.internalFormat = useSRGB ? sRGBExt.SRGB_ALPHA_EXT : gl.RGBA;
+                this._glParam.internalFormat = useSRGB ? layaGPU._sRGB.SRGB_ALPHA_EXT : gl.RGBA;
                 this._glParam.format = this._glParam.internalFormat;
                 this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
@@ -50,6 +52,21 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
                 this._glParam.internalFormat = gl.RGB;
                 this._glParam.format = this._glParam.internalFormat;
                 this._glParam.type = gl.UNSIGNED_SHORT_5_6_5;
+                break;
+            case TextureFormat.DXT1:
+                this._glParam.internalFormat = useSRGB ? layaGPU._compressdTextureS3tc_srgb.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT : layaGPU._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.UNSIGNED_BYTE;
+                break;
+            case TextureFormat.DXT3:
+                this._glParam.internalFormat = useSRGB ? layaGPU._compressdTextureS3tc_srgb.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT : layaGPU._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT3_EXT;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.UNSIGNED_BYTE;
+                break;
+            case TextureFormat.DXT5:
+                this._glParam.internalFormat = useSRGB ? layaGPU._compressdTextureS3tc_srgb.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT : layaGPU._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
         }
 
@@ -61,23 +78,29 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
             case TextureFormat.R8G8B8:
             case TextureFormat.R8G8B8A8:
                 return true;
+            case TextureFormat.DXT1:
+            case TextureFormat.DXT3:
+            case TextureFormat.DXT5:
+                return SystemUtils.supportDDS_srgb();
             default:
                 return false;
         }
     }
 
-    createInternalTexture(width: number, height: number, format: TextureFormat, mipmap: boolean, warpU: WarpMode, warpV: WarpMode, filter: FilterMode, anisoLevel: number, premultiplyAlpha: boolean, invertY: boolean, sRGB: boolean): InternalTexture {
+    createTextureInternal(width: number, height: number, format: TextureFormat, mipmap: boolean, warpU: WarpMode, warpV: WarpMode, filter: FilterMode, anisoLevel: number, premultiplyAlpha: boolean, invertY: boolean, sRGB: boolean): InternalTexture {
+
+        // todo
+        // format 判断  不支持 format ?
+
         let gammaCorrection = 1.0;
 
         // 是否使用 sRGB 格式加载
         let useSRGBExt = SystemUtils.supportsRGB() && sRGB && !mipmap && this.supportSRGB(format);
-
         if (!useSRGBExt && sRGB) {
             // todo gamma correction value
             gammaCorrection = 2.2;
         }
-        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, gammaCorrection);
-        internalTexture._useSRGBLoad = useSRGBExt;
+        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, useSRGBExt, gammaCorrection);
 
         let glParam = this.glGLParam(format, useSRGBExt);
         let gl_internalFormat = internalTexture.gl_internalFormat = glParam.internalFormat;
@@ -91,6 +114,80 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
         return internalTexture;
     }
 
+    createCompressTextureInternal(source: ArrayBufferView, width: number, height: number, format: TextureFormat, mipmap: boolean, warpU: WarpMode, warpV: WarpMode, filter: FilterMode, anisoLevel: number, premultiplyAlpha: boolean, invertY: boolean, sRGB: boolean): InternalTexture {
+
+        // todo
+        // format 判断  不支持 format ?
+
+        let gammaCorrection = 1.0;
+
+        // 是否使用 sRGB 格式加载
+        let useSRGBExt = SystemUtils.supportsRGB() && sRGB && !mipmap && this.supportSRGB(format);
+        if (!useSRGBExt && sRGB) {
+            // todo gamma correction value
+            gammaCorrection = 2.2;
+        }
+        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, useSRGBExt, gammaCorrection);
+
+        let glParam = this.glGLParam(format, useSRGBExt);
+        let gl_internalFormat = internalTexture.gl_internalFormat = glParam.internalFormat;
+        let gl_format = internalTexture.gl_format = glParam.format;
+        let gl_type = internalTexture.gl_type = glParam.type;
+
+        let gl = this.gl;
+        WebGLContext.bindTexture(gl, internalTexture.gl_target, internalTexture.resource);
+        // gl.compressedTexImage2D(internalTexture.gl_target, 0, gl_internalFormat, width, height, 0, gl_format, gl_type, null);
+
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+        gl.compressedTexImage2D(internalTexture.gl_target, 0, gl_internalFormat, width, height, 0, source);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+
+        WebGLContext.bindTexture(gl, internalTexture.gl_target, null);
+
+        internalTexture._setSampler();
+        return internalTexture;
+    }
+
+    createDDSTexture(source: ArrayBuffer, ddsInfo: DDSTextureInfo, warpU: WarpMode, warpV: WarpMode, filter: FilterMode, anisoLevel: number, premultiplyAlpha: boolean, invertY: boolean, sRGB: boolean): InternalTexture {
+
+        let width = ddsInfo.width;
+        let height = ddsInfo.height;
+        let mipmapCount = ddsInfo.mipmapCount;
+        let blockBytes = ddsInfo.blockBytes;
+        let textureFormat = ddsInfo.format;
+        let bpp = 0;
+        let dataOffset = ddsInfo.dataOffset;
+
+        let internalTexture;
+
+        for (let mip = 0; mip < mipmapCount; mip++) {
+            let dataLength = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockBytes;
+            let byteArray = new Uint8Array(source, dataOffset, dataLength);
+
+            if (mip == 0) {
+                internalTexture = this.createCompressTextureInternal(byteArray, width, height, textureFormat, false, warpU, warpV, filter, anisoLevel, premultiplyAlpha, invertY, sRGB);
+            } else {
+
+                internalTexture.updataCompressSubPixelsData(byteArray, 0, 0, width, height, mip);
+            }
+
+            dataOffset += bpp ? (width * height * (bpp / 8)) : dataLength;
+            width *= 0.5;
+            height *= 0.5;
+
+            width = Math.max(1.0, width);
+            height = Math.max(1.0, height);
+        }
+
+        return internalTexture;
+
+    }
+
+    createRenderTargetInternal(width: number, height: number, format: RenderTextureFormat, mipmap: boolean, warpU: WarpMode, warpV: WarpMode, filter: FilterMode, anisoLevel: number, premultiplyAlpha: boolean, invertY: boolean, sRGB: boolean): InternalTexture {
+        throw new Error("Method not implemented.");
+    }
+
     createImgTexture2D(sourceData: HTMLImageElement | HTMLCanvasElement | ImageBitmap, width: number, height: number, format: TextureFormat, mipmap: boolean, warpU: WarpMode, warpV: WarpMode, filter: FilterMode, anisoLevel: number, premultiplyAlpha: boolean, invertY: boolean, sRGB: boolean): InternalTexture {
         let gammaCorrection = 1.0;
 
@@ -102,8 +199,7 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
             gammaCorrection = 2.2;
         }
 
-        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, gammaCorrection);
-        internalTexture._useSRGBLoad = useSRGBExt;
+        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, useSRGBExt, gammaCorrection);
 
 
         let glParam = this.glGLParam(format, useSRGBExt);
@@ -145,7 +241,7 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
             gammaCorrection = 2.2;
         }
 
-        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, gammaCorrection);
+        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, useSRGBExt, gammaCorrection);
 
 
         internalTexture._useSRGBLoad = useSRGBExt;

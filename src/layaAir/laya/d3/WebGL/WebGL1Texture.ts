@@ -9,7 +9,6 @@ export class WebGL1Texture implements InternalTexture {
     _gl: WebGLRenderingContext;
 
     readonly resource: WebGLTexture;
-    readonly dimension: TextureDimension;
 
     width: number;
 
@@ -61,13 +60,12 @@ export class WebGL1Texture implements InternalTexture {
         return this._invertY;
     }
 
-    constructor(width: number, height: number, dimension: TextureDimension, warpU: WarpMode, warpV: WarpMode, warpW: WarpMode, filter: FilterMode, anisoLevel: number, mipmap: boolean, premultiplyAlpha: boolean, invertY: boolean, gammaCorrection: number) {
+    constructor(width: number, height: number, dimension: TextureDimension, warpU: WarpMode, warpV: WarpMode, warpW: WarpMode, filter: FilterMode, anisoLevel: number, mipmap: boolean, premultiplyAlpha: boolean, invertY: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
         let gl = LayaGL.instance;
         this._gl = gl;
 
         this.width = width;
         this.height = height;
-        this.dimension = dimension;
 
         const isPot = (value: number): boolean => {
             return (value & (value - 1)) === 0;
@@ -85,6 +83,7 @@ export class WebGL1Texture implements InternalTexture {
 
         this._premultiplyAlpha = premultiplyAlpha;
         this._invertY = invertY;
+        this._useSRGBLoad = useSRGBLoader;
         this._gammaCorrection = gammaCorrection
 
         this.gl_target = this.getTarget(dimension);
@@ -171,6 +170,15 @@ export class WebGL1Texture implements InternalTexture {
     // 初始化成 mipmap false 的 是否变成 true 
     generateMipmap(): boolean {
         // webgl1 srgb 不支持生成mipmap
+        // todo 创建时没有 mipmap 不允许后生成？
+        /**
+         * webgl2 gl.texStroe 初始化需要确定texture大小
+         * 或者统一使用 texImage2D 允许后生成mipmap ？
+         */
+        if (this.mipmap) {
+
+        }
+
         // todo 有其他 format 不支持 生成 mipmap ?
         if (this.isPotSize && !this.useSRGBLoad) {
             let gl = this._gl;
@@ -329,6 +337,75 @@ export class WebGL1Texture implements InternalTexture {
         WebGLContext.bindTexture(gl, target, null);
     }
 
+    updataSubImageData(source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, xoffset: number, yoffset: number, mipmapLevel: number) {
+        if (this.mipmapCount <= mipmapLevel || source.width + xoffset > this.width || source.height + yoffset > this.height) {
+            // todo 超范围
+            console.warn("updataSubImageData failed");
+            return;
+        }
+
+        let gl = this._gl;
+        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+        WebGLContext.bindTexture(gl, this.gl_target, this.resource);
+
+        gl.texSubImage2D(this.gl_target, mipmapLevel, xoffset, yoffset, this.gl_format, this.gl_type, source);
+
+        WebGLContext.bindTexture(gl, this.gl_target, null);
+
+        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    }
+
+    updataSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number) {
+        if (this.mipmapCount <= mipmapLevel || width + xoffset > this.width || height + yoffset > this.height) {
+            // todo 超范围
+            console.warn("updataSubImageData failed");
+            return;
+        }
+
+        let gl = this._gl;
+        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        let fourSize = width % 4 == 0 && height % 4 == 0;
+        fourSize && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+        WebGLContext.bindTexture(gl, this.gl_target, this.resource);
+
+        gl.texSubImage2D(this.gl_target, mipmapLevel, xoffset, yoffset, width, height, this.gl_format, this.gl_type, source);
+
+        WebGLContext.bindTexture(gl, this.gl_target, null);
+
+        fourSize && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    }
+
+    updataCompressSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number): void {
+        if (this.mipmapCount <= mipmapLevel || width + xoffset > this.width || height + yoffset > this.height) {
+            // todo 超范围
+            console.warn("updataSubImageData failed");
+            return;
+        }
+
+        let gl = this._gl;
+        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        let fourSize = width % 4 == 0 && height % 4 == 0;
+        fourSize && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+        WebGLContext.bindTexture(gl, this.gl_target, this.resource);
+
+        // gl.texSubImage2D(this.gl_target, mipmapLevel, xoffset, yoffset, width, height, this.gl_format, this.gl_type, source);
+        gl.compressedTexSubImage2D(this.gl_target, mipmapLevel, xoffset, yoffset, width, height, this.gl_format, source);
+
+        WebGLContext.bindTexture(gl, this.gl_target, null);
+
+        fourSize && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    }
 
     dispose(): void {
         let gl = this._gl;
