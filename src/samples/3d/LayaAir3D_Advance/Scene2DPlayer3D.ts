@@ -30,14 +30,14 @@ export class Scene2DPlayer3D {
 	private rotationD: Vector3 = new Vector3(0, -90, 0);
 
 	private _3DScene: Scene3D;
+	private sp3Role: Sprite3D = new Sprite3D();
+
 	private spMonkey: Sprite = new Sprite();
 	private spRole: Sprite = new Sprite();
 	/** 拖尾的节点精灵 */
 	private spTrail: Sprite = new Sprite();
 	/** 拖尾的当前转向 */
 	private turnLeft: boolean = true;
-
-	private sp3Role: Sprite3D = new Sprite3D();
 
 	constructor() {
 		this.initSet();
@@ -87,7 +87,7 @@ export class Scene2DPlayer3D {
 		this.spMonkey.pos(399, 220);
 		sceneBackGround.addChild(this.spRole);
 		sceneBackGround.addChild(this.spTrail);
-		this.spTrail.pos(10,300);
+		this.spTrail.pos(10, 300);
 
 		//添加操作提示的文本
 		let _label = new Label();
@@ -148,12 +148,12 @@ export class Scene2DPlayer3D {
 
 	/** 在每帧的循环里帧听键盘事件并作出对应的操作逻辑 */
 	private onKeyDown(): void {
-        //调整拖尾转向
-        if (this.spTrail.x < 20 && this.turnLeft) this.turnLeft = false;
-        else if (this.spTrail.x > (Laya.stage.width - 300) && !(this.turnLeft)) this.turnLeft = true;
-        //控制拖尾的自动移动
-        if (this.turnLeft) this.spTrail.x -= 1;
-        else this.spTrail.x += 1;
+		//调整拖尾转向
+		if (this.spTrail.x < 20 && this.turnLeft) this.turnLeft = false;
+		else if (this.spTrail.x > (Laya.stage.width - 300) && !(this.turnLeft)) this.turnLeft = true;
+		//控制拖尾的自动移动
+		if (this.turnLeft) this.spTrail.x -= 1;
+		else this.spTrail.x += 1;
 
 		if (KeyBoardManager.hasKeyDown(Keyboard.W)) {
 			this.spRole.y -= 1;
