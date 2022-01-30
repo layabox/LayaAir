@@ -1,14 +1,19 @@
-import { LightSprite } from "./LightSprite";
+import { Light } from "./Light";
+
 
 
 /**
  * @internal
  */
-export class LightQueue<T extends LightSprite> {
+export class LightQueue<T extends Light> {
     _length: number = 0;
     _elements: T[] = [];
 
     add(light: T): void {
+        let index = this._elements.indexOf(light);
+        if(index!=-1&&index<=length){
+            return;
+        }
         if (this._length === this._elements.length)
             this._elements.push(light);
         else
@@ -25,27 +30,26 @@ export class LightQueue<T extends LightSprite> {
         }
     }
 
-    shift(): T|undefined {
+    shift(): T | undefined {
         this._length--;
         return this._elements.shift();
     }
 
-    getBrightestLight():number|undefined{
+    getBrightestLight(): number | undefined {
         var maxIntIndex;
-        var maxIntensity:number = -1;
-        var elements:T[] = this._elements;
-        for(var i:number = 0;i<this._length;i++){
-            var intensity:number = elements[i]._intensity;
-            if(maxIntensity<intensity)
-            {
+        var maxIntensity: number = -1;
+        var elements: T[] = this._elements;
+        for (var i: number = 0; i < this._length; i++) {
+            var intensity: number = elements[i]._intensity;
+            if (maxIntensity < intensity) {
                 maxIntensity = intensity;
                 maxIntIndex = i;
             }
         }
         return maxIntIndex;
     }
-    normalLightOrdering(brightestIndex:number){
-        var firstLight:T = this._elements[0];
+    normalLightOrdering(brightestIndex: number) {
+        var firstLight: T = this._elements[0];
         this._elements[0] = this._elements[brightestIndex];
         this._elements[brightestIndex] = firstLight;
     }
@@ -57,9 +61,9 @@ export class LightQueue<T extends LightSprite> {
 /**
  * @internal
  */
-export class AlternateLightQueue extends LightQueue<LightSprite>{
+export class AlternateLightQueue extends LightQueue<Light>{
 
-    remove(light: LightSprite): void {
+    remove(light: Light): void {
         //sort must base added time
         var index: number = this._elements.indexOf(light);
         this._elements.splice(index, 1);

@@ -1,6 +1,5 @@
 import { Node } from "../../display/Node";
 import { Loader } from "../../net/Loader";
-import { Animator } from "../component/Animator";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Mesh } from "../resource/models/Mesh";
@@ -69,8 +68,8 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 	 */
 	constructor(mesh: Mesh = null, name: string = null) {
 		super(name);
-		this._meshFilter = new MeshFilter(this);
-		this._render = new SimpleSkinnedMeshRenderer(this);
+		this._meshFilter = this.addComponent(MeshFilter);
+		this._render = this.addComponent(SimpleSkinnedMeshRenderer);
 		(mesh) && (this._meshFilter.sharedMesh = mesh);
 	}
 
@@ -86,7 +85,7 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 		(lightmapIndex != null) && (render.lightmapIndex = lightmapIndex);
 		var lightmapScaleOffsetArray: any[] = data.lightmapScaleOffset;
 		(lightmapScaleOffsetArray) && (render.lightmapScaleOffset = new Vector4(lightmapScaleOffsetArray[0], lightmapScaleOffsetArray[1], lightmapScaleOffsetArray[2], lightmapScaleOffsetArray[3]));
-		(data.enableRender != undefined) && (render.enable = data.enableRender);
+		(data.enableRender != undefined) && (render.enabled = data.enableRender);
 		(data.receiveShadows != undefined) && (render.receiveShadow = data.receiveShadows);
 		(data.castShadow != undefined) && (render.castShadow = data.castShadow);
 		var meshPath: string;
@@ -122,9 +121,10 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 				render.bones.push(spriteMap[bonesData[i]]);
 
 			render._bonesNums = data.bonesNums ? data.bonesNums : render.bones.length;
-		} else {//[兼容代码]
-			(data.rootBone) && (render._setRootBone(data.rootBone));//[兼容性]
-		}
+		} 
+		// else {//[兼容代码]
+		// 	(data.rootBone) && (render._setRootBone(data.rootBone));//[兼容性]
+		// }
 		var animatorTexture: string = data.animatorTexture;
 		if (animatorTexture) {
 			var animatortexture: Texture2D = Loader.getRes(animatorTexture);
@@ -132,15 +132,15 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	protected _changeHierarchyAnimator(animator: Animator): void {
-		super._changeHierarchyAnimator(animator);
-		this.simpleSkinnedMeshRenderer._setCacheAnimator(animator);
-	}
+	// /**
+	//  * @inheritDoc
+	//  * @override
+	//  * @internal
+	//  */
+	// protected _changeHierarchyAnimator(animator: Animator): void {
+	// 	super._changeHierarchyAnimator(animator);
+	// 	this.simpleSkinnedMeshRenderer._setCacheAnimator(animator);
+	// }
 
 
 	/**
@@ -149,48 +149,48 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 	 * @internal
 	 */
 	_cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
-		var meshSprite3D: MeshSprite3D = (<MeshSprite3D>destObject);
-		meshSprite3D.meshFilter.sharedMesh = this.meshFilter.sharedMesh;
-		var meshRender: SimpleSkinnedMeshRenderer = (<SimpleSkinnedMeshRenderer>this._render);
-		var destMeshRender: SimpleSkinnedMeshRenderer = (<SimpleSkinnedMeshRenderer>meshSprite3D._render);
-		destMeshRender.enable = meshRender.enable;
-		destMeshRender.sharedMaterials = meshRender.sharedMaterials;
-		destMeshRender.castShadow = meshRender.castShadow;
-		var lightmapScaleOffset: Vector4 = meshRender.lightmapScaleOffset;
-		lightmapScaleOffset && (destMeshRender.lightmapScaleOffset = lightmapScaleOffset.clone());
-		destMeshRender.receiveShadow = meshRender.receiveShadow;
-		destMeshRender.sortingFudge = meshRender.sortingFudge;
-		destMeshRender._rootBone = meshRender._rootBone;
+		// var meshSprite3D: MeshSprite3D = (<MeshSprite3D>destObject);
+		// meshSprite3D.meshFilter.sharedMesh = this.meshFilter.sharedMesh;
+		// var meshRender: SimpleSkinnedMeshRenderer = (<SimpleSkinnedMeshRenderer>this._render);
+		// var destMeshRender: SimpleSkinnedMeshRenderer = (<SimpleSkinnedMeshRenderer>meshSprite3D._render);
+		// destMeshRender.enabled = meshRender.enabled;
+		// destMeshRender.sharedMaterials = meshRender.sharedMaterials;
+		// destMeshRender.castShadow = meshRender.castShadow;
+		// var lightmapScaleOffset: Vector4 = meshRender.lightmapScaleOffset;
+		// lightmapScaleOffset && (destMeshRender.lightmapScaleOffset = lightmapScaleOffset.clone());
+		// destMeshRender.receiveShadow = meshRender.receiveShadow;
+		// destMeshRender.sortingFudge = meshRender.sortingFudge;
+		// //destMeshRender._rootBone = meshRender._rootBone;
 
-		var bones: Sprite3D[] = meshRender.bones;
-		var destBones: Sprite3D[] = destMeshRender.bones;
-		var bonesCount: number = bones.length;
-		destBones.length = bonesCount;
+		// var bones: Sprite3D[] = meshRender.bones;
+		// var destBones: Sprite3D[] = destMeshRender.bones;
+		// var bonesCount: number = bones.length;
+		// destBones.length = bonesCount;
 
-		var rootBone: Sprite3D = meshRender.rootBone;
-		if (rootBone) {
-			var pathes: any[] = Utils3D._getHierarchyPath(srcRoot, rootBone, SimpleSkinnedMeshSprite3D._tempArray0);
-			if (pathes)
-				destMeshRender.rootBone = (<Sprite3D>Utils3D._getNodeByHierarchyPath(dstRoot, pathes));
-			else
-				destMeshRender.rootBone = rootBone;
-		}
+		// var rootBone: Sprite3D = meshRender.rootBone;
+		// if (rootBone) {
+		// 	var pathes: any[] = Utils3D._getHierarchyPath(srcRoot, rootBone, SimpleSkinnedMeshSprite3D._tempArray0);
+		// 	if (pathes)
+		// 		destMeshRender.rootBone = (<Sprite3D>Utils3D._getNodeByHierarchyPath(dstRoot, pathes));
+		// 	else
+		// 		destMeshRender.rootBone = rootBone;
+		// }
 
-		for (var i: number = 0; i < bones.length; i++) {
-			pathes = Utils3D._getHierarchyPath(srcRoot, bones[i], SimpleSkinnedMeshSprite3D._tempArray0);
-			if (pathes)
-				destBones[i] = (<Sprite3D>Utils3D._getNodeByHierarchyPath(dstRoot, pathes));
-			else
-				destBones[i] = bones[i];
-		}
+		// for (var i: number = 0; i < bones.length; i++) {
+		// 	pathes = Utils3D._getHierarchyPath(srcRoot, bones[i], SimpleSkinnedMeshSprite3D._tempArray0);
+		// 	if (pathes)
+		// 		destBones[i] = (<Sprite3D>Utils3D._getNodeByHierarchyPath(dstRoot, pathes));
+		// 	else
+		// 		destBones[i] = bones[i];
+		// }
 
-		var lbb: Bounds = meshRender.localBounds;
-		(lbb) && (lbb.cloneTo(destMeshRender.localBounds));
+		// var lbb: Bounds = meshRender.localBounds;
+		// (lbb) && (lbb.cloneTo(destMeshRender.localBounds));
 
 
-		destMeshRender.simpleAnimatorOffset = meshRender.simpleAnimatorOffset;
-		destMeshRender.simpleAnimatorTexture = meshRender.simpleAnimatorTexture;
-		destMeshRender._bonesNums = meshRender._bonesNums;
+		// destMeshRender.simpleAnimatorOffset = meshRender.simpleAnimatorOffset;
+		// destMeshRender.simpleAnimatorTexture = meshRender.simpleAnimatorTexture;
+		// destMeshRender._bonesNums = meshRender._bonesNums;
 
 		super._cloneTo(destObject, srcRoot, dstRoot);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
 	}
@@ -210,7 +210,7 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 	 * @internal
 	 */
 	protected _create(): Node {
-		return new SimpleSkinnedMeshSprite3D();
+		return new Sprite3D();
 	}
 
 }

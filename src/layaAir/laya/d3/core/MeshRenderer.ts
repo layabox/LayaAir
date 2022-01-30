@@ -6,7 +6,6 @@ import { Matrix4x4 } from "../math/Matrix4x4"
 import { Mesh } from "../resource/models/Mesh"
 import { Material } from "./material/Material"
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
-import { MeshSprite3D } from "./MeshSprite3D"
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration"
 import { BaseRender } from "./render/BaseRender"
 import { RenderContext3D } from "./render/RenderContext3D"
@@ -16,9 +15,14 @@ import { RenderableSprite3D } from "./RenderableSprite3D"
 import { Sprite3D } from "./Sprite3D"
 import { Transform3D } from "./Transform3D"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
-import { ReflectionProbeMode, ReflectionProbe } from "./reflectionProbe/ReflectionProbe"
-import { TextureCube } from "../resource/TextureCube"
 import { ShaderDataType } from "./render/command/SetShaderDataCMD"
+import { MeshFilter } from "./MeshFilter"
+import { Component } from "../../components/Component"
+import { Shader3D } from "../shader/Shader3D"
+import { StaticBatchManager } from "../graphics/StaticBatchManager"
+import { DynamicBatchManager } from "../graphics/DynamicBatchManager"
+import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager"
+import { Vector4 } from "../math/Vector4"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -28,12 +32,28 @@ export class MeshRenderer extends BaseRender {
 	protected _revertStaticBatchDefineUV1: boolean = false;
 	/** @internal */
 	protected _projectionViewWorldMatrix: Matrix4x4;
+	/** @internal */
+	private _mesh: Mesh;
+
+	/**
+	 * @internal
+	 */
+	static __init__(): void {
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0 = Shader3D.getDefineByName("UV");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR = Shader3D.getDefineByName("COLOR");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = Shader3D.getDefineByName("UV1");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
+		StaticBatchManager._registerManager(MeshRenderStaticBatchManager.instance);
+		DynamicBatchManager._registerManager(MeshRenderDynamicBatchManager.instance);
+	}
+
 
 	/**
 	 * 创建一个新的 <code>MeshRender</code> 实例。
 	 */
-	constructor(owner: RenderableSprite3D) {
-		super(owner);
+	constructor() {
+		super();
 		this._projectionViewWorldMatrix = new Matrix4x4();
 	}
 
@@ -47,8 +67,32 @@ export class MeshRenderer extends BaseRender {
 	/**
 	 * @internal
 	 */
+	_onEnable(): void {
+		super._onEnable();
+		const filter = this.owner.getComponent(MeshFilter) as MeshFilter;
+		filter._enabled && this._onMeshChange(filter.sharedMesh);
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _onDisable(): void {
+		super._onDisable();
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _onDestroy(): void {
+		super._onDestroy();
+	}
+
+	/**
+	 * @internal
+	 */
 	_onMeshChange(mesh: Mesh): void {
 		if (mesh) {
+			this._mesh = mesh;
 			var count: number = mesh.subMeshCount;
 			this._renderElements.length = count;
 			for (var i: number = 0; i < count; i++) {
@@ -56,7 +100,7 @@ export class MeshRenderer extends BaseRender {
 				if (!renderElement) {
 					var material: Material = this.sharedMaterials[i];
 					renderElement = this._renderElements[i] = this._createRenderElement();
-					renderElement.setTransform(this._owner._transform);
+					renderElement.setTransform((this.owner as Sprite3D)._transform);
 					renderElement.render = this;
 					renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
 				}
@@ -64,6 +108,7 @@ export class MeshRenderer extends BaseRender {
 			}
 		} else {
 			this._renderElements.length = 0;
+			this._mesh = null;
 		}
 		this._boundsChange = true;
 		if (this._octreeNode && this._indexInOctreeMotionList === -1) {
@@ -71,8 +116,15 @@ export class MeshRenderer extends BaseRender {
 		}
 	}
 
+	/**
+	 * @internal
+	 * 开启多材质 多element模式
+	 */
 	updateMulPassRender(): void {
-		let mesh = (this._owner as MeshSprite3D).meshFilter.sharedMesh;
+		const filter = this.owner.getComponent(MeshFilter);
+		if (!filter)
+			return;
+		const mesh = filter.sharedMesh;
 		if (mesh) {
 			var subCount: number = mesh.subMeshCount;
 			var matCount = this._sharedMaterials.length;
@@ -84,7 +136,7 @@ export class MeshRenderer extends BaseRender {
 					if (!renderElement) {
 						var material: Material = this.sharedMaterials[i];
 						renderElement = this._renderElements[i] = this._createRenderElement();
-						renderElement.setTransform(this._owner._transform);
+						renderElement.setTransform((this.owner as Sprite3D)._transform);
 						renderElement.render = this;
 						renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
 					}
@@ -98,7 +150,7 @@ export class MeshRenderer extends BaseRender {
 					if (!renderElement) {
 						var material: Material = this.sharedMaterials[i];
 						renderElement = this._renderElements[i] = this._createRenderElement();
-						renderElement.setTransform(this._owner._transform);
+						renderElement.setTransform((this.owner as Sprite3D)._transform);
 						renderElement.render = this;
 						renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
 					}
@@ -121,9 +173,9 @@ export class MeshRenderer extends BaseRender {
 	 * @internal
 	 */
 	protected _calculateBoundingBox(): void {
-		var sharedMesh: Mesh = ((<MeshSprite3D>this._owner)).meshFilter.sharedMesh;
+		var sharedMesh: Mesh = this._mesh;
 		if (sharedMesh) {
-			var worldMat: Matrix4x4 = ((<MeshSprite3D>this._owner)).transform.worldMatrix;
+			var worldMat: Matrix4x4 = ((<Sprite3D>this.owner)).transform.worldMatrix;
 			sharedMesh.bounds._tranform(worldMat, this._bounds);
 		}
 	}
@@ -164,7 +216,8 @@ export class MeshRenderer extends BaseRender {
 				else {
 					this._revertStaticBatchDefineUV1 = false;
 				}
-				this._shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, BaseRender._defaultLightmapScaleOffset);
+				this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4, BaseRender._defaultLightmapScaleOffset);
+				this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);//静态合并的时候需要调整lightmapoffest
 				break;
 			case RenderElement.RENDERTYPE_VERTEXBATCH:
 				this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
@@ -207,6 +260,13 @@ export class MeshRenderer extends BaseRender {
 					break;
 			}
 		}
+		let ve = this._shaderValues.getVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET);
+		if (element.renderType == RenderElement.RENDERTYPE_STATICBATCH) {
+			if (ve.x != 1 || ve.y != 1 || ve.z != 0 || ve.w != 0) {
+				debugger;
+			}
+		}
+
 	}
 	/**
 	 * @internal
@@ -231,9 +291,18 @@ export class MeshRenderer extends BaseRender {
 	 * @override
 	 * @internal
 	 */
-	_destroy(): void {
-		(this._isPartOfStaticBatch) && (MeshRenderStaticBatchManager.instance._removeRenderSprite(this._owner));
-		super._destroy();
+	destroy(): void {
+		(this._isPartOfStaticBatch) && (MeshRenderStaticBatchManager.instance._removeRenderSprite(this));
+		super.destroy();
+	}
+
+	/**
+	 * @override
+	 * @param dest 
+	 */
+	_cloneTo(dest: Component): void {
+		super._cloneTo(dest);
+
 	}
 }
 

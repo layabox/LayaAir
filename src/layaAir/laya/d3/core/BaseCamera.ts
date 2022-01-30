@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { Laya } from "../../../Laya";
 import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
@@ -15,6 +14,7 @@ import { ShaderDefine } from "../shader/ShaderDefine";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { UniformBufferParamsType, UnifromBufferData } from "../graphics/UniformBufferData";
 import { ShaderDataType } from "./render/command/SetShaderDataCMD";
+import { Config3D } from "../../../Config3D";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -38,7 +38,7 @@ export class BaseCamera extends Sprite3D {
 	/**@internal */
 	static VIEWPORT: number;
 	/**@internal */
-	static PROJECTION_PARAMS;
+	static PROJECTION_PARAMS: number;
 	/**@internal */
 	static DEPTHTEXTURE: number;
 	/**@internal */
