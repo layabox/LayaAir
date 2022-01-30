@@ -16,8 +16,6 @@ import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitBase } from "../../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
 import { WebGLContext } from "../../../webgl/WebGLContext";
-import { Animator } from "../../component/Animator";
-import { Script3D } from "../../component/Script3D";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
 import { FrustumCulling, CameraCullInfo } from "../../graphics/FrustumCulling";
 import { Cluster } from "../../graphics/renderPath/Cluster";
@@ -39,10 +37,7 @@ import { ShaderData } from "../../shader/ShaderData";
 import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera, CameraClearFlags } from "../Camera";
-import { DirectionLight } from "../light/DirectionLight";
 import { AlternateLightQueue, LightQueue } from "../light/LightQueue";
-import { PointLight } from "../light/PointLight";
-import { SpotLight } from "../light/SpotLight";
 import { Material } from "../material/Material";
 import { PBRMaterial } from "../material/PBRMaterial";
 import { PBRRenderQuality } from "../material/PBRRenderQuality";
@@ -73,6 +68,11 @@ import { FilterMode } from "../../../resource/FilterMode";
 import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
 import { UniformBufferParamsType, UnifromBufferData } from "../../graphics/UniformBufferData";
 import { UniformBufferObject } from "../../graphics/UniformBufferObject";
+import { ComponentManager } from "../../component/ComponentManager";
+import { DirectionLightCom } from "../light/DirectionLightCom";
+import { Sprite3D } from "../Sprite3D";
+import { PointLightCom } from "../light/PointLightCom";
+import { SpotLightCom } from "../light/SpotLightCom";
 /**
  * 环境光模式
  */
@@ -321,9 +321,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			Scene3D._lightTexture.lock = true;
 			Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
 		}
-
 		Scene3D.shaderValueInit();
-
 		var config: Config3D = Config3D._config;
 		var configShaderValue: DefineDatas = Scene3D._configDefineValues;
 		if (!config._multiLighting) {
@@ -372,11 +370,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	public _lightCount: number = 0;
 	/** @internal */
-	public _pointLights: LightQueue<PointLight> = new LightQueue();
+	public _pointLights: LightQueue<PointLightCom> = new LightQueue();
 	/** @internal */
-	public _spotLights: LightQueue<SpotLight> = new LightQueue();
+	public _spotLights: LightQueue<SpotLightCom> = new LightQueue();
 	/** @internal */
-	public _directionLights: LightQueue<DirectionLight> = new LightQueue();
+	public _directionLights: LightQueue<DirectionLightCom> = new LightQueue();
 	/** @internal */
 	public _alternateLights: AlternateLightQueue = new AlternateLightQueue();
 	/** @internal */
@@ -413,12 +411,14 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
 	/** @internal */
 	private _reflectionIntensity: number = 1.0;
+	/**@internal */
+	_componentManager: ComponentManager = new ComponentManager();
 	/** @internal */
-	_mainDirectionLight: DirectionLight;
+	_mainDirectionLight: DirectionLightCom;
 	/** @internal */
-	_mainSpotLight: SpotLight;
+	_mainSpotLight: SpotLightCom;
 	/** @internal */
-	_mainPointLight: PointLight;//TODO
+	_mainPointLight: PointLightCom;//TODO
 	/** @internal */
 	_physicsSimulation: PhysicsSimulation;
 	/** @internal */
@@ -441,27 +441,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_cameraPool: BaseCamera[] = [];
 	/** @internal */
 	_animatorPool: SimpleSingletonList = new SimpleSingletonList();
-	/** @internal */
-	_updateScriptPool: Script3D[] = new Array<Script3D>();
-	/** @internal */
-	_lateUpdateScriptPool: Script3D[] = new Array<Script3D>();
-	/** @internal */
-	_preRenderScriptPool: Script3D[] = new Array<Script3D>();
-	/** @internal */
-	_postRenderScriptPool: Script3D[] = new Array<Script3D>();
-	/** @internal */
-	_scriptPool: Script3D[] = new Array<Script3D>();
-	/** @internal */
-	_tempScriptPool: Script3D[] = new Array<Script3D>();
-	/** @internal */
-	_needClearScriptPool: boolean = false;
 	/**	@internal */
 	_reflectionCubeHDRParams: Vector4 = new Vector4();
 	/** @internal */
 	_reflectionProbeManager: ReflectionProbeManager = new ReflectionProbeManager();
-
-
-
 	/** 当前创建精灵所属遮罩层。*/
 	currentCreationLayer: number = Math.pow(2, 0);
 	/** 是否启用灯光。*/
@@ -869,15 +852,19 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		//update Scripts
 		this._input._update();
-		this._clearScript();
-		this._updateScript();
-		Animator._update(this);
+		//this._clearScript();
+		this._componentManager.callScriptStart();
+		this._componentManager.callScriptUpdate(delta);
+		this._componentManager.callRenderUpdate(delta);
+		//Animator._update(this);
+		this._componentManager.callAnimatorUpdate(delta);
 		VideoTexture._update();
 		if (this._reflectionProbeManager._needUpdateAllRender)
 			this._reflectionProbeManager.updateAllRenderObjects(this._renders);
 		else
 			this._reflectionProbeManager.update();
-		this._lateUpdateScript();
+		this._componentManager.callScriptLataUpdate(delta);
+		this._componentManager.callComponentDestroy();
 	}
 
 	/**
@@ -965,48 +952,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @internal
-	 */
-	private _clearScript(): void {
-		if (this._needClearScriptPool) {
-			var scripts: Script3D[] = this._scriptPool;
-			for (var i: number = 0, n: number = scripts.length; i < n; i++) {
-				var script: Script3D = scripts[i];
-				if (script) {
-					script._indexInPool = this._tempScriptPool.length;
-					this._tempScriptPool.push(script);
-				}
-			}
-			this._scriptPool = this._tempScriptPool;
-			scripts.length = 0;
-			this._tempScriptPool = scripts;
-			this._needClearScriptPool = false;
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	private _updateScript(): void {
-		var scripts: Script3D[] = this._updateScriptPool;
-		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
-			var script: Script3D = scripts[i];
-			(script && script.enabled) && (script.onUpdate());
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	private _lateUpdateScript(): void {
-		var scripts: Script3D[] = this._lateUpdateScriptPool;
-		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
-			var script: Script3D = (<Script3D>scripts[i]);
-			(script && script.enabled) && (script.onLateUpdate());
-		}
-	}
-
-	/**
 	 * @inheritDoc
 	 * @override
 	 */
@@ -1038,18 +983,18 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			const floatWidth: number = pixelWidth * 4;
 			var curCount: number = 0;
 			var dirCount: number = this._directionLights._length;
-			var dirElements: DirectionLight[] = this._directionLights._elements;
+			var dirElements: DirectionLightCom[] = this._directionLights._elements;
 			if (dirCount > 0) {
 				var sunLightIndex: number = this._directionLights.getBrightestLight();//get the brightest light as sun
 				this._mainDirectionLight = dirElements[sunLightIndex];
 				this._directionLights.normalLightOrdering(sunLightIndex);
 				for (var i: number = 0; i < dirCount; i++, curCount++) {
-					var dirLight: DirectionLight = dirElements[i];
+					var dirLight: DirectionLightCom = dirElements[i];
 					var dir: Vector3 = dirLight._direction;
 					var intCor: Vector3 = dirLight._intensityColor;
 					var off: number = floatWidth * curCount;
 					Vector3.scale(dirLight.color, dirLight._intensity, intCor);
-					dirLight.transform.worldMatrix.getForward(dir);
+					(dirLight.owner as Sprite3D).transform.worldMatrix.getForward(dir);
 					Vector3.normalize(dir, dir);//矩阵有缩放时需要归一化
 					ligPix[off] = intCor.x;
 					ligPix[off + 1] = intCor.y;
@@ -1070,13 +1015,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 			var poiCount: number = this._pointLights._length;
 			if (poiCount > 0) {
-				var poiElements: PointLight[] = this._pointLights._elements;
+				var poiElements: PointLightCom[] = this._pointLights._elements;
 				var mainPointLightIndex: number = this._pointLights.getBrightestLight();
 				this._mainPointLight = poiElements[mainPointLightIndex];
 				this._pointLights.normalLightOrdering(mainPointLightIndex);
 				for (var i: number = 0; i < poiCount; i++, curCount++) {
-					var poiLight: PointLight = poiElements[i];
-					var pos: Vector3 = poiLight.transform.position;
+					var poiLight: PointLightCom = poiElements[i];
+					var pos: Vector3 = (poiLight.owner as Sprite3D).transform.position;
 					var intCor: Vector3 = poiLight._intensityColor;
 					var off: number = floatWidth * curCount;
 					Vector3.scale(poiLight.color, poiLight._intensity, intCor);
@@ -1096,18 +1041,18 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 			var spoCount: number = this._spotLights._length;
 			if (spoCount > 0) {
-				var spoElements: SpotLight[] = this._spotLights._elements;
+				var spoElements: SpotLightCom[] = this._spotLights._elements;
 				var mainSpotLightIndex: number = this._spotLights.getBrightestLight();
 				this._mainSpotLight = spoElements[mainSpotLightIndex];
 				this._spotLights.normalLightOrdering(mainSpotLightIndex)
 				for (var i: number = 0; i < spoCount; i++, curCount++) {
-					var spoLight: SpotLight = spoElements[i];
+					var spoLight: SpotLightCom = spoElements[i];
 					var dir: Vector3 = spoLight._direction;
-					var pos: Vector3 = spoLight.transform.position;
+					var pos: Vector3 = (spoLight.owner as Sprite3D).transform.position;
 					var intCor: Vector3 = spoLight._intensityColor;
 					var off: number = floatWidth * curCount;
 					Vector3.scale(spoLight.color, spoLight._intensity, intCor);
-					spoLight.transform.worldMatrix.getForward(dir);
+					(spoLight.owner as Sprite3D).transform.worldMatrix.getForward(dir);
 					Vector3.normalize(dir, dir);
 					ligPix[off] = intCor.x;
 					ligPix[off + 1] = intCor.y;
@@ -1134,11 +1079,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		else {
 			if (this._directionLights._length > 0) {
-				var dirLight: DirectionLight = this._directionLights._elements[0];
+				var dirLight: DirectionLightCom = this._directionLights._elements[0];
 				this._mainDirectionLight = dirLight;
 				Vector3.scale(dirLight.color, dirLight._intensity, dirLight._intensityColor);
 
-				dirLight.transform.worldMatrix.getForward(dirLight._direction);
+				(dirLight.owner as Sprite3D).transform.worldMatrix.getForward(dirLight._direction);
 				Vector3.normalize(dirLight._direction, dirLight._direction);
 				shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
 				shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
@@ -1150,11 +1095,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 			if (this._pointLights._length > 0) {
-				var poiLight: PointLight = this._pointLights._elements[0];
+				var poiLight: PointLightCom = this._pointLights._elements[0];
 				this._mainPointLight = poiLight;
 				Vector3.scale(poiLight.color, poiLight._intensity, poiLight._intensityColor);
 				shaderValues.setVector3(Scene3D.POINTLIGHTCOLOR, poiLight._intensityColor);
-				shaderValues.setVector3(Scene3D.POINTLIGHTPOS, poiLight.transform.position);
+				shaderValues.setVector3(Scene3D.POINTLIGHTPOS, (poiLight.owner as Sprite3D).transform.position);
 				shaderValues.setNumber(Scene3D.POINTLIGHTRANGE, poiLight.range);
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 			}
@@ -1162,12 +1107,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 			}
 			if (this._spotLights._length > 0) {
-				var spotLight: SpotLight = this._spotLights._elements[0];
+				var spotLight: SpotLightCom = this._spotLights._elements[0];
 				this._mainSpotLight = spotLight;
 				Vector3.scale(spotLight.color, spotLight._intensity, spotLight._intensityColor);
 				shaderValues.setVector3(Scene3D.SPOTLIGHTCOLOR, spotLight._intensityColor);
-				shaderValues.setVector3(Scene3D.SPOTLIGHTPOS, spotLight.transform.position);
-				spotLight.transform.worldMatrix.getForward(spotLight._direction);
+				shaderValues.setVector3(Scene3D.SPOTLIGHTPOS, (spotLight.owner as Sprite3D).transform.position);
+				(spotLight.owner as Sprite3D).transform.worldMatrix.getForward(spotLight._direction);
 				Vector3.normalize(spotLight._direction, spotLight._direction);
 				shaderValues.setVector3(Scene3D.SPOTLIGHTDIRECTION, spotLight._direction);
 				shaderValues.setNumber(Scene3D.SPOTLIGHTRANGE, spotLight.range);
@@ -1177,69 +1122,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			else {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
-		}
-	}
-
-	private _removeScriptInPool(scriptPool: Script3D[], script: Script3D) {
-		let index = scriptPool.indexOf(script);
-		if (index != -1) {
-			scriptPool.splice(index, 1);
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	_addScript(script: Script3D): void {
-		if (script._indexInPool != -1)
-			return;
-		var scripts: Script3D[] = this._scriptPool;
-		script._indexInPool = scripts.length;
-		scripts.push(script);
-		if (script.onUpdate !== Script3D.prototype.onUpdate)
-			this._updateScriptPool.push(script);
-		if (script.onLateUpdate !== Script3D.prototype.onLateUpdate)
-			this._lateUpdateScriptPool.push(script);
-		if (script.onPreRender !== Script3D.prototype.onPreRender)
-			this._preRenderScriptPool.push(script);
-		if (script.onPostRender !== Script3D.prototype.onPostRender)
-			this._postRenderScriptPool.push(script);
-	}
-
-	/**
-	 * @internal
-	 */
-	_removeScript(script: Script3D): void {
-		if (script._indexInPool == -1)
-			return;
-		this._scriptPool[script._indexInPool] = null;
-		script._indexInPool = -1;
-		this._needClearScriptPool = true;
-		this._removeScriptInPool(this._updateScriptPool, script);
-		this._removeScriptInPool(this._lateUpdateScriptPool, script);
-		this._removeScriptInPool(this._preRenderScriptPool, script);
-		this._removeScriptInPool(this._postRenderScriptPool, script);
-	}
-
-	/**
-	 * @internal
-	 */
-	_preRenderScript(): void {
-		var scripts: Script3D[] = this._preRenderScriptPool;
-		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
-			var script: Script3D = scripts[i];
-			(script && script.enabled) && (script.onPreRender());
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	_postRenderScript(): void {
-		var scripts: Script3D[] = this._postRenderScriptPool;
-		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
-			var script: Script3D = scripts[i];
-			(script && script.enabled) && (script.onPostRender());
 		}
 	}
 
@@ -1584,6 +1466,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		this._lightmaps = null;
 		this._reflectionProbeManager.destroy();
+		this._componentManager.callComponentDestroy();
+		this._componentManager.destroy();
 		Loader.clearRes(this.url);
 	}
 
@@ -1606,7 +1490,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		var i: number, n: number, n1: number;
 		Scene3D._updateMark++;
 		if (this._sceneUniformBlock) {
-			let sceneUBO = UniformBufferObject.getBuffer("SceneUniformBlock",0);
+			let sceneUBO = UniformBufferObject.getBuffer("SceneUniformBlock", 0);
 			sceneUBO && sceneUBO.setDataByUniformBufferData(this._sceneUniformBlock);
 		}
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {

@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { Node } from "../display/Node"
 import { IDestroy } from "../resource/IDestroy"
 import { ISingletonElement } from "../resource/ISingletonElement"
@@ -10,14 +9,14 @@ import { Utils } from "../utils/Utils";
  */
 export class Component implements ISingletonElement, IDestroy {
 	/** @internal [实现IListPool接口]*/
-	private _indexInList: number;
+	protected _indexInList: number;
 
 	/** @internal [实现IListPool接口]*/
 	_destroyed: boolean;
 	/** @internal */
 	_id: number;
 	/** @internal */
-	_enabled: boolean;
+	_enabled: boolean = false;
 	/** @internal */
 	_awaked: boolean;
 
@@ -105,6 +104,15 @@ export class Component implements ISingletonElement, IDestroy {
 	 */
 	_setIndexInList(index: number): void {
 		this._indexInList = index;
+	}
+
+	/**
+	 * @override
+	 * @internal
+	 * @param node 
+	 */
+	_setOwner(node:Node){
+		this.owner = node;
 	}
 
 	/**
@@ -200,6 +208,7 @@ export class Component implements ISingletonElement, IDestroy {
 	 */
 	destroy(): void {
 		if (this.owner) this.owner._destroyComponent(this);
+		this.owner = null;
 	}
 
 	/**
@@ -208,7 +217,6 @@ export class Component implements ISingletonElement, IDestroy {
 	_destroy(): void {
 		if (this.owner.activeInHierarchy && this._enabled)
 			this._setActive(false);
-
 		this._onDestroy();
 		this._destroyed = true;
 		if (this.onReset !== Component.prototype.onReset) {

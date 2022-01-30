@@ -10,7 +10,6 @@ export class SimpleSingletonList extends SingletonList<ISingletonElement> {
 	 */
 	constructor() {
 		super();
-
 	}
 
 	/**
@@ -18,8 +17,10 @@ export class SimpleSingletonList extends SingletonList<ISingletonElement> {
 	 */
 	add(element: ISingletonElement): void {
 		var index: number = element._getIndexInList();
-		if (index !== -1)
-			throw "SimpleSingletonList:" + element + " has  in  SingletonList.";
+		if (index !== -1) {
+			console.error("SimpleSingletonList:" + element + " has  in  SingletonList.");
+			return;
+		}
 		this._add(element);
 		element._setIndexInList(this.length++);
 	}
@@ -48,8 +49,8 @@ export class SimpleSingletonList extends SingletonList<ISingletonElement> {
 		this.length = 0;
 	}
 
-	clearElement(){
-		this.elements=null;
+	clearElement() {
+		this.elements = null;
 		this.length = 0;
 	}
 
