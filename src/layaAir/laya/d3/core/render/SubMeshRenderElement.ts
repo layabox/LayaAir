@@ -224,7 +224,8 @@ export class SubMeshRenderElement extends RenderElement {
 				insBatchMarks.batched = false;//是否已有大于两个的元素可合并
 				queueElements.add(this);
 			}
-		} else if (this._dynamicVertexBatch&&SubMeshRenderElement.enableDynamicBatch) {
+		//} else if (this._dynamicVertexBatch&&SubMeshRenderElement.enableDynamicBatch) {
+		} else if (false) {
 			var verDec: VertexDeclaration = ((<SubMesh>this._geometry))._vertexBuffer.vertexDeclaration;
 			var dynManager: MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 			var dynBatchMarks: BatchMark = dynManager.getVertexBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, verDec.id);

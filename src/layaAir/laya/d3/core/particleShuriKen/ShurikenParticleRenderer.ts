@@ -11,6 +11,13 @@ import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 import { Vector2 } from "../../math/Vector2";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { Node } from "../../../display/Node";
+import { ShurikenParticleInstanceSystem } from "./ShurikenParticleInstanceSystem";
+import { RenderElement } from "../render/RenderElement";
+import { Sprite3D } from "../Sprite3D";
+import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
+import { Component } from "../../../components/Component";
 
 
 /**
@@ -19,22 +26,16 @@ import { Vector2 } from "../../math/Vector2";
 export class ShurikenParticleRenderer extends BaseRender {
 	/** @internal */
 	private _finalGravity: Vector3 = new Vector3();
-	private _dragConstant:Vector2 = new Vector2();
+	private _dragConstant: Vector2 = new Vector2();
 
-	///**排序模式,无。*/
-	//public const SORTINGMODE_NONE:int = 0;
-	///**排序模式,通过摄像机距离排序,暂不支持。*/
-	//public const SORTINGMODE_BYDISTANCE:int = 1;
-	///**排序模式,年长的在前绘制,暂不支持。*/
-	//public const SORTINGMODE_OLDESTINFRONT:int = 2;
-	///**排序模式,年轻的在前绘制,暂不支持*/
-	//public const SORTINGMODE_YOUNGESTINFRONT:int = 3;
 
 	/**@internal */
 	private _renderMode: number;
 	/**@internal */
 	private _mesh: Mesh = null;
 
+	/**@interanl */
+	_particleSystem: ShurikenParticleSystem;
 	/**拉伸广告牌模式摄像机速度缩放,暂不支持。*/
 	stretchedBillboardCameraSpeedScale: number = 0;
 	/**拉伸广告牌模式速度缩放。*/
@@ -92,7 +93,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 				default:
 					throw new Error("ShurikenParticleRender: unknown renderMode Value.");
 			}
-			var parSys: ShurikenParticleSystem = (<ShuriKenParticle3D>this._owner).particleSystem;
+			var parSys: ShurikenParticleSystem = this._particleSystem;
 			(parSys) && (parSys._initBufferDatas());
 		}
 	}
@@ -109,22 +110,48 @@ export class ShurikenParticleRenderer extends BaseRender {
 			(this._mesh) && (this._mesh._removeReference());
 			this._mesh = value;
 			(value) && (value._addReference());
-			((<ShuriKenParticle3D>this._owner)).particleSystem._initBufferDatas();
+			this._particleSystem._initBufferDatas();
 		}
 	}
-
-
 
 	/**
 	 * 创建一个 <code>ShurikenParticleRender</code> 实例。
 	 */
-	constructor(owner: ShuriKenParticle3D) {
-		super(owner);
+	constructor() {
+		super();
 		this.renderMode = 0;
-		//sortingMode = SORTINGMODE_NONE;
 		this._supportOctree = false;
 	}
 
+	/**
+	 * @override Component
+	 * @internal
+	 * @param node 
+	 */
+	_setOwner(node: Node): void {
+		super._setOwner(node);
+		if (!LayaGL.layaGPUInstance.supportInstance()) {
+			this._particleSystem = new ShurikenParticleSystem(this);
+		} else
+			this._particleSystem = new ShurikenParticleInstanceSystem(this);
+
+		var elements: RenderElement[] = this._renderElements;
+		var element: RenderElement = elements[0] = new RenderElement();
+		element.setTransform((this.owner as Sprite3D)._transform);
+		element.render = this;
+		element.setGeometry(this._particleSystem);
+		element.material = ShurikenParticleMaterial.defaultMaterial;
+	}
+
+	_onEnable(): void {
+		super._onEnable();
+		(this._particleSystem.playOnAwake) && (this._particleSystem.play());
+	}
+
+	protected _onDisable(): void {
+		super._onDisable();
+		(this._particleSystem.isAlive) && (this._particleSystem.simulate(0, true));
+	}
 	/**
 	 * @inheritDoc
 	 * @internal
@@ -132,17 +159,17 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 */
 	protected _calculateBoundingBox(): void {
 
-		var particleSystem: ShurikenParticleSystem = (this._owner as ShuriKenParticle3D).particleSystem;
+		var particleSystem: ShurikenParticleSystem = (this.owner as ShuriKenParticle3D).particleSystem;
 		var bounds: Bounds;
 		if (particleSystem._useCustomBounds) {
 			bounds = particleSystem.customBounds;
-			bounds._tranform(this._owner.transform.worldMatrix, this._bounds);
+			bounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
 		}
 		else if (particleSystem._simulationSupported()) {
 			// todo need update Bounds
 			particleSystem._generateBounds();
 			bounds = particleSystem._bounds;
-			bounds._tranform(this._owner.transform.worldMatrix, this._bounds);
+			bounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
 			// 在世界坐标下考虑重力影响
 			if (particleSystem.gravityModifier != 0) {
 				var max: Vector3 = this._bounds.getMax();
@@ -152,7 +179,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 				min.y -= gravityOffset.y;
 				this._bounds.setMax(max);
 				this._bounds.setMin(min);
-			}                               
+			}
 		}
 		else {
 			var min: Vector3 = this._bounds.getMin();
@@ -172,7 +199,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
 		if (boundFrustum) {
 			if (boundFrustum.intersects(this.bounds._getBoundBox())) {
-				if ((<ShuriKenParticle3D>this._owner).particleSystem.isAlive)
+				if (this._particleSystem.isAlive)
 					return true;
 				else
 					return false;
@@ -190,9 +217,9 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 * @override
 	 */
 	_renderUpdate(context: RenderContext3D, transfrom: Transform3D): void {
-		var particleSystem: ShurikenParticleSystem = ((<ShuriKenParticle3D>this._owner)).particleSystem;
+		var particleSystem: ShurikenParticleSystem = this._particleSystem;
 		var sv: ShaderData = this._shaderValues;
-		var transform: Transform3D = this._owner.transform;
+		var transform: Transform3D = (this.owner as Sprite3D).transform;
 		switch (particleSystem.simulationSpace) {
 			case 0: //World
 				break;
@@ -221,17 +248,17 @@ export class ShurikenParticleRenderer extends BaseRender {
 				break;
 		}
 
-		switch(particleSystem.dragType){
+		switch (particleSystem.dragType) {
 			case 0:
-				this._dragConstant.setValue(particleSystem.dragSpeedConstantMin,particleSystem.dragSpeedConstantMin);
-				sv.setVector2(ShuriKenParticle3DShaderDeclaration.DRAG,this._dragConstant);
+				this._dragConstant.setValue(particleSystem.dragSpeedConstantMin, particleSystem.dragSpeedConstantMin);
+				sv.setVector2(ShuriKenParticle3DShaderDeclaration.DRAG, this._dragConstant);
 				break;
 			case 2:
-				this._dragConstant.setValue(particleSystem.dragSpeedConstantMin,particleSystem.dragSpeedConstantMax);
-				sv.setVector2(ShuriKenParticle3DShaderDeclaration.DRAG,this._dragConstant);
+				this._dragConstant.setValue(particleSystem.dragSpeedConstantMin, particleSystem.dragSpeedConstantMax);
+				sv.setVector2(ShuriKenParticle3DShaderDeclaration.DRAG, this._dragConstant);
 				break;
 			default:
-				this._dragConstant.setValue(0,0);
+				this._dragConstant.setValue(0, 0);
 				break;
 		}
 
@@ -250,15 +277,27 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 * @override
 	 */
 	get bounds(): Bounds {
-		//if (!(_owner as ShuriKenParticle3DShaderDeclaration).particleSystem.isAlive) {
-		//return _defaultBoundBox;
-		//} else {
 		if (this._boundsChange) {
 			this._calculateBoundingBox();
 			this._boundsChange = false;
 		}
 		return this._bounds;
-		//}
+	}
+
+	/**
+	 * @internal
+	 * @override
+	 */
+	_cloneTo(dest: Component): void {
+		let parRender = dest as ShurikenParticleRenderer;
+		this._particleSystem.cloneTo(parRender._particleSystem);
+		parRender.sharedMaterial = this.sharedMaterial;
+		parRender.renderMode = this.renderMode;
+		parRender.mesh = this.mesh;
+		parRender.stretchedBillboardCameraSpeedScale = this.stretchedBillboardCameraSpeedScale;
+		parRender.stretchedBillboardSpeedScale = this.stretchedBillboardSpeedScale;
+		parRender.stretchedBillboardLengthScale = this.stretchedBillboardLengthScale;
+		parRender.sortingFudge = this.sortingFudge;
 	}
 
 	/**
@@ -266,9 +305,11 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 * @internal
 	 * @override
 	 */
-	_destroy(): void {
-		super._destroy();
+	destroy(): void {
 		(this._mesh) && (this._mesh._removeReference(), this._mesh = null);
+		this._particleSystem.destroy();
+		this._particleSystem = null;
+		super.destroy();
 	}
 
 }

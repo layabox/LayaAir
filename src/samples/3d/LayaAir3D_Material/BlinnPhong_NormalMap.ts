@@ -2,6 +2,7 @@ import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -50,7 +51,7 @@ export class BlinnPhong_NormalMap {
 			monster2.transform.localScale = new Vector3(0.075, 0.075, 0.075);
 			for (var i: number = 0; i < monster2.getChildByName("lizard").numChildren; i++) {
 				var meshSprite3D: MeshSprite3D = (<MeshSprite3D>monster2.getChildByName("lizard").getChildAt(i));
-				var material: BlinnPhongMaterial = (<BlinnPhongMaterial>meshSprite3D.meshRenderer.material);
+				var material: BlinnPhongMaterial = (<BlinnPhongMaterial>meshSprite3D.getComponent(MeshRenderer).material);
 				//法线贴图
 				Texture2D.load(this.normalMapUrl[i], Handler.create(this, function (mat: BlinnPhongMaterial, texture: Texture2D): void {
 					mat.normalTexture = texture;

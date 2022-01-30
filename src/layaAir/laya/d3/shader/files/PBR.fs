@@ -17,10 +17,3 @@ void main()
 {
 	fragmentForward();
 }
-
-uniform flaot c;
-uniform float d;
-void add(){
-
-	c+d;
-}

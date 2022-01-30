@@ -19,6 +19,7 @@ import { Utils3D } from "../utils/Utils3D";
 import { Bounds } from "../core/Bounds";
 import { BoundSphere } from "../math/BoundSphere";
 import { ISceneRenderManager } from "../core/scene/SceneRenderManager/ISceneRenderManager";
+import { Sprite3D } from "../core/Sprite3D";
 
 
 /**
@@ -95,9 +96,9 @@ export class FrustumCulling {
 			var render: BaseRender = <BaseRender>renders[i];
 			var canPass: boolean;
 			if (isShadowCasterCull)
-				canPass = render._castShadow && render._enable;
+				canPass = render._castShadow && render._enabled;
 			else
-				canPass = ((Math.pow(2, render._owner._layer) & cullMask) != 0) && render._enable;
+				canPass = ((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0) && render._enabled;
 
 			if (canPass) {
 				Stat.frustumCulling++;
@@ -151,16 +152,16 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	static cullingShadow(cullInfo: ShadowCullInfo, scene: Scene3D, context: RenderContext3D): boolean {
-	
+
 		scene._clearRenderQueue();
 		var opaqueQueue = scene._opaqueQueue;
 
-		if(scene._octree){
+		if (scene._octree) {
 			//八叉树裁剪
 			let octree = scene._octree;
 			octree.preFruUpdate();
 			//octree._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context);
-			octree.cullingShadow(cullInfo,context);
+			octree.cullingShadow(cullInfo, context);
 		}
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
 		var position: Vector3 = cullInfo.position;
@@ -170,10 +171,10 @@ export class FrustumCulling {
 		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 			var render: BaseRender = <BaseRender>renders[i];
-			var canPass: boolean = render._castShadow && render._enable;
+			var canPass: boolean = render._castShadow && render._enabled;
 			if (canPass) {
 				Stat.frustumCulling++;
-				let pass = FrustumCulling.cullingRenderBounds(render.bounds,cullInfo);
+				let pass = FrustumCulling.cullingRenderBounds(render.bounds, cullInfo);
 				if (pass) {
 					render._renderMark = loopCount;
 					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
@@ -183,14 +184,14 @@ export class FrustumCulling {
 				}
 			}
 		}
-			
+
 		return opaqueQueue.elements.length > 0 ? true : false;
 	}
 
-	static cullingRenderBounds(bounds:Bounds,cullInfo:ShadowCullInfo):boolean{
+	static cullingRenderBounds(bounds: Bounds, cullInfo: ShadowCullInfo): boolean {
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		var cullPlanes: Plane[] = cullInfo.cullPlanes;
-		
+
 		var min: Vector3 = bounds.getMin();
 		var max: Vector3 = bounds.getMax();
 		var minX: number = min.x;
@@ -218,37 +219,36 @@ export class FrustumCulling {
 	/**
 	 * @internal
 	 */
-	static cullingSpotShadow(cameraCullInfo:CameraCullInfo,scene: Scene3D, context: RenderContext3D):boolean
-	{
+	static cullingSpotShadow(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D): boolean {
 		var opaqueQueue = scene._opaqueQueue;
 		scene._clearRenderQueue();
 
-		if(!scene._octree){
+		if (!scene._octree) {
 			var renderList: SingletonList<ISingletonElement> = scene._renders;
 			var renders: ISingletonElement[] = renderList.elements;
 			var loopCount: number = Stat.loopCount;
 			for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 				var render: BaseRender = <BaseRender>renders[i];
-				var canPass: boolean = render._castShadow && render._enable;
+				var canPass: boolean = render._castShadow && render._enabled;
 				if (canPass) {
-					if(render._needRender(cameraCullInfo.boundFrustum,context)){
+					if (render._needRender(cameraCullInfo.boundFrustum, context)) {
 						var bounds = render.bounds;
 						render._renderMark = loopCount;
-						render._distanceForSort = Vector3.distance(bounds.getCenter(),cameraCullInfo.position);
-						var elements:RenderElement[] = render._renderElements;
+						render._distanceForSort = Vector3.distance(bounds.getCenter(), cameraCullInfo.position);
+						var elements: RenderElement[] = render._renderElements;
 						for (var j: number = 0, m: number = elements.length; j < m; j++)
 							elements[j]._update(scene, context, null, null);
 					}
 				}
 			}
-		}else{
+		} else {
 			//八叉数裁剪
 			let octree = scene._octree;
 			octree.preFruUpdate();
-			octree.getCollidingWithFrustum(cameraCullInfo, context, null, null,true);
+			octree.getCollidingWithFrustum(cameraCullInfo, context, null, null, true);
 		}
 
-		return opaqueQueue.elements.length>0?true:false;
+		return opaqueQueue.elements.length > 0 ? true : false;
 	}
 	//---------------------------------------------------------NATIVE---------------------------------------------------------------------------------------------
 	/**@internal	[NATIVE]*/
@@ -277,7 +277,7 @@ export class FrustumCulling {
 
 		for (i = 0; i < validCount; i++) {
 			var render: BaseRender = <BaseRender>renders[i];
-			if (!camera.useOcclusionCulling || (camera._isLayerVisible(render._owner._layer) && render._enable && scene._cullingBufferResult[i])) {//TODO:需要剥离部分函数
+			if (!camera.useOcclusionCulling || (camera._isLayerVisible((render.owner as Sprite3D)._layer) && render._enabled && scene._cullingBufferResult[i])) {//TODO:需要剥离部分函数
 				render._renderMark = loopCount;
 				render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 				var elements: RenderElement[] = render._renderElements;

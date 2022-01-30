@@ -6,7 +6,7 @@
 	precision mediump int;
 #endif
 
-
+#define SHADER_NAME BlinnphongVS;
 
 
 

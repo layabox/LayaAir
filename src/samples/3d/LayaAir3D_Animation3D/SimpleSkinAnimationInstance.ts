@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Vector3 } from "laya/d3/math/Vector3";
@@ -9,6 +8,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Animator } from "laya/d3/component/Animator";
 import { Shader3D } from "laya/d3/shader/Shader3D";
+import { SimpleSkinnedMeshSprite3D } from "laya/d3/core/SimpleSkinnedMeshSprite3D";
+import { Quaternion } from "laya/d3/math/Quaternion";
 
 export class SimpleSkinAnimationInstance {
 	private animatorName:string[] = ["run","chongci","dead","xuli","stand"];
@@ -28,9 +29,13 @@ export class SimpleSkinAnimationInstance {
 		Sprite3D.load("res/threeDimen/texAnimation/Conventional/LayaMonkey.lh", Handler.create(this, function (sprite: Sprite3D): void {
 			this.scene.addChild(sprite);
 			this.oriSprite3D = this.scene.getChildAt(0).getChildAt(2) as Sprite3D;
+			let simple = (this.oriSprite3D as Sprite3D).getChildAt(1);
+			(simple as SimpleSkinnedMeshSprite3D).simpleSkinnedMeshRenderer.rootBone = this.oriSprite3D;
 			this.sceneBuild();
 			var animate:Animator = this.oriSprite3D.getComponent(Animator);
 			animate.play("chongci");
+			this.cloneSprite(new Vector3(5,0,0),new Vector3());
+			//this.oriSprite3D.active = false;
 		}));
 	}
 	cloneSprite(pos:Vector3,quaterial:Vector3){

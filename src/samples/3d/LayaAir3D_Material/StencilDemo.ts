@@ -18,6 +18,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { Button } from "laya/ui/Button";
 import Client from "../../Client";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 
 /**
  * 模板测试示例
@@ -50,7 +51,7 @@ export class StencilDemo {
 		let sphere = (<MeshSprite3D>scene.getChildByName("Sphere"));
         let sphereClone:MeshSprite3D = sphere.clone() as MeshSprite3D;
         scene.addChild(sphereClone) 
-        let matW = sphere.meshRenderer.sharedMaterial;
+        let matW = sphere.getComponent(MeshRenderer).sharedMaterial;
         //打开材质模板写入
         matW.stencilRef = 2;
         matW.stencilWrite = true;
@@ -65,7 +66,7 @@ export class StencilDemo {
 
         let mat:UnlitMaterial = new UnlitMaterial();
         mat.albedoColor = new Vector4(0.8,0.5,0.1);
-        sphereClone.meshRenderer.sharedMaterial = mat;
+        sphereClone.getComponent(MeshRenderer).sharedMaterial = mat;
         mat.stencilRef = 0;
         mat.stencilWrite = false;
         mat.stencilTest = RenderState.STENCILTEST_GEQUAL;

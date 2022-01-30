@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { RenderElement } from "./RenderElement";
 import { RenderContext3D } from "./RenderContext3D";
 import { Bounds } from "../Bounds"
@@ -14,7 +13,6 @@ import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
 import { ShaderData } from "../../shader/ShaderData"
 import { Event } from "../../../events/Event"
-import { EventDispatcher } from "../../../events/EventDispatcher"
 import { ISingletonElement } from "../../../resource/ISingletonElement"
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
 import { Stat } from "../../../utils/Stat";
@@ -31,11 +29,16 @@ import { ShaderDataType } from "./command/SetShaderDataCMD";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { UniformBufferParamsType } from "../../graphics/UniformBufferData";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Component } from "../../../components/Component";
+import { Node } from "../../../display/Node";
+import { Sprite3D } from "../Sprite3D";
+import { ILaya3D } from "../../../../ILaya3D";
+
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
  */
-export class BaseRender extends EventDispatcher implements ISingletonElement, IOctreeObject {
+export class BaseRender extends Component implements ISingletonElement, IOctreeObject {
 	/**@internal */
 	static _tempBoundBoxCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
 
@@ -73,7 +76,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**@internal */
-	private _id: number;
+	private _renderId: number;
 
 	/** @internal */
 	private _lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
@@ -82,13 +85,10 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	private _lightmapIndex: number;
 
 	/** @internal */
-	private _receiveShadow: boolean;
+	_receiveShadow: boolean;
 
 	/** @internal */
 	private _materialsInstance: boolean[];
-
-	/** @internal  [实现IListPool接口]*/
-	private _indexInList: number = -1;
 
 	/** @internal */
 	protected _bounds: Bounds;
@@ -106,9 +106,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_supportOctree: boolean = true;
 
 	/** @internal */
-	_enable: boolean;
-
-	/** @internal */
 	_shaderValues: ShaderData;
 
 	/** @internal */
@@ -116,9 +113,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 
 	/** @internal */
 	_scene: Scene3D;
-
-	/** @internal */
-	_owner: RenderableSprite3D;
 
 	/**@internal */
 	_renderElements: RenderElement[];
@@ -175,7 +169,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 获取唯一标识ID,通常用于识别。
 	 */
 	get id(): number {
-		return this._id;
+		return this._renderId;
 	}
 
 	/**
@@ -203,16 +197,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4, value);
 	}
 
-	/**
-	 * 是否可用。
-	 */
-	get enable(): boolean {
-		return this._enable;
-	}
-
-	set enable(value: boolean) {
-		this._enable = !!value;
-	}
 
 	/**
 	 * 返回第一个实例材质,第一次使用会拷贝实例对象。
@@ -406,22 +390,76 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/**
 	 * 创建一个新的 <code>BaseRender</code> 实例。
 	 */
-	constructor(owner: RenderableSprite3D) {
+	constructor() {
 		super();
-		this._id = ++BaseRender._uniqueIDCounter;
+		this._renderId = ++BaseRender._uniqueIDCounter;
 		this._indexInCastShadowList = -1;
 		this._bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
-
 		this._renderElements = [];
-		this._owner = owner;
-		this._enable = true;
+		this._enabled = true;
 		this._materialsInstance = [];
 		this._shaderValues = new ShaderData(null);
 		this.lightmapIndex = -1;
 		this.receiveShadow = false;
 		this.sortingFudge = 0.0;
-		(owner) && (this._owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));//如果为合并BaseRender,owner可能为空
+
 	}
+
+	/**
+	 * @override Component
+	 * @internal
+	 * @param node 
+	 */
+	_setOwner(node: Node) {
+		super._setOwner(node);
+		(this.owner) && (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
+	}
+
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_onEnable(): void {
+		if (BaseRender.prototype.update != this.update) {
+			(this.owner.scene as Scene3D)._componentManager.addUpdateRenderer(this);
+		}
+		(this.owner.scene as Scene3D)._addRenderObject(this);
+		if (ILaya3D.Laya3D._editerEnvironment) {
+			var scene: Scene3D = (<Scene3D>this.owner.scene);
+			var pickColor: Vector4 = new Vector4();
+			scene._allotPickColorByID(this.id, pickColor);
+			scene._pickIdToSprite[this.id] = this;
+			this._shaderValues.setVector(RenderableSprite3D.PICKCOLOR, pickColor);
+		}
+		this._setBelongScene(this.owner.scene);
+	}
+
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	protected _onDisable(): void {
+		if (BaseRender.prototype.update != this.update) {
+			(this.owner.scene as Scene3D)._componentManager.removeUpdateRenderer(this);
+		}
+		(this.owner.scene as Scene3D)._removeRenderObject(this);
+		this._setUnBelongScene();
+	}
+
+	protected _onDestroy(): void {
+		super._onDestroy();
+	}
+
+	/**
+	 * @override
+	 * @param deltaTime 
+	 */
+	update(deltaTime: number) {
+	}
+
+
 
 	/**
 	 * @internal
@@ -471,7 +509,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._transIsChange = true;
 		this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
 	}
-	
+
 	/**
 	 * @internal
 	 */
@@ -479,10 +517,13 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		throw ("BaseRender: must override it.");
 	}
 
+
+
 	/**
 	 * scene manager Node get
 	 */
-	 _getOctreeNode(): BoundsOctreeNode {//[实现IOctreeObject接口]
+	_getOctreeNode(): BoundsOctreeNode {//[实现IOctreeObject接口]
+		//@ts-ignore
 		return this._octreeNode;
 	}
 
@@ -587,11 +628,11 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * @internal
 	 */
 	_setUnBelongScene() {
-		this._scene = null;
 		if (Config3D._config._uniformBlock) {
 			this._subUniformBufferData && BaseRender._transLargeUbO.recover(this._subUniformBufferData);
 			this._subUniformBufferData = null;
 		}
+		this._scene = null;
 	}
 
 	/**
@@ -630,16 +671,14 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/**
 	 * @internal
 	 */
-	_destroy(): void {
+	destroy(): void {
 		(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
-		this.offAll();
 		var i: number = 0, n: number = 0;
 		for (i = 0, n = this._renderElements.length; i < n; i++)
 			this._renderElements[i].destroy();
 		for (i = 0, n = this._sharedMaterials.length; i < n; i++)
 			(this._sharedMaterials[i].destroyed) || (this._sharedMaterials[i]._removeReference());//TODO:材质可能为空
 		this._renderElements = null;
-		this._owner = null;
 		this._sharedMaterials = null;
 		this._bounds = null;
 		this._lightmapScaleOffset = null;
@@ -649,6 +688,8 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 			BaseRender._transLargeUbO.recover(this._subUniformBufferData);
 			this._subUniformBufferData = null;
 		}
+		this._destroyed = true;
+		super.destroy();
 	}
 
 	/**
@@ -656,10 +697,23 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 */
 	markAsUnStatic(): void {
 		if (this._isPartOfStaticBatch) {
-			MeshRenderStaticBatchManager.instance._removeRenderSprite(this._owner);
+			MeshRenderStaticBatchManager.instance._removeRenderSprite(this);
 			this._isPartOfStaticBatch = false;
 		}
+	}
 
+	/**
+	 * @override
+	 * @param dest 
+	 */
+	_cloneTo(dest: Component): void {
+		super._cloneTo(dest);
+		let render = (dest as BaseRender);
+		render.castShadow = this.castShadow;
+		render.sharedMaterials = this.sharedMaterials;
+		render.reflectionMode = this.reflectionMode;
+		render.castShadow = this.castShadow;
+		render.sortingFudge = this.sortingFudge;
 	}
 }
 

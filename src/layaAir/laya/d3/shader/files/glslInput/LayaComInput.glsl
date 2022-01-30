@@ -78,13 +78,14 @@
     uniform SpriteUniformBlock{
         mat4 u_WorldMat;
         //light map
-        vec4 u_LightmapScaleOffset;
+        //vec4 u_LightmapScaleOffset;
         vec4 u_ReflectCubeHDRParams;
     };
 #else
     uniform mat4 u_WorldMat;
     //light map
-    uniform vec4 u_LightmapScaleOffset;
+    //uniform vec4 u_LightmapScaleOffset;
     uniform vec4 u_ReflectCubeHDRParams;
 #endif
+uniform vec4 u_LightmapScaleOffset;//todo 过大年实在找不到的bug 静态合并和UBO的冲突  示例为AStarPath
 //=======Sprite3D End======

@@ -2,13 +2,13 @@ import { Config3D } from "../../../../Config3D";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Camera } from "../../core/Camera";
 import { LightQueue } from "../../core/light/LightQueue";
-import { PointLight } from "../../core/light/PointLight";
-import { SpotLight } from "../../core/light/SpotLight";
+import { PointLightCom } from "../../core/light/PointLightCom";
+import { SpotLightCom } from "../../core/light/SpotLightCom";
 import { Scene3D } from "../../core/scene/Scene3D";
+import { Sprite3D } from "../../core/Sprite3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
 import { Utils3D } from "../../utils/Utils3D";
 
 /**
@@ -392,10 +392,10 @@ export class Cluster {
 
 
 
-    private _updatePointLightPerspective(near: number, far: number, viewMat: Matrix4x4, pointLight: PointLight, lightIndex: number, xPlanes: Vector3[], yPlanes: Vector3[]): void {
+    private _updatePointLightPerspective(near: number, far: number, viewMat: Matrix4x4, pointLight: PointLightCom, lightIndex: number, xPlanes: Vector3[], yPlanes: Vector3[]): void {
         var lightBound: LightBound = Cluster._tempLightBound;
         var lightviewPos: Vector3 = Cluster._tempVector30;
-        Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);//World to View
+        Vector3.transformV3ToV3((pointLight.owner as Sprite3D)._transform.position, viewMat, lightviewPos);//World to View
         lightviewPos.z *= -1;
         if (!this._shrinkSphereLightZPerspective(near, far, lightviewPos, pointLight.range, lightBound))
             return;
@@ -405,16 +405,16 @@ export class Cluster {
         this._placePointLightToClusters(lightIndex, lightBound);
     }
 
-    private _updateSpotLightPerspective(near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLight, lightIndex: number, xPlanes: Vector3[], yPlanes: Vector3[]): void {
+    private _updateSpotLightPerspective(near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLightCom, lightIndex: number, xPlanes: Vector3[], yPlanes: Vector3[]): void {
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
         var lightBound: LightBound = Cluster._tempLightBound;
         var viewPos: Vector3 = Cluster._tempVector30;
         var forward: Vector3 = Cluster._tempVector31;
         var viewConeCap: Vector3 = Cluster._tempVector34;
-        var position: Vector3 = spotLight._transform.position;
+        var position: Vector3 = (spotLight.owner as Sprite3D)._transform.position;
         var range: number = spotLight.range;
-        spotLight._transform.worldMatrix.getForward(forward);
+        (spotLight.owner as Sprite3D)._transform.worldMatrix.getForward(forward);
         Vector3.normalize(forward, forward);
         Vector3.scale(forward, range, viewConeCap);
         Vector3.add(position, viewConeCap, viewConeCap);
@@ -436,10 +436,10 @@ export class Cluster {
         this._placeSpotLightToClusters(lightIndex, lightBound);
     }
 
-    private _updatePointLightOrth(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, pointLight: PointLight, lightIndex: number): void {
+    private _updatePointLightOrth(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, pointLight: PointLightCom, lightIndex: number): void {
         var lightBound: LightBound = Cluster._tempLightBound;
         var lightviewPos: Vector3 = Cluster._tempVector30;
-        Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);//World to View
+        Vector3.transformV3ToV3((pointLight.owner as Sprite3D)._transform.position, viewMat, lightviewPos);//World to View
         lightviewPos.z *= -1;
 
         if (!this._shrinkSphereLightByBoundOrth(halfX, halfY, near, far, lightviewPos, pointLight.range, lightBound))
@@ -448,16 +448,16 @@ export class Cluster {
         this._placePointLightToClusters(lightIndex, lightBound);
     }
 
-    private _updateSpotLightOrth(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLight, lightIndex: number): void {
+    private _updateSpotLightOrth(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLightCom, lightIndex: number): void {
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
         var lightBound: LightBound = Cluster._tempLightBound;
         var viewPos: Vector3 = Cluster._tempVector30;
         var forward: Vector3 = Cluster._tempVector31;
         var viewConeCap: Vector3 = Cluster._tempVector34;
-        var position: Vector3 = spotLight._transform.position;
+        var position: Vector3 = (spotLight.owner as Sprite3D)._transform.position;
         var range: number = spotLight.range;
-        spotLight._transform.worldMatrix.getForward(forward);
+        (spotLight.owner as Sprite3D)._transform.worldMatrix.getForward(forward);
         Vector3.normalize(forward, forward);
         Vector3.scale(forward, range, viewConeCap);
         Vector3.add(position, viewConeCap, viewConeCap);
@@ -483,27 +483,27 @@ export class Cluster {
         var far: number = camera.farPlane;
         var viewMat: Matrix4x4 = camera.viewMatrix;
         var curCount: number = scene._directionLights._length;
-        var pointLights: LightQueue<PointLight> = scene._pointLights;
+        var pointLights: LightQueue<PointLightCom> = scene._pointLights;
         var poiCount: number = pointLights._length;
-        var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
-        var spotLights: LightQueue<SpotLight> = scene._spotLights;
+        var poiElements: PointLightCom[] = <PointLightCom[]>pointLights._elements;
+        var spotLights: LightQueue<SpotLightCom> = scene._spotLights;
         var spoCount: number = spotLights._length;
-        var spoElements: SpotLight[] = <SpotLight[]>spotLights._elements;
+        var spoElements: SpotLightCom[] = <SpotLightCom[]>spotLights._elements;
         if (camera.orthographic) {
             var halfY: number = camera.orthographicVerticalSize / 2.0;
             var halfX: number = halfY * camera.aspectRatio;
-            for (var i = 0; i < poiCount; i++ , curCount++)
+            for (var i = 0; i < poiCount; i++, curCount++)
                 this._updatePointLightOrth(halfX, halfY, near, far, viewMat, poiElements[i], curCount);
-            for (var i = 0; i < spoCount; i++ , curCount++)
+            for (var i = 0; i < spoCount; i++, curCount++)
                 this._updateSpotLightOrth(halfX, halfY, near, far, viewMat, spoElements[i], curCount);
         }
         else {
             camera._updateClusterPlaneXY();
             var xPlanes: Vector3[] = camera._clusterXPlanes;//must after camera._updateClusterPlaneXY()
             var yPlanes: Vector3[] = camera._clusterYPlanes;
-            for (var i = 0; i < poiCount; i++ , curCount++)
+            for (var i = 0; i < poiCount; i++, curCount++)
                 this._updatePointLightPerspective(near, far, viewMat, poiElements[i], curCount, xPlanes, yPlanes);
-            for (var i = 0; i < spoCount; i++ , curCount++)
+            for (var i = 0; i < spoCount; i++, curCount++)
                 this._updateSpotLightPerspective(near, far, viewMat, spoElements[i], curCount, xPlanes, yPlanes);
         }
 

@@ -51,6 +51,7 @@ import { ConeShape } from "./module/shape/ConeShape";
 import { CircleShape } from "./module/shape/CircleShape";
 import { BoxShape } from "./module/shape/BoxShape";
 import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenParticle";
+import { Sprite3D } from "../Sprite3D";
 
 
 /**
@@ -112,7 +113,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	_useCustomBounds: boolean = false;
 
 	/** @internal */
-	protected _owner: ShuriKenParticle3D = null;
+	protected _owner: Sprite3D = null;
 	/** @internal */
 	protected _ownerRender: ShurikenParticleRenderer = null;
 	/**@internal */
@@ -367,9 +368,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	set shape(value: BaseShape) {
 		if (this._shape !== value) {
 			if (value && value.enable)
-				this._owner._render._shaderValues.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
+				this._ownerRender._shaderValues.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
 			else
-				this._owner._render._shaderValues.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
+				this._ownerRender._shaderValues.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
 			this._shape = value;
 		}
 	}
@@ -546,7 +547,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	set velocityOverLifetime(value: VelocityOverLifetime) {
-		var shaDat: ShaderData = this._owner._render._shaderValues;
+		var shaDat: ShaderData = this._ownerRender._shaderValues;
 		if (value) {
 			var velocity: GradientVelocity = value.velocity;
 			var velocityType: number = velocity.type;
@@ -613,7 +614,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	set colorOverLifetime(value: ColorOverLifetime) {
-		var shaDat: ShaderData = this._owner._render._shaderValues;
+		var shaDat: ShaderData = this._ownerRender._shaderValues;
 		if (value) {
 			var color: GradientColor = value.color;
 			if (value.enable) {
@@ -723,7 +724,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	set sizeOverLifetime(value: SizeOverLifetime) {
-		var shaDat: ShaderData = this._owner._render._shaderValues;
+		var shaDat: ShaderData = this._ownerRender._shaderValues;
 		if (value) {
 			var size: GradientSize = value.size;
 			var sizeSeparate: boolean = size.separateAxes;
@@ -792,7 +793,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	set rotationOverLifetime(value: RotationOverLifetime) {
-		var shaDat: ShaderData = this._owner._render._shaderValues;
+		var shaDat: ShaderData = this._ownerRender._shaderValues;
 		if (value) {
 			var rotation: GradientAngularVelocity = value.angularVelocity;
 
@@ -906,7 +907,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	set textureSheetAnimation(value: TextureSheetAnimation) {
-		var shaDat: ShaderData = this._owner._render._shaderValues;
+		var shaDat: ShaderData = this._ownerRender._shaderValues;
 		if (value) {
 			var frameOverTime: FrameOverTime = value.frame;
 			var textureAniType: number = frameOverTime.type;
@@ -952,15 +953,15 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 
 
-	constructor(owner: ShuriKenParticle3D) {
+	constructor(render: ShurikenParticleRenderer) {
 		super();
 		this._firstActiveElement = 0;
 		this._firstNewElement = 0;
 		this._firstFreeElement = 0;
 		this._firstRetiredElement = 0;
 
-		this._owner = owner;
-		this._ownerRender = owner.particleRenderer;
+		this._owner = render.owner as Sprite3D;
+		this._ownerRender = render;
 		this._boundingBoxCorners = [];
 		this._boundingSphere = new BoundSphere(new Vector3(), Number.MAX_VALUE);//TODO:
 		this._boundingBox = new BoundBox(new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE), new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE));//TODO:

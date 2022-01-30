@@ -176,7 +176,7 @@ export class BoneLinkSprite3D {
 			this.aniSprte3D1.addChild(this.role);
 
 			//关联精灵节点到Avatar节点
-			this.dragonAnimator1.linkSprite3DToAvatarNode("point", this.role);
+			//this.dragonAnimator1.linkSprite3DToAvatarNode("point", this.role);
 
 			this.animator.play("ride");
 			this.dragonAnimator1.play("run");
@@ -190,14 +190,14 @@ export class BoneLinkSprite3D {
 			this.changeActionButton.label = "卸下坐骑";
 
 			//骨骼取消关联节点
-			this.dragonAnimator1.unLinkSprite3DToAvatarNode(this.role);
+			//this.dragonAnimator1.unLinkSprite3DToAvatarNode(this.role);
 			this.aniSprte3D1.removeChild(this.role);
 			this.dragon1.removeSelf();
 
 			this.scene.addChild(this.dragon2);
 			this.aniSprte3D2.addChild(this.role);
 			//骨骼关联节点
-			this.dragonAnimator2.linkSprite3DToAvatarNode("point", this.role);
+			//this.dragonAnimator2.linkSprite3DToAvatarNode("point", this.role);
 
 			this.animator.play("ride");
 			this.dragonAnimator2.play("run");
@@ -211,7 +211,7 @@ export class BoneLinkSprite3D {
 			this.changeActionButton.label = "乘骑坐骑";
 
 			//骨骼取消关联节点
-			this.dragonAnimator2.unLinkSprite3DToAvatarNode(this.role);
+			//this.dragonAnimator2.unLinkSprite3DToAvatarNode(this.role);
 			this.aniSprte3D2.removeChild(this.role);
 			this.dragon2.removeSelf();
 

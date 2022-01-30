@@ -13,6 +13,7 @@ import { Camera } from "../Camera";
 import { GeometryElement } from "../GeometryElement";
 import { Gradient } from "../Gradient";
 import { RenderContext3D } from "../render/RenderContext3D";
+import { Sprite3D } from "../Sprite3D";
 import { TextureMode } from "../TextureMode";
 import { TrailAlignment } from "./TrailAlignment";
 import { TrailFilter } from "./TrailFilter";
@@ -91,10 +92,10 @@ export class TrailGeometry extends GeometryElement {
 		this._segementCount = this._increaseSegementCount;
 
 		this._resizeData(this._segementCount, this._bufferState);
-		var bounds: Bounds = this._owner._owner.trailRenderer.bounds;
-		var sprite3dPosition: Vector3 = this._owner._owner.transform.position;
-		bounds.setMin(sprite3dPosition);
-		bounds.setMax(sprite3dPosition);
+		// var bounds: Bounds = this._owner._owner.trailRenderer.bounds;
+		// var sprite3dPosition: Vector3 = this._owner._owner.transform.position;
+		// bounds.setMin(sprite3dPosition);
+		// bounds.setMax(sprite3dPosition);
 	}
 
 	/**
@@ -202,7 +203,7 @@ export class TrailGeometry extends GeometryElement {
 			case TrailAlignment.TransformZ:
 				Vector3.subtract(position, this._lastFixedVertexPosition, delVector3);
 				var forward: Vector3 = TrailGeometry._tempVector32;
-				this._owner._owner.transform.getForward(forward);
+				(this._owner._ownerRender.owner as Sprite3D).transform.getForward(forward);
 				Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
 				break;
 		}
@@ -275,7 +276,7 @@ export class TrailGeometry extends GeometryElement {
 		this._vertices1[vertexOffset + 15] = 0.0;
 
 		//添加新的顶点时，需要更新包围盒
-		var bounds: Bounds = this._owner._owner.trailRenderer.bounds;
+		var bounds: Bounds = this._owner._ownerRender.bounds;
 		var min: Vector3 = bounds.getMin();
 		var max: Vector3 = bounds.getMax();
 		var up: Vector3 = TrailGeometry._tempVector35;
@@ -315,8 +316,8 @@ export class TrailGeometry extends GeometryElement {
 		var bounds: Bounds;
 		var min: Vector3, max: Vector3;
 		if (this._disappearBoundsMode) {//如果有顶点消失时候，需要重新计算包围盒
-			bounds = this._owner._owner.trailRenderer.bounds;
-			var sprite3dPosition: Vector3 = this._owner._owner.transform.position;
+			bounds = this._owner._ownerRender.bounds;
+			var sprite3dPosition: Vector3 = (this._owner._ownerRender.owner as Sprite3D).transform.position;
 			bounds.setMin(sprite3dPosition);
 			bounds.setMax(sprite3dPosition);
 			min = bounds.getMin();
