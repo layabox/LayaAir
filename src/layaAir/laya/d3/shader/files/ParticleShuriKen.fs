@@ -3,7 +3,7 @@
 #else
   precision mediump float;
 #endif
-
+#define SHADER_NAME ParticleFS
 #include "LayaComInput.glsl";
 varying vec4 v_Color;
 varying vec2 v_TextureCoordinate;

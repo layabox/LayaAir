@@ -8,6 +8,7 @@ import { BufferState } from "../BufferState";
 import { GeometryElement } from "../GeometryElement";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { PixelLineData } from "./PixelLineData";
+import { PixelLineRenderer } from "./PixelLineRenderer";
 import { PixelLineSprite3D } from "./PixelLineSprite3D";
 import { PixelLineVertex } from "./PixelLineVertex";
 
@@ -43,7 +44,7 @@ export class PixelLineFilter extends GeometryElement {
 	private _calculateBound: boolean = false;
 
 	/** @internal */
-	_owner: PixelLineSprite3D;
+	_ownerRender: PixelLineRenderer;
 	/** @internal */
 	_bounds: Bounds;
 	/** @internal */
@@ -56,10 +57,10 @@ export class PixelLineFilter extends GeometryElement {
 	 * @param owner 渲染精灵节点 
 	 * @param maxLineCount 最大线长
 	 */
-	constructor(owner: PixelLineSprite3D, maxLineCount: number) {
+	constructor(owner: PixelLineRenderer, maxLineCount: number) {
 		super();
 		var pointCount: number = maxLineCount * 2;
-		this._owner = owner;
+		this._ownerRender = owner;
 		this._maxLineCount = maxLineCount;
 		this._vertices = new Float32Array(pointCount * this._floatCountPerVertices);
 		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, LayaGL.instance.STATIC_DRAW, false);

@@ -20,6 +20,7 @@ import { Tween } from "laya/utils/Tween";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Vector2 } from "laya/d3/math/Vector2";
+import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 
 /**
  * Based upon https://github.com/bgrins/javascript-astar
@@ -134,7 +135,7 @@ export class AStarFindPath {
 		animator.play("run");
 
 		//创建BlinnPhong材质
-		var mat: BlinnPhongMaterial = (<BlinnPhongMaterial>((<SkinnedMeshSprite3D>this.layaMonkey.getChildAt(0).getChildAt(0))).skinnedMeshRenderer.sharedMaterial);
+		var mat: BlinnPhongMaterial = (<BlinnPhongMaterial>((<SkinnedMeshSprite3D>this.layaMonkey.getChildAt(0).getChildAt(1))).getComponent(SkinnedMeshRenderer).sharedMaterial);
 		//设置反照率强度
 		mat.albedoIntensity = 8;
 		//设置猴子精灵的位置

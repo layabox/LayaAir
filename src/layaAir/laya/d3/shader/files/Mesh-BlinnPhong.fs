@@ -5,7 +5,7 @@
 	precision mediump float;
 	precision mediump int;
 #endif
-
+#define SHADER_NAME BlinnPhongFS;
 #include "LayaComInput.glsl";
 #include "Lighting.glsl";
 #include "Shadow.glsl"

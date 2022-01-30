@@ -1,14 +1,12 @@
 import { Node } from "../../../display/Node";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
 import { Color } from "../../math/Color";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
-import { Shader3D } from "../../shader/Shader3D";
 import { Gradient } from "../Gradient";
-import { RenderElement } from "../render/RenderElement";
 import { RenderableSprite3D } from "../RenderableSprite3D";
+import { Sprite3D } from "../Sprite3D";
 import { Burst } from "./module/Burst";
 import { ColorOverLifetime } from "./module/ColorOverLifetime";
 import { Emission } from "./module/Emission";
@@ -30,8 +28,6 @@ import { SizeOverLifetime } from "./module/SizeOverLifetime";
 import { StartFrame } from "./module/StartFrame";
 import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
 import { VelocityOverLifetime } from "./module/VelocityOverLifetime";
-import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
-import { ShurikenParticleInstanceSystem } from "./ShurikenParticleInstanceSystem";
 import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
@@ -40,39 +36,6 @@ import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
  * <code>ShuriKenParticle3D</code> 3D粒子。
  */
 export class ShuriKenParticle3D extends RenderableSprite3D {
-
-	/**
-	 * @internal
-	 */
-	static __init__(): void {
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_BILLBOARD = Shader3D.getDefineByName("SPHERHBILLBOARD");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_STRETCHEDBILLBOARD = Shader3D.getDefineByName("STRETCHEDBILLBOARD");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_HORIZONTALBILLBOARD = Shader3D.getDefineByName("HORIZONTALBILLBOARD");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_VERTICALBILLBOARD = Shader3D.getDefineByName("VERTICALBILLBOARD");
-
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8 = Shader3D.getDefineByName("COLORKEYCOUNT_8");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME = Shader3D.getDefineByName("COLOROVERLIFETIME");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME = Shader3D.getDefineByName("RANDOMCOLOROVERLIFETIME");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECONSTANT = Shader3D.getDefineByName("VELOCITYOVERLIFETIMECONSTANT");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE = Shader3D.getDefineByName("VELOCITYOVERLIFETIMECURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCONSTANT = Shader3D.getDefineByName("VELOCITYOVERLIFETIMERANDOMCONSTANT");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCURVE = Shader3D.getDefineByName("VELOCITYOVERLIFETIMERANDOMCURVE");
-
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE = Shader3D.getDefineByName("TEXTURESHEETANIMATIONCURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE = Shader3D.getDefineByName("TEXTURESHEETANIMATIONRANDOMCURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME = Shader3D.getDefineByName("ROTATIONOVERLIFETIME");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE = Shader3D.getDefineByName("ROTATIONOVERLIFETIMESEPERATE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT = Shader3D.getDefineByName("ROTATIONOVERLIFETIMECONSTANT");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE = Shader3D.getDefineByName("ROTATIONOVERLIFETIMECURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS = Shader3D.getDefineByName("ROTATIONOVERLIFETIMERANDOMCONSTANTS");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES = Shader3D.getDefineByName("ROTATIONOVERLIFETIMERANDOMCURVES");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE = Shader3D.getDefineByName("SIZEOVERLIFETIMECURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE = Shader3D.getDefineByName("SIZEOVERLIFETIMECURVESEPERATE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES = Shader3D.getDefineByName("SIZEOVERLIFETIMERANDOMCURVES");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE = Shader3D.getDefineByName("SIZEOVERLIFETIMERANDOMCURVESSEPERATE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_MESH = Shader3D.getDefineByName("RENDERMODE_MESH");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE = Shader3D.getDefineByName("SHAPE");
-	}
 
 	/** @internal */
 	private _particleSystem: ShurikenParticleSystem;
@@ -96,20 +59,8 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 */
 	constructor() {
 		super(null);
-		this._render = new ShurikenParticleRenderer(this);
-		if (!LayaGL.layaGPUInstance.supportInstance()) {
-			this._particleSystem = new ShurikenParticleSystem(this);
-		} else
-			this._particleSystem = new ShurikenParticleInstanceSystem(this);
-
-
-
-		var elements: RenderElement[] = this._render._renderElements;
-		var element: RenderElement = elements[0] = new RenderElement();
-		element.setTransform(this._transform);
-		element.render = this._render;
-		element.setGeometry(this._particleSystem);
-		element.material = ShurikenParticleMaterial.defaultMaterial;
+		this._render = this.addComponent(ShurikenParticleRenderer) as ShurikenParticleRenderer;
+		this._particleSystem = (this._render as ShurikenParticleRenderer)._particleSystem;
 	}
 
 	/**
@@ -162,45 +113,6 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						module[k] = gradientNumber;
 					}
 					break;
-				// case "gradientDataInts":
-				// 	var gradientDataInts: object = moduleData.gradientDataInts;
-				// 	for (var k in gradientDataInts) {
-				// 		var gradientInt: GradientDataInt = module[k];
-				// 		var gradientIntData: any[] = moduleData[k];
-				// 		for (var i: number = 0, n: number = gradientIntData.length; i < n; i++) {
-				// 			var valueData: any = gradientIntData[i];
-				// 			gradientInt.add(valueData.key, valueData.value);
-				// 		}
-				// 		module[k] = gradientInt;
-				// 	}
-				// 	break;
-				// case "gradients":
-				// 	var gradients: object = moduleData.gradients;
-				// 	for (var k in gradients) {
-				// 		var gradient: Gradient = module[k];
-				// 		var gradientData: any = moduleData[k];
-				// 		var alphasData: any[] = gradientData.alphas;
-				// 		for (var i: number = 0, n: number = alphasData.length; i < n; i++) {
-				// 			var alphaData: any = alphasData[i];
-				// 			if ((i === 3) && ((alphaData.key !== 1))) {
-				// 				alphaData.key = 1;
-				// 				console.warn("GradientDataColor warning:the forth key is  be force set to 1.");
-				// 			}
-				// 			gradient.addColorAlpha(alphaData.key, alphaData.value);
-				// 		}
-				// 		var rgbsData: any[] = gradientData.rgbs;
-				// 		for (var i: number = 0, n: number = rgbsData.length; i < n; i++) {
-				// 			var rgbData: any = rgbsData[i];
-				// 			var rgbValue: any[] = rgbData.value;
-				// 			if ((i === 3) && ((rgbData.key !== 1))) {
-				// 				rgbData.key = 1;
-				// 				console.warn("GradientDataColor warning:the forth key is  be force set to 1.");
-				// 			}
-				// 			gradient.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
-				// 		}
-				// 		module[k] = gradient;
-				// 	}
-				// 	break;
 				case "resources":
 					var resources: any = moduleData.resources;
 					for (var k in resources)
@@ -446,47 +358,6 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_activeHierarchy(activeChangeComponents: any[]): void {
-		super._activeHierarchy(activeChangeComponents);
-		(this.particleSystem.playOnAwake) && (this.particleSystem.play());
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_inActiveHierarchy(activeChangeComponents: any[]): void {
-		super._inActiveHierarchy(activeChangeComponents);
-		(this.particleSystem.isAlive) && (this.particleSystem.simulate(0, true));
-	}
-
-	/**
-	 * @internal
-	 * @override
-	 */
-	_cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
-		var destShuriKenParticle3D: ShuriKenParticle3D = (<ShuriKenParticle3D>destObject);
-		var destParticleSystem: ShurikenParticleSystem = destShuriKenParticle3D._particleSystem;
-		this._particleSystem.cloneTo(destParticleSystem);
-		var destParticleRender: ShurikenParticleRenderer = (<ShurikenParticleRenderer>destShuriKenParticle3D._render);
-		var particleRender: ShurikenParticleRenderer = (<ShurikenParticleRenderer>this._render);
-		destParticleRender.sharedMaterials = particleRender.sharedMaterials;
-		destParticleRender.enable = particleRender.enable;
-		destParticleRender.renderMode = particleRender.renderMode;
-		destParticleRender.mesh = particleRender.mesh;
-		destParticleRender.stretchedBillboardCameraSpeedScale = particleRender.stretchedBillboardCameraSpeedScale;
-		destParticleRender.stretchedBillboardSpeedScale = particleRender.stretchedBillboardSpeedScale;
-		destParticleRender.stretchedBillboardLengthScale = particleRender.stretchedBillboardLengthScale;
-		destParticleRender.sortingFudge = particleRender.sortingFudge;
-		super._cloneTo(destObject, srcSprite, dstSprite);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
-	}
-
-	/**
 	 * <p>销毁此对象。</p>
 	 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
 	 * @override
@@ -495,18 +366,15 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		if (this.destroyed)
 			return;
 		super.destroy(destroyChild);
-		this._particleSystem.destroy();
-		this._particleSystem = null;
 	}
 
 	/**
 	 * @internal
 	 */
 	protected _create(): Node {
-		return new ShuriKenParticle3D();
+		return new Sprite3D();
 	}
 
-	//--------------------------------------------------------------------Deprecated Code------------------------------------------------------------------------
 
 	/**
 	 * @deprecated

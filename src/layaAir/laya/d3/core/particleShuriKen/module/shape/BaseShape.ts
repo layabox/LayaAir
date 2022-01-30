@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { IClone } from "../../../IClone"
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"
@@ -24,9 +23,9 @@ export enum ParticleSystemShapeType {
  */
 export class BaseShape implements IClone {
 	/**是否启用。*/
-	enable: boolean=true;
+	enable: boolean = true;
 	/**随机方向。*/
-	randomDirection: number=0;
+	randomDirection: number = 0;
 
 	/**粒子类型 */
 	shapeType: ParticleSystemShapeType;

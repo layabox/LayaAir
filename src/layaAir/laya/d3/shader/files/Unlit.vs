@@ -6,6 +6,8 @@
 #include "Lighting.glsl";
 #include "LayaUtile.glsl";
 
+#define SHADER_NAME UnlitVS;
+
 attribute vec4 a_Position;
 
 attribute vec2 a_Texcoord0;

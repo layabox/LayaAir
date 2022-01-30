@@ -17,6 +17,7 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTextureFormat } from "../../resource/RenderTextureFormat";
 import { Render } from "../../renders/Render";
 import { HTMLCanvas } from "../../resource/HTMLCanvas";
+import { Sprite3D } from "../core/Sprite3D";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
@@ -719,8 +720,12 @@ export class Utils3D {
 
 	/**
 	 * @internal
+	 * @param rootSprite parent Sprite
+	 * @param checkSprite check Sprite
+	 * @param path pathArray
+	 * @returns 
 	 */
-	static _getHierarchyPath(rootSprite: Node, checkSprite: Node, path: any[]): any[] {
+	static _getHierarchyPath(rootSprite: Node, checkSprite: Node, path: number[]): any[] {
 		path.length = 0;
 		var sprite: Node = checkSprite;
 		while (sprite !== rootSprite) {
@@ -735,14 +740,29 @@ export class Utils3D {
 	}
 
 	/**
-	 * @internal
+	 * @interanl
+	 * @param rootSprite parentNode
+	 * @param invPath PathArray
+	 * @returns 
 	 */
-	static _getNodeByHierarchyPath(rootSprite: Node, invPath: any[]): Node {
+	static _getNodeByHierarchyPath(rootSprite: Node, invPath: number[]): Node {
 		var sprite: Node = rootSprite;
 		for (var i: number = invPath.length - 1; i >= 0; i--) {
 			sprite = sprite.getChildAt(invPath[i]);
 		}
 		return sprite;
+	}
+
+	static _getParentNodeByHierarchyPath(rootSprite: Node, path: number[]): Node {
+		let pathlength = path.length;
+		let node: Node = rootSprite;
+		for (let i = 0; i < pathlength; i++) {
+			if (node)
+				node = rootSprite.parent;
+			else
+				return null;
+		}
+		return node;
 	}
 
 
@@ -751,42 +771,39 @@ export class Utils3D {
 	 * @param rendertexture 渲染Buffer
 	 * @returns 
 	 */
-	static uint8ArrayToArrayBuffer(rendertexture: RenderTexture)
-	{
-		
-		let pixelArray:Uint8Array|Float32Array;
+	static uint8ArrayToArrayBuffer(rendertexture: RenderTexture) {
+		let pixelArray: Uint8Array | Float32Array;
 		let width = rendertexture.width;
 		let height = rendertexture.height;
-		switch(rendertexture.format){
+		switch (rendertexture.format) {
 			case RenderTextureFormat.R8G8B8:
-				pixelArray = new Uint8Array(width*height*4);
+				pixelArray = new Uint8Array(width * height * 4);
 				break;
 			case RenderTextureFormat.R8G8B8A8:
-				pixelArray = new Uint8Array(width*height*4);
+				pixelArray = new Uint8Array(width * height * 4);
 				break;
 			case RenderTextureFormat.R16G16B16A16:
-				pixelArray = new Float32Array(width*height*4);
+				pixelArray = new Float32Array(width * height * 4);
 				break;
 			default:
-				throw "this function is not surpprt "+rendertexture.format.toString()+"format Material";
+				throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
 		}
-		rendertexture.getData(0,0,rendertexture.width,rendertexture.height,pixelArray);
+		rendertexture.getData(0, 0, rendertexture.width, rendertexture.height, pixelArray);
 		//tranceTo
-		switch(rendertexture.format){
+		switch (rendertexture.format) {
 			case RenderTextureFormat.R16G16B16A16:
 				let ori = pixelArray;
-				let trans = new Uint8Array(width*height*4);
-				for(let i = 0,n = ori.length;i<n;i++){
-					trans[i] =Math.min(Math.floor(ori[i]*255),255);
+				let trans = new Uint8Array(width * height * 4);
+				for (let i = 0, n = ori.length; i < n; i++) {
+					trans[i] = Math.min(Math.floor(ori[i] * 255), 255);
 				}
 				pixelArray = trans;
 				break;
 		}
-		
+
 		let pixels = pixelArray;
-		var bs:String;
-		if (Render.isConchApp)
-		{
+		var bs: String;
+		if (Render.isConchApp) {
 			//TODO:
 			//var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
 			//var l = base64img.split(",");
@@ -794,20 +811,19 @@ export class Utils3D {
 			//	return base64img;
 			//return base.utils.DBUtils.decodeArrayBuffer(l[1]);
 		}
-		else
-		{
-				var canv:HTMLCanvas = new HTMLCanvas(true);
-				canv.lock = true;
-				canv.size(width, height);
-				var ctx2d = canv.getContext('2d');
-				//@ts-ignore
-				var imgdata:ImageData =ctx2d.createImageData(width, height);
-				//@ts-ignore
-				imgdata.data.set(new Uint8ClampedArray(pixels));
-				//@ts-ignore
-				ctx2d.putImageData(imgdata, 0, 0);;
-				bs = canv.source.toDataURL();
-				canv.destroy();
+		else {
+			var canv: HTMLCanvas = new HTMLCanvas(true);
+			canv.lock = true;
+			canv.size(width, height);
+			var ctx2d = canv.getContext('2d');
+			//@ts-ignore
+			var imgdata: ImageData = ctx2d.createImageData(width, height);
+			//@ts-ignore
+			imgdata.data.set(new Uint8ClampedArray(pixels));
+			//@ts-ignore
+			ctx2d.putImageData(imgdata, 0, 0);;
+			bs = canv.source.toDataURL();
+			canv.destroy();
 		}
 		return bs;
 	}

@@ -10,6 +10,7 @@ import { Vector3 } from "../../math/Vector3"
 import { Node } from "../../../display/Node"
 import { Scene3D } from "../scene/Scene3D";
 import { Stat } from "../../../utils/Stat";
+import { Sprite3D } from "../Sprite3D";
 
 /**
  * <code>PixelLineSprite3D</code> 类用于像素线渲染精灵。
@@ -26,26 +27,18 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	 * 最大线数量
 	 */
 	get maxLineCount(): number {
-		return this._geometryFilter._maxLineCount;
+		return (this._render as PixelLineRenderer).maxLineCount;
 	}
 
 	set maxLineCount(value: number) {
-		this._geometryFilter._resizeLineData(value);
-		this._geometryFilter._lineCount = Math.min(this._geometryFilter._lineCount, value);
+		(this._render as PixelLineRenderer).maxLineCount = value;
 	}
 
 	/**
 	 * 获取线数量。
 	 */
 	get lineCount(): number {
-		return this._geometryFilter._lineCount;
-	}
-
-	set lineCount(value: number) {
-		if (value > this.maxLineCount)
-			throw "PixelLineSprite3D: lineCount can't large than maxLineCount";
-		else
-			this._geometryFilter._lineCount = value;
+		return (this._render as PixelLineRenderer).lineCount;
 	}
 
 	/**
@@ -62,53 +55,12 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	 */
 	constructor(maxCount: number = 2, name: string = null) {
 		super(name);
-		this._geometryFilter = new PixelLineFilter(this, maxCount);
-		this._render = new PixelLineRenderer(this);
-		this._changeRenderObjects( 0, PixelLineMaterial.defaultMaterial);
-	}
-
-
-	/** 
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _onInActive(): void {
-		Stat.spriteCount--;
-		if(this._geometryFilter._lineCount!=0&&this._isRenderActive){
-			(<Scene3D>this._scene)._removeRenderObject(this._render);
-			this._isInRenders = false;
-		}
-		this._isRenderActive = false;
-	}
-
-	/** 
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _onActive(): void {
-		Stat.spriteCount++;
-		this._isRenderActive = true;
-		if(this._geometryFilter._lineCount!=0){
-			(<Scene3D>this._scene)._addRenderObject(this._render);
-			this._isInRenders = true;
-		}
-			
+		
+		this._render = this.addComponent(PixelLineRenderer);
+		this._geometryFilter = (this._render as PixelLineRenderer)._pixelLineFilter;
+		(this._render as PixelLineRenderer).maxLineCount = maxCount;
 	}
 	
-	/**
-	 * @inheritDoc
-	 */
-	_changeRenderObjects( index: number, material: Material): void {
-		var renderObjects: RenderElement[] = this._render._renderElements;
-		(material) || (material = PixelLineMaterial.defaultMaterial);
-		var renderElement: RenderElement = renderObjects[index];
-		(renderElement) || (renderElement = renderObjects[index] = new RenderElement());
-		renderElement.setTransform(this._transform);
-		renderElement.setGeometry(this._geometryFilter);
-		renderElement.render = this._render;
-		renderElement.material = material;
-	}
-
 	/**
 	 * 增加一条线。
 	 * @param	startPosition  初始点位置
@@ -117,14 +69,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	 * @param	endColor	   结束点颜色
 	 */
 	addLine(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
-		if (this._geometryFilter._lineCount !== this._geometryFilter._maxLineCount)
-			this._geometryFilter._updateLineData(this._geometryFilter._lineCount++, startPosition, endPosition, startColor, endColor);
-		else
-			throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
-		if(this._isRenderActive&&!this._isInRenders&&this._geometryFilter._lineCount>0){
-			(<Scene3D>this._scene)._addRenderObject(this._render);
-			this._isInRenders = true;
-		}
+		(this._render as PixelLineRenderer).addLine(startPosition,endPosition,startColor,endColor);
 	}
 
 	/**
@@ -132,18 +77,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	 * @param	lines  线段数据
 	 */
 	addLines(lines: PixelLineData[]): void {
-		var lineCount: number = this._geometryFilter._lineCount;
-		var addCount: number = lines.length;
-		if (lineCount + addCount > this._geometryFilter._maxLineCount) {
-			throw "PixelLineSprite3D: lineCount plus lines count must less than maxLineCount.";
-		} else {
-			this._geometryFilter._updateLineDatas(lineCount, lines);
-			this._geometryFilter._lineCount += addCount;
-		}
-		if(this._isRenderActive&&!this._isInRenders&&this._geometryFilter._lineCount>0){
-			(<Scene3D>this._scene)._addRenderObject(this._render);
-			this._isInRenders = true;
-		}
+		(this._render as PixelLineRenderer).addLines(lines);
 	}
 
 	/**
@@ -151,14 +85,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	 * @param index 索引。
 	 */
 	removeLine(index: number): void {
-		if (index < this._geometryFilter._lineCount)
-			this._geometryFilter._removeLineData(index);
-		else
-			throw "PixelLineSprite3D: index must less than lineCount.";
-		if(this._isRenderActive&&this._isInRenders&&this._geometryFilter._lineCount==0){
-			(<Scene3D>this._scene)._removeRenderObject(this._render);
-			this._isInRenders = false;
-		}
+		(this._render as PixelLineRenderer).removeLine(index);
 	}
 
 	/**
@@ -170,10 +97,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	 * @param	endColor	   结束点颜色
 	 */
 	setLine(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
-		if (index < this._geometryFilter._lineCount)
-			this._geometryFilter._updateLineData(index, startPosition, endPosition, startColor, endColor);
-		else
-			throw "PixelLineSprite3D: index must less than lineCount.";
+		(this._render as PixelLineRenderer).setLine(index,startPosition,endPosition,startColor,endColor);
 	}
 
 	/**
@@ -181,28 +105,21 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	 * @param out 线段数据。
 	 */
 	getLine(index: number, out: PixelLineData): void {
-		if (index < this.lineCount)
-			this._geometryFilter._getLineData(index, out);
-		else
-			throw "PixelLineSprite3D: index must less than lineCount.";
+		(this._render as PixelLineRenderer).getLine(index,out);
 	}
 
 	/**
 	 * 清除所有线段。
 	 */
 	clear(): void {
-		this._geometryFilter._lineCount = 0;
-		if(this._isRenderActive&&this._isInRenders){
-			(<Scene3D>this._scene)._removeRenderObject(this._render);
-			this._isInRenders = false;
-		}
+		(this._render as PixelLineRenderer).clear();
 	}
 
 	/**
 	 * @internal
 	 */
 	protected _create(): Node {
-		return new PixelLineSprite3D();
+		return new Sprite3D();
 	}
 
 }

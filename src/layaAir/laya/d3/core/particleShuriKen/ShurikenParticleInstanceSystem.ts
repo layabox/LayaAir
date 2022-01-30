@@ -35,8 +35,8 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
      */
     private _floatCountPerParticleData: number;
 
-    constructor(owner: ShuriKenParticle3D) {
-        super(owner);
+    constructor(render: ShurikenParticleRenderer) {
+        super(render);
     }
 
     /***
@@ -128,7 +128,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 let particleDeclaration = VertexShurikenParticleMesh.vertexInstanceParticleDeclaration;
 
                 this._meshIndexCount = mesh.indexCount;
-                //this._meshFloatCountPreVertex = meshDeclaration.vertexStride / 4;
                 this._simulationUV_Index = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset / 4;
                 this._floatCountPerParticleData = particleDeclaration.vertexStride / 4;
                 this._startLifeTimeIndex = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SHAPEPOSITIONSTARTLIFETIME)._offset / 4 + 3;
@@ -169,7 +168,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             let particleDeclaration = VertexShurikenParticleBillboard.vertexInstanceParticleDeclaration;
 
             this._meshIndexCount = 6;
-            //this._meshFloatCountPreVertex = billboardDeclaration.vertexStride / 4;
             this._simulationUV_Index = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SIMULATIONUV).offset / 4;
             this._floatCountPerParticleData = particleDeclaration.vertexStride / 4;
             this._startLifeTimeIndex = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_SHAPEPOSITIONSTARTLIFETIME)._offset / 4 + 3;

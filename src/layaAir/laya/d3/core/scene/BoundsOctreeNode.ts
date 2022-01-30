@@ -18,6 +18,7 @@ import { Shader3D } from "../../shader/Shader3D";
 import { CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
 import { Plane } from "../../math/Plane";
 import { IRenderNodeObject } from "./SceneRenderManager/IRenderNodeObject";
+import { Sprite3D } from "../Sprite3D";
 
 
 /**
@@ -376,8 +377,8 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 		if (testVisible) {
 			var type: number = frustum.containsBoundBox(this._bounds);
 			Stat.octreeNodeCulling++;
-			if (type === ContainmentType.Disjoint){
-				for (var i: number = 0, n: number = this._objects.length; i < n; i++){
+			if (type === ContainmentType.Disjoint) {
+				for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
 					(this._objects[i] as BaseRender)._OctreeNoRender();
 				}
 				return;
@@ -393,9 +394,9 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 			var render: BaseRender = <BaseRender>this._objects[i];
 			var canPass: boolean;
 			if (isShadowCasterCull)
-				canPass = render._castShadow && render._enable;
+				canPass = render._castShadow && render.enabled;
 			else
-				canPass = (((Math.pow(2, render._owner._layer) & cullMask) != 0)) && render._enable;
+				canPass = (((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0)) && render.enabled;
 			if (canPass) {
 				if (testVisible) {
 					Stat.frustumCulling++;
@@ -422,7 +423,7 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 		}
 	}
 
-	private _getCollidingWithCastShadowFrustum(cullInfo:ShadowCullInfo,context: RenderContext3D){
+	private _getCollidingWithCastShadowFrustum(cullInfo: ShadowCullInfo, context: RenderContext3D) {
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		var cullPlanes: Plane[] = cullInfo.cullPlanes;
 		var min: Vector3 = this._bounds.min;
@@ -443,7 +444,7 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 				break;
 			}
 		}
-		if(!pass) return;
+		if (!pass) return;
 
 		//检查节点中的对象
 		var scene: Scene3D = context.scene;
@@ -452,8 +453,8 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 			var render: BaseRender = <BaseRender>this._objects[i];
 			var canPass: boolean;
 			let pass = true;
-			canPass = render._castShadow && render._enable;
-			if(canPass){
+			canPass = render._castShadow && render.enabled;
+			if (canPass) {
 				for (var j: number = 0; j < cullPlaneCount; j++) {
 					var plane: Plane = cullPlanes[j];
 					var normal: Vector3 = plane.normal;
@@ -463,14 +464,14 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 					}
 				}
 			}
-			if(!pass||!canPass) continue;
+			if (!pass || !canPass) continue;
 
 			render._renderMark = loopCount;
 			render._distanceForSort = Vector3.distance(render.bounds.getCenter(), cullInfo.position);//TODO:合并计算浪费,或者合并后取平均值
 			var elements: RenderElement[] = render._renderElements;
 			for (var j: number = 0, m: number = elements.length; j < m; j++) {
 				var element: RenderElement = elements[j];
-				element._update(scene, context, null,null);
+				element._update(scene, context, null, null);
 			}
 		}
 		if (this._children != null) {
@@ -554,7 +555,7 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 		}
 	}
 
-	getManagerNode(){
+	getManagerNode() {
 		return this._octree;
 	}
 
@@ -716,8 +717,8 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 		this._getCollidingWithFrustum(cameraCullInfo, context, true, customShader, replacementTag, isShadowCasterCull);
 	}
 
-	getCollidingWithCastShadowFrustum(cameraCullInfo:ShadowCullInfo,contect:RenderContext3D){
-		this._getCollidingWithCastShadowFrustum(cameraCullInfo,contect);
+	getCollidingWithCastShadowFrustum(cameraCullInfo: ShadowCullInfo, contect: RenderContext3D) {
+		this._getCollidingWithCastShadowFrustum(cameraCullInfo, contect);
 	}
 
 	/**

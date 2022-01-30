@@ -3,6 +3,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Vector3 } from "laya/d3/math/Vector3";
@@ -50,11 +51,11 @@ export class BlinnPhong_SpecularMap {
 			var dude2: Sprite3D = Sprite3D.instantiate(dude1, this.scene, false, new Vector3(1.5, 0, 0));
 			var skinnedMeshSprite3d: SkinnedMeshSprite3D = (<SkinnedMeshSprite3D>dude2.getChildAt(0).getChildAt(0));
 
-			for (var i: number = 0; i < skinnedMeshSprite3d.skinnedMeshRenderer.materials.length; i++) {
-				var material: BlinnPhongMaterial = (<BlinnPhongMaterial>skinnedMeshSprite3d.skinnedMeshRenderer.materials[i]);
+			for (var i: number = 0; i < skinnedMeshSprite3d.getComponent(SkinnedMeshRenderer).materials.length; i++) {
+				var material: BlinnPhongMaterial = (<BlinnPhongMaterial>skinnedMeshSprite3d.getComponent(SkinnedMeshRenderer).materials[i]);
 				Texture2D.load(this.specularMapUrl[i], Handler.create(this, function (mat: BlinnPhongMaterial, tex: Texture2D): void {
 					mat.specularTexture = tex;//高光贴图
-				}, [material]));
+				}, [material])); 
 			}
 
 			Laya.timer.frameLoop(1, this, function (): void {

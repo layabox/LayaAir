@@ -13,9 +13,9 @@ import { TextureMode } from "../TextureMode";
 import { TrailGeometry } from "./TrailGeometry";
 import { TrailMaterial } from "./TrailMaterial";
 import { TrailRenderer } from "./TrailRenderer";
-import { TrailSprite3D } from "./TrailSprite3D";
 import { Shader3D } from "../../../d3/shader/Shader3D";
 import { CommandUniformMap } from "../scene/Scene3DShaderDeclaration";
+import { Sprite3D } from "../Sprite3D";
 
 /**
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。
@@ -26,12 +26,12 @@ export class TrailFilter {
 	static WIDTHCURVE: number = Shader3D.propertyNameToID("u_WidthCurve");
 	static WIDTHCURVEKEYLENGTH: number = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
 
-	static __init__(){
+	static __init__() {
 		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
-		spriteParms.addShaderUniform(TrailFilter.CURTIME,"u_CurTime");
-		spriteParms.addShaderUniform(TrailFilter.LIFETIME,"u_LifeTime");
-		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE,"u_WidthCurve");
-		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVEKEYLENGTH,"u_WidthCurveKeyLength");
+		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime");
+		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime");
+		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve");
+		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength");
 	}
 
 	/**@internal */
@@ -51,7 +51,7 @@ export class TrailFilter {
 	/**@internal 拖尾总长度*/
 	_totalLength: number = 0;
 
-	_owner: TrailSprite3D;
+	_ownerRender: TrailRenderer;
 	_lastPosition: Vector3 = new Vector3();
 
 	_curtime: number = 0;
@@ -73,7 +73,7 @@ export class TrailFilter {
 	 */
 	set time(value: number) {
 		this._time = value;
-		this._owner._render._shaderValues.setNumber(TrailFilter.LIFETIME, value);
+		this._ownerRender._shaderValues.setNumber(TrailFilter.LIFETIME, value);
 	}
 
 	/**
@@ -130,8 +130,8 @@ export class TrailFilter {
 			widthCurveFloatArray[index++] = value[i].outTangent;
 			widthCurveFloatArray[index++] = value[i].value;
 		}
-		this._owner._render._shaderValues.setBuffer(TrailFilter.WIDTHCURVE, widthCurveFloatArray);
-		this._owner._render._shaderValues.setInt(TrailFilter.WIDTHCURVEKEYLENGTH, value.length);
+		this._ownerRender._shaderValues.setBuffer(TrailFilter.WIDTHCURVE, widthCurveFloatArray);
+		this._ownerRender._shaderValues.setInt(TrailFilter.WIDTHCURVEKEYLENGTH, value.length);
 	}
 
 	/**
@@ -166,22 +166,24 @@ export class TrailFilter {
 		this._textureMode = value;
 	}
 
-	constructor(owner: TrailSprite3D) {
-		this._owner = owner;
+	constructor(owner: TrailRenderer) {
+		this._ownerRender = owner;
 		this._initDefaultData();
 		this.addRenderElement();
 	}
+
+
 
 	/**
 	 * @internal
 	 */
 	addRenderElement(): void {
-		var render: TrailRenderer = (<TrailRenderer>this._owner._render);
+		var render: TrailRenderer = (<TrailRenderer>this._ownerRender);
 		var elements: RenderElement[] = render._renderElements;
 		var material: TrailMaterial = (<TrailMaterial>render.sharedMaterials[0]);
 		(material) || (material = TrailMaterial.defaultMaterial);
 		var element: RenderElement = new RenderElement();
-		element.setTransform(this._owner._transform);
+		element.setTransform((this._ownerRender.owner as Sprite3D)._transform);
 		element.render = render;
 		element.material = material;
 		this._trialGeometry = new TrailGeometry(this);
@@ -193,12 +195,12 @@ export class TrailFilter {
 	 * @internal
 	 */
 	_update(state: RenderContext3D): void {
-		var render: BaseRender = this._owner._render;
+		var render: BaseRender = this._ownerRender;
 		this._curtime += ((<Scene3D>state.scene)).timer._delta / 1000;
 		//设置颜色
 		render._shaderValues.setNumber(TrailFilter.CURTIME, this._curtime);
 		//现在的位置记录
-		var curPos: Vector3 = this._owner.transform.position;
+		var curPos: Vector3 = (this._ownerRender.owner as Sprite3D).transform.position;
 		var element: TrailGeometry = (<TrailGeometry>render._renderElements[0]._geometry);
 		element._updateDisappear();
 		element._updateTrail((<Camera>state.camera), this._lastPosition, curPos);

@@ -7,6 +7,7 @@ import { Material } from "../material/Material"
 import { Color } from "../../math/Color"
 import { Node } from "../../../display/Node"
 import { Loader } from "../../../net/Loader"
+import { Sprite3D } from "../Sprite3D";
 
 /**
  * <code>TrailSprite3D</code> 类用于创建拖尾渲染精灵。
@@ -15,9 +16,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 	/**
 	 * @internal
 	 */
-	static __init__(): void {
-
-	}
+	static __init__(): void {}
 
 	/** @internal */
 	private _geometryFilter: TrailFilter;
@@ -38,8 +37,8 @@ export class TrailSprite3D extends RenderableSprite3D {
 
 	constructor(name: string = null) {
 		super(name);
-		this._render = new TrailRenderer(this);
-		this._geometryFilter = new TrailFilter(this);
+		this._render = this.addComponent(TrailRenderer);
+		this._geometryFilter = (this._render as TrailRenderer)._trailFilter;
 	}
 
 	/**
@@ -102,68 +101,21 @@ export class TrailSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
-	 */
-	protected _onActive(): void {
-		super._onActive();
-		this._transform.position.cloneTo(this._geometryFilter._lastPosition);//激活时需要重置上次位置
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
 	 * @internal
 	 */
 	_cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
 		super._cloneTo(destObject, srcSprite, dstSprite);
-		var i: number, j: number;
-		var destTrailSprite3D: TrailSprite3D = (<TrailSprite3D>destObject);
-
-		var destTrailFilter: TrailFilter = destTrailSprite3D.trailFilter;
-		destTrailFilter.time = this.trailFilter.time;
-		destTrailFilter.minVertexDistance = this.trailFilter.minVertexDistance;
-		destTrailFilter.widthMultiplier = this.trailFilter.widthMultiplier;
-		destTrailFilter.textureMode = this.trailFilter.textureMode;
-		destTrailFilter.alignment = this.trailFilter.alignment;
-
-		var widthCurveData: FloatKeyframe[] = this.trailFilter.widthCurve;
-		var widthCurve: FloatKeyframe[] = [];
-		for (i = 0, j = widthCurveData.length; i < j; i++) {
-			var keyFrame: FloatKeyframe = new FloatKeyframe();
-			widthCurveData[i].cloneTo(keyFrame);
-			widthCurve.push(keyFrame);
-		}
-		destTrailFilter.widthCurve = widthCurve;
-
-		var destColorGradient: Gradient = new Gradient(this.trailFilter.colorGradient.maxColorRGBKeysCount, this.trailFilter.colorGradient.maxColorAlphaKeysCount);
-		this.trailFilter.colorGradient.cloneTo(destColorGradient);
-		destTrailFilter.colorGradient = destColorGradient;
-
-		var destTrailRender: TrailRenderer = destTrailSprite3D.trailRenderer;
-		destTrailRender.sharedMaterial = this.trailRenderer.sharedMaterial;
-	}
-
-	/**
-	 * <p>销毁此对象。</p>
-	 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
-	 * @override
-	 */
-	destroy(destroyChild: boolean = true): void {
-		if (this.destroyed)
-			return;
-		super.destroy(destroyChild);
-		((<TrailFilter>this._geometryFilter)).destroy();
-		this._geometryFilter = null;
 	}
 
 	clear(): void {
-		(<TrailFilter>this._geometryFilter).clear();
+		(this._render as TrailRenderer).clear();
 	}
 
 	/**
 	 * @internal
 	 */
 	protected _create(): Node {
-		return new TrailSprite3D();
+		return new Sprite3D();
 	}
 }
 

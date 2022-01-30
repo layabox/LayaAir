@@ -25,8 +25,8 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { SeparableSSS_BlitMaterial } from "./SeparableSSSRender/Material/SeparableSSS_BlitMaterial";
 import { SeparableSSSRenderMaterial } from "./SeparableSSSRender/Material/SeparableSSS_RenderMaterial";
 import { Event } from "laya/events/Event";
-import { Utils } from "laya/utils/Utils";
 import Client from "../../Client";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 
 export class SeparableSSS_RenderDemo{
     scene:Scene3D;
@@ -83,7 +83,7 @@ export class SeparableSSS_RenderDemo{
         
         //打开depthTexture
         this.blinnphongCharacter = Loader.getRes("res/threeDimen/LayaScene_separable-sss/Conventional/HeadBlinnphong.lh");
-        this.characterBlinnphongMaterial = <BlinnPhongMaterial>this.blinnphongCharacter.meshRenderer.sharedMaterial.clone();
+        this.characterBlinnphongMaterial = <BlinnPhongMaterial>this.blinnphongCharacter.getComponent(MeshRenderer).sharedMaterial.clone();
         //增加Mesh节点
         let buf = this.createCommandBuffer(this.mainCamera,this.blinnphongCharacter.meshFilter.sharedMesh);
         this.mainCamera.addCommandBuffer(CameraEventFlags.BeforeForwardOpaque,buf);
@@ -91,7 +91,7 @@ export class SeparableSSS_RenderDemo{
 
         //增加节点
         this.SSSSSCharacter = <MeshSprite3D>this.blinnphongCharacter.clone();
-        this.SSSSSCharacter.meshRenderer.sharedMaterial = this.sssssRenderMaterial;
+        this.SSSSSCharacter.getComponent(MeshRenderer).sharedMaterial = this.sssssRenderMaterial;
         this.scene.addChild(this.SSSSSCharacter);
         this.scene.addChild(this.blinnphongCharacter);
         this.blinnphongCharacter.active = false;

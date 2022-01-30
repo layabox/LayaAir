@@ -4,7 +4,10 @@
 	precision mediump float;
 #endif
 
+#define SHADER_NAME UnlitFS;
+
 #include "LayaComInput.glsl";
+
 
 #if defined(COLOR)&&defined(ENABLEVERTEXCOLOR)
 	varying vec4 v_Color;

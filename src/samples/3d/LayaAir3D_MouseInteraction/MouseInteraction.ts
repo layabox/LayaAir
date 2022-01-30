@@ -3,6 +3,7 @@ import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -122,17 +123,17 @@ export class MouseInteraction {
 
 		var meshCollider1: PhysicsCollider = layaMonkey_clone1.addComponent(PhysicsCollider);
 		var meshShape1: MeshColliderShape = new MeshColliderShape();
-		meshShape1.mesh = (<Mesh>layaMonkey_clone1.meshFilter.sharedMesh);
+		meshShape1.mesh = (<Mesh>layaMonkey_clone1.getComponent(MeshFilter).sharedMesh);
 		meshCollider1.colliderShape = meshShape1;
 
 		var meshCollider2: PhysicsCollider = layaMonkey_clone2.addComponent(PhysicsCollider);
 		var meshShape2: MeshColliderShape = new MeshColliderShape();
-		meshShape2.mesh = (<Mesh>layaMonkey_clone2.meshFilter.sharedMesh);
+		meshShape2.mesh = (<Mesh>layaMonkey_clone2.getComponent(MeshFilter).sharedMesh);
 		meshCollider2.colliderShape = meshShape2;
 
 		var meshCollider3: PhysicsCollider = layaMonkey_clone3.addComponent(PhysicsCollider);
 		var meshShape3: MeshColliderShape = new MeshColliderShape();
-		meshShape3.mesh = (<Mesh>layaMonkey_clone3.meshFilter.sharedMesh);
+		meshShape3.mesh = (<Mesh>layaMonkey_clone3.getComponent(MeshFilter).sharedMesh);
 		meshCollider3.colliderShape = meshShape3;
 
 		//设置文本显示框位置

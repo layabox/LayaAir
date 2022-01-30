@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { IClone } from "../../core/IClone";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Quaternion } from "../../math/Quaternion";

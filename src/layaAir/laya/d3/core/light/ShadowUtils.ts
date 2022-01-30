@@ -12,12 +12,13 @@ import { Vector4 } from "../../math/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { ShadowSliceData, ShadowSpotData } from "../../shadowMap/ShadowSliceData";
 import { Utils3D } from "../../utils/Utils3D";
-import { DirectionLight } from "./DirectionLight";
-import { LightSprite, LightType } from "./LightSprite";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";
-import { SpotLight } from "./SpotLight";
 import { SystemUtils } from "../../../webgl/SystemUtils";
+import { Light, LightType } from "./Light";
+import { SpotLightCom } from "./SpotLightCom";
+import { Sprite3D } from "../Sprite3D";
+import { DirectionLightCom } from "./DirectionLightCom";
 
 /**
  * @internal
@@ -113,7 +114,7 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getShadowBias(light: LightSprite, shadowProjectionMatrix: Matrix4x4, shadowResolution: number, out: Vector4): void {
+    static getShadowBias(light: Light, shadowProjectionMatrix: Matrix4x4, shadowResolution: number, out: Vector4): void {
         var frustumSize: number;
         if (light._lightType == LightType.Directional) {
             // Frustum size is guaranteed to be a cube as we wrap shadow frustum around a sphere
@@ -127,7 +128,7 @@ export class ShadowUtils {
             // handle this. For now, as a poor approximation we do a constant bias and compute the size of
             // the frustum as if it was orthogonal considering the size at mid point between near and far planes.
             // Depending on how big the light range is, it will be good enough with some tweaks in bias
-            frustumSize = Math.tan((<SpotLight>light).spotAngle * 0.5 * MathUtils3D.Deg2Rad) * (<SpotLight>light).range;
+            frustumSize = Math.tan((<SpotLightCom>light).spotAngle * 0.5 * MathUtils3D.Deg2Rad) * (<SpotLightCom>light).range;
         }
         else {
             console.warn("ShadowUtils:Only spot and directional shadow casters are supported now.");
@@ -153,8 +154,8 @@ export class ShadowUtils {
     }
 
     /**
-	 * @internal
-	 */
+     * @internal
+     */
     static getCameraFrustumPlanes(cameraViewProjectMatrix: Matrix4x4, frustumPlanes: Plane[]): void {
         BoundFrustum.getPlanesFromMatrix(cameraViewProjectMatrix, frustumPlanes[FrustumFace.Near], frustumPlanes[FrustumFace.Far], frustumPlanes[FrustumFace.Left], frustumPlanes[FrustumFace.Right], frustumPlanes[FrustumFace.Top], frustumPlanes[FrustumFace.Bottom]);
     }
@@ -195,8 +196,8 @@ export class ShadowUtils {
     }
 
     /**
-	 * @internal
-	 */
+     * @internal
+     */
     static applySliceTransform(shadowSliceData: ShadowSliceData, atlasWidth: number, atlasHeight: number, cascadeIndex: number, outShadowMatrices: Float32Array): void {
         // Apply shadow slice scale and offset
         var sliceE: Float32Array = ShadowUtils._tempMatrix0.elements;
@@ -216,8 +217,8 @@ export class ShadowUtils {
 
 
     /**
-	 * @internal
-	 */
+     * @internal
+     */
     static getDirectionLightShadowCullPlanes(cameraFrustumPlanes: Array<Plane>, cascadeIndex: number, splitDistance: number[], cameraNear: number, direction: Vector3, shadowSliceData: ShadowSliceData): void {
         // http://lspiroengine.com/?p=187
         var frustumCorners: Vector3[] = ShadowUtils._frustumCorners;
@@ -380,32 +381,31 @@ export class ShadowUtils {
     /** 
     * @internal
     */
-   static getSpotLightShadowData(shadowSpotData:ShadowSpotData,spotLight:SpotLight,resolution:number,shadowParams:Vector4,shadowSpotMatrices:Matrix4x4,shadowMapSize:Vector4)
-   {
-        var out:Vector3 = shadowSpotData.position = spotLight.transform.position;
+    static getSpotLightShadowData(shadowSpotData: ShadowSpotData, spotLight: SpotLightCom, resolution: number, shadowParams: Vector4, shadowSpotMatrices: Matrix4x4, shadowMapSize: Vector4) {
+        var out: Vector3 = shadowSpotData.position = (spotLight.owner as Sprite3D).transform.position;
         shadowSpotData.resolution = resolution;
         shadowMapSize.setValue(1.0 / resolution, 1.0 / resolution, resolution, resolution);
         shadowSpotData.offsetX = 0;
         shadowSpotData.offsetY = 0;
 
-        var spotWorldMatrix:Matrix4x4 = spotLight.lightWorldMatrix; 
+        var spotWorldMatrix: Matrix4x4 = spotLight.lightWorldMatrix;
         var viewMatrix: Matrix4x4 = shadowSpotData.viewMatrix;
         var projectMatrix: Matrix4x4 = shadowSpotData.projectionMatrix;
         var viewProjectMatrix: Matrix4x4 = shadowSpotData.viewProjectMatrix;
-        var BoundFrustum:BoundFrustum = shadowSpotData.cameraCullInfo.boundFrustum;
+        var BoundFrustum: BoundFrustum = shadowSpotData.cameraCullInfo.boundFrustum;
         spotWorldMatrix.invert(viewMatrix);
-        Matrix4x4.createPerspective(3.1416*spotLight.spotAngle / 180.0,1,0.1,spotLight.range,projectMatrix);
+        Matrix4x4.createPerspective(3.1416 * spotLight.spotAngle / 180.0, 1, 0.1, spotLight.range, projectMatrix);
         shadowParams.y = spotLight.shadowStrength;
-        Matrix4x4.multiply(projectMatrix,viewMatrix,viewProjectMatrix);
+        Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
         BoundFrustum.matrix = viewProjectMatrix;
         viewProjectMatrix.cloneTo(shadowSpotMatrices);
         shadowSpotData.cameraCullInfo.position = out;
-   }
+    }
 
     /**
      * @internal
      */
-    static prepareShadowReceiverShaderValues(light: DirectionLight, shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
+    static prepareShadowReceiverShaderValues(light: DirectionLightCom, shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
         shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
         shadowParams.setValue(light._shadowStrength, 0.0, 0.0, 0.0);
         if (cascadeCount > 1) {

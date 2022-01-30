@@ -139,14 +139,15 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	/**
 	 * @internal
 	 */
-	_removeRenderSprite(sprite: RenderableSprite3D): void {
-		var render: BaseRender = sprite._render;
+	_removeRenderSprite(render: BaseRender): void {
+		var sprite = render.owner as Sprite3D;
 		var staticBatch: SubMeshStaticBatch = <SubMeshStaticBatch>render._staticBatch;
-		var batchElements: RenderableSprite3D[] = staticBatch._batchElements;
+		var batchElements: Sprite3D[] = staticBatch._batchElements;
 		var index: number = batchElements.indexOf(sprite);
 		if (index !== -1) {
 			batchElements.splice(index, 1);
 			render._staticBatch = null;
+			render._isPartOfStaticBatch = false;
 			var renderElements: RenderElement[] = render._renderElements;
 			for (var i: number = 0, n: number = renderElements.length; i < n; i++)
 				renderElements[i].staticBatch = null;

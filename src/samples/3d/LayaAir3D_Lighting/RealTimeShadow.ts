@@ -24,6 +24,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
 import { Shader3D } from "laya/d3/shader/Shader3D";
+import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 
 /**
  * Light rotation script.
@@ -98,7 +99,7 @@ export class RealTimeShadow {
 		// A monkey cast shadow.
 		var layaMonkey: Sprite3D = <Sprite3D>scene.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
 		layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
-		(<SkinnedMeshSprite3D>layaMonkey.getChildAt(0).getChildAt(0)).skinnedMeshRenderer.castShadow = true;
+		(<SkinnedMeshSprite3D>layaMonkey.getChildAt(0).getChildAt(1)).getComponent(SkinnedMeshRenderer).castShadow = true;
 
 		// A sphere cast/receive shadow.
 		var sphereSprite: MeshSprite3D = this.addPBRSphere(PrimitiveMesh.createSphere(0.1), new Vector3(0, 0.2, 0.5), scene);
