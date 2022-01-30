@@ -1,3 +1,5 @@
+
+import { Component } from "../../components/Component";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { VertexElement } from "../graphics/VertexElement";
 import { Mesh } from "../resource/models/Mesh";
@@ -6,19 +8,41 @@ import { ShaderData } from "../shader/ShaderData";
 import { ShaderDefine } from "../shader/ShaderDefine";
 import { MeshRenderer } from "./MeshRenderer";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
-import { RenderableSprite3D } from "./RenderableSprite3D";
 
 /**
  * <code>MeshFilter</code> 类用于创建网格过滤器。
  */
-export class MeshFilter {
+export class MeshFilter extends Component {
 	/** @internal */
 	private static _meshVerticeDefine: Array<ShaderDefine> = [];
 
 	/** @internal */
-	private _owner: RenderableSprite3D;
-	/** @internal */
 	private _sharedMesh: Mesh;
+
+	/**
+	 * @internal
+	 */
+	_onEnable(): void {
+		super._onEnable();
+		const render = this.owner.getComponent(MeshRenderer) as MeshRenderer;
+		render && render._enabled && render._onMeshChange(this._sharedMesh);
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _onDisable(): void {
+		super._onDisable();
+		const render = this.owner.getComponent(MeshRenderer) as MeshRenderer;
+		render && render._enabled && render._onMeshChange(null);
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _onDestroy(): void {
+		super._onDestroy();
+	}
 
 	/**
 	 * 共享网格。
@@ -29,33 +53,37 @@ export class MeshFilter {
 
 	set sharedMesh(value: Mesh) {
 		if (this._sharedMesh !== value) {
-			var defineDatas: ShaderData = this._owner._render._shaderValues;
+			//meshReference
 			var lastValue: Mesh = this._sharedMesh;
 			if (lastValue) {
 				lastValue._removeReference();
+			}
+			if (value) {
+				value._addReference();
+			}
+			this._sharedMesh = value;
+
+			const render = this.owner.getComponent(MeshRenderer);
+			if (!render) {
+				return;
+			}
+			var defineDatas: ShaderData = render._shaderValues;
+			var lastValue: Mesh = this._sharedMesh;
+			if (lastValue) {
 				this._getMeshDefine(lastValue, MeshFilter._meshVerticeDefine);
 				for (var i: number = 0, n: number = MeshFilter._meshVerticeDefine.length; i < n; i++)
 					defineDatas.removeDefine(MeshFilter._meshVerticeDefine[i]);
 			}
 
 			if (value) {
-				value._addReference();
 				this._getMeshDefine(value, MeshFilter._meshVerticeDefine);
 				for (var i: number = 0, n: number = MeshFilter._meshVerticeDefine.length; i < n; i++)
 					defineDatas.addDefine(MeshFilter._meshVerticeDefine[i]);
 			}
 
-			((<MeshRenderer>this._owner._render))._onMeshChange(value);
+			render._onMeshChange(value);
 			this._sharedMesh = value;
 		}
-	}
-
-	/**
-	 * 创建一个新的 <code>MeshFilter</code> 实例。
-	 * @param owner 所属网格精灵。
-	 */
-	constructor(owner: RenderableSprite3D) {
-		this._owner = owner;
 	}
 
 	/**
@@ -92,8 +120,18 @@ export class MeshFilter {
 	 * @inheritDoc
 	 */
 	destroy(): void {
-		this._owner = null;
 		(this._sharedMesh) && (this._sharedMesh._removeReference(), this._sharedMesh = null);
+		super.destroy();
+	}
+
+	/**
+	 * @internal
+	 * @param dest 
+	 */
+	_cloneTo(dest: Component): void {
+		let meshfilter = dest as MeshFilter;
+		meshfilter.sharedMesh = this.sharedMesh;
+		super._cloneTo(dest);
 	}
 
 }

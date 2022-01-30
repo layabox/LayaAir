@@ -19,7 +19,6 @@ import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Picker } from "../utils/Picker";
 import { BaseCamera } from "./BaseCamera";
-import { DirectionLight } from "./light/DirectionLight";
 import { ShadowMode } from "./light/ShadowMode";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
@@ -29,13 +28,13 @@ import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
 import { ILaya3D } from "../../../ILaya3D";
 import { ShadowUtils } from "./light/ShadowUtils";
-import { SpotLight } from "./light/SpotLight";
 import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
 import { Shader3D } from "../shader/Shader3D";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { MulSampleRenderTexture } from "../resource/MulSampleRenderTexture";
 import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 import { UniformBufferObject } from "../graphics/UniformBufferObject";
+import { DirectionLightCom } from "./light/DirectionLightCom";
 
 /**
  * 相机清除标记。
@@ -716,7 +715,7 @@ export class Camera extends BaseCamera {
 	_renderShadowMap(scene: Scene3D, context: RenderContext3D) {
 		//render shadowMap
 		var shadowCasterPass;
-		var mainDirectLight: DirectionLight = scene._mainDirectionLight;
+		var mainDirectLight: DirectionLightCom = scene._mainDirectionLight;
 		var needShadowCasterPass: boolean = mainDirectLight && mainDirectLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
 		if (needShadowCasterPass) {
 			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT)
@@ -728,7 +727,7 @@ export class Camera extends BaseCamera {
 		else {
 			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
 		}
-		var spotMainLight: SpotLight = scene._mainSpotLight;
+		var spotMainLight = scene._mainSpotLight;
 		var spotneedShadowCasterPass: boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
 		if (spotneedShadowCasterPass) {
 			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
@@ -761,7 +760,7 @@ export class Camera extends BaseCamera {
 		context.camera = this;
 		context.cameraShaderValue = this._shaderValues;
 		Camera._updateMark++;
-		scene._preRenderScript();//TODO:duo相机是否重复
+		scene._componentManager.callPreRenderScript();
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		//TODO:webgl2 should use blitFramebuffer
 		//TODO:if adjacent camera param can use same internal RT can merge
@@ -836,7 +835,7 @@ export class Camera extends BaseCamera {
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
 		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
-		scene._postRenderScript();//TODO:duo相机是否重复
+		scene._componentManager.callPostRenderScript();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
 		(renderTex) && (renderTex._end());
 

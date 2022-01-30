@@ -5,7 +5,6 @@ import { Transform3D } from "./Transform3D";
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
 import { Sprite3D } from "./Sprite3D";
 import { RenderElement } from "./render/RenderElement";
-import { Animator } from "../component/Animator";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
@@ -17,8 +16,8 @@ import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch";
 import { SingletonList } from "../component/SingletonList";
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
-import { Utils3D } from "../utils/Utils3D";
 import { ShaderDataType } from "./render/command/SetShaderDataCMD";
+import { Component } from "../../components/Component";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal 解决循环引用 */
@@ -77,11 +76,10 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**
      * 创建一个 <code>SkinnedMeshRender</code> 实例。
      */
-    constructor(owner: RenderableSprite3D) {
-        super(owner);
+    constructor() {
+        super();
         this._simpleAnimatorParams = new Vector4();
         this._simpleAnimatorOffset = new Vector2();
-        //TODO:
         this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE);
         this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
     }
@@ -104,13 +102,13 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     _createRenderElement(): SubMeshRenderElement {
         return new SubMeshRenderElement();
     }
-    /**
-     * @internal
-     */
-    _setCacheAnimator(animator: Animator): void {
-        this._cacheAnimator = animator;
-        this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE);
-    }
+    // /**
+    //  * @internal
+    //  */
+    // _setCacheAnimator(animator: Animator): void {
+    //     this._cacheAnimator = animator;
+    //     this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE);
+    // }
 
     /**
     *@inheritDoc
@@ -120,7 +118,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     _onMeshChange(value: Mesh): void {
         super._onMeshChange(value);
         this._cacheMesh = (<Mesh>value);
-        //TODO:
+        
     }
     /**
      * @inheritDoc
@@ -131,8 +129,8 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         switch (element.renderType) {
             case RenderElement.RENDERTYPE_NORMAL:
-                if (this._cacheAnimator) {
-                    var worldMat: Matrix4x4 = (this._cacheAnimator.owner as Sprite3D).transform.worldMatrix;
+                if (this.rootBone) {
+                    var worldMat: Matrix4x4 = (this.rootBone as Sprite3D).transform.worldMatrix;
                     if (this._subUniformBufferData) {
                         let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
                         this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(worldMat) : true;
@@ -149,9 +147,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
                 var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
                 var elements: SubMeshRenderElement[] = insBatches.elements;
                 var count: number = insBatches.length;
-                if (this._cacheAnimator) {
+                if (this.rootBone) {
                     for (var i: number = 0; i < count; i++) {
-                        var mat: Matrix4x4 = (((elements[i].render) as SimpleSkinnedMeshRenderer)._cacheAnimator.owner as Sprite3D)._transform.worldMatrix;
+                        var mat: Matrix4x4 = (((elements[i].render) as SimpleSkinnedMeshRenderer).rootBone as Sprite3D)._transform.worldMatrix;
                         worldMatrixData.set(mat.elements, i * 16);
                     }
                 }
@@ -166,7 +164,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
                 //TODO:new Instance
 
                 var simpleAnimatorData: Float32Array = SubMeshInstanceBatch.instance.instanceSimpleAnimatorData;
-                if (this._cacheAnimator) {
+                if (this.rootBone) {
                     for (var i: number = 0; i < count; i++) {
                         var render: SimpleSkinnedMeshRenderer = (elements[i].render) as SimpleSkinnedMeshRenderer;
                         render._computeAnimatorParamsData();
@@ -199,8 +197,8 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
             var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
             switch (element.renderType) {
                 case RenderElement.RENDERTYPE_NORMAL:
-                    if (this._cacheAnimator) {
-                        var mat: Matrix4x4 = (this._cacheAnimator.owner as Sprite3D)._transform.worldMatrix;
+                    if (this.rootBone) {
+                        var mat: Matrix4x4 = (this.rootBone as Sprite3D)._transform.worldMatrix;
                         Matrix4x4.multiply(projectionView, mat, this._projectionViewWorldMatrix);
                         this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
                     } else {
@@ -212,16 +210,23 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         }
     }
 
+    _cloneTo(dest: Component): void {
+        let render = dest as SimpleSkinnedMeshRenderer;
+        render.simpleAnimatorOffset = this.simpleAnimatorOffset;
+		render.simpleAnimatorTexture = this.simpleAnimatorTexture;
+		render._bonesNums = this._bonesNums;
+        super._cloneTo(dest);
+    }
+ 
     /**
      * 删除节点
      */
-    _destroy(): void {
+    destroy(): void {
         if (this._cacheRootBone)
             (!this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
         (this._simpleAnimatorTexture) && this._simpleAnimatorTexture._removeReference();
         this._simpleAnimatorTexture = null;
-
-
+        super.destroy();
     }
 
 }

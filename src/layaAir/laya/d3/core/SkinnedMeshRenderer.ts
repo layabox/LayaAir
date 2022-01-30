@@ -1,26 +1,18 @@
 import { Event } from "../../events/Event";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
-import { AnimationNode } from "../animation/AnimationNode";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh";
 import { SubMesh } from "../resource/models/SubMesh";
 import { Utils3D } from "../utils/Utils3D";
-import { Avatar } from "./Avatar";
 import { Bounds } from "./Bounds";
 import { MeshRenderer } from "./MeshRenderer";
-import { RenderableSprite3D } from "./RenderableSprite3D";
 import { Sprite3D } from "./Sprite3D";
 import { Transform3D } from "./Transform3D";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-import { ReflectionProbeMode, ReflectionProbe } from "./reflectionProbe/ReflectionProbe";
-import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
-import { TextureCube } from "../resource/TextureCube";
-import { Animator } from "../component/Animator";
-import { ShaderDataType } from "./render/command/SetShaderDataCMD";
+import { Component } from "../../components/Component";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -30,16 +22,16 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 	/**@internal */
 	protected _cacheMesh: Mesh;
-	/** @internal */
-	protected _bones: Sprite3D[] = [];
+
+	_bones: Sprite3D[] = [];
 	/** @internal */
 	_skinnedData: any[];
 	/** @internal */
 	private _skinnedDataLoopMarks: number[] = [];
 	/**@internal */
 	protected _localBounds: Bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
-	/**@internal */
-	protected _cacheAnimator: Animator;
+	// /**@internal */
+	// protected _cacheAnimator: Animator;
 	/**@internal */
 	protected _cacheRootBone: Sprite3D;
 
@@ -66,12 +58,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			if (this._cacheRootBone)
 				this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
 			else
-				this._owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+				(this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
 
 			if (value)
 				value.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
 			else
-				this._owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+				(this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
 
 			this._cacheRootBone = value;
 			this._onWorldMatNeedChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
@@ -88,14 +80,15 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 * 创建一个 <code>SkinnedMeshRender</code> 实例。
 	 */
-	constructor(owner: RenderableSprite3D) {
-		super(owner);
+	constructor() {
+		super();
+		this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
 	}
 
 
 
 	protected _computeSkinnedData(): void {
-		if (this._cacheMesh && this._cacheAvatar/*兼容*/ || this._cacheMesh && !this._cacheAvatar) {
+		if (this._cacheMesh) {
 			var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
 			var pathMarks: skinnedMatrixCache[] = this._cacheMesh._skinnedMatrixCaches;
 			for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
@@ -123,11 +116,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 				for (var d: number = 0; d < 16; d++)
 					data[dstIndex + d] = preData[srcIndex + d];
 			} else {
-				if (!this._cacheAvatar) {
-					Utils3D._mulMatrixArray(this._bones[index].transform.worldMatrix.elements, bindPoses[index].elements, 0, data, k * 16);
-				} else {//[兼容代码]
-					Utils3D._mulMatrixArray(this._cacheAnimationNode[index].transform.getWorldMatrix(), bindPoses[index].elements, 0, data, k * 16);
-				}
+				Utils3D._mulMatrixArray(this._bones[index].transform.worldMatrix.elements, bindPoses[index].elements, 0, data, k * 16);
 				this._skinnedDataLoopMarks[index] = Stat.loopCount;
 			}
 		}
@@ -140,16 +129,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	protected _onWorldMatNeedChange(flag: number): void {
 		this._boundsChange = true;
 		if (this._octreeNode) {
-			if (this._cacheAvatar) {//兼容性 
+			flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
+			if (flag) {
 				if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
 					this._octreeNode.getManagerNode().addMotionObject(this);
-			}
-			else {
-				flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
-				if (flag) {
-					if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
-						this._octreeNode.getManagerNode().addMotionObject(this);
-				}
 			}
 		}
 	}
@@ -170,6 +153,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	*/
 	_onMeshChange(value: Mesh): void {
 		super._onMeshChange(value);
+		if (!value)
+			return;
 		this._cacheMesh = (<Mesh>value);
 
 		var subMeshCount: number = value.subMeshCount;
@@ -182,17 +167,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			for (var j: number = 0; j < subCount; j++)
 				subData[j] = new Float32Array(subBoneIndices[j].length * 16);
 		}
-
-		(this._cacheAvatar && value) && (this._getCacheAnimationNodes());//[兼容性]
-	}
-
-	/**
-	 * @internal
-	 */
-	_setCacheAnimator(animator: Animator): void {
-		this._cacheAnimator = animator;
-		this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
-		this._setRootNode();//[兼容性API]
 	}
 
 	/**
@@ -201,21 +175,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	 * @internal
 	 */
 	protected _calculateBoundingBox(): void {//TODO:是否可直接在boundingSphere属性计算优化
-		if (!this._cacheAvatar) {
-			if (this._cacheRootBone)
-				this._localBounds._tranform(this._cacheRootBone.transform.worldMatrix, this._bounds);
-			else
-				this._localBounds._tranform(this._owner.transform.worldMatrix, this._bounds);
-
-		} else {//[兼容性API]
-			if (this._cacheAnimator && this._rootBone) {
-				var worldMat: Matrix4x4 = SkinnedMeshRenderer._tempMatrix4x4;
-				Utils3D.matrix4x4MultiplyMFM(((<Sprite3D>this._cacheAnimator.owner)).transform.worldMatrix, this._cacheRootAnimationNode.transform.getWorldMatrix(), worldMat);
-				this._localBounds._tranform(worldMat, this._bounds);
-			} else {
-				super._calculateBoundingBox();
-			}
-		}
+		if (this._cacheRootBone)
+			this._localBounds._tranform(this._cacheRootBone.transform.worldMatrix, this._bounds);
+		else
+			this._localBounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
 	}
 
 	/**
@@ -224,21 +187,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	 * @internal
 	 */
 	_renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-		if (this._cacheAnimator) {
+		if (this.bones.length > 0) {
 			this._computeSkinnedData();
-			if (!this._cacheAvatar) {
-				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-				this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
-			} else {//[兼容性]
-				var aniOwnerTrans: Transform3D = ((<Sprite3D>this._cacheAnimator.owner))._transform;
-				if (this._subUniformBufferData) {
-					let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
-					this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(aniOwnerTrans.worldMatrix) : true;
-				}
-				this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, aniOwnerTrans.worldMatrix);
-			}
+			this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
 		} else {
-			this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
+			this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
 		}
 	}
 
@@ -249,19 +202,64 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	 */
 	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
-		if (this._cacheAnimator) {
-			if (!this._cacheAvatar) {
-				this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
+		this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
+	}
+
+	/**
+	 * @override
+	 * @param dest 
+	 */
+	_cloneTo(dest: Component): void {
+		let render = (dest as SkinnedMeshRenderer);
+		//get common parent
+		let getCommomParent = (rootNode: Sprite3D, rootCheckNode: Sprite3D): Sprite3D => {
+			let nodeArray: Sprite3D[] = [];
+			let node = rootNode;
+			while (!!node) {
+				if (node instanceof Sprite3D)
+					nodeArray.push(node);
+				node = node.parent as Sprite3D;
 			}
-			else {//[兼容性]
-				var aniOwnerTrans: Transform3D = ((<Sprite3D>this._cacheAnimator.owner))._transform;
-				Matrix4x4.multiply(projectionView, aniOwnerTrans.worldMatrix, this._projectionViewWorldMatrix);
-				this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
+			let checkNode: Sprite3D = rootCheckNode;
+			while (!!checkNode && nodeArray.indexOf(checkNode) == -1) {
+				checkNode = checkNode.parent as Sprite3D;
 			}
-		} else {
-			Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-			this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
+			return checkNode;
 		}
+		let cloneHierachFun = (rootNode: Sprite3D, rootCheckNode: Sprite3D, destNode: Sprite3D): Sprite3D => {
+			let rootparent: Sprite3D = getCommomParent(rootNode, rootCheckNode);
+			if (!rootparent)
+				return null;
+			let path: number[] = [];
+			Utils3D._getHierarchyPath(rootparent, rootNode, path);
+			let pathcheck: number[] = [];
+			Utils3D._getHierarchyPath(rootparent, rootCheckNode, pathcheck);
+			let destParent = Utils3D._getParentNodeByHierarchyPath(destNode, path);
+			if (!destParent)
+				return null;
+			return Utils3D._getNodeByHierarchyPath(destParent, pathcheck) as Sprite3D;
+		}
+		//rootBone Clone
+		var rootBone: Sprite3D = this.rootBone;
+		if (rootBone) {
+			let node = cloneHierachFun(this.owner as Sprite3D, this.rootBone as Sprite3D, render.owner as Sprite3D);
+			if (node)
+				render.rootBone = node;
+			else
+				render.rootBone = rootBone;
+		}
+		//BonesClone
+		var bones: Sprite3D[] = this.bones;
+		var destBone: Sprite3D[] = render.bones;
+		let n = destBone.length = bones.length;
+		for (var i = 0; i < n; i++) {
+			let ceckNode = bones[i];
+			destBone[i] = cloneHierachFun(this.owner as Sprite3D, ceckNode, render.owner as Sprite3D);
+		}
+		//bounds
+		var lbb: Bounds = this.localBounds;
+		(lbb) && (lbb.cloneTo(render.localBounds));
+		super._cloneTo(dest);
 	}
 
 	/**
@@ -269,103 +267,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	 * @override
 	 * @internal
 	 */
-	_destroy(): void {
-		super._destroy();
-		if (!this._cacheAvatar) {
-			if (this._cacheRootBone)
-				(!this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
-			else
-				(this._owner && !this._owner.destroyed) && (this._owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
-		} else {//[兼容性]
-			if (this._cacheRootAnimationNode)
-				this._cacheRootAnimationNode.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
-		}
-	}
-
-	//-----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	/**@internal */
-	_rootBone: string;//[兼容性API]
-	/**@internal */
-	private _cacheAvatar: Avatar;//[兼容性API]
-	/**@internal */
-	private _cacheRootAnimationNode: AnimationNode;//[兼容性API]
-	/** @internal */
-	private _cacheAnimationNode: AnimationNode[] = [];//[兼容性]
-
-	/**
-	 * @override
-	 * 包围盒。
-	 */
-	get bounds(): Bounds {
-		if (this._boundsChange || this._cacheAvatar) {//有this._cacheAvatar模式会导致裁剪后动画不更新。动画不更新包围不更新。包围盒不更新就永远裁掉了
-			this._calculateBoundingBox();
-			this._boundsChange = false;
-		}
-		return this._bounds;
-	}
-
-	/**
-	 * @internal
-	 */
-	_setRootBone(name: string): void {//[兼容性API]
-		this._rootBone = name;
-		this._setRootNode();//[兼容性API]
-	}
-
-	/**
-	 * @internal
-	 */
-	protected _setRootNode(): void {//[兼容性API]
-		var rootNode: AnimationNode;
-		if (this._cacheAnimator && this._rootBone && this._cacheAvatar)
-			rootNode = this._cacheAnimator._avatarNodeMap[this._rootBone];
+	destroy(): void {
+		if (this._cacheRootBone)
+			(!this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
 		else
-			rootNode = null;
-
-		if (this._cacheRootAnimationNode != rootNode) {
-			this._onWorldMatNeedChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
-			this._owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
-			if (this._cacheRootAnimationNode)
-				this._cacheRootAnimationNode.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
-			(rootNode) && (rootNode.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
-			this._cacheRootAnimationNode = rootNode;
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	private _getCacheAnimationNodes(): void {//[兼容性API]
-		var meshBoneNames: string[] = this._cacheMesh._boneNames;
-		var innerBindPoseCount: number = this._cacheMesh._inverseBindPoses.length;
-
-		this._cacheAnimationNode.length = innerBindPoseCount;
-		var nodeMap: any = this._cacheAnimator._avatarNodeMap;
-		for (var i: number = 0; i < innerBindPoseCount; i++) {
-			var node: AnimationNode = nodeMap[meshBoneNames[i]];
-			this._cacheAnimationNode[i] = node;
-		}
-	}
-
-
-
-	/**
-	 * @internal
-	 */
-	_setCacheAvatar(value: Avatar): void {//[兼容性API]
-		if (this._cacheAvatar !== value) {
-			if (this._cacheMesh) {
-				this._cacheAvatar = value;
-				if (value) {
-					this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
-					this._getCacheAnimationNodes();
-				}
-			} else {
-				this._cacheAvatar = value;
-			}
-			this._setRootNode();
-		}
+			(this.owner && !this.owner.destroyed) && ((this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
+		super.destroy();
 	}
 }
 

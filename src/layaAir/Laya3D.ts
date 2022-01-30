@@ -253,6 +253,7 @@ export class Laya3D {
 		ShadowCasterPass.__init__();
 		BaseCamera.__init__();
 		BaseRender.__init__();
+		MeshRenderer.__init__();
 		Camera.__init__();
 		MeshRenderStaticBatchManager.__init__();
 

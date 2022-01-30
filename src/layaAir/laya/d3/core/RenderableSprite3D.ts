@@ -1,11 +1,8 @@
 import { Node } from "../../display/Node";
-import { Animator } from "../component/Animator";
 import { Vector4 } from "../math/Vector4";
 import { Shader3D } from "../shader/Shader3D";
 import { Sprite3D } from "./Sprite3D";
 import { BaseRender } from "./render/BaseRender";
-import { Scene3D } from "./scene/Scene3D";
-import { ILaya3D } from "../../../ILaya3D";
 import { ShaderDefine } from "../shader/ShaderDefine";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 
@@ -45,7 +42,6 @@ export class RenderableSprite3D extends Sprite3D {
 		RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW = Shader3D.getDefineByName("RECEIVESHADOW");
 		RenderableSprite3D.SAHDERDEFINE_LIGHTMAP = Shader3D.getDefineByName("LIGHTMAP");
 		RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL = Shader3D.getDefineByName("LIGHTMAP_DIRECTIONAL");
-
 		const commandUniform = CommandUniformMap.createGlobalUniformMap("Sprite3D");
 		RenderableSprite3D.LIGHTMAPSCALEOFFSET = Shader3D.propertyNameToID("u_LightmapScaleOffset");
 		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAPSCALEOFFSET, "u_LightmapScaleOffset");
@@ -83,8 +79,6 @@ export class RenderableSprite3D extends Sprite3D {
 	 */
 	protected _onInActive(): void {
 		super._onInActive();
-		(<Scene3D>this._scene)._removeRenderObject(this._render);
-
 	}
 
 	/** 
@@ -93,7 +87,6 @@ export class RenderableSprite3D extends Sprite3D {
 	 */
 	protected _onActive(): void {
 		super._onActive();
-		(<Scene3D>this._scene)._addRenderObject(this._render);
 	}
 
 	/**
@@ -102,21 +95,13 @@ export class RenderableSprite3D extends Sprite3D {
 	 */
 	protected _onActiveInScene(): void {
 		super._onActiveInScene();
-
-		if (ILaya3D.Laya3D._editerEnvironment) {
-			var scene: Scene3D = (<Scene3D>this._scene);
-			var pickColor: Vector4 = new Vector4();
-			scene._allotPickColorByID(this.id, pickColor);
-			scene._pickIdToSprite[this.id] = this;
-			this._render._shaderValues.setVector(RenderableSprite3D.PICKCOLOR, pickColor);
-		}
 	}
 
 	/**
 	 * @internal
 	 */
 	protected _create(): Node {
-		return new RenderableSprite3D(this.name);
+		return new Sprite3D(this.name);
 	}
 
 	/**
@@ -132,7 +117,7 @@ export class RenderableSprite3D extends Sprite3D {
 	 */
 	_setBelongScene(scene: Node): void {
 		super._setBelongScene(scene);
-		this._render._setBelongScene(<Scene3D>scene);
+		//this._render._setBelongScene(<Scene3D>scene);
 	}
 
 	/**
@@ -141,37 +126,7 @@ export class RenderableSprite3D extends Sprite3D {
 	 * @override
 	 */
 	_setUnBelongScene(): void {
-		if (!this.destroyed) {
-			this._render._shaderValues.removeDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
-			this._render._setUnBelongScene();
-			super._setUnBelongScene();
-		}
-	}
-
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	protected _changeHierarchyAnimator(animator: Animator): void {
-		if (this._hierarchyAnimator) {
-			var renderableSprites: RenderableSprite3D[] = this._hierarchyAnimator._renderableSprites;
-			renderableSprites.splice(renderableSprites.indexOf(this), 1);
-		}
-		if (animator)
-			animator._renderableSprites.push(this);
-
-		super._changeHierarchyAnimator(animator);
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	destroy(destroyChild: boolean = true): void {
-		super.destroy(destroyChild);
-		this._render._destroy();
-		this._render = null;
+		super._setUnBelongScene();
 	}
 }
 

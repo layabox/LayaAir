@@ -1,15 +1,12 @@
-//@ts-nocheck
 import { Node } from "../../display/Node";
 import { Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
 import { Handler } from "../../utils/Handler";
-import { Animator } from "../component/Animator";
 import { Script3D } from "../component/Script3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Shader3D } from "../shader/Shader3D";
-import { Avatar } from "./Avatar";
 import { Transform3D } from "./Transform3D";
 import { Laya } from "../../../Laya";
 import { ICreateResource } from "../../resource/ICreateResource";
@@ -89,8 +86,6 @@ export class Sprite3D extends Node implements ICreateResource {
 	/**@internal */
 	_transform: Transform3D;
 	/** @internal */
-	_hierarchyAnimator: Animator | null;
-	/** @internal */
 	_needProcessCollisions: boolean = false;
 	/** @internal */
 	_needProcessTriggers: boolean = false;
@@ -162,96 +157,6 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @internal
-	 */
-	private _changeAnimatorsToLinkSprite3D(sprite3D: Sprite3D, isLink: boolean, path: string[]): void {
-		var animator: Animator = (<Animator>this.getComponent(Animator));
-		if (animator) {
-			if (!animator.avatar)
-				sprite3D._changeAnimatorToLinkSprite3DNoAvatar(animator, isLink, path);
-		}
-
-		if (this._parent && this._parent instanceof Sprite3D) {
-			path.unshift(this._parent.name);
-			var p: Sprite3D = (<Sprite3D>this._parent);
-			(p._hierarchyAnimator) && (p._changeAnimatorsToLinkSprite3D(sprite3D, isLink, path));
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	_setHierarchyAnimator(animator: Animator, parentAnimator: Animator | null): void {
-		this._changeHierarchyAnimator(animator);
-		this._changeAnimatorAvatar(animator.avatar);
-		for (var i: number = 0, n: number = this._children.length; i < n; i++) {
-			var child: Sprite3D = this._children[i];
-			(child._hierarchyAnimator == parentAnimator) && (child._setHierarchyAnimator(animator, parentAnimator));
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	_clearHierarchyAnimator(animator: Animator, parentAnimator: Animator | null): void {
-		this._changeHierarchyAnimator(parentAnimator);
-		this._changeAnimatorAvatar(parentAnimator ? parentAnimator.avatar : null);
-		for (var i: number = 0, n: number = this._children.length; i < n; i++) {
-			var child: Sprite3D = this._children[i];
-			(child._hierarchyAnimator == animator) && (child._clearHierarchyAnimator(animator, parentAnimator));
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	_changeHierarchyAnimatorAvatar(animator: Animator, avatar: Avatar | null): void {
-		this._changeAnimatorAvatar(avatar);
-		for (var i: number = 0, n: number = this._children.length; i < n; i++) {
-			var child: Sprite3D = this._children[i];
-			(child._hierarchyAnimator == animator) && (child._changeHierarchyAnimatorAvatar(animator, avatar));
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	_changeAnimatorToLinkSprite3DNoAvatar(animator: Animator, isLink: boolean, path: string[]): void {
-		animator._handleSpriteOwnersBySprite(isLink, path, this);
-		for (var i: number = 0, n: number = this._children.length; i < n; i++) {
-			var child: Sprite3D = this._children[i];
-			var index: number = path.length;
-			path.push(child.name);
-			child._changeAnimatorToLinkSprite3DNoAvatar(animator, isLink, path);
-			path.splice(index, 1);
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	protected _changeHierarchyAnimator(animator: Animator | null): void {
-		this._hierarchyAnimator = animator;
-	}
-
-	/**
-	 * @internal
-	 */
-	protected _changeAnimatorAvatar(avatar: Avatar | null): void {
-	}
-
-	/**
-	 * @private
-	 */
-	protected _onInActiveInScene(): void {
-		super._onInActiveInScene();
-		if (!this._scripts)
-			return;
-		for (let i = 0, n = this._scripts.length; i < n; i++)
-			this.scene._removeScript(this._scripts[i]);
-	}
-
-	/**
 	 * @inheritDoc
 	 * @override
 	 */
@@ -259,10 +164,6 @@ export class Sprite3D extends Node implements ICreateResource {
 		if (this._parent instanceof Sprite3D) {
 			var parent3D: Sprite3D = (<Sprite3D>this._parent);
 			this.transform._setParent(parent3D.transform);
-			if (parent3D._hierarchyAnimator) {
-				(!this._hierarchyAnimator) && (this._setHierarchyAnimator(parent3D._hierarchyAnimator, null));//执行条件为sprite3D._hierarchyAnimator==parentAnimator,只有一种情况sprite3D._hierarchyAnimator=null成立,且_hierarchyAnimator不为空有意义
-				parent3D._changeAnimatorsToLinkSprite3D(this, true, [this.name]);//TODO:是否获取默认值函数移到active事件函数内，U3D修改active会重新获取默认值
-			}
 		}
 		super._onAdded();
 	}
@@ -276,10 +177,6 @@ export class Sprite3D extends Node implements ICreateResource {
 		if (this._parent instanceof Sprite3D) {
 			var parent3D: Sprite3D = (<Sprite3D>this._parent);
 			this.transform._setParent(null);
-			if (parent3D._hierarchyAnimator) {
-				(this._hierarchyAnimator == parent3D._hierarchyAnimator) && (this._clearHierarchyAnimator(parent3D._hierarchyAnimator, null));//_hierarchyAnimator不为空有意义
-				parent3D._changeAnimatorsToLinkSprite3D(this, false, [this.name]);//TODO:是否获取默认值函数移到active事件函数内，U3D修改active会重新获取默认值
-			}
 		}
 	}
 
@@ -362,7 +259,6 @@ export class Sprite3D extends Node implements ICreateResource {
 	 * @internal
 	 */
 	private static _parseSprite3DInstance(srcRoot: Node, dstRoot: Node, scrSprite: Node, dstSprite: Node): void {
-		//scrSprite._cloneTo(dstSprite,srcRoot,dstRoot);//TODO:因为根据名字找Owner,子节点名字还未赋值有BUG
 		var srcChildren: any[] = scrSprite._children;
 		var dstChildren: any[] = dstSprite._children;
 		for (var i: number = 0, n: number = srcChildren.length; i < n; i++)

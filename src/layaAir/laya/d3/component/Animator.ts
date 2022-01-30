@@ -1,22 +1,15 @@
 import { Component } from "../../components/Component";
-import { Node } from "../../display/Node";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Loader } from "../../net/Loader";
 import { Stat } from "../../utils/Stat";
 import { Timer } from "../../utils/Timer";
 import { AnimationClip } from "../animation/AnimationClip";
 import { AnimationEvent } from "../animation/AnimationEvent";
-import { AnimationNode } from "../animation/AnimationNode";
-import { AnimationTransform3D } from "../animation/AnimationTransform3D";
 import { AnimatorStateScript } from "../animation/AnimatorStateScript";
 import { KeyframeNode } from "../animation/KeyframeNode";
 import { KeyframeNodeList } from "../animation/KeyframeNodeList";
-import { Avatar } from "../core/Avatar";
 import { RenderableSprite3D } from "../core/RenderableSprite3D";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
-import { Transform3D } from "../core/Transform3D";
-import { Matrix4x4 } from "../math/Matrix4x4";
 import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 import { ConchVector3 } from "../math/Native/ConchVector3";
 import { Quaternion } from "../math/Quaternion";
@@ -24,6 +17,7 @@ import { Vector3 } from "../math/Vector3";
 import { Utils3D } from "../utils/Utils3D";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorPlayState } from "./AnimatorPlayState";
+import { AnimatorResource } from "./AnimatorResource";
 import { AnimatorState } from "./AnimatorState";
 import { AvatarMask } from "./AvatarMask";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
@@ -54,18 +48,6 @@ export class Animator extends Component {
 	/** 裁剪模式_不可见时完全不播放动画。*/
 	static CULLINGMODE_CULLCOMPLETELY: number = 2;
 
-	/**
-	 * @internal
-	 */
-	static _update(scene: Scene3D): void {
-		var pool = scene._animatorPool;
-		var elements = pool.elements as Animator[];
-		for (var i = 0, n = pool.length; i < n; i++) {
-			var animator = elements[i];
-			(animator && animator.enabled) && (animator._update());
-		}
-	}
-
 	/**@internal */
 	private _speed: number;
 	/**@internal */
@@ -80,8 +62,8 @@ export class Animator extends Component {
 	private _updateMode: AnimatorUpdateMode = AnimatorUpdateMode.Normal;
 	/**@internal 降低更新频率调整值*/
 	private _lowUpdateDelty: number = 20;
-	/**@internal */
-	_linkSprites: any;
+	// /**@internal */
+	// _linkSprites: any;
 	/**@internal	*/
 	_avatarNodeMap: any;
 	/**@internal */
@@ -139,32 +121,10 @@ export class Animator extends Component {
 	constructor() {
 		super();
 		this._controllerLayers = [];
-		this._linkSprites = {};
+		//this._linkSprites = {};
 		this._speed = 1.0;
 		this._keyframeNodeOwnerMap = {};
 		this._updateMark = 0;
-	}
-
-
-	/**
-	 * @internal
-	 */
-	private _linkToSprites(linkSprites: any): void {
-		for (var k in linkSprites) {
-			var nodeOwner = (<Sprite3D>this.owner);
-			var path = linkSprites[k];
-			for (var j = 0, m: number = path.length; j < m; j++) {
-				var p: string = path[j];
-				if (p === "") {
-					break;
-				} else {
-					nodeOwner = (<Sprite3D>nodeOwner.getChildByName(p));
-					if (!nodeOwner)
-						break;
-				}
-			}
-			(nodeOwner) && (this.linkSprite3DToAvatarNode(k, nodeOwner));//此时Avatar文件已经加载完成
-		}
 	}
 
 	/**
@@ -241,7 +201,8 @@ export class Animator extends Component {
 		nodeOwners.length = frameNodesCount;
 		for (var i: number = 0; i < frameNodesCount; i++) {
 			var node: KeyframeNode = frameNodes!.getNodeByIndex(i);
-			var property: any = this._avatar ? this._avatarNodeMap[this._avatar._rootNode.name!] : this.owner;//如果有avatar需使用克隆节点
+			//var property: any = this._avatar ? this._avatarNodeMap[this._avatar._rootNode.name!] : this.owner;//如果有avatar需使用克隆节点
+			var property: any = this.owner;
 			for (var j: number = 0, m: number = node.ownerPathCount; j < m; j++) {
 				var ownPat: string = node.getOwnerPathByIndex(j);
 				if (ownPat === "") {//TODO:直接不存
@@ -255,7 +216,11 @@ export class Animator extends Component {
 
 			if (property) {
 				var propertyOwner: string = node.propertyOwner;
+				const oriProperty = property;
 				(propertyOwner) && (property = property[propertyOwner]);
+				if (!property) {
+					property = AnimatorResource.getAnimatorResource(oriProperty, propertyOwner);
+				}
 				property && this._addKeyframeNodeOwner(nodeOwners, node, property);
 			}
 		}
@@ -786,22 +751,9 @@ export class Animator extends Component {
 	 * @internal
 	 * @override
 	 */
-	_onAdded(): void {
-		var parent: Node = this.owner._parent;
-		((<Sprite3D>this.owner))._setHierarchyAnimator(this, parent ? ((<Sprite3D>parent))._hierarchyAnimator : null);//只有动画组件在加载或卸载时才重新组织数据
-		((<Sprite3D>this.owner))._changeAnimatorToLinkSprite3DNoAvatar(this, true, []);
-	}
-
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
 	protected _onDestroy(): void {
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++)
 			this._controllerLayers[i]._removeReference();
-		var parent: Node = this.owner._parent;
-		((<Sprite3D>this.owner))._clearHierarchyAnimator(this, parent ? ((<Sprite3D>parent))._hierarchyAnimator : null);//只有动画组件在加载或卸载时才重新组织数据
 	}
 
 	/**
@@ -810,7 +762,7 @@ export class Animator extends Component {
 	 * @override
 	 */
 	_onEnable(): void {
-		((<Scene3D>this.owner._scene))._animatorPool.add(this);
+		(this.owner.scene) && (this.owner.scene as Scene3D)._componentManager.addAnimator(this);
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
 			if (this._controllerLayers[i].playOnWake) {
 				var defaultClip: AnimatorState = this.getDefaultState(i);
@@ -841,7 +793,7 @@ export class Animator extends Component {
 	 * @override
 	 */
 	protected _onDisable(): void {
-		((<Scene3D>this.owner._scene))._animatorPool.remove(this);
+		(<Scene3D>this.owner._scene) && (<Scene3D>this.owner._scene)._componentManager.removeAnimator(this);
 	}
 
 	/**
@@ -874,14 +826,6 @@ export class Animator extends Component {
 	 * @override
 	 */
 	_parse(data: any): void {
-		var avatarData: any = data.avatar;
-		if (avatarData) {
-			this.avatar = Loader.getRes(avatarData.path);
-			var linkSprites: any = avatarData.linkSprites;
-			this._linkSprites = linkSprites;
-			this._linkToSprites(linkSprites);
-		}
-
 		var play: any = data.playOnWake;
 		var layersData: any[] = data.layers;
 		for (var i: number = 0; i < layersData.length; i++) {
@@ -923,7 +867,6 @@ export class Animator extends Component {
 					avaMask.setTransformActive(bips, layerMaskData[bips]);
 				}
 			}
-
 		}
 		var cullingModeData: any = data.cullingMode;
 		(cullingModeData !== undefined) && (this.cullingMode = cullingModeData);
@@ -938,18 +881,8 @@ export class Animator extends Component {
 		delta = this._applyUpdateMode(delta);
 		if (this._speed === 0 || delta === 0)//delta为0无需更新,可能造成crossWeight计算值为NaN
 			return;
-		var needRender: boolean;
-		if (this.cullingMode === Animator.CULLINGMODE_CULLCOMPLETELY) {//所有渲染精灵不可见时
-			needRender = false;
-			for (var i: number = 0, n: number = this._renderableSprites.length; i < n; i++) {
-				if (this._renderableSprites[i]._render.isRender) {
-					needRender = true;
-					break;
-				}
-			}
-		} else {
-			needRender = true;
-		}
+		var needRender = true;//TODO:有渲染节点才可将needRender变为true
+		var i, n;
 		this._updateMark++;
 		for (i = 0, n = this._controllerLayers.length; i < n; i++) {
 			var controllerLayer: AnimatorControllerLayer = this._controllerLayers[i];
@@ -1040,12 +973,6 @@ export class Animator extends Component {
 					break;
 			}
 		}
-
-		if (needRender) {
-			if (this._avatar) {
-				this._updateAvatarNodesToSprite();
-			}
-		}
 	}
 
 	/**
@@ -1054,7 +981,6 @@ export class Animator extends Component {
 	 */
 	_cloneTo(dest: Component): void {
 		var animator: Animator = (<Animator>dest);
-		animator.avatar = this.avatar;
 		animator.cullingMode = this.cullingMode;
 
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
@@ -1068,8 +994,6 @@ export class Animator extends Component {
 				(j == 0) && (cloneLayer.defaultState = state);
 			}
 		}
-		animator._linkSprites = this._linkSprites;//TODO:需要统一概念
-		animator._linkToSprites(this._linkSprites);
 	}
 
 	/**
@@ -1156,7 +1080,6 @@ export class Animator extends Component {
 					controllerLayer._playType = 0;
 				}
 			}
-
 			var scripts: AnimatorStateScript[] = animatorState._scripts!;
 			if (scripts) {
 				for (var i: number = 0, n: number = scripts.length; i < n; i++)
@@ -1166,7 +1089,6 @@ export class Animator extends Component {
 		else {
 			console.warn("Invalid layerIndex " + layerIndex + ".");
 		}
-
 		if (this.owner._scene) {
 			this._update();
 		}
@@ -1315,156 +1237,6 @@ export class Animator extends Component {
 	 */
 	getCurrentAnimatorPlayState(layerInex: number = 0): AnimatorPlayState {
 		return this._controllerLayers[layerInex]._playStateInfo!;
-	}
-
-
-	//-----------------------------------------------------------------------------------------------------------------------------------------------------------
-	/** @internal */
-	private _avatar: Avatar;//[兼容性API]
-
-	/**
-	 * avatar。
-	 */
-	get avatar(): Avatar {//[兼容性API]
-		return this._avatar;
-	}
-
-	set avatar(value: Avatar) {//[兼容性API]
-		if (this._avatar !== value) {
-			this._avatar = value;
-			if (value) {
-				this._getAvatarOwnersAndInitDatasAsync();
-				((<Sprite3D>this.owner))._changeHierarchyAnimatorAvatar(this, value);
-			} else {
-				var parent: Node = this.owner._parent;
-				((<Sprite3D>this.owner))._changeHierarchyAnimatorAvatar(this, parent ? ((<Sprite3D>parent))._hierarchyAnimator!._avatar : null);
-			}
-		}
-	}
-
-
-	/**
-	 *@internal
-	 */
-	private _isLinkSpriteToAnimationNodeData(sprite: Sprite3D, nodeName: string, isLink: boolean): void {//[兼容性API]
-		var linkSprites: any[] = this._linkAvatarSpritesData[nodeName];//存储挂点数据
-		if (isLink) {
-			linkSprites || (this._linkAvatarSpritesData[nodeName] = linkSprites = []);
-			linkSprites.push(sprite);
-		} else {
-			var index: number = linkSprites.indexOf(sprite);
-			linkSprites.splice(index, 1);
-		}
-	}
-
-
-	/**
-	 *@internal
-	 */
-	private _getAvatarOwnersAndInitDatasAsync(): void {//[兼容性API]
-		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
-			var clipStateInfos: AnimatorState[] = this._controllerLayers[i]._states;
-			for (var j: number = 0, m: number = clipStateInfos.length; j < m; j++)
-				this._getOwnersByClip(clipStateInfos[j]);
-		}
-
-		this._avatar._cloneDatasToAnimator(this);
-		for (var k in this._linkAvatarSpritesData) {
-			var sprites: any[] = this._linkAvatarSpritesData[k];
-			if (sprites) {
-				for (var c: number = 0, p: number = sprites.length; c < p; c++)
-					this._isLinkSpriteToAnimationNode(sprites[c], k, true);//TODO:对应移除
-			}
-		}
-	}
-
-	/**
-	 *@internal
-	 */
-	private _isLinkSpriteToAnimationNode(sprite: Sprite3D, nodeName: string, isLink: boolean): void {//[兼容性API]
-		if (this._avatar) {
-			var node: AnimationNode = this._avatarNodeMap[nodeName];
-			if (node) {
-				if (isLink) {
-					sprite._transform._dummy = node.transform;
-					this._linkAvatarSprites.push(sprite);
-
-					var nodeTransform: AnimationTransform3D = node.transform;//nodeTransform为空时表示avatar中暂时无此节点
-					var spriteTransform: Transform3D = sprite.transform;
-					if (!spriteTransform.owner.isStatic && nodeTransform) {//Avatar跟节点始终为false,不会更新,Scene无transform
-						//TODO:spriteTransform.owner.isStatic外部判断
-						var spriteWorldMatrix: Matrix4x4 = spriteTransform.worldMatrix;
-						var ownParTra: Transform3D | null = ((<Sprite3D>this.owner))._transform._parent;
-						if (ownParTra) {
-							Utils3D.matrix4x4MultiplyMFM(ownParTra.worldMatrix, nodeTransform.getWorldMatrix(), spriteWorldMatrix);//TODO:还可优化
-						} else {
-							var sprWorE: Float32Array = spriteWorldMatrix.elements;
-							var nodWorE: Float32Array = nodeTransform.getWorldMatrix();
-							for (var i: number = 0; i < 16; i++)
-								sprWorE[i] = nodWorE[i];
-						}
-						spriteTransform.worldMatrix = spriteWorldMatrix;
-					}
-				} else {
-					sprite._transform._dummy = null;
-					this._linkAvatarSprites.splice(this._linkAvatarSprites.indexOf(sprite), 1);
-				}
-			}
-		}
-	}
-
-	/**
-	 *@internal
-	 */
-	_updateAvatarNodesToSprite(): void {
-		for (var i: number = 0, n: number = this._linkAvatarSprites.length; i < n; i++) {
-			var sprite: Sprite3D = this._linkAvatarSprites[i];
-			var nodeTransform = sprite.transform._dummy;//nodeTransform为空时表示avatar中暂时无此节点
-			var spriteTransform: Transform3D = sprite.transform;
-			if (!spriteTransform.owner.isStatic && nodeTransform) {
-				var spriteWorldMatrix: Matrix4x4 = spriteTransform.worldMatrix;
-				var ownTra: Transform3D = ((<Sprite3D>this.owner))._transform;
-				Utils3D.matrix4x4MultiplyMFM(ownTra.worldMatrix, nodeTransform.getWorldMatrix(), spriteWorldMatrix);
-				spriteTransform.worldMatrix = spriteWorldMatrix;
-			}
-		}
-	}
-
-	/**
-	 * 关联精灵节点到Avatar节点,此Animator必须有Avatar文件。
-	 * @param nodeName 关联节点的名字。
-	 * @param sprite3D 精灵节点。
-	 * @return 是否关联成功。
-	 */
-	linkSprite3DToAvatarNode(nodeName: string, sprite3D: Sprite3D): boolean {//[兼容性API]
-		this._isLinkSpriteToAnimationNodeData(sprite3D, nodeName, true);
-		this._isLinkSpriteToAnimationNode(sprite3D, nodeName, true);
-		return true;
-	}
-
-	/**
-	 * 解除精灵节点到Avatar节点的关联,此Animator必须有Avatar文件。
-	 * @param sprite3D 精灵节点。
-	 * @return 是否解除关联成功。
-	 */
-	unLinkSprite3DToAvatarNode(sprite3D: Sprite3D): boolean {//[兼容性API]
-		var dummy = sprite3D.transform._dummy;
-		if (dummy) {
-			var nodeName = dummy._owner.name;
-			this._isLinkSpriteToAnimationNodeData(sprite3D, nodeName!, false);
-			this._isLinkSpriteToAnimationNode(sprite3D, nodeName!, false);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 *@internal
-	 * [NATIVE]
-	 */
-	_updateAnimationNodeWorldMatix(localPositions: Float32Array, localRotations: Float32Array, localScales: Float32Array, worldMatrixs: Float32Array, parentIndices: Int16Array): void {
-		(<any>LayaGL.instance).updateAnimationNodeWorldMatix(localPositions, localRotations, localScales, parentIndices, worldMatrixs);
 	}
 }
 
