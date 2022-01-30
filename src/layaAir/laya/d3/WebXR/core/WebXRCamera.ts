@@ -161,7 +161,7 @@ export class WebXRCamera extends Camera {
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
 		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
-		scene._postRenderScript();//TODO:duo相机是否重复
+		scene._componentManager.callPostRenderScript();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
 		(renderTex) && (renderTex._end());
 		//PostProcess TODO
