@@ -1,58 +1,44 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { FilterMode } from "../../resource/FilterMode";
 import { TextureFormat } from "../../resource/TextureFormat";
-import { WarpMode } from "../../resource/WrapMode";
 import { DDSTextureInfo } from "../../webgl/DDSTextureInfo";
+import { HDRTextureInfo } from "../../webgl/HDRTextureInfo";
+import { KTXTextureInfo } from "../../webgl/KTXTextureInfo";
 import { BaseTexture } from "./BaseTexture";
 import { TextureDimension } from "./InternalTexture";
 
 export class Texture2D extends BaseTexture {
 
-    constructor(width: number, height: number, format: TextureFormat, mipmap: boolean = true, premultiplyAlpha: boolean = false, invertY: boolean = false, sRGB: boolean = false) {
-        super(width, height, format, mipmap);
+    constructor(width: number, height: number, format: TextureFormat, mipmap: boolean = true, sRGB: boolean = false) {
+        super(width, height, format);
         this._dimension = TextureDimension.Tex2D;
-        this._premultiplyAlpha = premultiplyAlpha;
-        this._invertY = invertY;
         this._gammaSpace = !sRGB;
+
+        this._texture = LayaGL.layaContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB);
         return;
     }
 
-    /**
-     * 设置纹理数据
-     * @param source 
-     * @returns 
-     */
-    setImageData(source: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap) {
-        if (source.width != this.width || source.height != this.height) {
-            console.warn("texture size is different with source size");
-            return;
-        }
-
-        this._texture = LayaGL.layaRenderContext.createTextureInternal(this.width, this.height, this.format, this.mipmap, this.warpModeU, this.warpModeV, this.filterMode, this.anisoLevel, this.premultiplyAlpha, this.invertY, !this.gammaSpace);
-        this._texture.updataSubImageData(source, 0, 0, 0);
-        this._texture._setSampler();
+    setImageData(source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
+        let texture = this._texture;
+        LayaGL.layaContext.setTextureImageData(texture, source, premultiplyAlpha, invertY);
     }
 
-    setBufferdata(source: ArrayBufferView) {
-        this._texture.updataSubPixelsData(source, 0, 0, this.width, this.height, 0);
-        this._texture._setSampler();
+    setPixelsData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
+        let texture = this._texture;
+        LayaGL.layaContext.setTexturePixelsData(texture, source, premultiplyAlpha, invertY);
     }
 
-    setDDSData(source: ArrayBuffer) {
-        let ddsInfo = DDSTextureInfo.getDDSTextureInfo(source);
-        this._texture = LayaGL.layaRenderContext.createDDSTexture(source, ddsInfo, this.warpModeU, this.warpModeV, this.filterMode, this.anisoLevel, this.premultiplyAlpha, this.invertY, !this.gammaSpace);
+    setDDSData(ddsInfo: DDSTextureInfo) {
+        let texture = this._texture;
+        LayaGL.layaContext.setTextureDDSData(texture, ddsInfo);
     }
 
-    generateMipmap(): boolean {
-        return this._texture.generateMipmap();
+    setKTXData(ktxInfo: KTXTextureInfo) {
+        let texture = this._texture;
+        LayaGL.layaContext.setTextureKTXData(texture, ktxInfo);
     }
 
-    updateSubImageData(source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, xoffset: number, yoffset: number, mipmapLevel: number = 0) {
-        this._texture.updataSubImageData(source, xoffset, yoffset, mipmapLevel);
+    setHDRData(hdrInfo: HDRTextureInfo) {
+        let texture = this._texture;
+        LayaGL.layaContext.setTextureHDRData(texture, hdrInfo);
     }
-
-    updateSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number = 0) {
-        this._texture.updataSubPixelsData(source, xoffset, yoffset, width, height, mipmapLevel);
-    }
-
 }

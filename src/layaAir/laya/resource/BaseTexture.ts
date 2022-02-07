@@ -13,7 +13,7 @@ export class BaseTexture extends Bitmap {
 	/** @internal */
 	static _rgbmRange: number = 5.0;
 
-	
+
 	/** @internal */
 	protected _glTexture: any;
 	/** @internal */
@@ -113,7 +113,7 @@ export class BaseTexture extends Bitmap {
 		return this._mipmapCount;
 	}
 
-	set mipmapCount(value:number){
+	set mipmapCount(value: number) {
 		this._mipmapCount = value;
 	}
 
@@ -154,10 +154,10 @@ export class BaseTexture extends Bitmap {
 			case TextureFormat.Alpha8:
 				return 1;
 			case TextureFormat.R16G16B16A16:
-				return 2;	
+				return 2;
 			case TextureFormat.R32G32B32A32:
 				return 4;
-			
+
 			default:
 				throw "Texture2D: unknown format.";
 		}
@@ -213,25 +213,25 @@ export class BaseTexture extends Bitmap {
 					throw "BaseTexture: not support ETC1RGB format.";
 				break;
 			case TextureFormat.ETC2RGB:
-				if(gpu._compressedTextureETC)
+				if (gpu._compressedTextureETC)
 					glFormat = gpu._compressedTextureETC.COMPRESSED_RGB8_ETC2;
 				else
 					throw "BaseTexture: not support ETC2RGB format.";
 				break;
 			case TextureFormat.ETC2RGBA:
-				if(gpu._compressedTextureETC)
+				if (gpu._compressedTextureETC)
 					glFormat = gpu._compressedTextureETC.COMPRESSED_RGBA8_ETC2_EAC;
 				else
 					throw "BaseTexture: not support ETC2RGBA format.";
 				break;
-			case TextureFormat.ETC2RGB_Alpha8:
-				if(gpu._compressedTextureETC)
+			case TextureFormat.ETC2SRGB_Alpha8:
+				if (gpu._compressedTextureETC)
 					glFormat = gpu._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
 				else
 					throw "BaseTexture: not support ETC2SRGB_Alpha8 format.";
 				break;
 			case TextureFormat.ETC2SRGB:
-				if(gpu._compressedTextureETC)
+				if (gpu._compressedTextureETC)
 					glFormat = gpu._compressedTextureETC.COMPRESSED_SRGB8_ETC2;
 				else
 					throw "BaseTexture: not support ETC2SRGB format.";
@@ -261,62 +261,62 @@ export class BaseTexture extends Bitmap {
 					throw "BaseTexture: not support PVRTCRGBA_4BPPV format.";
 				break;
 			case TextureFormat.ASTC4x4:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR;
 				else
 					throw "BaseTexture: not support ASTC4x4 format.";
 				break;
 			case TextureFormat.ASTC4x4SRGB:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
 				else
 					throw "BaseTexture: not support ASTC4x4_KHR format.";
 				break;
 			case TextureFormat.ASTC6x6:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR;
 				else
 					throw "BaseTexture: not support ASTC6x6 format.";
 				break;
 			case TextureFormat.ASTC6x6SRGB:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
 				else
 					throw "BaseTexture: not support ASTC6x6_KHR format.";
 				break;
 			case TextureFormat.ASTC8x8:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR;
-			else
-				throw "BaseTexture: not support ASTC8x8 format.";
-					break;
+				else
+					throw "BaseTexture: not support ASTC8x8 format.";
+				break;
 			case TextureFormat.ASTC8x8SRGB:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
 				else
-				throw "BaseTexture: not support ASTC8x8 format.";
-					break;
-				
+					throw "BaseTexture: not support ASTC8x8 format.";
+				break;
+
 			case TextureFormat.ASTC10x10:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_10x10_KHR;
 				else
 					throw "BaseTexture: not support ASTC10x10 format.";
 				break;
 			case TextureFormat.ASTC10x10SRGB:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
 				else
 					throw "BaseTexture: not support ASTC10x10 format.";
 				break;
 			case TextureFormat.ASTC12x12:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR;
 				else
 					throw "BaseTexture: not support ASTC12x12 format.";
 				break;
 			case TextureFormat.ASTC12x12SRGB:
-				if(gpu._compressedTextureASTC)
+				if (gpu._compressedTextureASTC)
 					glFormat = gpu._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 				else
 					throw "BaseTexture: not support ASTC12x12 format.";

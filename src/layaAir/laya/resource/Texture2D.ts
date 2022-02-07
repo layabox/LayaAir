@@ -401,7 +401,7 @@ export class Texture2D extends BaseTexture {
 					this._format = TextureFormat.ETC2RGB;
 					break;
 				case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
-					this._format = TextureFormat.ETC2RGB_Alpha8;
+					this._format = TextureFormat.ETC2SRGB_Alpha8;
 					break;
 				case LayaGL.layaGPUInstance._compressedTextureETC.COMPRESSED_SRGB8_ETC2:
 					this._format = TextureFormat.ETC2SRGB;
@@ -662,7 +662,7 @@ export class Texture2D extends BaseTexture {
 			case TextureFormat.ETC1RGB:
 			case TextureFormat.ETC2RGB:
 			case TextureFormat.ETC2RGBA:
-			case TextureFormat.ETC2RGB_Alpha8:
+			case TextureFormat.ETC2SRGB_Alpha8:
 			case TextureFormat.ETC2SRGB:
 			case TextureFormat.ASTC4x4:
 			case TextureFormat.ASTC4x4SRGB:	

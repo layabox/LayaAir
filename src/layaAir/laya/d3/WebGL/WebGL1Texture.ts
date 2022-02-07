@@ -10,24 +10,9 @@ export class WebGL1Texture implements InternalTexture {
 
     readonly resource: WebGLTexture;
 
-    width: number;
-
-    height: number;
-    /**
-     * 图片 宽高是否是 2的幂次方
-     */
-    // todo
-    private _isPotSize: boolean;
-    get isPotSize(): boolean {
-        return this._isPotSize;
-    }
-
-    // gl param
-    gl_target: number;
-
-    gl_internalFormat: number;
-    gl_format: number;
-    gl_type: number;
+    readonly width: number;
+    readonly height: number;
+    readonly isPotSize: boolean;
 
     private _gammaCorrection: number;
     get gammaCorrection(): number {
@@ -39,28 +24,26 @@ export class WebGL1Texture implements InternalTexture {
     public get useSRGBLoad(): boolean {
         return this._useSRGBLoad;
     }
-
     private _mipmap: boolean;
+    /**
+     * 是否存在 mipmap 数据
+     */
     get mipmap(): boolean {
         return this._mipmap;
     }
 
     private _mipmapCount: number;
-    get mipmapCount(): number {
+    public get mipmapCount(): number {
         return this._mipmapCount;
     }
 
-    private _premultiplyAlpha: boolean;
-    public get premultiplyAlpha(): boolean {
-        return this._premultiplyAlpha;
-    }
+    // gl param
+    gl_target: number;
+    gl_internalFormat: number;
+    gl_format: number;
+    gl_type: number;
 
-    private _invertY: boolean;
-    public get invertY(): boolean {
-        return this._invertY;
-    }
-
-    constructor(width: number, height: number, dimension: TextureDimension, warpU: WarpMode, warpV: WarpMode, warpW: WarpMode, filter: FilterMode, anisoLevel: number, mipmap: boolean, premultiplyAlpha: boolean, invertY: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
+    constructor(width: number, height: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
         let gl = LayaGL.instance;
         this._gl = gl;
 
@@ -71,26 +54,57 @@ export class WebGL1Texture implements InternalTexture {
             return (value & (value - 1)) === 0;
         }
 
-        this._isPotSize = isPot(width) && isPot(width);
+        this.isPotSize = isPot(width) && isPot(height);
 
-        this._warpModeU = warpU;
-        this._warpModeV = warpV;
-        this._warpModeW = warpW;
-        this._filterMode = filter;
-        this._anisoLevel = anisoLevel;
-        this._mipmap = mipmap && this.isPotSize;
+        this._mipmap = mipmap;
         this._mipmapCount = this._mipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
 
-        this._premultiplyAlpha = premultiplyAlpha;
-        this._invertY = invertY;
         this._useSRGBLoad = useSRGBLoader;
-        this._gammaCorrection = gammaCorrection
+        this._gammaCorrection = gammaCorrection;
 
+        // todo  Cube ?
         this.gl_target = this.getTarget(dimension);
 
         this.resource = gl.createTexture();
     }
+    filterMode: FilterMode;
+    warpU: WarpMode;
+    warpV: WarpMode;
+    warpW: WarpMode;
+    anisoLevel: number;
+    setWarpModeU(warp: WarpMode): void {
+        let warpParam = this.getWarpParam(warp);
+        let gl = this._gl;
+        this._setWarpMode(gl.TEXTURE_WRAP_S, warpParam);
+    }
+    setWarpModeV(warp: WarpMode): void {
+        let warpParam = this.getWarpParam(warp);
+        let gl = this._gl;
+        this._setWarpMode(gl.TEXTURE_WRAP_T, warpParam);
+    }
+    setWarpModeW(warp: WarpMode): void {
+        // webgl1 Unsupport
+    }
 
+    setFilterMode(filter: FilterMode): void {
+        let gl = this._gl;
+        let mipmap = this.mipmap;
+        let min = this.getFilteMinrParam(filter, mipmap);
+        this._setTexParameteri(gl.TEXTURE_MIN_FILTER, min);
+        let mag = this.getFilterMagParam(filter);
+        this._setTexParameteri(gl.TEXTURE_MAG_FILTER, mag);
+    }
+    setAnisoLevel(value: number): void {
+        let anisoExt = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
+        if (anisoExt) {
+            let gl = this._gl;
+            let maxAnisoLevel = gl.getParameter(anisoExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+            let level = Math.min(maxAnisoLevel, value);
+            this._setTexParametexf(anisoExt.TEXTURE_MAX_ANISOTROPY_EXT, level);
+        }
+    }
+
+    // todo 这个地方怎么搞
     getTarget(dimension: TextureDimension) {
         let gl = this._gl;
         switch (dimension) {
@@ -188,9 +202,9 @@ export class WebGL1Texture implements InternalTexture {
             // WebGLContext.bindTexture(gl, target, null);
 
             this._mipmap = true;
-            this._mipmapCount = Math.max(Math.ceil(Math.log2(this.width)) + 1, Math.ceil(Math.log2(this.height)) + 1);
+            // this._mipmapCount = Math.max(Math.ceil(Math.log2(this.width)) + 1, Math.ceil(Math.log2(this.height)) + 1);
 
-            this._setSampler();
+            // this._setSampler();
             return true;
         }
         return false;
@@ -198,155 +212,16 @@ export class WebGL1Texture implements InternalTexture {
 
     protected _setWarpMode(pname: number, param: number) {
         let gl = this._gl;
-        if (!this._isPotSize) {
+        if (!this.isPotSize) {
             param = gl.CLAMP_TO_EDGE;
         }
         this._setTexParameteri(pname, param);
     }
 
-    private _warpModeU: WarpMode;
-    public get warpModeU(): WarpMode {
-        return this._warpModeU;
-    }
-    public set warpModeU(value: WarpMode) {
-        if (this._warpModeU != value && this.resource) {
-            let gl = this._gl;
-            let warp = this.getWarpParam(value);
-            this._setWarpMode(gl.TEXTURE_WRAP_S, warp);
-            this._warpModeU = value;
-        }
-    }
-
-    private _warpModeV: WarpMode;
-    public get warpModeV(): WarpMode {
-        return this._warpModeV;
-    }
-    public set warpModeV(value: WarpMode) {
-        if (this._warpModeV != value && this.resource) {
-            let gl = this._gl;
-            let warp = this.getWarpParam(value);
-            this._setWarpMode(gl.TEXTURE_WRAP_T, warp);
-            this._warpModeV = value;
-        }
-    }
-
-    private _warpModeW: WarpMode;
-    public get warpModeW(): WarpMode {
-        // webgl 1 not support
-        return this._warpModeW;
-    }
-    public set warpModeW(value: WarpMode) {
-        // webgl 1 not support
-        this._warpModeW = -1;
-    }
-
-    private _filterMode: FilterMode;
-    public get filterMode(): FilterMode {
-        return this._filterMode;
-    }
-    public set filterMode(value: FilterMode) {
-        if (this._filterMode != value && this.resource) {
-            let gl = this._gl;
-            let mipmap = this.mipmap;
-            let min = this.getFilteMinrParam(value, mipmap);
-            this._setTexParameteri(gl.TEXTURE_MIN_FILTER, min);
-            let mag = this.getFilterMagParam(value);
-            this._setTexParameteri(gl.TEXTURE_MAG_FILTER, mag);
-            this._filterMode = value;
-        }
-    }
-
-    private _anisoLevel: number;
-    public get anisoLevel(): number {
-        return this._anisoLevel;
-    }
-    public set anisoLevel(value: number) {
-        if (this._anisoLevel != value && this.resource) {
-            let anisoExt = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
-            if (anisoExt) {
-                let gl = this._gl;
-                let maxAnisoLevel = gl.getParameter(anisoExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-                let level = Math.min(maxAnisoLevel, value);
-                this._setTexParametexf(anisoExt.TEXTURE_MAX_ANISOTROPY_EXT, level);
-            }
-
-            this._anisoLevel = value;
-        }
-    }
-
-    private _compareMode: number;
-    public get compareMode(): number {
-        // webgl1 not support
-        return this._compareMode;
-    }
-    public set compareMode(value: number) {
-        // webgl1 not support
-        this._compareMode = -1;
-    }
-
-    private _compareFunc: number;
-    public get compareFunc(): number {
-        // webgl1 not support
-        return this._compareFunc;
-    }
-    public set compareFunc(value: number) {
-        // webgl1 not support
-        this._compareFunc = -1;
-    }
-
-    _setSampler() {
+    updataSubImageData(source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, xoffset: number, yoffset: number, mipmapLevel: number, premultiplyAlpha: boolean, invertY: boolean) {
         let gl = this._gl;
-
-        let target = this.gl_target;
-        // todo mipmap
-        let mipmap = this.mipmap;
-
-        WebGLContext.bindTexture(gl, target, this.resource);
-
-        // warp
-        let warpModeU = this._warpModeU;
-        let warpU = this.getWarpParam(warpModeU);
-        gl.texParameteri(target, gl.TEXTURE_WRAP_S, warpU);
-
-        let warpModeV = this._warpModeV;
-        let warpR = this.getWarpParam(warpModeV);
-        gl.texParameteri(target, gl.TEXTURE_WRAP_T, warpR);
-
-        // filter
-        let filterMode = this._filterMode;
-        let minFilter = this.getFilteMinrParam(filterMode, mipmap);
-        gl.texParameteri(target, gl.TEXTURE_MIN_FILTER, minFilter);
-
-        let magFilter = this.getFilterMagParam(filterMode);
-        gl.texParameteri(target, gl.TEXTURE_MAG_FILTER, magFilter);
-
-        if (mipmap) {
-            gl.generateMipmap(target);
-        }
-
-        // ansio level
-        let anisoLevel = this._anisoLevel;
-        let anisoExt = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
-        if (anisoExt) {
-            let gl = this._gl;
-            let maxAnisoLevel = gl.getParameter(anisoExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-            let level = Math.min(maxAnisoLevel, anisoLevel);
-            gl.texParameterf(target, anisoExt.TEXTURE_MAX_ANISOTROPY_EXT, level);
-        }
-
-        WebGLContext.bindTexture(gl, target, null);
-    }
-
-    updataSubImageData(source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, xoffset: number, yoffset: number, mipmapLevel: number) {
-        if (this.mipmapCount <= mipmapLevel || source.width + xoffset > this.width || source.height + yoffset > this.height) {
-            // todo 超范围
-            console.warn("updataSubImageData failed");
-            return;
-        }
-
-        let gl = this._gl;
-        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         WebGLContext.bindTexture(gl, this.gl_target, this.resource);
 
@@ -354,20 +229,15 @@ export class WebGL1Texture implements InternalTexture {
 
         WebGLContext.bindTexture(gl, this.gl_target, null);
 
-        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     }
 
-    updataSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number) {
-        if (this.mipmapCount <= mipmapLevel || width + xoffset > this.width || height + yoffset > this.height) {
-            // todo 超范围
-            console.warn("updataSubImageData failed");
-            return;
-        }
+    updataSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number, premultiplyAlpha: boolean, invertY: boolean) {
 
         let gl = this._gl;
-        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         let fourSize = width % 4 == 0 && height % 4 == 0;
         fourSize && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
@@ -378,20 +248,20 @@ export class WebGL1Texture implements InternalTexture {
         WebGLContext.bindTexture(gl, this.gl_target, null);
 
         fourSize && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
-        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     }
 
-    updataCompressSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number): void {
-        if (this.mipmapCount <= mipmapLevel || width + xoffset > this.width || height + yoffset > this.height) {
-            // todo 超范围
-            console.warn("updataSubImageData failed");
-            return;
-        }
+    updataCompressSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        // if (this.mipmapCount <= mipmapLevel || width + xoffset > this.width || height + yoffset > this.height) {
+        //     // todo 超范围
+        //     console.warn("updataSubImageData failed");
+        //     return;
+        // }
 
         let gl = this._gl;
-        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         let fourSize = width % 4 == 0 && height % 4 == 0;
         fourSize && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
@@ -403,8 +273,8 @@ export class WebGL1Texture implements InternalTexture {
         WebGLContext.bindTexture(gl, this.gl_target, null);
 
         fourSize && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
-        this.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        this.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     }
 
     dispose(): void {

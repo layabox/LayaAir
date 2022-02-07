@@ -91,7 +91,6 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
 
         // todo
         // format 判断  不支持 format ?
-
         let gammaCorrection = 1.0;
 
         // 是否使用 sRGB 格式加载
@@ -100,7 +99,8 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
             // todo gamma correction value
             gammaCorrection = 2.2;
         }
-        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, useSRGBExt, gammaCorrection);
+
+        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, mipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glGLParam(format, useSRGBExt);
         let gl_internalFormat = internalTexture.gl_internalFormat = glParam.internalFormat;
@@ -111,6 +111,8 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
         WebGLContext.bindTexture(gl, internalTexture.gl_target, internalTexture.resource);
         gl.texImage2D(internalTexture.gl_target, 0, gl_internalFormat, width, height, 0, gl_format, gl_type, null);
         WebGLContext.bindTexture(gl, internalTexture.gl_target, null);
+
+        // @ts-ignore
         return internalTexture;
     }
 
@@ -127,7 +129,8 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
             // todo gamma correction value
             gammaCorrection = 2.2;
         }
-        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, useSRGBExt, gammaCorrection);
+
+        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, mipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glGLParam(format, useSRGBExt);
         let gl_internalFormat = internalTexture.gl_internalFormat = glParam.internalFormat;
@@ -136,7 +139,6 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
 
         let gl = this.gl;
         WebGLContext.bindTexture(gl, internalTexture.gl_target, internalTexture.resource);
-        // gl.compressedTexImage2D(internalTexture.gl_target, 0, gl_internalFormat, width, height, 0, gl_format, gl_type, null);
 
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
@@ -145,7 +147,9 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
 
         WebGLContext.bindTexture(gl, internalTexture.gl_target, null);
 
-        internalTexture._setSampler();
+        // internalTexture._setSampler();
+        // @ts-ignore
+
         return internalTexture;
     }
 
@@ -169,7 +173,9 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
                 internalTexture = this.createCompressTextureInternal(byteArray, width, height, textureFormat, false, warpU, warpV, filter, anisoLevel, premultiplyAlpha, invertY, sRGB);
             } else {
 
-                internalTexture.updataCompressSubPixelsData(byteArray, 0, 0, width, height, mip);
+                // @ts-ignore
+
+                internalTexture.updataCompressSubPixelsData(byteArray, 0, 0, width, height, mip, premultiplyAlpha, invertY);
             }
 
             dataOffset += bpp ? (width * height * (bpp / 8)) : dataLength;
@@ -188,90 +194,8 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
         throw new Error("Method not implemented.");
     }
 
-    createImgTexture2D(sourceData: HTMLImageElement | HTMLCanvasElement | ImageBitmap, width: number, height: number, format: TextureFormat, mipmap: boolean, warpU: WarpMode, warpV: WarpMode, filter: FilterMode, anisoLevel: number, premultiplyAlpha: boolean, invertY: boolean, sRGB: boolean): InternalTexture {
-        let gammaCorrection = 1.0;
 
-        // 是否使用 sRGB 格式加载
-        let useSRGBExt = SystemUtils.supportsRGB() && sRGB && !mipmap && this.supportSRGB(format);
-
-        if (!useSRGBExt && sRGB) {
-            // todo gamma correction value
-            gammaCorrection = 2.2;
-        }
-
-        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, useSRGBExt, gammaCorrection);
-
-
-        let glParam = this.glGLParam(format, useSRGBExt);
-        let gl_internalFormat = internalTexture.gl_internalFormat = glParam.internalFormat;
-        let gl_format = internalTexture.gl_format = glParam.format;
-        let gl_type = internalTexture.gl_type = glParam.type;
-
-        let gl = this.gl;
-
-
-
-        WebGLContext.bindTexture(gl, internalTexture.gl_target, internalTexture.resource);
-
-        internalTexture.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        internalTexture.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-
-        gl.texImage2D(internalTexture.gl_target, 0, gl_internalFormat, gl_format, gl_type, sourceData);
-
-        // gl.texImage2D(internalTexture.gl_target, 0, gl_internalFormat, width, height, 0, gl_format, gl_type, null);
-        // gl.texSubImage2D(internalTexture.gl_target, 0, 0, 0, gl_format, gl_type, sourceData);
-
-        internalTexture._setSampler();
-
-        internalTexture.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        internalTexture.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-        WebGLContext.bindTexture(gl, internalTexture.gl_target, null);
-
-        return internalTexture;
-    }
-
-    createArrayBufferTexture2D(sourceData: ArrayBufferView, width: number, height: number, format: TextureFormat, mipmap: boolean, warpU: WarpMode, warpV: WarpMode, filter: FilterMode, anisoLevel: number, premultiplyAlpha: boolean, invertY: boolean, sRGB: boolean): InternalTexture {
-        let gammaCorrection = 1.0;
-
-        // 是否使用 sRGB 格式加载
-        let useSRGBExt = SystemUtils.supportsRGB() && sRGB && !mipmap && this.supportSRGB(format);
-
-        if (!useSRGBExt && sRGB) {
-            // todo gamma correction value
-            gammaCorrection = 2.2;
-        }
-
-        let internalTexture = new WebGL1Texture(width, height, TextureDimension.Tex2D, warpU, warpV, null, filter, anisoLevel, mipmap, premultiplyAlpha, invertY, useSRGBExt, gammaCorrection);
-
-
-        internalTexture._useSRGBLoad = useSRGBExt;
-        let glParam = this.glGLParam(format, useSRGBExt);
-        let gl_internalFormat = internalTexture.gl_internalFormat = glParam.internalFormat;
-        let gl_format = internalTexture.gl_format = glParam.format;
-        let gl_type = internalTexture.gl_type = glParam.type;
-
-        let gl = this.gl;
-
-        internalTexture.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        internalTexture.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-
-        WebGLContext.bindTexture(gl, internalTexture.gl_target, internalTexture.resource);
-        gl.texImage2D(internalTexture.gl_target, 0, gl_internalFormat, width, height, 0, gl_format, gl_type, sourceData);
-        internalTexture._setSampler();
-        WebGLContext.bindTexture(gl, internalTexture.gl_target, internalTexture.resource);
-
-        gl.texSubImage2D(internalTexture.gl_target, 0, 0, 0, width, height, gl_format, gl_type, sourceData);
-        // gl.generateMipmap(internalTexture.gl_target);
-        WebGLContext.bindTexture(gl, internalTexture.gl_target, null);
-
-        internalTexture.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        internalTexture.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-
-
-        return internalTexture;
-    }
-
-    updataSubImageData(texture: Texture2D, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, xoffset: number, yoffset: number, mipmapLevel: number) {
+    updataSubImageData(texture: Texture2D, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, xoffset: number, yoffset: number, mipmapLevel: number, premultiplyAlpha: boolean, invertY: boolean) {
         let gl = this.gl;
 
         if (texture.mipmapCount <= mipmapLevel || source.width + xoffset > texture.width || source.height + yoffset > texture.height) {
@@ -282,8 +206,8 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
         // @ts-ignore
         let internalTexture = <WebGL1Texture>texture._texture;
 
-        texture.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        internalTexture.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         WebGLContext.bindTexture(gl, internalTexture.gl_target, internalTexture.resource);
 
         let gl_internalFormat = internalTexture.gl_internalFormat;
@@ -293,11 +217,11 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
         gl.texSubImage2D(internalTexture.gl_target, mipmapLevel, xoffset, yoffset, gl_format, gl_type, source);
 
         WebGLContext.bindTexture(gl, internalTexture.gl_target, null);
-        internalTexture.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        internalTexture.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     }
 
-    updataSubPixelsData(texture: Texture2D, source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number): void {
+    updataSubPixelsData(texture: Texture2D, source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number, premultiplyAlpha: boolean, invertY: boolean): void {
         let gl = this.gl;
 
         if (texture.mipmapCount <= mipmapLevel || width + xoffset > texture.width || height + yoffset > texture.height) {
@@ -305,12 +229,11 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
             console.warn("updataSubImageData failed");
             return;
         }
-
         // @ts-ignore
         let internalTexture = <WebGL1Texture>texture._texture;
 
-        texture.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        internalTexture.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         WebGLContext.bindTexture(gl, internalTexture.gl_target, internalTexture.resource);
 
         let gl_internalFormat = internalTexture.gl_internalFormat;
@@ -322,8 +245,8 @@ export class LayaWebGLRenderContext implements LayaRenderContext {
         gl.texSubImage2D(internalTexture.gl_target, mipmapLevel, xoffset, yoffset, width, height, gl_format, gl_type, source);
 
         WebGLContext.bindTexture(gl, internalTexture.gl_target, null);
-        internalTexture.invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        internalTexture.premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     }
 
 }

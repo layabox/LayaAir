@@ -6,86 +6,62 @@ import { InternalTexture, TextureDimension } from "./InternalTexture";
 
 export class BaseTexture extends Bitmap {
 
-    protected _texture: InternalTexture;
-
-    private _format: TextureFormat;
-    public get format(): TextureFormat {
-        return this._format;
-    }
-
-    constructor(width: number, height: number, format: TextureFormat, mipmap: boolean) {
-        super();
-        this._width = width;
-        this._height = height;
-        this._format = format;
-        this._mipmap = mipmap
-    }
+    /**
+     * @internal
+     */
+    _texture: InternalTexture;
 
     protected _dimension: TextureDimension;
     public get dimension(): TextureDimension {
         return this._dimension;
     }
 
-    protected _filterMode: FilterMode = FilterMode.Bilinear;
-    public get filterMode(): FilterMode {
-        return this._filterMode;
-    }
-    public set filterMode(value: FilterMode) {
-        this._filterMode = value;
+    private _format: TextureFormat;
+    public get format(): TextureFormat {
+        return this._format;
     }
 
-    protected _warpModeU: WarpMode = WarpMode.Repeat;
-    public get warpModeU(): WarpMode {
-        return this._warpModeU;
-    }
-    public set warpModeU(value: WarpMode) {
-        if (this._warpModeU != value && this._texture) {
-            this._texture.warpModeU = value;
-        }
+    public get mipmap(): boolean {
+        return this._texture.mipmap;
     }
 
-    protected _warpModeV: WarpMode = WarpMode.Repeat;
-    public get warpModeV(): WarpMode {
-        return this._warpModeV;
-    }
-    public set warpModeV(value: WarpMode) {
-        this._warpModeV = value;
+    public get mipmapCount(): number {
+        return this._texture.mipmapCount;
     }
 
-    protected _warpModeW: WarpMode = WarpMode.Repeat;
-    public get warpModeW(): WarpMode {
-        return this._warpModeW;
-    }
-    public set warpModeW(value: WarpMode) {
-        this._warpModeW = value;
-    }
-
-    protected _anisoLevel: number = 4;
     public get anisoLevel(): number {
-        return this._anisoLevel;
+        return this._texture.anisoLevel;
     }
     public set anisoLevel(value: number) {
-        this._anisoLevel = value;
+        this._texture.anisoLevel = value;
     }
 
-    protected _mipmap: boolean = true;
-    public get mipmap(): boolean {
-        return this._mipmap;
+    public get filterMode(): FilterMode {
+        return this._texture.filterMode;
+    }
+    public set filterMode(value: FilterMode) {
+        this._texture.filterMode = value;
     }
 
-    protected _mipmapCount: number = 1;
-    public get mipmapCount(): number {
-        return this._mipmapCount;
+    public get warpModeU(): WarpMode {
+        return this._texture.warpU;
+    }
+    public set warpModeU(value: WarpMode) {
+        this._texture.warpU = value;
     }
 
-    protected _premultiplyAlpha: boolean = false;
-    public get premultiplyAlpha(): boolean {
-        return this._premultiplyAlpha;
+    public get warpModeV(): WarpMode {
+        return this._texture.warpV;
+    }
+    public set warpModeV(value: WarpMode) {
+        this._texture.warpV = value;
     }
 
-    protected _invertY: boolean = false;
-    public get invertY(): boolean {
-        return this._invertY;
+    public get warpModeW(): WarpMode {
+        return this._texture.warpW;
+    }
+    public set warpModeW(value: WarpMode) {
+        this._texture.warpW = value;
     }
 
     public get gammaCorrection(): number {
@@ -93,14 +69,24 @@ export class BaseTexture extends Bitmap {
     }
 
     protected _gammaSpace: boolean = false;
+    // todo
     public get gammaSpace(): boolean {
-        return this._gammaSpace;
-    }
-    // todo  允许动态更改？ 只在加载时设置？ 
-    public set gammaSpace(value: boolean) {
-        this._gammaSpace = value;
+        // return this._gammaSpace;
+
+        return this._texture.useSRGBLoad || this._texture.gammaCorrection > 1;
     }
 
+    constructor(width: number, height: number, format: TextureFormat,) {
+        super();
+        this._width = width;
+        this._height = height;
+        this._format = format;
+    }
+
+    /**
+     * 是否是gpu压缩纹理格式
+     * @returns 
+     */
     gpuCompressFormat(): boolean {
         let format = this._format;
         switch (format) {

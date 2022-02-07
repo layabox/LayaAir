@@ -67,24 +67,23 @@ export class LayaGPU {
             }
             this._vaoExt = this._getExtension("OES_vertex_array_object");
             this._angleInstancedArrays = this._getExtension("ANGLE_instanced_arrays");
-
-            this._oesTextureHalfFloat = this._getExtension("OES_texture_half_float");
-            this._oesTextureHalfFloatLinear = this._getExtension("OES_texture_half_float_linear");
             this._oesTextureFloat = this._getExtension("OES_texture_float");
-            //this._getExtension("OES_texture_float_linear");
+            this._oesTextureHalfFloat = this._getExtension("OES_texture_half_float");
             this._oes_element_index_uint = this._getExtension("OES_element_index_uint");
             this._extShaderTextureLod = this._getExtension("EXT_shader_texture_lod");
             this._webgl_depth_texture = this._getExtension("WEBGL_depth_texture");
             this._sRGB = this._getExtension("EXT_sRGB");
-
+            this._extColorBufferFloat = this._getExtension("WEBGL_color_buffer_float");
             SystemUtils._shaderCapailityLevel = 30;
         } else {
             this._extColorBufferFloat = this._getExtension("EXT_color_buffer_float");
-            //this._getExtension("OES_texture_float_linear");
+            this._getExtension("EXT_color_buffer_half_float");
             SystemUtils._shaderCapailityLevel = 35;
         }
 
-        //_getExtension("EXT_float_blend");
+        this._getExtension("OES_texture_float_linear");
+        this._oesTextureHalfFloatLinear = this._getExtension("OES_texture_half_float_linear");
+        this._getExtension("EXT_float_blend");
         this._extTextureFilterAnisotropic = this._getExtension("EXT_texture_filter_anisotropic");
         this._compressedTextureS3tc = this._getExtension("WEBGL_compressed_texture_s3tc");
         this._compressdTextureS3tc_srgb = this._getExtension("WEBGL_compressed_texture_s3tc_srgb");
@@ -94,6 +93,11 @@ export class LayaGPU {
         this._compressedTextureASTC = this._getExtension("WEBGL_compressed_texture_astc");
         SystemUtils._maxTextureCount = maxTextureFS;
         SystemUtils._maxTextureSize = maxTextureSize;
+
+        gl.getSupportedExtensions().forEach(extName => {
+            this._getExtension(extName);
+        });
+
     }
 
     /**

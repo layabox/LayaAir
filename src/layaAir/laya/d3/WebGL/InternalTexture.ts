@@ -24,48 +24,26 @@ export interface InternalTexture {
     resource: any;
 
     width: number;
-
     height: number;
-
-    anisoLevel: number;
+    isPotSize: boolean;
 
     mipmap: boolean;
-
     mipmapCount: number;
 
-    premultiplyAlpha: boolean;
-
-    invertY: boolean;
-
-    useSRGBLoad: boolean;
-
-    gammaCorrection: number;
-
-    // warp mode
-    warpModeU: WarpMode;
-
-    warpModeV: WarpMode;
-
-    warpModeW: WarpMode;
-
-    // filter mode
     filterMode: FilterMode;
+    warpU: WarpMode;
+    warpV: WarpMode;
+    warpW: WarpMode;
+    anisoLevel: number;
 
-    // todo
-    compareMode: number;
-
-    // todo
-    compareFunc: number;
-
-    _setSampler(): void;
-
-    generateMipmap(): boolean;
-
-    updataSubImageData(source: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap, xoffset: number, yoffset: number, mipmapLevel: number): void;
-
-    updataSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number): void;
-
-    updataCompressSubPixelsData(source: ArrayBufferView, xoffset: number, yoffset: number, width: number, height: number, mipmapLevel: number): void;
+    /**
+     * 是否使用 sRGB格式 加载图片数据
+     */
+    useSRGBLoad: boolean;
+    /**
+     * gamma 矫正值
+     */
+    gammaCorrection: number;
 
     dispose(): void;
 }

@@ -9,7 +9,7 @@ export enum TextureFormat {
     Alpha8 = 2,
     /**纹理格式_DXT1。*/
     DXT1 = 3,
-    DXT3,
+    DXT3 = 29,
     /**纹理格式_DXT5。*/
     DXT5 = 4,
     /**纹理格式_ETC2RGB。*/
@@ -21,7 +21,7 @@ export enum TextureFormat {
     /**纹理格式_ETC2RGB_PUNCHTHROUGHALPHA。*/
     //ETC2RGB_PUNCHTHROUGHALPHA:int = 8;
     /**纹理格式_PVRTCRGB_2BPPV。*/
-    ETC2RGB_Alpha8 = 8,
+    ETC2SRGB_Alpha8 = 8,
     ETC2SRGB = 28,
     PVRTCRGB_2BPPV = 9,
     /**纹理格式_PVRTCRGBA_2BPPV。*/
@@ -32,8 +32,10 @@ export enum TextureFormat {
     PVRTCRGBA_4BPPV = 12,
     /**RGBA格式纹理,每个通道32位浮点数。*/
     R32G32B32A32 = 15,
+    R32G32B32 = 30,
     /**RGBA格式纹理，每个通道16位浮点数。 */
     R16G16B16A16 = 17,
+    R16G16B16 = 31,
     /**ASTC 4x4*/
     ASTC4x4 = 18,
     /**ASTC sRGB 4x4 */

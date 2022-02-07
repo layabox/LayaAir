@@ -26,7 +26,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
 	/** @internal */
 	private static _debugDefineMasks: number[] = [];
 	/** @internal */
-	_stateMap:  {[key:string]:number} ;
+	_stateMap: { [key: string]: number };
 	/** @internal */
 	private _renderState: RenderState = new RenderState();
 	/** @internal */
@@ -41,8 +41,8 @@ export class ShaderPass extends ShaderCompileDefineBase {
 		return this._renderState;
 	}
 
-	constructor(owner: SubShader, vs: string, ps: string, stateMap:  {[key:string]:number}) {
-		super(owner,vs, ps, null);
+	constructor(owner: SubShader, vs: string, ps: string, stateMap: { [key: string]: number }) {
+		super(owner, vs, ps, null);
 		this._stateMap = stateMap;
 	}
 
@@ -81,7 +81,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
 		}
 		compileDefine.addDefineDatas(Scene3D._configDefineValues);
 
-		var cacheShaders:any = this._cacheSharders;
+		var cacheShaders: any = this._cacheSharders;
 		var maskLength: number = compileDefine._length;
 		if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
 			this._resizeCacheShaderMap(cacheShaders, 0, maskLength);
@@ -181,7 +181,11 @@ export class ShaderPass extends ShaderCompileDefineBase {
 			psVersion = ps[0] + '\n';
 			ps.shift();
 		}
-		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'),this._owner._attributeMap,this);
+		let start = Date.now();
+		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap, this);
+
+		console.log(`Shader Instance: ${this._owner._owner._name}, ${Date.now() - start}`);
+
 
 		cacheShaders[cacheKey] = shader;
 

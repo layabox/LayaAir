@@ -1,20 +1,21 @@
-import { ILaya } from "./../../ILaya";
-import { Config } from "./../../Config";
-import { LayaGL } from "../layagl/LayaGL"
-import { Context } from "../resource/Context"
-import { HTMLCanvas } from "../resource/HTMLCanvas"
-import { WebGL } from "../webgl/WebGL"
-import { WebGLContext } from "../webgl/WebGLContext"
-import { BlendMode } from "../webgl/canvas/BlendMode"
-import { Shader2D } from "../webgl/shader/d2/Shader2D"
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
-import { Value2D } from "../webgl/shader/d2/value/Value2D"
-import { Buffer2D } from "../webgl/utils/Buffer2D"
-import { SubmitBase } from "../webgl/submit/SubmitBase";
-import { LayaGPU } from "../webgl/LayaGPU";
+import { LayaGL } from "../layagl/LayaGL";
+import { Context } from "../resource/Context";
+import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Browser } from "../utils/Browser";
+import { BlendMode } from "../webgl/canvas/BlendMode";
+import { LayaGPU } from "../webgl/LayaGPU";
+import { LayaWebGL2Context } from "../webgl/LayaWebGL2Context";
+import { LayaWebGLContext } from "../webgl/LayaWebGLContext";
+import { Shader2D } from "../webgl/shader/d2/Shader2D";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { SubmitBase } from "../webgl/submit/SubmitBase";
+import { Buffer2D } from "../webgl/utils/Buffer2D";
+import { WebGL } from "../webgl/WebGL";
+import { WebGLContext } from "../webgl/WebGLContext";
+import { Config } from "./../../Config";
+import { ILaya } from "./../../ILaya";
 import { RenderInfo } from "./RenderInfo";
-import { LayaWebGLRenderContext } from "../webgl/LayaWebGLRenderContext";
 
 
 /**
@@ -118,10 +119,11 @@ export class Render {
         LayaGL.instance = gl;
         LayaGL.layaGPUInstance = new LayaGPU(gl, WebGL._isWebGL2);
         if (WebGL._isWebGL2) {
-            
+            LayaGL.layaContext = new LayaWebGL2Context(<WebGL2RenderingContext>gl);
         }
         else {
-            LayaGL.layaRenderContext = new LayaWebGLRenderContext(<WebGLRenderingContext>gl);
+            // LayaGL.layaRenderContext = new LayaWebGLRenderContext(<WebGLRenderingContext>gl);
+            LayaGL.layaContext = new LayaWebGLContext(<WebGLRenderingContext>gl);
         }
 
         canvas.size(w, h);	//在ctx之后调用。

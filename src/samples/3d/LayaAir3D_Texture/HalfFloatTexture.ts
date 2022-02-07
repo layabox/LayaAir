@@ -52,13 +52,13 @@ export class HalfFloatTexture{
 
     //创建半浮点数纹理
     createHalfFloatTexture():Texture2D{
-        var texture:Texture2D = new Texture2D(50,50,TextureFormat.R16G16B16A16,false,true);
-        var pixelData:Uint16Array = new Uint16Array(50*50*4);
+        var texture:Texture2D = new Texture2D(64,64,TextureFormat.R16G16B16A16,true,true);
+        var pixelData:Uint16Array = new Uint16Array(64*64*4);
         var pixelIndex:number;
-        var step:number = 1.0/50;
-        for(var x:number = 0,n = 50;x<n;x++){
-            for(var y:number = 0,m = 50;y<m;y++){
-                pixelIndex = (x+y*50)*4;
+        var step:number = 1.0/64;
+        for(var x:number = 0,n = 64;x<n;x++){
+            for(var y:number = 0,m = 64;y<m;y++){
+                pixelIndex = (x+y*64)*4;
                 pixelData[pixelIndex] =HalfFloatUtils.roundToFloat16Bits(1.0);
                 pixelData[pixelIndex+1] =HalfFloatUtils.roundToFloat16Bits(x*step);
                 pixelData[pixelIndex+2] =HalfFloatUtils.roundToFloat16Bits(y*step);

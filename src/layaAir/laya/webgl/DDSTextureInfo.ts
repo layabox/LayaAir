@@ -34,17 +34,22 @@ const Int32ToFourCC = (value: number) => {
     );
 }
 
+/**
+ * dds 未存储 color space 需要手动指定
+ */
 export class DDSTextureInfo {
 
     width: number;
     height: number;
     mipmapCount: number;
     isCube: boolean;
+    bpp: number;
     blockBytes: number;
     format: TextureFormat;
     dataOffset: number;
+    source: ArrayBuffer;
 
-    constructor(width: number, height: number, mipmapCount: number, isCube: boolean, blockBytes: number, dataOffset: number, format: TextureFormat) {
+    constructor(width: number, height: number, mipmapCount: number, isCube: boolean, bpp: number, blockBytes: number, dataOffset: number, format: TextureFormat, sourceData: ArrayBuffer) {
         this.width = width;
         this.height = height;
         this.mipmapCount = mipmapCount;
@@ -52,6 +57,7 @@ export class DDSTextureInfo {
         this.blockBytes = blockBytes;
         this.dataOffset = dataOffset;
         this.format = format;
+        this.source = sourceData;
     }
 
     static getDDSTextureInfo(source: ArrayBuffer): DDSTextureInfo {
@@ -112,7 +118,7 @@ export class DDSTextureInfo {
             throw "Compressed textures are not supported on this platform.";
         }
 
-        return new DDSTextureInfo(width, height, mipmapCount, isCube, blockBytes, dataOffset, layaTexFormat);
+        return new DDSTextureInfo(width, height, mipmapCount, isCube, 0, blockBytes, dataOffset, layaTexFormat, source);
     }
 
 }

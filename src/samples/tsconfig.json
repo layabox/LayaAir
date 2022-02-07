@@ -3,7 +3,7 @@
         "target": "es6",
         "module": "es6",
         "baseUrl": "../layaAir",
-        "outDir": "../../bin/tsc/samples"
+        "outDir": "../../bin/tsc/samples",
     },
     "references": [
         {"path":"../layaAir"},
