@@ -73,6 +73,7 @@ import { DirectionLightCom } from "../light/DirectionLightCom";
 import { Sprite3D } from "../Sprite3D";
 import { PointLightCom } from "../light/PointLightCom";
 import { SpotLightCom } from "../light/SpotLightCom";
+import { RenderTargetFormat } from "../../WebGL/RenderTarget";
 /**
  * 环境光模式
  */
@@ -1194,12 +1195,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					flag = gl.COLOR_BUFFER_BIT;
 					switch (renderTex.depthStencilFormat) {
 						case RenderTextureDepthFormat.DEPTH_16:
+						case RenderTargetFormat.DEPTH_16:
 							flag |= gl.DEPTH_BUFFER_BIT;
 							break;
 						case RenderTextureDepthFormat.STENCIL_8:
+						case RenderTargetFormat.STENCIL_8:
 							flag |= gl.STENCIL_BUFFER_BIT;
 							break;
 						case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
+						case RenderTargetFormat.DEPTHSTENCIL_24_8:
 							flag |= gl.DEPTH_BUFFER_BIT;
 							flag |= gl.STENCIL_BUFFER_BIT;
 							//打开模板缓存 再清理

@@ -25,7 +25,7 @@
 		"textures":[
 			{
 				"name":"albedoTexture",
-				"path":"../T_Diffuse.jpg",
+				"path":"../diffuse.png",
 				"constructParams":[
 					512,
 					512,

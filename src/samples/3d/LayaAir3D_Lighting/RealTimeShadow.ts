@@ -98,7 +98,7 @@ export class RealTimeShadow {
 
 		// A monkey cast shadow.
 		var layaMonkey: Sprite3D = <Sprite3D>scene.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
-		layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
+		layaMonkey.transform.localScale = new Vector3(2, 2, 2);
 		(<SkinnedMeshSprite3D>layaMonkey.getChildAt(0).getChildAt(1)).getComponent(SkinnedMeshRenderer).castShadow = true;
 
 		// A sphere cast/receive shadow.
