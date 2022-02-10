@@ -8,7 +8,7 @@ import { RenderTarget, RenderTargetFormat } from "./RenderTarget";
 
 export class RenderTexture extends BaseTexture implements RenderTarget {
 
-
+    // todo 记录当前 绑定 rt  位置不放在这里
     protected static _currentActive: RenderTexture = null;
 
     static get currentActive(): RenderTexture {

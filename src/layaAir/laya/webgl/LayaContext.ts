@@ -40,6 +40,8 @@ export interface LayaContext {
 
     createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean, depthStencilFormat: RenderTargetFormat, multiSamples: number): InternalRenderTarget;
 
+    createMultiRenderTargetInternal(dimension: TextureDimension, width: number, height: number, colorCount: number, renderFormats: RenderTargetFormat[], depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
+
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): InternalTexture;
 
     bindRenderTarget(renderTarget: InternalRenderTarget | null): void;

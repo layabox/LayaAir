@@ -191,6 +191,26 @@ export class LayaWebGLContext implements LayaContext {
                 this._glParam.format = this._glParam.internalFormat;
                 this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
+            case RenderTargetFormat.R16G16B16:
+                this._glParam.internalFormat = gl.RGB;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = layaGPU._oesTextureHalfFloat.HALF_FLOAT_OES;
+                break;
+            case RenderTargetFormat.R16G16B16A16:
+                this._glParam.internalFormat = gl.RGBA;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = layaGPU._oesTextureHalfFloat.HALF_FLOAT_OES;
+                break;
+            case RenderTargetFormat.R32G32B32:
+                this._glParam.internalFormat = gl.RGB;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.FLOAT;
+                break;
+            case RenderTargetFormat.R32G32B32A32:
+                this._glParam.internalFormat = gl.RGBA;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.FLOAT;
+                break;
             case RenderTargetFormat.DEPTH_16:
                 this._glParam.internalFormat = gl.DEPTH_COMPONENT;
                 this._glParam.format = this._glParam.internalFormat;
@@ -207,9 +227,8 @@ export class LayaWebGLContext implements LayaContext {
                 this._glParam.type = gl.UNSIGNED_INT;
                 break;
             case RenderTargetFormat.STENCIL_8:
-                break;
             default:
-                throw "depht texture format wrong."
+                throw "render texture format wrong."
         }
 
         return this._glParam;
@@ -824,7 +843,7 @@ export class LayaWebGLContext implements LayaContext {
     createRenderColorTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): InternalTexture {
         let useSRGBExt = false;
 
-        gengerateMipmap = this.supportGenerateMipmap(format);
+        gengerateMipmap = gengerateMipmap && this.supportGenerateMipmap(format);
 
         let gammaCorrection = 1.0;
         if (!useSRGBExt && sRGB) {
@@ -887,6 +906,40 @@ export class LayaWebGLContext implements LayaContext {
             let depthbuffer = this.createRenderbuffer(width, height, depthBufferParam.internalFormat);
             renderTarget._depthbuffer = depthbuffer;
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
+        }
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        return renderTarget;
+    }
+
+    createMultiRenderTargetInternal(dimension: TextureDimension, width: number, height: number, colorCount: number, renderFormats: RenderTargetFormat[], depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number) {
+
+        let renderTarget = new WebGLInternalRT(false, false, generateMipmap, multiSamples);
+
+        for (let index = 0; index < colorCount; index++) {
+            let renderFormat = renderFormats[index];
+            let texture = this.createRenderTextureInternal(dimension, width, height, renderFormat, generateMipmap, sRGB);
+
+            renderTarget._textures.push(texture);
+        }
+
+        let framebuffer = renderTarget._framebuffer;
+
+        let gl = <WebGLRenderingContext>renderTarget._gl;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+
+        for (let index = 0; index < colorCount; index++) {
+
+            let texture = renderTarget._textures[index];
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + index, gl.TEXTURE_2D, texture.resource, 0);
+        }
+
+        let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
+        if (depthBufferParam) {
+            let depthTexture = this.createRenderTextureInternal(dimension, width, height, depthStencilFormat, generateMipmap, false);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.TEXTURE_2D, depthTexture.resource, 0);
+
+            renderTarget._depthTexture = depthTexture;
         }
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 

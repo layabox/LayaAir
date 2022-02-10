@@ -35,6 +35,8 @@ export interface RenderTarget {
 
     _renderTarget: InternalRenderTarget;
 
+    _isCameraTarget: boolean;
+
     _start(): void;
 
     _end(): void;
