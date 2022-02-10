@@ -178,10 +178,30 @@ export class LayaWebGL2Context extends LayaWebGLContext {
                 this._glParam.format = gl.RGBA;
                 this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
+            case RenderTargetFormat.R16G16B16:
+                this._glParam.internalFormat = gl.RGB16F;
+                this._glParam.format = gl.RGB;
+                this._glParam.type = gl.HALF_FLOAT;
+                break;
+            case RenderTargetFormat.R16G16B16A16:
+                this._glParam.internalFormat = gl.RGBA16F;
+                this._glParam.format = gl.RGBA;
+                this._glParam.type = gl.HALF_FLOAT;
+                break;
+            case RenderTargetFormat.R32G32B32:
+                this._glParam.internalFormat = gl.RGB32F;
+                this._glParam.format = gl.RGB;
+                this._glParam.type = gl.FLOAT;
+                break;
+            case RenderTargetFormat.R32G32B32A32:
+                this._glParam.internalFormat = gl.RGBA32F;
+                this._glParam.format = gl.RGBA;
+                this._glParam.type = gl.FLOAT;
+                break;
             case RenderTargetFormat.DEPTH_16:
                 this._glParam.internalFormat = gl.DEPTH_COMPONENT16;
                 this._glParam.format = this._glParam.internalFormat;
-                this._glParam.type = gl.UNSIGNED_SHORT;
+                this._glParam.type = gl.HALF_FLOAT;
                 break;
             case RenderTargetFormat.DEPTHSTENCIL_24_8:
                 this._glParam.internalFormat = gl.DEPTH24_STENCIL8;
