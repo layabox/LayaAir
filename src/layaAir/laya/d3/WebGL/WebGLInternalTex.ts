@@ -69,7 +69,7 @@ export class WebGLInternalTex implements InternalTexture {
         this.filterMode = FilterMode.Bilinear;
         this.warpU = WarpMode.Repeat;
         // todo
-        this.warpV = WarpMode.Clamp;
+        this.warpV = WarpMode.Repeat;
         this.warpW = WarpMode.Repeat;
         this.anisoLevel = 4;
     }

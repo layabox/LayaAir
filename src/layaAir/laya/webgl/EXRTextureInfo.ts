@@ -322,37 +322,14 @@ export class EXRTextureInfo {
         // single part
 
         // read attributes
+        let attributeMap = new Map<string, any>();
         let attributeName;
-        while (attributeName = getString()) {
-
-            if (attributeName == " ") {
-                break;
-            }
+        while ((attributeName = getString()) != "") {
 
             let attribute: { name: string, value: any } = { name: attributeName, value: null };
 
             let attributeType = getString();
             let attributeSize = getInt();
-
-            // let attributeReadFunc;
-            // switch (attributeType) {
-            //     case AttributeType.chlist:
-            //         attributeReadFunc = readChlist;
-            //         break;
-            //     case AttributeType.compression:
-            //         attributeReadFunc = readCompression;
-            //         break;
-            //     case AttributeType.box2i:
-            //         attributeReadFunc = readBox2i
-            //         break;
-            //     case AttributeType.box2f:
-            //         attributeReadFunc = readBox2f
-            //         break;
-            //     default:
-            //         wrong();
-            // }
-
-            let attributeValue;
 
             switch (attributeType) {
                 case AttributeType.chlist:
@@ -382,14 +359,52 @@ export class EXRTextureInfo {
             }
             console.log(attribute);
 
+            attributeMap.set(attribute.name, attribute.value);
         }
-
-
-
 
         /**
          * offset tables
          */
+
+        // scan lines
+        let blockSize = 0;
+        if (bit12 == 0 && !attributeMap.has("chunkCount")) {
+            let dataWindow = attributeMap.get("dataWindow");
+            blockSize = dataWindow.yMax - dataWindow.yMin + 1;
+
+            let compression = attributeMap.get("compression");
+
+            switch (compression) {
+                case 4:
+                    blockSize /= 32;
+                    break;
+                default:
+                    wrong();
+                    break;
+            }
+
+            blockSize = Math.ceil(blockSize);
+        }
+
+        let offsets = [];
+        for (let index = 0; index < blockSize; index++) {
+            offsets[index] = getUnsignedlong();
+        }
+
+        /**
+         * Pixel data
+         */
+        for (let index = 0; index < blockSize; index++) {
+            let y = getInt();
+            let pixelDataByteSize = getInt();
+
+            // todo 图像数据 压缩格式数据解析。。。。
+            viewOffset += pixelDataByteSize;
+        }
+
+        if (viewOffset != buffer.byteLength) {
+            wrong();
+        }
 
         debugger;
     }

@@ -1,5 +1,6 @@
 
 import { InternalTexture, TextureDimension } from "../d3/WebGL/InternalTexture";
+import { RenderTargetFormat } from "../d3/WebGL/RenderTarget";
 import { WebGLInternalTex } from "../d3/WebGL/WebGLInternalTex";
 import { LayaGL } from "../layagl/LayaGL";
 import { TextureFormat } from "../resource/TextureFormat";
@@ -16,7 +17,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
     }
 
 
-    glGLParam(format: TextureFormat, useSRGB: boolean) {
+    glTextureParam(format: TextureFormat, useSRGB: boolean) {
         let gl = this.gl;
 
         let layaGPU = LayaGL.layaGPUInstance;
@@ -152,6 +153,50 @@ export class LayaWebGL2Context extends LayaWebGLContext {
                 break;
             default:
                 throw "Unknown Texture Format.";
+        }
+
+        return this._glParam;
+    }
+
+    glRenderTextureParam(format: RenderTargetFormat, useSRGB: boolean) {
+        let gl = this.gl;
+
+        let layaGPU = LayaGL.layaGPUInstance;
+
+        this._glParam.internalFormat = null;
+        this._glParam.format = null;
+        this._glParam.type = null;
+
+        switch (format) {
+            case RenderTargetFormat.R8G8B8:
+                this._glParam.internalFormat = useSRGB ? gl.SRGB8 : gl.RGB8;
+                this._glParam.format = gl.RGB;
+                this._glParam.type = gl.UNSIGNED_BYTE;
+                break;
+            case RenderTargetFormat.R8G8B8A8:
+                this._glParam.internalFormat = useSRGB ? gl.SRGB8_ALPHA8 : gl.RGBA8;
+                this._glParam.format = gl.RGBA;
+                this._glParam.type = gl.UNSIGNED_BYTE;
+                break;
+            case RenderTargetFormat.DEPTH_16:
+                this._glParam.internalFormat = gl.DEPTH_COMPONENT16;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.UNSIGNED_SHORT;
+                break;
+            case RenderTargetFormat.DEPTHSTENCIL_24_8:
+                this._glParam.internalFormat = gl.DEPTH24_STENCIL8;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.UNSIGNED_INT_24_8;
+                break;
+            case RenderTargetFormat.DEPTH_32:
+                this._glParam.internalFormat = gl.DEPTH_COMPONENT32F;
+                this._glParam.format = this._glParam.internalFormat;
+                this._glParam.type = gl.UNSIGNED_INT;
+                break;
+            case RenderTargetFormat.STENCIL_8:
+                break;
+            default:
+                throw "depht texture format wrong."
         }
 
         return this._glParam;
@@ -447,6 +492,42 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 
+    }
+
+    createRenderColorTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
+        let useSRGBExt = false;
+
+        gengerateMipmap = this.supportGenerateMipmap(format);
+
+        let gammaCorrection = 1.0;
+        if (!useSRGBExt && sRGB) {
+            gammaCorrection = 2.2;
+        }
+
+        // let dimension = TextureDimension.Tex2D;
+        let target = this.getTarget(dimension);
+        let internalTex = new WebGLInternalTex(target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
+
+        let glParam = this.glRenderTextureParam(format, useSRGBExt);
+
+        internalTex.internalFormat = glParam.internalFormat;
+        internalTex.format = glParam.format;
+        internalTex.type = glParam.type;
+
+
+        let internalFormat = internalTex.internalFormat;
+        let glFormat = internalTex.format;
+        let type = internalTex.type;
+
+        let gl = <WebGL2RenderingContext>internalTex._gl;
+
+        WebGLContext.bindTexture(gl, internalTex.target, internalTex.resource);
+
+        gl.texStorage2D(target, internalTex.mipmapCount, internalFormat, width, height);
+
+        WebGLContext.bindTexture(gl, internalTex.target, null);
+
+        return internalTex;
     }
 
 }

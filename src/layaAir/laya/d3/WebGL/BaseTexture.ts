@@ -76,7 +76,7 @@ export class BaseTexture extends Bitmap {
         return this._texture.useSRGBLoad || this._texture.gammaCorrection > 1;
     }
 
-    constructor(width: number, height: number, format: TextureFormat,) {
+    constructor(width: number, height: number, format: number) {
         super();
         this._width = width;
         this._height = height;

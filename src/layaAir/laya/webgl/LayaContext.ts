@@ -1,4 +1,6 @@
+import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
 import { InternalTexture, TextureDimension } from "../d3/WebGL/InternalTexture";
+import { RenderTargetFormat } from "../d3/WebGL/RenderTarget";
 import { TextureFormat } from "../resource/TextureFormat";
 import { DDSTextureInfo } from "./DDSTextureInfo";
 import { HDRTextureInfo } from "./HDRTextureInfo";
@@ -34,5 +36,13 @@ export interface LayaContext {
     setCubeDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void;
 
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void;
+
+
+    createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean, depthStencilFormat: RenderTargetFormat, multiSamples: number): InternalRenderTarget;
+
+    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): InternalTexture;
+
+    bindRenderTarget(renderTarget: InternalRenderTarget | null): void;
+    unbindRenderTarget(renderTarget: InternalRenderTarget | null): void;
 
 }
