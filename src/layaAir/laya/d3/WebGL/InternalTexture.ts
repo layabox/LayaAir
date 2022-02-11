@@ -1,3 +1,4 @@
+import { CompareMode } from "../../resource/CompareMode";
 import { FilterMode } from "../../resource/FilterMode";
 import { WarpMode } from "../../resource/WrapMode";
 
@@ -35,6 +36,8 @@ export interface InternalTexture {
     wrapV: WarpMode;
     wrapW: WarpMode;
     anisoLevel: number;
+
+    compareMode: CompareMode;
 
     /**
      * 是否使用 sRGB格式 加载图片数据

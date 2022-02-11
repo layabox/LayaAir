@@ -2,6 +2,7 @@ import { InternalTexture, TextureDimension } from "../d3/WebGL/InternalTexture";
 import { LayaGL } from "../layagl/LayaGL";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { Bitmap } from "./Bitmap";
+import { CompareMode } from "./CompareMode";
 import { FilterMode } from "./FilterMode";
 import { TextureFormat } from "./TextureFormat";
 import { WarpMode } from "./WrapMode";
@@ -68,6 +69,14 @@ export class BaseTexture extends Bitmap {
 	}
 	public set wrapModeW(value: WarpMode) {
 		this._texture.wrapW = value;
+	}
+
+	public get compareMode(): CompareMode {
+		return this._texture.compareMode;
+	}
+
+	public set compareMode(value: CompareMode) {
+		this._texture.compareMode = LayaGL.layaContext.setTextureCompareMode(this._texture, value);
 	}
 
 	public get gammaCorrection(): number {

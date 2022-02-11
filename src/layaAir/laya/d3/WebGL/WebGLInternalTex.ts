@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { CompareMode } from "../../resource/CompareMode";
 import { FilterMode } from "../../resource/FilterMode";
 import { WarpMode } from "../../resource/WrapMode";
 import { WebGLContext } from "../../webgl/WebGLContext";
@@ -145,8 +146,16 @@ export class WebGLInternalTex implements InternalTexture {
         }
     }
 
+    private _compareMode: CompareMode;
+    public get compareMode(): CompareMode {
+        return this._compareMode;
+    }
+    public set compareMode(value: CompareMode) {
+        this._compareMode = value;
+    }
+
     // todo 设置参数函数 放在 context 里面? 
-    protected _setTexParameteri(pname: number, param: number) {
+    public _setTexParameteri(pname: number, param: number) {
         let gl = this._gl;
         let target = this.target
         WebGLContext.bindTexture(gl, target, this.resource);
@@ -154,7 +163,7 @@ export class WebGLInternalTex implements InternalTexture {
         WebGLContext.bindTexture(gl, target, null);
     }
 
-    protected _setTexParametexf(pname: number, param: number) {
+    public _setTexParametexf(pname: number, param: number) {
         let gl = this._gl;
         let target = this.target
         WebGLContext.bindTexture(gl, target, this.resource);

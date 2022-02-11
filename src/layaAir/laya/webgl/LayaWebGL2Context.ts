@@ -8,6 +8,7 @@ import { KTXTextureInfo } from "../resource/KTXTextureInfo";
 import { TextureFormat } from "../resource/TextureFormat";
 import { LayaWebGLContext } from "./LayaWebGLContext";
 import { WebGLContext } from "./WebGLContext";
+import { CompareMode } from "../resource/CompareMode";
 
 export class LayaWebGL2Context extends LayaWebGLContext {
 
@@ -274,7 +275,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         WebGLContext.bindTexture(gl, texture.target, texture.resource);
 
         gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
-        gl.texSubImage2D(target, 0, 0, 0, width, height, format, type, source);
+        source && gl.texSubImage2D(target, 0, 0, 0, width, height, format, type, source);
 
         if (texture.mipmap) {
             gl.generateMipmap(texture.target);
@@ -511,6 +512,51 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+
+    }
+
+    setTextureCompareMode(texture: WebGLInternalTex, compareMode: CompareMode): CompareMode {
+        let gl = <WebGL2RenderingContext>texture._gl;
+        switch (compareMode) {
+            case CompareMode.GEQUAL:
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+                break;
+            case CompareMode.GEQUAL:
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.GEQUAL);
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+                break;
+            case CompareMode.LESS:
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.LESS);
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+                break;
+            case CompareMode.GREATER:
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.GREATER);
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+                break;
+            case CompareMode.EQUAL:
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.EQUAL);
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+                break;
+            case CompareMode.NOTEQUAL:
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.NOTEQUAL);
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+                break;
+            case CompareMode.ALWAYS:
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.ALWAYS);
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+                break;
+            case CompareMode.NEVER:
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.NEVER);
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+                break;
+            case CompareMode.None:
+            default:
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
+                texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.NONE);
+                break;
+        }
+        return compareMode;
 
     }
 

@@ -3,7 +3,7 @@ import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
 import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
 import { ShadowMode } from "../core/light/ShadowMode";
-import { ShadowUtils } from "../core/light/ShadowUtils";
+import { ShadowMapFormat, ShadowUtils } from "../core/light/ShadowUtils";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { Scene3D } from "../core/scene/Scene3D";
 import { CommandUniformMap, Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
@@ -363,7 +363,7 @@ export class ShadowCasterPass {
 				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
 				ShaderData.setRuntimeValueMode(false);
-				var shadowMap: RenderTexture = this._shadowDirectLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTargetFormat.DEPTH_16);
+				var shadowMap: RenderTexture = this._shadowDirectLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, ShadowMapFormat.bit16);
 				shadowMap._start();
 				var light: DirectionLightCom = <DirectionLightCom>this._light;
 				for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
@@ -406,7 +406,7 @@ export class ShadowCasterPass {
 				context.pipelineMode = "ShadowCaster";
 				ShaderData.setRuntimeValueMode(false);
 				var spotlight: SpotLightCom = <SpotLightCom>this._light;
-				var shadowMap: RenderTexture = this._shadowSpotLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTargetFormat.DEPTH_16);
+				var shadowMap: RenderTexture = this._shadowSpotLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, ShadowMapFormat.bit16);
 				shadowMap._start();
 				var shadowSpotData: ShadowSpotData = this._shadowSpotData;
 				ShadowUtils.getShadowBias(spotlight, shadowSpotData.projectionMatrix, shadowSpotData.resolution, this._shadowBias);

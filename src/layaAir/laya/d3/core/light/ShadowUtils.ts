@@ -19,6 +19,7 @@ import { Sprite3D } from "../Sprite3D";
 import { DirectionLightCom } from "./DirectionLightCom";
 import { RenderTargetFormat } from "../../../resource/RenderTarget";
 import { RenderTexture } from "../../resource/RenderTexture";
+import { CompareMode } from "../../../resource/CompareMode";
 
 /**
  * @internal
@@ -30,6 +31,12 @@ enum FrustumFace {
     Right = 3,
     Bottom = 4,
     Top = 5,
+}
+
+export enum ShadowMapFormat {
+    bit16,
+    bit24_8,
+    bit32
 }
 
 /**
@@ -47,8 +54,6 @@ export class ShadowUtils {
         0.0, 0.0, 1.0, 0.0,
         0.5, 0.5, 0.0, 1.0,
     );
-    /** @internal */
-    private static _shadowTextureFormat: RenderTargetFormat;
 
     private static _shadowFormatSupport: boolean;
 
@@ -102,7 +107,6 @@ export class ShadowUtils {
 
             // ShadowUtils._shadowTextureFormat = RenderTargetFormat.ShadowMap;
             ShadowUtils._shadowFormatSupport = true;
-            ShadowUtils._shadowFormatSupport = false;
         }
         else {
             ShadowUtils._shadowFormatSupport = false;
@@ -113,8 +117,22 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static getTemporaryShadowTexture(witdh: number, height: number, depthFormat: RenderTargetFormat): RenderTexture {
+    static getTemporaryShadowTexture(witdh: number, height: number, shadowFormat: ShadowMapFormat): RenderTexture {
+        let depthFormat = RenderTargetFormat.DEPTH_16;
+        switch (shadowFormat) {
+            case ShadowMapFormat.bit16:
+                depthFormat = RenderTargetFormat.DEPTH_16;
+                break;
+            case ShadowMapFormat.bit24_8:
+                depthFormat = RenderTargetFormat.DEPTHSTENCIL_24_8;
+                break;
+            case ShadowMapFormat.bit32:
+                depthFormat = RenderTargetFormat.DEPTH_32;
+                break;
+        }
+
         var shadowMap: RenderTexture = RenderTexture.createFromPool(witdh, height, depthFormat, null, false, 1);
+        shadowMap.compareMode = CompareMode.LESS;
         shadowMap.filterMode = FilterMode.Bilinear;
         shadowMap.wrapModeU = WarpMode.Clamp;
         shadowMap.wrapModeV = WarpMode.Clamp;

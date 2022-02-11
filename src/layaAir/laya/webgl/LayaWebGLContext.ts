@@ -10,6 +10,7 @@ import { LayaContext } from "./LayaContext";
 import { SystemUtils } from "./SystemUtils";
 import { WebGLContext } from "./WebGLContext";
 import { KTXTextureInfo } from "../resource/KTXTextureInfo";
+import { CompareMode } from "../resource/CompareMode";
 
 export class LayaWebGLContext implements LayaContext {
 
@@ -268,8 +269,9 @@ export class LayaWebGLContext implements LayaContext {
             case RenderTargetFormat.R16G16B16A16:
             case RenderTargetFormat.R32G32B32:
             case RenderTargetFormat.R32G32B32A32:
-            default:
                 return gl.COLOR_ATTACHMENT0;
+            default:
+                throw "render format."
         }
     }
 
@@ -846,6 +848,10 @@ export class LayaWebGLContext implements LayaContext {
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    }
+
+    setTextureCompareMode(texture: WebGLInternalTex, compareMode: CompareMode): CompareMode {
+        return CompareMode.None;
     }
 
     bindRenderTarget(renderTarget: WebGLInternalRT): void {

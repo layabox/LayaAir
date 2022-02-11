@@ -27,11 +27,7 @@ export enum RenderTargetFormat {
     DEPTH_16,
     STENCIL_8,
     DEPTHSTENCIL_24_8,
-    DEPTH_32,
-
-    SHADOW16,
-    SHADOW24,
-    SHADOW32,
+    DEPTH_32
 }
 // export type RenderTargetFormat = TextureFormat.R8G8B8 | TextureFormat.R8G8B8A8;
 

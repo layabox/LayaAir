@@ -5,6 +5,7 @@ import { TextureFormat } from "../resource/TextureFormat";
 import { DDSTextureInfo } from "../resource/DDSTextureInfo";
 import { HDRTextureInfo } from "../resource/HDRTextureInfo";
 import { KTXTextureInfo } from "../resource/KTXTextureInfo";
+import { CompareMode } from "../resource/CompareMode";
 
 export interface LayaContext {
 
@@ -39,6 +40,7 @@ export interface LayaContext {
 
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void;
 
+    setTextureCompareMode(texture: InternalTexture, compareMode: CompareMode): CompareMode;
 
     createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean, depthStencilFormat: RenderTargetFormat, multiSamples: number): InternalRenderTarget;
 
