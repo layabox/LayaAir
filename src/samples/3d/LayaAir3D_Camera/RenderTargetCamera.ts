@@ -12,6 +12,7 @@ import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Loader } from "laya/net/Loader";
+import { RenderTargetFormat } from "laya/resource/RenderTarget";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
@@ -23,11 +24,11 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 export class RenderTargetCamera {
 
 	/**实例类型*/
-	private btype:any = "RenderTargetCamera";
+	private btype: any = "RenderTargetCamera";
 	/**场景内按钮类型*/
-	private stype:any = 0;
-	private scene:Scene3D;
-	private mat:UnlitMaterial;
+	private stype: any = 0;
+	private scene: Scene3D;
+	private mat: UnlitMaterial;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -79,14 +80,14 @@ export class RenderTargetCamera {
 		this.scene = scene;
 		this.mat = mat
 	}
-	stypeFun0():void {
-		Client.instance.send({type:"next",btype:this.btype,stype:0});
+	stypeFun0(): void {
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0 });
 		//渲染到纹理的相机
 		var renderTargetCamera: Camera = <Camera>this.scene.addChild(new Camera(0, 0.3, 1000));
 		renderTargetCamera.transform.position = new Vector3(-28.8, 8, -60);
 		renderTargetCamera.transform.rotate(new Vector3(0, 180, 0), true, false);
 		//选择渲染目标为纹理
-		renderTargetCamera.renderTarget = new RenderTexture(512, 512);
+		renderTargetCamera.renderTarget = new RenderTexture(512, 512, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
 		//渲染顺序
 		renderTargetCamera.renderingOrder = -1;
 		//清除标记

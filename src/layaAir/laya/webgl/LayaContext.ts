@@ -51,4 +51,6 @@ export interface LayaContext {
     bindRenderTarget(renderTarget: InternalRenderTarget | null): void;
     unbindRenderTarget(renderTarget: InternalRenderTarget | null): void;
 
+    readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView;
+
 }

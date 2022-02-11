@@ -1,3 +1,4 @@
+import { RenderTargetFormat } from "../../resource/RenderTarget";
 import { InternalTexture } from "./InternalTexture";
 
 export interface InternalRenderTarget {
@@ -11,6 +12,9 @@ export interface InternalRenderTarget {
     _textures: InternalTexture[];
 
     _depthTexture: InternalTexture;
+
+    colorFormat: RenderTargetFormat;
+    depthStencilFormat: RenderTargetFormat;
 
     dispose(): void;
 }

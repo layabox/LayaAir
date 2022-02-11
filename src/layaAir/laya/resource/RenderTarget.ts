@@ -1,20 +1,6 @@
 import { TextureFormat } from "./TextureFormat";
 import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
 
-enum RenderTargetDepthFormat {
-    /**深度格式_DEPTH_16。*/
-    DEPTH_16 = 0,
-    /**深度格式_STENCIL_8。*/
-    STENCIL_8 = 1,
-    /**深度格式_DEPTHSTENCIL_24_8。*/
-    DEPTHSTENCIL_24_8 = 2,
-    /**深度格式_DEPTHSTENCIL_NONE。*/
-    DEPTHSTENCIL_NONE = 3,
-
-    /**深度格式_DEPTH_32。*/
-    DEPTH_32 = 4,
-}
-
 export enum RenderTargetFormat {
 
     R8G8B8 = TextureFormat.R8G8B8,
@@ -29,7 +15,6 @@ export enum RenderTargetFormat {
     DEPTHSTENCIL_24_8,
     DEPTH_32
 }
-// export type RenderTargetFormat = TextureFormat.R8G8B8 | TextureFormat.R8G8B8A8;
 
 export interface RenderTarget {
 

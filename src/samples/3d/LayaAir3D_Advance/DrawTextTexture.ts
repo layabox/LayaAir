@@ -10,6 +10,7 @@ import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Texture2D } from "laya/resource/Texture2D";
+import { TextureFormat } from "laya/resource/TextureFormat";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
@@ -66,8 +67,8 @@ export class DrawTextTexture {
         cxt.strokeStyle = "yellow";
         cxt.font = "bold 30px 黑体";
         cxt.strokeText("LayaBox", 100, 150,);//只有边框
-        this.texture2D = new Texture2D(256, 256);
-        this.texture2D.loadImageSource(this.cav);
+        this.texture2D = new Texture2D(256, 256, TextureFormat.R8G8B8A8, true, false, false);
+        this.texture2D.setImageData(this.cav, false, false);
         this.mat.renderMode = UnlitMaterial.RENDERMODE_TRANSPARENT;
 
         //给材质贴图

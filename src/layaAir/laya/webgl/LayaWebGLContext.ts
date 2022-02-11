@@ -11,6 +11,7 @@ import { SystemUtils } from "./SystemUtils";
 import { WebGLContext } from "./WebGLContext";
 import { KTXTextureInfo } from "../resource/KTXTextureInfo";
 import { CompareMode } from "../resource/CompareMode";
+import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
 
 export class LayaWebGLContext implements LayaContext {
 
@@ -929,7 +930,8 @@ export class LayaWebGLContext implements LayaContext {
         let texture = this.createRenderTextureInternal(dimension, width, height, renderFormat, gengerateMipmap, sRGB);
 
         let renderTarget = new WebGLInternalRT(false, false, texture.mipmap, multiSamples);
-
+        renderTarget.colorFormat = renderFormat;
+        renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
 
         let framebuffer = renderTarget._framebuffer;
@@ -999,6 +1001,34 @@ export class LayaWebGLContext implements LayaContext {
         gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
         return renderbuffer;
+    }
+
+    readRenderTargetPixelData(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
+
+        let gl = renderTarget._gl;
+
+        this.bindRenderTarget(renderTarget);
+
+        let frameState = gl.checkFramebufferStatus(gl.FRAMEBUFFER) == gl.FRAMEBUFFER_COMPLETE;
+
+        if (!frameState) {
+            this.unbindRenderTarget(renderTarget);
+            return null;
+        }
+        switch (renderTarget.colorFormat) {
+            case RenderTargetFormat.R8G8B8:
+                gl.readPixels(xOffset, yOffset, width, height, gl.RGB, gl.UNSIGNED_BYTE, out);
+                break;
+            case RenderTargetFormat.R8G8B8A8:
+                gl.readPixels(xOffset, yOffset, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
+                break;
+            case RenderTargetFormat.R16G16B16A16:
+                gl.readPixels(xOffset, yOffset, width, height, gl.RGBA, gl.FLOAT, out);
+                break;
+        }
+        this.unbindRenderTarget(renderTarget);
+
+        return out;
     }
 
 }

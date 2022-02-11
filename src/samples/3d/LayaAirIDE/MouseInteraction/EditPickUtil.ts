@@ -6,7 +6,7 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { RenderTextureDepthFormat, RenderTextureFormat } from "laya/resource/RenderTextureFormat";
+import { RenderTargetFormat } from "laya/resource/RenderTarget";
 
 
 
@@ -24,7 +24,7 @@ export class EditPickUtil {
 	public static oriClearFlag: CameraClearFlags = CameraClearFlags.Nothing;
 	public static oriClearColor: Vector4 = new Vector4();
 	public static cameraClearColor: Vector4 = new Vector4();
-	public static oriPipeLineMode:string;
+	public static oriPipeLineMode: string;
 
 	/**
 	 * 设置点选目标
@@ -86,7 +86,7 @@ export class EditPickUtil {
 		EditPickUtil.recordCameraData(camera);
 		//渲染节点
 
-		(!EditPickUtil.pickCamera) && (EditPickUtil.pickCamera.renderTarget = RenderTexture.createFromPool(camera.renderTarget.width, camera.renderTarget.height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16))
+		(!EditPickUtil.pickCamera) && (EditPickUtil.pickCamera.renderTarget = RenderTexture.createFromPool(camera.renderTarget.width, camera.renderTarget.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1))
 		var RT: RenderTexture = Camera.drawRenderTextureByScene(EditPickUtil.pickCamera, EditPickUtil.editorScene, EditPickUtil.pickCamera.renderTarget);
 
 		var renderableSprite = EditPickUtil.pickRenderableSprite3D(posX - offsetX, posY - offsetY, RT);
@@ -133,23 +133,23 @@ export class EditPickUtil {
 	 * @param width 宽度
 	 * @param height 高度
 	 */
-	public static EditorCameraSet(camera: Camera, width: number, height: number,isOriCamraRenderTarget = true): void {
+	public static EditorCameraSet(camera: Camera, width: number, height: number, isOriCamraRenderTarget = true): void {
 		var oriTargetTexture: RenderTexture = camera.renderTarget;
 		var pickTargetTexture: RenderTexture = EditPickUtil.pickCamera.renderTarget;
 		if (!oriTargetTexture) {
-			isOriCamraRenderTarget&& (oriTargetTexture = camera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16));
+			isOriCamraRenderTarget && (oriTargetTexture = camera.renderTarget = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1));
 			if (!pickTargetTexture)
-				pickTargetTexture = EditPickUtil.pickCamera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16);
+				pickTargetTexture = EditPickUtil.pickCamera.renderTarget = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
 		}
-		if (oriTargetTexture&&oriTargetTexture.width == width && oriTargetTexture.height == height) {
+		if (oriTargetTexture && oriTargetTexture.width == width && oriTargetTexture.height == height) {
 			return;
 		}
 		else {
 			//这里用对象池会内存吃紧
-			oriTargetTexture&&oriTargetTexture.destroy();
+			oriTargetTexture && oriTargetTexture.destroy();
 			pickTargetTexture && pickTargetTexture.destroy();
-			oriTargetTexture&&(camera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16));
-			EditPickUtil.pickCamera.renderTarget = new RenderTexture(width, height, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16);
+			oriTargetTexture && (camera.renderTarget = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1));
+			EditPickUtil.pickCamera.renderTarget = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
 
 			camera.render();
 			//这里可以是

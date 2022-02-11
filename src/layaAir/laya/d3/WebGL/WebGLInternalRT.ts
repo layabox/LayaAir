@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { RenderTargetFormat } from "../../resource/RenderTarget";
 import { InternalRenderTarget } from "./InternalRenderTarget";
 import { InternalTexture } from "./InternalTexture";
 
@@ -19,6 +20,9 @@ export class WebGLInternalRT implements InternalRenderTarget {
     _textures: InternalTexture[];
     _depthTexture: InternalTexture;
 
+    colorFormat: RenderTargetFormat;
+    depthStencilFormat: RenderTargetFormat;
+
     constructor(isMRT: boolean, isCube: boolean, generateMipmap: boolean, samples: number) {
         let gl = LayaGL.instance;
         this._gl = gl;
@@ -33,6 +37,7 @@ export class WebGLInternalRT implements InternalRenderTarget {
 
         this._framebuffer = gl.createFramebuffer();
     }
+
 
     dispose(): void {
         this._textures.forEach(tex => {

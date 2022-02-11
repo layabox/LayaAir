@@ -942,7 +942,7 @@ export class Camera extends BaseCamera {
 		if (needInternalRT) {
 			if (this._msaa && LayaGL.layaGPUInstance._isWebGL2) {
 				// todo
-				// this._internalRenderTexture = MulSampleRenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
+				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 4);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			} else {
 				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 1);

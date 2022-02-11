@@ -9,6 +9,7 @@ import { TextureFormat } from "../resource/TextureFormat";
 import { LayaWebGLContext } from "./LayaWebGLContext";
 import { WebGLContext } from "./WebGLContext";
 import { CompareMode } from "../resource/CompareMode";
+import { WebGLInternalRT } from "../d3/WebGL/WebGLInternalRT";
 
 export class LayaWebGL2Context extends LayaWebGLContext {
 
@@ -557,6 +558,34 @@ export class LayaWebGL2Context extends LayaWebGLContext {
                 break;
         }
         return compareMode;
+
+    }
+    createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, renderFormat: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean, depthStencilFormat: RenderTargetFormat, multiSamples: number): WebGLInternalRT {
+        let texture = this.createRenderTextureInternal(dimension, width, height, renderFormat, gengerateMipmap, sRGB);
+
+        let renderTarget = new WebGLInternalRT(false, false, texture.mipmap, multiSamples);
+
+        renderTarget.colorFormat = renderFormat;
+        renderTarget.depthStencilFormat = depthStencilFormat;
+
+        let framebuffer = renderTarget._framebuffer;
+
+        let gl = <WebGLRenderingContext>renderTarget._gl;
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        // color
+        let colorAttachment = this.glRenderTargetAttachment(renderFormat);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
+        // depth
+        let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
+        if (depthBufferParam) {
+            let depthbuffer = this.createRenderbuffer(width, height, depthBufferParam.internalFormat);
+            renderTarget._depthbuffer = depthbuffer;
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
+        }
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        return renderTarget;
 
     }
 

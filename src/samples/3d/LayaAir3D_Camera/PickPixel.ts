@@ -20,6 +20,7 @@ import { Config } from "Config";
 import { Sprite } from "laya/display/Sprite";
 import { Utils } from "laya/utils/Utils";
 import Client from "../../Client";
+import { RenderTargetFormat } from "laya/resource/RenderTarget";
 
 export class PickPixel {
 	private isPick: boolean = false;
@@ -27,12 +28,12 @@ export class PickPixel {
 	private ray: Ray;
 	private text: Text = new Text();
 	private renderTargetCamera: Camera;
-	private _sp:Sprite;
+	private _sp: Sprite;
 
 	/**实例类型*/
-	private btype:any = "PickPixel";
+	private btype: any = "PickPixel";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 	constructor() {
 		//初始化引擎
 		Config.useRetinalCanvas = true;
@@ -54,7 +55,7 @@ export class PickPixel {
 		this._sp.graphics.clear();
 		this._sp.x = Laya.stage.mouseX;
 		this._sp.y = Laya.stage.mouseY;
-		var posX: number = MouseManager.instance.mouseX / Laya.stage.clientScaleX; 
+		var posX: number = MouseManager.instance.mouseX / Laya.stage.clientScaleX;
 		var posY: number = MouseManager.instance.mouseY / Laya.stage.clientScaleY;
 		var out: Uint8Array = new Uint8Array(4);
 		this.renderTargetCamera.renderTarget.getData(posX, posY, 1, 1, out);
@@ -62,35 +63,35 @@ export class PickPixel {
 		let r = out[0].toString(16);
 		let g = out[1].toString(16);
 		let b = out[2].toString(16);
-		if (r.length<2) {
+		if (r.length < 2) {
 			r = 0 + r;
 		}
-		if (g.length<2) {
+		if (g.length < 2) {
 			g = 0 + g;
 		}
-		if (b.length<2) {
+		if (b.length < 2) {
 			b = 0 + b;
 		}
 		let color = `#${r}${g}${b}`
 		console.log(color)
-		this._sp.alpha = out[3]/255;
-		this._sp.graphics.drawRect(0,0,100,100,color,"#ffffff");
-		Client.instance.send({type:"next",btype:this.btype,stype:1})
+		this._sp.alpha = out[3] / 255;
+		this._sp.graphics.drawRect(0, 0, 100, 100, color, "#ffffff");
+		Client.instance.send({ type: "next", btype: this.btype, stype: 1 })
 	}
 
 	private onResize(): void {
 		var stageHeight: number = Laya.stage.height;
 		var stageWidth: number = Laya.stage.width;
 		this.renderTargetCamera.renderTarget.destroy();
-		this.renderTargetCamera.renderTarget = new RenderTexture(stageWidth, stageHeight);
+		this.renderTargetCamera.renderTarget = new RenderTexture(stageWidth, stageHeight, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
 		this.text.x = Laya.stage.width / 2;
 		this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
 	}
-	private _thisscene:Scene3D ;
+	private _thisscene: Scene3D;
 	private onComplete(): void {
 		this._thisscene = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/CourtyardScene/Courtyard.ls")));
 		//加载场景
-		var scene: Scene3D = this._thisscene; 
+		var scene: Scene3D = this._thisscene;
 		//添加相机
 		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
 		camera.transform.translate(new Vector3(57, 2.5, 58));
@@ -107,7 +108,7 @@ export class PickPixel {
 		//选择渲染目标为纹理
 		var stageHeight: number = Laya.stage.height;
 		var stageWidth: number = Laya.stage.width;
-		this.renderTargetCamera.renderTarget = new RenderTexture(stageWidth, stageHeight);
+		this.renderTargetCamera.renderTarget = new RenderTexture(stageWidth, stageHeight, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
 		//渲染顺序
 		this.renderTargetCamera.renderingOrder = -1;
 		//相机添加视角控制组件(脚本)
@@ -136,10 +137,10 @@ export class PickPixel {
 		Laya.stage.addChild(this.text);
 		//添加舞台RESIZE事件
 		Laya.stage.on(Event.RESIZE, this, this.onResize);
-		
+
 	}
 
-	stypeFun0(label:string = "拾取像素"): void {
+	stypeFun0(label: string = "拾取像素"): void {
 		if (this.isPick) {
 			Laya.stage.off(Event.MOUSE_DOWN, this, this.onMouseDown);
 			this.changeActionButton.label = "拾取像素";
@@ -151,9 +152,9 @@ export class PickPixel {
 			this.changeActionButton.label = "结束拾取";
 			this.isPick = true;
 		}
-		
+
 		label = this.changeActionButton.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label})
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label })
 	}
 }
 

@@ -72,10 +72,20 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
 
     _generateMipmap: boolean;
 
-    colorFormat: RenderTargetFormat;
-    depthStencilFormat: RenderTargetFormat;
+    private _colorFormat: RenderTargetFormat;
+    get colorFormat(): RenderTargetFormat {
+        return this._renderTarget.colorFormat;
+    }
 
-    multiSamples: number;
+    private _depthStencilFormat: RenderTargetFormat;
+    get depthStencilFormat(): RenderTargetFormat {
+        return this._renderTarget.depthStencilFormat;
+    }
+
+    private _multiSamples: number;
+    public get multiSamples(): number {
+        return this._renderTarget._samples;
+    }
 
     get isCube(): boolean {
         return this._renderTarget._isCube;
@@ -92,17 +102,18 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
         this._dimension = TextureDimension.Tex2D;
         this._gammaSpace = true;
 
-        this.colorFormat = colorFormat;
-        this.depthStencilFormat = depthFormat;
+        this._colorFormat = colorFormat;
+        this._depthStencilFormat = depthFormat;
+
         this._generateMipmap = generateMipmap;
-        this.multiSamples = multiSamples;
+        this._multiSamples = multiSamples;
 
         // todo format 
         this._createRenderTarget();
     }
 
     _createRenderTarget() {
-        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this._dimension, this.width, this.height, this.colorFormat, this._generateMipmap, true, this.depthStencilFormat, this.multiSamples);
+        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this._dimension, this.width, this.height, this._colorFormat, this._generateMipmap, true, this._depthStencilFormat, this._multiSamples);
 
         this._texture = this._renderTarget._textures[0];
     }
@@ -119,6 +130,13 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
 
         LayaGL.layaContext.unbindRenderTarget(this._renderTarget);
         (this._isCameraTarget) && (RenderContext3D._instance.invertY = false);
+    }
+
+    getData(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array): Uint8Array | Float32Array {
+
+        LayaGL.layaContext.readRenderTargetPixelData(this._renderTarget, xOffset, yOffset, width, height, out);
+
+        return out;
     }
 
     protected _disposeResource(): void {

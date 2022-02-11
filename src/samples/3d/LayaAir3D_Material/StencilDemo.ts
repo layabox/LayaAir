@@ -9,7 +9,6 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
-import { RenderTextureDepthFormat } from "laya/resource/RenderTextureFormat";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -19,14 +18,15 @@ import { Event } from "laya/events/Event";
 import { Button } from "laya/ui/Button";
 import Client from "../../Client";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { RenderTargetFormat } from "laya/resource/RenderTarget";
 
 /**
  * 模板测试示例
  * @author miner
  */
 export class StencilDemo {
-    stencilMat:Material;
-    constructor() {
+	stencilMat: Material;
+	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
@@ -39,44 +39,44 @@ export class StencilDemo {
 
 	}
 
-    onPreLoadFinish() {
+	onPreLoadFinish() {
 		//初始化3D场景
 		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls")));
 		//获取相机
 		var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-        camera.depthTextureFormat = RenderTextureDepthFormat.DEPTHSTENCIL_24_8;
+		camera.depthTextureFormat = RenderTargetFormat.DEPTHSTENCIL_24_8;
 		//为相机添加视角控制组件(脚本)
 		camera.addComponent(CameraMoveScript);
-        //获取球型精灵
+		//获取球型精灵
 		let sphere = (<MeshSprite3D>scene.getChildByName("Sphere"));
-        let sphereClone:MeshSprite3D = sphere.clone() as MeshSprite3D;
-        scene.addChild(sphereClone) 
-        let matW = sphere.getComponent(MeshRenderer).sharedMaterial;
-        //打开材质模板写入
-        matW.stencilRef = 2;
-        matW.stencilWrite = true;
-        matW.stencilTest = RenderState.STENCILTEST_ALWAYS;
-        matW.renderQueue = Material.RENDERQUEUE_OPAQUE;
+		let sphereClone: MeshSprite3D = sphere.clone() as MeshSprite3D;
+		scene.addChild(sphereClone)
+		let matW = sphere.getComponent(MeshRenderer).sharedMaterial;
+		//打开材质模板写入
+		matW.stencilRef = 2;
+		matW.stencilWrite = true;
+		matW.stencilTest = RenderState.STENCILTEST_ALWAYS;
+		matW.renderQueue = Material.RENDERQUEUE_OPAQUE;
 
 
 
 
-        Vector3.scale(sphereClone.transform.localScale,1.5,sphereClone.transform.localScale) ;
-        sphereClone.transform.localScale = sphereClone.transform.localScale;
+		Vector3.scale(sphereClone.transform.localScale, 1.5, sphereClone.transform.localScale);
+		sphereClone.transform.localScale = sphereClone.transform.localScale;
 
-        let mat:UnlitMaterial = new UnlitMaterial();
-        mat.albedoColor = new Vector4(0.8,0.5,0.1);
-        sphereClone.getComponent(MeshRenderer).sharedMaterial = mat;
-        mat.stencilRef = 0;
-        mat.stencilWrite = false;
-        mat.stencilTest = RenderState.STENCILTEST_GEQUAL;
-        mat.renderQueue = Material.RENDERQUEUE_OPAQUE+1;
-        this.stencilMat = mat;
-        this.loadUI();
-    }
+		let mat: UnlitMaterial = new UnlitMaterial();
+		mat.albedoColor = new Vector4(0.8, 0.5, 0.1);
+		sphereClone.getComponent(MeshRenderer).sharedMaterial = mat;
+		mat.stencilRef = 0;
+		mat.stencilWrite = false;
+		mat.stencilTest = RenderState.STENCILTEST_GEQUAL;
+		mat.renderQueue = Material.RENDERQUEUE_OPAQUE + 1;
+		this.stencilMat = mat;
+		this.loadUI();
+	}
 
-    private curStateIndex: number = 0;
-    private loadUI(): void {
+	private curStateIndex: number = 0;
+	private loadUI(): void {
 
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
 
@@ -92,22 +92,22 @@ export class StencilDemo {
 	}
 
 
-    private changeActionButton:Button;
-    isMaster: any;
-    /**实例类型*/
-	private btype:any = "StencilDemo";
-    stypeFun0(label:string = "Stencil开启"): void {
+	private changeActionButton: Button;
+	isMaster: any;
+	/**实例类型*/
+	private btype: any = "StencilDemo";
+	stypeFun0(label: string = "Stencil开启"): void {
 		if (++this.curStateIndex % 2 == 1) {
 			this.changeActionButton.label = "Stencil开启";
-            this.stencilMat.stencilTest = RenderState.STENCILTEST_OFF;
+			this.stencilMat.stencilTest = RenderState.STENCILTEST_OFF;
 		} else {
-			
+
 			this.changeActionButton.label = "Stencil关闭";
-            this.stencilMat.stencilTest = RenderState.STENCILTEST_GEQUAL;
+			this.stencilMat.stencilTest = RenderState.STENCILTEST_GEQUAL;
 		}
 		label = this.changeActionButton.label;
-		
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
 	}
 }
 

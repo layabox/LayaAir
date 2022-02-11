@@ -3,6 +3,7 @@ import { TextureDimension } from "../d3/WebGL/InternalTexture";
 import { LayaGL } from "../layagl/LayaGL";
 import { Byte } from "../utils/Byte";
 import { HalfFloatUtils } from "../utils/HalfFloatUtils";
+import { Handler } from "../utils/Handler";
 import { SystemUtils } from "../webgl/SystemUtils";
 import { BaseTexture } from "./BaseTexture";
 import { DDSTextureInfo } from "./DDSTextureInfo";
@@ -162,6 +163,10 @@ export class Texture2D extends BaseTexture {
 
 	static _parsePVR(data: ArrayBuffer, propertyParams: any = null, constructParams: any[] = null): Texture2D {
 		throw "pvr !";
+	}
+
+	static load(url: string, complete: Handler): void {
+		ILaya.loader.create(url, complete, null, ILaya.Loader.TEXTURE2D);
 	}
 
 	_canRead: boolean = false;
