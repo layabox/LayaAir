@@ -11,6 +11,6 @@ export interface InternalRenderTarget {
     _textures: InternalTexture[];
 
     _depthTexture: InternalTexture;
-    
+
     dispose(): void;
 }
