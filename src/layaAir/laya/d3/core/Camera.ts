@@ -1,14 +1,18 @@
+
 import { Config3D } from "../../../Config3D";
+import { ILaya3D } from "../../../ILaya3D";
 import { Laya } from "../../../Laya";
 import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
+import { BaseTexture } from "../../resource/BaseTexture";
 import { FilterMode } from "../../resource/FilterMode";
-import { RenderTextureDepthFormat, RenderTextureFormat, RTDEPTHATTACHMODE } from "../../resource/RenderTextureFormat";
 import { SystemUtils } from "../../webgl/SystemUtils";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
+import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
 import { Cluster } from "../graphics/renderPath/Cluster";
+import { UniformBufferObject } from "../graphics/UniformBufferObject";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Ray } from "../math/Ray";
@@ -16,25 +20,22 @@ import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
-import { RenderTexture } from "../resource/RenderTexture";
+import { Shader3D } from "../shader/Shader3D";
 import { Picker } from "../utils/Picker";
+import { MultiRenderTexture } from "../resource/MultiRenderTexture";
+import { RenderTargetFormat } from "../../resource/RenderTarget";
+import { RenderTexture } from "../resource/RenderTexture";
 import { BaseCamera } from "./BaseCamera";
+import { DirectionLightCom } from "./light/DirectionLightCom";
 import { ShadowMode } from "./light/ShadowMode";
+import { ShadowUtils } from "./light/ShadowUtils";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
+import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
-import { ILaya3D } from "../../../ILaya3D";
-import { ShadowUtils } from "./light/ShadowUtils";
-import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
-import { Shader3D } from "../shader/Shader3D";
-import { BaseTexture } from "laya/resource/BaseTexture";
-import { MulSampleRenderTexture } from "../resource/MulSampleRenderTexture";
-import { ShaderDataType } from "./render/command/SetShaderDataCMD";
-import { UniformBufferObject } from "../graphics/UniformBufferObject";
-import { DirectionLightCom } from "./light/DirectionLightCom";
 
 /**
  * 相机清除标记。
@@ -102,7 +103,6 @@ export class Camera extends BaseCamera {
 		let recoverTexture = camera.renderTarget;
 		camera.renderTarget = renderTexture;
 
-
 		var viewport: Viewport = camera.viewport;
 		var needInternalRT: boolean = camera._needInternalRenderTexture();
 		var context: RenderContext3D = RenderContext3D._instance;
@@ -112,7 +112,7 @@ export class Camera extends BaseCamera {
 		context.customShader = shader;
 
 		if (needInternalRT) {
-			camera._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, camera._getRenderTextureFormat(), camera.depthTextureFormat);
+			camera._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, camera._getRenderTextureFormat(), camera.depthTextureFormat, false, 1);
 			camera._internalRenderTexture.filterMode = FilterMode.Bilinear;
 		}
 		else {
@@ -176,7 +176,7 @@ export class Camera extends BaseCamera {
 	/**@internal */
 	_internalCommandBuffer: CommandBuffer = new CommandBuffer();
 	/**深度贴图模式 */
-	protected _depthTextureFormat: RenderTextureDepthFormat = RenderTextureDepthFormat.DEPTH_16;
+	protected _depthTextureFormat: RenderTargetFormat = RenderTargetFormat.DEPTH_16;
 	/** 深度贴图*/
 	private _depthTexture: BaseTexture;
 	/** 深度法线贴图*/
@@ -388,7 +388,7 @@ export class Camera extends BaseCamera {
 	}
 
 	set enableHDR(value: boolean) {
-		if (value && !SystemUtils.supportRenderTextureFormat(RenderTextureFormat.R16G16B16A16)) {
+		if (value && !SystemUtils.supportRenderTextureFormat(RenderTargetFormat.R16G16B16A16)) {
 			console.warn("Camera:can't enable HDR in this device.");
 			return;
 		}
@@ -420,10 +420,10 @@ export class Camera extends BaseCamera {
 	/**
 	 * 深度贴图格式
 	 */
-	get depthTextureFormat(): RenderTextureDepthFormat {
+	get depthTextureFormat(): RenderTargetFormat {
 		return this._depthTextureFormat;
 	}
-	set depthTextureFormat(value: RenderTextureDepthFormat) {
+	set depthTextureFormat(value: RenderTargetFormat) {
 		this._depthTextureFormat = value;
 	}
 	/**
@@ -431,15 +431,15 @@ export class Camera extends BaseCamera {
 	 */
 	set enableBlitDepth(value: boolean) {
 		this._canBlitDepth = value;
-		if (value)
-			this._internalRenderTexture && (this._internalRenderTexture.depthAttachMode = RTDEPTHATTACHMODE.TEXTURE);
-		else
-			this._internalRenderTexture && (this._internalRenderTexture.depthAttachMode = RTDEPTHATTACHMODE.RENDERBUFFER);
+		// if (value)
+		// 	this._internalRenderTexture && (this._internalRenderTexture.depthAttachMode = RTDEPTHATTACHMODE.TEXTURE);
+		// else
+		// 	this._internalRenderTexture && (this._internalRenderTexture.depthAttachMode = RTDEPTHATTACHMODE.RENDERBUFFER);
 
 	}
 
 	get canblitDepth() {
-		return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != RenderTextureDepthFormat.DEPTHSTENCIL_NONE && this._internalRenderTexture.depthAttachMode == RTDEPTHATTACHMODE.TEXTURE;
+		return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != null && this._internalRenderTexture.isMulti;
 	}
 
 	/**
@@ -590,9 +590,9 @@ export class Camera extends BaseCamera {
 	 */
 	_getRenderTextureFormat(): number {
 		if (this._enableHDR)
-			return RenderTextureFormat.R16G16B16A16;
+			return RenderTargetFormat.R16G16B16A16;
 		else
-			return RenderTextureFormat.R8G8B8;
+			return RenderTargetFormat.R8G8B8;
 	}
 
 	/**
@@ -773,7 +773,7 @@ export class Camera extends BaseCamera {
 				blit.recover();
 			} else {
 				if (this._enableHDR) {//internal RT is HDR can't directly copy
-					var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTH_16);
+					var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTargetFormat.R8G8B8, RenderTargetFormat.DEPTH_16, false, 1);
 					grabTexture.filterMode = FilterMode.Bilinear;
 					WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
 					gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
@@ -870,12 +870,12 @@ export class Camera extends BaseCamera {
 	_renderDepthMode(context: RenderContext3D) {
 		var cameraDepthMode = this._depthTextureMode;
 		if ((cameraDepthMode & DepthTextureMode.Depth) != 0) {
-			if (!this.canblitDepth || !this._internalRenderTexture.depthStencilTexture) {
+			if (!this.canblitDepth || !(<MultiRenderTexture>this._internalRenderTexture).depthTexture) {
 				Camera.depthPass.update(this, DepthTextureMode.Depth, this._depthTextureFormat);
 				Camera.depthPass.render(context, DepthTextureMode.Depth);
 			}
 			else {
-				this.depthTexture = this._internalRenderTexture.depthStencilTexture;
+				this.depthTexture = (<MultiRenderTexture>this._internalRenderTexture).depthTexture;
 				//@ts-ignore;
 				Camera.depthPass._depthTexture = this.depthTexture;
 				Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, this);
@@ -941,10 +941,11 @@ export class Camera extends BaseCamera {
 		context.customShader = shader;
 		if (needInternalRT) {
 			if (this._msaa && LayaGL.layaGPUInstance._isWebGL2) {
-				this._internalRenderTexture = MulSampleRenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
+				// todo
+				// this._internalRenderTexture = MulSampleRenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			} else {
-				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
+				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 1);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			}
 

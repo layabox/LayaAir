@@ -31,9 +31,9 @@ export interface InternalTexture {
     mipmapCount: number;
 
     filterMode: FilterMode;
-    warpU: WarpMode;
-    warpV: WarpMode;
-    warpW: WarpMode;
+    wrapU: WarpMode;
+    wrapV: WarpMode;
+    wrapW: WarpMode;
     anisoLevel: number;
 
     /**

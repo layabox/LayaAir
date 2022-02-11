@@ -1,6 +1,5 @@
 import { Config3D } from "../../../Config3D";
 import { LayaGL } from "../../layagl/LayaGL";
-import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
 import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
 import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
@@ -10,11 +9,12 @@ import { UniformBufferObject } from "../graphics/UniformBufferObject";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
-import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ShaderDefine } from "../shader/ShaderDefine";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
+import { RenderTargetFormat } from "../../resource/RenderTarget";
+import { RenderTexture } from "../resource/RenderTexture";
 
 
 /**
@@ -79,15 +79,15 @@ export class DepthPass {
 	 * @param camera 
 	 * @param depthType 
 	 */
-	update(camera: Camera, depthType: DepthTextureMode, depthTextureFormat: RenderTextureDepthFormat): void {
+	update(camera: Camera, depthType: DepthTextureMode, depthTextureFormat: RenderTargetFormat): void {
 		this._viewPort = camera.viewport;
 		this._camera = camera;
 		switch (depthType) {
 			case DepthTextureMode.Depth:
-				camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, RenderTextureFormat.Depth, depthTextureFormat);
+				camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, depthTextureFormat, null, false, 1);
 				break;
 			case DepthTextureMode.DepthNormals:
-				camera.depthNormalTexture = this._depthNormalsTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, RenderTextureFormat.R8G8B8A8, depthTextureFormat);
+				camera.depthNormalTexture = this._depthNormalsTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, RenderTargetFormat.R8G8B8A8, depthTextureFormat, false, 1);
 				break;
 			case DepthTextureMode.MotionVectors:
 				//TODO：
@@ -117,7 +117,7 @@ export class DepthPass {
 					this._castDepthBuffer._setData(DepthPass.DEFINE_SHADOW_BIAS, ShaderDataType.Vector4, DepthPass.SHADOW_BIAS);
 					this._castDepthBuffer._setData(BaseCamera.VIEWPROJECTMATRIX, ShaderDataType.Matrix4x4, context.projectionViewMatrix);
 					this._castDepthBuffer.setVector3("u_ShadowLightDirection", Vector3._ZERO);
-					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock",0);
+					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock", 0);
 					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
 				}
 				var gl = LayaGL.instance;

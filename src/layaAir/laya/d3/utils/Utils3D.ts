@@ -13,11 +13,11 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { TextureGenerator } from "../resource/TextureGenerator";
 import { ILaya3D } from "../../../ILaya3D";
-import { RenderTexture } from "../resource/RenderTexture";
-import { RenderTextureFormat } from "../../resource/RenderTextureFormat";
 import { Render } from "../../renders/Render";
 import { HTMLCanvas } from "../../resource/HTMLCanvas";
 import { Sprite3D } from "../core/Sprite3D";
+import { RenderTexture } from "../resource/RenderTexture";
+import { RenderTargetFormat } from "../../resource/RenderTarget";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
@@ -36,6 +36,7 @@ export class Utils3D {
 	 */
 	static _createFloatTextureBuffer(width: number, height: number): Texture2D {
 		var floatTex: Texture2D = new Texture2D(width, height, TextureFormat.R32G32B32A32, false, false);
+		floatTex.setPixelsData(null, false, false);
 		floatTex.filterMode = FilterMode.Point;
 		floatTex.wrapModeU = WarpMode.Clamp;
 		floatTex.wrapModeV = WarpMode.Clamp;
@@ -775,23 +776,24 @@ export class Utils3D {
 		let pixelArray: Uint8Array | Float32Array;
 		let width = rendertexture.width;
 		let height = rendertexture.height;
-		switch (rendertexture.format) {
-			case RenderTextureFormat.R8G8B8:
+		switch (rendertexture.colorFormat) {
+			case RenderTargetFormat.R8G8B8:
 				pixelArray = new Uint8Array(width * height * 4);
 				break;
-			case RenderTextureFormat.R8G8B8A8:
+			case RenderTargetFormat.R8G8B8A8:
 				pixelArray = new Uint8Array(width * height * 4);
 				break;
-			case RenderTextureFormat.R16G16B16A16:
+			case RenderTargetFormat.R16G16B16A16:
 				pixelArray = new Float32Array(width * height * 4);
 				break;
 			default:
 				throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
 		}
-		rendertexture.getData(0, 0, rendertexture.width, rendertexture.height, pixelArray);
+		// rendertexture.getData(0, 0, rendertexture.width, rendertexture.height, pixelArray);
 		//tranceTo
-		switch (rendertexture.format) {
-			case RenderTextureFormat.R16G16B16A16:
+		throw " rt get Data";
+		switch (rendertexture.colorFormat) {
+			case RenderTargetFormat.R16G16B16A16:
 				let ori = pixelArray;
 				let trans = new Uint8Array(width * height * 4);
 				for (let i = 0, n = ori.length; i < n; i++) {

@@ -5,12 +5,12 @@ import { CommandBuffer } from "./command/CommandBuffer"
 import { Color } from "../../math/Color"
 import { Vector4 } from "../../math/Vector4"
 import { Viewport } from "../../math/Viewport"
-import { RenderTexture } from "../../resource/RenderTexture"
 import { Shader3D } from "../../shader/Shader3D"
 import { ShaderData } from "../../shader/ShaderData"
 import { Texture2D } from "../../../resource/Texture2D"
-import { RenderTextureFormat, RenderTextureDepthFormat } from "../../../resource/RenderTextureFormat";
 import { FilterMode } from "../../../resource/FilterMode";
+import { RenderTexture } from "../../resource/RenderTexture";
+import { RenderTargetFormat } from "../../../resource/RenderTarget";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。
@@ -240,12 +240,12 @@ export class BloomEffect extends PostProcessEffect {
 			var upIndex: number = downIndex + 1;
 			var subShader: number = i == 0 ? BloomEffect.SUBSHADER_PREFILTER13 + qualityOffset : BloomEffect.SUBSHADER_DOWNSAMPLE13 + qualityOffset;
 
-			var mipDownTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+			var mipDownTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, null, false, 1);
 			mipDownTexture.filterMode = FilterMode.Bilinear;
 			this._pyramid[downIndex] = mipDownTexture;
 
 			if (i !== iterations - 1) {
-				var mipUpTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+				var mipUpTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, null, false, 1);
 				mipUpTexture.filterMode = FilterMode.Bilinear;
 				this._pyramid[upIndex] = mipUpTexture;
 			}
@@ -304,7 +304,7 @@ export class BloomEffect extends PostProcessEffect {
 
 		let _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
 
-		cmd.blitScreenTriangle(context.source, context.destination, context.camera._screenOffsetScale, _compositeShader ,compositeShaderData, 0, true);
+		cmd.blitScreenTriangle(context.source, context.destination, context.camera._screenOffsetScale, _compositeShader, compositeShaderData, 0, true);
 
 
 		//释放渲染纹理

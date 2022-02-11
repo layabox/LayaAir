@@ -1,5 +1,5 @@
-import { TextureFormat } from "../resource/TextureFormat";
-import { SystemUtils } from "./SystemUtils";
+import { TextureFormat } from "./TextureFormat";
+import { SystemUtils } from "../webgl/SystemUtils";
 
 const FOURCC_DXT1: number = 827611204;
 const FOURCC_DXT3 = 861165636;

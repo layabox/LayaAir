@@ -67,10 +67,10 @@ export class WebGLInternalTex implements InternalTexture {
         // this._anisoLevel = 4;
 
         this.filterMode = FilterMode.Bilinear;
-        this.warpU = WarpMode.Repeat;
+        this.wrapU = WarpMode.Repeat;
         // todo
-        this.warpV = WarpMode.Repeat;
-        this.warpW = WarpMode.Repeat;
+        this.wrapV = WarpMode.Repeat;
+        this.wrapW = WarpMode.Repeat;
         this.anisoLevel = 4;
     }
 
@@ -92,10 +92,10 @@ export class WebGLInternalTex implements InternalTexture {
     }
 
     private _warpU: WarpMode;
-    public get warpU(): WarpMode {
+    public get wrapU(): WarpMode {
         return this._warpU;
     }
-    public set warpU(value: WarpMode) {
+    public set wrapU(value: WarpMode) {
         if (this._warpU != value && this.resource) {
             let gl = this._gl;
             let warpParam = this.getWarpParam(value);
@@ -105,10 +105,10 @@ export class WebGLInternalTex implements InternalTexture {
     }
 
     private _warpV: WarpMode;
-    public get warpV(): WarpMode {
+    public get wrapV(): WarpMode {
         return this._warpV;
     }
-    public set warpV(value: WarpMode) {
+    public set wrapV(value: WarpMode) {
         if (this._warpV != value && this.resource) {
             let gl = this._gl;
             let warpParam = this.getWarpParam(value);
@@ -118,10 +118,10 @@ export class WebGLInternalTex implements InternalTexture {
     }
 
     private _warpW: WarpMode;
-    public get warpW(): WarpMode {
+    public get wrapW(): WarpMode {
         return this._warpW;
     }
-    public set warpW(value: WarpMode) {
+    public set wrapW(value: WarpMode) {
         // todo
         // webgl1 unsupported 
         this._warpW = value;
@@ -136,7 +136,7 @@ export class WebGLInternalTex implements InternalTexture {
         if (anisoExt) {
             let gl = this._gl;
             let maxAnisoLevel = gl.getParameter(anisoExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-            let level = Math.min(maxAnisoLevel, value);
+            let level = Math.max(1, Math.min(maxAnisoLevel, value));
             this._setTexParametexf(anisoExt.TEXTURE_MAX_ANISOTROPY_EXT, level);
             this._anisoLevel = value;
         }

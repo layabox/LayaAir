@@ -1,6 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { FilterMode } from "../../../resource/FilterMode";
-import { RenderTextureDepthFormat, RenderTextureFormat } from "../../../resource/RenderTextureFormat";
 import { WarpMode } from "../../../resource/WrapMode";
 import { BoundFrustum, FrustumCorner } from "../../math/BoundFrustum";
 import { BoundSphere } from "../../math/BoundSphere";
@@ -9,7 +8,6 @@ import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Plane } from "../../math/Plane";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
-import { RenderTexture } from "../../resource/RenderTexture";
 import { ShadowSliceData, ShadowSpotData } from "../../shadowMap/ShadowSliceData";
 import { Utils3D } from "../../utils/Utils3D";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
@@ -19,6 +17,8 @@ import { Light, LightType } from "./Light";
 import { SpotLightCom } from "./SpotLightCom";
 import { Sprite3D } from "../Sprite3D";
 import { DirectionLightCom } from "./DirectionLightCom";
+import { RenderTargetFormat } from "../../../resource/RenderTarget";
+import { RenderTexture } from "../../resource/RenderTexture";
 
 /**
  * @internal
@@ -48,7 +48,10 @@ export class ShadowUtils {
         0.5, 0.5, 0.0, 1.0,
     );
     /** @internal */
-    private static _shadowTextureFormat: RenderTextureFormat;
+    private static _shadowTextureFormat: RenderTargetFormat;
+
+    private static _shadowFormatSupport: boolean;
+
     /** @internal */
     private static _frustumCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
     /** @internal */
@@ -86,7 +89,8 @@ export class ShadowUtils {
     * @internal
     */
     static supportShadow(): boolean {
-        return LayaGL.layaGPUInstance._isWebGL2 || SystemUtils.supportRenderTextureFormat(RenderTextureFormat.Depth);
+        // todo  format 
+        return LayaGL.layaGPUInstance._isWebGL2 || SystemUtils.supportRenderTextureFormat(RenderTargetFormat.DEPTH_16);
     }
 
     /**
@@ -94,17 +98,23 @@ export class ShadowUtils {
      */
     static init(): void {
         //some const value,only init once here.
-        if (LayaGL.layaGPUInstance._isWebGL2)
-            ShadowUtils._shadowTextureFormat = RenderTextureFormat.ShadowMap;
-        else
-            ShadowUtils._shadowTextureFormat = RenderTextureFormat.Depth;
+        if (LayaGL.layaGPUInstance._isWebGL2) {
+
+            // ShadowUtils._shadowTextureFormat = RenderTargetFormat.ShadowMap;
+            ShadowUtils._shadowFormatSupport = true;
+            ShadowUtils._shadowFormatSupport = false;
+        }
+        else {
+            ShadowUtils._shadowFormatSupport = false;
+            // ShadowUtils._shadowTextureFormat = RenderTargetFormat.Depth;
+        }
     }
 
     /**
      * @internal
      */
-    static getTemporaryShadowTexture(witdh: number, height: number, depthFormat: RenderTextureDepthFormat): RenderTexture {
-        var shadowMap: RenderTexture = RenderTexture.createFromPool(witdh, height, ShadowUtils._shadowTextureFormat, depthFormat);
+    static getTemporaryShadowTexture(witdh: number, height: number, depthFormat: RenderTargetFormat): RenderTexture {
+        var shadowMap: RenderTexture = RenderTexture.createFromPool(witdh, height, depthFormat, null, false, 1);
         shadowMap.filterMode = FilterMode.Bilinear;
         shadowMap.wrapModeU = WarpMode.Clamp;
         shadowMap.wrapModeV = WarpMode.Clamp;

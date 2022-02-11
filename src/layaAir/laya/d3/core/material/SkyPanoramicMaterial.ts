@@ -58,7 +58,7 @@ export class SkyPanoramicMaterial extends Material {
         if (this._exposure !== value) {
             this._exposure = value;
             if (this._textureDecodeFormat == TextureDecodeFormat.RGBM)
-                this._textureHDRParams.x = value * BaseTexture._rgbmRange;
+                this._textureHDRParams.x = value * 5.0 /**BaseTexture._rgbmRange */;
             else
                 this._textureHDRParams.x = value;
         }
@@ -98,7 +98,7 @@ export class SkyPanoramicMaterial extends Material {
         if (this._textureDecodeFormat !== value) {
             this._textureDecodeFormat = value;
             if (value == TextureDecodeFormat.RGBM)
-                this._textureHDRParams.x = this._exposure * BaseTexture._rgbmRange;
+                this._textureHDRParams.x = this._exposure * 5.0/**BaseTexture._rgbmRange */;
             else
                 this._textureHDRParams.x = this._exposure;
         }

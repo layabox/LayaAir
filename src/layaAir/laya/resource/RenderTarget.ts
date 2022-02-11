@@ -1,5 +1,5 @@
-import { TextureFormat } from "../../resource/TextureFormat";
-import { InternalRenderTarget } from "./InternalRenderTarget";
+import { TextureFormat } from "./TextureFormat";
+import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
 
 enum RenderTargetDepthFormat {
     /**深度格式_DEPTH_16。*/
@@ -27,7 +27,11 @@ export enum RenderTargetFormat {
     DEPTH_16,
     STENCIL_8,
     DEPTHSTENCIL_24_8,
-    DEPTH_32
+    DEPTH_32,
+
+    SHADOW16,
+    SHADOW24,
+    SHADOW32,
 }
 // export type RenderTargetFormat = TextureFormat.R8G8B8 | TextureFormat.R8G8B8A8;
 
@@ -36,6 +40,9 @@ export interface RenderTarget {
     _renderTarget: InternalRenderTarget;
 
     _isCameraTarget: boolean;
+
+    isCube: boolean;
+    isMulti: boolean;
 
     _start(): void;
 

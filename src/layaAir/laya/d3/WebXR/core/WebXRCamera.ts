@@ -7,8 +7,8 @@ import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { Viewport } from "../../math/Viewport";
-import { RenderTexture } from "../../resource/RenderTexture";
 import { Shader3D } from "../../shader/Shader3D";
+import { RenderTexture } from "../../resource/RenderTexture";
 import { WebXRCameraManager } from "./WebXRCameraManager";
 import { WebXRRenderTexture } from "./WebXRRenderTexture";
 

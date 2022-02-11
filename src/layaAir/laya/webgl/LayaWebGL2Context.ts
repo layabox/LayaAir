@@ -1,11 +1,11 @@
 
-import { InternalTexture, TextureDimension } from "../d3/WebGL/InternalTexture";
-import { RenderTargetFormat } from "../d3/WebGL/RenderTarget";
+import { TextureDimension } from "../d3/WebGL/InternalTexture";
+import { RenderTargetFormat } from "../resource/RenderTarget";
 import { WebGLInternalTex } from "../d3/WebGL/WebGLInternalTex";
 import { LayaGL } from "../layagl/LayaGL";
+import { HDRTextureInfo } from "../resource/HDRTextureInfo";
+import { KTXTextureInfo } from "../resource/KTXTextureInfo";
 import { TextureFormat } from "../resource/TextureFormat";
-import { HDRTextureInfo } from "./HDRTextureInfo";
-import { KTXTextureInfo } from "./KTXTextureInfo";
 import { LayaWebGLContext } from "./LayaWebGLContext";
 import { WebGLContext } from "./WebGLContext";
 

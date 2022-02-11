@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { RenderTargetFormat } from "../../../resource/RenderTarget";
 import { RenderTexture } from "../../resource/RenderTexture";
 
 
@@ -18,7 +19,7 @@ export class WebXRRenderTexture extends RenderTexture {
 	 * @param frameBuffer 
 	 */
 	constructor() {
-		super(1, 1, 1, 1, false);
+		super(1, 1, 1, RenderTargetFormat.STENCIL_8, false, 1);
 	}
 
 	/**

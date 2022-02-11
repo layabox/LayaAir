@@ -1,10 +1,10 @@
 import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
 import { InternalTexture, TextureDimension } from "../d3/WebGL/InternalTexture";
-import { RenderTargetFormat } from "../d3/WebGL/RenderTarget";
+import { RenderTargetFormat } from "../resource/RenderTarget";
 import { TextureFormat } from "../resource/TextureFormat";
-import { DDSTextureInfo } from "./DDSTextureInfo";
-import { HDRTextureInfo } from "./HDRTextureInfo";
-import { KTXTextureInfo } from "./KTXTextureInfo";
+import { DDSTextureInfo } from "../resource/DDSTextureInfo";
+import { HDRTextureInfo } from "../resource/HDRTextureInfo";
+import { KTXTextureInfo } from "../resource/KTXTextureInfo";
 
 export interface LayaContext {
 
@@ -22,6 +22,8 @@ export interface LayaContext {
     setTextureImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean): void;
 
     setTexturePixelsData(texture: InternalTexture, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean): void;
+
+    setTextureSubPixelsData(texture: InternalTexture, source: ArrayBufferView, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void;
 
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void;
 

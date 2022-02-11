@@ -1,4 +1,4 @@
-import { RenderTexture } from "../../../resource/RenderTexture";
+
 import { Shader3D } from "../../../shader/Shader3D";
 import { ShaderData } from "../../../shader/ShaderData";
 import { Camera } from "../../Camera";
@@ -22,6 +22,7 @@ import { SetGlobalShaderDataCMD } from "./SetGlobalShaderDataCMD";
 import { DrawMeshInstancedCMD } from "./DrawMeshInstancedCMD";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { RenderTexture } from "../../../resource/RenderTexture";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。

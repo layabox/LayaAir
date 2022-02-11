@@ -1,6 +1,6 @@
 import { Command } from "./Command";
-import { RenderTexture } from "../../../resource/RenderTexture"
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { RenderTexture } from "../../../resource/RenderTexture";
 
 /**
  * @internal
@@ -29,8 +29,8 @@ export class SetRenderTargetCMD extends Command {
 	 */
 	run(): void {
 		//如果已经有绑定的帧buffer  需要先解绑
-		(RenderTexture.currentActive)&&(RenderTexture.currentActive._end());
-		LayaGL.instance.viewport(0, 0,this._renderTexture.width,this._renderTexture.height);
+		(RenderTexture.currentActive) && (RenderTexture.currentActive._end());
+		LayaGL.instance.viewport(0, 0, this._renderTexture.width, this._renderTexture.height);
 		this._renderTexture._start();
 	}
 

@@ -1,6 +1,6 @@
+import { RenderTargetFormat } from "../resource/RenderTarget";
 import { LayaGL } from "../layagl/LayaGL";
 import { TextureFormat } from "../resource/TextureFormat";
-import { RenderTextureFormat } from "../resource/RenderTextureFormat";
 
 /**
  * 系统工具。
@@ -84,12 +84,15 @@ export class SystemUtils {
      */
     static supportRenderTextureFormat(format: number): boolean {
         switch (format) {
-            case RenderTextureFormat.R16G16B16A16:
+            case RenderTargetFormat.R16G16B16A16:
                 return (((!!LayaGL.layaGPUInstance._isWebGL2) && (!!LayaGL.layaGPUInstance._extColorBufferFloat)) || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear) ? true : false;
-            case RenderTextureFormat.Depth:
+            case RenderTargetFormat.DEPTH_16:
+            case RenderTargetFormat.DEPTH_32:
+            case RenderTargetFormat.DEPTHSTENCIL_24_8:
                 return (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._webgl_depth_texture) ? true : false;
-            case RenderTextureFormat.ShadowMap:
-                return LayaGL.layaGPUInstance._isWebGL2 ? true : false;
+            // ??
+            // case RenderTargetFormat.ShadowMap:
+            //     return LayaGL.layaGPUInstance._isWebGL2 ? true : false;
             default:
                 return true;
         }

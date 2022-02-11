@@ -397,15 +397,17 @@ export class Loader extends EventDispatcher {
 					}
 				}
 				tex = new Texture2D(0, 0, format, false, false);
+				// tex.setCompressData(data);
+				throw "ktx pvr parse"
 				tex.wrapModeU = WarpMode.Clamp;
 				tex.wrapModeV = WarpMode.Clamp;
-				tex.setCompressData(data);
 				tex._setCreateURL(this.url);
 			} else if (!(data instanceof Texture2D)) {
 				tex = new Texture2D(data.width, data.height, 1, false, false);
+				// tex.loadImageSource(data, true);
+				tex.setImageData(data, true, false);
 				tex.wrapModeU = WarpMode.Clamp;
 				tex.wrapModeV = WarpMode.Clamp;
-				tex.loadImageSource(data, true);
 				tex._setCreateURL(data.src);
 			} else {
 				tex = data;
@@ -418,9 +420,10 @@ export class Loader extends EventDispatcher {
 			this.complete(data);
 		} else if (type === "htmlimage") {
 			let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+			// tex.loadImageSource(data, true);
+			tex.setImageData(data, true, false);
 			tex.wrapModeU = WarpMode.Clamp;
 			tex.wrapModeV = WarpMode.Clamp;
-			tex.loadImageSource(data, true);
 			tex._setCreateURL(data.src);
 			this.complete(tex);
 		}
@@ -501,14 +504,16 @@ export class Loader extends EventDispatcher {
 						let tex = new Texture2D(0, 0, format, false, false);
 						tex.wrapModeU = WarpMode.Clamp;
 						tex.wrapModeV = WarpMode.Clamp;
-						tex.setCompressData(data);
+						// tex.setCompressData(data);
+						throw "tex load  eee "
 						tex._setCreateURL(url);
 						data = tex;
 					} else {
 						let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
+						// tex.loadImageSource(data, true);
+						tex.setImageData(data, true, false);
 						tex.wrapModeU = WarpMode.Clamp;
 						tex.wrapModeV = WarpMode.Clamp;
-						tex.loadImageSource(data, true);
 						tex._setCreateURL(data.src);
 						data = tex;
 					}

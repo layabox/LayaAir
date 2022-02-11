@@ -380,7 +380,7 @@ export class glTFUtils {
             let constructParams: any[] = glTFUtils.getTextureConstructParams(glTFImg, glTFSampler);
             let propertyParams: any[] = glTFUtils.getTexturePropertyParams(glTFSampler);
 
-            let tex2d: Texture2D = Texture2D._parse(img, propertyParams, constructParams);
+            let tex2d: Texture2D = Texture2D._parseImage(img, propertyParams, constructParams);
             glTFUtils._glTFTextures[index] = tex2d;
         });
     }

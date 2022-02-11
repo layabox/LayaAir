@@ -34,5 +34,17 @@ export class WebGLInternalRT implements InternalRenderTarget {
         this._framebuffer = gl.createFramebuffer();
     }
 
+    dispose(): void {
+        this._textures.forEach(tex => {
+            tex.dispose();
+        });
+        this._textures = null;
+        this._depthTexture.dispose();
+
+        this._framebuffer && this._gl.deleteFramebuffer(this._framebuffer);
+        this._framebuffer = null;
+        this._depthbuffer && this._gl.deleteRenderbuffer(this._depthbuffer);
+        this._depthbuffer = null;
+    }
 
 }

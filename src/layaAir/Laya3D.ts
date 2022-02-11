@@ -338,14 +338,14 @@ export class Laya3D {
 		createMap["ls"] = [Laya3D.HIERARCHY, Scene3DUtils._parseScene];
 		createMap["lm"] = [Laya3D.MESH, MeshReader._parse];
 		createMap["lmat"] = [Laya3D.MATERIAL, Material._parse];
-		createMap["jpg"] = [Laya3D.TEXTURE2D, Texture2D._parse];
-		createMap["jpeg"] = [Laya3D.TEXTURE2D, Texture2D._parse];
-		createMap["bmp"] = [Laya3D.TEXTURE2D, Texture2D._parse];
-		createMap["gif"] = [Laya3D.TEXTURE2D, Texture2D._parse];
-		createMap["png"] = [Laya3D.TEXTURE2D, Texture2D._parse];
-		createMap["dds"] = [Laya3D.TEXTURE2D, Texture2D._parse];
-		createMap["ktx"] = [Laya3D.TEXTURE2D, Texture2D._parse];
-		createMap["pvr"] = [Laya3D.TEXTURE2D, Texture2D._parse];
+		createMap["jpg"] = [Laya3D.TEXTURE2D, Texture2D._parseImage];
+		createMap["jpeg"] = [Laya3D.TEXTURE2D, Texture2D._parseImage];
+		createMap["bmp"] = [Laya3D.TEXTURE2D, Texture2D._parseImage];
+		createMap["gif"] = [Laya3D.TEXTURE2D, Texture2D._parseImage];
+		createMap["png"] = [Laya3D.TEXTURE2D, Texture2D._parseImage];
+		createMap["dds"] = [Laya3D.TEXTURE2D, Texture2D._parseDDS];
+		createMap["ktx"] = [Laya3D.TEXTURE2D, Texture2D._parseKTX];
+		createMap["pvr"] = [Laya3D.TEXTURE2D, Texture2D._parsePVR];
 		createMap["lani"] = [Laya3D.ANIMATIONCLIP, AnimationClip._parse];
 		createMap["lav"] = [Laya3D.AVATAR, Avatar._parse];
 		createMap["ltc"] = [Laya3D.TEXTURECUBE, TextureCube._parse];
@@ -835,7 +835,27 @@ export class Laya3D {
 		//需要先注册,否则可能同步加载完成没来得及注册就完成
 		loader.on(Event.LOADED, null, function (image: any): void {
 			loader._cache = loader._createCache;
-			var tex: Texture2D = Texture2D._parse(image, loader._propertyParams, loader._constructParams);
+			var tex: Texture2D;
+			switch (ext) {
+				case "jpg":
+				case "jpeg":
+				case "bmp":
+				case "gif":
+				case "png":
+					tex = Texture2D._parseImage(image, loader._propertyParams, loader._constructParams);
+					break;
+				case "dds":
+					tex = Texture2D._parseDDS(image, loader._propertyParams, loader._constructParams);
+					break;
+				case "ktx":
+					tex = Texture2D._parseKTX(image, loader._propertyParams, loader._constructParams);
+					break;
+				case "pvr":
+					tex = Texture2D._parsePVR(image, loader._propertyParams, loader._constructParams);
+					break;
+			}
+
+			// var tex: Texture2D = Texture2D._parse(image, loader._propertyParams, loader._constructParams);
 			Laya3D._endLoad(loader, tex);
 		});
 		loader.load(loader.url, type, false, null, true);
@@ -882,7 +902,8 @@ export class Laya3D {
 					uint8Arrays[j] = new Uint8Array(data, pos, mipPixelLength);
 					pos += mipPixelLength;
 				}
-				cubemap.setSixSidePixels(uint8Arrays, i);
+				// todo  自动生成 mipmap 与 手动设置 mipmap
+				cubemap.setPixelsData(uint8Arrays, false, false);
 				mipSize /= 2;
 			}
 			Laya3D._endLoad(loader, cubemap);

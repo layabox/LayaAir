@@ -7,7 +7,6 @@ import { URL } from "../../../net/URL";
 import { Render } from "../../../renders/Render";
 import { Context } from "../../../resource/Context";
 import { ICreateResource } from "../../../resource/ICreateResource";
-import { RenderTextureDepthFormat } from "../../../resource/RenderTextureFormat";
 import { Texture2D } from "../../../resource/Texture2D";
 import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
 import { Handler } from "../../../utils/Handler";
@@ -30,7 +29,6 @@ import { PhysicsSimulation } from "../../physics/PhysicsSimulation";
 import { SkyBox } from "../../resource/models/SkyBox";
 import { SkyDome } from "../../resource/models/SkyDome";
 import { SkyRenderer } from "../../resource/models/SkyRenderer";
-import { RenderTexture } from "../../resource/RenderTexture";
 import { TextureCube } from "../../resource/TextureCube";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
@@ -73,7 +71,8 @@ import { DirectionLightCom } from "../light/DirectionLightCom";
 import { Sprite3D } from "../Sprite3D";
 import { PointLightCom } from "../light/PointLightCom";
 import { SpotLightCom } from "../light/SpotLightCom";
-import { RenderTargetFormat } from "../../WebGL/RenderTarget";
+import { RenderTargetFormat } from "../../../resource/RenderTarget";
+import { RenderTexture } from "../../resource/RenderTexture";
 /**
  * 环境光模式
  */
@@ -1073,7 +1072,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 
-			(curCount > 0) && (ligTex.setSubPixels(0, 0, pixelWidth, curCount, ligPix, 0));
+			(curCount > 0) && (ligTex.setSubPixelsData(0, 0, pixelWidth, curCount, ligPix, false, false));
 			shaderValues.setTexture(Scene3D.LIGHTBUFFER, ligTex);
 			shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionLights._length);
 			shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Cluster.instance._clusterTexture);
@@ -1194,15 +1193,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				if (renderTex) {
 					flag = gl.COLOR_BUFFER_BIT;
 					switch (renderTex.depthStencilFormat) {
-						case RenderTextureDepthFormat.DEPTH_16:
 						case RenderTargetFormat.DEPTH_16:
 							flag |= gl.DEPTH_BUFFER_BIT;
 							break;
-						case RenderTextureDepthFormat.STENCIL_8:
 						case RenderTargetFormat.STENCIL_8:
 							flag |= gl.STENCIL_BUFFER_BIT;
 							break;
-						case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
 						case RenderTargetFormat.DEPTHSTENCIL_24_8:
 							flag |= gl.DEPTH_BUFFER_BIT;
 							flag |= gl.STENCIL_BUFFER_BIT;
@@ -1224,13 +1220,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				gl.scissor(vpX, vpY, vpW, vpH);
 				if (renderTex) {
 					switch (renderTex.depthStencilFormat) {
-						case RenderTextureDepthFormat.DEPTH_16:
+						case RenderTargetFormat.DEPTH_16:
 							flag = gl.DEPTH_BUFFER_BIT;
 							break;
-						case RenderTextureDepthFormat.STENCIL_8:
+						case RenderTargetFormat.STENCIL_8:
 							flag = gl.STENCIL_BUFFER_BIT;
 							break;
-						case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
+						case RenderTargetFormat.DEPTHSTENCIL_24_8:
 							//打开模板缓存 再清理
 							gl.clearStencil(0);
 							WebGLContext.setStencilMask(gl, true);

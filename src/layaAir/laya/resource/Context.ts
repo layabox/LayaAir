@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { RenderTargetFormat } from "./RenderTarget";
 import { Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
 import { LayaGL } from "../layagl/LayaGL";
@@ -50,9 +51,9 @@ import { WebGLContext } from "../webgl/WebGLContext";
 import { Bitmap } from "./Bitmap";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
-import { RenderTextureFormat } from "./RenderTextureFormat";
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
+import { TextureFormat } from "./TextureFormat";
 
 /**
  * @private
@@ -95,11 +96,11 @@ export class Context {
 	}
 
 	/**@private */
-	drawImage(...args:any[]): void {
+	drawImage(...args: any[]): void {
 	}
 
 	/**@private */
-	getImageData(...args:any[]): any {
+	getImageData(...args: any[]): any {
 	}
 
 	/**@private */
@@ -108,7 +109,7 @@ export class Context {
 	}
 
 	/**@private */
-	setTransform(...args:any[]): void {
+	setTransform(...args: any[]): void {
 	}
 
 
@@ -362,7 +363,7 @@ export class Context {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.setBlend(gl, true);//还原2D设置
 		WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
-		BlendMode.activeBlendFunction=null;		// 防止submit不设置blend
+		BlendMode.activeBlendFunction = null;		// 防止submit不设置blend
 		WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 		WebGLContext.setDepthTest(gl, false);
 		WebGLContext.setCullFace(gl, false);
@@ -370,16 +371,16 @@ export class Context {
 		WebGLContext.setFrontFace(gl, gl.CCW);
 		gl.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
 		gl.enable(gl.SCISSOR_TEST);
-        gl.scissor(0, 0, RenderState2D.width, RenderState2D.height);
+		gl.scissor(0, 0, RenderState2D.width, RenderState2D.height);
 	}
 
 	/**@internal */
 	_id: number = ++Context._COUNT;
 
-	private _other: ContextParams|null = null;
+	private _other: ContextParams | null = null;
 	private _renderNextSubmitIndex: number = 0;
 
-	private _path: Path|null = null;
+	private _path: Path | null = null;
 	/**@internal */
 	_drawCount: number = 1;
 	private _width: number = Context._MAXSIZE;
@@ -393,11 +394,11 @@ export class Context {
 	_submitKey: SubmitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
 
 	/**@internal */
-	_mesh: MeshQuadTexture ;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
+	_mesh: MeshQuadTexture;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
 	/**@internal */
-	_pathMesh: MeshVG|null = null;			//矢量专用mesh。
+	_pathMesh: MeshVG | null = null;			//矢量专用mesh。
 	/**@internal */
-	_triangleMesh: MeshTexture|null = null;	//drawTriangles专用mesh。由于ib不固定，所以不能与_mesh通用
+	_triangleMesh: MeshTexture | null = null;	//drawTriangles专用mesh。由于ib不固定，所以不能与_mesh通用
 
 	meshlist: any[] = [];	//本context用到的mesh
 
@@ -432,11 +433,11 @@ export class Context {
 	/**@internal */
 	_save: any = null;
 	/**@internal */
-	_targets: RenderTexture2D|null = null;
+	_targets: RenderTexture2D | null = null;
 	/**@internal */
-	_charSubmitCache: CharSubmitCache|null = null;
+	_charSubmitCache: CharSubmitCache | null = null;
 	/**@internal */
-	_saveMark: SaveMark|null = null;
+	_saveMark: SaveMark | null = null;
 	/**@internal */
 	_shader2D: Shader2D = new Shader2D();	//
 
@@ -445,21 +446,21 @@ export class Context {
 	 * 对于cacheas bitmap的情况，如果图片还没准备好，需要有机会重画，所以要保存sprite。例如在图片
 	 * 加载完成后，调用repaint
 	 */
-	sprite: Sprite|null = null;
+	sprite: Sprite | null = null;
 
 	/**@internal */
-	public static _textRender: TextRender|null = null;// new TextRender();
+	public static _textRender: TextRender | null = null;// new TextRender();
 	/**@internal */
 	_italicDeg: number = 0;//文字的倾斜角度
 	/**@internal */
-	_lastTex: Texture|null = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
+	_lastTex: Texture | null = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
 
 	private _fillColor: number = 0;
 	private _flushCnt: number = 0;
 
-	private defTexture: Texture|null = null;	//给fillrect用
+	private defTexture: Texture | null = null;	//给fillrect用
 	/**@internal */
-	_colorFiler: ColorFilter|null = null;
+	_colorFiler: ColorFilter | null = null;
 
 	drawTexAlign: boolean = false;		// 按照像素对齐
 	/**@internal */
@@ -472,8 +473,8 @@ export class Context {
 		Context._textRender = Context._textRender || new TextRender();
 		//_ib = IndexBuffer2D.QuadrangleIB;
 		if (!this.defTexture) {
-			var defTex2d: Texture2D = new Texture2D(2, 2);
-			defTex2d.setPixels(new Uint8Array(16));
+			var defTex2d: Texture2D = new Texture2D(2, 2, TextureFormat.R8G8B8A8, true, false, false);
+			defTex2d.setPixelsData(new Uint8Array(16), false, false);
 			defTex2d.lock = true;
 			this.defTexture = new Texture(defTex2d);
 		}
@@ -622,7 +623,7 @@ export class Context {
 			//这种情况下canvas应该不占内存
 			if (this._targets) {
 				this._targets.destroy();
-				this._targets = new RenderTexture2D(w, h, RenderTextureFormat.R8G8B8A8, -1);
+				this._targets = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8, -1);
 			}
 			//如果是主画布，要记录窗口大小
 			//如果不是 TODO
@@ -648,11 +649,11 @@ export class Context {
 			let rt = this._targets;
 			if (!this._width || !this._height)
 				throw Error("asBitmap no size!");
-			if(!rt || rt.width!=this._width||rt.height!=this._height){
-				if(rt){
+			if (!rt || rt.width != this._width || rt.height != this._height) {
+				if (rt) {
 					rt.destroy();
 				}
-				this._targets = new RenderTexture2D(this._width, this._height, RenderTextureFormat.R8G8B8A8, -1)
+				this._targets = new RenderTexture2D(this._width, this._height, RenderTargetFormat.R8G8B8A8, -1)
 			}
 		} else {
 			this._targets && this._targets.destroy();
@@ -826,7 +827,7 @@ export class Context {
 	}
 
 	/**@internal */
-	_fast_filltext(data: string | WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string|null, lineWidth: number, textAlign: number, underLine: number = 0): void {
+	_fast_filltext(data: string | WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string | null, lineWidth: number, textAlign: number, underLine: number = 0): void {
 		Context._textRender!._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
 	}
 
@@ -1055,7 +1056,7 @@ export class Context {
 	}
 
 	/**@internal */
-	_drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[]|null): boolean {
+	_drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[] | null): boolean {
 		// 注意sprite要保存，因为后面会被冲掉
 		var cs = this.sprite;
 		if (!tex._getSource(function (): void {
@@ -1178,7 +1179,7 @@ export class Context {
 	 * @param	uv
 	 * @return
 	 */
-	_inner_drawTexture(tex: Texture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix, uv: ArrayLike<number>|null, alpha: number, lastRender: boolean): boolean {
+	_inner_drawTexture(tex: Texture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean): boolean {
 		if (width <= 0 || height <= 0) {
 			return false;
 		}
@@ -1437,8 +1438,8 @@ export class Context {
 	 * @param	ty
 	 * @param	alpha
 	 */
-	drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix|null, tx: number, ty: number, alpha: number, blendMode: string|null, colorfilter: ColorFilter|null = null, uv?: number[]): void {
-		var oldcomp: string ;
+	drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, colorfilter: ColorFilter | null = null, uv?: number[]): void {
+		var oldcomp: string;
 		var curMat: Matrix = this._curMat;
 		if (blendMode) {
 			oldcomp = this.globalCompositeOperation;
@@ -1587,7 +1588,7 @@ export class Context {
 		}
 	}
 
-	drawTarget(rt: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, shaderValue: Value2D, uv: ArrayLike<number>|null = null, blend: number = -1): boolean {
+	drawTarget(rt: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, shaderValue: Value2D, uv: ArrayLike<number> | null = null, blend: number = -1): boolean {
 		this._drawCount++;
 		var rgba: number = 0xffffffff;
 		if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
@@ -1616,12 +1617,12 @@ export class Context {
 		return false;
 	}
 
-	drawTriangles(tex: Texture, 
-			x: number, y: number, 
-			vertices: Float32Array, 
-			uvs : Float32Array, 
-			indices : Uint16Array, 
-			matrix : Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
+	drawTriangles(tex: Texture,
+		x: number, y: number,
+		vertices: Float32Array,
+		uvs: Float32Array,
+		indices: Uint16Array,
+		matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
 
 		if (!tex._getSource()) { //source内调用tex.active();
 			if (this.sprite) {
@@ -1629,7 +1630,7 @@ export class Context {
 			}
 			return;
 		}
-		var oldcomp: string|null = null;
+		var oldcomp: string | null = null;
 		if (blendMode) {
 			oldcomp = this.globalCompositeOperation;
 			this.globalCompositeOperation = blendMode;
@@ -1640,7 +1641,7 @@ export class Context {
 		var tmpMat = this._tmpMatrix;
 		var triMesh = this._triangleMesh!;
 
-		var oldColorFilter: ColorFilter|null = null;
+		var oldColorFilter: ColorFilter | null = null;
 		var needRestorFilter: boolean = false;
 		if (color) {
 			oldColorFilter = this._colorFiler;
@@ -2442,7 +2443,7 @@ export class Context {
 	 * @param	w
 	 */
 	private _fillTexture_h(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, w: number): void {
-		if(oriw<=0) 
+		if (oriw <= 0)
 			console.error('_fillTexture_h error: oriw must>0');
 
 		var stx: number = x;
@@ -2475,7 +2476,7 @@ export class Context {
 	 * @param	h
 	 */
 	private _fillTexture_v(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, h: number): void {
-		if(orih<=0) 
+		if (orih <= 0)
 			console.error('_fillTexture_v error: orih must>0');
 		var sty: number = y;
 		var num: number = Math.floor(h / orih);
@@ -2540,8 +2541,8 @@ export class Context {
 		//解决九宫格设置left+right或top+bottom的累加值超过宽或高导致九宫格显示错乱的bug
 		var scale_x = 1;
 		var scale_y = 1;
-		if(left + right > width) scale_x = width / (left + right);
-		if(top + bottom > height) scale_y = height / (top +bottom);
+		if (left + right > width) scale_x = width / (left + right);
+		if (top + bottom > height) scale_y = height / (top + bottom);
 		left *= scale_x;
 		right *= scale_x;
 		top *= scale_y;

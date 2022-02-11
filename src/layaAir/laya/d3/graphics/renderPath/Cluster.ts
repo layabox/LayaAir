@@ -556,7 +556,7 @@ export class Cluster {
                 }
             }
             var width: number = this._clusterTexture.width;
-            this._clusterTexture.setSubPixels(0, 0, width, Math.ceil(lightOff / (4 * width)), clusterPixels);
+            this._clusterTexture.setSubPixelsData(0, 0, width, Math.ceil(lightOff / (4 * width)), clusterPixels, false, false);
         }
     }
 }

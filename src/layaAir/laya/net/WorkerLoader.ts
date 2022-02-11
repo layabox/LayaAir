@@ -4,6 +4,7 @@ import { EventDispatcher } from "../events/EventDispatcher"
 import { Texture2D } from "../resource/Texture2D"
 import { WarpMode } from "../resource/WrapMode";
 import { Laya } from "../../Laya";
+import { TextureFormat } from "../resource/TextureFormat";
 
 /**
  * @private
@@ -144,14 +145,14 @@ export class WorkerLoader extends EventDispatcher {
         var onload: Function = function (imageData: any): void {
             clear();
             if (imageData) {
-                var image:any = imageData;
+                var image: any = imageData;
                 if (type !== "nativeimage") {
-                    image = new Texture2D();
-					(image as Texture2D).wrapModeU = WarpMode.Clamp;
-					(image as Texture2D).wrapModeV = WarpMode.Clamp;
-                    image.loadImageSource(imageData,true);
+                    image = new Texture2D(imageData.width, imageData.height, TextureFormat.R8G8B8A8, true, false, false);
+                    image.loadImageSource(imageData, true);
+                    (image as Texture2D).wrapModeU = WarpMode.Clamp;
+                    (image as Texture2D).wrapModeV = WarpMode.Clamp;
                 }
-                
+
                 _this["onLoaded"](image);
             } else {
                 //失败之后使用原版的加载函数加载重试

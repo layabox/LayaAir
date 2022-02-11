@@ -1,12 +1,12 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { TextureFormat } from "../../resource/TextureFormat";
-import { DDSTextureInfo } from "../../webgl/DDSTextureInfo";
-import { HDRTextureInfo } from "../../webgl/HDRTextureInfo";
-import { KTXTextureInfo } from "../../webgl/KTXTextureInfo";
-import { BaseTexture } from "./BaseTexture";
+import { DDSTextureInfo } from "../../resource/DDSTextureInfo";
+import { HDRTextureInfo } from "../../resource/HDRTextureInfo";
+import { BaseTexture1 } from "./BaseTexture";
 import { TextureDimension } from "./InternalTexture";
+import { KTXTextureInfo } from "../../resource/KTXTextureInfo";
 
-export class Texture2D extends BaseTexture {
+export class Texture2D1 extends BaseTexture1 {
 
     constructor(width: number, height: number, format: TextureFormat, mipmap: boolean = true, sRGB: boolean = false) {
         super(width, height, format);

@@ -5,12 +5,13 @@ import { WebGLContext } from "../webgl/WebGLContext"
 import { BaseShader } from "../webgl/shader/BaseShader"
 import { RenderState2D } from "../webgl/utils/RenderState2D"
 import { ILaya } from "../../ILaya";
-import { RenderTextureFormat, RenderTextureDepthFormat } from "./RenderTextureFormat";
+import { RenderTarget, RenderTargetFormat } from "./RenderTarget";
+import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
  */
-export class RenderTexture2D extends BaseTexture {
+export class RenderTexture2D extends BaseTexture implements RenderTarget {
     /** @private */
     private static _currentActive: RenderTexture2D;
     private _lastRT: RenderTexture2D;
@@ -31,11 +32,10 @@ export class RenderTexture2D extends BaseTexture {
     }
 
     /** @private */
-    private _frameBuffer: any;
-    /** @private */
-    private _depthStencilBuffer: any;
-    /** @private */
     private _depthStencilFormat: number;
+
+    private _colorFormat: RenderTargetFormat;
+
     /**@internal */
     _mgrKey: number = 0;	//给WebGLRTMgr用的
 
@@ -94,77 +94,31 @@ export class RenderTexture2D extends BaseTexture {
      * @param depthStencilFormat 深度格式。
      * 创建一个 <code>RenderTexture</code> 实例。
      */
-    constructor(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16) {//TODO:待老郭清理
+    constructor(width: number, height: number, format: number = RenderTargetFormat.R8G8B8, depthStencilFormat: number = RenderTargetFormat.DEPTH_16) {//TODO:待老郭清理
 
-        super(format, false);
-        this._glTextureType = LayaGL.instance.TEXTURE_2D;
-        this._width = width;
-        this._height = height;
+        super(width, height, format);
+        this._colorFormat = format;
         this._depthStencilFormat = depthStencilFormat;
-        this._create(width, height);
+        this._create();
         this.lock = true;
     }
+    _renderTarget: InternalRenderTarget;
+    _isCameraTarget: boolean;
+    isCube: boolean;
+    isMulti: boolean;
+    _start(): void {
+        throw new Error("Method not implemented.");
+    }
+    _end(): void {
+        throw new Error("Method not implemented.");
+    }
+    _create() {
+        // todo  mipmap
+        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this._dimension, this.width, this.height, this._colorFormat, false, true, this.depthStencilFormat, 1);
 
-    /**
-     * @private
-     */
-    private _create(width: number, height: number): void {
-        var gl: WebGLRenderingContext = LayaGL.instance;
-        this._frameBuffer = gl.createFramebuffer();
-        WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
-        var glFormat: number = this._getGLFormat();
-        gl.texImage2D(this._glTextureType, 0, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, null);
-        this._setGPUMemory(width * height * 4);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._glTexture, 0);
-        if (this._depthStencilFormat !== RenderTextureDepthFormat.DEPTHSTENCIL_NONE) {
-            this._depthStencilBuffer = gl.createRenderbuffer();
-            gl.bindRenderbuffer(gl.RENDERBUFFER, this._depthStencilBuffer);
-            switch (this._depthStencilFormat) {
-                case RenderTextureDepthFormat.DEPTH_16:
-                    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
-                    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
-                    break;
-                case RenderTextureDepthFormat.STENCIL_8:
-                    gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
-                    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
-                    break;
-                case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
-                    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
-                    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
-                    break;
-                default:
-                //console.log("RenderTexture: unkonw depth format.");//2d并不需要depthbuffer
-            }
-        }
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-
-        this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
-        this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
-        this._setFilterMode(this._filterMode);
-        this._setAnisotropy(this._anisoLevel);
-
-        this._readyed = true;
-        this._activeResource();
+        this._texture = this._renderTarget._textures[0];
     }
 
-    /**
-     * 生成mipMap。
-     * @override
-     */
-    generateMipmap(): void {
-        if (this._isPot(this.width) && this._isPot(this.height)) {
-            this._mipmap = true;
-            LayaGL.instance.generateMipmap(this._glTextureType);
-            this._setFilterMode(this._filterMode);
-            this._setGPUMemory(this.width * this.height * 4 * (1 + 1 / 3));
-        } else {
-            this._mipmap = false;
-            this._setGPUMemory(this.width * this.height * 4);
-        }
-    }
 
     /**
      * 保存当前的RT信息。
@@ -194,10 +148,9 @@ export class RenderTexture2D extends BaseTexture {
     start(): void {
         var gl: WebGLRenderingContext = LayaGL.instance;
         //(memorySize == 0) && recreateResource();
-        LayaGL.instance.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+        LayaGL.layaContext.bindRenderTarget(this._renderTarget);
         this._lastRT = RenderTexture2D._currentActive;
         RenderTexture2D._currentActive = this;
-        this._readyed = true;
 
         //var gl:LayaGL = LayaGL.instance;//TODO:这段代码影响2D、3D混合
         ////(memorySize == 0) && recreateResource();
@@ -221,10 +174,8 @@ export class RenderTexture2D extends BaseTexture {
      * 结束绑定。
      */
     end(): void {
-        var gl: WebGLRenderingContext = LayaGL.instance;
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        LayaGL.layaContext.unbindRenderTarget(this._renderTarget);
         RenderTexture2D._currentActive = null;
-        this._readyed = true;
     }
 
     /**
@@ -233,10 +184,17 @@ export class RenderTexture2D extends BaseTexture {
     restore(): void {
         var gl: WebGLRenderingContext = LayaGL.instance;
         if (this._lastRT != RenderTexture2D._currentActive) {
-            LayaGL.instance.bindFramebuffer(gl.FRAMEBUFFER, this._lastRT ? this._lastRT._frameBuffer : null);
+
+            if (this._lastRT) {
+                LayaGL.layaContext.bindRenderTarget(this._lastRT._renderTarget);
+            }
+            else {
+                LayaGL.layaContext.unbindRenderTarget(this._renderTarget);
+            }
+
             RenderTexture2D._currentActive = this._lastRT;
         }
-        this._readyed = true;
+        // this._readyed = true;
         //if (_type == TYPE2D)//待调整
         //{
         gl.viewport(0, 0, this._lastWidth, this._lastHeight);
@@ -279,34 +237,37 @@ export class RenderTexture2D extends BaseTexture {
      * @return 像素数据。
      */
     getData(x: number, y: number, width: number, height: number): Uint8Array {
-        if (ILaya.Render.isConchApp && (window as any).conchConfig.threadMode == 2) {
-            throw "native 2 thread mode use getDataAsync";
-        }
-        var gl: WebGLRenderingContext = LayaGL.instance;
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-        var canRead: boolean = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
+        // todo
+        throw "native 2 thread mode use getDataAsync";
+        // if (ILaya.Render.isConchApp && (window as any).conchConfig.threadMode == 2) {
+        //     throw "native 2 thread mode use getDataAsync";
+        // }
+        // var gl: WebGLRenderingContext = LayaGL.instance;
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+        // var canRead: boolean = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
 
-        if (!canRead) {
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-            return null;
-        }
+        // if (!canRead) {
+        //     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        //     return null;
+        // }
 
-        var pixels: Uint8Array = new Uint8Array(this._width * this._height * 4);
-        var glFormat: number = this._getGLFormat();
-        gl.readPixels(x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        return pixels;
+        // var pixels: Uint8Array = new Uint8Array(this._width * this._height * 4);
+        // var glFormat: number = this._getGLFormat();
+        // gl.readPixels(x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        // return pixels;
     }
     /**
      * native多线程
      */
     getDataAsync(x: number, y: number, width: number, height: number, callBack: Function): void {
-        var gl: any = LayaGL.instance;
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-        gl.readPixelsAsync(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, function (data: ArrayBuffer): void {
-            callBack(new Uint8Array(data));
-        });
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        // todo
+        // var gl: any = LayaGL.instance;
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+        // gl.readPixelsAsync(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, function (data: ArrayBuffer): void {
+        //     callBack(new Uint8Array(data));
+        // });
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
     recycle(): void {
 
@@ -317,16 +278,7 @@ export class RenderTexture2D extends BaseTexture {
      * @internal
      */
     _disposeResource(): void {
-        if (this._frameBuffer) {
-            var gl: WebGLRenderingContext = LayaGL.instance;
-            gl.deleteTexture(this._glTexture);
-            gl.deleteFramebuffer(this._frameBuffer);
-            gl.deleteRenderbuffer(this._depthStencilBuffer);
-            this._glTexture = null;
-            this._frameBuffer = null;
-            this._depthStencilBuffer = null;
-            this._setGPUMemory(0);
-        }
+        this._renderTarget.dispose();
     }
 
 }

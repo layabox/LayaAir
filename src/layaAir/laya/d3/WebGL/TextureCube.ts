@@ -1,9 +1,9 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { TextureFormat } from "../../resource/TextureFormat";
-import { DDSTextureInfo } from "../../webgl/DDSTextureInfo";
-import { KTXTextureInfo } from "../../webgl/KTXTextureInfo";
-import { BaseTexture } from "./BaseTexture";
+import { DDSTextureInfo } from "../../resource/DDSTextureInfo";
+import { BaseTexture1 } from "./BaseTexture";
 import { TextureDimension } from "./InternalTexture";
+import { KTXTextureInfo } from "../../resource/KTXTextureInfo";
 
 export enum CubeFace {
     right,
@@ -14,7 +14,7 @@ export enum CubeFace {
     back
 }
 
-export class TextureCube extends BaseTexture {
+export class TextureCube extends BaseTexture1 {
 
     constructor(size: number, format: TextureFormat, mipmap: boolean = true, sRGB: boolean = false) {
         super(size, size, format);

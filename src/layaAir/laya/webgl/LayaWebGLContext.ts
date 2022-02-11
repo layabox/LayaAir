@@ -1,15 +1,15 @@
 import { InternalTexture, TextureDimension } from "../d3/WebGL/InternalTexture";
-import { RenderTargetFormat } from "../d3/WebGL/RenderTarget";
+import { RenderTargetFormat } from "../resource/RenderTarget";
 import { WebGLInternalRT } from "../d3/WebGL/WebGLInternalRT";
 import { WebGLInternalTex } from "../d3/WebGL/WebGLInternalTex";
 import { LayaGL } from "../layagl/LayaGL";
 import { TextureFormat } from "../resource/TextureFormat";
-import { DDSTextureInfo } from "./DDSTextureInfo";
-import { HDRTextureInfo } from "./HDRTextureInfo";
-import { KTXTextureInfo } from "./KTXTextureInfo";
+import { DDSTextureInfo } from "../resource/DDSTextureInfo";
+import { HDRTextureInfo } from "../resource/HDRTextureInfo";
 import { LayaContext } from "./LayaContext";
 import { SystemUtils } from "./SystemUtils";
 import { WebGLContext } from "./WebGLContext";
+import { KTXTextureInfo } from "../resource/KTXTextureInfo";
 
 export class LayaWebGLContext implements LayaContext {
 
@@ -437,6 +437,40 @@ export class LayaWebGLContext implements LayaContext {
 
         gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, source);
         // gl.texSubImage2D(target, 0, 0, 0, format, type, source);
+
+        if (texture.mipmap) {
+            gl.generateMipmap(texture.target);
+        }
+        WebGLContext.bindTexture(gl, texture.target, null);
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    }
+
+    setTextureSubPixelsData(texture: WebGLInternalTex, source: ArrayBufferView, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        // todo check pixels size
+
+        let target = texture.target;
+        let internalFormat = texture.internalFormat;
+        let format = texture.format;
+        let type = texture.type;
+        // let width = texture.width;
+        // let height = texture.height;
+
+        let fourSize = width % 4 == 0 && height % 4 == 0;
+
+        let gl = texture._gl;
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+        WebGLContext.bindTexture(gl, texture.target, texture.resource);
+
+        // gl.texImage2D(target, 0, internalFormat, format, type, null);
+
+        // gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, source);
+        gl.texSubImage2D(target, 0, xOffset, yOffset, width, height, format, type, source);
 
         if (texture.mipmap) {
             gl.generateMipmap(texture.target);

@@ -1,5 +1,4 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
 import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
 import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
@@ -14,7 +13,6 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
-import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
@@ -27,6 +25,8 @@ import { Light, LightType } from "../core/light/Light";
 import { DirectionLightCom } from "../core/light/DirectionLightCom";
 import { Sprite3D } from "../core/Sprite3D";
 import { SpotLightCom } from "../core/light/SpotLightCom";
+import { RenderTexture } from "../resource/RenderTexture";
+import { RenderTargetFormat } from "../../resource/RenderTarget";
 
 /**
  * Shadow Light enum
@@ -363,7 +363,7 @@ export class ShadowCasterPass {
 				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
 				ShaderData.setRuntimeValueMode(false);
-				var shadowMap: RenderTexture = this._shadowDirectLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTextureDepthFormat.DEPTH_16);
+				var shadowMap: RenderTexture = this._shadowDirectLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTargetFormat.DEPTH_16);
 				shadowMap._start();
 				var light: DirectionLightCom = <DirectionLightCom>this._light;
 				for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
@@ -406,7 +406,7 @@ export class ShadowCasterPass {
 				context.pipelineMode = "ShadowCaster";
 				ShaderData.setRuntimeValueMode(false);
 				var spotlight: SpotLightCom = <SpotLightCom>this._light;
-				var shadowMap: RenderTexture = this._shadowSpotLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTextureDepthFormat.DEPTH_16);
+				var shadowMap: RenderTexture = this._shadowSpotLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, RenderTargetFormat.DEPTH_16);
 				shadowMap._start();
 				var shadowSpotData: ShadowSpotData = this._shadowSpotData;
 				ShadowUtils.getShadowBias(spotlight, shadowSpotData.projectionMatrix, shadowSpotData.resolution, this._shadowBias);

@@ -247,7 +247,7 @@ export class ShaderData implements IClone {
 	 */
 	setTexture(index: number, value: BaseTexture): void {
 		var lastValue: BaseTexture = this._data[index];
-		this._data[index] = value?value:Texture2D.erroTextur;
+		this._data[index] = value ? value : Texture2D.erroTextur;
 		if (this._ownerResource && this._ownerResource.referenceCount > 0) {
 			(lastValue) && (lastValue._removeReference());
 			(value) && (value._addReference());
@@ -268,8 +268,8 @@ export class ShaderData implements IClone {
 	 * @param index uniformID
 	 * @param value data
 	 */
-	setValueData(index:number,value:any){
-		if(!!value.clone)
+	setValueData(index: number, value: any) {
+		if (!!value.clone)
 			this._data[index] = value.clone();
 		else
 			this._data[index] = value;
@@ -280,7 +280,7 @@ export class ShaderData implements IClone {
 	 * @param index uniform ID
 	 * @returns 
 	 */
-	getValueData(index:number):any{
+	getValueData(index: number): any {
 		return this._data[index];
 	}
 
@@ -324,7 +324,7 @@ export class ShaderData implements IClone {
 	 */
 	cloneTo(destObject: ShaderData): void {
 		var dest: ShaderData = <ShaderData>destObject;
-		var destData: {[key:string]:number|boolean|Vector2|Vector3|Vector4|Matrix4x4|BaseTexture} = dest._data;
+		var destData: { [key: string]: number | boolean | Vector2 | Vector3 | Vector4 | Matrix4x4 | BaseTexture } = dest._data;
 		for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
 			var value: any = this._data[k];
 			if (value != null) {
@@ -468,13 +468,11 @@ export class ShaderData implements IClone {
 			this._data["conchRef"] = preConchRef;
 			this._data["_ptrID"] = prePtrID;
 			pre && this._int32Data.set(pre, 0);
-			var layagl:any = LayaGL.instance;
-			if(layagl.updateArrayBufferRef)
-			{
+			var layagl: any = LayaGL.instance;
+			if (layagl.updateArrayBufferRef) {
 				layagl.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
 			}
-			else
-			{
+			else {
 				(<any>window).conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
 			}
 		}
@@ -682,7 +680,7 @@ export class ShaderData implements IClone {
 		this.needRenewArrayBufferForNative(index);
 		var lastValue: BaseTexture = this._nativeArray[index];
 		this._nativeArray[index] = value;//保存引用
-		var glTexture: any = value._getSource() || value.defaulteTexture._getSource();
+		var glTexture: any = value._getSource();
 		this._int32Data[index] = ((<any>glTexture)).id;
 		if (this._ownerResource && this._ownerResource.referenceCount > 0) {
 			(lastValue) && (lastValue._removeReference());

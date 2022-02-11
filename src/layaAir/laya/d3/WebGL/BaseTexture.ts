@@ -4,7 +4,7 @@ import { TextureFormat } from "../../resource/TextureFormat";
 import { WarpMode } from "../../resource/WrapMode";
 import { InternalTexture, TextureDimension } from "./InternalTexture";
 
-export class BaseTexture extends Bitmap {
+export class BaseTexture1 extends Bitmap {
 
     /**
      * @internal
@@ -44,24 +44,24 @@ export class BaseTexture extends Bitmap {
     }
 
     public get warpModeU(): WarpMode {
-        return this._texture.warpU;
+        return this._texture.wrapU;
     }
     public set warpModeU(value: WarpMode) {
-        this._texture.warpU = value;
+        this._texture.wrapU = value;
     }
 
     public get warpModeV(): WarpMode {
-        return this._texture.warpV;
+        return this._texture.wrapV;
     }
     public set warpModeV(value: WarpMode) {
-        this._texture.warpV = value;
+        this._texture.wrapV = value;
     }
 
     public get warpModeW(): WarpMode {
-        return this._texture.warpW;
+        return this._texture.wrapW;
     }
     public set warpModeW(value: WarpMode) {
-        this._texture.warpW = value;
+        this._texture.wrapW = value;
     }
 
     public get gammaCorrection(): number {

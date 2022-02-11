@@ -4,13 +4,12 @@ import { Camera } from "../core/Camera"
 import { CommandBuffer } from "../core/render/command/CommandBuffer"
 import { PostProcessEffect } from "../core/render/PostProcessEffect"
 import { PostProcessRenderContext } from "../core/render/PostProcessRenderContext"
-import { RenderTexture } from "../resource/RenderTexture"
 import { Shader3D } from "../shader/Shader3D"
 import { ShaderData } from "../shader/ShaderData"
 import { ShaderDefine } from "../shader/ShaderDefine"
 import { Viewport } from "../math/Viewport"
 import { RenderContext3D } from "../core/render/RenderContext3D"
-import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat"
+import { RenderTexture } from "../resource/RenderTexture"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -100,10 +99,10 @@ export class PostProcess {
 		var camera = this._context!.camera;
 		var viewport: Viewport = camera!.viewport;
 
-		 
+
 
 		var cameraTarget: RenderTexture = camera!._internalRenderTexture;
-		var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+		var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), null, false, 1);
 		//var screenTexture: RenderTexture = cameraTarget;
 		this._context!.command!.clear();
 		this._context!.source = screenTexture;
@@ -126,9 +125,9 @@ export class PostProcess {
 		var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
 		camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
 
-		
+
 		if (dest)
-		this._context!.command!.blitScreenTriangle(screenTexture, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0, true);
+			this._context!.command!.blitScreenTriangle(screenTexture, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0, true);
 
 		//context.source = context.destination;
 		//context.destination = finalDestination;
