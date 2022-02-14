@@ -889,6 +889,7 @@ export class Laya3D {
 			var anisoLevel: FilterMode = byte.getUint8();
 
 			var cubemap: TextureCube = new TextureCube(size, format, mipCount > 1 ? true : false);
+			cubemap.setPixelsData(null, false, false);
 			cubemap.filterMode = filterMode;
 			cubemap.wrapModeU = warpModeU;
 			cubemap.wrapModeV = warpModev;
@@ -903,7 +904,7 @@ export class Laya3D {
 					pos += mipPixelLength;
 				}
 				// todo  自动生成 mipmap 与 手动设置 mipmap
-				cubemap.setPixelsData(uint8Arrays, false, false);
+				cubemap.updateSubPixelsData(uint8Arrays, 0, 0, mipSize, mipSize, i, false, false, false);
 				mipSize /= 2;
 			}
 			Laya3D._endLoad(loader, cubemap);

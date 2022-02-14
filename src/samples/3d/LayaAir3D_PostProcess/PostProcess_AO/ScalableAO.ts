@@ -12,7 +12,6 @@ import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ShaderData } from "laya/d3/shader/ShaderData";
 import { SubShader } from "laya/d3/shader/SubShader";
-import { RenderTextureDepthFormat, RenderTextureFormat } from "laya/resource/RenderTextureFormat";
 import { WarpMode } from "laya/resource/WrapMode";
 import { Vector2 } from "laya/d3/math/Vector2";
 import { Vector3 } from "laya/d3/math/Vector3";
@@ -22,11 +21,12 @@ import FragAO from "./Shader/FragAO.fs";
 import AoBlurHorizontal from "./Shader/AoBlurHorizontal.fs";
 import AOComposition from "./Shader/AOComposition.fs";
 import AmbientOcclusion from "./Shader/AmbientOcclusion.glsl";
+import { RenderTargetFormat } from "laya/resource/RenderTarget";
 
 export class ScalableAO extends PostProcessEffect {
     static BlurDelty: number = Shader3D.propertyNameToID("u_Delty");
-    static AOColor:number = Shader3D.propertyNameToID("u_AOColor");
-    static aoTexture:number = Shader3D.propertyNameToID("u_compositionAoTexture");
+    static AOColor: number = Shader3D.propertyNameToID("u_AOColor");
+    static aoTexture: number = Shader3D.propertyNameToID("u_compositionAoTexture");
 
     static AOParams: number = Shader3D.propertyNameToID('u_AOParams');
     static SourceTex: number = Shader3D.propertyNameToID('u_SourceTex');
@@ -36,14 +36,14 @@ export class ScalableAO extends PostProcessEffect {
     private _shaderData: ShaderData;
 
     //blurHorizontal Ao Shader
-    private _aoBlurHorizontalShader:Shader3D;
-    private _aoComposition:Shader3D;
+    private _aoBlurHorizontalShader: Shader3D;
+    private _aoComposition: Shader3D;
 
-    private _aoParams:Vector3 = new Vector3();
+    private _aoParams: Vector3 = new Vector3();
     private static HasInit: boolean = false;
 
-    static deltyHorizontal:Vector2 = new Vector2(1.0,0.0);
-    static deltyVector:Vector2 = new Vector2(0.0,1.0);
+    static deltyHorizontal: Vector2 = new Vector2(1.0, 0.0);
+    static deltyVector: Vector2 = new Vector2(0.0, 1.0);
 
     static init() {
 
@@ -63,7 +63,7 @@ export class ScalableAO extends PostProcessEffect {
         shader = Shader3D.add("AOBlurHorizontal");
         subShader = new SubShader(attributeMap);
         shader.addSubShader(subShader);
-        subShader.addShaderPass(BlitScreenVS,AoBlurHorizontal);
+        subShader.addShaderPass(BlitScreenVS, AoBlurHorizontal);
 
         //Composition
         attributeMap = {
@@ -72,23 +72,23 @@ export class ScalableAO extends PostProcessEffect {
         shader = Shader3D.add("AOComposition");
         subShader = new SubShader(attributeMap);
         shader.addSubShader(subShader);
-        subShader.addShaderPass(BlitScreenVS,AOComposition);
+        subShader.addShaderPass(BlitScreenVS, AOComposition);
 
     }
 
     //_aoColor:Vector3 = new Vector3();
-    set aoColor(value:Vector3){
-        this._shaderData.setVector3(ScalableAO.AOColor,value);
+    set aoColor(value: Vector3) {
+        this._shaderData.setVector3(ScalableAO.AOColor, value);
     }
 
-    set instance(value:number){
+    set instance(value: number) {
         this._aoParams.x = value;
         this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
     }
 
-    set radius(value:number){
+    set radius(value: number) {
         this._aoParams.y = value;
-        this._shaderData.setVector3(ScalableAO.AOParams,this._aoParams);
+        this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
     }
 
     constructor() {
@@ -97,7 +97,7 @@ export class ScalableAO extends PostProcessEffect {
         this._shader = Shader3D.find("ScalableAO");
         this._shaderData = new ShaderData();
         this._aoParams = new Vector3(0.12, 0.15, 1);
-        this._shaderData.setVector3(ScalableAO.AOParams,this._aoParams);
+        this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
         //@ts-ignore
         this._shaderData.setVector(BaseCamera.DEPTHZBUFFERPARAMS, new Vector4());
         this._aoBlurHorizontalShader = Shader3D.find("AOBlurHorizontal");
@@ -127,14 +127,14 @@ export class ScalableAO extends PostProcessEffect {
 
         depthNormalTexture.wrapModeU = WarpMode.Clamp;
         depthNormalTexture.wrapModeV = WarpMode.Clamp;
-        
+
         let source: RenderTexture = context.source;
         let width = source.width;
         let height = source.height;
-        let textureFormat: RenderTextureFormat = source.format;
-        let depthFormat: RenderTextureDepthFormat = RenderTextureDepthFormat.DEPTHSTENCIL_NONE;
+        let textureFormat: RenderTargetFormat = source.colorFormat;
+        let depthFormat: RenderTargetFormat = null;
 
-        let finalTex: RenderTexture = RenderTexture.createFromPool(width, height, textureFormat, depthFormat);
+        let finalTex: RenderTexture = RenderTexture.createFromPool(width, height, textureFormat, depthFormat, false, 1);
 
         let shader: Shader3D = this._shader;
         let shaderData: ShaderData = this._shaderData;
@@ -142,15 +142,15 @@ export class ScalableAO extends PostProcessEffect {
         //depthNormalTexture;
         cmd.blitScreenTriangle(null, finalTex, null, shader, shaderData, 0);
         //context.source = finalTex;
-        let blurTex:RenderTexture = RenderTexture.createFromPool(width, height, textureFormat, depthFormat);
+        let blurTex: RenderTexture = RenderTexture.createFromPool(width, height, textureFormat, depthFormat, false, 1);
         //blur horizontal
-        cmd.blitScreenTriangle(finalTex,blurTex,null,this._aoBlurHorizontalShader,shaderData,0);
+        cmd.blitScreenTriangle(finalTex, blurTex, null, this._aoBlurHorizontalShader, shaderData, 0);
         //blur Vec
-        cmd.setShaderDataVector2(shaderData,ScalableAO.BlurDelty,ScalableAO.deltyVector);
-        cmd.blitScreenTriangle(blurTex,finalTex,null,this._aoBlurHorizontalShader,this._shaderData,0);
+        cmd.setShaderDataVector2(shaderData, ScalableAO.BlurDelty, ScalableAO.deltyVector);
+        cmd.blitScreenTriangle(blurTex, finalTex, null, this._aoBlurHorizontalShader, this._shaderData, 0);
         //blur Composition
-        cmd.setShaderDataTexture(shaderData,ScalableAO.aoTexture,finalTex);
-        cmd.blitScreenTriangle(context.source,context.destination,null,this._aoComposition,this._shaderData,0);
+        cmd.setShaderDataTexture(shaderData, ScalableAO.aoTexture, finalTex);
+        cmd.blitScreenTriangle(context.source, context.destination, null, this._aoComposition, this._shaderData, 0);
         //context.source = blurTex;
         context.deferredReleaseTextures.push(finalTex);
         context.deferredReleaseTextures.push(blurTex);

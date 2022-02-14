@@ -12,7 +12,6 @@ import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Vector3 } from "laya/d3/math/Vector3";
-import { RenderTextureDepthFormat, RenderTextureFormat } from "laya/resource/RenderTextureFormat";
 import { FilterMode } from "laya/resource/FilterMode";
 import { ShaderDefine } from "laya/d3/shader/ShaderDefine";
 
@@ -22,6 +21,7 @@ import PrefilterFS from "./Shader/Prefilter.fs";
 import BlurVFS from "./Shader/BlurV.fs";
 import BlurHFS from "./Shader/BlurH.fs";
 import CompositeFS from "./Shader/Composite.fs";
+import { RenderTargetFormat } from "laya/resource/RenderTarget";
 
 
 /**
@@ -170,32 +170,32 @@ export class GaussianDoF extends PostProcessEffect {
         let shader: Shader3D = this._shader;
         let shaderData: ShaderData = this._shaderData;
 
-        let dataTexFormat: RenderTextureFormat = RenderTextureFormat.R16G16B16A16;
+        let dataTexFormat: RenderTargetFormat = RenderTargetFormat.R16G16B16A16;
         // todo fullCoC format: R16
-        let fullCoC: RenderTexture = RenderTexture.createFromPool(source.width, source.height, dataTexFormat, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, 1);
+        let fullCoC: RenderTexture = RenderTexture.createFromPool(source.width, source.height, dataTexFormat, null, false, 1);
         // coc pass
         cmd.blitScreenTriangle(source, fullCoC, null, shader, shaderData, 0);
         // Prefilter pass
         fullCoC.filterMode = FilterMode.Bilinear;
         this._shaderData.setTexture(GaussianDoF.FULLCOCTEXTURE, fullCoC);
-        let prefilterTex: RenderTexture = RenderTexture.createFromPool(source.width / 2, source.height / 2, dataTexFormat, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, 1);
+        let prefilterTex: RenderTexture = RenderTexture.createFromPool(source.width / 2, source.height / 2, dataTexFormat, null, false, 1);
         cmd.blitScreenTriangle(source, prefilterTex, null, shader, shaderData, 1);
         // blur
         prefilterTex.filterMode = FilterMode.Bilinear;
         this._sourceSize.setValue(prefilterTex.width, prefilterTex.height, 1.0 / prefilterTex.width, 1.0 / prefilterTex.height);
         this._shaderData.setValueData(GaussianDoF.SOURCESIZE, this._sourceSize);
         // blur H
-        let blurHTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, 1);
+        let blurHTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, null, false, 1);
         cmd.blitScreenTriangle(prefilterTex, blurHTex, null, this._shader, this._shaderData, 2);
         // blur V
-        let blurVTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, 1);
+        let blurVTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, null, false, 1);
         cmd.blitScreenTriangle(blurHTex, blurVTex, null, this._shader, this._shaderData, 3);
         // composite
         blurVTex.filterMode = FilterMode.Bilinear;
         blurVTex.anisoLevel = 1;
         fullCoC.filterMode = FilterMode.Point;
         this._shaderData.setTexture(GaussianDoF.BLURCOCTEXTURE, blurVTex);
-        let finalTex: RenderTexture = RenderTexture.createFromPool(source.width, source.height, source.format, source.depthStencilFormat, 1);
+        let finalTex: RenderTexture = RenderTexture.createFromPool(source.width, source.height, source.colorFormat, source.depthStencilFormat, false, 1);
         cmd.blitScreenTriangle(source, context.destination, null, this._shader, this._shaderData, 4);
         context.source = finalTex;
         // recover render texture

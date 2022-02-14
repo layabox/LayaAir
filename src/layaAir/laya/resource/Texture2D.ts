@@ -191,9 +191,9 @@ export class Texture2D extends BaseTexture {
 		LayaGL.layaContext.setTexturePixelsData(texture, source, premultiplyAlpha, invertY);
 	}
 
-	setSubPixelsData(xOffset: number, yOffset: number, width: number, height: number, pixels: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
+	setSubPixelsData(xOffset: number, yOffset: number, width: number, height: number, pixels: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
 		let texture = this._texture;
-		LayaGL.layaContext.setTextureSubPixelsData(texture, pixels, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
+		LayaGL.layaContext.setTextureSubPixelsData(texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
 	}
 
 	setDDSData(ddsInfo: DDSTextureInfo) {

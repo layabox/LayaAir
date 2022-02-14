@@ -4,34 +4,34 @@ import { Camera } from "laya/d3/core/Camera";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { RenderTextureFormat } from "laya/resource/RenderTextureFormat";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Material } from "../../../../bin/tsc/layaAir/laya/d3/core/material/Material";
+import { RenderTargetFormat } from "laya/resource/RenderTarget";
 
 export class ChinarMirrorPlane extends Script3D {
-    
+
     //这里的mesh必须是-5-5的plane板，修改了mesh的话需要修改这里
-    public static oriPa:Vector3 = new Vector3(5, 0, -5);
-    public static oriPb:Vector3 = new Vector3(-5, 0, -5);
-    public static oriPc:Vector3 = new Vector3(5, 0, 5);
+    public static oriPa: Vector3 = new Vector3(5, 0, -5);
+    public static oriPb: Vector3 = new Vector3(-5, 0, -5);
+    public static oriPc: Vector3 = new Vector3(5, 0, 5);
 
 
 
     public _mirrorPlane: MeshSprite3D;
-    public mainCamera:Camera;
+    public mainCamera: Camera;
     private mirrorCamera: Camera = new Camera(); // 镜像摄像机
 
-    private renderTexture:RenderTexture = new RenderTexture(1024,1024,RenderTextureFormat.R8G8B8);
+    private renderTexture: RenderTexture = new RenderTexture(1024, 1024, RenderTargetFormat.R8G8B8, RenderTargetFormat.DEPTH_16, false, 1);
 
     public estimateViewFrustum: boolean = true;
     public setNearClipPlane: boolean = true;
     public nearClipDistanceOffset: number = -0.01;
 
-    
 
-   
+
+
     private vn: Vector3 = new Vector3(); // 屏幕的法线
     private l: number; //到屏幕左边缘的距离
     private r: number; //到屏幕右边缘的距离
@@ -56,15 +56,15 @@ export class ChinarMirrorPlane extends Script3D {
     private static tempMat: Matrix4x4 = new Matrix4x4();
     private static tempV3 = new Vector3();
 
-    set mirrorPlane(value:MeshSprite3D){
+    set mirrorPlane(value: MeshSprite3D) {
         this._mirrorPlane = value;
-        var material:UnlitMaterial = new UnlitMaterial();
-        value.meshRenderer.sharedMaterial =material;
+        var material: UnlitMaterial = new UnlitMaterial();
+        value.meshRenderer.sharedMaterial = material;
         material.albedoTexture = this.renderTexture;
-        material.tilingOffset = new Vector4(-1,1,0,0);
+        material.tilingOffset = new Vector4(-1, 1, 0, 0);
     }
 
-    set onlyMainCamera(value:Camera){
+    set onlyMainCamera(value: Camera) {
         (value.scene as Scene3D).addChild(this.mirrorCamera);
         this.mainCamera = value;
     }
@@ -75,23 +75,23 @@ export class ChinarMirrorPlane extends Script3D {
 
     onStart(): void {
         //this.mirrorCamera = this.owner as Camera;'
-        this.mirrorCamera.renderTarget =this.renderTexture;
-        this.mirrorCamera.clearColor = new Vector4(0.0,0.0,0.0,1.0);
+        this.mirrorCamera.renderTarget = this.renderTexture;
+        this.mirrorCamera.clearColor = new Vector4(0.0, 0.0, 0.0, 1.0);
 
     }
 
     onUpdate(): void {
-        if (this.mirrorCamera == null || this._mirrorPlane == null||this.mainCamera==null) {
+        if (this.mirrorCamera == null || this._mirrorPlane == null || this.mainCamera == null) {
             return;
         }
-         this._mirrorPlane.transform.worldMatrix.invert(ChinarMirrorPlane.tempMat);
+        this._mirrorPlane.transform.worldMatrix.invert(ChinarMirrorPlane.tempMat);
         Vector3.transformV3ToV3(this.mainCamera.transform.position, ChinarMirrorPlane.tempMat, ChinarMirrorPlane.tempV3);
         ChinarMirrorPlane.tempV3.y = -ChinarMirrorPlane.tempV3.y;
         Vector3.transformV3ToV3(ChinarMirrorPlane.tempV3, this._mirrorPlane.transform.worldMatrix, ChinarMirrorPlane.tempV3);
         this.mirrorCamera.transform.position = ChinarMirrorPlane.tempV3;
-       
-       
-       
+
+
+
         // todo: plane 四个角的点坐标
         Vector3.transformV3ToV3(ChinarMirrorPlane.oriPa, this._mirrorPlane.transform.worldMatrix, this.pa); // 世界坐标系的左下角
         Vector3.transformV3ToV3(ChinarMirrorPlane.oriPb, this._mirrorPlane.transform.worldMatrix, this.pb); // 世界坐标系的右下角
@@ -148,7 +148,7 @@ export class ChinarMirrorPlane extends Script3D {
         this.p.elements[2] = 0;
         this.p.elements[6] = 0;
         this.p.elements[10] = (this.f + this.n) / (this.n - this.f);
-        this.p.elements[14] = (2.0 * this.f * this.n / (this.n - this.f))/2;
+        this.p.elements[14] = (2.0 * this.f * this.n / (this.n - this.f)) / 2;
 
         this.p.elements[3] = 0;
         this.p.elements[7] = 0;

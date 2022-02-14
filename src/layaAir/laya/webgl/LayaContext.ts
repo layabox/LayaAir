@@ -24,7 +24,7 @@ export interface LayaContext {
 
     setTexturePixelsData(texture: InternalTexture, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean): void;
 
-    setTextureSubPixelsData(texture: InternalTexture, source: ArrayBufferView, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void;
+    setTextureSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void;
 
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void;
 
@@ -35,6 +35,8 @@ export interface LayaContext {
     setCubeImageData(texture: InternalTexture, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean): void;
 
     setCubePixelsData(texture: InternalTexture, source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean): void;
+
+    setCubeSubPixelData(texture: InternalTexture, source: ArrayBufferView[], mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void;
 
     setCubeDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void;
 

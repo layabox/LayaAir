@@ -13,13 +13,13 @@ import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { TextureFormat } from "laya/resource/TextureFormat";
-import { RenderTextureDepthFormat } from "laya/resource/RenderTextureFormat";
 import { FilterMode } from "laya/resource/FilterMode";
 import { Camera } from "laya/d3/core/Camera";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { ShaderDefine } from "laya/d3/shader/ShaderDefine";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
+import { RenderTargetFormat } from "laya/resource/RenderTarget";
 
 export enum EdgeMode {
     ColorEdge = 0,
@@ -148,7 +148,7 @@ export class EdgeEffect extends PostProcessEffect {
         let width: number = viewport.width;
         let height: number = viewport.height;
 
-        let renderTexture: RenderTexture = RenderTexture.createFromPool(width, height, TextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16);
+        let renderTexture: RenderTexture = RenderTexture.createFromPool(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
         renderTexture.filterMode = FilterMode.Bilinear;
 
         if (camera.depthTextureMode == DepthTextureMode.Depth) {

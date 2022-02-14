@@ -69,9 +69,9 @@ export class TextureCube extends BaseTexture {
 	/**
 	 * @inheritDoc
 	 */
-	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): TextureCube {
+	static _parse(data: any[], propertyParams: any = null, constructParams: any[] = null): TextureCube {
 
-		let size = constructParams[0];
+		let size = constructParams ? constructParams[0] : data[0].width;
 		let format = constructParams ? constructParams[1] : TextureFormat.R8G8B8A8;
 		let mipmap = constructParams ? constructParams[2] : false;
 		let textureCube = new TextureCube(size, format, mipmap);
@@ -110,6 +110,11 @@ export class TextureCube extends BaseTexture {
 	setPixelsData(source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean) {
 		let texture = this._texture;
 		LayaGL.layaContext.setCubePixelsData(texture, source, premultiplyAlpha, invertY);
+	}
+
+	updateSubPixelsData(source: ArrayBufferView[], xOffset: number, yOffset: number, width: number, height: number, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
+		let texture = this._texture;
+		LayaGL.layaContext.setCubeSubPixelData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
 	}
 
 	setDDSData(ddsInfo: DDSTextureInfo) {

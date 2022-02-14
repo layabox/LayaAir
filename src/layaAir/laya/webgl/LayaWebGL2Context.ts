@@ -274,12 +274,12 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
         WebGLContext.bindTexture(gl, texture.target, texture.resource);
-
         gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
-        source && gl.texSubImage2D(target, 0, 0, 0, width, height, format, type, source);
-
-        if (texture.mipmap) {
-            gl.generateMipmap(texture.target);
+        if (source) {
+            gl.texSubImage2D(target, 0, 0, 0, width, height, format, type, source);
+            if (texture.mipmap) {
+                gl.generateMipmap(texture.target);
+            }
         }
         WebGLContext.bindTexture(gl, texture.target, null);
 
@@ -420,17 +420,18 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
         WebGLContext.bindTexture(gl, texture.target, texture.resource);
-
         gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
-
-        for (let index = 0; index < cubeFace.length; index++) {
-            let t = cubeFace[index];
-            gl.texSubImage2D(t, 0, 0, 0, width, height, format, type, source[index]);
+        if (source) {
+            for (let index = 0; index < cubeFace.length; index++) {
+                let t = cubeFace[index];
+                gl.texSubImage2D(t, 0, 0, 0, width, height, format, type, source[index]);
+            }
+            if (texture.mipmap) {
+                gl.generateMipmap(texture.target);
+            }
         }
 
-        if (texture.mipmap) {
-            gl.generateMipmap(texture.target);
-        }
+
         WebGLContext.bindTexture(gl, texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -567,6 +568,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
 
         renderTarget.colorFormat = renderFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
+        renderTarget._textures.push(texture);
 
         let framebuffer = renderTarget._framebuffer;
 

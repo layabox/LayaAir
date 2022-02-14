@@ -1,17 +1,16 @@
 import { InternalTexture, TextureDimension } from "../d3/WebGL/InternalTexture";
-import { RenderTargetFormat } from "../resource/RenderTarget";
 import { WebGLInternalRT } from "../d3/WebGL/WebGLInternalRT";
 import { WebGLInternalTex } from "../d3/WebGL/WebGLInternalTex";
 import { LayaGL } from "../layagl/LayaGL";
-import { TextureFormat } from "../resource/TextureFormat";
+import { CompareMode } from "../resource/CompareMode";
 import { DDSTextureInfo } from "../resource/DDSTextureInfo";
 import { HDRTextureInfo } from "../resource/HDRTextureInfo";
+import { KTXTextureInfo } from "../resource/KTXTextureInfo";
+import { RenderTargetFormat } from "../resource/RenderTarget";
+import { TextureFormat } from "../resource/TextureFormat";
 import { LayaContext } from "./LayaContext";
 import { SystemUtils } from "./SystemUtils";
 import { WebGLContext } from "./WebGLContext";
-import { KTXTextureInfo } from "../resource/KTXTextureInfo";
-import { CompareMode } from "../resource/CompareMode";
-import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
 
 export class LayaWebGLContext implements LayaContext {
 
@@ -451,7 +450,10 @@ export class LayaWebGLContext implements LayaContext {
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     }
 
-    setTextureSubPixelsData(texture: WebGLInternalTex, source: ArrayBufferView, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+    setTextureSubPixelsData(texture: WebGLInternalTex, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+
+        generateMipmap = generateMipmap && mipmapLevel == 0;
+
         // todo check pixels size
 
         let target = texture.target;
@@ -473,9 +475,9 @@ export class LayaWebGLContext implements LayaContext {
         // gl.texImage2D(target, 0, internalFormat, format, type, null);
 
         // gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, source);
-        gl.texSubImage2D(target, 0, xOffset, yOffset, width, height, format, type, source);
+        gl.texSubImage2D(target, mipmapLevel, xOffset, yOffset, width, height, format, type, source);
 
-        if (texture.mipmap) {
+        if (texture.mipmap && generateMipmap) {
             gl.generateMipmap(texture.target);
         }
         WebGLContext.bindTexture(gl, texture.target, null);
@@ -694,15 +696,25 @@ export class LayaWebGLContext implements LayaContext {
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
         WebGLContext.bindTexture(gl, texture.target, texture.resource);
-
-        for (let index = 0; index < cubeFace.length; index++) {
-            let t = cubeFace[index];
-            // gl.texImage2D(t, 0, internalFormat, format, type, sources[index]);
-            gl.texImage2D(t, 0, internalFormat, width, height, 0, format, type, source[index]);
+        if (source) {
+            for (let index = 0; index < cubeFace.length; index++) {
+                let t = cubeFace[index];
+                // gl.texImage2D(t, 0, internalFormat, format, type, sources[index]);
+                gl.texImage2D(t, 0, internalFormat, width, height, 0, format, type, source[index]);
+            }
+            if (texture.mipmap) {
+                gl.generateMipmap(texture.target);
+            }
         }
-
-        if (texture.mipmap) {
-            gl.generateMipmap(texture.target);
+        else {
+            for (let index = 0; index < cubeFace.length; index++) {
+                let t = cubeFace[index];
+                // gl.texImage2D(t, 0, internalFormat, format, type, sources[index]);
+                gl.texImage2D(t, 0, internalFormat, width, height, 0, format, type, null);
+            }
+            if (texture.mipmap) {
+                gl.generateMipmap(texture.target);
+            }
         }
         WebGLContext.bindTexture(gl, texture.target, null);
 
@@ -710,6 +722,47 @@ export class LayaWebGLContext implements LayaContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     }
+
+    setCubeSubPixelData(texture: WebGLInternalTex, source: ArrayBufferView[], mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+
+        generateMipmap = generateMipmap && mipmapLevel == 0;
+
+        let gl = texture._gl;
+
+        const cubeFace = [
+            gl.TEXTURE_CUBE_MAP_POSITIVE_Z, // back
+            gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, // front
+            gl.TEXTURE_CUBE_MAP_POSITIVE_X, // right
+            gl.TEXTURE_CUBE_MAP_NEGATIVE_X, // left
+            gl.TEXTURE_CUBE_MAP_POSITIVE_Y, // up
+            gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, // down
+        ];
+
+        let target = texture.target;
+        let internalFormat = texture.internalFormat;
+        let format = texture.format;
+        let type = texture.type;
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+        WebGLContext.bindTexture(gl, texture.target, texture.resource);
+
+        for (let index = 0; index < cubeFace.length; index++) {
+            let target = cubeFace[index];
+            // gl.texImage2D(target, 0, internalFormat, format, type, sources[index]);
+            gl.texSubImage2D(target, mipmapLevel, xOffset, yOffset, width, height, format, type, source[index]);
+        }
+
+        if (texture.mipmap && generateMipmap) {
+            gl.generateMipmap(texture.target);
+        }
+        WebGLContext.bindTexture(gl, texture.target, null);
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    }
+
 
     setCubeDDSData(texture: WebGLInternalTex, ddsInfo: DDSTextureInfo) {
         //todo?
