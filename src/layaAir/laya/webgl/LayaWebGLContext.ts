@@ -4,6 +4,7 @@ import { WebGLInternalTex } from "../d3/WebGL/WebGLInternalTex";
 import { LayaGL } from "../layagl/LayaGL";
 import { CompareMode } from "../resource/CompareMode";
 import { DDSTextureInfo } from "../resource/DDSTextureInfo";
+import { FilterMode } from "../resource/FilterMode";
 import { HDRTextureInfo } from "../resource/HDRTextureInfo";
 import { KTXTextureInfo } from "../resource/KTXTextureInfo";
 import { RenderTargetFormat } from "../resource/RenderTarget";
@@ -262,7 +263,7 @@ export class LayaWebGLContext implements LayaContext {
             case RenderTargetFormat.DEPTH_32:
                 return gl.DEPTH_ATTACHMENT;
             case RenderTargetFormat.STENCIL_8:
-                return gl.STENCIL_INDEX8;
+                return gl.STENCIL_ATTACHMENT;
             case RenderTargetFormat.R8G8B8:
             case RenderTargetFormat.R8G8B8A8:
             case RenderTargetFormat.R16G16B16:
@@ -973,6 +974,11 @@ export class LayaWebGLContext implements LayaContext {
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean) {
 
         let texture = this.createRenderColorTextureInternal(dimension, width, height, format, gengerateMipmap, sRGB);
+
+        // todo ？
+        if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
+            texture.filterMode = FilterMode.Point;
+        }
 
         return texture;
     }

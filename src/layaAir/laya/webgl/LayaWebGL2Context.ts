@@ -202,8 +202,8 @@ export class LayaWebGL2Context extends LayaWebGLContext {
                 break;
             case RenderTargetFormat.DEPTH_16:
                 this._glParam.internalFormat = gl.DEPTH_COMPONENT16;
-                this._glParam.format = this._glParam.internalFormat;
-                this._glParam.type = gl.HALF_FLOAT;
+                this._glParam.format = gl.DEPTH_COMPONENT;
+                this._glParam.type = gl.UNSIGNED_INT;
                 break;
             case RenderTargetFormat.DEPTHSTENCIL_24_8:
                 this._glParam.internalFormat = gl.DEPTH24_STENCIL8;
@@ -562,7 +562,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
 
     }
     createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, renderFormat: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean, depthStencilFormat: RenderTargetFormat, multiSamples: number): WebGLInternalRT {
-        let texture = this.createRenderTextureInternal(dimension, width, height, renderFormat, gengerateMipmap, sRGB);
+        let texture = <WebGLInternalTex>this.createRenderTextureInternal(dimension, width, height, renderFormat, gengerateMipmap, sRGB);
 
         let renderTarget = new WebGLInternalRT(false, false, texture.mipmap, multiSamples);
 
@@ -577,7 +577,9 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
         // color
         let colorAttachment = this.glRenderTargetAttachment(renderFormat);
+
         gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
+
         // depth
         let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
         if (depthBufferParam) {

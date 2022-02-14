@@ -113,7 +113,7 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
     }
 
     _createRenderTarget() {
-        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this._dimension, this.width, this.height, this._colorFormat, this._generateMipmap, true, this._depthStencilFormat, this._multiSamples);
+        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this._dimension, this.width, this.height, this._colorFormat, this._generateMipmap, false, this._depthStencilFormat, this._multiSamples);
 
         this._texture = this._renderTarget._textures[0];
     }
