@@ -1004,7 +1004,7 @@ export class LayaWebGLContext implements LayaContext {
         // depth
         let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
         if (depthBufferParam) {
-            let depthbuffer = this.createRenderbuffer(width, height, depthBufferParam.internalFormat);
+            let depthbuffer = this.createRenderbuffer(width, height, depthBufferParam.internalFormat, renderTarget._samples);
             renderTarget._depthbuffer = depthbuffer;
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
         }
@@ -1047,7 +1047,7 @@ export class LayaWebGLContext implements LayaContext {
         return renderTarget;
     }
 
-    createRenderbuffer(width: number, height: number, internalFormat: number) {
+    createRenderbuffer(width: number, height: number, internalFormat: number, samples: number) {
 
         // todo  多个 gl
         let gl = this.gl;

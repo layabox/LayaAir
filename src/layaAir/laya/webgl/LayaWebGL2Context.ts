@@ -160,6 +160,30 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         return this._glParam;
     }
 
+    glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean): { internalFormat: number; attachment: number; } {
+        let gl = <WebGL2RenderingContext>this.gl;
+        switch (format) {
+            case RenderTargetFormat.DEPTH_16:
+                return { internalFormat: gl.DEPTH_COMPONENT16, attachment: gl.DEPTH_ATTACHMENT };
+            case RenderTargetFormat.DEPTHSTENCIL_24_8:
+                return { internalFormat: gl.DEPTH_STENCIL, attachment: gl.DEPTH_STENCIL_ATTACHMENT };
+            case RenderTargetFormat.DEPTH_32:
+                return { internalFormat: gl.DEPTH_STENCIL, attachment: gl.DEPTH_ATTACHMENT };
+            case RenderTargetFormat.STENCIL_8:
+                return { internalFormat: gl.STENCIL_INDEX8, attachment: gl.STENCIL_ATTACHMENT };
+            case RenderTargetFormat.R8G8B8:
+                return { internalFormat: gl.RGB8, attachment: gl.COLOR_ATTACHMENT0 };
+            case RenderTargetFormat.R8G8B8A8:
+                return { internalFormat: gl.RGBA8, attachment: gl.COLOR_ATTACHMENT0 };
+            case RenderTargetFormat.R16G16B16:
+                return { internalFormat: gl.RGB16F, attachment: gl.COLOR_ATTACHMENT0 };
+            case RenderTargetFormat.R16G16B16A16:
+                return { internalFormat: gl.RGBA16F, attachment: gl.COLOR_ATTACHMENT0 };
+            default:
+                return null;
+        }
+    }
+
     glRenderTextureParam(format: RenderTargetFormat, useSRGB: boolean) {
         let gl = this.gl;
 
@@ -561,6 +585,26 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         return compareMode;
 
     }
+
+    createRenderbuffer(width: number, height: number, internalFormat: number, samples: number): WebGLRenderbuffer {
+        // todo  多个 gl
+        let gl = this.gl;
+
+        let renderbuffer = gl.createRenderbuffer();
+        gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+
+        if (samples > 1) {
+            gl.renderbufferStorageMultisample(gl.RENDERBUFFER, samples, internalFormat, width, height);
+        }
+        else {
+            gl.renderbufferStorage(gl.RENDERBUFFER, internalFormat, width, height);
+        }
+
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+        return renderbuffer;
+    }
+
     createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, renderFormat: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean, depthStencilFormat: RenderTargetFormat, multiSamples: number): WebGLInternalRT {
         let texture = <WebGLInternalTex>this.createRenderTextureInternal(dimension, width, height, renderFormat, gengerateMipmap, sRGB);
 
@@ -570,24 +614,47 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
 
-        let framebuffer = renderTarget._framebuffer;
-
         let gl = <WebGLRenderingContext>renderTarget._gl;
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-        // color
-        let colorAttachment = this.glRenderTargetAttachment(renderFormat);
+        if (renderTarget._samples > 1) {
+            let msaaFramebuffer = renderTarget._msaaFramebuffer;
+            let renderbufferParam = this.glRenderBufferParam(renderFormat, false);
+            let msaaRenderbuffer = renderTarget._msaaRenderbuffer = this.createRenderbuffer(width, height, renderbufferParam.internalFormat, renderTarget._samples);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, msaaFramebuffer);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, renderbufferParam.attachment, gl.RENDERBUFFER, msaaRenderbuffer);
+            // depth
+            let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
+            if (depthBufferParam) {
+                let depthbuffer = this.createRenderbuffer(width, height, depthBufferParam.internalFormat, renderTarget._samples);
+                renderTarget._depthbuffer = depthbuffer;
+                gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
+            }
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
-
-        // depth
-        let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
-        if (depthBufferParam) {
-            let depthbuffer = this.createRenderbuffer(width, height, depthBufferParam.internalFormat);
-            renderTarget._depthbuffer = depthbuffer;
-            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
+            let framebuffer = renderTarget._framebuffer;
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            // color
+            let colorAttachment = this.glRenderTargetAttachment(renderFormat);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         }
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        else {
+            let framebuffer = renderTarget._framebuffer;
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            // color
+            let colorAttachment = this.glRenderTargetAttachment(renderFormat);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
+
+            // depth
+            let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
+            if (depthBufferParam) {
+                let depthbuffer = this.createRenderbuffer(width, height, depthBufferParam.internalFormat, renderTarget._samples);
+                renderTarget._depthbuffer = depthbuffer;
+                gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
+            }
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        }
 
         return renderTarget;
 
@@ -627,6 +694,49 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         WebGLContext.bindTexture(gl, internalTex.target, null);
 
         return internalTex;
+    }
+
+    bindRenderTarget(renderTarget: WebGLInternalRT): void {
+        let gl = <WebGL2RenderingContext>renderTarget._gl;
+        if (renderTarget._samples > 1) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._msaaFramebuffer);
+        }
+        else {
+            let framebuffer = renderTarget._framebuffer;
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        }
+    }
+
+    unbindRenderTarget(renderTarget: WebGLInternalRT): void {
+        let gl = <WebGL2RenderingContext>renderTarget._gl;
+        if (renderTarget._samples > 1) {
+            gl.bindFramebuffer(gl.READ_FRAMEBUFFER, renderTarget._msaaFramebuffer);
+            gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, renderTarget._framebuffer);
+
+            let texture = renderTarget._textures[0];
+
+            gl.clearBufferfv(gl.COLOR, 0, [0, 0, 0, 0]);
+            gl.clearBufferfi(gl.DEPTH_STENCIL, 0, 1.0, 0);
+
+            let biltMask = gl.COLOR_BUFFER_BIT;
+            if (renderTarget._depthTexture) {
+                biltMask |= gl.DEPTH_BUFFER_BIT;
+            }
+
+            gl.blitFramebuffer(0, 0, texture.width, texture.height, 0, 0, texture.width, texture.height, gl.COLOR_BUFFER_BIT, gl.NEAREST);
+        }
+
+        if (renderTarget._generateMipmap) {
+            renderTarget._textures.forEach(tex => {
+                let target = (<WebGLInternalTex>tex).target;
+                WebGLContext.bindTexture(gl, target, tex.resource);
+                gl.generateMipmap(target);
+                WebGLContext.bindTexture(gl, target, null);
+            });
+        }
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
 }

@@ -19,12 +19,10 @@ export class MultiRenderTexture extends RenderTexture {
 
     _renderTarget: InternalRenderTarget;
 
-    depthStencilFormat: RenderTargetFormat;
-
     // todo multi color attachment count  depth color 在一起？
     constructor(width: number, height: number, count: number, colorFormats: RenderTargetFormat[], depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number) {
 
-        super(width, height, colorFormats[0], null, generateMipmap, multiSamples);
+        super(width, height, colorFormats[0], depthFormat, generateMipmap, multiSamples);
         // todo
         this.textures = [];
         // todo
@@ -33,9 +31,6 @@ export class MultiRenderTexture extends RenderTexture {
 
         this._dimension = TextureDimension.Tex2D;
         this._gammaSpace = true;
-
-        this.depthStencilFormat = depthFormat;
-
     }
 
     _createRenderTarget() {

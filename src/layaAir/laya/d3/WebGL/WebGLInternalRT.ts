@@ -11,6 +11,9 @@ export class WebGLInternalRT implements InternalRenderTarget {
 
     _depthbuffer: WebGLRenderbuffer;
 
+    _msaaFramebuffer: WebGLFramebuffer;
+    _msaaRenderbuffer: WebGLRenderbuffer;
+
     _isMulti: boolean;
     _isCube: boolean;
     _samples: number;
@@ -36,6 +39,9 @@ export class WebGLInternalRT implements InternalRenderTarget {
         this._depthTexture = null;
 
         this._framebuffer = gl.createFramebuffer();
+        if (samples > 1) {
+            this._msaaFramebuffer = gl.createFramebuffer();
+        }
     }
 
 
@@ -50,6 +56,11 @@ export class WebGLInternalRT implements InternalRenderTarget {
         this._framebuffer = null;
         this._depthbuffer && this._gl.deleteRenderbuffer(this._depthbuffer);
         this._depthbuffer = null;
+
+        this._msaaFramebuffer && this._gl.deleteFramebuffer(this._msaaFramebuffer);
+        this._msaaFramebuffer = null;
+        this._msaaRenderbuffer && this._gl.deleteRenderbuffer(this._msaaRenderbuffer);
+        this._msaaRenderbuffer = null;
     }
 
 }
