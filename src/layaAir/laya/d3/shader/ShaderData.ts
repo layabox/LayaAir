@@ -680,7 +680,7 @@ export class ShaderData implements IClone {
 		this.needRenewArrayBufferForNative(index);
 		var lastValue: BaseTexture = this._nativeArray[index];
 		this._nativeArray[index] = value;//保存引用
-		var glTexture: any = value._getSource();
+		var glTexture: any = value._getSource() || value.defaulteTexture._getSource();
 		this._int32Data[index] = ((<any>glTexture)).id;
 		if (this._ownerResource && this._ownerResource.referenceCount > 0) {
 			(lastValue) && (lastValue._removeReference());

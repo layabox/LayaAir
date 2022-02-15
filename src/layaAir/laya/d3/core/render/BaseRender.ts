@@ -65,7 +65,7 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 	static initRenderableLargeUniformBlock() {
 		let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
 		uniformpara.set("u_WorldMat", UniformBufferParamsType.Matrix4x4);
-		uniformpara.set("u_LightmapScaleOffset", UniformBufferParamsType.Vector4);
+		//uniformpara.set("u_LightmapScaleOffset", UniformBufferParamsType.Vector4);
 		uniformpara.set("u_ReflectCubeHDRParams", UniformBufferParamsType.Vector4);
 		let subUBOData = new SubUniformBufferData(uniformpara, 0);
 		//createUBO Buffer
@@ -387,6 +387,7 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 		this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
 	}
 
+
 	/**
 	 * 创建一个新的 <code>BaseRender</code> 实例。
 	 */
@@ -618,6 +619,7 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 		if (Config3D._config._uniformBlock) {
 			this._subUniformBufferData = BaseRender._transLargeUbO.create();
 			this._subUniformBufferData.setMatrix("u_WorldMat", Matrix4x4.DEFAULT);
+			this._addReflectionProbeUpdate();
 			this.probReflection = this._probReflection;
 			this.lightmapScaleOffset = this._lightmapScaleOffset;
 			this._subUniformBufferData._needUpdate = true;
