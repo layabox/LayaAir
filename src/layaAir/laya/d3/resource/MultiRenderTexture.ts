@@ -30,7 +30,7 @@ export class MultiRenderTexture extends RenderTexture {
         this.colorCount = count;
 
         this._dimension = TextureDimension.Tex2D;
-        this._gammaSpace = true;
+        this._gammaSpace = false;
     }
 
     _createRenderTarget() {

@@ -72,17 +72,17 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
 
     _generateMipmap: boolean;
 
-    private _colorFormat: RenderTargetFormat;
+    protected _colorFormat: RenderTargetFormat;
     get colorFormat(): RenderTargetFormat {
         return this._renderTarget.colorFormat;
     }
 
-    private _depthStencilFormat: RenderTargetFormat;
+    protected _depthStencilFormat: RenderTargetFormat;
     get depthStencilFormat(): RenderTargetFormat {
         return this._renderTarget.depthStencilFormat;
     }
 
-    private _multiSamples: number;
+    protected _multiSamples: number;
     public get multiSamples(): number {
         return this._renderTarget._samples;
     }
@@ -99,7 +99,7 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
     constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number) {
         super(width, height, colorFormat);
 
-        this._dimension = TextureDimension.Tex2D;
+        // todo  目前 所有 rt 都是gamma 空间, 颜色正确
         this._gammaSpace = true;
 
         this._colorFormat = colorFormat;
@@ -113,7 +113,8 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
     }
 
     _createRenderTarget() {
-        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this._dimension, this.width, this.height, this._colorFormat, this._generateMipmap, false, this._depthStencilFormat, this._multiSamples);
+        this._dimension = TextureDimension.Tex2D;
+        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this._dimension, this.width, this.height, this._colorFormat, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
 
         this._texture = this._renderTarget._textures[0];
     }

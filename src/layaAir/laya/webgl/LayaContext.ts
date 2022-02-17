@@ -44,11 +44,13 @@ export interface LayaContext {
 
     setTextureCompareMode(texture: InternalTexture, compareMode: CompareMode): CompareMode;
 
-    createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean, depthStencilFormat: RenderTargetFormat, multiSamples: number): InternalRenderTarget;
+    createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
+
+    createRenderTargetCubeInternal(dimension: TextureDimension, size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
     createMultiRenderTargetInternal(dimension: TextureDimension, width: number, height: number, colorCount: number, renderFormats: RenderTargetFormat[], depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): InternalTexture;
+    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture;
 
     bindRenderTarget(renderTarget: InternalRenderTarget | null): void;
     unbindRenderTarget(renderTarget: InternalRenderTarget | null): void;

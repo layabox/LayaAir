@@ -605,12 +605,12 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         return renderbuffer;
     }
 
-    createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, renderFormat: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean, depthStencilFormat: RenderTargetFormat, multiSamples: number): WebGLInternalRT {
-        let texture = <WebGLInternalTex>this.createRenderTextureInternal(dimension, width, height, renderFormat, gengerateMipmap, sRGB);
+    createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
+        let texture = <WebGLInternalTex>this.createRenderTextureInternal(dimension, width, height, colorFormat, generateMipmap, sRGB);
 
         let renderTarget = new WebGLInternalRT(false, false, texture.mipmap, multiSamples);
 
-        renderTarget.colorFormat = renderFormat;
+        renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
 
@@ -618,7 +618,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
 
         if (renderTarget._samples > 1) {
             let msaaFramebuffer = renderTarget._msaaFramebuffer;
-            let renderbufferParam = this.glRenderBufferParam(renderFormat, false);
+            let renderbufferParam = this.glRenderBufferParam(colorFormat, false);
             let msaaRenderbuffer = renderTarget._msaaRenderbuffer = this.createRenderbuffer(width, height, renderbufferParam.internalFormat, renderTarget._samples);
             gl.bindFramebuffer(gl.FRAMEBUFFER, msaaFramebuffer);
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, renderbufferParam.attachment, gl.RENDERBUFFER, msaaRenderbuffer);
@@ -634,7 +634,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
             let framebuffer = renderTarget._framebuffer;
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
             // color
-            let colorAttachment = this.glRenderTargetAttachment(renderFormat);
+            let colorAttachment = this.glRenderTargetAttachment(colorFormat);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         }
@@ -643,7 +643,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
 
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
             // color
-            let colorAttachment = this.glRenderTargetAttachment(renderFormat);
+            let colorAttachment = this.glRenderTargetAttachment(colorFormat);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
 
             // depth
@@ -659,6 +659,8 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         return renderTarget;
 
     }
+
+
 
     createRenderColorTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
         let useSRGBExt = false;
@@ -679,6 +681,8 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         internalTex.internalFormat = glParam.internalFormat;
         internalTex.format = glParam.format;
         internalTex.type = glParam.type;
+
+        internalTex.target
 
 
         let internalFormat = internalTex.internalFormat;
