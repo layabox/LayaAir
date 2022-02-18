@@ -91,10 +91,6 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
         return this._renderTarget._isCube;
     }
 
-    get isMulti(): boolean {
-        return this._renderTarget._isMulti;
-    }
-
     // todo format
     constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number) {
         super(width, height, colorFormat);
@@ -114,7 +110,7 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
 
     _createRenderTarget() {
         this._dimension = TextureDimension.Tex2D;
-        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this._dimension, this.width, this.height, this._colorFormat, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
+        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
 
         this._texture = this._renderTarget._textures[0];
     }

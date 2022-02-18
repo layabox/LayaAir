@@ -114,7 +114,7 @@ export class RenderTexture2D extends BaseTexture implements RenderTarget {
     }
     _create() {
         // todo  mipmap
-        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this._dimension, this.width, this.height, this._colorFormat, this.depthStencilFormat, false, true, 1);
+        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, true, 1);
 
         this._texture = this._renderTarget._textures[0];
     }

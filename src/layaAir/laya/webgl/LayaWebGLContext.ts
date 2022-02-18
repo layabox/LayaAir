@@ -973,6 +973,10 @@ export class LayaWebGLContext implements LayaContext {
 
         WebGLContext.bindTexture(gl, internalTex.target, null);
 
+        if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
+            internalTex.filterMode = FilterMode.Point;
+        }
+
         return internalTex;
     }
 
@@ -994,7 +998,6 @@ export class LayaWebGLContext implements LayaContext {
         internalTex.internalFormat = glParam.internalFormat;
         internalTex.format = glParam.format;
         internalTex.type = glParam.type;
-
 
         let internalFormat = internalTex.internalFormat;
         let glFormat = internalTex.format;
@@ -1019,35 +1022,19 @@ export class LayaWebGLContext implements LayaContext {
         }
         WebGLContext.bindTexture(gl, internalTex.target, null);
 
+        if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
+            internalTex.filterMode = FilterMode.Point;
+        }
+
         return internalTex;
     }
 
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean) {
-
-        let texture: WebGLInternalTex;
-
-        switch (dimension) {
-            case TextureDimension.Tex2D:
-                texture = this.createRenderColorTextureInternal(dimension, width, height, format, generateMipmap, sRGB);
-                break;
-            case TextureDimension.Cube:
-                texture = this.createRenderTextureCubeInternal(dimension, width, format, generateMipmap, sRGB);
-        }
-
-        // todo ？
-        if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
-            texture.filterMode = FilterMode.Point;
-        }
-
-        return texture;
-    }
-
-    createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
+    createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         multiSamples = 1;
 
-        let texture = this.createRenderTextureInternal(dimension, width, height, colorFormat, generateMipmap, sRGB);
+        let texture = this.createRenderColorTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(false, false, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
         renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
@@ -1072,15 +1059,14 @@ export class LayaWebGLContext implements LayaContext {
         return renderTarget;
     }
 
-    createRenderTargetCubeInternal(dimension: TextureDimension, size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
+    createRenderTargetCubeInternal(dimension: TextureDimension, size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         multiSamples = 1;
 
-        let texture = this.createRenderTextureInternal(dimension, size, size, colorFormat, gengerateMipmap, sRGB);
+        // let texture = this.createRenderTextureInternal(dimension, size, size, colorFormat, gengerateMipmap, sRGB);
+        let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(false, true, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
 
-        renderTarget.colorFormat = colorFormat;
-        renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
 
         let framebuffer = renderTarget._framebuffer;
@@ -1101,38 +1087,38 @@ export class LayaWebGLContext implements LayaContext {
         return renderTarget;
     }
 
-    createMultiRenderTargetInternal(dimension: TextureDimension, width: number, height: number, colorCount: number, renderFormats: RenderTargetFormat[], depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number) {
+    createMultiRenderTargetInternal(dimension: TextureDimension, width: number, height: number, colorCount: number, colorFormat: RenderTargetFormat[], depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
+        return null;
+        // let renderTarget = new WebGLInternalRT(colorFormat[0], depthStencilFormat, false, generateMipmap, multiSamples);
 
-        let renderTarget = new WebGLInternalRT(false, false, generateMipmap, multiSamples);
+        // for (let index = 0; index < colorCount; index++) {
+        //     let renderFormat = colorFormat[index];
+        //     let texture = this.createRenderTextureInternal(dimension, width, height, renderFormat, generateMipmap, sRGB);
 
-        for (let index = 0; index < colorCount; index++) {
-            let renderFormat = renderFormats[index];
-            let texture = this.createRenderTextureInternal(dimension, width, height, renderFormat, generateMipmap, sRGB);
+        //     renderTarget._textures.push(texture);
+        // }
 
-            renderTarget._textures.push(texture);
-        }
+        // let framebuffer = renderTarget._framebuffer;
 
-        let framebuffer = renderTarget._framebuffer;
+        // let gl = <WebGLRenderingContext>renderTarget._gl;
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
-        let gl = <WebGLRenderingContext>renderTarget._gl;
-        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        // for (let index = 0; index < colorCount; index++) {
 
-        for (let index = 0; index < colorCount; index++) {
+        //     let texture = renderTarget._textures[index];
+        //     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + index, gl.TEXTURE_2D, texture.resource, 0);
+        // }
 
-            let texture = renderTarget._textures[index];
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + index, gl.TEXTURE_2D, texture.resource, 0);
-        }
+        // let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
+        // if (depthBufferParam) {
+        //     let depthTexture = this.createRenderTextureInternal(dimension, width, height, depthStencilFormat, generateMipmap, false);
+        //     gl.framebufferTexture2D(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.TEXTURE_2D, depthTexture.resource, 0);
 
-        let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
-        if (depthBufferParam) {
-            let depthTexture = this.createRenderTextureInternal(dimension, width, height, depthStencilFormat, generateMipmap, false);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.TEXTURE_2D, depthTexture.resource, 0);
+        //     renderTarget._depthTexture = depthTexture;
+        // }
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-            renderTarget._depthTexture = depthTexture;
-        }
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-        return renderTarget;
+        // return renderTarget;
     }
 
     createRenderbuffer(width: number, height: number, internalFormat: number, samples: number) {
@@ -1150,6 +1136,7 @@ export class LayaWebGLContext implements LayaContext {
         return renderbuffer;
     }
 
+    // todo 不同 格式
     readRenderTargetPixelData(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
 
         let gl = renderTarget._gl;

@@ -14,7 +14,6 @@ export class WebGLInternalRT implements InternalRenderTarget {
     _msaaFramebuffer: WebGLFramebuffer;
     _msaaRenderbuffer: WebGLRenderbuffer;
 
-    _isMulti: boolean;
     _isCube: boolean;
     _samples: number;
 
@@ -26,11 +25,12 @@ export class WebGLInternalRT implements InternalRenderTarget {
     colorFormat: RenderTargetFormat;
     depthStencilFormat: RenderTargetFormat;
 
-    constructor(isMRT: boolean, isCube: boolean, generateMipmap: boolean, samples: number) {
+    constructor(colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number) {
         let gl = LayaGL.instance;
         this._gl = gl;
 
-        this._isMulti = isMRT;
+        this.colorFormat = colorFormat;
+        this.depthStencilFormat = depthStencilFormat;
         this._isCube = isCube;
         this._generateMipmap = generateMipmap;
         this._samples = samples;

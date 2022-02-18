@@ -22,7 +22,6 @@ import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
 import { Shader3D } from "../shader/Shader3D";
 import { Picker } from "../utils/Picker";
-import { MultiRenderTexture } from "../resource/MultiRenderTexture";
 import { RenderTargetFormat } from "../../resource/RenderTarget";
 import { RenderTexture } from "../resource/RenderTexture";
 import { BaseCamera } from "./BaseCamera";
@@ -439,7 +438,7 @@ export class Camera extends BaseCamera {
 	}
 
 	get canblitDepth() {
-		return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != null && this._internalRenderTexture.isMulti;
+		return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != null;
 	}
 
 	/**
@@ -870,16 +869,17 @@ export class Camera extends BaseCamera {
 	_renderDepthMode(context: RenderContext3D) {
 		var cameraDepthMode = this._depthTextureMode;
 		if ((cameraDepthMode & DepthTextureMode.Depth) != 0) {
-			if (!this.canblitDepth || !(<MultiRenderTexture>this._internalRenderTexture).depthTexture) {
-				Camera.depthPass.update(this, DepthTextureMode.Depth, this._depthTextureFormat);
-				Camera.depthPass.render(context, DepthTextureMode.Depth);
-			}
-			else {
-				this.depthTexture = (<MultiRenderTexture>this._internalRenderTexture).depthTexture;
-				//@ts-ignore;
-				Camera.depthPass._depthTexture = this.depthTexture;
-				Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, this);
-			}
+			// todo
+			// if (!this.canblitDepth || !(this._internalRenderTexture).depthTexture) {
+			// 	Camera.depthPass.update(this, DepthTextureMode.Depth, this._depthTextureFormat);
+			// 	Camera.depthPass.render(context, DepthTextureMode.Depth);
+			// }
+			// else {
+			// 	this.depthTexture = (<MultiRenderTexture>this._internalRenderTexture).depthTexture;
+			// 	//@ts-ignore;
+			// 	Camera.depthPass._depthTexture = this.depthTexture;
+			// 	Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, this);
+			// }
 		}
 		if ((cameraDepthMode & DepthTextureMode.DepthNormals) != 0) {
 			Camera.depthPass.update(this, DepthTextureMode.DepthNormals, this._depthTextureFormat);

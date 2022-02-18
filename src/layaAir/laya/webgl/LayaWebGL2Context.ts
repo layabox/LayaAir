@@ -163,13 +163,14 @@ export class LayaWebGL2Context extends LayaWebGLContext {
 
     glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean): { internalFormat: number; attachment: number; } {
         let gl = <WebGL2RenderingContext>this.gl;
+        let layaGPU = LayaGL.layaGPUInstance;
         switch (format) {
             case RenderTargetFormat.DEPTH_16:
                 return { internalFormat: gl.DEPTH_COMPONENT16, attachment: gl.DEPTH_ATTACHMENT };
             case RenderTargetFormat.DEPTHSTENCIL_24_8:
-                return { internalFormat: gl.DEPTH_STENCIL, attachment: gl.DEPTH_STENCIL_ATTACHMENT };
+                return { internalFormat: gl.DEPTH24_STENCIL8, attachment: gl.DEPTH_STENCIL_ATTACHMENT };
             case RenderTargetFormat.DEPTH_32:
-                return { internalFormat: gl.DEPTH_STENCIL, attachment: gl.DEPTH_ATTACHMENT };
+                return { internalFormat: gl.DEPTH_COMPONENT32F, attachment: gl.DEPTH_ATTACHMENT };
             case RenderTargetFormat.STENCIL_8:
                 return { internalFormat: gl.STENCIL_INDEX8, attachment: gl.STENCIL_ATTACHMENT };
             case RenderTargetFormat.R8G8B8:
@@ -180,6 +181,10 @@ export class LayaWebGL2Context extends LayaWebGLContext {
                 return { internalFormat: gl.RGB16F, attachment: gl.COLOR_ATTACHMENT0 };
             case RenderTargetFormat.R16G16B16A16:
                 return { internalFormat: gl.RGBA16F, attachment: gl.COLOR_ATTACHMENT0 };
+            case RenderTargetFormat.R32G32B32:
+                return { internalFormat: gl.RGB32F, attachment: gl.COLOR_ATTACHMENT0 };
+            case RenderTargetFormat.R32G32B32A32:
+                return { internalFormat: gl.RGBA32F, attachment: gl.COLOR_ATTACHMENT0 };
             default:
                 return null;
         }
@@ -606,13 +611,11 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         return renderbuffer;
     }
 
-    createRenderTargetInternal(dimension: TextureDimension, width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
-        let texture = <WebGLInternalTex>this.createRenderTextureInternal(dimension, width, height, colorFormat, generateMipmap, sRGB);
+    createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
+        let texture = this.createRenderColorTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(false, false, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
 
-        renderTarget.colorFormat = colorFormat;
-        renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
 
         let gl = <WebGLRenderingContext>renderTarget._gl;
@@ -662,9 +665,9 @@ export class LayaWebGL2Context extends LayaWebGLContext {
     }
 
     createRenderTargetCubeInternal(dimension: TextureDimension, size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
-        let texture = <WebGLInternalTex>this.createRenderTextureInternal(dimension, size, size, colorFormat, generateMipmap, sRGB);
+        let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(false, true, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
         renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
@@ -817,15 +820,17 @@ export class LayaWebGL2Context extends LayaWebGLContext {
 
             let texture = renderTarget._textures[0];
 
-            gl.clearBufferfv(gl.COLOR, 0, [0, 0, 0, 0]);
-            gl.clearBufferfi(gl.DEPTH_STENCIL, 0, 1.0, 0);
+            // todo 不用clear ?
+            // gl.clearBufferfv(gl.COLOR, 0, [0, 0, 0, 0]);
+            // gl.clearBufferfi(gl.DEPTH_STENCIL, 0, 1.0, 0);
 
+            // todo  blit mask
             let biltMask = gl.COLOR_BUFFER_BIT;
             if (renderTarget._depthTexture) {
                 biltMask |= gl.DEPTH_BUFFER_BIT;
             }
 
-            gl.blitFramebuffer(0, 0, texture.width, texture.height, 0, 0, texture.width, texture.height, gl.COLOR_BUFFER_BIT, gl.NEAREST);
+            gl.blitFramebuffer(0, 0, texture.width, texture.height, 0, 0, texture.width, texture.height, biltMask, gl.NEAREST);
         }
 
         if (renderTarget._generateMipmap) {

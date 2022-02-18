@@ -3,7 +3,6 @@ import { InternalTexture } from "./InternalTexture";
 
 export interface InternalRenderTarget {
 
-    _isMulti: boolean;
     _isCube: boolean;
     _samples: number;
 

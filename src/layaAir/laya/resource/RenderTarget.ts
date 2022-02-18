@@ -24,7 +24,6 @@ export interface RenderTarget {
     _isCameraTarget: boolean;
 
     isCube: boolean;
-    isMulti: boolean;
 
     _start(): void;
 
