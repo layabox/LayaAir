@@ -87,6 +87,9 @@ export class RenderTexture2D extends BaseTexture implements RenderTarget {
         return 0;
     }
 
+    _renderTarget: InternalRenderTarget;
+    _isCameraTarget: boolean;
+
     /**
      * @param width  宽度。
      * @param height 高度。
@@ -102,10 +105,19 @@ export class RenderTexture2D extends BaseTexture implements RenderTarget {
         this._create();
         this.lock = true;
     }
-    _renderTarget: InternalRenderTarget;
-    _isCameraTarget: boolean;
-    isCube: boolean;
-    isMulti: boolean;
+
+    get isCube(): boolean {
+        return this._renderTarget._isCube;
+    }
+
+    get samples(): number {
+        return this._renderTarget._samples;
+    }
+
+    get generateMipmap(): boolean {
+        return this._renderTarget._generateMipmap;
+    }
+
     _start(): void {
         throw new Error("Method not implemented.");
     }

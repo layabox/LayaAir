@@ -11,7 +11,7 @@ export class RenderTextureCube extends RenderTexture {
 
     _createRenderTarget(): void {
         this._dimension = TextureDimension.Cube;
-        this._renderTarget = LayaGL.layaContext.createRenderTargetCubeInternal(this.dimension, this.width, this._colorFormat, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
+        this._renderTarget = LayaGL.layaContext.createRenderTargetCubeInternal(this.width, this._colorFormat, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
 
         this._texture = this._renderTarget._textures[0];
     }

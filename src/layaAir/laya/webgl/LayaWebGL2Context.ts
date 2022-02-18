@@ -11,6 +11,7 @@ import { WebGLContext } from "./WebGLContext";
 import { CompareMode } from "../resource/CompareMode";
 import { WebGLInternalRT } from "../d3/WebGL/WebGLInternalRT";
 import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
+import { FilterMode } from "../resource/FilterMode";
 
 export class LayaWebGL2Context extends LayaWebGLContext {
 
@@ -611,6 +612,44 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         return renderbuffer;
     }
 
+    createRenderColorTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
+        let useSRGBExt = false;
+
+        gengerateMipmap = this.supportGenerateMipmap(format);
+
+        let gammaCorrection = 1.0;
+        if (!useSRGBExt && sRGB) {
+            gammaCorrection = 2.2;
+        }
+
+        let target = this.getTarget(dimension);
+        let internalTex = new WebGLInternalTex(target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
+
+        let glParam = this.glRenderTextureParam(format, useSRGBExt);
+
+        internalTex.internalFormat = glParam.internalFormat;
+        internalTex.format = glParam.format;
+        internalTex.type = glParam.type;
+
+        let internalFormat = internalTex.internalFormat;
+        let glFormat = internalTex.format;
+        let type = internalTex.type;
+
+        let gl = <WebGL2RenderingContext>internalTex._gl;
+
+        WebGLContext.bindTexture(gl, internalTex.target, internalTex.resource);
+
+        gl.texStorage2D(target, internalTex.mipmapCount, internalFormat, width, height);
+
+        WebGLContext.bindTexture(gl, internalTex.target, null);
+
+        if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
+            internalTex.filterMode = FilterMode.Point;
+        }
+
+        return internalTex;
+    }
+
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         let texture = this.createRenderColorTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
@@ -664,7 +703,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
 
     }
 
-    createRenderTargetCubeInternal(dimension: TextureDimension, size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
+    createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
 
         let renderTarget = new WebGLInternalRT(colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
@@ -688,13 +727,6 @@ export class LayaWebGL2Context extends LayaWebGLContext {
                 gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
             }
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-            // let framebuffer = renderTarget._framebuffer;
-            // gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-            // // color
-            // let colorAttachment = this.glRenderTargetAttachment(colorFormat);
-            // gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
-            // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         }
         else {
             let framebuffer = renderTarget._framebuffer;
@@ -714,45 +746,8 @@ export class LayaWebGL2Context extends LayaWebGLContext {
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         }
 
+
         return renderTarget;
-    }
-
-    createRenderColorTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
-        let useSRGBExt = false;
-
-        gengerateMipmap = this.supportGenerateMipmap(format);
-
-        let gammaCorrection = 1.0;
-        if (!useSRGBExt && sRGB) {
-            gammaCorrection = 2.2;
-        }
-
-        // let dimension = TextureDimension.Tex2D;
-        let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
-
-        let glParam = this.glRenderTextureParam(format, useSRGBExt);
-
-        internalTex.internalFormat = glParam.internalFormat;
-        internalTex.format = glParam.format;
-        internalTex.type = glParam.type;
-
-        internalTex.target
-
-
-        let internalFormat = internalTex.internalFormat;
-        let glFormat = internalTex.format;
-        let type = internalTex.type;
-
-        let gl = <WebGL2RenderingContext>internalTex._gl;
-
-        WebGLContext.bindTexture(gl, internalTex.target, internalTex.resource);
-
-        gl.texStorage2D(target, internalTex.mipmapCount, internalFormat, width, height);
-
-        WebGLContext.bindTexture(gl, internalTex.target, null);
-
-        return internalTex;
     }
 
     createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {

@@ -1,5 +1,6 @@
 import { TextureFormat } from "./TextureFormat";
 import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
+import { BaseTexture } from "./BaseTexture";
 
 export enum RenderTargetFormat {
 
@@ -24,6 +25,8 @@ export interface RenderTarget {
     _isCameraTarget: boolean;
 
     isCube: boolean;
+    samples: number;
+    generateMipmap: boolean;
 
     _start(): void;
 
