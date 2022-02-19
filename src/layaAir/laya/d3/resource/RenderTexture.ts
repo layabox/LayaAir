@@ -17,7 +17,7 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
 
     private static _pool: RenderTexture[] = [];
 
-    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean, multiSamples: number) {
+    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean, multiSamples: number, depthTexture: boolean = false) {
 
         // todo mipmap 判断
         mipmap = mipmap && (width & (width - 1)) === 0 && (height & (height - 1)) === 0;
@@ -26,7 +26,7 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
         for (let index = 0; index < n; index++) {
             let rt = RenderTexture._pool[index];
 
-            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples) {
+            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt.generateDepthTexture == depthTexture) {
                 rt._inPool = false;
                 let end = RenderTexture._pool[n - 1];
                 RenderTexture._pool[index] = end;
@@ -35,7 +35,7 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
             }
         }
 
-        let rt = new RenderTexture(width, height, colorFormat, depthFormat, mipmap, multiSamples);
+        let rt = new RenderTexture(width, height, colorFormat, depthFormat, mipmap, multiSamples, depthTexture);
         rt.lock = true;
         return rt;
     }
@@ -70,6 +70,35 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
 
     _renderTarget: InternalRenderTarget;
 
+    private _generateDepthTexture: boolean = false;
+    public get generateDepthTexture(): boolean {
+        return this._generateDepthTexture;
+    }
+    public set generateDepthTexture(value: boolean) {
+
+        // todo  重复 设置
+        if (value && !this._depthStencilTexture) {
+            // todo  base texture format 移出构造函数
+            this._depthStencilTexture = new BaseTexture(this.width, this.height, this.depthStencilFormat);
+            // @ts-ignore
+            this._depthStencilTexture._dimension = TextureDimension.Tex2D;
+
+
+            this._depthStencilTexture._texture = LayaGL.layaContext.createRenderTextureInternal(TextureDimension.Tex2D, this.width, this.height, this.depthStencilFormat, false, false);
+
+            LayaGL.layaContext.setupRendertargetTextureAttachment(this._renderTarget, this._depthStencilTexture._texture);
+
+        }
+
+        this._generateDepthTexture = value;
+    }
+
+    private _depthStencilTexture: BaseTexture;
+
+    get depthStencilTexture(): BaseTexture {
+        return this._depthStencilTexture;
+    }
+
     _generateMipmap: boolean;
 
     protected _colorFormat: RenderTargetFormat;
@@ -100,7 +129,7 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
     }
 
     // todo format
-    constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number) {
+    constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number, generateDepthTexture: boolean = false) {
         super(width, height, colorFormat);
 
         // todo  目前 所有 rt 都是gamma 空间, 颜色正确
@@ -111,6 +140,7 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
 
         this._generateMipmap = generateMipmap;
         this._multiSamples = multiSamples;
+        this._generateDepthTexture = generateDepthTexture;
 
         // todo format 
         this._createRenderTarget();
@@ -123,6 +153,8 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
         // rt 格式 宽高可能不支持
         this._generateMipmap = this._renderTarget._generateMipmap;
         this._texture = this._renderTarget._textures[0];
+
+        this.generateDepthTexture = this._generateDepthTexture;
     }
 
     _start() {
@@ -148,6 +180,9 @@ export class RenderTexture extends BaseTexture implements RenderTarget {
 
     protected _disposeResource(): void {
         this._renderTarget.dispose();
+        this._renderTarget = null;
+        this._depthStencilTexture?.destroy();
+        this._depthStencilTexture = null;
     }
 
 }

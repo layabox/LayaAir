@@ -612,7 +612,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
         return renderbuffer;
     }
 
-    createRenderColorTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
+    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
         let useSRGBExt = false;
 
         gengerateMipmap = this.supportGenerateMipmap(format);
@@ -651,7 +651,7 @@ export class LayaWebGL2Context extends LayaWebGLContext {
     }
 
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
-        let texture = this.createRenderColorTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
+        let texture = this.createRenderTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
         let renderTarget = new WebGLInternalRT(colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
 

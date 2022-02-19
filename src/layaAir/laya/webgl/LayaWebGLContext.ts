@@ -940,7 +940,7 @@ export class LayaWebGLContext implements LayaContext {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
-    createRenderColorTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
+    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
         let useSRGBExt = false;
 
         generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
@@ -1031,7 +1031,7 @@ export class LayaWebGLContext implements LayaContext {
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         multiSamples = 1;
 
-        let texture = this.createRenderColorTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
+        let texture = this.createRenderTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
         let renderTarget = new WebGLInternalRT(colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
         renderTarget.colorFormat = colorFormat;
@@ -1099,6 +1099,25 @@ export class LayaWebGLContext implements LayaContext {
         gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
         return renderbuffer;
+    }
+
+    // todo  color 0, 1, 2, 3 ?
+    setupRendertargetTextureAttachment(renderTarget: WebGLInternalRT, texture: WebGLInternalTex) {
+        let gl = renderTarget._gl;
+
+        renderTarget._depthTexture = texture;
+
+        let depthbuffer = renderTarget._depthbuffer;
+        depthbuffer && gl.deleteRenderbuffer(depthbuffer);
+        renderTarget._depthbuffer = null;
+        let attachment = this.glRenderTargetAttachment(renderTarget.depthStencilFormat);
+
+        let framebuffer = renderTarget._framebuffer;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture.resource, 0);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
     // todo 不同 格式

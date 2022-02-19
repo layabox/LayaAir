@@ -44,9 +44,13 @@ export interface LayaContext {
 
     setTextureCompareMode(texture: InternalTexture, compareMode: CompareMode): CompareMode;
 
+    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): InternalTexture;
+
     createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
+
+    setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture): void;
 
     bindRenderTarget(renderTarget: InternalRenderTarget | null): void;
     unbindRenderTarget(renderTarget: InternalRenderTarget | null): void;

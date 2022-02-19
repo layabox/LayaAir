@@ -430,11 +430,10 @@ export class Camera extends BaseCamera {
 	 */
 	set enableBlitDepth(value: boolean) {
 		this._canBlitDepth = value;
-		// if (value)
-		// 	this._internalRenderTexture && (this._internalRenderTexture.depthAttachMode = RTDEPTHATTACHMODE.TEXTURE);
-		// else
-		// 	this._internalRenderTexture && (this._internalRenderTexture.depthAttachMode = RTDEPTHATTACHMODE.RENDERBUFFER);
-
+		if (value)
+			this._internalRenderTexture && (this._internalRenderTexture.generateDepthTexture = true);
+		else
+			this._internalRenderTexture && (this._internalRenderTexture.generateDepthTexture = false);
 	}
 
 	get canblitDepth() {
@@ -870,16 +869,16 @@ export class Camera extends BaseCamera {
 		var cameraDepthMode = this._depthTextureMode;
 		if ((cameraDepthMode & DepthTextureMode.Depth) != 0) {
 			// todo
-			// if (!this.canblitDepth || !(this._internalRenderTexture).depthTexture) {
-			// 	Camera.depthPass.update(this, DepthTextureMode.Depth, this._depthTextureFormat);
-			// 	Camera.depthPass.render(context, DepthTextureMode.Depth);
-			// }
-			// else {
-			// 	this.depthTexture = (<MultiRenderTexture>this._internalRenderTexture).depthTexture;
-			// 	//@ts-ignore;
-			// 	Camera.depthPass._depthTexture = this.depthTexture;
-			// 	Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, this);
-			// }
+			if (!this.canblitDepth || !this._internalRenderTexture.depthStencilTexture) {
+				Camera.depthPass.update(this, DepthTextureMode.Depth, this._depthTextureFormat);
+				Camera.depthPass.render(context, DepthTextureMode.Depth);
+			}
+			else {
+				this.depthTexture = this._internalRenderTexture.depthStencilTexture;
+				//@ts-ignore;
+				Camera.depthPass._depthTexture = this.depthTexture;
+				Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, this);
+			}
 		}
 		if ((cameraDepthMode & DepthTextureMode.DepthNormals) != 0) {
 			Camera.depthPass.update(this, DepthTextureMode.DepthNormals, this._depthTextureFormat);

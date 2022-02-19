@@ -87,8 +87,11 @@ export class RenderTexture2D extends BaseTexture implements RenderTarget {
         return 0;
     }
 
+    depthStencilTexture: BaseTexture;
+
     _renderTarget: InternalRenderTarget;
     _isCameraTarget: boolean;
+
 
     /**
      * @param width  宽度。

@@ -28,6 +28,8 @@ export interface RenderTarget {
     samples: number;
     generateMipmap: boolean;
 
+    depthStencilTexture: BaseTexture | null;
+
     _start(): void;
 
     _end(): void;
