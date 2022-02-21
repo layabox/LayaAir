@@ -5,6 +5,8 @@ import { FilterMode } from "./FilterMode";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { Laya } from "../../Laya";
 import { RenderTargetFormat } from "./RenderTarget";
+import { TextureDimension } from "../d3/WebGL/InternalTexture";
+import { TextureFormat } from "./TextureFormat";
 
 
 /**
@@ -30,23 +32,21 @@ export class VideoTexture extends BaseTexture {
 	/**
 	 * 创建VideoTexture对象，
 	 */
-	constructor() {
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		// super(gl.RGB, false);
-		super(1, 1, RenderTargetFormat.R8G8B8);
-
-		throw "video tex"
-		// this._glTextureType = gl.TEXTURE_2D;
-		this._width = 1;
-		this._height = 1;
-		// this._wrapModeU = this._wrapModeV = WarpMode.Clamp;
-		// this._filterMode = FilterMode.Bilinear;
-		// this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
-		// this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
-		// this._setFilterMode(this._filterMode);
+	constructor(video: HTMLVideoElement) {
+		super(video.videoWidth, video.videoHeight, RenderTargetFormat.R8G8B8);
 		this._needUpdate = false;
-		// this._readyed = true;
+		this._dimension = TextureDimension.Tex2D;
+		// todo  video format mipmap, srgb 设置
+		this._texture = LayaGL.layaContext.createTextureInternal(this._dimension, video.videoWidth, video.videoHeight, TextureFormat.R8G8B8, false, false);
+
+		this.setVidoe(video);
+
+		this.wrapModeU = WarpMode.Clamp;
+		this.wrapModeV = WarpMode.Clamp;
+		this.filterMode = FilterMode.Bilinear;
+
 		VideoTexture._videoTexturePool.push(this);
+
 	}
 
 	/**
@@ -56,14 +56,38 @@ export class VideoTexture extends BaseTexture {
 	get video(): any {
 		return this._video;
 	}
-	/**
-	 * @value
-	 * 输入Video资源
-	 */
-	set video(value: any) {
-		if (!value || !(value instanceof HTMLVideoElement))
-			return;
-		this._video = value;
+	// /**
+	//  * @value
+	//  * 输入Video资源
+	//  */
+	// set video(value: any) {
+	// 	if (!value || !(value instanceof HTMLVideoElement))
+	// 		return;
+	// 	this._video = value;
+	// 	if (Laya.Browser.onMobile) {
+	// 		//miner 
+	// 		this._video["x5-playsInline"] = true;
+	// 		this._video["x5-playsinline"] = true;
+	// 		this._video.x5PlaysInline = true;
+	// 		this._video.playsInline = true;
+	// 		this._video["webkit-playsInline"] = true;
+	// 		this._video["webkit-playsinline"] = true;
+	// 		this._video.webkitPlaysInline = true;
+	// 		this._video.playsinline = true;
+	// 		this._video.style.playsInline = true;
+	// 		this._video.crossOrigin = "anonymous";
+	// 		this._video.setAttribute('crossorigin', "anonymous");
+	// 		this._video.setAttribute('playsinline', 'true');
+	// 		this._video.setAttribute('x5-playsinline', 'true');
+	// 		this._video.setAttribute('webkit-playsinline', 'true');
+	// 		this._video.autoplay = true;
+	// 	}
+	// }
+
+	setVidoe(video: HTMLVideoElement) {
+		this._video = video;
+		// todo 初始化
+		LayaGL.layaContext.setTexturePixelsData(this._texture, null, false, false);
 		if (Laya.Browser.onMobile) {
 			//miner 
 			this._video["x5-playsInline"] = true;
@@ -90,9 +114,11 @@ export class VideoTexture extends BaseTexture {
 	_updateVideoData() {
 		if (!this._video || !this._needUpdate)
 			return;
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._texture.resource);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
+		// var gl: WebGLRenderingContext = LayaGL.instance;
+		// WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._texture.resource);
+		// gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
+
+		LayaGL.layaContext.updateVideoTexture(this._texture, this.video, false, false);
 	}
 
 	/**

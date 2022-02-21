@@ -13,6 +13,10 @@ import { WebGLInternalRT } from "../d3/WebGL/WebGLInternalRT";
 import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
 import { FilterMode } from "../resource/FilterMode";
 
+// todo 
+/**
+ * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?
+ */
 export class LayaWebGL2Context extends LayaWebGLContext {
 
     gl: WebGL2RenderingContext;

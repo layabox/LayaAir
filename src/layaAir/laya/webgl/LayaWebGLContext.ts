@@ -1149,4 +1149,30 @@ export class LayaWebGLContext implements LayaContext {
         return out;
     }
 
+    updateVideoTexture(texture: WebGLInternalTex, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
+
+        let gl = texture._gl;
+
+        let target = texture.target;
+        let internalFormat = texture.internalFormat;
+        let format = texture.format;
+        let type = texture.type;
+        let width = texture.width;
+        let height = texture.height;
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        WebGLContext.bindTexture(gl, texture.target, texture.resource);
+        // todo 用 sub 会慢
+        // gl.texSubImage2D(target, 0, 0, 0, format, type, video);
+        gl.texImage2D(target, 0, internalFormat, format, type, video);
+
+        WebGLContext.bindTexture(gl, texture.target, null);
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    }
+
 }
