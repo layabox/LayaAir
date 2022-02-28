@@ -50,8 +50,8 @@ export class TextureCube extends BaseTexture {
 	}
 
 	/**
- * @internal
- */
+	 * @internal
+	 */
 	static __init__(): void {
 		var blackTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
 		var grayTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);

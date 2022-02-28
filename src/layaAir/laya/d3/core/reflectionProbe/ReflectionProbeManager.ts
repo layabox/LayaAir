@@ -146,8 +146,13 @@ export class ReflectionProbeManager {
      * destroy
      */
     destroy() {
+        for (let index = 0; index < this._reflectionProbes.length; index++) {
+            let probe = this._reflectionProbes.elements[index];
+            probe.destroy();
+        }
         this._reflectionProbes.length = 0;
         this._motionObjects.length = 0;
+        this._sceneReflectionProbe.destroy();
         this._sceneReflectionProbe = null;
     }
 }

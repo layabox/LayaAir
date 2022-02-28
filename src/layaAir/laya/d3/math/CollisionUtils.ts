@@ -42,7 +42,7 @@ export class CollisionUtils {
 	static distancePlaneToPoint(plane: Plane, point: Vector3): number {
 
 		var dot: number = Vector3.dot(plane.normal, point);
-		return dot - plane.distance;
+		return dot + plane.distance;
 	}
 
 	/**
