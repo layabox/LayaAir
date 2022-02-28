@@ -500,7 +500,8 @@ export class ScrollBar extends UIComponent {
 
     triggerDownDragLimit: Function;
     triggerUpDragLimit: Function;
-    stopMoveLimit:Function;//暂停滚动重载方法-addxiaosong
+    /** 暂停滚动重载方法-add:xiaosong */
+    stopMoveLimit:Function;
     private checkTriggers(isTweenMove: boolean = false): boolean {
         if (this.value >= 0 && this.value - this._lastOffset <= 0) {
             if ((this.triggerDownDragLimit) && this.triggerDownDragLimit(isTweenMove)) {
