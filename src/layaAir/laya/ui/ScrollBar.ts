@@ -711,6 +711,18 @@ export class ScrollBar extends UIComponent {
     set tick(value: number) {
         this.slider.tick = value;
     }
+
+    /**
+     * @private
+     */
+     backToNormal():void
+     {
+         if (this._value < this.min) {
+             Tween.to(this, {value: this.min}, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+         } else if (this._value > this.max) {
+             Tween.to(this, {value: this.max}, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+         }
+     }
 }
 
 ILaya.regClass(ScrollBar);
