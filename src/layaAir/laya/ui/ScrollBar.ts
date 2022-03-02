@@ -56,8 +56,13 @@ export class ScrollBar extends UIComponent {
     downButton: Button;
     /**滑条 */
     slider: Slider;
-    /**顶部移动上限（配合stopMoveLimit方法做滑动到底部抛出一个dragTopLimit事件，让开发者做一些动态数据更新的操作）*/
-    topMoveLimit:number = 0;
+    /**顶部移动限制（达到限制后，会抛出dragTopLimit事件，配合stopMoveLimit()，可让开发者做一些动态数据更新的操作）*/
+    topMoveLimit: number = 0;
+    /**底部移动限制（达到限制后，会抛出dragTopLimit事件，配合stopMoveLimit()，可让开发者做一些动态数据更新的操作）*/
+    bottomMoveLimit: number = 0;
+    /** 调用滚动停止接口stopMoveLimit时，是否禁止内容的拖拽 */
+    disableDrag: boolean = false;
+
     /**@private */
     protected _showButtons: boolean = UIConfig.showButtons;
     /**@private */
@@ -74,7 +79,7 @@ export class ScrollBar extends UIComponent {
     protected _lastOffset: number = 0;
     /**@private */
     protected _checkElastic: boolean = false;
-    /**@private */
+    /**@private 是否为橡皮筋弹性效果 */
     protected _isElastic: boolean = false;
     /**@private */
     protected _value: number;
@@ -500,8 +505,8 @@ export class ScrollBar extends UIComponent {
 
     triggerDownDragLimit: Function;
     triggerUpDragLimit: Function;
-    /** 暂停滚动重载方法-add:xiaosong */
-    stopMoveLimit:Function;
+    /** 暂停滚动的重载方法-add:xiaosong */
+    stopMoveLimit: Function;
     private checkTriggers(isTweenMove: boolean = false): boolean {
         if (this.value >= 0 && this.value - this._lastOffset <= 0) {
             if ((this.triggerDownDragLimit) && this.triggerDownDragLimit(isTweenMove)) {
@@ -530,8 +535,7 @@ export class ScrollBar extends UIComponent {
     }
     /**@private */
     protected loop(): void {
-        if(this.stopMoveLimit && this.stopMoveLimit())
-			return;
+        if (this.disableDrag && this.stopMoveLimit && this.stopMoveLimit()) return;
         var mouseY: number = ILaya.stage.mouseY;
         var mouseX: number = ILaya.stage.mouseX;
         this._lastOffset = this.isVertical ? (mouseY - this._lastPoint.y) : (mouseX - this._lastPoint.x);
@@ -613,12 +617,12 @@ export class ScrollBar extends UIComponent {
         if (this._isElastic) {
             if (this._value < this.min) {
                 this.event("dragTopLimit");
-                var moveValue:number = this.min;
-                if(this.stopMoveLimit && this.stopMoveLimit())
-                    moveValue = this.topMoveLimit;//add xiaosong
+                var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? this.topMoveLimit : this.min;
                 Tween.to(this, { value: moveValue }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
             } else if (this._value > this.max) {
-                Tween.to(this, { value: this.max }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+                this.event("dragBottomLimit");
+                var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? this.bottomMoveLimit : this.max;
+                Tween.to(this, { value: moveValue }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
             }
         } else {
             if (!this._offsets) return;
@@ -713,17 +717,14 @@ export class ScrollBar extends UIComponent {
         this.slider.tick = value;
     }
 
-    /**
-     * @private
-     */
-     backToNormal():void
-     {
-         if (this._value < this.min) {
-             Tween.to(this, {value: this.min}, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
-         } else if (this._value > this.max) {
-             Tween.to(this, {value: this.max}, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
-         }
-     }
+    /** 恢复到正常的弹性缓动效果 */
+    backToNormal(): void {
+        if (this._value < this.min) {
+            Tween.to(this, { value: this.min }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+        } else if (this._value > this.max) {
+            Tween.to(this, { value: this.max }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+        }
+    }
 }
 
 ILaya.regClass(ScrollBar);
