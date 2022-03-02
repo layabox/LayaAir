@@ -617,11 +617,11 @@ export class ScrollBar extends UIComponent {
         if (this._isElastic) {
             if (this._value < this.min) {
                 this.event("dragTopLimit");
-                var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? this.topMoveLimit : this.min;
+                var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? (this.min - this.topMoveLimit) : this.min;
                 Tween.to(this, { value: moveValue }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
             } else if (this._value > this.max) {
                 this.event("dragBottomLimit");
-                var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? this.bottomMoveLimit : this.max;
+                var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? (this.max + this.bottomMoveLimit) : this.max;
                 Tween.to(this, { value: moveValue }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
             }
         } else {
