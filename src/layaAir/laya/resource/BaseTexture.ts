@@ -76,7 +76,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	public set compareMode(value: CompareMode) {
-		this._texture.compareMode = LayaGL.layaContext.setTextureCompareMode(this._texture, value);
+		this._texture.compareMode = LayaGL.textureContext.setTextureCompareMode(this._texture, value);
 	}
 
 	public get gammaCorrection(): number {

@@ -36,7 +36,7 @@ export class VideoTexture extends BaseTexture {
 		this._needUpdate = false;
 		this._dimension = TextureDimension.Tex2D;
 		// todo  video format mipmap, srgb 设置
-		this._texture = LayaGL.layaContext.createTextureInternal(this._dimension, video.videoWidth, video.videoHeight, TextureFormat.R8G8B8, false, false);
+		this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, video.videoWidth, video.videoHeight, TextureFormat.R8G8B8, false, false);
 
 		this.setVidoe(video);
 
@@ -86,7 +86,7 @@ export class VideoTexture extends BaseTexture {
 	setVidoe(video: HTMLVideoElement) {
 		this._video = video;
 		// todo 初始化
-		LayaGL.layaContext.setTexturePixelsData(this._texture, null, false, false);
+		LayaGL.textureContext.setTexturePixelsData(this._texture, null, false, false);
 		if (Laya.Browser.onMobile) {
 			//miner 
 			this._video["x5-playsInline"] = true;
@@ -117,7 +117,7 @@ export class VideoTexture extends BaseTexture {
 		// WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._texture.resource);
 		// gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this._video);
 
-		LayaGL.layaContext.updateVideoTexture(this._texture, this.video, false, false);
+		LayaGL.textureContext.updateVideoTexture(this._texture, this.video, false, false);
 	}
 
 	/**

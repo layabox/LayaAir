@@ -5,9 +5,10 @@ import { Vector4 } from "../d3/math/Vector4";
 import { ShaderVariable } from "../d3/shader/ShaderVariable";
 import { BaseTexture } from "../resource/BaseTexture";
 import { GLObject } from "./GLObject";
+import { IRenderShaderInstance } from "./RenderInterface/IRenderShaderInstance";
 import { WebGLEngine } from "./WebGLEngine";
 
-export class GLShaderInstance extends GLObject{
+export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
 
     _engine: WebGLEngine;
 

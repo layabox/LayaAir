@@ -1,6 +1,6 @@
 import { Color } from "../d3/math/Color";
 import { Vector4 } from "../d3/math/Vector4";
-import { BufferTargetType } from "./RenderEnum/BufferTargetType";
+import { BufferTargetType, BufferUsage } from "./RenderEnum/BufferTargetType";
 import { RenderCapable } from "./RenderEnum/RenderCapable";
 import { WebGLMode } from "./GLEnum/WebGLMode";
 import { GlBuffer } from "./GLBuffer";
@@ -17,11 +17,14 @@ import { GlCapable } from "./GlCapable";
 import { ITextureContext } from "./RenderInterface/ITextureContext";
 import { GL2TextureContext } from "./GL2TextureContext";
 import { GLTextureContext } from "./GLTextureContext";
+import { IRenderEngine } from "./RenderInterface/IRenderEngine";
+import { IRenderBuffer } from "./RenderInterface/IRenderBuffer";
+import { IRenderShaderInstance } from "./RenderInterface/IRenderShaderInstance";
 
 /**
  * @private 封装Webgl
  */
-export class WebGLEngine {
+export class WebGLEngine implements IRenderEngine {
 
   private _gl: WebGLRenderingContext | WebGL2RenderingContext;
 
@@ -80,7 +83,7 @@ export class WebGLEngine {
   private _GLParams: GLParams;
 
   //GL纹理生成
-  private _GLTextureContext:ITextureContext;
+  private _GLTextureContext: ITextureContext;
 
   //GLRenderState
   private _GLRenderState: GLRenderState;
@@ -121,7 +124,7 @@ export class WebGLEngine {
    * create GL
    * @param canvas 
    */
-  initGL(canvas: any) {
+  initRenderEngine(canvas: any) {
     let names;
     let gl;
     switch (this._webglMode) {
@@ -157,7 +160,7 @@ export class WebGLEngine {
     this._glTextureIDParams = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7, gl.TEXTURE8, gl.TEXTURE9, gl.TEXTURE10, gl.TEXTURE11, gl.TEXTURE12, gl.TEXTURE13, gl.TEXTURE14, gl.TEXTURE15, gl.TEXTURE16, gl.TEXTURE17, gl.TEXTURE18, gl.TEXTURE19, gl.TEXTURE20, gl.TEXTURE21, gl.TEXTURE22, gl.TEXTURE23, gl.TEXTURE24, gl.TEXTURE25, gl.TEXTURE26, gl.TEXTURE27, gl.TEXTURE28, gl.TEXTURE29, gl.TEXTURE30, gl.TEXTURE31];
     this._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0;
     this._activeTextures = [];
-    this._GLTextureContext = this.isWebGL2?new GL2TextureContext(this):new GLTextureContext(this);
+    this._GLTextureContext = this.isWebGL2 ? new GL2TextureContext(this) : new GLTextureContext(this);
   }
 
   private _initBindBufferMap() {
@@ -176,8 +179,21 @@ export class WebGLEngine {
     this._GLBufferBindMap[target] = buffer;
   }
 
+  /**
+   * @internal
+   * @param target 
+   * @param texture 
+   */
+  _bindTexture(target: number, texture: WebGLTexture) {
+    const texID = this._activedTextureID - this._gl.TEXTURE0;
+    if (this._activeTextures[texID] !== texture) {
+      this._gl.bindTexture(target, texture);
+      this._activeTextures[texID] = texture;
+    }
+  }
+
   //set render State
-  applyGLRenderContext(stateData: any) {
+  applyRenderContext(stateData: any) {
     this._GLRenderState.applyRenderState(stateData);
   }
 
@@ -197,27 +213,26 @@ export class WebGLEngine {
     }
   }
 
-  colorMask(r: boolean, g: boolean, b: boolean, a: boolean) {
+  colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void {
     this._gl.colorMask(r, g, b, a);
   }
 
-  getGLParams(params: RenderParams): number {
+  getParams(params: RenderParams): number {
     return this._GLParams.getParams(params);
   }
 
-  bindTexture(target: number, texture: WebGLTexture) {
-    const texID = this._activedTextureID - this._gl.TEXTURE0;
-    if (this._activeTextures[texID] !== texture) {
-      this._gl.bindTexture(target, texture);
-      this._activeTextures[texID] = texture;
-    }
+
+  createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage):IRenderBuffer {
+    //TODO SourceManager
+    return new GlBuffer(this,targetType,bufferUsageType);
   }
 
-  createGLBuffer(data: any) {
-    //TODO:
+  createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }):IRenderShaderInstance{
+    //TODO SourceManager
+    return new GLShaderInstance(this,vs,ps,attributeMap);
   }
 
-  getTextureContext():ITextureContext {
+  getTextureContext(): ITextureContext {
     return this._GLTextureContext;
   }
 

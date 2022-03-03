@@ -1,52 +1,43 @@
+import { ShaderVariable } from "../d3/shader/ShaderVariable";
 
 /**
  * @private
- * CommandEncoder
+ * CommandEncoder Shader变量集合
  */
 export class CommandEncoder {
-    /**@internal */
-    _idata: any[] = [];
+    
+    /**@internal shader variable list*/
+    _idata: ShaderVariable[] = [];
 
-    //TODO:coverage
+    /**
+     * 实例化一个ShaderVariable集合
+     */
     constructor() {
     }
 
-    //TODO:coverage
-    getArrayData(): any[] {
+    /**
+     * @internal
+     * @returns Array of ShaderVariable
+     */
+    getArrayData(): ShaderVariable[] {
         return this._idata;
     }
 
-    //TODO:coverage
-    getPtrID(): number {
-        return 0;
-    }
-
-    beginEncoding(): void {
-
-    }
-
-    endEncoding(): void {
-
-    }
-
-    //TODO:coverage
-    clearEncoding(): void {
-        this._idata.length = 0;
-    }
-
-    //TODO:coverage
+    /**
+     * @internal
+     * @returns count of ShaderVariableArray
+     */
     getCount(): number {
         return this._idata.length;
     }
 
-    //TODO:coverage
-    add_ShaderValue(o: any): void {
-        this._idata.push(o);
-    }
-
-    //TODO:coverage
-    addShaderUniform(one: any): void {
-        this.add_ShaderValue(one);
+    /**
+     * @internal
+     * add one ShaderVariable
+     * @param variable 
+     */
+    addShaderUniform(variable: ShaderVariable): void {
+        this._idata.push(variable);
     }
 
 }

@@ -177,38 +177,38 @@ export class Texture2D extends BaseTexture {
 		this._dimension = TextureDimension.Tex2D;
 		this._gammaSpace = !sRGB;
 		this._canRead = canRead;
-		this._texture = LayaGL.layaContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB);
+		this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB);
 		return;
 	}
 
 	setImageData(source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
 		let texture = this._texture;
-		LayaGL.layaContext.setTextureImageData(texture, source, premultiplyAlpha, invertY);
+		LayaGL.textureContext.setTextureImageData(texture, source, premultiplyAlpha, invertY);
 	}
 
 	setPixelsData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
 		let texture = this._texture;
-		LayaGL.layaContext.setTexturePixelsData(texture, source, premultiplyAlpha, invertY);
+		LayaGL.textureContext.setTexturePixelsData(texture, source, premultiplyAlpha, invertY);
 	}
 
 	setSubPixelsData(xOffset: number, yOffset: number, width: number, height: number, pixels: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
 		let texture = this._texture;
-		LayaGL.layaContext.setTextureSubPixelsData(texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
+		LayaGL.textureContext.setTextureSubPixelsData(texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
 	}
 
 	setDDSData(ddsInfo: DDSTextureInfo) {
 		let texture = this._texture;
-		LayaGL.layaContext.setTextureDDSData(texture, ddsInfo);
+		LayaGL.textureContext.setTextureDDSData(texture, ddsInfo);
 	}
 
 	setKTXData(ktxInfo: KTXTextureInfo) {
 		let texture = this._texture;
-		LayaGL.layaContext.setTextureKTXData(texture, ktxInfo);
+		LayaGL.textureContext.setTextureKTXData(texture, ktxInfo);
 	}
 
 	setHDRData(hdrInfo: HDRTextureInfo) {
 		let texture = this._texture;
-		LayaGL.layaContext.setTextureHDRData(texture, hdrInfo);
+		LayaGL.textureContext.setTextureHDRData(texture, hdrInfo);
 	}
 
 	get defaulteTexture(): BaseTexture {

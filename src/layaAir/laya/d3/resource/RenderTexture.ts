@@ -85,9 +85,9 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
             this._depthStencilTexture._dimension = TextureDimension.Tex2D;
 
 
-            this._depthStencilTexture._texture = LayaGL.layaContext.createRenderTextureInternal(TextureDimension.Tex2D, this.width, this.height, this.depthStencilFormat, false, false);
+            this._depthStencilTexture._texture = LayaGL.textureContext.createRenderTextureInternal(TextureDimension.Tex2D, this.width, this.height, this.depthStencilFormat, false, false);
 
-            LayaGL.layaContext.setupRendertargetTextureAttachment(this._renderTarget, this._depthStencilTexture._texture);
+            LayaGL.textureContext.setupRendertargetTextureAttachment(this._renderTarget, this._depthStencilTexture._texture);
 
         }
 
@@ -149,7 +149,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     _createRenderTarget() {
         this._dimension = TextureDimension.Tex2D;
-        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
+        this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
 
         // rt 格式 宽高可能不支持
         this._generateMipmap = this._renderTarget._generateMipmap;
@@ -161,20 +161,20 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     _start() {
         RenderTexture._currentActive = this;
 
-        LayaGL.layaContext.bindRenderTarget(this._renderTarget);
+        LayaGL.textureContext.bindRenderTarget(this._renderTarget);
         (this._isCameraTarget) && (RenderContext3D._instance.invertY = true);
     }
 
     _end() {
         RenderTexture._currentActive = null;
 
-        LayaGL.layaContext.unbindRenderTarget(this._renderTarget);
+        LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
         (this._isCameraTarget) && (RenderContext3D._instance.invertY = false);
     }
 
     getData(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array): Uint8Array | Float32Array {
 
-        LayaGL.layaContext.readRenderTargetPixelData(this._renderTarget, xOffset, yOffset, width, height, out);
+        LayaGL.textureContext.readRenderTargetPixelData(this._renderTarget, xOffset, yOffset, width, height, out);
 
         return out;
     }

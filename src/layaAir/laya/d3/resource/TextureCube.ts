@@ -97,34 +97,34 @@ export class TextureCube extends BaseTexture {
 
 		this._dimension = TextureDimension.Cube;
 
-		this._texture = LayaGL.layaContext.createTextureInternal(this._dimension, size, size, format, mipmap, sRGB);
+		this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, size, size, format, mipmap, sRGB);
 		return;
 	}
 
 	// todo source数组 改为 CubeInfo 结构体?
 	setImageData(source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean) {
 		let texture = this._texture;
-		LayaGL.layaContext.setCubeImageData(texture, source, premultiplyAlpha, invertY);
+		LayaGL.textureContext.setCubeImageData(texture, source, premultiplyAlpha, invertY);
 	}
 
 	setPixelsData(source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean) {
 		let texture = this._texture;
-		LayaGL.layaContext.setCubePixelsData(texture, source, premultiplyAlpha, invertY);
+		LayaGL.textureContext.setCubePixelsData(texture, source, premultiplyAlpha, invertY);
 	}
 
 	updateSubPixelsData(source: ArrayBufferView[], xOffset: number, yOffset: number, width: number, height: number, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
 		let texture = this._texture;
-		LayaGL.layaContext.setCubeSubPixelData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
+		LayaGL.textureContext.setCubeSubPixelData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
 	}
 
 	setDDSData(ddsInfo: DDSTextureInfo) {
 		let texture = this._texture;
-		LayaGL.layaContext.setCubeDDSData(texture, ddsInfo);
+		LayaGL.textureContext.setCubeDDSData(texture, ddsInfo);
 	}
 
 	setKTXData(ktxInfo: KTXTextureInfo) {
 		let texture = this._texture;
-		LayaGL.layaContext.setCubeKTXData(texture, ktxInfo);
+		LayaGL.textureContext.setCubeKTXData(texture, ktxInfo);
 	}
 
 	get defaulteTexture(): BaseTexture {
