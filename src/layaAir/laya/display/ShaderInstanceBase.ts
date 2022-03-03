@@ -474,10 +474,7 @@ export class ShaderInstanceBase extends Resource {
      * @param value 
      * @returns 
      */
-    _uniform_UniformBuffer(one: any, value: UnifromBufferData) {
-        // let buffer = UniformBufferObject.getBuffer(one.name);
-        // if (!buffer || !(value instanceof UnifromBufferData)) return 0;
-        // buffer.setDataByUniformBufferData(value);
-        // return 1;
+    _uniform_UniformBuffer(one: any, value: UniformBufferObject) {
+        value._bindUniformBufferBase();
     }
 }

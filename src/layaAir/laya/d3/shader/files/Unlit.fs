@@ -18,7 +18,10 @@
 	varying vec2 v_Texcoord0;
 #endif
 
-uniform vec4 u_AlbedoColor;
+uniform UnlitBlock {
+	vec4 u_AlbedoColor;
+	vec4 u_TilingOffset;
+};
 
 #ifdef ALPHATEST
 	uniform float u_AlphaTestValue;

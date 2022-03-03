@@ -7,7 +7,7 @@ import { UnifromBufferData } from "./UniformBufferData";
  * 类封装WebGL2UniformBufferObect
  */
 export class UniformBufferObject extends Buffer {
-    private static commonMap:string[] = ["CameraUniformBlock","SceneUniformBlock","SpriteUniformBlock","ShadowUniformBlock"]
+    private static commonMap: string[] = ["CameraUniformBlock", "SceneUniformBlock", "SpriteUniformBlock", "ShadowUniformBlock"]
 
     /**@internal */
     private static _Map: Map<string, UniformBufferBase> = new Map<string, UniformBufferBase>();
@@ -24,13 +24,13 @@ export class UniformBufferObject extends Buffer {
      */
     static creat(name: string, bufferUsage: number, bytelength: number, isSingle: boolean = false) {
         if (!UniformBufferObject._Map.get(name)) {
-            UniformBufferObject._Map.set(name,new UniformBufferBase(name,UniformBufferObject.glPointerID++,isSingle));
+            UniformBufferObject._Map.set(name, new UniformBufferBase(name, UniformBufferObject.glPointerID++, isSingle));
         }
         let bufferBase = UniformBufferObject._Map.get(name);
-        if(bufferBase._singgle&&bufferBase._mapArray.length>0){
+        if (bufferBase._singgle && bufferBase._mapArray.length > 0) {
             return null;
-        }else{
-            let ubo = new UniformBufferObject(bufferBase._glPointerID, name, bufferUsage, bytelength,isSingle);
+        } else {
+            let ubo = new UniformBufferObject(bufferBase._glPointerID, name, bufferUsage, bytelength, isSingle);
             bufferBase.add(ubo);
             return ubo;
         }
@@ -41,8 +41,8 @@ export class UniformBufferObject extends Buffer {
      * @param blockName block name
      * @returns 
      */
-    static isCommon(blockName:string):boolean{
-        return UniformBufferObject.commonMap.indexOf(blockName)!=-1;
+    static isCommon(blockName: string): boolean {
+        return UniformBufferObject.commonMap.indexOf(blockName) != -1;
     }
 
     /**
@@ -52,7 +52,7 @@ export class UniformBufferObject extends Buffer {
      */
     static getBuffer(name: string, index: number) {
         let base = UniformBufferObject._Map.get(name);
-        if(!base)
+        if (!base)
             return null;
         return base._mapArray[index];
     }
@@ -67,15 +67,15 @@ export class UniformBufferObject extends Buffer {
     _isSingle: boolean = false;
 
     /**buffer name */
-    _name:string;
-    
+    _name: string;
+
     /**all byte length */
     byteLength: number;
 
     /**
      * @interanl
      */
-    constructor(glPointer: number, name: string, bufferUsage: number, byteLength: number,isSingle:boolean) {
+    constructor(glPointer: number, name: string, bufferUsage: number, byteLength: number, isSingle: boolean) {
         super();
         var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
         this._glPointer = glPointer;
@@ -85,7 +85,7 @@ export class UniformBufferObject extends Buffer {
         this._name = name;
         this._isSingle = isSingle;
         this.bind();
-        if(this._isSingle)
+        if (this._isSingle)
             this._bindUniformBufferBase();
         gl.bufferData(this._bufferType, this.byteLength, this._bufferUsage);
     }
@@ -103,10 +103,10 @@ export class UniformBufferObject extends Buffer {
      * differcnt UBO bind Point
      * @internal
      */
-    private _bindUniformBufferBase() {
+    _bindUniformBufferBase() {
         const gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
         const base = UniformBufferObject._Map.get(this._name);
-        if(base._curUniformBuffer!=this){
+        if (base._curUniformBuffer != this) {
             gl.bindBufferBase(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer);
             base._curUniformBuffer = this;
         }
@@ -116,28 +116,28 @@ export class UniformBufferObject extends Buffer {
      * 绑定一段
      * @internal
      */
-    _bindBufferRange(offset:number,byteCount:number) {
+    _bindBufferRange(offset: number, byteCount: number) {
         const gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
         this.bind();
-        gl.bindBufferRange(gl.UNIFORM_BUFFER,this._glPointer,this._glBuffer,offset,byteCount);
+        gl.bindBufferRange(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer, offset, byteCount);
     }
 
     /**
      * 重置buffer长度
      * @param bytelength 
      */
-    _reset(bytelength:number) {
+    _reset(bytelength: number) {
         const gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
         //destroy
         if (this._glBuffer) {
-			gl.deleteBuffer(this._glBuffer);
-			this._glBuffer = null;
-		}
+            gl.deleteBuffer(this._glBuffer);
+            this._glBuffer = null;
+        }
         //create new
         this._byteLength = this.byteLength = bytelength;
         this._glBuffer = LayaGL.instance.createBuffer();
         this.bind();
-        if(this._isSingle)
+        if (this._isSingle)
             this._bindUniformBufferBase();
         gl.bufferData(this._bufferType, this.byteLength, this._bufferUsage);
     }
@@ -190,19 +190,19 @@ export class UniformBufferObject extends Buffer {
             this._updateDataInfo = bufferData;
         }
     }
-    
+
     /**
      * set Data by subUniformBufferData
      * @param bufferData sub UniformBufferData
      * @param offset 
      */
-    setDataByByUniformBufferDataOffset(bufferData:SubUniformBufferData,offset:number){
+    setDataByByUniformBufferDataOffset(bufferData: SubUniformBufferData, offset: number) {
         let datalength = bufferData.getbyteLength();//offset
         let reallength = bufferData._realByte;//update Count
         bufferData._resetUpdateFlag();
         let gl = (LayaGL.instance as WebGL2RenderingContext);
         this.bind();
-        gl.bufferSubData(this._bufferType, offset*datalength, bufferData._buffer, 0, reallength / 4);
+        gl.bufferSubData(this._bufferType, offset * datalength, bufferData._buffer, 0, reallength / 4);
     }
 
 }

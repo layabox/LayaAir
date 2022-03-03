@@ -12,6 +12,7 @@ import { IClone } from "../IClone";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { Laya } from "../../../../Laya";
 import { ShaderDefine } from "../../shader/ShaderDefine";
+import { UniformBufferObject } from "../../graphics/UniformBufferObject";
 
 /**
  * <code>Material</code> 类用于创建材质。
@@ -402,6 +403,8 @@ export class Material extends Resource implements IClone {
 		Shader3D._getNamesByDefineData(defineData, shaderDefineArray);
 		return shaderDefineArray;
 	}
+
+	_uniformBlock: UniformBufferObject;
 
 	/**
 	 * 创建一个 <code>BaseMaterial</code> 实例。

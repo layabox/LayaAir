@@ -1,4 +1,7 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { BaseTexture } from "../../../resource/BaseTexture";
+import { UniformBufferParamsType, UnifromBufferData } from "../../graphics/UniformBufferData";
+import { UniformBufferObject } from "../../graphics/UniformBufferObject";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
@@ -29,16 +32,22 @@ export class UnlitMaterial extends Material {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: UnlitMaterial;
 
+	// todo  去掉material类型的时候换到shader 上
+	static unlitUniformMap: Map<string, UniformBufferParamsType>;
+
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
 		UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
+		UnlitMaterial.unlitUniformMap = new Map();
+		UnlitMaterial.unlitUniformMap.set("u_AlbedoColor", UniformBufferParamsType.Vector4);
+		UnlitMaterial.unlitUniformMap.set("u_TilingOffset", UniformBufferParamsType.Vector4);
 	}
 
-	
-	private _albedoIntensity:number;
+
+	private _albedoIntensity: number;
 
 	/**
 	 * @internal
@@ -252,6 +261,12 @@ export class UnlitMaterial extends Material {
 		var finalAlbedo: Vector4 = (<Vector4>this._shaderValues.getVector(UnlitMaterial.ALBEDOCOLOR));
 		Vector4.scale(value, this._albedoIntensity, finalAlbedo);
 		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, finalAlbedo);
+
+		if (this._uniformBlock) {
+			let uniformData = this._uniformBlock._updateDataInfo;
+			uniformData.setVector4byIndex(UnlitMaterial.ALBEDOCOLOR, this.albedoColor);
+			this._uniformBlock.setDataByUniformBufferData(uniformData);
+		}
 	}
 
 	/**
@@ -338,6 +353,12 @@ export class UnlitMaterial extends Material {
 		else {
 			this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
 		}
+
+		if (this._uniformBlock) {
+			let uniformData = this._uniformBlock._updateDataInfo;
+			uniformData.setVector4byIndex(UnlitMaterial.TILINGOFFSET, this.tilingOffset);
+			this._uniformBlock.setDataByUniformBufferData(uniformData);
+		}
 	}
 
 	/**
@@ -393,10 +414,23 @@ export class UnlitMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("Unlit");
+
 		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this.renderMode = UnlitMaterial.RENDERMODE_OPAQUE;
 		this.albedoIntensity = 1.0;
+
+		if (LayaGL.layaGPUInstance._isWebGL2) {
+			let gl = <WebGL2RenderingContext>LayaGL.instance;
+			let uniformData = new UnifromBufferData(UnlitMaterial.unlitUniformMap);
+			this._uniformBlock = UniformBufferObject.creat("UnlitBlock", gl.DYNAMIC_DRAW, uniformData.getbyteLength(), false);
+
+			uniformData.setVector4byIndex(UnlitMaterial.ALBEDOCOLOR, this.albedoColor);
+			uniformData.setVector4byIndex(UnlitMaterial.TILINGOFFSET, this.tilingOffset);
+
+			this._uniformBlock.setDataByUniformBufferData(uniformData);
+			this.shaderData.setValueData(Shader3D.propertyNameToID(this._uniformBlock._name), this._uniformBlock);
+		}
 	}
 
 	/**
