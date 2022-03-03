@@ -361,7 +361,6 @@ export class ShadowCasterPass {
 			case ShadowLightType.DirectionLight:
 				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
-				ShaderData.setRuntimeValueMode(false);
 				var shadowMap: RenderTexture = this._shadowDirectLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, ShadowMapFormat.bit16);
 				shadowMap._start();
 				var light: DirectionLightCom = <DirectionLightCom>this._light;
@@ -397,13 +396,11 @@ export class ShadowCasterPass {
 				}
 				shadowMap._end();
 				this._setupShadowReceiverShaderValues(shaderValues);
-				ShaderData.setRuntimeValueMode(true);
 				context.pipelineMode = context.configPipeLineMode;
 				break;
 			case ShadowLightType.SpotLight:
 				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
-				ShaderData.setRuntimeValueMode(false);
 				var spotlight: SpotLightCom = <SpotLightCom>this._light;
 				var shadowMap: RenderTexture = this._shadowSpotLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, ShadowMapFormat.bit16);
 				shadowMap._start();
@@ -429,7 +426,6 @@ export class ShadowCasterPass {
 				}
 				shadowMap._end();
 				this._setupSpotShadowReceiverShaderValues(shaderValues);
-				ShaderData.setRuntimeValueMode(true);
 				context.pipelineMode = context.configPipeLineMode;
 				break;
 			case ShadowLightType.PointLight:

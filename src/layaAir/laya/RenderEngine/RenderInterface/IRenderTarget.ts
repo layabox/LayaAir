@@ -1,7 +1,7 @@
 import { BaseTexture } from "../../resource/BaseTexture";
 import { InternalRenderTarget } from "./InternalRenderTarget";
 
-export interface RenderTarget {
+export interface IRenderTarget {
 
     _renderTarget: InternalRenderTarget;
 

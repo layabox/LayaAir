@@ -2,12 +2,12 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
 import { InternalRenderTarget } from "../../RenderEngine/RenderInterface/InternalRenderTarget";
-import { RenderTarget } from "../../RenderEngine/RenderInterface/RenderTarget";
+import { IRenderTarget } from "../../RenderEngine/RenderInterface/IRenderTarget";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 
 
-export class RenderTexture extends BaseTexture implements RenderTarget {
+export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     // todo 记录当前 绑定 rt  位置不放在这里
     protected static _currentActive: RenderTexture = null;

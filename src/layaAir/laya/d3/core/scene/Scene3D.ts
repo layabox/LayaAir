@@ -1494,8 +1494,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			sceneUBO && sceneUBO.setDataByUniformBufferData(this._sceneUniformBlock);
 		}
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
-			if (Render.supportWebGLPlusRendering)
-				ShaderData.setRuntimeValueMode((i == n1) ? true : false);
+			// if (Render.supportWebGLPlusRendering)
+			// 	ShaderData.setRuntimeValueMode((i == n1) ? true : false);
 			var camera: Camera = (<Camera>this._cameraPool[i]);
 
 			if (camera.renderTarget)

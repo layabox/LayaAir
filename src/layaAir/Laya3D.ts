@@ -190,12 +190,6 @@ export class Laya3D {
 		RunDriver.changeWebGLSize = Laya3D._changeWebGLSize;
 		Render.is3DMode = true;
 		Laya.init(width, height);
-		if (!Render.supportWebGLPlusRendering) {
-			LayaGL.instance = WebGLContext.mainContext;
-			(<any>LayaGL.instance).createCommandEncoder = function (reserveSize: number = 128, adjustSize: number = 64, isSyncToRenderThread: boolean = false): CommandEncoder {
-				return new CommandEncoder();
-			}
-		}
 		config._multiLighting = config.enableMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
 		config._uniformBlock = config.enableUniformBufferObject && LayaGL.layaGPUInstance._isWebGL2;
 		ILaya3D.Shader3D = Shader3D;
@@ -211,8 +205,6 @@ export class Laya3D {
 		ILaya3D.CommandBuffer = CommandBuffer;
 		ILaya3D.RenderElement = RenderElement;
 		ILaya3D.SubMeshRenderElement = SubMeshRenderElement;
-		//函数里面会有判断isConchApp
-		Laya3D.enableNative3D();
 
 		if (config.isUseCannonPhysicsEngine)
 			Physics3D.__cannoninit__();
@@ -372,50 +364,6 @@ export class Laya3D {
 		Laya3D._innerThirdLevelLoaderManager.on(Event.ERROR, null, Laya3D._eventLoadManagerError);
 		Laya3D._innerFourthLevelLoaderManager.on(Event.ERROR, null, Laya3D._eventLoadManagerError);
 	}
-
-	private static enableNative3D(): void {
-		var shaderData: any = ShaderData;
-		var shader3D: any = ShaderInstance;
-		var skinnedMeshRender: any = SkinnedMeshRenderer;
-		var avatar: any = Avatar;
-		var frustumCulling: any = FrustumCulling;
-		var meshRender: any = MeshRenderer;
-		if (Render.supportWebGLPlusRendering) {
-			//替换ShaderData的函数
-			shaderData.prototype._initData = shaderData.prototype._initDataForNative;
-			shaderData.prototype.setBool = shaderData.prototype.setBoolForNative;
-			shaderData.prototype.getBool = shaderData.prototype.getBoolForNative;
-			shaderData.prototype.setInt = shaderData.prototype.setIntForNative;
-			shaderData.prototype.getInt = shaderData.prototype.getIntForNative;
-			shaderData.prototype.setNumber = shaderData.prototype.setNumberForNative;
-			shaderData.prototype.getNumber = shaderData.prototype.getNumberForNative;
-			shaderData.prototype.setVector = shaderData.prototype.setVectorForNative;
-			shaderData.prototype.getVector = shaderData.prototype.getVectorForNative;
-			shaderData.prototype.setVector2 = shaderData.prototype.setVector2ForNative;
-			shaderData.prototype.getVector2 = shaderData.prototype.getVector2ForNative;
-			shaderData.prototype.setVector3 = shaderData.prototype.setVector3ForNative;
-			shaderData.prototype.getVector3 = shaderData.prototype.getVector3ForNative;
-			shaderData.prototype.setQuaternion = shaderData.prototype.setQuaternionForNative;
-			shaderData.prototype.getQuaternion = shaderData.prototype.getQuaternionForNative;
-			shaderData.prototype.setMatrix4x4 = shaderData.prototype.setMatrix4x4ForNative;
-			shaderData.prototype.getMatrix4x4 = shaderData.prototype.getMatrix4x4ForNative;
-			shaderData.prototype.setBuffer = shaderData.prototype.setBufferForNative;
-			shaderData.prototype.getBuffer = shaderData.prototype.getBufferForNative;
-			shaderData.prototype.setTexture = shaderData.prototype.setTextureForNative;
-			shaderData.prototype.getTexture = shaderData.prototype.getTextureForNative;
-			shaderData.prototype.setAttribute = shaderData.prototype.setAttributeForNative;
-			shaderData.prototype.getAttribute = shaderData.prototype.getAttributeForNative;
-			shaderData.prototype.cloneTo = shaderData.prototype.cloneToForNative;
-			shaderData.prototype.getData = shaderData.prototype.getDataForNative;
-			shader3D.prototype._uniformMatrix2fv = shader3D.prototype._uniformMatrix2fvForNative;
-			shader3D.prototype._uniformMatrix3fv = shader3D.prototype._uniformMatrix3fvForNative;
-			shader3D.prototype._uniformMatrix4fv = shader3D.prototype._uniformMatrix4fvForNative;
-			LayaGLRunner.uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
-		}
-
-
-	}
-
 	/**
 	 *@private
 	 */

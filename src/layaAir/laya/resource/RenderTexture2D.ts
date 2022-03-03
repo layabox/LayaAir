@@ -3,14 +3,14 @@ import { LayaGL } from "../layagl/LayaGL"
 import { BaseTexture } from "./BaseTexture"
 import { BaseShader } from "../webgl/shader/BaseShader"
 import { RenderState2D } from "../webgl/utils/RenderState2D"
-import { RenderTarget } from "../RenderEngine/RenderInterface/RenderTarget";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRenderTarget";
+import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
  */
-export class RenderTexture2D extends BaseTexture implements RenderTarget {
+export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /** @private */
     private static _currentActive: RenderTexture2D;
     private _lastRT: RenderTexture2D;

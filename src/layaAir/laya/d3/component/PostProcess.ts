@@ -93,13 +93,8 @@ export class PostProcess {
 	 * @internal
 	 */
 	_render(): void {
-		var noteValue: boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
-		ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
-
 		var camera = this._context!.camera;
 		var viewport: Viewport = camera!.viewport;
-
-
 
 		var cameraTarget: RenderTexture = camera!._internalRenderTexture;
 		var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), null, false, 1);
@@ -138,8 +133,6 @@ export class PostProcess {
 		for (i = 0, n = tempRenderTextures.length; i < n; i++)
 			RenderTexture.recoverToPool(tempRenderTextures[i]);
 		tempRenderTextures.length = 0;
-
-		ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
 	}
 
 	/**

@@ -84,9 +84,6 @@ export class SkyRenderer {
 			var cameraShaderValue: ShaderData = context.cameraShaderValue;
 			var camera: Camera = context.camera;
 
-			var noteValue: boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
-			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
-
 			WebGLContext.setCullFace(gl, false);
 			WebGLContext.setDepthFunc(gl, gl.LEQUAL);
 			WebGLContext.setDepthMask(gl, false);
@@ -161,9 +158,7 @@ export class SkyRenderer {
 
 			this._mesh._bufferState.bind();
 			this._mesh._render(context);
-
-			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
-
+			
 			WebGLContext.setDepthFunc(gl, gl.LESS);
 			WebGLContext.setDepthMask(gl, true);
 			camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
