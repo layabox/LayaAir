@@ -18,8 +18,7 @@ import { Event } from "laya/events/Event";
 import { Button } from "laya/ui/Button";
 import Client from "../../Client";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
-
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 /**
  * 模板测试示例
  * @author miner

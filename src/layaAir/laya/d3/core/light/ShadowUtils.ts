@@ -1,6 +1,4 @@
 import { LayaGL } from "../../../layagl/LayaGL";
-import { FilterMode } from "../../../resource/FilterMode";
-import { WarpMode } from "../../../resource/WrapMode";
 import { BoundFrustum, FrustumCorner } from "../../math/BoundFrustum";
 import { BoundSphere } from "../../math/BoundSphere";
 import { MathUtils3D } from "../../math/MathUtils3D";
@@ -17,9 +15,11 @@ import { Light, LightType } from "./Light";
 import { SpotLightCom } from "./SpotLightCom";
 import { Sprite3D } from "../Sprite3D";
 import { DirectionLightCom } from "./DirectionLightCom";
-import { RenderTargetFormat } from "../../../resource/RenderTarget";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { CompareMode } from "../../../resource/CompareMode";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { CompareMode } from "../../../RenderEngine/RenderEnum/CompareMode";
+import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
+import { WarpMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 
 /**
  * @internal

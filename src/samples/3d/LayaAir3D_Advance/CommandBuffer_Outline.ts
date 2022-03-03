@@ -4,7 +4,6 @@ import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Stage } from "laya/display/Stage";
-import { FilterMode } from "laya/resource/FilterMode";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
@@ -23,9 +22,9 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Event } from "laya/events/Event";
-import { Utils } from "laya/utils/Utils";
 import Client from "../../Client";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 export class CommandBuffer_Outline {
 	private commandBuffer: CommandBuffer;

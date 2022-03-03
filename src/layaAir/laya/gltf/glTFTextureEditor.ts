@@ -1,9 +1,9 @@
 import { Texture2D } from "../resource/Texture2D";
-import { TextureFormat } from "../resource/TextureFormat";
 import { LayaGL } from "../layagl/LayaGL";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Loader } from "../net/Loader";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
 /**
  * @internal

@@ -1,5 +1,4 @@
 import { ILaya } from "../../ILaya";
-import { RenderTargetFormat } from "./RenderTarget";
 import { Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
 import { LayaGL } from "../layagl/LayaGL";
@@ -7,6 +6,8 @@ import { Bezier } from "../maths/Bezier";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { FontInfo } from "../utils/FontInfo";
 import { HTMLChar } from "../utils/HTMLChar";
 import { Stat } from "../utils/Stat";
@@ -53,7 +54,6 @@ import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
-import { TextureFormat } from "./TextureFormat";
 
 /**
  * @private

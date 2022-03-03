@@ -2,9 +2,8 @@ import { Loader } from "./Loader";
 import { URL } from "./URL";
 import { EventDispatcher } from "../events/EventDispatcher"
 import { Texture2D } from "../resource/Texture2D"
-import { WarpMode } from "../resource/WrapMode";
-import { Laya } from "../../Laya";
-import { TextureFormat } from "../resource/TextureFormat";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { WarpMode } from "../RenderEngine/RenderEnum/WrapMode";
 
 /**
  * @private

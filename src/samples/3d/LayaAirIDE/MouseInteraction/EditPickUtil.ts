@@ -6,7 +6,7 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 
 

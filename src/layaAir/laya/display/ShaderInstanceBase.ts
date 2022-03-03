@@ -75,7 +75,7 @@ export class ShaderInstanceBase extends Resource {
         WebGLContext.useProgram(gl, this._program);
 
         this._curActTexIndex = 0;
-        var one: ShaderVariable, i: number, n: number;
+        var one: ShaderVariable, i: number;
         for (i = 0; i < nUniformNum; i++) {
             var uniformData: any = gl.getActiveUniform(this._program, i);
             var uniName: string = uniformData.name;

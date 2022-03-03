@@ -5,9 +5,8 @@ import SkyPanoramicVS from "../../shader/files/SkyPanoramic.vs";
 import { Shader3D } from "../../shader/Shader3D";
 import { SubShader } from "../../shader/SubShader";
 import { Material } from "./Material";
-import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
-import { BaseTexture } from "../../../resource/BaseTexture";
 import { ShaderData } from "../../shader/ShaderData";
+import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 
 /**
  * <code>SkyPanoramicMaterial</code> 类用于实现SkyPanoramicMaterial材质。

@@ -12,7 +12,7 @@ import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Loader } from "laya/net/Loader";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";

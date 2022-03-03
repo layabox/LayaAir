@@ -12,14 +12,13 @@ import EdgeEffectFS from "./shader/EdgeEffectFS.fs";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { TextureFormat } from "laya/resource/TextureFormat";
-import { FilterMode } from "laya/resource/FilterMode";
 import { Camera } from "laya/d3/core/Camera";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { ShaderDefine } from "laya/d3/shader/ShaderDefine";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 export enum EdgeMode {
     ColorEdge = 0,

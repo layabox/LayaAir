@@ -1,4 +1,4 @@
-import { LayaContext } from "../webgl/LayaContext";
+import { ITextureContext } from "../RenderEngine/RenderInterface/TextureContext";
 import { LayaGPU } from "../webgl/LayaGPU";
 
 /**
@@ -18,7 +18,7 @@ export class LayaGL {
     static instance: WebGLRenderingContext;
     static layaGPUInstance: LayaGPU;
 
-    static layaContext: LayaContext;
+    static layaContext: ITextureContext;
 }
 
 

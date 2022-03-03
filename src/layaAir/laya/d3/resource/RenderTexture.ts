@@ -1,9 +1,10 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
+import { InternalRenderTarget } from "../../RenderEngine/RenderInterface/InternalRenderTarget";
+import { RenderTarget } from "../../RenderEngine/RenderInterface/RenderTarget";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { RenderContext3D } from "../core/render/RenderContext3D";
-import { InternalRenderTarget } from "../WebGL/InternalRenderTarget";
-import { TextureDimension } from "../WebGL/InternalTexture";
-import { RenderTarget, RenderTargetFormat } from "../../resource/RenderTarget";
 
 
 export class RenderTexture extends BaseTexture implements RenderTarget {

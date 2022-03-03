@@ -1,6 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { RenderTargetFormat } from "../../resource/RenderTarget";
-import { TextureDimension } from "../WebGL/InternalTexture";
+import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
 import { RenderTexture } from "./RenderTexture";
 
 export class RenderTextureCube extends RenderTexture {

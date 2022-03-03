@@ -23,7 +23,6 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 
 /**
@@ -48,8 +47,6 @@ export class RealTimeShadow {
 
 	/**实例类型*/
 	private btype:any = "RealTimeShadow";
-	/**场景内按钮类型*/
-	private stype:any = 0;
 	private rotationButton:Button;
 	private rotationScript:RotationScript;
 	constructor() {

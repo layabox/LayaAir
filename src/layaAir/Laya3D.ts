@@ -72,11 +72,8 @@ import { Loader } from "./laya/net/Loader";
 import { LoaderManager } from "./laya/net/LoaderManager";
 import { URL } from "./laya/net/URL";
 import { Render } from "./laya/renders/Render";
-import { FilterMode } from "./laya/resource/FilterMode";
 import { Resource } from "./laya/resource/Resource";
 import { Texture2D } from "./laya/resource/Texture2D";
-import { TextureFormat } from "./laya/resource/TextureFormat";
-import { WarpMode } from "./laya/resource/WrapMode";
 import { Byte } from "./laya/utils/Byte";
 import { ClassUtils } from "./laya/utils/ClassUtils";
 import { Handler } from "./laya/utils/Handler";
@@ -102,6 +99,9 @@ import { BaseCamera } from "./laya/d3/core/BaseCamera";
 import { ShuriKenParticle3DShaderDeclaration } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3DShaderDeclaration";
 import { TrailFilter } from "./laya/d3/core/trail/TrailFilter";
 import { BaseRender } from "./laya/d3/core/render/BaseRender";
+import { TextureFormat } from "./laya/RenderEngine/RenderEnum/TextureFormat";
+import { FilterMode } from "./laya/RenderEngine/RenderEnum/FilterMode";
+import { WarpMode } from "./laya/RenderEngine/RenderEnum/WrapMode";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */

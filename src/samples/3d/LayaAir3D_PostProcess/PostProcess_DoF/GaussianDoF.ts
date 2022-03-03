@@ -12,7 +12,6 @@ import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Vector3 } from "laya/d3/math/Vector3";
-import { FilterMode } from "laya/resource/FilterMode";
 import { ShaderDefine } from "laya/d3/shader/ShaderDefine";
 
 import FullScreenVert from "./Shader/FullScreenVert.vs";
@@ -21,7 +20,8 @@ import PrefilterFS from "./Shader/Prefilter.fs";
 import BlurVFS from "./Shader/BlurV.fs";
 import BlurHFS from "./Shader/BlurH.fs";
 import CompositeFS from "./Shader/Composite.fs";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 
 /**

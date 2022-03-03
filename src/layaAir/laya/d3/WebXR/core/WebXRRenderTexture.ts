@@ -1,5 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
-import { RenderTargetFormat } from "../../../resource/RenderTarget";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderTexture } from "../../resource/RenderTexture";
 
 

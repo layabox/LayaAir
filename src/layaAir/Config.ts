@@ -15,13 +15,23 @@ export class Config {
      */
     static isAlpha: boolean = false;
     /**
+     * 设置画布是否包含深度
+     */
+    static isDepth:boolean = false;
+    /**
+     * 表明在一个系统性能低的环境是否创建该上下文的boolean值
+     */
+    static isfailIfMajorPerformanceCaveat:boolean = false;
+
+    static powerPreference:WebGLPowerPreference = "default";
+    /**
      * 设置画布是否预乘，只对2D(WebGL)、3D有效。
      */
     static premultipliedAlpha: boolean = true;
     /**
      * 设置画布的是否开启模板缓冲，只对2D(WebGL)、3D有效。
      */
-    static isStencil: boolean = true;
+    static isStencil: boolean = false;
     /**
      * 是否保留渲染缓冲区。
      */

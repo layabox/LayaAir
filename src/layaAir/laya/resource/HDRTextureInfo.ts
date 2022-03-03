@@ -18,7 +18,7 @@
  */
 
 import { Vector4 } from "../d3/math/Vector4";
-import { TextureFormat } from "./TextureFormat";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
 /**
  * https://floyd.lbl.gov/radiance/framer.html

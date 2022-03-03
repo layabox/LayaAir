@@ -1,6 +1,6 @@
-import { TextureDimension } from "../d3/WebGL/InternalTexture";
 import { LayaGL } from "../layagl/LayaGL";
-import { TextureFormat } from "../resource/TextureFormat";
+import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
 const KTX1FileIdentifier = [
     0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A

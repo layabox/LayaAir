@@ -5,8 +5,8 @@ import { Sprite3D } from "../Sprite3D";
 import { Scene3D } from "../scene/Scene3D";
 import { Vector3 } from "../../math/Vector3";
 import { Loader } from "../../../net/Loader";
-import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
 import { Node } from "../../../display/Node";
+import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 
 /**
  * 反射探针模式

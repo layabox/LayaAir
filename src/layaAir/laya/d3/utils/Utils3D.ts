@@ -1,9 +1,6 @@
 import { Node } from "../../display/Node";
 import { LayaGL } from "../../layagl/LayaGL";
-import { FilterMode } from "../../resource/FilterMode";
 import { Texture2D } from "../../resource/Texture2D";
-import { TextureFormat } from "../../resource/TextureFormat";
-import { WarpMode } from "../../resource/WrapMode";
 import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BoundBox } from "../math/BoundBox";
 import { Color } from "../math/Color";
@@ -17,7 +14,10 @@ import { Render } from "../../renders/Render";
 import { HTMLCanvas } from "../../resource/HTMLCanvas";
 import { Sprite3D } from "../core/Sprite3D";
 import { RenderTexture } from "../resource/RenderTexture";
-import { RenderTargetFormat } from "../../resource/RenderTarget";
+import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
+import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
+import { WarpMode } from "../../RenderEngine/RenderEnum/WrapMode";
+import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。

@@ -1,11 +1,12 @@
 import { LayaGL } from "../layagl/LayaGL";
+import { WebGLMode } from "../RenderEngine/GLEnum/WebGLMode";
+import { WebGlConfig } from "../RenderEngine/WebGLConfig";
+import { WebGLEngine } from "../RenderEngine/WebGLEngine";
 import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Browser } from "../utils/Browser";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { LayaGPU } from "../webgl/LayaGPU";
-import { LayaWebGL2Context } from "../webgl/LayaWebGL2Context";
-import { LayaWebGLContext } from "../webgl/LayaWebGLContext";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
@@ -109,22 +110,31 @@ export class Render {
             }
             return null;
         }
-        var gl: WebGLRenderingContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
+        //var gl: WebGLRenderingContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
+        let glConfig: WebGlConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
+        const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
+        const engine: WebGLEngine = new WebGLEngine(glConfig, webglMode);
+        engine.initGL(Render._mainCanvas.source);
+        var gl: WebGLRenderingContext = LayaGL.instance = WebGLContext.mainContext = engine.gl;
         if (Config.printWebglOrder)
             this._replaceWebglcall(gl);
 
         if (!gl)
             return false;
-
+        if (gl) {
+            WebGL._isWebGL2 = engine.isWebGL2;
+            new LayaGL();
+        }
         LayaGL.instance = gl;
         LayaGL.layaGPUInstance = new LayaGPU(gl, WebGL._isWebGL2);
-        if (WebGL._isWebGL2) {
-            LayaGL.layaContext = new LayaWebGL2Context(<WebGL2RenderingContext>gl);
-        }
-        else {
-            // LayaGL.layaRenderContext = new LayaWebGLRenderContext(<WebGLRenderingContext>gl);
-            LayaGL.layaContext = new LayaWebGLContext(<WebGLRenderingContext>gl);
-        }
+        LayaGL.layaContext = engine.getTextureContext();
+        // if (WebGL._isWebGL2) {
+        //     LayaGL.layaContext = engtin.getTextureContext();
+        // }
+        // else {
+        //     // LayaGL.layaRenderContext = new LayaWebGLRenderContext(<WebGLRenderingContext>gl);
+        //     LayaGL.layaContext = new LayaWebGLContext(<WebGLRenderingContext>gl);
+        // }
 
         canvas.size(w, h);	//在ctx之后调用。
         Context.__init__();

@@ -18,9 +18,8 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Config } from "Config";
 import { Sprite } from "laya/display/Sprite";
-import { Utils } from "laya/utils/Utils";
 import Client from "../../Client";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 export class PickPixel {
 	private isPick: boolean = false;

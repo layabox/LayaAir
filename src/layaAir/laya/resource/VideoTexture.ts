@@ -1,12 +1,11 @@
 import { BaseTexture } from "./BaseTexture";
 import { LayaGL } from "../layagl/LayaGL";
-import { WarpMode } from "./WrapMode";
-import { FilterMode } from "./FilterMode";
-import { WebGLContext } from "../webgl/WebGLContext";
 import { Laya } from "../../Laya";
-import { RenderTargetFormat } from "./RenderTarget";
-import { TextureDimension } from "../d3/WebGL/InternalTexture";
-import { TextureFormat } from "./TextureFormat";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
+import { WarpMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
 
 /**

@@ -5,8 +5,7 @@ import { Context } from "./Context";
 import { ILaya } from "../../ILaya";
 import { Browser } from "../utils/Browser";
 import { RenderTexture2D } from "./RenderTexture2D";
-import { BaseTexture } from "./BaseTexture";
-import { TextureFormat } from "./TextureFormat";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
 
 /**
