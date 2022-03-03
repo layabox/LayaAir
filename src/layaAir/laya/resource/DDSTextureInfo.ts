@@ -1,4 +1,4 @@
-import { TextureFormat } from "./TextureFormat";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { SystemUtils } from "../webgl/SystemUtils";
 
 const FOURCC_DXT1: number = 827611204;

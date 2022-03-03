@@ -13,8 +13,8 @@ import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ShaderDefine } from "../shader/ShaderDefine";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
-import { RenderTargetFormat } from "../../resource/RenderTarget";
 import { RenderTexture } from "../resource/RenderTexture";
+import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 
 
 /**

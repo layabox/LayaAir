@@ -9,7 +9,6 @@ import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { FilterMode } from "laya/resource/FilterMode";
 import { Vector4 } from "laya/d3/math/Vector4";
 import BlurVS from "./Blur.vs";
 import BlurHorizentalFS from "./BlurHorizontal.fs";
@@ -20,7 +19,8 @@ import BlurEdgeAdd from "./EdgeAdd.fs";
 import BlurEdgeSub from "./EdgeSub.fs";
 import { Material } from "laya/d3/core/material/Material";
 import { BaseTexture } from "laya/resource/BaseTexture";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 export class BlurEffect extends PostProcessEffect {
 
     static BLUR_TYPE_GaussianBlur: number = 0;

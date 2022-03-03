@@ -5,6 +5,8 @@ import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Sound } from "../media/Sound";
 import { SoundManager } from "../media/SoundManager";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { WarpMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
 import { Browser } from "../utils/Browser";
@@ -15,8 +17,6 @@ import { BitmapFont } from "./../display/BitmapFont";
 import { HttpRequest } from "./HttpRequest";
 import { TTFLoader } from "./TTFLoader";
 import { URL } from "./URL";
-import { TextureFormat } from "../resource/TextureFormat";
-import { WarpMode } from "../resource/WrapMode";
 
 /**
  * 加载进度发生改变时调度。
@@ -399,9 +399,9 @@ export class Loader extends EventDispatcher {
 				tex = new Texture2D(0, 0, format, false, false);
 				// tex.setCompressData(data);
 				throw "ktx pvr parse"
-				tex.wrapModeU = WarpMode.Clamp;
-				tex.wrapModeV = WarpMode.Clamp;
-				tex._setCreateURL(this.url);
+				// tex.wrapModeU = WarpMode.Clamp;
+				// tex.wrapModeV = WarpMode.Clamp;
+				// tex._setCreateURL(this.url);
 			} else if (!(data instanceof Texture2D)) {
 				tex = new Texture2D(data.width, data.height, 1, false, false);
 				// tex.loadImageSource(data, true);

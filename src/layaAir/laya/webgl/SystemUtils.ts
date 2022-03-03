@@ -1,6 +1,7 @@
-import { RenderTargetFormat } from "../resource/RenderTarget";
 import { LayaGL } from "../layagl/LayaGL";
-import { TextureFormat } from "../resource/TextureFormat";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+
 
 /**
  * 系统工具。

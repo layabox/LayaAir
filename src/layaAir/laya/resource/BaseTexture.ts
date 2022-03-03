@@ -1,11 +1,11 @@
-import { InternalTexture, TextureDimension } from "../d3/WebGL/InternalTexture";
 import { LayaGL } from "../layagl/LayaGL";
-import { WebGLContext } from "../webgl/WebGLContext";
+import { CompareMode } from "../RenderEngine/RenderEnum/CompareMode";
+import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
+import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { WarpMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { InternalTexture } from "../RenderEngine/RenderInterface/InternalTexture";
 import { Bitmap } from "./Bitmap";
-import { CompareMode } from "./CompareMode";
-import { FilterMode } from "./FilterMode";
-import { TextureFormat } from "./TextureFormat";
-import { WarpMode } from "./WrapMode";
 
 
 /**

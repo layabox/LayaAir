@@ -7,7 +7,6 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Event } from "laya/events/Event";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Texture } from "laya/resource/Texture";
-import { Box } from "laya/ui/Box";
 import { Image } from "laya/ui/Image";
 import { Handler } from "laya/utils/Handler";
 import { CameraControlScript, IDE_RotateDirectFlags } from "../EditorComponent/CameraControlScript";
@@ -16,7 +15,7 @@ import { Vector4 } from "laya/d3/math/Vector4";
 import { EditPickUtil } from "../MouseInteraction/EditPickUtil";
 import { Script3D } from "laya/d3/component/Script3D";
 import { Sprite } from "laya/display/Sprite";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
  * miner 用来显示旋转小场景

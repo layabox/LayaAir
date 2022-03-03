@@ -1,5 +1,5 @@
+import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Texture2D } from "../../resource/Texture2D"
-import { TextureFormat } from "../../resource/TextureFormat";
 
 
 /**

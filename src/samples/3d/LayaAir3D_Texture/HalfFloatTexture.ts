@@ -13,10 +13,10 @@ import { Stage } from "laya/display/Stage";
 import { HalfFloatUtils } from "laya/utils/HalfFloatUtils";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { FilterMode } from "laya/resource/FilterMode";
 import { Texture2D } from "laya/resource/Texture2D";
-import { TextureFormat } from "laya/resource/TextureFormat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
+import { TextureFormat } from "laya/RenderEngine/RenderEnum/TextureFormat";
 
 export class HalfFloatTexture {
     private sprite3D: Sprite3D;

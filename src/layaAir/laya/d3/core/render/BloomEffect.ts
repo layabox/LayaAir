@@ -8,9 +8,9 @@ import { Viewport } from "../../math/Viewport"
 import { Shader3D } from "../../shader/Shader3D"
 import { ShaderData } from "../../shader/ShaderData"
 import { Texture2D } from "../../../resource/Texture2D"
-import { FilterMode } from "../../../resource/FilterMode";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { RenderTargetFormat } from "../../../resource/RenderTarget";
+import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。

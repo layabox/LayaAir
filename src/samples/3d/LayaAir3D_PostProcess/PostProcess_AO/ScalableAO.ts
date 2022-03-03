@@ -3,8 +3,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
-import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { DepthPass, DepthTextureMode } from "laya/d3/depthMap/DepthPass";
+import {  DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Viewport } from "laya/d3/math/Viewport";
@@ -12,7 +11,6 @@ import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ShaderData } from "laya/d3/shader/ShaderData";
 import { SubShader } from "laya/d3/shader/SubShader";
-import { WarpMode } from "laya/resource/WrapMode";
 import { Vector2 } from "laya/d3/math/Vector2";
 import { Vector3 } from "laya/d3/math/Vector3";
 
@@ -21,7 +19,8 @@ import FragAO from "./Shader/FragAO.fs";
 import AoBlurHorizontal from "./Shader/AoBlurHorizontal.fs";
 import AOComposition from "./Shader/AOComposition.fs";
 import AmbientOcclusion from "./Shader/AmbientOcclusion.glsl";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { WarpMode } from "laya/RenderEngine/RenderEnum/WrapMode";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 export class ScalableAO extends PostProcessEffect {
     static BlurDelty: number = Shader3D.propertyNameToID("u_Delty");

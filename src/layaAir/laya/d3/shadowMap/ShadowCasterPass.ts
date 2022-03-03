@@ -26,7 +26,6 @@ import { DirectionLightCom } from "../core/light/DirectionLightCom";
 import { Sprite3D } from "../core/Sprite3D";
 import { SpotLightCom } from "../core/light/SpotLightCom";
 import { RenderTexture } from "../resource/RenderTexture";
-import { RenderTargetFormat } from "../../resource/RenderTarget";
 
 /**
  * Shadow Light enum

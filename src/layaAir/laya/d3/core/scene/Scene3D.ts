@@ -8,7 +8,6 @@ import { Render } from "../../../renders/Render";
 import { Context } from "../../../resource/Context";
 import { ICreateResource } from "../../../resource/ICreateResource";
 import { Texture2D } from "../../../resource/Texture2D";
-import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
 import { Handler } from "../../../utils/Handler";
 import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
@@ -62,7 +61,6 @@ import { Physics3D } from "../../Physics3D";
 import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
 import { BoundsOctree } from "./BoundsOctree";
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { FilterMode } from "../../../resource/FilterMode";
 import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
 import { UniformBufferParamsType, UnifromBufferData } from "../../graphics/UniformBufferData";
 import { UniformBufferObject } from "../../graphics/UniformBufferObject";
@@ -71,8 +69,10 @@ import { DirectionLightCom } from "../light/DirectionLightCom";
 import { Sprite3D } from "../Sprite3D";
 import { PointLightCom } from "../light/PointLightCom";
 import { SpotLightCom } from "../light/SpotLightCom";
-import { RenderTargetFormat } from "../../../resource/RenderTarget";
 import { RenderTexture } from "../../resource/RenderTexture";
+import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 /**
  * 环境光模式
  */

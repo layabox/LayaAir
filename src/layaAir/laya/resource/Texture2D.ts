@@ -1,16 +1,16 @@
 import { ILaya } from "../../ILaya";
-import { TextureDimension } from "../d3/WebGL/InternalTexture";
 import { LayaGL } from "../layagl/LayaGL";
+import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
+import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Byte } from "../utils/Byte";
 import { HalfFloatUtils } from "../utils/HalfFloatUtils";
 import { Handler } from "../utils/Handler";
 import { SystemUtils } from "../webgl/SystemUtils";
 import { BaseTexture } from "./BaseTexture";
 import { DDSTextureInfo } from "./DDSTextureInfo";
-import { FilterMode } from "./FilterMode";
 import { HDRTextureInfo } from "./HDRTextureInfo";
 import { KTXTextureInfo } from "./KTXTextureInfo";
-import { TextureFormat } from "./TextureFormat";
 
 
 export class Texture2D extends BaseTexture {

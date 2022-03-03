@@ -7,8 +7,7 @@ import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Material } from "../../../../bin/tsc/layaAir/laya/d3/core/material/Material";
-import { RenderTargetFormat } from "laya/resource/RenderTarget";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 export class ChinarMirrorPlane extends Script3D {
 

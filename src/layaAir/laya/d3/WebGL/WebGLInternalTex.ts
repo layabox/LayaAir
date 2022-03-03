@@ -1,9 +1,10 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { CompareMode } from "../../resource/CompareMode";
-import { FilterMode } from "../../resource/FilterMode";
-import { WarpMode } from "../../resource/WrapMode";
+import { CompareMode } from "../../RenderEngine/RenderEnum/CompareMode";
+import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
+import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
+import { WarpMode } from "../../RenderEngine/RenderEnum/WrapMode";
+import { InternalTexture } from "../../RenderEngine/RenderInterface/InternalTexture";
 import { WebGLContext } from "../../webgl/WebGLContext";
-import { InternalTexture, TextureDimension } from "./InternalTexture";
 
 export class WebGLInternalTex implements InternalTexture {
 

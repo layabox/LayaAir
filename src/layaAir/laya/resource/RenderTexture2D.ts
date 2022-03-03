@@ -1,12 +1,11 @@
 import { Texture2D } from "./Texture2D";
 import { LayaGL } from "../layagl/LayaGL"
 import { BaseTexture } from "./BaseTexture"
-import { WebGLContext } from "../webgl/WebGLContext"
 import { BaseShader } from "../webgl/shader/BaseShader"
 import { RenderState2D } from "../webgl/utils/RenderState2D"
-import { ILaya } from "../../ILaya";
-import { RenderTarget, RenderTargetFormat } from "./RenderTarget";
-import { InternalRenderTarget } from "../d3/WebGL/InternalRenderTarget";
+import { RenderTarget } from "../RenderEngine/RenderInterface/RenderTarget";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRenderTarget";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。

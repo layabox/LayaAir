@@ -1,9 +1,9 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
+import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { DDSTextureInfo } from "../../resource/DDSTextureInfo";
 import { KTXTextureInfo } from "../../resource/KTXTextureInfo";
-import { TextureFormat } from "../../resource/TextureFormat";
-import { TextureDimension } from "../WebGL/InternalTexture";
 
 
 export enum TextureCubeFace {

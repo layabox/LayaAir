@@ -1,7 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { RenderTargetFormat } from "../../resource/RenderTarget";
-import { InternalRenderTarget } from "./InternalRenderTarget";
-import { InternalTexture } from "./InternalTexture";
+import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { InternalRenderTarget } from "../../RenderEngine/RenderInterface/InternalRenderTarget";
+import { InternalTexture } from "../../RenderEngine/RenderInterface/InternalTexture";
 
 export class WebGLInternalRT implements InternalRenderTarget {
 

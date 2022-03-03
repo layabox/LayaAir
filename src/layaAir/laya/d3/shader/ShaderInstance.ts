@@ -268,32 +268,5 @@ export class ShaderInstance extends ShaderInstanceBase {
 	uploadCustomUniform(index: number, data: any): void {
 		Stat.shaderCall += LayaGLRunner.uploadCustomUniform((<any>LayaGL.instance), this._customUniformParamsMap, index, data);
 	}
-
-	/**
-	 * @internal
-	 * [NATIVE]
-	 */
-	_uniformMatrix2fvForNative(one: any, value: any): number {
-		(<any>LayaGL.instance).uniformMatrix2fvEx(one.location, false, value);
-		return 1;
-	}
-
-	/**
-	 * @internal
-	 * [NATIVE]
-	 */
-	_uniformMatrix3fvForNative(one: any, value: any): number {
-		(<any>LayaGL.instance).uniformMatrix3fvEx(one.location, false, value);
-		return 1;
-	}
-
-	/**
-	 * @internal
-	 * [NATIVE]
-	 */
-	_uniformMatrix4fvForNative(one: any, m: Float32Array): number {
-		(<any>LayaGL.instance).uniformMatrix4fvEx(one.location, false, m);
-		return 1;
-	}
 }
 

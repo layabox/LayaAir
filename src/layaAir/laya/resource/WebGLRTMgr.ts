@@ -1,4 +1,4 @@
-import { RenderTargetFormat } from "./RenderTarget";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderTexture2D } from "./RenderTexture2D";
 
 /**
