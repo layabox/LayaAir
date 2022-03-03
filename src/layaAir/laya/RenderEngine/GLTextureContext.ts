@@ -12,7 +12,7 @@ import { HDRTextureInfo } from "../resource/HDRTextureInfo";
 import { KTXTextureInfo } from "../resource/KTXTextureInfo";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
-import { ITextureContext } from "./RenderInterface/TextureContext";
+import { ITextureContext } from "./RenderInterface/ITextureContext";
 import { RenderCapable } from "./RenderEnum/RenderCapable";
 
 export class GLTextureContext extends GLObject implements ITextureContext {

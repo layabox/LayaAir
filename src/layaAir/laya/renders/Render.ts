@@ -27,10 +27,6 @@ export class Render {
     static _context: Context;
     /** @internal 主画布。canvas和webgl渲染都用这个画布*/
     static _mainCanvas: HTMLCanvas;
-
-    // static supportWebGLPlusCulling: boolean = false;
-    static supportWebGLPlusAnimation: boolean = false;
-    static supportWebGLPlusRendering: boolean = false;
     /**是否是加速器 只读*/
     static isConchApp: boolean = false;
     /** 表示是否是 3D 模式。*/
@@ -91,26 +87,6 @@ export class Render {
     }
 
     initRender(canvas: HTMLCanvas, w: number, h: number): boolean {
-        function getWebGLContext(canvas: any): WebGLRenderingContext {
-            var gl: WebGLRenderingContext;
-            var names: any[] = ["webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-            if (!Config.useWebGL2 || Browser.onBDMiniGame) {//TODO:反向兼容百度
-                names.shift();
-            }
-            for (var i: number = 0; i < names.length; i++) {
-                try {
-                    gl = canvas.getContext(names[i], { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer });//antialias为true,premultipliedAlpha为false,IOS和部分安卓QQ浏览器有黑屏或者白屏底色BUG
-                } catch (e) {
-                }
-                if (gl) {
-                    (names[i] === 'webgl2') && (WebGL._isWebGL2 = true);
-                    new LayaGL();
-                    return gl;
-                }
-            }
-            return null;
-        }
-        //var gl: WebGLRenderingContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
         let glConfig: WebGlConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
         const engine: WebGLEngine = new WebGLEngine(glConfig, webglMode);
@@ -128,13 +104,6 @@ export class Render {
         LayaGL.instance = gl;
         LayaGL.layaGPUInstance = new LayaGPU(gl, WebGL._isWebGL2);
         LayaGL.layaContext = engine.getTextureContext();
-        // if (WebGL._isWebGL2) {
-        //     LayaGL.layaContext = engtin.getTextureContext();
-        // }
-        // else {
-        //     // LayaGL.layaRenderContext = new LayaWebGLRenderContext(<WebGLRenderingContext>gl);
-        //     LayaGL.layaContext = new LayaWebGLContext(<WebGLRenderingContext>gl);
-        // }
 
         canvas.size(w, h);	//在ctx之后调用。
         Context.__init__();
@@ -196,16 +165,6 @@ export class Render {
 }
 {
     Render.isConchApp = ((window as any).conch != null);
-    if (Render.isConchApp) {
-        //Render.supportWebGLPlusCulling = false;
-        //Render.supportWebGLPlusAnimation = false;
-        Render.supportWebGLPlusRendering = false;
-    }
-    else if ((window as any).qq != null && (window as any).qq.webglPlus != null) {
-        //Render.supportWebGLPlusCulling = false;
-        //Render.supportWebGLPlusAnimation = false;
-        Render.supportWebGLPlusRendering = false;
-    }
 }
 
 

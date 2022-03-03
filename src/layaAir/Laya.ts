@@ -225,7 +225,6 @@ export class Laya {
 		if (ILaya.Render.isConchApp) {
 			Laya.enableNative();
 		}
-		Laya.enableWebGLPlus();
 		CacheManger.beginCheck();
 		stage = Laya.stage = new Stage();
 		ILaya.stage = Laya.stage;
@@ -313,21 +312,11 @@ export class Laya {
 
 	private static isNativeRender_enable: boolean = false;
 	/**@private */
-	private static enableWebGLPlus(): void {
-		WebGLContext.__init_native();
-	}
-	/**@private */
 	private static enableNative(): void {
 		if (Laya.isNativeRender_enable)
 			return;
 		Config.useRetinalCanvas = true;
 		Laya.isNativeRender_enable = true;
-		if (Render.supportWebGLPlusRendering) {
-			Shader.prototype.uploadTexture2D = function (value: any): void {
-				var gl: WebGLRenderingContext = LayaGL.instance;
-				gl.bindTexture(gl.TEXTURE_2D, (<WebGLTexture>value));
-			}
-		}
 		RenderState2D.width = Browser.window.innerWidth;
 		RenderState2D.height = Browser.window.innerHeight;
 		Browser.measureText = function (txt: string, font: string): any {

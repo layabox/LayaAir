@@ -14,7 +14,7 @@ import { CommandEncoder } from "../layagl/CommandEncoder";
 import { ShaderVariable } from "../d3/shader/ShaderVariable";
 import { RenderParams } from "./RenderEnum/RenderParams";
 import { GlCapable } from "./GlCapable";
-import { ITextureContext } from "./RenderInterface/TextureContext";
+import { ITextureContext } from "./RenderInterface/ITextureContext";
 import { GL2TextureContext } from "./GL2TextureContext";
 import { GLTextureContext } from "./GLTextureContext";
 

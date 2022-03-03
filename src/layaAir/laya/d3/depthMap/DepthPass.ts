@@ -110,7 +110,6 @@ export class DepthPass {
 				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
 				shaderValues.addDefine(DepthPass.DEPTHPASS);
-				ShaderData.setRuntimeValueMode(false);
 				this._depthTexture._start();
 				shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
 				if (this._castDepthBuffer) {
@@ -129,7 +128,6 @@ export class DepthPass {
 				gl.clear(gl.DEPTH_BUFFER_BIT);
 				scene._opaqueQueue._render(context);
 				this._depthTexture._end();
-				ShaderData.setRuntimeValueMode(true);
 				this._setupDepthModeShaderValue(depthType, this._camera);
 				context.pipelineMode = context.configPipeLineMode;
 				shaderValues.removeDefine(DepthPass.DEPTHPASS);
@@ -137,7 +135,6 @@ export class DepthPass {
 			case DepthTextureMode.DepthNormals:
 				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "DepthNormal";
-				ShaderData.setRuntimeValueMode(false);
 				this._depthNormalsTexture._start();
 				//传入shader该传的值
 				var gl = LayaGL.instance;
@@ -150,7 +147,6 @@ export class DepthPass {
 				gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
 				scene._opaqueQueue._render(context);
 				this._depthNormalsTexture._end();
-				ShaderData.setRuntimeValueMode(true);
 				this._setupDepthModeShaderValue(depthType, this._camera);
 				context.pipelineMode = context.configPipeLineMode;
 				break;
