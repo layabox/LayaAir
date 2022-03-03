@@ -269,7 +269,7 @@ export class GL2TextureContext extends GLTextureContext {
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
-        this._engine.bindTexture(texture.target, texture.resource);
+        this._engine._bindTexture(texture.target, texture.resource);
 
         gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
         gl.texSubImage2D(target, 0, 0, 0, width, height, format, type, source);
@@ -278,7 +278,7 @@ export class GL2TextureContext extends GLTextureContext {
             gl.generateMipmap(texture.target);
         }
 
-        this._engine.bindTexture(texture.target, null);
+        this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -300,7 +300,7 @@ export class GL2TextureContext extends GLTextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-        this._engine.bindTexture(texture.target, texture.resource);
+        this._engine._bindTexture(texture.target, texture.resource);
         gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
         if (source) {
             gl.texSubImage2D(target, 0, 0, 0, width, height, format, type, source);
@@ -308,7 +308,7 @@ export class GL2TextureContext extends GLTextureContext {
                 gl.generateMipmap(texture.target);
             }
         }
-        this._engine.bindTexture(texture.target, null);
+        this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -345,7 +345,7 @@ export class GL2TextureContext extends GLTextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-        this._engine.bindTexture(texture.target, texture.resource);
+        this._engine._bindTexture(texture.target, texture.resource);
 
         if (!compressed) {
             gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
@@ -371,7 +371,7 @@ export class GL2TextureContext extends GLTextureContext {
             mipmapHeight = Math.max(1, mipmapHeight * 0.5);
 
         }
-        this._engine.bindTexture(texture.target, null);
+        this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -401,7 +401,7 @@ export class GL2TextureContext extends GLTextureContext {
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
-        this._engine.bindTexture(texture.target, texture.resource);
+        this._engine._bindTexture(texture.target, texture.resource);
 
         gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
 
@@ -415,7 +415,7 @@ export class GL2TextureContext extends GLTextureContext {
             gl.generateMipmap(texture.target);
         }
 
-        this._engine.bindTexture(texture.target, null);
+        this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -446,7 +446,7 @@ export class GL2TextureContext extends GLTextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-        this._engine.bindTexture(texture.target, texture.resource);
+        this._engine._bindTexture(texture.target, texture.resource);
         gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
         if (source) {
             for (let index = 0; index < cubeFace.length; index++) {
@@ -459,7 +459,7 @@ export class GL2TextureContext extends GLTextureContext {
         }
 
 
-        this._engine.bindTexture(texture.target, null);
+        this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -507,7 +507,7 @@ export class GL2TextureContext extends GLTextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-        this._engine.bindTexture(texture.target, texture.resource);
+        this._engine._bindTexture(texture.target, texture.resource);
 
         if (!compressed) {
             gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
@@ -536,7 +536,7 @@ export class GL2TextureContext extends GLTextureContext {
             mipmapHeight = Math.max(1, mipmapHeight * 0.5);
         }
 
-        this._engine.bindTexture(texture.target, null);
+        this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -633,11 +633,11 @@ export class GL2TextureContext extends GLTextureContext {
 
         let gl = <WebGL2RenderingContext>internalTex._gl;
 
-        this._engine.bindTexture(internalTex.target, internalTex.resource);
+        this._engine._bindTexture(internalTex.target, internalTex.resource);
 
         gl.texStorage2D(target, internalTex.mipmapCount, internalFormat, width, height);
 
-        this._engine.bindTexture(internalTex.target, null);
+        this._engine._bindTexture(internalTex.target, null);
 
         if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
             internalTex.filterMode = FilterMode.Point;
@@ -772,11 +772,11 @@ export class GL2TextureContext extends GLTextureContext {
 
         let gl = <WebGL2RenderingContext>internalTex._gl;
 
-        this._engine.bindTexture(internalTex.target, internalTex.resource);
+        this._engine._bindTexture(internalTex.target, internalTex.resource);
 
         gl.texStorage2D(target, internalTex.mipmapCount, internalFormat, size, size);
 
-        this._engine.bindTexture(internalTex.target, null);
+        this._engine._bindTexture(internalTex.target, null);
 
         return internalTex;
 
@@ -827,9 +827,9 @@ export class GL2TextureContext extends GLTextureContext {
         if (renderTarget._generateMipmap) {
             renderTarget._textures.forEach(tex => {
                 let target = (<WebGLInternalTex>tex).target;
-                this._engine.bindTexture(target, tex.resource);
+                this._engine._bindTexture(target, tex.resource);
                 gl.generateMipmap(target);
-                this._engine.bindTexture(target, null);
+                this._engine._bindTexture(target, null);
             });
         }
 

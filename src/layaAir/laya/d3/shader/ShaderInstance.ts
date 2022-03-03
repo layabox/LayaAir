@@ -64,10 +64,10 @@ export class ShaderInstance extends ShaderInstanceBase {
 		super._create();
 		this.splitUnifromData();
 		//Native版本分别存入funid、webglFunid,location、type、offset, +4是因为第一个存长度了 所以是*4*5+4
-		this._sceneUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder();
-		this._cameraUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder();
-		this._spriteUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder();
-		this._materialUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder();
+		this._sceneUniformParamsMap = new CommandEncoder();
+		this._cameraUniformParamsMap = new CommandEncoder();
+		this._spriteUniformParamsMap = new CommandEncoder();
+		this._materialUniformParamsMap = new CommandEncoder();
 		const sceneParams = CommandUniformMap.createGlobalUniformMap("Scene3D");
 		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
 		const cameraParams = CommandUniformMap.createGlobalUniformMap("BaseCamera");

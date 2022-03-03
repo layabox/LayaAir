@@ -128,7 +128,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
     _create() {
         // todo  mipmap
-        this._renderTarget = LayaGL.layaContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, true, 1);
+        this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, true, 1);
 
         this._texture = this._renderTarget._textures[0];
     }
@@ -162,7 +162,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     start(): void {
         var gl: WebGLRenderingContext = LayaGL.instance;
         //(memorySize == 0) && recreateResource();
-        LayaGL.layaContext.bindRenderTarget(this._renderTarget);
+        LayaGL.textureContext.bindRenderTarget(this._renderTarget);
         this._lastRT = RenderTexture2D._currentActive;
         RenderTexture2D._currentActive = this;
 
@@ -188,7 +188,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * 结束绑定。
      */
     end(): void {
-        LayaGL.layaContext.unbindRenderTarget(this._renderTarget);
+        LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
         RenderTexture2D._currentActive = null;
     }
 
@@ -200,10 +200,10 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         if (this._lastRT != RenderTexture2D._currentActive) {
 
             if (this._lastRT) {
-                LayaGL.layaContext.bindRenderTarget(this._lastRT._renderTarget);
+                LayaGL.textureContext.bindRenderTarget(this._lastRT._renderTarget);
             }
             else {
-                LayaGL.layaContext.unbindRenderTarget(this._renderTarget);
+                LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
             }
 
             RenderTexture2D._currentActive = this._lastRT;
