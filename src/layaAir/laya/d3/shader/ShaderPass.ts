@@ -13,6 +13,8 @@ import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
 import { Scene3D } from "../core/scene/Scene3D";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
+import { LayaGL } from "../../layagl/LayaGL";
+import { RenderParams } from "../../RenderEngine/RenderEnum/RenderParams";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -160,7 +162,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
 		defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
 		defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
 		defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
-		defineStr += "#define SHADER_CAPAILITY_LEVEL " + SystemUtils._shaderCapailityLevel + "\n";
+		defineStr += "#define SHADER_CAPAILITY_LEVEL " + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + "\n";
 
 		for (var i: number = 0, n: number = defineString.length; i < n; i++) {
 			var def: string = defineString[i];

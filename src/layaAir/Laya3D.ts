@@ -187,7 +187,7 @@ export class Laya3D {
 		RunDriver.changeWebGLSize = Laya3D._changeWebGLSize;
 		Render.is3DMode = true;
 		Laya.init(width, height);
-		config._multiLighting = config.enableMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
+		config._multiLighting = config.enableMultiLight && LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
 		config._uniformBlock = config.enableUniformBufferObject && LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject);
 		ILaya3D.Shader3D = Shader3D;
 		ILaya3D.Scene3D = Scene3D;

@@ -388,7 +388,7 @@ export class Camera extends BaseCamera {
 	}
 
 	set enableHDR(value: boolean) {
-		if (value && !SystemUtils.supportRenderTextureFormat(RenderTargetFormat.R16G16B16A16)) {
+		if (value && !LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_R16G16B16A16)) {
 			console.warn("Camera:can't enable HDR in this device.");
 			return;
 		}

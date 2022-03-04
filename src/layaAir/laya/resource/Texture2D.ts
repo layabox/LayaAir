@@ -1,6 +1,7 @@
 import { ILaya } from "../../ILaya";
 import { LayaGL } from "../layagl/LayaGL";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Byte } from "../utils/Byte";
@@ -74,9 +75,9 @@ export class Texture2D extends BaseTexture {
 				var textureWidth: number = byte.readInt32();
 				var pixelDataLength: number = byte.readInt32();
 				pixelDataArrays = new Uint16Array(byte.readArrayBuffer(pixelDataLength * 2));
-				if (!SystemUtils.supportTextureFormat(TextureFormat.R16G16B16A16)) {
+				if (!LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R16G16B16A16)) {
 					console.log("The platform does not support 16-bit floating-point textures");
-					if (!SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32))
+					if (!LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32))
 						console.error("The platform does not support 32-bit floating-point textures");
 					usePixelData = new Float32Array(textureWidth * textureWidth * 4);
 					for (var i = 0, n = pixelDataArrays.length; i < n; i++) {
