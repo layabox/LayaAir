@@ -23,8 +23,8 @@ export interface IRenderEngine {
      //TODO 先写完测试，这种封装过于死板
     getDrawContext():IRenderDrawContext;
     
-    uploadUniforms(commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean):number;
-    uploadCustomUniformUniforms(custom: any[], index: number, data: any): number ;
+    uploadUniforms(shader:IRenderShaderInstance,commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number ;
+    uploadCustomUniforms(shader:IRenderShaderInstance,custom: any[], index: number, data: any): number ;
     
     createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }):IRenderShaderInstance
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage):IRenderBuffer ;

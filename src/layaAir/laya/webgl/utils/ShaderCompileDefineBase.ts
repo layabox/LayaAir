@@ -1,7 +1,7 @@
 import { DefineDatas } from "../../d3/shader/DefineDatas";
 import { Shader3D } from "../../d3/shader/Shader3D";
+import { ShaderInstance } from "../../d3/shader/ShaderInstance";
 import { SubShader } from "../../d3/shader/SubShader";
-import { ShaderInstanceBase } from "../../display/ShaderInstanceBase";
 import { WebGL } from "../WebGL";
 import { InlcudeFile } from "./InlcudeFile";
 import { ShaderCompile } from "./ShaderCompile";
@@ -23,7 +23,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 	/** @internal */
 	name: string;
 	/** @internal */
-	protected _cacheSharders: { [key: number]: { [key: number]: { [key: number]: ShaderInstanceBase } } } = {};
+	protected _cacheSharders: { [key: number]: { [key: number]: { [key: number]: ShaderInstance } } } = {};
 
 
 	constructor(owner: any, vs: string, ps: string, name: string,) {
@@ -194,7 +194,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 	/**
  * @internal
  */
-	withCompile(compileDefine: DefineDatas): ShaderInstanceBase {
+	withCompile(compileDefine: DefineDatas): ShaderInstance {
 		var debugDefineString: string[] = ShaderCompileDefineBase._debugDefineString;
 		var debugDefineMask: number[] = ShaderCompileDefineBase._debugDefineMask;
 		var debugMaskLength: number;
@@ -222,7 +222,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 		}
 
 		var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
-		var shader: ShaderInstanceBase = cacheShaders[cacheKey];
+		var shader: ShaderInstance = cacheShaders[cacheKey];
 		if (shader)
 			return shader;
 
@@ -297,7 +297,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 			ps.shift();
 		}
 
-		shader = new ShaderInstanceBase(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap);
+		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap,this);
 
 		cacheShaders[cacheKey] = shader;
 

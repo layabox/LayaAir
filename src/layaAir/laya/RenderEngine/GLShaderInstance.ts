@@ -1,3 +1,4 @@
+import { UniformBufferObject } from "../d3/graphics/UniformBufferObject";
 import { Matrix4x4 } from "../d3/math/Matrix4x4";
 import { Vector2 } from "../d3/math/Vector2";
 import { Vector3 } from "../d3/math/Vector3";
@@ -33,14 +34,13 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
     /**@internal */
     private _uniformObjectMap: { [key: string]: ShaderVariable };
 
-
     constructor(engine: WebGLEngine, vs: string, ps: string, attributeMap: { [key: string]: number }) {
         super(engine);
         this._vs = vs;
         this._ps = ps;
         this._attributeMap = attributeMap;
         this._uniformMap = [];
-        //this.lock = true;
+        this._create();
     }
 
     private _create(): void {
@@ -86,6 +86,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
             one.dataOffset = this._engine.getPropertyNameToID(uniName);
         }
         if (this._engine.isWebGL2) {
+            this._uniformObjectMap = {};
             var nUniformBlock: number = gl.getProgramParameter(this._program, (gl as WebGL2RenderingContext).ACTIVE_UNIFORM_BLOCKS);
             for (i = 0; i < nUniformBlock; i++) {
                 let gl2 = (gl as WebGL2RenderingContext);
@@ -96,15 +97,14 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
                 one.type = (gl as WebGL2RenderingContext).UNIFORM_BUFFER;
                 one.dataOffset = this._engine.getPropertyNameToID(uniformBlockName);
                 let location = one.location = gl2.getUniformBlockIndex(this._program, uniformBlockName);
-                //这里需要重写,因为UnifromBufferObject的用法不同，有的是只需要一个Buffer替换数据，一个是需要多个Buffer来绑定不同的buffer
-                // if (!!UniformBufferObject.getBuffer(uniformBlockName,0)) {
-                //     let indexPoint = UniformBufferObject.getBuffer(uniformBlockName,0);
-                //     gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
-                // } else {
-                //     var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
-                //     let buffer: UniformBufferObject = UniformBufferObject.creat(uniformBlockName, gl.DYNAMIC_DRAW, bytelength,UniformBufferObject.isCommon(uniformBlockName));
-                //     gl2.uniformBlockBinding(this._program, location, buffer._glPointer);
-                // }
+                if (!!UniformBufferObject.getBuffer(uniformBlockName,0)) {
+                    let indexPoint = UniformBufferObject.getBuffer(uniformBlockName,0);
+                    gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
+                } else {
+                    var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
+                    let buffer: UniformBufferObject = UniformBufferObject.creat(uniformBlockName, gl.DYNAMIC_DRAW, bytelength,UniformBufferObject.isCommon(uniformBlockName));
+                    gl2.uniformBlockBinding(this._program, location, buffer._glPointer);
+                }
                 this._uniformObjectMap[one.name] = one;
                 this._uniformMap.push(one);
                 this._addShaderUnifiormFun(one);
@@ -467,11 +467,8 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
      * @param value 
      * @returns 
      */
-    _uniform_UniformBuffer(one: any, value: any) {
-        // let buffer = UniformBufferObject.getBuffer(one.name);
-        // if (!buffer || !(value instanceof UnifromBufferData)) return 0;
-        // buffer.setDataByUniformBufferData(value);
-        // return 1;
+    _uniform_UniformBuffer(one: any, value: UniformBufferObject) {
+        value._bindUniformBufferBase();
     }
 
     /**

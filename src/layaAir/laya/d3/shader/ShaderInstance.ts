@@ -1,8 +1,8 @@
-import { ShaderInstanceBase } from "../../display/ShaderInstanceBase";
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { LayaGL } from "../../layagl/LayaGL";
-import { LayaGLRunner } from "../../layagl/LayaGLRunner";
+import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
 import { Stat } from "../../utils/Stat";
+import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { Material } from "../core/material/Material";
 import { RenderState } from "../core/material/RenderState";
@@ -18,9 +18,12 @@ import { ShaderVariable } from "./ShaderVariable";
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class ShaderInstance extends ShaderInstanceBase {
+export class ShaderInstance {
 	/**@internal */
-	private _shaderPass: ShaderPass;
+	private _shaderPass: ShaderCompileDefineBase|ShaderPass;
+
+	private _renderShaderInstance:IRenderShaderInstance;
+
 	/**@internal */
 	_sceneUniformParamsMap: CommandEncoder;
 	/**@internal */
@@ -50,18 +53,17 @@ export class ShaderInstance extends ShaderInstanceBase {
 	/**
 	 * 创建一个 <code>ShaderInstance</code> 实例。
 	 */
-	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderPass) {
-		super(vs,ps,attributeMap);
+	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase) {
+		//super(vs,ps,attributeMap);
+		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(vs,ps,attributeMap);
 		this._shaderPass = shaderPass;
 		this._create();
-		this.lock = true;
 	}
 
 	/**
 	 * @internal TODO3D
 	 */
-	protected _create(): void {
-		super._create();
+	protected _create(): void {		
 		this.splitUnifromData();
 		//Native版本分别存入funid、webglFunid,location、type、offset, +4是因为第一个存长度了 所以是*4*5+4
 		this._sceneUniformParamsMap = new CommandEncoder();
@@ -73,8 +75,8 @@ export class ShaderInstance extends ShaderInstanceBase {
 		const cameraParams = CommandUniformMap.createGlobalUniformMap("BaseCamera");
 		const customParams = CommandUniformMap.createGlobalUniformMap("Custom");
 		let i,n;
-		let data = this._uniformMap.getArrayData();
-		for(i=0,n=this._uniformMap.getCount();i<n;i++){
+		let data:ShaderVariable[] = this._renderShaderInstance.getUniformMap();
+		for(i=0,n=data.length;i<n;i++){
 			let one:ShaderVariable = data[i];
 			if(sceneParams.hasPtrID(one.dataOffset)){
 				this._sceneUniformParamsMap.addShaderUniform(one);
@@ -89,7 +91,7 @@ export class ShaderInstance extends ShaderInstanceBase {
 				this._materialUniformParamsMap.addShaderUniform(one);
 			}
 		}
-		var stateMap: {[key:string]:number} = this._shaderPass._stateMap;
+		var stateMap: {[key:string]:number} = (<ShaderPass>this._shaderPass)._stateMap;
 		for (var s in stateMap)
 			this._stateParamsMap[stateMap[s]] = Shader3D.propertyNameToID(s);
 	}
@@ -110,12 +112,18 @@ export class ShaderInstance extends ShaderInstanceBase {
 	 * @override
 	 */
 	protected _disposeResource(): void {
-		LayaGL.instance.deleteShader(this._vshader);
-		LayaGL.instance.deleteShader(this._pshader);
-		LayaGL.instance.deleteProgram(this._program);
-		this._vshader = this._pshader = this._program = null;
-		this._setGPUMemory(0);
-		this._curActTexIndex = 0;
+		this._renderShaderInstance.destroy();
+		this._sceneUniformParamsMap = null;
+		this._cameraUniformParamsMap = null;
+		this._spriteUniformParamsMap = null;
+		this._materialUniformParamsMap = null
+		this._customUniformParamsMap = null;
+		this._stateParamsMap = null;
+
+		this._uploadMaterial = null;
+		this._uploadRender = null;
+		this._uploadCameraShaderValue = null;
+		this._uploadScene = null;
 	}
 	
 
@@ -132,12 +140,20 @@ export class ShaderInstance extends ShaderInstanceBase {
 			return shaderDatas[stateID];
 	}
 
+	bind(){
+		return this._renderShaderInstance.bind();
+	}
+
+	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean){
+		Stat.shaderCall+=LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance,shaderUniform,shaderDatas,uploadUnTexture);
+	}
+
 	/**
 	 * @internal
 	 */
 	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		var renderState: RenderState = this._shaderPass.renderState;
+		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
 
 		var depthWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_WRITE);
@@ -217,7 +233,7 @@ export class ShaderInstance extends ShaderInstanceBase {
 	 */
 	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		var renderState: RenderState = this._shaderPass.renderState;
+		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
 
 		var cull: any = this._getRenderState(datas, Shader3D.RENDER_STATE_CULL);
@@ -266,7 +282,7 @@ export class ShaderInstance extends ShaderInstanceBase {
 	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
-		Stat.shaderCall += LayaGLRunner.uploadCustomUniform((<any>LayaGL.instance), this._customUniformParamsMap, index, data);
+		Stat.shaderCall += LayaGL.renderEngine.uploadCustomUniforms(this._renderShaderInstance,this._customUniformParamsMap, index, data);
 	}
 }
 

@@ -259,7 +259,8 @@ export class WebGLEngine implements IRenderEngine {
   /**
    * @internal
    */
-  uploadUniforms(commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
+  uploadUniforms(shader:GLShaderInstance,commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
+    shader.bind();
     var data: any = shaderData._data;
     var shaderUniform: any[] = commandEncoder.getArrayData();
     var shaderCall: number = 0;
@@ -277,7 +278,8 @@ export class WebGLEngine implements IRenderEngine {
   /**
    * @internal
    */
-  uploadCustomUniformUniforms(custom: any[], index: number, data: any): number {
+   uploadCustomUniforms(shader:GLShaderInstance,custom: any[], index: number, data: any): number {
+    shader.bind();
     var shaderCall: number = 0;
     var one: ShaderVariable = custom[index];
     if (one && data != null)
