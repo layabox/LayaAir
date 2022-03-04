@@ -102,6 +102,7 @@ import { BaseRender } from "./laya/d3/core/render/BaseRender";
 import { TextureFormat } from "./laya/RenderEngine/RenderEnum/TextureFormat";
 import { FilterMode } from "./laya/RenderEngine/RenderEnum/FilterMode";
 import { WarpMode } from "./laya/RenderEngine/RenderEnum/WrapMode";
+import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -191,7 +192,7 @@ export class Laya3D {
 		Render.is3DMode = true;
 		Laya.init(width, height);
 		config._multiLighting = config.enableMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
-		config._uniformBlock = config.enableUniformBufferObject && LayaGL.layaGPUInstance._isWebGL2;
+		config._uniformBlock = config.enableUniformBufferObject && LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject);
 		ILaya3D.Shader3D = Shader3D;
 		ILaya3D.Scene3D = Scene3D;
 		ILaya3D.MeshRenderStaticBatchManager = MeshRenderStaticBatchManager;
@@ -223,7 +224,6 @@ export class Laya3D {
 		SubMeshDynamicBatch.__init__();
 		RenderState.__init__(LayaGL.instance);
 		ShaderInit3D.__init__();
-		ShadowUtils.init();
 		ShuriKenParticle3DShaderDeclaration.__init__();
 		SimpleSkinnedMeshSprite3D.__init__();
 		PBRMaterial.__init__();

@@ -1,8 +1,5 @@
-import { WebGLInternalTex } from "../d3/WebGL/WebGLInternalTex";
-import { LayaGL } from "../layagl/LayaGL";
 import { HDRTextureInfo } from "../resource/HDRTextureInfo";
 import { KTXTextureInfo } from "../resource/KTXTextureInfo";
-import { WebGLInternalRT } from "../d3/WebGL/WebGLInternalRT";
 import { TextureFormat } from "./RenderEnum/TextureFormat";
 import { RenderTargetFormat } from "./RenderEnum/RenderTargetFormat";
 import { CompareMode } from "./RenderEnum/CompareMode";
@@ -10,6 +7,9 @@ import { TextureDimension } from "./RenderEnum/TextureDimension";
 import { FilterMode } from "./RenderEnum/FilterMode";
 import { GLTextureContext } from "./GLTextureContext";
 import { WebGLEngine } from "./WebGLEngine";
+import { WebGLInternalTex } from "./WebGLInternalTex";
+import { WebGLInternalRT } from "./WebGLInternalRT";
+import { WebGLExtension } from "./GLEnum/WebGLExtension";
 
 // todo 
 /**
@@ -23,9 +23,6 @@ export class GL2TextureContext extends GLTextureContext {
 
     glTextureParam(format: TextureFormat, useSRGB: boolean) {
         let gl = <WebGL2RenderingContext>this._gl;
-
-        let layaGPU = LayaGL.layaGPUInstance;
-
         this._glParam.internalFormat = null;
         this._glParam.format = null;
         this._glParam.type = null;
@@ -66,92 +63,92 @@ export class GL2TextureContext extends GLTextureContext {
                 this._glParam.type = gl.HALF_FLOAT;
                 break;
             case TextureFormat.DXT1:
-                this._glParam.internalFormat = useSRGB ? layaGPU._compressdTextureS3tc_srgb.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT : layaGPU._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+                this._glParam.internalFormat = useSRGB ? this._compressdTextureS3tc_srgb.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT : this._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT1_EXT;
                 // this._glParam.format = gl.RGBA;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.DXT3:
-                this._glParam.internalFormat = useSRGB ? layaGPU._compressdTextureS3tc_srgb.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT : layaGPU._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT3_EXT;
+                this._glParam.internalFormat = useSRGB ? this._compressdTextureS3tc_srgb.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT : this._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT3_EXT;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.DXT5:
-                this._glParam.internalFormat = useSRGB ? layaGPU._compressdTextureS3tc_srgb.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT : layaGPU._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+                this._glParam.internalFormat = useSRGB ? this._compressdTextureS3tc_srgb.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT : this._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ETC1RGB:
-                this._glParam.internalFormat = layaGPU._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL;
+                this._glParam.internalFormat = this._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ETC2RGBA:
-                this._glParam.internalFormat = layaGPU._compressedTextureETC.COMPRESSED_RGBA8_ETC2_EAC;
+                this._glParam.internalFormat = this._compressedTextureETC.COMPRESSED_RGBA8_ETC2_EAC;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ETC2RGB:
-                this._glParam.internalFormat = layaGPU._compressedTextureETC.COMPRESSED_RGB8_ETC2;
+                this._glParam.internalFormat = this._compressedTextureETC.COMPRESSED_RGB8_ETC2;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ETC2SRGB:
-                this._glParam.internalFormat = layaGPU._compressedTextureETC.COMPRESSED_SRGB8_ETC2;
+                this._glParam.internalFormat = this._compressedTextureETC.COMPRESSED_SRGB8_ETC2;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ETC2SRGB_Alpha8:
-                this._glParam.internalFormat = layaGPU._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
+                this._glParam.internalFormat = this._compressedTextureETC.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ASTC4x4:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_RGBA_ASTC_4x4_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ASTC6x6:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_RGBA_ASTC_6x6_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break
             case TextureFormat.ASTC8x8:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_RGBA_ASTC_8x8_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break
             case TextureFormat.ASTC10x10:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_RGBA_ASTC_10x10_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_RGBA_ASTC_10x10_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break
             case TextureFormat.ASTC12x12:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_RGBA_ASTC_12x12_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break
             case TextureFormat.ASTC4x4SRGB:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ASTC6x6SRGB:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ASTC8x8SRGB:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ASTC10x10SRGB:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
             case TextureFormat.ASTC12x12SRGB:
-                this._glParam.internalFormat = layaGPU._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
+                this._glParam.internalFormat = this._compressedTextureASTC.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
                 // this._glParam.format = this._glParam.internalFormat;
                 // this._glParam.type = gl.UNSIGNED_BYTE;
                 break;
@@ -619,7 +616,7 @@ export class GL2TextureContext extends GLTextureContext {
         }
 
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine,target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 
@@ -649,7 +646,7 @@ export class GL2TextureContext extends GLTextureContext {
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         let texture = this.createRenderTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(this._engine,colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
 
         renderTarget._textures.push(texture);
 
@@ -702,7 +699,7 @@ export class GL2TextureContext extends GLTextureContext {
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(this._engine,colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
         renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
@@ -757,7 +754,7 @@ export class GL2TextureContext extends GLTextureContext {
         }
 
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine,target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 

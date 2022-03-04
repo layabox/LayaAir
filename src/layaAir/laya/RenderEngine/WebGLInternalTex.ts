@@ -1,12 +1,14 @@
-import { LayaGL } from "../../layagl/LayaGL";
-import { CompareMode } from "../../RenderEngine/RenderEnum/CompareMode";
-import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
-import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
-import { WarpMode } from "../../RenderEngine/RenderEnum/WrapMode";
-import { InternalTexture } from "../../RenderEngine/RenderInterface/InternalTexture";
-import { WebGLContext } from "../../webgl/WebGLContext";
+import { WebGLExtension } from "./GLEnum/WebGLExtension";
+import { GLObject } from "./GLObject";
+import { CompareMode } from "./RenderEnum/CompareMode";
+import { FilterMode } from "./RenderEnum/FilterMode";
+import { TextureDimension } from "./RenderEnum/TextureDimension";
+import { WarpMode } from "./RenderEnum/WrapMode";
+import { InternalTexture } from "./RenderInterface/InternalTexture";
+import { WebGLEngine } from "./WebGLEngine";
 
-export class WebGLInternalTex implements InternalTexture {
+
+export class WebGLInternalTex extends GLObject implements InternalTexture {
 
     _gl: WebGLRenderingContext | WebGL2RenderingContext;
 
@@ -38,11 +40,10 @@ export class WebGLInternalTex implements InternalTexture {
     format: number;
     type: number;
 
-    constructor(target: number, width: number, height: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
-        let gl = LayaGL.instance;
-        this._gl = gl;
+    constructor(engine: WebGLEngine, target: number, width: number, height: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
+        super(engine);
 
-        this.resource = gl.createTexture();
+        this.resource = this._gl.createTexture();
 
         this.width = width;
         this.height = height;
@@ -134,7 +135,7 @@ export class WebGLInternalTex implements InternalTexture {
         return this._anisoLevel;
     }
     public set anisoLevel(value: number) {
-        let anisoExt = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
+        let anisoExt = this._engine._supportCapatable.getExtension(WebGLExtension.EXT_texture_filter_anisotropic);
         if (anisoExt) {
             let gl = this._gl;
             let maxAnisoLevel = gl.getParameter(anisoExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
@@ -159,17 +160,17 @@ export class WebGLInternalTex implements InternalTexture {
     public _setTexParameteri(pname: number, param: number) {
         let gl = this._gl;
         let target = this.target
-        WebGLContext.bindTexture(gl, target, this.resource);
+        this._engine._bindTexture(target, this.resource);
         gl.texParameteri(target, pname, param);
-        WebGLContext.bindTexture(gl, target, null);
+        this._engine._bindTexture(target, null);
     }
 
     public _setTexParametexf(pname: number, param: number) {
         let gl = this._gl;
         let target = this.target
-        WebGLContext.bindTexture(gl, target, this.resource);
+        this._engine._bindTexture(target, this.resource);
         gl.texParameterf(target, pname, param);
-        WebGLContext.bindTexture(gl, target, null);
+        this._engine._bindTexture(target, this.resource);
     }
 
     protected getFilteMinrParam(filterMode: FilterMode, mipmap: boolean) {

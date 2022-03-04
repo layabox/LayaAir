@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL"
+import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
 import { BufferStateBase } from "../../webgl/BufferStateBase"
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
@@ -66,7 +67,7 @@ export class BufferState extends BufferStateBase {
 
 
 	applyInstanceVertexBuffer(vertexBuffer: VertexBuffer3D): void {//TODO:动态合并是否需要使用对象池机制
-		if (LayaGL.layaGPUInstance.supportInstance()) {//判断是否支持Instance
+		if (LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {//判断是否支持Instance
 			if (BufferStateBase._curBindedBufferState === this) {
 				var gl: any = LayaGL.instance;
 				var verDec: VertexDeclaration = vertexBuffer.vertexDeclaration;
@@ -77,7 +78,7 @@ export class BufferState extends BufferStateBase {
 					var attribute: any[] = valueData[k];
 					gl.enableVertexAttribArray(loc);
 					gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
-					LayaGL.layaGPUInstance.vertexAttribDivisor(loc, 1);
+					LayaGL.renderEngine.getDrawContext().vertexAttribDivisor(loc, 1);
 				}
 			} else {
 				throw "BufferState: must call bind() function first.";

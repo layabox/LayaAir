@@ -135,7 +135,7 @@ export class DrawMeshInstancedCMD extends Command {
 		var count = this._drawnums;
 		var indexCount:number = subMesh._indexCount;
 		this._instanceBufferState.bind();
-		LayaGL.layaGPUInstance.drawElementsInstanced(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
+		LayaGL.renderEngine.getDrawContext().drawElementsInstanced(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
 		Stat.renderBatches++;
 		Stat.trianglesFaces += indexCount * count / 3;
 	}

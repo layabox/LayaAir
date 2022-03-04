@@ -8,6 +8,7 @@ import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Mesh } from "./Mesh";
 import { IndexFormat } from "../../graphics/IndexFormat";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 
 
 /**
@@ -110,7 +111,7 @@ export class SubMesh extends GeometryElement {
 	 */
 	_render(state: RenderContext3D): void {
 		var mesh: Mesh = this._mesh;
-		if (mesh.indexFormat === IndexFormat.UInt32 && !LayaGL.layaGPUInstance.supportElementIndexUint32()) {
+		if (mesh.indexFormat === IndexFormat.UInt32 && LayaGL.renderEngine.getCapable(RenderCapable.Element_Index_Uint32)) {
 			console.warn("SubMesh:this device do not support IndexFormat.UInt32.");
 			return;
 		}

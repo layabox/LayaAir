@@ -1,9 +1,11 @@
-import { LayaGL } from "../../layagl/LayaGL";
-import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { InternalRenderTarget } from "../../RenderEngine/RenderInterface/InternalRenderTarget";
-import { InternalTexture } from "../../RenderEngine/RenderInterface/InternalTexture";
+import { LayaGL } from "../layagl/LayaGL";
+import { GLObject } from "./GLObject";
+import { RenderTargetFormat } from "./RenderEnum/RenderTargetFormat";
+import { InternalRenderTarget } from "./RenderInterface/InternalRenderTarget";
+import { InternalTexture } from "./RenderInterface/InternalTexture";
+import { WebGLEngine } from "./WebGLEngine";
 
-export class WebGLInternalRT implements InternalRenderTarget {
+export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
 
     _gl: WebGLRenderingContext | WebGL2RenderingContext;
 
@@ -25,9 +27,8 @@ export class WebGLInternalRT implements InternalRenderTarget {
     colorFormat: RenderTargetFormat;
     depthStencilFormat: RenderTargetFormat;
 
-    constructor(colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number) {
-        let gl = LayaGL.instance;
-        this._gl = gl;
+    constructor(engine: WebGLEngine, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number) {
+        super(engine);
 
         this.colorFormat = colorFormat;
         this.depthStencilFormat = depthStencilFormat;
@@ -38,9 +39,9 @@ export class WebGLInternalRT implements InternalRenderTarget {
         this._textures = [];
         this._depthTexture = null;
 
-        this._framebuffer = gl.createFramebuffer();
+        this._framebuffer = this._gl.createFramebuffer();
         if (samples > 1) {
-            this._msaaFramebuffer = gl.createFramebuffer();
+            this._msaaFramebuffer = this._gl.createFramebuffer();
         }
     }
 

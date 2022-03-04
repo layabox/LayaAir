@@ -59,7 +59,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		var count: number = element.instanceBatchElementList.length;
 		var indexCount: number = subMesh._indexCount;
 		subMesh._mesh._instanceBufferState.bind();
-		LayaGL.layaGPUInstance.drawElementsInstanced(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
+		LayaGL.renderEngine.getDrawContext().drawElementsInstanced(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
 		Stat.renderBatches++;
 		Stat.savedRenderBatches += count - 1;
 		Stat.trianglesFaces += indexCount * count / 3;

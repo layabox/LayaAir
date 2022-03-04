@@ -35,6 +35,7 @@ import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 
 /**
  * 相机清除标记。
@@ -262,7 +263,7 @@ export class Camera extends BaseCamera {
 	 * 多重采样抗锯齿
 	 */
 	set msaa(value: boolean) {
-		LayaGL.layaGPUInstance._isWebGL2 ? this._msaa = value : this._msaa = false;
+		LayaGL.renderEngine.getCapable(RenderCapable.MSAA) ? this._msaa = value : this._msaa = false;
 	}
 
 	get msaa(): boolean {
@@ -939,8 +940,7 @@ export class Camera extends BaseCamera {
 		context.replaceTag = replacementTag;
 		context.customShader = shader;
 		if (needInternalRT) {
-			if (this._msaa && LayaGL.layaGPUInstance._isWebGL2) {
-				// todo
+			if (this._msaa) {
 				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 4);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			} else {

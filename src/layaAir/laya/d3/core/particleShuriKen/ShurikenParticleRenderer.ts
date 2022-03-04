@@ -18,6 +18,7 @@ import { RenderElement } from "../render/RenderElement";
 import { Sprite3D } from "../Sprite3D";
 import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
 import { Component } from "../../../components/Component";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 
 
 /**
@@ -130,7 +131,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 */
 	_setOwner(node: Node): void {
 		super._setOwner(node);
-		if (!LayaGL.layaGPUInstance.supportInstance()) {
+		if (!LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
 			this._particleSystem = new ShurikenParticleSystem(this);
 		} else
 			this._particleSystem = new ShurikenParticleInstanceSystem(this);

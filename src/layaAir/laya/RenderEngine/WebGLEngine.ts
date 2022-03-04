@@ -20,6 +20,9 @@ import { GLTextureContext } from "./GLTextureContext";
 import { IRenderEngine } from "./RenderInterface/IRenderEngine";
 import { IRenderBuffer } from "./RenderInterface/IRenderBuffer";
 import { IRenderShaderInstance } from "./RenderInterface/IRenderShaderInstance";
+import { IRenderVertexArray } from "./RenderInterface/IRenderVertexArray";
+import { GLDrawContext } from "./GLDrawContext";
+import { IRenderDrawContext } from "./RenderInterface/IRenderDrawContext";
 
 /**
  * @private 封装Webgl
@@ -83,7 +86,9 @@ export class WebGLEngine implements IRenderEngine {
   private _GLParams: GLParams;
 
   //GL纹理生成
-  private _GLTextureContext: ITextureContext;
+  private _GLTextureContext: GLTextureContext;
+  //Gl Draw
+  private _GLDrawContext:GLDrawContext;
 
   //GLRenderState
   private _GLRenderState: GLRenderState;
@@ -161,6 +166,7 @@ export class WebGLEngine implements IRenderEngine {
     this._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0;
     this._activeTextures = [];
     this._GLTextureContext = this.isWebGL2 ? new GL2TextureContext(this) : new GLTextureContext(this);
+    this._GLDrawContext = new GLDrawContext(this);
   }
 
   private _initBindBufferMap() {
@@ -222,18 +228,27 @@ export class WebGLEngine implements IRenderEngine {
   }
 
 
-  createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage):IRenderBuffer {
+  createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer {
     //TODO SourceManager
-    return new GlBuffer(this,targetType,bufferUsageType);
+    return new GlBuffer(this, targetType, bufferUsageType);
   }
 
-  createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }):IRenderShaderInstance{
+  createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }): IRenderShaderInstance {
     //TODO SourceManager
-    return new GLShaderInstance(this,vs,ps,attributeMap);
+    return new GLShaderInstance(this, vs, ps, attributeMap);
+  }
+
+  createVertexArray(): IRenderVertexArray {
+    return new GLVertexArray(this);
   }
 
   getTextureContext(): ITextureContext {
     return this._GLTextureContext;
+  }
+
+  //TODO 先写完测试，这种封装过于死板
+  getDrawContext():IRenderDrawContext{
+    return this._GLDrawContext;
   }
 
   //TODO:
@@ -269,6 +284,10 @@ export class WebGLEngine implements IRenderEngine {
       shaderCall += one.fun.call(one.caller, one, data);
     return shaderCall;
   }
+
+  
+
+
 }
 
 

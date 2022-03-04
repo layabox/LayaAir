@@ -15,8 +15,8 @@ export enum RenderCapable{
     COMPRESS_TEXTURE_ETC1,//Compress Texture ktx
     COMPRESS_TEXTURE_ETC,//Compress Texture ktx
     COMPRESS_TEXTURE_ASTC,//Compress Texture astc
-    Texture_SRGB,//Textrue srgb
-
-    
-    
+    Texture_SRGB,//Textrue srgb   
+    MSAA,//MSAA
+    UnifromBufferObject,
+    GRAPHICS_API_GLES3,//TODO 感觉不太合适
 }

@@ -10,7 +10,6 @@ import { ShadowSliceData, ShadowSpotData } from "../../shadowMap/ShadowSliceData
 import { Utils3D } from "../../utils/Utils3D";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";
-import { SystemUtils } from "../../../webgl/SystemUtils";
 import { Light, LightType } from "./Light";
 import { SpotLightCom } from "./SpotLightCom";
 import { Sprite3D } from "../Sprite3D";
@@ -20,6 +19,7 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { CompareMode } from "../../../RenderEngine/RenderEnum/CompareMode";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { WarpMode } from "../../../RenderEngine/RenderEnum/WrapMode";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 
 /**
  * @internal
@@ -54,8 +54,6 @@ export class ShadowUtils {
         0.0, 0.0, 1.0, 0.0,
         0.5, 0.5, 0.0, 1.0,
     );
-
-    private static _shadowFormatSupport: boolean;
 
     /** @internal */
     private static _frustumCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
@@ -94,24 +92,7 @@ export class ShadowUtils {
     * @internal
     */
     static supportShadow(): boolean {
-        // todo  format 
-        return LayaGL.layaGPUInstance._isWebGL2 || SystemUtils.supportRenderTextureFormat(RenderTargetFormat.DEPTH_16);
-    }
-
-    /**
-     * @internal
-     */
-    static init(): void {
-        //some const value,only init once here.
-        if (LayaGL.layaGPUInstance._isWebGL2) {
-
-            // ShadowUtils._shadowTextureFormat = RenderTargetFormat.ShadowMap;
-            ShadowUtils._shadowFormatSupport = true;
-        }
-        else {
-            ShadowUtils._shadowFormatSupport = false;
-            // ShadowUtils._shadowTextureFormat = RenderTargetFormat.Depth;
-        }
+        return LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_Depth);
     }
 
     /**

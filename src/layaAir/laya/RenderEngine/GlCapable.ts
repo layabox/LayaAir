@@ -64,6 +64,10 @@ export class GlCapable {
         this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ASTC, value);
         value = (isWebgl2)||(!!this.getExtension(WebGLExtension.EXT_sRGB))
         this._capabilityMap.set(RenderCapable.Texture_SRGB,value);
+        value = isWebgl2;
+        this._capabilityMap.set(RenderCapable.MSAA,value);
+        this._capabilityMap.set(RenderCapable.UnifromBufferObject,value);
+        this._capabilityMap.set(RenderCapable.GRAPHICS_API_GLES3,value);
     }
 
     private initExtension(isWebgl2: boolean) {

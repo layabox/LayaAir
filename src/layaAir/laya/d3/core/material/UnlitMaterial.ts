@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { UniformBufferParamsType, UnifromBufferData } from "../../graphics/UniformBufferData";
 import { UniformBufferObject } from "../../graphics/UniformBufferObject";
@@ -420,7 +421,7 @@ export class UnlitMaterial extends Material {
 		this.renderMode = UnlitMaterial.RENDERMODE_OPAQUE;
 		this.albedoIntensity = 1.0;
 
-		if (LayaGL.layaGPUInstance._isWebGL2) {
+		if (LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject)) {
 			let gl = <WebGL2RenderingContext>LayaGL.instance;
 			let uniformData = new UnifromBufferData(UnlitMaterial.unlitUniformMap);
 			this._uniformBlock = UniformBufferObject.creat("UnlitBlock", gl.DYNAMIC_DRAW, uniformData.getbyteLength(), false);

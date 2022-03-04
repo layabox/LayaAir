@@ -3,7 +3,9 @@ import { BufferTargetType, BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { RenderParams } from "../RenderEnum/RenderParams";
 import { IRenderBuffer } from "./IRenderBuffer";
+import { IRenderDrawContext } from "./IRenderDrawContext";
 import { IRenderShaderInstance } from "./IRenderShaderInstance";
+import { IRenderVertexArray } from "./IRenderVertexArray";
 import { ITextureContext } from "./ITextureContext";
 
 export interface IRenderEngine {
@@ -18,10 +20,13 @@ export interface IRenderEngine {
     getParams(params: RenderParams): number ;
     getCapable(capatableType: RenderCapable): boolean;
     getTextureContext(): ITextureContext;
+     //TODO 先写完测试，这种封装过于死板
+    getDrawContext():IRenderDrawContext;
     
     uploadUniforms(commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean):number;
     uploadCustomUniformUniforms(custom: any[], index: number, data: any): number ;
     
     createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }):IRenderShaderInstance
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage):IRenderBuffer ;
+    createVertexArray():IRenderVertexArray;
 }

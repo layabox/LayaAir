@@ -6,8 +6,8 @@ import { WebGLEngine } from "./WebGLEngine";
 export class GLVertexArray extends GLObject{
     _engine: WebGLEngine;
     _gl: WebGLRenderingContext | WebGL2RenderingContext;
-    private _vaoExt: any;
-    private _vao: any
+    private _vaoExt:any|null;
+    private _vao: WebGLVertexArrayObject|WebGLVertexArrayObjectOES;
 
     constructor(engine: WebGLEngine) {
         super(engine);
@@ -52,6 +52,17 @@ export class GLVertexArray extends GLObject{
     /**
      * @internal
      */
+    unbindVertexArray():void{
+        if (this._engine.isWebGL2)
+            (<WebGL2RenderingContext>this._gl).bindVertexArray(null);
+        else
+            this._vaoExt.bindVertexArrayOES(null);
+        this._engine._GLBindVertexArray = null;
+    }
+
+    /**
+     * @internal
+     */
     isVertexArray(): void {
         if (this._engine.isWebGL2)
             (<WebGL2RenderingContext>this._gl).isVertexArray(this._vao);
@@ -59,6 +70,9 @@ export class GLVertexArray extends GLObject{
             this._vaoExt.isVertexArrayOES(this._vao);
     }
 
+    /**
+     * @internal
+     */
     destroy() {
         super.destroy();
         const gl = this._gl;

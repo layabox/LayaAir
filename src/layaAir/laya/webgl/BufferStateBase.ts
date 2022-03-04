@@ -1,4 +1,5 @@
 import { LayaGL } from "../layagl/LayaGL"
+import { IRenderVertexArray } from "../RenderEngine/RenderInterface/IRenderVertexArray";
 import { Buffer } from "./utils/Buffer"
 
 /**
@@ -10,13 +11,13 @@ export class BufferStateBase {
     static _curBindedBufferState: BufferStateBase;
 
     /**@private [只读]*/
-    private _nativeVertexArrayObject: any;
+    private _nativeVertexArrayObject: IRenderVertexArray;
 
     /**@internal [只读]*/
     _bindedIndexBuffer: Buffer;
 
     constructor() {
-        this._nativeVertexArrayObject = LayaGL.layaGPUInstance.createVertexArray();
+        this._nativeVertexArrayObject = LayaGL.renderEngine.createVertexArray();
     }
 
     /**
@@ -24,7 +25,7 @@ export class BufferStateBase {
      */
     bind(): void {
         if (BufferStateBase._curBindedBufferState !== this) {
-            LayaGL.layaGPUInstance.bindVertexArray(this._nativeVertexArrayObject);
+            this._nativeVertexArrayObject.bindVertexArray();
             BufferStateBase._curBindedBufferState = this;
         }
     }
@@ -34,7 +35,7 @@ export class BufferStateBase {
      */
     unBind(): void {
         if (BufferStateBase._curBindedBufferState === this) {
-            LayaGL.layaGPUInstance.bindVertexArray(null);
+            this._nativeVertexArrayObject.unbindVertexArray();
             BufferStateBase._curBindedBufferState = null;
         } else {
             throw "BufferState: must call bind() function first.";
@@ -45,25 +46,10 @@ export class BufferStateBase {
      * @private
      */
     destroy(): void {
-        LayaGL.layaGPUInstance.deleteVertexArray(this._nativeVertexArrayObject);
+        //LayaGL.layaGPUInstance.deleteVertexArray(this._nativeVertexArrayObject);
+        this._nativeVertexArrayObject.destroy();
+        this._nativeVertexArrayObject = null;
     }
-
-    /**
-     * @private
-     */
-    bindForNative(): void {
-        (<any>LayaGL.instance).bindVertexArray(this._nativeVertexArrayObject);
-        BufferStateBase._curBindedBufferState = this;
-    }
-
-    /**
-     * @private
-     */
-    unBindForNative(): void {
-        (<any>LayaGL.instance).bindVertexArray(null);
-        BufferStateBase._curBindedBufferState = null;
-    }
-
 }
 
 

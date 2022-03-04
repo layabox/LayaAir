@@ -21,6 +21,7 @@ import { RenderElement } from "./RenderElement";
 import { RenderQueue } from "./RenderQueue";
 import { ILaya3D } from "../../../../ILaya3D";
 import { SingletonList } from "../../component/SingletonList";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 
 /**
  * @internal
@@ -184,7 +185,7 @@ export class SubMeshRenderElement extends RenderElement {
 				staBatchMarks.batched = false;//是否已有大于两个的元素可合并
 				queueElements.add(this);
 			}
-		} else if (SubMeshRenderElement.enableDynamicBatch&&this.renderSubShader._owner._enableInstancing && LayaGL.layaGPUInstance.supportInstance() && this.render.lightmapIndex < 0 && (!this.render._probReflection||this.render._probReflection._isScene)) {//需要支持Instance渲染才可用,暂不支持光照贴图//不是Scene反射探针的不能合并TODO：这里需要重新判断
+		} else if (SubMeshRenderElement.enableDynamicBatch&&this.renderSubShader._owner._enableInstancing && LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance) && this.render.lightmapIndex < 0 && (!this.render._probReflection||this.render._probReflection._isScene)) {//需要支持Instance渲染才可用,暂不支持光照贴图//不是Scene反射探针的不能合并TODO：这里需要重新判断
 			var subMesh: SubMesh = (<SubMesh>this._geometry);
 			var insManager: MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 			var insBatchMarks: BatchMark = insManager.getInstanceBatchOpaquaMark(this.render.receiveShadow, this.material.id, subMesh._id, this._transform._isFrontFaceInvert);
@@ -303,7 +304,7 @@ export class SubMeshRenderElement extends RenderElement {
 				queueElements.add(this);
 				queue.lastTransparentBatched = false;
 			}
-		} else if (SubMeshRenderElement.enableDynamicBatch&&this.renderSubShader._owner._enableInstancing && LayaGL.layaGPUInstance.supportInstance() && this.render.lightmapIndex < 0 && (!this.render._probReflection||this.render._probReflection._isScene)) {//需要支持Instance渲染才可用，暂不支持光照贴图
+		} else if (SubMeshRenderElement.enableDynamicBatch&&this.renderSubShader._owner._enableInstancing && LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance) && this.render.lightmapIndex < 0 && (!this.render._probReflection||this.render._probReflection._isScene)) {//需要支持Instance渲染才可用，暂不支持光照贴图
 			var subMesh: SubMesh = (<SubMesh>this._geometry);
 			var insManager: MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 			var insLastElement: RenderElement = queue.lastTransparentRenderElement;

@@ -518,7 +518,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         // instance buffer 每次从 0 更新
         if (this._firstActiveElement < this._firstFreeElement) {
             let indexCount = this._firstFreeElement - this._firstActiveElement;
-            LayaGL.layaGPUInstance.drawElementsInstanced(gl.TRIANGLES, this._meshIndexCount, gl.UNSIGNED_SHORT, 0, indexCount);
+            LayaGL.renderEngine.getDrawContext().drawElementsInstanced(gl.TRIANGLES, this._meshIndexCount, gl.UNSIGNED_SHORT, 0, indexCount);
 
             Stat.trianglesFaces += this._meshIndexCount / 3 * indexCount;
             Stat.renderBatches++;
@@ -528,7 +528,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             if (this._firstFreeElement > 0) {
                 indexCount += this._firstFreeElement;
             }
-            LayaGL.layaGPUInstance.drawElementsInstanced(gl.TRIANGLES, this._meshIndexCount, gl.UNSIGNED_SHORT, 0, indexCount);
+            LayaGL.renderEngine.getDrawContext().drawElementsInstanced(gl.TRIANGLES, this._meshIndexCount, gl.UNSIGNED_SHORT, 0, indexCount);
             Stat.trianglesFaces += this._meshIndexCount / 3 * indexCount;
             Stat.renderBatches++;
         }

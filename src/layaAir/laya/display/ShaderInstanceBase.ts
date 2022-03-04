@@ -10,6 +10,7 @@ import { ShaderVariable } from "../d3/shader/ShaderVariable";
 import { CommandEncoder } from "../layagl/CommandEncoder";
 import { LayaGL } from "../layagl/LayaGL";
 import { LayaGLRunner } from "../layagl/LayaGLRunner";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { BaseTexture } from "../resource/BaseTexture";
 import { Resource } from "../resource/Resource";
 import { Stat } from "../utils/Stat";
@@ -96,7 +97,7 @@ export class ShaderInstanceBase extends Resource {
             this._uniformMap.addShaderUniform(one);
             one.dataOffset = Shader3D.propertyNameToID(uniName);
         }
-        if (LayaGL.layaGPUInstance._isWebGL2) {
+        if (LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject)) {
             var nUniformBlock: number = gl.getProgramParameter(this._program, (gl as WebGL2RenderingContext).ACTIVE_UNIFORM_BLOCKS);
             for (i = 0; i < nUniformBlock; i++) {
                 let gl2 = (gl as WebGL2RenderingContext);

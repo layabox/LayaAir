@@ -23,6 +23,7 @@ import { DrawMeshInstancedCMD } from "./DrawMeshInstancedCMD";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderTexture } from "../../../resource/RenderTexture";
+import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -312,7 +313,7 @@ export class CommandBuffer {
 	 * @param drawnums 渲染个数
 	 */
 	drawMeshInstance(mesh: Mesh, subMeshIndex: number, matrixs: Matrix4x4[], material: Material, subShaderIndex: number, instanceProperty: MaterialInstancePropertyBlock, drawnums: number): any {
-		if (!LayaGL.layaGPUInstance.supportInstance())
+		if (!LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance))
 			return null;
 		var drawMeshInstancedCMD = DrawMeshInstancedCMD.create(mesh, subMeshIndex, matrixs, material, subShaderIndex, instanceProperty, drawnums, this);
 		this._commands.push(drawMeshInstancedCMD);

@@ -1,4 +1,5 @@
 import { LayaGL } from "../layagl/LayaGL";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
@@ -44,38 +45,43 @@ export class SystemUtils {
         // todo
         switch (format) {
             case TextureFormat.R32G32B32A32:
-                return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureFloat) ? false : true;
+                return LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
+                //return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureFloat) ? false : true;
             case TextureFormat.R16G16B16A16:
-                return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureHalfFloat) ? false : true;
+                return LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R16G16B16A16);
+                //return (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureHalfFloat) ? false : true;
             default:
                 return true;
         }
     }
 
     static supportsRGB(): boolean {
-        if (!LayaGL.layaGPUInstance._isWebGL2) {
-            if (LayaGL.layaGPUInstance._sRGB) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        return true;
+        // if (!LayaGL.layaGPUInstance._isWebGL2) {
+        //     if (LayaGL.layaGPUInstance._sRGB) {
+        //         return true;
+        //     }
+        //     else {
+        //         return false;
+        //     }
+        // }
+        // return true;
+        return LayaGL.renderEngine.getCapable(RenderCapable.Texture_SRGB);
     }
 
     static supportDDSTexture(): boolean {
-        if (LayaGL.layaGPUInstance._compressedTextureS3tc) {
-            return true;
-        }
-        return false;
+        // if (LayaGL.layaGPUInstance._compressedTextureS3tc) {
+        //     return true;
+        // }
+        // return false;
+        return LayaGL.renderEngine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC);
     }
 
     static supportDDS_srgb(): boolean {
-        if (LayaGL.layaGPUInstance._compressdTextureS3tc_srgb) {
-            return true;
-        }
-        return false;
+        // if (LayaGL.layaGPUInstance._compressdTextureS3tc_srgb) {
+        //     return true;
+        // }
+        // return false;
+        return LayaGL.renderEngine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB);
     }
 
     /**
@@ -86,11 +92,14 @@ export class SystemUtils {
     static supportRenderTextureFormat(format: number): boolean {
         switch (format) {
             case RenderTargetFormat.R16G16B16A16:
-                return (((!!LayaGL.layaGPUInstance._isWebGL2) && (!!LayaGL.layaGPUInstance._extColorBufferFloat)) || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear) ? true : false;
+                return LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_R16G16B16A16);
+                //return (((!!LayaGL.layaGPUInstance._isWebGL2) && (!!LayaGL.layaGPUInstance._extColorBufferFloat)) || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear) ? true : false;
             case RenderTargetFormat.DEPTH_16:
             case RenderTargetFormat.DEPTH_32:
             case RenderTargetFormat.DEPTHSTENCIL_24_8:
-                return (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._webgl_depth_texture) ? true : false;
+                return LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_Depth)
+                //return (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._webgl_depth_texture) ? true : false;
+
             // ??
             // case RenderTargetFormat.ShadowMap:
             //     return LayaGL.layaGPUInstance._isWebGL2 ? true : false;

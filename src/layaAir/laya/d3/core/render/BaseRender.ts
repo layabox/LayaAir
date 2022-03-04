@@ -711,7 +711,7 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);
 		let render = (dest as BaseRender);
-		render.castShadow = this.castShadow;
+		render.receiveShadow = this.receiveShadow;
 		render.sharedMaterials = this.sharedMaterials;
 		render.reflectionMode = this.reflectionMode;
 		render.castShadow = this.castShadow;

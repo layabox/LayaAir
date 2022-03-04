@@ -5,7 +5,6 @@ import { WebGLEngine } from "../RenderEngine/WebGLEngine";
 import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { BlendMode } from "../webgl/canvas/BlendMode";
-import { LayaGPU } from "../webgl/LayaGPU";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
@@ -87,6 +86,8 @@ export class Render {
 
     initRender(canvas: HTMLCanvas, w: number, h: number): boolean {
         let glConfig: WebGlConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
+       
+        //TODO  other engine
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
         const engine: WebGLEngine = new WebGLEngine(glConfig, webglMode);
         engine.initRenderEngine(Render._mainCanvas.source);
@@ -100,8 +101,8 @@ export class Render {
             WebGL._isWebGL2 = engine.isWebGL2;
             new LayaGL();
         }
+        LayaGL.renderEngine = engine;
         LayaGL.instance = gl;
-        LayaGL.layaGPUInstance = new LayaGPU(gl, WebGL._isWebGL2);
         LayaGL.textureContext = engine.getTextureContext();
 
         canvas.size(w, h);	//在ctx之后调用。
