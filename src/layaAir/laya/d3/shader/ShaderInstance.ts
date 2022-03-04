@@ -64,8 +64,6 @@ export class ShaderInstance {
 	 * @internal TODO3D
 	 */
 	protected _create(): void {		
-		this.splitUnifromData();
-		//Native版本分别存入funid、webglFunid,location、type、offset, +4是因为第一个存长度了 所以是*4*5+4
 		this._sceneUniformParamsMap = new CommandEncoder();
 		this._cameraUniformParamsMap = new CommandEncoder();
 		this._spriteUniformParamsMap = new CommandEncoder();
@@ -96,13 +94,6 @@ export class ShaderInstance {
 			this._stateParamsMap[stateMap[s]] = Shader3D.propertyNameToID(s);
 	}
 
-	protected splitUnifromData() {
-		var sceneParms: any[] = [];
-		var cameraParms: any[] = [];
-		var spriteParms: any[] = [];
-		var materialParms: any[] = [];
-		var customParms: any[] = [];
-    }
 
 
 	
