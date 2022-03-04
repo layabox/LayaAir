@@ -1,3 +1,5 @@
+import { LayaGL } from "../layagl/LayaGL";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { SystemUtils } from "../webgl/SystemUtils";
 
@@ -105,7 +107,7 @@ export class DDSTextureInfo {
         }
 
 
-        let ext = SystemUtils.supportDDSTexture() || SystemUtils.supportDDS_srgb();
+        let ext = LayaGL.renderEngine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC) || LayaGL.renderEngine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB);
 
         if (header[DDS_HEADER_MAGIC] !== DDS_MAGIC) {
             throw "Invalid magic number in DDS header";

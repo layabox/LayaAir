@@ -29,6 +29,10 @@ export class GLParams{
             const anisoExt = this._engine._supportCapatable.getExtension(WebGLExtension.EXT_texture_filter_anisotropic);
             this._glParamsData.set(RenderParams.Max_AnisoLevel_Count,gl.getParameter(anisoExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT));
         }
+        if(this._engine.isWebGL2)
+            this._glParamsData.set(RenderParams.SHADER_CAPAILITY_LEVEL,35);
+        else
+            this._glParamsData.set(RenderParams.SHADER_CAPAILITY_LEVEL,30);
     }
 
     getParams(params:RenderParams):number{
