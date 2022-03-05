@@ -535,7 +535,7 @@ export class ScrollBar extends UIComponent {
     }
     /**@private */
     protected loop(): void {
-        if (this.disableDrag && this.stopMoveLimit && this.stopMoveLimit()) return;
+        if (this.disableDrag) return;
         var mouseY: number = ILaya.stage.mouseY;
         var mouseX: number = ILaya.stage.mouseX;
         this._lastOffset = this.isVertical ? (mouseY - this._lastPoint.y) : (mouseX - this._lastPoint.x);
