@@ -23,6 +23,8 @@ import { IRenderShaderInstance } from "./RenderInterface/IRenderShaderInstance";
 import { IRenderVertexArray } from "./RenderInterface/IRenderVertexArray";
 import { GLDrawContext } from "./GLDrawContext";
 import { IRenderDrawContext } from "./RenderInterface/IRenderDrawContext";
+import { BaseTexture } from "../resource/BaseTexture";
+import { RenderStateCommand } from "./RenderStateCommand";
 
 /**
  * @private 封装Webgl
@@ -198,9 +200,17 @@ export class WebGLEngine implements IRenderEngine {
     }
   }
 
+  bindTexture(texture:BaseTexture){
+    this._bindTexture(texture._texture.target,texture._getSource());
+  }
+
   //set render State
-  applyRenderContext(stateData: any) {
+  applyRenderState(stateData: any) {
     this._GLRenderState.applyRenderState(stateData);
+  }
+
+  applyRenderStateCMD(cmd: RenderStateCommand): void {
+      this._GLRenderState.applyRenderStateCommand(cmd);
   }
 
   //get capable of webgl
@@ -217,6 +227,11 @@ export class WebGLEngine implements IRenderEngine {
       gl.viewport(x, y, width, height);
       lv.setValue(x, y, width, height);
     }
+  }
+
+  copySubFrameBuffertoTex(texture:BaseTexture,level:number,xoffset:number, yoffset:number, x:number, y:number, width:number, height:number){
+    this._bindTexture(texture._texture.target,texture._getSource());
+		this._gl.copyTexSubImage2D(texture._texture.target, level, xoffset, yoffset, x,y, width, height);
   }
 
   colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void {
@@ -286,9 +301,6 @@ export class WebGLEngine implements IRenderEngine {
       shaderCall += one.fun.call(one.caller, one, data);
     return shaderCall;
   }
-
-  
-
 
 }
 

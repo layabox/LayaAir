@@ -15,6 +15,8 @@ import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { UniformBufferParamsType, UnifromBufferData } from "../graphics/UniformBufferData";
 import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 import { Config3D } from "../../../Config3D";
+import { IRenderEngine } from "../../RenderEngine/RenderInterface/IRenderEngine";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -127,6 +129,8 @@ export class BaseCamera extends Sprite3D {
 	protected _nearPlane: number;
 	/** 远裁剪面。*/
 	protected _farPlane: number;
+	/**渲染引擎 */
+	protected _renderEngine: IRenderEngine;
 	/** 视野。*/
 	private _fieldOfView: number;
 	/** 正交投影的垂直尺寸。*/
@@ -253,6 +257,7 @@ export class BaseCamera extends Sprite3D {
 
 		this.cullingMask = 2147483647/*int.MAX_VALUE*/;
 		this.useOcclusionCulling = true;
+		this._renderEngine = LayaGL.renderEngine;
 		if (Config3D._config._uniformBlock) {
 			this._cameraUniformBlock = BaseCamera.createSceneUniformBlock();
 		}

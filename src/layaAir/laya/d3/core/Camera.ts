@@ -6,8 +6,6 @@ import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
 import { BaseTexture } from "../../resource/BaseTexture";
-import { SystemUtils } from "../../webgl/SystemUtils";
-import { WebGLContext } from "../../webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
 import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
 import { Cluster } from "../graphics/renderPath/Cluster";
@@ -164,7 +162,6 @@ export class Camera extends BaseCamera {
 	protected _needBuiltInRenderTexture: boolean = false;
 	/**@internal */
 	protected _msaa: boolean = false;
-
 	/** @internal*/
 	private _depthTextureMode: number;
 	/** @internal */
@@ -774,8 +771,9 @@ export class Camera extends BaseCamera {
 				if (this._enableHDR) {//internal RT is HDR can't directly copy
 					var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTargetFormat.R8G8B8, RenderTargetFormat.DEPTH_16, false, 1);
 					grabTexture.filterMode = FilterMode.Bilinear;
-					WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
-					gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
+					this._renderEngine.copySubFrameBuffertoTex(grabTexture, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
+					// this._renderEngine.bindTexture(gl.TEXTURE_2D, grabTexture._getSource());
+					// gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 					var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(grabTexture, this._internalRenderTexture);
 					blit.setContext(context);
 					blit.run();
@@ -783,8 +781,9 @@ export class Camera extends BaseCamera {
 					RenderTexture.recoverToPool(grabTexture);
 				}
 				else {
-					WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._internalRenderTexture._getSource());
-					gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
+					this._renderEngine.copySubFrameBuffertoTex(this._internalRenderTexture,0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
+					// this._renderEngine.bindTexture(gl.TEXTURE_2D, this._internalRenderTexture._getSource());
+					// gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 				}
 			}
 

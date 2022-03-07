@@ -16,10 +16,10 @@ import { Sprite3D } from "../Sprite3D";
 import { DirectionLightCom } from "./DirectionLightCom";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { CompareMode } from "../../../RenderEngine/RenderEnum/CompareMode";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { WarpMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 
 /**
  * @internal
@@ -113,7 +113,7 @@ export class ShadowUtils {
         }
 
         var shadowMap: RenderTexture = RenderTexture.createFromPool(witdh, height, depthFormat, null, false, 1);
-        shadowMap.compareMode = CompareMode.LESS;
+        shadowMap.compareMode = TextureCompareMode.LESS;
         shadowMap.filterMode = FilterMode.Bilinear;
         shadowMap.wrapModeU = WarpMode.Clamp;
         shadowMap.wrapModeV = WarpMode.Clamp;

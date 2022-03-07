@@ -1,4 +1,11 @@
+import { BlendEquationSeparate } from "./RenderEnum/BlendEquationSeparate";
+import { BlendFactor } from "./RenderEnum/BlendFactor";
 import { BlendType } from "./RenderEnum/BlendType";
+import { CompareFunction } from "./RenderEnum/CompareFunction";
+import { CullMode } from "./RenderEnum/CullMode";
+import { RenderStateType } from "./RenderEnum/RenderStateType";
+import { StencilOperation } from "./RenderEnum/StencilOperation";
+import { RenderStateCommand } from "./RenderStateCommand";
 import { WebGLEngine } from "./WebGLEngine";
 
 export class GLRenderState {
@@ -18,8 +25,6 @@ export class GLRenderState {
     private _stencilMask: boolean;
     /**@internal */
     private _stencilRef: number
-    /**@internal */
-    private _stencilOp: number;
     /**@internal */
     private _stencilOp_fail: number;
     /**@internal */
@@ -66,13 +71,118 @@ export class GLRenderState {
         //TODO:并不完全
         const gl = this._gl;
         this.setDepthFunc(gl.LESS);
-        this.setBlendEquationSeparate(gl.FUNC_ADD,gl.FUNC_ADD);
+        this.setBlendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
         this._blendEquation = gl.FUNC_ADD;
         this._sFactor = gl.ONE;
         this._dFactor = gl.ZERO;
         this._sFactorAlpha = gl.ONE;
         this._dFactorAlpha = gl.ONE;
 
+    }
+
+    //TODO 性能优化
+    _getBlendFactor(factor: BlendFactor) {
+        const gl = this._gl;
+        switch (factor) {
+            case BlendFactor.Zero:
+                return gl.ZERO;
+            case BlendFactor.One:
+                return gl.ONE;
+            case BlendFactor.SourceColor:
+                return gl.SRC_COLOR;
+            case BlendFactor.OneMinusSourceColor:
+                return gl.ONE_MINUS_SRC_COLOR;
+            case BlendFactor.DestinationColor:
+                return gl.DST_COLOR;
+            case BlendFactor.OneMinusDestinationColor:
+                return gl.ONE_MINUS_DST_COLOR;
+            case BlendFactor.SourceAlpha:
+                return gl.SRC_ALPHA;
+            case BlendFactor.OneMinusSourceAlpha:
+                return gl.ONE_MINUS_SRC_ALPHA;
+            case BlendFactor.DestinationAlpha:
+                return gl.DST_ALPHA;
+            case BlendFactor.OneMinusDestinationAlpha:
+                return gl.ONE_MINUS_DST_ALPHA;
+            case BlendFactor.SourceAlphaSaturate:
+                return gl.SRC_ALPHA_SATURATE;
+            case BlendFactor.BlendColor:
+                return gl.CONSTANT_COLOR;
+            case BlendFactor.OneMinusBlendColor:
+                return gl.ONE_MINUS_CONSTANT_COLOR;
+        }
+    }
+    //TODO:性能优化
+    _getBlendOperation(factor: BlendEquationSeparate) {
+        const gl = this._gl;
+        switch (factor) {
+            case BlendEquationSeparate.ADD:
+                return gl.FUNC_ADD;
+            case BlendEquationSeparate.SUBTRACT:
+                return gl.FUNC_SUBTRACT;
+            case BlendEquationSeparate.REVERSE_SUBTRACT:
+                return gl.FUNC_REVERSE_SUBTRACT;
+            // case BlendEquationSeparate.MIN:
+            //     return -1;
+            // case BlendEquationSeparate.MAX:
+            //     return -1;
+            default:
+                throw "Unknow type"
+        }
+    }
+
+    //TODO 性能优化
+    _getGLCompareFunction(compareFunction: CompareFunction): number {
+        const gl = this._gl;
+        switch (compareFunction) {
+            case CompareFunction.Never:
+                return gl.NEVER;
+            case CompareFunction.Less:
+                return gl.LESS;
+            case CompareFunction.Equal:
+                return gl.EQUAL;
+            case CompareFunction.LessEqual:
+                return gl.LEQUAL;
+            case CompareFunction.Greater:
+                return gl.GREATER;
+            case CompareFunction.NotEqual:
+                return gl.NOTEQUAL;
+            case CompareFunction.GreaterEqual:
+                return gl.GEQUAL;
+            case CompareFunction.Always:
+                return gl.ALWAYS;
+        }
+    }
+
+    //性能优化
+    _getGLStencilOperation(compareFunction: StencilOperation): number {
+        const gl = this._gl;
+        switch (compareFunction) {
+            case StencilOperation.Keep:
+                return gl.KEEP;
+            case StencilOperation.Zero:
+                return gl.ZERO;
+            case StencilOperation.Replace:
+                return gl.REPLACE;
+            case StencilOperation.IncrementSaturate:
+                return gl.INCR;
+            case StencilOperation.DecrementSaturate:
+                return gl.DECR;
+            case StencilOperation.Invert:
+                return gl.INVERT;
+            case StencilOperation.IncrementWrap:
+                return gl.INCR_WRAP;
+            case StencilOperation.DecrementWrap:
+                return gl.DECR_WRAP;
+        }
+    }
+
+    //
+    _getGLFrontfaceFactor(cullmode:CullMode){
+        if(cullmode==CullMode.Front)
+            return this._gl.CCW;
+        else
+            return this._gl.CW;
     }
 
     //Depth
@@ -230,7 +340,6 @@ export class GLRenderState {
         const stencilWrite: any = shaderData.stencilWrite;
         const stencilOp: any = shaderData.stencilOp;
 
-        const gl = this._gl;
         this.setDepthMask(depthWrite);
         if (!depthTestEnable)
             this.setDepthTest(false);
@@ -263,9 +372,8 @@ export class GLRenderState {
                 this.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
                 break;
         }
-
         //Stencil
-        this.setStencilMask( stencilWrite);
+        this.setStencilMask(stencilWrite);
         if (stencilTest == stencilTestEnable) {
             this.setStencilTest(false);
         } else {
@@ -273,5 +381,58 @@ export class GLRenderState {
             this.setStencilFunc(stencilTest, stencilRef);
             this.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
         }
+    }
+
+    applyRenderStateCommand(cmd: RenderStateCommand) {
+        let cmdArray = cmd.cmdArray;
+        cmdArray.forEach((value, key) => {
+            switch (key) {
+                case RenderStateType.DepthTest:
+                    this.setDepthTest(value);
+                    break;
+                case RenderStateType.DepthMask:
+                    this.setDepthMask(value);
+                    break;
+                case RenderStateType.DepthFunc:
+                    this.setDepthFunc(this._getGLCompareFunction(value));
+                    break;
+                case RenderStateType.StencilTest:
+                    this.setStencilTest(value);
+                    break;
+                case RenderStateType.StencilMask:
+                    this.setStencilMask(value);
+                    break;
+                case RenderStateType.StencilFunc:
+                    this.setStencilFunc(this._getGLCompareFunction(value[0]),value[1]);
+                    break;
+                case RenderStateType.StencilOp:
+                    this.setstencilOp(this._getGLStencilOperation(value[0]),this._getGLStencilOperation(value[1]),this._getGLStencilOperation(value[2]));//TODO
+                    break;
+                case RenderStateType.BlendType:
+                    this.setBlend(value!=BlendType.BLEND_DISABLE);
+                    break;
+                case RenderStateType.BlendEquation:
+                    this.setBlendEquation(this._getBlendOperation(value));
+                    break;
+                case RenderStateType.BlendEquationSeparate:
+                    this.setBlendEquationSeparate(this._getBlendOperation(value[0]),this._getBlendOperation(value[1]));//TODO
+                    break;
+                case RenderStateType.BlendFunc:
+                    this.setBlendFunc(this._getBlendFactor(value[0]),this._getBlendFactor(value[1]));
+                    break;
+                case RenderStateType.BlendFuncSeperate:
+                    this.setBlendFuncSeperate(this._getBlendFactor(value[0]),this._getBlendFactor(value[1]),this._getBlendFactor(value[2]),this._getBlendFactor(value[3]));
+                    break;
+                case RenderStateType.CullFace:
+                    this.setCullFace(value);
+                    break;
+                case RenderStateType.FrontFace:
+                    this.setFrontFace(this._getGLFrontfaceFactor(value));
+                    break;
+                default:
+                    throw "unknow type of renderStateType";
+                    break;
+            }
+        })
     }
 }

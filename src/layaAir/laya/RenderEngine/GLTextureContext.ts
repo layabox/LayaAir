@@ -1,5 +1,5 @@
 import { LayaGL } from "../layagl/LayaGL";
-import { CompareMode } from "./RenderEnum/CompareMode";
+import { TextureCompareMode } from "./RenderEnum/TextureCompareMode";
 import { FilterMode } from "./RenderEnum/FilterMode";
 import { RenderTargetFormat } from "./RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "./RenderEnum/TextureDimension";
@@ -17,18 +17,18 @@ import { WebGLInternalTex } from "./WebGLInternalTex";
 import { WebGLInternalRT } from "./WebGLInternalRT";
 
 export class GLTextureContext extends GLObject implements ITextureContext {
-    protected _sRGB:any;
-    protected _oesTextureHalfFloat:any;
-    protected _compressdTextureS3tc_srgb:any;
-    protected _compressedTextureEtc1:any;
-    protected _compressedTextureS3tc:any;
-    protected _compressedTextureETC:any;
-    protected _compressedTextureASTC:any;
-    protected _webgl_depth_texture:any;
+    protected _sRGB: any;
+    protected _oesTextureHalfFloat: any;
+    protected _compressdTextureS3tc_srgb: any;
+    protected _compressedTextureEtc1: any;
+    protected _compressedTextureS3tc: any;
+    protected _compressedTextureETC: any;
+    protected _compressedTextureASTC: any;
+    protected _webgl_depth_texture: any;
 
     constructor(engine: WebGLEngine) {
         super(engine);
-        this._sRGB =  this._engine._supportCapatable.getExtension(WebGLExtension.EXT_sRGB)
+        this._sRGB = this._engine._supportCapatable.getExtension(WebGLExtension.EXT_sRGB)
         this._oesTextureHalfFloat = this._engine._supportCapatable.getExtension(WebGLExtension.OES_texture_half_float)
         this._compressdTextureS3tc_srgb = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_s3tc_srgb)
         this._compressedTextureEtc1 = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_etc1)
@@ -327,13 +327,13 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     supportSRGB(format: TextureFormat | RenderTargetFormat, mipmap: boolean): boolean {
         switch (format) {
             case TextureFormat.R8G8B8:
-            case TextureFormat.R8G8B8A8: 
-                return this._engine.getCapable(RenderCapable.Texture_SRGB)&& !mipmap;
+            case TextureFormat.R8G8B8A8:
+                return this._engine.getCapable(RenderCapable.Texture_SRGB) && !mipmap;
             case TextureFormat.DXT1:
             case TextureFormat.DXT3:
             case TextureFormat.DXT5:
                 // todo  验证 srgb format 和 mipmap webgl1 兼容问题
-                return this._engine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB)&& !mipmap;
+                return this._engine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB) && !mipmap;
             default:
                 return false;
         }
@@ -385,7 +385,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         // let dimension = TextureDimension.Tex2D;
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine,target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glTextureParam(format, useSRGBExt);
 
@@ -918,8 +918,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     }
 
-    setTextureCompareMode(texture: WebGLInternalTex, compareMode: CompareMode): CompareMode {
-        return CompareMode.None;
+    setTextureCompareMode(texture: WebGLInternalTex, compareMode: TextureCompareMode): TextureCompareMode {
+        return TextureCompareMode.None;
     }
 
     bindRenderTarget(renderTarget: WebGLInternalRT): void {
@@ -965,7 +965,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         // let dimension = TextureDimension.Tex2D;
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine,target, width, height, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 
@@ -1003,7 +1003,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
 
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine,target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 
@@ -1046,7 +1046,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         let texture = this.createRenderTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(this._engine,colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
         renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
@@ -1077,7 +1077,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         // let texture = this.createRenderTextureInternal(dimension, size, size, colorFormat, gengerateMipmap, sRGB);
         let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(this._engine,colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
 
         renderTarget._textures.push(texture);
 
