@@ -7,7 +7,6 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Byte } from "../utils/Byte";
 import { HalfFloatUtils } from "../utils/HalfFloatUtils";
 import { Handler } from "../utils/Handler";
-import { SystemUtils } from "../webgl/SystemUtils";
 import { BaseTexture } from "./BaseTexture";
 import { DDSTextureInfo } from "./DDSTextureInfo";
 import { HDRTextureInfo } from "./HDRTextureInfo";

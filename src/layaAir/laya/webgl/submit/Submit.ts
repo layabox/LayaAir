@@ -1,10 +1,10 @@
+import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Context } from "../../resource/Context";
 import { Stat } from "../../utils/Stat";
 import { BlendMode } from "../canvas/BlendMode";
 import { Value2D } from "../shader/d2/value/Value2D";
 import { CONST3D2D } from "../utils/CONST3D2D";
 import { Mesh2D } from "../utils/Mesh2D";
-import { WebGLContext } from "../WebGLContext";
 import { SubmitBase } from "./SubmitBase";
 
 export class Submit extends SubmitBase {
@@ -29,7 +29,7 @@ export class Submit extends SubmitBase {
             this.shaderValue.texture = source;
         }
 
-        var gl = WebGLContext.mainContext;
+        var gl = RenderStateContext.mainContext;
         this._mesh.useMesh(gl);
         //_ib._bind_upload() || _ib._bind();
         //_vb._bind_upload() || _vb._bind();
@@ -37,7 +37,7 @@ export class Submit extends SubmitBase {
         this.shaderValue.upload();
 
         if (BlendMode.activeBlendFunction !== this._blendFn) {
-            WebGLContext.setBlend(gl, true);
+            RenderStateContext.setBlend(true);
             this._blendFn(gl);
             BlendMode.activeBlendFunction = this._blendFn;
         }

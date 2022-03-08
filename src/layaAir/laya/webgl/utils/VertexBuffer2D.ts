@@ -1,6 +1,5 @@
 import { Buffer2D } from "./Buffer2D";
 import { LayaGL } from "../../layagl/LayaGL"
-import { WebGLContext } from "../WebGLContext"
 import { Buffer } from "./Buffer";
 
 export class VertexBuffer2D extends Buffer2D {

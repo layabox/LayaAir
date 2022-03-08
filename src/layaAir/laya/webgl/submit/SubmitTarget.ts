@@ -4,12 +4,12 @@ import { ColorFilter } from "../../filters/ColorFilter"
 import { Context } from "../../resource/Context"
 import { RenderTexture2D } from "../../resource/RenderTexture2D"
 import { Stat } from "../../utils/Stat"
-import { WebGLContext } from "../WebGLContext"
 import { BlendMode } from "../canvas/BlendMode"
 import { TextureSV } from "../shader/d2/value/TextureSV"
 import { Value2D } from "../shader/d2/value/Value2D"
 import { CONST3D2D } from "../utils/CONST3D2D"
 import { Mesh2D } from "../utils/Mesh2D"
+import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 
 
 export class SubmitTarget implements ISubmit {
@@ -32,7 +32,7 @@ export class SubmitTarget implements ISubmit {
 
     static POOL: SubmitTarget[] = [];
     renderSubmit(): number {
-        var gl = WebGLContext.mainContext;
+        var gl = RenderStateContext.mainContext;
         this._mesh.useMesh(gl);
 
         var target = this.srcRT;
@@ -49,7 +49,7 @@ export class SubmitTarget implements ISubmit {
 
     blend(): void {
         if (BlendMode.activeBlendFunction !== BlendMode.fns[this.blendType]) {
-            var gl = WebGLContext.mainContext;
+            var gl = RenderStateContext.mainContext;
             gl.enable(gl.BLEND);
             BlendMode.fns[this.blendType](gl);
             BlendMode.activeBlendFunction = BlendMode.fns[this.blendType];

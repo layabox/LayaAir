@@ -2,7 +2,6 @@ import { SubmitBase } from "./SubmitBase";
 import { ColorFilter } from "../../filters/ColorFilter"
 import { Context } from "../../resource/Context"
 import { Stat } from "../../utils/Stat"
-import { WebGLContext } from "../WebGLContext"
 import { BlendMode } from "../canvas/BlendMode"
 import { BaseShader } from "../shader/BaseShader"
 import { Shader } from "../shader/Shader"
@@ -11,6 +10,7 @@ import { TextureSV } from "../shader/d2/value/TextureSV"
 import { Value2D } from "../shader/d2/value/Value2D"
 import { CONST3D2D } from "../utils/CONST3D2D"
 import { Mesh2D } from "../utils/Mesh2D"
+import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 
 export class SubmitTexture extends SubmitBase {
     private static _poolSize: number = 0;
@@ -41,7 +41,7 @@ export class SubmitTexture extends SubmitBase {
             if (!source) return 1;
         }
 
-        var gl = WebGLContext.mainContext;
+        var gl = RenderStateContext.mainContext;
 
         this._mesh.useMesh(gl);
         //如果shader参数都相同，只要提交texture就行了
@@ -56,7 +56,7 @@ export class SubmitTexture extends SubmitBase {
         }
         else {
             if (BlendMode.activeBlendFunction !== this._blendFn) {
-                WebGLContext.setBlend(gl, true);
+                RenderStateContext.setBlend(true);
                 this._blendFn(gl);
                 BlendMode.activeBlendFunction = this._blendFn;
             }

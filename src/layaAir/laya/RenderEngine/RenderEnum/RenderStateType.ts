@@ -1,0 +1,16 @@
+export enum RenderStateType{
+    DepthTest,
+    DepthMask,
+    DepthFunc,
+    StencilTest,
+    StencilMask,
+    StencilFunc,
+    StencilOp,
+    BlendType,
+    BlendEquation,
+    BlendEquationSeparate,
+    BlendFunc,
+    BlendFuncSeperate,
+    CullFace,
+    FrontFace,
+}

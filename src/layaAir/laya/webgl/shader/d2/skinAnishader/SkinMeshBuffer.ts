@@ -1,4 +1,3 @@
-import { WebGLContext } from "../../../WebGLContext"
 import { IndexBuffer2D } from "../../../utils/IndexBuffer2D"
 import { VertexBuffer2D } from "../../../utils/VertexBuffer2D"
 import { LayaGL } from "../../../../layagl/LayaGL";

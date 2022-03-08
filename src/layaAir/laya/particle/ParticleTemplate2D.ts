@@ -8,9 +8,9 @@ import { ILaya } from "../../ILaya";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { MeshParticle2D } from "../webgl/utils/MeshParticle2D";
 import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
-import { WebGLContext } from "../webgl/WebGLContext";
 import { Stat } from "../utils/Stat";
 import { Loader } from "../net/Loader";
+import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 
 
 /**
@@ -125,7 +125,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
             this.blend();
 
             if (this._firstActiveElement != this._firstFreeElement) {
-                var gl: WebGLRenderingContext = WebGLContext.mainContext;
+                var gl: WebGLRenderingContext = RenderStateContext.mainContext;
                 this._mesh.useMesh(gl);
                 //_vertexBuffer2D.bind();
                 //_indexBuffer2D.bind();
@@ -138,7 +138,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
                 }
                 else {
 
-                    WebGLContext.mainContext.drawElements(gl.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, gl.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+                    RenderStateContext.mainContext.drawElements(gl.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, gl.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
                     if (this._firstFreeElement > 0)
                         gl.drawElements(gl.TRIANGLES, this._firstFreeElement * 6, gl.UNSIGNED_SHORT, 0);
                 }
@@ -198,7 +198,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
 
     blend(): void {
         if (BlendMode.activeBlendFunction !== this._blendFn) {
-            var gl: WebGLRenderingContext = WebGLContext.mainContext;
+            var gl: WebGLRenderingContext = RenderStateContext.mainContext;
             gl.enable(gl.BLEND);
             this._blendFn(gl);
             BlendMode.activeBlendFunction = this._blendFn;

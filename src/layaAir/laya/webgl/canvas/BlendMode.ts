@@ -1,7 +1,6 @@
-import { WebGLContext } from "../WebGLContext"
+import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 
 //export type BlendFunc = (gl:WebGLRenderingContext)=>void
-
 export class BlendMode {
     static activeBlendFunction: Function = null;
     /** @internal 这个不直接暴露给开发者*/
@@ -37,7 +36,7 @@ export class BlendMode {
     static fns: any[];
     static targetFns: any[];
     /**@internal */
-    static _init_(gl: WebGLContext): void {
+    static _init_(): void {
         BlendMode.fns =       [
             BlendMode.BlendNormal,      //0
             BlendMode.BlendAdd,         //1
@@ -65,68 +64,68 @@ export class BlendMode {
 
     static BlendNormal(gl: WebGLRenderingContext): void {
         //为了避免黑边，和canvas作为贴图的黑边
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA,true);
     }
 
     /**@internal 这个add感觉不合理，所以改成old了 */
     static BlendAddOld(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.DST_ALPHA,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.DST_ALPHA,true);
     }
 
     static BlendAdd(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
     }
 
     static BlendMultiply(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,true);
+        RenderStateContext.setBlendFunc(gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,true);
     }
 
     static BlendScreen(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
     }
 
     static BlendOverlay(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_COLOR,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_COLOR,true);
     }
 
     static BlendLight(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
     }
 
     static BlendNormalTarget(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA,true);
     }
 
     /**@internal add不应该是1+dst_α 所以改成old */
     static BlendAddTargetOld(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.DST_ALPHA,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.DST_ALPHA,true);
     }
     static BlendAddTarget(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
     }
 
     static BlendMultiplyTarget(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,true);
+        RenderStateContext.setBlendFunc(gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,true);
     }
 
     static BlendScreenTarget(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
     }
 
     static BlendOverlayTarget(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_COLOR,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_COLOR,true);
     }
 
     static BlendLightTarget(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE,true);
+        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
     }
 
     static BlendMask(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ZERO, gl.SRC_ALPHA,true);
+        RenderStateContext.setBlendFunc(gl.ZERO, gl.SRC_ALPHA,true);
     }
 
     static BlendDestinationOut(gl: WebGLRenderingContext): void {
-        WebGLContext.setBlendFunc(gl, gl.ZERO, gl.ZERO,true);
+        RenderStateContext.setBlendFunc(gl.ZERO, gl.ZERO,true);
     }
 }
 

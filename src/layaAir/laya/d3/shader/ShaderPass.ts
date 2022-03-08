@@ -1,8 +1,4 @@
 import { Config3D } from "../../../Config3D";
-import { SystemUtils } from "../../webgl/SystemUtils";
-import { InlcudeFile } from "../../webgl/utils/InlcudeFile";
-import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
-import { ShaderNode } from "../../webgl/utils/ShaderNode";
 import { WebGL } from "../../webgl/WebGL";
 import { RenderState } from "../core/material/RenderState";
 import { Vector3 } from "../math/Vector3";

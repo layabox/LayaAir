@@ -1,6 +1,6 @@
 import { LayaGL } from "../layagl/LayaGL";
-import { CompareMode } from "../RenderEngine/RenderEnum/CompareMode";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
+import { TextureCompareMode } from "../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { WarpMode } from "../RenderEngine/RenderEnum/WrapMode";
@@ -71,11 +71,11 @@ export class BaseTexture extends Bitmap {
 		this._texture.wrapW = value;
 	}
 
-	public get compareMode(): CompareMode {
+	public get compareMode(): TextureCompareMode {
 		return this._texture.compareMode;
 	}
 
-	public set compareMode(value: CompareMode) {
+	public set compareMode(value: TextureCompareMode) {
 		this._texture.compareMode = LayaGL.textureContext.setTextureCompareMode(this._texture, value);
 	}
 
@@ -139,7 +139,7 @@ export class BaseTexture extends Bitmap {
 		}
 	}
 
-	_getSource(): InternalTexture {
+	_getSource() {
 		return this._texture.resource;
 	}
 

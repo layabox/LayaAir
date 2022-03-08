@@ -1,7 +1,10 @@
 import { ILaya } from "../../../../ILaya";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
+import { RenderStateType } from "../../../RenderEngine/RenderEnum/RenderStateType";
+import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
+import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
 import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { Camera } from "../../core/Camera";
 import { Material } from "../../core/material/Material";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
@@ -29,6 +32,9 @@ export class SkyRenderer {
 	private _material: Material;
 	/** @internal */
 	private _mesh: SkyMesh = SkyBox.instance;
+	/** @internal */
+	private _renderStateCMD = new RenderStateCommand();
+
 
 	/**
 	 * 材质。
@@ -64,6 +70,15 @@ export class SkyRenderer {
 	 * 创建一个新的 <code>SkyRenderer</code> 实例。
 	 */
 	constructor() {
+		this._setRenderStateCMD();
+	}
+
+	_setRenderStateCMD(){
+		this._renderStateCMD = new RenderStateCommand();
+		this._renderStateCMD.addCMD(RenderStateType.CullFace,false);
+		this._renderStateCMD.addCMD(RenderStateType.DepthFunc,CompareFunction.LessEqual);
+		this._renderStateCMD.addCMD(RenderStateType.DepthMask,false);
+		this._renderStateCMD.addCMD(RenderStateType.StencilMask,false);
 	}
 
 	/**
@@ -83,12 +98,12 @@ export class SkyRenderer {
 			var scene: Scene3D = context.scene;
 			var cameraShaderValue: ShaderData = context.cameraShaderValue;
 			var camera: Camera = context.camera;
-
-			WebGLContext.setCullFace(gl, false);
-			WebGLContext.setDepthFunc(gl, gl.LEQUAL);
-			WebGLContext.setDepthMask(gl, false);
-			//模板设置
-			WebGLContext.setStencilMask(gl,false);
+			
+			this._renderStateCMD.applyCMD();
+			// WebGLContext.setCullFace(gl, false);
+			// WebGLContext.setDepthFunc(gl, gl.LEQUAL);
+			// WebGLContext.setDepthMask(gl, false);
+			// WebGLContext.setStencilMask(gl,false);
 
 			var comDef: DefineDatas = SkyRenderer._compileDefine;
 			this._material._shaderValues._defineDatas.cloneTo(comDef);
@@ -159,8 +174,8 @@ export class SkyRenderer {
 			this._mesh._bufferState.bind();
 			this._mesh._render(context);
 			
-			WebGLContext.setDepthFunc(gl, gl.LESS);
-			WebGLContext.setDepthMask(gl, true);
+			RenderStateContext.setDepthFunc(gl.LESS);
+			RenderStateContext.setDepthMask(true);
 			camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
 		}
 	}

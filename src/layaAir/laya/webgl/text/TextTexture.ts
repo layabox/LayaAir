@@ -2,9 +2,9 @@
 import { LayaGL } from "../../layagl/LayaGL"
 import { RenderInfo } from "../../renders/RenderInfo"
 import { Resource } from "../../resource/Resource"
-import { WebGLContext } from "../WebGLContext"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { ILaya } from "../../../ILaya";
+import { IRender2DContext } from "../../RenderEngine/RenderInterface/IRender2DContext"
 
 export class TextTexture extends Resource {
     static gTextRender: ITextRender = null;
@@ -12,6 +12,7 @@ export class TextTexture extends Resource {
     private static pool: any[] = new Array(10);		// 回收用
     private static poolLen: number = 0;
     private static cleanTm: number = 0;
+    private _render2DContext:IRender2DContext; 
     /**@internal */
     _source: any;	// webgl 贴图
     /**@internal */
@@ -36,6 +37,7 @@ export class TextTexture extends Resource {
         this._texH = textureH || TextTexture.gTextRender.atlasWidth;
         this.bitmap.id = this.id;
         this.lock = true;//防止被资源管理清除
+        this._render2DContext = LayaGL.render2DContext;
     }
 
     recreateResource(): void {
@@ -45,7 +47,7 @@ export class TextTexture extends Resource {
         var glTex: any = this._source = gl.createTexture();
         this.bitmap._glTexture = glTex;
 
-        WebGLContext.bindTexture(gl, gl.TEXTURE_2D, glTex);
+        this._render2DContext.bindTexture(gl.TEXTURE_2D, glTex);
         //gl.bindTexture(WebGLContext.TEXTURE_2D, glTex);
         //var sz:int = _width * _height * 4;
         //分配显存。
@@ -76,7 +78,7 @@ export class TextTexture extends Resource {
         }
         !this._source && this.recreateResource();
         var gl = LayaGL.instance;
-        WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._source);
+        this._render2DContext.bindTexture(gl.TEXTURE_2D, this._source);
         !ILaya.Render.isConchApp && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         var dt: any = data.data;
         if (data.data instanceof Uint8ClampedArray)
@@ -108,7 +110,7 @@ export class TextTexture extends Resource {
     addCharCanvas(canv: any, x: number, y: number, uv: any[] = null): any[] {
         !this._source && this.recreateResource();
         var gl: WebGLRenderingContext = LayaGL.instance;
-        WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._source);
+        this._render2DContext.bindTexture(gl.TEXTURE_2D, this._source);
         !ILaya.Render.isConchApp && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, gl.RGBA, gl.UNSIGNED_BYTE, canv);
         !ILaya.Render.isConchApp && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);

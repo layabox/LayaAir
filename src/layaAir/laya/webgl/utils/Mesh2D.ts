@@ -42,28 +42,28 @@ export class Mesh2D {
         //meshlist.push(this);
     }
 
-    /**
-     * 重新创建一个mesh。复用这个对象的vertex结构，ib对象和attribinfo对象
-     */
-    //TODO:coverage
-    cloneWithNewVB(): Mesh2D {
-        var mesh: Mesh2D = new Mesh2D(this._stride, 0, 0);
-        mesh._ib = this._ib;
-        mesh._quadNum = this._quadNum;
-        mesh._attribInfo = this._attribInfo;
-        return mesh;
-    }
+    // /**
+    //  * 重新创建一个mesh。复用这个对象的vertex结构，ib对象和attribinfo对象
+    //  */
+    // //TODO:coverage
+    // cloneWithNewVB(): Mesh2D {
+    //     var mesh: Mesh2D = new Mesh2D(this._stride, 0, 0);
+    //     mesh._ib = this._ib;
+    //     mesh._quadNum = this._quadNum;
+    //     mesh._attribInfo = this._attribInfo;
+    //     return mesh;
+    // }
 
-    /**
-     * 创建一个mesh，使用当前对象的vertex结构。vb和ib自己提供。
-     * @return
-     */
-    //TODO:coverage
-    cloneWithNewVBIB(): Mesh2D {
-        var mesh: Mesh2D = new Mesh2D(this._stride, 0, 0);
-        mesh._attribInfo = this._attribInfo;
-        return mesh;
-    }
+    // /**
+    //  * 创建一个mesh，使用当前对象的vertex结构。vb和ib自己提供。
+    //  * @return
+    //  */
+    // //TODO:coverage
+    // cloneWithNewVBIB(): Mesh2D {
+    //     var mesh: Mesh2D = new Mesh2D(this._stride, 0, 0);
+    //     mesh._attribInfo = this._attribInfo;
+    //     return mesh;
+    // }
 
     /**
      * 获得一个可以写的vb对象
