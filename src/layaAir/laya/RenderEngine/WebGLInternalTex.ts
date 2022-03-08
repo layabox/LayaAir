@@ -1,7 +1,7 @@
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
-import { CompareMode } from "./RenderEnum/CompareMode";
 import { FilterMode } from "./RenderEnum/FilterMode";
+import { TextureCompareMode } from "./RenderEnum/TextureCompareMode";
 import { TextureDimension } from "./RenderEnum/TextureDimension";
 import { WarpMode } from "./RenderEnum/WrapMode";
 import { InternalTexture } from "./RenderInterface/InternalTexture";
@@ -13,6 +13,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     _gl: WebGLRenderingContext | WebGL2RenderingContext;
 
     readonly resource: WebGLTexture;
+    _resourceTarget:number;
 
     readonly width: number;
     readonly height: number;
@@ -148,11 +149,11 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         }
     }
 
-    private _compareMode: CompareMode;
-    public get compareMode(): CompareMode {
+    private _compareMode: TextureCompareMode;
+    public get compareMode(): TextureCompareMode {
         return this._compareMode;
     }
-    public set compareMode(value: CompareMode) {
+    public set compareMode(value: TextureCompareMode) {
         this._compareMode = value;
     }
 

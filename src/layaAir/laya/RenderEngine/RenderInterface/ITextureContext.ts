@@ -1,8 +1,8 @@
 import { DDSTextureInfo } from "../../resource/DDSTextureInfo";
 import { HDRTextureInfo } from "../../resource/HDRTextureInfo";
 import { KTXTextureInfo } from "../../resource/KTXTextureInfo";
-import { CompareMode } from "../RenderEnum/CompareMode";
 import { RenderTargetFormat } from "../RenderEnum/RenderTargetFormat";
+import { TextureCompareMode } from "../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEnum/TextureFormat";
 import { InternalRenderTarget } from "./InternalRenderTarget";
@@ -44,7 +44,7 @@ export interface ITextureContext {
 
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void;
 
-    setTextureCompareMode(texture: InternalTexture, compareMode: CompareMode): CompareMode;
+    setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode;
 
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): InternalTexture;
 

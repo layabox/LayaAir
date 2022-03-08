@@ -1,5 +1,5 @@
+import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 import { RenderState2D } from "./utils/RenderState2D"
-import { WebGLContext } from "./WebGLContext";
 
 /**
  * @private
@@ -70,8 +70,8 @@ export class WebGL {
     }
 
     static onStageResize(width: number, height: number): void {
-        if (WebGLContext.mainContext == null) return;
-        WebGLContext.mainContext.viewport(0, 0, width, height);
+        if (RenderStateContext.mainContext == null) return;
+        RenderStateContext.mainContext.viewport(0, 0, width, height);
         RenderState2D.width = width;
         RenderState2D.height = height;
     }

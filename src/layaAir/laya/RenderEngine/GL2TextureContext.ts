@@ -2,16 +2,14 @@ import { HDRTextureInfo } from "../resource/HDRTextureInfo";
 import { KTXTextureInfo } from "../resource/KTXTextureInfo";
 import { TextureFormat } from "./RenderEnum/TextureFormat";
 import { RenderTargetFormat } from "./RenderEnum/RenderTargetFormat";
-import { CompareMode } from "./RenderEnum/CompareMode";
+import { TextureCompareMode } from "./RenderEnum/TextureCompareMode";
 import { TextureDimension } from "./RenderEnum/TextureDimension";
 import { FilterMode } from "./RenderEnum/FilterMode";
 import { GLTextureContext } from "./GLTextureContext";
 import { WebGLEngine } from "./WebGLEngine";
 import { WebGLInternalTex } from "./WebGLInternalTex";
 import { WebGLInternalRT } from "./WebGLInternalRT";
-import { WebGLExtension } from "./GLEnum/WebGLExtension";
 
-// todo 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?
  */
@@ -19,6 +17,27 @@ export class GL2TextureContext extends GLTextureContext {
 
     constructor(engine: WebGLEngine) {
         super(engine);
+    }
+
+    protected getTarget(dimension: TextureDimension): number {
+        let target: number = -1;
+        switch (dimension) {
+            case TextureDimension.Cube:
+                target = this._gl.TEXTURE_CUBE_MAP;
+                break;
+            case TextureDimension.Tex2D:
+                target = this._gl.TEXTURE_2D;
+                break;
+            case TextureDimension.Texture2DArray:
+                target = (<WebGL2RenderingContext>this._gl).TEXTURE_2D_ARRAY;
+                break;
+            case TextureDimension.Tex3D:
+                target = (<WebGL2RenderingContext>this._gl).TEXTURE_3D;
+                break;
+            default:
+                throw "Unknow Texture Target";
+        }
+        return target;
     }
 
     glTextureParam(format: TextureFormat, useSRGB: boolean) {
@@ -541,42 +560,42 @@ export class GL2TextureContext extends GLTextureContext {
 
     }
 
-    setTextureCompareMode(texture: WebGLInternalTex, compareMode: CompareMode): CompareMode {
+    setTextureCompareMode(texture: WebGLInternalTex, compareMode: TextureCompareMode): TextureCompareMode {
         let gl = <WebGL2RenderingContext>this._gl;
         switch (compareMode) {
-            case CompareMode.GEQUAL:
+            case TextureCompareMode.LEQUAL:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
                 break;
-            case CompareMode.GEQUAL:
+            case TextureCompareMode.GEQUAL:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.GEQUAL);
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
                 break;
-            case CompareMode.LESS:
+            case TextureCompareMode.LESS:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.LESS);
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
                 break;
-            case CompareMode.GREATER:
+            case TextureCompareMode.GREATER:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.GREATER);
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
                 break;
-            case CompareMode.EQUAL:
+            case TextureCompareMode.EQUAL:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.EQUAL);
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
                 break;
-            case CompareMode.NOTEQUAL:
+            case TextureCompareMode.NOTEQUAL:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.NOTEQUAL);
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
                 break;
-            case CompareMode.ALWAYS:
+            case TextureCompareMode.ALWAYS:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.ALWAYS);
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
                 break;
-            case CompareMode.NEVER:
+            case TextureCompareMode.NEVER:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.NEVER);
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
                 break;
-            case CompareMode.None:
+            case TextureCompareMode.None:
             default:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_MODE, gl.NONE);
@@ -617,7 +636,7 @@ export class GL2TextureContext extends GLTextureContext {
 
         let target = this.getTarget(dimension);
         let internalTex = new WebGLInternalTex(this._engine,target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
-
+        
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 
         internalTex.internalFormat = glParam.internalFormat;

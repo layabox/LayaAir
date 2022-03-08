@@ -1,4 +1,4 @@
-export enum CompareMode {
+export enum TextureCompareMode {
     None,
     LEQUAL,
     GEQUAL,

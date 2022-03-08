@@ -1,9 +1,12 @@
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { LayaGL } from "../../layagl/LayaGL";
+import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
+import { RenderStateType } from "../../RenderEngine/RenderEnum/RenderStateType";
 import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
+import { RenderStateCommand } from "../../RenderEngine/RenderStateCommand";
+import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Stat } from "../../utils/Stat";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
-import { WebGLContext } from "../../webgl/WebGLContext";
 import { Material } from "../core/material/Material";
 import { RenderState } from "../core/material/RenderState";
 import { BaseRender } from "../core/render/BaseRender";
@@ -50,6 +53,8 @@ export class ShaderInstance {
 	/**@internal SceneIDTODO*/
 	_uploadScene: Scene3D;
 
+	_cullStateCMD:RenderStateCommand = new RenderStateCommand();
+
 	/**
 	 * 创建一个 <code>ShaderInstance</code> 实例。
 	 */
@@ -59,6 +64,7 @@ export class ShaderInstance {
 		this._shaderPass = shaderPass;
 		this._create();
 	}
+	
 
 	/**
 	 * @internal TODO3D
@@ -162,17 +168,17 @@ export class ShaderInstance {
 		stencilWrite == null && (stencilTest = renderState.stencilWrite);
 		stencilOp ==null && (stencilOp = renderState.stencilOp);
 
-		WebGLContext.setDepthMask(gl, depthWrite);
+		RenderStateContext.setDepthMask(depthWrite);
 		if (depthTest === RenderState.DEPTHTEST_OFF)
-			WebGLContext.setDepthTest(gl, false);
+		RenderStateContext.setDepthTest(false);
 		else {
-			WebGLContext.setDepthTest(gl, true);
-			WebGLContext.setDepthFunc(gl, depthTest);
+			RenderStateContext.setDepthTest(true);
+			RenderStateContext.setDepthFunc(depthTest);
 		}
 		//blend
 		switch (blend) {
 			case RenderState.BLEND_DISABLE:
-				WebGLContext.setBlend(gl, false);
+				RenderStateContext.setBlend(false);
 				break;
 			case RenderState.BLEND_ENABLE_ALL:
 				var blendEquation: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION);
@@ -181,9 +187,9 @@ export class ShaderInstance {
 				blendEquation == null && (blendEquation = renderState.blendEquation);
 				srcBlend == null && (srcBlend = renderState.srcBlend);
 				dstBlend == null && (dstBlend = renderState.dstBlend);
-				WebGLContext.setBlend(gl, true);
-				WebGLContext.setBlendEquation(gl, blendEquation);
-				WebGLContext.setBlendFunc(gl, srcBlend, dstBlend);
+				RenderStateContext.setBlend(true);
+				RenderStateContext.setBlendEquation(blendEquation);
+				RenderStateContext.setBlendFunc(srcBlend, dstBlend);
 				break;
 			case RenderState.BLEND_ENABLE_SEPERATE:
 				var blendEquationRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION_RGB);
@@ -198,22 +204,22 @@ export class ShaderInstance {
 				dstRGB == null && (dstRGB = renderState.dstBlendRGB);
 				srcAlpha == null && (srcAlpha = renderState.srcBlendAlpha);
 				dstAlpha == null && (dstAlpha = renderState.dstBlendAlpha);
-				WebGLContext.setBlend(gl, true);
-				WebGLContext.setBlendEquationSeparate(gl, blendEquationRGB, blendEquationAlpha);
-				WebGLContext.setBlendFuncSeperate(gl, srcRGB, dstRGB, srcAlpha, dstAlpha);
+				RenderStateContext.setBlend(true);
+				RenderStateContext.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
+				RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
 				break;
 		}
 
 		//Stencil
-		WebGLContext.setStencilMask(gl, stencilWrite);
+		RenderStateContext.setStencilMask(stencilWrite);
 		if(stencilTest==RenderState.STENCILTEST_OFF){
-			WebGLContext.setStencilTest(gl,false);
+			RenderStateContext.setStencilTest(false);
 		}else{
-			WebGLContext.setStencilTest(gl,true);
-			WebGLContext.setStencilFunc(gl,stencilTest,stencilRef);
+			RenderStateContext.setStencilTest(true);
+			RenderStateContext.setStencilFunc(stencilTest,stencilRef);
 			
 		}
-		WebGLContext.setstencilOp(gl,stencilOp.x,stencilOp.y,stencilOp.z);
+		RenderStateContext.setstencilOp(stencilOp.x,stencilOp.y,stencilOp.z);
 		
 		
 		
@@ -223,6 +229,7 @@ export class ShaderInstance {
 	 * @internal
 	 */
 	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
+		this._cullStateCMD.clear();
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
@@ -233,40 +240,53 @@ export class ShaderInstance {
 		var forntFace: number;
 		switch (cull) {
 			case RenderState.CULL_NONE:
-				WebGLContext.setCullFace(gl, false);
+				//WebGLContext.setCullFace(gl, false);
+				this._cullStateCMD.addCMD(RenderStateType.CullFace,false);
 				break;
 			case RenderState.CULL_FRONT:
-				WebGLContext.setCullFace(gl, true);
+				//WebGLContext.setCullFace(gl, true);
+				this._cullStateCMD.addCMD(RenderStateType.CullFace,true);
 				//forntFace = isTarget ? invertFront ? WebGLContext.CCW : WebGLContext.CW : invertFront ? WebGLContext.CW : WebGLContext.CCW;
-				if (isTarget) {
-					if (invertFront)
-						forntFace = gl.CCW;
-					else
-						forntFace = gl.CW;
-				} else {
-					if (invertFront)
-						forntFace = gl.CW;
-					else
-						forntFace = gl.CCW;
-				}
-				WebGLContext.setFrontFace(gl, forntFace);
+				if(isTarget==invertFront)
+					forntFace = CullMode.Front;//gl.CCW
+				else
+					forntFace !=CullMode.Back;
+				this._cullStateCMD.addCMD(RenderStateType.FrontFace,forntFace);
+				// if (isTarget) {
+				// 	if (invertFront)
+				// 		forntFace = gl.CCW;
+				// 	else
+				// 		forntFace = gl.CW;
+				// } else {
+				// 	if (invertFront)
+				// 		forntFace = gl.CW;
+				// 	else
+				// 		forntFace = gl.CCW;
+				// }
+				//WebGLContext.setFrontFace(gl, forntFace);
 				break;
 			case RenderState.CULL_BACK:
-				WebGLContext.setCullFace(gl, true);
-				if (isTarget) {
-					if (invertFront)
-						forntFace = gl.CW;
-					else
-						forntFace = gl.CCW;
-				} else {
-					if (invertFront)
-						forntFace = gl.CCW;
-					else
-						forntFace = gl.CW;
-				}
-				WebGLContext.setFrontFace(gl, forntFace);
+				this._cullStateCMD.addCMD(RenderStateType.CullFace,true);
+				if(isTarget!=invertFront)
+					forntFace = CullMode.Front;//gl.CCW
+				else
+					forntFace !=CullMode.Back;
+				this._cullStateCMD.addCMD(RenderStateType.FrontFace,forntFace);
+				// if (isTarget) {
+				// 	if (invertFront)
+				// 		forntFace = gl.CW;
+				// 	else
+				// 		forntFace = gl.CCW;
+				// } else {
+				// 	if (invertFront)
+				// 		forntFace = gl.CCW;
+				// 	else
+				// 		forntFace = gl.CW;
+				// }
+				// WebGLContext.setFrontFace(gl, forntFace);
 				break;
 		}
+		this._cullStateCMD.applyCMD();
 	}
 
 	/**

@@ -1,9 +1,9 @@
 export enum CullMode {
     /** Disable culling. */
-    Off,
+    Off = 0,
     /** cut the front-face of the polygons. */
-    Front,
+    Front = 1,
     /** cut the back-face of the polygons. */
-    Back
+    Back = 2
   }
   

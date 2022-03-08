@@ -1,5 +1,6 @@
 import { LayaGL } from "../layagl/LayaGL";
 import { WebGLMode } from "../RenderEngine/GLEnum/WebGLMode";
+import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 import { WebGlConfig } from "../RenderEngine/WebGLConfig";
 import { WebGLEngine } from "../RenderEngine/WebGLEngine";
 import { Context } from "../resource/Context";
@@ -11,7 +12,6 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { Buffer2D } from "../webgl/utils/Buffer2D";
 import { WebGL } from "../webgl/WebGL";
-import { WebGLContext } from "../webgl/WebGLContext";
 import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
 import { RenderInfo } from "./RenderInfo";
@@ -91,7 +91,7 @@ export class Render {
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
         const engine: WebGLEngine = new WebGLEngine(glConfig, webglMode);
         engine.initRenderEngine(Render._mainCanvas.source);
-        var gl: WebGLRenderingContext = LayaGL.instance = WebGLContext.mainContext = engine.gl;
+        var gl: WebGLRenderingContext = LayaGL.instance = RenderStateContext.mainContext = engine.gl;
         if (Config.printWebglOrder)
             this._replaceWebglcall(gl);
 
@@ -118,8 +118,6 @@ export class Render {
         ShaderDefines2D.__init__();
         Value2D.__init__();
         Shader2D.__init__();
-        Buffer2D.__int__(gl);
-        BlendMode._init_(gl);
         return true;
     }
 

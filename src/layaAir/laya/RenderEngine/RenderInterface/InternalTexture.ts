@@ -1,5 +1,5 @@
-import { CompareMode } from "../RenderEnum/CompareMode";
 import { FilterMode } from "../RenderEnum/FilterMode";
+import { TextureCompareMode } from "../RenderEnum/TextureCompareMode";
 import { WarpMode } from "../RenderEnum/WrapMode";
 
 /**
@@ -12,6 +12,7 @@ import { WarpMode } from "../RenderEnum/WrapMode";
      * gpu texture object
      */
     resource: any;
+    target:number;
 
     width: number;
     height: number;
@@ -26,7 +27,7 @@ import { WarpMode } from "../RenderEnum/WrapMode";
     wrapW: WarpMode;
     anisoLevel: number;
 
-    compareMode: CompareMode;
+    compareMode: TextureCompareMode;
 
     /**
      * 是否使用 sRGB格式 加载图片数据

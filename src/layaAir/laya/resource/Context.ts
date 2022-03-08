@@ -6,8 +6,14 @@ import { Bezier } from "../maths/Bezier";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
+import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationSeparate";
+import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
+import { CullMode } from "../RenderEngine/RenderEnum/CullMode";
+import { RenderStateType } from "../RenderEngine/RenderEnum/RenderStateType";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
+import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 import { FontInfo } from "../utils/FontInfo";
 import { HTMLChar } from "../utils/HTMLChar";
 import { Stat } from "../utils/Stat";
@@ -48,7 +54,6 @@ import { MeshTexture } from "../webgl/utils/MeshTexture";
 import { MeshVG } from "../webgl/utils/MeshVG";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
-import { WebGLContext } from "../webgl/WebGLContext";
 import { Bitmap } from "./Bitmap";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
@@ -359,16 +364,36 @@ export class Context {
 		}
 	}
 
+	static const2DRenderCMD:RenderStateCommand;
 	static set2DRenderConfig(): void {
+		if(!Context.const2DRenderCMD){
+			const cmd = Context.const2DRenderCMD = new RenderStateCommand();
+			cmd.addCMD(RenderStateType.BlendType,true);
+			//WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
+			cmd.addCMD(RenderStateType.BlendEquation,BlendEquationSeparate.ADD);
+			BlendMode.activeBlendFunction = null;// 防止submit不设置blend
+			//WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+			cmd.addCMD(RenderStateType.BlendFunc,[BlendFactor.One,BlendFactor.OneMinusSourceAlpha]);
+			//WebGLContext.setDepthTest(gl, false);
+			cmd.addCMD(RenderStateType.DepthTest,false);
+			//WebGLContext.setDepthMask(gl, true);
+			cmd.addCMD(RenderStateType.DepthMask,true);
+			//WebGLContext.setCullFace(gl, false);
+			cmd.addCMD(RenderStateType.CullFace,false);
+			//WebGLContext.setFrontFace(gl, gl.CCW);
+			cmd.addCMD(RenderStateType.FrontFace,CullMode.Front);
+		}
+		Context.const2DRenderCMD.applyCMD();
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		WebGLContext.setBlend(gl, true);//还原2D设置
-		WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
-		BlendMode.activeBlendFunction = null;		// 防止submit不设置blend
-		WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-		WebGLContext.setDepthTest(gl, false);
-		WebGLContext.setCullFace(gl, false);
-		WebGLContext.setDepthMask(gl, true);
-		WebGLContext.setFrontFace(gl, gl.CCW);
+		// WebGLContext.setBlend(gl, true);//还原2D设置
+		// WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
+		// BlendMode.activeBlendFunction = null;// 防止submit不设置blend
+		// WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+		// WebGLContext.setDepthTest(gl, false);
+		// WebGLContext.setDepthMask(gl, true);
+		// WebGLContext.setCullFace(gl, false);
+		// WebGLContext.setFrontFace(gl, gl.CCW);
+
 		gl.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
 		gl.enable(gl.SCISSOR_TEST);
 		gl.scissor(0, 0, RenderState2D.width, RenderState2D.height);
@@ -483,7 +508,7 @@ export class Context {
 	}
 
 	clearBG(r: number, g: number, b: number, a: number): void {
-		var gl: WebGLRenderingContext = WebGLContext.mainContext;
+		var gl: WebGLRenderingContext = RenderStateContext.mainContext;
 		gl.clearColor(r, g, b, a);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 	}
@@ -628,7 +653,7 @@ export class Context {
 			//如果是主画布，要记录窗口大小
 			//如果不是 TODO
 			if (this.isMain) {
-				WebGLContext.mainContext.viewport(0, 0, w, h);
+				RenderStateContext.mainContext.viewport(0, 0, w, h);
 				RenderState2D.width = w;
 				RenderState2D.height = h;
 			}

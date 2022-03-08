@@ -13,6 +13,10 @@ import { ClassUtils } from "../../../utils/ClassUtils";
 import { Laya } from "../../../../Laya";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { UniformBufferObject } from "../../graphics/UniformBufferObject";
+import { BlendType } from "../../../RenderEngine/RenderEnum/BlendType";
+import { BlendFactor } from "../../../RenderEngine/RenderEnum/BlendFactor";
+import { BlendEquationSeparate } from "../../../RenderEngine/RenderEnum/BlendEquationSeparate";
+import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 
 /**
  * <code>Material</code> 类用于创建材质。
@@ -74,6 +78,58 @@ export class Material extends Resource implements IClone {
 	}
 
 	/**
+	 * TODO:
+	 * 兼容Blend数据
+	 */
+	static _getRenderStateParams(type:number){
+		switch(type){
+			case 0x0300:
+				return BlendFactor.SourceColor;
+			case 0x0301:
+				return BlendFactor.OneMinusSourceColor;
+			case 0x0306:
+				return BlendFactor.DestinationColor;
+			case 0x0307:
+				return BlendFactor.OneMinusDestinationColor;
+			case 0x0302:
+				return BlendFactor.SourceAlpha;
+			case 0x0303:
+				return BlendFactor.OneMinusSourceAlpha;
+			case 0x0304:
+				return BlendFactor.DestinationAlpha;
+			case 0x0305:
+				return BlendFactor.OneMinusDestinationAlpha;
+			case 0x0308:
+				return BlendFactor.SourceAlphaSaturate;
+			case 0x8006:
+				return BlendEquationSeparate.ADD;
+			case 0x800A:
+				return BlendEquationSeparate.SUBTRACT;
+			case 0x800B:
+				return BlendEquationSeparate.REVERSE_SUBTRACT;
+			case 0x0200:
+				return CompareFunction.Never;
+			case 0x0201:
+				return CompareFunction.Less;
+			case 0x0202:
+				return CompareFunction.Equal;
+			case 0x0203:
+				return CompareFunction.LessEqual;
+			case 0x0204:
+				return CompareFunction.Greater;
+			case 0x0205:
+				return CompareFunction.NotEqual;
+			case 0x0206:
+				return CompareFunction.GreaterEqual;
+			case 0x0207:
+				return CompareFunction.Always;
+			default:
+				return type;
+		}
+	}
+
+	/**
+	 * TODO:需要改动
 	 * @inheritDoc
 	 */
 	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Material {
@@ -142,13 +198,13 @@ export class Material extends Resource implements IClone {
 						case "renderStates"://"LAYAMATERIAL:02" 
 							var renderStatesData: any[] = props[key];
 							var renderStateData: any = renderStatesData[0];
-							var mat: any = (<any>material);//TODO:临时兼容
+							var mat: Material = (<Material>material);//TODO:临时兼容
 							mat.blend = renderStateData.blend;
-							mat.cull = renderStateData.cull;
-							mat.depthTest = renderStateData.depthTest;
+							mat.cull =this._getRenderStateParams(renderStateData.cull);
+							mat.depthTest =this._getRenderStateParams(renderStateData.depthTest);
 							mat.depthWrite = renderStateData.depthWrite;
-							mat.blendSrc = renderStateData.srcBlend;
-							mat.blendDst = renderStateData.dstBlend;
+							mat.blendSrc =this._getRenderStateParams(renderStateData.srcBlend);
+							mat.blendDst =this._getRenderStateParams(renderStateData.dstBlend);
 							break;
 						case "cull"://"LAYAMATERIAL:01"
 							((<any>material)).cull = props[key];

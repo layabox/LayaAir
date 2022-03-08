@@ -60,12 +60,11 @@ export class RealTimeShadow {
 			"res/threeDimen/staticModel/grid/plane.lh",
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"
 		], Handler.create(this, this.onComplete));
-
 	}
 
 	private onComplete(): void {
 		var scene: Scene3D = <Scene3D>Laya.stage.addChild(new Scene3D());
-
+		
 		var camera: Camera = <Camera>(scene.addChild(new Camera(0, 0.1, 100)));
 		camera.transform.translate(new Vector3(0, 1.2, 1.6));
 		camera.transform.rotate(new Vector3(-35, 0, 0), true, false);
@@ -93,7 +92,7 @@ export class RealTimeShadow {
 		// A plane receive shadow.
 		var grid: Sprite3D = <Sprite3D>scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh"));
 		(<MeshSprite3D>grid.getChildAt(0)).meshRenderer.receiveShadow = true;
-
+		
 		// A monkey cast shadow.
 		var layaMonkey: Sprite3D = <Sprite3D>scene.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
 		layaMonkey.transform.localScale = new Vector3(2, 2, 2);

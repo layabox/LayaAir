@@ -47,7 +47,6 @@ import { TextRender } from "./laya/webgl/text/TextRender";
 import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
 import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { WebGL } from "./laya/webgl/WebGL";
-import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { WorkerLoader } from "./laya/net/WorkerLoader";
 import { Mouse } from "./laya/utils/Mouse";
 import { MeshVG } from "./laya/webgl/utils/MeshVG";
@@ -237,8 +236,7 @@ export class Laya {
 		render = Laya.render;
 		Laya.stage.size(width, height);
 		((<any>window)).stage = Laya.stage;
-
-		WebGLContext.__init__();
+		
 		MeshParticle2D.__init__();
 		ShaderCompile.__init__();
 		RenderSprite.__init__();

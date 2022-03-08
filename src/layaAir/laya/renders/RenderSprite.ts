@@ -20,9 +20,9 @@ import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanv
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitCMD } from "../webgl/submit/SubmitCMD";
-import { WebGLContext } from "../webgl/WebGLContext";
 import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { ILaya } from "../../ILaya";
+import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 
 /**
  * @private
@@ -586,7 +586,7 @@ export class RenderSprite {
 	}
 
 	static setBlendMode(blendMode: string): void {
-		var gl = WebGLContext.mainContext;
+		var gl = RenderStateContext.mainContext;
 		BlendMode.targetFns[BlendMode.TOINT[blendMode]](gl);
 	}
 

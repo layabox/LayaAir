@@ -1,16 +1,12 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderInfo } from "../../renders/RenderInfo";
 import { BaseShader } from "../shader/BaseShader";
-import { WebGLContext } from "../WebGLContext";
 import { Buffer } from "./Buffer";
 
 export class Buffer2D extends Buffer {
 
 	static FLOAT32: number = 4;
 	static SHORT: number = 2;
-
-	static __int__(gl: WebGLContext): void {
-	}
 
 	protected _maxsize: number = 0;
 
@@ -289,5 +285,6 @@ export class Buffer2D extends Buffer {
 		this._upload = true;
 	}
 }
+
 
 

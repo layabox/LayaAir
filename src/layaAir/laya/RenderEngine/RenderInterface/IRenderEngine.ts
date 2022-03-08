@@ -1,7 +1,9 @@
 import { CommandEncoder } from "../../layagl/CommandEncoder";
+import { BaseTexture } from "../../resource/BaseTexture";
 import { BufferTargetType, BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { RenderParams } from "../RenderEnum/RenderParams";
+import { RenderStateCommand } from "../RenderStateCommand";
 import { IRenderBuffer } from "./IRenderBuffer";
 import { IRenderDrawContext } from "./IRenderDrawContext";
 import { IRenderShaderInstance } from "./IRenderShaderInstance";
@@ -12,11 +14,14 @@ export interface IRenderEngine {
     _isShaderDebugMode:boolean;
     initRenderEngine(canvas:any):void;
     
-    applyRenderContext(stateData:any):void;
+    applyRenderState(stateData:any):void;
+    applyRenderStateCMD(cmd: RenderStateCommand):void;
     
     viewport(x: number, y: number, width: number, height: number): void;
     colorMask(r: boolean, g: boolean, b: boolean, a: boolean):void;
-    
+    copySubFrameBuffertoTex(texture:BaseTexture,level:number,xoffset:number, yoffset:number, x:number, y:number, width:number, height:number):void;
+    bindTexture(texture:BaseTexture):void;
+
     getParams(params: RenderParams): number ;
     getCapable(capatableType: RenderCapable): boolean;
     getTextureContext(): ITextureContext;

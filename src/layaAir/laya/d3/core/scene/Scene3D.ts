@@ -13,7 +13,6 @@ import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitBase } from "../../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
 import { FrustumCulling, CameraCullInfo } from "../../graphics/FrustumCulling";
 import { Cluster } from "../../graphics/renderPath/Cluster";
@@ -74,6 +73,7 @@ import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDec
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
 /**
  * 环境光模式
  */
@@ -1206,13 +1206,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 							flag |= gl.STENCIL_BUFFER_BIT;
 							//打开模板缓存 再清理
 							gl.clearStencil(0);
-							WebGLContext.setStencilMask(gl, true);
+							RenderStateContext.setStencilMask(true);
 							break;
 					}
 				} else {
 					flag = gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT;
 				}
-				WebGLContext.setDepthMask(gl, true);
+				RenderStateContext.setDepthMask(true);
 				gl.clear(flag);
 				gl.disable(gl.SCISSOR_TEST);
 				break;
@@ -1231,14 +1231,14 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 						case RenderTargetFormat.DEPTHSTENCIL_24_8:
 							//打开模板缓存 再清理
 							gl.clearStencil(0);
-							WebGLContext.setStencilMask(gl, true);
+							RenderStateContext.setStencilMask(true);
 							flag = gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT;
 							break;
 					}
 				} else {
 					flag = gl.DEPTH_BUFFER_BIT;
 				}
-				WebGLContext.setDepthMask(gl, true);
+				RenderStateContext.setDepthMask(true);
 				gl.clear(flag);
 				gl.disable(gl.SCISSOR_TEST);
 				break;
