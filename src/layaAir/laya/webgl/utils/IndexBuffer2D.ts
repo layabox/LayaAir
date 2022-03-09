@@ -1,19 +1,20 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { Buffer } from "./Buffer";
 import { Buffer2D } from "./Buffer2D";
 
 export class IndexBuffer2D extends Buffer2D {
-    static create: Function = function (bufferUsage: number = 0x88e4/* WebGLContext.STATIC_DRAW*/): IndexBuffer2D {
+    static create: Function = function (bufferUsage: number = BufferUsage.Static): IndexBuffer2D {
         return new IndexBuffer2D(bufferUsage);
     }
 
     protected _uint16Array: Uint16Array;
 
-    constructor(bufferUsage: number = 0x88e4/* WebGLContext.STATIC_DRAW*/) {
-        super();
+    constructor(bufferUsage: number = BufferUsage.Static) {
+        super(BufferTargetType.ELEMENT_ARRAY_BUFFER,bufferUsage);
         this._bufferUsage = bufferUsage;
         this._bufferType = LayaGL.instance.ELEMENT_ARRAY_BUFFER;
-        this._buffer = new ArrayBuffer(8);
+        this._buffer = new Uint8Array(8);
     }
     /**
      * @override
@@ -35,19 +36,19 @@ export class IndexBuffer2D extends Buffer2D {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
-    bind(): boolean {
-        if (Buffer._bindedIndexBuffer !== this._glBuffer) {
-            var gl: WebGLRenderingContext = LayaGL.instance;
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
-            Buffer._bindedIndexBuffer = this._glBuffer;
-            return true;
-        }
-        return false;
-    }
+    // /**
+    //  * @inheritDoc
+    //  * @override
+    //  */
+    // bind(): boolean {
+    //     if (Buffer._bindedIndexBuffer !== this._glBuffer) {
+    //         var gl: WebGLRenderingContext = LayaGL.instance;
+    //         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+    //         Buffer._bindedIndexBuffer = this._glBuffer;
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     destory(): void {
         this._uint16Array = null;

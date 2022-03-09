@@ -269,6 +269,8 @@ export class ShaderData implements IClone {
 	 * @param value data
 	 */
 	setValueData(index: number, value: any) {
+		if(value==515)
+		debugger;
 		if (!!value.clone)
 			this._data[index] = value.clone();
 		else

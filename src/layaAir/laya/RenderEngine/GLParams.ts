@@ -33,6 +33,10 @@ export class GLParams{
             this._glParamsData.set(RenderParams.SHADER_CAPAILITY_LEVEL,35);
         else
             this._glParamsData.set(RenderParams.SHADER_CAPAILITY_LEVEL,30);
+        this._glParamsData.set(RenderParams.FLOAT,gl.FLOAT);
+        this._glParamsData.set(RenderParams.UNSIGNED_BYTE,gl.UNSIGNED_BYTE);
+        this._glParamsData.set(RenderParams.UNSIGNED_SHORT,gl.UNSIGNED_SHORT);
+
     }
 
     getParams(params:RenderParams):number{

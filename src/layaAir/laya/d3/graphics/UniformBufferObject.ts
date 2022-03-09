@@ -1,5 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { Buffer } from "../../webgl/utils/Buffer";
+import { Buffer } from "../../RenderEngine/Buffer";
+import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { SubUniformBufferData } from "./subUniformBufferData";
 import { UniformBufferBase } from "./UniformBufferBase";
 import { UnifromBufferData } from "./UniformBufferData";
@@ -75,28 +76,16 @@ export class UniformBufferObject extends Buffer {
     /**
      * @interanl
      */
-    constructor(glPointer: number, name: string, bufferUsage: number, byteLength: number, isSingle: boolean) {
-        super();
-        var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
+    constructor(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean) {
+        super(BufferTargetType.UNIFORM_BUFFER,bufferUsage);
         this._glPointer = glPointer;
-        this._bufferUsage = bufferUsage;
-        this._bufferType = gl.UNIFORM_BUFFER;
         this.byteLength = byteLength;
         this._name = name;
         this._isSingle = isSingle;
         this.bind();
         if (this._isSingle)
             this._bindUniformBufferBase();
-        gl.bufferData(this._bufferType, this.byteLength, this._bufferUsage);
-    }
-
-    /**
-     * bind a range for Point buffer
-     * @interanl
-     */
-    private _bindUniformBuffer() {
-        var gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
-        gl.bindBuffer(gl.UNIFORM_BUFFER, this._glBuffer);
+        this._glBuffer.setData(this.byteLength);
     }
 
     /**
@@ -104,10 +93,9 @@ export class UniformBufferObject extends Buffer {
      * @internal
      */
     _bindUniformBufferBase() {
-        const gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
         const base = UniformBufferObject._Map.get(this._name);
         if (base._curUniformBuffer != this) {
-            gl.bindBufferBase(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer);
+            this._glBuffer.bindBufferBase(this._glPointer);
             base._curUniformBuffer = this;
         }
     }
@@ -117,9 +105,9 @@ export class UniformBufferObject extends Buffer {
      * @internal
      */
     _bindBufferRange(offset: number, byteCount: number) {
-        const gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
         this.bind();
-        gl.bindBufferRange(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer, offset, byteCount);
+        this._glBuffer.bindBufferRange(this._glPointer,offset,byteCount);
+        //gl.bindBufferRange(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer, offset, byteCount);
     }
 
     /**
@@ -127,19 +115,18 @@ export class UniformBufferObject extends Buffer {
      * @param bytelength 
      */
     _reset(bytelength: number) {
-        const gl: WebGL2RenderingContext = LayaGL.instance as WebGL2RenderingContext;
+        
         //destroy
         if (this._glBuffer) {
-            gl.deleteBuffer(this._glBuffer);
+            this._glBuffer.destroy();
             this._glBuffer = null;
         }
         //create new
         this._byteLength = this.byteLength = bytelength;
-        this._glBuffer = LayaGL.instance.createBuffer();
-        this.bind();
+        this._glBuffer = LayaGL.renderEngine.createBuffer(this._bufferType,this._bufferUsage);
         if (this._isSingle)
             this._bindUniformBufferBase();
-        gl.bufferData(this._bufferType, this.byteLength, this._bufferUsage);
+        this._glBuffer.setData(this.byteLength);
     }
 
     /**
@@ -147,12 +134,7 @@ export class UniformBufferObject extends Buffer {
      * @override
      */
     bind(): boolean {
-        if (Buffer._bindedVertexBuffer !== this._glBuffer) {
-            this._bindUniformBuffer();
-            Buffer._bindedVertexBuffer = this._glBuffer;
-            return true;
-        } else
-            return false;
+       return this._glBuffer.bindBuffer();
     }
 
     /**
@@ -168,11 +150,13 @@ export class UniformBufferObject extends Buffer {
         var needSubData: boolean = !(bufferOffset == 0 && byteCount == this.byteLength);
         if (needSubData) {
             var subData: Uint8Array = new Uint8Array(buffer.buffer, bufferOffset, byteCount);
-            LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, subData);
+            //bufferSubData(this._bufferType, bufferOffset, subData);
+            this._glBuffer.setData(subData,bufferOffset);
         }
         else {
-            let gl = (LayaGL.instance as WebGL2RenderingContext);
-            gl.bufferSubData(this._bufferType, bufferOffset, buffer, 0, buffer.length);
+            // let gl = (LayaGL.instance as WebGL2RenderingContext);                                                 
+            // gl.bufferSubData(this._bufferType, bufferOffset, buffer, 0, buffer.length);
+            this._glBuffer.setData(buffer,bufferOffset,buffer.length);
         }
     }
 
@@ -200,9 +184,10 @@ export class UniformBufferObject extends Buffer {
         let datalength = bufferData.getbyteLength();//offset
         let reallength = bufferData._realByte;//update Count
         bufferData._resetUpdateFlag();
-        let gl = (LayaGL.instance as WebGL2RenderingContext);
+        //let gl = (LayaGL.instance as WebGL2RenderingContext);
         this.bind();
-        gl.bufferSubData(this._bufferType, offset * datalength, bufferData._buffer, 0, reallength / 4);
+        //gl.bufferSubData(this._bufferType, offset * datalength, bufferData._buffer, 0, reallength / 4);
+        this._glBuffer.setData(bufferData._buffer,offset * datalength,reallength / 4);
     }
 
 }

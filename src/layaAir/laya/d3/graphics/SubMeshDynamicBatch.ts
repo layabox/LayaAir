@@ -15,6 +15,7 @@ import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexElement } from "./VertexElement";
 import { IndexFormat } from "./IndexFormat";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 /**
  * @internal
  * <code>SubMeshDynamicBatch</code> 类用于网格动态合并。
@@ -75,9 +76,9 @@ export class SubMeshDynamicBatch extends GeometryElement {
 		var maxVerDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,COLOR,UV,UV1,TANGENT");
 		var maxByteCount: number = maxVerDec.vertexStride * SubMeshDynamicBatch.maxIndicesCount;
 		this._vertices = new Float32Array(maxByteCount / 4);
-		this._vertexBuffer = new VertexBuffer3D(maxByteCount, gl.DYNAMIC_DRAW);
+		this._vertexBuffer = new VertexBuffer3D(maxByteCount, BufferUsage.Dynamic);
 		this._indices = new Int16Array(SubMeshDynamicBatch.maxIndicesCount);
-		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._indices.length, gl.DYNAMIC_DRAW);
+		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._indices.length, BufferUsage.Dynamic);
 
 		var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer._byteLength;
 		Resource._addMemory(memorySize, memorySize);
@@ -204,7 +205,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	 */
 	private _flush(vertexCount: number, indexCount: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._bufferState.vertexDeclaration.vertexStride));
+		//this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._bufferState.vertexDeclaration.vertexStride));
 		this._indexBuffer.setData(this._indices, 0, 0, indexCount);
 		gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 0);
 	}

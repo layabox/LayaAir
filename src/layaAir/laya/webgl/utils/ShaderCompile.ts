@@ -28,95 +28,12 @@ export class ShaderCompile {
 	/** @internal */
 	public _PS: ShaderNode;
 
-	/**
-	 * @internal
-	 */
-	static __init__(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		ShaderCompile.shaderParamsMap = { "float": gl.FLOAT, "int": gl.INT, "bool": gl.BOOL, "vec2": gl.FLOAT_VEC2, "vec3": gl.FLOAT_VEC3, "vec4": gl.FLOAT_VEC4, "ivec2": gl.INT_VEC2, "ivec3": gl.INT_VEC3, "ivec4": gl.INT_VEC4, "bvec2": gl.BOOL_VEC2, "bvec3": gl.BOOL_VEC3, "bvec4": gl.BOOL_VEC4, "mat2": gl.FLOAT_MAT2, "mat3": gl.FLOAT_MAT3, "mat4": gl.FLOAT_MAT4, "sampler2D": gl.SAMPLER_2D, "samplerCube": gl.SAMPLER_CUBE };
-	}
-
-	//TODO:coverage
-	private static _parseOne(attributes: any[], uniforms: any[], words: any[], i: number, word: string, b: boolean): number {
-		var one: any = { type: ShaderCompile.shaderParamsMap[words[i + 1]], name: words[i + 2], size: isNaN(parseInt(words[i + 3])) ? 1 : parseInt(words[i + 3]) };
-		if (b) {
-			if (word == "attribute") {
-				attributes.push(one);
-			} else {
-				uniforms.push(one);
-			}
-		}
-		if (words[i + 3] == ':') {
-			one.type = words[i + 4];
-			i += 2;
-		}
-		i += 2;
-		return i;
-	}
-
 	static addInclude(fileName: string, txt: string): void {
 		if (!txt || txt.length === 0)
 			throw new Error("add shader include file err:" + fileName);
 		if (ShaderCompile.includes[fileName])
 			throw new Error("add shader include file err, has add:" + fileName);
 		ShaderCompile.includes[fileName] = new InlcudeFile(txt);
-	}
-
-	//TODO:coverage
-	static preGetParams(vs: string, ps: string): any {
-		var text: any[] = [vs, ps];
-		var result: any = {};
-		var attributes: any[] = [];
-		var uniforms: any[] = [];
-		var definesInfo: any = {};
-		var definesName: {[key:string]:number} = {};
-
-		result.attributes = attributes;
-		result.uniforms = uniforms;
-		result.defines = definesInfo;
-
-		var i: number, n: number;
-		for (var s: number = 0; s < 2; s++) {
-			text[s] = text[s].replace(ShaderCompile._removeAnnotation, "");
-
-			var words: any[] = text[s].match(ShaderCompile._reg);
-			var tempelse: string;
-			for (i = 0, n = words.length; i < n; i++) {
-				var word: string = words[i];
-				if (word != "attribute" && word != "uniform") {
-					if (word == "#define") {
-						word = words[++i];
-						definesName[word] = 1;
-						continue;
-					} else if (word == "#ifdef") {
-						tempelse = words[++i]
-						var def: any[] = definesInfo[tempelse] = definesInfo[tempelse] || [];
-						for (i++; i < n; i++) {
-							word = words[i];
-							if (word != "attribute" && word != "uniform") {
-								if (word == "#else") {
-									for (i++; i < n; i++) {
-										word = words[i];
-										if (word != "attribute" && word != "uniform") {
-											if (word == "#endif") {
-												break;
-											}
-											continue;
-										}
-										i = ShaderCompile._parseOne(attributes, uniforms, words, i, word, !definesName[tempelse]);
-									}
-								}
-								continue;
-							}
-							i = ShaderCompile._parseOne(attributes, uniforms, words, i, word, !!definesName[tempelse]);
-						}
-					}
-					continue;
-				}
-				i = ShaderCompile._parseOne(attributes, uniforms, words, i, word, true);
-			}
-		}
-		return result;
 	}
 
 	static splitToWords(str: string, block: ShaderNode): any[]//这里要修改

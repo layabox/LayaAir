@@ -221,6 +221,9 @@ export class Material extends Resource implements IClone {
 						case "dstBlend"://"LAYAMATERIAL:01" 
 							((<any>material)).blendDst = props[key];
 							break;
+						case "depthTest":
+							((<any>material)).depthTest =this._getRenderStateParams( props[key]);
+							break;
 						default:
 							material[key] = props[key];
 					}

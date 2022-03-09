@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { UniformBufferParamsType, UnifromBufferData } from "../../graphics/UniformBufferData";
@@ -424,7 +425,7 @@ export class UnlitMaterial extends Material {
 		if (LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject)) {
 			let gl = <WebGL2RenderingContext>LayaGL.instance;
 			let uniformData = new UnifromBufferData(UnlitMaterial.unlitUniformMap);
-			this._uniformBlock = UniformBufferObject.creat("UnlitBlock", gl.DYNAMIC_DRAW, uniformData.getbyteLength(), false);
+			this._uniformBlock = UniformBufferObject.creat("UnlitBlock", BufferUsage.Dynamic, uniformData.getbyteLength(), false);
 
 			uniformData.setVector4byIndex(UnlitMaterial.ALBEDOCOLOR, this.albedoColor);
 			uniformData.setVector4byIndex(UnlitMaterial.TILINGOFFSET, this.tilingOffset);

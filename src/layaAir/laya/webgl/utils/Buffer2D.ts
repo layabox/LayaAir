@@ -1,7 +1,8 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderInfo } from "../../renders/RenderInfo";
 import { BaseShader } from "../shader/BaseShader";
-import { Buffer } from "./Buffer";
+import { Buffer } from "../../RenderEngine/Buffer";
+import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 
 export class Buffer2D extends Buffer {
 
@@ -45,8 +46,8 @@ export class Buffer2D extends Buffer {
 		return old;
 	}
 
-	constructor() {
-		super();
+	constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
+		super(targetType,bufferUsageType);
 	}
 
 	protected _bufferData(): void {
@@ -110,7 +111,7 @@ export class Buffer2D extends Buffer {
 		if (!this._upload)
 			return false;
 		this._upload = false;
-		this._bindForVAO();
+		this.bind();
 		this._bufferData();
 		return true;
 	}
@@ -149,13 +150,13 @@ export class Buffer2D extends Buffer {
 		var u8buf: Uint8Array = this._u8Array;
 		//_setGPUMemory(nsz);
 		if (copy && buff && buff.byteLength > 0) {
-			var newbuffer: ArrayBuffer = new ArrayBuffer(nsz);
+			var newbuffer: Uint8Array = new Uint8Array(nsz);
 			var oldU8Arr: Uint8Array = (u8buf && u8buf.buffer == buff) ? u8buf : new Uint8Array(buff);
 			u8buf = this._u8Array = new Uint8Array(newbuffer);
 			u8buf.set(oldU8Arr, 0);
 			buff = this._buffer = newbuffer;
 		} else {
-			buff = this._buffer = new ArrayBuffer(nsz);
+			buff = this._buffer = new Uint8Array(nsz);
 			this._u8Array = null;
 		}
 		this._checkArrayUse();
@@ -253,9 +254,10 @@ export class Buffer2D extends Buffer {
 	upload(): boolean {
 		var gl:WebGLRenderingContext=LayaGL.instance;
 		var scuess: boolean = this._bind_upload();
-		gl.bindBuffer(this._bufferType, null);
-		if (this._bufferType == gl.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
-		if (this._bufferType == gl.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
+		this.unbind();
+		//gl.bindBuffer(this._bufferType, null);
+		//if (this._bufferType == gl.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
+		//if (this._bufferType == gl.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
 		BaseShader.activeShader = null
 		return scuess;
 	}
@@ -264,9 +266,10 @@ export class Buffer2D extends Buffer {
 	subUpload(offset: number = 0, dataStart: number = 0, dataLength: number = 0): boolean {
 		var gl:WebGLRenderingContext=LayaGL.instance;
 		var scuess: boolean = this._bind_subUpload();
-		gl.bindBuffer(this._bufferType, null);
-		if (this._bufferType == gl.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
-		if (this._bufferType == gl.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
+		this.unbind();
+		//gl.bindBuffer(this._bufferType, null);
+		//if (this._bufferType == gl.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
+		//if (this._bufferType == gl.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
 		BaseShader.activeShader = null
 		return scuess;
 	}

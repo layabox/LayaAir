@@ -46,9 +46,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
 
         this.initialize();
 
-        //_vertexBuffer =_vertexBuffer2D= VertexBuffer2D.create( -1, WebGLContext.DYNAMIC_DRAW);
-        //_indexBuffer = _indexBuffer2D=IndexBuffer2D.create(WebGLContext.STATIC_DRAW );
-        //loadContent();
+       
     }
 
     getRenderType(): number { return -111 }

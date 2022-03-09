@@ -7,7 +7,7 @@ import { RenderStateCommand } from "../RenderStateCommand";
 import { IRenderBuffer } from "./IRenderBuffer";
 import { IRenderDrawContext } from "./IRenderDrawContext";
 import { IRenderShaderInstance } from "./IRenderShaderInstance";
-import { IRenderVertexArray } from "./IRenderVertexArray";
+import { IRenderVertexState } from "./IRenderVertexState";
 import { ITextureContext } from "./ITextureContext";
 
 export interface IRenderEngine {
@@ -33,5 +33,5 @@ export interface IRenderEngine {
     
     createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }):IRenderShaderInstance
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage):IRenderBuffer ;
-    createVertexArray():IRenderVertexArray;
+    createVertexState():IRenderVertexState;
 }

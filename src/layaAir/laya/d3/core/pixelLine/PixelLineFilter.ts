@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { Stat } from "../../../utils/Stat";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Color } from "../../math/Color";
@@ -63,12 +64,13 @@ export class PixelLineFilter extends GeometryElement {
 		this._ownerRender = owner;
 		this._maxLineCount = maxLineCount;
 		this._vertices = new Float32Array(pointCount * this._floatCountPerVertices);
-		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, LayaGL.instance.STATIC_DRAW, false);
+		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = PixelLineVertex.vertexDeclaration;
 
-		this._bufferState.bind();
-		this._bufferState.applyVertexBuffer(this._vertexBuffer);
-		this._bufferState.unBind();
+		//this._bufferState.bind();
+		//this._bufferState.applyVertexBuffer(this._vertexBuffer);
+		this._bufferState.applyState([this._vertexBuffer],null);
+		//this._bufferState.unBind();
 
 		var min: Vector3 = PixelLineFilter._tempVector0;
 		var max: Vector3 = PixelLineFilter._tempVector1;
@@ -98,7 +100,7 @@ export class PixelLineFilter extends GeometryElement {
 
 		var vertexCount: number = pointCount * this._floatCountPerVertices;
 		this._vertices = new Float32Array(vertexCount);
-		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, LayaGL.instance.STATIC_DRAW, false);
+		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = PixelLineVertex.vertexDeclaration;
 
 		if (vertexCount < lastVertices.length) {//取最小长度,拷贝旧数据
@@ -109,9 +111,9 @@ export class PixelLineFilter extends GeometryElement {
 			this._vertexBuffer.setData(this._vertices.buffer, 0, 0, lastVertices.length * 4);
 		}
 
-		this._bufferState.bind();
-		this._bufferState.applyVertexBuffer(this._vertexBuffer);
-		this._bufferState.unBind();
+		//this._bufferState.bind();
+		this._bufferState.applyState([this._vertexBuffer],null);
+		//this._bufferState.unBind();
 
 		this._minUpdate = Number.MAX_VALUE;
 		this._maxUpdate = Number.MIN_VALUE;

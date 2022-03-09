@@ -16,6 +16,7 @@ import { SubMesh } from "../../../resource/models/SubMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Stat } from "../../../../utils/Stat";
 import { VertexMesh } from "../../../graphics/Vertex/VertexMesh";
+import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 
 
 /**
@@ -86,8 +87,10 @@ export class DrawMeshInstancedCMD extends Command {
 		this._renderShaderValue = new ShaderData(null);
 		let gl = LayaGL.instance;
 		this._instanceWorldMatrixData = new Float32Array( DrawMeshInstancedCMD.maxInstanceCount*16);
-		this._instanceWorldMatrixBuffer = new VertexBuffer3D(this._instanceWorldMatrixData.length*4,gl.DYNAMIC_DRAW);
+		this._instanceWorldMatrixBuffer = new VertexBuffer3D(this._instanceWorldMatrixData.length*4,BufferUsage.Dynamic);
 		this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+		this._instanceWorldMatrixBuffer._instanceBuffer = true;
+
 	}
 
 	get bufferState(){
@@ -99,15 +102,20 @@ export class DrawMeshInstancedCMD extends Command {
 	 */
 	private _setInstanceBuffer():void{
 		let instanceBufferState = this._instanceBufferState = new BufferState();
-		instanceBufferState.bind();
-		instanceBufferState.applyVertexBuffer(this._mesh._vertexBuffer);
-		instanceBufferState.applyInstanceVertexBuffer(this._instanceWorldMatrixBuffer);
+		let vertexArray = [];
+		//instanceBufferState.bind();
+		vertexArray.push(this._mesh._vertexBuffer);
+		vertexArray.push(this._instanceWorldMatrixBuffer);
+		//instanceBufferState.applyVertexBuffer(this._mesh._vertexBuffer);
+		//instanceBufferState.applyInstanceVertexBuffer(this._instanceWorldMatrixBuffer);
 		let propertyMap = this._instanceProperty._propertyMap;
 		for(let i in propertyMap){
-			instanceBufferState.applyInstanceVertexBuffer(propertyMap[i]._vertexBuffer);
+			//instanceBufferState.applyInstanceVertexBuffer(propertyMap[i]._vertexBuffer);
+			vertexArray.push(propertyMap[i]._vertexBuffer);
 		}
-		instanceBufferState.applyIndexBuffer(this._mesh._indexBuffer);
-		instanceBufferState.unBind();
+		//instanceBufferState.applyIndexBuffer(this._mesh._indexBuffer);
+		//instanceBufferState.unBind();
+		instanceBufferState.applyState(vertexArray,this._mesh._indexBuffer);
 	}
 
 	/**

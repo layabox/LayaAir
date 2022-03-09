@@ -1,5 +1,6 @@
 import { ILaya } from "../../../../ILaya";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
 import { Bounds } from "../../core/Bounds";
@@ -362,10 +363,11 @@ export class Mesh extends Resource implements IClone {
 	 */
 	_setBuffer(vertexBuffer: VertexBuffer3D, indexBuffer: IndexBuffer3D): void {
 		var bufferState: BufferState = this._bufferState;
-		bufferState.bind();
-		bufferState.applyVertexBuffer(vertexBuffer);
-		bufferState.applyIndexBuffer(indexBuffer);
-		bufferState.unBind();
+		// bufferState.bind();
+		// bufferState.applyVertexBuffer(vertexBuffer);
+		// bufferState.applyIndexBuffer(indexBuffer);
+		// bufferState.unBind();
+		bufferState.applyState([vertexBuffer],indexBuffer);
 	}
 
 	/**
@@ -373,17 +375,21 @@ export class Mesh extends Resource implements IClone {
 	 */
 	_setInstanceBuffer(instanceBufferStateType:number){
 		var instanceBufferState: BufferState = this._instanceBufferState;
-		instanceBufferState.bind();
-		instanceBufferState.applyVertexBuffer(this._vertexBuffer);
-		instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
-		//instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer);
+		let vertexArray = [];
+		// instanceBufferState.bind();
+		// instanceBufferState.applyVertexBuffer(this._vertexBuffer);
+		// instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
+		vertexArray.push(this._vertexBuffer);
+		vertexArray.push(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
 		switch(instanceBufferStateType){
 			case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
-				instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer)
+				// instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer)
+				vertexArray.push(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer);
 			break;
 		}
-		instanceBufferState.applyIndexBuffer(this._indexBuffer);
-		instanceBufferState.unBind();
+		//instanceBufferState.applyIndexBuffer(this._indexBuffer);
+		//instanceBufferState.unBind();
+		instanceBufferState.applyState(vertexArray,this._indexBuffer);
 	}
 
 	/**
@@ -696,7 +702,7 @@ export class Mesh extends Resource implements IClone {
 		var indexBuffer: IndexBuffer3D = this._indexBuffer;
 		if (this._indexFormat !== format || indexBuffer.indexCount !== indices.length) {//format chang and length chang will recreate the indexBuffer
 			indexBuffer.destroy();
-			this._indexBuffer = indexBuffer = new IndexBuffer3D(format, indices.length, LayaGL.instance.STATIC_DRAW, this._isReadable);
+			this._indexBuffer = indexBuffer = new IndexBuffer3D(format, indices.length, BufferUsage.Static, this._isReadable);
 		}
 		indexBuffer.setData(indices);
 		this._indexFormat = format;

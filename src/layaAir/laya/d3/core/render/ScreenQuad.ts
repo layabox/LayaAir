@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL"
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType"
 import { Resource } from "../../../resource/Resource"
 import { Stat } from "../../../utils/Stat"
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
@@ -47,19 +48,17 @@ export class ScreenQuad extends Resource {
 	constructor() {
 		super();
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		this._vertexBuffer = new VertexBuffer3D(16 * 4, gl.STATIC_DRAW, false);
+		this._vertexBuffer = new VertexBuffer3D(16 * 4, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBuffer.setData(ScreenQuad._vertices.buffer);
-		this._bufferState.bind();
-		this._bufferState.applyVertexBuffer(this._vertexBuffer);
-		this._bufferState.unBind();
+		this._bufferState.applyState([this._vertexBuffer],null);
 
-		this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, gl.STATIC_DRAW, false);
+		this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, BufferUsage.Static, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
-		this._bufferStateInvertUV.bind();
-		this._bufferStateInvertUV.applyVertexBuffer(this._vertexBufferInvertUV);
-		this._bufferStateInvertUV.unBind();
+		// this._bufferStateInvertUV.bind();
+		this._bufferStateInvertUV.applyState([this._vertexBufferInvertUV],null);
+		// this._bufferStateInvertUV.unBind();
 
 		this._setGPUMemory(this._vertexBuffer._byteLength + this._vertexBufferInvertUV._byteLength);
 	}

@@ -169,7 +169,7 @@
 //             }
 //         }
 
-//         let newVB: VertexBuffer3D = new VertexBuffer3D(newVertexfloat32.byteLength, gl.STATIC_DRAW, true);
+//         let newVB: VertexBuffer3D = new VertexBuffer3D(newVertexfloat32.byteLength, BufferUsage.Static, true);
 //         newVB.vertexDeclaration = newvbDec;
 //         newVB.setData(newVertexfloat32.buffer);
 //         mesh._vertexBuffer = newVB;

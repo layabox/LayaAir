@@ -123,10 +123,10 @@
 //         var indices: Uint16Array = new Uint16Array([0, 2, 1, 0, 3, 2]);
 
 //         var gl: WebGLRenderingContext = LayaGL.instance;
-//         var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertices.length * 4, gl.STATIC_DRAW, true);
+//         var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertices.length * 4, BufferUsage.Static, true);
 //         vertexBuffer.vertexDeclaration = vertexDeclaration;
 //         vertexBuffer.setData(vertices.buffer);
-//         var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexFormat.UInt16, indices.length, gl.STATIC_DRAW, true);
+//         var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, true);
 //         indexBuffer.setData(indices.buffer);
 
 //         this._bufferState.bind();

@@ -23,19 +23,7 @@ export class glTFTextureEditor {
 
     static GenerateTexture2DWithPixel(pixelArray: Uint8Array, width: number, height: number, format: TextureFormat, mipmap: boolean): Texture2D {
         let tex: Texture2D = new Texture2D(width, height, format, mipmap, true);
-
         tex.setPixelsData(pixelArray, false, false);
-
-        if (mipmap) {
-            let gl = LayaGL.instance;
-            // @ts-ignore
-            WebGLContext.bindTexture(gl, tex._glTextureType, tex._glTexture);
-            // @ts-ignore
-            gl.generateMipmap(tex._glTextureType);
-            // @ts-ignore
-            WebGLContext.bindTexture(gl, tex._glTextureType, null);
-        }
-
         return tex;
     }
 

@@ -1,4 +1,4 @@
-import { LayaGL } from "../../layagl/LayaGL";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { BufferState2D } from "../BufferState2D";
 import { Config } from "./../../../Config";
 import { IndexBuffer2D } from "./IndexBuffer2D";
@@ -29,7 +29,7 @@ export class Mesh2D {
      */
     constructor(stride: number, vballoc: number, iballoc: number) {
         this._stride = stride;
-        this._vb = new VertexBuffer2D(stride, LayaGL.instance.DYNAMIC_DRAW);
+        this._vb = new VertexBuffer2D(stride, BufferUsage.Dynamic);
         if (vballoc) {
             this._vb._resizeBuffer(vballoc, false);
         } else {
@@ -40,58 +40,6 @@ export class Mesh2D {
             this._ib._resizeBuffer(iballoc, false);
         }
         //meshlist.push(this);
-    }
-
-    // /**
-    //  * 重新创建一个mesh。复用这个对象的vertex结构，ib对象和attribinfo对象
-    //  */
-    // //TODO:coverage
-    // cloneWithNewVB(): Mesh2D {
-    //     var mesh: Mesh2D = new Mesh2D(this._stride, 0, 0);
-    //     mesh._ib = this._ib;
-    //     mesh._quadNum = this._quadNum;
-    //     mesh._attribInfo = this._attribInfo;
-    //     return mesh;
-    // }
-
-    // /**
-    //  * 创建一个mesh，使用当前对象的vertex结构。vb和ib自己提供。
-    //  * @return
-    //  */
-    // //TODO:coverage
-    // cloneWithNewVBIB(): Mesh2D {
-    //     var mesh: Mesh2D = new Mesh2D(this._stride, 0, 0);
-    //     mesh._attribInfo = this._attribInfo;
-    //     return mesh;
-    // }
-
-    /**
-     * 获得一个可以写的vb对象
-     */
-    //TODO:coverage
-    getVBW(): VertexBuffer2D {
-        this._vb.setNeedUpload();
-        return this._vb;
-    }
-    /**
-     * 获得一个只读vb
-     */
-    //TODO:coverage
-    getVBR(): VertexBuffer2D {
-        return this._vb;
-    }
-
-    //TODO:coverage
-    getIBR(): IndexBuffer2D {
-        return this._ib;
-    }
-    /**
-     * 获得一个可写的ib
-     */
-    //TODO:coverage
-    getIBW(): IndexBuffer2D {
-        this._ib.setNeedUpload();
-        return this._ib;
     }
 
     /**

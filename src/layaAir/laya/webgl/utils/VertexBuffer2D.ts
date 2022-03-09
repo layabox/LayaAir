@@ -1,9 +1,9 @@
 import { Buffer2D } from "./Buffer2D";
 import { LayaGL } from "../../layagl/LayaGL"
-import { Buffer } from "./Buffer";
+import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 
 export class VertexBuffer2D extends Buffer2D {
-    static create: Function = function (vertexStride: number, bufferUsage: number = 0x88e8/* WebGLContext.DYNAMIC_DRAW*/): VertexBuffer2D {
+    static create: Function = function (vertexStride: number, bufferUsage: number = BufferUsage.Dynamic): VertexBuffer2D {
         return new VertexBuffer2D(vertexStride, bufferUsage);
     }
 
@@ -17,11 +17,10 @@ export class VertexBuffer2D extends Buffer2D {
     }
 
     constructor(vertexStride: number, bufferUsage: number) {
-        super();
+        super(BufferTargetType.ARRAY_BUFFER,bufferUsage);
         this._vertexStride = vertexStride;
         this._bufferUsage = bufferUsage;
-        this._bufferType = LayaGL.instance.ARRAY_BUFFER;
-        this._buffer = new ArrayBuffer(8);
+        this._buffer = new Uint8Array(8);
         this._floatArray32 = new Float32Array(this._buffer);
         this._uint32Array = new Uint32Array(this._buffer);
     }
@@ -64,23 +63,24 @@ export class VertexBuffer2D extends Buffer2D {
         gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
     }
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		/*override*/  bind(): boolean {
-        if (Buffer._bindedVertexBuffer !== this._glBuffer) {
-            var gl: WebGLRenderingContext = LayaGL.instance;
-            gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
-            Buffer._bindedVertexBuffer = this._glBuffer;
-            return true;
-        }
-        return false;
-    }
-		/**
-		 * @override
-		 */
-		/*override*/  destroy(): void {
+    // 	/**
+    // 	 * @inheritDoc
+    // 	 * @override
+    // 	 */
+    // 	/*override*/  bind(): boolean {
+    //     if (Buffer._bindedVertexBuffer !== this._glBuffer) {
+    //         var gl: WebGLRenderingContext = LayaGL.instance;
+    //         gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
+    //         Buffer._bindedVertexBuffer = this._glBuffer;
+    //         return true;
+    //     }
+    //     return false;
+    // }
+    /**
+     * @override
+     * override
+     */
+    destroy(): void {
         super.destroy();
         this._byteLength = 0;
         this._upload = true;

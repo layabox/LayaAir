@@ -8,6 +8,7 @@ import { VertexDeclaration } from "../../graphics/VertexDeclaration"
 import { LayaGL } from "../../../layagl/LayaGL"
 import { Stat } from "../../../utils/Stat"
 import { IndexFormat } from "../../graphics/IndexFormat";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 
 /**
  * <code>SkyDome</code> 类用于创建天空盒。
@@ -100,17 +101,18 @@ export class SkyDome extends SkyMesh {
 			}
 		}
 
-		this._vertexBuffer = new VertexBuffer3D(vertices.length * 4, gl.STATIC_DRAW, false);
+		this._vertexBuffer = new VertexBuffer3D(vertices.length * 4, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = vertexDeclaration;
-		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indices.length, gl.STATIC_DRAW, false);
+		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, false);
 		this._vertexBuffer.setData(vertices.buffer);
 		this._indexBuffer.setData(indices);
 
 		var bufferState: BufferState = new BufferState();
-		bufferState.bind();
-		bufferState.applyVertexBuffer(this._vertexBuffer);
-		bufferState.applyIndexBuffer(this._indexBuffer);
-		bufferState.unBind();
+		// bufferState.bind();
+		// bufferState.applyVertexBuffer(this._vertexBuffer);
+		// bufferState.applyIndexBuffer(this._indexBuffer);
+		// bufferState.unBind();
+		bufferState.applyState([this._vertexBuffer],this._indexBuffer);
 		this._bufferState = bufferState;
 	}
 

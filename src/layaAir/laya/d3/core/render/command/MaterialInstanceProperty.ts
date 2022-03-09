@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexBuffer3D } from "../../../graphics/VertexBuffer3D";
 import { VertexDeclaration } from "../../../graphics/VertexDeclaration";
 import { Vector2 } from "../../../math/Vector2";
@@ -33,7 +34,7 @@ export class MaterialInstanceProperty{
 	createInstanceVertexBuffer3D(){
 		var gl = LayaGL.instance;
 		this._instanceData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount*this._vertexStride);
-		this._vertexBuffer = new VertexBuffer3D(this._instanceData.length*4,gl.DYNAMIC_DRAW);
+		this._vertexBuffer = new VertexBuffer3D(this._instanceData.length*4,BufferUsage.Dynamic);
 		this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
 	}
 

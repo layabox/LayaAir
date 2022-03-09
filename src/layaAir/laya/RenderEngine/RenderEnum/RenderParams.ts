@@ -5,4 +5,7 @@ export enum RenderParams{
     MAX_Texture_Size,//Shader中的最大纹理
     MAX_Texture_Image_Uint,//图形设备支持的最大纹理数量。
     SHADER_CAPAILITY_LEVEL,//Shader质量
+    FLOAT,
+    UNSIGNED_BYTE,
+    UNSIGNED_SHORT,
 }

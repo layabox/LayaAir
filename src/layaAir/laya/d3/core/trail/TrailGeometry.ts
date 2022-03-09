@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
@@ -115,16 +116,17 @@ export class TrailGeometry extends GeometryElement {
 		var memorySize: number = vertexbuffer1Size + vertexbuffer2Size;
 		this._vertices1 = new Float32Array(vertexCount * this._floatCountPerVertices1);
 		this._vertices2 = new Float32Array(vertexCount * this._floatCountPerVertices2);
-		this._vertexBuffer1 = new VertexBuffer3D(vertexbuffer1Size, gl.STATIC_DRAW, false);
+		this._vertexBuffer1 = new VertexBuffer3D(vertexbuffer1Size, BufferUsage.Static, false);
 		this._vertexBuffer1.vertexDeclaration = vertexDeclaration1;
-		this._vertexBuffer2 = new VertexBuffer3D(vertexbuffer2Size, gl.DYNAMIC_DRAW, false);
+		this._vertexBuffer2 = new VertexBuffer3D(vertexbuffer2Size, BufferUsage.Dynamic, false);
 		this._vertexBuffer2.vertexDeclaration = vertexDeclaration2;
 
 		vertexBuffers.push(this._vertexBuffer1);
 		vertexBuffers.push(this._vertexBuffer2);
-		bufferState.bind();
-		bufferState.applyVertexBuffers(vertexBuffers);
-		bufferState.unBind();
+		// bufferState.bind();
+		// bufferState.applyVertexBuffers(vertexBuffers);
+		// bufferState.unBind();
+		bufferState.applyState(vertexBuffers,null);
 		Resource._addMemory(memorySize, memorySize);
 	}
 
