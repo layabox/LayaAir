@@ -4,7 +4,6 @@ import { BufferTargetType, BufferUsage } from "./RenderEnum/BufferTargetType";
 import { RenderCapable } from "./RenderEnum/RenderCapable";
 import { WebGLMode } from "./GLEnum/WebGLMode";
 import { GlBuffer } from "./GLBuffer";
-import { GLVertexArray } from "./GLVertexArray";
 import { WebGlConfig } from "./WebGLConfig";
 import { GLRenderState } from "./GLRenderState";
 import { GLShaderInstance } from "./GLShaderInstance";
@@ -20,11 +19,12 @@ import { GLTextureContext } from "./GLTextureContext";
 import { IRenderEngine } from "./RenderInterface/IRenderEngine";
 import { IRenderBuffer } from "./RenderInterface/IRenderBuffer";
 import { IRenderShaderInstance } from "./RenderInterface/IRenderShaderInstance";
-import { IRenderVertexArray } from "./RenderInterface/IRenderVertexArray";
+import { IRenderVertexState } from "./RenderInterface/IRenderVertexState";
 import { GLDrawContext } from "./GLDrawContext";
 import { IRenderDrawContext } from "./RenderInterface/IRenderDrawContext";
 import { BaseTexture } from "../resource/BaseTexture";
 import { RenderStateCommand } from "./RenderStateCommand";
+import { GLVertexState } from "./GLVertexState";
 
 /**
  * @private 封装Webgl
@@ -60,7 +60,7 @@ export class WebGLEngine implements IRenderEngine {
   * @internal
   * bind GLVertexArray
   */
-  _GLBindVertexArray: GLVertexArray;
+  _GLBindVertexArray: GLVertexState;
 
   /**
    * @internal
@@ -253,8 +253,8 @@ export class WebGLEngine implements IRenderEngine {
     return new GLShaderInstance(this, vs, ps, attributeMap);
   }
 
-  createVertexArray(): IRenderVertexArray {
-    return new GLVertexArray(this);
+  createVertexState(): IRenderVertexState {
+    return new GLVertexState(this);
   }
 
   getTextureContext(): ITextureContext {

@@ -62,12 +62,14 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
 		if (!bufferState) {
 			var instance: SubMeshDynamicBatch = SubMeshDynamicBatch.instance;
 			bufferState = new BufferState();
-			bufferState.bind();
+			
 			var vertexBuffer: VertexBuffer3D = instance._vertexBuffer;
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
-			bufferState.applyVertexBuffer(vertexBuffer);
-			bufferState.applyIndexBuffer(instance._indexBuffer);
-			bufferState.unBind();
+			// bufferState.bind();
+			// bufferState.applyVertexBuffer(vertexBuffer);
+			// bufferState.applyIndexBuffer(instance._indexBuffer);
+			// bufferState.unBind();
+			bufferState.applyState([vertexBuffer],instance._indexBuffer);
 			this._cacheBufferStates[vertexDeclaration.id] = bufferState;
 		}
 		return bufferState;

@@ -6,6 +6,7 @@ import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
 import { SubMesh } from "../resource/models/SubMesh";
 import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexMesh } from "./Vertex/VertexMesh";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 
 /**
  * @internal
@@ -41,11 +42,13 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	constructor() {
 		super();
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, gl.DYNAMIC_DRAW);
+		this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, BufferUsage.Dynamic);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+		this.instanceWorldMatrixBuffer._instanceBuffer = true;
 		//SImpleAnimator
-		this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length*4,gl.DYNAMIC_DRAW);
+		this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length*4,BufferUsage.Dynamic);
 		this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
+		this.instanceSimpleAnimatorBuffer._instanceBuffer = true;
 	}
 
 	/**

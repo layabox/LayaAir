@@ -13,13 +13,15 @@ export class GlBuffer extends GLObject implements IRenderBuffer {
     _glBufferUsageType: BufferUsage;
     //size
     _byteLength: number = 0;
-   
+
     constructor(engine: WebGLEngine, targetType: BufferTargetType, bufferUsageType: BufferUsage) {
         super(engine)
         this._glTargetType = targetType;
         this._glBufferUsageType = bufferUsageType;
         this._getGLTarget(this._glTargetType);
         this._getGLUsage(this._glBufferUsageType);
+        this._glBuffer = this._gl.createBuffer();
+
     }
 
     private _getGLUsage(usage: BufferUsage) {
@@ -50,15 +52,19 @@ export class GlBuffer extends GLObject implements IRenderBuffer {
             case BufferTargetType.ELEMENT_ARRAY_BUFFER:
                 this._glTarget = this._gl.ELEMENT_ARRAY_BUFFER
                 break;
+            default:
+                break;
         }
     }
 
 
-    bindBuffer() {
+    bindBuffer(): boolean {
         if (this._engine._getbindBuffer(this._glTargetType) != this) {
             this._gl.bindBuffer(this._glTarget, this._glBuffer);
             this._engine._setbindBuffer(this._glTargetType, this);
+            return true
         }
+        return false;
     }
 
     unbindBuffer() {
@@ -70,20 +76,25 @@ export class GlBuffer extends GLObject implements IRenderBuffer {
 
     orphanStorage() {
         this.bindBuffer();
-        this.setData();
+        this.setData(this._byteLength);
     }
 
-    setData(): void;
+    setData(srcData: number): void;
     setData(srcData: ArrayBuffer | ArrayBufferView): void;
-    setData(srcData: ArrayBuffer | ArrayBufferView, offset: number, length: number): void;
-    setData(srcData?: ArrayBuffer | ArrayBufferView, offset?: number, length?: number): void {
+    setData(srcData: ArrayBuffer | ArrayBufferView, offset: number): void;
+    setData(srcData: ArrayBuffer | ArrayBufferView | number, offset: number, length: number): void
+    setData(srcData: ArrayBuffer | ArrayBufferView | number, offset?: number, length?: number): void {
         let gl = this._gl;
         this.bindBuffer();
-        if (!srcData) {
+        if (typeof srcData == "number") {
+            this._byteLength = srcData as number;
             gl.bufferData(this._glTarget, this._byteLength, this._glUsage);
         }
-        if (offset != undefined && length != undefined) {
-            gl.bufferSubData(this._glTarget, offset, srcData);
+        if (offset != undefined && length == undefined) {
+            gl.bufferSubData(this._glTarget, offset, <ArrayBufferView>srcData);
+        }
+        if(offset != undefined && length != undefined) {
+            gl.bufferSubData(this._glTarget, offset, srcData as ArrayBufferView, 0, length);
         }
         this.unbindBuffer();
     }

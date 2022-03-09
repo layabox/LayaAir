@@ -6,6 +6,7 @@ import { Vector4 } from "../d3/math/Vector4";
 import { ShaderVariable } from "../d3/shader/ShaderVariable";
 import { BaseTexture } from "../resource/BaseTexture";
 import { GLObject } from "./GLObject";
+import { BufferUsage } from "./RenderEnum/BufferTargetType";
 import { IRenderShaderInstance } from "./RenderInterface/IRenderShaderInstance";
 import { WebGLEngine } from "./WebGLEngine";
 
@@ -102,7 +103,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
                     gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
                 } else {
                     var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
-                    let buffer: UniformBufferObject = UniformBufferObject.creat(uniformBlockName, gl.DYNAMIC_DRAW, bytelength,UniformBufferObject.isCommon(uniformBlockName));
+                    let buffer: UniformBufferObject = UniformBufferObject.creat(uniformBlockName, BufferUsage.Dynamic, bytelength,UniformBufferObject.isCommon(uniformBlockName));
                     gl2.uniformBlockBinding(this._program, location, buffer._glPointer);
                 }
                 this._uniformObjectMap[one.name] = one;

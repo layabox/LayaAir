@@ -1,6 +1,7 @@
 import { LayaGL } from "../layagl/LayaGL"
-import { IRenderVertexArray } from "../RenderEngine/RenderInterface/IRenderVertexArray";
-import { Buffer } from "./utils/Buffer"
+import { IndexBuffer } from "../RenderEngine/RenderInterface/IndexBuffer";
+import { IRenderVertexState } from "../RenderEngine/RenderInterface/IRenderVertexState";
+import { VertexBuffer } from "../RenderEngine/RenderInterface/VertexBuffer";
 
 /**
  * ...
@@ -11,13 +12,17 @@ export class BufferStateBase {
     static _curBindedBufferState: BufferStateBase;
 
     /**@private [只读]*/
-    private _nativeVertexArrayObject: IRenderVertexArray;
+    protected _nativeVertexArrayObject: IRenderVertexState;
 
     /**@internal [只读]*/
-    _bindedIndexBuffer: Buffer;
+    _bindedIndexBuffer: IndexBuffer;
+
+    /**@internal */
+    _vertexBuffers:VertexBuffer[];
+    
 
     constructor() {
-        this._nativeVertexArrayObject = LayaGL.renderEngine.createVertexArray();
+        this._nativeVertexArrayObject = LayaGL.renderEngine.createVertexState();
     }
 
     /**
@@ -41,6 +46,15 @@ export class BufferStateBase {
             throw "BufferState: must call bind() function first.";
         }
     }
+
+    protected applyVertexBuffers(): void {
+        this._nativeVertexArrayObject.applyVertexBuffer(this._vertexBuffers);
+    }
+
+    protected applyIndexBuffers():void{
+        this._nativeVertexArrayObject.applyIndexBuffer(this._bindedIndexBuffer);
+    }
+
 
     /**
      * @private

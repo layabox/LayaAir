@@ -238,7 +238,6 @@ export class Laya {
 		((<any>window)).stage = Laya.stage;
 		
 		MeshParticle2D.__init__();
-		ShaderCompile.__init__();
 		RenderSprite.__init__();
 		KeyBoardManager.__init__();
 		MouseManager.instance.__init__(Laya.stage, Render.canvas);

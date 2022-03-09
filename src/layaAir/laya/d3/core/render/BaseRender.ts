@@ -33,6 +33,7 @@ import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
 import { Sprite3D } from "../Sprite3D";
 import { ILaya3D } from "../../../../ILaya3D";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 
 
 /**
@@ -70,7 +71,7 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 		let subUBOData = new SubUniformBufferData(uniformpara, 0);
 		//createUBO Buffer
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		let ubo = UniformBufferObject.creat("SpriteUniformBlock", gl.DYNAMIC_DRAW, subUBOData.getbyteLength(), true);
+		let ubo = UniformBufferObject.creat("SpriteUniformBlock", BufferUsage.Dynamic, subUBOData.getbyteLength(), true);
 		//bind manager
 		BaseRender._transLargeUbO = new TransLargeUBOUtils(ubo, uniformpara, subUBOData);
 	}

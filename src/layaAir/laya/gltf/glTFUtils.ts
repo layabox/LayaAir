@@ -31,6 +31,7 @@ import { KeyframeNode } from "../d3/animation/KeyframeNode";
 import { AnimatorState } from "../d3/component/AnimatorState";
 import { Handler } from "../utils/Handler";
 import { glTFTextureEditor } from "./glTFTextureEditor";
+import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 
 
 /**
@@ -1116,13 +1117,11 @@ export class glTFUtils {
      * @param layaMesh 
      */
     static generatMesh(vertexArray: Float32Array, indexArray: Uint16Array | Uint32Array, vertexDeclaration: VertexDeclaration, ibFormat: IndexFormat, subDatas: PrimitiveSubMesh[], layaMesh: Mesh): void {
-        let gl: WebGLRenderingContext = LayaGL.instance;
-
-        let vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexArray.byteLength, gl.STATIC_DRAW, true);
+        let vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexArray.byteLength, BufferUsage.Static, true);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
         vertexBuffer.setData(vertexArray.buffer);
 
-        let indexBuffer: IndexBuffer3D = new IndexBuffer3D(ibFormat, indexArray.length, gl.STATIC_DRAW, true);
+        let indexBuffer: IndexBuffer3D = new IndexBuffer3D(ibFormat, indexArray.length, BufferUsage.Static, true);
         indexBuffer.setData(indexArray);
 
         layaMesh._indexFormat = ibFormat;

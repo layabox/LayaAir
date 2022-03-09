@@ -1,18 +1,10 @@
-import { LayaGL } from "../../layagl/LayaGL";
-import { BufferStateBase } from "../../webgl/BufferStateBase";
-import { Buffer } from "../../webgl/utils/Buffer";
+import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "./IndexFormat";
-
+import { IndexBuffer } from "../../RenderEngine/RenderInterface/IndexBuffer";
 /**
  * <code>IndexBuffer3D</code> 类用于创建索引缓冲。
  */
-export class IndexBuffer3D extends Buffer {
-	/** @internal */
-	private _indexType: IndexFormat;
-	/** @internal */
-	private _indexTypeByteCount: number;
-	/** @internal */
-	private _indexCount: number;
+export class IndexBuffer3D extends IndexBuffer {
 	/** @internal */
 	private _canRead: boolean;
 
@@ -51,12 +43,11 @@ export class IndexBuffer3D extends Buffer {
 	 * @param	bufferUsage IndexBuffer3D用途类型。
 	 * @param	canRead 是否可读。
 	 */
-	constructor(indexType: IndexFormat, indexCount: number, bufferUsage: number = 0x88E4/*WebGLContext.STATIC_DRAW*/, canRead: boolean = false) {
-		super();
+	constructor(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) {
+		super(BufferTargetType.ELEMENT_ARRAY_BUFFER,bufferUsage);
 		this._indexType = indexType;
 		this._indexCount = indexCount;
-		this._bufferUsage = bufferUsage;
-		this._bufferType = LayaGL.instance.ELEMENT_ARRAY_BUFFER;
+
 		this._canRead = canRead;
 
 		switch (indexType) {
@@ -73,22 +64,8 @@ export class IndexBuffer3D extends Buffer {
 				throw new Error("unidentification index type.");
 		}
 		var byteLength: number = this._indexTypeByteCount * indexCount;
-		var curBufSta: BufferStateBase = BufferStateBase._curBindedBufferState;
 		this._byteLength = byteLength;
-		if (curBufSta) {
-			if (curBufSta._bindedIndexBuffer === this) {
-				LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
-			} else {
-				curBufSta.unBind();//避免影响VAO
-				this.bind();
-				LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
-				curBufSta.bind();
-			}
-		} else {
-			this.bind();
-			LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
-		}
-
+		this._setIndexData(byteLength);
 		if (canRead) {
 			switch (indexType) {
 				case IndexFormat.UInt32:
@@ -100,38 +77,6 @@ export class IndexBuffer3D extends Buffer {
 				case IndexFormat.UInt8:
 					this._buffer = new Uint8Array(indexCount);
 					break;
-			}
-		}
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	_bindForVAO(): void {
-		if (BufferStateBase._curBindedBufferState) {
-			var gl: WebGLRenderingContext = LayaGL.instance;
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
-		} else {
-			throw "IndexBuffer3D: must bind current BufferState.";
-		}
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	bind(): boolean {
-		if (BufferStateBase._curBindedBufferState) {
-			throw "IndexBuffer3D: must unbind current BufferState.";
-		} else {
-			if (Buffer._bindedIndexBuffer !== this._glBuffer) {
-				var gl: WebGLRenderingContext = LayaGL.instance;
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
-				Buffer._bindedIndexBuffer = this._glBuffer;
-				return true;
-			} else {
-				return false;
 			}
 		}
 	}
@@ -158,21 +103,8 @@ export class IndexBuffer3D extends Buffer {
 					break;
 			}
 		}
-
-		var curBufSta: BufferStateBase = BufferStateBase._curBindedBufferState;
-		if (curBufSta) {
-			if (curBufSta._bindedIndexBuffer === this) {
-				LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * byteCount, data);//offset==0情况下，某些特殊设备或情况下直接bufferData速度是否优于bufferSubData
-			} else {
-				curBufSta.unBind();//避免影响VAO
-				this.bind();
-				LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * byteCount, data);
-				curBufSta.bind();
-			}
-		} else {
-			this.bind();
-			LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * byteCount, data);
-		}
+		
+		this._setIndexData(data,bufferOffset*byteCount);
 
 		if (this._canRead) {
 			if (bufferOffset !== 0 || dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/) {
@@ -183,7 +115,7 @@ export class IndexBuffer3D extends Buffer {
 					this._buffer.set(data, bufferOffset);
 				else
 					for (var i: number = 0; i < dataCount; i++)
-						this._buffer[bufferOffset + i] = data[i];
+					this._buffer[bufferOffset + i] = data[i];
 			} else {
 				this._buffer = data;
 			}
@@ -196,7 +128,7 @@ export class IndexBuffer3D extends Buffer {
 	 */
 	getData(): Uint16Array {
 		if (this._canRead)
-			return this._buffer;
+			return <Uint16Array>this._buffer;
 		else
 			throw new Error("Can't read data from VertexBuffer with only write flag!");
 	}

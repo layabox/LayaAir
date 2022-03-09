@@ -5,12 +5,10 @@ import { WebGlConfig } from "../RenderEngine/WebGLConfig";
 import { WebGLEngine } from "../RenderEngine/WebGLEngine";
 import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
-import { BlendMode } from "../webgl/canvas/BlendMode";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
-import { Buffer2D } from "../webgl/utils/Buffer2D";
 import { WebGL } from "../webgl/WebGL";
 import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
@@ -91,8 +89,8 @@ export class Render {
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
         const engine: WebGLEngine = new WebGLEngine(glConfig, webglMode);
         engine.initRenderEngine(Render._mainCanvas.source);
-        var gl: WebGLRenderingContext = LayaGL.instance = RenderStateContext.mainContext = engine.gl;
-        if (Config.printWebglOrder)
+        var gl: WebGLRenderingContext = RenderStateContext.mainContext = LayaGL.instance = engine.gl;
+        if (false)
             this._replaceWebglcall(gl);
 
         if (!gl)
@@ -102,7 +100,7 @@ export class Render {
             new LayaGL();
         }
         LayaGL.renderEngine = engine;
-        LayaGL.instance = gl;
+        //LayaGL.instance = gl;
         LayaGL.textureContext = engine.getTextureContext();
 
         canvas.size(w, h);	//在ctx之后调用。
@@ -134,10 +132,10 @@ export class Render {
                     }
                     let result = tempgl[key].apply(gl, arr);
 
-                    console.log(RenderInfo.loopCount + ":gl." + key + ":" + arr);
+                    //console.log(RenderInfo.loopCount + ":gl." + key + ":" + arr);
                     let err = gl.getError();
                     if (err) {
-                        console.log(err);
+                        //console.log(err);
                         debugger;
                     }
                     return result;

@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { RenderParams } from "../../RenderEngine/RenderEnum/RenderParams";
 
 
 /**
@@ -41,23 +42,22 @@ export class VertexElementFormat {
 	private static _elementInfos: any;
 	/**@internal */
 	static __init__(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		VertexElementFormat._elementInfos = {
-			"single": [1, gl.FLOAT, 0],
-			"vector2": [2, gl.FLOAT, 0],
-			"vector3": [3, gl.FLOAT, 0],
-			"vector4": [4, gl.FLOAT, 0],
-			"color": [4, gl.FLOAT, 0],
-			"byte4": [4, gl.UNSIGNED_BYTE, 0],
-			"byte3": [3, gl.UNSIGNED_BYTE, 0],
-			"byte2": [2, gl.UNSIGNED_BYTE, 0],
-			"byte": [1, gl.UNSIGNED_BYTE, 0],
-			"short2": [2, gl.UNSIGNED_SHORT, 0],
-			"short4": [4, gl.UNSIGNED_SHORT, 0],
-			"normalizedshort2": [2, gl.UNSIGNED_SHORT, 1],
-			"normalizedshort4": [4, gl.UNSIGNED_SHORT, 1],
-			"halfvector2": [2, gl.FLOAT, 0],
-			"halfvector4": [4, gl.FLOAT, 0]
+			"single": [1, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
+			"vector2": [2, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
+			"vector3": [3, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
+			"vector4": [4, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
+			"color": [4, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
+			"byte4": [4, LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_BYTE), 0],
+			"byte3": [3,  LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_BYTE), 0],
+			"byte2": [2,  LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_BYTE), 0],
+			"byte": [1,  LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_BYTE), 0],
+			"short2": [2,  LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_SHORT), 0],
+			"short4": [4, LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_SHORT), 0],
+			"normalizedshort2": [2, LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_SHORT), 1],
+			"normalizedshort4": [4, LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_SHORT), 1],
+			"halfvector2": [2, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
+			"halfvector4": [4, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0]
 		};
 
 	}

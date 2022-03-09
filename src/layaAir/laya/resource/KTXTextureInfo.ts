@@ -180,10 +180,6 @@ export class KTXTextureInfo {
         let numberOfFaces = headerDataView.getUint32(10 * dataSize, littleEndian);
         let numberOfMipmapLevels = headerDataView.getUint32(11 * dataSize, littleEndian);
         let bytesOfKeyValueData = headerDataView.getUint32(12 * dataSize, littleEndian);
-
-        let gl = <WebGL2RenderingContext>LayaGL.instance;
-
-
         let compressed = glType == 0;
 
         let formatInfo = KTXTextureInfo.getLayaFormat(glFormat, glInternalFormat, glType, glTypeSize);

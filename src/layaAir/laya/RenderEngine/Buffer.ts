@@ -1,16 +1,16 @@
-import { LayaGL } from "../../layagl/LayaGL"
-import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { IRenderBuffer } from "../../RenderEngine/RenderInterface/IRenderBuffer";
+import { LayaGL } from "../layagl/LayaGL";
+import { BufferTargetType, BufferUsage } from "./RenderEnum/BufferTargetType";
+import { IRenderBuffer } from "./RenderInterface/IRenderBuffer";
 
 export class Buffer {
 
 	protected _glBuffer: IRenderBuffer;
-	protected _buffer: any;//可能为Float32Array、Uint16Array、Uint8Array、ArrayBuffer等。
+	protected _buffer: Float32Array|Uint16Array|Uint8Array|Uint32Array;
 
 	protected _bufferType: number;
 	protected _bufferUsage: number;
 
-	_byteLength: number = 0;
+	_byteLength: number = 0; 
 
 	get bufferUsage(): number {
 		return this._bufferUsage;
@@ -18,13 +18,8 @@ export class Buffer {
 
 	constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
 		this._glBuffer = LayaGL.renderEngine.createBuffer(targetType,bufferUsageType);
-	}
-
-	/**
-	 * @private
-	 * 绕过全局状态判断,例如VAO局部状态设置
-	 */
-	_bindForVAO(): void {
+		this._bufferType = targetType;
+		this._bufferUsage = bufferUsageType;
 	}
 
 	/**
@@ -35,7 +30,7 @@ export class Buffer {
 	}
 
 	unbind():void{
-		this._glBuffer.unbindBuffer();
+		return this._glBuffer.unbindBuffer();
 	}
 
 	/**

@@ -27,6 +27,7 @@ import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexElement } from "./VertexElement";
 import { IndexFormat } from "./IndexFormat";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 
 /**
  * @internal
@@ -235,9 +236,9 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		var floatStride: number = this._vertexDeclaration.vertexStride / 4;
 		var vertexDatas: Float32Array = new Float32Array(floatStride * this._currentBatchVertexCount);
 		var indexDatas: Uint16Array = new Uint16Array(this._currentBatchIndexCount);
-		this._vertexBuffer = new VertexBuffer3D(this._vertexDeclaration.vertexStride * this._currentBatchVertexCount, gl.STATIC_DRAW);
+		this._vertexBuffer = new VertexBuffer3D(this._vertexDeclaration.vertexStride * this._currentBatchVertexCount,BufferUsage.Static);
 		this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
-		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._currentBatchIndexCount, gl.STATIC_DRAW);
+		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._currentBatchIndexCount, BufferUsage.Static);
 
 		for (var i: number = 0, n: number = this._batchElements.length; i < n; i++) {
 			var sprite: MeshSprite3D = (<MeshSprite3D>this._batchElements[i]);
@@ -281,10 +282,11 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer._byteLength;
 		Resource._addGPUMemory(memorySize);
 
-		this._bufferState.bind();
-		this._bufferState.applyVertexBuffer(this._vertexBuffer);
-		this._bufferState.applyIndexBuffer(this._indexBuffer);
-		this._bufferState.unBind();
+		// this._bufferState.bind();
+		// this._bufferState.applyVertexBuffer(this._vertexBuffer);
+		// this._bufferState.applyIndexBuffer(this._indexBuffer);
+		// this._bufferState.unBind();
+		this._bufferState.applyState([this._vertexBuffer],this._indexBuffer);
 	}
 
 	/**

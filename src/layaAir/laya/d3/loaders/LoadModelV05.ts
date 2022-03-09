@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL"
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType"
 import { Byte } from "../../utils/Byte"
 import { HalfFloatUtils } from "../../utils/HalfFloatUtils"
 import { Bounds } from "../core/Bounds"
@@ -220,7 +221,7 @@ export class LoadModelV05 {
 					break;
 			}
 
-			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexData.byteLength, gl.STATIC_DRAW, true);
+			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexData.byteLength, BufferUsage.Static, true);
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
 			vertexBuffer.setData(vertexData);
 			var vertexCount: number = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
@@ -243,7 +244,7 @@ export class LoadModelV05 {
 		else
 			ibDatas = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
 
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(mesh.indexFormat, ibDatas.length, gl.STATIC_DRAW, true);
+		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(mesh.indexFormat, ibDatas.length, BufferUsage.Static, true);
 		indexBuffer.setData(ibDatas);
 		mesh._indexBuffer = indexBuffer;
 

@@ -90,8 +90,6 @@ export class Shader extends BaseShader {
         Shader._preCompileShader[id] = new ILaya.ShaderCompile(vs, ps, nameMap);
     }
 
-    private customCompile: boolean = false;
-
     private _nameMap: any; //shader参数别名，语义
     private _vs: string
     private _ps: string;
@@ -161,8 +159,7 @@ export class Shader extends BaseShader {
         this._params = [];
 
         var result: any;
-        if (this.customCompile)
-            result = ILaya.ShaderCompile.preGetParams(this._vs, this._ps);
+        
         var gl: WebGLRenderingContext = RenderStateContext.mainContext;
         this._program = gl.createProgram();
         this._vshader = Shader._createShader(gl, this._vs, gl.VERTEX_SHADER);
@@ -181,14 +178,14 @@ export class Shader extends BaseShader {
         }
 
         gl.linkProgram(this._program);
-        if (!this.customCompile && !gl.getProgramParameter(this._program, gl.LINK_STATUS)) {
+        if (!gl.getProgramParameter(this._program, gl.LINK_STATUS)) {
             throw gl.getProgramInfoLog(this._program);
         }
    
-        var nUniformNum: number = this.customCompile ? result.uniforms.length : gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS); //个数
+        var nUniformNum: number = gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS); //个数
 
         for (i = 0; i < nUniformNum; i++) {
-            var uniform: any = this.customCompile ? result.uniforms[i] : gl.getActiveUniform(this._program, i);//得到uniform对象，包括名字等信息 {name,type,size}
+            var uniform: any = gl.getActiveUniform(this._program, i);//得到uniform对象，包括名字等信息 {name,type,size}
             location = gl.getUniformLocation(this._program, uniform.name); //用名字来得到location
             one = { vartype: "uniform", glfun: null, ivartype: 1, location: location, name: uniform.name, type: uniform.type, isArray: false, isSame: false, preValue: null, indexOfParams: 0 };
             if (one.name.indexOf('[0]') > 0) {
@@ -425,7 +422,7 @@ export class Shader extends BaseShader {
         var CTX: any = RenderStateContext;
 
         if (CTX._activeTextures[0] !== value) {
-            this._render2DContext.bindTexture( LayaGL.instance.TEXTURE_2D, value);
+            this._render2DContext.bindTexture( RenderStateContext.mainContext.TEXTURE_2D, value);
             CTX._activeTextures[0] = value;
         }
     }

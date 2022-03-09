@@ -52,6 +52,7 @@ import { CircleShape } from "./module/shape/CircleShape";
 import { BoxShape } from "./module/shape/BoxShape";
 import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenParticle";
 import { Sprite3D } from "../Sprite3D";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 
 
 /**
@@ -1625,7 +1626,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					}
 
 					vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
-					this._vertexBuffer = new VertexBuffer3D(vbMemorySize, gl.DYNAMIC_DRAW);
+					this._vertexBuffer = new VertexBuffer3D(vbMemorySize, BufferUsage.Dynamic);
 					this._vertexBuffer.vertexDeclaration = vertexDeclaration;
 					this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
 
@@ -1636,7 +1637,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					this._indexStride = mesh._indexBuffer.indexCount;
 					var indexDatas: Uint16Array = mesh._indexBuffer.getData();
 					var indexCount: number = this._bufferMaxParticles * this._indexStride;
-					this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indexCount, gl.STATIC_DRAW);
+					this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static);
 					indices = new Uint16Array(indexCount);
 
 					memorySize = vbMemorySize + indexCount * 2;
@@ -1649,11 +1650,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					}
 					this._indexBuffer.setData(indices);
 
-					this._bufferState.bind();
-					this._bufferState.applyVertexBuffer(this._vertexBuffer);
-					this._bufferState.applyIndexBuffer(this._indexBuffer);
-					this._bufferState.unBind();
-					// }
+					// this._bufferState.bind();
+					// this._bufferState.applyVertexBuffer(this._vertexBuffer);
+					// this._bufferState.applyIndexBuffer(this._indexBuffer);
+					// this._bufferState.unBind();
+					this._bufferState.applyState([this._vertexBuffer],this._indexBuffer);
+					
 				}
 			} else {
 				vertexDeclaration = VertexShurikenParticleBillboard.vertexDeclaration;
@@ -1663,7 +1665,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				this._timeIndex = 11;
 				this._vertexStride = 4;
 				vbMemorySize = vertexDeclaration.vertexStride * this._bufferMaxParticles * this._vertexStride;
-				this._vertexBuffer = new VertexBuffer3D(vbMemorySize, gl.DYNAMIC_DRAW);
+				this._vertexBuffer = new VertexBuffer3D(vbMemorySize, BufferUsage.Dynamic);
 				this._vertexBuffer.vertexDeclaration = vertexDeclaration;
 				this._vertices = new Float32Array(this._floatCountPerVertex * this._bufferMaxParticles * this._vertexStride);
 
@@ -1695,7 +1697,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				}
 
 				this._indexStride = 6;
-				this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6, gl.STATIC_DRAW);
+				this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6,BufferUsage.Static);
 				indices = new Uint16Array(this._bufferMaxParticles * 6);
 				for (i = 0; i < this._bufferMaxParticles; i++) {
 					indexOffset = i * 6;
@@ -1711,10 +1713,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 				memorySize = vbMemorySize + this._bufferMaxParticles * 6 * 2;
 
-				this._bufferState.bind();
-				this._bufferState.applyVertexBuffer(this._vertexBuffer);
-				this._bufferState.applyIndexBuffer(this._indexBuffer);
-				this._bufferState.unBind();
+				// this._bufferState.bind();
+				// this._bufferState.applyVertexBuffer(this._vertexBuffer);
+				// this._bufferState.applyIndexBuffer(this._indexBuffer);
+				// this._bufferState.unBind();
+				this._bufferState.applyState([this._vertexBuffer],this._indexBuffer);
 			}
 
 			Resource._addMemory(memorySize, memorySize);
