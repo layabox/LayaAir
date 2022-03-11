@@ -1161,7 +1161,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal
 	 */
-	_clear(gl: WebGLRenderingContext, state: RenderContext3D): void {
+	_clear(state: RenderContext3D): void {
 		var viewport: Viewport = state.viewport;
 		var camera: Camera = <Camera>state.camera;
 		var renderTex: RenderTexture = camera._getRenderTexture();
@@ -1176,77 +1176,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			vpX = viewport.x;
 			vpY = camera._getCanvasHeight() - viewport.y - vpH;
 		}
-		gl.viewport(vpX, vpY, vpW, vpH);
-
-		var flag: number;
+		LayaGL.renderEngine.viewport(vpX, vpY, vpW, vpH);
+		LayaGL.renderEngine.scissor(vpX, vpY, vpW, vpH);
 		var clearFlag: number = camera.clearFlag;
 		if (clearFlag === CameraClearFlags.Sky && !(camera.skyRenderer._isAvailable() || this._skyRenderer._isAvailable()))
 			clearFlag = CameraClearFlags.SolidColor;
-		switch (clearFlag) {
-			case CameraClearFlags.SolidColor:
-				var clearColor: Vector4 = camera.clearColor;
-				gl.enable(gl.SCISSOR_TEST);
-				gl.scissor(vpX, vpY, vpW, vpH);
-				if (clearColor)
-					gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-				else
-					gl.clearColor(0, 0, 0, 0);
-
-				if (renderTex) {
-					flag = gl.COLOR_BUFFER_BIT;
-					switch (renderTex.depthStencilFormat) {
-						case RenderTargetFormat.DEPTH_16:
-							flag |= gl.DEPTH_BUFFER_BIT;
-							break;
-						case RenderTargetFormat.STENCIL_8:
-							flag |= gl.STENCIL_BUFFER_BIT;
-							break;
-						case RenderTargetFormat.DEPTHSTENCIL_24_8:
-							flag |= gl.DEPTH_BUFFER_BIT;
-							flag |= gl.STENCIL_BUFFER_BIT;
-							//打开模板缓存 再清理
-							gl.clearStencil(0);
-							RenderStateContext.setStencilMask(true);
-							break;
-					}
-				} else {
-					flag = gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT;
-				}
-				RenderStateContext.setDepthMask(true);
-				gl.clear(flag);
-				gl.disable(gl.SCISSOR_TEST);
-				break;
-			case CameraClearFlags.Sky:
-			case CameraClearFlags.DepthOnly:
-				gl.enable(gl.SCISSOR_TEST);
-				gl.scissor(vpX, vpY, vpW, vpH);
-				if (renderTex) {
-					switch (renderTex.depthStencilFormat) {
-						case RenderTargetFormat.DEPTH_16:
-							flag = gl.DEPTH_BUFFER_BIT;
-							break;
-						case RenderTargetFormat.STENCIL_8:
-							flag = gl.STENCIL_BUFFER_BIT;
-							break;
-						case RenderTargetFormat.DEPTHSTENCIL_24_8:
-							//打开模板缓存 再清理
-							gl.clearStencil(0);
-							RenderStateContext.setStencilMask(true);
-							flag = gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT;
-							break;
-					}
-				} else {
-					flag = gl.DEPTH_BUFFER_BIT;
-				}
-				RenderStateContext.setDepthMask(true);
-				gl.clear(flag);
-				gl.disable(gl.SCISSOR_TEST);
-				break;
-			case CameraClearFlags.Nothing:
-				break;
-			default:
-				throw new Error("Scene3D:camera clearFlag invalid.");
-		}
+		LayaGL.renderEngine.clearRenderTexture(renderTex,clearFlag,camera.clearColor,1);
 	}
 
 	/**

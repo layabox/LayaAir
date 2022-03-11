@@ -250,55 +250,5 @@ export class FrustumCulling {
 
 		return opaqueQueue.elements.length > 0 ? true : false;
 	}
-	//---------------------------------------------------------NATIVE---------------------------------------------------------------------------------------------
-	/**@internal	[NATIVE]*/
-	static _cullingBufferLength: number;
-	/**@internal	[NATIVE]*/
-	static _cullingBuffer: Float32Array;
-
-	/**
-	 * @internal [NATIVE]
-	 */
-	static renderObjectCullingNative(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SimpleSingletonList, customShader: Shader3D, replacementTag: string): void {
-		var i: number, j: number, m: number;
-		var opaqueQueue: RenderQueue = scene._opaqueQueue;
-		var transparentQueue: RenderQueue = scene._transparentQueue;
-		scene._clearRenderQueue();
-		var validCount: number = renderList.length;
-		var renders: ISingletonElement[] = renderList.elements;
-		for (i = 0; i < validCount; i++) {
-			((<BaseRender>renders[i])).bounds;
-			(<any>renders[i])._updateForNative && (<any>renders[i])._updateForNative(context);
-		}
-		FrustumCulling.cullingNative(camera._boundFrustumBuffer, FrustumCulling._cullingBuffer, scene._cullingBufferIndices, validCount, scene._cullingBufferResult);
-
-		var loopCount: number = Stat.loopCount;
-		var camPos: Vector3 = context.camera._transform.position;
-
-		for (i = 0; i < validCount; i++) {
-			var render: BaseRender = <BaseRender>renders[i];
-			if (!camera.useOcclusionCulling || (camera._isLayerVisible((render.owner as Sprite3D)._layer) && render._enabled && scene._cullingBufferResult[i])) {//TODO:需要剥离部分函数
-				render._renderMark = loopCount;
-				render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
-				var elements: RenderElement[] = render._renderElements;
-				for (j = 0, m = elements.length; j < m; j++) {
-					var element: RenderElement = elements[j];
-					element._update(scene, context, customShader, replacementTag);
-				}
-			}
-		}
-
-		var count: number = opaqueQueue.elements.length;
-		(count > 0) && (opaqueQueue._quickSort(0, count - 1));
-		count = transparentQueue.elements.length;
-		(count > 0) && (transparentQueue._quickSort(0, count - 1));
-	}
-
-	/**
-	 * @internal [NATIVE]
-	 */
-	static cullingNative(boundFrustumBuffer: Float32Array, cullingBuffer: Float32Array, cullingBufferIndices: Int32Array, cullingCount: number, cullingBufferResult: Int32Array): number {
-		return (<any>LayaGL.instance).culling(boundFrustumBuffer, cullingBuffer, cullingBufferIndices, cullingCount, cullingBufferResult);
-	}
 }
 

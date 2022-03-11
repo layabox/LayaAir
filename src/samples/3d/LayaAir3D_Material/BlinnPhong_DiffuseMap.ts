@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -30,7 +29,7 @@ export class BlinnPhong_DiffuseMap {
 		var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
 		camera.transform.translate(new Vector3(0, 0.5, 1.5));
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
-		camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
+		camera.clearFlag = CameraClearFlags.Sky;
 
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		directionLight.color.setValue(1, 1, 1);

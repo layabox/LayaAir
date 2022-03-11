@@ -49,7 +49,7 @@ export class CustomMesh {
 		camera.transform.translate(new Vector3(0, 2, 5));
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 		camera.addComponent(CameraMoveScript);
-		camera.clearColor = new Vector4(0.2, 0.2, 0.2, 1.0);
+		camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
 
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		//设置平行光的方向

@@ -9,6 +9,7 @@ import { LayaGL } from "../../../layagl/LayaGL"
 import { Stat } from "../../../utils/Stat"
 import { IndexFormat } from "../../graphics/IndexFormat";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
 
 /**
  * <code>SkyDome</code> 类用于创建天空盒。
@@ -52,7 +53,6 @@ export class SkyDome extends SkyMesh {
 	 */
 	constructor(stacks: number = 48, slices: number = 48) {
 		super();
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._stacks = stacks;
 		this._slices = slices;
 		var vertexDeclaration: VertexDeclaration = VertexPositionTexture0.vertexDeclaration;
@@ -120,9 +120,8 @@ export class SkyDome extends SkyMesh {
 	 * @internal
 	 */
 	_render(state: RenderContext3D): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var indexCount: number = this._indexBuffer.indexCount;
-		gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 0);
+		LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 0);
 		Stat.trianglesFaces += indexCount / 3;
 		Stat.renderBatches++;
 	}

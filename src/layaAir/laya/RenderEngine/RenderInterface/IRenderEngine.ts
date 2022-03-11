@@ -1,7 +1,10 @@
+import { Color } from "../../d3/math/Color";
+import { RenderTexture } from "../../d3/resource/RenderTexture";
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { BufferTargetType, BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
+import { RenderClearFlag } from "../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../RenderEnum/RenderParams";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { IRenderBuffer } from "./IRenderBuffer";
@@ -18,9 +21,12 @@ export interface IRenderEngine {
     applyRenderStateCMD(cmd: RenderStateCommand):void;
     
     viewport(x: number, y: number, width: number, height: number): void;
+    scissor(x: number, y: number, width: number, height: number):void;
     colorMask(r: boolean, g: boolean, b: boolean, a: boolean):void;
     copySubFrameBuffertoTex(texture:BaseTexture,level:number,xoffset:number, yoffset:number, x:number, y:number, width:number, height:number):void;
     bindTexture(texture:BaseTexture):void;
+    clearRenderTexture(rendertexture: RenderTexture, clearFlag: RenderClearFlag|number, clearcolor:Color, clearDepth:number):void;
+    scissorTest(value:boolean):void;
 
     getParams(params: RenderParams): number ;
     getCapable(capatableType: RenderCapable): boolean;

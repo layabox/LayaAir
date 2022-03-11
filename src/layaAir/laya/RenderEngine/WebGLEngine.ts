@@ -20,11 +20,14 @@ import { IRenderEngine } from "./RenderInterface/IRenderEngine";
 import { IRenderBuffer } from "./RenderInterface/IRenderBuffer";
 import { IRenderShaderInstance } from "./RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "./RenderInterface/IRenderVertexState";
-import { GLDrawContext } from "./GLDrawContext";
 import { IRenderDrawContext } from "./RenderInterface/IRenderDrawContext";
 import { BaseTexture } from "../resource/BaseTexture";
 import { RenderStateCommand } from "./RenderStateCommand";
 import { GLVertexState } from "./GLVertexState";
+import { GLRenderDrawContext } from "./GLRenderDrawContext";
+import { RenderTexture } from "../d3/resource/RenderTexture";
+import { RenderTargetFormat } from "./RenderEnum/RenderTargetFormat";
+import { RenderClearFlag } from "./RenderEnum/RenderClearFlag";
 
 /**
  * @private 封装Webgl
@@ -74,9 +77,11 @@ export class WebGLEngine implements IRenderEngine {
 
   //bind viewport
   private _lastViewport: Vector4;
+  private _lastScissor: Vector4;
 
   //bind clearColor
-  private _lastClearColor: Color;
+  private _lastClearColor: Color = new Color;
+  private _lastClearDepth: number = 1;
 
   /**
    * @internal
@@ -90,7 +95,7 @@ export class WebGLEngine implements IRenderEngine {
   //GL纹理生成
   private _GLTextureContext: GLTextureContext;
   //Gl Draw
-  private _GLDrawContext:GLDrawContext;
+  private _GLRenderDrawContext: GLRenderDrawContext;
 
   //GLRenderState
   private _GLRenderState: GLRenderState;
@@ -108,6 +113,7 @@ export class WebGLEngine implements IRenderEngine {
     //init data
     this._lastViewport = new Vector4(0, 0, 0, 0);
     this._lastClearColor = new Color(0, 0, 0, 0);
+    this._lastScissor = new Vector4(0,0,0,0);
     this._webglMode = webglMode;
   }
 
@@ -168,7 +174,7 @@ export class WebGLEngine implements IRenderEngine {
     this._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0;
     this._activeTextures = [];
     this._GLTextureContext = this.isWebGL2 ? new GL2TextureContext(this) : new GLTextureContext(this);
-    this._GLDrawContext = new GLDrawContext(this);
+    this._GLRenderDrawContext = new GLRenderDrawContext(this);
   }
 
   private _initBindBufferMap() {
@@ -200,8 +206,8 @@ export class WebGLEngine implements IRenderEngine {
     }
   }
 
-  bindTexture(texture:BaseTexture){
-    this._bindTexture(texture._texture.target,texture._getSource());
+  bindTexture(texture: BaseTexture) {
+    this._bindTexture(texture._texture.target, texture._getSource());
   }
 
   //set render State
@@ -210,7 +216,7 @@ export class WebGLEngine implements IRenderEngine {
   }
 
   applyRenderStateCMD(cmd: RenderStateCommand): void {
-      this._GLRenderState.applyRenderStateCommand(cmd);
+    this._GLRenderState.applyRenderStateCommand(cmd);
   }
 
   //get capable of webgl
@@ -229,9 +235,99 @@ export class WebGLEngine implements IRenderEngine {
     }
   }
 
-  copySubFrameBuffertoTex(texture:BaseTexture,level:number,xoffset:number, yoffset:number, x:number, y:number, width:number, height:number){
-    this._bindTexture(texture._texture.target,texture._getSource());
-		this._gl.copyTexSubImage2D(texture._texture.target, level, xoffset, yoffset, x,y, width, height);
+  scissor(x: number, y: number, width: number, height: number) {
+    const gl = this._gl;
+    const lv = this._lastScissor;
+    if (x !== lv.x || y !== lv.y || width !== lv.z || height !== lv.w) {
+      gl.scissor(x, y, width, height);
+      lv.setValue(x, y, width, height);
+    }
+  }
+
+  scissorTest(value:boolean){
+    if(value)
+      this._gl.enable(this._gl.SCISSOR_TEST);
+    else
+      this._gl.disable(this._gl.SCISSOR_TEST);
+  }
+
+  
+
+  clearRenderTexture(rendertexture: RenderTexture, clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1) {
+    var flag: number;
+    this.gl.enable(this._gl.SCISSOR_TEST)
+    switch (clearFlag) {
+      case RenderClearFlag.ColorDepth:
+        if (clearcolor&&!this._lastClearColor.equal(clearcolor)){
+            this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
+            clearcolor.cloneTo(this._lastClearColor);
+        }
+        if(this._lastClearDepth!=clearDepth){
+          this._gl.clearDepth(clearDepth);
+          this._lastClearDepth = clearDepth;
+        }
+        if (rendertexture) {
+					flag = this._gl.COLOR_BUFFER_BIT;
+					switch (rendertexture.depthStencilFormat) {
+						case RenderTargetFormat.DEPTH_16:
+							flag |= this._gl.DEPTH_BUFFER_BIT;
+							break;
+						case RenderTargetFormat.STENCIL_8:
+							flag |= this._gl.STENCIL_BUFFER_BIT;
+							break;
+						case RenderTargetFormat.DEPTHSTENCIL_24_8:
+							flag |= this._gl.DEPTH_BUFFER_BIT;
+							flag |= this._gl.STENCIL_BUFFER_BIT;
+							
+              this._gl.clearStencil(0);
+							this._GLRenderState.setStencilMask(true);
+							break;
+					}
+				} else {
+					flag = this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT;
+				}
+        break;
+      case RenderClearFlag.Depth:
+        if(this._lastClearDepth!=clearDepth){
+          this._gl.clearDepth(clearDepth);
+          this._lastClearDepth = clearDepth;
+        }
+        if (rendertexture) {
+					switch (rendertexture.depthStencilFormat) {
+						case RenderTargetFormat.DEPTH_16:
+							flag = this._gl.DEPTH_BUFFER_BIT;
+							break;
+						case RenderTargetFormat.STENCIL_8:
+							flag = this._gl.STENCIL_BUFFER_BIT;
+							break;
+						case RenderTargetFormat.DEPTHSTENCIL_24_8:
+							//打开模板缓存 再清理
+							this._gl.clearStencil(0);
+              this._GLRenderState.setStencilMask(true);
+							flag = this._gl.DEPTH_BUFFER_BIT | this._gl.STENCIL_BUFFER_BIT;
+							break;
+					}
+				} else {
+					flag = this._gl.DEPTH_BUFFER_BIT;
+				}
+        break;
+        case RenderClearFlag.Color:
+          if (clearcolor&&!this._lastClearColor.equal(clearcolor)){
+            this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
+            clearcolor.cloneTo(this._lastClearColor);
+          }
+          flag = this.gl.COLOR_BUFFER_BIT;
+          break;
+      
+
+    }
+    this._gl.clear(flag);
+    this._gl.disable(this._gl.SCISSOR_TEST);
+  }
+
+  copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
+    this._bindTexture(texture._texture.target, texture._getSource());
+    this._gl.copyTexSubImage2D(texture._texture.target, level, xoffset, yoffset, x, y, width, height);
   }
 
   colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void {
@@ -262,8 +358,8 @@ export class WebGLEngine implements IRenderEngine {
   }
 
   //TODO 先写完测试，这种封装过于死板
-  getDrawContext():IRenderDrawContext{
-    return this._GLDrawContext;
+  getDrawContext(): IRenderDrawContext {
+    return this._GLRenderDrawContext;
   }
 
   //TODO:
@@ -274,7 +370,7 @@ export class WebGLEngine implements IRenderEngine {
   /**
    * @internal
    */
-  uploadUniforms(shader:GLShaderInstance,commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
+  uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
     shader.bind();
     var data: any = shaderData._data;
     var shaderUniform: any[] = commandEncoder.getArrayData();
@@ -293,7 +389,7 @@ export class WebGLEngine implements IRenderEngine {
   /**
    * @internal
    */
-   uploadCustomUniforms(shader:GLShaderInstance,custom: any[], index: number, data: any): number {
+  uploadCustomUniforms(shader: GLShaderInstance, custom: any[], index: number, data: any): number {
     shader.bind();
     var shaderCall: number = 0;
     var one: ShaderVariable = custom[index];

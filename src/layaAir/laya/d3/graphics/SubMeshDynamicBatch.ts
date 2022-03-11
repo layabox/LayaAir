@@ -16,6 +16,7 @@ import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexElement } from "./VertexElement";
 import { IndexFormat } from "./IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../RenderEngine/RenderPologyMode";
 /**
  * @internal
  * <code>SubMeshDynamicBatch</code> 类用于网格动态合并。
@@ -57,7 +58,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	/**@internal */
 	private _uv0Offset: number;
 	/**@internal */
-	_uv1Offset:number;
+	_uv1Offset: number;
 	/**@internal */
 	private _sTangentOffset: number;
 	/**@internal */
@@ -72,7 +73,6 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	 */
 	constructor() {
 		super();
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var maxVerDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,COLOR,UV,UV1,TANGENT");
 		var maxByteCount: number = maxVerDec.vertexStride * SubMeshDynamicBatch.maxIndicesCount;
 		this._vertices = new Float32Array(maxByteCount / 4);
@@ -204,10 +204,9 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	 * @internal
 	 */
 	private _flush(vertexCount: number, indexCount: number): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		//this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._bufferState.vertexDeclaration.vertexStride));
 		this._indexBuffer.setData(this._indices, 0, 0, indexCount);
-		gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 0);
+		LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 0);
 	}
 
 	/**

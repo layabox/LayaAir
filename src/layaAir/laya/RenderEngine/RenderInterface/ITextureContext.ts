@@ -54,8 +54,9 @@ export interface ITextureContext {
 
     setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture): void;
 
-    bindRenderTarget(renderTarget: InternalRenderTarget | null): void;
-    unbindRenderTarget(renderTarget: InternalRenderTarget | null): void;
+    bindRenderTarget(renderTarget: InternalRenderTarget): void;
+    bindoutScreenTarget():void;
+    unbindRenderTarget(renderTarget: InternalRenderTarget): void;
 
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView;
 

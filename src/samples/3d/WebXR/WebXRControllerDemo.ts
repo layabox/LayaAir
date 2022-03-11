@@ -1,7 +1,6 @@
-import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
+import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
@@ -21,6 +20,7 @@ import { AxiGamepad, ButtonGamepad } from "laya/d3/WebXR/core/WebXRGamepad";
 import { Laya } from "Laya";
 import { Loader } from "laya/net/Loader";
 import { HitResult } from "laya/d3/physics/HitResult";
+import { Color } from "laya/d3/math/Color";
 
 export class WebXRControllerDemo{
     public camera:Camera;
@@ -67,7 +67,7 @@ export class WebXRControllerDemo{
 		//设置摄像机视野范围（角度）
 		this.camera.fieldOfView = 60;
 		//设置背景颜色
-		this.camera.clearColor = new Vector4(0.7, 0.8, 0.9, 0);
+		this.camera.clearColor = new Color(0.7, 0.8, 0.9, 0);
 		this.camera.nearPlane = 0.01;
 		//加入摄像机移动控制脚本
 		this.camera.addComponent(CameraMoveScript);

@@ -3,6 +3,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D, AmbientMode } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
@@ -41,7 +42,7 @@ export class GriendSkyAmbientDemo {
         camera.transform.translate(new Vector3(0, 2, 5));
         camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
         camera.addComponent(CameraMoveScript);
-        camera.clearColor = new Vector4(0.2, 0.2, 0.2, 1.0);
+        camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
         camera.msaa = true;
         scene.ambientMode = AmbientMode.TripleColor;
         //天空颜色

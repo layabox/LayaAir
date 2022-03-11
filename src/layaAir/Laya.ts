@@ -41,7 +41,6 @@ import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
 import { Value2D } from "./laya/webgl/shader/d2/value/Value2D";
-import { Shader } from "./laya/webgl/shader/Shader";
 import { Submit } from "./laya/webgl/submit/Submit";
 import { TextRender } from "./laya/webgl/text/TextRender";
 import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
@@ -61,6 +60,8 @@ import { Matrix } from "./laya/maths/Matrix";
 import { HTMLImage } from "./laya/resource/HTMLImage";
 import { Event } from "./laya/events/Event";
 import { Config } from "./Config";
+import { Color } from "./laya/d3/math/Color";
+import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -324,9 +325,10 @@ export class Laya {
 		Stage.clear = function (color: string): void {
 			Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
 			var c: any[] = ColorUtils.create(color).arrColor;
-			var gl: WebGLRenderingContext = LayaGL.instance;
-			if (c) gl.clearColor(c[0], c[1], c[2], c[3]);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+			
+			LayaGL.renderEngine.clearRenderTexture(null,RenderClearFlag.ColorDepth,new Color(c[0], c[1], c[2], c[3]),1);
+			// if (c) gl.clearColor(c[0], c[1], c[2], c[3]);
+			// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 			RenderState2D.clear();
 		}
 		Sprite.drawToCanvas = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {

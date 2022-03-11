@@ -14,6 +14,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
+import { Color } from "laya/d3/math/Color";
 
 
 export class WebXRStart{
@@ -50,7 +51,7 @@ export class WebXRStart{
 		//设置摄像机视野范围（角度）
 		this.camera.fieldOfView = 60;
 		//设置背景颜色
-		this.camera.clearColor = new Vector4(0.7, 0.8, 0.9, 0);
+		this.camera.clearColor = new Color(0.7, 0.8, 0.9, 0);
 		this.camera.nearPlane = 0.01;
 		//加入摄像机移动控制脚本
 		this.camera.addComponent(CameraMoveScript);

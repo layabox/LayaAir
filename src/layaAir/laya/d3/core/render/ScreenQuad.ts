@@ -1,5 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL"
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType"
+import { MeshTopology } from "../../../RenderEngine/RenderPologyMode"
 import { Resource } from "../../../resource/Resource"
 import { Stat } from "../../../utils/Stat"
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
@@ -47,7 +48,7 @@ export class ScreenQuad extends Resource {
 	 */
 	constructor() {
 		super();
-		var gl: WebGLRenderingContext = LayaGL.instance;
+		//顶点buffer
 		this._vertexBuffer = new VertexBuffer3D(16 * 4, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBuffer.setData(ScreenQuad._vertices.buffer);
@@ -56,9 +57,7 @@ export class ScreenQuad extends Resource {
 		this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, BufferUsage.Static, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
-		// this._bufferStateInvertUV.bind();
 		this._bufferStateInvertUV.applyState([this._vertexBufferInvertUV],null);
-		// this._bufferStateInvertUV.unBind();
 
 		this._setGPUMemory(this._vertexBuffer._byteLength + this._vertexBufferInvertUV._byteLength);
 	}
@@ -67,9 +66,9 @@ export class ScreenQuad extends Resource {
 	 * @internal
 	 */
 	render(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
+		
 		this._bufferState.bind();
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		LayaGL.renderDrawConatext.drawArrays(MeshTopology.TriangleStrip, 0, 4);
 		Stat.renderBatches++;
 	}
 
@@ -77,9 +76,8 @@ export class ScreenQuad extends Resource {
 	 * @internal
 	 */
 	renderInvertUV(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._bufferStateInvertUV.bind();
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		LayaGL.renderDrawConatext.drawArrays(MeshTopology.TriangleStrip, 0, 4);
 		Stat.renderBatches++;
 	}
 

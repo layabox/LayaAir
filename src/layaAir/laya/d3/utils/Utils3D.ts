@@ -620,12 +620,7 @@ export class Utils3D {
 			e[i + 12] = ai0 * b12 + ai1 * b13 + ai2 * b14 + ai3 * b15;
 		}
 	}
-
-	/**@internal */
-	static matrix4x4MultiplyFFFForNative(a: Float32Array, b: Float32Array, e: Float32Array): void {
-		(<any>LayaGL.instance).matrix4x4Multiply(a, b, e);
-	}
-
+	
 	/**@internal */
 	static matrix4x4MultiplyMFM(left: Matrix4x4, right: Float32Array, out: Matrix4x4): void {
 		Utils3D.matrix4x4MultiplyFFF(left.elements, right, out.elements);

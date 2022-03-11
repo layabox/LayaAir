@@ -90,15 +90,15 @@ export class BlitScreenQuadCMD extends Command {
 		var shaderData: ShaderData = this._shaderData || Command._screenShaderData;
 		var dest: RenderTexture = this._dest ? this._dest : (this._drawDefineCavans ? this._dest : this._commandBuffer._camera._internalRenderTexture);//set dest
 		if (dest) {//set viewport
-			LayaGL.instance.viewport(0, 0, dest.width, dest.height);
-			LayaGL.instance.scissor(0, 0, dest.width, dest.height);
+			LayaGL.renderEngine.viewport(0, 0, dest.width, dest.height);
+			LayaGL.renderEngine.scissor(0, 0, dest.width, dest.height);
 		}else {
 			let camera: Camera = this._commandBuffer._camera;
 			let viewport: Viewport = camera.viewport;
 			let vpH = viewport.height;
 			let vpY = RenderContext3D.clientHeight - viewport.y - vpH;
-			LayaGL.instance.viewport(viewport.x, vpY, viewport.width, vpH);
-			LayaGL.instance.scissor(viewport.x, vpY, viewport.width, vpH);
+			LayaGL.renderEngine.viewport(viewport.x, vpY, viewport.width, vpH);
+			LayaGL.renderEngine.scissor(viewport.x, vpY, viewport.width, vpH);
 		}
 		//TODO:优化
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, source);

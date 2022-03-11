@@ -17,6 +17,8 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { Stat } from "../../../../utils/Stat";
 import { VertexMesh } from "../../../graphics/Vertex/VertexMesh";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../../../RenderEngine/RenderPologyMode";
+import { IndexFormat } from "../../../graphics/IndexFormat";
 
 
 /**
@@ -85,7 +87,6 @@ export class DrawMeshInstancedCMD extends Command {
 	constructor(){
 		super();
 		this._renderShaderValue = new ShaderData(null);
-		let gl = LayaGL.instance;
 		this._instanceWorldMatrixData = new Float32Array( DrawMeshInstancedCMD.maxInstanceCount*16);
 		this._instanceWorldMatrixBuffer = new VertexBuffer3D(this._instanceWorldMatrixData.length*4,BufferUsage.Dynamic);
 		this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
@@ -139,11 +140,10 @@ export class DrawMeshInstancedCMD extends Command {
 	 * @param subMesh 
 	 */
 	private _render(subMesh:SubMesh){
-		let gl = LayaGL.instance;
 		var count = this._drawnums;
 		var indexCount:number = subMesh._indexCount;
 		this._instanceBufferState.bind();
-		LayaGL.renderEngine.getDrawContext().drawElementsInstanced(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
+		LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, indexCount,IndexFormat.UInt16, subMesh._indexStart * 2, count);
 		Stat.renderBatches++;
 		Stat.trianglesFaces += indexCount * count / 3;
 	}

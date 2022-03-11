@@ -117,7 +117,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
     /**
     * @internal
     */
-    private _createShader(gl: WebGLRenderingContext, str: string, type: number): any {
+    private   _createShader(gl: WebGLRenderingContext, str: string, type: number): any {
         var shader: WebGLShader = gl.createShader(type);
         gl.shaderSource(shader, str);
         gl.compileShader(shader);

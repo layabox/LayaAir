@@ -6,7 +6,6 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "./Mesh";
 import { SubMesh } from "./SubMesh";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { IndexFormat } from "../../graphics/IndexFormat";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 
@@ -23,10 +22,8 @@ export class PrimitiveMesh {
 	 * @internal
 	 */
 	static _createMesh(vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array): Mesh {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var mesh: Mesh = new Mesh();
 		var subMesh: SubMesh = new SubMesh(mesh);
-
 		var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertices.length * 4,BufferUsage.Static, true);
 		vertexBuffer.vertexDeclaration = vertexDeclaration;
 		vertexBuffer.setData(vertices.buffer);

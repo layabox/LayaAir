@@ -102,6 +102,14 @@ export class Color implements IClone {
 		this.a = a;
 	}
 
+	equal(c:Color):boolean{
+		const toFIxed = (a:number,b:number) =>{
+			var delta = 1e-5;
+			return  -delta<a-b&&a-b>delta;
+		}
+		return toFIxed(c.r,this.r)&&toFIxed(c.g,this.g)&&toFIxed(c.b,this.b)&&toFIxed(c.a,this.a);
+	}
+
 	/**
 	 * Gamma空间转换到线性空间。
 	 * @param	linear 线性空间颜色。
@@ -142,22 +150,6 @@ export class Color implements IClone {
 		var dest: Color = new Color();
 		this.cloneTo(dest);
 		return dest;
-	}
-
-	forNativeElement(): void {//[NATIVE_TS]
-		/*if (nativeElements) {
-			this.elements = nativeElements;
-			this.elements[0] = this.r;
-			this.elements[1] = this.g;
-			this.elements[2] = this.b;
-			this.elements[3] = this.a;
-		} else {
-			this.elements = new Float32Array([this.r,this.g,this.b,this.a]);
-		}
-		Vector2.rewriteNumProperty(this, "r", 0);
-		Vector2.rewriteNumProperty(this, "g", 1);
-		Vector2.rewriteNumProperty(this, "b", 2);
-		Vector2.rewriteNumProperty(this, "a", 3);*/
 	}
 }
 

@@ -923,10 +923,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     }
 
     bindRenderTarget(renderTarget: WebGLInternalRT): void {
-
-        // todo msaa
-
-        let gl = renderTarget._gl;
+        let gl = this._gl;
         let framebuffer = renderTarget._framebuffer;
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
@@ -936,6 +933,11 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, texture.resource, 0);
         }
 
+    }
+
+    bindoutScreenTarget():void{
+        let gl = this._gl;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
     unbindRenderTarget(renderTarget: WebGLInternalRT): void {

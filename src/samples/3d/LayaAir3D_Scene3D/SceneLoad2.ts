@@ -1,8 +1,6 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { Material } from "laya/d3/core/material/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -51,7 +49,7 @@ export class SceneLoad2 {
 			//设置相机远距裁剪
 			camera.farPlane = 1000;
 			//相机设置清楚标记
-			camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
+			camera.clearFlag = CameraClearFlags.Sky;
 			//设置摄像机视野范围（角度）
 			camera.fieldOfView = 60;
 			//设置背景颜色
@@ -60,7 +58,7 @@ export class SceneLoad2 {
 			camera.addComponent(CameraMoveScript);
 
 			//加载相机天空盒材质
-			BaseMaterial.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, function (mat: Material): void {
+			Material.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, function (mat: Material): void {
 				var skyRenderer: SkyRenderer = camera.skyRenderer;
 				skyRenderer.mesh = SkyBox.instance;
 				skyRenderer.material = mat;

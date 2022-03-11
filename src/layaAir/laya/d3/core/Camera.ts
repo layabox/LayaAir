@@ -34,19 +34,22 @@ import { Transform3D } from "./Transform3D";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
+import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 
 /**
  * 相机清除标记。
  */
 export enum CameraClearFlags {
 	/**固定颜色。*/
-	SolidColor = 0,
+	SolidColor = RenderClearFlag.ColorDepth,
 	/**天空。*/
-	Sky = 1,
+	Sky = RenderClearFlag.Depth,
 	/**仅深度。*/
-	DepthOnly = 2,
+	DepthOnly = RenderClearFlag.Depth,
 	/**不清除。*/
-	Nothing = 3
+	Nothing = RenderClearFlag.Nothing,
+	/**只清理颜色 */
+	ColorOnly = RenderClearFlag.Color,
 }
 
 /**
@@ -681,12 +684,9 @@ export class Camera extends BaseCamera {
 	 * @param context 
 	 */
 	_applyCommandBuffer(event: number, context: RenderContext3D) {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var commandBufferArray: CommandBuffer[] = this._cameraEventCommandBuffer[event];
 		if (!commandBufferArray || commandBufferArray.length == 0)
 			return;
-		// if(this._internalRenderTexture)
-		// 	this._internalRenderTexture._end();
 		commandBufferArray.forEach(function (value) {
 			value._context = context;
 			value._apply();
@@ -695,10 +695,9 @@ export class Camera extends BaseCamera {
 		if (this._internalRenderTexture || this._offScreenRenderTexture)
 			this._getRenderTexture()._start();
 		else {
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			LayaGL.textureContext.bindoutScreenTarget();
 		}
-		//TODO：优化 恢复渲染区域
-		gl.viewport(0, 0, context.viewport.width, context.viewport.height);
+		LayaGL.renderEngine.viewport(0, 0, context.viewport.width, context.viewport.height);
 	}
 
 
@@ -757,7 +756,6 @@ export class Camera extends BaseCamera {
 		context.cameraShaderValue = this._shaderValues;
 		Camera._updateMark++;
 		scene._componentManager.callPreRenderScript();
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		//TODO:webgl2 should use blitFramebuffer
 		//TODO:if adjacent camera param can use same internal RT can merge
 		//if need internal RT and no off screen RT and clearFlag is DepthOnly or Nothing, should grab the backBuffer
@@ -801,7 +799,6 @@ export class Camera extends BaseCamera {
 	 * @param needInternalRT 是否需要内部RT
 	 */
 	_renderMainPass(context: RenderContext3D, viewport: Viewport, scene: Scene3D, shader: Shader3D, replacementTag: string, needInternalRT: boolean) {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
 
 		if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
@@ -825,7 +822,7 @@ export class Camera extends BaseCamera {
 		// todo layame temp
 		(renderTex) && (renderTex._start());
 
-		scene._clear(gl, context);
+		scene._clear(context);
 
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);

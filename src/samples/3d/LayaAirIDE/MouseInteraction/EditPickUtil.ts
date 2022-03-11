@@ -3,6 +3,7 @@ import { RenderContext3D } from "laya/d3/core/render/RenderContext3D";
 import { RenderableSprite3D } from "laya/d3/core/RenderableSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
@@ -23,7 +24,7 @@ export class EditPickUtil {
 	public static pickVector4: Vector4 = new Vector4();
 	public static oriClearFlag: CameraClearFlags = CameraClearFlags.Nothing;
 	public static oriClearColor: Vector4 = new Vector4();
-	public static cameraClearColor: Vector4 = new Vector4();
+	public static cameraClearColor: Color = new Color();
 	public static oriPipeLineMode: string;
 
 	/**

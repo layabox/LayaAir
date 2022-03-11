@@ -1,6 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { BaseCamera } from "../core/BaseCamera";
-import { Camera } from "../core/Camera";
+import { Camera, CameraClearFlags } from "../core/Camera";
 import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
 import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowMapFormat, ShadowUtils } from "../core/light/ShadowUtils";
@@ -381,16 +381,15 @@ export class ShadowCasterPass {
 						let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock", 0);
 						depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
 					}
-					var gl = LayaGL.instance;
 					var resolution: number = sliceData.resolution;
 					var offsetX: number = sliceData.offsetX;
 					var offsetY: number = sliceData.offsetY;
-					gl.enable(gl.SCISSOR_TEST);
-					gl.viewport(offsetX, offsetY, resolution, resolution);
-					gl.scissor(offsetX, offsetY, resolution, resolution);
-					gl.clear(gl.DEPTH_BUFFER_BIT);
+					
+					LayaGL.renderEngine.viewport(offsetX, offsetY, resolution, resolution);
+					LayaGL.renderEngine.scissor(offsetX, offsetY, resolution, resolution);
+					LayaGL.renderEngine.clearRenderTexture(shadowMap,CameraClearFlags.DepthOnly,null,1);
 					if (needRender) {// if one cascade have anything to render.
-						gl.scissor(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);//for no cascade is for the edge,for cascade is for the beyond maxCascade pixel can use (0,0,0) trick sample the shadowMap
+						LayaGL.renderEngine.scissor(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);//for no cascade is for the edge,for cascade is for the beyond maxCascade pixel can use (0,0,0) trick sample the shadowMap
 						scene._opaqueQueue._render(context);//阴影均为非透明队列
 					}
 				}
@@ -414,14 +413,13 @@ export class ShadowCasterPass {
 					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock", 0);
 					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
 				}
-				var gl = LayaGL.instance;
-				gl.enable(gl.SCISSOR_TEST);
-				gl.viewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-				gl.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-				gl.clear(gl.DEPTH_BUFFER_BIT);
+
+				LayaGL.renderEngine.viewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
+				LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
+				LayaGL.renderEngine.clearRenderTexture(shadowMap,CameraClearFlags.DepthOnly,null,1);
 
 				if (needRender) {
-					gl.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
+					LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 					scene._opaqueQueue._render(context);
 				}
 				shadowMap._end();

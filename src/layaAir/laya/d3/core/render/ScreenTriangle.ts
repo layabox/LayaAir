@@ -7,6 +7,7 @@ import { LayaGL } from "../../../layagl/LayaGL"
 import { Resource } from "../../../resource/Resource"
 import { Stat } from "../../../utils/Stat"
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType"
+import { MeshTopology } from "../../../RenderEngine/RenderPologyMode"
 
 
 /**
@@ -48,25 +49,14 @@ export class ScreenTriangle extends Resource {
 	 */
 	constructor() {
 		super();
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._vertexBuffer = new VertexBuffer3D(12 * 4,BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = ScreenTriangle._vertexDeclaration;
 		this._vertexBuffer.setData(ScreenTriangle._vertices.buffer);
-		
-		//this._bufferState.addVertexBuffer(this._vertexBuffer);
 		this._bufferState.applyState([this._vertexBuffer],null);
-		
-		// this._bufferState.bind();
-		// this._bufferState.applyVertexBuffer(this._vertexBuffer);
-		// this._bufferState.unBind();
-
 		this._vertexBufferInvertUV = new VertexBuffer3D(12 * 4, BufferUsage.Static, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenTriangle._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenTriangle._verticesInvertUV.buffer);
-		//this._bufferStateInvertUV.bind();
-		// this._bufferStateInvertUV.addVertexBuffer(this._vertexBufferInvertUV);
 		this._bufferStateInvertUV.applyState([this._vertexBufferInvertUV],null);
-
 		this._setGPUMemory(this._vertexBuffer._byteLength + this._vertexBufferInvertUV._byteLength);
 	}
 
@@ -74,9 +64,8 @@ export class ScreenTriangle extends Resource {
 	 * @internal
 	 */
 	render(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._bufferState.bind();
-		gl.drawArrays(gl.TRIANGLES, 0, 3);
+		LayaGL.renderDrawConatext.drawArrays( MeshTopology.Triangles, 0, 3);
 		Stat.renderBatches++;
 	}
 
@@ -84,9 +73,8 @@ export class ScreenTriangle extends Resource {
 	 * @internal
 	 */
 	renderInvertUV(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._bufferStateInvertUV.bind();
-		gl.drawArrays(gl.TRIANGLES, 0, 3);
+		LayaGL.renderDrawConatext.drawArrays( MeshTopology.Triangles, 0, 3);
 		Stat.renderBatches++;
 	}
 

@@ -8,6 +8,7 @@ import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Color } from "laya/d3/math/Color";
 
 export class ChinarMirrorPlane extends Script3D {
 
@@ -75,7 +76,7 @@ export class ChinarMirrorPlane extends Script3D {
     onStart(): void {
         //this.mirrorCamera = this.owner as Camera;'
         this.mirrorCamera.renderTarget = this.renderTexture;
-        this.mirrorCamera.clearColor = new Vector4(0.0, 0.0, 0.0, 1.0);
+        this.mirrorCamera.clearColor = new Color(0.0, 0.0, 0.0, 1.0);
 
     }
 

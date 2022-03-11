@@ -108,7 +108,6 @@ export class LoadModelV04 {
 	 * @internal
 	 */
 	private static READ_MESH(): boolean {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var name: string = LoadModelV04._readString();
 		var arrayBuffer: ArrayBuffer = LoadModelV04._readData.__getBuffer();
 		var i: number;

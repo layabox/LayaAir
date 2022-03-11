@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -68,7 +68,7 @@ export class CameraLookAt {
 		this.camera.transform.rotate(this._rotation, true, false);
 
 		//相机设置清楚标记,使用固定颜色
-		this.camera.clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
+		this.camera.clearFlag = CameraClearFlags.SolidColor;
 		//使用默认的背景颜色
 		//camera.clearColor = new Vector4(0, 0.2, 0.6, 1);
 		//设置摄像机视野范围（角度）

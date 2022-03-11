@@ -16,6 +16,7 @@ import { EditPickUtil } from "../MouseInteraction/EditPickUtil";
 import { Script3D } from "laya/d3/component/Script3D";
 import { Sprite } from "laya/display/Sprite";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Color } from "laya/d3/math/Color";
 
 /**
  * miner 用来显示旋转小场景
@@ -61,7 +62,7 @@ export class Show3DCoordScene extends Script3D {
             Laya.stage.addChild(scene);
             this.Coord3DScene = scene;
             var camera = (<Camera>scene.getChildByName("Main Camera"));
-            camera.clearColor = new Vector4(0.0, 0.0, 0.0, 0.0);
+            camera.clearColor = new Color(0.0, 0.0, 0.0, 0.0);
             camera.viewport.width = Show3DCoordScene.CoordImageSize;
             camera.viewport.height = Show3DCoordScene.CoordImageSize;
             camera.orthographic = true;

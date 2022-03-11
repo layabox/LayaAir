@@ -5,6 +5,7 @@ import { RenderState } from "laya/d3/core/material/RenderState";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
@@ -32,7 +33,7 @@ export class DrawTextTexture {
         var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
         camera.transform.translate(new Vector3(0, 0, 15));
         camera.transform.rotate(new Vector3(0, 0, 0), true, false);
-        camera.clearColor = new Vector4(0.2, 0.2, 0.2, 1.0);
+        camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
         camera.addComponent(CameraMoveScript);
 
         //设置一个面板用来渲染

@@ -1,6 +1,6 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { RenderStateContext } from "../../../../RenderEngine/RenderStateContext";
-import { Vector4 } from "../../../math/Vector4";
+import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { Color } from "../../../math/Color";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 
@@ -13,17 +13,17 @@ export class ClearRenderTextureCMD extends Command {
 	/**@internal */
 	private static _pool: any[] = [];
 	/**@internal */
-	private _clearColor:boolean = false;
+	private _clearColor: boolean = false;
 	/**@internal */
-	private _clearDepth:boolean = false;
+	private _clearDepth: boolean = false;
 	/**@internal */
-	private _backgroundColor:Vector4 = new Vector4();
+	private _backgroundColor: Color = new Color();
 	/**@internal */
-	private _depth:number = 1;
+	private _depth: number = 1;
 	/**
 	 * @internal
 	 */
-	static create(clearColor:boolean,clearDepth:boolean,backgroundColor:Vector4,depth:number = 1,commandBuffer:CommandBuffer): ClearRenderTextureCMD {
+	static create(clearColor: boolean, clearDepth: boolean, backgroundColor: Color, depth: number = 1, commandBuffer: CommandBuffer): ClearRenderTextureCMD {
 		var cmd: ClearRenderTextureCMD;
 		cmd = ClearRenderTextureCMD._pool.length > 0 ? ClearRenderTextureCMD._pool.pop() : new ClearRenderTextureCMD();
 		cmd._clearColor = clearColor;
@@ -40,21 +40,15 @@ export class ClearRenderTextureCMD extends Command {
 	 * @override
 	 */
 	run(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var flag: number;
-		var backgroundColor:Vector4 = this._backgroundColor;
-		if(this._clearColor){
-			gl.clearColor(backgroundColor.x,backgroundColor.y,backgroundColor.z,backgroundColor.w);
-			flag|=gl.COLOR_BUFFER_BIT;
-		}
-		if(this._clearDepth){
-			gl.clearDepth(this._depth);
-			flag|=gl.DEPTH_BUFFER_BIT;
-			RenderStateContext.setDepthMask(true);
-		}
-		if(this._clearColor||this._clearDepth){
-			gl.clear(flag);
-		}		
+		var backgroundColor: Color = this._backgroundColor;
+		if(this._clearDepth&&this._clearColor){
+			LayaGL.renderEngine.clearRenderTexture(null,RenderClearFlag.ColorDepth,backgroundColor,this._depth);
+		}else if(this._clearDepth){
+			LayaGL.renderEngine.clearRenderTexture(null,RenderClearFlag.Depth,backgroundColor,this._depth);
+		}else if(this._clearColor){
+			LayaGL.renderEngine.clearRenderTexture(null,RenderClearFlag.Color,backgroundColor,this._depth);
+		}  
 	}
 
 	/**
@@ -62,7 +56,7 @@ export class ClearRenderTextureCMD extends Command {
 	 * @override
 	 */
 	recover(): void {
-	
+
 	}
 
 }

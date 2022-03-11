@@ -13,6 +13,7 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Browser } from "laya/utils/Browser";
+import { Color } from "laya/d3/math/Color";
 
 export class GPUCompression_ASTC{
 
@@ -29,7 +30,7 @@ export class GPUCompression_ASTC{
 		camera.transform.translate(new Vector3(0, 2, 5));
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 		camera.addComponent(CameraMoveScript);
-		camera.clearColor = new Vector4(0.2, 0.2, 0.2, 1.0);
+		camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
 
         let meshSprite = new MeshSprite3D(PrimitiveMesh.createBox());
         this.mat = new UnlitMaterial();

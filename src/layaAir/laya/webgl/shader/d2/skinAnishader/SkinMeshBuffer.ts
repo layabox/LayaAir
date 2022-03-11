@@ -1,6 +1,5 @@
 import { IndexBuffer2D } from "../../../utils/IndexBuffer2D"
 import { VertexBuffer2D } from "../../../utils/VertexBuffer2D"
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 
 export class SkinMeshBuffer {
@@ -12,7 +11,6 @@ export class SkinMeshBuffer {
 
     //TODO:coverage
     constructor() {
-        var gl: WebGLRenderingContext = LayaGL.instance;
         this.ib = IndexBuffer2D.create(BufferUsage.Dynamic);
         this.vb = VertexBuffer2D.create(8);
     }

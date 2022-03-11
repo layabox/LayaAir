@@ -1,5 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
 import { Stat } from "../../../utils/Stat";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Color } from "../../math/Color";
@@ -291,11 +292,9 @@ export class PixelLineFilter extends GeometryElement {
 			this._minUpdate = Number.MAX_VALUE;
 			this._maxUpdate = Number.MIN_VALUE;
 		}
-
 		if (this._lineCount > 0) {
 			this._bufferState.bind();
-			var gl: WebGLRenderingContext = LayaGL.instance;
-			gl.drawArrays(gl.LINES, 0, this._lineCount * 2);
+			LayaGL.renderDrawConatext.drawArrays(MeshTopology.Lines, 0, this._lineCount * 2);
 			Stat.renderBatches++;
 		}
 	}

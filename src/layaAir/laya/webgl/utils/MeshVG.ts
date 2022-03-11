@@ -11,7 +11,6 @@ export class MeshVG extends Mesh2D {
 	private static _POOL: any[] = [];
 
 	static __init__(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		MeshVG._fixattriInfo = [5126/*gl.FLOAT*/, 2, 0,	//x,y
 		5121/*gl.UNSIGNED_BYTE*/, 4, 8];
 	}

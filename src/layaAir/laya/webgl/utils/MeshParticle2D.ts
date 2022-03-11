@@ -1,5 +1,6 @@
 import { Mesh2D } from "./Mesh2D";
 import { LayaGL } from "../../layagl/LayaGL";
+import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
  */
@@ -9,7 +10,7 @@ export class MeshParticle2D extends Mesh2D {
     private static _POOL: any[] = [];
 
     static __init__(): void {
-        var gl: WebGLRenderingContext = LayaGL.instance;
+        var gl = RenderStateContext.mainContext;
         MeshParticle2D._fixattriInfo = [gl.FLOAT, 4, 0,	//CornerTextureCoordinate
         gl.FLOAT, 3, 16,//pos
         gl.FLOAT, 3, 28,//vel

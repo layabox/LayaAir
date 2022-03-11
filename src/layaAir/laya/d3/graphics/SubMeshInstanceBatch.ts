@@ -7,6 +7,8 @@ import { SubMesh } from "../resource/models/SubMesh";
 import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexMesh } from "./Vertex/VertexMesh";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { IndexFormat } from "./IndexFormat";
+import { MeshTopology } from "../../RenderEngine/RenderPologyMode";
 
 /**
  * @internal
@@ -41,7 +43,6 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	 */
 	constructor() {
 		super();
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, BufferUsage.Dynamic);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
 		this.instanceWorldMatrixBuffer._instanceBuffer = true;
@@ -56,13 +57,12 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	 * @override
 	 */
 	_render(state: RenderContext3D): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var element: SubMeshRenderElement = (<SubMeshRenderElement>state.renderElement);
 		var subMesh: SubMesh = element.instanceSubMesh;
 		var count: number = element.instanceBatchElementList.length;
 		var indexCount: number = subMesh._indexCount;
 		subMesh._mesh._instanceBufferState.bind();
-		LayaGL.renderEngine.getDrawContext().drawElementsInstanced(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
+		LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, subMesh._indexStart * 2, count);
 		Stat.renderBatches++;
 		Stat.savedRenderBatches += count - 1;
 		Stat.trianglesFaces += indexCount * count / 3;

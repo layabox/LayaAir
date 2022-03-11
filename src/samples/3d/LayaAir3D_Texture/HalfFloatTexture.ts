@@ -17,6 +17,7 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { TextureFormat } from "laya/RenderEngine/RenderEnum/TextureFormat";
+import { Color } from "laya/d3/math/Color";
 
 export class HalfFloatTexture {
     private sprite3D: Sprite3D;
@@ -31,7 +32,7 @@ export class HalfFloatTexture {
         camera.transform.translate(new Vector3(0, 2, 5));
         camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
         camera.addComponent(CameraMoveScript);
-        camera.clearColor = new Vector4(0.2, 0.2, 0.2, 1.0);
+        camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
 
         var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
         //设置平行光的方向
