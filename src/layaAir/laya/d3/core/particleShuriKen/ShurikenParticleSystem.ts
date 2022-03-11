@@ -53,6 +53,7 @@ import { BoxShape } from "./module/shape/BoxShape";
 import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenParticle";
 import { Sprite3D } from "../Sprite3D";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
 
 
 /**
@@ -1598,7 +1599,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			Resource._addMemory(-memorySize, -memorySize);
 			//TODO:some time use clone will cause this call twice(from 'maxParticleCount' and 'renderMode'),this should optimization rewrite with special clone fun.
 		}
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var render: ShurikenParticleRenderer = this._ownerRender;
 		var renderMode: number = render.renderMode;
 
@@ -2106,20 +2106,19 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	_render(state: RenderContext3D): void {
 		this._bufferState.bind();
 		var indexCount: number;
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		if (this._firstActiveElement < this._firstFreeElement) {
 			indexCount = (this._firstFreeElement - this._firstActiveElement) * this._indexStride;
-			gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
+			LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 2 * this._firstActiveElement * this._indexStride);
 			Stat.trianglesFaces += indexCount / 3;
 			Stat.renderBatches++;
 		} else {
 			indexCount = (this._bufferMaxParticles - this._firstActiveElement) * this._indexStride;
-			gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
+			LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 2 * this._firstActiveElement * this._indexStride);
 			Stat.trianglesFaces += indexCount / 3;
 			Stat.renderBatches++;
 			if (this._firstFreeElement > 0) {
 				indexCount = this._firstFreeElement * this._indexStride;
-				gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 0);
+				LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 0);
 				Stat.trianglesFaces += indexCount / 3;
 				Stat.renderBatches++;
 			}

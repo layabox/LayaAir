@@ -8,6 +8,8 @@ export class GeometryElement implements IDestroy {
 	/**@internal */
 	protected static _typeCounter: number = 0;
 
+	
+
 	/**@internal */
 	protected _destroyed: boolean;
 

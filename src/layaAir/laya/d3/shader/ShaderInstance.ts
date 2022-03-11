@@ -149,7 +149,6 @@ export class ShaderInstance {
 	 * @internal
 	 */
 	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
 
@@ -230,40 +229,23 @@ export class ShaderInstance {
 	 */
 	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
 		this._cullStateCMD.clear();
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
-
 		var cull: any = this._getRenderState(datas, Shader3D.RENDER_STATE_CULL);
 		cull == null && (cull = renderState.cull);
 
 		var forntFace: number;
 		switch (cull) {
 			case RenderState.CULL_NONE:
-				//WebGLContext.setCullFace(gl, false);
 				this._cullStateCMD.addCMD(RenderStateType.CullFace,false);
 				break;
 			case RenderState.CULL_FRONT:
-				//WebGLContext.setCullFace(gl, true);
 				this._cullStateCMD.addCMD(RenderStateType.CullFace,true);
-				//forntFace = isTarget ? invertFront ? WebGLContext.CCW : WebGLContext.CW : invertFront ? WebGLContext.CW : WebGLContext.CCW;
 				if(isTarget==invertFront)
 					forntFace = CullMode.Front;//gl.CCW
 				else
 					forntFace !=CullMode.Back;
 				this._cullStateCMD.addCMD(RenderStateType.FrontFace,forntFace);
-				// if (isTarget) {
-				// 	if (invertFront)
-				// 		forntFace = gl.CCW;
-				// 	else
-				// 		forntFace = gl.CW;
-				// } else {
-				// 	if (invertFront)
-				// 		forntFace = gl.CW;
-				// 	else
-				// 		forntFace = gl.CCW;
-				// }
-				//WebGLContext.setFrontFace(gl, forntFace);
 				break;
 			case RenderState.CULL_BACK:
 				this._cullStateCMD.addCMD(RenderStateType.CullFace,true);
@@ -272,18 +254,7 @@ export class ShaderInstance {
 				else
 					forntFace !=CullMode.Back;
 				this._cullStateCMD.addCMD(RenderStateType.FrontFace,forntFace);
-				// if (isTarget) {
-				// 	if (invertFront)
-				// 		forntFace = gl.CW;
-				// 	else
-				// 		forntFace = gl.CCW;
-				// } else {
-				// 	if (invertFront)
-				// 		forntFace = gl.CCW;
-				// 	else
-				// 		forntFace = gl.CW;
-				// }
-				// WebGLContext.setFrontFace(gl, forntFace);
+				
 				break;
 		}
 		this._cullStateCMD.applyCMD();

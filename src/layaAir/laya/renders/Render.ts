@@ -89,7 +89,7 @@ export class Render {
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
         const engine: WebGLEngine = new WebGLEngine(glConfig, webglMode);
         engine.initRenderEngine(Render._mainCanvas.source);
-        var gl: WebGLRenderingContext = RenderStateContext.mainContext = LayaGL.instance = engine.gl;
+        var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
         if (false)
             this._replaceWebglcall(gl);
 
@@ -102,6 +102,7 @@ export class Render {
         LayaGL.renderEngine = engine;
         //LayaGL.instance = gl;
         LayaGL.textureContext = engine.getTextureContext();
+        LayaGL.renderDrawConatext = engine.getDrawContext();
 
         canvas.size(w, h);	//在ctx之后调用。
         Context.__init__();

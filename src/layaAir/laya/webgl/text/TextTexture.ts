@@ -5,6 +5,10 @@ import { Resource } from "../../resource/Resource"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { ILaya } from "../../../ILaya";
 import { IRender2DContext } from "../../RenderEngine/RenderInterface/IRender2DContext"
+import { Texture2D } from "../../resource/Texture2D";
+import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
+import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
+import { WarpMode } from "../../RenderEngine/RenderEnum/WrapMode";
 
 export class TextTexture extends Resource {
     static gTextRender: ITextRender = null;
@@ -14,7 +18,7 @@ export class TextTexture extends Resource {
     private static cleanTm: number = 0;
     private _render2DContext:IRender2DContext; 
     /**@internal */
-    _source: any;	// webgl 贴图
+    _source: Texture2D;	// webgl 贴图
     /**@internal */
     _texW: number = 0;
     /**@internal */
@@ -43,19 +47,12 @@ export class TextTexture extends Resource {
     recreateResource(): void {
         if (this._source)
             return;
-        var gl: WebGLRenderingContext = LayaGL.instance;
-        var glTex: any = this._source = gl.createTexture();
+        var glTex: any = this._source = new Texture2D(this._texW,this._texH,TextureFormat.R8G8B8A8,false,false,false);
         this.bitmap._glTexture = glTex;
 
-        this._render2DContext.bindTexture(gl.TEXTURE_2D, glTex);
-        //gl.bindTexture(WebGLContext.TEXTURE_2D, glTex);
-        //var sz:int = _width * _height * 4;
-        //分配显存。
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this._texW, this._texH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);	//不能用点采样，否则旋转的时候，非常难看
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        this._source.filterMode = FilterMode.Bilinear;
+        this._source.wrapModeU = WarpMode.Clamp;
+        this._source.wrapModeV = WarpMode.Clamp;
 
         //TODO 预乘alpha
         if (TextTexture.gTextRender.debugUV) {
@@ -76,15 +73,11 @@ export class TextTexture extends Resource {
         if (TextTexture.gTextRender.isWan1Wan) {
             return this.addCharCanvas(data, x, y, uv);
         }
-        !this._source && this.recreateResource();
-        var gl = LayaGL.instance;
-        this._render2DContext.bindTexture(gl.TEXTURE_2D, this._source);
-        !ILaya.Render.isConchApp && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         var dt: any = data.data;
         if (data.data instanceof Uint8ClampedArray)
             dt = new Uint8Array(dt.buffer);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, data.width, data.height, gl.RGBA, gl.UNSIGNED_BYTE, dt);
-        !ILaya.Render.isConchApp && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        !this._source && this.recreateResource();
+        LayaGL.textureContext.setTextureImageData(this._source._getSource(),dt,true,false);
         var u0: number;
         var v0: number;
         var u1: number;
@@ -109,11 +102,8 @@ export class TextTexture extends Resource {
      */
     addCharCanvas(canv: any, x: number, y: number, uv: any[] = null): any[] {
         !this._source && this.recreateResource();
-        var gl: WebGLRenderingContext = LayaGL.instance;
-        this._render2DContext.bindTexture(gl.TEXTURE_2D, this._source);
-        !ILaya.Render.isConchApp && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, gl.RGBA, gl.UNSIGNED_BYTE, canv);
-        !ILaya.Render.isConchApp && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+
+        LayaGL.textureContext.setTextureImageData(this._source._getSource(),canv,true,false);
         var u0: number;
         var v0: number;
         var u1: number;
@@ -142,10 +132,9 @@ export class TextTexture extends Resource {
      */
     fillWhite(): void {
         !this._source && this.recreateResource();
-        var gl: WebGLRenderingContext = LayaGL.instance;
         var dt: Uint8Array = new Uint8Array(this._texW * this._texH * 4);
         ((<any>dt)).fill(0xff);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, gl.RGBA, gl.UNSIGNED_BYTE, dt);
+        LayaGL.textureContext.setTextureImageData(this._source._getSource(),dt as any,true,false);
     }
 
     discard(): void {
@@ -154,35 +143,11 @@ export class TextTexture extends Resource {
 		// 不再使用问题贴图的重用，否则会有内容清理问题
 		this.destroy();
 		return;
-
-        // 非标准大小不回收。
-        if (this._texW != TextTexture.gTextRender.atlasWidth || this._texH != TextTexture.gTextRender.atlasWidth) {
-            this.destroy();
-            return;
-        }
-        this.genID++;
-        if (TextTexture.poolLen >= TextTexture.pool.length) {
-            TextTexture.pool = TextTexture.pool.concat(new Array(10));
-        }
-
-        this._discardTm = RenderInfo.loopStTm;
-        TextTexture.pool[TextTexture.poolLen++] = this;
     }
 
     static getTextTexture(w: number, h: number): TextTexture {
 		// 不再回收
 		return new TextTexture(w, h);
-		
-        if (w != TextTexture.gTextRender.atlasWidth || w != TextTexture.gTextRender.atlasWidth)
-            return new TextTexture(w, h);
-        // 否则从回收池中取
-        if (TextTexture.poolLen > 0) {
-            var ret: TextTexture = TextTexture.pool[--TextTexture.poolLen];
-            if (TextTexture.poolLen > 0)
-                TextTexture.clean();	//给个clean的机会。
-            return ret;
-        }
-        return new TextTexture(w, h);
     }
     /**
      * @override
@@ -190,8 +155,7 @@ export class TextTexture extends Resource {
     destroy(): void {
         //console.log('destroy TextTexture');
         this.__destroyed = true;
-        var gl: WebGLRenderingContext = LayaGL.instance;
-        this._source && gl.deleteTexture(this._source);
+        this._source && this._source.destroy();
         this._source = null;
     }
 
@@ -234,7 +198,7 @@ export class TextTexture extends Resource {
     }
     /**@internal */
     _getSource(): any {
-        return this._source;
+        return this._source._getSource();
     }
 
     // for debug

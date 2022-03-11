@@ -1,5 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
@@ -106,7 +107,6 @@ export class TrailGeometry extends GeometryElement {
 		this._subBirthTime = new Float32Array(segementCount);
 		this._subDistance = new Float64Array(segementCount);
 
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var vertexCount: number = segementCount * 2;
 		var vertexDeclaration1: VertexDeclaration = VertexTrail.vertexDeclaration1;
 		var vertexDeclaration2: VertexDeclaration = VertexTrail.vertexDeclaration2;
@@ -438,10 +438,9 @@ export class TrailGeometry extends GeometryElement {
 	 */
 	_render(state: RenderContext3D): void {
 		this._bufferState.bind();
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		var start: number = this._activeIndex * 2;
+		var start: number = this._activeIndex * 2;	
 		var count: number = this._endIndex * 2 - start;
-		gl.drawArrays(gl.TRIANGLE_STRIP, start, count);
+		LayaGL.renderDrawConatext.drawArrays(MeshTopology.TriangleStrip,start,count);
 		Stat.renderBatches++;
 		Stat.trianglesFaces += count - 2;
 	}

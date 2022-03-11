@@ -1,6 +1,7 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { MathUtil } from "../../../maths/MathUtil";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
@@ -114,7 +115,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             this._instanceParticleVertexBuffer.destroy();
             this._indexBuffer.destroy();
         }
-        let gl: WebGLRenderingContext = LayaGL.instance;
         let render: ShurikenParticleRenderer = this._ownerRender;
         let renderMode: number = render.renderMode;
 
@@ -517,12 +517,10 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
     _render(stage: RenderContext3D) {
         this._instanceBufferState.bind();
-        let gl: WebGLRenderingContext = LayaGL.instance;
         // instance buffer 每次从 0 更新
         if (this._firstActiveElement < this._firstFreeElement) {
             let indexCount = this._firstFreeElement - this._firstActiveElement;
-            LayaGL.renderEngine.getDrawContext().drawElementsInstanced(gl.TRIANGLES, this._meshIndexCount, gl.UNSIGNED_SHORT, 0, indexCount);
-
+            LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, this._meshIndexCount, IndexFormat.UInt16, 0, indexCount);
             Stat.trianglesFaces += this._meshIndexCount / 3 * indexCount;
             Stat.renderBatches++;
         }
@@ -531,7 +529,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             if (this._firstFreeElement > 0) {
                 indexCount += this._firstFreeElement;
             }
-            LayaGL.renderEngine.getDrawContext().drawElementsInstanced(gl.TRIANGLES, this._meshIndexCount, gl.UNSIGNED_SHORT, 0, indexCount);
+            LayaGL.renderEngine.getDrawContext().drawElementsInstanced(MeshTopology.Triangles, this._meshIndexCount, IndexFormat.UInt16, 0, indexCount);
             Stat.trianglesFaces += this._meshIndexCount / 3 * indexCount;
             Stat.renderBatches++;
         }

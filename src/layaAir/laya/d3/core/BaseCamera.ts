@@ -17,6 +17,7 @@ import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 import { Config3D } from "../../../Config3D";
 import { IRenderEngine } from "../../RenderEngine/RenderInterface/IRenderEngine";
 import { LayaGL } from "../../layagl/LayaGL";
+import { Color } from "../math/Color";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -150,7 +151,7 @@ export class BaseCamera extends Sprite3D {
 	_shaderValues: ShaderData;
 
 	/**摄像机的清除颜色,默认颜色为CornflowerBlue。*/
-	clearColor: Vector4 = new Vector4(100 / 255, 149 / 255, 237 / 255, 255 / 255);
+	clearColor: Color = new Color(100 / 255, 149 / 255, 237 / 255, 255 / 255);
 	/** 可视层位标记遮罩值,支持混合 例:cullingMask=Math.pow(2,0)|Math.pow(2,1)为第0层和第1层可见。*/
 	cullingMask: number;
 	/** 渲染时是否用遮挡剔除。 */
@@ -411,7 +412,7 @@ export class BaseCamera extends Sprite3D {
 		this.farPlane = data.farPlane;
 
 		var color: any[] = data.clearColor;
-		this.clearColor = new Vector4(color[0], color[1], color[2], color[3]);
+		this.clearColor = new Color(color[0], color[1], color[2], color[3]);
 		var skyboxMaterial: any = data.skyboxMaterial;
 		if (skyboxMaterial) {
 			this._skyRenderer.material = Loader.getRes(skyboxMaterial.path);
@@ -433,14 +434,5 @@ export class BaseCamera extends Sprite3D {
 		Laya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);
 		super.destroy(destroyChild);
 	}
-
-	/** @deprecated plaease use CameraClearFlags.SolidColor instead.*/
-	static CLEARFLAG_SOLIDCOLOR: number = 0;
-	/** @deprecated plaease use CameraClearFlags.Sky instead.*/
-	static CLEARFLAG_SKY: number = 1;
-	/** @deprecated plaease use CameraClearFlags.DepthOnly instead.*/
-	static CLEARFLAG_DEPTHONLY: number = 2;
-	/** @deprecated plaease use CameraClearFlags.Nothing instead.*/
-	static CLEARFLAG_NONE: number = 3;
 }
 

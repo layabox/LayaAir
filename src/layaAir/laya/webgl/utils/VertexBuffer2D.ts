@@ -59,23 +59,8 @@ export class VertexBuffer2D extends Buffer2D {
 		 * @override
 		 */
 		/*override*/  _bindForVAO(): void {
-        var gl: WebGLRenderingContext = LayaGL.instance;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
+        this._glBuffer.bindBuffer();
     }
-
-    // 	/**
-    // 	 * @inheritDoc
-    // 	 * @override
-    // 	 */
-    // 	/*override*/  bind(): boolean {
-    //     if (Buffer._bindedVertexBuffer !== this._glBuffer) {
-    //         var gl: WebGLRenderingContext = LayaGL.instance;
-    //         gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
-    //         Buffer._bindedVertexBuffer = this._glBuffer;
-    //         return true;
-    //     }
-    //     return false;
-    // }
     /**
      * @override
      * override

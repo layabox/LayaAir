@@ -1,5 +1,3 @@
-import { ILaya } from "../../../../ILaya";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { RenderStateType } from "../../../RenderEngine/RenderEnum/RenderStateType";
 import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
@@ -94,7 +92,6 @@ export class SkyRenderer {
 	 */
 	_render(context: RenderContext3D): void {
 		if (this._material && this._mesh) {
-			var gl: WebGLRenderingContext = LayaGL.instance;
 			var scene: Scene3D = context.scene;
 			var cameraShaderValue: ShaderData = context.cameraShaderValue;
 			var camera: Camera = context.camera;
@@ -174,7 +171,7 @@ export class SkyRenderer {
 			this._mesh._bufferState.bind();
 			this._mesh._render(context);
 			
-			RenderStateContext.setDepthFunc(gl.LESS);
+			RenderStateContext.setDepthFunc(CompareFunction.Less);
 			RenderStateContext.setDepthMask(true);
 			camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
 		}

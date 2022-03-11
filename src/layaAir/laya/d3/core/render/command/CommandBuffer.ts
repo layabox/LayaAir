@@ -24,6 +24,7 @@ import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
+import { Color } from "../../../math/Color";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -275,7 +276,7 @@ export class CommandBuffer {
 	 * @param backgroundColor 
 	 * @param depth 
 	 */
-	clearRenderTarget(clearColor: boolean, clearDepth: boolean, backgroundColor: Vector4, depth: number = 1): void {
+	clearRenderTarget(clearColor: boolean, clearDepth: boolean, backgroundColor: Color, depth: number = 1): void {
 		this._commands.push(ClearRenderTextureCMD.create(clearColor, clearDepth, backgroundColor, depth, this));
 	}
 

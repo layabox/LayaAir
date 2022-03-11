@@ -266,10 +266,6 @@ export class Matrix4x4 implements IClone {
 		e[15] = (l41 * r14) + (l42 * r24) + (l43 * r34) + (l44 * r44);
 	}
 
-	static multiplyForNative(left: Matrix4x4, right: Matrix4x4, out: Matrix4x4): void {
-		(<any>LayaGL.instance).matrix4x4Multiply(left.elements, right.elements, out.elements);
-	}
-
 	/**
 	 * 从四元数计算旋转矩阵
 	 * @param	rotation 四元数

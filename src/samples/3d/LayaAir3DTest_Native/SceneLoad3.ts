@@ -1,7 +1,7 @@
 import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -63,7 +63,7 @@ export class SceneLoad3 {
 			//设置相机远距裁剪
 			camera.farPlane = 1000;
 			//相机设置清楚标记
-			camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
+			camera.clearFlag = CameraClearFlags.Sky;
 			//设置摄像机视野范围（角度）
 			camera.fieldOfView = 60;
 			//设置背景颜色

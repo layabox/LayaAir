@@ -3,6 +3,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
+import { Color } from "laya/d3/math/Color";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
@@ -40,7 +41,7 @@ export class Shader_Simple {
 		var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
 		camera.transform.translate(new Vector3(0, 0.5, 1.5));
 		camera.addComponent(CameraMoveScript);
-		camera.clearColor = new Vector4(1.0, 1.0, 1.0, 1.0);
+		camera.clearColor = new Color(1.0, 1.0, 1.0, 1.0);
 		Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
 			var layaMonkey: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(mesh)));
 			layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);

@@ -423,7 +423,6 @@ export class UnlitMaterial extends Material {
 		this.albedoIntensity = 1.0;
 
 		if (LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject)) {
-			let gl = <WebGL2RenderingContext>LayaGL.instance;
 			let uniformData = new UnifromBufferData(UnlitMaterial.unlitUniformMap);
 			this._uniformBlock = UniformBufferObject.creat("UnlitBlock", BufferUsage.Dynamic, uniformData.getbyteLength(), false);
 

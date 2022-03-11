@@ -1,8 +1,9 @@
 import { Laya } from "Laya";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Stage } from "laya/display/Stage";
@@ -30,8 +31,8 @@ export class Particle_BurningGround {
 		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
 		camera.transform.translate(new Vector3(0, 2, 4));
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
-		camera.clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
-		camera.clearColor = new Vector4(0, 0, 0, 1);
+		camera.clearFlag = CameraClearFlags.SolidColor;
+		camera.clearColor = new Color(0, 0, 0, 1);
 
 		Sprite3D.load("res/threeDimen/particle/ETF_Burning_Ground.lh", Handler.create(this, function (sprite: Sprite3D): void {
 			(<Sprite3D>scene.addChild(sprite));

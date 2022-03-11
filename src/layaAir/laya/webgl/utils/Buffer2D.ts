@@ -64,10 +64,9 @@ export class Buffer2D extends Buffer {
 		if (this._uploadSize < this._buffer.byteLength) {
 			this._uploadSize = this._buffer.byteLength;
 
-			LayaGL.instance.bufferData(this._bufferType, this._uploadSize, this._bufferUsage);
-			//_setGPUMemory(_uploadSize);
+			this._glBuffer.setData(this._uploadSize);
 		}
-		LayaGL.instance.bufferSubData(this._bufferType, 0, new Uint8Array(this._buffer, 0, this._byteLength));
+		this._glBuffer.setData(new Uint8Array(this._buffer, 0, this._byteLength),0);
 	}
 
 	//TODO:coverage
@@ -85,15 +84,15 @@ export class Buffer2D extends Buffer {
 
 		if (this._uploadSize < this._buffer.byteLength) {
 			this._uploadSize = this._buffer.byteLength;
-			LayaGL.instance.bufferData(this._bufferType, this._uploadSize, this._bufferUsage);
+			this._glBuffer.setData(this._bufferType, this._uploadSize, this._bufferUsage);
 			//_setGPUMemory(_uploadSize);
 		}
 
 		if (dataStart || dataLength) {
 			var subBuffer: ArrayBuffer = this._buffer.slice(dataStart, dataLength);
-			LayaGL.instance.bufferSubData(this._bufferType, offset, subBuffer);
+			this._glBuffer.setData(subBuffer,offset);
 		} else {
-			LayaGL.instance.bufferSubData(this._bufferType, offset, this._buffer);
+			this._glBuffer.setData(this._buffer,offset);
 		}
 	}
 
@@ -252,7 +251,6 @@ export class Buffer2D extends Buffer {
 
 	//TODO:coverage
 	upload(): boolean {
-		var gl:WebGLRenderingContext=LayaGL.instance;
 		var scuess: boolean = this._bind_upload();
 		this.unbind();
 		//gl.bindBuffer(this._bufferType, null);
@@ -264,7 +262,6 @@ export class Buffer2D extends Buffer {
 
 	//TODO:coverage
 	subUpload(offset: number = 0, dataStart: number = 0, dataLength: number = 0): boolean {
-		var gl:WebGLRenderingContext=LayaGL.instance;
 		var scuess: boolean = this._bind_subUpload();
 		this.unbind();
 		//gl.bindBuffer(this._bufferType, null);

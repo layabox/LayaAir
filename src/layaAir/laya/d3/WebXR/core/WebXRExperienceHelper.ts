@@ -17,6 +17,8 @@ export class WebXRCameraInfo {
  * @author miner
  */
 export class WebXRExperienceHelper {
+
+    static glInstance:any;
     /**
      * single XRManager 
      */
@@ -65,7 +67,10 @@ export class WebXRExperienceHelper {
             //refernceSpace
             await WebXRExperienceHelper.xr_Manager.setReferenceSpaceTypeAsync(referenceSpaceType);
             //webglSurport
-            await WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, LayaGL.instance);
+            //@ts-ignore
+            await WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, LayaGL.renderEngine._gl);
+            //@ts-ignore
+            WebXRExperienceHelper.glInstance = LayaGL.renderEngine._gl;
             await WebXRExperienceHelper.xr_Manager.updateRenderStateAsync({
                 depthFar: cameraInfo.depthFar,
                 depthNear: cameraInfo.depthNear,

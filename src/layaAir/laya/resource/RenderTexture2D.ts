@@ -6,6 +6,8 @@ import { RenderState2D } from "../webgl/utils/RenderState2D"
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRenderTarget";
 import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
+import { Color } from "../d3/math/Color";
+import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
@@ -13,6 +15,7 @@ import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /** @private */
     private static _currentActive: RenderTexture2D;
+    private static _clearColor:Color = new Color();
     private _lastRT: RenderTexture2D;
     private _lastWidth: number;
     private _lastHeight: number;
@@ -144,14 +147,13 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * 恢复上次保存的RT信息
      */
     static popRT(): void {
-        var gl: WebGLRenderingContext = LayaGL.instance;
         var top: any = RenderTexture2D.rtStack.pop();
         if (top) {
             if (RenderTexture2D._currentActive != top.rt) {
-                LayaGL.instance.bindFramebuffer(gl.FRAMEBUFFER, top.rt ? top.rt._frameBuffer : null);
+                top.rt?LayaGL.textureContext.bindRenderTarget(top):LayaGL.textureContext.bindoutScreenTarget();
                 RenderTexture2D._currentActive = top.rt;
             }
-            gl.viewport(0, 0, top.w, top.h);
+            LayaGL.renderEngine.viewport(0, 0, top.w, top.h);
             RenderState2D.width = top.w;
             RenderState2D.height = top.h;
         }
@@ -160,7 +162,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * 开始绑定。
      */
     start(): void {
-        var gl: WebGLRenderingContext = LayaGL.instance;
         //(memorySize == 0) && recreateResource();
         LayaGL.textureContext.bindRenderTarget(this._renderTarget);
         this._lastRT = RenderTexture2D._currentActive;
@@ -175,7 +176,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         //_readyed = true;	//这个没什么用。还会影响流程，比如我有时候并不调用end。所以直接改成true
         //
         ////if (_type == TYPE2D) {
-        gl.viewport(0, 0, this._width, this._height);//外部设置
+        LayaGL.renderEngine.viewport(0, 0, this._width, this._height);//外部设置
         this._lastWidth = RenderState2D.width;
         this._lastHeight = RenderState2D.height;
         RenderState2D.width = this._width;
@@ -196,7 +197,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * 恢复上一次的RenderTarge.由于使用自己保存的，所以如果被外面打断了的话，会出错。
      */
     restore(): void {
-        var gl: WebGLRenderingContext = LayaGL.instance;
         if (this._lastRT != RenderTexture2D._currentActive) {
 
             if (this._lastRT) {
@@ -211,7 +211,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         // this._readyed = true;
         //if (_type == TYPE2D)//待调整
         //{
-        gl.viewport(0, 0, this._lastWidth, this._lastHeight);
+        LayaGL.renderEngine.viewport(0, 0, this._lastWidth, this._lastHeight);
         RenderState2D.width = this._lastWidth;
         RenderState2D.height = this._lastHeight;
         BaseShader.activeShader = null;
@@ -220,25 +220,15 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 
     }
 
+
     clear(r: number = 0.0, g: number = 0.0, b: number = 0.0, a: number = 1.0): void {
-        var gl: WebGLRenderingContext = LayaGL.instance;
-        gl.clearColor(r, g, b, a);
-        var clearFlag: number = gl.COLOR_BUFFER_BIT;
-        switch (this._depthStencilFormat) {
-            //case WebGLContext.DEPTH_COMPONENT: 
-            case gl.DEPTH_COMPONENT16:
-                clearFlag |= gl.DEPTH_BUFFER_BIT;
-                break;
-            //case WebGLContext.STENCIL_INDEX:
-            case gl.STENCIL_INDEX8:
-                clearFlag |= gl.STENCIL_BUFFER_BIT;
-                break;
-            case gl.DEPTH_STENCIL:
-                clearFlag |= gl.DEPTH_BUFFER_BIT;
-                clearFlag |= gl.STENCIL_BUFFER_BIT
-                break;
-        }
-        gl.clear(clearFlag);
+        
+        RenderTexture2D._clearColor.r = r;
+        RenderTexture2D._clearColor.g = g;
+        RenderTexture2D._clearColor.b = b;
+        RenderTexture2D._clearColor.a = a;
+        //@ts-ignore
+        LayaGL.renderEngine.clearRenderTexture(this,RenderClearFlag.ColorDepth,RenderTexture2D._clearColor,1);
     }
 
 

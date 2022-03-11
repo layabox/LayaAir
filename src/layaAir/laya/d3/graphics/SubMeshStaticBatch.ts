@@ -28,6 +28,7 @@ import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexElement } from "./VertexElement";
 import { IndexFormat } from "./IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../RenderEngine/RenderPologyMode";
 
 /**
  * @internal
@@ -228,7 +229,6 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 			this._indexBuffer.destroy();
 			Resource._addGPUMemory(-(this._vertexBuffer._byteLength + this._indexBuffer._byteLength));
 		}
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var batchVertexCount: number = 0;
 		var batchIndexCount: number = 0;
 
@@ -295,7 +295,6 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	 */
 	_render(state: RenderContext3D): void {
 		this._bufferState.bind();
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var element: RenderElement = state.renderElement;
 		var staticBatchElementList: SingletonList<SubMeshRenderElement> = (<SubMeshRenderElement>element).staticBatchElementList;
 		var batchElementList: Array<SubMeshRenderElement> = staticBatchElementList.elements;
@@ -311,14 +310,14 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 			} else {
 				var start: number = batchElementList[from].staticBatchIndexStart;
 				var indexCount: number = batchElementList[end].staticBatchIndexEnd - start;
-				gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, start * 2);
+				LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, start * 2);
 				from = ++end;
 				Stat.trianglesFaces += indexCount / 3;
 			}
 		}
 		start = batchElementList[from].staticBatchIndexStart;
 		indexCount = batchElementList[end].staticBatchIndexEnd - start;
-		gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, start * 2);
+		LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles,indexCount, IndexFormat.UInt16, start * 2);
 		Stat.renderBatches++;
 		Stat.savedRenderBatches += count - 1;
 		Stat.trianglesFaces += indexCount / 3;

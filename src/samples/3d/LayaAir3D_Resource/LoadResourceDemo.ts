@@ -175,7 +175,7 @@ export class LoadResourceDemo {
 		var camera: Camera = new Camera();
 		this._scene.addChild(camera);
 		//设置相机清楚标记，使用天空
-		camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
+		camera.clearFlag = CameraClearFlags.Sky;
 		//调整相机的位置
 		camera.transform.translate(new Vector3(4, 20, 47));
 		//相机视角控制组件(脚本)

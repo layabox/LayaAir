@@ -1,6 +1,7 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderTexture } from "../../resource/RenderTexture";
+import { WebXRExperienceHelper } from "./WebXRExperienceHelper";
 
 
 /**
@@ -41,7 +42,7 @@ export class WebXRRenderTexture extends RenderTexture {
 	 * @internal
 	 */
 	_start(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext =  WebXRExperienceHelper.glInstance;
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 		RenderTexture._currentActive = this;
 	}
@@ -50,7 +51,7 @@ export class WebXRRenderTexture extends RenderTexture {
 	 * @internal
 	 */
 	_end(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = WebXRExperienceHelper.glInstance;
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		RenderTexture._currentActive = null;
 	}

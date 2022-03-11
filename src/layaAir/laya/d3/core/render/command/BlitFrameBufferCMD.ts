@@ -79,8 +79,8 @@ export class BlitFrameBufferCMD {
 		var viewport = this._viewPort;
 
 		let vph = RenderContext3D.clientHeight - viewport.y - viewport.height;
-		LayaGL.instance.viewport(viewport.x, vph, viewport.width, viewport.height);
-		LayaGL.instance.scissor(viewport.x, vph, viewport.width, viewport.height);
+		LayaGL.renderEngine.viewport(viewport.x, vph, viewport.width, viewport.height);
+		LayaGL.renderEngine.scissor(viewport.x, vph, viewport.width, viewport.height);
 
 
 

@@ -11,6 +11,7 @@ import { RenderTexture } from "../../resource/RenderTexture";
 import { WebXRCameraManager } from "./WebXRCameraManager";
 import { WebXRRenderTexture } from "./WebXRRenderTexture";
 import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
+import { WebXRExperienceHelper } from "./WebXRExperienceHelper";
 
 
 /**
@@ -130,7 +131,7 @@ export class WebXRCamera extends Camera {
  * @param needInternalRT 是否需要内部RT
  */
 	_renderMainPass(context: RenderContext3D, viewport: Viewport, scene: Scene3D, shader: Shader3D, replacementTag: string, needInternalRT: boolean) {
-		var gl: WebGLRenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = WebXRExperienceHelper.glInstance;
 		var renderTex: RenderTexture = this._internalRenderTexture;
 
 		context.viewport = viewport;
@@ -201,7 +202,7 @@ export class WebXRCamera extends Camera {
 	clear(gl: WebGLRenderingContext) {
 		gl.viewport(0, 0, this._clientWidth, this._clientHeight);
 		gl.scissor(0, 0, this._clientWidth, this._clientHeight);
-		gl.clearColor(this.clearColor.x, this.clearColor.y, this.clearColor.z, this.clearColor.w);
+		gl.clearColor(this.clearColor.r, this.clearColor.g, this.clearColor.b, this.clearColor.a);
 		RenderStateContext.setDepthMask(true);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	}

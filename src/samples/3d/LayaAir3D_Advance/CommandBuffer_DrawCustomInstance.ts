@@ -22,6 +22,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomInstanceMaterial } from "./DrawCustomInstanceDemo/CustomInstanceMaterial";
 import { Utils } from "laya/utils/Utils";
 import Client from "../../Client";
+import { Color } from "laya/d3/math/Color";
 
 export class CommandBuffer_DrawCustomInstance{
     mat:CustomInstanceMaterial;
@@ -62,7 +63,7 @@ export class CommandBuffer_DrawCustomInstance{
 		camera.transform.position = new Vector3(14.85,17.08,35.89);
 		camera.transform.rotation = new Quaternion(0,0,0,1);
 		camera.addComponent(CameraMoveScript);
-        camera.clearColor = new Vector4(0.8, 0.4, 0.2, 1.0);
+        camera.clearColor = new Color(0.8, 0.4, 0.2, 1.0);
         this.mat = new CustomInstanceMaterial();
         //camera.enableHDR = true;
 		//创建方向光

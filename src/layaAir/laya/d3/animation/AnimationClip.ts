@@ -413,18 +413,6 @@ export class AnimationClip extends Resource {
 		}
 	}
 
-
-	/**
-	 * @internal
-	 * @param nodes 
-	 * @param playCurTime 
-	 * @param realTimeCurrentFrameIndexes 
-	 * @param addtive 
-	 */
-	_evaluateClipDatasRealTimeForNative(nodes: any, playCurTime: number, realTimeCurrentFrameIndexes: Uint16Array, addtive: boolean): void {
-		(<any>LayaGL.instance).evaluateClipDatasRealTime(nodes._nativeObj, playCurTime, realTimeCurrentFrameIndexes, addtive);
-	}
-
 	private _evaluateFrameNodeVector3DatasRealTime(keyFrames: Vector3Keyframe[], frameIndex: number, isEnd: boolean, playCurTime: number, outDatas: Vector3): void {
 		if (frameIndex !== -1) {
 			var frame = keyFrames[frameIndex];

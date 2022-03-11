@@ -7,6 +7,7 @@ import { Material } from "laya/d3/core/material/Material";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Viewport } from "laya/d3/math/Viewport";
@@ -39,14 +40,14 @@ export class MultiCamera {
 		//创建相机
 		var camera1: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
 		//设置相机清除颜色
-		camera1.clearColor = new Vector4(0.3, 0.3, 0.3, 1.0);
+		camera1.clearColor = new Color(0.3, 0.3, 0.3, 1.0);
 		camera1.transform.translate(this._translate);
 		//设置裁剪空间的视口
 		camera1.normalizedViewport = new Viewport(0, 0, 0.5, 1.0);
 
 		//创建相机
 		var camera2: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
-		camera2.clearColor = new Vector4(0.0, 0.0, 1.0, 1.0);
+		camera2.clearColor = new Color(0.0, 0.0, 1.0, 1.0);
 		this._translate.setValue(0, 0, 1.5);
 		camera2.transform.translate(this._translate);
 		camera2.normalizedViewport = new Viewport(0.5, 0.0, 0.5, 0.5);

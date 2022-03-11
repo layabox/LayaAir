@@ -70,7 +70,6 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 		uniformpara.set("u_ReflectCubeHDRParams", UniformBufferParamsType.Vector4);
 		let subUBOData = new SubUniformBufferData(uniformpara, 0);
 		//createUBO Buffer
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		let ubo = UniformBufferObject.creat("SpriteUniformBlock", BufferUsage.Dynamic, subUBOData.getbyteLength(), true);
 		//bind manager
 		BaseRender._transLargeUbO = new TransLargeUBOUtils(ubo, uniformpara, subUBOData);

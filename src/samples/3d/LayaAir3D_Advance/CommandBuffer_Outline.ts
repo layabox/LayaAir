@@ -25,6 +25,7 @@ import { Event } from "laya/events/Event";
 import Client from "../../Client";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Color } from "laya/d3/math/Color";
 
 export class CommandBuffer_Outline {
 	private commandBuffer: CommandBuffer;
@@ -90,7 +91,7 @@ export class CommandBuffer_Outline {
 		//将RenderTexture设置为渲染目标
 		buf.setRenderTarget(renderTexture);
 		//清楚渲染目标的颜色为黑色，不清理深度
-		buf.clearRenderTarget(true, false, new Vector4(0, 0, 0, 0));
+		buf.clearRenderTarget(true, false, new Color(0, 0, 0, 0));
 
 		//将传入的Render渲染到纹理上
 		for (var i = 0, n = renders.length; i < n; i++) {

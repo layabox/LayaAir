@@ -1,6 +1,7 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Stage } from "laya/display/Stage";
@@ -29,7 +30,7 @@ export class SceneLoad1 {
 			//设置摄像机视野范围（角度）
 			camera.fieldOfView = 60;
 			//设置背景颜色
-			camera.clearColor = new Vector4(0, 0, 0.6, 1);
+			camera.clearColor = new Color(0, 0, 0.6, 1);
 			//加入摄像机移动控制脚本
 			camera.addComponent(CameraMoveScript);
 

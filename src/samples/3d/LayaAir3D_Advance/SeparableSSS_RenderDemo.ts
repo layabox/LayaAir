@@ -27,6 +27,7 @@ import Client from "../../Client";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
+import { Color } from "laya/d3/math/Color";
 
 export class SeparableSSS_RenderDemo {
     scene: Scene3D;
@@ -112,13 +113,13 @@ export class SeparableSSS_RenderDemo {
         //深度贴图
         let depthTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.DEPTH_16, null, false, 1);
         buf.setRenderTarget(depthTexture);
-        buf.clearRenderTarget(true, true, new Vector4(0.5, 0.5, 0.5, 1.0));
+        buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
         buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
         //将漫反射和高光分别画到两个RenderTexture
         //漫反射颜色
         let diffuseRenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
         buf.setRenderTarget(diffuseRenderTexture);
-        buf.clearRenderTarget(true, true, new Vector4(0.5, 0.5, 0.5, 1.0));
+        buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
         //@ts-ignore
         buf.setShaderDataVector(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.ALBEDOCOLOR, oriColor);
         //@ts-ignore
@@ -127,7 +128,7 @@ export class SeparableSSS_RenderDemo {
         // //高光颜色
         let specRrenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
         buf.setRenderTarget(specRrenderTexture);
-        buf.clearRenderTarget(true, true, new Vector4(1.0, 0.0, 0.0, 0.0));
+        buf.clearRenderTarget(true, true, new Color(1.0, 0.0, 0.0, 0.0));
         //@ts-ignore
         buf.setShaderDataVector(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.MATERIALSPECULAR, oriSpec);
         //@ts-ignore

@@ -1,7 +1,7 @@
 import { Config3D } from "../../../Config3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { BaseCamera } from "../core/BaseCamera";
-import { Camera } from "../core/Camera";
+import { Camera, CameraClearFlags } from "../core/Camera";
 import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { UnifromBufferData } from "../graphics/UniformBufferData";
@@ -15,6 +15,7 @@ import { ShaderDefine } from "../shader/ShaderDefine";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Color } from "../math/Color";
 
 
 /**
@@ -55,6 +56,8 @@ export class DepthPass {
 	private _camera: Camera;
 	/** @internal */
 	private _castDepthBuffer: UnifromBufferData;
+
+	private _defaultNormalDepthColor = new Color(0.5, 0.5, 1.0, 0.0);
 	// Values used to linearize the Z buffer (http://www.humus.name/temp/Linearize%20depth.txt)
 	// x = 1-far/near
 	// y = far/near
@@ -119,13 +122,12 @@ export class DepthPass {
 					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock", 0);
 					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
 				}
-				var gl = LayaGL.instance;
 				var offsetX: number = this._viewPort.x;
 				var offsetY: number = this._viewPort.y;
-				gl.enable(gl.SCISSOR_TEST);
-				gl.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-				gl.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-				gl.clear(gl.DEPTH_BUFFER_BIT);
+				
+				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+				LayaGL.renderEngine.clearRenderTexture(this._depthTexture,CameraClearFlags.DepthOnly,null,1);
 				scene._opaqueQueue._render(context);
 				this._depthTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);
@@ -137,14 +139,12 @@ export class DepthPass {
 				context.pipelineMode = "DepthNormal";
 				this._depthNormalsTexture._start();
 				//传入shader该传的值
-				var gl = LayaGL.instance;
 				var offsetX: number = this._viewPort.x;
 				var offsetY: number = this._viewPort.y;
-				gl.enable(gl.SCISSOR_TEST);
-				gl.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-				gl.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-				gl.clearColor(0.5, 0.5, 1.0, 0.0);
-				gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+				
+				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+				LayaGL.renderEngine.clearRenderTexture(this._depthNormalsTexture,CameraClearFlags.SolidColor,this._defaultNormalDepthColor,1)
 				scene._opaqueQueue._render(context);
 				this._depthNormalsTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);

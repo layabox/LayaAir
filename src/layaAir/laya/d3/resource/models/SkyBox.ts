@@ -9,6 +9,7 @@ import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { SkyMesh } from "./SkyMesh";
 import { IndexFormat } from "../../graphics/IndexFormat";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
 
 /**
  * <code>SkyBox</code> 类用于创建天空盒。
@@ -28,7 +29,6 @@ export class SkyBox extends SkyMesh {
 	 */
 	constructor() {
 		super();
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		var halfHeight: number = 1.0;
 		var halfWidth: number = 1.0;
 		var halfDepth: number = 1.0;
@@ -64,8 +64,7 @@ export class SkyBox extends SkyMesh {
 	 * @internal
 	 */
 	_render(state: RenderContext3D): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0);
+		LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, 36, IndexFormat.UInt8, 0);
 		Stat.trianglesFaces += 12;
 		Stat.renderBatches++;
 	}

@@ -384,7 +384,6 @@ export class Context {
 			cmd.addCMD(RenderStateType.FrontFace,CullMode.Front);
 		}
 		Context.const2DRenderCMD.applyCMD();
-		var gl: WebGLRenderingContext = LayaGL.instance;
 		// WebGLContext.setBlend(gl, true);//还原2D设置
 		// WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
 		// BlendMode.activeBlendFunction = null;// 防止submit不设置blend
@@ -394,9 +393,9 @@ export class Context {
 		// WebGLContext.setCullFace(gl, false);
 		// WebGLContext.setFrontFace(gl, gl.CCW);
 
-		gl.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
-		gl.enable(gl.SCISSOR_TEST);
-		gl.scissor(0, 0, RenderState2D.width, RenderState2D.height);
+		LayaGL.renderEngine.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
+		LayaGL.renderEngine.scissorTest(true);
+		LayaGL.renderEngine.scissor(0, 0, RenderState2D.width, RenderState2D.height);
 	}
 
 	/**@internal */
@@ -1520,8 +1519,7 @@ export class Context {
 		//var preworldClipRect:Rectangle = RenderState2D.worldClipRect;
 		//裁剪不用考虑，现在是在context内部自己维护，不会乱窜
 		RenderState2D.worldScissorTest = false;
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		gl.disable(gl.SCISSOR_TEST);
+		LayaGL.renderEngine.scissorTest(false);
 
 		var preAlpha: number = RenderState2D.worldAlpha;
 		var preMatrix4: any[] = RenderState2D.worldMatrix4;
