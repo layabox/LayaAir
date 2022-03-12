@@ -1,4 +1,4 @@
-import { ShaderVariable } from "../d3/shader/ShaderVariable";
+import { ShaderVariable } from "../RenderEngine/RenderShader/ShaderVariable";
 
 /**
  * @private

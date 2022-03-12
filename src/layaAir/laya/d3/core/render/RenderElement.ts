@@ -5,14 +5,14 @@ import { Camera } from "../Camera"
 import { GeometryElement } from "../GeometryElement"
 import { Transform3D } from "../Transform3D"
 import { Material } from "../material/Material"
-import { Shader3D } from "../../shader/Shader3D"
-import { ShaderData } from "../../shader/ShaderData"
 import { ShaderInstance } from "../../shader/ShaderInstance"
 import { ShaderPass } from "../../shader/ShaderPass"
 import { SubShader } from "../../shader/SubShader"
-import { DefineDatas } from "../../shader/DefineDatas"
 import { ILaya3D } from "../../../../ILaya3D"
 import { Scene3D } from "../scene/Scene3D"
+import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas"
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。

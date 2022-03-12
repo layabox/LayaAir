@@ -1,11 +1,11 @@
-import { BlendEquationSeparate } from "./RenderEnum/BlendEquationSeparate";
-import { BlendFactor } from "./RenderEnum/BlendFactor";
-import { BlendType } from "./RenderEnum/BlendType";
-import { CompareFunction } from "./RenderEnum/CompareFunction";
-import { CullMode } from "./RenderEnum/CullMode";
-import { RenderStateType } from "./RenderEnum/RenderStateType";
-import { StencilOperation } from "./RenderEnum/StencilOperation";
-import { RenderStateCommand } from "./RenderStateCommand";
+import { BlendEquationSeparate } from "../../RenderEnum/BlendEquationSeparate";
+import { BlendFactor } from "../../RenderEnum/BlendFactor";
+import { BlendType } from "../../RenderEnum/BlendType";
+import { CompareFunction } from "../../RenderEnum/CompareFunction";
+import { CullMode } from "../../RenderEnum/CullMode";
+import { RenderStateType } from "../../RenderEnum/RenderStateType";
+import { StencilOperation } from "../../RenderEnum/StencilOperation";
+import { RenderStateCommand } from "../../RenderStateCommand";
 import { WebGLEngine } from "./WebGLEngine";
 
 export class GLRenderState {
@@ -178,8 +178,8 @@ export class GLRenderState {
     }
 
     //
-    _getGLFrontfaceFactor(cullmode:CullMode){
-        if(cullmode==CullMode.Front)
+    _getGLFrontfaceFactor(cullmode: CullMode) {
+        if (cullmode == CullMode.Front)
             return this._gl.CCW;
         else
             return this._gl.CW;
@@ -403,25 +403,25 @@ export class GLRenderState {
                     this.setStencilMask(value);
                     break;
                 case RenderStateType.StencilFunc:
-                    this.setStencilFunc(this._getGLCompareFunction(value[0]),value[1]);
+                    this.setStencilFunc(this._getGLCompareFunction(value[0]), value[1]);
                     break;
                 case RenderStateType.StencilOp:
-                    this.setstencilOp(this._getGLStencilOperation(value[0]),this._getGLStencilOperation(value[1]),this._getGLStencilOperation(value[2]));//TODO
+                    this.setstencilOp(this._getGLStencilOperation(value[0]), this._getGLStencilOperation(value[1]), this._getGLStencilOperation(value[2]));//TODO
                     break;
                 case RenderStateType.BlendType:
-                    this.setBlend(value!=BlendType.BLEND_DISABLE);
+                    this.setBlend(value != BlendType.BLEND_DISABLE);
                     break;
                 case RenderStateType.BlendEquation:
                     this.setBlendEquation(this._getBlendOperation(value));
                     break;
                 case RenderStateType.BlendEquationSeparate:
-                    this.setBlendEquationSeparate(this._getBlendOperation(value[0]),this._getBlendOperation(value[1]));//TODO
+                    this.setBlendEquationSeparate(this._getBlendOperation(value[0]), this._getBlendOperation(value[1]));//TODO
                     break;
                 case RenderStateType.BlendFunc:
-                    this.setBlendFunc(this._getBlendFactor(value[0]),this._getBlendFactor(value[1]));
+                    this.setBlendFunc(this._getBlendFactor(value[0]), this._getBlendFactor(value[1]));
                     break;
                 case RenderStateType.BlendFuncSeperate:
-                    this.setBlendFuncSeperate(this._getBlendFactor(value[0]),this._getBlendFactor(value[1]),this._getBlendFactor(value[2]),this._getBlendFactor(value[3]));
+                    this.setBlendFuncSeperate(this._getBlendFactor(value[0]), this._getBlendFactor(value[1]), this._getBlendFactor(value[2]), this._getBlendFactor(value[3]));
                     break;
                 case RenderStateType.CullFace:
                     this.setCullFace(value);

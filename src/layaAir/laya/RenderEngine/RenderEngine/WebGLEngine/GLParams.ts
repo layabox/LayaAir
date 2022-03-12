@@ -1,6 +1,6 @@
+import { RenderCapable } from "../../RenderEnum/RenderCapable";
+import { RenderParams } from "../../RenderEnum/RenderParams";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
-import { RenderCapable } from "./RenderEnum/RenderCapable";
-import { RenderParams } from "./RenderEnum/RenderParams";
 import { WebGLEngine } from "./WebGLEngine";
 
 /**

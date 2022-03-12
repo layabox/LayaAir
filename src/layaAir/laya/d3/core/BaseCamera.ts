@@ -4,20 +4,19 @@ import { Event } from "../../events/Event";
 import { Loader } from "../../net/Loader";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
-import { SkyRenderer } from "../resource/models/SkyRenderer";
-import { Shader3D } from "../shader/Shader3D";
-import { ShaderData } from "../shader/ShaderData";
-import { Sprite3D } from "./Sprite3D";
-import { Scene3D } from "./scene/Scene3D";
-import { ShaderDefine } from "../shader/ShaderDefine";
-import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
-import { UniformBufferParamsType, UnifromBufferData } from "../graphics/UniformBufferData";
 import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 import { Config3D } from "../../../Config3D";
 import { IRenderEngine } from "../../RenderEngine/RenderInterface/IRenderEngine";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../math/Color";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
+import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
+import { SkyRenderer } from "../resource/models/SkyRenderer";
+import { Scene3D } from "./scene/Scene3D";
+import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
+import { Sprite3D } from "./Sprite3D";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。

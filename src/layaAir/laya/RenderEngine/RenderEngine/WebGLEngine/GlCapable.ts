@@ -1,6 +1,6 @@
-import { VertexArrayObject } from "../webgl/VertexArrayObject";
+import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
-import { RenderCapable } from "./RenderEnum/RenderCapable";
+import { VertexArrayObject } from "./VertexArrayObject";
 import { WebGLEngine } from "./WebGLEngine";
 
 export class GlCapable {

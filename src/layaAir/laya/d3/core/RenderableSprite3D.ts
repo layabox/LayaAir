@@ -1,10 +1,10 @@
 import { Node } from "../../display/Node";
 import { Vector4 } from "../math/Vector4";
-import { Shader3D } from "../shader/Shader3D";
 import { Sprite3D } from "./Sprite3D";
 import { BaseRender } from "./render/BaseRender";
-import { ShaderDefine } from "../shader/ShaderDefine";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 
 /**
  * <code>RenderableSprite3D</code> 类用于可渲染3D精灵的父类，抽象类不允许实例。

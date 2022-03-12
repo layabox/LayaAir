@@ -3,10 +3,10 @@ import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { DrawMeshInstancedCMD } from "laya/d3/core/render/command/DrawMeshInstancedCMD";
 import { InstanceLocation, MaterialInstancePropertyBlock } from "laya/d3/core/render/command/MaterialInstancePropertyBlock";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { VertexDeclaration } from "laya/d3/graphics/VertexDeclaration";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { VertexDeclaration } from "laya/RenderEngine/VertexDeclaration";
 import { GrassMaterial } from "./GrassMaterial";
 import { GrassRenderManager } from "./GrassRenderManager";
 

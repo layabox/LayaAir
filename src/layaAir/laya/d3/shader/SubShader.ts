@@ -1,5 +1,5 @@
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
-import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
 
 /**

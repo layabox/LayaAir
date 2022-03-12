@@ -3,7 +3,6 @@ import { Loader } from "../../net/Loader";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Mesh } from "../resource/models/Mesh";
-import { Shader3D } from "../shader/Shader3D";
 import { MeshFilter } from "./MeshFilter";
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
@@ -11,6 +10,7 @@ import { Sprite3D } from "./Sprite3D";
 import { Material } from "./material/Material";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
 /**
  * <code>SkinnedMeshSprite3D</code> 类用于绑点骨骼节点精灵。

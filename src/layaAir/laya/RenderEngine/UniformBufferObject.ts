@@ -1,9 +1,9 @@
-import { LayaGL } from "../../layagl/LayaGL";
-import { Buffer } from "../../RenderEngine/Buffer";
-import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { LayaGL } from "../layagl/LayaGL";
+import { BufferUsage, BufferTargetType } from "./RenderEnum/BufferTargetType";
 import { SubUniformBufferData } from "./subUniformBufferData";
 import { UniformBufferBase } from "./UniformBufferBase";
 import { UnifromBufferData } from "./UniformBufferData";
+import { Buffer } from "./Buffer";
 /**
  * 类封装WebGL2UniformBufferObect
  */

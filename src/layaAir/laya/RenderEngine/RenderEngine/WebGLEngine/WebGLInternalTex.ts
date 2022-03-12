@@ -1,10 +1,10 @@
+import { FilterMode } from "../../RenderEnum/FilterMode";
+import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
+import { TextureDimension } from "../../RenderEnum/TextureDimension";
+import { WarpMode } from "../../RenderEnum/WrapMode";
+import { InternalTexture } from "../../RenderInterface/InternalTexture";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
-import { FilterMode } from "./RenderEnum/FilterMode";
-import { TextureCompareMode } from "./RenderEnum/TextureCompareMode";
-import { TextureDimension } from "./RenderEnum/TextureDimension";
-import { WarpMode } from "./RenderEnum/WrapMode";
-import { InternalTexture } from "./RenderInterface/InternalTexture";
 import { WebGLEngine } from "./WebGLEngine";
 
 

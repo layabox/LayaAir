@@ -2,10 +2,6 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Vector4 } from "../../../math/Vector4";
 import { Viewport } from "../../../math/Viewport";
-import { DefineDatas } from "../../../shader/DefineDatas";
-import { Shader3D } from "../../../shader/Shader3D";
-import { ShaderData } from "../../../shader/ShaderData";
-import { ShaderInstance } from "../../../shader/ShaderInstance";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { SubShader } from "../../../shader/SubShader";
 import { RenderTexture } from "../../../resource/RenderTexture";
@@ -15,6 +11,10 @@ import { ScreenQuad } from "../ScreenQuad";
 import { ScreenTriangle } from "../ScreenTriangle";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
+import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderInstance } from "../../../shader/ShaderInstance";
 
 /**
  * <code>BlitScreenQuadCMD</code> 类用于创建从一张渲染目标输出到另外一张渲染目标指令。

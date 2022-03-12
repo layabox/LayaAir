@@ -1,12 +1,11 @@
-
-import { VertexDeclaration } from "../d3/graphics/VertexDeclaration";
+import { IndexBuffer } from "../../IndexBuffer";
+import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
+import { VertexBuffer } from "../../VertexBuffer";
+import { VertexDeclaration } from "../../VertexDeclaration";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
-import { RenderCapable } from "./RenderEnum/RenderCapable";
-import { IndexBuffer } from "./RenderInterface/IndexBuffer";
-import { IRenderVertexState } from "./RenderInterface/IRenderVertexState";
-import { VertexBuffer } from "./RenderInterface/VertexBuffer";
 import { WebGLEngine } from "./WebGLEngine";
+
 
 export class GLVertexState extends GLObject implements IRenderVertexState {
     private _angleInstancedArrays:any;

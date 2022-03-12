@@ -7,8 +7,8 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Animator } from "laya/d3/component/Animator";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { SimpleSkinnedMeshSprite3D } from "laya/d3/core/SimpleSkinnedMeshSprite3D";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class SimpleSkinAnimationInstance {
 	private animatorName:string[] = ["run","chongci","dead","xuli","stand"];

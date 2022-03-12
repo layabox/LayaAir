@@ -1,5 +1,4 @@
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 
@@ -13,6 +12,7 @@ import { Vector4 } from "laya/d3/math/Vector4";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import value from "*.glsl";
 import { Loader } from "laya/net/Loader";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class GrassMaterial extends Material {
     static hasInited: boolean = false;

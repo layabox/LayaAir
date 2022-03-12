@@ -1,15 +1,15 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Stat } from "../../../utils/Stat";
 import { BufferState } from "../../core/BufferState";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
+import { IndexFormat } from "../../graphics/IndexFormat";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { SkyMesh } from "./SkyMesh";
-import { IndexFormat } from "../../graphics/IndexFormat";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
 
 /**
  * <code>SkyBox</code> 类用于创建天空盒。

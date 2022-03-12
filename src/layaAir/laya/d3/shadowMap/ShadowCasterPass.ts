@@ -13,19 +13,19 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
-import { Shader3D } from "../shader/Shader3D";
-import { ShaderData } from "../shader/ShaderData";
-import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
-import { BoundFrustum } from "../math/BoundFrustum";
-import { UniformBufferParamsType, UnifromBufferData } from "../graphics/UniformBufferData";
-import { Config3D } from "../../../Config3D";
-import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
-import { UniformBufferObject } from "../graphics/UniformBufferObject";
 import { Light, LightType } from "../core/light/Light";
 import { DirectionLightCom } from "../core/light/DirectionLightCom";
 import { Sprite3D } from "../core/Sprite3D";
 import { SpotLightCom } from "../core/light/SpotLightCom";
 import { RenderTexture } from "../resource/RenderTexture";
+import { Config3D } from "../../../Config3D";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
+import { UnifromBufferData, UniformBufferParamsType } from "../../RenderEngine/UniformBufferData";
+import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
+import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
+import { BoundFrustum } from "../math/BoundFrustum";
+import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
 
 /**
  * Shadow Light enum

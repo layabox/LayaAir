@@ -1,5 +1,4 @@
 import { Command } from "./Command";
-import { ShaderData } from "../../../shader/ShaderData"
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Vector2 } from "../../../math/Vector2";
 import { Vector3 } from "../../../math/Vector3";
@@ -10,7 +9,8 @@ import { CommandBuffer } from "./CommandBuffer";
 import { ShaderDataType } from "./SetShaderDataCMD";
 import { Scene3D } from "../../scene/Scene3D";
 import { CommandUniformMap } from "../../scene/Scene3DShaderDeclaration";
-import { Shader3D } from "../../../shader/Shader3D";
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 
 /**
  * @internal

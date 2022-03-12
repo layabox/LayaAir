@@ -1,13 +1,12 @@
 import { Material } from "laya/d3/core/material/Material";
 import { RenderState } from "laya/d3/core/material/RenderState";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Vector4 } from "laya/d3/math/Vector4";
-import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderDefine } from "laya/d3/shader/ShaderDefine";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import BOLLBOARDVS from "../EditorShader/BillboardVS.vs";
 import BOLLBOARDFS from "../EditorShader/BillboardFS.fs"
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 
 export class BillboardMaterial extends Material{
     /**渲染状态_不透明。*/

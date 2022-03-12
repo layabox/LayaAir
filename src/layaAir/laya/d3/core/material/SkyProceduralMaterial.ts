@@ -1,7 +1,7 @@
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { Vector4 } from "../../math/Vector4";
-import { Shader3D } from "../../shader/Shader3D";
 import { Material } from "./Material";
-import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>SkyProceduralMaterial</code> 类用于实现SkyProceduralMaterial材质。

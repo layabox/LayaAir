@@ -1,7 +1,7 @@
 import { Laya } from "../../../../Laya";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { Handler } from "../../../utils/Handler";
-import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefine } from "../../shader/ShaderDefine";
 import { Material } from "./Material";
 
 

@@ -1,7 +1,7 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
+import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
 import { VertexBuffer3D } from "../../../graphics/VertexBuffer3D";
-import { VertexDeclaration } from "../../../graphics/VertexDeclaration";
 import { Vector2 } from "../../../math/Vector2";
 import { Vector3 } from "../../../math/Vector3";
 import { Vector4 } from "../../../math/Vector4";

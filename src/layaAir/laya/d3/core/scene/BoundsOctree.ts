@@ -6,9 +6,9 @@ import { RenderContext3D } from "../render/RenderContext3D";
 import { BoundBox } from "../../math/BoundBox";
 import { Ray } from "../../math/Ray";
 import { Vector3 } from "../../math/Vector3";
-import { Shader3D } from "../../shader/Shader3D";
 import { CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
 import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 /**
  * <code>BoundsOctree</code> 类用于创建八叉树。

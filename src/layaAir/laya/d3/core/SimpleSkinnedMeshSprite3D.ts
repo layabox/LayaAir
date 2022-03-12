@@ -3,17 +3,14 @@ import { Loader } from "../../net/Loader";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Mesh } from "../resource/models/Mesh";
-import { Shader3D } from "../shader/Shader3D";
-import { Utils3D } from "../utils/Utils3D";
-import { Bounds } from "./Bounds";
 import { MeshFilter } from "./MeshFilter";
-import { MeshSprite3D } from "./MeshSprite3D";
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { Sprite3D } from "./Sprite3D";
 import { Material } from "./material/Material";
 import { SimpleSkinnedMeshRenderer } from "./SimpleSkinnedMeshRenderer";
 import { Texture2D } from "../../resource/Texture2D";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
 
 

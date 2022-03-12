@@ -1,7 +1,7 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { MathUtil } from "../../../maths/MathUtil";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
+import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
@@ -17,7 +17,6 @@ import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
 import { BufferState } from "../BufferState";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
 import { ShurikenParticleData } from "./ShurikenParticleData";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";

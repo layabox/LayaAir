@@ -1,13 +1,11 @@
 import { Material } from "laya/d3/core/material/Material";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { SubShader } from "laya/d3/shader/SubShader";
 import LensFlaresVS from "./Shader/AtmoSphereSky.vs";
 import LensFlaresFS from "./Shader/AtmoSphereSky.fs";
 import SkyUtil from "./Shader/SkyUtil.glsl";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
-import { ShaderPass } from "laya/d3/shader/ShaderPass";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class AtmosphereSkyMaterial extends Material{
     /**@internal */

@@ -1,7 +1,7 @@
-import { DefineDatas } from "../../d3/shader/DefineDatas";
-import { Shader3D } from "../../d3/shader/Shader3D";
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
 import { SubShader } from "../../d3/shader/SubShader";
+import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { WebGL } from "../WebGL";
 import { InlcudeFile } from "./InlcudeFile";
 import { ShaderCompile } from "./ShaderCompile";

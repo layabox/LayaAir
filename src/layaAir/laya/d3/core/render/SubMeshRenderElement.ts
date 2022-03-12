@@ -5,7 +5,6 @@ import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBat
 import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch";
 import { SubMeshStaticBatch } from "../../graphics/SubMeshStaticBatch";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Quaternion } from "../../math/Quaternion";
 import { Mesh } from "../../resource/models/Mesh";
@@ -22,6 +21,7 @@ import { RenderQueue } from "./RenderQueue";
 import { ILaya3D } from "../../../../ILaya3D";
 import { SingletonList } from "../../component/SingletonList";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 
 /**
  * @internal

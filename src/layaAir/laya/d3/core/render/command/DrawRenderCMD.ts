@@ -3,14 +3,14 @@ import { Material } from "../../material/Material";
 import { BaseRender } from "../BaseRender";
 import { CommandBuffer } from "./CommandBuffer";
 import { Scene3D } from "../../scene/Scene3D";
-import { RenderContext3D } from "../RenderContext3D";
-import { ShaderInstance } from "../../../shader/ShaderInstance";
-import { ShaderData } from "../../../shader/ShaderData";
-import { Transform3D } from "../../Transform3D";
-import { GeometryElement } from "../../GeometryElement";
-import { ShaderPass } from "../../../shader/ShaderPass";
-import { DefineDatas } from "../../../shader/DefineDatas";
 import { ILaya3D } from "../../../../../ILaya3D";
+import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
+import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderInstance } from "../../../shader/ShaderInstance";
+import { ShaderPass } from "../../../shader/ShaderPass";
+import { GeometryElement } from "../../GeometryElement";
+import { Transform3D } from "../../Transform3D";
+import { RenderContext3D } from "../RenderContext3D";
 
 
 /**

@@ -1,7 +1,6 @@
 import { BoundFrustum } from "../../math/BoundFrustum";
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
-import { ShaderData } from "../../shader/ShaderData";
 import { Physics3DUtils } from "../../utils/Physics3DUtils";
 import { Bounds } from "../Bounds";
 import { BaseRender } from "../render/BaseRender";
@@ -19,6 +18,7 @@ import { Sprite3D } from "../Sprite3D";
 import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
 import { Component } from "../../../components/Component";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 
 
 /**

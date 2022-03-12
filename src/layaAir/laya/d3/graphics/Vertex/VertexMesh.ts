@@ -1,4 +1,4 @@
-import { VertexDeclaration } from "../VertexDeclaration";
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../VertexElement";
 import { VertexElementFormat } from "../VertexElementFormat";
 

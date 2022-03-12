@@ -1,6 +1,6 @@
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
-import { Shader3D } from "../../shader/Shader3D";
 import { Material } from "./Material";
 
 /**

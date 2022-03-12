@@ -1,7 +1,6 @@
-import { VertexElement } from "./VertexElement";
-import { VertexElementFormat } from "./VertexElementFormat";
-import { ShaderData } from "../shader/ShaderData"
-
+import { VertexElement } from "../d3/graphics/VertexElement";
+import { VertexElementFormat } from "../d3/graphics/VertexElementFormat";
+import { ShaderData } from "./RenderShader/ShaderData";
 
 /**
  * <code>VertexDeclaration</code> 类用于生成顶点声明。

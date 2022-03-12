@@ -1,8 +1,8 @@
-import { IndexFormat } from "../d3/graphics/IndexFormat";
+import { IndexFormat } from "../../RenderEnum/IndexFormat";
+import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
+import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
-import { GLObject } from "./GLObject"
-import { IRenderDrawContext } from "./RenderInterface/IRenderDrawContext";
-import { MeshTopology } from "./RenderPologyMode";
+import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine"
 
 //TODO

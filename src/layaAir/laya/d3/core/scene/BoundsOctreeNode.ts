@@ -14,11 +14,11 @@ import { RenderElement } from "../render/RenderElement";
 import { IOctreeObject } from "./IOctreeObject";
 import { Scene3D } from "./Scene3D";
 import { BoundsOctree } from "./BoundsOctree";
-import { Shader3D } from "../../shader/Shader3D";
 import { CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
 import { Plane } from "../../math/Plane";
 import { IRenderNodeObject } from "./SceneRenderManager/IRenderNodeObject";
 import { Sprite3D } from "../Sprite3D";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 
 /**

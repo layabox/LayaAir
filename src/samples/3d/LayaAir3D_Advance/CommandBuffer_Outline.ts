@@ -10,7 +10,6 @@ import { Laya3D } from "Laya3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Material } from "laya/d3/core/material/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { ShuriKenParticle3D } from "laya/d3/core/particleShuriKen/ShuriKenParticle3D";
@@ -26,6 +25,7 @@ import Client from "../../Client";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Color } from "laya/d3/math/Color";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class CommandBuffer_Outline {
 	private commandBuffer: CommandBuffer;

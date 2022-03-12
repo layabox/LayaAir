@@ -6,10 +6,10 @@ import PBRShadowCasterPS from "../../shader/files/PBRSpecularShadowCaster.fs";
 import PBRShadowCasterVS from "../../shader/files/PBRSpecularShadowCaster.vs";
 import DepthNormalsTextureVS from "../../shader/files/DepthNormalsTextureVS.vs";
 import DepthNormalsTextureFS from "../../shader/files/DepthNormalsTextureFS.fs";
-import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
 import { PBRMaterial } from "./PBRMaterial";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 
 /**
  * 光滑度数据源。

@@ -9,7 +9,7 @@ import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Mesh } from "./Mesh";
 import { IndexFormat } from "../../graphics/IndexFormat";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
-import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
+import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 
 
 /**

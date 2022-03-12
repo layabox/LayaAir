@@ -24,7 +24,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Material } from "laya/d3/core/material/Material";
-import { Shader3D } from "laya/d3/shader/Shader3D";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 /**
  * ...

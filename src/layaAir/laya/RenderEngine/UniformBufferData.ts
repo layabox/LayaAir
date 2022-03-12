@@ -1,10 +1,10 @@
-import { DestructionListener } from "../../physics/DestructionListener";
-import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Vector2 } from "../math/Vector2";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
-import { Shader3D } from "../shader/Shader3D";
+import { ShaderDataType } from "../d3/core/render/command/SetShaderDataCMD";
+import { Matrix4x4 } from "../d3/math/Matrix4x4";
+import { Vector2 } from "../d3/math/Vector2";
+import { Vector3 } from "../d3/math/Vector3";
+import { Vector4 } from "../d3/math/Vector4";
+import { Shader3D } from "./RenderShader/Shader3D";
+
 /**
  *描述UniformBuffer参数类型
  */

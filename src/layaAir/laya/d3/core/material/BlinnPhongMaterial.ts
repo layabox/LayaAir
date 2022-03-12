@@ -1,10 +1,11 @@
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
-import { Shader3D } from "../../shader/Shader3D";
-import { ShaderData } from "../../shader/ShaderData";
 import { Material } from "./Material";
 import { RenderState } from "./RenderState";
-import { BaseTexture } from "../../../resource/BaseTexture";
-import { ShaderDefine } from "../../shader/ShaderDefine";
+
 
 /**
  * <code>BlinnPhongMaterial</code> 类用于实现Blinn-Phong材质。

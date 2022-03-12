@@ -10,7 +10,6 @@ import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
@@ -23,6 +22,7 @@ import { CustomInstanceMaterial } from "./DrawCustomInstanceDemo/CustomInstanceM
 import { Utils } from "laya/utils/Utils";
 import Client from "../../Client";
 import { Color } from "laya/d3/math/Color";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class CommandBuffer_DrawCustomInstance{
     mat:CustomInstanceMaterial;

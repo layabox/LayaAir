@@ -1,6 +1,6 @@
+import { BufferTargetType, BufferUsage } from "../../RenderEnum/BufferTargetType";
+import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
 import { GLObject } from "./GLObject";
-import { BufferTargetType, BufferUsage } from "./RenderEnum/BufferTargetType";
-import { IRenderBuffer } from "./RenderInterface/IRenderBuffer";
 import { WebGLEngine } from "./WebGLEngine";
 
 export class GlBuffer extends GLObject implements IRenderBuffer {

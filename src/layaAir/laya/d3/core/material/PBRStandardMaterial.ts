@@ -1,15 +1,14 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import PBRPS from "../../shader/files/PBR.fs";
 import PBRVS from "../../shader/files/PBR.vs";
 import PBRShadowCasterPS from "../../shader/files/PBRShadowCaster.fs";
 import PBRShadowCasterVS from "../../shader/files/PBRShadowCaster.vs";
 import DepthNormalsTextureVS from "../../shader/files/DepthNormalsTextureVS.vs";
 import DepthNormalsTextureFS from "../../shader/files/DepthNormalsTextureFS.fs";
-import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
 import { PBRMaterial } from "./PBRMaterial";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 
 /**
  * 金属度PBR材质光滑度数据源。

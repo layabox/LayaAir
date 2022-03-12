@@ -1,7 +1,5 @@
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderData } from "laya/d3/shader/ShaderData";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { RenderState } from "laya/d3/core/material/RenderState";
@@ -21,6 +19,8 @@ import { Material } from "laya/d3/core/material/Material";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
 export class BlurEffect extends PostProcessEffect {
 
     static BLUR_TYPE_GaussianBlur: number = 0;

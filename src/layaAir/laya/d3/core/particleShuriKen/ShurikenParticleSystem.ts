@@ -7,7 +7,6 @@ import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexShurikenParticleBillboard } from "../../graphics/Vertex/VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "../../graphics/Vertex/VertexShurikenParticleMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { VertexElement } from "../../graphics/VertexElement";
 import { BoundBox } from "../../math/BoundBox";
 import { BoundSphere } from "../../math/BoundSphere";
@@ -16,7 +15,6 @@ import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { Mesh } from "../../resource/models/Mesh";
-import { ShaderData } from "../../shader/ShaderData";
 import { BufferState } from "../BufferState";
 import { GeometryElement } from "../GeometryElement";
 import { Gradient } from "../Gradient";
@@ -53,7 +51,9 @@ import { BoxShape } from "./module/shape/BoxShape";
 import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenParticle";
 import { Sprite3D } from "../Sprite3D";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
+import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 
 
 /**

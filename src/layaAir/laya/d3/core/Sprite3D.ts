@@ -6,11 +6,11 @@ import { Script3D } from "../component/Script3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { Shader3D } from "../shader/Shader3D";
 import { Transform3D } from "./Transform3D";
 import { Laya } from "../../../Laya";
 import { ICreateResource } from "../../resource/ICreateResource";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。

@@ -1,5 +1,5 @@
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { CameraCullInfo, ShadowCullInfo } from "../../../graphics/FrustumCulling";
-import { Shader3D } from "../../../shader/Shader3D";
 import { PixelLineSprite3D } from "../../pixelLine/PixelLineSprite3D";
 import { RenderContext3D } from "../../render/RenderContext3D";
 import { IOctreeObject } from "../IOctreeObject";
