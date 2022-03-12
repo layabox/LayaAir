@@ -56,7 +56,6 @@ import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "./laya/d3/resource/models/SkyBox";
 import { SkyDome } from "./laya/d3/resource/models/SkyDome";
 import { TextureCube } from "./laya/d3/resource/TextureCube";
-import { Shader3D } from "./laya/d3/shader/Shader3D";
 import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
 import { Scene3DUtils } from "./laya/d3/utils/Scene3DUtils";
 import { Utils3D } from "./laya/d3/utils/Utils3D";
@@ -76,7 +75,6 @@ import { RunDriver } from "./laya/utils/RunDriver";
 import { WebGL } from "./laya/webgl/WebGL";
 import { MeshReader } from "./laya/d3/loaders/MeshReader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
-import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { FixedConstraint } from "./laya/d3/physics/constraints/FixedConstraint";
 import { ConfigurableConstraint } from "./laya/d3/physics/constraints/ConfigurableConstraint";
 import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
@@ -96,6 +94,7 @@ import { TextureFormat } from "./laya/RenderEngine/RenderEnum/TextureFormat";
 import { FilterMode } from "./laya/RenderEngine/RenderEnum/FilterMode";
 import { WarpMode } from "./laya/RenderEngine/RenderEnum/WrapMode";
 import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
+import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */

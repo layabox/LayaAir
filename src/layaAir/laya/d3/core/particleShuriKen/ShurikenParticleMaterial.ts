@@ -1,9 +1,9 @@
 import { Material } from "../material/Material"
 import { RenderState } from "../material/RenderState"
 import { Vector4 } from "../../math/Vector4"
-import { Shader3D } from "../../shader/Shader3D"
 import { BaseTexture } from "../../../resource/BaseTexture"
-import { ShaderDefine } from "../../shader/ShaderDefine";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 
 
 /**

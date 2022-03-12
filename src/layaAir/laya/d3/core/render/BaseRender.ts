@@ -11,7 +11,6 @@ import { Scene3D } from "../scene/Scene3D"
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
-import { ShaderData } from "../../shader/ShaderData"
 import { Event } from "../../../events/Event"
 import { ISingletonElement } from "../../../resource/ISingletonElement"
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
@@ -21,19 +20,19 @@ import { ReflectionProbe, ReflectionProbeMode } from "../reflectionProbe/Reflect
 import { IRenderNodeObject } from "../scene/SceneRenderManager/IRenderNodeObject";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { TextureCube } from "../../resource/TextureCube";
-import { SubUniformBufferData } from "../../graphics/subUniformBufferData";
-import { Config3D } from "../../../../Config3D";
-import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
-import { UniformBufferObject } from "../../graphics/UniformBufferObject";
 import { ShaderDataType } from "./command/SetShaderDataCMD";
 import { Matrix4x4 } from "../../math/Matrix4x4";
-import { UniformBufferParamsType } from "../../graphics/UniformBufferData";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
 import { Sprite3D } from "../Sprite3D";
 import { ILaya3D } from "../../../../ILaya3D";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { Config3D } from "../../../../Config3D";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { SubUniformBufferData } from "../../../RenderEngine/subUniformBufferData";
+import { UniformBufferParamsType } from "../../../RenderEngine/UniformBufferData";
+import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
+import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
 
 
 /**

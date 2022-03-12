@@ -1,9 +1,10 @@
+import { ShaderPass } from "../../d3/shader/ShaderPass";
+import { SubShader } from "../../d3/shader/SubShader";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
-import { ShaderPass } from "./ShaderPass";
 import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
-import { SubShader } from "./SubShader";
+
 
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。

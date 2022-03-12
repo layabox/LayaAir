@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Camera } from "laya/d3/core/Camera";
 import { CameraMoveScript } from "../../3d/common/CameraMoveScript";
@@ -11,6 +10,7 @@ import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { GaussianDoF } from "./PostProcess_DoF/GaussianDoF";
 import { Handler } from "laya/utils/Handler";
 import { Loader } from "laya/net/Loader";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class PostProcessDoF {
 

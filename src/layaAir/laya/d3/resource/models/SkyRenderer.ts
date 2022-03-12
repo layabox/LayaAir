@@ -1,5 +1,7 @@
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { RenderStateType } from "../../../RenderEngine/RenderEnum/RenderStateType";
+import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
 import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
 import { Stat } from "../../../utils/Stat";
@@ -9,8 +11,6 @@ import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
-import { DefineDatas } from "../../shader/DefineDatas";
-import { ShaderData } from "../../shader/ShaderData";
 import { ShaderInstance } from "../../shader/ShaderInstance";
 import { SkyBox } from "./SkyBox";
 import { SkyMesh } from "./SkyMesh";

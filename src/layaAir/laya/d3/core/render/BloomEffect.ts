@@ -5,12 +5,12 @@ import { CommandBuffer } from "./command/CommandBuffer"
 import { Color } from "../../math/Color"
 import { Vector4 } from "../../math/Vector4"
 import { Viewport } from "../../math/Viewport"
-import { Shader3D } from "../../shader/Shader3D"
-import { ShaderData } from "../../shader/ShaderData"
 import { Texture2D } from "../../../resource/Texture2D"
 import { RenderTexture } from "../../resource/RenderTexture";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。

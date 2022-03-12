@@ -10,7 +10,6 @@ import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
@@ -39,7 +38,6 @@ export class ProstProcess_AO{
         Laya.stage.screenMode = Stage.SCREEN_NONE;
 
         Stat.show();
-        Shader3D.debugMode = true;
         this.onResComplate();
 	}
 

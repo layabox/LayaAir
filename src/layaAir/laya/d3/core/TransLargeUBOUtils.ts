@@ -1,6 +1,6 @@
-import { SubUniformBufferData } from "../graphics/subUniformBufferData";
-import { UniformBufferParamsType } from "../graphics/UniformBufferData";
-import { UniformBufferObject } from "../graphics/UniformBufferObject";
+import { SubUniformBufferData } from "../../RenderEngine/subUniformBufferData";
+import { UniformBufferParamsType } from "../../RenderEngine/UniformBufferData";
+import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 
 export class TransLargeUBOUtils {
     static configStartLength: number = 1024;

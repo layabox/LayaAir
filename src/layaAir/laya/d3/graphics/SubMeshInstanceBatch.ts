@@ -8,7 +8,7 @@ import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexMesh } from "./Vertex/VertexMesh";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "./IndexFormat";
-import { MeshTopology } from "../../RenderEngine/RenderPologyMode";
+import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 
 /**
  * @internal

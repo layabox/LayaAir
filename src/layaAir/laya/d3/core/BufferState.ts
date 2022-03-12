@@ -1,11 +1,7 @@
-import { LayaGL } from "../../layagl/LayaGL"
-import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
-import { IndexBuffer } from "../../RenderEngine/RenderInterface/IndexBuffer"
-import { VertexBuffer } from "../../RenderEngine/RenderInterface/VertexBuffer"
-import { BufferStateBase } from "../../webgl/BufferStateBase"
-import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
-import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
-import { VertexDeclaration } from "../graphics/VertexDeclaration"
+import { BufferStateBase } from "../../RenderEngine/BufferStateBase";
+import { IndexBuffer3D } from "../graphics/IndexBuffer3D";
+import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
+
 
 
 /**

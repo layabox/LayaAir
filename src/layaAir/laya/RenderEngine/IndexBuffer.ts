@@ -1,7 +1,8 @@
-import { IndexFormat } from "../../d3/graphics/IndexFormat";
-import { BufferStateBase } from "../../webgl/BufferStateBase";
-import { Buffer } from "../Buffer";
-import { BufferTargetType, BufferUsage } from "../RenderEnum/BufferTargetType";
+import { BufferStateBase } from "./BufferStateBase";
+import { BufferTargetType, BufferUsage } from "./RenderEnum/BufferTargetType";
+import { IndexFormat } from "./RenderEnum/IndexFormat";
+import { Buffer } from "./Buffer";
+
 export class IndexBuffer extends Buffer {
     /** @internal */
     protected _indexType: IndexFormat = IndexFormat.UInt16;

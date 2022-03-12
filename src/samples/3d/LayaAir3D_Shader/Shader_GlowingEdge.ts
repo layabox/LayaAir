@@ -1,15 +1,12 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { Stage } from "laya/display/Stage";
@@ -18,11 +15,11 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { CustomMaterial } from "./customMaterials/CustomMaterial";
 import GlowingEdgeShaderFS from "./customShader/glowingEdgeShader.fs";
 import GlowingEdgeShaderVS from "./customShader/glowingEdgeShader.vs";
 import { GlowingEdgeMaterial } from "./customMaterials/GlowingEdgeMaterial";
 import { Material } from "laya/d3/core/material/Material";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 
 

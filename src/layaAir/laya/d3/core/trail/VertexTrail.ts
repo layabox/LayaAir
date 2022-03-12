@@ -1,5 +1,5 @@
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { IVertex } from "../../graphics/IVertex"
-import { VertexDeclaration } from "../../graphics/VertexDeclaration"
 import { VertexElement } from "../../graphics/VertexElement"
 import { VertexElementFormat } from "../../graphics/VertexElementFormat"
 /**

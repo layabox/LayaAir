@@ -4,17 +4,13 @@ import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Camera } from "laya/d3/core/Camera";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Handler } from "laya/utils/Handler";
 import { Node } from "laya/display/Node";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
-import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { SpotLight } from "laya/d3/core/light/SpotLight";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ShadowMode } from "laya/d3/core/light/ShadowMode";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class SpotLightShadowMap {
     public camera: Camera;

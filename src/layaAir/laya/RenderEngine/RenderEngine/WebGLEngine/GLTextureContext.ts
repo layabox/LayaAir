@@ -1,20 +1,20 @@
-import { LayaGL } from "../layagl/LayaGL";
-import { TextureCompareMode } from "./RenderEnum/TextureCompareMode";
-import { FilterMode } from "./RenderEnum/FilterMode";
-import { RenderTargetFormat } from "./RenderEnum/RenderTargetFormat";
-import { TextureDimension } from "./RenderEnum/TextureDimension";
-import { TextureFormat } from "./RenderEnum/TextureFormat";
-import { InternalTexture } from "./RenderInterface/InternalTexture";
-import { DDSTextureInfo } from "../resource/DDSTextureInfo";
-import { HDRTextureInfo } from "../resource/HDRTextureInfo";
-import { KTXTextureInfo } from "../resource/KTXTextureInfo";
-import { GLObject } from "./GLObject";
-import { WebGLEngine } from "./WebGLEngine";
-import { ITextureContext } from "./RenderInterface/ITextureContext";
-import { RenderCapable } from "./RenderEnum/RenderCapable";
+
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { WebGLInternalTex } from "./WebGLInternalTex";
 import { WebGLInternalRT } from "./WebGLInternalRT";
+import { FilterMode } from "../../RenderEnum/FilterMode";
+import { RenderCapable } from "../../RenderEnum/RenderCapable";
+import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
+import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
+import { TextureDimension } from "../../RenderEnum/TextureDimension";
+import { TextureFormat } from "../../RenderEnum/TextureFormat";
+import { InternalTexture } from "../../RenderInterface/InternalTexture";
+import { ITextureContext } from "../../RenderInterface/ITextureContext";
+import { GLObject } from "./GLObject";
+import { WebGLEngine } from "./WebGLEngine";
+import { DDSTextureInfo } from "../../DDSTextureInfo";
+import { HDRTextureInfo } from "../../HDRTextureInfo";
+import { KTXTextureInfo } from "../../KTXTextureInfo";
 
 export class GLTextureContext extends GLObject implements ITextureContext {
     protected _sRGB: any;

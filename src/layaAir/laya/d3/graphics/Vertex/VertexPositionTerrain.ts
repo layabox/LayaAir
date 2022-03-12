@@ -1,9 +1,9 @@
 import { IVertex } from "../IVertex"
-import { VertexDeclaration } from "../VertexDeclaration"
 import { VertexElement } from "../VertexElement"
 import { VertexElementFormat } from "../VertexElementFormat"
 import { Vector2 } from "../../math/Vector2"
 import { Vector3 } from "../../math/Vector3"
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration"
 
 /**
  * @internal

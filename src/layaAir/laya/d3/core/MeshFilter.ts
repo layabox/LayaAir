@@ -1,11 +1,11 @@
 
 import { Component } from "../../components/Component";
+import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { VertexElement } from "../graphics/VertexElement";
 import { Mesh } from "../resource/models/Mesh";
 import { SubMesh } from "../resource/models/SubMesh";
-import { ShaderData } from "../shader/ShaderData";
-import { ShaderDefine } from "../shader/ShaderDefine";
 import { MeshRenderer } from "./MeshRenderer";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 

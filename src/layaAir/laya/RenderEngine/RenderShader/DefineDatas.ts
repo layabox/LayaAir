@@ -1,4 +1,4 @@
-import { IClone } from "../core/IClone";
+import { IClone } from "../../d3/core/IClone";
 import { ShaderDefine } from "./ShaderDefine";
 
 /**

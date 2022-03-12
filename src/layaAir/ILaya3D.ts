@@ -3,7 +3,6 @@ import { MeshRenderDynamicBatchManager } from "./laya/d3/graphics/MeshRenderDyna
 import { MeshRenderStaticBatchManager } from "./laya/d3/graphics/MeshRenderStaticBatchManager";
 import { SubMeshDynamicBatch } from "./laya/d3/graphics/SubMeshDynamicBatch";
 import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
-import { Shader3D } from "./laya/d3/shader/Shader3D";
 import { Laya3D } from "./Laya3D";
 import { ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
 import { Physics3D } from "./laya/d3/Physics3D";
@@ -11,6 +10,7 @@ import { RenderElement } from "./laya/d3/core/render/RenderElement";
 import { CommandBuffer } from "./laya/d3/core/render/command/CommandBuffer";
 import { Camera } from "./laya/d3/core/Camera";
 import { SubMeshRenderElement } from "./laya/d3/core/render/SubMeshRenderElement";
+import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 
 /**
  * @internal

@@ -1,8 +1,8 @@
 import { LayaGL } from "../layagl/LayaGL";
-import { WebGLMode } from "../RenderEngine/GLEnum/WebGLMode";
+import { WebGLMode } from "../RenderEngine/RenderEngine/WebGLEngine/GLEnum/WebGLMode";
+import { WebGlConfig } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLConfig";
+import { WebGLEngine } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 import { RenderStateContext } from "../RenderEngine/RenderStateContext";
-import { WebGlConfig } from "../RenderEngine/WebGLConfig";
-import { WebGLEngine } from "../RenderEngine/WebGLEngine";
 import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
@@ -12,7 +12,6 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { WebGL } from "../webgl/WebGL";
 import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
-import { RenderInfo } from "./RenderInfo";
 
 
 /**

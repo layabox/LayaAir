@@ -1,6 +1,7 @@
 import { ILaya } from "../../../../ILaya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
 import { Bounds } from "../../core/Bounds";
@@ -11,7 +12,6 @@ import { IndexFormat } from "../../graphics/IndexFormat";
 import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { VertexElement } from "../../graphics/VertexElement";
 import { VertexElementFormat } from "../../graphics/VertexElementFormat";
 import { Color } from "../../math/Color";

@@ -1,6 +1,6 @@
-import { DDSTextureInfo } from "../../resource/DDSTextureInfo";
-import { HDRTextureInfo } from "../../resource/HDRTextureInfo";
-import { KTXTextureInfo } from "../../resource/KTXTextureInfo";
+import { DDSTextureInfo } from "../DDSTextureInfo";
+import { HDRTextureInfo } from "../HDRTextureInfo";
+import { KTXTextureInfo } from "../KTXTextureInfo";
 import { RenderTargetFormat } from "../RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../RenderEnum/TextureDimension";

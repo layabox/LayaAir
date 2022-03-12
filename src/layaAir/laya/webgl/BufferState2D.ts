@@ -1,4 +1,5 @@
-import { BufferStateBase } from "./BufferStateBase";
+import { BufferStateBase } from "../RenderEngine/BufferStateBase";
+
 /**
 	 * ...
 	 * @author ...

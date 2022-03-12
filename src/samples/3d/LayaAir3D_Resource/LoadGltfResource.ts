@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Handler } from "laya/utils/Handler";
 import { Camera } from "laya/d3/core/Camera";
@@ -14,6 +13,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Loader } from "laya/net/Loader";
 import { TextureCube } from "laya/d3/resource/TextureCube";
 import { glTFLoader } from "laya/gltf/glTFLoader";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class LoadGltfResource {
 

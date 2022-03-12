@@ -8,9 +8,9 @@ import { Sprite3D } from "../core/Sprite3D";
 import { Mesh } from "../resource/models/Mesh";
 import { StaticBatchManager } from "./StaticBatchManager";
 import { SubMeshStaticBatch } from "./SubMeshStaticBatch";
-import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexMesh } from "./Vertex/VertexMesh";
 import { SingletonList } from "../component/SingletonList";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 
 /**
  * @internal

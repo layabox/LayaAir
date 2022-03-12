@@ -1,12 +1,12 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { UniformBufferParamsType, UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
+import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { UniformBufferParamsType, UnifromBufferData } from "../../graphics/UniformBufferData";
-import { UniformBufferObject } from "../../graphics/UniformBufferObject";
 import { Vector4 } from "../../math/Vector4";
-import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefine } from "../../shader/ShaderDefine";
 import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 

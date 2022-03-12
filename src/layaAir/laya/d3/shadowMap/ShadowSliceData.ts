@@ -2,8 +2,8 @@ import { BoundSphere } from "../math/BoundSphere";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
-import { ShaderData } from "../shader/ShaderData";
 import { CameraCullInfo } from "../graphics/FrustumCulling";
+import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
 
 /**
  * @internal

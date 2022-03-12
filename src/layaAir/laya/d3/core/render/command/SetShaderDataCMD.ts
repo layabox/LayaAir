@@ -1,5 +1,4 @@
 import { Command } from "./Command";
-import { ShaderData } from "../../../shader/ShaderData"
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Vector2 } from "../../../math/Vector2";
 import { Vector3 } from "../../../math/Vector3";
@@ -7,8 +6,9 @@ import { Vector4 } from "../../../math/Vector4";
 import { Quaternion } from "../../../math/Quaternion";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { CommandBuffer } from "./CommandBuffer";
-import { Shader3D } from "../../../shader/Shader3D";
-import { ShaderDefine } from "../../../shader/ShaderDefine";
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 export enum ShaderDataType{
 	/**整数 */
 	Int,

@@ -1,16 +1,14 @@
-import { LayaGL } from "../../layagl/LayaGL";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Resource } from "../../resource/Resource";
-import { IClone } from "../core/IClone";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Quaternion } from "../math/Quaternion";
-import { Vector2 } from "../math/Vector2";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
-import { Stat } from "../../utils/Stat";
 import { Texture2D } from "../../resource/Texture2D";
+import { IClone } from "../../d3/core/IClone";
+import { Matrix4x4 } from "../../d3/math/Matrix4x4";
+import { Quaternion } from "../../d3/math/Quaternion";
+import { Vector2 } from "../../d3/math/Vector2";
+import { Vector3 } from "../../d3/math/Vector3";
+import { Vector4 } from "../../d3/math/Vector4";
 
 
 /**

@@ -1,5 +1,6 @@
-import { Shader3D } from "../../../../d3/shader/Shader3D";
-import { ShaderData } from "../../../../d3/shader/ShaderData";
+
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { RenderContext3D } from "../RenderContext3D";
 import { CommandBuffer } from "./CommandBuffer";
 

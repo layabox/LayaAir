@@ -8,8 +8,6 @@ import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderData } from "laya/d3/shader/ShaderData";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { Vector2 } from "laya/d3/math/Vector2";
 import { Vector3 } from "laya/d3/math/Vector3";
@@ -21,6 +19,8 @@ import AOComposition from "./Shader/AOComposition.fs";
 import AmbientOcclusion from "./Shader/AmbientOcclusion.glsl";
 import { WarpMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
 
 export class ScalableAO extends PostProcessEffect {
     static BlurDelty: number = Shader3D.propertyNameToID("u_Delty");

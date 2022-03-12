@@ -9,7 +9,6 @@ import { BaseTexture } from "../../resource/BaseTexture";
 import { PostProcess } from "../component/PostProcess";
 import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
 import { Cluster } from "../graphics/renderPath/Cluster";
-import { UniformBufferObject } from "../graphics/UniformBufferObject";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Ray } from "../math/Ray";
@@ -17,7 +16,6 @@ import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
-import { Shader3D } from "../shader/Shader3D";
 import { Picker } from "../utils/Picker";
 import { RenderTexture } from "../resource/RenderTexture";
 import { BaseCamera } from "./BaseCamera";
@@ -35,6 +33,8 @@ import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 
 /**
  * 相机清除标记。

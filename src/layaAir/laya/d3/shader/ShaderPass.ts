@@ -2,15 +2,15 @@ import { Config3D } from "../../../Config3D";
 import { WebGL } from "../../webgl/WebGL";
 import { RenderState } from "../core/material/RenderState";
 import { Vector3 } from "../math/Vector3";
-import { DefineDatas } from "./DefineDatas";
-import { Shader3D } from "./Shader3D";
-import { ShaderInstance } from "./ShaderInstance";
-import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
 import { Scene3D } from "../core/scene/Scene3D";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderParams } from "../../RenderEngine/RenderEnum/RenderParams";
+import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { ShaderVariant } from "../../RenderEngine/RenderShader/ShaderVariantCollection";
+import { ShaderInstance } from "./ShaderInstance";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。

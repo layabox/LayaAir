@@ -6,7 +6,6 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Stage } from "laya/display/Stage";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
@@ -16,9 +15,6 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { MultiplePassOutlineMaterial } from "./customMaterials/MultiplePassOutlineMaterial";
 
 export class Shader_MultiplePassOutline {
-
-	private rotation: Vector3 = new Vector3(0, 0.01, 0);
-
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);

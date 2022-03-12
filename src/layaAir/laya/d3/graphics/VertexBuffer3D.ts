@@ -1,6 +1,6 @@
-import { VertexDeclaration } from "./VertexDeclaration";
-import { VertexBuffer } from "../../RenderEngine/RenderInterface/VertexBuffer";
 import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { VertexBuffer } from "../../RenderEngine/VertexBuffer";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 
 
 /**

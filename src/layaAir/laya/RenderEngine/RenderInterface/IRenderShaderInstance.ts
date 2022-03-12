@@ -1,4 +1,4 @@
-import { ShaderVariable } from "../../d3/shader/ShaderVariable";
+import { ShaderVariable } from "../RenderShader/ShaderVariable";
 
 export interface IRenderShaderInstance{
     getUniformMap(): ShaderVariable[];

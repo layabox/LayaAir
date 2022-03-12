@@ -3,9 +3,10 @@ import { Scene3D } from "../scene/Scene3D"
 import { Matrix4x4 } from "../../math/Matrix4x4"
 import { Viewport } from "../../math/Viewport"
 import { ShaderInstance } from "../../shader/ShaderInstance"
-import { ShaderData } from "../../shader/ShaderData";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../Camera";
-import { Shader3D } from "laya/d3/shader/Shader3D";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。

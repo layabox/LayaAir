@@ -1,7 +1,7 @@
 import { LayaGL } from "../layagl/LayaGL"
-import { IndexBuffer } from "../RenderEngine/RenderInterface/IndexBuffer";
 import { IRenderVertexState } from "../RenderEngine/RenderInterface/IRenderVertexState";
-import { VertexBuffer } from "../RenderEngine/RenderInterface/VertexBuffer";
+import { IndexBuffer } from "./IndexBuffer";
+import { VertexBuffer } from "./VertexBuffer";
 
 /**
  * ...

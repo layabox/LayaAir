@@ -1,5 +1,5 @@
-import { IndexFormat } from "../../d3/graphics/IndexFormat";
-import { MeshTopology } from "../RenderPologyMode";
+import { IndexFormat } from "../RenderEnum/IndexFormat";
+import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 
 //TODO 先写完测试，这种封装过于死板
 export interface IRenderDrawContext {

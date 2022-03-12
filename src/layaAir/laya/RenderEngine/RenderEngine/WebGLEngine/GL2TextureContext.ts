@@ -1,14 +1,14 @@
-import { HDRTextureInfo } from "../resource/HDRTextureInfo";
-import { KTXTextureInfo } from "../resource/KTXTextureInfo";
-import { TextureFormat } from "./RenderEnum/TextureFormat";
-import { RenderTargetFormat } from "./RenderEnum/RenderTargetFormat";
-import { TextureCompareMode } from "./RenderEnum/TextureCompareMode";
-import { TextureDimension } from "./RenderEnum/TextureDimension";
-import { FilterMode } from "./RenderEnum/FilterMode";
 import { GLTextureContext } from "./GLTextureContext";
 import { WebGLEngine } from "./WebGLEngine";
 import { WebGLInternalTex } from "./WebGLInternalTex";
 import { WebGLInternalRT } from "./WebGLInternalRT";
+import { TextureDimension } from "../../RenderEnum/TextureDimension";
+import { HDRTextureInfo } from "../../HDRTextureInfo";
+import { FilterMode } from "../../RenderEnum/FilterMode";
+import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
+import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
+import { TextureFormat } from "../../RenderEnum/TextureFormat";
+import { KTXTextureInfo } from "../../KTXTextureInfo";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?

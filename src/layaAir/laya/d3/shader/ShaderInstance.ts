@@ -3,6 +3,9 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
 import { RenderStateType } from "../../RenderEngine/RenderEnum/RenderStateType";
 import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderVariable } from "../../RenderEngine/RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderEngine/RenderStateCommand";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Stat } from "../../utils/Stat";
@@ -12,10 +15,7 @@ import { RenderState } from "../core/material/RenderState";
 import { BaseRender } from "../core/render/BaseRender";
 import { Scene3D } from "../core/scene/Scene3D";
 import { CommandUniformMap } from "../core/scene/Scene3DShaderDeclaration";
-import { Shader3D } from "./Shader3D";
-import { ShaderData } from "./ShaderData";
 import { ShaderPass } from "./ShaderPass";
-import { ShaderVariable } from "./ShaderVariable";
 
 /**
  * @internal

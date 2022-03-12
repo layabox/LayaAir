@@ -4,7 +4,6 @@ import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector4 } from "laya/d3/math/Vector4";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
@@ -29,7 +28,6 @@ export class Blinnphong_Transmission {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
-		Shader3D.debugMode = true;
 
 		//加载场景
 		Scene3D.load("res/threeDimen/LayaScene_TransmissionScene/Conventional/TransmissionScene.ls", Handler.create(this, function (scene: Scene3D): void {

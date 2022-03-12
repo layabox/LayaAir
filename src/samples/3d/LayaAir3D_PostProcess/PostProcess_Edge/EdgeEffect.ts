@@ -1,7 +1,5 @@
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
-import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderData } from "laya/d3/shader/ShaderData";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { ShaderPass } from "laya/d3/shader/ShaderPass";
@@ -14,11 +12,13 @@ import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Camera } from "laya/d3/core/Camera";
 import { Vector4 } from "laya/d3/math/Vector4";
-import { ShaderDefine } from "laya/d3/shader/ShaderDefine";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 
 export enum EdgeMode {
     ColorEdge = 0,

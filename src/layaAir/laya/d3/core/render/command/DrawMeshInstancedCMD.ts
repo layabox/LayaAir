@@ -2,12 +2,9 @@ import { Command } from "./Command";
 import { Mesh } from "../../../resource/models/Mesh";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { Material } from "../../material/Material";
-import { ShaderData } from "../../../shader/ShaderData";
-import { DefineDatas } from "../../../shader/DefineDatas";
 import { CommandBuffer } from "./CommandBuffer";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
 import { BufferState } from "../../BufferState";
-import { SubMeshInstanceBatch } from "../../../graphics/SubMeshInstanceBatch";
 import { VertexBuffer3D } from "../../../graphics/VertexBuffer3D";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { ShaderInstance } from "../../../shader/ShaderInstance";
@@ -17,8 +14,10 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { Stat } from "../../../../utils/Stat";
 import { VertexMesh } from "../../../graphics/Vertex/VertexMesh";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
-import { MeshTopology } from "../../../../RenderEngine/RenderPologyMode";
 import { IndexFormat } from "../../../graphics/IndexFormat";
+import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
+import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 
 
 /**

@@ -5,18 +5,17 @@ import { Handler } from "../../../utils/Handler";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
-import { DefineDatas } from "../../shader/DefineDatas";
-import { Shader3D } from "../../shader/Shader3D";
-import { ShaderData } from "../../shader/ShaderData";
-import { IClone } from "../IClone";
-import { ClassUtils } from "../../../utils/ClassUtils";
-import { Laya } from "../../../../Laya";
-import { ShaderDefine } from "../../shader/ShaderDefine";
-import { UniformBufferObject } from "../../graphics/UniformBufferObject";
-import { BlendType } from "../../../RenderEngine/RenderEnum/BlendType";
 import { BlendFactor } from "../../../RenderEngine/RenderEnum/BlendFactor";
 import { BlendEquationSeparate } from "../../../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
+import { Laya } from "../../../../Laya";
+import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
+import { ClassUtils } from "../../../utils/ClassUtils";
+import { IClone } from "../IClone";
 
 /**
  * <code>Material</code> 类用于创建材质。

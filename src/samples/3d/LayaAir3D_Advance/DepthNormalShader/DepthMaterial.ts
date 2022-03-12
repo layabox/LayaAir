@@ -1,10 +1,9 @@
 import { Material } from "laya/d3/core/material/Material";
 import { RenderState } from "laya/d3/core/material/RenderState";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { SubShader } from "laya/d3/shader/SubShader";
 import DepthVS from "../DepthNormalShader/DepthTextureTest.vs";
 import DepthFS from "../DepthNormalShader/DepthTextureTest.fs";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class DepthMaterial extends Material{
     /**

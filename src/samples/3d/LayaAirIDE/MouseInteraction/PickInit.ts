@@ -1,11 +1,7 @@
-import { DefineDatas } from "laya/d3/shader/DefineDatas";
-import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderPass } from "laya/d3/shader/ShaderPass";
-import { SubShader } from "laya/d3/shader/SubShader";
-import { ShaderNode } from "laya/webgl/utils/ShaderNode";
 import MeshPick from "../EditorShader/MeshPick.fs";
 import ShurikenPickVS from "../EditorShader/ParticleShuriKenPick.vs";
 import ShurikenPickFS from "../EditorShader/ParticleShuriKenPick.fs";  
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 /**
  * 为所有的Shader 添加Pass

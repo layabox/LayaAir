@@ -14,12 +14,12 @@ import { BoundFrustum } from "../math/BoundFrustum";
 import { Color } from "../math/Color";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
-import { Shader3D } from "../shader/Shader3D";
 import { Utils3D } from "../utils/Utils3D";
 import { Bounds } from "../core/Bounds";
 import { BoundSphere } from "../math/BoundSphere";
 import { ISceneRenderManager } from "../core/scene/SceneRenderManager/ISceneRenderManager";
 import { Sprite3D } from "../core/Sprite3D";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
 
 /**

@@ -1,6 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
+import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { Stat } from "../../../utils/Stat";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Color } from "../../math/Color";
@@ -11,7 +11,6 @@ import { GeometryElement } from "../GeometryElement";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { PixelLineData } from "./PixelLineData";
 import { PixelLineRenderer } from "./PixelLineRenderer";
-import { PixelLineSprite3D } from "./PixelLineSprite3D";
 import { PixelLineVertex } from "./PixelLineVertex";
 
 /**

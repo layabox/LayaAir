@@ -1,5 +1,8 @@
 import { ILaya3D } from "../../../ILaya3D";
 import { LayaGL } from "../../layagl/LayaGL";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../resource/Resource";
 import { Stat } from "../../utils/Stat";
 import { SingletonList } from "../component/SingletonList";
@@ -10,13 +13,10 @@ import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
 import { Transform3D } from "../core/Transform3D";
 import { SubMesh } from "../resource/models/SubMesh";
 import { IndexBuffer3D } from "./IndexBuffer3D";
+import { IndexFormat } from "./IndexFormat";
 import { VertexMesh } from "./Vertex/VertexMesh";
 import { VertexBuffer3D } from "./VertexBuffer3D";
-import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexElement } from "./VertexElement";
-import { IndexFormat } from "./IndexFormat";
-import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { MeshTopology } from "../../RenderEngine/RenderPologyMode";
 /**
  * @internal
  * <code>SubMeshDynamicBatch</code> 类用于网格动态合并。

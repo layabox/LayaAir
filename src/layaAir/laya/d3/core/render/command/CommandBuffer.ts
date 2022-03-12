@@ -1,6 +1,4 @@
 
-import { Shader3D } from "../../../shader/Shader3D";
-import { ShaderData } from "../../../shader/ShaderData";
 import { Camera } from "../../Camera";
 import { BlitScreenQuadCMD } from "./BlitScreenQuadCMD";
 import { SetRenderTargetCMD } from "./SetRenderTargetCMD";
@@ -25,6 +23,8 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
 import { Color } from "../../../math/Color";
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。

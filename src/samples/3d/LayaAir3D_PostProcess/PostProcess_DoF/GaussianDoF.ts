@@ -2,18 +2,13 @@ import { Camera } from "laya/d3/core/Camera";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
-import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Viewport } from "laya/d3/math/Viewport";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderData } from "laya/d3/shader/ShaderData";
 import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Vector3 } from "laya/d3/math/Vector3";
-import { ShaderDefine } from "laya/d3/shader/ShaderDefine";
-
 import FullScreenVert from "./Shader/FullScreenVert.vs";
 import CoCFS from "./Shader/CoC.fs";
 import PrefilterFS from "./Shader/Prefilter.fs";
@@ -22,6 +17,9 @@ import BlurHFS from "./Shader/BlurH.fs";
 import CompositeFS from "./Shader/Composite.fs";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 
 
 /**

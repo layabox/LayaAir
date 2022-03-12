@@ -1,5 +1,5 @@
-import { Shader3D } from "../../../d3/shader/Shader3D";
-import { ShaderDefine } from "../../shader/ShaderDefine";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { CommandUniformMap } from "../scene/Scene3DShaderDeclaration";
 
 /**

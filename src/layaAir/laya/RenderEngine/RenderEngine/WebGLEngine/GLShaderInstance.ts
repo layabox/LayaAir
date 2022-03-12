@@ -1,14 +1,15 @@
-import { UniformBufferObject } from "../d3/graphics/UniformBufferObject";
-import { Matrix4x4 } from "../d3/math/Matrix4x4";
-import { Vector2 } from "../d3/math/Vector2";
-import { Vector3 } from "../d3/math/Vector3";
-import { Vector4 } from "../d3/math/Vector4";
-import { ShaderVariable } from "../d3/shader/ShaderVariable";
-import { BaseTexture } from "../resource/BaseTexture";
+import { Matrix4x4 } from "../../../d3/math/Matrix4x4";
+import { Vector2 } from "../../../d3/math/Vector2";
+import { Vector3 } from "../../../d3/math/Vector3";
+import { Vector4 } from "../../../d3/math/Vector4";
+import { BaseTexture } from "../../../resource/BaseTexture";
+import { BufferUsage } from "../../RenderEnum/BufferTargetType";
+import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
+import { ShaderVariable } from "../../RenderShader/ShaderVariable";
+import { UniformBufferObject } from "../../UniformBufferObject";
 import { GLObject } from "./GLObject";
-import { BufferUsage } from "./RenderEnum/BufferTargetType";
-import { IRenderShaderInstance } from "./RenderInterface/IRenderShaderInstance";
 import { WebGLEngine } from "./WebGLEngine";
+
 
 export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
 

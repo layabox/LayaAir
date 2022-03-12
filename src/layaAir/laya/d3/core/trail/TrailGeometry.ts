@@ -1,10 +1,10 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { MeshTopology } from "../../../RenderEngine/RenderPologyMode";
+import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { Color } from "../../math/Color";
 import { MathUtils3D } from "../../math/MathUtils3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";

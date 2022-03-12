@@ -1,12 +1,12 @@
 import { DynamicBatchManager } from "./DynamicBatchManager";
 import { SubMeshDynamicBatch } from "./SubMeshDynamicBatch";
-import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexBuffer3D } from "./VertexBuffer3D";
 import { BufferState } from "../core/BufferState"
 import { BatchMark } from "../core/render/BatchMark"
 import { RenderElement } from "../core/render/RenderElement"
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
 import { SingletonList } from "../component/SingletonList";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 
 /**
  * @internal

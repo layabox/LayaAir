@@ -1,8 +1,8 @@
+import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
+import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { Mesh } from "../../../resource/models/Mesh";
 import { SubMesh } from "../../../resource/models/SubMesh";
-import { DefineDatas } from "../../../shader/DefineDatas";
-import { ShaderData } from "../../../shader/ShaderData";
 import { ShaderInstance } from "../../../shader/ShaderInstance";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { SubShader } from "../../../shader/SubShader";

@@ -15,10 +15,10 @@ import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Texture2D } from "laya/resource/Texture2D";
 import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ConfigurableConstraint } from "laya/d3/physics/constraints/ConfigurableConstraint";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Config3D } from "Config3D";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 
 

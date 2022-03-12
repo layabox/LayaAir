@@ -4,18 +4,18 @@ import { BaseCamera } from "../core/BaseCamera";
 import { Camera, CameraClearFlags } from "../core/Camera";
 import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
 import { RenderContext3D } from "../core/render/RenderContext3D";
-import { UnifromBufferData } from "../graphics/UniformBufferData";
-import { UniformBufferObject } from "../graphics/UniformBufferObject";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
-import { Viewport } from "../math/Viewport";
-import { Shader3D } from "../shader/Shader3D";
-import { ShaderData } from "../shader/ShaderData";
-import { ShaderDefine } from "../shader/ShaderDefine";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Color } from "../math/Color";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
+import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
+import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
+import { Vector3 } from "../math/Vector3";
+import { Vector4 } from "../math/Vector4";
+import { Viewport } from "../math/Viewport";
 
 
 /**

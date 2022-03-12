@@ -55,9 +55,9 @@ import DepthNormalsTextureFS from "./files/DepthNormalsTextureFS.fs";
 import DepthNormalUtil from "./files/DepthNormalUtil.glsl";
 import LayaComInput from "./files/glslInput/LayaComInput.glsl";
 import DepthCasterInput from "./files/glslInput/DepthCasterInput.glsl";
-import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
 /**
  * @internal

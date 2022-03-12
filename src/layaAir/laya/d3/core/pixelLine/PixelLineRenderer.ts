@@ -1,9 +1,9 @@
 import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Color } from "../../math/Color";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
-import { ShaderData } from "../../shader/ShaderData";
 import { Material } from "../material/Material";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";

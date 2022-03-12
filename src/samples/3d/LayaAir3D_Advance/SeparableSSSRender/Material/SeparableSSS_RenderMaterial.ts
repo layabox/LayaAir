@@ -1,11 +1,10 @@
 import { Material } from "laya/d3/core/material/Material";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { SubShader } from "laya/d3/shader/SubShader";
 import SSSSRenderVS from "./../shader/SeparableSSS_Render.vs";
 import SSSSRenderFS from "./../shader/SeparableSSS_Render.fs";
 import { RenderState } from "laya/d3/core/material/RenderState";
 import { Vector4 } from "laya/d3/math/Vector4";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class SeparableSSSRenderMaterial extends Material{
     

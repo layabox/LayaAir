@@ -18,11 +18,11 @@ import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
 import { ShaderDataType } from "./render/command/SetShaderDataCMD"
 import { MeshFilter } from "./MeshFilter"
 import { Component } from "../../components/Component"
-import { Shader3D } from "../shader/Shader3D"
 import { StaticBatchManager } from "../graphics/StaticBatchManager"
 import { DynamicBatchManager } from "../graphics/DynamicBatchManager"
 import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager"
 import { Vector4 } from "../math/Vector4"
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。

@@ -1,7 +1,8 @@
+import { IRender2DContext } from "../../RenderInterface/IRender2DContext";
 import { GLObject } from "./GLObject";
-import { IRender2DContext } from "./RenderInterface/IRender2DContext";
+import { GLShaderInstance } from "./GLShaderInstance";
 import { WebGLEngine } from "./WebGLEngine";
-import {GLShaderInstance} from "./GLShaderInstance";
+
 
 export class GLRender2DContext extends GLObject implements IRender2DContext {
     private shaderInstance:GLShaderInstance;

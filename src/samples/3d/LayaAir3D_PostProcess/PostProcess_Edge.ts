@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Handler } from "laya/utils/Handler";
 import { Camera } from "laya/d3/core/Camera";
@@ -21,6 +20,7 @@ import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { EdgeEffect, EdgeMode } from "./PostProcess_Edge/EdgeEffect";
 import { Browser } from "laya/utils/Browser";
 import { Event } from "laya/events/Event";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class PostProcess_Edge {
 

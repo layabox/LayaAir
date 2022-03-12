@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Texture } from "laya/resource/Texture";
