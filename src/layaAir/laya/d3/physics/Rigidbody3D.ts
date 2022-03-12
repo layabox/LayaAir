@@ -526,8 +526,9 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		}
 
 		if (data.gravity) {
-			this.gravity.fromArray(data.gravity);
-			this.gravity = this.gravity;
+			var gravity = this.gravity;
+			gravity.fromArray(data.gravity);
+			this.gravity = gravity;
 		}
 		super._parse(data);
 		this._parseShape(data.shapes);
