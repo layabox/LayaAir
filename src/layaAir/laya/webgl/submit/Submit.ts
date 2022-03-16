@@ -1,3 +1,6 @@
+import { LayaGL } from "../../layagl/LayaGL";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Context } from "../../resource/Context";
 import { Stat } from "../../utils/Stat";
@@ -29,8 +32,7 @@ export class Submit extends SubmitBase {
             this.shaderValue.texture = source;
         }
 
-        var gl = RenderStateContext.mainContext;
-        this._mesh.useMesh(gl);
+        this._mesh.useMesh();
         //_ib._bind_upload() || _ib._bind();
         //_vb._bind_upload() || _vb._bind();
 
@@ -38,10 +40,10 @@ export class Submit extends SubmitBase {
 
         if (BlendMode.activeBlendFunction !== this._blendFn) {
             RenderStateContext.setBlend(true);
-            this._blendFn(gl);
+            this._blendFn();
             BlendMode.activeBlendFunction = this._blendFn;
         }
-        gl.drawElements(gl.TRIANGLES, this._numEle, gl.UNSIGNED_SHORT, this._startIdx);
+        LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
 
         Stat.renderBatches++;
         Stat.trianglesFaces += this._numEle / 3;

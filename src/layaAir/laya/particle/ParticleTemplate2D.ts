@@ -11,6 +11,9 @@ import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
 import { Stat } from "../utils/Stat";
 import { Loader } from "../net/Loader";
 import { RenderStateContext } from "../RenderEngine/RenderStateContext";
+import { LayaGL } from "../layagl/LayaGL";
+import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 
 
 /**
@@ -123,8 +126,8 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
             this.blend();
 
             if (this._firstActiveElement != this._firstFreeElement) {
-                var gl: WebGLRenderingContext = RenderStateContext.mainContext;
-                this._mesh.useMesh(gl);
+                //var gl: WebGLRenderingContext = RenderStateContext.mainContext;
+                this._mesh.useMesh();
                 //_vertexBuffer2D.bind();
                 //_indexBuffer2D.bind();
                 this.sv.u_texture = this.texture._getSource();
@@ -132,13 +135,13 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
 
 
                 if (this._firstActiveElement < this._firstFreeElement) {
-                    gl.drawElements(gl.TRIANGLES, (this._firstFreeElement - this._firstActiveElement) * 6, gl.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+                    LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, (this._firstFreeElement - this._firstActiveElement) * 6,IndexFormat.UInt16, this._firstActiveElement * 6 * 2);
                 }
                 else {
 
-                    RenderStateContext.mainContext.drawElements(gl.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, gl.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+                    LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, (this.settings.maxPartices - this._firstActiveElement) * 6, IndexFormat.UInt16, this._firstActiveElement * 6 * 2);
                     if (this._firstFreeElement > 0)
-                        gl.drawElements(gl.TRIANGLES, this._firstFreeElement * 6, gl.UNSIGNED_SHORT, 0);
+                    LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._firstFreeElement * 6, IndexFormat.UInt16, 0);
                 }
 
                 Stat.renderBatches++;
@@ -196,9 +199,8 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
 
     blend(): void {
         if (BlendMode.activeBlendFunction !== this._blendFn) {
-            var gl: WebGLRenderingContext = RenderStateContext.mainContext;
-            gl.enable(gl.BLEND);
-            this._blendFn(gl);
+            RenderStateContext.setBlend(true);
+            this._blendFn();
             BlendMode.activeBlendFunction = this._blendFn;
         }
     }
