@@ -1,3 +1,4 @@
+import { VertexElementFormat } from "../d3/graphics/VertexElementFormat";
 import { LayaGL } from "../layagl/LayaGL";
 import { WebGLMode } from "../RenderEngine/RenderEngine/WebGLEngine/GLEnum/WebGLMode";
 import { WebGlConfig } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLConfig";
@@ -5,6 +6,7 @@ import { WebGLEngine } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLEngin
 import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
+import { BlendMode } from "../webgl/canvas/BlendMode";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
@@ -102,8 +104,10 @@ export class Render {
         //LayaGL.instance = gl;
         LayaGL.textureContext = engine.getTextureContext();
         LayaGL.renderDrawConatext = engine.getDrawContext();
+        LayaGL.render2DContext =engine.get2DRenderContext();
 
         canvas.size(w, h);	//在ctx之后调用。
+        VertexElementFormat.__init__();
         Context.__init__();
         SubmitBase.__init__();
 
@@ -116,6 +120,8 @@ export class Render {
         ShaderDefines2D.__init__();
         Value2D.__init__();
         Shader2D.__init__();
+        BlendMode._init_();
+        
         return true;
     }
 

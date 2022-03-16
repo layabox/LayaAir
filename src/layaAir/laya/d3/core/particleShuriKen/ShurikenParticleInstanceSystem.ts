@@ -190,6 +190,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             this._instanceParticleVertexBuffer = new VertexBuffer3D(particleVbSize, BufferUsage.Dynamic);
             this._instanceParticleVertexBuffer.vertexDeclaration = particleDeclaration;
             this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer);
+            this._instanceParticleVertexBuffer._instanceBuffer = true;
             // this._instanceBufferState.bind();
             // this._instanceBufferState.applyIndexBuffer(this._indexBuffer);
             // this._instanceBufferState.applyVertexBuffer(this._vertexBuffer);

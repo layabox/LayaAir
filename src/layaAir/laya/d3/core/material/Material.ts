@@ -206,19 +206,19 @@ export class Material extends Resource implements IClone {
 							mat.blendDst =this._getRenderStateParams(renderStateData.dstBlend);
 							break;
 						case "cull"://"LAYAMATERIAL:01"
-							((<any>material)).cull = props[key];
+							((<any>material)).cull = this._getRenderStateParams(props[key]);
 							break;
 						case "blend"://"LAYAMATERIAL:01"
-							((<any>material)).blend = props[key];
+							((<any>material)).blend = this._getRenderStateParams(props[key]);
 							break;
 						case "depthWrite"://"LAYAMATERIAL:01" 
-							((<any>material)).depthWrite = props[key];
+							((<any>material)).depthWrite = this._getRenderStateParams(props[key]);
 							break;
 						case "srcBlend"://"LAYAMATERIAL:01" 
-							((<any>material)).blendSrc = props[key];
+							((<any>material)).blendSrc =this._getRenderStateParams( props[key]);
 							break;
 						case "dstBlend"://"LAYAMATERIAL:01" 
-							((<any>material)).blendDst = props[key];
+							((<any>material)).blendDst = this._getRenderStateParams(props[key]);
 							break;
 						case "depthTest":
 							((<any>material)).depthTest =this._getRenderStateParams( props[key]);

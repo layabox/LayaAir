@@ -28,7 +28,7 @@ export class MeshVG extends Mesh2D {
 			ret = MeshVG._POOL.pop();
 		} else
 			ret = new MeshVG();
-		mainctx && ret._vb._resizeBuffer(64 * 1024 * MeshVG.const_stride, false);
+		mainctx && ret._vb.buffer2D._resizeBuffer(64 * 1024 * MeshVG.const_stride, false);
 		return ret;
 	}
 
@@ -39,7 +39,7 @@ export class MeshVG extends Mesh2D {
 	 * @param	ib		index数组。
 	 */
 	addVertAndIBToMesh(ctx: Context, points: any[], rgba: number, ib: any[]): void {
-		var startpos: number = this._vb.needSize(points.length / 2 * MeshVG.const_stride);//vb的起点。
+		var startpos: number = this._vb.buffer2D.needSize(points.length / 2 * MeshVG.const_stride);//vb的起点。
 		var f32pos: number = startpos >> 2;
 		var vbdata: Float32Array = this._vb._floatArray32 || this._vb.getFloat32Array();
 		var vbu32Arr: Uint32Array = this._vb._uint32Array;
@@ -56,12 +56,12 @@ export class MeshVG extends Mesh2D {
 			vbdata[f32pos++] = clipinfo[0]; vbdata[f32pos++] = clipinfo[1]; //cliprect的位置
 			*/
 		}
-		this._vb.setNeedUpload();
+		this._vb.buffer2D.setNeedUpload();
 
 		//ib
 		//TODO 现在这种添加数据的方法效率非常低。而且会引起大量的gc
-		this._ib.append(new Uint16Array(ib));
-		this._ib.setNeedUpload();
+		this._ib.buffer2D.append(new Uint16Array(ib));
+		this._ib.buffer2D.setNeedUpload();
 
 		this.vertNum += sz;
 		this.indexNum += ib.length;
@@ -72,8 +72,8 @@ export class MeshVG extends Mesh2D {
 		 * @override
 		 */
 		  releaseMesh(): void {
-		this._vb.setByteLength(0);
-		this._ib.setByteLength(0);
+		this._vb.buffer2D.setByteLength(0);
+		this._ib.buffer2D.setByteLength(0);
 		this.vertNum = 0;
 		this.indexNum = 0;
 		//_applied = false;

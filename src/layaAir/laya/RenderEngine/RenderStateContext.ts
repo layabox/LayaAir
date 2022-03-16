@@ -164,7 +164,7 @@ export class RenderStateContext {
     static setBlendFunc(sFactor: BlendFactor, dFactor: BlendFactor, force: boolean = false): void {
         RenderStateContext.blenfunArray[0] = sFactor;
         RenderStateContext.blenfunArray[1] = dFactor;
-        RenderStateContext.BlendFuncCMD.addCMD(RenderStateType.BlendFunc,RenderStateContext.blenfunArray[0]);
+        RenderStateContext.BlendFuncCMD.addCMD(RenderStateType.BlendFunc,RenderStateContext.blenfunArray);
         RenderStateContext.BlendFuncCMD.applyCMD();
         // 有个iOS的bug，用原来的写法有时候会出错
         // if (force || sFactor !== _sFactor || dFactor !== _dFactor) {

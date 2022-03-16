@@ -1,5 +1,7 @@
-import { LayaGL } from "../../layagl/LayaGL";
+import { VertexElement } from "../../d3/graphics/VertexElement";
+import { VertexElementFormat } from "../../d3/graphics/VertexElementFormat";
 import { Matrix } from "../../maths/Matrix";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { IndexBuffer2D } from "./IndexBuffer2D";
 import { Mesh2D } from "./Mesh2D";
 import { VertexBuffer2D } from "./VertexBuffer2D";
@@ -12,6 +14,9 @@ export class MeshTexture extends Mesh2D {
     private static _fixattriInfo: any[];
     private static _POOL: any[] = [];
 
+    static VertexDeclarition:VertexDeclaration;
+
+    
 
     static __init__(): void {
         MeshTexture._fixattriInfo = [5126/*gl.FLOAT*/, 4, 0,	//pos,uv
@@ -23,6 +28,14 @@ export class MeshTexture extends Mesh2D {
         super(MeshTexture.const_stride, 4, 4);	//x,y,u,v,rgba
         this.canReuse = true;
         this.setAttributes(MeshTexture._fixattriInfo);
+        if(!MeshTexture.VertexDeclarition)
+         MeshTexture.VertexDeclarition = new VertexDeclaration(24,[
+            new VertexElement(0,VertexElementFormat.Vector4,0),
+            new VertexElement(16,VertexElementFormat.Byte4,1),
+            new VertexElement(20,VertexElementFormat.Byte4,2),
+        ])
+        this._vb.vertexDeclaration = MeshTexture.VertexDeclarition;
+        
     }
 
 	/**
@@ -35,7 +48,7 @@ export class MeshTexture extends Mesh2D {
             ret = MeshTexture._POOL.pop();
         }
         else ret = new MeshTexture();
-        mainctx && ret._vb._resizeBuffer(64 * 1024 * MeshTexture.const_stride, false);
+        mainctx && ret._vb.buffer2D._resizeBuffer(64 * 1024 * MeshTexture.const_stride, false);
         return ret;
     }
 
@@ -44,7 +57,7 @@ export class MeshTexture extends Mesh2D {
         var vb: VertexBuffer2D = this._vb;
         var ib: IndexBuffer2D = this._ib;
         var vertsz: number = vertices.length >> 1;
-        var startpos: number = vb.needSize(vertsz * MeshTexture.const_stride);//vb的起点。			
+        var startpos: number = vb.buffer2D.needSize(vertsz * MeshTexture.const_stride);//vb的起点。			
         var f32pos: number = startpos >> 2;
         var vbdata: Float32Array = vb._floatArray32 || vb.getFloat32Array();
         var vbu32Arr: Uint32Array = vb._uint32Array;
@@ -71,12 +84,12 @@ export class MeshTexture extends Mesh2D {
             //vbdata[f32pos++] = clipinfo[0]; vbdata[f32pos++] = clipinfo[1];	//cliprect的位置
             ci += 2;
         }
-        vb.setNeedUpload();
+        vb.buffer2D.setNeedUpload();
 
         var vertN: number = this.vertNum;
         var sz: number = idx.length;
-        var stib: number = ib.needSize(idx.byteLength);
-        var cidx: Uint16Array = ib.getUint16Array();
+        var stib: number = ib.buffer2D.needSize(idx.byteLength);
+        var cidx: Uint16Array = ib.buffer2D._uint16Array;
         //var cidx:Uint16Array = new Uint16Array(__JS__('ib._buffer'), stib);
         var stibid: number = stib >> 1;	// indexbuffer的起始位置
         if (vertN > 0) {
@@ -88,7 +101,7 @@ export class MeshTexture extends Mesh2D {
         } else {
             cidx.set(idx, stibid);
         }
-        ib.setNeedUpload();
+        ib.buffer2D.setNeedUpload();
 
         this.vertNum += vertsz;
         this.indexNum += idx.length;
@@ -99,8 +112,8 @@ export class MeshTexture extends Mesh2D {
 		 * @override
 		 */
 		 /*override*/ releaseMesh(): void {
-        this._vb.setByteLength(0);
-        this._ib.setByteLength(0);
+        this._vb.buffer2D.setByteLength(0);
+        this._ib.buffer2D.setByteLength(0);
         this.vertNum = 0;
         this.indexNum = 0;
         //_applied = false;

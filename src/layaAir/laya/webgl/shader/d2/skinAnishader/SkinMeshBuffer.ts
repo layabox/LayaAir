@@ -28,8 +28,8 @@ export class SkinMeshBuffer {
 
 
     reset(): void {
-        this.vb.clear();
-        this.ib.clear();
+        this.vb.buffer2D.clear();
+        this.ib.buffer2D.clear();
     }
 
 }

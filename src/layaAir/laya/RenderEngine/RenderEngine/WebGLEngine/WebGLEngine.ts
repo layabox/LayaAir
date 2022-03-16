@@ -8,6 +8,7 @@ import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../../RenderEnum/RenderParams";
 import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
+import { IRender2DContext } from "../../RenderInterface/IRender2DContext";
 import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { IRenderEngine } from "../../RenderInterface/IRenderEngine";
@@ -22,6 +23,7 @@ import { GlBuffer } from "./GLBuffer";
 import { GlCapable } from "./GlCapable";
 import { WebGLMode } from "./GLEnum/WebGLMode";
 import { GLParams } from "./GLParams";
+import { GLRender2DContext } from "./GLRender2DContext";
 import { GLRenderDrawContext } from "./GLRenderDrawContext";
 import { GLRenderState } from "./GLRenderState";
 import { GLShaderInstance } from "./GLShaderInstance";
@@ -47,7 +49,7 @@ export class WebGLEngine implements IRenderEngine {
   _IDCounter: number;
 
   /**@internal ShaderDebugMode*/
-  _isShaderDebugMode: boolean;
+  _isShaderDebugMode: boolean = true;
 
   /**@internal gl.TextureID*/
   _glTextureIDParams: Array<number>;
@@ -98,6 +100,8 @@ export class WebGLEngine implements IRenderEngine {
   //Gl Draw
   private _GLRenderDrawContext: GLRenderDrawContext;
 
+  private _GL2DRenderContext: GLRender2DContext;
+
   //GLRenderState
   private _GLRenderState: GLRenderState;
 
@@ -114,7 +118,7 @@ export class WebGLEngine implements IRenderEngine {
     //init data
     this._lastViewport = new Vector4(0, 0, 0, 0);
     this._lastClearColor = new Color(0, 0, 0, 0);
-    this._lastScissor = new Vector4(0,0,0,0);
+    this._lastScissor = new Vector4(0, 0, 0, 0);
     this._webglMode = webglMode;
   }
 
@@ -176,6 +180,7 @@ export class WebGLEngine implements IRenderEngine {
     this._activeTextures = [];
     this._GLTextureContext = this.isWebGL2 ? new GL2TextureContext(this) : new GLTextureContext(this);
     this._GLRenderDrawContext = new GLRenderDrawContext(this);
+    this._GL2DRenderContext = new GLRender2DContext(this);
   }
 
   private _initBindBufferMap() {
@@ -245,82 +250,37 @@ export class WebGLEngine implements IRenderEngine {
     }
   }
 
-  scissorTest(value:boolean){
-    if(value)
+  scissorTest(value: boolean) {
+    if (value)
       this._gl.enable(this._gl.SCISSOR_TEST);
     else
       this._gl.disable(this._gl.SCISSOR_TEST);
   }
 
-  
 
-  clearRenderTexture(rendertexture: RenderTexture, clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1) {
+
+  clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1) {
     var flag: number;
     this.gl.enable(this._gl.SCISSOR_TEST)
-    switch (clearFlag) {
-      case RenderClearFlag.ColorDepth:
-        if (clearcolor&&!this._lastClearColor.equal(clearcolor)){
-            this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
-            clearcolor.cloneTo(this._lastClearColor);
+    if(clearFlag&RenderClearFlag.Color){
+        if (clearcolor && !this._lastClearColor.equal(this._lastClearColor)) {
+          this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
+          clearcolor.cloneTo(this._lastClearColor);
         }
-        if(this._lastClearDepth!=clearDepth){
-          this._gl.clearDepth(clearDepth);
-          this._lastClearDepth = clearDepth;
-        }
-        if (rendertexture) {
-					flag = this._gl.COLOR_BUFFER_BIT;
-					switch (rendertexture.depthStencilFormat) {
-						case RenderTargetFormat.DEPTH_16:
-							flag |= this._gl.DEPTH_BUFFER_BIT;
-							break;
-						case RenderTargetFormat.STENCIL_8:
-							flag |= this._gl.STENCIL_BUFFER_BIT;
-							break;
-						case RenderTargetFormat.DEPTHSTENCIL_24_8:
-							flag |= this._gl.DEPTH_BUFFER_BIT;
-							flag |= this._gl.STENCIL_BUFFER_BIT;
-							
-              this._gl.clearStencil(0);
-							this._GLRenderState.setStencilMask(true);
-							break;
-					}
-				} else {
-					flag = this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT;
-				}
-        break;
-      case RenderClearFlag.Depth:
-        if(this._lastClearDepth!=clearDepth){
-          this._gl.clearDepth(clearDepth);
-          this._lastClearDepth = clearDepth;
-        }
-        if (rendertexture) {
-					switch (rendertexture.depthStencilFormat) {
-						case RenderTargetFormat.DEPTH_16:
-							flag = this._gl.DEPTH_BUFFER_BIT;
-							break;
-						case RenderTargetFormat.STENCIL_8:
-							flag = this._gl.STENCIL_BUFFER_BIT;
-							break;
-						case RenderTargetFormat.DEPTHSTENCIL_24_8:
-							//打开模板缓存 再清理
-							this._gl.clearStencil(0);
-              this._GLRenderState.setStencilMask(true);
-							flag = this._gl.DEPTH_BUFFER_BIT | this._gl.STENCIL_BUFFER_BIT;
-							break;
-					}
-				} else {
-					flag = this._gl.DEPTH_BUFFER_BIT;
-				}
-        break;
-        case RenderClearFlag.Color:
-          if (clearcolor&&!this._lastClearColor.equal(clearcolor)){
-            this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
-            clearcolor.cloneTo(this._lastClearColor);
-          }
-          flag = this.gl.COLOR_BUFFER_BIT;
-          break;
-      
-
+        flag |= this.gl.COLOR_BUFFER_BIT;
+    }
+    if(clearFlag&RenderClearFlag.Depth){
+      if (this._lastClearDepth != clearDepth) {
+        this._gl.clearDepth(clearDepth);
+        this._lastClearDepth = clearDepth;
+      }
+      this._GLRenderState.setDepthMask(true);
+      flag |= this._gl.DEPTH_BUFFER_BIT;
+    }
+    if(clearFlag&RenderClearFlag.Stencil){
+      this._gl.clearStencil(0);
+      this._GLRenderState.setStencilMask(true);
+      flag |= this._gl.STENCIL_BUFFER_BIT;
     }
     this._gl.clear(flag);
     this._gl.disable(this._gl.SCISSOR_TEST);
@@ -361,6 +321,10 @@ export class WebGLEngine implements IRenderEngine {
   //TODO 先写完测试，这种封装过于死板
   getDrawContext(): IRenderDrawContext {
     return this._GLRenderDrawContext;
+  }
+
+  get2DRenderContext(): IRender2DContext {
+    return this._GL2DRenderContext;
   }
 
   //TODO:

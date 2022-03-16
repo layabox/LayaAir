@@ -11,8 +11,7 @@ export class VertexBuffer3D extends VertexBuffer {
 	/** @internal */
 	private _canRead: boolean;
 
-	/** @internal */
-	_vertexDeclaration: VertexDeclaration | null = null;
+
 	/** @internal */
 	_float32Reader: Float32Array | null = null;
 

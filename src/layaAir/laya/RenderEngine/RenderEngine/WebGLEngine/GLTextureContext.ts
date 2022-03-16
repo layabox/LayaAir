@@ -757,8 +757,10 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let format = texture.format;
         let type = texture.type;
 
+        let fourSize = width % 4 == 0;
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
         this._engine._bindTexture(texture.target, texture.resource);
 
@@ -775,6 +777,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     }
 
 
@@ -1180,8 +1183,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
         this._engine._bindTexture(texture.target, texture.resource);
         // todo 用 sub 会慢
-        // gl.texSubImage2D(target, 0, 0, 0, format, type, video);
-        gl.texImage2D(target, 0, internalFormat, format, type, video);
+         gl.texSubImage2D(target, 0, 0, 0, format, type, video);
+        //gl.texImage2D(target, 0, internalFormat, format, type, video);
 
         this._engine._bindTexture(texture.target, null);
 

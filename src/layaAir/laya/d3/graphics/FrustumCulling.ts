@@ -1,9 +1,6 @@
-import { LayaGL } from "../../layagl/LayaGL";
 import { ISingletonElement } from "../../resource/ISingletonElement";
 import { Stat } from "../../utils/Stat";
-import { SimpleSingletonList } from "../component/SimpleSingletonList";
 import { SingletonList } from "../component/SingletonList";
-import { Camera } from "../core/Camera";
 import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BaseRender } from "../core/render/BaseRender";
 import { RenderContext3D } from "../core/render/RenderContext3D";

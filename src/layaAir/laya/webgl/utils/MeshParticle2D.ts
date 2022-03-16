@@ -33,7 +33,7 @@ export class MeshParticle2D extends Mesh2D {
     }
 
     setMaxParticleNum(maxNum: number): void {
-        this._vb._resizeBuffer(maxNum * 4 * MeshParticle2D.const_stride, false);
+        this._vb.buffer2D._resizeBuffer(maxNum * 4 * MeshParticle2D.const_stride, false);
         this.createQuadIB(maxNum);
     }
 
@@ -58,7 +58,7 @@ export class MeshParticle2D extends Mesh2D {
 		//TODO:coverage
 		 /*override*/ releaseMesh(): void {
         ;
-        this._vb.setByteLength(0);
+        this._vb.buffer2D.setByteLength(0);
         this.vertNum = 0;
         this.indexNum = 0;
         //_applied = false;

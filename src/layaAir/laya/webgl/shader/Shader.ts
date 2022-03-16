@@ -419,12 +419,12 @@ export class Shader extends BaseShader {
         //Stat.shaderCall++;
         //var gl:WebGLContext = WebGLContext.mainContext;
         //WebGLContext.activeTexture(gl,WebGLContext.TEXTURE0);	2d必须是active0
-        var CTX: any = RenderStateContext;
+        // var CTX: any = RenderStateContext;
 
-        if (CTX._activeTextures[0] !== value) {
+        // if (CTX._activeTextures[0] !== value) {
             this._render2DContext.bindTexture( RenderStateContext.mainContext.TEXTURE_2D, value);
-            CTX._activeTextures[0] = value;
-        }
+            // CTX._activeTextures[0] = value;
+        //}
     }
 
 	/**

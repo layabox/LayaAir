@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { Color } from "../d3/math/Color";
 import { Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
 import { LayaGL } from "../layagl/LayaGL";
@@ -9,6 +10,7 @@ import { Rectangle } from "../maths/Rectangle";
 import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
 import { CullMode } from "../RenderEngine/RenderEnum/CullMode";
+import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderStateType } from "../RenderEngine/RenderEnum/RenderStateType";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
@@ -492,6 +494,8 @@ export class Context {
 
 	isMain: boolean = false;				// 是否是主context
 
+	clearColor:Color = new Color();
+
 	constructor() {
 		Context._contextcount++;
 		Context._textRender = Context._textRender || new TextRender();
@@ -507,9 +511,14 @@ export class Context {
 	}
 
 	clearBG(r: number, g: number, b: number, a: number): void {
-		var gl: WebGLRenderingContext = RenderStateContext.mainContext;
-		gl.clearColor(r, g, b, a);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+		// var gl: WebGLRenderingContext = RenderStateContext.mainContext;
+		this.clearColor.r = r;
+		this.clearColor.r = g;
+		this.clearColor.r = b;
+		this.clearColor.r = a;
+		LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color,this.clearColor,1);
+		// gl.clearColor(r, g, b, a);
+		// gl.clear(gl.COLOR_BUFFER_BIT);
 	}
 
 	//TODO:coverage

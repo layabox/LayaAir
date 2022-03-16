@@ -2,9 +2,8 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { RenderInfo } from "../../renders/RenderInfo";
 import { BaseShader } from "../shader/BaseShader";
 import { Buffer } from "../../RenderEngine/Buffer";
-import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 
-export class Buffer2D extends Buffer {
+export class Buffer2D{
 
 	static FLOAT32: number = 4;
 	static SHORT: number = 2;
@@ -15,9 +14,14 @@ export class Buffer2D extends Buffer {
 	protected _uploadSize: number = 0;
 	protected _bufferSize: number = 0;
 	protected _u8Array: Uint8Array = null;		//反正常常要拷贝老的数据，所以保留这个可以提高效率
+    _floatArray32: Float32Array;
+    _uint32Array: Uint32Array;
+	_uint16Array: Uint16Array;	
+
+	private constBuffer:Buffer;
 
 	get bufferLength(): number {
-		return this._buffer.byteLength;
+		return this.constBuffer._buffer.byteLength;
 	}
 
 	set byteLength(value: number) {
@@ -25,9 +29,9 @@ export class Buffer2D extends Buffer {
 	}
 
 	setByteLength(value: number): void {
-		if (this._byteLength !== value) {
+		if (this.constBuffer._byteLength !== value) {
 			value <= this._bufferSize || (this._resizeBuffer(value * 2 + 256, true));
-			this._byteLength = value;
+			this.constBuffer._byteLength = value;
 		}
 	}
 
@@ -37,62 +41,72 @@ export class Buffer2D extends Buffer {
 	 * @return  增加大小之前的写位置。单位是byte
 	 */
 	needSize(sz: number): number {
-		var old: number = this._byteLength;
+		var old: number = this.constBuffer._byteLength;
 		if (sz) {
-			var needsz: number = this._byteLength + sz;
+			var needsz: number = this.constBuffer._byteLength + sz;
 			needsz <= this._bufferSize || (this._resizeBuffer(needsz << 1, true));
-			this._byteLength = needsz;
+			this.constBuffer._byteLength = needsz;
 		}
 		return old;
 	}
 
-	constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
-		super(targetType,bufferUsageType);
+	constructor(buffer:Buffer) {
+		this.constBuffer = buffer;
 	}
 
+    getFloat32Array(): Float32Array {
+        if(!this._floatArray32){
+			this._floatArray32= new Float32Array(this.constBuffer._buffer);
+		}
+		return this._floatArray32;
+    }
+
+
+
+
 	protected _bufferData(): void {
-		this._maxsize = Math.max(this._maxsize, this._byteLength);
+		this._maxsize = Math.max(this._maxsize, this.constBuffer._byteLength);
 		if (RenderInfo.loopCount % 30 == 0) {//每30帧缩小一下buffer	。TODO 这个有问题。不知道_maxsize和_byteLength是怎么维护的，这里会导致重新分配64字节
-			if (this._buffer.byteLength > (this._maxsize + 64)) {
+			if (this.constBuffer._buffer.byteLength > (this._maxsize + 64)) {
 				//_setGPUMemory(_buffer.byteLength);
-				this._buffer = this._buffer.slice(0, this._maxsize + 64);
-				this._bufferSize = this._buffer.byteLength;
+				this.constBuffer._buffer = this.constBuffer._buffer.slice(0, this._maxsize + 64);
+				this._bufferSize = this.constBuffer._buffer.byteLength;
 				this._checkArrayUse();
 			}
-			this._maxsize = this._byteLength;
+			this._maxsize = this.constBuffer._byteLength;
 		}
-		if (this._uploadSize < this._buffer.byteLength) {
-			this._uploadSize = this._buffer.byteLength;
+		if (this._uploadSize < this.constBuffer._buffer.byteLength) {
+			this._uploadSize = this.constBuffer._buffer.byteLength;
 
-			this._glBuffer.setData(this._uploadSize);
+			this.constBuffer._glBuffer.setData(this._uploadSize);
 		}
-		this._glBuffer.setData(new Uint8Array(this._buffer, 0, this._byteLength),0);
+		this.constBuffer._glBuffer.setData(new Uint8Array(this.constBuffer._buffer, 0, this.constBuffer._byteLength),0);
 	}
 
 	//TODO:coverage
 	protected _bufferSubData(offset: number = 0, dataStart: number = 0, dataLength: number = 0): void {
-		this._maxsize = Math.max(this._maxsize, this._byteLength);
+		this._maxsize = Math.max(this._maxsize, this.constBuffer._byteLength);
 		if (RenderInfo.loopCount % 30 == 0) {
-			if (this._buffer.byteLength > (this._maxsize + 64)) {
+			if (this.constBuffer._buffer.byteLength > (this._maxsize + 64)) {
 				//_setGPUMemory(_buffer.byteLength);
-				this._buffer = this._buffer.slice(0, this._maxsize + 64);
-				this._bufferSize = this._buffer.byteLength;
+				this.constBuffer._buffer = this.constBuffer._buffer.slice(0, this._maxsize + 64);
+				this._bufferSize = this.constBuffer._buffer.byteLength;
 				this._checkArrayUse();
 			}
-			this._maxsize = this._byteLength;
+			this._maxsize = this.constBuffer._byteLength;
 		}
 
-		if (this._uploadSize < this._buffer.byteLength) {
-			this._uploadSize = this._buffer.byteLength;
-			this._glBuffer.setData(this._bufferType, this._uploadSize, this._bufferUsage);
+		if (this._uploadSize < this.constBuffer._buffer.byteLength) {
+			this._uploadSize = this.constBuffer._buffer.byteLength;
+			this.constBuffer._glBuffer.setData(this._uploadSize);
 			//_setGPUMemory(_uploadSize);
 		}
 
 		if (dataStart || dataLength) {
-			var subBuffer: ArrayBuffer = this._buffer.slice(dataStart, dataLength);
-			this._glBuffer.setData(subBuffer,offset);
+			var subBuffer: ArrayBuffer = this.constBuffer._buffer.slice(dataStart, dataLength);
+			this.constBuffer._glBuffer.setData(subBuffer,offset);
 		} else {
-			this._glBuffer.setData(this._buffer,offset);
+			this.constBuffer._glBuffer.setData(this.constBuffer._buffer,offset);
 		}
 	}
 
@@ -100,6 +114,7 @@ export class Buffer2D extends Buffer {
 	 * buffer重新分配了，继承类根据需要做相应的处理。
 	 */
 	protected _checkArrayUse(): void {
+		
 	}
 
 	/**
@@ -110,7 +125,7 @@ export class Buffer2D extends Buffer {
 		if (!this._upload)
 			return false;
 		this._upload = false;
-		this.bind();
+		this.constBuffer.bind();
 		this._bufferData();
 		return true;
 	}
@@ -119,7 +134,7 @@ export class Buffer2D extends Buffer {
 		if (!this._upload)
 			return false;
 		this._upload = false;
-		this.bind();
+		this.constBuffer.bind();
 		this._bufferData();
 		return true;
 	}
@@ -130,7 +145,7 @@ export class Buffer2D extends Buffer {
 			return false;
 
 		this._upload = false;
-		this.bind();
+		this.constBuffer.bind();
 		this._bufferSubData(offset, dataStart, dataLength);
 		return true;
 	}
@@ -143,8 +158,8 @@ export class Buffer2D extends Buffer {
 	 */
 	_resizeBuffer(nsz: number, copy: boolean): Buffer2D //是否修改了长度
 	{
-		var buff: any = this._buffer;
-		if (nsz <= buff.byteLength)
+		var buff: any = this.constBuffer._buffer;
+		if (buff&&nsz <= buff.byteLength)
 			return this;
 		var u8buf: Uint8Array = this._u8Array;
 		//_setGPUMemory(nsz);
@@ -153,11 +168,16 @@ export class Buffer2D extends Buffer {
 			var oldU8Arr: Uint8Array = (u8buf && u8buf.buffer == buff) ? u8buf : new Uint8Array(buff);
 			u8buf = this._u8Array = new Uint8Array(newbuffer);
 			u8buf.set(oldU8Arr, 0);
-			buff = this._buffer = newbuffer;
+			buff = this.constBuffer._buffer = newbuffer;
 		} else {
-			buff = this._buffer = new Uint8Array(nsz);
-			this._u8Array = null;
+			//@ts-ignore
+			buff = this.constBuffer._buffer = new ArrayBuffer(nsz);
+			this._u8Array = new Uint8Array(buff);
 		}
+		buff = this.constBuffer._buffer;
+		this._floatArray32 = new Float32Array(buff);
+		this._uint32Array=new Uint32Array(buff);
+		this._uint16Array = new Uint16Array(buff);
 		this._checkArrayUse();
 		this._upload = true;
 		this._bufferSize = buff.byteLength;
@@ -169,17 +189,17 @@ export class Buffer2D extends Buffer {
 		var byteLen: number, n: any;
 		byteLen = data.byteLength;
 		if (data instanceof Uint8Array) {
-			this._resizeBuffer(this._byteLength + byteLen, true);
-			n = new Uint8Array(this._buffer, this._byteLength);
+			this._resizeBuffer(this.constBuffer._byteLength + byteLen, true);
+			n = new Uint8Array(this.constBuffer._buffer, this.constBuffer._byteLength);
 		} else if (data instanceof Uint16Array) {
-			this._resizeBuffer(this._byteLength + byteLen, true);
-			n = new Uint16Array(this._buffer, this._byteLength);
+			this._resizeBuffer(this.constBuffer._byteLength + byteLen, true);
+			n = new Uint16Array(this.constBuffer._buffer, this.constBuffer._byteLength);
 		} else if (data instanceof Float32Array) {
-			this._resizeBuffer(this._byteLength + byteLen, true);
-			n = new Float32Array(this._buffer, this._byteLength);
+			this._resizeBuffer(this.constBuffer._byteLength + byteLen, true);
+			n = new Float32Array(this.constBuffer._buffer, this.constBuffer._byteLength);
 		}
 		n.set(data, 0);
-		this._byteLength += byteLen;
+		this.constBuffer._byteLength += byteLen;
 		this._checkArrayUse();
 	}
 
@@ -189,10 +209,10 @@ export class Buffer2D extends Buffer {
 	 * @param	len
 	 */
 	appendU16Array(data: Uint16Array, len: number): void {
-		this._resizeBuffer(this._byteLength + len * 2, true);
+		this._resizeBuffer(this.constBuffer._byteLength + len * 2, true);
 		//(new Uint16Array(_buffer, _byteLength, len)).set(data.slice(0, len));
 		//下面这种写法比上面的快多了
-		var u: Uint16Array = new Uint16Array(this._buffer, this._byteLength, len);	//TODO 怎么能不用new
+		var u: Uint16Array = new Uint16Array(this.constBuffer._buffer, this.constBuffer._byteLength, len);	//TODO 怎么能不用new
 		if (len == 6) {
 			u[0] = data[0]; u[1] = data[1]; u[2] = data[2];
 			u[3] = data[3]; u[4] = data[4]; u[5] = data[5];
@@ -203,67 +223,24 @@ export class Buffer2D extends Buffer {
 				u[i] = data[i];
 			}
 		}
-		this._byteLength += len * 2;
+		this.constBuffer._byteLength += len * 2;
 		this._checkArrayUse();
 	}
-
-	//TODO:coverage
-	appendEx(data: any, type: new (buf:any, len:any) => any): void {
-		this._upload = true;
-		var byteLen: number, n: any;
-		byteLen = data.byteLength;
-		this._resizeBuffer(this._byteLength + byteLen, true);
-		n = new type(this._buffer, this._byteLength);
-		n.set(data, 0);
-		this._byteLength += byteLen;
-		this._checkArrayUse();
-	}
-
-	//TODO:coverage
-	appendEx2(data: any, type: new (buff:any, len:any) => any, dataLen: number, perDataLen: number = 1): void {
-		this._upload = true;
-		var byteLen: number, n: any;
-		byteLen = dataLen * perDataLen;
-		this._resizeBuffer(this._byteLength + byteLen, true);
-		n = new type(this._buffer, this._byteLength);
-		var i: number;
-		for (i = 0; i < dataLen; i++) {
-			n[i] = data[i];
-		}
-		this._byteLength += byteLen;
-		this._checkArrayUse();
-	}
-
 
 	//TODO:coverage
 	getBuffer(): ArrayBuffer {
-		return this._buffer;
+		return this.constBuffer._buffer;
 	}
 
 	setNeedUpload(): void {
 		this._upload = true;
 	}
 
-	//TODO:coverage
-	getNeedUpload(): boolean {
-		return this._upload;
-	}
-
-	//TODO:coverage
-	upload(): boolean {
-		var scuess: boolean = this._bind_upload();
-		this.unbind();
-		//gl.bindBuffer(this._bufferType, null);
-		//if (this._bufferType == gl.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
-		//if (this._bufferType == gl.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
-		BaseShader.activeShader = null
-		return scuess;
-	}
 
 	//TODO:coverage
 	subUpload(offset: number = 0, dataStart: number = 0, dataLength: number = 0): boolean {
 		var scuess: boolean = this._bind_subUpload();
-		this.unbind();
+		this.constBuffer.unbind();
 		//gl.bindBuffer(this._bufferType, null);
 		//if (this._bufferType == gl.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
 		//if (this._bufferType == gl.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
@@ -271,9 +248,12 @@ export class Buffer2D extends Buffer {
 		return scuess;
 	}
 
-	protected _disposeResource(): void {
+	_disposeResource(): void {
 		this._upload = true;
 		this._uploadSize = 0;
+		this._floatArray32=null;
+		this._uint32Array=null;
+		this._u8Array=null;
 	}
 
 
@@ -281,7 +261,7 @@ export class Buffer2D extends Buffer {
 	 * 清理数据。保留ArrayBuffer
 	 */
 	clear(): void {
-		this._byteLength = 0;
+		this.constBuffer._byteLength = 0;
 		this._upload = true;
 	}
 }

@@ -1,6 +1,6 @@
 import { BufferStateBase } from "../../RenderEngine/BufferStateBase";
-import { IndexBuffer3D } from "../graphics/IndexBuffer3D";
-import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
+import { IndexBuffer } from "../../RenderEngine/IndexBuffer";
+import { VertexBuffer } from "../../RenderEngine/VertexBuffer";
 
 
 
@@ -16,7 +16,7 @@ export class BufferState extends BufferStateBase {
 		super();
 	}
 
-	applyState(vertexBuffers:VertexBuffer3D[],indexBuffer:IndexBuffer3D|null){
+	applyState(vertexBuffers:VertexBuffer[],indexBuffer:IndexBuffer|null){
 		this._vertexBuffers = vertexBuffers;
 		this._bindedIndexBuffer = indexBuffer;
 		indexBuffer&&indexBuffer.unbind();//清空绑定
@@ -24,6 +24,7 @@ export class BufferState extends BufferStateBase {
 		this.applyVertexBuffers();
 		this.applyIndexBuffers();
 		this.unBind();
+		indexBuffer&&indexBuffer.unbind();//清空绑定
 	}
 }
 
