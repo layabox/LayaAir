@@ -41,15 +41,15 @@ import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
  */
 export enum CameraClearFlags {
 	/**固定颜色。*/
-	SolidColor = RenderClearFlag.ColorDepth,
+	SolidColor,
 	/**天空。*/
-	Sky = RenderClearFlag.Depth,
+	Sky,
 	/**仅深度。*/
-	DepthOnly = RenderClearFlag.Depth,
+	DepthOnly,
 	/**不清除。*/
-	Nothing = RenderClearFlag.Nothing,
+	Nothing,
 	/**只清理颜色 */
-	ColorOnly = RenderClearFlag.Color,
+	ColorOnly,
 }
 
 /**

@@ -4,11 +4,11 @@ import { IRenderBuffer } from "./RenderInterface/IRenderBuffer";
 
 export class Buffer {
 
-	protected _glBuffer: IRenderBuffer;
-	protected _buffer: Float32Array|Uint16Array|Uint8Array|Uint32Array;
+	_glBuffer: IRenderBuffer;
+	_buffer: Float32Array|Uint16Array|Uint8Array|Uint32Array;
 
-	protected _bufferType: number;
-	protected _bufferUsage: number;
+	_bufferType: number;
+	_bufferUsage: number;
 
 	_byteLength: number = 0; 
 

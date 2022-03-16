@@ -244,7 +244,7 @@ export class ShaderInstance {
 				if(isTarget==invertFront)
 					forntFace = CullMode.Front;//gl.CCW
 				else
-					forntFace !=CullMode.Back;
+					forntFace =CullMode.Back;
 				this._cullStateCMD.addCMD(RenderStateType.FrontFace,forntFace);
 				break;
 			case RenderState.CULL_BACK:
@@ -252,7 +252,7 @@ export class ShaderInstance {
 				if(isTarget!=invertFront)
 					forntFace = CullMode.Front;//gl.CCW
 				else
-					forntFace !=CullMode.Back;
+					forntFace =CullMode.Back;
 				this._cullStateCMD.addCMD(RenderStateType.FrontFace,forntFace);
 				
 				break;

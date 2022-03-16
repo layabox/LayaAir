@@ -90,22 +90,22 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
      */
     addNewParticlesToVertexBuffer(): void {
         var _vertexBuffer2D: VertexBuffer2D = this._mesh._vb;
-        _vertexBuffer2D.clear();
-        _vertexBuffer2D.append(this._vertices);
+        _vertexBuffer2D.buffer2D.clear();
+        _vertexBuffer2D.buffer2D.append(this._vertices);
 
         var start: number;
         if (this._firstNewElement < this._firstFreeElement) {
             // 如果新增加的粒子在Buffer中是连续的区域，只upload一次
             start = this._firstNewElement * 4 * this._floatCountPerVertex * 4;
-            _vertexBuffer2D.subUpload(start, start, start + (this._firstFreeElement - this._firstNewElement) * 4 * this._floatCountPerVertex * 4);
+            _vertexBuffer2D.buffer2D.subUpload(start, start, start + (this._firstFreeElement - this._firstNewElement) * 4 * this._floatCountPerVertex * 4);
         } else {
             //如果新增粒子区域超过Buffer末尾则循环到开头，需upload两次
             start = this._firstNewElement * 4 * this._floatCountPerVertex * 4;
-            _vertexBuffer2D.subUpload(start, start, start + (this.settings.maxPartices - this._firstNewElement) * 4 * this._floatCountPerVertex * 4);
+            _vertexBuffer2D.buffer2D.subUpload(start, start, start + (this.settings.maxPartices - this._firstNewElement) * 4 * this._floatCountPerVertex * 4);
 
             if (this._firstFreeElement > 0) {
-                _vertexBuffer2D.setNeedUpload();
-                _vertexBuffer2D.subUpload(0, 0, this._firstFreeElement * 4 * this._floatCountPerVertex * 4);
+                _vertexBuffer2D.buffer2D.setNeedUpload();
+                _vertexBuffer2D.buffer2D.subUpload(0, 0, this._firstFreeElement * 4 * this._floatCountPerVertex * 4);
             }
         }
         this._firstNewElement = this._firstFreeElement;

@@ -159,7 +159,7 @@ export class RenderState implements IClone {
 	 * 创建一个 <code>RenderState</code> 实例。
 	 */
 	constructor() {
-		this.cull = RenderState.CULL_BACK;
+		this.cull = RenderState.CULL_NONE;
 		this.blend = RenderState.BLEND_DISABLE;
 		this.srcBlend = RenderState.BLENDPARAM_ONE;
 		this.dstBlend = RenderState.BLENDPARAM_ZERO;

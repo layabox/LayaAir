@@ -72,6 +72,8 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { UnifromBufferData, UniformBufferParamsType } from "../../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 /**
  * 环境光模式
  */
@@ -1179,7 +1181,26 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		var clearFlag: number = camera.clearFlag;
 		if (clearFlag === CameraClearFlags.Sky && !(camera.skyRenderer._isAvailable() || this._skyRenderer._isAvailable()))
 			clearFlag = CameraClearFlags.SolidColor;
-		LayaGL.renderEngine.clearRenderTexture(renderTex,clearFlag,camera.clearColor,1);
+		let clearConst:number = 0;
+		let stencilFlag = renderTex.depthStencilFormat==RenderTargetFormat.DEPTHSTENCIL_24_8?RenderClearFlag.Stencil:0;
+		switch(clearFlag){
+			case CameraClearFlags.SolidColor:
+				clearConst = RenderClearFlag.Color|RenderClearFlag.Depth|stencilFlag;
+				break;
+			case CameraClearFlags.DepthOnly:
+			case CameraClearFlags.Sky:
+				clearConst = RenderClearFlag.Depth|stencilFlag;
+				break;
+			case CameraClearFlags.Nothing:
+				clearConst = 0;
+				break;
+			case CameraClearFlags.ColorOnly:
+				clearConst = RenderClearFlag.Color;
+				break;
+
+		}
+			
+		LayaGL.renderEngine.clearRenderTexture(clearConst,camera.clearColor,1);
 	}
 
 	/**

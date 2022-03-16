@@ -16,6 +16,7 @@ import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
+import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 
 
 /**
@@ -127,7 +128,7 @@ export class DepthPass {
 				
 				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-				LayaGL.renderEngine.clearRenderTexture(this._depthTexture,CameraClearFlags.DepthOnly,null,1);
+				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth,null,1);
 				scene._opaqueQueue._render(context);
 				this._depthTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);
@@ -144,7 +145,7 @@ export class DepthPass {
 				
 				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-				LayaGL.renderEngine.clearRenderTexture(this._depthNormalsTexture,CameraClearFlags.SolidColor,this._defaultNormalDepthColor,1)
+				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color|RenderClearFlag.Depth,this._defaultNormalDepthColor,1)
 				scene._opaqueQueue._render(context);
 				this._depthNormalsTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);

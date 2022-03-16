@@ -7,6 +7,7 @@ import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../RenderEnum/RenderParams";
 import { RenderStateCommand } from "../RenderStateCommand";
+import { IRender2DContext } from "./IRender2DContext";
 import { IRenderBuffer } from "./IRenderBuffer";
 import { IRenderDrawContext } from "./IRenderDrawContext";
 import { IRenderShaderInstance } from "./IRenderShaderInstance";
@@ -25,7 +26,7 @@ export interface IRenderEngine {
     colorMask(r: boolean, g: boolean, b: boolean, a: boolean):void;
     copySubFrameBuffertoTex(texture:BaseTexture,level:number,xoffset:number, yoffset:number, x:number, y:number, width:number, height:number):void;
     bindTexture(texture:BaseTexture):void;
-    clearRenderTexture(rendertexture: RenderTexture, clearFlag: RenderClearFlag|number, clearcolor:Color, clearDepth:number):void;
+    clearRenderTexture(clearFlag: RenderClearFlag|number, clearcolor:Color, clearDepth:number):void;
     scissorTest(value:boolean):void;
 
     getParams(params: RenderParams): number ;
@@ -33,6 +34,7 @@ export interface IRenderEngine {
     getTextureContext(): ITextureContext;
      //TODO 先写完测试，这种封装过于死板
     getDrawContext():IRenderDrawContext;
+    get2DRenderContext():IRender2DContext;
     
     uploadUniforms(shader:IRenderShaderInstance,commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number ;
     uploadCustomUniforms(shader:IRenderShaderInstance,custom: any[], index: number, data: any): number ;

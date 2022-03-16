@@ -15,6 +15,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { MultiplePassOutlineMaterial } from "./customMaterials/MultiplePassOutlineMaterial";
 
 export class Shader_MultiplePassOutline {
+	private rotation: Vector3 = new Vector3(0, 0.01, 0);
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);

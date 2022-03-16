@@ -1,5 +1,5 @@
+import { BufferState } from "../../d3/core/BufferState";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { BufferState2D } from "../BufferState2D";
 import { Config } from "./../../../Config";
 import { IndexBuffer2D } from "./IndexBuffer2D";
 import { VertexBuffer2D } from "./VertexBuffer2D";
@@ -14,7 +14,7 @@ export class Mesh2D {
     protected _applied = false;	//是否已经设置给webgl了
     _vb: VertexBuffer2D;			//vb和ib都可能需要在外部修改，所以public
     _ib: IndexBuffer2D;
-    private _vao: BufferState2D;						//webgl VAO对象。需要WebGL扩展。
+    private _vao: BufferState;						//webgl VAO对象。需要WebGL扩展。
     private static _gvaoid = 0;
     private _attribInfo: any[];			//保存起来的属性定义数组。
     protected _quadNum = 0;
@@ -31,13 +31,13 @@ export class Mesh2D {
         this._stride = stride;
         this._vb = new VertexBuffer2D(stride, BufferUsage.Dynamic);
         if (vballoc) {
-            this._vb._resizeBuffer(vballoc, false);
+            this._vb.buffer2D._resizeBuffer(vballoc, false);
         } else {
-            Config.webGL2D_MeshAllocMaxMem && this._vb._resizeBuffer(64 * 1024 * stride, false);
+            Config.webGL2D_MeshAllocMaxMem && this._vb.buffer2D._resizeBuffer(64 * 1024 * stride, false);
         }
         this._ib = new IndexBuffer2D();
         if (iballoc) {
-            this._ib._resizeBuffer(iballoc, false);
+            this._ib.buffer2D._resizeBuffer(iballoc, false);
         }
         //meshlist.push(this);
     }
@@ -48,10 +48,10 @@ export class Mesh2D {
      */
     createQuadIB(QuadNum: number): void {
         this._quadNum = QuadNum;
-        this._ib._resizeBuffer(QuadNum * 6 * 2, false);	//short类型
-        this._ib.byteLength = this._ib.bufferLength;	//这个我也不知道是什么意思
+        this._ib.buffer2D._resizeBuffer(QuadNum * 6 * 2, false);	//short类型
+        this._ib.buffer2D.byteLength = this._ib.buffer2D.bufferLength;	//这个我也不知道是什么意思
 
-        var bd: Uint16Array = this._ib.getUint16Array();
+        var bd: Uint16Array = this._ib.buffer2D._uint16Array;
         var idx: number = 0;
         var curvert: number = 0;
         for (var i: number = 0; i < QuadNum; i++) {
@@ -64,7 +64,7 @@ export class Mesh2D {
             curvert += 4;
         }
 
-        this._ib.setNeedUpload();
+        this._ib.buffer2D.setNeedUpload();
     }
 
     /**
@@ -90,30 +90,22 @@ export class Mesh2D {
         this._applied = true;
         if (!this._vao) {
             //_vao = __JS__('gl.createVertexArray();');
-            this._vao = new BufferState2D();
+            this._vao = new BufferState();
             //_vao.dbgid = _gvaoid++;
         }
-        this._vao.bind();
-        //gl.bindVertexArray(_vao);
-        this._vb._bindForVAO();
-
-        //_vb._bind(); 这个有相同优化，不适用于vao
-
-        // this._ib.setNeedUpload();	//vao的话，必须要绑定ib。即使是共享的别人的。
-        // this._ib._bind_uploadForVAO();
-        //gl.bindBuffer(WebGLContext.ARRAY_BUFFER,_vb);
-        //gl.bindBuffer(WebGLContext.ELEMENT_ARRAY_BUFFER, _ib);
-        var attribNum: number = this._attribInfo.length / 3;
-        var idx: number = 0;
-        for (var i: number = 0; i < attribNum; i++) {
-            var _size: number = this._attribInfo[idx + 1];
-            var _type: number = this._attribInfo[idx];
-            var _off: number = this._attribInfo[idx + 2];
-            gl.enableVertexAttribArray(i);
-            gl.vertexAttribPointer(i, _size, _type, false, this._stride, _off); //注意 normalize都设置为false了，想必没人要用这个功能把。
-            idx += 3;
-        }
-        this._vao.unBind();
+        this._vao.applyState([this._vb],this._ib);
+        
+        // var attribNum: number = this._attribInfo.length / 3;
+        // var idx: number = 0;
+        // for (var i: number = 0; i < attribNum; i++) {
+        //     var _size: number = this._attribInfo[idx + 1];
+        //     var _type: number = this._attribInfo[idx];
+        //     var _off: number = this._attribInfo[idx + 2];
+        //     gl.enableVertexAttribArray(i);
+        //     gl.vertexAttribPointer(i, _size, _type, false, this._stride, _off); //注意 normalize都设置为false了，想必没人要用这个功能把。
+        //     idx += 3;
+        // }
+        // this._vao.unBind();
         //gl.bindVertexArray(null);
     }
 
@@ -132,17 +124,19 @@ export class Mesh2D {
 
         //WebGLContext.bindVertexArray(gl, null);
         //gl.disableVertexAttribArray(0);
+        this._ib.buffer2D._bind_upload() || this._ib._bindForVAO();
+        this._vb.buffer2D._bind_upload() || this._vb.bind();
+
         this._vao.bind();
         //gl.bindVertexArray(_vao);
 
-        this._vb.bind();	//vao必须要再bind vb,否则下面的操作可能是在操作其他的mesh
-        this._ib._bind_upload() || this._ib._bindForVAO();
-        this._vb._bind_upload() || this._vb.bind();
+        // this._vb.bind();	//vao必须要再bind vb,否则下面的操作可能是在操作其他的mesh
+       
     }
 
     //TODO:coverage
     getEleNum(): number {
-        return this._ib.getBuffer().byteLength / 2;
+        return this._ib.buffer2D.getBuffer().byteLength / 2;
     }
 
     /**
@@ -160,7 +154,7 @@ export class Mesh2D {
      * 清理vb数据
      */
     clearVB(): void {
-        this._vb.clear();
+        this._vb.buffer2D.clear();
     }
 }
 

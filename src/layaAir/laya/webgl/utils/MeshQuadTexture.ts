@@ -1,3 +1,6 @@
+import { VertexElement } from "../../d3/graphics/VertexElement";
+import { VertexElementFormat } from "../../d3/graphics/VertexElementFormat";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { IndexBuffer2D } from "./IndexBuffer2D";
 import { Mesh2D } from "./Mesh2D";
 import { VertexBuffer2D } from "./VertexBuffer2D";
@@ -11,7 +14,7 @@ export class MeshQuadTexture extends Mesh2D {
 	private static _fixattriInfo: any[];
 	private static _POOL: any[] = [];
 	//private static var _num;
-
+	static VertexDeclarition:VertexDeclaration;
 	static __int__(): void {
 		//var gl: WebGLRenderingContext = LayaGL.instance;
 		MeshQuadTexture._fixattriInfo = [5126/*gl.FLOAT*/, 4, 0,	//pos,uv
@@ -31,6 +34,13 @@ export class MeshQuadTexture extends Mesh2D {
 			this._ib = MeshQuadTexture._fixib;
 			this._quadNum = MeshQuadTexture._maxIB;
 		}
+		if(!MeshQuadTexture.VertexDeclarition)
+		MeshQuadTexture.VertexDeclarition = new VertexDeclaration(24,[
+		   new VertexElement(0,VertexElementFormat.Vector4,0),
+		   new VertexElement(16,VertexElementFormat.Byte4,1),
+		   new VertexElement(20,VertexElementFormat.Byte4,2),
+	   ])
+	   this._vb.vertexDeclaration = MeshQuadTexture.VertexDeclarition;
 	}
 
 	/**
@@ -44,7 +54,7 @@ export class MeshQuadTexture extends Mesh2D {
 		} else
 			ret = new MeshQuadTexture();
 		// 先分配64k顶点的空间，这样可以避免浪费内存，否则后面增加内存的时候是成倍增加的，当快超过64k的时候，直接变成了128k
-		mainctx && ret._vb._resizeBuffer(64 * 1024 * MeshQuadTexture.const_stride, false);
+		mainctx && ret._vb.buffer2D._resizeBuffer(64 * 1024 * MeshQuadTexture.const_stride, false);
 		return ret;
 	}
 
@@ -53,7 +63,7 @@ export class MeshQuadTexture extends Mesh2D {
 		 * @override
 		 */
 		  releaseMesh(): void {
-		this._vb.setByteLength(0);
+		this._vb.buffer2D.setByteLength(0);
 		this.vertNum = 0;
 		this.indexNum = 0;
 		//_applied = false;
@@ -80,7 +90,7 @@ export class MeshQuadTexture extends Mesh2D {
 		var vb: VertexBuffer2D = this._vb;
 		var vpos: number = (vb._byteLength >> 2);	//float数组的下标
 		//x,y,u,v,rgba
-		vb.setByteLength((vpos + MeshQuadTexture.const_stride) << 2); //是一个四边形的大小，也是这里填充的大小
+		vb.buffer2D.setByteLength((vpos + MeshQuadTexture.const_stride) << 2); //是一个四边形的大小，也是这里填充的大小
 		var vbdata: Float32Array = vb._floatArray32 || vb.getFloat32Array();
 		var vbu32Arr: Uint32Array = vb._uint32Array;
 		var cpos: number = vpos;
@@ -89,7 +99,7 @@ export class MeshQuadTexture extends Mesh2D {
 		vbdata[cpos++] = pos[2]; vbdata[cpos++] = pos[3]; vbdata[cpos++] = uv[2]; vbdata[cpos++] = uv[3]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = useTexVal;
 		vbdata[cpos++] = pos[4]; vbdata[cpos++] = pos[5]; vbdata[cpos++] = uv[4]; vbdata[cpos++] = uv[5]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = useTexVal;
 		vbdata[cpos++] = pos[6]; vbdata[cpos++] = pos[7]; vbdata[cpos++] = uv[6]; vbdata[cpos++] = uv[7]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = useTexVal;
-		vb._upload = true;
+		vb.buffer2D._upload = true;
 	}
 }
 

@@ -26,6 +26,7 @@ import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
+import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 
 /**
  * Shadow Light enum
@@ -387,7 +388,8 @@ export class ShadowCasterPass {
 					
 					LayaGL.renderEngine.viewport(offsetX, offsetY, resolution, resolution);
 					LayaGL.renderEngine.scissor(offsetX, offsetY, resolution, resolution);
-					LayaGL.renderEngine.clearRenderTexture(shadowMap,CameraClearFlags.DepthOnly,null,1);
+
+					LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth,null,1);
 					if (needRender) {// if one cascade have anything to render.
 						LayaGL.renderEngine.scissor(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);//for no cascade is for the edge,for cascade is for the beyond maxCascade pixel can use (0,0,0) trick sample the shadowMap
 						scene._opaqueQueue._render(context);//阴影均为非透明队列
@@ -416,7 +418,7 @@ export class ShadowCasterPass {
 
 				LayaGL.renderEngine.viewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 				LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-				LayaGL.renderEngine.clearRenderTexture(shadowMap,CameraClearFlags.DepthOnly,null,1);
+				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth,null,1);
 
 				if (needRender) {
 					LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);

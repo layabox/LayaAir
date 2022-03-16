@@ -117,8 +117,18 @@ export class SubMesh extends GeometryElement {
 			return;
 		}
 		var skinnedDatas: any[] = (state.renderElement && !!(<SkinnedMeshRenderer>state.renderElement.render)) ? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData : null;
-		var glIndexFormat: number;
 		var byteCount: number;
+		switch (mesh.indexFormat) {
+			case IndexFormat.UInt32:
+				byteCount = 4;
+				break;
+			case IndexFormat.UInt16:
+				byteCount = 2;
+				break;
+			case IndexFormat.UInt8:
+				byteCount = 1;
+				break;
+		}
 		mesh._bufferState.bind();
 		if (skinnedDatas) {
 			var subSkinnedDatas: Float32Array[] = skinnedDatas[this._indexInMesh];

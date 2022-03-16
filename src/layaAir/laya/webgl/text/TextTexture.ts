@@ -47,7 +47,9 @@ export class TextTexture extends Resource {
     recreateResource(): void {
         if (this._source)
             return;
-        var glTex: any = this._source = new Texture2D(this._texW,this._texH,TextureFormat.R8G8B8A8,false,false,false);
+        var glTex: Texture2D = this._source = new Texture2D(this._texW,this._texH,TextureFormat.R8G8B8A8,false,false,false);
+        glTex.setPixelsData(null,true,false);
+        glTex.lock = true;
         this.bitmap._glTexture = glTex;
 
         this._source.filterMode = FilterMode.Bilinear;
@@ -77,7 +79,8 @@ export class TextTexture extends Resource {
         if (data.data instanceof Uint8ClampedArray)
             dt = new Uint8Array(dt.buffer);
         !this._source && this.recreateResource();
-        LayaGL.textureContext.setTextureImageData(this._source._getSource(),dt,true,false);
+        
+        LayaGL.textureContext.setTextureSubPixelsData(this._source._texture,dt,0,false,x,y,data.width,data.height,true,false);
         var u0: number;
         var v0: number;
         var u1: number;
