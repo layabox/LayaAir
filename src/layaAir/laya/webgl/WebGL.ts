@@ -1,3 +1,4 @@
+import { LayaGL } from "../layagl/LayaGL";
 import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 import { RenderState2D } from "./utils/RenderState2D"
 
@@ -70,8 +71,7 @@ export class WebGL {
     }
 
     static onStageResize(width: number, height: number): void {
-        if (RenderStateContext.mainContext == null) return;
-        RenderStateContext.mainContext.viewport(0, 0, width, height);
+        LayaGL.renderEngine.viewport(0, 0, width, height);
         RenderState2D.width = width;
         RenderState2D.height = height;
     }

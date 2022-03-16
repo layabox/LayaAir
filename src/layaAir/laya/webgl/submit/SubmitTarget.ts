@@ -10,6 +10,9 @@ import { Value2D } from "../shader/d2/value/Value2D"
 import { CONST3D2D } from "../utils/CONST3D2D"
 import { Mesh2D } from "../utils/Mesh2D"
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { LayaGL } from "../../layagl/LayaGL";
+import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 
 
 export class SubmitTarget implements ISubmit {
@@ -32,8 +35,7 @@ export class SubmitTarget implements ISubmit {
 
     static POOL: SubmitTarget[] = [];
     renderSubmit(): number {
-        var gl = RenderStateContext.mainContext;
-        this._mesh.useMesh(gl);
+        this._mesh.useMesh();
 
         var target = this.srcRT;
         if (target) {//??为什么会出现为空的情况
@@ -42,16 +44,15 @@ export class SubmitTarget implements ISubmit {
             this.blend();
             Stat.renderBatches++;
             Stat.trianglesFaces += this._numEle / 3;
-            gl.drawElements(gl.TRIANGLES, this._numEle, gl.UNSIGNED_SHORT, this._startIdx);
+            LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
         }
         return 1;
     }
 
     blend(): void {
         if (BlendMode.activeBlendFunction !== BlendMode.fns[this.blendType]) {
-            var gl = RenderStateContext.mainContext;
-            gl.enable(gl.BLEND);
-            BlendMode.fns[this.blendType](gl);
+            RenderStateContext.setBlend(true);
+            BlendMode.fns[this.blendType]();
             BlendMode.activeBlendFunction = BlendMode.fns[this.blendType];
         }
     }

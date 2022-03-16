@@ -84,7 +84,7 @@ export class Mesh2D {
      * 初始化VAO的配置，只需要执行一次。以后使用的时候直接bind就行
      * @param	gl
      */
-    private configVAO(gl: WebGLRenderingContext): void {
+    private configVAO(): void {
         if (this._applied)
             return;
         this._applied = true;
@@ -113,9 +113,9 @@ export class Mesh2D {
      * 应用这个mesh
      * @param	gl
      */
-    useMesh(gl: WebGLRenderingContext): void {
+    useMesh(): void {
         //要先bind，在bufferData
-        this._applied || this.configVAO(gl);
+        this._applied || this.configVAO();
 
         //var attribNum:int = _attribInfo.length / 3;
         //var bindedAttributeBuffer:Array = Buffer._bindedAtributeBuffer;

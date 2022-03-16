@@ -11,6 +11,9 @@ import { Value2D } from "../shader/d2/value/Value2D"
 import { CONST3D2D } from "../utils/CONST3D2D"
 import { Mesh2D } from "../utils/Mesh2D"
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { LayaGL } from "../../layagl/LayaGL";
+import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 
 export class SubmitTexture extends SubmitBase {
     private static _poolSize: number = 0;
@@ -41,9 +44,7 @@ export class SubmitTexture extends SubmitBase {
             if (!source) return 1;
         }
 
-        var gl = RenderStateContext.mainContext;
-
-        this._mesh.useMesh(gl);
+        this._mesh.useMesh();
         //如果shader参数都相同，只要提交texture就行了
         var lastSubmit = <SubmitTexture>SubmitBase.preRender;
         var prekey = ((<SubmitBase>SubmitBase.preRender))._key;
@@ -57,14 +58,14 @@ export class SubmitTexture extends SubmitBase {
         else {
             if (BlendMode.activeBlendFunction !== this._blendFn) {
                 RenderStateContext.setBlend(true);
-                this._blendFn(gl);
+                this._blendFn();
                 BlendMode.activeBlendFunction = this._blendFn;
             }
             this.shaderValue.texture = source;
             this.shaderValue.upload();
         }
 
-        gl.drawElements(gl.TRIANGLES, this._numEle, gl.UNSIGNED_SHORT, this._startIdx);
+        LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
 
         Stat.renderBatches++;
         Stat.trianglesFaces += this._numEle / 3;

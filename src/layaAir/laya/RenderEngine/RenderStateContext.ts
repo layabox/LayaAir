@@ -10,9 +10,7 @@ import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
  * @private
  */
 export class RenderStateContext {
-    /**@internal */
-    static mainContext: WebGLRenderingContext = null;
-
+    static mainContext:any;
 
     static DepthTestCMD: RenderStateCommand = new RenderStateCommand();
     static DepthMaskCMD: RenderStateCommand = new RenderStateCommand();

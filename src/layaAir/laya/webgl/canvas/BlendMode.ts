@@ -1,3 +1,4 @@
+import { BlendFactor } from "../../RenderEngine/RenderEnum/BlendFactor";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 
 //export type BlendFunc = (gl:WebGLRenderingContext)=>void
@@ -62,70 +63,71 @@ export class BlendMode {
         ];
     }
 
-    static BlendNormal(gl: WebGLRenderingContext): void {
+    static BlendNormal(): void {
         //为了避免黑边，和canvas作为贴图的黑边
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha,true);
+        
     }
 
     /**@internal 这个add感觉不合理，所以改成old了 */
-    static BlendAddOld(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.DST_ALPHA,true);
+    static BlendAddOld(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.DestinationAlpha,true);
     }
 
-    static BlendAdd(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
+    static BlendAdd(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
     }
 
-    static BlendMultiply(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,true);
+    static BlendMultiply(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.DestinationColor, BlendFactor.OneMinusSourceAlpha,true);
     }
 
-    static BlendScreen(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
+    static BlendScreen(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
     }
 
-    static BlendOverlay(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_COLOR,true);
+    static BlendOverlay(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha,true);
     }
 
-    static BlendLight(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
+    static BlendLight(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One,BlendFactor.One,true);
     }
 
-    static BlendNormalTarget(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA,true);
+    static BlendNormalTarget(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha,true);
     }
 
     /**@internal add不应该是1+dst_α 所以改成old */
-    static BlendAddTargetOld(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.DST_ALPHA,true);
+    static BlendAddTargetOld(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.DestinationAlpha,true);
     }
-    static BlendAddTarget(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
-    }
-
-    static BlendMultiplyTarget(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,true);
+    static BlendAddTarget(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
     }
 
-    static BlendScreenTarget(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
+    static BlendMultiplyTarget(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.DestinationColor, BlendFactor.OneMinusSourceAlpha,true);
     }
 
-    static BlendOverlayTarget(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_COLOR,true);
+    static BlendScreenTarget(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
     }
 
-    static BlendLightTarget(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ONE, gl.ONE,true);
+    static BlendOverlayTarget(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceColor,true);
     }
 
-    static BlendMask(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ZERO, gl.SRC_ALPHA,true);
+    static BlendLightTarget(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
     }
 
-    static BlendDestinationOut(gl: WebGLRenderingContext): void {
-        RenderStateContext.setBlendFunc(gl.ZERO, gl.ZERO,true);
+    static BlendMask(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.Zero, BlendFactor.SourceAlpha,true);
+    }
+
+    static BlendDestinationOut(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.Zero, BlendFactor.Zero,true);
     }
 }
 

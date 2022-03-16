@@ -46,7 +46,7 @@ export class Scene2DPlayer3D {
 		camera.transform.rotate(this._rotation, false, false);
 		camera.transform.translate(this._translate2);
 		camera.orthographic = true;
-		camera.clearFlag = CameraClearFlags.DepthOnly;
+		camera.clearFlag = CameraClearFlags.SolidColor;
 		//正交投影垂直矩阵尺寸
 		camera.orthographicVerticalSize = 10;
 

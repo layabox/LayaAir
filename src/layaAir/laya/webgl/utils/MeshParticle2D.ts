@@ -1,6 +1,7 @@
 import { Mesh2D } from "./Mesh2D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { RenderParams } from "../../RenderEngine/RenderEnum/RenderParams";
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
  */
@@ -10,17 +11,17 @@ export class MeshParticle2D extends Mesh2D {
     private static _POOL: any[] = [];
 
     static __init__(): void {
-        var gl = RenderStateContext.mainContext;
-        MeshParticle2D._fixattriInfo = [gl.FLOAT, 4, 0,	//CornerTextureCoordinate
-        gl.FLOAT, 3, 16,//pos
-        gl.FLOAT, 3, 28,//vel
-        gl.FLOAT, 4, 40,//start color
-        gl.FLOAT, 4, 56,//end color
-        gl.FLOAT, 3, 72,//size,rot
-        gl.FLOAT, 2, 84,//radius
-        gl.FLOAT, 4, 92,//radian
-        gl.FLOAT, 1, 108,//AgeAddScale
-        gl.FLOAT, 1, 112];
+        const glfloat = LayaGL.renderEngine.getParams(RenderParams.FLOAT);
+        MeshParticle2D._fixattriInfo = [glfloat, 4, 0,	//CornerTextureCoordinate
+        glfloat, 3, 16,//pos
+        glfloat, 3, 28,//vel
+        glfloat, 4, 40,//start color
+        glfloat, 4, 56,//end color
+        glfloat, 3, 72,//size,rot
+        glfloat, 2, 84,//radius
+        glfloat, 4, 92,//radian
+        glfloat, 1, 108,//AgeAddScale
+        glfloat, 1, 112];
     }
 
     //TODO:coverage
