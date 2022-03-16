@@ -10,7 +10,7 @@ export class GLRender2DContext extends GLObject implements IRender2DContext {
 
     constructor(engine: WebGLEngine) {
         super(engine);
-        this.shaderInstance = new GLShaderInstance(engine, null, null, null);
+        //this.shaderInstance = new GLShaderInstance(engine, null, null, null);
     }
 
     activeTexture(textureID: number): void {
@@ -28,7 +28,7 @@ export class GLRender2DContext extends GLObject implements IRender2DContext {
         if(this.cacheShaderProgram==webglProgram)
             return false;
         this._gl.useProgram(webglProgram);
-        this._engine._glUseProgram = this.shaderInstance;
+        this._engine._glUseProgram = null;;
         return true;
     }
 
