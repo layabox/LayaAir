@@ -513,9 +513,9 @@ export class Context {
 	clearBG(r: number, g: number, b: number, a: number): void {
 		// var gl: WebGLRenderingContext = RenderStateContext.mainContext;
 		this.clearColor.r = r;
-		this.clearColor.r = g;
-		this.clearColor.r = b;
-		this.clearColor.r = a;
+		this.clearColor.g = g;
+		this.clearColor.b = b;
+		this.clearColor.a = a;
 		LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color,this.clearColor,1);
 		// gl.clearColor(r, g, b, a);
 		// gl.clear(gl.COLOR_BUFFER_BIT);
