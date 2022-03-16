@@ -4,6 +4,7 @@ import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Color } from "laya/d3/math/Color";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Ray } from "laya/d3/math/Ray";
 import { Vector2 } from "laya/d3/math/Vector2";

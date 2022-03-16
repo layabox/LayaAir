@@ -1,13 +1,11 @@
 import { Color } from "../../../d3/math/Color";
 import { Vector4 } from "../../../d3/math/Vector4";
-import { RenderTexture } from "../../../d3/resource/RenderTexture";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { BufferTargetType, BufferUsage } from "../../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../../RenderEnum/RenderParams";
-import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
 import { IRender2DContext } from "../../RenderInterface/IRender2DContext";
 import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
