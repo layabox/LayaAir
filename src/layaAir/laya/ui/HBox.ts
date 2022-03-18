@@ -3,8 +3,8 @@ import { UIComponent } from "./UIComponent";
 import { ILaya } from "../../ILaya";
 import { ClassUtils } from "../utils/ClassUtils";
 /**
-	 * <code>HBox</code> 是一个水平布局容器类。
-	 */
+     * <code>HBox</code> 是一个水平布局容器类。
+     */
 export class HBox extends LayoutBox {
     /**
      * 无对齐。
@@ -27,14 +27,14 @@ export class HBox extends LayoutBox {
      * @inheritDoc	
      * @override
      */
-	protected sortItem(items: any[]): void {
+    protected sortItem(items: any[]): void {
         if (items) items.sort(function (a: any, b: any): number { return a.x - b.x; });
     }
     /**
      * @inheritDoc	
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         if (this._height != value) {
             super.height = value;
             this.callLater(this.changeItems);
@@ -52,7 +52,7 @@ export class HBox extends LayoutBox {
      * @inheritDoc	
      * @override
      */
-	protected changeItems(): void {
+    protected changeItems(): void {
         this._itemChanged = false;
         var items: any[] = [];
         var maxHeight = 0;
@@ -60,15 +60,17 @@ export class HBox extends LayoutBox {
             var item = (<UIComponent>this.getChildAt(i));
             if (item) {
                 items.push(item);
-                maxHeight = this._height ? this._height : Math.max(maxHeight, item.height * item.scaleY);
+                maxHeight = Math.max(maxHeight, item.height * item.scaleY);
             }
         }
         this.sortItem(items);
         var left = 0;
         for (i = 0, n = items.length; i < n; i++) {
             item = items[i];
-            item.x = left;
-            left += item.width * item.scaleX + this._space;
+
+            i && (left += (items[i - 1].width * items[i - 1].scaleX) + this._space);
+            item.left = left;
+
             if (this._align == HBox.TOP) {
                 item.y = 0;
             } else if (this._align == HBox.MIDDLE) {
@@ -76,6 +78,8 @@ export class HBox extends LayoutBox {
             } else if (this._align == HBox.BOTTOM) {
                 item.y = maxHeight - item.height * item.scaleY;
             }
+            //@charley:修正轴心点偏移的位置处理
+            item.pivotY && (item.y += item.pivotY * item.scaleY);
         }
         this._sizeChanged();
     }
