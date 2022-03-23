@@ -9,6 +9,8 @@ import { LayaGL } from "../../layagl/LayaGL"
  */
 export class Matrix4x4 implements IClone {
 	/**@internal */
+	static DEFAULTARRAY: Float32Array = new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+	/**@internal */
 	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
 	/**@internal */
 	static TEMPMatrix0: Matrix4x4 = new Matrix4x4();
@@ -25,7 +27,6 @@ export class Matrix4x4 implements IClone {
 	/**@internal */
 	private static _tempQuaternion: Quaternion = new Quaternion();
 
-	
 	/**默认矩阵,禁止修改*/
 	static DEFAULT: Matrix4x4 = new Matrix4x4();
 	/**默认矩阵,禁止修改*/
@@ -448,6 +449,14 @@ export class Matrix4x4 implements IClone {
 	 * @param	4x4矩阵的各元素
 	 */
 	constructor(m11: number = 1, m12: number = 0, m13: number = 0, m14: number = 0, m21: number = 0, m22: number = 1, m23: number = 0, m24: number = 0, m31: number = 0, m32: number = 0, m33: number = 1, m34: number = 0, m41: number = 0, m42: number = 0, m43: number = 0, m44: number = 1, elements: Float32Array = null) {
+		if(arguments.length==0)
+		{
+			this.elements=Matrix4x4.DEFAULTARRAY.slice();
+			return;
+		}
+		if(arguments.length===1 && arguments[0]===null)
+			return;
+
 		var e: Float32Array = elements ? this.elements = elements : this.elements = new Float32Array(16);//TODO:[NATIVE]临时
 		e[0] = m11;
 		e[1] = m12;
@@ -743,9 +752,12 @@ export class Matrix4x4 implements IClone {
 
 	/**设置矩阵为单位矩阵*/
 	identity(): void {
+		/*
 		var e: Float32Array = this.elements;
 		e[1] = e[2] = e[3] = e[4] = e[6] = e[7] = e[8] = e[9] = e[11] = e[12] = e[13] = e[14] = 0;
 		e[0] = e[5] = e[10] = e[15] = 1;
+		*/
+		this.elements.set(Matrix4x4.DEFAULTARRAY);
 	}
 
 	/**判断是否是单位矩阵 */
@@ -774,18 +786,14 @@ export class Matrix4x4 implements IClone {
 		if (s === d) {
 			return;
 		}
-		for (i = 0; i < 16; ++i) {
+		destObject.elements.set(this.elements);
+		/*for (i = 0; i < 16; ++i) {
 			d[i] = s[i];
-		}
+		}*/
 	}
 
 	cloneByArray(destObject:Float32Array){
-		let s = this.elements;
-		let d = destObject;
-		
-		for (let i = 0; i < 16; ++i) {
-			s[i] = d[i];
-		}
+		this.elements.set(destObject);
 	}
 
 	/**
@@ -793,8 +801,8 @@ export class Matrix4x4 implements IClone {
 	 * @return	 克隆副本。
 	 */
 	clone(): any {
-		var dest: Matrix4x4 = new Matrix4x4();
-		this.cloneTo(dest);
+		var dest: Matrix4x4 = new Matrix4x4(null);
+		dest.elements=this.elements.slice();
 		return dest;
 	}
 

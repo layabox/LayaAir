@@ -220,7 +220,7 @@ export class Vector3 implements IClone {
 	}
 
 	/**
-	 * 通过矩阵转换一个三维向量到另外一个归一化的三维向量。
+	 * 通过矩阵转换一个三维向量到另外一个三维向量。
 	 * @param	vector 源三维向量。
 	 * @param	transform  变换矩阵。
 	 * @param	result 输出三维向量。

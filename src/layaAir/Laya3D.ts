@@ -5,7 +5,6 @@ import { Laya } from "./Laya";
 import { AnimationClip } from "./laya/d3/animation/AnimationClip";
 import { Animator } from "./laya/d3/component/Animator";
 import { PostProcess } from "./laya/d3/component/PostProcess";
-import { Avatar } from "./laya/d3/core/Avatar";
 import { BaseMaterial } from "./laya/d3/core/material/BaseMaterial";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { EffectMaterial } from "./laya/d3/core/material/EffectMaterial";
@@ -330,7 +329,6 @@ export class Laya3D {
 		createMap["ktx"] = [Laya3D.TEXTURE2D, Texture2D._parseKTX];
 		createMap["pvr"] = [Laya3D.TEXTURE2D, Texture2D._parsePVR];
 		createMap["lani"] = [Laya3D.ANIMATIONCLIP, AnimationClip._parse];
-		createMap["lav"] = [Laya3D.AVATAR, Avatar._parse];
 		createMap["ltc"] = [Laya3D.TEXTURECUBE, TextureCube._parse];
 		createMap["ltcb"] = [Laya3D.TEXTURECUBEBIN, TextureCube._parseBin];
 		//为其他平台添加的兼容代码,临时TODO：
@@ -345,7 +343,6 @@ export class Laya3D {
 		parserMap[Laya3D.TEXTURECUBEBIN] = Laya3D._loadTextureCubeBin;
 		parserMap[Laya3D.TEXTURE2D] = Laya3D._loadTexture2D;
 		parserMap[Laya3D.ANIMATIONCLIP] = Laya3D._loadAnimationClip;
-		parserMap[Laya3D.AVATAR] = Laya3D._loadAvatar;
 		parserMap[Laya3D.SIMPLEANIMATORBIN] = Laya3D._loadSimpleAnimator;
 		//parserMap[Laya3D.TERRAINRES] = _loadTerrain;
 		//parserMap[Laya3D.TERRAINHEIGHTDATA] = _loadTerrain;
@@ -699,18 +696,6 @@ export class Laya3D {
 		var mat: Material = Material._parse(lmatData, loader._propertyParams, loader._constructParams);
 		Laya3D._endLoad(loader, mat, subUrls);
 		(processHandler) && (processHandler.recover());
-	}
-
-	/**
-	 *@internal
-	 */
-	private static _loadAvatar(loader: Loader): void {
-		loader.on(Event.LOADED, null, function (data: any): void {
-			loader._cache = loader._createCache;
-			var avatar: Avatar = Avatar._parse(data, loader._propertyParams, loader._constructParams);
-			Laya3D._endLoad(loader, avatar);
-		});
-		loader.load(loader.url, Loader.JSON, false, null, true);
 	}
 
 	/**
