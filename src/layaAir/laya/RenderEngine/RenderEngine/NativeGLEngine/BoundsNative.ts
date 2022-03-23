@@ -285,14 +285,13 @@ export class BoundsNative implements IClone {
      * @param out 转换目标Bounds
      */
     _tranform(matrix: Matrix4x4, out: BoundsNative): void {
-        // var outCen: Vector3 = out._center;
-        // var outExt: Vector3 = out._extent;
+        var outCen: Vector3 = out._center;
+		var outExt: Vector3 = out._extent;
 
-        Vector3.transformCoordinate(this.getCenter(), matrix, BoundsNative.TEMP_VECTOR3_MAX0);
-        this._rotateExtents(this.getExtent(), matrix, BoundsNative.TEMP_VECTOR3_MAX1);
-
-        out.setCenter(BoundsNative.TEMP_VECTOR3_MAX0);
-        out.setExtent(BoundsNative.TEMP_VECTOR3_MAX1);
+		Vector3.transformCoordinate(this.getCenter(), matrix, outCen);
+		this._rotateExtents(this.getExtent(), matrix, outExt);
+        out.updateNativeData(BoundsNative.Bounds_Stride_Center,outCen);
+        out.updateNativeData(BoundsNative.Bounds_Stride_Extends,outExt);
 
         out._boundBox.setCenterAndExtent(out._center, out._extent);
         out.updateNativeData(BoundsNative.Bounds_Stride_Min, out._boundBox.min);
@@ -354,8 +353,10 @@ export class BoundsNative implements IClone {
         this.getMax().cloneTo(destBounds._boundBox.max);
         destBounds.updateNativeData(BoundsNative.Bounds_Stride_Min, destBounds._boundBox.min);
         destBounds.updateNativeData(BoundsNative.Bounds_Stride_Max, destBounds._boundBox.max);
-        destBounds.setCenter(this.getCenter());
-        destBounds.setExtent(this.getExtent());
+        this.getCenter().cloneTo(destBounds._center);
+		this.getExtent().cloneTo(destBounds._extent);
+        destBounds.updateNativeData(BoundsNative.Bounds_Stride_Center,destBounds._center);
+        destBounds.updateNativeData(BoundsNative.Bounds_Stride_Extends,destBounds._extent);
         destBounds.transFormArray[BoundsNative.Bounds_Stride_UpdateFlag] = 0;
     }
 
