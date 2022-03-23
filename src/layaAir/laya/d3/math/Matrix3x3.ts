@@ -10,8 +10,8 @@ import { Quaternion } from "./Quaternion";
 export class Matrix3x3 implements IClone {
 
 	/**默认矩阵,禁止修改*/
+	static _DEFAULTELEMENTS:Float32Array=new Float32Array([1,0,0,0,1,0,0,0,1]);
 	static DEFAULT: Matrix3x3 = new Matrix3x3();
-
 	/** @internal */
 	private static _tempV30: Vector3 = new Vector3();
 	/** @internal */
@@ -172,17 +172,8 @@ export class Matrix3x3 implements IClone {
 	/**
 	 * 创建一个 <code>Matrix3x3</code> 实例。
 	 */
-	constructor() {
-		var e: Float32Array = this.elements = new Float32Array(9);
-		e[0] = 1;
-		e[1] = 0;
-		e[2] = 0;
-		e[3] = 0;
-		e[4] = 1;
-		e[5] = 0;
-		e[6] = 0;
-		e[7] = 0;
-		e[8] = 1;
+	constructor(createElement:boolean=true) {
+		createElement && (this.elements=Matrix3x3._DEFAULTELEMENTS.slice());
 	}
 
 	/**
@@ -345,6 +336,8 @@ export class Matrix3x3 implements IClone {
 
 	/** 设置已有的矩阵为单位矩阵*/
 	identity(): void {
+		this.elements.set(Matrix3x3._DEFAULTELEMENTS);
+		/*
 		var e: Float32Array = this.elements;
 		e[0] = 1;
 		e[1] = 0;
@@ -354,7 +347,7 @@ export class Matrix3x3 implements IClone {
 		e[5] = 0;
 		e[6] = 0;
 		e[7] = 0;
-		e[8] = 1;
+		e[8] = 1;*/
 	}
 
 	/**
@@ -368,9 +361,11 @@ export class Matrix3x3 implements IClone {
 		if (s === d) {
 			return;
 		}
+		s.set(d);
+		/*
 		for (i = 0; i < 9; ++i) {
 			d[i] = s[i];
-		}
+		}*/
 	}
 
 	/**
@@ -378,8 +373,8 @@ export class Matrix3x3 implements IClone {
 	 * @return	 克隆副本。
 	 */
 	clone(): any {
-		var dest: Matrix3x3 = new Matrix3x3();
-		this.cloneTo(dest);
+		var dest: Matrix3x3 = new Matrix3x3(false);
+		dest.elements=this.elements.slice();
 		return dest;
 	}
 

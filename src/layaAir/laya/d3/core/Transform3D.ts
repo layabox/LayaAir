@@ -1,6 +1,5 @@
 import { Event } from "../../events/Event";
 import { EventDispatcher } from "../../events/EventDispatcher";
-import { AnimationTransform3D } from "../animation/AnimationTransform3D";
 import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
@@ -78,8 +77,6 @@ export class Transform3D extends EventDispatcher {
 
 	/** @internal */
 	_parent: Transform3D|null = null;
-	/**@internal */
-	_dummy: AnimationTransform3D|null = null;
 	/**@internal */
 	_transformFlag: number = 0;
 
