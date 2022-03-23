@@ -282,11 +282,12 @@ export class Transform3DNative extends EventDispatcher {
         }
 
         this._isDefaultMatrix = this._localMatrix.isIdentity();
-        this._localMatrix.decomposeTransRotScale(Transform3DNative._tempVector30, Transform3DNative._tempQuaternion0, Transform3DNative._tempVector31);
-        //更新数据
-        this.localPosition = Transform3DNative._tempVector30;
-        this.localRotation = Transform3DNative._tempQuaternion0;
-        this.localScale = Transform3DNative._tempVector31;
+        this._localMatrix.decomposeTransRotScale(this._localPosition, this._localRotation, this._localScale);
+        //更新native数据
+        this.updateNativeV3(Transform3DNative.Transform_Stride_localPos,this._localPosition);
+        this.updateNativeV3(Transform3DNative.Transform_Stride_localScale,this._localScale);
+        this.updateNativeQ4(Transform3DNative.Transform_Stride_localQuaternion,this._localRotation);
+        
         this._setTransformFlag(Transform3DNative.TRANSFORM_LOCALEULER, true);
         this._setTransformFlag(Transform3DNative.TRANSFORM_LOCALMATRIX, false);
         this._onWorldTransform();
@@ -306,7 +307,8 @@ export class Transform3DNative extends EventDispatcher {
                 pos.z = worldMatE[14];
                 this.position = pos;
             } else {
-                this.position = this._localPosition;
+                this._localPosition.cloneTo(this._position);
+                this.updateNativeV3(Transform3DNative.Transform_Stride_worldPos,this._position);
             }
             this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDPOSITION, false);
         }
@@ -317,12 +319,14 @@ export class Transform3DNative extends EventDispatcher {
         if (this._parent != null) {
             var parentInvMat: Matrix4x4 = Transform3DNative._tempMatrix0;
             this._parent.worldMatrix.invert(parentInvMat);
-            Vector3.transformCoordinate(value, parentInvMat, Transform3DNative._tempVector30);
-            this.localPosition = Transform3DNative._tempVector30;
+            Vector3.transformCoordinate(value, parentInvMat, this._localPosition);
+            this.updateNativeV3(Transform3DNative.Transform_Stride_localPos,this._localPosition);
         }
         else {
-            this.localPosition = value;
+            value.cloneTo(this._localPosition);
+            this.updateNativeV3(Transform3DNative.Transform_Stride_localPos,value);
         }
+        this.localPosition = this._localPosition;
         if (this._position !== value) {
             value.cloneTo(this._position);
             let offset = Transform3DNative.Transform_Stride_worldPos;
@@ -476,6 +480,20 @@ export class Transform3DNative extends EventDispatcher {
         this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDPOSITION | Transform3DNative.TRANSFORM_WORLDQUATERNION | Transform3DNative.TRANSFORM_WORLDEULER | Transform3DNative.TRANSFORM_WORLDSCALE | Transform3DNative.TRANSFORM_WORLDMATRIX, true);
     }
 
+    private updateNativeV3(offset: number, data: Vector3) {
+        let array = this.transFormArray;
+        array[offset] = data.x;
+        array[offset + 1] = data.y;
+        array[offset + 2] = data.z;
+    }
+
+    private updateNativeQ4(offset: number, data: Quaternion) {
+        let array = this.transFormArray;
+        array[offset] = data.x;
+        array[offset + 1] = data.y;
+        array[offset + 2] = data.z;
+        array[offset + 3] = data.w;
+    }
 
     /**
      * @internal
