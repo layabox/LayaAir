@@ -77,6 +77,7 @@ export class BoundFrustum {
 		nearNorE.y = m23;
 		nearNorE.z = m33;
 		np.distance = m43;
+		np.normal = nearNorE;
 		np.normalize();
 
 		//far
@@ -85,6 +86,7 @@ export class BoundFrustum {
 		farNorE.y = m24 - m23;
 		farNorE.z = m34 - m33;
 		fp.distance = m44 - m43;
+		fp.normal = farNorE;
 		fp.normalize();
 
 		//left
@@ -93,6 +95,7 @@ export class BoundFrustum {
 		leftNorE.y = m24 + m21;
 		leftNorE.z = m34 + m31;
 		lp.distance = m44 + m41;
+		lp.normal = leftNorE;
 		lp.normalize();
 
 		//right
@@ -101,6 +104,7 @@ export class BoundFrustum {
 		rightNorE.y = m24 - m21;
 		rightNorE.z = m34 - m31;
 		rp.distance = m44 - m41;
+		rp.normal = rightNorE;
 		rp.normalize();
 
 		//top
@@ -109,6 +113,7 @@ export class BoundFrustum {
 		topNorE.y = m24 - m22;
 		topNorE.z = m34 - m32;
 		tp.distance = m44 - m42;
+		tp.normal = topNorE;
 		tp.normalize();
 
 		//bottom
@@ -117,11 +122,12 @@ export class BoundFrustum {
 		bottomNorE.y = m24 + m22;
 		bottomNorE.z = m34 + m32;
 		bp.distance = m44 + m42;
+		bp.normal = bottomNorE;
 		bp.normalize();
 	}
 
 	/** @internal */
-	private _matrix: Matrix4x4;
+	protected _matrix: Matrix4x4;
 	/** @internal */
 	_near: Plane;
 	/** @internal */

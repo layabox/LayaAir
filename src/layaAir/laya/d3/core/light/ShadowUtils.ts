@@ -246,8 +246,8 @@ export class ShadowUtils {
         var splitNearDistance: number = splitDistance[cascadeIndex] - cameraNear;
         var splitNear: Plane = ShadowUtils._adjustNearPlane;
         var splitFar: Plane = ShadowUtils._adjustFarPlane;
-        near.normal.cloneTo(splitNear.normal);
-        far.normal.cloneTo(splitFar.normal);
+        splitNear.normal = near.normal;
+        splitFar.normal = far.normal;
         splitNear.distance = near.distance - splitNearDistance;
         splitFar.distance = Math.min(-near.distance + shadowSliceData.sphereCenterZ + shadowSliceData.splitBoundSphere.radius, far.distance);//do a clamp is the sphere is out of range the far plane
 
@@ -329,6 +329,7 @@ export class ShadowUtils {
         outBoundSphere.radius = radius;
         Vector3.scale(forward, centerZ, center);
         Vector3.add(cameraPos, center, center);
+        outBoundSphere.center = center;
         return centerZ;
     }
 
@@ -368,6 +369,7 @@ export class ShadowUtils {
         center.x = lightUp.x * upLen + lightSide.x * sideLen + lightForward.x * forwardLen;
         center.y = lightUp.y * upLen + lightSide.y * sideLen + lightForward.y * forwardLen;
         center.z = lightUp.z * upLen + lightSide.z * sideLen + lightForward.z * forwardLen;
+        boundSphere.center = center;
 
         // Direction light use shadow pancaking tech,do special dispose with nearPlane.
         var origin: Vector3 = shadowSliceData.position;
