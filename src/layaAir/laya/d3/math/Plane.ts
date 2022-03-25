@@ -5,9 +5,9 @@ import { Vector3 } from "./Vector3";
  */
 export class Plane {
 	/**平面的向量*/
-	normal: Vector3;
+	_normal: Vector3;
 	/**平面到坐标系原点的距离*/
-	distance: number;
+	_distance: number;
 	/**平面与其他几何体相交类型*/
 	static PlaneIntersectionType_Back: number = 0;
 	static PlaneIntersectionType_Front: number = 1;
@@ -22,6 +22,23 @@ export class Plane {
 		this.normal = normal;
 		this.distance = d;
 	}
+
+
+	set normal(value:Vector3){
+        value.cloneTo(this._normal);
+    }
+
+    get normal(){
+        return this._normal;
+    }
+
+    set distance(value:number){
+        this._distance = value;
+    }
+
+    get distance():number{
+        return this._distance;
+    }
 
 	/**
 	 * 通过三个点创建一个平面。
@@ -65,7 +82,6 @@ export class Plane {
 		this.normal.x = normalEX * magnitude;
 		this.normal.y = normalEY * magnitude;
 		this.normal.z = normalEZ * magnitude;
-
 		this.distance *= magnitude;
 	}
 

@@ -95,14 +95,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 	/**@internal */
 	protected static _type: number = GeometryElement._typeCounter++;
-
-	/** @internal */
-	_boundingSphere: BoundSphere = null;
-	/** @internal */
-	_boundingBox: BoundBox = null;
-	/** @internal */
-	_boundingBoxCorners: Vector3[] = null;
-
 	/** @internal */
 	_bounds: Bounds = null;
 	/** @internal 重力影响偏移, 用于计算世界包围盒 */
@@ -964,10 +956,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		this._owner = render.owner as Sprite3D;
 		this._ownerRender = render;
-		this._boundingBoxCorners = [];
-		this._boundingSphere = new BoundSphere(new Vector3(), Number.MAX_VALUE);//TODO:
-		this._boundingBox = new BoundBox(new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE), new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE));//TODO:
-		this._bounds = new Bounds(this._boundingBox.min, this._boundingBox.max);
 		this._useCustomBounds = false;
 
 		this._currentTime = 0;
@@ -1057,17 +1045,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 */
 	_getIndexBuffer(): IndexBuffer3D {
 		return this._indexBuffer;
-	}
-
-	/**
-	 * @internal
-	 */
-	_generateBoundingSphere(): void {//TODO：应在本类内部处理。
-		var centerE: Vector3 = this._boundingSphere.center;
-		centerE.x = 0;
-		centerE.y = 0;
-		centerE.z = 0;
-		this._boundingSphere.radius = Number.MAX_VALUE;
 	}
 
 	/**
@@ -1745,9 +1722,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		this._bufferState.destroy();
 		this._emission.destroy();
-		this._boundingBox = null;
-		this._boundingSphere = null;
-		this._boundingBoxCorners = null;
 		this._bounds = null;
 		this._customBounds = null;
 		this._bufferState = null;

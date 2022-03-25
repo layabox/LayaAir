@@ -14,7 +14,7 @@ export class NataiveMemory {
     protected _id:number;
     /**
      * 实例化一个共享内存
-     * @param size 
+     * @param size byteLength
      */
     constructor(size: number) {
         this._buffer = CommonMemoryAllocater.creatBlock(size);

@@ -16,15 +16,15 @@ import { Vector4 } from "../../d3/math/Vector4";
  */
 export class ShaderData implements IClone {
 	/**@internal */
-	private _ownerResource: Resource = null;
+	protected _ownerResource: Resource = null;
 	/**@internal */
-	private _data: any = null;
+	protected _data: any = null;
 
 	/** @internal */
 	_defineDatas: DefineDatas = new DefineDatas();
 
 	/**
-	 * @internal
+	 * @internal	
 	 */
 	constructor(ownerResource: Resource = null) {
 		this._ownerResource = ownerResource;

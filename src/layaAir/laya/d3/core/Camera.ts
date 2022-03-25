@@ -345,7 +345,6 @@ export class Camera extends BaseCamera {
 	 */
 	get boundFrustum(): BoundFrustum {
 		this._boundFrustum.matrix = this.projectionViewMatrix;
-
 		return this._boundFrustum;
 	}
 
