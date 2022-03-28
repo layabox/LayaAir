@@ -54,6 +54,7 @@ import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 
 
 /**
@@ -948,7 +949,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 
 	constructor(render: ShurikenParticleRenderer) {
-		super();
+		super(MeshTopology.Triangles,DrawType.DrawElement);
+		this.indexFormat = IndexFormat.UInt16;
+		
 		this._firstActiveElement = 0;
 		this._firstNewElement = 0;
 		this._firstFreeElement = 0;
@@ -1028,6 +1031,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		this._emission = new Emission();
 		this._emission.enable = true;
+		//set GeometryElement
+	
 	}
 
 	/**
@@ -1632,7 +1637,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					// this._bufferState.applyIndexBuffer(this._indexBuffer);
 					// this._bufferState.unBind();
 					this._bufferState.applyState([this._vertexBuffer],this._indexBuffer);
-					
+					this.bufferState = this._bufferState;
 				}
 			} else {
 				vertexDeclaration = VertexShurikenParticleBillboard.vertexDeclaration;
@@ -1695,6 +1700,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				// this._bufferState.applyIndexBuffer(this._indexBuffer);
 				// this._bufferState.unBind();
 				this._bufferState.applyState([this._vertexBuffer],this._indexBuffer);
+				this.bufferState = this._bufferState;
 			}
 
 			Resource._addMemory(memorySize, memorySize);
@@ -2066,6 +2072,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				this.addNewParticlesToVertexBuffer();
 			this._drawCounter++;
 		}
+		
 
 		if (this._firstActiveElement != this._firstFreeElement)
 			return true;
@@ -2077,24 +2084,28 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 * @internal
 	 * @override
 	 */
-	_render(state: RenderContext3D): void {
-		this._bufferState.bind();
+	 _updateRenderParams(state: RenderContext3D): void {
+		//this._bufferState.bind();
 		var indexCount: number;
+		this.clearRenderParams();
 		if (this._firstActiveElement < this._firstFreeElement) {
 			indexCount = (this._firstFreeElement - this._firstActiveElement) * this._indexStride;
-			LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 2 * this._firstActiveElement * this._indexStride);
-			Stat.trianglesFaces += indexCount / 3;
-			Stat.renderBatches++;
+			this.setDrawElemenParams(indexCount,2 * this._firstActiveElement * this._indexStride);
+			// LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 2 * this._firstActiveElement * this._indexStride);
+			// Stat.trianglesFaces += indexCount / 3;
+			// Stat.renderBatches++;
 		} else {
 			indexCount = (this._bufferMaxParticles - this._firstActiveElement) * this._indexStride;
-			LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 2 * this._firstActiveElement * this._indexStride);
-			Stat.trianglesFaces += indexCount / 3;
-			Stat.renderBatches++;
+			this.setDrawElemenParams(indexCount,2 * this._firstActiveElement * this._indexStride);
+			// LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 2 * this._firstActiveElement * this._indexStride);
+			// Stat.trianglesFaces += indexCount / 3;
+			// Stat.renderBatches++;
 			if (this._firstFreeElement > 0) {
 				indexCount = this._firstFreeElement * this._indexStride;
-				LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 0);
-				Stat.trianglesFaces += indexCount / 3;
-				Stat.renderBatches++;
+				this.setDrawElemenParams(indexCount,0);
+				// LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 0);
+				// Stat.trianglesFaces += indexCount / 3;
+				// Stat.renderBatches++;
 			}
 		}
 	}

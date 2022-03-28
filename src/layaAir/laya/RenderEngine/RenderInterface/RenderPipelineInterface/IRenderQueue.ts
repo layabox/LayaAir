@@ -5,7 +5,7 @@ import { IRenderTarget } from "../IRenderTarget";
 import { IRenderElement } from "./IRenderElement";
 
 /**
- * RenderQueue
+ * RenderQueue,渲染队列
  */
 export interface IRenderQueue{
     //dest Texture

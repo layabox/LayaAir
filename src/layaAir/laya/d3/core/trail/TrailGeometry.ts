@@ -1,9 +1,8 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../../resource/Resource";
-import { Stat } from "../../../utils/Stat";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Color } from "../../math/Color";
 import { MathUtils3D } from "../../math/MathUtils3D";
@@ -79,21 +78,20 @@ export class TrailGeometry extends GeometryElement {
 	/**@internal */
 	private _lastFixedVertexPosition: Vector3 = new Vector3();
 	/**@internal */
-	private _owner: TrailFilter;
-	/** @internal */
-	private _bufferState: BufferState = new BufferState();
+	protected _owner: TrailFilter;
 
 	private tmpColor: Color = new Color();
 	/** @private */
 	private _disappearBoundsMode: Boolean = false;
 
 	constructor(owner: TrailFilter) {
-		super();
+		super(MeshTopology.TriangleStrip,DrawType.DrawArray);
 		this._owner = owner;
 		//初始化_segementCount
+		this.bufferState = new BufferState();
 		this._segementCount = this._increaseSegementCount;
 
-		this._resizeData(this._segementCount, this._bufferState);
+		this._resizeData(this._segementCount, this.bufferState);
 		// var bounds: Bounds = this._owner._owner.trailRenderer.bounds;
 		// var sprite3dPosition: Vector3 = this._owner._owner.transform.position;
 		// bounds.setMin(sprite3dPosition);
@@ -147,7 +145,7 @@ export class TrailGeometry extends GeometryElement {
 			this._vertexBuffer1.destroy();
 			this._vertexBuffer2.destroy();
 			this._segementCount += this._increaseSegementCount;
-			this._resizeData(this._segementCount, this._bufferState);
+			this._resizeData(this._segementCount, this.bufferState);
 		}
 
 		this._vertices1.set(oldVertices1, 0);
@@ -436,13 +434,15 @@ export class TrailGeometry extends GeometryElement {
 	 * @internal
 	 * @override
 	 */
-	_render(state: RenderContext3D): void {
-		this._bufferState.bind();
+	 _updateRenderParams(state: RenderContext3D): void {
+		//this._bufferState.bind();
+		this.clearRenderParams();
 		var start: number = this._activeIndex * 2;	
 		var count: number = this._endIndex * 2 - start;
-		LayaGL.renderDrawConatext.drawArrays(MeshTopology.TriangleStrip,start,count);
-		Stat.renderBatches++;
-		Stat.trianglesFaces += count - 2;
+		this.setDrawArrayParams(start,count);
+		// LayaGL.renderDrawConatext.drawArrays(MeshTopology.TriangleStrip,start,count);
+		 Stat.renderBatches++;
+		// Stat.trianglesFaces += count - 2;
 	}
 
 	/**

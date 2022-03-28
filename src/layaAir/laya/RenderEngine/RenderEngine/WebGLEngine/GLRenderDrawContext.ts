@@ -1,6 +1,8 @@
+import { DrawType } from "../../RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
+import { IRenderGeometryElement } from "../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine"
@@ -16,8 +18,8 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
     }
 
     //TODO 优化
-    getMeshTopology(mode:MeshTopology):number{
-        switch(mode){
+    getMeshTopology(mode: MeshTopology): number {
+        switch (mode) {
             case MeshTopology.Points:
                 return this._gl.POINTS;
             case MeshTopology.Lines:
@@ -35,8 +37,8 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
         }
     }
 
-    getIndexType(type:IndexFormat):number{
-        switch(type){
+    getIndexType(type: IndexFormat): number {
+        switch (type) {
             case IndexFormat.UInt8:
                 return this._gl.UNSIGNED_BYTE;
             case IndexFormat.UInt16:
@@ -69,15 +71,47 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
             this._angleInstancedArrays.drawArraysInstancedANGLE(glmode, first, count, instanceCount);
     }
 
-    drawArrays(mode: MeshTopology,first:number,count:number):void{
+    drawArrays(mode: MeshTopology, first: number, count: number): void {
         const glmode = this.getMeshTopology(mode);
         this._gl.drawArrays(glmode, first, count);
     }
 
-    drawElements(mode:MeshTopology, count:number, type:IndexFormat, offset:number):void{
+    drawElements(mode: MeshTopology, count: number, type: IndexFormat, offset: number): void {
         const glmode = this.getMeshTopology(mode);
         const gltype = this.getIndexType(type);
         this._gl.drawElements(glmode, count, gltype, offset)
+    }
+
+
+    drawGeometryElement(geometryElement: IRenderGeometryElement): void {
+        geometryElement.bufferState.bind();
+        let element = geometryElement.drawParams.elements;
+        let length = geometryElement.drawParams.length;
+        switch (geometryElement.drawType) {
+            case DrawType.DrawArray:
+                for(let i = 0;i<length;i+=2){
+                    this.drawArrays(geometryElement.mode,element[i],element[i+1]);
+                }
+                break;
+            case DrawType.DrawElement:
+                for(let i = 0;i<length;i+=2){
+                    this.drawElements(geometryElement.mode,element[i+1],geometryElement.indexFormat,element[i]);
+                }
+                break;
+            case DrawType.DrawArrayInstance:
+                for(let i = 0;i<length;i+=2){
+                    this.drawArraysInstanced(geometryElement.mode,element[i],element[i+1],geometryElement.instanceCount);
+                }
+                break;
+            case DrawType.DrawElemientInstance:
+                for(let i = 0;i<length;i+=2){
+                    this.drawElementsInstanced(geometryElement.mode,element[i+1],geometryElement.indexFormat,element[i],geometryElement.instanceCount);
+                }
+                break;
+            default:
+                break;
+        }
+        geometryElement.bufferState.unBind();
     }
 
 
