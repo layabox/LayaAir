@@ -128,7 +128,7 @@ export class DrawRenderCMD extends Command {
 						lastStateRender = renderElement.render;
 					}
 				}
-
+				geometry._updateRenderParams(context);
 				geometry._render(context);
 				shaderIns._uploadMark = updateMark;
 			}

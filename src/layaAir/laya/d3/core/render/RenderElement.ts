@@ -175,13 +175,13 @@ export class RenderElement {
 
 		var geometry: GeometryElement = this._geometry;
 		context.renderElement = this;
-		if(this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH||this.renderType == RenderElement.RENDERTYPE_STATICBATCH){
-			var transform: Transform3D = this._transform;
-			this.render._renderUpdate(context, transform);
-		}
-		if(this.renderType == RenderElement.RENDERTYPE_STATICBATCH){
-			this.render._renderUpdateWithCamera(context,transform);//多SubMesh会共用同一个BaseRender，因此会印象统一BaseRender的数据
-		}
+		// if(this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH||this.renderType == RenderElement.RENDERTYPE_STATICBATCH){
+		// 	var transform: Transform3D = this._transform;
+		// 	this.render._renderUpdate(context, transform);
+		// }
+		// if(this.renderType == RenderElement.RENDERTYPE_STATICBATCH){
+		// 	this.render._renderUpdateWithCamera(context,transform);//多SubMesh会共用同一个BaseRender，因此会印象统一BaseRender的数据
+		// }
 		var currentPipelineMode: string = context.pipelineMode;//NORE:can covert string to int.
 
 		if (geometry._prepareRender(context)) {
@@ -240,12 +240,13 @@ export class RenderElement {
 					}
 				}
 
+				geometry._updateRenderParams(context);
 				geometry._render(context);
 				shaderIns._uploadMark = updateMark;
 			}
 		}
-		if (this.renderType !== RenderElement.RENDERTYPE_NORMAL)
-			this.render._revertBatchRenderUpdate(context);//还原因合并导致的数据变化
+		// if (this.renderType !== RenderElement.RENDERTYPE_NORMAL)
+		// 	this.render._revertBatchRenderUpdate(context);//还原因合并导致的数据变化
 	}
 
 	/**

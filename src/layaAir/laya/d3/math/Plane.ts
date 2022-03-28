@@ -5,7 +5,7 @@ import { Vector3 } from "./Vector3";
  */
 export class Plane {
 	/**平面的向量*/
-	_normal: Vector3;
+	_normal: Vector3 = new Vector3();
 	/**平面到坐标系原点的距离*/
 	_distance: number;
 	/**平面与其他几何体相交类型*/

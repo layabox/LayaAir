@@ -10,6 +10,7 @@ import { Mesh } from "./Mesh";
 import { IndexFormat } from "../../graphics/IndexFormat";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 
 
 /**
@@ -64,7 +65,12 @@ export class SubMesh extends GeometryElement {
 	 * @param	mesh  网格数据模板。
 	 */
 	constructor(mesh: Mesh) {
-		super();
+		super(MeshTopology.Triangles,DrawType.DrawElement);
+		this.indexFormat = mesh.indexFormat;
+		if (mesh.indexFormat === IndexFormat.UInt32 && LayaGL.renderEngine.getCapable(RenderCapable.Element_Index_Uint32)) {
+			console.warn("SubMesh:this device do not support IndexFormat.UInt32.");
+			return;
+		}
 		this._id = ++SubMesh._uniqueIDCounter;
 		this._mesh = mesh;
 		this._boneIndicesList = [];
@@ -110,12 +116,9 @@ export class SubMesh extends GeometryElement {
 	 * @internal
 	 * @override
 	 */
-	_render(state: RenderContext3D): void {
+	_updateRenderParams(state: RenderContext3D): void {
 		var mesh: Mesh = this._mesh;
-		if (mesh.indexFormat === IndexFormat.UInt32 && LayaGL.renderEngine.getCapable(RenderCapable.Element_Index_Uint32)) {
-			console.warn("SubMesh:this device do not support IndexFormat.UInt32.");
-			return;
-		}
+	
 		var skinnedDatas: any[] = (state.renderElement && !!(<SkinnedMeshRenderer>state.renderElement.render)) ? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData : null;
 		var byteCount: number;
 		switch (mesh.indexFormat) {
@@ -129,18 +132,23 @@ export class SubMesh extends GeometryElement {
 				byteCount = 1;
 				break;
 		}
-		mesh._bufferState.bind();
+		//mesh._bufferState.bind();
+		this.clearRenderParams();
+		this.bufferState = mesh._bufferState;
+		//SkinMesh TODO:
 		if (skinnedDatas) {
+			this.bufferState.bind();
 			var subSkinnedDatas: Float32Array[] = skinnedDatas[this._indexInMesh];
 			for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
 				state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
 				LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._subIndexBufferCount[i], mesh.indexFormat, this._subIndexBufferStart[i] * byteCount);
 			}
 		} else {
-			LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._indexCount, mesh.indexFormat, this._indexStart * byteCount);
+			this.setDrawElemenParams(this._indexCount,this._indexStart * byteCount);
+			//LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._indexCount, mesh.indexFormat, this._indexStart * byteCount);
 		}
-		Stat.trianglesFaces += this._indexCount / 3;
-		Stat.renderBatches++;
+		// Stat.trianglesFaces += this._indexCount / 3;
+		// Stat.renderBatches++;
 	}
 
 
