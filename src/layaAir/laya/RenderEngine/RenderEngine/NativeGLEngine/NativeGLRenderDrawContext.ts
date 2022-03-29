@@ -1,6 +1,8 @@
+import { DrawType } from "../../RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
+import { IRenderGeometryElement } from "../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { WebGLExtension } from "../WebGLEngine/GLEnum/WebGLExtension";
 import { NativeGLObject } from "./NativeGLObject";
 import { NativeWebGLEngine } from "./NativeWebGLEngine"
@@ -79,6 +81,35 @@ export class NativeGLRenderDrawContext extends NativeGLObject implements IRender
         const gltype = this.getIndexType(type);
         this._gl.drawElements(glmode, count, gltype, offset)
     }
-
+    drawGeometryElement(geometryElement: IRenderGeometryElement): void {
+        geometryElement.bufferState.bind();
+        let element = geometryElement.drawParams.elements;
+        let length = geometryElement.drawParams.length;
+        switch (geometryElement.drawType) {
+            case DrawType.DrawArray:
+                for(let i = 0;i<length;i+=2){
+                    this.drawArrays(geometryElement.mode,element[i],element[i+1]);
+                }
+                break;
+            case DrawType.DrawElement:
+                for(let i = 0;i<length;i+=2){
+                    this.drawElements(geometryElement.mode,element[i+1],geometryElement.indexFormat,element[i]);
+                }
+                break;
+            case DrawType.DrawArrayInstance:
+                for(let i = 0;i<length;i+=2){
+                    this.drawArraysInstanced(geometryElement.mode,element[i],element[i+1],geometryElement.instanceCount);
+                }
+                break;
+            case DrawType.DrawElemientInstance:
+                for(let i = 0;i<length;i+=2){
+                    this.drawElementsInstanced(geometryElement.mode,element[i+1],geometryElement.indexFormat,element[i],geometryElement.instanceCount);
+                }
+                break;
+            default:
+                break;
+        }
+        geometryElement.bufferState.unBind();
+    }
 
 }

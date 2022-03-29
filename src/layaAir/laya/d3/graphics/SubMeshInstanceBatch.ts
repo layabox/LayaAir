@@ -9,6 +9,7 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "./IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
+import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 
 /**
  * @internal
@@ -42,7 +43,8 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	 * 创建一个 <code>InstanceSubMesh</code> 实例。
 	 */
 	constructor() {
-		super();
+		super(MeshTopology.Triangles,DrawType.DrawElemientInstance);
+		this.indexFormat = IndexFormat.UInt16;
 		this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, BufferUsage.Dynamic);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
 		this.instanceWorldMatrixBuffer._instanceBuffer = true;
@@ -56,16 +58,20 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	 * @inheritDoc
 	 * @override
 	 */
-	_render(state: RenderContext3D): void {
+	_updateRenderParams(state: RenderContext3D): void {
 		var element: SubMeshRenderElement = (<SubMeshRenderElement>state.renderElement);
 		var subMesh: SubMesh = element.instanceSubMesh;
 		var count: number = element.instanceBatchElementList.length;
 		var indexCount: number = subMesh._indexCount;
-		subMesh._mesh._instanceBufferState.bind();
-		LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, subMesh._indexStart * 2, count);
-		Stat.renderBatches++;
+		//subMesh._mesh._instanceBufferState.bind();
+		this.clearRenderParams();
+		this.bufferState = subMesh._mesh._instanceBufferState;
+		this.instanceCount = count;
+		this.setDrawElemenParams(indexCount,subMesh._indexStart * 2);
+		//LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, subMesh._indexStart * 2, count);
+		//Stat.renderBatches++;
 		Stat.savedRenderBatches += count - 1;
-		Stat.trianglesFaces += indexCount * count / 3;
+		//Stat.trianglesFaces += indexCount * count / 3;
 	}
 
 

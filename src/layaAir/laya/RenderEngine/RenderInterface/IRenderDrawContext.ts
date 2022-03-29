@@ -1,5 +1,6 @@
 import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
+import { IRenderGeometryElement } from "./RenderPipelineInterface/IRenderGeometryElement";
 
 //TODO 先写完测试，这种封装过于死板
 export interface IRenderDrawContext {
@@ -7,4 +8,5 @@ export interface IRenderDrawContext {
     drawArraysInstanced(mode: MeshTopology, first: number, count: number, instanceCount: number): void;
     drawElements(mode:MeshTopology, count:number, type:IndexFormat, offset:number):void;
     drawElementsInstanced(mode: MeshTopology, count: number, type: IndexFormat, offset: number, instanceCount: number): void;
+    drawGeometryElement(geometryElement:IRenderGeometryElement):void;
 }

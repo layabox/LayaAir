@@ -155,9 +155,6 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 	/**排序矫正值。*/
 	sortingFudge: number;
 
-	/**@internal	[NATIVE]*/
-	_cullingBufferIndex: number;
-
 	/**@internal */
 	_transIsChange: boolean = false;
 

@@ -11,11 +11,6 @@ export class RenderQueue {
 	isTransparent: boolean = false;
 	/** @internal */
 	elements: SingletonList<RenderElement> = new SingletonList<RenderElement>();
-	/** @internal */
-	lastTransparentRenderElement: RenderElement = null;
-	/** @internal */
-	lastTransparentBatched: boolean = false;
-
 	/**
 	 * 创建一个 <code>RenderQuene</code> 实例。
 	 */
@@ -94,8 +89,6 @@ export class RenderQueue {
 	 */
 	clear(): void {
 		this.elements.length = 0;
-		this.lastTransparentRenderElement = null;
-		this.lastTransparentBatched = false;
 	}
 }
 

@@ -37,7 +37,6 @@ import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
 import { FrustumCulling } from "./laya/d3/graphics/FrustumCulling";
 import { MeshRenderDynamicBatchManager } from "./laya/d3/graphics/MeshRenderDynamicBatchManager";
 import { MeshRenderStaticBatchManager } from "./laya/d3/graphics/MeshRenderStaticBatchManager";
-import { SubMeshDynamicBatch } from "./laya/d3/graphics/SubMeshDynamicBatch";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { VertexMesh } from "./laya/d3/graphics/Vertex/VertexMesh";
 import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionTerrain";
@@ -188,7 +187,6 @@ export class Laya3D {
 		ILaya3D.Scene3D = Scene3D;
 		ILaya3D.MeshRenderStaticBatchManager = MeshRenderStaticBatchManager;
 		ILaya3D.MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager;
-		ILaya3D.SubMeshDynamicBatch = SubMeshDynamicBatch;
 		ILaya3D.Laya3D = Laya3D;
 		ILaya3D.Matrix4x4 = Matrix4x4;
 		ILaya3D.Physics3D = Physics3D;
@@ -212,7 +210,6 @@ export class Laya3D {
 		VertexPositionTerrain.__init__();
 		PixelLineVertex.__init__();
 		SubMeshInstanceBatch.__init__();
-		SubMeshDynamicBatch.__init__();
 		ShaderInit3D.__init__();
 		ShuriKenParticle3DShaderDeclaration.__init__();
 		SimpleSkinnedMeshSprite3D.__init__();

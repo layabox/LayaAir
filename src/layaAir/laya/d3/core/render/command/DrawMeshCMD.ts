@@ -118,6 +118,7 @@ export class DrawMeshCMD extends Command {
 				for (var i: number = 0, n = subGeometryElement.length; i < n; i++) {
 					subMeshRender = subGeometryElement[i];
 					if (subMeshRender._prepareRender(context)) {
+						subMeshRender._updateRenderParams(context);
 						subMeshRender._render(context);
 					}
 				}
@@ -126,6 +127,7 @@ export class DrawMeshCMD extends Command {
 				var subGeometryElement: SubMesh[] = this._mesh._subMeshes;
 				subMeshRender = subGeometryElement[this._subMeshIndex];
 				if (subMeshRender._prepareRender(context)) {
+					subMeshRender._updateRenderParams(context);
 					subMeshRender._render(context);
 				}
 			}
