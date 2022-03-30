@@ -64,12 +64,12 @@ export class FillTextCmd {
             this._textIsWorldText && ((<WordText>this._text)).cleanCache();
         }
         if (this._words) {
-            Context._textRender!.fillWords(context, this._words, this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth);
+            context.fillWords11(this._words, this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth);
         } else {
             if (this._textIsWorldText) {// 快速通道
                 context._fast_filltext(((<WordText>this._text)), this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth, this._nTexAlign, 0);
             } else {
-                Context._textRender!.filltext(context, this._text!, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth, this._textAlign);
+                context.filltext11(this._text!, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth, this._textAlign);
             }
         }
     }

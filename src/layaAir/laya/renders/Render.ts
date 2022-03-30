@@ -14,7 +14,8 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { WebGL } from "../webgl/WebGL";
 import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
-
+import { NativeWebGLEngine } from "../RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
+import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
@@ -88,17 +89,27 @@ export class Render {
        
         //TODO  other engine
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
-        const engine: WebGLEngine = new WebGLEngine(glConfig, webglMode);
-        engine.initRenderEngine(Render._mainCanvas.source);
-        var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
-        if (false)
-            this._replaceWebglcall(gl);
 
-        if (!gl)
-            return false;
-        if (gl) {
+        let engine: IRenderEngine;
+        if ((window as any).conch && !(window as any).conchWebGL) {
+            engine = new NativeWebGLEngine(glConfig, webglMode);
+            engine.initRenderEngine(Render._mainCanvas.source);
             WebGL._isWebGL2 = engine.isWebGL2;
             new LayaGL();
+        }
+        else {
+            engine = new WebGLEngine(glConfig, webglMode);
+            engine.initRenderEngine(Render._mainCanvas.source);
+            var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
+            if (false)
+                this._replaceWebglcall(gl);
+
+            if (!gl)
+                return false;
+            if (gl) {
+                WebGL._isWebGL2 = engine.isWebGL2;
+                new LayaGL();
+            }
         }
         LayaGL.renderEngine = engine;
         //LayaGL.instance = gl;

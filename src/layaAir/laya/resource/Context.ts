@@ -61,7 +61,7 @@ import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
-
+import { NativeContext } from "./NativeContext";
 /**
  * @private
  * Context扩展类
@@ -863,7 +863,13 @@ export class Context {
 	_fast_filltext(data: string | WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string | null, lineWidth: number, textAlign: number, underLine: number = 0): void {
 		Context._textRender!._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
 	}
+	fillWords11(data: HTMLChar[], x: number, y: number, fontStr: FontInfo, color: string, strokeColor: string|null, lineWidth: number): void {
+		Context._textRender!.fillWords(this, data, x, y, fontStr, color, strokeColor, lineWidth);
+	}
 
+	filltext11(data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
+		Context._textRender!.filltext(this, data, x, y, fontStr, color, strokeColor, lineWidth, textAlign);
+	}
 	private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
 		var submit: Submit = this._curSubmit;
 		var sameKey: boolean = submit && (submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && submit._key.blendShader === this._nBlendType);
@@ -2706,4 +2712,9 @@ class ContextParams {
 	make(): ContextParams {
 		return this === ContextParams.DEFAULT ? new ContextParams() : this;
 	}
+}
+// native
+if ((window as any).conch && !(window as any).conchWebGL) {
+	//@ts-ignore
+	Context = NativeContext;
 }

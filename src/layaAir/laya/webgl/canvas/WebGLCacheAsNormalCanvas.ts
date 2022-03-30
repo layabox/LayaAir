@@ -7,6 +7,8 @@ import { Mesh2D } from "../utils/Mesh2D"
 import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 import { MeshTexture } from "../utils/MeshTexture"
 import { MeshVG } from "../utils/MeshVG"
+import { NativeWebGLCacheAsNormalCanvas } from "./NativeWebGLCacheAsNormalCanvas"
+
 /**
  * 对象 cacheas normal的时候，本质上只是想把submit缓存起来，以后直接执行
  * 为了避免各种各样的麻烦，这里采用复制相应部分的submit的方法。执行环境还是在原来的context中
@@ -164,4 +166,8 @@ export class WebGLCacheAsNormalCanvas {
 
     }
 }
-
+// native
+if ((window as any).conch && !(window as any).conchWebGL) {
+	//@ts-ignore
+	WebGLCacheAsNormalCanvas = NativeWebGLCacheAsNormalCanvas;
+}

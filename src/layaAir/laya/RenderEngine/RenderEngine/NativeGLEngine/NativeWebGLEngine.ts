@@ -109,15 +109,16 @@ export class NativeWebGLEngine implements IRenderEngine {
   private _textureResourcePool: any;
   //TODO:管理FrameBuffer
   private _RenderBufferResource: any;
-
+  _nativeObj: any;
   constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
-    this._config = config;
+    /*this._config = config;
     this._isWebGL2 = false;
     //init data
     this._lastViewport = new Vector4(0, 0, 0, 0);
     this._lastClearColor = new Color(0, 0, 0, 0);
-    this._lastScissor = new Vector4(0, 0, 0, 0);
+    this._lastScissor = new Vector4(0, 0, 0, 0);*/
     this._webglMode = webglMode;
+    this._nativeObj = new (window as any).conchWebGLEngine(webglMode);
   }
 
   /**
@@ -129,7 +130,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   }
 
   get isWebGL2() {
-    return this._isWebGL2;
+    return this._nativeObj.isWebGL2;
   }
 
   get webglConfig() {
@@ -141,7 +142,8 @@ export class NativeWebGLEngine implements IRenderEngine {
    * @param canvas 
    */
   initRenderEngine(canvas: any) {
-    let names;
+    this._nativeObj.initRenderEngine();
+    /*let names;
     let gl;
     switch (this._webglMode) {
       case WebGLMode.Auto:
@@ -165,20 +167,28 @@ export class NativeWebGLEngine implements IRenderEngine {
         }
         break;
       }
-    }
-    this._gl = gl;
+    }*/
+    //this._isWebGL2 = false;
+    //this._gl = gl;
 
     //init Other
     this._initBindBufferMap();
-    this._supportCapatable = new NativeGlCapable(this);
-    this._GLParams = new NativeGLParams(this);
-    this._GLRenderState = new NativeGLRenderState(this);
-    this._glTextureIDParams = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7, gl.TEXTURE8, gl.TEXTURE9, gl.TEXTURE10, gl.TEXTURE11, gl.TEXTURE12, gl.TEXTURE13, gl.TEXTURE14, gl.TEXTURE15, gl.TEXTURE16, gl.TEXTURE17, gl.TEXTURE18, gl.TEXTURE19, gl.TEXTURE20, gl.TEXTURE21, gl.TEXTURE22, gl.TEXTURE23, gl.TEXTURE24, gl.TEXTURE25, gl.TEXTURE26, gl.TEXTURE27, gl.TEXTURE28, gl.TEXTURE29, gl.TEXTURE30, gl.TEXTURE31];
-    this._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0;
+    //this._supportCapatable = new NativeGlCapable(this);
+    //this._GLParams = new NativeGLParams(this);
+    //this._GLRenderState = new NativeGLRenderState(this);
+    //this._glTextureIDParams = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7, gl.TEXTURE8, gl.TEXTURE9, gl.TEXTURE10, gl.TEXTURE11, gl.TEXTURE12, gl.TEXTURE13, gl.TEXTURE14, gl.TEXTURE15, gl.TEXTURE16, gl.TEXTURE17, gl.TEXTURE18, gl.TEXTURE19, gl.TEXTURE20, gl.TEXTURE21, gl.TEXTURE22, gl.TEXTURE23, gl.TEXTURE24, gl.TEXTURE25, gl.TEXTURE26, gl.TEXTURE27, gl.TEXTURE28, gl.TEXTURE29, gl.TEXTURE30, gl.TEXTURE31];
+    //this._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0;
     this._activeTextures = [];
-    this._GLTextureContext = this.isWebGL2 ? new NativeGL2TextureContext(this) : new NativeGLTextureContext(this);
-    this._GLRenderDrawContext = new NativeGLRenderDrawContext(this);
-    this._GL2DRenderContext = new NativeGLRender2DContext(this);
+    //this._GLTextureContext = this.isWebGL2 ? new NativeGL2TextureContext(this) : new NativeGLTextureContext(this);
+    //this._GLRenderDrawContext = new NativeGLRenderDrawContext(this);
+    //this._GL2DRenderContext = new NativeGLRender2DContext(this);
+
+    if (this.isWebGL2) {
+      this._GLTextureContext = new NativeGL2TextureContext(this, new (window as any).conchGL2TextureContext);
+    }
+    else {
+      this._GLTextureContext = new NativeGLTextureContext(this, new (window as any).conchGLTextureContext);
+    }
   }
 
   private _initBindBufferMap() {
@@ -216,49 +226,56 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   //set render State
   applyRenderState(stateData: any) {
-    this._GLRenderState.applyRenderState(stateData);
+    //this._GLRenderState.applyRenderState(stateData);
+    this._nativeObj.applyRenderState(stateData);
   }
 
   applyRenderStateCMD(cmd: RenderStateCommand): void {
-    this._GLRenderState.applyRenderStateCommand(cmd);
+    //this._GLRenderState.applyRenderStateCommand(cmd);
+    this._nativeObj.applyRenderStateCommand(cmd);
   }
 
   //get capable of webgl
   getCapable(capatableType: RenderCapable): boolean {
-    return this._supportCapatable.getCapable(capatableType);
+    //return this._supportCapatable.getCapable(capatableType);
+    return this._nativeObj.getCapable(capatableType);
   }
 
   viewport(x: number, y: number, width: number, height: number): void {
     // gl.enable(gl.SCISSOR_TEST);
     // gl.scissor(x, transformY, width, height);
-    const gl = this._gl;
+    /*const gl = this._gl;
     const lv = this._lastViewport;
     if (x !== lv.x || y !== lv.y || width !== lv.z || height !== lv.w) {
       gl.viewport(x, y, width, height);
       lv.setValue(x, y, width, height);
-    }
+    }*/
+    this._nativeObj.viewport(x, y, width, height);
   }
 
   scissor(x: number, y: number, width: number, height: number) {
-    const gl = this._gl;
+    /*const gl = this._gl;
     const lv = this._lastScissor;
     if (x !== lv.x || y !== lv.y || width !== lv.z || height !== lv.w) {
       gl.scissor(x, y, width, height);
       lv.setValue(x, y, width, height);
-    }
+    }*/
+    this._nativeObj.scissor(x, y, width, height);
   }
 
   scissorTest(value: boolean) {
-    if (value)
+    /*if (value)
       this._gl.enable(this._gl.SCISSOR_TEST);
     else
-      this._gl.disable(this._gl.SCISSOR_TEST);
+      this._gl.disable(this._gl.SCISSOR_TEST);*/
+
+      this._nativeObj.scissorTest(value);
   }
 
 
 
   clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1) {
-    var flag: number;
+    /*var flag: number;
     this.gl.enable(this._gl.SCISSOR_TEST)
     if(clearFlag&RenderClearFlag.Color){
         if (clearcolor && !this._lastClearColor.equal(this._lastClearColor)) {
@@ -281,7 +298,12 @@ export class NativeWebGLEngine implements IRenderEngine {
       flag |= this._gl.STENCIL_BUFFER_BIT;
     }
     this._gl.clear(flag);
-    this._gl.disable(this._gl.SCISSOR_TEST);
+    this._gl.disable(this._gl.SCISSOR_TEST);*/
+
+    if (clearcolor)
+      this._nativeObj.clearRenderTexture(clearFlag, true, clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a, clearDepth);
+    else
+      this._nativeObj.clearRenderTexture(clearFlag, false, Color.BLACK.r, Color.BLACK.g , Color.BLACK.b, Color.BLACK.a, clearDepth);
   }
 
   copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
@@ -290,11 +312,13 @@ export class NativeWebGLEngine implements IRenderEngine {
   }
 
   colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void {
-    this._gl.colorMask(r, g, b, a);
+    //this._gl.colorMask(r, g, b, a);
+    this._nativeObj.colorMask(r, g, b, a);
   }
 
   getParams(params: RenderParams): number {
-    return this._GLParams.getParams(params);
+    //return this._GLParams.getParams(params);
+    return this._nativeObj.getParams(params);
   }
 
 
