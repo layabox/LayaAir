@@ -1,3 +1,4 @@
+import { NativeWordText } from "./NativeWordText";
 /**
 	 * @private
 	 */
@@ -77,4 +78,8 @@ export class WordText {
 		this.scaley=1;
     }
 }
-
+// native
+if ((window as any).conch && !(window as any).conchWebGL) {
+	//@ts-ignore
+	WordText = NativeWordText;
+}

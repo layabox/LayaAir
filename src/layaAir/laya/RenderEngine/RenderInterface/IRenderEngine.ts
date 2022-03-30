@@ -15,6 +15,8 @@ import { IRenderVertexState } from "./IRenderVertexState";
 import { ITextureContext } from "./ITextureContext";
 
 export interface IRenderEngine {
+    gl: any;
+    isWebGL2: boolean;
     _isShaderDebugMode:boolean;
     initRenderEngine(canvas:any):void;
     
