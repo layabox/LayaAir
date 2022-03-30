@@ -3,6 +3,7 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../../resource/Resource";
+import { Stat } from "../../../utils/Stat";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Color } from "../../math/Color";
 import { MathUtils3D } from "../../math/MathUtils3D";
@@ -453,11 +454,11 @@ export class TrailGeometry extends GeometryElement {
 		super.destroy();
 		var memorySize: number = this._vertexBuffer1._byteLength + this._vertexBuffer2._byteLength;
 		Resource._addMemory(-memorySize, -memorySize);
-		this._bufferState.destroy();
+		this.bufferState.destroy();
 		this._vertexBuffer1.destroy();
 		this._vertexBuffer2.destroy();
 
-		this._bufferState = null;
+		this.bufferState = null;
 		this._vertices1 = null;
 		this._vertexBuffer1 = null;
 		this._vertices2 = null;

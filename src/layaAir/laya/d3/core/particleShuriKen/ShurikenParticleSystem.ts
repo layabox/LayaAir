@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { MathUtil } from "../../../maths/MathUtil";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
@@ -8,8 +7,6 @@ import { VertexShurikenParticleBillboard } from "../../graphics/Vertex/VertexShu
 import { VertexShurikenParticleMesh } from "../../graphics/Vertex/VertexShurikenParticleMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexElement } from "../../graphics/VertexElement";
-import { BoundBox } from "../../math/BoundBox";
-import { BoundSphere } from "../../math/BoundSphere";
 import { Rand } from "../../math/Rand";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
@@ -290,7 +287,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**开始颜色模式，0为恒定颜色，2为两个恒定颜色的随机插值,缺少2种模式。*/
 	startColorType: number = 0;
 	/**开始颜色，0模式。*/
-	startColorConstant: Vector4 = new Vector4(1, 1, 1, 1);;
+	startColorConstant: Vector4 = new Vector4(1, 1, 1, 1);
 	/**最小开始颜色，1模式。*/
 	startColorConstantMin: Vector4 = new Vector4(0, 0, 0, 0);
 	/**最大开始颜色，1模式。*/

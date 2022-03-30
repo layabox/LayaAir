@@ -109,7 +109,6 @@ export class NativeGLRenderDrawContext extends NativeGLObject implements IRender
             default:
                 break;
         }
-        geometryElement.bufferState.unBind();
     }
 
 }

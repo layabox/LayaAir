@@ -162,10 +162,10 @@ export class SkyRenderer {
 				shader._uploadCameraShaderValue = cameraShaderValue;
 			}
 
-			var uploadMaterial: boolean = (shader._uploadMaterial !== this._material) || switchShaderLoop;
+			var uploadMaterial: boolean = (shader._uploadMaterial !== this._material.shaderData) || switchShaderLoop;
 			if (uploadMaterial || switchShader) {
 				shader.uploadUniforms(shader._materialUniformParamsMap, this._material._shaderValues, uploadMaterial);
-				shader._uploadMaterial = this._material;
+				shader._uploadMaterial = this._material.shaderData;
 			}
 
 			this._mesh._bufferState.bind();

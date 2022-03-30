@@ -346,7 +346,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		this._indexBuffer.destroy();
 		this._vertexBuffer = null;
 		this._indexBuffer = null;
-		this._bufferState = null;
+		this.bufferState = null;
 	}
 
 }

@@ -1,21 +1,9 @@
 import { Event } from "../../../events/Event";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { MeshRenderDynamicBatchManager } from "../../graphics/MeshRenderDynamicBatchManager";
-import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
-import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch";
-import { SubMeshStaticBatch } from "../../graphics/SubMeshStaticBatch";
 import { SubMesh } from "../../resource/models/SubMesh";
 import { GeometryElement } from "../GeometryElement";
-import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
-import { BaseRender } from "./BaseRender";
-import { BatchMark } from "./BatchMark";
-import { RenderContext3D } from "./RenderContext3D";
 import { RenderElement } from "./RenderElement";
-import { RenderQueue } from "./RenderQueue";
-import { ILaya3D } from "../../../../ILaya3D";
 import { SingletonList } from "../../component/SingletonList";
-import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 
 /**
@@ -94,11 +82,11 @@ export class SubMeshRenderElement extends RenderElement {
 	 * @override
 	 */
 	setTransform(transform: Transform3D): void {
-		if (this._transform !== transform) {
-			(this._transform) && (this._transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
+		if (this.transform !== transform) {
+			(this.transform) && (this.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
 			(transform) && (transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
 			this._dynamicWorldPositionNormalNeedUpdate = true;
-			this._transform = transform;
+			this.transform = transform;
 		}
 	}
 
@@ -109,6 +97,7 @@ export class SubMeshRenderElement extends RenderElement {
 	setGeometry(geometry: GeometryElement): void {
 		if (this._geometry !== geometry) {
 			this._geometry = geometry;
+			this._renderElementOBJ._geometry = geometry._geometryElementOBj;
 		}
 	}
 
@@ -290,12 +279,12 @@ export class SubMeshRenderElement extends RenderElement {
 	getInvertFront(): boolean {
 		switch (this.renderType) {
 			case RenderElement.RENDERTYPE_NORMAL:
-				return this._transform._isFrontFaceInvert;
+				return this.transform._isFrontFaceInvert;
 			case RenderElement.RENDERTYPE_STATICBATCH:
 			case RenderElement.RENDERTYPE_VERTEXBATCH:
 				return false;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
-				return this.instanceBatchElementList.elements[0]._transform._isFrontFaceInvert;
+				return this.instanceBatchElementList.elements[0].transform._isFrontFaceInvert;
 			default:
 				throw "SubMeshRenderElement: unknown renderType";
 		}

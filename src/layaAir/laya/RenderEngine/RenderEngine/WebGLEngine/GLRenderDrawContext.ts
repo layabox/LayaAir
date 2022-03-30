@@ -111,7 +111,6 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
             default:
                 break;
         }
-        geometryElement.bufferState.unBind();
     }
 
 

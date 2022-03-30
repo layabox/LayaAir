@@ -259,7 +259,7 @@ export class WebGLEngine implements IRenderEngine {
 
   clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1) {
     var flag: number;
-    this.gl.enable(this._gl.SCISSOR_TEST)
+    //this.gl.enable(this._gl.SCISSOR_TEST)
     if(clearFlag&RenderClearFlag.Color){
         if (clearcolor && !this._lastClearColor.equal(this._lastClearColor)) {
           this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
@@ -281,7 +281,7 @@ export class WebGLEngine implements IRenderEngine {
       flag |= this._gl.STENCIL_BUFFER_BIT;
     }
     this._gl.clear(flag);
-    this._gl.disable(this._gl.SCISSOR_TEST);
+    //this._gl.disable(this._gl.SCISSOR_TEST);
   }
 
   copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {

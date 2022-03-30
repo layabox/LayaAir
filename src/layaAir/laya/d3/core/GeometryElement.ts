@@ -7,82 +7,78 @@ import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { SingletonList } from "../component/SingletonList";
 import { LayaGL } from "../../layagl/LayaGL";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
+import { RenderGeometryElementOBJ } from "./render/newRender/RenderGeometryElementOBJ";
 
 /**
  * <code>GeometryElement</code> 类用于实现几何体元素,该类为抽象类。
  */
-export class GeometryElement implements IDestroy, IRenderGeometryElement {
+export class GeometryElement implements IDestroy{
 	protected _owner:any;
 	/**@internal */
 	protected static _typeCounter: number = 0;
 	/**@internal */
 	protected _destroyed: boolean;
+	_geometryElementOBj:IRenderGeometryElement;
 
-	protected _bufferState: BufferState;
-	protected _mode: MeshTopology;
-	protected _drawType: number;
-	drawParams:SingletonList<number>;
-	protected _instanceCount: number;
-	protected _indexFormat: IndexFormat;
+	
 
 	/**
 	 * VAO OBJ
 	 */
 	set bufferState(value: BufferState) {
-		this._bufferState = value;
+		this._geometryElementOBj.bufferState = value;
 	}
 
 	get bufferState(): BufferState {
-		return this._bufferState;
+		return this._geometryElementOBj.bufferState;
 	}
 
 	/**
 	 * mesh topology type
 	 */
 	set mode(value: MeshTopology) {
-		this._mode = value;
+		this._geometryElementOBj.mode = value;
 	}
 
 	get mode(): MeshTopology {
-		return this._mode;
+		return this._geometryElementOBj.mode;
 	}
 
 	/**
 	 * draw Type
 	 */
 	set drawType(value: number) {
-		this._drawType = value;
+		this._geometryElementOBj.drawType = value;
 	}
 
 	get drawType(): number {
-		return this._drawType;
+		return this._geometryElementOBj.drawType;
 	}
 
 	setDrawArrayParams(first: number, count: number):void {
-		this.drawParams.add(first);
-		this.drawParams.add(count);
+		this._geometryElementOBj.setDrawArrayParams(first,count);
 		
 	}
 
 	setDrawElemenParams(count: number, offset: number):void {
-		this.drawParams.add(offset);
-		this.drawParams.add(count);
+		this._geometryElementOBj.setDrawElemenParams(count,offset);
+		
 	}
 
 	set instanceCount(value: number) {
-		this._instanceCount = value;
+		this._geometryElementOBj.instanceCount = value;
 	}
 
 	get instanceCount(): number {
-		return this._instanceCount
+		return this._geometryElementOBj.instanceCount;
 	}
 
 	set indexFormat(value: IndexFormat) {
-		this._indexFormat = value;
+		this._geometryElementOBj.indexFormat = value;
 	}
 
 	get indexFormat(): IndexFormat {
-		return this._indexFormat;
+		return this._geometryElementOBj.indexFormat;
 	}
 
 
@@ -100,9 +96,7 @@ export class GeometryElement implements IDestroy, IRenderGeometryElement {
 	 */
 	constructor(mode:MeshTopology,drawType:DrawType) {
 		this._destroyed = false;
-		this.mode = mode;
-		this.drawParams = new SingletonList();
-		this.drawType = drawType;
+		this._geometryElementOBj = new RenderGeometryElementOBJ(mode,drawType);
 	}
 
 
@@ -130,11 +124,12 @@ export class GeometryElement implements IDestroy, IRenderGeometryElement {
 	 */
 	_render(state: RenderContext3D): void {
 		// throw "GeometryElement:must override it.";
-		LayaGL.renderDrawConatext.drawGeometryElement(this);
+		LayaGL.renderDrawConatext.drawGeometryElement(this._geometryElementOBj);
 	}
 
 	/**
 	 * @internal
+	 * UpdateGeometry Data
 	 */
 	 _updateRenderParams(state: RenderContext3D): void {
 		throw "GeometryElement:must override it.";
@@ -150,7 +145,7 @@ export class GeometryElement implements IDestroy, IRenderGeometryElement {
 	}
 
 	clearRenderParams() {
-		this.drawParams.length = 0;
+		this._geometryElementOBj.clearRenderParams();
 	}
 }
 
