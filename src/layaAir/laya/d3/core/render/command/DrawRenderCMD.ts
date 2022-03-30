@@ -109,10 +109,10 @@ export class DrawRenderCMD extends Command {
 					shaderIns._uploadCameraShaderValue = cameraShaderValue;
 				}
 
-				var uploadMaterial: boolean = (shaderIns._uploadMaterial !== this._material) || switchUpdateMark;
+				var uploadMaterial: boolean = (shaderIns._uploadMaterial !== this._material.shaderData) || switchUpdateMark;
 				if (uploadMaterial || switchShader) {
 					shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this._material._shaderValues, uploadMaterial);
-					shaderIns._uploadMaterial = this._material;
+					shaderIns._uploadMaterial = this._material.shaderData;
 				}
 
 				var matValues: ShaderData = this._material._shaderValues;

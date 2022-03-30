@@ -155,7 +155,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
                 }
                 else {
                     for (var i: number = 0; i < count; i++)
-                        worldMatrixData.set(elements[i]._transform.worldMatrix.elements, i * 16);
+                        worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
                 }
                 var worldBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer;
                 worldBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.   TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"

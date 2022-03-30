@@ -41,7 +41,6 @@ import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
-import { RenderQueue } from "../render/RenderQueue";
 import { Lightmap } from "./Lightmap";
 import { CommandUniformMap, Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
@@ -74,6 +73,7 @@ import { UnifromBufferData, UniformBufferParamsType } from "../../../RenderEngin
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { BaseRenderQueue } from "../render/BaseRenderQueue";
 /**
  * 环境光模式
  */
@@ -156,6 +156,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static AMBIENTCOLOR: number;
 	/** @internal */
 	static TIME: number;
+	/** @internal */
+	static sceneID:number;
 	//------------------legacy lighting-------------------------------
 	/** @internal */
 	static LIGHTDIRECTION: number;
@@ -413,6 +415,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
 	/** @internal */
 	private _reflectionIntensity: number = 1.0;
+	/**@internal*/
+	private _id = Scene3D.sceneID++;
 	/**@internal */
 	_componentManager: ComponentManager = new ComponentManager();
 	/** @internal */
@@ -436,9 +440,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	_renders: SimpleSingletonList = new SimpleSingletonList();
 	/** @internal */
-	_opaqueQueue: RenderQueue = new RenderQueue(false);
+	_opaqueQueue: BaseRenderQueue = new BaseRenderQueue(false);
 	/** @internal */
-	_transparentQueue: RenderQueue = new RenderQueue(true);
+	_transparentQueue: BaseRenderQueue = new BaseRenderQueue(true);
 	/** @internal */
 	_cameraPool: BaseCamera[] = [];
 	/** @internal */
@@ -781,6 +785,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			lineMaterial.depthTest = RenderState.DEPTHTEST_LESS;
 			this._debugTool.pixelLineRenderer.sharedMaterial = lineMaterial;
 		}
+		this._opaqueQueue.sceneID = this._id;
+		this._transparentQueue.sceneID = this._id;
 	}
 
 	/**
@@ -1178,6 +1184,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		LayaGL.renderEngine.viewport(vpX, vpY, vpW, vpH);
 		LayaGL.renderEngine.scissor(vpX, vpY, vpW, vpH);
+		this._opaqueQueue.changeViewport(vpX, vpY, vpW, vpH);
+		this._transparentQueue.changeViewport(vpX, vpY, vpW, vpH);
+		this._opaqueQueue.changeScissor(vpX, vpY, vpW, vpH);
+		this._transparentQueue.changeViewport(vpX, vpY, vpW, vpH)
+		
 		var clearFlag: number = camera.clearFlag;
 		if (clearFlag === CameraClearFlags.Sky && !(camera.skyRenderer._isAvailable() || this._skyRenderer._isAvailable()))
 			clearFlag = CameraClearFlags.SolidColor;
@@ -1210,7 +1221,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		var camera: Camera = <Camera>context.camera;
 		switch (renderFlag) {
 			case Scene3D.SCENERENDERFLAG_RENDERQPAQUE:
-				this._opaqueQueue._render(context);//非透明队列
+				//this._opaqueQueue.preRender(context);
+				//this._opaqueQueue._render(context);//非透明队列
+				this._opaqueQueue.renderQueue(context);
 				break;
 			case Scene3D.SCENERENDERFLAG_SKYBOX:
 				if (camera.clearFlag === CameraClearFlags.Sky) {
@@ -1221,13 +1234,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				}
 				break;
 			case Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT:
-				this._transparentQueue._render(context);//透明队列
+				//this._transparentQueue.preRender(context);//透明队列
+				this._transparentQueue.renderQueue(context);
 				if (FrustumCulling.debugFrustumCulling) {
 					var renderElements: RenderElement[] = this._debugTool._render._renderElements;
 					for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
-						renderElements[i]._update(this, context, null, null);
+						//renderElements[i]._update(this, context, null, null);
 						renderElements[i]._renderUpdatePre(context);
-						renderElements[i]._render(context);
+						//renderElements[i]._render(context);
+						//LayaGL.renderDrawConatext.drawGeometryElement(renderElements[i]._renderElementOBJ._render())
 					}
 				}
 				break;
@@ -1351,7 +1366,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal
 	 */
-	_getRenderQueue(index: number): RenderQueue {
+	_getRenderQueue(index: number): BaseRenderQueue {
 		if (index <= 2500)//2500作为队列临界点
 			return this._opaqueQueue;
 		else

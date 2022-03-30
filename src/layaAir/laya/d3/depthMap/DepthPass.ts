@@ -114,7 +114,7 @@ export class DepthPass {
 				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
 				shaderValues.addDefine(DepthPass.DEPTHPASS);
-				this._depthTexture._start();
+				
 				shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
 				if (this._castDepthBuffer) {
 					this._castDepthBuffer._setData(DepthPass.DEFINE_SHADOW_BIAS, ShaderDataType.Vector4, DepthPass.SHADOW_BIAS);
@@ -125,11 +125,13 @@ export class DepthPass {
 				}
 				var offsetX: number = this._viewPort.x;
 				var offsetY: number = this._viewPort.y;
-				
+				this._depthTexture._start();
 				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth,null,1);
-				scene._opaqueQueue._render(context);
+				scene._opaqueQueue.changeViewport(offsetX,offsetY,this._viewPort.width,this._viewPort.height)
+				scene._opaqueQueue.destTarget = this._depthTexture;
+				scene._opaqueQueue.renderQueue(context);
 				this._depthTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);
 				context.pipelineMode = context.configPipeLineMode;
@@ -142,11 +144,12 @@ export class DepthPass {
 				//传入shader该传的值
 				var offsetX: number = this._viewPort.x;
 				var offsetY: number = this._viewPort.y;
-				
 				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color|RenderClearFlag.Depth,this._defaultNormalDepthColor,1)
-				scene._opaqueQueue._render(context);
+				scene._opaqueQueue.destTarget = this._depthNormalsTexture;
+				scene._opaqueQueue.changeViewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+				scene._opaqueQueue.renderQueue(context);
 				this._depthNormalsTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);
 				context.pipelineMode = context.configPipeLineMode;

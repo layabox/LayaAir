@@ -32,7 +32,6 @@ import { Transform3D } from "./Transform3D";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
-import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 
@@ -820,6 +819,8 @@ export class Camera extends BaseCamera {
 
 		// todo layame temp
 		(renderTex) && (renderTex._start());
+		scene._opaqueQueue.destTarget = renderTex;
+		scene._transparentQueue.destTarget = renderTex;
 
 		scene._clear(context);
 

@@ -5,7 +5,6 @@ import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BaseRender } from "../core/render/BaseRender";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { RenderElement } from "../core/render/RenderElement";
-import { RenderQueue } from "../core/render/RenderQueue";
 import { Scene3D } from "../core/scene/Scene3D";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Color } from "../math/Color";
@@ -17,6 +16,7 @@ import { BoundSphere } from "../math/BoundSphere";
 import { ISceneRenderManager } from "../core/scene/SceneRenderManager/ISceneRenderManager";
 import { Sprite3D } from "../core/Sprite3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { BaseRenderQueue } from "../core/render/BaseRenderQueue";
 
 
 /**
@@ -114,8 +114,8 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	static renderObjectCulling(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
-		var opaqueQueue: RenderQueue = scene._opaqueQueue;
-		var transparentQueue: RenderQueue = scene._transparentQueue;
+		var opaqueQueue: BaseRenderQueue = scene._opaqueQueue;
+		var transparentQueue: BaseRenderQueue = scene._transparentQueue;
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
 		scene._clearRenderQueue();
 		var octree: ISceneRenderManager = scene._octree;
@@ -139,10 +139,10 @@ export class FrustumCulling {
 			//}
 		}
 
-		var count: number = opaqueQueue.elements.length;
-		(count > 0) && (opaqueQueue._quickSort(0, count - 1));
-		count = transparentQueue.elements.length;
-		(count > 0) && (transparentQueue._quickSort(0, count - 1));
+		//var count: number = opaqueQueue.elements.length;
+		//(count > 0) && (opaqueQueue._quickSort(0, count - 1));
+		//count = transparentQueue.elements.length;
+		//(count > 0) && (transparentQueue._quickSort(0, count - 1));
 	}
 
 	/**

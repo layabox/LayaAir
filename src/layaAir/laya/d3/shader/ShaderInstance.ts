@@ -43,15 +43,15 @@ export class ShaderInstance {
 	/**@internal */
 	_uploadMark: number = -1;
 	/**@internal */
-	_uploadMaterial: Material;
+	_uploadMaterial: ShaderData;
 	/**@internal RenderIDTODO*/
-	_uploadRender: BaseRender;
+	_uploadRender: any;
 	/** @internal */
 	_uploadRenderType: number = -1;
 	/**@internal CamneraTOD*/
 	_uploadCameraShaderValue: ShaderData;
 	/**@internal SceneIDTODO*/
-	_uploadScene: Scene3D;
+	_uploadScene: any;
 
 	_cullStateCMD:RenderStateCommand = new RenderStateCommand();
 

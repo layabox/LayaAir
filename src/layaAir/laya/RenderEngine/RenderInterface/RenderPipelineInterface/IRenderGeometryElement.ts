@@ -11,4 +11,8 @@ export interface IRenderGeometryElement{
     drawParams:SingletonList<number>;
     instanceCount:number;
     indexFormat:IndexFormat;
+    setDrawArrayParams(first: number, count: number):void;
+    setDrawElemenParams(count: number, offset: number):void;
+    clearRenderParams():void;
+    destroy():void;
 }

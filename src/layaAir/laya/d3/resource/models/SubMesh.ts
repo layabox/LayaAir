@@ -140,8 +140,8 @@ export class SubMesh extends GeometryElement {
 			this.bufferState.bind();
 			var subSkinnedDatas: Float32Array[] = skinnedDatas[this._indexInMesh];
 			for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
-				state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
-				LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._subIndexBufferCount[i], mesh.indexFormat, this._subIndexBufferStart[i] * byteCount);
+				//state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
+				//LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._subIndexBufferCount[i], mesh.indexFormat, this._subIndexBufferStart[i] * byteCount);
 			}
 		} else {
 			this.setDrawElemenParams(this._indexCount,this._indexStart * byteCount);
