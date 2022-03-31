@@ -40,6 +40,7 @@ export class Scene2DPlayer3D {
 	private turnLeft: boolean = true;
 
 	constructor() {
+		debugger;
 		this.initSet();
 		this.create2D();
 
@@ -61,9 +62,9 @@ export class Scene2DPlayer3D {
 	initSet(): void {
 		Config.useRetinalCanvas = true;
 		//初始化3D引擎
-		Laya3D.init(1920, 1080);
+		Laya3D.init(0, 0);
 		//舞台的适配模式
-		Laya.stage.scaleMode = Stage.SCALE_FIXED_WIDTH;
+		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		//显示性能面板
 		Stat.show();
