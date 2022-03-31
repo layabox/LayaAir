@@ -10,10 +10,7 @@ import { RenderStateCommand } from "../../RenderEngine/RenderStateCommand";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Stat } from "../../utils/Stat";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
-import { Material } from "../core/material/Material";
 import { RenderState } from "../core/material/RenderState";
-import { BaseRender } from "../core/render/BaseRender";
-import { Scene3D } from "../core/scene/Scene3D";
 import { CommandUniformMap } from "../core/scene/Scene3DShaderDeclaration";
 import { ShaderPass } from "./ShaderPass";
 
