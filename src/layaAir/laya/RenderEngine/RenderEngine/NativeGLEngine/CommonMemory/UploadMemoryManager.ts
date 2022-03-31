@@ -1,7 +1,7 @@
 import { SingletonList } from "../../../../d3/component/SingletonList";
 import { INativeUploadNode } from "./INativeUploadNode";
 import { MemoryDataType } from "./MemoryDataType";
-import { NataiveMemory } from "./NativeMemory";
+import { NativeMemory } from "./NativeMemory";
 import { UploadMemory } from "./UploadMemory";
 
 /**
@@ -19,7 +19,7 @@ export class UploadMemoryManager {
     /**需要上传数据的Node列表*/
     _dataNodeList: SingletonList<INativeUploadNode> = new SingletonList();
     /**Describe Block of uploadMemory Cell nums*/
-    _memoryBlockDescribe: NataiveMemory;
+    _memoryBlockDescribe: NativeMemory;
 
     _currentBlock: UploadMemory;
 
@@ -64,7 +64,7 @@ export class UploadMemoryManager {
         this._pool = [];
         this.createMemory();
         this._currentBlock = this._pool[0];
-        this._memoryBlockDescribe = new NataiveMemory(100 * 4);
+        this._memoryBlockDescribe = new NativeMemory(100 * 4);
     }
 }
 

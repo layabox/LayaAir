@@ -4,7 +4,7 @@ import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Matrix4x4 } from "../../../d3/math/Matrix4x4";
 import { Quaternion } from "../../../d3/math/Quaternion";
 import { Vector3 } from "../../../d3/math/Vector3";
-import { NataiveMemory } from "./CommonMemory/NativeMemory";
+import { NativeMemory } from "./CommonMemory/NativeMemory";
 import { Matrix3x3 } from "../../../d3/math/Matrix3x3";
 import { MathUtils3D } from "../../../d3/math/MathUtils3D";
 
@@ -73,7 +73,7 @@ export class Transform3DNative extends EventDispatcher {
 
     /**native Share Memory */
 
-    private nativeMemory: NataiveMemory;
+    private nativeMemory: NativeMemory;
     private transFormArray: Float32Array;
 
     /** @internal */
@@ -471,7 +471,7 @@ export class Transform3DNative extends EventDispatcher {
         this._owner = owner;
         this._children = [];
         //native memory
-        this.nativeMemory = new NataiveMemory(Transform3DNative.Transform_MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(Transform3DNative.Transform_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
         //native object TODO
         this.nativeTransformID = 0;

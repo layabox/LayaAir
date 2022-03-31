@@ -1,6 +1,6 @@
 import { IClone } from "../../../d3/core/IClone";
 import { Vector3 } from "../../../d3/math/Vector3";
-import { NataiveMemory } from "./CommonMemory/NativeMemory";
+import { NativeMemory } from "./CommonMemory/NativeMemory";
 
 /**
  * <code>BoundSphere</code> 类用于创建包围球。
@@ -8,7 +8,7 @@ import { NataiveMemory } from "./CommonMemory/NativeMemory";
 export class BoundSphereNative implements IClone {
     private static Bounds_MemoryBlock_size = 4;
     /**native Share Memory */
-    private nativeMemory: NataiveMemory;
+    private nativeMemory: NativeMemory;
     private transFormArray: Float32Array;
     /**@internal Native*/
     nativeTransformID: number = 0; 
@@ -25,7 +25,7 @@ export class BoundSphereNative implements IClone {
         this.center = center;
         this.radius = radius;
         //native memory
-        this.nativeMemory = new NataiveMemory(BoundSphereNative.Bounds_MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(BoundSphereNative.Bounds_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
          //native object TODO
          this.nativeTransformID = 0;

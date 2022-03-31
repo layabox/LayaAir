@@ -1,6 +1,6 @@
 import { CommonMemoryAllocater } from "./CommonMemoryAllocater";
 
-export class NataiveMemory {
+export class NativeMemory {
     static NativeSourceID:number = 0;
     /**@internal 共享内存数据 */
     protected _buffer: ArrayBuffer;

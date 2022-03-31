@@ -1,13 +1,13 @@
 import { BoundFrustum } from "../../../d3/math/BoundFrustum";
 import { Matrix4x4 } from "../../../d3/math/Matrix4x4";
 import { Plane } from "../../../d3/math/Plane";
-import { NataiveMemory } from "./CommonMemory/NativeMemory";
+import { NativeMemory } from "./CommonMemory/NativeMemory";
 
 export class BoundFrustumNative extends BoundFrustum {
     private static BoundFrustumNative_MemoryBlock_size = 17;
     private static BoundFrustumNative_updateFlag = 16;
     /**native Share Memory */
-    private nativeMemory: NataiveMemory;
+    private nativeMemory: NativeMemory;
     private transFormArray: Float32Array;
     /**@internal Native*/
     nativeTransformID: number = 0; 
@@ -29,7 +29,7 @@ export class BoundFrustumNative extends BoundFrustum {
 	 */
 	constructor(matrix: Matrix4x4) {
         super(matrix);
-        this.nativeMemory = new NataiveMemory(BoundFrustumNative.BoundFrustumNative_MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(BoundFrustumNative.BoundFrustumNative_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
         //native object TODO
         this.nativeTransformID = 0;

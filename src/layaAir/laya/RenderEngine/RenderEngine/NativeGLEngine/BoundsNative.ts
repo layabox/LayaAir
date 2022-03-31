@@ -2,7 +2,7 @@ import { IClone } from "../../../d3/core/IClone";
 import { BoundBox } from "../../../d3/math/BoundBox";
 import { Matrix4x4 } from "../../../d3/math/Matrix4x4";
 import { Vector3 } from "../../../d3/math/Vector3";
-import { NataiveMemory } from "./CommonMemory/NativeMemory";
+import { NativeMemory } from "./CommonMemory/NativeMemory";
 
 export class BoundsNative implements IClone {
 
@@ -30,7 +30,7 @@ export class BoundsNative implements IClone {
 
 
     /**native Share Memory */
-    private nativeMemory: NataiveMemory;
+    private nativeMemory: NativeMemory;
     private transFormArray: Float32Array;
 
     /**TransForm Data Stride */
@@ -219,7 +219,7 @@ export class BoundsNative implements IClone {
         this.updateNativeData(BoundsNative.Bounds_Stride_Min,min);
         this.updateNativeData(BoundsNative.Bounds_Stride_Max,max);
         //native memory
-        this.nativeMemory = new NataiveMemory(BoundsNative.Bounds_MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(BoundsNative.Bounds_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
         //native object TODO
         this.nativeTransformID = 0;

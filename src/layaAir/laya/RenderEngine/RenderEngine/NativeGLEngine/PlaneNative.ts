@@ -1,5 +1,5 @@
 import { Vector3 } from "../../../d3/math/Vector3";
-import { NataiveMemory } from "./CommonMemory/NativeMemory";
+import { NativeMemory } from "./CommonMemory/NativeMemory";
 
 export class PlaneNative {
     /**平面与其他几何体相交类型*/
@@ -15,7 +15,7 @@ export class PlaneNative {
     /**平面到坐标系原点的距离*/
     _distance: number;
     /**native Share Memory */
-    private nativeMemory: NataiveMemory;
+    private nativeMemory: NativeMemory;
     private transFormArray: Float32Array;
     /**@internal Native*/
     nativeTransformID: number = 0;
@@ -27,7 +27,7 @@ export class PlaneNative {
      * @param	d  平面到原点的距离
      */
     constructor(normal: Vector3, d: number = 0) {
-        this.nativeMemory = new NataiveMemory(PlaneNative.PlaneNative_MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(PlaneNative.PlaneNative_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
         //native object TODO
         this.nativeTransformID = 0;
