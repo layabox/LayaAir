@@ -12,6 +12,9 @@ import { BaseRenderQueue } from "./BaseRenderQueue"
 import { Scene3D } from "../scene/Scene3D"
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
 import { RenderElementOBJ } from "./newRender/RenderElementOBJ"
+import { ShaderPass } from "../../shader/ShaderPass"
+import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas"
+import { ShaderInstance } from "../../shader/ShaderInstance"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。
@@ -26,8 +29,8 @@ export class RenderElement {
 	/** @internal */
 	static RENDERTYPE_VERTEXBATCH: number = 3;
 
-	// /** @internal */
-	// private static _compileDefine: DefineDatas = new DefineDatas();
+    /** @internal */
+    private static _compileDefine: DefineDatas = new DefineDatas();
 
 	/**
 	 * 可提交底层的渲染节点
@@ -39,6 +42,8 @@ export class RenderElement {
 	protected _material: Material;//可能为空
 	/** @internal */
 	protected _baseRender: BaseRender;
+
+	protected _subShader:SubShader;
 
 	/** @internal */
 	set transform(value:Transform3D){
@@ -63,12 +68,12 @@ export class RenderElement {
 
 	/**@internal */
 	set renderSubShader(value:SubShader){
-		this._renderElementOBJ._subShader = value;
+		this._subShader = value;
 	}
 
 	/**@internal */
 	get renderSubShader():SubShader{
-		return this._renderElementOBJ._subShader;
+		return this._subShader;
 	}
 	/**@internal */
 	set render(value:BaseRender){
@@ -79,12 +84,9 @@ export class RenderElement {
 	get render():BaseRender{
 		return this._baseRender;
 	}
-	
 
 	/** @internal */
 	staticBatch: GeometryElement;
-	// /** @internal */
-	// renderSubShader: SubShader = null;//TODO：做缓存标记优化
 	/** @internal */
 	renderType: number = RenderElement.RENDERTYPE_NORMAL;
 	/**
@@ -130,6 +132,23 @@ export class RenderElement {
 	// 	queue.elements.add(this);
 	// }
 
+	compileShader(renderQeue:IRenderQueue){
+		var passes: ShaderPass[] = this._subShader._passes;
+		for (var j: number = 0, m: number = passes.length; j < m; j++) {
+			var pass: ShaderPass = passes[j];
+			//NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
+			if (pass._pipelineMode !== renderQeue.pipelineMode)
+				continue;
+
+			var comDef: DefineDatas = RenderElement._compileDefine;
+			renderQeue.sceneShaderData._defineDatas.cloneTo(comDef);
+			comDef.addDefineDatas(this.render._shaderValues._defineDatas);
+			comDef.addDefineDatas(this.material._shaderValues._defineDatas);
+			var shaderIns: ShaderInstance = pass.withCompile(comDef);
+			this._renderElementOBJ._addShaderInstance(shaderIns);
+		}
+	}
+
 	/**
 	 * @internal
 	 */
@@ -169,7 +188,7 @@ export class RenderElement {
 		}
 	}
 
-	_renderUpdatePre(context: RenderContext3D) {
+	_renderUpdatePre(context: RenderContext3D,renderqueue:IRenderQueue) {
 
 		var sceneMark: number = ILaya3D.Scene3D._updateMark;
 		var transform: Transform3D = this.transform;
@@ -196,6 +215,7 @@ export class RenderElement {
 		//context.shader = this._renderElementOBJ._subShader;
 		this._renderElementOBJ._isRender = this._geometry._prepareRender(context);
 		this._geometry._updateRenderParams(context);
+		this.compileShader(renderqueue);
 	}
 
 	/**

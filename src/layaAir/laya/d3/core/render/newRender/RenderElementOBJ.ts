@@ -2,20 +2,17 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { IRenderElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue";
-import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { SingletonList } from "../../../component/SingletonList";
 import { ShaderInstance } from "../../../shader/ShaderInstance";
-import { ShaderPass } from "../../../shader/ShaderPass";
-import { SubShader } from "../../../shader/SubShader";
 import { Transform3D } from "../../Transform3D";
 
 export class RenderElementOBJ implements IRenderElement {
-    /** @internal */
-    private static _compileDefine: DefineDatas = new DefineDatas();
+
 
     _geometry: IRenderGeometryElement;
 
-    _subShader: SubShader;
+    _shaderInstances: SingletonList<ShaderInstance>;
 
     _materialShaderData: ShaderData;
 
@@ -24,6 +21,18 @@ export class RenderElementOBJ implements IRenderElement {
     _transform: Transform3D;
 
     _isRender: boolean;
+    constructor(){
+        this._shaderInstances = new SingletonList();
+    }
+
+    _addShaderInstance(shader:ShaderInstance){
+        this._shaderInstances.add(shader);
+    }
+
+    _clearShaderInstance(){
+        this._shaderInstances.length = 0;
+    }
+
     /**
      * @internal
      */
@@ -41,17 +50,17 @@ export class RenderElementOBJ implements IRenderElement {
         var sceneID = renderqueue.sceneID;
         let pipeline = renderqueue.pipelineMode;
         if (this._isRender) {
-            var passes: ShaderPass[] = this._subShader._passes;
-            for (var j: number = 0, m: number = passes.length; j < m; j++) {
-                var pass: ShaderPass = passes[j];
-                //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
-                if (pass._pipelineMode !== pipeline)
-                    continue;
-                var comDef: DefineDatas = RenderElementOBJ._compileDefine;
-                renderqueue.sceneShaderData._defineDatas.cloneTo(comDef);
-                comDef.addDefineDatas(this._renderShaderData._defineDatas);
-                comDef.addDefineDatas(this._materialShaderData._defineDatas);
-                const shaderIns: ShaderInstance = pass.withCompile(comDef);
+            var passes: ShaderInstance[] = this._shaderInstances.elements;
+            for (var j: number = 0, m: number =  this._shaderInstances.length; j < m; j++) {
+                // var pass: ShaderPass = passes[j];
+                // //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
+                // if (pass._pipelineMode !== pipeline)
+                //     continue;
+                // var comDef: DefineDatas = RenderElementOBJ._compileDefine;
+                // renderqueue.sceneShaderData._defineDatas.cloneTo(comDef);
+                // comDef.addDefineDatas(this._renderShaderData._defineDatas);
+                // comDef.addDefineDatas(this._materialShaderData._defineDatas);
+                const shaderIns: ShaderInstance = passes[j];;
                 var switchShader: boolean = shaderIns.bind();
                 var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
                 var uploadScene: boolean = (shaderIns._uploadScene !== sceneID) || switchUpdateMark;
@@ -91,7 +100,7 @@ export class RenderElementOBJ implements IRenderElement {
 
     _destroy() {
         this._geometry = null;
-        this._subShader = null;
+        this._shaderInstances = null;
         this._materialShaderData = null;
         this._renderShaderData = null;
         this._transform = null;
