@@ -10,7 +10,6 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { DrawTextTexture } from "../3d/LayaAir3D_Advance/DrawTextTexture";
 import { Laya3DCombineHtml } from "../3d/LayaAir3D_Advance/Laya3DCombineHtml";
-import { Scene2DPlayer3D } from "../3d/LayaAir3D_Advance/Scene2DPlayer3D";
 import { Secne3DPlayer2D } from "../3d/LayaAir3D_Advance/Secne3DPlayer2D";
 import { AnimationEventByUnity } from "../3d/LayaAir3D_Animation3D/AnimationEventByUnity";
 import { AnimationLayerBlend } from "../3d/LayaAir3D_Animation3D/AnimationLayerBlend";
@@ -128,6 +127,7 @@ import { StencilDemo } from "../3d/LayaAir3D_Material/StencilDemo";
 import { WebXRStart } from "../3d/WebXR/WebXRStart";
 import { WebXRControllerDemo } from "../3d/WebXR/WebXRControllerDemo";
 import { GriendSkyAmbientDemo } from "../3d/LayaAir3D_Scene3D/GriendSkyAmbientDemo";
+import { Scene2DPlayer3D } from "../3d/LayaAir3D_Advance/Scene2DPlayer3D";
 
 export class IndexView3D extends IndexViewUI {
 

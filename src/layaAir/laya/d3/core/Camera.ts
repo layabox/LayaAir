@@ -156,8 +156,7 @@ export class Camera extends BaseCamera {
 	/** @internal*/
 	protected _needBuiltInRenderTexture: boolean = false;
 	/**@internal */
-	protected _msaa:boolean = false;
-
+	protected _msaa: boolean = false;
 	/** @internal*/
 	private _depthTextureMode: number;
 	/** @internal */
@@ -174,6 +173,10 @@ export class Camera extends BaseCamera {
 	private _depthTexture: BaseTexture;
 	/** 深度法线贴图*/
 	private _depthNormalsTexture: RenderTexture;
+	/** 非透明物体贴图 */
+	private _opaqueueTexture: RenderTexture;
+	/** 是否开启非透明物体通道 */
+	private _opaquePass: boolean;
 
 	private _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
 
@@ -255,11 +258,11 @@ export class Camera extends BaseCamera {
 	/**
 	 * 多重采样抗锯齿
 	 */
-	set msaa(value:boolean){
-		LayaGL.layaGPUInstance._isWebGL2?this._msaa = value:this._msaa = false;
+	set msaa(value: boolean) {
+		LayaGL.layaGPUInstance._isWebGL2 ? this._msaa = value : this._msaa = false;
 	}
 
-	get msaa():boolean{
+	get msaa(): boolean {
 		return this._msaa;
 	}
 
@@ -411,6 +414,28 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
+	 * 设置OpaquePass模式
+	 */
+	set opaqueuePass(value: boolean) {
+		if (value == this._opaquePass)
+			return;
+		if (!this._opaqueueTexture && value) {
+			let tex = this._getRenderTexture();
+			this._opaqueueTexture = RenderTexture.createFromPool(tex.width, tex.height, tex.format, null);
+			this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, this._opaqueueTexture);
+
+		} else {
+			this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, null);
+		}
+		this._opaquePass = value;
+
+
+	}
+	get opaqueuePass() {
+		return this._opaquePass;
+	}
+
+	/**
 	 * 深度贴图格式
 	 */
 	get depthTextureFormat(): RenderTextureDepthFormat {
@@ -434,6 +459,39 @@ export class Camera extends BaseCamera {
 	get canblitDepth() {
 		return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != RenderTextureDepthFormat.DEPTHSTENCIL_NONE && this._internalRenderTexture.depthAttachMode == RTDEPTHATTACHMODE.TEXTURE;
 	}
+
+	/**
+	 * @internal
+	 * 深度贴图
+	 */
+	get depthTexture(): BaseTexture {
+		return this._depthTexture;
+	}
+
+	set depthTexture(value: BaseTexture) {
+		this._depthTexture = value;
+	}
+
+	/**
+	 * @internal
+	 * 深度法线贴图
+	 */
+	get depthNormalTexture(): RenderTexture {
+		return this._depthNormalsTexture;
+	}
+
+	set depthNormalTexture(value: RenderTexture) {
+		this._depthNormalsTexture = value;
+	}
+
+	set needOpaqueTexture(value: boolean) {
+		this._opaquePass = value;
+	}
+
+	get needOpaqueTexture(): boolean {
+		return this._opaquePass;
+	}
+
 
 	/**
 	 * 创建一个 <code>Camera</code> 实例。
@@ -649,7 +707,7 @@ export class Camera extends BaseCamera {
 
 			var halfY = Math.tan((this.fieldOfView / 2) * Math.PI / 180);
 			var halfX = this.aspectRatio * halfY;
-			
+
 			var yLengthPerCluster = 2 * halfY / ySlice;
 			var xLengthPerCluster = 2 * halfX / xSlixe;
 			for (var i: number = 0; i < xCount; i++) {
@@ -833,6 +891,8 @@ export class Camera extends BaseCamera {
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);
 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
+		this._opaquePass && this._createOpaqueTexture(renderTex, context);
+		(renderTex) && (renderTex._start());
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDEROPAQUE);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox, context);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
@@ -896,29 +956,6 @@ export class Camera extends BaseCamera {
 		PerformancePlugin.endSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE);
 	}
 
-	/**
-	 * @internal
-	 * 深度贴图
-	 */
-	get depthTexture(): BaseTexture {
-		return this._depthTexture;
-	}
-
-	set depthTexture(value: BaseTexture) {
-		this._depthTexture = value;
-	}
-
-	/**
-	 * @internal
-	 * 深度法线贴图
-	 */
-	get depthNormalTexture(): RenderTexture {
-		return this._depthNormalsTexture;
-	}
-
-	set depthNormalTexture(value: RenderTexture) {
-		this._depthNormalsTexture = value;
-	}
 
 
 	/**
@@ -931,6 +968,12 @@ export class Camera extends BaseCamera {
 		Camera.depthPass.cleanUp();
 	}
 
+	_createOpaqueTexture(currentTarget: RenderTexture, renderContext: RenderContext3D) {
+		var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueueTexture);
+		blit.setContext(renderContext);
+		blit.run();
+		blit.recover();
+	}
 
 	/**
 	 * @override
@@ -949,15 +992,14 @@ export class Camera extends BaseCamera {
 		context.replaceTag = replacementTag;
 		context.customShader = shader;
 		if (needInternalRT) {
-			if(this._msaa&&LayaGL.layaGPUInstance._isWebGL2)
-			{
+			if (this._msaa && LayaGL.layaGPUInstance._isWebGL2) {
 				this._internalRenderTexture = MulSampleRenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
-			}else{
+			} else {
 				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			}
-			
+
 		}
 		else {
 			this._internalRenderTexture = null;

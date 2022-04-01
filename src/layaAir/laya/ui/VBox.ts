@@ -55,7 +55,7 @@ export class VBox extends LayoutBox {
             var item = (<UIComponent>this.getChildAt(i));
             if (item) {
                 items.push(item);
-                maxWidth = this._width ? this._width : Math.max(maxWidth, item.width * item.scaleX);
+                maxWidth = Math.max(maxWidth, item.width * item.scaleX);
             }
         }
         if (this.isSortItem) {
@@ -64,8 +64,10 @@ export class VBox extends LayoutBox {
         var top = 0;
         for (i = 0, n = items.length; i < n; i++) {
             item = items[i];
-            item.y = top;
-            top += item.height * item.scaleY + this._space;
+
+            i && (top += (items[i - 1].height * items[i - 1].scaleX) + this._space);
+            item.top = top;
+
             if (this._align == VBox.LEFT) {
                 item.x = 0;
             } else if (this._align == VBox.CENTER) {
@@ -73,6 +75,8 @@ export class VBox extends LayoutBox {
             } else if (this._align == VBox.RIGHT) {
                 item.x = maxWidth - item.width * item.scaleX;
             }
+             //@charley:修正轴心点偏移的位置处理
+             item.pivotX && (item.x += item.pivotX * item.scaleX);
         }
         this._sizeChanged();
     }

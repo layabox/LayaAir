@@ -46,7 +46,7 @@ export class EventDispatcher {
                     n--;
                 }
             }
-            if (listeners.length === 0 && this._events && !this._events[type].run) // 最后是春阳加的判断，防止误删除注册的事件
+            if (listeners.length === 0 && this._events && this._events[type] && !this._events[type].run) // 最后是春阳加的判断，防止误删除注册的事件
                 delete this._events[type];
         }
 
