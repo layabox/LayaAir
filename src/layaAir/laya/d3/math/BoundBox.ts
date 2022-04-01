@@ -15,6 +15,9 @@ import { IClone } from "../core/IClone"
 		 min:Vector3;
 		/**最大顶点。*/
 		 max:Vector3;
+
+		/** */
+		_lastBoundIndex:number = -1;
 		
 		/**
 		 * 创建一个 <code>BoundBox</code> 实例。
