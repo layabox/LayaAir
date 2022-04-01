@@ -174,7 +174,7 @@ export class Camera extends BaseCamera {
 	/** 深度法线贴图*/
 	private _depthNormalsTexture: RenderTexture;
 	/** 非透明物体贴图 */
-	private _opaqueueTexture: RenderTexture;
+	private _opaqueTexture: RenderTexture;
 	/** 是否开启非透明物体通道 */
 	private _opaquePass: boolean;
 
@@ -416,22 +416,17 @@ export class Camera extends BaseCamera {
 	/**
 	 * 设置OpaquePass模式
 	 */
-	set opaqueuePass(value: boolean) {
+	set opaquePass(value: boolean) {
 		if (value == this._opaquePass)
 			return;
-		if (!this._opaqueueTexture && value) {
-			let tex = this._getRenderTexture();
-			this._opaqueueTexture = RenderTexture.createFromPool(tex.width, tex.height, tex.format, null);
-			this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, this._opaqueueTexture);
-
-		} else {
+		if(!value){
 			this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, null);
+			this._opaqueTexture = null;
 		}
 		this._opaquePass = value;
-
-
 	}
-	get opaqueuePass() {
+
+	get opaquePass() {
 		return this._opaquePass;
 	}
 
@@ -482,14 +477,6 @@ export class Camera extends BaseCamera {
 
 	set depthNormalTexture(value: RenderTexture) {
 		this._depthNormalsTexture = value;
-	}
-
-	set needOpaqueTexture(value: boolean) {
-		this._opaquePass = value;
-	}
-
-	get needOpaqueTexture(): boolean {
-		return this._opaquePass;
 	}
 
 
@@ -969,7 +956,12 @@ export class Camera extends BaseCamera {
 	}
 
 	_createOpaqueTexture(currentTarget: RenderTexture, renderContext: RenderContext3D) {
-		var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueueTexture);
+		if (!this._opaqueTexture) {
+			let tex = this._getRenderTexture();
+			this._opaqueTexture = RenderTexture.createFromPool(tex.width, tex.height, tex.format,RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+			this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, this._opaqueTexture);
+		}
+		var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
 		blit.setContext(renderContext);
 		blit.run();
 		blit.recover();
