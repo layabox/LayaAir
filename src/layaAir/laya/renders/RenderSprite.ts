@@ -147,7 +147,12 @@ export class RenderSprite {
 				this._fun = this._canvas;
 				return;
 			case SpriteConst.MASK:
-				this._fun = this._mask;
+				if ((window as any).conch && !(window as any).conchWebGL) {
+					this._fun = this._maskNative;
+				}
+				else {
+					this._fun = this._mask;
+				}
 				return;
 			case SpriteConst.CLIP:
 				this._fun = this._clip;
@@ -574,7 +579,78 @@ export class RenderSprite {
 		}
 
 	}
+	_maskNative(sprite: Sprite, context: Context, x: number, y: number): void {
+		var next: RenderSprite = this._next;
+		var mask: Sprite = sprite.mask;
+		var submitCMD: SubmitCMD;
+		var ctx: Context = (<Context>context);
+		if (mask) {
+			ctx.save();
+			var preBlendMode: string = ctx.globalCompositeOperation;
+			var tRect: Rectangle = new Rectangle();
+			//裁剪范围是根据mask来定的
+			tRect.copyFrom(mask.getBounds());
+			// 为什么round
+			tRect.width = Math.round(tRect.width);
+			tRect.height = Math.round(tRect.height);
+			tRect.x = Math.round(tRect.x);
+			tRect.y = Math.round(tRect.y);
+			if (tRect.width > 0 && tRect.height > 0) {
+				var w: number = tRect.width;
+				var h: number = tRect.height;
 
+				(ctx as any).drawMask(w, h);
+				/*var tmpRT: RenderTexture2D = WebGLRTMgr.getRT(w, h);
+
+				ctx.breakNextMerge();
+				//先把mask画到tmpTarget上
+				ctx.pushRT();
+				ctx.addRenderObject(SubmitCMD.create([ctx, tmpRT, w, h], RenderSprite.tmpTarget, this));*/
+				mask.render(ctx, -tRect.x, -tRect.y);
+				let shrink = 0.1;
+				(ctx as any).drawMasked(x + tRect.x - sprite.getStyle().pivotX + shrink, y + tRect.y - sprite.getStyle().pivotY + shrink, w-shrink*2, h-shrink*2);
+				//ctx.breakNextMerge();
+				//ctx.popRT();
+				//设置裁剪为mask的大小。要考虑pivot。有pivot的话，可能要从负的开始
+				//ctx.save();
+
+				/**
+				 * 有时候会有浮点误差，例如起点在0.5的时候，有的像素中心正好处于边界，可能会出错。
+				 * 对于mask来说，一般缩小一点点是没有问题的，所以缩小0.1个像素
+				 */
+				//let shrink = 0.1;
+				//ctx.clipRect(x + tRect.x - sprite.getStyle().pivotX + shrink, y + tRect.y - sprite.getStyle().pivotY + shrink, w-shrink*2, h-shrink*2);
+				//ctx.clipRect(x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
+
+				//画出本节点的内容
+				next._fun.call(next, sprite, ctx, x, y);
+
+				(ctx as any).drawMaskComposite(x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
+				//ctx.restore();
+
+				//设置混合模式
+				//preBlendMode = ctx.globalCompositeOperation;
+				//ctx.addRenderObject(SubmitCMD.create(["mask"], RenderSprite.setBlendMode, this));
+
+				//var shaderValue: Value2D = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+				//var uv = Texture.INV_UV;
+				//这个地方代码不要删除，为了解决在iphone6-plus上的诡异问题
+				//renderTarget + StencilBuffer + renderTargetSize < 32 就会变得超级卡
+				//所以增加的限制。王亚伟
+				//  180725 本段限制代码已经删除，如果出了问题再找王亚伟
+
+				//ctx.drawTarget(tmpRT, x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h, Matrix.TEMP.identity(), shaderValue, uv, 6);
+				//ctx.addRenderObject(SubmitCMD.create([tmpRT], RenderSprite.recycleTarget, this));
+
+				//恢复混合模式
+				//ctx.addRenderObject(SubmitCMD.create([preBlendMode], RenderSprite.setBlendMode, this));
+			}
+			ctx.restore();
+		} else {
+			next._fun.call(next, sprite, context, x, y);
+		}
+
+	}
 	static tempUV: any[] = new Array(8);
 	static tmpTarget(ctx: Context, rt: RenderTexture2D, w: number, h: number): void {
 		rt.start();
