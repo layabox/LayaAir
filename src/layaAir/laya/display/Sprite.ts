@@ -242,10 +242,13 @@ export class Sprite extends Node {
     _graphics: Graphics|null = null;
 
     /**
-     * <p>鼠标事件与此对象的碰撞检测是否可穿透。碰撞检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
-     * <p>穿透表示鼠标事件发生的位置处于本对象绘图区域内时，才算命中，而与对象宽高和值为Rectangle对象的hitArea属性无关。如果sprite.hitArea值是HitArea对象，表示显式声明了此对象的鼠标事件响应区域，而忽略对象的宽高、mouseThrough属性。</p>
-     * <p>影响对象鼠标事件响应区域的属性为：width、height、hitArea，优先级顺序为：hitArea(type:HitArea)>hitArea(type:Rectangle)>width/height。</p>
-     * @default false	不可穿透，此对象的鼠标响应区域由width、height、hitArea属性决定。</p>
+     * <p>用于判断鼠标事件与此对象在碰撞检测时，是否可穿透。碰撞检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
+     * <p>不穿透表示鼠标事件发生的位置处于本对象区域内为命中。穿透表示鼠标事件发生在子节点区域内为命中</p>
+     * <p>影响穿透的因素为有无graphics绘制区，无绘制图形的可穿透，有绘制图形的绘图区域内不可穿透</p>
+     * <p>不穿透影响对象鼠标事件响应区域的属性为：width、height、hitArea，优先级顺序为：hitArea(type:HitArea)>hitArea(type:Rectangle)>width/height。</p>
+     * @default false 默认值
+     * @param false 不穿透，按本对象宽高设置为鼠标碰撞检测区域，有显示资源的对象可以自动获取宽高，容器对象需要手动设置宽高，不设置宽高相当于无点击区域（可穿透），对象的鼠标碰撞检测区域由宽高（width、height）或graphics绘制图形的碰撞区域（hitArea）属性决定。</p>
+     * @param true 穿透，按对象的graphics绘图显示区域为鼠标碰撞检测区域，无视对象的宽高。主要用于容器（sprite、box等）对象，因为UI对象的skin资源是基于graphics绘制显示的。
      */
     mouseThrough: boolean = false;
     /**
@@ -257,8 +260,10 @@ export class Sprite extends Node {
      * <p>指定鼠标事件检测是优先检测自身，还是优先检测其子对象。鼠标事件检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
      * <p>如果为false，优先检测子对象，当有子对象被命中时，中断检测，获得命中目标。如果未命中任何子对象，最后再检测此对象；如果为true，则优先检测本对象，如果本对象没有被命中，直接中断检测，表示没有命中目标；如果本对象被命中，则进一步递归检测其子对象，以确认最终的命中目标。</p>
      * <p>合理使用本属性，能减少鼠标事件检测的节点，提高性能。可以设置为true的情况：开发者并不关心此节点的子节点的鼠标事件检测结果，也就是以此节点作为其子节点的鼠标事件检测依据。</p>
-     * <p>Stage对象和UI的View组件默认为true。</p>
-     * @default false	优先检测此对象的子对象，当递归检测完所有子对象后，仍然没有找到目标对象，最后再检测此对象。
+     * <p>Stage对象和UI的Scene\View\Dialog组件默认为true。</p>
+     * @default false 默认值。但Stage会重置默认值为true。Scene\View\Dialog在mouseThrough为false，并且宽大于0的时候，也会重置为true
+     * @param false 优先检测此对象的子对象，如果命中子对象则直接中断检测，不检测本对象。如果递归检测完所有子对象后，仍然没有找到目标对象，最后再检测本对象。
+     * @param true 不穿透(mouseThrough为false)时，优先递归检测本对象，鼠标捕获未命中本对象时，会直接中断本对象以及其子节点对象的检测。鼠标命中本对象，还会继续递归检测子节点对象，直到其全部子节点对象都检测完毕，或者找到目标对象而中断检测。
      */
     hitTestPrior: boolean = false;
 

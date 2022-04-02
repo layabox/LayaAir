@@ -156,7 +156,7 @@ export class Camera extends BaseCamera {
 	/** @internal*/
 	protected _needBuiltInRenderTexture: boolean = false;
 	/**@internal */
-	protected _msaa:boolean = false;
+	protected _msaa: boolean = false;
 
 	/** @internal*/
 	private _depthTextureMode: number;
@@ -255,11 +255,11 @@ export class Camera extends BaseCamera {
 	/**
 	 * 多重采样抗锯齿
 	 */
-	set msaa(value:boolean){
-		LayaGL.layaGPUInstance._isWebGL2?this._msaa = value:this._msaa = false;
+	set msaa(value: boolean) {
+		LayaGL.layaGPUInstance._isWebGL2 ? this._msaa = value : this._msaa = false;
 	}
 
-	get msaa():boolean{
+	get msaa(): boolean {
 		return this._msaa;
 	}
 
@@ -649,7 +649,7 @@ export class Camera extends BaseCamera {
 
 			var halfY = Math.tan((this.fieldOfView / 2) * Math.PI / 180);
 			var halfX = this.aspectRatio * halfY;
-			
+
 			var yLengthPerCluster = 2 * halfY / ySlice;
 			var xLengthPerCluster = 2 * halfX / xSlixe;
 			for (var i: number = 0; i < xCount; i++) {
@@ -949,15 +949,14 @@ export class Camera extends BaseCamera {
 		context.replaceTag = replacementTag;
 		context.customShader = shader;
 		if (needInternalRT) {
-			if(this._msaa&&LayaGL.layaGPUInstance._isWebGL2)
-			{
+			if (this._msaa && LayaGL.layaGPUInstance._isWebGL2) {
 				this._internalRenderTexture = MulSampleRenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
-			}else{
+			} else {
 				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			}
-			
+
 		}
 		else {
 			this._internalRenderTexture = null;
