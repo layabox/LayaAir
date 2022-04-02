@@ -141,11 +141,14 @@ export class NativeBaseRenderQueue implements IRenderQueue {
         LayaGL.renderEngine.viewport(this._viewPort.x,this._viewPort.y,this._viewPort.width,this._viewPort.height);
         LayaGL.renderEngine.scissor(this._scissor.x,this._scissor.y,this._scissor.z,this._scissor.w);
         var elements: RenderElement[] = this.elements.elements;
-		for (var i: number = 0, n: number = this.elements.length; i < n; i++)
-			elements[i]._renderUpdatePre(context);//Update Data
+		for (var i: number = 0, n: number = this.elements.length; i < n; i++){
+            elements[i]._renderUpdatePre(context);//Update Data
+            
+        }
+			
 		// for (var i: number = 0, n: number = this.elements.length; i < n; i++)
 		// 	elements[i]._render(context);
-        
+        //更新所有大buffer数据
         for (var i: number = 0, n: number = this.elements.length; i < n; i++)
 			elements[i]._render(this);//Update Data
         //UpdateRender All
