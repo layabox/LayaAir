@@ -364,16 +364,7 @@ export class RenderSprite {
 		if (_cacheStyle.canvas) {
 			// 检查文字是否被释放了，以及clip是否改变了，需要重新cache了
 			var canv: any = _cacheStyle.canvas;
-			var ctx: any = canv.context;
-			var charRIs: any[] = canv.touches;
-			if (charRIs) {
-				for (var ci: number = 0; ci < charRIs.length; ci++) {
-					if (charRIs[ci].deleted) {
-						textNeedRestore = true;
-						break;
-					}
-				}
-			}
+			textNeedRestore = canv.isTextNeedRestore && canv.isTextNeedRestore();
 			cacheNeedRebuild = canv.isCacheValid && !canv.isCacheValid();
 		}
 

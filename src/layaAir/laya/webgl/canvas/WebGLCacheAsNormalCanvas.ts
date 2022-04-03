@@ -151,7 +151,20 @@ export class WebGLCacheAsNormalCanvas {
             return false;
         return true;
     }
-
+    isTextNeedRestore(): boolean {
+    {
+        var textNeedRestore: boolean = false;
+        var charRIs: any[] = this.touches;
+		if (charRIs) {
+			for (var ci: number = 0; ci < charRIs.length; ci++) {
+				if (charRIs[ci].deleted) {
+					textNeedRestore = true;
+					break;
+				}
+			}
+		}
+        return textNeedRestore;
+    }
     flushsubmit(): void {
         var curSubmit: SubmitBase = SubmitBase.RENDERBASE;
         this.submits.forEach(function (subm: Submit): void {

@@ -15,6 +15,9 @@ export class NativeWebGLCacheAsNormalCanvas {
     isCacheValid(): boolean {
         return this._nativeObj.isCacheValid();
     }  
+    isTextNeedRestore(): boolean {
+        return this._nativeObj.isTextNeedRestore();
+    }
     get context() {
         return this._context;
     }
