@@ -17,7 +17,7 @@ import { ColorFilter } from "./ColorFilter";
 /**
  * <code>Filter</code> 是滤镜基类。
  */
-export class Filter implements IFilter {
+export class NativeFilter implements IFilter {
     /**@private 模糊滤镜。*/
     static BLUR: number = 0x10;
     /**@private 颜色滤镜。*/
@@ -41,7 +41,7 @@ export class Filter implements IFilter {
         if (next) {
             var filters: any[] = sprite.filters, len: number = filters.length;
             //如果只有一个滤镜，那么还用原来的方式
-            if (len == 1 && (filters[0].type == Filter.COLOR)) {
+            if (len == 1 && (filters[0].type == NativeFilter.COLOR)) {
                 context.save();
                 context.setColorFilter(filters[0]);
                 next._fun.call(next, sprite, context, x, y);
@@ -111,18 +111,18 @@ export class Filter implements IFilter {
                         webglctx.drawTarget(outRT, 0, 0, b.width, b.height, Matrix.TEMP.identity(), svCP, null, BlendMode.TOINT.overlay);
                         webglctx.useRT(outRT);
                     }
-                    var fil: Filter = filters[i];
+                    var fil: NativeFilter = filters[i];
                     //把src往out上画
                     switch (fil.type) {
-                        case Filter.BLUR:
+                        case NativeFilter.BLUR:
                             fil._glRender && fil._glRender.render(source, context, b.width, b.height, fil);
                             //BlurFilterGLRender.render(source, context, b.width, b.height, fil as BlurFilter);
                             break;
-                        case Filter.GLOW:
+                        case NativeFilter.GLOW:
                             //GlowFilterGLRender.render(source, context, b.width, b.height, fil as GlowFilter);
                             fil._glRender && fil._glRender.render(source, context, b.width, b.height, fil);
                             break;
-                        case Filter.COLOR:
+                        case NativeFilter.COLOR:
                             webglctx.setColorFilter((<ColorFilter>fil));
                             webglctx.drawTarget(source, 0, 0, b.width, b.height, Matrix.EMPTY.identity(), Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
                             webglctx.setColorFilter(null);

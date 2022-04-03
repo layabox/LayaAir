@@ -152,7 +152,6 @@ export class WebGLCacheAsNormalCanvas {
         return true;
     }
     isTextNeedRestore(): boolean {
-    {
         var textNeedRestore: boolean = false;
         var charRIs: any[] = this.touches;
 		if (charRIs) {
