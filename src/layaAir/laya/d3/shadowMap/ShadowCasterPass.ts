@@ -74,13 +74,14 @@ export class ShadowCasterPass {
 	/**@internal */
 	private static _cascadesSplitDistance: number[] = new Array(ShadowCasterPass._maxCascades + 1);
 	/** @internal */
-	private static _frustumPlanes: Plane[] = new Array(new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()), new Plane(new Vector3()));
+	private static _frustumPlanes: Plane[] = new Array();
 
 	/**
 	 * @internal
 	 * init Scene UniformMap
 	 */
 	static __init__() {
+		ShadowCasterPass._frustumPlanes = new Array(LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0));
 		const sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
 		ShadowCasterPass.SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
 		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS, "u_ShadowBias");

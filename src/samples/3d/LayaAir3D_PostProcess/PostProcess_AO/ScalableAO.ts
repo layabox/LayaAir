@@ -21,6 +21,7 @@ import { WarpMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
+import { LayaGL } from "laya/layagl/LayaGL";
 
 export class ScalableAO extends PostProcessEffect {
     static BlurDelty: number = Shader3D.propertyNameToID("u_Delty");
@@ -94,7 +95,7 @@ export class ScalableAO extends PostProcessEffect {
         super();
         ScalableAO.HasInit || ScalableAO.init();
         this._shader = Shader3D.find("ScalableAO");
-        this._shaderData = new ShaderData();
+        this._shaderData = LayaGL.renderOBJCreate.createShaderData();
         this._aoParams = new Vector3(0.12, 0.15, 1);
         this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
         //@ts-ignore

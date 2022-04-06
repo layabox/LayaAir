@@ -11,6 +11,7 @@ import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。
@@ -48,7 +49,7 @@ export class BloomEffect extends PostProcessEffect {
 	/**@internal */
 	private _shader: Shader3D = null;
 	/**@internal */
-	private _shaderData: ShaderData = new ShaderData();
+	private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
 	/**@internal */
 	private _linearColor: Color = new Color();
 	/**@internal */

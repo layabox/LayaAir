@@ -7,6 +7,7 @@ import { Vector3 } from "../../math/Vector3";
 import { Loader } from "../../../net/Loader";
 import { Node } from "../../../display/Node";
 import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * 反射探针模式
@@ -165,7 +166,7 @@ export class ReflectionProbe extends Sprite3D {
 		Vector3.add(min,this._offset,min);
 		this._reflectionDecodeFormat = data.reflectionDecodingFormat;
 		this.intensity = data.intensity;
-		if(!this._bounds) this.bounds = new Bounds(min,max);
+		if(!this._bounds) this.bounds = LayaGL.renderOBJCreate.createBounds(min,max);
 		else {
 			this._bounds.setMin(min);
 			this._bounds.setMax(max);

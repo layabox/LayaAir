@@ -5,6 +5,7 @@ import { CollisionUtils } from "./CollisionUtils";
 import { ContainmentType } from "./ContainmentType";
 import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * @internal
@@ -147,12 +148,12 @@ export class BoundFrustum {
 	 */
 	constructor(matrix: Matrix4x4) {
 		this._matrix = matrix;
-		this._near = new Plane(new Vector3());
-		this._far = new Plane(new Vector3());
-		this._left = new Plane(new Vector3());
-		this._right = new Plane(new Vector3());
-		this._top = new Plane(new Vector3());
-		this._bottom = new Plane(new Vector3());
+		this._near = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
+		this._far = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
+		this._left = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
+		this._right = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
+		this._top = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
+		this._bottom = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
 		BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
 	}
 

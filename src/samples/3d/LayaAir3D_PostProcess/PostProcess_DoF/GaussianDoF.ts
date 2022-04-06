@@ -20,6 +20,7 @@ import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFor
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
+import { LayaGL } from "laya/layagl/LayaGL";
 
 
 /**
@@ -106,7 +107,7 @@ export class GaussianDoF extends PostProcessEffect {
         GaussianDoF.__init__();
         super();
         this._shader = Shader3D.find("GaussianDoF");
-        this._shaderData = new ShaderData();
+        this._shaderData = LayaGL.renderOBJCreate.createShaderData();
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, new Vector3(10, 30, 1));
         this._zBufferParams = new Vector4();
         this._sourceSize = new Vector4();

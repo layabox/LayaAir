@@ -11,6 +11,7 @@ import { Laya } from "../../../Laya";
 import { ICreateResource } from "../../resource/ICreateResource";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
@@ -143,7 +144,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	constructor(name: string = null, isStatic: boolean = false) {
 		super();
 		this._id = ++Sprite3D._uniqueIDCounter;
-		this._transform = new Transform3D(this);
+		this._transform = LayaGL.renderOBJCreate.createTransform(this);
 		this._isStatic = isStatic;
 		this.layer = 0;
 		this.name = name ? name : "New Sprite3D";

@@ -440,9 +440,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	_renders: SimpleSingletonList = new SimpleSingletonList();
 	/** @internal */
-	_opaqueQueue: BaseRenderQueue = new BaseRenderQueue(false);
+	_opaqueQueue: BaseRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(false) as BaseRenderQueue;
 	/** @internal */
-	_transparentQueue: BaseRenderQueue = new BaseRenderQueue(true);
+	_transparentQueue: BaseRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(true) as BaseRenderQueue;
 	/** @internal */
 	_cameraPool: BaseCamera[] = [];
 	/** @internal */
@@ -754,7 +754,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		else if (Physics3D._cannon) {
 			this._cannonPhysicsSimulation = new CannonPhysicsSimulation(Scene3D.cannonPhysicsSettings);
 		}
-		this._shaderValues = new ShaderData(null);
+		this._shaderValues =LayaGL.renderOBJCreate.createShaderData(null);
 		if (Config3D._config._uniformBlock) {
 			this._sceneUniformBlock = Scene3D.createSceneUniformBlock();
 		}

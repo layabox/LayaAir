@@ -1,5 +1,6 @@
 import { VertexElement } from "../d3/graphics/VertexElement";
 import { VertexElementFormat } from "../d3/graphics/VertexElementFormat";
+import { LayaGL } from "../layagl/LayaGL";
 import { ShaderData } from "./RenderShader/ShaderData";
 
 /**
@@ -54,7 +55,7 @@ export class VertexDeclaration {
 		this._vertexStride = vertexStride;
 		this._vertexElements = vertexElements;
 		var count: number = vertexElements.length;
-		this._shaderValues = new ShaderData(null);
+		this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
 
 		for (var j: number = 0; j < count; j++) {
 			var vertexElement: VertexElement = vertexElements[j];

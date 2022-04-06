@@ -18,6 +18,7 @@ import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
+import { LayaGL } from "laya/layagl/LayaGL";
 
 export class CommandBuffer_BlurryGlass {
 	mat: GlassWithoutGrabMaterial;
@@ -74,7 +75,7 @@ export class CommandBuffer_BlurryGlass {
 		buf.blitScreenTriangle(null, renderTexture);
 		//获得shader
 		var shader: Shader3D = Shader3D.find("blurEffect");
-		var shaderValue: ShaderData = new ShaderData();
+		var shaderValue: ShaderData = LayaGL.renderOBJCreate.createShaderData();
 		//down Sample level设置降采样等级
 		var downSampleFactor: number = 4;
 		var downSampleWidth: number = viewPort.width / downSampleFactor;

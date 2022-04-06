@@ -19,6 +19,7 @@ import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFor
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
+import { LayaGL } from "laya/layagl/LayaGL";
 
 export enum EdgeMode {
     ColorEdge = 0,
@@ -29,7 +30,7 @@ export enum EdgeMode {
 export class EdgeEffect extends PostProcessEffect {
     private _shader: Shader3D = null;
     private static _isShaderInit: boolean = false;
-    private _shaderData: ShaderData = new ShaderData();
+    private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
     static DEPTHTEXTURE: number = Shader3D.propertyNameToID("u_DepthTex");
     static DEPTHNORMALTEXTURE: number = Shader3D.propertyNameToID("u_DepthNormalTex");
     static DEPTHBUFFERPARAMS: number = Shader3D.propertyNameToID("u_DepthBufferParams");

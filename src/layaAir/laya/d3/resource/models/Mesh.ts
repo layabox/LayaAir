@@ -93,7 +93,7 @@ export class Mesh extends Resource implements IClone {
 	/** @internal */
 	private _needUpdateBounds: boolean = true;
 	/** @internal */
-	private _bounds: Bounds = new Bounds(new Vector3(), new Vector3());
+	private _bounds: Bounds;
 
 	/** @internal */
 	_isReadable: boolean;
@@ -174,6 +174,7 @@ export class Mesh extends Resource implements IClone {
 	 */
 	constructor(isReadable: boolean = true) {
 		super();
+		this._bounds = LayaGL.renderOBJCreate.createBounds(new Vector3(), new Vector3());
 		this._isReadable = isReadable;
 		this._subMeshes = [];
 	}

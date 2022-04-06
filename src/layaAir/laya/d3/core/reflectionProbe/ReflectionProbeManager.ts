@@ -7,6 +7,7 @@ import { SimpleSingletonList } from "../../component/SimpleSingletonList";
 import { TextureCube } from "../../resource/TextureCube";
 import { Vector4 } from "../../math/Vector4";
 import { Vector3 } from "../../math/Vector3";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  *<code>ReflectionProbeManager</code> 类用于反射探针管理
@@ -27,7 +28,7 @@ export class ReflectionProbeManager {
      */
     constructor() {
         this._sceneReflectionProbe = new ReflectionProbe();
-        this._sceneReflectionProbe.bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+        this._sceneReflectionProbe.bounds =LayaGL.renderOBJCreate.createBounds(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
         this._sceneReflectionProbe.boxProjection = false;
         this._sceneReflectionProbe._isScene = true;
     }

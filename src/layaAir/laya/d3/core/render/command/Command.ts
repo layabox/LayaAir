@@ -1,4 +1,5 @@
 
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { RenderContext3D } from "../RenderContext3D";
@@ -34,7 +35,7 @@ export class Command {
 	* @internal
 	*/
 	static __init__(): void {
-		Command._screenShaderData = new ShaderData();
+		Command._screenShaderData =LayaGL.renderOBJCreate.createShaderData(null);
 		Command._screenShader = Shader3D.find("BlitScreen");
 	}
 
