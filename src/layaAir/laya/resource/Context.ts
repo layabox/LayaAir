@@ -1511,7 +1511,9 @@ export class Context {
 		//RenderState2D.worldFilters = null;
 		//RenderState2D.worldShaderDefines = null;
 		BaseShader.activeShader = null;
-
+		if(ILaya.Browser.onIOS){
+			gl.flush();
+		}
 		target.start();
 		// 如果没有命令就不要clear。这么改是因为嵌套cacheas出问题了
 		// 如果一个sprite cacheas normal ，他的子节点有cacheas bitmap的（包括mask等）就会不断的执行 _flushToTarget和drawCamvase,从而把target上的内容清掉

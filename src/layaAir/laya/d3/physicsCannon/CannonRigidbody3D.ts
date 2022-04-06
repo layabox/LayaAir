@@ -172,7 +172,7 @@ export class CannonRigidbody3D extends CannonPhysicsCollider {
 		if (this._btColliderObject)
 		{
 			var phtqua:CANNON.Vec3 = this._btColliderObject.angularVelocity;
-			this.angularVelocity.setValue(phtqua.x,phtqua.y,phtqua.z);
+			this._angularVelocity.setValue(phtqua.x,phtqua.y,phtqua.z);
 		}
 		return this._angularVelocity;
 	}
