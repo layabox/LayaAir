@@ -21,7 +21,6 @@ import { Component } from "../../components/Component"
 import { StaticBatchManager } from "../graphics/StaticBatchManager"
 import { DynamicBatchManager } from "../graphics/DynamicBatchManager"
 import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager"
-import { Vector4 } from "../math/Vector4"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 
 /**

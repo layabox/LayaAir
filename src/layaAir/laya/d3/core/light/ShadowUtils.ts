@@ -58,9 +58,9 @@ export class ShadowUtils {
     /** @internal */
     private static _frustumCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
     /** @internal */
-    private static _adjustNearPlane: Plane = new Plane(new Vector3());
+    private static _adjustNearPlane: Plane;
     /** @internal */
-    private static _adjustFarPlane: Plane = new Plane(new Vector3());
+    private static _adjustFarPlane: Plane;
     /** @internal */
     private static _backPlaneFaces: FrustumFace[] = new Array(5);
     /** @internal */
@@ -87,6 +87,11 @@ export class ShadowUtils {
 
     /** @internal */
     static readonly atlasBorderSize: number = 4.0;//now max shadow sample tent is 5x5,atlas borderSize at leate 3=ceil(2.5),and +1 pixle is for global border for no cascade mode.
+
+    static init(){
+        ShadowUtils._adjustFarPlane = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
+        ShadowUtils._adjustFarPlane = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
+    }
 
     /**
     * @internal

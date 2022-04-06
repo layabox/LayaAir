@@ -243,7 +243,7 @@ export class BaseCamera extends Sprite3D {
 	 */
 	constructor(nearPlane: number = 0.3, farPlane: number = 1000) {
 		super();
-		this._shaderValues = new ShaderData(null);
+		this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
 
 		this._fieldOfView = 60;
 		this._useUserProjectionMatrix = false;

@@ -16,6 +16,7 @@ import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { IClone } from "../IClone";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * <code>Material</code> 类用于创建材质。
@@ -475,7 +476,7 @@ export class Material extends Resource implements IClone {
 	 */
 	constructor() {
 		super();
-		this._shaderValues = new ShaderData(this);
+		this._shaderValues = LayaGL.renderOBJCreate.createShaderData();
 		this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 		this.alphaTest = false;
 	}

@@ -1,3 +1,4 @@
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
@@ -53,7 +54,7 @@ export class DrawMeshCMD extends Command {
 	/**@internal */
 	private _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();
 	/**@internal */
-	private _renderShaderValue: ShaderData = new ShaderData();
+	private _renderShaderValue: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
 
 
 
@@ -62,7 +63,7 @@ export class DrawMeshCMD extends Command {
 	 */
 	constructor() {
 		super();
-		this._renderShaderValue = new ShaderData(null);
+		this._renderShaderValue = LayaGL.renderOBJCreate.createShaderData(null);
 	}
 
 	/**

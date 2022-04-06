@@ -95,7 +95,7 @@ export class GeometryElement implements IDestroy{
 	 */
 	constructor(mode:MeshTopology,drawType:DrawType) {
 		this._destroyed = false;
-		this._geometryElementOBj = new RenderGeometryElementOBJ(mode,drawType);
+		this._geometryElementOBj = LayaGL.renderOBJCreate.createRenderGeometry(mode,drawType);
 	}
 
 

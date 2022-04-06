@@ -10,6 +10,7 @@ import { RenderTexture } from "../resource/RenderTexture"
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData"
+import { LayaGL } from "../../layagl/LayaGL"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -50,7 +51,7 @@ export class PostProcess {
 	/**@internal */
 	private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
 	/**@internal */
-	private _compositeShaderData: ShaderData = new ShaderData();
+	private _compositeShaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData();
 	/**@internal */
 	private _effects: PostProcessEffect[] = [];
 	/**@internal */

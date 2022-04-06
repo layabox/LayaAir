@@ -33,6 +33,7 @@ import { SubUniformBufferData } from "../../../RenderEngine/subUniformBufferData
 import { UniformBufferParamsType } from "../../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 
 /**
@@ -391,11 +392,11 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 		super();
 		this._renderId = ++BaseRender._uniqueIDCounter;
 		this._indexInCastShadowList = -1;
-		this._bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
+		this._bounds = LayaGL.renderOBJCreate.createBounds(Vector3._ZERO, Vector3._ZERO);
 		this._renderElements = [];
 		this._enabled = true;
 		this._materialsInstance = [];
-		this._shaderValues = new ShaderData(null);
+		this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
 		this.lightmapIndex = -1;
 		this.receiveShadow = false;
 		this.sortingFudge = 0.0;

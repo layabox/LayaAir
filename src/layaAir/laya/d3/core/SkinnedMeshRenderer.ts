@@ -13,6 +13,7 @@ import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Component } from "../../components/Component";
+import { LayaGL } from "../../layagl/LayaGL";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -29,7 +30,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/** @internal */
 	private _skinnedDataLoopMarks: number[] = [];
 	/**@internal */
-	protected _localBounds: Bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
+	protected _localBounds: Bounds;
 	// /**@internal */
 	// protected _cacheAnimator: Animator;
 	/**@internal */
@@ -82,6 +83,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	 */
 	constructor() {
 		super();
+		this._localBounds = LayaGL.renderOBJCreate.createBounds(Vector3._ZERO, Vector3._ZERO);
 		this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
 	}
 

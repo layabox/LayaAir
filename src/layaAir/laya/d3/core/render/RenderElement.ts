@@ -15,6 +15,7 @@ import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas"
 import { ShaderInstance } from "../../shader/ShaderInstance"
 import { RenderElementOBJ } from "../../../RenderEngine/RenderObj/RenderElementOBJ"
 import { BaseRenderQueue } from "../../../RenderEngine/RenderObj/BaseRenderQueue"
+import { LayaGL } from "../../../layagl/LayaGL"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。
@@ -93,7 +94,7 @@ export class RenderElement {
 	 * 创建一个 <code>RenderElement</code> 实例。
 	 */
 	constructor() {
-		this._renderElementOBJ = new RenderElementOBJ();
+		this._renderElementOBJ = LayaGL.renderOBJCreate.createRenderElement();
 	}
 
 	/**
