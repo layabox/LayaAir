@@ -16,7 +16,7 @@ import { BoundSphere } from "../math/BoundSphere";
 import { ISceneRenderManager } from "../core/scene/SceneRenderManager/ISceneRenderManager";
 import { Sprite3D } from "../core/Sprite3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { BaseRenderQueue } from "../core/render/BaseRenderQueue";
+import { BaseRenderQueue } from "../../RenderEngine/RenderObj/BaseRenderQueue";
 
 
 /**
@@ -114,8 +114,8 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	static renderObjectCulling(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
-		var opaqueQueue: BaseRenderQueue = scene._opaqueQueue;
-		var transparentQueue: BaseRenderQueue = scene._transparentQueue;
+		// var opaqueQueue: BaseRenderQueue = scene._opaqueQueue;
+		// var transparentQueue: BaseRenderQueue = scene._transparentQueue;
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
 		scene._clearRenderQueue();
 		var octree: ISceneRenderManager = scene._octree;

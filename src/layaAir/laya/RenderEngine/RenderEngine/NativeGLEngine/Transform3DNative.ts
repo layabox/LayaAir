@@ -1,4 +1,4 @@
-import { EventDispatcher } from "../../../events/EventDispatcher"
+
 import { Event } from "../../../events/Event";
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Matrix4x4 } from "../../../d3/math/Matrix4x4";
@@ -7,34 +7,35 @@ import { Vector3 } from "../../../d3/math/Vector3";
 import { NativeMemory } from "./CommonMemory/NativeMemory";
 import { Matrix3x3 } from "../../../d3/math/Matrix3x3";
 import { MathUtils3D } from "../../../d3/math/MathUtils3D";
+import { Transform3D } from "../../../d3/core/Transform3D";
 
 /**
  * 共享BufferTransform3D
  */
-export class Transform3DNative extends EventDispatcher {
+export class Transform3DNative extends Transform3D {
 
     /**temp data */
     /** @internal */
-    private static _tempVector30: Vector3 = new Vector3();
+    protected static _tempVector30: Vector3 = new Vector3();
     /** @internal */
-    private static _tempVector31: Vector3 = new Vector3();
+    protected static _tempVector31: Vector3 = new Vector3();
     /** @internal */
-    private static _tempQuaternion0: Quaternion = new Quaternion();
+    protected static _tempQuaternion0: Quaternion = new Quaternion();
     /** @internal */
-    private static _tempQuaternion1: Quaternion = new Quaternion();
+    protected static _tempQuaternion1: Quaternion = new Quaternion();
     /** @internal */
-    private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
+    protected static _tempMatrix0: Matrix4x4 = new Matrix4x4();
     /** @internal */
-    private static _tempMatrix3x30: Matrix3x3 = new Matrix3x3();
+    protected static _tempMatrix3x30: Matrix3x3 = new Matrix3x3();
     /** @internal */
-    private static _tempMatrix3x31: Matrix3x3 = new Matrix3x3();
+    protected static _tempMatrix3x31: Matrix3x3 = new Matrix3x3();
     /** @internal */
-    private static _tempMatrix3x32: Matrix3x3 = new Matrix3x3();
+    protected static _tempMatrix3x32: Matrix3x3 = new Matrix3x3();
     /** @internal */
-    private static _tempMatrix3x33: Matrix3x3 = new Matrix3x3();
+    protected static _tempMatrix3x33: Matrix3x3 = new Matrix3x3();
 
     /**@internal */
-    private static _angleToRandin: number = 180 / Math.PI;
+    protected static _angleToRandin: number = 180 / Math.PI;
     /**TransForm Update Flag */
     /**@internal */
     static TRANSFORM_LOCALQUATERNION: number = 0x01;
@@ -76,37 +77,9 @@ export class Transform3DNative extends EventDispatcher {
     private nativeMemory: NativeMemory;
     private transFormArray: Float32Array;
 
-    /** @internal */
-    private _localPosition: Vector3 = new Vector3(0, 0, 0);
-    /** @internal */
-    private _localRotation: Quaternion = new Quaternion(0, 0, 0, 1);
-    /** @internal */
-    private _localScale: Vector3 = new Vector3(1, 1, 1);
-    /**@internal */
-    private _localRotationEuler: Vector3 = new Vector3(0, 0, 0);
-    /** @internal Native*/
-    private _localMatrix: Matrix4x4 = new Matrix4x4();
-
-    /** @internal */
-    private _position: Vector3 = new Vector3(0, 0, 0);
-    /** @internal */
-    private _rotation: Quaternion = new Quaternion(0, 0, 0, 1);
-    /** @internal */
-    private _scale: Vector3 = new Vector3(1, 1, 1);
-    /**@internal */
-    private _rotationEuler: Vector3 = new Vector3(0, 0, 0);
-    /** @internal Native*/
-    private _worldMatrix: Matrix4x4 = new Matrix4x4();
-    /**@internal */
-    private _owner: Sprite3D;
-    /** @internal */
-    private _children: Transform3DNative[] | null = null;
-    /**@internal 如果为true 表示自身相对于父节点并无任何改变，将通过这个参数忽略计算*/
-    private _isDefaultMatrix: boolean = false;
-    /**@internal Native*/
+    
+    
     nativeTransformID:number = 0;
-    /** @internal Native*/
-    _parent: Transform3DNative | null = null;
 
     /**
      * @internal
@@ -467,17 +440,12 @@ export class Transform3DNative extends EventDispatcher {
      * @param owner 所属精灵。
      */
     constructor(owner: Sprite3D) {
-        super();
-        this._owner = owner;
-        this._children = [];
+        super(owner);
         //native memory
         this.nativeMemory = new NativeMemory(Transform3DNative.Transform_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
         //native object TODO
         this.nativeTransformID = 0;
-
-        this._setTransformFlag(Transform3DNative.TRANSFORM_LOCALQUATERNION | Transform3DNative.TRANSFORM_LOCALEULER | Transform3DNative.TRANSFORM_LOCALMATRIX, false);
-        this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDPOSITION | Transform3DNative.TRANSFORM_WORLDQUATERNION | Transform3DNative.TRANSFORM_WORLDEULER | Transform3DNative.TRANSFORM_WORLDSCALE | Transform3DNative.TRANSFORM_WORLDMATRIX, true);
     }
 
     private updateNativeV3(offset: number, data: Vector3) {
@@ -495,21 +463,21 @@ export class Transform3DNative extends EventDispatcher {
         array[offset + 3] = data.w;
     }
 
-    /**
-     * @internal
-     * native
-     */
-    private _getScaleMatrix(): Matrix3x3 {
-        var invRotation: Quaternion = Transform3DNative._tempQuaternion0;
-        var invRotationMat: Matrix3x3 = Transform3DNative._tempMatrix3x30;
-        var worldRotScaMat: Matrix3x3 = Transform3DNative._tempMatrix3x31;
-        var scaMat: Matrix3x3 = Transform3DNative._tempMatrix3x32;
-        Matrix3x3.createFromMatrix4x4(this.worldMatrix, worldRotScaMat)
-        this.rotation.invert(invRotation);
-        Matrix3x3.createRotationQuaternion(invRotation, invRotationMat);
-        Matrix3x3.multiply(invRotationMat, worldRotScaMat, scaMat);
-        return scaMat;
-    }
+    // /**
+    //  * @internal
+    //  * native
+    //  */
+    // private _getScaleMatrix(): Matrix3x3 {
+    //     var invRotation: Quaternion = Transform3DNative._tempQuaternion0;
+    //     var invRotationMat: Matrix3x3 = Transform3DNative._tempMatrix3x30;
+    //     var worldRotScaMat: Matrix3x3 = Transform3DNative._tempMatrix3x31;
+    //     var scaMat: Matrix3x3 = Transform3DNative._tempMatrix3x32;
+    //     Matrix3x3.createFromMatrix4x4(this.worldMatrix, worldRotScaMat)
+    //     this.rotation.invert(invRotation);
+    //     Matrix3x3.createRotationQuaternion(invRotation, invRotationMat);
+    //     Matrix3x3.multiply(invRotationMat, worldRotScaMat, scaMat);
+    //     return scaMat;
+    // }
 
     /**
      * @internal
@@ -534,18 +502,9 @@ export class Transform3DNative extends EventDispatcher {
      * @internal
      * native
      */
-    _setParent(value: Transform3DNative): void {
+    _setParent(value:any): void {
+       super._setParent(value);
         if (this._parent !== value) {
-            if (this._parent) {
-                var parentChilds: Transform3DNative[] = this._parent._children!;
-                var index: number = parentChilds.indexOf(this);
-                parentChilds.splice(index, 1);
-            }
-            if (value) {
-                value._children!.push(this);
-                (value) && (this._onWorldTransform());
-            }
-            this._parent = value;
             //update native Data
             this.transFormArray[Transform3DNative.Transform_Stride_Parent] = value.nativeTransformID;
         }
@@ -555,7 +514,7 @@ export class Transform3DNative extends EventDispatcher {
      * @internal
      * native
      */
-    private _onWorldPositionRotationTransform(): void {
+    _onWorldPositionRotationTransform(): void {
         if (!this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX | Transform3DNative.TRANSFORM_WORLDPOSITION | Transform3DNative.TRANSFORM_WORLDQUATERNION | Transform3DNative.TRANSFORM_WORLDEULER, true);
             this.event(Event.TRANSFORM_CHANGED, this.transFormArray[Transform3DNative.Transform_Stride_UpdateFlag]);
@@ -568,7 +527,7 @@ export class Transform3DNative extends EventDispatcher {
      * @internal
      * native
      */
-    private _onWorldPositionScaleTransform(): void {
+     _onWorldPositionScaleTransform(): void {
         if (!this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX | Transform3DNative.TRANSFORM_WORLDPOSITION | Transform3DNative.TRANSFORM_WORLDSCALE, true);
             this.event(Event.TRANSFORM_CHANGED, this.transFormArray[Transform3DNative.Transform_Stride_UpdateFlag]);
@@ -577,24 +536,24 @@ export class Transform3DNative extends EventDispatcher {
             this._children![i]._onWorldPositionScaleTransform();
     }
 
-    /**
-     * @internal
-     * native
-     */
-    private _onWorldPositionTransform(): void {
-        if (!this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDPOSITION)) {
-            this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX | Transform3DNative.TRANSFORM_WORLDPOSITION, true);
-            this.event(Event.TRANSFORM_CHANGED, this.transFormArray[Transform3DNative.Transform_Stride_UpdateFlag]);
-        }
-        for (var i: number = 0, n: number = this._children!.length; i < n; i++)
-            this._children![i]._onWorldPositionTransform();
-    }
+    // /**
+    //  * @internal
+    //  * native
+    //  */
+    // protected _onWorldPositionTransform(): void {
+    //     if (!this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDPOSITION)) {
+    //         this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX | Transform3DNative.TRANSFORM_WORLDPOSITION, true);
+    //         this.event(Event.TRANSFORM_CHANGED, this.transFormArray[Transform3DNative.Transform_Stride_UpdateFlag]);
+    //     }
+    //     for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+    //         this._children![i]._onWorldPositionTransform();
+    // }
 
     /**
      * @internal
      * native
      */
-    private _onWorldRotationTransform(): void {
+    _onWorldRotationTransform(): void {
         if (!this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX | Transform3DNative.TRANSFORM_WORLDQUATERNION | Transform3DNative.TRANSFORM_WORLDEULER, true);
             this.event(Event.TRANSFORM_CHANGED, this.transFormArray[Transform3DNative.Transform_Stride_UpdateFlag]);
@@ -607,7 +566,7 @@ export class Transform3DNative extends EventDispatcher {
      * @internal
      * native
      */
-    private _onWorldScaleTransform(): void {
+    _onWorldScaleTransform(): void {
         if (!this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX | Transform3DNative.TRANSFORM_WORLDSCALE, true);
             this.event(Event.TRANSFORM_CHANGED, this.transFormArray[Transform3DNative.Transform_Stride_UpdateFlag]);

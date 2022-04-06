@@ -12,19 +12,19 @@ import { Matrix3x3 } from "../math/Matrix3x3";
  */
 export class Transform3D extends EventDispatcher {
 	/** @internal */
-	private static _tempVector30: Vector3 = new Vector3();
+	protected static _tempVector30: Vector3 = new Vector3();
 	/** @internal */
-	private static _tempQuaternion0: Quaternion = new Quaternion();
+	protected static _tempQuaternion0: Quaternion = new Quaternion();
 	/** @internal */
-	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
+	protected static _tempMatrix0: Matrix4x4 = new Matrix4x4();
 	/** @internal */
-	private static _tempMatrix3x30: Matrix3x3 = new Matrix3x3();
+	protected static _tempMatrix3x30: Matrix3x3 = new Matrix3x3();
 	/** @internal */
-	private static _tempMatrix3x31: Matrix3x3 = new Matrix3x3();
+	protected static _tempMatrix3x31: Matrix3x3 = new Matrix3x3();
 	/** @internal */
-	private static _tempMatrix3x32: Matrix3x3 = new Matrix3x3();
+	protected static _tempMatrix3x32: Matrix3x3 = new Matrix3x3();
 	/** @internal */
-	private static _tempMatrix3x33: Matrix3x3 = new Matrix3x3();
+	protected static _tempMatrix3x33: Matrix3x3 = new Matrix3x3();
 
 	/**@internal */
 	static TRANSFORM_LOCALQUATERNION: number = 0x01;
@@ -44,36 +44,36 @@ export class Transform3D extends EventDispatcher {
 	static TRANSFORM_WORLDEULER: number = 0x80;
 
 	/**@internal */
-	private static _angleToRandin: number = 180 / Math.PI;
+	protected static _angleToRandin: number = 180 / Math.PI;
 
 	/** @internal */
-	private _owner: Sprite3D;
+	protected _owner: Sprite3D;
 	/** @internal */
-	private _localPosition: Vector3 = new Vector3(0, 0, 0);
+	protected _localPosition: Vector3 = new Vector3(0, 0, 0);
 	/** @internal */
-	private _localRotation: Quaternion = new Quaternion(0, 0, 0, 1);
+	protected _localRotation: Quaternion = new Quaternion(0, 0, 0, 1);
 	/** @internal */
-	private _localScale: Vector3 = new Vector3(1, 1, 1);
+	protected _localScale: Vector3 = new Vector3(1, 1, 1);
 	/**@internal */
-	private _localRotationEuler: Vector3 = new Vector3(0, 0, 0);
+	protected _localRotationEuler: Vector3 = new Vector3(0, 0, 0);
 	/** @internal */
-	private _localMatrix: Matrix4x4 = new Matrix4x4();
+	protected _localMatrix: Matrix4x4 = new Matrix4x4();
 
 	/** @internal */
-	private _position: Vector3 = new Vector3(0, 0, 0);
+	protected _position: Vector3 = new Vector3(0, 0, 0);
 	/** @internal */
-	private _rotation: Quaternion = new Quaternion(0, 0, 0, 1);
+	protected _rotation: Quaternion = new Quaternion(0, 0, 0, 1);
 	/** @internal */
-	private _scale: Vector3 = new Vector3(1, 1, 1);
+	protected _scale: Vector3 = new Vector3(1, 1, 1);
 	/**@internal */
-	private _rotationEuler: Vector3 = new Vector3(0, 0, 0);
+	protected _rotationEuler: Vector3 = new Vector3(0, 0, 0);
 	/** @internal */
-	private _worldMatrix: Matrix4x4 = new Matrix4x4();
+	protected _worldMatrix: Matrix4x4 = new Matrix4x4();
 
 	/** @internal */
-	private _children: Transform3D[]|null = null;
+	_children: Transform3D[]|null = null;
 	/**@internal 如果为true 表示自身相对于父节点并无任何改变，将通过这个参数忽略计算*/
-	private _isDefaultMatrix:boolean = false;
+	protected _isDefaultMatrix:boolean = false;
 
 	/** @internal */
 	_parent: Transform3D|null = null;
@@ -512,7 +512,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	private _getScaleMatrix(): Matrix3x3 {
+	_getScaleMatrix(): Matrix3x3 {
 		var invRotation: Quaternion = Transform3D._tempQuaternion0;
 		var invRotationMat: Matrix3x3 = Transform3D._tempMatrix3x30;
 		var worldRotScaMat: Matrix3x3 = Transform3D._tempMatrix3x31;
@@ -562,7 +562,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	private _onWorldPositionRotationTransform(): void {
+	_onWorldPositionRotationTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
@@ -574,7 +574,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	private _onWorldPositionScaleTransform(): void {
+	_onWorldPositionScaleTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
@@ -586,7 +586,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	private _onWorldPositionTransform(): void {
+	protected _onWorldPositionTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
@@ -598,7 +598,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	private _onWorldRotationTransform(): void {
+	protected _onWorldRotationTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
@@ -610,7 +610,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	private _onWorldScaleTransform(): void {
+	_onWorldScaleTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDSCALE, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);

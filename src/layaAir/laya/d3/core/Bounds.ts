@@ -19,7 +19,7 @@ export class Bounds implements IClone {
 	static TEMP_VECTOR3_MAX0:Vector3 = new Vector3();
 	static TEMP_VECTOR3_MAX1:Vector3 = new Vector3();
 
-	private _updateFlag: number = 0;
+	protected _updateFlag: number = 0;
 
 	/**@internal	*/
 	_center: Vector3 = new Vector3();
@@ -136,12 +136,12 @@ export class Bounds implements IClone {
 	}
 
 
-	private _getUpdateFlag(type: number): boolean {
+	protected _getUpdateFlag(type: number): boolean {
 		return (this._updateFlag & type) != 0;
 	}
 
 
-	private _setUpdateFlag(type: number, value: boolean): void {
+	protected _setUpdateFlag(type: number, value: boolean): void {
 		if (value)
 			this._updateFlag |= type;
 		else
@@ -149,28 +149,28 @@ export class Bounds implements IClone {
 	}
 
 
-	private _getCenter(min: Vector3, max: Vector3, out: Vector3): void {
+	protected _getCenter(min: Vector3, max: Vector3, out: Vector3): void {
 		Vector3.add(min, max, out);
 		Vector3.scale(out, 0.5, out);
 	}
 
 
-	private _getExtent(min: Vector3, max: Vector3, out: Vector3): void {
+	protected _getExtent(min: Vector3, max: Vector3, out: Vector3): void {
 		Vector3.subtract(max, min, out);
 		Vector3.scale(out, 0.5, out);
 	}
 
 
-	private _getMin(center: Vector3, extent: Vector3, out: Vector3): void {
+	protected _getMin(center: Vector3, extent: Vector3, out: Vector3): void {
 		Vector3.subtract(center, extent, out);
 	}
 
 
-	private _getMax(center: Vector3, extent: Vector3, out: Vector3): void {
+	protected _getMax(center: Vector3, extent: Vector3, out: Vector3): void {
 		Vector3.add(center, extent, out);
 	}
 
-	private _rotateExtents(extents: Vector3, rotation: Matrix4x4, out: Vector3): void {
+	protected _rotateExtents(extents: Vector3, rotation: Matrix4x4, out: Vector3): void {
 		var extentsX: number = extents.x;
 		var extentsY: number = extents.y;
 		var extentsZ: number = extents.z;

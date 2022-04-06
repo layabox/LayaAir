@@ -1,9 +1,9 @@
-import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
-import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { IRenderGeometryElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { SingletonList } from "../../../component/SingletonList";
-import { IndexFormat } from "../../../graphics/IndexFormat";
-import { BufferState } from "../../BufferState";
+import { SingletonList } from "../../d3/component/SingletonList";
+import { BufferState } from "../../d3/core/BufferState";
+import { DrawType } from "../RenderEnum/DrawType";
+import { IndexFormat } from "../RenderEnum/IndexFormat";
+import { MeshTopology } from "../RenderEnum/RenderPologyMode";
+import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 
 export class RenderGeometryElementOBJ implements IRenderGeometryElement{
     bufferState:BufferState;

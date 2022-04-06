@@ -8,13 +8,13 @@ import { SubShader } from "../../shader/SubShader"
 import { ILaya3D } from "../../../../ILaya3D"
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement"
 import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue"
-import { BaseRenderQueue } from "./BaseRenderQueue"
 import { Scene3D } from "../scene/Scene3D"
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
-import { RenderElementOBJ } from "./newRender/RenderElementOBJ"
 import { ShaderPass } from "../../shader/ShaderPass"
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas"
 import { ShaderInstance } from "../../shader/ShaderInstance"
+import { RenderElementOBJ } from "../../../RenderEngine/RenderObj/RenderElementOBJ"
+import { BaseRenderQueue } from "../../../RenderEngine/RenderObj/BaseRenderQueue"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。

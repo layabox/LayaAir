@@ -7,9 +7,9 @@ import { SingletonList } from "../../../d3/component/SingletonList";
 import { Vector4 } from "../../../d3/math/Vector4";
 import { Viewport } from "../../../d3/math/Viewport";
 import { Camera } from "../../../d3/Core/Camera";
-import { QuickSort } from "../../../d3/Core/Render/quickSort";
 import { RenderContext3D } from "../../../d3/Core/Render/RenderContext3D";
 import { RenderElement } from "../../../d3/Core/Render/RenderElement";
+import { QuickSort } from "../../RenderObj/QuickSort";
 
 export class NativeBaseRenderQueue implements IRenderQueue {
     /** @interanl */

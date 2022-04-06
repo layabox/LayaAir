@@ -1,6 +1,7 @@
-import { ISortPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISortPass";
-import { SingletonList } from "../../component/SingletonList";
-import { RenderElement } from "./RenderElement";
+import { SingletonList } from "../../d3/component/SingletonList";
+import { RenderElement } from "../../d3/core/render/RenderElement";
+import { ISortPass } from "../RenderInterface/RenderPipelineInterface/ISortPass";
+
 
 export class QuickSort implements ISortPass{
     private elementArray:SingletonList<RenderElement>;
