@@ -63,15 +63,15 @@
 					"isStatic":false,
 					"layer":0,
 					"position":[
-						-0.3374338,
-						1.770292,
-						0.5410857
+						0.4925842,
+						2.34512,
+						0.04388714
 					],
 					"rotation":[
-						0.02627821,
-						-0.9151983,
-						-0.06049454,
-						-0.39757
+						-0.04054876,
+						0.9272658,
+						0.1053251,
+						0.356988
 					],
 					"scale":[
 						1,
@@ -298,9 +298,9 @@
 					"isStatic":false,
 					"layer":0,
 					"position":[
-						-3.33,
-						1.3,
-						3.758
+						-3,
+						1.61,
+						3.34
 					],
 					"rotation":[
 						0,
@@ -348,63 +348,64 @@
 						"isTrigger":false
 					}
 				],
-				"child":[]
-			},
-			{
-				"type":"MeshSprite3D",
-				"instanceID":6,
-				"props":{
-					"name":"innersphere",
-					"active":true,
-					"isStatic":false,
-					"layer":0,
-					"position":[
-						-3.18,
-						1.3,
-						3.595
-					],
-					"rotation":[
-						0,
-						0,
-						0,
-						-1
-					],
-					"scale":[
-						2,
-						2,
-						2
-					],
-					"meshPath":"Library/unity default resources-Sphere.lm",
-					"enableRender":true,
-					"receiveShadows":true,
-					"castShadow":false,
-					"materials":[
-						{
-							"path":"Assets/Materials/innersphere.lmat"
-						}
-					]
-				},
-				"components":[
+				"child":[
 					{
-						"type":"PhysicsCollider",
-						"restitution":0,
-						"friction":0.5,
-						"rollingFriction":0,
-						"shapes":[
+						"type":"MeshSprite3D",
+						"instanceID":6,
+						"props":{
+							"name":"innersphere",
+							"active":true,
+							"isStatic":false,
+							"layer":0,
+							"position":[
+								-0.025,
+								-0.046,
+								0.074
+							],
+							"rotation":[
+								0,
+								0,
+								0,
+								-1
+							],
+							"scale":[
+								0.6666667,
+								0.6666667,
+								0.6666667
+							],
+							"meshPath":"Library/unity default resources-Sphere.lm",
+							"enableRender":true,
+							"receiveShadows":true,
+							"castShadow":false,
+							"materials":[
+								{
+									"path":"Assets/Materials/innersphere.lmat"
+								}
+							]
+						},
+						"components":[
 							{
-								"type":"SphereColliderShape",
-								"center":[
-									0,
-									0,
-									0
+								"type":"PhysicsCollider",
+								"restitution":0,
+								"friction":0.5,
+								"rollingFriction":0,
+								"shapes":[
+									{
+										"type":"SphereColliderShape",
+										"center":[
+											0,
+											0,
+											0
+										],
+										"radius":0.5
+									}
 								],
-								"radius":0.5
+								"isTrigger":false
 							}
 						],
-						"isTrigger":false
+						"child":[]
 					}
-				],
-				"child":[]
+				]
 			}
 		]
 	}
