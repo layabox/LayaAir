@@ -20,6 +20,7 @@ import { Bounds } from "../core/Bounds";
 import { BoundSphere } from "../math/BoundSphere";
 import { ISceneRenderManager } from "../core/scene/SceneRenderManager/ISceneRenderManager";
 import { Material } from "../core/material/Material";
+import { Config3D } from "../../../Config3D";
 
 
 /**
@@ -94,11 +95,14 @@ export class FrustumCulling {
 		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 			var render: BaseRender = <BaseRender>renders[i];
-			var canPass: boolean;
+			var canPass: boolean = true;
+			if(Config3D._config.distanceVolumCull){
+				canPass = FrustumCulling.cullDistanceVolume(context,render);
+			}
 			if (isShadowCasterCull)
-				canPass = render._castShadow && render._enable;
+				canPass = render._castShadow && render._enable && canPass;
 			else
-				canPass = ((Math.pow(2, render._owner._layer) & cullMask) != 0) && render._enable;
+				canPass = ((Math.pow(2, render._owner._layer) & cullMask) != 0) && render._enable && canPass;
 
 			if (canPass) {
 				Stat.frustumCulling++;
@@ -111,6 +115,26 @@ export class FrustumCulling {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 视距与包围提裁剪
+	 * @param context 
+	 * @param render 
+	 * @returns 
+	 */
+	static cullDistanceVolume(context:RenderContext3D,render:BaseRender):boolean{
+		let camera = context.camera;
+		if(!camera||!camera.transform) return false;
+		let bound = render.bounds;
+		let center = bound.getCenter();
+		let exten = bound.getExtent();
+		let dis:number = Vector3.distance(camera.transform.position,center);
+		let volum:number = Math.max(exten.x,exten.y,exten.z);
+		if(volum/dis<render._ratioIgnor){
+			return false;
+		}
+		return true;
 	}
 
 	/**

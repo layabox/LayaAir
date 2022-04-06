@@ -105,6 +105,9 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/**@internal	[NATIVE]*/
 	_cullingBufferIndex: number;
 
+	/**@internal 可以根据不同的值来设置*/
+	_ratioIgnor:number = 0.005;
+
 	/**
 	 * 获取唯一标识ID,通常用于识别。
 	 */
