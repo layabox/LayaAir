@@ -46,7 +46,7 @@ export class EventDispatcher {
                     n--;
                 }
             }
-            if (listeners.length === 0 && this._events && !this._events[type].run) // 最后是春阳加的判断，防止误删除注册的事件
+            if (listeners.length === 0 && this._events && this._events[type] && !this._events[type].run) // 最后是春阳加的判断，防止误删除注册的事件
                 delete this._events[type];
         }
 
@@ -204,9 +204,9 @@ class EventHandler extends Handler {
     constructor(caller: any, method: Function, args: any[], once: boolean) {
         super(caller, method, args, once);
     }
-	/**
-	 * @override
-	 */
+    /**
+     * @override
+     */
     recover(): void {
         if (this._id > 0) {
             this._id = 0;
@@ -214,14 +214,14 @@ class EventHandler extends Handler {
         }
     }
 
-	/**
-	 * 从对象池内创建一个Handler，默认会执行一次回收，如果不需要自动回收，设置once参数为false。
-	 * @param caller	执行域(this)。
-	 * @param method	回调方法。
-	 * @param args		（可选）携带的参数。
-	 * @param once		（可选）是否只执行一次，如果为true，回调后执行recover()进行回收，默认为true。
-	 * @return 返回创建的handler实例。
-	 */
+    /**
+     * 从对象池内创建一个Handler，默认会执行一次回收，如果不需要自动回收，设置once参数为false。
+     * @param caller	执行域(this)。
+     * @param method	回调方法。
+     * @param args		（可选）携带的参数。
+     * @param once		（可选）是否只执行一次，如果为true，回调后执行recover()进行回收，默认为true。
+     * @return 返回创建的handler实例。
+     */
     static create(caller: any, method: Function, args: any[] = null, once: boolean = true): Handler {
         if (EventHandler._pool.length) return EventHandler._pool.pop().setTo(caller, method, args, once);
         return new EventHandler(caller, method, args, once);
