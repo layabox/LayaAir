@@ -28,8 +28,6 @@ export interface IRenderQueue{
     cameraUpdateMark:number;
     //Scene Update Mark
     sceneID:number;
-    // //设置RenderQueue属性
-    // preRender(context:RenderContext3D):void;
     //渲染队列
     renderQueue(context:RenderContext3D):void;
     //增加渲染队列

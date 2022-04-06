@@ -13,7 +13,7 @@ export interface IRenderElement{
     _transform:Transform3D;
     _isRender:boolean;
     _render(renderqueue:IRenderQueue):void;
-    _addShaderInstance(shader:ShaderInstance);
-    _clearShaderInstance();
+    _addShaderInstance(shader:ShaderInstance):void;
+    _clearShaderInstance():void;
     _destroy():void;
 }
