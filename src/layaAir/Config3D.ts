@@ -86,8 +86,8 @@ export class Config3D implements IClone {
 	octreeMinNodeSize: number = 2.0;
 	/** 八叉树松散值。*/
 	octreeLooseness: number = 1.25;
-
-
+	/**enableDistanceCull 距离裁剪*/
+	distanceVolumCull:boolean = false;
 
 	/** 
 	 * 是否开启视锥裁剪调试。
