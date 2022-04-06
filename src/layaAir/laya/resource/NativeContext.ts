@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { ColorFilter } from "../filters/ColorFilter";
 import { ColorUtils } from "../utils/ColorUtils";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
 
@@ -453,6 +454,14 @@ export class NativeContext {
     size(w: number, h: number): void {
         this._nativeObj.size(w, h);
     }
+    setColorFilter(filter: ColorFilter): void {
+		if (filter) {
+            this._nativeObj.setColorFilter(true, filter._alpha, filter._mat);
+        }
+        else {
+            this._nativeObj.setColorFilter(false, null, null);
+        }
+	}
     protected checkTexture(tex: any/*Texture*/): boolean {
         // 注意sprite要保存，因为后面会被冲掉
         var cs = this.sprite;
