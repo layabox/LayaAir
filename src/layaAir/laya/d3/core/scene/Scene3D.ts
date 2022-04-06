@@ -1240,7 +1240,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					var renderElements: RenderElement[] = this._debugTool._render._renderElements;
 					for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
 						//renderElements[i]._update(this, context, null, null);
-						renderElements[i]._renderUpdatePre(context);
+						renderElements[i]._renderUpdatePre(context,this._transparentQueue);
 						//renderElements[i]._render(context);
 						//LayaGL.renderDrawConatext.drawGeometryElement(renderElements[i]._renderElementOBJ._render())
 					}

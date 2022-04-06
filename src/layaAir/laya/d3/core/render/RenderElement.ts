@@ -134,6 +134,7 @@ export class RenderElement {
 
 	compileShader(renderQeue:IRenderQueue){
 		var passes: ShaderPass[] = this._subShader._passes;
+		this._renderElementOBJ._clearShaderInstance();
 		for (var j: number = 0, m: number = passes.length; j < m; j++) {
 			var pass: ShaderPass = passes[j];
 			//NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
