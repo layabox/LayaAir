@@ -82,15 +82,15 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/** @internal */
 	_indexInOctreeMotionList: number = -1;
 	/** @internal 是否需要反射探针*/
-	_probReflection:ReflectionProbe;
+	_probReflection: ReflectionProbe;
 	/** @internal 材质是否支持反射探针*/
-	_surportReflectionProbe:boolean;
+	_surportReflectionProbe: boolean;
 	/** @internal 设置是反射探针模式 off  simple */
-	_reflectionMode:number = ReflectionProbeMode.simple;
+	_reflectionMode: number = ReflectionProbeMode.simple;
 
 	/** @internal */
-	_sceneUpdateMark:number = -1;
-		/** @internal 属于相机的标记*/
+	_sceneUpdateMark: number = -1;
+	/** @internal 属于相机的标记*/
 	_updateMark: number = -1;
 	/** @internal */
 	_updateRenderType: number = -1;
@@ -106,7 +106,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_cullingBufferIndex: number;
 
 	/**@internal 可以根据不同的值来设置*/
-	_ratioIgnor:number = 0.005;
+	_ratioIgnor: number = 0.005;
 
 	/**
 	 * 获取唯一标识ID,通常用于识别。
@@ -114,6 +114,20 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	get id(): number {
 		return this._id;
 	}
+
+	/**
+	 * DistanceVolumCull
+	 * 根据距离和包围盒进行裁剪，越大越容易被裁
+	 */
+	set ratioIgnor(value: number) {
+		this._ratioIgnor = value;
+	}
+
+	get ratioIgnor(): number {
+		return this._ratioIgnor;
+	}
+
+
 
 	/**
 	 * 光照贴图的索引。
@@ -299,11 +313,11 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		return this._renderMark == -1 || this._renderMark == (Stat.loopCount - 1);
 	}
 
-	set reflectionMode(value:ReflectionProbeMode){
+	set reflectionMode(value: ReflectionProbeMode) {
 		this._reflectionMode = value;
 	}
 
-	get reflectionMode():ReflectionProbeMode{
+	get reflectionMode(): ReflectionProbeMode {
 		return this._reflectionMode;
 	}
 
@@ -339,11 +353,11 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 
 	 */
 	_setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
-		if(!value){
-				(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
+		if (!value) {
+			(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
 		}
 		this._octreeNode = value;
-		
+
 	}
 
 	/**
@@ -383,12 +397,12 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/**
 	 * @internal
 	 */
-	private _isSupportReflection(){
+	private _isSupportReflection() {
 		this._surportReflectionProbe = false;
 		var sharedMats: Material[] = this._sharedMaterials;
 		for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
 			var mat: Material = sharedMats[i];
-			this._surportReflectionProbe= (this._surportReflectionProbe||(mat&&mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
+			this._surportReflectionProbe = (this._surportReflectionProbe || (mat && mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
 		}
 	}
 
@@ -396,9 +410,9 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 渲染器添加到更新反射探针队列
 	 * @internal
 	 */
-	_addReflectionProbeUpdate(){
+	_addReflectionProbeUpdate() {
 		//TODO目前暂时不支持混合以及与天空盒模式，只支持simple和off
-		if(this._surportReflectionProbe&&this._reflectionMode==1){
+		if (this._surportReflectionProbe && this._reflectionMode == 1) {
 			this._scene && this._scene._reflectionProbeManager.addMotionObject(this);
 		}
 	}
@@ -440,11 +454,11 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 			}
 		}
 		this._addReflectionProbeUpdate();
-		
+
 	}
 
 
-	
+
 
 	/**
 	 * @internal
@@ -474,7 +488,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._scene = scene;
 	}
 
-	_setUnBelongScene(){
+	_setUnBelongScene() {
 		this._scene = null;
 	}
 
@@ -490,7 +504,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * @internal
 	 * 八叉树节点不需要渲染调用的事件 
 	 */
-	_OctreeNoRender():void{
+	_OctreeNoRender(): void {
 	}
 
 	/**
