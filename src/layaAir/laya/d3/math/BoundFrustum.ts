@@ -5,6 +5,7 @@ import { CollisionUtils } from "./CollisionUtils";
 import { ContainmentType } from "./ContainmentType";
 import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
+import { Stat } from "../../utils/Stat";
 
 /**
  * @internal
@@ -359,31 +360,49 @@ export class BoundFrustum {
 		var maxY: number = max.y;
 		var maxZ: number = max.z;
 
+		//优化裁剪计算
+		if(box._lastBoundIndex!=-1){
+			let plan = this.getPlane(box._lastBoundIndex);
+			const normal = plan.normal;
+			if (plan.distance + (normal.x * (normal.x < 0 ? minX : maxX)) + (normal.y * (normal.y < 0 ? minY : maxY)) + (normal.z * (normal.z < 0 ? minZ : maxZ)) < 0){
+				return false;
+			}
+			
+		}
 		var nearNormal: Vector3 = this._near.normal;
-		if (this._near.distance + (nearNormal.x * (nearNormal.x < 0 ? minX : maxX)) + (nearNormal.y * (nearNormal.y < 0 ? minY : maxY)) + (nearNormal.z * (nearNormal.z < 0 ? minZ : maxZ)) < 0)
+		if (this._near.distance + (nearNormal.x * (nearNormal.x < 0 ? minX : maxX)) + (nearNormal.y * (nearNormal.y < 0 ? minY : maxY)) + (nearNormal.z * (nearNormal.z < 0 ? minZ : maxZ)) < 0){
+			box._lastBoundIndex=0;
 			return false;
-
+		}
 		var leftNormal: Vector3 = this._left.normal;
-		if (this._left.distance + (leftNormal.x * (leftNormal.x < 0 ? minX : maxX)) + (leftNormal.y * (leftNormal.y < 0 ? minY : maxY)) + (leftNormal.z * (leftNormal.z < 0 ? minZ : maxZ)) < 0)
-			return false
+		if (this._left.distance + (leftNormal.x * (leftNormal.x < 0 ? minX : maxX)) + (leftNormal.y * (leftNormal.y < 0 ? minY : maxY)) + (leftNormal.z * (leftNormal.z < 0 ? minZ : maxZ)) < 0){
+			box._lastBoundIndex = 2;
+			return false;
+		}
 
 		var rightNormal: Vector3 = this._right.normal;
-		if (this._right.distance + (rightNormal.x * (rightNormal.x < 0 ? minX : maxX)) + (rightNormal.y * (rightNormal.y < 0 ? minY : maxY)) + (rightNormal.z * (rightNormal.z < 0 ? minZ : maxZ)) < 0)
+		if (this._right.distance + (rightNormal.x * (rightNormal.x < 0 ? minX : maxX)) + (rightNormal.y * (rightNormal.y < 0 ? minY : maxY)) + (rightNormal.z * (rightNormal.z < 0 ? minZ : maxZ)) < 0){
+			box._lastBoundIndex = 3;
 			return false;
-
+		}
 		var bottomNormal: Vector3 = this._bottom.normal;
-		if (this._bottom.distance + (bottomNormal.x * (bottomNormal.x < 0 ? minX : maxX)) + (bottomNormal.y * (bottomNormal.y < 0 ? minY : maxY)) + (bottomNormal.z * (bottomNormal.z < 0 ? minZ : maxZ)) < 0)
+		if (this._bottom.distance + (bottomNormal.x * (bottomNormal.x < 0 ? minX : maxX)) + (bottomNormal.y * (bottomNormal.y < 0 ? minY : maxY)) + (bottomNormal.z * (bottomNormal.z < 0 ? minZ : maxZ)) < 0){
+			box._lastBoundIndex = 5;
 			return false;
-
+		}
 		var topNormal: Vector3 = this._top.normal;
-		if (this._top.distance + (topNormal.x * (topNormal.x < 0 ? minX : maxX)) + (topNormal.y * (topNormal.y < 0 ? minY : maxY)) + (topNormal.z * (topNormal.z < 0 ? minZ : maxZ)) < 0)
+		if (this._top.distance + (topNormal.x * (topNormal.x < 0 ? minX : maxX)) + (topNormal.y * (topNormal.y < 0 ? minY : maxY)) + (topNormal.z * (topNormal.z < 0 ? minZ : maxZ)) < 0){
+			box._lastBoundIndex = 4;
 			return false;
-
+		}
 		// Can ignore far plane when distant object culling is handled by another mechanism
 		var farNormal: Vector3 = this._far.normal;
-		if (this._far.distance + (farNormal.x * (farNormal.x < 0 ? minX : maxX)) + (farNormal.y * (farNormal.y < 0 ? minY : maxY)) + (farNormal.z * (farNormal.z < 0 ? minZ : maxZ)) < 0)
+		if (this._far.distance + (farNormal.x * (farNormal.x < 0 ? minX : maxX)) + (farNormal.y * (farNormal.y < 0 ? minY : maxY)) + (farNormal.z * (farNormal.z < 0 ? minZ : maxZ)) < 0){
+			box._lastBoundIndex = 1;
 			return false;
-
+		}
+		box._lastBoundIndex = -1;
+		
 		return true;
 	}
 

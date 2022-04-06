@@ -19,6 +19,7 @@ import { Utils3D } from "../utils/Utils3D";
 import { Bounds } from "../core/Bounds";
 import { BoundSphere } from "../math/BoundSphere";
 import { ISceneRenderManager } from "../core/scene/SceneRenderManager/ISceneRenderManager";
+import { Material } from "../core/material/Material";
 
 
 /**
@@ -170,7 +171,9 @@ export class FrustumCulling {
 		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 			var render: BaseRender = <BaseRender>renders[i];
-			var canPass: boolean = render._castShadow && render._enable;
+			var opaqueRender:boolean =render.sharedMaterial&&render.sharedMaterial.renderQueue<Material.RENDERQUEUE_TRANSPARENT;
+			var canPass: boolean = render._castShadow && render._enable&&opaqueRender;
+			
 			if (canPass) {
 				Stat.frustumCulling++;
 				let pass = FrustumCulling.cullingRenderBounds(render.bounds,cullInfo);
