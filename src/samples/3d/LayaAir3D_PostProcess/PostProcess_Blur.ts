@@ -48,7 +48,7 @@ export class PostProcess_Blur {
 			//this.camera.active = false;
 			(this.camera as Camera).enableHDR = false;
 			var mainCamera:Camera = (scene.getChildByName("BlurCamera") as Camera);// MainCamera//(this.camera as Camera).getChildAt(0) as Camera;
-			mainCamera.clearFlag = CameraClearFlags.Nothing;//微信平台有bug这里得换成DepthOnly
+			mainCamera.clearFlag = CameraClearFlags.DepthOnly;//微信平台有bug这里得换成DepthOnly//TODO
 			mainCamera.cullingMask = 2;
 			mainCamera.renderingOrder = 1;
 			mainCamera.enableHDR = false;
