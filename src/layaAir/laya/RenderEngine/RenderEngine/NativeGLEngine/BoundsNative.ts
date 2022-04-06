@@ -1,10 +1,10 @@
-import { IClone } from "../../../d3/core/IClone";
+import { Bounds } from "../../../d3/core/Bounds";
 import { BoundBox } from "../../../d3/math/BoundBox";
 import { Matrix4x4 } from "../../../d3/math/Matrix4x4";
 import { Vector3 } from "../../../d3/math/Vector3";
 import { NativeMemory } from "./CommonMemory/NativeMemory";
 
-export class BoundsNative implements IClone {
+export class BoundsNative extends Bounds{
 
     /**temp data */
     static TEMP_VECTOR3_MAX0: Vector3 = new Vector3();
@@ -214,8 +214,7 @@ export class BoundsNative implements IClone {
      * @param	max  max 最大坐标。
      */
     constructor(min: Vector3, max: Vector3) {
-        min.cloneTo(this._boundBox.min);
-        max.cloneTo(this._boundBox.max);
+        super(min,max);
         this.updateNativeData(BoundsNative.Bounds_Stride_Min,min);
         this.updateNativeData(BoundsNative.Bounds_Stride_Max,max);
         //native memory
@@ -223,17 +222,15 @@ export class BoundsNative implements IClone {
         this.transFormArray = this.nativeMemory.float32Array;
         //native object TODO
         this.nativeTransformID = 0;
-
-        this._setUpdateFlag(BoundsNative._UPDATE_CENTER | BoundsNative._UPDATE_EXTENT, true);
     }
 
 
-    private _getUpdateFlag(type: number): boolean {
+    protected _getUpdateFlag(type: number): boolean {
         return (this.transFormArray[BoundsNative.Bounds_Stride_UpdateFlag] & type) != 0;
     }
 
 
-    private _setUpdateFlag(type: number, value: boolean): void {
+    protected _setUpdateFlag(type: number, value: boolean): void {
         if (value)
             this.transFormArray[BoundsNative.Bounds_Stride_UpdateFlag] |= type;
         else
@@ -241,28 +238,28 @@ export class BoundsNative implements IClone {
     }
 
 
-    private _getCenter(min: Vector3, max: Vector3, out: Vector3): void {
+    protected _getCenter(min: Vector3, max: Vector3, out: Vector3): void {
         Vector3.add(min, max, out);
         Vector3.scale(out, 0.5, out);
     }
 
 
-    private _getExtent(min: Vector3, max: Vector3, out: Vector3): void {
+    protected _getExtent(min: Vector3, max: Vector3, out: Vector3): void {
         Vector3.subtract(max, min, out);
         Vector3.scale(out, 0.5, out);
     }
 
 
-    private _getMin(center: Vector3, extent: Vector3, out: Vector3): void {
+    protected _getMin(center: Vector3, extent: Vector3, out: Vector3): void {
         Vector3.subtract(center, extent, out);
     }
 
 
-    private _getMax(center: Vector3, extent: Vector3, out: Vector3): void {
+    protected _getMax(center: Vector3, extent: Vector3, out: Vector3): void {
         Vector3.add(center, extent, out);
     }
 
-    private _rotateExtents(extents: Vector3, rotation: Matrix4x4, out: Vector3): void {
+    protected _rotateExtents(extents: Vector3, rotation: Matrix4x4, out: Vector3): void {
         var extentsX: number = extents.x;
         var extentsY: number = extents.y;
         var extentsZ: number = extents.z;
@@ -284,7 +281,7 @@ export class BoundsNative implements IClone {
      * @param matrix 转换矩阵
      * @param out 转换目标Bounds
      */
-    _tranform(matrix: Matrix4x4, out: BoundsNative): void {
+    _tranform(matrix: Matrix4x4, out:any): void {
         var outCen: Vector3 = out._center;
 		var outExt: Vector3 = out._extent;
 
@@ -321,7 +318,7 @@ export class BoundsNative implements IClone {
     /**
      * @returns -1为不相交 不为0的时候返回值为相交体积
      */
-    calculateBoundsintersection(bounds: BoundsNative): number {
+    calculateBoundsintersection(bounds:any): number {
         var ownMax: Vector3 = this.getMax();
         var ownMin: Vector3 = this.getMin();
         var calMax: Vector3 = bounds.getMax();

@@ -16,6 +16,7 @@ import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
 import { NativeWebGLEngine } from "../RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
 import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
+import { RenderOBJCreateUtil } from "../RenderEngine/RenderObj/RenderOBJCreateUtil";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
@@ -113,9 +114,11 @@ export class Render {
         }
         LayaGL.renderEngine = engine;
         //LayaGL.instance = gl;
+        //native TODO
         LayaGL.textureContext = engine.getTextureContext();
         LayaGL.renderDrawConatext = engine.getDrawContext();
         LayaGL.render2DContext =engine.get2DRenderContext();
+        LayaGL.renderOBJCreate = new RenderOBJCreateUtil();
 
         canvas.size(w, h);	//在ctx之后调用。
         VertexElementFormat.__init__();

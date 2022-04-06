@@ -1,19 +1,11 @@
+import { Plane } from "../../../d3/math/Plane";
 import { Vector3 } from "../../../d3/math/Vector3";
 import { NativeMemory } from "./CommonMemory/NativeMemory";
 
-export class PlaneNative {
-    /**平面与其他几何体相交类型*/
-    static PlaneIntersectionType_Back: number = 0;
-    static PlaneIntersectionType_Front: number = 1;
-    static PlaneIntersectionType_Intersecting: number = 2;
-
+export class PlaneNative extends Plane{
     private static PlaneNative_MemoryBlock_size = 4;
     private static PlaneNative_Stride_Normal = 0;
     private static PlaneNative_Stride_Distance = 3;
-    /**平面的向量*/
-    _normal: Vector3;
-    /**平面到坐标系原点的距离*/
-    _distance: number;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
     private transFormArray: Float32Array;
@@ -27,12 +19,11 @@ export class PlaneNative {
      * @param	d  平面到原点的距离
      */
     constructor(normal: Vector3, d: number = 0) {
+        super(normal,d);
         this.nativeMemory = new NativeMemory(PlaneNative.PlaneNative_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
         //native object TODO
         this.nativeTransformID = 0;
-        this.normal = normal;
-        this.distance = d;
 
     }
 
@@ -57,37 +48,6 @@ export class PlaneNative {
     get distance(): number {
         return this._distance;
     }
-
-    /**
-     * 通过三个点创建一个平面。
-     * @param	point0 第零个点
-     * @param	point1 第一个点
-     * @param	point2 第二个点
-     */
-    static createPlaneBy3P(point0: Vector3, point1: Vector3, point2: Vector3, out: PlaneNative): void {
-        var x1: number = point1.x - point0.x;
-        var y1: number = point1.y - point0.y;
-        var z1: number = point1.z - point0.z;
-        var x2: number = point2.x - point0.x;
-        var y2: number = point2.y - point0.y;
-        var z2: number = point2.z - point0.z;
-        var yz: number = (y1 * z2) - (z1 * y2);
-        var xz: number = (z1 * x2) - (x1 * z2);
-        var xy: number = (x1 * y2) - (y1 * x2);
-        var invPyth: number = 1.0 / (Math.sqrt((yz * yz) + (xz * xz) + (xy * xy)));
-
-        var x: number = yz * invPyth;
-        var y: number = xz * invPyth;
-        var z: number = xy * invPyth;
-
-        var normal: Vector3 = out.normal;
-        normal.x = x;
-        normal.y = y;
-        normal.z = z;
-
-        out.distance = -((x * point0.x) + (y * point0.y) + (z * point0.z));
-    }
-
     /**
      * 更改平面法线向量的系数，使之成单位长度。
      */

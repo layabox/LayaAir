@@ -10,23 +10,37 @@ export class BoundSphere implements IClone {
 	private static _tempVector3: Vector3 = new Vector3();
 
 	/**包围球的中心。*/
-	center: Vector3;
+	_center: Vector3;
 	/**包围球的半径。*/
-	radius: number;
+	_radius: number;
+	set center(value: Vector3) {
+        value.cloneTo(this._center);
+    }
 
+    get center() {
+        return this._center;
+    }
+
+    set radius(value: number) {
+        this._radius = value;
+    }
+
+    get radius(): number {
+        return this._radius 
+    }
 	/**
 	 * 创建一个 <code>BoundSphere</code> 实例。
 	 * @param	center 包围球的中心。
 	 * @param	radius 包围球的半径。
 	 */
 	constructor(center: Vector3, radius: number) {
-		this.center = center;
-		this.radius = radius;
+		this._center = center;
+		this._radius = radius;
 	}
 
 	toDefault(): void {
-		this.center.toDefault();
-		this.radius = 0;
+		this._center.toDefault();
+		this._radius = 0;
 	}
 
 	/**
@@ -62,7 +76,7 @@ export class BoundSphere implements IClone {
 			Vector3.add(points[i], center, center);
 		}
 
-		var outCenter: Vector3 = out.center;
+		var outCenter: Vector3 = out._center;
 		//This is the center of our sphere. 
 		Vector3.scale(center, 1 / count, outCenter);
 
@@ -78,7 +92,7 @@ export class BoundSphere implements IClone {
 		}
 
 		//Find the real distance from the DistanceSquared. 
-		out.radius = Math.sqrt(radius);
+		out._radius = Math.sqrt(radius);
 	}
 
 	/**
@@ -119,8 +133,8 @@ export class BoundSphere implements IClone {
 	 */
 	cloneTo(destObject: any): void {
 		var dest: BoundSphere = (<BoundSphere>destObject);
-		this.center.cloneTo(dest.center);
-		dest.radius = this.radius;
+		this._center.cloneTo(dest._center);
+		dest._radius = this._radius;
 	}
 
 	/**

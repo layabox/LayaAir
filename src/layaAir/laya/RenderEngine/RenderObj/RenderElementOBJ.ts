@@ -1,11 +1,11 @@
-import { LayaGL } from "../../../../layagl/LayaGL";
-import { IRenderElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
-import { IRenderGeometryElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { IRenderQueue } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
-import { SingletonList } from "../../../component/SingletonList";
-import { ShaderInstance } from "../../../shader/ShaderInstance";
-import { Transform3D } from "../../Transform3D";
+import { SingletonList } from "../../d3/component/SingletonList";
+import { Transform3D } from "../../d3/core/Transform3D";
+import { ShaderInstance } from "../../d3/shader/ShaderInstance";
+import { LayaGL } from "../../layagl/LayaGL";
+import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRenderElement";
+import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
+import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
+import { ShaderData } from "../RenderShader/ShaderData";
 
 export class RenderElementOBJ implements IRenderElement {
 

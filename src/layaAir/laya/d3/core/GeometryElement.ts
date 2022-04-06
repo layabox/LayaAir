@@ -4,10 +4,9 @@ import { IRenderGeometryElement } from "../../RenderEngine/RenderInterface/Rende
 import { BufferState } from "./BufferState";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
-import { SingletonList } from "../component/SingletonList";
 import { LayaGL } from "../../layagl/LayaGL";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
-import { RenderGeometryElementOBJ } from "./render/newRender/RenderGeometryElementOBJ";
+import { RenderGeometryElementOBJ } from "../../RenderEngine/RenderObj/RenderGeometryElementOBJ";
 
 /**
  * <code>GeometryElement</code> 类用于实现几何体元素,该类为抽象类。

@@ -1,11 +1,12 @@
 import { IClone } from "../../../d3/core/IClone";
+import { BoundSphere } from "../../../d3/math/BoundSphere";
 import { Vector3 } from "../../../d3/math/Vector3";
 import { NativeMemory } from "./CommonMemory/NativeMemory";
 
 /**
  * <code>BoundSphere</code> 类用于创建包围球。
  */
-export class BoundSphereNative implements IClone {
+export class BoundSphereNative extends BoundSphere {
     private static Bounds_MemoryBlock_size = 4;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
@@ -22,8 +23,7 @@ export class BoundSphereNative implements IClone {
      * @param	radius 包围球的半径。
      */
     constructor(center: Vector3, radius: number) {
-        this.center = center;
-        this.radius = radius;
+        super(center,radius);
         //native memory
         this.nativeMemory = new NativeMemory(BoundSphereNative.Bounds_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;

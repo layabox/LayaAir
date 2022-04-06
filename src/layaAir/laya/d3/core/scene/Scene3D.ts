@@ -73,7 +73,7 @@ import { UnifromBufferData, UniformBufferParamsType } from "../../../RenderEngin
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { BaseRenderQueue } from "../render/BaseRenderQueue";
+import { BaseRenderQueue } from "../../../RenderEngine/RenderObj/BaseRenderQueue";
 /**
  * 环境光模式
  */
