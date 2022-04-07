@@ -9,7 +9,7 @@ import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 export class VertexBuffer3D extends VertexBuffer {
 
 	/** @internal */
-	private _canRead: boolean;
+	protected _canRead: boolean;
 
 
 	/** @internal */

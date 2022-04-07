@@ -95,7 +95,7 @@ export class ScalableAO extends PostProcessEffect {
         super();
         ScalableAO.HasInit || ScalableAO.init();
         this._shader = Shader3D.find("ScalableAO");
-        this._shaderData = LayaGL.renderOBJCreate.createShaderData();
+        this._shaderData = LayaGL.renderOBJCreate.createShaderData(null);
         this._aoParams = new Vector3(0.12, 0.15, 1);
         this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
         //@ts-ignore

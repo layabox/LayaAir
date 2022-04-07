@@ -220,7 +220,7 @@ export class LoadModelV05 {
 					break;
 			}
 
-			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexData.byteLength, BufferUsage.Static, true);
+			var vertexBuffer: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexData.byteLength, BufferUsage.Static, true);
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
 			vertexBuffer.setData(vertexData);
 			var vertexCount: number = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
@@ -243,7 +243,7 @@ export class LoadModelV05 {
 		else
 			ibDatas = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
 
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(mesh.indexFormat, ibDatas.length, BufferUsage.Static, true);
+		var indexBuffer: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(mesh.indexFormat, ibDatas.length, BufferUsage.Static, true);
 		indexBuffer.setData(ibDatas);
 		mesh._indexBuffer = indexBuffer;
 

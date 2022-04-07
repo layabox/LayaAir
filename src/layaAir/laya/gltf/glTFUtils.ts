@@ -24,6 +24,7 @@ import { Vector3 } from "../d3/math/Vector3";
 import { Vector4 } from "../d3/math/Vector4";
 import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
 import { SubMesh } from "../d3/resource/models/SubMesh";
+import { LayaGL } from "../layagl/LayaGL";
 import { Loader } from "../net/Loader";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
@@ -1117,11 +1118,11 @@ export class glTFUtils {
      * @param layaMesh 
      */
     static generatMesh(vertexArray: Float32Array, indexArray: Uint16Array | Uint32Array, vertexDeclaration: VertexDeclaration, ibFormat: IndexFormat, subDatas: PrimitiveSubMesh[], layaMesh: Mesh): void {
-        let vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexArray.byteLength, BufferUsage.Static, true);
+        let vertexBuffer: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexArray.byteLength, BufferUsage.Static, true);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
         vertexBuffer.setData(vertexArray.buffer);
 
-        let indexBuffer: IndexBuffer3D = new IndexBuffer3D(ibFormat, indexArray.length, BufferUsage.Static, true);
+        let indexBuffer: IndexBuffer3D =LayaGL.renderOBJCreate.createIndexBuffer3D(ibFormat, indexArray.length, BufferUsage.Static, true);
         indexBuffer.setData(indexArray);
 
         layaMesh._indexFormat = ibFormat;

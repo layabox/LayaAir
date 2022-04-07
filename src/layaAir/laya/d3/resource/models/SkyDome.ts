@@ -101,9 +101,9 @@ export class SkyDome extends SkyMesh {
 			}
 		}
 
-		this._vertexBuffer = new VertexBuffer3D(vertices.length * 4, BufferUsage.Static, false);
+		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = vertexDeclaration;
-		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, false);
+		this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, false);
 		this._vertexBuffer.setData(vertices.buffer);
 		this._indexBuffer.setData(indices);
 

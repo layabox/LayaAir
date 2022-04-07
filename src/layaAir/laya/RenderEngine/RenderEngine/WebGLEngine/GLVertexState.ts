@@ -85,7 +85,7 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
         if (this._engine._GLBindVertexArray == this) {
             vertexBuffer.forEach(element => {
                 var verDec: VertexDeclaration = element.vertexDeclaration;
-                var valueData: any = verDec._shaderValues.getData();
+                var valueData: any = verDec._shaderValues;
                 element.bind();
                 for (var k in valueData) {
                     var loc: number = parseInt(k);

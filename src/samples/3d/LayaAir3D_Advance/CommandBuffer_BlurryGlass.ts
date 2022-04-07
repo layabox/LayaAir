@@ -75,7 +75,7 @@ export class CommandBuffer_BlurryGlass {
 		buf.blitScreenTriangle(null, renderTexture);
 		//获得shader
 		var shader: Shader3D = Shader3D.find("blurEffect");
-		var shaderValue: ShaderData = LayaGL.renderOBJCreate.createShaderData();
+		var shaderValue: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
 		//down Sample level设置降采样等级
 		var downSampleFactor: number = 4;
 		var downSampleWidth: number = viewPort.width / downSampleFactor;

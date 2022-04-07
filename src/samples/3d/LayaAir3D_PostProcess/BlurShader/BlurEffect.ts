@@ -87,7 +87,7 @@ export class BlurEffect extends PostProcessEffect {
     /**@internal */
     private _shader: Shader3D = null;
     /**@internal */
-    private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData();
+    private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
     /**@internal */
     private _downSampleNum: number = 1;
     /**@internal */

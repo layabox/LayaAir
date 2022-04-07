@@ -49,11 +49,11 @@ export class ScreenTriangle extends Resource {
 	 */
 	constructor() {
 		super();
-		this._vertexBuffer = new VertexBuffer3D(12 * 4,BufferUsage.Static, false);
+		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(12 * 4,BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = ScreenTriangle._vertexDeclaration;
 		this._vertexBuffer.setData(ScreenTriangle._vertices.buffer);
 		this._bufferState.applyState([this._vertexBuffer],null);
-		this._vertexBufferInvertUV = new VertexBuffer3D(12 * 4, BufferUsage.Static, false);
+		this._vertexBufferInvertUV = LayaGL.renderOBJCreate.createVertexBuffer3D(12 * 4, BufferUsage.Static, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenTriangle._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenTriangle._verticesInvertUV.buffer);
 		this._bufferStateInvertUV.applyState([this._vertexBufferInvertUV],null);

@@ -52,6 +52,7 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 
 /**
@@ -946,9 +947,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 
 	constructor(render: ShurikenParticleRenderer) {
-		super(MeshTopology.Triangles,DrawType.DrawElement);
+		super(MeshTopology.Triangles, DrawType.DrawElement);
 		this.indexFormat = IndexFormat.UInt16;
-		
+
 		this._firstActiveElement = 0;
 		this._firstNewElement = 0;
 		this._firstFreeElement = 0;
@@ -1029,7 +1030,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._emission = new Emission();
 		this._emission.enable = true;
 		//set GeometryElement
-	
+
 	}
 
 	/**
@@ -1605,7 +1606,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					}
 
 					vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
-					this._vertexBuffer = new VertexBuffer3D(vbMemorySize, BufferUsage.Dynamic);
+					this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
 					this._vertexBuffer.vertexDeclaration = vertexDeclaration;
 					this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
 
@@ -1616,7 +1617,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					this._indexStride = mesh._indexBuffer.indexCount;
 					var indexDatas: Uint16Array = mesh._indexBuffer.getData();
 					var indexCount: number = this._bufferMaxParticles * this._indexStride;
-					this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static);
+					this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static,false);
 					indices = new Uint16Array(indexCount);
 
 					memorySize = vbMemorySize + indexCount * 2;
@@ -1633,7 +1634,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					// this._bufferState.applyVertexBuffer(this._vertexBuffer);
 					// this._bufferState.applyIndexBuffer(this._indexBuffer);
 					// this._bufferState.unBind();
-					this._bufferState.applyState([this._vertexBuffer],this._indexBuffer);
+					this._bufferState.applyState([this._vertexBuffer], this._indexBuffer);
 					this.bufferState = this._bufferState;
 				}
 			} else {
@@ -1644,7 +1645,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				this._timeIndex = 11;
 				this._vertexStride = 4;
 				vbMemorySize = vertexDeclaration.vertexStride * this._bufferMaxParticles * this._vertexStride;
-				this._vertexBuffer = new VertexBuffer3D(vbMemorySize, BufferUsage.Dynamic);
+				this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
 				this._vertexBuffer.vertexDeclaration = vertexDeclaration;
 				this._vertices = new Float32Array(this._floatCountPerVertex * this._bufferMaxParticles * this._vertexStride);
 
@@ -1676,7 +1677,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				}
 
 				this._indexStride = 6;
-				this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6,BufferUsage.Static);
+				this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6, BufferUsage.Static,false);
 				indices = new Uint16Array(this._bufferMaxParticles * 6);
 				for (i = 0; i < this._bufferMaxParticles; i++) {
 					indexOffset = i * 6;
@@ -1696,7 +1697,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				// this._bufferState.applyVertexBuffer(this._vertexBuffer);
 				// this._bufferState.applyIndexBuffer(this._indexBuffer);
 				// this._bufferState.unBind();
-				this._bufferState.applyState([this._vertexBuffer],this._indexBuffer);
+				this._bufferState.applyState([this._vertexBuffer], this._indexBuffer);
 				this.bufferState = this._bufferState;
 			}
 
@@ -2069,7 +2070,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				this.addNewParticlesToVertexBuffer();
 			this._drawCounter++;
 		}
-		
+
 
 		if (this._firstActiveElement != this._firstFreeElement)
 			return true;
@@ -2081,25 +2082,25 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	 * @internal
 	 * @override
 	 */
-	 _updateRenderParams(state: RenderContext3D): void {
+	_updateRenderParams(state: RenderContext3D): void {
 		//this._bufferState.bind();
 		var indexCount: number;
 		this.clearRenderParams();
 		if (this._firstActiveElement < this._firstFreeElement) {
 			indexCount = (this._firstFreeElement - this._firstActiveElement) * this._indexStride;
-			this.setDrawElemenParams(indexCount,2 * this._firstActiveElement * this._indexStride);
+			this.setDrawElemenParams(indexCount, 2 * this._firstActiveElement * this._indexStride);
 			// LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 2 * this._firstActiveElement * this._indexStride);
 			// Stat.trianglesFaces += indexCount / 3;
 			// Stat.renderBatches++;
 		} else {
 			indexCount = (this._bufferMaxParticles - this._firstActiveElement) * this._indexStride;
-			this.setDrawElemenParams(indexCount,2 * this._firstActiveElement * this._indexStride);
+			this.setDrawElemenParams(indexCount, 2 * this._firstActiveElement * this._indexStride);
 			// LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 2 * this._firstActiveElement * this._indexStride);
 			// Stat.trianglesFaces += indexCount / 3;
 			// Stat.renderBatches++;
 			if (this._firstFreeElement > 0) {
 				indexCount = this._firstFreeElement * this._indexStride;
-				this.setDrawElemenParams(indexCount,0);
+				this.setDrawElemenParams(indexCount, 0);
 				// LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 0);
 				// Stat.trianglesFaces += indexCount / 3;
 				// Stat.renderBatches++;

@@ -8,6 +8,7 @@ import { SubMesh } from "./SubMesh";
 import { IndexFormat } from "../../graphics/IndexFormat";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * <code>PrimitiveMesh</code> 类用于创建简单网格。
@@ -24,12 +25,12 @@ export class PrimitiveMesh {
 	static _createMesh(vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array): Mesh {
 		var mesh: Mesh = new Mesh();
 		var subMesh: SubMesh = new SubMesh(mesh);
-		var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertices.length * 4,BufferUsage.Static, true);
+		var vertexBuffer: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, true);
 		vertexBuffer.vertexDeclaration = vertexDeclaration;
 		vertexBuffer.setData(vertices.buffer);
 		mesh._vertexBuffer = vertexBuffer;
 		mesh._vertexCount = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, true);
+		var indexBuffer: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, true);
 		indexBuffer.setData(indices);
 		mesh._indexBuffer = indexBuffer;
 

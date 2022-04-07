@@ -44,10 +44,10 @@ export class skinnedMatrixCache {
 export class Mesh extends Resource implements IClone {
 	/**Mesh资源。*/
 	static MESH: string = "MESH";
-	
-	static MESH_INSTANCEBUFFER_TYPE_NORMAL:number = 0;
 
-	static MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:number = 1;
+	static MESH_INSTANCEBUFFER_TYPE_NORMAL: number = 0;
+
+	static MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR: number = 1;
 
 	/** @internal */
 	private _tempVector30: Vector3 = new Vector3()
@@ -63,8 +63,8 @@ export class Mesh extends Resource implements IClone {
 	private static _nativeTempVector32: number;
 
 	/**
- 	* @internal
- 	*/
+	  * @internal
+	  */
 	static __init__(): void {
 		var physics3D: any = Physics3D._bullet;
 		if (physics3D) {
@@ -102,7 +102,7 @@ export class Mesh extends Resource implements IClone {
 	/** @internal */
 	_instanceBufferState: BufferState = new BufferState();
 	/** @internal */
-	_instanceBufferStateType:number = 0;
+	_instanceBufferStateType: number = 0;
 	/** @internal */
 	_subMeshes: SubMesh[];
 	/** @internal */
@@ -368,13 +368,13 @@ export class Mesh extends Resource implements IClone {
 		// bufferState.applyVertexBuffer(vertexBuffer);
 		// bufferState.applyIndexBuffer(indexBuffer);
 		// bufferState.unBind();
-		bufferState.applyState([vertexBuffer],indexBuffer);
+		bufferState.applyState([vertexBuffer], indexBuffer);
 	}
 
 	/**
 	 * @internal
 	 */
-	_setInstanceBuffer(instanceBufferStateType:number){
+	_setInstanceBuffer(instanceBufferStateType: number) {
 		var instanceBufferState: BufferState = this._instanceBufferState;
 		let vertexArray = [];
 		// instanceBufferState.bind();
@@ -382,15 +382,15 @@ export class Mesh extends Resource implements IClone {
 		// instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
 		vertexArray.push(this._vertexBuffer);
 		vertexArray.push(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
-		switch(instanceBufferStateType){
+		switch (instanceBufferStateType) {
 			case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
 				// instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer)
 				vertexArray.push(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer);
-			break;
+				break;
 		}
 		//instanceBufferState.applyIndexBuffer(this._indexBuffer);
 		//instanceBufferState.unBind();
-		instanceBufferState.applyState(vertexArray,this._indexBuffer);
+		instanceBufferState.applyState(vertexArray, this._indexBuffer);
 	}
 
 	/**
@@ -703,7 +703,7 @@ export class Mesh extends Resource implements IClone {
 		var indexBuffer: IndexBuffer3D = this._indexBuffer;
 		if (this._indexFormat !== format || indexBuffer.indexCount !== indices.length) {//format chang and length chang will recreate the indexBuffer
 			indexBuffer.destroy();
-			this._indexBuffer = indexBuffer = new IndexBuffer3D(format, indices.length, BufferUsage.Static, this._isReadable);
+			this._indexBuffer = indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(format, indices.length, BufferUsage.Static, this._isReadable);
 		}
 		indexBuffer.setData(indices);
 		this._indexFormat = format;
@@ -756,13 +756,13 @@ export class Mesh extends Resource implements IClone {
 	cloneTo(destObject: any): void {//[实现IClone接口]
 		var destMesh: Mesh = <Mesh>destObject;
 		var vb: VertexBuffer3D = this._vertexBuffer;
-		var destVB: VertexBuffer3D = new VertexBuffer3D(vb._byteLength, vb.bufferUsage, vb.canRead);
+		var destVB: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vb._byteLength, vb.bufferUsage, vb.canRead);
 		destVB.vertexDeclaration = vb.vertexDeclaration;
 		destVB.setData(vb.getUint8Data().slice().buffer);
 		destMesh._vertexBuffer = destVB;
 		destMesh._vertexCount = this._vertexCount;
 		var ib: IndexBuffer3D = this._indexBuffer;
-		var destIB: IndexBuffer3D = new IndexBuffer3D(IndexFormat.UInt16, ib.indexCount, ib.bufferUsage, ib.canRead);
+		var destIB: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, ib.indexCount, ib.bufferUsage, ib.canRead);
 		destIB.setData(ib.getData().slice());
 		destMesh._indexBuffer = destIB;
 
