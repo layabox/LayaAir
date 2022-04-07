@@ -14,6 +14,9 @@ import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Component } from "../../components/Component";
 import { LayaGL } from "../../layagl/LayaGL";
+import { SkinRenderElement } from "./render/SkinRenderElement";
+import { Material } from "./material/Material";
+import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -25,6 +28,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	protected _cacheMesh: Mesh;
 
 	_bones: Sprite3D[] = [];
+
+	/**@internal */
+	_renderElements: SkinRenderElement[];
 	/** @internal */
 	_skinnedData: any[];
 	/** @internal */
@@ -89,6 +95,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 
 
+
 	protected _computeSkinnedData(): void {
 		if (this._cacheMesh) {
 			var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
@@ -144,17 +151,45 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	 *@override
 	 *@internal
 	 */
-	_createRenderElement(): RenderElement {
-		return new RenderElement();
+	_createRenderElement(): SkinRenderElement {
+		let renderelement = new SkinRenderElement();
+		return renderelement;
 	}
-
+	/**
+	 * @internal
+	 */
+	private _onSkinMeshChange(mesh: Mesh): void {
+		if (mesh) {
+			this._mesh = mesh;
+			var count: number = mesh.subMeshCount;
+			this._renderElements.length = count;
+			for (var i: number = 0; i < count; i++) {
+				var renderElement: SkinRenderElement = this._renderElements[i];
+				if (!renderElement) {
+					var material: Material = this.sharedMaterials[i];
+					renderElement = this._renderElements[i] = this._createRenderElement();
+					renderElement.setTransform((this.owner as Sprite3D)._transform);
+					renderElement.render = this;
+					renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
+				}
+				renderElement.setGeometry(mesh.getSubMesh(i));
+			}
+		} else {
+			this._renderElements.length = 0;
+			this._mesh = null;
+		}
+		this._boundsChange = true;
+		if (this._octreeNode && this._indexInOctreeMotionList === -1) {
+			this._octreeNode.getManagerNode().addMotionObject(this);
+		}
+	}
 	/**
 	*@inheritDoc
 	*@override
 	*@internal
 	*/
 	_onMeshChange(value: Mesh): void {
-		super._onMeshChange(value);
+		this._onSkinMeshChange(value);
 		if (!value)
 			return;
 		this._cacheMesh = (<Mesh>value);
@@ -168,6 +203,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			var subData: Float32Array[] = this._skinnedData[i] = [];
 			for (var j: number = 0; j < subCount; j++)
 				subData[j] = new Float32Array(subBoneIndices[j].length * 16);
+			this._renderElements[i].setSkinData(subData);
 		}
 	}
 

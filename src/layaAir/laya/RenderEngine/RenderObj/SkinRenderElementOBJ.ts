@@ -5,7 +5,7 @@ import { RenderElementOBJ } from "./RenderElementOBJ";
 
 export class SkinRenderElementOBJ extends RenderElementOBJ {
     
-    skinnedData:Float32Array[]
+    skinnedData:Float32Array[];
 
     constructor(){
         super();
@@ -15,7 +15,9 @@ export class SkinRenderElementOBJ extends RenderElementOBJ {
     drawGeometry(shaderIns:ShaderInstance){
         let length = this._shaderInstances.length;
         let element =this._geometry.drawParams.elements;
-        
+        if(!this.skinnedData)
+            return;
+        this._geometry.bufferState.bind();
         for (var i: number = 0, n: number =length; i < n; i++) {
             var subSkinnedDatas: Float32Array = this.skinnedData[i];
             shaderIns.uploadCustomUniform(SkinnedMeshSprite3D.BONES,subSkinnedDatas);

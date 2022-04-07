@@ -29,6 +29,8 @@ export interface IRenderOBJCreate{
 
     createRenderElement():IRenderElement;
 
+    createSkinRenderElement():IRenderElement;
+
     createBaseRenderQueue(isTransparent:boolean):IRenderQueue;
 
     createRenderGeometry(mode:MeshTopology,drayType:DrawType):IRenderGeometryElement;

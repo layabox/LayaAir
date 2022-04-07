@@ -18,6 +18,7 @@ import { ShaderData } from "../RenderShader/ShaderData";
 import { BaseRenderQueue } from "./BaseRenderQueue";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
+import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
@@ -43,6 +44,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createRenderElement(): IRenderElement {
         return new RenderElementOBJ();
     }
+    createSkinRenderElement():IRenderElement{
+        return new SkinRenderElementOBJ();
+    }
 
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {
         return new BaseRenderQueue(isTransparent);
@@ -51,6 +55,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
         return new RenderGeometryElementOBJ(mode, drayType);
     }
+
+    
 
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
         return new VertexBuffer3D(byteLength, bufferUsage, canRead);

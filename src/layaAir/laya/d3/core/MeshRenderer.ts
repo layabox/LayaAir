@@ -32,7 +32,7 @@ export class MeshRenderer extends BaseRender {
 	/** @internal */
 	protected _projectionViewWorldMatrix: Matrix4x4;
 	/** @internal */
-	private _mesh: Mesh;
+	protected _mesh: Mesh;
 
 	/**
 	 * @internal

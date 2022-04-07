@@ -94,14 +94,14 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         }
     }
 
-    /**
-     *@inheritDoc
-     *@override
-     *@internal
-     */
-    _createRenderElement(): SubMeshRenderElement {
-        return new SubMeshRenderElement();
-    }
+    // /**
+    //  *@inheritDoc
+    //  *@override
+    //  *@internal
+    //  */
+    // _createRenderElement(): SubMeshRenderElement {
+    //     return new SubMeshRenderElement();
+    // }
     // /**
     //  * @internal
     //  */
