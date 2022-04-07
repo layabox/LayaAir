@@ -43,9 +43,9 @@ export class SkyBox extends SkyMesh {
 			0, 4, 5, 5, 1, 0]);//后
 
 		var verDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
-		this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, BufferUsage.Static, false);
+		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(verDec.vertexStride * 8, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = verDec;
-		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt8, 36, BufferUsage.Static, false);
+		this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt8, 36, BufferUsage.Static, false);
 		this._vertexBuffer.setData(vertices.buffer);
 		this._indexBuffer.setData(indices);
 

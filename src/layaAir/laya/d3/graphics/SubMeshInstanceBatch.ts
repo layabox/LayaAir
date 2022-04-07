@@ -35,21 +35,21 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	instanceWorldMatrixBuffer: VertexBuffer3D;
 	/**SimpleAnimator */
 	/** @internal */
-	instanceSimpleAnimatorData:Float32Array = new Float32Array(SubMeshInstanceBatch.maxInstanceCount*4);
+	instanceSimpleAnimatorData: Float32Array = new Float32Array(SubMeshInstanceBatch.maxInstanceCount * 4);
 	/** @internal */
-	instanceSimpleAnimatorBuffer:VertexBuffer3D;
+	instanceSimpleAnimatorBuffer: VertexBuffer3D;
 
 	/**
 	 * 创建一个 <code>InstanceSubMesh</code> 实例。
 	 */
 	constructor() {
-		super(MeshTopology.Triangles,DrawType.DrawElemientInstance);
+		super(MeshTopology.Triangles, DrawType.DrawElemientInstance);
 		this.indexFormat = IndexFormat.UInt16;
-		this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, BufferUsage.Dynamic);
+		this.instanceWorldMatrixBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this.instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
 		this.instanceWorldMatrixBuffer._instanceBuffer = true;
 		//SImpleAnimator
-		this.instanceSimpleAnimatorBuffer = new VertexBuffer3D(this.instanceSimpleAnimatorData.length*4,BufferUsage.Dynamic);
+		this.instanceSimpleAnimatorBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this.instanceSimpleAnimatorData.length * 4, BufferUsage.Dynamic, false);
 		this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
 		this.instanceSimpleAnimatorBuffer._instanceBuffer = true;
 	}
@@ -67,7 +67,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		this.clearRenderParams();
 		this.bufferState = subMesh._mesh._instanceBufferState;
 		this.instanceCount = count;
-		this.setDrawElemenParams(indexCount,subMesh._indexStart * 2);
+		this.setDrawElemenParams(indexCount, subMesh._indexStart * 2);
 		//LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, subMesh._indexStart * 2, count);
 		//Stat.renderBatches++;
 		Stat.savedRenderBatches += count - 1;

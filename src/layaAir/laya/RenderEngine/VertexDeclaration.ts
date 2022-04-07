@@ -17,7 +17,7 @@ export class VertexDeclaration {
 	/**@internal */
 	private _vertexElementsDic: {[key:string]:VertexElement};
 	/**@internal */
-	_shaderValues: ShaderData;
+	_shaderValues:{[key:number]:Int32Array};
 
 	/**@internal [只读]*/
 	_vertexElements: Array<VertexElement>;
@@ -55,7 +55,7 @@ export class VertexDeclaration {
 		this._vertexStride = vertexStride;
 		this._vertexElements = vertexElements;
 		var count: number = vertexElements.length;
-		this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
+		this._shaderValues = {};
 
 		for (var j: number = 0; j < count; j++) {
 			var vertexElement: VertexElement = vertexElements[j];
@@ -68,7 +68,7 @@ export class VertexDeclaration {
 			value[2] = elmentInfo[2];
 			value[3] = this._vertexStride;
 			value[4] = vertexElement._offset;
-			this._shaderValues.setAttribute(name, value);
+			this._shaderValues[name] = value;
 		}
 	}
 

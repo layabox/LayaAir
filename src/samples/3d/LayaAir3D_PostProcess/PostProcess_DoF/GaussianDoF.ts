@@ -107,7 +107,7 @@ export class GaussianDoF extends PostProcessEffect {
         GaussianDoF.__init__();
         super();
         this._shader = Shader3D.find("GaussianDoF");
-        this._shaderData = LayaGL.renderOBJCreate.createShaderData();
+        this._shaderData = LayaGL.renderOBJCreate.createShaderData(null);
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, new Vector3(10, 30, 1));
         this._zBufferParams = new Vector4();
         this._sourceSize = new Vector4();

@@ -80,7 +80,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	 * 创建一个 <code>SubMeshStaticBatch</code> 实例。
 	 */
 	constructor(batchOwner: Sprite3D, vertexDeclaration: VertexDeclaration) {
-		super(MeshTopology.Triangles,DrawType.DrawElement);
+		super(MeshTopology.Triangles, DrawType.DrawElement);
 		this.indexFormat = IndexFormat.UInt16;
 		this.bufferState = new BufferState();
 		this._batchID = SubMeshStaticBatch._batchIDCounter++;
@@ -164,8 +164,8 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 
 			if (sTangentOffset !== -1) {
 				var absSTanegntOffset: number = oriOffset + sTangentOffset;
-				Utils3D.transformVector3ArrayToVector3ArrayNormal(oriVertexes, absSTanegntOffset, normalMat, batchVertices, bakeOffset + 14);
-				batchVertices[bakeOffset + 17] = oriVertexes[absSTanegntOffset + 3];
+				Utils3D.transformVector3ArrayToVector3ArrayNormal(oriVertexes, absSTanegntOffset, normalMat, batchVertices, bakeOffset + 14);
+				batchVertices[bakeOffset + 17] = oriVertexes[absSTanegntOffset + 3];
 			}
 		}
 		return vertexCount;
@@ -238,9 +238,9 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		var floatStride: number = this._vertexDeclaration.vertexStride / 4;
 		var vertexDatas: Float32Array = new Float32Array(floatStride * this._currentBatchVertexCount);
 		var indexDatas: Uint16Array = new Uint16Array(this._currentBatchIndexCount);
-		this._vertexBuffer = new VertexBuffer3D(this._vertexDeclaration.vertexStride * this._currentBatchVertexCount,BufferUsage.Static);
+		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this._vertexDeclaration.vertexStride * this._currentBatchVertexCount, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
-		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._currentBatchIndexCount, BufferUsage.Static);
+		this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._currentBatchIndexCount, BufferUsage.Static,false);
 
 		for (var i: number = 0, n: number = this._batchElements.length; i < n; i++) {
 			var sprite: MeshSprite3D = (<MeshSprite3D>this._batchElements[i]);
@@ -283,7 +283,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		this._indexBuffer.setData(indexDatas);
 		var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer._byteLength;
 		Resource._addGPUMemory(memorySize);
-		this.bufferState.applyState([this._vertexBuffer],this._indexBuffer);
+		this.bufferState.applyState([this._vertexBuffer], this._indexBuffer);
 	}
 
 	/**
@@ -307,7 +307,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 			} else {
 				var start: number = batchElementList[from].staticBatchIndexStart;
 				var indexCount: number = batchElementList[end].staticBatchIndexEnd - start;
-				this.setDrawElemenParams(indexCount,start*2);
+				this.setDrawElemenParams(indexCount, start * 2);
 				//LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, start * 2);
 				from = ++end;
 				//Stat.trianglesFaces += indexCount / 3;
@@ -315,7 +315,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		}
 		start = batchElementList[from].staticBatchIndexStart;
 		indexCount = batchElementList[end].staticBatchIndexEnd - start;
-		this.setDrawElemenParams(indexCount,start*2);
+		this.setDrawElemenParams(indexCount, start * 2);
 		//LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles,indexCount, IndexFormat.UInt16, start * 2);
 		Stat.renderBatches++;
 		// Stat.savedRenderBatches += count - 1;

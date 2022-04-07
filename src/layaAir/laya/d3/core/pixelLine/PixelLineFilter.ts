@@ -58,17 +58,17 @@ export class PixelLineFilter extends GeometryElement {
 	 * @param maxLineCount 最大线长
 	 */
 	constructor(owner: PixelLineRenderer, maxLineCount: number) {
-		super(MeshTopology.Lines,DrawType.DrawArray);
+		super(MeshTopology.Lines, DrawType.DrawArray);
 		var pointCount: number = maxLineCount * 2;
 		this._ownerRender = owner;
 		this._maxLineCount = maxLineCount;
 		this._vertices = new Float32Array(pointCount * this._floatCountPerVertices);
-		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
+		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = PixelLineVertex.vertexDeclaration;
 
 		var bufferState = new BufferState();
 		this.bufferState = bufferState;
-		this.bufferState.applyState([this._vertexBuffer],null);
+		this.bufferState.applyState([this._vertexBuffer], null);
 
 		var min: Vector3 = PixelLineFilter._tempVector0;
 		var max: Vector3 = PixelLineFilter._tempVector1;
@@ -98,7 +98,7 @@ export class PixelLineFilter extends GeometryElement {
 
 		var vertexCount: number = pointCount * this._floatCountPerVertices;
 		this._vertices = new Float32Array(vertexCount);
-		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
+		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = PixelLineVertex.vertexDeclaration;
 
 		if (vertexCount < lastVertices.length) {//取最小长度,拷贝旧数据
@@ -109,7 +109,7 @@ export class PixelLineFilter extends GeometryElement {
 			this._vertexBuffer.setData(this._vertices.buffer, 0, 0, lastVertices.length * 4);
 		}
 
-		this.bufferState.applyState([this._vertexBuffer],null);
+		this.bufferState.applyState([this._vertexBuffer], null);
 
 		this._minUpdate = Number.MAX_VALUE;
 		this._maxUpdate = Number.MIN_VALUE;
@@ -281,7 +281,7 @@ export class PixelLineFilter extends GeometryElement {
 	 * @override
 	 * @internal
 	 */
-	 _updateRenderParams(state: RenderContext3D): void {
+	_updateRenderParams(state: RenderContext3D): void {
 		this.clearRenderParams();
 		if (this._minUpdate !== Number.MAX_VALUE && this._maxUpdate !== Number.MIN_VALUE) {
 			this._vertexBuffer.setData(this._vertices.buffer, this._minUpdate * 4, this._minUpdate * 4, (this._maxUpdate - this._minUpdate) * 4);
@@ -289,7 +289,7 @@ export class PixelLineFilter extends GeometryElement {
 			this._maxUpdate = Number.MIN_VALUE;
 		}
 		if (this._lineCount > 0) {
-			this.setDrawArrayParams(0,this._lineCount*2);
+			this.setDrawArrayParams(0, this._lineCount * 2);
 			// LayaGL.renderDrawConatext.drawArrays(MeshTopology.Lines, 0, this._lineCount * 2);
 			// Stat.renderBatches++;
 		}

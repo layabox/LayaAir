@@ -93,6 +93,7 @@ import { FilterMode } from "./laya/RenderEngine/RenderEnum/FilterMode";
 import { WarpMode } from "./laya/RenderEngine/RenderEnum/WrapMode";
 import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
+import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -235,6 +236,7 @@ export class Laya3D {
 		MeshRenderer.__init__();
 		Camera.__init__();
 		MeshRenderStaticBatchManager.__init__();
+		ShadowUtils.init();
 
 		Material.__initDefine__();
 		BaseMaterial.__initDefine__();

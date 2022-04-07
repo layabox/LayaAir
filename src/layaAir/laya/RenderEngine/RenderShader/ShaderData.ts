@@ -282,23 +282,23 @@ export class ShaderData implements IClone {
 		return this._data[index];
 	}
 
-	/**
-	 * 设置Attribute。
-	 * @param	index shader索引。
-	 * @param	value 纹理。
-	 */
-	setAttribute(index: number, value: Int32Array): void {
-		this._data[index] = value;
-	}
+	// /**
+	//  * 设置Attribute。
+	//  * @param	index shader索引。
+	//  * @param	value 纹理。
+	//  */
+	// setAttribute(index: number, value: Int32Array): void {
+	// 	this._data[index] = value;
+	// }
 
-	/**
-	 * 获取Attribute。
-	 * @param	index shader索引。
-	 * @return  纹理。
-	 */
-	getAttribute(index: number): any[] {
-		return this._data[index];
-	}
+	// /**
+	//  * 获取Attribute。
+	//  * @param	index shader索引。
+	//  * @return  纹理。
+	//  */
+	// getAttribute(index: number): any[] {
+	// 	return this._data[index];
+	// }
 
 	/**
 	 * 获取长度。

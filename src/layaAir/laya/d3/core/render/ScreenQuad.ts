@@ -49,12 +49,12 @@ export class ScreenQuad extends Resource {
 	constructor() {
 		super();
 		//顶点buffer
-		this._vertexBuffer = new VertexBuffer3D(16 * 4, BufferUsage.Static, false);
+		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(16 * 4, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBuffer.setData(ScreenQuad._vertices.buffer);
 		this._bufferState.applyState([this._vertexBuffer],null);
 
-		this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, BufferUsage.Static, false);
+		this._vertexBufferInvertUV = LayaGL.renderOBJCreate.createVertexBuffer3D(16 * 4, BufferUsage.Static, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
 		this._bufferStateInvertUV.applyState([this._vertexBufferInvertUV],null);

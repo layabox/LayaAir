@@ -51,7 +51,7 @@ export class PostProcess {
 	/**@internal */
 	private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
 	/**@internal */
-	private _compositeShaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData();
+	private _compositeShaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
 	/**@internal */
 	private _effects: PostProcessEffect[] = [];
 	/**@internal */

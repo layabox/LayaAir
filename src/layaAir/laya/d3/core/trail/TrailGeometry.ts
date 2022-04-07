@@ -1,3 +1,4 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
@@ -86,7 +87,7 @@ export class TrailGeometry extends GeometryElement {
 	private _disappearBoundsMode: Boolean = false;
 
 	constructor(owner: TrailFilter) {
-		super(MeshTopology.TriangleStrip,DrawType.DrawArray);
+		super(MeshTopology.TriangleStrip, DrawType.DrawArray);
 		this._owner = owner;
 		//初始化_segementCount
 		this.bufferState = new BufferState();
@@ -115,9 +116,9 @@ export class TrailGeometry extends GeometryElement {
 		var memorySize: number = vertexbuffer1Size + vertexbuffer2Size;
 		this._vertices1 = new Float32Array(vertexCount * this._floatCountPerVertices1);
 		this._vertices2 = new Float32Array(vertexCount * this._floatCountPerVertices2);
-		this._vertexBuffer1 = new VertexBuffer3D(vertexbuffer1Size, BufferUsage.Static, false);
+		this._vertexBuffer1 = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexbuffer1Size, BufferUsage.Static, false);
 		this._vertexBuffer1.vertexDeclaration = vertexDeclaration1;
-		this._vertexBuffer2 = new VertexBuffer3D(vertexbuffer2Size, BufferUsage.Dynamic, false);
+		this._vertexBuffer2 = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexbuffer2Size, BufferUsage.Dynamic, false);
 		this._vertexBuffer2.vertexDeclaration = vertexDeclaration2;
 
 		vertexBuffers.push(this._vertexBuffer1);
@@ -125,7 +126,7 @@ export class TrailGeometry extends GeometryElement {
 		// bufferState.bind();
 		// bufferState.applyVertexBuffers(vertexBuffers);
 		// bufferState.unBind();
-		bufferState.applyState(vertexBuffers,null);
+		bufferState.applyState(vertexBuffers, null);
 		Resource._addMemory(memorySize, memorySize);
 	}
 
@@ -435,14 +436,14 @@ export class TrailGeometry extends GeometryElement {
 	 * @internal
 	 * @override
 	 */
-	 _updateRenderParams(state: RenderContext3D): void {
+	_updateRenderParams(state: RenderContext3D): void {
 		//this._bufferState.bind();
 		this.clearRenderParams();
-		var start: number = this._activeIndex * 2;	
+		var start: number = this._activeIndex * 2;
 		var count: number = this._endIndex * 2 - start;
-		this.setDrawArrayParams(start,count);
+		this.setDrawArrayParams(start, count);
 		// LayaGL.renderDrawConatext.drawArrays(MeshTopology.TriangleStrip,start,count);
-		 Stat.renderBatches++;
+		Stat.renderBatches++;
 		// Stat.trianglesFaces += count - 2;
 	}
 

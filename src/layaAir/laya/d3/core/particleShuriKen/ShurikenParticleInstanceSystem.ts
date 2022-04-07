@@ -134,12 +134,12 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 this._timeIndex = particleDeclaration.getVertexElementByUsage(VertexShuriKenParticle.PARTICLE_DIRECTIONTIME)._offset / 4 + 3;
 
                 let indexCount = mesh.indexCount;
-                this._indexBuffer = new IndexBuffer3D(mesh.indexFormat, indexCount, BufferUsage.Static);
+                this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(mesh.indexFormat, indexCount, BufferUsage.Static,false);
                 this._indexBuffer.setData(mesh._indexBuffer.getData());
 
                 let meshVertexCount = mesh.vertexCount;
                 let vbSize = meshDeclaration.vertexStride * meshVertexCount;
-                this._vertexBuffer = new VertexBuffer3D(vbSize, BufferUsage.Static);
+                this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vbSize, BufferUsage.Static,false);
                 this._vertexBuffer.vertexDeclaration = meshDeclaration;
                 // 重排 mesh 顶点数据 ?
                 // 固定 vertexElement 类型。。。 
@@ -151,7 +151,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 let particleCount = this._bufferMaxParticles;
                 let particleVbSize = particleCount * particleDeclaration.vertexStride;
                 this._instanceVertex = new Float32Array(particleVbSize / 4);
-                this._instanceParticleVertexBuffer = new VertexBuffer3D(particleVbSize, BufferUsage.Dynamic);
+                this._instanceParticleVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(particleVbSize, BufferUsage.Dynamic,false);
                 this._instanceParticleVertexBuffer.vertexDeclaration = particleDeclaration;
                 this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer);
                 this._instanceParticleVertexBuffer._instanceBuffer = true;
@@ -176,18 +176,18 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
 
             let indexArray = VertexShurikenParticleBillboard.billboardIndexArray;
             let indexCount = indexArray.length;
-            this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static);
+            this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static,false);
             this._indexBuffer.setData(indexArray);
 
             let meshVBSize = this._meshIndexCount * billboardDeclaration.vertexStride;
-            this._vertexBuffer = new VertexBuffer3D(meshVBSize,BufferUsage.Static);
+            this._vertexBuffer =LayaGL.renderOBJCreate.createVertexBuffer3D(meshVBSize,BufferUsage.Static,false);
             this._vertexBuffer.vertexDeclaration = billboardDeclaration;
             this._vertexBuffer.setData(VertexShurikenParticleBillboard.billboardVertexArray.buffer);
 
             let particleCount = this._bufferMaxParticles;
             let particleVbSize = particleCount * particleDeclaration.vertexStride;
             this._instanceVertex = new Float32Array(particleVbSize / 4);
-            this._instanceParticleVertexBuffer = new VertexBuffer3D(particleVbSize, BufferUsage.Dynamic);
+            this._instanceParticleVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(particleVbSize, BufferUsage.Dynamic,false);
             this._instanceParticleVertexBuffer.vertexDeclaration = particleDeclaration;
             this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer);
             this._instanceParticleVertexBuffer._instanceBuffer = true;

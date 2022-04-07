@@ -137,7 +137,7 @@ export class LoadModelV04 {
 			if (!vertexDeclaration)
 				throw new Error("LoadModelV03: unknown vertexDeclaration.");
 
-			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vbDatas.length * 4, BufferUsage.Static, true);
+			var vertexBuffer: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vbDatas.length * 4, BufferUsage.Static, true);
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
 			vertexBuffer.setData(vbDatas.buffer);
 			LoadModelV04._mesh._vertexBuffer = vertexBuffer;
@@ -148,7 +148,7 @@ export class LoadModelV04 {
 		var ibStart: number = offset + LoadModelV04._readData.getUint32();
 		var ibLength: number = LoadModelV04._readData.getUint32();
 		var ibDatas: Uint16Array = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexFormat.UInt16, ibLength / 2,BufferUsage.Static, true);
+		var indexBuffer: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, ibLength / 2,BufferUsage.Static, true);
 		indexBuffer.setData(ibDatas);
 		LoadModelV04._mesh._indexBuffer = indexBuffer;
 		memorySize += indexBuffer.indexCount * 2;
