@@ -27,9 +27,9 @@ export class UnlitMaterial extends Material {
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 
-	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
-	static ALBEDOCOLOR: number = Shader3D.propertyNameToID("u_AlbedoColor");
-	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+	static ALBEDOTEXTURE: number;
+	static ALBEDOCOLOR: number;
+	static TILINGOFFSET: number;
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: UnlitMaterial;
@@ -46,6 +46,10 @@ export class UnlitMaterial extends Material {
 		UnlitMaterial.unlitUniformMap = new Map();
 		UnlitMaterial.unlitUniformMap.set("u_AlbedoColor", UniformBufferParamsType.Vector4);
 		UnlitMaterial.unlitUniformMap.set("u_TilingOffset", UniformBufferParamsType.Vector4);
+
+		UnlitMaterial.ALBEDOTEXTURE = Shader3D.propertyNameToID("u_AlbedoTexture");
+		UnlitMaterial.ALBEDOCOLOR = Shader3D.propertyNameToID("u_AlbedoColor");
+		UnlitMaterial.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
 	}
 
 

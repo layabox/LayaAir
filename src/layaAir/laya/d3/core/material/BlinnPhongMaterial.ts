@@ -32,35 +32,35 @@ export class BlinnPhongMaterial extends Material {
 	/**@internal */
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_ENABLETRANSMISSION:ShaderDefine;
+	static SHADERDEFINE_ENABLETRANSMISSION: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_THICKNESSMAP:ShaderDefine;
+	static SHADERDEFINE_THICKNESSMAP: ShaderDefine;
 	/**@internal */
-	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_DiffuseTexture");
+	static ALBEDOTEXTURE: number;
 	/**@internal */
-	static NORMALTEXTURE: number = Shader3D.propertyNameToID("u_NormalTexture");
+	static NORMALTEXTURE: number;
 	/**@internal */
-	static SPECULARTEXTURE: number = Shader3D.propertyNameToID("u_SpecularTexture");
+	static SPECULARTEXTURE: number;
 	/**@internal */
-	static ALBEDOCOLOR: number = Shader3D.propertyNameToID("u_DiffuseColor");
+	static ALBEDOCOLOR: number;
 	/**@internal */
-	static MATERIALSPECULAR: number = Shader3D.propertyNameToID("u_MaterialSpecular");
+	static MATERIALSPECULAR: number;
 	/**@internal */
-	static SHININESS: number = Shader3D.propertyNameToID("u_Shininess");
+	static SHININESS: number;
 	/**@internal */
-	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+	static TILINGOFFSET: number;
 	/**@internal */
-	static TRANSMISSIONRATE:number = Shader3D.propertyNameToID("u_TransmissionRate");
+	static TRANSMISSIONRATE: number;
 	/**@internal */
-	static IBACKDIFFUSE:number = Shader3D.propertyNameToID("u_BackDiffuse");
+	static IBACKDIFFUSE: number;
 	/**@internal */
-	static IBACKSCALE:number = Shader3D.propertyNameToID("u_BackScale");
+	static IBACKSCALE: number;
 	/**@internal */
-	static THINKNESSTEXTURE:number = Shader3D.propertyNameToID("u_ThinknessTexture");
+	static THINKNESSTEXTURE: number;
 	/**@internal */
-	static TRANSMISSIONCOLOR:number = Shader3D.propertyNameToID("u_TransmissionColor");
+	static TRANSMISSIONCOLOR: number;
 	/**@internal */
-	static AlbedoIntensity: number = Shader3D.propertyNameToID("u_AlbedoIntensity");
+	static AlbedoIntensity: number;
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: BlinnPhongMaterial;
@@ -75,6 +75,20 @@ export class BlinnPhongMaterial extends Material {
 		BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 		BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION = Shader3D.getDefineByName("ENABLETRANSMISSION");
 		BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP = Shader3D.getDefineByName("THICKNESSMAP");
+
+		BlinnPhongMaterial.ALBEDOTEXTURE = Shader3D.propertyNameToID("u_DiffuseTexture");
+		BlinnPhongMaterial.NORMALTEXTURE = Shader3D.propertyNameToID("u_NormalTexture");
+		BlinnPhongMaterial.SPECULARTEXTURE = Shader3D.propertyNameToID("u_SpecularTexture");
+		BlinnPhongMaterial.ALBEDOCOLOR = Shader3D.propertyNameToID("u_DiffuseColor");
+		BlinnPhongMaterial.MATERIALSPECULAR = Shader3D.propertyNameToID("u_MaterialSpecular");
+		BlinnPhongMaterial.SHININESS = Shader3D.propertyNameToID("u_Shininess");
+		BlinnPhongMaterial.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
+		BlinnPhongMaterial.TRANSMISSIONRATE = Shader3D.propertyNameToID("u_TransmissionRate");
+		BlinnPhongMaterial.IBACKDIFFUSE = Shader3D.propertyNameToID("u_BackDiffuse");
+		BlinnPhongMaterial.IBACKSCALE = Shader3D.propertyNameToID("u_BackScale");
+		BlinnPhongMaterial.THINKNESSTEXTURE = Shader3D.propertyNameToID("u_ThinknessTexture");
+		BlinnPhongMaterial.TRANSMISSIONCOLOR = Shader3D.propertyNameToID("u_TransmissionColor");
+		BlinnPhongMaterial.AlbedoIntensity = Shader3D.propertyNameToID("u_AlbedoIntensity");
 	}
 
 	/**
@@ -587,40 +601,40 @@ export class BlinnPhongMaterial extends Material {
 	/**
 	 * 透光率，会影响漫反射以及透光强度
 	 */
-	get transmissionRata():number{
+	get transmissionRata(): number {
 		return this._shaderValues.getNumber(BlinnPhongMaterial.TRANSMISSIONRATE);
 	}
-	
-	set transmissionRata(value:number){
-		this._shaderValues.setNumber(BlinnPhongMaterial.TRANSMISSIONRATE,value);
+
+	set transmissionRata(value: number) {
+		this._shaderValues.setNumber(BlinnPhongMaterial.TRANSMISSIONRATE, value);
 	}
 
 	/**
 	 * 透射影响范围指数
 	 */
-	get backDiffuse():number{
+	get backDiffuse(): number {
 		return this._shaderValues.getNumber(BlinnPhongMaterial.IBACKDIFFUSE);
 	}
-	set backDiffuse(value:number){
-		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKDIFFUSE,Math.max(value,1.0));
+	set backDiffuse(value: number) {
+		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKDIFFUSE, Math.max(value, 1.0));
 	}
 	/**
 	 * 透射光强度
 	 */
-	get backScale():number{
+	get backScale(): number {
 		return this._shaderValues.getNumber(BlinnPhongMaterial.IBACKSCALE);
 	}
-	set backScale(value:number){
-		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKSCALE,value);
+	set backScale(value: number) {
+		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKSCALE, value);
 	}
 
 	/**
 	 * 厚度贴图，会影响透视光，越厚，透射光越弱
 	 */
-	get thinknessTexture():BaseTexture{
+	get thinknessTexture(): BaseTexture {
 		return this._shaderValues.getTexture(BlinnPhongMaterial.THINKNESSTEXTURE);
 	}
-	set thinknessTexture(value:BaseTexture){
+	set thinknessTexture(value: BaseTexture) {
 		if (value)
 			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP);
 		else
@@ -632,11 +646,11 @@ export class BlinnPhongMaterial extends Material {
 	/**
 	 * 透光颜色。模拟透光物质内部颜色吸收率
 	 */
-	get transmissionColor():Vector4{
+	get transmissionColor(): Vector4 {
 		return this._shaderValues.getVector(BlinnPhongMaterial.TRANSMISSIONCOLOR);
 	}
-	set transmissionColor(value:Vector4){
-		this._shaderValues.setVector(BlinnPhongMaterial.TRANSMISSIONCOLOR,value);
+	set transmissionColor(value: Vector4) {
+		this._shaderValues.setVector(BlinnPhongMaterial.TRANSMISSIONCOLOR, value);
 	}
 
 	/**
@@ -683,7 +697,7 @@ export class BlinnPhongMaterial extends Material {
 	 * 请使用transmissionRata
 	 * @deprecated
 	 */
-	get transmissionRate():number{
+	get transmissionRate(): number {
 		return this._shaderValues.getNumber(BlinnPhongMaterial.TRANSMISSIONRATE);
 	}
 }

@@ -1,5 +1,6 @@
 import { ShaderPass } from "../../d3/shader/ShaderPass";
 import { SubShader } from "../../d3/shader/SubShader";
+import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
@@ -139,14 +140,7 @@ export class Shader3D {
 	 * @return 唯一ID。
 	 */
 	static propertyNameToID(name: string): number {
-		if (Shader3D._propertyNameMap[name] != null) {
-			return Shader3D._propertyNameMap[name];
-		} else {
-			var id: number = Shader3D._propertyNameCounter++;
-			Shader3D._propertyNameMap[name] = id;
-			Shader3D._propertyNameMap[id] = name;
-			return id;
-		}
+		return LayaGL.renderEngine.propertyNameToID(name);
 	}
 
 	/**

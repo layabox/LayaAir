@@ -94,6 +94,7 @@ import { WarpMode } from "./laya/RenderEngine/RenderEnum/WrapMode";
 import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
+import { DepthPass } from "./laya/d3/depthMap/DepthPass";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -223,6 +224,7 @@ export class Laya3D {
 		Sprite3D.__init__();
 		RenderableSprite3D.__init__();
 		MeshSprite3D.__init__();
+		DepthPass.__init__();
 		SkinnedMeshSprite3D.__init__();
 		SimpleSkinnedMeshSprite3D.__init__();
 		TrailFilter.__init__();
@@ -239,7 +241,6 @@ export class Laya3D {
 		ShadowUtils.init();
 
 		Material.__initDefine__();
-		BaseMaterial.__initDefine__();
 		BlinnPhongMaterial.__initDefine__();
 		// PBRStandardMaterial.__initDefine__();
 		// PBRSpecularMaterial.__initDefine__();

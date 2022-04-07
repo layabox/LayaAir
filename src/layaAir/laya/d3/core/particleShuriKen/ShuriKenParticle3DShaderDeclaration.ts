@@ -61,119 +61,119 @@ export class ShuriKenParticle3DShaderDeclaration {
 
 	//Base
 	/**@internal */
-	static WORLDPOSITION: number = Shader3D.propertyNameToID("u_WorldPosition");
+	static WORLDPOSITION: number;
 	/**@internal */
-	static WORLDROTATION: number = Shader3D.propertyNameToID("u_WorldRotation");
+	static WORLDROTATION: number;
 	/**@internal */
-	static POSITIONSCALE: number = Shader3D.propertyNameToID("u_PositionScale");
+	static POSITIONSCALE: number;
 	/**@internal */
-	static SIZESCALE: number = Shader3D.propertyNameToID("u_SizeScale");
+	static SIZESCALE: number;
 	/**@internal */
-	static SCALINGMODE: number = Shader3D.propertyNameToID("u_ScalingMode");
+	static SCALINGMODE: number;
 	/**@internal */
-	static GRAVITY: number = Shader3D.propertyNameToID("u_Gravity");
+	static GRAVITY: number;
 	/**@internal */
-	static THREEDSTARTROTATION: number = Shader3D.propertyNameToID("u_ThreeDStartRotation");
+	static THREEDSTARTROTATION: number;
 	/**@internal */
-	static STRETCHEDBILLBOARDLENGTHSCALE: number = Shader3D.propertyNameToID("u_StretchedBillboardLengthScale");
+	static STRETCHEDBILLBOARDLENGTHSCALE: number;
 	/**@internal */
-	static STRETCHEDBILLBOARDSPEEDSCALE: number = Shader3D.propertyNameToID("u_StretchedBillboardSpeedScale");
+	static STRETCHEDBILLBOARDSPEEDSCALE: number;
 	/**@internal */
-	static SIMULATIONSPACE: number = Shader3D.propertyNameToID("u_SimulationSpace");
+	static SIMULATIONSPACE: number;
 	/**@internal */
-	static CURRENTTIME: number = Shader3D.propertyNameToID("u_CurrentTime");
+	static CURRENTTIME: number;
 	/**@internal */
-	static DRAG: number = Shader3D.propertyNameToID("u_DragConstanct");
+	static DRAG: number;
 
 	//VelocityOverLifetime
 	/**@internal */
-	static VOLVELOCITYCONST: number = Shader3D.propertyNameToID("u_VOLVelocityConst");
+	static VOLVELOCITYCONST: number;
 	/**@internal */
-	static VOLVELOCITYGRADIENTX: number = Shader3D.propertyNameToID("u_VOLVelocityGradientX");
+	static VOLVELOCITYGRADIENTX: number;
 	/**@internal */
-	static VOLVELOCITYGRADIENTY: number = Shader3D.propertyNameToID("u_VOLVelocityGradientY");
+	static VOLVELOCITYGRADIENTY: number;
 	/**@internal */
-	static VOLVELOCITYGRADIENTZ: number = Shader3D.propertyNameToID("u_VOLVelocityGradientZ");
+	static VOLVELOCITYGRADIENTZ: number;
 	/**@internal */
-	static VOLVELOCITYCONSTMAX: number = Shader3D.propertyNameToID("u_VOLVelocityConstMax");
+	static VOLVELOCITYCONSTMAX: number;
 	/**@internal */
-	static VOLVELOCITYGRADIENTXMAX: number = Shader3D.propertyNameToID("u_VOLVelocityGradientMaxX");
+	static VOLVELOCITYGRADIENTXMAX: number;
 	/**@internal */
-	static VOLVELOCITYGRADIENTYMAX: number = Shader3D.propertyNameToID("u_VOLVelocityGradientMaxY");
+	static VOLVELOCITYGRADIENTYMAX: number;
 	/**@internal */
-	static VOLVELOCITYGRADIENTZMAX: number = Shader3D.propertyNameToID("u_VOLVelocityGradientMaxZ");
+	static VOLVELOCITYGRADIENTZMAX: number;
 	/**@internal */
-	static VOLSPACETYPE: number = Shader3D.propertyNameToID("u_VOLSpaceType");
+	static VOLSPACETYPE: number;
 
 	//ColorOverLifetime
 	/**@internal */
-	static COLOROVERLIFEGRADIENTALPHAS: number = Shader3D.propertyNameToID("u_ColorOverLifeGradientAlphas");
+	static COLOROVERLIFEGRADIENTALPHAS: number;
 	/**@internal */
-	static COLOROVERLIFEGRADIENTCOLORS: number = Shader3D.propertyNameToID("u_ColorOverLifeGradientColors");
+	static COLOROVERLIFEGRADIENTCOLORS: number;
 	/**@internal */
-	static COLOROVERLIFEGRADIENTRANGES: number = Shader3D.propertyNameToID("u_ColorOverLifeGradientRanges");
+	static COLOROVERLIFEGRADIENTRANGES: number;
 	/**@internal */
-	static MAXCOLOROVERLIFEGRADIENTALPHAS: number = Shader3D.propertyNameToID("u_MaxColorOverLifeGradientAlphas");
+	static MAXCOLOROVERLIFEGRADIENTALPHAS: number;
 	/**@internal */
-	static MAXCOLOROVERLIFEGRADIENTCOLORS: number = Shader3D.propertyNameToID("u_MaxColorOverLifeGradientColors");
+	static MAXCOLOROVERLIFEGRADIENTCOLORS: number;
 	/**@internal */
-	static MAXCOLOROVERLIFEGRADIENTRANGES: number = Shader3D.propertyNameToID("u_MaxColorOverLifeGradientRanges");
+	static MAXCOLOROVERLIFEGRADIENTRANGES: number;
 
 	//SizeOverLifetime
 	/**@internal */
-	static SOLSIZEGRADIENT: number = Shader3D.propertyNameToID("u_SOLSizeGradient");
+	static SOLSIZEGRADIENT: number;
 	/**@internal */
-	static SOLSIZEGRADIENTX: number = Shader3D.propertyNameToID("u_SOLSizeGradientX");
+	static SOLSIZEGRADIENTX: number;
 	/**@internal */
-	static SOLSIZEGRADIENTY: number = Shader3D.propertyNameToID("u_SOLSizeGradientY");
+	static SOLSIZEGRADIENTY: number;
 	/**@internal */
-	static SOLSizeGradientZ: number = Shader3D.propertyNameToID("u_SOLSizeGradientZ");
+	static SOLSizeGradientZ: number;
 	/**@internal */
-	static SOLSizeGradientMax: number = Shader3D.propertyNameToID("u_SOLSizeGradientMax");
+	static SOLSizeGradientMax: number;
 	/**@internal */
-	static SOLSIZEGRADIENTXMAX: number = Shader3D.propertyNameToID("u_SOLSizeGradientMaxX");
+	static SOLSIZEGRADIENTXMAX: number;
 	/**@internal */
-	static SOLSIZEGRADIENTYMAX: number = Shader3D.propertyNameToID("u_SOLSizeGradientMaxY");
+	static SOLSIZEGRADIENTYMAX: number;
 	/**@internal */
-	static SOLSizeGradientZMAX: number = Shader3D.propertyNameToID("u_SOLSizeGradientMaxZ");
+	static SOLSizeGradientZMAX: number;
 
 	//RotationOverLifetime
 	/**@internal */
-	static ROLANGULARVELOCITYCONST: number = Shader3D.propertyNameToID("u_ROLAngularVelocityConst");
+	static ROLANGULARVELOCITYCONST: number;
 	/**@internal */
-	static ROLANGULARVELOCITYCONSTSEPRARATE: number = Shader3D.propertyNameToID("u_ROLAngularVelocityConstSeprarate");
+	static ROLANGULARVELOCITYCONSTSEPRARATE: number;
 	/**@internal */
-	static ROLANGULARVELOCITYGRADIENT: number = Shader3D.propertyNameToID("u_ROLAngularVelocityGradient");
+	static ROLANGULARVELOCITYGRADIENT: number;
 	/**@internal */
-	static ROLANGULARVELOCITYGRADIENTX: number = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientX");
+	static ROLANGULARVELOCITYGRADIENTX: number;
 	/**@internal */
-	static ROLANGULARVELOCITYGRADIENTY: number = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientY");
+	static ROLANGULARVELOCITYGRADIENTY: number;
 	/**@internal */
-	static ROLANGULARVELOCITYGRADIENTZ: number = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientZ");
+	static ROLANGULARVELOCITYGRADIENTZ: number;
 	/**@internal */
-	static ROLANGULARVELOCITYCONSTMAX: number = Shader3D.propertyNameToID("u_ROLAngularVelocityConstMax");
+	static ROLANGULARVELOCITYCONSTMAX: number;
 	/**@internal */
-	static ROLANGULARVELOCITYCONSTMAXSEPRARATE: number = Shader3D.propertyNameToID("u_ROLAngularVelocityConstMaxSeprarate");
+	static ROLANGULARVELOCITYCONSTMAXSEPRARATE: number;
 	/**@internal */
-	static ROLANGULARVELOCITYGRADIENTMAX: number = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMax");
+	static ROLANGULARVELOCITYGRADIENTMAX: number;
 	/**@internal */
-	static ROLANGULARVELOCITYGRADIENTXMAX: number = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxX");
+	static ROLANGULARVELOCITYGRADIENTXMAX: number;
 	/**@internal */
-	static ROLANGULARVELOCITYGRADIENTYMAX: number = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxY");
+	static ROLANGULARVELOCITYGRADIENTYMAX: number;
 	/**@internal */
-	static ROLANGULARVELOCITYGRADIENTZMAX: number = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxZ");
+	static ROLANGULARVELOCITYGRADIENTZMAX: number;
 	/**@internal */
-	static ROLANGULARVELOCITYGRADIENTWMAX: number = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxW");
+	static ROLANGULARVELOCITYGRADIENTWMAX: number;
 
 	//TextureSheetAnimation
 	/**@internal */
-	static TEXTURESHEETANIMATIONCYCLES: number = Shader3D.propertyNameToID("u_TSACycles");
+	static TEXTURESHEETANIMATIONCYCLES: number;
 	/**@internal */
-	static TEXTURESHEETANIMATIONSUBUVLENGTH: number = Shader3D.propertyNameToID("u_TSASubUVLength");
+	static TEXTURESHEETANIMATIONSUBUVLENGTH: number;
 	/**@internal */
-	static TEXTURESHEETANIMATIONGRADIENTUVS: number = Shader3D.propertyNameToID("u_TSAGradientUVs");
+	static TEXTURESHEETANIMATIONGRADIENTUVS: number;
 	/**@internal */
-	static TEXTURESHEETANIMATIONGRADIENTMAXUVS: number = Shader3D.propertyNameToID("u_TSAMaxGradientUVs");
+	static TEXTURESHEETANIMATIONGRADIENTMAXUVS: number;
 
 
 	/**
@@ -208,6 +208,74 @@ export class ShuriKenParticle3DShaderDeclaration {
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE = Shader3D.getDefineByName("SIZEOVERLIFETIMERANDOMCURVESSEPERATE");
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_MESH = Shader3D.getDefineByName("RENDERMODE_MESH");
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE = Shader3D.getDefineByName("SHAPE");
+
+
+
+		//Base
+		ShuriKenParticle3DShaderDeclaration.WORLDPOSITION = Shader3D.propertyNameToID("u_WorldPosition");
+		ShuriKenParticle3DShaderDeclaration.WORLDROTATION = Shader3D.propertyNameToID("u_WorldRotation");
+		ShuriKenParticle3DShaderDeclaration.POSITIONSCALE = Shader3D.propertyNameToID("u_PositionScale");
+		ShuriKenParticle3DShaderDeclaration.SIZESCALE = Shader3D.propertyNameToID("u_SizeScale");
+		ShuriKenParticle3DShaderDeclaration.SCALINGMODE = Shader3D.propertyNameToID("u_ScalingMode");
+		ShuriKenParticle3DShaderDeclaration.GRAVITY = Shader3D.propertyNameToID("u_Gravity");
+		ShuriKenParticle3DShaderDeclaration.THREEDSTARTROTATION = Shader3D.propertyNameToID("u_ThreeDStartRotation");
+		ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDLENGTHSCALE = Shader3D.propertyNameToID("u_StretchedBillboardLengthScale");
+		ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDSPEEDSCALE = Shader3D.propertyNameToID("u_StretchedBillboardSpeedScale");
+		ShuriKenParticle3DShaderDeclaration.SIMULATIONSPACE = Shader3D.propertyNameToID("u_SimulationSpace");
+		ShuriKenParticle3DShaderDeclaration.CURRENTTIME = Shader3D.propertyNameToID("u_CurrentTime");
+		ShuriKenParticle3DShaderDeclaration.DRAG = Shader3D.propertyNameToID("u_DragConstanct");
+
+		//VelocityOverLifetime
+		ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONST = Shader3D.propertyNameToID("u_VOLVelocityConst");
+		ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX = Shader3D.propertyNameToID("u_VOLVelocityGradientX");
+		ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY = Shader3D.propertyNameToID("u_VOLVelocityGradientY");
+		ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ = Shader3D.propertyNameToID("u_VOLVelocityGradientZ");
+		ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONSTMAX = Shader3D.propertyNameToID("u_VOLVelocityConstMax");
+		ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTXMAX = Shader3D.propertyNameToID("u_VOLVelocityGradientMaxX");
+		ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTYMAX = Shader3D.propertyNameToID("u_VOLVelocityGradientMaxY");
+		ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZMAX = Shader3D.propertyNameToID("u_VOLVelocityGradientMaxZ");
+		ShuriKenParticle3DShaderDeclaration.VOLSPACETYPE = Shader3D.propertyNameToID("u_VOLSpaceType");
+
+		//ColorOverLifetime
+		ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS = Shader3D.propertyNameToID("u_ColorOverLifeGradientAlphas");
+		ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS = Shader3D.propertyNameToID("u_ColorOverLifeGradientColors");
+		ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES = Shader3D.propertyNameToID("u_ColorOverLifeGradientRanges");
+		ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS = Shader3D.propertyNameToID("u_MaxColorOverLifeGradientAlphas");
+		ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS = Shader3D.propertyNameToID("u_MaxColorOverLifeGradientColors");
+		ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTRANGES = Shader3D.propertyNameToID("u_MaxColorOverLifeGradientRanges");
+
+		//SizeOverLifetime
+		ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT = Shader3D.propertyNameToID("u_SOLSizeGradient");
+		ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX = Shader3D.propertyNameToID("u_SOLSizeGradientX");
+		ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY = Shader3D.propertyNameToID("u_SOLSizeGradientY");
+		ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZ = Shader3D.propertyNameToID("u_SOLSizeGradientZ");
+		ShuriKenParticle3DShaderDeclaration.SOLSizeGradientMax = Shader3D.propertyNameToID("u_SOLSizeGradientMax");
+		ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTXMAX = Shader3D.propertyNameToID("u_SOLSizeGradientMaxX");
+		ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTYMAX = Shader3D.propertyNameToID("u_SOLSizeGradientMaxY");
+		ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZMAX = Shader3D.propertyNameToID("u_SOLSizeGradientMaxZ");
+
+		//RotationOverLifetime
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONST = Shader3D.propertyNameToID("u_ROLAngularVelocityConst");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTSEPRARATE = Shader3D.propertyNameToID("u_ROLAngularVelocityConstSeprarate");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT = Shader3D.propertyNameToID("u_ROLAngularVelocityGradient");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientX");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientY");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientZ");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityConstMax");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAXSEPRARATE = Shader3D.propertyNameToID("u_ROLAngularVelocityConstMaxSeprarate");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMax");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTXMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxX");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTYMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxY");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxZ");
+		ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTWMAX = Shader3D.propertyNameToID("u_ROLAngularVelocityGradientMaxW");
+
+		//TextureSheetAnimation
+		ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES = Shader3D.propertyNameToID("u_TSACycles");
+		ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH = Shader3D.propertyNameToID("u_TSASubUVLength");
+		ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS = Shader3D.propertyNameToID("u_TSAGradientUVs");
+		ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS = Shader3D.propertyNameToID("u_TSAMaxGradientUVs");
+
+
 
 
 		let uniformMap = CommandUniformMap.createGlobalUniformMap("Sprite3D");

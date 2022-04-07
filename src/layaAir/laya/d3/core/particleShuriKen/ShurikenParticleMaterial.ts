@@ -23,11 +23,11 @@ export class ShurikenParticleMaterial extends Material {
 	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
 	/**@internal */
-	static DIFFUSETEXTURE: number = Shader3D.propertyNameToID("u_texture");
+	static DIFFUSETEXTURE: number;
 	/**@internal */
-	static TINTCOLOR: number = Shader3D.propertyNameToID("u_Tintcolor");
+	static TINTCOLOR: number;
 	/**@internal */
-	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+	static TILINGOFFSET: number;
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: ShurikenParticleMaterial;
@@ -39,6 +39,9 @@ export class ShurikenParticleMaterial extends Material {
 		ShurikenParticleMaterial.SHADERDEFINE_DIFFUSEMAP = Shader3D.getDefineByName("DIFFUSEMAP");
 		ShurikenParticleMaterial.SHADERDEFINE_TINTCOLOR = Shader3D.getDefineByName("TINTCOLOR");
 		ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
+		ShurikenParticleMaterial.DIFFUSETEXTURE = Shader3D.propertyNameToID("u_texture");
+		ShurikenParticleMaterial.TINTCOLOR = Shader3D.propertyNameToID("u_Tintcolor");
+		ShurikenParticleMaterial.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
 	}
 
 	/**

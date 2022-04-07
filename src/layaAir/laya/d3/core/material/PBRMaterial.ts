@@ -44,38 +44,38 @@ export class PBRMaterial extends Material {
     static SHADERDEFINE_LAYA_PBR_BRDF_LOW: ShaderDefine;
 
     /** @internal */
-    static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
+    static ALBEDOTEXTURE: number;
     /** @internal */
-    static ALBEDOCOLOR: number = Shader3D.propertyNameToID("u_AlbedoColor");
+    static ALBEDOCOLOR: number;
     /** @internal */
-    static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+    static TILINGOFFSET: number;
     /** @internal */
-    static NORMALTEXTURE: number = Shader3D.propertyNameToID("u_NormalTexture");
+    static NORMALTEXTURE: number;
     /** @internal */
-    static NORMALSCALE: number = Shader3D.propertyNameToID("u_NormalScale");
+    static NORMALSCALE: number;
     /** @internal */
-    static SMOOTHNESS: number = Shader3D.propertyNameToID("u_Smoothness");
+    static SMOOTHNESS: number;
     /** @internal */
-    static SMOOTHNESSSCALE: number = Shader3D.propertyNameToID("u_SmoothnessScale");
+    static SMOOTHNESSSCALE: number;
     /** @internal */
-    static OCCLUSIONTEXTURE: number = Shader3D.propertyNameToID("u_OcclusionTexture");
+    static OCCLUSIONTEXTURE: number;
     /** @internal */
-    static OCCLUSIONSTRENGTH: number = Shader3D.propertyNameToID("u_occlusionStrength");
+    static OCCLUSIONSTRENGTH: number;
     /** @internal */
-    static PARALLAXTEXTURE: number = Shader3D.propertyNameToID("u_ParallaxTexture");
+    static PARALLAXTEXTURE: number;
     /** @internal */
-    static PARALLAXSCALE: number = Shader3D.propertyNameToID("u_ParallaxScale");
+    static PARALLAXSCALE: number;
     /** @internal */
-    static EMISSIONTEXTURE: number = Shader3D.propertyNameToID("u_EmissionTexture");
+    static EMISSIONTEXTURE: number;
     /** @internal */
-    static EMISSIONCOLOR: number = Shader3D.propertyNameToID("u_EmissionColor");
+    static EMISSIONCOLOR: number;
 
     /** 渲染质量。*/
     static renderQuality: PBRRenderQuality = PBRRenderQuality.High;
 
     /**
-	 * @private
-	 */
+     * @private
+     */
     static __init__(): void {
         PBRMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
         PBRMaterial.SHADERDEFINE_NORMALTEXTURE = Shader3D.getDefineByName("NORMALTEXTURE");
@@ -86,12 +86,27 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH = Shader3D.getDefineByName("LAYA_PBR_BRDF_HIGH");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW = Shader3D.getDefineByName("LAYA_PBR_BRDF_LOW");
+
+        PBRMaterial.ALBEDOTEXTURE = Shader3D.propertyNameToID("u_AlbedoTexture");
+        PBRMaterial.ALBEDOCOLOR = Shader3D.propertyNameToID("u_AlbedoColor");
+        PBRMaterial.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
+        PBRMaterial.NORMALTEXTURE = Shader3D.propertyNameToID("u_NormalTexture");
+        PBRMaterial.NORMALSCALE = Shader3D.propertyNameToID("u_NormalScale");
+        PBRMaterial.SMOOTHNESS = Shader3D.propertyNameToID("u_Smoothness");
+        PBRMaterial.SMOOTHNESSSCALE = Shader3D.propertyNameToID("u_SmoothnessScale");
+        PBRMaterial.OCCLUSIONTEXTURE = Shader3D.propertyNameToID("u_OcclusionTexture");
+        PBRMaterial.OCCLUSIONSTRENGTH = Shader3D.propertyNameToID("u_occlusionStrength");
+        PBRMaterial.PARALLAXTEXTURE = Shader3D.propertyNameToID("u_ParallaxTexture");
+        PBRMaterial.PARALLAXSCALE = Shader3D.propertyNameToID("u_ParallaxScale");
+        PBRMaterial.EMISSIONTEXTURE = Shader3D.propertyNameToID("u_EmissionTexture");
+        PBRMaterial.EMISSIONCOLOR = Shader3D.propertyNameToID("u_EmissionColor");
+
     }
 
 
     /**
-	 * 漫反射颜色。
-	 */
+     * 漫反射颜色。
+     */
     get albedoColor(): Vector4 {
         return <Vector4>this._shaderValues.getVector(PBRMaterial.ALBEDOCOLOR);
     }
@@ -100,9 +115,9 @@ export class PBRMaterial extends Material {
         this._shaderValues.setVector(PBRMaterial.ALBEDOCOLOR, value);
     }
 
-	/**
-	 * 漫反射贴图。
-	 */
+    /**
+     * 漫反射贴图。
+     */
     get albedoTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.ALBEDOTEXTURE);
     }
@@ -116,9 +131,9 @@ export class PBRMaterial extends Material {
         this._shaderValues.setTexture(PBRMaterial.ALBEDOTEXTURE, value);
     }
 
-	/**
-	 * 法线贴图。
-	 */
+    /**
+     * 法线贴图。
+     */
     get normalTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.NORMALTEXTURE);
     }
@@ -132,9 +147,9 @@ export class PBRMaterial extends Material {
         this._shaderValues.setTexture(PBRMaterial.NORMALTEXTURE, value);
     }
 
-	/**
-	 * 法线贴图缩放系数。
-	 */
+    /**
+     * 法线贴图缩放系数。
+     */
     get normalTextureScale(): number {
         return this._shaderValues.getNumber(PBRMaterial.NORMALSCALE);
     }
@@ -143,9 +158,9 @@ export class PBRMaterial extends Material {
         this._shaderValues.setNumber(PBRMaterial.NORMALSCALE, value);
     }
 
-	/**
-	 * 视差贴图。
-	 */
+    /**
+     * 视差贴图。
+     */
     get parallaxTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.PARALLAXTEXTURE);
     }
@@ -158,9 +173,9 @@ export class PBRMaterial extends Material {
         this._shaderValues.setTexture(PBRMaterial.PARALLAXTEXTURE, value);
     }
 
-	/**
-	 * 视差贴图缩放系数。
-	 */
+    /**
+     * 视差贴图缩放系数。
+     */
     get parallaxTextureScale(): number {
         return this._shaderValues.getNumber(PBRMaterial.PARALLAXSCALE);
     }
@@ -169,9 +184,9 @@ export class PBRMaterial extends Material {
         this._shaderValues.setNumber(PBRMaterial.PARALLAXSCALE, Math.max(0.005, Math.min(0.08, value)));
     }
 
-	/**
-	 * 遮挡贴图。
-	 */
+    /**
+     * 遮挡贴图。
+     */
     get occlusionTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.OCCLUSIONTEXTURE);
     }
@@ -185,9 +200,9 @@ export class PBRMaterial extends Material {
         this._shaderValues.setTexture(PBRMaterial.OCCLUSIONTEXTURE, value);
     }
 
-	/**
-	 * 遮挡贴图强度,范围为0到1。
-	 */
+    /**
+     * 遮挡贴图强度,范围为0到1。
+     */
     get occlusionTextureStrength(): number {
         return this._shaderValues.getNumber(PBRMaterial.OCCLUSIONSTRENGTH);
     }
@@ -197,8 +212,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-	 * 光滑度,范围为0到1。
-	 */
+     * 光滑度,范围为0到1。
+     */
     get smoothness(): number {
         return this._shaderValues.getNumber(PBRMaterial.SMOOTHNESS);
     }
@@ -207,9 +222,9 @@ export class PBRMaterial extends Material {
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, Math.max(0.0, Math.min(1.0, value)));
     }
 
-	/**
-	 * 光滑度缩放系数,范围为0到1。
-	 */
+    /**
+     * 光滑度缩放系数,范围为0到1。
+     */
     get smoothnessTextureScale(): number {
         return this._shaderValues.getNumber(PBRMaterial.SMOOTHNESSSCALE);
     }
@@ -219,8 +234,8 @@ export class PBRMaterial extends Material {
     }
 
     /**
-	 * 是否开启自发光。
-	 */
+     * 是否开启自发光。
+     */
     get enableEmission(): boolean {
         return this._shaderValues.hasDefine(PBRMaterial.SHADERDEFINE_EMISSION);
     }
@@ -232,9 +247,9 @@ export class PBRMaterial extends Material {
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_EMISSION);
     }
 
-	/**
-	 * 自发光颜色。
-	 */
+    /**
+     * 自发光颜色。
+     */
     get emissionColor(): Vector4 {
         return <Vector4>this._shaderValues.getVector(PBRMaterial.EMISSIONCOLOR);
     }
@@ -243,9 +258,9 @@ export class PBRMaterial extends Material {
         this._shaderValues.setVector(PBRMaterial.EMISSIONCOLOR, value);
     }
 
-	/**
-	 * 自发光贴图。
-	 */
+    /**
+     * 自发光贴图。
+     */
     get emissionTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.EMISSIONTEXTURE);
     }
@@ -259,27 +274,27 @@ export class PBRMaterial extends Material {
         this._shaderValues.setTexture(PBRMaterial.EMISSIONTEXTURE, value);
     }
 
-	/**
-	 * 纹理平铺和偏移。
-	 */
+    /**
+     * 纹理平铺和偏移。
+     */
     get tilingOffset(): Vector4 {
         return (<Vector4>this._shaderValues.getVector(PBRMaterial.TILINGOFFSET));
     }
 
     set tilingOffset(value: Vector4) {
         if (value) {
-			this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, value);
-		}
-		else {
-			this._shaderValues.getVector(PBRMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
-		}
+            this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, value);
+        }
+        else {
+            this._shaderValues.getVector(PBRMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+        }
     }
 
 
 
     /**
-	 * 渲染模式。
-	 */
+     * 渲染模式。
+     */
     set renderMode(value: number) {
         switch (value) {
             case PBRRenderMode.Opaque:

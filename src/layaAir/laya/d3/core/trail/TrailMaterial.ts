@@ -20,9 +20,9 @@ export class TrailMaterial extends Material {
 	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
 	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
-	static MAINTEXTURE: number = Shader3D.propertyNameToID("u_MainTexture");
-	static TINTCOLOR: number = Shader3D.propertyNameToID("u_MainColor");
-	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+	static MAINTEXTURE: number;
+	static TINTCOLOR: number;
+	static TILINGOFFSET: number;
 
 
 	/**
@@ -31,6 +31,10 @@ export class TrailMaterial extends Material {
 	static __initDefine__(): void {
 		TrailMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
 		TrailMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
+		TrailMaterial.MAINTEXTURE = Shader3D.propertyNameToID("u_MainTexture");
+		TrailMaterial.TINTCOLOR = Shader3D.propertyNameToID("u_MainColor");
+		TrailMaterial.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
+
 	}
 
 	/**@internal */

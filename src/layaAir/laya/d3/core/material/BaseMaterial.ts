@@ -18,8 +18,7 @@ export class BaseMaterial {
 	static RENDERQUEUE_ALPHATEST: number = 2450;
 	/** @deprecated 废弃请使用Material类 use Material.RENDERQUEUE_TRANSPARENT instead*/
 	static RENDERQUEUE_TRANSPARENT: number = 3000;
-	/** @deprecated 废弃请使用Material类 use Material.ALPHATESTVALUE instead*/
-	static ALPHATESTVALUE: number = Shader3D.propertyNameToID("u_AlphaTestValue");
+	
 	/** @deprecated 废弃请使用Material类 use Material.SHADERDEFINE_ALPHATEST instead*/
 	static SHADERDEFINE_ALPHATEST: ShaderDefine;
 

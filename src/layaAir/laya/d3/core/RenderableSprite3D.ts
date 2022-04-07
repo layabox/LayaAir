@@ -17,21 +17,21 @@ export class RenderableSprite3D extends Sprite3D {
 	/**精灵级着色器宏定义,光照贴图方向。 */
 	static SHADERDEFINE_LIGHTMAP_DIRECTIONAL: ShaderDefine;
 	/**着色器变量名，光照贴图缩放和偏移。*/
-	static LIGHTMAPSCALEOFFSET: number = Shader3D.propertyNameToID("u_LightmapScaleOffset");
+	static LIGHTMAPSCALEOFFSET: number;
 	/**着色器变量名，光照贴图。*/
-	static LIGHTMAP: number = Shader3D.propertyNameToID("u_LightMap");
+	static LIGHTMAP: number;
 	/**着色器变量名，光照贴图方向。*/
-	static LIGHTMAP_DIRECTION: number = Shader3D.propertyNameToID("u_LightMapDirection");
+	static LIGHTMAP_DIRECTION: number;
 	/**拾取颜色。*/
-	static PICKCOLOR: number = Shader3D.propertyNameToID("u_PickColor");
+	static PICKCOLOR: number;
 	/** 反射贴图 */
-	static REFLECTIONTEXTURE: number = Shader3D.propertyNameToID("u_ReflectTexture");
+	static REFLECTIONTEXTURE: number;
 	/** 反射贴图参数 */
-	static REFLECTIONCUBE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_ReflectCubeHDRParams");
+	static REFLECTIONCUBE_HDR_PARAMS: number;
 	/** 反射探针位置 最大最小值*/
-	static REFLECTIONCUBE_PROBEPOSITION: number = Shader3D.propertyNameToID("u_SpecCubeProbePosition");
-	static REFLECTIONCUBE_PROBEBOXMAX: number = Shader3D.propertyNameToID("u_SpecCubeBoxMax");
-	static REFLECTIONCUBE_PROBEBOXMIN: number = Shader3D.propertyNameToID("u_SpecCubeBoxMin");
+	static REFLECTIONCUBE_PROBEPOSITION: number;
+	static REFLECTIONCUBE_PROBEBOXMAX: number;
+	static REFLECTIONCUBE_PROBEBOXMIN: number;
 	pickColor: Vector4;
 
 
