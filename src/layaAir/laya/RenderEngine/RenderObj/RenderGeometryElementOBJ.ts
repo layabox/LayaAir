@@ -20,11 +20,11 @@ export class RenderGeometryElementOBJ implements IRenderGeometryElement{
     setDrawArrayParams(first: number, count: number):void {
 		this.drawParams.add(first);
 		this.drawParams.add(count);	
-	}
-	setDrawElemenParams(count: number, offset: number):void {
-		this.drawParams.add(offset);
-		this.drawParams.add(count);
-	}
+	  }
+    setDrawElemenParams(count: number, offset: number):void {
+      this.drawParams.add(offset);
+      this.drawParams.add(count);
+    }
     destroy():void{
 
     }

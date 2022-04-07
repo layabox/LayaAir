@@ -28,6 +28,7 @@ import { NativeGLShaderInstance } from "./NativeGLShaderInstance";
 import { NativeGLTextureContext } from "./NativeGLTextureContext";
 import { NativeGLVertexState } from "./NativeGLVertexState";
 import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
+import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 
 
 /**
@@ -349,10 +350,17 @@ export class NativeWebGLEngine implements IRenderEngine {
     return this._GL2DRenderContext;
   }
 
+  getCreateRenderOBJContext():IRenderOBJCreate{
+    //TODO
+    return null;
+  }
+
   //TODO:
   getPropertyNameToID(name: string): number {
     return Shader3D.propertyNameToID(name);
   }
+
+  
 
   /**
    * @internal

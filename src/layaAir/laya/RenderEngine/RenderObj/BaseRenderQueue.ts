@@ -150,7 +150,8 @@ export class BaseRenderQueue implements IRenderQueue {
 			
 		// for (var i: number = 0, n: number = this.elements.length; i < n; i++)
 		// 	elements[i]._render(context);
-        //更新所有大buffer数据
+        //更新所有大buffer数据 nativeTODO
+
         for (var i: number = 0, n: number = this.elements.length; i < n; i++)
 			elements[i]._render(this);//Update Data
         //UpdateRender All
