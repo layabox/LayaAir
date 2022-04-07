@@ -5,31 +5,50 @@ import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 
-export class RenderGeometryElementOBJ implements IRenderGeometryElement{
-    bufferState:BufferState;
-    mode:MeshTopology;
-    drawType:DrawType;
-    drawParams:SingletonList<number>;
-    instanceCount:number;
-    indexFormat:IndexFormat;
-    constructor(mode:MeshTopology,drawType:DrawType){
-        this.mode = mode;
-		this.drawParams = new SingletonList();
-		this.drawType = drawType;
-    }
-    setDrawArrayParams(first: number, count: number):void {
-		this.drawParams.add(first);
-		this.drawParams.add(count);	
-	  }
-    setDrawElemenParams(count: number, offset: number):void {
-      this.drawParams.add(offset);
-      this.drawParams.add(count);
-    }
-    destroy():void{
+export class RenderGeometryElementOBJ implements IRenderGeometryElement {
+  /**@internal */
+  bufferState: BufferState;
 
-    }
+  /**@internal */
+  mode: MeshTopology;
 
-    clearRenderParams() {
-		this.drawParams.length = 0;
-	}
+  /**@internal */
+  drawType: DrawType;
+
+  /**@internal */
+  drawParams: SingletonList<number>;
+
+  /**@internal */
+  instanceCount: number;
+
+  /**@internal */
+  indexFormat: IndexFormat;
+
+  /**@internal */
+  constructor(mode: MeshTopology, drawType: DrawType) {
+    this.mode = mode;
+    this.drawParams = new SingletonList();
+    this.drawType = drawType;
+  }
+
+  /**@internal */
+  setDrawArrayParams(first: number, count: number): void {
+    this.drawParams.add(first);
+    this.drawParams.add(count);
+  }
+
+  /**@internal */
+  setDrawElemenParams(count: number, offset: number): void {
+    this.drawParams.add(offset);
+    this.drawParams.add(count);
+  }
+  
+  /**@internal */
+  destroy(): void {
+
+  }
+
+  clearRenderParams() {
+    this.drawParams.length = 0;
+  }
 }

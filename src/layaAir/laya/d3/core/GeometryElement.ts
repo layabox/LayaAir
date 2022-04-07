@@ -6,7 +6,6 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { LayaGL } from "../../layagl/LayaGL";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
-import { RenderGeometryElementOBJ } from "../../RenderEngine/RenderObj/RenderGeometryElementOBJ";
 
 /**
  * <code>GeometryElement</code> 类用于实现几何体元素,该类为抽象类。
@@ -18,8 +17,6 @@ export class GeometryElement implements IDestroy{
 	/**@internal */
 	protected _destroyed: boolean;
 	_geometryElementOBj:IRenderGeometryElement;
-
-	
 
 	/**
 	 * VAO OBJ
