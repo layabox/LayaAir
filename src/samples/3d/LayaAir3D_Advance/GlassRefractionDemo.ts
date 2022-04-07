@@ -14,6 +14,7 @@ import { Material } from "laya/d3/core/material/Material";
 import { Loader } from "laya/net/Loader";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { TextureCube } from "laya/d3/resource/TextureCube";
+import { Vector3 } from "laya/d3/math/Vector3";
 import { GlassRefractionMaterial } from "./GlassRefractionDemo/GlassRefractionMaterial";
 
 export class GlassRefractionDemo {
@@ -41,6 +42,11 @@ export class GlassRefractionDemo {
                 (this.camera as Camera).opaquePass = true;
                 this.camera.addComponent(CameraMoveScript);
                 this.glassReflect = scene.getChildByName("glassreflect") as MeshSprite3D;
+                Laya.timer.frameLoop(1, this, function () {
+                    this.glassReflect.transform.rotate(new Vector3(0, 0.01, 0), false);
+                    this.glassReflect.getChildAt(0).transform.rotate(new Vector3(0, -0.02, 0), false);
+                });
+
                 (this.mat as GlassRefractionMaterial).bumpTexture = Loader.getRes("res/GlassRefraction/Conventional/Assets/Materials/normal2.jpg");
                 (this.mat as GlassRefractionMaterial).mainTexture = Loader.getRes("res/GlassRefraction/Conventional/Assets/Materials/grendwall.jpg");
                 TextureCube.load("res/GlassRefraction/Conventional/Assets/Scenes/glassReflectGIReflection.ltcb.ls", Handler.create(this, function(cubemap){
