@@ -8,7 +8,7 @@ import { WebGLEngine } from "./WebGLEngine";
 
 
 export class GLVertexState extends GLObject implements IRenderVertexState {
-    private _angleInstancedArrays:any;
+    private _angleInstancedArrays: any;
     private _vaoExt: any | null;
     private _vao: WebGLVertexArrayObject | WebGLVertexArrayObjectOES;
 
@@ -93,7 +93,7 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
                     this._gl.enableVertexAttribArray(loc);
                     this._gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
                     if (element._instanceBuffer)
-                    this.vertexAttribDivisor(loc,1);
+                        this.vertexAttribDivisor(loc, 1);
                 }
             });
         } else {
@@ -102,10 +102,10 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
 
     }
 
-    applyIndexBuffer(indexBuffer: IndexBuffer|null): void {
+    applyIndexBuffer(indexBuffer: IndexBuffer | null): void {
         //需要强制更新IndexBuffer
-        
-        if(indexBuffer==null){
+
+        if (indexBuffer == null) {
             return;
         }
         if (this._engine._GLBindVertexArray == this) {

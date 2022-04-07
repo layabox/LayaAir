@@ -43,7 +43,7 @@ export class RenderElement {
 	protected _material: Material;//可能为空
 	/** @internal */
 	protected _baseRender: BaseRender;
-
+	/**@internal */
 	protected _subShader:SubShader;
 
 	/** @internal */

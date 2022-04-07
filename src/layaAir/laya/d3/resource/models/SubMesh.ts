@@ -31,8 +31,6 @@ export class SubMesh extends GeometryElement {
 	_subIndexBufferStart: number[];
 	/** @internal */
 	_subIndexBufferCount: number[];
-	/** @internal */
-	_skinAnimationDatas: Float32Array[];
 
 	/** @internal */
 	_indexInMesh: number;
@@ -138,8 +136,9 @@ export class SubMesh extends GeometryElement {
 		//SkinMesh TODO:
 		if (skinnedDatas) {
 			this.bufferState.bind();
-			var subSkinnedDatas: Float32Array[] = skinnedDatas[this._indexInMesh];
+			//var subSkinnedDatas: Float32Array[] = skinnedDatas[this._indexInMesh];
 			for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
+				this.setDrawElemenParams(this._subIndexBufferCount[i],this._subIndexBufferStart[i] * byteCount);
 				//state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
 				//LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._subIndexBufferCount[i], mesh.indexFormat, this._subIndexBufferStart[i] * byteCount);
 			}
@@ -150,7 +149,6 @@ export class SubMesh extends GeometryElement {
 		// Stat.trianglesFaces += this._indexCount / 3;
 		// Stat.renderBatches++;
 	}
-
 
 
 	/**
@@ -185,7 +183,6 @@ export class SubMesh extends GeometryElement {
 		this._boneIndicesList = null;
 		this._subIndexBufferStart = null;
 		this._subIndexBufferCount = null;
-		this._skinAnimationDatas = null;
 	}
 }
 

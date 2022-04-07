@@ -21,6 +21,7 @@ export class RenderElementOBJ implements IRenderElement {
     _transform: Transform3D;
 
     _isRender: boolean;
+
     constructor(){
         this._shaderInstances = new SingletonList();
     }
@@ -93,9 +94,13 @@ export class RenderElementOBJ implements IRenderElement {
                 //TODO：Renderstate as a Object to less upload
                 shaderIns.uploadRenderStateBlendDepth(this._materialShaderData);
                 shaderIns.uploadRenderStateFrontFace(this._materialShaderData, forceInvertFace, this.getInvertFront());
-                LayaGL.renderDrawConatext.drawGeometryElement(this._geometry);
+                this.drawGeometry(shaderIns);
             }
         }
+    }
+
+    drawGeometry(shaderIns:ShaderInstance){
+        LayaGL.renderDrawConatext.drawGeometryElement(this._geometry);
     }
 
     _destroy() {
