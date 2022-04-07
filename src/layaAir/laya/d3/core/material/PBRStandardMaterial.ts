@@ -29,9 +29,9 @@ export class PBRStandardMaterial extends PBRMaterial {
 	/** @internal */
 	static SHADERDEFINE_METALLICGLOSSTEXTURE: ShaderDefine;
 	/** @internal */
-	static METALLICGLOSSTEXTURE: number = Shader3D.propertyNameToID("u_MetallicGlossTexture");
+	static METALLICGLOSSTEXTURE: number;
 	/** @internal */
-	static METALLIC: number = Shader3D.propertyNameToID("u_Metallic");
+	static METALLIC: number;
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PBRStandardMaterial;
 
@@ -41,6 +41,8 @@ export class PBRStandardMaterial extends PBRMaterial {
 	static __init__(): void {
 		PBRStandardMaterial.SHADERDEFINE_METALLICGLOSSTEXTURE = Shader3D.getDefineByName("METALLICGLOSSTEXTURE");
 		PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
+		PBRStandardMaterial.METALLICGLOSSTEXTURE = Shader3D.propertyNameToID("u_MetallicGlossTexture");
+		PBRStandardMaterial.METALLIC = Shader3D.propertyNameToID("u_Metallic");
 		var shader: Shader3D = Shader3D.add("PBR", true, true);
 		var subShader: SubShader = new SubShader();
 		shader.addSubShader(subShader);

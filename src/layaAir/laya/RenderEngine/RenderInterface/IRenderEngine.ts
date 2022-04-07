@@ -32,6 +32,8 @@ export interface IRenderEngine {
     clearRenderTexture(clearFlag: RenderClearFlag|number, clearcolor:Color, clearDepth:number):void;
     scissorTest(value:boolean):void;
 
+    propertyNameToID(name: string): number;
+
     getParams(params: RenderParams): number ;
     getCapable(capatableType: RenderCapable): boolean;
     getTextureContext(): ITextureContext;

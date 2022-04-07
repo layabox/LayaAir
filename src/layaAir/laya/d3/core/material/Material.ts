@@ -33,27 +33,27 @@ export class Material extends Resource implements IClone {
 	static RENDERQUEUE_TRANSPARENT: number = 3000;
 
 	/**着色器变量,透明测试值。*/
-	static ALPHATESTVALUE: number = Shader3D.propertyNameToID("u_AlphaTestValue");
+	static ALPHATESTVALUE: number;
 	/**@internal */
-	static CULL: number = Shader3D.propertyNameToID("s_Cull");
+	static CULL: number;
 	/**@internal */
-	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
+	static BLEND: number;
 	/**@internal */
-	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
+	static BLEND_SRC: number;
 	/**@internal */
-	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
+	static BLEND_DST: number;
 	/**@internal */
-	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
+	static DEPTH_TEST: number;
 	/**@internal */
-	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
+	static DEPTH_WRITE: number;
 	/**@internal */
-	static STENCIL_TEST: number = Shader3D.propertyNameToID("s_StencilTest");
+	static STENCIL_TEST: number;
 	/**@internal */
-	static STENCIL_WRITE: number = Shader3D.propertyNameToID("s_StencilWrite");
+	static STENCIL_WRITE: number;
 	/**@internal */
-	static STENCIL_Ref: number = Shader3D.propertyNameToID("s_StencilRef");
+	static STENCIL_Ref: number;
 	/**@internal */
-	static STENCIL_Op: number = Shader3D.propertyNameToID("s_StencilOp");
+	static STENCIL_Op: number;
 
 	/**@internal */
 
@@ -75,14 +75,25 @@ export class Material extends Resource implements IClone {
 	 */
 	static __initDefine__(): void {
 		Material.SHADERDEFINE_ALPHATEST = Shader3D.getDefineByName("ALPHATEST");
+		Material.ALPHATESTVALUE = Shader3D.propertyNameToID("u_AlphaTestValue");
+		Material.CULL = Shader3D.propertyNameToID("s_Cull");
+		Material.BLEND = Shader3D.propertyNameToID("s_Blend");
+		Material.BLEND_SRC = Shader3D.propertyNameToID("s_BlendSrc");
+		Material.BLEND_DST = Shader3D.propertyNameToID("s_BlendDst");
+		Material.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
+		Material.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
+		Material.STENCIL_TEST = Shader3D.propertyNameToID("s_StencilTest");
+		Material.STENCIL_WRITE = Shader3D.propertyNameToID("s_StencilWrite");
+		Material.STENCIL_Ref = Shader3D.propertyNameToID("s_StencilRef");
+		Material.STENCIL_Op = Shader3D.propertyNameToID("s_StencilOp");
 	}
 
 	/**
 	 * TODO:
 	 * 兼容Blend数据
 	 */
-	static _getRenderStateParams(type:number){
-		switch(type){
+	static _getRenderStateParams(type: number) {
+		switch (type) {
 			case 0x0300:
 				return BlendFactor.SourceColor;
 			case 0x0301:
@@ -200,11 +211,11 @@ export class Material extends Resource implements IClone {
 							var renderStateData: any = renderStatesData[0];
 							var mat: Material = (<Material>material);//TODO:临时兼容
 							mat.blend = renderStateData.blend;
-							mat.cull =this._getRenderStateParams(renderStateData.cull);
-							mat.depthTest =this._getRenderStateParams(renderStateData.depthTest);
+							mat.cull = this._getRenderStateParams(renderStateData.cull);
+							mat.depthTest = this._getRenderStateParams(renderStateData.depthTest);
 							mat.depthWrite = renderStateData.depthWrite;
-							mat.blendSrc =this._getRenderStateParams(renderStateData.srcBlend);
-							mat.blendDst =this._getRenderStateParams(renderStateData.dstBlend);
+							mat.blendSrc = this._getRenderStateParams(renderStateData.srcBlend);
+							mat.blendDst = this._getRenderStateParams(renderStateData.dstBlend);
 							break;
 						case "cull"://"LAYAMATERIAL:01"
 							((<any>material)).cull = this._getRenderStateParams(props[key]);
@@ -216,13 +227,13 @@ export class Material extends Resource implements IClone {
 							((<any>material)).depthWrite = this._getRenderStateParams(props[key]);
 							break;
 						case "srcBlend"://"LAYAMATERIAL:01" 
-							((<any>material)).blendSrc =this._getRenderStateParams( props[key]);
+							((<any>material)).blendSrc = this._getRenderStateParams(props[key]);
 							break;
 						case "dstBlend"://"LAYAMATERIAL:01" 
 							((<any>material)).blendDst = this._getRenderStateParams(props[key]);
 							break;
 						case "depthTest":
-							((<any>material)).depthTest =this._getRenderStateParams( props[key]);
+							((<any>material)).depthTest = this._getRenderStateParams(props[key]);
 							break;
 						case "blendDst":
 							((<any>material)).blendDst = this._getRenderStateParams(props[key]);

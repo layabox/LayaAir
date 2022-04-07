@@ -50,25 +50,25 @@ export class ShadowCasterPass {
 	/**@internal */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
 	/** @internal */
-	static SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
+	static SHADOW_BIAS: number;
 	/** @internal */
-	static SHADOW_LIGHT_DIRECTION: number = Shader3D.propertyNameToID("u_ShadowLightDirection");
+	static SHADOW_LIGHT_DIRECTION: number;
 	/** @internal */
-	static SHADOW_SPLIT_SPHERES: number = Shader3D.propertyNameToID("u_ShadowSplitSpheres");
+	static SHADOW_SPLIT_SPHERES: number;
 	/** @internal */
-	static SHADOW_MATRICES: number = Shader3D.propertyNameToID("u_ShadowMatrices");
+	static SHADOW_MATRICES: number;
 	/** @internal */
-	static SHADOW_MAP_SIZE: number = Shader3D.propertyNameToID("u_ShadowMapSize");
+	static SHADOW_MAP_SIZE: number;
 	/** @internal */
-	static SHADOW_MAP: number = Shader3D.propertyNameToID("u_ShadowMap");
+	static SHADOW_MAP: number;
 	/** @internal */
-	static SHADOW_PARAMS: number = Shader3D.propertyNameToID("u_ShadowParams");
+	static SHADOW_PARAMS: number;
 	/** @internal */
-	static SHADOW_SPOTMAP_SIZE: number = Shader3D.propertyNameToID("u_SpotShadowMapSize");
+	static SHADOW_SPOTMAP_SIZE: number;
 	/** @internal */
-	static SHADOW_SPOTMAP: number = Shader3D.propertyNameToID("u_SpotShadowMap");
+	static SHADOW_SPOTMAP: number;
 	/** @internal */
-	static SHADOW_SPOTMATRICES: number = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
+	static SHADOW_SPOTMATRICES: number;
 	/** @internal */
 	private static _maxCascades: number = 4;
 	/**@internal */
@@ -81,7 +81,7 @@ export class ShadowCasterPass {
 	 * init Scene UniformMap
 	 */
 	static __init__() {
-		ShadowCasterPass._frustumPlanes = new Array(LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0), LayaGL.renderOBJCreate.createPlane(new Vector3(),0));
+		ShadowCasterPass._frustumPlanes = new Array(LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0));
 		const sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
 		ShadowCasterPass.SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
 		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS, "u_ShadowBias");
@@ -387,11 +387,11 @@ export class ShadowCasterPass {
 					var resolution: number = sliceData.resolution;
 					var offsetX: number = sliceData.offsetX;
 					var offsetY: number = sliceData.offsetY;
-					
+
 					LayaGL.renderEngine.viewport(offsetX, offsetY, resolution, resolution);
 					LayaGL.renderEngine.scissor(offsetX, offsetY, resolution, resolution);
-					
-					LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth,null,1);
+
+					LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, null, 1);
 					if (needRender) {// if one cascade have anything to render.
 						//LayaGL.renderEngine.scissor(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);//for no cascade is for the edge,for cascade is for the beyond maxCascade pixel can use (0,0,0) trick sample the shadowMap
 						scene._opaqueQueue.changeViewport(offsetX, offsetY, resolution, resolution);
@@ -423,7 +423,7 @@ export class ShadowCasterPass {
 
 				LayaGL.renderEngine.viewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 				LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth,null,1);
+				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, null, 1);
 
 				if (needRender) {
 					//LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);

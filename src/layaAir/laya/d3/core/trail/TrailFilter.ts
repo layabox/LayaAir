@@ -21,17 +21,25 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。
  */
 export class TrailFilter {
-	static CURTIME: number = Shader3D.propertyNameToID("u_CurTime");
-	static LIFETIME: number = Shader3D.propertyNameToID("u_LifeTime");
-	static WIDTHCURVE: number = Shader3D.propertyNameToID("u_WidthCurve");
-	static WIDTHCURVEKEYLENGTH: number = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
+	static CURTIME: number ;
+	static LIFETIME: number ;
+	static WIDTHCURVE: number ;
+	static WIDTHCURVEKEYLENGTH: number ;
 
 	static __init__() {
 		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+
+		TrailFilter.CURTIME = Shader3D.propertyNameToID("u_CurTime");
+		TrailFilter.LIFETIME = Shader3D.propertyNameToID("u_LifeTime");
+		TrailFilter.WIDTHCURVE = Shader3D.propertyNameToID("u_WidthCurve");
+		TrailFilter.WIDTHCURVEKEYLENGTH = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
+
 		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime");
 		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime");
 		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve");
 		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength");
+
+
 	}
 
 	/**@internal */

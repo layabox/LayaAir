@@ -30,9 +30,9 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	/** @internal */
 	static SHADERDEFINE_SPECULARGLOSSTEXTURE: ShaderDefine;
 	/** @internal */
-	static SPECULARTEXTURE: number = Shader3D.propertyNameToID("u_SpecGlossTexture");
+	static SPECULARTEXTURE: number;
 	/** @internal */
-	static SPECULARCOLOR: number = Shader3D.propertyNameToID("u_SpecularColor");
+	static SPECULARCOLOR: number;
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PBRSpecularMaterial;
 
@@ -42,6 +42,9 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	static __init__(): void {
 		PBRSpecularMaterial.SHADERDEFINE_SPECULARGLOSSTEXTURE = Shader3D.getDefineByName("SPECULARGLOSSTEXTURE");
 		PBRSpecularMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
+		PBRSpecularMaterial.SPECULARTEXTURE = Shader3D.propertyNameToID("u_SpecGlossTexture");
+		PBRSpecularMaterial.SPECULARCOLOR = Shader3D.propertyNameToID("u_SpecularColor");
+
 		var shader: Shader3D = Shader3D.add("PBRSpecular", true, true);
 		var subShader: SubShader = new SubShader();
 		shader.addSubShader(subShader);

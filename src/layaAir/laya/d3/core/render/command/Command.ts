@@ -21,22 +21,28 @@ export class Command {
 	/** @internal */
 	static MAINTEXTURE_TEXELSIZE_NAME: string = "u_MainTex_TexelSize";//todo：
 	/** @internal */
-	static SCREENTEXTURE_ID: number = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME);//todo：
+	static SCREENTEXTURE_ID: number ;//todo：
 	/** @internal */
-	static SCREENTEXTUREOFFSETSCALE_ID: number = Shader3D.propertyNameToID(Command.SCREENTEXTUREOFFSETSCALE_NAME);//todo：
+	static SCREENTEXTUREOFFSETSCALE_ID: number;//todo：
 	/** @internal */
-	static MAINTEXTURE_TEXELSIZE_ID: number = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME);//todo：
+	static MAINTEXTURE_TEXELSIZE_ID: number ;//todo：
 
 	/**@internal */
 	_commandBuffer: CommandBuffer = null;
 	/**@internal */
-	_context:RenderContext3D;
+	_context: RenderContext3D;
 	/**
 	* @internal
 	*/
 	static __init__(): void {
-		Command._screenShaderData =LayaGL.renderOBJCreate.createShaderData(null);
+		Command._screenShaderData = LayaGL.renderOBJCreate.createShaderData(null);
 		Command._screenShader = Shader3D.find("BlitScreen");
+		/** @internal */
+		Command.SCREENTEXTURE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME);//todo：
+		/** @internal */
+		Command.SCREENTEXTUREOFFSETSCALE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTUREOFFSETSCALE_NAME);//todo：
+		/** @internal */
+		Command.MAINTEXTURE_TEXELSIZE_ID = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME);//todo：
 	}
 
 	/**
@@ -64,7 +70,7 @@ export class Command {
 	 * 设置渲染上下文
 	 * @param context 渲染上下文 
 	 */
-	setContext(context:RenderContext3D){
+	setContext(context: RenderContext3D) {
 		this._context = context;
 	}
 

@@ -41,7 +41,7 @@ export class BlinnPhongMaterialLoad {
 			layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
 			layaMonkey.transform.rotation = new Quaternion(0.7071068, 0, 0, -0.7071067);
 			//加载材质
-			BaseMaterial.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/Materials/T_Diffuse.lmat", Handler.create(this, function (mat: Material): void {
+			Material.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/Materials/T_Diffuse.lmat", Handler.create(this, function (mat: Material): void {
 				layaMonkey.meshRenderer.material = mat;
 			}));
 

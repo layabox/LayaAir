@@ -12,16 +12,23 @@ import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
  * <code>SkyPanoramicMaterial</code> 类用于实现SkyPanoramicMaterial材质。
  */
 export class SkyPanoramicMaterial extends Material {
-    static TINTCOLOR: number = Shader3D.propertyNameToID("u_TintColor");
-    static EXPOSURE: number = Shader3D.propertyNameToID("u_Exposure");
-    static ROTATION: number = Shader3D.propertyNameToID("u_Rotation");
-    static TEXTURE: number = Shader3D.propertyNameToID("u_Texture");
-    static TEXTURE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_TextureHDRParams");
+    static TINTCOLOR: number;
+    static EXPOSURE: number;
+    static ROTATION: number;
+    static TEXTURE: number;
+    static TEXTURE_HDR_PARAMS: number;
 
     /**
      * @internal
      */
     static __init__(): void {
+
+        SkyPanoramicMaterial.TINTCOLOR = Shader3D.propertyNameToID("u_TintColor");
+        SkyPanoramicMaterial.EXPOSURE = Shader3D.propertyNameToID("u_Exposure");
+        SkyPanoramicMaterial.ROTATION = Shader3D.propertyNameToID("u_Rotation");
+        SkyPanoramicMaterial.TEXTURE = Shader3D.propertyNameToID("u_Texture");
+        SkyPanoramicMaterial.TEXTURE_HDR_PARAMS = Shader3D.propertyNameToID("u_TextureHDRParams");
+
         var shader: Shader3D = Shader3D.add("SkyPanoramic");
         var subShader: SubShader = new SubShader();
         shader.addSubShader(subShader);

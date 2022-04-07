@@ -7,7 +7,7 @@ import { Material } from "../material/Material";
  */
 export class PixelLineMaterial extends Material {
 	/**@internal */
-	static COLOR: number = Shader3D.propertyNameToID("u_Color");
+	static COLOR: number;
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PixelLineMaterial;
@@ -16,7 +16,7 @@ export class PixelLineMaterial extends Material {
 	* @internal
 	*/
 	static __initDefine__(): void {
-
+		PixelLineMaterial.COLOR = Shader3D.propertyNameToID("u_Color");
 	}
 
 	/**

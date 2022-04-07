@@ -15,17 +15,17 @@ export class SkyProceduralMaterial extends Material {
 	static SUN_HIGH_QUALITY: number = 2;
 
 	/**@internal */
-	static SUNSIZE: number = Shader3D.propertyNameToID("u_SunSize");
+	static SUNSIZE: number;
 	/**@internal */
-	static SUNSIZECONVERGENCE: number = Shader3D.propertyNameToID("u_SunSizeConvergence");
+	static SUNSIZECONVERGENCE: number;
 	/**@internal */
-	static ATMOSPHERETHICKNESS: number = Shader3D.propertyNameToID("u_AtmosphereThickness");
+	static ATMOSPHERETHICKNESS: number;
 	/**@internal */
-	static SKYTINT: number = Shader3D.propertyNameToID("u_SkyTint");
+	static SKYTINT: number;
 	/**@internal */
-	static GROUNDTINT: number = Shader3D.propertyNameToID("u_GroundTint");
+	static GROUNDTINT: number;
 	/**@internal */
-	static EXPOSURE: number = Shader3D.propertyNameToID("u_Exposure");
+	static EXPOSURE: number;
 
 	/**@internal */
 	static SHADERDEFINE_SUN_HIGH_QUALITY: ShaderDefine;
@@ -41,6 +41,12 @@ export class SkyProceduralMaterial extends Material {
 	static __initDefine__(): void {
 		SkyProceduralMaterial.SHADERDEFINE_SUN_HIGH_QUALITY = Shader3D.getDefineByName("SUN_HIGH_QUALITY");
 		SkyProceduralMaterial.SHADERDEFINE_SUN_SIMPLE = Shader3D.getDefineByName("SUN_SIMPLE");
+		SkyProceduralMaterial.SUNSIZE = Shader3D.propertyNameToID("u_SunSize");
+		SkyProceduralMaterial.SUNSIZECONVERGENCE = Shader3D.propertyNameToID("u_SunSizeConvergence");
+		SkyProceduralMaterial.ATMOSPHERETHICKNESS = Shader3D.propertyNameToID("u_AtmosphereThickness");
+		SkyProceduralMaterial.SKYTINT = Shader3D.propertyNameToID("u_SkyTint");
+		SkyProceduralMaterial.GROUNDTINT = Shader3D.propertyNameToID("u_GroundTint");
+		SkyProceduralMaterial.EXPOSURE = Shader3D.propertyNameToID("u_Exposure");
 	}
 
 	/**@internal */

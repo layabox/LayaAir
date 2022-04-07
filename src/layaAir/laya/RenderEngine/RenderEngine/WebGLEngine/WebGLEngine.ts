@@ -46,6 +46,11 @@ export class WebGLEngine implements IRenderEngine {
   private _webglMode: WebGLMode;
 
   /**@internal */
+  private _propertyNameMap: any = {};
+  /**@internal */
+  private _propertyNameCounter: number = 0;
+
+  /**@internal */
   _IDCounter: number;
 
   /**@internal ShaderDebugMode*/
@@ -53,6 +58,7 @@ export class WebGLEngine implements IRenderEngine {
 
   /**@internal gl.TextureID*/
   _glTextureIDParams: Array<number>;
+
 
 
   /**@internal bind active Texture*/
@@ -262,14 +268,14 @@ export class WebGLEngine implements IRenderEngine {
   clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1) {
     var flag: number;
     //this.gl.enable(this._gl.SCISSOR_TEST)
-    if(clearFlag&RenderClearFlag.Color){
-        if (clearcolor && !this._lastClearColor.equal(this._lastClearColor)) {
-          this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
-          clearcolor.cloneTo(this._lastClearColor);
-        }
-        flag |= this.gl.COLOR_BUFFER_BIT;
+    if (clearFlag & RenderClearFlag.Color) {
+      if (clearcolor && !this._lastClearColor.equal(this._lastClearColor)) {
+        this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
+        clearcolor.cloneTo(this._lastClearColor);
+      }
+      flag |= this.gl.COLOR_BUFFER_BIT;
     }
-    if(clearFlag&RenderClearFlag.Depth){
+    if (clearFlag & RenderClearFlag.Depth) {
       if (this._lastClearDepth != clearDepth) {
         this._gl.clearDepth(clearDepth);
         this._lastClearDepth = clearDepth;
@@ -277,7 +283,7 @@ export class WebGLEngine implements IRenderEngine {
       this._GLRenderState.setDepthMask(true);
       flag |= this._gl.DEPTH_BUFFER_BIT;
     }
-    if(clearFlag&RenderClearFlag.Stencil){
+    if (clearFlag & RenderClearFlag.Stencil) {
       this._gl.clearStencil(0);
       this._GLRenderState.setStencilMask(true);
       flag |= this._gl.STENCIL_BUFFER_BIT;
@@ -327,13 +333,29 @@ export class WebGLEngine implements IRenderEngine {
     return this._GL2DRenderContext;
   }
 
-  getCreateRenderOBJContext():IRenderOBJCreate{
+  getCreateRenderOBJContext(): IRenderOBJCreate {
     return new RenderOBJCreateUtil();
   }
 
-  //TODO:
-  getPropertyNameToID(name: string): number {
-    return Shader3D.propertyNameToID(name);
+  // //TODO:
+  // propertyNameToID(name: string): number {
+  //   return this.propertyNameToID(name);
+  // }
+
+  /**
+ * 通过Shader属性名称获得唯一ID。
+ * @param name Shader属性名称。
+ * @return 唯一ID。
+ */
+  propertyNameToID(name: string): number {
+    if (this._propertyNameMap[name] != null) {
+      return this._propertyNameMap[name];
+    } else {
+      var id: number = this._propertyNameCounter++;
+      this._propertyNameMap[name] = id;
+      this._propertyNameMap[id] = name;
+      return id;
+    }
   }
 
   /**

@@ -85,7 +85,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
             one.type = uniformData.type;
             this._addShaderUnifiormFun(one);
             this._uniformMap.push(one);
-            one.dataOffset = this._engine.getPropertyNameToID(uniName);
+            one.dataOffset = this._engine.propertyNameToID(uniName);
         }
         if (this._engine.isWebGL2) {
             this._uniformObjectMap = {};
@@ -97,7 +97,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
                 one.name = uniformBlockName;
                 one.isArray = false;
                 one.type = (gl as WebGL2RenderingContext).UNIFORM_BUFFER;
-                one.dataOffset = this._engine.getPropertyNameToID(uniformBlockName);
+                one.dataOffset = this._engine.propertyNameToID(uniformBlockName);
                 let location = one.location = gl2.getUniformBlockIndex(this._program, uniformBlockName);
                 if (!!UniformBufferObject.getBuffer(uniformBlockName,0)) {
                     let indexPoint = UniformBufferObject.getBuffer(uniformBlockName,0);

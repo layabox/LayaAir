@@ -23,21 +23,21 @@ export class PostProcess {
 	/**@internal */
 	static SHADERDEFINE_FINALPASS: ShaderDefine;
 	/**@internal */
-	static SHADERVALUE_MAINTEX: number = Shader3D.propertyNameToID("u_MainTex");
+	static SHADERVALUE_MAINTEX: number;
 	/**@internal */
-	static SHADERVALUE_BLOOMTEX: number = Shader3D.propertyNameToID("u_BloomTex");
+	static SHADERVALUE_BLOOMTEX: number;
 	/**@internal */
-	static SHADERVALUE_AUTOEXPOSURETEX: number = Shader3D.propertyNameToID("u_AutoExposureTex");
+	static SHADERVALUE_AUTOEXPOSURETEX: number;
 	/**@internal */
-	static SHADERVALUE_BLOOM_DIRTTEX: number = Shader3D.propertyNameToID("u_Bloom_DirtTex");
+	static SHADERVALUE_BLOOM_DIRTTEX: number;
 	/**@internal */
-	static SHADERVALUE_BLOOMTEX_TEXELSIZE: number = Shader3D.propertyNameToID("u_BloomTex_TexelSize");
+	static SHADERVALUE_BLOOMTEX_TEXELSIZE: number;
 	/**@internal */
-	static SHADERVALUE_BLOOM_DIRTTILEOFFSET: number = Shader3D.propertyNameToID("u_Bloom_DirtTileOffset");
+	static SHADERVALUE_BLOOM_DIRTTILEOFFSET: number;
 	/**@internal */
-	static SHADERVALUE_BLOOM_SETTINGS: number = Shader3D.propertyNameToID("u_Bloom_Settings");
+	static SHADERVALUE_BLOOM_SETTINGS: number;
 	/**@internal */
-	static SHADERVALUE_BLOOM_COLOR: number = Shader3D.propertyNameToID("u_Bloom_Color");
+	static SHADERVALUE_BLOOM_COLOR: number;
 
 	/**
 	 * @internal
@@ -46,6 +46,16 @@ export class PostProcess {
 		PostProcess.SHADERDEFINE_BLOOM_LOW = Shader3D.getDefineByName("BLOOM_LOW");
 		PostProcess.SHADERDEFINE_BLOOM = Shader3D.getDefineByName("BLOOM");
 		PostProcess.SHADERDEFINE_FINALPASS = Shader3D.getDefineByName("FINALPASS");
+		PostProcess.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
+		PostProcess.SHADERVALUE_BLOOMTEX = Shader3D.propertyNameToID("u_BloomTex");
+		PostProcess.SHADERVALUE_AUTOEXPOSURETEX = Shader3D.propertyNameToID("u_AutoExposureTex");
+		PostProcess.SHADERVALUE_BLOOM_DIRTTEX = Shader3D.propertyNameToID("u_Bloom_DirtTex");
+		PostProcess.SHADERVALUE_BLOOMTEX_TEXELSIZE = Shader3D.propertyNameToID("u_BloomTex_TexelSize");
+		PostProcess.SHADERVALUE_BLOOM_DIRTTILEOFFSET = Shader3D.propertyNameToID("u_Bloom_DirtTileOffset");
+		PostProcess.SHADERVALUE_BLOOM_SETTINGS = Shader3D.propertyNameToID("u_Bloom_Settings");
+		PostProcess.SHADERVALUE_BLOOM_COLOR = Shader3D.propertyNameToID("u_Bloom_Color");
+
+
 	}
 
 	/**@internal */

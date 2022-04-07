@@ -270,7 +270,7 @@ export class NativeWebGLEngine implements IRenderEngine {
     else
       this._gl.disable(this._gl.SCISSOR_TEST);*/
 
-      this._nativeObj.scissorTest(value);
+    this._nativeObj.scissorTest(value);
   }
 
 
@@ -304,7 +304,7 @@ export class NativeWebGLEngine implements IRenderEngine {
     if (clearcolor)
       this._nativeObj.clearRenderTexture(clearFlag, true, clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a, clearDepth);
     else
-      this._nativeObj.clearRenderTexture(clearFlag, false, Color.BLACK.r, Color.BLACK.g , Color.BLACK.b, Color.BLACK.a, clearDepth);
+      this._nativeObj.clearRenderTexture(clearFlag, false, Color.BLACK.r, Color.BLACK.g, Color.BLACK.b, Color.BLACK.a, clearDepth);
   }
 
   copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
@@ -350,17 +350,18 @@ export class NativeWebGLEngine implements IRenderEngine {
     return this._GL2DRenderContext;
   }
 
-  getCreateRenderOBJContext():IRenderOBJCreate{
+  getCreateRenderOBJContext(): IRenderOBJCreate {
     //TODO
     return null;
   }
 
   //TODO:
-  getPropertyNameToID(name: string): number {
-    return Shader3D.propertyNameToID(name);
+  propertyNameToID(name: string): number {
+    //TODO
+    return 0;
   }
 
-  
+
 
   /**
    * @internal

@@ -9,11 +9,11 @@ import { Material } from "./Material";
  */
 export class WaterPrimaryMaterial extends Material {
 
-	static HORIZONCOLOR: number = Shader3D.propertyNameToID("u_HorizonColor");
-	static MAINTEXTURE: number = Shader3D.propertyNameToID("u_MainTexture");
-	static NORMALTEXTURE: number = Shader3D.propertyNameToID("u_NormalTexture");
-	static WAVESCALE: number = Shader3D.propertyNameToID("u_WaveScale");
-	static WAVESPEED: number = Shader3D.propertyNameToID("u_WaveSpeed");
+	static HORIZONCOLOR: number;
+	static MAINTEXTURE: number;
+	static NORMALTEXTURE: number;
+	static WAVESCALE: number;
+	static WAVESPEED: number;
 
 	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
 	static SHADERDEFINE_NORMALTEXTURE: ShaderDefine;
@@ -27,6 +27,11 @@ export class WaterPrimaryMaterial extends Material {
 	static __initDefine__(): void {
 		WaterPrimaryMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
 		WaterPrimaryMaterial.SHADERDEFINE_NORMALTEXTURE = Shader3D.getDefineByName("NORMALTEXTURE");
+		WaterPrimaryMaterial.HORIZONCOLOR = Shader3D.propertyNameToID("u_HorizonColor");
+		WaterPrimaryMaterial.MAINTEXTURE = Shader3D.propertyNameToID("u_MainTexture");
+		WaterPrimaryMaterial.NORMALTEXTURE = Shader3D.propertyNameToID("u_NormalTexture");
+		WaterPrimaryMaterial.WAVESCALE = Shader3D.propertyNameToID("u_WaveScale");
+		WaterPrimaryMaterial.WAVESPEED = Shader3D.propertyNameToID("u_WaveSpeed");
 	}
 
 	/**

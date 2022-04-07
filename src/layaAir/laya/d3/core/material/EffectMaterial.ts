@@ -20,11 +20,11 @@ export class EffectMaterial extends Material {
 	/**@internal */
 	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 	/**@internal */
-	static MAINTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
+	static MAINTEXTURE: number;
 	/**@internal */
-	static TINTCOLOR: number = Shader3D.propertyNameToID("u_AlbedoColor");
+	static TINTCOLOR: number;
 	/**@internal */
-	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+	static TILINGOFFSET: number;
 
 	/**
 	 * @internal
@@ -32,6 +32,10 @@ export class EffectMaterial extends Material {
 	static __initDefine__(): void {
 		EffectMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
 		EffectMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
+		EffectMaterial.MAINTEXTURE= Shader3D.propertyNameToID("u_AlbedoTexture");
+		EffectMaterial.TINTCOLOR= Shader3D.propertyNameToID("u_AlbedoColor");
+		EffectMaterial.TILINGOFFSET= Shader3D.propertyNameToID("u_TilingOffset");
+
 	}
 
 

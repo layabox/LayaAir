@@ -40,13 +40,21 @@ export class DepthPass {
 	/** @internal */
 	static DEPTHPASS: ShaderDefine = Shader3D.getDefineByName("DEPTHPASS");
 	/** @internal */
-	static DEFINE_SHADOW_BIAS: number = Shader3D.propertyNameToID("u_ShadowBias");
+	static DEFINE_SHADOW_BIAS:number;
 	/**@internal */
-	static DEPTHTEXTURE: number = Shader3D.propertyNameToID("u_CameraDepthTexture");
+	static DEPTHTEXTURE: number;
 	/**@internal */
-	static DEPTHNORMALSTEXTURE: number = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
+	static DEPTHNORMALSTEXTURE: number;
 	/**@internal */
-	static DEPTHZBUFFERPARAMS: number = Shader3D.propertyNameToID("u_ZBufferParams");
+	static DEPTHZBUFFERPARAMS: number;
+
+	static __init__() {
+		DepthPass.DEFINE_SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
+		DepthPass.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
+		DepthPass.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
+		DepthPass.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
+	}
+
 	/**@internal */
 	private _depthTexture: RenderTexture;
 	/**@internal */
@@ -114,7 +122,7 @@ export class DepthPass {
 				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
 				shaderValues.addDefine(DepthPass.DEPTHPASS);
-				
+
 				shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
 				if (this._castDepthBuffer) {
 					this._castDepthBuffer._setData(DepthPass.DEFINE_SHADOW_BIAS, ShaderDataType.Vector4, DepthPass.SHADOW_BIAS);
@@ -128,8 +136,8 @@ export class DepthPass {
 				this._depthTexture._start();
 				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth,null,1);
-				scene._opaqueQueue.changeViewport(offsetX,offsetY,this._viewPort.width,this._viewPort.height)
+				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, null, 1);
+				scene._opaqueQueue.changeViewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height)
 				scene._opaqueQueue.destTarget = this._depthTexture;
 				scene._opaqueQueue.renderQueue(context);
 				this._depthTexture._end();
@@ -146,7 +154,7 @@ export class DepthPass {
 				var offsetY: number = this._viewPort.y;
 				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color|RenderClearFlag.Depth,this._defaultNormalDepthColor,1)
+				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1)
 				scene._opaqueQueue.destTarget = this._depthNormalsTexture;
 				scene._opaqueQueue.changeViewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				scene._opaqueQueue.renderQueue(context);

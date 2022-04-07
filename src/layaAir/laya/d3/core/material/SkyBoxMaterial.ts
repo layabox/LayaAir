@@ -7,10 +7,10 @@ import { Material } from "./Material";
  * <code>SkyBoxMaterial</code> 类用于实现SkyBoxMaterial材质。
  */
 export class SkyBoxMaterial extends Material {
-	static TINTCOLOR: number = Shader3D.propertyNameToID("u_TintColor");
-	static EXPOSURE: number = Shader3D.propertyNameToID("u_Exposure");
-	static ROTATION: number = Shader3D.propertyNameToID("u_Rotation");
-	static TEXTURECUBE: number = Shader3D.propertyNameToID("u_CubeTexture");
+	static TINTCOLOR: number;
+	static EXPOSURE: number;
+	static ROTATION: number;
+	static TEXTURECUBE: number;
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: SkyBoxMaterial;
@@ -19,7 +19,10 @@ export class SkyBoxMaterial extends Material {
 	* @internal
 	*/
 	static __initDefine__(): void {
-
+		SkyBoxMaterial.TINTCOLOR = Shader3D.propertyNameToID("u_TintColor");
+		SkyBoxMaterial.EXPOSURE = Shader3D.propertyNameToID("u_Exposure");
+		SkyBoxMaterial.ROTATION = Shader3D.propertyNameToID("u_Rotation");
+		SkyBoxMaterial.TEXTURECUBE = Shader3D.propertyNameToID("u_CubeTexture");
 	}
 
 	/**
