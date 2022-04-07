@@ -10,6 +10,7 @@ import { RenderStateCommand } from "../RenderStateCommand";
 import { IRender2DContext } from "./IRender2DContext";
 import { IRenderBuffer } from "./IRenderBuffer";
 import { IRenderDrawContext } from "./IRenderDrawContext";
+import { IRenderOBJCreate } from "./IRenderOBJCreate";
 import { IRenderShaderInstance } from "./IRenderShaderInstance";
 import { IRenderVertexState } from "./IRenderVertexState";
 import { ITextureContext } from "./ITextureContext";
@@ -37,6 +38,7 @@ export interface IRenderEngine {
      //TODO 先写完测试，这种封装过于死板
     getDrawContext():IRenderDrawContext;
     get2DRenderContext():IRender2DContext;
+    getCreateRenderOBJContext():IRenderOBJCreate;
     
     uploadUniforms(shader:IRenderShaderInstance,commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number ;
     uploadCustomUniforms(shader:IRenderShaderInstance,custom: any[], index: number, data: any): number ;

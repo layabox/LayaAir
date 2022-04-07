@@ -10,9 +10,11 @@ import { IRender2DContext } from "../../RenderInterface/IRender2DContext";
 import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { IRenderEngine } from "../../RenderInterface/IRenderEngine";
+import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
+import { RenderOBJCreateUtil } from "../../RenderObj/RenderOBJCreateUtil";
 import { Shader3D } from "../../RenderShader/Shader3D";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
@@ -323,6 +325,10 @@ export class WebGLEngine implements IRenderEngine {
 
   get2DRenderContext(): IRender2DContext {
     return this._GL2DRenderContext;
+  }
+
+  getCreateRenderOBJContext():IRenderOBJCreate{
+    return new RenderOBJCreateUtil();
   }
 
   //TODO:

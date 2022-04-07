@@ -118,7 +118,7 @@ export class Render {
         LayaGL.textureContext = engine.getTextureContext();
         LayaGL.renderDrawConatext = engine.getDrawContext();
         LayaGL.render2DContext =engine.get2DRenderContext();
-        LayaGL.renderOBJCreate = new RenderOBJCreateUtil();
+        LayaGL.renderOBJCreate = engine.getCreateRenderOBJContext();
 
         canvas.size(w, h);	//在ctx之后调用。
         VertexElementFormat.__init__();
