@@ -46,6 +46,8 @@ export class RenderElement {
 	/**@internal */
 	protected _subShader:SubShader;
 
+	
+
 	/** @internal */
 	set transform(value:Transform3D){
 		this._renderElementOBJ._transform = value;
@@ -86,6 +88,8 @@ export class RenderElement {
 		return this._baseRender;
 	}
 
+	
+
 	/** @internal */
 	staticBatch: GeometryElement;
 	/** @internal */
@@ -94,6 +98,10 @@ export class RenderElement {
 	 * 创建一个 <code>RenderElement</code> 实例。
 	 */
 	constructor() {
+		this._createRenderElementOBJ();
+	}
+
+	protected _createRenderElementOBJ(){
 		this._renderElementOBJ = LayaGL.renderOBJCreate.createRenderElement();
 	}
 
