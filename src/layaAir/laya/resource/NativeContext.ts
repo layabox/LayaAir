@@ -1,7 +1,10 @@
 import { ILaya } from "../../ILaya";
 import { ColorFilter } from "../filters/ColorFilter";
+import { Matrix } from "../maths/Matrix";
 import { ColorUtils } from "../utils/ColorUtils";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
+import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { RenderTexture2D } from "./RenderTexture2D";
 
 export class NativeContext {
     static ENUM_TEXTALIGN_DEFAULT: number = 0;
@@ -462,6 +465,35 @@ export class NativeContext {
             this._nativeObj.setColorFilter(false, null, null);
         }
 	}
+    drawTarget(rt: RenderTexture2D, x: number, y: number, width: number, height: number, matrix: Matrix, shaderValue: Value2D, uv: ArrayLike<number> | null = null, blend: number = -1): boolean {
+        this._nativeObj.drawTarget(rt, x, y, width, height, matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, blend);
+    }
+    drawTargetBlurFilter(rt: RenderTexture2D, x: number, y: number, width: number, height: number, strength: number): void {
+        this._nativeObj.drawTargetBlurFilter(rt, x, y, width, height, strength);
+    }
+    get _curMat(): Matrix {
+        var data: any = this._nativeObj._curMat;
+        var mat: Matrix = Matrix.create();
+        mat.a = data[0];
+        mat.b = data[1];
+        mat.c = data[2];
+        mat.d = data[3];
+        mat.tx = data[4];
+        mat.ty = data[5];
+        return mat;
+    }
+    pushRT(): void {
+		this._nativeObj.pushRT();
+	}
+	popRT(): void {
+		this._nativeObj.popRT();
+	}
+	useRT(rt: RenderTexture2D): void {
+        this._nativeObj.useRT(rt);
+    }
+    drawFilter(out: RenderTexture2D, src: RenderTexture2D, x: number, y: number, width: number, height: number): void {
+        this._nativeObj.drawFilter(out, src, x, y, width, height);
+    }
     protected checkTexture(tex: any/*Texture*/): boolean {
         // 注意sprite要保存，因为后面会被冲掉
         var cs = this.sprite;

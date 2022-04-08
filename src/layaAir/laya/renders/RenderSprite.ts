@@ -23,6 +23,7 @@ import { SubmitCMD } from "../webgl/submit/SubmitCMD";
 import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { ILaya } from "../../ILaya";
 import { RenderStateContext } from "../RenderEngine/RenderStateContext";
+import { NativeFilter } from "../filters/NativeFilter";
 
 /**
  * @private
@@ -179,7 +180,12 @@ export class RenderSprite {
 			//_fun = this._image2;
 			//return;
 			case SpriteConst.FILTERS:
-				this._fun = Filter._filter;
+				if ((window as any).conch && !(window as any).conchWebGL) {
+					this._fun = NativeFilter._filter;
+				}
+				else {
+					this._fun = Filter._filter;
+				}
 				return;
 			case RenderSprite.INIT:
 				this._fun = RenderSprite._initRenderFun;
