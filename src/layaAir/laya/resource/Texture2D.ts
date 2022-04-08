@@ -567,7 +567,7 @@ export class Texture2D extends BaseTexture {
 		}
 
 		if (this._canRead) {//TODO:是否所有图源都可以
-			if (ILaya.Render.isConchApp) {
+			if (ILaya.Render.isConchApp && source._nativeObj) {
 				this._pixels = new Uint8Array(source._nativeObj.getImageData(0, 0, width, height));//TODO:如果为RGB,会错误
 			} else {
 				ILaya.Browser.canvas.size(width, height);

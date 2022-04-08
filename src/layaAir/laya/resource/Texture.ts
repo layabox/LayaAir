@@ -38,8 +38,6 @@ export class Texture extends EventDispatcher {
     public _uv: ArrayLike<number>;
     /**@private */
     private _referenceCount: number = 0;
-    /** @internal [NATIVE]*/
-    _nativeObj: any;
 
     /**@internal 唯一ID*/
     $_GID: number = 0;
@@ -438,11 +436,8 @@ export class Texture extends EventDispatcher {
      * @return  返回像素点集合
      */
     getPixels(x: number, y: number, width: number, height: number): Uint8Array {
-        if ((window as any).conch) {
-            return this._nativeObj.getImageData(x, y, width, height);
-        } else {
-            return this.getTexturePixels(x, y, width, height);
-        }// canvas 不支持
+        return this.getTexturePixels(x, y, width, height);
+        // canvas 不支持
     }
 
     /**
