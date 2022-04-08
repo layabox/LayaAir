@@ -41,7 +41,8 @@ export class BaseCamera extends Sprite3D {
 	static DEPTHNORMALSTEXTURE:number = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
 	/**@internal */
 	static DEPTHZBUFFERPARAMS:number = Shader3D.propertyNameToID("u_ZBufferParams");
-
+	/**@internal */
+	static OPAQUETEXTURE:number = Shader3D.propertyNameToID("u_cameraOpaqueTexture");
 	/**@internal */
 	static SHADERDEFINE_DEPTH:ShaderDefine = Shader3D.getDefineByName("DEPTHMAP");
 	/**@internal */
