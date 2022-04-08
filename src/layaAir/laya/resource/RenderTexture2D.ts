@@ -150,7 +150,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         var top: any = RenderTexture2D.rtStack.pop();
         if (top) {
             if (RenderTexture2D._currentActive != top.rt) {
-                top.rt?LayaGL.textureContext.bindRenderTarget(top):LayaGL.textureContext.bindoutScreenTarget();
+                top.rt?LayaGL.textureContext.bindRenderTarget(top.rt._renderTarget):LayaGL.textureContext.bindoutScreenTarget();
                 RenderTexture2D._currentActive = top.rt;
             }
             LayaGL.renderEngine.viewport(0, 0, top.w, top.h);
