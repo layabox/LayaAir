@@ -16,10 +16,10 @@ import Outline02VS from "../customShader/outline02.vs";
  * @author ...
  */
 export class MultiplePassOutlineMaterial extends Material {
-	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
-	static OUTLINECOLOR: number = Shader3D.propertyNameToID("u_OutlineColor");
-	static OUTLINEWIDTH: number = Shader3D.propertyNameToID("u_OutlineWidth");
-	static OUTLINELIGHTNESS: number = Shader3D.propertyNameToID("u_OutlineLightness");
+	static ALBEDOTEXTURE: number;
+	static OUTLINECOLOR: number;
+	static OUTLINEWIDTH: number;
+	static OUTLINELIGHTNESS: number;
 
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
 
@@ -27,6 +27,10 @@ export class MultiplePassOutlineMaterial extends Material {
 	 * @private
 	 */
 	static __init__(): void {
+		MultiplePassOutlineMaterial.ALBEDOTEXTURE = Shader3D.propertyNameToID("u_AlbedoTexture");
+		MultiplePassOutlineMaterial.OUTLINECOLOR = Shader3D.propertyNameToID("u_OutlineColor");
+		MultiplePassOutlineMaterial.OUTLINEWIDTH = Shader3D.propertyNameToID("u_OutlineWidth");
+		MultiplePassOutlineMaterial.OUTLINELIGHTNESS = Shader3D.propertyNameToID("u_OutlineLightness");
 	}
 	/**
 	 * 漫反射贴图。

@@ -2,6 +2,7 @@ import { SingletonList } from "../../d3/component/SingletonList";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
 import { LayaGL } from "../../layagl/LayaGL";
+import { IBaseRenderNode } from "../RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
@@ -21,6 +22,8 @@ export class RenderElementOBJ implements IRenderElement {
     _transform: Transform3D;
 
     _isRender: boolean;
+
+    _owner: IBaseRenderNode;
 
     constructor(){
         this._shaderInstances = new SingletonList();

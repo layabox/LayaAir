@@ -9,10 +9,12 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class GridMaterial extends Material {
 
-    static COLOR: number = Shader3D.propertyNameToID("u_Color");
-    static STEP: number = Shader3D.propertyNameToID("u_Step");
+    static COLOR: number;
+    static STEP: number;
 
     static __init__(): void {
+        GridMaterial.COLOR = Shader3D.propertyNameToID("u_Color");
+        GridMaterial.STEP = Shader3D.propertyNameToID("u_Step");
         var shader: Shader3D = Shader3D.add("_GridShader",  false, false);
         var subShader: SubShader = new SubShader();
         shader.addSubShader(subShader);

@@ -1,6 +1,5 @@
 import { SingletonList } from "../../../d3/component/SingletonList";
 import { RenderElement } from "../../../d3/core/render/RenderElement";
-import { IRenderElement } from "./IRenderElement";
 
 export interface ISortPass {
     /**

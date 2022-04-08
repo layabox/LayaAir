@@ -1,5 +1,4 @@
 import { BaseRender } from "../../../d3/core/render/BaseRender";
-import { IBaseRenderOBJ } from "./IBaseRender";
 
 export interface ISceneRenderManager{
     addRenderObject(object:BaseRender):void;

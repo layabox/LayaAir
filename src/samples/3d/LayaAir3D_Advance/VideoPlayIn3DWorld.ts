@@ -14,6 +14,9 @@ import { HtmlVideo } from "laya/device/media/HtmlVideo";
 import { VIDEOTYPE } from "laya/device/media/Video";
 import { VideoTexture } from "laya/resource/VideoTexture";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
+import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { Color } from "laya/d3/math/Color";
+import { CullMode } from "laya/RenderEngine/RenderEnum/CullMode";
 
 export class VideoPlayIn3DWorld {
     private static video: any;
@@ -35,11 +38,17 @@ export class VideoPlayIn3DWorld {
             var mirrorFloor: ChinarMirrorPlane = camera.addComponent(ChinarMirrorPlane) as ChinarMirrorPlane;
             mirrorFloor.onlyMainCamera = camera;
             mirrorFloor.mirrorPlane = scene.getChildByName("reflectionPlan") as MeshSprite3D;
+            let testBox = new MeshSprite3D(PrimitiveMesh.createBox(1,1,1));
+            let mat:UnlitMaterial= testBox.meshRenderer.sharedMaterial = new UnlitMaterial();
+            mat.albedoColor = new Vector4(1,1,1,1);
+            mat.cull = CullMode.Off;
+            testBox.transform.position = new Vector3(0,3,50);
+            scene.addChild(testBox);
             //camera.active = false;    
 
             //增加视频
-            VideoPlayIn3DWorld.videoPlane = scene.getChildByName("moveclip") as MeshSprite3D;
-            this.createVideo("res/av/mov_bbb.mp4");
+            //VideoPlayIn3DWorld.videoPlane = scene.getChildByName("moveclip") as MeshSprite3D;
+            //this.createVideo("res/av/mov_bbb.mp4");
         }));
 
     }

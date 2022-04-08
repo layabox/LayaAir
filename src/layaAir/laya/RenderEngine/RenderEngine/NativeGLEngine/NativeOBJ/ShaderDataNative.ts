@@ -62,7 +62,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
      * @param memoryBlock 
      * @param stride 
      */
-    UploadDataTOShareMemory(memoryBlock: UploadMemory, stride: number): void {
+    uploadDataTOShareMemory(memoryBlock: UploadMemory, stride: number): void {
         let array = memoryBlock.float32Array;
         let strideFloat = stride/4;
         //type

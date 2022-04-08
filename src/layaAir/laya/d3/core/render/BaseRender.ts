@@ -400,7 +400,6 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 		this.lightmapIndex = -1;
 		this.receiveShadow = false;
 		this.sortingFudge = 0.0;
-
 	}
 
 	/**

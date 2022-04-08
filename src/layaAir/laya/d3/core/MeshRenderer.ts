@@ -301,7 +301,6 @@ export class MeshRenderer extends BaseRender {
 	 */
 	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);
-
 	}
 }
 

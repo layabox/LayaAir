@@ -40,19 +40,26 @@ export class GaussianDoF extends PostProcessEffect {
     private _sourceSize: Vector4;
     private _dowmSampleScale: Vector4;
 
-    static SOURCESIZE: number = Shader3D.propertyNameToID("u_SourceSize");
-    static ZBUFFERPARAMS: number = Shader3D.propertyNameToID("u_ZBufferParams");
-    static COCPARAMS: number = Shader3D.propertyNameToID("u_CoCParams");
-    static DEPTHTEXTURE: number = Shader3D.propertyNameToID("u_CameraDepthTexture");
-    static NORMALDEPTHTEXTURE: number = Shader3D.propertyNameToID("u_CameraDepthNormalTexture");
-    static FULLCOCTEXTURE: number = Shader3D.propertyNameToID("u_FullCoCTex");
-    static DOWNSAMPLESCALE: number = Shader3D.propertyNameToID("u_DownSampleScale");
-    static BLURCOCTEXTURE: number = Shader3D.propertyNameToID("u_BlurCoCTex");
+    static SOURCESIZE: number;
+    static ZBUFFERPARAMS: number;
+    static COCPARAMS: number;
+    static DEPTHTEXTURE: number;
+    static NORMALDEPTHTEXTURE: number;
+    static FULLCOCTEXTURE: number;
+    static DOWNSAMPLESCALE: number;
+    static BLURCOCTEXTURE: number;
 
     static SHADERDEFINE_DEPTHNORMALTEXTURE: ShaderDefine;
 
     static __init__() {
-
+        GaussianDoF.SOURCESIZE = Shader3D.propertyNameToID("u_SourceSize");
+        GaussianDoF.ZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
+        GaussianDoF.COCPARAMS = Shader3D.propertyNameToID("u_CoCParams");
+        GaussianDoF.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
+        GaussianDoF.NORMALDEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalTexture");
+        GaussianDoF.FULLCOCTEXTURE = Shader3D.propertyNameToID("u_FullCoCTex");
+        GaussianDoF.DOWNSAMPLESCALE = Shader3D.propertyNameToID("u_DownSampleScale");
+        GaussianDoF.BLURCOCTEXTURE = Shader3D.propertyNameToID("u_BlurCoCTex");
         GaussianDoF.SHADERDEFINE_DEPTHNORMALTEXTURE = Shader3D.getDefineByName("CAMERA_NORMALDEPTH");
 
         let attributeMap: any = {
