@@ -29,6 +29,7 @@ import { NativeGLTextureContext } from "./NativeGLTextureContext";
 import { NativeGLVertexState } from "./NativeGLVertexState";
 import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
 import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
+import { RenderOBJCreateUtil } from "../../RenderObj/RenderOBJCreateUtil";
 
 
 /**
@@ -351,14 +352,11 @@ export class NativeWebGLEngine implements IRenderEngine {
   }
 
   getCreateRenderOBJContext(): IRenderOBJCreate {
-    //TODO
-    return null;
+    return new RenderOBJCreateUtil();
   }
 
-  //TODO:
   propertyNameToID(name: string): number {
-    //TODO
-    return 0;
+    return this._nativeObj.propertyNameToID(name);
   }
 
 

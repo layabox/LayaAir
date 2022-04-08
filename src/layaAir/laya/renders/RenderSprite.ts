@@ -590,7 +590,7 @@ export class RenderSprite {
 				var w: number = tRect.width;
 				var h: number = tRect.height;
 
-				(ctx as any).drawMask(w, h);
+				var tmpRT:any = (ctx as any).drawMask(w, h);
 				/*var tmpRT: RenderTexture2D = WebGLRTMgr.getRT(w, h);
 
 				ctx.breakNextMerge();
@@ -616,7 +616,7 @@ export class RenderSprite {
 				//画出本节点的内容
 				next._fun.call(next, sprite, ctx, x, y);
 
-				(ctx as any).drawMaskComposite(x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
+				(ctx as any).drawMaskComposite(tmpRT, x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
 				//ctx.restore();
 
 				//设置混合模式

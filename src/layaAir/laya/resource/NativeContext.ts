@@ -439,14 +439,14 @@ export class NativeContext {
                 matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, alpha/*, color: ColorFilter*/, 0xffffffff)
             }
         }
-    drawMask(w: number, h: number): void {
-        this._nativeObj.drawMask(w, h);
+    drawMask(w: number, h: number): any {
+        return this._nativeObj.drawMask(w, h);
     }
     drawMasked(x: number, y: number, w: number, h: number): void {
         this._nativeObj.drawMasked(x, y, w, h);
     }
-    drawMaskComposite(x: number, y: number, w: number, h: number): void {
-        this._nativeObj.drawMaskComposite(x, y, w, h);
+    drawMaskComposite(rt: any, x: number, y: number, w: number, h: number): void {
+        this._nativeObj.drawMaskComposite(rt, x, y, w, h);
     }
     set asBitmap(value: boolean) {
         this._nativeObj.setAsBitmap(value);
