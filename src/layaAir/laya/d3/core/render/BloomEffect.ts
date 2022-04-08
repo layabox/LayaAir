@@ -18,17 +18,17 @@ import { LayaGL } from "../../../layagl/LayaGL";
  */
 export class BloomEffect extends PostProcessEffect {
 	/** @internal */
-	static SHADERVALUE_MAINTEX: number = Shader3D.propertyNameToID("u_MainTex");
+	static SHADERVALUE_MAINTEX: number;
 	/**@internal */
-	static SHADERVALUE_AUTOEXPOSURETEX: number = Shader3D.propertyNameToID("u_AutoExposureTex");
+	static SHADERVALUE_AUTOEXPOSURETEX: number;
 	/**@internal */
-	static SHADERVALUE_SAMPLESCALE: number = Shader3D.propertyNameToID("u_SampleScale");
+	static SHADERVALUE_SAMPLESCALE: number;
 	/**@internal */
-	static SHADERVALUE_THRESHOLD: number = Shader3D.propertyNameToID("u_Threshold");
+	static SHADERVALUE_THRESHOLD: number;
 	/**@internal */
-	static SHADERVALUE_PARAMS: number = Shader3D.propertyNameToID("u_Params");
+	static SHADERVALUE_PARAMS: number;
 	/**@internal */
-	static SHADERVALUE_BLOOMTEX: number = Shader3D.propertyNameToID("u_BloomTex");
+	static SHADERVALUE_BLOOMTEX: number;
 
 	/**@internal */
 	static SUBSHADER_PREFILTER13: number = 0;
@@ -45,6 +45,15 @@ export class BloomEffect extends PostProcessEffect {
 
 	/**@internal */
 	private static MAXPYRAMIDSIZE: number = 16; // Just to make sure we handle 64k screens... Future-proof!
+
+	static __init__(){
+	BloomEffect.SHADERVALUE_MAINTEX= Shader3D.propertyNameToID("u_MainTex");
+	BloomEffect.SHADERVALUE_AUTOEXPOSURETEX= Shader3D.propertyNameToID("u_AutoExposureTex");
+	BloomEffect.SHADERVALUE_SAMPLESCALE= Shader3D.propertyNameToID("u_SampleScale");
+	BloomEffect.SHADERVALUE_THRESHOLD= Shader3D.propertyNameToID("u_Threshold");
+	BloomEffect.SHADERVALUE_PARAMS= Shader3D.propertyNameToID("u_Params");
+	BloomEffect.SHADERVALUE_BLOOMTEX= Shader3D.propertyNameToID("u_BloomTex");
+	}
 
 	/**@internal */
 	private _shader: Shader3D = null;
