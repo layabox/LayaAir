@@ -12,5 +12,5 @@ export interface INativeUploadNode{
     //组织一条数据更新命令
     compressAllObject():number;
     //组织头数据
-    UploadDataTOShareMemory(memoryBlock:UploadMemory,stride:number):void;
+    uploadDataTOShareMemory(memoryBlock:UploadMemory,stride:number):void;
 }

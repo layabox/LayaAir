@@ -8,8 +8,8 @@ import BOLLBOARDFS from "../EditorShader/BillboardFS.fs"
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 
-export class BillboardMaterial extends Material{
-    /**渲染状态_不透明。*/
+export class BillboardMaterial extends Material {
+	/**渲染状态_不透明。*/
 	static RENDERMODE_OPAQUE: number = 0;
 	/**渲染状态_阿尔法测试。*/
 	static RENDERMODE_CUTOUT: number = 1;
@@ -18,58 +18,61 @@ export class BillboardMaterial extends Material{
 	/**渲染状态__加色法混合。*/
 	static RENDERMODE_ADDTIVE: number = 3;
 
-    static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
-	static ALBEDOCOLOR: number = Shader3D.propertyNameToID("u_AlbedoColor");
-	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+	static ALBEDOTEXTURE: number;
+	static ALBEDOCOLOR: number;
+	static TILINGOFFSET: number;
 
 
-    static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
+	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
-  
-    /**
-     * 初始化Mateiral
-     */
+
+	/**
+	 * 初始化Mateiral
+	 */
 	static init(): void {
+		BillboardMaterial.ALBEDOTEXTURE = Shader3D.propertyNameToID("u_AlbedoTexture");
+		BillboardMaterial.ALBEDOCOLOR = Shader3D.propertyNameToID("u_AlbedoColor");
+		BillboardMaterial.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
 		BillboardMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
 		BillboardMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
-		let shader = Shader3D.add("BILLBOARDMAT", false,false);
+		let shader = Shader3D.add("BILLBOARDMAT", false, false);
 		let subShader = new SubShader();
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(BOLLBOARDVS, BOLLBOARDFS);
 	}
 
 
-    get albedoColor():Vector4{
-        return this._shaderValues.getVector(BillboardMaterial.ALBEDOCOLOR);
-    }
+	get albedoColor(): Vector4 {
+		return this._shaderValues.getVector(BillboardMaterial.ALBEDOCOLOR);
+	}
 
-    set albedoColor(value:Vector4){
-        this._shaderValues.setVector(BillboardMaterial.ALBEDOCOLOR,value);
-    }
+	set albedoColor(value: Vector4) {
+		this._shaderValues.setVector(BillboardMaterial.ALBEDOCOLOR, value);
+	}
 
-    get albedoTexture():BaseTexture{
-        return this._shaderValues.getTexture(BillboardMaterial.ALBEDOTEXTURE);
-    }
+	get albedoTexture(): BaseTexture {
+		return this._shaderValues.getTexture(BillboardMaterial.ALBEDOTEXTURE);
+	}
 
-    set albedoTexture(value:BaseTexture){
-        if (value)
+	set albedoTexture(value: BaseTexture) {
+		if (value)
 			this._shaderValues.addDefine(BillboardMaterial.SHADERDEFINE_ALBEDOTEXTURE);
 		else
 			this._shaderValues.removeDefine(BillboardMaterial.SHADERDEFINE_ALBEDOTEXTURE);
 		this._shaderValues.setTexture(BillboardMaterial.ALBEDOTEXTURE, value);
-    }
+	}
 
-    get tilingOffset():Vector4{
-        return this._shaderValues.getVector(BillboardMaterial.TILINGOFFSET);
-    }
+	get tilingOffset(): Vector4 {
+		return this._shaderValues.getVector(BillboardMaterial.TILINGOFFSET);
+	}
 
-    set tilingOffset(value:Vector4){
-        this._shaderValues.setVector(BillboardMaterial.TILINGOFFSET,value);
-    }
+	set tilingOffset(value: Vector4) {
+		this._shaderValues.setVector(BillboardMaterial.TILINGOFFSET, value);
+	}
 
-    	/**
-	 * 渲染模式。
-	 */
+	/**
+ * 渲染模式。
+ */
 	set renderMode(value: number) {
 		switch (value) {
 			case BillboardMaterial.RENDERMODE_OPAQUE:
@@ -103,13 +106,13 @@ export class BillboardMaterial extends Material{
 		}
 	}
 
-    constructor(){
-        super();
-        this.setShaderName("BILLBOARDMAT");
-        this._shaderValues.setVector(BillboardMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
+	constructor() {
+		super();
+		this.setShaderName("BILLBOARDMAT");
+		this._shaderValues.setVector(BillboardMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this._shaderValues.setVector(BillboardMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this.renderMode = BillboardMaterial.RENDERMODE_OPAQUE;
-    }
+	}
 
 
 

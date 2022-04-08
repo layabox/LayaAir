@@ -22,7 +22,7 @@ export class UploadMemory extends NativeMemory{
     }
 
     addBlockCell(node: INativeUploadNode, dataSize: number){
-        node.UploadDataTOShareMemory(this,this._currentStride);
+        node.uploadDataTOShareMemory(this,this._currentStride);
         this._currentStride+=dataSize;
     }
 

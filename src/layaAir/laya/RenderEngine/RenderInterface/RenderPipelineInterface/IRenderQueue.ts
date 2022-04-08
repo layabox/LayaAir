@@ -4,7 +4,6 @@ import { RenderElement } from "../../../d3/core/render/RenderElement";
 import { Viewport } from "../../../d3/math/Viewport";
 import { ShaderData } from "../../RenderShader/ShaderData";
 import { IRenderTarget } from "../IRenderTarget";
-import { IRenderElement } from "./IRenderElement";
 
 /**
  * RenderQueue,渲染队列

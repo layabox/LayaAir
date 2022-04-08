@@ -31,13 +31,13 @@ export class EdgeEffect extends PostProcessEffect {
     private _shader: Shader3D = null;
     private static _isShaderInit: boolean = false;
     private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
-    static DEPTHTEXTURE: number = Shader3D.propertyNameToID("u_DepthTex");
-    static DEPTHNORMALTEXTURE: number = Shader3D.propertyNameToID("u_DepthNormalTex");
-    static DEPTHBUFFERPARAMS: number = Shader3D.propertyNameToID("u_DepthBufferParams");
-    static EDGECOLOR: number = Shader3D.propertyNameToID("u_EdgeColor");
-    static COLORHOLD: number = Shader3D.propertyNameToID("u_ColorHold");
-    static DEPTHHOLD: number = Shader3D.propertyNameToID("u_Depthhold");
-    static NORMALHOLD: number = Shader3D.propertyNameToID("u_NormalHold");
+    static DEPTHTEXTURE: number;
+    static DEPTHNORMALTEXTURE: number;
+    static DEPTHBUFFERPARAMS: number;
+    static EDGECOLOR: number;
+    static COLORHOLD: number;
+    static DEPTHHOLD: number;
+    static NORMALHOLD: number;
     static SHADERDEFINE_DEPTHNORMAL: ShaderDefine;
     static SHADERDEFINE_DEPTH: ShaderDefine;
     static SHADERDEFINE_DEPTHEDGE: ShaderDefine;
@@ -48,6 +48,15 @@ export class EdgeEffect extends PostProcessEffect {
 
     _edgeMode: EdgeMode = EdgeMode.NormalEdge;
 
+    static __init__() {
+        EdgeEffect.DEPTHTEXTURE = Shader3D.propertyNameToID("u_DepthTex");
+        EdgeEffect.DEPTHNORMALTEXTURE = Shader3D.propertyNameToID("u_DepthNormalTex");
+        EdgeEffect.DEPTHBUFFERPARAMS = Shader3D.propertyNameToID("u_DepthBufferParams");
+        EdgeEffect.EDGECOLOR = Shader3D.propertyNameToID("u_EdgeColor");
+        EdgeEffect.COLORHOLD = Shader3D.propertyNameToID("u_ColorHold");
+        EdgeEffect.DEPTHHOLD = Shader3D.propertyNameToID("u_Depthhold");
+        EdgeEffect.NORMALHOLD = Shader3D.propertyNameToID("u_NormalHold");
+    }
     constructor() {
         super();
         if (!EdgeEffect._isShaderInit) {

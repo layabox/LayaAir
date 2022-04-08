@@ -26,11 +26,14 @@ export class BlurEffect extends PostProcessEffect {
 
     static BLUR_TYPE_GaussianBlur: number = 0;
     static BLUR_TYPE_Simple: number = 1;
-    static SHADERVALUE_MAINTEX: number = Shader3D.propertyNameToID("u_MainTex");
-    static SHADERVALUE_TEXELSIZE: number = Shader3D.propertyNameToID("u_MainTex_TexelSize");
-    static SHADERVALUE_DOWNSAMPLEVALUE: number = Shader3D.propertyNameToID("u_DownSampleValue");
+    static SHADERVALUE_MAINTEX: number;
+    static SHADERVALUE_TEXELSIZE: number;
+    static SHADERVALUE_DOWNSAMPLEVALUE: number;
 
     static init() {
+        BlurEffect.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
+        BlurEffect.SHADERVALUE_TEXELSIZE = Shader3D.propertyNameToID("u_MainTex_TexelSize");
+        BlurEffect.SHADERVALUE_DOWNSAMPLEVALUE = Shader3D.propertyNameToID("u_DownSampleValue");
         //初始化shader
         var attributeMap: any = {
             'a_PositionTexcoord': VertexMesh.MESH_POSITION0
@@ -199,14 +202,23 @@ export class BlurEffect extends PostProcessEffect {
 }
 
 export class BlurMaterial extends Material {
-    static SHADERVALUE_MAINTEX: number = Shader3D.propertyNameToID("u_MainTex");
-    static SHADERVALUE_TEXELSIZE: number = Shader3D.propertyNameToID("u_MainTex_TexelSize");
-    static SHADERVALUE_DOWNSAMPLEVALUE: number = Shader3D.propertyNameToID("u_DownSampleValue");
-    static SHADERVALUE_SOURCETEXTURE0: number = Shader3D.propertyNameToID("u_sourceTexture0");
-    static ShADERVALUE_SOURCETEXTURE1: number = Shader3D.propertyNameToID("u_sourceTexture1");
+    static SHADERVALUE_MAINTEX: number;
+    static SHADERVALUE_TEXELSIZE: number;
+    static SHADERVALUE_DOWNSAMPLEVALUE: number;
+    static SHADERVALUE_SOURCETEXTURE0: number;
+    static ShADERVALUE_SOURCETEXTURE1: number;
+
+    static __init__(){
+        BlurMaterial.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
+        BlurMaterial.SHADERVALUE_TEXELSIZE = Shader3D.propertyNameToID("u_MainTex_TexelSize");
+        BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE = Shader3D.propertyNameToID("u_DownSampleValue");
+        BlurMaterial.SHADERVALUE_SOURCETEXTURE0 = Shader3D.propertyNameToID("u_sourceTexture0");
+        BlurMaterial.ShADERVALUE_SOURCETEXTURE1 = Shader3D.propertyNameToID("u_sourceTexture1");
+    }
 
     constructor(texelSize: Vector4, offset: number) {
         super();
+        BlurMaterial.__init__();
         this.setShaderName("blurEffect");
         this._shaderValues.setNumber(BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE, offset);
         this._shaderValues.setVector(BlurMaterial.SHADERVALUE_TEXELSIZE, texelSize);

@@ -9,17 +9,17 @@ import { BaseTexture } from "laya/resource/BaseTexture";
  * @author
  */
 export class CustomTerrainMaterial extends Material {
-	static SPLATALPHATEXTURE: number = Shader3D.propertyNameToID("u_SplatAlphaTexture");
-	static DIFFUSETEXTURE1: number = Shader3D.propertyNameToID("u_DiffuseTexture1");
-	static DIFFUSETEXTURE2: number = Shader3D.propertyNameToID("u_DiffuseTexture2");
-	static DIFFUSETEXTURE3: number = Shader3D.propertyNameToID("u_DiffuseTexture3");
-	static DIFFUSETEXTURE4: number = Shader3D.propertyNameToID("u_DiffuseTexture4");
-	static DIFFUSETEXTURE5: number = Shader3D.propertyNameToID("u_DiffuseTexture5");
-	static DIFFUSESCALE1: number = Shader3D.propertyNameToID("u_DiffuseScale1");
-	static DIFFUSESCALE2: number = Shader3D.propertyNameToID("u_DiffuseScale2");
-	static DIFFUSESCALE3: number = Shader3D.propertyNameToID("u_DiffuseScale3");
-	static DIFFUSESCALE4: number = Shader3D.propertyNameToID("u_DiffuseScale4");
-	static DIFFUSESCALE5: number = Shader3D.propertyNameToID("u_DiffuseScale5");
+	static SPLATALPHATEXTURE: number;
+	static DIFFUSETEXTURE1: number;
+	static DIFFUSETEXTURE2: number;
+	static DIFFUSETEXTURE3: number;
+	static DIFFUSETEXTURE4: number;
+	static DIFFUSETEXTURE5: number;
+	static DIFFUSESCALE1: number;
+	static DIFFUSESCALE2: number;
+	static DIFFUSESCALE3: number;
+	static DIFFUSESCALE4: number;
+	static DIFFUSESCALE5: number;
 
 	/**自定义地形材质细节宏定义。*/
 	static SHADERDEFINE_DETAIL_NUM1: ShaderDefine;
@@ -37,6 +37,17 @@ export class CustomTerrainMaterial extends Material {
 		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3 = Shader3D.getDefineByName("CUSTOM_DETAIL_NUM3");
 		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4 = Shader3D.getDefineByName("CUSTOM_DETAIL_NUM4");
 		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5 = Shader3D.getDefineByName("CUSTOM_DETAIL_NUM5");
+		CustomTerrainMaterial.SPLATALPHATEXTURE = Shader3D.propertyNameToID("u_SplatAlphaTexture");
+		CustomTerrainMaterial.DIFFUSETEXTURE1 = Shader3D.propertyNameToID("u_DiffuseTexture1");
+		CustomTerrainMaterial.DIFFUSETEXTURE2 = Shader3D.propertyNameToID("u_DiffuseTexture2");
+		CustomTerrainMaterial.DIFFUSETEXTURE3 = Shader3D.propertyNameToID("u_DiffuseTexture3");
+		CustomTerrainMaterial.DIFFUSETEXTURE4 = Shader3D.propertyNameToID("u_DiffuseTexture4");
+		CustomTerrainMaterial.DIFFUSETEXTURE5 = Shader3D.propertyNameToID("u_DiffuseTexture5");
+		CustomTerrainMaterial.DIFFUSESCALE1 = Shader3D.propertyNameToID("u_DiffuseScale1");
+		CustomTerrainMaterial.DIFFUSESCALE2 = Shader3D.propertyNameToID("u_DiffuseScale2");
+		CustomTerrainMaterial.DIFFUSESCALE3 = Shader3D.propertyNameToID("u_DiffuseScale3");
+		CustomTerrainMaterial.DIFFUSESCALE4 = Shader3D.propertyNameToID("u_DiffuseScale4");
+		CustomTerrainMaterial.DIFFUSESCALE5 = Shader3D.propertyNameToID("u_DiffuseScale5");
 	}
 
 	/**

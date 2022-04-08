@@ -6,11 +6,11 @@ import { ShaderData } from "../../RenderShader/ShaderData";
 /**
  * 基本渲染单元
  */
-export interface IBaseRenderOBJ {
+export interface IBaseRenderNode {
     /**ID */
     _renderID:number;
     /**Shadow Mode */
-    _ReceiveShadow:number;
+    _receiveShadow:number;
     /**shadow mode */
     _castShadow:number;
     /**是否静态 */

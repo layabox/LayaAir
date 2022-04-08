@@ -5,8 +5,13 @@ import { BaseTexture } from "laya/resource/BaseTexture";
 
 
 export class GlowingEdgeMaterial extends Material {
-    public static DIFFUSETEXTURE: number =  Shader3D.propertyNameToID("u_texture");
-    public static MARGINALCOLOR: number = Shader3D.propertyNameToID("u_marginalColor");
+    public static DIFFUSETEXTURE: number;
+    public static MARGINALCOLOR: number;
+
+    __init__() {
+        GlowingEdgeMaterial.DIFFUSETEXTURE = Shader3D.propertyNameToID("u_texture");
+        GlowingEdgeMaterial.MARGINALCOLOR = Shader3D.propertyNameToID("u_marginalColor");
+    }
     constructor() {
         super();
         this.setShaderName("GlowingEdgeMaterial");
@@ -23,15 +28,15 @@ export class GlowingEdgeMaterial extends Material {
      * 设置漫反射贴图。
      * 漫反射贴图。
      */
-    public set diffuseTexture(value:BaseTexture) {
-        this._shaderValues.setTexture(GlowingEdgeMaterial.DIFFUSETEXTURE,value);
+    public set diffuseTexture(value: BaseTexture) {
+        this._shaderValues.setTexture(GlowingEdgeMaterial.DIFFUSETEXTURE, value);
     }
 
     /**
      * 设置边缘光照颜色。
      * 边缘光照颜色。
      */
-    public set marginalColor(value:Vector3) {
+    public set marginalColor(value: Vector3) {
         this._shaderValues.setVector3(GlowingEdgeMaterial.MARGINALCOLOR, value);
     }
 }

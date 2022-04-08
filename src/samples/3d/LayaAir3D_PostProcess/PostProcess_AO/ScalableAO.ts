@@ -3,7 +3,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
-import {  DepthTextureMode } from "laya/d3/depthMap/DepthPass";
+import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Viewport } from "laya/d3/math/Viewport";
@@ -24,12 +24,12 @@ import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "laya/layagl/LayaGL";
 
 export class ScalableAO extends PostProcessEffect {
-    static BlurDelty: number = Shader3D.propertyNameToID("u_Delty");
-    static AOColor: number = Shader3D.propertyNameToID("u_AOColor");
-    static aoTexture: number = Shader3D.propertyNameToID("u_compositionAoTexture");
+    static BlurDelty: number;
+    static AOColor: number;
+    static aoTexture: number;
 
-    static AOParams: number = Shader3D.propertyNameToID('u_AOParams');
-    static SourceTex: number = Shader3D.propertyNameToID('u_SourceTex');
+    static AOParams: number;
+    static SourceTex: number;
 
     //scalable AO shader
     private _shader: Shader3D;
@@ -46,7 +46,12 @@ export class ScalableAO extends PostProcessEffect {
     static deltyVector: Vector2 = new Vector2(0.0, 1.0);
 
     static init() {
+        ScalableAO.BlurDelty = Shader3D.propertyNameToID("u_Delty");
+        ScalableAO.AOColor = Shader3D.propertyNameToID("u_AOColor");
+        ScalableAO.aoTexture = Shader3D.propertyNameToID("u_compositionAoTexture");
 
+        ScalableAO.AOParams = Shader3D.propertyNameToID('u_AOParams');
+        ScalableAO.SourceTex = Shader3D.propertyNameToID('u_SourceTex');
         Shader3D.addInclude("AmbientOcclusion.glsl", AmbientOcclusion);
         //scalableAoShader
         let attributeMap: any = {
