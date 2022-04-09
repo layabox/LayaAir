@@ -27,6 +27,7 @@ import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
+import { Viewport } from "../math/Viewport";
 
 /**
  * Shadow Light enum
@@ -47,6 +48,8 @@ export enum ShadowLightType {
 export class ShadowCasterPass {
 	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
+	/**@internal */
+	private static _tempVector4: Vector4 = new Vector4();
 	/**@internal */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
 	/** @internal */
@@ -365,7 +368,7 @@ export class ShadowCasterPass {
 				context.pipelineMode = "ShadowCaster";
 				var shadowMap: RenderTexture = this._shadowDirectLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, ShadowMapFormat.bit16);
 				shadowMap._start();
-				scene._opaqueQueue.destTarget = shadowMap;
+				context.destTarget = shadowMap;
 				var light: DirectionLightCom = <DirectionLightCom>this._light;
 				for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
 					var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
@@ -393,9 +396,10 @@ export class ShadowCasterPass {
 
 					LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, null, 1);
 					if (needRender) {// if one cascade have anything to render.
-						//LayaGL.renderEngine.scissor(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);//for no cascade is for the edge,for cascade is for the beyond maxCascade pixel can use (0,0,0) trick sample the shadowMap
-						scene._opaqueQueue.changeViewport(offsetX, offsetY, resolution, resolution);
-						scene._opaqueQueue.changeScissor(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
+						Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
+						ShadowCasterPass._tempVector4.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
+						context.viewport = Viewport._tempViewport;
+						context.scissor = ShadowCasterPass._tempVector4;
 						scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
 					}
 				}
@@ -409,7 +413,7 @@ export class ShadowCasterPass {
 				var spotlight: SpotLightCom = <SpotLightCom>this._light;
 				var shadowMap: RenderTexture = this._shadowSpotLightMap = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, ShadowMapFormat.bit16);
 				shadowMap._start();
-				scene._opaqueQueue.destTarget = shadowMap;
+				context.destTarget = shadowMap;
 				var shadowSpotData: ShadowSpotData = this._shadowSpotData;
 				ShadowUtils.getShadowBias(spotlight, shadowSpotData.projectionMatrix, shadowSpotData.resolution, this._shadowBias);
 				this._setupShadowCasterShaderValues(context, shaderValues, shadowSpotData, (this._light.owner as Sprite3D).transform.position, this._shadowParams, this._shadowBias, LightType.Spot);
@@ -426,9 +430,12 @@ export class ShadowCasterPass {
 				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, null, 1);
 
 				if (needRender) {
-					//LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-					scene._opaqueQueue.changeViewport(offsetX, offsetY, resolution, resolution);
-					scene._opaqueQueue.changeScissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
+					//LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution)
+					Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
+					ShadowCasterPass._tempVector4.setValue(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
+					context.viewport = Viewport._tempViewport;
+					context.scissor = ShadowCasterPass._tempVector4;
+
 					scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
 				}
 				shadowMap._end();

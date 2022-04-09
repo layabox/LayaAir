@@ -137,13 +137,13 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	 */
 	protected _onWorldMatNeedChange(flag: number): void {
 		this._boundsChange = true;
-		if (this._octreeNode) {
-			flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
-			if (flag) {
-				if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
-					this._octreeNode.getManagerNode().addMotionObject(this);
-			}
-		}
+		// if (this._octreeNode) {
+		// 	flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
+		// 	if (flag) {
+		// 		if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
+		// 			this._octreeNode.getManagerNode().addMotionObject(this);
+		// 	}
+		// }
 	}
 
 	/**
@@ -179,9 +179,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			this._mesh = null;
 		}
 		this._boundsChange = true;
-		if (this._octreeNode && this._indexInOctreeMotionList === -1) {
-			this._octreeNode.getManagerNode().addMotionObject(this);
-		}
+		// if (this._octreeNode && this._indexInOctreeMotionList === -1) {
+		// 	this._octreeNode.getManagerNode().addMotionObject(this);
+		// }
 	}
 	/**
 	*@inheritDoc

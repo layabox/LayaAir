@@ -118,11 +118,11 @@ export class FrustumCulling {
 		// var transparentQueue: BaseRenderQueue = scene._transparentQueue;
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
 		scene._clearRenderQueue();
-		var octree: ISceneRenderManager = scene._octree;
-		if (octree) {
-			octree.preFruUpdate();
-			octree.getCollidingWithFrustum(cameraCullInfo, context, customShader, replacementTag, isShadowCasterCull);
-		}
+		// var octree: ISceneRenderManager = scene._octree;
+		// if (octree) {
+		// 	octree.preFruUpdate();
+		// 	octree.getCollidingWithFrustum(cameraCullInfo, context, customShader, replacementTag, isShadowCasterCull);
+		// }
 		//else {//包围盒不完善的节点走遍历裁剪
 		FrustumCulling._traversalCulling(cameraCullInfo, scene, context, renderList, customShader, replacementTag, isShadowCasterCull);
 		//}
@@ -130,10 +130,10 @@ export class FrustumCulling {
 		if (FrustumCulling.debugFrustumCulling) {
 			var debugTool: PixelLineSprite3D = scene._debugTool;
 			debugTool.clear();
-			if (octree) {
-				octree.drawAllBounds(debugTool);
-				octree.drawAllObjects(debugTool);
-			}
+			// if (octree) {
+			// 	octree.drawAllBounds(debugTool);
+			// 	octree.drawAllObjects(debugTool);
+			// }
 			//else {//包围盒不完善的节点走遍历裁剪
 			FrustumCulling._drawTraversalCullingBound(renderList, debugTool);
 			//}
@@ -153,13 +153,13 @@ export class FrustumCulling {
 		scene._clearRenderQueue();
 		var opaqueQueue = scene._opaqueQueue;
 
-		if (scene._octree) {
-			//八叉树裁剪
-			let octree = scene._octree;
-			octree.preFruUpdate();
-			//octree._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context);
-			octree.cullingShadow(cullInfo, context);
-		}
+		// if (scene._octree) {
+		// 	//八叉树裁剪
+		// 	let octree = scene._octree;
+		// 	octree.preFruUpdate();
+		// 	//octree._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context);
+		// 	octree.cullingShadow(cullInfo, context);
+		// }
 		var renderList: SingletonList<ISingletonElement> = scene._renders;
 		var position: Vector3 = cullInfo.position;
 		// var cullPlaneCount: number = cullInfo.cullPlaneCount;
@@ -220,7 +220,7 @@ export class FrustumCulling {
 		var opaqueQueue = scene._opaqueQueue;
 		scene._clearRenderQueue();
 
-		if (!scene._octree) {
+		//if (!scene._octree) {
 			var renderList: SingletonList<ISingletonElement> = scene._renders;
 			var renders: ISingletonElement[] = renderList.elements;
 			var loopCount: number = Stat.loopCount;
@@ -238,12 +238,12 @@ export class FrustumCulling {
 					}
 				}
 			}
-		} else {
+		//} else {
 			//八叉数裁剪
-			let octree = scene._octree;
-			octree.preFruUpdate();
-			octree.getCollidingWithFrustum(cameraCullInfo, context, null, null, true);
-		}
+		// 	let octree = scene._octree;
+		// 	octree.preFruUpdate();
+		// 	octree.getCollidingWithFrustum(cameraCullInfo, context, null, null, true);
+		// }
 
 		return opaqueQueue.elements.length > 0 ? true : false;
 	}

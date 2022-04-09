@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { SkinRenderElementOBJ } from "../../../RenderEngine/RenderObj/SkinRenderElementOBJ";
 import { SkinnedMeshRenderer } from "../SkinnedMeshRenderer";
@@ -33,10 +34,10 @@ export class SkinRenderElement extends RenderElement{
 		this._renderElementOBJ = LayaGL.renderOBJCreate.createSkinRenderElement() as SkinRenderElementOBJ;
 	}
 
-    _render(renderqueue:IRenderQueue): void {
+    _render(context:IRenderContext3D): void {
         // if( (this._baseRender as SkinnedMeshRenderer)._skinnedData){
         //     this._renderElementOBJ.skinnedData = (this._baseRender as SkinnedMeshRenderer)._skinnedData;
         // }
-		this._renderElementOBJ._render(renderqueue);
+		this._renderElementOBJ._render(context);
     }
 }

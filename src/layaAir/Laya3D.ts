@@ -239,7 +239,7 @@ export class Laya3D {
 		Camera.__init__();
 		MeshRenderStaticBatchManager.__init__();
 		ShadowUtils.init();
-
+		RenderContext3D.__init__();
 		Material.__initDefine__();
 		BlinnPhongMaterial.__initDefine__();
 		// PBRStandardMaterial.__initDefine__();
