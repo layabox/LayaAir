@@ -220,14 +220,13 @@ export class MouseManager {
             if (!this._rect.contains(mouseX, mouseY)) return false;
         }
 
-        //先判定子对象是否命中
         if (!this.disableMouseEvent) {
-            //优先判断父对象
-            //默认情况下，hitTestPrior=mouseThrough=false，也就是优先check子对象
+            //优先检测本对象，并且不可穿透时，优先判断本对象是否在鼠标碰撞区域内，如果不在直接中断检测。如果在，继续递归检测子节点对象
             //$NEXTBIG:下个重大版本将sp.mouseThrough从此逻辑中去除，从而使得sp.mouseThrough只负责目标对象的穿透
             if (sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, mouseX, mouseY)) {
                 return false;
             }
+
             for (var i: number = sp._children.length - 1; i > -1; i--) {
                 var child: Sprite = sp._children[i];
                 //只有接受交互事件的，才进行处理
@@ -244,7 +243,7 @@ export class MouseManager {
             }
         }
 
-        //避免重复进行碰撞检测，考虑了判断条件的命中率。
+        //优先本对象检测的时候，之前已处理过，进到这里直接设置为true即可。避免重复进行碰撞检测。
         var isHit: boolean = (sp.hitTestPrior && !sp.mouseThrough && !this.disableMouseEvent) ? true : this.hitTest(sp, mouseX, mouseY);
 
         if (isHit) {
@@ -261,7 +260,14 @@ export class MouseManager {
 
         return isHit;
     }
-
+    
+    /**
+     * 检测鼠标点是否位于目标对象上，
+     * @param sp 当前检测的节点对象
+     * @param mouseX x坐标
+     * @param mouseY y坐标
+     * @returns 返回布尔值，true点击命中，false未命中
+     */
     private hitTest(sp: Sprite, mouseX: number, mouseY: number): boolean {
         var isHit: boolean = false;
         if (sp.scrollRect) {
@@ -269,16 +275,17 @@ export class MouseManager {
             mouseY -= sp._style.scrollRect.y;
         }
         var hitArea: any = sp._style.hitArea;
+        //有设置graphics碰撞区的，优先碰撞区
         if (hitArea && hitArea._hit) {
             return hitArea.contains(mouseX, mouseY);
         }
         if (sp.width > 0 && sp.height > 0 || sp.mouseThrough || hitArea) {
-            //判断是否在矩形区域内
+            //判断鼠标坐标是否在对象的矩形区域内，得到布尔值
             if (!sp.mouseThrough) {
-                //MOD by liuzihao: saved call of 'hitRect' and 'this._rect' when 'sp.hitArea' is not null.
+                //不可穿透的时候，按宽高计算点击区域(相当于宽高区域外可穿透。不设置宽高，都进不到这里，全部穿透)，
                 isHit = (hitArea ? hitArea : this._rect.setTo(0, 0, sp.width, sp.height)).contains(mouseX, mouseY);
             } else {
-                //如果可穿透，则根据子对象实际大小进行碰撞
+                //设置为可穿透时，按graphics绘制区域计算鼠标碰撞区域，碰撞区内不可穿透，没有graphics绘制图形的才可以穿透
                 isHit = sp.getGraphicBounds().contains(mouseX, mouseY);
             }
         }
