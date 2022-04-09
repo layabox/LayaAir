@@ -6,8 +6,8 @@ import { Vector4 } from "./Vector4";
  */
 export class Viewport {
 	/** @internal */
-	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
-
+	static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
+	static _tempViewport:Viewport = new Viewport(0,0,0,0);
 	/**X轴坐标*/
 	x: number;
 	/**Y轴坐标*/
@@ -93,6 +93,13 @@ export class Viewport {
 		(world) && (Matrix4x4.multiply(Viewport._tempMatrix4x4, world, Viewport._tempMatrix4x4));
 		Viewport._tempMatrix4x4.invert(Viewport._tempMatrix4x4);
 		this.unprojectFromMat(source, Viewport._tempMatrix4x4, out);
+	}
+
+	set(x:number,y:number,width:number,height:number){
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
 	}
 
 	/**

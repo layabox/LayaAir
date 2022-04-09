@@ -53,8 +53,6 @@ import { VideoTexture } from "../../../resource/VideoTexture";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
 import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
 import { Physics3D } from "../../Physics3D";
-import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
-import { BoundsOctree } from "./BoundsOctree";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
 import { ComponentManager } from "../../component/ComponentManager";
@@ -157,7 +155,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	static TIME: number;
 	/** @internal */
-	static sceneID:number;
+	static sceneID: number;
 	//------------------legacy lighting-------------------------------
 	/** @internal */
 	static LIGHTDIRECTION: number;
@@ -416,7 +414,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _reflectionIntensity: number = 1.0;
 	/**@internal*/
-	private _id = Scene3D.sceneID++;
+	_id = Scene3D.sceneID++;
 	/**@internal */
 	_componentManager: ComponentManager = new ComponentManager();
 	/** @internal */
@@ -429,8 +427,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_physicsSimulation: PhysicsSimulation;
 	/** @internal */
 	_cannonPhysicsSimulation: CannonPhysicsSimulation;
-	/** @internal */
-	_octree: ISceneRenderManager;
+	// /** @internal */
+	// _octree: ISceneRenderManager;
 	/** @internal 只读,不允许修改。*/
 	_collsionTestList: number[] = [];
 	/** @internal */
@@ -473,14 +471,14 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return this._url;
 	}
 
-	set sceneRenderableManager(manager: ISceneRenderManager) {
-		this._octree = manager;
-		for (let i = 0, n = this._renders.length; i < n; i++) {
-			let render = <BaseRender>this._renders.elements[i];
-			this._renders.remove(render);
-			this._addRenderObject(render);
-		}
-	}
+	// set sceneRenderableManager(manager: ISceneRenderManager) {
+	// 	// this._octree = manager;
+	// 	for (let i = 0, n = this._renders.length; i < n; i++) {
+	// 		let render = <BaseRender>this._renders.elements[i];
+	// 		this._renders.remove(render);
+	// 		this._addRenderObject(render);
+	// 	}
+	// }
 
 	/**
 	 * 是否允许雾化。
@@ -754,7 +752,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		else if (Physics3D._cannon) {
 			this._cannonPhysicsSimulation = new CannonPhysicsSimulation(Scene3D.cannonPhysicsSettings);
 		}
-		this._shaderValues =LayaGL.renderOBJCreate.createShaderData(null);
+		this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
 		if (Config3D._config._uniformBlock) {
 			this._sceneUniformBlock = Scene3D.createSceneUniformBlock();
 		}
@@ -770,8 +768,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
 		this._scene = this;
 		this._input.__init__(Render.canvas, this);
-		if (Scene3D.octreeCulling)
-			this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
+		// if (Scene3D.octreeCulling)
+		// 	this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
 		if (FrustumCulling.debugFrustumCulling) {
 			this._debugTool = new PixelLineSprite3D();
 			var lineMaterial: PixelLineMaterial = new PixelLineMaterial();
@@ -785,8 +783,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			lineMaterial.depthTest = RenderState.DEPTHTEST_LESS;
 			this._debugTool.pixelLineRenderer.sharedMaterial = lineMaterial;
 		}
-		this._opaqueQueue.sceneID = this._id;
-		this._transparentQueue.sceneID = this._id;
 	}
 
 	/**
@@ -1184,23 +1180,21 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		LayaGL.renderEngine.viewport(vpX, vpY, vpW, vpH);
 		LayaGL.renderEngine.scissor(vpX, vpY, vpW, vpH);
-		this._opaqueQueue.changeViewport(vpX, vpY, vpW, vpH);
-		this._transparentQueue.changeViewport(vpX, vpY, vpW, vpH);
-		this._opaqueQueue.changeScissor(vpX, vpY, vpW, vpH);
-		this._transparentQueue.changeViewport(vpX, vpY, vpW, vpH)
-		
+		state.changeViewport(vpX, vpY, vpW, vpH);
+		state.changeScissor(vpX, vpY, vpW, vpH);
+
 		var clearFlag: number = camera.clearFlag;
 		if (clearFlag === CameraClearFlags.Sky && !(camera.skyRenderer._isAvailable() || this._skyRenderer._isAvailable()))
 			clearFlag = CameraClearFlags.SolidColor;
-		let clearConst:number = 0;
-		let stencilFlag = renderTex.depthStencilFormat==RenderTargetFormat.DEPTHSTENCIL_24_8?RenderClearFlag.Stencil:0;
-		switch(clearFlag){
+		let clearConst: number = 0;
+		let stencilFlag = renderTex.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 ? RenderClearFlag.Stencil : 0;
+		switch (clearFlag) {
 			case CameraClearFlags.SolidColor:
-				clearConst = RenderClearFlag.Color|RenderClearFlag.Depth|stencilFlag;
+				clearConst = RenderClearFlag.Color | RenderClearFlag.Depth | stencilFlag;
 				break;
 			case CameraClearFlags.DepthOnly:
 			case CameraClearFlags.Sky:
-				clearConst = RenderClearFlag.Depth|stencilFlag;
+				clearConst = RenderClearFlag.Depth | stencilFlag;
 				break;
 			case CameraClearFlags.Nothing:
 				clearConst = 0;
@@ -1210,8 +1204,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				break;
 
 		}
-			
-		LayaGL.renderEngine.clearRenderTexture(clearConst,camera.clearColor,1);
+
+		LayaGL.renderEngine.clearRenderTexture(clearConst, camera.clearColor, 1);
 	}
 
 	/**
@@ -1240,7 +1234,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					var renderElements: RenderElement[] = this._debugTool._render._renderElements;
 					for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
 						//renderElements[i]._update(this, context, null, null);
-						renderElements[i]._renderUpdatePre(context,this._transparentQueue);
+						renderElements[i]._renderUpdatePre(context, this._transparentQueue);
 						//renderElements[i]._render(context);
 						//LayaGL.renderDrawConatext.drawGeometryElement(renderElements[i]._renderElementOBJ._render())
 					}
@@ -1344,11 +1338,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_addRenderObject(render: BaseRender): void {
-		if (this._octree && render._supportOctree) {
-			this._octree.addRender(render);
-		} else {
-			this._renders.add(render);
-		}
+		// if (this._octree && render._supportOctree) {
+		// 	this._octree.addRender(render);
+		// } else {
+		this._renders.add(render);
+		// }
 		render._addReflectionProbeUpdate();
 	}
 
@@ -1356,11 +1350,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_removeRenderObject(render: BaseRender): void {
-		if (this._octree && render._supportOctree) {
-			this._octree.removeRender(render);
-		} else {
-			this._renders.remove(render);
-		}
+		// if (this._octree && render._supportOctree) {
+		// 	this._octree.removeRender(render);
+		// } else {
+		this._renders.remove(render);
+		// }
 	}
 
 	/**
@@ -1423,7 +1417,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._renders = null;
 		this._animatorPool = null;
 		this._cameraPool = null;
-		this._octree = null;
+		// this._octree = null;
 		this._physicsSimulation && this._physicsSimulation._destroy();
 		this._reflection._removeReference();
 		this._reflection = null;

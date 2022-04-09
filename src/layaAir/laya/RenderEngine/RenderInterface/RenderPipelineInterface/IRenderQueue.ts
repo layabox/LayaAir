@@ -4,29 +4,16 @@ import { RenderElement } from "../../../d3/core/render/RenderElement";
 import { Viewport } from "../../../d3/math/Viewport";
 import { ShaderData } from "../../RenderShader/ShaderData";
 import { IRenderTarget } from "../IRenderTarget";
+import { IRenderContext3D } from "./IRenderContext3D";
 
 /**
  * RenderQueue,渲染队列
  */
 export interface IRenderQueue{
-    //dest Texture
-    destTarget:IRenderTarget;
-    //viewPort
-    viewPort:Viewport;
-    //is invert Y
-    invertY:boolean;
-    //pipeLineMode
-    pipelineMode:string;
     /** @internal */
 	elements: SingletonList<RenderElement>;
-    //Camera Shader Data
-    cameraShaderData:ShaderData;
-    //scene Shader Data
-    sceneShaderData:ShaderData;
-    //Camera Update Mark
-    cameraUpdateMark:number;
-    //Scene Update Mark
-    sceneID:number;
+    /**@internal 共享渲染数据 */
+    _context:IRenderContext3D
     //渲染队列
     renderQueue(context:RenderContext3D):void;
     //增加渲染队列

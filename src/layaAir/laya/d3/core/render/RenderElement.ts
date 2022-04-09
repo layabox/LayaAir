@@ -16,6 +16,7 @@ import { ShaderInstance } from "../../shader/ShaderInstance"
 import { RenderElementOBJ } from "../../../RenderEngine/RenderObj/RenderElementOBJ"
 import { BaseRenderQueue } from "../../../RenderEngine/RenderObj/BaseRenderQueue"
 import { LayaGL } from "../../../layagl/LayaGL"
+import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。
@@ -141,17 +142,17 @@ export class RenderElement {
 	// 	queue.elements.add(this);
 	// }
 
-	compileShader(renderQeue:IRenderQueue){
+	compileShader(context:IRenderContext3D){
 		var passes: ShaderPass[] = this._subShader._passes;
 		this._renderElementOBJ._clearShaderInstance();
 		for (var j: number = 0, m: number = passes.length; j < m; j++) {
 			var pass: ShaderPass = passes[j];
 			//NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
-			if (pass._pipelineMode !== renderQeue.pipelineMode)
+			if (pass._pipelineMode !== context.pipelineMode)
 				continue;
 
 			var comDef: DefineDatas = RenderElement._compileDefine;
-			renderQeue.sceneShaderData._defineDatas.cloneTo(comDef);
+			context.sceneShaderData._defineDatas.cloneTo(comDef);
 			comDef.addDefineDatas(this.render._shaderValues._defineDatas);
 			comDef.addDefineDatas(this.material._shaderValues._defineDatas);
 			var shaderIns: ShaderInstance = pass.withCompile(comDef);
@@ -225,14 +226,14 @@ export class RenderElement {
 		//context.shader = this._renderElementOBJ._subShader;
 		this._renderElementOBJ._isRender = this._geometry._prepareRender(context);
 		this._geometry._updateRenderParams(context);
-		this.compileShader(renderqueue);
+		this.compileShader(renderqueue._context);
 	}
 
 	/**
 	 * @internal
 	 */
-	_render(renderqueue:IRenderQueue): void {
-		this._renderElementOBJ._render(renderqueue);
+	_render(context:IRenderContext3D): void {
+		this._renderElementOBJ._render(context);
 		// var forceInvertFace: boolean = context.invertY;
 		// var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		// var updateMark: number = Camera._updateMark;

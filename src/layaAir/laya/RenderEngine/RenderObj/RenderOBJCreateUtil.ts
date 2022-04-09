@@ -11,11 +11,14 @@ import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 import { IRenderOBJCreate } from "../RenderInterface/IRenderOBJCreate";
+import { IBaseRenderNode } from "../RenderInterface/RenderPipelineInterface/IBaseRenderNode";
+import { IRenderContext3D } from "../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ShaderData } from "../RenderShader/ShaderData";
 import { BaseRenderQueue } from "./BaseRenderQueue";
+import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
@@ -69,6 +72,15 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createShaderInstance() {
 
     }
+
+    createBaseRenderNode():IBaseRenderNode{
+        return null;
+    }
+
+    createRenderContext3D():IRenderContext3D{
+        return new RenderContext3DOBJ();
+    }
+    
 
 
 }

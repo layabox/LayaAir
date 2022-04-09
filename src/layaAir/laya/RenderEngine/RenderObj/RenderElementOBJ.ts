@@ -3,6 +3,7 @@ import { Transform3D } from "../../d3/core/Transform3D";
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IBaseRenderNode } from "../RenderInterface/RenderPipelineInterface/IBaseRenderNode";
+import { IRenderContext3D } from "../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
@@ -48,11 +49,12 @@ export class RenderElementOBJ implements IRenderElement {
      * render RenderElement
      * @param renderqueue 
      */
-    _render(renderqueue: IRenderQueue): void {
-        var forceInvertFace: boolean = renderqueue.invertY;
-        var updateMark: number = renderqueue.cameraUpdateMark;
-        var sceneID = renderqueue.sceneID;
-        let pipeline = renderqueue.pipelineMode;
+    _render(context: IRenderContext3D): void {
+        var forceInvertFace: boolean = context.invertY;
+        var updateMark: number = context.cameraUpdateMark;
+        var sceneID = context.sceneID;
+        var sceneShaderData:ShaderData = context.sceneShaderData;
+        var cameraShaderData:ShaderData = context.cameraShaderData;
         if (this._isRender) {
             var passes: ShaderInstance[] = this._shaderInstances.elements;
             for (var j: number = 0, m: number =  this._shaderInstances.length; j < m; j++) {
@@ -70,7 +72,7 @@ export class RenderElementOBJ implements IRenderElement {
                 var uploadScene: boolean = (shaderIns._uploadScene !== sceneID) || switchUpdateMark;
                 //Scene
                 if (uploadScene || switchShader) {
-                    shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, renderqueue.sceneShaderData, uploadScene);
+                    shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData, uploadScene);
                     shaderIns._uploadScene = sceneID;
                 }
                 //render
@@ -82,10 +84,10 @@ export class RenderElementOBJ implements IRenderElement {
                     shaderIns._uploadRender = this._renderShaderData;
                 }
                 //camera
-                var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== renderqueue.cameraShaderData || switchUpdateMark;
+                var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderData || switchUpdateMark;
                 if (uploadCamera || switchShader) {
-                    shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, renderqueue.cameraShaderData, uploadCamera);
-                    shaderIns._uploadCameraShaderValue = renderqueue.cameraShaderData;
+                    shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderData, uploadCamera);
+                    shaderIns._uploadCameraShaderValue = cameraShaderData;
                 }
                 //material
                 var uploadMaterial: boolean = (shaderIns._uploadMaterial !== this._materialShaderData) || switchUpdateMark;
