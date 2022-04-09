@@ -180,7 +180,7 @@ export class NativeFilter implements IFilter {
                 source = null;
                 context.addRenderObject(submit);
             }*/
-            webglctx.drawFilter(out, x, y, b.width, b.height);
+            webglctx.drawFilter(out, source, x, y, b.width, b.height);
             mat.destroy();
         }
     }
