@@ -6,6 +6,10 @@ import { ShaderInstance } from "../../shader/ShaderInstance"
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../Camera";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Vector4 } from "../../math/Vector4";
+import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 
 
 /**
@@ -13,48 +17,112 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
  */
 export class RenderContext3D {
 	/** @internal */
-	static _instance: RenderContext3D = new RenderContext3D();
+	static _instance: RenderContext3D;
 
 	/**渲染区宽度。*/
 	static clientWidth: number;
 	/**渲染区高度。*/
 	static clientHeight: number;
 
+	static __init__() {
+		RenderContext3D._instance = new RenderContext3D();
+	}
 	/** @internal */
 	viewMatrix: Matrix4x4;
+	/**@internal */
+	customShader: Shader3D;
+	/**@internal */
+	replaceTag: string;
+
 	/** @internal */
 	projectionMatrix: Matrix4x4;
 	/** @internal */
 	projectionViewMatrix: Matrix4x4;
 	/** @internal */
-	viewport: Viewport;
-
-	/** @internal */
-	scene: Scene3D;
+	renderElement: RenderElement;
 	/** @internal */
 	camera: Camera;
 	/** @internal */
-	cameraShaderValue: ShaderData;
-	/** @internal */
-	renderElement: RenderElement;
-	/** @internal */
 	shader: ShaderInstance;
-	/** @internal */
-	invertY: boolean = false;
-	/** @internal */
-	pipelineMode: string;
 	/**设置渲染管线 */
-	configPipeLineMode:string = "Forward";
+	configPipeLineMode: string = "Forward";
+	/** contextOBJ*/
+	_contextOBJ: IRenderContext3D;
+	/**@internal */
+	get destTarget(): IRenderTarget {
+		return this._contextOBJ.destTarget;
+	}
 
 	/**@internal */
-	customShader:Shader3D;
-	/**@internal */
-	replaceTag:string;
+	set destTarget(value: IRenderTarget) {
+		this._contextOBJ.destTarget = value;
+	}
+
+	/** @internal */
+	get viewport(): Viewport {
+		return this._contextOBJ.viewPort;
+	}
+
+	set viewport(value: Viewport) {
+		value.cloneTo(this._contextOBJ.viewPort);
+	}
+	/** @internal */
+	get scissor(): Vector4 {
+		return this._contextOBJ.scissor;
+	}
+
+	set scissor(value: Vector4) {
+		value.cloneTo(this._contextOBJ.scissor);
+	}
+
+	/** @internal */
+	get invertY(): boolean {
+		return this._contextOBJ.invertY;
+	}
+
+	set invertY(value: boolean) {
+		this._contextOBJ.invertY = value;
+	}
+
+	/** @internal */
+	get pipelineMode(): string {
+		return this._contextOBJ.pipelineMode;
+	}
+
+	set pipelineMode(value: string) {
+		this._contextOBJ.pipelineMode = value;
+	}
+	//Camera Shader Data
+	get cameraShaderValue(): ShaderData {
+		return this._contextOBJ.cameraShaderData;
+	}
+
+	set cameraShaderValue(value: ShaderData) {
+		this._contextOBJ.cameraShaderData = value;
+	}
+
+	/** @internal */
+	set scene(value: Scene3D) {
+		this._contextOBJ.sceneID = value._id;
+		this._contextOBJ.sceneShaderData = value._shaderValues;
+
+	}
+
+	changeViewport(x: number, y: number, width: number, height: number) {
+		Viewport._tempViewport.set(x, y, width, height);
+		this.viewport = Viewport._tempViewport;
+	}
+
+	changeScissor(x: number, y: number, width: number, height: number) {
+		Vector4.tempVec4.setValue(x, y, width, height);
+		this.scissor = Vector4.tempVec4;
+	}
+
 	/**
 	 * 创建一个 <code>RenderContext3D</code> 实例。
 	 */
 	constructor() {
-
+		this._contextOBJ = LayaGL.renderOBJCreate.createRenderContext3D();
 	}
 
 }

@@ -5,16 +5,12 @@ import { GeometryElement } from "../GeometryElement"
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Transform3D } from "../Transform3D"
 import { Material } from "../material/Material"
-import { BoundsOctreeNode } from "../scene/BoundsOctreeNode"
-import { IOctreeObject } from "../scene/IOctreeObject"
 import { Scene3D } from "../scene/Scene3D"
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
 import { Event } from "../../../events/Event"
-import { ISingletonElement } from "../../../resource/ISingletonElement"
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
-import { Stat } from "../../../utils/Stat";
 import { Lightmap } from "../scene/Lightmap";
 import { ReflectionProbe, ReflectionProbeMode } from "../reflectionProbe/ReflectionProbe";
 import { IRenderNodeObject } from "../scene/SceneRenderManager/IRenderNodeObject";
@@ -39,7 +35,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
  */
-export class BaseRender extends Component implements ISingletonElement, IOctreeObject {
+export class BaseRender extends Component {
 	/**@internal */
 	static _tempBoundBoxCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
 
@@ -84,29 +80,21 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 	/** @internal */
 	private _lightmapIndex: number;
 
-	/** @internal */
-	_receiveShadow: boolean;
+	
 
 	/** @internal */
 	private _materialsInstance: boolean[];
 
-	/** @internal */
-	protected _bounds: Bounds;
+	
 
 	/** @internal */
 	protected _boundsChange: boolean = true;
 
-	/** @internal */
-	_indexInCastShadowList: number = -1;
-
-	/** @internal */
-	_castShadow: boolean = false;
 
 	/** @internal */
 	_supportOctree: boolean = true;
 
-	/** @internal */
-	_shaderValues: ShaderData;
+	
 
 	/** @internal */
 	_sharedMaterials: Material[] = [];
@@ -114,11 +102,7 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 	/** @internal */
 	_scene: Scene3D;
 
-	/**@internal */
-	_renderElements: RenderElement[];
-
-	/** @internal */
-	_distanceForSort: number;
+	
 
 	/** @internal */
 	_renderMark: number = -1;//TODO:初始值为-1强制更新,否则会造成第一帧动画不更新等,待优化
@@ -138,6 +122,20 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 	/** @internal 设置是反射探针模式 off  simple */
 	_reflectionMode: number = ReflectionProbeMode.simple;
 
+	/** @internal */
+	_receiveShadow: boolean;
+	/** @internal */
+	protected _bounds: Bounds;
+	/** @internal */
+	_castShadow: boolean = false;
+	
+	/** @internal */
+	_shaderValues: ShaderData;
+	/**@internal */
+	_renderElements: RenderElement[];
+
+	/** @internal */
+	_distanceForSort: number;
 	/** @internal */
 	_sceneUpdateMark: number = -1;
 
@@ -337,13 +335,6 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 	}
 
 	/**
-	 * 是否被渲染。
-	 */
-	get isRender(): boolean {
-		return this._renderMark == -1 || this._renderMark == (Stat.loopCount - 1);
-	}
-
-	/**
 	 * 反射模式
 	 */
 	set reflectionMode(value: ReflectionProbeMode) {
@@ -391,7 +382,6 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 	constructor() {
 		super();
 		this._renderId = ++BaseRender._uniqueIDCounter;
-		this._indexInCastShadowList = -1;
 		this._bounds = LayaGL.renderOBJCreate.createBounds(Vector3._ZERO, Vector3._ZERO);
 		this._renderElements = [];
 		this._enabled = true;
@@ -400,6 +390,11 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 		this.lightmapIndex = -1;
 		this.receiveShadow = false;
 		this.sortingFudge = 0.0;
+		this._createBaseRenderNode();
+	}
+
+	protected _createBaseRenderNode(){
+		 LayaGL.renderOBJCreate.createBaseRenderNode();
 	}
 
 	/**
@@ -492,16 +487,17 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 
 	/**
 	 * @internal
+	 * BaseRender motion
 	 */
 	protected _onWorldMatNeedChange(flag: number): void {
 		this._boundsChange = true;
-		if (this._octreeNode) {
-			flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
-			if (flag) {
-				if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
-					this._octreeNode.getManagerNode().addMotionObject(this);
-			}
-		}
+		// if (this._octreeNode) {
+		// 	flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
+		// 	if (flag) {
+		// 		if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
+		// 			this._octreeNode.getManagerNode().addMotionObject(this);
+		// 	}
+		// }
 		this._addReflectionProbeUpdate();
 		this._transIsChange = true;
 		this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
@@ -516,37 +512,37 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 
 
 
-	/**
-	 * scene manager Node get
-	 */
-	_getOctreeNode(): BoundsOctreeNode {//[实现IOctreeObject接口]
-		//@ts-ignore
-		return this._octreeNode;
-	}
+	// /**
+	//  * scene manager Node get
+	//  */
+	// _getOctreeNode(): BoundsOctreeNode {//[实现IOctreeObject接口]
+	// 	//@ts-ignore
+	// 	return this._octreeNode;
+	// }
 
-	/**
-	 * scene manager Node Set
-	 */
-	_setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
-		if (!value) {
-			(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
-		}
-		this._octreeNode = value;
-	}
+	// /**
+	//  * scene manager Node Set
+	//  */
+	// _setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
+	// 	if (!value) {
+	// 		(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
+	// 	}
+	// 	this._octreeNode = value;
+	// }
 
-	/**
-	 * motion list id get
-	 */
-	_getIndexInMotionList(): number {//[实现IOctreeObject接口]
-		return this._indexInOctreeMotionList;
-	}
+	// /**
+	//  * motion list id get
+	//  */
+	// _getIndexInMotionList(): number {//[实现IOctreeObject接口]
+	// 	return this._indexInOctreeMotionList;
+	// }
 
-	/**
-	 * motion list id set
-	 */
-	_setIndexInMotionList(value: number): void {//[实现IOctreeObject接口]
-		this._indexInOctreeMotionList = value;
-	}
+	// /**
+	//  * motion list id set
+	//  */
+	// _setIndexInMotionList(value: number): void {//[实现IOctreeObject接口]
+	// 	this._indexInOctreeMotionList = value;
+	// }
 
 
 	/**
@@ -571,6 +567,7 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 
 	/**
 	 * @internal
+	 * 全局贴图
 	 */
 	_applyLightMapParams(): void {
 		var lightMaps: Lightmap[] = this._scene.lightmaps;
@@ -592,21 +589,6 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 			shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL);
 		}
 	}
-
-	/**
-	 *  [实现ISingletonElement接口]
-	 */
-	_getIndexInList(): number {
-		return this._indexInList;
-	}
-
-	/**
-	 *  [实现ISingletonElement接口]
-	 */
-	_setIndexInList(index: number): void {
-		this._indexInList = index;
-	}
-
 	/**
 	 * @internal
 	 */
@@ -635,7 +617,7 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 
 	/**
 	 * @internal
-	 * @param boundFrustum 如果boundFrustum为空则为摄像机不裁剪模式。
+	 * @param boundFrustum 裁剪。
 	 */
 	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
 		return true;
@@ -643,9 +625,9 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 
 	/**
 	 * @internal
-	 * 八叉树节点不需要渲染调用的事件 
+	 * 裁剪失败后，如果需要可以调用此函数更新数据
 	 */
-	_OctreeNoRender(): void {
+	_CullOut(): void {
 	}
 
 	/**
@@ -660,17 +642,17 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
 	}
 
-	/**
-	 * @internal
-	 */
-	_revertBatchRenderUpdate(context: RenderContext3D): void {
-	}
+	// /**
+	//  * @internal
+	//  */
+	// _revertBatchRenderUpdate(context: RenderContext3D): void {
+	// }
 
 	/**
 	 * @internal
 	 */
 	destroy(): void {
-		(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
+		//(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
 		var i: number = 0, n: number = 0;
 		for (i = 0, n = this._renderElements.length; i < n; i++)
 			this._renderElements[i].destroy();
@@ -690,15 +672,15 @@ export class BaseRender extends Component implements ISingletonElement, IOctreeO
 		super.destroy();
 	}
 
-	/**
-	 * 标记为非静态,静态合并后可用于取消静态限制。
-	 */
-	markAsUnStatic(): void {
-		if (this._isPartOfStaticBatch) {
-			MeshRenderStaticBatchManager.instance._removeRenderSprite(this);
-			this._isPartOfStaticBatch = false;
-		}
-	}
+	// /**
+	//  * 标记为非静态,静态合并后可用于取消静态限制。
+	//  */
+	// markAsUnStatic(): void {
+	// 	if (this._isPartOfStaticBatch) {
+	// 		MeshRenderStaticBatchManager.instance._removeRenderSprite(this);
+	// 		this._isPartOfStaticBatch = false;
+	// 	}
+	// }
 
 	/**
 	 * @override

@@ -137,8 +137,9 @@ export class DepthPass {
 				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, null, 1);
-				scene._opaqueQueue.changeViewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height)
-				scene._opaqueQueue.destTarget = this._depthTexture;
+				context.changeViewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+				context.changeScissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+				context.destTarget = this._depthTexture;
 				scene._opaqueQueue.renderQueue(context);
 				this._depthTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);
@@ -155,8 +156,9 @@ export class DepthPass {
 				LayaGL.renderEngine.viewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.scissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1)
-				scene._opaqueQueue.destTarget = this._depthNormalsTexture;
-				scene._opaqueQueue.changeViewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+				context.destTarget = this._depthNormalsTexture;
+				context.changeViewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
+				context.changeScissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				scene._opaqueQueue.renderQueue(context);
 				this._depthNormalsTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);

@@ -7,6 +7,6 @@ import { ISceneRenderManager } from "./ISceneRenderManager";
  * 裁剪接口
  */
 export interface ICullPass{
-    cullSceneByCameraCullInfo(cameraCullInfo:CameraCullInfo,renderManager:ISceneRenderManager):SingletonList<IBaseRenderNode>;
-    cullRenderByShadowCullInfo( cullInfo: ShadowCullInfo,renderManager:ISceneRenderManager):SingletonList<IBaseRenderNode>;
+    cullByCameraCullInfo(cameraCullInfo:CameraCullInfo,renderManager:ISceneRenderManager):SingletonList<IBaseRenderNode>;
+    cullByShadowCullInfo( cullInfo: ShadowCullInfo,renderManager:ISceneRenderManager):SingletonList<IBaseRenderNode>;
 }

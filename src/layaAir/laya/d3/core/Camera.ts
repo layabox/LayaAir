@@ -819,9 +819,7 @@ export class Camera extends BaseCamera {
 
 		// todo layame temp
 		(renderTex) && (renderTex._start());
-		scene._opaqueQueue.destTarget = renderTex;
-		scene._transparentQueue.destTarget = renderTex;
-
+		context.destTarget = renderTex;
 		scene._clear(context);
 
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);

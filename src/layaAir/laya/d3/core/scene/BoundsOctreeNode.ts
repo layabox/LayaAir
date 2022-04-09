@@ -370,116 +370,116 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 	 * @internal
 	 */
 	private _getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, testVisible: boolean, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
-		var frustum: BoundFrustum = cameraCullInfo.boundFrustum;
-		var camPos: Vector3 = cameraCullInfo.position;
-		var cullMask: number = cameraCullInfo.cullingMask;
+		// var frustum: BoundFrustum = cameraCullInfo.boundFrustum;
+		// var camPos: Vector3 = cameraCullInfo.position;
+		// var cullMask: number = cameraCullInfo.cullingMask;
 
-		if (testVisible) {
-			var type: number = frustum.containsBoundBox(this._bounds);
-			Stat.octreeNodeCulling++;
-			if (type === ContainmentType.Disjoint) {
-				for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
-					(this._objects[i] as BaseRender)._OctreeNoRender();
-				}
-				return;
-			}
-			testVisible = (type === ContainmentType.Intersects);
-		}
-		this._isContaion = !testVisible;//[Debug] 用于调试信息,末级无用子节点不渲染、脱节节点看不见,所以无需更新变量
+		// if (testVisible) {
+		// 	var type: number = frustum.containsBoundBox(this._bounds);
+		// 	Stat.octreeNodeCulling++;
+		// 	if (type === ContainmentType.Disjoint) {
+		// 		for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
+		// 			(this._objects[i] as BaseRender)._OctreeNoRender();
+		// 		}
+		// 		return;
+		// 	}
+		// 	testVisible = (type === ContainmentType.Intersects);
+		// }
+		// this._isContaion = !testVisible;//[Debug] 用于调试信息,末级无用子节点不渲染、脱节节点看不见,所以无需更新变量
 
-		//检查节点中的对象
-		var scene: Scene3D = context.scene;
-		var loopCount: number = Stat.loopCount;
-		for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
-			var render: BaseRender = <BaseRender>this._objects[i];
-			var canPass: boolean;
-			if (isShadowCasterCull)
-				canPass = render._castShadow && render.enabled;
-			else
-				canPass = (((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0)) && render.enabled;
-			if (canPass) {
-				if (testVisible) {
-					Stat.frustumCulling++;
-					if (!render._needRender(frustum, context))
-						continue;
-				}
+		// //检查节点中的对象
+		// var scene: Scene3D = context.scene;
+		// var loopCount: number = Stat.loopCount;
+		// for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
+		// 	var render: BaseRender = <BaseRender>this._objects[i];
+		// 	var canPass: boolean;
+		// 	if (isShadowCasterCull)
+		// 		canPass = render._castShadow && render.enabled;
+		// 	else
+		// 		canPass = (((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0)) && render.enabled;
+		// 	if (canPass) {
+		// 		if (testVisible) {
+		// 			Stat.frustumCulling++;
+		// 			if (!render._needRender(frustum, context))
+		// 				continue;
+		// 		}
 
-				render._renderMark = loopCount;
-				render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
-				var elements: RenderElement[] = render._renderElements;
-				for (var j: number = 0, m: number = elements.length; j < m; j++) {
-					var element: RenderElement = elements[j];
-					element._update(scene, context, customShader, replacementTag);
-				}
-			}
-		}
+		// 		render._renderMark = loopCount;
+		// 		render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
+		// 		var elements: RenderElement[] = render._renderElements;
+		// 		for (var j: number = 0, m: number = elements.length; j < m; j++) {
+		// 			var element: RenderElement = elements[j];
+		// 			element._update(scene, context, customShader, replacementTag);
+		// 		}
+		// 	}
+		// }
 
-		//检查子节点
-		if (this._children != null) {
-			for (i = 0; i < 8; i++) {
-				var child: BoundsOctreeNode = this._children[i];
-				child && child._getCollidingWithFrustum(cameraCullInfo, context, testVisible, customShader, replacementTag, isShadowCasterCull);
-			}
-		}
+		// //检查子节点
+		// if (this._children != null) {
+		// 	for (i = 0; i < 8; i++) {
+		// 		var child: BoundsOctreeNode = this._children[i];
+		// 		child && child._getCollidingWithFrustum(cameraCullInfo, context, testVisible, customShader, replacementTag, isShadowCasterCull);
+		// 	}
+		// }
 	}
 
 	private _getCollidingWithCastShadowFrustum(cullInfo: ShadowCullInfo, context: RenderContext3D) {
-		var cullPlaneCount: number = cullInfo.cullPlaneCount;
-		var cullPlanes: Plane[] = cullInfo.cullPlanes;
-		var min: Vector3 = this._bounds.min;
-		var max: Vector3 = this._bounds.max;
-		var minX: number = min.x;
-		var minY: number = min.y;
-		var minZ: number = min.z;
-		var maxX: number = max.x;
-		var maxY: number = max.y;
-		var maxZ: number = max.z;
+		// var cullPlaneCount: number = cullInfo.cullPlaneCount;
+		// var cullPlanes: Plane[] = cullInfo.cullPlanes;
+		// var min: Vector3 = this._bounds.min;
+		// var max: Vector3 = this._bounds.max;
+		// var minX: number = min.x;
+		// var minY: number = min.y;
+		// var minZ: number = min.z;
+		// var maxX: number = max.x;
+		// var maxY: number = max.y;
+		// var maxZ: number = max.z;
 
-		var pass: boolean = true;
-		for (var j: number = 0; j < cullPlaneCount; j++) {
-			var plane: Plane = cullPlanes[j];
-			var normal: Vector3 = plane.normal;
-			if (plane.distance + (normal.x * (normal.x < 0.0 ? minX : maxX)) + (normal.y * (normal.y < 0.0 ? minY : maxY)) + (normal.z * (normal.z < 0.0 ? minZ : maxZ)) < 0.0) {
-				pass = false;
-				break;
-			}
-		}
-		if (!pass) return;
+		// var pass: boolean = true;
+		// for (var j: number = 0; j < cullPlaneCount; j++) {
+		// 	var plane: Plane = cullPlanes[j];
+		// 	var normal: Vector3 = plane.normal;
+		// 	if (plane.distance + (normal.x * (normal.x < 0.0 ? minX : maxX)) + (normal.y * (normal.y < 0.0 ? minY : maxY)) + (normal.z * (normal.z < 0.0 ? minZ : maxZ)) < 0.0) {
+		// 		pass = false;
+		// 		break;
+		// 	}
+		// }
+		// if (!pass) return;
 
-		//检查节点中的对象
-		var scene: Scene3D = context.scene;
-		var loopCount: number = Stat.loopCount;
-		for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
-			var render: BaseRender = <BaseRender>this._objects[i];
-			var canPass: boolean;
-			let pass = true;
-			canPass = render._castShadow && render.enabled;
-			if (canPass) {
-				for (var j: number = 0; j < cullPlaneCount; j++) {
-					var plane: Plane = cullPlanes[j];
-					var normal: Vector3 = plane.normal;
-					if (plane.distance + (normal.x * (normal.x < 0.0 ? minX : maxX)) + (normal.y * (normal.y < 0.0 ? minY : maxY)) + (normal.z * (normal.z < 0.0 ? minZ : maxZ)) < 0.0) {
-						pass = false;
-						break;
-					}
-				}
-			}
-			if (!pass || !canPass) continue;
+		// //检查节点中的对象
+		// var scene: Scene3D = context.scene;
+		// var loopCount: number = Stat.loopCount;
+		// for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
+		// 	var render: BaseRender = <BaseRender>this._objects[i];
+		// 	var canPass: boolean;
+		// 	let pass = true;
+		// 	canPass = render._castShadow && render.enabled;
+		// 	if (canPass) {
+		// 		for (var j: number = 0; j < cullPlaneCount; j++) {
+		// 			var plane: Plane = cullPlanes[j];
+		// 			var normal: Vector3 = plane.normal;
+		// 			if (plane.distance + (normal.x * (normal.x < 0.0 ? minX : maxX)) + (normal.y * (normal.y < 0.0 ? minY : maxY)) + (normal.z * (normal.z < 0.0 ? minZ : maxZ)) < 0.0) {
+		// 				pass = false;
+		// 				break;
+		// 			}
+		// 		}
+		// 	}
+		// 	if (!pass || !canPass) continue;
 
-			render._renderMark = loopCount;
-			render._distanceForSort = Vector3.distance(render.bounds.getCenter(), cullInfo.position);//TODO:合并计算浪费,或者合并后取平均值
-			var elements: RenderElement[] = render._renderElements;
-			for (var j: number = 0, m: number = elements.length; j < m; j++) {
-				var element: RenderElement = elements[j];
-				element._update(scene, context, null, null);
-			}
-		}
-		if (this._children != null) {
-			for (i = 0; i < 8; i++) {
-				var child: BoundsOctreeNode = this._children[i];
-				child && child._getCollidingWithCastShadowFrustum(cullInfo, context);
-			}
-		}
+		// 	render._renderMark = loopCount;
+		// 	render._distanceForSort = Vector3.distance(render.bounds.getCenter(), cullInfo.position);//TODO:合并计算浪费,或者合并后取平均值
+		// 	var elements: RenderElement[] = render._renderElements;
+		// 	for (var j: number = 0, m: number = elements.length; j < m; j++) {
+		// 		var element: RenderElement = elements[j];
+		// 		element._update(scene, context, null, null);
+		// 	}
+		// }
+		// if (this._children != null) {
+		// 	for (i = 0; i < 8; i++) {
+		// 		var child: BoundsOctreeNode = this._children[i];
+		// 		child && child._getCollidingWithCastShadowFrustum(cullInfo, context);
+		// 	}
+		// }
 	}
 
 	/**

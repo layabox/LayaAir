@@ -26,6 +26,8 @@ export class Vector4 implements IClone {
 	/*W单位向量，禁止修改*/
 	static UnitW: Vector4 = new Vector4(0.0, 0.0, 0.0, 1.0);
 
+	static tempVec4:Vector4 = new Vector4(0.0, 0.0, 0.0, 0.0);
+
 	/**X轴坐标*/
 	x: number;
 	/**Y轴坐标*/
