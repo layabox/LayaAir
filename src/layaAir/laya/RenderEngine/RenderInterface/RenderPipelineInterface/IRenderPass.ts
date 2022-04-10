@@ -1,4 +1,5 @@
 import { SingletonList } from "../../../d3/component/SingletonList";
+import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { IBaseRenderNode } from "./IBaseRenderNode";
 import { ICullPass } from "./ICullPass";
 import { IRenderQueue } from "./IRenderQueue";
@@ -7,6 +8,8 @@ import { IRenderQueue } from "./IRenderQueue";
  * 渲染通道
  */
 export interface IRenderPass{
+    /**渲染状态 */
+    context:RenderContext3D;
     //裁剪工具
     _cullPass:ICullPass;
     //set Render Obj List
