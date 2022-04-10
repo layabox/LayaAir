@@ -88,69 +88,77 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     }
 
     compressNumber(index:number,data:Float32Array,stride:number):number{
-        var length = 2;
-        data[stride] = ShaderDataType.Number;
-        data[stride+1] = this._data[index];
+        var length = 3;
+        data[stride] = index;
+        data[stride+1] = ShaderDataType.Number;
+        data[stride+2] = this._data[index];
         return length;
     }
 
     compressVector2(index:number,data:Float32Array,stride:number):number{
-        var length = 3;
-        data[stride] = ShaderDataType.Vector2;
+        var length = 4;
+        data[stride] = index;
+        data[stride+1] = ShaderDataType.Vector2;
         var value:Vector2= this._data[index];
-        data[stride+1] = value.x;
-        data[stride+2] = value.y;
+        data[stride+2] = value.x;
+        data[stride+3] = value.y;
         return length;
     }
 
     compressVector3(index:number,data:Float32Array,stride:number):number{
-        var length = 4;
-        data[stride] = ShaderDataType.Vector3;
+        var length = 5;
+        data[stride] = index;
+        data[stride+1] = ShaderDataType.Vector3;
         var value:Vector3= this._data[index];
-        data[stride+1] = value.x;
-        data[stride+2] = value.y;
-        data[stride+3] = value.z;
+        data[stride+2] = value.x;
+        data[stride+3] = value.y;
+        data[stride+4] = value.z;
         return length;
     }
 
     compressVector4(index:number,data:Float32Array,stride:number):number{
-        var length = 4;
-        data[stride] = ShaderDataType.Vector4;
+        var length = 6;
+        data[stride] = index;
+        data[stride+1] = ShaderDataType.Vector4;
         var value:Vector4= this._data[index];
-        data[stride+1] = value.x;
-        data[stride+2] = value.y;
-        data[stride+3] = value.z;
-        data[stride+4] = value.w;
+        data[stride+2] = value.x;
+        data[stride+3] = value.y;
+        data[stride+4] = value.z;
+        data[stride+5] = value.w;
         return length;
     }
 
     compressMatrix4x4(index:number,data:Float32Array,stride:number):number{
-        var length = 17;
-        data[stride] = ShaderDataType.Matrix4x4;
+        var length = 18;
+        data[stride] = index;
+        data[stride+1] = ShaderDataType.Matrix4x4;
         var value:Matrix4x4= this._data[index];
-        data.set(value.elements,stride+1);
+        data.set(value.elements,stride+2);
         return length;
     }
 
     compressNumberArray(index:number,data:Float32Array,stride:number):number{
-        data[stride] = ShaderDataType.numberArray;
+        data[stride] = index
+        data[stride+1] = ShaderDataType.numberArray;
         var value:Float32Array= this._data[index];
-        data[stride+1] = value.length;
-        data.set(value,stride+2);
-        return value.length+2;
+        data[stride+2] = value.length;
+        data.set(value,stride+3);
+        return value.length+3;
     }
     
     compressTexture(index:number,data:Float32Array,stride:number):number{
         var value:BaseTexture = this._data[index];
-        data[stride] = ShaderDataType.Texture;
-        data[stride+1] = value._texture.resource.id;//TODO
-        return 2;
+        data[stride] = index;
+        data[stride+1] = ShaderDataType.Texture;
+        data[stride+2] = value._texture.resource.id;//TODO
+        return 3;
     }
 
     compressShaderDefine(index:number,data:Float32Array,stride:number):number{
-        var length = 2;
-        data[stride] = ShaderDataType.ShaderDefine;
-        let defineLength = data[stride+1] = this._defineDatas._length;
+        var length = 3;
+        data[stride] = index;
+        data[stride+1] = ShaderDataType.ShaderDefine;
+        let defineLength = data[stride+2] = this._defineDatas._length;
         for(let i:number;i<defineLength;i++,length++){
             data[stride+length] = this._defineDatas._mask[i];
         }
@@ -163,7 +171,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
      */
     addDefine(define: ShaderDefine): void {
         this._defineDatas.add(define);
-        this.updateMap.set(ShaderDataNative.ShaderDefineMapIndex, this.compressShaderDefine);
+        //this.updateMap.set(ShaderDataNative.ShaderDefineMapIndex, this.compressShaderDefine);
     }
 
     /**
@@ -172,7 +180,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
      */
     removeDefine(define: ShaderDefine): void {
         this._defineDatas.remove(define);
-        this.updateMap.set(ShaderDataNative.ShaderDefineMapIndex, this.compressShaderDefine);
+        //this.updateMap.set(ShaderDataNative.ShaderDefineMapIndex, this.compressShaderDefine);
     }
 
     /**
