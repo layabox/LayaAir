@@ -13,10 +13,8 @@ import { Vector3 } from "../math/Vector3";
 import { Utils3D } from "../utils/Utils3D";
 import { Bounds } from "../core/Bounds";
 import { BoundSphere } from "../math/BoundSphere";
-import { ISceneRenderManager } from "../core/scene/SceneRenderManager/ISceneRenderManager";
 import { Sprite3D } from "../core/Sprite3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { BaseRenderQueue } from "../../RenderEngine/RenderObj/BaseRenderQueue";
 
 
 /**
@@ -93,15 +91,14 @@ export class FrustumCulling {
 			var render: BaseRender = <BaseRender>renders[i];
 			var canPass: boolean;
 			if (isShadowCasterCull)
-				canPass = render._castShadow && render._enabled;
+				canPass = render.castShadow && render._enabled;
 			else
 				canPass = ((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0) && render._enabled;
 
 			if (canPass) {
 				Stat.frustumCulling++;
 				if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
-					render._renderMark = loopCount;
-					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
+					render.distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 					var elements: RenderElement[] = render._renderElements;
 					for (var j: number = 0, m: number = elements.length; j < m; j++)
 						elements[j]._update(scene, context, customShader, replacementTag);
@@ -116,7 +113,7 @@ export class FrustumCulling {
 	static renderObjectCulling(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		// var opaqueQueue: BaseRenderQueue = scene._opaqueQueue;
 		// var transparentQueue: BaseRenderQueue = scene._transparentQueue;
-		var renderList: SingletonList<ISingletonElement> = scene._renders;
+		var renderList: SingletonList<ISingletonElement> = scene._sceneRenderManager.list;
 		scene._clearRenderQueue();
 		// var octree: ISceneRenderManager = scene._octree;
 		// if (octree) {
@@ -160,7 +157,7 @@ export class FrustumCulling {
 		// 	//octree._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context);
 		// 	octree.cullingShadow(cullInfo, context);
 		// }
-		var renderList: SingletonList<ISingletonElement> = scene._renders;
+		var renderList: SingletonList<ISingletonElement> = scene._sceneRenderManager.list;
 		var position: Vector3 = cullInfo.position;
 		// var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		// var cullPlanes: Plane[] = cullInfo.cullPlanes;
@@ -168,13 +165,12 @@ export class FrustumCulling {
 		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 			var render: BaseRender = <BaseRender>renders[i];
-			var canPass: boolean = render._castShadow && render._enabled;
+			var canPass: boolean = render.castShadow && render._enabled;
 			if (canPass) {
 				Stat.frustumCulling++;
 				let pass = FrustumCulling.cullingRenderBounds(render.bounds, cullInfo);
 				if (pass) {
-					render._renderMark = loopCount;
-					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
+					render.distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
 					var elements: RenderElement[] = render._renderElements;
 					for (var j: number = 0, m: number = elements.length; j < m; j++)
 						elements[j]._update(scene, context, null, null);
@@ -221,17 +217,16 @@ export class FrustumCulling {
 		scene._clearRenderQueue();
 
 		//if (!scene._octree) {
-			var renderList: SingletonList<ISingletonElement> = scene._renders;
+			var renderList: SingletonList<ISingletonElement> = scene._sceneRenderManager.list;
 			var renders: ISingletonElement[] = renderList.elements;
 			var loopCount: number = Stat.loopCount;
 			for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 				var render: BaseRender = <BaseRender>renders[i];
-				var canPass: boolean = render._castShadow && render._enabled;
+				var canPass: boolean = render.castShadow && render._enabled;
 				if (canPass) {
 					if (render._needRender(cameraCullInfo.boundFrustum, context)) {
 						var bounds = render.bounds;
-						render._renderMark = loopCount;
-						render._distanceForSort = Vector3.distance(bounds.getCenter(), cameraCullInfo.position);
+						render.distanceForSort = Vector3.distance(bounds.getCenter(), cameraCullInfo.position);
 						var elements: RenderElement[] = render._renderElements;
 						for (var j: number = 0, m: number = elements.length; j < m; j++)
 							elements[j]._update(scene, context, null, null);

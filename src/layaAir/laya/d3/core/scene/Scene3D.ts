@@ -72,6 +72,7 @@ import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { BaseRenderQueue } from "../../../RenderEngine/RenderObj/BaseRenderQueue";
+import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 /**
  * 环境光模式
  */
@@ -427,8 +428,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_physicsSimulation: PhysicsSimulation;
 	/** @internal */
 	_cannonPhysicsSimulation: CannonPhysicsSimulation;
-	// /** @internal */
-	// _octree: ISceneRenderManager;
 	/** @internal 只读,不允许修改。*/
 	_collsionTestList: number[] = [];
 	/** @internal */
@@ -436,31 +435,26 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @interanl */
 	_sceneUniformBlock: UnifromBufferData;
 	/** @internal */
-	_renders: SimpleSingletonList = new SimpleSingletonList();
+	_key: SubmitKey = new SubmitKey();
+	
 	/** @internal */
 	_opaqueQueue: BaseRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(false) as BaseRenderQueue;
 	/** @internal */
 	_transparentQueue: BaseRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(true) as BaseRenderQueue;
 	/** @internal */
 	_cameraPool: BaseCamera[] = [];
-	/** @internal */
-	_animatorPool: SimpleSingletonList = new SimpleSingletonList();
 	/**	@internal */
 	_reflectionCubeHDRParams: Vector4 = new Vector4();
 	/** @internal */
 	_reflectionProbeManager: ReflectionProbeManager = new ReflectionProbeManager();
+	/**@internal */
+	_sceneRenderManager:ISceneRenderManager;
 	/** 当前创建精灵所属遮罩层。*/
 	currentCreationLayer: number = Math.pow(2, 0);
 	/** 是否启用灯光。*/
 	enableLight: boolean = true;
 	/** @internal */
 	_debugTool: PixelLineSprite3D;
-	/** @internal */
-	_key: SubmitKey = new SubmitKey();
-	/** @internal	[NATIVE]*/
-	_cullingBufferIndices: Int32Array;
-	/** @internal	[NATIVE]*/
-	_cullingBufferResult: Int32Array;
 	/** @internal [Editer]*/
 	_pickIdToSprite: any = new Object();
 
@@ -471,14 +465,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return this._url;
 	}
 
-	// set sceneRenderableManager(manager: ISceneRenderManager) {
-	// 	// this._octree = manager;
-	// 	for (let i = 0, n = this._renders.length; i < n; i++) {
-	// 		let render = <BaseRender>this._renders.elements[i];
-	// 		this._renders.remove(render);
-	// 		this._addRenderObject(render);
-	// 	}
-	// }
+	set sceneRenderableManager(manager: ISceneRenderManager) {
+		// this._octree = manager;
+		 manager.list = this._sceneRenderManager.list;
+		 this._sceneRenderManager = manager;
+		// for (let i = 0, n = this._renders.length; i < n; i++) {
+		// 	let render = <BaseRender>this._renders.elements[i];
+		// 	this._renders.remove(render);
+		// 	this._addRenderObject(render);
+		// }
+	}
 
 	/**
 	 * 是否允许雾化。
@@ -768,6 +764,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
 		this._scene = this;
 		this._input.__init__(Render.canvas, this);
+		this._sceneRenderManager = LayaGL.renderOBJCreate.createSceneRenderManager();
 		// if (Scene3D.octreeCulling)
 		// 	this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
 		if (FrustumCulling.debugFrustumCulling) {
@@ -864,7 +861,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._componentManager.callAnimatorUpdate(delta);
 		VideoTexture._update();
 		if (this._reflectionProbeManager._needUpdateAllRender)
-			this._reflectionProbeManager.updateAllRenderObjects(this._renders);
+			this._reflectionProbeManager.updateAllRenderObjects(this._sceneRenderManager.list);
 		else
 			this._reflectionProbeManager.update();
 		this._componentManager.callScriptLataUpdate(delta);
@@ -1341,7 +1338,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		// if (this._octree && render._supportOctree) {
 		// 	this._octree.addRender(render);
 		// } else {
-		this._renders.add(render);
+		//this._renders.add(render);
+		this._sceneRenderManager.addRenderObject(render);
 		// }
 		render._addReflectionProbeUpdate();
 	}
@@ -1353,7 +1351,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		// if (this._octree && render._supportOctree) {
 		// 	this._octree.removeRender(render);
 		// } else {
-		this._renders.remove(render);
+		this._sceneRenderManager.removeRenderObject(render);
+		//this._renders.remove(render);
 		// }
 	}
 
@@ -1412,10 +1411,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._spotLights = null;
 		this._alternateLights = null;
 		this._shaderValues = null;
-		this._renders.clearElement();
-		this._animatorPool.clearElement();
-		this._renders = null;
-		this._animatorPool = null;
+		this.sceneRenderableManager.destroy();
+		this._sceneRenderManager = null
 		this._cameraPool = null;
 		// this._octree = null;
 		this._physicsSimulation && this._physicsSimulation._destroy();

@@ -17,6 +17,7 @@ import { IRenderContext3D } from "./RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "./RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "./RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "./RenderPipelineInterface/IRenderQueue";
+import { ISceneRenderManager } from "./RenderPipelineInterface/ISceneRenderManager";
 
 export interface IRenderOBJCreate{
     createTransform(owner:Sprite3D):Transform3D;
@@ -44,4 +45,6 @@ export interface IRenderOBJCreate{
     createBaseRenderNode():IBaseRenderNode;
 
     createRenderContext3D():IRenderContext3D;
+
+    createSceneRenderManager():ISceneRenderManager;
 }

@@ -10,10 +10,8 @@ import { BoundFrustum } from "../../math/BoundFrustum"
 import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
 import { Event } from "../../../events/Event"
-import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
 import { Lightmap } from "../scene/Lightmap";
 import { ReflectionProbe, ReflectionProbeMode } from "../reflectionProbe/ReflectionProbe";
-import { IRenderNodeObject } from "../scene/SceneRenderManager/IRenderNodeObject";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { TextureCube } from "../../resource/TextureCube";
 import { ShaderDataType } from "./command/SetShaderDataCMD";
@@ -30,6 +28,7 @@ import { UniformBufferParamsType } from "../../../RenderEngine/UniformBufferData
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 
 
 /**
@@ -37,10 +36,10 @@ import { LayaGL } from "../../../layagl/LayaGL";
  */
 export class BaseRender extends Component {
 	/**@internal */
-	static _tempBoundBoxCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
+	private static _uniqueIDCounter: number = 0;
 
 	/**@internal */
-	private static _uniqueIDCounter: number = 0;
+	static _tempBoundBoxCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
 
 	/**@internal */
 	static _defaultLightmapScaleOffset: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);
@@ -71,100 +70,81 @@ export class BaseRender extends Component {
 		BaseRender._transLargeUbO = new TransLargeUBOUtils(ubo, uniformpara, subUBOData);
 	}
 
-	/**@internal */
-	private _renderId: number;
-
 	/** @internal */
 	private _lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
-
 	/** @internal */
 	private _lightmapIndex: number;
-
-	
-
 	/** @internal */
 	private _materialsInstance: boolean[];
-
-	
-
-	/** @internal */
-	protected _boundsChange: boolean = true;
-
-
-	/** @internal */
-	_supportOctree: boolean = true;
-
-	
-
 	/** @internal */
 	_sharedMaterials: Material[] = [];
-
-	/** @internal */
+	/** @internal TODO*/
+	_supportOctree: boolean = true;
+	/** @internal TODO*/
 	_scene: Scene3D;
-
-	
-
 	/** @internal */
-	_renderMark: number = -1;//TODO:初始值为-1强制更新,否则会造成第一帧动画不更新等,待优化
-
-	/** @internal */
-	_octreeNode: IRenderNodeObject;
-
-	/** @internal */
-	_indexInOctreeMotionList: number = -1;
-
+	_sceneUpdateMark: number = -1;
+	/** @internal 属于相机的标记*/
+	_updateMark: number = -1;
 	/** @internal 是否需要反射探针*/
 	_probReflection: ReflectionProbe;
-
 	/** @internal 材质是否支持反射探针*/
 	_surportReflectionProbe: boolean;
-
 	/** @internal 设置是反射探针模式 off  simple */
 	_reflectionMode: number = ReflectionProbeMode.simple;
-
-	/** @internal */
-	_receiveShadow: boolean;
-	/** @internal */
-	protected _bounds: Bounds;
-	/** @internal */
-	_castShadow: boolean = false;
-	
 	/** @internal */
 	_shaderValues: ShaderData;
 	/**@internal */
 	_renderElements: RenderElement[];
-
-	/** @internal */
-	_distanceForSort: number;
-	/** @internal */
-	_sceneUpdateMark: number = -1;
-
-	/** @internal 属于相机的标记*/
-	_updateMark: number = -1;
-
 	/** @internal */
 	_updateRenderType: number = -1;
-
 	/** @internal */
 	_isPartOfStaticBatch: boolean = false;
-
 	/** @internal */
 	_staticBatch: GeometryElement = null;
-
 	/**排序矫正值。*/
 	sortingFudge: number;
-
-	/**@internal */
-	_transIsChange: boolean = false;
-
 	/**@internal */
 	_subUniformBufferData: SubUniformBufferData;
+	/** @internal */
+	protected _boundsChange: boolean = true;
+	/**@internal */
+	protected _rendernode: IBaseRenderNode;
+	/** @internal */
+	protected _bounds: Bounds;
+
+	/** @internal */
+	protected _baseGeometryBounds: Bounds;
+	/**@internal */
+	protected _transform: Transform3D;
+
+
+
+
+
+
+
+
+	get renderNode(): IBaseRenderNode {
+		return this._rendernode;
+	}
+
+	set distanceForSort(value: number) {
+		this._rendernode.distanceForSort = value;
+	}
+
+	get distanceForSort() {
+		return this._rendernode.distanceForSort;
+	}
+
+
+
 
 	/**
 	 * 获取唯一标识ID,通常用于识别。
 	 */
 	get id(): number {
-		return this._renderId;
+		return this._rendernode.renderId;
 	}
 
 	/**
@@ -300,8 +280,8 @@ export class BaseRender extends Component {
 	}
 
 	set receiveShadow(value: boolean) {
-		if (this._receiveShadow !== value) {
-			this._receiveShadow = value;
+		if (this.renderNode.receiveShadow !== value) {
+			this.renderNode.receiveShadow = value;
 			if (value)
 				this._shaderValues.addDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
 			else
@@ -313,18 +293,18 @@ export class BaseRender extends Component {
 	 * 是否接收阴影属性
 	 */
 	get receiveShadow(): boolean {
-		return this._receiveShadow;
+		return this.renderNode.receiveShadow;
 	}
 
 	/**
 	 * 是否产生阴影。
 	 */
 	get castShadow(): boolean {
-		return this._castShadow;
+		return this.renderNode.castShadow;
 	}
 
 	set castShadow(value: boolean) {
-		this._castShadow = value;
+		this.renderNode.castShadow = value;
 	}
 
 	/**
@@ -381,8 +361,9 @@ export class BaseRender extends Component {
 	 */
 	constructor() {
 		super();
-		this._renderId = ++BaseRender._uniqueIDCounter;
-		this._bounds = LayaGL.renderOBJCreate.createBounds(Vector3._ZERO, Vector3._ZERO);
+		this._rendernode = this._createBaseRenderNode();
+		this._rendernode.renderId = ++BaseRender._uniqueIDCounter;
+		this._bounds = this._rendernode.bounds = LayaGL.renderOBJCreate.createBounds(Vector3._ZERO, Vector3._ZERO);
 		this._renderElements = [];
 		this._enabled = true;
 		this._materialsInstance = [];
@@ -390,11 +371,11 @@ export class BaseRender extends Component {
 		this.lightmapIndex = -1;
 		this.receiveShadow = false;
 		this.sortingFudge = 0.0;
-		this._createBaseRenderNode();
+
 	}
 
-	protected _createBaseRenderNode(){
-		 LayaGL.renderOBJCreate.createBaseRenderNode();
+	protected _createBaseRenderNode(): IBaseRenderNode {
+		return LayaGL.renderOBJCreate.createBaseRenderNode();
 	}
 
 	/**
@@ -499,7 +480,6 @@ export class BaseRender extends Component {
 		// 	}
 		// }
 		this._addReflectionProbeUpdate();
-		this._transIsChange = true;
 		this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
 	}
 

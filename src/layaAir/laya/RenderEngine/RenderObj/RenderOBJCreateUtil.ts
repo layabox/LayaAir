@@ -16,11 +16,14 @@ import { IRenderContext3D } from "../RenderInterface/RenderPipelineInterface/IRe
 import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
+import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { ShaderData } from "../RenderShader/ShaderData";
+import { BaseRenderNode } from "./BaseRenderNode";
 import { BaseRenderQueue } from "./BaseRenderQueue";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
+import { SceneRenderManager } from "./SceneRenderManager";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
@@ -74,11 +77,15 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createBaseRenderNode():IBaseRenderNode{
-        return null;
+        return new BaseRenderNode();
     }
 
     createRenderContext3D():IRenderContext3D{
         return new RenderContext3DOBJ();
+    }
+
+    createSceneRenderManager():ISceneRenderManager{
+        return new SceneRenderManager();
     }
     
 
