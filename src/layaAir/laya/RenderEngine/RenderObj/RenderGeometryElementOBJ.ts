@@ -45,7 +45,7 @@ export class RenderGeometryElementOBJ implements IRenderGeometryElement {
   
   /**@internal */
   destroy(): void {
-
+    
   }
 
   clearRenderParams() {

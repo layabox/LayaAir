@@ -1,5 +1,4 @@
 import { SimpleSingletonList } from "../../d3/component/SimpleSingletonList";
-import { SingletonList } from "../../d3/component/SingletonList";
 import { BaseRender } from "../../d3/core/render/BaseRender";
 import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 

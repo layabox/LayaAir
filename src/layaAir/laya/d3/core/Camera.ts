@@ -933,6 +933,7 @@ export class Camera extends BaseCamera {
 		context.pipelineMode = context.configPipeLineMode;
 		context.replaceTag = replacementTag;
 		context.customShader = shader;
+
 		if (needInternalRT) {
 			if (this._msaa) {
 				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 4);
@@ -941,7 +942,6 @@ export class Camera extends BaseCamera {
 				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 1);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			}
-
 		}
 		else {
 			this._internalRenderTexture = null;
