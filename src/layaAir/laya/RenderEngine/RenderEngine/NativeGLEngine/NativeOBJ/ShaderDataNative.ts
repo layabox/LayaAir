@@ -13,12 +13,14 @@ import { MemoryDataType } from "../CommonMemory/MemoryDataType";
 import { UploadMemory } from "../CommonMemory/UploadMemory";
 
 export enum ShaderDataType {
-    Number,
+    Int32,
+    Number32,
     Vector2,
     Vector3,
     Vector4,
-    Matrix4x4,
-    numberArray,
+    Matrix4x4, 
+    Int32Array,
+    Number32Array,
     Texture,
     ShaderDefine,
 }
@@ -90,7 +92,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     compressNumber(index:number,data:Float32Array,stride:number):number{
         var length = 3;
         data[stride] = index;
-        data[stride+1] = ShaderDataType.Number;
+        data[stride+1] = ShaderDataType.Number32;
         data[stride+2] = this._data[index];
         return length;
     }
@@ -139,7 +141,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
 
     compressNumberArray(index:number,data:Float32Array,stride:number):number{
         data[stride] = index
-        data[stride+1] = ShaderDataType.numberArray;
+        data[stride+1] = ShaderDataType.Number32Array;
         var value:Float32Array= this._data[index];
         data[stride+2] = value.length;
         data.set(value,stride+3);
