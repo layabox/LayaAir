@@ -13,6 +13,7 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
 import { Value2D } from "../webgl/shader/d2/value/Value2D"
 import { SubmitCMD } from "../webgl/submit/SubmitCMD"
 import { ColorFilter } from "./ColorFilter";
+import { BlurFilter } from "./BlurFilter";
 
 /**
  * <code>Filter</code> 是滤镜基类。
@@ -35,8 +36,8 @@ export class NativeFilter implements IFilter {
     /**@private 滤镜类型。*/
     get type(): number { return -1 }
 
-    static _filter = function (this:RenderSprite,sprite: Sprite, context: Context, x: number, y: number): void {
-        var webglctx: Context = context;
+    static _filter = function (this:RenderSprite,sprite: Sprite, context: any, x: number, y: number): void {
+        var webglctx: any = context;
         var next: any = ((<RenderSprite>this))._next;
         if (next) {
             var filters: any[] = sprite.filters, len: number = filters.length;
@@ -60,8 +61,8 @@ export class NativeFilter implements IFilter {
             var tHalfPadding: number = 0;
             var tIsHaveGlowFilter: boolean = false;
             //这里判断是否存储了out，如果存储了直接用;
-            var source: RenderTexture2D = null;
-            var out: RenderTexture2D = sprite._cacheStyle.filterCache || null;
+            var source: any = null;
+            var out: any = sprite._cacheStyle.filterCache || null;
             if (!out || sprite.getRepaint() != 0) {
                 tIsHaveGlowFilter = sprite._isHaveGlowFilter();
                 //glow需要扩展边缘
@@ -91,9 +92,12 @@ export class NativeFilter implements IFilter {
                 if (b.width <= 0 || b.height <= 0) {
                     return;
                 }
-                out && WebGLRTMgr.releaseRT(out);// out.recycle();
-                source = WebGLRTMgr.getRT(b.width, b.height);
-                var outRT: RenderTexture2D = out = WebGLRTMgr.getRT(b.width, b.height);
+                //out && WebGLRTMgr.releaseRT(out);// out.recycle();
+                out && out.destroy();// out.recycle();
+                //source = WebGLRTMgr.getRT(b.width, b.height);
+                source = new (window as any).conchRenderTexture2D(b.width, b.height);
+                //var outRT: RenderTexture2D = out = WebGLRTMgr.getRT(b.width, b.height);
+                var outRT: any = out = new (window as any).conchRenderTexture2D(b.width, b.height);
                 sprite._getCacheStyle().filterCache = out;
                 //使用RT
                 webglctx.pushRT();
@@ -115,8 +119,9 @@ export class NativeFilter implements IFilter {
                     //把src往out上画
                     switch (fil.type) {
                         case NativeFilter.BLUR:
-                            fil._glRender && fil._glRender.render(source, context, b.width, b.height, fil);
+                            //fil._glRender && fil._glRender.render(source, context, b.width, b.height, fil);
                             //BlurFilterGLRender.render(source, context, b.width, b.height, fil as BlurFilter);
+                            webglctx.drawTargetBlurFilter(source, 0, 0, b.width, b.height, (fil as BlurFilter).strength);
                             break;
                         case NativeFilter.GLOW:
                             //GlowFilterGLRender.render(source, context, b.width, b.height, fil as GlowFilter);
@@ -164,17 +169,18 @@ export class NativeFilter implements IFilter {
             x = p.x + b.x;
             y = p.y + b.y;
             //把最后的out纹理画出来
-            webglctx._drawRenderTexture(out, x, y, b.width, b.height, Matrix.TEMP.identity(), 1.0, RenderTexture2D.defuv);
+            //webglctx._drawRenderTexture(out, x, y, b.width, b.height, Matrix.TEMP.identity(), 1.0, RenderTexture2D.defuv);
 
             //把对象放回池子中
             //var submit:SubmitCMD = SubmitCMD.create([scope], Filter._recycleScope, this);
-            if (source) {
+            /*if (source) {
                 var submit: SubmitCMD = SubmitCMD.create([source], function (s: Texture2D): void {
                     s.destroy();
                 }, this);
                 source = null;
                 context.addRenderObject(submit);
-            }
+            }*/
+            webglctx.drawFilter(out, source, x, y, b.width, b.height);
             mat.destroy();
         }
     }

@@ -23,6 +23,7 @@ import { SubmitCMD } from "../webgl/submit/SubmitCMD";
 import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { ILaya } from "../../ILaya";
 import { RenderStateContext } from "../RenderEngine/RenderStateContext";
+import { NativeFilter } from "../filters/NativeFilter";
 
 /**
  * @private
@@ -179,7 +180,12 @@ export class RenderSprite {
 			//_fun = this._image2;
 			//return;
 			case SpriteConst.FILTERS:
-				this._fun = Filter._filter;
+				if ((window as any).conch && !(window as any).conchWebGL) {
+					this._fun = NativeFilter._filter;
+				}
+				else {
+					this._fun = Filter._filter;
+				}
 				return;
 			case RenderSprite.INIT:
 				this._fun = RenderSprite._initRenderFun;
@@ -590,7 +596,7 @@ export class RenderSprite {
 				var w: number = tRect.width;
 				var h: number = tRect.height;
 
-				(ctx as any).drawMask(w, h);
+				var tmpRT:any = (ctx as any).drawMask(w, h);
 				/*var tmpRT: RenderTexture2D = WebGLRTMgr.getRT(w, h);
 
 				ctx.breakNextMerge();
@@ -616,7 +622,7 @@ export class RenderSprite {
 				//画出本节点的内容
 				next._fun.call(next, sprite, ctx, x, y);
 
-				(ctx as any).drawMaskComposite(x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
+				(ctx as any).drawMaskComposite(tmpRT, x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
 				//ctx.restore();
 
 				//设置混合模式
