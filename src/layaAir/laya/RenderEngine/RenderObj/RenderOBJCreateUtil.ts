@@ -62,8 +62,6 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new RenderGeometryElementOBJ(mode, drayType);
     }
 
-    
-
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
         return new VertexBuffer3D(byteLength, bufferUsage, canRead);
     }
@@ -73,7 +71,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createShaderInstance() {
-
+        
     }
 
     createBaseRenderNode():IBaseRenderNode{
@@ -87,7 +85,4 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createSceneRenderManager():ISceneRenderManager{
         return new SceneRenderManager();
     }
-    
-
-
 }

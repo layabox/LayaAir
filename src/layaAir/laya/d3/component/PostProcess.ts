@@ -109,9 +109,11 @@ export class PostProcess {
 
 		var cameraTarget: RenderTexture = camera!._internalRenderTexture;
 		var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), null, false, 1);
+		var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), null,false,1),RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), null,false,1)];
 		//var screenTexture: RenderTexture = cameraTarget;
 		this._context!.command!.clear();
 		this._context!.source = screenTexture;
+		this._context!.indirectTarget = screenTexture;
 		this._context!.destination = cameraTarget;
 		this._context!.compositeShaderData!.clearDefine();
 
@@ -119,8 +121,17 @@ export class PostProcess {
 
 		this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
 
-		for (var i: number = 0, n: number = this._effects.length; i < n; i++)
+		for (var i: number = 0, n: number = this._effects.length; i < n; i++){
 			this._effects[i].render(this._context!);
+			if(i==n-2){//last effect:destination RenderTexture is CameraTarget
+				this._context.indirectTarget = this._context.destination;
+				this._context.destination = cameraTarget;
+			}else{
+				this._context.indirectTarget = this._context.destination;
+				this._context.destination = Indirect[(i+1)%2];
+			}
+		}
+			
 
 		this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);
 		//dithering.Render(context);

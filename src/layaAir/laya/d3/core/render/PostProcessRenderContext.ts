@@ -7,9 +7,11 @@ import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
  * * <code>PostProcessRenderContext</code> 类用于创建后期处理渲染上下文。
  */
 export class PostProcessRenderContext {
-	/** 源纹理。*/
+	/** origan RenderTexture */
 	source: RenderTexture | null = null;
-	/** 输出纹理。*/
+	/** forward effect target */
+	indirectTarget:RenderTexture|null = null;
+	/** dest RenderTexture*/
 	destination: RenderTexture | null = null;
 	/** 渲染相机。*/
 	camera: Camera | null = null;
