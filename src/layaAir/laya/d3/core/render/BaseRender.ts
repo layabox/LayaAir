@@ -106,6 +106,8 @@ export class BaseRender extends Component {
 	sortingFudge: number;
 	/**@internal */
 	_subUniformBufferData: SubUniformBufferData;
+	/**@internal motion list index，not motion is -1*/
+	_motionIndexList:number = -1;
 	/** @internal */
 	protected _boundsChange: boolean = true;
 	/**@internal */
@@ -632,7 +634,7 @@ export class BaseRender extends Component {
 	 * @internal
 	 */
 	destroy(): void {
-		//(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
+		(this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
 		var i: number = 0, n: number = 0;
 		for (i = 0, n = this._renderElements.length; i < n; i++)
 			this._renderElements[i].destroy();

@@ -20,15 +20,15 @@ export interface ISceneRenderManager{
      */
     removeMotionObject(object:BaseRender):void;
     /**
-     * 更新运动物体
-     * @param object 
-     */
-    updateMotionObjects(object:BaseRender):void;
-    /**
      * 增加运动物体
      * @param object 
      */
     addMotionObject(object:BaseRender):void;
+    /**
+     * 更新运动物体
+     * @param object 
+     */
+     updateMotionObjects():void;
     /**
      * release Manager Node
      */

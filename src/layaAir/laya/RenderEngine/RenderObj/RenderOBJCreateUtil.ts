@@ -12,6 +12,7 @@ import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 import { IRenderOBJCreate } from "../RenderInterface/IRenderOBJCreate";
 import { IBaseRenderNode } from "../RenderInterface/RenderPipelineInterface/IBaseRenderNode";
+import { ICullPass } from "../RenderInterface/RenderPipelineInterface/ICullPass";
 import { IRenderContext3D } from "../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
@@ -20,6 +21,7 @@ import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/
 import { ShaderData } from "../RenderShader/ShaderData";
 import { BaseRenderNode } from "./BaseRenderNode";
 import { BaseRenderQueue } from "./BaseRenderQueue";
+import { CullPassBase } from "./CullPass";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
@@ -84,5 +86,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
 
     createSceneRenderManager():ISceneRenderManager{
         return new SceneRenderManager();
+    }
+
+    createcullPass():ICullPass{
+        return new CullPassBase();
     }
 }

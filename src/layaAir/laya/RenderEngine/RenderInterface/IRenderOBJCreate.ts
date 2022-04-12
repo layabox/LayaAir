@@ -13,6 +13,7 @@ import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 import { ShaderData } from "../RenderShader/ShaderData";
 import { IBaseRenderNode } from "./RenderPipelineInterface/IBaseRenderNode";
+import { ICullPass } from "./RenderPipelineInterface/ICullPass";
 import { IRenderContext3D } from "./RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "./RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "./RenderPipelineInterface/IRenderGeometryElement";
@@ -47,4 +48,6 @@ export interface IRenderOBJCreate{
     createRenderContext3D():IRenderContext3D;
 
     createSceneRenderManager():ISceneRenderManager;
+
+    createcullPass():ICullPass;
 }

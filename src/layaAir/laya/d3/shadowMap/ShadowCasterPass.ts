@@ -380,7 +380,8 @@ export class ShadowCasterPass {
 					shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
 					shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
 					shadowCullInfo.direction = this._lightForward;
-					var needRender: boolean = FrustumCulling.cullingShadow(shadowCullInfo, scene, context);
+					//cull
+					scene._directLightShadowCull(shadowCullInfo, context);
 					context.cameraShaderValue = sliceData.cameraShaderValue;
 					Camera._updateMark++;
 					if (this._castDepthBuffer) {
@@ -395,7 +396,7 @@ export class ShadowCasterPass {
 					LayaGL.renderEngine.scissor(offsetX, offsetY, resolution, resolution);
 
 					LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, null, 1);
-					if (needRender) {// if one cascade have anything to render.
+					if (scene._opaqueQueue.elements.length > 0) {// if one cascade have anything to render.
 						Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
 						ShadowCasterPass._tempVector4.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
 						context.viewport = Viewport._tempViewport;
@@ -417,7 +418,7 @@ export class ShadowCasterPass {
 				var shadowSpotData: ShadowSpotData = this._shadowSpotData;
 				ShadowUtils.getShadowBias(spotlight, shadowSpotData.projectionMatrix, shadowSpotData.resolution, this._shadowBias);
 				this._setupShadowCasterShaderValues(context, shaderValues, shadowSpotData, (this._light.owner as Sprite3D).transform.position, this._shadowParams, this._shadowBias, LightType.Spot);
-				var needRender: boolean = FrustumCulling.cullingSpotShadow(shadowSpotData.cameraCullInfo, scene, context);
+				scene._sportLightShadowCull(shadowSpotData.cameraCullInfo, context);
 				context.cameraShaderValue = shadowSpotData.cameraShaderValue;
 				Camera._updateMark++;
 				if (this._castDepthBuffer) {
@@ -429,7 +430,7 @@ export class ShadowCasterPass {
 				LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, null, 1);
 
-				if (needRender) {
+				if (scene._opaqueQueue.elements.length > 0) {
 					//LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution)
 					Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
 					ShadowCasterPass._tempVector4.setValue(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
@@ -446,8 +447,7 @@ export class ShadowCasterPass {
 				//TODO:
 				break;
 			default:
-				throw ("There is no shadow of this type")
-				break;
+				throw ("There is no shadow of this type");
 		}
 
 	}

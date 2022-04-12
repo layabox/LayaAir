@@ -466,7 +466,7 @@ export class NativeContext {
         }
 	}
     drawTarget(rt: RenderTexture2D, x: number, y: number, width: number, height: number, matrix: Matrix, shaderValue: Value2D, uv: ArrayLike<number> | null = null, blend: number = -1): boolean {
-        this._nativeObj.drawTarget(rt, x, y, width, height, matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, blend);
+        return this._nativeObj.drawTarget(rt, x, y, width, height, matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, blend);
     }
     drawTargetBlurFilter(rt: RenderTexture2D, x: number, y: number, width: number, height: number, strength: number): void {
         this._nativeObj.drawTargetBlurFilter(rt, x, y, width, height, strength);

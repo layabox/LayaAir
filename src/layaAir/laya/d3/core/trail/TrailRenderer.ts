@@ -159,12 +159,19 @@ export class TrailRenderer extends BaseRender {
 		super._onDisable();
 	}
 
+	update(deltaTime: number): void {
+		this._calculateBoundingBox();
+	}
+
 	/**
 	 * @inheritDoc
 	 * @internal
 	 * @override
 	 */
 	protected _calculateBoundingBox(): void {
+		let context = RenderContext3D._instance;
+		(<TrailSprite3D>this.owner).trailFilter._update(context);
+		this._boundsChange = false;
 	}
 
 	/**
@@ -173,18 +180,10 @@ export class TrailRenderer extends BaseRender {
 	 * @override
 	 */
 	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
-		(<TrailSprite3D>this.owner).trailFilter._update(context);
 		if (boundFrustum)
 			return boundFrustum.intersects(this.bounds._getBoundBox());
 		else
 			return true;
-	}
-
-	/**
-	 *@internal [NATIVE]
-	 */
-	_updateForNative(context: RenderContext3D): void {
-		(<TrailSprite3D>this.owner).trailFilter._update(context);
 	}
 
 	/**

@@ -137,7 +137,7 @@ export class WebXRCamera extends Camera {
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
-		scene._preCulling(context, this, shader, replacementTag);
+		scene._preCulling(context, this);
 
 		if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
 			context.invertY = true;
