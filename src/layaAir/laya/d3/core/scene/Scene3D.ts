@@ -13,8 +13,7 @@ import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitBase } from "../../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
-import { SimpleSingletonList } from "../../component/SimpleSingletonList";
-import { FrustumCulling, CameraCullInfo } from "../../graphics/FrustumCulling";
+import { FrustumCulling, CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { SphericalHarmonicsL2, SphericalHarmonicsL2Generater } from "../../graphics/SphericalHarmonicsL2";
 import { Input3D } from "../../Input3D";
@@ -73,6 +72,7 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { BaseRenderQueue } from "../../../RenderEngine/RenderObj/BaseRenderQueue";
 import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
+import { ICullPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICullPass";
 /**
  * 环境光模式
  */
@@ -436,7 +436,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_sceneUniformBlock: UnifromBufferData;
 	/** @internal */
 	_key: SubmitKey = new SubmitKey();
-	
+
 	/** @internal */
 	_opaqueQueue: BaseRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(false) as BaseRenderQueue;
 	/** @internal */
@@ -448,7 +448,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	_reflectionProbeManager: ReflectionProbeManager = new ReflectionProbeManager();
 	/**@internal */
-	_sceneRenderManager:ISceneRenderManager;
+	_sceneRenderManager: ISceneRenderManager;
+	/**@internal */
+	_cullPass: ICullPass;
 	/** 当前创建精灵所属遮罩层。*/
 	currentCreationLayer: number = Math.pow(2, 0);
 	/** 是否启用灯光。*/
@@ -465,15 +467,29 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return this._url;
 	}
 
+	/**
+	 * set SceneRenderableManager
+	 */
 	set sceneRenderableManager(manager: ISceneRenderManager) {
 		// this._octree = manager;
-		 manager.list = this._sceneRenderManager.list;
-		 this._sceneRenderManager = manager;
+		manager.list = this._sceneRenderManager.list;
+		this._sceneRenderManager = manager;
 		// for (let i = 0, n = this._renders.length; i < n; i++) {
 		// 	let render = <BaseRender>this._renders.elements[i];
 		// 	this._renders.remove(render);
 		// 	this._addRenderObject(render);
 		// }
+	}
+
+	get sceneRenderableManager():ISceneRenderManager{
+		return this._sceneRenderManager;
+	}
+
+	/**
+	 * set ICullPass
+	 */
+	set cullPass(cullPass: ICullPass) {
+		this._cullPass = cullPass;
 	}
 
 	/**
@@ -765,6 +781,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._scene = this;
 		this._input.__init__(Render.canvas, this);
 		this._sceneRenderManager = LayaGL.renderOBJCreate.createSceneRenderManager();
+		this._cullPass = LayaGL.renderOBJCreate.createcullPass();
+
 		// if (Scene3D.octreeCulling)
 		// 	this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
 		if (FrustumCulling.debugFrustumCulling) {
@@ -866,6 +884,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._reflectionProbeManager.update();
 		this._componentManager.callScriptLataUpdate(delta);
 		this._componentManager.callComponentDestroy();
+		/*Update*/
+		this._sceneRenderManager.updateMotionObjects();
 	}
 
 	/**
@@ -1148,13 +1168,54 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal
 	 */
-	_preCulling(context: RenderContext3D, camera: Camera, shader: Shader3D, replacementTag: string): void {
+	_preCulling(context: RenderContext3D, camera: Camera): void {
+		this._clearRenderQueue();
 		var cameraCullInfo: CameraCullInfo = FrustumCulling._cameraCullInfo;
-		cameraCullInfo.position = camera._transform.position;
+		var cameraPos = cameraCullInfo.position = camera._transform.position;
 		cameraCullInfo.cullingMask = camera.cullingMask;
 		cameraCullInfo.boundFrustum = camera.boundFrustum;
 		cameraCullInfo.useOcclusionCulling = camera.useOcclusionCulling;
-		FrustumCulling.renderObjectCulling(cameraCullInfo, this, context, shader, replacementTag, false);
+		this._cullPass.cullByCameraCullInfo(cameraCullInfo, this.sceneRenderableManager);
+		//addQueue
+		let list = this._cullPass.cullList;
+		let element = list.elements;
+		for (let i: number = 0; i < list.length; i++) {
+			let render: BaseRender = element[i];
+			render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraPos);//TODO:合并计算浪费,或者合并后取平均值
+			var elements: RenderElement[] = render._renderElements;
+			for (var j: number = 0, m: number = elements.length; j < m; j++)
+				elements[j]._update(this, context, context.customShader, context.replaceTag);
+		}
+	}
+
+	_directLightShadowCull(cullInfo: ShadowCullInfo, context: RenderContext3D) {
+		this._clearRenderQueue();
+		const position: Vector3 = cullInfo.position;
+		this._cullPass.cullByShadowCullInfo(cullInfo, this.sceneRenderableManager);
+		let list = this._cullPass.cullList;
+		let element = list.elements;
+		for (let i: number = 0; i < list.length; i++) {
+			let render: BaseRender = element[i];
+			render.distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
+			var elements: RenderElement[] = render._renderElements;
+			for (var j: number = 0, m: number = elements.length; j < m; j++)
+				elements[j]._update(this, context, null, null);
+		}
+	}
+
+	_sportLightShadowCull(cameraCullInfo:CameraCullInfo,context:RenderContext3D) {
+		this._clearRenderQueue();	
+		this._cullPass.cullByCameraCullInfo(cameraCullInfo, this.sceneRenderableManager);
+		this._cullPass.cullingSpotShadow(cameraCullInfo, this.sceneRenderableManager);
+		let list = this._cullPass.cullList;
+		let element = list.elements;
+		for (var i: number = 0, n: number = list.length; i < n; i++) {
+			var render: BaseRender = element[i];
+			render.distanceForSort = Vector3.distance(render.bounds.getCenter(),cameraCullInfo.position);
+			var elements:RenderElement[] = render._renderElements;
+			for (var j: number = 0, m: number = elements.length; j < m; j++)
+				elements[j]._update(this, context, null, null);
+		}
 	}
 
 	/**

@@ -806,7 +806,11 @@ export class Camera extends BaseCamera {
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
-		scene._preCulling(context, this, shader, replacementTag);
+
+		context.customShader = shader;
+		context.replaceTag = replacementTag;
+		scene._preCulling(context, this);
+
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 		if (this._cameraUniformBlock) {//需要在Depth之前更新数据
 			let cameraUBO = UniformBufferObject.getBuffer("CameraUniformBlock", 0);
@@ -933,7 +937,6 @@ export class Camera extends BaseCamera {
 		context.pipelineMode = context.configPipeLineMode;
 		context.replaceTag = replacementTag;
 		context.customShader = shader;
-
 		if (needInternalRT) {
 			if (this._msaa) {
 				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 4);
@@ -942,6 +945,7 @@ export class Camera extends BaseCamera {
 				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 1);
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			}
+
 		}
 		else {
 			this._internalRenderTexture = null;

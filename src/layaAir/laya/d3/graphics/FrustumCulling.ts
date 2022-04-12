@@ -162,7 +162,6 @@ export class FrustumCulling {
 		// var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		// var cullPlanes: Plane[] = cullInfo.cullPlanes;
 		var renders: ISingletonElement[] = renderList.elements;
-		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 			var render: BaseRender = <BaseRender>renders[i];
 			var canPass: boolean = render.castShadow && render._enabled;

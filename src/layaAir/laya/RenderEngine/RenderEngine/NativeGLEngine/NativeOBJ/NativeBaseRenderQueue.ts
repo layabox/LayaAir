@@ -49,7 +49,6 @@ renderQueue(context:RenderContext3D) {
     var elements: RenderElement[] = this.elements.elements;
     for (var i: number = 0, n: number = this.elements.length; i < n; i++){
         elements[i]._renderUpdatePre(context,this);//Update Data
-        
     }
         
     // for (var i: number = 0, n: number = this.elements.length; i < n; i++)
