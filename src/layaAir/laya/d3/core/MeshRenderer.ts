@@ -98,7 +98,7 @@ export class MeshRenderer extends BaseRender {
 				var renderElement: RenderElement = this._renderElements[i];
 				if (!renderElement) {
 					var material: Material = this.sharedMaterials[i];
-					renderElement = this._renderElements[i] = this._createRenderElement();
+					renderElement = this._renderElements[i] = this._renderElements[i]?this._renderElements[i]:this._createRenderElement();
 					renderElement.setTransform((this.owner as Sprite3D)._transform);
 					renderElement.render = this;
 					renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
@@ -134,7 +134,7 @@ export class MeshRenderer extends BaseRender {
 					var renderElement: RenderElement = this._renderElements[i];
 					if (!renderElement) {
 						var material: Material = this.sharedMaterials[i];
-						renderElement = this._renderElements[i] = this._createRenderElement();
+						renderElement = this._renderElements[i] = this._renderElements[i]?this._renderElements[i]:this._createRenderElement();
 						renderElement.setTransform((this.owner as Sprite3D)._transform);
 						renderElement.render = this;
 						renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
@@ -148,7 +148,7 @@ export class MeshRenderer extends BaseRender {
 					var renderElement: RenderElement = this._renderElements[i];
 					if (!renderElement) {
 						var material: Material = this.sharedMaterials[i];
-						renderElement = this._renderElements[i] = this._createRenderElement();
+						renderElement =  this._renderElements[i] = this._renderElements[i]?this._renderElements[i]:this._createRenderElement();
 						renderElement.setTransform((this.owner as Sprite3D)._transform);
 						renderElement.render = this;
 						renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
@@ -259,13 +259,6 @@ export class MeshRenderer extends BaseRender {
 					break;
 			}
 		}
-		let ve = this._shaderValues.getVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET);
-		if (element.renderType == RenderElement.RENDERTYPE_STATICBATCH) {
-			if (ve.x != 1 || ve.y != 1 || ve.z != 0 || ve.w != 0) {
-				debugger;
-			}
-		}
-
 	}
 	/**
 	 * @internal

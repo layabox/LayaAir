@@ -58,7 +58,6 @@ export class GeometryElement implements IDestroy{
 
 	setDrawElemenParams(count: number, offset: number):void {
 		this._geometryElementOBj.setDrawElemenParams(count,offset);
-		
 	}
 
 	set instanceCount(value: number) {

@@ -226,8 +226,8 @@ export class CommandBuffer {
 	 * @param	shaderData 着色器数据,如果为null只接收sourceTexture。
 	 * @param	subShader subShader索引,默认值为0。
 	 */
-	blitScreenQuad(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, definedCanvas: boolean = false): void {
-		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_QUAD, this, definedCanvas));
+	blitScreenQuad(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
+		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_QUAD, this));
 	}
 
 	/**
@@ -257,8 +257,8 @@ export class CommandBuffer {
 	 * @param	shaderData 着色器数据,如果为null只接收sourceTexture。
 	 * @param	subShader subShader索引,默认值为0。
 	 */
-	blitScreenTriangle(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, defineCanvas: boolean = false): void {
-		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_TRIANGLE, this, defineCanvas));
+	blitScreenTriangle(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
+		this._commands.push(BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_TRIANGLE, this));
 	}
 
 	/**
@@ -331,5 +331,3 @@ export class CommandBuffer {
 	}
 
 }
-
-

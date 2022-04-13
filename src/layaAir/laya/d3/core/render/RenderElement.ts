@@ -7,13 +7,11 @@ import { Material } from "../material/Material"
 import { SubShader } from "../../shader/SubShader"
 import { ILaya3D } from "../../../../ILaya3D"
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement"
-import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue"
 import { Scene3D } from "../scene/Scene3D"
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
 import { ShaderPass } from "../../shader/ShaderPass"
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas"
 import { ShaderInstance } from "../../shader/ShaderInstance"
-import { RenderElementOBJ } from "../../../RenderEngine/RenderObj/RenderElementOBJ"
 import { BaseRenderQueue } from "../../../RenderEngine/RenderObj/BaseRenderQueue"
 import { LayaGL } from "../../../layagl/LayaGL"
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D"
@@ -37,7 +35,7 @@ export class RenderElement {
 	/**
 	 * 可提交底层的渲染节点
 	 */
-	protected _renderElementOBJ:IRenderElement;
+	_renderElementOBJ:IRenderElement;
 	/** @internal */
 	_geometry: GeometryElement;
 	/** @internal */
@@ -199,13 +197,13 @@ export class RenderElement {
 		}
 	}
 
-	_renderUpdatePre(context: RenderContext3D,renderqueue:IRenderQueue) {
+	_renderUpdatePre(context: RenderContext3D) {
 
 		var sceneMark: number = ILaya3D.Scene3D._updateMark;
 		var transform: Transform3D = this.transform;
 		context.renderElement = this;
 		//model local
-		var sceneDataRender: boolean = sceneMark !== this.render._sceneUpdateMark || this.renderType !== this.render._updateRenderType;
+		var sceneDataRender: boolean =!!(this.render)|| sceneMark !== this.render._sceneUpdateMark || this.renderType !== this.render._updateRenderType;
 		if (sceneDataRender&&this.renderType != RenderElement.RENDERTYPE_INSTANCEBATCH ) {
 			this.render._renderUpdate(context, transform);
 			this.render._sceneUpdateMark = sceneMark;
@@ -226,7 +224,7 @@ export class RenderElement {
 		//context.shader = this._renderElementOBJ._subShader;
 		this._renderElementOBJ._isRender = this._geometry._prepareRender(context);
 		this._geometry._updateRenderParams(context);
-		this.compileShader(renderqueue._context);
+		this.compileShader(context._contextOBJ);
 	}
 
 	/**

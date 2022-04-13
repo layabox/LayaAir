@@ -130,24 +130,15 @@ export class SubMesh extends GeometryElement {
 				byteCount = 1;
 				break;
 		}
-		//mesh._bufferState.bind();
 		this.clearRenderParams();
 		this.bufferState = mesh._bufferState;
-		//SkinMesh TODO:
 		if (skinnedDatas) {
-			this.bufferState.bind();
-			//var subSkinnedDatas: Float32Array[] = skinnedDatas[this._indexInMesh];
 			for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
 				this.setDrawElemenParams(this._subIndexBufferCount[i],this._subIndexBufferStart[i] * byteCount);
-				//state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
-				//LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._subIndexBufferCount[i], mesh.indexFormat, this._subIndexBufferStart[i] * byteCount);
 			}
 		} else {
 			this.setDrawElemenParams(this._indexCount,this._indexStart * byteCount);
-			//LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._indexCount, mesh.indexFormat, this._indexStart * byteCount);
 		}
-		// Stat.trianglesFaces += this._indexCount / 3;
-		// Stat.renderBatches++;
 	}
 
 

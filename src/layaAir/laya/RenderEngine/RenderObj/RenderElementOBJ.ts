@@ -6,12 +6,10 @@ import { IBaseRenderNode } from "../RenderInterface/RenderPipelineInterface/IBas
 import { IRenderContext3D } from "../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ShaderData } from "../RenderShader/ShaderData";
 
 export class RenderElementOBJ implements IRenderElement {
-
-
+    
     _geometry: IRenderGeometryElement;
 
     _shaderInstances: SingletonList<ShaderInstance>;
@@ -58,14 +56,6 @@ export class RenderElementOBJ implements IRenderElement {
         if (this._isRender) {
             var passes: ShaderInstance[] = this._shaderInstances.elements;
             for (var j: number = 0, m: number =  this._shaderInstances.length; j < m; j++) {
-                // var pass: ShaderPass = passes[j];
-                // //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
-                // if (pass._pipelineMode !== pipeline)
-                //     continue;
-                // var comDef: DefineDatas = RenderElementOBJ._compileDefine;
-                // renderqueue.sceneShaderData._defineDatas.cloneTo(comDef);
-                // comDef.addDefineDatas(this._renderShaderData._defineDatas);
-                // comDef.addDefineDatas(this._materialShaderData._defineDatas);
                 const shaderIns: ShaderInstance = passes[j];;
                 var switchShader: boolean = shaderIns.bind();
                 var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
@@ -79,8 +69,6 @@ export class RenderElementOBJ implements IRenderElement {
                 var uploadSprite3D: boolean = (shaderIns._uploadRender !== this._renderShaderData) || switchUpdateMark;
                 if (uploadSprite3D || switchShader) {
                     shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this._renderShaderData, uploadSprite3D);
-                    //UBO Buffer Range TODO
-                    //this.render._subUniformBufferData && (BaseRender._transLargeUbO.updateBindRange(this.render._subUniformBufferData));
                     shaderIns._uploadRender = this._renderShaderData;
                 }
                 //camera
