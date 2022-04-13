@@ -3,7 +3,7 @@ import { EventDispatcher } from "../../../events/EventDispatcher";
 /**
  * 类用来描述gamepad Button
  */
- export class ButtonGamepad extends EventDispatcher {
+export class ButtonGamepad extends EventDispatcher {
     static EVENT_TOUCH_ENTER: string = "touchEnter";
     static EVENT_TOUCH_STAY: string = "touchStay";
     static EVENT_TOUCH_OUT: string = "touchOut";
