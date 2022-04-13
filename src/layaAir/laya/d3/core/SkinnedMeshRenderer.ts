@@ -167,7 +167,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 				var renderElement: SkinRenderElement = this._renderElements[i];
 				if (!renderElement) {
 					var material: Material = this.sharedMaterials[i];
-					renderElement = this._renderElements[i] = this._createRenderElement();
+					renderElement = this._renderElements[i] = this._renderElements[i]?this._renderElements[i]:this._createRenderElement();
 					renderElement.setTransform((this.owner as Sprite3D)._transform);
 					renderElement.render = this;
 					renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。

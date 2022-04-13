@@ -314,7 +314,7 @@ export class BloomEffect extends PostProcessEffect {
 
 		let _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
 
-		cmd.blitScreenTriangle(context.source, context.destination, context.camera._screenOffsetScale, _compositeShader, compositeShaderData, 0, true);
+		cmd.blitScreenTriangle(context.source, context.destination, context.camera._screenOffsetScale, _compositeShader, compositeShaderData, 0);
 
 
 		//释放渲染纹理

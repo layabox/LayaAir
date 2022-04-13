@@ -12,6 +12,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 
 /**
+ * 是否要删除
  * @internal
  */
 export class SubMeshInstanceBatch extends GeometryElement {
@@ -26,8 +27,6 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	static __init__(): void {
 		SubMeshInstanceBatch.instance = new SubMeshInstanceBatch();
 	}
-
-
 
 	/** @internal */
 	instanceWorldMatrixData: Float32Array = new Float32Array(SubMeshInstanceBatch.maxInstanceCount * 16);

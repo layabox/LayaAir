@@ -37,11 +37,8 @@ export class Command {
 	static __init__(): void {
 		Command._screenShaderData = LayaGL.renderOBJCreate.createShaderData(null);
 		Command._screenShader = Shader3D.find("BlitScreen");
-		/** @internal */
 		Command.SCREENTEXTURE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME);//todo：
-		/** @internal */
 		Command.SCREENTEXTUREOFFSETSCALE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTUREOFFSETSCALE_NAME);//todo：
-		/** @internal */
 		Command.MAINTEXTURE_TEXELSIZE_ID = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME);//todo：
 	}
 
@@ -72,6 +69,15 @@ export class Command {
 	 */
 	setContext(context: RenderContext3D) {
 		this._context = context;
+	}
+
+	/**
+	 * @internal
+	 * @destroy
+	 */
+	destroy(){
+		this._commandBuffer = null;
+		this._context = null;
 	}
 
 }

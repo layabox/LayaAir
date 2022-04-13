@@ -144,7 +144,7 @@ export class PostProcess {
 
 
 		if (dest)
-			this._context!.command!.blitScreenTriangle(screenTexture, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0, true);
+			this._context!.command!.blitScreenTriangle(screenTexture, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0);
 
 		//context.source = context.destination;
 		//context.destination = finalDestination;

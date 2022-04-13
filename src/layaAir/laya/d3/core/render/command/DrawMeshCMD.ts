@@ -1,150 +1,125 @@
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { Mesh } from "../../../resource/models/Mesh";
-import { SubMesh } from "../../../resource/models/SubMesh";
-import { ShaderInstance } from "../../../shader/ShaderInstance";
-import { ShaderPass } from "../../../shader/ShaderPass";
-import { SubShader } from "../../../shader/SubShader";
 import { Material } from "../../material/Material";
-import { Scene3D } from "../../scene/Scene3D";
-import { Sprite3D } from "../../Sprite3D";
-import { BaseRender } from "../BaseRender";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
-
-
+import { MeshRenderer } from "../../../core/MeshRenderer";
+import { RenderElement } from "../RenderElement";
+import { Transform3D } from "../../Transform3D";
+import { LayaGL } from "../../../../layagl/LayaGL";
 /**
  * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
  */
 export class DrawMeshCMD extends Command {
-	/**@internal */
-	private static _pool: DrawMeshCMD[] = [];
-	/**@internal */
-	private static _compileDefine: DefineDatas = new DefineDatas();
-	/**
-	 * @internal
-	 */
-	static create(mesh: Mesh, matrix: Matrix4x4, material: Material, subMeshIndex: number, subShaderIndex: number, commandBuffer: CommandBuffer): DrawMeshCMD {
-		var cmd: DrawMeshCMD;
-		cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop() : new DrawMeshCMD();
-		cmd._mesh = mesh;
-		cmd._matrix = matrix;
-		cmd._material = material;
-		cmd._subMeshIndex = subMeshIndex;
-		cmd._subShaderIndex = subShaderIndex;
-		cmd._commandBuffer = commandBuffer;
-		return cmd;
-	}
+    
+    /**@internal */
+    private static _pool: DrawMeshCMD[] = [];
+    
+    /**
+     * @internal
+     */
+    static create(mesh: Mesh, matrix: Matrix4x4, material: Material, subMeshIndex: number, subShaderIndex: number, commandBuffer: CommandBuffer): DrawMeshCMD {
+        var cmd: DrawMeshCMD;
+        cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop() : new DrawMeshCMD();
+        cmd._mesh = mesh;
+        cmd._matrix = matrix;
+		cmd._meshRender._onMeshChange(cmd._mesh);
+        cmd._transform.worldMatrix = cmd._matrix;
+		cmd._meshRender.sharedMaterial = cmd._material;
+        cmd._material = material;
+        cmd._subMeshIndex = subMeshIndex;
+        cmd._subShaderIndex = subShaderIndex;
+        cmd._commandBuffer = commandBuffer;
+        return cmd;
+    }
 
+    /**@internal */
+    private _material: Material;
 
-	/**@internal */
-	private _material: Material;
-	/**@internal */
-	private _matrix: Matrix4x4;
-	/**@internal */
-	private _subMeshIndex: number;
-	/**@internal */
-	private _subShaderIndex: number;
-	/**@internal */
-	private _mesh: Mesh;
+    /**@internal */
+    private _matrix: Matrix4x4;
 
-	/**@internal */
-	private _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();
-	/**@internal */
-	private _renderShaderValue: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+    /**@internal */
+    private _subMeshIndex: number;
 
+    /**@internal */
+    private _subShaderIndex: number;
 
+    /**@internal */
+    private _mesh: Mesh;
 
-	/**
-	 * 
-	 */
-	constructor() {
-		super();
-		this._renderShaderValue = LayaGL.renderOBJCreate.createShaderData(null);
-	}
+    /**@internal */
+    _meshRender:MeshRenderer;
 
-	/**
+    /**@internal */
+    _transform:Transform3D;
+    
+    /**
+     * 
+     */
+    constructor() {
+        super();
+        this._meshRender = new MeshRenderer();
+		this._transform = LayaGL.renderOBJCreate.createTransform(null);
+    }
+
+    /**
 	 * @inheritDoc
 	 * @override
 	 */
-	run(): void {
-		var renderSubShader: SubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
-		this.setContext(this._commandBuffer._context);
-		var context = this._context;
-		var forceInvertFace: boolean = context.invertY;
-		var scene: Scene3D = context.scene;
-		var cameraShaderValue: ShaderData = context.cameraShaderValue;
-		var projectionView: Matrix4x4 = context.projectionViewMatrix;
-		Matrix4x4.multiply(projectionView, this._matrix, this._projectionViewWorldMatrix);
-		if(BaseRender._transLargeUbO){
-			let subdata = BaseRender._transLargeUbO.defaultSubData;
-			subdata.setMatrixbyIndex(Sprite3D.WORLDMATRIX,  this._matrix);
-			BaseRender._transLargeUbO.updateSubData(subdata);
-			BaseRender._transLargeUbO.updateBindRange(subdata);
-		}
-		this._renderShaderValue.setMatrix4x4(Sprite3D.WORLDMATRIX, this._matrix);
-		this._renderShaderValue.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-		var currentPipelineMode: string = context.pipelineMode;
+    run(): void {
+        this._meshRender._onMeshChange(this._mesh);
+        this._transform.worldMatrix = this._matrix;
+        this._meshRender.sharedMaterial = this._material;
+        this.setContext(this._commandBuffer._context);
+        this._context._contextOBJ.applyContext();
+        if (this._subMeshIndex == -1) {
+            let elements = this._meshRender._renderElements;
+            for (var i: number = 0, n = elements.length; i < n; i++) {
+                let element = elements[i];
+                this.runRenderElement(element);
+            }
+        }
+        else {
+            let element = this._meshRender._renderElements[this._subMeshIndex];
+            if(element) this.runRenderElement(element);
+            
+        }
+    }
 
-		var passes: ShaderPass[] = renderSubShader._passes;
-		for (var j: number = 0, m: number = passes.length; j < m; j++) {
-			var pass: ShaderPass = passes[j];
-			if (pass._pipelineMode !== currentPipelineMode)
-				continue;
-			var comDef: DefineDatas = DrawMeshCMD._compileDefine;
-			scene._shaderValues._defineDatas.cloneTo(comDef);
-			comDef.addDefineDatas(this._renderShaderValue._defineDatas);
-			comDef.addDefineDatas(this._material._shaderValues._defineDatas);
-			var shaderIns: ShaderInstance = context.shader = pass.withCompile(comDef);
-			shaderIns.bind();
-			//scene
-			shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, scene._shaderValues, true);
-			//sprite
-			shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this._renderShaderValue, true);
-			//camera
-			shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderValue, true);
-			//material
-			var matValues: ShaderData = this._material._shaderValues;
-			shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, matValues, true);
-			shaderIns.uploadRenderStateBlendDepth(matValues);
-			shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this._matrix.getInvertFront());
+    /**
+     * change && Run Element
+     * @param element 
+     */
+    runRenderElement(element:RenderElement){
+        var context = this._context;
+        //Set RenderElement
+        element.renderSubShader =  this._material._shader.getSubShaderAt(this._subShaderIndex);
+        element.material = this._material;
+        element.setTransform(this._transform);
+        element._renderUpdatePre(context);
+        element._render(context._contextOBJ);
+    }
 
-			//drawElement
-			var subGeometryElement: SubMesh[] = this._mesh._subMeshes;
-			var subMeshRender: SubMesh;
-			if (this._subMeshIndex == -1) {
-				for (var i: number = 0, n = subGeometryElement.length; i < n; i++) {
-					subMeshRender = subGeometryElement[i];
-					if (subMeshRender._prepareRender(context)) {
-						subMeshRender._updateRenderParams(context);
-						subMeshRender._render(context);
-					}
-				}
-			}
-			else {
-				var subGeometryElement: SubMesh[] = this._mesh._subMeshes;
-				subMeshRender = subGeometryElement[this._subMeshIndex];
-				if (subMeshRender._prepareRender(context)) {
-					subMeshRender._updateRenderParams(context);
-					subMeshRender._render(context);
-				}
-			}
-		}
-	}
-
-	/**
+    /**
 	 * @inheritDoc
 	 * @override
 	 */
-	recover(): void {
-		DrawMeshCMD._pool.push(this);
-		this._renderShaderValue.clearDefine();
-		this._renderShaderValue._initData();
-	}
+    recover(): void {
+        DrawMeshCMD._pool.push(this);
+    }
 
+    /**
+     * @inheritDoc
+     * @override
+     */
+    destroy(){
+        super.destroy();
+        this._meshRender.destroy();
+        this._transform = null;
+        this._material = null;
+        this._matrix = null
+    }
 }
-
-

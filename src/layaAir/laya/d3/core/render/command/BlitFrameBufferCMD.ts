@@ -12,6 +12,7 @@ import { Command } from "./Command";
 import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { Context } from "../../../../resource/Context";
 
 
 /**
@@ -65,6 +66,7 @@ export class BlitFrameBufferCMD {
 	/**@internal */
 	private _sourceTexelSize: Vector4 = new Vector4();
 
+	
 	/**
 	 * @inheritDoc
 	 * @override
@@ -79,6 +81,7 @@ export class BlitFrameBufferCMD {
 		var viewport = this._viewPort;
 
 		let vph = RenderContext3D.clientHeight - viewport.y - viewport.height;
+		
 		LayaGL.renderEngine.viewport(viewport.x, vph, viewport.width, viewport.height);
 		LayaGL.renderEngine.scissor(viewport.x, vph, viewport.width, viewport.height);
 
@@ -91,10 +94,11 @@ export class BlitFrameBufferCMD {
 		(RenderTexture.currentActive) && (RenderTexture.currentActive._end());
 		(dest) && (dest._start());
 
-
+		//LayaGL.textureContext.bindRenderTarget(null);
 
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
+		ScreenQuad.instance.invertY =true;
 		for (var i: number = 0, n: number = passes.length; i < n; i++) {
 			var comDef: DefineDatas = BlitFrameBufferCMD._compileDefine;
 			shaderData._defineDatas.cloneTo(comDef);
@@ -103,7 +107,9 @@ export class BlitFrameBufferCMD {
 			shaderPass.uploadUniforms(shaderPass._materialUniformParamsMap, shaderData, true);//TODO:最后一个参数处理
 			shaderPass.uploadRenderStateBlendDepth(shaderData);
 			shaderPass.uploadRenderStateFrontFace(shaderData, false, null);//TODO: //利用UV翻转,无需设置为true
-			RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
+			ScreenQuad.instance._updateRenderParams(RenderContext3D._instance);
+			ScreenQuad.instance._render(RenderContext3D._instance);
+			//RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
 		}
 		(dest) && (dest._end());
 	}
