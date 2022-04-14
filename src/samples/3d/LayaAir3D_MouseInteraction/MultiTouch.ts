@@ -15,10 +15,6 @@ import { Handler } from "laya/utils/Handler"
  * @author ...
  */
 export class MultiTouch {
-
-	private text: Text = new Text();
-	private _upVector3: Vector3 = new Vector3(0, 1, 0);
-
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -56,17 +52,18 @@ export class MultiTouch {
 		camera.transform.lookAt(monkey.transform.position, new Vector3(0, 1, 0));
 
 		//设置文本显示框位置
-		this.text.x = Laya.stage.width / 2 - 50;
-		this.text.text = "触控点归零";
+		let text: Text = new Text();
+		text.x = Laya.stage.width / 2 - 50;
+		text.text = "触控点归零";
 		//显示文本显示框
-		this.text.name = "ceshi";
-		this.text.overflow = Text.HIDDEN;
-		this.text.color = "#FFFFFF";
-		this.text.font = "Impact";
-		this.text.fontSize = 20;
-		this.text.borderColor = "#FFFF00";
-		this.text.x = Laya.stage.width / 2;
-		Laya.stage.addChild(this.text);
+		text.name = "ceshi";
+		text.overflow = Text.HIDDEN;
+		text.color = "#FFFFFF";
+		text.font = "Impact";
+		text.fontSize = 30;
+		text.borderColor = "#FFFF00";
+		text.x = Laya.stage.width / 2;
+		Laya.stage.addChild(text);
 	}
 }
 
@@ -74,9 +71,6 @@ export class MultiTouch {
 
 import { Touch } from "laya/d3/Touch"
 import { Script3D } from "laya/d3/component/Script3D"
-
-
-
 import { Vector2 } from "laya/d3/math/Vector2"
 
 
@@ -86,7 +80,6 @@ class MonkeyScript extends Script3D {
 	private _scene: Scene3D;
 	private _text: Text;
 	private _camera: Camera;
-	private rotation: Vector3 = new Vector3(0, 0.01, 0);
 	private lastPosition: Vector2 = new Vector2(0, 0);
 	private distance: number = 0.0;
 	private disVector1: Vector2 = new Vector2(0, 0);
@@ -96,16 +89,14 @@ class MonkeyScript extends Script3D {
 	private twoFirst: boolean = true;
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
 
-	/*override*/  onAwake(): void {
-	}
 
-	/*override*/  onStart(): void {
+	onStart(): void {
 		this._scene = (<Scene3D>((<Sprite3D>this.owner)).parent);
 		this._text = (this._scene.parent as Stage).getChildByName("ceshi") as Text;
 		this._camera = (<Camera>this._scene.getChildByName("camera"));
 	}
 
-	/*override*/  onUpdate(): void {
+	onUpdate(): void {
 		var touchCount: number = this._scene.input.touchCount();
 		if (1 === touchCount) {
 			//判断是否为两指触控，撤去一根手指后引发的touchCount===1
@@ -137,7 +128,7 @@ class MonkeyScript extends Script3D {
 			//获取两个触碰点
 			var touch: Touch = this._scene.input.getTouch(0);
 			var touch2: Touch = this._scene.input.getTouch(1);
-			//是否为新一次触碰，并未发生移动
+			//是否为刚按下时的第一次触摸
 			if (this.twoFirst) {
 				//获取触碰点的位置
 				this.disVector1.x = touch.position.x - touch2.position.x;
@@ -148,9 +139,12 @@ class MonkeyScript extends Script3D {
 				this.disVector2.x = touch.position.x - touch2.position.x;
 				this.disVector2.y = touch.position.y - touch2.position.y;
 				var distance2: number = Vector2.scalarLength(this.disVector2);
-				//根据移动的距离进行缩放
-				this.tmpVector.setValue(0, 0, -0.01 * (distance2 - this.distance));
-				this._camera.transform.translate(this.tmpVector);
+				//根据手势扩张移动的距离,设置z轴的变换，造成近大远小的透视效果。
+				let zValue = -0.01 * (distance2 - this.distance);
+				if ((zValue < 0 && this._camera.transform.position.z > 0.6) || (zValue > 0 && this._camera.transform.position.z < 6)) {
+					this.tmpVector.setValue(0, 0, -0.01 * (distance2 - this.distance));
+					this._camera.transform.translate(this.tmpVector);
+				}
 				this.distance = distance2;
 			}
 		} else if (0 === touchCount) {
@@ -161,9 +155,6 @@ class MonkeyScript extends Script3D {
 			this.lastPosition.y = 0;
 			this.isTwoTouch = false;
 		}
-	}
-
-	/*override*/  onLateUpdate(): void {
 	}
 
 }

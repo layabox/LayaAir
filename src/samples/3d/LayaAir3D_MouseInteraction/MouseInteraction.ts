@@ -16,6 +16,7 @@ import { HitResult } from "laya/d3/physics/HitResult";
 import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
 import { MeshColliderShape } from "laya/d3/physics/shape/MeshColliderShape";
 import { Mesh } from "laya/d3/resource/models/Mesh";
+import { Physics3DUtils } from "laya/d3/utils/Physics3DUtils";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { MouseManager } from "laya/events/MouseManager";
@@ -35,9 +36,10 @@ export class MouseInteraction {
 	private _scene: Scene3D;
 	private _camera: Camera;
 	private _ray: Ray;
+	/** 输出射线检测碰到的首个目标对象 */
 	private _outHitResult: HitResult = new HitResult();
-	private posX: number = 0.0;
-	private posY: number = 0.0;
+	/** 输出射线检测碰到的全部目标对象 */
+	private _outs: Array<any> = [];
 	private point: Vector2 = new Vector2();
 	private text: Text = new Text();
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
@@ -53,10 +55,14 @@ export class MouseInteraction {
 		//创建场景
 		this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		//添加相机
+		//添加摄像机
 		this._camera = (<Camera>(this._scene.addChild(new Camera(0, 0.1, 100))));
 		this._camera.transform.translate(new Vector3(0, 0.7, 5));
-		this._camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+		this._camera.transform.rotate(new Vector3(-15, 0, 0), true, false);		
+		//测试穿透的视角
+        // this._camera.transform.translate(new Vector3(-5.922921834513547, 1.064107875209671, 0.09755563691259514));
+        // this._camera.transform.localRotation = new Vector4(-0.14075739027874903, -0.70558993989313054, -0.14628709677928692, 0.6789184627916757);
+
 		this._camera.addComponent(CameraMoveScript);
 
 		//添加光照
@@ -68,7 +74,6 @@ export class MouseInteraction {
 		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
 
 	}
-
 	private onComplete(): void {
 		//加载地面
 		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh")));
@@ -129,6 +134,8 @@ export class MouseInteraction {
 		var meshShape2: MeshColliderShape = new MeshColliderShape();
 		meshShape2.mesh = (<Mesh>layaMonkey_clone2.meshFilter.sharedMesh);
 		meshCollider2.colliderShape = meshShape2;
+		//碰撞分组
+		//meshCollider2.collisionGroup = Physics3DUtils.COLLISIONFILTERGROUP_CUSTOMFILTER2;
 
 		var meshCollider3: PhysicsCollider = layaMonkey_clone3.addComponent(PhysicsCollider);
 		var meshShape3: MeshColliderShape = new MeshColliderShape();
@@ -139,10 +146,8 @@ export class MouseInteraction {
 		this.text.x = Laya.stage.width / 2 - 50;
 		this.text.y = 50;
 
-		//射线初始化（必须初始化）
-		this._ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
-		//添加鼠标事件
-		this.addMouseEvent();
+		//如果要自己检测，添加鼠标事件侦听
+		// this.addMouseEvent();
 
 		//显示文本显示框
 		this.text.name = "text";
@@ -153,6 +158,7 @@ export class MouseInteraction {
 		this.text.x = Laya.stage.width / 2;
 		Laya.stage.addChild(this.text);
 
+		//添加脚本检测，如果想自己检测，把下面的添加脚本注释，把this.addMouseEvent()打开。
 		staticLayaMonkey.addComponent(SceneScript);
 		layaMonkey_clone1.addComponent(SceneScript);
 		layaMonkey_clone2.addComponent(SceneScript);
@@ -161,30 +167,36 @@ export class MouseInteraction {
 	}
 
 	private addMouseEvent(): void {
+		//射线初始化（必须初始化）
+		this._ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
 		//鼠标事件监听
-		//Laya.stage.on(Event.MOUSE_DOWN, this, onMouseDown);
+		Laya.stage.on(Laya.Event.MOUSE_DOWN, this, this.onMouseDown);
 	}
-
+	/** 鼠标按下时的逻辑处理 */
 	private onMouseDown(): void {
-		this.posX = this.point.x = MouseManager.instance.mouseX;
-		this.posY = this.point.y = MouseManager.instance.mouseY;
-		//产生射线
+		this.point.x = MouseManager.instance.mouseX;
+		this.point.y = MouseManager.instance.mouseY;
+		//用舞台上的鼠标坐标，产生一条3D空间射线
 		this._camera.viewportPointToRay(this.point, this._ray);
-		//拿到射线碰撞的物体
+		//使用物理引擎的射线检测方法，检测是否发生了碰撞
 		this._scene.physicsSimulation.rayCast(this._ray, this._outHitResult);
-		//如果碰撞到物体
+		//根据检测结果的状态进行判断，如果碰撞成功，处理碰撞后的逻辑。
 		if (this._outHitResult.succeeded) {
-			//删除碰撞到的物体
+			//设置文本，显示碰到的物体名字
 			this.text.text = "碰撞到了" + this._outHitResult.collider.owner.name;
-			console.log("碰撞到物体！！")
+			// console.log("碰撞到物体: " + this._outHitResult.collider.owner.name);
 		}
-
+		/** 过滤不可碰撞的3D物体 */
+		// let canCollideWith = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER ^ Physics3DUtils.COLLISIONFILTERGROUP_CUSTOMFILTER2;
+		// //使用物理引擎的射线检测方法，穿透检测多个
+		// this._scene.physicsSimulation.rayCastAll(this._ray, this._outs, 2147483647,Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, canCollideWith);
+		// if (this._outs.length > 0) {
+		// 	for (let i = 0; i < this._outs.length; i++) {
+		// 		console.log("碰撞到物体(" + i + "): " + this._outs[i].collider.owner.name, this._outs[i]);
+		// 	}
+		// }
 	}
 }
-
-
-
-
 
 
 class SceneScript extends Script3D {
@@ -194,8 +206,6 @@ class SceneScript extends Script3D {
 
 	constructor() {
 		super();
-
-
 	}
 
 	/**
