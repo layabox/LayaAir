@@ -1,19 +1,16 @@
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
+import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { RenderStateType } from "../../../RenderEngine/RenderEnum/RenderStateType";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
-import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
 import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
-import { Stat } from "../../../utils/Stat";
 import { Camera } from "../../core/Camera";
+import { GeometryElement } from "../../core/GeometryElement";
 import { Material } from "../../core/material/Material";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
-import { Scene3D } from "../../core/scene/Scene3D";
+import { RenderElement } from "../../core/render/RenderElement";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
-import { ShaderInstance } from "../../shader/ShaderInstance";
 import { SkyBox } from "./SkyBox";
-import { SkyMesh } from "./SkyMesh";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
@@ -29,9 +26,9 @@ export class SkyRenderer {
 	/** @internal */
 	private _material: Material;
 	/** @internal */
-	private _mesh: SkyMesh = SkyBox.instance;
-	/** @internal */
-	private _renderStateCMD = new RenderStateCommand();
+	private _mesh: GeometryElement;
+	/**@internal */
+	private _renderElement:RenderElement;
 
 
 	/**
@@ -46,21 +43,26 @@ export class SkyRenderer {
 			(this._material) && (this._material._removeReference());
 			(value) && (value._addReference());
 			this._material = value;
+			value.cull = CullMode.Off;
+			value.depthTest = CompareFunction.LessEqual;
+			value.depthWrite = false;
+			value.stencilWrite = false;
+			this._renderElement.material = value;
+			this._renderElement.renderSubShader = this._material._shader.getSubShaderAt(0);
 		}
 	}
 
 	/**
 	 * 网格。
 	 */
-	get mesh(): SkyMesh {
+	get mesh(): GeometryElement {
 		return this._mesh;
 	}
 
-	set mesh(value: SkyMesh) {
+	set mesh(value: GeometryElement) {
 		if (this._mesh !== value) {
-			//(_mesh) && (_mesh._removeReference());//TODO:SkyMesh换成Mesh
-			//value._addReference();
 			this._mesh = value;
+			this._renderElement.setGeometry(this._mesh);
 		}
 	}
 
@@ -68,16 +70,11 @@ export class SkyRenderer {
 	 * 创建一个新的 <code>SkyRenderer</code> 实例。
 	 */
 	constructor() {
-		this._setRenderStateCMD();
+		this._renderElement = new RenderElement();
+		this.mesh = SkyBox.instance;
 	}
 
-	_setRenderStateCMD(){
-		this._renderStateCMD = new RenderStateCommand();
-		this._renderStateCMD.addCMD(RenderStateType.CullFace,false);
-		this._renderStateCMD.addCMD(RenderStateType.DepthFunc,CompareFunction.LessEqual);
-		this._renderStateCMD.addCMD(RenderStateType.DepthMask,false);
-		this._renderStateCMD.addCMD(RenderStateType.StencilMask,false);
-	}
+	
 
 	/**
 	 * @internal
@@ -92,87 +89,51 @@ export class SkyRenderer {
 	 */
 	_render(context: RenderContext3D): void {
 		if (this._material && this._mesh) {
-			var scene: Scene3D = context.scene;
-			var cameraShaderValue: ShaderData = context.cameraShaderValue;
 			var camera: Camera = context.camera;
+
+			if (camera.orthographic)
+			Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
+
+			//无穷投影矩阵算法,DirectX右手坐标系推导
+			//http://terathon.com/gdc07_lengyel.pdf
+
+			//xScale  0     0                          0
+			//0     yScale  0                          0
+			//0       0    	-zfar /(zfar-znear)        -1.0
+			//0       0     -znear*zfar /(zfar-znear)  0
+
+			//xScale  0     0       0        mul   [x,y,z,0] =[xScale*x,yScale*y,-z,-z]
+			//0     yScale  0       0		
+			//0       0    	-1      -1.0	
+			//0       0     -0      0
+
+			//[xScale*x,yScale*y,-z,-z]=>[-xScale*x/z,-yScale*y/z,1]
+
+			//xScale  0     0       0      
+			//0     yScale  0       0		
+			//0       0    	-1+e    -1.0	
+			//0       0     -0  0
+			var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
+			var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
+			camera.viewMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
+			camera.projectionMatrix.cloneTo(projectionMatrix);
+			viewMatrix.setTranslationVector(Vector3._ZERO);
+			var epsilon: number = 1e-6;
+			var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
+			projectionMatrix.elements[0] = yScale / camera.aspectRatio;
+			projectionMatrix.elements[5] = yScale;
+			projectionMatrix.elements[10] = epsilon - 1.0;
+			projectionMatrix.elements[11] = -1.0;
+			projectionMatrix.elements[14] = -0;//znear无穷小
+			if((camera as any).isWebXR){
+				(<Camera>camera)._applyViewProject(context, viewMatrix, camera.projectionMatrix);//TODO:优化 不应设置给Camera直接提交
+			}else{
+				(<Camera>camera)._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
+			}
 			
-			this._renderStateCMD.applyCMD();
-			// WebGLContext.setCullFace(gl, false);
-			// WebGLContext.setDepthFunc(gl, gl.LEQUAL);
-			// WebGLContext.setDepthMask(gl, false);
-			// WebGLContext.setStencilMask(gl,false);
-
-			var comDef: DefineDatas = SkyRenderer._compileDefine;
-			this._material._shaderValues._defineDatas.cloneTo(comDef);
-			var shader: ShaderInstance = context.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(comDef);//TODO:调整SubShader代码
-			var switchShader: boolean = shader.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
-			var switchShaderLoop: boolean = (Stat.loopCount !== shader._uploadMark);
-
-			var uploadScene: boolean = (shader._uploadScene !== scene) || switchShaderLoop;
-			if (uploadScene || switchShader) {
-				shader.uploadUniforms(shader._sceneUniformParamsMap, scene._shaderValues, uploadScene);
-				shader._uploadScene = scene;
-			}
-
-			var uploadCamera: boolean = (shader._uploadCameraShaderValue !== cameraShaderValue) || switchShaderLoop;
-			if (uploadCamera || switchShader) {
-				var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
-				var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
-				camera.viewMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
-				camera.projectionMatrix.cloneTo(projectionMatrix);
-				viewMatrix.setTranslationVector(Vector3._ZERO);
-
-				if (camera.orthographic)
-					Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
-
-				//无穷投影矩阵算法,DirectX右手坐标系推导
-				//http://terathon.com/gdc07_lengyel.pdf
-
-				//xScale  0     0                          0
-				//0     yScale  0                          0
-				//0       0    	-zfar /(zfar-znear)        -1.0
-				//0       0     -znear*zfar /(zfar-znear)  0
-
-				//xScale  0     0       0        mul   [x,y,z,0] =[xScale*x,yScale*y,-z,-z]
-				//0     yScale  0       0		
-				//0       0    	-1      -1.0	
-				//0       0     -0      0
-
-				//[xScale*x,yScale*y,-z,-z]=>[-xScale*x/z,-yScale*y/z,1]
-
-				//xScale  0     0       0      
-				//0     yScale  0       0		
-				//0       0    	-1+e    -1.0	
-				//0       0     -0  0
-
-				var epsilon: number = 1e-6;
-				var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
-				projectionMatrix.elements[0] = yScale / camera.aspectRatio;
-				projectionMatrix.elements[5] = yScale;
-				projectionMatrix.elements[10] = epsilon - 1.0;
-				projectionMatrix.elements[11] = -1.0;
-				projectionMatrix.elements[14] = -0;//znear无穷小
-				if((camera as any).isWebXR){
-					(<Camera>camera)._applyViewProject(context, viewMatrix, camera.projectionMatrix);//TODO:优化 不应设置给Camera直接提交
-				}else{
-					(<Camera>camera)._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
-				}
-				
-				shader.uploadUniforms(shader._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
-				shader._uploadCameraShaderValue = cameraShaderValue;
-			}
-
-			var uploadMaterial: boolean = (shader._uploadMaterial !== this._material.shaderData) || switchShaderLoop;
-			if (uploadMaterial || switchShader) {
-				shader.uploadUniforms(shader._materialUniformParamsMap, this._material._shaderValues, uploadMaterial);
-				shader._uploadMaterial = this._material.shaderData;
-			}
-
-			this._mesh._bufferState.bind();
-			this._mesh._render(context);
-			
-			RenderStateContext.setDepthFunc(CompareFunction.Less);
-			RenderStateContext.setDepthMask(true);
+			context._contextOBJ.applyContext();
+			this._renderElement._renderUpdatePre(context);
+			this._renderElement._render(context._contextOBJ);
 			camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
 		}
 	}

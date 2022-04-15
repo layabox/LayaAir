@@ -1205,7 +1205,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	_sportLightShadowCull(cameraCullInfo:CameraCullInfo,context:RenderContext3D) {
 		this._clearRenderQueue();	
-		this._cullPass.cullByCameraCullInfo(cameraCullInfo, this.sceneRenderableManager);
 		this._cullPass.cullingSpotShadow(cameraCullInfo, this.sceneRenderableManager);
 		let list = this._cullPass.cullList;
 		let element = list.elements;

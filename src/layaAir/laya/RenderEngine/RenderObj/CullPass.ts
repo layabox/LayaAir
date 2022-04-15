@@ -1,7 +1,6 @@
 import { SingletonList } from "../../d3/component/SingletonList";
 import { BaseRender } from "../../d3/core/render/BaseRender";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
-import { RenderElement } from "../../d3/core/render/RenderElement";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { CameraCullInfo, FrustumCulling, ShadowCullInfo } from "../../d3/graphics/FrustumCulling";
 import { BoundFrustum } from "../../d3/math/BoundFrustum";
@@ -35,7 +34,6 @@ export class CullPassBase implements ICullPass {
                 }
             }
         }
-        return null;
     }
     cullByShadowCullInfo(cullInfo: ShadowCullInfo, renderManager: ISceneRenderManager): void {
         this._cullList.length = 0;
@@ -57,7 +55,6 @@ export class CullPassBase implements ICullPass {
 				// }
 			}
 		}
-        return null;
     }
     cullingSpotShadow(cameraCullInfo: CameraCullInfo, renderManager: ISceneRenderManager): void{
         this._cullList.length = 0;
@@ -70,7 +67,6 @@ export class CullPassBase implements ICullPass {
             if (canPass&&render._needRender(cameraCullInfo.boundFrustum,context))
                 this._cullList.add(render);
         }
-        return null;
     }
     
 }

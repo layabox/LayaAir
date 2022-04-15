@@ -29,13 +29,13 @@ export class RenderElement {
 	/** @internal */
 	static RENDERTYPE_VERTEXBATCH: number = 3;
 
-    /** @internal */
-    private static _compileDefine: DefineDatas = new DefineDatas();
+	/** @internal */
+	private static _compileDefine: DefineDatas = new DefineDatas();
 
 	/**
 	 * 可提交底层的渲染节点
 	 */
-	_renderElementOBJ:IRenderElement;
+	_renderElementOBJ: IRenderElement;
 	/** @internal */
 	_geometry: GeometryElement;
 	/** @internal */
@@ -43,51 +43,51 @@ export class RenderElement {
 	/** @internal */
 	protected _baseRender: BaseRender;
 	/**@internal */
-	protected _subShader:SubShader;
+	protected _subShader: SubShader;
 
-	
+
 
 	/** @internal */
-	set transform(value:Transform3D){
+	set transform(value: Transform3D) {
 		this._renderElementOBJ._transform = value;
 	}
 
 	/**@internal */
-	get transform():Transform3D{
+	get transform(): Transform3D {
 		return this._renderElementOBJ._transform;
 	}
 
 	/**@internal */
-	set material(value:Material){
+	set material(value: Material) {
 		this._material = value;
 		this._renderElementOBJ._materialShaderData = value.shaderData;
 	}
 
 	/**@internal */
-	get material():Material{
+	get material(): Material {
 		return this._material;
 	}
 
 	/**@internal */
-	set renderSubShader(value:SubShader){
+	set renderSubShader(value: SubShader) {
 		this._subShader = value;
 	}
 
 	/**@internal */
-	get renderSubShader():SubShader{
+	get renderSubShader(): SubShader {
 		return this._subShader;
 	}
 	/**@internal */
-	set render(value:BaseRender){
+	set render(value: BaseRender) {
 		this._baseRender = value;
 		this._renderElementOBJ._renderShaderData = value._shaderValues;
 	}
 
-	get render():BaseRender{
+	get render(): BaseRender {
 		return this._baseRender;
 	}
 
-	
+
 
 	/** @internal */
 	staticBatch: GeometryElement;
@@ -100,7 +100,7 @@ export class RenderElement {
 		this._createRenderElementOBJ();
 	}
 
-	protected _createRenderElementOBJ(){
+	protected _createRenderElementOBJ() {
 		this._renderElementOBJ = LayaGL.renderOBJCreate.createRenderElement();
 	}
 
@@ -140,7 +140,7 @@ export class RenderElement {
 	// 	queue.elements.add(this);
 	// }
 
-	compileShader(context:IRenderContext3D){
+	compileShader(context: IRenderContext3D) {
 		var passes: ShaderPass[] = this._subShader._passes;
 		this._renderElementOBJ._clearShaderInstance();
 		for (var j: number = 0, m: number = passes.length; j < m; j++) {
@@ -151,7 +151,7 @@ export class RenderElement {
 
 			var comDef: DefineDatas = RenderElement._compileDefine;
 			context.sceneShaderData._defineDatas.cloneTo(comDef);
-			comDef.addDefineDatas(this.render._shaderValues._defineDatas);
+			this.render && comDef.addDefineDatas(this.render._shaderValues._defineDatas);
 			comDef.addDefineDatas(this.material._shaderValues._defineDatas);
 			var shaderIns: ShaderInstance = pass.withCompile(comDef);
 			this._renderElementOBJ._addShaderInstance(shaderIns);
@@ -161,7 +161,7 @@ export class RenderElement {
 	/**
 	 * @internal
 	 */
-	_update(scene:Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0): void {
+	_update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0): void {
 		if (this.material) {//材质可能为空
 			var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
 			this.renderSubShader = null;
@@ -203,21 +203,21 @@ export class RenderElement {
 		var transform: Transform3D = this.transform;
 		context.renderElement = this;
 		//model local
-		var sceneDataRender: boolean =!!(this.render)|| sceneMark !== this.render._sceneUpdateMark || this.renderType !== this.render._updateRenderType;
-		if (sceneDataRender&&this.renderType != RenderElement.RENDERTYPE_INSTANCEBATCH ) {
+		var modelDataRender: boolean = (!!this.render) ? (sceneMark !== this.render._sceneUpdateMark || this.renderType !== this.render._updateRenderType) : false;
+		if (modelDataRender && this.renderType != RenderElement.RENDERTYPE_INSTANCEBATCH) {
 			this.render._renderUpdate(context, transform);
 			this.render._sceneUpdateMark = sceneMark;
 		}
 		//camera
 		var updateMark: number = Camera._updateMark;
-		var updateRender: boolean = updateMark !== this.render._updateMark || this.renderType !== this.render._updateRenderType;
+		var updateRender: boolean = (!!this.render) ? (updateMark !== this.render._updateMark || this.renderType !== this.render._updateRenderType) : false;
 		if (updateRender) {//此处处理更新为裁剪和合并后的，可避免浪费
 			this.render._renderUpdateWithCamera(context, transform);
 			this.render._updateMark = updateMark;
 			this.render._updateRenderType = this.renderType;
 		}
 
-		const subUbo = this.render._subUniformBufferData;
+		const subUbo = (!!this.render) ? this.render._subUniformBufferData : false;
 		if (subUbo) {
 			subUbo._needUpdate && BaseRender._transLargeUbO.updateSubData(subUbo);
 		}
@@ -230,90 +230,8 @@ export class RenderElement {
 	/**
 	 * @internal
 	 */
-	_render(context:IRenderContext3D): void {
+	_render(context: IRenderContext3D): void {
 		this._renderElementOBJ._render(context);
-		// var forceInvertFace: boolean = context.invertY;
-		// var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
-		// var updateMark: number = Camera._updateMark;
-
-		// var scene = context.scene;
-		// var cameraShaderValue: ShaderData = context.cameraShaderValue;
-
-
-		// var geometry: GeometryElement = this._geometry;
-		// context.renderElement = this;
-		// // if(this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH||this.renderType == RenderElement.RENDERTYPE_STATICBATCH){
-		// // 	var transform: Transform3D = this._transform;
-		// // 	this.render._renderUpdate(context, transform);
-		// // }
-		// // if(this.renderType == RenderElement.RENDERTYPE_STATICBATCH){
-		// // 	this.render._renderUpdateWithCamera(context,transform);//多SubMesh会共用同一个BaseRender，因此会印象统一BaseRender的数据
-		// // }
-		// var currentPipelineMode: string = context.pipelineMode;//NORE:can covert string to int.
-
-		// if (geometry._prepareRender(context)) {
-		// 	var passes: ShaderPass[] = this.renderSubShader._passes;
-		// 	for (var j: number = 0, m: number = passes.length; j < m; j++) {
-		// 		var pass: ShaderPass = passes[j];
-		// 		//NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
-		// 		if (pass._pipelineMode !== currentPipelineMode)
-		// 			continue;
-
-		// 		var comDef: DefineDatas = RenderElement._compileDefine;
-		// 		scene._shaderValues._defineDatas.cloneTo(comDef);
-		// 		comDef.addDefineDatas(this.render._shaderValues._defineDatas);
-		// 		comDef.addDefineDatas(this.material._shaderValues._defineDatas);
-		// 		var shaderIns: ShaderInstance = context.shader = pass.withCompile(comDef);
-		// 		var switchShader: boolean = shaderIns.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
-		// 		var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
-
-		// 		var uploadScene: boolean = (shaderIns._uploadScene !== scene) || switchUpdateMark;
-		// 		if (uploadScene || switchShader) {
-		// 			shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, scene._shaderValues, uploadScene);
-		// 			shaderIns._uploadScene = scene;
-		// 		}
-
-		// 		var uploadSprite3D: boolean = (shaderIns._uploadRender !== this.render || shaderIns._uploadRenderType !== this.renderType) || switchUpdateMark;
-		// 		if (uploadSprite3D || switchShader) {
-		// 			shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this.render._shaderValues, uploadSprite3D);
-		// 			this.render._subUniformBufferData && (BaseRender._transLargeUbO.updateBindRange(this.render._subUniformBufferData));
-		// 			shaderIns._uploadRender = this.render;
-		// 			shaderIns._uploadRenderType = this.renderType;
-		// 		}
-
-		// 		var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderValue || switchUpdateMark;
-		// 		if (uploadCamera || switchShader) {
-		// 			shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderValue, uploadCamera);
-		// 			shaderIns._uploadCameraShaderValue = cameraShaderValue;
-		// 		}
-
-		// 		var uploadMaterial: boolean = (shaderIns._uploadMaterial !== this.material) || switchUpdateMark;
-		// 		if (uploadMaterial || switchShader) {
-		// 			shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this.material._shaderValues, uploadMaterial);
-		// 			shaderIns._uploadMaterial = this.material;
-		// 		}
-
-		// 		var matValues: ShaderData = this.material._shaderValues;
-		// 		if (lastStateMaterial !== this.material || lastStateShaderInstance !== shaderIns) {//lastStateMaterial,lastStateShaderInstance存到全局，多摄像机还可优化
-		// 			shaderIns.uploadRenderStateBlendDepth(matValues);
-		// 			shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this.getInvertFront());
-		// 			lastStateMaterial = this.material;
-		// 			lastStateShaderInstance = shaderIns;
-		// 			lastStateRender = this.render;
-		// 		} else {
-		// 			if (lastStateRender !== this.render) {//TODO:是否可以用transfrom
-		// 				shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this.getInvertFront());
-		// 				lastStateRender = this.render;
-		// 			}
-		// 		}
-
-		// 		geometry._updateRenderParams(context);
-		// 		geometry._render(context);
-		// 		shaderIns._uploadMark = updateMark;
-		// 	}
-		// }
-		// if (this.renderType !== RenderElement.RENDERTYPE_NORMAL)
-		// 	this.render._revertBatchRenderUpdate(context);//还原因合并导致的数据变化
 	}
 
 	/**
@@ -322,8 +240,11 @@ export class RenderElement {
 	destroy(): void {
 		this._renderElementOBJ._destroy();
 		this._renderElementOBJ = null;
-		this.material = null;
-		this.render = null;
+		this._geometry = null;
+		this._baseRender = null;
+		this._material = null
+		this._baseRender = null;
+		this._subShader = null;
 	}
 }
 

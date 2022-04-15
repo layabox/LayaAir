@@ -1,6 +1,6 @@
+import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
 import { Stat } from "laya/utils/Stat";
-import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Camera } from "laya/d3/core/Camera";

@@ -40,7 +40,7 @@ export class RenderElementOBJ implements IRenderElement {
      * @internal
      */
     getInvertFront(): boolean {
-        return this._transform._isFrontFaceInvert;
+        return this._transform?this._transform._isFrontFaceInvert:false;
     }
 
     /**
@@ -66,10 +66,12 @@ export class RenderElementOBJ implements IRenderElement {
                     shaderIns._uploadScene = sceneID;
                 }
                 //render
-                var uploadSprite3D: boolean = (shaderIns._uploadRender !== this._renderShaderData) || switchUpdateMark;
-                if (uploadSprite3D || switchShader) {
-                    shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this._renderShaderData, uploadSprite3D);
-                    shaderIns._uploadRender = this._renderShaderData;
+                if(this._renderShaderData){
+                    var uploadSprite3D: boolean =(shaderIns._uploadRender !== this._renderShaderData) || switchUpdateMark;
+                    if (uploadSprite3D || switchShader) {
+                        shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this._renderShaderData, uploadSprite3D);
+                        shaderIns._uploadRender = this._renderShaderData;
+                    }
                 }
                 //camera
                 var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderData || switchUpdateMark;

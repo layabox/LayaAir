@@ -10,7 +10,6 @@ import { Transform3D } from "../../Transform3D";
 import { RenderContext3D } from "../RenderContext3D";
 import { RenderElement } from "../RenderElement";
 import { ScreenQuad } from "../ScreenQuad";
-import { ScreenTriangle } from "../ScreenTriangle";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 
@@ -60,7 +59,6 @@ export class BlitScreenQuadCMD extends Command {
 		cmd._shader = shader;
 		cmd.shaderData = shaderData;
 		cmd._subShader = subShader;
-		cmd.screenType = screenType;
 		cmd._commandBuffer = commandbuffer;
 		return cmd;
 	}
@@ -70,6 +68,7 @@ export class BlitScreenQuadCMD extends Command {
         this._transform3D = LayaGL.renderOBJCreate.createTransform(null);
         this._renderElement = new RenderElement();
         this._renderElement.setTransform(this._transform3D);
+		this._renderElement.setGeometry(ScreenQuad.instance);
     }
 
     set shaderData(value:ShaderData){
@@ -83,20 +82,6 @@ export class BlitScreenQuadCMD extends Command {
         this._subShader = subShader||0;
         this._renderElement.renderSubShader = this._shader.getSubShaderAt(this._subShader);
     }
-
-    set screenType(value:number){
-		switch(value){
-			case BlitScreenQuadCMD._SCREENTYPE_QUAD:
-                this._renderElement.setGeometry(ScreenQuad.instance);
-				break;
-			case BlitScreenQuadCMD._SCREENTYPE_TRIANGLE:
-                this._renderElement.setGeometry(ScreenTriangle.instance);
-				break;
-			default:
-				break;
-		}
-        this.screenType = value;
-	}
 
     /**
 	 * @inheritDoc

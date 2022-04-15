@@ -34,6 +34,10 @@ export class SingletonList<T> {
 			this.elements[this.length] = element;
 		this.length++;
 	}
+
+	destroy(){
+		this.elements = null;
+	}
 }
 
 

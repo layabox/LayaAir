@@ -946,8 +946,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 
 
-	constructor(render: ShurikenParticleRenderer) {
-		super(MeshTopology.Triangles, DrawType.DrawElement);
+	constructor(render: ShurikenParticleRenderer, meshTopology: MeshTopology = MeshTopology.Triangles, drawType: DrawType = DrawType.DrawElement) {
+		super(meshTopology, drawType);
 		this.indexFormat = IndexFormat.UInt16;
 
 		this._firstActiveElement = 0;
@@ -960,7 +960,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._useCustomBounds = false;
 
 		this._currentTime = 0;
-
+		this._bounds = new Bounds(new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE), new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE));
+		this.bufferState = this._bufferState = new BufferState();
 		this._isEmitting = false;
 		this._isPlaying = false;
 		this._isPaused = false;
@@ -1617,7 +1618,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					this._indexStride = mesh._indexBuffer.indexCount;
 					var indexDatas: Uint16Array = mesh._indexBuffer.getData();
 					var indexCount: number = this._bufferMaxParticles * this._indexStride;
-					this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static,false);
+					this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, false);
 					indices = new Uint16Array(indexCount);
 
 					memorySize = vbMemorySize + indexCount * 2;
@@ -1629,11 +1630,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 							indices[indexOffset++] = indexValueOffset + indexDatas[j];
 					}
 					this._indexBuffer.setData(indices);
-
-					// this._bufferState.bind();
-					// this._bufferState.applyVertexBuffer(this._vertexBuffer);
-					// this._bufferState.applyIndexBuffer(this._indexBuffer);
-					// this._bufferState.unBind();
 					this._bufferState.applyState([this._vertexBuffer], this._indexBuffer);
 					this.bufferState = this._bufferState;
 				}
@@ -1677,7 +1673,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				}
 
 				this._indexStride = 6;
-				this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6, BufferUsage.Static,false);
+				this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6, BufferUsage.Static, false);
 				indices = new Uint16Array(this._bufferMaxParticles * 6);
 				for (i = 0; i < this._bufferMaxParticles; i++) {
 					indexOffset = i * 6;
@@ -1692,11 +1688,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				this._indexBuffer.setData(indices);
 
 				memorySize = vbMemorySize + this._bufferMaxParticles * 6 * 2;
-
-				// this._bufferState.bind();
-				// this._bufferState.applyVertexBuffer(this._vertexBuffer);
-				// this._bufferState.applyIndexBuffer(this._indexBuffer);
-				// this._bufferState.unBind();
 				this._bufferState.applyState([this._vertexBuffer], this._indexBuffer);
 				this.bufferState = this._bufferState;
 			}
@@ -1723,8 +1714,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			this._indexBuffer.destroy();
 			this._indexBuffer = null;
 		}
-
-		this._bufferState.destroy();
 		this._emission.destroy();
 		this._bounds = null;
 		this._customBounds = null;

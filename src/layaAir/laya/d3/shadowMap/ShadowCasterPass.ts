@@ -432,11 +432,8 @@ export class ShadowCasterPass {
 
 				if (scene._opaqueQueue.elements.length > 0) {
 					//LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution)
-					Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
-					ShadowCasterPass._tempVector4.setValue(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-					context.viewport = Viewport._tempViewport;
-					context.scissor = ShadowCasterPass._tempVector4;
-
+					context.changeViewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
+					context.changeScissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 					scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
 				}
 				shadowMap._end();

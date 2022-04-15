@@ -204,7 +204,10 @@ export class TrailFilter {
 	 */
 	_update(state: RenderContext3D): void {
 		var render: BaseRender = this._ownerRender;
-		this._curtime += ((<Scene3D>state.scene)).timer._delta / 1000;
+		const scene = this._ownerRender.owner.scene
+		if(!scene)
+			return;
+		this._curtime += scene.timer._delta / 1000;
 		//设置颜色
 		render._shaderValues.setNumber(TrailFilter.CURTIME, this._curtime);
 		//现在的位置记录

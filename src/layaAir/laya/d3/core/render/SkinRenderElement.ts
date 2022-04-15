@@ -1,6 +1,7 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { SkinRenderElementOBJ } from "../../../RenderEngine/RenderObj/SkinRenderElementOBJ";
+import { SkinnedMeshRenderer } from "../SkinnedMeshRenderer";
 import { RenderElement } from "./RenderElement"
 
 export class SkinRenderElement extends RenderElement{

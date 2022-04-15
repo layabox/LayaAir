@@ -5,7 +5,6 @@ import { Laya } from "./Laya";
 import { AnimationClip } from "./laya/d3/animation/AnimationClip";
 import { Animator } from "./laya/d3/component/Animator";
 import { PostProcess } from "./laya/d3/component/PostProcess";
-import { BaseMaterial } from "./laya/d3/core/material/BaseMaterial";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { EffectMaterial } from "./laya/d3/core/material/EffectMaterial";
 import { ExtendTerrainMaterial } from "./laya/d3/core/material/ExtendTerrainMaterial";
@@ -26,7 +25,6 @@ import { PixelLineVertex } from "./laya/d3/core/pixelLine/PixelLineVertex";
 import { Command } from "./laya/d3/core/render/command/Command";
 import { RenderContext3D } from "./laya/d3/core/render/RenderContext3D";
 import { ScreenQuad } from "./laya/d3/core/render/ScreenQuad";
-import { ScreenTriangle } from "./laya/d3/core/render/ScreenTriangle";
 import { RenderableSprite3D } from "./laya/d3/core/RenderableSprite3D";
 import { Scene3D } from "./laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D";
@@ -43,7 +41,6 @@ import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionT
 import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
-import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
 import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
 import { BulletInteractive } from "./laya/d3/physics/BulletInteractive";
 import { CharacterController } from "./laya/d3/physics/CharacterController";
@@ -203,7 +200,7 @@ export class Laya3D {
 
 		Physics3D.__bulletinit__();
 
-	
+
 		VertexMesh.__init__();
 		VertexShurikenParticleBillboard.__init__();
 		VertexShurikenParticleMesh.__init__();
@@ -311,7 +308,6 @@ export class Laya3D {
 		SkyBox.__init__();
 		SkyDome.__init__();
 		ScreenQuad.__init__();
-		ScreenTriangle.__init__();
 		FrustumCulling.__init__();
 		HalfFloatUtils.__init__();
 
@@ -383,7 +379,7 @@ export class Laya3D {
 		if (subResous) {
 			for (var i: number = 0, n: number = subResous.length; i < n; i++) {
 				var resou: Resource = (<Resource>Loader.getRes(subResous[i]));
-				(resou) && (resou._removeReference());//加载失败SubResous为空
+				(resou) && (resou._removeReference && resou._removeReference());//加载失败SubResous为空
 			}
 		}
 		loader.endLoad(content);

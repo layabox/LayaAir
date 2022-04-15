@@ -1,20 +1,18 @@
-import { SkyMesh } from "./SkyMesh";
 import { BufferState } from "../../core/BufferState"
-import { RenderContext3D } from "../../core/render/RenderContext3D"
-import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"
 import { VertexPositionTexture0 } from "../../graphics/Vertex/VertexPositionTexture0"
-import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
 import { LayaGL } from "../../../layagl/LayaGL"
-import { Stat } from "../../../utils/Stat"
 import { IndexFormat } from "../../graphics/IndexFormat";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { GeometryElement } from "../../core/GeometryElement";
+import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
+import { RenderContext3D } from "../../core/render/RenderContext3D";
 
 /**
  * <code>SkyDome</code> 类用于创建天空盒。
  */
-export class SkyDome extends SkyMesh {
+export class SkyDome extends GeometryElement {
 	/**@internal */
 	private static _radius: number = 1;
 
@@ -52,7 +50,7 @@ export class SkyDome extends SkyMesh {
 	 * @param slices 层数。
 	 */
 	constructor(stacks: number = 48, slices: number = 48) {
-		super();
+		super(MeshTopology.Triangles,DrawType.DrawElement);
 		this._stacks = stacks;
 		this._slices = slices;
 		var vertexDeclaration: VertexDeclaration = VertexPositionTexture0.vertexDeclaration;
@@ -82,7 +80,6 @@ export class SkyDome extends SkyMesh {
 				vertices[vertexCount + 0] = x * SkyDome._radius;
 				vertices[vertexCount + 1] = y * SkyDome._radius;
 				vertices[vertexCount + 2] = z * SkyDome._radius;
-
 				vertices[vertexCount + 3] = -(slice / this._slices) + 0.75;//gzk 改成我喜欢的坐标系 原来是 slice/_slices
 				vertices[vertexCount + 4] = stack / this._stacks;
 				vertexCount += vertexFloatCount;
@@ -91,7 +88,6 @@ export class SkyDome extends SkyMesh {
 					indices[indexCount++] = vertexIndex + 1;
 					indices[indexCount++] = vertexIndex;
 					indices[indexCount++] = vertexIndex + (this._slices + 1);
-
 					// Second 
 					indices[indexCount++] = vertexIndex + (this._slices + 1);
 					indices[indexCount++] = vertexIndex;
@@ -101,29 +97,25 @@ export class SkyDome extends SkyMesh {
 			}
 		}
 
-		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, false);
-		this._vertexBuffer.vertexDeclaration = vertexDeclaration;
-		this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, false);
-		this._vertexBuffer.setData(vertices.buffer);
-		this._indexBuffer.setData(indices);
+		let vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, false);
+		vertexBuffer.vertexDeclaration = vertexDeclaration;
+		let indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, false);
+		vertexBuffer.setData(vertices.buffer);
+		indexBuffer.setData(indices);
 
 		var bufferState: BufferState = new BufferState();
-		// bufferState.bind();
-		// bufferState.applyVertexBuffer(this._vertexBuffer);
-		// bufferState.applyIndexBuffer(this._indexBuffer);
-		// bufferState.unBind();
-		bufferState.applyState([this._vertexBuffer],this._indexBuffer);
-		this._bufferState = bufferState;
+		bufferState.applyState([vertexBuffer],indexBuffer);
+		this.bufferState = bufferState;
+		this.indexFormat = IndexFormat.UInt16;
+		this._geometryElementOBj.setDrawElemenParams(indexBuffer.indexCount,0);
 	}
 
 	/**
 	 * @internal
+	 * UpdateGeometry Data
 	 */
-	_render(state: RenderContext3D): void {
-		var indexCount: number = this._indexBuffer.indexCount;
-		LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, 0);
-		Stat.trianglesFaces += indexCount / 3;
-		Stat.renderBatches++;
+	 _updateRenderParams(state: RenderContext3D): void {
+		
 	}
 }
 
