@@ -108,6 +108,8 @@ export class BaseRender extends Component {
 	_subUniformBufferData: SubUniformBufferData;
 	/**@internal motion list index，not motion is -1*/
 	_motionIndexList:number = -1;
+	/**@internal 是否自定义了needRender*/
+	_customCull:boolean;
 	/** @internal */
 	protected _boundsChange: boolean = true;
 	/**@internal */
@@ -373,7 +375,7 @@ export class BaseRender extends Component {
 		this.lightmapIndex = -1;
 		this.receiveShadow = false;
 		this.sortingFudge = 0.0;
-
+		this._customCull = this._needRender !== BaseRender.prototype._needRender;
 	}
 
 	protected _createBaseRenderNode(): IBaseRenderNode {
@@ -602,7 +604,10 @@ export class BaseRender extends Component {
 	 * @param boundFrustum 裁剪。
 	 */
 	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
-		return true;
+		if (boundFrustum)
+			return boundFrustum.intersects(this.bounds._getBoundBox());
+		else
+			return true;
 	}
 
 	/**

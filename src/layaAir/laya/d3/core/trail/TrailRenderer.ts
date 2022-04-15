@@ -182,19 +182,7 @@ export class TrailRenderer extends BaseRender {
 		(<TrailSprite3D>this.owner).trailFilter._update(context);
 
 	}
-
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
-		if (boundFrustum)
-			return boundFrustum.intersects(this.bounds._getBoundBox());
-		else
-			return true;
-	}
-
+	
 	/**
 	 * @inheritDoc
 	 * @internal
