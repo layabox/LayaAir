@@ -10,6 +10,7 @@ import { FloatKeyframe } from "../FloatKeyframe";
 import { Gradient } from "../Gradient";
 import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
+import { Bounds } from "../Bounds";
 
 /**
  * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
@@ -164,14 +165,22 @@ export class TrailRenderer extends BaseRender {
 	}
 
 	/**
+	 * 包围盒,只读,不允许修改其值。
+	 */
+	get bounds(): Bounds {
+		return this._bounds;
+	}
+
+	/**
 	 * @inheritDoc
 	 * @internal
 	 * @override
 	 */
 	protected _calculateBoundingBox(): void {
 		let context = RenderContext3D._instance;
-		(<TrailSprite3D>this.owner).trailFilter._update(context);
 		this._boundsChange = false;
+		(<TrailSprite3D>this.owner).trailFilter._update(context);
+
 	}
 
 	/**

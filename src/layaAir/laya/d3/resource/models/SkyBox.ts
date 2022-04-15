@@ -1,22 +1,20 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
-import { Stat } from "../../../utils/Stat";
 import { BufferState } from "../../core/BufferState";
+import { GeometryElement } from "../../core/GeometryElement";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
-import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { IndexFormat } from "../../graphics/IndexFormat";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
-import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { SkyMesh } from "./SkyMesh";
+
 
 /**
  * <code>SkyBox</code> 类用于创建天空盒。
  */
-export class SkyBox extends SkyMesh {
+export class SkyBox extends GeometryElement {
 	static instance: SkyBox;
-
 	/**
 	 * @internal
 	 */
@@ -28,7 +26,7 @@ export class SkyBox extends SkyMesh {
 	 * 创建一个 <code>SkyBox</code> 实例。
 	 */
 	constructor() {
-		super();
+		super(MeshTopology.Triangles,DrawType.DrawElement);
 		var halfHeight: number = 1.0;
 		var halfWidth: number = 1.0;
 		var halfDepth: number = 1.0;
@@ -41,32 +39,24 @@ export class SkyBox extends SkyMesh {
 			1, 5, 6, 6, 2, 1,//右
 			3, 2, 6, 6, 7, 3, //前
 			0, 4, 5, 5, 1, 0]);//后
-
 		var verDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
-		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(verDec.vertexStride * 8, BufferUsage.Static, false);
-		this._vertexBuffer.vertexDeclaration = verDec;
-		this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt8, 36, BufferUsage.Static, false);
-		this._vertexBuffer.setData(vertices.buffer);
-		this._indexBuffer.setData(indices);
-
-		var bufferState: BufferState = new BufferState();
-		// bufferState.bind();
-		// bufferState.applyVertexBuffer(this._vertexBuffer);
-		// bufferState.applyIndexBuffer(this._indexBuffer);
-		// bufferState.unBind();
-		bufferState.applyState([this._vertexBuffer],this._indexBuffer);
-		this._bufferState = bufferState;
+		let vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(verDec.vertexStride * 8, BufferUsage.Static, false);
+		vertexBuffer.vertexDeclaration = verDec;
+		let indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt8, 36, BufferUsage.Static, false);
+		vertexBuffer.setData(vertices.buffer);
+		indexBuffer.setData(indices);
+		this.bufferState = new BufferState();
+		this.bufferState.applyState([vertexBuffer],indexBuffer);
+		this._geometryElementOBj.setDrawElemenParams(36,0);
+		this.indexFormat = IndexFormat.UInt8;
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
 	 * @internal
+	 * UpdateGeometry Data
 	 */
-	_render(state: RenderContext3D): void {
-		LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, 36, IndexFormat.UInt8, 0);
-		Stat.trianglesFaces += 12;
-		Stat.renderBatches++;
+	 _updateRenderParams(state: RenderContext3D): void {
+		
 	}
 }
 

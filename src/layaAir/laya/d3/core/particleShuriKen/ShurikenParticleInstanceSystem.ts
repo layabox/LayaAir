@@ -1,6 +1,7 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { MathUtil } from "../../../maths/MathUtil";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
@@ -26,7 +27,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
     private _instanceParticleVertexBuffer: VertexBuffer3D = null;
     private _instanceVertex: Float32Array = null;
 
-    private _instanceBufferState: BufferState = new BufferState();
 
     private _meshIndexCount: number;
     private _meshFloatCountPreVertex: number;
@@ -37,7 +37,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
     private _floatCountPerParticleData: number;
 
     constructor(render: ShurikenParticleRenderer) {
-        super(render);
+        super(render,MeshTopology.Triangles,DrawType.DrawElemientInstance);
     }
 
     /***
@@ -155,12 +155,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 this._instanceParticleVertexBuffer.vertexDeclaration = particleDeclaration;
                 this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer);
                 this._instanceParticleVertexBuffer._instanceBuffer = true;
-                // this._instanceBufferState.bind();
-                // this._instanceBufferState.applyIndexBuffer(this._indexBuffer);
-                // this._instanceBufferState.applyVertexBuffer(this._vertexBuffer);
-                // this._instanceBufferState.applyInstanceVertexBuffer(this._instanceParticleVertexBuffer);
-                // this._instanceBufferState.unBind();
-                this._instanceBufferState.applyState([this._vertexBuffer,this._instanceParticleVertexBuffer],this._indexBuffer)
+                this._bufferState.applyState([this._vertexBuffer,this._instanceParticleVertexBuffer],this._indexBuffer)
             }
 
         }
@@ -196,7 +191,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             // this._instanceBufferState.applyVertexBuffer(this._vertexBuffer);
             // this._instanceBufferState.applyInstanceVertexBuffer(this._instanceParticleVertexBuffer);
             // this._instanceBufferState.unBind();
-            this._instanceBufferState.applyState([this._vertexBuffer,this._instanceParticleVertexBuffer],this._indexBuffer);
+            this._bufferState.applyState([this._vertexBuffer,this._instanceParticleVertexBuffer],this._indexBuffer);
         }
 
         let memorySize = this._instanceParticleVertexBuffer._byteLength + this._indexBuffer._byteLength + this._vertexBuffer._byteLength;

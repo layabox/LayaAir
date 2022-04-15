@@ -4,6 +4,7 @@ import { BaseRender } from "../core/render/BaseRender";
 import { Animator } from "./Animator";
 import { Script3D } from "./Script3D";
 import { SimpleSingletonList } from "./SimpleSingletonList";
+import { SingletonList } from "../../d3/component/SingletonList";
 
 export class ComponentManager {
 
@@ -25,7 +26,7 @@ export class ComponentManager {
   private _animators: SimpleSingletonList = new SimpleSingletonList();
 
   //UpdateRender
-  private _renderUpdateComponent: SimpleSingletonList = new SimpleSingletonList();
+  private _renderUpdateComponent: SingletonList<BaseRender> = new SingletonList();
 
 
   /**
@@ -74,7 +75,11 @@ export class ComponentManager {
    * @param render 
    */
   removeUpdateRenderer(render: BaseRender) {
-    this._renderUpdateComponent.remove(render);
+    let length = this._renderUpdateComponent.length;
+    let array = this._renderUpdateComponent.elements;
+    let index = array.indexOf(render);
+    array[index] = array[length-1];
+    this._renderUpdateComponent.length-=1;
   }
 
   /**

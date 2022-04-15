@@ -41,50 +41,28 @@ export class BaseRenderQueue implements IRenderQueue {
 
     renderQueue(context:RenderContext3D) {
         this.context = context;
-        this._preRender();
         this._context.applyContext();
-        // this._context.destTarget._start();
-        // this._context.cameraUpdateMark = Camera._updateMark;
-        // LayaGL.renderEngine.viewport(this._viewPort.x,this._viewPort.y,this._viewPort.width,this._viewPort.height);
-        // LayaGL.renderEngine.scissor(this._scissor.x,this._scissor.y,this._scissor.z,this._scissor.w);
+        
         var elements: RenderElement[] = this.elements.elements;
-		for (var i: number = 0, n: number = this.elements.length; i < n; i++){
+		this._batchQueue();
+        for (var i: number = 0, n: number = this.elements.length; i < n; i++){
             elements[i]._renderUpdatePre(context);//Update Data
             
         }
-			
-		// for (var i: number = 0, n: number = this.elements.length; i < n; i++)
-		// 	elements[i]._render(context);
         //更新所有大buffer数据 nativeTODO
 
+        this._sort();
         for (var i: number = 0, n: number = this.elements.length; i < n; i++)
 			elements[i]._render(this._context);//Update Data
-        //UpdateRender All
-        //UpdateGeometry All
-        //RenderRenderElement All
+        
     }
-
-    private _preRender(): void {
-        //batchQueue TODO:
-        this._batchQueue();
-        //quick sort or material sort
-        this._sort();
-    }
-
 
     private _batchQueue() {
-        //static batch
-        //instance batch
+
     }
 
     private _sort() {
         var count: number = this.elements.length;
         this._sortPass.sort(this.elements, this._isTransparent, 0, count - 1);
     }
-
-
-
-
-
-
 }

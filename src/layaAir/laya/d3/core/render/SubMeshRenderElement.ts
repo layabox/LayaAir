@@ -297,8 +297,10 @@ export class SubMeshRenderElement extends RenderElement {
 	destroy(): void {
 		super.destroy();
 		this.staticBatch = null;
-		this.staticBatchElementList = null;
-		this.vertexBatchElementList = null;
+		this.instanceSubMesh = null;
+		this.staticBatchElementList && this.staticBatchElementList.destroy();
+		this.instanceBatchElementList && this.instanceBatchElementList.destroy();
+		this.vertexBatchElementList && this.vertexBatchElementList.destroy();
 		this.vertexBatchVertexDeclaration = null;
 	}
 }
