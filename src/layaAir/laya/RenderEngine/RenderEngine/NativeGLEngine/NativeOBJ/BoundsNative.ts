@@ -1,11 +1,12 @@
 import { Bounds } from "../../../../d3/core/Bounds";
+import { IClone } from "../../../../d3/core/IClone";
 import { BoundBox } from "../../../../d3/math/BoundBox";
 import { Matrix4x4 } from "../../../../d3/math/Matrix4x4";
 import { Vector3 } from "../../../../d3/math/Vector3";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
 
 
-export class BoundsNative extends Bounds{
+export class BoundsNative implements IClone {
 
     /**temp data */
     static TEMP_VECTOR3_MAX0: Vector3 = new Vector3();
@@ -215,7 +216,10 @@ export class BoundsNative extends Bounds{
      * @param	max  max 最大坐标。
      */
     constructor(min: Vector3, max: Vector3) {
-        super(min,max);
+        min.cloneTo(this._boundBox.min);
+		max.cloneTo(this._boundBox.max);
+		this._setUpdateFlag(BoundsNative._UPDATE_CENTER | BoundsNative._UPDATE_EXTENT, true);
+
         this.updateNativeData(BoundsNative.Bounds_Stride_Min,min);
         this.updateNativeData(BoundsNative.Bounds_Stride_Max,max);
         //native memory
