@@ -184,18 +184,6 @@ export class MeshRenderer extends BaseRender {
 	 * @override
 	 * @internal
 	 */
-	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
-		if (boundFrustum)
-			return boundFrustum.intersects(this.bounds._getBoundBox());
-		else
-			return true;
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	_renderUpdate(context: RenderContext3D, transform: Transform3D): void {
 		this._applyLightMapParams();
 		var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;

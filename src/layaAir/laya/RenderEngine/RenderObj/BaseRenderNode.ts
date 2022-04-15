@@ -22,4 +22,5 @@ export class BaseRenderNode implements IBaseRenderNode {
     owner: BaseRender | null;
     /**@internal TODO Base Bounds/can update Bounds by transform*GeometryBounds*/
     geometryBounds: Bounds | null;
+    
 }
