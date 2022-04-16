@@ -313,8 +313,8 @@ export class BoundsNative implements IClone {
         }
         if (this._getUpdateFlag(BoundsNative._UPDATE_MAX)) {
             var max: Vector3 = this._boundBox.max;
-            this.updateNativeData(BoundsNative.Bounds_Stride_Max, max);
             this._getMax(this.getCenter(), this.getExtent(), max);
+            this.updateNativeData(BoundsNative.Bounds_Stride_Max, max);
             this._setUpdateFlag(BoundsNative._UPDATE_MAX, false);
         }
         return this._boundBox;
