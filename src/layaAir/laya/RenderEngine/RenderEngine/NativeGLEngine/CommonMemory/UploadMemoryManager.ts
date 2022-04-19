@@ -1,7 +1,5 @@
 import { SingletonList } from "../../../../d3/component/SingletonList";
 import { INativeUploadNode } from "./INativeUploadNode";
-import { MemoryDataType } from "./MemoryDataType";
-import { NativeMemory } from "./NativeMemory";
 import { UploadMemory } from "./UploadMemory";
 
 /**
@@ -14,67 +12,62 @@ export class UploadMemoryManager {
      * each upload block memory size
      * defined 10M
      */
-    static UploadMemorySize: number = 1024 * 1024 * 10;
+    static UploadMemorySize: number = 1024 * 1024 * 10 * 4;
+    //DescribeData type + instanceID + dataLength
+    static TopLength: number = 3 * 4;
+    /*@internal SingleOBJ*/
     static BaseInstance: UploadMemoryManager;
-    /**需要上传数据的Node列表*/
+    /**@internal 需要上传数据的Node列表*/
     _dataNodeList: SingletonList<INativeUploadNode> = new SingletonList();
-    /**Describe Block of uploadMemory Cell nums*/
-    _memoryBlockDescribe: NativeMemory;
-
+    /**@internal */
     _currentBlock: UploadMemory;
-
-    _pool: UploadMemory[];
-
-    private _uploadDataCell() {
-        const elements = this._dataNodeList.elements;
-        for (let i = 0; i < this._dataNodeList.length; i++) {
-            let dataSize = elements[i].compressAllObject();//compress update data
-            this.addUploadMemoryCell(elements[i], dataSize);//add block
-        }
-    }
-
-    /**
-     * @param node 
-     */
-    addUploadMemoryCell(node: INativeUploadNode, dataSize: number) {
-        if(dataSize>UploadMemoryManager.UploadMemorySize)
-            throw "dataSize is too large, greater than 10M,";
-        let cellLength = dataSize + UploadMemoryCell.scriableLength;
-        if (!this._currentBlock.check(cellLength)) {
-            if(this._currentBlock._index==this._pool.length-1)
-                this.createMemory();
-            //use next
-            this._currentBlock = this._pool[this._currentBlock._index+1];
-        }
-        this._currentBlock.addBlockCell(node,cellLength);
-        this._memoryBlockDescribe.int32Array[this._currentBlock._index]+=1;
-    }
-
-    createMemory(): void {
-        this._pool.push(new UploadMemory(UploadMemoryManager.UploadMemorySize, this._pool.length));
-    }
-
-    clear() {
-        this._dataNodeList.length = 0;
-        this._currentBlock = this._pool[0];
-    }
+    /**@internal */
+    _commandNums: number;
 
     constructor() {
         UploadMemoryManager.BaseInstance = this;
-        this._pool = [];
-        this.createMemory();
-        this._currentBlock = this._pool[0];
-        this._memoryBlockDescribe = new NativeMemory(100 * 4);
+        this._currentBlock = new UploadMemory(UploadMemoryManager.UploadMemorySize);
     }
-}
 
-export class UploadMemoryCell {
-    //type + instanceID + dataLength
-    static scriableLength: number = 3 * 4;
-    //字节长度
-    private _bytelength: number;
-    //cell解析类型
-    private _dataType: MemoryDataType;
-    //实例化数据信息
-    private _instanceInfo: number;
+    private _addNodeCommand(node: INativeUploadNode, size: number) {
+        this._currentBlock.addBlockCell(node, size);
+        this._commandNums++;
+    }
+
+    /**
+     * @internal
+     */
+    private _serialiseData() {
+        const elements = this._dataNodeList.elements;
+        for (let i = 0; i < this._dataNodeList.length; i++) {
+            let node = elements[i];
+            let dataSize = node.getUploadMemoryLength();//get upload Memory Length
+            if (dataSize > UploadMemoryManager.UploadMemorySize)
+                throw "dataSize is too large, greater than UploadMemorySize,";
+            if (this._currentBlock.check(dataSize)) {
+                //Deserialization all cmd to native data
+                this.uploadData();
+                this._addNodeCommand(node, dataSize);
+            } else {
+                this._addNodeCommand(node, dataSize);
+            }
+        }
+    }
+
+    /**强制更新数据 */
+    uploadData() {
+        //Native upload data
+        //TODO
+        //clear uploadMemory
+        this._commandNums = 0;
+        this._currentBlock.clear();
+    }
+
+
+    /**
+     * clear UpdateLoad list
+     */
+    clear() {
+        this._dataNodeList.length = 0;
+    }
 }

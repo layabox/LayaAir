@@ -82,15 +82,15 @@ export class SeparableSSS_RenderDemo {
         this.mainCamera.addComponent(CameraMoveScript);
 
 
-        // //打开depthTexture
+        //打开depthTexture
         this.blinnphongCharacter = Loader.getRes("res/threeDimen/LayaScene_separable-sss/Conventional/HeadBlinnphong.lh");
         this.characterBlinnphongMaterial = <BlinnPhongMaterial>this.blinnphongCharacter.getComponent(MeshRenderer).sharedMaterial.clone();
-        // //增加Mesh节点
-         let buf = this.createCommandBuffer(this.mainCamera, this.blinnphongCharacter.meshFilter.sharedMesh);
-         this.mainCamera.addCommandBuffer(CameraEventFlags.BeforeForwardOpaque, buf);
-         this.sssssBlitMaterail.cameraFiledOfView = this.mainCamera.fieldOfView;
+        //增加Mesh节点
+        let buf = this.createCommandBuffer(this.mainCamera, this.blinnphongCharacter.meshFilter.sharedMesh);
+        this.mainCamera.addCommandBuffer(CameraEventFlags.BeforeForwardOpaque, buf);
+        this.sssssBlitMaterail.cameraFiledOfView = this.mainCamera.fieldOfView;
 
-        // //增加节点
+        //增加节点
         this.SSSSSCharacter = <MeshSprite3D>this.blinnphongCharacter.clone();
         this.SSSSSCharacter.getComponent(MeshRenderer).sharedMaterial = this.sssssRenderMaterial;
         this.scene.addChild(this.SSSSSCharacter);
