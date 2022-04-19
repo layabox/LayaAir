@@ -7,10 +7,8 @@ import { Quaternion } from "../../../math/Quaternion";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { CommandBuffer } from "./CommandBuffer";
 import { ShaderDataType } from "./SetShaderDataCMD";
-import { Scene3D } from "../../scene/Scene3D";
-import { CommandUniformMap } from "../../scene/Scene3DShaderDeclaration";
-import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { RenderContext3D } from "../RenderContext3D";
+import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
  * @internal
@@ -30,8 +28,6 @@ export class SetGlobalShaderDataCMD extends Command {
 	 * @internal
 	 */
 	static create(nameID: number, value:any,shaderDataType:ShaderDataType,commandBuffer:CommandBuffer): SetGlobalShaderDataCMD {
-		const comandMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
-		comandMap.addShaderUniform(nameID,Shader3D._propertyNameMap[nameID]);
 		var cmd: SetGlobalShaderDataCMD;
 		cmd = SetGlobalShaderDataCMD._pool.length > 0 ? SetGlobalShaderDataCMD._pool.pop() : new SetGlobalShaderDataCMD();
 		cmd._nameID = nameID;
@@ -46,7 +42,11 @@ export class SetGlobalShaderDataCMD extends Command {
 	 * @override
 	 */
 	run(): void {
-		var shaderData:ShaderData = (this._commandBuffer._camera.scene as Scene3D)._shaderValues;
+		//var shaderData:ShaderData = (this._commandBuffer._camera.scene as Scene3D)._shaderValues;
+		let context = RenderContext3D._instance;
+		let shaderData = context._contextOBJ.globalShaderData;
+		if(!shaderData)
+		shaderData = context._contextOBJ.globalShaderData = LayaGL.renderOBJCreate.createShaderData(null);
 		switch(this._dataType){
 			case ShaderDataType.Int:
 				shaderData.setInt(this._nameID,this._value as number);
@@ -78,7 +78,6 @@ export class SetGlobalShaderDataCMD extends Command {
 			case ShaderDataType.Buffer:
 				shaderData.setBuffer(this._nameID,this._value as Float32Array);
 				break;
-			
 			default:
 				throw "no type shaderValue on this CommendBuffer";
 		}

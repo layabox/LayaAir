@@ -7,13 +7,17 @@ import { BaseTexture } from "laya/resource/BaseTexture";
 export class GlowingEdgeMaterial extends Material {
     public static DIFFUSETEXTURE: number;
     public static MARGINALCOLOR: number;
-
+    public isInit:boolean = false;
     __init__() {
         GlowingEdgeMaterial.DIFFUSETEXTURE = Shader3D.propertyNameToID("u_texture");
         GlowingEdgeMaterial.MARGINALCOLOR = Shader3D.propertyNameToID("u_marginalColor");
     }
     constructor() {
         super();
+        if(!this.isInit){
+            this.__init__();
+            this.isInit = true;
+        }
         this.setShaderName("GlowingEdgeMaterial");
     }
     /**

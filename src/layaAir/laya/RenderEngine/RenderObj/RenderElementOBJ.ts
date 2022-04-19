@@ -84,6 +84,8 @@ export class RenderElementOBJ implements IRenderElement {
                 if (uploadMaterial || switchShader) {
                     shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this._materialShaderData, uploadMaterial);
                     shaderIns._uploadMaterial = this._materialShaderData;
+                    //GlobalData
+                    context.globalShaderData && shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, context.globalShaderData, uploadMaterial);
                 }
                 //renderData update
                 //TODO：Renderstate as a Object to less upload

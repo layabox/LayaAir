@@ -1239,6 +1239,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		LayaGL.renderEngine.scissor(vpX, vpY, vpW, vpH);
 		state.changeViewport(vpX, vpY, vpW, vpH);
 		state.changeScissor(vpX, vpY, vpW, vpH);
+		Camera._context3DViewPortCatch.set(vpX, vpY, vpW, vpH);
+		Camera._contextScissorPortCatch.setValue(vpX, vpY, vpW, vpH);
 
 		var clearFlag: number = camera.clearFlag;
 		if (clearFlag === CameraClearFlags.Sky && !(camera.skyRenderer._isAvailable() || this._skyRenderer._isAvailable()))

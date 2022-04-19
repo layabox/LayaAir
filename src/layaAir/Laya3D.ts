@@ -92,6 +92,7 @@ import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { DepthPass } from "./laya/d3/depthMap/DepthPass";
+import { BloomEffect } from "./laya/d3/core/render/BloomEffect";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -250,7 +251,7 @@ export class Laya3D {
 		ExtendTerrainMaterial.__initDefine__();
 		PixelLineMaterial.__initDefine__();
 		SkyBoxMaterial.__initDefine__();
-
+		BloomEffect.__init__();
 
 		Command.__init__();
 

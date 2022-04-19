@@ -13,6 +13,9 @@ import { CommandBuffer } from "./CommandBuffer";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
 import { RenderElement } from "../RenderElement";
 import { MeshInstanceGeometry } from "../../../graphics/SubMeshInstanceGeometry";
+import { RenderContext3D } from "../RenderContext3D";
+import { BaseRender } from "../../../core/render/BaseRender";
+import { MeshSprite3DShaderDeclaration } from "../../MeshSprite3DShaderDeclaration";
 
 
 export class DrawMeshInstancedCMD extends Command {
@@ -31,7 +34,7 @@ export class DrawMeshInstancedCMD extends Command {
             throw "the number of renderings exceeds the maximum number of merges";
         }
         cmd = DrawMeshInstancedCMD._pool.length > 0 ? DrawMeshInstancedCMD._pool.pop() : new DrawMeshInstancedCMD();
-        
+
         cmd._matrixs = matrixs;
         cmd._material = material;
         cmd._subMeshIndex = subMeshIndex;
@@ -39,9 +42,10 @@ export class DrawMeshInstancedCMD extends Command {
         cmd._commandBuffer = commandBuffer;
         cmd._instanceProperty = instanceProperty;
         cmd._drawnums = drawnums;
+        cmd.mesh = mesh;
         matrixs && cmd._updateWorldMatrixBuffer();
         cmd._setInstanceBuffer();
-        cmd._mesh = mesh;
+        cmd.setContext(RenderContext3D._instance);
         return cmd;
     }
 
@@ -66,60 +70,72 @@ export class DrawMeshInstancedCMD extends Command {
     /**@internal 世界矩阵buffer*/
     private _instanceWorldMatrixBuffer: VertexBuffer3D;
     /**@internal */
-    private _instanceGeometryArray:MeshInstanceGeometry[];
+    private _instanceGeometryArray: MeshInstanceGeometry[];
     /**@internal */
-    private _instanceRenderElementArray:RenderElement[];
+    private _instanceRenderElementArray: RenderElement[];
     /**@internal */
-    _byteCount:number; 
+    _byteCount: number;
     /**@internal */
     _transform: Transform3D;
     /**@internal */
-    _instanceRenderElement:RenderElement;
-    
+    _instanceRenderElement: RenderElement;
+    /**@internal */
+    _render:BaseRender;
+
 
     constructor() {
         super();
         this._transform = LayaGL.renderOBJCreate.createTransform(null);
+        this._instanceRenderElementArray = [];
+        this._instanceGeometryArray = [];
         this._instanceWorldMatrixData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount * 16);
         this._instanceWorldMatrixBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this._instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
         this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
         this._instanceWorldMatrixBuffer._instanceBuffer = true;
+        this._render = new BaseRender();
+        this._render._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+
     }
 
     get bufferState() {
         return this._instanceWorldMatrixBuffer;
     }
 
-    set mesh(value:Mesh){
-        if(this._mesh==value)
+    set mesh(value: Mesh) {
+        if (this._mesh == value)
             return;
         this._mesh = value;
         let submeshs = this._mesh._subMeshes;
-        if(this._subMeshIndex==-1){
-            for(let i = 0,n=submeshs.length;i<n;i++){
-                let element = this._instanceRenderElementArray[i] = this._instanceRenderElementArray[i]?this._instanceRenderElementArray[i]:new RenderElement();
-                let geometry = this._instanceGeometryArray[i]?this._instanceGeometryArray[i]:new MeshInstanceGeometry(submeshs[i]);
+        if (this._subMeshIndex == -1) {
+            for (let i = 0, n = submeshs.length; i < n; i++) {
+                let element = this._instanceRenderElementArray[i] = this._instanceRenderElementArray[i] ? this._instanceRenderElementArray[i] : new RenderElement();
+                let geometry = this._instanceGeometryArray[i] = this._instanceGeometryArray[i] ? this._instanceGeometryArray[i] : new MeshInstanceGeometry(submeshs[i]);
                 element.setGeometry(geometry);
                 element.transform = this._transform;
                 element.material = this._material;
                 element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
-                geometry.bufferState =  this._instanceBufferState;
+                element.render = this._render;
+                
+                geometry.bufferState = this._instanceBufferState;
                 geometry.instanceCount = this._drawnums;
             }
-        }else{
-            let element = this._instanceRenderElementArray[0] = this._instanceRenderElementArray[0]?this._instanceRenderElementArray[0]:new RenderElement();
-            let geometry = this._instanceGeometryArray[0]?this._instanceGeometryArray[0]:new MeshInstanceGeometry(submeshs[0]);
+        } else {
+            let element = this._instanceRenderElementArray[0] = this._instanceRenderElementArray[0] ? this._instanceRenderElementArray[0] : new RenderElement();
+            let geometry = this._instanceGeometryArray[0] = this._instanceGeometryArray[0] ? this._instanceGeometryArray[0] : new MeshInstanceGeometry(submeshs[this._subMeshIndex]);
             element.setGeometry(geometry);
             element.transform = this._transform;
             element.material = this._material;
+            element.render = this._render;
             element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
-            geometry.bufferState =  this._instanceBufferState;
+            geometry.bufferState = this._instanceBufferState;
             geometry.instanceCount = this._drawnums;
         }
-        
+
     }
 
-    
+    get mesh(): Mesh {
+        return this._mesh;
+    }
 
     /**
  * @internal
@@ -137,6 +153,9 @@ export class DrawMeshInstancedCMD extends Command {
             vertexArray.push(propertyMap[i]._vertexBuffer);
         }
         instanceBufferState.applyState(vertexArray, this._mesh._indexBuffer);
+        this._instanceGeometryArray.forEach(element => {
+            element.bufferState = instanceBufferState;
+        });
     }
 
     /**
@@ -174,27 +193,35 @@ export class DrawMeshInstancedCMD extends Command {
             throw "worldMatrixArray length is less then drawnums";
         this._drawnums = drawNums;
         let submeshs = this._mesh._subMeshes;
-        if(this._subMeshIndex==-1){
-            for(let i = 0,n=submeshs.length;i<n;i++){
-                let geometry = this._instanceGeometryArray[i]?this._instanceGeometryArray[i]:new MeshInstanceGeometry(submeshs[i]);
+        if (this._subMeshIndex == -1) {
+            for (let i = 0, n = submeshs.length; i < n; i++) {
+                let geometry = this._instanceGeometryArray[i] ? this._instanceGeometryArray[i] : new MeshInstanceGeometry(submeshs[i]);
                 geometry.instanceCount = this._drawnums;
             }
-        }else{
-            let geometry = this._instanceGeometryArray[0]?this._instanceGeometryArray[0]:new MeshInstanceGeometry(submeshs[0]);
+        } else {
+            let geometry = this._instanceGeometryArray[0] ? this._instanceGeometryArray[0] : new MeshInstanceGeometry(submeshs[0]);
             geometry.instanceCount = this._drawnums;
         }
         this._matrixs && this._updateWorldMatrixBuffer();
     }
 
     run(): void {
+        //update blockData
+        RenderContext3D._instance._contextOBJ.applyContext();
+		let propertyMap = this._instanceProperty._propertyMap;
+        for(let i in propertyMap){
+			//更新自定义Instancebuffer
+			propertyMap[i].updateVertexBufferData(this._drawnums);
+		}
+
         let submeshs = this.mesh._subMeshes
-        if(this._subMeshIndex==-1){
-            for(let i = 0,n=submeshs.length;i<n;i++){
+        if (this._subMeshIndex == -1) {
+            for (let i = 0, n = submeshs.length; i < n; i++) {
                 let element = this._instanceRenderElementArray[i];
                 element._renderUpdatePre(this._context);
                 element._render(this._context._contextOBJ);
             }
-        }else{
+        } else {
             let element = this._instanceRenderElementArray[0];
             element._renderUpdatePre(this._context);
             element._render(this._context._contextOBJ);

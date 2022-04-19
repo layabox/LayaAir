@@ -244,7 +244,7 @@ export class BloomEffect extends PostProcessEffect {
 		var qualityOffset: number = this.fastMode ? 1 : 0;
 
 		// Downsample
-		var lastDownTexture: RenderTexture = context.source;
+		var lastDownTexture: RenderTexture = context.indirectTarget;
 		for (var i: number = 0; i < iterations; i++) {
 			var downIndex: number = i * 2;
 			var upIndex: number = downIndex + 1;
@@ -314,7 +314,7 @@ export class BloomEffect extends PostProcessEffect {
 
 		let _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
 
-		cmd.blitScreenTriangle(context.source, context.destination, context.camera._screenOffsetScale, _compositeShader, compositeShaderData, 0);
+		cmd.blitScreenTriangle(context.indirectTarget, context.destination, context.camera._screenOffsetScale, _compositeShader, compositeShaderData, 0);
 
 
 		//释放渲染纹理

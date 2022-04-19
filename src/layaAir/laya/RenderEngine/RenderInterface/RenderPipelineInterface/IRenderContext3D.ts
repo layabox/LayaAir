@@ -22,6 +22,8 @@ import { IRenderTarget } from "../IRenderTarget";
     sceneShaderData:ShaderData;
     //Camera Update Mark
     cameraUpdateMark:number;
+    //Global ShaderData
+    globalShaderData:ShaderData;
     /**设置IRenderContext */
     applyContext():void;
   }

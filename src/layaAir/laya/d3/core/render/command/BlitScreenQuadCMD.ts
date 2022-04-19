@@ -56,9 +56,10 @@ export class BlitScreenQuadCMD extends Command {
 		cmd._source = source;
 		cmd._dest = dest;
 		cmd._offsetScale = offsetScale;
-		cmd._shader = shader;
-		cmd.shaderData = shaderData;
-		cmd._subShader = subShader;
+		cmd.setshader(shader,subShader,shaderData);
+		// cmd._shader = shader;
+		// cmd.shaderData = shaderData;
+		// cmd._subShader = subShader;
 		cmd._commandBuffer = commandbuffer;
 		return cmd;
 	}
@@ -80,6 +81,7 @@ export class BlitScreenQuadCMD extends Command {
     setshader(shader:Shader3D,subShader:number,shaderData:ShaderData){
         this._shader = shader|| Command._screenShader;
         this._subShader = subShader||0;
+		this.shaderData = shaderData;
         this._renderElement.renderSubShader = this._shader.getSubShaderAt(this._subShader);
     }
 
@@ -99,7 +101,8 @@ export class BlitScreenQuadCMD extends Command {
 			source = this._source;
 		var shaderData: ShaderData = this._shaderData;
 		var dest: RenderTexture = this._dest ? this._dest : this._commandBuffer._camera._internalRenderTexture;//set dest
-        if (dest) {//set viewport
+        ScreenQuad.instance.invertY =context.invertY;
+		if (dest) {//set viewport
             context.changeViewport(0, 0, dest.width, dest.height);
             context.changeScissor(0, 0, dest.width, dest.height);
 		}else {

@@ -8,6 +8,7 @@ import { MeshRenderer } from "../../../core/MeshRenderer";
 import { RenderElement } from "../RenderElement";
 import { Transform3D } from "../../Transform3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { RenderContext3D } from "../RenderContext3D";
 /**
  * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
@@ -23,14 +24,13 @@ export class DrawMeshCMD extends Command {
     static create(mesh: Mesh, matrix: Matrix4x4, material: Material, subMeshIndex: number, subShaderIndex: number, commandBuffer: CommandBuffer): DrawMeshCMD {
         var cmd: DrawMeshCMD;
         cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop() : new DrawMeshCMD();
-        cmd._mesh = mesh;
+        
         cmd._matrix = matrix;
-		cmd._meshRender._onMeshChange(cmd._mesh);
         cmd._transform.worldMatrix = cmd._matrix;
-		cmd._meshRender.sharedMaterial = cmd._material;
         cmd._material = material;
         cmd._subMeshIndex = subMeshIndex;
         cmd._subShaderIndex = subShaderIndex;
+        cmd.mesh = mesh;
         cmd._commandBuffer = commandBuffer;
         return cmd;
     }
@@ -51,6 +51,9 @@ export class DrawMeshCMD extends Command {
     private _mesh: Mesh;
 
     /**@internal */
+    _renderElemnts:RenderElement[];
+
+    /**@internal */
     _meshRender:MeshRenderer;
 
     /**@internal */
@@ -61,46 +64,58 @@ export class DrawMeshCMD extends Command {
      */
     constructor() {
         super();
-        this._meshRender = new MeshRenderer();
 		this._transform = LayaGL.renderOBJCreate.createTransform(null);
+        this._meshRender = new MeshRenderer();
     }
 
+
+    set mesh(value: Mesh) {
+        if (this._mesh == value)
+            return;
+        this._mesh = value;
+        this._meshRender._onMeshChange(this._mesh)
+        this._renderElemnts = this._meshRender._renderElements;
+        this._renderElemnts.forEach(element => {
+            element.material = this._material;
+            element.setTransform(this._transform);
+            element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
+        });
+        // let submeshs = this._mesh._subMeshes;
+        // if (this._subMeshIndex == -1) {
+        //     for (let i = 0, n = submeshs.length; i < n; i++) {
+        //         let element = this._renderElemnts[i] = this._renderElemnts[i] ? this._renderElemnts[i] : new RenderElement();
+        //         element.setGeometry(submeshs[i]);
+        //         element.transform = this._transform;
+        //         element.material = this._material;
+        //         element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
+        //     }
+        // } else {
+        //     let element = this._renderElemnts[0] = this._renderElemnts[0] ? this._renderElemnts[0] : new RenderElement();
+        //     element.setGeometry(submeshs[this._subMeshIndex]);
+        //     element.transform = this._transform;
+        //     element.material = this._material;
+        //     element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
+        // }
+    }
     /**
 	 * @inheritDoc
 	 * @override
 	 */
     run(): void {
-        this._meshRender._onMeshChange(this._mesh);
-        this._transform.worldMatrix = this._matrix;
-        this._meshRender.sharedMaterial = this._material;
-        this.setContext(this._commandBuffer._context);
-        this._context._contextOBJ.applyContext();
+        RenderContext3D._instance._contextOBJ.applyContext();
+        let submeshs = this._mesh._subMeshes
+        var context = RenderContext3D._instance;
         if (this._subMeshIndex == -1) {
-            let elements = this._meshRender._renderElements;
-            for (var i: number = 0, n = elements.length; i < n; i++) {
-                let element = elements[i];
-                this.runRenderElement(element);
+            for (let i = 0, n = submeshs.length; i < n; i++) {
+                let element = this._renderElemnts[i];
+                element._renderUpdatePre(context);
+                element._render(context._contextOBJ);
             }
+        } else {
+            let element = this._renderElemnts[0];
+            element._renderUpdatePre(context);
+            element._render(context._contextOBJ);
         }
-        else {
-            let element = this._meshRender._renderElements[this._subMeshIndex];
-            if(element) this.runRenderElement(element);
-            
-        }
-    }
-
-    /**
-     * change && Run Element
-     * @param element 
-     */
-    runRenderElement(element:RenderElement){
-        var context = this._context;
-        //Set RenderElement
-        element.renderSubShader =  this._material._shader.getSubShaderAt(this._subShaderIndex);
-        element.material = this._material;
-        element.setTransform(this._transform);
-        element._renderUpdatePre(context);
-        element._render(context._contextOBJ);
     }
 
     /**
@@ -117,7 +132,10 @@ export class DrawMeshCMD extends Command {
      */
     destroy(){
         super.destroy();
-        this._meshRender.destroy();
+        this._renderElemnts.forEach (element=> {
+            element.destroy();
+        });
+        this._renderElemnts = null;
         this._transform = null;
         this._material = null;
         this._matrix = null

@@ -554,6 +554,7 @@ export class BaseRender extends Component {
 	 * 全局贴图
 	 */
 	_applyLightMapParams(): void {
+		if(!this._scene) return;
 		var lightMaps: Lightmap[] = this._scene.lightmaps;
 		var shaderValues: ShaderData = this._shaderValues;
 		var lightmapIndex: number = this._lightmapIndex;
