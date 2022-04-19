@@ -64,7 +64,7 @@ export class ScreenQuad extends GeometryElement{
 	 * set BufferState
 	 */
 	set invertY(value:boolean){
-		this.bufferState = value?this._bufferState:this._bufferStateInvertUV;
+		this.bufferState = value?this._bufferStateInvertUV:this._bufferState;
 	}
 
 	/**

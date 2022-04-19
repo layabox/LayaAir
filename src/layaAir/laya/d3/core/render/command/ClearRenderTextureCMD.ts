@@ -48,7 +48,7 @@ export class ClearRenderTextureCMD extends Command {
 			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth,backgroundColor,this._depth);
 		}else if(this._clearColor){
 			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color,backgroundColor,this._depth);
-		}  
+		} 
 	}
 
 	/**

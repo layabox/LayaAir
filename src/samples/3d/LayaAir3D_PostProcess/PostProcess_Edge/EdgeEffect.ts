@@ -57,6 +57,25 @@ export class EdgeEffect extends PostProcessEffect {
         EdgeEffect.DEPTHHOLD = Shader3D.propertyNameToID("u_Depthhold");
         EdgeEffect.NORMALHOLD = Shader3D.propertyNameToID("u_NormalHold");
     }
+    static EdgeEffectShaderInit() {
+        EdgeEffect.__init__();
+        EdgeEffect.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTH");
+        EdgeEffect.SHADERDEFINE_DEPTHNORMAL = Shader3D.getDefineByName("DEPTHNORMAL");
+
+        EdgeEffect.SHADERDEFINE_DEPTHEDGE = Shader3D.getDefineByName("DEPTHEDGE");
+        EdgeEffect.SHADERDEFINE_NORMALEDGE = Shader3D.getDefineByName("NORMALEDGE");
+        EdgeEffect.SHADERDEFINE_COLOREDGE = Shader3D.getDefineByName("COLOREDGE");
+
+        EdgeEffect.SHADERDEFINE_SOURCE = Shader3D.getDefineByName("SOURCE");
+        let attributeMap: any = {
+            'a_PositionTexcoord': VertexMesh.MESH_POSITION0
+        };
+        let shader: Shader3D = Shader3D.add("PostProcessEdge");
+        let subShader: SubShader = new SubShader(attributeMap);
+        shader.addSubShader(subShader);
+        let pass: ShaderPass = subShader.addShaderPass(EdgeEffectVS, EdgeEffectFS);
+        pass.renderState.depthWrite = false;
+    }
     constructor() {
         super();
         if (!EdgeEffect._isShaderInit) {
@@ -151,7 +170,7 @@ export class EdgeEffect extends PostProcessEffect {
         let far: number = camera.farPlane;
         let near: number = camera.nearPlane;
 
-        let source: RenderTexture = context.source;
+        let source: RenderTexture = context.indirectTarget;
         let destination: RenderTexture = context.destination;
 
         let width: number = viewport.width;
@@ -181,23 +200,5 @@ export class EdgeEffect extends PostProcessEffect {
 
     }
 
-    static EdgeEffectShaderInit() {
 
-        EdgeEffect.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTH");
-        EdgeEffect.SHADERDEFINE_DEPTHNORMAL = Shader3D.getDefineByName("DEPTHNORMAL");
-
-        EdgeEffect.SHADERDEFINE_DEPTHEDGE = Shader3D.getDefineByName("DEPTHEDGE");
-        EdgeEffect.SHADERDEFINE_NORMALEDGE = Shader3D.getDefineByName("NORMALEDGE");
-        EdgeEffect.SHADERDEFINE_COLOREDGE = Shader3D.getDefineByName("COLOREDGE");
-
-        EdgeEffect.SHADERDEFINE_SOURCE = Shader3D.getDefineByName("SOURCE");
-        let attributeMap: any = {
-            'a_PositionTexcoord': VertexMesh.MESH_POSITION0
-        };
-        let shader: Shader3D = Shader3D.add("PostProcessEdge");
-        let subShader: SubShader = new SubShader(attributeMap);
-        shader.addSubShader(subShader);
-        let pass: ShaderPass = subShader.addShaderPass(EdgeEffectVS, EdgeEffectFS);
-        pass.renderState.depthWrite = false;
-    }
 }

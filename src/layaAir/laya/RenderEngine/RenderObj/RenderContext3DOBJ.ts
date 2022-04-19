@@ -26,6 +26,8 @@ export class RenderContext3DOBJ implements IRenderContext3D {
     sceneShaderData: ShaderData;
     //Camera Update Mark
     cameraUpdateMark: number;
+    //Global ShaderData
+    globalShaderData:ShaderData;
 
     constructor() {
         this.viewPort = new Viewport(0, 0, 0, 0);

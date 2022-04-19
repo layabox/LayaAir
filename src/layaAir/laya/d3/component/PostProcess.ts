@@ -151,6 +151,8 @@ export class PostProcess {
 
 		//释放临时纹理
 		RenderTexture.recoverToPool(screenTexture);
+		RenderTexture.recoverToPool(Indirect[0]);
+		RenderTexture.recoverToPool(Indirect[1]);
 		var tempRenderTextures: RenderTexture[] = this._context!.deferredReleaseTextures;
 		for (i = 0, n = tempRenderTextures.length; i < n; i++)
 			RenderTexture.recoverToPool(tempRenderTextures[i]);

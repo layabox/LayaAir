@@ -98,7 +98,7 @@ export class BlitFrameBufferCMD {
 
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
-		ScreenQuad.instance.invertY =true;
+		ScreenQuad.instance.invertY =false;
 		for (var i: number = 0, n: number = passes.length; i < n; i++) {
 			var comDef: DefineDatas = BlitFrameBufferCMD._compileDefine;
 			shaderData._defineDatas.cloneTo(comDef);

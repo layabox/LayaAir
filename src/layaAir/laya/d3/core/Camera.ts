@@ -77,6 +77,9 @@ export enum CameraEventFlags {
 export class Camera extends BaseCamera {
 	/** @internal */
 	static _tempVector20: Vector2 = new Vector2();
+	/** @internal*/
+	static _context3DViewPortCatch:Viewport = new Viewport(0,0,0,0);
+	static _contextScissorPortCatch:Vector4 = new Vector4(0,0,0,0);
 
 	/** @internal */
 	static __updateMark: number = 0;
@@ -182,7 +185,7 @@ export class Camera extends BaseCamera {
 	private _depthNormalsTexture: RenderTexture;
 
 	private _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
-
+	
 	/** @internal */
 	_clusterXPlanes: Vector3[];
 	/** @internal */
@@ -823,14 +826,20 @@ export class Camera extends BaseCamera {
 
 		// todo layame temp
 		(renderTex) && (renderTex._start());
-		context.destTarget = renderTex;
+		
 		scene._clear(context);
-
+		
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);
+		
+		this.recoverRenderContext3D(context,renderTex);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox, context);
+		
+		this.recoverRenderContext3D(context,renderTex);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
 		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
+		
+		this.recoverRenderContext3D(context,renderTex);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
 		scene._componentManager.callPostRenderScript();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
@@ -858,6 +867,14 @@ export class Camera extends BaseCamera {
 			RenderTexture.bindCanvasRender = null;
 		}
 		this._applyCommandBuffer(CameraEventFlags.AfterEveryThing, context);
+	}
+
+	recoverRenderContext3D(context:RenderContext3D,renderTexture:RenderTexture){
+		const cacheViewPor = Camera._context3DViewPortCatch;
+		const cacheScissor = Camera._contextScissorPortCatch;
+		context.changeViewport(cacheViewPor.x,cacheViewPor.y,cacheViewPor.width,cacheViewPor.height);
+		context.changeScissor(cacheScissor.x,cacheScissor.y,cacheScissor.z,cacheScissor.w);
+		context.destTarget = renderTexture;
 	}
 
 	/**

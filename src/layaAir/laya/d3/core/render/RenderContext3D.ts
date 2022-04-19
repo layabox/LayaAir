@@ -27,6 +27,8 @@ export class RenderContext3D {
 	static __init__() {
 		RenderContext3D._instance = new RenderContext3D();
 	}
+	/**@internal */
+	
 	/** @internal */
 	viewMatrix: Matrix4x4;
 	/**@internal */
@@ -42,11 +44,13 @@ export class RenderContext3D {
 	renderElement: RenderElement;
 	/** @internal */
 	camera: Camera;
+	/**@internal */
+	_scene:Scene3D;
 	/** @internal */
 	shader: ShaderInstance;
 	/**设置渲染管线 */
 	configPipeLineMode: string = "Forward";
-	/** contextOBJ*/
+	/**@internal contextOBJ*/
 	_contextOBJ: IRenderContext3D;
 	/**@internal */
 	get destTarget(): IRenderTarget {
@@ -105,7 +109,11 @@ export class RenderContext3D {
 	set scene(value: Scene3D) {
 		this._contextOBJ.sceneID = value._id;
 		this._contextOBJ.sceneShaderData = value._shaderValues;
+		this._scene = value;
+	}
 
+	get scene():Scene3D{
+		return this._scene;
 	}
 
 	changeViewport(x: number, y: number, width: number, height: number) {
