@@ -10,15 +10,8 @@ export class UploadMemory extends NativeMemory{
      */
     _currentStride:number = 0;
 
-    /**
-     * @internal
-     * index of manager list
-     */
-    _index:number;
-
-    constructor(size:number,indexOfManager:number){
+    constructor(size:number){
         super(size);
-        this._index = indexOfManager;
     }
 
     addBlockCell(node: INativeUploadNode, dataSize: number){

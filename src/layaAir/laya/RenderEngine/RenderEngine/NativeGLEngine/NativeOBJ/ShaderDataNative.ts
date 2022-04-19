@@ -11,6 +11,7 @@ import { ShaderDefine } from "../../../RenderShader/ShaderDefine";
 import { INativeUploadNode } from "../CommonMemory/INativeUploadNode";
 import { MemoryDataType } from "../CommonMemory/MemoryDataType";
 import { UploadMemory } from "../CommonMemory/UploadMemory";
+import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
 
 export enum ShaderDataType {
     Int32,
@@ -18,7 +19,7 @@ export enum ShaderDataType {
     Vector2,
     Vector3,
     Vector4,
-    Matrix4x4, 
+    Matrix4x4,
     Int32Array,
     Number32Array,
     Texture,
@@ -26,12 +27,11 @@ export enum ShaderDataType {
 }
 
 export class ShaderDataNative extends ShaderData implements INativeUploadNode {
-    static ShaderDefineMapIndex:number = -1;
-    static tempUploadData:Float32Array = new Float32Array(65536);//TODO扩展性和性能 并且可能会产生GC，后面需要重新考虑
     _dataType: MemoryDataType;
     nativeObjID: number;
     updateMap: Map<number, Function>;
-    _uploadArray:Float32Array;
+    updataSizeMap: Map<number, number>;
+    uploadByteSize: number;
     /**
      * @internal	
      */
@@ -42,20 +42,21 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
         //this.nativeObjID = native.createShaderdata()
         this._dataType = MemoryDataType.ShaderData;
         this.updateMap = new Map();
+        this.updataSizeMap = new Map();
 
     }
+
     /**
      * @override interface INativeUploadNode
      * @internal
      */
-    compressAllObject(): number {
-        ShaderDataNative.tempUploadData[0] = this.updateMap.size;
-        let stride = 1;
-        this.updateMap.forEach((value,key) => {
-            stride+=value.call(key,ShaderDataNative.tempUploadData,stride);
+    getUploadMemoryLength(): number {
+        let length = 1 + UploadMemoryManager.TopLength;
+        this.updataSizeMap.forEach((value) => {
+            length += value;
         });
-        this._uploadArray = ShaderDataNative.tempUploadData.slice(0,stride);
-        return stride;
+        this.uploadByteSize = length * 4;
+        return this.uploadByteSize;
     }
 
     /**
@@ -66,103 +67,100 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
      */
     uploadDataTOShareMemory(memoryBlock: UploadMemory, stride: number): void {
         let array = memoryBlock.float32Array;
-        let strideFloat = stride/4;
+        let strideFloat = stride / 4;
         //type
-        array[strideFloat] = MemoryDataType.ShaderData;
+        array[strideFloat++] = MemoryDataType.ShaderData;
         //instanceID
-        array[strideFloat+1] = this.nativeObjID;
+        array[strideFloat++] = this.nativeObjID;
         //dataLength
-        array[strideFloat+2] = this._uploadArray.length*4;
-        //Data
-        array.set(this._uploadArray,strideFloat+3);
-
+        array[strideFloat++] = this.uploadByteSize;
+        //Shaderdata property change nums
+        array[strideFloat++] = this.updateMap.size;
+        //array.set(this._uploadArray,strideFloat+3);
+        this.updateMap.forEach((value, key) => {
+            strideFloat += value.call(key, array, strideFloat);
+        });
         this.clearUpload();
-    }
-
-    uploadAllData(): void {
-        //TODO
-        //native.clone shaderData TODO
-        
     }
 
     clearUpload() {
         this.updateMap.clear();
     }
 
-    compressNumber(index:number,data:Float32Array,stride:number):number{
+    compressNumber(index: number, data: Float32Array, stride: number): number {
         var length = 3;
         data[stride] = index;
-        data[stride+1] = ShaderDataType.Number32;
-        data[stride+2] = this._data[index];
+        data[stride + 1] = ShaderDataType.Number32;
+        data[stride + 2] = this._data[index];
         return length;
     }
 
-    compressVector2(index:number,data:Float32Array,stride:number):number{
+    compressVector2(index: number, data: Float32Array, stride: number): number {
         var length = 4;
         data[stride] = index;
-        data[stride+1] = ShaderDataType.Vector2;
-        var value:Vector2= this._data[index];
-        data[stride+2] = value.x;
-        data[stride+3] = value.y;
+        data[stride + 1] = ShaderDataType.Vector2;
+        var value: Vector2 = this._data[index];
+        data[stride + 2] = value.x;
+        data[stride + 3] = value.y;
         return length;
     }
 
-    compressVector3(index:number,data:Float32Array,stride:number):number{
+    compressVector3(index: number, data: Float32Array, stride: number): number {
         var length = 5;
         data[stride] = index;
-        data[stride+1] = ShaderDataType.Vector3;
-        var value:Vector3= this._data[index];
-        data[stride+2] = value.x;
-        data[stride+3] = value.y;
-        data[stride+4] = value.z;
+        data[stride + 1] = ShaderDataType.Vector3;
+        var value: Vector3 = this._data[index];
+        data[stride + 2] = value.x;
+        data[stride + 3] = value.y;
+        data[stride + 4] = value.z;
         return length;
     }
 
-    compressVector4(index:number,data:Float32Array,stride:number):number{
+    compressVector4(index: number, data: Float32Array, stride: number): number {
         var length = 6;
         data[stride] = index;
-        data[stride+1] = ShaderDataType.Vector4;
-        var value:Vector4= this._data[index];
-        data[stride+2] = value.x;
-        data[stride+3] = value.y;
-        data[stride+4] = value.z;
-        data[stride+5] = value.w;
+        data[stride + 1] = ShaderDataType.Vector4;
+        var value: Vector4 = this._data[index];
+        data[stride + 2] = value.x;
+        data[stride + 3] = value.y;
+        data[stride + 4] = value.z;
+        data[stride + 5] = value.w;
         return length;
     }
 
-    compressMatrix4x4(index:number,data:Float32Array,stride:number):number{
+    compressMatrix4x4(index: number, data: Float32Array, stride: number): number {
         var length = 18;
         data[stride] = index;
-        data[stride+1] = ShaderDataType.Matrix4x4;
-        var value:Matrix4x4= this._data[index];
-        data.set(value.elements,stride+2);
+        data[stride + 1] = ShaderDataType.Matrix4x4;
+        var value: Matrix4x4 = this._data[index];
+        data.set(value.elements, stride + 2);
         return length;
     }
 
-    compressNumberArray(index:number,data:Float32Array,stride:number):number{
+    compressNumberArray(index: number, data: Float32Array, stride: number): number {
         data[stride] = index
-        data[stride+1] = ShaderDataType.Number32Array;
-        var value:Float32Array= this._data[index];
-        data[stride+2] = value.length;
-        data.set(value,stride+3);
-        return value.length+3;
+        data[stride + 1] = ShaderDataType.Number32Array;
+        var value: Float32Array = this._data[index];
+        data[stride + 2] = value.length;
+        data.set(value, stride + 3);
+        return value.length + 3;
     }
-    
-    compressTexture(index:number,data:Float32Array,stride:number):number{
-        var value:BaseTexture = this._data[index];
+
+    compressTexture(index: number, data: Float32Array, stride: number): number {
+        var value: BaseTexture = this._data[index];
         data[stride] = index;
-        data[stride+1] = ShaderDataType.Texture;
-        data[stride+2] = value._texture.resource.id;//TODO
+        data[stride + 1] = ShaderDataType.Texture;
+        data[stride + 2] = value._texture.resource.id;//TODO
         return 3;
     }
 
-    compressShaderDefine(index:number,data:Float32Array,stride:number):number{
+    compressShaderDefine(index: number, data: Float32Array, stride: number): number {
         var length = 3;
         data[stride] = index;
-        data[stride+1] = ShaderDataType.ShaderDefine;
-        let defineLength = data[stride+2] = this._defineDatas._length;
-        for(let i:number;i<defineLength;i++,length++){
-            data[stride+length] = this._defineDatas._mask[i];
+        data[stride + 1] = ShaderDataType.ShaderDefine;
+        let defineLength = data[stride + 2] = this._defineDatas._length;
+        for (let i: number; i < defineLength; i++, length++) {
+            data[stride + length] = this._defineDatas._mask[i];
         }
         return length;
     }
@@ -200,6 +198,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     setBool(index: number, value: boolean): void {
         this._data[index] = value;
         this.updateMap.set(index, this.compressNumber);
+        this.updataSizeMap.set(index,1);
     }
 
     /**
@@ -210,6 +209,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     setInt(index: number, value: number): void {
         this._data[index] = value;
         this.updateMap.set(index, this.compressNumber);
+        this.updataSizeMap.set(index,1);
     }
 
     /**
@@ -220,6 +220,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     setNumber(index: number, value: number): void {
         this._data[index] = value;
         this.updateMap.set(index, this.compressNumber);
+        this.updataSizeMap.set(index,1);
     }
 
     /**
@@ -230,6 +231,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     setVector2(index: number, value: Vector2): void {
         this._data[index] = value.clone();
         this.updateMap.set(index, this.compressVector2);
+        this.updataSizeMap.set(index,2);
     }
 
     /**
@@ -240,6 +242,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     setVector3(index: number, value: Vector3): void {
         this._data[index] = value.clone();
         this.updateMap.set(index, this.compressVector3);
+        this.updataSizeMap.set(index,3);
     }
 
     /**
@@ -250,6 +253,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     setVector(index: number, value: Vector4): void {
         this._data[index] = value.clone();
         this.updateMap.set(index, this.compressVector4);
+        this.updataSizeMap.set(index,4);
     }
 
     /**
@@ -260,6 +264,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     setQuaternion(index: number, value: Quaternion): void {
         this._data[index] = value.clone();
         this.updateMap.set(index, this.compressVector4);
+        this.updataSizeMap.set(index,4);
     }
 
     /**
@@ -270,6 +275,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     setMatrix4x4(index: number, value: Matrix4x4): void {
         this._data[index] = value.clone();
         this.updateMap.set(index, this.compressMatrix4x4);
+        this.updataSizeMap.set(index,16);
     }
 
 
@@ -281,6 +287,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
     setBuffer(index: number, value: Float32Array): void {
         this._data[index] = value;
         this.updateMap.set(index, this.compressNumberArray);
+        this.updataSizeMap.set(index,value.length);
     }
 
     /**
@@ -292,6 +299,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
         var lastValue: BaseTexture = this._data[index];
         this._data[index] = value ? value : Texture2D.erroTextur;
         this.updateMap.set(index, this.compressTexture);
+        this.updataSizeMap.set(index,1);
         if (this._ownerResource && this._ownerResource.referenceCount > 0) {
             (lastValue) && (lastValue._removeReference());
             (value) && (value._addReference());
@@ -310,25 +318,28 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
         //     this._data[index] = value;
         //有点恶心
         if (typeof value == "number" || typeof value == "boolean") {
-            this.setNumber(index,<number>value);
-        }else if(value instanceof Vector2){
-            this.setVector2(index,<Vector2>value);
-        }else if(value instanceof Vector3){
-            this.setVector3(index,<Vector3>value);
-        }else if(value instanceof Vector4||value instanceof Quaternion){
-            this.setVector(index,<Vector4>value);
-        }else if(value instanceof Matrix4x4){
-            this.setMatrix4x4(index,<Matrix4x4>value);
-        }else if(value.ArrayBuffer!=null){
-            this.setBuffer(index,value);
-        }else if(value._texture!=null){
-            this.setTexture(index,value);
+            this.setNumber(index, <number>value);
+        } else if (value instanceof Vector2) {
+            this.setVector2(index, <Vector2>value);
+        } else if (value instanceof Vector3) {
+            this.setVector3(index, <Vector3>value);
+        } else if (value instanceof Vector4 || value instanceof Quaternion) {
+            this.setVector(index, <Vector4>value);
+        } else if (value instanceof Matrix4x4) {
+            this.setMatrix4x4(index, <Matrix4x4>value);
+        } else if (value.ArrayBuffer != null) {
+            this.setBuffer(index, value);
+        } else if (value._texture != null) {
+            this.setTexture(index, value);
         }
     }
 
     cloneTo(destObject: ShaderDataNative) {
         super.cloneTo(destObject);
         destObject.uploadAllData();
+    }
+    uploadAllData() {
+        //clone shaderData
     }
     /**
      * 克隆。
