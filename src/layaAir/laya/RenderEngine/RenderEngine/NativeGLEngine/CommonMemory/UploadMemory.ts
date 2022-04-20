@@ -1,5 +1,4 @@
 import { INativeUploadNode } from "./INativeUploadNode";
-import { MemoryDataType } from "./MemoryDataType";
 import { NativeMemory } from "./NativeMemory";
 
 export class UploadMemory extends NativeMemory{

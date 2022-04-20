@@ -16,7 +16,6 @@ import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
 import { NativeWebGLEngine } from "../RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
 import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
-import { RenderOBJCreateUtil } from "../RenderEngine/RenderObj/RenderOBJCreateUtil";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。

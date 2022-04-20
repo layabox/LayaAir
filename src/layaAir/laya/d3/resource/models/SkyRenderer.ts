@@ -1,8 +1,6 @@
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
-import { RenderStateType } from "../../../RenderEngine/RenderEnum/RenderStateType";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
-import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
 import { Camera } from "../../core/Camera";
 import { GeometryElement } from "../../core/GeometryElement";
 import { Material } from "../../core/material/Material";
@@ -20,8 +18,6 @@ export class SkyRenderer {
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
 	/** @internal */
 	private static _tempMatrix1: Matrix4x4 = new Matrix4x4();
-	/** @internal */
-	private static _compileDefine: DefineDatas = new DefineDatas();
 
 	/** @internal */
 	private _material: Material;
