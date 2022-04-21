@@ -88,27 +88,21 @@ export class NativeContext {
         this._byteArray = new Uint8Array(this._buffer);
 
         var bufferConchRef:any = (window as any).webglPlus.createArrayBufferRef(this._buffer, NativeContext.ARRAY_BUFFER_TYPE_CMD, isSyncToRenderThread, NativeContext.ARRAY_BUFFER_REF_REFERENCE);
-        (this._buffer as any)["conchRef"] = bufferConchRef;
-        (this._buffer as any)["_ptrID"] = bufferConchRef.id;
-
+        this._nativeObj.setSharedCommandBuffer(bufferConchRef);
         //this._layagl.createArrayBufferRef(this._buffer, NativeCommandEncoder.ARRAY_BUFFER_TYPE_CMD, isSyncToRenderThread);
         this._idata[0] = 1;
     }
     _need(sz:number):void
     {
         if ((this._byteLen - (this._idata[0] << 2)) >= sz) return;
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         if (sz > this._byteLen)
         {
             throw "too big";
         }
     }
-    getPtrID():number
-    {
-        return (this._buffer as any)["_ptrID"];//TODO
-    }
     
-    	/**@private */
+    /**@private */
 	get lineJoin(): string {
 		return '';
 	}
@@ -146,13 +140,13 @@ export class NativeContext {
     }
     flush(): void {
         //this._nativeObj.flush();
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         this._nativeObj.flush();
     }
     clear(): void {
         //this._nativeObj.clear();
         this.add_i(CONTEXT2D_FUNCTION_ID.CLEAR);
-        //this._nativeObj.flushCommand(this.getPtrID());
+        //this._nativeObj.flushCommand();
     }
     static set2DRenderConfig(): void {
         (window as any).set2DRenderConfig();
@@ -719,7 +713,7 @@ export class NativeContext {
         }
     drawMask(w: number, h: number): any {
         //return this._nativeObj.drawMask(w, h);
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         return this._nativeObj.drawMask(w, h);
     }
     drawMasked(x: number, y: number, w: number, h: number): void {
@@ -728,7 +722,7 @@ export class NativeContext {
     }
     drawMaskComposite(rt: any, x: number, y: number, w: number, h: number): void {
         //this._nativeObj.drawMaskComposite(rt, x, y, w, h);
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         this._nativeObj.drawMaskComposite(rt, x, y, w, h);
     }
     set asBitmap(value: boolean) {
@@ -746,7 +740,7 @@ export class NativeContext {
         else {
             this._nativeObj.setColorFilter(false, null, null);
         }*/
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         if (filter) {
             this._nativeObj.setColorFilter(true, filter._alpha, filter._mat);
         }
@@ -756,12 +750,12 @@ export class NativeContext {
 	}
     drawTarget(rt: RenderTexture2D, x: number, y: number, width: number, height: number, matrix: Matrix, shaderValue: Value2D, uv: ArrayLike<number> | null = null, blend: number = -1): boolean {
         //return this._nativeObj.drawTarget(rt, x, y, width, height, matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, blend);
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         return this._nativeObj.drawTarget(rt, x, y, width, height, matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, blend);
     }
     drawTargetBlurFilter(rt: RenderTexture2D, x: number, y: number, width: number, height: number, strength: number): void {
         //this._nativeObj.drawTargetBlurFilter(rt, x, y, width, height, strength);
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         this._nativeObj.drawTargetBlurFilter(rt, x, y, width, height, strength);
     }
     get _curMat(): Matrix {
@@ -774,7 +768,7 @@ export class NativeContext {
         mat.tx = data[4];
         mat.ty = data[5];*/
 
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
 
         var data: any = this._nativeObj._curMat;
         var mat: Matrix = Matrix.create();
@@ -790,25 +784,25 @@ export class NativeContext {
     pushRT(): void {
 		//this._nativeObj.pushRT();
 
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         this._nativeObj.pushRT();
 	}
 	popRT(): void {
 		//this._nativeObj.popRT();
 
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         this._nativeObj.popRT();
 	}
 	useRT(rt: RenderTexture2D): void {
         //this._nativeObj.useRT(rt);
 
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         this._nativeObj.useRT(rt);
     }
     drawFilter(out: RenderTexture2D, src: RenderTexture2D, x: number, y: number, width: number, height: number): void { 
         //this._nativeObj.drawFilter(out, src, x, y, width, height);
 
-        this._nativeObj.flushCommand(this.getPtrID());
+        this._nativeObj.flushCommand();
         this._nativeObj.drawFilter(out, src, x, y, width, height);
     }
     protected checkTexture(tex: Texture): boolean {
