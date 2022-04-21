@@ -2,6 +2,9 @@ import { ILaya } from "../../ILaya";
 import { ColorFilter } from "../filters/ColorFilter";
 import { Matrix } from "../maths/Matrix";
 import { ColorUtils } from "../utils/ColorUtils";
+import { FontInfo } from "../utils/FontInfo";
+import { HTMLChar } from "../utils/HTMLChar";
+import { WordText } from "../utils/WordText";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { RenderTexture2D } from "./RenderTexture2D";
@@ -43,6 +46,8 @@ enum CONTEXT2D_FUNCTION_ID
     DRAW_CANVAS_BITMAP,
     SET_AS_BITMAP,
     DRAW_MASKED,
+    DRAW_TRANGLES,
+    SET_GLOBAL_COMPOSITE_OPERTAION,
 }
 
 export class NativeContext {
@@ -160,15 +165,15 @@ export class NativeContext {
         //this._nativeObj.restore();
         this.add_i(CONTEXT2D_FUNCTION_ID.RESTORE);
     }
-    saveTransform(matrix: any/*Matrix*/): void {
+    saveTransform(matrix: Matrix): void {
 		//this._nativeObj.save();
         this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
 	}
-    transformByMatrix(matrix: any/*Matrix*/, tx: number, ty: number): void {
+    transformByMatrix(matrix: Matrix, tx: number, ty: number): void {
         //this.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx + tx, matrix.ty + ty);
         this.add_iffffff(CONTEXT2D_FUNCTION_ID.TRANSFORM, matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx + tx, matrix.ty + ty);
     }
-    restoreTransform(matrix: any/*Matrix*/): void {
+    restoreTransform(matrix: Matrix): void {
 		//this._nativeObj.restore();
         this.add_i(CONTEXT2D_FUNCTION_ID.RESTORE);
 	}
@@ -195,7 +200,7 @@ export class NativeContext {
         , (tex as any).uv[6]
         , (tex as any).uv[7]);
 	}
-    drawTextureWithTransform(tex: any/*Texture*/, x: number, y: number, width: number, height: number, transform: any/*Matrix*/|null, tx: number, ty: number, alpha: number, blendMode: string|null, colorfilter: any/*ColorFilter*/|null = null, uv?: number[]): void {
+    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix|null, tx: number, ty: number, alpha: number, blendMode: string|null, colorfilter: any/*ColorFilter*/|null = null, uv?: number[]): void {
 		if (!this.checkTexture(tex)) {
             return;
         }
@@ -238,7 +243,7 @@ export class NativeContext {
         this.add_i(CONTEXT2D_FUNCTION_ID.RESTORE); 
     }
 
-    drawTextureWithSizeGrid(tex: any/*Texture*/, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number): void {
+    drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number): void {
 		if (!this.checkTexture(tex)) {
             return;
         }
@@ -271,7 +276,7 @@ export class NativeContext {
                 ,uv[6]
                 ,uv[7]);
     }
-    _drawTextureM(tex: any/*Texture*/, x: number, y: number, width: number, height: number, transform: any/*Matrix*/, alpha: number, uv: any[]|null): void {
+    _drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, alpha: number, uv: any[]|null): void {
         debugger
 		if (!this.checkTexture(tex)) {
             return;
@@ -472,7 +477,7 @@ export class NativeContext {
 		this._nativeObj.stroke();*/
         this.add_iffif_ab(CONTEXT2D_FUNCTION_ID.DRAW_CURVES, x, y, c1.numColor, lineWidth, new Float32Array(points));
 	}
-    drawCanvas(canvas: any/*HTMLCanvas*/, x: number, y: number, width: number, height: number): void {
+    drawCanvas(canvas: HTMLCanvas, x: number, y: number, width: number, height: number): void {
 		if (!canvas) return;
         if (canvas instanceof(NativeWebGLCacheAsNormalCanvas)) {
             //this._nativeObj.drawCanvasNormal(canvas._nativeObj.id, x, y, width, height);
@@ -483,7 +488,7 @@ export class NativeContext {
             this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_BITMAP, canvas.context._nativeObj.id, x, y, width, height);
         }
     }
-    fillText(txt: any/*string | WordText*/, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
+    fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
 		debugger//Context._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
         var nTextAlign = 0;
         switch (align) {
@@ -504,7 +509,7 @@ export class NativeContext {
         }
 	}
 	// 与fillText的区别是没有border信息
-	drawText(text: any/*string | WordText*/, x: number, y: number, font: string, color: string, align: string): void {
+	drawText(text: string | WordText, x: number, y: number, font: string, color: string, align: string): void {
 		debugger//Context._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
         var nTextAlign = 0;
         switch (align) {
@@ -524,7 +529,7 @@ export class NativeContext {
             this._nativeObj.fillWordText(text._nativeObj.id, x, y, font, c1.numColor, c2.numColor, 0, nTextAlign);
         }
 	}
-	fillWords(words: any/*HTMLChar[]*/, x: number, y: number, fontStr: string, color: string): void {
+	fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void {
         debugger 
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(null);
@@ -534,7 +539,7 @@ export class NativeContext {
         }
 		//Context._textRender!.fillWords(this, words, x, y, fontStr, color, null, 0);
 	}
-	strokeWord(text: any/*string | WordText*/, x: number, y: number, font: string, color: string, lineWidth: number, align: string): void {
+	strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, align: string): void {
 		debugger//Context._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
         var nTextAlign = 0;
         switch (align) {
@@ -554,7 +559,7 @@ export class NativeContext {
             this._nativeObj.fillWordText(text._nativeObj.id, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
         }
 	}
-	fillBorderText(txt: any/*string | WordText*/, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, align: string): void {
+	fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, align: string): void {
 		debugger//Context._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
         var nTextAlign = 0;
         switch (align) {
@@ -574,7 +579,7 @@ export class NativeContext {
             this._nativeObj.fillWordText(txt._nativeObj.id, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
         }
 	}
-	fillBorderWords(words: any/*HTMLChar[]*/, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
+	fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
 		debugger//Context._textRender!.fillWords(this, words, x, y, font, color, borderColor, lineWidth);
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(borderColor);
@@ -583,7 +588,7 @@ export class NativeContext {
             this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, font, c1.numColor, c2.numColor, lineWidth, 0);
         }
 	}
-	fillWords11(words: any/*HTMLChar[]*/, x: number, y: number, fontStr: any/*FontInfo*/, color: string, strokeColor: string|null, lineWidth: number): void {
+	fillWords11(words: HTMLChar[], x: number, y: number, fontStr: FontInfo, color: string, strokeColor: string|null, lineWidth: number): void {
         debugger
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(strokeColor);
@@ -595,7 +600,7 @@ export class NativeContext {
 		//Context._textRender!.fillWords(this, data, x, y, fontStr, color, strokeColor, lineWidth);
 	}
 
-	filltext11(data: any/*string | WordText*/, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, align: string): void {
+	filltext11(data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, align: string): void {
 		debugger//Context._textRender!.filltext(this, data, x, y, fontStr, color, strokeColor, lineWidth, textAlign);
         var nTextAlign = 0;
         switch (align) {
@@ -617,7 +622,7 @@ export class NativeContext {
 	}
 
 	/**@internal */
-	_fast_filltext(data: any/*string | WordText*/, x: number, y: number, fontObj: any, color: string, strokeColor: string|null, lineWidth: number, textAlign: number, underLine: number = 0): void {
+	_fast_filltext(data: string | WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string|null, lineWidth: number, textAlign: number, underLine: number = 0): void {
 		//Context._textRender!._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
 
         var c1: ColorUtils = ColorUtils.create(color);
@@ -628,29 +633,29 @@ export class NativeContext {
         }
         else {
             
-            this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT,data._nativeObj.id, x, y, c1.numColor, c2.numColor, lineWidth, textAlign, (fontObj as any)._font);
+            this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT,(data as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, lineWidth, textAlign, (fontObj as any)._font);
             //this._nativeObj.fillWordText(data._nativeObj.id, x, y, (fontObj as any)._font, c1.numColor, c2.numColor, lineWidth, textAlign);
         }
 	}
-    drawTriangles(tex: any/*Texture*/, 
+    drawTriangles(tex: Texture, 
         x: number, y: number, 
         vertices: Float32Array, 
         uvs : Float32Array, 
         indices : Uint16Array, 
-        matrix : any/*Matrix*/, alpha: number/*, color: ColorFilter*/, blendMode: string, colorNum: number = 0xffffffff): void {
-            debugger
+        matrix : Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
             if (!this.checkTexture(tex)) {
                 return;
             }
-            if (blendMode != null) {
+            /*if (blendMode != null || color != null) {
                 this._nativeObj.save(); 
-                this._nativeObj.glo = 16776961;//fillColor
+                //to do ColorFilter
+                this._nativeObj.globalCompositeOperation = blendMode;
                 this._nativeObj.drawTriangles((tex as any).bitmap._texture.id, 
                     x, y, 
                     vertices, 
                     uvs, 
                     indices, 
-                    matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, alpha/*, color: ColorFilter*/, 0xffffffff);
+                    matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, alpha, colorNum);
                 this._nativeObj.restore();
             }
             else {
@@ -659,7 +664,38 @@ export class NativeContext {
                 vertices, 
                 uvs, 
                 indices, 
-                matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, alpha/*, color: ColorFilter*/, 0xffffffff)
+                matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, alpha, colorNum)
+            }*/
+
+            if (blendMode != null || color != null) {
+                this._nativeObj.save();
+                //to do ColorFilter 
+                this.add_i_String(CONTEXT2D_FUNCTION_ID.SET_GLOBAL_COMPOSITE_OPERTAION, blendMode);
+                this._nativeObj.drawTriangles((tex as any).bitmap._texture.id, 
+                    x, y, 
+                    vertices, 
+                    uvs, 
+                    indices, 
+                    matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, alpha, colorNum);
+                this._nativeObj.restore();
+            }
+            else {
+                this._nativeObj.drawTriangles((tex as any).bitmap._texture.id, 
+                x, y, 
+                vertices, 
+                uvs, 
+                indices, 
+                matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, alpha, colorNum)
+
+                this.add_iiifffffffff_ab_ab_ab(CONTEXT2D_FUNCTION_ID.DRAW_TRANGLES, (tex as any).bitmap._texture.id, colorNum
+                    ,x 
+                    ,y 
+                    ,alpha
+                    ,matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty
+                    ,vertices 
+                    ,uvs 
+                    ,indices
+                    );
             }
         }
     drawMask(w: number, h: number): any {
@@ -673,7 +709,6 @@ export class NativeContext {
     }
     drawMaskComposite(rt: any, x: number, y: number, w: number, h: number): void {
         //this._nativeObj.drawMaskComposite(rt, x, y, w, h);
-        //TODO id ?
         this._nativeObj.flushCommand(this.getPtrID());
         this._nativeObj.drawMaskComposite(rt, x, y, w, h);
     }
@@ -753,11 +788,11 @@ export class NativeContext {
     }
     drawFilter(out: RenderTexture2D, src: RenderTexture2D, x: number, y: number, width: number, height: number): void { 
         //this._nativeObj.drawFilter(out, src, x, y, width, height);
-        
+
         this._nativeObj.flushCommand(this.getPtrID());
         this._nativeObj.drawFilter(out, src, x, y, width, height);
     }
-    protected checkTexture(tex: any/*Texture*/): boolean {
+    protected checkTexture(tex: Texture): boolean {
         // 注意sprite要保存，因为后面会被冲掉
         var cs = this.sprite;
         if (!tex._getSource(function (): void {
@@ -969,6 +1004,13 @@ export class NativeContext {
         this._idata[i++] = h;
         this._idata[0] = i;
     }
+    add_i_String(a:number, str:string):void
+    {
+	   var ab:ArrayBuffer = (window as any).conch.strTobufer(str);
+       this._need(4 + ab.byteLength + 4);
+       this.add_i(a);
+	   this.add_String(ab);
+    }
     add_iiffiifi_String(a:number, b:number, c:number, d:number, e:number, f:number, g:number, h:number, str:string):void
     {
 	   var ab:ArrayBuffer = (window as any).conch.strTobufer(str);
@@ -1028,6 +1070,43 @@ export class NativeContext {
         fdata[i++] = t;
         fdata[i++] = u;
         idata[0] = i;
+    }
+    add_iiifffffffff(a:number, b:number, c:number, d:number, e:number, f:number , g:number, h:number, ii:number, j:number
+        , k:number, l:number)
+    {
+        this._need(48);
+        var idata:Int32Array = this._idata;
+        var fdata:Float32Array = this._fdata;
+        var i:number = idata[0];
+            idata[i++] = a;
+            idata[i++] = b;
+            idata[i++] = c;
+        fdata[i++] = d;
+        fdata[i++] = e;
+        fdata[i++] = f;
+        fdata[i++] = g;
+        fdata[i++] = h;
+        fdata[i++] = ii;
+        fdata[i++] = j;
+        fdata[i++] = k;
+        fdata[i++] = l;
+        idata[0] = i;
+    }
+    add_iiifffffffff_ab_ab_ab(a:number, b:number, c:number, d:number, e:number, f:number , g:number, h:number, ii:number, j:number
+        , k:number, l:number,arraybuffer0:any, arraybuffer1:any, arraybuffer2:any)
+    {
+
+        var nAlignLength0 = this.getAlignLength(arraybuffer0);
+        var nAlignLength1 = this.getAlignLength(arraybuffer1);
+        var nAlignLength2 = this.getAlignLength(arraybuffer2);
+d
+        this._need(48 + (nAlignLength0+ 4) + (nAlignLength1+ 4) + (nAlignLength2+ 4));
+
+        this.add_iiifffffffff(a, b, c, d, e, f , g, h, ii, j, k, l);
+        this.wab(arraybuffer0, arraybuffer0.byteLength, nAlignLength0, 0);
+        this.wab(arraybuffer1, arraybuffer1.byteLength, nAlignLength1, 0);
+        this.wab(arraybuffer2, arraybuffer2.byteLength, nAlignLength2, 0);
+
     }
     wab(arraybuffer:any, length:number, nAlignLength:number, offset?:number):void
     {
