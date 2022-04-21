@@ -7,6 +7,7 @@ import { HTMLChar } from "../utils/HTMLChar";
 import { WordText } from "../utils/WordText";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
 enum CONTEXT2D_FUNCTION_ID
@@ -48,6 +49,7 @@ enum CONTEXT2D_FUNCTION_ID
     DRAW_MASKED,
     DRAW_TRANGLES,
     SET_GLOBAL_COMPOSITE_OPERTAION,
+    FILL_WORDS,
 }
 
 export class NativeContext {
@@ -95,7 +97,6 @@ export class NativeContext {
     _need(sz:number):void
     {
         if ((this._byteLen - (this._idata[0] << 2)) >= sz) return;
-        debugger
         this._nativeObj.flushCommand(this.getPtrID());
         if (sz > this._byteLen)
         {
@@ -145,7 +146,6 @@ export class NativeContext {
     }
     flush(): void {
         //this._nativeObj.flush();
-        //debugger
         this._nativeObj.flushCommand(this.getPtrID());
         this._nativeObj.flush();
     }
@@ -277,21 +277,38 @@ export class NativeContext {
                 ,uv[7]);
     }
     _drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, alpha: number, uv: any[]|null): void {
-        debugger
 		if (!this.checkTexture(tex)) {
             return;
         }
-        this._nativeObj.save();
+        /*this._nativeObj.save();
         this._nativeObj.globalAlpha = alpha;
         transform && this._nativeObj.transform(transform.a, transform.b, transform.c, transform.d, transform.tx, transform.ty);
         this._nativeObj.drawTexture((tex as any).bitmap._texture.id, x, y, width || tex.width, height || tex.height, uv || (tex as any).uv);
-        this._nativeObj.restore();  
+        this._nativeObj.restore();*/
+        
+        this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
+        this.add_if(CONTEXT2D_FUNCTION_ID.ALPHA, alpha);
+        if (transform) {
+            this.add_iffffff(CONTEXT2D_FUNCTION_ID.TRANSFORM, transform.a, transform.b, transform.c, transform.d, transform.tx, transform.ty);
+        }
+        var uvs: any = uv || (tex as any).uv;
+        this.add_iiffffffffffff(CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE, (tex as any).bitmap._texture.id, x, y, width || tex.width, height || tex.height
+            , uvs[0]
+            , uvs[1]
+            , uvs[2]
+            , uvs[3]
+            , uvs[4]
+            , uvs[5]
+            , uvs[6]
+            , uvs[7]);
+        this.add_i(CONTEXT2D_FUNCTION_ID.RESTORE);
+
     }
     translate(x: number, y: number): void {
         //this._nativeObj.translate(x, y);
         this.add_iff(CONTEXT2D_FUNCTION_ID.TRANSLATE, x, y);
     }
-    _transform(mat: any/*Matrix*/, pivotX: number, pivotY: number): void {debugger
+    _transform(mat: any/*Matrix*/, pivotX: number, pivotY: number): void {
 		//this._nativeObj.translate(pivotX, pivotY);
 		//this._nativeObj.transform(mat.a, mat.b, mat.c, mat.d, mat.tx, mat.ty);
 		//this._nativeObj.translate(-pivotX, -pivotY);
@@ -485,11 +502,10 @@ export class NativeContext {
         }
         else {
             //this._nativeObj.drawCanvasBitmap(canvas.context._nativeObj.id, x, y, width, height);
-            this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_BITMAP, canvas.context._nativeObj.id, x, y, width, height);
+            this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_BITMAP, (canvas.context as any)._nativeObj.id, x, y, width, height);
         }
     }
     fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
-		debugger//Context._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
         var nTextAlign = 0;
         switch (align) {
             case 'center':
@@ -502,15 +518,16 @@ export class NativeContext {
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(borderColor);
         if (typeof (txt) === 'string') {
-            this._nativeObj.fillWords(txt, x, y, fontStr, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            //this._nativeObj.fillWords(txt, x, y, fontStr, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, nTextAlign, x, y, lineWidth, txt, fontStr)
         }
         else {
-            this._nativeObj.fillWordText(txt._nativeObj.id, x, y, fontStr, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            //this._nativeObj.fillWordText((txt as any)._nativeObj.id, x, y, fontStr, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT,(txt as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, lineWidth, nTextAlign, fontStr);
         }
 	}
 	// 与fillText的区别是没有border信息
 	drawText(text: string | WordText, x: number, y: number, font: string, color: string, align: string): void {
-		debugger//Context._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
         var nTextAlign = 0;
         switch (align) {
             case 'center':
@@ -523,24 +540,24 @@ export class NativeContext {
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(null);
         if (typeof (text) === 'string') {
-            this._nativeObj.fillWords(text, x, y, font, c1.numColor, c2.numColor, 0, nTextAlign);
+            //this._nativeObj.fillWords(text, x, y, font, c1.numColor, c2.numColor, 0, nTextAlign);
+            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, nTextAlign, x, y, 0, text, font)
         }
         else {
-            this._nativeObj.fillWordText(text._nativeObj.id, x, y, font, c1.numColor, c2.numColor, 0, nTextAlign);
+            //this._nativeObj.fillWordText((text as any)._nativeObj.id, x, y, font, c1.numColor, c2.numColor, 0, nTextAlign);
+            this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT,(text as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, 0, nTextAlign, font);
         }
 	}
-	fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void {
-        debugger 
+	fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void { 
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(null);
         var length = words.length;
         for (var i = 0; i < length; i++) {
-            this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, fontStr, c1.numColor, c2.numColor, 0, 0);
+            //this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, fontStr, c1.numColor, c2.numColor, 0, 0);
+            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, 0, words[i].x + x,  words[i].y + y, 0, words[i].char, fontStr);
         }
-		//Context._textRender!.fillWords(this, words, x, y, fontStr, color, null, 0);
 	}
 	strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, align: string): void {
-		debugger//Context._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
         var nTextAlign = 0;
         switch (align) {
             case 'center':
@@ -553,14 +570,15 @@ export class NativeContext {
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(null);
         if (typeof (text) === 'string') {
-            this._nativeObj.fillWords(text, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            //this._nativeObj.fillWords(text, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, nTextAlign, x, y, lineWidth, text, font);
         }
         else {
-            this._nativeObj.fillWordText(text._nativeObj.id, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            //this._nativeObj.fillWordText((text as any)._nativeObj.id, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT,(text as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, lineWidth, nTextAlign, font);
         }
 	}
 	fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, align: string): void {
-		debugger//Context._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
         var nTextAlign = 0;
         switch (align) {
             case 'center':
@@ -573,35 +591,35 @@ export class NativeContext {
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(borderColor);
         if (typeof (txt) === 'string') {
-            this._nativeObj.fillWords(txt, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            //this._nativeObj.fillWords(txt, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, nTextAlign, x, y, lineWidth, txt, font);
         }
         else {
-            this._nativeObj.fillWordText(txt._nativeObj.id, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            //this._nativeObj.fillWordText((txt as any)._nativeObj.id, x, y, font, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT,(txt as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, lineWidth, nTextAlign, font);
         }
 	}
 	fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
-		debugger//Context._textRender!.fillWords(this, words, x, y, font, color, borderColor, lineWidth);
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(borderColor);
         var length = words.length;
         for (var i = 0; i < length; i++) {
-            this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, font, c1.numColor, c2.numColor, lineWidth, 0);
+            //this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, font, c1.numColor, c2.numColor, lineWidth, 0);
+            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, 0, words[i].x + x,  words[i].y + y, lineWidth, words[i].char, font);
         }
 	}
 	fillWords11(words: HTMLChar[], x: number, y: number, fontStr: FontInfo, color: string, strokeColor: string|null, lineWidth: number): void {
-        debugger
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(strokeColor);
         var font = typeof (fontStr) === 'string' ? fontStr : (fontStr as any)._font;
         var length = words.length;
         for (var i = 0; i < length; i++) {
-            this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, font, c1.numColor, c2.numColor, lineWidth, 0);
+            //this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, font, c1.numColor, c2.numColor, lineWidth, 0);
+            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, 0, words[i].x + x,  words[i].y + y, lineWidth, words[i].char, font);
         }
-		//Context._textRender!.fillWords(this, data, x, y, fontStr, color, strokeColor, lineWidth);
 	}
 
 	filltext11(data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, align: string): void {
-		debugger//Context._textRender!.filltext(this, data, x, y, fontStr, color, strokeColor, lineWidth, textAlign);
         var nTextAlign = 0;
         switch (align) {
             case 'center':
@@ -614,22 +632,23 @@ export class NativeContext {
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(strokeColor);
         if (typeof (data) === 'string') {
-            this._nativeObj.fillWords(data, x, y, fontStr, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            //this._nativeObj.fillWords(data, x, y, fontStr, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, nTextAlign, x, y, lineWidth, data, fontStr)
         }
         else {
-            this._nativeObj.fillWordText(data._nativeObj.id, x, y, fontStr, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            //this._nativeObj.fillWordText((data as any)._nativeObj.id, x, y, fontStr, c1.numColor, c2.numColor, lineWidth, nTextAlign);
+            this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT,(data as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, lineWidth, nTextAlign, fontStr);
         }
 	}
 
 	/**@internal */
 	_fast_filltext(data: string | WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string|null, lineWidth: number, textAlign: number, underLine: number = 0): void {
-		//Context._textRender!._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
-
         var c1: ColorUtils = ColorUtils.create(color);
         var c2: ColorUtils = ColorUtils.create(strokeColor);
         
-        if (typeof (data) === 'string') {debugger
-            this._nativeObj.fillWords(data, x, y, (fontObj as any)._font, c1.numColor, c2.numColor, lineWidth, textAlign);
+        if (typeof (data) === 'string') {
+            //this._nativeObj.fillWords(data, x, y, (fontObj as any)._font, c1.numColor, c2.numColor, lineWidth, textAlign);
+            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, textAlign, x, y, lineWidth, data, (fontObj as any)._font)
         }
         else {
             
@@ -1011,12 +1030,36 @@ export class NativeContext {
        this.add_i(a);
 	   this.add_String(ab);
     }
+    add_iiiifff(a:number, b:number, c:number, d:number, e:number, f:number, g:number)
+    {
+        this._need(28);
+        var i:number = this._idata[0];
+        var fdata:Float32Array = this._fdata;
+        this._idata[i++] = a;
+        this._idata[i++] = b;
+        this._idata[i++] = c;
+        this._idata[i++] = d;
+        fdata[i++] = e;
+        fdata[i++] = f;
+        fdata[i++] = g;
+        this._idata[0] = i;
+    }
     add_iiffiifi_String(a:number, b:number, c:number, d:number, e:number, f:number, g:number, h:number, str:string):void
     {
 	   var ab:ArrayBuffer = (window as any).conch.strTobufer(str);
        this._need(32 + ab.byteLength + 4);
        this.add_iiffiifi(a, b, c, d, e, f, g, h);
 	   this.add_String(ab);
+    }
+    add_iiiifff_String_String(a:number, b:number, c:number, d:number, e:number, f:number, g:number, str0:string, str1:string):void
+    {
+        var ab0:ArrayBuffer = (window as any).conch.strTobufer(str0);
+        var ab1:ArrayBuffer = (window as any).conch.strTobufer(str1);
+        this._need(28 + (ab0.byteLength + 4) + (ab1.byteLength + 4));
+
+        this. add_iiiifff(a, b, c, d, e, f, g);
+        this.add_String(ab0);
+        this.add_String(ab1);
     }
     add_iiffffffffffff(a:number, b:number, c:number, d:number, e:number, f:number , g:number, h:number, ii:number, j:number, k:number, l:number, m:number, n:number)
     {
