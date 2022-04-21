@@ -2,7 +2,7 @@ import { VertexBuffer3D } from "../../../../d3/graphics/VertexBuffer3D";
 import { BufferUsage } from "../../../RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../VertexDeclaration";
 
-export class VertexBuffer3DNative extends VertexBuffer3D {
+export class NativeVertexBuffer3D extends VertexBuffer3D {
     /**
      * 获取顶点声明。
      */

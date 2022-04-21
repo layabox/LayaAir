@@ -26,7 +26,7 @@ export enum ShaderDataType {
     ShaderDefine,
 }
 
-export class ShaderDataNative extends ShaderData implements INativeUploadNode {
+export class NativeShaderData extends ShaderData implements INativeUploadNode {
     _dataType: MemoryDataType;
     nativeObjID: number;
     updateMap: Map<number, Function>;
@@ -334,7 +334,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
         }
     }
 
-    cloneTo(destObject: ShaderDataNative) {
+    cloneTo(destObject: NativeShaderData) {
         super.cloneTo(destObject);
         destObject.uploadAllData();
     }
@@ -346,7 +346,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
      * @return	 克隆副本。
      */
     clone(): any {
-        var dest: ShaderDataNative = new ShaderDataNative();
+        var dest: NativeShaderData = new NativeShaderData();
         this.cloneTo(dest);
         return dest;
     }

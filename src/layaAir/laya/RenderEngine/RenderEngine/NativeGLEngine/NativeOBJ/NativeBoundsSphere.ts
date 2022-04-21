@@ -5,7 +5,7 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
 /**
  * <code>BoundSphere</code> 类用于创建包围球。
  */
-export class BoundSphereNative extends BoundSphere {
+export class NativeBoundSphere extends BoundSphere {
     private static Bounds_MemoryBlock_size = 4;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
@@ -24,7 +24,7 @@ export class BoundSphereNative extends BoundSphere {
     constructor(center: Vector3, radius: number) {
         super(center,radius);
         //native memory
-        this.nativeMemory = new NativeMemory(BoundSphereNative.Bounds_MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(NativeBoundSphere.Bounds_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
          //native object TODO
          this.nativeTransformID = 0;
@@ -55,8 +55,8 @@ export class BoundSphereNative extends BoundSphere {
 	 * 克隆。
 	 * @param	destObject 克隆源。
 	 */
-	cloneTo(destObject: BoundSphereNative): void {
-		var dest: BoundSphereNative = (<BoundSphereNative>destObject);
+	cloneTo(destObject: NativeBoundSphere): void {
+		var dest: NativeBoundSphere = (<NativeBoundSphere>destObject);
         dest.center = this.center;
 		dest.radius = this.radius;
 	}
@@ -65,8 +65,8 @@ export class BoundSphereNative extends BoundSphere {
 	 * 克隆。
 	 * @return	 克隆副本。
 	 */
-	clone(): BoundSphereNative {
-		var dest: BoundSphereNative = new BoundSphereNative(new Vector3(), 0);
+	clone(): NativeBoundSphere {
+		var dest: NativeBoundSphere = new NativeBoundSphere(new Vector3(), 0);
 		this.cloneTo(dest);
 		return dest;
 	}
