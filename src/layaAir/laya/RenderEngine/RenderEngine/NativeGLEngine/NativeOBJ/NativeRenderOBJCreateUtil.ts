@@ -79,7 +79,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createBaseRenderNode():IBaseRenderNode{
-        return new BaseRenderNode();
+        return new (window as any).conchRenderNode();
     }
 
     createRenderContext3D():IRenderContext3D{
