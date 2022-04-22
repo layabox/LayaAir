@@ -22,6 +22,8 @@ import { ShaderData } from "../RenderShader/ShaderData";
 import { BaseRenderNode } from "./BaseRenderNode";
 import { BaseRenderQueue } from "./BaseRenderQueue";
 import { CullPassBase } from "./CullPass";
+import { NativeCullPassBase } from "./NativeCullPass";
+import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
@@ -85,10 +87,10 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createSceneRenderManager():ISceneRenderManager{
-        return new SceneRenderManager();
+        return new NativeSceneRenderManager();
     }
 
     createCullPass():ICullPass{
-        return new CullPassBase();
+        return new NativeCullPassBase();
     }
 }

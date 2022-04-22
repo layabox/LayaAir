@@ -14,8 +14,9 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     _customUpdateList: SingletonList<BaseRender> = new SingletonList();
     //自定义裁剪的渲染节点
     _customCullList:SingletonList<BaseRender> = new SingletonList();
-    
+    private _nativeObj: any;
     constructor() {
+        this._nativeObj = new (window as any).conchSceneCullManger();
         //创建Native的Node管理节点
         //creat native Cull List obj
         //creat native Update list obj

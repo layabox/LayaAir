@@ -70,7 +70,7 @@ export class NativeContext {
     static ENUM_TEXTALIGN_DEFAULT: number = 0;
 	static ENUM_TEXTALIGN_CENTER: number = 1;
 	static ENUM_TEXTALIGN_RIGHT: number = 2;
-    _nativeObj: any;
+    private _nativeObj: any;
     sprite: any = null;
     static __init__(): void {
 	}
