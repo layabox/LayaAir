@@ -88,7 +88,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new SceneRenderManager();
     }
 
-    createcullPass():ICullPass{
+    createCullPass():ICullPass{
         return new CullPassBase();
     }
 }

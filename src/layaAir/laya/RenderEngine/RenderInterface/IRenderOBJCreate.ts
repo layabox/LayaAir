@@ -49,5 +49,5 @@ export interface IRenderOBJCreate{
 
     createSceneRenderManager():ISceneRenderManager;
 
-    createcullPass():ICullPass;
+    createCullPass():ICullPass;
 }
