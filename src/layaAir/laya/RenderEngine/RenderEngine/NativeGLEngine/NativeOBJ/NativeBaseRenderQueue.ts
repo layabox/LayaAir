@@ -7,21 +7,18 @@ import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISor
 import { QuickSort } from "../../../RenderObj/QuickSort";
 
 export class NativeBaseRenderQueue implements IRenderQueue {
-   /** @interanl */
-   _isTransparent: boolean = false;
    /** @internal */
    elements: SingletonList<RenderElement> = new SingletonList<RenderElement>();
    /**sort function*/
    _sortPass: ISortPass;
    /** context*/
    _context:IRenderContext3D;
-
+   private _nativeObj: any;
     set sortPass(value: ISortPass) {
-        this._sortPass = value;
+        this._nativeObj.sortPass = value;
     }
     constructor(isTransparent: boolean) {
-        this._isTransparent = isTransparent;
-        this.sortPass =new QuickSort();
+        this._nativeObj = new (window as any).conchRenderQueue(isTransparent);
     }
 
     set context(value:RenderContext3D){
@@ -31,10 +28,12 @@ export class NativeBaseRenderQueue implements IRenderQueue {
   
 
     addRenderElement(renderelement: RenderElement) {
+        this._nativeObj.addRenderElement(renderelement._renderElementOBJ);
         this.elements.add(renderelement);
     }
 
     clear(): void {
+        this._nativeObj.clear();
         this.elements.length = 0;
     }
 
@@ -50,18 +49,11 @@ export class NativeBaseRenderQueue implements IRenderQueue {
         }
         //更新所有大buffer数据 nativeTODO
 
-        this._sort();
-        for (var i: number = 0, n: number = this.elements.length; i < n; i++)
-			elements[i]._render(this._context);//Update Data
+        this._nativeObj.renderQueue(this._context);
         
     }
 
     private _batchQueue() {
 
-    }
-
-    private _sort() {
-        var count: number = this.elements.length;
-        this._sortPass.sort(this.elements, this._isTransparent, 0, count - 1);
     }
 }

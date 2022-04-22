@@ -18,10 +18,12 @@ import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRend
 import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
+import { ISortPass } from "../RenderInterface/RenderPipelineInterface/ISortPass";
 import { ShaderData } from "../RenderShader/ShaderData";
 import { BaseRenderNode } from "./BaseRenderNode";
 import { BaseRenderQueue } from "./BaseRenderQueue";
 import { CullPassBase } from "./CullPass";
+import { QuickSort } from "./QuickSort";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
@@ -57,7 +59,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {
-        return new BaseRenderQueue(isTransparent);
+        var queue: BaseRenderQueue = new BaseRenderQueue(isTransparent);
+        queue.sortPass = this.createSortPass();
+        return queue;
     }
 
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
@@ -90,5 +94,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
 
     createCullPass():ICullPass{
         return new CullPassBase();
+    }
+
+    createSortPass():ISortPass{
+        return new QuickSort();
     }
 }

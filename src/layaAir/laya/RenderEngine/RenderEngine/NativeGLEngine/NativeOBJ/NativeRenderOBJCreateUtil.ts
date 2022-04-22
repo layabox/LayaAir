@@ -1,3 +1,5 @@
+import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISortPass";
+import { QuickSort } from "../../../RenderObj/QuickSort";
 import { Bounds } from "../../d3/core/Bounds";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
@@ -22,6 +24,7 @@ import { ShaderData } from "../RenderShader/ShaderData";
 import { BaseRenderNode } from "./BaseRenderNode";
 import { BaseRenderQueue } from "./BaseRenderQueue";
 import { CullPassBase } from "./CullPass";
+import { NativeBaseRenderQueue } from "./NativeBaseRenderQueue";
 import { NativeCullPassBase } from "./NativeCullPass";
 import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
@@ -59,7 +62,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {
-        return new BaseRenderQueue(isTransparent);
+        var queue: NativeBaseRenderQueue = new NativeBaseRenderQueue(isTransparent);
+        queue.sortPass = this.createSortPass();
+        return queue;
     }
 
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
@@ -92,5 +97,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
 
     createCullPass():ICullPass{
         return new NativeCullPassBase();
+    }
+
+    createSortPass():ISortPass{
+        return new QuickSort();
     }
 }

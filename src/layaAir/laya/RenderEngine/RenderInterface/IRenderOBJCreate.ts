@@ -19,6 +19,7 @@ import { IRenderElement } from "./RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "./RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "./RenderPipelineInterface/IRenderQueue";
 import { ISceneRenderManager } from "./RenderPipelineInterface/ISceneRenderManager";
+import { ISortPass } from "./RenderPipelineInterface/ISortPass";
 
 export interface IRenderOBJCreate{
     createTransform(owner:Sprite3D):Transform3D;
@@ -50,4 +51,6 @@ export interface IRenderOBJCreate{
     createSceneRenderManager():ISceneRenderManager;
 
     createCullPass():ICullPass;
+
+    createSortPass():ISortPass;
 }
