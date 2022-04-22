@@ -22,7 +22,6 @@ export class BaseRenderQueue implements IRenderQueue {
     }
     constructor(isTransparent: boolean) {
         this._isTransparent = isTransparent;
-        this.sortPass =new QuickSort();
     }
 
     set context(value:RenderContext3D){
