@@ -1,5 +1,4 @@
 import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISortPass";
-import { QuickSort } from "../../../RenderObj/QuickSort";
 import { Bounds } from "../../d3/core/Bounds";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
@@ -25,10 +24,6 @@ import { NativeBaseRenderQueue } from "./NativeBaseRenderQueue";
 import { NativeCullPassBase } from "./NativeCullPass";
 import { NativeRenderContext3DOBJ } from "./NativeRenderContext3DOBJ";
 import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
-import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
-import { RenderElementOBJ } from "./RenderElementOBJ";
-import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
-import { SceneRenderManager } from "./SceneRenderManager";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
@@ -53,7 +48,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderElement(): IRenderElement {
-        return new RenderElementOBJ();
+        return new (window as any).conchRenderElement();
     }
     createSkinRenderElement():IRenderElement{
         return new SkinRenderElementOBJ();
@@ -66,7 +61,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
-        return new RenderGeometryElementOBJ(mode, drayType);
+        return new (window as any).conchRenderGeometryElement(mode, drayType);
     }
 
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
