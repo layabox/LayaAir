@@ -3,6 +3,7 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { Context } from "../../../../resource/Context";
 import { RenderContext3D } from "../RenderContext3D";
+import { Camera } from "../../Camera";
 
 /**
  * @internal
@@ -35,7 +36,7 @@ export class SetRenderTargetCMD extends Command {
 		RenderContext3D._instance.destTarget = this._renderTexture;
 		RenderContext3D._instance.changeScissor(0, 0, this._renderTexture.width, this._renderTexture.height);
 		RenderContext3D._instance.changeViewport(0, 0, this._renderTexture.width, this._renderTexture.height);
-		RenderContext3D._instance._contextOBJ.applyContext();
+		RenderContext3D._instance._contextOBJ.applyContext(Camera._updateMark);
 	}
 
 	/**

@@ -16,6 +16,7 @@ import { MeshInstanceGeometry } from "../../../graphics/SubMeshInstanceGeometry"
 import { RenderContext3D } from "../RenderContext3D";
 import { BaseRender } from "../../../core/render/BaseRender";
 import { MeshSprite3DShaderDeclaration } from "../../MeshSprite3DShaderDeclaration";
+import { Camera } from "../../Camera";
 
 
 export class DrawMeshInstancedCMD extends Command {
@@ -207,7 +208,7 @@ export class DrawMeshInstancedCMD extends Command {
 
     run(): void {
         //update blockData
-        RenderContext3D._instance._contextOBJ.applyContext();
+        RenderContext3D._instance._contextOBJ.applyContext(Camera._updateMark);
 		let propertyMap = this._instanceProperty._propertyMap;
         for(let i in propertyMap){
 			//更新自定义Instancebuffer

@@ -35,9 +35,9 @@ export class RenderContext3DOBJ implements IRenderContext3D {
     }
 
     /**设置IRenderContext */
-    applyContext(): void {
+    applyContext(cameraUpdateMark:number): void {
         this.destTarget._start();
-        this.cameraUpdateMark = Camera._updateMark;
+        this.cameraUpdateMark = cameraUpdateMark;
         LayaGL.renderEngine.viewport(this.viewPort.x, this.viewPort.y, this.viewPort.width, this.viewPort.height);
         LayaGL.renderEngine.scissor(this.scissor.x, this.scissor.y, this.scissor.z, this.scissor.w);
     }

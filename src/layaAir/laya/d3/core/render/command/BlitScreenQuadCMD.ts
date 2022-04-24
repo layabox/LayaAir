@@ -118,7 +118,7 @@ export class BlitScreenQuadCMD extends Command {
 		this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
         context.destTarget = dest;
-        context._contextOBJ.applyContext();
+        context._contextOBJ.applyContext(Camera._updateMark);
         this._renderElement._renderUpdatePre(this._context);
         this._renderElement._render(this._context._contextOBJ);
 	}

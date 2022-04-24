@@ -9,6 +9,7 @@ import { RenderElement } from "../RenderElement";
 import { Transform3D } from "../../Transform3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderContext3D } from "../RenderContext3D";
+import { Camera } from "../../Camera";
 /**
  * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
@@ -102,7 +103,7 @@ export class DrawMeshCMD extends Command {
 	 * @override
 	 */
     run(): void {
-        RenderContext3D._instance._contextOBJ.applyContext();
+        RenderContext3D._instance._contextOBJ.applyContext(Camera._updateMark);
         let submeshs = this._mesh._subMeshes
         var context = RenderContext3D._instance;
         if (this._subMeshIndex == -1) {
