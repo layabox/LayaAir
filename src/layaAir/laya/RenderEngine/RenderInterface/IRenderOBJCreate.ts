@@ -3,7 +3,9 @@ import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
+import { BoundFrustum } from "../../d3/math/BoundFrustum";
 import { BoundSphere } from "../../d3/math/BoundSphere";
+import { Matrix4x4 } from "../../d3/math/Matrix4x4";
 import { Plane } from "../../d3/math/Plane";
 import { Vector3 } from "../../d3/math/Vector3";
 import { Resource } from "../../resource/Resource";
@@ -13,12 +15,14 @@ import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 import { ShaderData } from "../RenderShader/ShaderData";
 import { IBaseRenderNode } from "./RenderPipelineInterface/IBaseRenderNode";
+import { ICameraCullInfo } from "./RenderPipelineInterface/ICameraCullInfo";
 import { ICullPass } from "./RenderPipelineInterface/ICullPass";
 import { IRenderContext3D } from "./RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "./RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "./RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "./RenderPipelineInterface/IRenderQueue";
 import { ISceneRenderManager } from "./RenderPipelineInterface/ISceneRenderManager";
+import { IShadowCullInfo } from "./RenderPipelineInterface/IShadowCullInfo";
 import { ISortPass } from "./RenderPipelineInterface/ISortPass";
 
 export interface IRenderOBJCreate{
@@ -29,6 +33,8 @@ export interface IRenderOBJCreate{
     createBoundsSphere(center:Vector3,radius:number):BoundSphere;
 
     createPlane(normal:Vector3,d:number):Plane;
+
+    createBoundFrustum(matrix:Matrix4x4):BoundFrustum;
 
     createShaderData(ownerResource: Resource):ShaderData;
 
@@ -53,4 +59,8 @@ export interface IRenderOBJCreate{
     createCullPass():ICullPass;
 
     createSortPass():ISortPass;
+
+    createShadowCullInfo():IShadowCullInfo;
+
+    createCameraCullInfo():ICameraCullInfo;
 }

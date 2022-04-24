@@ -6,9 +6,10 @@ import { RenderContext3D } from "../render/RenderContext3D";
 import { BoundBox } from "../../math/BoundBox";
 import { Ray } from "../../math/Ray";
 import { Vector3 } from "../../math/Vector3";
-import { CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
 import { ISceneRenderManager } from "./SceneRenderManager/ISceneRenderManager";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
+import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 
 /**
  * <code>BoundsOctree</code> 类用于创建八叉树。
@@ -182,7 +183,7 @@ export class BoundsOctree implements ISceneRenderManager{
 	/**
 	 * 直射光阴影裁剪
 	 */
-	cullingShadow(cullInfo:ShadowCullInfo,context:RenderContext3D):void{
+	cullingShadow(cullInfo:IShadowCullInfo,context:RenderContext3D):void{
 		this._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context)
 	}
 
@@ -241,7 +242,7 @@ export class BoundsOctree implements ISceneRenderManager{
 	 *	获取与指定视锥相交的的物理列表。
 	 *  @param 渲染上下文。
 	 */
-	getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, shader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
+	getCollidingWithFrustum(cameraCullInfo: ICameraCullInfo, context: RenderContext3D, shader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		this._rootNode.getCollidingWithFrustum(cameraCullInfo, context, shader, replacementTag, isShadowCasterCull);
 	}
 

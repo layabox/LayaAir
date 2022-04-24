@@ -19,9 +19,9 @@ export class NativeGLVertexState extends NativeGLObject implements IRenderVertex
     constructor(engine: NativeWebGLEngine) {
         super(engine);
         if (!engine.isWebGL2)
-            this._vaoExt = engine._supportCapatable.getExtension(WebGLExtension.OES_vertex_array_object);
+            this._vaoExt = (engine as any)._supportCapatable.getExtension(WebGLExtension.OES_vertex_array_object);
         this._vao = this.createVertexArray();
-        this._angleInstancedArrays = this._engine._supportCapatable.getExtension(WebGLExtension.ANGLE_instanced_arrays);
+        this._angleInstancedArrays = (this._engine as any)._supportCapatable.getExtension(WebGLExtension.ANGLE_instanced_arrays);
     }
 
     /**

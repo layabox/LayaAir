@@ -1,3 +1,4 @@
+import { LayaGL } from "../../layagl/LayaGL";
 import { Vector3 } from "./Vector3";
 
 /**
@@ -100,7 +101,8 @@ export class Plane {
 	 * @return	 克隆副本。
 	 */
 	clone(): Plane {
-		var dest: Plane = new Plane(new Vector3());
+		var dest = LayaGL.renderOBJCreate.createPlane(new Vector3,0);
+
 		this.cloneTo(dest);
 		return dest;
 	}

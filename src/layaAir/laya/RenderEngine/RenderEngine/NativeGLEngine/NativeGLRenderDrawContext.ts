@@ -13,7 +13,7 @@ export class NativeGLRenderDrawContext extends NativeGLObject implements IRender
     constructor(engine: NativeWebGLEngine) {
         super(engine);
         if (!this._engine.isWebGL2) {
-            this._angleInstancedArrays = this._engine._supportCapatable.getExtension(WebGLExtension.ANGLE_instanced_arrays);
+            this._angleInstancedArrays = (this._engine as any)._supportCapatable.getExtension(WebGLExtension.ANGLE_instanced_arrays);
         }
     }
 

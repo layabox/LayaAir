@@ -2,9 +2,9 @@ import { BoundSphere } from "../math/BoundSphere";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
-import { CameraCullInfo } from "../graphics/FrustumCulling";
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
+import { ICameraCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 
 /**
  * @internal
@@ -38,6 +38,6 @@ export class ShadowSpotData{
     viewMatrix:Matrix4x4 = new Matrix4x4();
     projectionMatrix:Matrix4x4 = new Matrix4x4();
     viewProjectMatrix:Matrix4x4 = new Matrix4x4();
-    cameraCullInfo:CameraCullInfo = new CameraCullInfo();
+    cameraCullInfo:ICameraCullInfo = LayaGL.renderOBJCreate.createCameraCullInfo();
 
 }

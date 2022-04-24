@@ -1,9 +1,9 @@
+import { ICameraCullInfo } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
+import { IShadowCullInfo } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { CameraCullInfo, ShadowCullInfo } from "../../../graphics/FrustumCulling";
 import { PixelLineSprite3D } from "../../pixelLine/PixelLineSprite3D";
 import { RenderContext3D } from "../../render/RenderContext3D";
 import { IOctreeObject } from "../IOctreeObject";
-import { Scene3D } from "../Scene3D";
 
 export interface ISceneRenderManager {
     /**增加一个渲染节点 */
@@ -19,9 +19,9 @@ export interface ISceneRenderManager {
     /**裁剪之前的更新 */
     preFruUpdate():void
     /**直射光裁剪 */
-    cullingShadow(cullInfo:ShadowCullInfo,context:RenderContext3D):void
+    cullingShadow(cullInfo:IShadowCullInfo,context:RenderContext3D):void
     /**获取与指定视锥相交的的物理列表。 */
-    getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, shader: Shader3D, replacementTag: string, isShadowCasterCull: boolean):void;
+    getCollidingWithFrustum(cameraCullInfo: ICameraCullInfo, context: RenderContext3D, shader: Shader3D, replacementTag: string, isShadowCasterCull: boolean):void;
     /**
 	 * @internal
 	 * [Debug]

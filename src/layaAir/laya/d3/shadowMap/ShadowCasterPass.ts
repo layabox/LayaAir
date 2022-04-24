@@ -1,13 +1,12 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { BaseCamera } from "../core/BaseCamera";
-import { Camera, CameraClearFlags } from "../core/Camera";
+import { Camera } from "../core/Camera";
 import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
 import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowMapFormat, ShadowUtils } from "../core/light/ShadowUtils";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { Scene3D } from "../core/scene/Scene3D";
 import { CommandUniformMap, Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
-import { FrustumCulling, ShadowCullInfo } from "../graphics/FrustumCulling";
 import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
@@ -28,6 +27,8 @@ import { BoundFrustum } from "../math/BoundFrustum";
 import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Viewport } from "../math/Viewport";
+import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
+import { FrustumCulling } from "../graphics/FrustumCulling";
 
 /**
  * Shadow Light enum
@@ -374,7 +375,7 @@ export class ShadowCasterPass {
 					var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
 					ShadowUtils.getShadowBias(light, sliceData.projectionMatrix, sliceData.resolution, this._shadowBias);
 					this._setupShadowCasterShaderValues(context, shaderValues, sliceData, this._lightForward, this._shadowParams, this._shadowBias, LightType.Directional);
-					var shadowCullInfo: ShadowCullInfo = FrustumCulling._shadowCullInfo;
+					var shadowCullInfo: IShadowCullInfo = FrustumCulling._shadowCullInfo;
 					shadowCullInfo.position = sliceData.position;
 					shadowCullInfo.cullPlanes = sliceData.cullPlanes;
 					shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;

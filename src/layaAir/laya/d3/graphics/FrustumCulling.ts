@@ -1,45 +1,9 @@
-import { ISingletonElement } from "../../resource/ISingletonElement";
-import { Stat } from "../../utils/Stat";
-import { SingletonList } from "../component/SingletonList";
-import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
-import { BaseRender } from "../core/render/BaseRender";
-import { RenderContext3D } from "../core/render/RenderContext3D";
-import { RenderElement } from "../core/render/RenderElement";
-import { Scene3D } from "../core/scene/Scene3D";
-import { BoundFrustum } from "../math/BoundFrustum";
-import { Color } from "../math/Color";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
-import { Utils3D } from "../utils/Utils3D";
 import { Bounds } from "../core/Bounds";
-import { BoundSphere } from "../math/BoundSphere";
-import { Sprite3D } from "../core/Sprite3D";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-
-
-/**
- * camera裁剪数据
- */
-export class CameraCullInfo {
-	/**位置 */
-	position: Vector3;
-	/**是否遮挡剔除 */
-	useOcclusionCulling: Boolean;
-	/**锥体包围盒 */
-	boundFrustum: BoundFrustum;
-	/**遮挡标记 */
-	cullingMask: number;
-}
-/**
- * 阴影裁剪数据
- */
-export class ShadowCullInfo {
-	position: Vector3;
-	cullPlanes: Plane[];
-	cullSphere: BoundSphere;
-	cullPlaneCount: number;
-	direction: Vector3;
-}
+import { LayaGL } from "../../layagl/LayaGL";
+import { ICameraCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
+import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 
 /**
  * @internal
@@ -47,12 +11,9 @@ export class ShadowCullInfo {
  */
 export class FrustumCulling {
 	/**@internal */
-	private static _tempColor0: Color = new Color();
-
+	static _cameraCullInfo: ICameraCullInfo;
 	/**@internal */
-	static _cameraCullInfo: CameraCullInfo = new CameraCullInfo();
-	/**@internal */
-	static _shadowCullInfo: ShadowCullInfo = new ShadowCullInfo();
+	static _shadowCullInfo: IShadowCullInfo;
 
 	/**@internal */
 	static debugFrustumCulling: boolean = false;
@@ -61,126 +22,33 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	static __init__(): void {
+		FrustumCulling._cameraCullInfo = LayaGL.renderOBJCreate.createCameraCullInfo();
+		FrustumCulling._shadowCullInfo = LayaGL.renderOBJCreate.createShadowCullInfo();
 	}
+
+	// /**
+	//  * @internal
+	//  */
+	// private static _drawTraversalCullingBound(renderList: SingletonList<ISingletonElement>, debugTool: PixelLineSprite3D): void {
+	// 	var renders: ISingletonElement[] = renderList.elements;
+	// 	for (var i: number = 0, n: number = renderList.length; i < n; i++) {
+	// 		var color: Color = FrustumCulling._tempColor0;
+	// 		color.r = 0;
+	// 		color.g = 1;
+	// 		color.b = 0;
+	// 		color.a = 1;
+	// 		Utils3D._drawBound(debugTool, ((<BaseRender>renders[i])).bounds._getBoundBox(), color);
+	// 	}
+	// }
+
 
 	/**
-	 * @internal
+	 * caculate Bounds by ShadowCullInfo
+	 * @param bounds 
+	 * @param cullInfo 
+	 * @returns 
 	 */
-	private static _drawTraversalCullingBound(renderList: SingletonList<ISingletonElement>, debugTool: PixelLineSprite3D): void {
-		var renders: ISingletonElement[] = renderList.elements;
-		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
-			var color: Color = FrustumCulling._tempColor0;
-			color.r = 0;
-			color.g = 1;
-			color.b = 0;
-			color.a = 1;
-			Utils3D._drawBound(debugTool, ((<BaseRender>renders[i])).bounds._getBoundBox(), color);
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	private static _traversalCulling(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D, renderList: SingletonList<ISingletonElement>, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
-		var renders: ISingletonElement[] = renderList.elements;
-		var boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;
-		var camPos: Vector3 = cameraCullInfo.position;
-		var cullMask: number = cameraCullInfo.cullingMask;
-		var loopCount: number = Stat.loopCount;
-		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
-			var render: BaseRender = <BaseRender>renders[i];
-			var canPass: boolean;
-			if (isShadowCasterCull)
-				canPass = render.castShadow && render._enabled;
-			else
-				canPass = ((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0) && render._enabled;
-
-			if (canPass) {
-				Stat.frustumCulling++;
-				if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
-					render.distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
-					var elements: RenderElement[] = render._renderElements;
-					for (var j: number = 0, m: number = elements.length; j < m; j++)
-						elements[j]._update(scene, context, customShader, replacementTag);
-				}
-			}
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	static renderObjectCulling(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
-		// var opaqueQueue: BaseRenderQueue = scene._opaqueQueue;
-		// var transparentQueue: BaseRenderQueue = scene._transparentQueue;
-		var renderList: SingletonList<ISingletonElement> = scene._sceneRenderManager.list;
-		scene._clearRenderQueue();
-		// var octree: ISceneRenderManager = scene._octree;
-		// if (octree) {
-		// 	octree.preFruUpdate();
-		// 	octree.getCollidingWithFrustum(cameraCullInfo, context, customShader, replacementTag, isShadowCasterCull);
-		// }
-		//else {//包围盒不完善的节点走遍历裁剪
-		FrustumCulling._traversalCulling(cameraCullInfo, scene, context, renderList, customShader, replacementTag, isShadowCasterCull);
-		//}
-
-		if (FrustumCulling.debugFrustumCulling) {
-			var debugTool: PixelLineSprite3D = scene._debugTool;
-			debugTool.clear();
-			// if (octree) {
-			// 	octree.drawAllBounds(debugTool);
-			// 	octree.drawAllObjects(debugTool);
-			// }
-			//else {//包围盒不完善的节点走遍历裁剪
-			FrustumCulling._drawTraversalCullingBound(renderList, debugTool);
-			//}
-		}
-
-		//var count: number = opaqueQueue.elements.length;
-		//(count > 0) && (opaqueQueue._quickSort(0, count - 1));
-		//count = transparentQueue.elements.length;
-		//(count > 0) && (transparentQueue._quickSort(0, count - 1));
-	}
-
-	/**
-	 * @internal
-	 */
-	static cullingShadow(cullInfo: ShadowCullInfo, scene: Scene3D, context: RenderContext3D): boolean {
-
-		scene._clearRenderQueue();
-		var opaqueQueue = scene._opaqueQueue;
-
-		// if (scene._octree) {
-		// 	//八叉树裁剪
-		// 	let octree = scene._octree;
-		// 	octree.preFruUpdate();
-		// 	//octree._rootNode.getCollidingWithCastShadowFrustum(cullInfo,context);
-		// 	octree.cullingShadow(cullInfo, context);
-		// }
-		var renderList: SingletonList<ISingletonElement> = scene._sceneRenderManager.list;
-		var position: Vector3 = cullInfo.position;
-		// var cullPlaneCount: number = cullInfo.cullPlaneCount;
-		// var cullPlanes: Plane[] = cullInfo.cullPlanes;
-		var renders: ISingletonElement[] = renderList.elements;
-		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
-			var render: BaseRender = <BaseRender>renders[i];
-			var canPass: boolean = render.castShadow && render._enabled;
-			if (canPass) {
-				Stat.frustumCulling++;
-				let pass = FrustumCulling.cullingRenderBounds(render.bounds, cullInfo);
-				if (pass) {
-					render.distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
-					var elements: RenderElement[] = render._renderElements;
-					for (var j: number = 0, m: number = elements.length; j < m; j++)
-						elements[j]._update(scene, context, null, null);
-				}
-			}
-		}
-
-		return opaqueQueue.elements.length > 0 ? true : false;
-	}
-
-	static cullingRenderBounds(bounds: Bounds, cullInfo: ShadowCullInfo): boolean {
+	static cullingRenderBounds(bounds: Bounds, cullInfo: IShadowCullInfo): boolean {
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		var cullPlanes: Plane[] = cullInfo.cullPlanes;
 
@@ -206,40 +74,6 @@ export class FrustumCulling {
 			}
 		}
 		return pass;
-	}
-
-	/**
-	 * @internal
-	 */
-	static cullingSpotShadow(cameraCullInfo: CameraCullInfo, scene: Scene3D, context: RenderContext3D): boolean {
-		var opaqueQueue = scene._opaqueQueue;
-		scene._clearRenderQueue();
-
-		//if (!scene._octree) {
-			var renderList: SingletonList<ISingletonElement> = scene._sceneRenderManager.list;
-			var renders: ISingletonElement[] = renderList.elements;
-			var loopCount: number = Stat.loopCount;
-			for (var i: number = 0, n: number = renderList.length; i < n; i++) {
-				var render: BaseRender = <BaseRender>renders[i];
-				var canPass: boolean = render.castShadow && render._enabled;
-				if (canPass) {
-					if (render._needRender(cameraCullInfo.boundFrustum, context)) {
-						var bounds = render.bounds;
-						render.distanceForSort = Vector3.distance(bounds.getCenter(), cameraCullInfo.position);
-						var elements: RenderElement[] = render._renderElements;
-						for (var j: number = 0, m: number = elements.length; j < m; j++)
-							elements[j]._update(scene, context, null, null);
-					}
-				}
-			}
-		//} else {
-			//八叉数裁剪
-		// 	let octree = scene._octree;
-		// 	octree.preFruUpdate();
-		// 	octree.getCollidingWithFrustum(cameraCullInfo, context, null, null, true);
-		// }
-
-		return opaqueQueue.elements.length > 0 ? true : false;
 	}
 }
 

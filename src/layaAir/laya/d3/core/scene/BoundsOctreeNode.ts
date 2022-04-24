@@ -1,6 +1,4 @@
-import { Stat } from "../../../utils/Stat";
 import { BoundBox } from "../../math/BoundBox";
-import { BoundFrustum } from "../../math/BoundFrustum";
 import { CollisionUtils } from "../../math/CollisionUtils";
 import { Color } from "../../math/Color";
 import { ContainmentType } from "../../math/ContainmentType";
@@ -8,17 +6,13 @@ import { Ray } from "../../math/Ray";
 import { Vector3 } from "../../math/Vector3";
 import { Utils3D } from "../../utils/Utils3D";
 import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
-import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { RenderElement } from "../render/RenderElement";
 import { IOctreeObject } from "./IOctreeObject";
-import { Scene3D } from "./Scene3D";
 import { BoundsOctree } from "./BoundsOctree";
-import { CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
-import { Plane } from "../../math/Plane";
 import { IRenderNodeObject } from "./SceneRenderManager/IRenderNodeObject";
-import { Sprite3D } from "../Sprite3D";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
+import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 
 
 /**
@@ -369,7 +363,7 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 	/**
 	 * @internal
 	 */
-	private _getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, testVisible: boolean, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
+	private _getCollidingWithFrustum(cameraCullInfo: ICameraCullInfo, context: RenderContext3D, testVisible: boolean, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		// var frustum: BoundFrustum = cameraCullInfo.boundFrustum;
 		// var camPos: Vector3 = cameraCullInfo.position;
 		// var cullMask: number = cameraCullInfo.cullingMask;
@@ -423,7 +417,7 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 		// }
 	}
 
-	private _getCollidingWithCastShadowFrustum(cullInfo: ShadowCullInfo, context: RenderContext3D) {
+	private _getCollidingWithCastShadowFrustum(cullInfo: IShadowCullInfo, context: RenderContext3D) {
 		// var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		// var cullPlanes: Plane[] = cullInfo.cullPlanes;
 		// var min: Vector3 = this._bounds.min;
@@ -713,11 +707,11 @@ export class BoundsOctreeNode implements IRenderNodeObject {
 	 * 	@param	ray 射线。.
 	 * 	@param	result 相交物体列表。
 	 */
-	getCollidingWithFrustum(cameraCullInfo: CameraCullInfo, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
+	getCollidingWithFrustum(cameraCullInfo: ICameraCullInfo, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		this._getCollidingWithFrustum(cameraCullInfo, context, true, customShader, replacementTag, isShadowCasterCull);
 	}
 
-	getCollidingWithCastShadowFrustum(cameraCullInfo: ShadowCullInfo, contect: RenderContext3D) {
+	getCollidingWithCastShadowFrustum(cameraCullInfo: IShadowCullInfo, contect: RenderContext3D) {
 		this._getCollidingWithCastShadowFrustum(cameraCullInfo, contect);
 	}
 
