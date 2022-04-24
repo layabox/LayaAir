@@ -26,6 +26,10 @@ import { NativeRenderContext3DOBJ } from "./NativeRenderContext3DOBJ";
 import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
+import { NativeVertexBuffer3D } from "NativeVertexBuffer3D";
+import { NativeIndexBuffer3D } from "NativeIndexBuffer3D";
+
+
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
         return new Transform3D(owner);
@@ -65,11 +69,11 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
-        return new VertexBuffer3D(byteLength, bufferUsage, canRead);
+        return new NativeVertexBuffer3D(byteLength, bufferUsage, canRead);
     }
 
     createIndexBuffer3D(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) {
-        return new IndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
+        return new NativeIndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
     createShaderInstance() {

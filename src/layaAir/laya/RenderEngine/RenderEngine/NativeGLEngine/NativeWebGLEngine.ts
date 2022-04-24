@@ -312,7 +312,7 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer {
     //TODO SourceManager
-    return new NativeGlBuffer(this, targetType, bufferUsageType);
+    return new (window as any).conchGLBuffer( this._nativeObj,targetType,bufferUsageType);
   }
 
   createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }): IRenderShaderInstance {
