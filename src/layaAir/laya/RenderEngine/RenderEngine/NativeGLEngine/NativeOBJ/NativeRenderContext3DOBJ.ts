@@ -6,13 +6,16 @@ import { ShaderData } from "../../../RenderShader/ShaderData";
 
 export class NativeRenderContext3DOBJ implements IRenderContext3D {
 
+    //dest Texture
+    _destTarget: IRenderTarget;
+
     //viewPort
     _viewPort: Viewport;
     //scissor
     _scissor: Vector4;
 
     private _nativeObj: any;
-    
+
     constructor() {
         this._viewPort = new Viewport(0, 0, 0, 0);
         this._scissor = new Vector4();
@@ -21,14 +24,16 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
 
     /**设置IRenderContext */
     applyContext(cameraUpdateMark:number): void {
+        this.destTarget._start();
         this._nativeObj.applyContext(cameraUpdateMark);
     }
     set destTarget(destTarget: IRenderTarget) {
-        this._nativeObj.destTarget = destTarget;
+        this._destTarget = destTarget;
+        this._nativeObj.destTarget = destTarget._renderTarget;
     }
 
     get destTarget(): IRenderTarget {
-        return this._nativeObj.destTarget;
+        return this._destTarget;
     }
 
     set viewPort(viewPort: Viewport) {
