@@ -8,22 +8,22 @@ import { Vector3 } from "../../../../d3/math/Vector3";
 import { ISingletonElement } from "../../../../resource/ISingletonElement";
 import { Stat } from "../../../../utils/Stat";
 import { ICullPass } from "../../../RenderInterface/RenderPipelineInterface/ICullPass";
+import { ISceneRenderManager } from "../../../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
 
 
 export class NativeCullPassBase implements ICullPass {
-    private _cullList:SingletonList<BaseRender> = new SingletonList();
-
+    private _nativeObj: any;
     get cullList():SingletonList<BaseRender>{
-        return this._cullList;
+        return this._nativeObj.cullList;
     }
 
     constructor(){
-        
+        this._nativeObj = new (window as any).conchCullPass();
     }
 
 
-    cullByCameraCullInfo(cameraCullInfo: CameraCullInfo, renderManager: NativeSceneRenderManager): void {
+    cullByCameraCullInfo(cameraCullInfo: CameraCullInfo, renderManager: ISceneRenderManager): void {
         //TODO
         // this._cullList.length = 0;
         // var renders: ISingletonElement[] = renderManager.list.elements;
@@ -43,7 +43,7 @@ export class NativeCullPassBase implements ICullPass {
         //     }
         // }
     }
-    cullByShadowCullInfo(cullInfo: ShadowCullInfo, renderManager: NativeSceneRenderManager): void {
+    cullByShadowCullInfo(cullInfo: ShadowCullInfo, renderManager: ISceneRenderManager): void {
         //TODO
         // this._cullList.length = 0;
         // var renderList: SingletonList<ISingletonElement> = renderManager.list;
@@ -65,7 +65,7 @@ export class NativeCullPassBase implements ICullPass {
 		// 	}
 		// }
     }
-    cullingSpotShadow(cameraCullInfo: CameraCullInfo, renderManager: NativeSceneRenderManager): void{
+    cullingSpotShadow(cameraCullInfo: CameraCullInfo, renderManager: ISceneRenderManager): void{
         //TODO
         // this._cullList.length = 0;
         // var renders: ISingletonElement[] = renderManager.list.elements;

@@ -26,9 +26,10 @@ export enum ShaderDataType {
     ShaderDefine,
 }
 
-export class ShaderDataNative extends ShaderData implements INativeUploadNode {
+export class NativeShaderData extends ShaderData implements INativeUploadNode {
     _dataType: MemoryDataType;
     nativeObjID: number;
+    _conchShaderData:any;
     updateMap: Map<number, Function>;
     updataSizeMap: Map<number, number>;
     uploadByteSize: number;
@@ -39,7 +40,8 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
         super(ownerResource)
         this._initData();
         //TODO native Create
-        //this.nativeObjID = native.createShaderdata()
+        this._conchShaderData = new (window as any).conchShaderData();
+        this.nativeObjID = this._conchShaderData.nativeID;
         this._dataType = MemoryDataType.ShaderData;
         this.updateMap = new Map();
         this.updataSizeMap = new Map();
@@ -334,7 +336,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
         }
     }
 
-    cloneTo(destObject: ShaderDataNative) {
+    cloneTo(destObject: NativeShaderData) {
         super.cloneTo(destObject);
         destObject.uploadAllData();
     }
@@ -346,7 +348,7 @@ export class ShaderDataNative extends ShaderData implements INativeUploadNode {
      * @return	 克隆副本。
      */
     clone(): any {
-        var dest: ShaderDataNative = new ShaderDataNative();
+        var dest: NativeShaderData = new NativeShaderData();
         this.cloneTo(dest);
         return dest;
     }

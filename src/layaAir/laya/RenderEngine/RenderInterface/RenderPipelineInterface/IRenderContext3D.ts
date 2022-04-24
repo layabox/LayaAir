@@ -25,6 +25,6 @@ import { IRenderTarget } from "../IRenderTarget";
     //Global ShaderData
     globalShaderData:ShaderData;
     /**设置IRenderContext */
-    applyContext():void;
+    applyContext(cameraUpdateMark:number):void;
   }
   

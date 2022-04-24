@@ -4,7 +4,7 @@ import { Plane } from "../../../../d3/math/Plane";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
 
 
-export class BoundFrustumNative extends BoundFrustum {
+export class NativeBoundFrustum extends BoundFrustum {
     private static BoundFrustumNative_MemoryBlock_size = 17;
     private static BoundFrustumNative_updateFlag = 16;
     /**native Share Memory */
@@ -30,7 +30,7 @@ export class BoundFrustumNative extends BoundFrustum {
 	 */
 	constructor(matrix: Matrix4x4) {
         super(matrix);
-        this.nativeMemory = new NativeMemory(BoundFrustumNative.BoundFrustumNative_MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(NativeBoundFrustum.BoundFrustumNative_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
         //native object TODO
         this.nativeTransformID = 0;
@@ -40,7 +40,7 @@ export class BoundFrustumNative extends BoundFrustum {
 		matrix.cloneTo(this._matrix);
         //update Native Data  native拿到Frustumnative 需要更新plane
         this.transFormArray.set(this._matrix.elements);
-        this.transFormArray[BoundFrustumNative.BoundFrustumNative_updateFlag] = 1;
+        this.transFormArray[NativeBoundFrustum.BoundFrustumNative_updateFlag] = 1;
 		BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
 	}
 }

@@ -24,14 +24,23 @@ export class UploadMemoryManager {
     /**@internal */
     _commandNums: number;
 
+    /**@native C++ */
+    _conchUploadMemoryManager:any;
+
     constructor() {
         UploadMemoryManager.BaseInstance = this;
         this._currentBlock = new UploadMemory(UploadMemoryManager.UploadMemorySize);
+        this._conchUploadMemoryManager = new (window as any).conchUploadMemoryManager();
     }
 
     private _addNodeCommand(node: INativeUploadNode, size: number) {
         this._currentBlock.addBlockCell(node, size);
         this._commandNums++;
+    }
+
+    static syncRenderMemory()
+    {
+        UploadMemoryManager.BaseInstance._serialiseData();
     }
 
     /**
@@ -57,7 +66,7 @@ export class UploadMemoryManager {
     /**强制更新数据 */
     uploadData() {
         //Native upload data
-        //TODO
+        this._conchUploadMemoryManager.uploadData( this._currentBlock._buffer,this._commandNums);
         //clear uploadMemory
         this._commandNums = 0;
         this._currentBlock.clear();

@@ -1,3 +1,4 @@
+import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISortPass";
 import { Bounds } from "../../d3/core/Bounds";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
@@ -18,17 +19,17 @@ import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRend
 import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
-import { ISortPass } from "../RenderInterface/RenderPipelineInterface/ISortPass";
 import { ShaderData } from "../RenderShader/ShaderData";
-import { BaseRenderNode } from "./BaseRenderNode";
-import { BaseRenderQueue } from "./BaseRenderQueue";
-import { CullPassBase } from "./CullPass";
-import { QuickSort } from "./QuickSort";
-import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
-import { RenderElementOBJ } from "./RenderElementOBJ";
-import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
-import { SceneRenderManager } from "./SceneRenderManager";
+import { NativeBaseRenderQueue } from "./NativeBaseRenderQueue";
+import { NativeCullPassBase } from "./NativeCullPass";
+import { NativeRenderContext3DOBJ } from "./NativeRenderContext3DOBJ";
+import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
+
+import { NativeVertexBuffer3D } from "NativeVertexBuffer3D";
+import { NativeIndexBuffer3D } from "NativeIndexBuffer3D";
+import { NativeShaderData } from "./NativeShaderData";
+
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
@@ -48,32 +49,32 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createShaderData(): ShaderData {
-        return new ShaderData();
+        return new NativeShaderData();
     }
 
     createRenderElement(): IRenderElement {
-        return new RenderElementOBJ();
+        return new (window as any).conchRenderElement();
     }
     createSkinRenderElement():IRenderElement{
         return new SkinRenderElementOBJ();
     }
 
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {
-        var queue: BaseRenderQueue = new BaseRenderQueue(isTransparent);
+        var queue: NativeBaseRenderQueue = new NativeBaseRenderQueue(isTransparent);
         queue.sortPass = this.createSortPass();
         return queue;
     }
 
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
-        return new RenderGeometryElementOBJ(mode, drayType);
+        return new (window as any).conchRenderGeometryElement(mode, drayType);
     }
 
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
-        return new VertexBuffer3D(byteLength, bufferUsage, canRead);
+        return new NativeVertexBuffer3D(byteLength, bufferUsage, canRead);
     }
 
     createIndexBuffer3D(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) {
-        return new IndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
+        return new NativeIndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
     createShaderInstance() {
@@ -81,22 +82,22 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createBaseRenderNode():IBaseRenderNode{
-        return new BaseRenderNode();
+        return new (window as any).conchRenderNode();
     }
 
     createRenderContext3D():IRenderContext3D{
-        return new RenderContext3DOBJ();
+        return new NativeRenderContext3DOBJ();
     }
 
     createSceneRenderManager():ISceneRenderManager{
-        return new SceneRenderManager();
+        return new NativeSceneRenderManager();
     }
 
     createCullPass():ICullPass{
-        return new CullPassBase();
+        return new NativeCullPassBase();
     }
 
     createSortPass():ISortPass{
-        return new QuickSort();
+        return new (window as any).conchQuickSort();
     }
 }

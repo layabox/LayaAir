@@ -1,4 +1,5 @@
 import { SingletonList } from "../../../../d3/component/SingletonList";
+import { Camera } from "../../../../d3/core/Camera";
 import { RenderContext3D } from "../../../../d3/core/render/RenderContext3D";
 import { RenderElement } from "../../../../d3/core/render/RenderElement";
 import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
@@ -7,86 +8,53 @@ import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISor
 import { QuickSort } from "../../../RenderObj/QuickSort";
 
 export class NativeBaseRenderQueue implements IRenderQueue {
-   /** @interanl */
-   _isTransparent: boolean = false;
    /** @internal */
    elements: SingletonList<RenderElement> = new SingletonList<RenderElement>();
    /**sort function*/
    _sortPass: ISortPass;
    /** context*/
    _context:IRenderContext3D;
-
-   set sortPass(value: ISortPass) {
-    this._sortPass = value;
-}
-constructor(isTransparent: boolean) {
-    this._isTransparent = isTransparent;
-    this.sortPass =new QuickSort();
-}
-
-set context(value:RenderContext3D){
-    this._context = value._contextOBJ;
-}
-
-
-
-addRenderElement(renderelement: RenderElement) {
-    this.elements.add(renderelement);
-}
-
-clear(): void {
-    this.elements.length = 0;
-}
-
-renderQueue(context:RenderContext3D) {
-    this.context = context;
-    this._preRender();
-    this._context.applyContext();
-    // this._context.destTarget._start();
-    // this._context.cameraUpdateMark = Camera._updateMark;
-    // LayaGL.renderEngine.viewport(this._viewPort.x,this._viewPort.y,this._viewPort.width,this._viewPort.height);
-    // LayaGL.renderEngine.scissor(this._scissor.x,this._scissor.y,this._scissor.z,this._scissor.w);
-    var elements: RenderElement[] = this.elements.elements;
-    for (var i: number = 0, n: number = this.elements.length; i < n; i++){
-        elements[i]._renderUpdatePre(context);//Update Data
+   private _nativeObj: any;
+    set sortPass(value: ISortPass) {
+        this._nativeObj.sortPass = value;
     }
+    constructor(isTransparent: boolean) {
+        this._nativeObj = new (window as any).conchRenderQueue(isTransparent);
+    }
+
+    set context(value:RenderContext3D){
+        this._context = value._contextOBJ;
+    }
+
+  
+
+    addRenderElement(renderelement: RenderElement) {
+        this._nativeObj.addRenderElement(renderelement._renderElementOBJ);
+        this.elements.add(renderelement);
+    }
+
+    clear(): void {
+        this._nativeObj.clear();
+        this.elements.length = 0;
+    }
+
+    renderQueue(context:RenderContext3D) {
+        this.context = context;
+        this._context.applyContext(Camera._updateMark);
         
-    // for (var i: number = 0, n: number = this.elements.length; i < n; i++)
-    // 	elements[i]._render(context);
-    //更新所有大buffer数据 nativeTODO
+        var elements: RenderElement[] = this.elements.elements;
+		this._batchQueue();
+        for (var i: number = 0, n: number = this.elements.length; i < n; i++){
+            elements[i]._renderUpdatePre(context);//Update Data
+            
+        }
+        //更新所有大buffer数据 nativeTODO
 
-    for (var i: number = 0, n: number = this.elements.length; i < n; i++)
-        elements[i]._render(this._context);//Update Data
-    //UpdateRender All
-    //UpdateGeometry All
-    //RenderRenderElement All
-}
+        this._nativeObj.renderQueue(this._context);
+        
+    }
 
-private _preRender(): void {
-    //batchQueue TODO:
-    this._batchQueue();
-    //quick sort or material sort
-    this._sort();
-}
+    private _batchQueue() {
 
-
-private _batchQueue() {
-    //static batch
-    //instance batch
-}
-
-private _sort() {
-    var count: number = this.elements.length;
-    this._sortPass.sort(this.elements, this._isTransparent, 0, count - 1);
-}
-
-
-
-
-
-
-
-
-
-
+    }
 }

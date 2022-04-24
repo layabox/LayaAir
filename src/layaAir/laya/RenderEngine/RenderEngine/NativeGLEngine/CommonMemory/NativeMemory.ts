@@ -3,7 +3,7 @@ import { CommonMemoryAllocater } from "./CommonMemoryAllocater";
 export class NativeMemory {
     static NativeSourceID:number = 0;
     /**@internal 共享内存数据 */
-    protected _buffer: ArrayBuffer;
+    public _buffer: ArrayBuffer;
     /**@internal 显示数据 */
     protected _bufferData: Float32Array | Uint16Array | Uint8Array | Int32Array;
     /**数据长度 */

@@ -1,4 +1,5 @@
 import { SingletonList } from "../../d3/component/SingletonList";
+import { Camera } from "../../d3/core/Camera";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { RenderElement } from "../../d3/core/render/RenderElement";
 import { IRenderContext3D } from "../RenderInterface/RenderPipelineInterface/IRenderContext3D";
@@ -22,7 +23,6 @@ export class BaseRenderQueue implements IRenderQueue {
     }
     constructor(isTransparent: boolean) {
         this._isTransparent = isTransparent;
-        this.sortPass =new QuickSort();
     }
 
     set context(value:RenderContext3D){
@@ -41,7 +41,7 @@ export class BaseRenderQueue implements IRenderQueue {
 
     renderQueue(context:RenderContext3D) {
         this.context = context;
-        this._context.applyContext();
+        this._context.applyContext(Camera._updateMark);
         
         var elements: RenderElement[] = this.elements.elements;
 		this._batchQueue();

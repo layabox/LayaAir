@@ -1,8 +1,13 @@
 import { VertexBuffer3D } from "../../../../d3/graphics/VertexBuffer3D";
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../VertexDeclaration";
 
-export class VertexBuffer3DNative extends VertexBuffer3D {
+export class NativeVertexBuffer3D extends VertexBuffer3D {
+
+
+    _conchVertexBuffer3D:any = null;
+
     /**
      * 获取顶点声明。
      */
@@ -11,8 +16,8 @@ export class VertexBuffer3DNative extends VertexBuffer3D {
     }
 
     set vertexDeclaration(value: VertexDeclaration | null) {
-        this.serilizeVertexDeclaration(value);
         this._vertexDeclaration = value;
+        this._conchVertexBuffer3D.setVertexDeclaration( this.serilizeVertexDeclaration(value) );
     }
 
     serilizeVertexDeclaration(value: VertexDeclaration): Int32Array {
@@ -38,6 +43,7 @@ export class VertexBuffer3DNative extends VertexBuffer3D {
      */
     constructor(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
         super(byteLength, bufferUsage, canRead);
-        //Native init
+        this._conchVertexBuffer3D = new (window as any).conchVertexBuffer3D( (LayaGL.renderEngine as any)._nativeObj,byteLength,bufferUsage,false);
+        this._conchVertexBuffer3D.setGLBuffer(this._glBuffer);
     }
 }

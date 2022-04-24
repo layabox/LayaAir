@@ -781,7 +781,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._scene = this;
 		this._input.__init__(Render.canvas, this);
 		this._sceneRenderManager = LayaGL.renderOBJCreate.createSceneRenderManager();
-		this._cullPass = LayaGL.renderOBJCreate.createcullPass();
+		this._cullPass = LayaGL.renderOBJCreate.createCullPass();
 
 		// if (Scene3D.octreeCulling)
 		// 	this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);

@@ -2,7 +2,7 @@ import { Plane } from "../../../../d3/math/Plane";
 import { Vector3 } from "../../../../d3/math/Vector3";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
 
-export class PlaneNative extends Plane{
+export class NativePlane extends Plane{
     private static PlaneNative_MemoryBlock_size = 4;
     private static PlaneNative_Stride_Normal = 0;
     private static PlaneNative_Stride_Distance = 3;
@@ -20,7 +20,7 @@ export class PlaneNative extends Plane{
      */
     constructor(normal: Vector3, d: number = 0) {
         super(normal,d);
-        this.nativeMemory = new NativeMemory(PlaneNative.PlaneNative_MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(NativePlane.PlaneNative_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
         //native object TODO
         this.nativeTransformID = 0;
@@ -29,7 +29,7 @@ export class PlaneNative extends Plane{
 
     set normal(value: Vector3) {
         value.cloneTo(this._normal);
-        const offset = PlaneNative.PlaneNative_Stride_Normal;
+        const offset = NativePlane.PlaneNative_Stride_Normal;
         this.transFormArray[offset] = value.x;
         this.transFormArray[offset + 1] = value.y;
         this.transFormArray[offset + 2] = value.z;
@@ -42,7 +42,7 @@ export class PlaneNative extends Plane{
 
     set distance(value: number) {
         this._distance = value;
-        this.transFormArray[PlaneNative.PlaneNative_Stride_Distance] = value;
+        this.transFormArray[NativePlane.PlaneNative_Stride_Distance] = value;
     }
 
     get distance(): number {
@@ -69,7 +69,7 @@ export class PlaneNative extends Plane{
      * @param	destObject 克隆源。
      */
     cloneTo(destObject: any): void {
-        var dest: PlaneNative = <PlaneNative>destObject;
+        var dest: NativePlane = <NativePlane>destObject;
         dest.normal = this.normal;
         dest.distance = this.distance;
     }
@@ -78,8 +78,8 @@ export class PlaneNative extends Plane{
      * 克隆。
      * @return	 克隆副本。
      */
-    clone(): PlaneNative {
-        var dest: PlaneNative = new PlaneNative(new Vector3());
+    clone(): NativePlane {
+        var dest: NativePlane = new NativePlane(new Vector3());
         this.cloneTo(dest);
         return dest;
     }

@@ -1,5 +1,6 @@
 import { IRenderElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
+import { Camera } from "../../Camera";
 import { Material } from "../../material/Material";
 import { BaseRender } from "../BaseRender";
 import { RenderContext3D } from "../RenderContext3D";
@@ -51,7 +52,7 @@ export class DrawRenderCMD extends Command {
 			throw "This render command material cannot be empty";
 		this.setContext(this._commandBuffer._context);
 		var context = this._context;
-        context._contextOBJ.applyContext();
+        context._contextOBJ.applyContext(Camera._updateMark);
 		var renderElements = this._render._renderElements;
 		for(var i:number = 0,n = renderElements.length;i<n;i++){
 			var renderelement = renderElements[i];

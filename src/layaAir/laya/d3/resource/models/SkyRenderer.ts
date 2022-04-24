@@ -127,7 +127,7 @@ export class SkyRenderer {
 				(<Camera>camera)._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
 			}
 			
-			context._contextOBJ.applyContext();
+			context._contextOBJ.applyContext(Camera._updateMark);
 			this._renderElement._renderUpdatePre(context);
 			this._renderElement._render(context._contextOBJ);
 			camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
