@@ -3,6 +3,7 @@ import { Viewport } from "../../../../d3/math/Viewport";
 import { IRenderTarget } from "../../../RenderInterface/IRenderTarget";
 import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { ShaderData } from "../../../RenderShader/ShaderData";
+import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
 
 export class NativeRenderContext3DOBJ implements IRenderContext3D {
 
@@ -25,6 +26,8 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
     /**设置IRenderContext */
     applyContext(cameraUpdateMark:number): void {
         this.destTarget._start();
+        //TODO 福龙测试
+        UploadMemoryManager.syncRenderMemory();
         this._nativeObj.applyContext(cameraUpdateMark);
     }
     set destTarget(destTarget: IRenderTarget) {

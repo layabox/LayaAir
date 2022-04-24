@@ -28,6 +28,7 @@ import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
 import { NativeVertexBuffer3D } from "NativeVertexBuffer3D";
 import { NativeIndexBuffer3D } from "NativeIndexBuffer3D";
+import { NativeShaderData } from "./NativeShaderData";
 
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
@@ -48,7 +49,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createShaderData(): ShaderData {
-        return new ShaderData();
+        return new NativeShaderData();
     }
 
     createRenderElement(): IRenderElement {
