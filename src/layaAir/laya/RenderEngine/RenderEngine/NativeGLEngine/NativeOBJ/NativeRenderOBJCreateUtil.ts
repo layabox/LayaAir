@@ -21,11 +21,9 @@ import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterfa
 import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { ShaderData } from "../RenderShader/ShaderData";
-import { BaseRenderNode } from "./BaseRenderNode";
-import { BaseRenderQueue } from "./BaseRenderQueue";
-import { CullPassBase } from "./CullPass";
 import { NativeBaseRenderQueue } from "./NativeBaseRenderQueue";
 import { NativeCullPassBase } from "./NativeCullPass";
+import { NativeRenderContext3DOBJ } from "./NativeRenderContext3DOBJ";
 import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
@@ -88,7 +86,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderContext3D():IRenderContext3D{
-        return new RenderContext3DOBJ();
+        return new NativeRenderContext3DOBJ();
     }
 
     createSceneRenderManager():ISceneRenderManager{
@@ -100,6 +98,6 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createSortPass():ISortPass{
-        return new QuickSort();
+        return new (window as any).conchQuickSort();
     }
 }
