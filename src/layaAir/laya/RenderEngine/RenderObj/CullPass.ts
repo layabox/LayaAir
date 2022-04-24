@@ -2,13 +2,16 @@ import { SingletonList } from "../../d3/component/SingletonList";
 import { BaseRender } from "../../d3/core/render/BaseRender";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { Sprite3D } from "../../d3/core/Sprite3D";
-import { CameraCullInfo, FrustumCulling, ShadowCullInfo } from "../../d3/graphics/FrustumCulling";
+import { FrustumCulling } from "../../d3/graphics/FrustumCulling";
 import { BoundFrustum } from "../../d3/math/BoundFrustum";
 import { Vector3 } from "../../d3/math/Vector3";
 import { ISingletonElement } from "../../resource/ISingletonElement";
 import { Stat } from "../../utils/Stat";
+import { ICameraCullInfo } from "../RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { ICullPass } from "../RenderInterface/RenderPipelineInterface/ICullPass";
 import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
+import { IShadowCullInfo } from "../RenderInterface/RenderPipelineInterface/IShadowCullInfo";
+
 
 export class CullPassBase implements ICullPass {
     private _cullList:SingletonList<BaseRender> = new SingletonList();
@@ -16,7 +19,7 @@ export class CullPassBase implements ICullPass {
     get cullList():SingletonList<BaseRender>{
         return this._cullList;
     }
-    cullByCameraCullInfo(cameraCullInfo: CameraCullInfo, renderManager: ISceneRenderManager): void {
+    cullByCameraCullInfo(cameraCullInfo: ICameraCullInfo, renderManager: ISceneRenderManager): void {
         this._cullList.length = 0;
         var renders: ISingletonElement[] = renderManager.list.elements;
         var boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;
@@ -35,7 +38,7 @@ export class CullPassBase implements ICullPass {
             }
         }
     }
-    cullByShadowCullInfo(cullInfo: ShadowCullInfo, renderManager: ISceneRenderManager): void {
+    cullByShadowCullInfo(cullInfo: IShadowCullInfo, renderManager: ISceneRenderManager): void {
         this._cullList.length = 0;
         var renderList: SingletonList<ISingletonElement> = renderManager.list;
         var renders: ISingletonElement[] = renderList.elements;
@@ -56,7 +59,7 @@ export class CullPassBase implements ICullPass {
 			}
 		}
     }
-    cullingSpotShadow(cameraCullInfo: CameraCullInfo, renderManager: ISceneRenderManager): void{
+    cullingSpotShadow(cameraCullInfo: ICameraCullInfo, renderManager: ISceneRenderManager): void{
         this._cullList.length = 0;
         var renders: ISingletonElement[] = renderManager.list.elements;
         var boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;

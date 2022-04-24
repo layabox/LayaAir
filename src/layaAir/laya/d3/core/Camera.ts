@@ -457,7 +457,7 @@ export class Camera extends BaseCamera {
 		this._normalizedViewport = new Viewport(0, 0, 1, 1);
 		this._rayViewport = new Viewport(0, 0, 0, 0);
 		this._aspectRatio = aspectRatio;
-		this._boundFrustum = new BoundFrustum(new Matrix4x4());
+		this._boundFrustum = LayaGL.renderOBJCreate.createBoundFrustum(new Matrix4x4());
 
 		this._calculateProjectionMatrix();
 		Laya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);

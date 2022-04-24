@@ -13,7 +13,6 @@ import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitBase } from "../../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
-import { FrustumCulling, CameraCullInfo, ShadowCullInfo } from "../../graphics/FrustumCulling";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { SphericalHarmonicsL2, SphericalHarmonicsL2Generater } from "../../graphics/SphericalHarmonicsL2";
 import { Input3D } from "../../Input3D";
@@ -73,6 +72,10 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { BaseRenderQueue } from "../../../RenderEngine/RenderObj/BaseRenderQueue";
 import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { ICullPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICullPass";
+import { FrustumCulling } from "../../graphics/FrustumCulling";
+import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
+import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
+
 /**
  * 环境光模式
  */
@@ -1170,7 +1173,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_preCulling(context: RenderContext3D, camera: Camera): void {
 		this._clearRenderQueue();
-		var cameraCullInfo: CameraCullInfo = FrustumCulling._cameraCullInfo;
+		var cameraCullInfo: ICameraCullInfo = FrustumCulling._cameraCullInfo;
 		var cameraPos = cameraCullInfo.position = camera._transform.position;
 		cameraCullInfo.cullingMask = camera.cullingMask;
 		cameraCullInfo.boundFrustum = camera.boundFrustum;
@@ -1188,7 +1191,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 	}
 
-	_directLightShadowCull(cullInfo: ShadowCullInfo, context: RenderContext3D) {
+	_directLightShadowCull(cullInfo: IShadowCullInfo, context: RenderContext3D) {
 		this._clearRenderQueue();
 		const position: Vector3 = cullInfo.position;
 		this._cullPass.cullByShadowCullInfo(cullInfo, this.sceneRenderableManager);
@@ -1203,7 +1206,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 	}
 
-	_sportLightShadowCull(cameraCullInfo:CameraCullInfo,context:RenderContext3D) {
+	_sportLightShadowCull(cameraCullInfo:ICameraCullInfo,context:RenderContext3D) {
 		this._clearRenderQueue();	
 		this._cullPass.cullingSpotShadow(cameraCullInfo, this.sceneRenderableManager);
 		let list = this._cullPass.cullList;

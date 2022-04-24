@@ -1,18 +1,19 @@
-import { CommandEncoder } from "../../layagl/CommandEncoder";
-import { LayaGL } from "../../layagl/LayaGL";
-import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
-import { RenderStateType } from "../../RenderEngine/RenderEnum/RenderStateType";
-import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
-import { ShaderVariable } from "../../RenderEngine/RenderShader/ShaderVariable";
-import { RenderStateCommand } from "../../RenderEngine/RenderStateCommand";
-import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
-import { Stat } from "../../utils/Stat";
-import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
-import { RenderState } from "../core/material/RenderState";
-import { CommandUniformMap } from "../core/scene/Scene3DShaderDeclaration";
-import { ShaderPass } from "./ShaderPass";
+import { RenderState } from "../../../../d3/core/material/RenderState";
+import { CommandUniformMap } from "../../../../d3/core/scene/Scene3DShaderDeclaration";
+import { ShaderPass } from "../../../../d3/shader/ShaderPass";
+import { CommandEncoder } from "../../../../layagl/CommandEncoder";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { Stat } from "../../../../utils/Stat";
+import { ShaderCompileDefineBase } from "../../../../webgl/utils/ShaderCompileDefineBase";
+import { CullMode } from "../../../RenderEnum/CullMode";
+import { RenderStateType } from "../../../RenderEnum/RenderStateType";
+import { IRenderShaderInstance } from "../../../RenderInterface/IRenderShaderInstance";
+import { Shader3D } from "../../../RenderShader/Shader3D";
+import { ShaderData } from "../../../RenderShader/ShaderData";
+import { ShaderVariable } from "../../../RenderShader/ShaderVariable";
+import { RenderStateCommand } from "../../../RenderStateCommand";
+import { RenderStateContext } from "../../../RenderStateContext";
+
 
 /**
  * @internal

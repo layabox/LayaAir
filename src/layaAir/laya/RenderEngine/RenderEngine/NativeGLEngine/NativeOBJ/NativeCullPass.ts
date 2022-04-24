@@ -1,15 +1,9 @@
 import { SingletonList } from "../../../../d3/component/SingletonList";
 import { BaseRender } from "../../../../d3/core/render/BaseRender";
-import { RenderContext3D } from "../../../../d3/core/render/RenderContext3D";
-import { Sprite3D } from "../../../../d3/core/Sprite3D";
-import { CameraCullInfo, ShadowCullInfo, FrustumCulling } from "../../../../d3/graphics/FrustumCulling";
-import { BoundFrustum } from "../../../../d3/math/BoundFrustum";
-import { Vector3 } from "../../../../d3/math/Vector3";
-import { ISingletonElement } from "../../../../resource/ISingletonElement";
-import { Stat } from "../../../../utils/Stat";
 import { ICullPass } from "../../../RenderInterface/RenderPipelineInterface/ICullPass";
 import { ISceneRenderManager } from "../../../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
-import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
+import { NativeCameraCullInfo } from "./NativeCameraCullInfo";
+import { NativeShadowCullInfo } from "./NativeShadowCullInfo";
 
 
 export class NativeCullPassBase implements ICullPass {
@@ -23,7 +17,7 @@ export class NativeCullPassBase implements ICullPass {
     }
 
 
-    cullByCameraCullInfo(cameraCullInfo: CameraCullInfo, renderManager: ISceneRenderManager): void {
+    cullByCameraCullInfo(cameraCullInfo: NativeCameraCullInfo, renderManager: ISceneRenderManager): void {
         //TODO
         // this._cullList.length = 0;
         // var renders: ISingletonElement[] = renderManager.list.elements;
@@ -43,7 +37,7 @@ export class NativeCullPassBase implements ICullPass {
         //     }
         // }
     }
-    cullByShadowCullInfo(cullInfo: ShadowCullInfo, renderManager: ISceneRenderManager): void {
+    cullByShadowCullInfo(cullInfo: NativeShadowCullInfo, renderManager: ISceneRenderManager): void {
         //TODO
         // this._cullList.length = 0;
         // var renderList: SingletonList<ISingletonElement> = renderManager.list;
@@ -65,7 +59,7 @@ export class NativeCullPassBase implements ICullPass {
 		// 	}
 		// }
     }
-    cullingSpotShadow(cameraCullInfo: CameraCullInfo, renderManager: ISceneRenderManager): void{
+    cullingSpotShadow(cameraCullInfo: NativeCameraCullInfo, renderManager: ISceneRenderManager): void{
         //TODO
         // this._cullList.length = 0;
         // var renders: ISingletonElement[] = renderManager.list.elements;

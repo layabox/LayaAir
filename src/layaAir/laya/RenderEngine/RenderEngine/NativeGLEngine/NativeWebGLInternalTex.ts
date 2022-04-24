@@ -136,7 +136,7 @@ export class NativeWebGLInternalTex extends NativeGLObject implements InternalTe
         return this._anisoLevel;
     }
     public set anisoLevel(value: number) {
-        let anisoExt = this._engine._supportCapatable.getExtension(WebGLExtension.EXT_texture_filter_anisotropic);
+        let anisoExt = (this._engine as any)._supportCapatable.getExtension(WebGLExtension.EXT_texture_filter_anisotropic);
         if (anisoExt) {
             let gl = this._gl;
             let maxAnisoLevel = gl.getParameter(anisoExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT);

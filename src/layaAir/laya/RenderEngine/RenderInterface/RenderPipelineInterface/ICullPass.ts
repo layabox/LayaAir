@@ -1,14 +1,15 @@
 import { SingletonList } from "../../../d3/component/SingletonList";
 import { BaseRender } from "../../../d3/core/render/BaseRender";
-import { CameraCullInfo, ShadowCullInfo } from "../../../d3/graphics/FrustumCulling";
+import { ICameraCullInfo } from "./ICameraCullInfo";
 import { ISceneRenderManager } from "./ISceneRenderManager";
+import { IShadowCullInfo } from "./IShadowCullInfo";
 
 /**
  * 裁剪接口
  */
 export interface ICullPass{
     cullList:SingletonList<BaseRender>;
-    cullByCameraCullInfo(cameraCullInfo: CameraCullInfo, renderManager: ISceneRenderManager):void;
-    cullByShadowCullInfo(cullInfo: ShadowCullInfo, renderManager: ISceneRenderManager): void ;
-    cullingSpotShadow(cameraCullInfo: CameraCullInfo, renderManager: ISceneRenderManager): void;
+    cullByCameraCullInfo(cameraCullInfo: ICameraCullInfo, renderManager: ISceneRenderManager):void;
+    cullByShadowCullInfo(cullInfo: IShadowCullInfo, renderManager: ISceneRenderManager): void ;
+    cullingSpotShadow(cameraCullInfo: ICameraCullInfo, renderManager: ISceneRenderManager): void;
 }
