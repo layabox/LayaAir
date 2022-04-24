@@ -377,19 +377,13 @@ export class Mesh extends Resource implements IClone {
 	_setInstanceBuffer(instanceBufferStateType: number) {
 		var instanceBufferState: BufferState = this._instanceBufferState;
 		let vertexArray = [];
-		// instanceBufferState.bind();
-		// instanceBufferState.applyVertexBuffer(this._vertexBuffer);
-		// instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
 		vertexArray.push(this._vertexBuffer);
 		vertexArray.push(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
 		switch (instanceBufferStateType) {
 			case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
-				// instanceBufferState.applyInstanceVertexBuffer(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer)
 				vertexArray.push(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer);
 				break;
 		}
-		//instanceBufferState.applyIndexBuffer(this._indexBuffer);
-		//instanceBufferState.unBind();
 		instanceBufferState.applyState(vertexArray, this._indexBuffer);
 	}
 
