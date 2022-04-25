@@ -30,7 +30,7 @@ export class RenderElement {
 	static RENDERTYPE_VERTEXBATCH: number = 3;
 
 	/** @internal */
-	private static _compileDefine: DefineDatas = new DefineDatas();
+	static _compileDefine: DefineDatas = new DefineDatas();
 
 	/**
 	 * 可提交底层的渲染节点
@@ -38,6 +38,8 @@ export class RenderElement {
 	_renderElementOBJ: IRenderElement;
 	/** @internal */
 	_geometry: GeometryElement;
+	/**@internal */
+	_canBatch:boolean = false;
 	/** @internal */
 	protected _material: Material;//可能为空
 	/** @internal */
@@ -45,6 +47,7 @@ export class RenderElement {
 	/**@internal */
 	protected _subShader: SubShader;
 
+	
 
 
 	/** @internal */
@@ -205,7 +208,7 @@ export class RenderElement {
 		context.renderElement = this;
 		//model local
 		var modelDataRender: boolean = (!!this.render) ? (sceneMark !== this.render._sceneUpdateMark || this.renderType !== this.render._updateRenderType) : false;
-		if (modelDataRender && this.renderType != RenderElement.RENDERTYPE_INSTANCEBATCH) {
+		if (modelDataRender) {
 			this.render._renderUpdate(context, transform);
 			this.render._sceneUpdateMark = sceneMark;
 		}

@@ -17,8 +17,7 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
  * <code>SubMesh</code> 类用于创建子网格数据模板。
  */
 export class SubMesh extends GeometryElement {
-	/** @internal */
-	private static _uniqueIDCounter: number = 0;
+	
 	/**@internal */
 	private static _type: number = GeometryElement._typeCounter++;
 
@@ -48,9 +47,6 @@ export class SubMesh extends GeometryElement {
 	/**@internal [只读]*/
 	_indexBuffer: IndexBuffer3D;
 
-	/** @internal */
-	_id: number;
-
 	/**
 	 * 获取索引数量。
 	 */
@@ -69,7 +65,6 @@ export class SubMesh extends GeometryElement {
 			console.warn("SubMesh:this device do not support IndexFormat.UInt32.");
 			return;
 		}
-		this._id = ++SubMesh._uniqueIDCounter;
 		this._mesh = mesh;
 		this._boneIndicesList = [];
 		this._subIndexBufferStart = [];

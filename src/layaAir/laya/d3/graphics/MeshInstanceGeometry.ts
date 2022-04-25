@@ -9,7 +9,18 @@ export class MeshInstanceGeometry extends GeometryElement {
     constructor(subMesh: SubMesh) {
         super(MeshTopology.Triangles, DrawType.DrawElemientInstance);
         this._subMesh = subMesh;
+        if(subMesh)
         this.indexFormat = subMesh._mesh.indexFormat;
+    }
+
+    set subMesh(value:SubMesh){
+        this._subMesh = value;
+        if(value)
+        this.indexFormat = value._mesh.indexFormat;
+    }
+
+    get subMesh():SubMesh{
+        return this._subMesh
     }
 
     /**

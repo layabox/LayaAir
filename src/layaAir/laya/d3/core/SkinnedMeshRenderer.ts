@@ -158,7 +158,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 * @internal
 	 */
-	private _onSkinMeshChange(mesh: Mesh): void {
+	_onSkinMeshChange(mesh: Mesh): void {
 		if (mesh) {
 			this._mesh = mesh;
 			var count: number = mesh.subMeshCount;

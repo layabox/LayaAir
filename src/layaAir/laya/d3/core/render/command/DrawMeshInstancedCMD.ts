@@ -12,7 +12,7 @@ import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
 import { RenderElement } from "../RenderElement";
-import { MeshInstanceGeometry } from "../../../graphics/SubMeshInstanceGeometry";
+import { MeshInstanceGeometry } from "../../../graphics/MeshInstanceGeometry";
 import { RenderContext3D } from "../RenderContext3D";
 import { BaseRender } from "../../../core/render/BaseRender";
 import { MeshSprite3DShaderDeclaration } from "../../MeshSprite3DShaderDeclaration";

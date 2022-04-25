@@ -1162,7 +1162,7 @@ export class glTFUtils {
         layaMesh._setSubMeshes(subMeshes);
         layaMesh.calculateBounds();
 
-        layaMesh._setInstanceBuffer(Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL);
+        //layaMesh._setInstanceBuffer(Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL);
 
         // 资源面板
         // todo mesh.read = flase ? 

@@ -43,6 +43,7 @@ export class SubMeshRenderElement extends RenderElement {
 	constructor() {
 		super();
 		this._dynamicWorldPositionNormalNeedUpdate = true;
+		this._canBatch = true;
 	}
 
 	/**
