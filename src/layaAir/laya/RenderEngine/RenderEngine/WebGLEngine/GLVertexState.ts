@@ -68,8 +68,6 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
         this._engine._GLBindVertexArray = null;
     }
 
-
-
     /**
      * @internal
      */

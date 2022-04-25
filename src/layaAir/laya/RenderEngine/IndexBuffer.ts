@@ -14,7 +14,7 @@ export class IndexBuffer extends Buffer {
         super(targetType, bufferUsageType);
     }
 
-    
+
     _setIndexData(data: number): void;
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array, bufferOffset: number): void;
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array | number, bufferOffset?: number): void {
@@ -22,12 +22,12 @@ export class IndexBuffer extends Buffer {
 
         if (curBufSta) {
             if (curBufSta._bindedIndexBuffer === this) {
-                this._glBuffer.setData();
+                this._glBuffer.setDataLength(0);
             } else {
                 curBufSta.unBind();//避免影响VAO
                 this.bind();
                 if (typeof data === "number")
-                    this._glBuffer.setData(data);
+                    this._glBuffer.setDataLength(data);
                 else
                     this._glBuffer.setData(data, bufferOffset);
                 curBufSta.bind();
@@ -35,11 +35,9 @@ export class IndexBuffer extends Buffer {
         } else {
             this.bind();
             if (typeof data === "number")
-                this._glBuffer.setData(data);
+                this._glBuffer.setDataLength(data);
             else
                 this._glBuffer.setData(data, bufferOffset)
         }
     }
-
-
 }

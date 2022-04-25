@@ -44,7 +44,7 @@ export class VertexBuffer3D extends VertexBuffer {
 		this._canRead = canRead;
 		this._byteLength = byteLength;
 		this.bind();
-		this._glBuffer.setData(byteLength)
+		this._glBuffer.setDataLength(byteLength)
 		if (this._canRead) {
 			this._buffer = new Uint8Array(byteLength);
 			this._float32Reader = new Float32Array(this._buffer.buffer);
@@ -56,7 +56,7 @@ export class VertexBuffer3D extends VertexBuffer {
 	 */
 	orphanStorage(): void {
 		this.bind();
-		this._glBuffer.setData(this._byteLength);
+		this._glBuffer.setDataLength(this._byteLength);
 	}
 
 	/**
