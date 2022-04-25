@@ -85,7 +85,7 @@ export class UniformBufferObject extends Buffer {
         this.bind();
         if (this._isSingle)
             this._bindUniformBufferBase();
-        this._glBuffer.setData(this.byteLength);
+        this._glBuffer.setDataLength(this.byteLength);
     }
 
     /**
@@ -126,7 +126,7 @@ export class UniformBufferObject extends Buffer {
         this._glBuffer = LayaGL.renderEngine.createBuffer(this._bufferType,this._bufferUsage);
         if (this._isSingle)
             this._bindUniformBufferBase();
-        this._glBuffer.setData(this.byteLength);
+        this._glBuffer.setDataLength(this.byteLength);
     }
 
     /**
@@ -156,7 +156,7 @@ export class UniformBufferObject extends Buffer {
         else {
             // let gl = (LayaGL.instance as WebGL2RenderingContext);                                                 
             // gl.bufferSubData(this._bufferType, bufferOffset, buffer, 0, buffer.length);
-            this._glBuffer.setData(buffer,bufferOffset,buffer.length);
+            this._glBuffer.setDataEx(buffer,bufferOffset,buffer.length);
         }
     }
 
@@ -187,7 +187,7 @@ export class UniformBufferObject extends Buffer {
         //let gl = (LayaGL.instance as WebGL2RenderingContext);
         this.bind();
         //gl.bufferSubData(this._bufferType, offset * datalength, bufferData._buffer, 0, reallength / 4);
-        this._glBuffer.setData(bufferData._buffer,offset * datalength,reallength / 4);
+        this._glBuffer.setDataEx(bufferData._buffer,offset * datalength,reallength / 4);
     }
 
 }

@@ -8,7 +8,7 @@ import { VertexBuffer } from "./VertexBuffer";
  * @author ...
  */
 export class BufferStateBase {
-    /**@internal [只读]*/
+    /**@internal */
     static _curBindedBufferState: BufferStateBase;
 
     /**@private [只读]*/
@@ -60,7 +60,6 @@ export class BufferStateBase {
      * @private
      */
     destroy(): void {
-        //LayaGL.layaGPUInstance.deleteVertexArray(this._nativeVertexArrayObject);
         this._nativeVertexArrayObject.destroy();
         this._nativeVertexArrayObject = null;
     }

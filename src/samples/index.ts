@@ -6,4 +6,4 @@ import { TrailDemo } from "./3d/LayaAir3D_Trail/TrailDemo";
 import { TrailRender } from "./3d/LayaAir3D_Trail/TrailRender";
 import { Main } from "./Main";
 
-new RealTimeShadow();
+new Main();

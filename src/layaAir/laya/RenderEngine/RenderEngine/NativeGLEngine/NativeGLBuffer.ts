@@ -76,28 +76,48 @@ export class NativeGlBuffer extends NativeGLObject implements IRenderBuffer {
 
     orphanStorage() {
         this.bindBuffer();
-        this.setData(this._byteLength);
+        this.setDataLength(this._byteLength);
     }
 
-    setData(srcData: number): void;
-    setData(srcData: ArrayBuffer | ArrayBufferView): void;
-    setData(srcData: ArrayBuffer | ArrayBufferView, offset: number): void;
-    setData(srcData: ArrayBuffer | ArrayBufferView | number, offset: number, length: number): void
-    setData(srcData: ArrayBuffer | ArrayBufferView | number, offset?: number, length?: number): void {
+    setDataLength(srcData: number): void {
         let gl = this._gl;
         this.bindBuffer();
-        if (typeof srcData == "number") {
-            this._byteLength = srcData as number;
-            gl.bufferData(this._glTarget, this._byteLength, this._glUsage);
-        }
-        if (offset != undefined && length == undefined) {
-            gl.bufferSubData(this._glTarget, offset, <ArrayBufferView>srcData);
-        }
-        if(offset != undefined && length != undefined) {
-            gl.bufferSubData(this._glTarget, offset, srcData as ArrayBufferView, 0, length);
-        }
+        this._byteLength = srcData;
+        gl.bufferData(this._glTarget, this._byteLength, this._glUsage);
         this.unbindBuffer();
     }
+
+    setData(srcData: ArrayBuffer | ArrayBufferView, offset: number): void {
+        let gl = this._gl;
+        this.bindBuffer();
+        gl.bufferSubData(this._glTarget, offset, <ArrayBufferView>srcData);
+        this.unbindBuffer();
+    }
+    setDataEx(srcData: ArrayBuffer | ArrayBufferView, offset: number, length: number): void {
+        let gl = this._gl;
+        this.bindBuffer();
+        gl.bufferSubData(this._glTarget, offset, srcData as ArrayBufferView, 0, length);
+        this.unbindBuffer();
+    }
+    // setData(srcData: number): void;
+    // setData(srcData: ArrayBuffer | ArrayBufferView): void;
+    // setData(srcData: ArrayBuffer | ArrayBufferView, offset: number): void;
+    // setData(srcData: ArrayBuffer | ArrayBufferView | number, offset: number, length: number): void
+    // setData(srcData: ArrayBuffer | ArrayBufferView | number, offset?: number, length?: number): void {
+    //     let gl = this._gl;
+    //     this.bindBuffer();
+    //     if (typeof srcData == "number") {
+    //         this._byteLength = srcData as number;
+    //         gl.bufferData(this._glTarget, this._byteLength, this._glUsage);
+    //     }
+    //     if (offset != undefined && length == undefined) {
+    //         gl.bufferSubData(this._glTarget, offset, <ArrayBufferView>srcData);
+    //     }
+    //     if(offset != undefined && length != undefined) {
+    //         gl.bufferSubData(this._glTarget, offset, srcData as ArrayBufferView, 0, length);
+    //     }
+    //     this.unbindBuffer();
+    // }
 
 
     //TODO:

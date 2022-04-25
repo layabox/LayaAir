@@ -78,7 +78,7 @@ export class Buffer2D{
 		if (this._uploadSize < this.constBuffer._buffer.byteLength) {
 			this._uploadSize = this.constBuffer._buffer.byteLength;
 
-			this.constBuffer._glBuffer.setData(this._uploadSize);
+			this.constBuffer._glBuffer.setDataLength(this._uploadSize);
 		}
 		this.constBuffer._glBuffer.setData(new Uint8Array(this.constBuffer._buffer, 0, this.constBuffer._byteLength),0);
 	}
@@ -98,7 +98,7 @@ export class Buffer2D{
 
 		if (this._uploadSize < this.constBuffer._buffer.byteLength) {
 			this._uploadSize = this.constBuffer._buffer.byteLength;
-			this.constBuffer._glBuffer.setData(this._uploadSize);
+			this.constBuffer._glBuffer.setDataLength(this._uploadSize);
 			//_setGPUMemory(_uploadSize);
 		}
 
