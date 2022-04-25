@@ -69,7 +69,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		this.setDrawElemenParams(indexCount, subMesh._indexStart * 2);
 		//LayaGL.renderDrawConatext.drawElementsInstanced(MeshTopology.Triangles, indexCount, IndexFormat.UInt16, subMesh._indexStart * 2, count);
 		//Stat.renderBatches++;
-		Stat.savedRenderBatches += count - 1;
+		//Stat.savedRenderBatches += count - 1;
 		//Stat.trianglesFaces += indexCount * count / 3;
 	}
 

@@ -2,10 +2,10 @@ import { SingletonList } from "../../d3/component/SingletonList";
 import { Camera } from "../../d3/core/Camera";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { RenderElement } from "../../d3/core/render/RenderElement";
+import { RenderElementBatch } from "../../d3/graphics/Batch/RenderElementBatch";
 import { IRenderContext3D } from "../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISortPass } from "../RenderInterface/RenderPipelineInterface/ISortPass";
-import { QuickSort } from "./QuickSort";
 
 
 export class BaseRenderQueue implements IRenderQueue {
@@ -16,20 +16,23 @@ export class BaseRenderQueue implements IRenderQueue {
     /**sort function*/
     _sortPass: ISortPass;
     /** context*/
-    _context:IRenderContext3D;
+    _context: IRenderContext3D;
+
+    _batch:RenderElementBatch;
 
     set sortPass(value: ISortPass) {
         this._sortPass = value;
     }
     constructor(isTransparent: boolean) {
         this._isTransparent = isTransparent;
+        this._batch = RenderElementBatch.instance?RenderElementBatch.instance:new RenderElementBatch();
     }
 
-    set context(value:RenderContext3D){
+    set context(value: RenderContext3D) {
         this._context = value._contextOBJ;
     }
 
-  
+
 
     addRenderElement(renderelement: RenderElement) {
         this.elements.add(renderelement);
@@ -39,26 +42,27 @@ export class BaseRenderQueue implements IRenderQueue {
         this.elements.length = 0;
     }
 
-    renderQueue(context:RenderContext3D) {
+    renderQueue(context: RenderContext3D) {
         this.context = context;
         this._context.applyContext(Camera._updateMark);
-        
+
         var elements: RenderElement[] = this.elements.elements;
-		this._batchQueue();
-        for (var i: number = 0, n: number = this.elements.length; i < n; i++){
+
+        this._batchQueue();//合并的地方
+        for (var i: number = 0,n =this.elements.length ; i < n; i++) {
             elements[i]._renderUpdatePre(context);//Update Data
-            
         }
         //更新所有大buffer数据 nativeTODO
 
         this._sort();
         for (var i: number = 0, n: number = this.elements.length; i < n; i++)
-			elements[i]._render(this._context);//Update Data
+            elements[i]._render(this._context);//Update Data
         
+        this._batch.recoverData();
     }
 
     private _batchQueue() {
-
+       this._isTransparent|| this._batch.batch(this.elements);
     }
 
     private _sort() {

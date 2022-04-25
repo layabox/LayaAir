@@ -7,9 +7,9 @@ import { Handler } from "../../../utils/Handler";
 import { Bounds } from "../../core/Bounds";
 import { BufferState } from "../../core/BufferState";
 import { IClone } from "../../core/IClone";
+import { InstanceRenderElement } from "../../core/render/InstanceRenderElement";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { IndexFormat } from "../../graphics/IndexFormat";
-import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexElement } from "../../graphics/VertexElement";
@@ -61,7 +61,7 @@ export class Mesh extends Resource implements IClone {
 	private static _nativeTempVector31: number;
 	/** @internal */
 	private static _nativeTempVector32: number;
-
+	
 	/**
 	  * @internal
 	  */
@@ -100,9 +100,13 @@ export class Mesh extends Resource implements IClone {
 	/** @internal */
 	_bufferState: BufferState = new BufferState();
 	/** @internal */
-	_instanceBufferState: BufferState = new BufferState();
+	_instanceBufferState: BufferState;
 	/** @internal */
 	_instanceBufferStateType: number = 0;
+	/**@internal */
+	_instanceWorldVertexBuffer:VertexBuffer3D
+	/**@internal */
+	_instanceSimpleAniVertexBuffer:VertexBuffer3D
 	/** @internal */
 	_subMeshes: SubMesh[];
 	/** @internal */
@@ -120,6 +124,11 @@ export class Mesh extends Resource implements IClone {
 	_vertexCount: number = 0;
 	/** @internal */
 	_indexFormat: IndexFormat = IndexFormat.UInt16;
+
+	/** @internal */
+	instanceWorldMatrixData: Float32Array;
+	/** @internal */
+	instanceSimpleAnimatorData: Float32Array;
 
 	/**
 	 * 网格的全局默认绑定动作逆矩阵。
@@ -335,7 +344,11 @@ export class Mesh extends Resource implements IClone {
 		this._vertexBuffer.destroy();
 		this._indexBuffer.destroy();
 		this._bufferState.destroy();
-		this._instanceBufferState.destroy();
+		this._instanceBufferState && this._instanceBufferState.destroy();
+		this._instanceWorldVertexBuffer && this._instanceWorldVertexBuffer.destroy();
+		this._instanceSimpleAniVertexBuffer && this._instanceSimpleAniVertexBuffer.destroy();
+		this.instanceWorldMatrixData &&(this.instanceWorldMatrixData = null);
+		this.instanceSimpleAnimatorData && (this.instanceSimpleAnimatorData = null);
 		this._setCPUMemory(0);
 		this._setGPUMemory(0);
 		this._bufferState = null;
@@ -374,14 +387,27 @@ export class Mesh extends Resource implements IClone {
 	/**
 	 * @internal
 	 */
-	_setInstanceBuffer(instanceBufferStateType: number) {
-		var instanceBufferState: BufferState = this._instanceBufferState;
+	_setInstanceBuffer() {
+		if (this._instanceBufferState)
+			return;
+		var instanceBufferState: BufferState = this._instanceBufferState = new BufferState();
+		var instanceBufferStateType = this._instanceBufferStateType;
 		let vertexArray = [];
 		vertexArray.push(this._vertexBuffer);
-		vertexArray.push(SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer);
+		//new Instance VertexBuffer3D
+		let instanceBuffer3D: VertexBuffer3D = this._instanceWorldVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 16 * 4, BufferUsage.Dynamic, false);;
+		instanceBuffer3D.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+		instanceBuffer3D._instanceBuffer = true;
+		vertexArray.push(instanceBuffer3D);
+		this.instanceWorldMatrixData = new Float32Array(InstanceRenderElement.maxInstanceCount * 16);
 		switch (instanceBufferStateType) {
 			case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
-				vertexArray.push(SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer);
+				//new SimpleVertexBuffer3D
+				let instanceSimpleAnimatorBuffer = this._instanceSimpleAniVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
+				instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
+				instanceSimpleAnimatorBuffer._instanceBuffer = true;
+				this.instanceSimpleAnimatorData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
+				vertexArray.push(instanceSimpleAnimatorBuffer);
 				break;
 		}
 		instanceBufferState.applyState(vertexArray, this._indexBuffer);
@@ -761,7 +787,8 @@ export class Mesh extends Resource implements IClone {
 		destMesh._indexBuffer = destIB;
 
 		destMesh._setBuffer(destMesh._vertexBuffer, destIB);
-		destMesh._setInstanceBuffer(this._instanceBufferStateType);
+		destMesh._instanceBufferStateType = this._instanceBufferStateType;
+		
 		destMesh._setCPUMemory(this.cpuMemory);
 		destMesh._setGPUMemory(this.gpuMemory);
 

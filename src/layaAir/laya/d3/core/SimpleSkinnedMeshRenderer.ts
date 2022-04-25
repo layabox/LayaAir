@@ -6,16 +6,11 @@ import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
 import { Sprite3D } from "./Sprite3D";
 import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-import { RenderableSprite3D } from "./RenderableSprite3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
 import { Vector4 } from "../math/Vector4";
 import { Vector2 } from "../math/Vector2";
-import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch";
-import { SingletonList } from "../component/SingletonList";
-import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
-import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 import { Component } from "../../components/Component";
 
@@ -30,7 +25,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal */
     private _simpleAnimatorTexture: Texture2D;
     /**@internal */
-    private _simpleAnimatorParams: Vector4;
+    _simpleAnimatorParams: Vector4;
     /**@internal */
     private _simpleAnimatorTextureSize: number;
     /**@internal  x simpleAnimation offset,y simpleFrameOffset*/
@@ -85,9 +80,19 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
+	 *@inheritDoc
+	 *@override
+	 *@internal
+	 */
+	_createRenderElement() {
+		let renderelement = new SubMeshRenderElement();
+		return renderelement as any;
+	}
+
+    /**
      * @internal
      */
-    private _computeAnimatorParamsData(): void {
+    _computeAnimatorParamsData(): void {
         if (this._cacheMesh) {
             this._simpleAnimatorParams.x = this._simpleAnimatorOffset.x;
             this._simpleAnimatorParams.y = Math.round(this._simpleAnimatorOffset.y) * this._bonesNums * 4;
@@ -116,7 +121,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     *@internal
     */
     _onMeshChange(value: Mesh): void {
-        super._onMeshChange(value);
+        this._onSkinMeshChange(value);
+		if (!value)
+			return;
         this._cacheMesh = (<Mesh>value);
         
     }
@@ -143,46 +150,46 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
                 this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
                 break;
             case RenderElement.RENDERTYPE_INSTANCEBATCH:
-                var worldMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceWorldMatrixData;
-                var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
-                var elements: SubMeshRenderElement[] = insBatches.elements;
-                var count: number = insBatches.length;
-                if (this.rootBone) {
-                    for (var i: number = 0; i < count; i++) {
-                        var mat: Matrix4x4 = (((elements[i].render) as SimpleSkinnedMeshRenderer).rootBone as Sprite3D)._transform.worldMatrix;
-                        worldMatrixData.set(mat.elements, i * 16);
-                    }
-                }
-                else {
-                    for (var i: number = 0; i < count; i++)
-                        worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
-                }
-                var worldBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer;
-                worldBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.   TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
-                worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
-                this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
-                //TODO:new Instance
+                // var worldMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceWorldMatrixData;
+                // var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
+                // var elements: SubMeshRenderElement[] = insBatches.elements;
+                // var count: number = insBatches.length;
+                // if (this.rootBone) {
+                //     for (var i: number = 0; i < count; i++) {
+                //         var mat: Matrix4x4 = (((elements[i].render) as SimpleSkinnedMeshRenderer).rootBone as Sprite3D)._transform.worldMatrix;
+                //         worldMatrixData.set(mat.elements, i * 16);
+                //     }
+                // }
+                // else {
+                //     for (var i: number = 0; i < count; i++)
+                //         worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
+                // }
+                // var worldBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer;
+                // worldBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.   TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
+                // worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
+                // this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+                // //TODO:new Instance
 
-                var simpleAnimatorData: Float32Array = SubMeshInstanceBatch.instance.instanceSimpleAnimatorData;
-                if (this.rootBone) {
-                    for (var i: number = 0; i < count; i++) {
-                        var render: SimpleSkinnedMeshRenderer = (elements[i].render) as SimpleSkinnedMeshRenderer;
-                        render._computeAnimatorParamsData();
-                        var simpleAnimatorParams: Vector4 = render._simpleAnimatorParams;
-                        var offset: number = i * 4;
-                        simpleAnimatorData[offset] = simpleAnimatorParams.x;
-                        simpleAnimatorData[offset + 1] = simpleAnimatorParams.y;
-                    }
-                }
-                else {
-                    for (var i: number = 0; i < count; i++) {
-                        simpleAnimatorData[offset] = 0;
-                        simpleAnimatorData[offset + 1] = 0;
-                    }
-                }
-                var simpleAnimatorBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer;
-                simpleAnimatorBuffer.orphanStorage();
-                simpleAnimatorBuffer.setData(simpleAnimatorData.buffer, 0, 0, count * 4 * 4);
+                // var simpleAnimatorData: Float32Array = SubMeshInstanceBatch.instance.instanceSimpleAnimatorData;
+                // if (this.rootBone) {
+                //     for (var i: number = 0; i < count; i++) {
+                //         var render: SimpleSkinnedMeshRenderer = (elements[i].render) as SimpleSkinnedMeshRenderer;
+                //         render._computeAnimatorParamsData();
+                //         var simpleAnimatorParams: Vector4 = render._simpleAnimatorParams;
+                //         var offset: number = i * 4;
+                //         simpleAnimatorData[offset] = simpleAnimatorParams.x;
+                //         simpleAnimatorData[offset + 1] = simpleAnimatorParams.y;
+                //     }
+                // }
+                // else {
+                //     for (var i: number = 0; i < count; i++) {
+                //         simpleAnimatorData[offset] = 0;
+                //         simpleAnimatorData[offset + 1] = 0;
+                //     }
+                // }
+                // var simpleAnimatorBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer;
+                // simpleAnimatorBuffer.orphanStorage();
+                // simpleAnimatorBuffer.setData(simpleAnimatorData.buffer, 0, 0, count * 4 * 4);
                 break;
         }
     }

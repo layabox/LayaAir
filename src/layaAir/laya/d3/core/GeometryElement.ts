@@ -11,13 +11,16 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
  * <code>GeometryElement</code> 类用于实现几何体元素,该类为抽象类。
  */
 export class GeometryElement implements IDestroy{
+	/** @internal */
+	private static _uniqueIDCounter: number = 0;
 	protected _owner:any;
 	/**@internal */
 	protected static _typeCounter: number = 0;
 	/**@internal */
 	protected _destroyed: boolean;
 	_geometryElementOBj:IRenderGeometryElement;
-
+	/** @internal */
+	_id: number;
 	/**
 	 * VAO OBJ
 	 */
@@ -92,6 +95,7 @@ export class GeometryElement implements IDestroy{
 	constructor(mode:MeshTopology,drawType:DrawType) {
 		this._destroyed = false;
 		this._geometryElementOBj = LayaGL.renderOBJCreate.createRenderGeometry(mode,drawType);
+		this._id = ++GeometryElement._uniqueIDCounter;
 	}
 
 

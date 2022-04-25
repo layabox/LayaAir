@@ -34,9 +34,6 @@ export class SkinRenderElement extends RenderElement{
 	}
 
     _render(context:IRenderContext3D): void {
-        // if( (this._baseRender as SkinnedMeshRenderer)._skinnedData){
-        //     this._renderElementOBJ.skinnedData = (this._baseRender as SkinnedMeshRenderer)._skinnedData;
-        // }
 		this._renderElementOBJ._render(context);
     }
 }
