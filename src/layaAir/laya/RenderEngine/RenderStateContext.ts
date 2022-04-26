@@ -1,8 +1,8 @@
+import { LayaGL } from "../layagl/LayaGL";
 import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
 import { BlendType } from "../RenderEngine/RenderEnum/BlendType";
 import { CompareFunction } from "../RenderEngine/RenderEnum/CompareFunction";
-import { CullMode } from "../RenderEngine/RenderEnum/CullMode";
 import { RenderStateType } from "../RenderEngine/RenderEnum/RenderStateType";
 import { StencilOperation } from "../RenderEngine/RenderEnum/StencilOperation";
 import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
@@ -10,27 +10,43 @@ import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
  * @private
  */
 export class RenderStateContext {
-    static mainContext:any;
+    static mainContext: any;
 
-    static DepthTestCMD: RenderStateCommand = new RenderStateCommand();
-    static DepthMaskCMD: RenderStateCommand = new RenderStateCommand();
-    static DepthFuncCMD: RenderStateCommand = new RenderStateCommand();
-    static StencilTestCMD: RenderStateCommand = new RenderStateCommand();
-    static StencilMaskCMD: RenderStateCommand = new RenderStateCommand();
-    static StencilFuncCMD: RenderStateCommand = new RenderStateCommand();
-    static stencilOpCMD: RenderStateCommand = new RenderStateCommand();
-    static BlendCMD: RenderStateCommand = new RenderStateCommand();
-    static BlendEquationCMD: RenderStateCommand = new RenderStateCommand();
-    static BlendEquationSeparateCMD: RenderStateCommand = new RenderStateCommand();
-    static BlendFuncCMD: RenderStateCommand = new RenderStateCommand();
-    static BlendFuncSeperateCMD: RenderStateCommand = new RenderStateCommand();
-    static CullFaceCMD: RenderStateCommand = new RenderStateCommand();
-    static FrontFaceCMD: RenderStateCommand = new RenderStateCommand();
+    static DepthTestCMD: RenderStateCommand;
+    static DepthMaskCMD: RenderStateCommand;
+    static DepthFuncCMD: RenderStateCommand;
+    static StencilTestCMD: RenderStateCommand;
+    static StencilMaskCMD: RenderStateCommand;
+    static StencilFuncCMD: RenderStateCommand;
+    static stencilOpCMD: RenderStateCommand;
+    static BlendCMD: RenderStateCommand;
+    static BlendEquationCMD: RenderStateCommand;
+    static BlendEquationSeparateCMD: RenderStateCommand;
+    static BlendFuncCMD: RenderStateCommand;
+    static BlendFuncSeperateCMD: RenderStateCommand;
+    static CullFaceCMD: RenderStateCommand;
+    static FrontFaceCMD: RenderStateCommand;
     static stencilFuncArray = new Array<number>(2);
     static blendEquationSeparateArray = new Array<number>(2);
     static blenfunArray = new Array(2);
     static blendFuncSeperateArray = new Array(4);
     static stencilOpArray = new Array<number>(3);
+    static __init__() {
+        RenderStateContext.DepthTestCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.DepthMaskCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.DepthFuncCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.StencilTestCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.StencilMaskCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.StencilFuncCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.stencilOpCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.BlendCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.BlendEquationCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.BlendEquationSeparateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.BlendFuncCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.BlendFuncSeperateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.CullFaceCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.FrontFaceCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+    }
     /**
      * @internal
      */
@@ -38,7 +54,6 @@ export class RenderStateContext {
         RenderStateContext.DepthTestCMD.clear();
         RenderStateContext.DepthTestCMD.addCMD(RenderStateType.DepthTest, value);
         RenderStateContext.DepthTestCMD.applyCMD();
-        //value !== RenderStateContext._depthTest && (RenderStateContext._depthTest = value, value ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST));
     }
 
     /**
@@ -48,7 +63,6 @@ export class RenderStateContext {
         RenderStateContext.DepthMaskCMD.clear();
         RenderStateContext.DepthMaskCMD.addCMD(RenderStateType.DepthMask, value);
         RenderStateContext.DepthMaskCMD.applyCMD();
-        //value !== RenderStateContext._depthMask && (RenderStateContext._depthMask = value, gl.depthMask(value));
     }
 
     /**
@@ -58,7 +72,6 @@ export class RenderStateContext {
         RenderStateContext.DepthFuncCMD.clear();
         RenderStateContext.DepthFuncCMD.addCMD(RenderStateType.DepthFunc, value);
         RenderStateContext.DepthFuncCMD.applyCMD();
-        //value !== RenderStateContext._depthFunc && (RenderStateContext._depthFunc = value, gl.depthFunc(value));
     }
 
     /**
@@ -68,7 +81,6 @@ export class RenderStateContext {
         RenderStateContext.StencilTestCMD.clear();
         RenderStateContext.StencilTestCMD.addCMD(RenderStateType.StencilTest, value);
         RenderStateContext.StencilTestCMD.applyCMD();
-        //value !==RenderStateContext._stencilTest && (RenderStateContext._stencilTest = value,value?gl.enable(gl.STENCIL_TEST):gl.disable(gl.STENCIL_TEST));
     }
 
     /**
@@ -80,40 +92,30 @@ export class RenderStateContext {
         RenderStateContext.StencilMaskCMD.clear();
         RenderStateContext.StencilMaskCMD.addCMD(RenderStateType.StencilMask, value);
         RenderStateContext.StencilMaskCMD.applyCMD();
-        //value !== RenderStateContext._stencilMask && (RenderStateContext._stencilMask = value, value?gl.stencilMask(0xff):gl.stencilMask(0x00));
     }
 
-    
+
     /**
      * @internal
      */
     static setStencilFunc(fun: CompareFunction, ref: number): void {
-        //if (RenderStateContext.stencilFuncArray[0] == fun || ref != RenderStateContext.stencilFuncArray[1]) {
-            RenderStateContext.StencilFuncCMD.clear();
-            RenderStateContext.stencilFuncArray[0] = fun;
-            RenderStateContext.stencilFuncArray[1] = ref;
-            RenderStateContext.StencilFuncCMD.addCMD(RenderStateType.StencilFunc, RenderStateContext.stencilFuncArray);
-            RenderStateContext.StencilFuncCMD.applyCMD();
-        //}
-        // if(fun!=RenderStateContext._stencilFunc||ref!=RenderStateContext._stencilRef){
-        //     RenderStateContext._stencilFunc = fun;
-        //     RenderStateContext._stencilRef = ref;
-        //     gl.stencilFunc(fun,ref,0xff);
-        // }
+        RenderStateContext.StencilFuncCMD.clear();
+        RenderStateContext.stencilFuncArray[0] = fun;
+        RenderStateContext.stencilFuncArray[1] = ref;
+        RenderStateContext.StencilFuncCMD.addCMD(RenderStateType.StencilFunc, RenderStateContext.stencilFuncArray);
+        RenderStateContext.StencilFuncCMD.applyCMD();
     }
-    
+
     /**
     * @internal
     */
     static setstencilOp(fail: StencilOperation, zfail: StencilOperation, zpass: StencilOperation) {
-       // if (RenderStateContext.stencilOpArray[0] != fail || RenderStateContext.stencilOpArray[1] != zfail || RenderStateContext.stencilOpArray[2] != zpass) {
-            RenderStateContext.stencilOpCMD.clear();     
-            RenderStateContext.stencilOpArray[0] = fail;
-            RenderStateContext.stencilOpArray[1] = zfail;
-            RenderStateContext.stencilOpArray[2] = zpass;
-            RenderStateContext.stencilOpCMD.addCMD(RenderStateType.StencilOp, RenderStateContext.stencilOpArray);
-            RenderStateContext.stencilOpCMD.applyCMD();
-       // }
+        RenderStateContext.stencilOpCMD.clear();
+        RenderStateContext.stencilOpArray[0] = fail;
+        RenderStateContext.stencilOpArray[1] = zfail;
+        RenderStateContext.stencilOpArray[2] = zpass;
+        RenderStateContext.stencilOpCMD.addCMD(RenderStateType.StencilOp, RenderStateContext.stencilOpArray);
+        RenderStateContext.stencilOpCMD.applyCMD();
     }
 
 
@@ -123,13 +125,11 @@ export class RenderStateContext {
      */
     static setBlend(value: boolean): void {
         RenderStateContext.BlendCMD.clear();
-        if(!value)
-        RenderStateContext.BlendCMD.addCMD(RenderStateType.BlendType,BlendType.BLEND_DISABLE);
+        if (!value)
+            RenderStateContext.BlendCMD.addCMD(RenderStateType.BlendType, BlendType.BLEND_DISABLE);
         else
-        RenderStateContext.BlendCMD.addCMD(RenderStateType.BlendType,BlendType.BLEND_ENABLE_SEPERATE);
+            RenderStateContext.BlendCMD.addCMD(RenderStateType.BlendType, BlendType.BLEND_ENABLE_SEPERATE);
         RenderStateContext.BlendCMD.applyCMD();
-        //value !== RenderStateContext._blend && (RenderStateContext._blend = value, value ? gl.enable(gl.BLEND) : gl.disable(gl.BLEND));
-
     }
 
 
@@ -138,16 +138,11 @@ export class RenderStateContext {
      */
     static setBlendEquation(blendEquation: BlendEquationSeparate): void {
         RenderStateContext.BlendEquationCMD.clear();
-        RenderStateContext.BlendEquationCMD.addCMD(RenderStateType.BlendEquation,blendEquation);
+        RenderStateContext.BlendEquationCMD.addCMD(RenderStateType.BlendEquation, blendEquation);
         RenderStateContext.BlendEquationCMD.applyCMD();
-        // if (blendEquation !== RenderStateContext._blendEquation) {
-        //     RenderStateContext._blendEquation = blendEquation;
-        //     RenderStateContext._blendEquationRGB = RenderStateContext._blendEquationAlpha = null;
-        //     gl.blendEquation(blendEquation);
-        // }
     }
 
-    
+
     /**
      * @internal
      */
@@ -155,14 +150,8 @@ export class RenderStateContext {
         RenderStateContext.BlendEquationSeparateCMD.clear();
         RenderStateContext.blendEquationSeparateArray[0] = blendEquationRGB;
         RenderStateContext.blendEquationSeparateArray[1] = blendEquationAlpha;
-        RenderStateContext.BlendEquationSeparateCMD.addCMD(RenderStateType.BlendEquationSeparate,RenderStateContext.blendEquationSeparateArray)
+        RenderStateContext.BlendEquationSeparateCMD.addCMD(RenderStateType.BlendEquationSeparate, RenderStateContext.blendEquationSeparateArray)
         RenderStateContext.BlendEquationSeparateCMD.applyCMD();
-        // if (blendEquationRGB !== RenderStateContext._blendEquationRGB || blendEquationAlpha !== RenderStateContext._blendEquationAlpha) {
-        //     RenderStateContext._blendEquationRGB = blendEquationRGB;
-        //     RenderStateContext._blendEquationAlpha = blendEquationAlpha;
-        //     RenderStateContext._blendEquation = null;
-        //     gl.blendEquationSeparate(blendEquationRGB, blendEquationAlpha);
-        // }
     }
 
 
@@ -173,18 +162,8 @@ export class RenderStateContext {
         RenderStateContext.BlendFuncCMD.clear();
         RenderStateContext.blenfunArray[0] = sFactor;
         RenderStateContext.blenfunArray[1] = dFactor;
-        RenderStateContext.BlendFuncCMD.addCMD(RenderStateType.BlendFunc,RenderStateContext.blenfunArray);
+        RenderStateContext.BlendFuncCMD.addCMD(RenderStateType.BlendFunc, RenderStateContext.blenfunArray);
         RenderStateContext.BlendFuncCMD.applyCMD();
-        // 有个iOS的bug，用原来的写法有时候会出错
-        // if (force || sFactor !== _sFactor || dFactor !== _dFactor) {
-        //     _sFactor = sFactor;
-        //     _dFactor = dFactor;
-        //     RenderStateContext._sFactorRGB = null;
-        //     RenderStateContext._dFactorRGB = null;
-        //     RenderStateContext._sFactorAlpha = null;
-        //     RenderStateContext._dFactorAlpha = null;
-        //     gl.blendFunc(sFactor, dFactor);
-        // }
     }
 
     /**
@@ -196,35 +175,9 @@ export class RenderStateContext {
         RenderStateContext.blendFuncSeperateArray[1] = dstRGB;
         RenderStateContext.blendFuncSeperateArray[2] = srcAlpha;
         RenderStateContext.blendFuncSeperateArray[3] = dstAlpha;
-        RenderStateContext.BlendFuncSeperateCMD.addCMD(RenderStateType.BlendFuncSeperate,RenderStateContext.blendFuncSeperateArray);
+        RenderStateContext.BlendFuncSeperateCMD.addCMD(RenderStateType.BlendFuncSeperate, RenderStateContext.blendFuncSeperateArray);
         RenderStateContext.BlendFuncSeperateCMD.applyCMD();
-        // if (srcRGB !== RenderStateContext._sFactorRGB || dstRGB !== RenderStateContext._dFactorRGB || srcAlpha !== RenderStateContext._sFactorAlpha || dstAlpha !== RenderStateContext._dFactorAlpha) {
-        //     RenderStateContext._sFactorRGB = srcRGB;
-        //     RenderStateContext._dFactorRGB = dstRGB;
-        //     RenderStateContext._sFactorAlpha = srcAlpha;
-        //     RenderStateContext._dFactorAlpha = dstAlpha;
-        //     _sFactor = null;
-        //     _dFactor = null;
-        //     gl.blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
-        // }
     }
-
-    // /**
-    //  * @internal
-    //  */
-    // static setCullFace(value: boolean): void {
-    //     RenderStateContext.CullFaceCMD.addCMD(RenderStateType.CullFace,value);
-    //     //value !== RenderStateContext._cullFace && (RenderStateContext._cullFace = value, value ? gl.enable(gl.CULL_FACE) : gl.disable(gl.CULL_FACE));
-    // }
-
-    // /**
-    //  * @internal
-    //  */
-    // static setFrontFace(value: CullMode): void {
-    //     RenderStateContext.FrontFaceCMD.addCMD(RenderStateType.FrontFace,value);
-    //     //value !== RenderStateContext._frontFace && (RenderStateContext._frontFace = value, gl.frontFace(value));
-    // }
-
 }
 
 

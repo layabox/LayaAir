@@ -35,6 +35,7 @@ import { NativeShadowCullInfo } from "./NativeShadowCullInfo";
 import { NativeCameraCullInfo } from "./NativeCameraCullInfo";
 import { IndexBuffer3D } from "../../../../d3/graphics/IndexBuffer3D";
 import { NativeIndexBuffer3D } from "../NativeOBJ/NativeIndexBuffer3D";
+import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
@@ -116,5 +117,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
 
     createCameraCullInfo():ICameraCullInfo{
         return new NativeCameraCullInfo();
+    }
+
+    createRenderStateComand(): NativeRenderStateCommand {
+        throw new NativeRenderStateCommand();
     }
 }

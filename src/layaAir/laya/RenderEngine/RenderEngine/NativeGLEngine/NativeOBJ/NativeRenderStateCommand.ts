@@ -1,11 +1,11 @@
-import { LayaGL } from "../../../../layagl/LayaGL";
-import { BlendType } from "../../../RenderEnum/BlendType";
+
+import { RenderStateCommand } from "../../../RenderStateCommand";
 import { RenderStateType } from "../../../RenderEnum/RenderStateType";
 
 /**
  * 渲染状态设置命令流
  */
-export class NativeRenderStateCommand{
+export class NativeRenderStateCommand extends RenderStateCommand {
     private _nativeObj: any;
     constructor(){
         this._nativeObj = new (window as any).conchRenderStateCommand();

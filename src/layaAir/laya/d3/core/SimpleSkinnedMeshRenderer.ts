@@ -99,22 +99,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         }
     }
 
-    // /**
-    //  *@inheritDoc
-    //  *@override
-    //  *@internal
-    //  */
-    // _createRenderElement(): SubMeshRenderElement {
-    //     return new SubMeshRenderElement();
-    // }
-    // /**
-    //  * @internal
-    //  */
-    // _setCacheAnimator(animator: Animator): void {
-    //     this._cacheAnimator = animator;
-    //     this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE);
-    // }
-
     /**
     *@inheritDoc
     *@override
