@@ -2,104 +2,44 @@ import { IndexBuffer } from "../../IndexBuffer";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { VertexBuffer } from "../../VertexBuffer";
 import { VertexDeclaration } from "../../VertexDeclaration";
-import { WebGLExtension } from "../WebGLEngine/GLEnum/WebGLExtension";
 import { NativeGLObject } from "./NativeGLObject";
 import { NativeWebGLEngine } from "./NativeWebGLEngine";
 
 
 export class NativeGLVertexState extends NativeGLObject implements IRenderVertexState {
-    private _angleInstancedArrays:any;
-    private _vaoExt: any | null;
-    private _vao: WebGLVertexArrayObject | WebGLVertexArrayObjectOES;
 
     _vertexDeclaration: VertexDeclaration;
     _bindedIndexBuffer: IndexBuffer;
     _vertexBuffers: VertexBuffer[];
-
+    _nativeVertexBuffers:any[];
+    private _nativeObj: any;
     constructor(engine: NativeWebGLEngine) {
         super(engine);
-        if (!engine.isWebGL2)
-            this._vaoExt = (engine as any)._supportCapatable.getExtension(WebGLExtension.OES_vertex_array_object);
-        this._vao = this.createVertexArray();
-        this._angleInstancedArrays = (this._engine as any)._supportCapatable.getExtension(WebGLExtension.ANGLE_instanced_arrays);
-    }
-
-    /**
-     * @internal
-     */
-    private createVertexArray(): any {
-        if (this._engine.isWebGL2)
-            return (<WebGL2RenderingContext>this._gl).createVertexArray();
-        else
-            return this._vaoExt.createVertexArrayOES();
-    }
-
-    /**
-     * @internal
-     */
-    private deleteVertexArray(): void {
-        if (this._engine.isWebGL2)
-            (<WebGL2RenderingContext>this._gl).deleteVertexArray(this._vao);
-        else
-            this._vaoExt.deleteVertexArrayOES(this._vao);
+        this._nativeObj = new (window as any).conchGLVertexState();
+        this._nativeVertexBuffers=[];
     }
 
     /**
      * @internal
      */
     bindVertexArray(): void {
-        if (this._engine._GLBindVertexArray == this)
-            return;
-        if (this._engine.isWebGL2)
-            (<WebGL2RenderingContext>this._gl).bindVertexArray(this._vao);
-        else
-            this._vaoExt.bindVertexArrayOES(this._vao);
-        this._engine._GLBindVertexArray = this;
+        this._nativeObj.bindVertexArray();
     }
 
     /**
      * @internal
      */
     unbindVertexArray(): void {
-        if (this._engine.isWebGL2)
-            (<WebGL2RenderingContext>this._gl).bindVertexArray(null);
-        else
-            this._vaoExt.bindVertexArrayOES(null);
-        this._engine._GLBindVertexArray = null;
-    }
-
-
-
-    /**
-     * @internal
-     */
-    isVertexArray(): void {
-        if (this._engine.isWebGL2)
-            (<WebGL2RenderingContext>this._gl).isVertexArray(this._vao);
-        else
-            this._vaoExt.isVertexArrayOES(this._vao);
+        this._nativeObj.unbindVertexArray();
     }
 
     applyVertexBuffer(vertexBuffer: VertexBuffer[]): void {
         this._vertexBuffers = vertexBuffer;
-        if (this._engine._GLBindVertexArray == this) {
-            vertexBuffer.forEach(element => {
-                var verDec: VertexDeclaration = element.vertexDeclaration;
-                var valueData: any = verDec._shaderValues;
-                element.bind();
-                for (var k in valueData) {
-                    var loc: number = parseInt(k);
-                    var attribute: any[] = valueData[k];
-                    this._gl.enableVertexAttribArray(loc);
-                    this._gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
-                    if (element._instanceBuffer)
-                    this.vertexAttribDivisor(loc,1);
-                }
-            });
-        } else {
-            throw "BufferState: must call bind() function first.";
-        }
-
+        this._nativeVertexBuffers.length = 0;
+        vertexBuffer.forEach((element) => {
+            this._nativeVertexBuffers.push((element as any)._conchVertexBuffer3D);
+        });
+        this._nativeObj.applyVertexBuffer(this._nativeVertexBuffers);
     }
 
     applyIndexBuffer(indexBuffer: IndexBuffer|null): void {
@@ -108,35 +48,13 @@ export class NativeGLVertexState extends NativeGLObject implements IRenderVertex
         if(indexBuffer==null){
             return;
         }
-        if (this._engine._GLBindVertexArray == this) {
-            if (this._bindedIndexBuffer !== indexBuffer) {
-                indexBuffer.bind();//TODO:可和vao合并bind
-                this._bindedIndexBuffer = indexBuffer;
-            }
-        } else {
-            throw "BufferState: must call bind() function first.";
-        }
+        this._nativeObj.applyIndexBuffer((indexBuffer as any)._conchIndexBuffer3D);
     }
-
-    /**
-         * @internal
-         */
-    vertexAttribDivisor(index: number, divisor: number): void {
-        if (this._engine.isWebGL2)
-            (<WebGL2RenderingContext>this._gl).vertexAttribDivisor(index, divisor);
-        else
-            this._angleInstancedArrays.vertexAttribDivisorANGLE(index, divisor);
-    }
-
-
     /**
      * @internal
      */
     destroy() {
         super.destroy();
-        const gl = this._gl;
-        this.deleteVertexArray();
-        this._gl = null;
-        this._engine = null;
+        this._nativeObj.destroy()
     }
 } 
