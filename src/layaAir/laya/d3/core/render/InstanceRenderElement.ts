@@ -7,7 +7,6 @@ import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector4 } from "../../math/Vector4";
 import { Mesh } from "../../resource/models/Mesh";
-import { SubMesh } from "../../resource/models/SubMesh";
 import { ShaderInstance } from "../../shader/ShaderInstance";
 import { ShaderPass } from "../../shader/ShaderPass";
 import { Camera } from "../Camera";

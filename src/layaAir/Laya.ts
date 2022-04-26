@@ -62,6 +62,7 @@ import { Event } from "./laya/events/Event";
 import { Config } from "./Config";
 import { Color } from "./laya/d3/math/Color";
 import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
+import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -237,7 +238,7 @@ export class Laya {
 		render = Laya.render;
 		Laya.stage.size(width, height);
 		((<any>window)).stage = Laya.stage;
-		
+		RenderStateContext.__init__();
 		MeshParticle2D.__init__();
 		RenderSprite.__init__();
 		KeyBoardManager.__init__();

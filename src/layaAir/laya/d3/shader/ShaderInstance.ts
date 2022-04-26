@@ -50,16 +50,18 @@ export class ShaderInstance {
 	/**@internal SceneIDTODO*/
 	_uploadScene: any;
 
-	_cullStateCMD:RenderStateCommand = new RenderStateCommand();
+	_cullStateCMD:RenderStateCommand;
 
 	/**
 	 * 创建一个 <code>ShaderInstance</code> 实例。
 	 */
 	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase) {
 		//super(vs,ps,attributeMap);
+		this._cullStateCMD =LayaGL.renderOBJCreate.createRenderStateComand();
 		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(vs,ps,attributeMap);
 		this._shaderPass = shaderPass;
 		this._create();
+		
 	}
 	
 

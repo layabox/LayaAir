@@ -12,7 +12,7 @@ import { StencilOperation } from "../../../RenderEngine/RenderEnum/StencilOperat
 /**
  * <code>RenderState</code> 类用于控制渲染状态。
  */
-export class RenderState implements IClone {
+export class RenderState {
 	/**剔除枚举_不剔除。*/
 	static CULL_NONE: number = CullMode.Off;
 	/**剔除枚举_剔除正面。*/
@@ -179,37 +179,16 @@ export class RenderState implements IClone {
 		this.stencilOp = new Vector3(RenderState.STENCILOP_KEEP, RenderState.STENCILOP_KEEP, RenderState.STENCILOP_REPLACE);
 	}
 
-	/**
-	 * 克隆。
-	 * @param	destObject 克隆源。
-	 */
-	cloneTo(dest: any): void {
-		var destState: RenderState = (<RenderState>dest);
-		destState.cull = this.cull;
-		destState.blend = this.blend;
-		destState.srcBlend = this.srcBlend;
-		destState.dstBlend = this.dstBlend;
-		destState.srcBlendRGB = this.srcBlendRGB;
-		destState.dstBlendRGB = this.dstBlendRGB;
-		destState.srcBlendAlpha = this.srcBlendAlpha;
-		destState.dstBlendAlpha = this.dstBlendAlpha;
-		this.blendConstColor.cloneTo(destState.blendConstColor);
-		destState.blendEquation = this.blendEquation;
-		destState.blendEquationRGB = this.blendEquationRGB;
-		destState.blendEquationAlpha = this.blendEquationAlpha;
-		destState.depthTest = this.depthTest;
-		destState.depthWrite = this.depthWrite;
-	}
 
-	/**
-	 * 克隆。
-	 * @return	 克隆副本。
-	 */
-	clone(): any {
-		var dest: RenderState = new RenderState();
-		this.cloneTo(dest);
-		return dest;
-	}
+	// /**
+	//  * 克隆。
+	//  * @return	 克隆副本。
+	//  */
+	// clone(): any {
+	// 	var dest: RenderState = new RenderState();
+	// 	this.cloneTo(dest);
+	// 	return dest;
+	// }
 
 }
 

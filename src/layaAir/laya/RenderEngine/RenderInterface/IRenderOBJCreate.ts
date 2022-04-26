@@ -14,6 +14,7 @@ import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 import { ShaderData } from "../RenderShader/ShaderData";
+import { RenderStateCommand } from "../RenderStateCommand";
 import { IBaseRenderNode } from "./RenderPipelineInterface/IBaseRenderNode";
 import { ICameraCullInfo } from "./RenderPipelineInterface/ICameraCullInfo";
 import { ICullPass } from "./RenderPipelineInterface/ICullPass";
@@ -63,4 +64,6 @@ export interface IRenderOBJCreate{
     createShadowCullInfo():IShadowCullInfo;
 
     createCameraCullInfo():ICameraCullInfo;
+
+    createRenderStateComand():RenderStateCommand;
 }

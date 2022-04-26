@@ -24,6 +24,7 @@ import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/
 import { IShadowCullInfo } from "../RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { ISortPass } from "../RenderInterface/RenderPipelineInterface/ISortPass";
 import { ShaderData } from "../RenderShader/ShaderData";
+import { RenderStateCommand } from "../RenderStateCommand";
 import { BaseRenderNode } from "./BaseRenderNode";
 import { BaseRenderQueue } from "./BaseRenderQueue";
 import { CameraCullInfo } from "./CameraCullInfo";
@@ -37,6 +38,7 @@ import { ShadowCullInfo } from "./ShadowCullInfo";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
+  
     createTransform(owner: Sprite3D): Transform3D {
         return new Transform3D(owner);
     }
@@ -116,5 +118,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
 
     createCameraCullInfo():ICameraCullInfo{
         return new CameraCullInfo();
+    }
+
+    createRenderStateComand(): RenderStateCommand {
+        throw new RenderStateCommand();
     }
 }

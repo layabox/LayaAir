@@ -369,7 +369,7 @@ export class Context {
 	static const2DRenderCMD:RenderStateCommand;
 	static set2DRenderConfig(): void {
 		if(!Context.const2DRenderCMD){
-			const cmd = Context.const2DRenderCMD = new RenderStateCommand();
+			const cmd = Context.const2DRenderCMD = LayaGL.renderOBJCreate.createRenderStateComand();
 			cmd.addCMD(RenderStateType.BlendType,true);
 			//WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
 			cmd.addCMD(RenderStateType.BlendEquation,BlendEquationSeparate.ADD);
