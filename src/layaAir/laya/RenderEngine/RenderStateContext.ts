@@ -35,6 +35,7 @@ export class RenderStateContext {
      * @internal
      */
     static setDepthTest(value: boolean): void {
+        RenderStateContext.DepthTestCMD.clear();
         RenderStateContext.DepthTestCMD.addCMD(RenderStateType.DepthTest, value);
         RenderStateContext.DepthTestCMD.applyCMD();
         //value !== RenderStateContext._depthTest && (RenderStateContext._depthTest = value, value ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST));
@@ -44,6 +45,7 @@ export class RenderStateContext {
      * @internal
      */
     static setDepthMask(value: boolean): void {
+        RenderStateContext.DepthMaskCMD.clear();
         RenderStateContext.DepthMaskCMD.addCMD(RenderStateType.DepthMask, value);
         RenderStateContext.DepthMaskCMD.applyCMD();
         //value !== RenderStateContext._depthMask && (RenderStateContext._depthMask = value, gl.depthMask(value));
@@ -53,6 +55,7 @@ export class RenderStateContext {
      * @internal
      */
     static setDepthFunc(value: CompareFunction): void {
+        RenderStateContext.DepthFuncCMD.clear();
         RenderStateContext.DepthFuncCMD.addCMD(RenderStateType.DepthFunc, value);
         RenderStateContext.DepthFuncCMD.applyCMD();
         //value !== RenderStateContext._depthFunc && (RenderStateContext._depthFunc = value, gl.depthFunc(value));
@@ -62,6 +65,7 @@ export class RenderStateContext {
      * @internal
      */
     static setStencilTest(value: boolean): void {
+        RenderStateContext.StencilTestCMD.clear();
         RenderStateContext.StencilTestCMD.addCMD(RenderStateType.StencilTest, value);
         RenderStateContext.StencilTestCMD.applyCMD();
         //value !==RenderStateContext._stencilTest && (RenderStateContext._stencilTest = value,value?gl.enable(gl.STENCIL_TEST):gl.disable(gl.STENCIL_TEST));
@@ -73,6 +77,7 @@ export class RenderStateContext {
      * @param value 
      */
     static setStencilMask(value: boolean): void {
+        RenderStateContext.StencilMaskCMD.clear();
         RenderStateContext.StencilMaskCMD.addCMD(RenderStateType.StencilMask, value);
         RenderStateContext.StencilMaskCMD.applyCMD();
         //value !== RenderStateContext._stencilMask && (RenderStateContext._stencilMask = value, value?gl.stencilMask(0xff):gl.stencilMask(0x00));
@@ -84,6 +89,7 @@ export class RenderStateContext {
      */
     static setStencilFunc(fun: CompareFunction, ref: number): void {
         //if (RenderStateContext.stencilFuncArray[0] == fun || ref != RenderStateContext.stencilFuncArray[1]) {
+            RenderStateContext.StencilFuncCMD.clear();
             RenderStateContext.stencilFuncArray[0] = fun;
             RenderStateContext.stencilFuncArray[1] = ref;
             RenderStateContext.StencilFuncCMD.addCMD(RenderStateType.StencilFunc, RenderStateContext.stencilFuncArray);
@@ -101,6 +107,7 @@ export class RenderStateContext {
     */
     static setstencilOp(fail: StencilOperation, zfail: StencilOperation, zpass: StencilOperation) {
        // if (RenderStateContext.stencilOpArray[0] != fail || RenderStateContext.stencilOpArray[1] != zfail || RenderStateContext.stencilOpArray[2] != zpass) {
+            RenderStateContext.stencilOpCMD.clear();     
             RenderStateContext.stencilOpArray[0] = fail;
             RenderStateContext.stencilOpArray[1] = zfail;
             RenderStateContext.stencilOpArray[2] = zpass;
@@ -115,6 +122,7 @@ export class RenderStateContext {
      * @internal
      */
     static setBlend(value: boolean): void {
+        RenderStateContext.BlendCMD.clear();
         if(!value)
         RenderStateContext.BlendCMD.addCMD(RenderStateType.BlendType,BlendType.BLEND_DISABLE);
         else
@@ -129,6 +137,7 @@ export class RenderStateContext {
      * @internal
      */
     static setBlendEquation(blendEquation: BlendEquationSeparate): void {
+        RenderStateContext.BlendEquationCMD.clear();
         RenderStateContext.BlendEquationCMD.addCMD(RenderStateType.BlendEquation,blendEquation);
         RenderStateContext.BlendEquationCMD.applyCMD();
         // if (blendEquation !== RenderStateContext._blendEquation) {
@@ -143,6 +152,7 @@ export class RenderStateContext {
      * @internal
      */
     static setBlendEquationSeparate(blendEquationRGB: BlendEquationSeparate, blendEquationAlpha: BlendEquationSeparate): void {
+        RenderStateContext.BlendEquationSeparateCMD.clear();
         RenderStateContext.blendEquationSeparateArray[0] = blendEquationRGB;
         RenderStateContext.blendEquationSeparateArray[1] = blendEquationAlpha;
         RenderStateContext.BlendEquationSeparateCMD.addCMD(RenderStateType.BlendEquationSeparate,RenderStateContext.blendEquationSeparateArray)
@@ -160,6 +170,7 @@ export class RenderStateContext {
      * @internal
      */
     static setBlendFunc(sFactor: BlendFactor, dFactor: BlendFactor, force: boolean = false): void {
+        RenderStateContext.BlendFuncCMD.clear();
         RenderStateContext.blenfunArray[0] = sFactor;
         RenderStateContext.blenfunArray[1] = dFactor;
         RenderStateContext.BlendFuncCMD.addCMD(RenderStateType.BlendFunc,RenderStateContext.blenfunArray);
@@ -180,6 +191,7 @@ export class RenderStateContext {
      * @internal
      */
     static setBlendFuncSeperate(srcRGB: BlendFactor, dstRGB: BlendFactor, srcAlpha: BlendFactor, dstAlpha: BlendFactor): void {
+        RenderStateContext.BlendFuncSeperateCMD.clear();
         RenderStateContext.blendFuncSeperateArray[0] = srcRGB;
         RenderStateContext.blendFuncSeperateArray[1] = dstRGB;
         RenderStateContext.blendFuncSeperateArray[2] = srcAlpha;
@@ -197,21 +209,21 @@ export class RenderStateContext {
         // }
     }
 
-    /**
-     * @internal
-     */
-    static setCullFace(value: boolean): void {
-        RenderStateContext.CullFaceCMD.addCMD(RenderStateType.CullFace,value);
-        //value !== RenderStateContext._cullFace && (RenderStateContext._cullFace = value, value ? gl.enable(gl.CULL_FACE) : gl.disable(gl.CULL_FACE));
-    }
+    // /**
+    //  * @internal
+    //  */
+    // static setCullFace(value: boolean): void {
+    //     RenderStateContext.CullFaceCMD.addCMD(RenderStateType.CullFace,value);
+    //     //value !== RenderStateContext._cullFace && (RenderStateContext._cullFace = value, value ? gl.enable(gl.CULL_FACE) : gl.disable(gl.CULL_FACE));
+    // }
 
-    /**
-     * @internal
-     */
-    static setFrontFace(value: CullMode): void {
-        RenderStateContext.FrontFaceCMD.addCMD(RenderStateType.FrontFace,value);
-        //value !== RenderStateContext._frontFace && (RenderStateContext._frontFace = value, gl.frontFace(value));
-    }
+    // /**
+    //  * @internal
+    //  */
+    // static setFrontFace(value: CullMode): void {
+    //     RenderStateContext.FrontFaceCMD.addCMD(RenderStateType.FrontFace,value);
+    //     //value !== RenderStateContext._frontFace && (RenderStateContext._frontFace = value, gl.frontFace(value));
+    // }
 
 }
 
