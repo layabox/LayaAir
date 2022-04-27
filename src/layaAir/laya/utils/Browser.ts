@@ -120,7 +120,7 @@ export class Browser {
 
         //阿里小游戏
         if ("my" in Browser.window) {
-            if(u.indexOf('TB/')>-1||u.indexOf('Taobao/')>-1||u.indexOf('TM/')>-1){
+            if(u.indexOf('TB/')>-1||u.indexOf('Taobao/')>-1||u.indexOf('TM/')>-1||u.indexOf('AliApp(LT/')>-1){
                 //这里需要手动初始化阿里适配库
                 (window as any).tbMiniGame(Laya, Laya);
                 if (!(Laya as any)["TBMiniAdapter"]) {
@@ -303,7 +303,7 @@ export class Browser {
             Browser.onAlipayMiniGame = true;//阿里小游戏环境判断
             Browser.onMiniGame = false;
         }
-        if(u.indexOf('TB/')>-1||u.indexOf('Taobao/')>-1||u.indexOf('TM/')>-1){
+        if(u.indexOf('TB/')>-1||u.indexOf('Taobao/')>-1||u.indexOf('TM/')>-1||u.indexOf('AliApp(LT/')>-1){
             Browser.onTBMiniGame = true;
         }
         return win;
