@@ -16,6 +16,7 @@ export class NativeBoundSphere extends BoundSphere {
     _center: Vector3;
     /**包围球的半径。*/
     _radius: number;
+	_nativeObj: any;
     /**
      * 创建一个 <code>BoundSphere</code> 实例。
      * @param	center 包围球的中心。
@@ -26,8 +27,9 @@ export class NativeBoundSphere extends BoundSphere {
         //native memory
         this.nativeMemory = new NativeMemory(NativeBoundSphere.Bounds_MemoryBlock_size * 4);
         this.transFormArray = this.nativeMemory.float32Array;
-         //native object TODO
-         this.nativeTransformID = 0;
+        this._nativeObj = new (window as any).conchBoundSphere(this.nativeMemory);
+        this.center = center;
+		this.radius = radius;
     }
 
     set center(value: Vector3) {
@@ -50,7 +52,11 @@ export class NativeBoundSphere extends BoundSphere {
         return this._radius 
     }
 
-    
+	toDefault(): void {
+		this.center.toDefault();
+		this.radius = 0;
+	}
+
 	/**
 	 * 克隆。
 	 * @param	destObject 克隆源。

@@ -76,7 +76,7 @@ export class BoundSphere implements IClone {
 			Vector3.add(points[i], center, center);
 		}
 
-		var outCenter: Vector3 = out._center;
+		var outCenter: Vector3 = out.center;
 		//This is the center of our sphere. 
 		Vector3.scale(center, 1 / count, outCenter);
 
@@ -92,7 +92,7 @@ export class BoundSphere implements IClone {
 		}
 
 		//Find the real distance from the DistanceSquared. 
-		out._radius = Math.sqrt(radius);
+		out.radius = Math.sqrt(radius);
 	}
 
 	/**
