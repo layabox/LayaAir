@@ -6,12 +6,12 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
  * <code>BoundSphere</code> 类用于创建包围球。
  */
 export class NativeBoundSphere extends BoundSphere {
-    private static Bounds_MemoryBlock_size = 4;
+    private static Bounds_MemoryBlock_size = 3 + 1 + 1;
+    private static Memory_Dirty_MASK = 0x01;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
-    private transFormArray: Float32Array;
-    /**@internal Native*/
-    nativeTransformID: number = 0; 
+    private float32Array: Float32Array;
+    private int32Array: Int32Array;
     /**包围球的中心。*/
     _center: Vector3;
     /**包围球的半径。*/
@@ -25,8 +25,9 @@ export class NativeBoundSphere extends BoundSphere {
     constructor(center: Vector3, radius: number) {
         super(center,radius);
         //native memory
-        this.nativeMemory = new NativeMemory(NativeBoundSphere.Bounds_MemoryBlock_size * 4);
-        this.transFormArray = this.nativeMemory.float32Array;
+        this.nativeMemory = new NativeMemory(NativeBoundSphere.Bounds_MemoryBlock_size * 4));
+        this.float32Array = this.nativeMemory.float32Array;
+        this.int32Array = this.nativeMemory.int32Array;
         this._nativeObj = new (window as any).conchBoundSphere(this.nativeMemory);
         this.center = center;
 		this.radius = radius;
@@ -34,9 +35,11 @@ export class NativeBoundSphere extends BoundSphere {
 
     set center(value: Vector3) {
         value.cloneTo(this._center);
-        this.transFormArray[0] = value.x;
-        this.transFormArray[1] = value.y;
-        this.transFormArray[2] = value.z;
+        this.float32Array[0] = value.x;
+        this.float32Array[1] = value.y;
+        this.float32Array[2] = value.z;
+
+        this.int32Array[4] |= NativeBoundSphere.Memory_Dirty_MASK;
     }
 
     get center() {
@@ -45,7 +48,9 @@ export class NativeBoundSphere extends BoundSphere {
 
     set radius(value: number) {
         this._radius = value;
-        this.transFormArray[3] = value;
+        this.float32Array[3] = value;
+
+        this.int32Array[4] |= NativeBoundSphere.Memory_Dirty_MASK;
     }
 
     get radius(): number {
