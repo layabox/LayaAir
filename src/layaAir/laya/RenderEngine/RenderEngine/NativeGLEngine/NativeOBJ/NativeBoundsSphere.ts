@@ -6,7 +6,7 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
  * <code>BoundSphere</code> 类用于创建包围球。
  */
 export class NativeBoundSphere extends BoundSphere {
-    private static Bounds_MemoryBlock_size = 3 + 1 + 1;
+    private static MemoryBlock_size = 3 + 1 + 1;
     private static Memory_Dirty_MASK = 0x01;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
@@ -25,7 +25,7 @@ export class NativeBoundSphere extends BoundSphere {
     constructor(center: Vector3, radius: number) {
         super(center,radius);
         //native memory
-        this.nativeMemory = new NativeMemory(NativeBoundSphere.Bounds_MemoryBlock_size * 4));
+        this.nativeMemory = new NativeMemory(NativeBoundSphere.MemoryBlock_size * 4));
         this.float32Array = this.nativeMemory.float32Array;
         this.int32Array = this.nativeMemory.int32Array;
         this._nativeObj = new (window as any).conchBoundSphere(this.nativeMemory);
