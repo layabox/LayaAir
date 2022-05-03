@@ -62,6 +62,7 @@ export class NativeBounds implements IClone {
         if (value !== min) {
             value.cloneTo(min);
             this.updateNativeData(NativeBounds.Bounds_Stride_Min, min);
+            this._setUpdateFlag(NativeBounds.BOUNDS_MIN_UPDATA_NATIVE, false);
         }
 
         this._setUpdateFlag(NativeBounds._UPDATE_CENTER | NativeBounds._UPDATE_EXTENT, true);
@@ -98,6 +99,7 @@ export class NativeBounds implements IClone {
         if (value !== max) {
             value.cloneTo(max);
             this.updateNativeData(NativeBounds.Bounds_Stride_Max, max);
+            this._setUpdateFlag(NativeBounds.BOUNDS_MAX_UPDATA_NATIVE, false);
         }
 
         this._setUpdateFlag(NativeBounds._UPDATE_CENTER | NativeBounds._UPDATE_EXTENT, true);
@@ -132,10 +134,8 @@ export class NativeBounds implements IClone {
     setCenter(value: Vector3): void {
         if (value !== this._center) {
             value.cloneTo(this._center);
-            const offset = NativeBounds.Bounds_Stride_Center;
-            this.transFormArray[offset] = value.x;
-            this.transFormArray[offset + 1] = value.y;
-            this.transFormArray[offset + 2] = value.z;
+            this.updateNativeData(NativeBounds.Bounds_Stride_Center, value);
+            this._setUpdateFlag(NativeBounds.BOUNDS_CENTER_UPDATA_NATIVE, false);
         }
 
         this._setUpdateFlag(NativeBounds._UPDATE_MIN | NativeBounds._UPDATE_MAX, true);
@@ -150,11 +150,7 @@ export class NativeBounds implements IClone {
         if (this._getUpdateFlag(NativeBounds._UPDATE_CENTER)) {
             this._getCenter(this.getMin(), this.getMax(), this._center);
             //update native data
-            const offset = NativeBounds.Bounds_Stride_Center;
-            this.transFormArray[offset] = this._center.x;
-            this.transFormArray[offset + 1] = this._center.y;
-            this.transFormArray[offset + 2] = this._center.z;
-
+            this.updateNativeData(NativeBounds.Bounds_Stride_Center, this._center);
             this._setUpdateFlag(NativeBounds._UPDATE_CENTER, false);
             this._setUpdateFlag(NativeBounds.BOUNDS_CENTER_UPDATA_NATIVE, false);
         } else if (this._getUpdateFlag(NativeBounds.BOUNDS_CENTER_UPDATA_NATIVE)) {
@@ -175,10 +171,8 @@ export class NativeBounds implements IClone {
     setExtent(value: Vector3): void {
         if (value !== this._extent) {
             value.cloneTo(this._extent);
-            const offset = NativeBounds.Bounds_Stride_Extends;
-            this.transFormArray[offset] = value.x;
-            this.transFormArray[offset + 1] = value.y;
-            this.transFormArray[offset + 2] = value.z;
+            this.updateNativeData(NativeBounds.Bounds_Stride_Extends, value);
+            this._setUpdateFlag(NativeBounds.BOUNDS_EXTENT_UPDATA_NATIVE, false);
         }
 
         this._setUpdateFlag(NativeBounds._UPDATE_MIN | NativeBounds._UPDATE_MAX, true);
@@ -192,11 +186,7 @@ export class NativeBounds implements IClone {
     getExtent(): Vector3 {
         if (this._getUpdateFlag(NativeBounds._UPDATE_EXTENT)) {
             this._getExtent(this.getMin(), this.getMax(), this._extent);
-            //update native data
-            const offset = NativeBounds.Bounds_Stride_Extends;
-            this.transFormArray[offset] = this._extent.x;
-            this.transFormArray[offset + 1] = this._extent.y;
-            this.transFormArray[offset + 2] = this._extent.z;
+            this.updateNativeData(NativeBounds.Bounds_Stride_Extends, this._extent);
             this._setUpdateFlag(NativeBounds._UPDATE_EXTENT, false);
             this._setUpdateFlag(NativeBounds.BOUNDS_EXTENT_UPDATA_NATIVE, false);
         } else if (this._getUpdateFlag(NativeBounds.BOUNDS_EXTENT_UPDATA_NATIVE)) {
