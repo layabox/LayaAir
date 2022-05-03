@@ -25,35 +25,26 @@ enum UniformParamsMapType {
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class ShaderInstance {
-	/**@internal */
-	private _shaderPass: ShaderCompileDefineBase|ShaderPass;
+export class NativeShaderInstance {
 
 	/**@internal */
 	private _customUniformParamsMap: any[] = [];
 
-	_cullStateCMD:RenderStateCommand;
-
 	private _nativeObj: any;
 
 	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase) {
-		//super(vs,ps,attributeMap);
-		this._cullStateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(vs,ps,attributeMap);
-		this._shaderPass = shaderPass;
-		this._create();
-	}
 	
-
-		var pAttributeMap: any = new (window as any).conchAttributeMap();
+		var pConchAttributeMap: any = new (window as any).conchAttributeMap();
 		for (var k in attributeMap) {
-			pAttributeMap(k, attributeMap[k]);
+			pConchAttributeMap.setAttributeValue(k, attributeMap[k]);
 		}
 
-		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, vs, ps, pAttributeMap);
-		//this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(vs,ps,attributeMap);
-		//this._shaderPass = shaderPass;
-		//this._create();
+		var stateMap: {[key:string]:number} = (<ShaderPass>shaderPass)._stateMap;
+		for (var s in stateMap) {
+			pConchAttributeMap.setStateValues(stateMap[s], Shader3D.propertyNameToID(s));
+		}
+
+		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, vs, ps, pConchAttributeMap);
 	}
 	/**
 	 * @inheritDoc
