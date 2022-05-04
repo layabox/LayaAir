@@ -3,11 +3,10 @@ import { Vector3 } from "../../../../d3/math/Vector3";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
 
 export class NativePlane extends Plane{
-    private static MemoryBlock_size = 4 + 1;
+    private static MemoryBlock_size = 5;
     private static Stride_Normal = 0;
     private static Stride_Distance = 3;
-    private static Stride_DirtyMask = 4;
-    private static Memory_Dirty_MASK = 0x01;
+    private static Stride_UpdateFlag = 4;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
     private float32Array: Float32Array;
@@ -37,7 +36,7 @@ export class NativePlane extends Plane{
         this.float32Array[offset + 1] = value.y;
         this.float32Array[offset + 2] = value.z;
 
-        this.int32Array[NativePlane.Stride_DirtyMask] |= NativePlane.Memory_Dirty_MASK;
+        this.int32Array[NativePlane.Stride_UpdateFlag] = 1;
     }
 
     get normal() {
@@ -48,7 +47,7 @@ export class NativePlane extends Plane{
         this._distance = value;
         this.float32Array[NativePlane.Stride_Distance] = value;
 
-        this.int32Array[NativePlane.Stride_DirtyMask] |= NativePlane.Memory_Dirty_MASK;
+        this.int32Array[NativePlane.Stride_UpdateFlag] = 1;
     }
 
     get distance(): number {
