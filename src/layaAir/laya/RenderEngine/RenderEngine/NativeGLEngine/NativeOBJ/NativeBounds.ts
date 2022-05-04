@@ -33,7 +33,9 @@ export class NativeBounds implements IClone {
 
     /**native Share Memory */
     private nativeMemory: NativeMemory;
-    private transFormArray: Float32Array;
+    private float32Array: Float32Array;
+    private int32Array: Int32Array;
+    _nativeObj: any;
 
     /**TransForm Data Stride */
     static Bounds_Stride_UpdateFlag: number = 0;
@@ -42,9 +44,6 @@ export class NativeBounds implements IClone {
     static Bounds_Stride_Max: number = 7;
     static Bounds_Stride_Min: number = 10;
     static Bounds_MemoryBlock_size: number = 13;
-
-    /**@internal Native*/
-    nativeTransformID: number = 0;
 
     /**@internal	*/
     _center: Vector3 = new Vector3();
@@ -82,9 +81,9 @@ export class NativeBounds implements IClone {
             this._setUpdateFlag(NativeBounds.BOUNDS_MIN_UPDATA_NATIVE, false);
         } else if (this._getUpdateFlag(NativeBounds.BOUNDS_MIN_UPDATA_NATIVE)) {
             const offset = NativeBounds.Bounds_Stride_Min;
-            min.x = this.transFormArray[offset];
-            min.y = this.transFormArray[offset + 1];
-            min.z = this.transFormArray[offset + 2];
+            min.x = this.float32Array[offset];
+            min.y = this.float32Array[offset + 1];
+            min.z = this.float32Array[offset + 2];
             this._setUpdateFlag(NativeBounds.BOUNDS_MIN_UPDATA_NATIVE, false);
         }
         return min;
@@ -119,9 +118,9 @@ export class NativeBounds implements IClone {
             this._setUpdateFlag(NativeBounds.BOUNDS_MAX_UPDATA_NATIVE, false);
         }else if(this._getUpdateFlag(NativeBounds.BOUNDS_MAX_UPDATA_NATIVE)){
             const offset = NativeBounds.Bounds_Stride_Max;
-            max.x = this.transFormArray[offset];
-            max.y = this.transFormArray[offset + 1];
-            max.z = this.transFormArray[offset + 2];
+            max.x = this.float32Array[offset];
+            max.y = this.float32Array[offset + 1];
+            max.z = this.float32Array[offset + 2];
             this._setUpdateFlag(NativeBounds.BOUNDS_MAX_UPDATA_NATIVE, false);
         }
         return max;
@@ -156,9 +155,9 @@ export class NativeBounds implements IClone {
         } else if (this._getUpdateFlag(NativeBounds.BOUNDS_CENTER_UPDATA_NATIVE)) {
             //bind native data
             const offset = NativeBounds.Bounds_Stride_Center;
-            this._center.x = this.transFormArray[offset];
-            this._center.y = this.transFormArray[offset + 1];
-            this._center.z = this.transFormArray[offset + 2];
+            this._center.x = this.float32Array[offset];
+            this._center.y = this.float32Array[offset + 1];
+            this._center.z = this.float32Array[offset + 2];
             this._setUpdateFlag(NativeBounds.BOUNDS_CENTER_UPDATA_NATIVE, false);
         }
         return this._center;
@@ -192,9 +191,9 @@ export class NativeBounds implements IClone {
         } else if (this._getUpdateFlag(NativeBounds.BOUNDS_EXTENT_UPDATA_NATIVE)) {
             //bind native data
             const offset = NativeBounds.Bounds_Stride_Extends;
-            this._extent.x = this.transFormArray[offset];
-            this._extent.y = this.transFormArray[offset + 1];
-            this._extent.z = this.transFormArray[offset + 2];
+            this._extent.x = this.float32Array[offset];
+            this._extent.y = this.float32Array[offset + 1];
+            this._extent.z = this.float32Array[offset + 2];
             this._setUpdateFlag(NativeBounds.BOUNDS_EXTENT_UPDATA_NATIVE, false);
         }
         return this._extent;
@@ -212,24 +211,27 @@ export class NativeBounds implements IClone {
 
         this.updateNativeData(NativeBounds.Bounds_Stride_Min,min);
         this.updateNativeData(NativeBounds.Bounds_Stride_Max,max);
+        
+        
         //native memory
         this.nativeMemory = new NativeMemory(NativeBounds.Bounds_MemoryBlock_size * 4);
-        this.transFormArray = this.nativeMemory.float32Array;
-        //native object TODO
-        this.nativeTransformID = 0;
+        this.float32Array = this.nativeMemory.float32Array;
+        this.int32Array = this.nativeMemory.int32Array;
+        this._nativeObj = new (window as any).conchBounds(this.nativeMemory);
+        this.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] = 0;
     }
 
 
     protected _getUpdateFlag(type: number): boolean {
-        return (this.transFormArray[NativeBounds.Bounds_Stride_UpdateFlag] & type) != 0;
+        return (this.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] & type) != 0;
     }
 
 
     protected _setUpdateFlag(type: number, value: boolean): void {
         if (value)
-            this.transFormArray[NativeBounds.Bounds_Stride_UpdateFlag] |= type;
+            this.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] |= type;
         else
-            this.transFormArray[NativeBounds.Bounds_Stride_UpdateFlag] &= ~type;
+            this.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] &= ~type;
     }
 
 
@@ -265,7 +267,7 @@ export class NativeBounds implements IClone {
     }
 
     private updateNativeData(offset: number, data: Vector3) {
-        let array = this.transFormArray;
+        let array = this.float32Array;
         array[offset] = data.x;
         array[offset + 1] = data.y;
         array[offset + 2] = data.z;
@@ -288,7 +290,7 @@ export class NativeBounds implements IClone {
         out._boundBox.setCenterAndExtent(out._center, out._extent);
         out.updateNativeData(NativeBounds.Bounds_Stride_Min, out._boundBox.min);
         out.updateNativeData(NativeBounds.Bounds_Stride_Max, out._boundBox.max);
-        out.transFormArray[NativeBounds.Bounds_Stride_UpdateFlag] = 0;
+        out.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] = 0;
     }
 
     /**
@@ -339,7 +341,7 @@ export class NativeBounds implements IClone {
 		this.getExtent().cloneTo(destBounds._extent);
         destBounds.updateNativeData(NativeBounds.Bounds_Stride_Center,destBounds._center);
         destBounds.updateNativeData(NativeBounds.Bounds_Stride_Extends,destBounds._extent);
-        destBounds.transFormArray[NativeBounds.Bounds_Stride_UpdateFlag] = 0;
+        destBounds.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] = 0;
     }
 
     /**
