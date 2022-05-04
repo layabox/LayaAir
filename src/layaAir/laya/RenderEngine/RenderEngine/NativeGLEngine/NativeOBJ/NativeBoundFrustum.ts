@@ -6,7 +6,7 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
 
 export class NativeBoundFrustum extends BoundFrustum {
     private static MemoryBlock_size = 17;
-    private static updateFlag = 16;
+    private static Stride_UpdateFlag = 16;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
     private float32Array: Float32Array;
@@ -30,7 +30,7 @@ export class NativeBoundFrustum extends BoundFrustum {
 		matrix.cloneTo(this._matrix);
         //update Native Data  native拿到Frustumnative 需要更新plane
         this.float32Array.set(this._matrix.elements);
-        this.int32Array[NativeBoundFrustum.updateFlag] = 1;
+        this.int32Array[NativeBoundFrustum.Stride_UpdateFlag] = 1;
 		BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
 	}
 }
