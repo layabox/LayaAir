@@ -295,18 +295,8 @@ export class NativeBounds implements IClone {
      * @internal
      */
     _getBoundBox(): BoundBox {
-        if (this._getUpdateFlag(NativeBounds._UPDATE_MIN)) {
-            var min: Vector3 = this._boundBox.min;
-            this._getMin(this.getCenter(), this.getExtent(), min);
-            this.updateNativeData(NativeBounds.Bounds_Stride_Min, min);
-            this._setUpdateFlag(NativeBounds._UPDATE_MIN, false);
-        }
-        if (this._getUpdateFlag(NativeBounds._UPDATE_MAX)) {
-            var max: Vector3 = this._boundBox.max;
-            this._getMax(this.getCenter(), this.getExtent(), max);
-            this.updateNativeData(NativeBounds.Bounds_Stride_Max, max);
-            this._setUpdateFlag(NativeBounds._UPDATE_MAX, false);
-        }
+        this.getMin();
+        this.getMax();
         return this._boundBox;
     }
 
