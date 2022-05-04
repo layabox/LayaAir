@@ -6,8 +6,8 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
  * <code>BoundSphere</code> 类用于创建包围球。
  */
 export class NativeBoundSphere extends BoundSphere {
-    private static MemoryBlock_size = 3 + 1 + 1;
-    private static Memory_Dirty_MASK = 0x01;
+    private static MemoryBlock_size = 5;
+    private static Stride_UpdateFlag = 4;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
     private float32Array: Float32Array;
@@ -39,7 +39,7 @@ export class NativeBoundSphere extends BoundSphere {
         this.float32Array[1] = value.y;
         this.float32Array[2] = value.z;
 
-        this.int32Array[4] |= NativeBoundSphere.Memory_Dirty_MASK;
+        this.int32Array[NativeBoundSphere.Stride_UpdateFlag] = 1;
     }
 
     get center() {
@@ -50,7 +50,7 @@ export class NativeBoundSphere extends BoundSphere {
         this._radius = value;
         this.float32Array[3] = value;
 
-        this.int32Array[4] |= NativeBoundSphere.Memory_Dirty_MASK;
+        this.int32Array[NativeBoundSphere.Stride_UpdateFlag] = 1;
     }
 
     get radius(): number {
