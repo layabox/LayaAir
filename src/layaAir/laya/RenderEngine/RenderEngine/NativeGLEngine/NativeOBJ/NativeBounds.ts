@@ -205,20 +205,19 @@ export class NativeBounds implements IClone {
      * @param	max  max 最大坐标。
      */
     constructor(min: Vector3, max: Vector3) {
-        min.cloneTo(this._boundBox.min);
-		max.cloneTo(this._boundBox.max);
-		this._setUpdateFlag(NativeBounds._UPDATE_CENTER | NativeBounds._UPDATE_EXTENT, true);
-
-        this.updateNativeData(NativeBounds.Bounds_Stride_Min,min);
-        this.updateNativeData(NativeBounds.Bounds_Stride_Max,max);
-        
-        
         //native memory
         this.nativeMemory = new NativeMemory(NativeBounds.Bounds_MemoryBlock_size * 4);
         this.float32Array = this.nativeMemory.float32Array;
         this.int32Array = this.nativeMemory.int32Array;
         this._nativeObj = new (window as any).conchBounds(this.nativeMemory);
-        this.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] = 0;
+        this.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] = 0;	
+        
+        min.cloneTo(this._boundBox.min);
+		max.cloneTo(this._boundBox.max);
+        this._setUpdateFlag(NativeBounds._UPDATE_CENTER | NativeBounds._UPDATE_EXTENT, true);
+
+        this.updateNativeData(NativeBounds.Bounds_Stride_Min,min);
+        this.updateNativeData(NativeBounds.Bounds_Stride_Max,max);
     }
 
 
