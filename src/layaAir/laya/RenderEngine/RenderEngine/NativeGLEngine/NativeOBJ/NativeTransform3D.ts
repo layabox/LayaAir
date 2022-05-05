@@ -234,7 +234,7 @@ export class NativeTransform3D extends Transform3D {
             localRotationEuler.x = euler.y * NativeTransform3D._angleToRandin;
             localRotationEuler.y = euler.x * NativeTransform3D._angleToRandin;
             localRotationEuler.z = euler.z * NativeTransform3D._angleToRandin; 
-            this.updateNativeV3(NativeTransform3D.TRANSFORM_LOCAL_EULER_NATIVE_CHANGE, localRotationEuler);
+            this.updateNativeV3(NativeTransform3D.Transform_Stride_localEuler, localRotationEuler);
             this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCALEULER, false);
             this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_EULER_NATIVE_CHANGE, false);
         }
@@ -481,7 +481,11 @@ export class NativeTransform3D extends Transform3D {
         this.nativeMemory = new NativeMemory(NativeTransform3D.Transform_MemoryBlock_size * 4);
         this.float32Array = this.nativeMemory.float32Array;
         this.int32Array = this.nativeMemory.int32Array;
-        this._nativeObj = new (window as any).conchTransform(this.nativeMemory);
+        this._nativeObj = new (window as any).conchTransform(this.nativeMemory._buffer);
+        this.updateNativeV3(NativeTransform3D.Transform_Stride_localPos, this._localPosition);
+        this.updateNativeV3(NativeTransform3D.Transform_Stride_localScale, this._localScale);
+        this._setTransformFlag(Transform3D.TRANSFORM_LOCALQUATERNION | Transform3D.TRANSFORM_LOCALEULER | Transform3D.TRANSFORM_LOCALMATRIX, false);
+		this._setTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE | Transform3D.TRANSFORM_WORLDMATRIX, true);
     }
 
      /**
@@ -513,6 +517,9 @@ export class NativeTransform3D extends Transform3D {
      * native
      */
     _setTransformFlag(type: number, value: boolean): void {
+        if (!this.int32Array) {
+            return;
+        }
         if (value)
             this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag] |= type;
         else

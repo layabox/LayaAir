@@ -98,7 +98,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   private _textureResourcePool: any;
   //TODO:管理FrameBuffer
   private _RenderBufferResource: any;
-  private _nativeObj: any;
+  _nativeObj: any;
   constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     /*this._config = config;
     this._isWebGL2 = false;

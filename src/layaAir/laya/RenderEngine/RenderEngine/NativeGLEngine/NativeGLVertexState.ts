@@ -15,7 +15,7 @@ export class NativeGLVertexState extends NativeGLObject implements IRenderVertex
     private _nativeObj: any;
     constructor(engine: NativeWebGLEngine) {
         super(engine);
-        this._nativeObj = new (window as any).conchGLVertexState();
+        this._nativeObj = new (window as any).conchGLVertexState(engine._nativeObj);
         this._nativeVertexBuffers=[];
     }
 

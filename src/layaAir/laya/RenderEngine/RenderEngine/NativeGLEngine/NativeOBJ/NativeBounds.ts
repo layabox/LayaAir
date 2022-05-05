@@ -209,7 +209,7 @@ export class NativeBounds implements IClone {
         this.nativeMemory = new NativeMemory(NativeBounds.Bounds_MemoryBlock_size * 4);
         this.float32Array = this.nativeMemory.float32Array;
         this.int32Array = this.nativeMemory.int32Array;
-        this._nativeObj = new (window as any).conchBounds(this.nativeMemory);
+        this._nativeObj = new (window as any).conchBounds(this.nativeMemory._buffer);
         this.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] = 0;	
         
         min.cloneTo(this._boundBox.min);

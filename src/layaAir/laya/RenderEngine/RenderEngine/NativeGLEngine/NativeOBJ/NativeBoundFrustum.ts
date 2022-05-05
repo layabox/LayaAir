@@ -22,7 +22,7 @@ export class NativeBoundFrustum extends BoundFrustum {
         this.nativeMemory = new NativeMemory(NativeBoundFrustum.MemoryBlock_size * 4);
         this.float32Array = this.nativeMemory.float32Array;
         this.int32Array = this.nativeMemory.int32Array;
-        this._nativeObj = new (window as any).conchBoundFrustum(this.nativeMemory);
+        this._nativeObj = new (window as any).conchBoundFrustum(this.nativeMemory._buffer);
 		this.matrix = matrix;
 	}
 

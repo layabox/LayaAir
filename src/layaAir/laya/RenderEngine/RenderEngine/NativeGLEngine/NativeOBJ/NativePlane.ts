@@ -24,7 +24,7 @@ export class NativePlane extends Plane{
         this.nativeMemory = new NativeMemory(NativePlane.MemoryBlock_size * 4);
         this.float32Array = this.nativeMemory.float32Array;
         this.int32Array = this.nativeMemory.int32Array;
-        this._nativeObj = new (window as any).conchPlane(this.nativeMemory);
+        this._nativeObj = new (window as any).conchPlane(this.nativeMemory._buffer);
         this.normal = normal;
         this.distance = d;
     }

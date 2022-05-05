@@ -20,8 +20,8 @@ export class Plane {
 	 * @param	d  平面到原点的距离
 	 */
 	constructor(normal: Vector3, d: number = 0) {
-		this.normal = normal;
-		this.distance = d;
+		normal.cloneTo(this._normal);//this.normal = normal;
+		this._distance = d;//this.distance = d;
 	}
 
 
