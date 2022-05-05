@@ -2,7 +2,7 @@ import { NativeBaseRenderQueue } from "./NativeBaseRenderQueue";
 import { NativeCullPassBase } from "./NativeCullPass";
 import { NativeRenderContext3DOBJ } from "./NativeRenderContext3DOBJ";
 import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
-import { NativeVertexBuffer3D } from "NativeVertexBuffer3D";
+import { NativeVertexBuffer3D } from "./NativeVertexBuffer3D";
 import { NativeShaderData } from "./NativeShaderData";
 import { Bounds } from "../../../../d3/core/Bounds";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
@@ -37,7 +37,7 @@ import { IndexBuffer3D } from "../../../../d3/graphics/IndexBuffer3D";
 import { NativeIndexBuffer3D } from "../NativeOBJ/NativeIndexBuffer3D";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
 
-export class RenderOBJCreateUtil implements IRenderOBJCreate {
+export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
         return new NativeTransform3D(owner);
     }

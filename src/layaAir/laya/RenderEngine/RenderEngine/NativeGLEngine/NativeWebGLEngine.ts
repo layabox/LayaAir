@@ -17,17 +17,15 @@ import { Shader3D } from "../../RenderShader/Shader3D";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { NativeGL2TextureContext } from "./NativeGL2TextureContext";
-import { NativeGlBuffer } from "./NativeGLBuffer";
 import { WebGLMode } from "../WebGLEngine/GLEnum/WebGLMode";
 import { NativeGLRender2DContext } from "./NativeGLRender2DContext";
-import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
 import { NativeGLRenderState } from "./NativeGLRenderState";
 import { NativeGLShaderInstance } from "./NativeGLShaderInstance";
 import { NativeGLTextureContext } from "./NativeGLTextureContext";
 import { NativeGLVertexState } from "./NativeGLVertexState";
 import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
 import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
-import { RenderOBJCreateUtil } from "../../RenderObj/RenderOBJCreateUtil";
+import { NativeRenderOBJCreateUtil } from "./NativeOBJ/NativeRenderOBJCreateUtil";
 
 
 /**
@@ -338,7 +336,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   }
 
   getCreateRenderOBJContext(): IRenderOBJCreate {
-    return new RenderOBJCreateUtil();
+    return new NativeRenderOBJCreateUtil();
   }
 
   propertyNameToID(name: string): number {
