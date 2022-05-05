@@ -121,6 +121,6 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderStateComand(): RenderStateCommand {
-        throw new RenderStateCommand();
+        return new RenderStateCommand();
     }
 }

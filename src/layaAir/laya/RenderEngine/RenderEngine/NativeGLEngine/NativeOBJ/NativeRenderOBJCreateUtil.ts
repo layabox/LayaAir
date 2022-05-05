@@ -120,6 +120,6 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderStateComand(): NativeRenderStateCommand {
-        throw new NativeRenderStateCommand();
+        return new NativeRenderStateCommand();
     }
 }
