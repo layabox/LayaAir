@@ -193,6 +193,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static _blitTransRT: RenderTexture;
 	static _blitOffset: Vector4 = new Vector4();
 	static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
+
 	/**
 	 * 场景更新标记
 	 */
@@ -462,6 +463,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_debugTool: PixelLineSprite3D;
 	/** @internal [Editer]*/
 	_pickIdToSprite: any = new Object();
+
+	/** @internal */
+	_nativeObj: any;
 
 	/**
 	 * 资源的URL地址。
@@ -762,6 +766,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	constructor() {
 		super();
+		if ((window as any).conch && !(window as any).conchWebGL) {
+			this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
+		}
 		if (!Config3D._config.isUseCannonPhysicsEngine && Physics3D._bullet)
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
 		else if (Physics3D._cannon) {
@@ -1505,9 +1512,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	render(ctx: Context): void {
-		//TODO:外层应该设计为接口调用
-		ctx._curSubmit = SubmitBase.RENDERBASE;//打断2D合并的renderKey
-		this._children.length > 0 && ctx.addRenderObject(this);
+		if (this._children.length > 0) {
+			ctx.addRenderObject3D(this);
+		}
 	}
 
 	/**

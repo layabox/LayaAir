@@ -7,6 +7,7 @@ import { HTMLChar } from "../utils/HTMLChar";
 import { WordText } from "../utils/WordText";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { ISubmit } from "../webgl/submit/ISubmit";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
@@ -781,6 +782,11 @@ export class NativeContext {
 
         return mat;
     }
+    addRenderObject3D(scene3D: ISubmit): void {
+        //this._nativeObj.addRenderObject3D((scene3D as any)._nativeObj);
+        this._nativeObj.flushCommand();
+		this._nativeObj.addRenderObject3D((scene3D as any)._nativeObj);
+	}
     pushRT(): void {
 		//this._nativeObj.pushRT();
 

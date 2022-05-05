@@ -1,5 +1,6 @@
 import { Vector4 } from "../../../../d3/math/Vector4";
 import { Viewport } from "../../../../d3/math/Viewport";
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { IRenderTarget } from "../../../RenderInterface/IRenderTarget";
 import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { ShaderData } from "../../../RenderShader/ShaderData";
@@ -20,7 +21,7 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
     constructor() {
         this._viewPort = new Viewport(0, 0, 0, 0);
         this._scissor = new Vector4();
-        this._nativeObj = new (window as any).conchRenderContext3D();
+        this._nativeObj = new (window as any).conchRenderContext3D((LayaGL.renderEngine as any)._nativeObj);
     }
 
     /**设置IRenderContext */
