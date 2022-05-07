@@ -36,6 +36,13 @@ import { NativeCameraCullInfo } from "./NativeCameraCullInfo";
 import { IndexBuffer3D } from "../../../../d3/graphics/IndexBuffer3D";
 import { NativeIndexBuffer3D } from "../NativeOBJ/NativeIndexBuffer3D";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
+import { CameraCullInfo } from "../../../RenderObj/CameraCullInfo";
+import { ShadowCullInfo } from "../../../RenderObj/ShadowCullInfo";
+import { CullPassBase } from "../../../RenderObj/CullPass";
+import { SceneRenderManager } from "../../../RenderObj/SceneRenderManager";
+import { ShaderCompileDefineBase } from "../../../../webgl/utils/ShaderCompileDefineBase";
+import { NativeShaderInstance } from "./NativeShaderInstance";
+import { ShaderInstance } from "../../../../d3/shader/ShaderInstance";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
@@ -87,8 +94,8 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeIndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
-    createShaderInstance() {
-        
+    createShaderInstance(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+        return new NativeShaderInstance(vs, ps, attributeMap, shaderPass) as unknown as ShaderInstance;
     }
 
     createBaseRenderNode():IBaseRenderNode{
@@ -100,11 +107,11 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createSceneRenderManager():ISceneRenderManager{
-        return new NativeSceneRenderManager();
+        return new SceneRenderManager();//return new NativeSceneRenderManager();
     }
 
     createCullPass():ICullPass{
-        return new NativeCullPassBase();
+        return new CullPassBase();//return new NativeCullPassBase();
     }
 
     createSortPass():ISortPass{
@@ -112,11 +119,11 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createShadowCullInfo():IShadowCullInfo{
-        return new NativeShadowCullInfo();
+        return new ShadowCullInfo();//return new NativeShadowCullInfo();
     }
 
     createCameraCullInfo():ICameraCullInfo{
-        return new NativeCameraCullInfo();
+        return new CameraCullInfo();//return new NativeCameraCullInfo();
     }
 
     createRenderStateComand(): NativeRenderStateCommand {

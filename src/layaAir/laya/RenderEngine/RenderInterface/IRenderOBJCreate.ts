@@ -8,7 +8,9 @@ import { BoundSphere } from "../../d3/math/BoundSphere";
 import { Matrix4x4 } from "../../d3/math/Matrix4x4";
 import { Plane } from "../../d3/math/Plane";
 import { Vector3 } from "../../d3/math/Vector3";
+import { ShaderInstance } from "../../d3/shader/ShaderInstance";
 import { Resource } from "../../resource/Resource";
+import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
@@ -27,6 +29,9 @@ import { IShadowCullInfo } from "./RenderPipelineInterface/IShadowCullInfo";
 import { ISortPass } from "./RenderPipelineInterface/ISortPass";
 
 export interface IRenderOBJCreate{
+
+	createShaderInstance(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase): ShaderInstance;
+    
     createTransform(owner:Sprite3D):Transform3D;
 
     createBounds(min:Vector3,max:Vector3):Bounds;

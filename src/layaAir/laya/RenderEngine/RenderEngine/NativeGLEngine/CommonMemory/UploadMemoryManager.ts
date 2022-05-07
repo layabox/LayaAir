@@ -16,7 +16,7 @@ export class UploadMemoryManager {
     //DescribeData type + instanceID + dataLength
     static TopLength: number = 3 * 4;
     /*@internal SingleOBJ*/
-    static BaseInstance: UploadMemoryManager;
+    private static _instance: UploadMemoryManager = null;
     /**@internal 需要上传数据的Node列表*/
     _dataNodeList: SingletonList<INativeUploadNode> = new SingletonList();
     /**@internal */
@@ -28,11 +28,16 @@ export class UploadMemoryManager {
     _conchUploadMemoryManager:any;
 
     constructor() {
-        UploadMemoryManager.BaseInstance = this;
+        UploadMemoryManager._instance = this;
         this._currentBlock = new UploadMemory(UploadMemoryManager.UploadMemorySize);
         this._conchUploadMemoryManager = new (window as any).conchUploadMemoryManager();
     }
-
+    static getInstance(): UploadMemoryManager {
+        if (!UploadMemoryManager._instance) {
+            UploadMemoryManager._instance = new UploadMemoryManager();
+        }
+        return UploadMemoryManager._instance;
+    }
     private _addNodeCommand(node: INativeUploadNode, size: number) {
         this._currentBlock.addBlockCell(node, size);
         this._commandNums++;
@@ -40,7 +45,7 @@ export class UploadMemoryManager {
 
     static syncRenderMemory()
     {
-        UploadMemoryManager.BaseInstance._serialiseData();
+        UploadMemoryManager.getInstance()._serialiseData();
     }
 
     /**

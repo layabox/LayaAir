@@ -180,7 +180,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
 			ps.shift();
 		}
 		let start = Date.now();
-		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap, this);
+		shader = LayaGL.renderOBJCreate.createShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap, this);
 
 		console.log(`Shader Instance: ${this._owner._owner._name}, ${Date.now() - start}`);
 

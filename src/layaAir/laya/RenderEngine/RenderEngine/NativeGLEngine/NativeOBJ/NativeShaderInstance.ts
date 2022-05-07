@@ -1,5 +1,6 @@
 import { RenderState } from "../../../../d3/core/material/RenderState";
 import { CommandUniformMap } from "../../../../d3/core/scene/Scene3DShaderDeclaration";
+import { ShaderInstance } from "../../../../d3/shader/ShaderInstance";
 import { ShaderPass } from "../../../../d3/shader/ShaderPass";
 import { CommandEncoder } from "../../../../layagl/CommandEncoder";
 import { LayaGL } from "../../../../layagl/LayaGL";
@@ -25,15 +26,12 @@ enum UniformParamsMapType {
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class NativeShaderInstance {
-
-	/**@internal */
-	private _customUniformParamsMap: any[] = [];
+export class NativeShaderInstance/* extends ShaderInstance */{
 
 	private _nativeObj: any;
 
 	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase) {
-	
+		//super(vs, ps, attributeMap, shaderPass);
 		var pConchAttributeMap: any = new (window as any).conchAttributeMap();
 		for (var k in attributeMap) {
 			pConchAttributeMap.setAttributeValue(k, attributeMap[k]);
@@ -41,7 +39,7 @@ export class NativeShaderInstance {
 
 		var stateMap: {[key:string]:number} = (<ShaderPass>shaderPass)._stateMap;
 		for (var s in stateMap) {
-			pConchAttributeMap.setStateValues(stateMap[s], Shader3D.propertyNameToID(s));
+			pConchAttributeMap.setStateValue(stateMap[s], Shader3D.propertyNameToID(s));
 		}
 
 		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, vs, ps, pConchAttributeMap);
@@ -67,7 +65,7 @@ export class NativeShaderInstance {
 	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
-		Stat.shaderCall += this._nativeObj.uploadCustomUniforms(this._customUniformParamsMap, index, data);
+		//Stat.shaderCall += this._nativeObj.uploadCustomUniforms(this._customUniformParamsMap, index, data);
 	}
 	get _sceneUniformParamsMap(): CommandEncoder {
 		return (UniformParamsMapType.Scene as unknown as CommandEncoder);

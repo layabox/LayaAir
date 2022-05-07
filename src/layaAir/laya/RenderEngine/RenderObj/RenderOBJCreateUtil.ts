@@ -8,6 +8,8 @@ import { BoundSphere } from "../../d3/math/BoundSphere";
 import { Matrix4x4 } from "../../d3/math/Matrix4x4";
 import { Plane } from "../../d3/math/Plane";
 import { Vector3 } from "../../d3/math/Vector3";
+import { ShaderInstance } from "../../d3/shader/ShaderInstance";
+import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
@@ -88,8 +90,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new IndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
-    createShaderInstance() {
-        
+    createShaderInstance(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+        return new ShaderInstance(vs, ps, attributeMap, shaderPass);
     }
 
     createBaseRenderNode():IBaseRenderNode{

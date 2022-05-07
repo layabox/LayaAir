@@ -1,5 +1,6 @@
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
 import { SubShader } from "../../d3/shader/SubShader";
+import { LayaGL } from "../../layagl/LayaGL";
 import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { WebGL } from "../WebGL";
@@ -297,7 +298,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 			ps.shift();
 		}
 
-		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap,this);
+		shader = LayaGL.renderOBJCreate.createShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap,this);
 
 		cacheShaders[cacheKey] = shader;
 

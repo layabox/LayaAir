@@ -349,31 +349,14 @@ export class NativeWebGLEngine implements IRenderEngine {
    * @internal
    */
   uploadUniforms(shader: NativeGLShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
-    shader.bind();
-    var data: any = shaderData._data;
-    var shaderUniform: any[] = commandEncoder.getArrayData();
-    var shaderCall: number = 0;
-    for (var i: number = 0, n: number = shaderUniform.length; i < n; i++) {
-      var one: any/*ShaderVariable*/ = shaderUniform[i];
-      if (uploadUnTexture || one.textureID !== -1) {//如uniform为纹理切换Shader时需要重新上传
-        var value: any = data[one.dataOffset];
-        if (value != null)
-          shaderCall += one.fun.call(one.caller, one, value);
-      }
-    }
-    return shaderCall;
+    throw "not implement"
   }
 
   /**
    * @internal
    */
   uploadCustomUniforms(shader: NativeGLShaderInstance, custom: any[], index: number, data: any): number {
-    shader.bind();
-    var shaderCall: number = 0;
-    var one: ShaderVariable = custom[index];
-    if (one && data != null)
-      shaderCall += one.fun.call(one.caller, one, data);
-    return shaderCall;
+      throw "not implement"
   }
 
 }
