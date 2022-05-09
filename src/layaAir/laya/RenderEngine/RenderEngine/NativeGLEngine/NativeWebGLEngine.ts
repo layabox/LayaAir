@@ -26,6 +26,7 @@ import { NativeGLVertexState } from "./NativeGLVertexState";
 import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
 import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { NativeRenderOBJCreateUtil } from "./NativeOBJ/NativeRenderOBJCreateUtil";
+import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
 
 
 /**
@@ -167,7 +168,7 @@ export class NativeWebGLEngine implements IRenderEngine {
     //this._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0;
     this._activeTextures = [];
     //this._GLTextureContext = this.isWebGL2 ? new NativeGL2TextureContext(this) : new NativeGLTextureContext(this);
-    //this._GLRenderDrawContext = new NativeGLRenderDrawContext(this);
+    this._GLRenderDrawContext = new NativeGLRenderDrawContext(this);
     //this._GL2DRenderContext = new NativeGLRender2DContext(this);
 
     if (this.isWebGL2) {

@@ -43,6 +43,10 @@ import { SceneRenderManager } from "../../../RenderObj/SceneRenderManager";
 import { ShaderCompileDefineBase } from "../../../../webgl/utils/ShaderCompileDefineBase";
 import { NativeShaderInstance } from "./NativeShaderInstance";
 import { ShaderInstance } from "../../../../d3/shader/ShaderInstance";
+import { NativeRenderElementOBJ } from "./NativeRenderElementOBJ";
+import { RenderState } from "../../../../d3/core/material/RenderState";
+import { NativeRenderState } from "./NativeRenderState";
+import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
@@ -70,7 +74,8 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderElement(): IRenderElement {
-        return new (window as any).conchRenderElement();
+        //return new (window as any).conchRenderElement();
+        return new NativeRenderElementOBJ();
     }
     createSkinRenderElement():IRenderElement{
         return new SkinRenderElementOBJ();
@@ -83,7 +88,8 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
-        return new (window as any).conchRenderGeometryElement(mode, drayType);
+        //return new (window as any).conchRenderGeometryElement(mode, drayType);
+        return new NativeRenderGeometryElementOBJ(mode, drayType);
     }
 
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
@@ -128,5 +134,8 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
 
     createRenderStateComand(): NativeRenderStateCommand {
         return new NativeRenderStateCommand();
+    }
+    createRenderState(): RenderState {
+        return new NativeRenderState() as unknown as RenderState;
     }
 }

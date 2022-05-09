@@ -14,6 +14,7 @@ import { ShaderData } from "../../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../../RenderStateCommand";
 import { RenderStateContext } from "../../../RenderStateContext";
+import { NativeRenderState } from "./NativeRenderState";
 
 
 enum UniformParamsMapType {
@@ -28,7 +29,7 @@ enum UniformParamsMapType {
  */
 export class NativeShaderInstance/* extends ShaderInstance */{
 
-	private _nativeObj: any;
+	_nativeObj: any;
 
 	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase) {
 		//super(vs, ps, attributeMap, shaderPass);
@@ -41,8 +42,8 @@ export class NativeShaderInstance/* extends ShaderInstance */{
 		for (var s in stateMap) {
 			pConchAttributeMap.setStateValue(stateMap[s], Shader3D.propertyNameToID(s));
 		}
-
-		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, vs, ps, pConchAttributeMap);
+		var renderState: any = (<ShaderPass>shaderPass).renderState;
+		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, vs, ps, pConchAttributeMap, renderState._nativeObj);
 	}
 	/**
 	 * @inheritDoc
@@ -58,7 +59,7 @@ export class NativeShaderInstance/* extends ShaderInstance */{
 	}
 
 	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean){
-		Stat.shaderCall += this._nativeObj.uploadUniforms(shaderUniform, shaderDatas, uploadUnTexture);
+		Stat.shaderCall += this._nativeObj.uploadUniforms(shaderUniform, (shaderDatas as any)._nativeObj, uploadUnTexture);
 	}
 
 	/**
@@ -81,6 +82,14 @@ export class NativeShaderInstance/* extends ShaderInstance */{
 
 	get _materialUniformParamsMap():CommandEncoder {
 		return (UniformParamsMapType.Material as unknown as CommandEncoder);
+	}
+
+	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
+		this._nativeObj.uploadRenderStateBlendDepth((shaderDatas as any)._nativeObj);
+	}
+
+	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
+		this._nativeObj.uploadRenderStateFrontFace((shaderDatas as any)._nativeObj, isTarget, invertFront);
 	}
 }
 

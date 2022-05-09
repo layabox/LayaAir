@@ -29,7 +29,10 @@ export class NativeBaseRenderQueue implements IRenderQueue {
   
 
     addRenderElement(renderelement: RenderElement) {
-        this._nativeObj.addRenderElement(renderelement._renderElementOBJ);
+        this._nativeObj.addRenderElement((renderelement._renderElementOBJ as any)._nativeObj, 
+             renderelement.render.renderNode,
+             renderelement.material.renderQueue, 
+             renderelement.render.sortingFudge);
         this.elements.add(renderelement);
     }
 
@@ -50,7 +53,7 @@ export class NativeBaseRenderQueue implements IRenderQueue {
         }
         //更新所有大buffer数据 nativeTODO
 
-        this._nativeObj.renderQueue(this._context);
+        this._nativeObj.renderQueue((this._context as any)._nativeObj);
         
     }
 

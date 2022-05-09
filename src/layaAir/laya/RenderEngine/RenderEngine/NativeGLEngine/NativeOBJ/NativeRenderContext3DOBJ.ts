@@ -9,12 +9,19 @@ import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
 export class NativeRenderContext3DOBJ implements IRenderContext3D {
 
     //dest Texture
-    _destTarget: IRenderTarget;
+    private _destTarget: IRenderTarget;
 
     //viewPort
-    _viewPort: Viewport;
+    private _viewPort: Viewport;
     //scissor
-    _scissor: Vector4;
+    private _scissor: Vector4;
+
+    //Camera Shader Data
+    private _cameraShaderData: ShaderData;
+    //scene Shader Data
+    private _sceneShaderData: ShaderData;
+    //Global ShaderData
+    private _globalShaderData:ShaderData;
 
     private _nativeObj: any;
 
@@ -75,27 +82,30 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
     }
 
     set globalShaderData(globalShaderData: ShaderData) {
-        this._nativeObj.globalShaderData = globalShaderData;
+        this._globalShaderData = globalShaderData;
+        this._nativeObj.globalShaderData = (globalShaderData as any)._nativeObj;
     }
 
     get globalShaderData(): ShaderData {
-        return this._nativeObj.globalShaderData;
+        return this._globalShaderData;
     }
 
     set sceneShaderData(sceneShaderData: ShaderData) {
-        this._nativeObj.sceneShaderData = sceneShaderData;
+        this._sceneShaderData = sceneShaderData;
+        this._nativeObj.sceneShaderData = (sceneShaderData as any)._nativeObj;
     }
 
     get sceneShaderData(): ShaderData {
-        return this._nativeObj.sceneShaderData;
+        return this._sceneShaderData;
     }
 
     set cameraShaderData(cameraShaderData: ShaderData) {
-        this._nativeObj.cameraShaderData = cameraShaderData;
+        this._cameraShaderData = cameraShaderData;
+        this._nativeObj.cameraShaderData = (cameraShaderData as any)._nativeObj;
     }
 
     get cameraShaderData(): ShaderData {
-        return this._nativeObj.cameraShaderData;
+        return this._cameraShaderData;
     }
 
     set sceneID(sceneID: number) {

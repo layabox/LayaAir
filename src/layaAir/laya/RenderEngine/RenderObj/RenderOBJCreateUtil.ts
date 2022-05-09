@@ -1,4 +1,5 @@
 import { Bounds } from "../../d3/core/Bounds";
+import { RenderState } from "../../d3/core/material/RenderState";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
@@ -124,5 +125,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
 
     createRenderStateComand(): RenderStateCommand {
         return new RenderStateCommand();
+    }
+    createRenderState(): RenderState {
+        return new RenderState();
     }
 }
