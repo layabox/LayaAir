@@ -27,6 +27,7 @@ export enum ShaderDataType {
 }
 
 export class NativeShaderData extends ShaderData implements INativeUploadNode {
+    private inUploadList:boolean = false;
     _dataType: MemoryDataType;
     nativeObjID: number;
     _nativeObj: any;
@@ -82,6 +83,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
             strideFloat += value.call(key, array, strideFloat);
         });
         this.clearUpload();
+        this.inUploadList = false;
     }
 
     clearUpload() {
@@ -191,6 +193,15 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         this._defineDatas.clear();
     }
 
+    private configMotionProperty(key:number,length:number,callBack:Function){
+        this.updateMap.set(key,callBack);
+        this.updataSizeMap.set(key,length);
+        if(!this.inUploadList){
+            this.inUploadList = true;
+            UploadMemoryManager.BaseInstance._dataNodeList.add(this);
+        }
+    }
+
     /**
      * 设置布尔。
      * @param	index shader索引。
@@ -198,8 +209,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setBool(index: number, value: boolean): void {
         this._data[index] = value;
-        this.updateMap.set(index, this.compressNumber);
-        this.updataSizeMap.set(index,1);
+        this.configMotionProperty(index,1,this.compressNumber);
     }
 
     /**
@@ -209,8 +219,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setInt(index: number, value: number): void {
         this._data[index] = value;
-        this.updateMap.set(index, this.compressNumber);
-        this.updataSizeMap.set(index,1);
+        this.configMotionProperty(index,1,this.compressNumber);
     }
 
     /**
@@ -220,8 +229,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setNumber(index: number, value: number): void {
         this._data[index] = value;
-        this.updateMap.set(index, this.compressNumber);
-        this.updataSizeMap.set(index,1);
+        this.configMotionProperty(index,1,this.compressNumber);
     }
 
     /**
@@ -231,8 +239,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setVector2(index: number, value: Vector2): void {
         this._data[index] = value.clone();
-        this.updateMap.set(index, this.compressVector2);
-        this.updataSizeMap.set(index,2);
+        this.configMotionProperty(index,2,this.compressVector2);
     }
 
     /**
@@ -242,8 +249,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setVector3(index: number, value: Vector3): void {
         this._data[index] = value.clone();
-        this.updateMap.set(index, this.compressVector3);
-        this.updataSizeMap.set(index,3);
+        this.configMotionProperty(index,3,this.compressVector2);
     }
 
     /**
@@ -253,8 +259,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setVector(index: number, value: Vector4): void {
         this._data[index] = value.clone();
-        this.updateMap.set(index, this.compressVector4);
-        this.updataSizeMap.set(index,4);
+        this.configMotionProperty(index,4,this.compressVector4);
     }
 
     /**
@@ -264,8 +269,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setQuaternion(index: number, value: Quaternion): void {
         this._data[index] = value.clone();
-        this.updateMap.set(index, this.compressVector4);
-        this.updataSizeMap.set(index,4);
+        this.configMotionProperty(index,4,this.compressVector4);
     }
 
     /**
@@ -275,8 +279,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setMatrix4x4(index: number, value: Matrix4x4): void {
         this._data[index] = value.clone();
-        this.updateMap.set(index, this.compressMatrix4x4);
-        this.updataSizeMap.set(index,16);
+        this.configMotionProperty(index,16,this.compressMatrix4x4);
     }
 
 
@@ -287,8 +290,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setBuffer(index: number, value: Float32Array): void {
         this._data[index] = value;
-        this.updateMap.set(index, this.compressNumberArray);
-        this.updataSizeMap.set(index,value.length);
+        this.configMotionProperty(index,value.length,this.compressNumberArray);
     }
 
     /**
@@ -299,8 +301,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
     setTexture(index: number, value: BaseTexture): void {
         var lastValue: BaseTexture = this._data[index];
         this._data[index] = value ? value : Texture2D.erroTextur;
-        this.updateMap.set(index, this.compressTexture);
-        this.updataSizeMap.set(index,1);
+        this.configMotionProperty(index,1,this.compressTexture);
         if (this._ownerResource && this._ownerResource.referenceCount > 0) {
             (lastValue) && (lastValue._removeReference());
             (value) && (value._addReference());
