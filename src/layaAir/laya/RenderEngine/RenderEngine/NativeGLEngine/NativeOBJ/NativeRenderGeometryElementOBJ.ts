@@ -32,7 +32,7 @@ export class NativeRenderGeometryElementOBJ implements IRenderGeometryElement {
   setDrawElemenParams(count: number, offset: number): void {
     this.drawParams.add(offset);
     this.drawParams.add(count);
-    this._nativeObj.setDrawElemenParams(offset, count);
+    this._nativeObj.setDrawElemenParams(count, offset);
   }
   
   /**@internal */

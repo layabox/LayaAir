@@ -1,6 +1,7 @@
 import { RenderStateCommand } from "../../../RenderStateCommand";
 import { RenderStateType } from "../../../RenderEnum/RenderStateType";
 import { BlendType } from "../../../RenderEnum/BlendType";
+import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
  * 渲染状态设置命令流
@@ -22,7 +23,7 @@ export class NativeRenderStateCommand extends RenderStateCommand {
             case RenderStateType.BlendEquation:
             case RenderStateType.CullFace:
             case RenderStateType.FrontFace:
-                this._nativeObj.addCMDInt1(value);
+                this._nativeObj.addCMDInt1(renderstate, value);
                 break;
             case RenderStateType.StencilFunc:         
             case RenderStateType.BlendFunc:            
@@ -45,7 +46,7 @@ export class NativeRenderStateCommand extends RenderStateCommand {
     }
 
     applyCMD(){
-        this._nativeObj.applyRenderStateCMD();
+        LayaGL.renderEngine.applyRenderStateCMD(this);
     }
 
     clear(){
