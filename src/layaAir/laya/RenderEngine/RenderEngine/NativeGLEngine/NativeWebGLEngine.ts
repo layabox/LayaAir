@@ -220,7 +220,7 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   applyRenderStateCMD(cmd: RenderStateCommand): void {
     //this._GLRenderState.applyRenderStateCommand(cmd);
-    this._nativeObj.applyRenderStateCommand(cmd);
+    this._nativeObj.applyRenderStateCommand((cmd as any)._nativeObj);
   }
 
   //get capable of webgl
