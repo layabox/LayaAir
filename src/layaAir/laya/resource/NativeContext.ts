@@ -53,8 +53,6 @@ enum CONTEXT2D_FUNCTION_ID
     CLOSE_PATH,
     FILL,
     STROKE,
-    DRAW_CANVAS_NORMAL,
-    DRAW_CANVAS_BITMAP,
     SET_AS_BITMAP,
     DRAW_MASKED,
     DRAW_TRANGLES,
@@ -532,12 +530,12 @@ export class NativeContext {
     drawCanvas(canvas: HTMLCanvas, x: number, y: number, width: number, height: number): void {
 		if (!canvas) return;
         if (canvas instanceof(NativeWebGLCacheAsNormalCanvas)) {
-            //this._nativeObj.drawCanvasNormal(canvas._nativeObj.id, x, y, width, height);
-            this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_NORMAL, canvas._nativeObj.id, x, y, width, height);
+            this._nativeObj.drawCanvasNormal(canvas._nativeObj, x, y, width, height);
+            //this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_NORMAL, canvas._nativeObj.id, x, y, width, height);
         }
         else {
-            //this._nativeObj.drawCanvasBitmap(canvas.context._nativeObj.id, x, y, width, height);
-            this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_BITMAP, (canvas.context as any)._nativeObj.id, x, y, width, height);
+            this._nativeObj.drawCanvasBitmap((canvas.context as any)._nativeObj, x, y, width, height);
+            //this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_BITMAP, (canvas.context as any)._nativeObj.id, x, y, width, height);
         }
     }
     fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
