@@ -3,7 +3,7 @@ import { Buffer } from "./Buffer";
 import { VertexDeclaration } from "./VertexDeclaration";
 
 export class VertexBuffer extends Buffer {
-	_instanceBuffer: boolean = false;
+	private _instanceBuffer: boolean = false;
 	/** @internal */
 	_vertexDeclaration: VertexDeclaration | null = null;
 
@@ -17,7 +17,13 @@ export class VertexBuffer extends Buffer {
 	set vertexDeclaration(value: VertexDeclaration | null) {
 		this._vertexDeclaration = value;
 	}
+	get instanceBuffer(): boolean {
+		return this._instanceBuffer;
+	}
 
+	set instanceBuffer(value: boolean) {
+		this._instanceBuffer = value;
+	}
 	constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
 		super(targetType, bufferUsageType);
 	}
