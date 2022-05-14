@@ -1,6 +1,5 @@
 import { BoundFrustum } from "../../../../d3/math/BoundFrustum";
 import { Matrix4x4 } from "../../../../d3/math/Matrix4x4";
-import { Plane } from "../../../../d3/math/Plane";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
 
 

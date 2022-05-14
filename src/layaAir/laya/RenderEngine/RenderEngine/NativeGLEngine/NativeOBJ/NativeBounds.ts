@@ -1,4 +1,3 @@
-import { Bounds } from "../../../../d3/core/Bounds";
 import { IClone } from "../../../../d3/core/IClone";
 import { BoundBox } from "../../../../d3/math/BoundBox";
 import { Matrix4x4 } from "../../../../d3/math/Matrix4x4";

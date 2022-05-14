@@ -47,7 +47,12 @@ export class NativeRenderGeometryElementOBJ implements IRenderGeometryElement {
 
   set bufferState(value: BufferState) {
     this._bufferState = value;
-    this._nativeObj.bufferState = (value as any)._nativeVertexArrayObject._nativeObj;
+    if (value) {
+      this._nativeObj.bufferState = (value as any)._nativeVertexArrayObject._nativeObj;
+    }
+    else {
+      this._nativeObj.bufferState = null;
+    }
   }
 
   get bufferState(): BufferState {

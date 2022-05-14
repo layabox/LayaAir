@@ -3,13 +3,13 @@ import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { IRenderGeometryElement } from "../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { GLObject } from "../WebGLEngine/GLObject";
-import { WebGLEngine } from "../WebGLEngine/WebGLEngine";
+import { NativeGLObject } from "./NativeGLObject";
+import { NativeWebGLEngine } from "./NativeWebGLEngine";
 
 //TODO
-export class NativeGLRenderDrawContext extends GLObject implements IRenderDrawContext {
+export class NativeGLRenderDrawContext extends NativeGLObject implements IRenderDrawContext {
     _nativeObj: any;
-    constructor(engine: WebGLEngine) {
+    constructor(engine: NativeWebGLEngine) {
         super(engine);
         this._nativeObj = new (window as any).conchGLRenderDrawContext((engine as any)._nativeObj);
     }

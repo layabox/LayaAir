@@ -10,11 +10,9 @@ import { UploadMemory } from "./UploadMemory";
 export class UploadMemoryManager {
     /**
      * each upload block memory size
-     * defined 10M
+     * defined 1MB
      */
-    static UploadMemorySize: number = 1024 * 1024 * 10 * 4;
-    //DescribeData type + instanceID + dataLength
-    static TopLength: number = 3 * 4;
+    static UploadMemorySize: number = 10 * 1024 * 1024;
     /*@internal SingleOBJ*/
     private static _instance: UploadMemoryManager = null;
     /**@internal 需要上传数据的Node列表*/
@@ -22,13 +20,12 @@ export class UploadMemoryManager {
     /**@internal */
     _currentBlock: UploadMemory;
     /**@internal */
-    _commandNums: number;
+    _commandNums: number = 0;
 
     /**@native C++ */
     _conchUploadMemoryManager:any;
 
     constructor() {
-        UploadMemoryManager._instance = this;
         this._currentBlock = new UploadMemory(UploadMemoryManager.UploadMemorySize);
         this._conchUploadMemoryManager = new (window as any).conchUploadMemoryManager();
     }
@@ -38,14 +35,15 @@ export class UploadMemoryManager {
         }
         return UploadMemoryManager._instance;
     }
-    private _addNodeCommand(node: INativeUploadNode, size: number) {
-        this._currentBlock.addBlockCell(node, size);
+    private _addNodeCommand(node: INativeUploadNode, sizeInByte: number) {
+        this._currentBlock.addBlockCell(node, sizeInByte);
         this._commandNums++;
     }
 
     static syncRenderMemory()
     {
         UploadMemoryManager.getInstance()._serialiseData();
+        UploadMemoryManager.getInstance().clear();
     }
 
     /**
@@ -55,26 +53,31 @@ export class UploadMemoryManager {
         const elements = this._dataNodeList.elements;
         for (let i = 0; i < this._dataNodeList.length; i++) {
             let node = elements[i];
-            let dataSize = node.getUploadMemoryLength();//get upload Memory Length
-            if (dataSize > UploadMemoryManager.UploadMemorySize)
+            let dataSizeInByte = node.getUploadMemoryLength();//get upload Memory Length
+            if (dataSizeInByte > UploadMemoryManager.UploadMemorySize)
                 throw "dataSize is too large, greater than UploadMemorySize,";
-            if (this._currentBlock.check(dataSize)) {
-                //Deserialization all cmd to native data
+            if (this._currentBlock.check(dataSizeInByte)) { 
+                 //Deserialization all cmd to native data
                 this.uploadData();
-                this._addNodeCommand(node, dataSize);
-            } else {
-                this._addNodeCommand(node, dataSize);
+                this._addNodeCommand(node, dataSizeInByte);
+            } else { 
+              
+                this._addNodeCommand(node, dataSizeInByte);
             }
         }
+        this.uploadData();
     }
 
     /**强制更新数据 */
     uploadData() {
-        //Native upload data
-        this._conchUploadMemoryManager.uploadData( this._currentBlock._buffer,this._commandNums);
-        //clear uploadMemory
-        this._commandNums = 0;
-        this._currentBlock.clear();
+        if (this._commandNums > 0)
+        {
+            //Native upload data
+            this._conchUploadMemoryManager.uploadData(this._currentBlock._buffer, this._commandNums);
+            //clear uploadMemory
+            this._commandNums = 0;
+            this._currentBlock.clear();
+        }
     }
 
 

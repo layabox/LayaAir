@@ -33,7 +33,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
     _nativeObj: any;
     updateMap: Map<number, Function>;
     updataSizeMap: Map<number, number>;
-    uploadByteSize: number;
+    payload32bitNum: number = 0;
     /**
      * @internal	
      */
@@ -45,7 +45,6 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         this._dataType = MemoryDataType.ShaderData;
         this.updateMap = new Map();
         this.updataSizeMap = new Map();
-
     }
 
     /**
@@ -53,12 +52,11 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      * @internal
      */
     getUploadMemoryLength(): number {
-        let length = 1 + UploadMemoryManager.TopLength;
+        let head = 4;//header
         this.updataSizeMap.forEach((value) => {
-            length += value;
+            this.payload32bitNum += value;
         });
-        this.uploadByteSize = length * 4;
-        return this.uploadByteSize;
+        return (this.payload32bitNum + head)* 4;
     }
 
     /**
@@ -67,105 +65,109 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      * @param memoryBlock 
      * @param stride 
      */
-    uploadDataTOShareMemory(memoryBlock: UploadMemory, stride: number): void {
-        let array = memoryBlock.float32Array;
-        let strideFloat = stride / 4;
+    uploadDataTOShareMemory(memoryBlock: UploadMemory, strideInByte: number): void {
+        let array = memoryBlock.int32Array;
+        let strideFloat = strideInByte / 4;
         //type
-        array[strideFloat++] = MemoryDataType.ShaderData;
+         array[strideFloat++] = MemoryDataType.ShaderData;
         //instanceID
         array[strideFloat++] = this.nativeObjID;
         //dataLength
-        array[strideFloat++] = this.uploadByteSize;
+        array[strideFloat++] = this.payload32bitNum;
         //Shaderdata property change nums
         array[strideFloat++] = this.updateMap.size;
-        //array.set(this._uploadArray,strideFloat+3);
         this.updateMap.forEach((value, key) => {
-            strideFloat += value.call(key, array, strideFloat);
+            strideFloat += value.call(this, key, memoryBlock, strideFloat);
         });
         this.clearUpload();
         this.inUploadList = false;
     }
 
     clearUpload() {
+        this.payload32bitNum = 0;
+        this.updataSizeMap.clear();
         this.updateMap.clear();
     }
-
-    compressNumber(index: number, data: Float32Array, stride: number): number {
+    compressInt(index: number, memoryBlock: UploadMemory, stride: number): number {
+        //console.log("..index " + index + " ShaderDataType.Int32 " + ShaderDataType.Int32 + "stride " + stride);
         var length = 3;
-        data[stride] = index;
-        data[stride + 1] = ShaderDataType.Number32;
-        data[stride + 2] = this._data[index];
+        memoryBlock.int32Array[stride] = index;
+        memoryBlock.int32Array[stride + 1] = ShaderDataType.Int32;
+        memoryBlock.int32Array[stride + 2] = this._data[index];
+        return length;
+    }
+    compressNumber(index: number, memoryBlock: UploadMemory, stride: number): number {
+        //console.log("..index " + index + " ShaderDataType.Number32 " + ShaderDataType.Number32 + "stride " + stride);
+        var length = 3;
+        memoryBlock.int32Array[stride] = index;
+        memoryBlock.int32Array[stride + 1] = ShaderDataType.Number32;
+        memoryBlock.float32Array[stride + 2] = this._data[index];
         return length;
     }
 
-    compressVector2(index: number, data: Float32Array, stride: number): number {
+    compressVector2(index: number, memoryBlock: UploadMemory, stride: number): number {
+        //console.log("..index " + index + " ShaderDataType.Vector2 " + ShaderDataType.Vector2 + "stride " + stride);
         var length = 4;
-        data[stride] = index;
-        data[stride + 1] = ShaderDataType.Vector2;
+        memoryBlock.int32Array[stride] = index;
+        memoryBlock.int32Array[stride + 1] = ShaderDataType.Vector2;
         var value: Vector2 = this._data[index];
-        data[stride + 2] = value.x;
-        data[stride + 3] = value.y;
+        memoryBlock.float32Array[stride + 2] = value.x;
+        memoryBlock.float32Array[stride + 3] = value.y;
         return length;
     }
 
-    compressVector3(index: number, data: Float32Array, stride: number): number {
+    compressVector3(index: number, memoryBlock: UploadMemory, stride: number): number {
+        //console.log("..index " + index + " ShaderDataType.Vector3 " + ShaderDataType.Vector2 + "stride " + stride);
         var length = 5;
-        data[stride] = index;
-        data[stride + 1] = ShaderDataType.Vector3;
+        memoryBlock.int32Array[stride] = index;
+        memoryBlock.int32Array[stride + 1] = ShaderDataType.Vector3;
         var value: Vector3 = this._data[index];
-        data[stride + 2] = value.x;
-        data[stride + 3] = value.y;
-        data[stride + 4] = value.z;
+        memoryBlock.float32Array[stride + 2] = value.x;
+        memoryBlock.float32Array[stride + 3] = value.y;
+        memoryBlock.float32Array[stride + 4] = value.z;
         return length;
     }
 
-    compressVector4(index: number, data: Float32Array, stride: number): number {
+    compressVector4(index: number, memoryBlock: UploadMemory, stride: number): number {
+        //console.log("..index " + index + " ShaderDataType.Vector4 " + ShaderDataType.Vector4 + "stride " + stride);
         var length = 6;
-        data[stride] = index;
-        data[stride + 1] = ShaderDataType.Vector4;
+        memoryBlock.int32Array[stride] = index;
+        memoryBlock.int32Array[stride + 1] = ShaderDataType.Vector4;
         var value: Vector4 = this._data[index];
-        data[stride + 2] = value.x;
-        data[stride + 3] = value.y;
-        data[stride + 4] = value.z;
-        data[stride + 5] = value.w;
+        memoryBlock.float32Array[stride + 2] = value.x;
+        memoryBlock.float32Array[stride + 3] = value.y;
+        memoryBlock.float32Array[stride + 4] = value.z;
+        memoryBlock.float32Array[stride + 5] = value.w;
         return length;
     }
 
-    compressMatrix4x4(index: number, data: Float32Array, stride: number): number {
+    compressMatrix4x4(index: number, memoryBlock: UploadMemory, stride: number): number {
+        //console.log("..index " + index + " ShaderDataType.Matrix4x4 " + ShaderDataType.Matrix4x4 + "stride " + stride);
         var length = 18;
-        data[stride] = index;
-        data[stride + 1] = ShaderDataType.Matrix4x4;
+        memoryBlock.int32Array[stride] = index;
+        memoryBlock.int32Array[stride + 1] = ShaderDataType.Matrix4x4;
         var value: Matrix4x4 = this._data[index];
-        data.set(value.elements, stride + 2);
+        memoryBlock.float32Array.set(value.elements, stride + 2);
         return length;
     }
 
-    compressNumberArray(index: number, data: Float32Array, stride: number): number {
-        data[stride] = index
-        data[stride + 1] = ShaderDataType.Number32Array;
+    compressNumberArray(index: number, memoryBlock: UploadMemory, stride: number): number {
+        //console.log("..index " + index + " ShaderDataType.Number32Array " + ShaderDataType.Number32Array + "stride " + stride);
+        memoryBlock.int32Array[stride] = index
+        memoryBlock.int32Array[stride + 1] = ShaderDataType.Number32Array;
         var value: Float32Array = this._data[index];
-        data[stride + 2] = value.length;
-        data.set(value, stride + 3);
+        memoryBlock.int32Array[stride + 2] = value.length;
+        memoryBlock.float32Array.set(value, stride + 3);
         return value.length + 3;
     }
 
-    compressTexture(index: number, data: Float32Array, stride: number): number {
+    compressTexture(index: number, memoryBlock: UploadMemory, stride: number): number {
+        //console.log("..index " + index + " ShaderDataType.Texture " + ShaderDataType.Texture + "stride " + stride);
         var value: BaseTexture = this._data[index];
-        data[stride] = index;
-        data[stride + 1] = ShaderDataType.Texture;
-        data[stride + 2] = value._texture.resource.id;//TODO
+        memoryBlock.int32Array[stride] = index;
+        memoryBlock.int32Array[stride + 1] = ShaderDataType.Texture;
+        memoryBlock.int32Array[stride + 2] = (value._texture as any).id;
         return 3;
-    }
-
-    compressShaderDefine(index: number, data: Float32Array, stride: number): number {
-        var length = 3;
-        data[stride] = index;
-        data[stride + 1] = ShaderDataType.ShaderDefine;
-        let defineLength = data[stride + 2] = this._defineDatas._length;
-        for (let i: number; i < defineLength; i++, length++) {
-            data[stride + length] = this._defineDatas._mask[i];
-        }
-        return length;
     }
 
     /**
@@ -174,7 +176,6 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     addDefine(define: ShaderDefine): void {
         this._defineDatas.add(define);
-        //this.updateMap.set(ShaderDataNative.ShaderDefineMapIndex, this.compressShaderDefine);
     }
 
     /**
@@ -183,7 +184,6 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     removeDefine(define: ShaderDefine): void {
         this._defineDatas.remove(define);
-        //this.updateMap.set(ShaderDataNative.ShaderDefineMapIndex, this.compressShaderDefine);
     }
 
     /**
@@ -196,9 +196,9 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
     private configMotionProperty(key:number,length:number,callBack:Function){
         this.updateMap.set(key,callBack);
         this.updataSizeMap.set(key,length);
-        if(!this.inUploadList){
+        if(!this.inUploadList) {
             this.inUploadList = true;
-            UploadMemoryManager.BaseInstance._dataNodeList.add(this);
+            UploadMemoryManager.getInstance()._dataNodeList.add(this);
         }
     }
 
@@ -209,7 +209,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setBool(index: number, value: boolean): void {
         this._data[index] = value;
-        this.configMotionProperty(index,1,this.compressNumber);
+        this.configMotionProperty(index, 3, this.compressInt);
     }
 
     /**
@@ -219,7 +219,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setInt(index: number, value: number): void {
         this._data[index] = value;
-        this.configMotionProperty(index,1,this.compressNumber);
+        this.configMotionProperty(index, 3, this.compressInt);
     }
 
     /**
@@ -229,7 +229,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setNumber(index: number, value: number): void {
         this._data[index] = value;
-        this.configMotionProperty(index,1,this.compressNumber);
+        this.configMotionProperty(index, 3, this.compressNumber);
     }
 
     /**
@@ -239,7 +239,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setVector2(index: number, value: Vector2): void {
         this._data[index] = value.clone();
-        this.configMotionProperty(index,2,this.compressVector2);
+        this.configMotionProperty(index, 4 , this.compressVector2);
     }
 
     /**
@@ -249,7 +249,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setVector3(index: number, value: Vector3): void {
         this._data[index] = value.clone();
-        this.configMotionProperty(index,3,this.compressVector2);
+        this.configMotionProperty(index, 5, this.compressVector3);
     }
 
     /**
@@ -259,7 +259,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setVector(index: number, value: Vector4): void {
         this._data[index] = value.clone();
-        this.configMotionProperty(index,4,this.compressVector4);
+        this.configMotionProperty(index, 6, this.compressVector4);
     }
 
     /**
@@ -269,7 +269,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setQuaternion(index: number, value: Quaternion): void {
         this._data[index] = value.clone();
-        this.configMotionProperty(index,4,this.compressVector4);
+        this.configMotionProperty(index, 6, this.compressVector4);
     }
 
     /**
@@ -279,7 +279,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setMatrix4x4(index: number, value: Matrix4x4): void {
         this._data[index] = value.clone();
-        this.configMotionProperty(index,16,this.compressMatrix4x4);
+        this.configMotionProperty(index, 18, this.compressMatrix4x4);
     }
 
 
@@ -290,7 +290,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setBuffer(index: number, value: Float32Array): void {
         this._data[index] = value;
-        this.configMotionProperty(index,value.length,this.compressNumberArray);
+        this.configMotionProperty(index, 3 + value.length, this.compressNumberArray);
     }
 
     /**
@@ -301,7 +301,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
     setTexture(index: number, value: BaseTexture): void {
         var lastValue: BaseTexture = this._data[index];
         this._data[index] = value ? value : Texture2D.erroTextur;
-        this.configMotionProperty(index,1,this.compressTexture);
+        this.configMotionProperty(index, 3, this.compressTexture);
         if (this._ownerResource && this._ownerResource.referenceCount > 0) {
             (lastValue) && (lastValue._removeReference());
             (value) && (value._addReference());

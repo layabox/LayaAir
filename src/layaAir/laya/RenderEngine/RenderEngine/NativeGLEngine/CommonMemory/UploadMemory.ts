@@ -7,15 +7,15 @@ export class UploadMemory extends NativeMemory{
      * @internal
      * 数据填充的位置
      */
-    _currentStride:number = 0;
+    _currentOffsetInByte:number = 0;
 
     constructor(size:number){
         super(size);
     }
 
-    addBlockCell(node: INativeUploadNode, dataSize: number){
-        node.uploadDataTOShareMemory(this,this._currentStride);
-        this._currentStride+=dataSize;
+    addBlockCell(node: INativeUploadNode, dataSizeInByte: number){
+        node.uploadDataTOShareMemory(this, this._currentOffsetInByte);
+        this._currentOffsetInByte += dataSizeInByte;
     }
 
     /**
@@ -24,14 +24,14 @@ export class UploadMemory extends NativeMemory{
      * @returns 
      */
     check(size:number){
-        return this._currentStride+size<this._byteLength;
+        return this._currentOffsetInByte + size < this._byteLength;
     }
 
     /**
      * 清空更新数据
      */
     clear(): void {
-      this._currentStride = 0;
+      this._currentOffsetInByte = 0;
     }
 
 

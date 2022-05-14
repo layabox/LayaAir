@@ -96,7 +96,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
      * @param renderqueue 
      */
     _render(context: IRenderContext3D): void {
-        throw "not implement";
+        this._nativeObj._render((context as any)._nativeObj);
     }
 
     /*drawGeometry(shaderIns:ShaderInstance){

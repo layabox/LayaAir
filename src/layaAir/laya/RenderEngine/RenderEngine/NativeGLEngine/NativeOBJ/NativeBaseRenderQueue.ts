@@ -5,7 +5,6 @@ import { RenderElement } from "../../../../d3/core/render/RenderElement";
 import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderQueue } from "../../../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISortPass";
-import { QuickSort } from "../../../RenderObj/QuickSort";
 
 export class NativeBaseRenderQueue implements IRenderQueue {
    /** @internal */

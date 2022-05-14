@@ -25,7 +25,7 @@ export class NativeBoundSphere extends BoundSphere {
     constructor(center: Vector3, radius: number) {
         super(center,radius);
         //native memory
-        this.nativeMemory = new NativeMemory(NativeBoundSphere.MemoryBlock_size * 4));
+        this.nativeMemory = new NativeMemory(NativeBoundSphere.MemoryBlock_size * 4);
         this.float32Array = this.nativeMemory.float32Array;
         this.int32Array = this.nativeMemory.int32Array;
         this._nativeObj = new (window as any).conchBoundSphere(this.nativeMemory._buffer);
