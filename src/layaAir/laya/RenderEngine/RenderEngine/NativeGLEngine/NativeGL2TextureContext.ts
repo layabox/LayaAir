@@ -41,11 +41,19 @@ export class NativeGL2TextureContext extends NativeGLTextureContext {
     }
 
     setCubeImageData(texture: InternalTexture, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean): void {
-        //this._native.setTextureImageData((texture as any).id, (source as any)._nativeObj.conchImgId , premultiplyAlpha, invertY);
+        var images: any[] = [];
+        var length = sources.length;
+        for (let index = 0; index < length; index++) {
+            images.push((sources[index] as any)._nativeObj);
+        }
+        this._native.setCubeImageData(texture, images, premultiplyAlpha, invertY);
     }
 
     setCubePixelsData(texture: InternalTexture, source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean): void {
-        //this._native.setCubePixelsData((texture as any).id, source , premultiplyAlpha, invertY);
+        this._native.setCubePixelsData(texture, source, premultiplyAlpha, invertY);
+    }
+    setCubeSubPixelData(texture: InternalTexture, source: ArrayBufferView[], mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setCubeSubPixelData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void {

@@ -48,13 +48,20 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
     }
 
-    setCubeImageData(texture: InternalTexture, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean) { 
+    setCubeImageData(texture: InternalTexture, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean): void {
+        var images: any[] = [];
+        var length = sources.length;
+        for (let index = 0; index < length; index++) {
+            images.push((sources[index] as any)._nativeObj);
+        }
+        this._native.setCubeImageData(texture, images, premultiplyAlpha, invertY);
     }
 
-    setCubePixelsData(texture: InternalTexture, source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean) {
+    setCubePixelsData(texture: InternalTexture, source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setCubePixelsData(texture, source, premultiplyAlpha, invertY);
     }
-
     setCubeSubPixelData(texture: InternalTexture, source: ArrayBufferView[], mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setCubeSubPixelData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
 
