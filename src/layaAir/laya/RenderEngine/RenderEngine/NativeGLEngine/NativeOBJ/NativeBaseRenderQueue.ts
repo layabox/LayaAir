@@ -2,23 +2,29 @@ import { SingletonList } from "../../../../d3/component/SingletonList";
 import { Camera } from "../../../../d3/core/Camera";
 import { RenderContext3D } from "../../../../d3/core/render/RenderContext3D";
 import { RenderElement } from "../../../../d3/core/render/RenderElement";
+import { RenderElementBatch } from "../../../../d3/graphics/Batch/RenderElementBatch";
 import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderQueue } from "../../../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISortPass";
 
 export class NativeBaseRenderQueue implements IRenderQueue {
+   /** @interanl */
+    _isTransparent: boolean = false;
    /** @internal */
    elements: SingletonList<RenderElement> = new SingletonList<RenderElement>();
    /**sort function*/
    _sortPass: ISortPass;
    /** context*/
-   _context:IRenderContext3D;
-   private _nativeObj: any;
+   _context: IRenderContext3D;
+   _batch: RenderElementBatch;
+    private _nativeObj: any;
     set sortPass(value: ISortPass) {
         this._nativeObj.sortPass = value;
     }
     constructor(isTransparent: boolean) {
+        this._isTransparent = isTransparent;
         this._nativeObj = new (window as any).conchRenderQueue(isTransparent);
+ 	this._batch = RenderElementBatch.instance ? RenderElementBatch.instance : new RenderElementBatch();
     }
 
     set context(value:RenderContext3D){
@@ -54,9 +60,12 @@ export class NativeBaseRenderQueue implements IRenderQueue {
 
         this._nativeObj.renderQueue((this._context as any)._nativeObj);
         
+        this._batch.recoverData();
     }
 
     private _batchQueue() {
+       this._isTransparent|| this._batch.batch(this.elements);
+    }
 
     }
 }
