@@ -47,10 +47,12 @@ import { NativeRenderElementOBJ } from "./NativeRenderElementOBJ";
 import { RenderState } from "../../../../d3/core/material/RenderState";
 import { NativeRenderState } from "./NativeRenderState";
 import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ";
+import { NativeSkinRenderElementOBJ } from "./NativeSkinRenderElementOBJ";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
-        return new NativeTransform3D(owner);
+        //return new NativeTransform3D(owner);
+        return new Transform3D(owner);
     }
 
     createBounds(min: Vector3, max: Vector3): Bounds {
@@ -78,7 +80,7 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeRenderElementOBJ();
     }
     createSkinRenderElement():IRenderElement{
-        return new SkinRenderElementOBJ();
+        return new NativeSkinRenderElementOBJ();
     }
 
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {

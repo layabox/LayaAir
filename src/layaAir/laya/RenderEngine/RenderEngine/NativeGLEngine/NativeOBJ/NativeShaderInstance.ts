@@ -66,7 +66,7 @@ export class NativeShaderInstance/* extends ShaderInstance */{
 	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
-		//Stat.shaderCall += this._nativeObj.uploadCustomUniforms(this._customUniformParamsMap, index, data);
+		Stat.shaderCall += this._nativeObj.uploadCustomUniforms(index, data);
 	}
 	get _sceneUniformParamsMap(): CommandEncoder {
 		return (UniformParamsMapType.Scene as unknown as CommandEncoder);

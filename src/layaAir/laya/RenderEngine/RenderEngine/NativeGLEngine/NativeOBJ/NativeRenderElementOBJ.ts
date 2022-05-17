@@ -1,22 +1,25 @@
-import { SingletonList } from "../../d3/component/SingletonList";
-import { Transform3D } from "../../d3/core/Transform3D";
-import { ShaderInstance } from "../../d3/shader/ShaderInstance";
-import { LayaGL } from "../../layagl/LayaGL";
-import { IBaseRenderNode } from "../RenderInterface/RenderPipelineInterface/IBaseRenderNode";
-import { IRenderContext3D } from "../RenderInterface/RenderPipelineInterface/IRenderContext3D";
-import { IRenderElement } from "../RenderInterface/RenderPipelineInterface/IRenderElement";
-import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { ShaderData } from "../RenderShader/ShaderData";
-
+import { SingletonList } from "../../../../d3/component/SingletonList";
+import { Transform3D } from "../../../../d3/core/Transform3D";
+import { ShaderInstance } from "../../../../d3/shader/ShaderInstance";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { IBaseRenderNode } from "../../../RenderInterface/RenderPipelineInterface/IBaseRenderNode";
+import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
+import { IRenderElement } from "../../../RenderInterface/RenderPipelineInterface/IRenderElement";
+import { IRenderGeometryElement } from "../../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
+import { NativeShaderData } from "./NativeShaderData";
+export enum RenderElementType {
+	Base = 0,
+	Skin,
+}
 export class NativeRenderElementOBJ implements IRenderElement {
     
     private geometry: IRenderGeometryElement;
 
     //private shaderInstances: SingletonList<ShaderInstance>;
 
-    private materialShaderData: ShaderData;
+    private materialShaderData: NativeShaderData;
 
-    private renderShaderData: ShaderData;
+    private renderShaderData: NativeShaderData;
 
     private transform: Transform3D;
 
@@ -26,34 +29,34 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     set _geometry(data: IRenderGeometryElement) {
         this.geometry = data;
-        this._nativeObj._geometry = data._nativeObj;
+        this._nativeObj._geometry = (data as any)._nativeObj;
     }
 
     get _geometry(): IRenderGeometryElement {
         return this.geometry;
     }
 
-    set _materialShaderData(data: ShaderData) {
+    set _materialShaderData(data: NativeShaderData) {
         this.materialShaderData = data;
         this._nativeObj._materialShaderData = data._nativeObj;
     }
 
-    get _materialShaderData(): ShaderData {
+    get _materialShaderData(): NativeShaderData {
         return this.materialShaderData;
     }
 
-    set _renderShaderData(data: ShaderData) {
+    set _renderShaderData(data: NativeShaderData) {
         this.renderShaderData = data;
         this._nativeObj._renderShaderData = data._nativeObj;
     }
 
-    get _renderShaderData(): ShaderData {
+    get _renderShaderData(): NativeShaderData {
         return this.renderShaderData;
     }
 
     set _transform(data: Transform3D) {
         this.transform = data;
-        this._nativeObj._transform = data._nativeObj;
+        this._nativeObj._transform = data ? (data as any)._nativeObj : null;
     }
 
     get _transform(): Transform3D {
@@ -71,8 +74,13 @@ export class NativeRenderElementOBJ implements IRenderElement {
     _nativeObj: any;
 
     constructor(){
-        this._nativeObj = new (window as any).conchRenderElement();
+        this.init();
     }
+    init(): void {
+        this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Base);
+    }
+    _shaderInstances: SingletonList<ShaderInstance>;
+    _owner: IBaseRenderNode;
 
     _addShaderInstance(shader:ShaderInstance){
         this._nativeObj._addShaderInstance((shader as any)._nativeObj);

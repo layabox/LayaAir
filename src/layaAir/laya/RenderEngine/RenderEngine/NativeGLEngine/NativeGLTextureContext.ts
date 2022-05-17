@@ -40,12 +40,15 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
+        throw new Error("setTextureDDSData Method not implemented.");
     }
 
     setTextureKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
+        throw new Error("setTextureKTXData Method not implemented.");
     }
 
     setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
+        throw new Error("setTextureHDRData Method not implemented.");
     }
 
     setCubeImageData(texture: InternalTexture, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean): void {
@@ -66,13 +69,15 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
 
 
     setCubeDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
+        throw new Error("setCubeDDSData Method not implemented.");
     }
 
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
+        throw new Error("setCubeKTXData Method not implemented.");
     }
 
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
-        return this._native.bindRenderTarget(texture, compareMode);
+        return this._native.setTextureCompareMode(texture, compareMode);
     }
 
     bindRenderTarget(renderTarget: InternalRenderTarget): void {
@@ -80,7 +85,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     bindoutScreenTarget():void{
-     
+        throw new Error("bindoutScreenTarget Method not implemented.");
     }
 
     unbindRenderTarget(renderTarget: InternalRenderTarget): void {
@@ -88,31 +93,38 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
+        throw new Error("createRenderTextureInternal Method not implemented.");
         return null;
     }
 
     createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
+        throw new Error("createRenderTextureCubeInternal Method not implemented.");
         return null;
     }
 
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        throw new Error("createRenderTargetInternal Method not implemented.");
         return  this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat, generateMipmap, sRGB, multiSamples);
     }
 
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        throw new Error("createRenderTargetCubeInternal Method not implemented.");
         return null;
     }
     // todo  color 0, 1, 2, 3 ?
     setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture) {
+        throw new Error("setupRendertargetTextureAttachment Method not implemented.");
     }
 
     // todo 不同 格式
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
+        throw new Error("readRenderTargetPixelData Method not implemented.");
         return null;
+
     }
 
     updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
-
+        throw new Error("updateVideoTexture Method not implemented.");
     }
 
 }

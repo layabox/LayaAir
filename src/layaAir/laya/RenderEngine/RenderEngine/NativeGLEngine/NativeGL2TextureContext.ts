@@ -37,7 +37,7 @@ export class NativeGL2TextureContext extends NativeGLTextureContext {
     }
 
     setTextureKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
-
+        throw new Error("setTextureKTXData Method not implemented.");
     }
 
     setCubeImageData(texture: InternalTexture, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean): void {
@@ -57,29 +57,30 @@ export class NativeGL2TextureContext extends NativeGLTextureContext {
     }
 
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void {
-       
+        throw new Error("setCubeKTXData Method not implemented.");
     }
 
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
-        return this._native.bindRenderTarget(texture, compareMode);
+        return this._native.setTextureCompareMode(texture, compareMode);
     }
 
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): InternalTexture {
-        alert("createRenderTextureInternal");
+        throw new Error("createRenderTextureInternal Method not implemented.");
         return null;
     }
 
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        
         return this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat, generateMipmap, sRGB, multiSamples);
     }
 
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        alert("createRenderTargetCubeInternal");
+        throw new Error("createRenderTargetCubeInternal Method not implemented.");
         return null;
     }
 
     createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
-        alert("createRenderTextureCubeInternal");
+        throw new Error("createRenderTextureCubeInternal Method not implemented.");
         return null;
     }
 
