@@ -26,6 +26,14 @@ export class BufferState extends BufferStateBase {
 	applyVertexBuffer(vertexBuffer: VertexBuffer3D): void {//TODO:动态合并是否需要使用对象池机制
 		if (BufferStateBase._curBindedBufferState === this) {
 			var gl: any = LayaGL.instance;
+			if (this.vertexDeclaration) {//需要先清空VAO,会造成微信上版本的bug
+				let oriData = this.vertexDeclaration._shaderValues.getData();
+				for (var k in oriData)
+				{
+					let loc = parseInt(k);
+					gl.disableVertexAttribArray(loc);
+				}
+			}
 			var verDec: VertexDeclaration = vertexBuffer.vertexDeclaration;
 			var valueData: any = verDec._shaderValues.getData();
 			this.vertexDeclaration = verDec;
