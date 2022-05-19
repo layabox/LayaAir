@@ -4,7 +4,7 @@ export class NativeWebGLCacheAsNormalCanvas {
     constructor(ctx: any, sp: any)
     {
         this._context = ctx;
-        this._nativeObj = new (window as any)._conchWebGLCacheAsNormalCanvas(ctx._nativeObj.id, 0);
+        this._nativeObj = new (window as any)._conchWebGLCacheAsNormalCanvas(ctx._nativeObj, 0);
     }
     startRec(): void {
         this._nativeObj.startRec();

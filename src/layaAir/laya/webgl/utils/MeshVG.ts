@@ -1,4 +1,7 @@
+import { VertexElement } from "../../d3/graphics/VertexElement";
+import { VertexElementFormat } from "../../d3/graphics/VertexElementFormat";
 import { LayaGL } from "../../layagl/LayaGL";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Context } from "../../resource/Context";
 import { Mesh2D } from "./Mesh2D";
 
@@ -9,6 +12,7 @@ export class MeshVG extends Mesh2D {
 	static const_stride: number = 12;// 36;
 	private static _fixattriInfo: any[];
 	private static _POOL: any[] = [];
+	static vertexDeclaration: VertexDeclaration = null;
 
 	static __init__(): void {
 		MeshVG._fixattriInfo = [5126/*gl.FLOAT*/, 2, 0,	//x,y
@@ -19,6 +23,12 @@ export class MeshVG extends Mesh2D {
 		super(MeshVG.const_stride, 4, 4);	//x,y,rgba
 		this.canReuse = true;
 		this.setAttributes(MeshVG._fixattriInfo);
+		if(!MeshVG.vertexDeclaration)
+		MeshVG.vertexDeclaration = new VertexDeclaration(12,[
+		   new VertexElement(0,VertexElementFormat.Vector2,0),
+		   new VertexElement(8,VertexElementFormat.Byte4,1),
+	   ])
+	   this._vb.vertexDeclaration = MeshVG.vertexDeclaration;
 	}
 
 	static getAMesh(mainctx: boolean): MeshVG {

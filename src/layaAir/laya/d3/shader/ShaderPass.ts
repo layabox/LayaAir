@@ -26,7 +26,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
 	/** @internal */
 	_stateMap: { [key: string]: number };
 	/** @internal */
-	private _renderState: RenderState = new RenderState();
+	private _renderState: RenderState;
 	/** @internal */
 	_tags: any = {};
 	/** @internal */
@@ -42,6 +42,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
 	constructor(owner: SubShader, vs: string, ps: string, stateMap: { [key: string]: number }) {
 		super(owner, vs, ps, null);
 		this._stateMap = stateMap;
+		this._renderState = LayaGL.renderOBJCreate.createRenderState();
 	}
 
 	/**
@@ -180,7 +181,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
 			ps.shift();
 		}
 		let start = Date.now();
-		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap, this);
+		shader = LayaGL.renderOBJCreate.createShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap, this);
 
 		console.log(`Shader Instance: ${this._owner._owner._name}, ${Date.now() - start}`);
 

@@ -34,7 +34,13 @@ export class NativeVertexBuffer3D extends VertexBuffer3D {
         return array;
     }
 
+    get instanceBuffer(): boolean {
+		return this._conchVertexBuffer3D._instanceBuffer;
+	}
 
+	set instanceBuffer(value: boolean) {
+		this._conchVertexBuffer3D._instanceBuffer = value;
+	}
     /**
      * 创建一个 <code>VertexBuffer3D</code> 实例。
      * @param	byteLength 字节长度。

@@ -2,7 +2,7 @@ import { NativeBaseRenderQueue } from "./NativeBaseRenderQueue";
 import { NativeCullPassBase } from "./NativeCullPass";
 import { NativeRenderContext3DOBJ } from "./NativeRenderContext3DOBJ";
 import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
-import { NativeVertexBuffer3D } from "NativeVertexBuffer3D";
+import { NativeVertexBuffer3D } from "./NativeVertexBuffer3D";
 import { NativeShaderData } from "./NativeShaderData";
 import { Bounds } from "../../../../d3/core/Bounds";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
@@ -36,10 +36,23 @@ import { NativeCameraCullInfo } from "./NativeCameraCullInfo";
 import { IndexBuffer3D } from "../../../../d3/graphics/IndexBuffer3D";
 import { NativeIndexBuffer3D } from "../NativeOBJ/NativeIndexBuffer3D";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
+import { CameraCullInfo } from "../../../RenderObj/CameraCullInfo";
+import { ShadowCullInfo } from "../../../RenderObj/ShadowCullInfo";
+import { CullPassBase } from "../../../RenderObj/CullPass";
+import { SceneRenderManager } from "../../../RenderObj/SceneRenderManager";
+import { ShaderCompileDefineBase } from "../../../../webgl/utils/ShaderCompileDefineBase";
+import { NativeShaderInstance } from "./NativeShaderInstance";
+import { ShaderInstance } from "../../../../d3/shader/ShaderInstance";
+import { NativeRenderElementOBJ } from "./NativeRenderElementOBJ";
+import { RenderState } from "../../../../d3/core/material/RenderState";
+import { NativeRenderState } from "./NativeRenderState";
+import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ";
+import { NativeSkinRenderElementOBJ } from "./NativeSkinRenderElementOBJ";
 
-export class RenderOBJCreateUtil implements IRenderOBJCreate {
+export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
-        return new NativeTransform3D(owner);
+        //return new NativeTransform3D(owner);
+        return new Transform3D(owner);
     }
 
     createBounds(min: Vector3, max: Vector3): Bounds {
@@ -63,10 +76,11 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderElement(): IRenderElement {
-        return new (window as any).conchRenderElement();
+        //return new (window as any).conchRenderElement();
+        return new NativeRenderElementOBJ();
     }
     createSkinRenderElement():IRenderElement{
-        return new SkinRenderElementOBJ();
+        return new NativeSkinRenderElementOBJ();
     }
 
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {
@@ -76,7 +90,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
-        return new (window as any).conchRenderGeometryElement(mode, drayType);
+        //return new (window as any).conchRenderGeometryElement(mode, drayType);
+        return new NativeRenderGeometryElementOBJ(mode, drayType);
     }
 
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
@@ -87,8 +102,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeIndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
-    createShaderInstance() {
-        
+    createShaderInstance(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+        return new NativeShaderInstance(vs, ps, attributeMap, shaderPass) as unknown as ShaderInstance;
     }
 
     createBaseRenderNode():IBaseRenderNode{
@@ -100,11 +115,11 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createSceneRenderManager():ISceneRenderManager{
-        return new NativeSceneRenderManager();
+        return new SceneRenderManager();//return new NativeSceneRenderManager();
     }
 
     createCullPass():ICullPass{
-        return new NativeCullPassBase();
+        return new CullPassBase();//return new NativeCullPassBase();
     }
 
     createSortPass():ISortPass{
@@ -112,14 +127,17 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createShadowCullInfo():IShadowCullInfo{
-        return new NativeShadowCullInfo();
+        return new ShadowCullInfo();//return new NativeShadowCullInfo();
     }
 
     createCameraCullInfo():ICameraCullInfo{
-        return new NativeCameraCullInfo();
+        return new CameraCullInfo();//return new NativeCameraCullInfo();
     }
 
     createRenderStateComand(): NativeRenderStateCommand {
-        throw new NativeRenderStateCommand();
+        return new NativeRenderStateCommand();
+    }
+    createRenderState(): RenderState {
+        return new NativeRenderState() as unknown as RenderState;
     }
 }

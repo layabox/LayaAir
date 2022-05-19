@@ -397,7 +397,7 @@ export class Mesh extends Resource implements IClone {
 		//new Instance VertexBuffer3D
 		let instanceBuffer3D: VertexBuffer3D = this._instanceWorldVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 16 * 4, BufferUsage.Dynamic, false);;
 		instanceBuffer3D.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
-		instanceBuffer3D._instanceBuffer = true;
+		instanceBuffer3D.instanceBuffer = true;
 		vertexArray.push(instanceBuffer3D);
 		this.instanceWorldMatrixData = new Float32Array(InstanceRenderElement.maxInstanceCount * 16);
 		switch (instanceBufferStateType) {
@@ -405,7 +405,7 @@ export class Mesh extends Resource implements IClone {
 				//new SimpleVertexBuffer3D
 				let instanceSimpleAnimatorBuffer = this._instanceSimpleAniVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
 				instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
-				instanceSimpleAnimatorBuffer._instanceBuffer = true;
+				instanceSimpleAnimatorBuffer.instanceBuffer = true;
 				this.instanceSimpleAnimatorData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
 				vertexArray.push(instanceSimpleAnimatorBuffer);
 				break;

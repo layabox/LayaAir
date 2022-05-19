@@ -1,4 +1,5 @@
 import { Bounds } from "../../d3/core/Bounds";
+import { RenderState } from "../../d3/core/material/RenderState";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
@@ -8,6 +9,8 @@ import { BoundSphere } from "../../d3/math/BoundSphere";
 import { Matrix4x4 } from "../../d3/math/Matrix4x4";
 import { Plane } from "../../d3/math/Plane";
 import { Vector3 } from "../../d3/math/Vector3";
+import { ShaderInstance } from "../../d3/shader/ShaderInstance";
+import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
@@ -88,8 +91,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new IndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
-    createShaderInstance() {
-        
+    createShaderInstance(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+        return new ShaderInstance(vs, ps, attributeMap, shaderPass);
     }
 
     createBaseRenderNode():IBaseRenderNode{
@@ -121,6 +124,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderStateComand(): RenderStateCommand {
-        throw new RenderStateCommand();
+        return new RenderStateCommand();
+    }
+    createRenderState(): RenderState {
+        return new RenderState();
     }
 }

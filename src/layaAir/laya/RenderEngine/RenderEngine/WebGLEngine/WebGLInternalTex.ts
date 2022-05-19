@@ -171,7 +171,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         let target = this.target
         this._engine._bindTexture(target, this.resource);
         gl.texParameterf(target, pname, param);
-        this._engine._bindTexture(target, this.resource);
+        this._engine._bindTexture(target, null);
     }
 
     protected getFilteMinrParam(filterMode: FilterMode, mipmap: boolean) {

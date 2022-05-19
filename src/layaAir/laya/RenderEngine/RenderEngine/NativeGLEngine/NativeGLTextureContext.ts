@@ -1,7 +1,5 @@
 
 import { WebGLExtension } from "../WebGLEngine/GLEnum/WebGLExtension";
-import { NativeWebGLInternalTex } from "./NativeWebGLInternalTex";
-import { NativeWebGLInternalRT } from "./NativeWebGLInternalRT";
 import { FilterMode } from "../../RenderEnum/FilterMode";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
@@ -15,6 +13,7 @@ import { NativeWebGLEngine } from "./NativeWebGLEngine";
 import { DDSTextureInfo } from "../../DDSTextureInfo";
 import { HDRTextureInfo } from "../../HDRTextureInfo";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
+import { InternalRenderTarget } from "../../RenderInterface/InternalRenderTarget";
 
 export class NativeGLTextureContext extends NativeGLObject implements ITextureContext {
     protected _native: any;
@@ -28,88 +27,104 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         return this._native.createTextureInternal(dimension, width, height, format, gengerateMipmap, sRGB);
     }
 
-    setTextureImageData(texture: NativeWebGLInternalTex, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
-        this._native.setTextureImageData((texture as any).id, (source as any)._nativeObj.conchImgId , premultiplyAlpha, invertY);
+    setTextureImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
+        this._native.setTextureImageData(texture, (source as any)._nativeObj.conchImgId , premultiplyAlpha, invertY);
     }
 
-    setTexturePixelsData(texture: NativeWebGLInternalTex, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
-        this._native.setTexturePixelsData((texture as any).id, source , premultiplyAlpha, invertY);
+    setTexturePixelsData(texture: InternalTexture, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
+        this._native.setTexturePixelsData(texture, source , premultiplyAlpha, invertY);
     }
 
-    setTextureSubPixelsData(texture: NativeWebGLInternalTex, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+    setTextureSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setTextureSubPixelsData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
-    setTextureDDSData(texture: NativeWebGLInternalTex, ddsInfo: DDSTextureInfo) {
+    setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
+        throw new Error("setTextureDDSData Method not implemented.");
     }
 
-    setTextureKTXData(texture: NativeWebGLInternalTex, ktxInfo: KTXTextureInfo) {
+    setTextureKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
+        throw new Error("setTextureKTXData Method not implemented.");
     }
 
-    setTextureHDRData(texture: NativeWebGLInternalTex, hdrInfo: HDRTextureInfo): void {
+    setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
+        throw new Error("setTextureHDRData Method not implemented.");
     }
 
-    setCubeImageData(texture: NativeWebGLInternalTex, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean) { 
+    setCubeImageData(texture: InternalTexture, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean): void {
+        var images: any[] = [];
+        var length = sources.length;
+        for (let index = 0; index < length; index++) {
+            images.push((sources[index] as any)._nativeObj);
+        }
+        this._native.setCubeImageData(texture, images, premultiplyAlpha, invertY);
     }
 
-    setCubePixelsData(texture: NativeWebGLInternalTex, source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean) {
+    setCubePixelsData(texture: InternalTexture, source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setCubePixelsData(texture, source, premultiplyAlpha, invertY);
+    }
+    setCubeSubPixelData(texture: InternalTexture, source: ArrayBufferView[], mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setCubeSubPixelData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
-    setCubeSubPixelData(texture: NativeWebGLInternalTex, source: ArrayBufferView[], mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
+
+    setCubeDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
+        throw new Error("setCubeDDSData Method not implemented.");
     }
 
-
-    setCubeDDSData(texture: NativeWebGLInternalTex, ddsInfo: DDSTextureInfo) {
+    setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
+        throw new Error("setCubeKTXData Method not implemented.");
     }
 
-    setCubeKTXData(texture: NativeWebGLInternalTex, ktxInfo: KTXTextureInfo) {
+    setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
+        return this._native.setTextureCompareMode(texture, compareMode);
     }
 
-    setTextureCompareMode(texture: NativeWebGLInternalTex, compareMode: TextureCompareMode): TextureCompareMode {
-        return TextureCompareMode.None;
-    }
-
-    bindRenderTarget(renderTarget: NativeWebGLInternalRT): void {
-
+    bindRenderTarget(renderTarget: InternalRenderTarget): void {
+        this._native.bindRenderTarget(renderTarget);
     }
 
     bindoutScreenTarget():void{
-     
+        throw new Error("bindoutScreenTarget Method not implemented.");
     }
 
-    unbindRenderTarget(renderTarget: NativeWebGLInternalRT): void {
-       
+    unbindRenderTarget(renderTarget: InternalRenderTarget): void {
+        this._native.unbindRenderTarget(renderTarget);
     }
 
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): NativeWebGLInternalTex {
+    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
+        throw new Error("createRenderTextureInternal Method not implemented.");
         return null;
     }
 
-    createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): NativeWebGLInternalTex {
+    createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
+        throw new Error("createRenderTextureCubeInternal Method not implemented.");
         return null;
     }
 
-    createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): NativeWebGLInternalRT {
+    createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        throw new Error("createRenderTargetInternal Method not implemented.");
+        return  this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat, generateMipmap, sRGB, multiSamples);
+    }
+
+    createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        throw new Error("createRenderTargetCubeInternal Method not implemented.");
         return null;
     }
-
-    createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): NativeWebGLInternalRT {
-        return null;
-    }
-
-    createRenderbuffer(width: number, height: number, internalFormat: number, samples: number) {
-    }
-
     // todo  color 0, 1, 2, 3 ?
-    setupRendertargetTextureAttachment(renderTarget: NativeWebGLInternalRT, texture: NativeWebGLInternalTex) {
+    setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture) {
+        throw new Error("setupRendertargetTextureAttachment Method not implemented.");
     }
 
     // todo 不同 格式
-    readRenderTargetPixelData(renderTarget: NativeWebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
+    readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
+        throw new Error("readRenderTargetPixelData Method not implemented.");
         return null;
+
     }
 
-    updateVideoTexture(texture: NativeWebGLInternalTex, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
-
+    updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
+        throw new Error("updateVideoTexture Method not implemented.");
     }
 
 }

@@ -3,14 +3,15 @@ import { Vector3 } from "../../../../d3/math/Vector3";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
 
 export class NativePlane extends Plane{
-    private static PlaneNative_MemoryBlock_size = 4;
-    private static PlaneNative_Stride_Normal = 0;
-    private static PlaneNative_Stride_Distance = 3;
+    private static MemoryBlock_size = 5;
+    private static Stride_Normal = 0;
+    private static Stride_Distance = 3;
+    private static Stride_UpdateFlag = 4;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
-    private transFormArray: Float32Array;
-    /**@internal Native*/
-    nativeTransformID: number = 0;
+    private float32Array: Float32Array;
+    private int32Array: Int32Array;
+    _nativeObj: any;
 
 
     /**
@@ -20,20 +21,22 @@ export class NativePlane extends Plane{
      */
     constructor(normal: Vector3, d: number = 0) {
         super(normal,d);
-        this.nativeMemory = new NativeMemory(NativePlane.PlaneNative_MemoryBlock_size * 4);
-        this.transFormArray = this.nativeMemory.float32Array;
-        //native object TODO
-        this.nativeTransformID = 0;
-
+        this.nativeMemory = new NativeMemory(NativePlane.MemoryBlock_size * 4);
+        this.float32Array = this.nativeMemory.float32Array;
+        this.int32Array = this.nativeMemory.int32Array;
+        this._nativeObj = new (window as any).conchPlane(this.nativeMemory._buffer);
+        this.normal = normal;
+        this.distance = d;
     }
 
     set normal(value: Vector3) {
         value.cloneTo(this._normal);
-        const offset = NativePlane.PlaneNative_Stride_Normal;
-        this.transFormArray[offset] = value.x;
-        this.transFormArray[offset + 1] = value.y;
-        this.transFormArray[offset + 2] = value.z;
+        const offset = NativePlane.Stride_Normal;
+        this.float32Array[offset] = value.x;
+        this.float32Array[offset + 1] = value.y;
+        this.float32Array[offset + 2] = value.z;
 
+        this.int32Array[NativePlane.Stride_UpdateFlag] = 1;
     }
 
     get normal() {
@@ -42,7 +45,9 @@ export class NativePlane extends Plane{
 
     set distance(value: number) {
         this._distance = value;
-        this.transFormArray[NativePlane.PlaneNative_Stride_Distance] = value;
+        this.float32Array[NativePlane.Stride_Distance] = value;
+
+        this.int32Array[NativePlane.Stride_UpdateFlag] = 1;
     }
 
     get distance(): number {
@@ -79,7 +84,7 @@ export class NativePlane extends Plane{
      * @return	 克隆副本。
      */
     clone(): NativePlane {
-        var dest: NativePlane = new NativePlane(new Vector3());
+        var dest: NativePlane = new NativePlane(new Vector3(), 0);
         this.cloneTo(dest);
         return dest;
     }

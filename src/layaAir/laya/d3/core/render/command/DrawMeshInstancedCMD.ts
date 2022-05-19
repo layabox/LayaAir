@@ -92,7 +92,7 @@ export class DrawMeshInstancedCMD extends Command {
         this._instanceWorldMatrixData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount * 16);
         this._instanceWorldMatrixBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this._instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
         this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
-        this._instanceWorldMatrixBuffer._instanceBuffer = true;
+        this._instanceWorldMatrixBuffer.instanceBuffer = true;
         this._render = new BaseRender();
         this._render._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 

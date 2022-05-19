@@ -586,7 +586,7 @@ export class Transform3D extends EventDispatcher {
 	/**
 	 * @internal
 	 */
-	protected _onWorldPositionTransform(): void {
+	_onWorldPositionTransform(): void {
 		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
 			this.event(Event.TRANSFORM_CHANGED, this._transformFlag);

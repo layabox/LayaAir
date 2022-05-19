@@ -46,11 +46,11 @@ export class SubMeshInstanceBatch extends GeometryElement {
 		this.indexFormat = IndexFormat.UInt16;
 		this.instanceWorldMatrixBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this.instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
-		this.instanceWorldMatrixBuffer._instanceBuffer = true;
+		this.instanceWorldMatrixBuffer.instanceBuffer = true;
 		//SImpleAnimator
 		this.instanceSimpleAnimatorBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this.instanceSimpleAnimatorData.length * 4, BufferUsage.Dynamic, false);
 		this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
-		this.instanceSimpleAnimatorBuffer._instanceBuffer = true;
+		this.instanceSimpleAnimatorBuffer.instanceBuffer = true;
 	}
 
 	/**

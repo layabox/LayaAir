@@ -2693,6 +2693,10 @@ export class Context {
 
 		if (needClip) this.restore();
 	}
+	addRenderObject3D(scene3D: ISubmit): void {
+		this._curSubmit = SubmitBase.RENDERBASE;//打断2D合并的renderKey
+		this.addRenderObject(scene3D);
+	}
 }
 
 

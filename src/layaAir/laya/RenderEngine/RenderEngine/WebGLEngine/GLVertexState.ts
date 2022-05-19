@@ -95,7 +95,7 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
                     var attribute: any[] = valueData[k];
                     this._gl.enableVertexAttribArray(loc);
                     this._gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
-                    if (element._instanceBuffer)
+                    if (element.instanceBuffer)
                         this.vertexAttribDivisor(loc, 1);
                 }
             });

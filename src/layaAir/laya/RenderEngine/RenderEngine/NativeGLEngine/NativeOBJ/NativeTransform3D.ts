@@ -65,6 +65,9 @@ export class NativeTransform3D extends Transform3D {
     /**@internal */
     static TRANSFORM_LOCAL_SCALE_NATIVE_CHANGE = 0x1000;
 
+    /**@internal */
+    static TRANSFORM_LOCAL_EULER_NATIVE_CHANGE = 0x2000;
+
     /**TransForm Data Stride */
     static Transform_Stride_UpdateFlag: number = 0;
     static Transform_Stride_localPos: number = 1;
@@ -76,13 +79,11 @@ export class NativeTransform3D extends Transform3D {
     static Transform_MemoryBlock_size: number = 46;
 
     /**native Share Memory */
-
     private nativeMemory: NativeMemory;
-    private transFormArray: Float32Array;
+    private float32Array: Float32Array;
+    private int32Array: Int32Array;
+    _nativeObj: any;
 
-    
-    
-    nativeTransformID:number = 0;
 
     /**
      * @internal
@@ -129,9 +130,9 @@ export class NativeTransform3D extends Transform3D {
     get localPosition(): Vector3 {
         if (this._getTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_POSITION_NATIVE_CHANGE)) {
             const offset = NativeTransform3D.Transform_Stride_localPos;
-            this._localPosition.x = this.transFormArray[offset];
-            this._localPosition.y = this.transFormArray[offset + 1];
-            this._localPosition.z = this.transFormArray[offset + 2];
+            this._localPosition.x = this.float32Array[offset];
+            this._localPosition.y = this.float32Array[offset + 1];
+            this._localPosition.z = this.float32Array[offset + 2];
             this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_POSITION_NATIVE_CHANGE, false);
         }
         return this._localPosition;
@@ -141,9 +142,10 @@ export class NativeTransform3D extends Transform3D {
         if (this.localPosition !== value) {
             value.cloneTo(this._localPosition);
             const offset = NativeTransform3D.Transform_Stride_localPos;
-            this.transFormArray[offset] = value.x;
-            this.transFormArray[offset + 1] = value.y;
-            this.transFormArray[offset + 2] = value.z;
+            this.float32Array[offset] = value.x;
+            this.float32Array[offset + 1] = value.y;
+            this.float32Array[offset + 2] = value.z;
+	        this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_POSITION_NATIVE_CHANGE, false);
         }
         this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCALMATRIX, true);
         this._onWorldPositionTransform();
@@ -158,18 +160,19 @@ export class NativeTransform3D extends Transform3D {
             var eulerE: Vector3 = this.localRotationEuler;
             Quaternion.createFromYawPitchRoll(eulerE.y / NativeTransform3D._angleToRandin, eulerE.x / NativeTransform3D._angleToRandin, eulerE.z / NativeTransform3D._angleToRandin, this._localRotation);
             const offset = NativeTransform3D.Transform_Stride_localQuaternion;
-            this.transFormArray[offset] = this._localRotation.x;
-            this.transFormArray[offset + 1] = this._localRotation.y;
-            this.transFormArray[offset + 2] = this._localRotation.z;
-            this.transFormArray[offset + 3] = this._localRotation.w;
+            this.float32Array[offset] = this._localRotation.x;
+            this.float32Array[offset + 1] = this._localRotation.y;
+            this.float32Array[offset + 2] = this._localRotation.z;
+            this.float32Array[offset + 3] = this._localRotation.w;
             this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCALQUATERNION, false);
+            this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_QUATERNION_NATIVE_CHANGE, false);
         }
         else if (this._getTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_QUATERNION_NATIVE_CHANGE)) {
             const offset = NativeTransform3D.Transform_Stride_localQuaternion;
-            this._localRotation.x = this.transFormArray[offset];
-            this._localRotation.y = this.transFormArray[offset + 1];
-            this._localRotation.z = this.transFormArray[offset + 2];
-            this._localRotation.w = this.transFormArray[offset + 3];
+            this._localRotation.x = this.float32Array[offset];
+            this._localRotation.y = this.float32Array[offset + 1];
+            this._localRotation.z = this.float32Array[offset + 2];
+            this._localRotation.w = this.float32Array[offset + 3];
             this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_QUATERNION_NATIVE_CHANGE, false);
         }
         return this._localRotation;
@@ -180,10 +183,11 @@ export class NativeTransform3D extends Transform3D {
             value.cloneTo(this._localRotation);
             this._localRotation.normalize(this._localRotation);
             const offset = NativeTransform3D.Transform_Stride_localQuaternion;
-            this.transFormArray[offset] = this._localRotation.x;
-            this.transFormArray[offset + 1] = this._localRotation.y;
-            this.transFormArray[offset + 2] = this._localRotation.z;
-            this.transFormArray[offset + 3] = this._localRotation.w;
+            this.float32Array[offset] = this._localRotation.x;
+            this.float32Array[offset + 1] = this._localRotation.y;
+            this.float32Array[offset + 2] = this._localRotation.z;
+            this.float32Array[offset + 3] = this._localRotation.w;
+	        this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_QUATERNION_NATIVE_CHANGE, false);
         }
         this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCALEULER | NativeTransform3D.TRANSFORM_LOCALMATRIX, true);
         this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCALQUATERNION, false);
@@ -197,9 +201,9 @@ export class NativeTransform3D extends Transform3D {
     get localScale(): Vector3 {
         if (this._getTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_SCALE_NATIVE_CHANGE)) {
             const offset = NativeTransform3D.Transform_Stride_localScale;
-            this._localScale.x = this.transFormArray[offset];
-            this._localScale.y = this.transFormArray[offset + 1];
-            this._localScale.z = this.transFormArray[offset + 2];
+            this._localScale.x = this.float32Array[offset];
+            this._localScale.y = this.float32Array[offset + 1];
+            this._localScale.z = this.float32Array[offset + 2];
             this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_SCALE_NATIVE_CHANGE, false);
         }
         return this._localScale;
@@ -209,9 +213,10 @@ export class NativeTransform3D extends Transform3D {
         if (this.localScale !== value) {
             value.cloneTo(this._localScale);
             const offset = NativeTransform3D.Transform_Stride_localScale;
-            this.transFormArray[offset] = value.x;
-            this.transFormArray[offset + 1] = value.y;
-            this.transFormArray[offset + 2] = value.z;
+            this.float32Array[offset] = value.x;
+            this.float32Array[offset + 1] = value.y;
+            this.float32Array[offset + 2] = value.z;
+	        this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_SCALE_NATIVE_CHANGE, false);
         }
         this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCALMATRIX, true);
         this._onWorldScaleTransform();
@@ -228,8 +233,17 @@ export class NativeTransform3D extends Transform3D {
             var localRotationEuler: Vector3 = this._localRotationEuler;
             localRotationEuler.x = euler.y * NativeTransform3D._angleToRandin;
             localRotationEuler.y = euler.x * NativeTransform3D._angleToRandin;
-            localRotationEuler.z = euler.z * NativeTransform3D._angleToRandin;
+            localRotationEuler.z = euler.z * NativeTransform3D._angleToRandin; 
+            this.updateNativeV3(NativeTransform3D.Transform_Stride_localEuler, localRotationEuler);
             this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCALEULER, false);
+            this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_EULER_NATIVE_CHANGE, false);
+        }
+        else if (this._getTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_EULER_NATIVE_CHANGE)) {
+            const offset = NativeTransform3D.Transform_Stride_localEuler;
+            this._localRotationEuler.x = this.float32Array[offset];
+            this._localRotationEuler.y = this.float32Array[offset + 1];
+            this._localRotationEuler.z = this.float32Array[offset + 2];
+            this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_EULER_NATIVE_CHANGE, false);
         }
         return this._localRotationEuler;
     }
@@ -237,6 +251,12 @@ export class NativeTransform3D extends Transform3D {
     set localRotationEuler(value: Vector3) {
         if (this._localRotationEuler !== value) {
             value.cloneTo(this._localRotationEuler);
+
+            const offset = NativeTransform3D.Transform_Stride_localEuler;
+            this.float32Array[offset] = value.x;
+            this.float32Array[offset + 1] = value.y;
+            this.float32Array[offset + 2] = value.z;
+	        this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_EULER_NATIVE_CHANGE, false);
         }
 
         this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCALEULER, false);
@@ -260,7 +280,7 @@ export class NativeTransform3D extends Transform3D {
         } else if (this._getTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_MATRIX_NATIVE_CHANGE)) {
             //update native Data
             let elements: Float32Array = this._localMatrix.elements;//更新native数据到js
-            let array = this.transFormArray;
+            let array = this.float32Array;
             let offset = NativeTransform3D.Transform_Stride_localMatrix;
             for (let i = 0; i < 16; i++, offset++) {
                 elements[i] = array[offset];
@@ -274,9 +294,11 @@ export class NativeTransform3D extends Transform3D {
         if (this._localMatrix !== value) {
             value.cloneTo(this._localMatrix);
             //update native data
-            let array = this.transFormArray;
+            let array = this.float32Array;
             let offset = NativeTransform3D.Transform_Stride_localMatrix;
             array.set(value.elements, offset);
+	    
+	        this._setTransformFlag(NativeTransform3D.TRANSFORM_LOCAL_MATRIX_NATIVE_CHANGE, false);
         }
 
         this._isDefaultMatrix = this._localMatrix.isIdentity();
@@ -306,7 +328,6 @@ export class NativeTransform3D extends Transform3D {
                 this.position = pos;
             } else {
                 this._localPosition.cloneTo(this._position);
-                //this.updateNativeV3(Transform3DNative.Transform_Stride_worldPos,this._position);
             }
             this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDPOSITION, false);
         }
@@ -327,10 +348,6 @@ export class NativeTransform3D extends Transform3D {
         this.localPosition = this._localPosition;
         if (this._position !== value) {
             value.cloneTo(this._position);
-            /*let offset = NativeTransform3D.Transform_Stride_worldPos;
-            this.transFormArray[offset] = value.x;
-            this.transFormArray[offset + 1] = value.y;
-            this.transFormArray[offset + 2] = value.z;*/
         }
         this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDPOSITION, false);
     }
@@ -365,12 +382,6 @@ export class NativeTransform3D extends Transform3D {
 
         if (value !== this._rotation) {
             value.cloneTo(this._rotation);
-            /*let offset = Transform3DNative.Transform_Stride_worldQuaternion;
-            let array = this.transFormArray;
-            array[offset] = value.x;
-            array[offset + 1] = value.y;
-            array[offset + 2] = value.z;
-            array[offset + 3] = value.w;*/
         }
 
 
@@ -427,7 +438,7 @@ export class NativeTransform3D extends Transform3D {
         }else if(this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLD_MATRIX_NATIVE_CHANGE)){
              //update native Data
              let elements: Float32Array = this._worldMatrix.elements;//更新native数据到js
-             let array = this.transFormArray;
+             let array = this.float32Array;
              let offset = NativeTransform3D.Transform_Stride_WorldMatrix;
              for (let i = 0; i < 16; i++, offset++) {
                  elements[i] = array[offset];
@@ -450,7 +461,7 @@ export class NativeTransform3D extends Transform3D {
             value.cloneTo(this._worldMatrix);
             //update native Data
             let elements: Float32Array = this._worldMatrix.elements;//更新native数据到js
-            let array = this.transFormArray;
+            let array = this.float32Array;
             let offset = NativeTransform3D.Transform_Stride_WorldMatrix;
             array.set(elements,offset);
         }
@@ -468,48 +479,37 @@ export class NativeTransform3D extends Transform3D {
         super(owner);
         //native memory
         this.nativeMemory = new NativeMemory(NativeTransform3D.Transform_MemoryBlock_size * 4);
-        this.transFormArray = this.nativeMemory.float32Array;
-        //native object TODO
-        this.nativeTransformID = 0;
+        this.float32Array = this.nativeMemory.float32Array;
+        this.int32Array = this.nativeMemory.int32Array;
+        this._nativeObj = new (window as any).conchTransform(this.nativeMemory._buffer);
+        this.updateNativeV3(NativeTransform3D.Transform_Stride_localPos, this._localPosition);
+        this.updateNativeV3(NativeTransform3D.Transform_Stride_localScale, this._localScale);
+        this._setTransformFlag(Transform3D.TRANSFORM_LOCALQUATERNION | Transform3D.TRANSFORM_LOCALEULER | Transform3D.TRANSFORM_LOCALMATRIX, false);
+		this._setTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE | Transform3D.TRANSFORM_WORLDMATRIX, true);
     }
 
-    private updateNativeV3(offset: number, data: Vector3) {
-        let array = this.transFormArray;
-        array[offset] = data.x;
-        array[offset + 1] = data.y;
-        array[offset + 2] = data.z;
-    }
-
-    private updateNativeQ4(offset: number, data: Quaternion) {
-        let array = this.transFormArray;
-        array[offset] = data.x;
-        array[offset + 1] = data.y;
-        array[offset + 2] = data.z;
-        array[offset + 3] = data.w;
-    }
-
-    // /**
-    //  * @internal
-    //  * native
-    //  */
-    // private _getScaleMatrix(): Matrix3x3 {
-    //     var invRotation: Quaternion = Transform3DNative._tempQuaternion0;
-    //     var invRotationMat: Matrix3x3 = Transform3DNative._tempMatrix3x30;
-    //     var worldRotScaMat: Matrix3x3 = Transform3DNative._tempMatrix3x31;
-    //     var scaMat: Matrix3x3 = Transform3DNative._tempMatrix3x32;
-    //     Matrix3x3.createFromMatrix4x4(this.worldMatrix, worldRotScaMat)
-    //     this.rotation.invert(invRotation);
-    //     Matrix3x3.createRotationQuaternion(invRotation, invRotationMat);
-    //     Matrix3x3.multiply(invRotationMat, worldRotScaMat, scaMat);
-    //     return scaMat;
-    // }
+     /**
+      * @internal
+      * native
+      */
+     _getScaleMatrix(): Matrix3x3 {
+         var invRotation: Quaternion = NativeTransform3D._tempQuaternion0;
+         var invRotationMat: Matrix3x3 = NativeTransform3D._tempMatrix3x30;
+         var worldRotScaMat: Matrix3x3 = NativeTransform3D._tempMatrix3x31;
+         var scaMat: Matrix3x3 = NativeTransform3D._tempMatrix3x32;
+         Matrix3x3.createFromMatrix4x4(this.worldMatrix, worldRotScaMat)
+         this.rotation.invert(invRotation);
+         Matrix3x3.createRotationQuaternion(invRotation, invRotationMat);
+         Matrix3x3.multiply(invRotationMat, worldRotScaMat, scaMat);
+         return scaMat;
+     }
 
     /**
      * @internal
      * native
      */
-    _getTransformFlag(type: number): boolean {
-        return (this.transFormArray[NativeTransform3D.Transform_Stride_UpdateFlag] & type) != 0;
+     _getTransformFlag(type: number): boolean {
+        return (this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag] & type) != 0;
     }
 
     /**
@@ -517,24 +517,32 @@ export class NativeTransform3D extends Transform3D {
      * native
      */
     _setTransformFlag(type: number, value: boolean): void {
+        if (!this.int32Array) {
+            return;
+        }
         if (value)
-            this.transFormArray[NativeTransform3D.Transform_Stride_UpdateFlag] |= type;
+            this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag] |= type;
         else
-            this.transFormArray[NativeTransform3D.Transform_Stride_UpdateFlag] &= ~type;
+            this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag] &= ~type;
     }
 
     /**
-     * @internal
-     * native
-     */
-    _setParent(value:any): void {
-       super._setParent(value);
-        if (this._parent !== value) {
-            //update native Data
-            //this.transFormArray[NativeTransform3D.Transform_Stride_Parent] = value.nativeTransformID;
-        }
-    }
-
+	 * @internal
+	 */
+	_setParent(value: Transform3D): void {
+		if (this._parent !== value) {
+			if (this._parent) {
+				var parentChilds: Transform3D[] = this._parent._children!;
+				var index: number = parentChilds.indexOf(this);
+				parentChilds.splice(index, 1);
+			}
+			if (value) {
+				value._children!.push(this);
+				(value) && (this._onWorldTransform());
+			}
+			this._parent = value;
+		}
+	}
     /**
      * @internal
      * native
@@ -542,7 +550,7 @@ export class NativeTransform3D extends Transform3D {
     _onWorldPositionRotationTransform(): void {
         if (!this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX | NativeTransform3D.TRANSFORM_WORLDPOSITION | NativeTransform3D.TRANSFORM_WORLDQUATERNION | NativeTransform3D.TRANSFORM_WORLDEULER, true);
-            this.event(Event.TRANSFORM_CHANGED, this.transFormArray[NativeTransform3D.Transform_Stride_UpdateFlag]);
+            this.event(Event.TRANSFORM_CHANGED, this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag]);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionRotationTransform();
@@ -555,24 +563,24 @@ export class NativeTransform3D extends Transform3D {
      _onWorldPositionScaleTransform(): void {
         if (!this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX | NativeTransform3D.TRANSFORM_WORLDPOSITION | NativeTransform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this.transFormArray[NativeTransform3D.Transform_Stride_UpdateFlag]);
+            this.event(Event.TRANSFORM_CHANGED, this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag]);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionScaleTransform();
     }
 
-    // /**
-    //  * @internal
-    //  * native
-    //  */
-    // protected _onWorldPositionTransform(): void {
-    //     if (!this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3DNative.TRANSFORM_WORLDPOSITION)) {
-    //         this._setTransformFlag(Transform3DNative.TRANSFORM_WORLDMATRIX | Transform3DNative.TRANSFORM_WORLDPOSITION, true);
-    //         this.event(Event.TRANSFORM_CHANGED, this.transFormArray[Transform3DNative.Transform_Stride_UpdateFlag]);
-    //     }
-    //     for (var i: number = 0, n: number = this._children!.length; i < n; i++)
-    //         this._children![i]._onWorldPositionTransform();
-    // }
+    /**
+     * @internal
+     * native
+    */
+    _onWorldPositionTransform(): void {
+         if (!this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDPOSITION)) {
+             this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX | NativeTransform3D.TRANSFORM_WORLDPOSITION, true);
+             this.event(Event.TRANSFORM_CHANGED, this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag]);
+         }
+         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+             this._children![i]._onWorldPositionTransform();
+     }
 
     /**
      * @internal
@@ -581,7 +589,7 @@ export class NativeTransform3D extends Transform3D {
     _onWorldRotationTransform(): void {
         if (!this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX | NativeTransform3D.TRANSFORM_WORLDQUATERNION | NativeTransform3D.TRANSFORM_WORLDEULER, true);
-            this.event(Event.TRANSFORM_CHANGED, this.transFormArray[NativeTransform3D.Transform_Stride_UpdateFlag]);
+            this.event(Event.TRANSFORM_CHANGED, this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag]);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionRotationTransform();//父节点旋转发生变化，子节点的世界位置和旋转都需要更新
@@ -594,7 +602,7 @@ export class NativeTransform3D extends Transform3D {
     _onWorldScaleTransform(): void {
         if (!this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX | NativeTransform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this.transFormArray[NativeTransform3D.Transform_Stride_UpdateFlag]);
+            this.event(Event.TRANSFORM_CHANGED, this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag]);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionScaleTransform();//父节点缩放发生变化，子节点的世界位置和缩放都需要更新
@@ -607,7 +615,7 @@ export class NativeTransform3D extends Transform3D {
     _onWorldTransform(): void {
         if (!this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDEULER) || !this._getTransformFlag(NativeTransform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDMATRIX | NativeTransform3D.TRANSFORM_WORLDPOSITION | NativeTransform3D.TRANSFORM_WORLDQUATERNION | NativeTransform3D.TRANSFORM_WORLDEULER | NativeTransform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this.transFormArray[NativeTransform3D.Transform_Stride_UpdateFlag]);
+            this.event(Event.TRANSFORM_CHANGED, this.int32Array[NativeTransform3D.Transform_Stride_UpdateFlag]);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldTransform();
@@ -741,15 +749,7 @@ export class NativeTransform3D extends Transform3D {
                 this._scale.z = scaMatE[8];
             }
             else {
-                this._localScale.cloneTo(this._scale);
-            }
-            //update Native data
-            {
-                //const offset = Transform3DNative.Transform_Stride_worldScale;
-                //const array = this.transFormArray;
-                //array[offset] = this._scale.x;
-                //array[offset+1] = this._scale.y;
-                //array[offset+2] = this._scale.z;
+                this.localScale.cloneTo(this._scale);
             }
             this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDSCALE, false);
         }
@@ -781,15 +781,22 @@ export class NativeTransform3D extends Transform3D {
         }
         if (this._scale !== value){
             value.cloneTo(this._scale);
-            /*{
-                const offset = Transform3DNative.Transform_Stride_worldScale;
-                const array = this.transFormArray;
-                array[offset] = this._scale.x;
-                array[offset+1] = this._scale.y;
-                array[offset+2] = this._scale.z;
-            }*/
         }
             
         this._setTransformFlag(NativeTransform3D.TRANSFORM_WORLDSCALE, false);
+    }
+    private updateNativeV3(offset: number, data: Vector3) {
+        let array = this.float32Array;
+        array[offset] = data.x;
+        array[offset + 1] = data.y;
+        array[offset + 2] = data.z;
+    }
+
+    private updateNativeQ4(offset: number, data: Quaternion) {
+        let array = this.float32Array;
+        array[offset] = data.x;
+        array[offset + 1] = data.y;
+        array[offset + 2] = data.z;
+        array[offset + 3] = data.w;
     }
 }

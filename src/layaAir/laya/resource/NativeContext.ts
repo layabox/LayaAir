@@ -1,12 +1,22 @@
 import { ILaya } from "../../ILaya";
 import { ColorFilter } from "../filters/ColorFilter";
+import { LayaGL } from "../layagl/LayaGL";
 import { Matrix } from "../maths/Matrix";
+import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationSeparate";
+import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
+import { CullMode } from "../RenderEngine/RenderEnum/CullMode";
+import { RenderStateType } from "../RenderEngine/RenderEnum/RenderStateType";
+import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
 import { ColorUtils } from "../utils/ColorUtils";
 import { FontInfo } from "../utils/FontInfo";
 import { HTMLChar } from "../utils/HTMLChar";
 import { WordText } from "../utils/WordText";
+import { BlendMode } from "../webgl/canvas/BlendMode";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { ISubmit } from "../webgl/submit/ISubmit";
+import { RenderState2D } from "../webgl/utils/RenderState2D";
+import { Context } from "./Context";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
@@ -43,8 +53,6 @@ enum CONTEXT2D_FUNCTION_ID
     CLOSE_PATH,
     FILL,
     STROKE,
-    DRAW_CANVAS_NORMAL,
-    DRAW_CANVAS_BITMAP,
     SET_AS_BITMAP,
     DRAW_MASKED,
     DRAW_TRANGLES,
@@ -148,8 +156,39 @@ export class NativeContext {
         this.add_i(CONTEXT2D_FUNCTION_ID.CLEAR);
         //this._nativeObj.flushCommand();
     }
+    static const2DRenderCMD:RenderStateCommand;
     static set2DRenderConfig(): void {
-        (window as any).set2DRenderConfig();
+        //(window as any).set2DRenderConfig();
+        if(!NativeContext.const2DRenderCMD){
+			const cmd = Context.const2DRenderCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+			cmd.addCMD(RenderStateType.BlendType,true);
+			//WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
+			cmd.addCMD(RenderStateType.BlendEquation,BlendEquationSeparate.ADD);
+			BlendMode.activeBlendFunction = null;// 防止submit不设置blend
+			//WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+			cmd.addCMD(RenderStateType.BlendFunc,[BlendFactor.One,BlendFactor.OneMinusSourceAlpha]);
+			//WebGLContext.setDepthTest(gl, false);
+			cmd.addCMD(RenderStateType.DepthTest,false);
+			//WebGLContext.setDepthMask(gl, true);
+			cmd.addCMD(RenderStateType.DepthMask,true);
+			//WebGLContext.setCullFace(gl, false);
+			cmd.addCMD(RenderStateType.CullFace,false);
+			//WebGLContext.setFrontFace(gl, gl.CCW);
+			cmd.addCMD(RenderStateType.FrontFace,CullMode.Front);
+		}
+		NativeContext.const2DRenderCMD.applyCMD();
+		// WebGLContext.setBlend(gl, true);//还原2D设置
+		// WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
+		// BlendMode.activeBlendFunction = null;// 防止submit不设置blend
+		// WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+		// WebGLContext.setDepthTest(gl, false);
+		// WebGLContext.setDepthMask(gl, true);
+		// WebGLContext.setCullFace(gl, false);
+		// WebGLContext.setFrontFace(gl, gl.CCW);
+
+		LayaGL.renderEngine.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
+		LayaGL.renderEngine.scissorTest(true);
+		LayaGL.renderEngine.scissor(0, 0, RenderState2D.width, RenderState2D.height);
     }
     save(): void {
         //this._nativeObj.save();
@@ -491,12 +530,12 @@ export class NativeContext {
     drawCanvas(canvas: HTMLCanvas, x: number, y: number, width: number, height: number): void {
 		if (!canvas) return;
         if (canvas instanceof(NativeWebGLCacheAsNormalCanvas)) {
-            //this._nativeObj.drawCanvasNormal(canvas._nativeObj.id, x, y, width, height);
-            this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_NORMAL, canvas._nativeObj.id, x, y, width, height);
+            this._nativeObj.drawCanvasNormal(canvas._nativeObj, x, y, width, height);
+            //this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_NORMAL, canvas._nativeObj.id, x, y, width, height);
         }
         else {
-            //this._nativeObj.drawCanvasBitmap(canvas.context._nativeObj.id, x, y, width, height);
-            this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_BITMAP, (canvas.context as any)._nativeObj.id, x, y, width, height);
+            this._nativeObj.drawCanvasBitmap((canvas.context as any)._nativeObj, x, y, width, height);
+            //this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_BITMAP, (canvas.context as any)._nativeObj.id, x, y, width, height);
         }
     }
     fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
@@ -781,6 +820,11 @@ export class NativeContext {
 
         return mat;
     }
+    addRenderObject3D(scene3D: ISubmit): void {
+        //this._nativeObj.addRenderObject3D((scene3D as any)._nativeObj);
+        this._nativeObj.flushCommand();
+		this._nativeObj.addRenderObject3D((scene3D as any)._nativeObj);
+	}
     pushRT(): void {
 		//this._nativeObj.pushRT();
 

@@ -35,7 +35,7 @@ export class MaterialInstanceProperty{
 		this._instanceData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount*this._vertexStride);
 		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this._instanceData.length*4,BufferUsage.Dynamic,false);
 		this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
-		this._vertexBuffer._instanceBuffer = true;
+		this._vertexBuffer.instanceBuffer = true;
 	}
 
 	/**

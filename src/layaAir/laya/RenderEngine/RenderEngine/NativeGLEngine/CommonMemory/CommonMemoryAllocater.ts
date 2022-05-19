@@ -13,7 +13,7 @@ export class CommonMemoryAllocater{
         
         //native bind todo:
         //buffer.nativeid = ??
-        return null;
+        return buffer;
     }
 
     /**

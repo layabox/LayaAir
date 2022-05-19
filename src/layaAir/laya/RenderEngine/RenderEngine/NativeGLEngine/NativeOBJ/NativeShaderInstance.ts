@@ -1,5 +1,6 @@
 import { RenderState } from "../../../../d3/core/material/RenderState";
 import { CommandUniformMap } from "../../../../d3/core/scene/Scene3DShaderDeclaration";
+import { ShaderInstance } from "../../../../d3/shader/ShaderInstance";
 import { ShaderPass } from "../../../../d3/shader/ShaderPass";
 import { CommandEncoder } from "../../../../layagl/CommandEncoder";
 import { LayaGL } from "../../../../layagl/LayaGL";
@@ -13,6 +14,7 @@ import { ShaderData } from "../../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../../RenderStateCommand";
 import { RenderStateContext } from "../../../RenderStateContext";
+import { NativeRenderState } from "./NativeRenderState";
 
 
 enum UniformParamsMapType {
@@ -25,35 +27,23 @@ enum UniformParamsMapType {
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class ShaderInstance {
-	/**@internal */
-	private _shaderPass: ShaderCompileDefineBase|ShaderPass;
+export class NativeShaderInstance/* extends ShaderInstance */{
 
-	/**@internal */
-	private _customUniformParamsMap: any[] = [];
-
-	_cullStateCMD:RenderStateCommand;
-
-	private _nativeObj: any;
+	_nativeObj: any;
 
 	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase) {
-		//super(vs,ps,attributeMap);
-		this._cullStateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(vs,ps,attributeMap);
-		this._shaderPass = shaderPass;
-		this._create();
-	}
-	
-
-		var pAttributeMap: any = new (window as any).conchAttributeMap();
+		//super(vs, ps, attributeMap, shaderPass);
+		var pConchAttributeMap: any = new (window as any).conchAttributeMap();
 		for (var k in attributeMap) {
-			pAttributeMap(k, attributeMap[k]);
+			pConchAttributeMap.setAttributeValue(k, attributeMap[k]);
 		}
 
-		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, vs, ps, pAttributeMap);
-		//this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(vs,ps,attributeMap);
-		//this._shaderPass = shaderPass;
-		//this._create();
+		var stateMap: {[key:string]:number} = (<ShaderPass>shaderPass)._stateMap;
+		for (var s in stateMap) {
+			pConchAttributeMap.setStateValue(stateMap[s], Shader3D.propertyNameToID(s));
+		}
+		var renderState: any = (<ShaderPass>shaderPass).renderState;
+		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, vs, ps, pConchAttributeMap, renderState._nativeObj);
 	}
 	/**
 	 * @inheritDoc
@@ -69,14 +59,14 @@ export class ShaderInstance {
 	}
 
 	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean){
-		Stat.shaderCall += this._nativeObj.uploadUniforms(shaderUniform, shaderDatas, uploadUnTexture);
+		Stat.shaderCall += this._nativeObj.uploadUniforms(shaderUniform, (shaderDatas as any)._nativeObj, uploadUnTexture);
 	}
 
 	/**
 	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
-		Stat.shaderCall += this._nativeObj.uploadCustomUniforms(this._customUniformParamsMap, index, data);
+		Stat.shaderCall += this._nativeObj.uploadCustomUniforms(index, data);
 	}
 	get _sceneUniformParamsMap(): CommandEncoder {
 		return (UniformParamsMapType.Scene as unknown as CommandEncoder);
@@ -92,6 +82,14 @@ export class ShaderInstance {
 
 	get _materialUniformParamsMap():CommandEncoder {
 		return (UniformParamsMapType.Material as unknown as CommandEncoder);
+	}
+
+	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
+		this._nativeObj.uploadRenderStateBlendDepth((shaderDatas as any)._nativeObj);
+	}
+
+	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
+		this._nativeObj.uploadRenderStateFrontFace((shaderDatas as any)._nativeObj, isTarget, invertFront);
 	}
 }
 

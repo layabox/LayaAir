@@ -6,16 +6,17 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
  * <code>BoundSphere</code> 类用于创建包围球。
  */
 export class NativeBoundSphere extends BoundSphere {
-    private static Bounds_MemoryBlock_size = 4;
+    private static MemoryBlock_size = 5;
+    private static Stride_UpdateFlag = 4;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
-    private transFormArray: Float32Array;
-    /**@internal Native*/
-    nativeTransformID: number = 0; 
+    private float32Array: Float32Array;
+    private int32Array: Int32Array;
     /**包围球的中心。*/
     _center: Vector3;
     /**包围球的半径。*/
     _radius: number;
+	_nativeObj: any;
     /**
      * 创建一个 <code>BoundSphere</code> 实例。
      * @param	center 包围球的中心。
@@ -24,17 +25,21 @@ export class NativeBoundSphere extends BoundSphere {
     constructor(center: Vector3, radius: number) {
         super(center,radius);
         //native memory
-        this.nativeMemory = new NativeMemory(NativeBoundSphere.Bounds_MemoryBlock_size * 4);
-        this.transFormArray = this.nativeMemory.float32Array;
-         //native object TODO
-         this.nativeTransformID = 0;
+        this.nativeMemory = new NativeMemory(NativeBoundSphere.MemoryBlock_size * 4);
+        this.float32Array = this.nativeMemory.float32Array;
+        this.int32Array = this.nativeMemory.int32Array;
+        this._nativeObj = new (window as any).conchBoundSphere(this.nativeMemory._buffer);
+        this.center = center;
+		this.radius = radius;
     }
 
     set center(value: Vector3) {
         value.cloneTo(this._center);
-        this.transFormArray[0] = value.x;
-        this.transFormArray[1] = value.y;
-        this.transFormArray[2] = value.z;
+        this.float32Array[0] = value.x;
+        this.float32Array[1] = value.y;
+        this.float32Array[2] = value.z;
+
+        this.int32Array[NativeBoundSphere.Stride_UpdateFlag] = 1;
     }
 
     get center() {
@@ -43,14 +48,20 @@ export class NativeBoundSphere extends BoundSphere {
 
     set radius(value: number) {
         this._radius = value;
-        this.transFormArray[3] = value;
+        this.float32Array[3] = value;
+
+        this.int32Array[NativeBoundSphere.Stride_UpdateFlag] = 1;
     }
 
     get radius(): number {
         return this._radius 
     }
 
-    
+	toDefault(): void {
+		this.center.toDefault();
+		this.radius = 0;
+	}
+
 	/**
 	 * 克隆。
 	 * @param	destObject 克隆源。

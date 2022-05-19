@@ -154,7 +154,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 this._instanceParticleVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(particleVbSize, BufferUsage.Dynamic,false);
                 this._instanceParticleVertexBuffer.vertexDeclaration = particleDeclaration;
                 this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer);
-                this._instanceParticleVertexBuffer._instanceBuffer = true;
+                this._instanceParticleVertexBuffer.instanceBuffer = true;
                 this._bufferState.applyState([this._vertexBuffer,this._instanceParticleVertexBuffer],this._indexBuffer)
             }
 
@@ -185,7 +185,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             this._instanceParticleVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(particleVbSize, BufferUsage.Dynamic,false);
             this._instanceParticleVertexBuffer.vertexDeclaration = particleDeclaration;
             this._instanceParticleVertexBuffer.setData(this._instanceVertex.buffer);
-            this._instanceParticleVertexBuffer._instanceBuffer = true;
+            this._instanceParticleVertexBuffer.instanceBuffer = true;
             // this._instanceBufferState.bind();
             // this._instanceBufferState.applyIndexBuffer(this._indexBuffer);
             // this._instanceBufferState.applyVertexBuffer(this._vertexBuffer);

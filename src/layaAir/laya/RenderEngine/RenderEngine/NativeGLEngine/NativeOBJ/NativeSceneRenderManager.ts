@@ -6,10 +6,6 @@ import { ISceneRenderManager } from "../../../RenderInterface/RenderPipelineInte
 export class NativeSceneRenderManager implements ISceneRenderManager {
     /** @internal */
     _renders: SimpleSingletonList = new SimpleSingletonList();
-    /**@internal */
-    _nativeCullList:any;
-    /**@internal */
-    _nativeUpdateList:any;
     //自定义更新的Bounds渲染节点
     _customUpdateList: SingletonList<BaseRender> = new SingletonList();
     //自定义裁剪的渲染节点
@@ -17,9 +13,6 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     private _nativeObj: any;
     constructor() {
         this._nativeObj = new (window as any).conchSceneCullManger();
-        //创建Native的Node管理节点
-        //creat native Cull List obj
-        //creat native Update list obj
     }
 
     get list() {
@@ -33,7 +26,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     addRenderObject(object: BaseRender): void {
         this._renders.add(object);
         if(object._customCull)
-        this._nativeCullList.addNode(object.renderNode);
+        this._nativeObj.addRenderObject(object.renderNode);
         else
         this._customCullList.add(object);
     }
@@ -41,7 +34,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     removeRenderObject(object: BaseRender): void {
         this._renders.remove(object);
         if(object._customCull)
-            this._nativeCullList.removeNode(object.renderNode);
+            this._nativeObj.removeRenderObject(object.renderNode);
         else{
             //remove
             let elements = this._customCullList.elements;
@@ -56,7 +49,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     removeMotionObject(object: BaseRender): void {
         if (object.renderNode.geometryBounds) {
             //可以在native更新Bounds的渲染节点
-            this._nativeUpdateList.addMotionNode(object.renderNode);
+            this._nativeObj.removeMotionObject(object.renderNode);
         } else {
             let index = object._motionIndexList;
             if (index != -1) {//remove
@@ -69,7 +62,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     }
     updateMotionObjects(): void {
         //update native Motion Node
-        this._nativeUpdateList.updateMotionObjects();
+        this._nativeObj.updateMotionObjects();
 
         for (let i = 0; i < this._customUpdateList.length; i++) {
             this._customUpdateList.elements[i].bounds;
@@ -80,7 +73,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
 
     addMotionObject(object: BaseRender): void {
         if (object.renderNode.geometryBounds) {
-            this._nativeUpdateList.addMotionObject(object.renderNode);
+            this._nativeObj.addMotionObject(object.renderNode);
         } else {
             if (object._motionIndexList == -1) {
                 object._motionIndexList = this._customUpdateList.length;
@@ -91,8 +84,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
 
     destroy(): void {
         this._renders.destroy();
-        this._nativeCullList.destroy();
-        this._nativeUpdateList.destroy();
+        this._nativeObj.destroy();
         //Destroy
         this._customUpdateList.destroy();
         this._customCullList.destroy();
