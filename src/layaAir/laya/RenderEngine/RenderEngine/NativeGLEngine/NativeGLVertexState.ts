@@ -8,7 +8,7 @@ import { NativeWebGLEngine } from "./NativeWebGLEngine";
 
 export class NativeGLVertexState extends NativeGLObject implements IRenderVertexState {
 
-    _vertexDeclaration: VertexDeclaration;
+    _vertexDeclaration: VertexDeclaration[] = [];
     _bindedIndexBuffer: IndexBuffer;
     _vertexBuffers: VertexBuffer[];
     _nativeVertexBuffers:any[];

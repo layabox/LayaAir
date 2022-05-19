@@ -12,7 +12,7 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
     private _vaoExt: any | null;
     private _vao: WebGLVertexArrayObject | WebGLVertexArrayObjectOES;
 
-    _vertexDeclaration: VertexDeclaration;
+    _vertexDeclaration: VertexDeclaration[] = [];
     _bindedIndexBuffer: IndexBuffer;
     _vertexBuffers: VertexBuffer[];
 
@@ -79,10 +79,15 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
     }
 
     applyVertexBuffer(vertexBuffer: VertexBuffer[]): void {
+        //Clear front VAO
+        this.clearVAO();
         this._vertexBuffers = vertexBuffer;
         if (this._engine._GLBindVertexArray == this) {
+            this._vertexDeclaration.length = vertexBuffer.length;
+            var i = 0;
             vertexBuffer.forEach(element => {
                 var verDec: VertexDeclaration = element.vertexDeclaration;
+                this._vertexDeclaration[i] = element.vertexDeclaration;
                 var valueData: any = verDec._shaderValues;
                 element.bind();
                 for (var k in valueData) {
@@ -98,6 +103,18 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
             throw "BufferState: must call bind() function first.";
         }
 
+    }
+
+    //绑定之前需要先处理了前面的
+    clearVAO(){
+        for(let i = 0,n=this._vertexDeclaration.length;i<n;i++){
+            var verDec: VertexDeclaration = this._vertexDeclaration[i];
+            var valueData: any = verDec._shaderValues;
+            for (var k in valueData) {
+                var loc: number = parseInt(k);
+                this._gl.disableVertexAttribArray(loc);
+            }
+        }
     }
 
     applyIndexBuffer(indexBuffer: IndexBuffer | null): void {
