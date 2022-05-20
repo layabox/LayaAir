@@ -18,7 +18,7 @@ export class ShaderData implements IClone {
 	/**@internal */
 	protected _ownerResource: Resource = null;
 	/**@internal */
-	protected _data: any = null;
+	 _data: any = null;
 
 	/** @internal */
 	_defineDatas: DefineDatas = new DefineDatas();

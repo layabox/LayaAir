@@ -14,13 +14,11 @@ import { UploadMemory } from "../CommonMemory/UploadMemory";
 import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
 
 export enum ShaderDataType {
-    Int32,
     Number32,
     Vector2,
     Vector3,
     Vector4,
     Matrix4x4,
-    Int32Array,
     Number32Array,
     Texture,
     ShaderDefine,
@@ -88,14 +86,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         this.updataSizeMap.clear();
         this.updateMap.clear();
     }
-    compressInt(index: number, memoryBlock: UploadMemory, stride: number): number {
-        //console.log("..index " + index + " ShaderDataType.Int32 " + ShaderDataType.Int32 + "stride " + stride);
-        var length = 3;
-        memoryBlock.int32Array[stride] = index;
-        memoryBlock.int32Array[stride + 1] = ShaderDataType.Int32;
-        memoryBlock.int32Array[stride + 2] = this._data[index];
-        return length;
-    }
+
     compressNumber(index: number, memoryBlock: UploadMemory, stride: number): number {
         //console.log("..index " + index + " ShaderDataType.Number32 " + ShaderDataType.Number32 + "stride " + stride);
         var length = 3;
@@ -209,7 +200,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setBool(index: number, value: boolean): void {
         this._data[index] = value;
-        this.configMotionProperty(index, 3, this.compressInt);
+        this.configMotionProperty(index, 3, this.compressNumber);
     }
 
     /**
@@ -219,7 +210,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      */
     setInt(index: number, value: number): void {
         this._data[index] = value;
-        this.configMotionProperty(index, 3, this.compressInt);
+        this.configMotionProperty(index, 3, this.compressNumber);
     }
 
     /**
@@ -319,8 +310,10 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         // else
         //     this._data[index] = value;
         //有点恶心
-        if (typeof value == "number" || typeof value == "boolean") {
-            this.setNumber(index, <number>value);
+        if (typeof value == "boolean") {
+            this.setBool(index, <boolean>value);
+        } else if (typeof value == "number") {
+            this.setNumber(index, <number>value); 
         } else if (value instanceof Vector2) {
             this.setVector2(index, <Vector2>value);
         } else if (value instanceof Vector3) {
@@ -337,11 +330,28 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
     }
 
     cloneTo(destObject: NativeShaderData) {
-        super.cloneTo(destObject);
-        destObject.uploadAllData();
-    }
-    uploadAllData() {
-        //clone shaderData
+        var dest: NativeShaderData = <NativeShaderData>destObject;
+		for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
+			var value: any = this._data[k];
+			if (value != null) {
+				if (typeof (value) == 'boolean') {
+					destObject.setBool((k as any), value);
+				} else if (typeof (value) == 'number') {
+					destObject.setNumber(k as any, <number>value);
+				} else if (value instanceof Vector2) {
+                    destObject.setVector2(k as any, <Vector2>value);
+				} else if (value instanceof Vector3) {
+					destObject.setVector3(k as any, <Vector3>value);
+				} else if (value instanceof Vector4) {
+					destObject.setVector(k as any, <Vector4>value);
+				} else if (value instanceof Matrix4x4) {
+                    destObject.setMatrix4x4(k as any, <Matrix4x4>value);
+				} else if (value instanceof BaseTexture) {
+					destObject.setTexture(k as any, value);
+				}
+			}
+		}
+		this._defineDatas.cloneTo(dest._defineDatas);
     }
     /**
      * 克隆。
