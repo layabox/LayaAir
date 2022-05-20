@@ -120,10 +120,14 @@ export class Texture2D extends BaseTexture {
 		}
 
 		if (canread) {
-			ILaya.Browser.canvas.size(imageSource.width, imageSource.height);
-			ILaya.Browser.canvas.clear();
-			ILaya.Browser.context.drawImage(imageSource, 0, 0, imageSource.width, imageSource.height);
-			texture._pixels = new Uint8Array(ILaya.Browser.context.getImageData(0, 0, imageSource.width, imageSource.height).data.buffer);
+			if (ILaya.Render.isConchApp && imageSource._nativeObj) {
+				texture._pixels = new Uint8Array(imageSource._nativeObj.getImageData(0, 0, imageSource.width, imageSource.height));
+			} else {
+				ILaya.Browser.canvas.size(imageSource.width, imageSource.height);
+				ILaya.Browser.canvas.clear();
+				ILaya.Browser.context.drawImage(imageSource, 0, 0, imageSource.width, imageSource.height);
+				texture._pixels = new Uint8Array(ILaya.Browser.context.getImageData(0, 0, imageSource.width, imageSource.height).data.buffer);
+			}
 		}
 
 		return texture;
