@@ -37,7 +37,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
     private _floatCountPerParticleData: number;
 
     constructor(render: ShurikenParticleRenderer) {
-        super(render,MeshTopology.Triangles,DrawType.DrawElemientInstance);
+        super(render,MeshTopology.Triangles,DrawType.DrawElementInstance);
     }
 
     /***

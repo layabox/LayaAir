@@ -7,7 +7,7 @@ import { SubMesh } from "../resource/models/SubMesh";
 export class MeshInstanceGeometry extends GeometryElement {
     private _subMesh:SubMesh;
     constructor(subMesh: SubMesh) {
-        super(MeshTopology.Triangles, DrawType.DrawElemientInstance);
+        super(MeshTopology.Triangles, DrawType.DrawElementInstance);
         this._subMesh = subMesh;
         if(subMesh)
         this.indexFormat = subMesh._mesh.indexFormat;

@@ -42,7 +42,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	 * 创建一个 <code>InstanceSubMesh</code> 实例。
 	 */
 	constructor() {
-		super(MeshTopology.Triangles, DrawType.DrawElemientInstance);
+		super(MeshTopology.Triangles, DrawType.DrawElementInstance);
 		this.indexFormat = IndexFormat.UInt16;
 		this.instanceWorldMatrixBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this.instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;

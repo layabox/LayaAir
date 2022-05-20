@@ -103,7 +103,7 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
                     this.drawArraysInstanced(geometryElement.mode,element[i],element[i+1],geometryElement.instanceCount);
                 }
                 break;
-            case DrawType.DrawElemientInstance:
+            case DrawType.DrawElementInstance:
                 for(let i = 0;i<length;i+=2){
                     this.drawElementsInstanced(geometryElement.mode,element[i+1],geometryElement.indexFormat,element[i],geometryElement.instanceCount);
                 }
