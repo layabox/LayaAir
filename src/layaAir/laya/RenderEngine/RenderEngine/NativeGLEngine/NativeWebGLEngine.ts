@@ -47,6 +47,9 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   _nativeObj: any;
 
+  /**@internal */
+  _IDCounter: number;
+
   constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchWebGLEngine(webglMode);
   }
