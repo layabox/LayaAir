@@ -1010,7 +1010,7 @@ export class NativeContext {
         var i:number = idata[0];
         var fdata:Float32Array = this._fdata;
         idata[i++] = a;
-        idata[i++] = b;
+        fdata[i++] = b;
         fdata[i++] = c;
         fdata[i++] = d;
         fdata[i++] = e;
