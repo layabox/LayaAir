@@ -8,7 +8,6 @@ export class NativeSkinRenderElementOBJ extends  NativeRenderElementOBJ {
     _skinnedData:Float32Array[];
 
     constructor(){
-        debugger
         super();
     }
     get skinnedData():Float32Array[] {
