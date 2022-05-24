@@ -6,6 +6,7 @@ import { IBaseRenderNode } from "../../../RenderInterface/RenderPipelineInterfac
 import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "../../../RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
+import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
 import { NativeShaderData } from "./NativeShaderData";
 export enum RenderElementType {
 	Base = 0,
@@ -104,6 +105,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
      * @param renderqueue 
      */
     _render(context: IRenderContext3D): void {
+        UploadMemoryManager.syncRenderMemory();
         this._nativeObj._render((context as any)._nativeObj);
     }
 

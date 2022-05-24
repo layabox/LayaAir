@@ -36,7 +36,6 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
         this._nativeObj.changeViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         this._nativeObj.changeScissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
         this.destTarget._start();
-        //TODO 福龙测试
         UploadMemoryManager.syncRenderMemory();
         this._nativeObj.applyContext(cameraUpdateMark);
     }

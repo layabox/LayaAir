@@ -111,7 +111,7 @@ export class SeparableSSS_RenderDemo {
         //在延迟渲染管线中  可以一下把三张图直接搞出来
         //在我们前向渲染管线中  多浪费了几次drawMesh的性能
         //深度贴图
-        let depthTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.DEPTH_16, null, false, 1);
+        let depthTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.DEPTH_16, RenderTargetFormat.None, false, 1);
         buf.setRenderTarget(depthTexture);
         buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
         buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
@@ -138,7 +138,7 @@ export class SeparableSSS_RenderDemo {
 
         //拿到三张图片后，对diffuse贴图进行高斯核模糊
         buf.setShaderDataTexture(this.sssssBlitMaterail.shaderData, SeparableSSS_BlitMaterial.SHADERVALUE_DEPTHTEX, depthTexture);
-        let blurRenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, null, false, 1);
+        let blurRenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1);
         buf.setShaderDataVector2(this.sssssBlitMaterail.shaderData, SeparableSSS_BlitMaterial.SHADERVALUE_BLURDIR, new Vector2(10.0, 0.0));
         buf.blitScreenQuadByMaterial(diffuseRenderTexture, blurRenderTexture, new Vector4(0, 0, 1.0, 1.0), this.sssssBlitMaterail, 0);
         buf.setShaderDataVector2(this.sssssBlitMaterail.shaderData, SeparableSSS_BlitMaterial.SHADERVALUE_BLURDIR, new Vector2(0.0, 10.0));

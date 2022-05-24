@@ -6,6 +6,7 @@ import { RenderElementBatch } from "../../../../d3/graphics/Batch/RenderElementB
 import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderQueue } from "../../../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISortPass";
+import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
 
 export class NativeBaseRenderQueue implements IRenderQueue {
    /** @interanl */
@@ -24,20 +25,14 @@ export class NativeBaseRenderQueue implements IRenderQueue {
     constructor(isTransparent: boolean) {
         this._isTransparent = isTransparent;
         this._nativeObj = new (window as any).conchRenderQueue(isTransparent);
- 	this._batch = RenderElementBatch.instance ? RenderElementBatch.instance : new RenderElementBatch();
+ 	    this._batch = RenderElementBatch.instance ? RenderElementBatch.instance : new RenderElementBatch();
     }
 
     set context(value:RenderContext3D){
         this._context = value._contextOBJ;
     }
 
-  
-
     addRenderElement(renderelement: RenderElement) {
-        this._nativeObj.addRenderElement((renderelement._renderElementOBJ as any)._nativeObj, 
-             renderelement.render.renderNode,
-             renderelement.material.renderQueue, 
-             renderelement.render.sortingFudge);
         this.elements.add(renderelement);
     }
 
@@ -51,12 +46,19 @@ export class NativeBaseRenderQueue implements IRenderQueue {
         this._context.applyContext(Camera._updateMark);
         
         var elements: RenderElement[] = this.elements.elements;
+
 		this._batchQueue();
+        this._nativeObj.clear();
         for (var i: number = 0, n: number = this.elements.length; i < n; i++){
-            elements[i]._renderUpdatePre(context);//Update Data
-            
+            var render_element = elements[i];
+            this._nativeObj.addRenderElement((render_element._renderElementOBJ as any)._nativeObj, 
+            render_element.render.renderNode,
+            render_element.material.renderQueue, 
+            render_element.render.sortingFudge);
+            render_element._renderUpdatePre(context);//Update Data
         }
-        //更新所有大buffer数据 nativeTODO
+
+        UploadMemoryManager.syncRenderMemory();
 
         this._nativeObj.renderQueue((this._context as any)._nativeObj);
         
@@ -65,7 +67,5 @@ export class NativeBaseRenderQueue implements IRenderQueue {
 
     private _batchQueue() {
        this._isTransparent|| this._batch.batch(this.elements);
-    }
-
     }
 }

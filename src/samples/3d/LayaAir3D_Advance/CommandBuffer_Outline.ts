@@ -87,7 +87,7 @@ export class CommandBuffer_Outline {
 		camera.enableBuiltInRenderTexture = true;
 		//创建和屏幕一样大的Rendertexture
 		var viewPort: Viewport = camera.viewport;
-		var renderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, null, false, 1);
+		var renderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1);
 		//将RenderTexture设置为渲染目标
 		buf.setRenderTarget(renderTexture);
 		//清楚渲染目标的颜色为黑色，不清理深度
@@ -98,7 +98,7 @@ export class CommandBuffer_Outline {
 			buf.drawRender(renders[i], materials[i], 0);
 		}
 		//创建新的RenderTexture
-		var subRendertexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, null, false, 1);
+		var subRendertexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1);
 		//将renderTexture的结果复制到subRenderTexture
 		buf.blitScreenQuad(renderTexture, subRendertexture);
 		//设置模糊的参数
@@ -110,12 +110,12 @@ export class CommandBuffer_Outline {
 		var blurMaterial: BlurMaterial = new BlurMaterial(texSize, 1);
 
 		//创建降采样RenderTexture1
-		var downRenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, null, false, 1);
+		var downRenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
 		//降采样  使用blurMaterial材质的0SubShader将Rendertexture渲染到DownRendertexture
 		buf.blitScreenQuadByMaterial(renderTexture, downRenderTexture, null, blurMaterial, 0);
 
 		//创建降采样RenderTexture2
-		var blurTexture: RenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, null, false, 1);
+		var blurTexture: RenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
 		blurTexture.filterMode = FilterMode.Bilinear;
 
 		//Horizontal blur 使用blurMaterial材质的1SubShader

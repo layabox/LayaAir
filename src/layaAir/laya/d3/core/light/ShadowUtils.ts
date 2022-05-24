@@ -117,7 +117,7 @@ export class ShadowUtils {
                 break;
         }
 
-        var shadowMap: RenderTexture = RenderTexture.createFromPool(witdh, height, depthFormat, null, false, 1);
+        var shadowMap: RenderTexture = RenderTexture.createFromPool(witdh, height, depthFormat, RenderTargetFormat.None, false, 1);
         shadowMap.compareMode = TextureCompareMode.LESS;
         shadowMap.filterMode = FilterMode.Bilinear;
         shadowMap.wrapModeU = WarpMode.Clamp;
