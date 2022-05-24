@@ -169,7 +169,7 @@ export class BlurEffect extends PostProcessEffect {
         this._shaderData.setNumber(BlurEffect.SHADERVALUE_DOWNSAMPLEVALUE, this.blurSpreadSize);
         this._shaderData.setVector(BlurEffect.SHADERVALUE_TEXELSIZE, this._texSize);
         //降采样
-        var downSampleTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, null, false, 1);
+        var downSampleTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
         downSampleTexture.filterMode = FilterMode.Bilinear;
         this._tempRenderTexture[0] = downSampleTexture;
         var lastDownTexture: RenderTexture = context.source;
@@ -178,13 +178,13 @@ export class BlurEffect extends PostProcessEffect {
         //迭代次数
         for (var i: number = 0; i < this._blurIterations; i++) {
             //vertical
-            var blurTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, null, false, 1);
+            var blurTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
             blurTexture.filterMode = FilterMode.Bilinear;
             cmd.blitScreenTriangle(lastDownTexture, blurTexture, null, this._shader, this._shaderData, 1);
             lastDownTexture = blurTexture;
             this._tempRenderTexture[i * 2 + 1] = blurTexture;
             //Horizental
-            blurTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, null, false, 1);
+            blurTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
             blurTexture.filterMode = FilterMode.Bilinear;
             cmd.blitScreenTriangle(lastDownTexture, blurTexture, null, this._shader, this._shaderData, 2);
             lastDownTexture = blurTexture;

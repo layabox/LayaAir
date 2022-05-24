@@ -96,7 +96,7 @@ export class DepthPass {
 		this._camera = camera;
 		switch (depthType) {
 			case DepthTextureMode.Depth:
-				camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, depthTextureFormat, null, false, 1);
+				camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, depthTextureFormat, RenderTargetFormat.None, false, 1);
 				break;
 			case DepthTextureMode.DepthNormals:
 				camera.depthNormalTexture = this._depthNormalsTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, RenderTargetFormat.R8G8B8A8, depthTextureFormat, false, 1);

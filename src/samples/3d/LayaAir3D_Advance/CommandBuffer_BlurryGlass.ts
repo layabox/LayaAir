@@ -69,7 +69,7 @@ export class CommandBuffer_BlurryGlass {
 		var buf: CommandBuffer = new CommandBuffer();
 		//创建需要模糊使用的屏幕RenderTexture
 		var viewPort: Viewport = camera.viewport;
-		var renderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8, null, false, 1);
+		var renderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
 		//将当前渲染的结果拷贝到创建好的RenderTexture
 		this.texture = renderTexture;
 		buf.blitScreenTriangle(null, renderTexture);
@@ -85,11 +85,11 @@ export class CommandBuffer_BlurryGlass {
 		shaderValue.setNumber(BlurEffect.SHADERVALUE_DOWNSAMPLEVALUE, 1);
 		shaderValue.setVector(BlurEffect.SHADERVALUE_TEXELSIZE, texSize);
 		//创建降采样RenderTexture1
-		var downRenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, null, false, 1);
+		var downRenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
 		//降采样命令流
 		buf.blitScreenTriangle(renderTexture, downRenderTexture, null, shader, shaderValue, 0);
 		//创建降采样RenderTexture2
-		var blurTexture: RenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, null, false, 1);
+		var blurTexture: RenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
 		blurTexture.filterMode = FilterMode.Bilinear;
 		//Horizontal blur
 		buf.blitScreenTriangle(downRenderTexture, blurTexture, null, shader, shaderValue, 1);

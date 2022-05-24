@@ -178,23 +178,23 @@ export class GaussianDoF extends PostProcessEffect {
 
         let dataTexFormat: RenderTargetFormat = RenderTargetFormat.R16G16B16A16;
         // todo fullCoC format: R16
-        let fullCoC: RenderTexture = RenderTexture.createFromPool(source.width, source.height, dataTexFormat, null, false, 1);
+        let fullCoC: RenderTexture = RenderTexture.createFromPool(source.width, source.height, dataTexFormat, RenderTargetFormat.None, false, 1);
         // coc pass
         cmd.blitScreenTriangle(source, fullCoC, null, shader, shaderData, 0);
         // Prefilter pass
         fullCoC.filterMode = FilterMode.Bilinear;
         this._shaderData.setTexture(GaussianDoF.FULLCOCTEXTURE, fullCoC);
-        let prefilterTex: RenderTexture = RenderTexture.createFromPool(source.width / 2, source.height / 2, dataTexFormat, null, false, 1);
+        let prefilterTex: RenderTexture = RenderTexture.createFromPool(source.width / 2, source.height / 2, dataTexFormat, RenderTargetFormat.None, false, 1);
         cmd.blitScreenTriangle(source, prefilterTex, null, shader, shaderData, 1);
         // blur
         prefilterTex.filterMode = FilterMode.Bilinear;
         this._sourceSize.setValue(prefilterTex.width, prefilterTex.height, 1.0 / prefilterTex.width, 1.0 / prefilterTex.height);
         this._shaderData.setValueData(GaussianDoF.SOURCESIZE, this._sourceSize);
         // blur H
-        let blurHTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, null, false, 1);
+        let blurHTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, RenderTargetFormat.None, false, 1);
         cmd.blitScreenTriangle(prefilterTex, blurHTex, null, this._shader, this._shaderData, 2);
         // blur V
-        let blurVTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, null, false, 1);
+        let blurVTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, RenderTargetFormat.None, false, 1);
         cmd.blitScreenTriangle(blurHTex, blurVTex, null, this._shader, this._shaderData, 3);
         // composite
         blurVTex.filterMode = FilterMode.Bilinear;

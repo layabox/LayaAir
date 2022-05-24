@@ -11,6 +11,7 @@ import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData"
 import { LayaGL } from "../../layagl/LayaGL"
+import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -108,8 +109,8 @@ export class PostProcess {
 		var viewport: Viewport = camera!.viewport;
 
 		var cameraTarget: RenderTexture = camera!._internalRenderTexture;
-		var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), null, false, 1);
-		var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), null,false,1),RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), null,false,1)];
+		var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1);
+		var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None,false,1),RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None,false,1)];
 		//var screenTexture: RenderTexture = cameraTarget;
 		this._context!.command!.clear();
 		this._context!.source = screenTexture;
