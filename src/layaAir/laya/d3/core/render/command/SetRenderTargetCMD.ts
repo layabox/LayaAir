@@ -47,7 +47,6 @@ export class SetRenderTargetCMD extends Command {
 		SetRenderTargetCMD._pool.push(this);
 		this._renderTexture = null;
 	}
-
 }
 
 
