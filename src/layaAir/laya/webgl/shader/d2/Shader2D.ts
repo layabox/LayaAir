@@ -26,7 +26,7 @@ export class Shader2D {
     }
 
     static __init__(): void {
-        if ((window as any).conch && !(window as any).conchWebGL) {
+        if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
             (window as any).preCompile2D(ShaderDefines2D.TEXTURE2D, texture_vs, texture_ps);
             (window as any).preCompile2D(ShaderDefines2D.PRIMITIVE, prime_vs, prime_ps);
             (window as any).preCompile2D(ShaderDefines2D.SKINMESH, skin_vs, skin_ps);

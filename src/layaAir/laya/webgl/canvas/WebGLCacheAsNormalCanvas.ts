@@ -179,7 +179,7 @@ export class WebGLCacheAsNormalCanvas {
     }
 }
 // native
-if ((window as any).conch && !(window as any).conchWebGL) {
+if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
 	//@ts-ignore
 	WebGLCacheAsNormalCanvas = NativeWebGLCacheAsNormalCanvas;
 }

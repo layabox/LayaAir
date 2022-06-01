@@ -71,7 +71,7 @@ export class CommandUniformMap{
 }
 
 // native
-if ((window as any).conch && !(window as any).conchWebGL) {
+if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
 	//@ts-ignore
 	CommandUniformMap = (window as any).conchCommandUniformMap;
 }

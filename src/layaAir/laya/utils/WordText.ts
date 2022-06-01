@@ -79,7 +79,7 @@ export class WordText {
     }
 }
 // native
-if ((window as any).conch && !(window as any).conchWebGL) {
+if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
 	//@ts-ignore
 	WordText = NativeWordText;
 }

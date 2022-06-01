@@ -766,7 +766,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	constructor() {
 		super();
-		if ((window as any).conch && !(window as any).conchWebGL) {
+		if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
 			this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
 		}
 		if (!Config3D._config.isUseCannonPhysicsEngine && Physics3D._bullet)

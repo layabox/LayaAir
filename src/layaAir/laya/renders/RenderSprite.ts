@@ -148,7 +148,7 @@ export class RenderSprite {
 				this._fun = this._canvas;
 				return;
 			case SpriteConst.MASK:
-				if ((window as any).conch && !(window as any).conchWebGL) {
+				if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
 					this._fun = this._maskNative;
 				}
 				else {
@@ -180,7 +180,7 @@ export class RenderSprite {
 			//_fun = this._image2;
 			//return;
 			case SpriteConst.FILTERS:
-				if ((window as any).conch && !(window as any).conchWebGL) {
+				if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
 					this._fun = NativeFilter._filter;
 				}
 				else {

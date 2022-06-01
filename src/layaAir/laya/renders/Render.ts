@@ -91,7 +91,7 @@ export class Render {
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
 
         let engine: IRenderEngine;
-        if ((window as any).conch && !(window as any).conchWebGL) {
+        if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
             engine = new NativeWebGLEngine(glConfig, webglMode);
             engine.initRenderEngine(Render._mainCanvas.source);
             WebGL._isWebGL2 = engine.isWebGL2;
