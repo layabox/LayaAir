@@ -112,6 +112,10 @@ export class ComboBox extends UIComponent {
     /**
      * @private
      */
+    protected _itemPadding: any[] = [3, 3, 3, 3];
+    /**
+     * @private
+     */
     protected _itemSize: number = 12;
     /**
      * @private
@@ -126,7 +130,7 @@ export class ComboBox extends UIComponent {
      */
     protected _selectHandler: Handler;
     /**
-     * @private
+     * @private 下拉框列表单元的高度
      */
     protected _itemHeight: number;
     /**
@@ -169,7 +173,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
     */
-	destroy(destroyChild: boolean = true): void {
+    destroy(destroyChild: boolean = true): void {
         ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
         ILaya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
         super.destroy(destroyChild);
@@ -178,6 +182,7 @@ export class ComboBox extends UIComponent {
         this._button = null;
         this._list = null;
         this._itemColors = null;
+        this._itemPadding = null;
         this._labels = null;
         this._selectHandler = null;
     }
@@ -186,7 +191,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
     */
-	protected createChildren(): void {
+    protected createChildren(): void {
         this.addChild(this._button = new Button());
         this._button.text.align = "left";
         this._button.labelPadding = "0,0,0,5";
@@ -239,7 +244,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
     */
-	protected measureWidth(): number {
+    protected measureWidth(): number {
         return this._button.width;
     }
 
@@ -247,7 +252,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
     */
-	protected measureHeight(): number {
+    protected measureHeight(): number {
         return this._button.height;
     }
 
@@ -258,8 +263,9 @@ export class ComboBox extends UIComponent {
         this._listChanged = false;
         var labelWidth: number = this.width - 2;
         var labelColor: string = this._itemColors[2];
-        this._itemHeight = this._itemSize + 6;
-        this._list.itemRender = this.itemRender || { type: "Box", child: [{ type: "Label", props: { name: "label", x: 1, padding: "3,3,3,3", width: labelWidth, height: this._itemHeight, fontSize: this._itemSize, color: labelColor } }] };
+        this._itemHeight = (this._itemHeight) ? this._itemHeight : this._itemSize + 6;
+        let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,3";
+        this._list.itemRender = this.itemRender || { type: "Box", child: [{ type: "Label", props: { name: "label", x: 1, padding: _padding, width: labelWidth, height: this._itemHeight, fontSize: this._itemSize, color: labelColor } }] };
         this._list.repeatY = this._visibleNum;
         this._list.refresh();
     }
@@ -308,7 +314,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	set width(value: number) {
+    set width(value: number) {
         super.width = value;
         this._button.width = this._width;
         this._itemChanged = true;
@@ -326,7 +332,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         super.height = value;
         this._button.height = this._height;
     }
@@ -444,12 +450,24 @@ export class ComboBox extends UIComponent {
      * <p><b>格式：</b>"悬停或被选中时背景颜色,悬停或被选中时标签颜色,标签颜色,边框颜色,背景颜色"</p>
      */
     get itemColors(): string {
-        return String(this._itemColors)
+        return String(this._itemColors);
     }
 
     set itemColors(value: string) {
         this._itemColors = UIUtils.fillArray(this._itemColors, value, String);
         this._listChanged = true;
+    }
+
+    /**
+     * 下拉列表文本的边距Padding
+     * @readme <p><b>格式：</b>上边距,右边距,下边距,左边距</p>
+     */
+    get itemPadding(): string {
+        return this._itemPadding.join(",");
+    }
+
+    set itemPadding(value: string) {
+        this._itemPadding = UIUtils.fillArray(this._itemPadding, value, Number);
     }
 
     /**
@@ -461,6 +479,17 @@ export class ComboBox extends UIComponent {
 
     set itemSize(value: number) {
         this._itemSize = value;
+        this._listChanged = true;
+    }
+
+    /**
+     * 下拉列表项的高度
+     */
+    get itemHeight(): number {
+        return this._itemHeight;
+    }
+    set itemHeight(value: number) {
+        this._itemHeight = value;
         this._listChanged = true;
     }
 
