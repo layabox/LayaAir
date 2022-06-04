@@ -190,6 +190,15 @@ export class NativeContext {
 		LayaGL.renderEngine.scissorTest(true);
 		LayaGL.renderEngine.scissor(0, 0, RenderState2D.width, RenderState2D.height);
     }
+    set globalCompositeOperation(value: string) {
+		//this._nativeObj.globalCompositeOperation = value;
+        this.add_i_String(CONTEXT2D_FUNCTION_ID.SET_GLOBAL_COMPOSITE_OPERTAION, value);
+	}
+
+	get globalCompositeOperation(): string {
+        this._nativeObj.flushCommand();
+		return this._nativeObj.globalCompositeOperation;
+	}
     save(): void {
         //this._nativeObj.save();
         this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
