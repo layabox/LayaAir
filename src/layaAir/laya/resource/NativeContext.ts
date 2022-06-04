@@ -154,7 +154,7 @@ export class NativeContext {
     clear(): void {
         //this._nativeObj.clear();
         this.add_i(CONTEXT2D_FUNCTION_ID.CLEAR);
-        //this._nativeObj.flushCommand();
+        this._nativeObj.flushCommand();
     }
     static const2DRenderCMD:RenderStateCommand;
     static set2DRenderConfig(): void {
