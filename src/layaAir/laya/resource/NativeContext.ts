@@ -237,7 +237,6 @@ export class NativeContext {
     transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
 		//this._nativeObj.transform(a, b, c, d, tx, ty);
         this.add_iffffff(CONTEXT2D_FUNCTION_ID.TRANSFORM, a, b, c, d, tx, ty);
-        this._nativeObj.flushCommand();
 	}
     scale(scaleX: number, scaleY: number): void {
 		this.add_iff(CONTEXT2D_FUNCTION_ID.SCALE, scaleX, scaleY);
@@ -554,6 +553,7 @@ export class NativeContext {
 	}
     drawCanvas(canvas: HTMLCanvas, x: number, y: number, width: number, height: number): void {
 		if (!canvas) return;
+		this._nativeObj.flushCommand();
         if (canvas instanceof(NativeWebGLCacheAsNormalCanvas)) {
             this._nativeObj.drawCanvasNormal(canvas._nativeObj, x, y, width, height);
             //this.add_iiffff(CONTEXT2D_FUNCTION_ID.DRAW_CANVAS_NORMAL, canvas._nativeObj.id, x, y, width, height);
