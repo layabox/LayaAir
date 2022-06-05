@@ -137,14 +137,17 @@ export class NativeContext {
 	set miterLimit(value: string) {
 	}
     set isMain(value: boolean) {
+        this._nativeObj.flushCommand();
         this._nativeObj.isMain = value;
     }
     get isMain() {
+        this._nativeObj.flushCommand();
         return this._nativeObj.isMain;
     }
     alpha(value: number): void {
         //this._nativeObj.globalAlpha *= value;
-        this.add_if(CONTEXT2D_FUNCTION_ID.ALPHA, value);
+        //this.add_if(CONTEXT2D_FUNCTION_ID.ALPHA, value);
+        this.globalAlpha *= value;
     }
     flush(): void {
         //this._nativeObj.flush();
@@ -199,6 +202,14 @@ export class NativeContext {
         this._nativeObj.flushCommand();
 		return this._nativeObj.globalCompositeOperation;
 	}
+    set globalAlpha(value: number) {
+        this.add_if(CONTEXT2D_FUNCTION_ID.ALPHA, value);
+	}
+
+	get globalAlpha(): number {
+        this._nativeObj.flushCommand();
+		return this._nativeObj.globalAlpha;
+	}
     save(): void {
         //this._nativeObj.save();
         this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
@@ -226,7 +237,12 @@ export class NativeContext {
     transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
 		//this._nativeObj.transform(a, b, c, d, tx, ty);
         this.add_iffffff(CONTEXT2D_FUNCTION_ID.TRANSFORM, a, b, c, d, tx, ty);
+        this._nativeObj.flushCommand();
 	}
+    scale(scaleX: number, scaleY: number): void {
+		this.add_iff(CONTEXT2D_FUNCTION_ID.SCALE, scaleX, scaleY);
+	}
+
     drawTexture(tex: Texture, x: number, y: number, width: number, height: number): void {
         if (!this.checkTexture(tex)) {
             return;
