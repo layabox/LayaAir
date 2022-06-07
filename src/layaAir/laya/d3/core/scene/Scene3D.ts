@@ -75,6 +75,7 @@ import { ICullPass } from "../../../RenderEngine/RenderInterface/RenderPipelineI
 import { FrustumCulling } from "../../graphics/FrustumCulling";
 import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
+import { WebGL } from "../../../webgl/WebGL";
 
 /**
  * 环境光模式
@@ -336,7 +337,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		Scene3D._shadowCasterPass = new ShadowCasterPass();
 		//TODO:
-		if (LayaGL.renderEngine.getCapable(RenderCapable.GRAPHICS_API_GLES3))
+		if (LayaGL.renderEngine.getCapable(RenderCapable.GRAPHICS_API_GLES3) && WebGL._isWebGL2)
 			configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
 		else
 			configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
