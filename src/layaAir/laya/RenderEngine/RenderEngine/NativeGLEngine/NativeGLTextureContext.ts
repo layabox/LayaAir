@@ -39,6 +39,11 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         this._native.setTextureSubPixelsData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
+  setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
+        let sourceData = hdrInfo.readScanLine();
+
+        this.setTexturePixelsData(texture, sourceData, false, false);
+    }
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
         throw new Error("setTextureDDSData Method not implemented.");
     }
@@ -46,11 +51,6 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     setTextureKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
         throw new Error("setTextureKTXData Method not implemented.");
     }
-
-    setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
-        throw new Error("setTextureHDRData Method not implemented.");
-    }
-
     setCubeImageData(texture: InternalTexture, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean): void {
         var images: any[] = [];
         var length = sources.length;
@@ -103,12 +103,15 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        throw new Error("createRenderTargetInternal Method not implemented.");
         return  this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat ? depthStencilFormat : RenderTargetFormat.None, generateMipmap, sRGB, multiSamples);
     }
 
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         throw new Error("createRenderTargetCubeInternal Method not implemented.");
+        return null;
+    }
+    createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
+        throw new Error("createRenderTextureCubeInternal Method not implemented.");
         return null;
     }
     // todo  color 0, 1, 2, 3 ?
