@@ -97,11 +97,6 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         return null;
     }
 
-    createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
-        throw new Error("createRenderTextureCubeInternal Method not implemented.");
-        return null;
-    }
-
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         return  this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat ? depthStencilFormat : RenderTargetFormat.None, generateMipmap, sRGB, multiSamples);
     }

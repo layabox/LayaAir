@@ -314,7 +314,6 @@ export class Laya {
 	private static enableNative(): void {
 		if (Laya.isNativeRender_enable)
 			return;
-		Config.useRetinalCanvas = true;
 		Laya.isNativeRender_enable = true;
 		RenderState2D.width = Browser.window.innerWidth;
 		RenderState2D.height = Browser.window.innerHeight;

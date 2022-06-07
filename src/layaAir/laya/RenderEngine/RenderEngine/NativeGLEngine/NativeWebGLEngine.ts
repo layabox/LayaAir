@@ -76,40 +76,13 @@ export class NativeWebGLEngine implements IRenderEngine {
    */
   initRenderEngine(canvas: any) {
     this._nativeObj.initRenderEngine();
-    /*let names;
-    let gl;
-    switch (this._webglMode) {
-      case WebGLMode.Auto:
-        names = ["webgl2", "experimental-webgl2", "webgl", "experimental-webgl"];
-        break;
-      case WebGLMode.WebGL1:
-        names = ["webgl", "experimental-webgl"];
-        break;
-      case WebGLMode.WebGL2:
-        names = ["webgl2", "experimental-webgl2"];
-        break;
-    }
-    for (var i: number = 0; i < names.length; i++) {
-      try {
-        gl = canvas.getContext(names[i], this._config);
-      } catch (e) {
-      }
-      if (gl) {
-        if (names[i] === 'webgl2' || names[i] === 'experimental-webgl2') {
-          this._isWebGL2 = true;
-        }
-        break;
-      }
-    }*/
-    //this._isWebGL2 = false;
-    //this._gl = gl;
     this._GLRenderDrawContext = new NativeGLRenderDrawContext(this);
 
     if (this.isWebGL2) {
-      this._GLTextureContext = new NativeGL2TextureContext(this, new (window as any).conchGL2TextureContext);
+      this._GLTextureContext = new NativeGL2TextureContext(this, new (window as any).conchGL2TextureContext(this._nativeObj));
     }
     else {
-      this._GLTextureContext = new NativeGLTextureContext(this, new (window as any).conchGLTextureContext);
+      this._GLTextureContext = new NativeGLTextureContext(this, new (window as any).conchGLTextureContext(this._nativeObj));
     }
   }
 
