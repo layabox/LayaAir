@@ -21,7 +21,6 @@ export interface IRenderEngine {
     _isShaderDebugMode:boolean;
     initRenderEngine(canvas:any):void;
     
-    applyRenderState(stateData:any):void;
     applyRenderStateCMD(cmd: RenderStateCommand):void;
     
     viewport(x: number, y: number, width: number, height: number): void;

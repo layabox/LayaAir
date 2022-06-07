@@ -325,64 +325,6 @@ export class GLRenderState {
         value !== this._frontFace && (this._frontFace = value, this._gl.frontFace(value));
     }
 
-
-    applyRenderState(shaderData: any) {
-        const depthWrite: boolean = shaderData.depthWrite;
-        const depthTest: any = shaderData.depthTest;
-        //TODO
-        const depthTestEnable: boolean = shaderData.depthTestEnable;
-
-        const blend: BlendType = shaderData.blend;
-        //TODO:
-        const stencilTestEnable: boolean = shaderData.stencilTestEnable
-        const stencilRef: any = shaderData.stencilRef;
-        const stencilTest: any = shaderData.stencilTest;
-        const stencilWrite: any = shaderData.stencilWrite;
-        const stencilOp: any = shaderData.stencilOp;
-
-        this.setDepthMask(depthWrite);
-        if (!depthTestEnable)
-            this.setDepthTest(false);
-        else {
-            this.setDepthTest(true);
-            this.setDepthFunc(depthTest);
-        }
-        //blend
-        switch (blend) {
-            case BlendType.BLEND_DISABLE:
-                this.setBlend(false);
-                break;
-            case BlendType.BLEND_ENABLE_ALL:
-                const blendEquation: any = shaderData.blendEquation;
-                const srcBlend: any = shaderData.srcBlend;
-                const dstBlend: any = shaderData.dstBlend;
-                this.setBlend(true);
-                this.setBlendEquation(blendEquation);
-                this.setBlendFunc(srcBlend, dstBlend);
-                break;
-            case BlendType.BLEND_ENABLE_SEPERATE:
-                const blendEquationRGB = shaderData.blendEquationRGB;
-                const blendEquationAlpha = shaderData.blendEquationAlpha;
-                const srcRGB = shaderData.srcRGB;
-                const dstRGB = shaderData.dstRGB;
-                const srcAlpha = shaderData.srcAlpha;
-                const dstAlpha = shaderData.dstAlpha;
-                this.setBlend(true);
-                this.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
-                this.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
-                break;
-        }
-        //Stencil
-        this.setStencilMask(stencilWrite);
-        if (stencilTest == stencilTestEnable) {
-            this.setStencilTest(false);
-        } else {
-            this.setStencilTest(true);
-            this.setStencilFunc(stencilTest, stencilRef);
-            this.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
-        }
-    }
-
     applyRenderStateCommand(cmd: RenderStateCommand) {
         let cmdArray = cmd.cmdArray;
         cmdArray.forEach((value, key) => {

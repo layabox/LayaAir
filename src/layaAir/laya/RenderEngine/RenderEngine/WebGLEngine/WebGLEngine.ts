@@ -222,11 +222,6 @@ export class WebGLEngine implements IRenderEngine {
     this._bindTexture(texture._texture.target, texture._getSource());
   }
 
-  //set render State
-  applyRenderState(stateData: any) {
-    this._GLRenderState.applyRenderState(stateData);
-  }
-
   applyRenderStateCMD(cmd: RenderStateCommand): void {
     this._GLRenderState.applyRenderStateCommand(cmd);
   }

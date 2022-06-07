@@ -116,10 +116,6 @@ export class NativeWebGLEngine implements IRenderEngine {
   bindTexture(texture: BaseTexture) {
     throw new Error("Method not implemented.");
   }
-    //set render State
-  applyRenderState(stateData: any) {
-    this._nativeObj.applyRenderState(stateData);
-  }
 
   applyRenderStateCMD(cmd: RenderStateCommand): void {
     this._nativeObj.applyRenderStateCommand((cmd as any)._nativeObj);
