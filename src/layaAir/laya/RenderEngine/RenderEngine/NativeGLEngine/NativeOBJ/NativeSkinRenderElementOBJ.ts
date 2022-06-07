@@ -18,6 +18,6 @@ export class NativeSkinRenderElementOBJ extends  NativeRenderElementOBJ {
         this._nativeObj._skinnedData = data;
     }
     init(): void {
-        this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Skin);
+        this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Skin, (LayaGL.renderEngine as any)._nativeObj);
     }
 }

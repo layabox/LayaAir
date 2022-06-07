@@ -84,7 +84,7 @@ export class NativeContext {
 	}
     constructor()
     {
-        this._nativeObj = new (window as any)._conchContext();
+        this._nativeObj = new (window as any)._conchContext((LayaGL.renderEngine as any)._nativeObj);
         this._byteLen = 1024 * 512;
         this._init(false);
     }

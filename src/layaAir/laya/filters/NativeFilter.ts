@@ -14,6 +14,7 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D"
 import { SubmitCMD } from "../webgl/submit/SubmitCMD"
 import { ColorFilter } from "./ColorFilter";
 import { BlurFilter } from "./BlurFilter";
+import { LayaGL } from "../layagl/LayaGL";
 
 /**
  * <code>Filter</code> 是滤镜基类。
@@ -95,9 +96,9 @@ export class NativeFilter implements IFilter {
                 //out && WebGLRTMgr.releaseRT(out);// out.recycle();
                 out && out.destroy();// out.recycle();
                 //source = WebGLRTMgr.getRT(b.width, b.height);
-                source = new (window as any).conchRenderTexture2D(b.width, b.height);
+                source = new (window as any).conchRenderTexture2D((LayaGL.renderEngine as any)._nativeObj, b.width, b.height);
                 //var outRT: RenderTexture2D = out = WebGLRTMgr.getRT(b.width, b.height);
-                var outRT: any = out = new (window as any).conchRenderTexture2D(b.width, b.height);
+                var outRT: any = out = new (window as any).conchRenderTexture2D((LayaGL.renderEngine as any)._nativeObj, b.width, b.height);
                 sprite._getCacheStyle().filterCache = out;
                 //使用RT
                 webglctx.pushRT();

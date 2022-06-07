@@ -78,7 +78,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
         this.init();
     }
     init(): void {
-        this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Base);
+        this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Base, (LayaGL.renderEngine as any)._nativeObj);
     }
     _shaderInstances: SingletonList<ShaderInstance>;
     _owner: IBaseRenderNode;
