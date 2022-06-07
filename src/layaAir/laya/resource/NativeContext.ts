@@ -85,7 +85,7 @@ export class NativeContext {
     constructor()
     {
         this._nativeObj = new (window as any)._conchContext();
-        this._byteLen = 1024 * 1024;//TODO
+        this._byteLen = 1024 * 512;
         this._init(false);
     }
     _init(isSyncToRenderThread:boolean):void
