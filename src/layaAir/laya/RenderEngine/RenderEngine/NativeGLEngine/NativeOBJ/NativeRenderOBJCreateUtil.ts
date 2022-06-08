@@ -48,6 +48,9 @@ import { RenderState } from "../../../../d3/core/material/RenderState";
 import { NativeRenderState } from "./NativeRenderState";
 import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ";
 import { NativeSkinRenderElementOBJ } from "./NativeSkinRenderElementOBJ";
+import { BoundSphere } from "../../../../d3/math/BoundSphere";
+import { BoundFrustum } from "../../../../d3/math/BoundFrustum";
+import { NativeBounds } from "./NativeBounds";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
@@ -56,7 +59,7 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createBounds(min: Vector3, max: Vector3): Bounds {
-        return new Bounds(min, max);
+        return new NativeBounds(min, max) as unknown as Bounds;
     }
 
     createBoundsSphere(center: Vector3, radius: number): NativeBoundSphere {
@@ -76,7 +79,6 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderElement(): IRenderElement {
-        //return new (window as any).conchRenderElement();
         return new NativeRenderElementOBJ();
     }
     createSkinRenderElement():IRenderElement{
@@ -90,7 +92,6 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
-        //return new (window as any).conchRenderGeometryElement(mode, drayType);
         return new NativeRenderGeometryElementOBJ(mode, drayType);
     }
 
@@ -127,11 +128,11 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createShadowCullInfo():IShadowCullInfo{
-        return new ShadowCullInfo();//return new NativeShadowCullInfo();
+        return new NativeShadowCullInfo();
     }
 
     createCameraCullInfo():ICameraCullInfo{
-        return new CameraCullInfo();//return new NativeCameraCullInfo();
+        return new NativeCameraCullInfo();
     }
 
     createRenderStateComand(): NativeRenderStateCommand {
