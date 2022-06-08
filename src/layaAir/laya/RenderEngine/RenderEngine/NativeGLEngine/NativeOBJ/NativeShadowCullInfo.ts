@@ -16,12 +16,14 @@ export class NativeShadowCullInfo implements IShadowCullInfo{
 	
 	private _cullSphere: NativeBoundSphere;
 
+	private _cullPlaneCount: number;
+
 	constructor() {
     	this._nativeObj = new (window as any).conchShadowCullInfo();
   	}
     set cullPlanes(cullPlanes: NativePlane[]) {
 		this._cullPlanes = cullPlanes;
-        this._nativeCullPlanes.length = 0;
+        this._nativeCullPlanes = [];
         cullPlanes.forEach((element) => {
             this._nativeCullPlanes.push((element as any)._nativeObj);
         });
@@ -56,10 +58,11 @@ export class NativeShadowCullInfo implements IShadowCullInfo{
 	}
 
     set cullPlaneCount(cullPlaneCount: number) {
+		this._cullPlaneCount = cullPlaneCount;
 		this._nativeObj.cullPlaneCount = cullPlaneCount;
 	} 
 
 	get cullPlaneCount(): number {
-		return this._nativeObj.cullPlaneCount;
+		return this._cullPlaneCount;
 	}
 }

@@ -11,6 +11,10 @@ import { NativeBoundFrustum } from "./NativeBoundFrustum";
 
 	private _boundFrustum: NativeBoundFrustum;
 
+	private _useOcclusionCulling: Boolean;
+
+	private _cullingMask: number;
+
 	private _nativeObj: any;
 	
 	constructor() {
@@ -26,11 +30,12 @@ import { NativeBoundFrustum } from "./NativeBoundFrustum";
 	}
 
 	set useOcclusionCulling(useOcclusionCulling: Boolean) {
+		this._useOcclusionCulling = useOcclusionCulling;
 		this._nativeObj.useOcclusionCulling = useOcclusionCulling;
 	}
 
 	get useOcclusionCulling(): Boolean {
-		return this._nativeObj.useOcclusionCulling;
+		return this._useOcclusionCulling;
 	}
 
 	set boundFrustum(boundFrustum: NativeBoundFrustum) {
@@ -43,10 +48,11 @@ import { NativeBoundFrustum } from "./NativeBoundFrustum";
 	}
 
 	set cullingMask(cullingMask: number) {
+		this._cullingMask = cullingMask;
 		this._nativeObj.cullingMask = cullingMask;
 	}
 
 	get cullingMask(): number {
-		return this._nativeObj.cullingMask;
+		return this._cullingMask;
 	}
 }
