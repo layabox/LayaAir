@@ -960,7 +960,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._useCustomBounds = false;
 
 		this._currentTime = 0;
-		this._bounds = new Bounds(new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE), new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE));
+		this._bounds = LayaGL.renderOBJCreate.createBounds(new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE), new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE));
 		this.bufferState = this._bufferState = new BufferState();
 		this._isEmitting = false;
 		this._isPlaying = false;
