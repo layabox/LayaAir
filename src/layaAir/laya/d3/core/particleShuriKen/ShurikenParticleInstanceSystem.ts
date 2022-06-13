@@ -1,3 +1,4 @@
+import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { MathUtil } from "../../../maths/MathUtil";
 import { Resource } from "../../../resource/Resource";
@@ -539,17 +540,20 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
     destroy(): void {
         // todo
         super.destroy();
-
+        let memorySize = 0;
         if (this._indexBuffer) {
+            memorySize += this._indexBuffer._byteLength;
             this._indexBuffer.destroy();
         }
         if (this._vertexBuffer) {
+            memorySize +=  this._vertexBuffer._byteLength;
             this._vertexBuffer.destroy();
         }
         if (this._instanceParticleVertexBuffer) {
+            this._instanceParticleVertexBuffer._byteLength;
             this._instanceParticleVertexBuffer.destroy();
         }
-
+        Resource._addMemory(-memorySize,-memorySize);
         this._instanceVertex = null;
         this._meshIndexCount = null;
         this._meshFloatCountPreVertex = null;
