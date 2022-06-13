@@ -54,8 +54,7 @@ import { NativeBounds } from "./NativeBounds";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
-        //return new NativeTransform3D(owner);
-        return new Transform3D(owner);
+        return new NativeTransform3D(owner);
     }
 
     createBounds(min: Vector3, max: Vector3): Bounds {
