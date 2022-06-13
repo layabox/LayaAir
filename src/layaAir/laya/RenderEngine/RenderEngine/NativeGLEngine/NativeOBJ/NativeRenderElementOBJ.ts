@@ -95,9 +95,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
      * @internal
      */
     getInvertFront(): boolean {
-        //return this._transform?this._transform._isFrontFaceInvert:false;
-        //return this._nativeObj.getInvertFront()
-        return false;
+        return this._transform ? this._transform._isFrontFaceInvert : false;
     }
 
     /**

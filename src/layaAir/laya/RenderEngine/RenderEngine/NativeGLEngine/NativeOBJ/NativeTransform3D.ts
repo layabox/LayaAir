@@ -21,7 +21,7 @@ export class NativeTransform3D  extends Transform3D {
 	 * @internal
 	 */
 	get _isFrontFaceInvert(): boolean {
-        return this._nativeObj._isFrontFaceInvert();
+        return this._nativeObj._isFrontFaceInvert;
 	}
 
 	/**
