@@ -96,7 +96,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 						if (!node.noCompile) {
 							words = text.replace(/^\s*/, '').split(/\s+/);
 							node.setCondition(words[1], name === "#ifdef" ? ShaderCompile.IFDEF_YES : ShaderCompile.IFDEF_ELSE);
-							node.text = "//" + node.text;
+							node.text =  node.text;
 						} else {
 							console.log("function():Boolean{return " + text.substr(ofs + node.name.length) + "}");
 						}
@@ -141,7 +141,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 						if (!node.noCompile) {
 							node.condition = preNode.condition;
 							node.conditionType = preNode.conditionType == ShaderCompile.IFDEF_YES ? ShaderCompile.IFDEF_ELSE : ShaderCompile.IFDEF_YES;
-							node.text = "//" + node.text + " " + preNode.text + " " + node.conditionType;
+							//node.text =  node.text + " " + preNode.text + " " + node.conditionType;
 						}
 						//递归节点树
 						node.setParent(parent);
@@ -152,7 +152,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 						preNode = parent.childs[parent.childs.length - 1];
 						node.noCompile = preNode.noCompile;
 						if (!node.noCompile) {
-							node.text = "//" + node.text;
+							node.text =  node.text;
 						}
 						node.setParent(parent);
 						continue;

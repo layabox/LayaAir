@@ -4,6 +4,8 @@ import { ILaya } from "../../../ILaya";
 
 export class ShaderNode {
     private static __id: number = 1;
+    //是否删除无用代码
+    private static __noCompileEnable = false;
 
     childs: any[] = [];
     text: string = "";
@@ -48,9 +50,9 @@ export class ShaderNode {
         if (this.condition) {
             var ifdef: boolean = !!this.condition.call(def);
             this.conditionType === ILaya.ShaderCompile.IFDEF_ELSE && (ifdef = !ifdef);
-            if (!ifdef) return out;
+            if (!ifdef&&ShaderNode.__noCompileEnable) return out;
         }
-        if(this.noCompile)
+        if(this.noCompile||!ShaderNode.__noCompileEnable)
         this.text && out.push(this.text);
         this.childs.length > 0 && this.childs.forEach(function (o: ShaderNode, index: number, arr: ShaderNode[]): void {
             o._toscript(def, out, id);
