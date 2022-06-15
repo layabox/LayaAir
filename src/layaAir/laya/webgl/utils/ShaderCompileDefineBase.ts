@@ -316,7 +316,4 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 
 		return shader;
 	}
-
-
-
 }

@@ -81,41 +81,23 @@ export class DrawMeshCMD extends Command {
             element.setTransform(this._transform);
             element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
         });
-        // let submeshs = this._mesh._subMeshes;
-        // if (this._subMeshIndex == -1) {
-        //     for (let i = 0, n = submeshs.length; i < n; i++) {
-        //         let element = this._renderElemnts[i] = this._renderElemnts[i] ? this._renderElemnts[i] : new RenderElement();
-        //         element.setGeometry(submeshs[i]);
-        //         element.transform = this._transform;
-        //         element.material = this._material;
-        //         element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
-        //     }
-        // } else {
-        //     let element = this._renderElemnts[0] = this._renderElemnts[0] ? this._renderElemnts[0] : new RenderElement();
-        //     element.setGeometry(submeshs[this._subMeshIndex]);
-        //     element.transform = this._transform;
-        //     element.material = this._material;
-        //     element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
-        // }
     }
     /**
 	 * @inheritDoc
 	 * @override
 	 */
     run(): void {
-        RenderContext3D._instance._contextOBJ.applyContext(Camera._updateMark);
-        let submeshs = this._mesh._subMeshes
         var context = RenderContext3D._instance;
+        context._contextOBJ.applyContext(Camera._updateMark);
+        let submeshs = this._mesh._subMeshes
         if (this._subMeshIndex == -1) {
             for (let i = 0, n = submeshs.length; i < n; i++) {
                 let element = this._renderElemnts[i];
-                element._renderUpdatePre(context);
-                element._render(context._contextOBJ);
+                context.drawRenderElement(element);
             }
         } else {
             let element = this._renderElemnts[0];
-            element._renderUpdatePre(context);
-            element._render(context._contextOBJ);
+            context.drawRenderElement(element);
         }
     }
 

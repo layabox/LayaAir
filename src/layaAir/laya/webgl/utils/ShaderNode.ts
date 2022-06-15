@@ -5,7 +5,7 @@ import { ILaya } from "../../../ILaya";
 export class ShaderNode {
     private static __id: number = 1;
     //是否删除无用代码
-    private static __noCompileEnable = false;
+    private static __noCompileEnable = true;
 
     childs: any[] = [];
     text: string = "";

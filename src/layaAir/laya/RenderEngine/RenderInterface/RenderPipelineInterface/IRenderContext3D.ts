@@ -2,6 +2,7 @@ import { Vector4 } from "../../../d3/math/Vector4";
 import { Viewport } from "../../../d3/math/Viewport";
 import { ShaderData } from "../../RenderShader/ShaderData";
 import { IRenderTarget } from "../IRenderTarget";
+import { IRenderElement } from "./IRenderElement";
 
   export interface IRenderContext3D{
     //dest Texture
@@ -26,5 +27,7 @@ import { IRenderTarget } from "../IRenderTarget";
     globalShaderData:ShaderData;
     /**设置IRenderContext */
     applyContext(cameraUpdateMark:number):void;
+    /**draw one element by context */
+    drawRenderElement(renderelemt:IRenderElement):void;
   }
   

@@ -127,6 +127,14 @@ export class RenderContext3D {
 	}
 
 	/**
+	 * 渲染一个
+	 * @param renderelemt 
+	 */
+	drawRenderElement(renderelemt:RenderElement):void{
+        renderelemt._renderUpdatePre(this);
+		this._contextOBJ.drawRenderElement(renderelemt._renderElementOBJ);
+    }
+	/**
 	 * 创建一个 <code>RenderContext3D</code> 实例。
 	 */
 	constructor() {

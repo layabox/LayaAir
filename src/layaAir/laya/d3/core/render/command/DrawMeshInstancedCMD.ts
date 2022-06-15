@@ -208,8 +208,9 @@ export class DrawMeshInstancedCMD extends Command {
 
     run(): void {
         //update blockData
-        RenderContext3D._instance._contextOBJ.applyContext(Camera._updateMark);
-		let propertyMap = this._instanceProperty._propertyMap;
+        let context = RenderContext3D._instance;
+		context._contextOBJ.applyContext(Camera._updateMark);
+        let propertyMap = this._instanceProperty._propertyMap;
         for(let i in propertyMap){
 			//更新自定义Instancebuffer
 			propertyMap[i].updateVertexBufferData(this._drawnums);
@@ -219,13 +220,11 @@ export class DrawMeshInstancedCMD extends Command {
         if (this._subMeshIndex == -1) {
             for (let i = 0, n = submeshs.length; i < n; i++) {
                 let element = this._instanceRenderElementArray[i];
-                element._renderUpdatePre(this._context);
-                element._render(this._context._contextOBJ);
+                context.drawRenderElement(element);
             }
         } else {
             let element = this._instanceRenderElementArray[0];
-            element._renderUpdatePre(this._context);
-            element._render(this._context._contextOBJ);
+            context.drawRenderElement(element);
         }
     }
 

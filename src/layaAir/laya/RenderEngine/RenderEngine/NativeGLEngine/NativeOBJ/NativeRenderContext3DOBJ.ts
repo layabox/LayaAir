@@ -1,3 +1,4 @@
+import { RenderElement } from "../../../../d3/core/render/RenderElement";
 import { Vector4 } from "../../../../d3/math/Vector4";
 import { Viewport } from "../../../../d3/math/Viewport";
 import { LayaGL } from "../../../../layagl/LayaGL";
@@ -5,6 +6,7 @@ import { IRenderTarget } from "../../../RenderInterface/IRenderTarget";
 import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { ShaderData } from "../../../RenderShader/ShaderData";
 import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
+import { NativeRenderElementOBJ } from "./NativeRenderElementOBJ";
 
 export class NativeRenderContext3DOBJ implements IRenderContext3D {
 
@@ -31,12 +33,16 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
         this._nativeObj = new (window as any).conchRenderContext3D((LayaGL.renderEngine as any)._nativeObj);
     }
 
+    drawRenderElement(renderelemt:NativeRenderElementOBJ):void{
+        UploadMemoryManager.syncRenderMemory();//同步数据
+        renderelemt._render(this);
+    }
+
     /**设置IRenderContext */
     applyContext(cameraUpdateMark:number): void {
         this._nativeObj.changeViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         this._nativeObj.changeScissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
         this.destTarget._start();
-        UploadMemoryManager.syncRenderMemory();
         this._nativeObj.applyContext(cameraUpdateMark);
     }
     set destTarget(destTarget: IRenderTarget) {
@@ -124,4 +130,6 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
     get cameraUpdateMark(): number {
         return this._nativeObj.cameraUpdateMark;
     }
+
+  
 }

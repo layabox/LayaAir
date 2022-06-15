@@ -103,13 +103,8 @@ export class NativeRenderElementOBJ implements IRenderElement {
      * @param renderqueue 
      */
     _render(context: IRenderContext3D): void {
-        UploadMemoryManager.syncRenderMemory();
         this._nativeObj._render((context as any)._nativeObj);
     }
-
-    /*drawGeometry(shaderIns:ShaderInstance){
-        LayaGL.renderDrawConatext.drawGeometryElement(this._geometry);
-    }*/
 
     _destroy() {
         this._nativeObj._destroy();

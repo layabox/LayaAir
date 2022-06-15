@@ -18,29 +18,11 @@ export class BlitScreenQuadCMD extends Command {
     static _SCREENTYPE_QUAD: number = 0;
     /**@internal */
     static _SCREENTYPE_TRIANGLE: number = 1;
-    /**@internal */
+	/**@internal */
     private static _pool: any[] = [];
     /** @internal */
     private static _defaultOffsetScale: Vector4 = new Vector4(0, 0, 1, 1);
-    /**@internal */
-    private _source: BaseTexture = null;
-    /**@internal */
-    private _dest: RenderTexture = null;
-    /**@internal */
-    private _offsetScale: Vector4 = null;
-    /**@internal */
-    private _shader: Shader3D = null;
-    /**@internal */
-    private _shaderData: ShaderData = null;
-    /**@internal */
-    private _subShader: number = 0;
-    /**@internal */
-    private _sourceTexelSize: Vector4 = new Vector4();
-    /**@internal */
-    private _renderElement:RenderElement
-    private _transform3D:Transform3D;
-
-    /**
+     /**
 	 * 创建命令流
 	 * @param source 原始贴图 如果设置为null  将会使用默认的Camera流程中的原RenderTexture
 	 * @param dest 目标贴图 如果设置为null，将会使用默认的camera渲染目标
@@ -64,6 +46,27 @@ export class BlitScreenQuadCMD extends Command {
 		return cmd;
 	}
 
+    /**@internal */
+    private _source: BaseTexture = null;
+    /**@internal */
+    private _dest: RenderTexture = null;
+    /**@internal */
+    private _offsetScale: Vector4 = null;
+    /**@internal */
+    private _shader: Shader3D = null;
+    /**@internal */
+    private _shaderData: ShaderData = null;
+    /**@internal */
+    private _subShader: number = 0;
+    /**@internal */
+    private _sourceTexelSize: Vector4 = new Vector4();
+    /**@internal */
+    private _renderElement:RenderElement
+    /**@internal */
+	private _transform3D:Transform3D;
+
+   
+
     constructor(){
         super();
         this._transform3D = LayaGL.renderOBJCreate.createTransform(null);
@@ -75,7 +78,6 @@ export class BlitScreenQuadCMD extends Command {
     set shaderData(value:ShaderData){
         this._shaderData = value||Command._screenShaderData;
         this._renderElement._renderElementOBJ._materialShaderData = this._shaderData;
-    
     }
 
     setshader(shader:Shader3D,subShader:number,shaderData:ShaderData){
@@ -119,8 +121,7 @@ export class BlitScreenQuadCMD extends Command {
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
         context.destTarget = dest;
         context._contextOBJ.applyContext(Camera._updateMark);
-        this._renderElement._renderUpdatePre(this._context);
-        this._renderElement._render(this._context._contextOBJ);
+		context.drawRenderElement(this._renderElement);
 	}
 
     /**

@@ -39,8 +39,7 @@ export class DrawRenderCMD extends Command {
     private _elementRender(renderElement:RenderElement,context: RenderContext3D): void {
         renderElement.renderSubShader =  this._material._shader.getSubShaderAt(this._subShaderIndex);
         renderElement.material = this._material;
-        renderElement._renderUpdatePre(context);
-        renderElement._render(context._contextOBJ);
+        context.drawRenderElement(renderElement);
     }
 
     /**

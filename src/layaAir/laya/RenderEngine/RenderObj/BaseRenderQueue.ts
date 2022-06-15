@@ -62,7 +62,7 @@ export class BaseRenderQueue implements IRenderQueue {
     }
 
     private _batchQueue() {
-       this._isTransparent|| this._batch.batch(this.elements);
+       //this._isTransparent|| this._batch.batch(this.elements);
     }
 
     private _sort() {

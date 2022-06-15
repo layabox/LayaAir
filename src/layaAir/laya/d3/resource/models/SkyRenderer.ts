@@ -86,7 +86,7 @@ export class SkyRenderer {
 	_render(context: RenderContext3D): void {
 		if (this._material && this._mesh) {
 			var camera: Camera = context.camera;
-
+			var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
 			if (camera.orthographic)
 			Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
 
@@ -110,7 +110,7 @@ export class SkyRenderer {
 			//0       0    	-1+e    -1.0	
 			//0       0     -0  0
 			var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
-			var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
+			
 			camera.viewMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
 			camera.projectionMatrix.cloneTo(projectionMatrix);
 			viewMatrix.setTranslationVector(Vector3._ZERO);
