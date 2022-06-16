@@ -83,7 +83,9 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createSkinRenderElement():IRenderElement{
         return new NativeSkinRenderElementOBJ();
     }
-
+    createInstanceRenderElement():IRenderElement{
+        return new SkinRenderElementOBJ();
+    }
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {
         var queue: NativeBaseRenderQueue = new NativeBaseRenderQueue(isTransparent);
         queue.sortPass = this.createSortPass();

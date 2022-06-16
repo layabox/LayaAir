@@ -32,6 +32,7 @@ import { BaseRenderNode } from "./BaseRenderNode";
 import { BaseRenderQueue } from "./BaseRenderQueue";
 import { CameraCullInfo } from "./CameraCullInfo";
 import { CullPassBase } from "./CullPass";
+import { InstanceRenderElementOBJ } from "./InstanceRenderElementOBJ";
 import { QuickSort } from "./QuickSort";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
@@ -71,6 +72,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
     createSkinRenderElement():IRenderElement{
         return new SkinRenderElementOBJ();
+    }
+    createInstanceRenderElement(){
+        return new InstanceRenderElementOBJ();
     }
 
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {
