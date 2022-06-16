@@ -83,8 +83,8 @@ export class CameraLayer {
 		staticLayaMonkey.meshRenderer.material = Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/Materials/T_Diffuse.lmat");
 		//设置静态猴子的蒙版为1(所属图层)
 		staticLayaMonkey.layer = 1;
-		staticLayaMonkey.transform.position.setValue(0, 0, 0.5);
-		staticLayaMonkey.transform.localScale.setValue(0.3, 0.3, 0.3);
+		staticLayaMonkey.transform.position = new Vector3(0, 0, 0.5);
+		staticLayaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
 		staticLayaMonkey.transform.rotation = this._rotation3;
 		//产生阴影
 		staticLayaMonkey.meshRenderer.castShadow = true;
@@ -108,7 +108,7 @@ export class CameraLayer {
 		//旋转
 		layaMonkey_clone2.transform.rotate(this._rotation4, false, false);
 		//缩放
-		layaMonkey_clone3.transform.localScale.setValue(0.1, 0.1, 0.1);
+		layaMonkey_clone3.transform.localScale = new Vector3(0.1, 0.1, 0.1);
 
 		//生成UI
 		this.loadUI();
