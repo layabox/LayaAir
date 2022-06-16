@@ -42,12 +42,12 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
     applyContext(cameraUpdateMark:number): void {
         this._nativeObj.changeViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         this._nativeObj.changeScissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
-        this.destTarget._start();
+        this.destTarget && this.destTarget._start();
         this._nativeObj.applyContext(cameraUpdateMark);
     }
     set destTarget(destTarget: IRenderTarget) {
         this._destTarget = destTarget;
-        this._nativeObj.destTarget = destTarget._renderTarget;
+        this._nativeObj.destTarget = destTarget ? destTarget._renderTarget : null;
     }
 
     get destTarget(): IRenderTarget {
