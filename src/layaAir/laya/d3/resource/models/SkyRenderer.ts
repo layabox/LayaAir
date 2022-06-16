@@ -128,8 +128,7 @@ export class SkyRenderer {
 			}
 			
 			context._contextOBJ.applyContext(Camera._updateMark);
-			this._renderElement._renderUpdatePre(context);
-			this._renderElement._render(context._contextOBJ);
+			context.drawRenderElement(this._renderElement);
 			camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
 		}
 	}
