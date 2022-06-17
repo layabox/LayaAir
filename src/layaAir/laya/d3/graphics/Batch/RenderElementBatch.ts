@@ -21,7 +21,7 @@ export class RenderElementBatch{
 
     recoverData(){
         let elements = this._recoverList.elements;
-        for(let i = 0;i<elements.length;i++){
+        for(let i = 0,n = this._recoverList.length;i<n;i++){
             let element = elements[i];
             element.recover();
         }
@@ -46,7 +46,7 @@ export class RenderElementBatch{
             else if(SubMeshRenderElement.enableDynamicBatch&&LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)){
                 if (element.renderSubShader._owner._enableInstancing&& element.render.lightmapIndex < 0) {
                     var insManager = this._instanceBatchManager;
-                    var insBatchMarks = insManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id,element._geometry._id, element.transform?element.transform._isFrontFaceInvert:false);
+                    var insBatchMarks = insManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id,element._geometry._id, element.transform?element.transform._isFrontFaceInvert:false,element.render._probReflection?element.render._probReflection.id:-1);
                     if (insManager.updateCountMark === insBatchMarks.updateMark) {
                         //can batch
                         var insBatchIndex:number = insBatchMarks.indexInList;
@@ -69,7 +69,6 @@ export class RenderElementBatch{
                             instanceRenderElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
                             //Geometry updaste
                             (instanceRenderElement._geometry as MeshInstanceGeometry).subMesh = (insOriElement._geometry as SubMesh);
-                            
                             instanceRenderElement.material = insOriElement.material;
                             instanceRenderElement.setTransform(null);
                             instanceRenderElement.renderSubShader = insOriElement.renderSubShader;
@@ -93,7 +92,4 @@ export class RenderElementBatch{
                 elements.add(element);
         }
     }
-
-    
-
 }
