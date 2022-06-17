@@ -47,10 +47,11 @@ export class DDSTextureInfo {
     bpp: number;
     blockBytes: number;
     format: TextureFormat;
+    compressed: boolean;
     dataOffset: number;
     source: ArrayBuffer;
 
-    constructor(width: number, height: number, mipmapCount: number, isCube: boolean, bpp: number, blockBytes: number, dataOffset: number, format: TextureFormat, sourceData: ArrayBuffer) {
+    constructor(width: number, height: number, mipmapCount: number, isCube: boolean, bpp: number, blockBytes: number, dataOffset: number, format: TextureFormat, compressed: boolean, sourceData: ArrayBuffer) {
         this.width = width;
         this.height = height;
         this.mipmapCount = mipmapCount;
@@ -59,6 +60,8 @@ export class DDSTextureInfo {
         this.dataOffset = dataOffset;
         this.format = format;
         this.source = sourceData;
+        this.bpp = bpp;
+        this.compressed = compressed;
     }
 
     static getDDSTextureInfo(source: ArrayBuffer): DDSTextureInfo {
@@ -101,12 +104,17 @@ export class DDSTextureInfo {
                 layaTexFormat = TextureFormat.DXT5;
                 blockBytes = 16;
                 break;
+            case FOURCC_D3DFMT_R16G16B16A16F:
+                layaTexFormat = TextureFormat.R16G16B16A16;
+                blockBytes = 4;
+                break;
+            case FOURCC_D3DFMT_R32G32B32A32F:
+                layaTexFormat = TextureFormat.R32G32B32A32;
+                blockBytes = 4;
+                break;
             default:
                 throw "Unsupported format " + Int32ToFourCC(fourCC)
         }
-
-
-        let ext = LayaGL.renderEngine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC) || LayaGL.renderEngine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB);
 
         if (header[DDS_HEADER_MAGIC] !== DDS_MAGIC) {
             throw "Invalid magic number in DDS header";
@@ -115,11 +123,13 @@ export class DDSTextureInfo {
             throw "Unsupported format, must contain a FourCC, RGB or LUMINANCE code";
         }
 
+        let ext = LayaGL.renderEngine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC) || LayaGL.renderEngine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB);
+
         if (isCompressed && !ext) {
             throw "Compressed textures are not supported on this platform.";
         }
 
-        return new DDSTextureInfo(width, height, mipmapCount, isCube, 0, blockBytes, dataOffset, layaTexFormat, source);
+        return new DDSTextureInfo(width, height, mipmapCount, isCube, 0, blockBytes, dataOffset, layaTexFormat, isCompressed, source);
     }
 
 }

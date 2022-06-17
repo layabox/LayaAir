@@ -301,6 +301,54 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
     }
 
+    public getFormatPixelsParams(format: TextureFormat) {
+
+        let formatParams: { channels: number, bytesPerPixel: number } = {
+            channels: 0,
+            bytesPerPixel: 0,
+        }
+        switch (format) {
+            case TextureFormat.R8G8B8A8:
+                formatParams.channels = 4;
+                formatParams.bytesPerPixel = 4;
+                // formatParams.dataTypeCons = Uint8Array
+                return formatParams;
+            case TextureFormat.R8G8B8:
+                formatParams.channels = 3;
+                formatParams.bytesPerPixel = 3;
+                // formatParams.dataTypeCons = Uint8Array
+                return formatParams;
+            case TextureFormat.R5G6B5:
+                formatParams.channels = 3;
+                formatParams.bytesPerPixel = 2;
+                // formatParams.dataTypeCons = Uint16Array
+                return formatParams;
+            case TextureFormat.R16G16B16:
+                formatParams.channels = 3;
+                formatParams.bytesPerPixel = 6;
+                // formatParams.dataTypeCons = Uint16Array
+                return formatParams;
+            case TextureFormat.R16G16B16A16:
+                formatParams.channels = 4;
+                formatParams.bytesPerPixel = 8;
+                // formatParams.dataTypeCons = Uint16Array
+                return formatParams;
+            case TextureFormat.R32G32B32:
+                formatParams.channels = 3;
+                formatParams.bytesPerPixel = 12;
+                // formatParams.dataTypeCons = Uint16Array
+                return formatParams;
+            case TextureFormat.R32G32B32A32:
+                formatParams.channels = 4;
+                formatParams.bytesPerPixel = 16;
+                // formatParams.dataTypeCons = Uint16Array
+                return formatParams;
+            default:
+                return formatParams;
+        }
+
+    }
+
     // protected getRenderTargetDepthFormat(format: RenderTargetDepthFormat): { internalFormat: number, attachment: number } {
     //     let gl = this.gl;
     //     switch (format) {
@@ -800,10 +848,17 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let mipmapCount = ddsInfo.mipmapCount;
 
         let fourSize = width % 4 == 0 && height % 4 == 0;
-
+        fourSize = true;
         let gl = texture._gl;
 
-        // dds 标准顺序
+
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+        this._engine._bindTexture(texture.target, texture.resource);
+
         const cubeFace = [
             gl.TEXTURE_CUBE_MAP_POSITIVE_X, // right
             gl.TEXTURE_CUBE_MAP_NEGATIVE_X, // left
@@ -813,36 +868,50 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, // front
         ]
 
-        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        let formatParams = this.getFormatPixelsParams(ddsInfo.format);
+        let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
+        
+        let dataTypeConstur = ddsInfo.format == TextureFormat.R32G32B32A32 ? Float32Array : Uint16Array;
 
-        this._engine._bindTexture(texture.target, texture.resource);
+        if (!ddsInfo.compressed) {
+            for (let face = 0; face < 6; face++) {
+                let target = cubeFace[face];
+                let mipmapWidth = width;
+                let mipmapHeight = height;
+                for (let index = 0; index < mipmapCount; index++) {
+                    let dataLength = mipmapWidth * mipmapHeight * formatParams.channels;
+                    let sourceData = new dataTypeConstur(source, dataOffset, dataLength);
+                    gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
 
-        for (let face = 0; face < 6; face++) {
-
-            let mipmapWidth = width;
-            let mipmapHeight = height;
-
-            let target = cubeFace[face];
-
-            for (let index = 0; index < mipmapCount; index++) {
-
-                let dataLength = Math.max(4, mipmapWidth) / 4 * Math.max(4, mipmapHeight) / 4 * blockBytes;
-
-                let sourceData = new Uint8Array(source, dataOffset, dataLength);
-
-                (texture.mipmap || index == 0) && gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-
-                dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
-
-                mipmapWidth *= 0.5;
-                mipmapHeight *= 0.5;
-                mipmapWidth = Math.max(1.0, mipmapWidth);
-                mipmapHeight = Math.max(1.0, mipmapHeight);
+                    dataOffset += dataLength * channelsByte;
+                    mipmapWidth *= 0.5;
+                    mipmapHeight *= 0.5;
+                    mipmapWidth = Math.max(1.0, mipmapWidth);
+                    mipmapHeight = Math.max(1.0, mipmapHeight);
+                }
             }
         }
+        else {
+            for (let face = 0; face < 6; face++) {
+                let target = cubeFace[face];
+                let mipmapWidth = width;
+                let mipmapHeight = height;
+                for (let index = 0; index < mipmapCount; index++) {
+                    let dataLength = Math.max(4, mipmapWidth) / 4 * Math.max(4, mipmapHeight) / 4 * blockBytes;
 
+                    let sourceData = new Uint8Array(source, dataOffset, dataLength);
+
+                    (texture.mipmap || index == 0) && gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
+
+                    dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
+
+                    mipmapWidth *= 0.5;
+                    mipmapHeight *= 0.5;
+                    mipmapWidth = Math.max(1.0, mipmapWidth);
+                    mipmapHeight = Math.max(1.0, mipmapHeight);
+                }
+            }
+        }
         this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -938,7 +1007,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
     }
 
-    bindoutScreenTarget():void{
+    bindoutScreenTarget(): void {
         let gl = this._gl;
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
@@ -1183,7 +1252,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
         this._engine._bindTexture(texture.target, texture.resource);
         // todo 用 sub 会慢
-         gl.texSubImage2D(target, 0, 0, 0, format, type, video);
+        gl.texSubImage2D(target, 0, 0, 0, format, type, video);
         //gl.texImage2D(target, 0, internalFormat, format, type, video);
 
         this._engine._bindTexture(texture.target, null);
