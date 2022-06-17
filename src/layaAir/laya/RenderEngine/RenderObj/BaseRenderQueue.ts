@@ -3,6 +3,7 @@ import { Camera } from "../../d3/core/Camera";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { RenderElement } from "../../d3/core/render/RenderElement";
 import { RenderElementBatch } from "../../d3/graphics/Batch/RenderElementBatch";
+import { BufferStateBase } from "../BufferStateBase";
 import { IRenderContext3D } from "../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISortPass } from "../RenderInterface/RenderPipelineInterface/ISortPass";
@@ -55,7 +56,7 @@ export class BaseRenderQueue implements IRenderQueue {
         this._sort();
         for (var i: number = 0, n: number = this.elements.length; i < n; i++)
             elements[i]._render(this._context);//Update Data
-        
+        BufferStateBase._curBindedBufferState&&BufferStateBase._curBindedBufferState.unBind();
         this._batch.recoverData();
     }
 
