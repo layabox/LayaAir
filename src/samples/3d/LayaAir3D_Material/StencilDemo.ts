@@ -59,9 +59,9 @@ export class StencilDemo {
 
 
 
-
-		Vector3.scale(sphereClone.transform.localScale, 1.5, sphereClone.transform.localScale);
-		sphereClone.transform.localScale = sphereClone.transform.localScale;
+		let tempVector3 = new Vector3();
+		Vector3.scale(sphereClone.transform.localScale, 1.5, tempVector3);
+		sphereClone.transform.localScale = tempVector3;
 
 		let mat: UnlitMaterial = new UnlitMaterial();
 		mat.albedoColor = new Vector4(0.8, 0.5, 0.1);
