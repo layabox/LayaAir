@@ -56,13 +56,10 @@ export class Buffer2D{
 
     getFloat32Array(): Float32Array {
         if(!this._floatArray32){
-			this._floatArray32= new Float32Array(this.constBuffer._buffer);
+			this._floatArray32= new Float32Array(this.constBuffer._buffer.buffer);
 		}
 		return this._floatArray32;
     }
-
-
-
 
 	protected _bufferData(): void {
 		this._maxsize = Math.max(this._maxsize, this.constBuffer._byteLength);
@@ -80,7 +77,8 @@ export class Buffer2D{
 
 			this.constBuffer._glBuffer.setDataLength(this._uploadSize);
 		}
-		this.constBuffer._glBuffer.setData(new Uint8Array(this.constBuffer._buffer, 0, this.constBuffer._byteLength),0);
+		this.constBuffer._glBuffer.setData(new Uint8Array(this.constBuffer._buffer.buffer, 0, this.constBuffer._byteLength),0);
+		this.constBuffer.unbind();
 	}
 
 	//TODO:coverage
@@ -103,10 +101,10 @@ export class Buffer2D{
 		}
 
 		if (dataStart || dataLength) {
-			var subBuffer: ArrayBuffer = this.constBuffer._buffer.slice(dataStart, dataLength);
+			var subBuffer: ArrayBuffer = this.constBuffer._buffer.buffer.slice(dataStart, dataLength);
 			this.constBuffer._glBuffer.setData(subBuffer,offset);
 		} else {
-			this.constBuffer._glBuffer.setData(this.constBuffer._buffer,offset);
+			this.constBuffer._glBuffer.setData(this.constBuffer._buffer.buffer,offset);
 		}
 	}
 
@@ -170,11 +168,11 @@ export class Buffer2D{
 			u8buf.set(oldU8Arr, 0);
 			buff = this.constBuffer._buffer = newbuffer;
 		} else {
-			//@ts-ignore
-			buff = this.constBuffer._buffer = new ArrayBuffer(nsz);
-			this._u8Array = new Uint8Array(buff);
+			var data = new ArrayBuffer(nsz);
+			buff = this.constBuffer._buffer = new Uint8Array(data);
+			this._u8Array = new Uint8Array(buff.buffer);
 		}
-		buff = this.constBuffer._buffer;
+		buff = this.constBuffer._buffer.buffer;
 		this._floatArray32 = new Float32Array(buff);
 		this._uint32Array=new Uint32Array(buff);
 		this._uint16Array = new Uint16Array(buff);
@@ -190,13 +188,13 @@ export class Buffer2D{
 		byteLen = data.byteLength;
 		if (data instanceof Uint8Array) {
 			this._resizeBuffer(this.constBuffer._byteLength + byteLen, true);
-			n = new Uint8Array(this.constBuffer._buffer, this.constBuffer._byteLength);
+			n = new Uint8Array(this.constBuffer._buffer.buffer, this.constBuffer._byteLength);
 		} else if (data instanceof Uint16Array) {
 			this._resizeBuffer(this.constBuffer._byteLength + byteLen, true);
-			n = new Uint16Array(this.constBuffer._buffer, this.constBuffer._byteLength);
+			n = new Uint16Array(this.constBuffer._buffer.buffer, this.constBuffer._byteLength);
 		} else if (data instanceof Float32Array) {
 			this._resizeBuffer(this.constBuffer._byteLength + byteLen, true);
-			n = new Float32Array(this.constBuffer._buffer, this.constBuffer._byteLength);
+			n = new Float32Array(this.constBuffer._buffer.buffer, this.constBuffer._byteLength);
 		}
 		n.set(data, 0);
 		this.constBuffer._byteLength += byteLen;
@@ -212,7 +210,7 @@ export class Buffer2D{
 		this._resizeBuffer(this.constBuffer._byteLength + len * 2, true);
 		//(new Uint16Array(_buffer, _byteLength, len)).set(data.slice(0, len));
 		//下面这种写法比上面的快多了
-		var u: Uint16Array = new Uint16Array(this.constBuffer._buffer, this.constBuffer._byteLength, len);	//TODO 怎么能不用new
+		var u: Uint16Array = new Uint16Array(this.constBuffer._buffer.buffer, this.constBuffer._byteLength, len);	//TODO 怎么能不用new
 		if (len == 6) {
 			u[0] = data[0]; u[1] = data[1]; u[2] = data[2];
 			u[3] = data[3]; u[4] = data[4]; u[5] = data[5];
@@ -229,7 +227,7 @@ export class Buffer2D{
 
 	//TODO:coverage
 	getBuffer(): ArrayBuffer {
-		return this.constBuffer._buffer;
+		return this.constBuffer._buffer.buffer;
 	}
 
 	setNeedUpload(): void {

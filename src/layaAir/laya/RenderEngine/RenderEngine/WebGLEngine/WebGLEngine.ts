@@ -51,7 +51,7 @@ export class WebGLEngine implements IRenderEngine {
   private _propertyNameCounter: number = 0;
 
   /**@internal */
-  _IDCounter: number;
+  _IDCounter: number = 0;
 
   /**@internal ShaderDebugMode*/
   _isShaderDebugMode: boolean = true;

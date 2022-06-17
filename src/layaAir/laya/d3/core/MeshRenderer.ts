@@ -18,6 +18,11 @@ import { StaticBatchManager } from "../graphics/StaticBatchManager"
 import { DynamicBatchManager } from "../graphics/DynamicBatchManager"
 import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
+import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
+import { SubMesh } from "../resource/models/SubMesh"
+import { VertexElement } from "../graphics/VertexElement"
+import { VertexMesh } from "../graphics/Vertex/VertexMesh"
+import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -84,9 +89,56 @@ export class MeshRenderer extends BaseRender {
 
 	/**
 	 * @internal
+	 * @param mesh 
+	 * @param out 
+	 */
+	 protected _getMeshDefine(mesh: Mesh, out: Array<ShaderDefine>): number {
+		out.length = 0;
+		var define: number;
+		for (var i: number = 0, n: number = mesh._subMeshes.length; i < n; i++) {
+			var subMesh: SubMesh = (<SubMesh>mesh.getSubMesh(i));
+			var vertexElements: any[] = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
+			for (var j: number = 0, m: number = vertexElements.length; j < m; j++) {
+				var vertexElement: VertexElement = vertexElements[j];
+				var name: number = vertexElement._elementUsage;
+				switch (name) {
+					case VertexMesh.MESH_COLOR0:
+						out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+						break
+					case VertexMesh.MESH_TEXTURECOORDINATE0:
+						out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
+						break;
+					case VertexMesh.MESH_TEXTURECOORDINATE1:
+						out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
+						break;
+				}
+			}
+		}
+		return define;
+	}
+
+	protected _changeVertexDefine(mesh:Mesh){
+		var defineDatas: ShaderData = this._shaderValues;
+		var lastValue: Mesh = this._mesh;
+		if (lastValue) {
+			this._getMeshDefine(lastValue, MeshFilter._meshVerticeDefine);
+			for (var i: number = 0, n: number = MeshFilter._meshVerticeDefine.length; i < n; i++)
+				defineDatas.removeDefine(MeshFilter._meshVerticeDefine[i]);
+		}
+		if (mesh) {
+			this._getMeshDefine(mesh, MeshFilter._meshVerticeDefine);
+			for (var i: number = 0, n: number = MeshFilter._meshVerticeDefine.length; i < n; i++)
+				defineDatas.addDefine(MeshFilter._meshVerticeDefine[i]);
+		}
+
+	}
+
+	/**
+	 * @internal
 	 */
 	_onMeshChange(mesh: Mesh): void {
-		if (mesh) {
+		if (mesh&&this._mesh!=mesh) {
+			this._changeVertexDefine(mesh);
 			this._mesh = mesh;
 			var count: number = mesh.subMeshCount;
 			this._renderElements.length = count;
@@ -101,15 +153,18 @@ export class MeshRenderer extends BaseRender {
 				}
 				renderElement.setGeometry(mesh.getSubMesh(i));
 			}
-		} else {
+			
+		} else if(!mesh){
 			this._renderElements.length = 0;
 			this._mesh = null;
+			this._changeVertexDefine(null);
 		}
 		this._boundsChange = true;
 		// if (this._octreeNode && this._indexInOctreeMotionList === -1) {
 		// 	this._octreeNode.getManagerNode().addMotionObject(this);
 		// }
 	}
+	
 
 	/**
 	 * @internal

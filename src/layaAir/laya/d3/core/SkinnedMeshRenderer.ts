@@ -159,7 +159,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	 * @internal
 	 */
 	_onSkinMeshChange(mesh: Mesh): void {
-		if (mesh) {
+		if (mesh&&this._mesh!=mesh) {
+			this._changeVertexDefine(mesh);
 			this._mesh = mesh;
 			var count: number = mesh.subMeshCount;
 			this._renderElements.length = count;
@@ -174,9 +175,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 				}
 				renderElement.setGeometry(mesh.getSubMesh(i));
 			}
-		} else {
+		} else if(!mesh){
 			this._renderElements.length = 0;
 			this._mesh = null;
+			this._changeVertexDefine(null);
 		}
 		this._boundsChange = true;
 		// if (this._octreeNode && this._indexInOctreeMotionList === -1) {

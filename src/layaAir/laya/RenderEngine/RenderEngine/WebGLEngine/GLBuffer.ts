@@ -61,7 +61,7 @@ export class GlBuffer extends GLObject implements IRenderBuffer {
         if (this._engine._getbindBuffer(this._glTargetType) != this) {
             this._gl.bindBuffer(this._glTarget, this._glBuffer);
             this._engine._setbindBuffer(this._glTargetType, this);
-            return true
+            return true;
         }
         return false;
     }

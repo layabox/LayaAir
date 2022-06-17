@@ -62,6 +62,7 @@ import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { NativeContext } from "./NativeContext";
+import { BufferStateBase } from "../RenderEngine/BufferStateBase";
 /**
  * @private
  * Context扩展类
@@ -1870,8 +1871,8 @@ export class Context {
 	 * @param	end
 	 */
 	submitElement(start: number, end: number): number {
-		//_ib._bind_upload() || _ib._bind();
-		//_vb._bind_upload() || _vb._bind();
+		//清理数据
+		BufferStateBase._curBindedBufferState&&BufferStateBase._curBindedBufferState.unBind();
 		var mainCtx: boolean = this.isMain;
 		var renderList: any[] = this._submits;
 		var ret: number = ((<any>renderList))._length;
@@ -1889,6 +1890,8 @@ export class Context {
 			start += submit.renderSubmit();
 			//本来做了个优化，如果是主画布，用完立即releaseRender. 但是实际没有什么效果，且由于submit需要用来对比，即使用完也不能修改，所以这个优化又去掉了
 		}
+
+
 		return ret;
 	}
 

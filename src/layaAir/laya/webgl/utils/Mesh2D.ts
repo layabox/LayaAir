@@ -94,7 +94,6 @@ export class Mesh2D {
             //_vao.dbgid = _gvaoid++;
         }
         this._vao.applyState([this._vb],this._ib);
-        
         // var attribNum: number = this._attribInfo.length / 3;
         // var idx: number = 0;
         // for (var i: number = 0; i < attribNum; i++) {
@@ -117,21 +116,9 @@ export class Mesh2D {
         //要先bind，在bufferData
         this._applied || this.configVAO();
 
-        //var attribNum:int = _attribInfo.length / 3;
-        //var bindedAttributeBuffer:Array = Buffer._bindedAtributeBuffer;
-        //for ( var i:int = 0; i < attribNum; i++) 
-        //(bindedAttributeBuffer[i]) || (gl.enableVertexAttribArray(i), bindedAttributeBuffer[i] = _vb);
-
-        //WebGLContext.bindVertexArray(gl, null);
-        //gl.disableVertexAttribArray(0);
-        this._ib.buffer2D._bind_upload() || this._ib._bindForVAO();
-        this._vb.buffer2D._bind_upload() || this._vb.bind();
-
+        this._ib.buffer2D._bind_upload();
+        this._vb.buffer2D._bind_upload();
         this._vao.bind();
-        //gl.bindVertexArray(_vao);
-
-        // this._vb.bind();	//vao必须要再bind vb,否则下面的操作可能是在操作其他的mesh
-       
     }
 
     //TODO:coverage
