@@ -110,18 +110,13 @@ export class InstanceRenderElement extends RenderElement {
 
     updateInstanceData(mesh: Mesh) {
         mesh._setInstanceBuffer();
+        (this._renderElementOBJ as InstanceRenderElementOBJ).clear();
         this._geometry.bufferState = mesh._instanceBufferState;
         switch (mesh._instanceBufferStateType) {
             case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
-                //var worldMatrixData: Float32Array = mesh.instanceWorldMatrixData;
                 //worldMatrix
-                
-                var worldMatrixData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).updateData[0];
-                if (!worldMatrixData) {
-                    worldMatrixData = (this._renderElementOBJ as InstanceRenderElementOBJ).updateData[0] = new Float32Array(16 * InstanceRenderElement.maxInstanceCount);
-                }
-                (this._renderElementOBJ as InstanceRenderElementOBJ).vertexBuffer3D[0] = mesh._instanceWorldVertexBuffer;
-                (this._renderElementOBJ as InstanceRenderElementOBJ).updateDataNum[0] = 16;
+                var worldMatrixData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(0,16 * InstanceRenderElement.maxInstanceCount);
+                (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceWorldVertexBuffer,16);
                 var insBatches = this._instanceBatchElementList;
                 var elements = insBatches.elements;
                 var count: number = insBatches.length;
@@ -137,15 +132,8 @@ export class InstanceRenderElement extends RenderElement {
                     for (var i: number = 0; i < count; i++)
                         worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
                 }
-                // var worldBuffer: VertexBuffer3D = mesh._instanceWorldVertexBuffer;
-                // worldBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.   TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
-                // worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
                 //simpleAnimationData
-                //var simpleAnimatorData: Float32Array = mesh.instanceSimpleAnimatorData;
-                var simpleAnimatorData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).updateData[1];
-                if (!simpleAnimatorData) {
-                    simpleAnimatorData = (this._renderElementOBJ as InstanceRenderElementOBJ).updateData[1] = new Float32Array(4 * InstanceRenderElement.maxInstanceCount);
-                }
+                var simpleAnimatorData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(1,4 * InstanceRenderElement.maxInstanceCount);
                 if (bone) {
                     for (var i: number = 0; i < count; i++) {
                         var render: SimpleSkinnedMeshRenderer = (elements[i].render) as SimpleSkinnedMeshRenderer;
@@ -162,27 +150,18 @@ export class InstanceRenderElement extends RenderElement {
                         simpleAnimatorData[offset + 1] = 0;
                     }
                 }
-                // var simpleAnimatorBuffer: VertexBuffer3D = mesh._instanceSimpleAniVertexBuffer;
-                // simpleAnimatorBuffer.orphanStorage();
-                // simpleAnimatorBuffer.setData(simpleAnimatorData.buffer, 0, 0, count * 4 * 4);
+                (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceSimpleAniVertexBuffer,4)
                 break;
             case Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL:
-                var worldMatrixData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).updateData[0];
-                (this._renderElementOBJ as InstanceRenderElementOBJ).updateData[1] = null;
-                if (!worldMatrixData) {
-                    worldMatrixData = (this._renderElementOBJ as InstanceRenderElementOBJ).updateData[0] = new Float32Array(16 * InstanceRenderElement.maxInstanceCount);
-                }
-                (this._renderElementOBJ as InstanceRenderElementOBJ).vertexBuffer3D[0] = mesh._instanceWorldVertexBuffer;
-                (this._renderElementOBJ as InstanceRenderElementOBJ).updateDataNum[0] = 16;
+
+                var worldMatrixData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(0,16 * InstanceRenderElement.maxInstanceCount);
+                (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceWorldVertexBuffer,16);
                 var insBatches = this._instanceBatchElementList;
                 var elements: RenderElement[] = insBatches.elements;
                 var count: number = insBatches.length;
                 (this._renderElementOBJ as InstanceRenderElementOBJ).drawCount = count;
                 for (var i: number = 0; i < count; i++)
                     worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
-                // var worldBuffer: VertexBuffer3D = mesh._instanceWorldVertexBuffer;
-                // worldBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.   TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
-                // worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
                 break;
         }
     }
