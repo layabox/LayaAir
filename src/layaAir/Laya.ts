@@ -230,6 +230,9 @@ export class Laya {
 		stage = Laya.stage = new Stage();
 		ILaya.stage = Laya.stage;
 		Utils.gStage = Laya.stage;
+		if ((window as any).conch.setGlobalRepaint) {
+			(window as any).conch.setGlobalRepaint(Laya.stage.setGlobalRepaint.bind(Laya.stage));
+		}
 		URL.rootPath = URL._basePath = Laya._getUrlPath();
 		MeshQuadTexture.__int__();
 		MeshVG.__init__();
@@ -321,7 +324,6 @@ export class Laya {
 			(window as any)["conchTextCanvas"].font = font;
 			return (window as any)["conchTextCanvas"].measureText(txt);
 		}
-
 		Stage.clear = function (color: string): void {
 			Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
 			var c: any[] = ColorUtils.create(color).arrColor;

@@ -116,9 +116,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
 
     // todo 不同 格式
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
-        throw new Error("readRenderTargetPixelData Method not implemented.");
-        return null;
-
+        return this._native.readRenderTargetPixelData(renderTarget, xOffset, yOffset, width, height, out);
     }
 
     updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
