@@ -69,6 +69,10 @@ export class Buffer2D{
 				this.constBuffer._buffer = this.constBuffer._buffer.slice(0, this._maxsize + 64);
 				this._bufferSize = this.constBuffer._buffer.byteLength;
 				this._checkArrayUse();
+				let buff = this.constBuffer._buffer.buffer;
+				((this._bufferSize%4)==0)&&(this._floatArray32 = new Float32Array(buff));
+				((this._bufferSize%4)==0)&&(this._uint32Array=new Uint32Array(buff));
+				this._uint16Array = new Uint16Array(buff);
 			}
 			this._maxsize = this.constBuffer._byteLength;
 		}
@@ -115,18 +119,18 @@ export class Buffer2D{
 		
 	}
 
-	/**
-	 * 给vao使用的 _bind_upload函数。不要与已经绑定的判断是否相同
-	 * @return
-	 */
-	_bind_uploadForVAO(): boolean {
-		if (!this._upload)
-			return false;
-		this._upload = false;
-		this.constBuffer.bind();
-		this._bufferData();
-		return true;
-	}
+	// /**
+	//  * 给vao使用的 _bind_upload函数。不要与已经绑定的判断是否相同
+	//  * @return
+	//  */
+	// _bind_uploadForVAO(): boolean {
+	// 	if (!this._upload)
+	// 		return false;
+	// 	this._upload = false;
+	// 	this.constBuffer.bind();
+	// 	this._bufferData();
+	// 	return true;
+	// }
 
 	_bind_upload(): boolean {
 		if (!this._upload)
@@ -173,8 +177,8 @@ export class Buffer2D{
 			this._u8Array = new Uint8Array(buff.buffer);
 		}
 		buff = this.constBuffer._buffer.buffer;
-		this._floatArray32 = new Float32Array(buff);
-		this._uint32Array=new Uint32Array(buff);
+		((nsz%4)==0)&&(this._floatArray32 = new Float32Array(buff));
+		((nsz%4)==0)&&(this._uint32Array=new Uint32Array(buff));
 		this._uint16Array = new Uint16Array(buff);
 		this._checkArrayUse();
 		this._upload = true;

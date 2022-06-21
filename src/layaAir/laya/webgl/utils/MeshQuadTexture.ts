@@ -1,3 +1,4 @@
+import { RenderableSprite3D } from "../../d3/core/RenderableSprite3D";
 import { VertexElement } from "../../d3/graphics/VertexElement";
 import { VertexElementFormat } from "../../d3/graphics/VertexElementFormat";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";

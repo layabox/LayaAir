@@ -117,14 +117,15 @@ export class Mesh2D {
         this._applied || this.configVAO();
 
         this._ib.buffer2D._bind_upload();
+     
         this._vb.buffer2D._bind_upload();
         this._vao.bind();
     }
 
-    //TODO:coverage
-    getEleNum(): number {
-        return this._ib.buffer2D.getBuffer().byteLength / 2;
-    }
+    // //TODO:coverage
+    // getEleNum(): number {
+    //     return this._ib.buffer2D.getBuffer().byteLength / 2;
+    // }
 
     /**
      * 子类实现。用来把自己放到对应的回收池中，以便复用。

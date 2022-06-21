@@ -11,7 +11,6 @@ import { Texture2D } from "../../../resource/Texture2D";
 import { Handler } from "../../../utils/Handler";
 import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
-import { SubmitBase } from "../../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { SphericalHarmonicsL2, SphericalHarmonicsL2Generater } from "../../graphics/SphericalHarmonicsL2";
