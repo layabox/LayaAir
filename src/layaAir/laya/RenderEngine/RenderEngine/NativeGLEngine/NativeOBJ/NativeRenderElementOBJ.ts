@@ -6,11 +6,11 @@ import { IBaseRenderNode } from "../../../RenderInterface/RenderPipelineInterfac
 import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "../../../RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
 import { NativeShaderData } from "./NativeShaderData";
 export enum RenderElementType {
 	Base = 0,
-	Skin,
+	Skin = 1,
+    Instance = 2,
 }
 export class NativeRenderElementOBJ implements IRenderElement {
     

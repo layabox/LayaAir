@@ -22,7 +22,6 @@ import { IRenderGeometryElement } from "../../../RenderInterface/RenderPipelineI
 import { IRenderQueue } from "../../../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISceneRenderManager } from "../../../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISortPass";
-import { SkinRenderElementOBJ } from "../../../RenderObj/SkinRenderElementOBJ";
 import { ShaderData } from "../../../RenderShader/ShaderData";
 import { NativePlane } from "./NativePlane";
 import { NativeBoundSphere } from "./NativeBoundsSphere";
@@ -36,8 +35,6 @@ import { NativeCameraCullInfo } from "./NativeCameraCullInfo";
 import { IndexBuffer3D } from "../../../../d3/graphics/IndexBuffer3D";
 import { NativeIndexBuffer3D } from "../NativeOBJ/NativeIndexBuffer3D";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
-import { CameraCullInfo } from "../../../RenderObj/CameraCullInfo";
-import { ShadowCullInfo } from "../../../RenderObj/ShadowCullInfo";
 import { CullPassBase } from "../../../RenderObj/CullPass";
 import { SceneRenderManager } from "../../../RenderObj/SceneRenderManager";
 import { ShaderCompileDefineBase } from "../../../../webgl/utils/ShaderCompileDefineBase";
@@ -48,9 +45,8 @@ import { RenderState } from "../../../../d3/core/material/RenderState";
 import { NativeRenderState } from "./NativeRenderState";
 import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ";
 import { NativeSkinRenderElementOBJ } from "./NativeSkinRenderElementOBJ";
-import { BoundSphere } from "../../../../d3/math/BoundSphere";
-import { BoundFrustum } from "../../../../d3/math/BoundFrustum";
 import { NativeBounds } from "./NativeBounds";
+import { NativeInstanceRenderElementOBJ } from "./NativeInstanceRenderElementOBJ";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D {
@@ -84,7 +80,7 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeSkinRenderElementOBJ();
     }
     createInstanceRenderElement():IRenderElement{
-        return new SkinRenderElementOBJ();
+        return new NativeInstanceRenderElementOBJ();
     }
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {
         var queue: NativeBaseRenderQueue = new NativeBaseRenderQueue(isTransparent);
