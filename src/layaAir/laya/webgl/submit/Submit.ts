@@ -44,7 +44,7 @@ export class Submit extends SubmitBase {
             BlendMode.activeBlendFunction = this._blendFn;
         }
         LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
-        
+        this._mesh.unUseMesh();
         Stat.renderBatches++;
         Stat.trianglesFaces += this._numEle / 3;
 

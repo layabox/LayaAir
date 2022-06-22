@@ -46,6 +46,7 @@ export class SubmitTarget implements ISubmit {
             Stat.trianglesFaces += this._numEle / 3;
             LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
         }
+        this._mesh.unUseMesh();
         return 1;
     }
 

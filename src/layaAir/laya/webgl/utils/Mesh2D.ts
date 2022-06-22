@@ -113,13 +113,16 @@ export class Mesh2D {
      * @param	gl
      */
     useMesh(): void {
+        
         //要先bind，在bufferData
         this._applied || this.configVAO();
-
         this._ib.buffer2D._bind_upload();
-     
-        this._vb.buffer2D._bind_upload();
+        this._vb.buffer2D._bind_upload();        
         this._vao.bind();
+    }
+
+    unUseMesh(){
+        this._vao.unBind(); 
     }
 
     // //TODO:coverage

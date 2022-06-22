@@ -166,11 +166,11 @@ export class Buffer2D{
 		var u8buf: Uint8Array = this._u8Array;
 		//_setGPUMemory(nsz);
 		if (copy && buff && buff.byteLength > 0) {
+			var oldU8Arr: Uint8Array = new Uint8Array(buff.buffer);
 			var newbuffer: Uint8Array = new Uint8Array(nsz);
-			var oldU8Arr: Uint8Array = (u8buf && u8buf.buffer == buff) ? u8buf : new Uint8Array(buff);
-			u8buf = this._u8Array = new Uint8Array(newbuffer);
-			u8buf.set(oldU8Arr, 0);
+			newbuffer.set(oldU8Arr,0);
 			buff = this.constBuffer._buffer = newbuffer;
+			this._u8Array = new Uint8Array(this.constBuffer._buffer.buffer);
 		} else {
 			var data = new ArrayBuffer(nsz);
 			buff = this.constBuffer._buffer = new Uint8Array(data);

@@ -145,6 +145,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
                 }
 
                 Stat.renderBatches++;
+                this._mesh.unUseMesh();
             }
             this._drawCounter++;
         }

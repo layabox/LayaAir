@@ -107,7 +107,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         super(width, height, format);
         this._colorFormat = format;
         this._depthStencilFormat = depthStencilFormat;
-        this._create();
+        if(width!=0&&height!=0){
+            this._create();    
+        }
         this.lock = true;
     }
 
@@ -282,7 +284,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @internal
      */
     _disposeResource(): void {
-        this._renderTarget.dispose();
+        //width 和height为0的时候不会创建资源
+        this._renderTarget&&this._renderTarget.dispose();
     }
 
 }

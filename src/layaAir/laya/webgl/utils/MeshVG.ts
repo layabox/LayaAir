@@ -27,7 +27,7 @@ export class MeshVG extends Mesh2D {
 		MeshVG.vertexDeclaration = new VertexDeclaration(12,[
 		   new VertexElement(0,VertexElementFormat.Vector2,0),
 		   new VertexElement(8,VertexElementFormat.Byte4,1),
-	   ])
+	   ]);
 	   this._vb.vertexDeclaration = MeshVG.vertexDeclaration;
 	}
 
