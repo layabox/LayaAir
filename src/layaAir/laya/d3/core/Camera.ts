@@ -103,6 +103,9 @@ export class Camera extends BaseCamera {
 	 */
 	static drawRenderTextureByScene(camera: Camera, scene: Scene3D, renderTexture: RenderTexture, shader: Shader3D = null, replaceFlag: string = null): RenderTexture {
 		if (!renderTexture) return null;
+		Scene3D._updateMark++;
+		//@ts-ignore
+		scene._prepareSceneToRender();
 		let recoverTexture = camera.renderTarget;
 		camera.renderTarget = renderTexture;
 

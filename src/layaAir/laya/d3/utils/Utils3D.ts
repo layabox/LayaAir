@@ -784,9 +784,9 @@ export class Utils3D {
 			default:
 				throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
 		}
-		// rendertexture.getData(0, 0, rendertexture.width, rendertexture.height, pixelArray);
+		rendertexture.getData(0, 0, rendertexture.width, rendertexture.height, pixelArray);
 		//tranceTo
-		throw " rt get Data";
+		//throw " rt get Data";
 		switch (rendertexture.colorFormat) {
 			case RenderTargetFormat.R16G16B16A16:
 				let ori = pixelArray;
