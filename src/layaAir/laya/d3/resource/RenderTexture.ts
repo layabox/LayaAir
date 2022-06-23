@@ -137,7 +137,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._gammaSpace = true;
 
         this._colorFormat = colorFormat;
-        this._depthStencilFormat = depthFormat;
+        this._depthStencilFormat = (depthFormat == null ? RenderTargetFormat.None : depthFormat);
 
         this._generateMipmap = generateMipmap;
         this._multiSamples = multiSamples;
