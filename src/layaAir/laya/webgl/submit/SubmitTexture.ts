@@ -69,7 +69,6 @@ export class SubmitTexture extends SubmitBase {
 
         Stat.renderBatches++;
         Stat.trianglesFaces += this._numEle / 3;
-        this._mesh.unUseMesh();
         return 1;
     }
 

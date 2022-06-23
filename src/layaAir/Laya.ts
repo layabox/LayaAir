@@ -230,7 +230,8 @@ export class Laya {
 		stage = Laya.stage = new Stage();
 		ILaya.stage = Laya.stage;
 		Utils.gStage = Laya.stage;
-		if ((window as any).conch.setGlobalRepaint) {
+		
+		if (ILaya.Render.isConchApp&&(window as any).conch.setGlobalRepaint) {
 			(window as any).conch.setGlobalRepaint(Laya.stage.setGlobalRepaint.bind(Laya.stage));
 		}
 		URL.rootPath = URL._basePath = Laya._getUrlPath();
