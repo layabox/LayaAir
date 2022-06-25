@@ -103,6 +103,7 @@ export class TextArea extends TextInput {
     private _onTextChange(): void {
         this.callLater(this.changeScroll);
     }
+
     /**
      * 
      * @param destroyChild 
@@ -237,18 +238,18 @@ export class TextArea extends TextInput {
         this._tf.height = showHeight;
 
         if (this._vScrollBar) {
-            this._vScrollBar.x = this._width - this._vScrollBar.width - padding[2];
-            this._vScrollBar.y = padding[1];
-            this._vScrollBar.height = this._height - (hShow ? this._hScrollBar.height : 0) - padding[1] - padding[3];
+            this._vScrollBar.x = this._width - this._vScrollBar.width - padding[1];
+            this._vScrollBar.y = padding[0];
+            this._vScrollBar.height = this._height - (hShow ? this._hScrollBar.height : 0) - padding[0] - padding[2];
             this._vScrollBar.scrollSize = 1;
             this._vScrollBar.thumbPercent = showHeight / Math.max(this._tf.textHeight, showHeight);
             this._vScrollBar.setScroll(1, this._tf.maxScrollY, this._tf.scrollY);
             this._vScrollBar.visible = vShow;
         }
         if (this._hScrollBar) {
-            this._hScrollBar.x = padding[0];
-            this._hScrollBar.y = this._height - this._hScrollBar.height - padding[3];
-            this._hScrollBar.width = this._width - (vShow ? this._vScrollBar.width : 0) - padding[0] - padding[2];
+            this._hScrollBar.x = padding[3];
+            this._hScrollBar.y = this._height - this._hScrollBar.height - padding[2];
+            this._hScrollBar.width = this._width - (vShow ? this._vScrollBar.width : 0) - padding[1] - padding[3];
             this._hScrollBar.scrollSize = Math.max(showWidth * 0.033, 1);
             this._hScrollBar.thumbPercent = showWidth / Math.max(this._tf.textWidth, showWidth);
             this._hScrollBar.setScroll(0, this.maxScrollX, this.scrollX);

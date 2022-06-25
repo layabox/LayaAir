@@ -170,22 +170,24 @@ import { ClassUtils } from "../utils/ClassUtils";
 export class List extends Box implements IRender, IItem {
 
 	/**改变 <code>List</code> 的选择项时执行的处理器，(默认返回参数： 项索引（index:int）)。*/
-	selectHandler: Handler|null;
+	selectHandler: Handler | null;
 	/**单元格渲染处理器(默认返回参数cell:Box,index:int)。*/
-	renderHandler: Handler|null;
+	renderHandler: Handler | null;
 	/**单元格鼠标事件处理器(默认返回参数e:Event,index:int)。*/
-	mouseHandler: Handler|null;
+	mouseHandler: Handler | null;
 	/**指定是否可以选择，若值为true则可以选择，否则不可以选择。 @default false*/
 	selectEnable: boolean = false;
 	/**最大分页数。*/
 	totalPage: number = 0;
+	/**禁用滚动条停止 */
+	disableStopScroll: boolean = false;
 	/**@internal */
 	_$componentType: string = "List";
 
 	/**@private */
 	protected _content!: Box;
 	/**@private */
-	protected _scrollBar: ScrollBar|null;
+	protected _scrollBar: ScrollBar | null;
 	/**@private */
 	protected _itemRender: any;
 	/**@private */
@@ -203,7 +205,7 @@ export class List extends Box implements IRender, IItem {
 	/**@private */
 	protected _cells: Box[] = [];
 	/**@private */
-	protected _array: any[]|null;
+	protected _array: any[] | null;
 	/**@private */
 	protected _startIndex: number = 0;
 	/**@private */
@@ -227,7 +229,7 @@ export class List extends Box implements IRender, IItem {
 	/**@private */
 	protected _offset: Point = new Point();
 	/**@private */
-	protected _usedCache: string|null = null;
+	protected _usedCache: string | null = null;
 	/**@private */
 	protected _elasticEnabled: boolean = false;
 
@@ -284,7 +286,7 @@ export class List extends Box implements IRender, IItem {
 	}
 
 	private onScrollEnd(): void {
-		super.cacheAs = this._usedCache||'none';
+		super.cacheAs = this._usedCache || 'none';
 	}
 
 	/**
@@ -342,11 +344,11 @@ export class List extends Box implements IRender, IItem {
 	/**
 	 * 获取对 <code>List</code> 组件所包含的滚动条 <code>ScrollBar</code> 组件的引用。
 	 */
-	get scrollBar(): ScrollBar|null {
+	get scrollBar(): ScrollBar | null {
 		return this._scrollBar;
 	}
 
-	set scrollBar(value: ScrollBar|null) {
+	set scrollBar(value: ScrollBar | null) {
 		if (this._scrollBar != value) {
 			this._scrollBar = value;
 			if (value) {
@@ -682,7 +684,7 @@ export class List extends Box implements IRender, IItem {
 	 * @private
 	 * 滚动条的 <code>Event.CHANGE</code> 事件侦听处理函数。
 	 */
-	protected onScrollBarChange(e: Event|null = null): void {
+	protected onScrollBarChange(e: Event | null = null): void {
 		this.runCallLater(this.changeCells);
 		var scrollValue = this._scrollBar!.value;
 		var lineX = (this._isVertical ? this.repeatX : this.repeatY);
@@ -693,7 +695,7 @@ export class List extends Box implements IRender, IItem {
 			var index = scrollLine * lineX;
 			var num = 0;
 			let down = true;
-			var toIndex=0;
+			var toIndex = 0;
 			if (index > this._startIndex) {
 				num = index - this._startIndex;
 				//var down = true;
@@ -782,7 +784,7 @@ export class List extends Box implements IRender, IItem {
 	 * 当前选中的单元格数据源。
 	 */
 	get selectedItem(): any {
-		if(!this._array)return null;
+		if (!this._array) return null;
 		return this._selectedIndex != -1 ? this._array[this._selectedIndex] : null;
 	}
 
@@ -882,8 +884,7 @@ export class List extends Box implements IRender, IItem {
 		this.startIndex = this._startIndex;
 		//重设滚动条
 		if (this._scrollBar) {
-			this._scrollBar.stopScroll();
-			//自动隐藏滚动条
+			(!this.disableStopScroll && this._scrollBar.stopScroll());
 			var numX = this._isVertical ? this.repeatX : this.repeatY;
 			var numY = this._isVertical ? this.repeatY : this.repeatX;
 			var lineCount = Math.ceil(length / numX);
@@ -921,9 +922,9 @@ export class List extends Box implements IRender, IItem {
 				this._scrollBar.thumbPercent = numY / lineCount;
 				this._scrollBar.slider["_max"] = (lineCount - numY) * this._cellSize + this._cellOffset;
 			}
-
 		}
 	}
+
 
 	/**
 	 * 列表的当前页码。
@@ -999,8 +1000,7 @@ export class List extends Box implements IRender, IItem {
 	 * @param index 单元格索引。
 	 */
 	getItem(index: number): any {
-		if(!this._array)
-			return null;
+		if (!this._array) return null;
 		if (index > -1 && index < this._array.length) {
 			return this._array[index];
 		}
@@ -1036,9 +1036,9 @@ export class List extends Box implements IRender, IItem {
 	 * @param source 数据源。
 	 */
 	addItem(source: any): void {
-		if(!this.array){
-			this.array=[source];
-		}else{
+		if (!this.array) {
+			this.array = [source];
+		} else {
 			this._array!.push(source);
 		}
 		this.array = this._array as any[];
@@ -1059,7 +1059,7 @@ export class List extends Box implements IRender, IItem {
 	 * @param index 需要删除的数据源索引值。
 	 */
 	deleteItem(index: number): void {
-		if(this._array){
+		if (this._array) {
 			this._array.splice(index, 1);
 			this.array = this._array;
 		}
@@ -1070,7 +1070,7 @@ export class List extends Box implements IRender, IItem {
 	 * @param index 可视单元格索引。
 	 * @return 单元格对象。
 	 */
-	getCell(index: number): Box|null {
+	getCell(index: number): Box | null {
 		this.runCallLater(this.changeCells);
 		if (index > -1 && this._cells) {
 			return this._cells[(index - this._startIndex) % this._cells.length];
@@ -1097,7 +1097,7 @@ export class List extends Box implements IRender, IItem {
 	 * @param time	缓动时间。
 	 * @param complete	缓动结束回掉
 	 */
-	tweenTo(index: number, time: number = 200, complete: Handler|null = null): void {
+	tweenTo(index: number, time: number = 200, complete: Handler | null = null): void {
 		if (this._scrollBar) {
 			this._scrollBar.stopScroll();
 			var numX = this._isVertical ? this.repeatX : this.repeatY;

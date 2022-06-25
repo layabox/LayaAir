@@ -124,7 +124,7 @@ export class Browser {
                 //这里需要手动初始化阿里适配库
                 (window as any).tbMiniGame(Laya, Laya);
                 if (!(Laya as any)["TBMiniAdapter"]) {
-                    console.error("请先添加淘宝适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+                    console.error("请先添加淘宝适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-10-0");
                 } else {
                     (Laya as any)["TBMiniAdapter"].enable();
                 }
@@ -145,7 +145,7 @@ export class Browser {
                 (window as any).ttMiniGame(Laya, Laya);
                 if (!(Laya as any)["TTMiniAdapter"]) {
                     //TODO
-                    console.error("请引入字节跳动小游戏的适配库");
+                    console.error("请引入字节跳动小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-8-0");
                 } else {
                     (Laya as any)["TTMiniAdapter"].enable();
                 }
@@ -162,7 +162,7 @@ export class Browser {
                 //手机QQ小游戏
                 (window as any).qqMiniGame(Laya, Laya);
                 if (!(Laya as any)["QQMiniAdapter"]) {
-                    console.error("请引入手机QQ小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-0-0");
+                    console.error("请引入手机QQ小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-5-0");
                 } else {
                     (Laya as any)["QQMiniAdapter"].enable();
                 }
@@ -182,7 +182,7 @@ export class Browser {
         if("hbs" in Browser.window){
             (window as any).hwMiniGame(Laya, Laya);
             if (!(Laya as any)["HWMiniAdapter"]) {
-                console.error("请先添加小游戏适配库!");
+                console.error("请先添加小游戏适配库，详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-9-1");
                 //TODO 教程要改
             } else {
                 (Laya as any)["HWMiniAdapter"].enable();
@@ -220,11 +220,11 @@ export class Browser {
             }
         }
 
-        //VIVO小游戏
+        //vivo小游戏
         if (u.indexOf('VVGame') > -1) {
             (window as any).vvMiniGame(Laya, Laya);
             if (!(Laya as any)["VVMiniAdapter"]) {
-                console.error("请先添加VIVO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-4-0");
+                console.error("请先添加vivo小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-4-0");
             } else {
                 (Laya as any)["VVMiniAdapter"].enable();
             }
@@ -351,8 +351,8 @@ export class Browser {
     }
 
     /**
-     * 浏览器窗口可视宽度。
-     * 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerWidth(包含滚动条宽度) > document.body.clientWidth(不包含滚动条宽度)，如果前者为0或为空，则选择后者。
+     * 获得真实的浏览器窗口可视宽度（设备水平方向的像素），不考虑画布是否旋转与设备像素比。
+     * @readme 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerWidth(包含滚动条宽度) > document.body.clientWidth(不包含滚动条宽度)，如果前者为0或为空，则选择后者。
      */
     static get clientWidth(): number {
         Browser.__init__();
@@ -360,21 +360,21 @@ export class Browser {
     }
 
     /**
-     * 浏览器窗口可视高度。
-     * 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerHeight(包含滚动条高度) > document.body.clientHeight(不包含滚动条高度) > document.documentElement.clientHeight(不包含滚动条高度)，如果前者为0或为空，则选择后者。
+     * 获得真实的浏览器窗口可视高度（设备垂直方向的像素），不考虑画布是否旋转与设备像素比。
+     * @readme 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerHeight(包含滚动条高度) > document.body.clientHeight(不包含滚动条高度) > document.documentElement.clientHeight(不包含滚动条高度)，如果前者为0或为空，则选择后者。
      */
     static get clientHeight(): number {
         Browser.__init__();
         return Browser._window.innerHeight || Browser._document.body.clientHeight || Browser._document.documentElement.clientHeight;
     }
 
-    /** 浏览器窗口物理宽度。考虑了设备像素比。*/
+    /** 基于视觉水平方向的浏览器窗口物理宽度。考虑了画布是否旋转，设备像素比。*/
     static get width(): number {
         Browser.__init__();
         return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientHeight : Browser.clientWidth) * Browser.pixelRatio;
     }
 
-    /** 浏览器窗口物理高度。考虑了设备像素比。*/
+    /** 基于视觉垂直方向的浏览器窗口物理高度。考虑了画布是否旋转，设备像素比。*/
     static get height(): number {
         Browser.__init__();
         return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientWidth : Browser.clientHeight) * Browser.pixelRatio;

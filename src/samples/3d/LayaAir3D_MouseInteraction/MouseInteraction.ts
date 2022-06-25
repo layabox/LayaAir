@@ -25,6 +25,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Event } from "laya/events/Event";
 
 
 /**
@@ -170,7 +171,7 @@ export class MouseInteraction {
 		//射线初始化（必须初始化）
 		this._ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
 		//鼠标事件监听
-		Laya.stage.on(Laya.Event.MOUSE_DOWN, this, this.onMouseDown);
+		Laya.stage.on(Event.MOUSE_DOWN, this, this.onMouseDown);
 	}
 	/** 鼠标按下时的逻辑处理 */
 	private onMouseDown(): void {

@@ -127,11 +127,11 @@ export class TextInput extends Label {
         this.skin = this.skin;
     }
 
-		/**
-		 * @inheritDoc 
-         * @override
-		*/
-		protected preinitialize(): void {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    protected preinitialize(): void {
         this.mouseEnabled = true;
     }
 
@@ -156,6 +156,14 @@ export class TextInput extends Label {
         this._tf.on(Event.ENTER, this, this._onEnter);
         this._tf.on(Event.BLUR, this, this._onBlur);
         this._tf.on(Event.FOCUS, this, this._onFocus);
+        this._tf.on(Event.CHANGE, this, this._onChange);
+    }
+
+    /**
+    * @private
+    */
+    private _onChange(): void {
+        this.event(Event.CHANGE, this);
     }
 
     /**
@@ -253,7 +261,7 @@ export class TextInput extends Label {
      * @see laya.display.Text.text
      * @override
      */
-	set text(value: string) {
+    set text(value: string) {
         if (this._tf.text != value) {
             value = value + "";
             this._tf.text = value;
@@ -271,7 +279,7 @@ export class TextInput extends Label {
      * @inheritDoc 
      * @override
      */
-	set width(value: number) {
+    set width(value: number) {
         super.width = value;
         this._bg && (this._bg.width = value);
     }
@@ -287,7 +295,7 @@ export class TextInput extends Label {
      * @inheritDoc 
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         super.height = value;
         this._bg && (this._bg.height = value);
     }
