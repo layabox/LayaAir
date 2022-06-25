@@ -434,6 +434,9 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		bt.btTransform_equal(transform,oriTransform);
 		this._innerDerivePhysicsTransformation(transform, force);
 		bt.btRigidBody_setCenterOfMassTransform(btColliderObject, transform);//RigidBody use 'setCenterOfMassTransform' instead(influence interpolationWorldTransform and so on) ,or stepSimulation may return old transform because interpolation.
+		// 处理物理约束后旋转问题,注释掉以上四行只保留下列两行
+		// this._innerDerivePhysicsTransformation(oriTransform, force);
+		// bt.btRigidBody_setCenterOfMassTransform(btColliderObject, oriTransform);//RigidBody use 'setCenterOfMassTransform' instead(influence interpolationWorldTransform and so on) ,or stepSimulation may return old transform because interpolation.
 	}
 
 	/**

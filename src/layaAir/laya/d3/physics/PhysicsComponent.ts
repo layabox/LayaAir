@@ -295,6 +295,7 @@ export class PhysicsComponent extends Component {
 				value._attatchedCollisionObject = this;
 			}
 
+			((value as any)._physicMesh)&&((value as any)._setPhysicsMesh());
 			if (this._btColliderObject) {
 				ILaya3D.Physics3D._bullet.btCollisionObject_setCollisionShape(this._btColliderObject, value._btShape);
 				var canInSimulation: boolean = this._simulation && this._enabled;
@@ -517,6 +518,22 @@ export class PhysicsComponent extends Component {
 		}
 
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION)) {
+			// 先更新位置信息
+			// var shapeOffset: Vector3 = this._colliderShape.localOffset;
+			// var position: Vector3 = transform.position;
+			// var btPosition: any = PhysicsComponent._btVector30;
+			// if (shapeOffset.x !== 0 || shapeOffset.y !== 0 || shapeOffset.z !== 0) {
+			// 	var physicPosition: Vector3 = PhysicsComponent._tempVector30;
+			// 	var worldMat: Matrix4x4 = transform.worldMatrix;
+			// 	Vector3.transformCoordinate(shapeOffset, worldMat, physicPosition);
+			// 	bt.btVector3_setValue(btPosition, -physicPosition.x, physicPosition.y, physicPosition.z);
+			// } else {
+			// 	bt.btVector3_setValue(btPosition, -position.x, position.y, position.z);
+			// }
+			// bt.btTransform_setOrigin(physicTransformOut, btPosition);
+
+
+
 			var shapeRotation: Quaternion = this._colliderShape.localRotation;
 			var btRotation: any = PhysicsComponent._btQuaternion0;
 			var rotation: Quaternion = transform.rotation;
@@ -532,6 +549,22 @@ export class PhysicsComponent extends Component {
 		}
 
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
+			// 先更新位置信息
+			// var shapeOffset: Vector3 = this._colliderShape.localOffset;
+			// var position: Vector3 = transform.position;
+			// var btPosition: any = PhysicsComponent._btVector30;
+			// if (shapeOffset.x !== 0 || shapeOffset.y !== 0 || shapeOffset.z !== 0) {
+			// 	var physicPosition: Vector3 = PhysicsComponent._tempVector30;
+			// 	var worldMat: Matrix4x4 = transform.worldMatrix;
+			// 	Vector3.transformCoordinate(shapeOffset, worldMat, physicPosition);
+			// 	bt.btVector3_setValue(btPosition, -physicPosition.x, physicPosition.y, physicPosition.z);
+			// } else {
+			// 	bt.btVector3_setValue(btPosition, -position.x, position.y, position.z);
+			// }
+			// bt.btTransform_setOrigin(physicTransformOut, btPosition);
+
+
+
 			this._onScaleChange(transform.getWorldLossyScale());
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
 		}

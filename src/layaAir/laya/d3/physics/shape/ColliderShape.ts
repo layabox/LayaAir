@@ -44,6 +44,7 @@ export class ColliderShape implements IClone {
 	protected static _btQuaternion0: number;
 	/**@internal */
 	protected static _btTransform0: number;
+	
 
 	/**
 	 * @internal
