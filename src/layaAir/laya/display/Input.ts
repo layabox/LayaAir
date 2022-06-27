@@ -404,6 +404,7 @@ export class Input extends Text {
     /**@private */
     private _focusOut(): void {
         if (!Input.isInputting) return;
+
         Input.isInputting = false;
         this._focus = false;
 
@@ -421,7 +422,7 @@ export class Input extends Text {
         ILaya.stage.focus = null;
         this.event(Event.BLUR);
         this.event(Event.CHANGE);
-        if (ILaya.Render.isConchApp) this.nativeInput.blur();
+        // if (ILaya.Render.isConchApp) this.nativeInput.blur();
         // 只有PC会注册此事件。
         ILaya.Browser.onPC && ILaya.systemTimer.clear(this, this._syncInputTransform);
     }
