@@ -70,11 +70,11 @@ export class Input extends Text {
     static TYPE_SEARCH: string = "search";
 
     /**@private */
-	protected static input: HTMLInputElement;
+    protected static input: HTMLInputElement;
     /**@private */
     protected static area: HTMLTextAreaElement;
     /**@private */
-    protected static inputElement: HTMLInputElement|HTMLTextAreaElement;
+    protected static inputElement: HTMLInputElement | HTMLTextAreaElement;
     /**@private */
     protected static inputContainer: HTMLDivElement;
     /**@private */
@@ -235,7 +235,7 @@ export class Input extends Text {
     /**
      * 获取对输入框的引用实例。
      */
-    get nativeInput(): HTMLInputElement|HTMLTextAreaElement {
+    get nativeInput(): HTMLInputElement | HTMLTextAreaElement {
         return this._multiline ? Input.area : Input.input;
     }
 
@@ -313,14 +313,14 @@ export class Input extends Text {
         Input.input.parentElement && (Input.inputContainer.removeChild(Input.input));
         Input.area.parentElement && (Input.inputContainer.removeChild(Input.area));
 
-		// 安卓的安全键盘的问题；
-		// 如果设置type='password' 则会弹安全键盘
-		// 就算以后设置type='text' 还是会弹安全键盘，所以对于安卓，干脆全部重新生成
-		if(ILaya.Browser.onAndroid){
-		    Input.input = Input.inputElement = ILaya.Browser.createElement('input');
-		    Input._initInput(Input.input);
-		}
-	
+        // 安卓的安全键盘的问题；
+        // 如果设置type='password' 则会弹安全键盘
+        // 就算以后设置type='text' 还是会弹安全键盘，所以对于安卓，干脆全部重新生成
+        if (ILaya.Browser.onAndroid) {
+            Input.input = Input.inputElement = ILaya.Browser.createElement('input');
+            Input._initInput(Input.input);
+        }
+
         Input.inputElement = (this._multiline ? Input.area : Input.input);
         Input.inputContainer.appendChild(Input.inputElement);
         if (Text.RightToLeft) {
@@ -330,9 +330,9 @@ export class Input extends Text {
 
     private _focusIn(): void {
         Input.isInputting = true;
-		var input = this.nativeInput;
-		
-		Input.input && (Input.input.type = this._type);		// 设置input控件的 password
+        var input = this.nativeInput;
+
+        Input.input && (Input.input.type = this._type);		// 设置input控件的 password
 
         this._focus = true;
 
@@ -403,7 +403,8 @@ export class Input extends Text {
 
     /**@private */
     private _focusOut(): void {
-        if(!Input.isInputting)return;
+        if (!Input.isInputting) return;
+
         Input.isInputting = false;
         this._focus = false;
 
@@ -421,7 +422,7 @@ export class Input extends Text {
         ILaya.stage.focus = null;
         this.event(Event.BLUR);
         this.event(Event.CHANGE);
-        if (ILaya.Render.isConchApp) this.nativeInput.blur();
+        // if (ILaya.Render.isConchApp) this.nativeInput.blur();
         // 只有PC会注册此事件。
         ILaya.Browser.onPC && ILaya.systemTimer.clear(this, this._syncInputTransform);
     }
@@ -441,20 +442,19 @@ export class Input extends Text {
      * 小游戏专用(解决键盘输入框内容和游戏输入框内容不同步的bug)
      * @param value 
      */
-     miniGameTxt(value:string)
-     {
-         super.set_color(this._originColor);
-         value += '';
-         if (!this._multiline)
-             value = value.replace(/\r?\n/g, '');
-         this._content = value;
-         if (value)
-             super.set_text(value);
-         else {
-             super.set_text(this._prompt);
-             super.set_color(this.promptColor);
-         }
-     }
+    miniGameTxt(value: string) {
+        super.set_color(this._originColor);
+        value += '';
+        if (!this._multiline)
+            value = value.replace(/\r?\n/g, '');
+        this._content = value;
+        if (value)
+            super.set_text(value);
+        else {
+            super.set_text(this._prompt);
+            super.set_color(this.promptColor);
+        }
+    }
 
     /**@inheritDoc 
      * @override

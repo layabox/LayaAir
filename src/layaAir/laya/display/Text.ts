@@ -138,7 +138,7 @@ export class Text extends Sprite {
     static RightToLeft: boolean = false;
 
     /**@private */
-    private _clipPoint: Point|null;
+    private _clipPoint: Point | null;
     /**@private 表示文本内容字符串。*/
     protected _text: string;
     /**@private 表示文本内容是否发生改变。*/
@@ -148,15 +148,15 @@ export class Text extends Sprite {
     /**@private 表示文本的高度，以像素为单位。*/
     protected _textHeight: number = 0;
     /**@private 存储文字行数信息。*/
-    protected _lines: string[]|null = [];
+    protected _lines: string[] | null = [];
     /**@private 保存每行宽度*/
-    protected _lineWidths: number[]|null = [];
+    protected _lineWidths: number[] | null = [];
     /**@private 文本的内容位置 X 轴信息。*/
     protected _startX: number = 0;
     /**@private 文本的内容位置X轴信息。 */
     protected _startY: number = 0;
     /**@private */
-    protected _words: WordText[]|null;
+    protected _words: WordText[] | null;
     /**@private */
     protected _charSize: any = {};
     /**@private */
@@ -709,7 +709,7 @@ export class Text extends Sprite {
         }
 
         //drawBg(style);
-        let bitmapScale=1;
+        let bitmapScale = 1;
         if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
             bitmapScale = tCurrBitmapFont.fontSize / this.fontSize;
         }
@@ -717,9 +717,9 @@ export class Text extends Sprite {
         if (this._height > 0) {
             var tempVAlign = (this._textHeight > this._height) ? "top" : this.valign;
             if (tempVAlign === "middle")
-                startY = (this._height - visibleLineCount /bitmapScale* lineHeight) * 0.5 + padding[0] - padding[2];
+                startY = (this._height - visibleLineCount / bitmapScale * lineHeight) * 0.5 + padding[0] - padding[2];
             else if (tempVAlign === "bottom")
-                startY = this._height - visibleLineCount /bitmapScale* lineHeight - padding[2];
+                startY = this._height - visibleLineCount / bitmapScale * lineHeight - padding[2];
         }
 
         //渲染
@@ -754,7 +754,7 @@ export class Text extends Sprite {
             var word = lines[i];
             var _word: any;
             if (password) {
-				let len = word.length;
+                let len = word.length;
                 word = "";
                 for (var j = len; j > 0; j--) {
                     word += "●";
@@ -763,7 +763,7 @@ export class Text extends Sprite {
 
             if (word == null) word = "";
             x = startX - (this._clipPoint ? this._clipPoint.x : 0);
-            y = startY + lineHeight * i - (this._clipPoint ? this._clipPoint.y : 0);
+            y = startY + 2 + lineHeight * i - (this._clipPoint ? this._clipPoint.y : 0);
 
             this.underline && this._drawUnderline(textAlgin, x, y, i);
 
@@ -771,8 +771,8 @@ export class Text extends Sprite {
                 var tWidth = this.width;
                 if (tCurrBitmapFont.autoScaleSize) {
                     tWidth = this.width * bitmapScale;
-                    x*=bitmapScale;
-                    y*=bitmapScale;
+                    x *= bitmapScale;
+                    y *= bitmapScale;
                 }
                 tCurrBitmapFont._drawText(word, this, x, y, this.align, tWidth);
             } else {
@@ -867,20 +867,20 @@ export class Text extends Sprite {
         nw = Math.max.apply(this, this._lineWidths);
 
         //计算textHeight
-        let bmpFont = (this._style as TextStyle) .currBitmapFont;
-        if (bmpFont){
+        let bmpFont = (this._style as TextStyle).currBitmapFont;
+        if (bmpFont) {
             let h = bmpFont.getMaxHeight();
-            if(bmpFont.autoScaleSize){
+            if (bmpFont.autoScaleSize) {
                 h = this.fontSize;
             }
             nh = this._lines.length * (h + this.leading) + this.padding[0] + this.padding[2];
         }
-        else{
-			nh = this._lines.length * (this._charSize.height + this.leading) + this.padding[0] + this.padding[2];
-			if(this._lines.length){
-				nh-=this.leading; 	// 去掉最后一行的leading，否则多算了。
-			}
-		}
+        else {
+            nh = this._lines.length * (this._charSize.height + this.leading) + this.padding[0] + this.padding[2];
+            if (this._lines.length) {
+                nh -= this.leading; 	// 去掉最后一行的leading，否则多算了。
+            }
+        }
         if (nw != this._textWidth || nh != this._textHeight) {
             this._textWidth = nw;
             this._textHeight = nh;
@@ -986,26 +986,26 @@ export class Text extends Sprite {
             // 考虑性能，保留这种非方式。
             charsWidth = this._getTextWidth(line.charAt(j));
             wordWidth += charsWidth;
-			// 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
+            // 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
             if (wordWidth > wordWrapWidth) {
                 if (this.wordWrap) {
                     //截断换行单词
                     var newLine = line.substring(startIndex, j);
-					// 如果最后一个是中文则直接截断，否则找空格或者-来拆分
-					var ccode = newLine.charCodeAt(newLine.length-1)
-					if (ccode<0x4e00 || ccode>0x9fa5){
-                    //if (newLine.charCodeAt(newLine.length - 1) < 255) {
+                    // 如果最后一个是中文则直接截断，否则找空格或者-来拆分
+                    var ccode = newLine.charCodeAt(newLine.length - 1)
+                    if (ccode < 0x4e00 || ccode > 0x9fa5) {
+                        //if (newLine.charCodeAt(newLine.length - 1) < 255) {
                         //按照英文单词字边界截取 因此将会无视中文
                         //var execResult = /(?:\w|-)+$/.exec(newLine);
-						var execResult=/(?:[^\s\!-\/])+$/.exec(newLine);// 找不是 空格和标点符号的
+                        var execResult = /(?:[^\s\!-\/])+$/.exec(newLine);// 找不是 空格和标点符号的
                         if (execResult) {
                             j = execResult.index + startIndex;
                             //此行只够容纳这一个单词 强制换行
-                            if (execResult.index == 0) 
-								j += newLine.length;
+                            if (execResult.index == 0)
+                                j += newLine.length;
                             //此行有多个单词 按单词分行
-                            else 
-								newLine = line.substring(startIndex, j);
+                            else
+                                newLine = line.substring(startIndex, j);
                         }
                     }
 
@@ -1049,10 +1049,10 @@ export class Text extends Sprite {
             if (ILaya.Render.isConchApp) {
                 return (window as any).conchTextCanvas.measureText(text).width;;
             }
-            else{
-				let ret = ILaya.Browser.context.measureText(text)||{width:100};
-				return ret.width;
-			}
+            else {
+                let ret = ILaya.Browser.context.measureText(text) || { width: 100 };
+                return ret.width;
+            }
         }
     }
 
@@ -1106,11 +1106,7 @@ export class Text extends Sprite {
     set scrollX(value: number) {
         if (this.overflow != Text.SCROLL || (this.textWidth < this._width || !this._clipPoint)) return;
 
-        value = value < this.padding[3] ? this.padding[3] : value;
-        var maxScrollX: number = this._textWidth - this._width;
-        value = value > maxScrollX ? maxScrollX : value;
-
-        this._clipPoint.x = value;
+        this._clipPoint.x = value > this._textWidth ? this._textWidth : value;
         this._renderText();
     }
 
@@ -1128,11 +1124,7 @@ export class Text extends Sprite {
     set scrollY(value: number) {
         if (this.overflow != Text.SCROLL || (this.textHeight < this._height || !this._clipPoint)) return;
 
-        value = value < this.padding[0] ? this.padding[0] : value;
-        var maxScrollY: number = this._textHeight - this._height;
-        value = value > maxScrollY ? maxScrollY : value;
-
-        this._clipPoint.y = value;
+        this._clipPoint.y = value > this._textHeight ? this._textHeight : value;
         this._renderText();
     }
 
@@ -1189,18 +1181,18 @@ export class Text extends Sprite {
     }
     get singleCharRender(): boolean {
         return this._singleCharRender;
-	}
-/*	
-	scale(scaleX: number, scaleY: number, speedMode: boolean = false): Sprite {
-		super.scale(scaleX,scaleY, speedMode);
-        // 注意_words是一个数组（例如有换行）
-        this._words && this._words.forEach(function (w: WordText): void {
-            w.cleanCache();
-		});
-		this.repaint();
-		return this;
-	}	
-*/
+    }
+    /*	
+        scale(scaleX: number, scaleY: number, speedMode: boolean = false): Sprite {
+            super.scale(scaleX,scaleY, speedMode);
+            // 注意_words是一个数组（例如有换行）
+            this._words && this._words.forEach(function (w: WordText): void {
+                w.cleanCache();
+            });
+            this.repaint();
+            return this;
+        }	
+    */
 }
 
 
