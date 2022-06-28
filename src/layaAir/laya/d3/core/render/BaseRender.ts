@@ -552,7 +552,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 			MeshRenderStaticBatchManager.instance._removeRenderSprite(this._owner);
 			this._isPartOfStaticBatch = false;
 		}
-
 	}
 }
 
