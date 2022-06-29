@@ -53,7 +53,7 @@ void main()
 		vec4 color5 = texture2D(u_DiffuseTexture5, v_Texcoord0 * u_DiffuseScale5);
 		gl_FragColor.xyz = color1.xyz * splatAlpha.r  + color2.xyz * splatAlpha.g + color3.xyz * splatAlpha.b + color4.xyz * splatAlpha.a + color5.xyz * (1.0 - splatAlpha.r - splatAlpha.g - splatAlpha.b - splatAlpha.a);
 	#else
-		//gl_FragColor.xyz = vec3(0.0, 1.0, 0.0);
+		gl_FragColor.xyz = vec3(0.0, 1.0, 0.0);
 	#endif
 }
 

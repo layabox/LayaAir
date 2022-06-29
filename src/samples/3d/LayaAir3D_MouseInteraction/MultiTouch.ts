@@ -1,5 +1,5 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
+import { Laya3D } from "Laya3D";
 import { Camera } from "laya/d3/core/Camera"
 import { Sprite3D } from "laya/d3/core/Sprite3D"
 import { DirectionLight } from "laya/d3/core/light/DirectionLight"

@@ -10,13 +10,13 @@ export class ComponentManager {
 
   // Script call SingleList
   /**@internal update */
-  private _onUpdateScripts: SimpleSingletonList = new SimpleSingletonList();
+  private _onUpdateScripts: SingletonList<Script3D> = new SingletonList();
   /**@internal Late Update */
-  private _onLateUpdateScripts: SimpleSingletonList = new SimpleSingletonList();
+  private _onLateUpdateScripts: SingletonList<Script3D> = new SingletonList();
   /**@internal PreRender */
-  private _onPreRenderScriptes: SimpleSingletonList = new SimpleSingletonList();
+  private _onPreRenderScriptes: SingletonList<Script3D> = new SingletonList();
   /**@interanl PostRender */
-  private _onPostRenderScriptes: SimpleSingletonList = new SimpleSingletonList();
+  private _onPostRenderScriptes: SingletonList<Script3D> = new SingletonList();
   /**@internal Script3D Start */
   private _onStartScripts: Script3D[] = [];
   /**@internal Script3D destroy */

@@ -32,7 +32,8 @@ export class ShaderCompile {
 		if (!txt || txt.length === 0)
 			throw new Error("add shader include file err:" + fileName);
 		if (ShaderCompile.includes[fileName])
-			throw new Error("add shader include file err, has add:" + fileName);
+			return;
+			//throw new Error("add shader include file err, has add:" + fileName);
 		ShaderCompile.includes[fileName] = new InlcudeFile(txt);
 	}
 

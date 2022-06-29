@@ -17,6 +17,8 @@ import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { Scene3D } from "./scene/Scene3D";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { Sprite3D } from "./Sprite3D";
+import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -47,6 +49,8 @@ export class BaseCamera extends Sprite3D {
 	static DEPTHNORMALSTEXTURE: number;
 	/**@internal */
 	static DEPTHZBUFFERPARAMS: number;
+	/**@internal */
+	static CAMERAUNIFORMBLOCK: number;
 	/**Camera Define*/
 	/**@internal */
 	static SHADERDEFINE_DEPTH: ShaderDefine;
@@ -72,29 +76,33 @@ export class BaseCamera extends Sprite3D {
 	static shaderValueInit() {
 		BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
 		BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
-		BaseCamera.cameraUniformMap = CommandUniformMap.createGlobalUniformMap("BaseCamera");
+		let camerauniformMap = BaseCamera.cameraUniformMap = CommandUniformMap.createGlobalUniformMap("BaseCamera");
+		
 		BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.CAMERAPOS, "u_CameraPos");
 		BaseCamera.VIEWMATRIX = Shader3D.propertyNameToID("u_View");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.VIEWMATRIX, "u_View");
-		BaseCamera.PROJECTMATRIX = Shader3D.propertyNameToID("u_Projection");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.PROJECTMATRIX, "u_Projection");
 		BaseCamera.VIEWPROJECTMATRIX = Shader3D.propertyNameToID("u_ViewProjection");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.VIEWPROJECTMATRIX, "u_ViewProjection");
+		BaseCamera.PROJECTMATRIX = Shader3D.propertyNameToID("u_Projection");
 		BaseCamera.CAMERADIRECTION = Shader3D.propertyNameToID("u_CameraDirection");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.CAMERADIRECTION, "u_CameraDirection");
 		BaseCamera.CAMERAUP = Shader3D.propertyNameToID("u_CameraUp");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.CAMERAUP, "u_CameraUp");
 		BaseCamera.VIEWPORT = Shader3D.propertyNameToID("u_Viewport");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.VIEWPORT, "u_Viewport");
 		BaseCamera.PROJECTION_PARAMS = Shader3D.propertyNameToID("u_ProjectionParams");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.PROJECTION_PARAMS, "u_ProjectionParams");
 		BaseCamera.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.DEPTHTEXTURE, "u_CameraDepthTexture");
 		BaseCamera.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.DEPTHNORMALSTEXTURE, "u_CameraDepthNormalsTexture");
 		BaseCamera.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
-		BaseCamera.cameraUniformMap.addShaderUniform(BaseCamera.DEPTHZBUFFERPARAMS, "u_ZBufferParams");
+		BaseCamera.CAMERAUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_CAMERA);
+
+		camerauniformMap.addShaderUniform(BaseCamera.CAMERAPOS, "u_CameraPos");
+		camerauniformMap.addShaderUniform(BaseCamera.VIEWMATRIX, "u_View");
+		camerauniformMap.addShaderUniform(BaseCamera.PROJECTMATRIX, "u_Projection");
+		camerauniformMap.addShaderUniform(BaseCamera.VIEWPROJECTMATRIX, "u_ViewProjection");
+		camerauniformMap.addShaderUniform(BaseCamera.CAMERADIRECTION, "u_CameraDirection");
+		camerauniformMap.addShaderUniform(BaseCamera.CAMERAUP, "u_CameraUp");
+		camerauniformMap.addShaderUniform(BaseCamera.VIEWPORT, "u_Viewport");
+		camerauniformMap.addShaderUniform(BaseCamera.PROJECTION_PARAMS, "u_ProjectionParams");
+		camerauniformMap.addShaderUniform(BaseCamera.DEPTHTEXTURE, "u_CameraDepthTexture");
+		camerauniformMap.addShaderUniform(BaseCamera.DEPTHNORMALSTEXTURE, "u_CameraDepthNormalsTexture");
+		camerauniformMap.addShaderUniform(BaseCamera.DEPTHZBUFFERPARAMS, "u_ZBufferParams");
+		camerauniformMap.addShaderUniform(BaseCamera.CAMERAUNIFORMBLOCK,UniformBufferObject.UBONAME_CAMERA);
 	}
 
 	/**
@@ -124,7 +132,9 @@ export class BaseCamera extends Sprite3D {
 	/** @internal 渲染顺序。*/
 	_renderingOrder: number
 	/** @internal */
-	_cameraUniformBlock: UnifromBufferData;
+	_cameraUniformData: UnifromBufferData;
+	/** @internal */
+	_cameraUniformUBO:UniformBufferObject;
 	/** 近裁剪面。*/
 	protected _nearPlane: number;
 	/** 远裁剪面。*/
@@ -259,7 +269,12 @@ export class BaseCamera extends Sprite3D {
 		this.useOcclusionCulling = true;
 		this._renderEngine = LayaGL.renderEngine;
 		if (Config3D._config._uniformBlock) {
-			this._cameraUniformBlock = BaseCamera.createSceneUniformBlock();
+			this._cameraUniformUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
+			this._cameraUniformData = BaseCamera.createSceneUniformBlock();
+			if(!this._cameraUniformUBO){
+				this._cameraUniformUBO = UniformBufferObject.creat(UniformBufferObject.UBONAME_CAMERA,BufferUsage.Dynamic,this._cameraUniformData.getbyteLength(), true);
+			}
+			this._shaderValues.setValueData(BaseCamera.CAMERAUNIFORMBLOCK,this._cameraUniformUBO);
 		}
 	}
 
@@ -319,8 +334,8 @@ export class BaseCamera extends Sprite3D {
 	 * @internal
 	 */
 	_setShaderValue(index: number, shaderDataType: ShaderDataType, value: any) {
-		if (this._cameraUniformBlock && this._cameraUniformBlock._has(index))
-			this._cameraUniformBlock._setData(index, shaderDataType, value);
+		if (this._cameraUniformData && this._cameraUniformData._has(index))
+			this._cameraUniformData._setData(index, shaderDataType, value);
 		this._shaderValues.setValueData(index, value);
 	}
 

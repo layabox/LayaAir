@@ -8,6 +8,10 @@ import { Buffer } from "./Buffer";
  * 类封装WebGL2UniformBufferObect
  */
 export class UniformBufferObject extends Buffer {
+    static UBONAME_SCENE = "SceneUniformBlock";
+    static UBONAME_CAMERA = "CameraUniformBlock";
+    static UBONAME_SPRITE3D = "SpriteUniformBlock";
+    static UBONAME_SHADOW = "ShadowUniformBlock";
     private static commonMap: string[] = ["CameraUniformBlock", "SceneUniformBlock", "SpriteUniformBlock", "ShadowUniformBlock"]
 
     /**@internal */

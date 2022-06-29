@@ -19,7 +19,6 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { ScalableAO } from "./PostProcess_AO/ScalableAO";
 import { Event } from "laya/events/Event";
-import { Utils } from "laya/utils/Utils";
 import Client from "../../Client";
 
 export class ProstProcess_AO{

@@ -32,10 +32,12 @@ export class Sprite3D extends Node implements ICreateResource {
 	 * @internal
 	 */
 	static __init__(): void {
-		Sprite3D.sprite3DCommandUniformMap = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+		
 		Sprite3D.WORLDMATRIX = Shader3D.propertyNameToID("u_WorldMat");
-		Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat");
 		Sprite3D.MVPMATRIX = Shader3D.propertyNameToID("u_MvpMatrix");
+		
+		Sprite3D.sprite3DCommandUniformMap = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+		Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat");
 		Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.MVPMATRIX, "u_MvpMatrix");
 	}
 

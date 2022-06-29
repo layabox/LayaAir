@@ -27,13 +27,12 @@ export class TrailFilter {
 	static WIDTHCURVEKEYLENGTH: number ;
 
 	static __init__() {
-		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
-
 		TrailFilter.CURTIME = Shader3D.propertyNameToID("u_CurTime");
 		TrailFilter.LIFETIME = Shader3D.propertyNameToID("u_LifeTime");
 		TrailFilter.WIDTHCURVE = Shader3D.propertyNameToID("u_WidthCurve");
 		TrailFilter.WIDTHCURVEKEYLENGTH = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
 
+		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
 		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime");
 		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime");
 		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve");

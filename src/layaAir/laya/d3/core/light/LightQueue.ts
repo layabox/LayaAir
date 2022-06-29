@@ -11,7 +11,7 @@ export class LightQueue<T extends Light> {
 
     add(light: T): void {
         let index = this._elements.indexOf(light);
-        if (index !=-1 && index <= this._length) {
+        if (index !=-1 && index < this._length) {
             return;
         }
         if (this._length === this._elements.length)

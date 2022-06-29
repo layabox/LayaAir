@@ -76,6 +76,7 @@ import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPip
 import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { WebGL } from "../../../webgl/WebGL";
 import { BufferStateBase } from "../../../RenderEngine/BufferStateBase";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 
 /**
  * 环境光模式
@@ -161,6 +162,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static TIME: number;
 	/** @internal */
 	static sceneID: number;
+
+	/**@internal scene uniform block */
+	static SCENEUNIFORMBLOCK: number;
 	//------------------legacy lighting-------------------------------
 	/** @internal */
 	static LIGHTDIRECTION: number;
@@ -223,41 +227,44 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_LOW");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_HIGH");
 
-		Scene3D.sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
 		Scene3D.FOGCOLOR = Shader3D.propertyNameToID("u_FogColor");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor");
 		Scene3D.FOGSTART = Shader3D.propertyNameToID("u_FogStart");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.FOGSTART, "u_FogStart");
 		Scene3D.FOGRANGE = Shader3D.propertyNameToID("u_FogRange");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.FOGRANGE, "u_FogRange");
 		Scene3D.DIRECTIONLIGHTCOUNT = Shader3D.propertyNameToID("u_DirationLightCount");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount");
 		Scene3D.LIGHTBUFFER = Shader3D.propertyNameToID("u_LightBuffer");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer");
 		Scene3D.CLUSTERBUFFER = Shader3D.propertyNameToID("u_LightClusterBuffer");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
 		Scene3D.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SUNLIGHTDIRECTION, "u_SunLight_direction");
 		Scene3D.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SUNLIGHTDIRCOLOR, "u_SunLight_color");
 		Scene3D.AMBIENTSHAR = Shader3D.propertyNameToID("u_AmbientSHAr");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAR, "u_AmbientSHAr");
 		Scene3D.AMBIENTSHAG = Shader3D.propertyNameToID("u_AmbientSHAg");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAG, "u_AmbientSHAg");
 		Scene3D.AMBIENTSHAB = Shader3D.propertyNameToID("u_AmbientSHAb");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAB, "u_AmbientSHAb");
 		Scene3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBR, "u_AmbientSHBr");
 		Scene3D.AMBIENTSHBG = Shader3D.propertyNameToID("u_AmbientSHBg");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBG, "u_AmbientSHBg");
 		Scene3D.AMBIENTSHBB = Shader3D.propertyNameToID("u_AmbientSHBb");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBB, "u_AmbientSHBb");
 		Scene3D.AMBIENTSHC = Shader3D.propertyNameToID("u_AmbientSHC");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHC, "u_AmbientSHC");
 		Scene3D.AMBIENTCOLOR = Shader3D.propertyNameToID("u_AmbientColor");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.AMBIENTCOLOR, "u_AmbientColor");
 		Scene3D.TIME = Shader3D.propertyNameToID("u_Time");
-		Scene3D.sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
+		Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
+
+		let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
+		sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor");
+		sceneUniformMap.addShaderUniform(Scene3D.FOGSTART, "u_FogStart");
+		sceneUniformMap.addShaderUniform(Scene3D.FOGRANGE, "u_FogRange");
+		sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount");
+		sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer");
+		sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
+		sceneUniformMap.addShaderUniform(Scene3D.SUNLIGHTDIRECTION, "u_SunLight_direction");
+		sceneUniformMap.addShaderUniform(Scene3D.SUNLIGHTDIRCOLOR, "u_SunLight_color");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAR, "u_AmbientSHAr");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAG, "u_AmbientSHAg");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAB, "u_AmbientSHAb");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBR, "u_AmbientSHBr");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBG, "u_AmbientSHBg");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBB, "u_AmbientSHBb");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHC, "u_AmbientSHC");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTCOLOR, "u_AmbientColor");
+		sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
+		sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK,UniformBufferObject.UBONAME_SCENE);
 	}
 
 	/**
@@ -438,7 +445,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	_shaderValues: ShaderData;
 	/** @interanl */
-	_sceneUniformBlock: UnifromBufferData;
+	_sceneUniformData: UnifromBufferData;
+	/** @internal */
+	_sceneUniformObj: UniformBufferObject;
 	/** @internal */
 	_key: SubmitKey = new SubmitKey();
 
@@ -489,7 +498,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		// }
 	}
 
-	get sceneRenderableManager():ISceneRenderManager{
+	get sceneRenderableManager(): ISceneRenderManager {
 		return this._sceneRenderManager;
 	}
 
@@ -777,8 +786,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
 		if (Config3D._config._uniformBlock) {
-			this._sceneUniformBlock = Scene3D.createSceneUniformBlock();
+			this._sceneUniformObj = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SCENE, 0);
+			this._sceneUniformData = Scene3D.createSceneUniformBlock();
+			if(!this._sceneUniformObj){
+				this._sceneUniformObj = UniformBufferObject.creat(UniformBufferObject.UBONAME_SCENE,BufferUsage.Dynamic, this._sceneUniformData.getbyteLength(), true);
+			}
+			
+			this._shaderValues.setValueData(Scene3D.SCENEUNIFORMBLOCK, this._sceneUniformObj);
 		}
+
 		this.enableFog = false;
 		this.fogStart = 300;
 		this.fogRange = 1000;
@@ -1214,15 +1230,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 	}
 
-	_sportLightShadowCull(cameraCullInfo:ICameraCullInfo,context:RenderContext3D) {
-		this._clearRenderQueue();	
+	_sportLightShadowCull(cameraCullInfo: ICameraCullInfo, context: RenderContext3D) {
+		this._clearRenderQueue();
 		this._cullPass.cullingSpotShadow(cameraCullInfo, this.sceneRenderableManager);
 		let list = this._cullPass.cullList;
 		let element = list.elements;
 		for (var i: number = 0, n: number = list.length; i < n; i++) {
 			var render: BaseRender = element[i];
-			render.distanceForSort = Vector3.distance(render.bounds.getCenter(),cameraCullInfo.position);
-			var elements:RenderElement[] = render._renderElements;
+			render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
+			var elements: RenderElement[] = render._renderElements;
 			for (var j: number = 0, m: number = elements.length; j < m; j++)
 				elements[j]._update(this, context, null, null);
 		}
@@ -1443,8 +1459,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_setShaderValue(index: number, shaderDataType: ShaderDataType, value: any) {
-		if (this._sceneUniformBlock && this._sceneUniformBlock._has(index))
-			this._sceneUniformBlock._setData(index, shaderDataType, value);
+		if (this._sceneUniformData && this._sceneUniformData._has(index))
+			this._sceneUniformData._setData(index, shaderDataType, value);
 		this._shaderValues.setValueData(index, value);
 	}
 
@@ -1521,13 +1537,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 渲染入口
 	 */
 	renderSubmit(): number {
-		BufferStateBase._curBindedBufferState&&BufferStateBase._curBindedBufferState.unBind();
+		BufferStateBase._curBindedBufferState && BufferStateBase._curBindedBufferState.unBind();
 		this._prepareSceneToRender();
 		var i: number, n: number, n1: number;
 		Scene3D._updateMark++;
-		if (this._sceneUniformBlock) {
-			let sceneUBO = UniformBufferObject.getBuffer("SceneUniformBlock", 0);
-			sceneUBO && sceneUBO.setDataByUniformBufferData(this._sceneUniformBlock);
+		if (this._sceneUniformData) {
+			this._sceneUniformObj && this._sceneUniformObj.setDataByUniformBufferData(this._sceneUniformData);
 		}
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
 			// if (Render.supportWebGLPlusRendering)

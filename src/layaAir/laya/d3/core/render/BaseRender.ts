@@ -51,24 +51,24 @@ export class BaseRender extends Component {
 	 * BaseRender Init
 	 */
 	static __init__() {
-		if (Config3D._config._uniformBlock)
-			BaseRender.initRenderableLargeUniformBlock();
+		// if (Config3D._config._uniformBlock)
+		// 	BaseRender.initRenderableLargeUniformBlock();
 	}
 
 	/**
 	 * init Renderable Block
 	 */
-	static initRenderableLargeUniformBlock() {
-		let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-		uniformpara.set("u_WorldMat", UniformBufferParamsType.Matrix4x4);
-		//uniformpara.set("u_LightmapScaleOffset", UniformBufferParamsType.Vector4);
-		uniformpara.set("u_ReflectCubeHDRParams", UniformBufferParamsType.Vector4);
-		let subUBOData = new SubUniformBufferData(uniformpara, 0);
-		//createUBO Buffer
-		let ubo = UniformBufferObject.creat("SpriteUniformBlock", BufferUsage.Dynamic, subUBOData.getbyteLength(), true);
-		//bind manager
-		BaseRender._transLargeUbO = new TransLargeUBOUtils(ubo, uniformpara, subUBOData);
-	}
+	//static initRenderableLargeUniformBlock() {
+	//	let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+	//	uniformpara.set("u_WorldMat", UniformBufferParamsType.Matrix4x4);
+	//	//uniformpara.set("u_LightmapScaleOffset", UniformBufferParamsType.Vector4);
+	//	uniformpara.set("u_ReflectCubeHDRParams", UniformBufferParamsType.Vector4);
+	//	let subUBOData = new SubUniformBufferData(uniformpara, 0);
+	//	//createUBO Buffer
+	//	let ubo = UniformBufferObject.creat(UniformBufferObject.UBONAME_SPRITE3D, BufferUsage.Dynamic, subUBOData.getbyteLength(), true);
+	//	//bind manager
+	//	BaseRender._transLargeUbO = new TransLargeUBOUtils(ubo, uniformpara, subUBOData);
+	//}
 
 	/** @internal */
 	private _lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
@@ -579,7 +579,7 @@ export class BaseRender extends Component {
 	 */
 	_setBelongScene(scene: Scene3D): void {
 		this._scene = scene;
-		if (Config3D._config._uniformBlock) {
+		if (false) {
 			this._subUniformBufferData = BaseRender._transLargeUbO.create();
 			this._subUniformBufferData.setMatrix("u_WorldMat", Matrix4x4.DEFAULT);
 			this._addReflectionProbeUpdate();

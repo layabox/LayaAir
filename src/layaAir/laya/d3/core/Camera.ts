@@ -818,9 +818,8 @@ export class Camera extends BaseCamera {
 		scene._preCulling(context, this);
 
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
-		if (this._cameraUniformBlock) {//需要在Depth之前更新数据
-			let cameraUBO = UniformBufferObject.getBuffer("CameraUniformBlock", 0);
-			cameraUBO && cameraUBO.setDataByUniformBufferData(this._cameraUniformBlock);
+		if (this._cameraUniformData) {//需要在Depth之前更新数据
+			this._cameraUniformUBO && this._cameraUniformUBO.setDataByUniformBufferData(this._cameraUniformData);
 		}
 		if (this.depthTextureMode != 0) {
 			//TODO:是否可以不多次

@@ -720,7 +720,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@internal
+	 * @internal
 	 */
 	private static _loadTexture2D(loader: Loader): void {
 		var url: string = loader.url;

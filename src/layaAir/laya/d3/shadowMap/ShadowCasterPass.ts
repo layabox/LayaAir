@@ -29,6 +29,7 @@ import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Viewport } from "../math/Viewport";
 import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { FrustumCulling } from "../graphics/FrustumCulling";
+import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 
 /**
  * Shadow Light enum
@@ -86,27 +87,29 @@ export class ShadowCasterPass {
 	 */
 	static __init__() {
 		ShadowCasterPass._frustumPlanes = new Array(LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0));
-		const sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
 		ShadowCasterPass.SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS, "u_ShadowBias");
 		ShadowCasterPass.SHADOW_LIGHT_DIRECTION = Shader3D.propertyNameToID("u_ShadowLightDirection");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, "u_ShadowLightDirection");
 		ShadowCasterPass.SHADOW_SPLIT_SPHERES = Shader3D.propertyNameToID("u_ShadowSplitSpheres");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPLIT_SPHERES, "u_ShadowSplitSpheres");
 		ShadowCasterPass.SHADOW_MATRICES = Shader3D.propertyNameToID("u_ShadowMatrices");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MATRICES, "u_ShadowMatrices");
 		ShadowCasterPass.SHADOW_MAP_SIZE = Shader3D.propertyNameToID("u_ShadowMapSize");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP_SIZE, "u_ShadowMapSize");
 		ShadowCasterPass.SHADOW_MAP = Shader3D.propertyNameToID("u_ShadowMap");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP, "u_ShadowMap");
 		ShadowCasterPass.SHADOW_PARAMS = Shader3D.propertyNameToID("u_ShadowParams");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_PARAMS, "u_ShadowParams");
 		ShadowCasterPass.SHADOW_SPOTMAP_SIZE = Shader3D.propertyNameToID("u_SpotShadowMapSize");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, "u_SpotShadowMapSize");
 		ShadowCasterPass.SHADOW_SPOTMAP = Shader3D.propertyNameToID("u_SpotShadowMap");
-		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP, "u_SpotShadowMap");
 		ShadowCasterPass.SHADOW_SPOTMATRICES = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
+		
+		const sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS, "u_ShadowBias");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, "u_ShadowLightDirection");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPLIT_SPHERES, "u_ShadowSplitSpheres");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MATRICES, "u_ShadowMatrices");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP_SIZE, "u_ShadowMapSize");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP, "u_ShadowMap");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_PARAMS, "u_ShadowParams");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, "u_SpotShadowMapSize");
+		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP, "u_SpotShadowMap");
 		sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMATRICES, "u_SpotViewProjectMatrix");
+		sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW),UniformBufferObject.UBONAME_SHADOW);
 	}
 
 	/**
@@ -159,11 +162,16 @@ export class ShadowCasterPass {
 	/** @internal */
 	private _lightForward: Vector3 = new Vector3();
 	/** @internal */
-	private _castDepthBuffer: UnifromBufferData;
+	private _castDepthBufferData: UnifromBufferData;
+	private _castDepthBufferOBJ:UniformBufferObject;
 	constructor() {
 		this._shadowSpotData.cameraCullInfo.boundFrustum = new BoundFrustum(new Matrix4x4());
 		if (Config3D._config._uniformBlock) {
-			this._castDepthBuffer = ShadowCasterPass.createDepthCasterUniformBlock();
+			this._castDepthBufferData = ShadowCasterPass.createDepthCasterUniformBlock();
+			this._castDepthBufferOBJ = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
+			if(!this._castDepthBufferOBJ){
+				this._castDepthBufferOBJ = UniformBufferObject.creat(UniformBufferObject.UBONAME_SHADOW,BufferUsage.Dynamic,this._castDepthBufferData.getbyteLength(),true);
+			}
 		}
 	}
 
@@ -266,8 +274,8 @@ export class ShadowCasterPass {
 	 * set castDepthBuffer data
 	 */
 	private _setcommandBlockData(index: number, shaderDataType: ShaderDataType, value: any) {
-		if (this._castDepthBuffer && this._castDepthBuffer._has(index))
-			this._castDepthBuffer._setData(index, shaderDataType, value);
+		if (this._castDepthBufferData && this._castDepthBufferData._has(index))
+			this._castDepthBufferData._setData(index, shaderDataType, value);
 	}
 
 
@@ -385,9 +393,8 @@ export class ShadowCasterPass {
 					scene._directLightShadowCull(shadowCullInfo, context);
 					context.cameraShaderValue = sliceData.cameraShaderValue;
 					Camera._updateMark++;
-					if (this._castDepthBuffer) {
-						let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock", 0);
-						depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
+					if (this._castDepthBufferData) {
+						this._castDepthBufferOBJ && this._castDepthBufferOBJ.setDataByUniformBufferData(this._castDepthBufferData);
 					}
 					var resolution: number = sliceData.resolution;
 					var offsetX: number = sliceData.offsetX;
@@ -422,9 +429,9 @@ export class ShadowCasterPass {
 				scene._sportLightShadowCull(shadowSpotData.cameraCullInfo, context);
 				context.cameraShaderValue = shadowSpotData.cameraShaderValue;
 				Camera._updateMark++;
-				if (this._castDepthBuffer) {
-					let depthCastUBO = UniformBufferObject.getBuffer("ShadowUniformBlock", 0);
-					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBuffer);
+				if (this._castDepthBufferData) {
+					let depthCastUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
+					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBufferData);
 				}
 
 				LayaGL.renderEngine.viewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);

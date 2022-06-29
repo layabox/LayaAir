@@ -100,7 +100,11 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
                 one.dataOffset = this._engine.propertyNameToID(uniformBlockName);
                 let location = one.location = gl2.getUniformBlockIndex(this._program, uniformBlockName);
                 if (!!UniformBufferObject.getBuffer(uniformBlockName,0)) {
+                    var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
                     let indexPoint = UniformBufferObject.getBuffer(uniformBlockName,0);
+                    if(bytelength!=indexPoint.byteLength){
+                        throw "The length of the same UBO is not uniform";
+                    }
                     gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
                 } else {
                     var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);

@@ -27,12 +27,25 @@ export class SingletonList<T> {
 	/**
 	 * @internal
 	 */
-	public add(element: T): void {
+	add(element: T): void {
 		if (this.length === this.elements.length)
 			this.elements.push(element);
 		else
 			this.elements[this.length] = element;
 		this.length++;
+	}
+
+	/**
+	 * @internal
+	 * @param element 
+	 */
+	remove(element:T):void{
+		let index = this.elements.indexOf(element);
+		if(index!=-1&&index<this.length){
+			this.elements[index] = this.elements[this.length-1];
+			this.length--;
+		}
+
 	}
 
 	destroy(){

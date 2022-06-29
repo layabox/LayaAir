@@ -14,16 +14,16 @@
 #endif
 
 
-#ifdef ENUNIFORMBLOCK
-    uniform SpriteUniformBlock{
-        mat4 u_WorldMat;
+//#ifdef ENUNIFORMBLOCK
+//    uniform SpriteUniformBlock{
+//        mat4 u_WorldMat;
         //light map
-        vec4 u_LightmapScaleOffset;
-        vec4 u_ReflectCubeHDRParams;
-    };
-#else
+//        vec4 u_LightmapScaleOffset;
+//        vec4 u_ReflectCubeHDRParams;
+//    };
+//#else
     uniform mat4 u_WorldMat;
     //light map
     uniform vec4 u_LightmapScaleOffset;
     uniform vec4 u_ReflectCubeHDRParams;
-#endif
+//#endif
