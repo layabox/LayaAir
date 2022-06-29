@@ -137,7 +137,7 @@ export class ScalableAO extends PostProcessEffect {
         let width = source.width;
         let height = source.height;
         let textureFormat: RenderTargetFormat = source.colorFormat;
-        let depthFormat: RenderTargetFormat = null;
+        let depthFormat: RenderTargetFormat = RenderTargetFormat.None;
 
         let finalTex: RenderTexture = RenderTexture.createFromPool(width, height, textureFormat, depthFormat, false, 1);
 
