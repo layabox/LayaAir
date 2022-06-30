@@ -93,7 +93,7 @@ export class DepthPass {
 			this._castDepthData = ShadowCasterPass.createDepthCasterUniformBlock();
 			this._castDepthUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
 			if(!this._castDepthUBO){
-				UniformBufferObject.creat(UniformBufferObject.UBONAME_SHADOW,BufferUsage.Dynamic,this._castDepthData.getbyteLength(),true);
+				UniformBufferObject.create(UniformBufferObject.UBONAME_SHADOW,BufferUsage.Dynamic,this._castDepthData.getbyteLength(),true);
 			}
 			
 		}

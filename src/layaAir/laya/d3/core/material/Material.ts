@@ -17,6 +17,10 @@ import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { IClone } from "../IClone";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Config3D } from "../../../../Config3D";
+import { UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { ShaderDataType } from "../render/command/SetShaderDataCMD";
 
 /**
  * <code>Material</code> 类用于创建材质。
@@ -306,6 +310,10 @@ export class Material extends Resource implements IClone {
 	/** 所属渲染队列. */
 	renderQueue: number;
 
+	/**@internal */
+	private _uniformBufferDatas: Map<string, UniformBufferObject>;
+
+
 	/**
 	 * 着色器数据。
 	 */
@@ -480,8 +488,6 @@ export class Material extends Resource implements IClone {
 		return shaderDefineArray;
 	}
 
-	_uniformBlock: UniformBufferObject;
-
 	/**
 	 * 创建一个 <code>BaseMaterial</code> 实例。
 	 */
@@ -490,6 +496,8 @@ export class Material extends Resource implements IClone {
 		this._shaderValues = LayaGL.renderOBJCreate.createShaderData(this);
 		this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 		this.alphaTest = false;
+		if (Config3D._config._uniformBlock)
+			this._uniformBufferDatas = new Map();
 	}
 
 	/**
@@ -502,6 +510,35 @@ export class Material extends Resource implements IClone {
 			if (value && value instanceof BaseTexture)//TODO:需要优化,杜绝is判断，慢
 				(<BaseTexture>value)._removeReference();
 		}
+	}
+
+	//根据绑定的shader 缓存一些特殊的数据
+	private _bindShaderInfo(shader: Shader3D) {
+
+		if (!Config3D._config._uniformBlock)
+			return;
+		//update UBOData by Shader
+		let subShader = shader.getSubShaderAt(0);//TODO	
+		let shaderUBODatas = subShader._uniformBufferData;
+		if(!shaderUBODatas)
+			return;
+		for (let key of shaderUBODatas.keys()) {
+			//create data
+			let uboData = shaderUBODatas.get(key).clone();
+			//create UBO
+			let ubo = UniformBufferObject.create(key, BufferUsage.Dynamic, uboData.getbyteLength(), false);
+			ubo.setDataByUniformBufferData(uboData);
+			this._shaderValues.setValueData(Shader3D.propertyNameToID(key),ubo);
+			this._uniformBufferDatas.set(key,ubo);
+		}
+	}
+
+	private _releaseUBOData() {
+		for (let value of this._uniformBufferDatas.values()) {
+			value._updateDataInfo.destroy();
+			value.destroy();
+		}
+		this._uniformBufferDatas.clear();
 	}
 
 	/**
@@ -550,6 +587,9 @@ export class Material extends Resource implements IClone {
 		this._shader = Shader3D.find(name);
 		if (!this._shader)
 			throw new Error("BaseMaterial: unknown shader name.");
+		this._releaseUBOData();
+		//bind shader info
+		this._bindShaderInfo(this._shader);
 	}
 
 	/**
@@ -566,6 +606,23 @@ export class Material extends Resource implements IClone {
 	 */
 	getShaderPropertyValue(name: string): any {
 		return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
+	}
+
+	/**
+	 * 设置UBO数据
+	 * @param uboName 
+	 * @param propertyName 
+	 * @param value 
+	 */
+	setUniformBufferData(uboName: string, propertyName: string,type:ShaderDataType, value: any) {
+		if (!Config3D._config._uniformBlock)
+			this.setShaderPropertyValue(propertyName,value);
+		else{
+			let ubo = this._uniformBufferDatas.get(uboName);
+			ubo._updateDataInfo._setData(Shader3D.propertyNameToID(propertyName),type,value);
+			//立即更新，可以优化
+			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+		}
 	}
 
 
@@ -588,6 +645,13 @@ export class Material extends Resource implements IClone {
 		var dest: Material = new Material();
 		this.cloneTo(dest);
 		return dest;
+	}
+
+	destroy(): void {
+		this._releaseUBOData();
+		this._shaderValues.destroy();
+		super.destroy();
+
 	}
 
 	//--------------------------------------------兼容-------------------------------------------------

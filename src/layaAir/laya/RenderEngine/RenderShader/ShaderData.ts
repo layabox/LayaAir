@@ -385,5 +385,10 @@ export class ShaderData implements IClone {
 		this.cloneTo(dest);
 		return dest;
 	}
+
+	destroy():void{
+		this._data = null;
+		this._defineDatas = null;
+	}
 }
 

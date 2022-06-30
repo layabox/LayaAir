@@ -119,9 +119,7 @@ export class Mesh2D {
         //要先bind，在bufferData
         this._applied || this.configVAO();
         this._ib.buffer2D._bind_upload();
-        this._vb.buffer2D._bind_upload();        
-        // this._ib.bind();
-        // this._ib.unbind();
+        this._vb.buffer2D._bind_upload();
         this._vao.bind();
     }
 

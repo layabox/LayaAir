@@ -108,7 +108,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
                     gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
                 } else {
                     var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
-                    let buffer: UniformBufferObject = UniformBufferObject.creat(uniformBlockName, BufferUsage.Dynamic, bytelength,UniformBufferObject.isCommon(uniformBlockName));
+                    let buffer: UniformBufferObject = UniformBufferObject.create(uniformBlockName, BufferUsage.Dynamic, bytelength,UniformBufferObject.isCommon(uniformBlockName));
                     gl2.uniformBlockBinding(this._program, location, buffer._glPointer);
                 }
                 this._uniformObjectMap[one.name] = one;

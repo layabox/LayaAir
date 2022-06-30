@@ -1,4 +1,5 @@
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { ShaderPass } from "./ShaderPass";
 
@@ -32,6 +33,9 @@ export class SubShader {
 	}
 	/**@internal */
 	_attributeMap: any;
+
+	/**@internal */
+	_uniformBufferData:Map<string,UnifromBufferData> = new Map();
 
 	/**@internal */
 	_owner: Shader3D;

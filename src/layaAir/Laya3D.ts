@@ -286,7 +286,7 @@ export class Laya3D {
 		EffectMaterial.defaultMaterial = new EffectMaterial();
 		// PBRStandardMaterial.defaultMaterial = new PBRStandardMaterial();
 		// PBRSpecularMaterial.defaultMaterial = new PBRSpecularMaterial();
-		UnlitMaterial.defaultMaterial = new UnlitMaterial();
+		//UnlitMaterial.defaultMaterial = new UnlitMaterial();
 		ShurikenParticleMaterial.defaultMaterial = new ShurikenParticleMaterial();
 		TrailMaterial.defaultMaterial = new TrailMaterial();
 		SkyProceduralMaterial.defaultMaterial = new SkyProceduralMaterial();
@@ -298,7 +298,7 @@ export class Laya3D {
 		EffectMaterial.defaultMaterial.lock = true;
 		// PBRStandardMaterial.defaultMaterial.lock = true;
 		// PBRSpecularMaterial.defaultMaterial.lock = true;
-		UnlitMaterial.defaultMaterial.lock = true;
+		//UnlitMaterial.defaultMaterial.lock = true;
 		ShurikenParticleMaterial.defaultMaterial.lock = true;
 		TrailMaterial.defaultMaterial.lock = true;
 		SkyProceduralMaterial.defaultMaterial.lock = true;

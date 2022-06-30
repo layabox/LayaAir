@@ -27,7 +27,7 @@ export class UniformBufferObject extends Buffer {
      * @param bytelength byte length
      * @returns 
      */
-    static creat(name: string, bufferUsage: number, bytelength: number, isSingle: boolean = false) {
+    static create(name: string, bufferUsage: number, bytelength: number, isSingle: boolean = false) {
         if (!UniformBufferObject._Map.get(name)) {
             UniformBufferObject._Map.set(name, new UniformBufferBase(name, UniformBufferObject.glPointerID++, isSingle));
         }

@@ -95,7 +95,7 @@ export class UnifromBufferData {
      * @interanl
      * layout UniformBuffer pitch std140
      */
-     protected _addUniformParams(key: string, value: UniformBufferParamsType, offset: number): number {
+    protected _addUniformParams(key: string, value: UniformBufferParamsType, offset: number): number {
         let size: number = 0;
         let posAdd: number = 0;
         const uniformID: number = Shader3D.propertyNameToID(key);
@@ -200,7 +200,7 @@ export class UnifromBufferData {
     /**
      * @internal
      */
-    destroy(){
+    destroy() {
         delete this._buffer;
     }
 
@@ -447,5 +447,9 @@ export class UnifromBufferData {
         this._buffer.set(value.elements, pos);
         pos += 16;
         this._setUpdateFlag(info.x, pos);
+    }
+
+    clone(): UnifromBufferData {
+        return new UnifromBufferData(this._uniformParamsState);
     }
 }

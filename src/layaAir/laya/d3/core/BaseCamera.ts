@@ -272,7 +272,7 @@ export class BaseCamera extends Sprite3D {
 			this._cameraUniformUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
 			this._cameraUniformData = BaseCamera.createSceneUniformBlock();
 			if(!this._cameraUniformUBO){
-				this._cameraUniformUBO = UniformBufferObject.creat(UniformBufferObject.UBONAME_CAMERA,BufferUsage.Dynamic,this._cameraUniformData.getbyteLength(), true);
+				this._cameraUniformUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA,BufferUsage.Dynamic,this._cameraUniformData.getbyteLength(), true);
 			}
 			this._shaderValues.setValueData(BaseCamera.CAMERAUNIFORMBLOCK,this._cameraUniformUBO);
 		}

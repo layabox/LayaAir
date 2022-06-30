@@ -170,7 +170,7 @@ export class ShadowCasterPass {
 			this._castDepthBufferData = ShadowCasterPass.createDepthCasterUniformBlock();
 			this._castDepthBufferOBJ = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
 			if(!this._castDepthBufferOBJ){
-				this._castDepthBufferOBJ = UniformBufferObject.creat(UniformBufferObject.UBONAME_SHADOW,BufferUsage.Dynamic,this._castDepthBufferData.getbyteLength(),true);
+				this._castDepthBufferOBJ = UniformBufferObject.create(UniformBufferObject.UBONAME_SHADOW,BufferUsage.Dynamic,this._castDepthBufferData.getbyteLength(),true);
 			}
 		}
 	}

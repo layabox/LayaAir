@@ -789,7 +789,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._sceneUniformObj = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SCENE, 0);
 			this._sceneUniformData = Scene3D.createSceneUniformBlock();
 			if(!this._sceneUniformObj){
-				this._sceneUniformObj = UniformBufferObject.creat(UniformBufferObject.UBONAME_SCENE,BufferUsage.Dynamic, this._sceneUniformData.getbyteLength(), true);
+				this._sceneUniformObj = UniformBufferObject.create(UniformBufferObject.UBONAME_SCENE,BufferUsage.Dynamic, this._sceneUniformData.getbyteLength(), true);
 			}
 			
 			this._shaderValues.setValueData(Scene3D.SCENEUNIFORMBLOCK, this._sceneUniformObj);
