@@ -145,7 +145,10 @@ export class ShaderData implements IClone {
 	 * @param	value Vector2向量。
 	 */
 	setVector2(index: number, value: Vector2): void {
-		this._data[index] = value.clone();
+		if(this._data[index]){
+			value.cloneTo(this._data[index]);
+		}else
+			this._data[index] = value.clone();
 	}
 
 	/**
@@ -163,7 +166,10 @@ export class ShaderData implements IClone {
 	 * @param	value Vector3向量。
 	 */
 	setVector3(index: number, value: Vector3): void {
-		this._data[index] = value.clone();
+		if(this._data[index]){
+			value.cloneTo(this._data[index]);
+		}else
+			this._data[index] = value.clone();
 	}
 
 	/**
@@ -181,7 +187,10 @@ export class ShaderData implements IClone {
 	 * @param	value 向量。
 	 */
 	setVector(index: number, value: Vector4): void {
-		this._data[index] = value.clone();
+		if(this._data[index]){
+			value.cloneTo(this._data[index]);
+		}else
+			this._data[index] = value.clone();
 	}
 
 	/**
@@ -199,7 +208,10 @@ export class ShaderData implements IClone {
 	 * @param	value 四元数。
 	 */
 	setQuaternion(index: number, value: Quaternion): void {
-		this._data[index] = value.clone();
+		if(this._data[index]){
+			value.cloneTo(this._data[index]);
+		}else
+			this._data[index] = value.clone();
 	}
 
 	/**
@@ -267,10 +279,18 @@ export class ShaderData implements IClone {
 	 * @param value data
 	 */
 	setValueData(index: number, value: any) {
-		if (!!value.clone)
-			this._data[index] = value.clone();
-		else
+		if(!value)//value null
 			this._data[index] = value;
+		if(!!this._data[index]&&(!!value.cloneTo)){
+			value.cloneTo(this._data[index]);
+		}else if (!!value.clone){
+			this._data[index] = value.clone();
+		}else
+			this._data[index] = value;
+	}
+
+	setBlockValueData(){
+		//TODO
 	}
 
 	/**

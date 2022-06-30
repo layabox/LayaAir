@@ -25,6 +25,7 @@ import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
 import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { NativeRenderOBJCreateUtil } from "./NativeOBJ/NativeRenderOBJCreateUtil";
 import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
+import { RenderTextureCube } from "../../../d3/resource/RenderTextureCube";
 
 
 /**
@@ -52,6 +53,9 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchWebGLEngine(webglMode);
+  }
+  getCurVertexState(): IRenderVertexState {
+    return null;//lv TODO
   }
 
   /**

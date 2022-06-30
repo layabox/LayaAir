@@ -315,6 +315,10 @@ export class WebGLEngine implements IRenderEngine {
     return new GLVertexState(this);
   }
 
+  getCurVertexState():GLVertexState{
+    return this._GLBindVertexArray;
+  }
+
   getTextureContext(): ITextureContext {
     return this._GLTextureContext;
   }

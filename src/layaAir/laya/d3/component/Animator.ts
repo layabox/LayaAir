@@ -356,7 +356,6 @@ export class Animator extends Component {
 		var currentFrameIndices = animatorState._currentFrameIndices;
 		var frontPlay = playStateInfo._elapsedTime > playStateInfo._lastElapsedTime;
 		clip!._evaluateClipDatasRealTime(clip!._nodes!, curPlayTime, currentFrameIndices!, addtive, frontPlay, animatorState._realtimeDatas, animatorMask);
-
 	}
 
 	/**

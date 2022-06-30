@@ -1,5 +1,4 @@
 import { BufferState } from "../../d3/core/BufferState";
-import { BufferStateBase } from "../../RenderEngine/BufferStateBase";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { Config } from "./../../../Config";
 import { IndexBuffer2D } from "./IndexBuffer2D";
@@ -114,8 +113,8 @@ export class Mesh2D {
      * @param	gl
      */
     useMesh(): void {
-        if(this._vao != BufferStateBase._curBindedBufferState){
-            BufferStateBase._curBindedBufferState&&BufferStateBase._curBindedBufferState.unBind();
+        if(this._vao&&!this._vao.isbind()){
+            BufferState._curBindedBufferState&&BufferState._curBindedBufferState.unBind();
         }
         //要先bind，在bufferData
         this._applied || this.configVAO();

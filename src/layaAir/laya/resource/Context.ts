@@ -62,7 +62,6 @@ import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { NativeContext } from "./NativeContext";
-import { BufferStateBase } from "../RenderEngine/BufferStateBase";
 /**
  * @private
  * Context扩展类
@@ -1871,8 +1870,6 @@ export class Context {
 	 * @param	end
 	 */
 	submitElement(start: number, end: number): number {
-		//清理数据
-		BufferStateBase._curBindedBufferState&&BufferStateBase._curBindedBufferState.unBind();
 		var mainCtx: boolean = this.isMain;
 		var renderList: any[] = this._submits;
 		var ret: number = ((<any>renderList))._length;

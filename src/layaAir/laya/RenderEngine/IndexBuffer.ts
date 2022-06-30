@@ -1,7 +1,7 @@
-import { BufferStateBase } from "./BufferStateBase";
 import { BufferTargetType, BufferUsage } from "./RenderEnum/BufferTargetType";
 import { IndexFormat } from "./RenderEnum/IndexFormat";
 import { Buffer } from "./Buffer";
+import { BufferState } from "../d3/core/BufferState";
 
 export class IndexBuffer extends Buffer {
     /** @internal */
@@ -18,7 +18,7 @@ export class IndexBuffer extends Buffer {
     _setIndexData(data: number): void;
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array, bufferOffset: number): void;
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array | number, bufferOffset?: number): void {
-        var curBufSta: BufferStateBase = BufferStateBase._curBindedBufferState;
+        var curBufSta: BufferState = BufferState._curBindedBufferState;
 
         if (curBufSta) {
             if (curBufSta._bindedIndexBuffer === this) {

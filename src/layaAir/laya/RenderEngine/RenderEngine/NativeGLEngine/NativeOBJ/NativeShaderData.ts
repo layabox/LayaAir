@@ -229,7 +229,10 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      * @param	value Vector2向量。
      */
     setVector2(index: number, value: Vector2): void {
-        this._data[index] = value.clone();
+        if(this._data[index]){
+			value.cloneTo(this._data[index]);
+		}else
+			this._data[index] = value.clone();
         this.configMotionProperty(index, 4 , this.compressVector2);
     }
 
@@ -239,7 +242,10 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      * @param	value Vector3向量。
      */
     setVector3(index: number, value: Vector3): void {
-        this._data[index] = value.clone();
+        if(this._data[index]){
+			value.cloneTo(this._data[index]);
+		}else
+			this._data[index] = value.clone();
         this.configMotionProperty(index, 5, this.compressVector3);
     }
 
@@ -249,7 +255,10 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      * @param	value 向量。
      */
     setVector(index: number, value: Vector4): void {
-        this._data[index] = value.clone();
+        if(this._data[index]){
+			value.cloneTo(this._data[index]);
+		}else
+			this._data[index] = value.clone();
         this.configMotionProperty(index, 6, this.compressVector4);
     }
 
@@ -259,7 +268,10 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      * @param	value 四元数。
      */
     setQuaternion(index: number, value: Quaternion): void {
-        this._data[index] = value.clone();
+        if(this._data[index]){
+			value.cloneTo(this._data[index]);
+		}else
+			this._data[index] = value.clone();
         this.configMotionProperty(index, 6, this.compressVector4);
     }
 

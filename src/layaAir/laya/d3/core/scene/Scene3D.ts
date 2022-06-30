@@ -75,8 +75,8 @@ import { FrustumCulling } from "../../graphics/FrustumCulling";
 import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { WebGL } from "../../../webgl/WebGL";
-import { BufferStateBase } from "../../../RenderEngine/BufferStateBase";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { BufferState } from "../BufferState";
 
 /**
  * 环境光模式
@@ -1537,7 +1537,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 渲染入口
 	 */
 	renderSubmit(): number {
-		BufferStateBase._curBindedBufferState && BufferStateBase._curBindedBufferState.unBind();
+		BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
 		this._prepareSceneToRender();
 		var i: number, n: number, n1: number;
 		Scene3D._updateMark++;
