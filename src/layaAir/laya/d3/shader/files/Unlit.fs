@@ -18,15 +18,9 @@
 	varying vec2 v_Texcoord0;
 #endif
 
-#ifdef ENUNIFORMBLOCK
-	uniform UnlitBlock {
-		vec4 u_AlbedoColor;
-		vec4 u_TilingOffset;
-	};
-#else
-	uniform vec4 u_AlbedoColor;
-	uniform vec4 u_TilingOffset;
-#endif
+
+uniform vec4 u_AlbedoColor;
+uniform vec4 u_TilingOffset;
 
 #ifdef ALPHATEST
 	uniform float u_AlphaTestValue;

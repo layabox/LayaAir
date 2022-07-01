@@ -57,9 +57,6 @@ export class NativeWebGLEngine implements IRenderEngine {
   getUBOPointer(name: string): number {
     throw new Error("Method not implemented.");
   }
-  getCurVertexState(): IRenderVertexState {
-    return null;//lv TODO
-  }
 
   /**
    * GL Context

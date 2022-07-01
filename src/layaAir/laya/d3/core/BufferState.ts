@@ -59,7 +59,7 @@ export class BufferState {
 	 * @private
 	 */
 	unBind(): void {
-		if (LayaGL.renderEngine.getCurVertexState()==this._nativeVertexArrayObject) {
+		if (BufferState._curBindedBufferState==this) {
 			this._nativeVertexArrayObject.unbindVertexArray();
 			BufferState._curBindedBufferState = null;
 		} else {
@@ -68,7 +68,7 @@ export class BufferState {
 	}
 
 	isbind():boolean{
-		return (LayaGL.renderEngine.getCurVertexState()==this._nativeVertexArrayObject);
+		return (BufferState._curBindedBufferState==this);
 	}
 
 

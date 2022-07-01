@@ -319,10 +319,6 @@ export class WebGLEngine implements IRenderEngine {
     return new GLVertexState(this);
   }
 
-  getCurVertexState():GLVertexState{
-    return this._GLBindVertexArray;
-  }
-
   getUBOPointer(name:string):number{
     if(!this._GLUBOPointerMap.get(name))
       this._GLUBOPointerMap.set(name,this._curUBOPointer++);
