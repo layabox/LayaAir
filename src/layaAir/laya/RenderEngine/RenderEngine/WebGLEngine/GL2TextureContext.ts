@@ -348,7 +348,7 @@ export class GL2TextureContext extends GLTextureContext {
         let format = texture.format;
         let type = texture.type;
         let mipmapCount = texture.mipmapCount;
-        // todo texture size 与 ddsInfo size
+        // todo texture size 
         let width = texture.width;
         let height = texture.height;
 
@@ -364,21 +364,27 @@ export class GL2TextureContext extends GLTextureContext {
         this._engine._bindTexture(texture.target, texture.resource);
 
         if (!compressed) {
-            gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
+            gl.texStorage2D(target, ktxInfo.mipmapCount, internalFormat, width, height);
         }
 
         let mipmapWidth = width;
         let mipmapHeight = height;
         let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
-        for (let index = 0; index < mipmapCount; index++) {
+        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
             dataOffset += 4;
-            let sourceData = new Uint8Array(source, dataOffset, imageSize);
 
-            compressed && gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-
-            !compressed && gl.texSubImage2D(target, index, 0, 0, mipmapWidth, mipmapHeight, format, type, sourceData);
+            if (compressed) {
+                let sourceData = new Uint8Array(source, dataOffset, imageSize);
+                gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
+            }
+            else {
+                let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+                let typedSize = imageSize / pixelParams.typedSize;
+                let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
+                gl.texSubImage2D(target, index, 0, 0, mipmapWidth, mipmapHeight, format, type, sourceData);
+            }
 
             dataOffset += imageSize;
             dataOffset += 3 - ((imageSize + 3) % 4);
@@ -526,27 +532,31 @@ export class GL2TextureContext extends GLTextureContext {
         this._engine._bindTexture(texture.target, texture.resource);
 
         if (!compressed) {
-            gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
+            gl.texStorage2D(target, ktxInfo.mipmapCount, internalFormat, width, height);
         }
 
-        for (let index = 0; index < mipmapCount; index++) {
+        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
+
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
             dataOffset += 4;
-            // todo  cube 在一起？
 
             for (let face = 0; face < 6; face++) {
                 let t = cubeFace[face];
-                let sourceData = new Uint8Array(source, dataOffset, imageSize);
 
-                compressed && gl.compressedTexImage2D(t, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-
-                !compressed && gl.texSubImage2D(target, index, 0, 0, width, height, format, type, sourceData);
-
+                if (compressed) {
+                    let sourceData = new Uint8Array(source, dataOffset, imageSize);
+                    gl.compressedTexImage2D(t, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
+                }
+                else {
+                    let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+                    let typedSize = imageSize / pixelParams.typedSize;
+                    let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
+                    gl.texSubImage2D(t, index, 0, 0, mipmapWidth, mipmapHeight, format, type, sourceData);
+                }
                 dataOffset += imageSize;
                 dataOffset += 3 - ((imageSize + 3) % 4);
             }
-
 
             mipmapWidth = Math.max(1, mipmapWidth * 0.5);
             mipmapHeight = Math.max(1, mipmapHeight * 0.5);
@@ -635,8 +645,8 @@ export class GL2TextureContext extends GLTextureContext {
         }
 
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine,target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
-        
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
+
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 
         internalTex.internalFormat = glParam.internalFormat;
@@ -665,7 +675,7 @@ export class GL2TextureContext extends GLTextureContext {
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         let texture = this.createRenderTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(this._engine,colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
 
         renderTarget._textures.push(texture);
 
@@ -718,7 +728,7 @@ export class GL2TextureContext extends GLTextureContext {
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
 
-        let renderTarget = new WebGLInternalRT(this._engine,colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
+        let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
         renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
@@ -773,7 +783,7 @@ export class GL2TextureContext extends GLTextureContext {
         }
 
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine,target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 

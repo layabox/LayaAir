@@ -92,6 +92,7 @@ export class GlCapable {
         if (isWebgl2) {
             const _extColorBufferFloat = this._getExtension("EXT_color_buffer_float");
             setExtensionMap(WebGLExtension.EXT_color_buffer_float, _extColorBufferFloat, this._extensionMap);
+            this._getExtension("OES_texture_float_linear");
         } else {
             VertexArrayObject;//强制引用
             if ((window as any)._setupVertexArrayObject) //兼容VAO
@@ -106,7 +107,7 @@ export class GlCapable {
             setExtensionMap(WebGLExtension.OES_texture_half_float_linear, _oesTextureHalfFloatLinear, this._extensionMap);
             const _oesTextureFloat = this._getExtension("OES_texture_float");
             setExtensionMap(WebGLExtension.OES_texture_float, _oesTextureFloat, this._extensionMap);
-            //this._getExtension("OES_texture_float_linear");
+            this._getExtension("OES_texture_float_linear");
             const _oes_element_index_uint = this._getExtension("OES_element_index_uint");
             setExtensionMap(WebGLExtension.OES_element_index_uint, _oes_element_index_uint, this._extensionMap);
             const _extShaderTextureLod = this._getExtension("EXT_shader_texture_lod");

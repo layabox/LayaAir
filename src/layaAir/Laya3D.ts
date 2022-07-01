@@ -93,6 +93,9 @@ import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { DepthPass } from "./laya/d3/depthMap/DepthPass";
 import { BloomEffect } from "./laya/d3/core/render/BloomEffect";
+import { KTXTextureInfo } from "./laya/RenderEngine/KTXTextureInfo";
+import { TextureDimension } from "./laya/RenderEngine/RenderEnum/TextureDimension";
+import { HDRTextureInfo } from "./laya/RenderEngine/HDRTextureInfo";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -105,6 +108,9 @@ export class Laya3D {
 	static MATERIAL: string = "MATERIAL";//兼容
 	/**Texture2D资源。*/
 	static TEXTURE2D: string = "TEXTURE2D";//兼容
+
+	static KTX: string = "KTX";
+
 	/**TextureCube资源。*/
 	static TEXTURECUBE: string = "TEXTURECUBE";//兼容
 	/**TextureCube资源。*/
@@ -323,7 +329,7 @@ export class Laya3D {
 		createMap["gif"] = [Laya3D.TEXTURE2D, Texture2D._parseImage];
 		createMap["png"] = [Laya3D.TEXTURE2D, Texture2D._parseImage];
 		createMap["dds"] = [Laya3D.TEXTURE2D, Texture2D._parseDDS];
-		createMap["ktx"] = [Laya3D.TEXTURE2D, Texture2D._parseKTX];
+		createMap["ktx"] = [Laya3D.KTX, Laya3D._parseKTX];
 		createMap["pvr"] = [Laya3D.TEXTURE2D, Texture2D._parsePVR];
 		createMap["lani"] = [Laya3D.ANIMATIONCLIP, AnimationClip._parse];
 		createMap["ltc"] = [Laya3D.TEXTURECUBE, TextureCube._parse];
@@ -331,6 +337,7 @@ export class Laya3D {
 		//为其他平台添加的兼容代码,临时TODO：
 		createMap["ltcb.ls"] = [Laya3D.TEXTURECUBEBIN, TextureCube._parseBin];
 		createMap["lanit.ls"] = [Laya3D.TEXTURE2D, Texture2D._SimpleAnimatorTextureParse];
+		createMap["hdr"] = [HDRTextureInfo.HDRTEXTURE, HDRTextureInfo._parseHDRTexture];
 
 		var parserMap: any = Loader.parserMap;
 		parserMap[Laya3D.HIERARCHY] = Laya3D._loadHierarchy;
@@ -341,6 +348,8 @@ export class Laya3D {
 		parserMap[Laya3D.TEXTURE2D] = Laya3D._loadTexture2D;
 		parserMap[Laya3D.ANIMATIONCLIP] = Laya3D._loadAnimationClip;
 		parserMap[Laya3D.SIMPLEANIMATORBIN] = Laya3D._loadSimpleAnimator;
+		parserMap[Laya3D.KTX] = Laya3D._loadKTX;
+		parserMap[HDRTextureInfo.HDRTEXTURE] = Laya3D._loadHDR;
 		//parserMap[Laya3D.TERRAINRES] = _loadTerrain;
 		//parserMap[Laya3D.TERRAINHEIGHTDATA] = _loadTerrain;
 
@@ -628,6 +637,31 @@ export class Laya3D {
 		Laya3D._endLoad(loader, mesh);
 	}
 
+	private static _loadKTX(loader: Loader): void {
+		loader.on(Event.LOADED, null, Laya3D._onKTXImageLoaded, [loader]);
+		loader.load(loader.url, Loader.BUFFER, false, null, true);
+	}
+
+	private static _onKTXImageLoaded(loader: Loader, ktxData: ArrayBuffer): void {
+		loader._cache = loader._createCache;
+
+		let tex = Laya3D._parseKTX(ktxData, loader._propertyParams, loader._constructParams);
+
+		Laya3D._endLoad(loader, tex);
+	}
+
+	private static _loadHDR(loader: Loader): void {
+		loader.on(Event.LOADED, null, Laya3D._onHDRLoaded, [loader]);
+		loader.load(loader.url, Loader.BUFFER, false, null, true);
+	}
+
+	private static _onHDRLoaded(loader: Loader, hdrData: ArrayBuffer): void {
+		loader._cache = loader._createCache;
+		let tex = HDRTextureInfo._parseHDRTexture(hdrData);
+
+		Laya3D._endLoad(loader, tex);
+	}
+
 	/**
 	 *@internal
 	 */
@@ -717,6 +751,36 @@ export class Laya3D {
 			Laya3D._endLoad(loader, clip);
 		});
 		loader.load(loader.url, Loader.BUFFER, false, null, true);
+	}
+
+
+	private static _parseKTX(data: ArrayBuffer, propertyParams: any = null, constructParams: any[] = null) {
+		let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
+
+		switch (ktxInfo.dimension) {
+			case TextureDimension.Cube:
+				{
+					let texture = new TextureCube(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, ktxInfo.sRGB);
+					texture.setKTXData(ktxInfo);
+
+					return texture;
+				}
+				break;
+			case TextureDimension.Tex2D:
+				{
+					let texture = new Texture2D(ktxInfo.width, ktxInfo.height, ktxInfo.format, ktxInfo.mipmapCount > 1, false, ktxInfo.sRGB);
+					texture.setKTXData(ktxInfo);
+					if (propertyParams) {
+						texture.wrapModeU = propertyParams.warpModeU;
+						texture.wrapModeV = propertyParams.wrapModeV;
+						texture.filterMode = propertyParams.filterMode;
+						texture.anisoLevel = propertyParams.anisoLevel;
+					}
+					return texture;
+				}
+			default:
+				return null;
+		}
 	}
 
 	/**

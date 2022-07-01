@@ -19,11 +19,25 @@
 
 import { Vector4 } from "../d3/math/Vector4";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { Texture2D } from "../resource/Texture2D";
 
 /**
  * https://floyd.lbl.gov/radiance/framer.html
  */
 export class HDRTextureInfo {
+
+    static HDRTEXTURE: string = "HDRTEXTURE";
+
+    static _parseHDRTexture(data: ArrayBuffer, propertyParams: any = null, constructParams: any[] = null) {
+
+        let hdrInfo = HDRTextureInfo.getHDRInfo(data);
+
+        let texture = new Texture2D(hdrInfo.width, hdrInfo.height, hdrInfo.format, false, false, false);
+
+        texture.setHDRData(hdrInfo);
+
+        return texture;
+    }
 
     /**
      * 

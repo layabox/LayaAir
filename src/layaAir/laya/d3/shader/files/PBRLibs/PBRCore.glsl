@@ -152,7 +152,7 @@ void fragmentForward()
 	float nv = abs(dot(normalWorld, eyeVec));
 	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,lightMapUV,normalWorld,posworld);
 	vec4 color = LAYA_BRDF_GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,perceptualRoughness,roughness,nv,normalWorld,eyeVec,gi);
-	
+	vec3 giColor = color.rgb;
 	float shadowAttenuation = 1.0;
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
@@ -239,7 +239,8 @@ void fragmentForward()
 			#endif
 		#endif
 	 #endif
-
+	// color.rgb = giColor;
+	// // color.rgb = gi.specular;
 	#ifdef EMISSION
 		color.rgb += emission(uv);
 	#endif

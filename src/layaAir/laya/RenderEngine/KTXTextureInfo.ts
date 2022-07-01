@@ -64,9 +64,13 @@ const COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR = 37853;
 
 /** gl param for unCompressed image data*/
 const GL_FORMAT_RGBA = 6408;
+const GL_FORMAT_RGB = 6407;
+const GL_FORMAT_RGBA32F = 0x8814;
+const GL_FORMAT_RGBA16F = 0x881A;
 
 const GL_INTERNALFORMAT_RGBA8 = 0x8058;
 const GL_INTERNALFORMAT_SRGB8_ALPHA8 = 0x8C43;
+const GL_INTERNALFORMAT_R11F_G11F_B10F = 0x8C3A;
 
 // gl data type
 const GL_DATATYPE_BYTE = 0x1400;
@@ -76,6 +80,7 @@ const GL_DATATYPE_UNSIGNED_SHORT = 0x1403;
 const GL_DATATYPE_INT = 0x1404;
 const GL_DATATYPE_UNSIGNED_INT = 0x1405;
 const GL_DATATYPE_FLOAT = 0x1406;
+const GL_DATATYPE_HALF_FLOAT = 0x140b;
 
 /**
  * https://www.khronos.org/registry/KTX/specs/1.0/ktxspec_v1.html
@@ -133,6 +138,12 @@ export class KTXTextureInfo {
             }
             else if (glFormat == GL_FORMAT_RGBA && glInternalFormat == GL_INTERNALFORMAT_SRGB8_ALPHA8 && glType == GL_DATATYPE_UNSIGNED_BYTE) {
                 return { format: TextureFormat.R8G8B8A8, sRGB: true };
+            }
+            else if (glFormat == GL_FORMAT_RGBA && glInternalFormat == GL_FORMAT_RGBA32F && glType == GL_DATATYPE_FLOAT) {
+                return { format: TextureFormat.R32G32B32A32, sRGB: false };
+            }
+            else if (glFormat == GL_FORMAT_RGBA && glInternalFormat == GL_FORMAT_RGBA16F && glType == GL_DATATYPE_HALF_FLOAT) {
+                return { format: TextureFormat.R16G16B16A16, sRGB: false };
             }
             else {
                 throw "ktx: Unsupported UnCompressed image data.";

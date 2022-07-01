@@ -303,45 +303,54 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
     public getFormatPixelsParams(format: TextureFormat) {
 
-        let formatParams: { channels: number, bytesPerPixel: number } = {
+        let formatParams: { channels: number, bytesPerPixel: number, dataTypedCons: any, typedSize: number } = {
             channels: 0,
             bytesPerPixel: 0,
+            dataTypedCons: Uint8Array,
+            typedSize: 1
         }
         switch (format) {
             case TextureFormat.R8G8B8A8:
                 formatParams.channels = 4;
                 formatParams.bytesPerPixel = 4;
-                // formatParams.dataTypeCons = Uint8Array
+                formatParams.dataTypedCons = Uint8Array
+                formatParams.typedSize = 1;
                 return formatParams;
             case TextureFormat.R8G8B8:
                 formatParams.channels = 3;
                 formatParams.bytesPerPixel = 3;
-                // formatParams.dataTypeCons = Uint8Array
+                formatParams.dataTypedCons = Uint8Array
+                formatParams.typedSize = 1;
                 return formatParams;
             case TextureFormat.R5G6B5:
                 formatParams.channels = 3;
                 formatParams.bytesPerPixel = 2;
-                // formatParams.dataTypeCons = Uint16Array
+                formatParams.dataTypedCons = Uint16Array
+                formatParams.typedSize = 2;
                 return formatParams;
             case TextureFormat.R16G16B16:
                 formatParams.channels = 3;
                 formatParams.bytesPerPixel = 6;
-                // formatParams.dataTypeCons = Uint16Array
+                formatParams.dataTypedCons = Uint16Array
+                formatParams.typedSize = 2;
                 return formatParams;
             case TextureFormat.R16G16B16A16:
                 formatParams.channels = 4;
                 formatParams.bytesPerPixel = 8;
-                // formatParams.dataTypeCons = Uint16Array
+                formatParams.dataTypedCons = Uint16Array
+                formatParams.typedSize = 2;
                 return formatParams;
             case TextureFormat.R32G32B32:
                 formatParams.channels = 3;
                 formatParams.bytesPerPixel = 12;
-                // formatParams.dataTypeCons = Uint16Array
+                formatParams.dataTypedCons = Float32Array
+                formatParams.typedSize = 4;
                 return formatParams;
             case TextureFormat.R32G32B32A32:
                 formatParams.channels = 4;
                 formatParams.bytesPerPixel = 16;
-                // formatParams.dataTypeCons = Uint16Array
+                formatParams.dataTypedCons = Float32Array
+                formatParams.typedSize = 4;
                 return formatParams;
             default:
                 return formatParams;
@@ -632,7 +641,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let mipmapWidth = width;
         let mipmapHeight = height;
         let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
-        for (let index = 0; index < mipmapCount; index++) {
+        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
             dataOffset += 4;
@@ -870,7 +879,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         let formatParams = this.getFormatPixelsParams(ddsInfo.format);
         let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
-        
+
         let dataTypeConstur = ddsInfo.format == TextureFormat.R32G32B32A32 ? Float32Array : Uint16Array;
 
         if (!ddsInfo.compressed) {
@@ -931,7 +940,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let internalFormat = texture.internalFormat;
         let format = texture.format;
         let type = texture.type;
-        let mipmapCount = texture.mipmapCount;
+        let mipmapCount = ktxInfo.mipmapCount;
         // todo texture size 与 ddsInfo size
         let width = texture.width;
         let height = texture.height;
@@ -960,7 +969,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let mipmapHeight = height;
         let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
 
-        for (let index = 0; index < mipmapCount; index++) {
+        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
             dataOffset += 4;

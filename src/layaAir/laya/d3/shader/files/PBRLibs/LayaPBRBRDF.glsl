@@ -138,7 +138,7 @@ mediump vec4 layaBRDFHighLight(mediump vec3 diffColor, mediump vec3 specColor, m
     // HACK: theoretically we should divide diffuseTerm by Pi and not multiply specularTerm!
     // BUT that will make shader look significantly darker than Legacy ones
 
-	// GGX with roughtness to 0 would mean no specular at all, using max(roughness, 0.002) here to match HDrenderloop roughtness remapping.
+	// GGX with roughness to 0 would mean no specular at all, using max(roughness, 0.002) here to match HDrenderloop roughness remapping.
 	roughness = max(roughness, 0.002);
 	float V = smithJointGGXVisibilityTerm(nl, nv, roughness);
 	float D = ggxTerm(nh, roughness);
@@ -153,6 +153,21 @@ mediump vec4 layaBRDFHighLight(mediump vec3 diffColor, mediump vec3 specColor, m
 	mediump vec3 color = diffColor * light.color * diffuseTerm + specularTerm * light.color * fresnelTerm(specColor, lh);
 	return vec4(color, 1.0);
 }
+
+mediump float LayaBRDFV(float roughness, vec3 normal, mediump float nv, LayaLight light) 
+{
+	float nl = clamp(dot(normal, -light.dir), 0.0, 1.0);
+	float V = smithJointGGXVisibilityTerm(nl, nv, roughness);
+	return V;
+}
+
+mediump vec3 LayaBRDFF(vec3 specColor, vec3 viewDir, LayaLight light)
+{
+	vec3 halfDir = safeNormalize(viewDir-light.dir);
+	mediump float lh = clamp(dot(light.dir, -halfDir), 0.0, 1.0);
+	return fresnelTerm(specColor, lh);
+}
+
 
 vec4 layaBRDFHighGI(mediump vec3 diffColor,mediump vec3 specColor,mediump float oneMinusReflectivity,float smoothness ,float perceptualRoughness,float roughness,mediump float nv,vec3 normal, vec3 viewDir,LayaGI gi)
 {
