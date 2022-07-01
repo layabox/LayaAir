@@ -75,7 +75,9 @@ export class UnifromBufferData {
         this._uniformParamsState.forEach((key, value) => {
             dataPos += this._addUniformParams(value, key, dataPos);
         });
-        this._bytelength = dataPos * elementSize;
+        //这里需要对手机平台做兼容
+        //this._bytelength = dataPos * elementSize;
+        this._bytelength = Math.ceil(dataPos/4)*4* elementSize;
         this._buffer = new Float32Array(dataPos);
     }
 

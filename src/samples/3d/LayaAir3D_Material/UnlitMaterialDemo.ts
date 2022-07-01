@@ -10,6 +10,8 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { UnifromBufferData } from "laya/RenderEngine/UniformBufferData";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -27,6 +29,12 @@ export class UnlitMaterialDemo {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
+		//手动添加UBO
+		 
+		let shader = Shader3D.find("Unlit").getSubShaderAt(0);
+		//@ts-ignore
+		shader._uniformBufferData.set("UnlitBlock",new UnifromBufferData(UnlitMaterial.unlitUniformMap));
+
 
 		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
