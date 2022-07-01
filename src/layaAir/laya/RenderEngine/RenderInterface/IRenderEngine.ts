@@ -47,6 +47,6 @@ export interface IRenderEngine {
     createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }):IRenderShaderInstance
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage):IRenderBuffer ;
     createVertexState():IRenderVertexState;
-
-    getCurVertexState():IRenderVertexState;
+	getCurVertexState():IRenderVertexState;
+    getUBOPointer(name:string):number;
 }

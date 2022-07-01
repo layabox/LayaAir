@@ -17,9 +17,6 @@ export class UniformBufferObject extends Buffer {
     /**@internal */
     private static _Map: Map<string, UniformBufferBase> = new Map<string, UniformBufferBase>();
 
-    /**@internal bind GL Pointer*/
-    private static glPointerID: number = 0;
-
     /**
      * create Uniform Buffer Base
      * @param name Uniform block name(must pitch Shader)
@@ -29,7 +26,7 @@ export class UniformBufferObject extends Buffer {
      */
     static create(name: string, bufferUsage: number, bytelength: number, isSingle: boolean = false) {
         if (!UniformBufferObject._Map.get(name)) {
-            UniformBufferObject._Map.set(name, new UniformBufferBase(name, UniformBufferObject.glPointerID++, isSingle));
+            UniformBufferObject._Map.set(name, new UniformBufferBase(name, LayaGL.renderEngine.getUBOPointer(name), isSingle));
         }
         let bufferBase = UniformBufferObject._Map.get(name);
         if (bufferBase._singgle && bufferBase._mapArray.length > 0) {

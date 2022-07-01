@@ -99,20 +99,20 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance{
                 one.type = (gl as WebGL2RenderingContext).UNIFORM_BUFFER;
                 one.dataOffset = this._engine.propertyNameToID(uniformBlockName);
                 let location = one.location = gl2.getUniformBlockIndex(this._program, uniformBlockName);
-                if (!!UniformBufferObject.getBuffer(uniformBlockName,0)) {
-                    var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
-                    bytelength = this._legalUBObyteLength(bytelength);
-                    let indexPoint = UniformBufferObject.getBuffer(uniformBlockName,0);
-                    if(bytelength!=indexPoint.byteLength){
-                        throw "The length of the same UBO is not uniform";
-                    }
-                    gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
-                } else {
-                    var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
-                    bytelength = this._legalUBObyteLength(bytelength);
-                    let buffer: UniformBufferObject = UniformBufferObject.create(uniformBlockName, BufferUsage.Dynamic, bytelength,UniformBufferObject.isCommon(uniformBlockName));
-                    gl2.uniformBlockBinding(this._program, location, buffer._glPointer);
-                }
+                //if (!!UniformBufferObject.getBuffer(uniformBlockName,0)) {
+                    //var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
+                    //bytelength = this._legalUBObyteLength(bytelength);
+                    //let indexPoint = UniformBufferObject.getBuffer(uniformBlockName,0);
+                    //if(bytelength!=indexPoint.byteLength){
+                    //    throw "The length of the same UBO is not uniform";
+                    //}
+                    //gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
+                //} else {
+                  //  var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
+                  //  bytelength = this._legalUBObyteLength(bytelength);
+                  //  let buffer: UniformBufferObject = UniformBufferObject.create(uniformBlockName, BufferUsage.Dynamic, bytelength,UniformBufferObject.isCommon(uniformBlockName));
+                    gl2.uniformBlockBinding(this._program, location, this._engine.getUBOPointer(uniformBlockName));
+                //}
                 this._uniformObjectMap[one.name] = one;
                 this._uniformMap.push(one);
                 this._addShaderUnifiormFun(one);

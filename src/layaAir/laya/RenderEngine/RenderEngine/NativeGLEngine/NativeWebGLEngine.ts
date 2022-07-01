@@ -54,6 +54,9 @@ export class NativeWebGLEngine implements IRenderEngine {
   constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchWebGLEngine(webglMode);
   }
+  getUBOPointer(name: string): number {
+    throw new Error("Method not implemented.");
+  }
   getCurVertexState(): IRenderVertexState {
     return null;//lv TODO
   }
