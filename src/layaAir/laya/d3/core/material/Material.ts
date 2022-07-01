@@ -514,9 +514,6 @@ export class Material extends Resource implements IClone {
 
 	//根据绑定的shader 缓存一些特殊的数据
 	private _bindShaderInfo(shader: Shader3D) {
-
-		if (!Config3D._config._uniformBlock)
-			return;
 		//update UBOData by Shader
 		let subShader = shader.getSubShaderAt(0);//TODO	
 		let shaderUBODatas = subShader._uniformBufferData;
@@ -587,6 +584,8 @@ export class Material extends Resource implements IClone {
 		this._shader = Shader3D.find(name);
 		if (!this._shader)
 			throw new Error("BaseMaterial: unknown shader name.");
+		if (!Config3D._config._uniformBlock)
+			return;
 		this._releaseUBOData();
 		//bind shader info
 		this._bindShaderInfo(this._shader);
