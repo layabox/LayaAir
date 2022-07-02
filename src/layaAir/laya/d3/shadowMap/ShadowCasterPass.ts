@@ -208,6 +208,7 @@ export class ShadowCasterPass {
 		context.viewMatrix = shadowSliceData.viewMatrix;
 		context.projectionMatrix = shadowSliceData.projectionMatrix;
 		context.projectionViewMatrix = shadowSliceData.viewProjectMatrix;
+		this._castDepthBufferOBJ&&cameraSV.setValueData(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW),this._castDepthBufferOBJ);
 	}
 
 

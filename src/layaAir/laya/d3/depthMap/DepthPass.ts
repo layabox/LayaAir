@@ -93,7 +93,7 @@ export class DepthPass {
 			this._castDepthData = ShadowCasterPass.createDepthCasterUniformBlock();
 			this._castDepthUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
 			if(!this._castDepthUBO){
-				UniformBufferObject.create(UniformBufferObject.UBONAME_SHADOW,BufferUsage.Dynamic,this._castDepthData.getbyteLength(),true);
+				this._castDepthUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_SHADOW,BufferUsage.Dynamic,this._castDepthData.getbyteLength(),true);
 			}
 			
 		}
@@ -129,13 +129,12 @@ export class DepthPass {
 	 */
 	render(context: RenderContext3D, depthType: DepthTextureMode): void {
 		var scene = context.scene;
+		var shaderValues: ShaderData = scene._shaderValues;
+		this._castDepthUBO&&shaderValues.setValueData(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW),this._castDepthUBO);
 		switch (depthType) {
 			case DepthTextureMode.Depth:
-
-				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "ShadowCaster";
 				shaderValues.addDefine(DepthPass.DEPTHPASS);
-
 				shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
 				if (this._castDepthData) {
 					this._castDepthData._setData(DepthPass.DEFINE_SHADOW_BIAS, ShaderDataType.Vector4, DepthPass.SHADOW_BIAS);
@@ -160,7 +159,6 @@ export class DepthPass {
 				shaderValues.removeDefine(DepthPass.DEPTHPASS);
 				break;
 			case DepthTextureMode.DepthNormals:
-				var shaderValues: ShaderData = scene._shaderValues;
 				context.pipelineMode = "DepthNormal";
 				this._depthNormalsTexture._start();
 				//传入shader该传的值

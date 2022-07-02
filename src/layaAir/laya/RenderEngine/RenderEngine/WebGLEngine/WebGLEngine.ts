@@ -320,7 +320,7 @@ export class WebGLEngine implements IRenderEngine {
   }
 
   getUBOPointer(name:string):number{
-    if(!this._GLUBOPointerMap.get(name))
+    if(!this._GLUBOPointerMap.has(name))
       this._GLUBOPointerMap.set(name,this._curUBOPointer++);
     return this._GLUBOPointerMap.get(name);
   }

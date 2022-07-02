@@ -59,7 +59,7 @@ export class SetShaderDataCMD extends Command {
 		cmd = SetShaderDataCMD._pool.length > 0 ? SetShaderDataCMD._pool.pop() : new SetShaderDataCMD();
 		cmd._shaderData = shaderData;
 		cmd._nameID = nameID;
-		cmd._value = value;
+		cmd._value = value.clone?value.clone():value;
 		cmd._dataType = shaderDataType;
 		cmd._commandBuffer = commandBuffer;
 		return cmd;
