@@ -12,5 +12,5 @@ export interface INativeUploadNode{
     //组织一条数据更新命令
     getUploadMemoryLength():number;
     //组织头数据
-    uploadDataTOShareMemory(memoryBlock:UploadMemory,stride:number):void;
+    uploadDataTOShareMemory(memoryBlock:UploadMemory,stride:number): boolean;
 }

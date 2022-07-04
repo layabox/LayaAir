@@ -14,8 +14,9 @@ export class UploadMemory extends NativeMemory{
     }
 
     addBlockCell(node: INativeUploadNode, dataSizeInByte: number){
-        node.uploadDataTOShareMemory(this, this._currentOffsetInByte);
-        this._currentOffsetInByte += dataSizeInByte;
+        if (node.uploadDataTOShareMemory(this, this._currentOffsetInByte)) {
+            this._currentOffsetInByte += dataSizeInByte;
+        }
     }
 
     /**
