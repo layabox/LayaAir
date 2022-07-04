@@ -281,9 +281,7 @@ export class ShaderData implements IClone {
 	setValueData(index: number, value: any) {
 		if(!value)//value null
 			this._data[index] = value;
-		if(!!this._data[index]&&(!!value.cloneTo)){
-			value.cloneTo(this._data[index]);
-		}else if (!!value.clone){
+		if (!!value.clone){
 			this._data[index] = value.clone();
 		}else
 			this._data[index] = value;

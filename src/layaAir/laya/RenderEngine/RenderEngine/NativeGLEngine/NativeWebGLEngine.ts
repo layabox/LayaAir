@@ -57,9 +57,6 @@ export class NativeWebGLEngine implements IRenderEngine {
   getUBOPointer(name: string): number {
     return this._nativeObj.getUBOPointer(name);
   }
-  getCurVertexState(): IRenderVertexState {
-    return null;//lv TODO
-  }
 
   /**
    * GL Context

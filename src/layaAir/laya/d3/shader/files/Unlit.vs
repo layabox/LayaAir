@@ -22,15 +22,9 @@ attribute vec4 a_Color;
 varying vec4 v_Color;
 varying vec2 v_Texcoord0;
 
-#ifdef ENUNIFORMBLOCK
-	uniform UnlitBlock {
-		vec4 u_AlbedoColor;
-		vec4 u_TilingOffset;
-	};
-#else
-	uniform vec4 u_AlbedoColor;
-	uniform vec4 u_TilingOffset;
-#endif
+
+uniform vec4 u_AlbedoColor;
+uniform vec4 u_TilingOffset;
 
 #ifdef BONE
 	const int c_MaxBoneCount = 24;
