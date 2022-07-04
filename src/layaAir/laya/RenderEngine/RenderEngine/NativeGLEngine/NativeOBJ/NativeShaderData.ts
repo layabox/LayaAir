@@ -63,7 +63,10 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
      * @param memoryBlock 
      * @param stride 
      */
-    uploadDataTOShareMemory(memoryBlock: UploadMemory, strideInByte: number): void {
+    uploadDataTOShareMemory(memoryBlock: UploadMemory, strideInByte: number): boolean {
+        if (!this._data) {
+            return false;
+        }
         let array = memoryBlock.int32Array;
         let strideFloat = strideInByte / 4;
         //type
@@ -79,6 +82,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         });
         this.clearUpload();
         this.inUploadList = false;
+        return true;
     }
 
     clearUpload() {
