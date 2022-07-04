@@ -531,6 +531,9 @@ export class Material extends Resource implements IClone {
 	}
 
 	private _releaseUBOData() {
+		if(!this._uniformBufferDatas){
+			return;
+		}
 		for (let value of this._uniformBufferDatas.values()) {
 			value._updateDataInfo.destroy();
 			value.destroy();
