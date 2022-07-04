@@ -11,6 +11,7 @@ import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariant } from "../../RenderEngine/RenderShader/ShaderVariantCollection";
 import { ShaderInstance } from "./ShaderInstance";
+import { GLSLCodeGenerator } from "./GLSLCodeGenerator";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -113,53 +114,100 @@ export class ShaderPass extends ShaderCompileDefineBase {
 		var fragmentHead: string;
 		var defineStr: string = "";
 
+		// 拼接 shader attribute
+		let attributeMap = this._owner._attributeMap;
+		let uniformMap = this._owner._uniformMap;
+		let useUniformBlock = config._uniformBlock;
+		let attributeglsl = GLSLCodeGenerator.glslAttributeString(attributeMap);
+		let uniformglsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock);
+
 		if (WebGL._isWebGL2) {
 			vertexHead =
-				`#version 300 es\n
-				layout(std140, column_major) uniform;
-				#define attribute in
-				#define varying out
-				#define textureCube texture
-				#define texture2D texture\n`;
+				`#version 300 es
+#if defined(GL_FRAGMENT_PRECISION_HIGH)
+	precision highp float;
+	precision highp int;
+#else
+	precision mediump float;
+	precision mediump int;
+#endif
+layout(std140, column_major) uniform;
+#define attribute in
+#define varying out
+#define textureCube texture
+#define texture2D texture
+${attributeglsl}
+${uniformglsl}
+`;
+
 			fragmentHead =
-				`#version 300 es\n
-				layout(std140, column_major) uniform;
-				#define varying in
-				out highp vec4 pc_fragColor;
-				#define gl_FragColor pc_fragColor
-				#define gl_FragDepthEXT gl_FragDepth
-				#define texture2D texture
-				#define textureCube texture
-				#define texture2DProj textureProj
-				#define texture2DLodEXT textureLod
-				#define texture2DProjLodEXT textureProjLod
-				#define textureCubeLodEXT textureLod
-				#define texture2DGradEXT textureGrad
-				#define texture2DProjGradEXT textureProjGrad
-				#define textureCubeGradEXT textureGrad\n`;
+				`#version 300 es
+#if defined(GL_FRAGMENT_PRECISION_HIGH)
+	precision highp float;
+	precision highp int;
+#else
+	precision mediump float;
+	precision mediump int;
+#endif
+layout(std140, column_major) uniform;
+#define varying in
+out highp vec4 pc_fragColor;
+#define gl_FragColor pc_fragColor
+#define gl_FragDepthEXT gl_FragDepth
+#define texture2D texture
+#define textureCube texture
+#define texture2DProj textureProj
+#define texture2DLodEXT textureLod
+#define texture2DProjLodEXT textureProjLod
+#define textureCubeLodEXT textureLod
+#define texture2DGradEXT textureGrad
+#define texture2DProjGradEXT textureProjGrad
+#define textureCubeGradEXT textureGrad
+${uniformglsl}`;
 		}
 		else {
-			vertexHead = ""
+			vertexHead =
+				`#if defined(GL_FRAGMENT_PRECISION_HIGH)
+	precision highp float;
+	precision highp int;
+#else
+	precision mediump float;
+	precision mediump int;
+#endif
+${attributeglsl}
+${uniformglsl}`
 			fragmentHead =
 				`#ifdef GL_EXT_shader_texture_lod
-					#extension GL_EXT_shader_texture_lod : enable
-				#endif
-				#if !defined(GL_EXT_shader_texture_lod)
-					#define texture1DLodEXT texture1D
-					#define texture2DLodEXT texture2D
-					#define texture2DProjLodEXT texture2DProj
-					#define texture3DLodEXT texture3D
-					#define textureCubeLodEXT textureCube
-				#endif\n`;
+	#extension GL_EXT_shader_texture_lod : enable
+#endif
+
+#if defined(GL_FRAGMENT_PRECISION_HIGH)
+	precision highp float;
+	precision highp int;
+#else
+	precision mediump float;
+	precision mediump int;
+#endif
+
+#if !defined(GL_EXT_shader_texture_lod)
+	#define texture1DLodEXT texture1D
+	#define texture2DLodEXT texture2D
+	#define texture2DProjLodEXT texture2DProj
+	#define texture3DLodEXT texture3D
+	#define textureCubeLodEXT textureCube
+#endif
+${uniformglsl}`;
 		}
 
-
+		// todo 
 		defineStr += "#define MAX_LIGHT_COUNT " + config.maxLightCount + "\n";
 		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + config._maxAreaLightCountPerClusterAverage + "\n";
 		defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
 		defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
 		defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
 		defineStr += "#define SHADER_CAPAILITY_LEVEL " + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + "\n";
+
+
 
 		for (var i: number = 0, n: number = defineString.length; i < n; i++) {
 			var def: string = defineString[i];
@@ -179,12 +227,9 @@ export class ShaderPass extends ShaderCompileDefineBase {
 		if (ps[0].indexOf('#version') == 0) {
 			psVersion = ps[0] + '\n';
 			ps.shift();
-		}
-		let start = Date.now();
+		};
+		// todo definestr
 		shader = LayaGL.renderOBJCreate.createShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap, this);
-
-		console.log(`Shader Instance: ${this._owner._owner._name}, ${Date.now() - start}`);
-
 
 		cacheShaders[cacheKey] = shader;
 

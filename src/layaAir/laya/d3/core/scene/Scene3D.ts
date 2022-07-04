@@ -352,16 +352,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		if (Config3D._config._uniformBlock)
 			configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
-		switch (config.pbrRenderQuality) {
-			case PBRRenderQuality.High:
-				configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH)
-				break;
-			case PBRRenderQuality.Low:
-				configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW)
-				break;
-			default:
-				throw "Scene3D:unknown shader quality.";
-		}
+		// switch (config.pbrRenderQuality) {
+		// 	case PBRRenderQuality.High:
+		// 		configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH)
+		// 		break;
+		// 	case PBRRenderQuality.Low:
+		// 		configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW)
+		// 		break;
+		// 	default:
+		// 		throw "Scene3D:unknown shader quality.";
+		// }
 		if (config.isUseCannonPhysicsEngine) {
 			Physics3D._cannon && (Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings());
 		} else {

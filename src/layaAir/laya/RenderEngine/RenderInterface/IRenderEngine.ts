@@ -6,6 +6,7 @@ import { BufferTargetType, BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../RenderEnum/RenderParams";
+import { ShaderDataType } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { IRender2DContext } from "./IRender2DContext";
 import { IRenderBuffer } from "./IRenderBuffer";
@@ -18,34 +19,34 @@ import { ITextureContext } from "./ITextureContext";
 export interface IRenderEngine {
     gl: any;
     isWebGL2: boolean;
-    _isShaderDebugMode:boolean;
-    initRenderEngine(canvas:any):void;
-    
-    applyRenderStateCMD(cmd: RenderStateCommand):void;
-    
+    _isShaderDebugMode: boolean;
+    initRenderEngine(canvas: any): void;
+
+    applyRenderStateCMD(cmd: RenderStateCommand): void;
+
     viewport(x: number, y: number, width: number, height: number): void;
-    scissor(x: number, y: number, width: number, height: number):void;
-    colorMask(r: boolean, g: boolean, b: boolean, a: boolean):void;
-    copySubFrameBuffertoTex(texture:BaseTexture,level:number,xoffset:number, yoffset:number, x:number, y:number, width:number, height:number):void;
-    bindTexture(texture:BaseTexture):void;
-    clearRenderTexture(clearFlag: RenderClearFlag|number, clearcolor:Color, clearDepth:number):void;
-    scissorTest(value:boolean):void;
+    scissor(x: number, y: number, width: number, height: number): void;
+    colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void;
+    copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
+    bindTexture(texture: BaseTexture): void;
+    clearRenderTexture(clearFlag: RenderClearFlag | number, clearcolor: Color, clearDepth: number): void;
+    scissorTest(value: boolean): void;
 
     propertyNameToID(name: string): number;
 
-    getParams(params: RenderParams): number ;
+    getParams(params: RenderParams): number;
     getCapable(capatableType: RenderCapable): boolean;
     getTextureContext(): ITextureContext;
-     //TODO 先写完测试，这种封装过于死板
-    getDrawContext():IRenderDrawContext;
-    get2DRenderContext():IRender2DContext;
-    getCreateRenderOBJContext():IRenderOBJCreate;
-    
-    uploadUniforms(shader:IRenderShaderInstance,commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number ;
-    uploadCustomUniforms(shader:IRenderShaderInstance,custom: any[], index: number, data: any): number ;
-    
-    createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }):IRenderShaderInstance
-    createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage):IRenderBuffer ;
-    createVertexState():IRenderVertexState;
-    getUBOPointer(name:string):number;
+    //TODO 先写完测试，这种封装过于死板
+    getDrawContext(): IRenderDrawContext;
+    get2DRenderContext(): IRender2DContext;
+    getCreateRenderOBJContext(): IRenderOBJCreate;
+
+    uploadUniforms(shader: IRenderShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number;
+    uploadCustomUniforms(shader: IRenderShaderInstance, custom: any[], index: number, data: any): number;
+
+    createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance
+    createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer;
+    createVertexState(): IRenderVertexState;
+    getUBOPointer(name: string): number;
 }

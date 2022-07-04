@@ -26,7 +26,7 @@ import { IRenderQueue } from "../RenderInterface/RenderPipelineInterface/IRender
 import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { IShadowCullInfo } from "../RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { ISortPass } from "../RenderInterface/RenderPipelineInterface/ISortPass";
-import { ShaderData } from "../RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { BaseRenderNode } from "./BaseRenderNode";
 import { BaseRenderQueue } from "./BaseRenderQueue";
@@ -42,7 +42,7 @@ import { ShadowCullInfo } from "./ShadowCullInfo";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
-  
+
     createTransform(owner: Sprite3D): Transform3D {
         return new Transform3D(owner);
     }
@@ -59,7 +59,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new Plane(normal, d);
     }
 
-    createBoundFrustum(matrix:Matrix4x4):BoundFrustum{
+    createBoundFrustum(matrix: Matrix4x4): BoundFrustum {
         return new BoundFrustum(matrix);
     }
 
@@ -70,10 +70,10 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createRenderElement(): IRenderElement {
         return new RenderElementOBJ();
     }
-    createSkinRenderElement():IRenderElement{
+    createSkinRenderElement(): IRenderElement {
         return new SkinRenderElementOBJ();
     }
-    createInstanceRenderElement(){
+    createInstanceRenderElement() {
         return new InstanceRenderElementOBJ();
     }
 
@@ -91,39 +91,39 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new VertexBuffer3D(byteLength, bufferUsage, canRead);
     }
 
-    createIndexBuffer3D(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) :IndexBuffer3D{
+    createIndexBuffer3D(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false): IndexBuffer3D {
         return new IndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
-    createShaderInstance(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+    createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase): ShaderInstance {
         return new ShaderInstance(vs, ps, attributeMap, shaderPass);
     }
 
-    createBaseRenderNode():IBaseRenderNode{
+    createBaseRenderNode(): IBaseRenderNode {
         return new BaseRenderNode();
     }
 
-    createRenderContext3D():IRenderContext3D{
+    createRenderContext3D(): IRenderContext3D {
         return new RenderContext3DOBJ();
     }
 
-    createSceneRenderManager():ISceneRenderManager{
+    createSceneRenderManager(): ISceneRenderManager {
         return new SceneRenderManager();
     }
 
-    createCullPass():ICullPass{
+    createCullPass(): ICullPass {
         return new CullPassBase();
     }
 
-    createSortPass():ISortPass{
+    createSortPass(): ISortPass {
         return new QuickSort();
     }
 
-    createShadowCullInfo():IShadowCullInfo{
+    createShadowCullInfo(): IShadowCullInfo {
         return new ShadowCullInfo();
     }
 
-    createCameraCullInfo():ICameraCullInfo{
+    createCameraCullInfo(): ICameraCullInfo {
         return new CameraCullInfo();
     }
 

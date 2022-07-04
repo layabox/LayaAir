@@ -10,6 +10,17 @@ import { Vector2 } from "../../d3/math/Vector2";
 import { Vector3 } from "../../d3/math/Vector3";
 import { Vector4 } from "../../d3/math/Vector4";
 
+export enum ShaderDataType {
+	Int,
+	Bool,
+	Float,
+	Vector2,
+	Vector3,
+	Vector4,
+	Matrix4x4,
+	Texture2D,
+	TextureCube
+}
 
 /**
  * 着色器数据类。
@@ -18,7 +29,7 @@ export class ShaderData implements IClone {
 	/**@internal */
 	protected _ownerResource: Resource = null;
 	/**@internal */
-	 _data: any = null;
+	_data: any = null;
 
 	/** @internal */
 	_defineDatas: DefineDatas = new DefineDatas();
@@ -145,9 +156,9 @@ export class ShaderData implements IClone {
 	 * @param	value Vector2向量。
 	 */
 	setVector2(index: number, value: Vector2): void {
-		if(this._data[index]){
+		if (this._data[index]) {
 			value.cloneTo(this._data[index]);
-		}else
+		} else
 			this._data[index] = value.clone();
 	}
 
@@ -166,9 +177,9 @@ export class ShaderData implements IClone {
 	 * @param	value Vector3向量。
 	 */
 	setVector3(index: number, value: Vector3): void {
-		if(this._data[index]){
+		if (this._data[index]) {
 			value.cloneTo(this._data[index]);
-		}else
+		} else
 			this._data[index] = value.clone();
 	}
 
@@ -187,9 +198,9 @@ export class ShaderData implements IClone {
 	 * @param	value 向量。
 	 */
 	setVector(index: number, value: Vector4): void {
-		if(this._data[index]){
+		if (this._data[index]) {
 			value.cloneTo(this._data[index]);
-		}else
+		} else
 			this._data[index] = value.clone();
 	}
 
@@ -208,9 +219,9 @@ export class ShaderData implements IClone {
 	 * @param	value 四元数。
 	 */
 	setQuaternion(index: number, value: Quaternion): void {
-		if(this._data[index]){
+		if (this._data[index]) {
 			value.cloneTo(this._data[index]);
-		}else
+		} else
 			this._data[index] = value.clone();
 	}
 
@@ -279,15 +290,15 @@ export class ShaderData implements IClone {
 	 * @param value data
 	 */
 	setValueData(index: number, value: any) {
-		if(!value)//value null
+		if (!value)//value null
 			this._data[index] = value;
-		if (!!value.clone){
+		if (!!value.clone) {
 			this._data[index] = value.clone();
-		}else
+		} else
 			this._data[index] = value;
 	}
 
-	setBlockValueData(){
+	setBlockValueData() {
 		//TODO
 	}
 
@@ -384,7 +395,7 @@ export class ShaderData implements IClone {
 		return dest;
 	}
 
-	destroy():void{
+	destroy(): void {
 		this._data = null;
 		this._defineDatas = null;
 	}

@@ -10,7 +10,7 @@ import { CullMode } from "../../../RenderEnum/CullMode";
 import { RenderStateType } from "../../../RenderEnum/RenderStateType";
 import { IRenderShaderInstance } from "../../../RenderInterface/IRenderShaderInstance";
 import { Shader3D } from "../../../RenderShader/Shader3D";
-import { ShaderData } from "../../../RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../../RenderStateCommand";
 import { RenderStateContext } from "../../../RenderStateContext";
@@ -27,18 +27,18 @@ enum UniformParamsMapType {
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class NativeShaderInstance/* extends ShaderInstance */{
+export class NativeShaderInstance/* extends ShaderInstance */ {
 
 	_nativeObj: any;
 
-	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase) {
+	constructor(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase) {
 		//super(vs, ps, attributeMap, shaderPass);
 		var pConchAttributeMap: any = new (window as any).conchAttributeMap();
 		for (var k in attributeMap) {
-			pConchAttributeMap.setAttributeValue(k, attributeMap[k]);
+			pConchAttributeMap.setAttributeValue(k, attributeMap[k][0]);
 		}
 
-		var stateMap: {[key:string]:number} = (<ShaderPass>shaderPass)._stateMap;
+		var stateMap: { [key: string]: number } = (<ShaderPass>shaderPass)._stateMap;
 		for (var s in stateMap) {
 			pConchAttributeMap.setStateValue(stateMap[s], Shader3D.propertyNameToID(s));
 		}
@@ -52,13 +52,13 @@ export class NativeShaderInstance/* extends ShaderInstance */{
 	protected _disposeResource(): void {
 		this._nativeObj.destroy();
 	}
-	
 
-	bind(){
+
+	bind() {
 		return this._nativeObj.bind();
 	}
 
-	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean){
+	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean) {
 		Stat.shaderCall += this._nativeObj.uploadUniforms(shaderUniform, (shaderDatas as any)._nativeObj, uploadUnTexture);
 	}
 
@@ -72,15 +72,15 @@ export class NativeShaderInstance/* extends ShaderInstance */{
 		return (UniformParamsMapType.Scene as unknown as CommandEncoder);
 	}
 
-	get _cameraUniformParamsMap():CommandEncoder {
+	get _cameraUniformParamsMap(): CommandEncoder {
 		return (UniformParamsMapType.Camera as unknown as CommandEncoder);
 	}
 
-	get _spriteUniformParamsMap():CommandEncoder {
+	get _spriteUniformParamsMap(): CommandEncoder {
 		return (UniformParamsMapType.Sprite as unknown as CommandEncoder);
 	}
 
-	get _materialUniformParamsMap():CommandEncoder {
+	get _materialUniformParamsMap(): CommandEncoder {
 		return (UniformParamsMapType.Material as unknown as CommandEncoder);
 	}
 

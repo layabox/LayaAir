@@ -462,10 +462,6 @@ export class Material extends Resource implements IClone {
 		return this._shaderValues.getVector3(Material.STENCIL_Op);
 	}
 
-
-
-
-
 	/**
 	 * 获得材质属性
 	 */
@@ -517,7 +513,7 @@ export class Material extends Resource implements IClone {
 		//update UBOData by Shader
 		let subShader = shader.getSubShaderAt(0);//TODO	
 		let shaderUBODatas = subShader._uniformBufferData;
-		if(!shaderUBODatas)
+		if (!shaderUBODatas)
 			return;
 		for (let key of shaderUBODatas.keys()) {
 			//create data
@@ -525,12 +521,14 @@ export class Material extends Resource implements IClone {
 			//create UBO
 			let ubo = UniformBufferObject.create(key, BufferUsage.Dynamic, uboData.getbyteLength(), false);
 			ubo.setDataByUniformBufferData(uboData);
-			this._shaderValues.setValueData(Shader3D.propertyNameToID(key),ubo);
-			this._uniformBufferDatas.set(key,ubo);
+			this._shaderValues.setValueData(Shader3D.propertyNameToID(key), ubo);
+			this._uniformBufferDatas.set(key, ubo);
 		}
 	}
 
 	private _releaseUBOData() {
+		if (!Config3D._config._uniformBlock)
+			return;
 		for (let value of this._uniformBufferDatas.values()) {
 			value._updateDataInfo.destroy();
 			value.destroy();
@@ -613,12 +611,12 @@ export class Material extends Resource implements IClone {
 	 * @param propertyName 
 	 * @param value 
 	 */
-	setUniformBufferData(uboName: string, propertyName: string,type:ShaderDataType, value: any) {
+	setUniformBufferData(uboName: string, propertyName: string, type: ShaderDataType, value: any) {
 		if (!Config3D._config._uniformBlock)
-			this.setShaderPropertyValue(propertyName,value);
-		else{
+			this.setShaderPropertyValue(propertyName, value);
+		else {
 			let ubo = this._uniformBufferDatas.get(uboName);
-			ubo._updateDataInfo._setData(Shader3D.propertyNameToID(propertyName),type,value);
+			ubo._updateDataInfo._setData(Shader3D.propertyNameToID(propertyName), type, value);
 			//立即更新，可以优化
 			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
 		}

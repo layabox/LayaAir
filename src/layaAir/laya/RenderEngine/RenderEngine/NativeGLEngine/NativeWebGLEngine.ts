@@ -26,6 +26,7 @@ import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { NativeRenderOBJCreateUtil } from "./NativeOBJ/NativeRenderOBJCreateUtil";
 import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
 import { RenderTextureCube } from "../../../d3/resource/RenderTextureCube";
+import { ShaderDataType } from "../../RenderShader/ShaderData";
 
 
 /**
@@ -39,7 +40,7 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   /**@internal ShaderDebugMode*/
   _isShaderDebugMode: boolean = true;
-  
+
   private _GLTextureContext: NativeGLTextureContext;
   //Gl Draw
   private _GLRenderDrawContext: NativeGLRenderDrawContext;
@@ -137,10 +138,10 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer {
     //TODO SourceManager
-    return new (window as any).conchGLBuffer( this._nativeObj,targetType,bufferUsageType);
+    return new (window as any).conchGLBuffer(this._nativeObj, targetType, bufferUsageType);
   }
 
-  createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }): IRenderShaderInstance {
+  createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance {
     throw new Error("Method not implemented.");
   }
 

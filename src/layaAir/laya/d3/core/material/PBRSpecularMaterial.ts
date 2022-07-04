@@ -46,7 +46,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 		PBRSpecularMaterial.SPECULARCOLOR = Shader3D.propertyNameToID("u_SpecularColor");
 
 		var shader: Shader3D = Shader3D.add("PBRSpecular", true, true);
-		var subShader: SubShader = new SubShader();
+		var subShader: SubShader = new SubShader(null, null);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(PBRVS, PBRPS, "Forward");
 		subShader.addShaderPass(PBRShadowCasterVS, PBRShadowCasterPS, "ShadowCaster");

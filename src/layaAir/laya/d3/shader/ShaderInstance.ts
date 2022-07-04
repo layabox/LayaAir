@@ -4,7 +4,7 @@ import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
 import { RenderStateType } from "../../RenderEngine/RenderEnum/RenderStateType";
 import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderEngine/RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderEngine/RenderStateCommand";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
@@ -20,9 +20,9 @@ import { ShaderPass } from "./ShaderPass";
  */
 export class ShaderInstance {
 	/**@internal */
-	private _shaderPass: ShaderCompileDefineBase|ShaderPass;
+	private _shaderPass: ShaderCompileDefineBase | ShaderPass;
 
-	private _renderShaderInstance:IRenderShaderInstance;
+	private _renderShaderInstance: IRenderShaderInstance;
 
 	/**@internal */
 	_sceneUniformParamsMap: CommandEncoder;
@@ -50,25 +50,24 @@ export class ShaderInstance {
 	/**@internal SceneIDTODO*/
 	_uploadScene: any;
 
-	_cullStateCMD:RenderStateCommand;
+	_cullStateCMD: RenderStateCommand;
 
 	/**
 	 * 创建一个 <code>ShaderInstance</code> 实例。
 	 */
-	constructor(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase) {
-		//super(vs,ps,attributeMap);
-		this._cullStateCMD =LayaGL.renderOBJCreate.createRenderStateComand();
-		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(vs,ps,attributeMap);
+	constructor(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase) {
+		this._cullStateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(vs, ps, attributeMap);
 		this._shaderPass = shaderPass;
 		this._create();
-		
+
 	}
-	
+
 
 	/**
 	 * @internal TODO3D
 	 */
-	protected _create(): void {		
+	protected _create(): void {
 		this._sceneUniformParamsMap = new CommandEncoder();
 		this._cameraUniformParamsMap = new CommandEncoder();
 		this._spriteUniformParamsMap = new CommandEncoder();
@@ -77,31 +76,31 @@ export class ShaderInstance {
 		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
 		const cameraParams = CommandUniformMap.createGlobalUniformMap("BaseCamera");
 		const customParams = CommandUniformMap.createGlobalUniformMap("Custom");
-		let i,n;
-		let data:ShaderVariable[] = this._renderShaderInstance.getUniformMap();
-		for(i=0,n=data.length;i<n;i++){
-			let one:ShaderVariable = data[i];
-			if(sceneParams.hasPtrID(one.dataOffset)){
+		let i, n;
+		let data: ShaderVariable[] = this._renderShaderInstance.getUniformMap();
+		for (i = 0, n = data.length; i < n; i++) {
+			let one: ShaderVariable = data[i];
+			if (sceneParams.hasPtrID(one.dataOffset)) {
 				this._sceneUniformParamsMap.addShaderUniform(one);
-			}else if(cameraParams.hasPtrID(one.dataOffset)){
+			} else if (cameraParams.hasPtrID(one.dataOffset)) {
 				this._cameraUniformParamsMap.addShaderUniform(one);
-			}else if(spriteParms.hasPtrID(one.dataOffset)){
+			} else if (spriteParms.hasPtrID(one.dataOffset)) {
 				this._spriteUniformParamsMap.addShaderUniform(one);
-			}else if(customParams.hasPtrID(one.dataOffset)){
-				this._customUniformParamsMap||(this._customUniformParamsMap = []);
+			} else if (customParams.hasPtrID(one.dataOffset)) {
+				this._customUniformParamsMap || (this._customUniformParamsMap = []);
 				this._customUniformParamsMap[one.dataOffset] = one;
-			}else{
+			} else {
 				this._materialUniformParamsMap.addShaderUniform(one);
 			}
 		}
-		var stateMap: {[key:string]:number} = (<ShaderPass>this._shaderPass)._stateMap;
+		var stateMap: { [key: string]: number } = (<ShaderPass>this._shaderPass)._stateMap;
 		for (var s in stateMap)
 			this._stateParamsMap[stateMap[s]] = Shader3D.propertyNameToID(s);
 	}
 
 
 
-	
+
 
 	/**
 	 * @inheritDoc
@@ -121,14 +120,14 @@ export class ShaderInstance {
 		this._uploadCameraShaderValue = null;
 		this._uploadScene = null;
 	}
-	
+
 
 	//miner RenderState  removeTODO
 
 	/**
 	 * @internal
 	 */
-	 private _getRenderState(shaderDatas: any, stateIndex: number): any {
+	private _getRenderState(shaderDatas: any, stateIndex: number): any {
 		var stateID: any = this._stateParamsMap[stateIndex];
 		if (stateID == null)
 			return null;
@@ -136,12 +135,12 @@ export class ShaderInstance {
 			return shaderDatas[stateID];
 	}
 
-	bind(){
+	bind() {
 		return this._renderShaderInstance.bind();
 	}
 
-	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean){
-		Stat.shaderCall+=LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance,shaderUniform,shaderDatas,uploadUnTexture);
+	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean) {
+		Stat.shaderCall += LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
 	}
 
 	/**
@@ -154,21 +153,21 @@ export class ShaderInstance {
 		var depthWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_WRITE);
 		var depthTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_TEST);
 		var blend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND);
-		var stencilRef:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_REF);
-		var stencilTest:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_TEST);
-		var stencilWrite:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_WRITE);
-		var stencilOp:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_OP);
+		var stencilRef: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_REF);
+		var stencilTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_TEST);
+		var stencilWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_WRITE);
+		var stencilOp: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_OP);
 		depthWrite == null && (depthWrite = renderState.depthWrite);
 		depthTest == null && (depthTest = renderState.depthTest);
 		blend == null && (blend = renderState.blend);
 		stencilRef == null && (stencilRef = renderState.stencilRef);
-		stencilTest ==null && (stencilTest = renderState.stencilTest);
+		stencilTest == null && (stencilTest = renderState.stencilTest);
 		stencilWrite == null && (stencilTest = renderState.stencilWrite);
-		stencilOp ==null && (stencilOp = renderState.stencilOp);
+		stencilOp == null && (stencilOp = renderState.stencilOp);
 
 		RenderStateContext.setDepthMask(depthWrite);
 		if (depthTest === RenderState.DEPTHTEST_OFF)
-		RenderStateContext.setDepthTest(false);
+			RenderStateContext.setDepthTest(false);
 		else {
 			RenderStateContext.setDepthTest(true);
 			RenderStateContext.setDepthFunc(depthTest);
@@ -210,17 +209,17 @@ export class ShaderInstance {
 
 		//Stencil
 		RenderStateContext.setStencilMask(stencilWrite);
-		if(stencilTest==RenderState.STENCILTEST_OFF){
+		if (stencilTest == RenderState.STENCILTEST_OFF) {
 			RenderStateContext.setStencilTest(false);
-		}else{
+		} else {
 			RenderStateContext.setStencilTest(true);
-			RenderStateContext.setStencilFunc(stencilTest,stencilRef);
-			
+			RenderStateContext.setStencilFunc(stencilTest, stencilRef);
+
 		}
-		RenderStateContext.setstencilOp(stencilOp.x,stencilOp.y,stencilOp.z);
-		
-		
-		
+		RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
+
+
+
 	}
 
 	/**
@@ -236,24 +235,24 @@ export class ShaderInstance {
 		var forntFace: number;
 		switch (cull) {
 			case RenderState.CULL_NONE:
-				this._cullStateCMD.addCMD(RenderStateType.CullFace,false);
+				this._cullStateCMD.addCMD(RenderStateType.CullFace, false);
 				break;
 			case RenderState.CULL_FRONT:
-				this._cullStateCMD.addCMD(RenderStateType.CullFace,true);
-				if(isTarget==invertFront)
+				this._cullStateCMD.addCMD(RenderStateType.CullFace, true);
+				if (isTarget == invertFront)
 					forntFace = CullMode.Front;//gl.CCW
 				else
-					forntFace =CullMode.Back;
-				this._cullStateCMD.addCMD(RenderStateType.FrontFace,forntFace);
+					forntFace = CullMode.Back;
+				this._cullStateCMD.addCMD(RenderStateType.FrontFace, forntFace);
 				break;
 			case RenderState.CULL_BACK:
-				this._cullStateCMD.addCMD(RenderStateType.CullFace,true);
-				if(isTarget!=invertFront)
+				this._cullStateCMD.addCMD(RenderStateType.CullFace, true);
+				if (isTarget != invertFront)
 					forntFace = CullMode.Front;//gl.CCW
 				else
-					forntFace =CullMode.Back;
-				this._cullStateCMD.addCMD(RenderStateType.FrontFace,forntFace);
-				
+					forntFace = CullMode.Back;
+				this._cullStateCMD.addCMD(RenderStateType.FrontFace, forntFace);
+
 				break;
 		}
 		this._cullStateCMD.applyCMD();
@@ -263,7 +262,7 @@ export class ShaderInstance {
 	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
-		Stat.shaderCall += LayaGL.renderEngine.uploadCustomUniforms(this._renderShaderInstance,this._customUniformParamsMap, index, data);
+		Stat.shaderCall += LayaGL.renderEngine.uploadCustomUniforms(this._renderShaderInstance, this._customUniformParamsMap, index, data);
 	}
 }
 

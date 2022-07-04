@@ -1,8 +1,5 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-precision highp float;
-#else
-precision mediump float;
-#endif
+
+varying vec2 v_Texcoord0;
 
 vec4 remapGLPositionZ(vec4 position)
 {

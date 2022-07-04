@@ -22,7 +22,7 @@ import { IRenderGeometryElement } from "../../../RenderInterface/RenderPipelineI
 import { IRenderQueue } from "../../../RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { ISceneRenderManager } from "../../../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISortPass";
-import { ShaderData } from "../../../RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderShader/ShaderData";
 import { NativePlane } from "./NativePlane";
 import { NativeBoundSphere } from "./NativeBoundsSphere";
 import { NativeTransform3D } from "./NativeTransform3D";
@@ -65,7 +65,7 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativePlane(normal, d);
     }
 
-    createBoundFrustum(matrix:Matrix4x4):NativeBoundFrustum{
+    createBoundFrustum(matrix: Matrix4x4): NativeBoundFrustum {
         return new NativeBoundFrustum(matrix);
     }
 
@@ -76,10 +76,10 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     createRenderElement(): IRenderElement {
         return new NativeRenderElementOBJ();
     }
-    createSkinRenderElement():IRenderElement{
+    createSkinRenderElement(): IRenderElement {
         return new NativeSkinRenderElementOBJ();
     }
-    createInstanceRenderElement():IRenderElement{
+    createInstanceRenderElement(): IRenderElement {
         return new NativeInstanceRenderElementOBJ();
     }
     createBaseRenderQueue(isTransparent: boolean): IRenderQueue {
@@ -96,39 +96,39 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeVertexBuffer3D(byteLength, bufferUsage, canRead);
     }
 
-    createIndexBuffer3D(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) :IndexBuffer3D{
+    createIndexBuffer3D(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false): IndexBuffer3D {
         return new NativeIndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
-    createShaderInstance(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+    createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase): ShaderInstance {
         return new NativeShaderInstance(vs, ps, attributeMap, shaderPass) as unknown as ShaderInstance;
     }
 
-    createBaseRenderNode():IBaseRenderNode{
+    createBaseRenderNode(): IBaseRenderNode {
         return new (window as any).conchRenderNode();
     }
 
-    createRenderContext3D():IRenderContext3D{
+    createRenderContext3D(): IRenderContext3D {
         return new NativeRenderContext3DOBJ();
     }
 
-    createSceneRenderManager():ISceneRenderManager{
+    createSceneRenderManager(): ISceneRenderManager {
         return new SceneRenderManager();//return new NativeSceneRenderManager();
     }
 
-    createCullPass():ICullPass{
+    createCullPass(): ICullPass {
         return new CullPassBase();//return new NativeCullPassBase();
     }
 
-    createSortPass():ISortPass{
+    createSortPass(): ISortPass {
         return new (window as any).conchQuickSort();
     }
 
-    createShadowCullInfo():IShadowCullInfo{
+    createShadowCullInfo(): IShadowCullInfo {
         return new NativeShadowCullInfo();
     }
 
-    createCameraCullInfo():ICameraCullInfo{
+    createCameraCullInfo(): ICameraCullInfo {
         return new NativeCameraCullInfo();
     }
 

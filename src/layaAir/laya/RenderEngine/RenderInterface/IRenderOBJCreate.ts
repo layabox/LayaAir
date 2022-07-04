@@ -16,7 +16,7 @@ import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
-import { ShaderData } from "../RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { IBaseRenderNode } from "./RenderPipelineInterface/IBaseRenderNode";
 import { ICameraCullInfo } from "./RenderPipelineInterface/ICameraCullInfo";
@@ -29,51 +29,51 @@ import { ISceneRenderManager } from "./RenderPipelineInterface/ISceneRenderManag
 import { IShadowCullInfo } from "./RenderPipelineInterface/IShadowCullInfo";
 import { ISortPass } from "./RenderPipelineInterface/ISortPass";
 
-export interface IRenderOBJCreate{
+export interface IRenderOBJCreate {
 
-	createShaderInstance(vs: string, ps: string, attributeMap: any, shaderPass: ShaderCompileDefineBase): ShaderInstance;
-    
-    createTransform(owner:Sprite3D):Transform3D;
+    createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase): ShaderInstance;
 
-    createBounds(min:Vector3,max:Vector3):Bounds;
+    createTransform(owner: Sprite3D): Transform3D;
 
-    createBoundsSphere(center:Vector3,radius:number):BoundSphere;
+    createBounds(min: Vector3, max: Vector3): Bounds;
 
-    createPlane(normal:Vector3,d:number):Plane;
+    createBoundsSphere(center: Vector3, radius: number): BoundSphere;
 
-    createBoundFrustum(matrix:Matrix4x4):BoundFrustum;
+    createPlane(normal: Vector3, d: number): Plane;
 
-    createShaderData(ownerResource: Resource):ShaderData;
+    createBoundFrustum(matrix: Matrix4x4): BoundFrustum;
 
-    createRenderElement():IRenderElement;
+    createShaderData(ownerResource: Resource): ShaderData;
 
-    createSkinRenderElement():IRenderElement;
+    createRenderElement(): IRenderElement;
 
-    createInstanceRenderElement():IRenderElement;
+    createSkinRenderElement(): IRenderElement;
 
-    createBaseRenderQueue(isTransparent:boolean):IRenderQueue;
+    createInstanceRenderElement(): IRenderElement;
 
-    createRenderGeometry(mode:MeshTopology,drayType:DrawType):IRenderGeometryElement;
+    createBaseRenderQueue(isTransparent: boolean): IRenderQueue;
 
-    createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean):VertexBuffer3D;
+    createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement;
 
-    createIndexBuffer3D(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage, canRead: boolean):IndexBuffer3D;
+    createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean): VertexBuffer3D;
 
-    createBaseRenderNode():IBaseRenderNode;
+    createIndexBuffer3D(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage, canRead: boolean): IndexBuffer3D;
 
-    createRenderContext3D():IRenderContext3D;
+    createBaseRenderNode(): IBaseRenderNode;
 
-    createSceneRenderManager():ISceneRenderManager;
+    createRenderContext3D(): IRenderContext3D;
 
-    createCullPass():ICullPass;
+    createSceneRenderManager(): ISceneRenderManager;
 
-    createSortPass():ISortPass;
+    createCullPass(): ICullPass;
 
-    createShadowCullInfo():IShadowCullInfo;
+    createSortPass(): ISortPass;
 
-    createCameraCullInfo():ICameraCullInfo;
+    createShadowCullInfo(): IShadowCullInfo;
 
-    createRenderStateComand():RenderStateCommand;
+    createCameraCullInfo(): ICameraCullInfo;
+
+    createRenderStateComand(): RenderStateCommand;
 
     createRenderState(): RenderState;
 }

@@ -7,6 +7,7 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import SeprableSSSFS from "../shader/SeparableSSS_GasBlur.fs";
 import SeprableSSSVS from "../shader/SeparableSSS_GasBlur.vs";
@@ -29,8 +30,8 @@ export class SeparableSSS_BlitMaterial extends Material {
 		SeparableSSS_BlitMaterial.SHADERVALUE_DISTANCETOPROJECTIONWINDOW = Shader3D.propertyNameToID("u_distanceToProjectionWindow");
 		SeparableSSS_BlitMaterial.SHADERVALUE_KENEL = Shader3D.propertyNameToID("u_kernel");
 
-		var attributeMap = {
-			'a_PositionTexcoord': VertexMesh.MESH_POSITION0
+		var attributeMap: { [name: string]: [number, ShaderDataType] } = {
+			'a_PositionTexcoord': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
 		}
 		var shader: Shader3D = Shader3D.add("SeparableSSS");
 		var subShader: SubShader = new SubShader(attributeMap);

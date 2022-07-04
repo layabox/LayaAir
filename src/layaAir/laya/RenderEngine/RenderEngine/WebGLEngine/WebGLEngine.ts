@@ -16,6 +16,7 @@ import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
 import { RenderOBJCreateUtil } from "../../RenderObj/RenderOBJCreateUtil";
 import { Shader3D } from "../../RenderShader/Shader3D";
+import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { GL2TextureContext } from "./GL2TextureContext";
@@ -84,9 +85,9 @@ export class WebGLEngine implements IRenderEngine {
   //key BufferTargetType
   private _GLBufferBindMap: { [key: number]: GlBuffer | null };
 
-  private _curUBOPointer:number = 0;
+  private _curUBOPointer: number = 0;
   //记录绑定UBO的glPointer
-  private _GLUBOPointerMap:Map<string,number> = new Map();
+  private _GLUBOPointerMap: Map<string, number> = new Map();
 
   //bind viewport
   private _lastViewport: Vector4;
@@ -310,7 +311,7 @@ export class WebGLEngine implements IRenderEngine {
     return new GlBuffer(this, targetType, bufferUsageType);
   }
 
-  createShaderInstance(vs: string, ps: string, attributeMap: { [key: string]: number }): IRenderShaderInstance {
+  createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance {
     //TODO SourceManager
     return new GLShaderInstance(this, vs, ps, attributeMap);
   }
@@ -319,9 +320,9 @@ export class WebGLEngine implements IRenderEngine {
     return new GLVertexState(this);
   }
 
-  getUBOPointer(name:string):number{
-    if(!this._GLUBOPointerMap.has(name))
-      this._GLUBOPointerMap.set(name,this._curUBOPointer++);
+  getUBOPointer(name: string): number {
+    if (!this._GLUBOPointerMap.has(name))
+      this._GLUBOPointerMap.set(name, this._curUBOPointer++);
     return this._GLUBOPointerMap.get(name);
   }
 

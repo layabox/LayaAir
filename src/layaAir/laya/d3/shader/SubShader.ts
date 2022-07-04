@@ -1,5 +1,7 @@
+import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
+import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { ShaderPass } from "./ShaderPass";
 
@@ -20,22 +22,25 @@ export class SubShader {
 		's_StencilOp': Shader3D.RENDER_STATE_STENCIL_OP
 	}
 
-	private static DefaultAttributeMap: any = {
-		'a_Position': VertexMesh.MESH_POSITION0,
-		'a_Normal': VertexMesh.MESH_NORMAL0,
-		'a_Tangent0': VertexMesh.MESH_TANGENT0,
-		'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
-		'a_Texcoord1': VertexMesh.MESH_TEXTURECOORDINATE1,
-		'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
-		'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
-		'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0,
-		'a_SimpleTextureParams': VertexMesh.MESH_SIMPLEANIMATOR
+	public static readonly DefaultAttributeMap: { [name: string]: [number, ShaderDataType] } = {
+		'a_Position': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
+		'a_Normal': [VertexMesh.MESH_NORMAL0, ShaderDataType.Vector3],
+		'a_Tangent0': [VertexMesh.MESH_TANGENT0, ShaderDataType.Vector4],
+		'a_Texcoord0': [VertexMesh.MESH_TEXTURECOORDINATE0, ShaderDataType.Vector2],
+		'a_Texcoord1': [VertexMesh.MESH_TEXTURECOORDINATE1, ShaderDataType.Vector2],
+		'a_BoneWeights': [VertexMesh.MESH_BLENDWEIGHT0, ShaderDataType.Vector4],
+		'a_BoneIndices': [VertexMesh.MESH_BLENDINDICES0, ShaderDataType.Vector4],
+		'a_WorldMat': [VertexMesh.MESH_WORLDMATRIX_ROW0, ShaderDataType.Matrix4x4],
+		'a_SimpleTextureParams': [VertexMesh.MESH_SIMPLEANIMATOR, ShaderDataType.Vector2]
 	}
-	/**@internal */
-	_attributeMap: any;
 
 	/**@internal */
-	_uniformBufferData:Map<string,UnifromBufferData> = new Map();
+	_attributeMap: { [name: string]: [number, ShaderDataType] };
+
+	_uniformMap: { [blockName: string]: { [uniformName: string]: ShaderDataType } | ShaderDataType };
+
+	/**@internal */
+	_uniformBufferData: Map<string, UnifromBufferData> = new Map();
 
 	/**@internal */
 	_owner: Shader3D;
@@ -49,8 +54,24 @@ export class SubShader {
 	 * @param	attributeMap  顶点属性表。
 	 * @param	uniformMap  uniform属性表。
 	 */
-	constructor(attributeMap: any = SubShader.DefaultAttributeMap) {
+	constructor(attributeMap: { [name: string]: [number, ShaderDataType] } = SubShader.DefaultAttributeMap, uniformMap: { [blockName: string]: { [uniformName: string]: ShaderDataType } | ShaderDataType } = {}) {
 		this._attributeMap = attributeMap;
+		this._uniformMap = uniformMap;
+
+		if (Config3D._config._uniformBlock) {
+			for (const key in uniformMap) {
+				if (typeof uniformMap[key] == "object") {
+					let block = <{ [uniformName: string]: ShaderDataType }>uniformMap[key];
+					let blockUniformMap = new Map<string, UniformBufferParamsType>();
+					for (const uniformName in block) {
+						let uniformType = ShaderDataTypeToUniformBufferType(block[uniformName]);
+						blockUniformMap.set(uniformName, uniformType);
+					}
+					let blockData = new UnifromBufferData(blockUniformMap);
+					this._uniformBufferData.set(key, blockData);
+				}
+			}
+		}
 	}
 
 	/**
@@ -89,5 +110,22 @@ export class SubShader {
 
 }
 
+function ShaderDataTypeToUniformBufferType(shaderDataType: ShaderDataType) {
 
+	switch (shaderDataType) {
+		case ShaderDataType.Float:
+			return UniformBufferParamsType.Number;
+		case ShaderDataType.Vector2:
+			return UniformBufferParamsType.Vector2;
+		case ShaderDataType.Vector3:
+			return UniformBufferParamsType.Vector3;
+		case ShaderDataType.Vector4:
+			return UniformBufferParamsType.Vector4;
+		case ShaderDataType.Matrix4x4:
+			return UniformBufferParamsType.Matrix4x4;
+		default:
+			throw "Error type.";
+	}
+
+}
 
