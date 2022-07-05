@@ -1,5 +1,4 @@
 import { HtmlVideo } from "./HtmlVideo";
-import { WebGLVideo } from "./WebGLVideo";
 import { Sprite } from "../../display/Sprite";
 import { Texture } from "../../resource/Texture";
 import { ILaya } from "../../../ILaya";
@@ -44,7 +43,7 @@ export class Video extends Sprite {
 	constructor(width: number = 320, height: number = 240) {
 		super();
 
-		this.htmlVideo = new WebGLVideo();
+		this.htmlVideo = new ILaya.WebGLVideo();
 
 		this.videoElement = this.htmlVideo.getVideo();
 		this.videoElement.layaTarget = this;

@@ -26,6 +26,7 @@ import { Utils } from "./laya/utils/Utils";
 import { Graphics } from "./laya/display/Graphics";
 import { Submit } from "./laya/webgl/submit/Submit";
 import { Resource } from "./laya/resource/Resource";
+import { WebGLVideo } from "laya/device/media/WebGLVideo";
 
 /**
  * @internal
@@ -69,6 +70,7 @@ import { Resource } from "./laya/resource/Resource";
      static Submit:typeof Submit = null;
      static Stage:typeof Stage=null;
      static Resource:typeof Resource=null;
+     static WebGLVideo:typeof WebGLVideo=null;
 
      /**@internal */
      static __classMap:Object = {};

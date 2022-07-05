@@ -63,6 +63,7 @@ import { Config } from "./Config";
 import { Color } from "./laya/d3/math/Color";
 import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
+import { WebGLVideo } from "laya/device/media/WebGLVideo";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -403,6 +404,7 @@ ILaya.Submit = Submit;
 ILaya.Stage = Stage;
 ILaya.Resource = Resource;
 ILaya.WorkerLoader = WorkerLoader;
+ILaya.WebGLVideo=WebGLVideo;
 
 
 //初始化引擎库
