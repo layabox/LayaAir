@@ -36,6 +36,7 @@ export class GLParams{
         this._glParamsData.set(RenderParams.FLOAT,gl.FLOAT);
         this._glParamsData.set(RenderParams.UNSIGNED_BYTE,gl.UNSIGNED_BYTE);
         this._glParamsData.set(RenderParams.UNSIGNED_SHORT,gl.UNSIGNED_SHORT);
+        this._glParamsData.set(RenderParams.BYTE,gl.BYTE);
 
     }
 

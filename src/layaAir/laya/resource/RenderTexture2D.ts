@@ -15,7 +15,7 @@ import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /** @private */
     private static _currentActive: RenderTexture2D;
-    private static _clearColor:Color = new Color();
+    private static _clearColor: Color = new Color();
     private _lastRT: RenderTexture2D;
     private _lastWidth: number;
     private _lastHeight: number;
@@ -107,8 +107,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         super(width, height, format);
         this._colorFormat = format;
         this._depthStencilFormat = depthStencilFormat;
-        if(width!=0&&height!=0){
-            this._create();    
+        if (width != 0 && height != 0) {
+            this._create();
         }
         this.lock = true;
     }
@@ -152,7 +152,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         var top: any = RenderTexture2D.rtStack.pop();
         if (top) {
             if (RenderTexture2D._currentActive != top.rt) {
-                top.rt?LayaGL.textureContext.bindRenderTarget(top.rt._renderTarget):LayaGL.textureContext.bindoutScreenTarget();
+                top.rt ? LayaGL.textureContext.bindRenderTarget(top.rt._renderTarget) : LayaGL.textureContext.bindoutScreenTarget();
                 RenderTexture2D._currentActive = top.rt;
             }
             LayaGL.renderEngine.viewport(0, 0, top.w, top.h);
@@ -224,13 +224,13 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 
 
     clear(r: number = 0.0, g: number = 0.0, b: number = 0.0, a: number = 1.0): void {
-        
+
         RenderTexture2D._clearColor.r = r;
         RenderTexture2D._clearColor.g = g;
         RenderTexture2D._clearColor.b = b;
         RenderTexture2D._clearColor.a = a;
         //@ts-ignore
-        LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color|RenderClearFlag.Depth,RenderTexture2D._clearColor,1);
+        LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, RenderTexture2D._clearColor, 1);
     }
 
 
@@ -285,7 +285,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      */
     _disposeResource(): void {
         //width 和height为0的时候不会创建资源
-        this._renderTarget&&this._renderTarget.dispose();
+        this._renderTarget && this._renderTarget.dispose();
     }
 
 }

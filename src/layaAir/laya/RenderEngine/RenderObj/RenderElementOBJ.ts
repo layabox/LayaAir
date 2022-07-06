@@ -62,7 +62,7 @@ export class RenderElementOBJ implements IRenderElement {
                 var uploadScene: boolean = (shaderIns._uploadScene !== sceneID) || switchUpdateMark;
                 //Scene
                 if (uploadScene || switchShader) {
-                    shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData, uploadScene);
+                    sceneShaderData && shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData, uploadScene);
                     shaderIns._uploadScene = sceneID;
                 }
                 //render
@@ -76,7 +76,7 @@ export class RenderElementOBJ implements IRenderElement {
                 //camera
                 var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderData || switchUpdateMark;
                 if (uploadCamera || switchShader) {
-                    shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderData, uploadCamera);
+                    cameraShaderData && shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderData, uploadCamera);
                     shaderIns._uploadCameraShaderValue = cameraShaderData;
                 }
                 //material

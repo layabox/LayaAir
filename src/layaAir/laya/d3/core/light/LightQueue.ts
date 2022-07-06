@@ -23,6 +23,8 @@ export class LightQueue<T extends Light> {
 
     remove(light: T): void {
         var index: number = this._elements.indexOf(light);
+        if(index == -1)
+            return;
         this._length--;
         if (index !== this._length) {
             var end: T = this._elements[this._length];

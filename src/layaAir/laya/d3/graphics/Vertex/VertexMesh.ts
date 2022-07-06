@@ -125,6 +125,10 @@ export class VertexMesh {
 						element = new VertexElement(offset, VertexElementFormat.Vector4, VertexMesh.MESH_TANGENT0);
 						offset += 16;
 						break;
+					case "NORMAL_BYTE":
+						element = new VertexElement(offset, VertexElementFormat.NorByte4, VertexMesh.MESH_NORMAL0);
+						offset += 4;
+						break;
 					default:
 						throw "VertexMesh: unknown vertex flag.";
 				}
