@@ -7,14 +7,6 @@ import { ShadowMode } from "./ShadowMode";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Light } from "./Light";
 
-/**
- * @internal
- */
-export enum LightType {
-	Directional,
-	Spot,
-	Point
-}
 
 export enum LightMode {
 	Bake,//烘培灯光，不计入灯光效果

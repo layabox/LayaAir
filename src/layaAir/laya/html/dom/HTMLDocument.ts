@@ -1,6 +1,5 @@
 import { HTMLElement } from "./HTMLElement";
 import { HTMLStyle } from "../utils/HTMLStyle"
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -20,6 +19,3 @@ export class HTMLDocument {
         this.all[id] = e;
     }
 }
-
-ClassUtils.regClass("laya.html.dom.HTMLDocument", HTMLDocument);
-ClassUtils.regClass("Laya.HTMLDocument", HTMLDocument);

@@ -1,6 +1,6 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics } from "./Physics";
-import { ClassUtils } from "../utils/ClassUtils";
+
 /**
  * 2D边框碰撞体
  */
@@ -68,6 +68,3 @@ export class EdgeCollider extends ColliderBase {
         if (this._shape) this._setShape();
     }
 }
-
-ClassUtils.regClass("laya.physics.EdgeCollider", EdgeCollider);
-ClassUtils.regClass("Laya.EdgeCollider", EdgeCollider);

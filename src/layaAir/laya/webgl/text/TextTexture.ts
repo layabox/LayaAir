@@ -8,7 +8,7 @@ import { IRender2DContext } from "../../RenderEngine/RenderInterface/IRender2DCo
 import { Texture2D } from "../../resource/Texture2D";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
-import { WarpMode } from "../../RenderEngine/RenderEnum/WrapMode";
+import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 
 export class TextTexture extends Resource {
     static gTextRender: ITextRender = null;
@@ -53,8 +53,8 @@ export class TextTexture extends Resource {
         this.bitmap._glTexture = glTex;
 
         this._source.filterMode = FilterMode.Bilinear;
-        this._source.wrapModeU = WarpMode.Clamp;
-        this._source.wrapModeV = WarpMode.Clamp;
+        this._source.wrapModeU = WrapMode.Clamp;
+        this._source.wrapModeV = WrapMode.Clamp;
 
         //TODO 预乘alpha
         if (TextTexture.gTextRender.debugUV) {

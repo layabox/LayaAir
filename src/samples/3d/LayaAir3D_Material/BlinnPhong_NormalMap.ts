@@ -9,6 +9,7 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
+import { Loader } from "laya/net/Loader";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -39,7 +40,7 @@ export class BlinnPhong_NormalMap {
 		directionLight.transform.worldMatrix = mat;
 		directionLight.color.setValue(1, 1, 1);
 
-		Laya.loader.create("res/threeDimen/staticModel/lizard/lizard.lh", Handler.create(this, this.onComplete), null, Laya3D.HIERARCHY);
+		Laya.loader.create("res/threeDimen/staticModel/lizard/lizard.lh", Handler.create(this, this.onComplete), null, Loader.HIERARCHY);
 	}
 
 	onComplete(s: any): void {

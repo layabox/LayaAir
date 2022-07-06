@@ -1,2 +1,6 @@
+import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
-new Main();
+
+Resource.DEBUG = true;
+
+new Main(true, false);

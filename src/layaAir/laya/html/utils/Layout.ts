@@ -5,7 +5,6 @@ import { LayoutLine } from "./LayoutLine";
 import { HTMLChar } from "../../utils/HTMLChar";
 import { HTMLElement } from "../dom/HTMLElement";
 import { IHtml } from "./IHtml";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -248,6 +247,3 @@ export class Layout {
         return [maxWidth, y];
     }
 }
-
-ClassUtils.regClass("laya.html.utils.Layout", Layout);
-ClassUtils.regClass("Laya.Layout", Layout);

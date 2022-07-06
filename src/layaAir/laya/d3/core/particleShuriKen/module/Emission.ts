@@ -1,11 +1,10 @@
-import { IDestroy } from "../../../../resource/IDestroy";
 import { IClone } from "../../IClone";
 import { Burst } from "./Burst";
 
 /**
  * <code>Emission</code> 类用于粒子发射器。
  */
-export class Emission implements IClone, IDestroy {
+export class Emission implements IClone {
 	/** @internal */
 	private _destroyed: boolean;
 	/** @internal */

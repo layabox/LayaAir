@@ -556,7 +556,7 @@ export class Graphics {
         if (!tex) {
             tex = new Texture();
             tex.load(url);
-            ILaya.Loader.cacheTexture(url, tex);
+            ILaya.Loader.cacheRes(url, tex);
             tex.once(Event.READY, this, this.drawImage, [tex, x, y, width, height]);
         } else {
             if (!tex.getIsReady()) {

@@ -90,11 +90,11 @@ export class RealTimeShadow {
 		this.rotationScript = directionLight.addComponent(RotationScript);
 
 		// A plane receive shadow.
-		var grid: Sprite3D = <Sprite3D>scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh"));
+		var grid: Sprite3D = <Sprite3D>scene.addChild(Loader.createNodes("res/threeDimen/staticModel/grid/plane.lh"));
 		(<MeshSprite3D>grid.getChildAt(0)).meshRenderer.receiveShadow = true;
 		
 		// A monkey cast shadow.
-		var layaMonkey: Sprite3D = <Sprite3D>scene.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
+		var layaMonkey: Sprite3D = <Sprite3D>scene.addChild(Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
 		layaMonkey.transform.localScale = new Vector3(2, 2, 2);
 		(<SkinnedMeshSprite3D>layaMonkey.getChildAt(0).getChildAt(1)).getComponent(SkinnedMeshRenderer).castShadow = true;
 

@@ -1,6 +1,6 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics } from "./Physics";
-import { ClassUtils } from "../utils/ClassUtils";
+
 /**
 	 * 2D矩形碰撞体
 	 */
@@ -82,6 +82,3 @@ export class BoxCollider extends ColliderBase {
         this._setShape();
     }
 }
-
-ClassUtils.regClass("laya.physics.BoxCollider", BoxCollider);
-ClassUtils.regClass("Laya.BoxCollider", BoxCollider);

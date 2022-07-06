@@ -53,10 +53,10 @@ export class CameraDepthModeTextureDemo{
         this.scene.reflection = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
         this.scene.reflectionDecodingFormat  = 1;
         this.scene.reflectionIntensity = 1;
-        this.depthNormalPlane =this.scene.addChild(Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthNormalPlane.lh"))as MeshSprite3D;
-        this.depthPlane = this.scene.addChild(Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthPlane.lh")) as MeshSprite3D;
-        this.scene.addChild(Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthscene.lh")) ;
-        var camera = this.scene.addChild(Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Main Camera.lh")) as Camera;
+        this.depthNormalPlane =this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthNormalPlane.lh"))as MeshSprite3D;
+        this.depthPlane = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthPlane.lh")) as MeshSprite3D;
+        this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthscene.lh")) ;
+        var camera = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Main Camera.lh")) as Camera;
         camera.depthTextureMode|=DepthTextureMode.Depth;
         this.depthPlane.meshRenderer.sharedMaterial = new DepthMaterial();
 

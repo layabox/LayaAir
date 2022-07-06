@@ -22,7 +22,6 @@ import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "laya/layagl/LayaGL";
 
-
 /**
  *  Gaussian DoF
  *  * 只支持 远景模糊

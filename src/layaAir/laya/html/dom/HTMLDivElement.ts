@@ -7,7 +7,6 @@ import { Rectangle } from "../../maths/Rectangle"
 import { Handler } from "../../utils/Handler"
 import { IHtml } from "../utils/IHtml";
 import { HTMLParse } from "../utils/HTMLParse";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * HTML图文类，用于显示html内容
@@ -200,6 +199,3 @@ export class HTMLDivElement extends Sprite {
 
 IHtml.HTMLDivElement = HTMLDivElement;
 IHtml.HTMLParse = HTMLParse;
-
-ClassUtils.regClass("laya.html.dom.HTMLDivElement", HTMLDivElement);
-ClassUtils.regClass("Laya.HTMLDivElement", HTMLDivElement);

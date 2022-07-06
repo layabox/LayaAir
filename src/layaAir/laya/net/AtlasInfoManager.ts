@@ -1,6 +1,5 @@
 import { Handler } from "../utils/Handler";
 import { ILaya } from "./../../ILaya";
-import { Loader } from "./Loader";
 
 /**
  * @private
@@ -10,7 +9,7 @@ export class AtlasInfoManager {
 	private static _fileLoadDic: any = {};
 
 	static enable(infoFile: string, callback: Handler|null = null): void {
-		ILaya.loader.load(infoFile, Handler.create(null, AtlasInfoManager._onInfoLoaded, [callback]), null, Loader.JSON);
+		ILaya.loader.load(infoFile, Handler.create(null, AtlasInfoManager._onInfoLoaded, [callback]), null, ILaya.Loader.JSON);
 	}
 
 	/**@private */
@@ -33,7 +32,7 @@ export class AtlasInfoManager {
 	}
 
 	static getFileLoadPath(file: string): string {
-		return AtlasInfoManager._fileLoadDic[file] || file;
+		return AtlasInfoManager._fileLoadDic[file];
 	}
 }
 

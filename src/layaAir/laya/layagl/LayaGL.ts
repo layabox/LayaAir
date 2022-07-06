@@ -5,7 +5,6 @@ import { IRenderOBJCreate } from "../RenderEngine/RenderInterface/IRenderOBJCrea
 import { ITextureContext } from "../RenderEngine/RenderInterface/ITextureContext";
 
 /**
- * @internal
  * 封装GL命令
  */
 export class LayaGL {

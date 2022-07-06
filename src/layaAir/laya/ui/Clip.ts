@@ -10,7 +10,6 @@ import { Handler } from "../utils/Handler"
 import { Utils } from "../utils/Utils"
 import { WeakObject } from "../utils/WeakObject"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 图片加载完成后调度。
@@ -545,7 +544,3 @@ export class Clip extends UIComponent {
         }
     }
 }
-
-ILaya.regClass(Clip);
-ClassUtils.regClass("laya.ui.Clip", Clip);
-ClassUtils.regClass("Laya.Clip", Clip);

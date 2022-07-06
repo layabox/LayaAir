@@ -1,33 +1,41 @@
 import { ILaya } from "../../ILaya";
 import { LayaGL } from "../layagl/LayaGL";
+import { Handler } from "../utils/Handler";
+import { BaseTexture } from "./BaseTexture";
+import { Byte } from "../utils/Byte";
+import { HalfFloatUtils } from "../utils/HalfFloatUtils";
+import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { DDSTextureInfo } from "../RenderEngine/DDSTextureInfo";
 import { HDRTextureInfo } from "../RenderEngine/HDRTextureInfo";
 import { KTXTextureInfo } from "../RenderEngine/KTXTextureInfo";
-import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { Byte } from "../utils/Byte";
-import { HalfFloatUtils } from "../utils/HalfFloatUtils";
-import { Handler } from "../utils/Handler";
-import { BaseTexture } from "./BaseTexture";
 
+export interface TexturePropertyParams {
+    wrapModeU: number,
+    wrapModeV: number,
+    filterMode: FilterMode,
+    anisoLevel: number
+}
 
+export type TextureConstructParams = ConstructorParameters<typeof Texture2D>;
 
+/**
+ * <code>Texture2D</code> 类用于生成2D纹理。
+ */
 export class Texture2D extends BaseTexture {
+    /**Texture2D资源。*/
+    static TEXTURE2D: string = "TEXTURE2D";
 
-	/**Texture2D资源。*/
-	static TEXTURE2D: string = "TEXTURE2D";
-
-	/**纯灰色纹理。*/
-	static grayTexture: Texture2D = null;
-	/**纯白色纹理。*/
-	static whiteTexture: Texture2D = null;
-	/**纯黑色纹理。*/
-	static blackTexture: Texture2D = null;
-	/**错误纹理 */
-	static erroTextur: Texture2D = null;
-
+    /**纯灰色纹理。*/
+    static grayTexture: Texture2D = null;
+    /**纯白色纹理。*/
+    static whiteTexture: Texture2D = null;
+    /**纯黑色纹理。*/
+    static blackTexture: Texture2D = null;
+    /**错误纹理 */
+    static erroTextur: Texture2D = null;
 
 	static __init__() {
 		var pixels: Uint8Array = new Uint8Array(3);
@@ -53,8 +61,9 @@ export class Texture2D extends BaseTexture {
 		Texture2D.erroTextur = Texture2D.whiteTexture;
 	}
 
-	// todo  用支持 float 的texture 格式代替
-	static _SimpleAnimatorTextureParse(data: ArrayBuffer, propertyParams: any = null, constructParams: any[] = null) {
+
+    // todo  用支持 float 的texture 格式代替
+	static _SimpleAnimatorTextureParse(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
 		var byte: Byte = new Byte(data);
 		var version: String = byte.readUTFString();
 		var texture: Texture2D;
@@ -102,7 +111,7 @@ export class Texture2D extends BaseTexture {
 		return texture;
 	}
 
-	static _parseImage(imageSource: any, propertyParams: any = null, constructParams: any[] = null): Texture2D {
+	static _parseImage(imageSource: any, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null): Texture2D {
 
 		let format = constructParams ? constructParams[2] : TextureFormat.R8G8B8A8;
 		let mipmap = constructParams ? constructParams[3] : true;
@@ -113,7 +122,7 @@ export class Texture2D extends BaseTexture {
 		texture.setImageData(imageSource, false, false);
 
 		if (propertyParams) {
-			texture.wrapModeU = propertyParams.warpModeU;
+			texture.wrapModeU = propertyParams.wrapModeU;
 			texture.wrapModeV = propertyParams.wrapModeV;
 			texture.filterMode = propertyParams.filterMode;
 			texture.anisoLevel = propertyParams.anisoLevel;
@@ -133,7 +142,7 @@ export class Texture2D extends BaseTexture {
 		return texture;
 	}
 
-	static _parseDDS(data: ArrayBuffer, propertyParams: any = null, constructParams: any[] = null) {
+	static _parseDDS(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
 
 		let ddsInfo = DDSTextureInfo.getDDSTextureInfo(data);
 
@@ -142,7 +151,7 @@ export class Texture2D extends BaseTexture {
 		texture.setDDSData(ddsInfo);
 
 		if (propertyParams) {
-			texture.wrapModeU = propertyParams.warpModeU;
+			texture.wrapModeU = propertyParams.wrapModeU;
 			texture.wrapModeV = propertyParams.wrapModeV;
 			texture.filterMode = propertyParams.filterMode;
 			texture.anisoLevel = propertyParams.anisoLevel;
@@ -151,14 +160,14 @@ export class Texture2D extends BaseTexture {
 		return texture;
 	}
 
-	static _parseKTX(data: ArrayBuffer, propertyParams: any = null, constructParams: any[] = null) {
+	static _parseKTX(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
 		let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
 
 		let texture = new Texture2D(ktxInfo.width, ktxInfo.height, ktxInfo.format, ktxInfo.mipmapCount > 1, false, false);
 
 		texture.setKTXData(ktxInfo);
 		if (propertyParams) {
-			texture.wrapModeU = propertyParams.warpModeU;
+			texture.wrapModeU = propertyParams.wrapModeU;
 			texture.wrapModeV = propertyParams.wrapModeV;
 			texture.filterMode = propertyParams.filterMode;
 			texture.anisoLevel = propertyParams.anisoLevel;
@@ -166,7 +175,7 @@ export class Texture2D extends BaseTexture {
 		return texture;
 	}
 
-	static _parsePVR(data: ArrayBuffer, propertyParams: any = null, constructParams: any[] = null): Texture2D {
+	static _parsePVR(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null): Texture2D {
 		throw "pvr !";
 	}
 
@@ -216,7 +225,7 @@ export class Texture2D extends BaseTexture {
 		LayaGL.textureContext.setTextureHDRData(texture, hdrInfo);
 	}
 
-	get defaulteTexture(): BaseTexture {
+	get defaultTexture(): BaseTexture {
 		return Texture2D.grayTexture;
 	}
 

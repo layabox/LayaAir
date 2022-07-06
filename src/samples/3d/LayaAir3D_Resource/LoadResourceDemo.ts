@@ -2,10 +2,8 @@ import { Laya } from "Laya";
 import { AnimationClip } from "laya/d3/animation/AnimationClip";
 import { Animator } from "laya/d3/component/Animator";
 import { AnimatorState } from "laya/d3/component/AnimatorState";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -170,7 +168,7 @@ export class LoadResourceDemo {
 
 	onPreLoadFinish() {
 		//初始化3D场景
-		this._scene = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/TerrainScene/XunLongShi.ls")));
+		this._scene = (<Scene3D>Laya.stage.addChild(Loader.createNodes("res/threeDimen/scene/TerrainScene/XunLongShi.ls")));
 		//添加相机
 		var camera: Camera = new Camera();
 		this._scene.addChild(camera);
@@ -202,7 +200,7 @@ export class LoadResourceDemo {
 		earth1.transform.translate(new Vector3(17, 20, 0));
 
 		var earthMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		earthMat.albedoTexture = (<Texture2D>Loader.getRes("res/threeDimen/texture/earth.png"));
+		earthMat.albedoTexture = Loader.getTexture2D("res/threeDimen/texture/earth.png");
 		earthMat.albedoIntensity = 1;
 		earth1.meshRenderer.material = earthMat;
 
@@ -218,7 +216,7 @@ export class LoadResourceDemo {
 		layaMonkeyTrans.translate(new Vector3(5, 3, 13));
 
 		//使用精灵
-		var sp: Sprite3D = (<Sprite3D>Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
+		var sp: Sprite3D = (<Sprite3D>Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
 		var layaMonkey2: Sprite3D = (<Sprite3D>this._scene.addChild(sp));
 		var layaMonkey2Trans = layaMonkey2.transform;
 		var layaMonkey2Scale: Vector3 = layaMonkey2Trans.localScale;
@@ -227,7 +225,7 @@ export class LoadResourceDemo {
 		layaMonkey2Trans.translate(new Vector3(-10, 13, 0));
 
 		//使用精灵
-		this.pangzi = (<Sprite3D>Loader.getRes("res/threeDimen/skinModel/BoneLinkScene/PangZiNoAni.lh"));
+		this.pangzi = (<Sprite3D>Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/PangZiNoAni.lh"));
 		this.pangzi = (<Sprite3D>this._scene.addChild(this.pangzi));
 		var pangziTrans = this.pangzi.transform;
 		var pangziScale: Vector3 = pangziTrans.localScale;

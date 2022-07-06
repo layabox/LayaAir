@@ -1,23 +1,20 @@
 import { ILaya } from "../../ILaya";
 import { EventDispatcher } from "../events/EventDispatcher";
-import { URL } from "../net/URL";
-import { ICreateResource } from "./ICreateResource";
-import { IDestroy } from "./IDestroy";
+
+var _uniqueIDCounter: number = 0;
 
 /**
  * <code>Resource</code> 资源存取类。
  */
-export class Resource extends EventDispatcher implements ICreateResource, IDestroy {
-	/** @private */
-	private static _uniqueIDCounter: number = 0;
+export class Resource extends EventDispatcher {
 	/** @private */
 	private static _idResourcesMap: any = {};
-	/** @private */
-	private static _urlResourcesMap: any = {};
 	/** @private 以字节为单位。*/
 	private static _cpuMemory: number = 0;
 	/** @private 以字节为单位。*/
 	private static _gpuMemory: number = 0;
+
+	static DEBUG: boolean = false;
 
 	/**
 	 * 当前内存，以字节为单位。
@@ -56,25 +53,6 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
-	 * 通过资源ID返回已载入资源。
-	 * @param id 资源ID
-	 * @return 资源 <code>Resource</code> 对象。
-	 */
-	static getResourceByID(id: number): Resource {
-		return Resource._idResourcesMap[id];
-	}
-
-	/**
-	 * 通过url返回已载入资源。
-	 * @param url 资源URL
-	 * @param index 索引
-	 * @return 资源 <code>Resource</code> 对象。
-	 */
-	static getResourceByURL(url: string, index: number = 0): Resource {
-		return Resource._urlResourcesMap[url][index];
-	}
-
-	/**
 	 * 销毁当前没有被使用的资源,该函数会忽略lock=true的资源。
 	 * @param group 指定分组。
 	 */
@@ -95,15 +73,15 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	/**@private */
 	private _gpuMemory: number = 0;
 	/**@private */
-	private _destroyed: boolean = false;
+	private _destroyed?: boolean;
 
 	/**@private */
 	protected _referenceCount: number = 0;
 
 	/**是否加锁，如果true为不能使用自动释放机制。*/
-	lock: boolean = false;
+	lock?: boolean;
 	/**名称。 */
-	name: string = null;
+	name?: string;
 
 	/**
 	 * 获取唯一标识ID,通常用于识别。
@@ -153,7 +131,8 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	 */
 	constructor() {
 		super();
-		this._id = ++Resource._uniqueIDCounter;
+
+		this._id = ++_uniqueIDCounter;
 		this._destroyed = false;
 		this._referenceCount = 0;
 		Resource._idResourcesMap[this.id] = this;
@@ -182,21 +161,7 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	 * @private
 	 */
 	_setCreateURL(url: string): void {
-		url = URL.formatURL(url);//需要序列化为绝对路径
-		if (this._url !== url) {
-			var resList: Resource[];
-			if (this._url) {
-				resList = Resource._urlResourcesMap[this._url];
-				resList.splice(resList.indexOf(this), 1);
-				(resList.length === 0) && (delete Resource._urlResourcesMap[this._url]);
-			}
-			if (url) {
-				resList = Resource._urlResourcesMap[url];
-				(resList) || (Resource._urlResourcesMap[url] = resList = []);
-				resList.push(this);
-			}
-			this._url = url;
-		}
+		this._url = url;
 	}
 
 	/**
@@ -249,21 +214,15 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 		if (this._destroyed)
 			return;
 
+		if (Resource.DEBUG)
+			console.debug(`destroy ${Object.getPrototypeOf(this).constructor.name} ${this._url}`);
+
 		this._destroyed = true;
 		this.lock = false; //解锁资源，强制清理
 		this._disposeResource();
 		delete Resource._idResourcesMap[this.id];
-		var resList: Resource[];
-		if (this._url) {
-			resList = Resource._urlResourcesMap[this._url];
-			if (resList) {
-				resList.splice(resList.indexOf(this), 1);
-				(resList.length === 0) && (delete Resource._urlResourcesMap[this._url]);
-			}
-
-			var resou: Resource = ILaya.Loader.loadedMap[this._url];
-			(resou == this) && (delete ILaya.Loader.loadedMap[this._url]);
-		}
+		if (this._url)
+			ILaya.loader.clearRes(this._url);
 	}
 }
 

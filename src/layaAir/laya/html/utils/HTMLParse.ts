@@ -187,15 +187,3 @@ export class HTMLParse {
 }
 
 IHtml.HTMLParse = HTMLParse;
-ClassUtils.regClass('div', HTMLDivParser);
-ClassUtils.regClass('p', HTMLElement);
-ClassUtils.regClass('img', HTMLImageElement);
-ClassUtils.regClass('span', HTMLElement);
-ClassUtils.regClass('br', HTMLBrElement);
-ClassUtils.regClass('style', HTMLStyleElement);
-ClassUtils.regClass('font', HTMLElement);
-ClassUtils.regClass('a', HTMLElement);
-ClassUtils.regClass('#text', HTMLElement);
-ClassUtils.regClass('link', HTMLLinkElement);
-ClassUtils.regClass("laya.html.utils.HTMLParse", HTMLParse);
-ClassUtils.regClass("Laya.HTMLParse", HTMLParse);

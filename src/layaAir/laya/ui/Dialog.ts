@@ -10,8 +10,6 @@ import { Rectangle } from "../maths/Rectangle"
 import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { IUI } from "./IUI";
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * <code>Dialog</code> 组件是一个弹出对话框，实现对话框弹出，拖动，模式窗口功能。
@@ -387,6 +385,3 @@ export class Dialog extends View {
 
 
 IUI.Dialog = Dialog;
-ILaya.regClass(Dialog);
-ClassUtils.regClass("laya.ui.Dialog", Dialog);
-ClassUtils.regClass("Laya.Dialog", Dialog);

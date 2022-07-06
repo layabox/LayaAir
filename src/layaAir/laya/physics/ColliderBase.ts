@@ -1,6 +1,5 @@
 import { Laya } from "../../Laya";
 import { Component } from "../components/Component";
-import { ClassUtils } from "../utils/ClassUtils";
 import { IPhysics } from "./IPhysics";
 import { RigidBody } from "./RigidBody";
 
@@ -174,6 +173,3 @@ export class ColliderBase extends Component {
         return false;
     }
 }
-
-ClassUtils.regClass("laya.physics.ColliderBase", ColliderBase);
-ClassUtils.regClass("Laya.ColliderBase", ColliderBase);

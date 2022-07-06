@@ -10,7 +10,6 @@ import { Rectangle } from "../maths/Rectangle"
 import { WordText } from "../utils/WordText"
 import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 文本内容发生改变后调度。
@@ -1202,8 +1201,3 @@ export class Text extends Sprite {
 	}	
 */
 }
-
-
-ILaya.regClass(Text);
-ClassUtils.regClass("laya.display.Text", Text);
-ClassUtils.regClass("Laya.Text", Text);

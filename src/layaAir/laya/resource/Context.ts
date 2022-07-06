@@ -56,7 +56,6 @@ import { MeshTexture } from "../webgl/utils/MeshTexture";
 import { MeshVG } from "../webgl/utils/MeshVG";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
-import { Bitmap } from "./Bitmap";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
@@ -985,8 +984,8 @@ export class Context {
 		uv[0] = stu; uv[1] = stv; uv[2] = edu; uv[3] = stv; uv[4] = edu; uv[5] = edv; uv[6] = stu; uv[7] = edv;
 		if (!this.clipedOff(this._transedPoints)) {
 			//不依赖于wrapmode了，都走filltexture流程，自己修改纹理坐标
-			//tex2d.wrapModeU = BaseTexture.WARPMODE_REPEAT;	//这里会有重复判断
-			//tex2d.wrapModeV = BaseTexture.WARPMODE_REPEAT;
+			//tex2d.wrapModeU = BaseTexture.WRAPMODE_REPEAT;	//这里会有重复判断
+			//tex2d.wrapModeV = BaseTexture.WRAPMODE_REPEAT;
 			//var rgba:int = mixRGBandAlpha(0xffffffff);
 			//rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
 			var rgba: number = this._mixRGBandAlpha(0xffffffff, this._shader2D.ALPHA);
@@ -1688,7 +1687,7 @@ export class Context {
 			this._curSubmit = SubmitBase.RENDERBASE;
 			needRestorFilter = oldColorFilter != color;
 		}
-		var webGLImg: Bitmap = (<Bitmap>tex.bitmap);
+		var webGLImg = tex.bitmap;
 		var preKey: SubmitKey = this._curSubmit._key;
 		var sameKey: boolean = preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === webGLImg.id && preKey.blendShader == this._nBlendType;
 

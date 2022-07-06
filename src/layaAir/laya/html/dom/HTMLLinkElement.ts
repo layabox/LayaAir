@@ -4,8 +4,6 @@ import { Graphics } from "../../display/Graphics";
 import { Event } from "../../events/Event";
 import { HTMLStyle } from "../utils/HTMLStyle";
 import { URL } from "../../net/URL";
-import { ILaya } from "../../../ILaya";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -34,8 +32,8 @@ export class HTMLLinkElement extends HTMLElement {
      * @override
      */
     reset(): HTMLElement {
-        if (this._loader) this._loader.off(Event.COMPLETE, this, this._onload);
-        this._loader = null;
+        // if (this._loader) this._loader.off(Event.COMPLETE, this, this._onload);
+        // this._loader = null;
         return this;
     }
 
@@ -54,18 +52,18 @@ export class HTMLLinkElement extends HTMLElement {
      */
     set href(url: string) {
         if (!url) return;
-        url = this.formatURL(url);
-        this.URI = new URL(url);
-        if (this._loader) this._loader.off(Event.COMPLETE, this, this._onload);
-        if (Loader.getRes(url)) {
-            if (this.type == "text/css") {
-                HTMLStyle.parseCSS(Loader.getRes(url), this.URI);
-            }
-            return;
-        }
-        this._loader = new Loader();
-        this._loader.once(Event.COMPLETE, this, this._onload);
-        this._loader.load(url, Loader.TEXT);
+        // url = this.formatURL(url);
+        // this.URI = new URL(url);
+        // if (this._loader) this._loader.off(Event.COMPLETE, this, this._onload);
+        // if (Loader.getRes(url)) {
+        //     if (this.type == "text/css") {
+        //         HTMLStyle.parseCSS(Loader.getRes(url), this.URI);
+        //     }
+        //     return;
+        // }
+        // this._loader = new Loader();
+        // this._loader.once(Event.COMPLETE, this, this._onload);
+        // this._loader.load(url, Loader.TEXT);
     }
     /**
      * @override
@@ -74,8 +72,3 @@ export class HTMLLinkElement extends HTMLElement {
         return super.href;
     }
 }
-
-ILaya.regClass(HTMLLinkElement);
-
-ClassUtils.regClass("laya.html.dom.HTMLLinkElement", HTMLLinkElement);
-ClassUtils.regClass("Laya.HTMLLinkElement", HTMLLinkElement);

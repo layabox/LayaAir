@@ -5,13 +5,13 @@ import { TileAniSprite } from "./TileAniSprite";
 import { IMap } from "./IMap";
 import { Rectangle } from "../maths/Rectangle";
 import { Sprite } from "../display/Sprite";
-import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
 import { ILaya } from "../../ILaya";
 import { Texture } from "../resource/Texture";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Point } from "../maths/Point";
 import { Context } from "../resource/Context";
+import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 
 /**
  * tiledMap是整个地图的核心
@@ -76,8 +76,6 @@ export class TiledMap {
     private _gridWidth: number = 450; //块的默认宽度
     private _gridHeight: number = 450; //块的默认高度
 
-    private _jsonLoader: Loader = null; //用来加载JSON文件用的LOADER
-    private _loader: Loader = null; //用来加载纹理数据用的LOADER
     private _tileSetArray: any[] = []; //用来存放还需要哪些儿纹理等待加载
     private _currTileSet: TileSet = null; //正在加载的纹理需要的数据源
     private _completeHandler: Handler = null; //地图创建完成的回调函数
@@ -189,19 +187,17 @@ export class TiledMap {
             this._pathArray = [];
         }
 
-        this._jsonLoader = new Loader();
-        this._jsonLoader.once("complete", this, this.onJsonComplete);
-        this._jsonLoader.load(mapName, Loader.JSON, false);
+        ILaya.loader.fetch(mapName, "json").then(content => this.onJsonComplete(content));
     }
 
     /**
      * json文件读取成功后，解析里面的纹理数据，进行加载
      * @param	e JSON数据
      */
-    private onJsonComplete(e: any): void {
+    private onJsonComplete(tJsonData: any): void {
         this._mapSprite = new Sprite();
         ILaya.stage.addChild(this._mapSprite);
-        var tJsonData: any = this._jsonData = e;
+        this._jsonData = tJsonData;
 
         this._properties = tJsonData.properties;
         this._orientation = tJsonData.orientation;
@@ -255,10 +251,9 @@ export class TiledMap {
         this._tileTexSetArr.push(null);
         if (this._tileSetArray.length > 0) {
             tTileSet = this._currTileSet = this._tileSetArray.shift();
-            this._loader = new Loader();
-            this._loader.once("complete", this, this.onTextureComplete);
+
             var tPath: string = this.mergePath(this._resPath, tTileSet.image);
-            this._loader.load(tPath, Loader.IMAGE, false);
+            ILaya.loader.load(tPath).then(tex => this.onTextureComplete(tex));
         }
     }
 
@@ -309,15 +304,12 @@ export class TiledMap {
     private _texutreStartDic: any = {};
     /**
      * 纹理加载完成，如果所有的纹理加载，开始初始化地图
-     * @param	e 纹理数据
+     * @param	tex 纹理数据
      */
-    private onTextureComplete(e: any): void {
+    private onTextureComplete(tTexture: Texture): void {
         var json: any = this._jsonData;
-        var tTexture: Texture = e;
-        if (!this._enableLinear) {
-            (tTexture.bitmap as any).minFifter = 0x2600; //TODO any
-            (tTexture.bitmap as any).magFifter = 0x2600; // TODO any
-        }
+        if (!this._enableLinear)
+            tTexture.bitmap.filterMode = FilterMode.Point;
         this._texArray.push(tTexture);
         var tSubTexture: Texture = null;
 
@@ -350,9 +342,8 @@ export class TiledMap {
 
         if (this._tileSetArray.length > 0) {
             tTileSet = this._currTileSet = this._tileSetArray.shift();
-            this._loader.once("complete", this, this.onTextureComplete);
             var tPath: string = this.mergePath(this._resPath, tTileSet.image);
-            this._loader.load(tPath, Loader.IMAGE, false);
+            ILaya.loader.load(tPath).then(tex => this.onTextureComplete(tex));
         }
         else {
             this._currTileSet = null;
@@ -1203,8 +1194,6 @@ export class TiledMap {
             this._mapSprite = null;
         }
 
-        this._jsonLoader = null; //??
-        this._loader = null; //??
         //
         var tDic: any = this._animationDic;
         for (var p in tDic) {

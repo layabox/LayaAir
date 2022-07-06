@@ -68,7 +68,7 @@ export class PostProcess_Edge {
         
         this.camera.depthTextureMode |= DepthTextureMode.DepthNormals;
 
-        let dude: Sprite3D = Loader.getRes("res/threeDimen/skinModel/dude/dude.lh");
+        let dude: Sprite3D = Loader.createNodes("res/threeDimen/skinModel/dude/dude.lh");
         this.scene.addChild(dude);
         dude.transform.position = new Vector3(1.5, 0, 0);
         dude.transform.rotationEuler = new Vector3(0, 180, 0);

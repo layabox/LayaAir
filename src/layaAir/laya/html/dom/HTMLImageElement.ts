@@ -6,8 +6,6 @@ import { ILayout } from "../utils/ILayout"
 import { Loader } from "../../net/Loader"
 import { Texture } from "../../resource/Texture"
 import { IHtml } from "../utils/IHtml";
-import { ILaya } from "../../../ILaya";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -35,17 +33,17 @@ export class HTMLImageElement extends HTMLElement {
 
     set src(url: string) {
         url = this.formatURL(url);
-        if (this._url === url) return;
-        this._url = url;
+        // if (this._url === url) return;
+        // this._url = url;
 
-        var tex: Texture = this._tex = Loader.getRes(url);
-        if (!tex) {
-            this._tex = tex = new Texture();
-            tex.load(url);
-            Loader.cacheTexture(url, tex);
-        }
+        // var tex: Texture = this._tex = Loader.getRes(url);
+        // if (!tex) {
+        //     this._tex = tex = new Texture();
+        //     tex.load(url);
+        //     Loader.cacheTexture(url, tex);
+        // }
 
-        tex.getIsReady() ? this.onloaded() : tex.once(Event.READY, this, this.onloaded);
+        // tex.getIsReady() ? this.onloaded() : tex.once(Event.READY, this, this.onloaded);
     }
 
     //TODO:coverage
@@ -90,7 +88,3 @@ export class HTMLImageElement extends HTMLElement {
 }
 
 IHtml.HTMLImageElement = HTMLImageElement;
-ILaya.regClass(HTMLImageElement);
-
-ClassUtils.regClass("laya.html.dom.HTMLImageElement", HTMLImageElement);
-ClassUtils.regClass("Laya.HTMLImageElement", HTMLImageElement);

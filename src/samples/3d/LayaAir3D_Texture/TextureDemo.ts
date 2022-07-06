@@ -13,7 +13,7 @@ import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
-import { WarpMode } from "laya/RenderEngine/RenderEnum/WrapMode";
+import { WrapMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -56,10 +56,10 @@ export class TextureDemo {
 		var mat1: BlinnPhongMaterial = new BlinnPhongMaterial();
 		//漫反射贴图
 		Texture2D.load("res/threeDimen/texture/layabox.png", Handler.create(this, function (texture: Texture2D): void {
-			//在U方向上使用WARPMODE_CLAMP
-			texture.wrapModeU = WarpMode.Repeat;
-			//在V方向使用WARPMODE_REPEAT
-			texture.wrapModeV = WarpMode.Repeat;
+			//在U方向上使用WRAPMODE_CLAMP
+			texture.wrapModeU = WrapMode.Repeat;
+			//在V方向使用WRAPMODE_REPEAT
+			texture.wrapModeV = WrapMode.Repeat;
 			//设置过滤方式
 			texture.filterMode = FilterMode.Bilinear;
 			//设置各向异性等级

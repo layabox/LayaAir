@@ -127,7 +127,7 @@ export class TextureCube extends BaseTexture {
 		LayaGL.textureContext.setCubeKTXData(texture, ktxInfo);
 	}
 
-	get defaulteTexture(): BaseTexture {
+	get defaultTexture(): BaseTexture {
 		return TextureCube.grayTexture;
 	}
 

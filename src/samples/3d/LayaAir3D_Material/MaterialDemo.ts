@@ -49,7 +49,7 @@ export class MaterialDemo {
 
 	onPreLoadFinish() {
 		//初始化3D场景
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls")));
+		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.createNodes("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls")));
 		//获取相机
 		var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
 		//为相机添加视角控制组件(脚本)
@@ -61,7 +61,7 @@ export class MaterialDemo {
 		//创建一个新的PBRStandard材质
 		this.pbrStandardMaterial = new PBRStandardMaterial();
 		//获取新的纹理
-		this.pbrTexture = (<Texture2D>Loader.getRes("res/threeDimen/texture/earth.png"));
+		this.pbrTexture = Loader.getTexture2D("res/threeDimen/texture/earth.png");
 		//为PBRStandard材质设置漫反射贴图
 		this.pbrStandardMaterial.albedoTexture = this.pbrTexture;
 		//加载UI

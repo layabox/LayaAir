@@ -7,7 +7,6 @@ import { Stat } from "../utils/Stat"
 import { Timer } from "../utils/Timer"
 import { Sprite } from "./Sprite";
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 添加到父对象后调度。
@@ -36,10 +35,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 export class Node extends EventDispatcher {
     /**@private */
     protected static ARRAY_EMPTY: any[] = [];
-
     /**@private */
     private _bits: number = 0;
-
     /**@internal 子对象集合，请不要直接修改此对象。*/
     _children: any[] = Node.ARRAY_EMPTY;
 
@@ -96,38 +93,10 @@ export class Node extends EventDispatcher {
         }
     }
 
-    /**
-     * <p>增加事件侦听器，以使侦听器能够接收事件通知。</p>
-     * <p>如果侦听鼠标事件，则会自动设置自己和父亲节点的属性 mouseEnabled 的值为 true(如果父节点mouseEnabled=false，则停止设置父节点mouseEnabled属性)。</p>
-     * @param	type		事件的类型。
-     * @param	caller		事件侦听函数的执行域。
-     * @param	listener	事件侦听函数。
-     * @param	args		（可选）事件侦听函数的回调参数。
-     * @return 此 EventDispatcher 对象。
-     * @override
-     */
-    on(type: string, caller: any, listener: Function, args: any[] = null): EventDispatcher {
+    protected onStartListeningToType(type: string) {
         if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
             if (!this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
         }
-        return this._createListener(type, caller, listener, args, false);
-    }
-
-    /**
-     * <p>增加事件侦听器，以使侦听器能够接收事件通知，此侦听事件响应一次后则自动移除侦听。</p>
-     * <p>如果侦听鼠标事件，则会自动设置自己和父亲节点的属性 mouseEnabled 的值为 true(如果父节点mouseEnabled=false，则停止设置父节点mouseEnabled属性)。</p>
-     * @param	type		事件的类型。
-     * @param	caller		事件侦听函数的执行域。
-     * @param	listener	事件侦听函数。
-     * @param	args		（可选）事件侦听函数的回调参数。
-     * @return 此 EventDispatcher 对象。
-     * @override
-     */
-    once(type: string, caller: any, listener: Function, args: any[] = null): EventDispatcher {
-        if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
-            if (!this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
-        }
-        return this._createListener(type, caller, listener, args, true);
     }
 
     /**
@@ -176,6 +145,7 @@ export class Node extends EventDispatcher {
             }
         }
     }
+
 
     /**
      * 添加子节点。
@@ -607,7 +577,6 @@ export class Node extends EventDispatcher {
     //============================组件化支持==============================
     /** @private */
     private _components: Component[];
-
     /**@private */
     private _activeChangeScripts: any[];//TODO:可用对象池
 
@@ -871,6 +840,7 @@ export class Node extends EventDispatcher {
     _addComponentInstance(comp: Component): void {
         this._components = this._components || [];
         this._components.push(comp);
+
         comp._setOwner(this);
         comp._onAdded();
         if (this.activeInHierarchy)
@@ -906,6 +876,7 @@ export class Node extends EventDispatcher {
         }
     }
 
+
     /**
      * @internal 克隆。
      * @param	destObject 克隆源。
@@ -919,6 +890,7 @@ export class Node extends EventDispatcher {
             }
         }
     }
+
 
     /**
      * 添加组件实例。
@@ -994,7 +966,3 @@ export class Node extends EventDispatcher {
         return this.scene ? this.scene.timer : ILaya.timer;
     }
 }
-
-
-ClassUtils.regClass("laya.display.Node", Node);
-ClassUtils.regClass("Laya.Node", Node);

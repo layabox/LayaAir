@@ -198,5 +198,3 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 }
-
-

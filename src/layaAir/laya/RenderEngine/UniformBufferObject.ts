@@ -1,6 +1,6 @@
 import { LayaGL } from "../layagl/LayaGL";
 import { BufferUsage, BufferTargetType } from "./RenderEnum/BufferTargetType";
-import { SubUniformBufferData } from "./subUniformBufferData";
+import { SubUniformBufferData } from "./SubUniformBufferData";
 import { UniformBufferBase } from "./UniformBufferBase";
 import { UnifromBufferData } from "./UniformBufferData";
 import { Buffer } from "./Buffer";

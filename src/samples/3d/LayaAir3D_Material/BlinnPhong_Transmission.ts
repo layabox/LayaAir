@@ -49,8 +49,8 @@ export class Blinnphong_Transmission {
 	}
 
 	onPreLoadFinish(){
-		this.monkeyMaterial.thinknessTexture = Loader.getRes("res/threeDimen/LayaScene_TransmissionScene/Conventional/Assets/monkeyThinkness.png");
-		this.rabbitMaterial.thinknessTexture = Loader.getRes("res/threeDimen/LayaScene_TransmissionScene/Conventional/Assets/rabbitthickness.jpg");
+		this.monkeyMaterial.thinknessTexture = Loader.getTexture2D("res/threeDimen/LayaScene_TransmissionScene/Conventional/Assets/monkeyThinkness.png");
+		this.rabbitMaterial.thinknessTexture = Loader.getTexture2D("res/threeDimen/LayaScene_TransmissionScene/Conventional/Assets/rabbitthickness.jpg");
 		this.rabbitMaterial.enableTransmission = true;
 		this.rabbitMaterial.transmissionRata = 0.0;
 		this.rabbitMaterial.backDiffuse = 4.88;

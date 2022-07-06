@@ -72,7 +72,7 @@ export class MouseInteraction {
 
 	private onComplete(): void {
 		//加载地面
-		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh")));
+		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.createNodes("res/threeDimen/staticModel/grid/plane.lh")));
 		//指定精灵的图层
 		grid.layer = 10;
 		//加载静态小猴子

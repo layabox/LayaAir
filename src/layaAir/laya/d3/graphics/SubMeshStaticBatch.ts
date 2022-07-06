@@ -3,7 +3,6 @@ import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
-import { IDispose } from "../../resource/IDispose";
 import { Resource } from "../../resource/Resource";
 import { Stat } from "../../utils/Stat";
 import { SingletonList } from "../component/SingletonList";
@@ -36,7 +35,7 @@ import { VertexElement } from "./VertexElement";
  * @internal
  * <code>SubMeshStaticBatch</code> 类用于网格静态合并。
  */
-export class SubMeshStaticBatch extends GeometryElement implements IDispose {
+export class SubMeshStaticBatch extends GeometryElement {
 	/** @internal */
 	private static _tempVector30: Vector3 = new Vector3();
 	/** @internal */

@@ -81,7 +81,7 @@ export class AnimatorStateScriptDemo {
 		//初始化角色精灵
 		var role: Sprite3D = (<Sprite3D>this.scene.addChild(new Sprite3D()));
 		//初始化胖子
-		var pangzi: Sprite3D = (<Sprite3D>role.addChild(Loader.getRes("res/threeDimen/skinModel/BoneLinkScene/PangZi.lh")));
+		var pangzi: Sprite3D = (<Sprite3D>role.addChild(Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/PangZi.lh")));
 		//获取动画组件
 		this.animator = (<Animator>pangzi.getChildAt(0).getComponent(Animator));
 		//创建动作状态

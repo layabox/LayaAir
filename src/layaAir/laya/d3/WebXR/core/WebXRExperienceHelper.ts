@@ -18,7 +18,7 @@ export class WebXRCameraInfo {
  */
 export class WebXRExperienceHelper {
 
-    static glInstance:any;
+    static glInstance: any;
     /**
      * single XRManager 
      */
@@ -45,9 +45,11 @@ export class WebXRExperienceHelper {
      * @param sessionMode XRSessionMode = "inline" | "immersive-vr" | "immersive-ar";
      * @returns 
      */
-    public static async supportXR(sessionMode: string) {
-        WebXRExperienceHelper.supported = await WebXRExperienceHelper.xr_Manager.isSessionSupportedAsync(sessionMode);
-        return WebXRExperienceHelper.supported
+    public static supportXR(sessionMode: string): Promise<boolean> {
+        return WebXRExperienceHelper.xr_Manager.isSessionSupportedAsync(sessionMode).then(value => {
+            WebXRExperienceHelper.supported = value;
+            return value;
+        });
     }
 
     /**
@@ -57,31 +59,32 @@ export class WebXRExperienceHelper {
      * @param cameraInfo WebXRCameraInfo webXRCamera设置
      * @returns Promise<WebXRSessionManager> 
      */
-    public static async enterXRAsync(sessionMode: string, referenceSpaceType: string, cameraInfo: WebXRCameraInfo): Promise<WebXRSessionManager> {
+    public static enterXRAsync(sessionMode: string, referenceSpaceType: string, cameraInfo: WebXRCameraInfo): Promise<WebXRSessionManager> {
         if (sessionMode === "immersive-ar" && referenceSpaceType !== "unbounded") {
             console.warn("We recommend using 'unbounded' reference space type when using 'immersive-ar' session mode");
         }
-        try {
-            //session
-            await WebXRExperienceHelper.xr_Manager.initializeSessionAsync(sessionMode);
+
+        //session
+        return WebXRExperienceHelper.xr_Manager.initializeSessionAsync(sessionMode).then(() => {
             //refernceSpace
-            await WebXRExperienceHelper.xr_Manager.setReferenceSpaceTypeAsync(referenceSpaceType);
+            return WebXRExperienceHelper.xr_Manager.setReferenceSpaceTypeAsync(referenceSpaceType);
+        }).then(() => {
             //webglSurport
             //@ts-ignore
-            await WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, LayaGL.renderEngine._gl);
+            return WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, LayaGL.renderEngine._gl);
+        }).then(() => {
             //@ts-ignore
             WebXRExperienceHelper.glInstance = LayaGL.renderEngine._gl;
-            await WebXRExperienceHelper.xr_Manager.updateRenderStateAsync({
+            return WebXRExperienceHelper.xr_Manager.updateRenderStateAsync({
                 depthFar: cameraInfo.depthFar,
                 depthNear: cameraInfo.depthNear,
                 //@ts-ignore
                 baseLayer: new XRWebGLLayer(WebXRExperienceHelper.xr_Manager.session, LayaGL.instance),
             });
+        }).then(() => {
             WebXRExperienceHelper.xr_Manager.runXRRenderLoop();
             return WebXRExperienceHelper.xr_Manager;
-        } catch (e) {
-            throw e;
-        }
+        });
     }
 
     /**

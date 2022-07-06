@@ -6,8 +6,6 @@ import { Node } from "../display/Node"
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Rectangle } from "../maths/Rectangle"
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * <code>Panel</code> 是一个面板容器类。
@@ -369,7 +367,3 @@ export class Panel extends Box {
         }
     }
 }
-
-ILaya.regClass(Panel);
-ClassUtils.regClass("laya.ui.Panel", Panel);
-ClassUtils.regClass("Laya.Panel", Panel);
