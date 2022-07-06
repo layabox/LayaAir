@@ -1,5 +1,8 @@
-import { Config3D } from "Config3D";
+
 import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage";
+import { Laya3D } from "Laya3D";
+import { Config3D } from "Config3D";
 import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
 import { LightSprite } from "laya/d3/core/light/LightSprite";
@@ -8,10 +11,9 @@ import { SpotLight } from "laya/d3/core/light/SpotLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { Vector3 } from "laya/d3/math/Vector3";
-import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
+
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 class LightMoveScript extends Script3D {
