@@ -2,7 +2,6 @@ import { Sprite } from "./Sprite";
 import { Config } from "./../../Config";
 import { Const } from "../Const"
 import { Event } from "../events/Event"
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 动画播放完毕后调度。
@@ -281,7 +280,3 @@ export class AnimationBase extends Sprite {
         return this;
     }
 }
-
-
-ClassUtils.regClass("laya.display.AnimationBase", AnimationBase);
-ClassUtils.regClass("Laya.AnimationBase", AnimationBase);

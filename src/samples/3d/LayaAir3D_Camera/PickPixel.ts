@@ -87,7 +87,7 @@ export class PickPixel {
 	}
 	private _thisscene: Scene3D;
 	private onComplete(): void {
-		this._thisscene = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/CourtyardScene/Courtyard.ls")));
+		this._thisscene = (<Scene3D>Laya.stage.addChild(Loader.createNodes("res/threeDimen/scene/CourtyardScene/Courtyard.ls")));
 		//加载场景
 		var scene: Scene3D = this._thisscene;
 		//添加相机

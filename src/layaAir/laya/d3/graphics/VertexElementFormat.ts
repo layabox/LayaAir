@@ -36,7 +36,8 @@ export class VertexElementFormat {
 	static HalfVector2: string = "halfvector2";
 	/**@internal */
 	static HalfVector4: string = "halfvector4";
-
+	/**@internal */
+	static NorByte4: string = "nbyte4";
 
 	/** @internal [组数量,数据类型,是否归一化:0为false]。*/
 	private static _elementInfos: any;
@@ -57,7 +58,9 @@ export class VertexElementFormat {
 			"normalizedshort2": [2, LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_SHORT), 1],
 			"normalizedshort4": [4, LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_SHORT), 1],
 			"halfvector2": [2, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
-			"halfvector4": [4, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0]
+			"halfvector4": [4, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
+			"nbyte4":[4,LayaGL.renderEngine.getParams(RenderParams.BYTE),0],
+			
 		};
 
 	}

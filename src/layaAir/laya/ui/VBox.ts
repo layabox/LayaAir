@@ -1,7 +1,6 @@
 import { LayoutBox } from "./LayoutBox";
 import { UIComponent } from "./UIComponent";
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
+
 /**
 	 * <code>VBox</code> 是一个垂直布局容器类。
 	 */
@@ -77,8 +76,3 @@ export class VBox extends LayoutBox {
         this._sizeChanged();
     }
 }
-
-
-ILaya.regClass(VBox);
-ClassUtils.regClass("laya.ui.VBox", VBox);
-ClassUtils.regClass("Laya.VBox", VBox);

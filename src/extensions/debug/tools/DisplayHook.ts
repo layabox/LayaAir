@@ -51,7 +51,7 @@ import { DebugTool } from "../DebugTool";
 		
 		init(canvas:any):void {
 			//禁用IE下屏幕缩放
-			if (window.navigator.msPointerEnabled) {
+			if ((<any>window.navigator).msPointerEnabled) {
 				canvas.style['-ms-content-zooming'] = 'none';
 				canvas.style['-ms-touch-action'] = 'none';
 			}

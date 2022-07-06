@@ -3,7 +3,6 @@ import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
 import { Physics } from "../Physics"
 import { RigidBody } from "../RigidBody"
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * 滑轮关节：它将两个物体接地(ground)并彼此连接，当一个物体上升，另一个物体就会下降
@@ -54,6 +53,3 @@ export class PulleyJoint extends JointBase {
         }
     }
 }
-
-ClassUtils.regClass("laya.physics.joint.PulleyJoint", PulleyJoint);
-ClassUtils.regClass("Laya.PulleyJoint", PulleyJoint);

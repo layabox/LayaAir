@@ -13,7 +13,6 @@ import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
-import { ClassUtils } from "../utils/ClassUtils";
 import { Handler } from "../utils/Handler";
 import { Utils } from "../utils/Utils";
 import { BoundsStyle } from "./css/BoundsStyle";
@@ -223,13 +222,13 @@ export class Sprite extends Node {
     /**@internal */
     _renderType: number = 0;
     /**@internal */
-    _transform: Matrix|null = null;
+    _transform: Matrix | null = null;
     /**@internal */
     protected _tfChanged: boolean = false;
     /**@internal */
     protected _repaint: number = SpriteConst.REPAINT_NONE;
     /**@internal */
-    private _texture: Texture|null = null;
+    private _texture: Texture | null = null;
 
     //以下变量为系统调用，请不要直接使用
     /**@internal */
@@ -237,9 +236,9 @@ export class Sprite extends Node {
     /**@internal */
     _cacheStyle: CacheStyle = CacheStyle.EMPTY;
     /**@internal */
-    _boundStyle: BoundsStyle|null = null;
+    _boundStyle: BoundsStyle | null = null;
     /**@internal */
-    _graphics: Graphics|null = null;
+    _graphics: Graphics | null = null;
 
     /**
      * <p>鼠标事件与此对象的碰撞检测是否可穿透。碰撞检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
@@ -1191,8 +1190,8 @@ export class Sprite extends Node {
      * @param offsetX 
      * @param offsetY 
      */
-    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt:RenderTexture2D|null=null): Texture|RenderTexture2D {
-        return Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY,rt);
+    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+        return Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
     }
 
     /**
@@ -1250,44 +1249,44 @@ export class Sprite extends Node {
         return canv;
     }
 
-	static drawtocanvCtx:Context;
+    static drawtocanvCtx: Context;
     /**
      * @private 
      * 
      */
-    static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt:RenderTexture2D|null=null): Texture|RenderTexture2D {
-		if(!Sprite.drawtocanvCtx){
-			Sprite.drawtocanvCtx = new Context();
-		}
+    static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+        if (!Sprite.drawtocanvCtx) {
+            Sprite.drawtocanvCtx = new Context();
+        }
         offsetX -= sprite.x;
         offsetY -= sprite.y;
         offsetX |= 0;
         offsetY |= 0;
         canvasWidth |= 0;
         canvasHeight |= 0;
-		var ctx = rt?Sprite.drawtocanvCtx:new Context();
-		ctx.clear();
-		ctx.size(canvasWidth, canvasHeight);
-		if(rt){
-			ctx._targets=rt;
-		}else{
-			ctx.asBitmap=true;
-		}
-		if(ctx._targets){
-			ctx._targets.start();
-			ctx._targets.clear(0, 0, 0, 0);	// 否则没有地方调用clear
-			RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
-			ctx.flush();
-			ctx._targets.end();
-			ctx._targets.restore();
-		}
-		if(!rt){
-        	var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))), Texture.INV_UV);
-        	ctx.destroy(true);// 保留 _targets
-			return rtex;
-		}
-		sprite._repaint=0;
-		return rt;
+        var ctx = rt ? Sprite.drawtocanvCtx : new Context();
+        ctx.clear();
+        ctx.size(canvasWidth, canvasHeight);
+        if (rt) {
+            ctx._targets = rt;
+        } else {
+            ctx.asBitmap = true;
+        }
+        if (ctx._targets) {
+            ctx._targets.start();
+            ctx._targets.clear(0, 0, 0, 0);	// 否则没有地方调用clear
+            RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+            ctx.flush();
+            ctx._targets.end();
+            ctx._targets.restore();
+        }
+        if (!rt) {
+            var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))), Texture.INV_UV);
+            ctx.destroy(true);// 保留 _targets
+            return rtex;
+        }
+        sprite._repaint = 0;
+        return rt;
     }
 
     /**
@@ -1378,7 +1377,7 @@ export class Sprite extends Node {
      * @param globalNode		global节点，默认为Laya.stage
      * @return 转换后的坐标的点。
      */
-    localToGlobal(point: Point, createNewPoint: boolean = false, globalNode: Sprite|null = null): Point {
+    localToGlobal(point: Point, createNewPoint: boolean = false, globalNode: Sprite | null = null): Point {
         //if (!_displayedInStage || !point) return point;
         if (createNewPoint === true) {
             point = new Point(point.x, point.y);
@@ -1401,7 +1400,7 @@ export class Sprite extends Node {
      * @param globalNode		global节点，默认为Laya.stage
      * @return 转换后的坐标的点。
      */
-    globalToLocal(point: Point, createNewPoint: boolean = false, globalNode: Sprite|null = null): Point {
+    globalToLocal(point: Point, createNewPoint: boolean = false, globalNode: Sprite | null = null): Point {
         //if (!_displayedInStage || !point) return point;
         if (createNewPoint) {
             point = new Point(point.x, point.y);
@@ -1478,50 +1477,15 @@ export class Sprite extends Node {
         return point;
     }
 
-    /**
-     * <p>增加事件侦听器，以使侦听器能够接收事件通知。</p>
-     * <p>如果侦听鼠标事件，则会自动设置自己和父亲节点的属性 mouseEnabled 的值为 true(如果父节点mouseEnabled=false，则停止设置父节点mouseEnabled属性)。</p>
-     * @param type		事件的类型。
-     * @param caller	事件侦听函数的执行域。
-     * @param listener	事件侦听函数。
-     * @param args		（可选）事件侦听函数的回调参数。
-     * @return 此 EventDispatcher 对象。
-     * @override
-     */
-    on(type: string, caller: any, listener: Function, args: any[] = null): EventDispatcher {
+    protected onStartListeningToType(type: string) {
         //如果是鼠标事件，则设置自己和父对象为可接受鼠标交互事件
-        if (this._mouseState !== 1 && this.isMouseEvent(type)) {
+        if (this._mouseState !== 1 && isMouseEvent(type)) {
             this.mouseEnabled = true;
             this._setBit(Const.HAS_MOUSE, true);
             if (this._parent) {
                 this._onDisplay();
             }
-            return this._createListener(type, caller, listener, args, false);
         }
-        return super.on(type, caller, listener, args);
-    }
-
-    /**
-     * <p>增加事件侦听器，以使侦听器能够接收事件通知，此侦听事件响应一次后则自动移除侦听。</p>
-     * <p>如果侦听鼠标事件，则会自动设置自己和父亲节点的属性 mouseEnabled 的值为 true(如果父节点mouseEnabled=false，则停止设置父节点mouseEnabled属性)。</p>
-     * @param type		事件的类型。
-     * @param caller	事件侦听函数的执行域。
-     * @param listener	事件侦听函数。
-     * @param args		（可选）事件侦听函数的回调参数。
-     * @return 此 EventDispatcher 对象。
-     * @override
-     */
-    once(type: string, caller: any, listener: Function, args: any[] = null): EventDispatcher {
-        //如果是鼠标事件，则设置自己和父对象为可接受鼠标交互事件
-        if (this._mouseState !== 1 && this.isMouseEvent(type)) {
-            this.mouseEnabled = true;
-            this._setBit(Const.HAS_MOUSE, true);
-            if (this._parent) {
-                this._onDisplay();
-            }
-            return this._createListener(type, caller, listener, args, true);
-        }
-        return super.once(type, caller, listener, args);
     }
 
     /** @private */
@@ -1560,18 +1524,18 @@ export class Sprite extends Node {
             this.texture = null;
             loaded.call(this);
         } else {
-            var tex: Texture = ILaya.Loader.textureMap[URL.formatURL(url)];
+            var tex: Texture = ILaya.Loader.getRes(url);
             if (!tex) {
                 tex = new Texture();
                 tex.load(url);
-                ILaya.Loader.cacheTexture(url, tex);
+                ILaya.Loader.cacheRes(url, tex);
             }
             this.texture = tex;
             if (!tex.getIsReady()) tex.once(Event.READY, this, loaded);
             else loaded.call(this);
         }
 
-        function loaded(this:Sprite): void {
+        function loaded(this: Sprite): void {
             this.repaint(SpriteConst.REPAINT_ALL);
             complete && complete.run();
         }
@@ -1909,6 +1873,14 @@ export class Sprite extends Node {
     }
 }
 
+/**@private */
+const MOUSE_EVENTS: Record<string, boolean> = { "rightmousedown": true, "rightmouseup": true, "rightclick": true, "mousedown": true, "mouseup": true, "mousemove": true, "mouseover": true, "mouseout": true, "click": true, "doubleclick": true };
 
-ClassUtils.regClass("laya.display.Sprite", Sprite);
-ClassUtils.regClass("Laya.Sprite", Sprite);
+/**
+ * 检测指定事件类型是否是鼠标事件。
+ * @param	type 事件的类型。
+ * @return	如果是鼠标事件，则值为 true;否则，值为 false。
+ */
+function isMouseEvent(type: string): boolean {
+    return MOUSE_EVENTS[type] || false;
+}

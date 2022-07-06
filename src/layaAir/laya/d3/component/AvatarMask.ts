@@ -1,6 +1,3 @@
-import { Resource } from "../../resource/Resource";
-import { Animator } from "./Animator";
-
 /**
  * 用来描述动画层遮罩
  */

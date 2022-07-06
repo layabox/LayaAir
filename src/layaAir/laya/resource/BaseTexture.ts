@@ -3,153 +3,178 @@ import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { TextureCompareMode } from "../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { WarpMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../RenderEngine/RenderInterface/InternalTexture";
-import { Bitmap } from "./Bitmap";
-
+import { Resource } from "./Resource";
 
 /**
  * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
  */
-export class BaseTexture extends Bitmap {
+export class BaseTexture extends Resource {
 
-	/**
-	 * @internal
-	 */
-	_texture: InternalTexture;
+    /**
+     * @internal
+     */
+    _texture: InternalTexture;
+    /**@private */
+    protected _width: number;
+    /**@private */
+    protected _height: number;
 
-	protected _dimension: TextureDimension;
-	public get dimension(): TextureDimension {
-		return this._dimension;
-	}
+    /**
+     * 获取宽度。
+     */
+    get width(): number {
+        return this._width;
+    }
 
-	private _format: TextureFormat;
-	public get format(): TextureFormat {
-		return this._format;
-	}
+    set width(width: number) {
+        this._width = width;
+    }
 
-	public get mipmap(): boolean {
-		return this._texture.mipmap;
-	}
+    /***
+     * 获取高度。
+     */
+    get height(): number {
+        return this._height;
+    }
 
-	public get mipmapCount(): number {
-		return this._texture.mipmapCount;
-	}
+    set height(height: number) {
+        this._height = height;
+    }
 
-	public get anisoLevel(): number {
-		return this._texture.anisoLevel;
-	}
-	public set anisoLevel(value: number) {
-		this._texture.anisoLevel = value;
-	}
+    protected _dimension: TextureDimension;
+    public get dimension(): TextureDimension {
+        return this._dimension;
+    }
 
-	public get filterMode(): FilterMode {
-		return this._texture.filterMode;
-	}
-	public set filterMode(value: FilterMode) {
-		this._texture.filterMode = value;
-	}
+    private _format: TextureFormat;
+    public get format(): TextureFormat {
+        return this._format;
+    }
 
-	public get wrapModeU(): WarpMode {
-		return this._texture.wrapU;
-	}
-	public set wrapModeU(value: WarpMode) {
-		this._texture.wrapU = value;
-	}
+    public get mipmap(): boolean {
+        return this._texture.mipmap;
+    }
 
-	public get wrapModeV(): WarpMode {
-		return this._texture.wrapV;
-	}
-	public set wrapModeV(value: WarpMode) {
-		this._texture.wrapV = value;
-	}
+    public get mipmapCount(): number {
+        return this._texture.mipmapCount;
+    }
 
-	public get wrapModeW(): WarpMode {
-		return this._texture.wrapW;
-	}
-	public set wrapModeW(value: WarpMode) {
-		this._texture.wrapW = value;
-	}
+    public get anisoLevel(): number {
+        return this._texture.anisoLevel;
+    }
+    public set anisoLevel(value: number) {
+        this._texture.anisoLevel = value;
+    }
 
-	public get compareMode(): TextureCompareMode {
-		return this._texture.compareMode;
-	}
+    public get filterMode(): FilterMode {
+        return this._texture.filterMode;
+    }
+    public set filterMode(value: FilterMode) {
+        this._texture.filterMode = value;
+    }
 
-	public set compareMode(value: TextureCompareMode) {
-		this._texture.compareMode = LayaGL.textureContext.setTextureCompareMode(this._texture, value);
-	}
+    public get wrapModeU(): WrapMode {
+        return this._texture.wrapU;
+    }
+    public set wrapModeU(value: WrapMode) {
+        this._texture.wrapU = value;
+    }
 
-	public get gammaCorrection(): number {
-		return this._texture.gammaCorrection;
-	}
+    public get wrapModeV(): WrapMode {
+        return this._texture.wrapV;
+    }
+    public set wrapModeV(value: WrapMode) {
+        this._texture.wrapV = value;
+    }
 
-	protected _gammaSpace: boolean = false;
-	// todo
-	public get gammaSpace(): boolean {
-		// return this._gammaSpace;
+    public get wrapModeW(): WrapMode {
+        return this._texture.wrapW;
+    }
+    public set wrapModeW(value: WrapMode) {
+        this._texture.wrapW = value;
+    }
 
-		return this._texture.useSRGBLoad || this._texture.gammaCorrection > 1;
-	}
+    public get compareMode(): TextureCompareMode {
+        return this._texture.compareMode;
+    }
 
-	constructor(width: number, height: number, format: number) {
-		super();
-		this._width = width;
-		this._height = height;
-		this._format = format;
-	}
+    public set compareMode(value: TextureCompareMode) {
+        this._texture.compareMode = LayaGL.textureContext.setTextureCompareMode(this._texture, value);
+    }
 
-	/**
-	 * 是否是gpu压缩纹理格式
-	 * @returns 
-	 */
-	gpuCompressFormat(): boolean {
-		let format = this._format;
-		switch (format) {
-			case TextureFormat.R8G8B8:
-			case TextureFormat.R8G8B8A8:
-				return false;
-			case TextureFormat.ASTC4x4:
-				return true;
-			default:
-				return false;
-		}
-	}
+    public get gammaCorrection(): number {
+        return this._texture.gammaCorrection;
+    }
 
-	/**
-	 * 获取纹理格式的字节数
-	 * @internal
-	 */
-	_getFormatByteCount(): number {
-		switch (this._format) {
-			case TextureFormat.R8G8B8:
-				return 3;
-			case TextureFormat.R8G8B8A8:
-				return 4;
-			case TextureFormat.R5G6B5:
-				return 1;
-			case TextureFormat.Alpha8:
-				return 1;
-			case TextureFormat.R16G16B16A16:
-				return 2;
-			case TextureFormat.R32G32B32A32:
-				return 4;
+    protected _gammaSpace: boolean = false;
+    // todo
+    public get gammaSpace(): boolean {
+        // return this._gammaSpace;
 
-			default:
-				throw "Texture2D: unknown format.";
-		}
-	}
+        return this._texture.useSRGBLoad || this._texture.gammaCorrection > 1;
+    }
 
-	_getSource() {
-		return this._texture.resource;
-	}
+    constructor(width: number, height: number, format: number) {
+        super();
+        this._width = width;
+        this._height = height;
+        this._format = format;
+    }
 
-	get defaulteTexture(): BaseTexture {
-		throw "defaulte"
-	}
+    /**
+     * 是否是gpu压缩纹理格式
+     * @returns 
+     */
+    gpuCompressFormat(): boolean {
+        let format = this._format;
+        switch (format) {
+            case TextureFormat.R8G8B8:
+            case TextureFormat.R8G8B8A8:
+                return false;
+            case TextureFormat.ASTC4x4:
+                return true;
+            default:
+                return false;
+        }
+    }
 
-	protected _disposeResource(): void {
-		this._texture.dispose();
-	}
+    /**
+     * 获取纹理格式的字节数
+     * @internal
+     */
+    _getFormatByteCount(): number {
+        switch (this._format) {
+            case TextureFormat.R8G8B8:
+                return 3;
+            case TextureFormat.R8G8B8A8:
+                return 4;
+            case TextureFormat.R5G6B5:
+                return 1;
+            case TextureFormat.Alpha8:
+                return 1;
+            case TextureFormat.R16G16B16A16:
+                return 2;
+            case TextureFormat.R32G32B32A32:
+                return 4;
+
+            default:
+                throw "Texture2D: unknown format.";
+        }
+    }
+
+    _getSource() {
+        return this._texture.resource;
+    }
+
+    get defaultTexture(): BaseTexture {
+        throw "defaulte"
+    }
+
+    protected _disposeResource(): void {
+        this._texture.dispose();
+    }
 
 }
 

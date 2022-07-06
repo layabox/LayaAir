@@ -1,15 +1,12 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { Material } from "laya/d3/core/material/Material";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { Viewport } from "laya/d3/math/Viewport";
 import { SkyBox } from "laya/d3/resource/models/SkyBox";
 import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";

@@ -3,7 +3,6 @@ import { ColorFilter } from "../filters/ColorFilter"
 import { IFilter } from "../filters/IFilter"
 import { Utils } from "../utils/Utils"
 import { WeakObject } from "../utils/WeakObject"
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * <code>UIUtils</code> 是文本工具集。
@@ -128,6 +127,3 @@ export class UIUtils {
         return fun;
     }
 }
-
-ClassUtils.regClass("laya.ui.UIUtils", UIUtils);
-ClassUtils.regClass("Laya.UIUtils", UIUtils);

@@ -127,7 +127,7 @@ import { StencilDemo } from "../3d/LayaAir3D_Material/StencilDemo";
 import { WebXRStart } from "../3d/WebXR/WebXRStart";
 import { WebXRControllerDemo } from "../3d/WebXR/WebXRControllerDemo";
 import { GriendSkyAmbientDemo } from "../3d/LayaAir3D_Scene3D/GriendSkyAmbientDemo";
-
+import "laya/gltf/glTFLoader";
 export class IndexView3D extends IndexViewUI {
 
 	private _bigIndex: number = -1;

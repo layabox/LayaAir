@@ -94,7 +94,7 @@ export class CameraDemo {
 		var materialBill: BlinnPhongMaterial = new BlinnPhongMaterial;
 		box.meshRenderer.material = materialBill;
 		//为材质加载纹理
-		var tex: Texture2D = (<Texture2D>Loader.getRes("res/threeDimen/texture/layabox.png"));
+		var tex = Loader.getTexture2D("res/threeDimen/texture/layabox.png");
 		//设置反照率贴图
 		materialBill.albedoTexture = tex;
 

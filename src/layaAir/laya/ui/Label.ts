@@ -3,8 +3,6 @@ import { Text } from "../display/Text"
 import { Event } from "../events/Event"
 import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 文本内容发生改变后调度。
@@ -453,7 +451,3 @@ export class Label extends UIComponent {
         this._tf.underlineColor = value;
     }
 }
-
-ILaya.regClass(Label);
-ClassUtils.regClass("laya.ui.Label", Label);
-ClassUtils.regClass("Laya.Label", Label);

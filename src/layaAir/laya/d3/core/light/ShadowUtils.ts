@@ -17,7 +17,7 @@ import { DirectionLightCom } from "./DirectionLightCom";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
-import { WarpMode } from "../../../RenderEngine/RenderEnum/WrapMode";
+import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 
@@ -120,8 +120,8 @@ export class ShadowUtils {
         var shadowMap: RenderTexture = RenderTexture.createFromPool(witdh, height, depthFormat, RenderTargetFormat.None, false, 1);
         shadowMap.compareMode = TextureCompareMode.LESS;
         shadowMap.filterMode = FilterMode.Bilinear;
-        shadowMap.wrapModeU = WarpMode.Clamp;
-        shadowMap.wrapModeV = WarpMode.Clamp;
+        shadowMap.wrapModeU = WrapMode.Clamp;
+        shadowMap.wrapModeV = WrapMode.Clamp;
         return shadowMap;
     }
 

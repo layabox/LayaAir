@@ -1,6 +1,6 @@
 import { FilterMode } from "../RenderEnum/FilterMode";
 import { TextureCompareMode } from "../RenderEnum/TextureCompareMode";
-import { WarpMode } from "../RenderEnum/WrapMode";
+import { WrapMode } from "../RenderEnum/WrapMode";
 
 /**
  * @internal 
@@ -22,9 +22,9 @@ import { WarpMode } from "../RenderEnum/WrapMode";
     mipmapCount: number;
 
     filterMode: FilterMode;
-    wrapU: WarpMode;
-    wrapV: WarpMode;
-    wrapW: WarpMode;
+    wrapU: WrapMode;
+    wrapV: WrapMode;
+    wrapW: WrapMode;
     anisoLevel: number;
 
     compareMode: TextureCompareMode;

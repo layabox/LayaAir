@@ -1,7 +1,6 @@
 import { JointBase } from "./JointBase";
 import { Physics } from "../Physics"
 import { RigidBody } from "../RigidBody"
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * 马达关节：用来限制两个刚体，使其相对位置和角度保持不变
@@ -100,6 +99,3 @@ export class MotorJoint extends JointBase {
         if (this._joint) this._joint.SetCorrectionFactor(value);
     }
 }
-
-ClassUtils.regClass("laya.physics.joint.MotorJoint", MotorJoint);
-ClassUtils.regClass("Laya.MotorJoint", MotorJoint);

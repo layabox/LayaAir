@@ -107,7 +107,7 @@ export class GrassMaterial extends Material {
         this.grassWidth = 1.0;
         this.grassGroundColor = new Vector3(0.25, 0.49, 0.23);
         this.grassBoundSize = new Vector4(-105, -105, 210, 210);
-        this.albedoTexture = Loader.getRes("res/InstancedIndirectGrassVertexColor.jpg");
+        this.albedoTexture = Loader.getTexture2D("res/InstancedIndirectGrassVertexColor.jpg");
     }
 
     setWindA(windIntensity: number, windFrequency: number, windTiling: Vector2, windWrap: Vector2) {

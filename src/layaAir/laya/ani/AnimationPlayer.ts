@@ -2,7 +2,6 @@ import { AnimationTemplet } from "./AnimationTemplet";
 import { AnimationState } from "./AnimationState";
 import { Stat } from "../utils/Stat";
 import { Event } from "../events/Event";
-import { IDestroy } from "../resource/IDestroy";
 import { EventDispatcher } from "../events/EventDispatcher";
 
 
@@ -26,7 +25,7 @@ import { EventDispatcher } from "../events/EventDispatcher";
 /**
  * <code>AnimationPlayer</code> 类用于动画播放器。
  */
-export class AnimationPlayer extends EventDispatcher implements IDestroy {
+export class AnimationPlayer extends EventDispatcher {
 	/**@internal */
 	private _destroyed: boolean;
 	/** @internal 数据模板*/

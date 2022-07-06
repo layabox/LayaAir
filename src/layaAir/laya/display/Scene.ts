@@ -1,15 +1,12 @@
 import { Node } from "./Node";
-import { Const } from "../Const"
 import { Sprite } from "./Sprite"
 import { Event } from "../events/Event"
-import { SceneLoader } from "../net/SceneLoader"
 import { Resource } from "../resource/Resource"
 import { Handler } from "../utils/Handler"
-import { SceneUtils } from "../utils/SceneUtils"
 import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
-import { URL } from "../net/URL";
+import { HierarchyResource } from "../resource/HierarchyResource";
+import { LegacyUIParser } from "../loaders/LegacyUIParser";
 
 /**
  * 场景类，负责场景创建，加载，销毁等功能
@@ -33,8 +30,6 @@ export class Scene extends Sprite {
     /**@private */
     private _viewCreated: boolean = false;
     /**@internal */
-    _idMap: any = null;
-    /**@internal */
     _$componentType: string = "Scene";
 
     constructor(createChildren = true) {
@@ -52,43 +47,21 @@ export class Scene extends Sprite {
      */
     protected createChildren(): void {
     }
+
     /**
      * 兼容加载模式
      * 加载模式设置uimap
      * @param url uimapJosn的url
      */
-    static setUIMap(url:string):void{
+    static setUIMap(url: string): void {
         let uimap = ILaya.loader.getRes(url);
-        if(uimap){
+        if (uimap) {
             for (let key in uimap) {
-                ILaya.Loader.loadedMap[URL.formatURL(key + ".scene")] = uimap[key];
+                ILaya.Loader.loadedMap[key + ".scene"] = uimap[key];
             }
-        }else{
+        } else {
             throw "请提前加载uimap的json，再使用该接口设置！";
         }
-    }
-    /**
-     * @private 兼容老项目
-     * 装载场景视图。用于加载模式。
-     * @param path 场景地址。
-     */
-    loadScene(path: string): void {
-        var url: string = path.indexOf(".") > -1 ? path : path + ".scene";
-        var view: any = ILaya.loader.getRes(url);
-        if (view) {
-            this.createView(view);
-        } else {
-            this._setBit(Const.NOT_READY, true);
-            ILaya.loader.resetProgress();
-            var loader: SceneLoader = new SceneLoader();
-            loader.on(Event.COMPLETE, this, this._onSceneLoaded, [url]);
-            loader.load(url);
-            //Laya.loader.load(url, Handler.create(this, createView), null, Loader.JSON);
-        }
-    }
-
-    private _onSceneLoaded(url: string): void {
-        this.createView(ILaya.Loader.getRes(url));
     }
 
     /**
@@ -99,16 +72,8 @@ export class Scene extends Sprite {
     createView(view: any): void {
         if (view && !this._viewCreated) {
             this._viewCreated = true;
-            SceneUtils.createByData(this, view);
+            LegacyUIParser.createByData(this, view);
         }
-    }
-
-    /**
-     * 根据IDE内的节点id，获得节点实例
-     */
-    getNodeByID(id: number): any {
-        if (this._idMap) return this._idMap[id];
-        return null;
     }
 
     /**
@@ -151,8 +116,8 @@ export class Scene extends Sprite {
      * @override
      */
     destroy(destroyChild: boolean = true): void {
-        this._idMap = null;
         super.destroy(destroyChild);
+
         var list: any[] = Scene.unDestroyedScenes;
         for (var i: number = list.length - 1; i > -1; i--) {
             if (list[i] === this) {
@@ -288,45 +253,26 @@ export class Scene extends Sprite {
      * @param	complete	加载完成回调，返回场景实例（可选）
      * @param	progress	加载进度回调（可选）
      */
-    static load(url: string, complete: Handler = null, progress: Handler = null): void {
-        ILaya.loader.resetProgress();
-        var loader: SceneLoader = new SceneLoader();
-        loader.on(Event.PROGRESS, null, onProgress);
-        loader.once(Event.COMPLETE, null, create);
-        loader.load(url);
-
-        function onProgress(value: number): void {
+    static load(url: string, complete: Handler = null, progress: Handler = null): Promise<void> {
+        return ILaya.loader.load(url, { cache: false }, value => {
             if (Scene._loadPage) Scene._loadPage.event("progress", value);
             progress && progress.runWith(value);
-        }
-
-        function create(): void {
-            loader.off(Event.PROGRESS, null, onProgress);
-            var obj: any = ILaya.Loader.getRes(url);
-            if (!obj) throw "Can not find scene:" + url;
-            if (!obj.props) throw "Scene data is error:" + url;
-            var runtime: string = obj.props.runtime ? obj.props.runtime : obj.type;
-            var clas: any = ILaya.ClassUtils.getClass(runtime);
-            if (obj.props.renderType == "instance") {
-                var scene: Scene = clas.instance || (clas.instance = new clas());
-            } else {
-                scene = new clas();
+        }).then(content => {
+            if (!content) throw "Can not find scene:" + url;
+            let nodes:Array<Node> = [];
+            (<HierarchyResource>content).createNodes(nodes);
+            let scene: Scene;
+            if (!(nodes[0] instanceof Scene)) {
+                scene = new Scene();
+                scene.addChildren(nodes);
             }
-            if (scene && scene instanceof Node) {
-                scene.url = url;
-                if (scene._viewCreated) {
-                    complete && complete.runWith(scene);
-                } else {
-                    scene.on("onViewCreated", null, function (): void {
-                        complete && complete.runWith(scene)
-                    })
-                    scene.createView(obj);
-                }
-                Scene.hideLoadingPage();
-            } else {
-                throw "Can not find scene:" + runtime;
-            }
-        }
+            else
+                scene = <Scene>nodes[0];
+            scene.url = url;
+            scene._viewCreated = true;
+            Scene.hideLoadingPage();
+            complete && complete.runWith(scene);
+        });
     }
 
     /**
@@ -337,7 +283,7 @@ export class Scene extends Sprite {
      * @param	complete	打开完成回调，返回场景实例（可选）
      * @param	progress	加载进度回调（可选）
      */
-    static open(url: string, closeOther: boolean = true, param: any = null, complete: Handler = null, progress: Handler = null): void {
+    static open(url: string, closeOther: boolean = true, param: any = null, complete: Handler = null, progress: Handler = null): Promise<void> {
         //兼容处理
         if (param instanceof Handler) {
             var temp: any = complete;
@@ -345,7 +291,7 @@ export class Scene extends Sprite {
             param = temp;
         }
         Scene.showLoadingPage();
-        Scene.load(url, Handler.create(null, this._onSceneLoaded, [closeOther, complete, param]), progress);
+        return Scene.load(url, Handler.create(null, this._onSceneLoaded, [closeOther, complete, param]), progress);
     }
 
     /**@private */
@@ -456,7 +402,3 @@ export class Scene extends Sprite {
         }
     }
 }
-
-ILaya.regClass(Scene);
-ClassUtils.regClass("laya.display.Scene", Scene);
-ClassUtils.regClass("Laya.Scene", Scene);

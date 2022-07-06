@@ -4,10 +4,19 @@
         "module": "es6",
         "baseUrl": "../layaAir",
         "outDir": "../../bin/tsc/samples",
+        "skipLibCheck": true
     },
     "references": [
-        {"path":"../layaAir"},
-        {"path":"../extensions"}
+        {
+            "path": "../layaAir"
+        },
+        {
+            "path": "../extensions"
+        }
+    ],
+    "include": [
+        "./**/*",
+        "../layaAir/tslibs"
     ],
     "exclude": [
         "3d/LayaAir3DTest__Voxel",

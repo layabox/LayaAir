@@ -7,13 +7,11 @@ import { ShadowMode } from "./ShadowMode";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Light } from "./Light";
 
-/**
- * @internal
- */
-export enum LightType {
-	Directional,
-	Spot,
-	Point
+
+export enum LightMode {
+	Bake,//烘培灯光，不计入灯光效果
+	RealTime,//实时光
+	Mix//只在没有lightmap的模型上生效
 }
 
 /**
@@ -22,7 +20,7 @@ export enum LightType {
 export class LightSprite extends Sprite3D {
 	/** @internal */
 	_light: Light;
-
+	_mode:LightMode;
 	/**
 	 * 灯光颜色。
 	 */
@@ -32,6 +30,14 @@ export class LightSprite extends Sprite3D {
 
 	set color(value: Vector3) {
 		this._light.color = value;
+	}
+
+	get mode():LightMode{
+		return this._mode;
+	}
+
+	set mode(value:LightMode){
+		this._mode = value;
 	}
 
 	/**

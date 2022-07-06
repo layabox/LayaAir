@@ -9,7 +9,6 @@ import { HTMLChar } from "../../utils/HTMLChar"
 import { Pool } from "../../utils/Pool"
 import { ILaya } from "../../../ILaya";
 import { IHtml } from "../utils/IHtml";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**HTML元素类型 */
 export enum HTMLElementType {
@@ -54,7 +53,7 @@ export class HTMLElement {
 
         var char1: string = url.charAt(0);
         if (char1 === ".") {
-            return URL._formatRelativePath(basePath + url);
+            return URL.formatRelativePath(basePath, url);
         } else if (char1 === '~') {
             return URL.rootPath + url.substring(1);
         } else if (char1 === "d") {
@@ -479,9 +478,4 @@ export class HTMLElement {
     }
 }
 
-
-ILaya.regClass(HTMLElement);
 IHtml.HTMLElementType = HTMLElementType;
-
-ClassUtils.regClass("laya.html.dom.HTMLElement", HTMLElement);
-ClassUtils.regClass("Laya.HTMLElement", HTMLElement);

@@ -1,5 +1,4 @@
 import { GeolocationInfo } from "./GeolocationInfo";
-import { ILaya } from "../../../ILaya";
 import { Handler } from "../../utils/Handler";
 
 

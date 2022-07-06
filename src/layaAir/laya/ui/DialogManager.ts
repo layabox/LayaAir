@@ -9,7 +9,6 @@ import { Ease } from "../utils/Ease"
 import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { IUI } from "./IUI";
-import { ClassUtils } from "../utils/ClassUtils";
 import { ILaya } from "../../ILaya";
 
 /**打开任意窗口后调度。
@@ -232,7 +231,3 @@ export class DialogManager extends Sprite {
         }
     }
 }
-
-
-ClassUtils.regClass("laya.ui.DialogManager", DialogManager);
-ClassUtils.regClass("Laya.DialogManager", DialogManager);

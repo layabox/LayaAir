@@ -1,8 +1,6 @@
 import { UIComponent } from "./UIComponent";
 import { IBox } from "./IBox";
-import { Event } from "../events/Event"
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
+import { Event } from "../events/Event";
 
 /**
  * <code>Box</code> 类是一个控件容器类。
@@ -51,7 +49,3 @@ export class Box extends UIComponent implements IBox {
         this.graphics.drawRect(0, 0, this.width, this.height, this._bgColor);
     }
 }
-
-ILaya.regClass(Box);
-ClassUtils.regClass("laya.ui.Box", Box);
-ClassUtils.regClass("Laya.Box", Box);

@@ -75,7 +75,7 @@ export class SeparableSSS_RenderDemo {
     }
 
     onPreLoadFinish() {
-        this.scene = Loader.getRes("res/threeDimen/LayaScene_separable-sss/Conventional/separable-sss.ls");
+        this.scene = Loader.createNodes("res/threeDimen/LayaScene_separable-sss/Conventional/separable-sss.ls");
         Laya.stage.addChild(this.scene);
         //获取场景中的相机
         this.mainCamera = (<Camera>this.scene.getChildByName("Main Camera"));
@@ -83,7 +83,7 @@ export class SeparableSSS_RenderDemo {
 
 
         //打开depthTexture
-        this.blinnphongCharacter = Loader.getRes("res/threeDimen/LayaScene_separable-sss/Conventional/HeadBlinnphong.lh");
+        this.blinnphongCharacter = Loader.createNodes("res/threeDimen/LayaScene_separable-sss/Conventional/HeadBlinnphong.lh");
         this.characterBlinnphongMaterial = <BlinnPhongMaterial>this.blinnphongCharacter.getComponent(MeshRenderer).sharedMaterial.clone();
         //增加Mesh节点
         let buf = this.createCommandBuffer(this.mainCamera, this.blinnphongCharacter.meshFilter.sharedMesh);

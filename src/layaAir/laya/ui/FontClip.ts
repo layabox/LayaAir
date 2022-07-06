@@ -2,8 +2,6 @@ import { Event } from "../events/Event"
 import { Texture } from "../resource/Texture"
 import { AutoBitmap } from "./AutoBitmap"
 import { Clip } from "./Clip"
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 字体切片，简化版的位图字体，只需设置一个切片图片和文字内容即可使用，效果同位图字体
@@ -245,7 +243,3 @@ export class FontClip extends Clip {
         super.destroy(destroyChild);
     }
 }
-
-ILaya.regClass(FontClip);
-ClassUtils.regClass("laya.ui.FontClip", FontClip);
-ClassUtils.regClass("Laya.FontClip", FontClip);

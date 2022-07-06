@@ -8,7 +8,6 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Transform3D } from "./Transform3D";
 import { Laya } from "../../../Laya";
-import { ICreateResource } from "../../resource/ICreateResource";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -16,9 +15,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
  */
-export class Sprite3D extends Node implements ICreateResource {
-	/**Hierarchy资源。*/
-	static HIERARCHY: string = "HIERARCHY";
+export class Sprite3D extends Node {
 	/**@internal 着色器变量名，世界矩阵。*/
 	static WORLDMATRIX: number;
 	/**@internal 着色器变量名，世界视图投影矩阵。*/
@@ -71,14 +68,11 @@ export class Sprite3D extends Node implements ICreateResource {
 	 * @param complete 完成回掉。
 	 */
 	static load(url: string, complete: Handler): void {
-		Laya.loader.create(url, complete, null, Sprite3D.HIERARCHY);
+		Laya.loader.create(url, complete, null, Loader.HIERARCHY);
 	}
 
 	/** @internal */
 	private _id: number;
-
-	/**@internal */
-	private _url: string;
 
 	/** @internal */
 	_isStatic: boolean;
@@ -118,13 +112,6 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * 资源的URL地址。
-	 */
-	get url(): string {
-		return this._url;
-	}
-
-	/**
 	 * 是否为静态。
 	 */
 	get isStatic(): boolean {
@@ -150,13 +137,6 @@ export class Sprite3D extends Node implements ICreateResource {
 		this._isStatic = isStatic;
 		this.layer = 0;
 		this.name = name ? name : "New Sprite3D";
-	}
-
-	/**
-	 * 
-	 */
-	_setCreateURL(url: string): void {
-		this._url = URL.formatURL(url);//perfab根节点会设置URL
 	}
 
 	/**
@@ -290,7 +270,6 @@ export class Sprite3D extends Node implements ICreateResource {
 		super.destroy(destroyChild);
 		this._transform = null;
 		this._scripts = null;
-		this._url && Loader.clearRes(this._url);
 	}
 
 	/**

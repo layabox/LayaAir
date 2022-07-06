@@ -18,7 +18,6 @@ import { PulleyJoint } from "./joint/PulleyJoint"
 import { RevoluteJoint } from "./joint/RevoluteJoint"
 import { WeldJoint } from "./joint/WeldJoint"
 import { WheelJoint } from "./joint/WheelJoint"
-import { ClassUtils } from "../utils/ClassUtils"
 import { IPhysics } from "./IPhysics";
 import { DestructionListener } from "./DestructionListener";
 /**
@@ -269,9 +268,6 @@ export class Physics extends EventDispatcher {
         }
     }
 }
-
-ClassUtils.regClass("laya.physics.Physics", Physics);
-ClassUtils.regClass("Laya.Physics", Physics);
 
 // import { Physics } from "./Physics"
 

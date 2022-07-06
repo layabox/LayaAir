@@ -451,14 +451,14 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
      * @internal
      */
     _uniform_sampler2D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
-        var value: any = texture._getSource() || texture.defaulteTexture._getSource();
+        var value: any = texture._getSource() || texture.defaultTexture._getSource();
         var gl: WebGLRenderingContext = this._gl;
         this._bindTexture(one.textureID, gl.TEXTURE_2D, value);
         return 0;
     }
 
     _uniform_sampler3D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
-        var value: any = texture._getSource() || texture.defaulteTexture._getSource();
+        var value: any = texture._getSource() || texture.defaultTexture._getSource();
         this._bindTexture(one.textureID, WebGL2RenderingContext.TEXTURE_3D, value);
         return 0;
     }
@@ -467,7 +467,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
      * @internal
      */
     _uniform_samplerCube(one: any, texture: BaseTexture): number {//TODO:TEXTURTECUBE ARRAY
-        var value: any = texture._getSource() || texture.defaulteTexture._getSource();
+        var value: any = texture._getSource() || texture.defaultTexture._getSource();
         var gl: WebGLRenderingContext = this._gl;
         this._bindTexture(one.textureID, gl.TEXTURE_CUBE_MAP, value);
         return 0;

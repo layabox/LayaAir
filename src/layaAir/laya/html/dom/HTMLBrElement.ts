@@ -4,8 +4,6 @@ import { HTMLStyle } from "../utils/HTMLStyle"
 import { ILayout } from "../utils/ILayout"
 import { Pool } from "../../utils/Pool"
 import { IHtml } from "../utils/IHtml";
-import { ILaya } from "../../../ILaya";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @internal
@@ -59,7 +57,3 @@ export class HTMLBrElement {
 }
 
 IHtml.HTMLBrElement = HTMLBrElement;
-ILaya.regClass(HTMLBrElement);
-
-ClassUtils.regClass("laya.html.dom.HTMLBrElement", HTMLBrElement);
-ClassUtils.regClass("Laya.HTMLBrElement", HTMLBrElement);

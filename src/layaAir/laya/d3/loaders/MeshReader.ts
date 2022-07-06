@@ -11,9 +11,9 @@ export class MeshReader {
 	/**
 	 *@internal
 	 */
-	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Mesh {
+	static _parse(data: ArrayBuffer): Mesh {
 		var mesh: Mesh = new Mesh();
-		MeshReader.read(<ArrayBuffer>data, mesh, mesh._subMeshes);
+		MeshReader.read(data, mesh, mesh._subMeshes);
 		return mesh;
 	}
 

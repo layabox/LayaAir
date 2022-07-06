@@ -3,7 +3,6 @@ import { Event } from "../../events/Event";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import { ILaya } from "../../../ILaya";
 
-
 /**
  * 使用Gyroscope.instance获取唯一的Gyroscope引用，请勿调用构造函数。
  * 
@@ -37,27 +36,10 @@ export class Gyroscope extends EventDispatcher {
         this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
     }
 
-    /**
-     * 监视陀螺仪运动。
-     * @param	observer	回调函数接受一个Boolean类型的<code>absolute</code>和<code>GyroscopeInfo</code>类型参数。
-     * @override
-     */
-    on(type: string, caller: any, listener: Function, args: any[] = null): EventDispatcher {
-        super.on(type, caller, listener, args);
-        ILaya.Browser.window.addEventListener('deviceorientation', this.onDeviceOrientationChange);
+    protected onStartListeningToType(type: string) {
+        if (type == Event.CHANGE)
+            ILaya.Browser.window.addEventListener('deviceorientation', this.onDeviceOrientationChange);
         return this;
-    }
-
-    /**
-     * 取消指定处理器对陀螺仪的监视。
-     * @param	observer
-     * @override
-     */
-    off(type: string, caller: any, listener: Function, onceOnly: boolean = false): EventDispatcher {
-        if (!this.hasListener(type))
-            ILaya.Browser.window.removeEventListener('deviceorientation', this.onDeviceOrientationChange);
-
-        return super.off(type, caller, listener, onceOnly);
     }
 
     private onDeviceOrientationChange(e: any): void {

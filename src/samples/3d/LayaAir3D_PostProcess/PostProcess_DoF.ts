@@ -32,7 +32,7 @@ export class PostProcessDoF {
 
     onComplate(): void {
 
-        let scene: Scene3D = this.scene = Loader.getRes("res/threeDimen/LayaScene_zhuandibanben/Conventional/zhuandibanben.ls");
+        let scene: Scene3D = this.scene = Loader.createNodes("res/threeDimen/LayaScene_zhuandibanben/Conventional/zhuandibanben.ls");
         Laya.stage.addChild(scene);
         let camera: Camera = this.camera = <Camera>scene.getChildByName("MainCamera");
         camera.addComponent(CameraMoveScript);

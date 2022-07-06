@@ -25,7 +25,7 @@ export class ILaya3D {
     static Physics3D: typeof Physics3D = null;
     static ShadowLightType: typeof ShadowLightType = null;
     static RenderElement: typeof RenderElement = null;
-    static CommandBuffer:typeof CommandBuffer = null;
-    static Camera:typeof Camera = null
-    static SubMeshRenderElement:typeof SubMeshRenderElement = null;
+    static CommandBuffer: typeof CommandBuffer = null;
+    static Camera: typeof Camera = null
+    static SubMeshRenderElement: typeof SubMeshRenderElement = null;
 }

@@ -1,42 +1,8 @@
 import { Widget } from "./Widget";
-import { Animation } from "../display/Animation"
 import { Scene } from "../display/Scene"
-import { Sprite } from "../display/Sprite"
-import { Text } from "../display/Text"
 import { Event } from "../events/Event"
-import { Box } from "./Box"
-import { Button } from "./Button"
-import { CheckBox } from "./CheckBox"
-import { Image } from "./Image"
-import { Label } from "./Label"
-import { ProgressBar } from "./ProgressBar"
-import { Radio } from "./Radio"
-import { RadioGroup } from "./RadioGroup"
-import { Tab } from "./Tab"
 import { UIComponent } from "./UIComponent"
-import { ViewStack } from "./ViewStack";
-import { TextArea } from "./TextArea";
-import { ColorPicker } from "./ColorPicker";
-import { ScaleBox } from "./ScaleBox";
-import { Clip } from "./Clip";
-import { ComboBox } from "./ComboBox";
-import { HScrollBar } from "./HScrollBar";
-import { HSlider } from "./HSlider";
-import { List } from "./List";
-import { Panel } from "./Panel";
-import { ScrollBar } from "./ScrollBar";
-import { Slider } from "./Slider";
-import { TextInput } from "./TextInput";
-import { VScrollBar } from "./VScrollBar";
-import { VSlider } from "./VSlider";
-import { Tree } from "./Tree";
-import { HBox } from "./HBox";
-import { VBox } from "./VBox";
-import { FontClip } from "./FontClip";
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
-
-
 
 /**
  * <code>View</code> 是一个视图类，2.0开始，更改继承至Scene类，相对于Scene，增加相对布局功能。
@@ -55,38 +21,10 @@ export class View extends Scene {
     /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
     protected _anchorY: number = NaN;
 
-    static __init__(): void {
-        ILaya.ClassUtils.regShortClassName([ViewStack, Button, TextArea, ColorPicker, Box, ScaleBox, CheckBox, Clip, ComboBox, UIComponent,
-            HScrollBar, HSlider, Image, Label, List, Panel, ProgressBar, Radio, RadioGroup, ScrollBar, Slider, Tab, TextInput, View, /*Dialog,*/
-            VScrollBar, VSlider, Tree, HBox, VBox, Animation, Text, FontClip]);
-    }
-
     constructor() {
         super(false);   // 先不要createChildren 因为 this._widget还没有赋值
         this._widget = Widget.EMPTY;
         this.createChildren();
-    }
-
-    /**
-     * @private 兼容老版本
-     * 注册组件类映射。
-     * <p>用于扩展组件及修改组件对应关系。</p>
-     * @param key 组件类的关键字。
-     * @param compClass 组件类对象。
-     */
-    static regComponent(key: string, compClass: new () => any): void {
-        ILaya.ClassUtils.regClass(key, compClass);
-    }
-
-    /**
-     * @private 兼容老版本
-     * 注册UI视图类的逻辑处理类。
-     * 注册runtime解析。
-     * @param key UI视图类的关键字。
-     * @param compClass UI视图类对应的逻辑处理类。
-     */
-    static regViewRuntime(key: string, compClass: new () => any): void {
-        ILaya.ClassUtils.regClass(key, compClass);
     }
 
     /**
@@ -239,12 +177,6 @@ export class View extends Scene {
         return this._widget;
     }
 
-    /**@private 兼容老版本*/
-    protected loadUI(path: string): void {
-        var uiView: any = View.uiMap[path];
-        View.uiMap && this.createView(uiView);
-    }
-
     /**
      * @implements
      * laya.ui.UIComponent#dataSource
@@ -262,9 +194,5 @@ export class View extends Scene {
         }
     }
 }
-
-ILaya.regClass(View);
-ClassUtils.regClass("laya.ui.View", View);
-ClassUtils.regClass("Laya.View", View);
 
     //dialog 依赖于view，放到这里的话，谁在前都会报错，所以不能放到这里了

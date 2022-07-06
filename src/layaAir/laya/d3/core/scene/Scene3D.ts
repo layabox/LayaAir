@@ -3,10 +3,8 @@ import { ILaya } from "../../../../ILaya";
 import { Sprite } from "../../../display/Sprite";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
-import { URL } from "../../../net/URL";
 import { Render } from "../../../renders/Render";
 import { Context } from "../../../resource/Context";
-import { ICreateResource } from "../../../resource/ICreateResource";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Handler } from "../../../utils/Handler";
 import { Timer } from "../../../utils/Timer";
@@ -46,7 +44,6 @@ import { DynamicBatchManager } from "../../graphics/DynamicBatchManager";
 import { CannonPhysicsSimulation } from "../../physicsCannon/CannonPhysicsSimulation";
 import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings";
 import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
-import { VideoTexture } from "../../../resource/VideoTexture";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
 import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
 import { Physics3D } from "../../Physics3D";
@@ -93,15 +90,13 @@ export enum AmbientMode {
 /**
  * 用于实现3D场景。
  */
-export class Scene3D extends Sprite implements ISubmit, ICreateResource {
+export class Scene3D extends Sprite implements ISubmit {
 	/** @internal */
 	private static _lightTexture: Texture2D;
 	/** @internal */
 	private static _lightPixles: Float32Array;
 	/** @internal */
 	static _shadowCasterPass: ShadowCasterPass;
-	/**Hierarchy资源。*/
-	static HIERARCHY: string = "HIERARCHY";
 	/**@internal */
 	static physicsSettings: PhysicsSettings;
 	/**@internal */
@@ -264,7 +259,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHC, "u_AmbientSHC");
 		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTCOLOR, "u_AmbientColor");
 		sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
-		sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK,UniformBufferObject.UBONAME_SCENE);
+		sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE);
 	}
 
 	/**
@@ -375,11 +370,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @param complete 完成回调。
 	 */
 	static load(url: string, complete: Handler): void {
-		ILaya.loader.create(url, complete, null, Scene3D.HIERARCHY);
+		ILaya.loader.create(url, complete, null, Loader.HIERARCHY);
 	}
 
-	/** @internal */
-	private _url: string;
 	/** @internal */
 	private _group: string;
 	/** @internal */
@@ -476,13 +469,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/** @internal */
 	_nativeObj: any;
-
-	/**
-	 * 资源的URL地址。
-	 */
-	get url(): string {
-		return this._url;
-	}
 
 	/**
 	 * set SceneRenderableManager
@@ -788,10 +774,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		if (Config3D._config._uniformBlock) {
 			this._sceneUniformObj = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SCENE, 0);
 			this._sceneUniformData = Scene3D.createSceneUniformBlock();
-			if(!this._sceneUniformObj){
-				this._sceneUniformObj = UniformBufferObject.create(UniformBufferObject.UBONAME_SCENE,BufferUsage.Dynamic, this._sceneUniformData.getbyteLength(), true);
+			if (!this._sceneUniformObj) {
+				this._sceneUniformObj = UniformBufferObject.create(UniformBufferObject.UBONAME_SCENE, BufferUsage.Dynamic, this._sceneUniformData.getbyteLength(), true);
 			}
-			
+
 			this._shaderValues.setValueData(Scene3D.SCENEUNIFORMBLOCK, this._sceneUniformObj);
 		}
 
@@ -904,7 +890,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._componentManager.callRenderUpdate(delta);
 		//Animator._update(this);
 		this._componentManager.callAnimatorUpdate(delta);
-		VideoTexture._update();
 		if (this._reflectionProbeManager._needUpdateAllRender)
 			this._reflectionProbeManager.updateAllRenderObjects(this._sceneRenderManager.list);
 		else
@@ -976,13 +961,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	onDisable(): void {
 		this._input._offCanvasEvent(Render.canvas);
-	}
-
-	/**
-	 * @param url 路径
-	 */
-	_setCreateURL(url: string): void {
-		this._url = URL.formatURL(url);
 	}
 
 	/**
@@ -1343,12 +1321,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				var lightMap: Lightmap = new Lightmap();
 				var lightMapData: any = lightMapsData[i];
 				if (lightMapData.path) {//兼容
-					lightMap.lightmapColor = Loader.getRes(lightMapData.path);
+					lightMap.lightmapColor = Loader.getTexture2D(lightMapData.path);
 				}
 				else {
-					lightMap.lightmapColor = Loader.getRes(lightMapData.color.path);
+					lightMap.lightmapColor = Loader.getTexture2D(lightMapData.color.path);
 					if (lightMapData.direction)
-						lightMap.lightmapDirection = Loader.getRes(lightMapData.direction.path);
+						lightMap.lightmapDirection = Loader.getTexture2D(lightMapData.direction.path);
 				}
 				lightmaps[i] = lightMap;
 			}
@@ -1519,7 +1497,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._reflectionProbeManager.destroy();
 		this._componentManager.callComponentDestroy();
 		this._componentManager.destroy();
-		Loader.clearRes(this.url);
 	}
 
 	/**

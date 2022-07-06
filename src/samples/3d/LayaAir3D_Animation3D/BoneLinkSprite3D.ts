@@ -90,7 +90,7 @@ export class BoneLinkSprite3D {
 		this.role = (<Sprite3D>this.scene.addChild(new Sprite3D()));
 
 		//初始化胖子
-		this.pangzi = (<Sprite3D>this.role.addChild(Loader.getRes("res/threeDimen/skinModel/BoneLinkScene/PangZi.lh")));
+		this.pangzi = (<Sprite3D>this.role.addChild(Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/PangZi.lh")));
 		//获取动画组件
 		this.animator = (<Animator>this.pangzi.getChildAt(0).getComponent(Animator));
 
@@ -119,7 +119,7 @@ export class BoneLinkSprite3D {
 		state2.clip.islooping = true;
 		this.animator.getControllerLayer(0).addState(state2);
 
-		this.dragon1 = Loader.getRes("res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh");
+		this.dragon1 = Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh");
 		this.dragon1.transform.localScale = this._dragonScale;
 		this.aniSprte3D1 = (<Sprite3D>this.dragon1.getChildAt(0));
 		this.dragonAnimator1 = (<Animator>this.aniSprte3D1.getComponent(Animator));
@@ -132,7 +132,7 @@ export class BoneLinkSprite3D {
 		state3.clip.islooping = true;
 		this.dragonAnimator1.getControllerLayer(0).addState(state3);
 
-		this.dragon2 = Loader.getRes("res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh");
+		this.dragon2 = Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh");
 		this.dragon2.transform.localScale = this._dragonScale;
 		this.aniSprte3D2 = (<Sprite3D>this.dragon2.getChildAt(0));
 		this.dragonAnimator2 = (<Animator>this.aniSprte3D2.getComponent(Animator));

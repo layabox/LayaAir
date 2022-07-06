@@ -5,7 +5,7 @@ import { GraphicAnimation } from "../utils/GraphicAnimation"
 import { Handler } from "../utils/Handler"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
+import { AtlasResource } from "../resource/AtlasResource";
 
 /**
  * 动画播放完毕后调度。
@@ -382,12 +382,13 @@ export class Animation extends AnimationBase {
     static createFrames(url: string | string[], name: string): any[] {
         var arr: any[];
         if (typeof (url) == 'string') {
-            var atlas: any[] = Loader.getAtlas(<string>url);
-            if (atlas && atlas.length) {
+            var atlas: AtlasResource = Loader.getAtlas(<string>url);
+            if (atlas && atlas.frames.length) {
+                let frames = atlas.frames;
                 arr = [];
-                for (var i: number = 0, n: number = atlas.length; i < n; i++) {
+                for (var i: number = 0, n: number = frames.length; i < n; i++) {
                     var g: Graphics = new Graphics();
-                    g.drawImage(Loader.getRes(atlas[i]), 0, 0);
+                    g.drawImage(Loader.getRes(frames[i]), 0, 0);
                     arr.push(g);
                 }
             }
@@ -420,6 +421,3 @@ export class Animation extends AnimationBase {
     }
 }
 
-ILaya.regClass(Animation);
-ClassUtils.regClass("laya.display.Animation", Animation);
-ClassUtils.regClass("Laya.Animation", Animation);

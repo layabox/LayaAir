@@ -77,8 +77,8 @@ export class PhysicsWorld_MeshCollider {
 
 	complete(): void {
 		var mesh: Mesh = Loader.getRes("res/threeDimen/staticModel/lizard/Assets/Lizard/lizard-lizard_geo.lm");
-		var albedo: Texture2D = Loader.getRes("res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_diff.png");
-		var normal: Texture2D = Loader.getRes("res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png");
+		var albedo = Loader.getTexture2D("res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_diff.png");
+		var normal = Loader.getTexture2D("res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png");
 		var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
 		mat.specularColor = new Vector4(0.5, 0.5, 0.5, 0.5);
 		mat.albedoTexture = albedo;

@@ -1,8 +1,8 @@
 import { CallLater } from "./CallLater";
 import { ILaya } from "../../ILaya";
 /**
-	 * <code>Timer</code> 是时钟管理类。它是一个单例，不要手动实例化此类，应该通过 Laya.timer 访问。
-	 */
+ * <code>Timer</code> 是时钟管理类。它是一个单例，不要手动实例化此类，应该通过 Laya.timer 访问。
+ */
 export class Timer {
     /**@private */
     static gSysTimer: Timer = null;
@@ -300,6 +300,17 @@ export class Timer {
      */
     resume(): void {
         this.scale = 1;
+    }
+
+    
+    destroy(){
+        for (var i=0,n=this._handlers.length;i < n;i++){
+            var handler=this._handlers[i];
+            handler.clear();
+        }
+        this._handlers.length=0;
+        this._map={};
+        this._temp.length=0;
     }
 }
 

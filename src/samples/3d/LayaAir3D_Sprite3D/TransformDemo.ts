@@ -67,9 +67,9 @@ export class TransformDemo {
 
 	private onComplete(): void {
 		//加载地面
-		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh")));
+		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.createNodes("res/threeDimen/staticModel/grid/plane.lh")));
 		//加载静态小猴子
-		var staticLayaMonkey: MeshSprite3D = (<MeshSprite3D>Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
+		var staticLayaMonkey: MeshSprite3D = (<MeshSprite3D>Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
 
 		//设置缩放
 		var staticMonkeyTransform: Transform3D = staticLayaMonkey.transform;

@@ -4,13 +4,13 @@
         "module": "es6",
         "baseUrl": "../layaAir",
         "outDir": "../../bin/tsc/extensions",
-        "composite": true
+        "composite": true,
+        "skipLibCheck": true
     },
     "references": [
         {
             "path": "../layaAir"
         }
     ],
-    "exclude": [
-    ]
+    "exclude": []
 }

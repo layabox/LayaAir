@@ -12,7 +12,6 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Loader } from "laya/net/Loader";
 import { TextureCube } from "laya/d3/resource/TextureCube";
-import { glTFLoader } from "laya/gltf/glTFLoader";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class LoadGltfResource {
@@ -51,9 +50,6 @@ export class LoadGltfResource {
             this.scene.reflectionIntensity = 1;
         }));
 
-        // 初始化 glTFLoader
-        glTFLoader.init();
-
         var gltfResource:any[] = [
             "res/threeDimen/gltf/RiggedFigure/RiggedFigure.gltf",
             "res/threeDimen/gltf/Duck/Duck.gltf",
@@ -69,15 +65,15 @@ export class LoadGltfResource {
             console.log("gltf load failed");
             return;
         }
-        var RiggedFigure: Sprite3D = Loader.getRes("res/threeDimen/gltf/RiggedFigure/RiggedFigure.gltf");
+        var RiggedFigure: Sprite3D = Loader.createNodes("res/threeDimen/gltf/RiggedFigure/RiggedFigure.gltf");
         this.scene.addChild(RiggedFigure);
         RiggedFigure.transform.position = new Vector3(-2, 0, 0);
         console.log("RiggedFigure: This model is licensed under a Creative Commons Attribution 4.0 International License.");
 
-        var duck: Sprite3D = Loader.getRes("res/threeDimen/gltf/Duck/Duck.gltf");
+        var duck: Sprite3D = Loader.createNodes("res/threeDimen/gltf/Duck/Duck.gltf");
         this.scene.addChild(duck);
 
-        var cube: Sprite3D = Loader.getRes("res/threeDimen/gltf/AnimatedCube/AnimatedCube.gltf");
+        var cube: Sprite3D = Loader.createNodes("res/threeDimen/gltf/AnimatedCube/AnimatedCube.gltf");
         this.scene.addChild(cube);
         cube.transform.position = new Vector3(2.5, 0.6, 0);
         cube.transform.setWorldLossyScale(new Vector3(0.6, 0.6, 0.6));

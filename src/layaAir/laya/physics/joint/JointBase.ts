@@ -1,6 +1,5 @@
 import { Component } from "../../components/Component"
 import { Physics } from "../Physics"
-import { ClassUtils } from "../../utils/ClassUtils";
 import { RigidBody } from "../RigidBody";
 
 /**
@@ -51,6 +50,3 @@ export class JointBase extends Component {
         return false;
     }
 }
-
-ClassUtils.regClass("laya.physics.joint.JointBase", JointBase);
-ClassUtils.regClass("Laya.JointBase", JointBase);

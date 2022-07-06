@@ -28,6 +28,22 @@ export class Bounds implements IClone {
 	/***/
 	_boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
+	get min() {
+		return this.getMin();
+	}
+
+	set min(value: Vector3) {
+		this.setMin(value);
+	}
+
+	get max() {
+		return this.getMax();
+	}
+
+	set max(value: Vector3) {
+		this.setMax(value);
+	}
+	
 	/**
 	 * 设置包围盒的最小点。
 	 * @param value	包围盒的最小点。

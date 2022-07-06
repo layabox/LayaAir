@@ -7,7 +7,6 @@ import { Point } from "../maths/Point"
 import { Loader } from "../net/Loader"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 移动滑块位置时调度。
@@ -465,7 +464,3 @@ export class Slider extends UIComponent {
         return this._bar;
     }
 }
-
-ILaya.regClass(Slider);
-ClassUtils.regClass("laya.ui.Slider", Slider);
-ClassUtils.regClass("Laya.Slider", Slider);

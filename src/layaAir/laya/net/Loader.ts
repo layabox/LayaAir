@@ -1,844 +1,766 @@
 import { ILaya } from "../../ILaya";
-import { Prefab } from "../components/Prefab";
-import { Text } from "../display/Text";
 import { Event } from "../events/Event";
-import { EventDispatcher } from "../events/EventDispatcher";
-import { Sound } from "../media/Sound";
-import { SoundManager } from "../media/SoundManager";
-import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { WarpMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { URL } from "../net/URL";
 import { Texture } from "../resource/Texture";
-import { Texture2D } from "../resource/Texture2D";
 import { Browser } from "../utils/Browser";
-import { Byte } from "../utils/Byte";
-import { Handler } from "../utils/Handler";
+import { Delegate } from "../utils/Delegate";
+import { AtlasInfoManager } from "./AtlasInfoManager";
+import { WorkerLoader } from "./WorkerLoader";
 import { Utils } from "../utils/Utils";
-import { BitmapFont } from "./../display/BitmapFont";
 import { HttpRequest } from "./HttpRequest";
-import { TTFLoader } from "./TTFLoader";
-import { URL } from "./URL";
+import { AtlasResource } from "../resource/AtlasResource";
+import { TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
+import { IBatchProgress, ProgressCallback, BatchProgress } from "./BatchProgress";
+import { Handler } from "../utils/Handler";
+import { EventDispatcher } from "../events/EventDispatcher";
+import { HierarchyResource } from "../resource/HierarchyResource";
+import { Node } from "../display/Node";
 
-/**
- * 加载进度发生改变时调度。
- * @eventType Event.PROGRESS
- * */
-/*[Event(name = "progress", type = "laya.events.Event")]*/
-/**
- * 加载完成后调度。
- * @eventType Event.COMPLETE
- * */
-/*[Event(name = "complete", type = "laya.events.Event")]*/
-/**
- * 加载出错时调度。
- * @eventType Event.ERROR
- * */
-/*[Event(name = "error", type = "laya.events.Event")]*/
+export interface ILoadTask {
+    readonly type: string;
+    readonly url: string;
+    readonly originalUrl: string;
+    readonly loader: Loader;
+    readonly options: Readonly<ILoadOptions>;
+    readonly progress: IBatchProgress;
+}
+
+export interface IResourceLoader {
+    load(task: ILoadTask): Promise<any>;
+}
+
+export interface ILoadOptions {
+    type?: string;
+    priority?: number;
+    isID?: boolean;
+    group?: string;
+    cache?: boolean;
+    useWorkerLoader?: boolean;
+    constructParams?: TextureConstructParams;
+    propertyParams?: TexturePropertyParams;
+    [key: string]: any;
+}
+
+export interface ILoadURL extends ILoadOptions {
+    url: string;
+}
+
+interface ContentTypeMap {
+    "text": string,
+    "json": any,
+    "xml": XMLDocument,
+    "arraybuffer": ArrayBuffer,
+    "image": HTMLImageElement | ImageBitmap,
+    "sound": HTMLAudioElement
+}
 
 /**
  * <code>Loader</code> 类可用来加载文本、JSON、XML、二进制、图像等资源。
  */
 export class Loader extends EventDispatcher {
-	/**文本类型，加载完成后返回文本。*/
-	static TEXT = "text";
-	/**JSON 类型，加载完成后返回json数据。*/
-	static JSON = "json";
-	/**prefab 类型，加载完成后返回Prefab实例。*/
-	static PREFAB = "prefab";
-	/**XML 类型，加载完成后返回domXML。*/
-	static XML = "xml";
-	/**二进制类型，加载完成后返回arraybuffer二进制数据。*/
-	static BUFFER = "arraybuffer";
-	/**纹理类型，加载完成后返回Texture。*/
-	static IMAGE = "image";
-	/**声音类型，加载完成后返回sound。*/
-	static SOUND = "sound";
-	/**图集类型，加载完成后返回图集json信息(并创建图集内小图Texture)。*/
-	static ATLAS = "atlas";
-	/**位图字体类型，加载完成后返回BitmapFont，加载后，会根据文件名自动注册为位图字体。*/
-	static FONT = "font";
-	/** TTF字体类型，加载完成后返回null。*/
-	static TTF = "ttf";
-	/** 预加载文件类型，加载完成后自动解析到preLoadedMap。*/
-	static PLF = "plf";
-	/** 二进制预加载文件类型，加载完成后自动解析到preLoadedMap。*/
-	static PLFB = "plfb";
-	/**Hierarchy资源。*/
-	static HIERARCHY = "HIERARCHY";
-	/**Mesh资源。*/
-	static MESH = "MESH";
-	/**Material资源。*/
-	static MATERIAL = "MATERIAL";
-	/**Texture2D资源。*/
-	static TEXTURE2D = "TEXTURE2D";
-	/**TextureCube资源。*/
-	static TEXTURECUBE = "TEXTURECUBE";
-	/**AnimationClip资源。*/
-	static ANIMATIONCLIP = "ANIMATIONCLIP";
-	/**Avatar资源。*/
-	static AVATAR = "AVATAR";
-	/**Terrain资源。*/
-	static TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
-	/**Terrain资源。*/
-	static TERRAINRES = "TERRAIN";
+    /**文本类型，加载完成后返回string。*/
+    static TEXT = "text";
+    /**JSON 类型，加载完成后返回json数据。*/
+    static JSON = "json";
+    /**prefab 类型，加载完成后返回Prefab实例。*/
+    static PREFAB = "prefab";
+    /**XML 类型，加载完成后返回domXML。*/
+    static XML = "xml";
+    /**二进制类型，加载完成后返回arraybuffer。*/
+    static BUFFER = "arraybuffer";
+    /**纹理类型，加载完成后返回Texture。*/
+    static IMAGE = "image";
+    /**声音类型，加载完成后返回Sound。*/
+    static SOUND = "sound";
+    /**视频类型，加载完成后返回VideoTexture。*/
+    static VIDEO = "video";
+    /**图集类型，加载完成后返回图集json信息(并创建图集内小图Texture)。*/
+    static ATLAS = "atlas";
+    /**位图字体类型，加载完成后返回BitmapFont，加载后，会根据文件名自动注册为位图字体。*/
+    static FONT = "font";
+    /** TTF字体类型，加载完成后返回一个对象。*/
+    static TTF = "ttf";
+    /** 预加载文件类型，加载完成后自动解析到preLoadedMap。*/
+    static PLF = "plf";
+    /** 二进制预加载文件类型，加载完成后自动解析到preLoadedMap。*/
+    static PLFB = "plfb";
+    /**Hierarchy资源。*/
+    static HIERARCHY = "HIERARCHY";
+    /**Mesh资源。*/
+    static MESH = "MESH";
+    /**Material资源。*/
+    static MATERIAL = "MATERIAL";
+    /**Texture2D资源。*/
+    static TEXTURE2D = "TEXTURE2D";
+    /**TextureCube资源。*/
+    static TEXTURECUBE = "TEXTURECUBE";
+    static TEXTURECUBEBIN: string = "TEXTURECUBEBIN";
+    /**AnimationClip资源。*/
+    static ANIMATIONCLIP = "ANIMATIONCLIP";
+    /**SimpleAnimator资源。 */
+    static SIMPLEANIMATORBIN: string = "SIMPLEANIMATOR";
+    /**Terrain资源。*/
+    static TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
+    /**Terrain资源。*/
+    static TERRAINRES = "TERRAIN";
+    /** glTF 资源 */
+    static GLTF: string = "GLTF";
 
-	/**文件后缀和类型对应表。*/
-	static typeMap: { [key: string]: string } = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer", "wasm": "arraybuffer" };
-	/**资源解析函数对应表，用来扩展更多类型的资源加载解析。*/
-	static parserMap: any = {};
-	/**每帧加载完成回调使用的最大超时时间，如果超时，则下帧再处理，防止帧卡顿。*/
-	static maxTimeOut: number = 100;
-	/**资源分组对应表。*/
-	static groupMap: { [key: string]: string[] } = {};
-	/**已加载的资源池。*/
-	static loadedMap: { [key: string]: any } = {};
-	/**已加载的图集资源池。*/
-	static atlasMap: { [key: string]: any[] } = {};
-	/**已加载的纹理资源池。*/
-	static textureMap: { [key: string]: Texture } = {};
-	/** @private 已加载的数据文件。*/
-	static preLoadedMap: { [key: string]: ArrayBuffer } = {};
-	/**@private 引用image对象，防止垃圾回收*/
-	protected static _imgCache: { [key: string]: HTMLImageElement } = {};
-	/**@private */
-	protected static _loaders: Loader[] = [];
-	/**@private */
-	protected static _isWorking = false;
-	/**@private */
-	protected static _startIndex: number = 0;
+    /** 加载出错后的重试次数，默认重试一次*/
+    retryNum: number = 1;
+    /** 延迟时间多久再进行错误重试，默认立即重试*/
+    retryDelay: number = 0;
+    /** 最大下载线程，默认为5个*/
+    maxLoader: number = 5;
 
-	/**
-	 * 获取指定资源地址的数据类型。
-	 * @param	url 资源地址。
-	 * @return 数据类型。
-	 */
-	static getTypeFromUrl(url: string): string {
-		var type = Utils.getFileExtension(url);
-		if (type) return Loader.typeMap[type];
-		console.warn("Not recognize the resources suffix", url);
-		return "text";
-	}
+    static readonly typeMap: { [key: string]: new () => IResourceLoader } = {};
 
-	/**@internal 加载后的数据对象，只读*/
-	_data: any;
-	/**@private */
-	protected _url: string;
-	/**@private */
-	protected _type: string;
-	/**@internal */
-	_cache: boolean;
-	/**@private */
-	protected _http: HttpRequest;
-	/**@private */
-	protected _useWorkerLoader: boolean;
-	/**@internal 自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件*/
-	_customParse = false;
-	/**@internal */
-	_constructParams: any[] | null;
-	/**@internal */
-	_propertyParams: any;
-	/**@internal */
-	_createCache: boolean;
-	/**@internal 原始加载类型 */
-	_originType: string;
+    static registerLoader(types: string[], cls: new () => IResourceLoader) {
+        for (let type of types)
+            Loader.typeMap[type] = cls;
+    }
 
-	/**
-	 * 加载资源。加载错误会派发 Event.ERROR 事件，参数为错误信息。
-	 * @param	url			资源地址。
-	 * @param	type		(default = null)资源类型。可选值为：Loader.TEXT、Loader.JSON、Loader.XML、Loader.BUFFER、Loader.IMAGE、Loader.SOUND、Loader.ATLAS、Loader.FONT。如果为null，则根据文件后缀分析类型。
-	 * @param	cache		(default = true)是否缓存数据。
-	 * @param	group		(default = null)分组名称。
-	 * @param	ignoreCache (default = false)是否忽略缓存，强制重新加载。
-	 * @param	useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
-	 */
-	load(url: string, type: string | null = null, cache: boolean = true, group: string | null = null, ignoreCache: boolean = false, useWorkerLoader: boolean = ILaya.WorkerLoader.enable): void {
-		if (!url) {
-			this.onLoaded(null);
-			return;
-		}
+    /**资源分组对应表。*/
+    static groupMap: { [key: string]: Set<string> } = {};
+    /**已加载的资源池。*/
+    static loadedMap: { [key: string]: any } = {};
 
-		Loader.setGroup(url, "666");
-		this._url = url;
-		if (url.indexOf("data:image") === 0 && !type) type = Loader.IMAGE;
-		else url = URL.formatURL(url);
-		this._type = type || (type = Loader.getTypeFromUrl(this._url));
-		this._cache = cache;
-		this._useWorkerLoader = useWorkerLoader;
-		this._data = null;
-		if (useWorkerLoader)
-			ILaya.WorkerLoader.enableWorkerLoader();
+    /**@private */
+    private _loadings: Record<string, LoadTask>;
+    /**@private */
+    private _queue: Array<DownloadItem>;
+    /**@private */
+    private _loadingCount: number;
+    /**@private */
+    private _downloadingCount: number;
 
-		var cacheRes: any;
-		if (type == Loader.IMAGE) {
-			cacheRes = Loader.textureMap[url];
-			if (cacheRes && (!(cacheRes as Texture).bitmap || ((cacheRes as Texture).bitmap && (cacheRes as Texture).bitmap.destroyed))) {
-				cacheRes = null;
-			}
-		}
-		else
-			cacheRes = Loader.loadedMap[url];
-		if (!ignoreCache && cacheRes) {
-			this._data = cacheRes;
-			this.event(Event.PROGRESS, 1);
-			this.event(Event.COMPLETE, this._data);
-			return;
-		}
-		if (group)
-			Loader.setGroup(url, group);
-		//如果自定义了解析器，则自己解析，自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件
-		if (Loader.parserMap[type] != null) {
-			this._customParse = true;
-			if (Loader.parserMap[type] instanceof Handler) Loader.parserMap[type].runWith(this);
-			else Loader.parserMap[type].call(null, this);
-			return;
-		}
+    /**
+     * <p>创建一个新的 <code>Loader</code> 实例。</p>
+     * <p><b>注意：</b>请使用Laya.loader加载资源，这是一个单例，不要手动实例化此类，否则会导致不可预料的问题。</p>
+     */
+    constructor() {
+        super();
 
-		this._loadResourceFilter(type, url);
-	}
+        this._loadings = {};
+        this._queue = [];
+        this._loadingCount = 0;
+        this._downloadingCount = 0;
+    }
 
-	/**
-	 * @internal
-	 */
-	_loadResourceFilter(type: string, url: string): void {
-		this._loadResource(type, url);
-	}
+    /**
+     * <p>加载资源。</p>
+     * @param url 要加载的单个资源地址或资源地址数组。
+     * @return 加载成功返回资源对象，加载失败返回null。
+     */
+    load(url: string | ILoadURL | (string | ILoadURL)[], type?: string, onProgress?: ProgressCallback): Promise<any>;
+    load(url: string | ILoadURL | (string | ILoadURL)[], options?: ILoadOptions, onProgress?: ProgressCallback): Promise<any>;
+    /**
+     * <p>这是兼容2.0引擎的加载接口</p>
+     * <p>加载资源。</p>
+     * @param	url			要加载的单个资源地址或资源信息数组。比如：简单数组：["a.png","b.png"]；复杂数组[{url:"a.png",type:Loader.IMAGE,size:100,priority:1},{url:"b.json",type:Loader.JSON,size:50,priority:1}]。
+     * @param	complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，如果全部加载成功，则回调参数值为true，否则为false。
+     * @param	progress	加载进度回调。回调参数值为当前资源的加载进度信息(0-1)。
+     * @param	type		资源类型。比如：Loader.IMAGE。
+     * @param	priority	(default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
+     * @param	cache		是否缓存。
+     * @param	group		分组，方便对资源进行管理。
+     * @param	ignoreCache	参数已废弃。
+     * @param	useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
+     * @return Promise对象
+     */
+    load(url: string | ILoadURL | (string | ILoadURL)[], complete?: Handler, progress?: Handler, type?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any>;
+    load(url: string | ILoadURL | (string | ILoadURL)[], arg1?: string | ILoadOptions | Handler, arg2?: ProgressCallback | Handler, arg3?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any> {
+        let complete: Handler;
+        let type: string;
+        let options: ILoadOptions = dummyOptions;
+        if (arg1 instanceof Handler) {
+            complete = arg1;
+            type = arg3;
+        }
+        else if (typeof (arg1) === "string")
+            type = arg1;
+        else if (arg1 != null) {
+            type = arg1.type;
+            options = arg1;
+        }
 
+        if (priority != null || cache != null || group != null || useWorkerLoader != null) {
+            if (options === dummyOptions)
+                options = { priority, cache, group, useWorkerLoader };
+            else
+                options = Object.assign(options, { priority, cache, group, useWorkerLoader });
+        }
 
-	/**
-	 * @internal
-	 */
-	private _loadResource(type: string, url: string): void {
-		switch (type) {
-			case Loader.IMAGE:
-			case "htmlimage": //内部类型
-			case "nativeimage": //内部类型
-				this._loadImage(url);
-				break;
-			case Loader.SOUND:
-				this._loadSound(url);
-				break;
-			case Loader.TTF:
-				this._loadTTF(url);
-				break;
-			case Loader.ATLAS:
-			case Loader.PREFAB:
-			case Loader.PLF:
-				this._loadHttpRequestWhat(url, Loader.JSON);
-				break;
-			case Loader.FONT:
-				this._loadHttpRequestWhat(url, Loader.XML);
-				break;
-			case Loader.PLFB:
-				this._loadHttpRequestWhat(url, Loader.BUFFER);
-				break;
-			default:
-				this._loadHttpRequestWhat(url, type);
-		}
-	}
+        let onProgress: ProgressCallback;
+        if (arg2 instanceof Handler)
+            onProgress = (value: number) => arg2.runWith(value);
+        else
+            onProgress = arg2;
 
-	/**
-	 * @private
-	 * onload、onprocess、onerror必须写在本类
-	 */
-	private _loadHttpRequest(url: string, contentType: string, onLoadCaller: Object, onLoad: Function | null, onProcessCaller: any, onProcess: Function | null, onErrorCaller: any, onError: Function): void {
-		if (Browser.onVVMiniGame || Browser.onHWMiniGame) {
-			this._http = new HttpRequest();//临时修复vivo复用xmlhttprequest的bug
-		} else {
-			if (!this._http)
-				this._http = new HttpRequest();
-		}
-		onProcess && this._http.on(Event.PROGRESS, onProcessCaller, onProcess);
-		onLoad && this._http.on(Event.COMPLETE, onLoadCaller, onLoad);
-		this._http.on(Event.ERROR, onErrorCaller, onError);
-		this._http.send(url, null, "get", contentType);
-	}
+        let startFrame = ILaya.timer.currFrame;
 
-	/**
-	 * @private
-	 */
-	private _loadHtmlImage(url: string, onLoadCaller: any, onLoad: Function, onErrorCaller: any, onError: Function): void {
-		var image: any;
-		function clear(): void {
-			var img: any = image;
-			img.onload = null;
-			img.onerror = null;
-			delete Loader._imgCache[url];
-		}
-		var onerror: Function = function (): void {
-			clear();
-			onError.call(onErrorCaller);
-		}
+        let promise: Promise<any>;
+        if (Array.isArray(url)) {
+            let pd: BatchProgress;
+            if (onProgress)
+                pd = new BatchProgress(onProgress);
 
-		var onload: Function = function (): void {
-			clear();
-			onLoad.call(onLoadCaller, image);
-		};
-		image = new Browser.window.Image();
-		image.crossOrigin = "";
-		image.onload = onload;
-		image.onerror = onerror;
-		image.src = url;
-		Loader._imgCache[url] = image;//增加引用，防止垃圾回收
-	}
+            let promises: Array<Promise<any>> = [];
+            for (let i = 0; i < url.length; i++) {
+                let url2 = url[i];
+                if (typeof (url2) === "string") {
+                    promises.push(this._load1(url2, type, options, pd?.createCallback()));
+                }
+                else {
+                    promises.push(this._load1(url2.url, type,
+                        options !== dummyOptions ? Object.assign({}, options, url2) : url2, pd?.createCallback()));
+                }
+            }
 
-	/**
-	 * @internal
-	 */
-	_loadHttpRequestWhat(url: string, contentType: string): void {
-		if (Loader.preLoadedMap[url])
-			this.onLoaded(Loader.preLoadedMap[url]);
-		else
-			this._loadHttpRequest(url, contentType, this, this.onLoaded, this, this.onProgress, this, this.onError);
-	}
+            promise = Promise.all(promises);
+        }
+        else if (typeof (url) === "string")
+            promise = this._load1(url, type, options, onProgress);
+        else
+            promise = this._load1(url.url, type,
+                options !== dummyOptions ? Object.assign({}, options, url) : url, onProgress);
 
-	/**
-	 * @private
-	 * 加载TTF资源。
-	 * @param	url 资源地址。
-	 */
-	protected _loadTTF(url: string): void {
-		url = URL.formatURL(url);
-		var ttfLoader: TTFLoader = new ILaya.TTFLoader();
-		ttfLoader.complete = Handler.create(this, this.onLoaded);
-		ttfLoader.load(url);
-	}
+        if (complete)
+            return promise.then(result => {
+                if (ILaya.timer.currFrame == startFrame)
+                    ILaya.systemTimer.frameOnce(1, complete, complete.runWith, result);
+                else
+                    complete.runWith(result);
+                return result;
+            });
+        else
+            return promise;
+    }
 
-	/**
-	 * @private
-	 */
-	protected _loadImage(url: string, isformatURL: boolean = true): void {
-		var _this = this;
-		if (isformatURL)
-			url = URL.formatURL(url);
-		var onError: Function = function (): void {
-			_this.event(Event.ERROR, "Load image failed");
-		}
-		if (this._type === "nativeimage") {
-			this._loadHtmlImage(url, this, this.onLoaded, this, onError);
-		} else {
+    /**
+    * <p>这是兼容2.0引擎的加载接口，推荐使用load。</p>
+    * <p>加载资源。</p>
+    * @param	url			资源地址或者数组。
+    * @param	complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，回调参数是一个数组，包含加载完成的资源，其中如果失败的是null。
+    * @param	progress	资源加载进度回调，回调参数值为当前资源加载的进度信息(0-1)。
+    * @param	type	资源类型。
+    * @param	constructParams		资源构造函数参数。
+    * @param	propertyParams		资源属性参数。
+    * @param	priority	(default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
+    * @param	cache		是否缓存资源。
+    * @return Promise对象
+    */
+    create(url: string | (string | ILoadURL)[], complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, constructParams: TextureConstructParams | null = null, propertyParams: TexturePropertyParams = null, priority: number = 0, cache: boolean = true): Promise<any> {
+        let onProgress: ProgressCallback;
+        if (progress)
+            onProgress = (value: number) => progress.runWith(value);
 
-			var ext: string = Utils.getFileExtension(url);
-			if (ext == 'bin' && this._url) {
-				ext = Utils.getFileExtension(this._url);
-			}
-			if (ext === "ktx" || ext === "pvr")
-				this._loadHttpRequest(url, Loader.BUFFER, this, this.onLoaded, this, this.onProgress, this, this.onError);
-			else
-				this._loadHtmlImage(url, this, this.onLoaded, this, onError);
-		}
-	}
+        let options: ILoadOptions;
+        if (type != null || priority != null || constructParams != null || propertyParams != null || cache != null)
+            options = { type, priority, constructParams, propertyParams, cache };
 
-	/**
-	 * @internal
-	 * 加载声音资源。
-	 * @param	url 资源地址。
-	 */
-	_loadSound(url: string): void {
-		var sound: Sound = (<Sound>(new SoundManager._soundClass()));
-		var _this: Loader = this;
+        return this.load(url, options, onProgress).then(content => {
+            if (Array.isArray(content)) {
+                for (let i = 0; i < content.length; i++) {
+                    if (content[i] instanceof HierarchyResource)
+                        content[i] = content[i].createNodes();
+                }
 
-		sound.on(Event.COMPLETE, this, soundOnload);
-		sound.on(Event.ERROR, this, soundOnErr);
-		sound.load(url);
+                if (complete)
+                    complete.runWith([content]);
+            }
+            else {
+                if (content instanceof HierarchyResource)
+                    content = content.createNodes();
 
-		function soundOnload(): void {
-			clear();
-			_this.onLoaded(sound);
-		}
-		function soundOnErr(): void {
-			clear();
-			sound.dispose();
-			_this.event(Event.ERROR, "Load sound failed");
-		}
-		function clear(): void {
-			sound.offAll();
-		}
-	}
+                if (complete)
+                    complete.runWith(content);
+            }
 
-	/**@private */
-	protected onProgress(value: number): void {
-		if (this._type === Loader.ATLAS) this.event(Event.PROGRESS, value * 0.3);
-		else if (this._originType == Loader.HIERARCHY) this.event(Event.PROGRESS, value / 3);
-		else this.event(Event.PROGRESS, value);
-	}
+            return content;
+        });
+    }
 
-	/**@private */
-	protected onError(message: string): void {
-		this.event(Event.ERROR, message);
-	}
+    private _load1(url: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
+        let normalizedUrl: string;
+        if (options.isID) {
+            normalizedUrl = URL.uuidMap[url];
+            if (!normalizedUrl) {
+                console.error(`Unknown uuid: ${url}`);
+                return Promise.resolve(null);
+            }
+        }
+        else
+            normalizedUrl = URL.normalizedURL(url);
 
-	/**
-	 * 资源加载完成的处理函数。
-	 * @param	data 数据。
-	 */
-	protected onLoaded(data: any = null): void {
-		var type = this._type;
-		if (type == Loader.PLFB) {
-			this.parsePLFBData(data);
-			this.complete(data);
-		} else if (type == Loader.PLF) {
-			this.parsePLFData(data);
-			this.complete(data);
-		} else if (type === Loader.IMAGE) {
-			let tex: Texture2D;
-			//可能有另外一种情况
-			if (data instanceof ArrayBuffer) {
-				var ext: string = Utils.getFileExtension(this._url);
-				let format: TextureFormat;
-				switch (ext) {
-					case "ktx":
-						format = TextureFormat.ETC1RGB;
-						break;
-					case "pvr":
-						format = TextureFormat.PVRTCRGBA_4BPPV;
-						break;
-					default: {
-						console.error('unknown format', ext);
-						return;
-					}
-				}
-				tex = new Texture2D(0, 0, format, false, false);
-				// tex.setCompressData(data);
-				throw "ktx pvr parse"
-				// tex.wrapModeU = WarpMode.Clamp;
-				// tex.wrapModeV = WarpMode.Clamp;
-				// tex._setCreateURL(this.url);
-			} else if (!(data instanceof Texture2D)) {
-				tex = new Texture2D(data.width, data.height, 1, false, false);
-				// tex.loadImageSource(data, true);
-				tex.setImageData(data, true, false);
-				tex.wrapModeU = WarpMode.Clamp;
-				tex.wrapModeV = WarpMode.Clamp;
-				tex._setCreateURL(data.src);
-			} else {
-				tex = data;
-			}
-			var texture: Texture = new Texture(tex);
-			texture.url = this._url;
-			this.complete(texture);
+        if (options.type)
+            type = options.type;
+        if (!type) {
+            if (url.indexOf("data:") === 0)
+                type = Loader.IMAGE;
+            else {
+                type = Utils.getFileCompatibleExtension(normalizedUrl);
+                if (!Loader.typeMap[type])
+                    type = Utils.getFileExtension(normalizedUrl);
+            }
+        }
 
-		} else if (type === Loader.SOUND || type === "nativeimage") {
-			this.complete(data);
-		} else if (type === "htmlimage") {
-			let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
-			// tex.loadImageSource(data, true);
-			tex.setImageData(data, true, false);
-			tex.wrapModeU = WarpMode.Clamp;
-			tex.wrapModeV = WarpMode.Clamp;
-			tex._setCreateURL(data.src);
-			this.complete(tex);
-		}
-		else if (type === Loader.ATLAS) {
-			//处理图集
-			if (data.frames) {
-				var toloadPics: string[] = [];
-				if (!this._data) {
-					this._data = data;
-					//let cdt = data as Texture2D;
-					//构造加载图片信息
-					if (data.meta && data.meta.image) {
-						//带图片信息的类型
-						toloadPics = data.meta.image.split(",");
-						var split: string = this._url.indexOf("/") >= 0 ? "/" : "\\";
-						var idx: number = this._url.lastIndexOf(split);
-						var folderPath: string = idx >= 0 ? this._url.substr(0, idx + 1) : "";
-						var changeType: string | null = null;
+        if (options.group) {
+            let set = Loader.groupMap[options.group];
+            if (!set)
+                set = Loader.groupMap[options.group] = new Set();
+            set.add(normalizedUrl);
+        }
 
-						if (Browser.onAndroid && data.meta.compressTextureAndroid) {
-							changeType = ".ktx";
-						}
-						if (Browser.onIOS && data.meta.compressTextureIOS) {
-							if (data.meta.astc) {
-								changeType = ".ktx";
-							} else {
-								changeType = ".pvr";
-							}
-						}
-						//idx = _url.indexOf("?");
-						//var ver:String;
-						//ver = idx >= 0 ? _url.substr(idx) : "";
-						for (var i = 0, len = toloadPics.length; i < len; i++) {
-							if (changeType) {
-								toloadPics[i] = folderPath + toloadPics[i].replace(".png", changeType);
-							} else {
-								toloadPics[i] = folderPath + toloadPics[i];
-							}
+        let cacheRes = Loader.loadedMap[normalizedUrl];
+        if (cacheRes) {
+            if (cacheRes instanceof Texture) {
+                if (cacheRes.bitmap && !cacheRes.bitmap.destroyed)
+                    return Promise.resolve(Loader.ensureTextureFormat(cacheRes, type));
+            }
+            else
+                return Promise.resolve(cacheRes);
+        }
 
-						}
-					} else {
-						//不带图片信息
-						toloadPics = [this._url.replace(".json", ".png")];
-					}
+        let task = this._loadings[normalizedUrl];
+        if (task) {
+            if (onProgress)
+                task.onProgress.add(onProgress);
+            return new Promise((resolve) => task.onComplete.add(resolve));
+        }
 
-					//保证图集的正序加载
-					toloadPics.reverse();
-					data.toLoads = toloadPics;
-					data.pics = [];
-				}
-				this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
-				var url = URL.formatURL(toloadPics.pop());
-				var ext = Utils.getFileExtension(url);
-				var type = Loader.IMAGE;
-				if (ext == "pvr" || ext == "ktx") {
-					type = Loader.BUFFER;
-				}
-				return this._loadResourceFilter(type, url);
-			} else {
-				var url: string;
-				if (!(data instanceof Texture2D)) {
-					if (data instanceof ArrayBuffer) {
-						url = this._http ? this._http.url : this._url;
-						var ext: string = Utils.getFileExtension(url);
-						let format: TextureFormat;
-						switch (ext) {
-							case "ktx":
-								format = TextureFormat.ETC1RGB;
-								break;
-							case "pvr":
-								format = TextureFormat.PVRTCRGBA_4BPPV;
-								break;
-							default: {
-								console.error('unknown format', ext);
-								return;
-							}
-						}
-						let tex = new Texture2D(0, 0, format, false, false);
-						tex.wrapModeU = WarpMode.Clamp;
-						tex.wrapModeV = WarpMode.Clamp;
-						// tex.setCompressData(data);
-						throw "tex load  eee "
-						tex._setCreateURL(url);
-						data = tex;
-					} else {
-						let tex: Texture2D = new Texture2D(data.width, data.height, 1, false, false);
-						// tex.loadImageSource(data, true);
-						tex.setImageData(data, true, false);
-						tex.wrapModeU = WarpMode.Clamp;
-						tex.wrapModeV = WarpMode.Clamp;
-						tex._setCreateURL(data.src);
-						data = tex;
-					}
-				}
-				this._data.pics.push(data);
-				if (this._data.toLoads.length > 0) {
-					this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);
-					//有图片未加载
-					var url = URL.formatURL(this._data.toLoads.pop());
-					var ext = Utils.getFileExtension(url);
-					var type = Loader.IMAGE;
-					if (ext == "pvr" || ext == "ktx") {
-						type = Loader.BUFFER;
-					}
-					return this._loadResourceFilter(type, url);
-				}
-				var frames: any = this._data.frames;
-				var cleanUrl: string = this._url.split("?")[0];
-				var directory: string = (this._data.meta && this._data.meta.prefix) ? this._data.meta.prefix : cleanUrl.substring(0, cleanUrl.lastIndexOf(".")) + "/";
-				var pics: any[] = this._data.pics;
-				var atlasURL = URL.formatURL(this._url);
-				var map: any[] = Loader.atlasMap[atlasURL] || (Loader.atlasMap[atlasURL] = []);
-				((<any>map)).dir = directory;
-				var scaleRate: number = 1;
-				if (this._data.meta && this._data.meta.scale && this._data.meta.scale != 1) {
-					scaleRate = parseFloat(this._data.meta.scale);
-					for (var name in frames) {
-						var obj: any = frames[name];//取对应的图
-						var tPic: Texture2D = pics[obj.frame.idx ? obj.frame.idx : 0];//是否释放
-						url = directory + name;
-						((<any>tPic)).scaleRate = scaleRate;
-						var tTexture: Texture;
-						tTexture = Texture._create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h, Loader.getRes(url));
-						Loader.cacheTexture(url, tTexture);
-						tTexture.url = url;
-						map.push(url);
-					}
-				} else {
-					for (name in frames) {
-						obj = frames[name];//取对应的图
-						tPic = pics[obj.frame.idx ? obj.frame.idx : 0];//是否释放
-						url = directory + name;
-						tTexture = Texture._create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h, Loader.getRes(url));
-						Loader.cacheTexture(url, tTexture);
-						tTexture.url = url;
-						map.push(url);
-					}
-				}
+        let atlasUrl = AtlasInfoManager.getFileLoadPath(normalizedUrl);
+        if (atlasUrl) {
+            return this.load(atlasUrl, Loader.ATLAS).then(() => {
+                let cacheRes = Loader.loadedMap[normalizedUrl];
+                return Promise.resolve(Loader.ensureTextureFormat(cacheRes, type));
+            });
+        }
 
-				delete this._data.pics;
-				this.complete(this._data);
-			}
-		} else if (type === Loader.FONT) {
-			//处理位图字体
-			if (!data._source) {
-				this._data = data;
-				this.event(Event.PROGRESS, 0.5);
-				return this._loadResourceFilter(Loader.IMAGE, this._url.replace(".fnt", ".png"));
-			} else {
-				var bFont = new BitmapFont();
-				bFont.parseFont(this._data, new Texture(data));
-				var tArr: any[] = this._url.split(".fnt")[0].split("/");
-				var fontName = tArr[tArr.length - 1];
-				Text.registerBitmapFont(fontName, bFont);
-				this._data = bFont;
-				this.complete(this._data);
-			}
-		} else if (type === Loader.PREFAB) {
-			var prefab = new Prefab();
-			prefab.json = data;
-			this.complete(prefab);
-		} else {
-			this.complete(data);
-		}
-	}
+        let cls = Loader.typeMap[type];
+        if (!cls) {
+            console.warn(`Not recognize the resource suffix: '${normalizedUrl}'`);
+            return Promise.resolve(null);
+        }
 
-	private parsePLFData(plfData: any): void {
-		var type: string;
-		var filePath: string;
-		var fileDic: any;
-		for (type in plfData) {
-			fileDic = plfData[type];
-			switch (type) {
-				case "json":
-				case "text":
-					for (filePath in fileDic) {
-						Loader.preLoadedMap[URL.formatURL(filePath)] = fileDic[filePath]
-					}
-					break;
-				default:
-					for (filePath in fileDic) {
-						Loader.preLoadedMap[URL.formatURL(filePath)] = fileDic[filePath]
-					}
-			}
+        if (loadTaskPool.length > 0)
+            task = loadTaskPool.pop();
+        else
+            task = new LoadTask();
+        task.type = type;
+        task.url = normalizedUrl;
+        task.originalUrl = url;
+        options = Object.assign(task.options, options);
+        if (options.priority == null)
+            options.priority = 0;
+        if (options.useWorkerLoader == null)
+            options.useWorkerLoader = ILaya.WorkerLoader.enable;
+        if (onProgress)
+            task.onProgress.add(onProgress);
+        task.loader = this;
 
-		}
-	}
+        let assetLoader = new cls();
+        this._loadings[normalizedUrl] = task;
+        this._loadingCount++;
 
-	private parsePLFBData(plfData: ArrayBuffer): void {
-		var byte: Byte;
-		byte = new Byte(plfData);
-		var i: number, len: number;
-		len = byte.getInt32();
-		for (i = 0; i < len; i++) {
-			this.parseOnePLFBFile(byte);
-		}
-	}
+        let promise: Promise<any>;
+        try {
+            promise = assetLoader.load(task);
+        }
+        catch (err: any) {
+            console.log(err);
 
-	private parseOnePLFBFile(byte: Byte): void {
-		var fileLen: number;
-		var fileName: string;
-		var fileData: ArrayBuffer;
-		fileName = byte.getUTFString();
-		fileLen = byte.getInt32();
-		fileData = byte.readArrayBuffer(fileLen);
-		Loader.preLoadedMap[URL.formatURL(fileName)] = fileData;
+            promise = Promise.resolve(null);
+        }
 
-	}
+        return promise.then(content => {
+            if (task.options.cache == null || task.options.cache)
+                Loader.loadedMap[normalizedUrl] = content;
 
-	/**
-	 * 加载完成。
-	 * @param	data 加载的数据。
-	 */
-	protected complete(data: any): void {
-		this._data = data;
-		if (this._customParse) {
-			this.event(Event.LOADED, data instanceof Array ? [data] : data);
-		} else {
-			Loader._loaders.push(this);
-			if (!Loader._isWorking) Loader.checkNext();
-		}
-	}
+            content = Loader.ensureTextureFormat(content, type);
+            task.onComplete.invoke(content);
 
-	/**@private */
-	private static checkNext(): void {
-		Loader._isWorking = true;
-		var startTimer: number = Browser.now();
-		while (Loader._startIndex < Loader._loaders.length) {
-			Loader._loaders[Loader._startIndex].endLoad();
-			Loader._startIndex++;
-			if (Browser.now() - startTimer > Loader.maxTimeOut) {
-				console.warn("loader callback cost a long time:" + (Browser.now() - startTimer) + " url=" + Loader._loaders[Loader._startIndex - 1].url);
-				ILaya.systemTimer.frameOnce(1, null, Loader.checkNext);
-				return;
-			}
-		}
+            delete this._loadings[normalizedUrl];
+            task.reset();
+            loadTaskPool.push(task);
+            this._loadingCount--;
+            if (this._loadingCount == 0)
+                this.event(Event.COMPLETE);
 
-		Loader._loaders.length = 0;
-		Loader._startIndex = 0;
-		Loader._isWorking = false;
-	}
+            //console.log("[Loader]Loaded " + normalizedUrl);
 
-	/**
-	 * 结束加载，处理是否缓存及派发完成事件 <code>Event.COMPLETE</code> 。
-	 * @param	content 加载后的数据
-	 */
-	endLoad(content: any = null): void {
-		content && (this._data = content);
-		if (this._cache) Loader.cacheRes(this._url, this._data);
-		this.event(Event.PROGRESS, 1);
-		this.event(Event.COMPLETE, this.data instanceof Array ? [this.data] : this.data);
-	}
+            return content;
+        });
+    }
 
-	/**加载地址。*/
-	get url(): string {
-		return this._url;
-	}
+    /**
+     * 从指定URL下载。这是较为底层的下载资源的方法，它和load方法不同，不对返回的数据进行解析，也不会缓存下载的内容。
+     * 成功则返回下载的数据，失败返回null。
+     */
+    fetch<K extends keyof ContentTypeMap>(url: string, contentType: K, onProgress?: (progress: number) => void,
+        priority?: number, useWorkerLoader?: boolean): Promise<ContentTypeMap[K]> {
+        url = URL.formatURL(url);
+        return new Promise((resolve) => {
+            this.queueToDownload({
+                url: url,
+                contentType: contentType,
+                useWorkerLoader: useWorkerLoader,
+                priority: priority ?? 1,
+                retryCnt: 0,
+                onProgress: onProgress,
+                onComplete: resolve,
+            });
+        });
+    }
 
-	/**加载类型。*/
-	get type(): string {
-		return this._type;
-	}
+    private queueToDownload(item: DownloadItem) {
+        if (this._downloadingCount < this.maxLoader) {
+            this.download(item);
+            return;
+        }
 
-	/**是否缓存。*/
-	get cache(): boolean {
-		return this._cache;
-	}
+        let priority = item.priority;
+        if (priority == 0)
+            this._queue.push(item);
+        else {
+            let i = this._queue.findIndex(e => e.priority < priority);
+            if (i != -1)
+                this._queue.splice(i, 0, item);
+            else
+                this._queue.push(item);
+        }
+    }
 
-	/**返回的数据。*/
-	get data(): any {
-		return this._data;
-	}
+    private download(item: DownloadItem) {
+        if (item.contentType == "image") {
+            if (item.useWorkerLoader) {
+                WorkerLoader.enableWorkerLoader();
+                if (WorkerLoader.enable) {
+                    let workerLoader = WorkerLoader.I;
+                    workerLoader.once(item.url, null, (imageData: any) => {
+                        if (imageData != null)
+                            this.completeItem(item, imageData);
+                        else {
+                            item.useWorkerLoader = false;
+                            this.download(item);
+                        }
+                    });
+                    workerLoader.worker.postMessage(item.url);
+                    this._downloadingCount++;
+                    return;
+                }
+            }
 
-	/**
-	 * 清理指定资源地址的缓存。 
-	 * @param url 资源地址。
-	 */
-	static clearRes(url: string): void {
-		url = URL.formatURL(url);
-		//删除图集
-		var arr = Loader.getAtlas(url);
-		if (arr) {
-			for (var i = 0, n = arr.length; i < n; i++) {
-				var resUrl = arr[i];
-				var tex: Texture = Loader.getRes(resUrl);
-				delete Loader.textureMap[resUrl];
-				if (tex) tex.destroy();
-			}
-			arr.length = 0;
-			delete Loader.atlasMap[url];
-		}
-		var texture = Loader.textureMap[url];
-		if (texture) {
-			texture.destroy();
-			delete Loader.textureMap[url]
-		}
-		var res = Loader.loadedMap[url];
-		(res) && (delete Loader.loadedMap[url])
-	}
+            let image: HTMLImageElement = new Browser.window.Image();
+            image.crossOrigin = "";
+            image.onload = () => {
+                image.onload = null;
+                image.onerror = null;
+                this.completeItem(item, image);
+            };
+            image.onerror = () => {
+                image.onload = null;
+                image.onerror = null;
 
-	/**
-	 * 销毁Texture使用的图片资源，保留texture壳，如果下次渲染的时候，发现texture使用的图片资源不存在，则会自动恢复
-	 * 相比clearRes，clearTextureRes只是清理texture里面使用的图片资源，并不销毁texture，再次使用到的时候会自动恢复图片资源
-	 * 而clearRes会彻底销毁texture，导致不能再使用；clearTextureRes能确保立即销毁图片资源，并且不用担心销毁错误，clearRes则采用引用计数方式销毁
-	 * @param	url	图集地址或者texture地址，比如 Loader.clearTextureRes("res/atlas/comp.atlas"); Loader.clearTextureRes("hall/bg.jpg");
-	 */
-	static clearTextureRes(url: string): void {
-		url = URL.formatURL(url);
-		//删除图集
-		var arr: any[] = Loader.getAtlas(url);
-		if (arr && arr.length > 0) {
-			arr.forEach(function (t: string): void {
-				var tex: any = Loader.getRes(t);
-				if (tex instanceof Texture) {
-					((<Texture>tex)).disposeBitmap();
-				}
-			});
-		} else {
-			var t: any = Loader.getRes(url);
-			if (t instanceof Texture) {
-				((<Texture>t)).disposeBitmap();
-			}
-		}
-	}
+                this.completeItem(item, null, "");
+            };
+            image.src = item.url;
+            item.temp = image;
+            this._downloadingCount++;
+        }
+        else if (item.contentType == "sound") {
+            let audio = (<HTMLAudioElement>Browser.createElement("audio"));
+            audio.crossOrigin = "";
+            audio.src = item.url;
+            audio.oncanplaythrough = () => {
+                audio.oncanplaythrough = null;
+                audio.onerror = null;
+                this.completeItem(item, audio);
+            };
+            audio.onerror = () => {
+                audio.oncanplaythrough = null;
+                audio.onerror = null;
 
-	/**
-	 * 获取指定资源地址的资源或纹理。
-	 * @param	url 资源地址。
-	 * @return	返回资源。
-	 */
-	static getRes(url: string): any {
-		var res = Loader.textureMap[URL.formatURL(url)];
-		if (res)
-			return res;
-		else
-			return Loader.loadedMap[URL.formatURL(url)];
-	}
+                this.completeItem(item, null, "");
+            };
+            item.temp = audio;
+            this._downloadingCount++;
+        }
+        else {
+            let http: HttpRequest = getRequestInst();
+            http.on(Event.COMPLETE, () => {
+                let data = http.data;
+                returnRequestInst(http);
 
+                this.completeItem(item, data);
+            });
+            http.on(Event.ERROR, null, (error: string) => {
+                returnRequestInst(http);
 
-	/**
-	 * 获取指定资源地址的图集地址列表。
-	 * @param	url 图集地址。
-	 * @return	返回地址集合。
-	 */
-	static getAtlas(url: string) {
-		return Loader.atlasMap[URL.formatURL(url)];
-	}
+                this.completeItem(item, null, error);
+            });
+            if (item.onProgress)
+                http.on(Event.PROGRESS, item.onProgress);
+            http.send(item.url, null, "get", <any>item.contentType);
+            item.temp = http;
+            this._downloadingCount++;
+        }
+    }
 
+    private completeItem(item: DownloadItem, content: any, error?: string) {
+        this._downloadingCount--;
+        item.temp = null;
+        if (content) {
+            item.loading = false;
 
-	/**
-	 * 缓存资源。
-	 * 如果资源已经存在则缓存失败。
-	 * @param	url 资源地址。
-	 * @param	data 要缓存的内容。
-	 */
-	static cacheRes(url: string, data: any): void {
-		url = URL.formatURL(url);
-		if (Loader.loadedMap[url] != null) {
-			console.warn("Resources already exist,is repeated loading:", url);
-		} else {
-			if (data instanceof Texture) {
-				Loader.loadedMap[url] = data.bitmap;
-				Loader.textureMap[url] = data;
-			}
-			else {
-				Loader.loadedMap[url] = data;
-			}
-		}
-	}
+            if (this._downloadingCount < this.maxLoader && this._queue.length > 0)
+                this.download(this._queue.shift());
 
-	/**
-	 * 强制缓存资源。不做任何检查。
-	 * @param url  资源地址。
-	 * @param data  要缓存的内容。
-	 */
-	static cacheResForce(url: string, data: any) {
-		Loader.loadedMap[url] = data;
-	}
+            item.onComplete(content);
+        }
+        else if (item.retryCnt < this.retryNum) {
+            item.retryCnt++;
+            console.debug(`[Loader]Retry to load: ${item.url} (${item.retryCnt})`);
+            ILaya.systemTimer.once(this.retryDelay, this, this.queueToDownload, [item], false);
+        }
+        else {
+            item.loading = false;
+            console.warn(`[Loader]Failed to load: ${item.url}`);
 
+            if (this._downloadingCount < this.maxLoader && this._queue.length > 0)
+                this.download(this._queue.shift());
 
-	/**
-	 * 缓存Teture。
-	 * @param	url 资源地址。
-	 * @param	data 要缓存的Texture。
-	 */
-	static cacheTexture(url: string, data: Texture): void {
-		url = URL.formatURL(url);
-		if (Loader.textureMap[url] != null) {
-			console.warn("Resources already exist,is repeated loading:", url);
-		} else {
-			Loader.textureMap[url] = data;
-		}
-	}
+            item.onComplete(null);
+        }
+    }
 
-	/**
-	 * 设置资源分组。
-	 * @param url 资源地址。
-	 * @param group 分组名。
-	 */
-	static setGroup(url: string, group: string): void {
-		if (!Loader.groupMap[group]) Loader.groupMap[group] = [];
-		Loader.groupMap[group].push(url);
-	}
+    /**
+     * @private
+     */
+    private static ensureTextureFormat(content: any, type: string) {
+        if ((content instanceof Texture) && type == Loader.TEXTURE2D)
+            return (<Texture>content).bitmap;
+        else
+            return content;
+    }
 
-	/**
-	 * 根据分组清理资源。
-	 * @param group 分组名。
-	 */
-	static clearResByGroup(group: string): void {
-		if (!Loader.groupMap[group]) return;
-		var arr: any[] = Loader.groupMap[group], i: number, len: number = arr.length;
-		for (i = 0; i < len; i++) {
-			Loader.clearRes(arr[i]);
-		}
-		arr.length = 0;
-	}
+    /**
+     * 获取指定资源地址的资源。
+     * @param	url 资源地址。
+     * @return	返回资源。
+     */
+    static getRes(url: string, type?: string): any {
+        url = URL.normalizedURL(url);
+        return Loader.ensureTextureFormat(Loader.loadedMap[url], type);
+    }
+
+    static getTexture2D(url: string): any {
+        url = URL.normalizedURL(url);
+        return Loader.ensureTextureFormat(Loader.loadedMap[url], Loader.TEXTURE2D);
+    }
+
+    getRes(url: string, type?: string): any {
+        return Loader.getRes(url, type);
+    }
+
+    static createNodes<T extends Node>(url: string): T {
+        return Loader.getRes(url)?.createNodes();
+    }
+
+    /**
+     * 缓存资源。
+     * @param url 资源地址。
+     * @param data 要缓存的内容。
+     */
+    static cacheRes(url: string, data: any, replace?: boolean): void {
+        url = URL.normalizedURL(url);
+        if (Loader.loadedMap[url]) {
+            if (!replace)
+                console.warn("Resources already exist,is repeated loading:", url);
+        }
+
+        Loader.loadedMap[url] = data;
+    }
+
+    cacheRes(url: string, data: any, replace?: boolean): void {
+        Loader.cacheRes(url, data, replace);
+    }
+
+    /**
+     * 清理指定资源地址缓存。
+     * @param url 资源地址。
+     */
+    static clearRes(url: string): void {
+        url = URL.normalizedURL(url);
+        Loader._clearRes(url);
+    }
+
+    /**
+     * 清理指定资源地址缓存。
+     * @param url 资源地址。
+     */
+    clearRes(url: string): void {
+        url = URL.normalizedURL(url);
+        Loader._clearRes(url);
+    }
+
+    /**
+     * @private
+     */
+    private static _clearRes(url: string) {
+        let res = Loader.loadedMap[url];
+        if (res) {
+            if (('destroy' in res) && !res._destroyed) {
+                try {
+                    res.destroy();
+                }
+                catch (err: any) {
+                    console.error(err);
+                }
+            }
+
+            delete Loader.loadedMap[url];
+        }
+    }
+
+    /**
+     * 兼容旧版本接口。建议直接使用getRes。
+     * 获取指定资源地址的图集地址列表。
+     * @param	url 图集地址。
+     * @return	返回地址集合。
+     */
+    static getAtlas(url: string) {
+        return Loader.getRes(url);
+    }
+
+    /**
+     * 销毁Texture使用的图片资源，保留texture壳，如果下次渲染的时候，发现texture使用的图片资源不存在，则会自动恢复
+     * 相比clearRes，clearTextureRes只是清理texture里面使用的图片资源，并不销毁texture，再次使用到的时候会自动恢复图片资源
+     * 而clearRes会彻底销毁texture，导致不能再使用；clearTextureRes能确保立即销毁图片资源，并且不用担心销毁错误，clearRes则采用引用计数方式销毁
+     * @param url 图集地址或者texture地址，比如 Loader.clearTextureRes("res/atlas/comp.atlas"); Loader.clearTextureRes("hall/bg.jpg");
+     */
+    clearTextureRes(url: string): void {
+        url = URL.normalizedURL(url);
+        let res = Loader.loadedMap[url];
+        if (res instanceof Texture) {
+            res.disposeBitmap();
+        }
+        else if (res instanceof AtlasResource) {
+            for (let tex of res.textures)
+                tex.disposeBitmap();
+        }
+    }
+
+    /**
+     * 设置资源分组。
+     * @param url 资源地址。
+     * @param group 分组名。
+     */
+    static setGroup(url: string, group: string): void {
+        url = URL.normalizedURL(url);
+        let set = Loader.groupMap[group];
+        if (!set)
+            set = Loader.groupMap[group] = new Set();
+        set.add(url);
+    }
+
+    /**
+     * 根据分组清理资源。
+     * @param group 分组名
+     */
+    static clearResByGroup(group: string): void {
+        let set = Loader.groupMap[group];
+        if (set) {
+            for (let k of set)
+                Loader._clearRes(k);
+        }
+    }
 }
 
+class LoadTask implements ILoadTask {
+    type: string;
+    originalUrl: string;
+    url: string;
+    options: ILoadOptions;
+    loader: Loader;
+    progress: BatchProgress;
+
+    onProgress: Delegate;
+    onComplete: Delegate;
+
+    constructor() {
+        this.options = {};
+        this.onProgress = new Delegate();
+        this.onComplete = new Delegate();
+        this.progress = new BatchProgress((progress: number) => this.onProgress.invoke(progress));
+    }
+
+    public reset() {
+        for (let k in this.options)
+            delete this.options[k];
+        this.onProgress.clear();
+        this.onComplete.clear();
+        this.progress.reset();
+    }
+}
+
+const loadTaskPool: Array<LoadTask> = [];
+const dummyOptions: ILoadOptions = {};
+
+interface DownloadItem {
+    url: string;
+    contentType: string;
+    priority: number;
+    useWorkerLoader?: boolean;
+    loading?: boolean;
+    error?: boolean;
+    retryCnt?: number;
+    temp?: any;
+    onComplete: (content: any) => void;
+    onProgress: (progress: number) => void;
+}
+
+const httpRequestPool: Array<HttpRequest> = [];
+function getRequestInst() {
+    if (httpRequestPool.length == 0
+        || Browser.onVVMiniGame || Browser.onHWMiniGame /*临时修复vivo复用xmlhttprequest的bug*/) {
+        return new HttpRequest();
+    } else {
+        return httpRequestPool.pop();
+    }
+}
+
+function returnRequestInst(inst: HttpRequest) {
+    inst.reset();
+    if (httpRequestPool.length < 10)
+        httpRequestPool.push(inst);
+}
+
+class TextAssetLoader implements IResourceLoader {
+    load(task: ILoadTask) {
+        return task.loader.fetch(task.url, "text", task.progress.createCallback(), task.options.priority);
+    }
+}
+
+class BinaryAssetLoader implements IResourceLoader {
+    load(task: ILoadTask) {
+        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options.priority);
+    }
+}
+
+class JsonAssetLoader implements IResourceLoader {
+    load(task: ILoadTask) {
+        return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options.priority);
+    }
+}
+
+class XMLAssetLoader implements IResourceLoader {
+    load(task: ILoadTask) {
+        return task.loader.fetch(task.url, "xml", task.progress.createCallback(), task.options.priority);
+    }
+}
+
+Loader.registerLoader([Loader.TEXT, "txt", "csv"], TextAssetLoader);
+Loader.registerLoader([Loader.BUFFER, "bin", "bytes"], BinaryAssetLoader);
+Loader.registerLoader([Loader.JSON, "json"], JsonAssetLoader);
+Loader.registerLoader([Loader.XML, "xml"], XMLAssetLoader);

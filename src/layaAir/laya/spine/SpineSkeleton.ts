@@ -1,9 +1,7 @@
-import { ILaya } from "../../ILaya";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { SoundChannel } from "../media/SoundChannel";
 import { SoundManager } from "../media/SoundManager";
-import { ClassUtils } from "../utils/ClassUtils";
 import { Handler } from "../utils/Handler";
 import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
 import { SpineTempletBase } from "./SpineTempletBase";
@@ -450,7 +448,3 @@ export class SpineSkeleton extends Sprite {
     //     return this.state.getCurrent(0).animation.duration;
     // }
 }
-
-ILaya.regClass(SpineSkeleton);
-ClassUtils.regClass("laya.layaspine.SpineSkeleton", SpineSkeleton);
-ClassUtils.regClass("Laya.SpineSkeleton", SpineSkeleton);
