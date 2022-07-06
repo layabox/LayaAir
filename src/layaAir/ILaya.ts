@@ -23,7 +23,6 @@ import { Utils } from "./laya/utils/Utils";
 import { Graphics } from "./laya/display/Graphics";
 import { Submit } from "./laya/webgl/submit/Submit";
 import { Resource } from "./laya/resource/Resource";
-import { WebGLVideo } from "laya/device/media/WebGLVideo";
 
 /**
  * @internal

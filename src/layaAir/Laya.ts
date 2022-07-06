@@ -388,7 +388,6 @@ ILaya.Submit = Submit;
 ILaya.Stage = Stage;
 ILaya.Resource = Resource;
 ILaya.WorkerLoader = WorkerLoader;
-ILaya.WebGLVideo=WebGLVideo;
 
 /**@internal */
 export var init = Laya.init;
