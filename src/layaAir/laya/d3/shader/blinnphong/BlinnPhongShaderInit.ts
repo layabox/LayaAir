@@ -8,8 +8,8 @@ import BlinnPhongFragGLSL from "./BlinnPhongFrag.glsl";
 import BlinnPhongVS from "./BlinnPhong.vs";
 import BlinnPhongFS from "./BlinnPhong.fs";
 
-import ShadowCasterVS from "../shadow/ShadowCaster.vs";
-import ShadowCasterFS from "../shadow/ShadowCaster.fs";
+import DepthVS from "../depth/Depth.vs";
+import DepthFS from "../depth/Depth.fs";
 
 export class BlinnPhongShaderInit {
 
@@ -27,7 +27,9 @@ export class BlinnPhongShaderInit {
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(BlinnPhongVS, BlinnPhongFS);
-        let shadowPass = subShader.addShaderPass(ShadowCasterVS, ShadowCasterFS, "ShadowCaster");
+        let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");
+
+
     }
 
 }

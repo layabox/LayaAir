@@ -67,6 +67,9 @@ import MathGLSL from "./utils/Math.glsl";
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
 
+import DepthVertexGLSL from "./depth/DepthVertex.glsl";
+import DepthFragGLSL from "./depth/DepthFrag.glsl";
+
 import ShadowSampleTentGLSL from "./lighting/ShadowSampleTent.glsl";
 import ShadowSamplerGLSL from "./lighting/ShadowSampler.glsl";
 
@@ -95,18 +98,22 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Color.glsl", ColorGLSL);
 		Shader3D.addInclude("Math.glsl", MathGLSL);
 
+		// scene
+		Shader3D.addInclude("Scene.glsl", SceneGLSL);
+
+		// camera
+		Shader3D.addInclude("Camera.glsl", CameraGLSL);
+
+		// depth
+		Shader3D.addInclude("DepthVertex.glsl", DepthVertexGLSL);
+		Shader3D.addInclude("DepthFrag.glsl", DepthFragGLSL);
+
 		// shadow sampler
 		Shader3D.addInclude("ShadowSampleTent.glsl", ShadowSampleTentGLSL);
 		Shader3D.addInclude("ShadowSampler.glsl", ShadowSamplerGLSL);
 
 		// lighting
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
-
-		// scene
-		Shader3D.addInclude("Scene.glsl", SceneGLSL);
-
-		// camera
-		Shader3D.addInclude("Camera.glsl", CameraGLSL);
 
 		// mesh 
 		Shader3D.addInclude("MeshCommon.glsl", MeshCommonGLSL);
