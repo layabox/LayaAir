@@ -5,7 +5,6 @@ import { Node } from "../display/Node"
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * <code>Component</code> 是ui控件类的基类。
@@ -506,7 +505,3 @@ export class UIComponent extends Sprite {
         super._childChanged(child);
     }
 }
-
-ILaya.regClass(UIComponent);
-ClassUtils.regClass("laya.ui.UIComponent", UIComponent);
-ClassUtils.regClass("Laya.UIComponent", UIComponent);

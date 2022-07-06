@@ -7,7 +7,6 @@ import { Styles } from "./Styles"
 import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 输入文本后调度。
@@ -395,7 +394,3 @@ export class TextInput extends Label {
         (<Input>this._tf).setSelection(startIndex, endIndex);
     }
 }
-
-ILaya.regClass(TextInput);
-ClassUtils.regClass("laya.ui.TextInput", TextInput);
-ClassUtils.regClass("Laya.TextInput", TextInput);

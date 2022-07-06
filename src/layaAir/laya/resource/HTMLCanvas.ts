@@ -1,29 +1,56 @@
-import { Bitmap } from "./Bitmap";
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { Context } from "./Context";
 import { ILaya } from "../../ILaya";
 import { Browser } from "../utils/Browser";
 import { RenderTexture2D } from "./RenderTexture2D";
+import { Resource } from "./Resource";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-
 
 /**
  * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
  */
-export class HTMLCanvas extends Bitmap {
+export class HTMLCanvas extends Resource {
 
     private _ctx: any;
     /**@internal */
     _source: HTMLCanvasElement;
     /**@internal */
-    _texture: Texture;
+    _texture: Texture | RenderTexture2D;
+    /**@private */
+    protected _width: number;
+    /**@private */
+    protected _height: number;
+
     /**
      * @inheritDoc
      */
     get source() {
         return this._source;
     }
+
+    /**
+     * 获取宽度。
+     */
+    get width(): number {
+        return this._width;
+    }
+
+    set width(width: number) {
+        this._width = width;
+    }
+
+    /***
+     * 获取高度。
+     */
+    get height(): number {
+        return this._height;
+    }
+
+    set height(height: number) {
+        this._height = height;
+    }
+
     /**@internal 
      * @override
     */
@@ -150,8 +177,8 @@ export class HTMLCanvas extends Bitmap {
      */
     getTexture(): Texture | null | RenderTexture2D {
         if (!this._texture) {
-            var bitmap: Texture2D = new Texture2D(this.source.width, this.source.height, TextureFormat.R8G8B8A8, true, false, false);
-            bitmap.setImageData(this.source, false, false);
+	var bitmap: Texture2D = new Texture2D(this.source.width, this.source.height, TextureFormat.R8G8B8A8, true, false, false);
+        bitmap.setImageData(this.source, false, false);
             this._texture = new Texture(bitmap);
         }
         return this._texture;

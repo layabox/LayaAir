@@ -1,5 +1,4 @@
 import { Node } from "../display/Node"
-import { IDestroy } from "../resource/IDestroy"
 import { ISingletonElement } from "../resource/ISingletonElement"
 import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils";
@@ -7,7 +6,7 @@ import { Utils } from "../utils/Utils";
 /**
  * <code>Component</code> 类用于创建组件的基类。
  */
-export class Component implements ISingletonElement, IDestroy {
+export class Component implements ISingletonElement {
 	/** @internal [实现IListPool接口]*/
 	protected _indexInList: number;
 
@@ -203,6 +202,7 @@ export class Component implements ISingletonElement, IDestroy {
 		}
 	}
 
+
 	/**
 	 * 销毁组件
 	 */
@@ -217,6 +217,7 @@ export class Component implements ISingletonElement, IDestroy {
 	_destroy(): void {
 		if (this.owner.activeInHierarchy && this._enabled)
 			this._setActive(false);
+
 		this._onDestroy();
 		this._destroyed = true;
 		if (this.onReset !== Component.prototype.onReset) {
@@ -228,4 +229,3 @@ export class Component implements ISingletonElement, IDestroy {
 		}
 	}
 }
-

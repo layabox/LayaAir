@@ -7,8 +7,6 @@ import { Node } from "../display/Node"
 import { Sprite } from "../display/Sprite"
 import { Box } from "./Box"
 import { Handler } from "../utils/Handler"
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * <code>ViewStack</code> 类用于视图堆栈类，用于视图的显示等设置处理。
@@ -159,7 +157,3 @@ export class ViewStack extends Box implements IItem {
         return super.dataSource;
     }
 }
-
-ILaya.regClass(ViewStack);
-ClassUtils.regClass("laya.ui.ViewStack", ViewStack);
-ClassUtils.regClass("Laya.ViewStack", ViewStack);

@@ -3,8 +3,8 @@
         "target": "es6",
         "module": "es6",
         "outDir": "../../bin/tsc/layaAir",
-        "composite":true,
-        "stripInternal": false,
+        "composite": true,
+        "stripInternal": true,
         "removeComments": false,
         "preserveConstEnums": false,
         "noImplicitAny": true,
@@ -12,10 +12,11 @@
         "strictFunctionTypes": true,
         "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
         "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
-        "strictPropertyInitialization":false
+        "strictPropertyInitialization": false,
+        "skipLibCheck": true
         // "strictNullChecks": true,
         // "strict": true /* Enable all strict type-checking options. */,
-         //"noUnusedLocals": true /* Report errors on unused locals. */,
+        //"noUnusedLocals": true /* Report errors on unused locals. */,
         //"noUnusedParameters": true /* Report errors on unused parameters. */,
     }
 }

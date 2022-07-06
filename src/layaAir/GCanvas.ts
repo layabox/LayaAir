@@ -7,10 +7,10 @@ import { Context } from "./laya/resource/Context";
  * 
  */
 
- /**@private */
- export class GCanvas{
-     static MainCanvas:HTMLCanvas=null;
-     static MainCtx:Context=null;
-     static canvas:HTMLCanvas=null;
-     static context:Context=null;
- }
+/**@private */
+export class GCanvas {
+    static MainCanvas: HTMLCanvas = null;
+    static MainCtx: Context = null;
+    static canvas: HTMLCanvas = null;
+    static context: Context = null;
+}

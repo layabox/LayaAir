@@ -17,6 +17,7 @@ import { PhysicsSimulation } from "./physics/PhysicsSimulation";
 import { ILaya } from "../../ILaya";
 import { Config3D } from "../../Config3D";
 import { Physics3D } from "./Physics3D";
+import { Laya } from "../../Laya";
 
 /**
  * <code>Input3D</code> 类用于实现3D输入。

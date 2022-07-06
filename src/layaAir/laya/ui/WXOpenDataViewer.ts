@@ -4,8 +4,6 @@ import { Stage } from "../../laya/display/Stage"
 import { Matrix } from "../../laya/maths/Matrix"
 import { Texture } from "../../laya/resource/Texture"
 import { Texture2D } from "../resource/Texture2D";
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
 /**
@@ -40,7 +38,7 @@ export class WXOpenDataViewer extends UIComponent {
         let _canvas: HTMLCanvasElement = (window as any).sharedCanvas;
         this.texture.sourceWidth = _canvas.width;
         this.texture.sourceHeight = _canvas.height;
-        (this.texture.bitmap as Texture2D).setImageData(_canvas, true, false);
+        (<Texture2D>this.texture.bitmap).setImageData(_canvas, true, false);
     }
 
     /**
@@ -121,7 +119,3 @@ export class WXOpenDataViewer extends UIComponent {
         }
     }
 }
-
-ILaya.regClass(WXOpenDataViewer);
-ClassUtils.regClass("laya.ui.WXOpenDataViewer", WXOpenDataViewer);
-ClassUtils.regClass("Laya.WXOpenDataViewer", WXOpenDataViewer);

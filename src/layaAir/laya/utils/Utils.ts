@@ -213,7 +213,6 @@ export class Utils {
         return result;
     }
 
-    /**@private */
     static getFileExtension(path: string): string {
         Utils._extReg.lastIndex = path.lastIndexOf(".");
         var result: any[] = Utils._extReg.exec(path);
@@ -224,16 +223,15 @@ export class Utils {
     }
 
     /**
-     * @private 
      * 为兼容平台后缀名不能用的特殊兼容TODO：
      */
-    static getFilecompatibleExtension(path: string):string{
-        var result:string[] = path.split(".");
-        var resultlen:number = result.length;
-        if(result.length>2)
-        return result[resultlen-2]+"."+result[resultlen-1];
+    static getFileCompatibleExtension(path: string): string {
+        var result: string[] = path.split(".");
+        var resultlen: number = result.length;
+        if (result.length > 2)
+            return result[resultlen - 2] + "." + result[resultlen - 1];
         else
-        return null;
+            return null;
 
     }
 
@@ -399,9 +397,25 @@ export class Utils {
         if (!window.location || !window.location.search)
             return null;
         var reg: RegExp = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-        var r: any = window.location.search.substr(1).match(reg);
+        var r: any = window.location.search.substring(1).match(reg);
         if (r != null) return unescape(r[2]);
         return null;
+    }
+
+    static until(predicate: () => boolean, timeoutInMs?: number): Promise<void> {
+        if (predicate())
+            return null;
+
+        return new Promise<void>((resolve) => {
+            let start = ILaya.Browser.now();
+            function timer() {
+                if (predicate() || timeoutInMs != null && ILaya.Browser.now() - start > timeoutInMs)
+                    resolve();
+                else
+                    ILaya.systemTimer.frameOnce(1, null, timer);
+            }
+            ILaya.systemTimer.frameOnce(1, null, timer);
+        });
     }
 }
 

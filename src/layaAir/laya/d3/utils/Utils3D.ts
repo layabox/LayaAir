@@ -16,7 +16,7 @@ import { Sprite3D } from "../core/Sprite3D";
 import { RenderTexture } from "../resource/RenderTexture";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
-import { WarpMode } from "../../RenderEngine/RenderEnum/WrapMode";
+import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
@@ -38,8 +38,8 @@ export class Utils3D {
 		var floatTex: Texture2D = new Texture2D(width, height, TextureFormat.R32G32B32A32, false, false);
 		floatTex.setPixelsData(null, false, false);
 		floatTex.filterMode = FilterMode.Point;
-		floatTex.wrapModeU = WarpMode.Clamp;
-		floatTex.wrapModeV = WarpMode.Clamp;
+		floatTex.wrapModeU = WrapMode.Clamp;
+		floatTex.wrapModeV = WrapMode.Clamp;
 		floatTex.anisoLevel = 0;
 		return floatTex;
 	}

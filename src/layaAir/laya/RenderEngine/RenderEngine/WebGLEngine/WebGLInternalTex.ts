@@ -1,7 +1,7 @@
 import { FilterMode } from "../../RenderEnum/FilterMode";
 import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../RenderEnum/TextureDimension";
-import { WarpMode } from "../../RenderEnum/WrapMode";
+import { WrapMode } from "../../RenderEnum/WrapMode";
 import { InternalTexture } from "../../RenderInterface/InternalTexture";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
@@ -65,16 +65,16 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
 
         // default value
         // this._filterMode = FilterMode.Bilinear;
-        // this._warpU = WarpMode.Repeat;
-        // this._warpV = WarpMode.Repeat;
-        // this._warpW = WarpMode.Repeat;
+        // this._warpU = WrapMode.Repeat;
+        // this._warpV = WrapMode.Repeat;
+        // this._warpW = WrapMode.Repeat;
         // this._anisoLevel = 4;
 
         this.filterMode = FilterMode.Bilinear;
-        this.wrapU = WarpMode.Repeat;
+        this.wrapU = WrapMode.Repeat;
         // todo
-        this.wrapV = WarpMode.Repeat;
-        this.wrapW = WarpMode.Repeat;
+        this.wrapV = WrapMode.Repeat;
+        this.wrapW = WrapMode.Repeat;
         this.anisoLevel = 4;
     }
 
@@ -95,37 +95,37 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         }
     }
 
-    private _warpU: WarpMode;
-    public get wrapU(): WarpMode {
+    private _warpU: WrapMode;
+    public get wrapU(): WrapMode {
         return this._warpU;
     }
-    public set wrapU(value: WarpMode) {
+    public set wrapU(value: WrapMode) {
         if (this._warpU != value && this.resource) {
             let gl = this._gl;
-            let warpParam = this.getWarpParam(value);
-            this._setWarpMode(gl.TEXTURE_WRAP_S, warpParam);
+            let warpParam = this.getWrapParam(value);
+            this._setWrapMode(gl.TEXTURE_WRAP_S, warpParam);
             this._warpU = value;
         }
     }
 
-    private _warpV: WarpMode;
-    public get wrapV(): WarpMode {
+    private _warpV: WrapMode;
+    public get wrapV(): WrapMode {
         return this._warpV;
     }
-    public set wrapV(value: WarpMode) {
+    public set wrapV(value: WrapMode) {
         if (this._warpV != value && this.resource) {
             let gl = this._gl;
-            let warpParam = this.getWarpParam(value);
-            this._setWarpMode(gl.TEXTURE_WRAP_T, warpParam);
+            let warpParam = this.getWrapParam(value);
+            this._setWrapMode(gl.TEXTURE_WRAP_T, warpParam);
             this._warpV = value;
         }
     }
 
-    private _warpW: WarpMode;
-    public get wrapW(): WarpMode {
+    private _warpW: WrapMode;
+    public get wrapW(): WrapMode {
         return this._warpW;
     }
-    public set wrapW(value: WarpMode) {
+    public set wrapW(value: WrapMode) {
         // todo
         // webgl1 unsupported 
         this._warpW = value;
@@ -202,21 +202,21 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         }
     }
 
-    protected getWarpParam(warpMode: WarpMode) {
+    protected getWrapParam(wrapMode: WrapMode) {
         let gl = this._gl;
-        switch (warpMode) {
-            case WarpMode.Repeat:
+        switch (wrapMode) {
+            case WrapMode.Repeat:
                 return gl.REPEAT;
-            case WarpMode.Clamp:
+            case WrapMode.Clamp:
                 return gl.CLAMP_TO_EDGE;
-            case WarpMode.Mirrored:
+            case WrapMode.Mirrored:
                 return gl.MIRRORED_REPEAT;
             default:
                 return gl.REPEAT;
         }
     }
 
-    protected _setWarpMode(pname: number, param: number) {
+    protected _setWrapMode(pname: number, param: number) {
         let gl = this._gl;
         if (!this.isPotSize) {
             param = gl.CLAMP_TO_EDGE;

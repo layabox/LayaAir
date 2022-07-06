@@ -5,8 +5,6 @@ import { ScrollBar } from "./ScrollBar";
 import { Clip } from "./Clip";
 import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**@private */
 interface ITreeDataSource{
@@ -707,7 +705,3 @@ export class Tree extends Box implements IRender {
         }
     }
 }
-
-ILaya.regClass(Tree);
-ClassUtils.regClass("laya.ui.Tree", Tree);
-ClassUtils.regClass("Laya.Tree", Tree);

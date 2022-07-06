@@ -55,6 +55,3 @@ export class Styles {
      */
     static scrollBarDelayTime: number = 500;
 }
-
-
-//ILaya.regClass(Styles);    

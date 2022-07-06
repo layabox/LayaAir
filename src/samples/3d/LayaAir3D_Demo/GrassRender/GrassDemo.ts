@@ -40,7 +40,7 @@ export class GrassDemo{
     initScene(){
 
 		//初始化3D场景
-		var scene: Scene3D =Loader.getRes("res/LayaScene_GrassScene/Conventional/GrassScene.ls");
+		var scene: Scene3D =Loader.createNodes("res/LayaScene_GrassScene/Conventional/GrassScene.ls");
 		Laya.stage.addChild(scene);
 		// //初始化天空渲染器
 		// var skyRenderer: SkyRenderer = scene.skyRenderer;

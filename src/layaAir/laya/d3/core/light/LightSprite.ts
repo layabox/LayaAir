@@ -7,14 +7,6 @@ import { ShadowMode } from "./ShadowMode";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Light } from "./Light";
 
-/**
- * @internal
- */
-export enum LightType {
-	Directional,
-	Spot,
-	Point
-}
 
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。

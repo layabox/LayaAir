@@ -8,7 +8,6 @@ import { ParticleTemplate2D } from "./ParticleTemplate2D"
 import { EmitterBase } from "./emitter/EmitterBase"
 import { Emitter2D } from "./emitter/Emitter2D"
 import { DrawParticleCmd } from "../display/cmd/DrawParticleCmd"
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * <code>Particle2D</code> 类是2D粒子播放类
@@ -149,6 +148,3 @@ export class Particle2D extends Sprite {
         super.destroy(destroyChild);
     }
 }
-ClassUtils.regClass("laya.particle.Particle2D", Particle2D);
-ClassUtils.regClass("Laya.Particle2D", Particle2D);
-ILaya.regClass(Particle2D);

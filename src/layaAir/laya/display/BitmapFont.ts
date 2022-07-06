@@ -3,7 +3,7 @@ import { Rectangle } from "../maths/Rectangle"
 import { Texture } from "../resource/Texture"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
+
 /**
  * <code>BitmapFont</code> 是位图字体类，用于定义位图字体信息。
  * 字体制作及使用方法，请参考文章
@@ -13,7 +13,6 @@ export class BitmapFont {
     private _texture: Texture;
     private _fontCharDic: any = {};
     private _fontWidthMap: any = {};
-    private _complete: Handler;
     private _path: string;
     private _maxWidth: number = 0;
     private _spaceWidth: number = 10;
@@ -33,21 +32,17 @@ export class BitmapFont {
      */
     loadFont(path: string, complete: Handler): void {
         this._path = path;
-        this._complete = complete;
 
         if (!path || path.indexOf(".fnt") === -1) {
             console.error('Bitmap font configuration information must be a ".fnt" file');
             return;
         }
-        ILaya.loader.load([{ url: path, type: ILaya.Loader.XML }, { url: path.replace(".fnt", ".png"), type: ILaya.Loader.IMAGE }], Handler.create(this, this._onLoaded));
-    }
 
-    /**
-     * @private
-     */
-    private _onLoaded(): void {
-        this.parseFont(ILaya.Loader.getRes(this._path), ILaya.Loader.getRes(this._path.replace(".fnt", ".png")));
-        this._complete && this._complete.run();
+        ILaya.loader.load([{ url: path, type: ILaya.Loader.XML }, { url: path.replace(".fnt", ".png"), type: ILaya.Loader.IMAGE }])
+            .then((contents: Array<any>) => {
+                this.parseFont(contents[0], contents[1]);
+                complete && complete.run();
+            });
     }
 
     /**
@@ -157,7 +152,6 @@ export class BitmapFont {
             this._fontCharDic = null;
             this._fontWidthMap = null;
             this._texture = null;
-            this._complete = null;
             this._padding = null;
         }
     }
@@ -229,7 +223,3 @@ export class BitmapFont {
         }
     }
 }
-
-
-ClassUtils.regClass("laya.display.BitmapFont", BitmapFont);
-ClassUtils.regClass("Laya.BitmapFont", BitmapFont);

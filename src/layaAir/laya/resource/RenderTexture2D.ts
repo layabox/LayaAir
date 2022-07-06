@@ -53,7 +53,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @inheritDoc
      * @override
      */
-    get defaulteTexture(): BaseTexture {
+    get defaultTexture(): BaseTexture {
         return Texture2D.grayTexture;
     }
 

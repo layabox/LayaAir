@@ -1,7 +1,6 @@
 import { LayoutBox } from "./LayoutBox";
 import { UIComponent } from "./UIComponent";
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
+
 /**
 	 * <code>HBox</code> 是一个水平布局容器类。
 	 */
@@ -80,7 +79,3 @@ export class HBox extends LayoutBox {
         this._sizeChanged();
     }
 }
-
-ILaya.regClass(HBox);
-ClassUtils.regClass("laya.ui.HBox", HBox);
-ClassUtils.regClass("Laya.HBox", HBox);

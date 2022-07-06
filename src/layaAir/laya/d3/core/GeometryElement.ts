@@ -1,5 +1,4 @@
 import { RenderContext3D } from "./render/RenderContext3D"
-import { IDestroy } from "../../resource/IDestroy"
 import { IRenderGeometryElement } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { BufferState } from "./BufferState";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
@@ -10,7 +9,7 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 /**
  * <code>GeometryElement</code> 类用于实现几何体元素,该类为抽象类。
  */
-export class GeometryElement implements IDestroy{
+export class GeometryElement {
 	/** @internal */
 	private static _uniqueIDCounter: number = 0;
 	protected _owner:any;

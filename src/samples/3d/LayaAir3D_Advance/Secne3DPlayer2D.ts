@@ -51,7 +51,7 @@ export class Secne3DPlayer2D {
 
 	onComplete(): void {
 		//加载三维地面
-		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh")));
+		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.createNodes("res/threeDimen/staticModel/grid/plane.lh")));
 		//加载二维猴子
 		this._layaMonkey2D = (<Image>Laya.stage.addChild(new Image("res/threeDimen/monkey.png")));
 		//开启定时器循环

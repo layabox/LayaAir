@@ -71,7 +71,7 @@ export class CameraLayer {
 	private onComplete(): void {
 
 		//添加地面
-		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.getRes("res/threeDimen/staticModel/grid/plane.lh")));
+		var grid: Sprite3D = (<Sprite3D>this._scene.addChild(Loader.createNodes("res/threeDimen/staticModel/grid/plane.lh")));
 		//地面接收阴影
 		((<MeshSprite3D>grid.getChildAt(0))).meshRenderer.receiveShadow = true;
 		//设置该精灵的蒙版为5(所属图层)

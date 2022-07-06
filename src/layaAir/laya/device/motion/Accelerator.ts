@@ -35,7 +35,7 @@ export class Accelerator extends EventDispatcher {
     private static _instance: Accelerator;
 
     static get instance(): Accelerator {
-        Accelerator._instance = Accelerator._instance || new Accelerator(0)
+        Accelerator._instance = Accelerator._instance || new Accelerator()
         return Accelerator._instance;
     }
 
@@ -43,32 +43,14 @@ export class Accelerator extends EventDispatcher {
     private static accelerationIncludingGravity: AccelerationInfo = new AccelerationInfo();
     private static rotationRate: RotationInfo = new RotationInfo();
 
-    constructor(singleton: number) {
+    constructor() {
         super();
         this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
     }
 
-    /**
-     * 侦听加速器运动。
-     * @param observer	回调函数接受4个参数，见类说明。
-     * @override
-     */
-    on(type: string, caller: any, listener: Function, args: any[] = null): EventDispatcher {
-        super.on(type, caller, listener, args);
-        ILaya.Browser.window.addEventListener('devicemotion', this.onDeviceOrientationChange);
-        return this;
-    }
-
-    /**
-     * 取消侦听加速器。
-     * @param	handle	侦听加速器所用处理器。
-     * @override
-     */
-    off(type: string, caller: any, listener: Function, onceOnly: boolean = false): EventDispatcher {
-        if (!this.hasListener(type))
-            ILaya.Browser.window.removeEventListener('devicemotion', this.onDeviceOrientationChange)
-
-        return super.off(type, caller, listener, onceOnly);
+    protected onAddListener(type: string) {
+        if (type == Event.CHANGE)
+            ILaya.Browser.window.addEventListener('devicemotion', this.onDeviceOrientationChange);
     }
 
     private onDeviceOrientationChange(e: any): void {

@@ -43,7 +43,7 @@ export class SkinnedMeshSprite3DDemo {
 
 	onComplete(): void {
 		//添加父级猴子
-		var dude: Sprite3D = (<Sprite3D>this.scene.addChild(Loader.getRes("res/threeDimen/skinModel/dude/dude.lh")));
+		var dude: Sprite3D = (<Sprite3D>this.scene.addChild(Loader.createNodes("res/threeDimen/skinModel/dude/dude.lh")));
 		//缩放
 		var scale: Vector3 = new Vector3(0.1, 0.1, 0.1);
 		dude.transform.localScale = scale;

@@ -27,7 +27,6 @@ var type = {
     "d3_text":["3D","RenderGraphics"],
     "d3_touch":["3D","Input3D"],
     "d3_utils":["3D","Utils"],
-    "d3_WebXR":["3D","WebXR"],
     "device":["Core","device"],
     "map":["2D","TiledMap"],
     "maths":["2D","Math"],

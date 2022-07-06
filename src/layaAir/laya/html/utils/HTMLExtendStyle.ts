@@ -1,5 +1,4 @@
 import { Pool } from "../../utils/Pool";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -52,8 +51,5 @@ export class HTMLExtendStyle {
         return Pool.getItemByClass("HTMLExtendStyle", HTMLExtendStyle);
     }
 }
-
-ClassUtils.regClass("laya.html.utils.HTMLExtendStyle", HTMLExtendStyle);
-ClassUtils.regClass("Laya.HTMLExtendStyle", HTMLExtendStyle);
 
 

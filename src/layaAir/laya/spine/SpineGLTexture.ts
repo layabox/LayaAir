@@ -1,8 +1,8 @@
+import { BaseTexture } from "../resource/BaseTexture";
 import { Texture } from "../resource/Texture";
-import { Texture2D } from "../resource/Texture2D";
 
 export class SpineGLTexture extends Texture {
-	constructor (tex: Texture2D | Texture) {
+	constructor (tex: BaseTexture | Texture) {
 		super(tex);
 	}
 

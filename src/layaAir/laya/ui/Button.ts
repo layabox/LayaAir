@@ -10,9 +10,8 @@ import { AutoBitmap } from "./AutoBitmap"
 import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
 import { Utils } from "../utils/Utils"
-import { WeakObject } from "../utils/WeakObject"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
+import { WeakObject } from "../utils/WeakObject";
 
 /**
  * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
@@ -280,11 +279,11 @@ export class Button extends UIComponent implements ISelect {
             this.mouseEnabled = true;
             this._setBit(Const.HAS_MOUSE, true);
         }
-        this._createListener(Event.MOUSE_OVER, this, this.onMouse, null, false, false);
-        this._createListener(Event.MOUSE_OUT, this, this.onMouse, null, false, false);
-        this._createListener(Event.MOUSE_DOWN, this, this.onMouse, null, false, false);
-        this._createListener(Event.MOUSE_UP, this, this.onMouse, null, false, false);
-        this._createListener(Event.CLICK, this, this.onMouse, null, false, false);
+        this.on(Event.MOUSE_OVER, this, this.onMouse);
+        this.on(Event.MOUSE_OUT, this, this.onMouse);
+        this.on(Event.MOUSE_DOWN, this, this.onMouse);
+        this.on(Event.MOUSE_UP, this, this.onMouse);
+        this.on(Event.CLICK, this, this.onMouse);
     }
 
     /**
@@ -327,7 +326,8 @@ export class Button extends UIComponent implements ISelect {
     }
 
     protected _skinLoaded(): void {
-        this.callLater(this.changeClips);
+        if (this._skin)
+            this.callLater(this.changeClips);
         this._setStateChanged();
         this._sizeChanged();
         this.event(Event.LOADED);
@@ -357,7 +357,8 @@ export class Button extends UIComponent implements ISelect {
         }
         if (this._stateNum != value) {
             this._stateNum = value < 1 ? 1 : value > 3 ? 3 : value;
-            this.callLater(this.changeClips);
+            if (this._skin)
+                this.callLater(this.changeClips);
         }
     }
 
@@ -409,7 +410,8 @@ export class Button extends UIComponent implements ISelect {
      * @override
      */
     protected measureWidth(): number {
-        this.runCallLater(this.changeClips);
+        if (this._skin)
+            this.runCallLater(this.changeClips);
         if (this._autoSize) return this._bitmap.width;
         this.runCallLater(this.changeState);
         return this._bitmap.width + (this._text ? this._text.width : 0);
@@ -420,7 +422,8 @@ export class Button extends UIComponent implements ISelect {
      * @override
      */
     protected measureHeight(): number {
-        this.runCallLater(this.changeClips);
+        if (this._skin)
+            this.runCallLater(this.changeClips);
         return this._text ? Math.max(this._bitmap.height, this._text.height) : this._bitmap.height;
     }
 
@@ -479,7 +482,8 @@ export class Button extends UIComponent implements ISelect {
      */
     protected changeState(): void {
         this._stateChanged = false;
-        this.runCallLater(this.changeClips);
+        if (this._skin)
+            this.runCallLater(this.changeClips);
         var index = this._state < this._stateNum ? this._state : this._stateNum - 1;
         this._sources && (this._bitmap.source = this._sources[index]);
         if (this.label) {
@@ -719,7 +723,3 @@ export class Button extends UIComponent implements ISelect {
         }
     }
 }
-
-ILaya.regClass(Button);
-ClassUtils.regClass("laya.ui.Button", Button);
-ClassUtils.regClass("Laya.Button", Button);

@@ -6,15 +6,12 @@ import { VScrollBar } from "./VScrollBar";
 import { HScrollBar } from "./HScrollBar";
 import { Clip } from "./Clip";
 import { UIUtils } from "./UIUtils";
-import { Node } from "../display/Node"
 import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { Handler } from "../utils/Handler"
-import { SceneUtils } from "../utils/SceneUtils"
 import { Tween } from "../utils/Tween"
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
+import { LegacyUIParser } from "../loaders/LegacyUIParser";
 
 /**
  * 当对象的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -561,7 +558,7 @@ export class List extends Box implements IRender, IItem {
 			var box = new this._itemRender();
 		} else {
 			//box = View.createComp(_itemRender, null, null, arr)
-			box = SceneUtils.createComp(this._itemRender, null, null, arr)
+			box = LegacyUIParser.createComp(this._itemRender, null, null, arr)
 		}
 		if (arr.length == 0 && (box as any)["_watchMap"]) {
 			var watchMap = (box as any)["_watchMap"];
@@ -1120,7 +1117,3 @@ export class List extends Box implements IRender, IItem {
 		this.runCallLater(this.changeCells);
 	}
 }
-
-ILaya.regClass(List);
-ClassUtils.regClass("laya.ui.List", List);
-ClassUtils.regClass("Laya.List", List);

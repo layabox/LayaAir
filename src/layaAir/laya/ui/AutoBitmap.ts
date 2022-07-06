@@ -1,7 +1,6 @@
 import { Graphics } from "../display/Graphics"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
-import { ClassUtils } from "../utils/ClassUtils";
 import { ILaya } from "../../ILaya";
 import { Draw9GridTexture } from "../display/cmd/Draw9GridTexture";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
@@ -256,6 +255,3 @@ export class AutoBitmap extends Graphics {
         this._drawGridCmd=newcmd;
     }
 }
-
-ClassUtils.regClass("laya.ui.AutoBitmap", AutoBitmap);
-ClassUtils.regClass("Laya.AutoBitmap", AutoBitmap);

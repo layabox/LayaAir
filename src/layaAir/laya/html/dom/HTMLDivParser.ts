@@ -9,7 +9,6 @@ import { Handler } from "../../utils/Handler";
 import { HTMLChar } from "../../utils/HTMLChar";
 import { IHtml } from "../utils/IHtml";
 import { ILaya } from "../../../ILaya";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -169,7 +168,3 @@ export class HTMLDivParser extends HTMLElement {
 }
 
 IHtml.HTMLDivParser = HTMLDivParser;
-ILaya.regClass(HTMLDivParser);
-
-ClassUtils.regClass("laya.html.dom.HTMLDivParser", HTMLDivParser);
-ClassUtils.regClass("Laya.HTMLDivParser", HTMLDivParser);

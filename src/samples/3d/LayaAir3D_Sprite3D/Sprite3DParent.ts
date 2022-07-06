@@ -61,9 +61,9 @@ export class Sprite3DParent {
 
 	onPreLoadFinish(): void {
 		//添加父级猴子
-		this.layaMonkeyParent = this.scene.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh")) as Sprite3D;
+		this.layaMonkeyParent = this.scene.addChild(Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh")) as Sprite3D;
 		//加载第二只猴子，作为子猴子
-		this.layaMonkeySon = (<Sprite3D>Loader.getRes("res/threeDimen/skinModel/LayaMonkey2/LayaMonkey.lh"));
+		this.layaMonkeySon = (<Sprite3D>Loader.createNodes("res/threeDimen/skinModel/LayaMonkey2/LayaMonkey.lh"));
 		this.layaMonkeySon.transform.translate(new Vector3(2.5, 0, 0));
 		//缩放
 		var scale: Vector3 = new Vector3(0.5, 0.5, 0.5);

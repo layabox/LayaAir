@@ -3,7 +3,6 @@ import { ILaya } from "../../../ILaya";
 import { Pool } from "../../utils/Pool";
 import { HTMLElement } from "../dom/HTMLElement";
 import { URL } from "../../net/URL";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -580,6 +579,3 @@ export class HTMLStyle {
         }
     }
 }
-
-ClassUtils.regClass("laya.html.utils.HTMLStyle", HTMLStyle);
-ClassUtils.regClass("Laya.HTMLStyle", HTMLStyle);

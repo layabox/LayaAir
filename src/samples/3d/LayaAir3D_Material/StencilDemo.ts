@@ -40,7 +40,7 @@ export class StencilDemo {
 
 	onPreLoadFinish() {
 		//初始化3D场景
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls")));
+		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.createNodes("res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls")));
 		//获取相机
 		var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
 		camera.depthTextureFormat = RenderTargetFormat.DEPTHSTENCIL_24_8;

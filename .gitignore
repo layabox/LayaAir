@@ -1,7 +1,6 @@
-bin
+bin/res
+bin/tsc
 node_modules
-/bin/res
-.rpt2_cache
 .cache
 /src/generateDoc/doc
 .vscode/chrome

@@ -1,8 +1,5 @@
 import { Event } from "../events/Event"
 import { Button } from "./Button"
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
-
 
 /**
  * <code>Radio</code> 控件使用户可在一组互相排斥的选择中做出一种选择。
@@ -77,8 +74,3 @@ export class Radio extends Button {
         this._value = obj;
     }
 }
-
-
-ILaya.regClass(Radio);
-ClassUtils.regClass("laya.ui.Radio", Radio);
-ClassUtils.regClass("Laya.Radio", Radio);

@@ -48,7 +48,7 @@ export class MultiTouch {
 		directionLight.color = new Vector3(0.6, 0.6, 0.6);
 
 		//加载小猴子精灵
-		var monkey: Sprite3D = Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh");
+		var monkey: Sprite3D = Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh");
 		//猴子精灵添加组件（脚本）
 		monkey.addComponent(MonkeyScript);
 		scene.addChild(monkey);

@@ -9,7 +9,6 @@ import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 选择项改变后调度。
@@ -467,7 +466,3 @@ export class ColorPicker extends UIComponent {
         }
     }
 }
-
-ILaya.regClass(ColorPicker);
-ClassUtils.regClass("laya.ui.ColorPicker", ColorPicker);
-ClassUtils.regClass("Laya.ColorPicker", ColorPicker);

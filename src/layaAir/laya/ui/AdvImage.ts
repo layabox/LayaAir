@@ -3,7 +3,6 @@ import { Event } from "../events/Event"
 import { LocalStorage } from "../net/LocalStorage"
 import { Browser } from "../utils/Browser"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 广告插件 
@@ -248,6 +247,3 @@ export class AdvImage extends Image {
 		ILaya.timer.clear(this, this.onGetAdvsListData);
 	}
 }
-
-ClassUtils.regClass("laya.ui.AdvImage", AdvImage);
-ClassUtils.regClass("Laya.AdvImage", AdvImage);

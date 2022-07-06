@@ -43,7 +43,7 @@ export class RenderTargetCamera {
 
 	private onComplete(): void {
 		//加载场景
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/LayaScene_city01/Conventional/city01.ls")));
+		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.createNodes("res/threeDimen/scene/LayaScene_city01/Conventional/city01.ls")));
 		//添加相机
 		var camera: Camera = <Camera>scene.getChildByName("Main Camera");
 		//相机添加视角控制组件(脚本)

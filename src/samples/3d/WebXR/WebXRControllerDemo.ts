@@ -10,7 +10,6 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { glTFLoader } from "laya/gltf/glTFLoader";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Vector2 } from "laya/d3/math/Vector2";
 import { WebXRCameraInfo, WebXRExperienceHelper } from "laya/d3/WebXR/core/WebXRExperienceHelper";
@@ -22,28 +21,26 @@ import { Loader } from "laya/net/Loader";
 import { HitResult } from "laya/d3/physics/HitResult";
 import { Color } from "laya/d3/math/Color";
 
-export class WebXRControllerDemo{
-    public camera:Camera;
-	public scene:Scene3D;
+export class WebXRControllerDemo {
+	public camera: Camera;
+	public scene: Scene3D;
 	// 是否选中物体中
-	public isLeftSelectTarget:boolean = false;
-	public isRightSelectTarget:boolean = false;
+	public isLeftSelectTarget: boolean = false;
+	public isRightSelectTarget: boolean = false;
 	// 选中的物体
-	public leftTarget:Sprite3D;
-	public rightTarget:Sprite3D;
+	public leftTarget: Sprite3D;
+	public rightTarget: Sprite3D;
 	// 旋转力度 0 ~ 1
-	public rotateStrength:number = 0;
+	public rotateStrength: number = 0;
 	// target距离
-	public leftTargetDistance:number = 3;
-	public rightTargetDistance:number = 3;
-    constructor() {
+	public leftTargetDistance: number = 3;
+	public rightTargetDistance: number = 3;
+	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
 		Stat.show();
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		// 初始化 glTFLoader
-        glTFLoader.init();
 		this.PreloadingRes();
 	}
 
@@ -57,9 +54,8 @@ export class WebXRControllerDemo{
 	}
 
 	onPreLoadFinish() {
-		let scene = Loader.getRes("res/VRscene/Conventional/SampleScene.ls");
+		let scene: Scene3D = Loader.createNodes("res/VRscene/Conventional/SampleScene.ls");
 		(<Scene3D>Laya.stage.addChild(scene));
-		this.scene = scene;
 		//获取场景中的相机
 		this.camera = (<Camera>scene.getChildByName("Main Camera"));
 		//旋转摄像机角度
@@ -74,8 +70,8 @@ export class WebXRControllerDemo{
 		this.loadUI();
 	}
 
-	private loadUI(){
-		 Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this,async function () {
+	private loadUI() {
+		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, async function () {
 			this.changeActionButton = Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "正常模式"));
 			this.changeActionButton.size(160, 40);
 			(this.changeActionButton as Button).active = await WebXRExperienceHelper.supportXR("immersive-vr");
@@ -88,37 +84,37 @@ export class WebXRControllerDemo{
 			Promise.resolve(true);
 		}));
 	}
-	stypeFun(){
+	stypeFun() {
 		this.initXR();
 	}
-    async initXR(){
-		let caInfo:WebXRCameraInfo = new WebXRCameraInfo();
-		caInfo.depthFar =this.camera.farPlane;
-		caInfo.depthNear =this.camera.nearPlane;
-        let webXRSessionManager = await WebXRExperienceHelper.enterXRAsync("immersive-vr","local",caInfo);
-		let webXRCameraManager = WebXRExperienceHelper.setWebXRCamera(this.camera,webXRSessionManager);
-		let WebXRInput = WebXRExperienceHelper.setWebXRInput(webXRSessionManager,webXRCameraManager);
+	async initXR() {
+		let caInfo: WebXRCameraInfo = new WebXRCameraInfo();
+		caInfo.depthFar = this.camera.farPlane;
+		caInfo.depthNear = this.camera.nearPlane;
+		let webXRSessionManager = await WebXRExperienceHelper.enterXRAsync("immersive-vr", "local", caInfo);
+		let webXRCameraManager = WebXRExperienceHelper.setWebXRCamera(this.camera, webXRSessionManager);
+		let WebXRInput = WebXRExperienceHelper.setWebXRInput(webXRSessionManager, webXRCameraManager);
 		this.bindMeshRender(WebXRInput);
-    }
+	}
 
-	bindMeshRender(webXRInput:WebXRInputManager){
+	bindMeshRender(webXRInput: WebXRInputManager) {
 		let rightControl = Laya.loader.getRes("res/OculusController/controller.gltf") as Sprite3D;
 		let leftControl = Laya.loader.getRes("res/OculusController/controller-left.gltf") as Sprite3D;
-		let pixelright = new PixelLineSprite3D(20,"right");
-		let pixelleft = new PixelLineSprite3D(20,"left");
+		let pixelright = new PixelLineSprite3D(20, "right");
+		let pixelleft = new PixelLineSprite3D(20, "left");
 		this.scene.addChild(rightControl);
 		this.scene.addChild(leftControl);
 		this.scene.addChild(pixelright);
 		this.scene.addChild(pixelleft);
 
-		webXRInput.bindMeshNode(leftControl,WebXRInput.HANDNESS_LEFT);
-		webXRInput.bindMeshNode(rightControl,WebXRInput.HANDNESS_RIGHT);
-		webXRInput.bindRayNode(pixelleft,WebXRInput.HANDNESS_LEFT);
-		webXRInput.bindRayNode(pixelright,WebXRInput.HANDNESS_RIGHT);
+		webXRInput.bindMeshNode(leftControl, WebXRInput.HANDNESS_LEFT);
+		webXRInput.bindMeshNode(rightControl, WebXRInput.HANDNESS_RIGHT);
+		webXRInput.bindRayNode(pixelleft, WebXRInput.HANDNESS_LEFT);
+		webXRInput.bindRayNode(pixelright, WebXRInput.HANDNESS_RIGHT);
 
 		//获得xrInput的帧循环方案
-		webXRInput.getController(WebXRInput.HANDNESS_RIGHT).on(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT,this,this.getRightInput);
-		webXRInput.getController(WebXRInput.HANDNESS_LEFT).on(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT,this,this.getLeftInput);
+		webXRInput.getController(WebXRInput.HANDNESS_RIGHT).on(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT, this, this.getRightInput);
+		webXRInput.getController(WebXRInput.HANDNESS_LEFT).on(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT, this, this.getLeftInput);
 		/**
 		 * 0	扳机
 		 * 1	侧扳机
@@ -129,39 +125,39 @@ export class WebXRControllerDemo{
 		// 左控制器监听
 		let leftXRInput = webXRInput.getController(WebXRInput.HANDNESS_LEFT);
 		// 左控制器的按钮事件监听
-		leftXRInput.addButtonEvent(0,ButtonGamepad.EVENT_TOUCH_OUT,this,this.LeftbuttonEvent0);
+		leftXRInput.addButtonEvent(0, ButtonGamepad.EVENT_TOUCH_OUT, this, this.LeftbuttonEvent0);
 		// 注意同一按钮的不同触发
-		leftXRInput.addButtonEvent(1,ButtonGamepad.EVENT_TOUCH_STAY,this,this.LeftbuttonEvent1);
-		leftXRInput.addButtonEvent(1,ButtonGamepad.EVENT_TOUCH_OUT,this,this.LeftbuttonEvent1_1);
-		leftXRInput.addButtonEvent(3,ButtonGamepad.EVENT_TOUCH_OUT,this,this.LeftbuttonEvent3);
-		leftXRInput.addButtonEvent(4,ButtonGamepad.EVENT_TOUCH_ENTER,this,this.LeftbuttonEvent4);
-		leftXRInput.addButtonEvent(5,ButtonGamepad.EVENT_TOUCH_OUT,this,this.LeftbuttonEvent5);
+		leftXRInput.addButtonEvent(1, ButtonGamepad.EVENT_TOUCH_STAY, this, this.LeftbuttonEvent1);
+		leftXRInput.addButtonEvent(1, ButtonGamepad.EVENT_TOUCH_OUT, this, this.LeftbuttonEvent1_1);
+		leftXRInput.addButtonEvent(3, ButtonGamepad.EVENT_TOUCH_OUT, this, this.LeftbuttonEvent3);
+		leftXRInput.addButtonEvent(4, ButtonGamepad.EVENT_TOUCH_ENTER, this, this.LeftbuttonEvent4);
+		leftXRInput.addButtonEvent(5, ButtonGamepad.EVENT_TOUCH_OUT, this, this.LeftbuttonEvent5);
 		// 左控制器的摇杆事件监听
-		leftXRInput.addAxisEvent(1,AxiGamepad.EVENT_OUTPUT,this,this.LeftAxisEvent);
+		leftXRInput.addAxisEvent(1, AxiGamepad.EVENT_OUTPUT, this, this.LeftAxisEvent);
 
 		// 右控制器监听
 		let rightXRInput = webXRInput.getController(WebXRInput.HANDNESS_RIGHT);
 		// 右控制器的按钮事件监听
-		rightXRInput.addButtonEvent(0,ButtonGamepad.EVENT_PRESS_ENTER,this,this.RightbuttonEvent0);
-		rightXRInput.addButtonEvent(0,ButtonGamepad.EVENT_PRESS_VALUE, this, this.rightTriggerOn);
+		rightXRInput.addButtonEvent(0, ButtonGamepad.EVENT_PRESS_ENTER, this, this.RightbuttonEvent0);
+		rightXRInput.addButtonEvent(0, ButtonGamepad.EVENT_PRESS_VALUE, this, this.rightTriggerOn);
 		// 注意同一按钮的不同触发
-		rightXRInput.addButtonEvent(1,ButtonGamepad.EVENT_PRESS_STAY,this,this.RightbuttonEvent1);
-		rightXRInput.addButtonEvent(1,ButtonGamepad.EVENT_PRESS_OUT,this,this.RightbuttonEvent1_1);
-		rightXRInput.addButtonEvent(3,ButtonGamepad.EVENT_PRESS_OUT,this,this.RightbuttonEvent3);
-		rightXRInput.addButtonEvent(4,ButtonGamepad.EVENT_PRESS_ENTER,this,this.RightbuttonEvent4);
-		rightXRInput.addButtonEvent(5,ButtonGamepad.EVENT_PRESS_OUT,this,this.RightbuttonEvent5);
+		rightXRInput.addButtonEvent(1, ButtonGamepad.EVENT_PRESS_STAY, this, this.RightbuttonEvent1);
+		rightXRInput.addButtonEvent(1, ButtonGamepad.EVENT_PRESS_OUT, this, this.RightbuttonEvent1_1);
+		rightXRInput.addButtonEvent(3, ButtonGamepad.EVENT_PRESS_OUT, this, this.RightbuttonEvent3);
+		rightXRInput.addButtonEvent(4, ButtonGamepad.EVENT_PRESS_ENTER, this, this.RightbuttonEvent4);
+		rightXRInput.addButtonEvent(5, ButtonGamepad.EVENT_PRESS_OUT, this, this.RightbuttonEvent5);
 		// 右控制器的摇杆事件监听
-		rightXRInput.addAxisEvent(1,AxiGamepad.EVENT_OUTPUT,this,this.RightAxisEvent);
+		rightXRInput.addAxisEvent(1, AxiGamepad.EVENT_OUTPUT, this, this.RightAxisEvent);
 	}
 	// 右输入帧循环
-	getRightInput(rightInput:WebXRInput){
+	getRightInput(rightInput: WebXRInput) {
 		// 方向的模
 		var directionMod = Math.sqrt(Math.pow(rightInput.ray.direction.x, 2) + Math.pow(rightInput.ray.direction.y, 2) + Math.pow(rightInput.ray.direction.z, 2));
 		var endPos = new Vector3(
 			// 射线方向坐标计算
-			rightInput.ray.origin.x + Vector3.dot(rightInput.ray.direction, new Vector3(1,0,0)) / directionMod * this.rightTargetDistance,
-			rightInput.ray.origin.y + Vector3.dot(rightInput.ray.direction, new Vector3(0,1,0)) / directionMod * this.rightTargetDistance,
-			rightInput.ray.origin.z + Vector3.dot(rightInput.ray.direction, new Vector3(0,0,1)) / directionMod * this.rightTargetDistance
+			rightInput.ray.origin.x + Vector3.dot(rightInput.ray.direction, new Vector3(1, 0, 0)) / directionMod * this.rightTargetDistance,
+			rightInput.ray.origin.y + Vector3.dot(rightInput.ray.direction, new Vector3(0, 1, 0)) / directionMod * this.rightTargetDistance,
+			rightInput.ray.origin.z + Vector3.dot(rightInput.ray.direction, new Vector3(0, 0, 1)) / directionMod * this.rightTargetDistance
 		);
 		// 碰撞结果
 		var hitRes: HitResult = new HitResult();
@@ -181,14 +177,14 @@ export class WebXRControllerDemo{
 	}
 
 	// 左输入帧循环
-	getLeftInput(leftInput:WebXRInput){
+	getLeftInput(leftInput: WebXRInput) {
 		// 方向的模
 		var directionMod = Math.sqrt(Math.pow(leftInput.ray.direction.x, 2) + Math.pow(leftInput.ray.direction.y, 2) + Math.pow(leftInput.ray.direction.z, 2));
 		var endPos = new Vector3(
 			// 射线方向坐标计算
-			leftInput.ray.origin.x + Vector3.dot(leftInput.ray.direction, new Vector3(1,0,0)) / directionMod * this.leftTargetDistance,
-			leftInput.ray.origin.y + Vector3.dot(leftInput.ray.direction, new Vector3(0,1,0)) / directionMod * this.leftTargetDistance,
-			leftInput.ray.origin.z + Vector3.dot(leftInput.ray.direction, new Vector3(0,0,1)) / directionMod * this.leftTargetDistance
+			leftInput.ray.origin.x + Vector3.dot(leftInput.ray.direction, new Vector3(1, 0, 0)) / directionMod * this.leftTargetDistance,
+			leftInput.ray.origin.y + Vector3.dot(leftInput.ray.direction, new Vector3(0, 1, 0)) / directionMod * this.leftTargetDistance,
+			leftInput.ray.origin.z + Vector3.dot(leftInput.ray.direction, new Vector3(0, 0, 1)) / directionMod * this.leftTargetDistance
 		);
 		// 碰撞结果
 		var hitRes: HitResult = new HitResult();
@@ -207,36 +203,36 @@ export class WebXRControllerDemo{
 		}
 	}
 
-	LeftbuttonEvent0(){
+	LeftbuttonEvent0() {
 		console.log("left trigger");
 		this.rotateStrength = 0.1;
 	}
-	LeftbuttonEvent1(){
+	LeftbuttonEvent1() {
 		console.log("left side trigger");
 		this.isLeftSelectTarget = true;
 	}
-	LeftbuttonEvent1_1(){
+	LeftbuttonEvent1_1() {
 		this.isLeftSelectTarget = false;
 	}
-	LeftbuttonEvent3(){
+	LeftbuttonEvent3() {
 		console.log("left stickPress");
 	}
-	LeftbuttonEvent4(){
+	LeftbuttonEvent4() {
 		console.log("left key X");
 		// 减小检测距离
 		this.leftTargetDistance -= 0.5;
 	}
-	LeftbuttonEvent5(){
+	LeftbuttonEvent5() {
 		console.log("left key Y");
 		// 增加检测距离
 		this.leftTargetDistance += 0.5;
 	}
-	leftTriggerOn(value:number){
+	leftTriggerOn(value: number) {
 		// 监听事件携带按钮的触发值
 		// trigger的value作为旋转强度
 		this.rotateStrength = value;
 	}
-	LeftAxisEvent(value:Vector2){
+	LeftAxisEvent(value: Vector2) {
 		console.log("left Axis MOUSE_EVENT", value);
 		if (this.leftTarget) {
 			this.leftTarget.transform.localRotationEulerX += value.y;
@@ -245,39 +241,39 @@ export class WebXRControllerDemo{
 	}
 
 	// 右控制器监听
-	RightbuttonEvent0(){
+	RightbuttonEvent0() {
 		console.log("right trigger");
 	}
-	RightbuttonEvent1(){
+	RightbuttonEvent1() {
 		console.log("right side trigger");
 		this.isRightSelectTarget = true;
 	}
-	RightbuttonEvent1_1(){
+	RightbuttonEvent1_1() {
 		console.log("right side trigger");
 		this.isRightSelectTarget = false;
 	}
 
-	RightbuttonEvent3(){
+	RightbuttonEvent3() {
 		console.log("right stickPress");
 		// 抬起时才能重置为cube对象
 		this.rightTarget = this.scene.getChildByName("Cube") as Sprite3D;
 	}
-	RightbuttonEvent4(){
+	RightbuttonEvent4() {
 		console.log("right key X");
 		// 减小检测距离
 		this.rightTargetDistance -= 0.5;
 	}
-	RightbuttonEvent5(){
+	RightbuttonEvent5() {
 		console.log("right key Y");
 		// 增加检测距离
 		this.rightTargetDistance += 0.5;
 	}
-	rightTriggerOn(value:number) {
+	rightTriggerOn(value: number) {
 		// 监听事件携带按钮的触发值
 		// trigger的value作为旋转强度
 		this.rotateStrength = value;
 	}
-	RightAxisEvent(value:Vector2){
+	RightAxisEvent(value: Vector2) {
 		// 右控制器摇杆 sphere旋转
 		if (this.rightTarget) {
 			this.rightTarget.transform.localRotationEulerX += value.y;

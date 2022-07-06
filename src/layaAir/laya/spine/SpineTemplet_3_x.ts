@@ -56,7 +56,7 @@ export class SpineTemplet_3_x extends SpineTempletBase {
 	private _textureLoader(tex: Texture):SpineGLTexture {
 		let src = tex.url;
 		let tTextureName = src.replace(this.clientId, "");
-		let tTexture = this._textureDic[tTextureName] = new SpineGLTexture(tex.bitmap as Texture2D);
+		let tTexture = this._textureDic[tTextureName] = new SpineGLTexture(tex.bitmap);
 		return tTexture;
 	}
 

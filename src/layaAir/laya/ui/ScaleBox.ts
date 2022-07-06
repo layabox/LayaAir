@@ -1,6 +1,5 @@
 import { Box } from "./Box"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 自适应缩放容器，容器设置大小后，容器大小始终保持stage大小，子内容按照原始最小宽高比缩放
@@ -60,8 +59,3 @@ export class ScaleBox extends Box {
         return super.height;
     }
 }
-
-
-ILaya.regClass(ScaleBox);
-ClassUtils.regClass("laya.ui.ScaleBox", ScaleBox);
-ClassUtils.regClass("Laya.ScaleBox", ScaleBox);

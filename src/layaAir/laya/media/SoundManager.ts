@@ -2,16 +2,13 @@ import { SoundChannel } from "./SoundChannel";
 import { Event } from "../events/Event"
 import { AudioSound } from "./h5audio/AudioSound"
 import { WebAudioSound } from "./webaudio/WebAudioSound"
-//import { Loader } from "../net/Loader"
 import { URL } from "../net/URL"
 import { Handler } from "../utils/Handler"
 import { Utils } from "../utils/Utils"
 import { Sound } from "./Sound";
-import { Stage } from "../display/Stage";
-import { LoaderManager } from "../net/LoaderManager";
-import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
 import { Browser } from "../utils/Browser";
+
 /**
  * <code>SoundManager</code> 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
  * 引擎默认有两套声音方案：WebAudio和H5Audio
@@ -21,8 +18,6 @@ import { Browser } from "../utils/Browser";
  * 详细教程及声音格式请参考：http://ldc2.layabox.com/doc/?nav=ch-as-1-7-0
  */
 export class SoundManager {
-
-
     /**
      * 背景音乐音量。
      * @default 1
@@ -69,6 +64,8 @@ export class SoundManager {
     private static _lastSoundUsedTimeDic: any = {};
     /**@private */
     private static _isCheckingDispose: boolean = false;
+    /**@private */
+    private static _soundCache: Record<string, Sound> = {};
 
     /**@internal */
     static __init__(): boolean {
@@ -324,14 +321,14 @@ export class SoundManager {
         }
         var tSound: Sound;
         if (!Browser._isMiniGame) {
-            tSound = ILaya.loader.getRes(url);
+            tSound = SoundManager._soundCache[url];
         }
         if (!soundClass) soundClass = SoundManager._soundClass;
         if (!tSound) {
             tSound = new soundClass();
             tSound.load(url);
             if (!Browser._isMiniGame) {
-                ILaya.Loader.cacheRes(url, tSound);
+                SoundManager._soundCache[url] = tSound;
             }
         }
         var channel: SoundChannel;
@@ -348,9 +345,9 @@ export class SoundManager {
      * @param url	声音播放地址。
      */
     static destroySound(url: string): void {
-        var tSound: Sound = ILaya.loader.getRes(url);
+        var tSound = SoundManager._soundCache[url];
         if (tSound) {
-            ILaya.Loader.clearRes(url);
+            delete SoundManager._soundCache[url];
             tSound.dispose();
         }
     }

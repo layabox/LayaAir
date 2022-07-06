@@ -33,7 +33,7 @@ export class PickIDE {
 
 	onComplete(): void {
 
-		var layaMonkey: Sprite3D = (<Sprite3D>this.scene.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh")));
+		var layaMonkey: Sprite3D = (<Sprite3D>this.scene.addChild(Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh")));
 		//克隆sprite3d
 		var layaMonkey_clone1: Sprite3D = Sprite3D.instantiate(layaMonkey, this.scene, false, new Vector3(0.6, 0, 0));
 		//克隆sprite3d

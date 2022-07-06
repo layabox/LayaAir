@@ -7,7 +7,6 @@ import { Loader } from "../net/Loader"
 import { Button } from "./Button"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -512,8 +511,3 @@ export class UIGroup extends Box implements IItem {
 		}
 	}
 }
-
-
-ILaya.regClass(UIGroup);
-ClassUtils.regClass("laya.ui.UIGroup", UIGroup);
-ClassUtils.regClass("Laya.UIGroup", UIGroup);

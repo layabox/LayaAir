@@ -17,7 +17,7 @@ import FragAO from "./Shader/FragAO.fs";
 import AoBlurHorizontal from "./Shader/AoBlurHorizontal.fs";
 import AOComposition from "./Shader/AOComposition.fs";
 import AmbientOcclusion from "./Shader/AmbientOcclusion.glsl";
-import { WarpMode } from "laya/RenderEngine/RenderEnum/WrapMode";
+import { WrapMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
@@ -130,8 +130,8 @@ export class ScalableAO extends PostProcessEffect {
             return;
         }
 
-        depthNormalTexture.wrapModeU = WarpMode.Clamp;
-        depthNormalTexture.wrapModeV = WarpMode.Clamp;
+        depthNormalTexture.wrapModeU = WrapMode.Clamp;
+        depthNormalTexture.wrapModeV = WrapMode.Clamp;
 
         let source: RenderTexture = context.source;
         let width = source.width;

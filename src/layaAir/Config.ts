@@ -17,13 +17,13 @@ export class Config {
     /**
      * 设置画布是否包含深度
      */
-    static isDepth:boolean = false;
+    static isDepth: boolean = false;
     /**
      * 表明在一个系统性能低的环境是否创建该上下文的boolean值
      */
-    static isfailIfMajorPerformanceCaveat:boolean = false;
+    static isfailIfMajorPerformanceCaveat: boolean = false;
 
-    static powerPreference:WebGLPowerPreference = "default";
+    static powerPreference: WebGLPowerPreference = "default";
     /**
      * 设置画布是否预乘，只对2D(WebGL)、3D有效。
      */
