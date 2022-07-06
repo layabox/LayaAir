@@ -301,6 +301,17 @@ export class Timer {
     resume(): void {
         this.scale = 1;
     }
+
+    
+    destroy(){
+        for (var i=0,n=this._handlers.length;i < n;i++){
+            var handler=this._handlers[i];
+            handler.clear();
+        }
+        this._handlers.length=0;
+        this._map={};
+        this._temp.length=0;
+    }
 }
 
 
