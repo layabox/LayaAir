@@ -38,13 +38,6 @@ vec2 getTransfomUV(vec2 texcoord, vec4 tilingOffset)
     return trans;
 }
 
-// 重映射深度
-vec4 remapPositionZ(vec4 position)
-{
-    position.z = position.z * 2.0 - position.w;
-    return position;
-}
-
 void initMeshVertexParam(inout VertexParams params)
 {
     vec4 position = getVertexPosition();
@@ -53,11 +46,11 @@ void initMeshVertexParam(inout VertexParams params)
 
     v_PositionWS = params.positionWS;
 
-    #ifdef VERTEXNORMAL
+    // #ifdef VERTEXNORMAL
     mat3 normalWorldMat = mat3(worldMat);
     params.normalWS = normalize(normalWorldMat * a_Normal);
     v_Normal = params.normalWS;
-    #endif // VERTEXNORMAL
+    // #endif // VERTEXNORMAL
 
     #ifdef NEEDTBN
     params.tangentWS = vec4(normalize(normalWorldMat * a_Tangent0.xyz), a_Tangent0.w);

@@ -6,7 +6,7 @@ uniform SceneUniformBlock
 {
     // time
     float u_Time;
-}
+};
     #else // ENUNIFORMBLOCK
 // time
 uniform float u_Time;

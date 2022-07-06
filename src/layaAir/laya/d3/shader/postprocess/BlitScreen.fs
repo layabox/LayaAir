@@ -1,3 +1,4 @@
+#define SHADER_NAME BlitFS
 
 varying vec2 v_Texcoord0;
 

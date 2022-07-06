@@ -9,8 +9,8 @@ import EffectVS from "./files/Effect.vs";
 import extendTerrainPS from "./files/extendTerrain.fs";
 import extendTerrainVS from "./files/extendTerrain.vs";
 import GlobalIllumination from "./files/GlobalIllumination.glsl";
-import LightingGLSL from "./files/Lighting.glsl";
-import ShadowSampleTentGLSL from "./files/ShadowSampleTent.glsl";
+// import LightingGLSL from "./files/Lighting.glsl";
+// import ShadowSampleTentGLSL from "./files/ShadowSampleTent.glsl";
 import LayaUtile from "./files/LayaUtile.glsl"
 import linePS from "./files/line.fs";
 import lineVS from "./files/line.vs";
@@ -67,12 +67,18 @@ import MathGLSL from "./utils/Math.glsl";
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
 
+import ShadowSampleTentGLSL from "./lighting/ShadowSampleTent.glsl";
+import ShadowSamplerGLSL from "./lighting/ShadowSampler.glsl";
+
+import LightingGLSL from "./lighting/Lighting.glsl";
+
 import MeshCommonGLSL from "./common/MeshCommon.glsl";
 import MeshVertexGLSL from "./common/MeshVertex.glsl";
 import MeshFragGLSL from "./common/MeshFrag.glsl";
 
 import { BlitScreenShaderInit } from "./postprocess/BlitScreenShaderInit";
 import { UnlitShaderInit } from "./unlit/UnlitShaderInit";
+import { BlinnPhongShaderInit } from "./blinnphong/BlinnPhongShaderInit";
 
 /**
  * @internal
@@ -89,6 +95,13 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Color.glsl", ColorGLSL);
 		Shader3D.addInclude("Math.glsl", MathGLSL);
 
+		// shadow sampler
+		Shader3D.addInclude("ShadowSampleTent.glsl", ShadowSampleTentGLSL);
+		Shader3D.addInclude("ShadowSampler.glsl", ShadowSamplerGLSL);
+
+		// lighting
+		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
+
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);
 
@@ -103,6 +116,7 @@ export class ShaderInit3D {
 		// shader inti
 		BlitScreenShaderInit.init();
 		UnlitShaderInit.init();
+		BlinnPhongShaderInit.init();
 
 		///////////////////////////////////////////////////////////////////////
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");

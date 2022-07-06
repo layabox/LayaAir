@@ -166,6 +166,7 @@ export class Material extends Resource implements IClone {
 			material.setShaderName(classType);
 		}
 
+		return material;
 
 		switch (jsonData.version) {
 			case "LAYAMATERIAL:01":

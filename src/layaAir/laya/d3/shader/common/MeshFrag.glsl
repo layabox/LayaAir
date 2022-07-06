@@ -7,9 +7,9 @@ void getMeshVertexParams(inout VertexParams params)
 {
     params.positionWS = v_PositionWS;
 
-    #ifdef VERTEXNORMAL
+    // #ifdef VERTEXNORMAL
     params.normalWS = normalize(v_Normal);
-    #endif VERTEXNORMAL
+    // #endif VERTEXNORMAL
 
     #ifdef UV
     params.texCoord0 = v_Texcoord0;

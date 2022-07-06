@@ -13,7 +13,7 @@ export class UnlitShaderInit {
                 "u_DiffuseColor": ShaderDataType.Vector4,
                 "u_TillOffset": ShaderDataType.Vector4
             }
-        }
+        };
         let shader = Shader3D.add("Unlit");
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap);
         shader.addSubShader(subShader);

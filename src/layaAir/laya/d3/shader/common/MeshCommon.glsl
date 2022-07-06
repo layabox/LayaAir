@@ -9,9 +9,9 @@ uniform mat4 u_Bones[24];
 
 varying vec3 v_PositionWS;
 
-    #ifdef VERTEXNORMAL
+    // #ifdef VERTEXNORMAL
 varying vec3 v_Normal;
-    #endif VERTEXNORMAL
+    // #endif VERTEXNORMAL
 
     #if defined(NEEDTBN)
 varying vec4 v_Tangent;
@@ -33,9 +33,9 @@ struct VertexParams {
 
     vec3 positionWS;
 
-    #ifdef VERTEXNORMAL
+    // #ifdef VERTEXNORMAL
     vec3 normalWS;
-    #endif // VERTEXNORMAL
+    // #endif // VERTEXNORMAL
 
     #ifdef NEEDTBN
     vec4 tangentWS;

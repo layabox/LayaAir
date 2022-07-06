@@ -19,10 +19,17 @@ uniform mat4 u_View;
 uniform mat4 u_Projection;
 uniform mat4 u_ViewProjection;
 uniform vec4 u_ProjectionParams; // x: near, y: far, z: invert, w: 1/far
-uniform vec4 u_Viewport; // x,y,width,height
+uniform vec4 u_Viewport; // x, y, width, height
 uniform vec3 u_CameraDirection;
 uniform vec3 u_CameraUp;
 uniform vec3 u_CameraPos;
     #endif // ENUNIFORMBLOCK
+
+// 根据投影剧专重映射深度
+vec4 remapPositionZ(vec4 position)
+{
+    position.z = position.z * 2.0 - position.w;
+    return position;
+}
 
 #endif // CameraCommon_lib
