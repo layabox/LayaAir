@@ -7,5 +7,6 @@ export enum RenderParams{
     SHADER_CAPAILITY_LEVEL,//Shader质量
     FLOAT,
     UNSIGNED_BYTE,
+    BYTE,
     UNSIGNED_SHORT,
 }

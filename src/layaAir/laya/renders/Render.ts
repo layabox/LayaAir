@@ -101,7 +101,7 @@ export class Render {
             engine = new WebGLEngine(glConfig, webglMode);
             engine.initRenderEngine(Render._mainCanvas.source);
             var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
-            if (false)
+            if (Config.printWebglOrder)
                 this._replaceWebglcall(gl);
 
             if (!gl)

@@ -11,8 +11,8 @@ export enum RenderTargetFormat {
     R16G16B16 = TextureFormat.R16G16B16,
    
     // todo enum 值 
-    DEPTH_16,
-    STENCIL_8,
-    DEPTHSTENCIL_24_8,
-    DEPTH_32
+    DEPTH_16=65,
+    STENCIL_8=66,
+    DEPTHSTENCIL_24_8=67,
+    DEPTH_32=68
 }
