@@ -75,6 +75,7 @@ function getAttributeType(type: ShaderDataType) {
         case ShaderDataType.Vector3:
             return "vec3";
         case ShaderDataType.Vector4:
+        case ShaderDataType.Color:
             return "vec4";
         case ShaderDataType.Matrix4x4:
             return "mat4";
@@ -84,21 +85,5 @@ function getAttributeType(type: ShaderDataType) {
             return "samplerCube";
         default:
             return "";
-    }
-}
-
-function shaderTypeSupportUniformBlock(type: ShaderDataType) {
-    switch (type) {
-        case ShaderDataType.Float:
-        case ShaderDataType.Vector2:
-        case ShaderDataType.Vector3:
-        case ShaderDataType.Vector4:
-        case ShaderDataType.Matrix4x4:
-            return true;
-        case ShaderDataType.Texture2D:
-        case ShaderDataType.TextureCube:
-            return false;
-        default:
-            return false;
     }
 }

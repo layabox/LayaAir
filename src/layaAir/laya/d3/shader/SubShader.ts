@@ -120,6 +120,7 @@ function ShaderDataTypeToUniformBufferType(shaderDataType: ShaderDataType) {
 		case ShaderDataType.Vector3:
 			return UniformBufferParamsType.Vector3;
 		case ShaderDataType.Vector4:
+		case ShaderDataType.Color:
 			return UniformBufferParamsType.Vector4;
 		case ShaderDataType.Matrix4x4:
 			return UniformBufferParamsType.Matrix4x4;

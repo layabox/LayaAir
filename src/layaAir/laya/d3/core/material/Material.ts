@@ -495,8 +495,8 @@ export class Material extends Resource implements IClone {
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(this);
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
         this.alphaTest = false;
-        if (Config3D._config._uniformBlock)
-            this._uniformBufferDatas = new Map();
+        // if (Config3D._config._uniformBlock)
+        this._uniformBufferDatas = new Map();
     }
 
     /**
@@ -616,10 +616,16 @@ export class Material extends Resource implements IClone {
      * @param value 
      */
     setUniformBufferData(uboName: string, propertyName: string, type: ShaderDataType, value: any) {
-        if (!Config3D._config._uniformBlock)
-            this.setShaderPropertyValue(propertyName, value);
-        else {
-            let ubo = this._uniformBufferDatas.get(uboName);
+        // if (!Config3D._config._uniformBlock)
+        //     this.setShaderPropertyValue(propertyName, value);
+        // else {
+        //     let ubo = this._uniformBufferDatas.get(uboName);
+        //     ubo._updateDataInfo._setData(Shader3D.propertyNameToID(propertyName), type, value);
+        //     //立即更新，可以优化
+        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
+        let ubo = this._uniformBufferDatas.get(uboName);
+        if (ubo) {
             ubo._updateDataInfo._setData(Shader3D.propertyNameToID(propertyName), type, value);
             //立即更新，可以优化
             ubo.setDataByUniformBufferData(ubo._updateDataInfo);

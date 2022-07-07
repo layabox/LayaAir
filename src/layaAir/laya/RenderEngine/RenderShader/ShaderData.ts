@@ -9,6 +9,7 @@ import { Quaternion } from "../../d3/math/Quaternion";
 import { Vector2 } from "../../d3/math/Vector2";
 import { Vector3 } from "../../d3/math/Vector3";
 import { Vector4 } from "../../d3/math/Vector4";
+import { Color } from "../../d3/math/Color";
 
 export enum ShaderDataType {
 	Int,
@@ -17,6 +18,7 @@ export enum ShaderDataType {
 	Vector2,
 	Vector3,
 	Vector4,
+	Color,
 	Matrix4x4,
 	Texture2D,
 	TextureCube
@@ -185,8 +187,8 @@ export class ShaderData implements IClone {
 
 	/**
 	 * 获取颜色。
-	 * @param	index shader索引。
-	 * @return 颜色向量。
+	 * @param 	index shader索引。
+	 * @return  向量。
 	 */
 	getVector(index: number): Vector4 {
 		return this._data[index];
@@ -202,6 +204,29 @@ export class ShaderData implements IClone {
 			value.cloneTo(this._data[index]);
 		} else
 			this._data[index] = value.clone();
+	}
+
+	/**
+	 * 获取颜色
+	 * @param index 索引
+	 * @returns 颜色
+	 */
+	getColor(index: number): Color {
+		return this._data[index];
+	}
+
+	/**
+	 * 设置颜色
+	 * @param index 索引
+	 * @param value 颜色值
+	 */
+	setColor(index: number, value: Color): void {
+		if (this._data[index]) {
+			value.cloneTo(this._data[index]);
+		}
+		else {
+			this._data[index] = value.clone();
+		}
 	}
 
 	/**
@@ -292,7 +317,7 @@ export class ShaderData implements IClone {
 	setValueData(index: number, value: any) {
 		if (!value)//value null
 			this._data[index] = value;
-		else if (!!value.clone){
+		else if (!!value.clone) {
 			this._data[index] = value.clone();
 		} else
 			this._data[index] = value;

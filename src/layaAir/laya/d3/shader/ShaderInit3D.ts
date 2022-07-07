@@ -63,6 +63,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import UtilsGLSL from "./utils/Utils.glsl";
 import ColorGLSL from "./utils/Color.glsl";
 import MathGLSL from "./utils/Math.glsl";
+import TBNNormalGLSL from "./utils/TBNNormal.glsl";
 
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
@@ -97,6 +98,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Utils.glsl", UtilsGLSL);
 		Shader3D.addInclude("Color.glsl", ColorGLSL);
 		Shader3D.addInclude("Math.glsl", MathGLSL);
+		Shader3D.addInclude("TBNNormal.glsl", TBNNormalGLSL);
 
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);

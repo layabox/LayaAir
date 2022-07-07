@@ -1,24 +1,62 @@
 #if !defined(BlinnPhongFrag_lib)
     #define BlinnPhongFrag_lib
 
+    #include "TBNNormal.glsl";
+
     #include "Lighting.glsl";
 
     #include "BlinnPhongCommon.glsl";
 
+// todo 移动
+
 void getBinnPhongSurfaceParams(inout BlinnPhongSurface surface, in VertexParams params)
 {
     surface.positionWS = params.positionWS;
-    // todo normal map
-    surface.normalWS = params.normalWS;
     surface.viewDirectionWS = normalize(v_ViewDir);
 
-    // todo uniform
-    surface.diffuseColor = vec3(1.0, 1.0, 1.0);
-    surface.specularColor = vec3(1.0, 1.0, 1.0);
-    surface.shininess = 0.078125;
-    surface.gloss = vec3(1.0, 1.0, 1.0);
+    // todo  uniform
+    #ifdef NORMALMAP
+    mat3 TBN = generateTBNMat(params);
+    vec3 normal = texture2D(u_NormalTexture, v_Texcoord0).rgb;
+    surface.normalWS = sampleTBNNormalMap(params, TBN, u_NormalTexture, params.texCoord0);
+    #else
+    surface.normalWS = params.normalWS;
+    #endif
+
+    // 初始化 alpha
     surface.alpha = 1.0;
-    surface.alphaClip = 1.0;
+    surface.alphaClip = u_AlphaTestValue;
+
+    #ifdef DIFFUSEMAP
+    vec4 diffuseSampler = texture2D(u_DiffuseTexture, params.texCoord0);
+    surface.diffuseColor = u_DiffuseColor.rgb * diffuseSampler.rgb * u_AlbedoIntensity;
+    surface.alpha *= diffuseSampler.a;
+    #else
+    surface.diffuseColor = u_DiffuseColor.rgb * u_AlbedoIntensity;
+    #endif // DIFFUSEMAP
+
+    #ifdef ALPHATEST
+    if (surface.alpha < u_AlphaTestValue)
+	{
+	    discard;
+	}
+    #endif // ALPHATEST
+
+	// todo 顶点色
+	// vec4 params.vertexColor
+
+    #ifdef SPECULARMAP
+    vec4 specularSampler = texture2D(u_SpecularTexture, params.texCoord0);
+    surface.gloss = specularSampler.rgb;
+    #else // SPECULARMAP
+	#ifdef DIFFUSEMAP
+    surface.gloss = vec3(diffuseSampler.a);
+	#else // DIFFUSEMAP
+    surface.gloss = vec3(1.0, 1.0, 1.0);
+	#endif // DIFFUSEMAP
+    #endif // SPECULARMAP
+    surface.specularColor = u_MaterialSpecular.rgb;
+    surface.shininess = u_Shininess;
 }
 
     #if defined(LIGHTING)

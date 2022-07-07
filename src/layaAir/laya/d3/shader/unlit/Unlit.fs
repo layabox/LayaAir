@@ -8,5 +8,5 @@ void main()
     VertexParams params;
     getMeshVertexParams(params);
 
-    gl_FragColor = vec4(0.5, 0.7, 0.2, 1.0);
+    gl_FragColor = u_DiffuseColor;
 }
