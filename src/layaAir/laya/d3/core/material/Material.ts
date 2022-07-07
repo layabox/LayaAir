@@ -18,7 +18,7 @@ import { ClassUtils } from "../../../utils/ClassUtils";
 import { IClone } from "../IClone";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Config3D } from "../../../../Config3D";
-import { UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
+import { UniformBufferParamsType, UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { ShaderDataType } from "../render/command/SetShaderDataCMD";
 
@@ -312,6 +312,12 @@ export class Material extends Resource implements IClone {
     /**@internal */
     private _uniformBufferDatas: Map<string, UniformBufferObject>;
 
+    /**
+     * @internal
+     * key: uniform property id
+     * value: UniformBufferObject
+     */
+    private _uniformNamesMap: Map<number, UniformBufferObject>;
 
     /**
      * 着色器数据。
@@ -497,6 +503,7 @@ export class Material extends Resource implements IClone {
         this.alphaTest = false;
         // if (Config3D._config._uniformBlock)
         this._uniformBufferDatas = new Map();
+        this._uniformNamesMap = new Map();
     }
 
     /**
@@ -526,6 +533,10 @@ export class Material extends Resource implements IClone {
             ubo.setDataByUniformBufferData(uboData);
             this._shaderValues.setValueData(Shader3D.propertyNameToID(key), ubo);
             this._uniformBufferDatas.set(key, ubo);
+
+            uboData._uniformParamsState.forEach((value: UniformBufferParamsType, id: number) => {
+                this._uniformNamesMap.set(id, ubo);
+            });
         }
     }
 
@@ -538,6 +549,7 @@ export class Material extends Resource implements IClone {
             value.destroy();
         }
         this._uniformBufferDatas.clear();
+        this._uniformNamesMap.clear();
     }
 
     /**
@@ -575,9 +587,6 @@ export class Material extends Resource implements IClone {
         this._removeTetxureReference();
     }
 
-
-
-
     /**
      * 设置使用Shader名字。
      * @param name 名称。
@@ -599,39 +608,31 @@ export class Material extends Resource implements IClone {
      * @param value 
      */
     setShaderPropertyValue(name: string, value: any) {
-        this.shaderData.setValueData(Shader3D.propertyNameToID(name), value);
+        let propertyID = Shader3D.propertyNameToID(name);
+        let ubo = this._uniformNamesMap.get(propertyID);
+        if (ubo) {
+            ubo._updateDataInfo._setData(Shader3D.propertyNameToID(name), value);
+            //立即更新，可以优化
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
+        else {
+            this.shaderData.setValueData(Shader3D.propertyNameToID(name), value);
+        }
     }
     /**
      * 获取属性值
      * @param name 
      */
     getShaderPropertyValue(name: string): any {
-        return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
-    }
-
-    /**
-     * 设置UBO数据
-     * @param uboName 
-     * @param propertyName 
-     * @param value 
-     */
-    setUniformBufferData(uboName: string, propertyName: string, type: ShaderDataType, value: any) {
-        // if (!Config3D._config._uniformBlock)
-        //     this.setShaderPropertyValue(propertyName, value);
-        // else {
-        //     let ubo = this._uniformBufferDatas.get(uboName);
-        //     ubo._updateDataInfo._setData(Shader3D.propertyNameToID(propertyName), type, value);
-        //     //立即更新，可以优化
-        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
-        let ubo = this._uniformBufferDatas.get(uboName);
+        // todo
+        let ubo = this._uniformBufferDatas.get(name);
         if (ubo) {
-            ubo._updateDataInfo._setData(Shader3D.propertyNameToID(propertyName), type, value);
-            //立即更新，可以优化
-            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+
+        }
+        else {
+            return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
         }
     }
-
 
     /**
      * 克隆。

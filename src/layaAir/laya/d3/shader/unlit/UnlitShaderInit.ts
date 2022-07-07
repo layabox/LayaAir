@@ -11,10 +11,10 @@ export class UnlitShaderInit {
 
         let uniformMap = {
             "UnlitBlock": {
-                "u_DiffuseColor": ShaderDataType.Color,
+                // "u_DiffuseColor": ShaderDataType.Color,
                 "u_TillOffset": ShaderDataType.Vector4
             },
-            // "u_DiffuseColor": ShaderDataType.Color,
+            "u_DiffuseColor": ShaderDataType.Vector4,
         };
 
         type UniformItem = { [typename: number]: any };

@@ -40,7 +40,7 @@ export class UnifromBufferData {
      * @internal
      * params describe
      */
-    protected _uniformParamsState: Map<string, UniformBufferParamsType>;
+    _uniformParamsState: Map<number, UniformBufferParamsType>;
 
     /**
      * @internal
@@ -57,8 +57,15 @@ export class UnifromBufferData {
      * create UniformBufferData Instance
      * @param uniformParamsStat Params describe
      */
-    constructor(uniformParamsStat: Map<string, UniformBufferParamsType>) {
+    constructor(uniformParamsStat: Map<number, UniformBufferParamsType>) {
+        // todo 后面改掉 不用map 初始化
         this._uniformParamsState = new Map(uniformParamsStat);
+        // if (uniformParamsStat) {
+        //     uniformParamsStat.forEach((type: UniformBufferParamsType, name: string) => {
+        //         let uniformID = Shader3D.propertyNameToID(name);
+        //         this._uniformParamsState.set(uniformID, type)
+        //     });
+        // }
         this._createBuffer();
         this._updateFlag = new Vector2();
         this._resetUpdateFlag();
@@ -77,7 +84,7 @@ export class UnifromBufferData {
         });
         //这里需要对手机平台做兼容
         //this._bytelength = dataPos * elementSize;
-        this._bytelength = Math.ceil(dataPos/4)*4* elementSize;
+        this._bytelength = Math.ceil(dataPos / 4) * 4 * elementSize;
         this._buffer = new Float32Array(dataPos);
     }
 
@@ -97,10 +104,9 @@ export class UnifromBufferData {
      * @interanl
      * layout UniformBuffer pitch std140
      */
-    protected _addUniformParams(key: string, value: UniformBufferParamsType, offset: number): number {
+    protected _addUniformParams(uniformID: number, value: UniformBufferParamsType, offset: number): number {
         let size: number = 0;
         let posAdd: number = 0;
-        const uniformID: number = Shader3D.propertyNameToID(key);
         let posG = offset % 4;
         let offsetadd;
         switch (value) {
@@ -161,13 +167,13 @@ export class UnifromBufferData {
                 posAdd = size + offsetadd;
                 break;
             case UniformBufferParamsType.Vector4Array:
-                size = this._getArraySize(key) * 4;
+                size = this._getArraySize(Shader3D.propertyIDToName(uniformID)) * 4;
                 offsetadd = posG ? 4 - posG : posG;
                 offset += offsetadd
                 posAdd = size + offsetadd;
                 break;
             case UniformBufferParamsType.MatrixArray:
-                size = this._getArraySize(key) * 16;
+                size = this._getArraySize(Shader3D.propertyIDToName(uniformID)) * 16;
                 offsetadd = posG ? 4 - posG : posG;
                 offset += offsetadd
                 posAdd = size + offsetadd;
@@ -227,31 +233,30 @@ export class UnifromBufferData {
      * @internal
      * set buffer params Data
      */
-    _setData(uniformID: number, type: ShaderDataType, value: any) {
-        switch (type) {
-            case ShaderDataType.Int:
+    _setData(uniformID: number, value: any) {
+
+        let uniformType = this._uniformParamsState.get(uniformID);
+
+        switch (uniformType) {
+            case UniformBufferParamsType.Number:
                 this.setNumberbyIndex(uniformID, value);
                 break;
-            case ShaderDataType.Number:
-                this.setNumberbyIndex(uniformID, value);
-                break;
-            case ShaderDataType.Bool:
-                this.setNumberbyIndex(uniformID, value);
-                break;
-            case ShaderDataType.Matrix4x4:
-                this.setMatrixbyIndex(uniformID, value);
-                break;
-            case ShaderDataType.Quaternion:
-                this.setVector4byIndex(uniformID, value);
-                break;
-            case ShaderDataType.Vector4:
-                this.setVector4byIndex(uniformID, value);
-                break;
-            case ShaderDataType.Vector2:
+            case UniformBufferParamsType.Vector2:
                 this.setVector2byIndex(uniformID, value);
                 break;
-            case ShaderDataType.Vector3:
+            case UniformBufferParamsType.Vector3:
                 this.setVector3byIndex(uniformID, value);
+                break;
+            case UniformBufferParamsType.Vector4:
+                this.setVector4byIndex(uniformID, value);
+                break;
+            case UniformBufferParamsType.Matrix4x4:
+                this.setMatrixbyIndex(uniformID, value);
+                break;
+            case UniformBufferParamsType.Vector4Array:
+            case UniformBufferParamsType.MatrixArray:
+            // todo
+            default:
                 break;
         }
     }
@@ -384,7 +389,7 @@ export class UnifromBufferData {
     }
 
     /**
-     * set Vector3 by paramsIndex
+     * set Vector3 by uniformID
      * @param uniformID uniform params index
      * @param value Vector3 data
      * @returns 
@@ -452,6 +457,8 @@ export class UnifromBufferData {
     }
 
     clone(): UnifromBufferData {
-        return new UnifromBufferData(this._uniformParamsState);
+        // todo clone 更改
+        let ubd = new UnifromBufferData(this._uniformParamsState);
+        return ubd
     }
 }

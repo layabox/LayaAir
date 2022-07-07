@@ -94,7 +94,8 @@ export class WebGLEngine implements IRenderEngine {
   private _lastScissor: Vector4;
 
   //bind clearColor
-  private _lastClearColor: Color = new Color;
+  private _lastClearColor: Color;
+  private _lastLinearClearColor: Color;
   private _lastClearDepth: number = 1;
 
   /**
@@ -129,6 +130,7 @@ export class WebGLEngine implements IRenderEngine {
     //init data
     this._lastViewport = new Vector4(0, 0, 0, 0);
     this._lastClearColor = new Color(0, 0, 0, 0);
+    this._lastLinearClearColor = new Color(0, 0, 0, 0);
     this._lastScissor = new Vector4(0, 0, 0, 0);
     this._webglMode = webglMode;
   }
@@ -270,8 +272,9 @@ export class WebGLEngine implements IRenderEngine {
     //this.gl.enable(this._gl.SCISSOR_TEST)
     if (clearFlag & RenderClearFlag.Color) {
       if (clearcolor && !this._lastClearColor.equal(this._lastClearColor)) {
-        this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
         clearcolor.cloneTo(this._lastClearColor);
+        this._lastClearColor.toLinear(this._lastLinearClearColor);
+        this._gl.clearColor(this._lastLinearClearColor.r, this._lastLinearClearColor.g, this._lastLinearClearColor.b, this._lastLinearClearColor.a);
       }
       flag |= this.gl.COLOR_BUFFER_BIT;
     }
@@ -362,6 +365,10 @@ export class WebGLEngine implements IRenderEngine {
       this._propertyNameMap[id] = name;
       return id;
     }
+  }
+
+  propertyIDToName(id: number): string {
+    return this._propertyNameMap[id];
   }
 
   /**

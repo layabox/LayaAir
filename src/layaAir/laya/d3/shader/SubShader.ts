@@ -67,7 +67,13 @@ export class SubShader {
 						let uniformType = ShaderDataTypeToUniformBufferType(block[uniformName]);
 						blockUniformMap.set(uniformName, uniformType);
 					}
-					let blockData = new UnifromBufferData(blockUniformMap);
+
+					let blockUniformMap1 = new Map<number, UniformBufferParamsType>();
+					blockUniformMap.forEach((value, key) => {
+						blockUniformMap1.set(Shader3D.propertyNameToID(key), value);
+					})
+
+					let blockData = new UnifromBufferData(blockUniformMap1);
 					this._uniformBufferData.set(key, blockData);
 				}
 			}

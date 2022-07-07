@@ -77,7 +77,7 @@ export class BaseCamera extends Sprite3D {
 		BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
 		BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
 		let camerauniformMap = BaseCamera.cameraUniformMap = CommandUniformMap.createGlobalUniformMap("BaseCamera");
-		
+
 		BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
 		BaseCamera.VIEWMATRIX = Shader3D.propertyNameToID("u_View");
 		BaseCamera.VIEWPROJECTMATRIX = Shader3D.propertyNameToID("u_ViewProjection");
@@ -102,7 +102,7 @@ export class BaseCamera extends Sprite3D {
 		camerauniformMap.addShaderUniform(BaseCamera.DEPTHTEXTURE, "u_CameraDepthTexture");
 		camerauniformMap.addShaderUniform(BaseCamera.DEPTHNORMALSTEXTURE, "u_CameraDepthNormalsTexture");
 		camerauniformMap.addShaderUniform(BaseCamera.DEPTHZBUFFERPARAMS, "u_ZBufferParams");
-		camerauniformMap.addShaderUniform(BaseCamera.CAMERAUNIFORMBLOCK,UniformBufferObject.UBONAME_CAMERA);
+		camerauniformMap.addShaderUniform(BaseCamera.CAMERAUNIFORMBLOCK, UniformBufferObject.UBONAME_CAMERA);
 	}
 
 	/**
@@ -120,7 +120,13 @@ export class BaseCamera extends Sprite3D {
 		uniformPara.set("u_CameraDirection", UniformBufferParamsType.Vector3);
 		uniformPara.set("u_CameraUp", UniformBufferParamsType.Vector3);
 		uniformPara.set("u_CameraPos", UniformBufferParamsType.Vector3);
-		return new UnifromBufferData(uniformPara);
+
+		let uniformMap = new Map<number, UniformBufferParamsType>();
+		uniformPara.forEach((value, key) => {
+			uniformMap.set(Shader3D.propertyNameToID(key), value);
+		})
+
+		return new UnifromBufferData(uniformMap);
 	}
 	/**
 	 * Camera Init
@@ -134,7 +140,7 @@ export class BaseCamera extends Sprite3D {
 	/** @internal */
 	_cameraUniformData: UnifromBufferData;
 	/** @internal */
-	_cameraUniformUBO:UniformBufferObject;
+	_cameraUniformUBO: UniformBufferObject;
 	/** 近裁剪面。*/
 	protected _nearPlane: number;
 	/** 远裁剪面。*/
@@ -271,10 +277,10 @@ export class BaseCamera extends Sprite3D {
 		if (Config3D._config._uniformBlock) {
 			this._cameraUniformUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
 			this._cameraUniformData = BaseCamera.createSceneUniformBlock();
-			if(!this._cameraUniformUBO){
-				this._cameraUniformUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA,BufferUsage.Dynamic,this._cameraUniformData.getbyteLength(), true);
+			if (!this._cameraUniformUBO) {
+				this._cameraUniformUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA, BufferUsage.Dynamic, this._cameraUniformData.getbyteLength(), true);
 			}
-			this._shaderValues.setValueData(BaseCamera.CAMERAUNIFORMBLOCK,this._cameraUniformUBO);
+			this._shaderValues.setValueData(BaseCamera.CAMERAUNIFORMBLOCK, this._cameraUniformUBO);
 		}
 	}
 
@@ -325,17 +331,17 @@ export class BaseCamera extends Sprite3D {
 		//var cameraSV: ShaderData = this._shaderValues;
 		this.transform.getForward(this._forward);
 		this.transform.getUp(this._up);
-		this._setShaderValue(BaseCamera.CAMERAPOS, ShaderDataType.Vector3, this.transform.position);
-		this._setShaderValue(BaseCamera.CAMERADIRECTION, ShaderDataType.Vector3, this._forward);
-		this._setShaderValue(BaseCamera.CAMERAUP, ShaderDataType.Vector3, this._up);
+		this._setShaderValue(BaseCamera.CAMERAPOS, this.transform.position);
+		this._setShaderValue(BaseCamera.CAMERADIRECTION, this._forward);
+		this._setShaderValue(BaseCamera.CAMERAUP, this._up);
 	}
 
 	/**
 	 * @internal
 	 */
-	_setShaderValue(index: number, shaderDataType: ShaderDataType, value: any) {
+	_setShaderValue(index: number, value: any) {
 		if (this._cameraUniformData && this._cameraUniformData._has(index))
-			this._cameraUniformData._setData(index, shaderDataType, value);
+			this._cameraUniformData._setData(index, value);
 		this._shaderValues.setValueData(index, value);
 	}
 

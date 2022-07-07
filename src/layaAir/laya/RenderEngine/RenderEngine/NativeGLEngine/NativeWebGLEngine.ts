@@ -170,6 +170,11 @@ export class NativeWebGLEngine implements IRenderEngine {
     return this._nativeObj.propertyNameToID(name);
   }
 
+  propertyIDToName(id: number): string {
+    throw new Error("Method not implemented.");
+    return "";
+  }
+
   uploadUniforms(shader: IRenderShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
     throw new Error("Method not implemented.");
   }

@@ -80,14 +80,14 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
-	 *@inheritDoc
-	 *@override
-	 *@internal
-	 */
-	_createRenderElement() {
-		let renderelement = new SubMeshRenderElement();
-		return renderelement as any;
-	}
+     *@inheritDoc
+     *@override
+     *@internal
+     */
+    _createRenderElement() {
+        let renderelement = new SubMeshRenderElement();
+        return renderelement as any;
+    }
 
     /**
      * @internal
@@ -106,10 +106,10 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     */
     _onMeshChange(value: Mesh): void {
         this._onSkinMeshChange(value);
-		if (!value)
-			return;
+        if (!value)
+            return;
         this._cacheMesh = (<Mesh>value);
-        
+
     }
     /**
      * @inheritDoc
@@ -126,9 +126,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
                         let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
                         this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(worldMat) : true;
                     }
-                    this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, worldMat);
+                    this._setShaderValue(Sprite3D.WORLDMATRIX, worldMat);
                 } else {
-                    this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
+                    this._setShaderValue(Sprite3D.WORLDMATRIX, transform.worldMatrix);
                 }
                 this._computeAnimatorParamsData();
                 this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
@@ -204,11 +204,11 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     _cloneTo(dest: Component): void {
         let render = dest as SimpleSkinnedMeshRenderer;
         render.simpleAnimatorOffset = this.simpleAnimatorOffset;
-		render.simpleAnimatorTexture = this.simpleAnimatorTexture;
-		render._bonesNums = this._bonesNums;
+        render.simpleAnimatorTexture = this.simpleAnimatorTexture;
+        render._bonesNums = this._bonesNums;
         super._cloneTo(dest);
     }
- 
+
     /**
      * 删除节点
      */

@@ -33,6 +33,7 @@ export interface IRenderEngine {
     scissorTest(value: boolean): void;
 
     propertyNameToID(name: string): number;
+    propertyIDToName(id: number): string;
 
     getParams(params: RenderParams): number;
     getCapable(capatableType: RenderCapable): boolean;
