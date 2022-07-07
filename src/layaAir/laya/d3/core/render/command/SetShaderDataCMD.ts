@@ -83,9 +83,6 @@ export class SetShaderDataCMD extends Command {
 			case ShaderDataType.Matrix4x4:
 				this._shaderData.setMatrix4x4(this._nameID as number,this._value as Matrix4x4);
 				break;
-			case ShaderDataType.Quaternion:
-				this._shaderData.setQuaternion(this._nameID as number,this._value as Quaternion);
-				break;
 			case ShaderDataType.Texture:
 				this._shaderData.setTexture(this._nameID as number,this._value as BaseTexture);
 				break;

@@ -225,7 +225,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 				break;
 			case 1: //Local
 				sv.setVector3(ShuriKenParticle3DShaderDeclaration.WORLDPOSITION, transform.position);
-				sv.setQuaternion(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, transform.rotation);
+				sv.setValueData(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, transform.rotation);
 				break;
 			default:
 				throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");

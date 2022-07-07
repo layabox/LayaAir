@@ -10,6 +10,7 @@ import { Vector2 } from "../../d3/math/Vector2";
 import { Vector3 } from "../../d3/math/Vector3";
 import { Vector4 } from "../../d3/math/Vector4";
 import { Color } from "../../d3/math/Color";
+import { UniformColor } from "./UniformColor";
 
 export enum ShaderDataType {
 	Int,
@@ -225,29 +226,8 @@ export class ShaderData implements IClone {
 			value.cloneTo(this._data[index]);
 		}
 		else {
-			this._data[index] = value.clone();
+			this._data[index] = new UniformColor(value.r,value.g,value.b,value.a);
 		}
-	}
-
-	/**
-	 * 获取四元数。
-	 * @param	index shader索引。
-	 * @return 四元。
-	 */
-	getQuaternion(index: number): Quaternion {
-		return this._data[index];
-	}
-
-	/**
-	 * 设置四元数。
-	 * @param	index shader索引。
-	 * @param	value 四元数。
-	 */
-	setQuaternion(index: number, value: Quaternion): void {
-		if (this._data[index]) {
-			value.cloneTo(this._data[index]);
-		} else
-			this._data[index] = value.clone();
 	}
 
 	/**
@@ -265,7 +245,11 @@ export class ShaderData implements IClone {
 	 * @param	value  矩阵。
 	 */
 	setMatrix4x4(index: number, value: Matrix4x4): void {
-		this._data[index] = value.clone();
+		if(this._data[index]){
+			value.cloneTo(this._data[index]);
+		}else{
+			this._data[index] = value.clone();
+		}
 	}
 
 	/**
@@ -315,6 +299,11 @@ export class ShaderData implements IClone {
 	 * @param value data
 	 */
 	setValueData(index: number, value: any) {
+		//Color 需要特殊处理
+		if(value instanceof Color){
+			this.setColor(index,value);
+		}
+		
 		if (!value)//value null
 			this._data[index] = value;
 		else if (!!value.clone) {

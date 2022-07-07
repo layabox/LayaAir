@@ -1,3 +1,4 @@
+import { Color } from "../../../d3/math/Color";
 import { Matrix4x4 } from "../../../d3/math/Matrix4x4";
 import { Vector2 } from "../../../d3/math/Vector2";
 import { Vector3 } from "../../../d3/math/Vector3";
@@ -7,6 +8,7 @@ import { BufferUsage } from "../../RenderEnum/BufferTargetType";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
+import { UniformColor } from "../../RenderShader/UniformColor";
 import { UniformBufferObject } from "../../UniformBufferObject";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
@@ -100,20 +102,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
                 one.type = (gl as WebGL2RenderingContext).UNIFORM_BUFFER;
                 one.dataOffset = this._engine.propertyNameToID(uniformBlockName);
                 let location = one.location = gl2.getUniformBlockIndex(this._program, uniformBlockName);
-                //if (!!UniformBufferObject.getBuffer(uniformBlockName,0)) {
-                //var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
-                //bytelength = this._legalUBObyteLength(bytelength);
-                //let indexPoint = UniformBufferObject.getBuffer(uniformBlockName,0);
-                //if(bytelength!=indexPoint.byteLength){
-                //    throw "The length of the same UBO is not uniform";
-                //}
-                //gl2.uniformBlockBinding(this._program, location, indexPoint._glPointer);
-                //} else {
-                //  var bytelength: number = gl2.getActiveUniformBlockParameter(this._program, i, gl2.UNIFORM_BLOCK_DATA_SIZE);
-                //  bytelength = this._legalUBObyteLength(bytelength);
-                //  let buffer: UniformBufferObject = UniformBufferObject.create(uniformBlockName, BufferUsage.Dynamic, bytelength,UniformBufferObject.isCommon(uniformBlockName));
                 gl2.uniformBlockBinding(this._program, location, this._engine.getUBOPointer(uniformBlockName));
-                //}
                 this._uniformObjectMap[one.name] = one;
                 this._uniformMap.push(one);
                 this._addShaderUnifiormFun(one);
@@ -317,7 +306,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
     /**
      * @internal
      */
-    _uniform_vec4(one: any, v: Vector4): number {
+    _uniform_vec4(one: any, v: Vector4|UniformColor): number {
         var uploadedValue: any[] = one.uploadedValue;
         if (uploadedValue[0] !== v.x || uploadedValue[1] !== v.y || uploadedValue[2] !== v.z || uploadedValue[3] !== v.w) {
             this._gl.uniform4f(one.location, uploadedValue[0] = v.x, uploadedValue[1] = v.y, uploadedValue[2] = v.z, uploadedValue[3] = v.w);

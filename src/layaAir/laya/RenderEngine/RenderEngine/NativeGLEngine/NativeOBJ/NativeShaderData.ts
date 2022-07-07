@@ -267,19 +267,6 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
     }
 
     /**
-     * 设置四元数。
-     * @param	index shader索引。
-     * @param	value 四元数。
-     */
-    setQuaternion(index: number, value: Quaternion): void {
-        if(this._data[index]){
-			value.cloneTo(this._data[index]);
-		}else
-			this._data[index] = value.clone();
-        this.configMotionProperty(index, 6, this.compressVector4);
-    }
-
-    /**
      * 设置矩阵。
      * @param	index shader索引。
      * @param	value  矩阵。
