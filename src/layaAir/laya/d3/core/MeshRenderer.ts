@@ -92,7 +92,7 @@ export class MeshRenderer extends BaseRender {
 	 * @param mesh 
 	 * @param out 
 	 */
-	 protected _getMeshDefine(mesh: Mesh, out: Array<ShaderDefine>): number {
+	protected _getMeshDefine(mesh: Mesh, out: Array<ShaderDefine>): number {
 		out.length = 0;
 		var define: number;
 		for (var i: number = 0, n: number = mesh._subMeshes.length; i < n; i++) {
@@ -117,7 +117,7 @@ export class MeshRenderer extends BaseRender {
 		return define;
 	}
 
-	protected _changeVertexDefine(mesh:Mesh){
+	protected _changeVertexDefine(mesh: Mesh) {
 		var defineDatas: ShaderData = this._shaderValues;
 		var lastValue: Mesh = this._mesh;
 		if (lastValue) {
@@ -137,7 +137,7 @@ export class MeshRenderer extends BaseRender {
 	 * @internal
 	 */
 	_onMeshChange(mesh: Mesh): void {
-		if (mesh&&this._mesh!=mesh) {
+		if (mesh && this._mesh != mesh) {
 			this._changeVertexDefine(mesh);
 			this._mesh = mesh;
 			var count: number = mesh.subMeshCount;
@@ -146,15 +146,15 @@ export class MeshRenderer extends BaseRender {
 				var renderElement: RenderElement = this._renderElements[i];
 				if (!renderElement) {
 					var material: Material = this.sharedMaterials[i];
-					renderElement = this._renderElements[i] = this._renderElements[i]?this._renderElements[i]:this._createRenderElement();
+					renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
 					this.owner && renderElement.setTransform((this.owner as Sprite3D)._transform);
 					renderElement.render = this;
 					renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
 				}
 				renderElement.setGeometry(mesh.getSubMesh(i));
 			}
-			
-		} else if(!mesh){
+
+		} else if (!mesh) {
 			this._renderElements.length = 0;
 			this._mesh = null;
 			this._changeVertexDefine(null);
@@ -164,7 +164,7 @@ export class MeshRenderer extends BaseRender {
 		// 	this._octreeNode.getManagerNode().addMotionObject(this);
 		// }
 	}
-	
+
 
 	/**
 	 * @internal
@@ -185,7 +185,7 @@ export class MeshRenderer extends BaseRender {
 					var renderElement: RenderElement = this._renderElements[i];
 					if (!renderElement) {
 						var material: Material = this.sharedMaterials[i];
-						renderElement = this._renderElements[i] = this._renderElements[i]?this._renderElements[i]:this._createRenderElement();
+						renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
 						renderElement.setTransform((this.owner as Sprite3D)._transform);
 						renderElement.render = this;
 						renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
@@ -199,7 +199,7 @@ export class MeshRenderer extends BaseRender {
 					var renderElement: RenderElement = this._renderElements[i];
 					if (!renderElement) {
 						var material: Material = this.sharedMaterials[i];
-						renderElement =  this._renderElements[i] = this._renderElements[i]?this._renderElements[i]:this._createRenderElement();
+						renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
 						renderElement.setTransform((this.owner as Sprite3D)._transform);
 						renderElement.render = this;
 						renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
@@ -240,13 +240,13 @@ export class MeshRenderer extends BaseRender {
 		var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
 		switch (element.renderType) {
 			case RenderElement.RENDERTYPE_NORMAL:
-				this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
+				this._setShaderValue(Sprite3D.WORLDMATRIX, transform.worldMatrix);
 				break;
 			case RenderElement.RENDERTYPE_STATICBATCH:
 				if (transform)
-					this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
+					this._setShaderValue(Sprite3D.WORLDMATRIX, transform.worldMatrix);
 				else
-					this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
+					this._setShaderValue(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
 				if (!this._shaderValues.hasDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1)) {
 					this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
 					this._revertStaticBatchDefineUV1 = true;
@@ -254,11 +254,11 @@ export class MeshRenderer extends BaseRender {
 				else {
 					this._revertStaticBatchDefineUV1 = false;
 				}
-				this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4, BaseRender._defaultLightmapScaleOffset);
+				this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, BaseRender._defaultLightmapScaleOffset);
 				this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);//静态合并的时候需要调整lightmapoffest
 				break;
 			case RenderElement.RENDERTYPE_VERTEXBATCH:
-				this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
+				this._setShaderValue(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				// var worldMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceWorldMatrixData;

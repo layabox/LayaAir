@@ -1,3 +1,4 @@
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { SubUniformBufferData } from "../../RenderEngine/subUniformBufferData";
 import { UniformBufferParamsType } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
@@ -44,14 +45,19 @@ export class TransLargeUBOUtils {
      * @returns 
      */
     create(): SubUniformBufferData {
-        if (this.pool.length > 0){
+        if (this.pool.length > 0) {
             const re = this.pool.pop();
             re._isInPool = false;
             return re;
         }
         if (this.maxlength == this.currentlength)
             this.reset();
-        let subdata = new SubUniformBufferData(this.subDataParamMap, this.currentlength++);
+
+        let uniformMap = new Map<number, UniformBufferParamsType>();
+        this.subDataParamMap.forEach((value, key) => {
+            uniformMap.set(Shader3D.propertyNameToID(key), value);
+        })
+        let subdata = new SubUniformBufferData(uniformMap, this.currentlength++);
         this.subDataMap.push(subdata);
         return subdata;
     }
@@ -61,7 +67,7 @@ export class TransLargeUBOUtils {
      * @param subModuleData 
      */
     recover(subModuleData: SubUniformBufferData) {
-        if (!subModuleData._isInPool){
+        if (!subModuleData._isInPool) {
             this.pool.push(subModuleData);
             subModuleData._isInPool = true;
         }
@@ -72,7 +78,7 @@ export class TransLargeUBOUtils {
      */
     reset() {
         this.maxlength += TransLargeUBOUtils.addStep;
-        this.bindUBO._reset(this.maxlength*this.defaultSubData.getbyteLength());
+        this.bindUBO._reset(this.maxlength * this.defaultSubData.getbyteLength());
         //all update
         this.subDataMap.forEach(element => {
             this.bindUBO.setDataByByUniformBufferDataOffset(element, element._offset);
@@ -83,14 +89,14 @@ export class TransLargeUBOUtils {
      * Update One subData
      * @param data 
      */
-    updateSubData(data:SubUniformBufferData){
-        this.bindUBO.setDataByByUniformBufferDataOffset(data,data._offset);
+    updateSubData(data: SubUniformBufferData) {
+        this.bindUBO.setDataByByUniformBufferDataOffset(data, data._offset);
         data._needUpdate = false;
     }
 
-    updateBindRange(data:SubUniformBufferData){
+    updateBindRange(data: SubUniformBufferData) {
         let bytelenth = data.getbyteLength();
-        this.bindUBO._bindBufferRange(data._offset*bytelenth,bytelenth);
+        this.bindUBO._bindBufferRange(data._offset * bytelenth, bytelenth);
     }
 
 

@@ -143,6 +143,10 @@ export class Shader3D {
 		return LayaGL.renderEngine.propertyNameToID(name);
 	}
 
+	static propertyIDToName(id: number) :string {
+		return LayaGL.renderEngine.propertyIDToName(id);
+	}
+
 	/**
 	 * 添加函数库引用。
 	 * @param fileName 文件名字。

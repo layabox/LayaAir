@@ -143,6 +143,7 @@ export class Color implements IClone {
 		out.r = Color.gammaToLinearSpace(this.r);
 		out.g = Color.gammaToLinearSpace(this.g);
 		out.b = Color.gammaToLinearSpace(this.b);
+		out.a = this.a;
 	}
 
 	/**
@@ -153,6 +154,7 @@ export class Color implements IClone {
 		out.r = Color.linearToGammaSpace(this.r);
 		out.g = Color.linearToGammaSpace(this.g);
 		out.b = Color.linearToGammaSpace(this.b);
+		out.a = this.a;
 	}
 
 	/**

@@ -24,7 +24,6 @@ import { ShadowMode } from "./light/ShadowMode";
 import { ShadowUtils } from "./light/ShadowUtils";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
-import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
@@ -33,7 +32,6 @@ import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 
 /**
  * 相机清除标记。
@@ -78,8 +76,8 @@ export class Camera extends BaseCamera {
 	/** @internal */
 	static _tempVector20: Vector2 = new Vector2();
 	/** @internal*/
-	static _context3DViewPortCatch:Viewport = new Viewport(0,0,0,0);
-	static _contextScissorPortCatch:Vector4 = new Vector4(0,0,0,0);
+	static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);
+	static _contextScissorPortCatch: Vector4 = new Vector4(0, 0, 0, 0);
 
 	/** @internal */
 	static __updateMark: number = 0;
@@ -188,7 +186,7 @@ export class Camera extends BaseCamera {
 	private _depthNormalsTexture: RenderTexture;
 
 	private _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
-	
+
 	/** @internal */
 	_clusterXPlanes: Vector3[];
 	/** @internal */
@@ -607,8 +605,8 @@ export class Camera extends BaseCamera {
 		var vp: Viewport = this.viewport;
 		this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
 		this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 1 / this.farPlane);
-		this._setShaderValue(BaseCamera.VIEWPORT, ShaderDataType.Vector4, this._viewportParams);
-		this._setShaderValue(BaseCamera.PROJECTION_PARAMS, ShaderDataType.Vector4, this._projectionParams);
+		this._setShaderValue(BaseCamera.VIEWPORT, this._viewportParams);
+		this._setShaderValue(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 	}
 
 	/**
@@ -630,9 +628,9 @@ export class Camera extends BaseCamera {
 		context.viewMatrix = viewMat;
 		context.projectionMatrix = proMat;
 		context.projectionViewMatrix = projectView;
-		this._setShaderValue(BaseCamera.VIEWMATRIX, ShaderDataType.Matrix4x4, viewMat);
-		this._setShaderValue(BaseCamera.PROJECTMATRIX, ShaderDataType.Matrix4x4, proMat);
-		this._setShaderValue(BaseCamera.VIEWPROJECTMATRIX, ShaderDataType.Matrix4x4, projectView);
+		this._setShaderValue(BaseCamera.VIEWMATRIX, viewMat);
+		this._setShaderValue(BaseCamera.PROJECTMATRIX, proMat);
+		this._setShaderValue(BaseCamera.VIEWPROJECTMATRIX, projectView);
 	}
 
 	/**
@@ -783,7 +781,7 @@ export class Camera extends BaseCamera {
 					RenderTexture.recoverToPool(grabTexture);
 				}
 				else {
-					this._renderEngine.copySubFrameBuffertoTex(this._internalRenderTexture,0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
+					this._renderEngine.copySubFrameBuffertoTex(this._internalRenderTexture, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 					// this._renderEngine.bindTexture(gl.TEXTURE_2D, this._internalRenderTexture._getSource());
 					// gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 				}
@@ -828,20 +826,20 @@ export class Camera extends BaseCamera {
 
 		// todo layame temp
 		(renderTex) && (renderTex._start());
-		
+
 		scene._clear(context);
-		
+
 		this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);
-		
-		this.recoverRenderContext3D(context,renderTex);
+
+		this.recoverRenderContext3D(context, renderTex);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
 		this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox, context);
-		
-		this.recoverRenderContext3D(context,renderTex);
+
+		this.recoverRenderContext3D(context, renderTex);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
 		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
-		
-		this.recoverRenderContext3D(context,renderTex);
+
+		this.recoverRenderContext3D(context, renderTex);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
 		scene._componentManager.callPostRenderScript();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
@@ -871,11 +869,11 @@ export class Camera extends BaseCamera {
 		this._applyCommandBuffer(CameraEventFlags.AfterEveryThing, context);
 	}
 
-	recoverRenderContext3D(context:RenderContext3D,renderTexture:RenderTexture){
+	recoverRenderContext3D(context: RenderContext3D, renderTexture: RenderTexture) {
 		const cacheViewPor = Camera._context3DViewPortCatch;
 		const cacheScissor = Camera._contextScissorPortCatch;
-		context.changeViewport(cacheViewPor.x,cacheViewPor.y,cacheViewPor.width,cacheViewPor.height);
-		context.changeScissor(cacheScissor.x,cacheScissor.y,cacheScissor.z,cacheScissor.w);
+		context.changeViewport(cacheViewPor.x, cacheViewPor.y, cacheViewPor.width, cacheViewPor.height);
+		context.changeScissor(cacheScissor.x, cacheScissor.y, cacheScissor.z, cacheScissor.w);
 		context.destTarget = renderTexture;
 	}
 

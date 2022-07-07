@@ -16,7 +16,7 @@ export class SubUniformBufferData extends UnifromBufferData{
      * create UniformBufferData Instance
      * @param uniformParamsStat Params describe
      */
-    constructor(uniformParamsStat: Map<string, UniformBufferParamsType>,bufferOffset:number) {
+    constructor(uniformParamsStat: Map<number, UniformBufferParamsType>,bufferOffset:number) {
         super(uniformParamsStat);
         this._offset = bufferOffset;
         this._realByte = this._bytelength;

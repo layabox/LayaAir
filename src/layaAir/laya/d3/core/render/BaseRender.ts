@@ -107,9 +107,9 @@ export class BaseRender extends Component {
 	/**@internal */
 	_subUniformBufferData: SubUniformBufferData;
 	/**@internal motion list index，not motion is -1*/
-	_motionIndexList:number = -1;
+	_motionIndexList: number = -1;
 	/**@internal 是否自定义了needRender*/
-	_customCull:boolean;
+	_customCull: boolean;
 	/** @internal */
 	protected _boundsChange: boolean = true;
 	/**@internal */
@@ -173,7 +173,7 @@ export class BaseRender extends Component {
 		if (!value)
 			throw "BaseRender: lightmapScaleOffset can't be null.";
 		this._lightmapScaleOffset = value;
-		this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4, value);
+		this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, value);
 	}
 
 
@@ -339,8 +339,8 @@ export class BaseRender extends Component {
 			return;
 		if (this._reflectionMode == ReflectionProbeMode.off) {
 			this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, ReflectionProbe.defaultTextureHDRDecodeValues);
-			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.Texture, TextureCube.blackTexture);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ReflectionProbe.defaultTextureHDRDecodeValues);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, TextureCube.blackTexture);
 		}
 		else {
 			if (!this._probReflection.boxProjection) {
@@ -349,12 +349,12 @@ export class BaseRender extends Component {
 			}
 			else {
 				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, ShaderDataType.Vector3, this._probReflection.probePosition);
-				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, ShaderDataType.Vector3, this._probReflection.boundsMax);
-				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, ShaderDataType.Vector3, this._probReflection.boundsMin);
+				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, this._probReflection.probePosition);
+				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, this._probReflection.boundsMax);
+				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, this._probReflection.boundsMin);
 			}
-			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.Texture, this._probReflection.reflectionTexture);
-			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, this._probReflection.reflectionHDRParams);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, this._probReflection.reflectionTexture);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, this._probReflection.reflectionHDRParams);
 		}
 		this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
 	}
@@ -532,10 +532,12 @@ export class BaseRender extends Component {
 	/**
 	 * @internal
 	 */
-	_setShaderValue(index: number, shaderDataType: ShaderDataType, value: any) {
+	_setShaderValue(index: number, value: any) {
 		if (this._subUniformBufferData && this._subUniformBufferData._has(index))
-			this._subUniformBufferData._setData(index, shaderDataType, value);
-		this._shaderValues.setValueData(index, value);
+			this._subUniformBufferData._setData(index, value);
+		else {
+			this._shaderValues.setValueData(index, value);
+		}
 	}
 
 	/**
@@ -554,7 +556,7 @@ export class BaseRender extends Component {
 	 * 全局贴图
 	 */
 	_applyLightMapParams(): void {
-		if(!this._scene) return;
+		if (!this._scene) return;
 		var lightMaps: Lightmap[] = this._scene.lightmaps;
 		var shaderValues: ShaderData = this._shaderValues;
 		var lightmapIndex: number = this._lightmapIndex;

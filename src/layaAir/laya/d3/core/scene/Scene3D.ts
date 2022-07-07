@@ -311,7 +311,13 @@ export class Scene3D extends Sprite implements ISubmit {
 		uniformpara.set("u_FogColor", UniformBufferParamsType.Vector3);
 		uniformpara.set("u_SunLight_direction", UniformBufferParamsType.Vector3);
 		uniformpara.set("u_SunLight_color", UniformBufferParamsType.Vector3);
-		return new UnifromBufferData(uniformpara);
+
+		let uniformMap = new Map<number, UniformBufferParamsType>();
+		uniformpara.forEach((value, key) => {
+			uniformMap.set(Shader3D.propertyNameToID(key), value);
+		})
+
+		return new UnifromBufferData(uniformMap);
 	}
 
 
@@ -520,7 +526,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	}
 
 	set fogColor(value: Vector3) {
-		this._setShaderValue(Scene3D.FOGCOLOR, ShaderDataType.Vector3, value);
+		this._setShaderValue(Scene3D.FOGCOLOR, value);
 	}
 
 	/**
@@ -531,7 +537,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	}
 
 	set fogStart(value: number) {
-		this._setShaderValue(Scene3D.FOGSTART, ShaderDataType.Number, value);
+		this._setShaderValue(Scene3D.FOGSTART, value);
 	}
 
 	/**
@@ -542,7 +548,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	}
 
 	set fogRange(value: number) {
-		this._setShaderValue(Scene3D.FOGRANGE, ShaderDataType.Number, value);
+		this._setShaderValue(Scene3D.FOGRANGE, value);
 	}
 
 	/**
@@ -585,7 +591,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	}
 
 	set ambientColor(value: Vector3) {
-		this._setShaderValue(Scene3D.AMBIENTCOLOR, ShaderDataType.Vector3, value);
+		this._setShaderValue(Scene3D.AMBIENTCOLOR, value);
 	}
 
 	/**
@@ -826,13 +832,13 @@ export class Scene3D extends Sprite implements ISubmit {
 		}
 		optSH[6].setValue(originalSH.getCoefficient(0, 8) * intensity, originalSH.getCoefficient(1, 8) * intensity, originalSH.getCoefficient(2, 8) * intensity, 1);// Final quadratic polynomial
 
-		this._setShaderValue(Scene3D.AMBIENTSHAR, ShaderDataType.Vector4, optSH[0]);
-		this._setShaderValue(Scene3D.AMBIENTSHAG, ShaderDataType.Vector4, optSH[1]);
-		this._setShaderValue(Scene3D.AMBIENTSHAB, ShaderDataType.Vector4, optSH[2]);
-		this._setShaderValue(Scene3D.AMBIENTSHBR, ShaderDataType.Vector4, optSH[3]);
-		this._setShaderValue(Scene3D.AMBIENTSHBG, ShaderDataType.Vector4, optSH[4]);
-		this._setShaderValue(Scene3D.AMBIENTSHBB, ShaderDataType.Vector4, optSH[5]);
-		this._setShaderValue(Scene3D.AMBIENTSHC, ShaderDataType.Vector4, optSH[6]);
+		this._setShaderValue(Scene3D.AMBIENTSHAR, optSH[0]);
+		this._setShaderValue(Scene3D.AMBIENTSHAG, optSH[1]);
+		this._setShaderValue(Scene3D.AMBIENTSHAB, optSH[2]);
+		this._setShaderValue(Scene3D.AMBIENTSHBR, optSH[3]);
+		this._setShaderValue(Scene3D.AMBIENTSHBG, optSH[4]);
+		this._setShaderValue(Scene3D.AMBIENTSHBB, optSH[5]);
+		this._setShaderValue(Scene3D.AMBIENTSHC, optSH[6]);
 	}
 
 	/**
@@ -857,7 +863,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	private _update(): void {
 		var delta: number = this.timer._delta / 1000;
 		this._time += delta;
-		this._setShaderValue(Scene3D.TIME, ShaderDataType.Number, this._time);
+		this._setShaderValue(Scene3D.TIME, this._time);
 		//Physics
 		var simulation: PhysicsSimulation = this._physicsSimulation;
 		if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && !Config3D._config.isUseCannonPhysicsEngine) {
@@ -1029,8 +1035,8 @@ export class Scene3D extends Sprite implements ISubmit {
 					ligPix[off + 5] = dir.y;
 					ligPix[off + 6] = dir.z;
 					if (i == 0) {
-						this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, ShaderDataType.Vector3, intCor);
-						this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, ShaderDataType.Vector3, dir);
+						this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, intCor);
+						this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dir);
 					}
 				}
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
@@ -1113,8 +1119,8 @@ export class Scene3D extends Sprite implements ISubmit {
 				Vector3.normalize(dirLight._direction, dirLight._direction);
 				shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
 				shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
-				this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, ShaderDataType.Vector3, dirLight._intensityColor);
-				this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, ShaderDataType.Vector3, dirLight._direction);
+				this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
+				this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 			else {
@@ -1436,9 +1442,9 @@ export class Scene3D extends Sprite implements ISubmit {
 	/**
 	 * @internal
 	 */
-	_setShaderValue(index: number, shaderDataType: ShaderDataType, value: any) {
+	_setShaderValue(index: number, value: any) {
 		if (this._sceneUniformData && this._sceneUniformData._has(index))
-			this._sceneUniformData._setData(index, shaderDataType, value);
+			this._sceneUniformData._setData(index, value);
 		this._shaderValues.setValueData(index, value);
 	}
 
@@ -1584,9 +1590,9 @@ export class Scene3D extends Sprite implements ISubmit {
 	 * @param shaderDataType 渲染数据类型
 	 * @param value 渲染数据值
 	 */
-	setGlobalShaderValue(name: string, shaderDataType: ShaderDataType, value: any) {
+	setGlobalShaderValue(name: string, value: any) {
 		var shaderOffset = Shader3D.propertyNameToID(name);
-		this._setShaderValue(shaderOffset, shaderDataType, value);
+		this._setShaderValue(shaderOffset, value);
 	}
 	//--------------------------------------------------------deprecated------------------------------------------------------------------------
 	/**
