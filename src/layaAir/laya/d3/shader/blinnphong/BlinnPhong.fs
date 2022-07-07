@@ -1,8 +1,6 @@
 #define SHADER_NAME BlinnPhongFS
 
-#include "Scene.glsl";
 #include "Camera.glsl";
-
 #include "MeshFrag.glsl";
 
 #include "BlinnPhongFrag.glsl";

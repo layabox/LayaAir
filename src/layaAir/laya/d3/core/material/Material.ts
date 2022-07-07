@@ -18,9 +18,22 @@ import { ClassUtils } from "../../../utils/ClassUtils";
 import { IClone } from "../IClone";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Config3D } from "../../../../Config3D";
-import { UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { ShaderDataType } from "../render/command/SetShaderDataCMD";
+import { RenderState } from "./RenderState";
+
+export enum MaterialRenderMode{
+    /**渲染状态_不透明。*/
+    RENDERMODE_OPAQUE,
+    /**渲染状态_阿尔法测试。*/    
+    RENDERMODE_CUTOUT,
+    /**渲染状态__透明。*/
+    RENDERMODE_TRANSPARENT,
+    /**渲染状态__加色法混合。*/
+    RENDERMODE_ADDTIVE,
+    /**渲染状态_透明混合。*/
+    RENDERMODE_ALPHABLENDED
+}
 
 /**
  * <code>Material</code> 类用于创建材质。
@@ -64,7 +77,8 @@ export class Material extends Resource implements IClone {
 
     /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
-
+	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
+	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
     /**
      * 加载材质。
      * @param url 材质地址。
@@ -79,6 +93,8 @@ export class Material extends Resource implements IClone {
      */
     static __initDefine__(): void {
         Material.SHADERDEFINE_ALPHATEST = Shader3D.getDefineByName("ALPHATEST");
+        Material.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
+		Material.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
         Material.ALPHATESTVALUE = Shader3D.propertyNameToID("u_AlphaTestValue");
         Material.CULL = Shader3D.propertyNameToID("s_Cull");
         Material.BLEND = Shader3D.propertyNameToID("s_Blend");
@@ -486,6 +502,65 @@ export class Material extends Resource implements IClone {
         Shader3D._getNamesByDefineData(defineData, shaderDefineArray);
         return shaderDefineArray;
     }
+
+    /**
+	 * 渲染模式。
+	 */
+	set renderMode(value: MaterialRenderMode) {
+		switch (value) {
+			case MaterialRenderMode.RENDERMODE_OPAQUE:
+				this.alphaTest = false;
+				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
+				this.depthWrite = true;
+				this.cull = RenderState.CULL_BACK;
+				this.blend = RenderState.BLEND_DISABLE;
+				this.depthTest = RenderState.DEPTHTEST_LESS;
+				break;
+			case MaterialRenderMode.RENDERMODE_CUTOUT:
+				this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
+				this.alphaTest = true;
+				this.depthWrite = true;
+				this.cull = RenderState.CULL_BACK;
+				this.blend = RenderState.BLEND_DISABLE;
+				this.depthTest = RenderState.DEPTHTEST_LESS;
+				break;
+			case MaterialRenderMode.RENDERMODE_TRANSPARENT:
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
+				this.alphaTest = false;
+				this.depthWrite = false;
+				this.cull = RenderState.CULL_BACK;
+				this.blend = RenderState.BLEND_ENABLE_ALL;
+				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
+				this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
+				this.depthTest = RenderState.DEPTHTEST_LESS;
+				break;
+            case MaterialRenderMode.RENDERMODE_ADDTIVE:
+                this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
+                this.alphaTest = false;
+                this.depthWrite = false;
+                this.cull = RenderState.CULL_NONE;
+                this.blend = RenderState.BLEND_ENABLE_ALL;
+                this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
+                this.blendDst = RenderState.BLENDPARAM_ONE;
+                this.depthTest = RenderState.DEPTHTEST_LESS;
+                this._shaderValues.addDefine(Material.SHADERDEFINE_ADDTIVEFOG);
+                break;
+            case MaterialRenderMode.RENDERMODE_ALPHABLENDED:
+                this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
+                this.alphaTest = false;
+                this.depthWrite = false;
+                this.cull = RenderState.CULL_NONE;
+                this.blend = RenderState.BLEND_ENABLE_ALL;
+                this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
+                this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
+                this.depthTest = RenderState.DEPTHTEST_LESS;
+                this._shaderValues.removeDefine(Material.SHADERDEFINE_ADDTIVEFOG);
+                break;
+			default:
+				throw new Error("UnlitMaterial : renderMode value error.");
+		}
+	}
+
 
     /**
      * 创建一个 <code>Material</code> 实例。

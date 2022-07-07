@@ -24,7 +24,7 @@ export class BlinnPhongShaderInit {
             "u_DiffuseTexture": ShaderDataType.Texture2D,
             "u_NormalTexture": ShaderDataType.Texture2D,
             "u_SpecularTexture": ShaderDataType.Texture2D,
-            "u_DiffuseColor": ShaderDataType.Vector4,
+            "u_DiffuseColor": ShaderDataType.Color,
             "u_MaterialSpecular": ShaderDataType.Vector4,
             "u_Shininess": ShaderDataType.Float,
             "u_TilingOffset": ShaderDataType.Vector4,

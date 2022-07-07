@@ -1,24 +1,14 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
-import { Material } from "../material/Material";
-import { RenderState } from "../material/RenderState";
+import { Material, MaterialRenderMode } from "../material/Material";
 
 /**
  * <code>TrailMaterial</code> 类用于实现拖尾材质。
  */
 export class TrailMaterial extends Material {
-	/**渲染状态_透明混合。*/
-	static RENDERMODE_ALPHABLENDED: number = 0;
-	/**渲染状态_加色法混合。*/
-	static RENDERMODE_ADDTIVE: number = 1;
-
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: TrailMaterial;
-
-	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
-	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
 	static MAINTEXTURE: number;
 	static TINTCOLOR: number;
@@ -29,8 +19,7 @@ export class TrailMaterial extends Material {
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		TrailMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
-		TrailMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
+		
 		TrailMaterial.MAINTEXTURE = Shader3D.propertyNameToID("u_MainTexture");
 		TrailMaterial.TINTCOLOR = Shader3D.propertyNameToID("u_MainColor");
 		TrailMaterial.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
@@ -161,40 +150,7 @@ export class TrailMaterial extends Material {
 		tilOff.w = w;
 		this.tilingOffset = tilOff;
 	}
-
-	/**
-	 * 设置渲染模式。
-	 * @return 渲染模式。
-	 */
-	set renderMode(value: number) {
-		switch (value) {
-			case TrailMaterial.RENDERMODE_ADDTIVE:
-				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
-				this.alphaTest = false;
-				this.depthWrite = false;
-				this.cull = RenderState.CULL_NONE;
-				this.blend = RenderState.BLEND_ENABLE_ALL;
-				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
-				this.blendDst = RenderState.BLENDPARAM_ONE;
-				this.depthTest = RenderState.DEPTHTEST_LESS;
-				this._shaderValues.addDefine(TrailMaterial.SHADERDEFINE_ADDTIVEFOG);
-				break;
-			case TrailMaterial.RENDERMODE_ALPHABLENDED:
-				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
-				this.alphaTest = false;
-				this.depthWrite = false;
-				this.cull = RenderState.CULL_NONE;
-				this.blend = RenderState.BLEND_ENABLE_ALL;
-				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
-				this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
-				this.depthTest = RenderState.DEPTHTEST_LESS;
-				this._shaderValues.removeDefine(TrailMaterial.SHADERDEFINE_ADDTIVEFOG);
-				break;
-			default:
-				throw new Error("TrailMaterial : renderMode value error.");
-		}
-	}
-
+	
 	/**
 	 * 获取颜色R分量。
 	 * @return 颜色R分量。
@@ -386,7 +342,7 @@ export class TrailMaterial extends Material {
 		this._color = new Vector4(1.0, 1.0, 1.0, 1.0);
 		this._shaderValues.setVector(TrailMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this._shaderValues.setVector(TrailMaterial.TINTCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
-		this.renderMode = TrailMaterial.RENDERMODE_ALPHABLENDED;
+		this.renderMode = MaterialRenderMode.RENDERMODE_ALPHABLENDED;
 	}
 
 	/**

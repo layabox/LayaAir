@@ -1,5 +1,7 @@
 import UnlitVS from "./Unlit.vs";
 import UnlitFS from "./Unlit.fs";
+import DepthVS from "./depth/Depth.vs";
+import DepthFS from "../depth/Depth.fs";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../SubShader";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
@@ -10,30 +12,17 @@ export class UnlitShaderInit {
     static init() {
 
         let uniformMap = {
-            "UnlitBlock": {
-                "u_DiffuseColor": ShaderDataType.Color,
-                "u_TillOffset": ShaderDataType.Vector4
-            },
-            // "u_DiffuseColor": ShaderDataType.Color,
+            "u_AlbedoColor": ShaderDataType.Color,
+            "u_TilingOffset": ShaderDataType.Vector4,
+            "u_AlbedoTexture": ShaderDataType.Texture2D,
+            "u_AlphaTestValue":ShaderDataType.Float
         };
-
-        type UniformItem = { [typename: number]: any };
-
-        let uniformTest: UniformItem = { [ShaderDataType.Vector4]: new Vector4(0.5, 0.5, 0.5, 1.0) };
-
-        let test: { [name: string]: { [typename: number]: any } } = {
-            "u_DiffuseColor": {
-                [ShaderDataType.Vector4]: new Vector4(0.5, 0.5, 0.5, 1.0)
-            }
-        };
-
-        console.log("test", test);
-
-
         let shader = Shader3D.add("Unlit");
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap);
         shader.addSubShader(subShader);
-        let pass = subShader.addShaderPass(UnlitVS, UnlitFS);
+        let forwardPass = subShader.addShaderPass(UnlitVS, UnlitFS);
+        let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");
+
     }
 
 }
