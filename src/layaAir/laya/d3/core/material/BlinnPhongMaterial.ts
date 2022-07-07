@@ -661,7 +661,7 @@ export class BlinnPhongMaterial extends Material {
 		this.setShaderName("BLINNPHONG");
 		this.albedoIntensity = 1.0;
 		var sv: ShaderData = this._shaderValues;
-		sv.setVector(BlinnPhongMaterial.ALBEDOCOLOR, new Vector4(1.0, 0.0, 1.0, 1.0));
+		sv.setVector(BlinnPhongMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		sv.setVector(BlinnPhongMaterial.MATERIALSPECULAR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		sv.setNumber(BlinnPhongMaterial.SHININESS, 0.078125);
 		sv.setNumber(Material.ALPHATESTVALUE, 0.5);
