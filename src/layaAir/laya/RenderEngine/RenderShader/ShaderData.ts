@@ -302,6 +302,7 @@ export class ShaderData implements IClone {
 		//Color 需要特殊处理
 		if(value instanceof Color){
 			this.setColor(index,value);
+			return;
 		}
 		
 		if (!value)//value null

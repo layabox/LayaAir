@@ -3,7 +3,7 @@ import { Color } from "../../d3/math/Color";
 /**
  * @internal
  */
-export class UniformColor extends Color{
+export class UniformColor extends Color {
     /*@internal*/
     x: number;
     /*@internal*/
@@ -13,37 +13,37 @@ export class UniformColor extends Color{
     /*@internal*/
     w: number;
 
-    set r(value:number){
+    set r(value: number) {
         this._r = value;
         this.x = this.gammaToLinearSpace(value);
     }
 
-    set g(value:number){
+    set g(value: number) {
         this._g = value;
         this.y = this.gammaToLinearSpace(value);
     }
 
-    set b(value:number){
+    set b(value: number) {
         this._b = value;
         this.z = this.gammaToLinearSpace(value);
     }
 
-    set a(value:number){
+    set a(value: number) {
         this._a = value;
         this.w = value;
     }
 
-    
 
 
-    constructor(r: number, g: number, b: number, a: number) {
-        super(r,g,b,a);
+
+    constructor(r: number = 1, g: number = 1, b: number = 1, a: number = 1) {
+        super(r, g, b, a);
     }
 
     /**
-	 * Gamma空间值转换到线性空间。
-	 * @param value gamma空间值。
-	 */
+     * Gamma空间值转换到线性空间。
+     * @param value gamma空间值。
+     */
     gammaToLinearSpace(value: number): number {
         // http://www.opengl.org/registry/specs/EXT/framebuffer_sRGB.txt
         // http://www.opengl.org/registry/specs/EXT/texture_sRGB_decode.txt
@@ -57,4 +57,13 @@ export class UniformColor extends Color{
             return Math.pow(value, 2.4);
     }
 
+    /**
+     * 克隆。
+     * @return	 克隆副本。
+     */
+    clone(): any {
+        var dest: UniformColor = new UniformColor();
+        this.cloneTo(dest);
+        return dest;
+    }
 }
