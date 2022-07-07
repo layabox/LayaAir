@@ -2,34 +2,36 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Vector4 } from "../../../math/Vector4";
 import { Viewport } from "../../../math/Viewport";
-import { ShaderInstance } from "../../../shader/ShaderInstance";
 import { ShaderPass } from "../../../shader/ShaderPass";
 import { SubShader } from "../../../shader/SubShader";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
-import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
-import { Context } from "../../../../resource/Context";
 import { RenderElement } from "../RenderElement";
 import { Transform3D } from "../../Transform3D";
 import { Camera } from "../../Camera";
+import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 
 
 /**
  * 类用于创建从渲染源输出到渲染目标的指令
  */
 export class BlitFrameBufferCMD {
-
-	/** @internal */
-	private static _compileDefine: DefineDatas = new DefineDatas();
 	/**@internal */
 	private static _pool: any[] = [];
 	/** @internal */
 	private static _defaultOffsetScale: Vector4 = new Vector4(0, 0, 1, 1);
-
+	/** @internal */
+	private static shaderdata:ShaderData;
+	/** @internal */
+	private static GAMMAOUT:ShaderDefine;
+	static __init__(): void {
+		BlitFrameBufferCMD.shaderdata = LayaGL.renderOBJCreate.createShaderData(null);
+		BlitFrameBufferCMD.GAMMAOUT = Shader3D.getDefineByName("GAMMAOUT");
+	}
 	/**
    * 渲染命令集
    * @param source 
@@ -81,7 +83,7 @@ export class BlitFrameBufferCMD {
     }
 
 	set shaderData(value:ShaderData){
-        this._shaderData = value||Command._screenShaderData;
+        this._shaderData = value||BlitFrameBufferCMD.shaderdata;
         this._renderElement._renderElementOBJ._materialShaderData = this._shaderData;
     }
 
@@ -117,7 +119,12 @@ export class BlitFrameBufferCMD {
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitFrameBufferCMD._defaultOffsetScale);
 		//this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		(RenderTexture.currentActive) && (RenderTexture.currentActive._end());
-		(dest) && (dest._start());
+		if(!dest){
+			shaderData.addDefine(BlitFrameBufferCMD.GAMMAOUT);
+		}else{
+			dest._start();
+			shaderData.removeDefine(BlitFrameBufferCMD.GAMMAOUT);
+		}
 		//LayaGL.textureContext.bindRenderTarget(null);
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;

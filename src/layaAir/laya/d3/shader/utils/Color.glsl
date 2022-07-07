@@ -18,7 +18,7 @@ vec3 sRGBToLinear(in vec3 value)
 
 vec4 sRGBToLinear(in vec4 value)
 {
-    return vec4(SrgbToLinear(value.rgb), value.a);
+    return vec4(sRGBToLinear(value.rgb), value.a);
 }
 
 #endif // Color_lib

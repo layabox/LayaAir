@@ -73,6 +73,7 @@ import { DepthPass } from "./laya/d3/depthMap/DepthPass";
 import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import "./laya/d3/RegClasses";
+import { BlitFrameBufferCMD } from "./laya/d3/core/render/command/BlitFrameBufferCMD";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -192,6 +193,7 @@ export class Laya3D {
         // BloomEffect.__init__();
 
         Command.__init__();
+        BlitFrameBufferCMD.__init__();
 
         // PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
         // BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
