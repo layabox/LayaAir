@@ -17,11 +17,11 @@ export class UnlitShaderInit {
             "u_AlbedoTexture": ShaderDataType.Texture2D,
             "u_AlphaTestValue": ShaderDataType.Float
         };
-        let shader = Shader3D.add("Unlit");
+        let shader = Shader3D.add("Unlit",true,false);
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap);
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(UnlitVS, UnlitFS);
-        // let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");
+        let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");
     }
 
 }
