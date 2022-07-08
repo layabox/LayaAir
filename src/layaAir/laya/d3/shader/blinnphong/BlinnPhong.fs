@@ -20,5 +20,8 @@ void main()
     surfaceColor += lightingColor;
 #endif // LIGHTING
 
-    gl_FragColor = vec4(surfaceColor, 1.0);
+#ifdef FOG
+    surfaceColor = sceneLitFog(surfaceColor);
+#endif // FOG
+    gl_FragColor = vec4(surfaceColor, surface.alpha);
 }

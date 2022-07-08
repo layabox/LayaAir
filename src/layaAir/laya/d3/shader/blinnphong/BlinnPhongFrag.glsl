@@ -24,7 +24,7 @@ void getBinnPhongSurfaceParams(inout BlinnPhongSurface surface, in VertexParams 
     #endif
 
     // 初始化 alpha
-    surface.alpha = 1.0;
+    surface.alpha = u_DiffuseColor.a;
     surface.alphaClip = u_AlphaTestValue;
 
     #ifdef DIFFUSEMAP
