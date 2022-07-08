@@ -15,17 +15,29 @@ export class UniformColor extends Color {
 
     set r(value: number) {
         this._r = value;
-        this.x = this.gammaToLinearSpace(value);
+        this.x = Color.gammaToLinearSpace(value);
+    }
+
+    get r() {
+        return this._r;
     }
 
     set g(value: number) {
         this._g = value;
-        this.y = this.gammaToLinearSpace(value);
+        this.y = Color.gammaToLinearSpace(value);
+    }
+
+    get g() {
+        return this._g;
     }
 
     set b(value: number) {
         this._b = value;
-        this.z = this.gammaToLinearSpace(value);
+        this.z = Color.gammaToLinearSpace(value);
+    }
+
+    get b() {
+        return this._b;
     }
 
     set a(value: number) {
@@ -33,28 +45,12 @@ export class UniformColor extends Color {
         this.w = value;
     }
 
-
-
+    get a() {
+        return this._a;
+    }
 
     constructor(r: number = 1, g: number = 1, b: number = 1, a: number = 1) {
         super(r, g, b, a);
-    }
-
-    /**
-     * Gamma空间值转换到线性空间。
-     * @param value gamma空间值。
-     */
-    gammaToLinearSpace(value: number): number {
-        // http://www.opengl.org/registry/specs/EXT/framebuffer_sRGB.txt
-        // http://www.opengl.org/registry/specs/EXT/texture_sRGB_decode.txt
-        // {  cs / 12.92,                 cs <= 0.04045 }
-        // {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045 }
-        if (value <= 0.04045)
-            return value / 12.92;
-        else if (value < 1.0)
-            return Math.pow((value + 0.055) / 1.055, 2.4);
-        else
-            return Math.pow(value, 2.4);
     }
 
     /**

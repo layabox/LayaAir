@@ -687,12 +687,12 @@ export class Material extends Resource implements IClone {
         let propertyID = Shader3D.propertyNameToID(name);
         let ubo = this._uniformNamesMap.get(propertyID);
         if (ubo) {
-            ubo._updateDataInfo._setData(Shader3D.propertyNameToID(name), value);
+            ubo._updateDataInfo._setData(propertyID, value);
             //立即更新，可以优化
             ubo.setDataByUniformBufferData(ubo._updateDataInfo);
         }
         else {
-            this.shaderData.setValueData(Shader3D.propertyNameToID(name), value);
+            this.shaderData.setValueData(propertyID, value);
         }
     }
     /**
@@ -700,10 +700,11 @@ export class Material extends Resource implements IClone {
      * @param name 
      */
     getShaderPropertyValue(name: string): any {
+        let propertyID = Shader3D.propertyNameToID(name);
         // todo
         let ubo = this._uniformBufferDatas.get(name);
         if (ubo) {
-
+            ubo._updateDataInfo._uniformParamsState.get(propertyID);
         }
         else {
             return this.shaderData.getValueData(Shader3D.propertyNameToID(name));

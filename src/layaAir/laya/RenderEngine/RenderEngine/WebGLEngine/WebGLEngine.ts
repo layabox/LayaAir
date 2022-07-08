@@ -311,7 +311,7 @@ export class WebGLEngine implements IRenderEngine {
         return new GlBuffer(this, targetType, bufferUsageType);
     }
 
-    createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType]}): IRenderShaderInstance {
+    createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance {
         //TODO SourceManager
         return new GLShaderInstance(this, vs, ps, attributeMap);
     }
@@ -362,6 +362,10 @@ export class WebGLEngine implements IRenderEngine {
             this._propertyNameMap[id] = name;
             return id;
         }
+    }
+
+    propertyIDToName(id: number): string {
+        return this._propertyNameMap[id];
     }
 
     /**
