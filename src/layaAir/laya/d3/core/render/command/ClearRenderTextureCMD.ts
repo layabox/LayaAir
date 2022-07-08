@@ -1,5 +1,6 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { UniformColor } from "../../../../RenderEngine/RenderShader/UniformColor";
 import { Color } from "../../../math/Color";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
@@ -19,6 +20,8 @@ export class ClearRenderTextureCMD extends Command {
 	/**@internal */
 	private _backgroundColor: Color = new Color();
 	/**@internal */
+	private _linearbackgroundColor: Color = new Color();
+	/**@internal */
 	private _depth: number = 1;
 	/**
 	 * @internal
@@ -29,6 +32,7 @@ export class ClearRenderTextureCMD extends Command {
 		cmd._clearColor = clearColor;
 		cmd._clearDepth = clearDepth;
 		backgroundColor.cloneTo(cmd._backgroundColor);
+		backgroundColor.toLinear(cmd._linearbackgroundColor);
 		cmd._depth = depth;
 		cmd._commandBuffer = commandBuffer;
 		return cmd;
@@ -41,14 +45,15 @@ export class ClearRenderTextureCMD extends Command {
 	 */
 	run(): void {
 		var flag: number;
-		var backgroundColor: Color = this._backgroundColor;
-		if(this._clearDepth&&this._clearColor){
-			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color|RenderClearFlag.Depth,backgroundColor,this._depth);
-		}else if(this._clearDepth){
-			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth,backgroundColor,this._depth);
-		}else if(this._clearColor){
-			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color,backgroundColor,this._depth);
-		} 
+		// var backgroundColor: Color = this._backgroundColor;
+		let linearBgColor = this._linearbackgroundColor;
+		if (this._clearDepth && this._clearColor) {
+			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, linearBgColor, this._depth);
+		} else if (this._clearDepth) {
+			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, linearBgColor, this._depth);
+		} else if (this._clearColor) {
+			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, linearBgColor, this._depth);
+		}
 	}
 
 	/**

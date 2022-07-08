@@ -165,8 +165,17 @@ export class BaseCamera extends Sprite3D {
 	/** @internal 着色器数据*/
 	_shaderValues: ShaderData;
 
+	/** @internal */
+	_linearClearColor: Color;
 	/**摄像机的清除颜色,默认颜色为CornflowerBlue。*/
-	clearColor: Color = new Color(100 / 255, 149 / 255, 237 / 255, 255 / 255);
+	private _clearColor: Color;
+	public get clearColor(): Color {
+		return this._clearColor;
+	}
+	public set clearColor(value: Color) {
+		this._clearColor = value;
+		value.toLinear(this._linearClearColor);
+	}
 	/** 可视层位标记遮罩值,支持混合 例:cullingMask=Math.pow(2,0)|Math.pow(2,1)为第0层和第1层可见。*/
 	cullingMask: number;
 	/** 渲染时是否用遮挡剔除。 */
@@ -260,6 +269,9 @@ export class BaseCamera extends Sprite3D {
 	constructor(nearPlane: number = 0.3, farPlane: number = 1000) {
 		super();
 		this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
+
+		this._linearClearColor = new Color();
+		this.clearColor = new Color(100 / 255, 149 / 255, 237 / 255, 255 / 255);
 
 		this._fieldOfView = 60;
 		this._useUserProjectionMatrix = false;
