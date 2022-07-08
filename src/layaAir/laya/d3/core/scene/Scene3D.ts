@@ -1477,6 +1477,7 @@ export class Scene3D extends Sprite implements ISubmit {
 		if (this.destroyed)
 			return;
 		super.destroy(destroyChild);
+		this._nativeObj = null;
 		this._skyRenderer.destroy();
 		this._skyRenderer = null;
 		this._directionLights = null;
