@@ -189,7 +189,7 @@ export class Texture2D extends BaseTexture {
 	constructor(width: number, height: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false) {
 		super(width, height, format);
 		this._dimension = TextureDimension.Tex2D;
-		this._gammaSpace = !sRGB;
+		this._gammaSpace = sRGB;
 		this._canRead = canRead;
 		this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB);
 		return;

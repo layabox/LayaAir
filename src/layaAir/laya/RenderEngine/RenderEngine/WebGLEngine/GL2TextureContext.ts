@@ -9,6 +9,7 @@ import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureFormat } from "../../RenderEnum/TextureFormat";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
+import { RenderCapable } from "../../RenderEnum/RenderCapable";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?
@@ -265,6 +266,22 @@ export class GL2TextureContext extends GLTextureContext {
         }
 
         return this._glParam;
+    }
+
+    // todo webgl2 srgb 判断
+    supportSRGB(format: TextureFormat | RenderTargetFormat, mipmap: boolean): boolean {
+        switch (format) {
+            case TextureFormat.R8G8B8:
+            case TextureFormat.R8G8B8A8:
+                return this._engine.getCapable(RenderCapable.Texture_SRGB);
+            case TextureFormat.DXT1:
+            case TextureFormat.DXT3:
+            case TextureFormat.DXT5:
+                // todo  验证 srgb format 和 mipmap webgl1 兼容问题
+                return this._engine.getCapable(RenderCapable.COMPRESS_TEXTURE_S3TC_SRGB) && !mipmap;
+            default:
+                return false;
+        }
     }
 
     setTextureImageData(texture: WebGLInternalTex, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {

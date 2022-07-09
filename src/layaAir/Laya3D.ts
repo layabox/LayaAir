@@ -182,7 +182,7 @@ export class Laya3D {
         // PBRStandardMaterial.__initDefine__();
         // PBRSpecularMaterial.__initDefine__();
         // SkyProceduralMaterial.__initDefine__();
-        // UnlitMaterial.__initDefine__();
+        UnlitMaterial.__initDefine__();
         // TrailMaterial.__initDefine__();
         // EffectMaterial.__initDefine__();
         // WaterPrimaryMaterial.__initDefine__();
