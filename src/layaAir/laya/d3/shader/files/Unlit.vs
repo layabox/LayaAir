@@ -1,10 +1,8 @@
 #define SHADER_NAME UnlitVS;
 
+#include "Scene.glsl";
 #include "Camera.glsl";
-#include "LayaUtile.glsl";
 #include "MeshVertex.glsl";
-
-
 
 void main() {
 	VertexParams params;

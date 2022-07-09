@@ -11,7 +11,7 @@ import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunctio
 import { Laya } from "../../../../Laya";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ClassUtils } from "../../../utils/ClassUtils";
@@ -20,13 +20,12 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Config3D } from "../../../../Config3D";
 import { UniformBufferParamsType, UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { ShaderDataType } from "../render/command/SetShaderDataCMD";
 import { RenderState } from "./RenderState";
 
-export enum MaterialRenderMode{
+export enum MaterialRenderMode {
     /**渲染状态_不透明。*/
     RENDERMODE_OPAQUE,
-    /**渲染状态_阿尔法测试。*/    
+    /**渲染状态_阿尔法测试。*/
     RENDERMODE_CUTOUT,
     /**渲染状态__透明。*/
     RENDERMODE_TRANSPARENT,
@@ -78,8 +77,8 @@ export class Material extends Resource implements IClone {
 
     /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
-	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
-	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
+    static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
+    static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
     /**
      * 加载材质。
      * @param url 材质地址。
@@ -95,7 +94,7 @@ export class Material extends Resource implements IClone {
     static __initDefine__(): void {
         Material.SHADERDEFINE_ALPHATEST = Shader3D.getDefineByName("ALPHATEST");
         Material.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
-		Material.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
+        Material.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
         Material.ALPHATESTVALUE = Shader3D.propertyNameToID("u_AlphaTestValue");
         Material.CULL = Shader3D.propertyNameToID("s_Cull");
         Material.BLEND = Shader3D.propertyNameToID("s_Blend");
@@ -336,6 +335,8 @@ export class Material extends Resource implements IClone {
      */
     private _uniformNamesMap: Map<number, UniformBufferObject>;
 
+    private _uniformTypeMap: Map<number, ShaderDataType>;
+
     /**
      * 着色器数据。
      */
@@ -484,10 +485,6 @@ export class Material extends Resource implements IClone {
         return this._shaderValues.getVector3(Material.STENCIL_Op);
     }
 
-
-
-
-
     /**
      * 获得材质属性
      */
@@ -511,36 +508,36 @@ export class Material extends Resource implements IClone {
     }
 
     /**
-	 * 渲染模式。
-	 */
-	set renderMode(value: MaterialRenderMode) {
-		switch (value) {
-			case MaterialRenderMode.RENDERMODE_OPAQUE:
-				this.alphaTest = false;
-				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
-				this.depthWrite = true;
-				this.cull = RenderState.CULL_BACK;
-				this.blend = RenderState.BLEND_DISABLE;
-				this.depthTest = RenderState.DEPTHTEST_LESS;
-				break;
-			case MaterialRenderMode.RENDERMODE_CUTOUT:
-				this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
-				this.alphaTest = true;
-				this.depthWrite = true;
-				this.cull = RenderState.CULL_BACK;
-				this.blend = RenderState.BLEND_DISABLE;
-				this.depthTest = RenderState.DEPTHTEST_LESS;
-				break;
-			case MaterialRenderMode.RENDERMODE_TRANSPARENT:
-				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
-				this.alphaTest = false;
-				this.depthWrite = false;
-				this.cull = RenderState.CULL_BACK;
-				this.blend = RenderState.BLEND_ENABLE_ALL;
-				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
-				this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
-				this.depthTest = RenderState.DEPTHTEST_LESS;
-				break;
+     * 渲染模式。
+     */
+    set renderMode(value: MaterialRenderMode) {
+        switch (value) {
+            case MaterialRenderMode.RENDERMODE_OPAQUE:
+                this.alphaTest = false;
+                this.renderQueue = Material.RENDERQUEUE_OPAQUE;
+                this.depthWrite = true;
+                this.cull = RenderState.CULL_BACK;
+                this.blend = RenderState.BLEND_DISABLE;
+                this.depthTest = RenderState.DEPTHTEST_LESS;
+                break;
+            case MaterialRenderMode.RENDERMODE_CUTOUT:
+                this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
+                this.alphaTest = true;
+                this.depthWrite = true;
+                this.cull = RenderState.CULL_BACK;
+                this.blend = RenderState.BLEND_DISABLE;
+                this.depthTest = RenderState.DEPTHTEST_LESS;
+                break;
+            case MaterialRenderMode.RENDERMODE_TRANSPARENT:
+                this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
+                this.alphaTest = false;
+                this.depthWrite = false;
+                this.cull = RenderState.CULL_BACK;
+                this.blend = RenderState.BLEND_ENABLE_ALL;
+                this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
+                this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
+                this.depthTest = RenderState.DEPTHTEST_LESS;
+                break;
             case MaterialRenderMode.RENDERMODE_ADDTIVE:
                 this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
                 this.alphaTest = false;
@@ -563,11 +560,10 @@ export class Material extends Resource implements IClone {
                 this.depthTest = RenderState.DEPTHTEST_LESS;
                 this._shaderValues.removeDefine(Material.SHADERDEFINE_ADDTIVEFOG);
                 break;
-			default:
-				throw new Error("UnlitMaterial : renderMode value error.");
-		}
-	}
-
+            default:
+                throw new Error("UnlitMaterial : renderMode value error.");
+        }
+    }
 
     /**
      * 创建一个 <code>Material</code> 实例。
@@ -580,6 +576,7 @@ export class Material extends Resource implements IClone {
         // if (Config3D._config._uniformBlock)
         this._uniformBufferDatas = new Map();
         this._uniformNamesMap = new Map();
+        this._uniformTypeMap = new Map();
     }
 
     /**
@@ -598,6 +595,20 @@ export class Material extends Resource implements IClone {
     private _bindShaderInfo(shader: Shader3D) {
         //update UBOData by Shader
         let subShader = shader.getSubShaderAt(0);//TODO	
+
+        // clear old data
+        this._uniformTypeMap.clear();
+
+        // uniform
+        let uniformMap = subShader._uniformMap;
+        for (const key in uniformMap) {
+            if (typeof uniformMap[key] !== "object") {
+                let uniformType = <ShaderDataType>uniformMap[key];
+                this._uniformTypeMap.set(Shader3D.propertyNameToID(key), uniformType);
+            }
+        }
+
+        // ubo
         let shaderUBODatas = subShader._uniformBufferData;
         if (!shaderUBODatas)
             return;
@@ -685,30 +696,23 @@ export class Material extends Resource implements IClone {
      */
     setShaderPropertyValue(name: string, value: any) {
         let propertyID = Shader3D.propertyNameToID(name);
+        this.shaderData.setValueData(propertyID, value);
+
+        // ubo
         let ubo = this._uniformNamesMap.get(propertyID);
         if (ubo) {
-            ubo._updateDataInfo._setData(propertyID, value);
+            ubo._updateDataInfo._setData(propertyID, this.shaderData.getValueData(propertyID));
             //立即更新，可以优化
             ubo.setDataByUniformBufferData(ubo._updateDataInfo);
         }
-        else {
-            this.shaderData.setValueData(propertyID, value);
-        }
     }
+
     /**
      * 获取属性值
      * @param name 
      */
     getShaderPropertyValue(name: string): any {
-        let propertyID = Shader3D.propertyNameToID(name);
-        // todo
-        let ubo = this._uniformBufferDatas.get(name);
-        if (ubo) {
-            ubo._updateDataInfo._uniformParamsState.get(propertyID);
-        }
-        else {
-            return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
-        }
+        return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
     }
 
     /**
@@ -719,6 +723,7 @@ export class Material extends Resource implements IClone {
         var destBaseMaterial: Material = (<Material>destObject);
         destBaseMaterial.name = this.name;
         destBaseMaterial.renderQueue = this.renderQueue;
+        destBaseMaterial.setShaderName(this._shader._name);
         this._shaderValues.cloneTo(destBaseMaterial._shaderValues);
     }
 

@@ -28,6 +28,7 @@ export class SubShader {
 		'a_Tangent0': [VertexMesh.MESH_TANGENT0, ShaderDataType.Vector4],
 		'a_Texcoord0': [VertexMesh.MESH_TEXTURECOORDINATE0, ShaderDataType.Vector2],
 		'a_Texcoord1': [VertexMesh.MESH_TEXTURECOORDINATE1, ShaderDataType.Vector2],
+		'a_Color': [VertexMesh.MESH_COLOR0, ShaderDataType.Vector4],
 		'a_BoneWeights': [VertexMesh.MESH_BLENDWEIGHT0, ShaderDataType.Vector4],
 		'a_BoneIndices': [VertexMesh.MESH_BLENDINDICES0, ShaderDataType.Vector4],
 		'a_WorldMat': [VertexMesh.MESH_WORLDMATRIX_ROW0, ShaderDataType.Matrix4x4],
