@@ -288,28 +288,53 @@ export class Material extends Resource implements IClone {
                                 (path) && (material._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name), Loader.getTexture2D(path)));
                             }
                             break;
-                        default:
-                            var property = props[key];
-                            var uniName = Shader3D.propertyNameToID(key);
-                            if (!property.length) {
-                                material._shaderValues.setNumber(uniName, props[key]);
-                            } else {
-                                var vectorValue = property;
-                                switch (vectorValue.length) {
-                                    case 2:
-                                        material._shaderValues.setVector2(uniName, new Vector2(vectorValue[0], vectorValue[1]));
-                                        break;
-                                    case 3:
-                                        material._shaderValues.setVector3(uniName, new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
-                                        break;
-                                    case 4:
-                                        material._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
-                                        break;
-                                    default:
-                                        throw new Error("Material:unkonwn color length.");
-                                }
-                            }
-                    }
+                        	default:
+							var property = props[key];
+							var uniName = Shader3D.propertyNameToID(key);
+
+							switch(uniName){
+								case Material.CULL:
+									material.cull = this._getRenderStateParams(property);
+									break;
+								case Material.BLEND:
+									material.blend = this._getRenderStateParams(property);
+									break;
+								case Material.BLEND_SRC:
+									material.blendSrc = this._getRenderStateParams(property);
+									break;
+								case Material.BLEND_DST:
+									material.blendDst = this._getRenderStateParams(property);
+									break;
+								case Material.DEPTH_TEST:
+									material.depthTest = this._getRenderStateParams(property);
+									break;
+								case Material.DEPTH_WRITE:
+									material.depthWrite = this._getRenderStateParams(property);
+									break;
+								default:
+									if (!property.length) {
+										material._shaderValues.setNumber(uniName, props[key]);
+									} else {
+										var vectorValue = property;
+										switch (vectorValue.length) {
+											case 2:
+												material._shaderValues.setVector2(uniName, new Vector2(vectorValue[0], vectorValue[1]));
+												break;
+											case 3:
+												material._shaderValues.setVector3(uniName, new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
+												break;
+											case 4:
+												material._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
+												break;
+											default:
+												throw new Error("BaseMaterial:unkonwn color length.");
+										}
+									}
+									break;
+							}
+
+							
+					}
                 }
                 break;
             default:
