@@ -18,6 +18,11 @@ void main()
     alpha *= albedoSampler.a;
 #endif // ALBEDOTEXTURE
 
+#if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
+    color *= params.vertexColor.rgb;
+    alpha *= params.vertexColor.a;
+#endif
+
 #ifdef ALPHATEST
     if (color.a < u_AlphaTestValue)
 	discard;

@@ -133,8 +133,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number, generateDepthTexture: boolean = false) {
         super(width, height, colorFormat);
 
-        // todo  目前 所有 rt 都是gamma 空间, 颜色正确
-        this._gammaSpace = true;
+        // 所有 rt 都是 linner 空间, 颜色正确
+        this._gammaSpace = false;
 
         this._colorFormat = colorFormat;
         this._depthStencilFormat = (depthFormat == null ? RenderTargetFormat.None : depthFormat);
@@ -160,10 +160,10 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     _start() {
         (this._isCameraTarget) && (RenderContext3D._instance.invertY = true);
-        if(RenderTexture._currentActive!=this){
+        if (RenderTexture._currentActive != this) {
             RenderTexture._currentActive = this;
             LayaGL.textureContext.bindRenderTarget(this._renderTarget);
-        }   
+        }
     }
 
     _end() {

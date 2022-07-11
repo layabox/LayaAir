@@ -1,9 +1,11 @@
 import { ShaderDataType } from "../d3/core/render/command/SetShaderDataCMD";
+import { Color } from "../d3/math/Color";
 import { Matrix4x4 } from "../d3/math/Matrix4x4";
 import { Vector2 } from "../d3/math/Vector2";
 import { Vector3 } from "../d3/math/Vector3";
 import { Vector4 } from "../d3/math/Vector4";
 import { Shader3D } from "./RenderShader/Shader3D";
+import { UniformColor } from "./RenderShader/UniformColor";
 
 /**
  *描述UniformBuffer参数类型
@@ -429,6 +431,17 @@ export class UnifromBufferData {
         this._buffer[pos++] = value.z;
         this._buffer[pos++] = value.w;
         this._setUpdateFlag(info.x, pos);
+    }
+
+    setColorByIndex(uniformID: number, value: UniformColor) {
+        const info = this._getParamsInfo(uniformID);
+        if (!info)
+            return;
+        let pos = info.x;
+        this._buffer[pos++] = value.x;
+        this._buffer[pos++] = value.y;
+        this._buffer[pos++] = value.z;
+        this._buffer[pos++] = value.w;
     }
 
     /**
