@@ -25,30 +25,30 @@ import { ILaya3D } from "../../../ILaya3D";
  */
 export class PhysicsComponent extends Component {
 	/** @internal */
-	static ACTIVATIONSTATE_ACTIVE_TAG: number = 1;
+	static ACTIVATIONSTATE_ACTIVE_TAG = 1;
 	/** @internal */
-	static ACTIVATIONSTATE_ISLAND_SLEEPING: number = 2;
+	static ACTIVATIONSTATE_ISLAND_SLEEPING = 2;
 	/** @internal */
-	static ACTIVATIONSTATE_WANTS_DEACTIVATION: number = 3;
+	static ACTIVATIONSTATE_WANTS_DEACTIVATION = 3;
 	/** @internal */
-	static ACTIVATIONSTATE_DISABLE_DEACTIVATION: number = 4;
+	static ACTIVATIONSTATE_DISABLE_DEACTIVATION = 4;
 	/** @internal */
-	static ACTIVATIONSTATE_DISABLE_SIMULATION: number = 5;
+	static ACTIVATIONSTATE_DISABLE_SIMULATION = 5;
 
 	/** @internal */
-	static COLLISIONFLAGS_STATIC_OBJECT: number = 1;
+	static COLLISIONFLAGS_STATIC_OBJECT = 1;
 	/** @internal */
-	static COLLISIONFLAGS_KINEMATIC_OBJECT: number = 2;
+	static COLLISIONFLAGS_KINEMATIC_OBJECT = 2;
 	/** @internal */
-	static COLLISIONFLAGS_NO_CONTACT_RESPONSE: number = 4;
+	static COLLISIONFLAGS_NO_CONTACT_RESPONSE = 4;
 	/** @internal */
-	static COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK: number = 8;//this allows per-triangle material (friction/restitution)
+	static COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK = 8;//this allows per-triangle material (friction/restitution)
 	/** @internal */
-	static COLLISIONFLAGS_CHARACTER_OBJECT: number = 16;
+	static COLLISIONFLAGS_CHARACTER_OBJECT = 16;
 	/** @internal */
-	static COLLISIONFLAGS_DISABLE_VISUALIZE_OBJECT: number = 32;//disable debug drawing
+	static COLLISIONFLAGS_DISABLE_VISUALIZE_OBJECT = 32;//disable debug drawing
 	/** @internal */
-	static COLLISIONFLAGS_DISABLE_SPU_COLLISION_PROCESSING: number = 64;//disable parallel/SPU processing
+	static COLLISIONFLAGS_DISABLE_SPU_COLLISION_PROCESSING = 64;//disable parallel/SPU processing
 
 	/** @internal */
 	protected static _tempVector30: Vector3 = new Vector3();
@@ -62,6 +62,8 @@ export class PhysicsComponent extends Component {
 	protected static _btVector30: number;
 	/** @internal */
 	protected static _btQuaternion0: number;
+	/**@internal */
+	private static tmpPos=new Vector3();
 
 	/** @internal */
 	static _physicObjectsMap: any = {};
@@ -82,9 +84,9 @@ export class PhysicsComponent extends Component {
 	 */
 	private static _createAffineTransformationArray(tranX: number, tranY: number, tranZ: number, rotX: number, rotY: number, rotZ: number, rotW: number, scale: Float32Array, outE: Float32Array): void {
 
-		var x2: number = rotX + rotX, y2: number = rotY + rotY, z2: number = rotZ + rotZ;
-		var xx: number = rotX * x2, xy: number = rotX * y2, xz: number = rotX * z2, yy: number = rotY * y2, yz: number = rotY * z2, zz: number = rotZ * z2;
-		var wx: number = rotW * x2, wy: number = rotW * y2, wz: number = rotW * z2, sx: number = scale[0], sy: number = scale[1], sz: number = scale[2];
+		var x2 = rotX + rotX, y2 = rotY + rotY, z2 = rotZ + rotZ;
+		var xx = rotX * x2, xy = rotX * y2, xz = rotX * z2, yy = rotY * y2, yz = rotY * z2, zz = rotZ * z2;
+		var wx = rotW * x2, wy = rotW * y2, wz = rotW * z2, sx = scale[0], sy = scale[1], sz = scale[2];
 
 		outE[0] = (1 - (yy + zz)) * sx;
 		outE[1] = (xy + wz) * sx;
@@ -147,7 +149,7 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	private static physicVector3TransformQuat(source: Vector3, qx: number, qy: number, qz: number, qw: number, out: Vector3): void {
-		var x: number = source.x, y: number = source.y, z: number = source.z, ix: number = qw * x + qy * z - qz * y, iy: number = qw * y + qz * x - qx * z, iz: number = qw * z + qx * y - qy * x, iw: number = -qx * x - qy * y - qz * z;
+		var x = source.x, y = source.y, z = source.z, ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
 		out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
 		out.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
 		out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
@@ -157,14 +159,14 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	private static physicQuaternionMultiply(lx: number, ly: number, lz: number, lw: number, right: Quaternion, out: Quaternion): void {
-		var rx: number = right.x;
-		var ry: number = right.y;
-		var rz: number = right.z;
-		var rw: number = right.w;
-		var a: number = (ly * rz - lz * ry);
-		var b: number = (lz * rx - lx * rz);
-		var c: number = (lx * ry - ly * rx);
-		var d: number = (lx * rx + ly * ry + lz * rz);
+		var rx = right.x;
+		var ry = right.y;
+		var rz = right.z;
+		var rw = right.w;
+		var a = (ly * rz - lz * ry);
+		var b = (lz * rx - lx * rz);
+		var c = (lx * ry - ly * rx);
+		var d = (lx * rx + ly * ry + lz * rz);
 		out.x = (lx * rw + rx * lw) + a;
 		out.y = (ly * rw + ry * lw) + b;
 		out.z = (lz * rw + rz * lw) + c;
@@ -172,24 +174,24 @@ export class PhysicsComponent extends Component {
 	}
 
 	/** @internal */
-	private _restitution: number = 0.0;
+	private _restitution = 0.0;
 	/** @internal */
-	private _friction: number = 0.5;
+	private _friction = 0.5;
 	/** @internal */
-	private _rollingFriction: number = 0.0;
+	private _rollingFriction = 0.0;
 	/** @internal */
-	private _ccdMotionThreshold: number = 0.0;
+	private _ccdMotionThreshold = 0.0;
 	/** @internal */
-	private _ccdSweptSphereRadius: number = 0.0;
+	private _ccdSweptSphereRadius = 0.0;
 
 	/** @internal */
-	protected _collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER;
+	protected _collisionGroup = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER;
 	/** @internal */
-	protected _canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER;
+	protected _canCollideWith = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER;
 	/** @internal */
 	protected _colliderShape: ColliderShape = null;
 	/** @internal */
-	protected _transformFlag: number = 2147483647 /*int.MAX_VALUE*/;
+	protected _transformFlag = 2147483647 /*int.MAX_VALUE*/;
 	/** @internal */
 	protected _controlBySimulation: boolean = false;
 
@@ -200,7 +202,7 @@ export class PhysicsComponent extends Component {
 	/** @internal */
 	_enableProcessCollisions: boolean = true;
 	/** @internal */
-	_inPhysicUpdateListIndex: number = -1;
+	_inPhysicUpdateListIndex = -1;
 
 	/** 是否可以缩放Shape。 */
 	canScaleShape: boolean = true;
@@ -368,13 +370,13 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	protected _parseShape(shapesData: any[]): void {
-		var shapeCount: number = shapesData.length;
+		var shapeCount = shapesData.length;
 		if (shapeCount === 1) {
 			var shape: ColliderShape = PhysicsComponent._creatShape(shapesData[0]);
 			this.colliderShape = shape;
 		} else {
 			var compoundShape: CompoundColliderShape = new CompoundColliderShape();
-			for (var i: number = 0; i < shapeCount; i++) {
+			for (var i = 0; i < shapeCount; i++) {
 				shape = PhysicsComponent._creatShape(shapesData[i]);
 				compoundShape.addChildShape(shape);
 			}
@@ -415,6 +417,42 @@ export class PhysicsComponent extends Component {
 		}
 		this._simulation = null;
 	}
+
+	/**
+	 * 获得物理位置
+	 * @returns 返回位置
+	 */	
+	 getPhysicsPosition(){
+		var bt: any = ILaya3D.Physics3D._bullet;
+		var btColliderObject: number = this._btColliderObject;
+		var btTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
+		var btPosition: number = bt.btTransform_getOrigin(btTransform);
+        let x = bt.btVector3_x(btPosition);
+        let y = bt.btVector3_y(btPosition);
+        let z = bt.btVector3_z(btPosition);
+		PhysicsComponent._tempVector30.setValue(x,y,z);
+		return PhysicsComponent._tempVector30;
+	}
+
+	/**
+	 * 获得物理四元数
+	 * @returns 
+	 */
+	getPhysicsOrientation(){
+		var bt: any = ILaya3D.Physics3D._bullet;
+		var btColliderObject: number = this._btColliderObject;
+		var btTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
+		var btRotation: number = bt.btTransform_getRotation(btTransform);
+
+		var qx: number = bt.btQuaternion_x(btRotation);
+		var qy: number = bt.btQuaternion_y(btRotation);
+		var qz: number = bt.btQuaternion_z(btRotation);
+		var qw: number = bt.btQuaternion_w(btRotation);		
+
+		PhysicsComponent._tempQuaternion0.setValue(qx,qy,qz,qw);
+		return PhysicsComponent._tempQuaternion0;
+	}
+
 
 	/**
 	 * @inheritDoc
@@ -483,6 +521,7 @@ export class PhysicsComponent extends Component {
 
 	/**
 	 * 	@internal
+	 * 通过渲染矩阵更新物理矩阵。
 	 */
 	_derivePhysicsTransformation(force: boolean): void {
 		var bt: any = ILaya3D.Physics3D._bullet;
@@ -491,43 +530,48 @@ export class PhysicsComponent extends Component {
 		this._innerDerivePhysicsTransformation(btTransform, force);
 		bt.btCollisionObject_setWorldTransform(btColliderObject, btTransform);
 	}
-
+	
 	/**
 	 * 	@internal
 	 *	通过渲染矩阵更新物理矩阵。
 	 */
-	_innerDerivePhysicsTransformation(physicTransformOut: number, force: boolean): void {
-		var bt: any = ILaya3D.Physics3D._bullet;
-		var transform: Transform3D = ((<Sprite3D>this.owner))._transform;
+	_innerDerivePhysicsTransformation(physicTransformPtr: number, force: boolean): void {
+		var bt = ILaya3D.Physics3D._bullet;
+		var transform = (<Sprite3D>this.owner)._transform;
+
+		let pxoff=0;
+		let pyoff=0;
+		let pzoff=0;
 
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
-			var shapeOffset: Vector3 = this._colliderShape.localOffset;
-			var position: Vector3 = transform.position;
-			var btPosition: any = PhysicsComponent._btVector30;
+			var shapeOffset = this._colliderShape.localOffset;
+			var position = transform.position;
+			//position.x-=pxoff; position.y-=pyoff; position.z-=pzoff; 这里错了，-=会修改模型位置，
+			var btPosition = PhysicsComponent._btVector30;
 			if (shapeOffset.x !== 0 || shapeOffset.y !== 0 || shapeOffset.z !== 0) {
-				var physicPosition: Vector3 = PhysicsComponent._tempVector30;
-				var worldMat: Matrix4x4 = transform.worldMatrix;
+				var physicPosition = PhysicsComponent._tempVector30;
+				var worldMat = transform.worldMatrix;
 				Vector3.transformCoordinate(shapeOffset, worldMat, physicPosition);
-				bt.btVector3_setValue(btPosition, -physicPosition.x, physicPosition.y, physicPosition.z);
+				bt.btVector3_setValue(btPosition, physicPosition.x, physicPosition.y, physicPosition.z);
 			} else {
-				bt.btVector3_setValue(btPosition, -position.x, position.y, position.z);
+				bt.btVector3_setValue(btPosition, position.x-pxoff, position.y-pyoff, position.z-pzoff);
 			}
-			bt.btTransform_setOrigin(physicTransformOut, btPosition);
+			bt.btTransform_setOrigin(physicTransformPtr, btPosition);
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION, false);
 		}
 
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION)) {
-			var shapeRotation: Quaternion = this._colliderShape.localRotation;
-			var btRotation: any = PhysicsComponent._btQuaternion0;
-			var rotation: Quaternion = transform.rotation;
+			var shapeRotation = this._colliderShape.localRotation;
+			var btRotation = PhysicsComponent._btQuaternion0;
+			var rotation = transform.rotation;
 			if (shapeRotation.x !== 0 || shapeRotation.y !== 0 || shapeRotation.z !== 0 || shapeRotation.w !== 1) {
-				var physicRotation: Quaternion = PhysicsComponent._tempQuaternion0;
+				var physicRotation = PhysicsComponent._tempQuaternion0;
 				PhysicsComponent.physicQuaternionMultiply(rotation.x, rotation.y, rotation.z, rotation.w, shapeRotation, physicRotation);
-				bt.btQuaternion_setValue(btRotation, -physicRotation.x, physicRotation.y, physicRotation.z, -physicRotation.w);
+				bt.btQuaternion_setValue(btRotation, physicRotation.x, physicRotation.y, physicRotation.z, physicRotation.w);
 			} else {
-				bt.btQuaternion_setValue(btRotation, -rotation.x, rotation.y, rotation.z, -rotation.w);
+				bt.btQuaternion_setValue(btRotation, rotation.x, rotation.y, rotation.z, rotation.w);
 			}
-			bt.btTransform_setRotation(physicTransformOut, btRotation);
+			bt.btTransform_setRotation(physicTransformPtr, btRotation);
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION, false);
 		}
 
@@ -541,53 +585,61 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 * 通过物理矩阵更新渲染矩阵。
 	 */
-	_updateTransformComponent(physicsTransform: number): void {
+	_updateTransformComponent(physicsTransform: number, syncRot=true, addmargin=0): void {
 		//TODO:Need Test!!! because _innerDerivePhysicsTransformation update position use worldMatrix,not(position rotation WorldLossyScale),maybe the center is no different.
 		var bt: any = ILaya3D.Physics3D._bullet;
-		var colliderShape: ColliderShape = this._colliderShape;
-		var localOffset: Vector3 = colliderShape.localOffset;
-		var localRotation: Quaternion = colliderShape.localRotation;
+		var colliderShape = this._colliderShape;
+		var localOffset = colliderShape.localOffset;
+		var localRotation = colliderShape.localRotation;
 
-		var transform: Transform3D = (<Sprite3D>this.owner)._transform;
-		var position: Vector3 = transform.position;
-		var rotation: Quaternion = transform.rotation;
+		var transform = (<Sprite3D>this.owner)._transform;
+		if(!transform) return;
+		var position = transform.position;
+		var rotation = transform.rotation;
 
 		var btPosition: number = bt.btTransform_getOrigin(physicsTransform);
-		var btRotation: number = bt.btTransform_getRotation(physicsTransform);
 
-		var btRotX: number = -bt.btQuaternion_x(btRotation);
-		var btRotY: number = bt.btQuaternion_y(btRotation);
-		var btRotZ: number = bt.btQuaternion_z(btRotation);
-		var btRotW: number = -bt.btQuaternion_w(btRotation);
+		if(syncRot){
+			var btRotation: number = bt.btTransform_getRotation(physicsTransform);
 
-		if (localRotation.x !== 0 || localRotation.y !== 0 || localRotation.z !== 0 || localRotation.w !== 1) {
-			var invertShapeRotaion: Quaternion = PhysicsComponent._tempQuaternion0;
-			localRotation.invert(invertShapeRotaion);
-			PhysicsComponent.physicQuaternionMultiply(btRotX, btRotY, btRotZ, btRotW, invertShapeRotaion, rotation);
-		} else {
-			rotation.x = btRotX;
-			rotation.y = btRotY;
-			rotation.z = btRotZ;
-			rotation.w = btRotW;
+			var btRotX: number = bt.btQuaternion_x(btRotation);
+			var btRotY: number = bt.btQuaternion_y(btRotation);
+			var btRotZ: number = bt.btQuaternion_z(btRotation);
+			var btRotW: number = bt.btQuaternion_w(btRotation);
+	
+			if (localRotation.x !== 0 || localRotation.y !== 0 || localRotation.z !== 0 || localRotation.w !== 1) {
+				var invertShapeRotaion = PhysicsComponent._tempQuaternion0;
+				localRotation.invert(invertShapeRotaion);
+				PhysicsComponent.physicQuaternionMultiply(btRotX, btRotY, btRotZ, btRotW, invertShapeRotaion, rotation);
+			} else {
+				rotation.x = btRotX;
+				rotation.y = btRotY;
+				rotation.z = btRotZ;
+				rotation.w = btRotW;
+			}
+			transform.rotation = rotation;
 		}
-		transform.rotation = rotation;
 
 		if (localOffset.x !== 0 || localOffset.y !== 0 || localOffset.z !== 0) {
 			var btScale: number = bt.btCollisionShape_getLocalScaling(colliderShape._btShape);
-			var rotShapePosition: Vector3 = PhysicsComponent._tempVector30;
+			var rotShapePosition = PhysicsComponent._tempVector30;
 			rotShapePosition.x = localOffset.x * bt.btVector3_x(btScale);
 			rotShapePosition.y = localOffset.y * bt.btVector3_y(btScale);
 			rotShapePosition.z = localOffset.z * bt.btVector3_z(btScale);
 			Vector3.transformQuat(rotShapePosition, rotation, rotShapePosition);
-			position.x = -bt.btVector3_x(btPosition) - rotShapePosition.x;
-			position.y = bt.btVector3_y(btPosition) - rotShapePosition.y;
+			position.x = bt.btVector3_x(btPosition) - rotShapePosition.x;
+			//TODO 临时加一个0.04，对一个人来说0.04的margin太大了，足以把脚陷入地下，所以先加回来
+			position.y = bt.btVector3_y(btPosition) - rotShapePosition.y+addmargin;	
 			position.z = bt.btVector3_z(btPosition) - rotShapePosition.z;
 		} else {
-			position.x = -bt.btVector3_x(btPosition);
+			position.x = bt.btVector3_x(btPosition);
 			position.y = bt.btVector3_y(btPosition);
 			position.z = bt.btVector3_z(btPosition);
 		}
+
 		transform.position = position;
+		//transform.worldMatrix;  TODO
+		//this.owner.callaterChange && this.owner.callaterChange();
 	}
 
 

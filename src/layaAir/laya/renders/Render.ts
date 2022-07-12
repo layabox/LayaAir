@@ -34,6 +34,13 @@ export class Render {
     /**帧循环函数 */
     static _loopFunction: any;
 
+    static fps=60;         
+    static ifps=1000/60; //如果VR的话，需要改这个
+    static lastFrm=0;
+    static dfrm=0;
+    private _first=true;
+    private _startTm=0;     //微信的rAF不标准
+
     static _Render: Render;
 
     static customRequestAnimationFrame(value: any, loopFun: any) {
@@ -61,8 +68,33 @@ export class Render {
 
         this.initRender(Render._mainCanvas, width, height);
         window.requestAnimationFrame(loop);
-        function loop(stamp: number): void {
-            ILaya.stage._loop();
+		let me = this;
+        let lastFrmTm=performance.now();
+        function loop(stamp: number){
+            //let perf = PerfHUD.inst;
+            let sttm = performance.now();
+            //perf && perf.updateValue(0, sttm-lastFrmTm);
+            lastFrmTm=sttm;
+            if(me._first){
+                // 把starttm转成帧对齐
+                me._startTm=Math.floor(stamp/Render.ifps)*Render.ifps;
+                me._first=false;
+            }
+            // 与第一帧开始时间的delta
+            stamp-=me._startTm;
+            // 计算当前帧数
+			let frm = Math.floor(stamp/Render.ifps);    // 不能|0 在微信下会变成负的
+            // 是否已经跨帧了
+            let dfrm = frm-Render.lastFrm;
+            Render.dfrm=dfrm;
+			if(dfrm>0 || Render.isConchApp){
+				Render.lastFrm=frm;
+				ILaya.stage._loop();
+			}
+            //perf && perf.updateValue(1, performance.now()-sttm);
+
+	    
+	    
             if (!!Render._customRequestAnimationFrame && !!Render._loopFunction) {
                 Render._customRequestAnimationFrame(Render._loopFunction);
             }
@@ -83,6 +115,15 @@ export class Render {
             window.clearInterval(this._timeId);
         }
     }
+
+    /**
+     * 获取帧对齐的时间。
+     * 从render构造开始
+     * @returns 
+     */
+    static vsyncTime(){
+        return Render.lastFrm*Render.ifps;
+    }    
 
     initRender(canvas: HTMLCanvas, w: number, h: number): boolean {
         let glConfig: WebGlConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };

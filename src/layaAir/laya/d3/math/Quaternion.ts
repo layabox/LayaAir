@@ -287,13 +287,21 @@ export class Quaternion implements IClone {
 	 * @param	y Y值。
 	 * @param	z Z值。
 	 */
-	setValue(x: number, y: number, z: number, w: number): void {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.w = w;
+	setValue(x:number, y:number, z:number, w:number):void{
+		this.x=x; this.y=y; this.z=z; this.w=w;
 	}
-
+	
+	/**
+	 * 设置四元数的值。
+	 * @param	x X值。
+	 * @param	y Y值。
+	 * @param	z Z值。
+	 * @return 返回四元数
+	 */
+	set(x:number, y:number, z:number, w:number){
+		this.x=x; this.y=y; this.z=z; this.w=w;
+		return this;
+	}
 	/**
 	 * 根据缩放值缩放四元数
 	 * @param	scale 缩放值
@@ -502,7 +510,7 @@ export class Quaternion implements IClone {
 	}
 
 	/**
-	 * 计算观察四元数
+	 * 计算观察四元数（适用Camera 灯光）
 	 * @param	eye    观察者位置
 	 * @param	target 目标位置
 	 * @param	up     上向量
@@ -510,6 +518,18 @@ export class Quaternion implements IClone {
 	 */
 	static lookAt(eye: Vector3, target: Vector3, up: Vector3, out: Quaternion): void {
 		Matrix3x3.lookAt(eye, target, up, Quaternion._tempMatrix3x3);
+		Quaternion.rotationMatrix(Quaternion._tempMatrix3x3, out);
+	}
+
+	/**
+	 * 计算观察四元数（适用gameObject）
+	 * @param eye 观察者位置
+	 * @param target 目标位置
+	 * @param up 上向量
+	 * @param out 输出四元数
+	 */
+	static forwardLookAt(eye: Vector3, target: Vector3, up: Vector3, out: Quaternion): void {
+		Matrix3x3.forwardLookAt(eye, target, up, Quaternion._tempMatrix3x3);
 		Quaternion.rotationMatrix(Quaternion._tempMatrix3x3, out);
 	}
 
@@ -615,8 +635,6 @@ export class Quaternion implements IClone {
 		Vector2.rewriteNumProperty(this, "y", 1);
 		Vector2.rewriteNumProperty(this, "z", 2);
 		Vector2.rewriteNumProperty(this, "w", 3);
-
 	}
+
 }
-
-

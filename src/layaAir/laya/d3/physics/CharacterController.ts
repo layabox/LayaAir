@@ -5,6 +5,8 @@ import { PhysicsComponent } from "./PhysicsComponent";
 import { ColliderShape } from "./shape/ColliderShape";
 import { Component } from "../../components/Component";
 import { ILaya3D } from "../../../ILaya3D";
+import { Quaternion } from "../math/Quaternion";
+import { Rigidbody3D } from "./Rigidbody3D";
 
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
@@ -12,7 +14,10 @@ import { ILaya3D } from "../../../ILaya3D";
 export class CharacterController extends PhysicsComponent {
 	/** @internal */
 	private static _btTempVector30: number;
-
+	/** @internal */
+	private static tmpPosition = new Vector3();
+	/** @internal */
+	private static tmpOrientation = new Quaternion();
 	/**
 	 * @internal
 	 */
@@ -21,27 +26,31 @@ export class CharacterController extends PhysicsComponent {
 	}
 
 	/* UP轴_X轴。*/
-	static UPAXIS_X: number = 0;
+	static UPAXIS_X = 0;
 	/* UP轴_Y轴。*/
-	static UPAXIS_Y: number = 1;
+	static UPAXIS_Y = 1;
 	/* UP轴_Z轴。*/
-	static UPAXIS_Z: number = 2;
+	static UPAXIS_Z = 2;
+	
+	
 
 	/** @internal */
 	private _stepHeight: number;
 	/** @internal */
-	private _upAxis: Vector3 = new Vector3(0, 1, 0);
+	private _upAxis = new Vector3(0, 1, 0);
 	/**@internal */
-	private _maxSlope: number = 45.0;
+	private _maxSlope = 90.0;	// 45度容易在地形上卡住
 	/**@internal */
-	private _jumpSpeed: number = 10.0;
+	private _jumpSpeed = 10.0;
 	/**@internal */
-	private _fallSpeed: number = 55.0;
+	private _fallSpeed = 55.0;
 	/** @internal */
-	private _gravity: Vector3 = new Vector3(0, -9.8 * 3, 0);
+	private _gravity = new Vector3(0, -9.8 * 3, 0);
 
 	/**@internal */
 	_btKinematicCharacter: number = null;
+
+	userData: any;
 
 	/**
 	 * 角色降落速度。
@@ -78,7 +87,7 @@ export class CharacterController extends PhysicsComponent {
 		this._gravity = value;
 		var bt: any = ILaya3D.Physics3D._bullet;
 		var btGravity: number = CharacterController._btTempVector30;
-		bt.btVector3_setValue(btGravity, -value.x, value.y, value.z);
+		bt.btVector3_setValue(btGravity, value.x, value.y, value.z);
 		bt.btKinematicCharacterController_setGravity(this._btKinematicCharacter, btGravity);
 	}
 
@@ -123,9 +132,51 @@ export class CharacterController extends PhysicsComponent {
 	set upAxis(value: Vector3) {
 		this._upAxis = value;
 		var btUpAxis: number = CharacterController._btTempVector30;
-		Utils3D._convertToBulletVec3(value, btUpAxis, false);
+		Utils3D._convertToBulletVec3(value, btUpAxis);
 		ILaya3D.Physics3D._bullet.btKinematicCharacterController_setUp(this._btKinematicCharacter, btUpAxis);
 	}
+
+	/**
+	 * 角色位置
+	 */
+	get position() {
+		let bt = ILaya3D.Physics3D._bullet;
+		let pPos = bt.btKinematicCharacterController_getCurrentPosition(this._btKinematicCharacter);
+		CharacterController.tmpPosition.setValue(
+			bt.btVector3_x(pPos),
+			bt.btVector3_y(pPos),
+			bt.btVector3_z(pPos));
+		return CharacterController.tmpPosition;
+	}
+
+	set position(v: Vector3) {
+		var bt = ILaya3D.Physics3D._bullet;
+		bt.btKinematicCharacterController_setCurrentPosition(this._btKinematicCharacter, v.x, v.y, v.z);
+		//var btColliderObject = this._btColliderObject;
+		//bt.btCollisionObject_setWorldTransformPos(btColliderObject, v.x, v.y, v.z);		
+	}
+
+	/**
+	 * 获得角色四元数
+	 */
+	get orientation() {
+		let bt = ILaya3D.Physics3D._bullet;
+		let pQuat = bt.btKinematicCharacterController_getCurrentOrientation(this._btKinematicCharacter);
+		CharacterController.tmpOrientation.setValue(
+			bt.btQuaternion_x(pQuat),
+			bt.btQuaternion_y(pQuat),
+			bt.btQuaternion_z(pQuat),
+			bt.btQuaternion_w(pQuat));
+		return CharacterController.tmpOrientation;
+	}
+
+	set orientation(v: Quaternion) {
+		var bt = ILaya3D.Physics3D._bullet;
+		var btColliderObject = this._btColliderObject;
+		// 不能按照rigidbody算，会破坏内存
+		//bt.btRigidBody_setCenterOfMassOrientation(btColliderObject, v.x, v.y, v.z, v.w);
+	}
+
 
 	/**
 	 * 创建一个 <code>CharacterController</code> 实例。
@@ -141,6 +192,21 @@ export class CharacterController extends PhysicsComponent {
 		this._controlBySimulation = true;
 	}
 
+	private setJumpAxis(x: number, y: number, z: number) {
+		ILaya3D.Physics3D._bullet.btKinematicCharacterController_setJumpAxis(this._btKinematicCharacter, x, y, z);
+	}
+
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	protected _onDestroy(): void {
+		ILaya3D.Physics3D._bullet.btKinematicCharacterController_destroy(this._btKinematicCharacter);
+		super._onDestroy();
+		this._btKinematicCharacter = null;
+	}
+
 	/**
 	 * @internal
 	 */
@@ -152,10 +218,12 @@ export class CharacterController extends PhysicsComponent {
 		var btUpAxis: number = CharacterController._btTempVector30;
 		bt.btVector3_setValue(btUpAxis, this._upAxis.x, this._upAxis.y, this._upAxis.z);
 		this._btKinematicCharacter = bt.btKinematicCharacterController_create(this._btColliderObject, this._colliderShape._btShape, this._stepHeight, btUpAxis);
+		//bt.btKinematicCharacterController_setUseGhostSweepTest(this._btKinematicCharacter, false);
 		this.fallSpeed = this._fallSpeed;
 		this.maxSlope = this._maxSlope;
 		this.jumpSpeed = this._jumpSpeed;
 		this.gravity = this._gravity;
+		this.setJumpAxis(0, 1, 0);
 	}
 
 	/**
@@ -205,30 +273,36 @@ export class CharacterController extends PhysicsComponent {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
+	 * 获得碰撞标签
+	 * @returns 
 	 */
-	_cloneTo(dest: Component): void {
-		super._cloneTo(dest);
-		var destCharacterController: CharacterController = <CharacterController>dest;
-		destCharacterController.stepHeight = this._stepHeight;
-		destCharacterController.upAxis = this._upAxis;
-		destCharacterController.maxSlope = this._maxSlope;
-		destCharacterController.jumpSpeed = this._jumpSpeed;
-		destCharacterController.fallSpeed = this._fallSpeed;
-		destCharacterController.gravity = this._gravity;
+	getHitFlag() {
+		return ILaya3D.Physics3D._bullet.btKinematicCharacterController_getHitFlag(this._btKinematicCharacter);
 	}
 
 	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
+	 * 获得速度
+	 * @returns 
 	 */
-	protected _onDestroy(): void {
-		ILaya3D.Physics3D._bullet.btKinematicCharacterController_destroy(this._btKinematicCharacter);
-		super._onDestroy();
-		this._btKinematicCharacter = null;
+	getVerticalVel() {
+		return ILaya3D.Physics3D._bullet.btKinematicCharacterController_getVerticalVelocity(this._btKinematicCharacter);
+	}
+
+	/**
+	 * 获得角色碰撞的对象
+	 * @param cb 
+	 */
+	getOverlappingObj(cb: (body: Rigidbody3D) => void) {
+		var bt: any = ILaya3D.Physics3D._bullet;
+		let ghost = this._btColliderObject;
+		let num = bt.btCollisionObject_getNumOverlappingObjects(ghost);
+		for (let i = 0; i < num; i++) {
+			let obj = bt.btCollisionObject_getOverlappingObject(ghost, i);
+			let comp = PhysicsComponent._physicObjectsMap[bt.btCollisionObject_getUserIndex(obj)] as Rigidbody3D;
+			if (comp) {
+				cb(comp);
+			}
+		}
 	}
 
 	/**
@@ -238,7 +312,7 @@ export class CharacterController extends PhysicsComponent {
 	move(movement: Vector3): void {
 		var btMovement: number = CharacterController._btVector30;
 		var bt: any = ILaya3D.Physics3D._bullet;
-		bt.btVector3_setValue(btMovement, -movement.x, movement.y, movement.z);
+		bt.btVector3_setValue(btMovement, movement.x, movement.y, movement.z);
 		bt.btKinematicCharacterController_setWalkDirection(this._btKinematicCharacter, btMovement);
 	}
 
@@ -250,12 +324,28 @@ export class CharacterController extends PhysicsComponent {
 		var bt: any = ILaya3D.Physics3D._bullet;
 		var btVelocity: number = CharacterController._btVector30;
 		if (velocity) {
-			Utils3D._convertToBulletVec3(velocity, btVelocity, true);
+			Utils3D._convertToBulletVec3(velocity, btVelocity);
 			bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
 		} else {
 			bt.btVector3_setValue(btVelocity, 0, 0, 0);
 			bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
+	 _cloneTo(dest: Component): void {
+		super._cloneTo(dest);
+		var destCharacterController: CharacterController = <CharacterController>dest;
+		destCharacterController.stepHeight = this._stepHeight;
+		destCharacterController.upAxis = this._upAxis;
+		destCharacterController.maxSlope = this._maxSlope;
+		destCharacterController.jumpSpeed = this._jumpSpeed;
+		destCharacterController.fallSpeed = this._fallSpeed;
+		destCharacterController.gravity = this._gravity;
 	}
 }
 

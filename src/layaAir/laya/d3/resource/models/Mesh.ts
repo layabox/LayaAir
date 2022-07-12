@@ -442,9 +442,9 @@ export class Mesh extends Resource implements IClone {
 				position1.setValue(verticesData[p1Index], verticesData[p1Index + 1], verticesData[p1Index + 2]);
 				position2.setValue(verticesData[p2Index], verticesData[p2Index + 1], verticesData[p2Index + 2]);
 
-				Utils3D._convertToBulletVec3(position0, nativePositio0, true);
-				Utils3D._convertToBulletVec3(position1, nativePositio1, true);
-				Utils3D._convertToBulletVec3(position2, nativePositio2, true);
+				Utils3D._convertToBulletVec3(position0, nativePositio0);
+				Utils3D._convertToBulletVec3(position1, nativePositio1);
+				Utils3D._convertToBulletVec3(position2, nativePositio2);
 				bt.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, true);
 			}
 			this._btTriangleMesh = triangleMesh;

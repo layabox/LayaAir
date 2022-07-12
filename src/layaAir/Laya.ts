@@ -141,6 +141,8 @@ export class Laya {
     static Matrix = Matrix;
     /**@internal*/
     static Laya = Laya;
+    /**@internal */
+    static WasmModules:any = {};
 
     /**
      * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。

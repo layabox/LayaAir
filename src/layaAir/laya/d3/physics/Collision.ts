@@ -6,11 +6,11 @@ import { PhysicsComponent } from "./PhysicsComponent"
 	 */
 	export class Collision {
 		/**@internal */
-		 _lastUpdateFrame:number = -2147483648/*int.MIN_VALUE*/;
+		 _lastUpdateFrame = -2147483648/*int.MIN_VALUE*/;
 		/**@internal */
-		 _updateFrame:number = -2147483648/*int.MIN_VALUE*/;
+		 _updateFrame = -2147483648/*int.MIN_VALUE*/;
 		/**@internal */
-		 _isTrigger:boolean = false;
+		 _isTrigger = false;
 		
 		/**@internal */
 		 _colliderA:PhysicsComponent;
