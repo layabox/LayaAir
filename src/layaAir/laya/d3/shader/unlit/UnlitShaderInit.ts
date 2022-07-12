@@ -12,12 +12,14 @@ export class UnlitShaderInit {
     static init() {
 
         let uniformMap = {
-            "u_AlbedoColor": ShaderDataType.Color,
+            "UnlitBlock": {
+                "u_AlbedoColor": ShaderDataType.Color,
+            },
             "u_TilingOffset": ShaderDataType.Vector4,
             "u_AlbedoTexture": ShaderDataType.Texture2D,
             "u_AlphaTestValue": ShaderDataType.Float
         };
-        let shader = Shader3D.add("Unlit",true,false);
+        let shader = Shader3D.add("Unlit", true, false);
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap);
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(UnlitVS, UnlitFS);

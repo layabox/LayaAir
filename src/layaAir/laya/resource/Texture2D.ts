@@ -13,10 +13,10 @@ import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
 export interface TexturePropertyParams {
-    wrapModeU: number,
-    wrapModeV: number,
-    filterMode: FilterMode,
-    anisoLevel: number
+	wrapModeU: number,
+	wrapModeV: number,
+	filterMode: FilterMode,
+	anisoLevel: number
 }
 
 export type TextureConstructParams = ConstructorParameters<typeof Texture2D>;
@@ -25,17 +25,17 @@ export type TextureConstructParams = ConstructorParameters<typeof Texture2D>;
  * <code>Texture2D</code> 类用于生成2D纹理。
  */
 export class Texture2D extends BaseTexture {
-    /**Texture2D资源。*/
-    static TEXTURE2D: string = "TEXTURE2D";
+	/**Texture2D资源。*/
+	static TEXTURE2D: string = "TEXTURE2D";
 
-    /**纯灰色纹理。*/
-    static grayTexture: Texture2D = null;
-    /**纯白色纹理。*/
-    static whiteTexture: Texture2D = null;
-    /**纯黑色纹理。*/
-    static blackTexture: Texture2D = null;
-    /**错误纹理 */
-    static erroTextur: Texture2D = null;
+	/**纯灰色纹理。*/
+	static grayTexture: Texture2D = null;
+	/**纯白色纹理。*/
+	static whiteTexture: Texture2D = null;
+	/**纯黑色纹理。*/
+	static blackTexture: Texture2D = null;
+	/**错误纹理 */
+	static erroTextur: Texture2D = null;
 
 	static __init__() {
 		var pixels: Uint8Array = new Uint8Array(3);
@@ -62,7 +62,7 @@ export class Texture2D extends BaseTexture {
 	}
 
 
-    // todo  用支持 float 的texture 格式代替
+	// todo  用支持 float 的texture 格式代替
 	static _SimpleAnimatorTextureParse(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
 		var byte: Byte = new Byte(data);
 		var version: String = byte.readUTFString();
@@ -163,7 +163,7 @@ export class Texture2D extends BaseTexture {
 	static _parseKTX(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
 		let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
 
-		let texture = new Texture2D(ktxInfo.width, ktxInfo.height, ktxInfo.format, ktxInfo.mipmapCount > 1, false, false);
+		let texture = new Texture2D(ktxInfo.width, ktxInfo.height, ktxInfo.format, ktxInfo.mipmapCount > 1, false, ktxInfo.sRGB);
 
 		texture.setKTXData(ktxInfo);
 		if (propertyParams) {

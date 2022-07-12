@@ -1,7 +1,7 @@
-#if !defined(BlinnPhongVertex_lib)
-    #define BlinnPhongVertex_lib
+#if !defined(pbrVertex_lib)
+    #define pbrVertex_lib
 
-    #include "BlinnPhongCommon.glsl";
+    #include "PBRCommon.glsl";
 
 void initPixelParams(inout PixelParams params, in Vertex vertex)
 {
@@ -40,4 +40,4 @@ void initPixelParams(inout PixelParams params, in Vertex vertex)
     v_ViewDir = params.viewDir;
 }
 
-#endif // BlinnPhongVertex_lib
+#endif // pbrVertex_lib

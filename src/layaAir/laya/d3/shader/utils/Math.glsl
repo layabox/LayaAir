@@ -61,6 +61,8 @@ mat4 inverse(mat4 m)
 	#define saturateMediump(x) min(x, MEDIUMP_FLT_MAX)
     #endif // GL_FRAGMENT_PRECISION_HIGH
 
+    #define saturate(x) clamp(x, 0.0, 1.0)
+
 float pow2(float x)
 {
     return x * x;

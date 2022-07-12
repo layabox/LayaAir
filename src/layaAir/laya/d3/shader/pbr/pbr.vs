@@ -1,4 +1,4 @@
-#define SHADER_NAME BlinnPhongVS
+#define SHADER_NAME PBRVS
 
 #include "Scene.glsl";
 #include "Camera.glsl";
@@ -6,7 +6,7 @@
 
 #include "VertexCommon.glsl";
 
-#include "BlinnPhongVertex.glsl";
+#include "PBRVertex.glsl";
 
 void main()
 {
@@ -16,7 +16,6 @@ void main()
     PixelParams pixel;
     initPixelParams(pixel, vertex);
 
-    vec4 positionWS = vec4(pixel.positionWS, 1.0);
     gl_Position = getPositionCS(pixel.positionWS);
 
     gl_Position = remapPositionZ(gl_Position);

@@ -1,72 +1,61 @@
 #if !defined(BlinnPhongFrag_lib)
     #define BlinnPhongFrag_lib
 
-    #include "TBNNormal.glsl";
-
     #include "Lighting.glsl";
 
     #include "BlinnPhongCommon.glsl";
 
-// todo 移动
+struct Surface {
+    vec3 diffuseColor;
+    vec3 specularColor;
+    float shininess;
+    vec3 gloss;
+    float alpha;
+    float alphaClip;
+};
 
-void getBinnPhongSurfaceParams(inout BlinnPhongSurface surface, in VertexParams params)
+void getPixelParams(inout PixelParams params)
 {
-    surface.positionWS = params.positionWS;
-    surface.viewDirectionWS = normalize(v_ViewDir);
+    params.positionWS = v_PositionWS;
+    params.normalWS = normalize(v_NormalWS);
 
-    // todo  uniform
+    #ifdef UV
+    params.uv0 = v_Texcoord0;
+    #endif // UV
+
+    #ifdef UV1
+    params.UV1 = v_Texcoord1;
+    #endif // UV1
+
+    #ifdef COLOR
+    params.vertexColor = v_VertexColor;
+    #endif // COLOR
+
+    params.viewDir = normalize(v_ViewDir);
+
+    #ifdef NEEDTBN
+    params.tangentWS = normalize(v_TangentWS);
+    params.biNormalWS = normalize(v_BiNormalWS);
+    mat3 TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
+    #endif // NEEDTBN
+
     #ifdef NORMALMAP
-    mat3 TBN = generateTBNMat(params);
-    vec3 normal = texture2D(u_NormalTexture, v_Texcoord0).rgb;
-    surface.normalWS = sampleTBNNormalMap(params, TBN, u_NormalTexture, params.texCoord0);
-    #else
-    surface.normalWS = params.normalWS;
-    #endif
-
-    // 初始化 alpha
-    surface.alpha = u_DiffuseColor.a;
-    surface.alphaClip = u_AlphaTestValue;
-
-    #ifdef DIFFUSEMAP
-    vec4 diffuseSampler = texture2D(u_DiffuseTexture, params.texCoord0);
-    surface.diffuseColor = u_DiffuseColor.rgb * diffuseSampler.rgb * u_AlbedoIntensity;
-    surface.alpha *= diffuseSampler.a;
-    #else
-    surface.diffuseColor = u_DiffuseColor.rgb * u_AlbedoIntensity;
-    #endif // DIFFUSEMAP
-
-    #ifdef ALPHATEST
-    if (surface.alpha < u_AlphaTestValue)
-	{
-	    discard;
-	}
-    #endif // ALPHATEST
-
-	// todo 顶点色
-	// vec4 params.vertexColor
-
-    #ifdef SPECULARMAP
-    vec4 specularSampler = texture2D(u_SpecularTexture, params.texCoord0);
-    surface.gloss = specularSampler.rgb;
-    #else // SPECULARMAP
-	#ifdef DIFFUSEMAP
-    surface.gloss = vec3(diffuseSampler.a);
-	#else // DIFFUSEMAP
-    surface.gloss = vec3(1.0, 1.0, 1.0);
-	#endif // DIFFUSEMAP
-    #endif // SPECULARMAP
-    surface.specularColor = u_MaterialSpecular.rgb;
-    surface.shininess = u_Shininess;
+    vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;
+    normalSampler = normalize(normalSampler * 2.0 - 1.0);
+    params.normalWS = normalize(TBN * normalSampler);
+    #endif // NORMALMAP
 }
 
     #if defined(LIGHTING)
 
-vec3 BlinnPhongLighting(in BlinnPhongSurface surface, in Light light, in vec3 v)
+vec3 BlinnPhongLighting(in Surface surface, in Light light, in PixelParams pixel)
 {
     vec3 l = normalize(-light.dir);
+    vec3 v = pixel.viewDir;
+
+    vec3 normalWS = pixel.normalWS;
 
     vec3 diffuseColor = surface.diffuseColor;
-    vec3 normalWS = surface.normalWS;
     float shininess = surface.shininess;
     vec3 specularColor = surface.specularColor;
     vec3 gloss = surface.gloss;
@@ -84,9 +73,9 @@ vec3 BlinnPhongLighting(in BlinnPhongSurface surface, in Light light, in vec3 v)
     return lightDiffuse + lightSpecular;
 }
 
-vec3 BlinnPhongLighting(in BlinnPhongSurface surface)
+vec3 BlinnPhongLighting(in Surface surface, in PixelParams pixel)
 {
-    vec3 v = surface.viewDirectionWS;
+    vec3 positionWS = pixel.positionWS;
 
     vec3 lightColor = vec3(0.0, 0.0, 0.0);
 
@@ -95,9 +84,9 @@ vec3 BlinnPhongLighting(in BlinnPhongSurface surface)
 	{
 	    if (i >= DirectionCount)
 		break;
-	    DirectionLight directionLight = getDirectionLight(i, surface.positionWS);
+	    DirectionLight directionLight = getDirectionLight(i, positionWS);
 	    Light light = getLight(directionLight);
-	    lightColor += BlinnPhongLighting(surface, light, v);
+	    lightColor += BlinnPhongLighting(surface, light, pixel);
 	}
 	#endif // DIRECTIONLIGHT
 
@@ -109,9 +98,9 @@ vec3 BlinnPhongLighting(in BlinnPhongSurface surface)
 	{
 	    if (i >= clusterInfo.x)
 		break;
-	    PointLight pointLight = getPointLight(i, clusterInfo, surface.positionWS);
-	    Light light = getLight(pointLight, surface.normalWS, surface.positionWS);
-	    lightColor += BlinnPhongLighting(surface, light, v);
+	    PointLight pointLight = getPointLight(i, clusterInfo, positionWS);
+	    Light light = getLight(pointLight, surface.normalWS, positionWS);
+	    lightColor += BlinnPhongLighting(surface, light, pixel);
 	}
 	    #endif // POINTLIGHT
 
@@ -120,9 +109,9 @@ vec3 BlinnPhongLighting(in BlinnPhongSurface surface)
 	{
 	    if (i >= clusterInfo.y)
 		break;
-	    SpotLight spotLight = getSpotLight(i, clusterInfo, surface.positionWS);
-	    Light light = getLight(spotLight, surface.normalWS, surface.positionWS);
-	    lightColor += BlinnPhongLighting(surface, light, v);
+	    SpotLight spotLight = getSpotLight(i, clusterInfo, positionWS);
+	    Light light = getLight(spotLight, surface.normalWS, positionWS);
+	    lightColor += BlinnPhongLighting(surface, light, pixel);
 	}
 	    #endif // SPOTLIGHT
 

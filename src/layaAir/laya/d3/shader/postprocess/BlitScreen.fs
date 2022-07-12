@@ -1,5 +1,6 @@
-#include "Color.glsl";
 #define SHADER_NAME BlitFS
+
+#include "Color.glsl";
 
 varying vec2 v_Texcoord0;
 
