@@ -158,6 +158,7 @@ export class RenderElement {
 
 			var comDef: DefineDatas = RenderElement._compileDefine;
 			context.sceneShaderData && context.sceneShaderData._defineDatas.cloneTo(comDef);
+			context.cameraShaderData && comDef.addDefineDatas(context.cameraShaderData._defineDatas);
 			this.render && comDef.addDefineDatas(this.render._shaderValues._defineDatas);
 			
 			comDef.addDefineDatas(this._renderElementOBJ._materialShaderData._defineDatas);
