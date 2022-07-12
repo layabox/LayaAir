@@ -56,6 +56,8 @@ export class BaseCamera extends Sprite3D {
 	static SHADERDEFINE_DEPTH: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_DEPTHNORMALS: ShaderDefine;
+	/**@internal */
+	static SHADERDEFINE_ORTHOGRAPHIC:ShaderDefine;
 	/**渲染模式,延迟光照渲染，暂未开放。*/
 	static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
 	/**渲染模式,前向渲染。*/
@@ -76,6 +78,7 @@ export class BaseCamera extends Sprite3D {
 	static shaderValueInit() {
 		BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
 		BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
+		BaseCamera.SHADERDEFINE_ORTHOGRAPHIC = Shader3D.getDefineByName("CAMERAORTHOGRAPHIC");
 		let camerauniformMap = BaseCamera.cameraUniformMap = CommandUniformMap.createGlobalUniformMap("BaseCamera");
 
 		BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
@@ -234,6 +237,10 @@ export class BaseCamera extends Sprite3D {
 	set orthographic(vaule: boolean) {
 		this._orthographic = vaule;
 		this._calculateProjectionMatrix();
+		if(vaule){
+			 this._shaderValues.addDefine(BaseCamera.SHADERDEFINE_ORTHOGRAPHIC);
+		}else
+			this._shaderValues.removeDefine(BaseCamera.SHADERDEFINE_ORTHOGRAPHIC);
 	}
 
 	/**
@@ -275,7 +282,7 @@ export class BaseCamera extends Sprite3D {
 
 		this._fieldOfView = 60;
 		this._useUserProjectionMatrix = false;
-		this._orthographic = false;
+		this.orthographic = false;
 
 		this._orthographicVerticalSize = 10;
 		this.renderingOrder = 0;

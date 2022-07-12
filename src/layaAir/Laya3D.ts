@@ -256,7 +256,7 @@ export class Laya3D {
         } else {
             Physics3D._enablePhysics = true;
             //should convert MB to pages
-            physics3D(config.defaultPhysicsMemory * 16, BulletInteractive._interactive).then(function (): void {
+            physics3D(config.defaultPhysicsMemory * 16, new BulletInteractive(null,null)).then(function (): void {
                 Laya3D.__init__(width, height, config);
                 compolete && compolete.run();
             });
