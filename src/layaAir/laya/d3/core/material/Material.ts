@@ -359,7 +359,7 @@ export class Material extends Resource implements IClone {
      * value: UniformBufferObject
      */
     private _uniformNamesMap: Map<number, UniformBufferObject>;
-
+    // todo  统一使用 uniformitem 之类的结构体代替 ? {name, id, type, value, isarray, arraysize}
     private _uniformTypeMap: Map<number, ShaderDataType>;
 
     /**

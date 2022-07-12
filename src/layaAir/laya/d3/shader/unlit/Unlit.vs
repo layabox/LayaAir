@@ -2,15 +2,33 @@
 #define SHADER_NAME UnlitVS
 
 #include "Camera.glsl";
-#include "MeshVertex.glsl";
+#include "Sprite3D.glsl";
+
+#include "VertexCommon.glsl";
+
+varying vec4 v_Color;
+varying vec2 v_Texcoord0;
 
 void main()
 {
-    VertexParams params;
-    initMeshVertexParam(params);
+    Vertex vertex;
+    getVertexParams(vertex);
 
-    vec4 positionWS = vec4(params.positionWS, 1.0);
-    gl_Position = u_ViewProjection * positionWS;
+#ifdef UV
+    // todo 转换UV
+    // v_Texcoord0 = transformUV(vertex.texCoord0, u_TilingOffset);
+    v_Texcoord0 = vertex.texCoord0;
+#endif // UV
+
+#if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
+    v_Color = vertex.vertexColor;
+#endif // COLOR && ENABLEVERTEXCOLOR
+
+    mat4 worldMat = getWorldMatrix();
+
+    vec3 positionWS = (worldMat * vec4(vertex.positionOS, 1.0)).xyz;
+
+    gl_Position = getPositionCS(positionWS);
 
     gl_Position = remapPositionZ(gl_Position);
 }

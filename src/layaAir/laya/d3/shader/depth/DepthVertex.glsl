@@ -2,8 +2,9 @@
     #define DepthVertex_lib
 
     #include "Scene.glsl";
-
-    #include "MeshVertex.glsl";
+    #include "Sprite3D.glsl";
+    
+    #include "VertexCommon.glsl";
 
     #if defined(SHADOW) || defined(SHADOW_SPOT)
 
@@ -47,11 +48,13 @@ vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
 
 vec4 DepthPositionCS()
 {
-    VertexParams params;
-    initMeshVertexParam(params);
+    Vertex vertex;
+    getVertexParams(vertex);
 
-    vec3 positionWS = params.positionWS;
-    vec3 normalWS = params.normalWS;
+    mat4 worldMat = getWorldMatrix();
+    vec3 positionWS = (worldMat * vec4(vertex.positionOS, 1.0)).xyz;
+
+    vec3 normalWS = normalize((worldMat * vec4(vertex.normalOS, 0.0)).xyz);
 
     #ifdef DEPTHPASS
     vec4 positionCS = u_ViewProjection * vec4(positionWS, 1.0);

@@ -3,7 +3,9 @@
 
 vec3 linearTosRGB(in vec3 value)
 {
-    return vec3(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))));
+    // return vec3(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))));
+
+    return pow(value, vec3(1.0 / 2.2));
 }
 
 vec4 linearTosRGB(in vec4 value)

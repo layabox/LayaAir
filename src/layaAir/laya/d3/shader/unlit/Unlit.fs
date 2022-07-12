@@ -2,25 +2,27 @@
 #define SHADER_NAME UnlitFS
 
 #include "Scene.glsl";
-#include "MeshFrag.glsl";
 #include "SceneFog.glsl";
+
+varying vec4 v_Color;
+varying vec2 v_Texcoord0;
 
 void main()
 {
-    VertexParams params;
-    getMeshVertexParams(params);
+    vec2 uv = v_Texcoord0;
 
     vec3 color = u_AlbedoColor.rgb;
     float alpha = u_AlbedoColor.a;
 #ifdef ALBEDOTEXTURE
-    vec4 albedoSampler = texture2D(u_AlbedoTexture, params.texCoord0);
+    vec4 albedoSampler = texture2D(u_AlbedoTexture, uv);
     color *= albedoSampler.rgb;
     alpha *= albedoSampler.a;
 #endif // ALBEDOTEXTURE
 
 #if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
-    color *= params.vertexColor.rgb;
-    alpha *= params.vertexColor.a;
+    vec4 vertexColor = v_Color;
+    color *= vertexColor.rgb;
+    alpha *= vertexColor.a;
 #endif
 
 #ifdef ALPHATEST

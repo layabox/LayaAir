@@ -65,8 +65,11 @@ import ColorGLSL from "./utils/Color.glsl";
 import MathGLSL from "./utils/Math.glsl";
 import TBNNormalGLSL from "./utils/TBNNormal.glsl";
 
+import VertexGLSL from "./common/VertexCommon.glsl";
+
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
+import Sprite3DGLSL from "./common/Sprite3DCommon.glsl";
 
 import DepthVertexGLSL from "./depth/DepthVertex.glsl";
 import DepthFragGLSL from "./depth/DepthFrag.glsl";
@@ -78,13 +81,10 @@ import SceneFogGLSL from "./utils/SceneFog.glsl";
 
 import LightingGLSL from "./lighting/Lighting.glsl";
 
-import MeshCommonGLSL from "./common/MeshCommon.glsl";
-import MeshVertexGLSL from "./common/MeshVertex.glsl";
-import MeshFragGLSL from "./common/MeshFrag.glsl";
-
 import { BlitScreenShaderInit } from "./postprocess/BlitScreenShaderInit";
 import { UnlitShaderInit } from "./unlit/UnlitShaderInit";
 import { BlinnPhongShaderInit } from "./blinnphong/BlinnPhongShaderInit";
+import { PBRShaderInit } from "./pbr/PBRShaderInit";
 
 /**
  * @internal
@@ -100,13 +100,18 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Utils.glsl", UtilsGLSL);
 		Shader3D.addInclude("Color.glsl", ColorGLSL);
 		Shader3D.addInclude("Math.glsl", MathGLSL);
+
 		Shader3D.addInclude("TBNNormal.glsl", TBNNormalGLSL);
+		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
 
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);
 
 		// camera
 		Shader3D.addInclude("Camera.glsl", CameraGLSL);
+
+		// sprite3D
+		Shader3D.addInclude("Sprite3D.glsl", Sprite3DGLSL);
 
 		// depth
 		Shader3D.addInclude("DepthVertex.glsl", DepthVertexGLSL);
@@ -122,15 +127,11 @@ export class ShaderInit3D {
 		// lighting
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
 
-		// mesh 
-		Shader3D.addInclude("MeshCommon.glsl", MeshCommonGLSL);
-		Shader3D.addInclude("MeshVertex.glsl", MeshVertexGLSL);
-		Shader3D.addInclude("MeshFrag.glsl", MeshFragGLSL);
-
-		// shader inti
+		// shader init
 		BlitScreenShaderInit.init();
 		UnlitShaderInit.init();
 		BlinnPhongShaderInit.init();
+		PBRShaderInit.init();
 
 		///////////////////////////////////////////////////////////////////////
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
