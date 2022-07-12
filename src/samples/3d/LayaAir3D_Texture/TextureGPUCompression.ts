@@ -29,7 +29,6 @@ export class TextureGPUCompression {
 			(<Scene3D>Laya.stage.addChild(scene));
 			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
 			camera.addComponent(CameraMoveScript);
-			console.log(camera.clearColor);
 		}));
 	}
 }

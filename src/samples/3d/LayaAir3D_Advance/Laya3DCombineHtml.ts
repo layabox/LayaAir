@@ -30,8 +30,6 @@ import { Laya } from "Laya";
 			var camera:Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)) );
 			camera.transform.translate(new Vector3(0, 0.5, 1));
 			camera.transform.rotate(new Vector3( -15, 0, 0), true, false);
-			//3.清除照相机颜色
-			camera.clearColor = null;
 			
 			var directionLight:DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()) );
 			directionLight.color = new Vector3(1, 1, 1);

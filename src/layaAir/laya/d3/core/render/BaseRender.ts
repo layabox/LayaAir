@@ -595,7 +595,7 @@ export class BaseRender extends Component {
 	 * @internal
 	 */
 	_setUnBelongScene() {
-		if (Config3D._config._uniformBlock) {
+		if (false) {
 			this._subUniformBufferData && BaseRender._transLargeUbO.recover(this._subUniformBufferData);
 			this._subUniformBufferData = null;
 		}
@@ -643,6 +643,7 @@ export class BaseRender extends Component {
 	 */
 	destroy(): void {
 		(this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
+		(this._scene)&& this._scene.sceneRenderableManager.removeRenderObject(this);
 		var i: number = 0, n: number = 0;
 		for (i = 0, n = this._renderElements.length; i < n; i++)
 			this._renderElements[i].destroy();

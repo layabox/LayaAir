@@ -73,7 +73,6 @@ export class CameraRay {
 			this.camera.transform.translate(this._translate);
 			this.camera.transform.rotate(this._rotation, true, false);
 			this.camera.addComponent(CameraMoveScript);
-			this.camera.clearColor = null;
 	
 			//方向光
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));

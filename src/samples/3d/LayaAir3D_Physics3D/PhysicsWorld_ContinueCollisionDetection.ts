@@ -36,7 +36,6 @@ export class PhysicsWorld_ContinueCollisionDetection {
 			camera.transform.translate(new Vector3(0, 6, 9.5));
 			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 			camera.addComponent(CameraMoveScript);
-			camera.clearColor = null;
 
 			//方向光
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));

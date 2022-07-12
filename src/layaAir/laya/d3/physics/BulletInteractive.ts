@@ -55,16 +55,16 @@ export class BulletInteractive {
         rigidBody._simulation._updatedRigidbodies++;
         rigidBody._updateTransformComponent(worldTransPointer);
     }
-    drawLine(sx: number, sy: number, sz: number, ex: number, ey: number, ez: number, color: number) {
+    drawLine=(sx: number, sy: number, sz: number, ex: number, ey: number, ez: number, color: number)=>{
         if(!this.dbgLine) return;
         this.dbgLine.color(color);
         this.dbgLine.line(sx,sy,sz,ex,ey,ez);
     }
-    clearLine() {
+    clearLine=()=>{
         if(!this.dbgLine) return;
         this.dbgLine.clear();
     }
-    jslog(ptr: number, len: number) {
+    jslog=(ptr: number, len: number)=>{
         if(!this.mem) return;
         let td = new TextDecoder();
         let str = new Uint8Array(this.mem.buffer, ptr, len);

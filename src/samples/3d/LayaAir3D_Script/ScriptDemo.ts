@@ -38,8 +38,6 @@ export class ScriptDemo {
 		camera.transform.translate(this._translate);
 		//旋转摄影机方向
 		camera.transform.rotate(this._rotation, true, false);
-		//设置背景颜色
-		camera.clearColor = null;
 		//添加方向光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		//设置灯光漫反射颜色

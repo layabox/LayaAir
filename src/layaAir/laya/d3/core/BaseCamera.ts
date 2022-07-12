@@ -282,7 +282,7 @@ export class BaseCamera extends Sprite3D {
 
 		this._fieldOfView = 60;
 		this._useUserProjectionMatrix = false;
-		this.orthographic = false;
+		
 
 		this._orthographicVerticalSize = 10;
 		this.renderingOrder = 0;
@@ -293,6 +293,7 @@ export class BaseCamera extends Sprite3D {
 		this.cullingMask = 2147483647/*int.MAX_VALUE*/;
 		this.useOcclusionCulling = true;
 		this._renderEngine = LayaGL.renderEngine;
+		this._orthographic = false;
 		if (Config3D._config._uniformBlock) {
 			this._cameraUniformUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
 			this._cameraUniformData = BaseCamera.createSceneUniformBlock();

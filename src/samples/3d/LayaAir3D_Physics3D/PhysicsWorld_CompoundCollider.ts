@@ -38,7 +38,6 @@ export class PhysicsWorld_CompoundCollider {
 			this.camera.transform.translate(new Vector3(5.2, 4, 5.2));
 			this.camera.transform.rotate(new Vector3(-25, 45, 0), true, false);
 			this.camera.addComponent(CameraMoveScript);
-			this.camera.clearColor = null;
 
 			var directionLight: DirectionLight = <DirectionLight>this.scene.addChild(new DirectionLight());
 			directionLight.color = new Vector3(1, 1, 1);
