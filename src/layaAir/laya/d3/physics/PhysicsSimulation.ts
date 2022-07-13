@@ -974,7 +974,7 @@ export class PhysicsSimulation {
 						scripts[i].onJointBreak();
 					}
 				}
-			 }
+			}
 		}
 	}
 

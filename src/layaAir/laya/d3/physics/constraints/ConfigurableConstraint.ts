@@ -154,7 +154,7 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		//坐标系转换
 		if(this._xMotion!=value){
 			this._xMotion = value;
-			this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_X,value, this._maxLinearLimit.x,this._minLinearLimit.x);
+			this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_X,value, this._minLinearLimit.x,this._maxLinearLimit.x);
 		}
 	}
 
@@ -198,7 +198,7 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		//坐标系转换
 		if(this._angularXMotion!=value){
 			this._angularXMotion = value;
-			this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X,value,this._maxAngularLimit.x,this._minAngularLimit.x);
+			this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X,value,this._minAngularLimit.x,this._maxAngularLimit.x);
 		}
 	}
 
@@ -529,10 +529,10 @@ export class ConfigurableConstraint extends ConstraintComponent{
 
 	_initAllConstraintInfo():void{
 		//MotionMode
-		this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_X,this._xMotion, -this._maxLinearLimit.x,-this._minLinearLimit.x);
+		this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_X,this._xMotion, this._minLinearLimit.x,this._maxLinearLimit.x);
 		this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_Y,this._yMotion,this._minLinearLimit.y,this._maxLinearLimit.y);
 		this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_Z,this._zMotion,this._minLinearLimit.z,this._maxLinearLimit.z);
-		this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X,this._angularXMotion,-this._maxAngularLimit.x,-this._minAngularLimit.x);
+		this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X,this._angularXMotion,this._minAngularLimit.x,this._maxAngularLimit.x);
 		this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Y,this._angularYMotion,this._minAngularLimit.y,this._maxAngularLimit.y);
 		this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_Z,this._angularZMotion,this._minAngularLimit.z,this._maxAngularLimit.z);
 		this.setSpring(ConfigurableConstraint.MOTION_LINEAR_INDEX_X,this._linearLimitSpring.x);
