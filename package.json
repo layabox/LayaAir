@@ -9,7 +9,7 @@
     "publishToIDE": "gulp publishToIDE",
     "buildDoc": "cd src/generateDoc&&cmd /k run.bat",
     "watchShaders": "copy-and-watch --skip-initial-copy --watch src/**/*.{glsl,vs,fs} bin/tsc/",
-    "watchSamples": "cd ./src/samples && tsc -b --watch",
+    "watchSamples": "cd ./src/samples && tsc -b --force --watch",
     "clean": "rimraf ./tsc",
     "copyShaders": "copyfiles -u 1 ./src/**/*.{glsl,vs,fs} ./bin/tsc/"
   },

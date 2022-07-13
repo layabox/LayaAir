@@ -21,7 +21,7 @@ export class FixedConstraint extends ConstraintComponent{
 	 * @internal
 	 */
 	_addToSimulation(): void {
-		this._simulation && this._simulation.addConstraint(this,this.enabled);
+		this._simulation && this._simulation.addConstraint(this,this.disableCollisionsBetweenLinkedBodies);
     }
     
      /**
@@ -45,9 +45,10 @@ export class FixedConstraint extends ConstraintComponent{
 			this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans)
 			this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);	
 			bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
-			this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
+			bt.btTypedConstraint_setEnabled(this._btConstraint,true);
+			
+			this._simulation = this.getPhysicsSimulation();// (<Scene3D>this.owner._scene).physicsSimulation;
 			this._addToSimulation();
-			Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 		}
 	}
 

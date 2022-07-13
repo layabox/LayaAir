@@ -1,4 +1,7 @@
+
 import { Laya } from "Laya";
+import { Laya3D } from "Laya3D";
+import { Stat } from "laya/utils/Stat";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -25,8 +28,7 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
+
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Config3D } from "Config3D";
 import Client from "../../Client";
@@ -117,8 +119,9 @@ export class PhysicsWorld_RayShapeCast {
 				this.addBox();
 				this.addCapsule();
 			}			
+			this.loadUI();
 		}));
-		this.loadUI();
+		
 	}
 
 

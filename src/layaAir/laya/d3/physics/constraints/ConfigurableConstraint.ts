@@ -10,82 +10,82 @@ import { Physics3D } from "../../Physics3D";
  */
 export class ConfigurableConstraint extends ConstraintComponent{
 	/** 约束限制模式  完全限制 */
-	static CONFIG_MOTION_TYPE_LOCKED:number = 0;
+	static CONFIG_MOTION_TYPE_LOCKED = 0;
 	/** 约束限制模式  范围限制 */
-	static CONFIG_MOTION_TYPE_LIMITED:number = 1;
+	static CONFIG_MOTION_TYPE_LIMITED = 1;
 	/** 约束限制模式  不限制 */
-	static CONFIG_MOTION_TYPE_FREE:number = 2;
+	static CONFIG_MOTION_TYPE_FREE = 2;
 	/** @internal 线性x轴*/
-	static MOTION_LINEAR_INDEX_X:number = 0;
+	static MOTION_LINEAR_INDEX_X = 0;
 	/** @internal 线性Y轴*/
-	static MOTION_LINEAR_INDEX_Y:number = 1;
+	static MOTION_LINEAR_INDEX_Y = 1;
 	/** @internal 线性Z轴*/
-	static MOTION_LINEAR_INDEX_Z:number = 2;
+	static MOTION_LINEAR_INDEX_Z = 2;
 	/** @internal 旋转X轴*/
-	static MOTION_ANGULAR_INDEX_X:number = 3;
+	static MOTION_ANGULAR_INDEX_X = 3;
 	/** @internal 旋转Y轴*/
-	static MOTION_ANGULAR_INDEX_Y:number = 4;
+	static MOTION_ANGULAR_INDEX_Y = 4;
 	/** @internal 旋转Z轴*/
-	static MOTION_ANGULAR_INDEX_Z:number = 5;
+	static MOTION_ANGULAR_INDEX_Z = 5;
 	/** @internal */
-	static RO_XYZ:number = 0;
+	static RO_XYZ = 0;
 	/** @internal */
-	static RO_XZY:number = 1;
+	static RO_XZY = 1;
 	/** @internal */
-	static RO_YXZ:number = 2;
+	static RO_YXZ = 2;
 	/** @internal */
-	static RO_YZX:number = 3;
+	static RO_YZX = 3;
 	/** @internal */
-	static RO_ZXY:number = 4;
+	static RO_ZXY = 4;
 	/** @internal */
-	static RO_ZYX:number = 5;
+	static RO_ZYX = 5;
 	/** @internal */
 	private _btAxis:number;
 	/** @internal */
 	private _btSecondaryAxis:number;
 	/** @internal */
-	private _axis:Vector3 = new Vector3();
+	private _axis = new Vector3();
 	/** @internal */
-	private _secondaryAxis:Vector3 = new Vector3();
+	private _secondaryAxis = new Vector3();
 	/** @internal */
-	private _minLinearLimit:Vector3 = new Vector3();
+	private _minLinearLimit = new Vector3();
 	/** @internal */
-	private _maxLinearLimit:Vector3 = new Vector3();
+	private _maxLinearLimit = new Vector3();
 	/** @internal */
-	private _minAngularLimit:Vector3 = new Vector3();
+	private _minAngularLimit = new Vector3();
 	/** @internal */
-	private _maxAngularLimit:Vector3 = new Vector3();
+	private _maxAngularLimit = new Vector3();
 	/** @internal */
-	private _linearLimitSpring:Vector3 = new Vector3();
+	private _linearLimitSpring = new Vector3();
 	/** @internal */
-	private _angularLimitSpring:Vector3 = new Vector3();
+	private _angularLimitSpring = new Vector3();
 	/** @internal */
-	private _linearBounce:Vector3 = new Vector3();
+	private _linearBounce = new Vector3();
 	/** @internal */
-	private _angularBounce:Vector3 = new Vector3();
+	private _angularBounce = new Vector3();
 	/** @internal */
-	private _linearDamp:Vector3 = new Vector3();
+	private _linearDamp = new Vector3();
 	/** @internal */
-	private _angularDamp:Vector3 = new Vector3();
+	private _angularDamp = new Vector3();
 	/** @internal */
-	private _xMotion:number = 0;
+	private _xMotion = 0;
 	/** @internal */
-	private _yMotion:number = 0;
+	private _yMotion = 0;
 	/** @internal */
-	private _zMotion:number = 0;
+	private _zMotion = 0;
 	/** @internal */
-	private _angularXMotion:number = 0;
+	private _angularXMotion = 0;
 	/** @internal */
-	private _angularYMotion:number = 0;
+	private _angularYMotion = 0;
 	/** @internal */
-	private _angularZMotion:number = 0;
+	private _angularZMotion = 0;
 	/**
 	 * 创建一个<code>ConfigurableConstraint</code>实例	可设置的约束组件
 	 */
 	constructor(){
 		super(ConstraintComponent.CONSTRAINT_D6_SPRING_CONSTRAINT_TYPE);
 		var bt = Physics3D._bullet;
-		this._btAxis =bt.btVector3_create(-1.0,0.0,0.0);
+		this._btAxis =bt.btVector3_create(0,0.0,1);
 		this._btSecondaryAxis = bt.btVector3_create(0.0,1.0,0.0);
 	}
 
@@ -154,7 +154,7 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		//坐标系转换
 		if(this._xMotion!=value){
 			this._xMotion = value;
-			this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_X,value, -this._maxLinearLimit.x,-this._minLinearLimit.x);
+			this.setLimit(ConfigurableConstraint.MOTION_LINEAR_INDEX_X,value, this._maxLinearLimit.x,this._minLinearLimit.x);
 		}
 	}
 
@@ -198,7 +198,7 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		//坐标系转换
 		if(this._angularXMotion!=value){
 			this._angularXMotion = value;
-			this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X,value,-this._maxAngularLimit.x,-this._minAngularLimit.x);
+			this.setLimit(ConfigurableConstraint.MOTION_ANGULAR_INDEX_X,value,this._maxAngularLimit.x,this._minAngularLimit.x);
 		}
 	}
 
@@ -365,15 +365,16 @@ export class ConfigurableConstraint extends ConstraintComponent{
 		var bt = Physics3D._bullet;
 		this._axis.setValue(axis.x,axis.y,axis.y);
 		this._secondaryAxis.setValue(secondaryAxis.x,secondaryAxis.y,secondaryAxis.z);
-		this._btAxis = bt.btVector3_setValue(-axis.x, axis.y, axis.z);
-		this._btSecondaryAxis = bt.btVector3_setValue(-secondaryAxis.x, secondaryAxis.y, secondaryAxis.z);
+		bt.btVector3_setValue(this._btAxis,axis.x, axis.y, axis.z);
+		bt.btVector3_setValue(this._btSecondaryAxis,secondaryAxis.x, secondaryAxis.y, secondaryAxis.z);
 		bt.btGeneric6DofSpring2Constraint_setAxis(this._btConstraint, this._btAxis, this._btSecondaryAxis);
 	}
 
 	/**
 	 * @internal 
+	 * 当LOCKED或者FREE的时候,low,high就没有用了
 	 */
-	setLimit(axis:number,motionType:number,low:number, high:number): void {
+	setLimit(axis:number,motionType:number,low?:number, high?:number): void {
 		if(!this._btConstraint)
 			return;
 		var bt = Physics3D._bullet;
@@ -498,7 +499,7 @@ export class ConfigurableConstraint extends ConstraintComponent{
 	 * @internal
 	 */
 	_addToSimulation(): void {
-		this._simulation && this._simulation.addConstraint(this,this.enabled);
+		this._simulation && this._simulation.addConstraint(this,this.disableCollisionsBetweenLinkedBodies);
     }
     
      /**
@@ -516,13 +517,14 @@ export class ConfigurableConstraint extends ConstraintComponent{
 	 */
 	_createConstraint():void{
 		var bt = Physics3D._bullet;
-		this._btConstraint = bt.btGeneric6DofSpring2Constraint_create(this.ownBody.btColliderObject, this._btframAPos, this.connectedBody.btColliderObject, this._btframBPos, ConfigurableConstraint.RO_XYZ);
+		this._btConstraint = bt.btGeneric6DofSpring2Constraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans, ConfigurableConstraint.RO_XYZ);
 		this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
 		bt.btTypedConstraint_setJointFeedback(this._btConstraint,this._btJointFeedBackObj);
-		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		this._initAllConstraintInfo();
+		bt.btTypedConstraint_setEnabled(this._btConstraint,true);
+
+		this._simulation = this.getPhysicsSimulation();// (<Scene3D>this.owner._scene).physicsSimulation;
 		this._addToSimulation();
-		Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint,true);
 	}
 
 	_initAllConstraintInfo():void{

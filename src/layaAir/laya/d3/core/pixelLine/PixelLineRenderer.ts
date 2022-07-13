@@ -73,7 +73,7 @@ export class PixelLineRenderer extends BaseRender {
 	}
 
 	protected _onDisable(): void {
-		if (this._pixelLineFilter._lineCount != 0 && this._isRenderActive) {
+		if (this._pixelLineFilter&&this._pixelLineFilter._lineCount != 0 && this._isRenderActive) {
 			this.owner.scene._removeRenderObject(this);
 			this._isInRenders = false;
 		}

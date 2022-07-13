@@ -132,6 +132,8 @@ export class Vector3 implements IClone {
 		}
 	}
 
+	
+
 	/**
 	 * 计算两个三维向量的乘积。
 	 * @param	a left三维向量。
@@ -220,7 +222,7 @@ export class Vector3 implements IClone {
 	}
 
 	/**
-	 * 通过矩阵转换一个三维向量到另外一个三维向量。
+	 * 通过矩阵转换一个三维向量到另外一个归一化的三维向量。
 	 * @param	vector 源三维向量。
 	 * @param	transform  变换矩阵。
 	 * @param	result 输出三维向量。
@@ -316,7 +318,7 @@ export class Vector3 implements IClone {
 	 */
 	static dot(a: Vector3, b: Vector3): number {
 		return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
-	}
+	}	
 
 	/**
 	 * 判断两个三维向量是否相等。
@@ -353,10 +355,25 @@ export class Vector3 implements IClone {
 	 * @param	y Y值。
 	 * @param	z Z值。
 	 */
-	setValue(x: number, y: number, z: number): void {
+	setValue(x: number, y: number, z: number): Vector3 {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		return this;
+	}
+
+	/**
+	 * 设置xyz值。
+	 * @param	x X值。
+	 * @param	y Y值。
+	 * @param	z Z值。
+	 * @return 返回Vector3
+	 */
+	set(x: number, y: number, z: number) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		return this;
 	}
 
 	/**
@@ -370,16 +387,110 @@ export class Vector3 implements IClone {
 		this.z = array[offset + 2];
 	}
 
-	
+
 	/**
 	 * 写入Array数组
 	 * @param array 数组。
 	 * @param offset 数组偏移。 
 	 */
-	toArray(array:Float32Array,offset:number = 0):void{
+	toArray(array: Float32Array, offset: number = 0): void {
 		array[offset + 0] = this.x;
 		array[offset + 1] = this.y;
 		array[offset + 2] = this.z;
+	}
+
+	/**
+	 * 计算长度。
+	 * @return 长度。
+	 */
+	length() {
+		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+	}
+
+	/**
+	 * 计算平方。
+	 * @return 返回向量长度的平方。
+	 */
+	lengthSquared() {
+		return this.x * this.x + this.y * this.y + this.z * this.z;
+	}
+
+	/**
+	 * 向量相减
+	 * @param b 被减向量
+	 * @param out 
+	 * @returns 
+	 */
+	vsub(b: Vector3, out: Vector3) {
+		out.x = this.x - b.x;
+		out.y = this.y - b.y;
+		out.z = this.z - b.z;
+		return out;
+	}
+
+	/**
+	 * 向量相加
+	 * @param b 加向量
+	 * @param out 
+	 * @returns 
+	 */
+	vadd(b: Vector3, out: Vector3) {
+		out.x = this.x + b.x;
+		out.y = this.y + b.y;
+		out.z = this.z + b.z;
+		return out;
+	}
+
+	/**
+	 * 缩放向量
+	 * @param s 缩放值
+	 * @param out
+	 * @returns 返回缩放向量
+	 */
+	scale(s: number, out: Vector3) {
+		out.x = this.x * s;
+		out.y = this.y * s;
+		out.z = this.z * s;
+		return out;
+	}
+
+	/**
+	 * 归一化向量
+	 * @returns 
+	 */
+	normalize() {
+		let x = this.x, y = this.y, z = this.z;
+		var len = x * x + y * y + z * z;
+		if (len > 0) {
+			len = 1 / Math.sqrt(len);
+			this.x = x * len;
+			this.y = y * len;
+			this.z = z * len;
+		}
+		return this;
+	}
+
+	/**
+	 * 向量点乘
+	 * @param b 
+	 * @returns 
+	 */
+	dot(b: Vector3): number {
+		return (this.x * b.x) + (this.y * b.y) + (this.z * b.z);
+	}
+
+	/**
+	 * 向量叉乘
+	 * @param b 
+	 * @param o 
+	 * @returns 
+	 */
+	cross(b: Vector3, o: Vector3): Vector3 {
+		var ax = this.x, ay = this.y, az = this.z, bx = b.x, by = b.y, bz = b.z;
+		o.x = ay * bz - az * by;
+		o.y = az * bx - ax * bz;
+		o.z = ax * by - ay * bx;
+		return o;
 	}
 
 	/**
@@ -403,25 +514,13 @@ export class Vector3 implements IClone {
 		return destVector3;
 	}
 
+	/**
+	 * 设置默认值
+	 */
 	toDefault(): void {
 		this.x = 0;
 		this.y = 0;
 		this.z = 0;
-	}
-
-	forNativeElement(nativeElements: Float32Array = null): void {
-		if (nativeElements) {
-			(<any>this).elements = nativeElements;
-			(<any>this).elements[0] = this.x;
-			(<any>this).elements[1] = this.y;
-			(<any>this).elements[2] = this.z;
-		}
-		else {
-			(<any>this).elements = new Float32Array([this.x, this.y, this.z]);
-		}
-		Vector2.rewriteNumProperty(this, "x", 0);
-		Vector2.rewriteNumProperty(this, "y", 1);
-		Vector2.rewriteNumProperty(this, "z", 2);
 	}
 }
 

@@ -63,6 +63,9 @@ export class Config {
     static enableStaticBatch: boolean = true;
 
     static useRetinalCanvas: boolean = false;
+
+    /** 限制fps */
+    static FPS = 60;
 }
 (window as any).Config = Config;
 

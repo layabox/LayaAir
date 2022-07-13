@@ -59,7 +59,6 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 			this.scene.addChild(this.camera);
 			this.camera.transform.translate(new Vector3(0, 8, 18));
 			this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
-			this.camera.clearColor = null;
 
 			//创建相机
 			var directionLight = new DirectionLight();

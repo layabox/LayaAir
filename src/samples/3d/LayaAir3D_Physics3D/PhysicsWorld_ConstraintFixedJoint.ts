@@ -1,9 +1,10 @@
-import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Laya } from "Laya";
+
 import { Laya3D } from "Laya3D";
 import { Handler } from "laya/utils/Handler";
-import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Camera } from "laya/d3/core/Camera";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
@@ -29,7 +30,6 @@ export class PhysicsWorld_ConstraintFixedJoint{
 			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
 			this.camera.transform.translate(new Vector3(0, 3, 10));
 		  //  this.camera.transform.rotate(new Vector3(-30, 45, 0), true, false);
-			this.camera.clearColor = null;
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 			directionLight.color = new Vector3(1, 1, 1);
 			directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, 1.0));

@@ -63,7 +63,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 		bt.btCollisionObject_forceActivationState(btColObj, PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION);//prevent simulation
 
 		var flags: number = bt.btCollisionObject_getCollisionFlags(btColObj);
-		if (((<Sprite3D>this.owner)).isStatic) {//TODO:
+		if ((<Sprite3D>this.owner).isStatic) {//TODO:
 			if ((flags & PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
 				flags = flags ^ PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT;
 			flags = flags | PhysicsComponent.COLLISIONFLAGS_STATIC_OBJECT;

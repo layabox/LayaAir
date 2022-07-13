@@ -272,6 +272,7 @@ export class GL2TextureContext extends GLTextureContext {
     supportSRGB(format: TextureFormat | RenderTargetFormat, mipmap: boolean): boolean {
         switch (format) {
             case TextureFormat.R8G8B8:
+                return this._engine.getCapable(RenderCapable.Texture_SRGB) && !mipmap;
             case TextureFormat.R8G8B8A8:
                 return this._engine.getCapable(RenderCapable.Texture_SRGB);
             case TextureFormat.DXT1:

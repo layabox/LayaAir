@@ -25,6 +25,16 @@ uniform vec3 u_CameraUp;
 uniform vec3 u_CameraPos;
     #endif // ENUNIFORMBLOCK
 
+vec4 getPositionCS(in vec3 positionWS)
+{
+    return u_ViewProjection * vec4(positionWS, 1.0);
+}
+
+vec3 getViewDirection(in vec3 positionWS)
+{
+    return normalize(u_CameraPos - positionWS);
+}
+
 // 根据投影剧专重映射深度
 vec4 remapPositionZ(vec4 position)
 {

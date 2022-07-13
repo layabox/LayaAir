@@ -76,8 +76,8 @@ export class CompoundColliderShape extends ColliderShape {
 		var btOffset: number = ColliderShape._btVector30;
 		var btQuaternion: number = ColliderShape._btQuaternion0;
 		var btTransform: number = ColliderShape._btTransform0;
-		bt.btVector3_setValue(btOffset, -offset.x, offset.y, offset.z);
-		bt.btQuaternion_setValue(btQuaternion, -rotation.x, rotation.y, rotation.z, -rotation.w);
+		bt.btVector3_setValue(btOffset, offset.x, offset.y, offset.z);
+		bt.btQuaternion_setValue(btQuaternion, rotation.x, rotation.y, rotation.z, rotation.w);
 		bt.btTransform_setOrigin(btTransform, btOffset);
 		bt.btTransform_setRotation(btTransform, btQuaternion);
 		bt.btCompoundShape_updateChildTransform(this._btShape, shape._indexInCompound, btTransform, true);
@@ -98,8 +98,8 @@ export class CompoundColliderShape extends ColliderShape {
 		var offset: Vector3 = shape.localOffset;
 		var rotation: Quaternion = shape.localRotation;
 		var bt: any = ILaya3D.Physics3D._bullet;
-		bt.btVector3_setValue(CompoundColliderShape._btOffset, -offset.x, offset.y, offset.z);
-		bt.btQuaternion_setValue(CompoundColliderShape._btRotation, -rotation.x, rotation.y, rotation.z, -rotation.w);
+		bt.btVector3_setValue(CompoundColliderShape._btOffset, offset.x, offset.y, offset.z);
+		bt.btQuaternion_setValue(CompoundColliderShape._btRotation, rotation.x, rotation.y, rotation.z, rotation.w);
 		bt.btTransform_setOrigin(CompoundColliderShape._btTransform, CompoundColliderShape._btOffset);
 		bt.btTransform_setRotation(CompoundColliderShape._btTransform, CompoundColliderShape._btRotation);
 

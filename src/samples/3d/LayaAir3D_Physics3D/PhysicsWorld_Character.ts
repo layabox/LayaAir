@@ -49,8 +49,6 @@ export class PhysicsWorld_Character {
 			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
 			this.camera.transform.translate(new Vector3(0, 8, 20));
 			this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
-			//设置相机的清除颜色
-			this.camera.clearColor = null;
 
 			//创建平行光
 			var directionLight = new DirectionLight();

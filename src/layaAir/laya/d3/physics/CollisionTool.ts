@@ -71,8 +71,8 @@ export class CollisionTool {
 	 */
 	getCollision(physicComponentA: PhysicsComponent, physicComponentB: PhysicsComponent): Collision {
 		var collision: Collision;
-		var idA: number = physicComponentA.id;
-		var idB: number = physicComponentB.id;
+		var idA = physicComponentA.id;
+		var idB = physicComponentB.id;
 		var subCollisionFirst: any = this._collisions[idA];
 		if (subCollisionFirst)
 			collision = subCollisionFirst[idB];
@@ -93,8 +93,8 @@ export class CollisionTool {
 	 * @internal
 	 */
 	recoverCollision(collision: Collision): void {
-		var idA: number = collision._colliderA.id;
-		var idB: number = collision._colliderB.id;
+		var idA = collision._colliderA.id;
+		var idB = collision._colliderB.id;
 		this._collisions[idA][idB] = null;
 		this._collisionsPool.push(collision);
 	}

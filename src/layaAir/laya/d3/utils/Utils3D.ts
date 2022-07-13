@@ -47,9 +47,9 @@ export class Utils3D {
 	/**
 	 * @internal
 	 */
-	static _convertToLayaVec3(bVector: number, out: Vector3, inverseX: boolean): void {
+	static _convertToLayaVec3(bVector: number, out: Vector3): void {
 		var bullet: any = ILaya3D.Physics3D._bullet;
-		out.x = inverseX ? - bullet.btVector3_x(bVector) : bullet.btVector3_x(bVector);
+		out.x = bullet.btVector3_x(bVector);
 		out.y = bullet.btVector3_y(bVector);
 		out.z = bullet.btVector3_z(bVector);
 	}
@@ -57,8 +57,8 @@ export class Utils3D {
 	/**
 	 * @internal
 	 */
-	static _convertToBulletVec3(lVector: Vector3, out: number, inverseX: boolean): void {
-		ILaya3D.Physics3D._bullet.btVector3_setValue(out, inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
+	static _convertToBulletVec3(lVector: Vector3, out: number): void {
+		ILaya3D.Physics3D._bullet.btVector3_setValue(out, lVector.x, lVector.y, lVector.z);
 	}
 
 	/**
@@ -620,7 +620,7 @@ export class Utils3D {
 			e[i + 12] = ai0 * b12 + ai1 * b13 + ai2 * b14 + ai3 * b15;
 		}
 	}
-	
+
 	/**@internal */
 	static matrix4x4MultiplyMFM(left: Matrix4x4, right: Float32Array, out: Matrix4x4): void {
 		Utils3D.matrix4x4MultiplyFFF(left.elements, right, out.elements);

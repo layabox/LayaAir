@@ -50,7 +50,6 @@ export class PhysicsWorld_Kinematic {
 			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
 			this.camera.transform.translate(new Vector3(0, 8, 20));
 			this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
-			this.camera.clearColor = null;
 
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 			directionLight.color = new Vector3(1, 1, 1);

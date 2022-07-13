@@ -17,12 +17,8 @@ vec3 sampleTBNNormalMap(in VertexParams params, in mat3 TBN, sampler2D normalMap
 {
     // vec2 uv = params.texCoord0;
     vec3 samplerNormal = texture2D(normalMap, uv).rgb;
-    samplerNormal = normalize(samplerNormal * 2.0 - 1.0);
-    samplerNormal.y *= -1.0;
-
-    mat3 TBN = generateTBNMat(params);
+    samplerNormal = normalize(samplerNormal * 2.0 - 1.0);;
     vec3 normalWS = normalize(TBN * samplerNormal);
-
     return normalWS;
 }
 

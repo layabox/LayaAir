@@ -411,5 +411,28 @@ export class Matrix3x3 implements IClone {
 		me[5] = v0.y;
 		me[8] = v0.z;
 	}
+
+	/**
+	 * forward看向target
+	 * forward在这里规定为z轴
+	 * @param eye 
+	 * @param target 目标
+	 * @param up 
+	 * @param out 
+	 */
+	static forwardLookAt(eye: Vector3, target: Vector3, up: Vector3, out: Matrix3x3): void {
+		var vx = Matrix3x3._tempV31;
+		var vy = Matrix3x3._tempV32;
+		var vz = Matrix3x3._tempV30;
+
+		target.vsub(eye, vz).normalize();
+		up.cross(vz, vx).normalize();
+		vz.cross(vx, vy);
+
+		var m = out.elements;
+		m[0]=vx.x; m[1]=vx.y; m[2]=vx.z;
+		m[3]=vy.x; m[4]=vy.y; m[5]=vy.z;
+		m[6]=vz.x; m[7]=vz.y; m[8]=vz.z;
+	}	
 }
 

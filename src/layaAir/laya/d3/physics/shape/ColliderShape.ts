@@ -33,6 +33,8 @@ export class ColliderShape implements IClone {
 	static SHAPETYPES_STATICPLANE: number = 6;
 	/** @internal */
 	static SHAPETYPES_CONE: number = 7;
+	/** @internal */
+	static SHAPETYPES_HEIGHTFIELDTERRAIN: number = 8;
 
 	/** @internal */
 	static _tempVector30: Vector3 = new Vector3();

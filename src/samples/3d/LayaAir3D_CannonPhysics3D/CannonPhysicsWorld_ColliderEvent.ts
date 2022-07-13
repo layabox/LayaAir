@@ -53,7 +53,6 @@ export class CannonPhysicsWorld_ColliderEvent{
 			this.camera.transform.translate(new Vector3(0, 6, 15));
 			this.camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 			this.camera.addComponent(CameraMoveScript);
-			this.camera.clearColor = null;
 
 			//方向光
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
