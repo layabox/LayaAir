@@ -69,7 +69,7 @@ export class Shader3D {
 	/**@internal 图形API为WebGL2.0/OPENGLES3.0。*/
 	static SHADERDEFINE_GRAPHICS_API_GLES3: ShaderDefine;
 	/**@internal 图形数据传输使用UniformBlock的方式 */
-	static SHADERDEFINE_ENUNIFORMBLOCK:ShaderDefine;
+	static SHADERDEFINE_ENUNIFORMBLOCK: ShaderDefine;
 
 	/**@internal */
 	static _propertyNameMap: any = {};
@@ -77,6 +77,7 @@ export class Shader3D {
 	private static _propertyNameCounter: number = 0;
 	/**@internal */
 	private static _defineCounter: number = 0;
+	// todo  这个 map 和 get 函数转移到 ShaderDefine 里面
 	/**@internal */
 	private static _defineMap: { [key: string]: ShaderDefine } = {};
 	/**@internal */
@@ -143,7 +144,7 @@ export class Shader3D {
 		return LayaGL.renderEngine.propertyNameToID(name);
 	}
 
-	static propertyIDToName(id: number) :string {
+	static propertyIDToName(id: number): string {
 		return LayaGL.renderEngine.propertyIDToName(id);
 	}
 

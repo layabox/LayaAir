@@ -287,53 +287,53 @@ export class Material extends Resource implements IClone {
                                 (path) && (material._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name), Loader.getTexture2D(path)));
                             }
                             break;
-                        	default:
-							var property = props[key];
-							var uniName = Shader3D.propertyNameToID(key);
+                        default:
+                            var property = props[key];
+                            var uniName = Shader3D.propertyNameToID(key);
 
-							switch(uniName){
-								case Material.CULL:
-									material.cull = this._getRenderStateParams(property);
-									break;
-								case Material.BLEND:
-									material.blend = this._getRenderStateParams(property);
-									break;
-								case Material.BLEND_SRC:
-									material.blendSrc = this._getRenderStateParams(property);
-									break;
-								case Material.BLEND_DST:
-									material.blendDst = this._getRenderStateParams(property);
-									break;
-								case Material.DEPTH_TEST:
-									material.depthTest = this._getRenderStateParams(property);
-									break;
-								case Material.DEPTH_WRITE:
-									material.depthWrite = this._getRenderStateParams(property);
-									break;
-								default:
-									if (!property.length) {
-										material._shaderValues.setNumber(uniName, props[key]);
-									} else {
-										var vectorValue = property;
-										switch (vectorValue.length) {
-											case 2:
-												material._shaderValues.setVector2(uniName, new Vector2(vectorValue[0], vectorValue[1]));
-												break;
-											case 3:
-												material._shaderValues.setVector3(uniName, new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
-												break;
-											case 4:
-												material._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
-												break;
-											default:
-												throw new Error("BaseMaterial:unkonwn color length.");
-										}
-									}
-									break;
-							}
+                            switch (uniName) {
+                                case Material.CULL:
+                                    material.cull = this._getRenderStateParams(property);
+                                    break;
+                                case Material.BLEND:
+                                    material.blend = this._getRenderStateParams(property);
+                                    break;
+                                case Material.BLEND_SRC:
+                                    material.blendSrc = this._getRenderStateParams(property);
+                                    break;
+                                case Material.BLEND_DST:
+                                    material.blendDst = this._getRenderStateParams(property);
+                                    break;
+                                case Material.DEPTH_TEST:
+                                    material.depthTest = this._getRenderStateParams(property);
+                                    break;
+                                case Material.DEPTH_WRITE:
+                                    material.depthWrite = this._getRenderStateParams(property);
+                                    break;
+                                default:
+                                    if (!property.length) {
+                                        material._shaderValues.setNumber(uniName, props[key]);
+                                    } else {
+                                        var vectorValue = property;
+                                        switch (vectorValue.length) {
+                                            case 2:
+                                                material._shaderValues.setVector2(uniName, new Vector2(vectorValue[0], vectorValue[1]));
+                                                break;
+                                            case 3:
+                                                material._shaderValues.setVector3(uniName, new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
+                                                break;
+                                            case 4:
+                                                material._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
+                                                break;
+                                            default:
+                                                throw new Error("BaseMaterial:unkonwn color length.");
+                                        }
+                                    }
+                                    break;
+                            }
 
-							
-					}
+
+                    }
                 }
                 break;
             default:
@@ -357,8 +357,9 @@ export class Material extends Resource implements IClone {
      * @internal
      * key: uniform property id
      * value: UniformBufferObject
+     * 保存 每个 uniform id 所在的 ubo
      */
-    private _uniformNamesMap: Map<number, UniformBufferObject>;
+    private _uniformBuffersMap: Map<number, UniformBufferObject>;
     // todo  统一使用 uniformitem 之类的结构体代替 ? {name, id, type, value, isarray, arraysize}
     private _uniformTypeMap: Map<number, ShaderDataType>;
 
@@ -600,7 +601,7 @@ export class Material extends Resource implements IClone {
         this.alphaTest = false;
         // if (Config3D._config._uniformBlock)
         this._uniformBufferDatas = new Map();
-        this._uniformNamesMap = new Map();
+        this._uniformBuffersMap = new Map();
         this._uniformTypeMap = new Map();
     }
 
@@ -647,7 +648,7 @@ export class Material extends Resource implements IClone {
             this._uniformBufferDatas.set(key, ubo);
 
             uboData._uniformParamsState.forEach((value: UniformBufferParamsType, id: number) => {
-                this._uniformNamesMap.set(id, ubo);
+                this._uniformBuffersMap.set(id, ubo);
             });
         }
     }
@@ -661,7 +662,7 @@ export class Material extends Resource implements IClone {
             value.destroy();
         }
         this._uniformBufferDatas.clear();
-        this._uniformNamesMap.clear();
+        this._uniformBuffersMap.clear();
     }
 
     /**
@@ -722,12 +723,10 @@ export class Material extends Resource implements IClone {
     setShaderPropertyValue(name: string, value: any) {
         let propertyID = Shader3D.propertyNameToID(name);
         this.shaderData.setValueData(propertyID, value);
-
         // ubo
-        let ubo = this._uniformNamesMap.get(propertyID);
+        let ubo = this._uniformBuffersMap.get(propertyID);
         if (ubo) {
             ubo._updateDataInfo._setData(propertyID, this.shaderData.getValueData(propertyID));
-            //立即更新，可以优化
             ubo.setDataByUniformBufferData(ubo._updateDataInfo);
         }
     }
@@ -738,6 +737,73 @@ export class Material extends Resource implements IClone {
      */
     getShaderPropertyValue(name: string): any {
         return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
+    }
+
+
+    /// typed data get set
+
+    
+    getVector2ByIndex(uniformIndex: number) {
+        return this.shaderData.getVector2(uniformIndex);
+    }
+
+    setVector2ByIndex(uniformIndex: number, value: Vector2) {
+        this.shaderData.setVector2(uniformIndex, value);
+        let ubo = this._uniformBuffersMap.get(uniformIndex);
+        if (ubo) {
+            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector2(uniformIndex));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
+    }
+
+    setVector4ByIndex(uniformIndex: number, value: Vector4) {
+        this.shaderData.setVector(uniformIndex, value);
+        let ubo = this._uniformBuffersMap.get(uniformIndex);
+        if (ubo) {
+            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
+    }
+
+    getVector4ByIndex(uniformIndex: number): Vector4 {
+        return this.shaderData.getVector(uniformIndex);
+    }
+
+    setVector4(name: string, value: Vector4) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setVector4ByIndex(uniformIndex, value);
+    }
+
+    getVector4(name: string) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getVector4ByIndex(uniformIndex);
+    }
+
+    setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
+        this.shaderData.setTexture(uniformIndex, texture);
+
+        let unifromName = Shader3D.propertyIDToName(uniformIndex);
+        let shaderDefine = Shader3D.getDefineByName(`Gamma_${unifromName}`);
+        if (texture && texture.gammaCorrection > 1) {
+            this.shaderData.addDefine(shaderDefine);
+        }
+        else {
+            this.shaderData.removeDefine(shaderDefine);
+        }
+    }
+
+    getTextureByIndex(uniformIndex: number) {
+        return this.shaderData.getTexture(uniformIndex);
+    }
+
+    setTexture(name: string, texture: BaseTexture) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setTextureByIndex(uniformIndex, texture);
+    }
+
+    getTexture(name: string): BaseTexture {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getTextureByIndex(uniformIndex);
     }
 
     /**

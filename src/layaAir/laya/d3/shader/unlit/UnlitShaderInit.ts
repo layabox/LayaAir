@@ -14,8 +14,8 @@ export class UnlitShaderInit {
         let uniformMap = {
             "UnlitBlock": {
                 "u_AlbedoColor": ShaderDataType.Color,
+                "u_TilingOffset": ShaderDataType.Vector4,
             },
-            "u_TilingOffset": ShaderDataType.Vector4,
             "u_AlbedoTexture": ShaderDataType.Texture2D,
             "u_AlphaTestValue": ShaderDataType.Float
         };

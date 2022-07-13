@@ -1,5 +1,7 @@
 #define SHADER_NAME PBRFS
 
+#include "Color.glsl";
+
 #include "Scene.glsl";
 #include "Camera.glsl";
 #include "Sprite3D.glsl";
@@ -26,6 +28,11 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 
 #ifdef DIFFUSEMAP
     vec4 diffuseSampler = texture2D(u_DiffuseMap, uv);
+
+    #ifdef Gamma_u_DiffuseMap
+    diffuseSampler = gammaToLinear(diffuseSampler);
+    #endif // Gamma_u_DiffuseMap
+
     inputs.diffuseColor *= diffuseSampler.rgb;
     inputs.alpha *= diffuseSampler.a;
 #endif // DIFFUSEMAP

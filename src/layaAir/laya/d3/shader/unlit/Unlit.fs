@@ -1,6 +1,8 @@
 
 #define SHADER_NAME UnlitFS
 
+#include "Color.glsl";
+
 #include "Scene.glsl";
 #include "SceneFog.glsl";
 
@@ -15,6 +17,11 @@ void main()
     float alpha = u_AlbedoColor.a;
 #ifdef ALBEDOTEXTURE
     vec4 albedoSampler = texture2D(u_AlbedoTexture, uv);
+
+    #ifdef Gamma_u_AlbedoTexture
+    albedoSampler = gammaToLinear(albedoSampler);
+    #endif // Gamma_u_AlbedoTexture
+
     color *= albedoSampler.rgb;
     alpha *= albedoSampler.a;
 #endif // ALBEDOTEXTURE

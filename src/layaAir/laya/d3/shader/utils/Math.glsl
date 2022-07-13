@@ -48,6 +48,8 @@ mat4 inverse(mat4 m)
 
     #define PI 3.14159265359
 
+    #define INVERT_PI 0.31830988618
+
     #define HALF_PI 1.570796327
 
     #define MEDIUMP_FLT_MAX 65504.0

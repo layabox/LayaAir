@@ -1559,7 +1559,7 @@ export class Scene3D extends Sprite implements ISubmit {
 		Scene3D.mainCavansViewPort.y = RenderContext3D.clientHeight * normalizeViewPort.y | 0;
 		Scene3D.mainCavansViewPort.width = RenderContext3D.clientWidth * normalizeViewPort.width | 0;
 		Scene3D.mainCavansViewPort.height = RenderContext3D.clientHeight * normalizeViewPort.height | 0;
-		source.filterMode = FilterMode.Trilinear;
+		source.filterMode = FilterMode.Bilinear;
 		var cmd = BlitFrameBufferCMD.create(source, null, Scene3D.mainCavansViewPort);
 		cmd.run();
 		cmd.recover();

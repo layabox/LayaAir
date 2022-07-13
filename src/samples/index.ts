@@ -1,8 +1,14 @@
-import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Resource } from "laya/resource/Resource";
-import { BlinnPhong_DiffuseMap } from "./3d/LayaAir3D_Material/BlinnPhong_DiffuseMap";
+import { PhysicsWorld_Character } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_Character";
 import { Main } from "./Main";
+import { DebugMeshTest } from "./self/MeshDebug/DebugMeshTest";
+import { NewMatTest } from "./self/newMaterial/NewMatTest";
 
-Resource.DEBUG = false;
+Resource.DEBUG = true;
 
-new BlinnPhong_DiffuseMap();
+// new Main(true, false);
+
+new NewMatTest();
+// new DebugMeshTest();
+
+// new PhysicsWorld_Character();

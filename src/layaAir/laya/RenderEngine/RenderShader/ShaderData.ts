@@ -226,7 +226,7 @@ export class ShaderData implements IClone {
 			value.cloneTo(this._data[index]);
 		}
 		else {
-			this._data[index] = new UniformColor(value.r,value.g,value.b,value.a);
+			this._data[index] = new UniformColor(value.r, value.g, value.b, value.a);
 		}
 	}
 
@@ -245,9 +245,9 @@ export class ShaderData implements IClone {
 	 * @param	value  矩阵。
 	 */
 	setMatrix4x4(index: number, value: Matrix4x4): void {
-		if(this._data[index]){
+		if (this._data[index]) {
 			value.cloneTo(this._data[index]);
-		}else{
+		} else {
 			this._data[index] = value.clone();
 		}
 	}
@@ -277,6 +277,7 @@ export class ShaderData implements IClone {
 	 */
 	setTexture(index: number, value: BaseTexture): void {
 		var lastValue: BaseTexture = this._data[index];
+		// todo 传 null 默认值
 		this._data[index] = value ? value : Texture2D.erroTextur;
 		if (this._ownerResource && this._ownerResource.referenceCount > 0) {
 			(lastValue) && (lastValue._removeReference());
@@ -300,11 +301,11 @@ export class ShaderData implements IClone {
 	 */
 	setValueData(index: number, value: any) {
 		//Color 需要特殊处理
-		if(value instanceof Color){
-			this.setColor(index,value);
+		if (value instanceof Color) {
+			this.setColor(index, value);
 			return;
 		}
-		
+
 		if (!value)//value null
 			this._data[index] = value;
 		else if (!!value.clone) {
