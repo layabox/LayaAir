@@ -654,7 +654,8 @@ export class BaseRender extends Component {
 		this._bounds = null;
 		this._lightmapScaleOffset = null;
 		this._scene = null;
-
+		this._rendernode = null;
+		
 		if (this._subUniformBufferData) {
 			BaseRender._transLargeUbO.recover(this._subUniformBufferData);
 			this._subUniformBufferData = null;

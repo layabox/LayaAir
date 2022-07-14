@@ -124,7 +124,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   }
 
   copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
-    throw new Error("Method not implemented.");
+    this._nativeObj.copySubFrameBuffertoTex(texture._texture, level, xoffset, yoffset, x, y, width, height);
   }
 
   colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void {
@@ -172,7 +172,6 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   propertyIDToName(id: number): string {
     throw new Error("Method not implemented.");
-    return "";
   }
 
   uploadUniforms(shader: IRenderShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {

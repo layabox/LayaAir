@@ -1,4 +1,3 @@
-import { Color } from "../../../d3/math/Color";
 import { Matrix4x4 } from "../../../d3/math/Matrix4x4";
 import { Vector2 } from "../../../d3/math/Vector2";
 import { Vector3 } from "../../../d3/math/Vector3";
@@ -8,7 +7,6 @@ import { BufferUsage } from "../../RenderEnum/BufferTargetType";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
-import { UniformColor } from "../../RenderShader/UniformColor";
 import { UniformBufferObject } from "../../UniformBufferObject";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
