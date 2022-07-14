@@ -5,12 +5,10 @@ import { ShaderDefine } from "./ShaderDefine";
 import { Texture2D } from "../../resource/Texture2D";
 import { IClone } from "../../d3/core/IClone";
 import { Matrix4x4 } from "../../d3/math/Matrix4x4";
-import { Quaternion } from "../../d3/math/Quaternion";
 import { Vector2 } from "../../d3/math/Vector2";
 import { Vector3 } from "../../d3/math/Vector3";
 import { Vector4 } from "../../d3/math/Vector4";
 import { Color } from "../../d3/math/Color";
-import { UniformColor } from "./UniformColor";
 
 export enum ShaderDataType {
 	Int,
@@ -37,6 +35,8 @@ export class ShaderData implements IClone {
 	/** @internal */
 	_defineDatas: DefineDatas = new DefineDatas();
 
+	private _gammaColorMap: Map<number, Color>;
+
 	/**
 	 * @internal	
 	 */
@@ -50,6 +50,7 @@ export class ShaderData implements IClone {
 	 */
 	_initData(): void {
 		this._data = {};
+		this._gammaColorMap = new Map();
 	}
 
 	/**
@@ -213,7 +214,7 @@ export class ShaderData implements IClone {
 	 * @returns 颜色
 	 */
 	getColor(index: number): Color {
-		return this._data[index];
+		return this._gammaColorMap.get(index);
 	}
 
 	/**
@@ -223,11 +224,33 @@ export class ShaderData implements IClone {
 	 */
 	setColor(index: number, value: Color): void {
 		if (this._data[index]) {
-			value.cloneTo(this._data[index]);
+			let gammaColor = this._gammaColorMap.get(index);
+			if (!value.equal(gammaColor)) {
+				value.cloneTo(gammaColor);
+				let linearColor = this._data[index];
+				linearColor.x = Color.gammaToLinearSpace(value.r);
+				linearColor.y = Color.gammaToLinearSpace(value.g);
+				linearColor.z = Color.gammaToLinearSpace(value.b);
+				linearColor.w = value.a;
+			}
 		}
 		else {
-			this._data[index] = new UniformColor(value.r, value.g, value.b, value.a);
+			let linearColor = new Vector4();
+			linearColor.x = Color.gammaToLinearSpace(value.r);
+			linearColor.y = Color.gammaToLinearSpace(value.g);
+			linearColor.z = Color.gammaToLinearSpace(value.b);
+			linearColor.w = value.a;
+			this._data[index] = linearColor;
+			this._gammaColorMap.set(index, value.clone());
 		}
+	}
+
+	/**
+	 * @internal
+	 * @param index 
+	 */
+	getLinearColor(index: number): Color {
+		return this._data[index];
 	}
 
 	/**
@@ -257,8 +280,8 @@ export class ShaderData implements IClone {
 	 * @param	index shader索引。
 	 * @return
 	 */
-	getBuffer(shaderIndex: number): Float32Array {
-		return this._data[shaderIndex];
+	getBuffer(index: number): Float32Array {
+		return this._data[index];
 	}
 
 	/**
@@ -296,6 +319,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * set shader data
+	 * @deprecated
 	 * @param index uniformID
 	 * @param value data
 	 */
@@ -305,7 +329,6 @@ export class ShaderData implements IClone {
 			this.setColor(index, value);
 			return;
 		}
-
 		if (!value)//value null
 			this._data[index] = value;
 		else if (!!value.clone) {
@@ -320,6 +343,7 @@ export class ShaderData implements IClone {
 
 	/**
 	 * get shader data
+	 * @deprecated
 	 * @param index uniform ID
 	 * @returns 
 	 */
@@ -399,6 +423,10 @@ export class ShaderData implements IClone {
 			}
 		}
 		this._defineDatas.cloneTo(dest._defineDatas);
+		this._gammaColorMap.forEach((color, index) => {
+			destObject._gammaColorMap.set(index, color.clone());
+		})
+
 	}
 
 	/**
@@ -414,6 +442,8 @@ export class ShaderData implements IClone {
 	destroy(): void {
 		this._data = null;
 		this._defineDatas = null;
+		this._gammaColorMap.clear();
+		this._gammaColorMap = null;
 	}
 }
 

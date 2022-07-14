@@ -21,6 +21,8 @@ import { Config3D } from "../../../../Config3D";
 import { UniformBufferParamsType, UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderState } from "./RenderState";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Color } from "../../math/Color";
 
 export enum MaterialRenderMode {
     /**渲染状态_不透明。*/
@@ -717,6 +719,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 设置属性值
+     * @deprecated
      * @param name 
      * @param value 
      */
@@ -733,6 +736,7 @@ export class Material extends Resource implements IClone {
 
     /**
      * 获取属性值
+     * @deprecated
      * @param name 
      */
     getShaderPropertyValue(name: string): any {
@@ -742,8 +746,53 @@ export class Material extends Resource implements IClone {
 
     /// typed data get set
 
-    
-    getVector2ByIndex(uniformIndex: number) {
+    getFloatByIndex(uniformIndex: number): number {
+        return this.shaderData.getNumber(uniformIndex);
+    }
+
+    setFloatByIndex(uniformIndex: number, value: number) {
+        this.shaderData.setNumber(uniformIndex, value);
+        let ubo = this._uniformBuffersMap.get(uniformIndex);
+        if (ubo) {
+            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getNumber(uniformIndex));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
+    }
+
+    getFloat(name: string): number {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getFloatByIndex(uniformIndex);
+    }
+
+    setFloat(name: string, value: number) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setFloatByIndex(uniformIndex, value);
+    }
+
+    getIntByIndex(uniformIndex: number): number {
+        return this.shaderData.getInt(uniformIndex);
+    }
+
+    setIntByIndex(uniformIndex: number, value: number) {
+        this.shaderData.setInt(uniformIndex, value);
+        let ubo = this._uniformBuffersMap.get(uniformIndex);
+        if (ubo) {
+            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getNumber(uniformIndex));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
+    }
+
+    getInt(name: string): number {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getIntByIndex(uniformIndex);
+    }
+
+    setInt(name: string, value: number) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setIntByIndex(uniformIndex, value);
+    }
+
+    getVector2ByIndex(uniformIndex: number): Vector2 {
         return this.shaderData.getVector2(uniformIndex);
     }
 
@@ -754,6 +803,40 @@ export class Material extends Resource implements IClone {
             ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector2(uniformIndex));
             ubo.setDataByUniformBufferData(ubo._updateDataInfo);
         }
+    }
+
+    getVector2(name: string): Vector2 {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getVector2ByIndex(uniformIndex);
+    }
+
+    setVector2(name: string, value: Vector2) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setVector2ByIndex(uniformIndex, value);
+    }
+
+
+    getVector3ByIndex(uniformIndex: number): Vector3 {
+        return this.shaderData.getVector3(uniformIndex);
+    }
+
+    setVector3ByIndex(uniformIndex: number, value: Vector3) {
+        this.shaderData.setVector3(uniformIndex, value);
+        let ubo = this._uniformBuffersMap.get(uniformIndex);
+        if (ubo) {
+            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector3(uniformIndex));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
+    }
+
+    getVector3(name: string) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getVector3ByIndex(uniformIndex);
+    }
+
+    setVector3(name: string, value: Vector3) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setVector3ByIndex(uniformIndex, value);
     }
 
     setVector4ByIndex(uniformIndex: number, value: Vector4) {
@@ -779,10 +862,57 @@ export class Material extends Resource implements IClone {
         return this.getVector4ByIndex(uniformIndex);
     }
 
+    getColorByIndex(uniformIndex: number): Color {
+        return this.shaderData.getColor(uniformIndex);
+    }
+
+    setColorByIndex(uniformIndex: number, value: Color) {
+        this.shaderData.setColor(uniformIndex, value);
+        let ubo = this._uniformBuffersMap.get(uniformIndex);
+        if (ubo) {
+            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getLinearColor(uniformIndex));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
+    }
+
+    getColor(name: string): Color {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.shaderData.getColor(uniformIndex);
+    }
+
+    setColor(name: string, value: Color) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setColorByIndex(uniformIndex, value);
+    }
+
+    getMatrix4x4ByIndex(uniformIndex: number): Matrix4x4 {
+        return this.shaderData.getMatrix4x4(uniformIndex);
+    }
+
+    setMatrix4x4ByIndex(uniformIndex: number, value: Matrix4x4) {
+        this.shaderData.setMatrix4x4(uniformIndex, value);
+        let ubo = this._uniformBuffersMap.get(uniformIndex);
+        if (ubo) {
+            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
+    }
+
+    getMatrix4x4(name: string): Matrix4x4 {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getMatrix4x4ByIndex(uniformIndex);
+    }
+
+    setMatrix4x4(name: string, value: Matrix4x4) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setMatrix4x4ByIndex(uniformIndex, value);
+    }
+
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
 
         let unifromName = Shader3D.propertyIDToName(uniformIndex);
+        // todo 在解析uniformmap 的时候直接创建 shaderdefine 保存， 这个地方直接取 shaderdefine 设置
         let shaderDefine = Shader3D.getDefineByName(`Gamma_${unifromName}`);
         if (texture && texture.gammaCorrection > 1) {
             this.shaderData.addDefine(shaderDefine);
@@ -804,6 +934,20 @@ export class Material extends Resource implements IClone {
     getTexture(name: string): BaseTexture {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getTextureByIndex(uniformIndex);
+    }
+
+    getBufferByIndex(uniformIndex: number): Float32Array {
+        return this.shaderData.getBuffer(uniformIndex);
+    }
+
+    setBufferByIndex(uniformIndex: number, value: Float32Array) {
+        this.shaderData.setBuffer(uniformIndex, value);
+        let ubo = this._uniformBuffersMap.get(uniformIndex);
+        if (ubo) {
+            // todo
+            // ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
+            // ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
     }
 
     /**

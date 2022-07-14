@@ -1,6 +1,5 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { UniformColor } from "../../../../RenderEngine/RenderShader/UniformColor";
 import { Color } from "../../../math/Color";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
