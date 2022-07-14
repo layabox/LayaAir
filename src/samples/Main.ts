@@ -1,12 +1,15 @@
 
 import { Laya } from "Laya";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { URL } from "laya/net/URL";
 import { Handler } from "laya/utils/Handler";
-import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
+
+
 import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
@@ -42,7 +45,7 @@ export class Main {
      * @param is3D true为3d, false为2d
      * @param isReadNetWorkRes true从网络读取资源，false从本地目录读取资源(bin/res)。
      */
-    constructor(is3D: boolean = false, isReadNetWorkRes: boolean = false) {
+    constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false) {
         //false为2D true为3D
         this._is3D = is3D;
         if (!this._is3D) {
