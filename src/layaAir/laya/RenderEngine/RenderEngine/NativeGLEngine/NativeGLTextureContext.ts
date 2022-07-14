@@ -85,7 +85,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     bindoutScreenTarget():void{
-        throw new Error("bindoutScreenTarget Method not implemented.");
+        this._native.bindoutScreenTarget();
     }
 
     unbindRenderTarget(renderTarget: InternalRenderTarget): void {
@@ -93,8 +93,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
-        throw new Error("createRenderTextureInternal Method not implemented.");
-        return null;
+        return this._native.createRenderTextureInternal(dimension, width, height, format, generateMipmap, sRGB);
     }
 
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
@@ -102,16 +101,14 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        throw new Error("createRenderTargetCubeInternal Method not implemented.");
-        return null;
+        return this._native.createRenderTargetCubeInternal(size, colorFormat, depthStencilFormat, generateMipmap, sRGB, multiSamples);
     }
     createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
         throw new Error("createRenderTextureCubeInternal Method not implemented.");
-        return null;
     }
     // todo  color 0, 1, 2, 3 ?
     setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture) {
-        throw new Error("setupRendertargetTextureAttachment Method not implemented.");
+        this._native.setupRendertargetTextureAttachment(renderTarget, texture);
     }
 
     // todo 不同 格式
