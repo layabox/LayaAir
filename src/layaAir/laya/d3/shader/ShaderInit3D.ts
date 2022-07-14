@@ -85,6 +85,7 @@ import { BlitScreenShaderInit } from "./postprocess/BlitScreenShaderInit";
 import { UnlitShaderInit } from "./unlit/UnlitShaderInit";
 import { BlinnPhongShaderInit } from "./blinnphong/BlinnPhongShaderInit";
 import { PBRShaderInit } from "./pbr/PBRShaderInit";
+import { TrailShaderInit } from "./Trail/TrailShaderInit";
 
 /**
  * @internal
@@ -132,6 +133,7 @@ export class ShaderInit3D {
 		UnlitShaderInit.init();
 		BlinnPhongShaderInit.init();
 		PBRShaderInit.init();
+		TrailShaderInit.init();
 
 		///////////////////////////////////////////////////////////////////////
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");

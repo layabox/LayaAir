@@ -269,7 +269,7 @@ export class WebGLEngine implements IRenderEngine {
         var flag: number;
         //this.gl.enable(this._gl.SCISSOR_TEST)
         if (clearFlag & RenderClearFlag.Color) {
-            if (clearcolor && !this._lastClearColor.equal(this._lastClearColor)) {
+            if (clearcolor && !this._lastClearColor.equal(clearcolor)) {
                 this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
                 clearcolor.cloneTo(this._lastClearColor);
             }

@@ -7,7 +7,7 @@ import TrailFS from "./Trail.fs";
 export class TrailShaderInit {
     static init() {
         let uniformMap = {
-            "u_TIlingOffset": ShaderDataType.Vector4,
+            "u_TilingOffset": ShaderDataType.Vector4,
             "u_MainTexture": ShaderDataType.Texture2D,
             "u_MainColor": ShaderDataType.Color,
         };

@@ -16,21 +16,15 @@ import { RenderState } from "./RenderState";
  * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。
  */
 export class UnlitMaterial extends Material {
-
-	/**渲染状态_不透明。*/
-	static RENDERMODE_OPAQUE: number = 0;
-	/**渲染状态_阿尔法测试。*/
-	static RENDERMODE_CUTOUT: number = 1;
-	/**渲染状态__透明混合。*/
-	static RENDERMODE_TRANSPARENT: number = 2;
-	/**渲染状态__加色法混合。*/
-	static RENDERMODE_ADDTIVE: number = 3;
-
+	
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
+
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 
 	static ALBEDOTEXTURE: number;
+
 	static ALBEDOCOLOR: number;
+
 	static TILINGOFFSET: number;
 
 	/**
@@ -44,9 +38,6 @@ export class UnlitMaterial extends Material {
 		UnlitMaterial.ALBEDOCOLOR = Shader3D.propertyNameToID("u_AlbedoColor");
 		UnlitMaterial.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
 	}
-
-
-
 
 	private _albedoIntensity: number;
 
@@ -140,6 +131,66 @@ export class UnlitMaterial extends Material {
 		var dest: UnlitMaterial = new UnlitMaterial();
 		this.cloneTo(dest);
 		return dest;
+	}
+
+
+	
+	//----------------deprecated----------------
+	/**
+	 * @deprecated
+	 * 渲染状态_不透明。
+	 */
+	static RENDERMODE_OPAQUE: number = 0;
+	/**
+	 * @deprecated
+	 * 渲染状态_阿尔法测试。
+	*/
+	static RENDERMODE_CUTOUT: number = 1;
+	/**
+	 * @deprecated
+	 * 渲染状态__透明混合。 
+	 */
+	static RENDERMODE_TRANSPARENT: number = 2;
+	/**
+	 * @deprecated
+	 * 渲染状态__加色法混合。 
+	 */
+	static RENDERMODE_ADDTIVE: number = 3;
+	/**
+	 * @deprecated
+	 * 渲染模式。
+	 */
+	 set renderMode(value: number) {
+		switch (value) {
+			case UnlitMaterial.RENDERMODE_OPAQUE:
+				this.alphaTest = false;
+				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
+				this.depthWrite = true;
+				this.cull = RenderState.CULL_BACK;
+				this.blend = RenderState.BLEND_DISABLE;
+				this.depthTest = RenderState.DEPTHTEST_LESS;
+				break;
+			case UnlitMaterial.RENDERMODE_CUTOUT:
+				this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
+				this.alphaTest = true;
+				this.depthWrite = true;
+				this.cull = RenderState.CULL_BACK;
+				this.blend = RenderState.BLEND_DISABLE;
+				this.depthTest = RenderState.DEPTHTEST_LESS;
+				break;
+			case UnlitMaterial.RENDERMODE_TRANSPARENT:
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
+				this.alphaTest = false;
+				this.depthWrite = false;
+				this.cull = RenderState.CULL_BACK;
+				this.blend = RenderState.BLEND_ENABLE_ALL;
+				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
+				this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
+				this.depthTest = RenderState.DEPTHTEST_LESS;
+				break;
+			default:
+				throw new Error("UnlitMaterial : renderMode value error.");
+		}
 	}
 }
 

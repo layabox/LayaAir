@@ -212,6 +212,14 @@ export class Material extends Resource implements IClone {
                                 }
                             }
                             break;
+                        case "colors":
+                            var colors = props[key];
+                            for (i = 0, n = colors.length; i < n; i++) {
+                                var color = colors[i];
+                                var vectorValue = color.value;
+                                material[color.name] = new Color(vectorValue[0],vectorValue[1],vectorValue[2],vectorValue[3])
+                            }
+                            break;
                         case "textures":
                             var textures: any[] = props[key];
                             for (i = 0, n = textures.length; i < n; i++) {
@@ -538,7 +546,7 @@ export class Material extends Resource implements IClone {
     /**
      * 渲染模式。
      */
-    set renderMode(value: MaterialRenderMode) {
+    set materialRenderMode(value: MaterialRenderMode) {
         switch (value) {
             case MaterialRenderMode.RENDERMODE_OPAQUE:
                 this.alphaTest = false;

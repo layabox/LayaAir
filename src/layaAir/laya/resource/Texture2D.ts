@@ -116,8 +116,9 @@ export class Texture2D extends BaseTexture {
 		let format = constructParams ? constructParams[2] : TextureFormat.R8G8B8A8;
 		let mipmap = constructParams ? constructParams[3] : true;
 		let canread = constructParams ? constructParams[4] : false;
+		let srgb = constructParams ? constructParams[5]:false;
 		// todo  srgb
-		let texture = new Texture2D(imageSource.width, imageSource.height, format, mipmap, canread, false);
+		let texture = new Texture2D(imageSource.width, imageSource.height, format, mipmap, canread, srgb);
 
 		texture.setImageData(imageSource, false, false);
 
