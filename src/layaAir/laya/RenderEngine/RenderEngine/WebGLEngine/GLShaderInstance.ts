@@ -37,6 +37,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
     /**@internal */
     private _uniformMap: ShaderVariable[];
     /**@internal */
+    // todo 没用到
     private _uniformObjectMap: { [key: string]: ShaderVariable };
 
     constructor(engine: WebGLEngine, vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }) {
@@ -306,7 +307,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
     /**
      * @internal
      */
-    _uniform_vec4(one: any, v: Vector4|UniformColor): number {
+    _uniform_vec4(one: any, v: Vector4): number {
         var uploadedValue: any[] = one.uploadedValue;
         if (uploadedValue[0] !== v.x || uploadedValue[1] !== v.y || uploadedValue[2] !== v.z || uploadedValue[3] !== v.w) {
             this._gl.uniform4f(one.location, uploadedValue[0] = v.x, uploadedValue[1] = v.y, uploadedValue[2] = v.z, uploadedValue[3] = v.w);

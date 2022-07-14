@@ -19,6 +19,9 @@ void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
 
 #ifdef DIFFUSEMAP
     vec4 diffuseSampler = texture2D(u_DiffuseTexture, uv);
+    #ifdef Gamma_u_DiffuseTexture
+    diffuseSampler = gammaToLinear(diffuseSampler);
+    #endif // Gamma_u_DiffuseTexture
     surface.diffuseColor *= u_DiffuseColor.rgb * diffuseSampler.rgb * u_AlbedoIntensity;
     surface.alpha *= diffuseSampler.a;
 #endif // DIFFUSEMAP
@@ -34,6 +37,9 @@ void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
 
 #ifdef SPECULARMAP
     vec4 specularSampler = texture2D(u_SpecularTexture, uv);
+    #ifdef Gamma_u_SpecularTexture
+    specularSampler = gammaToLinear(specularSampler);
+    #endif // Gamma_u_SpecularTexture
     surface.gloss = specularSampler.rgb;
 #else // SPECULARMAP
     #ifdef DIFFUSEMAP

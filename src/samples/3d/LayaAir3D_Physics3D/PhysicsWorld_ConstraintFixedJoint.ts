@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-
 import { Laya3D } from "Laya3D";
 import { Handler } from "laya/utils/Handler";
 import { Stage } from "laya/display/Stage";
@@ -16,6 +15,7 @@ import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Script3D } from "laya/d3/component/Script3D";
 import { Config3D } from "Config3D";
+import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 
 export class PhysicsWorld_ConstraintFixedJoint{
     private scene:Scene3D;
@@ -46,6 +46,7 @@ export class PhysicsWorld_ConstraintFixedJoint{
 		var pos: Vector3 = transform.position;
 		pos.setValue(0, 5, 0);
 		transform.position = pos;
+		box.meshRenderer.sharedMaterial = new BlinnPhongMaterial();
 
 		//创建刚体碰撞器
 		var rigidBody: Rigidbody3D = box.addComponent(Rigidbody3D);
@@ -65,6 +66,7 @@ export class PhysicsWorld_ConstraintFixedJoint{
 		var pos2: Vector3 = transform2.position;
 		pos2.setValue(0, 3, 0);
 		transform2.position = pos2;
+		box2.meshRenderer.sharedMaterial = new BlinnPhongMaterial();
 		//创建刚体碰撞器
 		var rigidBody2: Rigidbody3D = box2.addComponent(Rigidbody3D);
 		//创建盒子形状碰撞器
