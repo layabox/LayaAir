@@ -6,6 +6,7 @@ import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
@@ -43,7 +44,7 @@ export class TouchScriptSample {
 		this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
 
 		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color = new Vector3(1, 1, 1);
+		directionLight.color = new Color(1, 1, 1, 1);
 		//设置平行光的方向
 		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 		mat.setForward(new Vector3(-1.0, -1.0, 1.0));

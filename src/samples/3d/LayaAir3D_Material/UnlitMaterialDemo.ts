@@ -39,7 +39,7 @@ export class UnlitMaterialDemo {
 		camera.clearFlag = CameraClearFlags.Sky;
 
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		directionLight.color.setValue(1, 1, 1);
+		directionLight.color.setValue(1, 1, 1, 1);
 
 		//创建一个公用的sphereMesh
 		var sphereMesh: Mesh = PrimitiveMesh.createSphere();

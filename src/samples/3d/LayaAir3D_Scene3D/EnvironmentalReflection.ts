@@ -7,6 +7,7 @@ import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { SkyBox } from "laya/d3/resource/models/SkyBox";
@@ -58,7 +59,7 @@ export class EnvironmentalReflection {
 		}));
 		//创建平行光
 		var directionLight: DirectionLight = <DirectionLight>scene.addChild(new DirectionLight());
-		directionLight.color = new Vector3(0.6, 0.6, 0.6);
+		directionLight.color = new Color(0.6, 0.6, 0.6, 1);
 
 		//加载Mesh
 		Mesh.load("res/threeDimen/staticModel/teapot/teapot-Teapot001.lm", Handler.create(this, function (mesh: Mesh): void {

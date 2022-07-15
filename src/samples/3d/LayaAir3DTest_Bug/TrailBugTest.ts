@@ -52,7 +52,7 @@ export class TrailBugTest {
 		//添加平行光
 		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 		//设置平行光颜色
-		directionLight.color.setValue(1, 1, 1);
+		directionLight.color.setValue(1, 1, 1, 1);
 		//directionLight.transform.rotate(_rotation2);
 
 		this.sprite = new Sprite3D;

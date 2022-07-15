@@ -79,7 +79,7 @@ export class CameraDemo {
 		//添加平行光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		//设置平行光颜色
-		directionLight.color.setValue(1, 1, 1);
+		directionLight.color.setValue(1, 1, 1, 1);
 		directionLight.transform.rotate(this._rotation2);
 
 		var sprite: Sprite3D = new Sprite3D;

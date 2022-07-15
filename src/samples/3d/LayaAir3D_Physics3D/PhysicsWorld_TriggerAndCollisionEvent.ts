@@ -64,7 +64,7 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 			//创建相机
 			var directionLight = new DirectionLight();
 			this.scene.addChild(directionLight);
-			directionLight.color = new Vector3(1, 1, 1);
+			directionLight.color = new Color(1, 1, 1, 1);
 			//设置平行光的方向
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, 1.0));

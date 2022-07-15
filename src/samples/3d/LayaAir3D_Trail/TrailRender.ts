@@ -3,6 +3,7 @@ import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
@@ -32,7 +33,7 @@ export class TrailRender {
 		//创建平行光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		//设置平行光颜色
-		directionLight.color = new Vector3(1, 1, 1);
+		directionLight.color = new Color(1, 1, 1, 1);
 		directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
 
 		Sprite3D.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, function (plane: Sprite3D): void {

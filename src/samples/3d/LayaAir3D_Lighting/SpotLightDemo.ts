@@ -5,6 +5,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { SpotLight } from "laya/d3/core/light/SpotLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
@@ -42,7 +43,7 @@ export class SpotLightDemo {
 		//聚光灯
 		var spotLight: SpotLight = (<SpotLight>scene.addChild(new SpotLight()));
 		//设置聚光灯颜色
-		spotLight.color = new Vector3(1, 1, 0);
+		spotLight.color = new Color(1, 1, 0, 1);
 		spotLight.transform.position = new Vector3(0.0, 1.2, 0.0);
 		//设置聚光灯的方向
 		var mat: Matrix4x4 = spotLight.transform.worldMatrix;

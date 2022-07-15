@@ -44,7 +44,7 @@ export class DirectionLightDemo {
 		//创建方向光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		//方向光的颜色
-		directionLight.color.setValue(1, 1, 1);
+		directionLight.color.setValue(1, 1, 1, 1);
 		//设置平行光的方向
 		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 		mat.setForward(new Vector3(-1.0, -1.0, -1.0));

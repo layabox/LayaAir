@@ -11,6 +11,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Vector4 } from "laya/d3/math/Vector4";
+import { Color } from "laya/d3/math/Color";
 
 export class Secne3DPlayer2D {
 
@@ -42,8 +43,7 @@ export class Secne3DPlayer2D {
 
 		//创建平行光
 		var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-		var tmpColor: Vector3 = directionLight.color;
-		tmpColor.setValue(1, 1, 1);
+		directionLight.color = new Color(1, 1, 1, 1);
 		directionLight.transform.rotate(this._rotation);
 		//加载精灵
 		Laya.loader.create("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, this.onComplete));

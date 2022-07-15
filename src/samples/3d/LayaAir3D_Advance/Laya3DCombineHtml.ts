@@ -8,6 +8,7 @@ import { Camera } from "laya/d3/core/Camera"
 	import { Handler } from "laya/utils/Handler"
 import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
+import { Color } from "laya/d3/math/Color";
 	
 	export class Laya3DCombineHtml
 	{
@@ -32,7 +33,7 @@ import { Laya } from "Laya";
 			camera.transform.rotate(new Vector3( -15, 0, 0), true, false);
 			
 			var directionLight:DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()) );
-			directionLight.color = new Vector3(1, 1, 1);
+			directionLight.color = new Color(1, 1, 1, 1);
 			
 			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh",Handler.create(this,function(layaMonkey:Sprite3D):void{
 				scene.addChild(layaMonkey);

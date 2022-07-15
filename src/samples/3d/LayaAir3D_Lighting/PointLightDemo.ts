@@ -5,6 +5,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { PointLight } from "laya/d3/core/light/PointLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
@@ -44,7 +45,7 @@ export class PointLightDemo {
 		//创建点光源
 		var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
 		//点光源的颜色
-		pointLight.color = new Vector3(1.0, 0.5, 0.0);
+		pointLight.color = new Color(1.0, 0.5, 0.0, 1);
 		pointLight.transform.position = new Vector3(0.4, 0.4, 0.0);
 		//设置点光源的范围
 		pointLight.range = 3.0;
