@@ -8,25 +8,25 @@ import { IClone } from "../core/IClone"
  */
 export class Vector4 implements IClone {
 
-	/**零向量，禁止修改*/
-	static ZERO: Vector4 = new Vector4();
+	/**零向量*/
+	static readonly ZERO: Vector4 = new Vector4();
 
-	/*一向量，禁止修改*/
-	static ONE: Vector4 = new Vector4(1.0, 1.0, 1.0, 1.0);
+	/*一向量*/
+	static readonly ONE: Vector4 = new Vector4(1.0, 1.0, 1.0, 1.0);
 
-	/*X单位向量，禁止修改*/
-	static UnitX: Vector4 = new Vector4(1.0, 0.0, 0.0, 0.0);
+	/*X单位向量*/
+	static readonly UnitX: Vector4 = new Vector4(1.0, 0.0, 0.0, 0.0);
 
-	/*Y单位向量，禁止修改*/
-	static UnitY: Vector4 = new Vector4(0.0, 1.0, 0.0, 0.0);
+	/*Y单位向量*/
+	static readonly UnitY: Vector4 = new Vector4(0.0, 1.0, 0.0, 0.0);
 
-	/*Z单位向量，禁止修改*/
-	static UnitZ: Vector4 = new Vector4(0.0, 0.0, 1.0, 0.0);
+	/*Z单位向量*/
+	static readonly UnitZ: Vector4 = new Vector4(0.0, 0.0, 1.0, 0.0);
 
-	/*W单位向量，禁止修改*/
-	static UnitW: Vector4 = new Vector4(0.0, 0.0, 0.0, 1.0);
+	/*W单位向量*/
+	static readonly UnitW: Vector4 = new Vector4(0.0, 0.0, 0.0, 1.0);
 
-	static tempVec4:Vector4 = new Vector4(0.0, 0.0, 0.0, 0.0);
+	static tempVec4: Vector4 = new Vector4(0.0, 0.0, 0.0, 0.0);
 
 	/**X轴坐标*/
 	x: number;
@@ -82,7 +82,7 @@ export class Vector4 implements IClone {
 	 * @param array 数组。
 	 * @param offset 数组偏移。 
 	 */
-	toArray(array:Float32Array,offset:number = 0):void{
+	toArray(array: Float32Array, offset: number = 0): void {
 		array[offset + 0] = this.x;
 		array[offset + 1] = this.y;
 		array[offset + 2] = this.z;

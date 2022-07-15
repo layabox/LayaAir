@@ -2,6 +2,13 @@
  * <code>ShaderDefine</code> 类用于定义宏数据。
  */
 export class ShaderDefine {
+
+	/**
+	 * @internal
+	 * 存储 texture uniform gamma define
+	 */
+	static _texGammaDefine: { [key: string]: ShaderDefine } = {};
+
 	/**@internal */
 	_index: number;
 	/**@internal */

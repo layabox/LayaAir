@@ -60,12 +60,6 @@ export class UnifromBufferData {
     constructor(uniformParamsStat: Map<number, UniformBufferParamsType>) {
         // todo 后面改掉 不用map 初始化
         this._uniformParamsState = new Map(uniformParamsStat);
-        // if (uniformParamsStat) {
-        //     uniformParamsStat.forEach((type: UniformBufferParamsType, name: string) => {
-        //         let uniformID = Shader3D.propertyNameToID(name);
-        //         this._uniformParamsState.set(uniformID, type)
-        //     });
-        // }
         this._createBuffer();
         this._updateFlag = new Vector2();
         this._resetUpdateFlag();

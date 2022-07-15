@@ -11,7 +11,7 @@ import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunctio
 import { Laya } from "../../../../Laya";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ClassUtils } from "../../../utils/ClassUtils";
@@ -217,7 +217,7 @@ export class Material extends Resource implements IClone {
                             for (i = 0, n = colors.length; i < n; i++) {
                                 var color = colors[i];
                                 var vectorValue = color.value;
-                                material[color.name] = new Color(vectorValue[0],vectorValue[1],vectorValue[2],vectorValue[3])
+                                material[color.name] = new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3])
                             }
                             break;
                         case "textures":
@@ -370,8 +370,6 @@ export class Material extends Resource implements IClone {
      * 保存 每个 uniform id 所在的 ubo
      */
     private _uniformBuffersMap: Map<number, UniformBufferObject>;
-    // todo  统一使用 uniformitem 之类的结构体代替 ? {name, id, type, value, isarray, arraysize}
-    private _uniformTypeMap: Map<number, ShaderDataType>;
 
     /**
      * 着色器数据。
@@ -612,7 +610,6 @@ export class Material extends Resource implements IClone {
         // if (Config3D._config._uniformBlock)
         this._uniformBufferDatas = new Map();
         this._uniformBuffersMap = new Map();
-        this._uniformTypeMap = new Map();
     }
 
     /**
@@ -632,20 +629,8 @@ export class Material extends Resource implements IClone {
         //update UBOData by Shader
         let subShader = shader.getSubShaderAt(0);//TODO	
 
-        // clear old data
-        this._uniformTypeMap.clear();
-
-        // uniform
-        let uniformMap = subShader._uniformMap;
-        for (const key in uniformMap) {
-            if (typeof uniformMap[key] !== "object") {
-                let uniformType = <ShaderDataType>uniformMap[key];
-                this._uniformTypeMap.set(Shader3D.propertyNameToID(key), uniformType);
-            }
-        }
-
         // ubo
-        let shaderUBODatas = subShader._uniformBufferData;
+        let shaderUBODatas = subShader._uniformBufferDataMap;
         if (!shaderUBODatas)
             return;
         for (let key of shaderUBODatas.keys()) {
@@ -654,13 +639,15 @@ export class Material extends Resource implements IClone {
             //create UBO
             let ubo = UniformBufferObject.create(key, BufferUsage.Dynamic, uboData.getbyteLength(), false);
             ubo.setDataByUniformBufferData(uboData);
-            this._shaderValues.setValueData(Shader3D.propertyNameToID(key), ubo);
+            this._shaderValues.setUniformBuffer(Shader3D.propertyNameToID(key), ubo);
             this._uniformBufferDatas.set(key, ubo);
 
             uboData._uniformParamsState.forEach((value: UniformBufferParamsType, id: number) => {
                 this._uniformBuffersMap.set(id, ubo);
             });
         }
+
+
     }
 
     private _releaseUBOData() {
@@ -722,7 +709,28 @@ export class Material extends Resource implements IClone {
             return;
         this._releaseUBOData();
         //bind shader info
+        // todo 清理残留 shader data
         this._bindShaderInfo(this._shader);
+
+        // set default value
+        // todo subShader 选择
+        let subShader = this._shader.getSubShaderAt(0);
+        let defaultValue = subShader._uniformDefaultValue;
+        let typeMap = subShader._uniformTypeMap;
+        this.applyUniformDefaultValue(typeMap, defaultValue);
+    }
+
+    /**
+     * @internal
+     */
+    applyUniformDefaultValue(typeMap: Map<string, ShaderDataType>, defaultValue: { [name: string]: ShaderDataItem }) {
+        for (const key in defaultValue) {
+            if (typeMap.has(key)) {
+                let type = typeMap.get(key);
+                let value = defaultValue[key];
+                this.setShaderData(key, type, value);
+            }
+        }
     }
 
     /**
@@ -753,6 +761,25 @@ export class Material extends Resource implements IClone {
 
 
     /// typed data get set
+
+    getBoolByIndex(uniformIndex: number): boolean {
+        return this.shaderData.getBool(uniformIndex);
+    }
+
+    setBoolByIndex(uniformIndex: number, value: boolean) {
+        this.shaderData.setBool(uniformIndex, value);
+        // ubo 中没有此类型
+    }
+
+    getBool(name: string): boolean {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getBoolByIndex(uniformIndex);
+    }
+
+    setBool(name: string, value: boolean) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setBoolByIndex(uniformIndex, value);
+    }
 
     getFloatByIndex(uniformIndex: number): number {
         return this.shaderData.getNumber(uniformIndex);
@@ -918,16 +945,6 @@ export class Material extends Resource implements IClone {
 
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
-
-        let unifromName = Shader3D.propertyIDToName(uniformIndex);
-        // todo 在解析uniformmap 的时候直接创建 shaderdefine 保存， 这个地方直接取 shaderdefine 设置
-        let shaderDefine = Shader3D.getDefineByName(`Gamma_${unifromName}`);
-        if (texture && texture.gammaCorrection > 1) {
-            this.shaderData.addDefine(shaderDefine);
-        }
-        else {
-            this.shaderData.removeDefine(shaderDefine);
-        }
     }
 
     getTextureByIndex(uniformIndex: number) {
@@ -956,6 +973,51 @@ export class Material extends Resource implements IClone {
             // ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
             // ubo.setDataByUniformBufferData(ubo._updateDataInfo);
         }
+    }
+
+    setShaderDataByIndex(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem) {
+        switch (type) {
+            case ShaderDataType.Int:
+                this.setIntByIndex(uniformIndex, <number>value);
+                break;
+            case ShaderDataType.Bool:
+                this.setBoolByIndex(uniformIndex, <boolean>value);
+                break;
+            case ShaderDataType.Float:
+                this.setFloatByIndex(uniformIndex, <number>value);
+                break;
+            case ShaderDataType.Vector2:
+                this.setVector2ByIndex(uniformIndex, <Vector2>value);
+                break;
+            case ShaderDataType.Vector3:
+                this.setVector3ByIndex(uniformIndex, <Vector3>value);
+                break;
+            case ShaderDataType.Vector4:
+                this.setVector4ByIndex(uniformIndex, <Vector4>value);
+                break;
+            case ShaderDataType.Color:
+                this.setColorByIndex(uniformIndex, <Color>value);
+                break;
+            case ShaderDataType.Matrix4x4:
+                this.setMatrix4x4ByIndex(uniformIndex, <Matrix4x4>value);
+                break;
+            case ShaderDataType.Texture2D:
+            case ShaderDataType.TextureCube:
+                this.setTextureByIndex(uniformIndex, <BaseTexture>value);
+                break;
+            case ShaderDataType.Buffer:
+                this.setBufferByIndex(uniformIndex, <Float32Array>value);
+                break;
+            default:
+                throw "unkone shader data type.";
+                break;
+        }
+
+    }
+
+    setShaderData(name: string, type: ShaderDataType, value: ShaderDataItem) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setShaderDataByIndex(uniformIndex, type, value);
     }
 
     /**

@@ -175,7 +175,7 @@ ${uniformglsl}`;
 	precision mediump int;
 #endif
 ${attributeglsl}
-${uniformglsl}`
+${uniformglsl}`;
 			fragmentHead =
 				`#ifdef GL_EXT_shader_texture_lod
 	#extension GL_EXT_shader_texture_lod : enable

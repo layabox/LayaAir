@@ -1,9 +1,15 @@
 import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDataItem, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { ShaderPass } from "./ShaderPass";
+
+// todo 初始化 uniformMap 提取出来 供 Scene, Camera, Sprite3D 生成 uniform shader代码 ?
+// export type UniformItem = { [uniformName: string]: ShaderDataType } | { type: ShaderDataType, value?: ShaderDataItem };
+
+export type UniformMapType = { [blockName: string]: { [uniformName: string]: ShaderDataType } | ShaderDataType };
 
 /**
  * <code>SubShader</code> 类用于创建SubShader。
@@ -38,10 +44,23 @@ export class SubShader {
 	/**@internal */
 	_attributeMap: { [name: string]: [number, ShaderDataType] };
 
-	_uniformMap: { [blockName: string]: { [uniformName: string]: ShaderDataType } | ShaderDataType };
+	/**@internal */
+	_uniformMap: UniformMapType;
+
+	// todo uniform 相关信息统一用结构体存储？ 合并 value type map
+	/**
+	 * @internal
+	 * uniform 默认值
+	 */
+	readonly _uniformDefaultValue: { [name: string]: ShaderDataItem };
+	/**
+	 * @internal
+	 * uniform 数据类型
+	 */
+	readonly _uniformTypeMap: Map<string, ShaderDataType>;
 
 	/**@internal */
-	_uniformBufferData: Map<string, UnifromBufferData> = new Map();
+	readonly _uniformBufferDataMap: Map<string, UnifromBufferData> = new Map();
 
 	/**@internal */
 	_owner: Shader3D;
@@ -55,27 +74,40 @@ export class SubShader {
 	 * @param	attributeMap  顶点属性表。
 	 * @param	uniformMap  uniform属性表。
 	 */
-	constructor(attributeMap: { [name: string]: [number, ShaderDataType] } = SubShader.DefaultAttributeMap, uniformMap: { [blockName: string]: { [uniformName: string]: ShaderDataType } | ShaderDataType } = {}) {
+	constructor(attributeMap: { [name: string]: [number, ShaderDataType] } = SubShader.DefaultAttributeMap, uniformMap: UniformMapType = {}, uniformDefaultValue: { [name: string]: ShaderDataItem } = null) {
 		this._attributeMap = attributeMap;
 		this._uniformMap = uniformMap;
-
-		if (Config3D._config._uniformBlock) {
-			for (const key in uniformMap) {
-				if (typeof uniformMap[key] == "object") {
-					let block = <{ [uniformName: string]: ShaderDataType }>uniformMap[key];
+		this._uniformDefaultValue = uniformDefaultValue;
+		this._uniformTypeMap = new Map();
+		for (const key in uniformMap) {
+			if (typeof uniformMap[key] == "object") {
+				if (Config3D._config._uniformBlock) {
+					let block = <{ [uniformName: string]: ShaderDataType }>(uniformMap[key]);
 					let blockUniformMap = new Map<string, UniformBufferParamsType>();
 					for (const uniformName in block) {
 						let uniformType = ShaderDataTypeToUniformBufferType(block[uniformName]);
 						blockUniformMap.set(uniformName, uniformType);
+
+						this._uniformTypeMap.set(uniformName, block[uniformName]);
 					}
 
-					let blockUniformMap1 = new Map<number, UniformBufferParamsType>();
+					let blockUniformIndexMap = new Map<number, UniformBufferParamsType>();
 					blockUniformMap.forEach((value, key) => {
-						blockUniformMap1.set(Shader3D.propertyNameToID(key), value);
-					})
+						blockUniformIndexMap.set(Shader3D.propertyNameToID(key), value);
+					});
 
-					let blockData = new UnifromBufferData(blockUniformMap1);
-					this._uniformBufferData.set(key, blockData);
+					let blockData = new UnifromBufferData(blockUniformIndexMap);
+					this._uniformBufferDataMap.set(key, blockData);
+				}
+			}
+			else {
+				let unifromType = <ShaderDataType>uniformMap[key];
+				this._uniformTypeMap.set(key, unifromType);
+
+				if (unifromType == ShaderDataType.Texture2D || unifromType == ShaderDataType.TextureCube) {
+					let textureGammaDefine = Shader3D.getDefineByName(`Gamma_${key}`);
+					let uniformIndex = Shader3D.propertyNameToID(key);
+					ShaderDefine._texGammaDefine[uniformIndex] = textureGammaDefine;
 				}
 			}
 		}
@@ -132,7 +164,7 @@ function ShaderDataTypeToUniformBufferType(shaderDataType: ShaderDataType) {
 		case ShaderDataType.Matrix4x4:
 			return UniformBufferParamsType.Matrix4x4;
 		default:
-			throw "Error type.";
+			throw "ShaderDataType can not be in UniformBuffer.";
 	}
 
 }

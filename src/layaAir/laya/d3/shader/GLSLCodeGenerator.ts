@@ -1,7 +1,5 @@
-
-import { Config3D } from "../../../Config3D";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
-import { VertexMesh } from "../graphics/Vertex/VertexMesh";
+import { UniformMapType } from "./SubShader";
 
 export class GLSLCodeGenerator {
 
@@ -16,7 +14,7 @@ export class GLSLCodeGenerator {
         return res;
     }
 
-    static glslUniformString(uniformsMap: { [blockName: string]: { [uniformName: string]: ShaderDataType } | ShaderDataType }, useUniformBlock: boolean) {
+    static glslUniformString(uniformsMap: UniformMapType, useUniformBlock: boolean) {
 
         if (useUniformBlock) {
             let blocksStr = "";

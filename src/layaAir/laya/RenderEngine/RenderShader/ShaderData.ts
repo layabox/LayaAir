@@ -9,6 +9,7 @@ import { Vector2 } from "../../d3/math/Vector2";
 import { Vector3 } from "../../d3/math/Vector3";
 import { Vector4 } from "../../d3/math/Vector4";
 import { Color } from "../../d3/math/Color";
+import { UniformBufferObject } from "../UniformBufferObject";
 
 export enum ShaderDataType {
 	Int,
@@ -20,8 +21,11 @@ export enum ShaderDataType {
 	Color,
 	Matrix4x4,
 	Texture2D,
-	TextureCube
+	TextureCube,
+	Buffer
 }
+
+export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array;
 
 /**
  * 着色器数据类。
@@ -300,6 +304,17 @@ export class ShaderData implements IClone {
 	 */
 	setTexture(index: number, value: BaseTexture): void {
 		var lastValue: BaseTexture = this._data[index];
+		if (value) {
+			let shaderDefine = ShaderDefine._texGammaDefine[index];
+			if (shaderDefine && value && value.gammaCorrection > 1) {
+				this.addDefine(shaderDefine);
+			}
+			else {
+				// todo 自动的
+				shaderDefine && this.removeDefine(shaderDefine);
+			}
+		}
+
 		// todo 传 null 默认值
 		this._data[index] = value ? value : Texture2D.erroTextur;
 		if (this._ownerResource && this._ownerResource.referenceCount > 0) {
@@ -337,8 +352,16 @@ export class ShaderData implements IClone {
 			this._data[index] = value;
 	}
 
-	setBlockValueData() {
-		//TODO
+	setUniformBuffer(index: number, value: UniformBufferObject) {
+		this._data[index] = value;
+	}
+
+	getUniformBuffer(index: number): UniformBufferObject {
+		return this._data[index];
+	}
+
+	setShaderData(type: ShaderDataType, value: ShaderDataItem) {
+
 	}
 
 	/**

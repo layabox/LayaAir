@@ -134,7 +134,6 @@ export class Shader3D {
 		return define;
 	}
 
-
 	/**
 	 * 通过Shader属性名称获得唯一ID。
 	 * @param name Shader属性名称。
