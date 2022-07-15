@@ -11,6 +11,8 @@ import BlinnPhongFS from "./BlinnPhong.fs";
 import DepthVS from "../depth/Depth.vs";
 import DepthFS from "../depth/Depth.fs";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { Color } from "../../math/Color";
+import { Vector4 } from "../../math/Vector4";
 
 export class BlinnPhongShaderInit {
 
@@ -25,15 +27,24 @@ export class BlinnPhongShaderInit {
             "u_NormalTexture": ShaderDataType.Texture2D,
             "u_SpecularTexture": ShaderDataType.Texture2D,
             "u_DiffuseColor": ShaderDataType.Color,
-            "u_MaterialSpecular": ShaderDataType.Vector4,
+            "u_MaterialSpecular": ShaderDataType.Color,
             "u_Shininess": ShaderDataType.Float,
             "u_TilingOffset": ShaderDataType.Vector4,
             "u_AlbedoIntensity": ShaderDataType.Float,
             "u_AlphaTestValue": ShaderDataType.Float
         };
 
+        let defaultValue = {
+            "u_AlbedoIntensity": 1.0,
+            "u_DiffuseColor": Color.WHITE,
+            "u_MaterialSpecular": Color.WHITE,
+            "u_Shininess": 0.078125,
+            "u_AlphaTestValue": 0.5,
+            "u_TilingOffset": new Vector4(1, 1, 0, 0),
+        }
+
         let shader = Shader3D.add("BLINNPHONG");
-        let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap);
+        let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(BlinnPhongVS, BlinnPhongFS);
         let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");

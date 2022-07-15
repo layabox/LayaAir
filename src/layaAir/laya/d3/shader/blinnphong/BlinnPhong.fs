@@ -1,11 +1,11 @@
 #define SHADER_NAME BlinnPhongFS
 
+#include "Color.glsl";
+
 #include "Camera.glsl";
 #include "Sprite3D.glsl"
 
 #include "BlinnPhongFrag.glsl";
-#include "Color.glsl";
-
 
 void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
 {

@@ -33,7 +33,7 @@ void main()
 #endif
 
 #ifdef ALPHATEST
-    if (color.a < u_AlphaTestValue)
+    if (alpha < u_AlphaTestValue)
 	discard;
 #endif // ALPHATEST
 

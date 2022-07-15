@@ -14,6 +14,8 @@ import PBRFS from "./pbr.fs";
 
 import DepthVS from "../depth/Depth.vs";
 import DepthFS from "../depth/Depth.fs";
+import { Color } from "../../math/Color";
+import { Vector4 } from "../../math/Vector4";
 
 export class PBRShaderInit {
 
@@ -33,10 +35,21 @@ export class PBRShaderInit {
             "u_Metallic": ShaderDataType.Float,
             "u_Roughness": ShaderDataType.Float,
             "u_Reflectance": ShaderDataType.Float,
-        }
+            "u_TilingOffset": ShaderDataType.Vector4,
+            "u_AlphaTest": ShaderDataType.Float
+        };
+
+        let defaultValue = {
+            "u_DiffuseColor": Color.WHITE,
+            "u_Metallic": 0.0,
+            "u_Roughness": 0.5,
+            "u_Reflectance": 0.5,
+            "u_TilingOffset": new Vector4(1, 1, 0, 0),
+            "u_AlphaTest": 0.5
+        };
 
         let shader = Shader3D.add("pbr");
-        let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap);
+        let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(PBRVS, PBRFS);
         let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");

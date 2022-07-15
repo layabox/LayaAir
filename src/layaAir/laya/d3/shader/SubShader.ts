@@ -11,6 +11,8 @@ import { ShaderPass } from "./ShaderPass";
 
 export type UniformMapType = { [blockName: string]: { [uniformName: string]: ShaderDataType } | ShaderDataType };
 
+export type AttributeMapType = { [name: string]: [number, ShaderDataType] };
+
 /**
  * <code>SubShader</code> 类用于创建SubShader。
  */
@@ -42,7 +44,7 @@ export class SubShader {
 	}
 
 	/**@internal */
-	_attributeMap: { [name: string]: [number, ShaderDataType] };
+	_attributeMap: AttributeMapType;
 
 	/**@internal */
 	_uniformMap: UniformMapType;

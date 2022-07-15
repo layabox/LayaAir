@@ -21,7 +21,7 @@ void initPixelParams(inout PixelParams params, in Vertex vertex)
 
     #ifdef UV
     // todo  tilling offset
-    params.uv0 = vertex.texCoord0;
+    params.uv0 = transformUV(vertex.texCoord0, u_TilingOffset);
     v_Texcoord0 = params.uv0;
     #endif // UV
 

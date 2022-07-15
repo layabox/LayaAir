@@ -17,6 +17,7 @@ struct SurfaceInputs {
     float metallic;
     float roughness;
     float reflectance;
+    float alphaTest;
 };
 
 void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
@@ -25,6 +26,7 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 
     inputs.diffuseColor = u_DiffuseColor.rgb;
     inputs.alpha = u_DiffuseColor.a;
+    inputs.alphaTest = u_AlphaTest;
 
 #ifdef DIFFUSEMAP
     vec4 diffuseSampler = texture2D(u_DiffuseMap, uv);
@@ -67,6 +69,13 @@ void main()
     SurfaceInputs inputs;
     // init surface
     initSurfaceInputs(inputs, pixel);
+
+#ifdef ALPHATEST
+    if (inputs.alpha < inputs.alphaTest)
+	{
+	    discard;
+	}
+#endif // ALPHATEST
 
     Surface surface;
     initSurface(surface, inputs);

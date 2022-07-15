@@ -975,6 +975,16 @@ export class Material extends Resource implements IClone {
         }
     }
 
+    getBuffer(name: string): Float32Array {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getBufferByIndex(uniformIndex);
+    }
+
+    setBuffer(name: string, value: Float32Array) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setBufferByIndex(uniformIndex, value);
+    }
+
     setShaderDataByIndex(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem) {
         switch (type) {
             case ShaderDataType.Int:

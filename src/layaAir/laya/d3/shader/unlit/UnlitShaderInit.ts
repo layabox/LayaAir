@@ -22,10 +22,10 @@ export class UnlitShaderInit {
             "u_AlphaTestValue": ShaderDataType.Float,
         };
 
-        // todo 
         let defaultValue = {
             "u_AlbedoColor": Color.WHITE,
-            "u_TilingOffset": new Vector4(1, 1, 0, 0)
+            "u_TilingOffset": new Vector4(1, 1, 0, 0),
+            "u_AlphaTestValue": 0.5
         }
 
         let shader = Shader3D.add("Unlit", true, false);
