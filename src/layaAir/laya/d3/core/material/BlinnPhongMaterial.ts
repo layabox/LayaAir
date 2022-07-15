@@ -1,5 +1,4 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
@@ -199,8 +198,8 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	set shininess(value: number) {
-		value = Math.max(0.0,Math.min(1.0,value));
-		this._shaderValues.setNumber(BlinnPhongMaterial.SHININESS,value);
+		value = Math.max(0.0, Math.min(1.0, value));
+		this._shaderValues.setNumber(BlinnPhongMaterial.SHININESS, value);
 	}
 
 	/**
@@ -357,7 +356,7 @@ export class BlinnPhongMaterial extends Material {
 		this.albedoColor.cloneTo(destMaterial.albedoColor);
 	}
 
-	
+
 }
 
 

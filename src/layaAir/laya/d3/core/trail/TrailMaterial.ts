@@ -86,15 +86,10 @@ export class TrailMaterial extends Material {
 		}
 	}
 
-	
-
-
 	constructor() {
 		super();
 		this.setShaderName("Trail");
-		this._shaderValues.setVector(TrailMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
-		this._shaderValues.setColor(TrailMaterial.TINTCOLOR, new Color(1.0, 1.0, 1.0, 1.0));
-		this.renderMode = TrailMaterial.RENDERMODE_ALPHABLENDED;
+		this.materialRenderMode = MaterialRenderMode.RENDERMODE_ALPHABLENDED;
 	}
 
 	/**
@@ -112,19 +107,19 @@ export class TrailMaterial extends Material {
 	 * @deprecated
 	 * 渲染状态_透明混合。
 	 */
-	 static RENDERMODE_ALPHABLENDED: number = 0;
+	static RENDERMODE_ALPHABLENDED: number = 0;
 
-	 /**
-	 * @deprecated
-	 * 渲染状态_加色法混合。
-	 */
+	/**
+	* @deprecated
+	* 渲染状态_加色法混合。
+	*/
 	static RENDERMODE_ADDTIVE: number = 1;
 
 	/**
 	 * @deprecated
 	 * 渲染模式。现在可以直接使用materialRenderMode
 	 */
-	 set renderMode(value: number) {
+	set renderMode(value: number) {
 		switch (value) {
 			case TrailMaterial.RENDERMODE_ADDTIVE:
 				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;

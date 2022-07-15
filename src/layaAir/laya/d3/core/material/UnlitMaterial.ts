@@ -1,22 +1,17 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
-import { UniformBufferParamsType, UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 
-import { Material } from "./Material";
+import { Material, MaterialRenderMode } from "./Material";
 import { RenderState } from "./RenderState";
 
 /**
  * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。
  */
 export class UnlitMaterial extends Material {
-	
+
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
 
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
@@ -110,7 +105,7 @@ export class UnlitMaterial extends Material {
 			this._shaderValues.removeDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 	}
 
-	
+
 
 	constructor() {
 		super();
@@ -118,7 +113,7 @@ export class UnlitMaterial extends Material {
 
 		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
-		this.renderMode = UnlitMaterial.RENDERMODE_OPAQUE;
+		this.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
 		this.albedoIntensity = 1.0;
 	}
 
@@ -134,7 +129,7 @@ export class UnlitMaterial extends Material {
 	}
 
 
-	
+
 	//----------------deprecated----------------
 	/**
 	 * @deprecated
@@ -160,7 +155,7 @@ export class UnlitMaterial extends Material {
 	 * @deprecated
 	 * 渲染模式。
 	 */
-	 set renderMode(value: number) {
+	set renderMode(value: number) {
 		switch (value) {
 			case UnlitMaterial.RENDERMODE_OPAQUE:
 				this.alphaTest = false;

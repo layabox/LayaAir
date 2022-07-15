@@ -1,5 +1,9 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../SubShader";
+import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { Color } from "../../math/Color";
+import { Vector4 } from "../../math/Vector4";
+
 
 import BlinnPhongCommonGLSL from "./BlinnPhongCommon.glsl";
 import BlinnPhongVertexGLSL from "./BlinnPhongVertex.glsl";
@@ -10,9 +14,6 @@ import BlinnPhongFS from "./BlinnPhong.fs";
 
 import DepthVS from "../depth/Depth.vs";
 import DepthFS from "../depth/Depth.fs";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { Color } from "../../math/Color";
-import { Vector4 } from "../../math/Vector4";
 
 export class BlinnPhongShaderInit {
 
@@ -48,8 +49,6 @@ export class BlinnPhongShaderInit {
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(BlinnPhongVS, BlinnPhongFS);
         let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");
-
-
     }
 
 }
