@@ -46,7 +46,7 @@ export class PhysicsWorld_RayShapeCast {
 	//创建射线的起始点
 	private from: Vector3 = new Vector3(0, 1, 10);
 	private to: Vector3 = new Vector3(0, 1, -5);
-	private _albedoColor: Vector4 = new Vector4(1.0, 1.0, 1.0, 0.5);
+	private _albedoColor: Color = new Color(1.0, 1.0, 1.0, 0.5);
 	private _position: Vector3 = new Vector3(0, 0, 0);
 	//private mat1: BlinnPhongMaterial;
 	//private mat3: BlinnPhongMaterial;
@@ -193,11 +193,11 @@ export class PhysicsWorld_RayShapeCast {
 
 	stypeFun2(castType:number = 0) {
 		if (this.hitResult.succeeded)
-				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
+				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 1.0, 1.0, 1.0);
 
 		if (this.hitResults.length > 0) {
 			for (var i: number = 0, n: number = this.hitResults.length; i < n; i++)
-				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
+				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 1.0, 1.0, 1.0);
 			this.hitResults.length = 0;
 		}
 
@@ -221,12 +221,12 @@ export class PhysicsWorld_RayShapeCast {
 					//遍历射线检测的结果
 					for (i = 0, n = this.hitResults.length; i < n; i++)
 						//将射线碰撞到的物体设置为红色
-						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				} else {
 					//进行射线检测,检测第一个碰撞物体
 					this.scene.physicsSimulation.raycastFromTo(this.from, this.to, this.hitResult);
 					//将检测到的物体设置为红色
-					((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+					((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				}
 				break;
 			case 1:
@@ -252,11 +252,11 @@ export class PhysicsWorld_RayShapeCast {
 					this.scene.physicsSimulation.shapeCastAll(boxCollider, this.from, this.to, this.hitResults);
 					//遍历检测到的所有物体，并将其设置为红色
 					for (i = 0, n = this.hitResults.length; i < n; i++)
-						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				} else {
 					//进行形状检测,检测第一个碰撞物体
 					if (this.scene.physicsSimulation.shapeCast(boxCollider, this.from, this.to, this.hitResult))
-						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				}
 				break;
 			case 2:
@@ -277,11 +277,11 @@ export class PhysicsWorld_RayShapeCast {
 					//进行形状检测,检测所有碰撞的物体
 					this.scene.physicsSimulation.shapeCastAll(sphereCollider, this.from, this.to, this.hitResults);
 					for (i = 0, n = this.hitResults.length; i < n; i++)
-						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				} else {
 					//进行形状检测,检测第一个碰撞物体
 					if (this.scene.physicsSimulation.shapeCast(sphereCollider, this.from, this.to, this.hitResult))
-						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				}
 				break;
 			case 3:
@@ -302,11 +302,11 @@ export class PhysicsWorld_RayShapeCast {
 					//进行形状检测,检测所有碰撞的物体
 					this.scene.physicsSimulation.shapeCastAll(capsuleCollider, this.from, this.to, this.hitResults);
 					for (i = 0, n = this.hitResults.length; i < n; i++)
-						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				} else {
 					//进行形状检测,检测第一个碰撞物体
 					if (this.scene.physicsSimulation.shapeCast(capsuleCollider, this.from, this.to, this.hitResult))
-						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				}
 				break;
 		}

@@ -1,6 +1,7 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { BaseTexture } from "../../../resource/BaseTexture";
+import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
 import { Material } from "./Material";
 import { RenderState } from "./RenderState";
@@ -160,12 +161,12 @@ export class BlinnPhongMaterial extends Material {
 	/**
 	 * 反照率颜色。
 	 */
-	get albedoColor(): Vector4 {
-		return this._shaderValues.getVector(BlinnPhongMaterial.ALBEDOCOLOR);
+	get albedoColor(): Color {
+		return this._shaderValues.getColor(BlinnPhongMaterial.ALBEDOCOLOR);
 	}
 
-	set albedoColor(value: Vector4) {
-		this._shaderValues.setVector(BlinnPhongMaterial.ALBEDOCOLOR, value);//修改值后必须调用此接口,否则NATIVE不生效
+	set albedoColor(value: Color) {
+		this._shaderValues.setColor(BlinnPhongMaterial.ALBEDOCOLOR, value);//修改值后必须调用此接口,否则NATIVE不生效
 	}
 
 	/**
@@ -182,12 +183,12 @@ export class BlinnPhongMaterial extends Material {
 	/**
 	 * 高光颜色。
 	 */
-	get specularColor(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR));
+	get specularColor(): Color {
+		return this._shaderValues.getColor(BlinnPhongMaterial.MATERIALSPECULAR);
 	}
 
-	set specularColor(value: Vector4) {
-		this._shaderValues.setVector(BlinnPhongMaterial.MATERIALSPECULAR, value);
+	set specularColor(value: Color) {
+		this._shaderValues.setColor(BlinnPhongMaterial.MATERIALSPECULAR, value);
 	}
 
 	/**
@@ -309,11 +310,11 @@ export class BlinnPhongMaterial extends Material {
 	/**
 	 * 透光颜色。模拟透光物质内部颜色吸收率
 	 */
-	get transmissionColor(): Vector4 {
-		return this._shaderValues.getVector(BlinnPhongMaterial.TRANSMISSIONCOLOR);
+	get transmissionColor(): Color {
+		return this._shaderValues.getColor(BlinnPhongMaterial.TRANSMISSIONCOLOR);
 	}
-	set transmissionColor(value: Vector4) {
-		this._shaderValues.setVector(BlinnPhongMaterial.TRANSMISSIONCOLOR, value);
+	set transmissionColor(value: Color) {
+		this._shaderValues.setColor(BlinnPhongMaterial.TRANSMISSIONCOLOR, value);
 	}
 
 	/**

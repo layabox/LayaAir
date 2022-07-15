@@ -22,6 +22,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Config3D } from "Config3D";
+import { Color } from "laya/d3/math/Color";
 
 export class PhysicsWorld_Kinematic {
 
@@ -95,7 +96,7 @@ export class PhysicsWorld_Kinematic {
 		Texture2D.load("res/threeDimen/Physics/plywood.jpg", Handler.create(this, function (tex: Texture2D): void {
 			mat2.albedoTexture = tex;
 		}));
-		var albedoColor: Vector4 = mat2.albedoColor;
+		var albedoColor: Color = mat2.albedoColor;
 		albedoColor.setValue(1.0, 0.0, 0.0, 1.0);
 		mat2.albedoColor = albedoColor;
 

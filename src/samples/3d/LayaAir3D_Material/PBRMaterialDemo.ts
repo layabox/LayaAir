@@ -5,6 +5,7 @@ import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Mesh } from "laya/d3/resource/models/Mesh";
@@ -42,7 +43,7 @@ export class PBRMaterialDemo {
 	/**
 	 * Add one with smoothness and metallic sphere.
 	 */
-	addPBRSphere(sphereMesh: Mesh, position: Vector3, scene: Scene3D, color: Vector4, smoothness: number, metallic: number): PBRStandardMaterial {
+	addPBRSphere(sphereMesh: Mesh, position: Vector3, scene: Scene3D, color: Color, smoothness: number, metallic: number): PBRStandardMaterial {
 		var mat: PBRStandardMaterial = new PBRStandardMaterial();
 		mat.albedoColor = color;
 		mat.smoothness = smoothness;
@@ -60,7 +61,7 @@ export class PBRMaterialDemo {
 	/**
 	 * Add some different smoothness and metallic sphere.
 	 */
-	addSpheresSmoothnessMetallic(sphereMesh: Mesh, offset: Vector3, scene: Scene3D, row: number, col: number, color: Vector4): void {
+	addSpheresSmoothnessMetallic(sphereMesh: Mesh, offset: Vector3, scene: Scene3D, row: number, col: number, color: Color): void {
 		const width: number = col * 0.5;
 		const height: number = row * 0.5;
 		for (var i: number = 0, n: number = col; i < n; i++) {//diffenent smoothness
@@ -80,7 +81,7 @@ export class PBRMaterialDemo {
 	/**
 	 * Add some different smoothness with special metallic sphere.
 	 */
-	addSpheresSpecialMetallic(sphereMesh: Mesh, offset: Vector3, scene: Scene3D, col: number, color: Vector4, metallic: number = 0): void {
+	addSpheresSpecialMetallic(sphereMesh: Mesh, offset: Vector3, scene: Scene3D, col: number, color: Color, metallic: number = 0): void {
 		const width: number = col * 0.5;
 		for (var i: number = 0, n: number = col; i < n; i++) {//diffenent smoothness
 			var smoothness: number = i / (n - 1);

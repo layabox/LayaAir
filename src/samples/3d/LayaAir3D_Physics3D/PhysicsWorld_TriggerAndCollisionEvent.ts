@@ -26,6 +26,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Config3D } from "Config3D";
+import { Color } from "laya/d3/math/Color";
 
 export class PhysicsWorld_TriggerAndCollisionEvent {
 
@@ -104,7 +105,7 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 			mat2.albedoTexture = tex;
 		}));
 		//设置材质反照率颜色
-		mat2.albedoColor = new Vector4(1.0, 0.0, 0.0, 1.0);
+		mat2.albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 
 		//创建球型MeshSprite3D
 		var radius: number = 0.8;
@@ -146,7 +147,7 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 			mat1.albedoTexture = tex;
 		}));
 		//设置反照率颜色
-		mat1.albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
+		mat1.albedoColor = new Color(1.0, 1.0, 1.0, 1.0);
 
 		//随机生成坐标
 		var sX: number = Math.random() * 0.75 + 0.25;
@@ -247,7 +248,7 @@ class TriggerCollisionScript extends Script3D {
 
 	//开始触发时执行
 	/*override*/  onTriggerEnter(other: PhysicsComponent): void {
-		((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Vector4(0.0, 1.0, 0.0, 1.0);
+		((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Color(0.0, 1.0, 0.0, 1.0);
 		console.log("onTriggerEnter");
 	}
 
@@ -258,14 +259,14 @@ class TriggerCollisionScript extends Script3D {
 
 	//结束触发时执行
 	/*override*/  onTriggerExit(other: PhysicsComponent): void {
-		((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
+		((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Color(1.0, 1.0, 1.0, 1.0);
 		console.log("onTriggerExit");
 	}
 
 	//开始碰撞时执行
 	/*override*/  onCollisionEnter(collision: Collision): void {
 		if (collision.other.owner === this.kinematicSprite)
-			((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Vector4(0.0, 0.0, 0.0, 1.0);
+			((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Color(0.0, 0.0, 0.0, 1.0);
 	}
 
 	//持续碰撞时执行

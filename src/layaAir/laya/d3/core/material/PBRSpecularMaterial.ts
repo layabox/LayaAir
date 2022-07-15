@@ -10,6 +10,7 @@ import { SubShader } from "../../shader/SubShader";
 import { PBRMaterial } from "./PBRMaterial";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { Color } from "../../math/Color";
 
 /**
  * 光滑度数据源。
@@ -71,12 +72,12 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	/**
 	 * 高光颜色。
 	 */
-	get specularColor(): Vector4 {
-		return <Vector4>this._shaderValues.getVector(PBRSpecularMaterial.SPECULARCOLOR);
+	get specularColor(): Color {
+		return this._shaderValues.getColor(PBRSpecularMaterial.SPECULARCOLOR);
 	}
 
-	set specularColor(value: Vector4) {
-		this._shaderValues.setVector(PBRSpecularMaterial.SPECULARCOLOR, value);
+	set specularColor(value: Color) {
+		this._shaderValues.setColor(PBRSpecularMaterial.SPECULARCOLOR, value);
 	}
 
 	/**
@@ -85,7 +86,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	constructor() {
 		super();
 		this.setShaderName("PBRSpecular");
-		this._shaderValues.setVector(PBRSpecularMaterial.SPECULARCOLOR, new Vector4(0.2, 0.2, 0.2, 1.0));
+		this._shaderValues.setColor(PBRSpecularMaterial.SPECULARCOLOR, new Color(0.2, 0.2, 0.2, 1.0));
 	}
 
 	/**

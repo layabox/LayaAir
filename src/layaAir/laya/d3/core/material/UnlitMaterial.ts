@@ -1,16 +1,24 @@
-
+import { LayaGL } from "../../../layagl/LayaGL";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { UniformBufferParamsType, UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
+import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { BaseTexture } from "../../../resource/BaseTexture";
+import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
 
-import { Material, MaterialRenderMode } from "./Material";
+import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 
 /**
  * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。
  */
 export class UnlitMaterial extends Material {
+
+	static tempColor:Color;
 
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
 
@@ -26,6 +34,7 @@ export class UnlitMaterial extends Material {
 	 * @internal
 	 */
 	static __initDefine__(): void {
+		UnlitMaterial.tempColor = new Color();
 		UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 
@@ -39,14 +48,12 @@ export class UnlitMaterial extends Material {
 	/**
 	 * 反照率颜色。
 	 */
-	get albedoColor(): Vector4 {
-		return this._shaderValues.getVector(UnlitMaterial.ALBEDOCOLOR);;
+	get albedoColor(): Color {
+		return this._shaderValues.getColor(UnlitMaterial.ALBEDOCOLOR);
 	}
 
-	set albedoColor(value: Vector4) {
-		var finalAlbedo: Vector4 = (<Vector4>this._shaderValues.getVector(UnlitMaterial.ALBEDOCOLOR));
-		Vector4.scale(value, this._albedoIntensity, finalAlbedo);
-		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, finalAlbedo);
+	set albedoColor(value: Color) {
+		this._shaderValues.setColor(UnlitMaterial.ALBEDOCOLOR, value.scale(this._albedoIntensity));
 	}
 
 	/**
@@ -110,10 +117,7 @@ export class UnlitMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("Unlit");
-
-		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
-		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
-		this.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
+		this.renderMode = UnlitMaterial.RENDERMODE_OPAQUE;
 		this.albedoIntensity = 1.0;
 	}
 

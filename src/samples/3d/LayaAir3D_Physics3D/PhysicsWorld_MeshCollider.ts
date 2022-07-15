@@ -24,6 +24,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Config3D } from "Config3D";
+import { Color } from "laya/d3/math/Color";
 
 export class PhysicsWorld_MeshCollider {
 
@@ -79,7 +80,7 @@ export class PhysicsWorld_MeshCollider {
 		var albedo = Loader.getTexture2D("res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_diff.png");
 		var normal = Loader.getTexture2D("res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png");
 		var mat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		mat.specularColor = new Vector4(0.5, 0.5, 0.5, 0.5);
+		mat.specularColor = new Color(0.5, 0.5, 0.5, 0.5);
 		mat.albedoTexture = albedo;
 		mat.normalTexture = normal;
 

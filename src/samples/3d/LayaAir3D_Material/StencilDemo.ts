@@ -19,6 +19,7 @@ import { Button } from "laya/ui/Button";
 import Client from "../../Client";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Color } from "laya/d3/math/Color";
 /**
  * 模板测试示例
  * @author miner
@@ -64,7 +65,7 @@ export class StencilDemo {
 		sphereClone.transform.localScale = tempVector3;
 
 		let mat: UnlitMaterial = new UnlitMaterial();
-		mat.albedoColor = new Vector4(0.8, 0.5, 0.1);
+		mat.albedoColor = new Color(0.8, 0.5, 0.1);
 		sphereClone.getComponent(MeshRenderer).sharedMaterial = mat;
 		mat.stencilRef = 0;
 		mat.stencilWrite = false;

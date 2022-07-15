@@ -46,7 +46,7 @@ export class CommandBuffer_Outline {
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		BlurEffect.init();
 		var unlitMaterial = new UnlitMaterial();
-		unlitMaterial.albedoColor = new Vector4(255, 0, 0, 255);
+		unlitMaterial.albedoColor = new Color(255, 0, 0, 255);
 		var shurikenMaterial: ShurikenParticleMaterial = new ShurikenParticleMaterial();
 		shurikenMaterial.color = new Vector4(255, 0, 0, 255);
 

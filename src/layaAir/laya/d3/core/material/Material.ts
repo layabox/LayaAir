@@ -205,7 +205,10 @@ export class Material extends Resource implements IClone {
                                         material[vector.name] = new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]);
                                         break;
                                     case 4:
-                                        material[vector.name] = new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
+                                        if(material[vector.name] instanceof Color){
+                                            material[vector.name] = new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
+                                        }else
+                                            material[vector.name] = new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
                                         break;
                                     default:
                                         throw new Error("Material:unkonwn color length.");
@@ -333,7 +336,10 @@ export class Material extends Resource implements IClone {
                                                 material._shaderValues.setVector3(uniName, new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
                                                 break;
                                             case 4:
-                                                material._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
+                                                if(material._shaderValues.getColor(uniName)){
+                                                    material._shaderValues.setColor(uniName,new Color(vectorValue[0],vectorValue[1],vectorValue[2],vectorValue[3]));
+                                                }else
+                                                    material._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
                                                 break;
                                             default:
                                                 throw new Error("BaseMaterial:unkonwn color length.");

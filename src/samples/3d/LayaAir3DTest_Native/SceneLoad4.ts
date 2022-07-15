@@ -15,6 +15,7 @@ import { PBRStandardMaterial, PBRMetallicSmoothnessSource } from "laya/d3/core/m
 import { Texture2D } from "laya/resource/Texture2D";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { Vector4 } from "laya/d3/math/Vector4";
+import { Color } from "laya/d3/math/Color";
 
 
 export class SceneLoad4 {
@@ -192,7 +193,7 @@ export class SceneLoad4 {
 			}));
 
 			//反射颜色
-			sphereMat.albedoColor = new Vector4(1.1, 1.1, 1.1, 1.1);
+			sphereMat.albedoColor = new Color(1.1, 1.1, 1.1, 1.1);
 			//光滑度缩放系数
 			sphereMat.smoothnessTextureScale = 1.1;
 			//遮挡贴图强度
@@ -240,7 +241,7 @@ export class SceneLoad4 {
 			}));
 
 			//反射颜色
-			barrelMat.albedoColor = new Vector4(1.2, 1.2, 1.2, 1.2);
+			barrelMat.albedoColor = new Color(1.2, 1.2, 1.2, 1.2);
 			//光滑度缩放系数
 			barrelMat.smoothnessTextureScale = 1.2;
 			//遮挡贴图强度
@@ -292,7 +293,7 @@ export class SceneLoad4 {
             }));
 
             //反射颜色
-            layaMonkeyMat.albedoColor = new Vector4(1.3, 1.3, 1.3, 1.3);
+            layaMonkeyMat.albedoColor = new Color(1.3, 1.3, 1.3, 1.3);
             //光滑度缩放系数
             layaMonkeyMat.smoothnessTextureScale = 1.3;
             //遮挡贴图强度
@@ -344,7 +345,7 @@ export class SceneLoad4 {
 			}));
 
 			//反射颜色
-			teapotMat.albedoColor = new Vector4(1.4, 1.4, 1.4, 1.4);
+			teapotMat.albedoColor = new Color(1.4, 1.4, 1.4, 1.4);
 			//光滑度缩放系数
 			teapotMat.smoothnessTextureScale = 1.4;
 			//遮挡贴图强度

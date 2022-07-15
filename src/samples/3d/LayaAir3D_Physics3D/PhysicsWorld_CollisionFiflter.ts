@@ -25,6 +25,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Config3D } from "Config3D";
+import { Color } from "laya/d3/math/Color";
 
 export class PhysicsWorld_CollisionFiflter {
 
@@ -40,7 +41,7 @@ export class PhysicsWorld_CollisionFiflter {
 	private translateQ: Vector3 = new Vector3(-0.01, 0, 0);
 	private translateE: Vector3 = new Vector3(0.01, 0, 0);
 
-	private _albedoColor: Vector4 = new Vector4(1.0, 0.0, 0.0, 1.0);
+	private _albedoColor: Color = new Color(1.0, 0.0, 0.0, 1.0);
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
 
 	private mat1: BlinnPhongMaterial;

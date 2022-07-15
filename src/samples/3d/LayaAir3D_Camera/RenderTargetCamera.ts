@@ -5,6 +5,7 @@ import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
@@ -54,7 +55,7 @@ export class RenderTargetCamera {
 		box.transform.position = new Vector3(-28.8, 8, -65);
 		box.transform.rotate(new Vector3(90, 0, 0), true, false);
 		var mat: UnlitMaterial = new UnlitMaterial();
-		mat.albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
+		mat.albedoColor = new Color(1.0, 1.0, 1.0, 1.0);
 		mat.cull = RenderState.CULL_NONE;
 		box.meshRenderer.sharedMaterial = mat;
 

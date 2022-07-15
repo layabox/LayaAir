@@ -19,6 +19,7 @@ import { ConfigurableConstraint } from "laya/d3/physics/constraints/Configurable
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Config3D } from "Config3D";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Color } from "laya/d3/math/Color";
 
 
 
@@ -76,7 +77,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		boxARigid.isKinematic = true;
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(10, 0, 0),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
 		configurableJoint.setConnectRigidBody(boxARigid,boxBRigid);
@@ -102,7 +103,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(7, 0, 3),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
@@ -129,7 +130,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(0, 2, 0),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
@@ -152,7 +153,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-2, 1, 0),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
@@ -177,7 +178,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-7, 4, 0),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
@@ -202,7 +203,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-5, 4, 0),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
@@ -227,7 +228,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(-6, 1, 0),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
@@ -249,7 +250,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(6, 15, 0),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 	
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
@@ -271,7 +272,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(5, 0, -4),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
 		configurableJoint.setConnectRigidBody(boxARigid,boxBRigid);
@@ -297,7 +298,7 @@ export class PhysicsWorld_ConfigurableJoint{
 
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(5, 0, 0),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
 		configurableJoint.setConnectRigidBody(boxARigid,boxBRigid);
@@ -322,7 +323,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		var boxARigid:Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
 		var boxB:MeshSprite3D = this.addRigidBodyBox(new Vector3(2, 0, 0),1);
-		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Vector4(1, 0, 0, 1);
+		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid:Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint:ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint); 
@@ -372,7 +373,7 @@ export class PhysicsWorld_ConfigurableJoint{
 		sphere.transform.position = pos;
 
 		var mat:BlinnPhongMaterial = new BlinnPhongMaterial();
-		mat.albedoColor = new Vector4(0, 1, 0, 1);
+		mat.albedoColor = new Color(0, 1, 0, 1);
 		sphere.meshRenderer.material = mat;
 
 		//创建刚体碰撞器

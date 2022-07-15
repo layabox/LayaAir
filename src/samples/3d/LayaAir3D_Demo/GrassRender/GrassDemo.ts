@@ -4,6 +4,7 @@ import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Color } from "laya/d3/math/Color";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
@@ -65,7 +66,7 @@ export class GrassDemo{
         
         var plane = new MeshSprite3D(PrimitiveMesh.createPlane(1000,0,1000));
         var planeMat = plane.meshRenderer.sharedMaterial = new BlinnPhongMaterial();
-        planeMat.albedoColor = new Vector4(0.06,0.31,0.14,1.0);
+        planeMat.albedoColor = new Color(0.06,0.31,0.14,1.0);
     }
 
 

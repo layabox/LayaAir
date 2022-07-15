@@ -3,6 +3,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
@@ -54,13 +55,13 @@ export class Blinnphong_Transmission {
 		this.rabbitMaterial.enableTransmission = true;
 		this.rabbitMaterial.transmissionRata = 0.0;
 		this.rabbitMaterial.backDiffuse = 4.88;
-		this.rabbitMaterial.transmissionColor = new Vector4(1.0,1.0,1.0,1.0);
+		this.rabbitMaterial.transmissionColor = new Color(1.0,1.0,1.0,1.0);
 		this.rabbitMaterial.backScale = 1.0;
 
 		this.monkeyMaterial.enableTransmission = true;
 		this.monkeyMaterial.transmissionRata = 0.0;
 		this.monkeyMaterial.backDiffuse = 1.0;
-		this.monkeyMaterial.transmissionColor = new Vector4(0.2,1.0,0.0,1.0);
+		this.monkeyMaterial.transmissionColor = new Color(0.2,1.0,0.0,1.0);
 		this.monkeyMaterial.backScale = 1.0;
 
 

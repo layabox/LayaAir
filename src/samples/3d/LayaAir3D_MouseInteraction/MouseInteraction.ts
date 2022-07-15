@@ -7,6 +7,7 @@ import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Ray } from "laya/d3/math/Ray";
 import { Vector2 } from "laya/d3/math/Vector2";
@@ -191,7 +192,7 @@ export class MouseInteraction {
 class SceneScript extends Script3D {
 	private meshSprite: MeshSprite3D;
 	private text: Text;
-	private _albedoColor: Vector4 = new Vector4(0.0, 0.0, 0.0, 1.0);
+	private _albedoColor: Color = new Color(0.0, 0.0, 0.0, 1.0);
 
 	constructor() {
 		super();

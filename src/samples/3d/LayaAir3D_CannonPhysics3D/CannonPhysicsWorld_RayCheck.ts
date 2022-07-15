@@ -41,8 +41,8 @@ export class CannonPhysicsWorld_RayCheck{
 	private camera:Camera;
 	private point:Vector2 = new Vector2();
 	private ray: Ray = new Ray(new Vector3(),new Vector3());
-	private colorRed:Vector4 = new Vector4(1,0,0,1);
-	private colorWrite:Vector4 = new Vector4(1,1,1,1);
+	private colorRed:Color = new Color(1,0,0,1);
+	private colorWrite:Color = new Color(1,1,1,1);
 	private oldSelectMesh:MeshSprite3D;
 
 	/**实例类型*/

@@ -148,6 +148,32 @@ export class Color implements IClone {
 		destColor.a = this.a;
 	}
 
+	scale(value: number): Color {
+		this.r = this.r * value;
+		this.g = this.g * value;
+		this.b = this.b * value;
+		return this;
+	}
+
+	setValue(r: number, g: number, b: number, a: number) {
+		this.r = r;
+		this.g = g;
+		this.b = b;
+		this.a = a;
+	}
+
+	/**
+	 * 从Array数组拷贝值。
+	 * @param  array 数组。
+	 * @param  offset 数组偏移。
+	 */
+	fromArray(array: any[], offset: number = 0): void {
+		this.r = array[offset + 0];
+		this.g = array[offset + 1];
+		this.b = array[offset + 2];
+		this.a = array[offset + 3];
+	}
+
 	/**
 	 * 克隆。
 	 * @return	 克隆副本。

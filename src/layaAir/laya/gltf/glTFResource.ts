@@ -540,7 +540,7 @@ export class glTFResource extends HierarchyResource {
 
         if (glTFMaterial.emissiveFactor) {
             layaPBRMaterial.emissionColor.fromArray(glTFMaterial.emissiveFactor);
-            layaPBRMaterial.emissionColor.w = 1.0;
+            layaPBRMaterial.emissionColor.a = 1.0;
             layaPBRMaterial.enableEmission = true;
         }
 

@@ -5,6 +5,7 @@ import { RenderState } from "./RenderState";
 import { PBRRenderQuality } from "./PBRRenderQuality";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { Color } from "../../math/Color";
 
 /**
  * 渲染模式。
@@ -107,12 +108,12 @@ export class PBRMaterial extends Material {
     /**
      * 漫反射颜色。
      */
-    get albedoColor(): Vector4 {
-        return <Vector4>this._shaderValues.getVector(PBRMaterial.ALBEDOCOLOR);
+    get albedoColor(): Color {
+        return this._shaderValues.getColor(PBRMaterial.ALBEDOCOLOR);
     }
 
-    set albedoColor(value: Vector4) {
-        this._shaderValues.setVector(PBRMaterial.ALBEDOCOLOR, value);
+    set albedoColor(value: Color) {
+        this._shaderValues.setColor(PBRMaterial.ALBEDOCOLOR, value);
     }
 
     /**
@@ -250,12 +251,12 @@ export class PBRMaterial extends Material {
     /**
      * 自发光颜色。
      */
-    get emissionColor(): Vector4 {
-        return <Vector4>this._shaderValues.getVector(PBRMaterial.EMISSIONCOLOR);
+    get emissionColor(): Color {
+        return this._shaderValues.getColor(PBRMaterial.EMISSIONCOLOR);
     }
 
-    set emissionColor(value: Vector4) {
-        this._shaderValues.setVector(PBRMaterial.EMISSIONCOLOR, value);
+    set emissionColor(value: Color) {
+        this._shaderValues.setColor(PBRMaterial.EMISSIONCOLOR, value);
     }
 
     /**
@@ -344,8 +345,8 @@ export class PBRMaterial extends Material {
 
     constructor() {
         super();
-        this._shaderValues.setVector(PBRMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
-        this._shaderValues.setVector(PBRMaterial.EMISSIONCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
+        this._shaderValues.setColor(PBRMaterial.ALBEDOCOLOR, new Color(1.0, 1.0, 1.0, 1.0));
+        this._shaderValues.setColor(PBRMaterial.EMISSIONCOLOR, new Color(1.0, 1.0, 1.0, 1.0));
         this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, 0.5);
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSCALE, 1.0);
