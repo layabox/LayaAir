@@ -96,7 +96,7 @@ export class PBRMaterial extends Material {
         PBRMaterial.SMOOTHNESS = Shader3D.propertyNameToID("u_Smoothness");
         PBRMaterial.SMOOTHNESSSCALE = Shader3D.propertyNameToID("u_SmoothnessScale");
         PBRMaterial.OCCLUSIONTEXTURE = Shader3D.propertyNameToID("u_OcclusionTexture");
-        PBRMaterial.OCCLUSIONSTRENGTH = Shader3D.propertyNameToID("u_occlusionStrength");
+        PBRMaterial.OCCLUSIONSTRENGTH = Shader3D.propertyNameToID("u_OcclusionStrength");
         PBRMaterial.PARALLAXTEXTURE = Shader3D.propertyNameToID("u_ParallaxTexture");
         PBRMaterial.PARALLAXSCALE = Shader3D.propertyNameToID("u_ParallaxScale");
         PBRMaterial.EMISSIONTEXTURE = Shader3D.propertyNameToID("u_EmissionTexture");
@@ -142,8 +142,10 @@ export class PBRMaterial extends Material {
     set normalTexture(value: BaseTexture) {
         if (value) {
             this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE);
+            this._shaderValues.addDefine(Shader3D.getDefineByName("NEEDTBN"));
         } else {
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE);
+            this._shaderValues.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
         }
         this._shaderValues.setTexture(PBRMaterial.NORMALTEXTURE, value);
     }

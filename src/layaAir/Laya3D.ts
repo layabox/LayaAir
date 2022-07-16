@@ -152,8 +152,8 @@ export class Laya3D {
         ShaderInit3D.__init__();
         ShuriKenParticle3DShaderDeclaration.__init__();
         SimpleSkinnedMeshSprite3D.__init__();
-        // PBRMaterial.__init__();
-        // PBRStandardMaterial.__init__();
+        PBRMaterial.__init__();
+        PBRStandardMaterial.__init__();
         // PBRSpecularMaterial.__init__();
         // SkyPanoramicMaterial.__init__();
         Mesh.__init__();
