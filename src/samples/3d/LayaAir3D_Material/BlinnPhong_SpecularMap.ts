@@ -38,7 +38,7 @@ export class BlinnPhong_SpecularMap {
 		camera.addComponent(CameraMoveScript);
 
 		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color.setValue(1, 1, 1);
+		directionLight.color.setValue(1, 1, 1, 1);
 
 		Laya.loader.create("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, this.onComplete));
 	}

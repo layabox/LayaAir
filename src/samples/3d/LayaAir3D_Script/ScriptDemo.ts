@@ -42,8 +42,8 @@ export class ScriptDemo {
 		//添加方向光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		//设置灯光漫反射颜色
-		var lightColor: Vector3 = directionLight.color;
-		lightColor.setValue(0.6, 0.6, 0.6);
+		var lightColor: Color = directionLight.color;
+		lightColor.setValue(0.6, 0.6, 0.6, 1);
 		//设置平行光的方向
 		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 		mat.setForward(this._forward);

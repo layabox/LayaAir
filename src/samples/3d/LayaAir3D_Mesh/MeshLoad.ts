@@ -56,7 +56,7 @@ export class MeshLoad {
 
 		//添加平行光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		directionLight.color = new Vector3(0.6, 0.6, 0.6);
+		directionLight.color = new Color(0.6, 0.6, 0.6, 1);
 
 		//创建精灵
 		this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));

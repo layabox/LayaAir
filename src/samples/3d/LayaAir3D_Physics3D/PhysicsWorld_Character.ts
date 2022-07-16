@@ -21,6 +21,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Config3D } from "Config3D";
+import { Color } from "laya/d3/math/Color";
 
 export class PhysicsWorld_Character {
 
@@ -53,7 +54,7 @@ export class PhysicsWorld_Character {
 			//创建平行光
 			var directionLight = new DirectionLight();
 			this.scene.addChild(directionLight);
-			directionLight.color = new Vector3(1, 1, 1);
+			directionLight.color = new Color(1, 1, 1, 1);
 			//设置平行光的方向
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, 1.0));

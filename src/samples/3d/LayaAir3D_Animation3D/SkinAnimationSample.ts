@@ -52,7 +52,7 @@ export class SkinAnimationSample {
 		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 		mat.setForward(this._forward);
 		directionLight.transform.worldMatrix = mat;
-		directionLight.color.setValue(1, 1, 1);
+		directionLight.color.setValue(1, 1, 1, 1);
 
 		Sprite3D.load("res/threeDimen/skinModel/Zombie/Plane.lh", Handler.create(this, function (plane: Sprite3D): void {
 			scene.addChild(plane);

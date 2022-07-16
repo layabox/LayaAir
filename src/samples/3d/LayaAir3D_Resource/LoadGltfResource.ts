@@ -13,6 +13,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Loader } from "laya/net/Loader";
 import { TextureCube } from "laya/d3/resource/TextureCube";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Color } from "laya/d3/math/Color";
 
 export class LoadGltfResource {
 
@@ -36,7 +37,7 @@ export class LoadGltfResource {
 
         //light
         var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-        directionLight.color = new Vector3(0.6, 0.6, 0.6);
+        directionLight.color = new Color(0.6, 0.6, 0.6, 1);
         //设置平行光的方向
         var mat: Matrix4x4 = directionLight.transform.worldMatrix;
         mat.setForward(new Vector3(-1.0, -1.0, -1.0));

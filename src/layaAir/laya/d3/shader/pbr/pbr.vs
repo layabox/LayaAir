@@ -1,5 +1,7 @@
 #define SHADER_NAME PBRVS
 
+#include "Color.glsl";
+
 #include "Scene.glsl";
 #include "Camera.glsl";
 #include "Sprite3D.glsl";

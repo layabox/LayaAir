@@ -4,7 +4,6 @@ import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
 
-
 import BlinnPhongCommonGLSL from "./BlinnPhongCommon.glsl";
 import BlinnPhongVertexGLSL from "./BlinnPhongVertex.glsl";
 import BlinnPhongFragGLSL from "./BlinnPhongFrag.glsl";
@@ -42,7 +41,7 @@ export class BlinnPhongShaderInit {
             "u_Shininess": 0.078125,
             "u_AlphaTestValue": 0.5,
             "u_TilingOffset": new Vector4(1, 1, 0, 0),
-        }
+        };
 
         let shader = Shader3D.add("BLINNPHONG");
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);

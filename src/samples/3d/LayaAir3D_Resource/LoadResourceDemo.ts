@@ -23,6 +23,7 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Material } from "laya/d3/core/material/Material";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Color } from "laya/d3/math/Color";
 
 /**
  * ...
@@ -68,7 +69,7 @@ export class LoadResourceDemo {
 			camera.addComponent(CameraMoveScript);
 			//添加光照
 			var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-			directionLight.color = new Vector3(1, 1, 1);
+			directionLight.color = new Color(1, 1, 1, 1);
 			directionLight.transform.rotate(new Vector3(-1.14 / 3, 0, 0));
 
 			//材质加载
@@ -182,7 +183,7 @@ export class LoadResourceDemo {
 		//添加光照
 		var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
 		//光照颜色
-		directionLight.color = new Vector3(1, 1, 1);
+		directionLight.color = new Color(1, 1, 1, 1);
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//使用材质

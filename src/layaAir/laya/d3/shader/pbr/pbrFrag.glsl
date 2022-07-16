@@ -25,7 +25,9 @@ void getPixelParams(inout PixelParams params)
     #endif // UV
 
     #ifdef UV1
-    params.UV1 = v_Texcoord1;
+	#ifdef LIGHTMAP
+    params.uv1 = v_Texcoord1;
+	#endif // LIGHTMAP
     #endif // UV1
 
     #ifdef COLOR
@@ -42,11 +44,13 @@ void getPixelParams(inout PixelParams params)
     mat3 TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
     #endif // NEEDTBN
 
-    #ifdef NORMALMAP
-    vec3 normalSampler = texture2D(u_NormalMap, params.uv0).rgb;
+    #ifdef NORMALTEXTURE
+    vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;
     normalSampler = normalize(normalSampler * 2.0 - 1.0);
     params.normalWS = normalize(TBN * normalSampler);
-    #endif // NORMALMAP
+    // normalSampler.y *= -1.0;
+    // params.normalWS = normalize(TBN * normalSampler);
+    #endif // NORMALTEXTURE
 }
 
     #if defined(LIGHTING)

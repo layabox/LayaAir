@@ -81,7 +81,7 @@ export class PhysicsWorld_RayShapeCast {
 
 			//添加平行光
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color = new Vector3(1, 1, 1);
+			directionLight.color = new Color(1, 1, 1, 1);
 			//设置平行光的方向
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, 1.0));

@@ -53,7 +53,7 @@ export class PhysicsWorld_MeshCollider {
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 			mat.setForward(new Vector3(0.0, -0.8, -1.0));
 			directionLight.transform.worldMatrix = mat;
-			directionLight.color = new Vector3(1, 1, 1);
+			directionLight.color = new Color(1, 1, 1, 1);
 
 			this.mat1 = new BlinnPhongMaterial();
 			this.mat2 = new BlinnPhongMaterial();

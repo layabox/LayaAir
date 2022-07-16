@@ -20,15 +20,15 @@ void initPixelParams(inout PixelParams params, in Vertex vertex)
     #endif // NEEDTBN
 
     #ifdef UV
-    // todo  tilling offset
     params.uv0 = transformUV(vertex.texCoord0, u_TilingOffset);
     v_Texcoord0 = params.uv0;
     #endif // UV
 
     #ifdef UV1
-    // todo  tilling offset
-    params.uv1 = vertex.texCoord1;
+	#ifdef LIGHTMAP
+    params.uv1 = tranformLightMapUV(vertex.texCoord1, u_LightmapScaleOffset);
     v_Texcoord1 = params.uv1;
+	#endif // LIGHTMAP
     #endif // UV1
 
     #ifdef COLOR

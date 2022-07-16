@@ -8,6 +8,7 @@ import { Camera } from "laya/d3/core/Camera"
 	import { Stage } from "laya/display/Stage"
 	import { Handler } from "laya/utils/Handler"
 	import { Stat } from "laya/utils/Stat"
+import { Color } from "laya/d3/math/Color";
 	/**
 	 * ...
 	 * @author sss
@@ -44,7 +45,7 @@ import { Camera } from "laya/d3/core/Camera"
 			
 			//添加方向光
 			var directionLight:DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()) );
-			directionLight.color = new Vector3(0.6, 0.6, 0.6);
+			directionLight.color = new Color(0.6, 0.6, 0.6, 1);
 			directionLight.transform.worldMatrix.setForward(new Vector3(1, -1, 0));
 			
 			var sp:Sprite3D = Laya.loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh");

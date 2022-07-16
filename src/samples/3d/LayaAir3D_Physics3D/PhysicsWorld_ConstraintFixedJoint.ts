@@ -16,12 +16,13 @@ import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Script3D } from "laya/d3/component/Script3D";
 import { Config3D } from "Config3D";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { Color } from "laya/d3/math/Color";
 
-export class PhysicsWorld_ConstraintFixedJoint{
-    private scene:Scene3D;
-    private camera: Camera;
-    constructor() {
-        Laya3D.init(0, 0,null,Handler.create(this,()=>{
+export class PhysicsWorld_ConstraintFixedJoint {
+	private scene: Scene3D;
+	private camera: Camera;
+	constructor() {
+		Laya3D.init(0, 0, null, Handler.create(this, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
@@ -29,17 +30,17 @@ export class PhysicsWorld_ConstraintFixedJoint{
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
 			this.camera.transform.translate(new Vector3(0, 3, 10));
-		  //  this.camera.transform.rotate(new Vector3(-30, 45, 0), true, false);
+			//  this.camera.transform.rotate(new Vector3(-30, 45, 0), true, false);
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color = new Vector3(1, 1, 1);
+			directionLight.color = new Color(1, 1, 1, 1);
 			directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, 1.0));
 			this.addbox();
 		}));
-       
-    }
 
-    addbox(){
-        //创建盒型MeshSprite3D
+	}
+
+	addbox() {
+		//创建盒型MeshSprite3D
 		var box: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(1, 1, 1))));
 		//设置材质
 		var transform: Transform3D = box.transform;
@@ -54,7 +55,7 @@ export class PhysicsWorld_ConstraintFixedJoint{
 		var boxShape: BoxColliderShape = new BoxColliderShape(1, 1, 1);
 		//设置盒子的碰撞形状
 		rigidBody.colliderShape = boxShape;
-		
+
 		//设置刚体的质量
 		rigidBody.mass = 10;
 		rigidBody.isKinematic = true;
@@ -76,37 +77,33 @@ export class PhysicsWorld_ConstraintFixedJoint{
 		//设置刚体的质量
 		rigidBody2.mass = 10;
 
-		var fixedConstraint:FixedConstraint = box.addComponent(FixedConstraint);
-		fixedConstraint.anchor = new Vector3(0,0,0);
-		fixedConstraint.connectAnchor = new Vector3(0,2,0);
+		var fixedConstraint: FixedConstraint = box.addComponent(FixedConstraint);
+		fixedConstraint.anchor = new Vector3(0, 0, 0);
+		fixedConstraint.connectAnchor = new Vector3(0, 2, 0);
 		box.addComponent(FixedEventTest);
-		fixedConstraint.setConnectRigidBody(rigidBody,rigidBody2);
-		
-    }
-    
+		fixedConstraint.setConnectRigidBody(rigidBody, rigidBody2);
+
+	}
+
 }
 
-export class FixedEventTest extends Script3D{
-	private fixedConstraint:FixedConstraint;
+export class FixedEventTest extends Script3D {
+	private fixedConstraint: FixedConstraint;
 
-	onStart()
-	{
+	onStart() {
 		this.fixedConstraint = this.owner.getComponent(FixedConstraint);
 		this.fixedConstraint.breakForce = 1000;
 	}
 
-	onUpdate()
-	{
-		if(this.fixedConstraint)
-		{
+	onUpdate() {
+		if (this.fixedConstraint) {
 			var mass = this.fixedConstraint.connectedBody.mass;
-			this.fixedConstraint.connectedBody.mass = mass+1;
-		}	
+			this.fixedConstraint.connectedBody.mass = mass + 1;
+		}
 
 	}
 
-	onJointBreak()
-	{
+	onJointBreak() {
 		console.log("duanle");
 	}
 }

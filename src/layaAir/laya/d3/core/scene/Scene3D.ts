@@ -74,6 +74,7 @@ import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPip
 import { WebGL } from "../../../webgl/WebGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { BufferState } from "../BufferState";
+import { Color } from "../../math/Color";
 
 /**
  * 环境光模式
@@ -1025,7 +1026,10 @@ export class Scene3D extends Sprite implements ISubmit {
 					var dir: Vector3 = dirLight._direction;
 					var intCor: Vector3 = dirLight._intensityColor;
 					var off: number = floatWidth * curCount;
-					Vector3.scale(dirLight.color, dirLight._intensity, intCor);
+					intCor.x = Color.gammaToLinearSpace(dirLight.color.r);
+					intCor.y = Color.gammaToLinearSpace(dirLight.color.g);
+					intCor.z = Color.gammaToLinearSpace(dirLight.color.b);
+					Vector3.scale(intCor, dirLight._intensity, intCor);
 					(dirLight.owner as Sprite3D).transform.worldMatrix.getForward(dir);
 					Vector3.normalize(dir, dir);//矩阵有缩放时需要归一化
 					ligPix[off] = intCor.x;
@@ -1056,7 +1060,10 @@ export class Scene3D extends Sprite implements ISubmit {
 					var pos: Vector3 = (poiLight.owner as Sprite3D).transform.position;
 					var intCor: Vector3 = poiLight._intensityColor;
 					var off: number = floatWidth * curCount;
-					Vector3.scale(poiLight.color, poiLight._intensity, intCor);
+					intCor.x = Color.gammaToLinearSpace(poiLight.color.r);
+					intCor.y = Color.gammaToLinearSpace(poiLight.color.g);
+					intCor.z = Color.gammaToLinearSpace(poiLight.color.b);
+					Vector3.scale(intCor, poiLight._intensity, intCor);
 					ligPix[off] = intCor.x;
 					ligPix[off + 1] = intCor.y;
 					ligPix[off + 2] = intCor.z;
@@ -1083,7 +1090,10 @@ export class Scene3D extends Sprite implements ISubmit {
 					var pos: Vector3 = (spoLight.owner as Sprite3D).transform.position;
 					var intCor: Vector3 = spoLight._intensityColor;
 					var off: number = floatWidth * curCount;
-					Vector3.scale(spoLight.color, spoLight._intensity, intCor);
+					intCor.x = Color.gammaToLinearSpace(spoLight.color.r);
+					intCor.y = Color.gammaToLinearSpace(spoLight.color.g);
+					intCor.z = Color.gammaToLinearSpace(spoLight.color.b);
+					Vector3.scale(intCor, spoLight._intensity, intCor);
 					(spoLight.owner as Sprite3D).transform.worldMatrix.getForward(dir);
 					Vector3.normalize(dir, dir);
 					ligPix[off] = intCor.x;
@@ -1113,7 +1123,10 @@ export class Scene3D extends Sprite implements ISubmit {
 			if (this._directionLights._length > 0) {
 				var dirLight: DirectionLightCom = this._directionLights._elements[0];
 				this._mainDirectionLight = dirLight;
-				Vector3.scale(dirLight.color, dirLight._intensity, dirLight._intensityColor);
+				dirLight._intensityColor.x = Color.gammaToLinearSpace(dirLight.color.r);
+				dirLight._intensityColor.y = Color.gammaToLinearSpace(dirLight.color.g);
+				dirLight._intensityColor.z = Color.gammaToLinearSpace(dirLight.color.b);
+				Vector3.scale(dirLight._intensityColor, dirLight._intensity, dirLight._intensityColor);
 
 				(dirLight.owner as Sprite3D).transform.worldMatrix.getForward(dirLight._direction);
 				Vector3.normalize(dirLight._direction, dirLight._direction);
@@ -1129,7 +1142,10 @@ export class Scene3D extends Sprite implements ISubmit {
 			if (this._pointLights._length > 0) {
 				var poiLight: PointLightCom = this._pointLights._elements[0];
 				this._mainPointLight = poiLight;
-				Vector3.scale(poiLight.color, poiLight._intensity, poiLight._intensityColor);
+				poiLight._intensityColor.x = Color.gammaToLinearSpace(poiLight.color.r);
+				poiLight._intensityColor.y = Color.gammaToLinearSpace(poiLight.color.g);
+				poiLight._intensityColor.z = Color.gammaToLinearSpace(poiLight.color.b);
+				Vector3.scale(poiLight._intensityColor, poiLight._intensity, poiLight._intensityColor);
 				shaderValues.setVector3(Scene3D.POINTLIGHTCOLOR, poiLight._intensityColor);
 				shaderValues.setVector3(Scene3D.POINTLIGHTPOS, (poiLight.owner as Sprite3D).transform.position);
 				shaderValues.setNumber(Scene3D.POINTLIGHTRANGE, poiLight.range);
@@ -1141,7 +1157,10 @@ export class Scene3D extends Sprite implements ISubmit {
 			if (this._spotLights._length > 0) {
 				var spotLight: SpotLightCom = this._spotLights._elements[0];
 				this._mainSpotLight = spotLight;
-				Vector3.scale(spotLight.color, spotLight._intensity, spotLight._intensityColor);
+				spotLight._intensityColor.x = Color.gammaToLinearSpace(spotLight.color.r);
+				spotLight._intensityColor.y = Color.gammaToLinearSpace(spotLight.color.g);
+				spotLight._intensityColor.z = Color.gammaToLinearSpace(spotLight.color.b);
+				Vector3.scale(spotLight._intensityColor, spotLight._intensity, spotLight._intensityColor);
 				shaderValues.setVector3(Scene3D.SPOTLIGHTCOLOR, spotLight._intensityColor);
 				shaderValues.setVector3(Scene3D.SPOTLIGHTPOS, (spotLight.owner as Sprite3D).transform.position);
 				(spotLight.owner as Sprite3D).transform.worldMatrix.getForward(spotLight._direction);

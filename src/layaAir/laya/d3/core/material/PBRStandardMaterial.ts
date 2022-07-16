@@ -43,12 +43,12 @@ export class PBRStandardMaterial extends PBRMaterial {
 		PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
 		PBRStandardMaterial.METALLICGLOSSTEXTURE = Shader3D.propertyNameToID("u_MetallicGlossTexture");
 		PBRStandardMaterial.METALLIC = Shader3D.propertyNameToID("u_Metallic");
-		var shader: Shader3D = Shader3D.add("PBR", true, true);
-		var subShader: SubShader = new SubShader();
-		shader.addSubShader(subShader);
-		subShader.addShaderPass(PBRVS, PBRPS, "Forward");
-		subShader.addShaderPass(PBRShadowCasterVS, PBRShadowCasterPS, "ShadowCaster");
-		subShader.addShaderPass(DepthNormalsTextureVS, DepthNormalsTextureFS, "DepthNormal");
+		// var shader: Shader3D = Shader3D.add("PBR", true, true);
+		// var subShader: SubShader = new SubShader();
+		// shader.addSubShader(subShader);
+		// subShader.addShaderPass(PBRVS, PBRPS, "Forward");
+		// subShader.addShaderPass(PBRShadowCasterVS, PBRShadowCasterPS, "ShadowCaster");
+		// subShader.addShaderPass(DepthNormalsTextureVS, DepthNormalsTextureFS, "DepthNormal");
 	}
 
 	/** @internal */
@@ -102,7 +102,6 @@ export class PBRStandardMaterial extends PBRMaterial {
 	constructor() {
 		super();
 		this.setShaderName("PBR");
-		this._shaderValues.setNumber(PBRStandardMaterial.METALLIC, 0.0);
 	}
 
 	/**

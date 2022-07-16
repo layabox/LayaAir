@@ -5,6 +5,7 @@ import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
@@ -83,7 +84,7 @@ export class SceneLoad3 {
 			light.transform.worldMatrix = mat;
 			//设置灯光漫反射颜色
 			//light.diffuseColor = new Vector3(0.5, 0.5, 0.5);
-			light.color = new Vector3(1.0, 1.0, 1.0);
+			light.color = new Color(1.0, 1.0, 1.0, 1);
 
 			//激活场景中的两个子节点
 			((<MeshSprite3D>scene.getChildByName('Scenes').getChildByName('HeightMap'))).active = false;

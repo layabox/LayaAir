@@ -5,6 +5,7 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
@@ -57,7 +58,7 @@ export class TransformDemo {
 
 		//添加光照
 		var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-		directionLight.color = new Vector3(1, 1, 1);
+		directionLight.color = new Color(1, 1, 1, 1);
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//批量预加载资源

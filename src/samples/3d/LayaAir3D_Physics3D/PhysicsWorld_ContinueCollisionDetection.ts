@@ -39,7 +39,7 @@ export class PhysicsWorld_ContinueCollisionDetection {
 
 			//方向光
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color.setValue(0.6, 0.6, 0.6);
+			directionLight.color.setValue(0.6, 0.6, 0.6, 1);
 			//设置平行光的方向
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, -1.0));

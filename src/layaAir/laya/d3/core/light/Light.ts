@@ -6,6 +6,7 @@ import { Sprite3D } from "../Sprite3D";
 import { ShadowMode } from "./ShadowMode";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Component } from "../../../components/Component";
+import { Color } from "../../math/Color";
 
 
 /**
@@ -57,7 +58,7 @@ export class Light extends Component {
 	_lightWoldMatrix: Matrix4x4 = new Matrix4x4();
 
 	/** 灯光颜色。 */
-	color: Vector3;
+	color: Color;
 
 	/**
 	 * 灯光强度。
@@ -180,7 +181,7 @@ export class Light extends Component {
 		super();
 		this._intensity = 1.0;
 		this._intensityColor = new Vector3();
-		this.color = new Vector3(1.0, 1.0, 1.0);
+		this.color = new Color(1.0, 1.0, 1.0, 1.0);
 		this._lightmapBakedType = Light.LIGHTMAPBAKEDTYPE_REALTIME;
 	}
 
@@ -192,7 +193,9 @@ export class Light extends Component {
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		var colorData: any[] = data.color;
-		this.color.fromArray(colorData);
+		this.color.r = colorData[0];
+		this.color.g = colorData[1];
+		this.color.b = colorData[2];
 		this.intensity = data.intensity;
 		this.lightmapBakedType = data.lightmapBakedType;
 	}
@@ -294,20 +297,5 @@ export class Light extends Component {
 	protected _create(): Component {
 		return new Light();
 	}
-
-	/**
-	 * @deprecated
-	 * please use color property instead.
-	 */
-	get diffuseColor(): Vector3 {
-		console.log("LightSprite: discard property,please use color property instead.");
-		return this.color;
-	}
-
-	set diffuseColor(value: Vector3) {
-		console.log("LightSprite: discard property,please use color property instead.");
-		this.color = value;
-	}
-
 }
 

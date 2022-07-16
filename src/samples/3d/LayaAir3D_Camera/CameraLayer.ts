@@ -62,7 +62,7 @@ export class CameraLayer {
 
 		//添加平行光
 		var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-		directionLight.color.setValue(1, 1, 1);
+		directionLight.color.setValue(1, 1, 1, 1);
 		directionLight.transform.rotate(this._rotation2);
 
 		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh",

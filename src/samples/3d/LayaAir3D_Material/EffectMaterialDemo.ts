@@ -35,7 +35,7 @@ export class EffectMaterialDemo {
 		camera.clearFlag = CameraClearFlags.Sky;
 
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		directionLight.color.setValue(1, 1, 1);
+		directionLight.color.setValue(1, 1, 1, 1);
 
 		var earth: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere())));
 		earth.transform.position = new Vector3(0, 0, 0);

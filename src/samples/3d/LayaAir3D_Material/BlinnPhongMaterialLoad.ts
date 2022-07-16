@@ -25,7 +25,7 @@ export class BlinnPhongMaterialLoad {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
-		
+
 		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
@@ -33,7 +33,7 @@ export class BlinnPhongMaterialLoad {
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		directionLight.color.setValue(0.6, 0.6, 0.6);
+		directionLight.color.setValue(0.6, 0.6, 0.6, 1);
 
 		Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
 			var layaMonkey: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(mesh)));

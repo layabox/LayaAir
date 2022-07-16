@@ -6,6 +6,7 @@ import { Sprite3D } from "../Sprite3D";
 import { ShadowMode } from "./ShadowMode";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Light } from "./Light";
+import { Color } from "../../math/Color";
 
 
 export enum LightMode {
@@ -20,23 +21,23 @@ export enum LightMode {
 export class LightSprite extends Sprite3D {
 	/** @internal */
 	_light: Light;
-	_mode:LightMode;
+	_mode: LightMode;
 	/**
 	 * 灯光颜色。
 	 */
-	get color(): Vector3 {
+	get color(): Color {
 		return this._light.color;
 	}
 
-	set color(value: Vector3) {
+	set color(value: Color) {
 		this._light.color = value;
 	}
 
-	get mode():LightMode{
+	get mode(): LightMode {
 		return this._mode;
 	}
 
-	set mode(value:LightMode){
+	set mode(value: LightMode) {
 		this._mode = value;
 	}
 
@@ -158,7 +159,9 @@ export class LightSprite extends Sprite3D {
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		var colorData: any[] = data.color;
-		this.color.fromArray(colorData);
+		this.color.r = colorData[0];
+		this.color.g = colorData[1];
+		this.color.b = colorData[2];
 		this.intensity = data.intensity;
 		this.lightmapBakedType = data.lightmapBakedType;
 	}
@@ -193,20 +196,5 @@ export class LightSprite extends Sprite3D {
 	protected _create(): Node {
 		return new Sprite3D();
 	}
-
-	/**
-	 * @deprecated
-	 * please use color property instead.
-	 */
-	get diffuseColor(): Vector3 {
-		console.log("LightSprite: discard property,please use color property instead.");
-		return this.color;
-	}
-
-	set diffuseColor(value: Vector3) {
-		console.log("LightSprite: discard property,please use color property instead.");
-		this.color = value;
-	}
-
 }
 

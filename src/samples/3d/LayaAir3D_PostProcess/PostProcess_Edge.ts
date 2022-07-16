@@ -21,6 +21,7 @@ import { EdgeEffect, EdgeMode } from "./PostProcess_Edge/EdgeEffect";
 import { Browser } from "laya/utils/Browser";
 import { Event } from "laya/events/Event";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Color } from "laya/d3/math/Color";
 
 export class PostProcess_Edge {
 
@@ -85,7 +86,7 @@ export class PostProcess_Edge {
     addLight(): void {
 
         let dirLightDirections: Vector3[] = [new Vector3(-1, -1, -1), new Vector3(1, -1, -1)]
-        let lightColor: Vector3 = new Vector3(0.6, 0.6, 0.6);
+        let lightColor: Color = new Color(0.6, 0.6, 0.6, 1.0);
         for (let index = 0; index < dirLightDirections.length; index++) {
             let dir: Vector3 = dirLightDirections[index];
             Vector3.normalize(dir, dirLightDirections[index]);

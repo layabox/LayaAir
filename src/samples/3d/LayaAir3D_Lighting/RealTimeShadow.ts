@@ -24,6 +24,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
 import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
+import { Color } from "laya/d3/math/Color";
 
 /**
  * Light rotation script.
@@ -72,7 +73,7 @@ export class RealTimeShadow {
 
 		var directionLight: DirectionLight = new DirectionLight();
 		scene.addChild(directionLight);
-		directionLight.color = new Vector3(0.85, 0.85, 0.8);
+		directionLight.color = new Color(0.85, 0.85, 0.8, 1);
 		directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
 
 		// Use soft shadow.

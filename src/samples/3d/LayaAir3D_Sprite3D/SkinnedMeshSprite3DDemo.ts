@@ -3,6 +3,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
@@ -33,7 +34,7 @@ export class SkinnedMeshSprite3DDemo {
 
 		//添加光照
 		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color = new Vector3(1, 1, 1);
+		directionLight.color = new Color(1, 1, 1, 1);
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//预加载资源

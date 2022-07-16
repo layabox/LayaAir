@@ -63,7 +63,7 @@ export class MouseInteraction {
 
 		//添加光照
 		var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-		directionLight.color = new Vector3(1, 1, 1);
+		directionLight.color = new Color(1, 1, 1, 1);
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//批量预加载资源

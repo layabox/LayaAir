@@ -62,7 +62,7 @@ export class MultiLight {
 			for (var i: number = 0; i < 15; i++) {
 				var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
 				pointLight.range = 2.0 + Math.random() * 8.0;
-				pointLight.color.setValue(Math.random(), Math.random(), Math.random());
+				pointLight.color.setValue(Math.random(), Math.random(), Math.random(), 1);
 				pointLight.intensity = 6.0 + Math.random() * 8;
 				moverLights[i] = pointLight;
 				offsets[i] = new Vector3((Math.random() - 0.5) * 10, pointLight.range * 0.75, (Math.random() - 0.5) * 10);
@@ -72,7 +72,7 @@ export class MultiLight {
 			var spotLight: SpotLight = (<SpotLight>scene.addChild(new SpotLight()));
 			spotLight.transform.localPosition = new Vector3(0.0, 9.0, -35.0);
 			spotLight.transform.localRotationEuler = new Vector3(-15.0, 180.0, 0.0);
-			spotLight.color.setValue(Math.random(), Math.random(), Math.random());
+			spotLight.color.setValue(Math.random(), Math.random(), Math.random(), 1);
 			spotLight.range = 50;
 			spotLight.intensity = 15;
 			spotLight.spotAngle = 60;

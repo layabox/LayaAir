@@ -45,7 +45,7 @@ export class MultiTouch {
 		//创建平行光
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		//设置平行光颜色
-		directionLight.color = new Vector3(0.6, 0.6, 0.6);
+		directionLight.color = new Color(0.6, 0.6, 0.6, 1);
 
 		//加载小猴子精灵
 		var monkey: Sprite3D = Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh");
@@ -78,6 +78,7 @@ import { Script3D } from "laya/d3/component/Script3D"
 
 
 import { Vector2 } from "laya/d3/math/Vector2"
+import { Color } from "laya/d3/math/Color";
 
 
 

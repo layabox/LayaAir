@@ -32,7 +32,7 @@ export class BlinnPhong_DiffuseMap {
 		camera.clearFlag = CameraClearFlags.Sky;
 
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		directionLight.color.setValue(1, 1, 1);
+		directionLight.color.setValue(1, 1, 1, 1);
 
 		//创建一个SphereMesh
 		var sphereMesh: Mesh = PrimitiveMesh.createSphere();

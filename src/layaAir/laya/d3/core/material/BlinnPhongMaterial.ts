@@ -227,9 +227,15 @@ export class BlinnPhongMaterial extends Material {
 
 	set normalTexture(value: BaseTexture) {
 		if (value)
+		{
 			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_NORMALMAP);
+			this._shaderValues.addDefine(Shader3D.getDefineByName("NEEDTBN"));
+		}
 		else
+		{
 			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_NORMALMAP);
+			this._shaderValues.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
+		}
 		this._shaderValues.setTexture(BlinnPhongMaterial.NORMALTEXTURE, value);
 	}
 

@@ -86,6 +86,9 @@ import { UnlitShaderInit } from "./unlit/UnlitShaderInit";
 import { BlinnPhongShaderInit } from "./blinnphong/BlinnPhongShaderInit";
 import { PBRShaderInit } from "./pbr/PBRShaderInit";
 import { TrailShaderInit } from "./Trail/TrailShaderInit";
+import { PBRShaderLib } from "./pbr/PBRShaderLib";
+import { PBRStandardShaderInit } from "./pbr/PBRStandardShaderInit";
+import { SkyBoxShaderInit } from "./sky/SkyBoxShaderInit";
 
 /**
  * @internal
@@ -128,12 +131,18 @@ export class ShaderInit3D {
 		// lighting
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
 
+		// lib
+		PBRShaderLib.init();
+
 		// shader init
 		BlitScreenShaderInit.init();
 		UnlitShaderInit.init();
-		BlinnPhongShaderInit.init();
+		PBRStandardShaderInit.init();
 		PBRShaderInit.init();
+		BlinnPhongShaderInit.init();
 		TrailShaderInit.init();
+
+		SkyBoxShaderInit.init();
 
 		///////////////////////////////////////////////////////////////////////
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
