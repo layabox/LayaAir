@@ -88,6 +88,7 @@ import { PBRShaderInit } from "./pbr/PBRShaderInit";
 import { TrailShaderInit } from "./Trail/TrailShaderInit";
 import { PBRShaderLib } from "./pbr/PBRShaderLib";
 import { PBRStandardShaderInit } from "./pbr/PBRStandardShaderInit";
+import { SkyBoxShaderInit } from "./sky/SkyBoxShaderInit";
 
 /**
  * @internal
@@ -140,6 +141,8 @@ export class ShaderInit3D {
 		PBRShaderInit.init();
 		BlinnPhongShaderInit.init();
 		TrailShaderInit.init();
+
+		SkyBoxShaderInit.init();
 
 		///////////////////////////////////////////////////////////////////////
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");

@@ -63,6 +63,13 @@ vec2 transformUV(in vec2 texcoord, in vec4 tilingOffset)
     return uv;
 }
 
+vec2 tranformLightMapUV(in vec2 texcoord, in vec4 tilingOffset)
+{
+    vec2 lightMapUV = vec2(texcoord.x, 1.0 - texcoord.y) * tilingOffset.xy + tilingOffset.zw;
+    lightMapUV.y = 1.0 - lightMapUV.y;
+    return lightMapUV;
+}
+
 void getVertexParams(inout Vertex vertex)
 {
     vertex.positionOS = getVertexPosition().xyz;

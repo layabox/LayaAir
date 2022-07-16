@@ -1,5 +1,7 @@
 #define SHADER_NAME BlinnPhongVS
 
+#include "Color.glsl";
+
 #include "Scene.glsl";
 #include "Camera.glsl";
 #include "Sprite3D.glsl";

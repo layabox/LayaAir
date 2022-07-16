@@ -26,7 +26,7 @@ void initPixelParams(inout PixelParams params, in Vertex vertex)
 
     #ifdef UV1
 	#ifdef LIGHTMAP
-    params.uv1 = transformUV(params.uv1, u_LightmapScaleOffset);
+    params.uv1 = tranformLightMapUV(vertex.texCoord1, u_LightmapScaleOffset);
     v_Texcoord1 = params.uv1;
 	#endif // LIGHTMAP
     #endif // UV1

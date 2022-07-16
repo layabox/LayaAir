@@ -25,7 +25,9 @@ void getPixelParams(inout PixelParams params)
     #endif // UV
 
     #ifdef UV1
-    params.UV1 = v_Texcoord1;
+	#ifdef LIGHTMAP
+    params.uv1 = v_Texcoord1;
+	#endif // LIGHTMAP
     #endif // UV1
 
     #ifdef COLOR

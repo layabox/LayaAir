@@ -130,7 +130,7 @@ void main()
 
     // GI
     // todo occlusion
-    surfaceColor += evaluateIBL(surface, pixel) * inputs.occlusion;
+    surfaceColor += PBRGI(surface, pixel) * inputs.occlusion;
 
 // todo emission calculate
 #ifdef EMISSION

@@ -50,4 +50,17 @@ vec3 evaluateIBL(const in Surface surface, const in PixelParams pixel)
     return diffuseColor * indirectDiffuse + indirectSpecular * specularColor;
 }
 
+vec3 PBRGI(const in Surface surface, const in PixelParams pixel)
+{
+    #ifdef LIGHTMAP
+	#ifdef UV1
+    vec2 lightmapUV = pixel.uv1;
+    vec3 bakedColor = getBakedLightmapColor(lightmapUV);
+    return bakedColor;
+	#endif // UV1
+    #endif // LIGHTMAP
+
+    return evaluateIBL(surface, pixel);
+}
+
 #endif // pbrGI_lib

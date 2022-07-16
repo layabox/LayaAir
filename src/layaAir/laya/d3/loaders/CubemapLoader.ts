@@ -57,6 +57,7 @@ class CubemapBinLoader implements IResourceLoader {
             let anisoLevel: FilterMode = byte.getUint8();
 
             let cubemap: TextureCube = new TextureCube(size, format, mipCount > 1 ? true : false);
+            cubemap.setPixelsData(null, false, false);
             cubemap.filterMode = filterMode;
             cubemap.wrapModeU = wrapModeU;
             cubemap.wrapModeV = wrapModev;
