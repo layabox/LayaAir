@@ -140,7 +140,6 @@ export class Laya3D {
 
         Physics3D.__bulletinit__();
 
-
         VertexMesh.__init__();
         VertexShurikenParticleBillboard.__init__();
         VertexShurikenParticleMesh.__init__();

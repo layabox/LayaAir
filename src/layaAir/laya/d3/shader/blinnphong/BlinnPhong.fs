@@ -1,6 +1,7 @@
 #define SHADER_NAME BlinnPhongFS
 
 #include "Color.glsl";
+#include "Math.glsl";
 
 #include "Scene.glsl";
 #include "Camera.glsl";
@@ -70,7 +71,7 @@ void main()
     surfaceColor += lightingColor;
 #endif // LIGHTING
 
-    // todo  GI ?
+    surfaceColor += BlinnPhongGI(surface, pixel);
 
 #ifdef FOG
     surfaceColor = sceneLitFog(surfaceColor);

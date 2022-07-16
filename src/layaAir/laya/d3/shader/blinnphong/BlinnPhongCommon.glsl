@@ -11,7 +11,9 @@ varying vec2 v_Texcoord0;
     #endif // UV
 
     #ifdef UV1
+	#ifdef LIGHTMAP
 varying vec2 v_Texcoord1;
+	#endif // LIGHTMAP
     #endif // UV1
 
     #ifdef NEEDTBN
@@ -33,7 +35,9 @@ struct PixelParams {
     #endif // UV
 
     #ifdef UV1
+	#ifdef LIGHTMAP
     vec2 uv1;
+	#endif // LIGHTMAP
     #endif // UV1
 
     #ifdef NEEDTBN
