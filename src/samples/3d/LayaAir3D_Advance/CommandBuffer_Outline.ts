@@ -48,7 +48,7 @@ export class CommandBuffer_Outline {
 		var unlitMaterial = new UnlitMaterial();
 		unlitMaterial.albedoColor = new Color(255, 0, 0, 255);
 		var shurikenMaterial: ShurikenParticleMaterial = new ShurikenParticleMaterial();
-		shurikenMaterial.color = new Vector4(255, 0, 0, 255);
+		shurikenMaterial.color = new Color(255, 0, 0, 255);
 
 		Shader3D.debugMode = true;
 		//加载场景
