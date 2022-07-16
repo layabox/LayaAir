@@ -2,8 +2,11 @@
 
 #include "Color.glsl";
 
+#include "Scene.glsl";
 #include "Camera.glsl";
-#include "Sprite3D.glsl"
+#include "Sprite3D.glsl";
+
+#include "SceneFog.glsl";
 
 #include "BlinnPhongFrag.glsl";
 
