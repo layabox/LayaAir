@@ -10,8 +10,10 @@ export class MeshSprite3DShaderDeclaration {
 	static SHADERDEFINE_COLOR: ShaderDefine;
 	/**UV1通道顶点数据宏 */
 	static SHADERDEFINE_UV1: ShaderDefine;
+	/** Tangent 通道顶点数据宏 */
+	static SHADERDEFINE_TANGENT: ShaderDefine;
 	/**instance调用宏 */
 	static SHADERDEFINE_GPU_INSTANCE: ShaderDefine;
 	/**盒子反射宏 */
-	static SHADERDEFINE_SPECCUBE_BOX_PROJECTION:ShaderDefine;
+	static SHADERDEFINE_SPECCUBE_BOX_PROJECTION: ShaderDefine;
 }

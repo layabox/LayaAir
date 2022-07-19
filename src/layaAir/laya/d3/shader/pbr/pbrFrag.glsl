@@ -39,11 +39,13 @@ void getPixelParams(inout PixelParams params)
     // todo NoV varying ?
     params.NoV = max(dot(params.normalWS, params.viewDir), MIN_N_DOT_V);
 
-    #ifdef NEEDTBN
+    #ifdef TANGENT
+	#ifdef NEEDTBN
     params.tangentWS = normalize(v_TangentWS);
     params.biNormalWS = normalize(v_BiNormalWS);
     mat3 TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
-    #endif // NEEDTBN
+	#endif // NEEDTBN
+    #endif // TANGENT
 
     #ifdef NORMALTEXTURE
     vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;

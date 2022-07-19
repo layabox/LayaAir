@@ -42,6 +42,7 @@ export class MeshRenderer extends BaseRender {
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0 = Shader3D.getDefineByName("UV");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR = Shader3D.getDefineByName("COLOR");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = Shader3D.getDefineByName("UV1");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT = Shader3D.getDefineByName("TANGENT");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
 		StaticBatchManager._registerManager(MeshRenderStaticBatchManager.instance);
@@ -110,6 +111,9 @@ export class MeshRenderer extends BaseRender {
 						break;
 					case VertexMesh.MESH_TEXTURECOORDINATE1:
 						out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
+						break;
+					case VertexMesh.MESH_TANGENT0:
+						out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT);
 						break;
 				}
 			}

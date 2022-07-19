@@ -7,9 +7,9 @@ struct Vertex {
 
     vec3 normalOS;
 
-    #ifdef NEEDTBN
+    #ifdef TANGENT
     vec4 tangentOS;
-    #endif // NEEDTBN
+    #endif // TANGENT
 
     // todo  uv define ?
     #ifdef UV
@@ -74,11 +74,11 @@ void getVertexParams(inout Vertex vertex)
 {
     vertex.positionOS = getVertexPosition().xyz;
 
-    vertex.normalOS = a_Normal;
+    vertex.normalOS = a_Normal.xyz;
 
-    #ifdef NEEDTBN
+    #ifdef TANGENT
     vertex.tangentOS = a_Tangent0;
-    #endif // NEEDTBN
+    #endif // TANGENT
 
     #ifdef UV
     vertex.texCoord0 = a_Texcoord0;
