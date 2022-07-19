@@ -26,7 +26,8 @@ import { WrapMode } from "../RenderEnum/WrapMode";
     wrapV: WrapMode;
     wrapW: WrapMode;
     anisoLevel: number;
-
+    baseMipmapLevel:number;
+    maxMipmapLevel:number;
     compareMode: TextureCompareMode;
 
     /**

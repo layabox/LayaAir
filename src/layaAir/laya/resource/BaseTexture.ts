@@ -108,6 +108,22 @@ export class BaseTexture extends Resource {
         return this._texture.gammaCorrection;
     }
 
+    public set baseMipmapLevel(value:number){
+        this._texture.baseMipmapLevel = value;
+    }
+
+    public get baseMipmapLevel():number{
+        return this._texture.baseMipmapLevel;
+    }
+
+    public set maxMipmapLevel(value:number){
+        this._texture.baseMipmapLevel = value;
+    }
+
+    public get maxMipmapLevel():number{
+        return this._texture.baseMipmapLevel;
+    }
+
     protected _gammaSpace: boolean = false;
     // todo
     public get gammaSpace(): boolean {
