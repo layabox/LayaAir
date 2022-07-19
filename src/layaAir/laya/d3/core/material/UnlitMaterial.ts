@@ -18,8 +18,6 @@ import { RenderState } from "./RenderState";
  */
 export class UnlitMaterial extends Material {
 
-	static tempColor:Color;
-
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
 
 	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
@@ -34,7 +32,6 @@ export class UnlitMaterial extends Material {
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		UnlitMaterial.tempColor = new Color();
 		UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 

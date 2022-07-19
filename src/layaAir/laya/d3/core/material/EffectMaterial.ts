@@ -5,6 +5,7 @@ import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
 import { Material } from "./Material";
 import { RenderState } from "./RenderState";
+import { UnlitMaterial } from "./UnlitMaterial";
 
 /**
  * <code>EffectMaterial</code> 类用于实现Mesh特效材质。
@@ -12,28 +13,6 @@ import { RenderState } from "./RenderState";
 export class EffectMaterial extends Material {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: EffectMaterial;
-	/**@internal */
-	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
-	/**@internal */
-	static MAINTEXTURE: number;
-	/**@internal */
-	static TINTCOLOR: number;
-	/**@internal */
-	static TILINGOFFSET: number;
-
-	/**
-	 * @internal
-	 */
-	static __initDefine__(): void {
-		EffectMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
-		EffectMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
-		EffectMaterial.MAINTEXTURE= Shader3D.propertyNameToID("u_AlbedoTexture");
-		EffectMaterial.TINTCOLOR= Shader3D.propertyNameToID("u_AlbedoColor");
-		EffectMaterial.TILINGOFFSET= Shader3D.propertyNameToID("u_TilingOffset");
-
-	}
 
 	
 
@@ -41,41 +20,41 @@ export class EffectMaterial extends Material {
 	 * 获取颜色。
 	 */
 	get color(): Color {
-		return (<Color>this._shaderValues.getColor(EffectMaterial.TINTCOLOR));
+		return (<Color>this._shaderValues.getColor(UnlitMaterial.ALBEDOCOLOR));
 	}
 
 	set color(value: Color) {
-		this._shaderValues.setColor(EffectMaterial.TINTCOLOR, value);
+		this._shaderValues.setColor(UnlitMaterial.ALBEDOCOLOR, value);
 	}
 
 	/**
 	 * 贴图。
 	 */
 	get texture(): BaseTexture {
-		return this._shaderValues.getTexture(EffectMaterial.MAINTEXTURE);
+		return this._shaderValues.getTexture(UnlitMaterial.ALBEDOTEXTURE);
 	}
 
 	set texture(value: BaseTexture) {
 		if (value)
-			this._shaderValues.addDefine(EffectMaterial.SHADERDEFINE_MAINTEXTURE);
+			this._shaderValues.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
 		else
-			this._shaderValues.removeDefine(EffectMaterial.SHADERDEFINE_MAINTEXTURE);
-		this._shaderValues.setTexture(EffectMaterial.MAINTEXTURE, value);
+			this._shaderValues.removeDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
+		this._shaderValues.setTexture(UnlitMaterial.ALBEDOTEXTURE, value);
 	}
 
 	/**
 	 * 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(EffectMaterial.TILINGOFFSET));
+		return (<Vector4>this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET));
 	}
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			this._shaderValues.setVector(EffectMaterial.TILINGOFFSET, value);
+			this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, value);
 		}
 		else {
-			this._shaderValues.getVector(EffectMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+			this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
 		}
 	}
 
@@ -85,9 +64,9 @@ export class EffectMaterial extends Material {
 	 */
 	constructor() {
 		super();
-		this.setShaderName("Effect");
-		this._shaderValues.setVector(EffectMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
-		this._shaderValues.setVector(EffectMaterial.TINTCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
+		this.setShaderName("Unlit");
+		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
+		this._shaderValues.setColor(UnlitMaterial.ALBEDOCOLOR, new Color(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = EffectMaterial.RENDERMODE_ADDTIVE;
 	}
 
@@ -131,7 +110,7 @@ export class EffectMaterial extends Material {
 				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
 				this.blendDst = RenderState.BLENDPARAM_ONE;
 				this.depthTest = RenderState.DEPTHTEST_LEQUAL;
-				this._shaderValues.addDefine(EffectMaterial.SHADERDEFINE_ADDTIVEFOG);
+				this._shaderValues.addDefine(Material.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			case EffectMaterial.RENDERMODE_ALPHABLENDED:
 				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
@@ -142,7 +121,7 @@ export class EffectMaterial extends Material {
 				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
 				this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
 				this.depthTest = RenderState.DEPTHTEST_LEQUAL;
-				this._shaderValues.removeDefine(EffectMaterial.SHADERDEFINE_ADDTIVEFOG);
+				this._shaderValues.removeDefine(Material.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			default:
 				throw new Error("MeshEffectMaterial : renderMode value error.");

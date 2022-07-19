@@ -107,6 +107,7 @@ export class Color implements IClone {
 	}
 
 	equal(c: Color): boolean {
+		if(!c) return false;
 		const toFIxed = (a: number, b: number) => {
 			var delta = 1e-5;
 			return -delta < a - b && a - b < delta;
