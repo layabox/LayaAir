@@ -20,6 +20,7 @@ uniform vec3 u_FogColor;
 
 // todo 移动到 block 中 ？
 uniform vec3 u_IblSH[9];
+uniform vec3 u_AmbientColor;
 
 vec3 diffuseIrradiance(in vec3 normal)
 {

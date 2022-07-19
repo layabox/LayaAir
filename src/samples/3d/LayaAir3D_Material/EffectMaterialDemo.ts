@@ -4,8 +4,8 @@ import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { EffectMaterial } from "laya/d3/core/material/EffectMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Texture2D } from "laya/resource/Texture2D";
@@ -45,7 +45,7 @@ export class EffectMaterialDemo {
 			//设置纹理
 			material.texture = texture;
 			//设置材质颜色
-			material.color = new Vector4(0.6, 0.6, 0.6, 1);
+			material.color = new Color(0.6, 0.6, 0.6, 1);
 		}));
 		earth.meshRenderer.material = material;
 
