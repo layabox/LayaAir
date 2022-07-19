@@ -1,14 +1,19 @@
-#define SHADER_NAME UnlitVS;
+#define SHADER_NAME UNLITVS;
 
 #include "Scene.glsl";
 #include "Camera.glsl";
 #include "MeshVertex.glsl";
 
 void main() {
-	VertexParams params;
-	initMeshVertexParam(params);
-	v_Texcoord0=getTransfomUV(params.texCoord0,u_TilingOffset);
+	Vertex vertex;
+    getVertexParams(vertex);
+
+	v_Texcoord0=transformUV(vertex.texCoord0,u_TilingOffset);
+	
+	mat4 worldMat = getWorldMatrix();
+	vec4 positionWS = (worldMat * vec4(vertex.positionOS, 1.0)).xyz;
+
 	vec4 positionWS = vec4(params.positionWS, 1.0);
-    gl_Position = u_ViewProjection * positionWS;
-    gl_Position = remapPositionZ(gl_Position);
+    
+    gl_Position = remapPositionZ(u_ViewProjection * positionWS);
 }

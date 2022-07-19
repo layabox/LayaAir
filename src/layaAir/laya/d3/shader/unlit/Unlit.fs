@@ -1,5 +1,5 @@
 
-#define SHADER_NAME UnlitFS
+#define SHADER_NAME UNLITFS
 
 #include "Color.glsl";
 
