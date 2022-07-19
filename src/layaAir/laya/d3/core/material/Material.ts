@@ -712,21 +712,19 @@ export class Material extends Resource implements IClone {
         if (!this._shader)
             throw new Error("Material: unknown shader name.");
 
+        if (Config3D._config._uniformBlock) {
+            this._releaseUBOData();
+            //bind shader info
+            // todo 清理残留 shader data
+            this._bindShaderInfo(this._shader);
+        }
+
         // set default value
         // todo subShader 选择
         let subShader = this._shader.getSubShaderAt(0);
         let defaultValue = subShader._uniformDefaultValue;
         let typeMap = subShader._uniformTypeMap;
         this.applyUniformDefaultValue(typeMap, defaultValue);
-        
-        if (!Config3D._config._uniformBlock)
-            return;
-        this._releaseUBOData();
-        //bind shader info
-        // todo 清理残留 shader data
-        this._bindShaderInfo(this._shader);
-
-
     }
 
     /**
