@@ -102,6 +102,8 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs)
     surface.perceptualRoughness = clamp(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
     surface.roughness = surface.perceptualRoughness * surface.perceptualRoughness;
     surface.f0 = baseColor * metallic + (0.16 * reflectance * reflectance * (1.0 - metallic));
+
+    surface.occlusion = inputs.occlusion;
 }
 
 void main()
@@ -129,8 +131,7 @@ void main()
 #endif // LIGHTING
 
     // GI
-    // todo occlusion
-    surfaceColor += PBRGI(surface, pixel) * inputs.occlusion;
+    surfaceColor += PBRGI(surface, pixel);
 
 // todo emission calculate
 #ifdef EMISSION

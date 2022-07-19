@@ -13,6 +13,7 @@ struct Surface {
     vec3 f0;
     float roughness;
     float perceptualRoughness;
+    float occlusion;
 };
 
 void getPixelParams(inout PixelParams params)
@@ -99,7 +100,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel, const in 
 
     vec3 Fr = specularLobe(surface, pixel, lightParams);
 
-    return (Fd + Fr) * light.color * lightParams.NoL;
+    return (Fd + Fr) * light.color * light.attenuation * lightParams.NoL;
 }
 
 vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
@@ -115,6 +116,32 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	    lightColor += PBRLighting(surface, pixel, light);
 	}
 	#endif // DIRECTIONLIGHT
+
+	#if defined(POINTLIGHT) || defined(SPOTLIGHT)
+    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, v, gl_FragCoord, u_ProjectionParams);
+	#endif // POINTLIGHT || SPOTLIGHT
+
+	#ifdef POINTLIGHT
+    for (int i = 0; i < CalculateLightCount; i++)
+	{
+	    if (i >= clusterInfo.x)
+		break;
+	    PointLight pointLight = getPointLight(i, clusterInfo, positionWS);
+	    Light light = getLight(pointLight, surface.normalWS, positionWS);
+	    lightColor += PBRLighting(surface, pixel, light);
+	}
+	#endif // POINTLIGHT
+
+	#ifdef SPOTLIGHT
+    for (int i = 0; i < CalculateLightCount; i++)
+	{
+	    if (i >= clusterInfo.y)
+		break;
+	    SpotLight spotLight = getSpotLight(i, clusterInfo, positionWS);
+	    Light light = getLight(spotLight, surface.normalWS, positionWS);
+	    lightColor += PBRLighting(surface, pixel, light);
+	}
+	#endif // SPOTLIGHT
 
     return lightColor;
 }

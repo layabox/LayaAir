@@ -70,7 +70,7 @@ vec3 BlinnPhongLighting(in Surface surface, in Light light, in PixelParams pixel
     mediump vec3 h = normalize(v + l);
     lowp float ndh = max(0.0, dot(h, normalWS));
     float specularIntensity = pow(ndh, shininess * 128.0);
-    vec3 lightSpecular = light.color * specularColor * specularIntensity * gloss;
+    vec3 lightSpecular = light.color * light.attenuation * specularColor * specularIntensity * gloss;
 
     return lightDiffuse + lightSpecular;
 }

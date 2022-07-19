@@ -60,7 +60,7 @@ vec3 PBRGI(const in Surface surface, const in PixelParams pixel)
 	#endif // UV1
     #endif // LIGHTMAP
 
-    return evaluateIBL(surface, pixel);
+    return evaluateIBL(surface, pixel) * surface.occlusion;
 }
 
 #endif // pbrGI_lib
