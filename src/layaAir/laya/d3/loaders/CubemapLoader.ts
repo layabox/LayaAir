@@ -1,38 +1,60 @@
 import { IResourceLoader, ILoadTask, Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
+import { KTXTextureInfo } from "../../RenderEngine/KTXTextureInfo";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
+import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { Byte } from "../../utils/Byte";
+import { Utils } from "../../utils/Utils";
 import { TextureCube } from "../resource/TextureCube";
 
 class CubemapLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options.priority).then(data => {
-            if (!data)
-                return null;
+        let ext: string = Utils.getFileExtension(task.url);
+        if (ext == "ktx") {
+            return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options.priority).then(data => {
+                if (!data)
+                    return null;
 
-            let ltcBasePath: string = URL.getPath(task.url);
-            let urls: any[] = [
-                URL.formatRelativePath(ltcBasePath, data.front),
-                URL.formatRelativePath(ltcBasePath, data.back),
-                URL.formatRelativePath(ltcBasePath, data.left),
-                URL.formatRelativePath(ltcBasePath, data.right),
-                URL.formatRelativePath(ltcBasePath, data.up),
-                URL.formatRelativePath(ltcBasePath, data.down)
-            ];
+                let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
+                if (ktxInfo.dimension != TextureDimension.Cube) {
+                    console.warn("ktxInfo.dimension != TextureDimension.Cube! " + task.url);
+                    return null;
+                }
 
-            return Promise.all(urls.map(url => {
-                if (url)
-                    return task.loader.fetch(url, "image", task.progress.createCallback(), task.options.priority);
-                else
-                    return Promise.resolve(null);
-            })).then(images => {
-                let cubemap = TextureCube._parse(images);
-                cubemap._setCreateURL(task.url);
-                return cubemap;
+                let tex = new TextureCube(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, ktxInfo.sRGB);
+                tex.setKTXData(ktxInfo);
+                return tex;
             });
-        });
+        }
+        else {
+            return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options.priority).then(data => {
+                if (!data)
+                    return null;
+
+                let ltcBasePath: string = URL.getPath(task.url);
+                let urls: any[] = [
+                    URL.join(ltcBasePath, data.front),
+                    URL.join(ltcBasePath, data.back),
+                    URL.join(ltcBasePath, data.left),
+                    URL.join(ltcBasePath, data.right),
+                    URL.join(ltcBasePath, data.up),
+                    URL.join(ltcBasePath, data.down)
+                ];
+
+                return Promise.all(urls.map(url => {
+                    if (url)
+                        return task.loader.fetch(url, "image", task.progress.createCallback(), task.options.priority);
+                    else
+                        return Promise.resolve(null);
+                })).then(images => {
+                    let tex = TextureCube._parse(images);
+                    tex._setCreateURL(task.url);
+                    return tex;
+                });
+            });
+        }
     }
 }
 
@@ -56,28 +78,28 @@ class CubemapBinLoader implements IResourceLoader {
             let wrapModev: WrapMode = <WrapMode>byte.getUint8();
             let anisoLevel: FilterMode = byte.getUint8();
 
-            let cubemap: TextureCube = new TextureCube(size, format, mipCount > 1 ? true : false);
-            cubemap.setPixelsData(null, false, false);
-            cubemap.filterMode = filterMode;
-            cubemap.wrapModeU = wrapModeU;
-            cubemap.wrapModeV = wrapModev;
-            cubemap.anisoLevel = anisoLevel;
+            let tex: TextureCube = new TextureCube(size, format, mipCount > 1 ? true : false);
+            tex.setPixelsData(null, false, false);
+            tex.filterMode = filterMode;
+            tex.wrapModeU = wrapModeU;
+            tex.wrapModeV = wrapModev;
+            tex.anisoLevel = anisoLevel;
             let pos: number = byte.pos;
             let mipSize: number = size;
             for (let i = 0; i < mipCount; i++) {
                 let uint8Arrays: Array<Uint8Array> = new Array<Uint8Array>(6);
-                let mipPixelLength: number = mipSize * mipSize * cubemap._getFormatByteCount();
+                let mipPixelLength: number = mipSize * mipSize * tex._getFormatByteCount();
                 for (let j = 0; j < 6; j++) {
                     uint8Arrays[j] = new Uint8Array(data, pos, mipPixelLength);
                     pos += mipPixelLength;
                 }
                 // todo  自动生成 mipmap 与 手动设置 mipmap
-                cubemap.updateSubPixelsData(uint8Arrays, 0, 0, mipSize, mipSize, i, false, false, false);
+                tex.updateSubPixelsData(uint8Arrays, 0, 0, mipSize, mipSize, i, false, false, false);
                 mipSize /= 2;
             }
 
-            cubemap._setCreateURL(task.url);
-            return cubemap;
+            tex._setCreateURL(task.url);
+            return tex;
         });
     }
 }

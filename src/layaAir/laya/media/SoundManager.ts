@@ -306,7 +306,7 @@ export class SoundManager {
         if (!SoundManager._isActive || !url) return null;
         if (SoundManager._muted) return null;
         SoundManager._recoverWebAudio();
-        url = URL.formatURL(url);
+        url = URL.postFormatURL(URL.formatURL(url));
         if (url == SoundManager._bgMusic) {
             if (SoundManager._musicMuted) return null;
         } else {
@@ -361,7 +361,7 @@ export class SoundManager {
      * @return SoundChannel对象，通过此对象可以对声音进行控制，以及获取声音信息。
      */
     static playMusic(url: string, loops: number = 0, complete: Handler = null, startTime: number = 0): SoundChannel {
-        url = URL.formatURL(url);
+        url = URL.postFormatURL(URL.formatURL(url));
         SoundManager._bgMusic = url;
         if (SoundManager._musicChannel) SoundManager._musicChannel.stop();
         return SoundManager._musicChannel = SoundManager.playSound(url, loops, complete, SoundManager._musicClass, startTime);
@@ -372,7 +372,7 @@ export class SoundManager {
      * @param url  声音文件地址。
      */
     static stopSound(url: string): void {
-        url = URL.formatURL(url);
+        url = URL.postFormatURL(URL.formatURL(url));
         var i: number;
         var channel: SoundChannel;
         for (i = SoundManager._channels.length - 1; i >= 0; i--) {
@@ -426,7 +426,7 @@ export class SoundManager {
      */
     static setSoundVolume(volume: number, url: string = null): void {
         if (url) {
-            url = URL.formatURL(url);
+            url = URL.postFormatURL(URL.formatURL(url));
             SoundManager._setVolume(url, volume);
         } else {
             SoundManager.soundVolume = volume;
@@ -456,7 +456,7 @@ export class SoundManager {
      * @param volume	音量。初始值为1。
      */
     private static _setVolume(url: string, volume: number): void {
-        url = URL.formatURL(url);
+        url = URL.postFormatURL(URL.formatURL(url));
         var i: number;
         var channel: SoundChannel;
         for (i = SoundManager._channels.length - 1; i >= 0; i--) {

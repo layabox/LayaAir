@@ -32,7 +32,7 @@ class MaterialLoader implements IResourceLoader {
                         let tex2D: any = textures[i];
                         let tex2DPath: string = tex2D.path;
                         if (tex2DPath) {
-                            tex2D.path = URL.formatRelativePath(basePath, tex2DPath);
+                            tex2D.path = URL.join(basePath, tex2DPath);
                             urls.push({ url: tex2D.path, constructParams: tex2D.constructParams, propertyParams: tex2D.propertyParams });
                         }
                     }

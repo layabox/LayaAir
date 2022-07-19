@@ -71,27 +71,59 @@ export class URL {
     }
 
     /**
-     * 格式化指定的地址并返回。
-     * @param	url 地址。
-     * @param	base 基础路径，如果没有，则使用basePath。
-     * @return	格式化处理后的地址。
+     * 标准化URL，转换res://uuid这样的格式为路径。
+     * @param url
      */
-    static formatURL(url: string): string {
+    static normalizedURL(url: string) {
+        if (url == null)
+            return null;
+
+        if (url.startsWith(AssetDb_URLPrefix)) {
+            isUUID = true;
+            let uuid = url.substring(AssetDb_URLPrefix_len);
+            let url2 = this.uuidMap[uuid];
+            if (!url2)
+                return url;
+
+            url = url2;
+        }
+
+        return url;
+    }
+
+    /**
+     * 包含normalizedURL功能，并且合并base，如果base没有提供，则使用URL.basePath或者URL.rootPath。
+     * @param url 地址。
+     * @param base 基础路径，如果没有，则使用URL.basePath或者URL.rootPath。
+     * @return 格式化处理后的地址。
+     */
+    static formatURL(url: string, base?: string): string {
         if (!url) return "null path";
-        //如果是全路径，直接返回，提高性能
-        if (url.indexOf(":") > 0) return url;
 
         isUUID = false;
         url = URL.normalizedURL(url);
 
+        //如果是全路径，直接返回，提高性能
+        if (url.indexOf(":") > 0)
+            return url;
+
         if (!isUUID) {
-            let char1: string = url.charAt(0);
-            if (char1 === '~')
+            let char1 = url.charCodeAt(0);
+            if (char1 === 126) // ~
                 url = joinPath(URL.rootPath, url.substring(1));
-            else if (char1 !== "/")
-                url = joinPath(URL._basePath, url);
+            else if (char1 !== 47) // /
+                url = joinPath(base != null ? base : URL._basePath, url);
         }
 
+        return url;
+    }
+
+    /**
+     * 处理扩展名的自动转换，调用URL.customFormat(通常作用是添加上版本号）。
+     * @param url 地址。
+     * @return 格式化处理后的地址。
+     */
+    static postFormatURL(url: string): string {
         if (URL.hasExtOverrides) {
             let ext = Utils.getFileExtension(url);
             ext = URL.overrideFileExts[ext];
@@ -108,44 +140,33 @@ export class URL {
 
     /**
     * 格式化相对路径。
+    * @param base
+    * @param path
     */
-    static formatRelativePath(base: string, url: string): string {
-        if (url == null)
-            return null;
+    static join(base: string, path: string): string {
+        if (!path) return "null path";
 
         isUUID = false;
-        url = URL.normalizedURL(url);
-        if (isUUID)
-            return url;
-        else
-            return joinPath(base, url);
-    }
+        path = URL.normalizedURL(path);
 
-    static normalizedURL(url: string) {
-        if (url == null)
-            return null;
+        //如果是全路径，直接返回，提高性能
+        if (path.indexOf(":") > 0)
+            return path;
 
-        if (url.startsWith(AssetDb_URLPrefix)) {
-            isUUID = true;
-            let uuid = url.substring(AssetDb_URLPrefix_len);
-            let url2 = this.uuidMap[uuid];
-            if (!url2)
-                return url;
-
-            url = url2;
+        if (!isUUID && base) {
+            let char1 = path.charCodeAt(0);
+            if (char1 !== 126) // ~
+                path = joinPath(base, path);
         }
 
-        if (url.startsWith("./"))
-            url = url.substring(2);
-
-        return url;
+        return path;
     }
 
     /**
      * 获取指定 URL 的文件夹路径（不包括文件名）。
      * <p><b>注意：</b>末尾有斜杠（/）。</p>
-     * @param	url url地址。
-     * @return  返回文件夹路径。
+     * @param url url地址。
+     * @return 返回文件夹路径。
      */
     static getPath(url: string): string {
         var ofs: number = url.lastIndexOf('/');
@@ -154,8 +175,8 @@ export class URL {
 
     /**
      * 获取指定 URL 的文件名。
-     * @param	url 地址。
-     * @return 	返回文件名。
+     * @param url 地址。
+     * @return 返回文件名。
      */
     static getFileName(url: string): string {
         var ofs: number = url.lastIndexOf('/');
@@ -164,7 +185,7 @@ export class URL {
 
     /**
      * 获取URL版本字符。
-     * @param	url
+     * @param url
      * @return
      */
     static getURLVerion(url: string): string {
@@ -193,16 +214,20 @@ export class URL {
 }
 
 function joinPath(base: string, value: string): string {
-    var path: string;
+    let path: string;
+
+    if (value.startsWith("./"))
+        value = value.substring(2);
+
     if (base != null)
         path = base + value;
 
-    var char1: string = value.charAt(0);
-    if (char1 === ".") {
-        var parts: any[] = path.split("/");
-        for (var i: number = 0, len: number = parts.length; i < len; i++) {
+    let char1 = value.charCodeAt(0);
+    if (char1 === 46) { // .
+        let parts: any[] = path.split("/");
+        for (let i: number = 0, len: number = parts.length; i < len; i++) {
             if (parts[i] == '..') {
-                var index: number = i - 1;
+                let index: number = i - 1;
                 if (index > 0 && parts[index] !== '..') {
                     parts.splice(index, 2);
                     i -= 2;

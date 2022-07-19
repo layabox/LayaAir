@@ -162,7 +162,7 @@ export class WebAudioSound extends EventDispatcher {
      */
     load(url: string): void {
         var me: WebAudioSound = this;
-        url = URL.formatURL(url);
+        url = URL.postFormatURL(URL.formatURL(url));
         this.url = url;
 
         this.audioBuffer = WebAudioSound._dataCache[url];

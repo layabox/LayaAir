@@ -237,7 +237,7 @@ export class HierarchyParserV2 {
         function addInnerUrl(url: string, type: string, constructParams?: any, propertyParams?: any) {
             let entry: ILoadURL = test[url];
             if (!entry) {
-                entry = { url: URL.formatRelativePath(basePath, url), type: type, constructParams: constructParams, propertyParams: propertyParams };
+                entry = { url: URL.join(basePath, url), type: type, constructParams: constructParams, propertyParams: propertyParams };
                 test[url] = entry;
                 innerUrls.push(entry);
             }
