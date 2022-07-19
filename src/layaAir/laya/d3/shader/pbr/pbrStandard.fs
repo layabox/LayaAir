@@ -138,7 +138,4 @@ void main()
 #endif // EMISSION
 
     gl_FragColor = vec4(surfaceColor, surface.alpha);
-    // #ifdef NEEDTBN
-    // gl_FragColor = vec4(vec3(inputs.occlusion), 1.0);
-    // #endif // NEEDTBN
 }

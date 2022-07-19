@@ -977,12 +977,17 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
             for (let face = 0; face < 6; face++) {
                 let target = cubeFace[face];
-                let sourceData = new Uint8Array(source, dataOffset, imageSize);
 
-                compressed && gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-
-                !compressed && gl.texImage2D(target, index, internalFormat, width, height, 0, format, type, sourceData);
-
+                if (compressed) {
+                    let sourceData = new Uint8Array(source, dataOffset, imageSize);
+                    gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
+                }
+                else {
+                    let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+                    let typedSize = imageSize / pixelParams.typedSize;
+                    let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
+                    gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
+                }
                 dataOffset += imageSize;
                 dataOffset += 3 - ((imageSize + 3) % 4);
             }

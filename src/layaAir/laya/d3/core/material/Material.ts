@@ -205,9 +205,9 @@ export class Material extends Resource implements IClone {
                                         material[vector.name] = new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]);
                                         break;
                                     case 4:
-                                        if(material[vector.name] instanceof Color){
+                                        if (material[vector.name] instanceof Color) {
                                             material[vector.name] = new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
-                                        }else
+                                        } else
                                             material[vector.name] = new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
                                         break;
                                     default:
@@ -336,9 +336,9 @@ export class Material extends Resource implements IClone {
                                                 material._shaderValues.setVector3(uniName, new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
                                                 break;
                                             case 4:
-                                                if(material._shaderValues.getColor(uniName)){
-                                                    material._shaderValues.setColor(uniName,new Color(vectorValue[0],vectorValue[1],vectorValue[2],vectorValue[3]));
-                                                }else
+                                                if (material._shaderValues.getColor(uniName)) {
+                                                    material._shaderValues.setColor(uniName, new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
+                                                } else
                                                     material._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
                                                 break;
                                             default:
@@ -711,12 +711,6 @@ export class Material extends Resource implements IClone {
         this._shader = Shader3D.find(name);
         if (!this._shader)
             throw new Error("Material: unknown shader name.");
-        if (!Config3D._config._uniformBlock)
-            return;
-        this._releaseUBOData();
-        //bind shader info
-        // todo 清理残留 shader data
-        this._bindShaderInfo(this._shader);
 
         // set default value
         // todo subShader 选择
@@ -724,6 +718,15 @@ export class Material extends Resource implements IClone {
         let defaultValue = subShader._uniformDefaultValue;
         let typeMap = subShader._uniformTypeMap;
         this.applyUniformDefaultValue(typeMap, defaultValue);
+        
+        if (!Config3D._config._uniformBlock)
+            return;
+        this._releaseUBOData();
+        //bind shader info
+        // todo 清理残留 shader data
+        this._bindShaderInfo(this._shader);
+
+
     }
 
     /**
