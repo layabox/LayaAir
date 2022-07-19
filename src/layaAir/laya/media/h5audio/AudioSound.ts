@@ -72,7 +72,7 @@ export class AudioSound extends EventDispatcher {
      *
      */
     load(url: string): void {
-        url = URL.formatURL(url);
+        url = URL.postFormatURL(URL.formatURL(url));
         this.url = url;
         var ad: HTMLAudioElement;
         if (url == ILaya.SoundManager._bgMusic) {

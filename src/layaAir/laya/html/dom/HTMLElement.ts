@@ -35,35 +35,6 @@ export class HTMLElement {
     protected _width: number;
     protected _height: number;
 
-    /**
-     * 格式化指定的地址并返回。
-     * @param	url 地址。
-     * @param	base 基础路径，如果没有，则使用basePath。
-     * @return	格式化处理后的地址。
-     */
-    static formatURL1(url: string, basePath: string = null): string {
-        if (!url) return "null path";
-        if (!basePath) basePath = URL.basePath;
-        //如果是全路径，直接返回，提高性能
-        if (url.indexOf(":") > 0) return url;
-        //自定义路径格式化
-        if (URL.customFormat != null) url = URL.customFormat(url);
-        //如果是全路径，直接返回，提高性能
-        if (url.indexOf(":") > 0) return url;
-
-        var char1: string = url.charAt(0);
-        if (char1 === ".") {
-            return URL.formatRelativePath(basePath, url);
-        } else if (char1 === '~') {
-            return URL.rootPath + url.substring(1);
-        } else if (char1 === "d") {
-            if (url.indexOf("data:image") === 0) return url;
-        } else if (char1 === "/") {
-            return url;
-        }
-        return basePath + url;
-    }
-
     constructor() {
         this._creates();
         this.reset();
@@ -350,11 +321,6 @@ export class HTMLElement {
     get href(): string {
         if (!this._style) return null;
         return this._style.href;
-    }
-
-    formatURL(url: string): string {
-        if (!this.URI) return url;
-        return HTMLElement.formatURL1(url, this.URI ? this.URI.path : null);
     }
 
     set color(value: string) {

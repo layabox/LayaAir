@@ -98,14 +98,14 @@ export class VideoTexture extends BaseTexture {
             this.element.firstChild.remove();
 
         if (url.startsWith("blob:"))
-            this.element.src = URL.formatURL(url);
+            this.element.src = url;
         else
             this.appendSource(url);
     }
 
     private appendSource(source: string): void {
         var sourceElement: HTMLSourceElement = ILaya.Browser.createElement("source");
-        sourceElement.src = URL.formatURL(source);
+        sourceElement.src = URL.postFormatURL(URL.formatURL(source));
         sourceElement.type = "video/" + Utils.getFileExtension(source);
         this.element.appendChild(sourceElement);
     }

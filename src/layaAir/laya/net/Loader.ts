@@ -157,15 +157,15 @@ export class Loader extends EventDispatcher {
     /**
      * <p>这是兼容2.0引擎的加载接口</p>
      * <p>加载资源。</p>
-     * @param	url			要加载的单个资源地址或资源信息数组。比如：简单数组：["a.png","b.png"]；复杂数组[{url:"a.png",type:Loader.IMAGE,size:100,priority:1},{url:"b.json",type:Loader.JSON,size:50,priority:1}]。
-     * @param	complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，如果全部加载成功，则回调参数值为true，否则为false。
-     * @param	progress	加载进度回调。回调参数值为当前资源的加载进度信息(0-1)。
-     * @param	type		资源类型。比如：Loader.IMAGE。
-     * @param	priority	(default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
-     * @param	cache		是否缓存。
-     * @param	group		分组，方便对资源进行管理。
-     * @param	ignoreCache	参数已废弃。
-     * @param	useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
+     * @param url			要加载的单个资源地址或资源信息数组。比如：简单数组：["a.png","b.png"]；复杂数组[{url:"a.png",type:Loader.IMAGE,size:100,priority:1},{url:"b.json",type:Loader.JSON,size:50,priority:1}]。
+     * @param complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，如果全部加载成功，则回调参数值为true，否则为false。
+     * @param progress	加载进度回调。回调参数值为当前资源的加载进度信息(0-1)。
+     * @param type		资源类型。比如：Loader.IMAGE。
+     * @param priority	(default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
+     * @param cache		是否缓存。
+     * @param group		分组，方便对资源进行管理。
+     * @param ignoreCache	参数已废弃。
+     * @param useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
      * @return Promise对象
      */
     load(url: string | ILoadURL | (string | ILoadURL)[], complete?: Handler, progress?: Handler, type?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any>;
@@ -240,14 +240,14 @@ export class Loader extends EventDispatcher {
     /**
     * <p>这是兼容2.0引擎的加载接口，推荐使用load。</p>
     * <p>加载资源。</p>
-    * @param	url			资源地址或者数组。
-    * @param	complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，回调参数是一个数组，包含加载完成的资源，其中如果失败的是null。
-    * @param	progress	资源加载进度回调，回调参数值为当前资源加载的进度信息(0-1)。
-    * @param	type	资源类型。
-    * @param	constructParams		资源构造函数参数。
-    * @param	propertyParams		资源属性参数。
-    * @param	priority	(default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
-    * @param	cache		是否缓存资源。
+    * @param url 资源地址或者数组。
+    * @param complete 加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，回调参数是一个数组，包含加载完成的资源，其中如果失败的是null。
+    * @param progress 资源加载进度回调，回调参数值为当前资源加载的进度信息(0-1)。
+    * @param type 资源类型。
+    * @param constructParams 资源构造函数参数。
+    * @param propertyParams 资源属性参数。
+    * @param priority (default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
+    * @param cache 是否缓存资源。
     * @return Promise对象
     */
     create(url: string | (string | ILoadURL)[], complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, constructParams: TextureConstructParams | null = null, propertyParams: TexturePropertyParams = null, priority: number = 0, cache: boolean = true): Promise<any> {
@@ -305,14 +305,16 @@ export class Loader extends EventDispatcher {
             }
         }
 
+        let formattedUrl = URL.formatURL(url);
+
         if (options.group) {
             let set = Loader.groupMap[options.group];
             if (!set)
                 set = Loader.groupMap[options.group] = new Set();
-            set.add(normalizedUrl);
+            set.add(formattedUrl);
         }
 
-        let cacheRes = Loader.loadedMap[normalizedUrl];
+        let cacheRes = Loader.loadedMap[formattedUrl];
         if (cacheRes) {
             if (cacheRes instanceof Texture) {
                 if (cacheRes.bitmap && !cacheRes.bitmap.destroyed)
@@ -322,7 +324,7 @@ export class Loader extends EventDispatcher {
                 return Promise.resolve(cacheRes);
         }
 
-        let task = this._loadings[normalizedUrl];
+        let task = this._loadings[formattedUrl];
         if (task) {
             if (onProgress)
                 task.onProgress.add(onProgress);
@@ -332,8 +334,7 @@ export class Loader extends EventDispatcher {
         let atlasUrl = AtlasInfoManager.getFileLoadPath(normalizedUrl);
         if (atlasUrl) {
             return this.load(atlasUrl, Loader.ATLAS).then(() => {
-                let cacheRes = Loader.loadedMap[normalizedUrl];
-                return Promise.resolve(Loader.ensureTextureFormat(cacheRes, type));
+                return Promise.resolve(Loader.getRes(normalizedUrl, type));
             });
         }
 
@@ -360,7 +361,7 @@ export class Loader extends EventDispatcher {
         task.loader = this;
 
         let assetLoader = new cls();
-        this._loadings[normalizedUrl] = task;
+        this._loadings[formattedUrl] = task;
         this._loadingCount++;
 
         let promise: Promise<any>;
@@ -375,12 +376,12 @@ export class Loader extends EventDispatcher {
 
         return promise.then(content => {
             if (task.options.cache == null || task.options.cache)
-                Loader.loadedMap[normalizedUrl] = content;
+                Loader.loadedMap[formattedUrl] = content;
 
             content = Loader.ensureTextureFormat(content, type);
             task.onComplete.invoke(content);
 
-            delete this._loadings[normalizedUrl];
+            delete this._loadings[formattedUrl];
             task.reset();
             loadTaskPool.push(task);
             this._loadingCount--;
@@ -432,12 +433,13 @@ export class Loader extends EventDispatcher {
     }
 
     private download(item: DownloadItem) {
+        let url = URL.postFormatURL(item.url);
         if (item.contentType == "image") {
             if (item.useWorkerLoader) {
                 WorkerLoader.enableWorkerLoader();
                 if (WorkerLoader.enable) {
                     let workerLoader = WorkerLoader.I;
-                    workerLoader.once(item.url, null, (imageData: any) => {
+                    workerLoader.once(url, null, (imageData: any) => {
                         if (imageData != null)
                             this.completeItem(item, imageData);
                         else {
@@ -445,7 +447,7 @@ export class Loader extends EventDispatcher {
                             this.download(item);
                         }
                     });
-                    workerLoader.worker.postMessage(item.url);
+                    workerLoader.worker.postMessage(url);
                     this._downloadingCount++;
                     return;
                 }
@@ -464,14 +466,14 @@ export class Loader extends EventDispatcher {
 
                 this.completeItem(item, null, "");
             };
-            image.src = item.url;
+            image.src = url;
             item.temp = image;
             this._downloadingCount++;
         }
         else if (item.contentType == "sound") {
             let audio = (<HTMLAudioElement>Browser.createElement("audio"));
             audio.crossOrigin = "";
-            audio.src = item.url;
+            audio.src = url;
             audio.oncanplaythrough = () => {
                 audio.oncanplaythrough = null;
                 audio.onerror = null;
@@ -501,7 +503,7 @@ export class Loader extends EventDispatcher {
             });
             if (item.onProgress)
                 http.on(Event.PROGRESS, item.onProgress);
-            http.send(item.url, null, "get", <any>item.contentType);
+            http.send(url, null, "get", <any>item.contentType);
             item.temp = http;
             this._downloadingCount++;
         }
@@ -509,10 +511,7 @@ export class Loader extends EventDispatcher {
 
     private completeItem(item: DownloadItem, content: any, error?: string) {
         this._downloadingCount--;
-        item.temp = null;
         if (content) {
-            item.loading = false;
-
             if (this._downloadingCount < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());
 
@@ -524,7 +523,6 @@ export class Loader extends EventDispatcher {
             ILaya.systemTimer.once(this.retryDelay, this, this.queueToDownload, [item], false);
         }
         else {
-            item.loading = false;
             console.warn(`[Loader]Failed to load: ${item.url}`);
 
             if (this._downloadingCount < this.maxLoader && this._queue.length > 0)
@@ -546,16 +544,16 @@ export class Loader extends EventDispatcher {
 
     /**
      * 获取指定资源地址的资源。
-     * @param	url 资源地址。
-     * @return	返回资源。
+     * @param url 资源地址。
+     * @return 返回资源。
      */
     static getRes(url: string, type?: string): any {
-        url = URL.normalizedURL(url);
+        url = URL.formatURL(url);
         return Loader.ensureTextureFormat(Loader.loadedMap[url], type);
     }
 
     static getTexture2D(url: string): any {
-        url = URL.normalizedURL(url);
+        url = URL.formatURL(url);
         return Loader.ensureTextureFormat(Loader.loadedMap[url], Loader.TEXTURE2D);
     }
 
@@ -573,7 +571,7 @@ export class Loader extends EventDispatcher {
      * @param data 要缓存的内容。
      */
     static cacheRes(url: string, data: any, replace?: boolean): void {
-        url = URL.normalizedURL(url);
+        url = URL.formatURL(url);
         if (Loader.loadedMap[url]) {
             if (!replace)
                 console.warn("Resources already exist,is repeated loading:", url);
@@ -591,7 +589,7 @@ export class Loader extends EventDispatcher {
      * @param url 资源地址。
      */
     static clearRes(url: string): void {
-        url = URL.normalizedURL(url);
+        url = URL.formatURL(url);
         Loader._clearRes(url);
     }
 
@@ -600,7 +598,7 @@ export class Loader extends EventDispatcher {
      * @param url 资源地址。
      */
     clearRes(url: string): void {
-        url = URL.normalizedURL(url);
+        url = URL.formatURL(url);
         Loader._clearRes(url);
     }
 
@@ -626,8 +624,8 @@ export class Loader extends EventDispatcher {
     /**
      * 兼容旧版本接口。建议直接使用getRes。
      * 获取指定资源地址的图集地址列表。
-     * @param	url 图集地址。
-     * @return	返回地址集合。
+     * @param url 图集地址。
+     * @return 返回地址集合。
      */
     static getAtlas(url: string) {
         return Loader.getRes(url);
@@ -640,7 +638,7 @@ export class Loader extends EventDispatcher {
      * @param url 图集地址或者texture地址，比如 Loader.clearTextureRes("res/atlas/comp.atlas"); Loader.clearTextureRes("hall/bg.jpg");
      */
     clearTextureRes(url: string): void {
-        url = URL.normalizedURL(url);
+        url = URL.formatURL(url);
         let res = Loader.loadedMap[url];
         if (res instanceof Texture) {
             res.disposeBitmap();
@@ -657,7 +655,7 @@ export class Loader extends EventDispatcher {
      * @param group 分组名。
      */
     static setGroup(url: string, group: string): void {
-        url = URL.normalizedURL(url);
+        url = URL.formatURL(url);
         let set = Loader.groupMap[group];
         if (!set)
             set = Loader.groupMap[group] = new Set();
@@ -673,6 +671,42 @@ export class Loader extends EventDispatcher {
         if (set) {
             for (let k of set)
                 Loader._clearRes(k);
+        }
+    }
+
+    /** 清理当前未完成的加载，所有未加载的内容全部停止加载。*/
+    clearUnLoaded(): void {
+        if (this._queue.length == 0)
+            return;
+
+        let arr = this._queue.concat();
+        this._queue.length = 0;
+        for (let item of arr)
+            item.onComplete(null);
+    }
+
+    /**
+     * 根据地址集合清理掉未加载的内容
+     * @param urls 资源地址集合
+     */
+    cancelLoadByUrls(urls: any[]): void {
+        if (!urls) return;
+        for (var i: number = 0, n: number = urls.length; i < n; i++) {
+            this.cancelLoadByUrl(urls[i]);
+        }
+    }
+
+    /**
+     * 根据地址清理掉未加载的内容
+     * @param url 资源地址
+     */
+    cancelLoadByUrl(url: string): void {
+        url = URL.formatURL(url);
+        let i = this._queue.findIndex(item => item.url == url);
+        if (i != -1) {
+            let item = this._queue[i];
+            this._queue.splice(i, 1);
+            item.onComplete(null);
         }
     }
 }
@@ -712,8 +746,6 @@ interface DownloadItem {
     contentType: string;
     priority: number;
     useWorkerLoader?: boolean;
-    loading?: boolean;
-    error?: boolean;
     retryCnt?: number;
     temp?: any;
     onComplete: (content: any) => void;

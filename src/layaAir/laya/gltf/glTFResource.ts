@@ -91,7 +91,7 @@ export class glTFResource extends HierarchyResource {
                 }
                 else {
                     let j = i;
-                    promises.push(ILaya.loader.fetch(URL.formatRelativePath(basePath, buffer.uri), "arraybuffer", progress?.createCallback(0.2))
+                    promises.push(ILaya.loader.fetch(URL.join(basePath, buffer.uri), "arraybuffer", progress?.createCallback(0.2))
                         .then(bin => {
                             this._buffers[j] = bin;
                         }));
@@ -134,7 +134,7 @@ export class glTFResource extends HierarchyResource {
                     if (glTFBase64Tool.isBase64String(glTFImg.uri)) {
                         //base64编码的图片不需要缓存
                         promises.push(ILaya.loader.load({
-                            url: URL.formatRelativePath(basePath, glTFImg.uri),
+                            url: URL.join(basePath, glTFImg.uri),
                             constructParams: constructParams,
                             propertyParams: propertyParams,
                             cache: false
@@ -142,7 +142,7 @@ export class glTFResource extends HierarchyResource {
                     }
                     else {
                         promises.push(ILaya.loader.load({
-                            url: URL.formatRelativePath(basePath, glTFImg.uri),
+                            url: URL.join(basePath, glTFImg.uri),
                             constructParams: constructParams,
                             propertyParams: propertyParams
                         }, Loader.TEXTURE2D, progress?.createCallback()));
