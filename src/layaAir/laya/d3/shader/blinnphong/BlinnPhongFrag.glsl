@@ -140,11 +140,11 @@ vec3 BlinnPhongGI(const in Surface surface, in PixelParams pixel)
             vec3 indirectDiffuse = max(diffuseIrradiance(n), 0.0) / PI;
             color = indirectDiffuse;
         #else
-            color = u_AmbientColor*surface.diffuseColor;
+            color = u_AmbientColor;
         #endif
     #endif // LIGHTMAP
 
-    return color * surface;
+    return color**surface.diffuseColor;
 }
 
 #endif // BlinnPhongFrag_lib
