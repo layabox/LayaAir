@@ -20,41 +20,41 @@ export class EffectMaterial extends Material {
 	 * 获取颜色。
 	 */
 	get color(): Color {
-		return (<Color>this._shaderValues.getColor(UnlitMaterial.ALBEDOCOLOR));
+		return (<Color>this.getColorByIndex(UnlitMaterial.ALBEDOCOLOR));
 	}
 
 	set color(value: Color) {
-		this._shaderValues.setColor(UnlitMaterial.ALBEDOCOLOR, value);
+		this.setColorByIndex(UnlitMaterial.ALBEDOCOLOR, value);
 	}
 
 	/**
 	 * 贴图。
 	 */
 	get texture(): BaseTexture {
-		return this._shaderValues.getTexture(UnlitMaterial.ALBEDOTEXTURE);
+		return this.getTextureByIndex(UnlitMaterial.ALBEDOTEXTURE);
 	}
 
 	set texture(value: BaseTexture) {
 		if (value)
-			this._shaderValues.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
+			this.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
 		else
-			this._shaderValues.removeDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
-		this._shaderValues.setTexture(UnlitMaterial.ALBEDOTEXTURE, value);
+			this.removeDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
+		this.setTextureByIndex(UnlitMaterial.ALBEDOTEXTURE, value);
 	}
 
 	/**
 	 * 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET));
+		return (<Vector4>this.getVector4ByIndex(UnlitMaterial.TILINGOFFSET));
 	}
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, value);
+			this.setVector4ByIndex(UnlitMaterial.TILINGOFFSET, value);
 		}
 		else {
-			this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+			this.getVector4ByIndex(UnlitMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
 		}
 	}
 
@@ -65,8 +65,8 @@ export class EffectMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("Unlit");
-		this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
-		this._shaderValues.setColor(UnlitMaterial.ALBEDOCOLOR, new Color(1.0, 1.0, 1.0, 1.0));
+		this.setVector4ByIndex(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
+		this.setColorByIndex(UnlitMaterial.ALBEDOCOLOR, new Color(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = EffectMaterial.RENDERMODE_ADDTIVE;
 	}
 
@@ -110,7 +110,7 @@ export class EffectMaterial extends Material {
 				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
 				this.blendDst = RenderState.BLENDPARAM_ONE;
 				this.depthTest = RenderState.DEPTHTEST_LEQUAL;
-				this._shaderValues.addDefine(Material.SHADERDEFINE_ADDTIVEFOG);
+				this.addDefine(Material.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			case EffectMaterial.RENDERMODE_ALPHABLENDED:
 				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
@@ -121,7 +121,7 @@ export class EffectMaterial extends Material {
 				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
 				this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
 				this.depthTest = RenderState.DEPTHTEST_LEQUAL;
-				this._shaderValues.removeDefine(Material.SHADERDEFINE_ADDTIVEFOG);
+				this.removeDefine(Material.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			default:
 				throw new Error("MeshEffectMaterial : renderMode value error.");

@@ -46,11 +46,11 @@ export class UnlitMaterial extends Material {
 	 * 反照率颜色。
 	 */
 	get albedoColor(): Color {
-		return this._shaderValues.getColor(UnlitMaterial.ALBEDOCOLOR);
+		return this.getColorByIndex(UnlitMaterial.ALBEDOCOLOR);
 	}
 
 	set albedoColor(value: Color) {
-		this._shaderValues.setColor(UnlitMaterial.ALBEDOCOLOR, value.scale(this._albedoIntensity));
+		this.setColorByIndex(UnlitMaterial.ALBEDOCOLOR, value.scale(this._albedoIntensity));
 	}
 
 	/**
@@ -68,30 +68,30 @@ export class UnlitMaterial extends Material {
 	 * 反照率贴图。
 	 */
 	get albedoTexture(): BaseTexture {
-		return this._shaderValues.getTexture(UnlitMaterial.ALBEDOTEXTURE);
+		return this.getTextureByIndex(UnlitMaterial.ALBEDOTEXTURE);
 	}
 
 	set albedoTexture(value: BaseTexture) {
 		if (value)
-			this._shaderValues.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
+			this.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
 		else
-			this._shaderValues.removeDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
-		this._shaderValues.setTexture(UnlitMaterial.ALBEDOTEXTURE, value);
+			this.removeDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
+		this.setTextureByIndex(UnlitMaterial.ALBEDOTEXTURE, value);
 	}
 
 	/**
 	 * 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET));
+		return (<Vector4>this.getVector4ByIndex(UnlitMaterial.TILINGOFFSET));
 	}
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			this._shaderValues.setVector(UnlitMaterial.TILINGOFFSET, value);
+			this.setVector4ByIndex(UnlitMaterial.TILINGOFFSET, value);
 		}
 		else {
-			this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+			this.setVector4ByIndex(UnlitMaterial.TILINGOFFSET,new Vector4(1.0, 1.0, 0.0, 0.0));
 		}
 	}
 
@@ -99,14 +99,14 @@ export class UnlitMaterial extends Material {
 	 * 是否支持顶点色。
 	 */
 	get enableVertexColor(): boolean {
-		return this._shaderValues.hasDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
+		return this.hasDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 	}
 
 	set enableVertexColor(value: boolean) {
 		if (value)
-			this._shaderValues.addDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
+			this.addDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 		else
-			this._shaderValues.removeDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
+			this.removeDefine(UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 	}
 
 

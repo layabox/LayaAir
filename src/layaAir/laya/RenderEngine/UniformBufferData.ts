@@ -12,6 +12,7 @@ export enum UniformBufferParamsType {
     Number,
     Vector2,
     Vector3,
+    Color,
     Vector4,
     Matrix4x4,
     Vector4Array,//Numberarray, vec2array and vec3array occupy the same memory as vec4array, so only vector4 is provided

@@ -132,29 +132,29 @@ export class BlinnPhongMaterial extends Material {
 	 * 是否支持顶点色。
 	 */
 	get enableVertexColor(): boolean {
-		return this._shaderValues.hasDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
+		return this.hasDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 	}
 
 	set enableVertexColor(value: boolean) {
 		if (value)
-			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
+			this.addDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 		else
-			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
+			this.removeDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
 	}
 
 	/**
 	 * 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
+		return (<Vector4>this.getVector4ByIndex(BlinnPhongMaterial.TILINGOFFSET));
 	}
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
-			this._shaderValues.setVector(BlinnPhongMaterial.TILINGOFFSET, value);
+			this.setVector4ByIndex(BlinnPhongMaterial.TILINGOFFSET, value);
 		}
 		else {
-			this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+			this.getVector4ByIndex(BlinnPhongMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
 		}
 	}
 
@@ -162,165 +162,165 @@ export class BlinnPhongMaterial extends Material {
 	 * 反照率颜色。
 	 */
 	get albedoColor(): Color {
-		return this._shaderValues.getColor(BlinnPhongMaterial.ALBEDOCOLOR);
+		return this.getColorByIndex(BlinnPhongMaterial.ALBEDOCOLOR);
 	}
 
 	set albedoColor(value: Color) {
-		this._shaderValues.setColor(BlinnPhongMaterial.ALBEDOCOLOR, value);//修改值后必须调用此接口,否则NATIVE不生效
+		this.setColorByIndex(BlinnPhongMaterial.ALBEDOCOLOR, value);//修改值后必须调用此接口,否则NATIVE不生效
 	}
 
 	/**
 	 * 反照率强度。
 	 */
 	get albedoIntensity(): number {
-		return this._shaderValues.getNumber(BlinnPhongMaterial.AlbedoIntensity);
+		return this.getFloatByIndex(BlinnPhongMaterial.AlbedoIntensity);
 	}
 
 	set albedoIntensity(value: number) {
-		this._shaderValues.setNumber(BlinnPhongMaterial.AlbedoIntensity, value);
+		this.setFloatByIndex(BlinnPhongMaterial.AlbedoIntensity, value);
 	}
 
 	/**
 	 * 高光颜色。
 	 */
 	get specularColor(): Color {
-		return this._shaderValues.getColor(BlinnPhongMaterial.MATERIALSPECULAR);
+		return this.getColorByIndex(BlinnPhongMaterial.MATERIALSPECULAR);
 	}
 
 	set specularColor(value: Color) {
-		this._shaderValues.setColor(BlinnPhongMaterial.MATERIALSPECULAR, value);
+		this.setColorByIndex(BlinnPhongMaterial.MATERIALSPECULAR, value);
 	}
 
 	/**
 	 * 高光强度,范围为0到1。
 	 */
 	get shininess(): number {
-		return this._shaderValues.getNumber(BlinnPhongMaterial.SHININESS);
+		return this.getFloatByIndex(BlinnPhongMaterial.SHININESS);
 	}
 
 	set shininess(value: number) {
 		value = Math.max(0.0, Math.min(1.0, value));
-		this._shaderValues.setNumber(BlinnPhongMaterial.SHININESS, value);
+		this.setFloatByIndex(BlinnPhongMaterial.SHININESS, value);
 	}
 
 	/**
 	 * 反照率贴图。
 	 */
 	get albedoTexture(): BaseTexture {
-		return this._shaderValues.getTexture(BlinnPhongMaterial.ALBEDOTEXTURE);
+		return this.getTextureByIndex(BlinnPhongMaterial.ALBEDOTEXTURE);
 	}
 
 	set albedoTexture(value: BaseTexture) {
 		if (value)
-			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP);
+			this.addDefine(BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP);
 		else
-			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP);
-		this._shaderValues.setTexture(BlinnPhongMaterial.ALBEDOTEXTURE, value);
+			this.removeDefine(BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP);
+		this.setTextureByIndex(BlinnPhongMaterial.ALBEDOTEXTURE, value);
 	}
 
 	/**
 	 * 法线贴图。
 	 */
 	get normalTexture(): BaseTexture {
-		return this._shaderValues.getTexture(BlinnPhongMaterial.NORMALTEXTURE);
+		return this.getTextureByIndex(BlinnPhongMaterial.NORMALTEXTURE);
 	}
 
 	set normalTexture(value: BaseTexture) {
 		if (value)
 		{
-			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_NORMALMAP);
-			this._shaderValues.addDefine(Shader3D.getDefineByName("NEEDTBN"));
+			this.addDefine(BlinnPhongMaterial.SHADERDEFINE_NORMALMAP);
+			this.addDefine(Shader3D.getDefineByName("NEEDTBN"));
 		}
 		else
 		{
-			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_NORMALMAP);
-			this._shaderValues.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
+			this.removeDefine(BlinnPhongMaterial.SHADERDEFINE_NORMALMAP);
+			this.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
 		}
-		this._shaderValues.setTexture(BlinnPhongMaterial.NORMALTEXTURE, value);
+		this.setTextureByIndex(BlinnPhongMaterial.NORMALTEXTURE, value);
 	}
 
 	/**
 	 * 高光贴图。
 	 */
 	get specularTexture(): BaseTexture {
-		return this._shaderValues.getTexture(BlinnPhongMaterial.SPECULARTEXTURE);
+		return this.getTextureByIndex(BlinnPhongMaterial.SPECULARTEXTURE);
 	}
 
 	set specularTexture(value: BaseTexture) {
 		if (value)
-			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP);
+			this.addDefine(BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP);
 		else
-			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP);
+			this.removeDefine(BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP);
 
-		this._shaderValues.setTexture(BlinnPhongMaterial.SPECULARTEXTURE, value);
+		this.setTextureByIndex(BlinnPhongMaterial.SPECULARTEXTURE, value);
 	}
 	/**
 	 * 是否支持透光色。
 	 */
 	get enableTransmission(): boolean {
-		return this._shaderValues.hasDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
+		return this.hasDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
 	}
 
 	set enableTransmission(value: boolean) {
 		if (value)
-			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
+			this.addDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
 		else
-			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
+			this.removeDefine(BlinnPhongMaterial.SHADERDEFINE_ENABLETRANSMISSION);
 	}
 
 	/**
 	 * 透光率，会影响漫反射以及透光强度
 	 */
 	get transmissionRata(): number {
-		return this._shaderValues.getNumber(BlinnPhongMaterial.TRANSMISSIONRATE);
+		return this.getFloatByIndex(BlinnPhongMaterial.TRANSMISSIONRATE);
 	}
 
 	set transmissionRata(value: number) {
-		this._shaderValues.setNumber(BlinnPhongMaterial.TRANSMISSIONRATE, value);
+		this.setFloatByIndex(BlinnPhongMaterial.TRANSMISSIONRATE, value);
 	}
 
 	/**
 	 * 透射影响范围指数
 	 */
 	get backDiffuse(): number {
-		return this._shaderValues.getNumber(BlinnPhongMaterial.IBACKDIFFUSE);
+		return this.getFloatByIndex(BlinnPhongMaterial.IBACKDIFFUSE);
 	}
 	set backDiffuse(value: number) {
-		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKDIFFUSE, Math.max(value, 1.0));
+		this.setFloatByIndex(BlinnPhongMaterial.IBACKDIFFUSE, Math.max(value, 1.0));
 	}
 	/**
 	 * 透射光强度
 	 */
 	get backScale(): number {
-		return this._shaderValues.getNumber(BlinnPhongMaterial.IBACKSCALE);
+		return this.getFloatByIndex(BlinnPhongMaterial.IBACKSCALE);
 	}
 	set backScale(value: number) {
-		this._shaderValues.setNumber(BlinnPhongMaterial.IBACKSCALE, value);
+		this.setFloatByIndex(BlinnPhongMaterial.IBACKSCALE, value);
 	}
 
 	/**
 	 * 厚度贴图，会影响透视光，越厚，透射光越弱
 	 */
 	get thinknessTexture(): BaseTexture {
-		return this._shaderValues.getTexture(BlinnPhongMaterial.THINKNESSTEXTURE);
+		return this.getTextureByIndex(BlinnPhongMaterial.THINKNESSTEXTURE);
 	}
 	set thinknessTexture(value: BaseTexture) {
 		if (value)
-			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP);
+			this.addDefine(BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP);
 		else
-			this._shaderValues.removeDefine(BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP);
+			this.removeDefine(BlinnPhongMaterial.SHADERDEFINE_THICKNESSMAP);
 
-		this._shaderValues.setTexture(BlinnPhongMaterial.THINKNESSTEXTURE, value);
+		this.setTextureByIndex(BlinnPhongMaterial.THINKNESSTEXTURE, value);
 	}
 
 	/**
 	 * 透光颜色。模拟透光物质内部颜色吸收率
 	 */
 	get transmissionColor(): Color {
-		return this._shaderValues.getColor(BlinnPhongMaterial.TRANSMISSIONCOLOR);
+		return this.getColorByIndex(BlinnPhongMaterial.TRANSMISSIONCOLOR);
 	}
 	set transmissionColor(value: Color) {
-		this._shaderValues.setColor(BlinnPhongMaterial.TRANSMISSIONCOLOR, value);
+		this.setColorByIndex(BlinnPhongMaterial.TRANSMISSIONCOLOR, value);
 	}
 
 	/**
@@ -328,7 +328,7 @@ export class BlinnPhongMaterial extends Material {
 	 * @deprecated
 	 */
 	get transmissionRate(): number {
-		return this._shaderValues.getNumber(BlinnPhongMaterial.TRANSMISSIONRATE);
+		return this.getFloatByIndex(BlinnPhongMaterial.TRANSMISSIONRATE);
 	}
 
 	/**

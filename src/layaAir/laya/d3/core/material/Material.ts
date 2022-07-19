@@ -409,6 +409,30 @@ export class Material extends Resource implements IClone {
             this._shaderValues.removeDefine(Material.SHADERDEFINE_ALPHATEST);
     }
 
+	/**
+	 * 增加Shader宏定义。
+	 * @param value 宏定义。
+	 */
+    addDefine(define: ShaderDefine): void {
+		this._shaderValues.addDefine(define);
+	}
+
+	/**
+	 * 移除Shader宏定义。
+	 * @param value 宏定义。
+	 */
+	removeDefine(define: ShaderDefine): void {
+		this._shaderValues.removeDefine(define);
+	}
+
+    /**
+	 * 是否包含Shader宏定义。
+	 * @param value 宏定义。
+	 */
+	hasDefine(define: ShaderDefine): boolean {
+		return this._shaderValues.hasDefine(define);
+	}
+
     /**
      * 是否写入深度。
      */
