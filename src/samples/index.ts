@@ -1,5 +1,6 @@
 import { Resource } from "laya/resource/Resource";
 import { EffectMaterialDemo } from "./3d/LayaAir3D_Material/EffectMaterialDemo";
+import { PBRMaterialDemo } from "./3d/LayaAir3D_Material/PBRMaterialDemo";
 import { UnlitMaterialDemo } from "./3d/LayaAir3D_Material/UnlitMaterialDemo";
 import { Particle_BurningGround } from "./3d/LayaAir3D_Particle3D/Particle_BurningGround";
 import { Particle_EternalLight } from "./3d/LayaAir3D_Particle3D/Particle_EternalLight";
@@ -11,7 +12,7 @@ import { Main } from "./Main";
 
 Resource.DEBUG = true;
 
-new UnlitMaterialDemo();
+new PBRMaterialDemo();
 
 // new NewMatTest();
 // new DebugMeshTest();
