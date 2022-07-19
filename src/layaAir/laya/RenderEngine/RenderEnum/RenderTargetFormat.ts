@@ -10,8 +10,8 @@ export enum RenderTargetFormat {
     R32G32B32A32 = TextureFormat.R32G32B32A32,
     R16G16B16 = TextureFormat.R16G16B16,
     
-    DEPTH_16,
-    STENCIL_8,
-    DEPTHSTENCIL_24_8,
-    DEPTH_32
+    DEPTH_16 = 35,
+    STENCIL_8 = 36,
+    DEPTHSTENCIL_24_8 = 37,
+    DEPTH_32 = 38
 }
