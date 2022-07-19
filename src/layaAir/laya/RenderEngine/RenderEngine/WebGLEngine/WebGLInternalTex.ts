@@ -149,6 +149,29 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         }
     }
 
+    private _baseMipmapLevel:number = 0;
+    public set baseMipmapLevel(value:number){
+        if(this._engine.isWebGL2){
+            this._setTexParameteri((<WebGL2RenderingContext>this._gl).TEXTURE_BASE_LEVEL,value);
+        }
+    }
+
+    public get baseMipmapLevel(){
+        return this._baseMipmapLevel;
+    }
+
+    private _maxMipmapLevel:number = 0;
+    public set maxMipmapLevel(value:number){
+        if(this._engine.isWebGL2){
+            this._setTexParameteri((<WebGL2RenderingContext>this._gl).TEXTURE_MAX_LEVEL,value);
+        }
+    }
+
+    public get maxMipmapLevel(){
+        return this._maxMipmapLevel;
+    }
+
+
     private _compareMode: TextureCompareMode;
     public get compareMode(): TextureCompareMode {
         return this._compareMode;
