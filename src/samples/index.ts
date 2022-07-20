@@ -1,4 +1,5 @@
 import { Resource } from "laya/resource/Resource";
+import { RealTimeShadow } from "./3d/LayaAir3D_Lighting/RealTimeShadow";
 import { EffectMaterialDemo } from "./3d/LayaAir3D_Material/EffectMaterialDemo";
 import { PBRMaterialDemo } from "./3d/LayaAir3D_Material/PBRMaterialDemo";
 import { UnlitMaterialDemo } from "./3d/LayaAir3D_Material/UnlitMaterialDemo";
@@ -12,7 +13,7 @@ import { Main } from "./Main";
 
 Resource.DEBUG = true;
 
-new UnlitMaterialDemo();
+new RealTimeShadow();
 
 // new NewMatTest();
 // new DebugMeshTest();
