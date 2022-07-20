@@ -56,7 +56,7 @@ vec3 PBRGI(const in Surface surface, const in PixelParams pixel)
 	#ifdef UV1
     vec2 lightmapUV = pixel.uv1;
     vec3 bakedColor = getBakedLightmapColor(lightmapUV);
-    return bakedColor;
+    return bakedColor * surface.diffuseColor;
 	#endif // UV1
     #endif // LIGHTMAP
 
