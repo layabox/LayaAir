@@ -34,7 +34,7 @@ export class PBRShaderInit {
             "u_AlphaTest": 0.5
         };
 
-        let shader = Shader3D.add("pbr");
+        let shader = Shader3D.add("pbr", true);
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(PBRVS, PBRFS);

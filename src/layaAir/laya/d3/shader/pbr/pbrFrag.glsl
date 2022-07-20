@@ -102,7 +102,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel, const in 
 
     vec3 Fr = specularLobe(surface, pixel, lightParams);
 
-    return (Fd + Fr) * light.color * light.attenuation * lightParams.NoL;
+    return (Fd + Fr) * light.color * lightParams.NoL;
 }
 
 vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
@@ -115,7 +115,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 		break;
 	    DirectionLight directionLight = getDirectionLight(i, pixel.positionWS);
 	    Light light = getLight(directionLight);
-	    lightColor += PBRLighting(surface, pixel, light);
+	    lightColor += PBRLighting(surface, pixel, light) * light.attenuation;
 	}
 	#endif // DIRECTIONLIGHT
 
@@ -130,7 +130,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 		break;
 	    PointLight pointLight = getPointLight(i, clusterInfo, positionWS);
 	    Light light = getLight(pointLight, surface.normalWS, positionWS);
-	    lightColor += PBRLighting(surface, pixel, light);
+	    lightColor += PBRLighting(surface, pixel, light) * light.attenuation;
 	}
 	#endif // POINTLIGHT
 
@@ -141,7 +141,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 		break;
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, positionWS);
 	    Light light = getLight(spotLight, surface.normalWS, positionWS);
-	    lightColor += PBRLighting(surface, pixel, light);
+	    lightColor += PBRLighting(surface, pixel, light) * light.attenuation;
 	}
 	#endif // SPOTLIGHT
 

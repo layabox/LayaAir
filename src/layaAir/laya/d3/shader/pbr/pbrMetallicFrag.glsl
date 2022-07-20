@@ -28,7 +28,7 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs)
     surface.occlusion = inputs.occlusion;
 }
 
-vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs,in PixelParams pixel)
+vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
 {
 #ifdef ALPHATEST
     if (inputs.alpha < inputs.alphaTest)

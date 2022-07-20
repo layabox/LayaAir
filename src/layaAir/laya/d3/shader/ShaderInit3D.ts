@@ -64,6 +64,7 @@ import UtilsGLSL from "./utils/Utils.glsl";
 import ColorGLSL from "./utils/Color.glsl";
 import MathGLSL from "./utils/Math.glsl";
 import TBNNormalGLSL from "./utils/TBNNormal.glsl";
+import BakedBoneMatrixSamplerGLSL from "./utils/BakedBoneMatrixSampler.glsl";
 
 import VertexGLSL from "./common/VertexCommon.glsl";
 
@@ -106,7 +107,10 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Math.glsl", MathGLSL);
 
 		Shader3D.addInclude("TBNNormal.glsl", TBNNormalGLSL);
+		Shader3D.addInclude("BakedBoneMatrixSampler.glsl", BakedBoneMatrixSamplerGLSL);
+		
 		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
+
 
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);

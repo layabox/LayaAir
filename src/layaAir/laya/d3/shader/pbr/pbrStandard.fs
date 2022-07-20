@@ -1,9 +1,11 @@
 #define SHADER_NAME PBRStandardFS
 
 #include "Color.glsl";
+
 #include "Scene.glsl";
 #include "Camera.glsl";
 #include "Sprite3D.glsl";
+
 #include "PBRMetallicFrag.glsl"
 
 void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
@@ -84,7 +86,7 @@ void main()
     SurfaceInputs inputs;
     initSurfaceInputs(inputs, pixel);
 
-    vec4 surfaceColor = PBR_Metallic_Flow(inputs,pixel);
+    vec4 surfaceColor = PBR_Metallic_Flow(inputs, pixel);
 
     gl_FragColor = surfaceColor;
 }
