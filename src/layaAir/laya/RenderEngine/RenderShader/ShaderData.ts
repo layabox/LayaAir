@@ -229,14 +229,12 @@ export class ShaderData implements IClone {
 	setColor(index: number, value: Color): void {
 		if (this._data[index]) {
 			let gammaColor = this._gammaColorMap.get(index);
-			if (!value.equal(gammaColor)) {
-				value.cloneTo(gammaColor);
-				let linearColor = this._data[index];
-				linearColor.x = Color.gammaToLinearSpace(value.r);
-				linearColor.y = Color.gammaToLinearSpace(value.g);
-				linearColor.z = Color.gammaToLinearSpace(value.b);
-				linearColor.w = value.a;
-			}
+			value.cloneTo(gammaColor);
+			let linearColor = this._data[index];
+			linearColor.x = Color.gammaToLinearSpace(value.r);
+			linearColor.y = Color.gammaToLinearSpace(value.g);
+			linearColor.z = Color.gammaToLinearSpace(value.b);
+			linearColor.w = value.a;
 		}
 		else {
 			let linearColor = new Vector4();
