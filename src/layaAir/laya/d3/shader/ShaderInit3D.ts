@@ -83,7 +83,7 @@ import SceneFogGLSL from "./utils/SceneFog.glsl";
 import LightingGLSL from "./lighting/Lighting.glsl";
 
 import BlinnPhongLightingGLSL from "./lightingmode/BlinnPhongLighting.glsl";
-
+import PBRLightingGLSL from "./lightingmode/PBRLighting.glsl";
 
 import { BlitScreenShaderInit } from "./postprocess/BlitScreenShaderInit";
 import { UnlitShaderInit } from "./unlit/UnlitShaderInit";
@@ -139,6 +139,7 @@ export class ShaderInit3D {
 
 		// lighting mode
 		Shader3D.addInclude("BlinnPhongLighting.glsl", BlinnPhongLightingGLSL);
+		Shader3D.addInclude("PBRLighting.glsl", PBRLightingGLSL);
 
 		// lib
 		PBRShaderLib.init();

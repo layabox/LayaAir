@@ -23,7 +23,7 @@ vec2 prefilteredDFG_LUT(float coord, float NoV)
     return texture2DLodEXT(u_IBLDGF, vec2(NoV, 1.0 - coord), 0.0).rg;
 }
 
-vec3 evaluateIBL(const in Surface surface, const in PixelParams pixel)
+vec3 evaluateIBL(const in Surface surface, const in PixelInfo pixel)
 {
     float perceptualRoughness = surface.perceptualRoughness;
 
@@ -50,7 +50,7 @@ vec3 evaluateIBL(const in Surface surface, const in PixelParams pixel)
     return diffuseColor * indirectDiffuse + indirectSpecular * specularColor;
 }
 
-vec3 PBRGI(const in Surface surface, const in PixelParams pixel)
+vec3 PBRGI(const in Surface surface, const in PixelInfo pixel)
 {
     #ifdef LIGHTMAP
 	#ifdef UV1
@@ -61,6 +61,10 @@ vec3 PBRGI(const in Surface surface, const in PixelParams pixel)
     #endif // LIGHTMAP
 
     return evaluateIBL(surface, pixel) * surface.occlusion;
+    // #ifdef GI_AMBIENT_SH
+    // #else // GI_AMBIENT_SH
+    // return u_AmbientColor * surface.diffuseColor;
+    // #endif // GI_AMBIENT_SH
 }
 
 #endif // pbrGI_lib
