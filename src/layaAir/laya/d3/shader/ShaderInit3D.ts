@@ -82,6 +82,9 @@ import SceneFogGLSL from "./utils/SceneFog.glsl";
 
 import LightingGLSL from "./lighting/Lighting.glsl";
 
+import BlinnPhongLightingGLSL from "./lightingmode/BlinnPhongLighting.glsl";
+
+
 import { BlitScreenShaderInit } from "./postprocess/BlitScreenShaderInit";
 import { UnlitShaderInit } from "./unlit/UnlitShaderInit";
 import { BlinnPhongShaderInit } from "./blinnphong/BlinnPhongShaderInit";
@@ -108,9 +111,8 @@ export class ShaderInit3D {
 
 		Shader3D.addInclude("TBNNormal.glsl", TBNNormalGLSL);
 		Shader3D.addInclude("BakedBoneMatrixSampler.glsl", BakedBoneMatrixSamplerGLSL);
-		
-		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
 
+		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
 
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);
@@ -134,6 +136,9 @@ export class ShaderInit3D {
 
 		// lighting
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
+
+		// lighting mode
+		Shader3D.addInclude("BlinnPhongLighting.glsl", BlinnPhongLightingGLSL);
 
 		// lib
 		PBRShaderLib.init();
