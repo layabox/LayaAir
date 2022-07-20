@@ -22,6 +22,12 @@ struct PixelInfo {
     vec3 normalWS;
     vec3 viewDir;
     float NoV;
+
+    #ifdef LIGHTMAP
+	#ifdef UV1
+    vec2 lightmapUV;
+	#endif // UV1
+    #endif // LIGHTMAP
 };
 
 struct Surface {

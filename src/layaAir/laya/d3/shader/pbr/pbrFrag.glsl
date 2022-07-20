@@ -50,6 +50,12 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
     info.normalWS = pixel.normalWS;
     info.viewDir = pixel.viewDir;
     info.NoV = pixel.NoV;
+
+    #ifdef LIGHTMAP
+	#ifdef UV1
+    info.lightmapUV = pixel.uv1;
+	#endif // UV1
+    #endif // LIGHTMAP
 }
 
 vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
