@@ -158,7 +158,8 @@ export class Scene3D extends Sprite implements ISubmit {
 	static TIME: number;
 	/** @internal */
 	static sceneID: number;
-
+	
+	static SceneUBOData:UnifromBufferData;
 	/**@internal scene uniform block */
 	static SCENEUNIFORMBLOCK: number;
 	//------------------legacy lighting-------------------------------
@@ -297,28 +298,23 @@ export class Scene3D extends Sprite implements ISubmit {
 	 * @returns 
 	 */
 	static createSceneUniformBlock(): UnifromBufferData {
-		let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-		uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
-		// uniformpara.set("u_AmbientSHAr", UniformBufferParamsType.Vector4);
-		// uniformpara.set("u_AmbientSHAg", UniformBufferParamsType.Vector4);
-		// uniformpara.set("u_AmbientSHAb", UniformBufferParamsType.Vector4);
-		// uniformpara.set("u_AmbientSHBr", UniformBufferParamsType.Vector4);
-		// uniformpara.set("u_AmbientSHBg", UniformBufferParamsType.Vector4);
-		// uniformpara.set("u_AmbientSHBb", UniformBufferParamsType.Vector4);
-		// uniformpara.set("u_AmbientSHC", UniformBufferParamsType.Vector4);
-		uniformpara.set("u_Time", UniformBufferParamsType.Number);
-		uniformpara.set("u_FogStart", UniformBufferParamsType.Number);
-		uniformpara.set("u_FogRange", UniformBufferParamsType.Number);
-		uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
-		// uniformpara.set("u_SunLight_direction", UniformBufferParamsType.Vector3);
-		// uniformpara.set("u_SunLight_color", UniformBufferParamsType.Color);
-
-		let uniformMap = new Map<number, UniformBufferParamsType>();
-		uniformpara.forEach((value, key) => {
-			uniformMap.set(Shader3D.propertyNameToID(key), value);
-		})
-
-		return new UnifromBufferData(uniformMap);
+		if(!Scene3D.SceneUBOData){
+			let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+			uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
+			uniformpara.set("u_Time", UniformBufferParamsType.Number);
+			uniformpara.set("u_FogStart", UniformBufferParamsType.Number);
+			uniformpara.set("u_FogRange", UniformBufferParamsType.Number);
+			uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
+			// uniformpara.set("u_SunLight_direction", UniformBufferParamsType.Vector3);
+			// uniformpara.set("u_SunLight_color", UniformBufferParamsType.Color);
+	
+			let uniformMap = new Map<number, UniformBufferParamsType>();
+			uniformpara.forEach((value, key) => {
+				uniformMap.set(Shader3D.propertyNameToID(key), value);
+			});
+			Scene3D.SceneUBOData = new UnifromBufferData(uniformMap);
+		}
+		return Scene3D.SceneUBOData;
 	}
 
 

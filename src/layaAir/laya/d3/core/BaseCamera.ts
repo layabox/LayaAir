@@ -70,7 +70,8 @@ export class BaseCamera extends Sprite3D {
 	protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
 	/**@internal */
 	static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
-
+	/**@internal */
+	static CameraUBOData:UnifromBufferData;
 	/**
 	 * @internal
 	 * shaderInfo init
@@ -113,23 +114,26 @@ export class BaseCamera extends Sprite3D {
 	 * @internal
 	 * @returns 
 	 */
-	static createSceneUniformBlock() {
-		let uniformPara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-		uniformPara.set("u_View", UniformBufferParamsType.Matrix4x4);
-		uniformPara.set("u_Projection", UniformBufferParamsType.Matrix4x4);
-		uniformPara.set("u_ViewProjection", UniformBufferParamsType.Matrix4x4);
-		uniformPara.set("u_ProjectionParams", UniformBufferParamsType.Vector4);
-		uniformPara.set("u_Viewport", UniformBufferParamsType.Vector4);
-		uniformPara.set("u_CameraDirection", UniformBufferParamsType.Vector3);
-		uniformPara.set("u_CameraUp", UniformBufferParamsType.Vector3);
-		uniformPara.set("u_CameraPos", UniformBufferParamsType.Vector3);
-
-		let uniformMap = new Map<number, UniformBufferParamsType>();
-		uniformPara.forEach((value, key) => {
-			uniformMap.set(Shader3D.propertyNameToID(key), value);
-		})
-
-		return new UnifromBufferData(uniformMap);
+	static createCameraUniformBlock() {
+		if(!BaseCamera.CameraUBOData){
+			let uniformPara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+			uniformPara.set("u_View", UniformBufferParamsType.Matrix4x4);
+			uniformPara.set("u_Projection", UniformBufferParamsType.Matrix4x4);
+			uniformPara.set("u_ViewProjection", UniformBufferParamsType.Matrix4x4);
+			uniformPara.set("u_ProjectionParams", UniformBufferParamsType.Vector4);
+			uniformPara.set("u_Viewport", UniformBufferParamsType.Vector4);
+			uniformPara.set("u_CameraDirection", UniformBufferParamsType.Vector3);
+			uniformPara.set("u_CameraUp", UniformBufferParamsType.Vector3);
+			uniformPara.set("u_CameraPos", UniformBufferParamsType.Vector3);
+	
+			let uniformMap = new Map<number, UniformBufferParamsType>();
+			uniformPara.forEach((value, key) => {
+				uniformMap.set(Shader3D.propertyNameToID(key), value);
+			})
+			BaseCamera.CameraUBOData = new UnifromBufferData(uniformMap);
+		}
+		
+		return BaseCamera.CameraUBOData;
 	}
 	/**
 	 * Camera Init
@@ -296,7 +300,7 @@ export class BaseCamera extends Sprite3D {
 		this._orthographic = false;
 		if (Config3D._config._uniformBlock) {
 			this._cameraUniformUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
-			this._cameraUniformData = BaseCamera.createSceneUniformBlock();
+			this._cameraUniformData = BaseCamera.createCameraUniformBlock();
 			if (!this._cameraUniformUBO) {
 				this._cameraUniformUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA, BufferUsage.Dynamic, this._cameraUniformData.getbyteLength(), true);
 			}

@@ -112,17 +112,22 @@ export class ShadowCasterPass {
 		sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), UniformBufferObject.UBONAME_SHADOW);
 	}
 
+	static DepthCasterUBOData:UnifromBufferData;
 	/**
 	 * create DepthCaster UniformBuffer
 	 * @internal
 	 * @returns 
 	 */
 	static createDepthCasterUniformBlock(): UnifromBufferData {
-		let uniformpara = new Map<number, UniformBufferParamsType>();
-		uniformpara.set(Shader3D.propertyNameToID("u_ShadowBias"), UniformBufferParamsType.Vector4);
-		uniformpara.set(Shader3D.propertyNameToID("u_ViewProjection"), UniformBufferParamsType.Matrix4x4);
-		uniformpara.set(Shader3D.propertyNameToID("u_ShadowLightDirection"), UniformBufferParamsType.Vector3);
-		return new UnifromBufferData(uniformpara);
+		if(!ShadowCasterPass.DepthCasterUBOData){
+			let uniformpara = new Map<number, UniformBufferParamsType>();
+			uniformpara.set(Shader3D.propertyNameToID("u_ShadowBias"), UniformBufferParamsType.Vector4);
+			uniformpara.set(Shader3D.propertyNameToID("u_ViewProjection"), UniformBufferParamsType.Matrix4x4);
+			uniformpara.set(Shader3D.propertyNameToID("u_ShadowLightDirection"), UniformBufferParamsType.Vector3);
+			ShadowCasterPass.DepthCasterUBOData =new UnifromBufferData(uniformpara);
+		}
+		
+		return ShadowCasterPass.DepthCasterUBOData;
 	}
 
 	/** @internal */

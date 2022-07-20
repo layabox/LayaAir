@@ -1,4 +1,5 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
 import { Material } from "./Material";
@@ -28,12 +29,12 @@ export class SkyBoxMaterial extends Material {
 	/**
 	 * 颜色。
 	 */
-	get tintColor(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(SkyBoxMaterial.TINTCOLOR));
+	get tintColor(): Color {
+		return this._shaderValues.getColor(SkyBoxMaterial.TINTCOLOR);
 	}
 
-	set tintColor(value: Vector4) {
-		this._shaderValues.setVector(SkyBoxMaterial.TINTCOLOR, value);
+	set tintColor(value: Color) {
+		this._shaderValues.setColor(SkyBoxMaterial.TINTCOLOR, value);
 	}
 
 	/**
@@ -86,7 +87,7 @@ export class SkyBoxMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("SkyBox");
-		this.tintColor = new Vector4(0.5, 0.5, 0.5, 0.5);
+		this.tintColor = new Color(0.5, 0.5, 0.5, 0.5);
 		this.exposure = 1.0;
 		this.rotation = 0;
 	}
