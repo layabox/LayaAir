@@ -69,7 +69,7 @@ vec3 BlinnPhongGI(const in Surface surface, const in PixelInfo info)
 
 	#else // GI_AMBIENT_SH
 
-    giColor = u_AmbientColor * surface.diffuseColor;
+    giColor = u_AmbientColor.rgb * surface.diffuseColor;
 
 	#endif // GI_AMBIENT_SH
 

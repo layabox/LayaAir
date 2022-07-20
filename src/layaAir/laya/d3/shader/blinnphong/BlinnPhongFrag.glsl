@@ -104,29 +104,4 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
     return lightColor + giColor;
 }
 
-    #endif // LIGHTING
-
-// GI
-vec3 BlinnPhongGI(const in Surface surface, in PixelParams pixel)
-{
-    vec3 color = vec3(0.0);
-    #ifdef LIGHTMAP
-	#ifdef UV1
-    vec2 lightmapUV = pixel.uv1;
-    vec3 bakedColor = getBakedLightmapColor(lightmapUV);
-    color = bakedColor;
-	#endif // UV1
-    #else // LIGHTMAP
-	#ifdef GI_AMBIENT_SH
-    vec3 n = pixel.normalWS;
-    vec3 indirectDiffuse = max(diffuseIrradiance(n), 0.0) / PI;
-    color = indirectDiffuse;
-	#else // GI_AMBIENT_SH
-    color = u_AmbientColor.rgb;
-	#endif // GI_AMBIENT_SH
-    #endif // LIGHTMAP
-
-    return color * surface.diffuseColor;
-}
-
 #endif // BlinnPhongFrag_lib
