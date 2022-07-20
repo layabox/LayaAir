@@ -83,24 +83,22 @@ export class SubShader {
 		this._uniformTypeMap = new Map();
 		for (const key in uniformMap) {
 			if (typeof uniformMap[key] == "object") {
-				if (Config3D._config._uniformBlock) {
-					let block = <{ [uniformName: string]: ShaderDataType }>(uniformMap[key]);
-					let blockUniformMap = new Map<string, UniformBufferParamsType>();
-					for (const uniformName in block) {
-						let uniformType = ShaderDataTypeToUniformBufferType(block[uniformName]);
-						blockUniformMap.set(uniformName, uniformType);
+				let block = <{ [uniformName: string]: ShaderDataType }>(uniformMap[key]);
+				let blockUniformMap = new Map<string, UniformBufferParamsType>();
+				for (const uniformName in block) {
+					let uniformType = ShaderDataTypeToUniformBufferType(block[uniformName]);
+					blockUniformMap.set(uniformName, uniformType);
 
-						this._uniformTypeMap.set(uniformName, block[uniformName]);
-					}
-
-					let blockUniformIndexMap = new Map<number, UniformBufferParamsType>();
-					blockUniformMap.forEach((value, key) => {
-						blockUniformIndexMap.set(Shader3D.propertyNameToID(key), value);
-					});
-
-					let blockData = new UnifromBufferData(blockUniformIndexMap);
-					this._uniformBufferDataMap.set(key, blockData);
+					this._uniformTypeMap.set(uniformName, block[uniformName]);
 				}
+
+				let blockUniformIndexMap = new Map<number, UniformBufferParamsType>();
+				blockUniformMap.forEach((value, key) => {
+					blockUniformIndexMap.set(Shader3D.propertyNameToID(key), value);
+				});
+
+				let blockData = new UnifromBufferData(blockUniformIndexMap);
+				this._uniformBufferDataMap.set(key, blockData);
 			}
 			else {
 				let unifromType = <ShaderDataType>uniformMap[key];
