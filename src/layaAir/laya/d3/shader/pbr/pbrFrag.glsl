@@ -1,20 +1,9 @@
 #if !defined(pbrFrag_lib)
     #define pbrFrag_lib
 
-    #include "Math.glsl";
-    #include "Lighting.glsl";
+    #include "PBRLighting.glsl";
 
     #include "PBRCommon.glsl";
-    #include "BRDF.glsl";
-
-struct Surface {
-    vec3 diffuseColor;
-    float alpha;
-    vec3 f0;
-    float roughness;
-    float perceptualRoughness;
-    float occlusion;
-};
 
 void getPixelParams(inout PixelParams params)
 {
@@ -56,97 +45,60 @@ void getPixelParams(inout PixelParams params)
     #endif // NORMALTEXTURE
 }
 
-    #if defined(LIGHTING)
-
-struct LightParams {
-    vec3 h;
-    float NoL;
-    float NoH;
-    float LoH;
-};
-
-void initLightParams(inout LightParams params, const in PixelParams pixel, const in Light light)
+void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
 {
-    vec3 l = normalize(-light.dir);
-    vec3 v = pixel.viewDir;
-    vec3 n = pixel.normalWS;
-
-    vec3 h = SafeNormalize(v + l);
-    params.h = h;
-    params.NoL = saturate(dot(n, l));
-    params.NoH = saturate(dot(n, h));
-    params.LoH = saturate(dot(l, h));
-}
-
-vec3 diffuseLobe(in Surface surface)
-{
-    return surface.diffuseColor * diffuse();
-}
-
-vec3 specularLobe(const in Surface surface, const in PixelParams pixel, const in LightParams lightParams)
-{
-    float roughness = surface.roughness;
-    float D = distribution(roughness, lightParams.NoH, lightParams.h, pixel.normalWS);
-    float V = visibility(roughness, pixel.NoV, lightParams.NoL);
-    vec3 F = fresnel(surface.f0, lightParams.LoH);
-
-    return (D * V) * F;
-}
-
-vec3 PBRLighting(const in Surface surface, const in PixelParams pixel, const in Light light)
-{
-    LightParams lightParams;
-    initLightParams(lightParams, pixel, light);
-
-    vec3 Fd = diffuseLobe(surface);
-
-    vec3 Fr = specularLobe(surface, pixel, lightParams);
-
-    return (Fd + Fr) * light.color * lightParams.NoL;
+    info.normalWS = pixel.normalWS;
+    info.viewDir = pixel.viewDir;
+    info.NoV = pixel.NoV;
 }
 
 vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 {
+
+    PixelInfo info;
+    getPixelInfo(info, pixel);
+
     vec3 lightColor = vec3(0.0);
-	#ifdef DIRECTIONLIGHT
+    #ifdef DIRECTIONLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
 	    if (i >= DirectionCount)
 		break;
 	    DirectionLight directionLight = getDirectionLight(i, pixel.positionWS);
 	    Light light = getLight(directionLight);
-	    lightColor += PBRLighting(surface, pixel, light) * light.attenuation;
+	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
-	#endif // DIRECTIONLIGHT
+    #endif // DIRECTIONLIGHT
 
-	#if defined(POINTLIGHT) || defined(SPOTLIGHT)
+    #if defined(POINTLIGHT) || defined(SPOTLIGHT)
     ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, v, gl_FragCoord, u_ProjectionParams);
-	#endif // POINTLIGHT || SPOTLIGHT
+    #endif // POINTLIGHT || SPOTLIGHT
 
-	#ifdef POINTLIGHT
+    #ifdef POINTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
 	    if (i >= clusterInfo.x)
 		break;
 	    PointLight pointLight = getPointLight(i, clusterInfo, positionWS);
 	    Light light = getLight(pointLight, surface.normalWS, positionWS);
-	    lightColor += PBRLighting(surface, pixel, light) * light.attenuation;
+	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
-	#endif // POINTLIGHT
+    #endif // POINTLIGHT
 
-	#ifdef SPOTLIGHT
+    #ifdef SPOTLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
 	    if (i >= clusterInfo.y)
 		break;
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, positionWS);
 	    Light light = getLight(spotLight, surface.normalWS, positionWS);
-	    lightColor += PBRLighting(surface, pixel, light) * light.attenuation;
+	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
-	#endif // SPOTLIGHT
+    #endif // SPOTLIGHT
 
-    return lightColor;
+    vec3 giColor = PBRGI(surface, info);
+
+    return lightColor + giColor;
 }
-    #endif // LIGHTING
 
 #endif // pbrFrag_lib

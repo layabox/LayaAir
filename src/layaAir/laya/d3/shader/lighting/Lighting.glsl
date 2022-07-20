@@ -3,10 +3,6 @@
 
     #include "ShadowSampler.glsl";
 
-    #if defined(DIRECTIONLIGHT) || defined(POINTLIGHT) || defined(SPOTLIGHT)
-
-	#define LIGHTING
-
 struct Light {
     vec3 color;
     vec3 dir;
@@ -34,6 +30,10 @@ struct SpotLight {
     float spot;
     float attenuation;
 };
+
+    #if defined(DIRECTIONLIGHT) || defined(POINTLIGHT) || defined(SPOTLIGHT)
+
+	#define LIGHTING
 
 // 灯光衰减函数
 float attenuation(in vec3 L, in float invLightRadius)

@@ -1,5 +1,4 @@
 #include "PBRFrag.glsl";
-#include "PBRGI.glsl";
 
 struct SurfaceInputs {
     vec3 diffuseColor;
@@ -42,16 +41,12 @@ vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
 
     vec3 surfaceColor = vec3(0.0);
 
-#if defined(LIGHTING)
     surfaceColor += PBRLighting(surface, pixel);
-#endif // LIGHTING
-
-    // GI
-    surfaceColor += PBRGI(surface, pixel);
 
 // todo emission calculate
 #ifdef EMISSION
     surfaceColor += inputs.emissionColor;
 #endif // EMISSION
+
     return vec4(surfaceColor, surface.alpha);
 }
