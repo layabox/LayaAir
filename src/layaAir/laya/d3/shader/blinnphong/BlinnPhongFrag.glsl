@@ -142,7 +142,7 @@ vec3 BlinnPhongGI(const in Surface surface, in PixelParams pixel)
     vec3 indirectDiffuse = max(diffuseIrradiance(n), 0.0) / PI;
     color = indirectDiffuse;
 	#else // GI_AMBIENT_SH
-    color = u_AmbientColor;
+    color = u_AmbientColor.rgb;
 	#endif // GI_AMBIENT_SH
     #endif // LIGHTMAP
 

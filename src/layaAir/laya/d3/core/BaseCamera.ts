@@ -300,7 +300,8 @@ export class BaseCamera extends Sprite3D {
 			if (!this._cameraUniformUBO) {
 				this._cameraUniformUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA, BufferUsage.Dynamic, this._cameraUniformData.getbyteLength(), true);
 			}
-			this._shaderValues.setValueData(BaseCamera.CAMERAUNIFORMBLOCK, this._cameraUniformUBO);
+			this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_CAMERA,this._cameraUniformUBO,this._cameraUniformData);
+			this._shaderValues.setUniformBuffer(BaseCamera.CAMERAUNIFORMBLOCK, this._cameraUniformUBO);
 		}
 	}
 
@@ -351,26 +352,26 @@ export class BaseCamera extends Sprite3D {
 		//var cameraSV: ShaderData = this._shaderValues;
 		this.transform.getForward(this._forward);
 		this.transform.getUp(this._up);
-		this._setShaderValue(BaseCamera.CAMERAPOS, this.transform.position);
-		this._setShaderValue(BaseCamera.CAMERADIRECTION, this._forward);
-		this._setShaderValue(BaseCamera.CAMERAUP, this._up);
+		this._shaderValues.setVector3(BaseCamera.CAMERAPOS, this.transform.position);
+		this._shaderValues.setVector3(BaseCamera.CAMERADIRECTION, this._forward);
+		this._shaderValues.setVector3(BaseCamera.CAMERAUP, this._up);
 	}
 
-	/**
-	 * @internal
-	 */
-	_setShaderValue(index: number, value: any) {
-		if (this._cameraUniformData && this._cameraUniformData._has(index))
-			this._cameraUniformData._setData(index, value);
-		this._shaderValues.setValueData(index, value);
-	}
+	// /**
+	//  * @internal
+	//  */
+	// _setShaderValue(index: number, value: any) {
+	// 	if (this._cameraUniformData && this._cameraUniformData._has(index))
+	// 		this._cameraUniformData._setData(index, value);
+	// 	this._shaderValues.setValueData(index, value);
+	// }
 
-	/**
-	 * @internal
-	 */
-	_getShaderValue(index: number): any {
-		return this._shaderValues.getValueData(index);
-	}
+	// /**
+	//  * @internal
+	//  */
+	// _getShaderValue(index: number): any {
+	// 	return this._shaderValues.getValueData(index);
+	// }
 
 
 	/**

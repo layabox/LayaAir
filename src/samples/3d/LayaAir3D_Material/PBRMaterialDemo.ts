@@ -27,7 +27,7 @@ export class PBRMaterialDemo {
 
 		Scene3D.load("res/threeDimen/scene/LayaScene_EmptyScene/Conventional/EmptyScene.ls", Handler.create(this, function (scene: Scene3D): void {
 			Laya.stage.addChild(scene);
-
+			
 			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
 			var moveScript: CameraMoveScript = camera.addComponent(CameraMoveScript);
 			moveScript.speed = 0.005;

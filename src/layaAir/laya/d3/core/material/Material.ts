@@ -366,16 +366,7 @@ export class Material extends Resource implements IClone {
     /** 所属渲染队列. */
     renderQueue: number;
 
-    /**@internal */
-    private _uniformBufferDatas: Map<string, UniformBufferObject>;
-
-    /**
-     * @internal
-     * key: uniform property id
-     * value: UniformBufferObject
-     * 保存 每个 uniform id 所在的 ubo
-     */
-    private _uniformBuffersMap: Map<number, UniformBufferObject>;
+    
 
     /**
      * 着色器数据。
@@ -637,9 +628,6 @@ export class Material extends Resource implements IClone {
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(this);
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
         this.alphaTest = false;
-        // if (Config3D._config._uniformBlock)
-        this._uniformBufferDatas = new Map();
-        this._uniformBuffersMap = new Map();
     }
 
     /**
@@ -668,28 +656,29 @@ export class Material extends Resource implements IClone {
             let uboData = shaderUBODatas.get(key).clone();
             //create UBO
             let ubo = UniformBufferObject.create(key, BufferUsage.Dynamic, uboData.getbyteLength(), false);
-            ubo.setDataByUniformBufferData(uboData);
+            //ubo.setDataByUniformBufferData(uboData);
             this._shaderValues.setUniformBuffer(Shader3D.propertyNameToID(key), ubo);
-            this._uniformBufferDatas.set(key, ubo);
+            this._shaderValues._addCheckUBO(key,ubo,uboData);
+            // this._shaderValues.uniformBufferDatas.set(key, ubo);
 
-            uboData._uniformParamsState.forEach((value: UniformBufferParamsType, id: number) => {
-                this._uniformBuffersMap.set(id, ubo);
-            });
+            // uboData._uniformParamsState.forEach((value: UniformBufferParamsType, id: number) => {
+            //     this._shaderValues.uniformBuffersMap.set(id, ubo);
+            // });
         }
 
 
     }
 
     private _releaseUBOData() {
-        if (!this._uniformBufferDatas) {
+        if (!this._shaderValues.uniformBufferDatas) {
             return;
         }
-        for (let value of this._uniformBufferDatas.values()) {
+        for (let value of this._shaderValues.uniformBufferDatas.values()) {
             value._updateDataInfo.destroy();
             value.destroy();
         }
-        this._uniformBufferDatas.clear();
-        this._uniformBuffersMap.clear();
+        this._shaderValues.uniformBufferDatas.clear();
+        this._shaderValues.uniformBuffersMap.clear();
     }
 
     /**
@@ -773,12 +762,12 @@ export class Material extends Resource implements IClone {
     setShaderPropertyValue(name: string, value: any) {
         let propertyID = Shader3D.propertyNameToID(name);
         this.shaderData.setValueData(propertyID, value);
-        // ubo
-        let ubo = this._uniformBuffersMap.get(propertyID);
-        if (ubo) {
-            ubo._updateDataInfo._setData(propertyID, this.shaderData.getValueData(propertyID));
-            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        }
+        // // ubo
+        // let ubo = this._uniformBuffersMap.get(propertyID);
+        // if (ubo) {
+        //     ubo._updateDataInfo._setData(propertyID, this.shaderData.getValueData(propertyID));
+        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
     }
 
     /**
@@ -818,11 +807,11 @@ export class Material extends Resource implements IClone {
 
     setFloatByIndex(uniformIndex: number, value: number) {
         this.shaderData.setNumber(uniformIndex, value);
-        let ubo = this._uniformBuffersMap.get(uniformIndex);
-        if (ubo) {
-            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getNumber(uniformIndex));
-            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        }
+        // let ubo = this._uniformBuffersMap.get(uniformIndex);
+        // if (ubo) {
+        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getNumber(uniformIndex));
+        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
     }
 
     getFloat(name: string): number {
@@ -841,11 +830,11 @@ export class Material extends Resource implements IClone {
 
     setIntByIndex(uniformIndex: number, value: number) {
         this.shaderData.setInt(uniformIndex, value);
-        let ubo = this._uniformBuffersMap.get(uniformIndex);
-        if (ubo) {
-            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getNumber(uniformIndex));
-            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        }
+        // let ubo = this._uniformBuffersMap.get(uniformIndex);
+        // if (ubo) {
+        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getNumber(uniformIndex));
+        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
     }
 
     getInt(name: string): number {
@@ -864,11 +853,11 @@ export class Material extends Resource implements IClone {
 
     setVector2ByIndex(uniformIndex: number, value: Vector2) {
         this.shaderData.setVector2(uniformIndex, value);
-        let ubo = this._uniformBuffersMap.get(uniformIndex);
-        if (ubo) {
-            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector2(uniformIndex));
-            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        }
+        // let ubo = this._uniformBuffersMap.get(uniformIndex);
+        // if (ubo) {
+        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector2(uniformIndex));
+        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
     }
 
     getVector2(name: string): Vector2 {
@@ -888,11 +877,11 @@ export class Material extends Resource implements IClone {
 
     setVector3ByIndex(uniformIndex: number, value: Vector3) {
         this.shaderData.setVector3(uniformIndex, value);
-        let ubo = this._uniformBuffersMap.get(uniformIndex);
-        if (ubo) {
-            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector3(uniformIndex));
-            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        }
+        // let ubo = this._uniformBuffersMap.get(uniformIndex);
+        // if (ubo) {
+        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector3(uniformIndex));
+        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
     }
 
     getVector3(name: string) {
@@ -907,11 +896,11 @@ export class Material extends Resource implements IClone {
 
     setVector4ByIndex(uniformIndex: number, value: Vector4) {
         this.shaderData.setVector(uniformIndex, value);
-        let ubo = this._uniformBuffersMap.get(uniformIndex);
-        if (ubo) {
-            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
-            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        }
+        // let ubo = this._uniformBuffersMap.get(uniformIndex);
+        // if (ubo) {
+        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
+        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
     }
 
     getVector4ByIndex(uniformIndex: number): Vector4 {
@@ -934,11 +923,11 @@ export class Material extends Resource implements IClone {
 
     setColorByIndex(uniformIndex: number, value: Color) {
         this.shaderData.setColor(uniformIndex, value);
-        let ubo = this._uniformBuffersMap.get(uniformIndex);
-        if (ubo) {
-            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getLinearColor(uniformIndex));
-            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        }
+        // let ubo = this._uniformBuffersMap.get(uniformIndex);
+        // if (ubo) {
+        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getLinearColor(uniformIndex));
+        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
     }
 
     getColor(name: string): Color {
@@ -957,11 +946,11 @@ export class Material extends Resource implements IClone {
 
     setMatrix4x4ByIndex(uniformIndex: number, value: Matrix4x4) {
         this.shaderData.setMatrix4x4(uniformIndex, value);
-        let ubo = this._uniformBuffersMap.get(uniformIndex);
-        if (ubo) {
-            ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
-            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        }
+        // let ubo = this._uniformBuffersMap.get(uniformIndex);
+        // if (ubo) {
+        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
+        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
     }
 
     getMatrix4x4(name: string): Matrix4x4 {
@@ -998,12 +987,12 @@ export class Material extends Resource implements IClone {
 
     setBufferByIndex(uniformIndex: number, value: Float32Array) {
         this.shaderData.setBuffer(uniformIndex, value);
-        let ubo = this._uniformBuffersMap.get(uniformIndex);
-        if (ubo) {
-            // todo
-            // ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
-            // ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        }
+        // let ubo = this._uniformBuffersMap.get(uniformIndex);
+        // if (ubo) {
+        //     // todo
+        //     // ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
+        //     // ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        // }
     }
 
     getBuffer(name: string): Float32Array {

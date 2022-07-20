@@ -3,6 +3,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Color } from "laya/d3/math/Color";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
@@ -33,7 +34,7 @@ export class DynamicBatchTest {
 		Stat.show();
 
 		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-		scene.ambientColor = new Vector3(1, 1, 1);
+		scene.ambientColor = new Color(1, 1, 1);
 
 		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
 		camera.transform.translate(new Vector3(0, 6.2, 10.5));

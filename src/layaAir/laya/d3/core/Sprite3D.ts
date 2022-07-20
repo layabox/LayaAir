@@ -18,8 +18,6 @@ import { LayaGL } from "../../layagl/LayaGL";
 export class Sprite3D extends Node {
 	/**@internal 着色器变量名，世界矩阵。*/
 	static WORLDMATRIX: number;
-	/**@internal 着色器变量名，世界视图投影矩阵。*/
-	static MVPMATRIX: number;
 	/**@internal */
 	static sprite3DCommandUniformMap: CommandUniformMap;
 	/**@internal */
@@ -31,11 +29,9 @@ export class Sprite3D extends Node {
 	static __init__(): void {
 		
 		Sprite3D.WORLDMATRIX = Shader3D.propertyNameToID("u_WorldMat");
-		Sprite3D.MVPMATRIX = Shader3D.propertyNameToID("u_MvpMatrix");
 		
 		Sprite3D.sprite3DCommandUniformMap = CommandUniformMap.createGlobalUniformMap("Sprite3D");
 		Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat");
-		Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.MVPMATRIX, "u_MvpMatrix");
 	}
 
 	/**

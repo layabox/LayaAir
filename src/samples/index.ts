@@ -12,7 +12,7 @@ import { Main } from "./Main";
 
 Resource.DEBUG = true;
 
-new PBRMaterialDemo();
+new UnlitMaterialDemo();
 
 // new NewMatTest();
 // new DebugMeshTest();

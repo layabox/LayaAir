@@ -605,8 +605,8 @@ export class Camera extends BaseCamera {
 		var vp: Viewport = this.viewport;
 		this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
 		this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 1 / this.farPlane);
-		this._setShaderValue(BaseCamera.VIEWPORT, this._viewportParams);
-		this._setShaderValue(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
+		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
+		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 	}
 
 	/**
@@ -628,9 +628,9 @@ export class Camera extends BaseCamera {
 		context.viewMatrix = viewMat;
 		context.projectionMatrix = proMat;
 		context.projectionViewMatrix = projectView;
-		this._setShaderValue(BaseCamera.VIEWMATRIX, viewMat);
-		this._setShaderValue(BaseCamera.PROJECTMATRIX, proMat);
-		this._setShaderValue(BaseCamera.VIEWPROJECTMATRIX, projectView);
+		this._shaderValues.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
+		this._shaderValues.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
+		this._shaderValues.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
 	}
 
 	/**

@@ -280,29 +280,29 @@ export class MeshRenderer extends BaseRender {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-		var projectionView: Matrix4x4 = context.projectionViewMatrix;
-		if (projectionView) {//TODO:是否移除MVP
-			var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
-			switch (element.renderType) {
-				case RenderElement.RENDERTYPE_NORMAL:
-				case RenderElement.RENDERTYPE_STATICBATCH:
-				case RenderElement.RENDERTYPE_VERTEXBATCH:
-					if (transform) {
-						Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-						this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-					} else {
-						this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-					}
-					break;
-			}
-		}
-	}
+	// /**
+	//  * @inheritDoc
+	//  * @override
+	//  * @internal
+	//  */
+	// _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
+	// 	// var projectionView: Matrix4x4 = context.projectionViewMatrix;
+	// 	// if (projectionView) {//TODO:是否移除MVP
+	// 	// 	var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
+	// 	// 	switch (element.renderType) {
+	// 	// 		case RenderElement.RENDERTYPE_NORMAL:
+	// 	// 		case RenderElement.RENDERTYPE_STATICBATCH:
+	// 	// 		case RenderElement.RENDERTYPE_VERTEXBATCH:
+	// 	// 			if (transform) {
+	// 	// 				//Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
+	// 	// 				//this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
+	// 	// 			} else {
+	// 	// 				//this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
+	// 	// 			}
+	// 	// 			break;
+	// 	// 	}
+	// 	// }
+	// }
 	/**
 	 * @internal
 	 * @override

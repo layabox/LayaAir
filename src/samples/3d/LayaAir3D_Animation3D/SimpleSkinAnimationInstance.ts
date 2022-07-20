@@ -9,6 +9,7 @@ import { Laya3D } from "Laya3D";
 import { Animator } from "laya/d3/component/Animator";
 import { SimpleSkinnedMeshSprite3D } from "laya/d3/core/SimpleSkinnedMeshSprite3D";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Color } from "laya/d3/math/Color";
 
 export class SimpleSkinAnimationInstance {
 	private animatorName:string[] = ["run","chongci","dead","xuli","stand"];
@@ -23,7 +24,7 @@ export class SimpleSkinAnimationInstance {
 		Stat.show();
 		Shader3D.debugMode = true;
 		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-		this.scene.ambientColor = new Vector3(0.5, 0.5, 0.5);
+		this.scene.ambientColor = new Color(0.5, 0.5, 0.5);
 
 		Sprite3D.load("res/threeDimen/texAnimation/Conventional/LayaMonkey.lh", Handler.create(this, function (sprite: Sprite3D): void {
 			this.scene.addChild(sprite);

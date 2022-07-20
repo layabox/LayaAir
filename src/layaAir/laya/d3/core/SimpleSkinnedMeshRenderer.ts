@@ -183,22 +183,22 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      * @internal
      */
     _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-        var projectionView: Matrix4x4 = context.projectionViewMatrix;
-        if (projectionView) {
-            var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
-            switch (element.renderType) {
-                case RenderElement.RENDERTYPE_NORMAL:
-                    if (this.rootBone) {
-                        var mat: Matrix4x4 = (this.rootBone as Sprite3D)._transform.worldMatrix;
-                        Matrix4x4.multiply(projectionView, mat, this._projectionViewWorldMatrix);
-                        this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-                    } else {
-                        Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-                        this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-                    }
-                    break;
-            }
-        }
+        // var projectionView: Matrix4x4 = context.projectionViewMatrix;
+        // if (projectionView) {
+        //     var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
+        //     switch (element.renderType) {
+        //         case RenderElement.RENDERTYPE_NORMAL:
+        //             if (this.rootBone) {
+        //                 var mat: Matrix4x4 = (this.rootBone as Sprite3D)._transform.worldMatrix;
+        //                 Matrix4x4.multiply(projectionView, mat, this._projectionViewWorldMatrix);
+        //                 this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
+        //             } else {
+        //                 Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
+        //                 this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
+        //             }
+        //             break;
+        //     }
+        // }
     }
 
     _cloneTo(dest: Component): void {

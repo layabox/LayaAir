@@ -2,6 +2,7 @@ import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
@@ -22,7 +23,7 @@ export class Sprite3DClone {
 		Stat.show();
 
 		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-		this.scene.ambientColor = new Vector3(1, 1, 1);
+		this.scene.ambientColor = new Color(1, 1, 1);
 
 		var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
 		camera.transform.translate(new Vector3(0, 0.5, 1));

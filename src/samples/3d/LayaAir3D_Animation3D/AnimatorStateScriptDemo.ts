@@ -20,6 +20,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { AnimatorStateScriptTest } from "../common/AnimatorStateScriptTest";
 import Client from "../../Client";
 import { Utils } from "laya/utils/Utils";
+import { Color } from "laya/d3/math/Color";
 
 /**
  * ...
@@ -64,7 +65,7 @@ export class AnimatorStateScriptDemo {
 	private onLoadFinish(): void {
 		//初始化场景
 		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-		this.scene.ambientColor.setValue(0.5, 0.5, 0.5);
+		this.scene.ambientColor = new Color(0.5, 0.5, 0.5);
 
 		//初始化相机
 		var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));

@@ -162,8 +162,8 @@ export class ShadowCasterPass {
 	/** @internal */
 	private _lightForward: Vector3 = new Vector3();
 	/** @internal */
-	private _castDepthBufferData: UnifromBufferData;
-	private _castDepthBufferOBJ: UniformBufferObject;
+	_castDepthBufferData: UnifromBufferData;
+	_castDepthBufferOBJ: UniformBufferObject;
 	constructor() {
 		this._shadowSpotData.cameraCullInfo.boundFrustum = new BoundFrustum(new Matrix4x4());
 		if (Config3D._config._uniformBlock) {
@@ -187,12 +187,12 @@ export class ShadowCasterPass {
 	 * @param lightType 灯光类型
 	 */
 	private _setupShadowCasterShaderValues(context: RenderContext3D, shaderValues: ShaderData, shadowSliceData: any, LightParam: Vector3, shadowparams: Vector4, shadowBias: Vector4, lightType: LightType): void {
+		//shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
 		shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
-		this._setcommandBlockData(ShadowCasterPass.SHADOW_BIAS, shadowBias);
 		switch (lightType) {
 			case LightType.Directional:
 				shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, LightParam);
-				this._setcommandBlockData(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, LightParam);
+				//this._setcommandBlockData(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, LightParam);
 				break;
 			case LightType.Spot:
 				shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowparams);
@@ -204,11 +204,11 @@ export class ShadowCasterPass {
 		cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
 		cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
-		this._setcommandBlockData(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
+		//this._setcommandBlockData(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
 		context.viewMatrix = shadowSliceData.viewMatrix;
 		context.projectionMatrix = shadowSliceData.projectionMatrix;
 		context.projectionViewMatrix = shadowSliceData.viewProjectMatrix;
-		this._castDepthBufferOBJ && cameraSV.setValueData(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), this._castDepthBufferOBJ);
+		//this._castDepthBufferOBJ && shaderValues.setUniformBuffer(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), this._castDepthBufferOBJ);
 	}
 
 
@@ -271,13 +271,13 @@ export class ShadowCasterPass {
 		shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
 	}
 
-	/**
-	 * set castDepthBuffer data
-	 */
-	private _setcommandBlockData(index: number, value: any) {
-		if (this._castDepthBufferData && this._castDepthBufferData._has(index))
-			this._castDepthBufferData._setData(index, value);
-	}
+	// /**
+	//  * set castDepthBuffer data
+	//  */
+	// private _setcommandBlockData(index: number, value: any) {
+	// 	if (this._castDepthBufferData && this._castDepthBufferData._has(index))
+	// 		this._castDepthBufferData._setData(index, value);
+	// }
 
 
 	/**
@@ -394,9 +394,9 @@ export class ShadowCasterPass {
 					scene._directLightShadowCull(shadowCullInfo, context);
 					context.cameraShaderValue = sliceData.cameraShaderValue;
 					Camera._updateMark++;
-					if (this._castDepthBufferData) {
-						this._castDepthBufferOBJ && this._castDepthBufferOBJ.setDataByUniformBufferData(this._castDepthBufferData);
-					}
+					// if (this._castDepthBufferData) {
+					// 	this._castDepthBufferOBJ && this._castDepthBufferOBJ.setDataByUniformBufferData(this._castDepthBufferData);
+					// }
 					var resolution: number = sliceData.resolution;
 					var offsetX: number = sliceData.offsetX;
 					var offsetY: number = sliceData.offsetY;
@@ -430,10 +430,10 @@ export class ShadowCasterPass {
 				scene._sportLightShadowCull(shadowSpotData.cameraCullInfo, context);
 				context.cameraShaderValue = shadowSpotData.cameraShaderValue;
 				Camera._updateMark++;
-				if (this._castDepthBufferData) {
-					let depthCastUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
-					depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBufferData);
-				}
+				// if (this._castDepthBufferData) {
+				// 	let depthCastUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
+				// 	depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBufferData);
+				// }
 
 				LayaGL.renderEngine.viewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 				LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
