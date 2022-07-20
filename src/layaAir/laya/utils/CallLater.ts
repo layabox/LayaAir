@@ -80,6 +80,29 @@ export class CallLater {
             handler.clear();
         }
     }
+
+    clear(caller: any, method: Function) {
+        var handler = this._getHandler(caller, method);
+        if (handler) {
+            this._map[handler.key] = null;
+            handler.key = "";
+            handler.clear();
+            return true;
+        }
+        return false;
+    }
+
+    clearAll(caller: any) {
+        if (!caller) return;
+        for (var i = 0, n = this._laters.length; i < n; i++) {
+            var handler = this._laters[i];
+            if (handler.caller === caller) {
+                this._map[handler.key] = null;
+                handler.key = "";
+                handler.clear();
+            }
+        }
+    }
 }
 
 

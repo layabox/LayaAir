@@ -61,6 +61,8 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	defaultWeight: number = 1.0;
 	/**	激活时是否自动播放。*/
 	playOnWake: boolean = true;
+	/** 是否开启 */
+	enable:boolean = true;
 
 	/**
 	 * 默认动画状态机。

@@ -61,6 +61,7 @@ export class VideoTexture extends BaseTexture {
             ele["x5-playsinline"] = true;
             //@ts-ignore
             ele.x5PlaysInline = true;
+            //@ts-ignore
             ele.playsInline = true;
             //@ts-ignore
             ele["webkit-playsInline"] = true;
