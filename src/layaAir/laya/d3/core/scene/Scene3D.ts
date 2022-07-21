@@ -235,7 +235,7 @@ export class Scene3D extends Sprite implements ISubmit {
 		// Scene3D.AMBIENTSHAR = Shader3D.propertyNameToID("u_AmbientSHAr");
 		// Scene3D.AMBIENTSHAG = Shader3D.propertyNameToID("u_AmbientSHAg");
 		// Scene3D.AMBIENTSHAB = Shader3D.propertyNameToID("u_AmbientSHAb");
-		// Scene3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr");
+		// Scene3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr"); 
 		// Scene3D.AMBIENTSHBG = Shader3D.propertyNameToID("u_AmbientSHBg");
 		// Scene3D.AMBIENTSHBB = Shader3D.propertyNameToID("u_AmbientSHBb");
 		// Scene3D.AMBIENTSHC = Shader3D.propertyNameToID("u_AmbientSHC");
@@ -307,7 +307,6 @@ export class Scene3D extends Sprite implements ISubmit {
 			uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
 			// uniformpara.set("u_SunLight_direction", UniformBufferParamsType.Vector3);
 			// uniformpara.set("u_SunLight_color", UniformBufferParamsType.Color);
-	
 			let uniformMap = new Map<number, UniformBufferParamsType>();
 			uniformpara.forEach((value, key) => {
 				uniformMap.set(Shader3D.propertyNameToID(key), value);

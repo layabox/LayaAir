@@ -44,4 +44,5 @@ void main()
     color.rgb = scenUnlitFog(color.rgb);
 #endif // FOG
     gl_FragColor = color;
+
 }

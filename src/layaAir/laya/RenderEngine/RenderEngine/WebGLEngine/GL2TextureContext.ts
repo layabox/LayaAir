@@ -652,10 +652,12 @@ export class GL2TextureContext extends GLTextureContext {
         return renderbuffer;
     }
 
-    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, gengerateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
-        let useSRGBExt = false;
+    createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
+        
+        generateMipmap =  generateMipmap&& this.supportGenerateMipmap(format);
+        
+        let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
 
-        gengerateMipmap = this.supportGenerateMipmap(format);
 
         let gammaCorrection = 1.0;
         if (!useSRGBExt && sRGB) {
@@ -663,7 +665,7 @@ export class GL2TextureContext extends GLTextureContext {
         }
 
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 
@@ -791,14 +793,20 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
-        let useSRGBExt = false;
-
         generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
+
+        let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
 
         let gammaCorrection = 1.0;
         if (!useSRGBExt && sRGB) {
             gammaCorrection = 2.2;
         }
+
+
+        // let gammaCorrection = 1.0;
+        // if (!useSRGBExt && sRGB) {
+        //     gammaCorrection = 2.2;
+        // }
 
         let target = this.getTarget(dimension);
         let internalTex = new WebGLInternalTex(this._engine, target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
