@@ -22,7 +22,6 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
 import { UnifromBufferData, UniformBufferParamsType } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
-import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";

@@ -4,7 +4,6 @@ import { Event } from "../../events/Event";
 import { Loader } from "../../net/Loader";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
-import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 import { Config3D } from "../../../Config3D";
 import { IRenderEngine } from "../../RenderEngine/RenderInterface/IRenderEngine";
 import { LayaGL } from "../../layagl/LayaGL";

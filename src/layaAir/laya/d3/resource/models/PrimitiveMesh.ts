@@ -5,10 +5,10 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "./Mesh";
 import { SubMesh } from "./SubMesh";
-import { IndexFormat } from "../../graphics/IndexFormat";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 
 /**
  * <code>PrimitiveMesh</code> 类用于创建简单网格。

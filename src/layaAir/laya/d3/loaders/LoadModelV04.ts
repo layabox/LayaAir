@@ -7,9 +7,9 @@ import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
 import { Byte } from "../../utils/Byte"
 import { LayaGL } from "../../layagl/LayaGL";
-import { IndexFormat } from "../graphics/IndexFormat"
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType"
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration"
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat"
 
 /**
  * @internal

@@ -1,6 +1,7 @@
 import { ILaya } from "../../../../ILaya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
@@ -9,7 +10,6 @@ import { BufferState } from "../../core/BufferState";
 import { IClone } from "../../core/IClone";
 import { InstanceRenderElement } from "../../core/render/InstanceRenderElement";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
-import { IndexFormat } from "../../graphics/IndexFormat";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexElement } from "../../graphics/VertexElement";
@@ -22,8 +22,6 @@ import { Vector4 } from "../../math/Vector4";
 import { Physics3D } from "../../Physics3D";
 import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "./SubMesh";
-
-
 /**
  * @internal
  */

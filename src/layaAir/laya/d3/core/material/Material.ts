@@ -762,12 +762,6 @@ export class Material extends Resource implements IClone {
     setShaderPropertyValue(name: string, value: any) {
         let propertyID = Shader3D.propertyNameToID(name);
         this.shaderData.setValueData(propertyID, value);
-        // // ubo
-        // let ubo = this._uniformBuffersMap.get(propertyID);
-        // if (ubo) {
-        //     ubo._updateDataInfo._setData(propertyID, this.shaderData.getValueData(propertyID));
-        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
     }
 
     /**
@@ -779,16 +773,12 @@ export class Material extends Resource implements IClone {
         return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
     }
 
-
-    /// typed data get set
-
     getBoolByIndex(uniformIndex: number): boolean {
         return this.shaderData.getBool(uniformIndex);
     }
 
     setBoolByIndex(uniformIndex: number, value: boolean) {
         this.shaderData.setBool(uniformIndex, value);
-        // ubo 中没有此类型
     }
 
     getBool(name: string): boolean {
@@ -807,11 +797,6 @@ export class Material extends Resource implements IClone {
 
     setFloatByIndex(uniformIndex: number, value: number) {
         this.shaderData.setNumber(uniformIndex, value);
-        // let ubo = this._uniformBuffersMap.get(uniformIndex);
-        // if (ubo) {
-        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getNumber(uniformIndex));
-        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
     }
 
     getFloat(name: string): number {
@@ -830,11 +815,6 @@ export class Material extends Resource implements IClone {
 
     setIntByIndex(uniformIndex: number, value: number) {
         this.shaderData.setInt(uniformIndex, value);
-        // let ubo = this._uniformBuffersMap.get(uniformIndex);
-        // if (ubo) {
-        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getNumber(uniformIndex));
-        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
     }
 
     getInt(name: string): number {
@@ -853,11 +833,6 @@ export class Material extends Resource implements IClone {
 
     setVector2ByIndex(uniformIndex: number, value: Vector2) {
         this.shaderData.setVector2(uniformIndex, value);
-        // let ubo = this._uniformBuffersMap.get(uniformIndex);
-        // if (ubo) {
-        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector2(uniformIndex));
-        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
     }
 
     getVector2(name: string): Vector2 {
@@ -877,11 +852,6 @@ export class Material extends Resource implements IClone {
 
     setVector3ByIndex(uniformIndex: number, value: Vector3) {
         this.shaderData.setVector3(uniformIndex, value);
-        // let ubo = this._uniformBuffersMap.get(uniformIndex);
-        // if (ubo) {
-        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector3(uniformIndex));
-        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
     }
 
     getVector3(name: string) {
@@ -896,11 +866,6 @@ export class Material extends Resource implements IClone {
 
     setVector4ByIndex(uniformIndex: number, value: Vector4) {
         this.shaderData.setVector(uniformIndex, value);
-        // let ubo = this._uniformBuffersMap.get(uniformIndex);
-        // if (ubo) {
-        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
-        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
     }
 
     getVector4ByIndex(uniformIndex: number): Vector4 {
@@ -923,11 +888,6 @@ export class Material extends Resource implements IClone {
 
     setColorByIndex(uniformIndex: number, value: Color) {
         this.shaderData.setColor(uniformIndex, value);
-        // let ubo = this._uniformBuffersMap.get(uniformIndex);
-        // if (ubo) {
-        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getLinearColor(uniformIndex));
-        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
     }
 
     getColor(name: string): Color {
@@ -946,11 +906,6 @@ export class Material extends Resource implements IClone {
 
     setMatrix4x4ByIndex(uniformIndex: number, value: Matrix4x4) {
         this.shaderData.setMatrix4x4(uniformIndex, value);
-        // let ubo = this._uniformBuffersMap.get(uniformIndex);
-        // if (ubo) {
-        //     ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
-        //     ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
     }
 
     getMatrix4x4(name: string): Matrix4x4 {
@@ -987,12 +942,6 @@ export class Material extends Resource implements IClone {
 
     setBufferByIndex(uniformIndex: number, value: Float32Array) {
         this.shaderData.setBuffer(uniformIndex, value);
-        // let ubo = this._uniformBuffersMap.get(uniformIndex);
-        // if (ubo) {
-        //     // todo
-        //     // ubo._updateDataInfo._setData(uniformIndex, this.shaderData.getVector(uniformIndex));
-        //     // ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-        // }
     }
 
     getBuffer(name: string): Float32Array {
@@ -1006,43 +955,7 @@ export class Material extends Resource implements IClone {
     }
 
     setShaderDataByIndex(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem) {
-        switch (type) {
-            case ShaderDataType.Int:
-                this.setIntByIndex(uniformIndex, <number>value);
-                break;
-            case ShaderDataType.Bool:
-                this.setBoolByIndex(uniformIndex, <boolean>value);
-                break;
-            case ShaderDataType.Float:
-                this.setFloatByIndex(uniformIndex, <number>value);
-                break;
-            case ShaderDataType.Vector2:
-                this.setVector2ByIndex(uniformIndex, <Vector2>value);
-                break;
-            case ShaderDataType.Vector3:
-                this.setVector3ByIndex(uniformIndex, <Vector3>value);
-                break;
-            case ShaderDataType.Vector4:
-                this.setVector4ByIndex(uniformIndex, <Vector4>value);
-                break;
-            case ShaderDataType.Color:
-                this.setColorByIndex(uniformIndex, <Color>value);
-                break;
-            case ShaderDataType.Matrix4x4:
-                this.setMatrix4x4ByIndex(uniformIndex, <Matrix4x4>value);
-                break;
-            case ShaderDataType.Texture2D:
-            case ShaderDataType.TextureCube:
-                this.setTextureByIndex(uniformIndex, <BaseTexture>value);
-                break;
-            case ShaderDataType.Buffer:
-                this.setBufferByIndex(uniformIndex, <Float32Array>value);
-                break;
-            default:
-                throw "unkone shader data type.";
-                break;
-        }
-
+        this.shaderData.setShaderData(uniformIndex,type,value);
     }
 
     setShaderData(name: string, type: ShaderDataType, value: ShaderDataItem) {

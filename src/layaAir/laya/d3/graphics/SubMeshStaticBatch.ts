@@ -1,6 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../resource/Resource";
@@ -25,7 +26,6 @@ import { Mesh } from "../resource/models/Mesh";
 import { SubMesh } from "../resource/models/SubMesh";
 import { Utils3D } from "../utils/Utils3D";
 import { IndexBuffer3D } from "./IndexBuffer3D";
-import { IndexFormat } from "./IndexFormat";
 import { VertexMesh } from "./Vertex/VertexMesh";
 import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexElement } from "./VertexElement";

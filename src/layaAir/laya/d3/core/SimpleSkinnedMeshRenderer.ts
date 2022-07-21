@@ -11,7 +11,6 @@ import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
 import { Vector4 } from "../math/Vector4";
 import { Vector2 } from "../math/Vector2";
-import { ShaderDataType } from "./render/command/SetShaderDataCMD";
 import { Component } from "../../components/Component";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {

@@ -45,7 +45,6 @@ import { CannonPhysicsSimulation } from "../../physicsCannon/CannonPhysicsSimula
 import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings";
 import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
-import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
 import { Physics3D } from "../../Physics3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
@@ -60,7 +59,7 @@ import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { UnifromBufferData, UniformBufferParamsType } from "../../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -158,8 +157,8 @@ export class Scene3D extends Sprite implements ISubmit {
 	static TIME: number;
 	/** @internal */
 	static sceneID: number;
-	
-	static SceneUBOData:UnifromBufferData;
+
+	static SceneUBOData: UnifromBufferData;
 	/**@internal scene uniform block */
 	static SCENEUNIFORMBLOCK: number;
 	//------------------legacy lighting-------------------------------
@@ -298,7 +297,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	 * @returns 
 	 */
 	static createSceneUniformBlock(): UnifromBufferData {
-		if(!Scene3D.SceneUBOData){
+		if (!Scene3D.SceneUBOData) {
 			let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
 			uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
 			uniformpara.set("u_Time", UniformBufferParamsType.Number);
@@ -780,13 +779,13 @@ export class Scene3D extends Sprite implements ISubmit {
 			if (!this._sceneUniformObj) {
 				this._sceneUniformObj = UniformBufferObject.create(UniformBufferObject.UBONAME_SCENE, BufferUsage.Dynamic, this._sceneUniformData.getbyteLength(), true);
 			}
-			this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_SCENE,this._sceneUniformObj,this._sceneUniformData);
+			this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_SCENE, this._sceneUniformObj, this._sceneUniformData);
 			this._shaderValues.setUniformBuffer(Scene3D.SCENEUNIFORMBLOCK, this._sceneUniformObj);
-			
+
 			//ShadowUniformBlock
 			//Scene3D._shadowCasterPass
-			this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_SHADOW,Scene3D._shadowCasterPass._castDepthBufferOBJ,Scene3D._shadowCasterPass._castDepthBufferData);
-			this._shaderValues.setUniformBuffer(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW),Scene3D._shadowCasterPass._castDepthBufferOBJ);
+			this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_SHADOW, Scene3D._shadowCasterPass._castDepthBufferOBJ, Scene3D._shadowCasterPass._castDepthBufferData);
+			this._shaderValues.setUniformBuffer(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), Scene3D._shadowCasterPass._castDepthBufferOBJ);
 		}
 
 		this.enableFog = false;
@@ -862,7 +861,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	/**
 	 *@internal
 	 */
-	private _update(): void {
+	protected _update(): void {
 		var delta: number = this.timer._delta / 1000;
 		this._time += delta;
 		this._shaderValues.setNumber(Scene3D.TIME, this._time);
@@ -1611,9 +1610,9 @@ export class Scene3D extends Sprite implements ISubmit {
 	 * @param shaderDataType 渲染数据类型
 	 * @param value 渲染数据值
 	 */
-	setGlobalShaderValue(name: string, value: any) {
+	setGlobalShaderValue(name: string, type: ShaderDataType, value: ShaderDataItem) {
 		var shaderOffset = Shader3D.propertyNameToID(name);
-		this._shaderValues.setShaderData(shaderOffset, value);
+		this._shaderValues.setShaderData(shaderOffset, type, value);
 	}
 	//--------------------------------------------------------deprecated------------------------------------------------------------------------
 	/**

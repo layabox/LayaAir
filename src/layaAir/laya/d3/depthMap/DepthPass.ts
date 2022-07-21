@@ -1,8 +1,6 @@
 import { Config3D } from "../../../Config3D";
 import { LayaGL } from "../../layagl/LayaGL";
-import { BaseCamera } from "../core/BaseCamera";
-import { Camera, CameraClearFlags } from "../core/Camera";
-import { ShaderDataType } from "../core/render/command/SetShaderDataCMD";
+import { Camera} from "../core/Camera";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 import { RenderTexture } from "../resource/RenderTexture";
@@ -13,7 +11,6 @@ import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
-import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
