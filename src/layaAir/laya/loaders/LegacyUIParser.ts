@@ -41,6 +41,10 @@ export class LegacyUIParser {
     /**@internal */
     static _sheet: any;
 
+    static parse(data: any) {
+        return LegacyUIParser.createByData(null, data);
+    }
+
     /**
      * @private 根据字符串，返回函数表达式
      */

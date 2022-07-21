@@ -8,6 +8,8 @@ import { Timer } from "../utils/Timer"
 import { Sprite } from "./Sprite";
 import { ILaya } from "../../ILaya";
 
+const ARRAY_EMPTY: any[] = [];
+
 /**
  * 添加到父对象后调度。
  * @eventType Event.ADDED
@@ -34,14 +36,12 @@ import { ILaya } from "../../ILaya";
  */
 export class Node extends EventDispatcher {
     /**@private */
-    protected static ARRAY_EMPTY: any[] = [];
-    /**@private */
     private _bits: number = 0;
     /**@internal 子对象集合，请不要直接修改此对象。*/
-    _children: any[] = Node.ARRAY_EMPTY;
+    _children: any[] = ARRAY_EMPTY;
 
     /**@internal 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
-    _extUIChild: any[] = Node.ARRAY_EMPTY;
+    _extUIChild: any[] = ARRAY_EMPTY;
 
     /**@internal 父节点对象*/
     _parent: Node = null;
@@ -55,10 +55,12 @@ export class Node extends EventDispatcher {
 
     constructor() {
         super();
-        this.createGLBuffer();
+
+        this._initialize();
     }
 
-    createGLBuffer(): void {
+    //@internal
+    private _initialize(): void {
     }
 
     /**@internal */
@@ -164,7 +166,7 @@ export class Node extends EventDispatcher {
             }
         } else {
             node._parent && node._parent.removeChild(node);
-            this._children === Node.ARRAY_EMPTY && (this._children = []);
+            this._children === ARRAY_EMPTY && (this._children = []);
             this._children.push(node);
             node._setParent(this);
             this._childChanged();
@@ -174,7 +176,7 @@ export class Node extends EventDispatcher {
     }
 
     addInputChild(node: Node): Node {
-        if (this._extUIChild == Node.ARRAY_EMPTY) {
+        if (this._extUIChild == ARRAY_EMPTY) {
             this._extUIChild = [node];
         } else {
             if (this._extUIChild.indexOf(node) >= 0) {
@@ -220,7 +222,7 @@ export class Node extends EventDispatcher {
                 this._childChanged();
             } else {
                 node._parent && node._parent.removeChild(node);
-                this._children === Node.ARRAY_EMPTY && (this._children = []);
+                this._children === ARRAY_EMPTY && (this._children = []);
                 this._children.splice(index, 0, node);
                 node._setParent(this);
             }
@@ -350,7 +352,7 @@ export class Node extends EventDispatcher {
             var childs: any[] = this._children;
             if (beginIndex === 0 && endIndex >= childs.length - 1) {
                 var arr: any[] = childs;
-                this._children = Node.ARRAY_EMPTY;
+                this._children = ARRAY_EMPTY;
             } else {
                 arr = childs.splice(beginIndex, endIndex - beginIndex + 1);
             }
@@ -897,7 +899,7 @@ export class Node extends EventDispatcher {
      * @param	component 组建实例。
      * @return	组件。
      */
-    addComponentIntance(component: Component): any {
+    addComponentInstance(component: Component): Component {
         if (component.owner)
             throw "Node:the component has belong to other node.";
         if (component.isSingleton && this.getComponent(((<any>component)).constructor))
@@ -911,8 +913,8 @@ export class Node extends EventDispatcher {
      * @param	componentType 组件类型。
      * @return	组件。
      */
-    addComponent(componentType: typeof Component): any {
-        var comp: Component = Pool.createByClass(componentType);
+    addComponent<T extends Component>(componentType: new () => T): T {
+        var comp: T = Pool.createByClass(componentType);
         if (!comp) {
             throw componentType.toString() + "组件不存在";
         }
@@ -928,7 +930,7 @@ export class Node extends EventDispatcher {
      * @param	componentType 组建类型
      * @return	返回组件
      */
-    getComponent(componentType: typeof Component): any {
+    getComponent<T extends Component>(componentType: new () => T): T {
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {
                 var comp: Component = this._components[i];
@@ -940,11 +942,19 @@ export class Node extends EventDispatcher {
     }
 
     /**
+     * 返回所有组件实例。
+     * @return 返回组件实例数组。
+     */
+    get components(): ReadonlyArray<Component> {
+        return this._components || ARRAY_EMPTY;
+    }
+
+    /**
      * 获得组件实例，如果没有则返回为null
-     * @param	componentType 组建类型
+     * @param	componentType 组件类型
      * @return	返回组件数组
      */
-    getComponents(componentType: typeof Component): any[] {
+    getComponents(componentType: typeof Component): Component[] {
         var arr: any[];
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {

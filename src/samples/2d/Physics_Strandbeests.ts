@@ -56,7 +56,7 @@ export class Physics_Strandbeests {
         this.Main.box2D.addChild(ground);
         let rigidbody: RigidBody = new RigidBody();
         rigidbody.type = "static";
-        ground.addComponentIntance(rigidbody);
+        ground.addComponentInstance(rigidbody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
         chainCollider.points = "50,200,50,570,1050,570,1050,200";
 
@@ -102,7 +102,7 @@ export class Physics_Strandbeests {
         motorJoint.motorSpeed = 2.0;
         motorJoint.maxMotorTorque = 400.0;
         motorJoint.enableMotor = true;
-        chassis.addComponentIntance(motorJoint);
+        chassis.addComponentInstance(motorJoint);
 
         let wheelOriBody = wheelBody.getBody();
         let wheelAnchor = [this.pivot[0], this.pivot[1] - 8 * this.scale];
@@ -161,7 +161,7 @@ export class Physics_Strandbeests {
         distanceJoint1.otherAnchor = B2Math.SubVV(p5, p4);
         distanceJoint1.frequency = frequencyHz;
         distanceJoint1.damping = dampingRatio;
-        leg1.addComponentIntance(distanceJoint1);
+        leg1.addComponentInstance(distanceJoint1);
         distanceJoint1.maxLength = distanceJoint1.minLength = distanceJoint1.length || distanceJoint1.joint.GetLength() * Physics.PIXEL_RATIO;
 
         let distanceJoint2: DistanceJoint = new DistanceJoint();
@@ -170,7 +170,7 @@ export class Physics_Strandbeests {
         // distanceJoint2.otherAnchor = p4;
         distanceJoint2.frequency = frequencyHz;
         distanceJoint2.damping = dampingRatio;
-        leg1.addComponentIntance(distanceJoint2);
+        leg1.addComponentInstance(distanceJoint2);
         distanceJoint2.maxLength = distanceJoint2.minLength = distanceJoint2.length || distanceJoint2.joint.GetLength() * Physics.PIXEL_RATIO;;
 
         let localAnchor = new box2d.b2Vec2();
@@ -183,7 +183,7 @@ export class Physics_Strandbeests {
         distanceJoint3.otherAnchor = anchor; // 因为有旋转，localAnchor很难计算，使用绝对位置换算
         distanceJoint3.frequency = frequencyHz;
         distanceJoint3.damping = dampingRatio;
-        leg1.addComponentIntance(distanceJoint3);
+        leg1.addComponentInstance(distanceJoint3);
         distanceJoint3.maxLength = distanceJoint3.minLength = distanceJoint3.length || distanceJoint3.joint.GetLength() * Physics.PIXEL_RATIO;;
 
         let distanceJoint4: DistanceJoint = new DistanceJoint();
@@ -192,13 +192,13 @@ export class Physics_Strandbeests {
         distanceJoint4.otherAnchor = anchor;
         distanceJoint4.frequency = frequencyHz;
         distanceJoint4.damping = dampingRatio;
-        leg2.addComponentIntance(distanceJoint4);
+        leg2.addComponentInstance(distanceJoint4);
         distanceJoint4.maxLength = distanceJoint4.minLength = distanceJoint4.length || distanceJoint4.joint.GetLength() * Physics.PIXEL_RATIO;;
 
         let revoluteJoint: RevoluteJoint = new RevoluteJoint();
         revoluteJoint.otherBody = legBody2;
         revoluteJoint.anchor = B2Math.AddVV(p4, this.pivot);
-        this.chassis.addComponentIntance(revoluteJoint);
+        this.chassis.addComponentInstance(revoluteJoint);
     }
 
     eventListener() {

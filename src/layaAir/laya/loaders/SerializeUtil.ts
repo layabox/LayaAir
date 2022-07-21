@@ -54,7 +54,7 @@ export class SerializeUtil {
         }
         else if (typeof (data) === "object") {
             if (data._$uuid != null) {
-                return ILaya.loader.getRes("res://" + data._$uuid, data._$type === "Laya.Texture2D" ? Loader.TEXTURE2D : null);
+                return ILaya.loader.getRes("res://" + data._$uuid, data._$type === "Laya.Texture" ? null : Loader.TEXTURE2D);
             }
 
             if (data._$ref != null) {

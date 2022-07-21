@@ -44,7 +44,7 @@ export class Physics_Bridge {
         this.Main.box2D.addChild(ground);
         let groundBody: RigidBody = new RigidBody();
         groundBody.type = "static";
-        ground.addComponentIntance(groundBody);
+        ground.addComponentInstance(groundBody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
         chainCollider.points = "50,600,1050,600";
 
@@ -53,7 +53,7 @@ export class Physics_Bridge {
         point1.pos(startPosX, startPosY);
         let pointRB1 = new RigidBody();
         pointRB1.type = "static";
-        point1.addComponentIntance(pointRB1);
+        point1.addComponentInstance(pointRB1);
         let preBody = pointRB1;
 
         // bridge
@@ -71,7 +71,7 @@ export class Physics_Bridge {
             bc.y = -height / 2;
             let rj = new RevoluteJoint();
             rj.otherBody = preBody;
-            sp.addComponentIntance(rj);
+            sp.addComponentInstance(rj);
             preBody = rb;
         }
         let point2 = new Sprite();
@@ -79,11 +79,11 @@ export class Physics_Bridge {
         point2.pos(startPosX + this.ecount * width, startPosY);
         let pointRB2 = new RigidBody();
         pointRB2.type = "static";
-        point2.addComponentIntance(pointRB2);
+        point2.addComponentInstance(pointRB2);
 
         let rj = new RevoluteJoint();
         rj.otherBody = preBody;
-        point2.addComponentIntance(rj);
+        point2.addComponentInstance(rj);
 
         for (let i = 0; i < 2; i++) {
             let sp = new Sprite();

@@ -17,7 +17,7 @@ import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
 import { ReflectionProbe } from "../core/reflectionProbe/ReflectionProbe";
 import { ILoadURL, Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
-import { ILaya } from "../../../ILaya";
+import { HierarchyLoader } from "../../loaders/HierarchyLoader";
 
 /**
  * @internal
@@ -145,7 +145,7 @@ export class HierarchyParserV2 {
     /**
      *@internal
      */
-    static _parse(data: any): Sprite3D | Scene3D {
+    static parse(data: any) {
         let json: any = data.data;
         let outBatchSprits: RenderableSprite3D[] = [];
         let sprite: Sprite3D | Scene3D;
@@ -230,7 +230,7 @@ export class HierarchyParserV2 {
         return node;
     }
 
-    public static collectResourceLinks(data: any, basePath: string) {
+    public static collectResourceLinks(data: any, basePath: string): string[] | ILoadURL[] {
         let test: Record<string, ILoadURL> = {};
         let innerUrls: ILoadURL[] = [];
 
@@ -369,4 +369,4 @@ export class HierarchyParserV2 {
     }
 }
 
-(<any>ILaya).HierarchyParserV2 = HierarchyParserV2;
+HierarchyLoader.v2 = HierarchyParserV2;

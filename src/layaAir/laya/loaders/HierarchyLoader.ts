@@ -1,12 +1,28 @@
-import { ILaya } from "../../ILaya";
 import { Node } from "../display/Node";
-import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
+import { IResourceLoader, ILoadTask, Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { HierarchyParser } from "./HierarchyParser";
 import { LegacyUIParser } from "./LegacyUIParser";
 
+type HierarchyParserAPI = {
+    collectResourceLinks: (data: any, basePath: string) => string[] | ILoadURL[],
+    parse: (data: any, options?: Record<string, any>, errors?: Array<any>) => Array<Node> | Node;
+}
+
 export class HierarchyLoader implements IResourceLoader {
+    static v3: HierarchyParserAPI = {
+        collectResourceLinks: HierarchyParser.collectResourceLinks,
+        parse: HierarchyParser.parse,
+    };
+
+    static v2: HierarchyParserAPI = null;
+
+    static legacySceneOrPrefab: HierarchyParserAPI = {
+        collectResourceLinks: LegacyUIParser.collectResourceLinks,
+        parse: LegacyUIParser.parse
+    };
+
     load(task: ILoadTask) {
         return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options.priority).then(data => {
             if (!data)
@@ -15,74 +31,58 @@ export class HierarchyLoader implements IResourceLoader {
             let version: string = data.version || "";
             if (version.startsWith("LAYASCENE:")
                 || version.startsWith("LAYAHIERARCHY:03") || version.startsWith("LAYAUI:"))
-                return this.loadHierarchy3D_v3(task, data);
+                return this._load(HierarchyLoader.v3, task, data);
             else if (version.startsWith("LAYAHIERARCHY:") || version.startsWith("LAYASCENE3D:"))
-                return this.loadHierarchy3D_v2(task, data);
+                return this._load(HierarchyLoader.v2, task, data);
             else if (data.type && data.props) {
                 if (data.type.indexOf("3D") != -1 || data.child && data.child[0] && data.child[0].type.indexOf("3D") != -1)
-                    return this.loadHierarchy3D_v2(task, data);
+                    return this._load(HierarchyLoader.v2, task, data);
                 else
-                    return this.loadLegacySceneOrPrefab(task, data);
+                    return this._load(HierarchyLoader.legacySceneOrPrefab, task, data);
             }
             else
                 return null;
         });
     }
 
-    protected loadHierarchy3D_v3(item: ILoadTask, data: any): Promise<HierarchyResource> {
-        let links = HierarchyParser.collectResourceLinks(data);
-        return Promise.all(links.map(link => item.loader.load(link, null, item.progress.createCallback()))).then(() => {
-            return new MyHierarchyResource(3, item.url, data);
-        });
-    }
-
-    protected loadHierarchy3D_v2(item: ILoadTask, data: any): Promise<HierarchyResource> {
+    //@internal
+    private _load(api: HierarchyParserAPI, item: ILoadTask, data: any): Promise<HierarchyResource> {
         let basePath = URL.getPath(item.url);
-        let links: Array<string> = (<any>ILaya).HierarchyParserV2.collectResourceLinks(data, basePath);
+        let links = api.collectResourceLinks(data, basePath);
         return Promise.all(links.map(link => item.loader.load(link, null, item.progress.createCallback()))).then(() => {
-            return new MyHierarchyResource(2, item.url, data);
-        });
-    }
-
-    protected loadLegacySceneOrPrefab(item: ILoadTask, data: any): Promise<HierarchyResource> {
-        let links = LegacyUIParser.collectResourceLinks(data);
-        return Promise.all(links.map(link => item.loader.load(link, null, item.progress.createCallback()))).then(() => {
-            return new MyHierarchyResource(1, item.url, data);
+            return new MyHierarchyResource(api, item.url, data);
         });
     }
 }
 
 class MyHierarchyResource extends HierarchyResource {
     data: any;
-    ver: number;
+    api: HierarchyParserAPI;
 
-    constructor(ver: number, url: string, data: any) {
+    constructor(api: HierarchyParserAPI, url: string, data: any) {
         super();
 
-        this.ver = ver;
+        this.api = api;
         this._setCreateURL(url);
         this.data = data;
     }
 
-    createNodes(multipleNodesReceiver?: Array<Node>): Node {
-        if (this.ver == 1) {
-            let node = LegacyUIParser.createByData(null, this.data);
-            if (multipleNodesReceiver)
-                multipleNodesReceiver.push(node);
-            return node;
-        }
-        else if (this.ver == 2) {
-            let node = (<any>ILaya).HierarchyParserV2._parse(this.data);
-            if (multipleNodesReceiver)
-                multipleNodesReceiver.push(node);
-            return node;
-        }
-        else {
-            let nodes = HierarchyParser.parse(this.data);
-            if (multipleNodesReceiver)
-                multipleNodesReceiver.push(...nodes);
-            return nodes[0];
-        }
+    createScene(options?: Record<string, any>, errors?: Array<any>): Array<Node> {
+        let ret = this.api.parse(this.data, options, errors);
+        if (Array.isArray(ret))
+            return ret;
+        else if (ret != null)
+            return [ret];
+        else
+            return null;
+    }
+
+    createNodes(options?: Record<string, any>, errors?: any[]): Node {
+        let ret = this.api.parse(this.data, options, errors);
+        if (Array.isArray(ret))
+            return ret[0];
+        else
+            return ret;
     }
 }
 

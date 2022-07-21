@@ -83,6 +83,7 @@ import "./loaders/MaterialLoader";
 import "./loaders/MeshLoader";
 import "./loaders/SimpleAnimatorTextureLoader";
 import "./loaders/HierarchyParserV2";
+import "./loaders/AvatarMaskLoader";
 
 let c = ClassUtils.regClass;
 c("Laya.Sprite3D", Sprite3D);

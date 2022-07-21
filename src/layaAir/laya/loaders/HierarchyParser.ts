@@ -4,9 +4,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 import { SerializeUtil } from "./SerializeUtil";
 
 export class HierarchyParser {
-    public static parse(data: any): Array<Node> {
+    public static parse(data: any, options?: Record<string, any>, errors?: Array<any>): Array<Node> {
         let util = new SerializeUtil();
-        let errors: Array<Error> = [];
         let nodeMap: Record<string, Node> = {};
         let allChild: Array<any> = [];
         let nodes: Array<Node> = [];

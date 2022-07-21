@@ -79,7 +79,7 @@ export class Physics_Tumbler {
         revoluteJoint.motorSpeed = 0.05 * Math.PI;
         revoluteJoint.maxMotorTorque = 1e8;
         revoluteJoint.enableMotor = true;
-        box.addComponentIntance(revoluteJoint);
+        box.addComponentInstance(revoluteJoint);
         Laya.timer.frameLoop(1, this, this.addMiniBox);
     }
 

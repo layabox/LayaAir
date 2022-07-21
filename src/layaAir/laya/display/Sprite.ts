@@ -1577,6 +1577,8 @@ export class Sprite extends Node {
      * @override
     */
     protected _childChanged(child: Node = null): void {
+        super._childChanged(child);
+
         if (this._children.length) this._renderType |= SpriteConst.CHILDS;
         else this._renderType &= ~SpriteConst.CHILDS;
         this._setRenderType(this._renderType);

@@ -44,7 +44,7 @@ export class Physics_CollisionEvent {
         this.Main.box2D.addChild(ground);
         let groundBody: RigidBody = new RigidBody();
         groundBody.type = "static";
-        ground.addComponentIntance(groundBody);
+        ground.addComponentInstance(groundBody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
         chainCollider.points = "50,400,50,600,1050,600,1050,400";
 
