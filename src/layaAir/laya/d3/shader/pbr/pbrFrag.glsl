@@ -77,7 +77,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
     #endif // DIRECTIONLIGHT
 
     #if defined(POINTLIGHT) || defined(SPOTLIGHT)
-    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, v, gl_FragCoord, u_ProjectionParams);
+    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, info.viewDir, gl_FragCoord, u_ProjectionParams);
     #endif // POINTLIGHT || SPOTLIGHT
 
     #ifdef POINTLIGHT
@@ -85,8 +85,8 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	{
 	    if (i >= clusterInfo.x)
 		break;
-	    PointLight pointLight = getPointLight(i, clusterInfo, positionWS);
-	    Light light = getLight(pointLight, surface.normalWS, positionWS);
+	    PointLight pointLight = getPointLight(i, clusterInfo,  pixel.positionWS);
+	    Light light = getLight(pointLight, pixel.normalWS,  pixel.positionWS);
 	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
     #endif // POINTLIGHT
@@ -96,8 +96,8 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	{
 	    if (i >= clusterInfo.y)
 		break;
-	    SpotLight spotLight = getSpotLight(i, clusterInfo, positionWS);
-	    Light light = getLight(spotLight, surface.normalWS, positionWS);
+	    SpotLight spotLight = getSpotLight(i, clusterInfo,  pixel.positionWS);
+	    Light light = getLight(spotLight, pixel.normalWS,  pixel.positionWS);
 	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
     #endif // SPOTLIGHT

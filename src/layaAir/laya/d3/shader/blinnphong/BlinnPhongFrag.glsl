@@ -56,11 +56,13 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
 vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 {
     vec3 positionWS = pixel.positionWS;
-
-    vec3 lightColor = vec3(0.0, 0.0, 0.0);
+    vec3 v = pixel.viewDir;
+    vec3 normalWS = pixel.normalWS;
 
     PixelInfo info;
     getPixelInfo(info, pixel);
+
+    vec3 lightColor = vec3(0.0, 0.0, 0.0);
 
     #ifdef DIRECTIONLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
@@ -83,7 +85,7 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= clusterInfo.x)
 		break;
 	    PointLight pointLight = getPointLight(i, clusterInfo, positionWS);
-	    Light light = getLight(pointLight, surface.normalWS, positionWS);
+	    Light light = getLight(pointLight, normalWS, positionWS);
 	    lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
 	}
     #endif // POINTLIGHT
@@ -94,7 +96,7 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= clusterInfo.y)
 		break;
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, positionWS);
-	    Light light = getLight(spotLight, surface.normalWS, positionWS);
+	    Light light = getLight(spotLight, normalWS, positionWS);
 	    lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
 	}
     #endif // SPOTLIGHT

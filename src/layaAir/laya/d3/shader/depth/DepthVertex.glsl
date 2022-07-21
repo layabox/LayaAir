@@ -3,7 +3,7 @@
 
     #include "Scene.glsl";
     #include "Sprite3D.glsl";
-    
+
     #include "VertexCommon.glsl";
 
     #if defined(SHADOW) || defined(SHADOW_SPOT)
@@ -46,16 +46,8 @@ vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
 	#include "Camera.glsl";
     #endif // DEPTHPASS
 
-vec4 DepthPositionCS()
+vec4 DepthPositionCS(in vec3 positionWS, in vec3 normalWS)
 {
-    Vertex vertex;
-    getVertexParams(vertex);
-
-    mat4 worldMat = getWorldMatrix();
-    vec3 positionWS = (worldMat * vec4(vertex.positionOS, 1.0)).xyz;
-
-    vec3 normalWS = normalize((worldMat * vec4(vertex.normalOS, 0.0)).xyz);
-
     #ifdef DEPTHPASS
     vec4 positionCS = u_ViewProjection * vec4(positionWS, 1.0);
     #endif // DEPTHPASS
@@ -73,6 +65,13 @@ vec4 DepthPositionCS()
     #endif // SHADOW_SPOT
 
     return positionCS;
+}
+
+vec3 getViewDirection(in vec3 positionWS)
+{
+    vec3 viewDirection = vec3(0.0);
+    viewDirection = u_ShadowLightDirection;
+    return viewDirection;
 }
 
 #endif // DepthVertex_lib
