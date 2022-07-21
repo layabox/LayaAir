@@ -1,4 +1,3 @@
-import { Sprite } from "../../display/Sprite";
 import { SimpleSkinnedMeshRenderer } from "../core/SimpleSkinnedMeshRenderer";
 import { Sprite3D } from "../core/Sprite3D";
 
@@ -14,5 +13,6 @@ export class AnimatorResource {
                 //TODO Scripts
                 break;
         }
+        return null;
     }
 }
