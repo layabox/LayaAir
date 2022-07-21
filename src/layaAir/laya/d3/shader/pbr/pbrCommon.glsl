@@ -1,17 +1,6 @@
 #if !defined(pbrCommon_lib)
     #define pbrCommon_lib
 
-    // 精度
-    #if !defined(GL_FRAGMENT_PRECISION_HIGH)
-	#define MIN_PERCEPTUAL_ROUGHNESS 0.089
-	#define MIN_ROUGHNESS		 0.007921
-    #else
-	#define MIN_PERCEPTUAL_ROUGHNESS 0.045
-	#define MIN_ROUGHNESS		 0.002025
-    #endif
-
-    #define MIN_N_DOT_V 1e-4
-
 // varying
 varying vec3 v_PositionWS;
 varying vec3 v_NormalWS;
@@ -63,11 +52,5 @@ struct PixelParams {
     vec3 viewDir;
     float NoV;
 };
-
-// todo 获取反射函数 位置
-vec3 getReflectedVector(vec3 v, vec3 n)
-{
-    return reflect(-v, n);
-}
 
 #endif // pbrCommon_lib

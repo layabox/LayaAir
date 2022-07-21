@@ -2,11 +2,9 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { MathUtil } from "../../../maths/MathUtil";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { Resource } from "../../../resource/Resource";
-import { Stat } from "../../../utils/Stat";
-import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
-import { IndexFormat } from "../../graphics/IndexFormat";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenParticle";
 import { VertexShurikenParticleBillboard } from "../../graphics/Vertex/VertexShurikenParticleBillboard";
@@ -178,7 +176,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             this._vertexBuffer =LayaGL.renderOBJCreate.createVertexBuffer3D(meshVBSize,BufferUsage.Static,false);
             this._vertexBuffer.vertexDeclaration = billboardDeclaration;
             this._vertexBuffer.setData(VertexShurikenParticleBillboard.billboardVertexArray.buffer);
-
             let particleCount = this._bufferMaxParticles;
             let particleVbSize = particleCount * particleDeclaration.vertexStride;
             this._instanceVertex = new Float32Array(particleVbSize / 4);

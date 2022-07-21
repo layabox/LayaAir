@@ -21,7 +21,6 @@ import { SkinnedMeshSprite3D } from "../d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Vector3Keyframe } from "../d3/core/Vector3Keyframe";
 import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
-import { IndexFormat } from "../d3/graphics/IndexFormat";
 import { VertexMesh } from "../d3/graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
 import { Matrix4x4 } from "../d3/math/Matrix4x4";
@@ -38,6 +37,7 @@ import { Node } from "../display/Node";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 
 const maxSubBoneCount = 24;
 

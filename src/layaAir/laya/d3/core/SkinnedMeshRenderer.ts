@@ -235,15 +235,15 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-		var projectionView: Matrix4x4 = context.projectionViewMatrix;
-		this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-	}
+	// /**
+	//  * @inheritDoc
+	//  * @override
+	//  * @internal
+	//  */
+	// _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
+	// 	var projectionView: Matrix4x4 = context.projectionViewMatrix;
+	// 	this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
+	// }
 
 	/**
 	 * @override

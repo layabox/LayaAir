@@ -580,6 +580,20 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
+	 * 渲染结果是否是Gamma
+	 * @param rt 
+	 */
+	_needRenderGamma(rt: RenderTargetFormat) {
+		switch(rt) {
+			case RenderTargetFormat.R8G8B8:
+			case RenderTargetFormat.R8G8B8A8:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/**
 	 * @internal
 	 */
 	_needInternalRenderTexture(): boolean {
@@ -589,12 +603,15 @@ export class Camera extends BaseCamera {
 	/**
 	 * @internal
 	 */
-	_getRenderTextureFormat(): number {
+	_getRenderTextureFormat(): RenderTargetFormat {
 		if (this._enableHDR)
 			return RenderTargetFormat.R16G16B16A16;
 		else
-			return RenderTargetFormat.R8G8B8;
+			return RenderTargetFormat.R8G8B8A8;
 	}
+
+
+
 
 	/**
 	 * @override
@@ -605,8 +622,8 @@ export class Camera extends BaseCamera {
 		var vp: Viewport = this.viewport;
 		this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
 		this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 1 / this.farPlane);
-		this._setShaderValue(BaseCamera.VIEWPORT, this._viewportParams);
-		this._setShaderValue(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
+		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
+		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 	}
 
 	/**
@@ -628,9 +645,9 @@ export class Camera extends BaseCamera {
 		context.viewMatrix = viewMat;
 		context.projectionMatrix = proMat;
 		context.projectionViewMatrix = projectView;
-		this._setShaderValue(BaseCamera.VIEWMATRIX, viewMat);
-		this._setShaderValue(BaseCamera.PROJECTMATRIX, proMat);
-		this._setShaderValue(BaseCamera.VIEWPROJECTMATRIX, projectView);
+		this._shaderValues.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
+		this._shaderValues.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
+		this._shaderValues.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
 	}
 
 	/**
@@ -802,7 +819,6 @@ export class Camera extends BaseCamera {
 	 */
 	_renderMainPass(context: RenderContext3D, viewport: Viewport, scene: Scene3D, shader: Shader3D, replacementTag: string, needInternalRT: boolean) {
 		var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
-
 		if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
 			context.invertY = true;
 		context.viewport = viewport;
@@ -954,12 +970,13 @@ export class Camera extends BaseCamera {
 		context.pipelineMode = context.configPipeLineMode;
 		context.replaceTag = replacementTag;
 		context.customShader = shader;
+		let texFormat = this._getRenderTextureFormat();
 		if (needInternalRT) {
 			if (this._msaa) {
-				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 4);
+				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 4,false,this._needRenderGamma(texFormat));
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			} else {
-				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), this._depthTextureFormat, false, 1);
+				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 1,false,this._needRenderGamma(texFormat));
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			}
 

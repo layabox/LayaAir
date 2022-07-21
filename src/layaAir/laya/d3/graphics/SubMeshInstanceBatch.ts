@@ -7,9 +7,9 @@ import { SubMesh } from "../resource/models/SubMesh";
 import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexMesh } from "./Vertex/VertexMesh";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { IndexFormat } from "./IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 
 /**
  * 是否要删除

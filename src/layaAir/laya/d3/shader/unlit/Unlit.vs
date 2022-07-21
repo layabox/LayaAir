@@ -5,6 +5,7 @@
 #include "Sprite3D.glsl";
 
 #include "VertexCommon.glsl";
+#include "Color.glsl";
 
 varying vec4 v_Color;
 varying vec2 v_Texcoord0;
@@ -19,7 +20,7 @@ void main()
 #endif // UV
 
 #if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
-    v_Color = vertex.vertexColor;
+    v_Color = gammaToLinear(vertex.vertexColor);
 #endif // COLOR && ENABLEVERTEXCOLOR
 
     mat4 worldMat = getWorldMatrix();

@@ -1,6 +1,6 @@
 import { IndexBuffer } from "../../RenderEngine/IndexBuffer";
 import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { IndexFormat } from "./IndexFormat";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 /**
  * <code>IndexBuffer3D</code> 类用于创建索引缓冲。
  */

@@ -18,7 +18,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     private static _pool: RenderTexture[] = [];
 
-    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean, multiSamples: number, depthTexture: boolean = false) {
+    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean, multiSamples: number, depthTexture: boolean = false, sRGB: boolean = false) {
 
         // todo mipmap 判断
         mipmap = mipmap && (width & (width - 1)) === 0 && (height & (height - 1)) === 0;
@@ -27,7 +27,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         for (let index = 0; index < n; index++) {
             let rt = RenderTexture._pool[index];
 
-            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt.generateDepthTexture == depthTexture) {
+            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt.generateDepthTexture == depthTexture &&rt._gammaSpace == sRGB) {
                 rt._inPool = false;
                 let end = RenderTexture._pool[n - 1];
                 RenderTexture._pool[index] = end;
@@ -36,7 +36,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
             }
         }
 
-        let rt = new RenderTexture(width, height, colorFormat, depthFormat, mipmap, multiSamples, depthTexture);
+        let rt = new RenderTexture(width, height, colorFormat, depthFormat, mipmap, multiSamples, depthTexture,sRGB);
         rt.lock = true;
         return rt;
     }
@@ -130,11 +130,10 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     // todo format
-    constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number, generateDepthTexture: boolean = false) {
+    constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number, generateDepthTexture: boolean = false, sRGB: boolean = false) {
         super(width, height, colorFormat);
 
-        // 所有 rt 都是 linner 空间, 颜色正确
-        this._gammaSpace = false;
+        this._gammaSpace = sRGB;
 
         this._colorFormat = colorFormat;
         this._depthStencilFormat = (depthFormat == null ? RenderTargetFormat.None : depthFormat);

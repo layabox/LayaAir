@@ -6,6 +6,7 @@ import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
@@ -37,7 +38,7 @@ export class UnlitMaterialDemo {
 		camera.transform.translate(new Vector3(0, 0.5, 1.5));
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 		camera.clearFlag = CameraClearFlags.Sky;
-
+		
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		directionLight.color.setValue(1, 1, 1, 1);
 

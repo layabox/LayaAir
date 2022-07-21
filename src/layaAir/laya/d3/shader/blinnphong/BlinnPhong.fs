@@ -68,12 +68,7 @@ void main()
 
     vec3 surfaceColor = vec3(0.0);
 
-#if defined(LIGHTING)
-    vec3 lightingColor = BlinnPhongLighting(surface, pixel);
-    surfaceColor += lightingColor;
-#endif // LIGHTING
-
-    surfaceColor += BlinnPhongGI(surface, pixel);
+    surfaceColor = BlinnPhongLighting(surface, pixel);
 
 #ifdef FOG
     surfaceColor = sceneLitFog(surfaceColor);

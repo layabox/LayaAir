@@ -29,13 +29,13 @@ export class SceneLoad2 {
 			//开启雾化效果
 			scene.enableFog = true;
 			//设置雾化的颜色
-			scene.fogColor = new Vector3(0, 0, 0.6);
+			scene.fogColor = new Color(0, 0, 0.6);
 			//设置雾化的起始位置，相对于相机的距离
 			scene.fogStart = 10;
 			//设置雾化最浓处的距离。
 			scene.fogRange = 40;
 			//设置场景环境光
-			scene.ambientColor = new Vector3(0.6, 0, 0);
+			scene.ambientColor = new Color(0.6, 0, 0);
 
 			//添加相机
 			var camera: Camera = new Camera();

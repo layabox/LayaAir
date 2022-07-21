@@ -104,11 +104,11 @@ export class PixelLineRenderer extends BaseRender {
 		if (transform) {
 			var worldMat: Matrix4x4 = transform.worldMatrix;
 			sv.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
-			Matrix4x4.multiply(projectionView, worldMat, this._projectionViewWorldMatrix);
-			sv.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
+			//Matrix4x4.multiply(projectionView, worldMat, this._projectionViewWorldMatrix);
+			//sv.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
 		} else {
 			sv.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-			sv.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
+			//sv.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
 		}
 	}
 

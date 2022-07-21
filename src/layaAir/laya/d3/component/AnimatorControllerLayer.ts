@@ -61,6 +61,8 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
     defaultWeight: number = 1.0;
     /**	激活时是否自动播放。*/
     playOnWake: boolean = true;
+    /** 是否开启 */
+    enable: boolean = true;
 
     /**
      * 默认动画状态机。
@@ -74,16 +76,6 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
         this._statesMap[value.name] = value;
     }
 
-    //@internal
-    private get defaultStateName() {
-        return this.defaultState?.name;
-    }
-
-    //@internal
-    private set defaultStateName(value: string) {
-        this._defaultState = this._statesMap[value];
-    }
-
     /**
      * 骨骼遮罩
      */
@@ -95,12 +87,22 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
         this._avatarMask = value;
     }
 
-     //@internal
+    //@internal
+    private get defaultStateName() {
+        return this.defaultState?.name;
+    }
+
+    //@internal
+    private set defaultStateName(value: string) {
+        this._defaultState = this._statesMap[value];
+    }
+
+    //@internal
     private get states(): Array<AnimatorState> {
         return this._states;
     }
 
-     //@internal
+    //@internal
     private set states(states: Array<AnimatorState>) {
         if (this._states.length > 0) {
             let removed = this._states.filter(s => states.indexOf(s) == -1);

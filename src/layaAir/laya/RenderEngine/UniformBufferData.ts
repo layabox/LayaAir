@@ -1,3 +1,4 @@
+import { Color } from "../d3/math/Color";
 import { Matrix4x4 } from "../d3/math/Matrix4x4";
 import { Vector2 } from "../d3/math/Vector2";
 import { Vector3 } from "../d3/math/Vector3";
@@ -135,6 +136,7 @@ export class UnifromBufferData {
                 }
                 break;
             case UniformBufferParamsType.Vector4:
+            //case UniformBufferParamsType.Color:
                 size = 4;
                 switch (posG) {
                     case 0:
@@ -248,11 +250,18 @@ export class UnifromBufferData {
             case UniformBufferParamsType.Vector4:
                 this.setVector4byIndex(uniformID, value);
                 break;
+            // case UniformBufferParamsType.Color:
+            //     this.setColorbyIndex(uniformID, value);
+            //     break;
             case UniformBufferParamsType.Matrix4x4:
                 this.setMatrixbyIndex(uniformID, value);
                 break;
             case UniformBufferParamsType.Vector4Array:
+                this.setVector4ArraybyIndex(uniformID,value);
+                break;
             case UniformBufferParamsType.MatrixArray:
+                this.setMatrixArraybyIndex(uniformID,value);
+                break;
             // todo
             default:
                 break;
@@ -430,6 +439,28 @@ export class UnifromBufferData {
     }
 
     /**
+     * set Color by paramsName
+     * @param name uniform params name
+     * @param value Color data
+     */
+    setColor(name: string, value: Color) {
+        const uniformID: number = Shader3D.propertyNameToID(name);
+        this.setColorbyIndex(uniformID, value);
+    }
+
+    setColorbyIndex(uniformID: number, value: Color) {
+        const info = this._getParamsInfo(uniformID);
+        if (!info) return;
+        let pos = info.x;
+        this._buffer[pos++] = Color.gammaToLinearSpace(value.r);
+        this._buffer[pos++] = Color.gammaToLinearSpace(value.g);
+        this._buffer[pos++] = Color.gammaToLinearSpace(value.b);
+        this._buffer[pos++] = Color.gammaToLinearSpace(value.a);
+        this._setUpdateFlag(info.x, pos);
+
+    }
+
+    /**
      * set Matrix by paramsName
      * @param name uniform params name
      * @param value Matrix data
@@ -453,6 +484,7 @@ export class UnifromBufferData {
         pos += 16;
         this._setUpdateFlag(info.x, pos);
     }
+    
 
     clone(): UnifromBufferData {
         // todo clone 更改

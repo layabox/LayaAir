@@ -34,7 +34,7 @@ export class PointLightDemo {
 		//创建场景
 		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 		//设置场景环境光颜色
-		scene.ambientColor = new Vector3(0.1, 0.1, 0.1);
+		scene.ambientColor = new Color(0.1, 0.1, 0.1);
 
 		//创建相机
 		var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 1000))));

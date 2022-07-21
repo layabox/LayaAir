@@ -3,24 +3,23 @@
 
     #include "ShadowSampler.glsl";
 
-    #if defined(DIRECTIONLIGHT) || defined(POINTLIGHT) || defined(SPOTLIGHT)
-
-	#define LIGHTING
-
 struct Light {
     vec3 color;
     vec3 dir;
+    float attenuation;
 };
 
 struct DirectionLight {
     vec3 color;
     vec3 direction;
+    float attenuation;
 };
 
 struct PointLight {
     vec3 color;
     vec3 position;
     float range;
+    float attenuation;
 };
 
 struct SpotLight {
@@ -29,7 +28,12 @@ struct SpotLight {
     float range;
     vec3 direction;
     float spot;
+    float attenuation;
 };
+
+    #if defined(DIRECTIONLIGHT) || defined(POINTLIGHT) || defined(SPOTLIGHT)
+
+	#define LIGHTING
 
 // 灯光衰减函数
 float attenuation(in vec3 L, in float invLightRadius)
@@ -45,6 +49,7 @@ Light getLight(in DirectionLight directionLight)
     Light light;
     light.color = directionLight.color;
     light.dir = directionLight.direction;
+    light.attenuation = directionLight.attenuation;
     return light;
 }
 
@@ -57,6 +62,7 @@ Light getLight(in PointLight pointLight, in vec3 normalWS, in vec3 positionWS)
     Light light;
     light.color = pointLight.color * rangeAttenuate;
     light.dir = normalize(lightDirection);
+    light.attenuation = pointLight.attenuation;
     return light;
 }
 
@@ -75,6 +81,7 @@ Light getLight(in SpotLight spotLight, in vec3 normalWS, in vec3 positionWS)
     Light light;
     light.color = spotLight.color * rangeAttenuate * dirAttenuate;
     light.dir = normalizeLightDir;
+    light.attenuation = spotLight.attenuation;
     return light;
 }
 
@@ -144,12 +151,14 @@ DirectionLight getDirectionLight(in int index, in vec3 positionWS)
 	    #ifdef LEGACYSINGLELIGHTING
     light.color = u_DirectionLight.color;
     light.direction = u_DirectionLight.direction;
+    light.attenuation = 1.0;
 	    #else // LEGACYSINGLELIGHTING
     float v = (float(index) + 0.5) / float(CalculateLightCount);
     vec4 p1 = texture2D(u_LightBuffer, vec2(0.125, v));
     vec4 p2 = texture2D(u_LightBuffer, vec2(0.375, v));
     light.color = p1.rgb;
     light.direction = p2.rgb;
+    light.attenuation = 1.0;
 	    #endif // LEGACYSINGLELIGHTING
 
 	    #if defined(CALCULATE_SHADOWS)
@@ -157,7 +166,7 @@ DirectionLight getDirectionLight(in int index, in vec3 positionWS)
 	{
 	    vec4 shadowCoord = getShadowCoord(positionWS);
 	    float shadowAttenuation = sampleShadowmap(shadowCoord);
-	    light.color *= shadowAttenuation;
+	    light.attenuation = shadowAttenuation;
 	}
 	    #endif // CALCULATE_SHADOWS
 
@@ -194,6 +203,7 @@ PointLight getPointLight(in int index, in ivec4 clusterInfo)
     light.color = u_PointLight.color;
     light.position = u_PointLight.position;
     light.range = u_PointLight.range;
+    light.attenuation = 1.0;
 	    #else // LEGACYSINGLELIGHTING
     // todo  重复计算
     int indexOffset = clusterInfo.z * c_ClusterBufferFloatWidth + clusterInfo.w;
@@ -204,6 +214,7 @@ PointLight getPointLight(in int index, in ivec4 clusterInfo)
     light.color = p1.rgb;
     light.range = p1.a;
     light.position = p2.rgb;
+    light.attenuation = 1.0;
 	    #endif // LEGACYSINGLELIGHTING
     return light;
 }
@@ -220,6 +231,7 @@ SpotLight getSpotLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
     light.range = u_SpotLight.range;
     light.direction = u_SpotLight.direction;
     light.spot = u_SpotLight.spot;
+    light.attenuation = 1.0;
 	    #else // LEGACYSINGLELIGHTING
     // todo  重复计算
     int indexOffset = clusterInfo.z * c_ClusterBufferFloatWidth + clusterInfo.w;
@@ -233,14 +245,15 @@ SpotLight getSpotLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
     light.position = p2.rgb;
     light.spot = p2.a;
     light.direction = p3.rgb;
-	    #endif
+    light.attenuation = 1.0;
+	    #endif // LEGACYSINGLELIGHTING
 
 	    #if defined(CALCULATE_SPOTSHADOWS)
     if (index == 0)
 	{
 	    vec4 shadowCoord = getSpotShadowCoord(positionWS);
 	    float shadowAttenuation = sampleSpotShadowmap(shadowCoord);
-	    light.color *= shadowAttenuation;
+	    light.attenuation = shadowAttenuation;
 	}
 	    #endif // CALCULATE_SPOTSHADOWS
 

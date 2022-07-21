@@ -45,7 +45,6 @@ import { CannonPhysicsSimulation } from "../../physicsCannon/CannonPhysicsSimula
 import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings";
 import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
 import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
-import { ShaderDataType } from "../../core/render/command/SetShaderDataCMD"
 import { Physics3D } from "../../Physics3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
@@ -60,7 +59,7 @@ import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { UnifromBufferData, UniformBufferParamsType } from "../../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -138,20 +137,20 @@ export class Scene3D extends Sprite implements ISubmit {
 	static SUNLIGHTDIRECTION: number;
 	/** @internal */
 	static SUNLIGHTDIRCOLOR: number;
-	/** @internal */
-	static AMBIENTSHAR: number;
-	/** @internal */
-	static AMBIENTSHAG: number;
-	/** @internal */
-	static AMBIENTSHAB: number;
-	/** @internal */
-	static AMBIENTSHBR: number;
-	/** @internal */
-	static AMBIENTSHBG: number;
-	/** @internal */
-	static AMBIENTSHBB: number;
-	/** @internal */
-	static AMBIENTSHC: number;
+	// /** @internal */
+	// static AMBIENTSHAR: number;
+	// /** @internal */
+	// static AMBIENTSHAG: number;
+	// /** @internal */
+	// static AMBIENTSHAB: number;
+	// /** @internal */
+	// static AMBIENTSHBR: number;
+	// /** @internal */
+	// static AMBIENTSHBG: number;
+	// /** @internal */
+	// static AMBIENTSHBB: number;
+	// /** @internal */
+	// static AMBIENTSHC: number;
 	/** @internal */
 	static AMBIENTCOLOR: number;
 	/** @internal */
@@ -159,6 +158,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	/** @internal */
 	static sceneID: number;
 
+	static SceneUBOData: UnifromBufferData;
 	/**@internal scene uniform block */
 	static SCENEUNIFORMBLOCK: number;
 	//------------------legacy lighting-------------------------------
@@ -231,13 +231,13 @@ export class Scene3D extends Sprite implements ISubmit {
 		Scene3D.CLUSTERBUFFER = Shader3D.propertyNameToID("u_LightClusterBuffer");
 		Scene3D.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
 		Scene3D.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
-		Scene3D.AMBIENTSHAR = Shader3D.propertyNameToID("u_AmbientSHAr");
-		Scene3D.AMBIENTSHAG = Shader3D.propertyNameToID("u_AmbientSHAg");
-		Scene3D.AMBIENTSHAB = Shader3D.propertyNameToID("u_AmbientSHAb");
-		Scene3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr");
-		Scene3D.AMBIENTSHBG = Shader3D.propertyNameToID("u_AmbientSHBg");
-		Scene3D.AMBIENTSHBB = Shader3D.propertyNameToID("u_AmbientSHBb");
-		Scene3D.AMBIENTSHC = Shader3D.propertyNameToID("u_AmbientSHC");
+		// Scene3D.AMBIENTSHAR = Shader3D.propertyNameToID("u_AmbientSHAr");
+		// Scene3D.AMBIENTSHAG = Shader3D.propertyNameToID("u_AmbientSHAg");
+		// Scene3D.AMBIENTSHAB = Shader3D.propertyNameToID("u_AmbientSHAb");
+		// Scene3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr"); 
+		// Scene3D.AMBIENTSHBG = Shader3D.propertyNameToID("u_AmbientSHBg");
+		// Scene3D.AMBIENTSHBB = Shader3D.propertyNameToID("u_AmbientSHBb");
+		// Scene3D.AMBIENTSHC = Shader3D.propertyNameToID("u_AmbientSHC");
 		Scene3D.AMBIENTCOLOR = Shader3D.propertyNameToID("u_AmbientColor");
 		Scene3D.TIME = Shader3D.propertyNameToID("u_Time");
 		Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
@@ -251,13 +251,13 @@ export class Scene3D extends Sprite implements ISubmit {
 		sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
 		sceneUniformMap.addShaderUniform(Scene3D.SUNLIGHTDIRECTION, "u_SunLight_direction");
 		sceneUniformMap.addShaderUniform(Scene3D.SUNLIGHTDIRCOLOR, "u_SunLight_color");
-		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAR, "u_AmbientSHAr");
-		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAG, "u_AmbientSHAg");
-		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAB, "u_AmbientSHAb");
-		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBR, "u_AmbientSHBr");
-		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBG, "u_AmbientSHBg");
-		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBB, "u_AmbientSHBb");
-		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHC, "u_AmbientSHC");
+		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAR, "u_AmbientSHAr");
+		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAG, "u_AmbientSHAg");
+		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAB, "u_AmbientSHAb");
+		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBR, "u_AmbientSHBr");
+		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBG, "u_AmbientSHBg");
+		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBB, "u_AmbientSHBb");
+		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHC, "u_AmbientSHC");
 		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTCOLOR, "u_AmbientColor");
 		sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
 		sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE);
@@ -297,28 +297,22 @@ export class Scene3D extends Sprite implements ISubmit {
 	 * @returns 
 	 */
 	static createSceneUniformBlock(): UnifromBufferData {
-		let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-		uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector3);
-		uniformpara.set("u_AmbientSHAr", UniformBufferParamsType.Vector4);
-		uniformpara.set("u_AmbientSHAg", UniformBufferParamsType.Vector4);
-		uniformpara.set("u_AmbientSHAb", UniformBufferParamsType.Vector4);
-		uniformpara.set("u_AmbientSHBr", UniformBufferParamsType.Vector4);
-		uniformpara.set("u_AmbientSHBg", UniformBufferParamsType.Vector4);
-		uniformpara.set("u_AmbientSHBb", UniformBufferParamsType.Vector4);
-		uniformpara.set("u_AmbientSHC", UniformBufferParamsType.Vector4);
-		uniformpara.set("u_Time", UniformBufferParamsType.Number);
-		uniformpara.set("u_FogStart", UniformBufferParamsType.Number);
-		uniformpara.set("u_FogRange", UniformBufferParamsType.Number);
-		uniformpara.set("u_FogColor", UniformBufferParamsType.Vector3);
-		uniformpara.set("u_SunLight_direction", UniformBufferParamsType.Vector3);
-		uniformpara.set("u_SunLight_color", UniformBufferParamsType.Vector3);
-
-		let uniformMap = new Map<number, UniformBufferParamsType>();
-		uniformpara.forEach((value, key) => {
-			uniformMap.set(Shader3D.propertyNameToID(key), value);
-		})
-
-		return new UnifromBufferData(uniformMap);
+		if (!Scene3D.SceneUBOData) {
+			let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+			uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
+			uniformpara.set("u_Time", UniformBufferParamsType.Number);
+			uniformpara.set("u_FogStart", UniformBufferParamsType.Number);
+			uniformpara.set("u_FogRange", UniformBufferParamsType.Number);
+			uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
+			// uniformpara.set("u_SunLight_direction", UniformBufferParamsType.Vector3);
+			// uniformpara.set("u_SunLight_color", UniformBufferParamsType.Color);
+			let uniformMap = new Map<number, UniformBufferParamsType>();
+			uniformpara.forEach((value, key) => {
+				uniformMap.set(Shader3D.propertyNameToID(key), value);
+			});
+			Scene3D.SceneUBOData = new UnifromBufferData(uniformMap);
+		}
+		return Scene3D.SceneUBOData;
 	}
 
 
@@ -522,12 +516,12 @@ export class Scene3D extends Sprite implements ISubmit {
 	/**
 	 * 雾化颜色。
 	 */
-	get fogColor(): Vector3 {
-		return this._shaderValues.getVector3(Scene3D.FOGCOLOR);
+	get fogColor(): Color {
+		return this._shaderValues.getColor(Scene3D.FOGCOLOR);
 	}
 
-	set fogColor(value: Vector3) {
-		this._setShaderValue(Scene3D.FOGCOLOR, value);
+	set fogColor(value: Color) {
+		this._shaderValues.setColor(Scene3D.FOGCOLOR, value);
 	}
 
 	/**
@@ -538,7 +532,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	}
 
 	set fogStart(value: number) {
-		this._setShaderValue(Scene3D.FOGSTART, value);
+		this._shaderValues.setNumber(Scene3D.FOGSTART, value);
 	}
 
 	/**
@@ -549,7 +543,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	}
 
 	set fogRange(value: number) {
-		this._setShaderValue(Scene3D.FOGRANGE, value);
+		this._shaderValues.setNumber(Scene3D.FOGRANGE, value);
 	}
 
 	/**
@@ -587,12 +581,12 @@ export class Scene3D extends Sprite implements ISubmit {
 	/**
 	 * 固定颜色环境光。
 	 */
-	get ambientColor(): Vector3 {
-		return this._shaderValues.getVector3(Scene3D.AMBIENTCOLOR);
+	get ambientColor(): Color {
+		return this._shaderValues.getColor(Scene3D.AMBIENTCOLOR);
 	}
 
-	set ambientColor(value: Vector3) {
-		this._setShaderValue(Scene3D.AMBIENTCOLOR, value);
+	set ambientColor(value: Color) {
+		this._shaderValues.setColor(Scene3D.AMBIENTCOLOR, value);
 	}
 
 	/**
@@ -779,20 +773,26 @@ export class Scene3D extends Sprite implements ISubmit {
 		}
 		this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
 		if (Config3D._config._uniformBlock) {
+			//SceneUniformBlock
 			this._sceneUniformObj = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SCENE, 0);
 			this._sceneUniformData = Scene3D.createSceneUniformBlock();
 			if (!this._sceneUniformObj) {
 				this._sceneUniformObj = UniformBufferObject.create(UniformBufferObject.UBONAME_SCENE, BufferUsage.Dynamic, this._sceneUniformData.getbyteLength(), true);
 			}
+			this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_SCENE, this._sceneUniformObj, this._sceneUniformData);
+			this._shaderValues.setUniformBuffer(Scene3D.SCENEUNIFORMBLOCK, this._sceneUniformObj);
 
-			this._shaderValues.setValueData(Scene3D.SCENEUNIFORMBLOCK, this._sceneUniformObj);
+			//ShadowUniformBlock
+			//Scene3D._shadowCasterPass
+			this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_SHADOW, Scene3D._shadowCasterPass._castDepthBufferOBJ, Scene3D._shadowCasterPass._castDepthBufferData);
+			this._shaderValues.setUniformBuffer(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), Scene3D._shadowCasterPass._castDepthBufferOBJ);
 		}
 
 		this.enableFog = false;
 		this.fogStart = 300;
 		this.fogRange = 1000;
-		this.fogColor = new Vector3(0.7, 0.7, 0.7);
-		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
+		this.fogColor = new Color(0.7, 0.7, 0.7);
+		this.ambientColor = new Color(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
 		this.reflection = TextureCube.blackTexture;
 		for (var i: number = 0; i < 7; i++)
@@ -833,13 +833,13 @@ export class Scene3D extends Sprite implements ISubmit {
 		}
 		optSH[6].setValue(originalSH.getCoefficient(0, 8) * intensity, originalSH.getCoefficient(1, 8) * intensity, originalSH.getCoefficient(2, 8) * intensity, 1);// Final quadratic polynomial
 
-		this._setShaderValue(Scene3D.AMBIENTSHAR, optSH[0]);
-		this._setShaderValue(Scene3D.AMBIENTSHAG, optSH[1]);
-		this._setShaderValue(Scene3D.AMBIENTSHAB, optSH[2]);
-		this._setShaderValue(Scene3D.AMBIENTSHBR, optSH[3]);
-		this._setShaderValue(Scene3D.AMBIENTSHBG, optSH[4]);
-		this._setShaderValue(Scene3D.AMBIENTSHBB, optSH[5]);
-		this._setShaderValue(Scene3D.AMBIENTSHC, optSH[6]);
+		// this._setShaderValue(Scene3D.AMBIENTSHAR, optSH[0]);
+		// this._setShaderValue(Scene3D.AMBIENTSHAG, optSH[1]);
+		// this._setShaderValue(Scene3D.AMBIENTSHAB, optSH[2]);
+		// this._setShaderValue(Scene3D.AMBIENTSHBR, optSH[3]);
+		// this._setShaderValue(Scene3D.AMBIENTSHBG, optSH[4]);
+		// this._setShaderValue(Scene3D.AMBIENTSHBB, optSH[5]);
+		// this._setShaderValue(Scene3D.AMBIENTSHC, optSH[6]);
 	}
 
 	/**
@@ -861,10 +861,10 @@ export class Scene3D extends Sprite implements ISubmit {
 	/**
 	 *@internal
 	 */
-	private _update(): void {
+	protected _update(): void {
 		var delta: number = this.timer._delta / 1000;
 		this._time += delta;
-		this._setShaderValue(Scene3D.TIME, this._time);
+		this._shaderValues.setNumber(Scene3D.TIME, this._time);
 		//Physics
 		var simulation: PhysicsSimulation = this._physicsSimulation;
 		if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && !Config3D._config.isUseCannonPhysicsEngine) {
@@ -1038,10 +1038,10 @@ export class Scene3D extends Sprite implements ISubmit {
 					ligPix[off + 4] = dir.x;
 					ligPix[off + 5] = dir.y;
 					ligPix[off + 6] = dir.z;
-					if (i == 0) {
-						this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, intCor);
-						this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dir);
-					}
+					// if (i == 0) {
+					// 	this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, intCor);
+					// 	this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dir);
+					// }
 				}
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
@@ -1132,8 +1132,8 @@ export class Scene3D extends Sprite implements ISubmit {
 				Vector3.normalize(dirLight._direction, dirLight._direction);
 				shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
 				shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
-				this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
-				this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
+				// this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
+				// this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 			else {
@@ -1376,7 +1376,7 @@ export class Scene3D extends Sprite implements ISubmit {
 		this.fogRange = data.fogRange;
 		var fogColorData: any[] = data.fogColor;
 		if (fogColorData) {
-			var fogCol: Vector3 = this.fogColor;
+			var fogCol: Color = this.fogColor;
 			fogCol.fromArray(fogColorData);
 			this.fogColor = fogCol;
 		}
@@ -1385,7 +1385,7 @@ export class Scene3D extends Sprite implements ISubmit {
 		// 单颜色
 		var ambientColorData: any[] = data.ambientColor;
 		if (ambientColorData) {
-			var ambCol: Vector3 = this.ambientColor;
+			var ambCol: Color = this.ambientColor;
 			ambCol.fromArray(ambientColorData);
 			this.ambientColor = ambCol;
 		}
@@ -1458,21 +1458,21 @@ export class Scene3D extends Sprite implements ISubmit {
 			return this._transparentQueue;
 	}
 
-	/**
-	 * @internal
-	 */
-	_setShaderValue(index: number, value: any) {
-		if (this._sceneUniformData && this._sceneUniformData._has(index))
-			this._sceneUniformData._setData(index, value);
-		this._shaderValues.setValueData(index, value);
-	}
+	// /**
+	//  * @internal
+	//  */
+	// _setShaderValue(index: number, value: any) {
+	// 	if (this._sceneUniformData && this._sceneUniformData._has(index))
+	// 		this._sceneUniformData._setData(index, value);
+	// 	this._shaderValues.setShaderData(index, value);
+	// }
 
-	/**
-	 * @internal
-	 */
-	_getShaderValue(index: number): any {
-		return this._shaderValues.getValueData(index);
-	}
+	// /**
+	//  * @internal
+	//  */
+	// _getShaderValue(index: number): any {
+	// 	return this._shaderValues.getValueData(index);
+	// }
 	/**
 	 * @internal
 	 */
@@ -1544,9 +1544,9 @@ export class Scene3D extends Sprite implements ISubmit {
 		this._prepareSceneToRender();
 		var i: number, n: number, n1: number;
 		Scene3D._updateMark++;
-		if (this._sceneUniformData) {
-			this._sceneUniformObj && this._sceneUniformObj.setDataByUniformBufferData(this._sceneUniformData);
-		}
+		// if (this._sceneUniformData) {
+		// 	this._sceneUniformObj && this._sceneUniformObj.setDataByUniformBufferData(this._sceneUniformData);
+		// }
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
 			// if (Render.supportWebGLPlusRendering)
 			// 	ShaderData.setRuntimeValueMode((i == n1) ? true : false);
@@ -1610,9 +1610,9 @@ export class Scene3D extends Sprite implements ISubmit {
 	 * @param shaderDataType 渲染数据类型
 	 * @param value 渲染数据值
 	 */
-	setGlobalShaderValue(name: string, value: any) {
+	setGlobalShaderValue(name: string, type: ShaderDataType, value: ShaderDataItem) {
 		var shaderOffset = Shader3D.propertyNameToID(name);
-		this._setShaderValue(shaderOffset, value);
+		this._shaderValues.setShaderData(shaderOffset, type, value);
 	}
 	//--------------------------------------------------------deprecated------------------------------------------------------------------------
 	/**

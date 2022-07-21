@@ -6,7 +6,7 @@ import { SubShader } from "../../shader/SubShader";
 import { Material } from "./Material";
 import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { Color } from "../../math/Color";
 
 /**
  * <code>SkyPanoramicMaterial</code> 类用于实现SkyPanoramicMaterial材质。
@@ -45,12 +45,12 @@ export class SkyPanoramicMaterial extends Material {
     /**
      * 颜色。
      */
-    get tintColor(): Vector4 {
-        return <Vector4>this._shaderValues.getVector(SkyPanoramicMaterial.TINTCOLOR);
+    get tintColor(): Color {
+        return this.getColorByIndex(SkyPanoramicMaterial.TINTCOLOR);
     }
 
-    set tintColor(value: Vector4) {
-        this._shaderValues.setVector(SkyPanoramicMaterial.TINTCOLOR, value);
+    set tintColor(value: Color) {
+        this.setColorByIndex(SkyPanoramicMaterial.TINTCOLOR, value);
     }
 
     /**
@@ -68,29 +68,29 @@ export class SkyPanoramicMaterial extends Material {
             else
                 this._textureHDRParams.x = value;
         }
-        this._shaderValues.setVector(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
+        this.setVector4ByIndex(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
     }
 
     /**
      * 旋转角度。
      */
     get rotation(): number {
-        return this._shaderValues.getNumber(SkyPanoramicMaterial.ROTATION);
+        return this.getFloatByIndex(SkyPanoramicMaterial.ROTATION);
     }
 
     set rotation(value: number) {
-        this._shaderValues.setNumber(SkyPanoramicMaterial.ROTATION, value);
+        this.setFloatByIndex(SkyPanoramicMaterial.ROTATION, value);
     }
 
     /**
      * 全景天空纹理。
      */
     get panoramicTexture(): Texture2D {
-        return <Texture2D>this._shaderValues.getTexture(SkyPanoramicMaterial.TEXTURE);
+        return <Texture2D>this.getTextureByIndex(SkyPanoramicMaterial.TEXTURE);
     }
 
     set panoramicTexture(value: Texture2D) {
-        this._shaderValues.setTexture(SkyPanoramicMaterial.TEXTURE, value);
+        this.setTextureByIndex(SkyPanoramicMaterial.TEXTURE, value);
     }
 
     /**
@@ -108,7 +108,7 @@ export class SkyPanoramicMaterial extends Material {
             else
                 this._textureHDRParams.x = this._exposure;
         }
-        this._shaderValues.setVector(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
+        this.setVector4ByIndex(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
     }
 
     /**
@@ -117,9 +117,8 @@ export class SkyPanoramicMaterial extends Material {
     constructor() {
         super();
         this.setShaderName("SkyPanoramic");
-        var shaderValues: ShaderData = this._shaderValues;
-        shaderValues.setVector(SkyPanoramicMaterial.TINTCOLOR, new Vector4(0.5, 0.5, 0.5, 0.5));
-        shaderValues.setNumber(SkyPanoramicMaterial.ROTATION, 0.0);
-        shaderValues.setVector(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
+        this.setColorByIndex(SkyPanoramicMaterial.TINTCOLOR, new Color(0.5, 0.5, 0.5, 0.5));
+        this.setFloatByIndex(SkyPanoramicMaterial.ROTATION, 0.0);
+        this.setVector4ByIndex(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
     }
 }

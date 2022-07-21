@@ -5,6 +5,7 @@ import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Color } from "laya/d3/math/Color";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
@@ -64,7 +65,7 @@ export class AnimatorDemo {
 	private onLoadFinish(): void {
 		//初始化场景
 		this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-		this._scene.ambientColor.setValue(0.5, 0.5, 0.5);
+		this._scene.ambientColor = new Color(0.5, 0.5, 0.5);
 
 		//初始化相机
 		var camera: Camera = (<Camera>this._scene.addChild(new Camera(0, 0.1, 100)));

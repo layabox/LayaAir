@@ -11,7 +11,6 @@ import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
 import { RenderableSprite3D } from "./RenderableSprite3D"
 import { Sprite3D } from "./Sprite3D"
 import { Transform3D } from "./Transform3D"
-import { ShaderDataType } from "./render/command/SetShaderDataCMD"
 import { MeshFilter } from "./MeshFilter"
 import { Component } from "../../components/Component"
 import { StaticBatchManager } from "../graphics/StaticBatchManager"
@@ -42,6 +41,7 @@ export class MeshRenderer extends BaseRender {
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0 = Shader3D.getDefineByName("UV");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR = Shader3D.getDefineByName("COLOR");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = Shader3D.getDefineByName("UV1");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT = Shader3D.getDefineByName("TANGENT");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
 		MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
 		StaticBatchManager._registerManager(MeshRenderStaticBatchManager.instance);
@@ -110,6 +110,9 @@ export class MeshRenderer extends BaseRender {
 						break;
 					case VertexMesh.MESH_TEXTURECOORDINATE1:
 						out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
+						break;
+					case VertexMesh.MESH_TANGENT0:
+						out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT);
 						break;
 				}
 			}
@@ -276,29 +279,29 @@ export class MeshRenderer extends BaseRender {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-		var projectionView: Matrix4x4 = context.projectionViewMatrix;
-		if (projectionView) {//TODO:是否移除MVP
-			var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
-			switch (element.renderType) {
-				case RenderElement.RENDERTYPE_NORMAL:
-				case RenderElement.RENDERTYPE_STATICBATCH:
-				case RenderElement.RENDERTYPE_VERTEXBATCH:
-					if (transform) {
-						Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-						this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-					} else {
-						this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-					}
-					break;
-			}
-		}
-	}
+	// /**
+	//  * @inheritDoc
+	//  * @override
+	//  * @internal
+	//  */
+	// _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
+	// 	// var projectionView: Matrix4x4 = context.projectionViewMatrix;
+	// 	// if (projectionView) {//TODO:是否移除MVP
+	// 	// 	var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
+	// 	// 	switch (element.renderType) {
+	// 	// 		case RenderElement.RENDERTYPE_NORMAL:
+	// 	// 		case RenderElement.RENDERTYPE_STATICBATCH:
+	// 	// 		case RenderElement.RENDERTYPE_VERTEXBATCH:
+	// 	// 			if (transform) {
+	// 	// 				//Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
+	// 	// 				//this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
+	// 	// 			} else {
+	// 	// 				//this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
+	// 	// 			}
+	// 	// 			break;
+	// 	// 	}
+	// 	// }
+	// }
 	/**
 	 * @internal
 	 * @override

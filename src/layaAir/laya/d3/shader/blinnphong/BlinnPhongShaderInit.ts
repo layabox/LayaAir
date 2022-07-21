@@ -43,7 +43,7 @@ export class BlinnPhongShaderInit {
             "u_TilingOffset": new Vector4(1, 1, 0, 0),
         };
 
-        let shader = Shader3D.add("BLINNPHONG");
+        let shader = Shader3D.add("BLINNPHONG", true);
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(BlinnPhongVS, BlinnPhongFS);

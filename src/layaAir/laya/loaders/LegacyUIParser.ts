@@ -10,6 +10,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 import { HitArea } from "../utils/HitArea";
 import { Pool } from "../utils/Pool";
 import { WeakObject } from "../utils/WeakObject";
+import { Handler } from "laya/utils/Handler";
 
 /**
  * 模板，预制件

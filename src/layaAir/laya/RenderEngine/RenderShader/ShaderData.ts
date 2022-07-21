@@ -10,6 +10,7 @@ import { Vector3 } from "../../d3/math/Vector3";
 import { Vector4 } from "../../d3/math/Vector4";
 import { Color } from "../../d3/math/Color";
 import { UniformBufferObject } from "../UniformBufferObject";
+import { UniformBufferParamsType, UnifromBufferData } from "../UniformBufferData";
 
 export enum ShaderDataType {
 	Int,
@@ -33,13 +34,39 @@ export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Co
 export class ShaderData implements IClone {
 	/**@internal */
 	protected _ownerResource: Resource = null;
+
+	/**@internal */
+	private _gammaColorMap: Map<number, Color>;
+
 	/**@internal */
 	_data: any = null;
 
 	/** @internal */
 	_defineDatas: DefineDatas = new DefineDatas();
 
-	private _gammaColorMap: Map<number, Color>;
+	/**@internal */
+	private _uniformBufferDatas: Map<string, UniformBufferObject>;
+
+	/**
+	 * @internal
+	 * key: uniform property id
+	 * value: UniformBufferObject
+	 * 保存 每个 uniform id 所在的 ubo
+	 */
+	private _uniformBuffersMap: Map<number, UniformBufferObject>;
+
+	/**
+	 * @internal
+	 */
+	get uniformBufferDatas() {
+		return this._uniformBufferDatas;
+	}
+
+	get uniformBuffersMap(): Map<number, UniformBufferObject> {
+		return this._uniformBuffersMap;
+	}
+
+
 
 	/**
 	 * @internal	
@@ -47,6 +74,23 @@ export class ShaderData implements IClone {
 	constructor(ownerResource: Resource = null) {
 		this._ownerResource = ownerResource;
 		this._initData();
+
+		this._uniformBufferDatas = new Map();
+		this._uniformBuffersMap = new Map();
+	}
+
+	/**
+	 * @internal
+	 * @param key 
+	 * @param ubo 
+	 * @param uboData 
+	 */
+	_addCheckUBO(key:string,ubo:UniformBufferObject,uboData:UnifromBufferData){
+		this._uniformBufferDatas.set(key, ubo);
+		uboData._uniformParamsState.forEach((value: UniformBufferParamsType, id: number) => {
+			this.uniformBuffersMap.set(id, ubo);
+		});
+		ubo.setDataByUniformBufferData(uboData);
 	}
 
 	/**
@@ -129,6 +173,11 @@ export class ShaderData implements IClone {
 	 */
 	setInt(index: number, value: number): void {
 		this._data[index] = value;
+		let ubo = this._uniformBuffersMap.get(index);
+		if (ubo) {
+			ubo._updateDataInfo._setData(index, this.getInt(index));
+			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+		}
 	}
 
 	/**
@@ -147,6 +196,11 @@ export class ShaderData implements IClone {
 	 */
 	setNumber(index: number, value: number): void {
 		this._data[index] = value;
+		let ubo = this._uniformBuffersMap.get(index);
+		if (ubo) {
+			ubo._updateDataInfo._setData(index, this.getNumber(index));
+			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+		}
 	}
 
 	/**
@@ -168,6 +222,11 @@ export class ShaderData implements IClone {
 			value.cloneTo(this._data[index]);
 		} else
 			this._data[index] = value.clone();
+		let ubo = this._uniformBuffersMap.get(index);
+		if (ubo) {
+			ubo._updateDataInfo._setData(index, this.getVector2(index));
+			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+		}
 	}
 
 	/**
@@ -189,6 +248,11 @@ export class ShaderData implements IClone {
 			value.cloneTo(this._data[index]);
 		} else
 			this._data[index] = value.clone();
+		let ubo = this._uniformBuffersMap.get(index);
+		if (ubo) {
+			ubo._updateDataInfo._setData(index, this.getVector3(index));
+			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+		}
 	}
 
 	/**
@@ -210,6 +274,11 @@ export class ShaderData implements IClone {
 			value.cloneTo(this._data[index]);
 		} else
 			this._data[index] = value.clone();
+		let ubo = this._uniformBuffersMap.get(index);
+		if (ubo) {
+			ubo._updateDataInfo._setData(index, this.getVector(index));
+			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+		}
 	}
 
 	/**
@@ -229,14 +298,12 @@ export class ShaderData implements IClone {
 	setColor(index: number, value: Color): void {
 		if (this._data[index]) {
 			let gammaColor = this._gammaColorMap.get(index);
-			if (!value.equal(gammaColor)) {
-				value.cloneTo(gammaColor);
-				let linearColor = this._data[index];
-				linearColor.x = Color.gammaToLinearSpace(value.r);
-				linearColor.y = Color.gammaToLinearSpace(value.g);
-				linearColor.z = Color.gammaToLinearSpace(value.b);
-				linearColor.w = value.a;
-			}
+			value.cloneTo(gammaColor);
+			let linearColor = this._data[index];
+			linearColor.x = Color.gammaToLinearSpace(value.r);
+			linearColor.y = Color.gammaToLinearSpace(value.g);
+			linearColor.z = Color.gammaToLinearSpace(value.b);
+			linearColor.w = value.a;
 		}
 		else {
 			let linearColor = new Vector4();
@@ -247,13 +314,18 @@ export class ShaderData implements IClone {
 			this._data[index] = linearColor;
 			this._gammaColorMap.set(index, value.clone());
 		}
+		let ubo = this._uniformBuffersMap.get(index);
+        if (ubo) {
+            ubo._updateDataInfo._setData(index, this.getLinearColor(index));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
 	}
 
 	/**
 	 * @internal
 	 * @param index 
 	 */
-	getLinearColor(index: number): Color {
+	getLinearColor(index: number): Vector4 {
 		return this._data[index];
 	}
 
@@ -277,6 +349,12 @@ export class ShaderData implements IClone {
 		} else {
 			this._data[index] = value.clone();
 		}
+		
+		let ubo = this._uniformBuffersMap.get(index);
+        if (ubo) {
+            ubo._updateDataInfo._setData(index, this.getVector(index));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
 	}
 
 	/**
@@ -343,13 +421,19 @@ export class ShaderData implements IClone {
 		if (value instanceof Color) {
 			this.setColor(index, value);
 			return;
-		}
-		if (!value)//value null
+		}else if (!value){//value null
 			this._data[index] = value;
+		}	
 		else if (!!value.clone) {
 			this._data[index] = value.clone();
 		} else
 			this._data[index] = value;
+
+		let ubo = this._uniformBuffersMap.get(index);
+        if (ubo) {
+            ubo._updateDataInfo._setData(index, this.getValueData(index));
+            ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+        }
 	}
 
 	setUniformBuffer(index: number, value: UniformBufferObject) {
@@ -360,8 +444,42 @@ export class ShaderData implements IClone {
 		return this._data[index];
 	}
 
-	setShaderData(type: ShaderDataType, value: ShaderDataItem) {
-
+	setShaderData(uniformIndex: number,type: ShaderDataType, value: ShaderDataItem) {
+		switch (type) {
+            case ShaderDataType.Int:
+                this.setInt(uniformIndex, <number>value);
+                break;
+            case ShaderDataType.Bool:
+                this.setBool(uniformIndex, <boolean>value);
+                break;
+            case ShaderDataType.Float:
+                this.setNumber(uniformIndex, <number>value);
+                break;
+            case ShaderDataType.Vector2:
+                this.setVector2(uniformIndex, <Vector2>value);
+                break;
+            case ShaderDataType.Vector3:
+                this.setVector3(uniformIndex, <Vector3>value);
+                break;
+            case ShaderDataType.Vector4:
+                this.setVector(uniformIndex, <Vector4>value);
+                break;
+            case ShaderDataType.Color:
+                this.setColor(uniformIndex, <Color>value);
+                break;
+            case ShaderDataType.Matrix4x4:
+                this.setMatrix4x4(uniformIndex, <Matrix4x4>value);
+                break;
+            case ShaderDataType.Texture2D:
+            case ShaderDataType.TextureCube:
+                this.setTexture(uniformIndex, <BaseTexture>value);
+                break;
+            case ShaderDataType.Buffer:
+                this.setBuffer(uniformIndex, <Float32Array>value);
+                break;
+            default:
+                throw "unkone shader data type.";
+			}
 	}
 
 	/**

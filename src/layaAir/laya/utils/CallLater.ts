@@ -1,13 +1,13 @@
 import { ILaya } from "../../ILaya";
 /**
-	 * @private
-	 */
+     * @private
+     */
 export class CallLater {
     static I = new CallLater();
     /**@private */
     private _pool: LaterHandler[] = [];
     /**@private */
-    private _map: {[key:string]:LaterHandler} = {};
+    private _map: { [key: string]: LaterHandler } = {};
     /**@private */
     private _laters: LaterHandler[] = [];
 
@@ -36,8 +36,8 @@ export class CallLater {
     /** @private */
     private _getHandler(caller: any, method: any): LaterHandler {
         var cid: number = caller ? caller.$_GID || (caller.$_GID = ILaya.Utils.getGID()) : 0;
-        var mid: number = method.$_TID || (method.$_TID = (ILaya.Timer._mid++) );
-        return this._map[cid+'.'+mid]
+        var mid: number = method.$_TID || (method.$_TID = (ILaya.Timer._mid++));
+        return this._map[cid + '.' + mid]
     }
 
     /**
@@ -48,10 +48,10 @@ export class CallLater {
      */
     callLater(caller: any, method: Function, args: any[] = null): void {
         if (this._getHandler(caller, method) == null) {
-            let handler:LaterHandler;
+            let handler: LaterHandler;
             if (this._pool.length)
-                handler  = this._pool.pop();
-            else 
+                handler = this._pool.pop();
+            else
                 handler = new LaterHandler();
             //设置属性
             handler.caller = caller;
@@ -60,7 +60,7 @@ export class CallLater {
             //索引handler
             var cid: number = caller ? caller.$_GID : 0;
             var mid: number = (method as any)["$_TID"];
-            handler.key = cid +'.'+ mid;
+            handler.key = cid + '.' + mid;
             this._map[handler.key] = handler
             //插入队列
             this._laters.push(handler);
@@ -78,6 +78,29 @@ export class CallLater {
             this._map[handler.key] = null;
             handler.run();
             handler.clear();
+        }
+    }
+
+    clear(caller: any, method: Function) {
+        var handler = this._getHandler(caller, method);
+        if (handler) {
+            this._map[handler.key] = null;
+            handler.key = "";
+            handler.clear();
+            return true;
+        }
+        return false;
+    }
+
+    clearAll(caller: any) {
+        if (!caller) return;
+        for (var i = 0, n = this._laters.length; i < n; i++) {
+            var handler = this._laters[i];
+            if (handler.caller === caller) {
+                this._map[handler.key] = null;
+                handler.key = "";
+                handler.clear();
+            }
         }
     }
 }

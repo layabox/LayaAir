@@ -38,7 +38,6 @@ import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderD
 import { ShurikenParticleData } from "./ShurikenParticleData";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { Quaternion } from "../../math/Quaternion";
-import { IndexFormat } from "../../graphics/IndexFormat";
 import { Bounds } from "../Bounds";
 import { SphereShape } from "./module/shape/SphereShape";
 import { HemisphereShape } from "./module/shape/HemisphereShape";
@@ -53,6 +52,7 @@ import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 
 
 /**

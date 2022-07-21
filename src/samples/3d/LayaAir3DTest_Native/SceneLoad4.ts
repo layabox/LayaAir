@@ -38,7 +38,7 @@ export class SceneLoad4 {
 			//开启雾化效果
 			scene.enableFog = false;
 			//设置雾化的颜色
-			scene.fogColor = new Vector3(0, 0, 0.6);
+			scene.fogColor = new Color(0, 0, 0.6);
 			//设置雾化的起始位置，相对于相机的距离
 			scene.fogStart = 10;
 			//设置雾化最浓处的距离。

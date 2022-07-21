@@ -6,9 +6,9 @@ import { Vector4 } from "../../../math/Vector4";
 import { Quaternion } from "../../../math/Quaternion";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { CommandBuffer } from "./CommandBuffer";
-import { ShaderDataType } from "./SetShaderDataCMD";
 import { RenderContext3D } from "../RenderContext3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 
 /**
  * @internal
@@ -20,7 +20,7 @@ export class SetGlobalShaderDataCMD extends Command {
 	/**@internal */
 	private _nameID: number = 0;
 	/**@internal */
-	private _value: number|BaseTexture|boolean|Vector2|Vector3|Vector4|Float32Array|Quaternion|Matrix4x4 = null;
+	private _value: number|BaseTexture|boolean|Vector2|Vector3|Vector4|Float32Array|Matrix4x4 = null;
 	/**@internal */
 	private _dataType:number = -1;
 
@@ -51,7 +51,7 @@ export class SetGlobalShaderDataCMD extends Command {
 			case ShaderDataType.Int:
 				shaderData.setInt(this._nameID,this._value as number);
 				break;
-			case ShaderDataType.Number:
+			case ShaderDataType.Float:
 				shaderData.setNumber(this._nameID,this._value as number);
 				break;
 			case ShaderDataType.Bool:
@@ -60,7 +60,7 @@ export class SetGlobalShaderDataCMD extends Command {
 			case ShaderDataType.Matrix4x4:
 				shaderData.setMatrix4x4(this._nameID,this._value as Matrix4x4);
 				break;
-			case ShaderDataType.Texture:
+			case ShaderDataType.Texture2D:
 				shaderData.setTexture(this._nameID,this._value as BaseTexture);
 				break;
 			case ShaderDataType.Vector4:

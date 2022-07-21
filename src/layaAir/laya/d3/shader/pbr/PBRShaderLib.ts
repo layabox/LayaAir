@@ -6,6 +6,7 @@ import PBRGIGLSL from "./pbrGI.glsl";
 import PBRCommonGLSL from "./pbrCommon.glsl";
 import PBRVertexGLSL from "./pbrVertex.glsl";
 import PBRFragGLSL from "./pbrFrag.glsl";
+import PBRMetallicGLSL from "./pbrMetallicFrag.glsl";
 
 export class PBRShaderLib {
 
@@ -17,6 +18,8 @@ export class PBRShaderLib {
         Shader3D.addInclude("PBRCommon.glsl", PBRCommonGLSL);
         Shader3D.addInclude("PBRVertex.glsl", PBRVertexGLSL);
         Shader3D.addInclude("PBRFrag.glsl", PBRFragGLSL);
+
+        Shader3D.addInclude("PBRMetallicFrag.glsl",PBRMetallicGLSL);
     }
 
 }

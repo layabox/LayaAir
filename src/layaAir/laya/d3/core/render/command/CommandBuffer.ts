@@ -8,7 +8,7 @@ import { Vector4 } from "../../../math/Vector4";
 import { Mesh } from "../../../resource/models/Mesh";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { Material } from "../../material/Material";
-import { SetShaderDataCMD, ShaderDataType } from "./SetShaderDataCMD";
+import { SetShaderDataCMD } from "./SetShaderDataCMD";
 import { Vector3 } from "../../../math/Vector3";
 import { Vector2 } from "../../../math/Vector2";
 import { DrawMeshCMD } from "./DrawMeshCMD";
@@ -24,7 +24,7 @@ import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
 import { Color } from "../../../math/Color";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -79,7 +79,7 @@ export class CommandBuffer {
 	 * @param source 图片源
 	 */
 	setShaderDataTexture(shaderData: ShaderData, nameID: number, source: BaseTexture): void {
-		this._commands.push(SetShaderDataCMD.create(shaderData, nameID, source, ShaderDataType.Texture, this));
+		this._commands.push(SetShaderDataCMD.create(shaderData, nameID, source, ShaderDataType.Texture2D, this));
 	}
 
 	/**
@@ -88,7 +88,7 @@ export class CommandBuffer {
 	 * @param source 图片源
 	 */
 	setGlobalTexture(nameID: number, source: BaseTexture) {
-		this._commands.push(SetGlobalShaderDataCMD.create(nameID, source, ShaderDataType.Texture, this));
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID, source, ShaderDataType.Texture2D, this));
 	}
 
 	/**
@@ -158,7 +158,7 @@ export class CommandBuffer {
 	 * @param value 数据
 	 */
 	setShaderDataNumber(shaderData: ShaderData, nameID: number, value: number): void {
-		this._commands.push(SetShaderDataCMD.create(shaderData, nameID, value, ShaderDataType.Number, this));
+		this._commands.push(SetShaderDataCMD.create(shaderData, nameID, value, ShaderDataType.Float, this));
 	}
 
 	/**
@@ -168,7 +168,7 @@ export class CommandBuffer {
 	 */
 	setGlobalNumber(nameID: number, source: number) {
 
-		this._commands.push(SetGlobalShaderDataCMD.create(nameID, source, ShaderDataType.Number, this));
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID, source, ShaderDataType.Float, this));
 	}
 
 	/**
@@ -202,7 +202,7 @@ export class CommandBuffer {
 	}
 
 	setShaderDefine(shaderData: ShaderData, define: string, value: boolean): void {
-		this._commands.push(SetShaderDataCMD.create(shaderData, define, value, ShaderDataType.ShaderDefine, this));
+		this._commands.push(SetShaderDataCMD.create(shaderData, define, value, SetShaderDataCMD.ShaderDataType_define, this));
 	}
 
 	/**

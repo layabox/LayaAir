@@ -22,6 +22,7 @@ import { AnimatorState } from "./AnimatorState";
 import { AvatarMask } from "./AvatarMask";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 import { Script3D } from "./Script3D";
+
 /**
  * 动画更新模式
  */
@@ -94,6 +95,7 @@ export class Animator extends Component {
         return this._speed;
     }
 
+
     set speed(value: number) {
         this._speed = value;
     }
@@ -108,6 +110,7 @@ export class Animator extends Component {
     set lowUpdateDelty(value: number) {
         this._lowUpdateDelty = value;
     }
+
 
     get controllerLayerCount(): number {
         return this._controllerLayers.length;
@@ -825,6 +828,8 @@ export class Animator extends Component {
      */
     _handleSpriteOwnersBySprite(isLink: boolean, path: string[], sprite: Sprite3D): void {
         for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
+            if (!this._controllerLayers[i].enable)
+                continue;
             var clipStateInfos: AnimatorState[] = this._controllerLayers[i]._states;
             for (var j: number = 0, m: number = clipStateInfos.length; j < m; j++) {
                 var clipStateInfo: AnimatorState = clipStateInfos[j];
@@ -910,6 +915,8 @@ export class Animator extends Component {
         this._updateMark++;
         for (i = 0, n = this._controllerLayers.length; i < n; i++) {
             var controllerLayer: AnimatorControllerLayer = this._controllerLayers[i];
+            if (!controllerLayer.enable)
+                continue;
             var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo!;
             var crossPlayStateInfo: AnimatorPlayState = controllerLayer._crossPlayStateInfo!;
             addtive = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;

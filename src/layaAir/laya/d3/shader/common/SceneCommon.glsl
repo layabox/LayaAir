@@ -4,22 +4,27 @@
     #ifdef ENUNIFORMBLOCK
 uniform SceneUniformBlock
 {
+    uniform vec4 u_AmbientColor;
     // time
     float u_Time;
     float u_FogStart;
     float u_FogRange;
-    vec3 u_FogColor;
+    vec4 u_FogColor;
 };
     #else // ENUNIFORMBLOCK
+uniform vec4 u_AmbientColor;
 // time
 uniform float u_Time;
 uniform float u_FogStart;
 uniform float u_FogRange;
-uniform vec3 u_FogColor;
+uniform vec4 u_FogColor;
     #endif // ENUNIFORMBLOCK
+
+
 
 // todo 移动到 block 中 ？
 uniform vec3 u_IblSH[9];
+
 
 vec3 diffuseIrradiance(in vec3 normal)
 {
@@ -37,6 +42,8 @@ vec3 diffuseIrradiance(in vec3 normal)
 	    + u_IblSH[8] * (n.x * n.x - n.y * n.y),
 	0.0);
 }
+
+
 
     #ifdef LIGHTMAP
 uniform sampler2D u_LightMap;

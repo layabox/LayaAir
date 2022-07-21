@@ -1,15 +1,21 @@
 #if !defined(VertexCommon_lib)
     #define VertexCommon_lib
 
+    #ifdef BONE
+	#ifdef SIMPLEBONE
+	    #include "BakedBoneMatrixSampler.glsl";
+	#endif // SIMPLEBONE
+    #endif // BONE
+
 struct Vertex {
 
     vec3 positionOS;
 
     vec3 normalOS;
 
-    #ifdef NEEDTBN
+    #ifdef TANGENT
     vec4 tangentOS;
-    #endif // NEEDTBN
+    #endif // TANGENT
 
     // todo  uv define ?
     #ifdef UV
@@ -46,12 +52,33 @@ mat4 getWorldMatrix()
     #endif // GPU_INSTANCE
 
     #ifdef BONE
+
+	#ifdef SIMPLEBONE
+
+	    #ifdef GPU_INSTANCE
+    float currentPixelPos = a_SimpleTextureParams.x + a_SimpleTextureParams.y;
+	    #else // GPU_INSTANCE
+    float currentPixelPos = u_SimpleAnimatorParams.x + u_SimpleAnimatorParams.y;
+	    #endif // GPU_INSTANCE
+
+    float offset = 1.0 / u_SimpleAnimatorTextureSize;
+    mat4 skinTrans = loadBakedMatMatrix(currentPixelPos, a_BoneIndices.x, offset) * a_BoneWeights.x;
+    skinTrans += loadBakedMatMatrix(currentPixelPos, a_BoneIndices.y, offset) * a_BoneWeights.y;
+    skinTrans += loadBakedMatMatrix(currentPixelPos, a_BoneIndices.z, offset) * a_BoneWeights.z;
+    skinTrans += loadBakedMatMatrix(currentPixelPos, a_BoneIndices.w, offset) * a_BoneWeights.w;
+    worldMat = worldMat * skinTrans;
+
+	#else // SIMPLEBONE
+
     ivec4 boneIndex = ivec4(a_BoneIndices);
     mat4 skinTrans = u_Bones[boneIndex.x] * a_BoneWeights.x;
     skinTrans += u_Bones[boneIndex.y] * a_BoneWeights.y;
     skinTrans += u_Bones[boneIndex.z] * a_BoneWeights.z;
     skinTrans += u_Bones[boneIndex.w] * a_BoneWeights.w;
     worldMat = worldMat * skinTrans;
+
+	#endif // SIMPLEBONE
+
     #endif // BONE
 
     return worldMat;
@@ -74,11 +101,11 @@ void getVertexParams(inout Vertex vertex)
 {
     vertex.positionOS = getVertexPosition().xyz;
 
-    vertex.normalOS = a_Normal;
+    vertex.normalOS = a_Normal.xyz;
 
-    #ifdef NEEDTBN
+    #ifdef TANGENT
     vertex.tangentOS = a_Tangent0;
-    #endif // NEEDTBN
+    #endif // TANGENT
 
     #ifdef UV
     vertex.texCoord0 = a_Texcoord0;
