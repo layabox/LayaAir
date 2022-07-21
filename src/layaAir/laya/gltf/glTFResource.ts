@@ -198,7 +198,7 @@ export class glTFResource extends HierarchyResource {
         });
     }
 
-    public createNodes(multipleNodesReceiver?: Array<Node>): Node {
+    public createNode(): Node {
         let glTF = this._glTF;
 
         this._scenes.length = 0;
@@ -215,8 +215,6 @@ export class glTFResource extends HierarchyResource {
         this._scenes.length = 0;
         this._nodes.length = 0;
 
-        if (multipleNodesReceiver)
-            multipleNodesReceiver.push(defaultScene);
         return defaultScene;
     }
 
@@ -344,7 +342,7 @@ export class glTFResource extends HierarchyResource {
             case glTF.glTFAccessorComponentType.FLOAT: return 4;
         }
     }
-    
+
     /**
      * 获取 accessor buffer 数据
      * @param accessorIndex 
@@ -1095,7 +1093,7 @@ export class glTFResource extends HierarchyResource {
         vertexBuffer.vertexDeclaration = vertexDeclaration;
         vertexBuffer.setData(vertexArray.buffer);
 
-        let indexBuffer: IndexBuffer3D =LayaGL.renderOBJCreate.createIndexBuffer3D(ibFormat, indexArray.length, BufferUsage.Static, true);
+        let indexBuffer: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(ibFormat, indexArray.length, BufferUsage.Static, true);
         indexBuffer.setData(indexArray);
 
         layaMesh._indexFormat = ibFormat;

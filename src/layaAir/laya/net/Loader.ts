@@ -562,7 +562,7 @@ export class Loader extends EventDispatcher {
     }
 
     static createNodes<T extends Node>(url: string): T {
-        return Loader.getRes(url)?.createNodes();
+        return <T>(<HierarchyResource>Loader.getRes(url))?.createNodes();
     }
 
     /**
