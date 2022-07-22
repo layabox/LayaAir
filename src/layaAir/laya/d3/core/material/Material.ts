@@ -165,50 +165,44 @@ export class Material extends Resource implements IClone {
      * TODO:需要改动
      * @inheritDoc
      */
-    static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Material {
-        var jsonData: any = data;
-        var props: any = jsonData.props;
+    static _parse(data: any): Material {
+        let jsonData: any = data;
+        let props: any = jsonData.props;
 
-        var material;
-        var classType: string = props.type;
-        //var clasPaths: any[] = classType.split('.');
-        //var clas: new () => any = Browser.window;
-        //clasPaths.forEach(function (cls: any): void {
-        //	clas = clas[cls];
-        //});
-        var clas: any = ClassUtils.getClass(classType);
+        let mat: Material;
+        let classType: string = props.type;
+        let clas: any = ClassUtils.getClass(classType);
         if (clas)
-            material = new clas();
+            mat = new clas();
         else {
-            material = new Material();
-            material.setShaderName(classType);
+            mat = new Material();
+            mat.setShaderName(classType);
         }
 
         switch (jsonData.version) {
             case "LAYAMATERIAL:01":
             case "LAYAMATERIAL:02":
-                var i: number, n: number;
-                for (var key in props) {
+                for (let key in props) {
                     switch (key) {
                         case "type":
                             break;
                         case "vectors":
-                            var vectors = props[key];
-                            for (i = 0, n = vectors.length; i < n; i++) {
-                                var vector = vectors[i];
-                                var vectorValue = vector.value;
+                            let vectors = props[key];
+                            for (let i = 0, n = vectors.length; i < n; i++) {
+                                let vector = vectors[i];
+                                let vectorValue = vector.value;
                                 switch (vectorValue.length) {
                                     case 2:
-                                        material[vector.name] = new Vector2(vectorValue[0], vectorValue[1]);
+                                        (<any>mat)[vector.name] = new Vector2(vectorValue[0], vectorValue[1]);
                                         break;
                                     case 3:
-                                        material[vector.name] = new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]);
+                                        (<any>mat)[vector.name] = new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]);
                                         break;
                                     case 4:
-                                        if (material[vector.name] instanceof Color) {
-                                            material[vector.name] = new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
+                                        if ((<any>mat)[vector.name] instanceof Color) {
+                                            (<any>mat)[vector.name] = new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
                                         } else
-                                            material[vector.name] = new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
+                                            (<any>mat)[vector.name] = new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
                                         break;
                                     default:
                                         throw new Error("Material:unkonwn color length.");
@@ -216,32 +210,31 @@ export class Material extends Resource implements IClone {
                             }
                             break;
                         case "colors":
-                            var colors = props[key];
-                            for (i = 0, n = colors.length; i < n; i++) {
-                                var color = colors[i];
-                                var vectorValue = color.value;
-                                material[color.name] = new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3])
+                            let colors = props[key];
+                            for (let i = 0, n = colors.length; i < n; i++) {
+                                let color = colors[i];
+                                let vectorValue = color.value;
+                                (<any>mat)[color.name] = new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3])
                             }
                             break;
                         case "textures":
-                            var textures: any[] = props[key];
-                            for (i = 0, n = textures.length; i < n; i++) {
-                                var texture: any = textures[i];
-                                var path: string = texture.path;
-                                (path) && (material[texture.name] = Loader.getTexture2D(path));
+                            let textures: any[] = props[key];
+                            for (let i = 0, n = textures.length; i < n; i++) {
+                                let texture: any = textures[i];
+                                let path: string = texture.path;
+                                (path) && ((<any>mat)[texture.name] = Loader.getTexture2D(path));
                             }
                             break;
                         case "defines":
-                            var defineNames: any[] = props[key];
-                            for (i = 0, n = defineNames.length; i < n; i++) {
-                                var define: ShaderDefine = Shader3D.getDefineByName(defineNames[i]);//TODO:是否取消defines
-                                material._shaderValues.addDefine(define);
+                            let defineNames: any[] = props[key];
+                            for (let i = 0, n = defineNames.length; i < n; i++) {
+                                let define: ShaderDefine = Shader3D.getDefineByName(defineNames[i]);//TODO:是否取消defines
+                                mat._shaderValues.addDefine(define);
                             }
                             break;
                         case "renderStates"://"LAYAMATERIAL:02" 
-                            var renderStatesData: any[] = props[key];
-                            var renderStateData: any = renderStatesData[0];
-                            var mat: Material = (<Material>material);//TODO:临时兼容
+                            let renderStatesData: any[] = props[key];
+                            let renderStateData: any = renderStatesData[0];
                             mat.blend = renderStateData.blend;
                             mat.cull = this._getRenderStateParams(renderStateData.cull);
                             mat.depthTest = this._getRenderStateParams(renderStateData.depthTest);
@@ -250,99 +243,101 @@ export class Material extends Resource implements IClone {
                             mat.blendDst = this._getRenderStateParams(renderStateData.dstBlend);
                             break;
                         case "cull"://"LAYAMATERIAL:01"
-                            ((<any>material)).cull = this._getRenderStateParams(props[key]);
+                            mat.cull = this._getRenderStateParams(props[key]);
                             break;
                         case "blend"://"LAYAMATERIAL:01"
-                            ((<any>material)).blend = this._getRenderStateParams(props[key]);
+                            mat.blend = this._getRenderStateParams(props[key]);
                             break;
                         case "depthWrite"://"LAYAMATERIAL:01" 
-                            ((<any>material)).depthWrite = this._getRenderStateParams(props[key]);
+                            mat.depthWrite = !!props[key];
                             break;
                         case "srcBlend"://"LAYAMATERIAL:01" 
-                            ((<any>material)).blendSrc = this._getRenderStateParams(props[key]);
+                            mat.blendSrc = this._getRenderStateParams(props[key]);
                             break;
                         case "dstBlend"://"LAYAMATERIAL:01" 
-                            ((<any>material)).blendDst = this._getRenderStateParams(props[key]);
+                            mat.blendDst = this._getRenderStateParams(props[key]);
                             break;
                         case "depthTest":
-                            ((<any>material)).depthTest = this._getRenderStateParams(props[key]);
+                            mat.depthTest = this._getRenderStateParams(props[key]);
                             break;
                         case "blendDst":
-                            ((<any>material)).blendDst = this._getRenderStateParams(props[key]);
+                            mat.blendDst = this._getRenderStateParams(props[key]);
                             break;
                         case "blendSrc":
-                            ((<any>material)).blendSrc = this._getRenderStateParams(props[key]);
+                            mat.blendSrc = this._getRenderStateParams(props[key]);
                             break;
                         default:
-                            material[key] = props[key];
+                            (<any>mat)[key] = props[key];
                     }
                 }
                 break;
             case "LAYAMATERIAL:03":
-                var i: number, n: number;
-                for (var key in props) {
+                for (let key in props) {
                     switch (key) {
                         case "type":
                         case "name":
                             break;
                         case "defines":
-                            var defineNames: any[] = props[key];
-                            for (i = 0, n = defineNames.length; i < n; i++) {
-                                var define: ShaderDefine = Shader3D.getDefineByName(defineNames[i]);//TODO:是否取消defines
-                                material._shaderValues.addDefine(define);
+                            let defineNames: any[] = props[key];
+                            for (let i = 0, n = defineNames.length; i < n; i++) {
+                                let define: ShaderDefine = Shader3D.getDefineByName(defineNames[i]);//TODO:是否取消defines
+                                mat._shaderValues.addDefine(define);
                             }
                             break;
                         case "textures":
-                            var textures: any[] = props[key];
-                            for (i = 0, n = textures.length; i < n; i++) {
-                                var texture: any = textures[i];
-                                var path: string = texture.path;
-                                (path) && (material._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name), Loader.getTexture2D(path)));
+                            let textures: any[] = props[key];
+                            for (let i = 0, n = textures.length; i < n; i++) {
+                                let texture: any = textures[i];
+                                let path: string = texture.path;
+                                (path) && (mat._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name), Loader.getTexture2D(path)));
                             }
                             break;
+                        case "renderQueue":
+                            mat.renderQueue = props[key];
+                            break;
                         default:
-                            var property = props[key];
-                            var uniName = Shader3D.propertyNameToID(key);
+                            let property = props[key];
+                            let uniName = Shader3D.propertyNameToID(key);
 
                             switch (uniName) {
                                 case Material.CULL:
-                                    material.cull = this._getRenderStateParams(property);
+                                    mat.cull = this._getRenderStateParams(property);
                                     break;
                                 case Material.BLEND:
-                                    material.blend = this._getRenderStateParams(property);
+                                    mat.blend = this._getRenderStateParams(property);
                                     break;
                                 case Material.BLEND_SRC:
-                                    material.blendSrc = this._getRenderStateParams(property);
+                                    mat.blendSrc = this._getRenderStateParams(property);
                                     break;
                                 case Material.BLEND_DST:
-                                    material.blendDst = this._getRenderStateParams(property);
+                                    mat.blendDst = this._getRenderStateParams(property);
                                     break;
                                 case Material.DEPTH_TEST:
-                                    material.depthTest = this._getRenderStateParams(property);
+                                    mat.depthTest = this._getRenderStateParams(property);
                                     break;
                                 case Material.DEPTH_WRITE:
-                                    material.depthWrite = this._getRenderStateParams(property);
+                                    mat.depthWrite = !!props[key];
                                     break;
                                 default:
                                     if (!property.length) {
-                                        material._shaderValues.setNumber(uniName, props[key]);
+                                        mat._shaderValues.setNumber(uniName, props[key]);
                                     } else {
                                         var vectorValue = property;
                                         switch (vectorValue.length) {
                                             case 2:
-                                                material._shaderValues.setVector2(uniName, new Vector2(vectorValue[0], vectorValue[1]));
+                                                mat._shaderValues.setVector2(uniName, new Vector2(vectorValue[0], vectorValue[1]));
                                                 break;
                                             case 3:
-                                                material._shaderValues.setVector3(uniName, new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
+                                                mat._shaderValues.setVector3(uniName, new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]));
                                                 break;
                                             case 4:
-                                                if (material._shaderValues.getColor(uniName)) {
-                                                    material._shaderValues.setColor(uniName, new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
+                                                if (mat._shaderValues.getColor(uniName)) {
+                                                    mat._shaderValues.setColor(uniName, new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
                                                 } else
-                                                    material._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
+                                                    mat._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
                                                 break;
                                             default:
-                                                throw new Error("BaseMaterial:unkonwn color length.");
+                                                throw new Error("Material:unkonwn color length.");
                                         }
                                     }
                                     break;
@@ -355,9 +350,8 @@ export class Material extends Resource implements IClone {
             default:
                 throw new Error("Material:unkonwn version.");
         }
-        return material;
+        return mat;
     }
-
 
     /** @internal */
     _shader: Shader3D;
@@ -366,7 +360,7 @@ export class Material extends Resource implements IClone {
     /** 所属渲染队列. */
     renderQueue: number;
 
-    
+
 
     /**
      * 着色器数据。
@@ -400,29 +394,29 @@ export class Material extends Resource implements IClone {
             this._shaderValues.removeDefine(Material.SHADERDEFINE_ALPHATEST);
     }
 
-	/**
-	 * 增加Shader宏定义。
-	 * @param value 宏定义。
-	 */
+    /**
+     * 增加Shader宏定义。
+     * @param value 宏定义。
+     */
     addDefine(define: ShaderDefine): void {
-		this._shaderValues.addDefine(define);
-	}
-
-	/**
-	 * 移除Shader宏定义。
-	 * @param value 宏定义。
-	 */
-	removeDefine(define: ShaderDefine): void {
-		this._shaderValues.removeDefine(define);
-	}
+        this._shaderValues.addDefine(define);
+    }
 
     /**
-	 * 是否包含Shader宏定义。
-	 * @param value 宏定义。
-	 */
-	hasDefine(define: ShaderDefine): boolean {
-		return this._shaderValues.hasDefine(define);
-	}
+     * 移除Shader宏定义。
+     * @param value 宏定义。
+     */
+    removeDefine(define: ShaderDefine): void {
+        this._shaderValues.removeDefine(define);
+    }
+
+    /**
+     * 是否包含Shader宏定义。
+     * @param value 宏定义。
+     */
+    hasDefine(define: ShaderDefine): boolean {
+        return this._shaderValues.hasDefine(define);
+    }
 
     /**
      * 是否写入深度。
@@ -658,7 +652,7 @@ export class Material extends Resource implements IClone {
             let ubo = UniformBufferObject.create(key, BufferUsage.Dynamic, uboData.getbyteLength(), false);
             //ubo.setDataByUniformBufferData(uboData);
             this._shaderValues.setUniformBuffer(Shader3D.propertyNameToID(key), ubo);
-            this._shaderValues._addCheckUBO(key,ubo,uboData);
+            this._shaderValues._addCheckUBO(key, ubo, uboData);
             // this._shaderValues.uniformBufferDatas.set(key, ubo);
 
             // uboData._uniformParamsState.forEach((value: UniformBufferParamsType, id: number) => {
@@ -955,7 +949,7 @@ export class Material extends Resource implements IClone {
     }
 
     setShaderDataByIndex(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem) {
-        this.shaderData.setShaderData(uniformIndex,type,value);
+        this.shaderData.setShaderData(uniformIndex, type, value);
     }
 
     setShaderData(name: string, type: ShaderDataType, value: ShaderDataItem) {
