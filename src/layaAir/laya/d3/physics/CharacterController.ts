@@ -31,8 +31,8 @@ export class CharacterController extends PhysicsComponent {
 	static UPAXIS_Y = 1;
 	/* UP轴_Z轴。*/
 	static UPAXIS_Z = 2;
-	
-	
+
+
 
 	/** @internal */
 	private _stepHeight: number;
@@ -52,6 +52,9 @@ export class CharacterController extends PhysicsComponent {
 
 	userData: any;
 
+	/**@internal */
+	protected _pushForce = 1;
+
 	/**
 	 * 角色降落速度。
 	 */
@@ -62,6 +65,23 @@ export class CharacterController extends PhysicsComponent {
 	set fallSpeed(value: number) {
 		this._fallSpeed = value;
 		ILaya3D.Physics3D._bullet.btKinematicCharacterController_setFallSpeed(this._btKinematicCharacter, value);
+	}
+
+	/**
+	 * 角色与其他物体碰撞的时候，产生的推力的大小
+	 */
+	set pushForce(v: number) {
+		this._pushForce = v;
+		if (this._btKinematicCharacter) {
+			var bt: any = ILaya3D.Physics3D._bullet;
+			bt.btKinematicCharacterController_setPushForce(this._btKinematicCharacter, v);
+		}
+	}
+
+	get pushForce() {
+		return this._pushForce;
+		//var bt: any = ILaya3D.Physics3D._bullet;
+		//return bt.btKinematicCharacterController_getPushForce(this._btKinematicCharacter);
 	}
 
 	/**
@@ -224,6 +244,7 @@ export class CharacterController extends PhysicsComponent {
 		this.jumpSpeed = this._jumpSpeed;
 		this.gravity = this._gravity;
 		this.setJumpAxis(0, 1, 0);
+		this.pushForce = this._pushForce;
 	}
 
 	/**
@@ -337,7 +358,7 @@ export class CharacterController extends PhysicsComponent {
 	 * @override
 	 * @internal
 	 */
-	 _cloneTo(dest: Component): void {
+	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);
 		var destCharacterController: CharacterController = <CharacterController>dest;
 		destCharacterController.stepHeight = this._stepHeight;

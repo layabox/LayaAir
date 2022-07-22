@@ -142,7 +142,7 @@ export class Laya {
     /**@internal*/
     static Laya = Laya;
     /**@internal */
-    static WasmModules:any = {};
+    static WasmModules: { [key: string]: { exports: WebAssembly.Exports, memory: WebAssembly.Memory } } = {};
 
     /**
      * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
@@ -244,6 +244,10 @@ export class Laya {
         Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
 
         return Render.canvas;
+    }
+
+    static addWasmModule(id: string, exports: WebAssembly.Exports, memory: WebAssembly.Memory) {
+        Laya.WasmModules[id] = { exports, memory };
     }
 
     /**@internal */

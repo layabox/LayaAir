@@ -17,7 +17,7 @@ export class LayoutBox extends Box {
      * @inheritDoc	
      * @override
     */
-    addChild(child: Node): Node {
+    addChild<T extends Node>(child: T): T {
         child.on(Event.RESIZE, this, this.onResize);
         this._setItemChanged();
         return super.addChild(child);
