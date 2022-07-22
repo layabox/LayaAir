@@ -58,7 +58,7 @@ export class InstanceRenderElementOBJ extends RenderElementOBJ {
             buffer.orphanStorage();
             buffer.setData(data.buffer, 0, 0, this.drawCount * this._updateDataNum[i] * 4);
         }
-        LayaGL.renderDrawConatext.drawGeometryElement(this._geometry);
+        LayaGL.renderDrawContext.drawGeometryElement(this._geometry);
     }
 
     clear() {

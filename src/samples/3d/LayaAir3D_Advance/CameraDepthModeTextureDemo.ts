@@ -4,7 +4,6 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { Color } from "laya/d3/math/Color";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { TextureCube } from "laya/d3/resource/TextureCube";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";

@@ -549,6 +549,8 @@ export class Camera extends BaseCamera {
 		camera.nearPlane = this.nearPlane;
 		camera.fieldOfView = this.fieldOfView;
 		camera.orthographic = this.orthographic;
+		camera._cameraEventCommandBuffer = this._cameraEventCommandBuffer
+		Object.assign(camera._cameraEventCommandBuffer,this._cameraEventCommandBuffer);
 		return camera;
 	}
 

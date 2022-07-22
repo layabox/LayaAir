@@ -322,6 +322,14 @@ export class CommandBuffer {
 	}
 
 	/**
+	 * add 自定义的渲染命令
+	 * @param command 
+	 */
+	addCustomCMD(command:Command){
+		this._commands.push(command);
+	}
+
+	/**
 	 *@internal
 	 */
 	clear(): void {

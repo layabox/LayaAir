@@ -122,7 +122,7 @@ export class GeometryElement {
 	 */
 	_render(state: RenderContext3D): void {
 		// throw "GeometryElement:must override it.";
-		LayaGL.renderDrawConatext.drawGeometryElement(this._geometryElementOBj);
+		LayaGL.renderDrawContext.drawGeometryElement(this._geometryElementOBj);
 	}
 
 	/**

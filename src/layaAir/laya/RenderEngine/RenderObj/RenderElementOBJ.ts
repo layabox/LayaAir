@@ -97,7 +97,7 @@ export class RenderElementOBJ implements IRenderElement {
     }
 
     drawGeometry(shaderIns:ShaderInstance){
-        LayaGL.renderDrawConatext.drawGeometryElement(this._geometry);
+        LayaGL.renderDrawContext.drawGeometryElement(this._geometry);
     }
 
     _destroy() {

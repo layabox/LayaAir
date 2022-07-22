@@ -160,7 +160,7 @@ export class Render {
         //LayaGL.instance = gl;
         //native TODO
         LayaGL.textureContext = engine.getTextureContext();
-        LayaGL.renderDrawConatext = engine.getDrawContext();
+        LayaGL.renderDrawContext = engine.getDrawContext();
         LayaGL.render2DContext =engine.get2DRenderContext();
         LayaGL.renderOBJCreate = engine.getCreateRenderOBJContext();
 

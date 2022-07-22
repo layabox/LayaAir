@@ -23,7 +23,7 @@ export class SkinRenderElementOBJ extends RenderElementOBJ {
                 var subSkinnedDatas: Float32Array = this.skinnedData[j];
                 shaderIns.uploadCustomUniform(SkinnedMeshSprite3D.BONES,subSkinnedDatas);
                 var offset = j*2;
-                LayaGL.renderDrawConatext.drawElements(this._geometry.mode,element[offset+1],this._geometry.indexFormat,element[offset]);
+                LayaGL.renderDrawContext.drawElements(this._geometry.mode,element[offset+1],this._geometry.indexFormat,element[offset]);
             }
         }
     }

@@ -11,6 +11,6 @@ export class LayaGL {
     static textureContext: ITextureContext;
     static renderEngine:IRenderEngine;
     static render2DContext:IRender2DContext;
-    static renderDrawConatext:IRenderDrawContext;
+    static renderDrawContext:IRenderDrawContext;
     static renderOBJCreate:IRenderOBJCreate;
 }

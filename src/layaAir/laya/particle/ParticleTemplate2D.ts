@@ -135,13 +135,13 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
 
 
                 if (this._firstActiveElement < this._firstFreeElement) {
-                    LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, (this._firstFreeElement - this._firstActiveElement) * 6,IndexFormat.UInt16, this._firstActiveElement * 6 * 2);
+                    LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, (this._firstFreeElement - this._firstActiveElement) * 6,IndexFormat.UInt16, this._firstActiveElement * 6 * 2);
                 }
                 else {
 
-                    LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, (this.settings.maxPartices - this._firstActiveElement) * 6, IndexFormat.UInt16, this._firstActiveElement * 6 * 2);
+                    LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, (this.settings.maxPartices - this._firstActiveElement) * 6, IndexFormat.UInt16, this._firstActiveElement * 6 * 2);
                     if (this._firstFreeElement > 0)
-                    LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles, this._firstFreeElement * 6, IndexFormat.UInt16, 0);
+                    LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, this._firstFreeElement * 6, IndexFormat.UInt16, 0);
                 }
 
                 Stat.renderBatches++;
