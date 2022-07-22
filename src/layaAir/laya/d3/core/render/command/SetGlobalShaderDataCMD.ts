@@ -8,7 +8,8 @@ import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { CommandBuffer } from "./CommandBuffer";
 import { RenderContext3D } from "../RenderContext3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDataItem, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { Color } from "../../../math/Color";
 
 /**
  * @internal
@@ -20,7 +21,7 @@ export class SetGlobalShaderDataCMD extends Command {
 	/**@internal */
 	private _nameID: number = 0;
 	/**@internal */
-	private _value: number|BaseTexture|boolean|Vector2|Vector3|Vector4|Float32Array|Matrix4x4 = null;
+	private _value: ShaderDataItem = null;
 	/**@internal */
 	private _dataType:number = -1;
 
@@ -74,6 +75,9 @@ export class SetGlobalShaderDataCMD extends Command {
 				break;
 			case ShaderDataType.Buffer:
 				shaderData.setBuffer(this._nameID,this._value as Float32Array);
+				break;
+			case ShaderDataType.Color:
+				shaderData.setColor(this._nameID,this._value as Color);
 				break;
 			default:
 				throw "no type shaderValue on this CommendBuffer";
