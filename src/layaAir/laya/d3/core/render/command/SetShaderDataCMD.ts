@@ -5,9 +5,10 @@ import { Vector3 } from "../../../math/Vector3";
 import { Vector4 } from "../../../math/Vector4";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { CommandBuffer } from "./CommandBuffer";
-import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { Color } from "../../../math/Color";
 
 /**
  * @internal
@@ -23,19 +24,19 @@ export class SetShaderDataCMD extends Command {
 	/**@internal */
 	private _nameID: number|string = 0;
 	/**@internal */
-	private _value: number|BaseTexture|boolean|Vector2|Vector3|Vector4|Float32Array|Matrix4x4 = null;
+	private _value: ShaderDataItem = null;
 	/**@internal */
 	private _dataType:number = -1;
 
 	/**
 	 * @internal
 	 */
-	static create(shaderData: ShaderData, nameID: number|string, value:any,shaderDataType:ShaderDataType|number,commandBuffer:CommandBuffer): SetShaderDataCMD {
+	static create(shaderData: ShaderData, nameID: number|string, value:ShaderDataItem,shaderDataType:ShaderDataType|number,commandBuffer:CommandBuffer): SetShaderDataCMD {
 		var cmd: SetShaderDataCMD;
 		cmd = SetShaderDataCMD._pool.length > 0 ? SetShaderDataCMD._pool.pop() : new SetShaderDataCMD();
 		cmd._shaderData = shaderData;
 		cmd._nameID = nameID;
-		cmd._value = value.clone?value.clone():value;
+		cmd._value = (value as any).clone?(value as any).clone():value;
 		cmd._dataType = shaderDataType;
 		cmd._commandBuffer = commandBuffer;
 		return cmd;
@@ -58,6 +59,9 @@ export class SetShaderDataCMD extends Command {
 				break;
 			case ShaderDataType.Matrix4x4:
 				this._shaderData.setMatrix4x4(this._nameID as number,this._value as Matrix4x4);
+				break;
+			case ShaderDataType.Color:
+				this._shaderData.setColor(this._nameID as number,this._value as Color);
 				break;
 			case ShaderDataType.Texture2D:
 				this._shaderData.setTexture(this._nameID as number,this._value as BaseTexture);

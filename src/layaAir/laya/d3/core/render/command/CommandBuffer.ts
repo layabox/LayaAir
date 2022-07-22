@@ -97,6 +97,26 @@ export class CommandBuffer {
 	 * @param nameID 数据ID
 	 * @param value 数据
 	 */
+	setShaderDataColor(shaderData: ShaderData, nameID: number, value: Color): void {
+		this._commands.push(SetShaderDataCMD.create(shaderData, nameID, value, ShaderDataType.Color, this));
+	}
+
+	/**
+	 * 设置全局Vector4数据
+	 * @param nameID Vector4数据ID
+	 * @param source 数据
+	 */
+	setGlobalColor(nameID: number, source: Color) {
+
+		this._commands.push(SetGlobalShaderDataCMD.create(nameID, source, ShaderDataType.Color, this));
+	}
+
+	/**
+	 * 设置shader Vector4数据
+	 * @param shaderData shader数据集合
+	 * @param nameID 数据ID
+	 * @param value 数据
+	 */
 	setShaderDataVector(shaderData: ShaderData, nameID: number, value: Vector4): void {
 		this._commands.push(SetShaderDataCMD.create(shaderData, nameID, value, ShaderDataType.Vector4, this));
 	}
