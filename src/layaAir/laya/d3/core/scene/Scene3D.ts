@@ -450,8 +450,6 @@ export class Scene3D extends Sprite implements ISubmit {
 	enableLight: boolean = true;
 	/** @internal */
 	_debugTool: PixelLineSprite3D;
-	/** @internal [Editer]*/
-	_pickIdToSprite: any = new Object();
 
 	/** @internal */
 	_nativeObj: any;
@@ -910,33 +908,6 @@ export class Scene3D extends Sprite implements ISubmit {
 				start = mid + 1;
 		}
 		return start;
-	}
-
-	/**
-	 * @internal
-	 * [Editer]
-	 */
-	_allotPickColorByID(id: number, pickColor: Vector4): void {
-
-		var pickColorR: number = Math.floor(id / (255 * 255));
-		id -= pickColorR * 255 * 255;
-		var pickColorG: number = Math.floor(id / 255);
-		id -= pickColorG * 255;
-		var pickColorB: number = id;
-
-		pickColor.x = pickColorR / 255;
-		pickColor.y = pickColorG / 255;
-		pickColor.z = pickColorB / 255;
-		pickColor.w = 1.0;
-	}
-
-	/**
-	 * @internal
-	 * [Editer]
-	 */
-	_searchIDByPickColor(pickColor: Vector4): number {
-		var id: number = pickColor.x * 255 * 255 + pickColor.y * 255 + pickColor.z;
-		return id;
 	}
 
 	/**

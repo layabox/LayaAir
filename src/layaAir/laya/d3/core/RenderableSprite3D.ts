@@ -32,8 +32,6 @@ export class RenderableSprite3D extends Sprite3D {
 	static REFLECTIONCUBE_PROBEPOSITION: number;
 	static REFLECTIONCUBE_PROBEBOXMAX: number;
 	static REFLECTIONCUBE_PROBEBOXMIN: number;
-	pickColor: Vector4;
-
 
 	/**
 	 * @internal

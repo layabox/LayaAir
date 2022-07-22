@@ -84,10 +84,6 @@ export class Laya3D {
     /**@internal */
     private static _isInit: boolean = false;
 
-
-    /**@internal */
-    static _editerEnvironment: boolean = false;
-
     /**
      * 获取是否可以启用物理。
      * @param 是否启用物理。
@@ -244,7 +240,6 @@ export class Laya3D {
         (config) && (config.cloneTo(Config3D._config));
         config = Config3D._config;
         FrustumCulling.debugFrustumCulling = config.debugFrustumCulling;
-        Laya3D._editerEnvironment = config._editerEnvironment;
         Scene3D.octreeCulling = config.octreeCulling;
         Scene3D.octreeInitialSize = config.octreeInitialSize;
         Scene3D.octreeInitialCenter = config.octreeInitialCenter;
