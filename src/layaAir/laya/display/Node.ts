@@ -54,7 +54,21 @@ export class Node extends EventDispatcher {
     _conchData: any;
 
     /** 如果节点从资源中创建，这里记录是他的url */
-    url?: string;
+    _url?: string;
+    /**
+	 * 得到资源的URL
+	 */
+	get url(): string {
+		return this._url;
+	}
+
+	/**
+	 * 设置动画路径
+	 */
+	set url(path: string) {
+		this._url = path;
+	}
+
 
     constructor() {
         super();
