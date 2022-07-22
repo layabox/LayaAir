@@ -402,9 +402,9 @@ export class Scene3D extends Sprite implements ISubmit {
 	private _reflectionIntensity: number = 1.0;
 
 	/**@internal */
-	_sunColor:Color;
+	_sunColor:Color = new Color(1.0,1.0,1.0);
 	/**@interanl */
-	_sundir:Vector3;
+	_sundir:Vector3 = new Vector3();
 	/**@internal*/
 	_id = Scene3D.sceneID++;
 	/**@internal */

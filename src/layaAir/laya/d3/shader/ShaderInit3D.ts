@@ -95,6 +95,7 @@ import { PBRStandardShaderInit } from "./pbr/PBRStandardShaderInit";
 import { SkyBoxShaderInit } from "./sky/SkyBoxShaderInit";
 import { ParticleShuriKenShaderInit } from "./ShurikenParticle/ParticleShuriKenShaderInit";
 import { SkyProceduralShaderInit } from "./sky/SkyProceduralShaderInit";
+import { SkyPanoramicShaderInit } from "./sky/SkyPanoramicShaderInit";
 
 /**
  * @internal
@@ -156,6 +157,7 @@ export class ShaderInit3D {
 		ParticleShuriKenShaderInit.init();
 		SkyBoxShaderInit.init();
 		SkyProceduralShaderInit.init();
+		SkyPanoramicShaderInit.init();
 
 		///////////////////////////////////////////////////////////////////////
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
