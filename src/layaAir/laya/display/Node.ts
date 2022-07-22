@@ -54,7 +54,21 @@ export class Node extends EventDispatcher {
     _conchData: any;
 
     /** 如果节点从资源中创建，这里记录是他的url */
-    url?: string;
+    protected _url?: string;
+    /**
+	 * 得到资源的URL
+	 */
+	get url(): string {
+		return this._url;
+	}
+
+	/**
+	 * 设置动画路径
+	 */
+	set url(path: string) {
+		this._url = path;
+	}
+
 
     constructor() {
         super();
@@ -157,9 +171,9 @@ export class Node extends EventDispatcher {
      * @param	node 节点对象
      * @return	返回添加的节点
      */
-    addChild(node: Node): Node {
-        if (!node || this.destroyed || node === this) return node;
-        if ((<Sprite>node)._zOrder) this._setBit(Const.HAS_ZORDER, true);
+    addChild<T extends Node>(node: T): T {
+        if (!node || this.destroyed || node as any === this) return node;
+        if ((<Sprite>(node as any))._zOrder) this._setBit(Const.HAS_ZORDER, true);
         if (node._parent === this) {
             var index: number = this.getChildIndex(node);
             if (index !== this._children.length - 1) {

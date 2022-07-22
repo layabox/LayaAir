@@ -1,6 +1,5 @@
 import { Node } from "../../display/Node";
 import { Loader } from "../../net/Loader";
-import { URL } from "../../net/URL";
 import { Handler } from "../../utils/Handler";
 import { Script3D } from "../component/Script3D";
 import { Matrix4x4 } from "../math/Matrix4x4";

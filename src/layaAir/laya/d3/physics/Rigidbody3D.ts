@@ -53,6 +53,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	/** @internal */
 	private static _btGravity: number;
 
+	userData: any;
 
 	/**
 	 * @internal
@@ -128,10 +129,19 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		}
 	}
 
-	get disableSimulation():boolean{
+	get disableSimulation(): boolean {
 		//TODO
 		return false;
-	}	
+	}
+	/**
+	* 获得碰撞标记
+	* @returns 
+	*/
+	getCollisionFlags() {
+		var bt: any = ILaya3D.Physics3D._bullet;
+		if (!this._btColliderObject) return 0;
+		return bt.btCollisionObject_getCollisionFlags(this._btColliderObject);
+	}
 
 	/**
 	 * 是否为运动物体，如果为true仅可通过transform属性移动物体,而非其他力相关属性。

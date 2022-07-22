@@ -72,8 +72,6 @@ export class MovieClip extends Sprite {
 	/**@internal */
 	private _atlasPath: string;
 	/**@internal */
-	private _url: string;
-	/**@internal */
 	private _isRoot: boolean;
 	/**@internal */
 	private _completeHandler: Handler;
