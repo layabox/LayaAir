@@ -8,7 +8,6 @@ import { Handler } from "../utils/Handler"
  * @private
  */
 export class SoundNode extends Sprite {
-    url: string;
     private _channel: SoundChannel;
     private _tar: Sprite;
     private _playEvents: string;

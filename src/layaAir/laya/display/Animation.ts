@@ -97,8 +97,7 @@ export class Animation extends AnimationBase {
     static framesMap: any = {};
     /**@private */
     protected _frames: any[];
-    /**@private */
-    protected _url: string;
+    
 
     /**
      * 创建一个新的 <code>Animation</code> 实例。
