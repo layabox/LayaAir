@@ -77,6 +77,14 @@ export class Scene extends Sprite {
     }
 
     /**
+    * 根据IDE内的节点id，获得节点实例
+    */
+    getNodeByID(id: number): any {
+        if (this._idMap) return this._idMap[id];
+        return null;
+    }
+
+    /**
      * 打开场景。【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
      * @param	closeOther	是否关闭其他场景，默认为true（可选）
      * @param	param		打开页面的参数，会传递给onOpened方法（可选）
