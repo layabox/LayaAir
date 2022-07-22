@@ -24,7 +24,7 @@ export class HierarchyLoader implements IResourceLoader {
     };
 
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options.priority).then(data => {
+        return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
             if (!data)
                 return null;
 

@@ -13,7 +13,7 @@ class TextureLoader implements IResourceLoader {
         let promise: Promise<Texture2D | TextureCube>;
         let compress = compressedFormats.indexOf(ext) != -1 ? ext : (compressedFormats.indexOf(task.type) != -1 ? task.type : null);
         if (compress != null) {
-            promise = task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options.priority).then(data => {
+            promise = task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
                 if (!data)
                     return null;
 
@@ -47,7 +47,7 @@ class TextureLoader implements IResourceLoader {
             });
         }
         else {
-            promise = task.loader.fetch(task.url, "image", task.progress.createCallback(), task.options.priority, task.options.useWorkerLoader).then(img => {
+            promise = task.loader.fetch(task.url, "image", task.progress.createCallback(), task.options).then(img => {
                 if (!img)
                     return null;
 

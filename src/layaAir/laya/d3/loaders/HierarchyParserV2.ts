@@ -23,7 +23,7 @@ import { HierarchyLoader } from "../../loaders/HierarchyLoader";
  * @internal
  * <code>Utils3D</code> 类用于创建3D工具。
  */
-export class HierarchyParserV2 {
+class HierarchyParserV2 {
     /**
      * @internal
      * @param nodeData 创建数据

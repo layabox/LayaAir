@@ -4,7 +4,7 @@ import { Material } from "../core/material/Material";
 
 class MaterialLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(0.3), task.options.priority).then(lmtData => {
+        return task.loader.fetch(task.url, "json", task.progress.createCallback(0.3), task.options).then(lmtData => {
             if (!lmtData)
                 return null;
 

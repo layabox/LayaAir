@@ -13,7 +13,7 @@ class CubemapLoader implements IResourceLoader {
     load(task: ILoadTask) {
         let ext: string = Utils.getFileExtension(task.url);
         if (ext == "ktx") {
-            return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options.priority).then(data => {
+            return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
                 if (!data)
                     return null;
 
@@ -29,7 +29,7 @@ class CubemapLoader implements IResourceLoader {
             });
         }
         else {
-            return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options.priority).then(data => {
+            return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
                 if (!data)
                     return null;
 
@@ -45,7 +45,7 @@ class CubemapLoader implements IResourceLoader {
 
                 return Promise.all(urls.map(url => {
                     if (url)
-                        return task.loader.fetch(url, "image", task.progress.createCallback(), task.options.priority);
+                        return task.loader.fetch(url, "image", task.progress.createCallback(), task.options);
                     else
                         return Promise.resolve(null);
                 })).then(images => {
@@ -60,7 +60,7 @@ class CubemapLoader implements IResourceLoader {
 
 class CubemapBinLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options.priority).then(data => {
+        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
             if (!data)
                 return null;
 

@@ -15,6 +15,7 @@ import { Handler } from "../utils/Handler";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { Node } from "../display/Node";
+import { ImgUtils } from "../utils/ImgUtils";
 
 export interface ILoadTask {
     readonly type: string;
@@ -38,6 +39,7 @@ export interface ILoadOptions {
     useWorkerLoader?: boolean;
     constructParams?: TextureConstructParams;
     propertyParams?: TexturePropertyParams;
+    blob?: ArrayBuffer;
     [key: string]: any;
 }
 
@@ -398,19 +400,23 @@ export class Loader extends EventDispatcher {
      * 从指定URL下载。这是较为底层的下载资源的方法，它和load方法不同，不对返回的数据进行解析，也不会缓存下载的内容。
      * 成功则返回下载的数据，失败返回null。
      */
-    fetch<K extends keyof ContentTypeMap>(url: string, contentType: K, onProgress?: (progress: number) => void,
-        priority?: number, useWorkerLoader?: boolean): Promise<ContentTypeMap[K]> {
-        url = URL.formatURL(url);
+    fetch<K extends keyof ContentTypeMap>(url: string, contentType: K, onProgress?: (progress: number) => void, options?: ILoadOptions): Promise<ContentTypeMap[K]> {
+        options = options || dummyOptions;
         return new Promise((resolve) => {
-            this.queueToDownload({
-                url: url,
+            let task: DownloadItem = {
+                originalUrl: url,
+                url: URL.formatURL(url),
                 contentType: contentType,
-                useWorkerLoader: useWorkerLoader,
-                priority: priority ?? 1,
+                priority: options.priority ?? 1,
                 retryCnt: 0,
                 onProgress: onProgress,
                 onComplete: resolve,
-            });
+            }
+            if (options.useWorkerLoader)
+                task.useWorkerLoader = true;
+            if (options.blob)
+                task.blob = options.blob;
+            this.queueToDownload(task);
         });
     }
 
@@ -435,7 +441,11 @@ export class Loader extends EventDispatcher {
     private download(item: DownloadItem) {
         let url = URL.postFormatURL(item.url);
         if (item.contentType == "image") {
-            if (item.useWorkerLoader) {
+            if (item.blob) {
+                url = ImgUtils.arrayBufferToURL(item.originalUrl, item.blob);
+                item.retryCnt = -1; //失败无需重试
+            }
+            else if (item.useWorkerLoader) {
                 WorkerLoader.enableWorkerLoader();
                 if (WorkerLoader.enable) {
                     let workerLoader = WorkerLoader.I;
@@ -444,7 +454,7 @@ export class Loader extends EventDispatcher {
                             this.completeItem(item, imageData);
                         else {
                             item.useWorkerLoader = false;
-                            this.download(item);
+                            this.completeItem(item, null, "workerloader failed!");
                         }
                     });
                     workerLoader.worker.postMessage(url);
@@ -517,7 +527,7 @@ export class Loader extends EventDispatcher {
 
             item.onComplete(content);
         }
-        else if (item.retryCnt < this.retryNum) {
+        else if (item.retryCnt != -1 && item.retryCnt < this.retryNum) {
             item.retryCnt++;
             console.debug(`[Loader]Retry to load: ${item.url} (${item.retryCnt})`);
             ILaya.systemTimer.once(this.retryDelay, this, this.queueToDownload, [item], false);
@@ -743,9 +753,11 @@ const dummyOptions: ILoadOptions = {};
 
 interface DownloadItem {
     url: string;
+    originalUrl: string;
     contentType: string;
     priority: number;
     useWorkerLoader?: boolean;
+    blob?: ArrayBuffer;
     retryCnt?: number;
     temp?: any;
     onComplete: (content: any) => void;
@@ -770,25 +782,25 @@ function returnRequestInst(inst: HttpRequest) {
 
 class TextAssetLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "text", task.progress.createCallback(), task.options.priority);
+        return task.loader.fetch(task.url, "text", task.progress.createCallback(), task.options);
     }
 }
 
 class BinaryAssetLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options.priority);
+        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options);
     }
 }
 
 class JsonAssetLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options.priority);
+        return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options);
     }
 }
 
 class XMLAssetLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "xml", task.progress.createCallback(), task.options.priority);
+        return task.loader.fetch(task.url, "xml", task.progress.createCallback(), task.options);
     }
 }
 

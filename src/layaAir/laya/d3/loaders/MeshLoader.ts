@@ -3,7 +3,7 @@ import { MeshReader } from "./MeshReader";
 
 class MeshLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options.priority).then(data => {
+        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
             if (!data)
                 return null;
 
