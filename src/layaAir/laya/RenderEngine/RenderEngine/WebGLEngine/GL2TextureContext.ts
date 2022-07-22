@@ -191,9 +191,9 @@ export class GL2TextureContext extends GLTextureContext {
             case RenderTargetFormat.STENCIL_8:
                 return { internalFormat: gl.STENCIL_INDEX8, attachment: gl.STENCIL_ATTACHMENT };
             case RenderTargetFormat.R8G8B8:
-                return { internalFormat: gl.RGB8, attachment: gl.COLOR_ATTACHMENT0 };
+                return { internalFormat: useSRGB ? gl.SRGB8 : gl.RGB8, attachment: gl.COLOR_ATTACHMENT0 };
             case RenderTargetFormat.R8G8B8A8:
-                return { internalFormat: gl.RGBA8, attachment: gl.COLOR_ATTACHMENT0 };
+                return { internalFormat: useSRGB ? gl.SRGB8_ALPHA8 : gl.RGBA8, attachment: gl.COLOR_ATTACHMENT0 };
             case RenderTargetFormat.R16G16B16:
                 return { internalFormat: gl.RGB16F, attachment: gl.COLOR_ATTACHMENT0 };
             case RenderTargetFormat.R16G16B16A16:
@@ -653,9 +653,9 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
-        
-        generateMipmap =  generateMipmap&& this.supportGenerateMipmap(format);
-        
+
+        generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
+
         let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
 
 
@@ -703,7 +703,7 @@ export class GL2TextureContext extends GLTextureContext {
 
         if (renderTarget._samples > 1) {
             let msaaFramebuffer = renderTarget._msaaFramebuffer;
-            let renderbufferParam = this.glRenderBufferParam(colorFormat, false);
+            let renderbufferParam = this.glRenderBufferParam(colorFormat, sRGB);
             let msaaRenderbuffer = renderTarget._msaaRenderbuffer = this.createRenderbuffer(width, height, renderbufferParam.internalFormat, renderTarget._samples);
             gl.bindFramebuffer(gl.FRAMEBUFFER, msaaFramebuffer);
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, renderbufferParam.attachment, gl.RENDERBUFFER, msaaRenderbuffer);
