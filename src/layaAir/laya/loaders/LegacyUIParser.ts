@@ -326,188 +326,41 @@ export class LegacyUIParser {
         check(uiView);
         return innerUrls;
     }
-}
-
-/**
- * @private 场景辅助类
- */
-class DataWatcher {
-    comp: any;
-    prop: string;
-    value: string;
-
-    //TODO:coverage
-    constructor(comp: any, prop: string, value: string) {
-        this.comp = comp;
-        this.prop = prop;
-        this.value = value;
-    }
-
-    exe(view: any): void {
-        var fun: Function = LegacyUIParser.getBindFun(this.value);
-        this.comp[this.prop] = fun.call(this, view);
-    }
-}
-
-
-/**
- * @private 场景辅助类
- */
-class InitTool {
-    /**@private */
-    private _nodeRefList: any[];
-    /**@private */
-    private _initList: any[];
-    private _loadList: any[];
-    /**@internal */
-    _idMap: { [key: string]: Sprite };
-
-    //TODO:coverage
-    reset(): void {
-        this._nodeRefList = null;
-        this._initList = null;
-        this._idMap = null;
-        this._loadList = null;
-    }
-
-    //TODO:coverage
-    recover(): void {
-        this.reset();
-        Pool.recover("InitTool", this);
-    }
-
-    static create(): InitTool {
-        var tool: InitTool = Pool.getItemByClass("InitTool", InitTool);
-        tool._idMap = {};
-        return tool;
-    }
-
-    //TODO:coverage
-    addLoadRes(url: string, type: string = null): void {
-        if (!this._loadList) this._loadList = [];
-        if (ILaya.loader.getRes(url)) {
-            return;
-        }
-        if (!type) {
-            this._loadList.push(url);
-        } else {
-            this._loadList.push({ url: url, type: type });
-        }
-    }
-
-    /**@private */
-    //TODO:coverage
-    addNodeRef(node: any, prop: string, referStr: string): void {
-        if (!this._nodeRefList) this._nodeRefList = [];
-        this._nodeRefList.push([node, prop, referStr]);
-        if (referStr.indexOf("@Prefab:") >= 0) {
-            this.addLoadRes(referStr.replace("@Prefab:", ""), Loader.JSON);
-        }
-    }
-
-    /**@private */
-    //TODO:coverage
-    setNodeRef(): void {
-        if (!this._nodeRefList) return;
-        if (!this._idMap) {
-            this._nodeRefList = null;
-            return;
-        }
-        var i: number, len: number;
-        len = this._nodeRefList.length;
-        var tRefInfo: any[];
-        for (i = 0; i < len; i++) {
-            tRefInfo = this._nodeRefList[i];
-            tRefInfo[0][tRefInfo[1]] = this.getReferData(tRefInfo[2]);
-        }
-        this._nodeRefList = null;
-    }
-
-    /**@private */
-    //TODO:coverage
-    getReferData(referStr: string): any {
-        if (referStr.indexOf("@Prefab:") >= 0) {
-            var prefab = new Prefab();
-            prefab.json = Loader.getRes(referStr.replace("@Prefab:", ""));
-            return prefab;
-        } else if (referStr.indexOf("@arr:") >= 0) {
-            referStr = referStr.replace("@arr:", "");
-            var list: string[];
-            list = referStr.split(",");
-            var i: number, len: number;
-            var tStr: string;
-            len = list.length;
-            var list2: Sprite[] = [];
-            for (i = 0; i < len; i++) {
-                tStr = list[i];
-                if (tStr) {
-                    list2.push(this._idMap[tStr.replace("@node:", "")]);
-                } else {
-                    list2.push(null);
-                }
-            }
-            return list2;
-        } else {
-            return this._idMap[referStr.replace("@node:", "")];
-        }
-    }
-
-    /**@private */
-    //TODO:coverage
-    addInitItem(item: any): void {
-        if (!this._initList) this._initList = [];
-        this._initList.push(item);
-    }
-
-    /**@private */
-    //TODO:coverage
-    doInits(): void {
-        if (!this._initList) return;
-        this._initList = null;
-    }
-
-    /**@private */
-    //TODO:coverage
-    finish(): void {
-        this.setNodeRef();
-        this.doInits();
-        this.recover();
-    }
 
     /**
- * 根据指定的 json 数据创建节点对象。
- * 比如:
- * {
- * 	"type":"Sprite",
- * 	"props":{
- * 		"x":100,
- * 		"y":50,
- * 		"name":"item1",
- * 		"scale":[2,2]
- * 	},
- * 	"customProps":{
- * 		"x":100,
- * 		"y":50,
- * 		"name":"item1",
- * 		"scale":[2,2]
- * 	},
- * 	"child":[
- * 		{
- * 			"type":"Text",
- * 			"props":{
- * 				"text":"this is a test",
- * 				"var":"label",
- * 				"rumtime":""
- * 			}
- * 		}
- * 	]
- * }
- * @param	json json字符串或者Object对象。
- * @param	node node节点，如果为空，则新创建一个。
- * @param	root 根节点，用来设置var定义。
- * @return	生成的节点。
- */
-    static createByJson(json: any, node: any = null, root: Node = null, customHandler: Handler = null, instanceHandler: Handler = null): any {
+     * 根据指定的 json 数据创建节点对象。
+     * 比如:
+     * {
+     * 	"type":"Sprite",
+     * 	"props":{
+     * 		"x":100,
+     * 		"y":50,
+     * 		"name":"item1",
+     * 		"scale":[2,2]
+     * 	},
+     * 	"customProps":{
+     * 		"x":100,
+     * 		"y":50,
+     * 		"name":"item1",
+     * 		"scale":[2,2]
+     * 	},
+     * 	"child":[
+     * 		{
+     * 			"type":"Text",
+     * 			"props":{
+     * 				"text":"this is a test",
+     * 				"var":"label",
+     * 				"rumtime":""
+     * 			}
+     * 		}
+     * 	]
+     * }
+     * @param	json json字符串或者Object对象。
+     * @param	node node节点，如果为空，则新创建一个。
+     * @param	root 根节点，用来设置var定义。
+     * @return	生成的节点。
+     */
+     static createByJson(json: any, node: any = null, root: Node = null, customHandler: Handler = null, instanceHandler: Handler = null): any {
         if (typeof (json) == 'string') json = JSON.parse((<string>json));
         var props: any = json.props;
 
@@ -763,5 +616,152 @@ class InitTool {
             return obj[key];
         }
         return noValue;
+    }
+}
+
+/**
+ * @private 场景辅助类
+ */
+class DataWatcher {
+    comp: any;
+    prop: string;
+    value: string;
+
+    //TODO:coverage
+    constructor(comp: any, prop: string, value: string) {
+        this.comp = comp;
+        this.prop = prop;
+        this.value = value;
+    }
+
+    exe(view: any): void {
+        var fun: Function = LegacyUIParser.getBindFun(this.value);
+        this.comp[this.prop] = fun.call(this, view);
+    }
+}
+
+
+/**
+ * @private 场景辅助类
+ */
+class InitTool {
+    /**@private */
+    private _nodeRefList: any[];
+    /**@private */
+    private _initList: any[];
+    private _loadList: any[];
+    /**@internal */
+    _idMap: { [key: string]: Sprite };
+
+    //TODO:coverage
+    reset(): void {
+        this._nodeRefList = null;
+        this._initList = null;
+        this._idMap = null;
+        this._loadList = null;
+    }
+
+    //TODO:coverage
+    recover(): void {
+        this.reset();
+        Pool.recover("InitTool", this);
+    }
+
+    static create(): InitTool {
+        var tool: InitTool = Pool.getItemByClass("InitTool", InitTool);
+        tool._idMap = {};
+        return tool;
+    }
+
+    //TODO:coverage
+    addLoadRes(url: string, type: string = null): void {
+        if (!this._loadList) this._loadList = [];
+        if (ILaya.loader.getRes(url)) {
+            return;
+        }
+        if (!type) {
+            this._loadList.push(url);
+        } else {
+            this._loadList.push({ url: url, type: type });
+        }
+    }
+
+    /**@private */
+    //TODO:coverage
+    addNodeRef(node: any, prop: string, referStr: string): void {
+        if (!this._nodeRefList) this._nodeRefList = [];
+        this._nodeRefList.push([node, prop, referStr]);
+        if (referStr.indexOf("@Prefab:") >= 0) {
+            this.addLoadRes(referStr.replace("@Prefab:", ""), Loader.JSON);
+        }
+    }
+
+    /**@private */
+    //TODO:coverage
+    setNodeRef(): void {
+        if (!this._nodeRefList) return;
+        if (!this._idMap) {
+            this._nodeRefList = null;
+            return;
+        }
+        var i: number, len: number;
+        len = this._nodeRefList.length;
+        var tRefInfo: any[];
+        for (i = 0; i < len; i++) {
+            tRefInfo = this._nodeRefList[i];
+            tRefInfo[0][tRefInfo[1]] = this.getReferData(tRefInfo[2]);
+        }
+        this._nodeRefList = null;
+    }
+
+    /**@private */
+    //TODO:coverage
+    getReferData(referStr: string): any {
+        if (referStr.indexOf("@Prefab:") >= 0) {
+            var prefab = new Prefab();
+            prefab.json = Loader.getRes(referStr.replace("@Prefab:", ""));
+            return prefab;
+        } else if (referStr.indexOf("@arr:") >= 0) {
+            referStr = referStr.replace("@arr:", "");
+            var list: string[];
+            list = referStr.split(",");
+            var i: number, len: number;
+            var tStr: string;
+            len = list.length;
+            var list2: Sprite[] = [];
+            for (i = 0; i < len; i++) {
+                tStr = list[i];
+                if (tStr) {
+                    list2.push(this._idMap[tStr.replace("@node:", "")]);
+                } else {
+                    list2.push(null);
+                }
+            }
+            return list2;
+        } else {
+            return this._idMap[referStr.replace("@node:", "")];
+        }
+    }
+
+    /**@private */
+    //TODO:coverage
+    addInitItem(item: any): void {
+        if (!this._initList) this._initList = [];
+        this._initList.push(item);
+    }
+
+    /**@private */
+    //TODO:coverage
+    doInits(): void {
+        if (!this._initList) return;
+        this._initList = null;
+    }
+
+    /**@private */
+    //TODO:coverage
+    finish(): void {
+        this.setNodeRef();
+        this.doInits();
+        this.recover();
     }
 }
