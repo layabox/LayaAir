@@ -6,7 +6,7 @@ varying vec3 v_Texcoord;
 
 void main()
 {
-    vec2 uv = v_Texcoord;
+    vec3 uv = v_Texcoord;
     vec4 cubeSampler = textureCube(u_CubeTexture, uv);
 #ifdef Gamma_u_CubeTexture
     cubeSampler = gammaToLinear(cubeSampler);

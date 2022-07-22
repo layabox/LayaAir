@@ -87,9 +87,6 @@ export class SkyBoxMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("SkyBox");
-		this.tintColor = new Color(0.5, 0.5, 0.5, 0.5);
-		this.exposure = 1.0;
-		this.rotation = 0;
 	}
 
 }

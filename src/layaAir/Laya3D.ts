@@ -190,7 +190,7 @@ export class Laya3D {
         ShurikenParticleMaterial.__initDefine__();
         // ExtendTerrainMaterial.__initDefine__();
         // PixelLineMaterial.__initDefine__();
-        // SkyBoxMaterial.__initDefine__();
+        SkyBoxMaterial.__initDefine__();
         // BloomEffect.__init__();
 
         Command.__init__();
