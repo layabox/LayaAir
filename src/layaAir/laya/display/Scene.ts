@@ -22,8 +22,6 @@ export class Scene extends Sprite {
 
     /**场景被关闭后，是否自动销毁（销毁节点和使用到的资源），默认为false*/
     autoDestroyAtClosed: boolean = false;
-    /**场景地址*/
-    url: string = null;
 
     /**场景时钟*/
     private _timer: Timer;

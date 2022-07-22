@@ -79,10 +79,14 @@ class MyHierarchyResource extends HierarchyResource {
 
     createNodes(options?: Record<string, any>, errors?: any[]): Node {
         let ret = this.api.parse(this.data, options, errors);
-        if (Array.isArray(ret))
+        if (Array.isArray(ret)) {
+            ret[0].url = this.url;
             return ret[0];
-        else
+        }
+        else {
+            ret.url = this.url;
             return ret;
+        }
     }
 }
 
