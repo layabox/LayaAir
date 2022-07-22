@@ -1,5 +1,6 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
 import { Material } from "./Material";
 
@@ -118,23 +119,23 @@ export class SkyProceduralMaterial extends Material {
 	/**
 	 * 天空颜色。
 	 */
-	get skyTint(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(SkyProceduralMaterial.SKYTINT));
+	get skyTint(): Color {
+		return (<Color>this._shaderValues.getColor(SkyProceduralMaterial.SKYTINT));
 	}
 
-	set skyTint(value: Vector4) {
-		this._shaderValues.setVector(SkyProceduralMaterial.SKYTINT, value);
+	set skyTint(value: Color) {
+		this._shaderValues.setColor(SkyProceduralMaterial.SKYTINT, value);
 	}
 
 	/**
 	 * 地面颜色。
 	 */
-	get groundTint(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(SkyProceduralMaterial.GROUNDTINT));
+	get groundTint(): Color {
+		return this._shaderValues.getColor(SkyProceduralMaterial.GROUNDTINT);
 	}
 
-	set groundTint(value: Vector4) {
-		this._shaderValues.setVector(SkyProceduralMaterial.GROUNDTINT, value);
+	set groundTint(value: Color) {
+		this._shaderValues.setColor(SkyProceduralMaterial.GROUNDTINT, value);
 	}
 
 	/**
@@ -154,13 +155,13 @@ export class SkyProceduralMaterial extends Material {
 	 */
 	constructor() {
 		super();
-		this.setShaderName("SkyBoxProcedural");
+		this.setShaderName("SkyProcedural");
 		this.sunDisk = SkyProceduralMaterial.SUN_HIGH_QUALITY;
 		this.sunSize = 0.04;
 		this.sunSizeConvergence = 5;
 		this.atmosphereThickness = 1.0;
-		this.skyTint = new Vector4(0.5, 0.5, 0.5, 1.0);
-		this.groundTint = new Vector4(0.369, 0.349, 0.341, 1.0);
+		this.skyTint = new Color(0.5, 0.5, 0.5, 1.0);
+		this.groundTint = new Color(0.369, 0.349, 0.341, 1.0);
 		this.exposure = 1.3;
 	}
 

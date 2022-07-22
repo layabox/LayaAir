@@ -75,6 +75,7 @@ import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import "./laya/d3/RegClasses";
 import { BlitFrameBufferCMD } from "./laya/d3/core/render/command/BlitFrameBufferCMD";
 import { ParticleShuriKenShaderInit } from "./laya/d3/shader/ShurikenParticle/ParticleShuriKenShaderInit";
+import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -173,6 +174,7 @@ export class Laya3D {
         BaseCamera.__init__();
         BaseRender.__init__();
         MeshRenderer.__init__();
+        SkyRenderer.__init__();
         Camera.__init__();
         MeshRenderStaticBatchManager.__init__();
         ShadowUtils.init();
@@ -181,10 +183,10 @@ export class Laya3D {
         BlinnPhongMaterial.__initDefine__();
         // PBRStandardMaterial.__initDefine__();
         // PBRSpecularMaterial.__initDefine__();
-        // SkyProceduralMaterial.__initDefine__();
+        SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();
         TrailMaterial.__initDefine__();
-        ParticleShuriKenShaderInit.init();
+        
         // EffectMaterial.__initDefine__();
         // WaterPrimaryMaterial.__initDefine__();
         ShurikenParticleMaterial.__initDefine__();

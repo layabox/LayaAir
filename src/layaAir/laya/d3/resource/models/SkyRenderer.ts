@@ -1,11 +1,15 @@
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Camera } from "../../core/Camera";
 import { GeometryElement } from "../../core/GeometryElement";
 import { Material } from "../../core/material/Material";
+import { BaseRender } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { RenderElement } from "../../core/render/RenderElement";
+import { Scene3D } from "../../core/scene/Scene3D";
+import { CommandUniformMap } from "../../core/scene/Scene3DShaderDeclaration";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { SkyBox } from "./SkyBox";
@@ -26,6 +30,17 @@ export class SkyRenderer {
     private _mesh: GeometryElement;
     /**@internal */
     private _renderElement: RenderElement;
+
+    private _renderData:BaseRender;
+    static SUNLIGHTDIRECTION:number;
+    static SUNLIGHTDIRCOLOR:number;
+    static __init__(){
+        SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
+        SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
+        const commandUniform = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction");
+        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color");
+    }
 
     /**
      * 材质。
@@ -81,6 +96,8 @@ export class SkyRenderer {
     constructor() {
         this._renderElement = new RenderElement();
         this.mesh = SkyBox.instance;
+        this._renderData = new BaseRender();
+        this._renderElement.render = this._renderData;
     }
 
     /**
@@ -97,10 +114,12 @@ export class SkyRenderer {
     _render(context: RenderContext3D): void {
         if (this._material && this._mesh) {
             var camera: Camera = context.camera;
+            var scene:Scene3D = context.scene;
             var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
             if (camera.orthographic)
                 Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
-
+            this._renderData._shaderValues.setColor(SkyRenderer.SUNLIGHTDIRCOLOR,scene._sunColor);
+            this._renderData._shaderValues.setVector3(SkyRenderer.SUNLIGHTDIRECTION,scene._sundir);
             //无穷投影矩阵算法,DirectX右手坐标系推导
             //http://terathon.com/gdc07_lengyel.pdf
 

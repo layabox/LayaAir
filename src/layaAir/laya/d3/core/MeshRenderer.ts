@@ -263,45 +263,8 @@ export class MeshRenderer extends BaseRender {
 			case RenderElement.RENDERTYPE_VERTEXBATCH:
 				this._setShaderValue(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
 				break;
-			case RenderElement.RENDERTYPE_INSTANCEBATCH:
-				// var worldMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceWorldMatrixData;
-				// var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
-				// var elements: SubMeshRenderElement[] = insBatches.elements;
-				// var count: number = insBatches.length;
-				// for (var i: number = 0; i < count; i++)
-				// 	worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
-
-				// var worldBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer;
-				// worldBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.   TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
-				// worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
-				// this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
-				break;
 		}
 	}
-
-	// /**
-	//  * @inheritDoc
-	//  * @override
-	//  * @internal
-	//  */
-	// _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-	// 	// var projectionView: Matrix4x4 = context.projectionViewMatrix;
-	// 	// if (projectionView) {//TODO:是否移除MVP
-	// 	// 	var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
-	// 	// 	switch (element.renderType) {
-	// 	// 		case RenderElement.RENDERTYPE_NORMAL:
-	// 	// 		case RenderElement.RENDERTYPE_STATICBATCH:
-	// 	// 		case RenderElement.RENDERTYPE_VERTEXBATCH:
-	// 	// 			if (transform) {
-	// 	// 				//Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-	// 	// 				//this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-	// 	// 			} else {
-	// 	// 				//this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-	// 	// 			}
-	// 	// 			break;
-	// 	// 	}
-	// 	// }
-	// }
 	/**
 	 * @internal
 	 * @override

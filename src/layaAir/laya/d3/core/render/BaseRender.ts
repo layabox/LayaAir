@@ -117,13 +117,6 @@ export class BaseRender extends Component {
 	/**@internal */
 	protected _transform: Transform3D;
 
-
-
-
-
-
-
-
 	get renderNode(): IBaseRenderNode {
 		return this._rendernode;
 	}
@@ -135,9 +128,6 @@ export class BaseRender extends Component {
 	get distanceForSort() {
 		return this._rendernode.distanceForSort;
 	}
-
-
-
 
 	/**
 	 * 获取唯一标识ID,通常用于识别。
@@ -170,7 +160,6 @@ export class BaseRender extends Component {
 		this._lightmapScaleOffset = value;
 		this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, value);
 	}
-
 
 	/**
 	 * 返回第一个实例材质,第一次使用会拷贝实例对象。

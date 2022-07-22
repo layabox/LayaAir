@@ -40,14 +40,14 @@ export class Sky_Procedural {
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 		//设置平行光的方向
 		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(-1.0, -1.0, -1.0));
+		mat.setForward(new Vector3(0,-1,0));
 		directionLight.transform.worldMatrix = mat;
 		var rotation: Vector3 = new Vector3(-0.01, 0, 0);
 
 		//旋转平行光,模拟太阳轨迹
-		Laya.timer.frameLoop(1, this, function (): void {
-			directionLight.transform.rotate(rotation);
-		});
+		// Laya.timer.frameLoop(1, this, function (): void {
+		// 	directionLight.transform.rotate(rotation);
+		// });
 
 	}
 }

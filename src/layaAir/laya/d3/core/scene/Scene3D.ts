@@ -229,15 +229,6 @@ export class Scene3D extends Sprite implements ISubmit {
 		Scene3D.DIRECTIONLIGHTCOUNT = Shader3D.propertyNameToID("u_DirationLightCount");
 		Scene3D.LIGHTBUFFER = Shader3D.propertyNameToID("u_LightBuffer");
 		Scene3D.CLUSTERBUFFER = Shader3D.propertyNameToID("u_LightClusterBuffer");
-		Scene3D.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
-		Scene3D.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
-		// Scene3D.AMBIENTSHAR = Shader3D.propertyNameToID("u_AmbientSHAr");
-		// Scene3D.AMBIENTSHAG = Shader3D.propertyNameToID("u_AmbientSHAg");
-		// Scene3D.AMBIENTSHAB = Shader3D.propertyNameToID("u_AmbientSHAb");
-		// Scene3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr"); 
-		// Scene3D.AMBIENTSHBG = Shader3D.propertyNameToID("u_AmbientSHBg");
-		// Scene3D.AMBIENTSHBB = Shader3D.propertyNameToID("u_AmbientSHBb");
-		// Scene3D.AMBIENTSHC = Shader3D.propertyNameToID("u_AmbientSHC");
 		Scene3D.AMBIENTCOLOR = Shader3D.propertyNameToID("u_AmbientColor");
 		Scene3D.TIME = Shader3D.propertyNameToID("u_Time");
 		Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
@@ -249,15 +240,6 @@ export class Scene3D extends Sprite implements ISubmit {
 		sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount");
 		sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer");
 		sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
-		sceneUniformMap.addShaderUniform(Scene3D.SUNLIGHTDIRECTION, "u_SunLight_direction");
-		sceneUniformMap.addShaderUniform(Scene3D.SUNLIGHTDIRCOLOR, "u_SunLight_color");
-		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAR, "u_AmbientSHAr");
-		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAG, "u_AmbientSHAg");
-		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAB, "u_AmbientSHAb");
-		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBR, "u_AmbientSHBr");
-		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBG, "u_AmbientSHBg");
-		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBB, "u_AmbientSHBb");
-		// sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHC, "u_AmbientSHC");
 		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTCOLOR, "u_AmbientColor");
 		sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
 		sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE);
@@ -304,8 +286,6 @@ export class Scene3D extends Sprite implements ISubmit {
 			uniformpara.set("u_FogStart", UniformBufferParamsType.Number);
 			uniformpara.set("u_FogRange", UniformBufferParamsType.Number);
 			uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
-			// uniformpara.set("u_SunLight_direction", UniformBufferParamsType.Vector3);
-			// uniformpara.set("u_SunLight_color", UniformBufferParamsType.Color);
 			let uniformMap = new Map<number, UniformBufferParamsType>();
 			uniformpara.forEach((value, key) => {
 				uniformMap.set(Shader3D.propertyNameToID(key), value);
@@ -420,6 +400,11 @@ export class Scene3D extends Sprite implements ISubmit {
 	private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
 	/** @internal */
 	private _reflectionIntensity: number = 1.0;
+
+	/**@internal */
+	_sunColor:Color;
+	/**@interanl */
+	_sundir:Vector3;
 	/**@internal*/
 	_id = Scene3D.sceneID++;
 	/**@internal */
@@ -1042,6 +1027,10 @@ export class Scene3D extends Sprite implements ISubmit {
 					// 	this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, intCor);
 					// 	this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dir);
 					// }
+					if(i==0){
+						this._sunColor = dirLight.color;
+						this._sundir = dir;
+					}	
 				}
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
@@ -1132,6 +1121,10 @@ export class Scene3D extends Sprite implements ISubmit {
 				Vector3.normalize(dirLight._direction, dirLight._direction);
 				shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
 				shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
+				if(i==0){
+					this._sunColor = dirLight.color;
+					this._sundir = dirLight._direction;
+				}	
 				// this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
 				// this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
