@@ -7,7 +7,7 @@ import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../Camera";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Vector4 } from "../../math/Vector4";
-import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
+import { IRenderContext3D, PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 
@@ -28,7 +28,7 @@ export class RenderContext3D {
 		RenderContext3D._instance = new RenderContext3D();
 	}
 	/**@internal */
-	
+
 	/** @internal */
 	viewMatrix: Matrix4x4;
 	/**@internal */
@@ -45,11 +45,11 @@ export class RenderContext3D {
 	/** @internal */
 	camera: Camera;
 	/**@internal */
-	_scene:Scene3D;
+	_scene: Scene3D;
 	/** @internal */
 	shader: ShaderInstance;
 	/**设置渲染管线 */
-	configPipeLineMode: string = "Forward";
+	configPipeLineMode: PipelineMode = "Forward";
 	/**@internal contextOBJ*/
 	_contextOBJ: IRenderContext3D;
 	/**@internal */
@@ -89,11 +89,11 @@ export class RenderContext3D {
 	}
 
 	/** @internal */
-	get pipelineMode(): string {
+	get pipelineMode(): PipelineMode {
 		return this._contextOBJ.pipelineMode;
 	}
 
-	set pipelineMode(value: string) {
+	set pipelineMode(value: PipelineMode) {
 		this._contextOBJ.pipelineMode = value;
 	}
 	//Camera Shader Data
@@ -112,7 +112,7 @@ export class RenderContext3D {
 		this._scene = value;
 	}
 
-	get scene():Scene3D{
+	get scene(): Scene3D {
 		return this._scene;
 	}
 
@@ -130,10 +130,10 @@ export class RenderContext3D {
 	 * 渲染一个
 	 * @param renderelemt 
 	 */
-	drawRenderElement(renderelemt:RenderElement):void{
-        renderelemt._renderUpdatePre(this);
+	drawRenderElement(renderelemt: RenderElement): void {
+		renderelemt._renderUpdatePre(this);
 		this._contextOBJ.drawRenderElement(renderelemt._renderElementOBJ);
-    }
+	}
 	/**
 	 * 创建一个 <code>RenderContext3D</code> 实例。
 	 */

@@ -3,7 +3,7 @@ import { Vector4 } from "../../../../d3/math/Vector4";
 import { Viewport } from "../../../../d3/math/Viewport";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { IRenderTarget } from "../../../RenderInterface/IRenderTarget";
-import { IRenderContext3D } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
+import { IRenderContext3D, PipelineMode } from "../../../RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { ShaderData } from "../../../RenderShader/ShaderData";
 import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
 import { NativeRenderElementOBJ } from "./NativeRenderElementOBJ";
@@ -23,7 +23,7 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
     //scene Shader Data
     private _sceneShaderData: ShaderData;
     //Global ShaderData
-    private _globalShaderData:ShaderData;
+    private _globalShaderData: ShaderData;
 
     private _nativeObj: any;
 
@@ -33,13 +33,13 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
         this._nativeObj = new (window as any).conchRenderContext3D((LayaGL.renderEngine as any)._nativeObj);
     }
 
-    drawRenderElement(renderelemt:NativeRenderElementOBJ):void{
+    drawRenderElement(renderelemt: NativeRenderElementOBJ): void {
         UploadMemoryManager.syncRenderMemory();//同步数据
         renderelemt._render(this);
     }
 
     /**设置IRenderContext */
-    applyContext(cameraUpdateMark:number): void {
+    applyContext(cameraUpdateMark: number): void {
         this._nativeObj.changeViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         this._nativeObj.changeScissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
         this.destTarget && this.destTarget._start();
@@ -80,11 +80,11 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
         return this._nativeObj.invertY;
     }
 
-    set pipelineMode(pipelineMode: string) {
+    set pipelineMode(pipelineMode: PipelineMode) {
         this._nativeObj.pipelineMode = pipelineMode;
     }
 
-    get pipelineMode(): string {
+    get pipelineMode(): PipelineMode {
         return this._nativeObj.pipelineMode;
     }
 
@@ -131,5 +131,5 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
         return this._nativeObj.cameraUpdateMark;
     }
 
-  
+
 }
