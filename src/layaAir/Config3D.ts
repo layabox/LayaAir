@@ -58,9 +58,6 @@ export class Config3D implements IClone {
     /**@internal 设置分辨率*/
     private _customPixel: boolean = false;
 
-
-    /**@internal*/
-    _editerEnvironment: boolean = false;
     /**@internal*/
     _multiLighting: boolean;
     /**@internal*/
@@ -227,7 +224,6 @@ export class Config3D implements IClone {
     cloneTo(dest: any): void {//[实现IClone接口]
         var destConfig3D: Config3D = (<Config3D>dest);
         destConfig3D._defaultPhysicsMemory = this._defaultPhysicsMemory;
-        destConfig3D._editerEnvironment = this._editerEnvironment;
         destConfig3D.isAntialias = this.isAntialias;
         destConfig3D.isAlpha = this.isAlpha;
         destConfig3D.premultipliedAlpha = this.premultipliedAlpha;

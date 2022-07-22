@@ -18,7 +18,6 @@ import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
 import { Sprite3D } from "../Sprite3D";
-import { ILaya3D } from "../../../../ILaya3D";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { SubUniformBufferData } from "../../../RenderEngine/subUniformBufferData";
 import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
@@ -386,13 +385,6 @@ export class BaseRender extends Component {
 			(this.owner.scene as Scene3D)._componentManager.addUpdateRenderer(this);
 		}
 		(this.owner.scene as Scene3D)._addRenderObject(this);
-		if (ILaya3D.Laya3D._editerEnvironment) {
-			var scene: Scene3D = (<Scene3D>this.owner.scene);
-			var pickColor: Vector4 = new Vector4();
-			scene._allotPickColorByID(this.id, pickColor);
-			scene._pickIdToSprite[this.id] = this;
-			this._shaderValues.setVector(RenderableSprite3D.PICKCOLOR, pickColor);
-		}
 		this._setBelongScene(this.owner.scene);
 	}
 
