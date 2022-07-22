@@ -85,8 +85,8 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	{
 	    if (i >= clusterInfo.x)
 		break;
-	    PointLight pointLight = getPointLight(i, clusterInfo,  pixel.positionWS);
-	    Light light = getLight(pointLight, pixel.normalWS,  pixel.positionWS);
+	    PointLight pointLight = getPointLight(i, clusterInfo, pixel.positionWS);
+	    Light light = getLight(pointLight, pixel.normalWS, pixel.positionWS);
 	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
     #endif // POINTLIGHT
@@ -96,8 +96,8 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	{
 	    if (i >= clusterInfo.y)
 		break;
-	    SpotLight spotLight = getSpotLight(i, clusterInfo,  pixel.positionWS);
-	    Light light = getLight(spotLight, pixel.normalWS,  pixel.positionWS);
+	    SpotLight spotLight = getSpotLight(i, clusterInfo, pixel.positionWS);
+	    Light light = getLight(spotLight, pixel.normalWS, pixel.positionWS);
 	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
     #endif // SPOTLIGHT

@@ -53,6 +53,9 @@ export class Node extends EventDispatcher {
     /**@internal */
     _conchData: any;
 
+    /** 如果节点从资源中创建，这里记录是他的url */
+    url?: string;
+
     constructor() {
         super();
 
