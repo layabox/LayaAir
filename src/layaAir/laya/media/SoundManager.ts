@@ -47,7 +47,7 @@ export class SoundManager {
     /**@internal 当前背景音乐url。*/
     static _bgMusic: string = null;
     /**@private 当前背景音乐声道。*/
-    private static _musicChannel: SoundChannel = null;
+    static _musicChannel: SoundChannel = null;
     /**@private 当前播放的Channel列表。*/
     private static _channels: any[] = [];
     /**@private */
