@@ -27,6 +27,9 @@ void main()
     v_Texcoord = vec3(-a_Position.x, a_Position.yz); //转换坐标系
 
     vec4 position = rotateAroundYInDegrees(a_Position, u_Rotation);
-    gl_Position = getPositionCS(position.xyz);
-    gl_Position = remapSkyPositionZ(position);
+    // gl_Position = getPositionCS(position.xyz);
+
+    gl_Position = u_ViewProjection * position;
+
+    gl_Position = remapSkyPositionZ(gl_Position);
 }
