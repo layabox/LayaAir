@@ -74,6 +74,7 @@ import Sprite3DGLSL from "./common/Sprite3DCommon.glsl";
 
 import DepthVertexGLSL from "./depth/DepthVertex.glsl";
 import DepthFragGLSL from "./depth/DepthFrag.glsl";
+import DepthNormalUtilGLSL from "./depth/DepthNormalUtil.glsl";
 
 import ShadowSampleTentGLSL from "./lighting/ShadowSampleTent.glsl";
 import ShadowSamplerGLSL from "./lighting/ShadowSampler.glsl";
@@ -127,6 +128,7 @@ export class ShaderInit3D {
 		// depth
 		Shader3D.addInclude("DepthVertex.glsl", DepthVertexGLSL);
 		Shader3D.addInclude("DepthFrag.glsl", DepthFragGLSL);
+		Shader3D.addInclude("DepthNormalUtil.glsl",DepthNormalUtilGLSL);
 
 		// scene fog
 		Shader3D.addInclude("SceneFog.glsl", SceneFogGLSL);

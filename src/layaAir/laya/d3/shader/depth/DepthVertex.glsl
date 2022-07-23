@@ -66,12 +66,13 @@ vec4 DepthPositionCS(in vec3 positionWS, in vec3 normalWS)
 
     return positionCS;
 }
-
+    #ifndef DEPTHPASS
 vec3 getViewDirection(in vec3 positionWS)
 {
     vec3 viewDirection = vec3(0.0);
     viewDirection = u_ShadowLightDirection;
     return viewDirection;
 }
+    #endif
 
 #endif // DepthVertex_lib
