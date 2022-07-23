@@ -8,7 +8,7 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 export class DepthNormalsMaterial extends Material{
     static init(){
         var shader:Shader3D = Shader3D.add("DepthNormalShader",false,false);
-        var subShader:SubShader = new SubShader();
+        var subShader:SubShader = new SubShader(SubShader.DefaultAttributeMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(DepthNormalVS,DepthNormalFS,"Forward");
     }

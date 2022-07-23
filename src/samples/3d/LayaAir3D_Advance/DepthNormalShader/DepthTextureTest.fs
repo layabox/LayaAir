@@ -1,9 +1,5 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-	precision highp float;
-#else
-	precision mediump float;
-#endif
-
+#define SHADER_NAME DepthTextureTestFS
+#include "Camera.glsl";
 #include "DepthNormalUtil.glsl";
 
 

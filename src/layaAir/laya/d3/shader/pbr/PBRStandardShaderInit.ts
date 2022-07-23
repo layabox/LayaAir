@@ -7,6 +7,9 @@ import PBRStandardFS from "./pbrStandard.fs";
 
 import DepthVS from "../depth/Depth.vs";
 import DepthFS from "../depth/Depth.fs";
+import DepthNormalVS from "../depth/DepthNormal.vs";
+import DepthNormalFS from "../depth/DepthNormal.fs";
+
 import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
 
@@ -48,7 +51,7 @@ export class PBRStandardShaderInit {
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(PBRStandardVS, PBRStandardFS);
         let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");
-
+        let depthNormal = subShader.addShaderPass(DepthNormalVS,DepthNormalFS,"DepthNormal");
     }
 
 }

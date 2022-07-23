@@ -3,9 +3,9 @@
 
 #include "DepthNormalUtil.glsl";
 
-varying vec4 depthNormals;
+varying vec4 v_depthNormals;
 
 void main()
 {
-	gl_FragColor=depthNormalsFragment(depthNormals);
+	gl_FragColor=depthNormalsFragment(v_depthNormals);
 }

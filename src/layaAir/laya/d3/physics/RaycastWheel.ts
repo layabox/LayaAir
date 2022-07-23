@@ -1,5 +1,5 @@
-import { ILaya3D } from "ILaya3D";
-import { Laya } from "Laya";
+import { ILaya3D } from "../../../ILaya3D";
+import { Laya } from "../../../Laya";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
