@@ -20,11 +20,8 @@ uniform float u_FogRange;
 uniform vec4 u_FogColor;
     #endif // ENUNIFORMBLOCK
 
-
-
 // todo 移动到 block 中 ？
 uniform vec3 u_IblSH[9];
-
 
 vec3 diffuseIrradiance(in vec3 normal)
 {
@@ -42,8 +39,6 @@ vec3 diffuseIrradiance(in vec3 normal)
 	    + u_IblSH[8] * (n.x * n.x - n.y * n.y),
 	0.0);
 }
-
-
 
     #ifdef LIGHTMAP
 uniform sampler2D u_LightMap;
