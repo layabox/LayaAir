@@ -18,7 +18,6 @@ import { ClassUtils } from "../../../utils/ClassUtils";
 import { IClone } from "../IClone";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Config3D } from "../../../../Config3D";
-import { UniformBufferParamsType, UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderState } from "./RenderState";
 import { Matrix4x4 } from "../../math/Matrix4x4";

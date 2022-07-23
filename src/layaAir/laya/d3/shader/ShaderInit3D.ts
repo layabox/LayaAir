@@ -111,10 +111,8 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Utils.glsl", UtilsGLSL);
 		Shader3D.addInclude("Color.glsl", ColorGLSL);
 		Shader3D.addInclude("Math.glsl", MathGLSL);
-
 		Shader3D.addInclude("TBNNormal.glsl", TBNNormalGLSL);
 		Shader3D.addInclude("BakedBoneMatrixSampler.glsl", BakedBoneMatrixSamplerGLSL);
-
 		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
 
 		// scene

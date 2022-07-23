@@ -20,7 +20,7 @@ import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { GL2TextureContext } from "./GL2TextureContext";
-import { GlBuffer } from "./GLBuffer";
+import { GLBuffer } from "./GLBuffer";
 import { GlCapable } from "./GlCapable";
 import { WebGLMode } from "./GLEnum/WebGLMode";
 import { GLParams } from "./GLParams";
@@ -83,7 +83,7 @@ export class WebGLEngine implements IRenderEngine {
 
     //bind glBuffer by glBuffer target
     //key BufferTargetType
-    private _GLBufferBindMap: { [key: number]: GlBuffer | null };
+    private _GLBufferBindMap: { [key: number]: GLBuffer | null };
 
     private _curUBOPointer: number = 0;
     //记录绑定UBO的glPointer
@@ -206,7 +206,7 @@ export class WebGLEngine implements IRenderEngine {
         return this._GLBufferBindMap[target];
     }
 
-    _setbindBuffer(target: BufferTargetType, buffer: GlBuffer | null) {
+    _setbindBuffer(target: BufferTargetType, buffer: GLBuffer | null) {
         this._GLBufferBindMap[target] = buffer;
     }
 
@@ -308,7 +308,7 @@ export class WebGLEngine implements IRenderEngine {
 
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer {
         //TODO SourceManager
-        return new GlBuffer(this, targetType, bufferUsageType);
+        return new GLBuffer(this, targetType, bufferUsageType);
     }
 
     createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance {

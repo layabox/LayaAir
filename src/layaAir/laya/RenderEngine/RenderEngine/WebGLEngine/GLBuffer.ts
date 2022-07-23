@@ -3,7 +3,7 @@ import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
 
-export class GlBuffer extends GLObject implements IRenderBuffer {
+export class GLBuffer extends GLObject implements IRenderBuffer {
     //GLParams
     _glBuffer: WebGLBuffer;
     _glTarget: number;
