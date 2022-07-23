@@ -19,10 +19,10 @@ import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
 import { Sprite3D } from "../Sprite3D";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
-import { SubUniformBufferData } from "../../../RenderEngine/subUniformBufferData";
 import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
+import { SubUniformBufferData } from "../../../RenderEngine/SubUniformBufferData";
 
 
 /**

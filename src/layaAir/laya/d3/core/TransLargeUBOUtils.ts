@@ -1,5 +1,5 @@
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { SubUniformBufferData } from "../../RenderEngine/subUniformBufferData";
+import { SubUniformBufferData } from "../../RenderEngine/SubUniformBufferData";
 import { UniformBufferParamsType } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 
