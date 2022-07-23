@@ -41,8 +41,8 @@ export class LegacyUIParser {
     /**@internal */
     static _sheet: any;
 
-    static parse(data: any) {
-        return LegacyUIParser.createByData(null, data);
+    static parse(data: any, options: any) {
+        return LegacyUIParser.createByData(options?.root, data);
     }
 
     /**
@@ -360,7 +360,7 @@ export class LegacyUIParser {
      * @param	root 根节点，用来设置var定义。
      * @return	生成的节点。
      */
-     static createByJson(json: any, node: any = null, root: Node = null, customHandler: Handler = null, instanceHandler: Handler = null): any {
+    static createByJson(json: any, node: any = null, root: Node = null, customHandler: Handler = null, instanceHandler: Handler = null): any {
         if (typeof (json) == 'string') json = JSON.parse((<string>json));
         var props: any = json.props;
 
