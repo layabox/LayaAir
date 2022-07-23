@@ -23,6 +23,8 @@ import { Utils } from "./laya/utils/Utils";
 import { Graphics } from "./laya/display/Graphics";
 import { Submit } from "./laya/webgl/submit/Submit";
 import { Resource } from "./laya/resource/Resource";
+import { NativeWebGLEngine } from "./laya/RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
+import { WebGLEngine } from "./laya/RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 
 /**
  * @internal
@@ -63,4 +65,6 @@ export class ILaya {
     static Submit: typeof Submit = null;
     static Stage: typeof Stage = null;
     static Resource: typeof Resource = null;
+    static WebGLEngine: typeof WebGLEngine=null;
+    static NativeWebGLEngine:typeof NativeWebGLEngine=null;
 }

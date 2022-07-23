@@ -1,8 +1,9 @@
-import { VertexElementFormat } from "../d3/graphics/VertexElementFormat";
+import { ILaya } from "./../../ILaya";
+import { Config } from "./../../Config";
 import { LayaGL } from "../layagl/LayaGL";
+import { VertexElementFormat } from "../d3/graphics/VertexElementFormat";
 import { WebGLMode } from "../RenderEngine/RenderEngine/WebGLEngine/GLEnum/WebGLMode";
 import { WebGlConfig } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLConfig";
-import { WebGLEngine } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
@@ -12,9 +13,7 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { WebGL } from "../webgl/WebGL";
-import { Config } from "./../../Config";
-import { ILaya } from "./../../ILaya";
-import { NativeWebGLEngine } from "../RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
+
 import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
 import { PerfHUD } from "../utils/PerfHUD";
 
@@ -137,13 +136,13 @@ export class Render {
 
         let engine: IRenderEngine;
         if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
-            engine = new NativeWebGLEngine(glConfig, webglMode);
+            engine = new ILaya.NativeWebGLEngine(glConfig, webglMode);
             engine.initRenderEngine(Render._mainCanvas.source);
             WebGL._isWebGL2 = engine.isWebGL2;
             new LayaGL();
         }
         else {
-            engine = new WebGLEngine(glConfig, webglMode);
+            engine = new ILaya.WebGLEngine(glConfig, webglMode);
             engine.initRenderEngine(Render._mainCanvas.source);
             var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
             if (Config.printWebglOrder)

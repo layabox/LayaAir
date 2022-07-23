@@ -60,6 +60,8 @@ import "./laya/RegClasses";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
 import { Color } from "./laya/d3/math/Color";
+import { WebGLEngine } from "./laya/RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
+import { NativeWebGLEngine } from "./laya/RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -394,6 +396,8 @@ ILaya.Submit = Submit;
 ILaya.Stage = Stage;
 ILaya.Resource = Resource;
 ILaya.WorkerLoader = WorkerLoader;
+ILaya.WebGLEngine=WebGLEngine;
+ILaya.NativeWebGLEngine=NativeWebGLEngine;
 
 /**@internal */
 export var init = Laya.init;

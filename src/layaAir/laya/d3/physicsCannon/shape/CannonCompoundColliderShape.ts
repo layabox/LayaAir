@@ -7,12 +7,14 @@ import { CannonPhysicsComponent } from "../CannonPhysicsComponent";
  */
 export class CannonCompoundColliderShape extends CannonColliderShape {
     
-    private static _tempCannonQue:CANNON.Quaternion = new CANNON.Quaternion(0,0,0,1);
-    private static _tempCannonVec:CANNON.Vec3 = new CANNON.Vec3(0,0,0);
+    private static _tempCannonQue:CANNON.Quaternion;
+    private static _tempCannonVec:CANNON.Vec3;
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
+		this._tempCannonQue=new CANNON.Quaternion(0,0,0,1);
+		this._tempCannonVec= new CANNON.Vec3(0,0,0);
 	}
 
 	/**@internal */

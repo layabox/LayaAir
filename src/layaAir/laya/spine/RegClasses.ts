@@ -3,4 +3,4 @@ import { SpineSkeleton } from "./SpineSkeleton";
 
 let c = ClassUtils.regClass;
 
-c("Laya.SpineSkeleton", SpineSkeleton);
+//c("Laya.SpineSkeleton", SpineSkeleton);
