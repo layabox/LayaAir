@@ -43,7 +43,7 @@ vec3 evaluateIBL(const in Surface surface, const in PixelInfo pixel)
     // Diffuse indirect
     vec3 n = pixel.normalWS;
     // todo 这个 / PI
-    vec3 indirectDiffuse = max(diffuseIrradiance(n), 0.0) * 1.0 / PI;
+    vec3 indirectDiffuse = max(diffuseIrradiance(n), 0.0);
     // vec3 indirectDiffuse = max(diffuseIrradiance(n), 0.0);
 
     vec3 diffuseColor = surface.diffuseColor;
