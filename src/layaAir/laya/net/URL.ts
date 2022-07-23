@@ -125,10 +125,10 @@ export class URL {
      */
     static postFormatURL(url: string): string {
         if (URL.hasExtOverrides) {
-            let ext = Utils.getFileExtension(url);
-            ext = URL.overrideFileExts[ext];
+            let extold = Utils.getFileExtension(url);
+            let ext = URL.overrideFileExts[extold];
             if (ext != null)
-                url = url.substring(0, url.length - ext.length) + ext;
+                url = url.substring(0, url.length - extold.length) + ext;
         }
 
         //自定义路径格式化
