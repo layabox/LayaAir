@@ -144,7 +144,7 @@ export class URL {
     * @param path
     */
     static join(base: string, path: string): string {
-        if (!path) return "null path";
+        if (!path) return "";
 
         isUUID = false;
         path = URL.normalizedURL(path);
@@ -195,8 +195,8 @@ export class URL {
 
     /**
      * 下载时，转换URL的扩展名。
-     * @originalExts 原始扩展名。例如[".scene"]。
-     * @targetExt 要转换为的扩展名。例如".json"。
+     * @originalExts 原始扩展名。例如["scene"]。
+     * @targetExt 要转换为的扩展名。例如"json"。
      */
     static overrideExtension(originalExts: Array<string>, targetExt: string) {
         for (let ext of originalExts)
@@ -209,7 +209,7 @@ export class URL {
     */
     static set exportSceneToJson(value: boolean) {
         if (value)
-            URL.overrideExtension([".scene3d", ".scene", ".taa", ".prefab"], ".json");
+            URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
     }
 }
 
