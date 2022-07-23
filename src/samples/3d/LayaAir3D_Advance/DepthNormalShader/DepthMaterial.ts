@@ -10,8 +10,9 @@ export class DepthMaterial extends Material{
      * init
      */
     static init(){
+
         var shader:Shader3D = Shader3D.add("DepthShader");
-        var subShader:SubShader = new SubShader();
+        var subShader:SubShader = new SubShader(SubShader.DefaultAttributeMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(DepthVS,DepthFS,"Forward");
     }

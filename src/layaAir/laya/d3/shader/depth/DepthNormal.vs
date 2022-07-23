@@ -30,7 +30,7 @@ vec4 depthNormalsVertex()
 	vec3 normalVS = mat3(u_View) * normalWS;
 	v_depthNormals.xyz = normalVS;
 	
-	vec4 positionCS = u_ViewProjection * positionWS;
+	vec4 positionCS = u_ViewProjection * vec4(positionWS,1.0);
 	v_depthNormals.w = (positionCS.z * 2.0 - positionCS.w)*u_ProjectionParams.w;
 	
     return positionCS;

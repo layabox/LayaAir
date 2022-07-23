@@ -15,7 +15,7 @@ import DepthVS from "../depth/Depth.vs";
 import DepthFS from "../depth/Depth.fs";
 
 import DepthNormalVS from "../depth/DepthNormal.vs";
-import DepthNormalFS from "../depth/DepthNormal.vs";
+import DepthNormalFS from "../depth/DepthNormal.fs";
 
 export class BlinnPhongShaderInit {
 
