@@ -9,7 +9,7 @@ import { WorkerLoader } from "./WorkerLoader";
 import { Utils } from "../utils/Utils";
 import { HttpRequest } from "./HttpRequest";
 import { AtlasResource } from "../resource/AtlasResource";
-import { TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
+import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
 import { IBatchProgress, ProgressCallback, BatchProgress } from "./BatchProgress";
 import { Handler } from "../utils/Handler";
 import { EventDispatcher } from "../events/EventDispatcher";
@@ -128,13 +128,11 @@ export class Loader extends EventDispatcher {
     static loadedMap: { [key: string]: any } = {};
 
     /**@private */
-    private _loadings: Record<string, LoadTask>;
+    private _loadings: Map<string, LoadTask>;
     /**@private */
     private _queue: Array<DownloadItem>;
     /**@private */
-    private _loadingCount: number;
-    /**@private */
-    private _downloadingCount: number;
+    private _downloadings: Set<DownloadItem>;
 
     /**
      * <p>创建一个新的 <code>Loader</code> 实例。</p>
@@ -143,10 +141,9 @@ export class Loader extends EventDispatcher {
     constructor() {
         super();
 
-        this._loadings = {};
+        this._loadings = new Map();
         this._queue = [];
-        this._loadingCount = 0;
-        this._downloadingCount = 0;
+        this._downloadings = new Set();
     }
 
     /**
@@ -154,8 +151,8 @@ export class Loader extends EventDispatcher {
      * @param url 要加载的单个资源地址或资源地址数组。
      * @return 加载成功返回资源对象，加载失败返回null。
      */
-    load(url: string | ILoadURL | (string | ILoadURL)[], type?: string, onProgress?: ProgressCallback): Promise<any>;
-    load(url: string | ILoadURL | (string | ILoadURL)[], options?: ILoadOptions, onProgress?: ProgressCallback): Promise<any>;
+    load(url: string | ILoadURL | (string | Readonly<ILoadURL>)[], type?: string, onProgress?: ProgressCallback): Promise<any>;
+    load(url: string | ILoadURL | (string | Readonly<ILoadURL>)[], options?: Readonly<ILoadOptions>, onProgress?: ProgressCallback): Promise<any>;
     /**
      * <p>这是兼容2.0引擎的加载接口</p>
      * <p>加载资源。</p>
@@ -170,8 +167,8 @@ export class Loader extends EventDispatcher {
      * @param useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
      * @return Promise对象
      */
-    load(url: string | ILoadURL | (string | ILoadURL)[], complete?: Handler, progress?: Handler, type?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any>;
-    load(url: string | ILoadURL | (string | ILoadURL)[], arg1?: string | ILoadOptions | Handler, arg2?: ProgressCallback | Handler, arg3?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any> {
+    load(url: string | ILoadURL | (string | Readonly<ILoadURL>)[], complete?: Handler, progress?: Handler, type?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any>;
+    load(url: string | ILoadURL | (string | Readonly<ILoadURL>)[], arg1?: string | Readonly<ILoadOptions> | Handler, arg2?: ProgressCallback | Handler, arg3?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): Promise<any> {
         let complete: Handler;
         let type: string;
         let options: ILoadOptions = dummyOptions;
@@ -210,6 +207,9 @@ export class Loader extends EventDispatcher {
             let promises: Array<Promise<any>> = [];
             for (let i = 0; i < url.length; i++) {
                 let url2 = url[i];
+                if (!url2)
+                    continue;
+
                 if (typeof (url2) === "string") {
                     promises.push(this._load1(url2, type, options, pd?.createCallback()));
                 }
@@ -252,7 +252,7 @@ export class Loader extends EventDispatcher {
     * @param cache 是否缓存资源。
     * @return Promise对象
     */
-    create(url: string | (string | ILoadURL)[], complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, constructParams: TextureConstructParams | null = null, propertyParams: TexturePropertyParams = null, priority: number = 0, cache: boolean = true): Promise<any> {
+    create(url: string | (string | Readonly<ILoadURL>)[], complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, constructParams: TextureConstructParams | null = null, propertyParams: TexturePropertyParams = null, priority: number = 0, cache: boolean = true): Promise<any> {
         let onProgress: ProgressCallback;
         if (progress)
             onProgress = (value: number) => progress.runWith(value);
@@ -326,7 +326,7 @@ export class Loader extends EventDispatcher {
                 return Promise.resolve(cacheRes);
         }
 
-        let task = this._loadings[formattedUrl];
+        let task = this._loadings.get(formattedUrl);
         if (task) {
             if (onProgress)
                 task.onProgress.add(onProgress);
@@ -363,8 +363,7 @@ export class Loader extends EventDispatcher {
         task.loader = this;
 
         let assetLoader = new cls();
-        this._loadings[formattedUrl] = task;
-        this._loadingCount++;
+        this._loadings.set(formattedUrl, task);
 
         let promise: Promise<any>;
         try {
@@ -383,11 +382,10 @@ export class Loader extends EventDispatcher {
             content = Loader.ensureTextureFormat(content, type);
             task.onComplete.invoke(content);
 
-            delete this._loadings[formattedUrl];
+            this._loadings.delete(formattedUrl);
             task.reset();
             loadTaskPool.push(task);
-            this._loadingCount--;
-            if (this._loadingCount == 0)
+            if (this._loadings.size == 0)
                 this.event(Event.COMPLETE);
 
             //console.log("[Loader]Loaded " + normalizedUrl);
@@ -400,7 +398,7 @@ export class Loader extends EventDispatcher {
      * 从指定URL下载。这是较为底层的下载资源的方法，它和load方法不同，不对返回的数据进行解析，也不会缓存下载的内容。
      * 成功则返回下载的数据，失败返回null。
      */
-    fetch<K extends keyof ContentTypeMap>(url: string, contentType: K, onProgress?: (progress: number) => void, options?: ILoadOptions): Promise<ContentTypeMap[K]> {
+    fetch<K extends keyof ContentTypeMap>(url: string, contentType: K, onProgress?: (progress: number) => void, options?: Readonly<ILoadOptions>): Promise<ContentTypeMap[K]> {
         options = options || dummyOptions;
         return new Promise((resolve) => {
             let task: DownloadItem = {
@@ -421,7 +419,7 @@ export class Loader extends EventDispatcher {
     }
 
     private queueToDownload(item: DownloadItem) {
-        if (this._downloadingCount < this.maxLoader) {
+        if (this._downloadings.size < this.maxLoader) {
             this.download(item);
             return;
         }
@@ -439,6 +437,8 @@ export class Loader extends EventDispatcher {
     }
 
     private download(item: DownloadItem) {
+        this._downloadings.add(item);
+
         let url = URL.postFormatURL(item.url);
         if (item.contentType == "image") {
             if (item.blob) {
@@ -458,7 +458,6 @@ export class Loader extends EventDispatcher {
                         }
                     });
                     workerLoader.worker.postMessage(url);
-                    this._downloadingCount++;
                     return;
                 }
             }
@@ -478,7 +477,6 @@ export class Loader extends EventDispatcher {
             };
             image.src = url;
             item.temp = image;
-            this._downloadingCount++;
         }
         else if (item.contentType == "sound") {
             let audio = (<HTMLAudioElement>Browser.createElement("audio"));
@@ -496,7 +494,6 @@ export class Loader extends EventDispatcher {
                 this.completeItem(item, null, "");
             };
             item.temp = audio;
-            this._downloadingCount++;
         }
         else {
             let http: HttpRequest = getRequestInst();
@@ -515,14 +512,13 @@ export class Loader extends EventDispatcher {
                 http.on(Event.PROGRESS, item.onProgress);
             http.send(url, null, "get", <any>item.contentType);
             item.temp = http;
-            this._downloadingCount++;
         }
     }
 
     private completeItem(item: DownloadItem, content: any, error?: string) {
-        this._downloadingCount--;
+        this._downloadings.delete(item);
         if (content) {
-            if (this._downloadingCount < this.maxLoader && this._queue.length > 0)
+            if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());
 
             item.onComplete(content);
@@ -535,7 +531,7 @@ export class Loader extends EventDispatcher {
         else {
             console.warn(`[Loader]Failed to load: ${item.url}`);
 
-            if (this._downloadingCount < this.maxLoader && this._queue.length > 0)
+            if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());
 
             item.onComplete(null);
@@ -562,7 +558,7 @@ export class Loader extends EventDispatcher {
         return Loader.ensureTextureFormat(Loader.loadedMap[url], type);
     }
 
-    static getTexture2D(url: string): any {
+    static getTexture2D(url: string): Texture2D {
         url = URL.formatURL(url);
         return Loader.ensureTextureFormat(Loader.loadedMap[url], Loader.TEXTURE2D);
     }
