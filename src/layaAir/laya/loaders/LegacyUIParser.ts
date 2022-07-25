@@ -317,22 +317,32 @@ export class LegacyUIParser {
         }
 
         function check(uiView: any) {
-            var props: any = uiView.props;
-            for (var prop in props) {
-                var value: any = props[prop];
+            let props: any = uiView.props;
+            for (let prop in props) {
+                let value: any = props[prop];
                 if (typeof (value) == 'string' && value.indexOf("@Prefab:") >= 0) {
                     let url = value.replace("@Prefab:", "");
                     addInnerUrl(url);
                 }
             }
 
-            var child: any[] = uiView.child;
+            let child: any[] = uiView.child;
             if (child) {
                 for (let i: number = 0, n: number = child.length; i < n; i++) {
                     let node: any = child[i];
                     check(node);
                 }
             }
+        }
+
+        if (uiView.loadList) {
+            for (let url of uiView.loadList)
+                addInnerUrl(url);
+        }
+
+        if (uiView.loadList3D) {
+            for (let url of uiView.loadList3D)
+                addInnerUrl(url);
         }
 
         check(uiView);
@@ -652,7 +662,6 @@ class DataWatcher {
     }
 }
 
-
 /**
  * @private 场景辅助类
  */
@@ -661,7 +670,6 @@ class InitTool {
     private _nodeRefList: any[];
     /**@private */
     private _initList: any[];
-    private _loadList: any[];
     /**@internal */
     _idMap: { [key: string]: Sprite };
 
@@ -670,7 +678,6 @@ class InitTool {
         this._nodeRefList = null;
         this._initList = null;
         this._idMap = null;
-        this._loadList = null;
     }
 
     //TODO:coverage
@@ -685,27 +692,11 @@ class InitTool {
         return tool;
     }
 
-    //TODO:coverage
-    addLoadRes(url: string, type: string = null): void {
-        if (!this._loadList) this._loadList = [];
-        if (ILaya.loader.getRes(url)) {
-            return;
-        }
-        if (!type) {
-            this._loadList.push(url);
-        } else {
-            this._loadList.push({ url: url, type: type });
-        }
-    }
-
     /**@private */
     //TODO:coverage
     addNodeRef(node: any, prop: string, referStr: string): void {
         if (!this._nodeRefList) this._nodeRefList = [];
         this._nodeRefList.push([node, prop, referStr]);
-        if (referStr.indexOf("@Prefab:") >= 0) {
-            this.addLoadRes(referStr.replace("@Prefab:", ""), Loader.JSON);
-        }
     }
 
     /**@private */
