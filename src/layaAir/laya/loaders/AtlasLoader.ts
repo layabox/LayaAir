@@ -1,6 +1,7 @@
-import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
+import { IResourceLoader, ILoadTask, Loader, ILoadOptions } from "../net/Loader";
 import { AtlasResource } from "../resource/AtlasResource";
 import { Texture } from "../resource/Texture";
+import { TexturePropertyParams } from "../resource/Texture2D";
 import { Browser } from "../utils/Browser";
 
 class AtlasLoader implements IResourceLoader {
@@ -10,6 +11,7 @@ class AtlasLoader implements IResourceLoader {
                 return null;
 
             let toloadPics: Array<Promise<any>> = [];
+            let options: ILoadOptions = { propertyParams: { premultiplyAlpha: true } };
             //构造加载图片信息
             if (data.meta && data.meta.image) {
                 //带图片信息的类型
@@ -32,19 +34,16 @@ class AtlasLoader implements IResourceLoader {
                 }
 
                 let len = pics.length;
-                let option = {};
-                //@ts-ignore
-                option["preAlpha"] = true;
                 for (let i = 0; i < len; i++) {
                     if (changeType) {
-                        toloadPics.push(task.loader.load(folderPath + pics[i].replace(".png", changeType), null, task.progress.createCallback()));
+                        toloadPics.push(task.loader.load(folderPath + pics[i].replace(".png", changeType), options, task.progress.createCallback()));
                     } else {
-                        toloadPics.push(task.loader.load(folderPath + pics[i], option, task.progress.createCallback()));
+                        toloadPics.push(task.loader.load(folderPath + pics[i], options, task.progress.createCallback()));
                     }
 
                 }
             } else {  //不带图片信息
-                toloadPics.push(task.loader.load(task.url.replace(".json", ".png"), null, task.progress.createCallback()));
+                toloadPics.push(task.loader.load(task.url.replace(".json", ".png"), options, task.progress.createCallback()));
             }
 
             return Promise.all(toloadPics).then(pics => {
