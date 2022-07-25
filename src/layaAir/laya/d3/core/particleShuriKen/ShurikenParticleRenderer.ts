@@ -159,7 +159,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 * @override
 	 */
 	protected _calculateBoundingBox(): void {
-		var particleSystem: ShurikenParticleSystem = (this.owner as ShuriKenParticle3D).particleSystem;
+		var particleSystem: ShurikenParticleSystem = this._particleSystem;
 		var bounds: Bounds;
 		if (particleSystem._useCustomBounds) {
 			bounds = particleSystem.customBounds;
