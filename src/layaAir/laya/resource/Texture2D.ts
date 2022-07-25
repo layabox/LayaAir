@@ -111,7 +111,7 @@ export class Texture2D extends BaseTexture {
 		return texture;
 	}
 
-	static _parseImage(imageSource: any, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null): Texture2D {
+	static _parseImage(imageSource: any, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null,premultiplyAlpha:boolean = false): Texture2D {
 
 		let format = constructParams ? constructParams[2] : TextureFormat.R8G8B8A8;
 		let mipmap = constructParams ? constructParams[3] : true;
@@ -120,7 +120,7 @@ export class Texture2D extends BaseTexture {
 		// todo  srgb
 		let texture = new Texture2D(imageSource.width, imageSource.height, format, mipmap, canread, srgb);
 
-		texture.setImageData(imageSource, false, false);
+		texture.setImageData(imageSource, premultiplyAlpha, false);
 
 		if (propertyParams) {
 			texture.wrapModeU = propertyParams.wrapModeU;

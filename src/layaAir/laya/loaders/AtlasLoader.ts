@@ -32,11 +32,14 @@ class AtlasLoader implements IResourceLoader {
                 }
 
                 let len = pics.length;
+                let option = {};
+                //@ts-ignore
+                option["preAlpha"] = true;
                 for (let i = 0; i < len; i++) {
                     if (changeType) {
                         toloadPics.push(task.loader.load(folderPath + pics[i].replace(".png", changeType), null, task.progress.createCallback()));
                     } else {
-                        toloadPics.push(task.loader.load(folderPath + pics[i], null, task.progress.createCallback()));
+                        toloadPics.push(task.loader.load(folderPath + pics[i], option, task.progress.createCallback()));
                     }
 
                 }
