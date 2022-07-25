@@ -269,7 +269,7 @@ export class Scene extends Sprite {
             if (!content) throw "Can not find scene:" + url;
             let nodes: Array<Node> = (<HierarchyResource>content).createScene();
             let scene: Scene;
-            if (!(nodes[0] instanceof Scene)) {
+            if (nodes.length > 1) {
                 scene = new Scene();
                 scene.addChildren(nodes);
             }

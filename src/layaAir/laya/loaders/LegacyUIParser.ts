@@ -42,7 +42,19 @@ export class LegacyUIParser {
     static _sheet: any;
 
     static parse(data: any, options: any) {
-        return LegacyUIParser.createByData(options?.root, data);
+        let root: Sprite = options?.root;
+        if (!root) {
+            let runtime: string = data.props.runtime ? data.props.runtime : data.type;
+            let clas = ClassUtils.getClass(runtime);
+            if (!clas) clas = ClassUtils.getClass("Laya." + runtime);
+
+            if (data.props.renderType == "instance")
+                root = clas.instance || (clas.instance = new clas());
+            else
+                root = new clas();
+        }
+
+        return LegacyUIParser.createByData(root, data);
     }
 
     /**
