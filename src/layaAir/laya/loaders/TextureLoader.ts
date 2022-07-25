@@ -51,7 +51,7 @@ class TextureLoader implements IResourceLoader {
                 if (!img)
                     return null;
 
-                let tex2D = Texture2D._parseImage(img, task.options.propertyParams, task.options.constructParams,task.options.preAlpha);
+                let tex2D = Texture2D._parseImage(img, task.options.propertyParams, task.options.constructParams);
                 tex2D._setCreateURL(task.url);
                 return tex2D;
             });
