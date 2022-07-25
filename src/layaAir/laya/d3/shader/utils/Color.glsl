@@ -28,7 +28,7 @@ vec4 gammaToLinear(in vec4 value)
 
 const float c_RGBDMaxRange = 255.0;
 
-// float linear color to rgbd
+// float color to rgbd
 vec4 encodeRGBD(in vec3 color)
 {
     float maxRGB = max(vecmax(color), FLT_EPS);
@@ -40,11 +40,29 @@ vec4 encodeRGBD(in vec3 color)
     return vec4(rgb, d);
 }
 
-// rgbd to float linear color
+// rgbd to float color
 vec3 decodeRGBD(in vec4 rgbd)
 {
     vec3 color = rgbd.rgb * (1.0 / rgbd.a);
     return color;
+}
+
+// float color to rgbm
+vec4 encodeRGBM(in vec3 color, float range)
+{
+    color *= 1.0 / range;
+    float maxRGB = max(vecmax(color), FLT_EPS);
+    float m = ceil(maxRGB * 255.0) / 255.0;
+    vec3 rgb = color.rgb * 1.0 / m;
+
+    vec4 rgbm = vec4(rgb, m);
+    return rgbm;
+}
+
+// rgbm to float color
+vec3 decodeRGBM(in vec4 rgbm, float range)
+{
+    return range * rgbm.rgb * rgbm.a;
 }
 
 #endif // Color_lib
