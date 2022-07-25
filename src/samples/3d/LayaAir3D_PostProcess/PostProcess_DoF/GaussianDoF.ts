@@ -18,7 +18,7 @@ import CompositeFS from "./Shader/Composite.fs";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "laya/layagl/LayaGL";
 
@@ -188,7 +188,7 @@ export class GaussianDoF extends PostProcessEffect {
         // blur
         prefilterTex.filterMode = FilterMode.Bilinear;
         this._sourceSize.setValue(prefilterTex.width, prefilterTex.height, 1.0 / prefilterTex.width, 1.0 / prefilterTex.height);
-        this._shaderData.setValueData(GaussianDoF.SOURCESIZE, this._sourceSize);
+        this._shaderData.setShaderData(GaussianDoF.SOURCESIZE,ShaderDataType.Vector4, this._sourceSize);
         // blur H
         let blurHTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, RenderTargetFormat.None, false, 1);
         cmd.blitScreenTriangle(prefilterTex, blurHTex, null, this._shader, this._shaderData, 2);
