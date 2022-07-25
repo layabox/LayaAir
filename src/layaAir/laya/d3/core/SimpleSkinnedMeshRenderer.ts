@@ -12,6 +12,7 @@ import { Texture2D } from "../../resource/Texture2D";
 import { Vector4 } from "../math/Vector4";
 import { Vector2 } from "../math/Vector2";
 import { Component } from "../../components/Component";
+import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal 解决循环引用 */
@@ -125,9 +126,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
                         let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
                         this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(worldMat) : true;
                     }
-                    this._setShaderValue(Sprite3D.WORLDMATRIX, worldMat);
+                    this._setShaderValue(Sprite3D.WORLDMATRIX,ShaderDataType.Matrix4x4, worldMat);
                 } else {
-                    this._setShaderValue(Sprite3D.WORLDMATRIX, transform.worldMatrix);
+                    this._setShaderValue(Sprite3D.WORLDMATRIX,ShaderDataType.Matrix4x4, transform.worldMatrix);
                 }
                 this._computeAnimatorParamsData();
                 this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);

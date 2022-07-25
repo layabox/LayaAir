@@ -18,7 +18,7 @@ import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
 import { Sprite3D } from "../Sprite3D";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
@@ -157,7 +157,7 @@ export class BaseRender extends Component {
 		if (!value)
 			throw "BaseRender: lightmapScaleOffset can't be null.";
 		this._lightmapScaleOffset = value;
-		this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, value);
+		this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4, value);
 	}
 
 	/**
@@ -322,8 +322,8 @@ export class BaseRender extends Component {
 			return;
 		if (this._reflectionMode == ReflectionProbeMode.off) {
 			this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ReflectionProbe.defaultTextureHDRDecodeValues);
-			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, TextureCube.blackTexture);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, ReflectionProbe.defaultTextureHDRDecodeValues);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.TextureCube, TextureCube.blackTexture);
 		}
 		else {
 			if (!this._probReflection.boxProjection) {
@@ -332,12 +332,12 @@ export class BaseRender extends Component {
 			}
 			else {
 				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, this._probReflection.probePosition);
-				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, this._probReflection.boundsMax);
-				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, this._probReflection.boundsMin);
+				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, ShaderDataType.Vector3, this._probReflection.probePosition);
+				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, ShaderDataType.Vector3, this._probReflection.boundsMax);
+				this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, ShaderDataType.Vector3, this._probReflection.boundsMin);
 			}
-			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, this._probReflection.reflectionTexture);
-			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, this._probReflection.reflectionHDRParams);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.TextureCube, this._probReflection.reflectionTexture);
+			this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, this._probReflection.reflectionHDRParams);
 		}
 		this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
 	}
@@ -508,12 +508,8 @@ export class BaseRender extends Component {
 	/**
 	 * @internal
 	 */
-	_setShaderValue(index: number, value: any) {
-		if (this._subUniformBufferData && this._subUniformBufferData._has(index))
-			this._subUniformBufferData._setData(index, value);
-		else {
-			this._shaderValues.setValueData(index, value);
-		}
+	_setShaderValue(index: number, shaderdataType: ShaderDataType, value: any) {
+		this._shaderValues.setShaderData(index, shaderdataType, value);
 	}
 
 	/**
@@ -619,7 +615,7 @@ export class BaseRender extends Component {
 	 */
 	destroy(): void {
 		(this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
-		(this._scene)&& this._scene.sceneRenderableManager.removeRenderObject(this);
+		(this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
 		var i: number = 0, n: number = 0;
 		for (i = 0, n = this._renderElements.length; i < n; i++)
 			this._renderElements[i].destroy();
@@ -631,7 +627,7 @@ export class BaseRender extends Component {
 		this._lightmapScaleOffset = null;
 		this._scene = null;
 		this._rendernode = null;
-		
+
 		if (this._subUniformBufferData) {
 			BaseRender._transLargeUbO.recover(this._subUniformBufferData);
 			this._subUniformBufferData = null;

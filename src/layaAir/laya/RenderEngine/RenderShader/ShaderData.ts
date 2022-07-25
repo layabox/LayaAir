@@ -11,6 +11,7 @@ import { Vector4 } from "../../d3/math/Vector4";
 import { Color } from "../../d3/math/Color";
 import { UniformBufferObject } from "../UniformBufferObject";
 import { UniformBufferParamsType, UnifromBufferData } from "../UniformBufferData";
+import { Quaternion } from "../../d3/math/Quaternion";
 
 export enum ShaderDataType {
 	Int,
@@ -444,7 +445,7 @@ export class ShaderData implements IClone {
 		return this._data[index];
 	}
 
-	setShaderData(uniformIndex: number,type: ShaderDataType, value: ShaderDataItem) {
+	setShaderData(uniformIndex: number,type: ShaderDataType, value: ShaderDataItem|Quaternion) {
 		switch (type) {
             case ShaderDataType.Int:
                 this.setInt(uniformIndex, <number>value);
@@ -490,40 +491,6 @@ export class ShaderData implements IClone {
 	 */
 	getValueData(index: number): any {
 		return this._data[index];
-	}
-
-	// /**
-	//  * 设置Attribute。
-	//  * @param	index shader索引。
-	//  * @param	value 纹理。
-	//  */
-	// setAttribute(index: number, value: Int32Array): void {
-	// 	this._data[index] = value;
-	// }
-
-	// /**
-	//  * 获取Attribute。
-	//  * @param	index shader索引。
-	//  * @return  纹理。
-	//  */
-	// getAttribute(index: number): any[] {
-	// 	return this._data[index];
-	// }
-
-	/**
-	 * 获取长度。
-	 * @return 长度。
-	 */
-	getLength(): number {
-		return this._data.length;
-	}
-
-	/**
-	 * 设置长度。
-	 * @param 长度。
-	 */
-	setLength(value: number): void {
-		this._data.length = value;
 	}
 
 	/**

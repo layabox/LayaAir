@@ -18,7 +18,7 @@ import { Sprite3D } from "../Sprite3D";
 import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
 import { Component } from "../../../components/Component";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 
 
 /**
@@ -225,7 +225,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 				break;
 			case 1: //Local
 				sv.setVector3(ShuriKenParticle3DShaderDeclaration.WORLDPOSITION, transform.position);
-				sv.setValueData(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, transform.rotation);
+				sv.setShaderData(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, ShaderDataType.Vector4,transform.rotation);
 				break;
 			default:
 				throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
