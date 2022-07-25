@@ -2,7 +2,7 @@
     #define DepthVertex_lib
 
     #include "Scene.glsl";
-    #include "Sprite3D.glsl";
+    #include "Sprite3DVertex.glsl";
 
     #include "VertexCommon.glsl";
 

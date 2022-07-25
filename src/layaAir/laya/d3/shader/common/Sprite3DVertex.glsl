@@ -1,0 +1,50 @@
+#if !defined(Sprite3DVertex_lib)
+    #define Sprite3DVertex_lib
+
+    #include "Sprite3DCommon.glsl";
+
+/**
+ * world matrix
+ */
+mat4 getWorldMatrix()
+{
+    #ifdef GPU_INSTANCE
+    mat4 worldMat = a_WorldMat;
+    #else
+    mat4 worldMat = u_WorldMat;
+    #endif // GPU_INSTANCE
+
+    #ifdef BONE
+
+	#ifdef SIMPLEBONE
+
+	    #ifdef GPU_INSTANCE
+    float currentPixelPos = a_SimpleTextureParams.x + a_SimpleTextureParams.y;
+	    #else // GPU_INSTANCE
+    float currentPixelPos = u_SimpleAnimatorParams.x + u_SimpleAnimatorParams.y;
+	    #endif // GPU_INSTANCE
+
+    float offset = 1.0 / u_SimpleAnimatorTextureSize;
+    mat4 skinTrans = loadBakedMatMatrix(currentPixelPos, a_BoneIndices.x, offset) * a_BoneWeights.x;
+    skinTrans += loadBakedMatMatrix(currentPixelPos, a_BoneIndices.y, offset) * a_BoneWeights.y;
+    skinTrans += loadBakedMatMatrix(currentPixelPos, a_BoneIndices.z, offset) * a_BoneWeights.z;
+    skinTrans += loadBakedMatMatrix(currentPixelPos, a_BoneIndices.w, offset) * a_BoneWeights.w;
+    worldMat = worldMat * skinTrans;
+
+	#else // SIMPLEBONE
+
+    ivec4 boneIndex = ivec4(a_BoneIndices);
+    mat4 skinTrans = u_Bones[boneIndex.x] * a_BoneWeights.x;
+    skinTrans += u_Bones[boneIndex.y] * a_BoneWeights.y;
+    skinTrans += u_Bones[boneIndex.z] * a_BoneWeights.z;
+    skinTrans += u_Bones[boneIndex.w] * a_BoneWeights.w;
+    worldMat = worldMat * skinTrans;
+
+	#endif // SIMPLEBONE
+
+    #endif // BONE
+
+    return worldMat;
+}
+
+#endif // Sprite3DVertex_lib

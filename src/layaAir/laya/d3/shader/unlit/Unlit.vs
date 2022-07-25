@@ -2,7 +2,7 @@
 #define SHADER_NAME UnlitVS
 
 #include "Camera.glsl";
-#include "Sprite3D.glsl";
+#include "Sprite3DVertex.glsl";
 
 #include "VertexCommon.glsl";
 #include "Color.glsl";
