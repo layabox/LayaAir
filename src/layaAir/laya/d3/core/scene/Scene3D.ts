@@ -402,9 +402,9 @@ export class Scene3D extends Sprite implements ISubmit {
 	private _reflectionIntensity: number = 1.0;
 
 	/**@internal */
-	_sunColor:Color = new Color(1.0,1.0,1.0);
+	_sunColor: Color = new Color(1.0, 1.0, 1.0);
 	/**@interanl */
-	_sundir:Vector3 = new Vector3();
+	_sundir: Vector3 = new Vector3();
 	/**@internal*/
 	_id = Scene3D.sceneID++;
 	/**@internal */
@@ -594,17 +594,36 @@ export class Scene3D extends Sprite implements ISubmit {
 	}
 
 	/**
+	 * @deprecated
 	 * 球谐环境光,修改后必须重新赋值。
+	 * use scene.ambientSH
 	 */
 	get ambientSphericalHarmonics(): SphericalHarmonicsL2 {
 		return this._ambientSphericalHarmonics;
 	}
 
+	/**
+	 * @deprecated
+	 * use scene.ambientSH
+	 */
 	set ambientSphericalHarmonics(value: SphericalHarmonicsL2) {
 		var originalSH: SphericalHarmonicsL2 = value || SphericalHarmonicsL2._default;
 		this._applySHCoefficients(originalSH, Math.pow(this._ambientSphericalHarmonicsIntensity, 2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
 		if (this._ambientSphericalHarmonics != value)
 			value.cloneTo(this._ambientSphericalHarmonics);
+	}
+
+	// todo
+	private _ambientSH: Float32Array;
+	/**
+	 * todo ambient sh
+	 */
+	public get ambientSH(): Float32Array {
+		return this._ambientSH;
+	}
+	public set ambientSH(value: Float32Array) {
+		this._ambientSH = value;
+		this.setGlobalShaderValue("u_IblSH", ShaderDataType.Buffer, value);
 	}
 
 	/**
@@ -998,10 +1017,10 @@ export class Scene3D extends Sprite implements ISubmit {
 					// 	this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, intCor);
 					// 	this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dir);
 					// }
-					if(i==0){
+					if (i == 0) {
 						this._sunColor = dirLight.color;
 						this._sundir = dir;
-					}	
+					}
 				}
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
@@ -1092,10 +1111,10 @@ export class Scene3D extends Sprite implements ISubmit {
 				Vector3.normalize(dirLight._direction, dirLight._direction);
 				shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
 				shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
-				if(i==0){
+				if (i == 0) {
 					this._sunColor = dirLight.color;
 					this._sundir = dirLight._direction;
-				}	
+				}
 				// this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
 				// this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
