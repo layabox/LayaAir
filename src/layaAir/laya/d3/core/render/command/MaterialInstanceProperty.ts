@@ -63,7 +63,7 @@ export class MaterialInstanceProperty{
 			case 1:
 				for (let i = 0; i < datalength; i++) {
 					data = <Vector2|Vector3|Vector4>dataValue[i];
-					data.toArray(instanceData,i*stride);
+					data.writeTo(instanceData,i*stride);
 				}
 				break;
 		}

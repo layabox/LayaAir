@@ -4,7 +4,7 @@
 
 #include "Scene.glsl";
 #include "Camera.glsl";
-#include "Sprite3D.glsl";
+#include "Sprite3DFrag.glsl";
 
 #include "PBRFrag.glsl";
 

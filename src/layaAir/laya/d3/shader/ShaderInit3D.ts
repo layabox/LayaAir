@@ -70,7 +70,9 @@ import VertexGLSL from "./common/VertexCommon.glsl";
 
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
-import Sprite3DGLSL from "./common/Sprite3DCommon.glsl";
+import Sprite3DCommonGLSL from "./common/Sprite3DCommon.glsl";
+import Sprite3DVertexGLSL from "./common/Sprite3DVertex.glsl";
+import Sprite3DFragGLSL from "./common/Sprite3DFrag.glsl";
 
 import DepthVertexGLSL from "./depth/DepthVertex.glsl";
 import DepthFragGLSL from "./depth/DepthFrag.glsl";
@@ -123,12 +125,14 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Camera.glsl", CameraGLSL);
 
 		// sprite3D
-		Shader3D.addInclude("Sprite3D.glsl", Sprite3DGLSL);
+		Shader3D.addInclude("Sprite3DCommon.glsl", Sprite3DCommonGLSL);
+		Shader3D.addInclude("Sprite3DVertex.glsl", Sprite3DVertexGLSL);
+		Shader3D.addInclude("Sprite3DFrag.glsl", Sprite3DFragGLSL);
 
 		// depth
 		Shader3D.addInclude("DepthVertex.glsl", DepthVertexGLSL);
 		Shader3D.addInclude("DepthFrag.glsl", DepthFragGLSL);
-		Shader3D.addInclude("DepthNormalUtil.glsl",DepthNormalUtilGLSL);
+		Shader3D.addInclude("DepthNormalUtil.glsl", DepthNormalUtilGLSL);
 
 		// scene fog
 		Shader3D.addInclude("SceneFog.glsl", SceneFogGLSL);

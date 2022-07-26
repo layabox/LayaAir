@@ -18,7 +18,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     private static _pool: RenderTexture[] = [];
 
-    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean, multiSamples: number, depthTexture: boolean = false, sRGB: boolean = false) {
+    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean = false, multiSamples: number = 1, depthTexture: boolean = false, sRGB: boolean = false) {
 
         // todo mipmap 判断
         mipmap = mipmap && (width & (width - 1)) === 0 && (height & (height - 1)) === 0;
@@ -27,7 +27,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         for (let index = 0; index < n; index++) {
             let rt = RenderTexture._pool[index];
 
-            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt.generateDepthTexture == depthTexture &&rt._gammaSpace == sRGB) {
+            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt.generateDepthTexture == depthTexture && rt._gammaSpace == sRGB) {
                 rt._inPool = false;
                 let end = RenderTexture._pool[n - 1];
                 RenderTexture._pool[index] = end;
@@ -36,7 +36,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
             }
         }
 
-        let rt = new RenderTexture(width, height, colorFormat, depthFormat, mipmap, multiSamples, depthTexture,sRGB);
+        let rt = new RenderTexture(width, height, colorFormat, depthFormat, mipmap, multiSamples, depthTexture, sRGB);
         rt.lock = true;
         return rt;
     }
@@ -130,7 +130,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     // todo format
-    constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number, generateDepthTexture: boolean = false, sRGB: boolean = false) {
+    constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false) {
         super(width, height, colorFormat);
 
         this._gammaSpace = sRGB;

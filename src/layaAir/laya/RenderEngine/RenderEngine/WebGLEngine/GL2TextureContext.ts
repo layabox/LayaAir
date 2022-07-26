@@ -418,7 +418,7 @@ export class GL2TextureContext extends GLTextureContext {
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     }
 
-    setCubeImageData(texture: WebGLInternalTex, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean): void {
+    setCubeImageData(texture: WebGLInternalTex, sources: (HTMLImageElement | HTMLCanvasElement | ImageBitmap)[], premultiplyAlpha: boolean, invertY: boolean): void {
         let gl = <WebGL2RenderingContext>this._gl;
 
         const cubeFace = [

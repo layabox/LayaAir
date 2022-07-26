@@ -40,9 +40,6 @@ export enum MaterialRenderMode {
  * <code>Material</code> 类用于创建材质。
  */
 export class Material extends Resource implements IClone {
-    /**Material资源。*/
-    static MATERIAL: string = "MATERIAL";
-
     /** 渲染队列_不透明。*/
     static RENDERQUEUE_OPAQUE: number = 2000;
     /** 渲染队列_阿尔法裁剪。*/
@@ -86,7 +83,7 @@ export class Material extends Resource implements IClone {
      * @param complete 完成回掉。
      */
     static load(url: string, complete: Handler): void {
-        Laya.loader.create(url, complete, null, Material.MATERIAL);
+        Laya.loader.create(url, complete, null, Loader.MATERIAL);
     }
 
     /**

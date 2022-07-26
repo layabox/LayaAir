@@ -230,7 +230,7 @@ class HierarchyParserV2 {
         return node;
     }
 
-    public static collectResourceLinks(data: any, basePath: string): string[] | ILoadURL[] {
+    public static collectResourceLinks(data: any, basePath: string): (string | ILoadURL)[] {
         let test: Record<string, ILoadURL> = {};
         let innerUrls: ILoadURL[] = [];
 

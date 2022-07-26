@@ -1,7 +1,7 @@
 #define SHADER_NAME DepthNormalVS
 
 #include "Scene.glsl";
-#include "Sprite3D.glsl";
+#include "Sprite3DVertex.glsl";
 
 #include "VertexCommon.glsl";
 #include "Camera.glsl";

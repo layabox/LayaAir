@@ -51,7 +51,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     setTextureKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
         throw new Error("setTextureKTXData Method not implemented.");
     }
-    setCubeImageData(texture: InternalTexture, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean): void {
+    setCubeImageData(texture: InternalTexture, sources: (HTMLImageElement | HTMLCanvasElement | ImageBitmap)[], premultiplyAlpha: boolean, invertY: boolean): void {
         var images: any[] = [];
         var length = sources.length;
         for (let index = 0; index < length; index++) {

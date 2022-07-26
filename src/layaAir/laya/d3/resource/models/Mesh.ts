@@ -1,5 +1,6 @@
 import { ILaya } from "../../../../ILaya";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Loader } from "../../../net/Loader";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
@@ -40,8 +41,6 @@ export class skinnedMatrixCache {
  * <code>Mesh</code> 类用于创建文件网格数据模板。
  */
 export class Mesh extends Resource implements IClone {
-	/**Mesh资源。*/
-	static MESH: string = "MESH";
 
 	static MESH_INSTANCEBUFFER_TYPE_NORMAL: number = 0;
 
@@ -79,7 +78,7 @@ export class Mesh extends Resource implements IClone {
 	 * @param complete 完成回调。
 	 */
 	static load(url: string, complete: Handler): void {
-		ILaya.loader.create(url, complete, null, Mesh.MESH);
+		ILaya.loader.create(url, complete, null, Loader.MESH);
 	}
 
 	/** @internal */

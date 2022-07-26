@@ -6,7 +6,7 @@ import { HierarchyParser } from "./HierarchyParser";
 import { LegacyUIParser } from "./LegacyUIParser";
 
 type HierarchyParserAPI = {
-    collectResourceLinks: (data: any, basePath: string) => string[] | ILoadURL[],
+    collectResourceLinks: (data: any, basePath: string) => (string | ILoadURL)[],
     parse: (data: any, options?: Record<string, any>, errors?: Array<any>) => Array<Node> | Node;
 }
 
