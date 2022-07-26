@@ -32,7 +32,7 @@ export class UniformBufferObject extends Buffer {
         if (bufferBase._singgle && bufferBase._mapArray.length > 0) {
             return null;
         } else {
-            let ubo = new UniformBufferObject(bufferBase._glPointerID, name, bufferUsage, bytelength, isSingle);
+            let ubo = LayaGL.renderOBJCreate.createUniformBufferObject(bufferBase._glPointerID, name, bufferUsage, bytelength, isSingle);
             bufferBase.add(ubo);
             return ubo;
         }

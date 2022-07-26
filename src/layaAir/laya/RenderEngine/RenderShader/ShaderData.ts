@@ -437,6 +437,11 @@ export class ShaderData implements IClone {
         }
 	}
 
+	/**
+	 * 
+	 * @param index 
+	 * @param value 
+	 */
 	setUniformBuffer(index: number, value: UniformBufferObject) {
 		this._data[index] = value;
 	}

@@ -195,7 +195,7 @@ ivec4 getClusterInfo(mat4 viewMatrix, vec4 viewport, vec3 positionWS, vec4 fragC
 	#endif // POINTLIGHT || SPOTLIGHT
 
 	#ifdef POINTLIGHT
-PointLight getPointLight(in int index, in ivec4 clusterInfo)
+PointLight getPointLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
 {
 
     PointLight light;

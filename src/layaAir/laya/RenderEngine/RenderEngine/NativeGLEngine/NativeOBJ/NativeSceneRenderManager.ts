@@ -9,7 +9,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     //自定义更新的Bounds渲染节点
     _customUpdateList: SingletonList<BaseRender> = new SingletonList();
     //自定义裁剪的渲染节点
-    _customCullList:SingletonList<BaseRender> = new SingletonList();
+    _customCullList: SingletonList<BaseRender> = new SingletonList();
     private _nativeObj: any;
     constructor() {
         this._nativeObj = new (window as any).conchSceneCullManger();
@@ -25,22 +25,23 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
 
     addRenderObject(object: BaseRender): void {
         this._renders.add(object);
-        if(object._customCull)
-        this._nativeObj.addRenderObject(object.renderNode);
+        if (object._customCull)
+            this._customCullList.add(object);
         else
-        this._customCullList.add(object);
+            this._nativeObj.addRenderObject(object.renderNode);
+
     }
 
     removeRenderObject(object: BaseRender): void {
         this._renders.remove(object);
-        if(object._customCull)
+        if (!object._customCull)
             this._nativeObj.removeRenderObject(object.renderNode);
-        else{
+        else {
             //remove
             let elements = this._customCullList.elements;
             let index = elements.indexOf(object);
-            if(index<this._customCullList.length){
-                this._customCullList.length-=1;
+            if (index < this._customCullList.length) {
+                this._customCullList.length -= 1;
                 elements[index] = elements[this._customCullList.length];
             }
         }
