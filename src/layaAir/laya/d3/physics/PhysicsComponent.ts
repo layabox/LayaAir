@@ -397,6 +397,7 @@ export class PhysicsComponent extends Component {
 	 * @override
 	 */
 	_onEnable(): void {
+		(<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
 		if (this._colliderShape) {
@@ -411,6 +412,7 @@ export class PhysicsComponent extends Component {
 	 * @override
 	 */
 	protected _onDisable(): void {
+		(<Sprite3D>this.owner).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
 		if (this._colliderShape) {
 			this._removeFromSimulation();
 			(this._inPhysicUpdateListIndex !== -1) && (this._simulation._physicsUpdateList.remove(this));//销毁前一定会调用 _onDisable()
@@ -467,7 +469,6 @@ export class PhysicsComponent extends Component {
 		this._btColliderObject = null;
 		this._colliderShape = null;
 		this._simulation = null;
-		(<Sprite3D>this.owner).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
 	}
 
 	/**
@@ -672,7 +673,7 @@ export class PhysicsComponent extends Component {
 		this.rollingFriction = this._rollingFriction;
 		this.ccdMotionThreshold = this._ccdMotionThreshold;
 		this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
-		(<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+		
 	}
 
 	/**
