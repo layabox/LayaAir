@@ -24,6 +24,7 @@ import ShadowSamplerGLSL from "./lighting/ShadowSampler.glsl";
 import SceneFogGLSL from "./utils/SceneFog.glsl";
 
 import LightingGLSL from "./lighting/Lighting.glsl";
+import GlobalIlluminationGLSL from "./lighting/globalIllumination.glsl";
 
 import BlinnPhongLightingGLSL from "./lightingmode/BlinnPhongLighting.glsl";
 import PBRLightingGLSL from "./lightingmode/PBRLighting.glsl";
@@ -83,6 +84,7 @@ export class ShaderInit3D {
 
 		// lighting
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
+		Shader3D.addInclude("globalIllumination.glsl", GlobalIlluminationGLSL);
 
 		// lighting mode
 		Shader3D.addInclude("BlinnPhongLighting.glsl", BlinnPhongLightingGLSL);

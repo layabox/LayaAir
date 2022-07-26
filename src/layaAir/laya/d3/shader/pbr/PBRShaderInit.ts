@@ -22,7 +22,7 @@ export class PBRShaderInit {
             "u_Roughness": ShaderDataType.Float,
             "u_Reflectance": ShaderDataType.Float,
             "u_TilingOffset": ShaderDataType.Vector4,
-            "u_AlphaTest": ShaderDataType.Float
+            "u_AlphaTest": ShaderDataType.Float,
         };
 
         let defaultValue = {
@@ -31,7 +31,7 @@ export class PBRShaderInit {
             "u_Roughness": 0.5,
             "u_Reflectance": 0.5,
             "u_TilingOffset": new Vector4(1, 1, 0, 0),
-            "u_AlphaTest": 0.5
+            "u_AlphaTest": 0.5,
         };
 
         let shader = Shader3D.add("pbr", true);

@@ -22,51 +22,53 @@ export class Scene3DShaderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_SPOT:ShaderDefine;
+	static SHADERDEFINE_SHADOW_SPOT: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW:ShaderDefine;
+	static SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH:ShaderDefine;
+	static SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_GI_AMBIENT_SH: ShaderDefine;
+	static SHADERDEFINE_GI_LEGACYIBL: ShaderDefine;
+	/**@internal */
+	static SHADERDEFINE_GI_IBL: ShaderDefine;
 }
 
-export class CommandUniformMap{
+export class CommandUniformMap {
 
-	static globalBlockMap:any = {};
-	
-	static createGlobalUniformMap(blockName:string):CommandUniformMap{
+	static globalBlockMap: any = {};
+
+	static createGlobalUniformMap(blockName: string): CommandUniformMap {
 		let comMap = this.globalBlockMap[blockName];
-		if(!comMap)
+		if (!comMap)
 			comMap = this.globalBlockMap[blockName] = new CommandUniformMap(blockName);
 		return comMap;
 	}
 
-	 /**@internal */
-	 _idata: {[key:number]:string} = {};
-	 _stateName:string;
+	/**@internal */
+	_idata: { [key: number]: string } = {};
+	_stateName: string;
 
-	 constructor(stateName:string){
-		 this._stateName = stateName;
-	 }	
+	constructor(stateName: string) {
+		this._stateName = stateName;
+	}
 
-	 hasPtrID(propertyID:number):boolean{
-		return !!(this._idata[propertyID]!=null);
-	 }
+	hasPtrID(propertyID: number): boolean {
+		return !!(this._idata[propertyID] != null);
+	}
 
-	 getMap(){
-		 return this._idata;
-	 }
+	getMap() {
+		return this._idata;
+	}
 
-	 /**
-	  * 增加一个UniformMap
-	  * @internal
-	  * @param propertyID 
-	  * @param propertyKey 
-	  */
-	addShaderUniform(propertyID:number,propertyKey:string): void {
-        this._idata[propertyID] = propertyKey;
-    }
+	/**
+	 * 增加一个UniformMap
+	 * @internal
+	 * @param propertyID 
+	 * @param propertyKey 
+	 */
+	addShaderUniform(propertyID: number, propertyKey: string): void {
+		this._idata[propertyID] = propertyKey;
+	}
 
 }
 

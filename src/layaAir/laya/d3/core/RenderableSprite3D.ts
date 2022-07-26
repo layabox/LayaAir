@@ -45,6 +45,7 @@ export class RenderableSprite3D extends Sprite3D {
 		RenderableSprite3D.LIGHTMAP = Shader3D.propertyNameToID("u_LightMap");
 		RenderableSprite3D.LIGHTMAP_DIRECTION = Shader3D.propertyNameToID("u_LightMapDirection");
 		RenderableSprite3D.PICKCOLOR = Shader3D.propertyNameToID("u_PickColor");
+		// todo 移出
 		RenderableSprite3D.REFLECTIONTEXTURE = Shader3D.propertyNameToID("u_ReflectTexture");
 		RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS = Shader3D.propertyNameToID("u_ReflectCubeHDRParams");
 		RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION = Shader3D.propertyNameToID("u_SpecCubeProbePosition");
