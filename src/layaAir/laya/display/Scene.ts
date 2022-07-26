@@ -84,10 +84,14 @@ export class Scene extends Sprite {
                 if (Scene._loadPage) Scene._loadPage.event("progress", value);
             }).then((content: HierarchyResource) => {
                 if (!content) throw "Can not find scene:" + path;
-                this._viewCreated = true;
-                this.url = url;
-                Scene.hideLoadingPage();
-                content.createScene({ root: this });
+                if (!this._viewCreated) {
+                    this._viewCreated = true;
+                    this.url = url;
+                    Scene.hideLoadingPage();
+                    content.createScene({ root: this });
+                }
+                else
+                    this._setBit(Const.NOT_READY, false);
             });
         }
     }
