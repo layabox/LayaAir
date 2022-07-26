@@ -4,6 +4,8 @@
 
 varying vec3 v_Texcoord;
 
+const vec4 c_ColorSpace = vec4(4.59479380, 4.59479380, 4.59479380, 2.0);
+
 void main()
 {
     vec3 uv = v_Texcoord;
@@ -12,7 +14,7 @@ void main()
     cubeSampler = gammaToLinear(cubeSampler);
 #endif // Gamma_u_CubeTexture
 
-    vec3 color = cubeSampler.rgb * u_TintColor.rgb * u_Exposure * 2.0;
+    vec3 color = cubeSampler.rgb * u_TintColor.rgb * u_Exposure * c_ColorSpace.rgb;
 
     gl_FragColor = vec4(color, 1.0);
 }

@@ -23,7 +23,7 @@ export class SkyBoxShaderInit {
         };
 
         let defaultValue = {
-            "u_TintColor": Color.WHITE,
+            "u_TintColor": new Color(0.5, 0.5, 0.5, 0.5),
             "u_Exposure": 1,
             "u_Rotation": 0
         };

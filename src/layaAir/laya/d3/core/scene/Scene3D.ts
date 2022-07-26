@@ -137,22 +137,25 @@ export class Scene3D extends Sprite implements ISubmit {
 	static SUNLIGHTDIRECTION: number;
 	/** @internal */
 	static SUNLIGHTDIRCOLOR: number;
-	// /** @internal */
-	// static AMBIENTSHAR: number;
-	// /** @internal */
-	// static AMBIENTSHAG: number;
-	// /** @internal */
-	// static AMBIENTSHAB: number;
-	// /** @internal */
-	// static AMBIENTSHBR: number;
-	// /** @internal */
-	// static AMBIENTSHBG: number;
-	// /** @internal */
-	// static AMBIENTSHBB: number;
-	// /** @internal */
-	// static AMBIENTSHC: number;
+	/** @internal */
+	static AMBIENTSHAR: number;
+	/** @internal */
+	static AMBIENTSHAG: number;
+	/** @internal */
+	static AMBIENTSHAB: number;
+	/** @internal */
+	static AMBIENTSHBR: number;
+	/** @internal */
+	static AMBIENTSHBG: number;
+	/** @internal */
+	static AMBIENTSHBB: number;
+	/** @internal */
+	static AMBIENTSHC: number;
 	/** @internal */
 	static AMBIENTCOLOR: number;
+	/** @internal */
+	static AMBIENTSH: number;
+
 	/** @internal */
 	static TIME: number;
 	/** @internal */
@@ -218,7 +221,8 @@ export class Scene3D extends Sprite implements ISubmit {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE = Shader3D.getDefineByName("SHADOW_CASCADE");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_LOW");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_HIGH");
-		Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH = Shader3D.getDefineByName("GI_AMBIENT_SH");
+		Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
+		Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT = Shader3D.getDefineByName("SHADOW_SPOT");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_LOW");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_HIGH");
@@ -229,9 +233,9 @@ export class Scene3D extends Sprite implements ISubmit {
 		Scene3D.DIRECTIONLIGHTCOUNT = Shader3D.propertyNameToID("u_DirationLightCount");
 		Scene3D.LIGHTBUFFER = Shader3D.propertyNameToID("u_LightBuffer");
 		Scene3D.CLUSTERBUFFER = Shader3D.propertyNameToID("u_LightClusterBuffer");
-		Scene3D.AMBIENTCOLOR = Shader3D.propertyNameToID("u_AmbientColor");
 		Scene3D.TIME = Shader3D.propertyNameToID("u_Time");
 		Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
+
 
 		let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
 		sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor");
@@ -240,9 +244,39 @@ export class Scene3D extends Sprite implements ISubmit {
 		sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount");
 		sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer");
 		sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
-		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTCOLOR, "u_AmbientColor");
 		sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
 		sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE);
+
+		// todo 移动出 scene
+		Scene3D.AMBIENTCOLOR = Shader3D.propertyNameToID("u_AmbientColor");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTCOLOR, "u_AmbientColor");
+
+		// legacy sh
+		Scene3D.AMBIENTSHAR = Shader3D.propertyNameToID("u_AmbientSHAr");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAR, "u_AmbientSHAr");
+
+		Scene3D.AMBIENTSHAG = Shader3D.propertyNameToID("u_AmbientSHAg");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAG, "u_AmbientSHAg");
+
+		Scene3D.AMBIENTSHAB = Shader3D.propertyNameToID("u_AmbientSHAb");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAB, "u_AmbientSHAb");
+
+		Scene3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBR, "u_AmbientSHBr");
+
+		Scene3D.AMBIENTSHBG = Shader3D.propertyNameToID("u_AmbientSHBg");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBG, "u_AmbientSHBg");
+
+		Scene3D.AMBIENTSHBB = Shader3D.propertyNameToID("u_AmbientSHBb");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBB, "u_AmbientSHBb");
+
+		Scene3D.AMBIENTSHC = Shader3D.propertyNameToID("u_AmbientSHC");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHC, "u_AmbientSHC");
+
+		// sh 
+		Scene3D.AMBIENTSH = Shader3D.propertyNameToID("u_IblSH");
+		sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSH, "u_IblSH");
+
 	}
 
 	/**
@@ -281,7 +315,7 @@ export class Scene3D extends Sprite implements ISubmit {
 	static createSceneUniformBlock(): UnifromBufferData {
 		if (!Scene3D.SceneUBOData) {
 			let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-			uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
+			// uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
 			uniformpara.set("u_Time", UniformBufferParamsType.Number);
 			uniformpara.set("u_FogStart", UniformBufferParamsType.Number);
 			uniformpara.set("u_FogRange", UniformBufferParamsType.Number);
@@ -541,16 +575,19 @@ export class Scene3D extends Sprite implements ISubmit {
 		if (this._ambientMode !== value) {
 			switch (value) {
 				case AmbientMode.SolidColor:
-					this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
+					this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+					this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
 					break;
 				case AmbientMode.SphericalHarmonics:
-					this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
+					this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+					this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
 					let sh = this.ambientSphericalHarmonics || SphericalHarmonicsL2._default;
 					let intensity = this.ambientSphericalHarmonicsIntensity;
 					this._applySHCoefficients(sh, Math.pow(intensity, 2.2));
 					break;
 				case AmbientMode.TripleColor:
-					this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
+					this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+					this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
 					let gradientSH = this._ambientTripleColorSphericalHarmonics || SphericalHarmonicsL2._default;
 					this._applySHCoefficients(gradientSH, 1.0);
 					break;
@@ -623,11 +660,14 @@ export class Scene3D extends Sprite implements ISubmit {
 	}
 	public set ambientSH(value: Float32Array) {
 		this._ambientSH = value;
-		this.setGlobalShaderValue("u_IblSH", ShaderDataType.Buffer, value);
+		this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
+		this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+		this._shaderValues.setBuffer(Scene3D.AMBIENTSH, value);
 	}
 
 	/**
 	 * 环境球谐强度。
+	 * @deprecated
 	 */
 	get ambientSphericalHarmonicsIntensity(): number {
 		return this._ambientSphericalHarmonicsIntensity;
@@ -644,6 +684,7 @@ export class Scene3D extends Sprite implements ISubmit {
 
 	/**
 	 * 反射立方体纹理。
+	 * @deprecated
 	 */
 	get reflection(): TextureCube {
 		return this._reflection;
@@ -662,6 +703,7 @@ export class Scene3D extends Sprite implements ISubmit {
 
 	/**
 	 * 反射立方体纹理解码格式。
+	 * @deprecated
 	 */
 	get reflectionDecodingFormat(): TextureDecodeFormat {
 		return this._reflectionDecodeFormat;
@@ -669,16 +711,17 @@ export class Scene3D extends Sprite implements ISubmit {
 
 	set reflectionDecodingFormat(value: TextureDecodeFormat) {
 		if (this._reflectionDecodeFormat != value) {
+			this._reflectionDecodeFormat = value;
 			this._reflectionCubeHDRParams.x = this._reflectionIntensity;
 			if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
 				this._reflectionCubeHDRParams.x *= 5.0;//5.0 is RGBM param
-			this._reflectionDecodeFormat = value;
 			this._reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
 		}
 	}
 
 	/**
 	 * 反射强度。
+	 * @deprecated
 	 */
 	get reflectionIntensity(): number {
 		return this._reflectionIntensity;
@@ -835,13 +878,13 @@ export class Scene3D extends Sprite implements ISubmit {
 		}
 		optSH[6].setValue(originalSH.getCoefficient(0, 8) * intensity, originalSH.getCoefficient(1, 8) * intensity, originalSH.getCoefficient(2, 8) * intensity, 1);// Final quadratic polynomial
 
-		// this._setShaderValue(Scene3D.AMBIENTSHAR, optSH[0]);
-		// this._setShaderValue(Scene3D.AMBIENTSHAG, optSH[1]);
-		// this._setShaderValue(Scene3D.AMBIENTSHAB, optSH[2]);
-		// this._setShaderValue(Scene3D.AMBIENTSHBR, optSH[3]);
-		// this._setShaderValue(Scene3D.AMBIENTSHBG, optSH[4]);
-		// this._setShaderValue(Scene3D.AMBIENTSHBB, optSH[5]);
-		// this._setShaderValue(Scene3D.AMBIENTSHC, optSH[6]);
+		this._shaderValues.setVector(Scene3D.AMBIENTSHAR, optSH[0]);
+		this._shaderValues.setVector(Scene3D.AMBIENTSHAG, optSH[1]);
+		this._shaderValues.setVector(Scene3D.AMBIENTSHAB, optSH[2]);
+		this._shaderValues.setVector(Scene3D.AMBIENTSHBR, optSH[3]);
+		this._shaderValues.setVector(Scene3D.AMBIENTSHBG, optSH[4]);
+		this._shaderValues.setVector(Scene3D.AMBIENTSHBB, optSH[5]);
+		this._shaderValues.setVector(Scene3D.AMBIENTSHC, optSH[6]);
 	}
 
 	/**
