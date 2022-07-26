@@ -230,7 +230,7 @@ export class Loader extends EventDispatcher {
         if (complete)
             return promise.then(result => {
                 if (ILaya.timer.currFrame == startFrame)
-                    ILaya.systemTimer.frameOnce(1, complete, complete.runWith, result);
+                    ILaya.systemTimer.frameOnce(1, complete, complete.runWith, [result]);
                 else
                     complete.runWith(result);
                 return result;
