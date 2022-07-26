@@ -84,7 +84,7 @@ export class Component implements ISingletonElement {
 	/**
 	 * @internal
 	 */
-	private _resetComp(): void {
+	protected _resetComp(): void {
 		this._indexInList = -1;
 		this._enabled = true;
 		this._awaked = false;
@@ -208,7 +208,7 @@ export class Component implements ISingletonElement {
 	 */
 	destroy(): void {
 		if (this.owner) this.owner._destroyComponent(this);
-		this.owner = null;
+		//this.owner = null;
 	}
 
 	/**

@@ -235,7 +235,7 @@ SpotLight getSpotLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
 	    #else // LEGACYSINGLELIGHTING
     // todo  重复计算
     int indexOffset = clusterInfo.z * c_ClusterBufferFloatWidth + clusterInfo.w;
-    int spotIndex = getLightIndex(indexOffset, index);
+    int spotIndex = getLightIndex(indexOffset, index+clusterInfo.x);
     float v = (float(spotIndex) + 0.5) / float(CalculateLightCount);
     vec4 p1 = texture2D(u_LightBuffer, vec2(0.125, v));
     vec4 p2 = texture2D(u_LightBuffer, vec2(0.375, v));

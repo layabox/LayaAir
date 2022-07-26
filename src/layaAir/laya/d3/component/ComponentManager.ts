@@ -285,6 +285,7 @@ export class ComponentManager {
   callComponentDestroy(): void {
     this._destroyComponents.forEach(element => {
       element.onDestroy();
+      element.owner = null;
     });
     this._destroyComponents.length = 0;
   }

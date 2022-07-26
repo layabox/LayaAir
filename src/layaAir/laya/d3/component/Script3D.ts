@@ -50,6 +50,12 @@ export class Script3D extends Component {
 		return false;
 	}
 
+	protected _resetComp(): void {
+		this._indexInList = -1;
+		this._enabled = true;
+		this._awaked = false;
+	}
+
 	/**
 	 * @inheritDoc
 	 * @internal
