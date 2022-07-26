@@ -88,7 +88,8 @@ export class WebGLEngine implements IRenderEngine {
     private _curUBOPointer: number = 0;
     //记录绑定UBO的glPointer
     private _GLUBOPointerMap: Map<string, number> = new Map();
-
+    //记录绑定Pointer的UBO
+    private _GLBindPointerUBOMap:Map<number,GLBuffer> = new Map();
     //bind viewport
     private _lastViewport: Vector4;
     private _lastScissor: Vector4;
@@ -147,6 +148,24 @@ export class WebGLEngine implements IRenderEngine {
 
     get webglConfig() {
         return this._config;
+    }
+
+    /**
+     * @internal
+     * @param glPointer 
+     * @returns 
+     */
+    _getBindUBOBuffer(glPointer:number):GLBuffer{
+        return this._GLBindPointerUBOMap.get(glPointer);
+    }
+
+    /**
+     * @internal
+     * @param glPointer 
+     * @param buffer 
+     */
+    _setBindUBOBuffer(glPointer:number,buffer:GLBuffer):void{
+        this._GLBindPointerUBOMap.set(glPointer,buffer);
     }
 
     /**
@@ -325,6 +344,8 @@ export class WebGLEngine implements IRenderEngine {
             this._GLUBOPointerMap.set(name, this._curUBOPointer++);
         return this._GLUBOPointerMap.get(name);
     }
+
+   
 
     getTextureContext(): ITextureContext {
         return this._GLTextureContext;
