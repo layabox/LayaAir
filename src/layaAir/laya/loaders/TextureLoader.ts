@@ -3,21 +3,20 @@ import { Utils } from "../utils/Utils";
 import { Texture } from "../resource/Texture";
 import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
 import { HDRTextureInfo } from "../RenderEngine/HDRTextureInfo";
-import { TextureCube } from "../d3/resource/TextureCube";
 import { KTXTextureInfo } from "../RenderEngine/KTXTextureInfo";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 
 class TextureLoader implements IResourceLoader {
     load(task: ILoadTask) {
         let ext: string = Utils.getFileExtension(task.url);
-        let promise: Promise<Texture2D | TextureCube>;
+        let promise: Promise<Texture2D>;
         let compress = compressedFormats.indexOf(ext) != -1 ? ext : (compressedFormats.indexOf(task.type) != -1 ? task.type : null);
         if (compress != null) {
             promise = task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
                 if (!data)
                     return null;
 
-                let tex: Texture2D | TextureCube;
+                let tex: Texture2D;
                 switch (compress) {
                     case "dds":
                         tex = Texture2D._parseDDS(data, task.options.propertyParams, task.options.constructParams);
@@ -25,13 +24,14 @@ class TextureLoader implements IResourceLoader {
 
                     case "ktx":
                         let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
-                        if (ktxInfo.dimension = TextureDimension.Cube) {
-                            tex = new TextureCube(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, ktxInfo.sRGB);
-                            tex.setKTXData(ktxInfo);
-                        }
-                        else if (ktxInfo.dimension = TextureDimension.Tex2D) {
-                            tex = Texture2D._parseKTX(data, task.options.propertyParams, task.options.constructParams);
-                        }
+                        // if (ktxInfo.dimension = TextureDimension.Cube) {
+                        //     tex = new TextureCube(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, ktxInfo.sRGB);
+                        //     tex.setKTXData(ktxInfo);
+                        // }
+                        // else if (ktxInfo.dimension = TextureDimension.Tex2D) {
+                        //     tex = Texture2D._parseKTX(data, task.options.propertyParams, task.options.constructParams);
+                        // }
+                        tex = Texture2D._parseKTX(data, task.options.propertyParams, task.options.constructParams);
                         break;
 
                     case "pvr":

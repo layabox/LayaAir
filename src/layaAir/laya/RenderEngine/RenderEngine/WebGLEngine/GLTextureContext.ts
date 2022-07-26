@@ -704,7 +704,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     }
 
-    setCubeImageData(texture: WebGLInternalTex, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean) {
+    setCubeImageData(texture: WebGLInternalTex, sources: (HTMLImageElement | HTMLCanvasElement | ImageBitmap)[], premultiplyAlpha: boolean, invertY: boolean) {
 
         let gl = texture._gl;
 

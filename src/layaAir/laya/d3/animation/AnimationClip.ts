@@ -8,7 +8,6 @@ import { Vector3Keyframe } from "../core/Vector3Keyframe"
 import { Quaternion } from "../math/Quaternion"
 import { Vector3 } from "../math/Vector3"
 import { Utils3D } from "../utils/Utils3D"
-import { LayaGL } from "../../layagl/LayaGL"
 import { Resource } from "../../resource/Resource"
 import { Byte } from "../../utils/Byte"
 import { Handler } from "../../utils/Handler"
@@ -17,13 +16,12 @@ import { ConchVector3 } from "../math/Native/ConchVector3";
 import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 import { AvatarMask } from "../component/AvatarMask";
 import { WeightedMode } from "../core/Keyframe";
+import { Loader } from "../../net/Loader";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。
  */
 export class AnimationClip extends Resource {
-	/**AnimationClip资源。*/
-	static ANIMATIONCLIP: string = "ANIMATIONCLIP";
 
 	/**@internal	*/
 	static _tempQuaternion0: Quaternion = new Quaternion();
@@ -57,7 +55,7 @@ export class AnimationClip extends Resource {
 	 * @param complete  完成回掉。load
 	 */
 	static load(url: string, complete: Handler): void {
-		ILaya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
+		ILaya.loader.create(url, complete, null, Loader.ANIMATIONCLIP);
 	}
 
 	/**@internal */

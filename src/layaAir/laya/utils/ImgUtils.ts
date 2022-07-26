@@ -1,5 +1,4 @@
-import { Browser } from "laya/utils/Browser";
-import { URL } from "../net/URL";
+import { Browser } from "./Browser";
 
 /**
 * 图片二进制处理类
