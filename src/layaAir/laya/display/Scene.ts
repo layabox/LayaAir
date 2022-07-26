@@ -7,6 +7,7 @@ import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
+import { Const } from "../Const";
 
 /**
  * 场景类，负责场景创建，加载，销毁等功能
@@ -61,6 +62,33 @@ export class Scene extends Sprite {
             }
         } else {
             throw "请提前加载uimap的json，再使用该接口设置！";
+        }
+    }
+
+    /**
+     * @private 兼容老项目
+     * 装载场景视图。用于加载模式。
+     * @param path 场景地址。
+     */
+    loadScene(path: string): void {
+        let url: string = path.indexOf(".") > -1 ? path : path + ".scene";
+        let content: HierarchyResource = ILaya.loader.getRes(url);
+        if (content) {
+            if (!this._viewCreated) {
+                this._viewCreated = true;
+                content.createScene({ root: this });
+            }
+        } else {
+            this._setBit(Const.NOT_READY, true);
+            ILaya.loader.load(url, { cache: false }, value => {
+                if (Scene._loadPage) Scene._loadPage.event("progress", value);
+            }).then((content: HierarchyResource) => {
+                if (!content) throw "Can not find scene:" + path;
+                this._viewCreated = true;
+                this.url = url;
+                Scene.hideLoadingPage();
+                content.createScene({ root: this });
+            });
         }
     }
 

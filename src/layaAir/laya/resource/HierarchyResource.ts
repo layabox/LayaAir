@@ -3,7 +3,7 @@ import { Resource } from "./Resource";
 
 export class HierarchyResource extends Resource {
     createScene(options?: Record<string, any>, errors?: Array<any>): Array<Node> {
-        let ret = this.createNodes();
+        let ret = this.createNodes(options);
         if (ret)
             return [ret];
         else
