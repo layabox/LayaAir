@@ -11,6 +11,7 @@ import { HitArea } from "../utils/HitArea";
 import { Pool } from "../utils/Pool";
 import { WeakObject } from "../utils/WeakObject";
 import { Handler } from "laya/utils/Handler";
+import { Const } from "../Const";
 
 /**
  * 模板，预制件
@@ -123,6 +124,7 @@ export class LegacyUIParser {
 
         //设置组件
         tInitTool.finish();
+        root._setBit(Const.NOT_READY, false);
         if (root.parent && root.parent.activeInHierarchy && root.active)
             root._processActive();
         return root;
