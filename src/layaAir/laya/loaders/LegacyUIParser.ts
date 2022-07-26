@@ -159,11 +159,11 @@ export class LegacyUIParser {
                 if ('itemRender' in comp && (node.props.name == "render" || node.props.renderType === "render")) {
                     //如果list的itemRender
                     (<any>comp)["itemRender"] = node;
-                    // } else if (node.type == "Graphic") {
-                    //     //绘制矢量图
-                    //     ILaya.ClassUtils._addGraphicsToSprite(node, comp);
-                    // } else if (ILaya.ClassUtils._isDrawType(node.type)) {
-                    //     ILaya.ClassUtils._addGraphicToSprite(node, comp, true);
+                } else if (node.type == "Graphic") {
+                    //绘制矢量图
+                    this._addGraphicsToSprite(node, comp);
+                } else if (this._isDrawType(node.type)) {
+                    this._addGraphicToSprite(node, comp, true);
                 } else {
                     if (isList) {
                         //收集数据绑定信息

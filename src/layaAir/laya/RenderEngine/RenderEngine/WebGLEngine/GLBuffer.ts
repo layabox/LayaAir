@@ -117,8 +117,11 @@ export class GLBuffer extends GLObject implements IRenderBuffer {
 
     //TODO:
     bindBufferBase(glPointer: number) {
-        const gl = <WebGL2RenderingContext>this._gl;
-        gl.bindBufferBase(this._glTarget, glPointer, this._glBuffer);
+        if(this._engine._getBindUBOBuffer(glPointer)!=this){
+            const gl = <WebGL2RenderingContext>this._gl;
+            gl.bindBufferBase(this._glTarget, glPointer, this._glBuffer);
+            this._engine._setBindUBOBuffer(glPointer,this);
+        }
     }
 
     //TODO:

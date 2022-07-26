@@ -80,14 +80,18 @@ export class Scene extends Sprite {
             }
         } else {
             this._setBit(Const.NOT_READY, true);
-            ILaya.loader.load(url, { cache: false }, value => {
+            ILaya.loader.load(url, null, value => {
                 if (Scene._loadPage) Scene._loadPage.event("progress", value);
             }).then((content: HierarchyResource) => {
                 if (!content) throw "Can not find scene:" + path;
-                this._viewCreated = true;
-                this.url = url;
-                Scene.hideLoadingPage();
-                content.createScene({ root: this });
+                if (!this._viewCreated) {
+                    this._viewCreated = true;
+                    this.url = url;
+                    Scene.hideLoadingPage();
+                    content.createScene({ root: this });
+                }
+                else
+                    this._setBit(Const.NOT_READY, false);
             });
         }
     }
@@ -290,7 +294,7 @@ export class Scene extends Sprite {
      * @param	progress	加载进度回调（可选）
      */
     static load(url: string, complete: Handler = null, progress: Handler = null): Promise<void> {
-        return ILaya.loader.load(url, { cache: false }, value => {
+        return ILaya.loader.load(url, null, value => {
             if (Scene._loadPage) Scene._loadPage.event("progress", value);
             progress && progress.runWith(value);
         }).then(content => {

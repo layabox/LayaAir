@@ -94,11 +94,11 @@ export class UniformBufferObject extends Buffer {
      * @internal
      */
     _bindUniformBufferBase() {
-        const base = UniformBufferObject._Map.get(this._name);
-        if (base._curUniformBuffer != this) {
+        // const base = UniformBufferObject._Map.get(this._name);
+        // if (base._curUniformBuffer != this) {
             this._glBuffer.bindBufferBase(this._glPointer);
-            base._curUniformBuffer = this;
-        }
+            //base._curUniformBuffer = this;
+        // }
     }
 
     /**
