@@ -27,6 +27,7 @@ const packsDef = [
             './layaAir/Decorators.ts',
             './layaAir/Config.ts',
             './layaAir/laya/Const.ts',
+            './layaAir/laya/RegClasses.ts',
             './layaAir/ILaya.ts',
             './layaAir/Laya.ts',
             './layaAir/laya/components/**/*.*',
@@ -67,6 +68,7 @@ const packsDef = [
             './layaAir/laya/d3/MouseTouch.ts',
             './layaAir/laya/d3/Touch.ts',
             './layaAir/laya/d3/Physics3D.ts',
+            './layaAir/laya/d3/RegClasses.ts',
             './layaAir/Config3D.ts',
             './layaAir/ILaya3D.ts',
             './layaAir/Laya3D.ts'
@@ -193,7 +195,7 @@ gulp.task("buildJs", async () => {
     const outPath = path.posix.join(rootPath, tscOutPath);
     const mentry = 'multientry:entry-point';
 
-    function myMultiInput(rootPath, files, fileSet) {
+    function myMultiInput(pkgDef, rootPath, files, fileSet) {
         return {
             resolveId(id, importer) {
                 if (id === mentry)
@@ -209,7 +211,8 @@ gulp.task("buildJs", async () => {
                         importfile += ".js";
 
                     if (!fileSet.has(importfile)) {
-                        //console.log('other pack:', importfile);
+                        if (pkgDef.libName == "core")
+                            console.warn(`external: ${path.relative(outPath, importer)} ==> ${path.relative(outPath, importfile)}`);
                         return { id: 'Laya', external: true };
                     }
                 }
@@ -256,7 +259,7 @@ gulp.task("buildJs", async () => {
             },
             external: ['Laya'],
             plugins: [
-                myMultiInput(rootPath, files, fileSet),
+                myMultiInput(packsDef[i], rootPath, files, fileSet),
                 rollupSourcemaps(),
                 glsl({
                     include: /.*(.glsl|.vs|.fs)$/,
@@ -284,7 +287,7 @@ gulp.task("buildJs", async () => {
     return merge(
         packsDef.map(pack => {
             return gulp.src(path.join("./build/libs", "laya." + pack.libName + ".js"))
-                .pipe(inject.replace(/var.Laya = \(function \(exports\)/, "window.Laya = (function (exports)"))
+                .pipe(inject.replace(/var Laya = \(function \(exports\)/, "window.Laya = (function (exports)"))
                 .pipe(inject.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)/, "(window.Laya = window.Laya || {}, Laya)"))
                 .pipe(gulp.dest('./build/libs'));
         }),
@@ -601,5 +604,4 @@ gulp.task('publishToIDE', () => {
 gulp.task('build',
     gulp.series('compile', 'buildJs', 'copyJsLibs',
         'concatBox2dPhysics', 'concatCannonPhysics', 'concatBulletPhysics.wasm', 'concatBulletPhysics.wasm-wx', 'concatBulletPhysics',
-        'compressJs',
         'genDts'));

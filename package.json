@@ -6,6 +6,7 @@
   "scripts": {
     "start": "npm-run-all clean copyShaders --parallel watchShaders watchSamples",
     "build": "gulp build",
+    "compress": "gulp compressJs",
     "publishToIDE": "gulp publishToIDE",
     "buildDoc": "cd src/generateDoc&&cmd /k run.bat",
     "watchShaders": "copy-and-watch --skip-initial-copy --watch src/**/*.{glsl,vs,fs} bin/tsc/",
