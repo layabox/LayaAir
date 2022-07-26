@@ -55,6 +55,9 @@ export class LegacyUIParser {
                 root = new clas();
         }
 
+        if (root && (<any>root)._viewCreated)
+            return root;
+
         return LegacyUIParser.createByData(root, data);
     }
 

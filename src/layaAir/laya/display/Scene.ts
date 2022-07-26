@@ -75,8 +75,8 @@ export class Scene extends Sprite {
         let content: HierarchyResource = ILaya.loader.getRes(url);
         if (content) {
             if (!this._viewCreated) {
-                this._viewCreated = true;
                 content.createScene({ root: this });
+                this._viewCreated = true;
             }
         } else {
             this._setBit(Const.NOT_READY, true);
@@ -85,10 +85,10 @@ export class Scene extends Sprite {
             }).then((content: HierarchyResource) => {
                 if (!content) throw "Can not find scene:" + path;
                 if (!this._viewCreated) {
-                    this._viewCreated = true;
                     this.url = url;
                     Scene.hideLoadingPage();
                     content.createScene({ root: this });
+                    this._viewCreated = true;
                 }
                 else
                     this._setBit(Const.NOT_READY, false);
