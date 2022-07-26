@@ -3,6 +3,7 @@ import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
 import { SubShader } from "../SubShader";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { PBRDefaultDFG } from "./PBRDefaultDFG";
 
 import PBRVS from "./pbr.vs";
 import PBRFS from "./pbr.fs";
@@ -14,6 +15,7 @@ import DepthFS from "../depth/Depth.fs";
 export class PBRShaderInit {
 
     static init() {
+
         let uniformMap = {
             "u_DiffuseColor": ShaderDataType.Color,
             "u_DiffuseMap": ShaderDataType.Texture2D,
@@ -22,7 +24,8 @@ export class PBRShaderInit {
             "u_Roughness": ShaderDataType.Float,
             "u_Reflectance": ShaderDataType.Float,
             "u_TilingOffset": ShaderDataType.Vector4,
-            "u_AlphaTest": ShaderDataType.Float,
+            "u_AlphaTestValue": ShaderDataType.Float,
+            "u_IBLDGF": ShaderDataType.Texture2D
         };
 
         let defaultValue = {
@@ -32,6 +35,7 @@ export class PBRShaderInit {
             "u_Reflectance": 0.5,
             "u_TilingOffset": new Vector4(1, 1, 0, 0),
             "u_AlphaTest": 0.5,
+            "u_IBLDGF": PBRDefaultDFG.defaultDFG
         };
 
         let shader = Shader3D.add("pbr", true);

@@ -1,7 +1,6 @@
 import * as glTF from "./glTFInterface";
 import { Material } from "../d3/core/material/Material";
 import { Texture2D, TexturePropertyParams } from "../resource/Texture2D";
-import { glTFBase64Tool } from "./glTFBase64Tool";
 import { URL } from "../net/URL";
 import { PBRStandardMaterial } from "../d3/core/material/PBRStandardMaterial";
 import { PBRRenderMode } from "../d3/core/material/PBRMaterial";
@@ -38,6 +37,7 @@ import { HierarchyResource } from "../resource/HierarchyResource";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { Base64Tool } from "../utils/Base64Tool";
 
 const maxSubBoneCount = 24;
 
@@ -85,8 +85,8 @@ export class glTFResource extends HierarchyResource {
             let promises: Array<Promise<any>> = [];
             let i = 0;
             for (let buffer of glTF.buffers) {
-                if (glTFBase64Tool.isBase64String(buffer.uri)) {
-                    let bin = glTFBase64Tool.decode(buffer.uri.replace(glTFBase64Tool.reghead, ""));
+                if (Base64Tool.isBase64String(buffer.uri)) {
+                    let bin = Base64Tool.decode(buffer.uri.replace(Base64Tool.reghead, ""));
                     this._buffers[i] = bin;
                 }
                 else {
@@ -113,7 +113,7 @@ export class glTFResource extends HierarchyResource {
                         let byteOffset: number = (bufferView.byteOffset || 0);
                         let byteLength: number = bufferView.byteLength;
                         let arraybuffer: ArrayBuffer = buffer.slice(byteOffset, byteOffset + byteLength);
-                        let base64: string = glTFBase64Tool.encode(arraybuffer);
+                        let base64: string = Base64Tool.encode(arraybuffer);
                         let base64url: string = `data:${glTFImg.mimeType};base64,${base64}`;
 
                         glTFImg.uri = base64url;
@@ -131,7 +131,7 @@ export class glTFResource extends HierarchyResource {
                     let glTFSampler = glTF.samplers ? glTF.samplers[samplerSource] : undefined;
                     let constructParams = this.getTextureConstructParams(glTFImg, glTFSampler);
                     let propertyParams = this.getTexturePropertyParams(glTFSampler);
-                    if (glTFBase64Tool.isBase64String(glTFImg.uri)) {
+                    if (Base64Tool.isBase64String(glTFImg.uri)) {
                         //base64编码的图片不需要缓存
                         promises.push(ILaya.loader.load({
                             url: URL.join(basePath, glTFImg.uri),

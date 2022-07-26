@@ -6,9 +6,6 @@
     // todo cpu 拼接？
     #define IBL_ROUGHNESS_LEVEL 4.0
 
-// todo uniform 移动出去
-uniform sampler2D u_IBLDGF;
-
 vec2 prefilteredDFG_LUT(float coord, float NoV)
 {
     return texture2DLodEXT(u_IBLDGF, vec2(NoV, 1.0 - coord), 0.0).rg;

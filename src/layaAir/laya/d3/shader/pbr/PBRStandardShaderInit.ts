@@ -12,6 +12,7 @@ import DepthNormalFS from "../depth/DepthNormal.fs";
 
 import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
+import { PBRDefaultDFG } from "./PBRDefaultDFG";
 
 
 export class PBRStandardShaderInit {
@@ -32,7 +33,8 @@ export class PBRStandardShaderInit {
             "u_NormalTexture": ShaderDataType.Texture2D,
             "u_OcclusionTexture": ShaderDataType.Texture2D,
             "u_EmissionTexture": ShaderDataType.Texture2D,
-            "u_MetallicGlossTexture": ShaderDataType.Texture2D
+            "u_MetallicGlossTexture": ShaderDataType.Texture2D,
+            "u_IBLDGF": ShaderDataType.Texture2D
         };
 
         let defaultValue = {
@@ -43,7 +45,8 @@ export class PBRStandardShaderInit {
             "u_Smoothness": 0.5,
             "u_SmoothnessScale": 1,
             "u_OcclusionStrength": 1,
-            "u_EmissionColor": Color.WHITE
+            "u_EmissionColor": Color.WHITE,
+            "u_IBLDGF": PBRDefaultDFG.defaultDFG
         };
 
         let shader = Shader3D.add("PBR");
