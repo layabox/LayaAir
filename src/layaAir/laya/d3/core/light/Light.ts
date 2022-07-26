@@ -1,5 +1,4 @@
 import { Config3D } from "../../../../Config3D";
-import { Node } from "../../../display/Node";
 import { Vector3 } from "../../math/Vector3";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
@@ -18,16 +17,16 @@ export enum LightType {
 	Point
 }
 
+export enum LightMode {
+	mix,
+	realTime,//
+	bakeOnly
+}
+
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。
  */
 export class Light extends Component {
-	/** 灯光烘培类型-实时。*/
-	static LIGHTMAPBAKEDTYPE_REALTIME: number = 0;
-	/** 灯光烘培类型-混合。*/
-	static LIGHTMAPBAKEDTYPE_MIXED: number = 1;
-	/** 灯光烘培类型-烘焙。*/
-	static LIGHTMAPBAKEDTYPE_BAKED: number = 2;
 
 	/** @internal */
 	protected _shadowMode: ShadowMode = ShadowMode.None;
@@ -51,7 +50,7 @@ export class Light extends Component {
 	/** @internal */
 	_shadowStrength: number = 1.0;
 	/** @internal */
-	_lightmapBakedType: number;
+	_lightmapBakedType: LightMode;
 	/** @internal */
 	_lightType: LightType;
 	/** @internal 因为scale会影响裁剪阴影*/
@@ -151,18 +150,20 @@ export class Light extends Component {
 	/**
 	 * 灯光烘培类型。
 	 */
-	get lightmapBakedType(): number {
+	get lightmapBakedType(): LightMode {
 		return this._lightmapBakedType;
 	}
 
-	set lightmapBakedType(value: number) {
+	set lightmapBakedType(value: LightMode) {
+		let premode = this._lightmapBakedType;
 		if (this._lightmapBakedType !== value) {
 			this._lightmapBakedType = value;
 			if (this._enabled) {
-				if (value !== Light.LIGHTMAPBAKEDTYPE_BAKED)
-					this._addToScene();
-				else
+				if (value == LightMode.bakeOnly)
 					this._removeFromScene();
+				else
+					if (premode == LightMode.bakeOnly)
+						this._addToScene();
 			}
 		}
 	}
@@ -182,7 +183,7 @@ export class Light extends Component {
 		this._intensity = 1.0;
 		this._intensityColor = new Vector3();
 		this.color = new Color(1.0, 1.0, 1.0, 1.0);
-		this._lightmapBakedType = Light.LIGHTMAPBAKEDTYPE_REALTIME;
+		this._lightmapBakedType = LightMode.realTime;
 	}
 
 	/**
@@ -270,7 +271,7 @@ export class Light extends Component {
 	 */
 	_onEnable(): void {
 		super._onEnable();
-		(this.lightmapBakedType !== Light.LIGHTMAPBAKEDTYPE_BAKED) && (this._addToScene());
+		(this.lightmapBakedType !== LightMode.bakeOnly) && (this._addToScene());
 	}
 
 	/**
@@ -279,7 +280,7 @@ export class Light extends Component {
 	 */
 	protected _onDisable(): void {
 		super._onDisable();
-		(this.lightmapBakedType !== Light.LIGHTMAPBAKEDTYPE_BAKED) && (this._removeFromScene());
+		(this.lightmapBakedType !== LightMode.bakeOnly) && (this._removeFromScene());
 	}
 
 	/**

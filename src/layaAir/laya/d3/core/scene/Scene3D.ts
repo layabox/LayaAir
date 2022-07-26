@@ -1010,6 +1010,7 @@ export class Scene3D extends Sprite implements ISubmit {
 					ligPix[off] = intCor.x;
 					ligPix[off + 1] = intCor.y;
 					ligPix[off + 2] = intCor.z;
+					ligPix[off + 3] = dirLight._lightmapBakedType;//0: MIX  1:REALTIME
 					ligPix[off + 4] = dir.x;
 					ligPix[off + 5] = dir.y;
 					ligPix[off + 6] = dir.z;
@@ -1050,6 +1051,7 @@ export class Scene3D extends Sprite implements ISubmit {
 					ligPix[off + 4] = pos.x;
 					ligPix[off + 5] = pos.y;
 					ligPix[off + 6] = pos.z;
+					ligPix[off + 7] = poiLight._lightmapBakedType;//0: MIX  1:REALTIME
 				}
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 			}
@@ -1086,6 +1088,7 @@ export class Scene3D extends Sprite implements ISubmit {
 					ligPix[off + 8] = dir.x;
 					ligPix[off + 9] = dir.y;
 					ligPix[off + 10] = dir.z;
+					ligPix[off + 11] = spoLight._lightmapBakedType;//0: MIX  1:REALTIME
 				}
 				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}

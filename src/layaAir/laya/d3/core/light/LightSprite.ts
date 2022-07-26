@@ -5,15 +5,8 @@ import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { ShadowMode } from "./ShadowMode";
 import { Matrix4x4 } from "../../math/Matrix4x4";
-import { Light } from "./Light";
+import { Light, LightMode } from "./Light";
 import { Color } from "../../math/Color";
-
-
-export enum LightMode {
-	Bake,//烘培灯光，不计入灯光效果
-	RealTime,//实时光
-	Mix//只在没有lightmap的模型上生效
-}
 
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。
@@ -21,7 +14,6 @@ export enum LightMode {
 export class LightSprite extends Sprite3D {
 	/** @internal */
 	_light: Light;
-	_mode: LightMode;
 	/**
 	 * 灯光颜色。
 	 */
@@ -34,11 +26,11 @@ export class LightSprite extends Sprite3D {
 	}
 
 	get mode(): LightMode {
-		return this._mode;
+		return this._light.lightmapBakedType;
 	}
 
 	set mode(value: LightMode) {
-		this._mode = value;
+		this._light.lightmapBakedType = value;
 	}
 
 	/**
