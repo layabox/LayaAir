@@ -13,6 +13,7 @@ struct DirectionLight {
     vec3 color;
     vec3 direction;
     float attenuation;
+    int lightMode;
 };
 
 struct PointLight {
@@ -20,6 +21,7 @@ struct PointLight {
     vec3 position;
     float range;
     float attenuation;
+    int lightMode;
 };
 
 struct SpotLight {
@@ -29,7 +31,19 @@ struct SpotLight {
     vec3 direction;
     float spot;
     float attenuation;
+    int lightMode;
 };
+
+    #define LightMode_Mix      0
+    #define LightMode_RealTime 1
+
+int getAttenuationByMode(float lightMapMode)
+{
+    #ifdef LIGHTMAP // mix 0 realtime 1
+    return int(lightMapMode);
+    #endif
+    return LightMode_RealTime;
+}
 
     #if defined(DIRECTIONLIGHT) || defined(POINTLIGHT) || defined(SPOTLIGHT)
 
@@ -117,14 +131,6 @@ const int c_ClusterBufferHeight = CLUSTER_Z_COUNT * (1 + int(ceil(float(MAX_LIGH
 const int c_ClusterBufferFloatWidth = c_ClusterBufferWidth * 4;
 uniform sampler2D u_LightClusterBuffer;
 
-float getAttenuationByMode(float lightMapMode)
-{
-		#ifdef LIGHTMAP //mix 0 realtime 1
-    return lightMapMode;
-		#endif
-    return 1.0;
-}
-
 int getLightIndex(in int offset, in int index)
 {
     int totalOffset = offset + index;
@@ -160,13 +166,15 @@ DirectionLight getDirectionLight(in int index, in vec3 positionWS)
     light.color = u_DirectionLight.color;
     light.direction = u_DirectionLight.direction;
     light.attenuation = 1.0;
+    light.lightMode = LightMode_RealTime;
 	    #else // LEGACYSINGLELIGHTING
     float v = (float(index) + 0.5) / float(CalculateLightCount);
     vec4 p1 = texture2D(u_LightBuffer, vec2(0.125, v));
     vec4 p2 = texture2D(u_LightBuffer, vec2(0.375, v));
     light.color = p1.rgb;
     light.direction = p2.rgb;
-    light.attenuation = 1.0 * getAttenuationByMode(p1.a);
+    light.attenuation = 1.0;
+    light.lightMode = getAttenuationByMode(p1.a);
 	    #endif // LEGACYSINGLELIGHTING
 
 	    #if defined(CALCULATE_SHADOWS)
@@ -222,7 +230,8 @@ PointLight getPointLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
     light.color = p1.rgb;
     light.range = p1.a;
     light.position = p2.rgb;
-    light.attenuation = 1.0 * getAttenuationByMode(p2.a);
+    light.attenuation = 1.0;
+    light.lightMode = getAttenuationByMode(p2.a);
 	    #endif // LEGACYSINGLELIGHTING
     return light;
 }
@@ -253,7 +262,8 @@ SpotLight getSpotLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
     light.position = p2.rgb;
     light.spot = p2.a;
     light.direction = p3.rgb;
-    light.attenuation = 1.0 *getAttenuationByMode(p3.a);
+    light.attenuation = 1.0;
+    light.lightMode = getAttenuationByMode(p3.a);
 	    #endif // LEGACYSINGLELIGHTING
 
 	    #if defined(CALCULATE_SPOTSHADOWS)
