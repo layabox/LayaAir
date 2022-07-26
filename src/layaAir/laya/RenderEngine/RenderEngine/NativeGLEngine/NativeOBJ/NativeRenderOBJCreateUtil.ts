@@ -47,8 +47,11 @@ import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ
 import { NativeSkinRenderElementOBJ } from "./NativeSkinRenderElementOBJ";
 import { NativeBounds } from "./NativeBounds";
 import { NativeInstanceRenderElementOBJ } from "./NativeInstanceRenderElementOBJ";
+import { UniformBufferObject } from "../../../UniformBufferObject";
+import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
+  
     createTransform(owner: Sprite3D): Transform3D {
         return new NativeTransform3D(owner);
     }
@@ -137,5 +140,9 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
     createRenderState(): RenderState {
         return new NativeRenderState() as unknown as RenderState;
+    }
+
+    createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
+        return new NativeUniformBufferObject(glPointer,name,bufferUsage,byteLength,isSingle);
     }
 }

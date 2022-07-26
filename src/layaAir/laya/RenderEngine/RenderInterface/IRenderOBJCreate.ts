@@ -18,6 +18,7 @@ import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 import { ShaderData, ShaderDataType } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
+import { UniformBufferObject } from "../UniformBufferObject";
 import { IBaseRenderNode } from "./RenderPipelineInterface/IBaseRenderNode";
 import { ICameraCullInfo } from "./RenderPipelineInterface/ICameraCullInfo";
 import { ICullPass } from "./RenderPipelineInterface/ICullPass";
@@ -76,4 +77,6 @@ export interface IRenderOBJCreate {
     createRenderStateComand(): RenderStateCommand;
 
     createRenderState(): RenderState;
+
+    createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean):UniformBufferObject;
 }

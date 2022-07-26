@@ -28,6 +28,7 @@ import { IShadowCullInfo } from "../RenderInterface/RenderPipelineInterface/ISha
 import { ISortPass } from "../RenderInterface/RenderPipelineInterface/ISortPass";
 import { ShaderData, ShaderDataType } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
+import { UniformBufferObject } from "../UniformBufferObject";
 import { BaseRenderNode } from "./BaseRenderNode";
 import { BaseRenderQueue } from "./BaseRenderQueue";
 import { CameraCullInfo } from "./CameraCullInfo";
@@ -130,7 +131,12 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     createRenderStateComand(): RenderStateCommand {
         return new RenderStateCommand();
     }
+
     createRenderState(): RenderState {
         return new RenderState();
+    }
+
+    createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
+        return new UniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
     }
 }

@@ -13,6 +13,7 @@ import { INativeUploadNode } from "../CommonMemory/INativeUploadNode";
 import { MemoryDataType } from "../CommonMemory/MemoryDataType";
 import { UploadMemory } from "../CommonMemory/UploadMemory";
 import { UploadMemoryManager } from "../CommonMemory/UploadMemoryManager";
+import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
 
 export enum NativeShaderDataType {
     Number32,
@@ -23,6 +24,7 @@ export enum NativeShaderDataType {
     Number32Array,
     Texture,
     ShaderDefine,
+    UBO,
 }
 
 export class NativeShaderData extends ShaderData implements INativeUploadNode {
@@ -166,6 +168,14 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         return 3;
     }
 
+    compressUBO(index: number, memoryBlock: UploadMemory, stride: number): number {
+        var value:NativeUniformBufferObject = this._data[index];
+        memoryBlock.int32Array[stride] = index;
+        memoryBlock.int32Array[stride + 1] = NativeShaderDataType.UBO;
+        memoryBlock.int32Array[stride + 2] = (value._glBuffer as any).id;
+        return 3;
+    }
+
     private configMotionProperty(key: number, length: number, callBack: Function) {
         this.updateMap.set(key, callBack);
         this.updataSizeMap.set(key, length);
@@ -278,10 +288,20 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
     }
 
     /**
+     * 
+     * @param index 
+     * @param value 
+     */
+    setUniformBuffer(index: number, value: NativeUniformBufferObject) {
+        this._data[index] = value;
+        this.configMotionProperty(index, 3, this.compressUBO);
+    }
+
+    /**
      * set shader data
      * @deprecated
-	 * @param index uniformID
-	 * @param value data
+     * @param index uniformID
+     * @param value data
      */
     setValueData(index: number, value: any) {
         // if (!!value.clone)
@@ -293,8 +313,8 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
             this.setBool(index, <boolean>value);
         } else if (typeof value == "number") {
             this.setNumber(index, <number>value);
-        }else if(value instanceof Color){
-            this.setColor(index,<Color>value);
+        } else if (value instanceof Color) {
+            this.setColor(index, <Color>value);
         } else if (value instanceof Vector2) {
             this.setVector2(index, <Vector2>value);
         } else if (value instanceof Vector3) {
