@@ -172,7 +172,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         var value:NativeUniformBufferObject = this._data[index];
         memoryBlock.int32Array[stride] = index;
         memoryBlock.int32Array[stride + 1] = NativeShaderDataType.UBO;
-        memoryBlock.int32Array[stride + 2] = (value._glBuffer as any).id;
+        memoryBlock.int32Array[stride + 2] = (value._conchUniformBufferObject as any).nativeID;
         return 3;
     }
 
