@@ -1,7 +1,6 @@
-import { ILaya3D } from "ILaya3D";
+import { ILaya3D } from "../../../ILaya3D";
 import { Vector3 } from "../math/Vector3";
 import { RaycastWheel } from "./RaycastWheel";
-import { Rigidbody3D } from "./Rigidbody3D";
 
 export class btVehicleTuning {
     suspensionStiffness = 15.88;

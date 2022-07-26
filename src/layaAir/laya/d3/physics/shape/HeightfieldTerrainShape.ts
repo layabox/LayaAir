@@ -1,7 +1,7 @@
+import { ILaya3D } from "../../../../ILaya3D";
+import { Laya } from "../../../../Laya";
+import { Vector3 } from "../../math/Vector3";
 import { ColliderShape } from "./ColliderShape";
-import { ILaya3D } from "ILaya3D";
-import { Laya } from "Laya"
-import { Vector3 } from "laya/d3/math/Vector3";
 
 /**
  * <code>BoxColliderShape</code> 类用于创建高度图地形形状碰撞器。
