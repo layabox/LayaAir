@@ -1,6 +1,6 @@
 import { FilterSetterBase } from "././FilterSetterBase";
 import { BlurFilter } from "../filters/BlurFilter";
-import { ClassUtils } from "../utils/ClassUtils";
+
 /**
  * ...
  * @author ww
@@ -27,7 +27,3 @@ export class BlurFilterSetter extends FilterSetterBase {
         this._strength = value;
     }
 }
-
-
-ClassUtils.regClass("laya.effect.BlurFilterSetter", BlurFilterSetter);
-ClassUtils.regClass("Laya.BlurFilterSetter", BlurFilterSetter);

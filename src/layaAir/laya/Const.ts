@@ -1,7 +1,7 @@
 /**
-	 * @private
-	 * 静态常量集合
-	 */
+ * @private
+ * 静态常量集合
+ */
 export class Const {
     static NOT_ACTIVE: number = 0x01;
     static ACTIVE_INHIERARCHY: number = 0x02;
@@ -14,3 +14,9 @@ export class Const {
     static DRAWCALL_OPTIMIZE: number = 0x100;
 }
 
+export class HideFlags {
+    static HideInHierarchy = 0x1;
+    static HideInInspector = 0x2;
+    static DontSave = 0x4;
+    static HideAndDontSave = 0x7;
+}

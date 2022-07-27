@@ -1009,13 +1009,27 @@ export class Sprite extends Node {
         this.getStyle().scrollRect = value;
         this._setScrollRect(value);
         //viewport = value;
-        this.repaint();
+        this.clipping = true;
+    }
+
+    /**
+     * 是否开启了裁剪。设置scrollRect自动打开。
+     */
+    get clipping(): boolean {
+        return (this._renderType & SpriteConst.CLIP) != 0;
+    }
+
+    /**
+     * 设置开启裁剪。设置scrollRect自动打开。
+     */
+    set clipping(value: boolean) {
         if (value) {
             this._renderType |= SpriteConst.CLIP;
         } else {
             this._renderType &= ~SpriteConst.CLIP;
         }
         this._setRenderType(this._renderType);
+        this.repaint();
     }
 
     /**
@@ -1363,7 +1377,7 @@ export class Sprite extends Node {
             }
         }
         for (i = 0, len = this._children.length; i < len; i++) {
-            if (this._children[i]._isHaveGlowFilter()) {
+            if ((<Sprite>this._children[i])._isHaveGlowFilter()) {
                 return true;
             }
         }

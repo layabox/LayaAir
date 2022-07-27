@@ -4,6 +4,7 @@ import { UIComponent } from "./UIComponent"
 import { Image } from "./Image"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { HideFlags } from "../Const"
 
 /**
  * 值发生改变后调度。
@@ -150,8 +151,12 @@ export class ProgressBar extends UIComponent {
      * @override
     */
     protected createChildren(): void {
-        this.addChild(this._bg = new Image());
-        this.addChild(this._bar = new Image());
+        this._bg = new Image();
+        this._bg.hideFlags = HideFlags.HideAndDontSave;
+        this._bar = new Image();
+        this._bar.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._bg);
+        this.addChild(this._bar);
         this._bar._bitmap.autoCacheCmd = false;
     }
 

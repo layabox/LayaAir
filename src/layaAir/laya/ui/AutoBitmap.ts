@@ -200,26 +200,6 @@ export class AutoBitmap extends Graphics {
         this._repaint();
     }
 
-    private drawBitmap(repeat: boolean, tex: Texture, x: number, y: number, width: number = 0, height: number = 0): void {
-        if (width < 0.1 || height < 0.1) return;
-        if (repeat && (tex.width != width || tex.height != height)) this.fillTexture(tex, x, y, width, height);
-        else this.drawImage(tex, x, y, width, height);
-    }
-
-    private static getTexture(tex: Texture, x: number, y: number, width: number, height: number): Texture {
-        if (width <= 0) width = 1;
-        if (height <= 0) height = 1;
-        tex.$_GID || (tex.$_GID = Utils.getGID())
-        //var key:String = tex.$_GID + "." + x + "." + y + "." + width + "." + height;
-        //var texture:Texture = WeakObject.I.get(key);
-        var texture: Texture;
-        if (!texture || !texture._getSource()) {
-            texture = Texture.createFromTexture(tex, x, y, width, height);
-            //WeakObject.I.set(key, texture);
-        }
-        return texture;
-    }
-
     /**
      *  由于可能有其他的graphic命令，因此不能用原来的直接clear()的方法
      */

@@ -98,7 +98,7 @@ export class Image extends UIComponent {
      * 创建一个 <code>Image</code> 实例。
      * @param skin 皮肤资源地址。
      */
-    constructor(skin: string|null = null) {
+    constructor(skin: string | null = null) {
         super();
         this.skin = skin;
     }
@@ -107,7 +107,7 @@ export class Image extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	destroy(destroyChild: boolean = true): void {
+    destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._bitmap && this._bitmap.destroy();
         this._bitmap = null;
@@ -125,7 +125,7 @@ export class Image extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	protected createChildren(): void {
+    protected createChildren(): void {
         this.graphics = this._bitmap = new AutoBitmap();
         this._bitmap.autoCacheCmd = false;
     }
@@ -147,7 +147,9 @@ export class Image extends UIComponent {
                 if (source) {
                     this.source = source;
                     this.onCompResize();
-                } else ILaya.loader.load(this._skin, Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
+                } else
+                    ILaya.loader.load(this._skin, 
+                        Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
             } else {
                 this.source = null;
             }
@@ -194,7 +196,7 @@ export class Image extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	protected measureWidth(): number {
+    protected measureWidth(): number {
         return this._bitmap.width;
     }
 
@@ -202,7 +204,7 @@ export class Image extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	protected measureHeight(): number {
+    protected measureHeight(): number {
         return this._bitmap.height;
     }
 
@@ -210,7 +212,7 @@ export class Image extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	set width(value: number) {
+    set width(value: number) {
         super.width = value;
         this._bitmap.width = value == 0 ? 0.0000001 : value;
     }
@@ -227,7 +229,7 @@ export class Image extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         super.height = value;
         this._bitmap.height = value == 0 ? 0.0000001 : value;
     }

@@ -11,6 +11,7 @@ import { Ease } from "../utils/Ease"
 import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
+import { HideFlags } from "../Const";
 
 /**
  * 滚动条滑块位置发生变化后调度。
@@ -117,10 +118,17 @@ export class ScrollBar extends UIComponent {
      * @override
      */
     protected createChildren(): void {
-        this.addChild(this.slider = new Slider());
-        //TODO:
-        this.addChild(this.upButton = new Button());
-        this.addChild(this.downButton = new Button());
+        this.slider = new Slider();
+        this.slider.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this.slider);
+
+        this.upButton = new Button();
+        this.upButton.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this.upButton);
+
+        this.downButton = new Button();
+        this.downButton.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this.downButton);
     }
     /**
      * @override

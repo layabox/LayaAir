@@ -7,9 +7,7 @@ class AnimationClipLoader implements IResourceLoader {
             if (!data)
                 return null;
 
-            let clip: AnimationClip = AnimationClip._parse(data);
-            clip._setCreateURL(task.url);
-            return clip;
+            return AnimationClip._parse(data);
         });
     }
 }

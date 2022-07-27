@@ -7,9 +7,7 @@ class MeshLoader implements IResourceLoader {
             if (!data)
                 return null;
 
-            let mesh = MeshReader._parse(data);
-            mesh._setCreateURL(task.url);
-            return mesh;
+            return MeshReader._parse(data);
         });
     }
 }

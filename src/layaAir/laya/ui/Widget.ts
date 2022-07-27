@@ -76,7 +76,7 @@ export class Widget extends Component {
                     if (!parent._width) return false;
                     //TODO:如果用width，会死循环
                     var temp: number = (parent._width - this.left - this.right) / (owner.scaleX || 0.01);
-                    if (temp != owner.width) {
+                    if (temp != owner._width) {
                         owner.width = temp;
                         return true;
                     }
@@ -105,7 +105,7 @@ export class Widget extends Component {
                     if (!parent._height) return false;
                     //TODO:
                     var temp: number = (parent._height - this.top - this.bottom) / (owner.scaleY || 0.01);
-                    if (temp != owner.height) {
+                    if (temp != owner._height) {
                         owner.height = temp;
                         return true;
                     }

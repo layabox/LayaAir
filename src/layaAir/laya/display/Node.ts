@@ -37,11 +37,13 @@ const ARRAY_EMPTY: any[] = [];
 export class Node extends EventDispatcher {
     /**@private */
     private _bits: number = 0;
+    /**@private */
+    private _hideFlags: number = 0;
     /**@internal 子对象集合，请不要直接修改此对象。*/
-    _children: any[] = ARRAY_EMPTY;
+    _children: Node[] = ARRAY_EMPTY;
 
     /**@internal 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
-    _extUIChild: any[] = ARRAY_EMPTY;
+    _extUIChild: Node[] = ARRAY_EMPTY;
 
     /**@internal 父节点对象*/
     _parent: Node = null;
@@ -56,19 +58,26 @@ export class Node extends EventDispatcher {
     /** 如果节点从资源中创建，这里记录是他的url */
     protected _url?: string;
     /**
-	 * 得到资源的URL
-	 */
-	get url(): string {
-		return this._url;
-	}
+     * 得到资源的URL
+     */
+    get url(): string {
+        return this._url;
+    }
 
-	/**
-	 * 设置动画路径
-	 */
-	set url(path: string) {
-		this._url = path;
-	}
+    /**
+     * 设置资源的URL
+     */
+    set url(path: string) {
+        this._url = path;
+    }
 
+    get hideFlags(): number {
+        return this._hideFlags;
+    }
+
+    set hideFlags(value: number) {
+        this._hideFlags = value;
+    }
 
     constructor() {
         super();
@@ -116,6 +125,10 @@ export class Node extends EventDispatcher {
         if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
             if (!this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
         }
+    }
+
+    hasHideFlag(flag: number): boolean {
+        return (this._hideFlags & flag) != 0;
     }
 
     /**
@@ -864,6 +877,7 @@ export class Node extends EventDispatcher {
         comp._onAdded();
         if (this.activeInHierarchy)
             comp._setActive(true);
+        this._componentChanged?.();
     }
 
     /**
@@ -876,6 +890,7 @@ export class Node extends EventDispatcher {
                 if (item === comp) {
                     item._destroy();
                     this._components.splice(i, 1);
+                    this._componentChanged?.();
                     break;
                 }
             }
@@ -892,9 +907,15 @@ export class Node extends EventDispatcher {
                 item && item.destroy();
             }
             this._components.length = 0;
+            this._componentChanged?.();
         }
     }
 
+    /**
+     * 组件列表发生改变。
+     * @private
+     */
+    protected _componentChanged?(): void;
 
     /**
      * @internal 克隆。

@@ -20,7 +20,6 @@ import { GrahamScan } from "../maths/GrahamScan"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
-import { Render } from "../renders/Render"
 import { Context } from "../resource/Context"
 import { Texture } from "../resource/Texture"
 import { Pool } from "../utils/Pool"
@@ -110,7 +109,6 @@ export class GraphicsBounds {
     }
 
     private _getCmdPoints(realSize: boolean = false): any[] {
-        var context: Context = Render._context;
         var cmds: any[] = this._graphics.cmds;
         var rst: any[];
         rst = this._temp || (this._temp = []);

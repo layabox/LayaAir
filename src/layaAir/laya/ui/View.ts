@@ -193,6 +193,14 @@ export class View extends Scene {
             else if (name in this && !((this as any)[name] instanceof Function)) (this as any)[name] = value[name];
         }
     }
+    /**
+     * 重新排版
+     */
+    freshLayout() {
+        if (this._widget != Widget.EMPTY) {
+            this._widget.resetLayout();
+        }
+    }
 }
 
     //dialog 依赖于view，放到这里的话，谁在前都会报错，所以不能放到这里了

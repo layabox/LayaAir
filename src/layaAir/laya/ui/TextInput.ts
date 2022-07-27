@@ -7,6 +7,7 @@ import { Styles } from "./Styles"
 import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { HideFlags } from "../Const";
 
 /**
  * 输入文本后调度。
@@ -126,11 +127,11 @@ export class TextInput extends Label {
         this.skin = this.skin;
     }
 
-		/**
-		 * @inheritDoc 
-         * @override
-		*/
-		protected preinitialize(): void {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    protected preinitialize(): void {
         this.mouseEnabled = true;
     }
 
@@ -149,7 +150,9 @@ export class TextInput extends Label {
      * @override 
     */
     protected createChildren(): void {
-        this.addChild(this._tf = new Input());
+        this._tf = new Input();
+        this._tf.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._tf);
         this._tf.padding = Styles.inputLabelPadding;
         this._tf.on(Event.INPUT, this, this._onInput);
         this._tf.on(Event.ENTER, this, this._onEnter);
@@ -252,7 +255,7 @@ export class TextInput extends Label {
      * @see laya.display.Text.text
      * @override
      */
-	set text(value: string) {
+    set text(value: string) {
         if (this._tf.text != value) {
             value = value + "";
             this._tf.text = value;
@@ -270,7 +273,7 @@ export class TextInput extends Label {
      * @inheritDoc 
      * @override
      */
-	set width(value: number) {
+    set width(value: number) {
         super.width = value;
         this._bg && (this._bg.width = value);
     }
@@ -286,7 +289,7 @@ export class TextInput extends Label {
      * @inheritDoc 
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         super.height = value;
         this._bg && (this._bg.height = value);
     }

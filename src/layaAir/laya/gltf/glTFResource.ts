@@ -61,8 +61,7 @@ export class glTFResource extends HierarchyResource {
 
     static _parse(glTF: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<glTFResource> {
         let res = new glTFResource();
-        res._setCreateURL(createURL);
-        return res._parse(glTF, progress).then(() => res);
+        return res._parse(glTF, createURL, progress).then(() => res);
     }
 
     constructor() {
@@ -76,9 +75,9 @@ export class glTFResource extends HierarchyResource {
         this._nodes = [];
     }
 
-    private _parse(glTF: glTF.glTF, progress?: IBatchProgress): Promise<void> {
+    private _parse(glTF: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<void> {
         this._glTF = glTF;
-        let basePath = URL.getPath(this.url);
+        let basePath = URL.getPath(createURL);
         let promise: Promise<any>;
 
         if (glTF.buffers) {

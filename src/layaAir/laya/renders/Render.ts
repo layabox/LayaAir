@@ -15,7 +15,6 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { WebGL } from "../webgl/WebGL";
 
 import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
-import { PerfHUD } from "../utils/PerfHUD";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
@@ -76,7 +75,7 @@ export class Render {
         let fps = Config.FPS;
         let ifps = Render.ifps= 1000/fps; //如果VR的话，需要改这个
         function loop(stamp: number){
-            let perf = PerfHUD.inst;
+            //let perf = PerfHUD.inst;
             let sttm = performance.now();
             //perf && perf.updateValue(0, sttm-lastFrmTm);
             lastFrmTm=sttm;
@@ -95,7 +94,7 @@ export class Render {
 				Render.lastFrm=frm;
 				ILaya.stage._loop();
 			}
-            perf && perf.updateValue(1, performance.now()-sttm);
+            //perf && perf.updateValue(1, performance.now()-sttm);
 
             if (!!Render._customRequestAnimationFrame && !!Render._loopFunction) {
                 Render._customRequestAnimationFrame(Render._loopFunction);

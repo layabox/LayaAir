@@ -4,7 +4,6 @@ import { Texture } from "../resource/Texture";
 import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
 import { HDRTextureInfo } from "../RenderEngine/HDRTextureInfo";
 import { KTXTextureInfo } from "../RenderEngine/KTXTextureInfo";
-import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 
 class TextureLoader implements IResourceLoader {
     load(task: ILoadTask) {
@@ -42,7 +41,6 @@ class TextureLoader implements IResourceLoader {
                         tex = HDRTextureInfo._parseHDRTexture(data, task.options.propertyParams, task.options.constructParams);
                         break;
                 }
-                tex._setCreateURL(task.url);
                 return tex;
             });
         }
@@ -52,7 +50,6 @@ class TextureLoader implements IResourceLoader {
                     return null;
 
                 let tex2D = Texture2D._parseImage(img, task.options.propertyParams, task.options.constructParams);
-                tex2D._setCreateURL(task.url);
                 return tex2D;
             });
         }
@@ -66,7 +63,6 @@ class TextureLoader implements IResourceLoader {
                 tex.bitmap = tex2D;
             else
                 tex = new Texture(tex2D);
-            tex.url = task.url;
             return tex;
         });
     }

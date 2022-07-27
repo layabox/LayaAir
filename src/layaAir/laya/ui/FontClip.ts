@@ -192,7 +192,7 @@ export class FontClip extends Clip {
     /**
      * @override
      */
-	set width(value: number) {
+    set width(value: number) {
         super.width = value;
         this.callLater(this.changeValue);
     }
@@ -206,7 +206,7 @@ export class FontClip extends Clip {
     /**
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         super.height = value;
         this.callLater(this.changeValue);
     }

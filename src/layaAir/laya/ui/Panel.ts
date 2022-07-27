@@ -6,6 +6,7 @@ import { Node } from "../display/Node"
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Rectangle } from "../maths/Rectangle"
+import { HideFlags } from "../Const";
 
 /**
  * <code>Panel</code> 是一个面板容器类。
@@ -53,7 +54,9 @@ export class Panel extends Box {
 
     /**@inheritDoc @override*/
     protected createChildren(): void {
-        super.addChild(this._content = new Box());
+        this._content = new Box();
+        this._content.hideFlags = HideFlags.HideAndDontSave;
+        super.addChild(this._content);
     }
 
     /**@inheritDoc @override*/
@@ -129,7 +132,7 @@ export class Panel extends Box {
         var hscroll = this._hScrollBar;
 
         var vShow = vscroll && contentH > this._height;
-		var hShow = hscroll && contentW > this._width;
+        var hShow = hscroll && contentW > this._width;
         var showWidth = vShow ? this._width - vscroll.width : this._width;
         var showHeight = hShow ? this._height - hscroll.height : this._height;
 

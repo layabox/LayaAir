@@ -4,7 +4,7 @@ import { Rectangle } from "../maths/Rectangle"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { BaseTexture } from "./BaseTexture";
-import { EventDispatcher } from "../events/EventDispatcher";
+import { Resource } from "./Resource";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -12,62 +12,41 @@ const _rect2 = new Rectangle();
 /**
  * <code>Texture</code> 是一个纹理处理类。
  */
-export class Texture extends EventDispatcher {
-
+export class Texture extends Resource {
     /**@private 默认 UV 信息。*/
-    static DEF_UV = new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
+    static readonly DEF_UV = new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
     /**@private */
-    static NO_UV = new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
+    static readonly NO_UV = new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
     /**@private 反转 UV 信息。*/
-    static INV_UV = new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
+    static readonly INV_UV = new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
 
     /**@private uv的范围*/
     uvrect: any[] = [0, 0, 1, 1]; //startu,startv, urange,vrange
     /**@private */
-    private _destroyed: boolean = false;
-    /**@private */
     private _bitmap: BaseTexture;
     /**@internal */
     public _uv: ArrayLike<number>;
-    /**@private */
-    private _referenceCount: number = 0;
     /** @internal [NATIVE]*/
     _nativeObj: any;
-
-    /**@internal 唯一ID*/
-    $_GID: number = 0;
-    /**沿 X 轴偏移量。*/
-    offsetX: number = 0;
-    /**沿 Y 轴偏移量。*/
-    offsetY: number = 0;
     /** @private */
     private _w: number = 0;
     /** @private */
     private _h: number = 0;
 
+    /**沿 X 轴偏移量。*/
+    offsetX: number = 0;
+    /**沿 Y 轴偏移量。*/
+    offsetY: number = 0;
     /**原始宽度（包括被裁剪的透明区域）。*/
     sourceWidth: number = 0;
     /**原始高度（包括被裁剪的透明区域）。*/
     sourceHeight: number = 0;
     /**图片地址*/
-    url: string = null;
+    url: string;
+    /** UUID */
+    uuid: string;
     /** @private */
     scaleRate: number = 1;
-
-    /**
-     * 平移 UV。
-     * @param offsetX 沿 X 轴偏移量。
-     * @param offsetY 沿 Y 轴偏移量。
-     * @param uv 需要平移操作的的 UV。
-     * @return 平移后的UV。
-     */
-    static moveUV(offsetX: number, offsetY: number, uv: any[]): any[] {
-        for (var i: number = 0; i < 8; i += 2) {
-            uv[i] += offsetX;
-            uv[i + 1] += offsetY;
-        }
-        return uv;
-    }
 
     /**
      *  根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
@@ -135,7 +114,7 @@ export class Texture extends EventDispatcher {
 
         var u1: number = tex.uv[0], v1: number = tex.uv[1], u2: number = tex.uv[4], v2: number = tex.uv[5];
         var inAltasUVWidth: number = (u2 - u1), inAltasUVHeight: number = (v2 - v1);
-        var oriUV: any[] = Texture.moveUV(uv[0], uv[1], [x, y, x + width, y, x + width, y + height, x, y + height]);
+        var oriUV: any[] = moveUV(uv[0], uv[1], [x, y, x + width, y, x + width, y + height, x, y + height]);
         tex.uv = new Float32Array([u1 + oriUV[0] * inAltasUVWidth, v1 + oriUV[1] * inAltasUVHeight,
         u2 - (1 - oriUV[2]) * inAltasUVWidth, v1 + oriUV[3] * inAltasUVHeight,
         u2 - (1 - oriUV[4]) * inAltasUVWidth, v2 - (1 - oriUV[5]) * inAltasUVHeight,
@@ -242,21 +221,13 @@ export class Texture extends EventDispatcher {
     }
 
     /**
-     * 获取是否已经销毁。
-     * @return 是否已经销毁。
-     */
-    get destroyed(): boolean {
-        return this._destroyed;
-    }
-
-    /**
      * 创建一个 <code>Texture</code> 实例。
      * @param bitmap 位图资源。
      * @param uv UV 数据信息。
      */
     constructor(source: Texture | BaseTexture = null, uv: ArrayLike<number> = null,
         sourceWidth: number = 0, sourceHeight: number = 0) {
-        super();
+        super(false);
         let bitmap = (source instanceof Texture) ? source.bitmap : source;
         this.setTo(bitmap, uv, sourceWidth, sourceHeight);
     }
@@ -264,17 +235,17 @@ export class Texture extends EventDispatcher {
     /**
      * @internal
      */
-    _addReference(): void {
-        this._bitmap && this._bitmap._addReference();
-        this._referenceCount++;
+    _addReference(count: number = 1): void {
+        super._addReference(count);
+        this._bitmap && this._bitmap._addReference(count);
     }
 
     /**
      * @internal
      */
-    _removeReference(): void {
-        this._bitmap && this._bitmap._removeReference();
-        this._referenceCount--;
+    _removeReference(count: number = 1): void {
+        super._removeReference(count);
+        this._bitmap && this._bitmap._removeReference(count);
     }
 
     /**
@@ -458,20 +429,30 @@ export class Texture extends EventDispatcher {
     }
 
     /**
-     * 销毁纹理。
+     * @private
      */
-    destroy(force: boolean = false): void {
-        if (!this._destroyed) {
-            this._destroyed = true;
-            let bit = this._bitmap;
-            if (bit) {
-                bit._removeReference(this._referenceCount);
-                if (bit.referenceCount === 0 || force)
-                    bit.destroy();
-                bit = null;
-            }
-            if (this.url && this === ILaya.loader.getRes(this.url))
-                ILaya.Loader.clearRes(this.url);
+    protected _disposeResource(force?: boolean): void {
+        let bit = this._bitmap;
+        this._bitmap = null;
+        if (bit) {
+            bit._removeReference(this._referenceCount);
+            if (bit.referenceCount === 0 || force)
+                bit.destroy();
         }
     }
+}
+
+/**
+ * 平移 UV。
+ * @param offsetX 沿 X 轴偏移量。
+ * @param offsetY 沿 Y 轴偏移量。
+ * @param uv 需要平移操作的的 UV。
+ * @return 平移后的UV。
+ */
+function moveUV(offsetX: number, offsetY: number, uv: any[]): any[] {
+    for (var i: number = 0; i < 8; i += 2) {
+        uv[i] += offsetX;
+        uv[i + 1] += offsetY;
+    }
+    return uv;
 }

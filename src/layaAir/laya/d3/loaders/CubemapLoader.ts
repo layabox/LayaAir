@@ -55,7 +55,6 @@ class CubemapLoader implements IResourceLoader {
                     let mipmap = constructParams ? constructParams[3] : false;
                     let tex = new TextureCube(size, format, mipmap);
                     tex.setImageData(images, false, false);
-                    tex._setCreateURL(task.url);
                     (<any>tex)._source = urls; //IDE need this
                     return tex;
                 });
@@ -103,8 +102,6 @@ class CubemapBinLoader implements IResourceLoader {
                 tex.updateSubPixelsData(uint8Arrays, 0, 0, mipSize, mipSize, i, false, false, false);
                 mipSize /= 2;
             }
-
-            tex._setCreateURL(task.url);
             return tex;
         });
     }

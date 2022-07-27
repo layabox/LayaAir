@@ -504,4 +504,13 @@ export class UIComponent extends Sprite {
         this.callLater(this._sizeChanged);
         super._childChanged(child);
     }
+    /**
+     * 重新排版
+     */
+    freshLayout() {
+        if (this._widget != Widget.EMPTY) {
+            this._widget.resetLayout();
+        }
+    }
+    
 }

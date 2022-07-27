@@ -3,6 +3,7 @@ import { Text } from "../display/Text"
 import { Event } from "../events/Event"
 import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
+import { HideFlags } from "../Const";
 
 /**
  * 文本内容发生改变后调度。
@@ -137,8 +138,8 @@ export class Label extends UIComponent {
      * @override
     */
     destroy(destroyChild: boolean = true): void {
-		super.destroy(destroyChild);
-		//@ts-ignore
+        super.destroy(destroyChild);
+        //@ts-ignore
         this._tf = null;
     }
 
@@ -147,7 +148,9 @@ export class Label extends UIComponent {
      * @inheritDoc 
     */
     protected createChildren(): void {
-        this.addChild(this._tf = new Text());
+        this._tf = new Text();
+        this._tf.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._tf);
     }
 
     /**

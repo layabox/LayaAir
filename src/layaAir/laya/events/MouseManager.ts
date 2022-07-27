@@ -8,6 +8,8 @@ import { Browser } from "../utils/Browser"
 import { Stage } from "../display/Stage";
 import { ILaya } from "../../ILaya";
 
+var _isFirstTouch: boolean = true;
+var _isTouchRespond: boolean;
 
 /**
  * <p><code>MouseManager</code> 是鼠标、触摸交互管理器。</p>
@@ -26,6 +28,7 @@ export class MouseManager {
     static enabled: boolean = true;
     /**是否开启多点触控*/
     static multiTouchEnabled: boolean = true;
+
     /** canvas 上的鼠标X坐标。*/
     mouseX: number = 0;
     /** canvas 上的鼠标Y坐标。*/
@@ -36,31 +39,33 @@ export class MouseManager {
     mouseDownTime: number = 0;
     /** 鼠标移动精度。*/
     mouseMoveAccuracy: number = 2;
-    /** @private */
-    private static _isTouchRespond: boolean;
     /** @internal */
     _event: Event = new Event();
-    private _stage: Stage;
 
+    /**@internal*/
+    _editorEnv: boolean;
+
+    protected _stage: Stage;
     /** @private 希望capture鼠标事件的对象。*/
-    private _captureSp: Sprite = null;
+    protected _captureSp: Sprite = null;
     /** @private 现在不支持直接把绝对坐标转到本地坐标，只能一级一级做下去，因此记录一下这个链*/
-    private _captureChain: Sprite[] = [];
+    protected _captureChain: Sprite[] = [];
     /** @private capture对象独占消息 */
-    private _captureExlusiveMode: boolean = false;
-    /** @private 在发送事件的过程中，是否发送给了_captureSp */
-    private _hitCaputreSp: boolean = false;
+    protected _captureExlusiveMode: boolean = false;
+    /** 0-down 1-up 2-move */
+    protected _eventType: number;
+    protected _isLeftMouse: boolean;
+    protected _target: Sprite;
+    protected _touchIDs: any = {};
+    protected _curTouchID: number = NaN;
+    protected _tTouchID: number;
 
     private _point: Point = new Point();
     private _rect: Rectangle = new Rectangle();
-    private _target: any;
     private _lastMoveTimer: number = 0;
-    private _isLeftMouse: boolean;
     private _prePoint: Point = new Point();
-    private _touchIDs: any = {};
-    private _curTouchID: number = NaN;
     private _id: number = 1;
-    private static _isFirstTouch: boolean = true;
+
     /**
      * @private
      * 初始化。
@@ -105,7 +110,7 @@ export class MouseManager {
         })
         canvas.addEventListener("touchstart", function (e: any): void {
             if (MouseManager.enabled) {
-                if (!MouseManager._isFirstTouch && !Input.isInputting)
+                if (!_isFirstTouch && !Input.isInputting)
                     (e.cancelable) && (e.preventDefault());
                 _this.mouseDownTime = Browser.now();
                 _this.runEvent(e);
@@ -113,9 +118,9 @@ export class MouseManager {
         });
         canvas.addEventListener("touchend", function (e: any): void {
             if (MouseManager.enabled) {
-                if (!MouseManager._isFirstTouch && !Input.isInputting)
+                if (!_isFirstTouch && !Input.isInputting)
                     (e.cancelable) && (e.preventDefault());
-                MouseManager._isFirstTouch = false;
+                _isFirstTouch = false;
                 _this.mouseDownTime = -Browser.now();
                 _this.runEvent(e);
             } else {
@@ -143,7 +148,6 @@ export class MouseManager {
             if (MouseManager.enabled) _this.runEvent(e);
         });
     }
-    private _tTouchID: number;
 
     private initEvent(e: any, nativeEvent: any = null): void {
         var _this: MouseManager = this;
@@ -177,21 +181,19 @@ export class MouseManager {
             var ele: any = _lastOvers[i];
             ele.event(Event.MOUSE_WHEEL, this._event.setTo(Event.MOUSE_WHEEL, ele, this._target));
         }
-        //			_stage.event(Event.MOUSE_WHEEL, _event.setTo(Event.MOUSE_WHEEL, _stage, _target));
+        //_stage.event(Event.MOUSE_WHEEL, _event.setTo(Event.MOUSE_WHEEL, _stage, _target));
     }
 
-    private onMouseMove(ele: any): void {
-
+    private onMouseMove(ele: Sprite): void {
         TouchManager.I.onMouseMove(ele, this._tTouchID);
-
     }
 
-    private onMouseDown(ele: any): void {
+    private onMouseDown(ele: Sprite): void {
         if (Input.isInputting && ILaya.stage.focus && (ILaya.stage.focus as any)["focus"] && !ILaya.stage.focus.contains(this._target)) {
             // 从UI Input组件中取得Input引用
             // _tf 是TextInput的属性
             var pre_input: any = (ILaya.stage.focus as any)['_tf'] || ILaya.stage.focus;
-            var new_input: Input = ele['_tf'] || ele;
+            var new_input: Input = (<any>ele)['_tf'] || ele;
 
             // 新的焦点是Input的情况下，不需要blur；
             // 不过如果是Input和TextArea之间的切换，还是需要重新弹出输入法；
@@ -203,19 +205,20 @@ export class MouseManager {
         TouchManager.I.onMouseDown(ele, this._tTouchID, this._isLeftMouse);
     }
 
-    private onMouseUp(ele: any): void {
+    private onMouseUp(ele: Sprite): void {
         TouchManager.I.onMouseUp(ele, this._tTouchID, this._isLeftMouse);
     }
 
-    private check(sp: Sprite, mouseX: number, mouseY: number, callBack: Function): boolean {
+    protected check(sp: Sprite, mouseX: number, mouseY: number): boolean {
         this._point.setTo(mouseX, mouseY);
         sp.fromParentPoint(this._point);
         mouseX = this._point.x;
         mouseY = this._point.y;
+        let editor = this._editorEnv;
 
         //如果有裁剪，则先判断是否在裁剪范围内
-        var scrollRect: Rectangle = sp._style.scrollRect;
-        if (scrollRect) {
+        let scrollRect: Rectangle = sp._style.scrollRect;
+        if (scrollRect && sp.clipping) {
             this._rect.setTo(scrollRect.x, scrollRect.y, scrollRect.width, scrollRect.height);
             if (!this._rect.contains(mouseX, mouseY)) return false;
         }
@@ -225,39 +228,30 @@ export class MouseManager {
             //优先判断父对象
             //默认情况下，hitTestPrior=mouseThrough=false，也就是优先check子对象
             //$NEXTBIG:下个重大版本将sp.mouseThrough从此逻辑中去除，从而使得sp.mouseThrough只负责目标对象的穿透
-            if (sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, mouseX, mouseY)) {
+            if (!editor && sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, mouseX, mouseY)) {
                 return false;
             }
-            for (var i: number = sp._children.length - 1; i > -1; i--) {
-                var child: Sprite = sp._children[i];
+            for (let i: number = sp._children.length - 1; i > -1; i--) {
+                let child = <Sprite>sp._children[i];
                 //只有接受交互事件的，才进行处理
-                if (!child.destroyed && child._mouseState > 1 && child._visible) {
-                    if (this.check(child, mouseX, mouseY, callBack)) return true;
+                if (!child.destroyed && (editor || child._mouseState > 1) && child._visible) {
+                    if (this.check(child, mouseX, mouseY)) return true;
                 }
             }
             // 检查逻辑子对象
-            for (i = sp._extUIChild.length - 1; i >= 0; i--) {
-                var c: Sprite = sp._extUIChild[i];
-                if (!c.destroyed && c._mouseState > 1 && c._visible) {
-                    if (this.check(c, mouseX, mouseY, callBack)) return true;
+            for (let i = sp._extUIChild.length - 1; i >= 0; i--) {
+                let c = <Sprite>sp._extUIChild[i];
+                if (!c.destroyed && (editor || c._mouseState > 1) && c._visible) {
+                    if (this.check(c, mouseX, mouseY)) return true;
                 }
             }
         }
 
         //避免重复进行碰撞检测，考虑了判断条件的命中率。
-        var isHit: boolean = (sp.hitTestPrior && !sp.mouseThrough && !this.disableMouseEvent) ? true : this.hitTest(sp, mouseX, mouseY);
+        let isHit: boolean = (!this._editorEnv && sp.hitTestPrior && !sp.mouseThrough && !this.disableMouseEvent) ? true : this.hitTest(sp, mouseX, mouseY);
 
-        if (isHit) {
+        if (isHit)
             this._target = sp;
-            callBack.call(this, sp);
-            if (this._target == this._hitCaputreSp) {
-                this._hitCaputreSp = true;
-            }
-        } else if (callBack === this.onMouseUp && sp === this._stage) {
-            //如果stage外mouseUP
-            this._target = this._stage;
-            callBack.call(this, this._target);
-        }
 
         return isHit;
     }
@@ -272,9 +266,10 @@ export class MouseManager {
         if (hitArea && hitArea._hit) {
             return hitArea.contains(mouseX, mouseY);
         }
-        if (sp.width > 0 && sp.height > 0 || sp.mouseThrough || hitArea) {
+        let mouseThrough = this._editorEnv || sp.mouseThrough;
+        if (sp.width > 0 && sp.height > 0 || mouseThrough || hitArea) {
             //判断是否在矩形区域内
-            if (!sp.mouseThrough) {
+            if (!mouseThrough) {
                 //MOD by liuzihao: saved call of 'hitRect' and 'this._rect' when 'sp.hitArea' is not null.
                 isHit = (hitArea ? hitArea : this._rect.setTo(0, 0, sp.width, sp.height)).contains(mouseX, mouseY);
             } else {
@@ -286,22 +281,24 @@ export class MouseManager {
     }
 
 
-    private _checkAllBaseUI(mousex: number, mousey: number, callback: Function): boolean {
-        var ret: boolean = this.handleExclusiveCapture(this.mouseX, this.mouseY, callback);
-        if (ret) return true;
-        ret = this.check(this._stage, this.mouseX, this.mouseY, callback);
-        //ret = check3DUI(mousex,mousey,callback) || ret;		//在这里调结果不对，好像不会调用click
-        return this.handleCapture(this.mouseX, this.mouseY, callback) || ret;
+    protected checkAllBaseUI(callback: Function) {
+        if (this.handleExclusiveCapture()) {
+            callback.call(this, this._target);
+            return;
+        }
+
+        if (this.checkUI())
+            callback.call(this, this._target);
+
+        if (this.handleCapture())
+            callback.call(this, this._target);
     }
 
     /**
      * 处理3d界面。
-     * @param	mousex
-     * @param	mousey
-     * @param	callback
      * @return
      */
-    check3DUI(mousex: number, mousey: number, callback: Function): boolean {
+    check3DUI(): boolean {
         var uis: Sprite[] = this._stage._3dUI;
         var i: number = 0;
         var ret: boolean = false;
@@ -309,40 +306,54 @@ export class MouseManager {
             var curui: Sprite = uis[i];
             this._stage._curUIBase = curui;
             if (!curui.destroyed && curui._mouseState > 1 && curui._visible) {
-                ret = ret || this.check(curui, this.mouseX, this.mouseY, callback);
+                if (this.check(curui, this.mouseX, this.mouseY)) {
+                    ret = true;
+                    break;
+                }
             }
         }
         this._stage._curUIBase = this._stage;
         return ret;
     }
 
-    handleExclusiveCapture(mousex: number, mousey: number, callback: Function): boolean {
+    protected checkUI(): boolean {
+        if (this.check(this._stage, this.mouseX, this.mouseY))
+            return true;
+
+        if (this._eventType == 1) {
+            //如果stage外mouseUP
+            this._target = this._stage;
+            return true;
+        }
+
+        return false;
+    }
+
+    protected handleExclusiveCapture(): boolean {
         if (this._captureExlusiveMode && this._captureSp && this._captureChain.length > 0) {
             var cursp: Sprite;
             // 坐标转到capture对象的相对坐标
-            this._point.setTo(mousex, mousey);
+            this._point.setTo(this.mouseX, this.mouseY);
             for (var i: number = 0; i < this._captureChain.length; i++) {
                 cursp = this._captureChain[i];
                 cursp.fromParentPoint(this._point);
             }
             this._target = cursp;
-            callback.call(this, cursp);
             return true;
         }
         return false;
     }
 
-    handleCapture(mousex: number, mousey: number, callback: Function): boolean {
-        if (!this._hitCaputreSp && this._captureSp && this._captureChain.length > 0) {
+    protected handleCapture(): boolean {
+        if (this._captureSp && this._captureSp != this._target && this._captureChain.length > 0) {
             var cursp: Sprite;
             // 坐标转到capture对象的相对坐标
-            this._point.setTo(mousex, mousey);
+            this._point.setTo(this.mouseX, this.mouseY);
             for (var i: number = 0; i < this._captureChain.length; i++) {
                 cursp = this._captureChain[i];
                 cursp.fromParentPoint(this._point);
             }
             this._target = cursp;
-            callback.call(this, cursp);
             return true;
         }
         return false;
@@ -352,42 +363,41 @@ export class MouseManager {
      * 执行事件处理。
      */
     runEvent(evt: any): void {
-
-        var _this: MouseManager = this;
-        var i: number, n: number, touch: any;
-
         if (evt.type !== 'mousemove') this._prePoint.x = this._prePoint.y = -1000000;
 
         switch (evt.type) {
             case 'mousedown':
                 this._touchIDs[0] = this._id++;
-                if (!MouseManager._isTouchRespond) {
+                this._eventType = 0;
+                if (!_isTouchRespond) {
                     this._isLeftMouse = evt.button === 0;
                     this.initEvent(evt);
-                    this._checkAllBaseUI(this.mouseX, this.mouseY, this.onMouseDown);
+                    this.checkAllBaseUI(this.onMouseDown);
                 } else
-                    MouseManager._isTouchRespond = false;
+                    _isTouchRespond = false;
                 break;
             case 'mouseup':
                 this._isLeftMouse = evt.button === 0;
+                this._eventType = 1;
                 this.initEvent(evt);
-                this._checkAllBaseUI(this.mouseX, this.mouseY, this.onMouseUp);
+                this.checkAllBaseUI(this.onMouseUp);
                 break;
             case 'mousemove':
+                this._eventType = 2;
                 if ((Math.abs(this._prePoint.x - evt.clientX) + Math.abs(this._prePoint.y - evt.clientY)) >= this.mouseMoveAccuracy) {
                     this._prePoint.x = evt.clientX;
                     this._prePoint.y = evt.clientY;
                     this.initEvent(evt);
-                    this._checkAllBaseUI(this.mouseX, this.mouseY, this.onMouseMove);
-                    //						checkMouseOut();
+                    this.checkAllBaseUI(this.onMouseMove);
                 }
                 break;
             case "touchstart":
-                MouseManager._isTouchRespond = true;
+                _isTouchRespond = true;
                 this._isLeftMouse = true;
-                var touches: any[] = evt.changedTouches;
-                for (i = 0, n = touches.length; i < n; i++) {
-                    touch = touches[i];
+                this._eventType = 0;
+                let touches: any[] = evt.changedTouches;
+                for (let i = 0, n = touches.length; i < n; i++) {
+                    let touch = touches[i];
                     //是否禁用多点触控
                     if (MouseManager.multiTouchEnabled || isNaN(this._curTouchID)) {
                         this._curTouchID = touch.identifier;
@@ -395,39 +405,37 @@ export class MouseManager {
                         if (this._id % 200 === 0) this._touchIDs = {};
                         this._touchIDs[touch.identifier] = this._id++;
                         this.initEvent(touch, evt);
-                        this._checkAllBaseUI(this.mouseX, this.mouseY, this.onMouseDown);
+                        this.checkAllBaseUI(this.onMouseDown);
                     }
                 }
 
                 break;
             case "touchend":
             case "touchcancel":
-                MouseManager._isTouchRespond = true;
+                _isTouchRespond = true;
                 this._isLeftMouse = true;
-                var touchends: any[] = evt.changedTouches;
-                for (i = 0, n = touchends.length; i < n; i++) {
-                    touch = touchends[i];
+                this._eventType = 1;
+                let touchends: any[] = evt.changedTouches;
+                for (let i = 0, n = touchends.length; i < n; i++) {
+                    let touch = touchends[i];
                     //是否禁用多点触控
                     if (MouseManager.multiTouchEnabled || touch.identifier == this._curTouchID) {
                         this._curTouchID = NaN;
                         this.initEvent(touch, evt);
-                        var isChecked: boolean;
-                        isChecked = this._checkAllBaseUI(this.mouseX, this.mouseY, this.onMouseUp);
-                        if (!isChecked) {
-                            this.onMouseUp(null);
-                        }
+                        this.checkAllBaseUI(this.onMouseUp);
                     }
                 }
 
                 break;
             case "touchmove":
-                var touchemoves: any[] = evt.changedTouches;
-                for (i = 0, n = touchemoves.length; i < n; i++) {
-                    touch = touchemoves[i];
+                this._eventType = 2;
+                let touchemoves: any[] = evt.changedTouches;
+                for (let i = 0, n = touchemoves.length; i < n; i++) {
+                    let touch = touchemoves[i];
                     //是否禁用多点触控
                     if (MouseManager.multiTouchEnabled || touch.identifier == this._curTouchID) {
                         this.initEvent(touch, evt);
-                        this._checkAllBaseUI(this.mouseX, this.mouseY, this.onMouseMove);
+                        this.checkAllBaseUI(this.onMouseMove);
                     }
                 }
                 break;
