@@ -65,7 +65,6 @@ export class StatUI extends IStatRender {
 				this.createUIPre(x, y);
 			} else
 				this.createUI(x, y);
-
 			this.enable();
 		}
 

@@ -59,10 +59,8 @@ export class VertexElementFormat {
 			"normalizedshort4": [4, LayaGL.renderEngine.getParams(RenderParams.UNSIGNED_SHORT), 1],
 			"halfvector2": [2, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
 			"halfvector4": [4, LayaGL.renderEngine.getParams(RenderParams.FLOAT), 0],
-			"nbyte4":[4,LayaGL.renderEngine.getParams(RenderParams.BYTE),0],
-			
+			"nbyte4":[4,LayaGL.renderEngine.getParams(RenderParams.BYTE),1],
 		};
-
 	}
 
 	/**
