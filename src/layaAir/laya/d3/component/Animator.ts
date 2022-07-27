@@ -111,18 +111,20 @@ export class Animator extends Component {
         this._lowUpdateDelty = value;
     }
 
-
     get controllerLayerCount(): number {
         return this._controllerLayers.length;
     }
 
     //@internal
-    private get controllerLayers(): Array<AnimatorControllerLayer> {
+    public get controllerLayers(): ReadonlyArray<AnimatorControllerLayer> {
         return this._controllerLayers;
     }
 
     //@internal
-    private set controllerLayers(layers: Array<AnimatorControllerLayer>) {
+    public set controllerLayers(layers: ReadonlyArray<AnimatorControllerLayer>) {
+        if (this._controllerLayers === layers)
+            return;
+
         let oldLayers: Array<AnimatorControllerLayer> = this._controllerLayers;
         if (oldLayers.length > 0) {
             let i = 0;
@@ -140,7 +142,8 @@ export class Animator extends Component {
                 this.addControllerLayer(layer);
         }
 
-        this._controllerLayers = layers;
+        this._controllerLayers.length = 0;
+        this._controllerLayers.push(...layers);
     }
 
     /**

@@ -70,13 +70,17 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= DirectionCount)
 		break;
 	    DirectionLight directionLight = getDirectionLight(i, positionWS);
+	    if (directionLight.lightMode == LightMode_Mix)
+		{
+		    continue;
+		}
 	    Light light = getLight(directionLight);
 	    lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
 	}
     #endif // DIRECTIONLIGHT
 
     #if defined(POINTLIGHT) || defined(SPOTLIGHT)
-    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, v, gl_FragCoord, u_ProjectionParams);
+    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, positionWS, gl_FragCoord, u_ProjectionParams);
     #endif // POINTLIGHT || SPOTLIGHT
 
     #ifdef POINTLIGHT
@@ -85,6 +89,10 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= clusterInfo.x)
 		break;
 	    PointLight pointLight = getPointLight(i, clusterInfo, positionWS);
+	    if (pointLight.lightMode == LightMode_Mix)
+		{
+		    continue;
+		}
 	    Light light = getLight(pointLight, normalWS, positionWS);
 	    lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
 	}
@@ -96,6 +104,10 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= clusterInfo.y)
 		break;
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, positionWS);
+	    if (spotLight.lightMode == LightMode_Mix)
+		{
+		    continue;
+		}
 	    Light light = getLight(spotLight, normalWS, positionWS);
 	    lightColor += BlinnPhongLighting(surface, light, info) * light.attenuation;
 	}

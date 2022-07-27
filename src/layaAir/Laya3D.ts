@@ -72,7 +72,6 @@ import { TrailFilter } from "./laya/d3/core/trail/TrailFilter";
 import { DepthPass } from "./laya/d3/depthMap/DepthPass";
 import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
-import "./laya/d3/RegClasses";
 import { BlitFrameBufferCMD } from "./laya/d3/core/render/command/BlitFrameBufferCMD";
 import { ParticleShuriKenShaderInit } from "./laya/d3/shader/ShurikenParticle/ParticleShuriKenShaderInit";
 import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";

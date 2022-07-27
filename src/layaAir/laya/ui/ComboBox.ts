@@ -11,6 +11,7 @@ import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { HideFlags } from "../Const";
 
 /**
  * 当用户更改 <code>ComboBox</code> 组件中的选定内容时调度。
@@ -168,7 +169,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
     */
-	destroy(destroyChild: boolean = true): void {
+    destroy(destroyChild: boolean = true): void {
         ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
         ILaya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
         super.destroy(destroyChild);
@@ -185,11 +186,13 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
     */
-	protected createChildren(): void {
-        this.addChild(this._button = new Button());
+    protected createChildren(): void {
+        this._button = new Button();
+        this._button.hideFlags = HideFlags.HideAndDontSave;
         this._button.text.align = "left";
         this._button.labelPadding = "0,0,0,5";
         this._button.on(Event.MOUSE_DOWN, this, this.onButtonMouseDown);
+        this.addChild(this._button);
     }
 
     private _createList(): void {
@@ -238,7 +241,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
     */
-	protected measureWidth(): number {
+    protected measureWidth(): number {
         return this._button.width;
     }
 
@@ -246,7 +249,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
     */
-	protected measureHeight(): number {
+    protected measureHeight(): number {
         return this._button.height;
     }
 
@@ -307,7 +310,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	set width(value: number) {
+    set width(value: number) {
         super.width = value;
         this._button.width = this._width;
         this._itemChanged = true;
@@ -325,7 +328,7 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         super.height = value;
         this._button.height = this._height;
     }

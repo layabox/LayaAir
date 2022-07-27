@@ -88,22 +88,25 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
     }
 
     //@internal
-    private get defaultStateName() {
+    public get defaultStateName() {
         return this.defaultState?.name;
     }
 
     //@internal
-    private set defaultStateName(value: string) {
+    public set defaultStateName(value: string) {
         this._defaultState = this._statesMap[value];
     }
 
     //@internal
-    private get states(): Array<AnimatorState> {
+    public get states(): ReadonlyArray<AnimatorState> {
         return this._states;
     }
 
     //@internal
-    private set states(states: Array<AnimatorState>) {
+    public set states(states: ReadonlyArray<AnimatorState>) {
+        if (this._states === states)
+            return;
+
         if (this._states.length > 0) {
             let removed = this._states.filter(s => states.indexOf(s) == -1);
             for (let state of removed)
@@ -116,7 +119,8 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
                 this.addState(state);
         }
 
-        this._states = states;
+        this._states.length = 0;
+        this._states.push(...states);
     }
 
     /**

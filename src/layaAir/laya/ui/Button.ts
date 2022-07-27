@@ -1,7 +1,7 @@
 import { UIComponent } from "./UIComponent";
 import { ISelect } from "./ISelect";
 import { Styles } from "./Styles";
-import { Const } from "../Const"
+import { Const, HideFlags } from "../Const"
 import { Text } from "../display/Text"
 import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"
@@ -268,6 +268,7 @@ export class Button extends UIComponent implements ISelect {
             this._text.valign = "middle";
             this._text.width = this._width;
             this._text.height = this._height;
+            this._text.hideFlags = HideFlags.HideAndDontSave;
         }
     }
 
@@ -374,8 +375,7 @@ export class Button extends UIComponent implements ISelect {
         }
         var width = img.sourceWidth;
         var height = img.sourceHeight / this._stateNum;
-        img.$_GID || (img.$_GID = Utils.getGID());
-        var key = img.$_GID + "-" + this._stateNum;
+        var key = img.id + "-" + this._stateNum;
         var clips: any[] = WeakObject.I.get(key);
         if (!Utils.isOkTextureList(clips)) {
             clips = null;
@@ -633,6 +633,16 @@ export class Button extends UIComponent implements ISelect {
     get text(): Text {
         this.createText();
         return this._text;
+    }
+
+    /**
+     * 兼容老IDE
+     * @private
+    */
+    private set text(value: Text) {
+        if (typeof (value) == "string") {
+            this._text && (this._text.text = value);
+        }
     }
 
     /**

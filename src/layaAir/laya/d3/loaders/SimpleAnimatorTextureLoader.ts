@@ -7,9 +7,7 @@ class SimpleAnimatorTextureLoader implements IResourceLoader {
             if (!data)
                 return null;
 
-            let tex = Texture2D._SimpleAnimatorTextureParse(data, task.options.propertyParams, task.options.constructParams);
-            tex._setCreateURL(task.url);
-            return tex;
+            return Texture2D._SimpleAnimatorTextureParse(data, task.options.propertyParams, task.options.constructParams);
         });
     }
 }

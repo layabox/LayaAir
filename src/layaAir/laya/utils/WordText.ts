@@ -1,7 +1,8 @@
 import { NativeWordText } from "./NativeWordText";
+
 /**
-	 * @private
-	 */
+ * @private
+ */
 export class WordText {
     //TODO:
     id: number;
@@ -15,9 +16,9 @@ export class WordText {
     startID: number = 0;	//上面的是个数组，但是可能前面都是空的，加个起始位置
     startIDStroke: number = 0;
     lastGCCnt: number = 0;	//如果文字gc了，需要检查缓存是否有效，这里记录上次检查对应的gc值。
-	splitRender: boolean = false;	// 强制拆分渲染
-	scalex=1;	// 缓存的时候的缩放
-	scaley=1;
+    splitRender: boolean = false;	// 强制拆分渲染
+    scalex=1;	// 缓存的时候的缩放
+    scaley=1;
 
     setText(txt: string): void {
         this.changed = true;
@@ -52,18 +53,18 @@ export class WordText {
      * TODO 重用
      */
     cleanCache(): void {
-		// 如果是独占文字贴图的，需要删掉
-		//TODO 这个效果不对。会造成文字错乱
-		let pagecharse = this.pageChars;
-		for( var i in pagecharse){
-			let p = pagecharse[i];
+        // 如果是独占文字贴图的，需要删掉
+        //TODO 这个效果不对。会造成文字错乱
+        let pagecharse = this.pageChars;
+        for( var i in pagecharse){
+            let p = pagecharse[i];
             var tex: any = p.tex;
             var words: any[] = p.words;
             if (words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
                 tex.destroy();
             }
-		}
-		/*
+        }
+        /*
         this.pageChars.forEach(function (p: any): void { // 可能有多个
             var tex: any = p.tex;
             var words: any[] = p.words;
@@ -71,15 +72,15 @@ export class WordText {
                 tex.destroy();
             }
         });
-		*/
+        */
         this.pageChars = [];
-		this.startID = 0;
-		this.scalex=1;
-		this.scaley=1;
+        this.startID = 0;
+        this.scalex=1;
+        this.scaley=1;
     }
 }
 // native
 if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
-	//@ts-ignore
-	WordText = NativeWordText;
+    //@ts-ignore
+    WordText = NativeWordText;
 }

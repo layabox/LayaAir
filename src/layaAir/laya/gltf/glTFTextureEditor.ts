@@ -1,5 +1,4 @@
 import { Texture2D } from "../resource/Texture2D";
-import { LayaGL } from "../layagl/LayaGL";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
@@ -68,11 +67,6 @@ export class glTFTextureEditor {
         }
 
         let layaTex: Texture2D = glTFTextureEditor.GenerateTexture2DWithPixel(layaTexPixels, glTFMetallicGloss.width, glTFMetallicGloss.height, TextureFormat.R8G8B8A8, glTFMetallicGloss.mipmap);
-
-        // let base64url: string = glTFTextureEditor.PixelArrayToBase64(layaTexPixels, glTFMetallicGloss.width, glTFMetallicGloss.height);
-        // layaTex._setCreateURL(base64url);
-        // Loader.cacheRes(base64url, layaTex);
-
         return layaTex;
     }
 

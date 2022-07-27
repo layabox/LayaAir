@@ -50,7 +50,7 @@ export class HierarchyLoader implements IResourceLoader {
         let basePath = URL.getPath(item.url);
         let links = api.collectResourceLinks(data, basePath);
         return Promise.all(links.map(link => item.loader.load(link, null, item.progress.createCallback()))).then(() => {
-            return new MyHierarchyResource(api, item.url, data);
+            return new MyHierarchyResource(api, data);
         });
     }
 }
@@ -59,11 +59,10 @@ class MyHierarchyResource extends HierarchyResource {
     data: any;
     api: HierarchyParserAPI;
 
-    constructor(api: HierarchyParserAPI, url: string, data: any) {
+    constructor(api: HierarchyParserAPI, data: any) {
         super();
 
         this.api = api;
-        this._setCreateURL(url);
         this.data = data;
     }
 

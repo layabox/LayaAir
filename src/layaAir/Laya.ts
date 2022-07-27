@@ -56,7 +56,6 @@ import { Matrix } from "./laya/maths/Matrix";
 import { Event } from "./laya/events/Event";
 import { Config } from "./Config";
 import { WeakObject } from "./laya/utils/WeakObject";
-import "./laya/RegClasses";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
 import { Color } from "./laya/d3/math/Color";

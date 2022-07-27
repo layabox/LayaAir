@@ -1,6 +1,6 @@
 import { FilterSetterBase } from "././FilterSetterBase";
 import { GlowFilter } from "../filters/GlowFilter";
-import { ClassUtils } from "../utils/ClassUtils";
+
 /**
  * ...
  * @author ww
@@ -71,7 +71,3 @@ export class GlowFilterSetter extends FilterSetterBase {
 		this.paramChanged();
 	}
 }
-
-
-ClassUtils.regClass("laya.effect.GlowFilterSetter", GlowFilterSetter);
-ClassUtils.regClass("Laya.GlowFilterSetter", GlowFilterSetter);

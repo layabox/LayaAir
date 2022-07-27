@@ -1,10 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { Utils } from "../utils/Utils";
 
-export const AssetDb_URLPrefix = "res://";
-const AssetDb_URLPrefix_len = AssetDb_URLPrefix.length;
-let isUUID = false;
-
 /**
  * <p><code>URL</code> 提供URL格式化，URL版本管理的类。</p>
  * <p>引擎加载资源的时候，会自动调用formatURL函数格式化URL路径</p>
@@ -70,25 +66,8 @@ export class URL {
         return url;
     }
 
-    /**
-     * 标准化URL，转换res://uuid这样的格式为路径。
-     * @param url
-     */
-    static normalizedURL(url: string) {
-        if (url == null)
-            return null;
-
-        if (url.startsWith(AssetDb_URLPrefix)) {
-            isUUID = true;
-            let uuid = url.substring(AssetDb_URLPrefix_len);
-            let url2 = this.uuidMap[uuid];
-            if (!url2)
-                return url;
-
-            url = url2;
-        }
-
-        return url;
+    static UUID_to_URL(uuid: string): string {
+        return URL.uuidMap[uuid];
     }
 
     /**
@@ -100,20 +79,20 @@ export class URL {
     static formatURL(url: string, base?: string): string {
         if (!url) return "null path";
 
-        isUUID = false;
-        url = URL.normalizedURL(url);
+        if (url.startsWith("res://")) {
+            let uuid = url.substring(6);
+            let url2 = URL.UUID_to_URL(uuid);
+            if (!url2)
+                return url;
 
-        //如果是全路径，直接返回，提高性能
-        if (url.indexOf(":") > 0)
-            return url;
-
-        if (!isUUID) {
-            let char1 = url.charCodeAt(0);
-            if (char1 === 126) // ~
-                url = joinPath(URL.rootPath, url.substring(1));
-            else if (char1 !== 47) // /
-                url = joinPath(base != null ? base : URL._basePath, url);
+            url = url2;
         }
+
+        let char1 = url.charCodeAt(0);
+        if (char1 === 126) // ~
+            url = URL.join(URL.rootPath, url.substring(2));
+        else if (char1 !== 47) // /
+            url = URL.join(base != null ? base : URL._basePath, url);
 
         return url;
     }
@@ -139,27 +118,60 @@ export class URL {
     }
 
     /**
-    * 格式化相对路径。
+     * 格式化相对路径。
+     */
+    static normalize(url: string): string {
+        if (url.indexOf("./") == -1)
+            return url;
+
+        let parts = url.split("/");
+        let len = parts.length;
+        let i = 0;
+        while (i < len) {
+            if (parts[i] == ".") {
+                parts.splice(i, 1);
+                len--;
+                continue;
+            }
+            else if (parts[i] == '..') {
+                let index: number = i - 1;
+                if (index > 0 && parts[index] !== '..') {
+                    parts.splice(index, 2);
+                    len -= 2;
+                    i--;
+                    continue;
+                }
+            }
+
+            i++;
+        }
+        parts.length = len;
+        return parts.join('/');
+    }
+
+    /**
+    * 组合相对路径并格式化
     * @param base
     * @param path
     */
     static join(base: string, path: string): string {
         if (!path) return "";
 
-        isUUID = false;
-        path = URL.normalizedURL(path);
-
         //如果是全路径，直接返回，提高性能
         if (path.indexOf(":") > 0)
             return path;
 
-        if (!isUUID && base) {
+        if (base) {
             let char1 = path.charCodeAt(0);
-            if (char1 !== 126) // ~
-                path = joinPath(base, path);
+            if (char1 !== 126 && char1 !== 47) { // ~或者 /
+                if (base.charCodeAt(base.length - 1) !== 47)
+                    path = base + "/" + path;
+                else
+                    path = base + path;
+            }
         }
 
-        return path;
+        return URL.normalize(path);
     }
 
     /**
@@ -200,8 +212,8 @@ export class URL {
      */
     static overrideExtension(originalExts: Array<string>, targetExt: string) {
         for (let ext of originalExts)
-            this.overrideFileExts[ext] = targetExt;
-        this.hasExtOverrides = true;
+            URL.overrideFileExts[ext] = targetExt;
+        URL.hasExtOverrides = true;
     }
 
     /*
@@ -211,30 +223,4 @@ export class URL {
         if (value)
             URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
     }
-}
-
-function joinPath(base: string, value: string): string {
-    let path: string;
-
-    if (value.startsWith("./"))
-        value = value.substring(2);
-
-    if (base != null)
-        path = base + value;
-
-    let char1 = value.charCodeAt(0);
-    if (char1 === 46) { // .
-        let parts: any[] = path.split("/");
-        for (let i: number = 0, len: number = parts.length; i < len; i++) {
-            if (parts[i] == '..') {
-                let index: number = i - 1;
-                if (index > 0 && parts[index] !== '..') {
-                    parts.splice(index, 2);
-                    i -= 2;
-                }
-            }
-        }
-        path = parts.join('/');
-    }
-    return path;
 }

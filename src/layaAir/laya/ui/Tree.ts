@@ -5,13 +5,14 @@ import { ScrollBar } from "./ScrollBar";
 import { Clip } from "./Clip";
 import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
+import { HideFlags } from "../Const";
 
 /**@private */
-interface ITreeDataSource{
-    x:number;
-    hasChild:boolean;
-    isOpen:boolean;
-    isDirectory:boolean;
+interface ITreeDataSource {
+    x: number;
+    hasChild: boolean;
+    isOpen: boolean;
+    isDirectory: boolean;
 }
 
 /**
@@ -276,7 +277,9 @@ export class Tree extends Box implements IRender {
      * @override
      */
     protected createChildren(): void {
-        this.addChild(this._list = new List());
+        this._list = new List();
+        this._list.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._list);
         this._list.renderHandler = Handler.create(this, this.renderItem, null, false);
         this._list.repeatX = 1;
         this._list.on(Event.CHANGE, this, this.onListChange);

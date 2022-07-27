@@ -9,6 +9,7 @@ import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { HideFlags } from "../Const";
 
 /**
  * 选择项改变后调度。
@@ -160,9 +161,9 @@ export class ColorPicker extends UIComponent {
     /** @private */
     protected _panelChanged: boolean;
 
-    constructor(createChildren = true){
+    constructor(createChildren = true) {
         super(false);
-        if(createChildren){
+        if (createChildren) {
             this.preinitialize();
             this.createChildren();
             this.initialize();
@@ -172,7 +173,7 @@ export class ColorPicker extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	destroy(destroyChild: boolean = true): void {
+    destroy(destroyChild: boolean = true): void {
         ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeColorBox);
         super.destroy(destroyChild);
         this._colorPanel && this._colorPanel.destroy(destroyChild);
@@ -190,9 +191,12 @@ export class ColorPicker extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	protected createChildren(): void {
-        this.addChild(this._colorButton = new Button());
+    protected createChildren(): void {
+        this._colorButton = new Button()
+        this._colorButton.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._colorButton);
         this._colorPanel = new Box();
+        this._colorPanel.hideFlags = HideFlags.HideAndDontSave;
         this._colorPanel.size(230, 166);
         this._colorPanel.addChild(this._colorTiles = new Sprite());
         this._colorPanel.addChild(this._colorBlock = new Sprite());
@@ -203,7 +207,7 @@ export class ColorPicker extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	protected initialize(): void {
+    protected initialize(): void {
         this._colorButton.on(Event.CLICK, this, this.onColorButtonClick);
 
         this._colorBlock.pos(5, 5);

@@ -11,7 +11,6 @@ class MaterialLoader implements IResourceLoader {
             let urls: Array<any> = this.getSubUrls(task, lmtData);
             return Promise.all(urls.map((e, i) => task.loader.load(e.url, { constructParams: e.constructParams, propertyParams: e.propertyParams }, task.progress.createCallback()))).then(() => {
                 let mat = Material._parse(lmtData);
-                mat._setCreateURL(task.url);
                 return mat;
             });
         });

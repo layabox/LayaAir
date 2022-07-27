@@ -16,11 +16,11 @@ import { EventDispatcher } from "../events/EventDispatcher";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { Node } from "../display/Node";
 import { ImgUtils } from "../utils/ImgUtils";
+import { Resource } from "../resource/Resource";
 
 export interface ILoadTask {
     readonly type: string;
     readonly url: string;
-    readonly originalUrl: string;
     readonly loader: Loader;
     readonly options: Readonly<ILoadOptions>;
     readonly progress: IBatchProgress;
@@ -284,26 +284,35 @@ export class Loader extends EventDispatcher {
     }
 
     private _load1(url: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
-        let normalizedUrl: string;
-        if (options.isID) {
-            normalizedUrl = URL.uuidMap[url];
-            if (!normalizedUrl) {
-                console.error(`Unknown uuid: ${url}`);
+        let uuid: string;
+        if (options.isID)
+            uuid = url;
+        else if (url.startsWith("res://"))
+            uuid = url.substring(6);
+
+        if (uuid != null) {
+            url = URL.UUID_to_URL(uuid);
+            if (!url) {
+                console.error(`unknown uuid: ${uuid}`);
                 return Promise.resolve(null);
             }
+
+            return this._load2(url, uuid, type, options, onProgress);
         }
         else
-            normalizedUrl = URL.normalizedURL(url);
+            return this._load2(url, null, type, options, onProgress);
+    }
 
+    private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         if (options.type)
             type = options.type;
         if (!type) {
             if (url.indexOf("data:") === 0)
                 type = Loader.IMAGE;
             else {
-                type = Utils.getFileCompatibleExtension(normalizedUrl);
+                type = Utils.getFileCompatibleExtension(url);
                 if (!Loader.typeMap[type])
-                    type = Utils.getFileExtension(normalizedUrl);
+                    type = Utils.getFileExtension(url);
             }
         }
 
@@ -333,16 +342,16 @@ export class Loader extends EventDispatcher {
             return new Promise((resolve) => task.onComplete.add(resolve));
         }
 
-        let atlasUrl = AtlasInfoManager.getFileLoadPath(normalizedUrl);
+        let atlasUrl = AtlasInfoManager.getFileLoadPath(url);
         if (atlasUrl) {
             return this.load(atlasUrl, Loader.ATLAS).then(() => {
-                return Promise.resolve(Loader.getRes(normalizedUrl, type));
+                return Promise.resolve(Loader.getRes(url, type));
             });
         }
 
         let cls = Loader.typeMap[type];
         if (!cls) {
-            console.warn(`Not recognize the resource suffix: '${normalizedUrl}'`);
+            console.warn(`Not recognize the resource suffix: '${url}'`);
             return Promise.resolve(null);
         }
 
@@ -351,8 +360,7 @@ export class Loader extends EventDispatcher {
         else
             task = new LoadTask();
         task.type = type;
-        task.url = normalizedUrl;
-        task.originalUrl = url;
+        task.url = url;
         options = Object.assign(task.options, options);
         if (options.priority == null)
             options.priority = 0;
@@ -376,6 +384,10 @@ export class Loader extends EventDispatcher {
         }
 
         return promise.then(content => {
+            if (content instanceof Resource) {
+                content._setCreateURL(url, uuid);
+            }
+
             if (task.options.cache == null || task.options.cache)
                 Loader.loadedMap[formattedUrl] = content;
 
@@ -388,7 +400,7 @@ export class Loader extends EventDispatcher {
             if (this._loadings.size == 0)
                 this.event(Event.COMPLETE);
 
-            //console.log("[Loader]Loaded " + normalizedUrl);
+            //console.log("[Loader]Loaded " + url);
 
             return content;
         });
@@ -593,28 +605,30 @@ export class Loader extends EventDispatcher {
     /**
      * 清理指定资源地址缓存。
      * @param url 资源地址。
+     * @param checkObj 如果缓存中的对象是这个，才清除，否则不清除
      */
-    static clearRes(url: string): void {
+    static clearRes(url: string, checkObj?: any): void {
         url = URL.formatURL(url);
-        Loader._clearRes(url);
+        Loader._clearRes(url, checkObj);
     }
 
     /**
      * 清理指定资源地址缓存。
      * @param url 资源地址。
+     * @param checkObj 如果缓存中的对象是这个，才清除，否则不清除
      */
-    clearRes(url: string): void {
+    clearRes(url: string, checkObj?: any): void {
         url = URL.formatURL(url);
-        Loader._clearRes(url);
+        Loader._clearRes(url, checkObj);
     }
 
     /**
      * @private
      */
-    private static _clearRes(url: string) {
+    private static _clearRes(url: string, checkObj?: any) {
         let res = Loader.loadedMap[url];
-        if (res) {
-            if (('destroy' in res) && !res._destroyed) {
+        if (res && (checkObj == null || res === checkObj)) {
+            if (res instanceof Resource) {
                 try {
                     res.destroy();
                 }
@@ -719,7 +733,6 @@ export class Loader extends EventDispatcher {
 
 class LoadTask implements ILoadTask {
     type: string;
-    originalUrl: string;
     url: string;
     options: ILoadOptions;
     loader: Loader;
