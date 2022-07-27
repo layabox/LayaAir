@@ -77,7 +77,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
     #endif // DIRECTIONLIGHT
 
     #if defined(POINTLIGHT) || defined(SPOTLIGHT)
-    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, info.viewDir, gl_FragCoord, u_ProjectionParams);
+    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, pixel.positionWS, gl_FragCoord, u_ProjectionParams);
     #endif // POINTLIGHT || SPOTLIGHT
 
     #ifdef POINTLIGHT

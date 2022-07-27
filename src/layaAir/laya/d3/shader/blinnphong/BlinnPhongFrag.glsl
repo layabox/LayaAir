@@ -80,7 +80,7 @@ vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
     #endif // DIRECTIONLIGHT
 
     #if defined(POINTLIGHT) || defined(SPOTLIGHT)
-    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, v, gl_FragCoord, u_ProjectionParams);
+    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, positionWS, gl_FragCoord, u_ProjectionParams);
     #endif // POINTLIGHT || SPOTLIGHT
 
     #ifdef POINTLIGHT
