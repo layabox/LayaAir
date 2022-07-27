@@ -5,6 +5,7 @@ import { Color } from "../../math/Color";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Material } from "../material/Material";
+import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
@@ -37,6 +38,7 @@ export class PixelLineRenderer extends BaseRender {
 		super();
 		this._projectionViewWorldMatrix = new Matrix4x4();
 		this._pixelLineFilter = new PixelLineFilter(this, 20);
+		this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
 	}
 
 	/**

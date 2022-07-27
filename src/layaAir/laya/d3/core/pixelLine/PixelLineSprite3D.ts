@@ -11,6 +11,7 @@ import { Node } from "../../../display/Node"
 import { Scene3D } from "../scene/Scene3D";
 import { Stat } from "../../../utils/Stat";
 import { Sprite3D } from "../Sprite3D";
+import { UnlitMaterial } from "../material/UnlitMaterial";
 
 /**
  * <code>PixelLineSprite3D</code> 类用于像素线渲染精灵。
@@ -59,6 +60,8 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 		this._render = this.addComponent(PixelLineRenderer);
 		this._geometryFilter = (this._render as PixelLineRenderer)._pixelLineFilter;
 		(this._render as PixelLineRenderer).maxLineCount = maxCount;
+		let material= this._render.material=new UnlitMaterial();
+        	material.enableVertexColor=true;
 	}
 	
 	/**
