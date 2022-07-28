@@ -26,24 +26,24 @@ export class Shader extends BaseShader {
         return new Shader(vs, ps, saveName, nameMap, bindAttrib);
     }
 
-	/**
-	 * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
-	 * @param	name
-	 * @param	vs
-	 * @param	ps
-	 * @param	define 宏定义，格式:{name:value...}
-	 * @return
-	 */
-    //TODO:coverage
-    static withCompile(nameID: number, define: any, shaderName: any, createShader: Function): Shader {
-        if (shaderName && Shader.sharders[shaderName])
-            return Shader.sharders[shaderName];
+	// /**
+	//  * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
+	//  * @param	name
+	//  * @param	vs
+	//  * @param	ps
+	//  * @param	define 宏定义，格式:{name:value...}
+	//  * @return
+	//  */
+    // //TODO:coverage
+    // static withCompile(nameID: number, define: any, shaderName: any, createShader: Function): Shader {
+    //     if (shaderName && Shader.sharders[shaderName])
+    //         return Shader.sharders[shaderName];
 
-        var pre: ShaderCompile = Shader._preCompileShader[Shader.SHADERNAME2ID * nameID];
-        if (!pre)
-            throw new Error("withCompile shader err!" + nameID);
-        return pre.createShader(define, shaderName, createShader, null);
-    }
+    //     var pre: ShaderCompile = Shader._preCompileShader[Shader.SHADERNAME2ID * nameID];
+    //     if (!pre)
+    //         throw new Error("withCompile shader err!" + nameID);
+    //     return pre.createShader(define, shaderName, createShader, null);
+    // }
 
 	/**
 	 * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件

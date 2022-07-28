@@ -35,7 +35,7 @@ vec4 blur(){
         ctexcoord.x=startpos.x;
         for(float x = 0.0;x<=blurw; ++x){
             //TODO 纹理坐标的固定偏移应该在vs中处理
-            vec4Color += texture2D(texture, ctexcoord)*getGaussian(x-blurw/2.0,y-blurw/2.0);
+            vec4Color += sampleTexture(texture, ctexcoord)*getGaussian(x-blurw/2.0,y-blurw/2.0);
             ctexcoord.x+=step.x;
         }
         ctexcoord.y+=step.y;
@@ -63,6 +63,15 @@ uniform vec4 colorAdd;
 #ifdef FILLTEXTURE	
 uniform vec4 u_TexRange;//startu,startv,urange, vrange
 #endif
+
+vec4 sampleTexture(sampler2D texture,vec2 uv){
+   vec4 color = texture2D(texture,uv);
+   #ifdef GAMMASPACE
+      color.xyz = sqrt(color.xyz);
+   #endif
+   return color;
+}
+
 void main() {
 	if(cliped.x<0.) discard;
 	if(cliped.x>1.) discard;
@@ -70,9 +79,9 @@ void main() {
 	if(cliped.y>1.) discard;
 	
 #ifdef FILLTEXTURE	
-   vec4 color= texture2D(texture, fract(v_texcoordAlpha.xy)*u_TexRange.zw + u_TexRange.xy);
+   vec4 color= sampleTexture(texture, fract(v_texcoordAlpha.xy)*u_TexRange.zw + u_TexRange.xy);
 #else
-   vec4 color= texture2D(texture, v_texcoordAlpha.xy);
+   vec4 color= sampleTexture(texture, v_texcoordAlpha.xy);
 #endif
 
    if(v_useTex<=0.)color = vec4(1.,1.,1.,1.);
@@ -114,7 +123,7 @@ void main() {
 	for(float i = 0.0;i<=c_IterationTime; ++i){
 		for(float j = 0.0;j<=c_IterationTime; ++j){
 			vec2Off = vec2(vec2FilterOff.x * (i - floatOff),vec2FilterOff.y * (j - floatOff));
-			vec4Color += texture2D(texture, v_texcoordAlpha.xy + vec2FilterDir + vec2Off)/floatIterationTotalTime;
+			vec4Color += sampleTexture(texture, v_texcoordAlpha.xy + vec2FilterDir + vec2Off)/floatIterationTotalTime;
 		}
 	}
 	gl_FragColor = vec4(u_color.rgb,vec4Color.a * u_blurInfo2.z);

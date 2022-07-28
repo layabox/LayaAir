@@ -114,6 +114,12 @@ export class Value2D {
 			this.u_MvpMatrix = RenderState2D.matWVP.elements;
 		}
 
+		if(this.textureHost.bitmap.gammaCorrection==1){
+			this.defines.addInt(ShaderDefines2D.GAMMASPACE);
+		}else{
+			this.defines.remove(ShaderDefines2D.GAMMASPACE);
+		}
+
 		var sd: Shader2X = Shader.sharders[this.mainID | this.defines._value] || this._ShaderWithCompile();
 
 		if (sd._shaderValueWidth !== renderstate2d.width || sd._shaderValueHeight !== renderstate2d.height) {

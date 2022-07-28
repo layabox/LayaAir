@@ -6,18 +6,14 @@ import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
-import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { UnifromBufferData } from "laya/RenderEngine/UniformBufferData";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-
 /**
  * ...
  * @author ...
@@ -30,7 +26,6 @@ export class UnlitMaterialDemo {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
-
 
 		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 

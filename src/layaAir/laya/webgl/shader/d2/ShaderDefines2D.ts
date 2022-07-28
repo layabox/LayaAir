@@ -12,6 +12,8 @@ export class ShaderDefines2D extends ShaderDefinesBase {
     static SKINMESH: number = 0x200;
     static MVP3D: number = 0x800;
 
+    static GAMMASPACE:number = 0x1000;
+
     static NOOPTMASK: number = ShaderDefines2D.FILTERGLOW | ShaderDefines2D.FILTERBLUR | ShaderDefines2D.FILTERCOLOR | ShaderDefines2D.FILLTEXTURE;	//有这些定义的不要优化。见submittexture
 
     private static __name2int: any = {};
@@ -30,6 +32,8 @@ export class ShaderDefines2D extends ShaderDefinesBase {
         ShaderDefines2D.reg("WORLDMAT", ShaderDefines2D.WORLDMAT);
         ShaderDefines2D.reg("FILLTEXTURE", ShaderDefines2D.FILLTEXTURE);
         ShaderDefines2D.reg('MVP3D', ShaderDefines2D.MVP3D);
+
+        ShaderDefines2D.reg('GAMMASPACE',ShaderDefines2D.GAMMASPACE);
     }
 
     constructor() {

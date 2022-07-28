@@ -104,6 +104,7 @@ export class BaseTexture extends Resource {
         this._texture.compareMode = LayaGL.textureContext.setTextureCompareMode(this._texture, value);
     }
 
+    /**如果是1.0  texture2D直接采样就是linear */
     public get gammaCorrection(): number {
         return this._texture.gammaCorrection;
     }

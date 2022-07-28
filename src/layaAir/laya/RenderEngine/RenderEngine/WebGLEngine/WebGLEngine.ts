@@ -15,7 +15,6 @@ import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstan
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
 import { RenderOBJCreateUtil } from "../../RenderObj/RenderOBJCreateUtil";
-import { Shader3D } from "../../RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
