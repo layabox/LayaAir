@@ -6,6 +6,7 @@ import { Shader2X } from "../Shader2X"
 import { ShaderDefines2D } from "../ShaderDefines2D"
 import { RenderState2D } from "../../../utils/RenderState2D"
 import { ILaya } from "../../../../../ILaya";
+import { RenderTexture2D } from "../../../../resource/RenderTexture2D"
 
 export class Value2D {
 
@@ -51,7 +52,7 @@ export class Value2D {
 	subID: number = 0;
 	filters: any[];
 
-	textureHost: Texture;
+	textureHost: Texture|RenderTexture2D;
 	//public var fillStyle:DrawStyle;			//TODO 这个有什么用？
 	color: any[];
 	//public var strokeStyle:DrawStyle;
@@ -114,7 +115,7 @@ export class Value2D {
 			this.u_MvpMatrix = RenderState2D.matWVP.elements;
 		}
 
-		if(this.textureHost.bitmap.gammaCorrection==1){
+		if(this.textureHost&&((this.textureHost as RenderTexture2D).gammaCorrection==1||(this.textureHost as Texture).bitmap.gammaCorrection==1)){
 			this.defines.addInt(ShaderDefines2D.GAMMASPACE);
 		}else{
 			this.defines.remove(ShaderDefines2D.GAMMASPACE);
