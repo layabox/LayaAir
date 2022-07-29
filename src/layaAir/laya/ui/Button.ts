@@ -316,7 +316,7 @@ export class Button extends UIComponent implements ISelect {
             this._skin = value;
             if (value) {
                 if (!Loader.getRes(value)) {
-                    ILaya.loader.load(this._skin, Handler.create(this, this._skinLoaded), null, Loader.IMAGE, 1);//TODO 
+                    ILaya.loader.load(this._skin, Handler.create(this, this._skinLoaded), null, Loader.IMAGE); 
                 } else {
                     this._skinLoaded();
                 }

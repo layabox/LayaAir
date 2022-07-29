@@ -1,8 +1,8 @@
 /**
-	 * <p><code>Handler</code> 是事件处理器类。</p>
-	 * <p>推荐使用 Handler.create() 方法从对象池创建，减少对象创建消耗。创建的 Handler 对象不再使用后，可以使用 Handler.recover() 将其回收到对象池，回收后不要再使用此对象，否则会导致不可预料的错误。</p>
-	 * <p><b>注意：</b>由于鼠标事件也用本对象池，不正确的回收及调用，可能会影响鼠标事件的执行。</p>
-	 */
+ * <p><code>Handler</code> 是事件处理器类。</p>
+ * <p>推荐使用 Handler.create() 方法从对象池创建，减少对象创建消耗。创建的 Handler 对象不再使用后，可以使用 Handler.recover() 将其回收到对象池，回收后不要再使用此对象，否则会导致不可预料的错误。</p>
+ * <p><b>注意：</b>由于鼠标事件也用本对象池，不正确的回收及调用，可能会影响鼠标事件的执行。</p>
+ */
 export class Handler {
 
     /**@private handler对象池*/
@@ -11,11 +11,11 @@ export class Handler {
     private static _gid: number = 1;
 
     /** 执行域(this)。*/
-    caller: Object|null;
+    caller: Object | null;
     /** 处理方法。*/
-    method: Function|null;
+    method: Function | null;
     /** 参数。*/
-    args: any[]|null;
+    args: any[] | null;
     /** 表示是否只执行一次。如果为true，回调后执行recover()进行回收，回收后会被再利用，默认为false 。*/
     once = false;
 
@@ -29,7 +29,7 @@ export class Handler {
      * @param	args 函数参数。
      * @param	once 是否只执行一次。
      */
-    constructor(caller: Object|null=null, method: Function|null=null, args: any[]|null = null, once: boolean = false) {
+    constructor(caller: Object | null = null, method: Function | null = null, args: any[] | null = null, once: boolean = false) {
         this.setTo(caller, method, args, once);
     }
 
@@ -41,7 +41,7 @@ export class Handler {
      * @param	once 是否只执行一次，如果为true，执行后执行recover()进行回收。
      * @return  返回 handler 本身。
      */
-    setTo(caller: any, method: Function|null, args: any[]|null, once=false): Handler {
+    setTo(caller: any, method: Function | null, args: any[] | null, once = false): Handler {
         this._id = Handler._gid++;
         this.caller = caller;
         this.method = method;
@@ -105,8 +105,8 @@ export class Handler {
      * @param	once 是否只执行一次，如果为true，回调后执行recover()进行回收，默认为true。
      * @return  返回创建的handler实例。
      */
-    static create(caller: any, method: Function|null, args: any[]|null = null, once: boolean = true): Handler {
-        if (Handler._pool.length) 
+    static create(caller: any, method: Function | null, args: any[] | null = null, once: boolean = true): Handler {
+        if (Handler._pool.length)
             return (Handler._pool.pop() as Handler).setTo(caller, method, args, once);
         return new Handler(caller, method, args, once);
     }

@@ -292,7 +292,8 @@ export class Texture extends Resource {
      */
     load(url: string, complete?: Handler): void {
         if (!this._destroyed) {
-            ILaya.loader.load(url, ILaya.Loader.TEXTURE2D).then(bit => {
+            ILaya.loader.load(url).then((tex: Texture) => {
+                let bit = tex.bitmap;
                 this.bitmap = bit;
                 this.sourceWidth = this._w = bit.width;
                 this.sourceHeight = this._h = bit.height;
@@ -412,8 +413,8 @@ export class Texture extends Resource {
     recoverBitmap(onok: () => void = null): void {
         var url = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
-            ILaya.loader.load(url, ILaya.Loader.TEXTURE2D).then((bit) => {
-                this.bitmap = bit;
+            ILaya.loader.load(url).then((tex:Texture) => {
+                this.bitmap = tex.bitmap;
                 onok && onok();
             });
         }

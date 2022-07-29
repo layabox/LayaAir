@@ -49,7 +49,7 @@ export class HTMLLinkElement extends HTMLElement {
         if (!url) return;
         url = URL.formatURL(url);
         this.URI = new URL(url);
-        ILaya.loader.load(url, { type: Loader.TEXT, cache: false }).then(data => {
+        ILaya.loader.fetch(url, "text").then(data => {
             switch (this.type) {
                 case 'text/css':
                     HTMLStyle.parseCSS(data, this.URI);

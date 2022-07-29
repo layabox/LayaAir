@@ -85,9 +85,9 @@ export class WebXRSessionManager extends EventDispatcher {
      * @returns 
      */
     public initializeXRGL(xrSession: any, gl: WebGLRenderingContext): Promise<boolean> {//: XRWebGLLayer {
-        return (gl as any).makeXRCompatible().then(
-            Promise.resolve(true)
-        );
+        return (gl as any).makeXRCompatible().then(()=> {
+            return true;
+        });
     };
 
     /**

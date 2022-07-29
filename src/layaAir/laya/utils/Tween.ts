@@ -3,12 +3,11 @@ import { Pool } from "./Pool";
 import { Browser } from "./Browser";
 import { Utils } from "./Utils";
 import { ILaya } from "./../../ILaya";
+
 /**
-	 * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。
-	 */
+ * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。
+ */
 export class Tween {
-
-
     /**@private */
     private static tweenMap: any[] = [];
     /**@private */
@@ -299,7 +298,7 @@ export class Tween {
         this._ease = null;
         this._props = null;
         this._delayParam = null;
-	this.repeat = 1;
+    this.repeat = 1;
 
         if (this._usedPool) {
             this.update = null;

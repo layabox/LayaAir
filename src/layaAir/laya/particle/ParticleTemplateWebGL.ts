@@ -144,7 +144,7 @@ export class ParticleTemplateWebGL extends ParticleTemplateBase {
         /**
          * _mesh.addParticle(settings, position, velocity, _currentTime)
          */
-        var particleData: ParticleData = ParticleData.Create(this.settings, position, velocity, this._currentTime);
+        var particleData: ParticleData = ParticleData.create(this.settings, position, velocity, this._currentTime);
 
         var startIndex: number = this._firstFreeElement * this._floatCountPerVertex * 4;
         for (var i: number = 0; i < 4; i++) {

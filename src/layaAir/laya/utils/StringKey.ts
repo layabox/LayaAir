@@ -1,7 +1,7 @@
 /**
-	 * @private
-	 * <code>StringKey</code> 类用于存取字符串对应的数字。
-	 */
+ * @private
+ * <code>StringKey</code> 类用于存取字符串对应的数字。
+ */
 export class StringKey {
 
     private _strsToID: any = {};

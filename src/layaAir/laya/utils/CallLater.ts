@@ -1,7 +1,7 @@
 import { ILaya } from "../../ILaya";
 /**
-     * @private
-     */
+ * @private
+ */
 export class CallLater {
     static I = new CallLater();
     /**@private */

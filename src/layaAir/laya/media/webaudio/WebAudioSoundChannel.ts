@@ -52,7 +52,7 @@ export class WebAudioSoundChannel extends SoundChannel {
     static SetTargetDelay: number = 0.001;
     constructor() {
         super();
-        this._onPlayEnd = Utils.bind(this.__onPlayEnd, this);
+        this._onPlayEnd = this.__onPlayEnd.bind(this);
         if (this.context["createGain"]) {
             this.gain = this.context["createGain"]();
         } else {

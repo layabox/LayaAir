@@ -1,5 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { EventDispatcher } from "../events/EventDispatcher";
+import { URL } from "../net/URL";
 
 var _uniqueIDCounter: number = 0;
 
@@ -122,14 +123,15 @@ export class Resource extends EventDispatcher {
 
     /**
      * 创建一个 <code>Resource</code> 实例。
+     * @param managed 如果设置为true，则在destroyUnusedResources时会检测引用计数并自动释放如果计数为0。默认为true。
      */
-    constructor(managed: boolean = true) {
+    protected constructor(managed?: boolean) {
         super();
 
         this._id = ++_uniqueIDCounter;
         this._destroyed = false;
         this._referenceCount = 0;
-        if (managed)
+        if (managed == null || managed)
             Resource._idResourcesMap[this.id] = this;
         this.lock = false;
     }
@@ -158,6 +160,14 @@ export class Resource extends EventDispatcher {
     _setCreateURL(url: string, uuid?: string): void {
         this.url = url;
         this.uuid = uuid;
+    }
+
+    /**
+     * 返回资源是否从指定url创建
+     */
+    isCreateFromURL(url: string): boolean {
+        return this.uuid && this.uuid.length === url.length + 6 && url.endsWith(this.uuid)
+            || this.url === URL.formatURL(url);
     }
 
     /**

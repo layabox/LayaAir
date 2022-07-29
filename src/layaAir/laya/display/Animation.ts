@@ -1,7 +1,7 @@
 import { AnimationBase } from "./AnimationBase";
 import { Graphics } from "./Graphics";
 import { Loader } from "../net/Loader"
-import { GraphicAnimation } from "../utils/GraphicAnimation"
+import { GraphicAnimation } from "./GraphicAnimation"
 import { Handler } from "../utils/Handler"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
@@ -97,7 +97,7 @@ export class Animation extends AnimationBase {
     static framesMap: any = {};
     /**@private */
     protected _frames: any[];
-    
+
 
     /**
      * 创建一个新的 <code>Animation</code> 实例。
@@ -321,55 +321,50 @@ export class Animation extends AnimationBase {
             console.warn("atlas load fail:" + atlas);
             return;
         }
-        var _this: Animation = this;
 
-        function onLoaded(loadUrl: string): void {
-            if (!Loader.getRes(loadUrl)) {
+        ILaya.loader.fetch(url, "json").then(data => {
+            if (this._url !== url)
+                return;
+
+            if (!data) {
                 // 如果getRes失败了，有可能是相同的文件已经被删掉了，因为下面在用完后会立即删除
                 // 这时候可以取frameMap中去找，如果找到了，走正常流程。--王伟
                 if (Animation.framesMap[url + "#"]) {
-                    _this._setFramesFromCache(_this._actionName, true);
-                    _this.index = 0;
-                    _this._resumePlay();
+                    this._setFramesFromCache(this._actionName, true);
+                    this.index = 0;
+                    this._resumePlay();
                     if (loaded) loaded.run();
                 }
                 return;
             }
-            if (url === loadUrl) {
-                var tAniO: any;
-                if (!Animation.framesMap[url + "#"]) {
-                    //此次解析仅返回动画数据，并不真正解析动画graphic数据
-                    var aniData: any = GraphicAnimation.parseAnimationData(Loader.getRes(url));
-                    if (!aniData) return;
-                    //缓存动画数据
-                    var aniList: any[] = aniData.animationList;
-                    var i: number, len: number = aniList.length;
-                    var defaultO: any;
-                    for (i = 0; i < len; i++) {
-                        tAniO = aniList[i];
-                        Animation.framesMap[url + "#" + tAniO.name] = tAniO;
-                        if (!defaultO) defaultO = tAniO;
-                    }
-                    if (defaultO) {
-                        Animation.framesMap[url + "#"] = defaultO;
-                        _this._setFramesFromCache(_this._actionName, true);
-                        _this.index = 0;
-                    }
-                    _this._resumePlay();
-                } else {
-                    _this._setFramesFromCache(_this._actionName, true);
-                    _this.index = 0;
-                    _this._resumePlay();
+
+            let tAniO: any;
+            if (!Animation.framesMap[url + "#"]) {
+                //此次解析仅返回动画数据，并不真正解析动画graphic数据
+                let aniData: any = GraphicAnimation.parseAnimationData(data);
+                if (!aniData) return;
+                //缓存动画数据
+                let aniList: any[] = aniData.animationList;
+                let len: number = aniList.length;
+                let defaultO: any;
+                for (let i = 0; i < len; i++) {
+                    tAniO = aniList[i];
+                    Animation.framesMap[url + "#" + tAniO.name] = tAniO;
+                    if (!defaultO) defaultO = tAniO;
                 }
-                if (loaded) loaded.run();
+                if (defaultO) {
+                    Animation.framesMap[url + "#"] = defaultO;
+                    this._setFramesFromCache(this._actionName, true);
+                    this.index = 0;
+                }
+                this._resumePlay();
+            } else {
+                this._setFramesFromCache(this._actionName, true);
+                this.index = 0;
+                this._resumePlay();
             }
-            //清理掉配置
-            Loader.clearRes(url);
-        }
-        if (Loader.getRes(url)) onLoaded(url);
-        else ILaya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.JSON);
-
-
+            if (loaded) loaded.run();
+        });
     }
 
     /**

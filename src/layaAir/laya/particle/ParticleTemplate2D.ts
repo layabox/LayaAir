@@ -2,23 +2,17 @@ import { ParticleTemplateWebGL } from "./ParticleTemplateWebGL";
 import { ParticleSetting } from "./ParticleSetting";
 import { ISubmit } from "../webgl/submit/ISubmit";
 import { ParticleShaderValue } from "./shader/value/ParticleShaderValue";
-import { Handler } from "../utils/Handler";
-import { Texture } from "../resource/Texture";
 import { ILaya } from "../../ILaya";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { MeshParticle2D } from "../webgl/utils/MeshParticle2D";
 import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
 import { Stat } from "../utils/Stat";
-import { Loader } from "../net/Loader";
 import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 import { LayaGL } from "../layagl/LayaGL";
 import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { Texture } from "../resource/Texture";
 
-
-/**
- *  @internal 
- */
 export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit {
     //private var _vertexBuffer2D:VertexBuffer2D;
     //private var _indexBuffer2D:IndexBuffer2D;
@@ -34,12 +28,9 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
     /**@internal */
     _key: any = {};
 
-    constructor(parSetting: ParticleSetting) {
+    constructor(parSetting: ParticleSetting, texture:Texture) {
         super(parSetting);
-        var _this: ParticleTemplate2D = this;
-        ILaya.loader.load(this.settings.textureName, Handler.create(null, function (texture: Texture): void {
-            _this.texture = texture;
-        }), null, Loader.IMAGE);
+
         this.sv.u_Duration = this.settings.duration;
         this.sv.u_Gravity = this.settings.gravity;
         this.sv.u_EndVelocity = this.settings.endVelocity;
@@ -47,9 +38,9 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
         this._blendFn = BlendMode.fns[parSetting.blendState]; //context._targets?BlendMode.targetFns[blendType]:BlendMode.fns[blendType];
         this._mesh = MeshParticle2D.getAMesh(this.settings.maxPartices);
 
-        this.initialize();
+        this.texture = texture;
 
-       
+        this.initialize();
     }
 
     getRenderType(): number { return -111 }
@@ -135,13 +126,13 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
 
 
                 if (this._firstActiveElement < this._firstFreeElement) {
-                    LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, (this._firstFreeElement - this._firstActiveElement) * 6,IndexFormat.UInt16, this._firstActiveElement * 6 * 2);
+                    LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, (this._firstFreeElement - this._firstActiveElement) * 6, IndexFormat.UInt16, this._firstActiveElement * 6 * 2);
                 }
                 else {
 
                     LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, (this.settings.maxPartices - this._firstActiveElement) * 6, IndexFormat.UInt16, this._firstActiveElement * 6 * 2);
                     if (this._firstFreeElement > 0)
-                    LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, this._firstFreeElement * 6, IndexFormat.UInt16, 0);
+                        LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, this._firstFreeElement * 6, IndexFormat.UInt16, 0);
                 }
 
                 Stat.renderBatches++;
@@ -205,7 +196,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
         }
     }
 
-    dispose(): void {
+    protected _disposeResource(force?: boolean): void {
         //_vertexBuffer2D.dispose();
         //_indexBuffer2D.dispose();
         this._mesh.releaseMesh();//TODO 什么时候调用。

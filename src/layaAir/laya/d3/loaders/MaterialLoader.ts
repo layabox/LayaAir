@@ -9,7 +9,7 @@ class MaterialLoader implements IResourceLoader {
                 return null;
 
             let urls: Array<any> = this.getSubUrls(task, lmtData);
-            return Promise.all(urls.map((e, i) => task.loader.load(e.url, { constructParams: e.constructParams, propertyParams: e.propertyParams }, task.progress.createCallback()))).then(() => {
+            return task.loader.load(urls, task.options, task.progress.createCallback()).then(() => {
                 let mat = Material._parse(lmtData);
                 return mat;
             });
@@ -32,7 +32,7 @@ class MaterialLoader implements IResourceLoader {
                         let tex2DPath: string = tex2D.path;
                         if (tex2DPath) {
                             tex2D.path = URL.join(basePath, tex2DPath);
-                            urls.push({ url: tex2D.path, constructParams: tex2D.constructParams, propertyParams: tex2D.propertyParams });
+                            urls.push({ url: tex2D.path, type: Loader.TEXTURE2D, constructParams: tex2D.constructParams, propertyParams: tex2D.propertyParams });
                         }
                     }
                 }

@@ -66,7 +66,6 @@ export class WebXRStart {
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
 			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
-			Promise.resolve(true);
 		}));
 	}
 	stypeFun() {

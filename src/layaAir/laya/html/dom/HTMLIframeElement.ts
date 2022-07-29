@@ -19,7 +19,7 @@ export class HTMLIframeElement extends HTMLDivElement {
      */
     set href(url: string) {
         url = URL.formatURL(url, this._element.URI ? this._element.URI.path : null);
-        ILaya.loader.load(url, { type: Loader.TEXT, cache: false }).then((data: string) => {
+        ILaya.loader.fetch(url, "text").then((data: string) => {
             var pre: URL = this._element.URI;
             this._element.URI = new URL(url);
             this.innerHTML = data;

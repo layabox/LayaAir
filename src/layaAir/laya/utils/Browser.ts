@@ -52,13 +52,13 @@ export class Browser {
     /***手机QQ小游戏 */
     static onQQMiniGame: boolean;
     /*** BILIBILI小游戏 */
-    static onBLMiniGame:boolean;
+    static onBLMiniGame: boolean;
     /** 字节跳动小游戏*/
-    static onTTMiniGame:boolean;
+    static onTTMiniGame: boolean;
     /** 华为快游戏 */
-    static onHWMiniGame:boolean;
+    static onHWMiniGame: boolean;
     /** 淘宝小程序 */
-    static onTBMiniGame:boolean;
+    static onTBMiniGame: boolean;
     /** @private */
     static onFirefox: boolean;//TODO:求补充
     /** @private */
@@ -92,7 +92,7 @@ export class Browser {
     /**@private */
     private static hanzi: RegExp = new RegExp("^[\u4E00-\u9FA5]$");
     /**@private */
-    private static fontMap: {[key:string]:string} = {};
+    private static fontMap: { [key: string]: string } = {};
     /**@private */
     static measureText: Function = function (txt: string, font: string): any {
         var isChinese: boolean = Browser.hanzi.test(txt);
@@ -116,11 +116,11 @@ export class Browser {
         var doc: any = Browser._document = win.document;
         var u: string = Browser.userAgent = win.navigator.userAgent;
         var maxTouchPoints: number = win.navigator.maxTouchPoints || 0;
-        var platform:string = win.navigator.platform;
+        var platform: string = win.navigator.platform;
 
         //阿里小游戏
         if ("my" in Browser.window) {
-            if(u.indexOf('TB/')>-1||u.indexOf('Taobao/')>-1||u.indexOf('TM/')>-1){
+            if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {
                 //这里需要手动初始化阿里适配库
                 (window as any).tbMiniGame(Laya, Laya);
                 if (!(Laya as any)["TBMiniAdapter"]) {
@@ -128,7 +128,7 @@ export class Browser {
                 } else {
                     (Laya as any)["TBMiniAdapter"].enable();
                 }
-            }else if(u.indexOf('AlipayMiniGame') > -1){
+            } else if (u.indexOf('AlipayMiniGame') > -1) {
                 //这里需要手动初始化阿里适配库
                 (window as any).aliPayMiniGame(Laya, Laya);
                 if (!(Laya as any)["ALIMiniAdapter"]) {
@@ -140,7 +140,7 @@ export class Browser {
         }
 
         if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
-            if("tt" in Browser.window){
+            if ("tt" in Browser.window) {
                 //手机头条小游戏
                 (window as any).ttMiniGame(Laya, Laya);
                 if (!(Laya as any)["TTMiniAdapter"]) {
@@ -149,15 +149,15 @@ export class Browser {
                 } else {
                     (Laya as any)["TTMiniAdapter"].enable();
                 }
-            }else if("bl" in Browser.window){
-                 //手机B站小游戏
-                 (window as any).biliMiniGame(Laya, Laya);
-                 if (!(Laya as any)["BLMiniAdapter"]) {
-                     console.error("请引入bilibili小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-7-0");
-                    } else {
-                        (Laya as any)["BLMiniAdapter"].enable();
-                    }
-                } 
+            } else if ("bl" in Browser.window) {
+                //手机B站小游戏
+                (window as any).biliMiniGame(Laya, Laya);
+                if (!(Laya as any)["BLMiniAdapter"]) {
+                    console.error("请引入bilibili小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-7-0");
+                } else {
+                    (Laya as any)["BLMiniAdapter"].enable();
+                }
+            }
             else if ("qq" in Browser.window) {
                 //手机QQ小游戏
                 (window as any).qqMiniGame(Laya, Laya);
@@ -179,7 +179,7 @@ export class Browser {
             }
         }
         //华为快游戏
-        if("hbs" in Browser.window){
+        if ("hbs" in Browser.window) {
             (window as any).hwMiniGame(Laya, Laya);
             if (!(Laya as any)["HWMiniAdapter"]) {
                 console.error("请先添加小游戏适配库!");
@@ -268,7 +268,7 @@ export class Browser {
         Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
         Browser.onIPhone = u.indexOf("iPhone") > -1;
         Browser.onMac = u.indexOf("Mac OS X") > -1;
-        Browser.onIPad = u.indexOf("iPad") > -1 || ( platform === 'MacIntel' && maxTouchPoints >1 );//"platform === 'MacIntel' && maxTouchPoints >1" is a temporary solution，maybe accidentally injure other platform.
+        Browser.onIPad = u.indexOf("iPad") > -1 || (platform === 'MacIntel' && maxTouchPoints > 1);//"platform === 'MacIntel' && maxTouchPoints >1" is a temporary solution，maybe accidentally injure other platform.
         Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
         Browser.onWP = u.indexOf("Windows Phone") > -1;
         Browser.onQQBrowser = u.indexOf("QQBrowser") > -1;
@@ -278,7 +278,7 @@ export class Browser {
         Browser.onSafari = u.indexOf("Safari") > -1;
         Browser.onPC = !Browser.onMobile;
         Browser.onFirefox = u.indexOf('Firefox') > -1;
-		Browser.onEdge = u.indexOf('Edge') > -1;
+        Browser.onEdge = u.indexOf('Edge') > -1;
         Browser.onMiniGame = u.indexOf('MiniGame') > -1;
         Browser.onBDMiniGame = u.indexOf('SwanGame') > -1;
         Browser.onLayaRuntime = !!(window as any).conch;
@@ -288,14 +288,14 @@ export class Browser {
         } else if ("qq" in Browser.window && u.indexOf('MiniGame') > -1) {
             Browser.onQQMiniGame = true;//手机QQ环境判断
             Browser.onMiniGame = false;
-        }else if("bl" in Browser.window&& u.indexOf('MiniGame') > -1){
-            Browser.onBLMiniGame=true;//B站环境判断
-            Browser.onMiniGame=false;
-        }else if("tt" in Browser.window&& u.indexOf('MiniGame') > -1){
+        } else if ("bl" in Browser.window && u.indexOf('MiniGame') > -1) {
+            Browser.onBLMiniGame = true;//B站环境判断
+            Browser.onMiniGame = false;
+        } else if ("tt" in Browser.window && u.indexOf('MiniGame') > -1) {
             Browser.onTTMiniGame = true;
             Browser.onMiniGame = false;
         }
-        
+
         Browser.onHWMiniGame = "hbs" in Browser.window;
         Browser.onVVMiniGame = u.indexOf('VVGame') > -1;//vivo
         Browser.onKGMiniGame = u.indexOf('QuickGame') > -1;//小米运行环境判断
@@ -303,7 +303,7 @@ export class Browser {
             Browser.onAlipayMiniGame = true;//阿里小游戏环境判断
             Browser.onMiniGame = false;
         }
-        if(u.indexOf('TB/')>-1||u.indexOf('Taobao/')>-1||u.indexOf('TM/')>-1){
+        if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {
             Browser.onTBMiniGame = true;
         }
         return win;
@@ -312,7 +312,7 @@ export class Browser {
      * 获取是否为小游戏环境
      * @returns onMiniGame || onBDMiniGame || onQGMiniGame || onKGMiniGame || onVVMiniGame || onAlipayMiniGame || onQQMiniGame || onBLMiniGame || onTTMiniGame || onHWMiniGame || onTBMiniGame
      */
-    static get _isMiniGame():boolean{
+    static get _isMiniGame(): boolean {
         return Browser.onMiniGame || Browser.onBDMiniGame || Browser.onQGMiniGame || Browser.onKGMiniGame || Browser.onVVMiniGame || Browser.onAlipayMiniGame || Browser.onQQMiniGame || Browser.onBLMiniGame || Browser.onTTMiniGame || Browser.onHWMiniGame || Browser.onTBMiniGame;
     }
     /**

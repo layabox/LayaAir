@@ -64,12 +64,12 @@ export class Loader extends EventDispatcher {
     static TEXT = "text";
     /**JSON 类型，加载完成后返回json数据。*/
     static JSON = "json";
-    /**prefab 类型，加载完成后返回Prefab实例。*/
-    static PREFAB = "prefab";
     /**XML 类型，加载完成后返回domXML。*/
     static XML = "xml";
     /**二进制类型，加载完成后返回arraybuffer。*/
     static BUFFER = "arraybuffer";
+    /**prefab 类型，加载完成后返回Prefab实例。*/
+    static PREFAB = "prefab";
     /**纹理类型，加载完成后返回Texture。*/
     static IMAGE = "image";
     /**声音类型，加载完成后返回Sound。*/
@@ -310,9 +310,9 @@ export class Loader extends EventDispatcher {
             if (url.indexOf("data:") === 0)
                 type = Loader.IMAGE;
             else {
-                type = Utils.getFileCompatibleExtension(url);
-                if (!Loader.typeMap[type])
-                    type = Utils.getFileExtension(url);
+                type = Utils.getFileExtension(url);
+                if (type && !Loader.typeMap[type])
+                    type = Utils.getFileExtension(url, type.length);
             }
         }
 
@@ -345,7 +345,7 @@ export class Loader extends EventDispatcher {
         let atlasUrl = AtlasInfoManager.getFileLoadPath(url);
         if (atlasUrl) {
             return this.load(atlasUrl, Loader.ATLAS).then(() => {
-                return Promise.resolve(Loader.getRes(url, type));
+                return Loader.getRes(url, type);
             });
         }
 
@@ -362,6 +362,7 @@ export class Loader extends EventDispatcher {
         task.type = type;
         task.url = url;
         options = Object.assign(task.options, options);
+        delete options.type;
         if (options.priority == null)
             options.priority = 0;
         if (options.useWorkerLoader == null)
@@ -647,7 +648,7 @@ export class Loader extends EventDispatcher {
      * @param url 图集地址。
      * @return 返回地址集合。
      */
-    static getAtlas(url: string) {
+    static getAtlas(url: string): AtlasResource {
         return Loader.getRes(url);
     }
 
@@ -788,32 +789,3 @@ function returnRequestInst(inst: HttpRequest) {
     if (httpRequestPool.length < 10)
         httpRequestPool.push(inst);
 }
-
-class TextAssetLoader implements IResourceLoader {
-    load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "text", task.progress.createCallback(), task.options);
-    }
-}
-
-class BinaryAssetLoader implements IResourceLoader {
-    load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options);
-    }
-}
-
-class JsonAssetLoader implements IResourceLoader {
-    load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options);
-    }
-}
-
-class XMLAssetLoader implements IResourceLoader {
-    load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "xml", task.progress.createCallback(), task.options);
-    }
-}
-
-Loader.registerLoader([Loader.TEXT, "txt", "csv"], TextAssetLoader);
-Loader.registerLoader([Loader.BUFFER, "bin", "bytes"], BinaryAssetLoader);
-Loader.registerLoader([Loader.JSON, "json"], JsonAssetLoader);
-Loader.registerLoader([Loader.XML, "xml"], XMLAssetLoader);

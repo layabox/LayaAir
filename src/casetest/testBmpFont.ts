@@ -12,15 +12,13 @@ export class Main {
         //Laya.stage.scaleMode = 'fixedwidth';
         Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
-        var bmpfont = new BitmapFont();
-        bmpfont.loadFont(getResPath('bitmapFont/test.fnt'), new Handler(this, this.test1, [bmpfont]));
+        BitmapFont.loadFont(getResPath('bitmapFont/test.fnt'), new Handler(this, this.test1));
     }
 
     /**
      */
     async test1(bmpfont: BitmapFont) {
         bmpfont.setSpaceWidth(10);
-        Text.registerBitmapFont('testfont', bmpfont);
 
         var txt = new Text();
         txt.width = 250;

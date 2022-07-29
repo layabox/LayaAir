@@ -606,37 +606,43 @@ export class Sprite extends Node {
     _getBoundPointsM(ifRotate: boolean = false): any[] {
         if (this._boundStyle && this._boundStyle.userBounds) return this._boundStyle.userBounds._getBoundPoints();
         if (!this._boundStyle) this._getBoundsStyle();
-        if (!this._boundStyle.temBM) this._boundStyle.temBM = [];
+        let rst = this._boundStyle.temBM;
+        if (!rst) rst = this._boundStyle.temBM = [];
         if (this._style.scrollRect) {
-            var rst: any[] = Utils.clearArray(this._boundStyle.temBM);
+            rst.length = 0;
             var rec: Rectangle = Rectangle.TEMP;
             rec.copyFrom(this._style.scrollRect);
-            Utils.concatArray(rst, rec._getBoundPoints());
+            rst.push(...rec._getBoundPoints());
             return rst;
         }
         var pList: any[];
         if (this._graphics) {
             pList = this._graphics.getBoundPoints();
         } else {
-            pList = Utils.clearArray(this._boundStyle.temBM);
+            rst.length = 0;
+            pList = rst;
         }
         if (this._texture) {
             rec = Rectangle.TEMP;
             rec.setTo(0, 0, this.width || this._texture.width, this.height || this._texture.height);
-            Utils.concatArray(pList, rec._getBoundPoints());
+            pList.push(...rec._getBoundPoints());
         }
         //处理子对象区域
-        var child: Sprite;
-        var cList: any[];
-        var __childs: any[];
+        let child: Sprite;
+        let cList: any[];
+        let __childs: any[];
         __childs = this._children;
-        for (var i: number = 0, n: number = __childs.length; i < n; i++) {
+        for (let i: number = 0, n: number = __childs.length; i < n; i++) {
             //child = getChildAt(i) as Sprite; 
-            child = (<Sprite>__childs[i]);
+            child = __childs[i];
             if (child instanceof Sprite && child._visible === true) {
                 cList = child._boundPointsToParent(ifRotate);
-                if (cList)
-                    pList = pList ? Utils.concatArray(pList, cList) : cList;
+                if (cList) {
+                    if (pList)
+                        pList.push(...cList);
+                    else
+                        pList = cList;
+                }
             }
         }
         return pList;

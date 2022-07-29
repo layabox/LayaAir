@@ -1,6 +1,6 @@
 /**
-	 * @author laya
-	 */
+ * @author laya
+ */
 export class IStatRender {
     /**
      * 显示性能统计信息。

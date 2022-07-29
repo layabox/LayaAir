@@ -57,10 +57,11 @@ export class Node extends EventDispatcher {
 
     /** 如果节点从资源中创建，这里记录是他的url */
     protected _url?: string;
+    
     /**
      * 得到资源的URL
      */
-    get url(): string {
+     get url(): string {
         return this._url;
     }
 

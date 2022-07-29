@@ -17,7 +17,7 @@ export class Emitter2D extends EmitterBase {
         this.template = _template;
     }
     set template(template: ParticleTemplateBase) {
-        this._particleTemplate = template;
+        this._template = template;
         if (!template) {
             this._emitFun = null;
             this.setting = null;
@@ -25,12 +25,12 @@ export class Emitter2D extends EmitterBase {
         };
         this.setting = template.settings;
         this._posRange = this.setting.positionVariance;
-        if (this._particleTemplate instanceof ParticleTemplate2D) {
+        if (this._template instanceof ParticleTemplate2D) {
             this._emitFun = this.webGLEmit;
         }
     }
     get template(): ParticleTemplateBase {
-        return this._particleTemplate;
+        return this._template;
     }
     /**
      * @override
@@ -54,7 +54,7 @@ export class Emitter2D extends EmitterBase {
         v[0] = 0;
         v[1] = 0;
         v[2] = 0;
-        this._particleTemplate.addParticleArray(pos, v);
+        this._template.addParticleArray(pos, v);
     }
     canvasEmit(): void {
         var pos: Float32Array = new Float32Array(3);
@@ -65,7 +65,7 @@ export class Emitter2D extends EmitterBase {
         v[0] = 0;
         v[1] = 0;
         v[2] = 0;
-        this._particleTemplate.addParticleArray(pos, v);
+        this._template.addParticleArray(pos, v);
     }
 
 }

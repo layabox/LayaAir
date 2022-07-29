@@ -1,8 +1,9 @@
 import { Browser } from "./Browser";
+
 /**
-	 * <code>Log</code> 类用于在界面内显示日志记录信息。
-	 * 注意：在加速器内不可使用
-	 */
+ * <code>Log</code> 类用于在界面内显示日志记录信息。
+ * 注意：在加速器内不可使用
+ */
 export class Log {
 
     /**@private */

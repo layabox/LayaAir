@@ -1,6 +1,6 @@
 /**
-	 * <p> <code>LocalStorage</code> 类用于没有时间限制的数据存储。</p>
-	 */
+ * <p> <code>LocalStorage</code> 类用于没有时间限制的数据存储。</p>
+ */
 export class LocalStorage {
 
     /**@ 基础类*/

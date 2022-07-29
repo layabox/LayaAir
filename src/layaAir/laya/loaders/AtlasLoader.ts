@@ -1,8 +1,8 @@
 import { IResourceLoader, ILoadTask, Loader, ILoadOptions } from "../net/Loader";
 import { AtlasResource } from "../resource/AtlasResource";
 import { Texture } from "../resource/Texture";
-import { TexturePropertyParams } from "../resource/Texture2D";
 import { Browser } from "../utils/Browser";
+import { Utils } from "../utils/Utils";
 
 class AtlasLoader implements IResourceLoader {
     load(task: ILoadTask) {
@@ -11,7 +11,6 @@ class AtlasLoader implements IResourceLoader {
                 return null;
 
             let toloadPics: Array<Promise<any>> = [];
-            let options: ILoadOptions = { propertyParams: { premultiplyAlpha: true } };
             //构造加载图片信息
             if (data.meta && data.meta.image) {
                 //带图片信息的类型
@@ -22,28 +21,28 @@ class AtlasLoader implements IResourceLoader {
                 let changeType: string | null = null;
 
                 if (Browser.onAndroid && data.meta.compressTextureAndroid) {
-                    changeType = ".ktx";
+                    changeType = "ktx";
                 }
 
                 if (Browser.onIOS && data.meta.compressTextureIOS) {
                     if (data.meta.astc) {
-                        changeType = ".ktx";
+                        changeType = "ktx";
                     } else {
-                        changeType = ".pvr";
+                        changeType = "pvr";
                     }
                 }
 
                 let len = pics.length;
                 for (let i = 0; i < len; i++) {
                     if (changeType) {
-                        toloadPics.push(task.loader.load(folderPath + pics[i].replace(".png", changeType), options, task.progress.createCallback()));
+                        toloadPics.push(task.loader.load(Utils.replaceFileExtension(folderPath + pics[i], changeType), null, task.progress.createCallback()));
                     } else {
-                        toloadPics.push(task.loader.load(folderPath + pics[i], options, task.progress.createCallback()));
+                        toloadPics.push(task.loader.load(folderPath + pics[i], null, task.progress.createCallback()));
                     }
 
                 }
             } else {  //不带图片信息
-                toloadPics.push(task.loader.load(task.url.replace(".json", ".png"), options, task.progress.createCallback()));
+                toloadPics.push(task.loader.load(Utils.replaceFileExtension(task.url, "png"), null, task.progress.createCallback()));
             }
 
             return Promise.all(toloadPics).then(pics => {

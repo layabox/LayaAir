@@ -3,6 +3,7 @@ import { Rectangle } from "../maths/Rectangle"
 import { Texture } from "../resource/Texture"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { Resource } from "../resource/Resource";
 
 /**
  * <code>BitmapFont</code> 是位图字体类，用于定义位图字体信息。
@@ -38,11 +39,10 @@ export class BitmapFont {
             return;
         }
 
-        ILaya.loader.load([{ url: path, type: ILaya.Loader.XML }, { url: path.replace(".fnt", ".png"), type: ILaya.Loader.IMAGE }])
-            .then((contents: Array<any>) => {
-                this.parseFont(contents[0], contents[1]);
-                complete && complete.run();
-            });
+        ILaya.loader.load([path, path.replace(".fnt", ".png")]).then((contents: Array<any>) => {
+            this.parseFont(contents[0].data, contents[1]);
+            complete && complete.run();
+        });
     }
 
     /**
@@ -53,36 +53,35 @@ export class BitmapFont {
     parseFont(xml: XMLDocument, texture: Texture): void {
         if (xml == null || texture == null) return;
         this._texture = texture;
-        var tX: number = 0;
-        var tScale: number = 1;
+        let tX: number = 0;
+        let tScale: number = 1;
 
-        var tInfo: any = xml.getElementsByTagName("info");
+        let tInfo: any = xml.getElementsByTagName("info");
         if (!tInfo[0].getAttributeNode) {
             return this.parseFont2(xml, texture);
         }
         this.fontSize = parseInt(tInfo[0].getAttributeNode("size").nodeValue);
 
-        var tPadding: string = tInfo[0].getAttributeNode("padding").nodeValue;
-        var tPaddingArray: any[] = tPadding.split(",");
+        let tPadding: string = tInfo[0].getAttributeNode("padding").nodeValue;
+        let tPaddingArray: any[] = tPadding.split(",");
         this._padding = [parseInt(tPaddingArray[0]), parseInt(tPaddingArray[1]), parseInt(tPaddingArray[2]), parseInt(tPaddingArray[3])];
 
-        var chars = xml.getElementsByTagName("char");
-        var i: number = 0;
-        for (i = 0; i < chars.length; i++) {
-            var tAttribute: any = chars[i];
-            var tId: number = parseInt(tAttribute.getAttributeNode("id").nodeValue);
+        let chars = xml.getElementsByTagName("char");
+        for (let i = 0; i < chars.length; i++) {
+            let tAttribute: any = chars[i];
+            let tId: number = parseInt(tAttribute.getAttributeNode("id").nodeValue);
 
-            var xOffset: number = parseInt(tAttribute.getAttributeNode("xoffset").nodeValue) / tScale;
-            var yOffset: number = parseInt(tAttribute.getAttributeNode("yoffset").nodeValue) / tScale;
-            var xAdvance: number = parseInt(tAttribute.getAttributeNode("xadvance").nodeValue) / tScale;
+            let xOffset: number = parseInt(tAttribute.getAttributeNode("xoffset").nodeValue) / tScale;
+            let yOffset: number = parseInt(tAttribute.getAttributeNode("yoffset").nodeValue) / tScale;
+            let xAdvance: number = parseInt(tAttribute.getAttributeNode("xadvance").nodeValue) / tScale;
 
-            var region: Rectangle = new Rectangle();
+            let region: Rectangle = new Rectangle();
             region.x = parseInt(tAttribute.getAttributeNode("x").nodeValue);
             region.y = parseInt(tAttribute.getAttributeNode("y").nodeValue);
             region.width = parseInt(tAttribute.getAttributeNode("width").nodeValue);
             region.height = parseInt(tAttribute.getAttributeNode("height").nodeValue);
 
-            var tTexture: Texture = Texture.create(texture, region.x, region.y, region.width, region.height, xOffset, yOffset);
+            let tTexture: Texture = Texture.create(texture, region.x, region.y, region.width, region.height, xOffset, yOffset);
             this._maxWidth = Math.max(this._maxWidth, xAdvance + this.letterSpacing);
             this._fontCharDic[tId] = tTexture;
             this._fontWidthMap[tId] = xAdvance;
@@ -94,37 +93,36 @@ export class BitmapFont {
      * @param	xml			字体文件XML。
      * @param	texture		字体的纹理。
      */
-    parseFont2(xml: XMLDocument, texture: Texture): void {
+    protected parseFont2(xml: XMLDocument, texture: Texture): void {
         if (xml == null || texture == null) return;
         this._texture = texture;
-        var tX: number = 0;
-        var tScale: number = 1;
+        let tX: number = 0;
+        let tScale: number = 1;
 
-        var tInfo: any = xml.getElementsByTagName("info");
+        let tInfo: any = xml.getElementsByTagName("info");
         this.fontSize = parseInt(tInfo[0].attributes["size"].nodeValue);
 
-        var tPadding: string = tInfo[0].attributes["padding"].nodeValue;
-        var tPaddingArray: any[] = tPadding.split(",");
+        let tPadding: string = tInfo[0].attributes["padding"].nodeValue;
+        let tPaddingArray: any[] = tPadding.split(",");
         this._padding = [parseInt(tPaddingArray[0]), parseInt(tPaddingArray[1]), parseInt(tPaddingArray[2]), parseInt(tPaddingArray[3])];
 
-        var chars = xml.getElementsByTagName("char");
-        var i: number = 0;
-        for (i = 0; i < chars.length; i++) {
-            var tAttribute = chars[i].attributes;
-            var tId: number = parseInt((tAttribute as any)["id"].nodeValue);
+        let chars = xml.getElementsByTagName("char");
+        for (let i = 0; i < chars.length; i++) {
+            let tAttribute = chars[i].attributes;
+            let tId: number = parseInt((tAttribute as any)["id"].nodeValue);
 
-            var xOffset: number = parseInt((tAttribute as any)["xoffset"].nodeValue) / tScale;
-            var yOffset: number = parseInt((tAttribute as any)["yoffset"].nodeValue) / tScale;
+            let xOffset: number = parseInt((tAttribute as any)["xoffset"].nodeValue) / tScale;
+            let yOffset: number = parseInt((tAttribute as any)["yoffset"].nodeValue) / tScale;
 
-            var xAdvance: number = parseInt((tAttribute as any)["xadvance"].nodeValue) / tScale;
+            let xAdvance: number = parseInt((tAttribute as any)["xadvance"].nodeValue) / tScale;
 
-            var region: Rectangle = new Rectangle();
+            let region: Rectangle = new Rectangle();
             region.x = parseInt((tAttribute as any)["x"].nodeValue);
             region.y = parseInt((tAttribute as any)["y"].nodeValue);
             region.width = parseInt((tAttribute as any)["width"].nodeValue);
             region.height = parseInt((tAttribute as any)["height"].nodeValue);
 
-            var tTexture: Texture = Texture.create(texture, region.x, region.y, region.width, region.height, xOffset, yOffset);
+            let tTexture: Texture = Texture.create(texture, region.x, region.y, region.width, region.height, xOffset, yOffset);
             this._maxWidth = Math.max(this._maxWidth, xAdvance + this.letterSpacing);
             this._fontCharDic[tId] = tTexture;
             this._fontWidthMap[tId] = xAdvance;
@@ -142,7 +140,7 @@ export class BitmapFont {
     /**
      * 销毁位图字体，调用Text.unregisterBitmapFont 时，默认会销毁。
      */
-    destroy(): void {
+     destroy(): void {
         if (this._texture) {
             for (var p in this._fontCharDic) {
                 var tTexture: Texture = this._fontCharDic[p];
@@ -170,7 +168,7 @@ export class BitmapFont {
      * @return  宽度。
      */
     getCharWidth(char: string): number {
-        var code: number = char.charCodeAt(0);
+        let code: number = char.charCodeAt(0);
         if (this._fontWidthMap[code]) return this._fontWidthMap[code] + this.letterSpacing;
         if (char === " ") return this._spaceWidth + this.letterSpacing;
         return 0;
@@ -182,8 +180,8 @@ export class BitmapFont {
      * @return  宽度。
      */
     getTextWidth(text: string): number {
-        var tWidth: number = 0;
-        for (var i: number = 0, n: number = text.length; i < n; i++) {
+        let tWidth: number = 0;
+        for (let i: number = 0, n: number = text.length; i < n; i++) {
             tWidth += this.getCharWidth(text.charAt(i));
         }
         return tWidth;
@@ -208,13 +206,13 @@ export class BitmapFont {
      * 将指定的文本绘制到指定的显示对象上。
      */
     _drawText(text: string, sprite: Sprite, drawX: number, drawY: number, align: string, width: number): void {
-        var tWidth: number = this.getTextWidth(text);
-        var tTexture: Texture;
-        var dx: number = 0;
+        let tWidth: number = this.getTextWidth(text);
+        let tTexture: Texture;
+        let dx: number = 0;
         align === "center" && (dx = (width - tWidth) / 2);
         align === "right" && (dx = (width - tWidth));
-        var tx: number = 0;
-        for (var i: number = 0, n: number = text.length; i < n; i++) {
+        let tx: number = 0;
+        for (let i: number = 0, n: number = text.length; i < n; i++) {
             tTexture = this.getCharTexture(text.charAt(i));
             if (tTexture) {
                 sprite.graphics.drawImage(tTexture, drawX + tx + dx, drawY);

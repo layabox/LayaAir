@@ -1,5 +1,5 @@
-import { FrameAnimation } from "../display/FrameAnimation"
-import { Graphics } from "../display/Graphics"
+import { FrameAnimation } from "./FrameAnimation"
+import { Graphics } from "./Graphics"
 import { Matrix } from "../maths/Matrix"
 import { Loader } from "../net/Loader"
 import { Texture } from "../resource/Texture"

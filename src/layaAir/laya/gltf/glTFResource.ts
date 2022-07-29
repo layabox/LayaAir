@@ -148,12 +148,10 @@ export class glTFResource extends HierarchyResource {
                     }
                 }
 
-                return Promise.all(promises).then(textures => {
+                Promise.all(promises).then(textures => {
                     this._textures.push(...textures);
                 });
             }
-            else
-                return Promise.resolve();
         });
 
         return promise.then(() => {

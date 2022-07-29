@@ -26,7 +26,7 @@ export class ParticleData {
 
     }
 
-    static Create(settings: ParticleSetting, position: Float32Array, velocity: Float32Array, time: number): ParticleData {
+    static create(settings: ParticleSetting, position: Float32Array, velocity: Float32Array, time: number): ParticleData {
         var particleData: ParticleData = new ParticleData();
         particleData.position = position;
 

@@ -22,7 +22,7 @@ export class EmitterBase {
     minEmissionTime: number = 1 / 60;
 
     /**@internal */
-    _particleTemplate: ParticleTemplateBase;
+    _template: ParticleTemplateBase;
 
     /**
      * 设置粒子粒子模板
@@ -30,7 +30,7 @@ export class EmitterBase {
      *
      */
     set particleTemplate(particleTemplate: ParticleTemplateBase) {
-        this._particleTemplate = particleTemplate;
+        this._template = particleTemplate;
     }
 
     /**

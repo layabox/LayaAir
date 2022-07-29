@@ -20,6 +20,7 @@ import { SoundNode } from "./media/SoundNode";
 import { Texture } from "./resource/Texture";
 import { Texture2D } from "./resource/Texture2D";
 
+import "./loaders/TextResourceLoader";
 import "./loaders/AtlasLoader";
 import "./loaders/HierarchyLoader";
 import "./loaders/TextureLoader";

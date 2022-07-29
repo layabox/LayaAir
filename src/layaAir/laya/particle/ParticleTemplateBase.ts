@@ -1,12 +1,13 @@
 import { ParticleSetting } from "./ParticleSetting";
 import { Texture } from "../resource/Texture";
+import { Resource } from "../resource/Resource";
 
 /**
  * 
  * <code>ParticleTemplateBase</code> 类是粒子模板基类
  * 
  */
-export class ParticleTemplateBase {
+export class ParticleTemplateBase extends Resource {
     /**
      * 粒子配置数据 
      */
@@ -14,13 +15,13 @@ export class ParticleTemplateBase {
     /**
      * 粒子贴图 
      */
-    protected texture: Texture;
+    texture: Texture;
     /**
      * 创建一个新的 <code>ParticleTemplateBase</code> 类实例。
      * 
      */
     constructor() {
-
+        super();
     }
 
     /**

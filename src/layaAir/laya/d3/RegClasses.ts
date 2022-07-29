@@ -76,6 +76,9 @@ import { Viewport } from "./math/Viewport";
 import { Mesh } from "./resource/models/Mesh";
 import { SkyRenderer } from "./resource/models/SkyRenderer";
 import { TextureCube } from "./resource/TextureCube";
+import { DirectionLightCom } from "./core/light/DirectionLightCom";
+import { PointLightCom } from "./core/light/PointLightCom";
+import { SpotLightCom } from "./core/light/SpotLightCom";
 
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
@@ -84,9 +87,6 @@ import "./loaders/MeshLoader";
 import "./loaders/SimpleAnimatorTextureLoader";
 import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
-import { DirectionLightCom } from "./core/light/DirectionLightCom";
-import { PointLightCom } from "./core/light/PointLightCom";
-import { SpotLightCom } from "./core/light/SpotLightCom";
 
 let c = ClassUtils.regClass;
 c("Laya.Sprite3D", Sprite3D);

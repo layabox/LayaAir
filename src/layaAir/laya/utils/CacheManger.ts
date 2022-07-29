@@ -1,8 +1,8 @@
 import { ILaya } from "./../../ILaya";
 /**
-	 * @private
-	 * 对象缓存统一管理类
-	 */
+ * @private
+ * 对象缓存统一管理类
+ */
 export class CacheManger {
     //TODO:
     /**

@@ -1,7 +1,7 @@
 import { Browser } from "./Browser";
 /**
-	 * <code>Mouse</code> 类用于控制鼠标光标样式。
-	 */
+ * <code>Mouse</code> 类用于控制鼠标光标样式。
+ */
 export class Mouse {
     /**@private */
     private static _style: any;

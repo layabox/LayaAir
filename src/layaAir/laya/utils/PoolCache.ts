@@ -1,10 +1,10 @@
 import { CacheManger } from "./CacheManger";
-import { Utils } from "./Utils";
 import { Pool } from "./Pool";
+
 /**
-	 * @private
-	 * 基于个数的对象缓存管理器
-	 */
+ * @private
+ * 基于个数的对象缓存管理器
+ */
 export class PoolCache {
 
     //TODO:
@@ -50,7 +50,7 @@ export class PoolCache {
         cache = new PoolCache();
         cache.sign = sign;
         cache.maxCount = maxCount;
-        CacheManger.regCacheByFunction(Utils.bind(cache.tryDispose, cache), Utils.bind(cache.getCacheList, cache));
+        CacheManger.regCacheByFunction(cache.tryDispose.bind(cache), cache.getCacheList.bind(cache));
     }
 }
 

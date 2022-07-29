@@ -213,7 +213,7 @@ export class Clip extends UIComponent {
             this._skin = value;
             if (value) {
                 if (!Loader.getRes(value)) {
-                    ILaya.loader.load(this._skin, Handler.create(this, this._skinLoaded), null, Loader.IMAGE, 1);
+                    ILaya.loader.load(this._skin, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
                 } else {
                     this._skinLoaded();
                 }
@@ -284,7 +284,7 @@ export class Clip extends UIComponent {
         if (img) {
             this.loadComplete(this._skin, img);
         } else {
-            ILaya.loader.load(this._skin, Handler.create(this, this.loadComplete, [this._skin]));
+            ILaya.loader.load(this._skin, Handler.create(this, this.loadComplete, [this._skin]), null, Loader.IMAGE);
         }
     }
 

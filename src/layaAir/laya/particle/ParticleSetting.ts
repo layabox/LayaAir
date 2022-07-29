@@ -1,6 +1,6 @@
 /**
-	 * <code>ParticleSettings</code> 类是粒子配置数据类
-	 */
+ * <code>ParticleSettings</code> 类是粒子配置数据类
+ */
 export class ParticleSetting {
     /**贴图*/
     textureName: string = null;
@@ -139,30 +139,23 @@ export class ParticleSetting {
     positionVariance: Float32Array = new Float32Array([0, 0, 0]);
 
     //.........................................................2D发射器参数.........................................................
+}
 
-    /**
-     * 创建一个新的 <code>ParticleSettings</code> 类实例。
-     *
-     */
-    constructor() {
-
-    }
-    private static _defaultSetting: ParticleSetting = new ParticleSetting();
-
-    static checkSetting(setting: any): void {
-        var key: string;
-        for (key in ParticleSetting._defaultSetting) {
-            if (!(key in setting)) {
-                setting[key] = (ParticleSetting._defaultSetting as any)[key];
-            }
+const defaultSetting = new ParticleSetting();
+export function checkSetting(setting: any): ParticleSetting {
+    var key: string;
+    for (key in defaultSetting) {
+        if (!(key in setting)) {
+            setting[key] = (defaultSetting as any)[key];
         }
-        //强转一下防止出错。这几个变量会直接传给shader，如果不是数字的话，有的runtime受不了（例如微信）
-        setting.endVelocity = +setting.endVelocity;
-        setting.gravity[0] = +setting.gravity[0];
-        setting.gravity[1] = +setting.gravity[1];
-        setting.gravity[2] = +setting.gravity[2];
     }
+    //强转一下防止出错。这几个变量会直接传给shader，如果不是数字的话，有的runtime受不了（例如微信）
+    setting.endVelocity = +setting.endVelocity;
+    setting.gravity[0] = +setting.gravity[0];
+    setting.gravity[1] = +setting.gravity[1];
+    setting.gravity[2] = +setting.gravity[2];
 
+    return setting;
 }
 
 

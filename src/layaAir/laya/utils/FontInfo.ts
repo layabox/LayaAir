@@ -37,7 +37,7 @@ export class FontInfo {
     /**@internal */
     _bold: boolean = false;
 
-    constructor(font: string|null) {
+    constructor(font: string | null) {
         this._id = FontInfo._gfontID++;
         this.setFont(font || this._font);
     }

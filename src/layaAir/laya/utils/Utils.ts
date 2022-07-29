@@ -6,20 +6,16 @@ import { Rectangle } from "../maths/Rectangle"
 import { Texture } from "../resource/Texture"
 import { ILaya } from "../../ILaya";
 
+var _gid: number = 1;
+const _pi: number = 180 / Math.PI;
+const _pi2: number = Math.PI / 180;
+
 /**
  * <code>Utils</code> 是工具类。
  */
 export class Utils {
     /**@private */
     static gStage: Stage = null;
-    /**@private */
-    private static _gid: number = 1;
-    /**@private */
-    private static _pi: number = 180 / Math.PI;
-    /**@private */
-    private static _pi2: number = Math.PI / 180;
-    /**@private */
-    protected static _extReg: RegExp = /\.(\w+)\??/g;
 
     /**
      * 角度转弧度。
@@ -27,7 +23,7 @@ export class Utils {
      * @return	返回弧度值。
      */
     static toRadian(angle: number): number {
-        return angle * Utils._pi2;
+        return angle * _pi2;
     }
 
     /**
@@ -36,7 +32,7 @@ export class Utils {
      * @return	返回角度值。
      */
     static toAngle(radian: number): number {
-        return radian * Utils._pi;
+        return radian * _pi;
     }
 
     /**
@@ -53,7 +49,7 @@ export class Utils {
 
     /**获取一个全局唯一ID。*/
     static getGID(): number {
-        return Utils._gid++;
+        return _gid++;
     }
 
     /**
@@ -73,36 +69,6 @@ export class Utils {
 
     /**
      * @private
-     * <p>连接数组。和array的concat相比，此方法不创建新对象</p>
-     * <b>注意：</b>若 参数 a 不为空，则会改变参数 source 的值为连接后的数组。
-     * @param	source 待连接的数组目标对象。
-     * @param	array 待连接的数组对象。
-     * @return 连接后的数组。
-     */
-    static concatArray(source: any[], array: any[]): any[] {
-        if (!array) return source;
-        if (!source) return array;
-        var i: number, len: number = array.length;
-        for (i = 0; i < len; i++) {
-            source.push(array[i]);
-        }
-        return source;
-    }
-
-    /**
-     * @private
-     * 清空数组对象。
-     * @param	array 数组。
-     * @return	清空后的 array 对象。
-     */
-    static clearArray(array: any[]): any[] {
-        if (!array) return array;
-        array.length = 0;
-        return array;
-    }
-
-    /**
-     * @private
      * 清空source数组，复制array数组的值。
      * @param	source 需要赋值的数组。
      * @param	array 新的数组值。
@@ -112,8 +78,8 @@ export class Utils {
         source || (source = []);
         if (!array) return source;
         source.length = array.length;
-        var i: number, len: number = array.length;
-        for (i = 0; i < len; i++) {
+        var len: number = array.length;
+        for (let i = 0; i < len; i++) {
             source[i] = array[i];
         }
         return source;
@@ -149,18 +115,6 @@ export class Utils {
      */
     static getGlobalPosAndScale(sprite: Sprite): Rectangle {
         return Utils.getGlobalRecByPoints(sprite, 0, 0, 1, 1);
-    }
-
-    /**
-     * 给传入的函数绑定作用域，返回绑定后的函数。
-     * @param	fun 函数对象。
-     * @param	scope 函数作用域。
-     * @return 绑定后的函数。
-     */
-    static bind(fun: Function, scope: any): Function {
-        var rst: Function = fun;
-        rst = fun.bind(scope);;
-        return rst;
     }
 
     /**
@@ -213,26 +167,28 @@ export class Utils {
         return result;
     }
 
-    static getFileExtension(path: string): string {
-        Utils._extReg.lastIndex = path.lastIndexOf(".");
-        var result: any[] = Utils._extReg.exec(path);
-        if (result && result.length > 1) {
-            return result[1].toLowerCase();
-        }
-        return null;
+    /**
+     * 获取文件名的扩展名，并转换为小写字母。例如"1.abc"将返回abc。
+     */
+    static getFileExtension(path: string, position?: number): string {
+        let i = path.lastIndexOf(".", position);
+        if (i != -1)
+            return path.substring(i + 1).toLowerCase();
+        else
+            return "";
     }
 
     /**
-     * 为兼容平台后缀名不能用的特殊兼容TODO：
+     * 更改文件名的扩展名。
      */
-    static getFileCompatibleExtension(path: string): string {
-        var result: string[] = path.split(".");
-        var resultlen: number = result.length;
-        if (result.length > 2)
-            return result[resultlen - 2] + "." + result[resultlen - 1];
+    static replaceFileExtension(path: string, newExt: string): string {
+        if(!path)
+            return path;
+        let i = path.lastIndexOf(".");
+        if (i != -1)
+            return path.substring(0, i + 1) + newExt;
         else
-            return null;
-
+            return path + "." + newExt;
     }
 
     /**
@@ -400,22 +356,6 @@ export class Utils {
         var r: any = window.location.search.substring(1).match(reg);
         if (r != null) return unescape(r[2]);
         return null;
-    }
-
-    static until(predicate: () => boolean, timeoutInMs?: number): Promise<void> {
-        if (predicate())
-            return null;
-
-        return new Promise<void>((resolve) => {
-            let start = ILaya.Browser.now();
-            function timer() {
-                if (predicate() || timeoutInMs != null && ILaya.Browser.now() - start > timeoutInMs)
-                    resolve();
-                else
-                    ILaya.systemTimer.frameOnce(1, null, timer);
-            }
-            ILaya.systemTimer.frameOnce(1, null, timer);
-        });
     }
 }
 
