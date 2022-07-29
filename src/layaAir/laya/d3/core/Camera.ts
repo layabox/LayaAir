@@ -32,6 +32,7 @@ import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { RenderBoundingFrustum } from "../../RenderEngine/RenderObj/RenderBoundingFrustum";
 
 /**
  * 相机清除标记。
@@ -153,7 +154,7 @@ export class Camera extends BaseCamera {
 	/** @internal */
 	protected _projectionViewMatrix: Matrix4x4;
 	/** @internal */
-	protected _boundFrustum: BoundFrustum;
+	protected _boundFrustum: RenderBoundingFrustum;
 	/** @internal */
 	private _updateViewMatrix: boolean = true;
 	/** @internal */
@@ -550,7 +551,7 @@ export class Camera extends BaseCamera {
 		camera.fieldOfView = this.fieldOfView;
 		camera.orthographic = this.orthographic;
 		camera._cameraEventCommandBuffer = this._cameraEventCommandBuffer
-		Object.assign(camera._cameraEventCommandBuffer,this._cameraEventCommandBuffer);
+		Object.assign(camera._cameraEventCommandBuffer, this._cameraEventCommandBuffer);
 		return camera;
 	}
 
@@ -586,7 +587,7 @@ export class Camera extends BaseCamera {
 	 * @param rt 
 	 */
 	_needRenderGamma(rt: RenderTargetFormat) {
-		switch(rt) {
+		switch (rt) {
 			case RenderTargetFormat.R8G8B8:
 			case RenderTargetFormat.R8G8B8A8:
 				return true;
@@ -975,10 +976,10 @@ export class Camera extends BaseCamera {
 		let texFormat = this._getRenderTextureFormat();
 		if (needInternalRT) {
 			if (this._msaa) {
-				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 4,false,this._needRenderGamma(texFormat));
+				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 4, false, this._needRenderGamma(texFormat));
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			} else {
-				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 1,false,this._needRenderGamma(texFormat));
+				this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 1, false, this._needRenderGamma(texFormat));
 				this._internalRenderTexture.filterMode = FilterMode.Bilinear;
 			}
 

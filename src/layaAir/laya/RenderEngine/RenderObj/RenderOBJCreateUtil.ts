@@ -37,6 +37,7 @@ import { CameraCullInfo } from "./CameraCullInfo";
 import { CullPassBase } from "./CullPass";
 import { InstanceRenderElementOBJ } from "./InstanceRenderElementOBJ";
 import { QuickSort } from "./QuickSort";
+import { RenderBoundingFrustum } from "./RenderBoundingFrustum";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
@@ -62,8 +63,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new RenderPlane(normal, d);
     }
 
-    createBoundFrustum(matrix: Matrix4x4): BoundFrustum {
-        return new BoundFrustum(matrix);
+    createBoundFrustum(matrix: Matrix4x4): RenderBoundingFrustum {
+        return new RenderBoundingFrustum(matrix);
     }
 
     createShaderData(): ShaderData {

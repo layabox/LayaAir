@@ -6,6 +6,7 @@ import { ContainmentType } from "./ContainmentType";
 import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
 import { LayaGL } from "../../layagl/LayaGL";
+import { IClone } from "../core/IClone";
 
 /**
  * @internal
@@ -27,7 +28,7 @@ export enum FrustumCorner {
 /**
  * <code>BoundFrustum</code> 类用于创建锥截体。
  */
-export class BoundFrustum {
+export class BoundFrustum implements IClone {
 	/** @internal */
 	private static _tempV30: Vector3 = new Vector3();
 	/** @internal */
@@ -130,17 +131,17 @@ export class BoundFrustum {
 	/** @internal */
 	protected _matrix: Matrix4x4;
 	/** @internal */
-	_near: Plane;
+	protected _near: Plane;
 	/** @internal */
-	_far: Plane;
+	protected _far: Plane;
 	/** @internal */
-	_left: Plane;
+	protected _left: Plane;
 	/** @internal */
-	_right: Plane;
+	protected _right: Plane;
 	/** @internal */
-	_top: Plane;
+	protected _top: Plane;
 	/** @internal */
-	_bottom: Plane;
+	protected _bottom: Plane;
 
 	/**
 	 * 创建一个 <code>BoundFrustum</code> 实例。
@@ -148,13 +149,16 @@ export class BoundFrustum {
 	 */
 	constructor(matrix: Matrix4x4) {
 		this._matrix = matrix;
-		// todo 改render
-		this._near = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
-		this._far = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
-		this._left = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
-		this._right = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
-		this._top = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
-		this._bottom = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
+		this.initBoundingPlane();
+	}
+
+	protected initBoundingPlane() {
+		this._near = new Plane();
+		this._far = new Plane();
+		this._left = new Plane();
+		this._right = new Plane();
+		this._top = new Plane();
+		this._bottom = new Plane();
 		BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
 	}
 
@@ -487,6 +491,16 @@ export class BoundFrustum {
 			default:
 				return ContainmentType.Contains;
 		}
+	}
+
+	cloneTo(dest: BoundFrustum) {
+		dest.matrix = this.matrix;
+	}
+
+	clone(): BoundFrustum {
+		let dest = new BoundFrustum(new Matrix4x4);
+		this.cloneTo(dest);
+		return dest;
 	}
 }
 
