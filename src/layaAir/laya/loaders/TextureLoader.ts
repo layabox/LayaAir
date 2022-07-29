@@ -1,4 +1,4 @@
-import { Texture2D, TexturePropertyParams } from "../resource/Texture2D";
+import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
 import { Utils } from "../utils/Utils";
 import { Texture } from "../resource/Texture";
 import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
@@ -7,8 +7,10 @@ import { KTXTextureInfo } from "../RenderEngine/KTXTextureInfo";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { ClassUtils } from "../utils/ClassUtils";
 import { BaseTexture } from "../resource/BaseTexture";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 
-const default2DOptions: TexturePropertyParams = { premultiplyAlpha: true };
+const propertyParams2d: TexturePropertyParams = { premultiplyAlpha: true };
+const constructParams2d: TextureConstructParams = [null, null, TextureFormat.R8G8B8A8, false, false, true];
 
 class TextureLoader implements IResourceLoader {
     load(task: ILoadTask) {
@@ -16,11 +18,17 @@ class TextureLoader implements IResourceLoader {
         let promise: Promise<BaseTexture>;
         let compress = compressedFormats.indexOf(ext) != -1 ? ext : (compressedFormats.indexOf(task.type) != -1 ? task.type : null);
         let propertyParams: TexturePropertyParams;
+        let constructParams: TextureConstructParams;
         if (task.type != Loader.TEXTURE2D) {
             if (!task.options.propertyParams)
-                propertyParams = default2DOptions;
+                propertyParams = propertyParams2d;
             else if (task.options.propertyParams.premultiplyAlpha == null)
-                propertyParams = Object.assign({ premultiplyAlpha: true }, task.options.propertyParams);
+                propertyParams = Object.assign({}, propertyParams2d, task.options.propertyParams);
+
+            if (!task.options.constructParams)
+                constructParams = constructParams2d;
+            else if (task.options.constructParams[5] == null)
+                constructParams = Object.assign([], constructParams2d, task.options.constructParams);
         }
         if (compress != null) {
             promise = task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
@@ -30,7 +38,7 @@ class TextureLoader implements IResourceLoader {
                 let tex: BaseTexture;
                 switch (compress) {
                     case "dds":
-                        tex = Texture2D._parseDDS(data, propertyParams, task.options.constructParams);
+                        tex = Texture2D._parseDDS(data, propertyParams, constructParams);
                         break;
 
                     case "ktx":
@@ -47,17 +55,17 @@ class TextureLoader implements IResourceLoader {
                                 return null;
                         }
                         else if (ktxInfo.dimension = TextureDimension.Tex2D) {
-                            tex = Texture2D._parseKTX(data, propertyParams, task.options.constructParams);
+                            tex = Texture2D._parseKTX(data, propertyParams, constructParams);
                         }
-                        tex = Texture2D._parseKTX(data, propertyParams, task.options.constructParams);
+                        tex = Texture2D._parseKTX(data, propertyParams, constructParams);
                         break;
 
                     case "pvr":
-                        tex = Texture2D._parsePVR(data, propertyParams, task.options.constructParams);
+                        tex = Texture2D._parsePVR(data, propertyParams, constructParams);
                         break;
 
                     case "hdr":
-                        tex = HDRTextureInfo._parseHDRTexture(data, propertyParams, task.options.constructParams);
+                        tex = HDRTextureInfo._parseHDRTexture(data, propertyParams, constructParams);
                         break;
                 }
                 return tex;
@@ -68,7 +76,7 @@ class TextureLoader implements IResourceLoader {
                 if (!img)
                     return null;
 
-                let tex2D = Texture2D._parseImage(img, propertyParams, task.options.constructParams);
+                let tex2D = Texture2D._parseImage(img, propertyParams, constructParams);
                 return tex2D;
             });
         }
