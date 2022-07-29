@@ -14,26 +14,26 @@ export class BoundSphere implements IClone {
 	/**包围球的半径。*/
 	_radius: number;
 	set center(value: Vector3) {
-        value.cloneTo(this._center);
-    }
+		value.cloneTo(this._center);
+	}
 
-    get center() {
-        return this._center;
-    }
+	get center() {
+		return this._center;
+	}
 
-    set radius(value: number) {
-        this._radius = value;
-    }
+	set radius(value: number) {
+		this._radius = value;
+	}
 
-    get radius(): number {
-        return this._radius 
-    }
+	get radius(): number {
+		return this._radius
+	}
 	/**
 	 * 创建一个 <code>BoundSphere</code> 实例。
 	 * @param	center 包围球的中心。
 	 * @param	radius 包围球的半径。
 	 */
-	constructor(center: Vector3, radius: number) {
+	constructor(center: Vector3 = new Vector3, radius: number = 0) {
 		this._center = center;
 		this._radius = radius;
 	}

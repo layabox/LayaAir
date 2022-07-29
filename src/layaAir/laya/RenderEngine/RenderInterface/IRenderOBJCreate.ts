@@ -1,5 +1,6 @@
 import { Bounds } from "../../d3/core/Bounds";
 import { RenderState } from "../../d3/core/material/RenderState";
+import { RenderBoundingSphere } from "../../d3/core/RenderBoundingSphere";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
@@ -38,7 +39,7 @@ export interface IRenderOBJCreate {
 
     createBounds(min: Vector3, max: Vector3): Bounds;
 
-    createBoundsSphere(center: Vector3, radius: number): BoundSphere;
+    createBoundsSphere(center: Vector3, radius: number): RenderBoundingSphere;
 
     createPlane(normal: Vector3, d: number): Plane;
 
@@ -78,5 +79,5 @@ export interface IRenderOBJCreate {
 
     createRenderState(): RenderState;
 
-    createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean):UniformBufferObject;
+    createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject;
 }
