@@ -271,12 +271,12 @@ export class ComboBox extends UIComponent {
      * 下拉列表的鼠标事件响应函数。
      */
     protected onlistItemMouse(e: Event, index: number): void {
-        var type: string = e.type;
+        let type: string = e.type;
         if (type === Event.MOUSE_OVER || type === Event.MOUSE_OUT) {
             if (this._isCustomList) return;
-            var box: Box = this._list.getCell(index);
+            let box = this._list.getCell(index);
             if (!box) return;
-            var label: Label = (<Label>box.getChildByName("label"));
+            let label: Label = (<Label>box.getChildByName("label"));
             if (label) {
                 if (type === Event.ROLL_OVER) {
                     label.bgColor = this._itemColors[0];

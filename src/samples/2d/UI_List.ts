@@ -67,7 +67,7 @@ export class UI_List {
 		var curX: number, curY: number;
 		if (type.type == "mousedown") {
 			this._oldY = Laya.stage.mouseY;
-			var itemBox: Box = this._list.getCell(index);
+			let itemBox = this._list.getCell(index);
 			this._itemHeight = itemBox.height;
 		} else if (type.type == "mouseout") {
 			curY = Laya.stage.mouseY;
