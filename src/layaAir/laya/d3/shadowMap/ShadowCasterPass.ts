@@ -29,6 +29,7 @@ import { Viewport } from "../math/Viewport";
 import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { RenderPlane } from "../core/RenderPlane";
 
 /**
  * Shadow Light enum
@@ -78,7 +79,7 @@ export class ShadowCasterPass {
 	/**@internal */
 	private static _cascadesSplitDistance: number[] = new Array(ShadowCasterPass._maxCascades + 1);
 	/** @internal */
-	private static _frustumPlanes: Plane[] = new Array();
+	private static _frustumPlanes: RenderPlane[] = new Array();
 
 	/**
 	 * @internal
@@ -111,21 +112,21 @@ export class ShadowCasterPass {
 		sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), UniformBufferObject.UBONAME_SHADOW);
 	}
 
-	static DepthCasterUBOData:UnifromBufferData;
+	static DepthCasterUBOData: UnifromBufferData;
 	/**
 	 * create DepthCaster UniformBuffer
 	 * @internal
 	 * @returns 
 	 */
 	static createDepthCasterUniformBlock(): UnifromBufferData {
-		if(!ShadowCasterPass.DepthCasterUBOData){
+		if (!ShadowCasterPass.DepthCasterUBOData) {
 			let uniformpara = new Map<number, UniformBufferParamsType>();
 			uniformpara.set(Shader3D.propertyNameToID("u_ShadowBias"), UniformBufferParamsType.Vector4);
 			uniformpara.set(Shader3D.propertyNameToID("u_ViewProjection"), UniformBufferParamsType.Matrix4x4);
 			uniformpara.set(Shader3D.propertyNameToID("u_ShadowLightDirection"), UniformBufferParamsType.Vector3);
-			ShadowCasterPass.DepthCasterUBOData =new UnifromBufferData(uniformpara);
+			ShadowCasterPass.DepthCasterUBOData = new UnifromBufferData(uniformpara);
 		}
-		
+
 		return ShadowCasterPass.DepthCasterUBOData;
 	}
 

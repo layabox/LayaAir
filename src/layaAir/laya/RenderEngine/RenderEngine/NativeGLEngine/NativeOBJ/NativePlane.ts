@@ -1,8 +1,9 @@
+import { RenderPlane } from "../../../../d3/core/RenderPlane";
 import { Plane } from "../../../../d3/math/Plane";
 import { Vector3 } from "../../../../d3/math/Vector3";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
 
-export class NativePlane extends Plane{
+export class NativePlane extends RenderPlane {
     private static MemoryBlock_size = 5;
     private static Stride_Normal = 0;
     private static Stride_Distance = 3;
@@ -20,7 +21,7 @@ export class NativePlane extends Plane{
      * @param	d  平面到原点的距离
      */
     constructor(normal: Vector3, d: number = 0) {
-        super(normal,d);
+        super(normal, d);
         this.nativeMemory = new NativeMemory(NativePlane.MemoryBlock_size * 4);
         this.float32Array = this.nativeMemory.float32Array;
         this.int32Array = this.nativeMemory.int32Array;

@@ -49,9 +49,10 @@ import { NativeBounds } from "./NativeBounds";
 import { NativeInstanceRenderElementOBJ } from "./NativeInstanceRenderElementOBJ";
 import { UniformBufferObject } from "../../../UniformBufferObject";
 import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
+import { RenderPlane } from "../../../../d3/core/RenderPlane";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
-  
+
     createTransform(owner: Sprite3D): Transform3D {
         return new NativeTransform3D(owner);
     }
@@ -64,7 +65,7 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeBoundSphere(center, radius);
     }
 
-    createPlane(normal: Vector3, d: number = 0): Plane {
+    createPlane(normal: Vector3, d: number = 0): RenderPlane {
         return new NativePlane(normal, d);
     }
 
@@ -143,6 +144,6 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
-        return new NativeUniformBufferObject(glPointer,name,bufferUsage,byteLength,isSingle);
+        return new NativeUniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
     }
 }

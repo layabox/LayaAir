@@ -6,7 +6,7 @@ import { Vector3 } from "./Vector3";
  */
 export class Plane {
 	/**平面的向量*/
-	_normal: Vector3 = new Vector3();
+	_normal: Vector3;
 	/**平面到坐标系原点的距离*/
 	_distance: number;
 	/**平面与其他几何体相交类型*/
@@ -19,27 +19,27 @@ export class Plane {
 	 * @param	normal 平面的向量
 	 * @param	d  平面到原点的距离
 	 */
-	constructor(normal: Vector3, d: number = 0) {
-		normal.cloneTo(this._normal);//this.normal = normal;
+	constructor(normal: Vector3 = new Vector3, d: number = 0) {
+		this._normal = normal;
 		this._distance = d;//this.distance = d;
 	}
 
 
-	set normal(value:Vector3){
-        value.cloneTo(this._normal);
-    }
+	set normal(value: Vector3) {
+		value.cloneTo(this._normal);
+	}
 
-    get normal(){
-        return this._normal;
-    }
+	get normal() {
+		return this._normal;
+	}
 
-    set distance(value:number){
-        this._distance = value;
-    }
+	set distance(value: number) {
+		this._distance = value;
+	}
 
-    get distance():number{
-        return this._distance;
-    }
+	get distance(): number {
+		return this._distance;
+	}
 
 	/**
 	 * 通过三个点创建一个平面。
@@ -101,8 +101,7 @@ export class Plane {
 	 * @return	 克隆副本。
 	 */
 	clone(): Plane {
-		var dest = LayaGL.renderOBJCreate.createPlane(new Vector3,0);
-
+		var dest = new Plane();
 		this.cloneTo(dest);
 		return dest;
 	}

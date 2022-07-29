@@ -148,12 +148,13 @@ export class BoundFrustum {
 	 */
 	constructor(matrix: Matrix4x4) {
 		this._matrix = matrix;
-		this._near = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
-		this._far = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
-		this._left = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
-		this._right = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
-		this._top = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
-		this._bottom = LayaGL.renderOBJCreate.createPlane(new Vector3(),0);
+		// todo 改render
+		this._near = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
+		this._far = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
+		this._left = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
+		this._right = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
+		this._top = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
+		this._bottom = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
 		BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
 	}
 

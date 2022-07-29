@@ -1,6 +1,7 @@
 import { Bounds } from "../../d3/core/Bounds";
 import { RenderState } from "../../d3/core/material/RenderState";
 import { RenderBoundingSphere } from "../../d3/core/RenderBoundingSphere";
+import { RenderPlane } from "../../d3/core/RenderPlane";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
@@ -57,8 +58,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new RenderBoundingSphere(center, radius);
     }
 
-    createPlane(normal: Vector3, d: number = 0): Plane {
-        return new Plane(normal, d);
+    createPlane(normal: Vector3, d: number = 0): RenderPlane {
+        return new RenderPlane(normal, d);
     }
 
     createBoundFrustum(matrix: Matrix4x4): BoundFrustum {
