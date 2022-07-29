@@ -14,6 +14,7 @@ import { Tween } from "../utils/Tween"
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { HideFlags } from "../Const";
 import { HierarchyParser } from "../loaders/HierarchyParser";
+import { UIComponent } from "./UIComponent";
 
 /**
  * 当对象的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -170,7 +171,7 @@ export class List extends Box implements IRender, IItem {
 
     /**改变 <code>List</code> 的选择项时执行的处理器，(默认返回参数： 项索引（index:int）)。*/
     selectHandler: Handler | null;
-    /**单元格渲染处理器(默认返回参数cell:Box,index:int)。*/
+    /**单元格渲染处理器(默认返回参数cell:UIComponent,index:int)。*/
     renderHandler: Handler | null;
     /**单元格鼠标事件处理器(默认返回参数e:Event,index:int)。*/
     mouseHandler: Handler | null;
@@ -200,7 +201,7 @@ export class List extends Box implements IRender, IItem {
     /**@private */
     protected _spaceY: number = 0;
     /**@private */
-    protected _cells: Box[] = [];
+    protected _cells: UIComponent[] = [];
     /**@private */
     protected _array: any[] | null;
     /**@private */
@@ -316,7 +317,7 @@ export class List extends Box implements IRender, IItem {
     }
 
     private _removePreScrollBar(): void {
-        var preNode = this.removeChildByName("scrollBar");
+        let preNode = this.removeChildByName("scrollBar");
         if (preNode) preNode.destroy(true);
     }
 
@@ -329,7 +330,7 @@ export class List extends Box implements IRender, IItem {
 
     set hScrollBarSkin(value: string) {
         this._removePreScrollBar();
-        var scrollBar = new HScrollBar();
+        let scrollBar = new HScrollBar();
         scrollBar.name = "scrollBar";
         scrollBar.bottom = 0;
         scrollBar.skin = value;
@@ -375,7 +376,7 @@ export class List extends Box implements IRender, IItem {
         if (this._itemRender != value) {
             this._itemRender = value;
             //销毁老单元格
-            for (var i = this._cells!.length - 1; i > -1; i--) {
+            for (let i = this._cells!.length - 1; i > -1; i--) {
                 this._cells![i].destroy();
             }
             this._cells!.length = 0;
@@ -478,16 +479,16 @@ export class List extends Box implements IRender, IItem {
             //获取滚动条
             this.scrollBar = (<ScrollBar>this.getChildByName("scrollBar"));
 
-            //自适应宽高				
-            var cell = this._getOneCell();
+            //自适应宽高
+            let cell = this._getOneCell();
 
-            var cellWidth = (cell.width + this._spaceX) || 1;
-            var cellHeight = (cell.height + this._spaceY) || 1;
+            let cellWidth = (cell.width + this._spaceX) || 1;
+            let cellHeight = (cell.height + this._spaceY) || 1;
             if (this._width > 0) this._repeatX2 = this._isVertical ? Math.round(this._width / cellWidth) : Math.ceil(this._width / cellWidth);
             if (this._height > 0) this._repeatY2 = this._isVertical ? Math.ceil(this._height / cellHeight) : Math.round(this._height / cellHeight);
 
-            var listWidth = this._width ? this._width : (cellWidth * this.repeatX - this._spaceX);
-            var listHeight = this._height ? this._height : (cellHeight * this.repeatY - this._spaceY);
+            let listWidth = this._width ? this._width : (cellWidth * this.repeatX - this._spaceX);
+            let listHeight = this._height ? this._height : (cellHeight * this.repeatY - this._spaceY);
             this._cellSize = this._isVertical ? cellHeight : cellWidth;
             this._cellOffset = this._isVertical ? (cellHeight * Math.max(this._repeatY2, this._repeatY) - listHeight - this._spaceY) : (cellWidth * Math.max(this._repeatX2, this._repeatX) - listWidth - this._spaceX);
 
@@ -496,8 +497,8 @@ export class List extends Box implements IRender, IItem {
             this.setContentSize(listWidth, listHeight);
 
             //创建新单元格
-            var numX = this._isVertical ? this.repeatX : this.repeatY;
-            var numY = (this._isVertical ? this.repeatY : this.repeatX) + (this._scrollBar ? 1 : 0);
+            let numX = this._isVertical ? this.repeatX : this.repeatY;
+            let numY = (this._isVertical ? this.repeatY : this.repeatX) + (this._scrollBar ? 1 : 0);
             this._createItems(0, numX, numY);
             this._createdLine = numY;
 
@@ -508,9 +509,9 @@ export class List extends Box implements IRender, IItem {
         }
     }
 
-    private _getOneCell(): Box {
+    private _getOneCell(): UIComponent {
         if (this._cells.length === 0) {
-            var item = this.createItem();
+            let item = this.createItem();
             this._offset.setTo(item._x, item._y);
             if (this.cacheContent) return item;
             this._cells.push(item);
@@ -519,32 +520,33 @@ export class List extends Box implements IRender, IItem {
     }
 
     private _createItems(startY: number, numX: number, numY: number): void {
-        var box = this._content;
-        var cell = this._getOneCell();
-        var cellWidth = cell.width + this._spaceX;
-        var cellHeight = cell.height + this._spaceY;
+        let box = this._content;
+        let cell = this._getOneCell();
+        let cellWidth = cell.width + this._spaceX;
+        let cellHeight = cell.height + this._spaceY;
+        let arr: Array<UIComponent>;
 
         if (this.cacheContent) {
-            var cacheBox = new Box();
+            let cacheBox = new Box();
             cacheBox.hideFlags = HideFlags.HideAndDontSave;
             cacheBox.cacheAs = "normal";
             cacheBox.pos((this._isVertical ? 0 : startY) * cellWidth, (this._isVertical ? startY : 0) * cellHeight);
             this._content.addChild(cacheBox);
             box = cacheBox;
         } else {
-            var arr = [];
-            for (var i = this._cells.length - 1; i > -1; i--) {
-                var item = this._cells[i];
+            arr = [];
+            for (let i = this._cells.length - 1; i > -1; i--) {
+                let item = this._cells[i];
                 item.removeSelf();
                 arr.push(item);
             }
             this._cells.length = 0;
         }
 
-        for (var k = startY; k < numY; k++) {
-            for (var l = 0; l < numX; l++) {
+        for (let k = startY; k < numY; k++) {
+            for (let l = 0; l < numX; l++) {
                 if (arr && arr.length) {
-                    cell = arr.pop() as Box;
+                    cell = arr.pop();
                 } else {
                     cell = this.createItem();
                     cell.hideFlags = HideFlags.HideAndDontSave;
@@ -558,23 +560,23 @@ export class List extends Box implements IRender, IItem {
         }
     }
 
-    protected createItem(): Box {
+    protected createItem(): UIComponent {
         let arr: any[] = [];
-        let box: Box;
+        let box: UIComponent;
         if (typeof (this._itemRender) == "function") {//TODO:
             box = new this._itemRender();
         } else {
             if (this._itemRender._$type)
-                box = <Box>HierarchyParser.parse(this._itemRender)[0];
+                box = <UIComponent>HierarchyParser.parse(this._itemRender)[0];
             else
                 box = LegacyUIParser.createComp(this._itemRender, null, null, arr);
         }
-        if (!(box instanceof Box))
+        if (!(box instanceof UIComponent))
             box = new Box();
         box.hideFlags = HideFlags.HideAndDontSave;
 
-        if (arr.length == 0 && (box as any)["_watchMap"]) {
-            let watchMap = (box as any)["_watchMap"];
+        if (arr.length == 0 && (<any>box)["_watchMap"]) {
+            let watchMap = (<any>box)["_watchMap"];
             for (let name in watchMap) {
                 let a: any[] = watchMap[name];
                 for (let i = 0; i < a.length; i++) {
@@ -583,7 +585,7 @@ export class List extends Box implements IRender, IItem {
                 }
             }
         }
-        if (arr.length) (box as any)["_$bindData"] = arr;
+        if (arr.length) (<any>box)["_$bindData"] = arr;
 
         return box;
     }
@@ -593,7 +595,7 @@ export class List extends Box implements IRender, IItem {
      * 添加单元格。
      * @param cell 需要添加的单元格对象。
      */
-    protected addCell(cell: Box): void {
+    protected addCell(cell: UIComponent): void {
         cell.on(Event.CLICK, this, this.onCellMouse);
         cell.on(Event.RIGHT_CLICK, this, this.onCellMouse);
         cell.on(Event.MOUSE_OVER, this, this.onCellMouse);
@@ -602,6 +604,7 @@ export class List extends Box implements IRender, IItem {
         cell.on(Event.MOUSE_UP, this, this.onCellMouse);
         this._cells.push(cell);
     }
+
     /**@internal */
     _afterInited(): void {
         this.initItems();
@@ -613,10 +616,10 @@ export class List extends Box implements IRender, IItem {
     initItems(): void {
         if (!this._itemRender && this.getChildByName("item0") != null) {
             this.repeatX = 1;
-            var count: number;
+            let count: number;
             count = 0;
-            for (var i = 0; i < 10000; i++) {
-                var cell = (<Box>this.getChildByName("item" + i));
+            for (let i = 0; i < 10000; i++) {
+                let cell = <UIComponent>this.getChildByName("item" + i);
                 if (cell) {
                     this.addCell(cell);
                     count++;
@@ -651,8 +654,8 @@ export class List extends Box implements IRender, IItem {
      */
     protected onCellMouse(e: Event): void {
         if (e.type === Event.MOUSE_DOWN) this._isMoved = false;
-        var cell = (<Box>e.currentTarget);
-        var index = this._startIndex + this._cells.indexOf(cell);
+        let cell = (<UIComponent>e.currentTarget);
+        let index = this._startIndex + this._cells.indexOf(cell);
         if (index < 0) return;
         if (e.type === Event.CLICK || e.type === Event.RIGHT_CLICK) {
             if (this.selectEnable && !this._isMoved) this.selectedIndex = index;
@@ -670,8 +673,8 @@ export class List extends Box implements IRender, IItem {
      * @param visable 是否显示。
      * @param index 单元格的属性 <code>index</code> 值。
      */
-    protected changeCellState(cell: Box, visible: boolean, index: number): void {
-        var selectBox = (<Clip>cell.getChildByName("selectBox"));
+    protected changeCellState(cell: UIComponent, visible: boolean, index: number): void {
+        let selectBox = (<Clip>cell.getChildByName("selectBox"));
         if (selectBox) {
             this.selectEnable = true;
             selectBox.visible = visible;
@@ -698,19 +701,19 @@ export class List extends Box implements IRender, IItem {
             return;
 
         this.runCallLater(this.changeCells);
-        var scrollValue = this._scrollBar!.value;
-        var lineX = (this._isVertical ? this.repeatX : this.repeatY);
-        var lineY = (this._isVertical ? this.repeatY : this.repeatX);
-        var scrollLine = Math.floor(scrollValue / this._cellSize);
+        let scrollValue = this._scrollBar!.value;
+        let lineX = (this._isVertical ? this.repeatX : this.repeatY);
+        let lineY = (this._isVertical ? this.repeatY : this.repeatX);
+        let scrollLine = Math.floor(scrollValue / this._cellSize);
 
         if (!this.cacheContent) {
-            var index = scrollLine * lineX;
-            var num = 0;
+            let index = scrollLine * lineX;
+            let num = 0;
             let down = true;
-            var toIndex = 0;
+            let toIndex = 0;
             if (index > this._startIndex) {
                 num = index - this._startIndex;
-                //var down = true;
+                //let down = true;
                 toIndex = this._startIndex + lineX * (lineY + 1);
                 this._isMoved = true;
             } else if (index < this._startIndex) {
@@ -720,24 +723,26 @@ export class List extends Box implements IRender, IItem {
                 this._isMoved = true;
             }
 
-            for (var i = 0; i < num; i++) {
+            let cell: UIComponent;
+            let cellIndex: number;
+            for (let i = 0; i < num; i++) {
                 if (down) {
-                    var cell = this._cells.shift() as Box;
+                    cell = this._cells.shift();
                     this._cells[this._cells.length] = cell;
-                    var cellIndex = toIndex + i;
+                    cellIndex = toIndex + i;
                 } else {
-                    cell = this._cells.pop() as Box;
+                    cell = this._cells.pop();
                     this._cells.unshift(cell);
                     cellIndex = toIndex - i;
                 }
-                var pos = Math.floor(cellIndex / lineX) * this._cellSize;
+                let pos = Math.floor(cellIndex / lineX) * this._cellSize;
                 this._isVertical ? cell.y = pos : cell.x = pos;
                 this.renderItem(cell, cellIndex);
             }
             this._startIndex = index;
             this.changeSelectStatus();
         } else {
-            num = (lineY + 1);
+            let num = (lineY + 1);
             if (this._createdLine - scrollLine < num) {
                 this._createItems(this._createdLine, lineX, this._createdLine + num);
                 this.renderItems(this._createdLine * lineX, 0);
@@ -745,7 +750,7 @@ export class List extends Box implements IRender, IItem {
             }
         }
 
-        var r = this._content._style.scrollRect;
+        let r = this._content._style.scrollRect;
         if (this._isVertical) {
             r.y = scrollValue - this._offset.y;
             r.x = -this._offset.x;
@@ -756,11 +761,11 @@ export class List extends Box implements IRender, IItem {
         this._content.scrollRect = r;
     }
 
-    private posCell(cell: Box, cellIndex: number): void {
+    private posCell(cell: UIComponent, cellIndex: number): void {
         if (!this._scrollBar) return;
-        var lineX = (this._isVertical ? this.repeatX : this.repeatY);
-        //var lineY = (this._isVertical ? this.repeatY : this.repeatX);
-        var pos = Math.floor(cellIndex / lineX) * this._cellSize;
+        let lineX = (this._isVertical ? this.repeatX : this.repeatY);
+        //let lineY = (this._isVertical ? this.repeatY : this.repeatX);
+        let pos = Math.floor(cellIndex / lineX) * this._cellSize;
         this._isVertical ? cell._y = pos : cell.x = pos;
     }
 
@@ -787,7 +792,7 @@ export class List extends Box implements IRender, IItem {
      * 改变单元格的选择状态。
      */
     protected changeSelectStatus(): void {
-        for (var i: number = 0, n: number = this._cells.length; i < n; i++) {
+        for (let i: number = 0, n: number = this._cells.length; i < n; i++) {
             this.changeCellState(this._cells[i], this._selectedIndex === this._startIndex + i, 1);
         }
     }
@@ -807,11 +812,11 @@ export class List extends Box implements IRender, IItem {
     /**
      * 获取或设置当前选择的单元格对象。
      */
-    get selection(): Box {
-        return this.getCell(this._selectedIndex) as Box;
+    get selection(): UIComponent {
+        return this.getCell(this._selectedIndex);
     }
 
-    set selection(value: Box) {
+    set selection(value: UIComponent) {
         this.selectedIndex = this._startIndex + this._cells.indexOf(value);
     }
 
@@ -832,7 +837,7 @@ export class List extends Box implements IRender, IItem {
      * 渲染单元格列表。
      */
     protected renderItems(from: number = 0, to: number = 0): void {
-        for (var i = from, n = to || this._cells.length; i < n; i++) {
+        for (let i = from, n = to || this._cells.length; i < n; i++) {
             this.renderItem(this._cells[i], this._startIndex + i);
         }
         this.changeSelectStatus();
@@ -843,7 +848,7 @@ export class List extends Box implements IRender, IItem {
      * @param cell 需要渲染的单元格对象。
      * @param index 单元格索引。
      */
-    protected renderItem(cell: Box, index: number): void {
+    protected renderItem(cell: UIComponent, index: number): void {
         if (this._array && index >= 0 && index < this._array.length) {
             cell.visible = true;
 
@@ -865,12 +870,12 @@ export class List extends Box implements IRender, IItem {
     }
 
     private _bindData(cell: any, data: any): void {
-        var arr: any[] = cell._$bindData;
-        for (var i = 0, n = arr.length; i < n; i++) {
-            var ele: any = arr[i++];
-            var prop: string = arr[i++];
-            var value: string = arr[i];
-            var fun = UIUtils.getBindFun(value);
+        let arr: any[] = cell._$bindData;
+        for (let i = 0, n = arr.length; i < n; i++) {
+            let ele: any = arr[i++];
+            let prop: string = arr[i++];
+            let value: string = arr[i];
+            let fun = UIUtils.getBindFun(value);
             ele[prop] = fun.call(this, data);
         }
     }
@@ -888,7 +893,7 @@ export class List extends Box implements IRender, IItem {
         this.runCallLater(this.changeCells);
         this._array = value || [];
         this._preLen = this._array.length;
-        var length = this._array.length;
+        let length = this._array.length;
         this.totalPage = Math.ceil(length / (this.repeatX * this.repeatY));
         //重设selectedIndex
         this._selectedIndex = this._selectedIndex < length ? this._selectedIndex : length - 1;
@@ -898,10 +903,10 @@ export class List extends Box implements IRender, IItem {
         if (this._scrollBar) {
             this._scrollBar.stopScroll();
             //自动隐藏滚动条
-            var numX = this._isVertical ? this.repeatX : this.repeatY;
-            var numY = this._isVertical ? this.repeatY : this.repeatX;
-            var lineCount = Math.ceil(length / numX);
-            var total = this._cellOffset > 0 ? this.totalPage + 1 : this.totalPage;
+            let numX = this._isVertical ? this.repeatX : this.repeatY;
+            let numY = this._isVertical ? this.repeatY : this.repeatX;
+            let lineCount = Math.ceil(length / numX);
+            let total = this._cellOffset > 0 ? this.totalPage + 1 : this.totalPage;
             if (total > 1 && lineCount >= numY) {
                 this._scrollBar.scrollSize = this._cellSize;
                 this._scrollBar.thumbPercent = numY / lineCount;
@@ -927,10 +932,10 @@ export class List extends Box implements IRender, IItem {
             this._preLen = this._array.length;
         }
         if (this._scrollBar) {
-            var length = array.length;
-            var numX = this._isVertical ? this.repeatX : this.repeatY;
-            var numY = this._isVertical ? this.repeatY : this.repeatX;
-            var lineCount = Math.ceil(length / numX);
+            let length = array.length;
+            let numX = this._isVertical ? this.repeatX : this.repeatY;
+            let numY = this._isVertical ? this.repeatY : this.repeatX;
+            let lineCount = Math.ceil(length / numX);
             if (lineCount >= numY) {
                 this._scrollBar.thumbPercent = numY / lineCount;
                 this._scrollBar.slider["_max"] = (lineCount - numY) * this._cellSize + this._cellOffset;
@@ -983,7 +988,7 @@ export class List extends Box implements IRender, IItem {
     /**
      * 单元格集合。
      */
-    get cells(): Box[] {
+    get cells(): UIComponent[] {
         this.runCallLater(this.changeCells);
         return this._cells;
     }
@@ -1084,7 +1089,7 @@ export class List extends Box implements IRender, IItem {
      * @param index 可视单元格索引。
      * @return 单元格对象。
      */
-    getCell(index: number): Box | null {
+    getCell(index: number): UIComponent | null {
         this.runCallLater(this.changeCells);
         if (index > -1 && this._cells) {
             return this._cells[(index - this._startIndex) % this._cells.length];
@@ -1098,7 +1103,7 @@ export class List extends Box implements IRender, IItem {
      */
     scrollTo(index: number): void {
         if (this._scrollBar) {
-            var numX = this._isVertical ? this.repeatX : this.repeatY;
+            let numX = this._isVertical ? this.repeatX : this.repeatY;
             this._scrollBar.value = Math.floor(index / numX) * this._cellSize;
         } else {
             this.startIndex = index;
@@ -1114,7 +1119,7 @@ export class List extends Box implements IRender, IItem {
     tweenTo(index: number, time: number = 200, complete: Handler | null = null): void {
         if (this._scrollBar) {
             this._scrollBar.stopScroll();
-            var numX = this._isVertical ? this.repeatX : this.repeatY;
+            let numX = this._isVertical ? this.repeatX : this.repeatY;
             Tween.to(this._scrollBar, { value: Math.floor(index / numX) * this._cellSize }, time, null, complete, 0, true);
         } else {
             this.startIndex = index;
