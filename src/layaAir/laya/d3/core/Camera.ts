@@ -117,7 +117,7 @@ export class Camera extends BaseCamera {
 		context.customShader = shader;
 
 		if (needInternalRT) {
-			camera._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, camera._getRenderTextureFormat(), camera.depthTextureFormat, false, 1);
+			camera._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, camera._getRenderTextureFormat(), camera.depthTextureFormat, false, camera.msaa ? 4 : 1, false, camera._needRenderGamma(camera._getRenderTextureFormat()));
 			camera._internalRenderTexture.filterMode = FilterMode.Bilinear;
 		}
 		else {

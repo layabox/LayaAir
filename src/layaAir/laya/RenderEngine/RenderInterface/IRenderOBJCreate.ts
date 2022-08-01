@@ -6,7 +6,6 @@ import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
-import { BoundFrustum } from "../../d3/math/BoundFrustum";
 import { Matrix4x4 } from "../../d3/math/Matrix4x4";
 import { Vector3 } from "../../d3/math/Vector3";
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
