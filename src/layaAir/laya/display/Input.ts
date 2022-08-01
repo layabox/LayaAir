@@ -109,6 +109,8 @@ export class Input extends Text {
     /**表示是否处于输入状态。*/
     static isInputting: boolean = false;
 
+    static isAppUseNewInput: boolean = false;
+
     /**创建一个新的 <code>Input</code> 类实例。*/
     constructor() {
         super();
@@ -178,7 +180,7 @@ export class Input extends Text {
         input.addEventListener('touchmove', Input._stopEvent);
 
         (input as any).setFontFace = function (fontFace: string): void { input.style.fontFamily = fontFace; };
-        if (!ILaya.Render.isConchApp) {
+        if (!(ILaya.Render.isConchApp && !Input.isAppUseNewInput)) {
             (input as any).setColor = function (color: string): void { input.style.color = color; };
             (input as any).setFontSize = function (fontSize: number): void { input.style.fontSize = fontSize + 'px'; };
         }
@@ -257,7 +259,7 @@ export class Input extends Text {
         var transform = Utils.getTransformRelativeToWindow(this, this.padding[3], this.padding[0]);
         var inputWid = this._width - this.padding[1] - this.padding[3];
         var inputHei = this._height - this.padding[0] - this.padding[2];
-        if (ILaya.Render.isConchApp) {
+        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) {
             (inputElement as any).setScale(transform.scaleX, transform.scaleY);
             (inputElement as any).setSize(inputWid, inputHei);
             (inputElement as any).setPos(transform.x, transform.y);
@@ -303,7 +305,7 @@ export class Input extends Text {
                 ILaya.Browser.document.body.scrollTop = 0;
                 input.blur();
 
-                if (ILaya.Render.isConchApp) (input as any).setPos(-10000, -10000);
+                if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) (input as any).setPos(-10000, -10000);
                 else if (Input.inputContainer.contains(input)) Input.inputContainer.removeChild(input);
             }
         }
@@ -341,7 +343,7 @@ export class Input extends Text {
         this._setPromptColor();
 
         input.readOnly = !this._editable;
-        if (ILaya.Render.isConchApp) {
+        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) {
             (input as any).setType(this._type);
             (input as any).setForbidEdit(!this._editable);
         }
@@ -362,7 +364,7 @@ export class Input extends Text {
         if (ILaya.Browser.onPC) input.focus();
 
         // PC浏览器隐藏文字
-        if (!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
+        if (!(ILaya.Render.isConchApp && Input.isAppUseNewInput) && !ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
             //var temp: string = this._text;
             this._text = null;
         }
@@ -372,7 +374,7 @@ export class Input extends Text {
         (input as any).setColor(this._originColor);
         (input as any).setFontSize(this.fontSize);
         (input as any).setFontFace(ILaya.Browser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
-        if (ILaya.Render.isConchApp) {
+        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) {
             (input as any).setMultiAble && (input as any).setMultiAble(this._multiline);
         }
         cssStyle.lineHeight = (this.leading + this.fontSize) + "px";
@@ -421,7 +423,7 @@ export class Input extends Text {
         ILaya.stage.focus = null;
         this.event(Event.BLUR);
         this.event(Event.CHANGE);
-        if (ILaya.Render.isConchApp) this.nativeInput.blur();
+        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) this.nativeInput.blur();
         // 只有PC会注册此事件。
         ILaya.Browser.onPC && ILaya.systemTimer.clear(this, this._syncInputTransform);
     }
@@ -526,7 +528,7 @@ export class Input extends Text {
     */
     set bgColor(value: string) {
         super.set_bgColor(value);
-        if (ILaya.Render.isConchApp)
+        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput)
             (this.nativeInput as any).setBgColor(value);
     }
 
@@ -561,7 +563,7 @@ export class Input extends Text {
      */
     set editable(value: boolean) {
         this._editable = value;
-        if (ILaya.Render.isConchApp) {
+        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) {
             (Input.input as any).setForbidEdit(!value);
         }
     }
