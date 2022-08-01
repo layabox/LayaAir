@@ -46,7 +46,7 @@ export class PickPixel {
 		Laya.stage.addChild(this._sp);
 		this._sp.zOrder = 10;
 		//预加载资源
-		Laya.loader.create(["res/threeDimen/scene/CourtyardScene/Courtyard.ls", "res/threeDimen/texture/earth.png"], Handler.create(this, this.onComplete));
+		Laya.loader.load(["res/threeDimen/scene/CourtyardScene/Courtyard.ls", "res/threeDimen/texture/earth.png"], Handler.create(this, this.onComplete));
 	}
 
 	private onMouseDown(): void {

@@ -39,7 +39,7 @@ export class RenderTargetCamera {
 		Stat.show();
 
 		//预加载资源
-		Laya.loader.create(["res/threeDimen/scene/LayaScene_city01/Conventional/city01.ls"], Handler.create(this, this.onComplete));
+		Laya.loader.load(["res/threeDimen/scene/LayaScene_city01/Conventional/city01.ls"], Handler.create(this, this.onComplete));
 	}
 
 	private onComplete(): void {

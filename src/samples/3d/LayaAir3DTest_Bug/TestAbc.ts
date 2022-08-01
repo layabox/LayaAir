@@ -30,7 +30,7 @@ import { Color } from "laya/d3/math/Color";
 			//预加载所有资源
 			var resource:any[] = ["res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
 			
-			Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
+			Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
 		}
 		
 		 onLoadFinish():void 

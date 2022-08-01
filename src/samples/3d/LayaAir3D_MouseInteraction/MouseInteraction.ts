@@ -67,7 +67,7 @@ export class MouseInteraction {
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//批量预加载资源
-		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
+		Laya.loader.load(["res/threeDimen/staticModel/grid/plane.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
 
 	}
 

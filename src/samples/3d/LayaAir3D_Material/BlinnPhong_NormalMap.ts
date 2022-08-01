@@ -40,7 +40,7 @@ export class BlinnPhong_NormalMap {
 		directionLight.transform.worldMatrix = mat;
 		directionLight.color.setValue(1, 1, 1, 1);
 
-		Laya.loader.create("res/threeDimen/staticModel/lizard/lizard.lh", Handler.create(this, this.onComplete), null, Loader.HIERARCHY);
+		Laya.loader.load("res/threeDimen/staticModel/lizard/lizard.lh", Handler.create(this, this.onComplete), null, Loader.HIERARCHY);
 	}
 
 	onComplete(s: any): void {

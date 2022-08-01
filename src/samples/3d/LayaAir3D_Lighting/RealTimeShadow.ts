@@ -57,7 +57,7 @@ export class RealTimeShadow {
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		//show stat.
 		Stat.show();
-		Laya.loader.create([
+		Laya.loader.load([
 			"res/threeDimen/staticModel/grid/plane.lh",
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"
 		], Handler.create(this, this.onComplete));

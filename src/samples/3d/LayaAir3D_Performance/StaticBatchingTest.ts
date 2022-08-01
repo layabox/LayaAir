@@ -22,7 +22,7 @@ export class StaticBatchingTest {
 		Stat.show();
 
 		//预加载资源,该资源在Unity中已勾选Static后导出
-		Laya.loader.create(["res/threeDimen/scene/LayaScene_city01/Conventional/city01.ls"], Handler.create(this, this.onComplete));
+		Laya.loader.load(["res/threeDimen/scene/LayaScene_city01/Conventional/city01.ls"], Handler.create(this, this.onComplete));
 	}
 
 	private onComplete(): void {

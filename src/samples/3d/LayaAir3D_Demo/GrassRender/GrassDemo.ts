@@ -75,7 +75,7 @@ export class GrassDemo{
 		//预加载所有资源
 		var resource: any[] = ["res/InstancedIndirectGrassVertexColor.jpg",
 								"res/LayaScene_GrassScene/Conventional/GrassScene.ls"];
-		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
+		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
 	}
 
 	onPreLoadFinish(){

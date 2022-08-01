@@ -35,7 +35,7 @@ export class StencilDemo {
 		Stat.show();
 		//预加载所有资源
 		var resource: any[] = ["res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls", "res/threeDimen/texture/earth.png"];
-		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
+		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
 
 	}
 

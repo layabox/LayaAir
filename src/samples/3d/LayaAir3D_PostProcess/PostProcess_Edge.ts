@@ -49,7 +49,7 @@ export class PostProcess_Edge {
             "res/threeDimen/skinModel/dude/dude.lh",
         ];
 
-        Laya.loader.create(res, Handler.create(this, this.onResComplate));
+        Laya.loader.load(res, Handler.create(this, this.onResComplate));
 
     }
 

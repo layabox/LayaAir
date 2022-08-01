@@ -65,7 +65,7 @@ export class CameraLayer {
 		directionLight.color.setValue(1, 1, 1, 1);
 		directionLight.transform.rotate(this._rotation2);
 
-		Laya.loader.create(["res/threeDimen/staticModel/grid/plane.lh",
+		Laya.loader.load(["res/threeDimen/staticModel/grid/plane.lh",
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
 	}
 	private onComplete(): void {

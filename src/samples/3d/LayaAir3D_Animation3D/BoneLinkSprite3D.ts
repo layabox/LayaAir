@@ -67,7 +67,7 @@ export class BoneLinkSprite3D {
 			"res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh",
 			"res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
-		Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
+		Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
 	}
 
 	private onLoadFinish(): void {

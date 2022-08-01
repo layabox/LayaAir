@@ -44,7 +44,7 @@ export class CameraDepthModeTextureDemo{
         "res/threeDimen/LayaScene_depthNormalScene/Conventional/Main Camera.lh",
         "res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls"
 		];
-		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
+		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
     }
     
     onPreLoadFinish(){

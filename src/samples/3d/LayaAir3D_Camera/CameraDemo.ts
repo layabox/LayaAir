@@ -51,7 +51,7 @@ export class CameraDemo {
 		Stat.show();
 		//预加载所有资源
 		var resource: any[] = ["res/threeDimen/texture/layabox.png", "res/threeDimen/skyBox/skyBox2/skyBox2.lmat"];
-		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
+		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
 	}
 
 	private onPreLoadFinish(): void {

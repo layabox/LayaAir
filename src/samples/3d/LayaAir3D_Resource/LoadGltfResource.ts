@@ -44,7 +44,7 @@ export class LoadGltfResource {
         directionLight.transform.worldMatrix = mat;
 
         // 配置环境反射贴图
-        Laya.loader.create("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls", Handler.create(this, function () {
+        Laya.loader.load("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls", Handler.create(this, function () {
             this.scene.ambientColor = new Vector3(0.858, 0.858, 0.858);
             this.scene.reflection = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
             this.scene.reflectionDecodingFormat = 1;
@@ -57,7 +57,7 @@ export class LoadGltfResource {
             "res/threeDimen/gltf/AnimatedCube/AnimatedCube.gltf"
         ];
 
-        Laya.loader.create(gltfResource, Handler.create(this, this.onGLTFComplate));
+        Laya.loader.load(gltfResource, Handler.create(this, this.onGLTFComplate));
     }
 
     onGLTFComplate(success: boolean): void {

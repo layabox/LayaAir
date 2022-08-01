@@ -40,7 +40,7 @@ export class BlinnPhong_SpecularMap {
 		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 		directionLight.color.setValue(1, 1, 1, 1);
 
-		Laya.loader.create("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, this.onComplete));
+		Laya.loader.load("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, this.onComplete));
 	}
 
 	onComplete(): void {
