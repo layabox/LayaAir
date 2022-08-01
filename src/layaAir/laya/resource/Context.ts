@@ -385,6 +385,7 @@ export class Context {
 			cmd.addCMD(RenderStateType.FrontFace,CullMode.Front);
 		}
 		Context.const2DRenderCMD.applyCMD();
+		RenderTexture2D.currentActive&&RenderTexture2D.currentActive.end();
 		// WebGLContext.setBlend(gl, true);//还原2D设置
 		// WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
 		// BlendMode.activeBlendFunction = null;// 防止submit不设置blend
