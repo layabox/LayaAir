@@ -16,7 +16,7 @@ class Main {
         var sk = new Skeleton();
         Laya.stage.addChild(sk);
         sk.pos(Math.random()*800,Math.random()*600);
-        sk.load(getResPath('spine/vine.sk'),null,2);
+        sk.load(getResPath('spine/vine.sk'));
         sk.scale(0.1,0.1);
     }
 

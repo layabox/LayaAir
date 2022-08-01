@@ -2064,55 +2064,37 @@ var spine;
             this.pathPrefix = pathPrefix;
         }
         static downloadText(url, success, error) {
-            // LayaBox_Modify
-            // let request = new XMLHttpRequest();
-            // request.open("GET", url, true);
-            // request.onload = () => {
-            //     if (request.status == 200) {
-            //         success(request.responseText);
-            //     }
-            //     else {
-            //         error(request.status, request.responseText);
-            //     }
-            // };
-            // request.onerror = () => {
-            //     error(request.status, request.responseText);
-            // };
-            // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.TEXT, url: url}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    success(_Laya.loader.getRes(url));
-                } else {
-                    error(400, "download text error: " + url);
+            let request = new XMLHttpRequest();
+            request.open("GET", url, true);
+            request.onload = () => {
+                if (request.status == 200) {
+                    success(request.responseText);
                 }
-            }));
+                else {
+                    error(request.status, request.responseText);
+                }
+            };
+            request.onerror = () => {
+                error(request.status, request.responseText);
+            };
+            request.send();
         }
         static downloadBinary(url, success, error) {
-            // LayaBox_Modify
-            // let request = new XMLHttpRequest();
-            // request.open("GET", url, true);
-            // request.responseType = "arraybuffer";
-            // request.onload = () => {
-            //     if (request.status == 200) {
-            //         success(new Uint8Array(request.response));
-            //     }
-            //     else {
-            //         error(request.status, request.responseText);
-            //     }
-            // };
-            // request.onerror = () => {
-            //     error(request.status, request.responseText);
-            // };
-            // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.BUFFER, url: url}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    success(new Uint8Array(_Laya.loader.getRes(url)));
-                } else {
-                    error(400, "download binary error: " + url);
+            let request = new XMLHttpRequest();
+            request.open("GET", url, true);
+            request.responseType = "arraybuffer";
+            request.onload = () => {
+                if (request.status == 200) {
+                    success(new Uint8Array(request.response));
                 }
-            }));
+                else {
+                    error(request.status, request.responseText);
+                }
+            };
+            request.onerror = () => {
+                error(request.status, request.responseText);
+            };
+            request.send();
         }
         loadText(path, success = null, error = null) {
             path = this.pathPrefix + path;
@@ -2134,42 +2116,24 @@ var spine;
         loadTexture(path, success = null, error = null) {
             path = this.pathPrefix + path;
             this.toLoad++;
-            // LayaBox_Modify
-            // let img = new Image();
-            // img.crossOrigin = "anonymous";
-            // img.onload = (ev) => {
-            //     let texture = this.textureLoader(img);
-            //     this.assets[path] = texture;
-            //     this.toLoad--;
-            //     this.loaded++;
-            //     if (success)
-            //         success(path, img);
-            // };
-            // img.onerror = (ev) => {
-            //     this.errors[path] = `Couldn't load image ${path}`;
-            //     this.toLoad--;
-            //     this.loaded++;
-            //     if (error)
-            //         error(path, `Couldn't load image ${path}`);
-            // };
-            // img.src = path;
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
-            _Laya.loader.load([{type: _Laya.Loader.IMAGE, url: path}], _Laya.Handler.create(this, (re) => {
-                if (re) {
-                    let texture = this.textureLoader(_Laya.loader.getRes(path));
-                    this.assets[path] = texture;
-                    this.toLoad--;
-                    this.loaded++;
-                    if (success)
-                        success(path, texture);
-                } else {
-                    this.errors[path] = `Couldn't load image ${path}`;
-                    this.toLoad--;
-                    this.loaded++;
-                    if (error)
-                        error(path, `Couldn't load image ${path}`);
-                }
-            }));
+            let img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = (ev) => {
+                let texture = this.textureLoader(img);
+                this.assets[path] = texture;
+                this.toLoad--;
+                this.loaded++;
+                if (success)
+                    success(path, img);
+            };
+            img.onerror = (ev) => {
+                this.errors[path] = `Couldn't load image ${path}`;
+                this.toLoad--;
+                this.loaded++;
+                if (error)
+                    error(path, `Couldn't load image ${path}`);
+            };
+            img.src = path;
         }
         loadTextureData(path, data, success = null, error = null) {
             path = this.pathPrefix + path;
@@ -2201,12 +2165,10 @@ var spine;
                 let atlasPages = new Array();
                 try {
                     let atlas = new spine.TextureAtlas(atlasData, (path) => {
-                        // LayaBox_Modify
                         atlasPages.push(parent == "" ? path : parent + "/" + path);
                         let image = document.createElement("img");
-                        // QQ平台报错，无法设置width height
-                        // image.width = 16;
-                        // image.height = 16;
+                        image.width = 16;
+                        image.height = 16;
                         return new spine.FakeTexture(image);
                     });
                 }
@@ -2227,7 +2189,6 @@ var spine;
                             if (!pageLoadError) {
                                 try {
                                     let atlas = new spine.TextureAtlas(atlasData, (path) => {
-                                        // LayaBox_Modify
                                         return this.get(parent == "" ? path : parent + "/" + path);
                                     });
                                     this.assets[path] = atlas;
@@ -6740,5 +6701,3 @@ var spine;
     SwirlEffect.interpolation = new spine.PowOut(2);
     spine.SwirlEffect = SwirlEffect;
 })(spine || (spine = {}));
-// LayaBox_Modify
-window.spine = spine;
