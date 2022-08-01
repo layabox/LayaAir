@@ -61,6 +61,7 @@ import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { NativeContext } from "./NativeContext";
+import { RenderTexture } from "../d3/resource/RenderTexture";
 /**
  * @private
  * Context扩展类
@@ -365,27 +366,27 @@ export class Context {
 		}
 	}
 
-	static const2DRenderCMD:RenderStateCommand;
+	static const2DRenderCMD: RenderStateCommand;
 	static set2DRenderConfig(): void {
-		if(!Context.const2DRenderCMD){
+		if (!Context.const2DRenderCMD) {
 			const cmd = Context.const2DRenderCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-			cmd.addCMD(RenderStateType.BlendType,true);
+			cmd.addCMD(RenderStateType.BlendType, true);
 			//WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
-			cmd.addCMD(RenderStateType.BlendEquation,BlendEquationSeparate.ADD);
+			cmd.addCMD(RenderStateType.BlendEquation, BlendEquationSeparate.ADD);
 			BlendMode.activeBlendFunction = null;// 防止submit不设置blend
 			//WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-			cmd.addCMD(RenderStateType.BlendFunc,[BlendFactor.One,BlendFactor.OneMinusSourceAlpha]);
+			cmd.addCMD(RenderStateType.BlendFunc, [BlendFactor.One, BlendFactor.OneMinusSourceAlpha]);
 			//WebGLContext.setDepthTest(gl, false);
-			cmd.addCMD(RenderStateType.DepthTest,false);
+			cmd.addCMD(RenderStateType.DepthTest, false);
 			//WebGLContext.setDepthMask(gl, true);
-			cmd.addCMD(RenderStateType.DepthMask,true);
+			cmd.addCMD(RenderStateType.DepthMask, true);
 			//WebGLContext.setCullFace(gl, false);
-			cmd.addCMD(RenderStateType.CullFace,false);
+			cmd.addCMD(RenderStateType.CullFace, false);
 			//WebGLContext.setFrontFace(gl, gl.CCW);
-			cmd.addCMD(RenderStateType.FrontFace,CullMode.Front);
+			cmd.addCMD(RenderStateType.FrontFace, CullMode.Front);
 		}
 		Context.const2DRenderCMD.applyCMD();
-		RenderTexture2D.currentActive&&RenderTexture2D.currentActive.end();
+		RenderTexture.currentActive && RenderTexture.currentActive._end();
 		// WebGLContext.setBlend(gl, true);//还原2D设置
 		// WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
 		// BlendMode.activeBlendFunction = null;// 防止submit不设置blend
@@ -494,7 +495,7 @@ export class Context {
 
 	isMain: boolean = false;				// 是否是主context
 
-	clearColor:Color = new Color();
+	clearColor: Color = new Color();
 
 	constructor() {
 		Context._contextcount++;
@@ -516,7 +517,7 @@ export class Context {
 		this.clearColor.g = g;
 		this.clearColor.b = b;
 		this.clearColor.a = a;
-		LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color,this.clearColor,1);
+		LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, this.clearColor, 1);
 		// gl.clearColor(r, g, b, a);
 		// gl.clear(gl.COLOR_BUFFER_BIT);
 	}
@@ -863,7 +864,7 @@ export class Context {
 	_fast_filltext(data: string | WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string | null, lineWidth: number, textAlign: number, underLine: number = 0): void {
 		Context._textRender!._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
 	}
-	fillWords11(data: HTMLChar[], x: number, y: number, fontStr: FontInfo, color: string, strokeColor: string|null, lineWidth: number): void {
+	fillWords11(data: HTMLChar[], x: number, y: number, fontStr: FontInfo, color: string, strokeColor: string | null, lineWidth: number): void {
 		Context._textRender!.fillWords(this, data, x, y, fontStr, color, strokeColor, lineWidth);
 	}
 
