@@ -1,4 +1,5 @@
 import { SingletonList } from "../../../../d3/component/SingletonList";
+import { BufferState } from "../../../../d3/core/BufferState";
 import { Camera } from "../../../../d3/core/Camera";
 import { RenderContext3D } from "../../../../d3/core/render/RenderContext3D";
 import { RenderElement } from "../../../../d3/core/render/RenderElement";
@@ -62,10 +63,13 @@ export class NativeBaseRenderQueue implements IRenderQueue {
 
         this._nativeObj.renderQueue((this._context as any)._nativeObj);
         
+        BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind(); 
         this._batch.recoverData();
+
+  
     }
 
     private _batchQueue() {
-       this._isTransparent|| this._batch.batch(this.elements);
+       this._isTransparent || this._batch.batch(this.elements);
     }
 }
