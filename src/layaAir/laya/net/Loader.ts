@@ -34,7 +34,6 @@ export interface IResourceLoader {
 export interface ILoadOptions {
     type?: string;
     priority?: number;
-    isID?: boolean;
     group?: string;
     cache?: boolean;
     useWorkerLoader?: boolean;
@@ -283,23 +282,21 @@ export class Loader extends EventDispatcher {
     }
 
     private _load1(url: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
-        let uuid: string;
-        if (options.isID)
-            uuid = url;
-        else if (url.startsWith("res://"))
+        let uuid: string = null;
+        if (url.startsWith("res://")) {
             uuid = url.substring(6);
-
-        if (uuid != null) {
             url = URL.UUID_to_URL(uuid);
             if (!url) {
-                console.error(`unknown uuid: ${uuid}`);
-                return Promise.resolve(null);
+                return URL.UUID_to_URL_async(uuid).then(url => {
+                    if (url)
+                        return this._load2(url, uuid, type, options, onProgress);
+                    else
+                        return null;
+                });
             }
-
-            return this._load2(url, uuid, type, options, onProgress);
         }
-        else
-            return this._load2(url, null, type, options, onProgress);
+
+        return this._load2(url, uuid, type, options, onProgress);
     }
 
     private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
@@ -397,20 +394,40 @@ export class Loader extends EventDispatcher {
      */
     fetch<K extends keyof ContentTypeMap>(url: string, contentType: K, onProgress?: (progress: number) => void, options?: Readonly<ILoadOptions>): Promise<ContentTypeMap[K]> {
         options = options || dummyOptions;
-        return new Promise((resolve) => {
-            let task: DownloadItem = {
-                originalUrl: url,
-                url: URL.formatURL(url),
-                contentType: contentType,
-                priority: options.priority ?? 1,
-                retryCnt: 0,
-                onProgress: onProgress,
-                onComplete: resolve,
+        let task: DownloadItem = {
+            originalUrl: url,
+            url: url,
+            contentType: contentType,
+            priority: options.priority ?? 1,
+            retryCnt: 0,
+            onProgress: onProgress,
+            onComplete: null,
+        };
+        if (options.useWorkerLoader)
+            task.useWorkerLoader = true;
+        if (options.blob)
+            task.blob = options.blob;
+
+        if (url.startsWith("res://")) {
+            let uuid = url.substring(6);
+            url = URL.UUID_to_URL(uuid);
+            if (!url) {
+                return URL.UUID_to_URL_async(uuid).then(url => {
+                    if (url)
+                        return new Promise((resolve) => {
+                            task.url = URL.formatURL(url);
+                            task.onComplete = resolve;
+                            this.queueToDownload(task);
+                        });
+                    else
+                        return null;
+                });
             }
-            if (options.useWorkerLoader)
-                task.useWorkerLoader = true;
-            if (options.blob)
-                task.blob = options.blob;
+        }
+
+        return new Promise((resolve) => {
+            task.url = URL.formatURL(url);
+            task.onComplete = resolve;
             this.queueToDownload(task);
         });
     }
@@ -569,7 +586,7 @@ export class Loader extends EventDispatcher {
                 main = i == 0;
                 loaderType = extEntry[i].loaderType;
             }
-            else { //未与扩展名匹配的情况，例如a.lh试图加载以Loader.JSON类型加载，这种组合没有注册，但仍然允许加载为副资源
+            else { //扩展名没有注册的情况，或者未与扩展名匹配的情况，例如a.lh试图以Loader.JSON类型加载，这种组合没有注册，但仍然允许加载为副资源
                 main = false;
                 loaderType = typeEntry.loaderType;
             }

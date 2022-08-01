@@ -144,30 +144,29 @@ export class SpineSkeleton extends Sprite {
         this._renerer = new SpineSkeletonRenderer(templet, false);
         this._timeKeeper = new templet.ns.TimeKeeper();
 
-        let that = this;
         this._state.addListener({
-            start: function (entry: any) {
+            start: (entry: any) => {
                 // console.log("started:", entry);
             },
-            interrupt: function (entry: any) {
+            interrupt: (entry: any) => {
                 // console.log("interrupt:", entry);
             },
-            end: function (entry: any) {
+            end: (entry: any) => {
                 // console.log("end:", entry);
             },
-            dispose: function (entry: any) {
+            dispose: (entry: any) => {
                 // console.log("dispose:", entry);
             },
-            complete: function (entry: any) {
+            complete: (entry: any) => {
                 // console.log("complete:", entry);
                 if (entry.loop) { // 如果多次播放,发送complete事件
-                    that.event(Event.COMPLETE);
+                    this.event(Event.COMPLETE);
                 } else { // 如果只播放一次，就发送stop事件
-                    that._currAniName = null;
-                    that.event(Event.STOPPED);
+                    this._currAniName = null;
+                    this.event(Event.STOPPED);
                 }
             },
-            event: function (entry: any, event: any) {
+            event: (entry: any, event: any) => {
                 let eventData = {
                     audioValue: event.data.audioPath,
                     audioPath: event.data.audioPath,
@@ -180,12 +179,12 @@ export class SpineSkeleton extends Sprite {
                     volume: event.volume
                 };
                 // console.log("event:", entry, event);
-                that.event(Event.LABEL, eventData);
+                this.event(Event.LABEL, eventData);
                 let _soundChannel: SoundChannel;
-                if (that._playAudio && eventData.audioValue) {
-                    _soundChannel = SoundManager.playSound(templet.basePath + eventData.audioValue, 1, Handler.create(that, that._onAniSoundStoped), null, (that._currentPlayTime * 1000 - eventData.time) / 1000);
-                    SoundManager.playbackRate = that._playbackRate;
-                    _soundChannel && that._soundChannelArr.push(_soundChannel);
+                if (this._playAudio && eventData.audioValue) {
+                    _soundChannel = SoundManager.playSound(templet.basePath + eventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null, (this._currentPlayTime * 1000 - eventData.time) / 1000);
+                    SoundManager.playbackRate = this._playbackRate;
+                    _soundChannel && this._soundChannelArr.push(_soundChannel);
                 }
             },
         });

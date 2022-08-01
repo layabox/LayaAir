@@ -293,7 +293,7 @@ export class Texture extends Resource {
             this.sourceWidth = this._w = bit.width;
             this.sourceHeight = this._h = bit.height;
             complete && complete.run();
-            this.event(Event.LOADED, this);
+            this.event(Event.READY, this);
         });
     }
 

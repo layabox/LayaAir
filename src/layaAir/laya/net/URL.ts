@@ -70,6 +70,11 @@ export class URL {
         return URL.uuidMap[uuid];
     }
 
+    static UUID_to_URL_async(uuid: string): Promise<string> {
+        console.error(`unknown uuid: ${uuid}`);
+        return Promise.resolve(null);
+    }
+
     /**
      * 包含normalizedURL功能，并且合并base，如果base没有提供，则使用URL.basePath或者URL.rootPath。
      * @param url 地址。

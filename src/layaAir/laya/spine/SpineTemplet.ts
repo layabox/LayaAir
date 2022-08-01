@@ -3,7 +3,6 @@ import { Resource } from "../resource/Resource";
 import { Texture } from "../resource/Texture";
 import { URL } from "../net/URL";
 import { ILoadURL } from "../net/Loader";
-import { Event } from "../events/Event";
 import { SpineTexture } from "./SpineTexture";
 import { IBatchProgress } from "../net/BatchProgress";
 
@@ -61,7 +60,6 @@ export class SpineTemplet extends Resource {
                 let skeletonJson = new this._ns.SkeletonJson(atlasLoader);
                 this.skeletonData = skeletonJson.readSkeletonData(desc);
             }
-            this.event(Event.LOADED);
         });
     }
 

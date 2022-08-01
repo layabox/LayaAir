@@ -262,7 +262,7 @@ export class Skeleton extends Sprite {
         this._yReverseMatrix = templet.yReverseMatrix;
         this._templet._addReference(1);
         this._player = new AnimationPlayer();
-        this._player.cacheFrameRate = templet.rate;
+ 
         this._player.templet = templet;
         this._player.play();
         this._parseSrcBoneMatrix();

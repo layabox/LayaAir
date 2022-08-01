@@ -12,7 +12,7 @@ class TempletLoader implements IResourceLoader {
                 return null;
 
             let templet = new Templet();
-            templet._parse(res[1], task.url, res[0], task.options["playbackRate"]);
+            templet._parse(res[1], task.url, res[0]);
             return templet;
         });
     }

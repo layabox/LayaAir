@@ -3,7 +3,7 @@ import { Browser } from "laya/utils/Browser"
 import { Event } from "laya/events/Event";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
-import { SpineTemplet, SpineVersion } from "laya/spine/SpineTemplet";
+import { SpineTemplet } from "laya/spine/SpineTemplet";
 import { Laya } from "Laya";
 import { Loader } from "laya/net/Loader";
 
@@ -20,7 +20,7 @@ export class Skeleton_SpineAdapted {
         Laya.stage.bgColor = "#cccccc";
         Stat.show();
 
-        Laya.loader.load("res/spine/alien-pma.json", Loader.SPINE).then((templet: SpineTemplet) => {
+        Laya.loader.load("res/spine/spineboy-pma.skel", Loader.SPINE).then((templet: SpineTemplet) => {
             this.skeleton = new SpineSkeleton();
             this.skeleton.templet = templet;
             this.Main.box2D.addChild(this.skeleton);

@@ -29,6 +29,8 @@ const LAYA_ANIMATION_VISION: string = "LAYAANIMATION:1.7.0";
  * 动画模板类
  */
 export class Templet extends AnimationTemplet {
+    public rate: number = 30;
+
     /**@internal */
     private _mainTexture: Texture;
     /**@internal */
@@ -71,8 +73,6 @@ export class Templet extends AnimationTemplet {
 
     /** @internal 是否需要解析audio数据 */
     private _isParseAudio: boolean = false;
-    /**@internal */
-    private _rate: number = 30;
     aniSectionDic: any = {};
     /**@internal */
     private _path: string;
@@ -96,11 +96,10 @@ export class Templet extends AnimationTemplet {
         return sk;
     }
 
-    _parse(texture: Texture, createURL: string, skeletonData: ArrayBuffer, playbackRate?: number) {
+    _parse(texture: Texture, createURL: string, skeletonData: ArrayBuffer) {
         this._path = createURL.slice(0, createURL.lastIndexOf("/")) + "/";
         texture._addReference();
         this._mainTexture = texture;
-        this._rate = playbackRate != null ? playbackRate : 30;
 
         var reader: Byte = new Byte(skeletonData);
         this._aniVersion = reader.readUTFString();
@@ -625,14 +624,6 @@ export class Templet extends AnimationTemplet {
         var tAni: any = this.getAnimation(index);
         if (tAni) return tAni.name;
         return null;
-    }
-
-    get rate(): number {
-        return this._rate;
-    }
-
-    set rate(v: number) {
-        this._rate = v;
     }
 }
 
