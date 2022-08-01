@@ -1,6 +1,7 @@
 import { DrawType } from "../../RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
+import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { IRenderGeometryElement } from "../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
@@ -58,6 +59,11 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
             (<WebGL2RenderingContext>this._gl).drawElementsInstanced(glmode, count, gltype, offset, instanceCount);
         else
             this._angleInstancedArrays.drawElementsInstancedANGLE(glmode, count, gltype, offset, instanceCount);
+        
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall,1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall,1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle,count/3*instanceCount);
+
     }
 
     /**
@@ -69,17 +75,31 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
             (<WebGL2RenderingContext>this._gl).drawArraysInstanced(glmode, first, count, instanceCount);
         else
             this._angleInstancedArrays.drawArraysInstancedANGLE(glmode, first, count, instanceCount);
+        
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall,1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall,1);
+        //TODO glmode
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle,(count-2)*instanceCount);
     }
 
     drawArrays(mode: MeshTopology, first: number, count: number): void {
         const glmode = this.getMeshTopology(mode);
         this._gl.drawArrays(glmode, first, count);
+
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall,1);
+        //TODO glmode
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle,(count-2));
+        
     }
 
     drawElements(mode: MeshTopology, count: number, type: IndexFormat, offset: number): void {
         const glmode = this.getMeshTopology(mode);
         const gltype = this.getIndexType(type);
-        this._gl.drawElements(glmode, count, gltype, offset)
+        this._gl.drawElements(glmode, count, gltype, offset);
+
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall,1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle,count/3);
+        
     }
 
 

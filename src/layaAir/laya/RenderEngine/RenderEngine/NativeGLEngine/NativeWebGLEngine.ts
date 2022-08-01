@@ -27,6 +27,7 @@ import { NativeRenderOBJCreateUtil } from "./NativeOBJ/NativeRenderOBJCreateUtil
 import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
 import { RenderTextureCube } from "../../../d3/resource/RenderTextureCube";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
+import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 
 
 /**
@@ -59,6 +60,27 @@ export class NativeWebGLEngine implements IRenderEngine {
     return this._nativeObj.getUBOPointer(name);
   }
 
+
+  /**
+ * 清除
+ * @internal
+ * @param info 
+ */
+  clearStatisticsInfo(info: RenderStatisticsInfo) {
+    //LV todo
+    //this._GLStatisticsInfo.set(info,0);
+  }
+
+  /**
+   * @internal
+   * @param info 
+   * @returns 
+   */
+  getStatisticsInfo(info: RenderStatisticsInfo): number {
+    //LV todo
+    return 0;
+    //return this._GLStatisticsInfo.get(info);
+  }
   /**
    * GL Context
    * @member {WebGLRenderingContext}

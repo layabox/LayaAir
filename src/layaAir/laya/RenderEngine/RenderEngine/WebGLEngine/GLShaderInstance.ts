@@ -3,7 +3,7 @@ import { Vector2 } from "../../../d3/math/Vector2";
 import { Vector3 } from "../../../d3/math/Vector3";
 import { Vector4 } from "../../../d3/math/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { BufferUsage } from "../../RenderEnum/BufferTargetType";
+import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";

@@ -30,6 +30,9 @@ import { WrapMode } from "../RenderEnum/WrapMode";
     maxMipmapLevel:number;
     compareMode: TextureCompareMode;
 
+    /**bytelength */
+    gpuMemory:number;
+
     /**
      * 是否使用 sRGB格式 加载图片数据
      */

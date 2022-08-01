@@ -1,4 +1,5 @@
 import { BufferTargetType, BufferUsage } from "../../RenderEnum/BufferTargetType";
+import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
@@ -56,6 +57,10 @@ export class GLBuffer extends GLObject implements IRenderBuffer {
         }
     }
 
+    private _memorychange(bytelength: number) {
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.BufferMemory, bytelength);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, bytelength);
+    }
 
     bindBuffer(): boolean {
         if (this._engine._getbindBuffer(this._glTargetType) != this) {
@@ -81,10 +86,15 @@ export class GLBuffer extends GLObject implements IRenderBuffer {
     setDataLength(srcData: number): void {
         let gl = this._gl;
         this.bindBuffer();
+        this._memorychange(-this._byteLength);
         this._byteLength = srcData;
         gl.bufferData(this._glTarget, this._byteLength, this._glUsage);
         this.unbindBuffer();
+        this._memorychange(this._byteLength);
     }
+
+   
+
 
     setData(srcData: ArrayBuffer | ArrayBufferView, offset: number): void {
         let gl = this._gl;
@@ -117,10 +127,10 @@ export class GLBuffer extends GLObject implements IRenderBuffer {
 
     //TODO:
     bindBufferBase(glPointer: number) {
-        if(this._engine._getBindUBOBuffer(glPointer)!=this){
+        if (this._engine._getBindUBOBuffer(glPointer) != this) {
             const gl = <WebGL2RenderingContext>this._gl;
             gl.bindBufferBase(this._glTarget, glPointer, this._glBuffer);
-            this._engine._setBindUBOBuffer(glPointer,this);
+            this._engine._setBindUBOBuffer(glPointer, this);
         }
     }
 
@@ -141,11 +151,13 @@ export class GLBuffer extends GLObject implements IRenderBuffer {
         super.destroy();
         const gl = this._gl;
         gl.deleteBuffer(this._glBuffer);
+        this._memorychange(-this._byteLength);
         this._byteLength = 0;
         this._engine = null;
         this._glBuffer = null;
         this._glTarget = null;
         this._glUsage = null;
         this._gl = null;
+        
     }
 }

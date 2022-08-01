@@ -6,6 +6,7 @@ import { BufferTargetType, BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../RenderEnum/RenderParams";
+import { RenderStatisticsInfo } from "../RenderEnum/RenderStatInfo";
 import { ShaderDataType } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { IRender2DContext } from "./IRender2DContext";
@@ -50,4 +51,7 @@ export interface IRenderEngine {
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer;
     createVertexState(): IRenderVertexState;
     getUBOPointer(name: string): number;
+
+    clearStatisticsInfo(info:RenderStatisticsInfo):void;
+    getStatisticsInfo(info:RenderStatisticsInfo):number;
 }

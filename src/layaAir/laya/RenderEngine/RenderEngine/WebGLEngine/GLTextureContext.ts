@@ -358,6 +358,108 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
     }
 
+    /**
+     * caculate texture memory
+     * @param tex 
+     * @returns 
+     */
+    getGLtexMemory(tex: WebGLInternalTex): number {
+        let gl = this._gl;
+        let channels = 0;
+        let singlebyte = 0;
+        let bytelength = 0;
+        switch (tex.internalFormat) {
+            case this._sRGB.SRGB_EXT:
+            case gl.RGB:
+                channels = 3;
+                break;
+            case this._sRGB.SRGB_ALPHA_EXT:
+            case gl.RGBA:
+                channels = 4;
+                break;
+            default:
+                channels = 0;
+                break;
+        }
+        switch (tex.type) {
+            case gl.UNSIGNED_BYTE:
+                singlebyte = 1;
+                break;
+            case gl.UNSIGNED_SHORT_5_6_5:
+                singlebyte = 2 / 3;
+                break;
+            case gl.FLOAT:
+                singlebyte = 4;
+                break;
+            case this._oesTextureHalfFloat.HALF_FLOAT_OES:
+                singlebyte = 2;
+                break;
+            default:
+                singlebyte = 0;
+                break;
+        }
+        bytelength = channels*singlebyte*tex.width*tex.height;
+        if(tex.mipmap){
+            bytelength*=1.333;
+        }
+        if(tex.target==gl.TEXTURE_CUBE_MAP)
+            bytelength*=6;
+        else if(tex.target == gl.TEXTURE_2D)
+            bytelength*=1;
+        
+        return bytelength;
+    }
+
+    getGLRTTexMemory(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, multiSamples: number, cube: boolean) {
+        let getpixelbyte = (rtFormat: RenderTargetFormat) => {
+            let pixelByte = 0;
+            switch (rtFormat) {
+                case RenderTargetFormat.R8G8B8:
+                    pixelByte = 3;
+                    break;
+                case RenderTargetFormat.R8G8B8A8:
+                    pixelByte = 4;
+                    break;
+                case RenderTargetFormat.R16G16B16A16:
+                    pixelByte = 8;
+                    break;
+                case RenderTargetFormat.R32G32B32:
+                    pixelByte = 12;
+                    break;
+                case RenderTargetFormat.R32G32B32A32:
+                    pixelByte = 16;
+                    break;
+                case RenderTargetFormat.R16G16B16:
+                    pixelByte = 6;
+                    break;
+                case RenderTargetFormat.DEPTH_16:
+                    pixelByte = 2;
+                    break;
+                case RenderTargetFormat.STENCIL_8:
+                    pixelByte = 1;
+                    break;
+                case RenderTargetFormat.DEPTHSTENCIL_24_8:
+                    pixelByte = 4;
+                    break;
+                case RenderTargetFormat.DEPTH_32:
+                    pixelByte = 4;
+                    break;
+            }
+            return pixelByte;
+        }
+        let colorPixelbyte = getpixelbyte(colorFormat);
+        let depthPixelbyte = getpixelbyte(depthStencilFormat);
+        if (multiSamples > 1)//多重采样
+            colorPixelbyte *= 2;
+        if (cube)//box
+            colorPixelbyte *= 6;
+        if (generateMipmap)//mipmap
+            colorPixelbyte *= 1.333;
+        let colorMemory = colorPixelbyte * width * height;
+        let depthMemory = depthPixelbyte * width * height;
+        return colorMemory + depthMemory;
+    }
+
     // protected getRenderTargetDepthFormat(format: RenderTargetDepthFormat): { internalFormat: number, attachment: number } {
     //     let gl = this.gl;
     //     switch (format) {
@@ -450,6 +552,9 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         internalTex.format = glParam.format;
         internalTex.type = glParam.type;
 
+        //Resource:
+        //internalTex.gpuMemory = this.getGLtexMemory(format, width, height, dimension, gengerateMipmap);
+
         return internalTex;
     }
 
@@ -474,13 +579,17 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         this._engine._bindTexture(texture.target, texture.resource);
 
         gl.texImage2D(target, 0, internalFormat, format, type, source);
-
+        texture.gpuMemory = this.getGLtexMemory(texture);
+        //texture.
         // gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, null);
         // gl.texSubImage2D(target, 0, 0, 0, format, type, source);
 
         if (texture.mipmap) {
             gl.generateMipmap(texture.target);
         }
+
+        //resource TODO
+
         this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -510,6 +619,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, source);
         // gl.texSubImage2D(target, 0, 0, 0, format, type, source);
+        texture.gpuMemory = this.getGLtexMemory(texture);
 
         if (texture.mipmap) {
             gl.generateMipmap(texture.target);
@@ -542,10 +652,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
         this._engine._bindTexture(texture.target, texture.resource);
-
-        // gl.texImage2D(target, 0, internalFormat, format, type, null);
-
-        // gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, source);
         gl.texSubImage2D(target, mipmapLevel, xOffset, yOffset, width, height, format, type, source);
 
         if (texture.mipmap && generateMipmap) {
@@ -588,6 +694,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         let mipmapWidth = width;
         let mipmapHeight = height;
+        let memory = 0;
         for (let index = 0; index < mipmapCount; index++) {
 
             // todo  size 计算 方式
@@ -595,7 +702,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             let sourceData = new Uint8Array(source, dataOffset, dataLength);
 
             gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-
+            memory += sourceData.length;
             dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
 
             mipmapWidth *= 0.5;
@@ -603,7 +710,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             mipmapWidth = Math.max(1.0, mipmapWidth);
             mipmapHeight = Math.max(1.0, mipmapHeight);
         }
-
+        texture.gpuMemory = memory;//TODO 不太准
         this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -641,6 +748,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let mipmapWidth = width;
         let mipmapHeight = height;
         let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
+        let memory = 0;
         for (let index = 0; index < ktxInfo.mipmapCount; index++) {
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
@@ -651,14 +759,14 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
             compressed && gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
             !compressed && gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
-
+            memory += sourceData.length;
             dataOffset += imageSize;
             dataOffset += 3 - ((imageSize + 3) % 4);
 
             mipmapWidth = Math.max(1, mipmapWidth * 0.5);
             mipmapHeight = Math.max(1, mipmapHeight * 0.5);
         }
-
+        texture.gpuMemory = memory;//TODO 不太准
         this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -692,7 +800,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         this._engine._bindTexture(texture.target, texture.resource);
 
         gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, hdrPixelData);
-
+        texture.gpuMemory = this.getGLtexMemory(texture);
         if (mipmapCount > 1) {
             gl.generateMipmap(target);
         }
@@ -737,7 +845,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             gl.generateMipmap(texture.target);
         }
         this._engine._bindTexture(texture.target, null);
-
+        texture.gpuMemory = this.getGLtexMemory(texture);
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     }
@@ -788,7 +896,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             }
         }
         this._engine._bindTexture(texture.target, null);
-
+        texture.gpuMemory = this.getGLtexMemory(texture);
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
@@ -823,7 +931,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         for (let index = 0; index < cubeFace.length; index++) {
             let target = cubeFace[index];
-            // gl.texImage2D(target, 0, internalFormat, format, type, sources[index]);
             gl.texSubImage2D(target, mipmapLevel, xOffset, yOffset, width, height, format, type, source[index]);
         }
 
@@ -881,7 +988,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let channelsByte = formatParams.bytesPerPixel / formatParams.channels;
 
         let dataTypeConstur = ddsInfo.format == TextureFormat.R32G32B32A32 ? Float32Array : Uint16Array;
-
+        let memory = 0;
         if (!ddsInfo.compressed) {
             for (let face = 0; face < 6; face++) {
                 let target = cubeFace[face];
@@ -891,7 +998,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                     let dataLength = mipmapWidth * mipmapHeight * formatParams.channels;
                     let sourceData = new dataTypeConstur(source, dataOffset, dataLength);
                     gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
-
+                    memory += sourceData.byteLength;
                     dataOffset += dataLength * channelsByte;
                     mipmapWidth *= 0.5;
                     mipmapHeight *= 0.5;
@@ -911,7 +1018,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                     let sourceData = new Uint8Array(source, dataOffset, dataLength);
 
                     (texture.mipmap || index == 0) && gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-
+                    memory += sourceData.byteLength;
                     dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
 
                     mipmapWidth *= 0.5;
@@ -921,6 +1028,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 }
             }
         }
+        texture.gpuMemory = memory;
         this._engine._bindTexture(texture.target, null);
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -968,7 +1076,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let mipmapWidth = width;
         let mipmapHeight = height;
         let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
-
+        let memory = 0;
         for (let index = 0; index < ktxInfo.mipmapCount; index++) {
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
@@ -981,12 +1089,14 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 if (compressed) {
                     let sourceData = new Uint8Array(source, dataOffset, imageSize);
                     gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
+                    memory += sourceData.byteLength;
                 }
                 else {
                     let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
                     let typedSize = imageSize / pixelParams.typedSize;
                     let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
                     gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
+                    memory += sourceData.byteLength;
                 }
                 dataOffset += imageSize;
                 dataOffset += 3 - ((imageSize + 3) % 4);
@@ -998,7 +1108,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
 
         this._engine._bindTexture(texture.target, null);
-
+        texture.gpuMemory = memory;
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
@@ -1070,7 +1180,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         this._engine._bindTexture(internalTex.target, internalTex.resource);
 
         gl.texImage2D(target, 0, internalFormat, width, height, 0, glFormat, type, null);
-
+        //internalTex.gpuMemory = this.getGLtexMemory(internalTex);
         this._engine._bindTexture(internalTex.target, null);
 
         if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
@@ -1118,10 +1228,9 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         for (let index = 0; index < cubeFace.length; index++) {
             let target = cubeFace[index];
             gl.texImage2D(target, 0, internalFormat, size, size, 0, glFormat, type, null);
-
         }
         this._engine._bindTexture(internalTex.target, null);
-
+        //internalTex.gpuMemory = this.getGLtexMemory(internalTex);
         if (format == RenderTargetFormat.DEPTH_16 || format == RenderTargetFormat.DEPTH_32 || format == RenderTargetFormat.DEPTHSTENCIL_24_8) {
             internalTex.filterMode = FilterMode.Point;
         }
@@ -1135,6 +1244,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let texture = this.createRenderTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
         let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, false, texture.mipmap, multiSamples);
+        renderTarget.gpuMemory = this.getGLRTTexMemory(width, height, colorFormat, depthStencilFormat, generateMipmap, multiSamples, true);
         renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
@@ -1166,7 +1276,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
 
         let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
-
+        renderTarget.gpuMemory = this.getGLRTTexMemory(size, size, colorFormat, depthStencilFormat, generateMipmap, multiSamples, true);
         renderTarget._textures.push(texture);
 
         let framebuffer = renderTarget._framebuffer;

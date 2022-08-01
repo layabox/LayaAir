@@ -6,6 +6,7 @@ import { BufferTargetType, BufferUsage } from "../../RenderEnum/BufferTargetType
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../../RenderEnum/RenderParams";
+import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { IRender2DContext } from "../../RenderInterface/IRender2DContext";
 import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
@@ -75,6 +76,12 @@ export class WebGLEngine implements IRenderEngine {
     _GLBindVertexArray: GLVertexState;
 
     /**
+    * @internal
+    * 支持功能
+    */
+    _supportCapatable: GlCapable;
+
+    /**
      * @internal
      * bind Program
      */
@@ -88,7 +95,7 @@ export class WebGLEngine implements IRenderEngine {
     //记录绑定UBO的glPointer
     private _GLUBOPointerMap: Map<string, number> = new Map();
     //记录绑定Pointer的UBO
-    private _GLBindPointerUBOMap:Map<number,GLBuffer> = new Map();
+    private _GLBindPointerUBOMap: Map<number, GLBuffer> = new Map();
     //bind viewport
     private _lastViewport: Vector4;
     private _lastScissor: Vector4;
@@ -96,12 +103,6 @@ export class WebGLEngine implements IRenderEngine {
     //bind clearColor
     private _lastClearColor: Color = new Color;
     private _lastClearDepth: number = 1;
-
-    /**
-     * @internal
-     * 支持功能
-     */
-    _supportCapatable: GlCapable;
 
     //GL参数
     private _GLParams: GLParams;
@@ -116,12 +117,15 @@ export class WebGLEngine implements IRenderEngine {
     //GLRenderState
     private _GLRenderState: GLRenderState;
 
-    //TODO:管理Buffer
-    private _bufferResourcePool: any;
-    //TODO:管理Texture
-    private _textureResourcePool: any;
-    //TODO:管理FrameBuffer
-    private _RenderBufferResource: any;
+    // //TODO:管理Buffer
+    // private _bufferResourcePool: any;
+    // //TODO:管理Texture
+    // private _textureResourcePool: any;
+    // //TODO:管理FrameBuffer
+    // private _RenderBufferResource: any;
+
+    //GPU统计数据
+    private _GLStatisticsInfo:Map<RenderStatisticsInfo,number> = new Map();
 
     constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
         this._config = config;
@@ -131,6 +135,7 @@ export class WebGLEngine implements IRenderEngine {
         this._lastClearColor = new Color(0, 0, 0, 0);
         this._lastScissor = new Vector4(0, 0, 0, 0);
         this._webglMode = webglMode;
+        this._initStatisticsInfo();
     }
 
     /**
@@ -149,12 +154,50 @@ export class WebGLEngine implements IRenderEngine {
         return this._config;
     }
 
+    private _initStatisticsInfo(){
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.DrawCall,0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.InstanceDrawCall,0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.Triangle,0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.UniformUpload,0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.TextureMemeory,0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.GPUMemory,0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.RenderTextureMemory,0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.BufferMemory,0);
+    }
+
+    /**
+     * @internal
+     * @param info 
+     * @param value 
+     */
+    _addStatisticsInfo(info:RenderStatisticsInfo,value:number){
+        this._GLStatisticsInfo.set(info,this._GLStatisticsInfo.get(info)+value);
+    }
+
+    /**
+     * 清除
+     * @internal
+     * @param info 
+     */
+    clearStatisticsInfo(info:RenderStatisticsInfo){
+        this._GLStatisticsInfo.set(info,0);
+    }
+
+    /**
+     * @internal
+     * @param info 
+     * @returns 
+     */
+    getStatisticsInfo(info:RenderStatisticsInfo):number{
+        return this._GLStatisticsInfo.get(info);
+    }
+
     /**
      * @internal
      * @param glPointer 
      * @returns 
      */
-    _getBindUBOBuffer(glPointer:number):GLBuffer{
+    _getBindUBOBuffer(glPointer: number): GLBuffer {
         return this._GLBindPointerUBOMap.get(glPointer);
     }
 
@@ -163,8 +206,8 @@ export class WebGLEngine implements IRenderEngine {
      * @param glPointer 
      * @param buffer 
      */
-    _setBindUBOBuffer(glPointer:number,buffer:GLBuffer):void{
-        this._GLBindPointerUBOMap.set(glPointer,buffer);
+    _setBindUBOBuffer(glPointer: number, buffer: GLBuffer): void {
+        this._GLBindPointerUBOMap.set(glPointer, buffer);
     }
 
     /**
@@ -344,7 +387,7 @@ export class WebGLEngine implements IRenderEngine {
         return this._GLUBOPointerMap.get(name);
     }
 
-   
+
 
     getTextureContext(): ITextureContext {
         return this._GLTextureContext;
