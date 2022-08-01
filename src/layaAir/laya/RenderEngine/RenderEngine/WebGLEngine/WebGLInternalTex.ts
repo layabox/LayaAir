@@ -1,4 +1,5 @@
 import { FilterMode } from "../../RenderEnum/FilterMode";
+import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../RenderEnum/TextureDimension";
 import { WrapMode } from "../../RenderEnum/WrapMode";
@@ -13,7 +14,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     _gl: WebGLRenderingContext | WebGL2RenderingContext;
 
     readonly resource: WebGLTexture;
-    _resourceTarget:number;
+    _resourceTarget: number;
 
     readonly width: number;
     readonly height: number;
@@ -40,6 +41,18 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     internalFormat: number;
     format: number;
     type: number;
+    /**bytelength */
+    _gpuMemory: number = 0;
+
+    get gpuMemory(): number {
+        return this._gpuMemory;
+    }
+    set gpuMemory(value: number) {
+        
+        this._gpuMemory = value;
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory,this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory,this._gpuMemory);
+    }
 
     constructor(engine: WebGLEngine, target: number, width: number, height: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
         super(engine);
@@ -109,9 +122,11 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     }
 
     private _warpV: WrapMode;
+    
     public get wrapV(): WrapMode {
         return this._warpV;
     }
+
     public set wrapV(value: WrapMode) {
         if (this._warpV != value && this.resource) {
             let gl = this._gl;
@@ -149,25 +164,25 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         }
     }
 
-    private _baseMipmapLevel:number = 0;
-    public set baseMipmapLevel(value:number){
-        if(this._engine.isWebGL2){
-            this._setTexParameteri((<WebGL2RenderingContext>this._gl).TEXTURE_BASE_LEVEL,value);
+    private _baseMipmapLevel: number = 0;
+    public set baseMipmapLevel(value: number) {
+        if (this._engine.isWebGL2) {
+            this._setTexParameteri((<WebGL2RenderingContext>this._gl).TEXTURE_BASE_LEVEL, value);
         }
     }
 
-    public get baseMipmapLevel(){
+    public get baseMipmapLevel() {
         return this._baseMipmapLevel;
     }
 
-    private _maxMipmapLevel:number = 0;
-    public set maxMipmapLevel(value:number){
-        if(this._engine.isWebGL2){
-            this._setTexParameteri((<WebGL2RenderingContext>this._gl).TEXTURE_MAX_LEVEL,value);
+    private _maxMipmapLevel: number = 0;
+    public set maxMipmapLevel(value: number) {
+        if (this._engine.isWebGL2) {
+            this._setTexParameteri((<WebGL2RenderingContext>this._gl).TEXTURE_MAX_LEVEL, value);
         }
     }
 
-    public get maxMipmapLevel(){
+    public get maxMipmapLevel() {
         return this._maxMipmapLevel;
     }
 
@@ -250,5 +265,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     dispose(): void {
         let gl = this._gl;
         gl.deleteTexture(this.resource);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory,-this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory,-this._gpuMemory);
+        this._gpuMemory = 0;
     }
 }

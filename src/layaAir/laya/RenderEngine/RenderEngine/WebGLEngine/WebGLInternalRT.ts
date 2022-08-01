@@ -1,3 +1,4 @@
+import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
 import { InternalRenderTarget } from "../../RenderInterface/InternalRenderTarget";
 import { InternalTexture } from "../../RenderInterface/InternalTexture";
@@ -25,6 +26,20 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
 
     colorFormat: RenderTargetFormat;
     depthStencilFormat: RenderTargetFormat;
+
+    /**bytelength */
+    _gpuMemory: number = 0;
+
+    get gpuMemory(): number {
+        return this._gpuMemory;
+    }
+    set gpuMemory(value: number) {
+
+        this._gpuMemory = value;
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.RenderTextureMemory, this._gpuMemory);
+    }
+
 
     constructor(engine: WebGLEngine, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number) {
         super(engine);
@@ -61,6 +76,9 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
         this._msaaFramebuffer = null;
         this._msaaRenderbuffer && this._gl.deleteRenderbuffer(this._msaaRenderbuffer);
         this._msaaRenderbuffer = null;
-    }
 
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory,-this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.RenderTextureMemory,-this._gpuMemory);
+        this._gpuMemory = 0;
+    }
 }
