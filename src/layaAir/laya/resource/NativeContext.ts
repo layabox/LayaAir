@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { BufferState } from "../d3/core/BufferState";
 import { ColorFilter } from "../filters/ColorFilter";
 import { LayaGL } from "../layagl/LayaGL";
 import { Matrix } from "../maths/Matrix";
@@ -16,7 +17,6 @@ import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCache
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { ISubmit } from "../webgl/submit/ISubmit";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
-import { Context } from "./Context";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
@@ -150,6 +150,7 @@ export class NativeContext {
         this.globalAlpha *= value;
     }
     flush(): void {
+        BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
         //this._nativeObj.flush();
         this._nativeObj.flushCommand();
         this._nativeObj.flush();
@@ -163,7 +164,7 @@ export class NativeContext {
     static set2DRenderConfig(): void {
         //(window as any).set2DRenderConfig();
         if(!NativeContext.const2DRenderCMD){
-			const cmd = Context.const2DRenderCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+			const cmd = NativeContext.const2DRenderCMD = LayaGL.renderOBJCreate.createRenderStateComand();
 			cmd.addCMD(RenderStateType.BlendType,true);
 			//WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
 			cmd.addCMD(RenderStateType.BlendEquation,BlendEquationSeparate.ADD);
