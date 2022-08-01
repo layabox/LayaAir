@@ -1,11 +1,11 @@
-import { ParticleTemplateBase } from "./ParticleTemplateBase";
+import { ParticleTemplate2D } from "./ParticleTemplate2D";
 import { MathUtil } from "../maths/MathUtil";
 
 /**
  *  @private
  */
 export class ParticleEmitter {
-    private _templet: ParticleTemplateBase;
+    private _templet: ParticleTemplate2D;
     private _timeBetweenParticles: number;
     private _previousPosition: Float32Array;
     private _timeLeftOver: number = 0;
@@ -13,7 +13,7 @@ export class ParticleEmitter {
     private _tempVelocity: Float32Array = new Float32Array([0, 0, 0]);
     private _tempPosition: Float32Array = new Float32Array([0, 0, 0]);
 
-    constructor(templet: ParticleTemplateBase, particlesPerSecond: number, initialPosition: Float32Array) {
+    constructor(templet: ParticleTemplate2D, particlesPerSecond: number, initialPosition: Float32Array) {
         this._templet = templet;
         this._timeBetweenParticles = 1.0 / particlesPerSecond;
         this._previousPosition = initialPosition;

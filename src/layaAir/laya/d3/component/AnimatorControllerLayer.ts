@@ -1,6 +1,5 @@
 import { AnimationClip } from "../animation/AnimationClip";
 import { IClone } from "../core/IClone";
-import { IReferenceCounter } from "../resource/IReferenceCounter";
 import { Animator } from "./Animator";
 import { AnimatorPlayState } from "./AnimatorPlayState";
 import { AnimatorState } from "./AnimatorState";
@@ -11,7 +10,7 @@ import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 /**
  * <code>AnimatorControllerLayer</code> 类用于创建动画控制器层。
  */
-export class AnimatorControllerLayer implements IReferenceCounter, IClone {
+export class AnimatorControllerLayer implements IClone {
     /**混合模式_覆盖。 */
     static BLENDINGMODE_OVERRIDE: number = 0;
     /**混合模式_叠加。 */
@@ -150,34 +149,22 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
         }
     }
 
-    /**
-     * @implements IReferenceCounter
-     */
     _getReferenceCount(): number {
         return this._referenceCount;
     }
 
-    /**
-     * @implements IReferenceCounter
-     */
     _addReference(count: number = 1): void {
         for (var i: number = 0, n: number = this._states.length; i < n; i++)
             this._states[i]._addReference(count);
         this._referenceCount += count;
     }
 
-    /**
-     * @implements IReferenceCounter
-     */
     _removeReference(count: number = 1): void {
         for (var i: number = 0, n: number = this._states.length; i < n; i++)
             this._states[i]._removeReference(count);
         this._referenceCount -= count;
     }
 
-    /**
-     * @implements IReferenceCounter
-     */
     _clearReference(): void {
         this._removeReference(-this._referenceCount);
     }

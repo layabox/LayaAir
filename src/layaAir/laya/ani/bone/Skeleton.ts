@@ -46,16 +46,15 @@ import { ILaya } from "../../../ILaya";
  * 骨骼动画由<code>Templet</code>，<code>AnimationPlayer</code>，<code>Skeleton</code>三部分组成。
  */
 export class Skeleton extends Sprite {
-    /**
-     * 在canvas模式是否使用简化版的mesh绘制，简化版的mesh将不进行三角形绘制，而改为矩形绘制，能极大提高性能，但是可能某些mesh动画效果会不太正常
-     */
-    static useSimpleMeshInCanvas: boolean = false;
+
+    protected _source: string;
     /**@internal */
     protected _templet: Templet;//动画解析器
     /** @internal */
     protected _player: AnimationPlayer;//播放器
     /** @internal */
     protected _curOriginalData: Float32Array;//当前骨骼的偏移数据
+
     /** @internal */
     private _boneMatrixArray: any[] = [];//当前骨骼动画的最终结果数据
     /** @internal */
@@ -186,10 +185,36 @@ export class Skeleton extends Sprite {
     }
 
     /**
-     * 设置动画模板
+     * 
      */
     set templet(value: Templet) {
         this.init(value);
+    }
+
+    /**
+     * 得到动画地址
+     * @return templet.
+     */
+    get source(): string {
+        return this._source;
+    }
+
+    /**
+     * 设置动画地址
+     */
+    set source(value: string) {
+        this._source = value;
+
+        if (value) {
+            ILaya.loader.load(value).then((templet: Templet) => {
+                if (templet && !templet.isCreateFromURL(this._source))
+                    return;
+
+                this.init(templet);
+            });
+        }
+        else
+            this.init(null);
     }
 
     get aniMode(): number {
@@ -218,16 +243,23 @@ export class Skeleton extends Sprite {
      * </table>
      */
     private init(templet: Templet): void {
+        if (this._templet) {
+            this.reset();
+            this.graphics.clear();
+        }
+
+        this._templet = templet;
+        if (!this._templet)
+            return;
+
         var i: number = 0, n: number;
-        if (this._aniMode == 1)//使用动画自己的缓冲区
-        {
+        if (this._aniMode == 1) { //使用动画自己的缓冲区
             this._graphicsCache = [];
             for (i = 0, n = templet.getAnimationCount(); i < n; i++) {
                 this._graphicsCache.push([]);
             }
         }
         this._yReverseMatrix = templet.yReverseMatrix;
-        this._templet = templet;
         this._templet._addReference(1);
         this._player = new AnimationPlayer();
         this._player.cacheFrameRate = templet.rate;
@@ -1099,13 +1131,8 @@ export class Skeleton extends Sprite {
         this._graphicsCache[aniIndex][frameIndex] = graphics;
     }
 
-    /**
-     * 销毁当前动画
-     * @override
-     */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._templet._removeReference(1);
+    private reset() {
+        this._templet._removeReference();
         this._templet = null;//动画解析器
         if (this._player) this._player.offAll();
         this._player = null;// 播放器
@@ -1116,6 +1143,16 @@ export class Skeleton extends Sprite {
         if (this._soundChannelArr.length > 0) { // 有正在播放的声音
             this._onAniSoundStoped(true);
         }
+    }
+
+    /**
+     * 销毁当前动画
+     * @override
+     */
+    destroy(destroyChild: boolean = true): void {
+        super.destroy(destroyChild);
+        if (this._templet)
+            this.reset();
     }
 }
 

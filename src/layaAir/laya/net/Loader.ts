@@ -21,6 +21,7 @@ import { Resource } from "../resource/Resource";
 export interface ILoadTask {
     readonly type: string;
     readonly url: string;
+    readonly ext: string;
     readonly loader: Loader;
     readonly options: Readonly<ILoadOptions>;
     readonly progress: IBatchProgress;
@@ -56,6 +57,17 @@ interface ContentTypeMap {
     "sound": HTMLAudioElement
 }
 
+var typeIdCounter = 0;
+type TypeMapEntry = { typeId: number, loaderType: new () => IResourceLoader };
+
+interface URLInfo {
+    ext: string,
+    typeId: number,
+    main: boolean,
+    loaderType: new () => IResourceLoader,
+}
+const NullURLInfo: Readonly<URLInfo> = { ext: null, typeId: null, main: false, loaderType: null };
+
 /**
  * <code>Loader</code> 类可用来加载文本、JSON、XML、二进制、图像等资源。
  */
@@ -68,8 +80,6 @@ export class Loader extends EventDispatcher {
     static XML = "xml";
     /**二进制类型，加载完成后返回arraybuffer。*/
     static BUFFER = "arraybuffer";
-    /**prefab 类型，加载完成后返回Prefab实例。*/
-    static PREFAB = "prefab";
     /**纹理类型，加载完成后返回Texture。*/
     static IMAGE = "image";
     /**声音类型，加载完成后返回Sound。*/
@@ -82,10 +92,6 @@ export class Loader extends EventDispatcher {
     static FONT = "font";
     /** TTF字体类型，加载完成后返回一个对象。*/
     static TTF = "ttf";
-    /** 预加载文件类型，加载完成后自动解析到preLoadedMap。*/
-    static PLF = "plf";
-    /** 二进制预加载文件类型，加载完成后自动解析到preLoadedMap。*/
-    static PLFB = "plfb";
     /**Hierarchy资源。*/
     static HIERARCHY = "HIERARCHY";
     /**Mesh资源。*/
@@ -96,7 +102,6 @@ export class Loader extends EventDispatcher {
     static TEXTURE2D = "TEXTURE2D";
     /**TextureCube资源。*/
     static TEXTURECUBE = "TEXTURECUBE";
-    static TEXTURECUBEBIN: string = "TEXTURECUBEBIN";
     /**AnimationClip资源。*/
     static ANIMATIONCLIP = "ANIMATIONCLIP";
     /**SimpleAnimator资源。 */
@@ -107,6 +112,8 @@ export class Loader extends EventDispatcher {
     static TERRAINRES = "TERRAIN";
     /** glTF 资源 */
     static GLTF: string = "GLTF";
+    /** Spine 资源 */
+    static SPINE: string = "SPINE";
 
     /** 加载出错后的重试次数，默认重试一次*/
     retryNum: number = 1;
@@ -115,17 +122,51 @@ export class Loader extends EventDispatcher {
     /** 最大下载线程，默认为5个*/
     maxLoader: number = 5;
 
-    static readonly typeMap: { [key: string]: new () => IResourceLoader } = {};
+    static readonly extMap: { [ext: string]: Array<TypeMapEntry> } = {};
+    static readonly typeMap: { [type: string]: TypeMapEntry } = {};
 
-    static registerLoader(types: string[], cls: new () => IResourceLoader) {
-        for (let type of types)
-            Loader.typeMap[type] = cls;
+    /**
+     * 注册一种资源装载器。
+     * @param exts 扩展名
+     * @param cls
+     * @param type 类型标识。如果这种资源需要支持识别没有扩展名的情况，或者一个扩展名对应了多种资源类型的情况，那么指定type参数是个最优实践。
+     */
+    static registerLoader(exts: string[], cls: new () => IResourceLoader, type?: string) {
+        let typeEntry: TypeMapEntry;
+        if (type) {
+            typeEntry = <TypeMapEntry>Loader.typeMap[type];
+            if (!typeEntry)
+                Loader.typeMap[type] = typeEntry = { typeId: typeIdCounter++, loaderType: cls };
+            else if (typeEntry.loaderType != cls)
+                typeEntry = { typeId: typeEntry.typeId, loaderType: cls };
+        }
+        else
+            typeEntry = { typeId: typeIdCounter++, loaderType: cls };
+
+        for (let ext of exts) {
+            let entry = Loader.extMap[ext];
+            if (entry) { //这个扩展名已经被注册为其他资源类型
+                if (!type) { //覆盖旧的设置
+                    entry[0].loaderType = cls;
+                }
+                else {
+                    let i = entry.findIndex(e => e.typeId == typeEntry.typeId);
+                    if (i == -1) //注册为次类型
+                        entry.push(typeEntry);
+                    else //覆盖旧的设置
+                        entry[i].loaderType = cls;
+                }
+            }
+            else {
+                Loader.extMap[ext] = [typeEntry];
+            }
+        }
     }
 
     /**资源分组对应表。*/
     static groupMap: { [key: string]: Set<string> } = {};
     /**已加载的资源池。*/
-    static loadedMap: { [key: string]: any } = {};
+    static loadedMap: { [key: string]: Array<any> } = {};
 
     /**@private */
     private _loadings: Map<string, LoadTask>;
@@ -147,6 +188,13 @@ export class Loader extends EventDispatcher {
     }
 
     /**
+     * 是否有任何的加载任务在进行
+     */
+    public get loading(): boolean {
+        return this._loadings.size > 0;
+    }
+
+    /**
      * <p>加载资源。</p>
      * @param url 要加载的单个资源地址或资源地址数组。
      * @return 加载成功返回资源对象，加载失败返回null。
@@ -156,7 +204,7 @@ export class Loader extends EventDispatcher {
     /**
      * <p>这是兼容2.0引擎的加载接口</p>
      * <p>加载资源。</p>
-     * @param url			要加载的单个资源地址或资源信息数组。比如：简单数组：["a.png","b.png"]；复杂数组[{url:"a.png",type:Loader.IMAGE,size:100,priority:1},{url:"b.json",type:Loader.JSON,size:50,priority:1}]。
+     * @param url		要加载的单个资源地址或资源信息数组。比如：简单数组：["a.png","b.png"]；复杂数组[{url:"a.png",type:Loader.IMAGE,size:100,priority:1},{url:"b.json",type:Loader.JSON,size:50,priority:1}]。
      * @param complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，如果全部加载成功，则回调参数值为true，否则为false。
      * @param progress	加载进度回调。回调参数值为当前资源的加载进度信息(0-1)。
      * @param type		资源类型。比如：Loader.IMAGE。
@@ -196,8 +244,6 @@ export class Loader extends EventDispatcher {
         else
             onProgress = arg2;
 
-        let startFrame = ILaya.timer.currFrame;
-
         let promise: Promise<any>;
         if (Array.isArray(url)) {
             let pd: BatchProgress;
@@ -214,7 +260,7 @@ export class Loader extends EventDispatcher {
                     promises.push(this._load1(url2, type, options, pd?.createCallback()));
                 }
                 else {
-                    promises.push(this._load1(url2.url, type,
+                    promises.push(this._load1(url2.url, url2.type || type,
                         options !== dummyOptions ? Object.assign({}, options, url2) : url2, pd?.createCallback()));
                 }
             }
@@ -224,63 +270,16 @@ export class Loader extends EventDispatcher {
         else if (typeof (url) === "string")
             promise = this._load1(url, type, options, onProgress);
         else
-            promise = this._load1(url.url, type,
+            promise = this._load1(url.url, url.type || type,
                 options !== dummyOptions ? Object.assign({}, options, url) : url, onProgress);
 
         if (complete)
             return promise.then(result => {
-                if (ILaya.timer.currFrame == startFrame)
-                    ILaya.systemTimer.frameOnce(1, complete, complete.runWith, [result]);
-                else
-                    complete.runWith(result);
+                complete.runWith(result);
                 return result;
             });
         else
             return promise;
-    }
-
-    /**
-    * <p>这是兼容2.0引擎的加载接口，推荐使用load。</p>
-    * <p>加载资源。</p>
-    * @param url 资源地址或者数组。
-    * @param complete 加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，回调参数是一个数组，包含加载完成的资源，其中如果失败的是null。
-    * @param progress 资源加载进度回调，回调参数值为当前资源加载的进度信息(0-1)。
-    * @param type 资源类型。
-    * @param constructParams 资源构造函数参数。
-    * @param propertyParams 资源属性参数。
-    * @param priority (default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
-    * @param cache 是否缓存资源。
-    * @return Promise对象
-    */
-    create(url: string | (string | Readonly<ILoadURL>)[], complete: Handler | null = null, progress: Handler | null = null, type: string | null = null, constructParams: TextureConstructParams | null = null, propertyParams: TexturePropertyParams = null, priority: number = 0, cache: boolean = true): Promise<any> {
-        let onProgress: ProgressCallback;
-        if (progress)
-            onProgress = (value: number) => progress.runWith(value);
-
-        let options: ILoadOptions;
-        if (type != null || priority != null || constructParams != null || propertyParams != null || cache != null)
-            options = { type, priority, constructParams, propertyParams, cache };
-
-        return this.load(url, options, onProgress).then(content => {
-            if (Array.isArray(content)) {
-                for (let i = 0; i < content.length; i++) {
-                    if (content[i] instanceof HierarchyResource)
-                        content[i] = content[i].createNodes();
-                }
-
-                if (complete)
-                    complete.runWith([content]);
-            }
-            else {
-                if (content instanceof HierarchyResource)
-                    content = content.createNodes();
-
-                if (complete)
-                    complete.runWith(content);
-            }
-
-            return content;
-        });
     }
 
     private _load1(url: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
@@ -304,18 +303,10 @@ export class Loader extends EventDispatcher {
     }
 
     private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
-        if (options.type)
-            type = options.type;
-        if (!type) {
-            if (url.indexOf("data:") === 0)
-                type = Loader.IMAGE;
-            else {
-                type = Utils.getFileExtension(url);
-                if (type && !Loader.typeMap[type])
-                    type = Utils.getFileExtension(url, type.length);
-            }
+        let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
+        if (!loaderType) {
+            return Promise.resolve(null);
         }
-
         let formattedUrl = URL.formatURL(url);
 
         if (options.group) {
@@ -325,17 +316,16 @@ export class Loader extends EventDispatcher {
             set.add(formattedUrl);
         }
 
-        let cacheRes = Loader.loadedMap[formattedUrl];
-        if (cacheRes) {
-            if (cacheRes instanceof Texture) {
-                if (cacheRes.bitmap && !cacheRes.bitmap.destroyed)
-                    return Promise.resolve(Loader.ensureTextureFormat(cacheRes, type));
-            }
-            else
+        if (options.cache == null || options.cache) {
+            let cacheRes = Loader.getRes(formattedUrl, type);
+            if (cacheRes)
                 return Promise.resolve(cacheRes);
         }
 
-        let task = this._loadings.get(formattedUrl);
+        let loadingKey = formattedUrl;
+        if (!main)
+            loadingKey += "@" + typeId;
+        let task = this._loadings.get(loadingKey);
         if (task) {
             if (onProgress)
                 task.onProgress.add(onProgress);
@@ -349,18 +339,13 @@ export class Loader extends EventDispatcher {
             });
         }
 
-        let cls = Loader.typeMap[type];
-        if (!cls) {
-            console.warn(`Not recognize the resource suffix: '${url}'`);
-            return Promise.resolve(null);
-        }
-
         if (loadTaskPool.length > 0)
             task = loadTaskPool.pop();
         else
             task = new LoadTask();
         task.type = type;
         task.url = url;
+        task.ext = ext;
         options = Object.assign(task.options, options);
         delete options.type;
         if (options.priority == null)
@@ -371,8 +356,8 @@ export class Loader extends EventDispatcher {
             task.onProgress.add(onProgress);
         task.loader = this;
 
-        let assetLoader = new cls();
-        this._loadings.set(formattedUrl, task);
+        let assetLoader = new loaderType();
+        this._loadings.set(loadingKey, task);
 
         let promise: Promise<any>;
         try {
@@ -390,12 +375,11 @@ export class Loader extends EventDispatcher {
             }
 
             if (task.options.cache == null || task.options.cache)
-                Loader.loadedMap[formattedUrl] = content;
+                Loader._cacheRes(formattedUrl, content, typeId, main);
 
-            content = Loader.ensureTextureFormat(content, type);
             task.onComplete.invoke(content);
 
-            this._loadings.delete(formattedUrl);
+            this._loadings.delete(loadingKey);
             task.reset();
             loadTaskPool.push(task);
             if (this._loadings.size == 0)
@@ -551,14 +535,58 @@ export class Loader extends EventDispatcher {
         }
     }
 
-    /**
-     * @private
-     */
-    private static ensureTextureFormat(content: any, type: string) {
-        if ((content instanceof Texture) && type == Loader.TEXTURE2D)
-            return (<Texture>content).bitmap;
-        else
-            return content;
+    private static getURLInfo(url: string, type?: string): URLInfo {
+        //先根据扩展名获得注册信息A
+        let ext = url.startsWith("data:") ? "png" : Utils.getFileExtension(url);
+        let extEntry: Array<TypeMapEntry>;
+        if (ext.length > 0) {
+            //处理复杂的扩展名，例如ltcb.ls
+            let ext2 = Utils.getFileExtension(url, ext.length);
+            if (ext2.length > 0)
+                extEntry = Loader.extMap[ext2];
+            if (extEntry)
+                ext = ext2;
+            else
+                extEntry = Loader.extMap[ext];
+        }
+
+        let typeId: number;
+        let main: boolean;
+        let loaderType: new () => IResourceLoader;
+
+        if (type) { //指定了类型
+            let typeEntry = Loader.typeMap[type];
+            if (!typeEntry) {
+                console.warn(`not recognize type: '${type}'`);
+                return NullURLInfo;
+            }
+            typeId = typeEntry.typeId;
+
+            let i: number = 0;
+            if (extEntry &&
+                (extEntry[0].typeId === typeId //优化，大部分情况均为如此
+                    || (i = extEntry.findIndex(e => e.typeId === typeId)) != -1)) {
+                main = i == 0;
+                loaderType = extEntry[i].loaderType;
+            }
+            else { //未与扩展名匹配的情况，例如a.lh试图加载以Loader.JSON类型加载，这种组合没有注册，但仍然允许加载为副资源
+                main = false;
+                loaderType = typeEntry.loaderType;
+            }
+        }
+        else {
+            if (!extEntry) {
+                console.warn(`not recognize the resource suffix: '${url}'`);
+                return NullURLInfo;
+            }
+
+            //没有自定类型，则认为是主资源
+            main = true;
+            typeId = extEntry[0].typeId;
+            loaderType = extEntry[0].loaderType;
+        }
+
+        return { ext, main, typeId, loaderType };
     }
 
     /**
@@ -568,12 +596,49 @@ export class Loader extends EventDispatcher {
      */
     static getRes(url: string, type?: string): any {
         url = URL.formatURL(url);
-        return Loader.ensureTextureFormat(Loader.loadedMap[url], type);
+        let resArr = Loader.loadedMap[url];
+        if (!resArr)
+            return null;
+
+        let ret: any;
+        if (type) {
+            let typeEntry = <TypeMapEntry>Loader.typeMap[type];
+            if (!typeEntry)
+                return null;
+
+            if (resArr.length == 2) { //优化，大部分情况都是只有主资源，也就是两个元素
+                if (resArr[0] == typeEntry.typeId)
+                    ret = resArr[1];
+            }
+            else {
+                let i = resArr.indexOf(typeEntry.typeId);
+                if (i != -1)
+                    ret = resArr[i + 1];
+            }
+        }
+        else
+            ret = resArr[1]; //主资源
+
+        if ((ret instanceof Resource) && !ret.valid)
+            return null;
+        else
+            return ret;
     }
 
+    /**
+     * 
+     */
     static getTexture2D(url: string): Texture2D {
-        url = URL.formatURL(url);
-        return Loader.ensureTextureFormat(Loader.loadedMap[url], Loader.TEXTURE2D);
+        return Loader.getRes(url, Loader.TEXTURE2D);
+    }
+
+    /**
+     * 获取指定资源地址的图集地址列表。
+     * @param url 图集地址。
+     * @return 返回地址集合。
+     */
+    static getAtlas(url: string): AtlasResource {
+        return Loader.getRes(url, Loader.ATLAS);
     }
 
     getRes(url: string, type?: string): any {
@@ -589,18 +654,41 @@ export class Loader extends EventDispatcher {
      * @param url 资源地址。
      * @param data 要缓存的内容。
      */
-    static cacheRes(url: string, data: any, replace?: boolean): void {
+    static cacheRes(url: string, data: any, type?: string): void {
         url = URL.formatURL(url);
-        if (Loader.loadedMap[url]) {
-            if (!replace)
-                console.warn("Resources already exist,is repeated loading:", url);
-        }
-
-        Loader.loadedMap[url] = data;
+        let urlInfo = Loader.getURLInfo(url, type);
+        if (urlInfo.typeId != null)
+            Loader._cacheRes(url, data, urlInfo.typeId, urlInfo.main);
     }
 
-    cacheRes(url: string, data: any, replace?: boolean): void {
-        Loader.cacheRes(url, data, replace);
+    /**
+     * @private
+     */
+    private static _cacheRes(url: string, data: any, typeId: number, main: boolean) {
+        let entry: Array<any> = Loader.loadedMap[url];
+        if (main) {
+            if (entry) {
+                entry[0] = typeId;
+                entry[1] = data;
+            }
+            else
+                entry = Loader.loadedMap[url] = [typeId, data];
+        }
+        else {
+            if (entry) {
+                let i = entry.findIndex(e => e === typeId);
+                if (i != -1)
+                    entry[i + 1] = data;
+                else
+                    entry.push(typeId, data);
+            }
+            else
+                entry = Loader.loadedMap[url] = [null, null, typeId, data];
+        }
+    }
+
+    cacheRes(url: string, data: any, type?: string): void {
+        Loader.cacheRes(url, data, type);
     }
 
     /**
@@ -627,40 +715,64 @@ export class Loader extends EventDispatcher {
      * @private
      */
     private static _clearRes(url: string, checkObj?: any) {
-        let res = Loader.loadedMap[url];
-        if (res && (checkObj == null || res === checkObj)) {
-            if (res instanceof Resource) {
-                try {
-                    res.destroy();
-                }
-                catch (err: any) {
-                    console.error(err);
-                }
+        let entry = Loader.loadedMap[url];
+        if (!entry)
+            return;
+
+        if (checkObj) {
+            if (entry[1] == checkObj) {
+                if (entry.length == 2)
+                    delete Loader.loadedMap[url];
+                else
+                    entry[1] = null;
+            }
+            else {
+                let i = entry.indexOf(checkObj);
+                if (i == -1)
+                    return;
+
+                if (entry.length == 4 && entry[0] == null)
+                    delete Loader.loadedMap[url];
+                else
+                    entry.splice(i - 1, 2);
             }
 
-            delete Loader.loadedMap[url];
+            if ((checkObj instanceof Resource) && !checkObj.destroyed) {
+                checkObj.destroy();
+            }
         }
-    }
+        else {
+            delete Loader.loadedMap[url];
 
-    /**
-     * 兼容旧版本接口。建议直接使用getRes。
-     * 获取指定资源地址的图集地址列表。
-     * @param url 图集地址。
-     * @return 返回地址集合。
-     */
-    static getAtlas(url: string): AtlasResource {
-        return Loader.getRes(url);
+            if (entry.length > 2) {
+                for (let i = 1; i < entry.length; i += 2) {
+                    let obj = entry[i];
+                    if ((obj instanceof Resource) && !obj.destroyed) {
+                        obj.destroy();
+                    }
+                }
+            }
+            else {
+                let obj = entry[1];
+                if ((obj instanceof Resource) && !obj.destroyed) {
+                    obj.destroy();
+                }
+            }
+        }
     }
 
     /**
      * 销毁Texture使用的图片资源，保留texture壳，如果下次渲染的时候，发现texture使用的图片资源不存在，则会自动恢复
      * 相比clearRes，clearTextureRes只是清理texture里面使用的图片资源，并不销毁texture，再次使用到的时候会自动恢复图片资源
-     * 而clearRes会彻底销毁texture，导致不能再使用；clearTextureRes能确保立即销毁图片资源，并且不用担心销毁错误，clearRes则采用引用计数方式销毁
-     * @param url 图集地址或者texture地址，比如 Loader.clearTextureRes("res/atlas/comp.atlas"); Loader.clearTextureRes("hall/bg.jpg");
+     * 而clearRes会彻底销毁texture，导致不能再使用；clearTextureRes能确保立即销毁图片资源，并且不用担心销毁错误
+     * @param url 图集地址或者texture地址，比如 "res/atlas/comp.atlas"或"hall/bg.jpg"
      */
     clearTextureRes(url: string): void {
         url = URL.formatURL(url);
-        let res = Loader.loadedMap[url];
+        let entry = Loader.loadedMap[url];
+        if (!entry)
+            return;
+        let res = entry[0];
         if (res instanceof Texture) {
             res.disposeBitmap();
         }
@@ -735,6 +847,7 @@ export class Loader extends EventDispatcher {
 class LoadTask implements ILoadTask {
     type: string;
     url: string;
+    ext: string;
     options: ILoadOptions;
     loader: Loader;
     progress: BatchProgress;

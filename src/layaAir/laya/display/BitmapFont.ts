@@ -53,6 +53,7 @@ export class BitmapFont {
     parseFont(xml: XMLDocument, texture: Texture): void {
         if (xml == null || texture == null) return;
         this._texture = texture;
+        texture._addReference();
         let tX: number = 0;
         let tScale: number = 1;
 
@@ -142,11 +143,10 @@ export class BitmapFont {
      */
      destroy(): void {
         if (this._texture) {
-            for (var p in this._fontCharDic) {
-                var tTexture: Texture = this._fontCharDic[p];
-                if (tTexture) tTexture.destroy();
+            for (let k in this._fontCharDic) {
+                this._fontCharDic[k].destroy();
             }
-            this._texture.destroy();
+            this._texture._removeReference();
             this._fontCharDic = null;
             this._fontWidthMap = null;
             this._texture = null;

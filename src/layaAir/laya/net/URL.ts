@@ -118,7 +118,7 @@ export class URL {
     }
 
     /**
-     * 格式化相对路径。
+     * 格式化相对路径。主要是处理.和..这些情况。
      */
     static normalize(url: string): string {
         if (url.indexOf("./") == -1)

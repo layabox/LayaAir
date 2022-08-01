@@ -1,4 +1,4 @@
-import { ParticleTemplateBase } from "../ParticleTemplateBase"
+import { ParticleTemplate2D } from "../ParticleTemplate2D"
 
 /**
  * <code>EmitterBase</code> 类是粒子发射器类
@@ -22,14 +22,14 @@ export class EmitterBase {
     minEmissionTime: number = 1 / 60;
 
     /**@internal */
-    _template: ParticleTemplateBase;
+    _template: ParticleTemplate2D;
 
     /**
      * 设置粒子粒子模板
      * @param particleTemplate 粒子模板
      *
      */
-    set particleTemplate(particleTemplate: ParticleTemplateBase) {
+    set particleTemplate(particleTemplate: ParticleTemplate2D) {
         this._template = particleTemplate;
     }
 

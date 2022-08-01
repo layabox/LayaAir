@@ -74,6 +74,7 @@ import { WebGL } from "../../../webgl/WebGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { BufferState } from "../BufferState";
 import { Color } from "../../math/Color";
+import { HierarchyResource } from "../../../resource/HierarchyResource";
 
 /**
  * 环境光模式
@@ -385,7 +386,9 @@ export class Scene3D extends Sprite implements ISubmit {
 	 * @param complete 完成回调。
 	 */
 	static load(url: string, complete: Handler): void {
-		ILaya.loader.create(url, complete, null, Loader.HIERARCHY);
+		ILaya.loader.load(url).then((res: HierarchyResource) => {
+			complete && complete.runWith([res?.createNodes()]);
+		});
 	}
 
 	/** @internal */

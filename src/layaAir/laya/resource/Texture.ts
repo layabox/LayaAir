@@ -259,13 +259,6 @@ export class Texture extends Resource {
     }
 
     /**
-     * 获取是否可以使用。
-     */
-    getIsReady(): boolean {
-        return this._destroyed ? false : (this._bitmap ? true : false);
-    }
-
-    /**
      * 设置此对象的位图资源、UV数据信息。
      * @param	bitmap 位图资源
      * @param	uv UV数据信息
@@ -290,17 +283,18 @@ export class Texture extends Resource {
      * @param	url 图片地址。
      * @param	complete 加载完成回调
      */
-    load(url: string, complete?: Handler): void {
-        if (!this._destroyed) {
-            ILaya.loader.load(url).then((tex: Texture) => {
-                let bit = tex.bitmap;
-                this.bitmap = bit;
-                this.sourceWidth = this._w = bit.width;
-                this.sourceHeight = this._h = bit.height;
-                complete && complete.run();
-                this.event(Event.READY, this);
-            });
-        }
+    load(url: string, complete?: Handler): Promise<void> {
+        if (this._destroyed)
+            return Promise.resolve();
+
+        return ILaya.loader.load(url).then((tex: Texture) => {
+            let bit = tex.bitmap;
+            this.bitmap = bit;
+            this.sourceWidth = this._w = bit.width;
+            this.sourceHeight = this._h = bit.height;
+            complete && complete.run();
+            this.event(Event.LOADED, this);
+        });
     }
 
     getTexturePixels(x: number, y: number, width: number, height: number): Uint8Array {
@@ -413,7 +407,7 @@ export class Texture extends Resource {
     recoverBitmap(onok: () => void = null): void {
         var url = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
-            ILaya.loader.load(url).then((tex:Texture) => {
+            ILaya.loader.load(url).then((tex: Texture) => {
                 this.bitmap = tex.bitmap;
                 onok && onok();
             });
@@ -430,16 +424,20 @@ export class Texture extends Resource {
     }
 
     /**
+     * @inheritDoc
+     */
+    get valid(): boolean {
+        return !this._destroyed && this._bitmap && !this._bitmap.destroyed;
+    }
+
+    /**
      * @private
      */
-    protected _disposeResource(force?: boolean): void {
+    protected _disposeResource(): void {
         let bit = this._bitmap;
         this._bitmap = null;
-        if (bit) {
+        if (bit)
             bit._removeReference(this._referenceCount);
-            if (bit.referenceCount === 0 || force)
-                bit.destroy();
-        }
     }
 }
 

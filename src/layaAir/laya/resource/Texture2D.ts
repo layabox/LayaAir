@@ -172,7 +172,7 @@ export class Texture2D extends BaseTexture {
     }
 
     static load(url: string, complete: Handler): void {
-        ILaya.loader.create(url, complete, null, ILaya.Loader.TEXTURE2D);
+        ILaya.loader.load(url, complete, null, ILaya.Loader.TEXTURE2D);
     }
 
     _canRead: boolean = false;

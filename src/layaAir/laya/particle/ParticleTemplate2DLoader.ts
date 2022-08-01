@@ -3,7 +3,7 @@ import { Texture } from "../resource/Texture";
 import { checkSetting } from "./ParticleSetting";
 import { ParticleTemplate2D } from "./ParticleTemplate2D";
 
-class Particle2DLoader implements IResourceLoader {
+class ParticleTemplate2DLoader implements IResourceLoader {
     load(task: ILoadTask) {
         return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
             if (!data)
@@ -22,4 +22,4 @@ class Particle2DLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader(["part"], Particle2DLoader);
+Loader.registerLoader(["part"], ParticleTemplate2DLoader);

@@ -12,4 +12,4 @@ class MeshLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader([Loader.MESH, "lm"], MeshLoader);
+Loader.registerLoader(["lm"], MeshLoader, Loader.MESH);

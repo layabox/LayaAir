@@ -1,10 +1,10 @@
 import { Mesh2D } from "./Mesh2D";
 import { LayaGL } from "../../layagl/LayaGL";
-import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { RenderParams } from "../../RenderEngine/RenderEnum/RenderParams";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../d3/graphics/VertexElement";
 import { VertexElementFormat } from "../../d3/graphics/VertexElementFormat";
+
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
  */
@@ -16,18 +16,18 @@ export class MeshParticle2D extends Mesh2D {
     static __init__(): void {
         const glfloat = LayaGL.renderEngine.getParams(RenderParams.FLOAT);
         MeshParticle2D._fixattriInfo = [
-        glfloat, 4, 0,	//CornerTextureCoordinate
-        glfloat, 3, 16,//pos
-        glfloat, 3, 28,//vel
-        glfloat, 4, 40,//start color
-        glfloat, 4, 56,//end color
-        glfloat, 3, 72,//size,rot
-        glfloat, 2, 84,//radius
-        glfloat, 4, 92,//radian
-        glfloat, 1, 108,//AgeAddScale
-        glfloat, 1, 112];
+            glfloat, 4, 0,	//CornerTextureCoordinate
+            glfloat, 3, 16,//pos
+            glfloat, 3, 28,//vel
+            glfloat, 4, 40,//start color
+            glfloat, 4, 56,//end color
+            glfloat, 3, 72,//size,rot
+            glfloat, 2, 84,//radius
+            glfloat, 4, 92,//radian
+            glfloat, 1, 108,//AgeAddScale
+            glfloat, 1, 112];
 
-        
+
     }
 
     //TODO:coverage
@@ -38,18 +38,18 @@ export class MeshParticle2D extends Mesh2D {
         this.createQuadIB(maxNum);
         this._quadNum = maxNum;
 
-        if(!MeshParticle2D.vertexDeclaration){
-            MeshParticle2D.vertexDeclaration = new VertexDeclaration(116,[
-                new VertexElement(0,VertexElementFormat.Vector4,0),
-                new VertexElement(16,VertexElementFormat.Vector3,1),
-                new VertexElement(28,VertexElementFormat.Vector3,2),
-                new VertexElement(40,VertexElementFormat.Vector4,3),
-                new VertexElement(56,VertexElementFormat.Vector4,4),
-                new VertexElement(72,VertexElementFormat.Vector3,5),
-                new VertexElement(84,VertexElementFormat.Vector2,6),
-                new VertexElement(92,VertexElementFormat.Vector4,7),
-                new VertexElement(108,VertexElementFormat.Single,8),
-                new VertexElement(112,VertexElementFormat.Single,9)
+        if (!MeshParticle2D.vertexDeclaration) {
+            MeshParticle2D.vertexDeclaration = new VertexDeclaration(116, [
+                new VertexElement(0, VertexElementFormat.Vector4, 0),
+                new VertexElement(16, VertexElementFormat.Vector3, 1),
+                new VertexElement(28, VertexElementFormat.Vector3, 2),
+                new VertexElement(40, VertexElementFormat.Vector4, 3),
+                new VertexElement(56, VertexElementFormat.Vector4, 4),
+                new VertexElement(72, VertexElementFormat.Vector3, 5),
+                new VertexElement(84, VertexElementFormat.Vector2, 6),
+                new VertexElement(92, VertexElementFormat.Vector4, 7),
+                new VertexElement(108, VertexElementFormat.Single, 8),
+                new VertexElement(112, VertexElementFormat.Single, 9)
             ]);
         }
 
@@ -61,9 +61,9 @@ export class MeshParticle2D extends Mesh2D {
         this.createQuadIB(maxNum);
     }
 
-	/**
-	 * 
-	 */
+    /**
+     * 
+     */
     //TODO:coverage
     static getAMesh(maxNum: number): MeshParticle2D {
         //console.log('getmesh');
@@ -75,13 +75,12 @@ export class MeshParticle2D extends Mesh2D {
         return new MeshParticle2D(maxNum);
     }
 
-		/**
-		 * 把本对象放到回收池中，以便getMesh能用。
-		 * @override
-		 */
-		//TODO:coverage
-		 /*override*/ releaseMesh(): void {
-        ;
+    /**
+     * 把本对象放到回收池中，以便getMesh能用。
+     * @override
+     */
+    //TODO:coverage
+    releaseMesh(): void {
         this._vb.buffer2D.setByteLength(0);
         this.vertNum = 0;
         this.indexNum = 0;
@@ -89,11 +88,11 @@ export class MeshParticle2D extends Mesh2D {
         MeshParticle2D._POOL.push(this);
     }
 
-		//TODO:coverage
-		/**
-		 * @override
-		 */
-		 /*override*/ destroy(): void {
+    //TODO:coverage
+    /**
+     * @override
+     */
+    destroy(): void {
         this._ib.destroy();
         this._vb.destroy();
         this._vb.deleteBuffer();

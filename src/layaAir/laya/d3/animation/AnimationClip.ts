@@ -55,7 +55,7 @@ export class AnimationClip extends Resource {
 	 * @param complete  完成回掉。load
 	 */
 	static load(url: string, complete: Handler): void {
-		ILaya.loader.create(url, complete, null, Loader.ANIMATIONCLIP);
+		ILaya.loader.load(url, complete, null, Loader.ANIMATIONCLIP);
 	}
 
 	/**@internal */

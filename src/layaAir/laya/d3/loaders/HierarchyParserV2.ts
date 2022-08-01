@@ -270,7 +270,7 @@ class HierarchyParserV2 {
                     (reflectionTextureData) && (props.reflection = addInnerUrl(reflectionTextureData, Loader.TEXTURECUBE));
 
                     let reflectionData: string = props.reflection;
-                    (reflectionData) && (props.reflection = addInnerUrl(reflectionData, Loader.TEXTURECUBEBIN));
+                    (reflectionData) && (props.reflection = addInnerUrl(reflectionData, Loader.TEXTURECUBE));
                     if (props.sky) {
                         let skyboxMaterial: any = props.sky.material;
                         (skyboxMaterial) && (skyboxMaterial.path = addInnerUrl(skyboxMaterial.path, Loader.MATERIAL));
@@ -314,7 +314,7 @@ class HierarchyParserV2 {
                     break;
                 case "ReflectionProbe":
                     let reflection = props.reflection;
-                    (reflection) && (props.reflection = addInnerUrl(reflection, Loader.TEXTURECUBEBIN));
+                    (reflection) && (props.reflection = addInnerUrl(reflection, Loader.TEXTURECUBE));
                     break;
             }
 

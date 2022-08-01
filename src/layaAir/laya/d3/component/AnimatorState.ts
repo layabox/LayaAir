@@ -1,7 +1,6 @@
 import { AnimationClip } from "../animation/AnimationClip";
 import { AnimatorStateScript } from "../animation/AnimatorStateScript";
 import { IClone } from "../core/IClone";
-import { IReferenceCounter } from "../resource/IReferenceCounter";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -12,7 +11,7 @@ import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 /**
  * <code>AnimatorState</code> 类用于创建动作状态。
  */
-export class AnimatorState implements IReferenceCounter, IClone {
+export class AnimatorState implements IClone {
 	/** @internal */
 	private _referenceCount: number = 0;
 
@@ -87,32 +86,20 @@ export class AnimatorState implements IReferenceCounter, IClone {
 
 	}
 
-	/**
-	 * @implements IReferenceCounter
-	 */
 	_getReferenceCount(): number {
 		return this._referenceCount;
 	}
 
-	/**
-	 * @implements IReferenceCounter
-	 */
 	_addReference(count: number = 1): void {
 		(this._clip) && (this._clip._addReference(count));
 		this._referenceCount += count;
 	}
 
-	/**
-	 * @implements IReferenceCounter
-	 */
 	_removeReference(count: number = 1): void {
 		(this._clip) && (this._clip._removeReference(count));
 		this._referenceCount -= count;
 	}
 
-	/**
-	 * @implements IReferenceCounter
-	 */
 	_clearReference(): void {
 		this._removeReference(-this._referenceCount);
 	}
