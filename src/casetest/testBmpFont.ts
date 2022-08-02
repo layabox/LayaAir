@@ -12,7 +12,9 @@ export class Main {
         //Laya.stage.scaleMode = 'fixedwidth';
         Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
-        BitmapFont.loadFont(getResPath('bitmapFont/test.fnt'), new Handler(this, this.test1));
+
+        let bmpfont = new BitmapFont();
+        bmpfont.loadFont(getResPath('bitmapFont/test.fnt'), new Handler(this, this.test1, [bmpfont]));
     }
 
     /**

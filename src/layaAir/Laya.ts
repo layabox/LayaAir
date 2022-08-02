@@ -221,7 +221,7 @@ export class Laya {
         if (ILaya.Render.isConchApp && (window as any).conch.setGlobalRepaint) {
             (window as any).conch.setGlobalRepaint(Laya.stage.setGlobalRepaint.bind(Laya.stage));
         }
-        URL.rootPath = URL._basePath = Laya._getUrlPath();
+        URL.rootPath = URL.basePath = Laya._getUrlPath();
         MeshQuadTexture.__int__();
         MeshVG.__init__();
         MeshTexture.__init__();

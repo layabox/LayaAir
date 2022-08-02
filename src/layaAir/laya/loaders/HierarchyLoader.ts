@@ -5,23 +5,15 @@ import { HierarchyResource } from "../resource/HierarchyResource";
 import { HierarchyParser } from "./HierarchyParser";
 import { LegacyUIParser } from "./LegacyUIParser";
 
-type HierarchyParserAPI = {
+interface HierarchyParserAPI {
     collectResourceLinks: (data: any, basePath: string) => (string | ILoadURL)[],
     parse: (data: any, options?: Record<string, any>, errors?: Array<any>) => Array<Node> | Node;
 }
 
 export class HierarchyLoader implements IResourceLoader {
-    static v3: HierarchyParserAPI = {
-        collectResourceLinks: HierarchyParser.collectResourceLinks,
-        parse: HierarchyParser.parse,
-    };
-
+    static v3: HierarchyParserAPI = HierarchyParser;
     static v2: HierarchyParserAPI = null;
-
-    static legacySceneOrPrefab: HierarchyParserAPI = {
-        collectResourceLinks: LegacyUIParser.collectResourceLinks,
-        parse: LegacyUIParser.parse
-    };
+    static legacySceneOrPrefab: HierarchyParserAPI = LegacyUIParser;
 
     load(task: ILoadTask) {
         return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {

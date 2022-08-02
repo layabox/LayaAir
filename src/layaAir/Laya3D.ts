@@ -230,9 +230,9 @@ export class Laya3D {
      * @param	width  3D画布宽度。
      * @param	height 3D画布高度。
      */
-    static init(width: number, height: number, config: Config3D = null, compolete: Handler = null): void {
+    static init(width: number, height: number, config: Config3D = null, complete: Handler = null): void {
         if (Laya3D._isInit) {
-            compolete && compolete.run();
+            complete && complete.run();
             return;
         }
         Laya3D._isInit = true;
@@ -249,13 +249,13 @@ export class Laya3D {
         if (physics3D == null || config.isUseCannonPhysicsEngine) {
             Physics3D._enablePhysics = false;
             Laya3D.__init__(width, height, config);
-            compolete && compolete.run();
+            complete && complete.run();
         } else {
             Physics3D._enablePhysics = true;
             //should convert MB to pages
             physics3D(config.defaultPhysicsMemory * 16, new BulletInteractive(null,null)).then(function (): void {
                 Laya3D.__init__(width, height, config);
-                compolete && compolete.run();
+                complete && complete.run();
             });
         }
     }

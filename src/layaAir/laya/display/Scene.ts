@@ -8,6 +8,7 @@ import { ILaya } from "../../ILaya";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { Const } from "../Const";
+import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * 场景类，负责场景创建，加载，销毁等功能
@@ -23,20 +24,21 @@ export class Scene extends Sprite {
 
     /**场景被关闭后，是否自动销毁（销毁节点和使用到的资源），默认为false*/
     autoDestroyAtClosed: boolean = false;
-
-    /**场景时钟*/
-    private _timer: Timer;
-    /**@private */
-    private _viewCreated: boolean = false;
     /**@internal */
     _idMap?: any;
     /**@internal */
     _$componentType: string = "Scene";
 
+    /**场景时钟*/
+    private _timer: Timer;
+    /**@private */
+    private _viewCreated: boolean = false;
+    private _scene3D: Sprite;
+
     constructor(createChildren = true) {
         super();
-        //not ready状态变更修改为加载资源之前后
-        // this._setBit(Const.NOT_READY, true);
+
+        this._setBit(Const.DISPLAY, true);
         Scene.unDestroyedScenes.push(this);
         this._scene = this;
         if (createChildren)
@@ -253,9 +255,38 @@ export class Scene extends Sprite {
         this.callLater(this._sizeChanged);
     }
 
+    /**
+     * 场景时钟
+     * @override
+     */
+    get timer(): Timer {
+        return this._timer || ILaya.timer;
+    }
+
+    set timer(value: Timer) {
+        this._timer = value;
+    }
+
+    get scene3D(): Sprite {
+        return this._scene3D;
+    }
+
     /**@private */
     protected _sizeChanged(): void {
         this.event(Event.RESIZE);
+    }
+
+    _setDisplay(value: boolean): void {
+        if (this._scene3D) {
+            if (value) {
+                if (!this._scene3D.parent)
+                    ILaya.stage.addChildAt(this._scene3D, 0);
+            }
+            else
+                this._scene3D.removeSelf();
+        }
+
+        super._setDisplay(value);
     }
 
     //////////////////////////////////////静态方法//////////////////////////////////////////
@@ -276,18 +307,6 @@ export class Scene extends Sprite {
     }
 
     /**
-     * 场景时钟
-     * @override
-     */
-    get timer(): Timer {
-        return this._timer || ILaya.timer;
-    }
-
-    set timer(value: Timer) {
-        this._timer = value;
-    }
-
-    /**
      * 加载场景及场景使用到的资源
      * @param	url			场景地址
      * @param	complete	加载完成回调，返回场景实例（可选）
@@ -301,12 +320,22 @@ export class Scene extends Sprite {
             if (!content) throw "Can not find scene:" + url;
             let nodes: Array<Node> = (<HierarchyResource>content).createScene();
             let scene: Scene;
-            if (nodes.length > 1) {
-                scene = new Scene();
-                scene.addChildren(nodes);
-            }
-            else
+            if (nodes.length == 1 && (nodes[0] instanceof Scene)) {
                 scene = <Scene>nodes[0];
+            }
+            else {
+                scene = new Scene();
+                let scene3DClass = ClassUtils.getClass("Laya.Scene3D");
+                let i: number;
+                if (scene3DClass && (i = nodes.findIndex(node => Object.getPrototypeOf(node).constructor === scene3DClass)) != -1) {
+                    let scene3D = <Sprite>nodes[i];
+                    nodes.splice(i, 1);
+                    scene.addChildren(...nodes);
+                    scene._scene3D = scene3D;
+                }
+                else
+                    scene.addChildren(...nodes);
+            }
             scene.url = url;
             scene._viewCreated = true;
             Scene.hideLoadingPage();
