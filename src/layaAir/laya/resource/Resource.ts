@@ -65,7 +65,7 @@ export class Resource extends EventDispatcher {
             ILaya.timer.frameLoop(1, Resource, Resource._destroyUnusedResources);
     }
 
-    //@private
+    /** @private */
     private static _destroyUnusedResources(force: boolean): void {
         if (!force && ILaya.loader.loading)
             return;

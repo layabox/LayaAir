@@ -14,6 +14,11 @@ export class URL {
     static version: any = {};
     static uuidMap: Record<string, string> = {};
 
+    /**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
+    static basePath: string = "";
+    /**root路径。只针对'~'类型的url路径有效*/
+    static rootPath: string = "";
+
     /**@private */
     private _url: string;
     /**@private */
@@ -37,21 +42,6 @@ export class URL {
     /**地址的文件夹路径（不包括文件名）。*/
     get path(): string {
         return this._path;
-    }
-
-    /**@internal 基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
-    static _basePath: string = "";
-    /**root路径。只针对'~'类型的url路径有效*/
-    static rootPath: string = "";
-
-    static set basePath(value: string) {
-        URL._basePath = ILaya.Laya._getUrlPath();//还原BaseURL为Index目录
-        URL._basePath = URL.formatURL(value);
-    }
-
-    /**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
-    static get basePath(): string {
-        return URL._basePath;
     }
 
     /** 自定义URL格式化的方式。例如： customFormat = function(url:String):String{} */
@@ -97,7 +87,7 @@ export class URL {
         if (char1 === 126) // ~
             url = URL.join(URL.rootPath, url.substring(2));
         else if (char1 !== 47) // /
-            url = URL.join(base != null ? base : URL._basePath, url);
+            url = URL.join(base != null ? base : URL.basePath, url);
 
         return url;
     }
