@@ -1,14 +1,19 @@
-import { IStatRender } from "./IStatRender";
+
 import { Browser } from "./Browser";
-//import { Laya } from "./../../Laya";
+import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite"
 import { Text } from "../display/Text"
-import { Render } from "../renders/Render"
 import { Context } from "../resource/Context"
 import { HTMLCanvas } from "../resource/HTMLCanvas"
-import { Resource } from "../resource/Resource"
-import { Stat } from "./Stat";
+import { Stat, StatUIParams } from "./Stat";
 import { ILaya } from "../../ILaya";
+import { IStatRender } from "./IStatRender";
+
+
+
+
+
+
 /**
  * 显示Stat的结果。由于stat会引入很多的循环引用，所以把显示部分拆开
  * @author laya
@@ -42,31 +47,37 @@ export class StatUI extends IStatRender {
 	 * @param	x X轴显示位置。
 	 * @param	y Y轴显示位置。
 	 */
-	show(x: number = 0, y: number = 0): void {
-		var dt: any = Stat;
-		if (!Browser._isMiniGame && !ILaya.Render.isConchApp) this._useCanvas = true;
-		this._show = true;
-		Stat._fpsData.length = 60;
-		this._view[0] = { title: "FPS(WebGL)", value: "_fpsStr", color: "yellow", units: "int" };
-		this._view[1] = { title: "Sprite", value: "_spriteStr", color: "white", units: "int" };
-		this._view[2] = { title: "RenderBatches", value: "renderBatches", color: "white", units: "int" };
-		this._view[3] = { title: "SavedRenderBatches", value: "savedRenderBatches", color: "white", units: "int" };
-		this._view[4] = { title: "CPUMemory", value: "cpuMemory", color: "yellow", units: "M" };
-		this._view[5] = { title: "GPUMemory", value: "gpuMemory", color: "yellow", units: "M" };
-		this._view[6] = { title: "Shader", value: "shaderCall", color: "white", units: "int" };
-		this._view[7] = { title: "Canvas", value: "_canvasStr", color: "white", units: "int" };
-		if (Render.is3DMode) {
-				this._view[0].title = "FPS(3D)";
-				this._view[8] = { title: "TriFaces", value: "trianglesFaces", color: "white", units: "int" };
-				this._view[9] = { title: "FrustumCulling", value: "frustumCulling", color: "white", units: "int" };
-				this._view[10] = { title: "OctreeNodeCulling", value: "octreeNodeCulling", color: "white", units: "int" };
-			}
-			if (this._useCanvas) {
-				this.createUIPre(x, y);
-			} else
-				this.createUI(x, y);
-			this.enable();
+	show(x: number = 0, y: number = 0, views: Array<StatUIParams>): void {
+		this._view.length = views.length;
+		for (let i = 0, n = this._view.length; i < n; i++) {
+			this._view[i] = views[i];
 		}
+		// var dt: any = Stat;
+		// if (!Browser._isMiniGame && !ILaya.Render.isConchApp) this._useCanvas = true;
+		this._show = true;
+		// Stat._fpsData.length = 60;
+		// this._view[0] = { title: "FPS(WebGL)", value: "_fpsStr", color: "yellow", units: "int" };
+		// this._view[1] = { title: "Sprite", value: "_spriteStr", color: "white", units: "int" };
+		// this._view[2] = { title: "RenderBatches", value: "renderBatches", color: "white", units: "int" };
+		// this._view[3] = { title: "SavedRenderBatches", value: "savedRenderBatches", color: "white", units: "int" };
+		// this._view[4] = { title: "CPUMemory", value: "cpuMemory", color: "yellow", units: "M" };
+		// this._view[5] = { title: "GPUMemory", value: "gpuMemory", color: "yellow", units: "M" };
+		// this._view[6] = { title: "Shader", value: "shaderCall", color: "white", units: "int" };
+		// this._view[7] = { title: "Canvas", value: "_canvasStr", color: "white", units: "int" };
+		// if (Render.is3DMode) {
+		// 	this._view[0].title = "FPS(3D)";
+		// 	this._view[8] = { title: "TriFaces", value: "trianglesFaces", color: "white", units: "int" };
+		// 	this._view[9] = { title: "FrustumCulling", value: "frustumCulling", color: "white", units: "int" };
+		// }
+		if (this._useCanvas) {
+			this.createUIPre(x, y);
+		} else
+			this.createUI(x, y);
+		this.enable();
+	}
+
+
+
 
 	private createUIPre(x: number, y: number): void {
 		var pixel: number = Browser.pixelRatio;
@@ -183,38 +194,34 @@ export class StatUI extends IStatRender {
 		//计算更精确的FPS值
 		Stat.FPS = Math.round((count * 1000) / (timer - Stat._timer));
 		if (this._show) {
-			//计算平均值
-			Stat.trianglesFaces = Math.round(Stat.trianglesFaces / count);
-
-			if (!this._useCanvas) {
-				Stat.renderBatches = Math.round(Stat.renderBatches / count) - 1;
-			} else {
-				Stat.renderBatches = Math.round(Stat.renderBatches / count);
-			}
-			Stat.savedRenderBatches = Math.round(Stat.savedRenderBatches / count);
-			Stat.shaderCall = Math.round(Stat.shaderCall / count);
-			Stat.spriteRenderUseCacheCount = Math.round(Stat.spriteRenderUseCacheCount / count);
-			Stat.canvasNormal = Math.round(Stat.canvasNormal / count);
-			Stat.canvasBitmap = Math.round(Stat.canvasBitmap / count);
-			Stat.canvasReCache = Math.ceil(Stat.canvasReCache / count);
-			Stat.frustumCulling = Math.round(Stat.frustumCulling / count);
-			Stat.octreeNodeCulling = Math.round(Stat.octreeNodeCulling / count);
-
+			// //计算平均值
+			// Stat.trianglesFaces = Math.round(Stat.trianglesFaces / count);
+			// if (!this._useCanvas) {
+			// 	Stat.renderBatches = Math.round(Stat.renderBatches / count) - 1;
+			// } else {
+			// 	Stat.renderBatches = Math.round(Stat.renderBatches / count);
+			// }
+			// Stat.savedRenderBatches = Math.round(Stat.savedRenderBatches / count);
+			// Stat.shaderCall = Math.round(Stat.shaderCall / count);
+			// Stat.spriteRenderUseCacheCount = Math.round(Stat.spriteRenderUseCacheCount / count);
+			// Stat.canvasNormal = Math.round(Stat.canvasNormal / count);
+			// Stat.canvasBitmap = Math.round(Stat.canvasBitmap / count);
+			// Stat.canvasReCache = Math.ceil(Stat.canvasReCache / count);
+			// Stat.frustumCulling = Math.round(Stat.frustumCulling / count);
 			var delay: string = Stat.FPS > 0 ? Math.floor(1000 / Stat.FPS).toString() : " ";
 			Stat._fpsStr = Stat.FPS + (Stat.renderSlow ? " slow" : "") + " " + delay;
+			// // if (this._useCanvas)
+			// // Stat._spriteStr = (Stat.spriteCount - 1) + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
+			// // else
+			// Sta._spriteStr = Stat.spriteCount + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
 
-			// if (this._useCanvas)
-			// Stat._spriteStr = (Stat.spriteCount - 1) + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
-			// else
-			Stat._spriteStr = Stat.spriteCount + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
-
-			Stat._canvasStr = Stat.canvasReCache + "/" + Stat.canvasNormal + "/" + Stat.canvasBitmap;
-			Stat.cpuMemory = Resource.cpuMemory;
-			Stat.gpuMemory = Resource.gpuMemory;
-			if (this._useCanvas) {
-				this.renderInfoPre();
-			} else
-				this.renderInfo();
+			// Stat._canvasStr = Stat.canvasReCache + "/" + Stat.canvasNormal + "/" + Stat.canvasBitmap;
+			// Stat.cpuMemory = Resource.cpuMemory;
+			// Stat.gpuMemory = Resource.gpuMemory;
+			// if (this._useCanvas) {
+			// 	this.renderInfoPre();
+			// } else
+			this.renderInfo(count);
 			Stat.clear();
 		}
 
@@ -222,35 +229,44 @@ export class StatUI extends IStatRender {
 		Stat._timer = timer;
 	}
 
-	private renderInfoPre(): void {
-		var i: number = 0;
-		var one: any;
-		var value: any;
-		if (this._canvas) {
-			var ctx: any = this._ctx;
-			ctx.clearRect(this._first ? 0 : this._vx, 0, this._width, this._height);
-			for (i = 0; i < this._view.length; i++) {
-				one = this._view[i];
-				//只有第一次才渲染标题文字，减少文字渲染次数
-				if (this._first) {
-					ctx.fillStyle = "white";
-					ctx.fillText(one.title, one.x, one.y);
-				}
-				ctx.fillStyle = one.color;
-				value = (Stat as any)[one.value];
-				(one.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100 + " M");
-				ctx.fillText(value + "", one.x + this._vx, one.y);
-			}
-		}
-	}
+	// private renderInfoPre(): void {
+	// 	var i: number = 0;
+	// 	var one: any;
+	// 	var value: any;
+	// 	if (this._canvas) {
+	// 		var ctx: any = this._ctx;
+	// 		ctx.clearRect(this._first ? 0 : this._vx, 0, this._width, this._height);
+	// 		for (i = 0; i < this._view.length; i++) {
+	// 			one = this._view[i];
+	// 			//只有第一次才渲染标题文字，减少文字渲染次数
+	// 			if (this._first) {
+	// 				ctx.fillStyle = "white";
+	// 				ctx.fillText(one.title, one.x, one.y);
+	// 			}
+	// 			ctx.fillStyle = one.color;
+	// 			value = (Stat as any)[one.value];
+	// 			(one.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100 + " M");
+	// 			ctx.fillText(value + "", one.x + this._vx, one.y);
+	// 		}
+	// 	}
+	// }
 
-	private renderInfo(): void {
+	private renderInfo(count: number): void {
 		var text: string = "";
 		for (var i: number = 0; i < this._view.length; i++) {
-			var one: any = this._view[i];
-			var value: any = (Stat as any)[one.value];
-			(one.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100 + " M");
-			(one.units == "K") && (value = Math.floor(value / (1024) * 100) / 100 + " K");
+			let vieparam: StatUIParams = this._view[i];
+
+			let isAverage: boolean = vieparam.mode == "average";
+
+			// var one: any = this._view[i];
+			var value: any = (Stat as any)[vieparam.value];
+			(vieparam.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100);
+			(vieparam.units == "K") && (value = Math.floor(value / (1024) * 100) / 100);
+			
+			if (isAverage)
+				value /= count;
+			(vieparam.units == "M") && (value += "M");
+			(vieparam.units == "K") && (value += "K");
 			text += value + "\n";
 		}
 		this._txt.text = text;

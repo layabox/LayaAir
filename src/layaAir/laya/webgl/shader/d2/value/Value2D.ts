@@ -7,6 +7,7 @@ import { ShaderDefines2D } from "../ShaderDefines2D"
 import { RenderState2D } from "../../../utils/RenderState2D"
 import { ILaya } from "../../../../../ILaya";
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D"
+import { TextTexture } from "laya/webgl/text/TextTexture"
 
 export class Value2D {
 
@@ -52,7 +53,7 @@ export class Value2D {
 	subID: number = 0;
 	filters: any[];
 
-	textureHost: Texture|RenderTexture2D;
+	textureHost: Texture|RenderTexture2D|TextTexture;
 	//public var fillStyle:DrawStyle;			//TODO 这个有什么用？
 	color: any[];
 	//public var strokeStyle:DrawStyle;

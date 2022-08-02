@@ -19,6 +19,7 @@ import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
 import { Component } from "../../../components/Component";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { Stat } from "../../../utils/Stat";
 
 
 /**
@@ -146,11 +147,13 @@ export class ShurikenParticleRenderer extends BaseRender {
 
 	_onEnable(): void {
 		super._onEnable();
+		Stat.particleRenderNode++;
 		(this._particleSystem.playOnAwake) && (this._particleSystem.play());
 	}
 
 	protected _onDisable(): void {
 		super._onDisable();
+		Stat.particleRenderNode--;
 		(this._particleSystem.isAlive) && (this._particleSystem.simulate(0, true));
 	}
 	/**

@@ -10,6 +10,7 @@ import { Laya } from "../../../Laya";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../layagl/LayaGL";
+import { Stat } from "../../utils/Stat";
 
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
@@ -26,9 +27,9 @@ export class Sprite3D extends Node {
 	 * @internal
 	 */
 	static __init__(): void {
-		
+
 		Sprite3D.WORLDMATRIX = Shader3D.propertyNameToID("u_WorldMat");
-		
+
 		Sprite3D.sprite3DCommandUniformMap = CommandUniformMap.createGlobalUniformMap("Sprite3D");
 		Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat");
 	}
@@ -133,6 +134,23 @@ export class Sprite3D extends Node {
 		this.layer = 0;
 		this.name = name ? name : "New Sprite3D";
 	}
+
+	/**
+	* @private
+	*/
+	protected _onActive(): void {
+		super._onActive();
+		Stat.sprite3DCount++;
+	}
+
+	/**
+	 * @private
+	 */
+	protected _onInActive(): void {
+		super._onInActive();
+		Stat.sprite3DCount--;
+	}
+
 
 	/**
 	 * @inheritDoc

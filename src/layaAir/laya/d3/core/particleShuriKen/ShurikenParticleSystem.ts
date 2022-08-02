@@ -1057,8 +1057,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @internal
      */
     _generateBounds(): void {
-        var particle: ShuriKenParticle3D = (<ShuriKenParticle3D>this._owner);
-        var particleRender: ShurikenParticleRenderer = particle.particleRenderer;
+        var particleRender: ShurikenParticleRenderer = this._ownerRender;
         var boundsMin: Vector3 = this._bounds.getMin();
         var boundsMax: Vector3 = this._bounds.getMax();
 

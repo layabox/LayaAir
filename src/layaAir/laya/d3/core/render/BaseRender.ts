@@ -23,6 +23,7 @@ import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 import { SubUniformBufferData } from "../../../RenderEngine/SubUniformBufferData";
+import { Stat } from "../../../utils/Stat";
 
 
 /**
@@ -553,6 +554,7 @@ export class BaseRender extends Component {
 	 */
 	_setBelongScene(scene: Scene3D): void {
 		this._scene = scene;
+		Stat.renderNode++;
 		if (false) {
 			this._subUniformBufferData = BaseRender._transLargeUbO.create();
 			this._subUniformBufferData.setMatrix("u_WorldMat", Matrix4x4.DEFAULT);
@@ -567,6 +569,7 @@ export class BaseRender extends Component {
 	 * @internal
 	 */
 	_setUnBelongScene() {
+		Stat.renderNode--;
 		if (false) {
 			this._subUniformBufferData && BaseRender._transLargeUbO.recover(this._subUniformBufferData);
 			this._subUniformBufferData = null;

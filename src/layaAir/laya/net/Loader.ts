@@ -312,7 +312,7 @@ export class Loader extends EventDispatcher {
             else {
                 type = Utils.getFileExtension(url);
                 if (type && !Loader.typeMap[type])
-                    type = Utils.getFileExtension(url, type.length);
+                    type = Utils.getFileExtension(url, (type as any).length);
             }
         }
 

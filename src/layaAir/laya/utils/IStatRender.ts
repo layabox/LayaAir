@@ -7,7 +7,7 @@ export class IStatRender {
      * @param	x X轴显示位置。
      * @param	y Y轴显示位置。
      */
-    show(x: number = 0, y: number = 0): void {
+    show(x: number = 0, y: number = 0,views: any): void {
     }
 
     /**激活性能统计*/

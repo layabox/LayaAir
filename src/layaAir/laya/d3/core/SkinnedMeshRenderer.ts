@@ -17,6 +17,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { SkinRenderElement } from "./render/SkinRenderElement";
 import { Material } from "./material/Material";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
+import { Scene3D } from "./scene/Scene3D";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -219,6 +220,19 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			this._localBounds._tranform(this._cacheRootBone.transform.worldMatrix, this._bounds);
 		else
 			this._localBounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
+	}
+
+	_setBelongScene(scene: Scene3D): void {
+		super._setBelongScene(scene);
+		Stat.skinRenderNode++;
+	}
+
+	/**
+	 * @internal
+	 */
+	 _setUnBelongScene() {
+		super._setUnBelongScene();
+		Stat.skinRenderNode--;
 	}
 
 	/**

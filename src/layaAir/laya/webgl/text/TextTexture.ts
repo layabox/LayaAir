@@ -34,7 +34,9 @@ export class TextTexture extends Resource {
     lastTouchTm: number = 0;
     ri: CharRenderInfo = null; 		// 如果是独立文字贴图的话带有这个信息
     //public var isIso:Boolean = false;
-
+    get gammaCorrection():number{
+        return (this.bitmap._glTexture as any).gammaCorrection;
+    }
     constructor(textureW: number, textureH: number) {
         super();
         this._texW = textureW || TextTexture.gTextRender.atlasWidth;

@@ -1,14 +1,12 @@
 import { Sprite } from "./Sprite";
 import { BitmapFont } from "./BitmapFont";
 import { SpriteConst } from "./SpriteConst";
-import { Graphics } from "./Graphics";
 import { SpriteStyle } from "./css/SpriteStyle"
 import { TextStyle } from "./css/TextStyle"
 import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { WordText } from "../utils/WordText"
-import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
 
 /**
