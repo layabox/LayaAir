@@ -21,7 +21,11 @@ void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
     surface.alpha *= pixel.vertexColor.a;
 #endif // COLOR && ENABLEVERTEXCOLOR
 
+#ifdef UV
     vec2 uv = pixel.uv0;
+#else // UV
+    vec2 uv = vec2(0.0);
+#endif // UV
 
 #ifdef DIFFUSEMAP
     vec4 diffuseSampler = texture2D(u_DiffuseTexture, uv);
@@ -75,5 +79,4 @@ void main()
 #endif // FOG
 
     gl_FragColor = vec4(surfaceColor, surface.alpha);
-
 }
