@@ -143,7 +143,7 @@ export class Image extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (value) {
-                var source = Loader.getRes(value) as Texture;
+                var source = Loader.getRes(value);
                 if (source) {
                     this.source = source;
                     this.onCompResize();

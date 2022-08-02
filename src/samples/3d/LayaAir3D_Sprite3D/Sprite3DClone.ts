@@ -29,7 +29,7 @@ export class Sprite3DClone {
 		camera.transform.translate(new Vector3(0, 0.5, 1));
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 
-		Laya.loader.create("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, this.onComplete));
+		Laya.loader.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, this.onComplete));
 	}
 
 	onComplete(): void {

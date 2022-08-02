@@ -1,16 +1,16 @@
 import { Node } from "../../display/Node";
-import { Loader } from "../../net/Loader";
 import { Handler } from "../../utils/Handler";
 import { Script3D } from "../component/Script3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Transform3D } from "./Transform3D";
-import { Laya } from "../../../Laya";
 import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
+import { HierarchyResource } from "../../resource/HierarchyResource";
+import { ILaya } from "../../../ILaya";
 
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
@@ -64,7 +64,9 @@ export class Sprite3D extends Node {
 	 * @param complete 完成回掉。
 	 */
 	static load(url: string, complete: Handler): void {
-		Laya.loader.create(url, complete, null, Loader.HIERARCHY);
+		ILaya.loader.load(url).then((res: HierarchyResource) => {
+			complete && complete.runWith([res?.createNodes()]);
+		});
 	}
 
 	/** @internal */

@@ -59,7 +59,7 @@ export class AnimatorDemo {
 		//预加载所有资源
 		var resource: any[] = ["res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh", "res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh", "res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
-		Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
+		Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
 	}
 
 	private onLoadFinish(): void {

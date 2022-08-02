@@ -49,8 +49,10 @@ export class HierarchyLoader implements IResourceLoader {
     private _load(api: HierarchyParserAPI, item: ILoadTask, data: any): Promise<HierarchyResource> {
         let basePath = URL.getPath(item.url);
         let links = api.collectResourceLinks(data, basePath);
-        return Promise.all(links.map(link => item.loader.load(link, null, item.progress.createCallback()))).then(() => {
-            return new MyHierarchyResource(api, data);
+        return Promise.all(links.map(link => item.loader.load(link, null, item.progress.createCallback()))).then((resArray: any[]) => {
+            let res = new MyHierarchyResource(api, data);
+            res.addDeps(resArray);
+            return res;
         });
     }
 }
@@ -89,4 +91,4 @@ class MyHierarchyResource extends HierarchyResource {
     }
 }
 
-Loader.registerLoader([Loader.HIERARCHY, Loader.PREFAB, "lh", "ls", "scene", "ui", "prefab"], HierarchyLoader);
+Loader.registerLoader(["lh", "ls", "scene", "ui", "prefab"], HierarchyLoader, Loader.HIERARCHY);

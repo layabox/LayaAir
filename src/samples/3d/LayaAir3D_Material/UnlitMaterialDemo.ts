@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";

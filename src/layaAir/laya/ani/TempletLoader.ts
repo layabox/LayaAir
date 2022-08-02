@@ -2,7 +2,7 @@ import { ILoadTask, IResourceLoader, Loader } from "../net/Loader";
 import { Utils } from "../utils/Utils";
 import { Templet } from "./bone/Templet";
 
-export class TempletLoader implements IResourceLoader {
+class TempletLoader implements IResourceLoader {
     load(task: ILoadTask) {
         return Promise.all([
             task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options),
@@ -12,7 +12,7 @@ export class TempletLoader implements IResourceLoader {
                 return null;
 
             let templet = new Templet();
-            templet.parseData(res[1], task.url, res[0], task.options["playbackRate"]);
+            templet._parse(res[1], task.url, res[0]);
             return templet;
         });
     }

@@ -75,7 +75,7 @@ export class AStarFindPath {
         { url: "res/threeDimen/scene/TerrainScene/Assets/AStarMap.png", priority: 1, constructParams: [64, 64, 1, false, true] }
         ];
 
-        Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
+        Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
     }
 
     private onLoadFinish(): void {

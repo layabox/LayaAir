@@ -71,7 +71,7 @@ export class SeparableSSS_RenderDemo {
         //预加载所有资源
         let resource: any[] = ["res/threeDimen/LayaScene_separable-sss/Conventional/separable-sss.ls",
             "res/threeDimen/LayaScene_separable-sss/Conventional/HeadBlinnphong.lh"];
-        Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
+        Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
     }
 
     onPreLoadFinish() {

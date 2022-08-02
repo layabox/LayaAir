@@ -1,7 +1,6 @@
 import { EmitterBase } from "./EmitterBase";
-import { ParticleSetting } from "../ParticleSetting"
-import { ParticleTemplate2D } from "../ParticleTemplate2D"
-import { ParticleTemplateBase } from "../ParticleTemplateBase"
+import { ParticleSetting } from "../ParticleSetting";
+import { ParticleTemplate2D } from "../ParticleTemplate2D";
 
 /**
  * 
@@ -10,13 +9,13 @@ import { ParticleTemplateBase } from "../ParticleTemplateBase"
 export class Emitter2D extends EmitterBase {
     setting: ParticleSetting;
     private _posRange: Float32Array;
-    private _canvasTemplate: ParticleTemplateBase;
     private _emitFun: Function;
-    constructor(_template: ParticleTemplateBase) {
+
+    constructor(_template: ParticleTemplate2D) {
         super();
         this.template = _template;
     }
-    set template(template: ParticleTemplateBase) {
+    set template(template: ParticleTemplate2D) {
         this._template = template;
         if (!template) {
             this._emitFun = null;
@@ -29,7 +28,7 @@ export class Emitter2D extends EmitterBase {
             this._emitFun = this.webGLEmit;
         }
     }
-    get template(): ParticleTemplateBase {
+    get template(): ParticleTemplate2D {
         return this._template;
     }
     /**

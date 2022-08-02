@@ -131,15 +131,6 @@ export class AnimationTemplet extends Resource {
     }
 
     /**
-     * @private
-     */
-    protected parse(data: ArrayBuffer): void {//兼容函数
-        var reader: Byte = new Byte(data);
-        this._aniVersion = reader.readUTFString();
-        AnimationParser01.parse(this, reader);
-    }
-
-    /**
      * @internal
      */
     _calculateKeyFrame(node: AnimationNodeContent, keyframeCount: number, keyframeDataCount: number): void {

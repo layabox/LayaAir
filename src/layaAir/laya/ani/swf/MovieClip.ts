@@ -261,8 +261,9 @@ export class MovieClip extends Sprite {
         }
         var key: string;
         for (key in this._loadedImage) {
-            if (this._loadedImage[key]) {
-                ILaya.Loader.clearRes(key);
+            let obj = this._loadedImage[key];
+            if (obj) {
+                ILaya.Loader.clearRes(key, obj);
                 this._loadedImage[key] = false;
             }
         }
@@ -476,7 +477,7 @@ export class MovieClip extends Sprite {
         this._setData(data, this._ids[32767]);
         this._initState();
         this.play(0);
-        this.event(Event.LOADED);
+        this.event(Event.READY);
         if (!this._parentMovieClip) this.timer.loop(this.interval, this, this.updates, null, true);
     }
 

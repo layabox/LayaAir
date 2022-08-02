@@ -240,6 +240,7 @@ export class Config3D implements IClone {
         this.lightClusterCount.cloneTo(lightClusterCount);
         destConfig3D.lightClusterCount = lightClusterCount;
         destConfig3D.pbrRenderQuality = this.pbrRenderQuality;
+        destConfig3D.enableUniformBufferObject = this.enableUniformBufferObject;
     }
 
     /**

@@ -59,11 +59,6 @@ export class glTFResource extends HierarchyResource {
      */
     private _extras: { [name: string]: { [name: string]: Handler } } = {};// todo change context from string to enum ?
 
-    static _parse(glTF: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<glTFResource> {
-        let res = new glTFResource();
-        return res._parse(glTF, createURL, progress).then(() => res);
-    }
-
     constructor() {
         super();
 
@@ -75,7 +70,7 @@ export class glTFResource extends HierarchyResource {
         this._nodes = [];
     }
 
-    private _parse(glTF: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<void> {
+    _parse(glTF: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<void> {
         this._glTF = glTF;
         let basePath = URL.getPath(createURL);
         let promise: Promise<any>;
@@ -150,6 +145,7 @@ export class glTFResource extends HierarchyResource {
 
                 Promise.all(promises).then(textures => {
                     this._textures.push(...textures);
+                    this.addDeps(textures);
                 });
             }
         });
@@ -168,6 +164,7 @@ export class glTFResource extends HierarchyResource {
                     else
                         mat = this.createDefaultMaterial(glTFMaterial);
                     this._materials[index++] = mat;
+                    this.addDep(mat);
                 }
             }
 
@@ -189,6 +186,7 @@ export class glTFResource extends HierarchyResource {
                         else
                             mesh = this.createMesh(glTFMesh, glTFSkin);
                         this._meshes[key] = mesh;
+                        this.addDep(mesh);
                     }
                 }
             }

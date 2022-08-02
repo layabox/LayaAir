@@ -24,7 +24,6 @@ import { SaveCmd } from "./cmd/SaveCmd"
 import { ScaleCmd } from "./cmd/ScaleCmd"
 import { TransformCmd } from "./cmd/TransformCmd"
 import { TranslateCmd } from "./cmd/TranslateCmd"
-import { Event } from "../events/Event"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
@@ -42,17 +41,17 @@ import { ILaya } from "../../ILaya";
  */
 export class Graphics {
     /**@internal */
-    _sp: Sprite|null = null;
+    _sp: Sprite | null = null;
     /**@internal */
     _one: any = null;
     /**@internal */
-    _render: (sprite: Sprite, context: Context, x: number, y: number)=>void = this._renderEmpty;
+    _render: (sprite: Sprite, context: Context, x: number, y: number) => void = this._renderEmpty;
     /**@private */
-    private _cmds: any[]|null = null;
+    private _cmds: any[] | null = null;
     /**@private */
-    protected _vectorgraphArray: any[]|null = null;
+    protected _vectorgraphArray: any[] | null = null;
     /**@private */
-    private _graphicBounds: GraphicsBounds|null = null;
+    private _graphicBounds: GraphicsBounds | null = null;
     /**@private */
     autoDestroy: boolean = false;
 
@@ -207,11 +206,11 @@ export class Graphics {
      * @param width		（可选）宽度。
      * @param height	（可选）高度。
      */
-    drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0): DrawImageCmd|null {
+    drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0): DrawImageCmd | null {
         if (!texture) return null;
         if (!width) width = texture.sourceWidth;
         if (!height) height = texture.sourceHeight;
-        if (texture.getIsReady()) {
+        if (texture.bitmap) {
             var wRate = width / texture.sourceWidth;
             var hRate = height / texture.sourceHeight;
             width = texture.width * wRate;
@@ -236,9 +235,7 @@ export class Graphics {
         } else {
             this._saveToCmd(null, args);
         }
-        //if (!tex.loaded) {
-        //tex.once(Event.LOADED, this, _textureLoaded, [tex, args]);
-        //}
+
         this._repaint();
         return args;
     }
@@ -255,21 +252,20 @@ export class Graphics {
      * @param color		（可选）颜色滤镜。
      * @param blendMode （可选）混合模式。
      */
-    drawTexture(texture: Texture|null, x: number = 0, y: number = 0, width: number = 0, height: number = 0, matrix: Matrix|null = null, alpha: number = 1, color: string|null = null, blendMode: string|null = null, uv?: number[]): DrawTextureCmd|null {
+    drawTexture(texture: Texture | null, x: number = 0, y: number = 0, width: number = 0, height: number = 0, matrix: Matrix | null = null, alpha: number = 1, color: string | null = null, blendMode: string | null = null, uv?: number[]): DrawTextureCmd | null {
         if (!texture || alpha < 0.01) return null;
-        if (!texture.getIsReady()) return null;
+        if (!texture.bitmap) return null;
         if (!width) width = texture.sourceWidth;
         if (!height) height = texture.sourceHeight;
-        if (texture.getIsReady()) {
-            var wRate = width / texture.sourceWidth;
-            var hRate = height / texture.sourceHeight;
-            width = texture.width * wRate;
-            height = texture.height * hRate;
-            if (width <= 0 || height <= 0) return null;
 
-            x += texture.offsetX * wRate;
-            y += texture.offsetY * hRate;
-        }
+        var wRate = width / texture.sourceWidth;
+        var hRate = height / texture.sourceHeight;
+        width = texture.width * wRate;
+        height = texture.height * hRate;
+        if (width <= 0 || height <= 0) return null;
+
+        x += texture.offsetX * wRate;
+        y += texture.offsetY * hRate;
 
         if (this._sp) {
             this._sp._renderType |= SpriteConst.GRAPHICS;
@@ -288,7 +284,7 @@ export class Graphics {
      * @param texture 纹理。
      * @param pos 绘制次数和坐标。
      */
-    drawTextures(texture: Texture, pos: any[]): DrawTexturesCmd|null {
+    drawTextures(texture: Texture, pos: any[]): DrawTexturesCmd | null {
         if (!texture) return null;
         return this._saveToCmd(Render._context.drawTextures, DrawTexturesCmd.create.call(this, texture, pos));
     }
@@ -306,10 +302,10 @@ export class Graphics {
      * @param color		颜色变换
      * @param blendMode	blend模式
      */
-	drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix|null = null, 
-			alpha: number = 1, color: string|null = null, blendMode: string|null = null, colorNum: number = 0xffffffff): DrawTrianglesCmd {
-		return this._saveToCmd(Render._context.drawTriangles, 
-			DrawTrianglesCmd.create.call(this, texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode, colorNum));
+    drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix | null = null,
+        alpha: number = 1, color: string | null = null, blendMode: string | null = null, colorNum: number = 0xffffffff): DrawTrianglesCmd {
+        return this._saveToCmd(Render._context.drawTriangles,
+            DrawTrianglesCmd.create.call(this, texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode, colorNum));
     }
 
     /**
@@ -323,8 +319,8 @@ export class Graphics {
      * @param offset	（可选）贴图纹理偏移
      *
      */
-    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point|null = null): FillTextureCmd|null {
-        if (texture && texture.getIsReady())
+    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null): FillTextureCmd | null {
+        if (texture && texture.bitmap)
             return this._saveToCmd(Render._context._fillTexture, FillTextureCmd.create.call(this, texture, x, y, width, height, type, offset || Point.EMPTY, {}));
         else
             return null;
@@ -334,7 +330,7 @@ export class Graphics {
      * @internal
      * 保存到命令流。
      */
-    _saveToCmd(fun: Function|null, args: any): any {
+    _saveToCmd(fun: Function | null, args: any): any {
         if (this._sp) {
             this._sp._renderType |= SpriteConst.GRAPHICS;
             this._sp._setRenderType(this._sp._renderType);
@@ -394,7 +390,7 @@ export class Graphics {
 
     /*** @private */
     fillWords(words: any[], x: number, y: number, font: string, color: string): FillTextCmd {
-        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, null, words, x, y, font || ILaya.Text.defaultFontStr(), color,'',0,null));
+        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, null, words, x, y, font || ILaya.Text.defaultFontStr(), color, '', 0, null));
     }
 
     /*** @private */
@@ -413,8 +409,8 @@ export class Graphics {
      * @param textAlign	文本对齐方式，可选值："left"，"center"，"right"。
      */
     strokeText(text: string, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): FillTextCmd {
-		return this._saveToCmd(Render._context.fillText, 
-			FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), null, textAlign, lineWidth, color));
+        return this._saveToCmd(Render._context.fillText,
+            FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), null, textAlign, lineWidth, color));
     }
 
     /**
@@ -551,21 +547,17 @@ export class Graphics {
      * @param height	（可选）显示图片的高度，设置为0表示使用图片默认高度。
      * @param complete	（可选）加载完成回调。
      */
-    loadImage(url: string, x: number = 0, y: number = 0, width: number = 0, height: number = 0, complete: Function|null = null): void {
-        var tex = ILaya.Loader.getRes(url) as Texture;
-        if (!tex) {
-            tex = new Texture();
-            tex.load(url);
-            ILaya.Loader.cacheRes(url, tex);
-            tex.once(Event.READY, this, this.drawImage, [tex, x, y, width, height]);
-        } else {
-            if (!tex.getIsReady()) {
-                tex.once(Event.READY, this, this.drawImage, [tex, x, y, width, height]);
-            } else
-                this.drawImage(tex, x, y, width, height);
+    loadImage(url: string, x: number = 0, y: number = 0, width: number = 0, height: number = 0, complete: Function | null = null): void {
+        let tex: Texture = ILaya.loader.getRes(url);
+        if (tex) {
+            this.drawImage(tex, x, y, width, height);
+            complete && complete.call(this._sp);
         }
-        if (complete != null) {
-            tex.getIsReady() ? complete.call(this._sp) : tex.on(Event.READY, this._sp, complete);
+        else {
+            ILaya.loader.load(url).then((tex: Texture) => {
+                this.drawImage(tex, x, y, width, height);
+                complete && complete.call(this._sp);
+            });
         }
     }
 
@@ -623,7 +615,7 @@ export class Graphics {
      * @param lineColor	线段颜色，或者填充绘图的渐变对象。
      * @param lineWidth	（可选）线段宽度。
      */
-    drawLines(x: number, y: number, points: any[], lineColor: any, lineWidth: number = 1): DrawLinesCmd|null {
+    drawLines(x: number, y: number, points: any[], lineColor: any, lineWidth: number = 1): DrawLinesCmd | null {
         if (!points || points.length < 4) return null;
         var offset = (lineWidth < 1 || lineWidth % 2 === 0) ? 0 : 0.5;
         //TODO 线段需要缓存

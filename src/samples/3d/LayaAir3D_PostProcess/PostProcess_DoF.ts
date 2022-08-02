@@ -26,7 +26,7 @@ export class PostProcessDoF {
 
         Shader3D.debugMode = true;
 
-        Laya.loader.create("res/threeDimen/LayaScene_zhuandibanben/Conventional/zhuandibanben.ls", Handler.create(this, this.onComplate));
+        Laya.loader.load("res/threeDimen/LayaScene_zhuandibanben/Conventional/zhuandibanben.ls", Handler.create(this, this.onComplate));
 
     }
 

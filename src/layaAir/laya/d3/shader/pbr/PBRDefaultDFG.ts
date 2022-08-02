@@ -1,4 +1,5 @@
 import { HDRTextureInfo } from "../../../RenderEngine/HDRTextureInfo";
+import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Base64Tool } from "../../../utils/Base64Tool";
 
@@ -23,6 +24,8 @@ export class PBRDefaultDFG {
         let tex = new Texture2D(hdrInfo.width, hdrInfo.height, hdrInfo.format, false, false, false);
         tex.setHDRData(hdrInfo);
         tex.lock = true;
+        tex.wrapModeU = WrapMode.Clamp;
+        tex.wrapModeV = WrapMode.Clamp;
 
         this._defaultDFG = tex;
     }

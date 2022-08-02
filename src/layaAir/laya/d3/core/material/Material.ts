@@ -83,7 +83,7 @@ export class Material extends Resource implements IClone {
      * @param complete 完成回掉。
      */
     static load(url: string, complete: Handler): void {
-        Laya.loader.create(url, complete, null, Loader.MATERIAL);
+        Laya.loader.load(url, complete, null, Loader.MATERIAL);
     }
 
     /**
@@ -106,9 +106,9 @@ export class Material extends Resource implements IClone {
         Material.STENCIL_Op = Shader3D.propertyNameToID("s_StencilOp");
     }
 
-   
 
-    static _parse(data:any):Material{
+
+    static _parse(data: any): Material {
         let jsonData: any = data;
         let props: any = jsonData.props;
 
@@ -130,7 +130,7 @@ export class Material extends Resource implements IClone {
             mat.setShaderName(classType);
         }
 
-        switch(jsonData.version){
+        switch (jsonData.version) {
             case "LAYAMATERIAL:04":
                 for (let key in props) {
                     switch (key) {
@@ -203,7 +203,7 @@ export class Material extends Resource implements IClone {
                                                     mat._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
                                                 break;
                                             default:
-                                                mat._shaderValues.setBuffer(uniName,vectorValue);
+                                                mat._shaderValues.setBuffer(uniName, vectorValue);
                                         }
                                     }
                                     break;
@@ -215,7 +215,7 @@ export class Material extends Resource implements IClone {
                 throw new Error("Material:unkonwn version.");
         }
         return mat;
-        
+
     }
 
     /** @internal */
@@ -549,34 +549,10 @@ export class Material extends Resource implements IClone {
      * @override
      */
     protected _disposeResource(): void {
-        if (this._referenceCount > 0)
-            this._removeTetxureReference();
-        this._shaderValues = null;
-    }
-
-    /**
-     * @implements IReferenceCounter
-     * @internal
-     * @override
-     */
-    _addReference(count: number = 1): void {
-        super._addReference(count);
-        var data: any = this._shaderValues.getData();
-        for (var k in data) {
-            var value: any = data[k];
-            if (value && value instanceof BaseTexture)//TODO:需要优化,杜绝is判断，慢
-                (<BaseTexture>value)._addReference();
-        }
-    }
-
-    /**
-     * @implements IReferenceCounter
-     * @internal
-     * @override
-     */
-    _removeReference(count: number = 1): void {
-        super._removeReference(count);
         this._removeTetxureReference();
+        this._releaseUBOData();
+        this._shaderValues.destroy();
+        this._shaderValues = null;
     }
 
     /**
@@ -616,7 +592,7 @@ export class Material extends Resource implements IClone {
         }
     }
 
-  
+
     getBoolByIndex(uniformIndex: number): boolean {
         return this.shaderData.getBool(uniformIndex);
     }
@@ -829,20 +805,14 @@ export class Material extends Resource implements IClone {
         return dest;
     }
 
-    destroy(): void {
-        this._releaseUBOData();
-        this._shaderValues.destroy();
-        super.destroy();
-    }
-
     //--------------------------------------------兼容-------------------------------------------------
-      /**
+    /**
      * 设置属性值
      * @deprecated
      * @param name 
      * @param value 
      */
-       setShaderPropertyValue(name: string, value: any) {
+    setShaderPropertyValue(name: string, value: any) {
         let propertyID = Shader3D.propertyNameToID(name);
         this.shaderData.setValueData(propertyID, value);
     }
@@ -860,11 +830,11 @@ export class Material extends Resource implements IClone {
         return this._shaderValues._defineDatas;
     }
 
-     /**
-     * @deprecated
-     * 兼容Blend数据
-     */
-      static _getRenderStateParams(type: number) {
+    /**
+    * @deprecated
+    * 兼容Blend数据
+    */
+    static _getRenderStateParams(type: number) {
         switch (type) {
             case 0x0300:
                 return BlendFactor.SourceColor;

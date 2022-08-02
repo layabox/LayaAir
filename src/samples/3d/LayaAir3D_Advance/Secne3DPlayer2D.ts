@@ -46,7 +46,7 @@ export class Secne3DPlayer2D {
 		directionLight.color = new Color(1, 1, 1, 1);
 		directionLight.transform.rotate(this._rotation);
 		//加载精灵
-		Laya.loader.create("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, this.onComplete));
+		Laya.loader.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, this.onComplete));
 	}
 
 	onComplete(): void {

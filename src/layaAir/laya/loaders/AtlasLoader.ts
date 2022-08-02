@@ -1,4 +1,4 @@
-import { IResourceLoader, ILoadTask, Loader, ILoadOptions } from "../net/Loader";
+import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
 import { AtlasResource } from "../resource/AtlasResource";
 import { Texture } from "../resource/Texture";
 import { Browser } from "../utils/Browser";
@@ -48,10 +48,7 @@ class AtlasLoader implements IResourceLoader {
             return Promise.all(toloadPics).then(pics => {
                 let frames: any = data.frames;
                 let directory: string = (data.meta && data.meta.prefix) ? data.meta.prefix : task.url.substring(0, task.url.lastIndexOf(".")) + "/";
-                let info: AtlasResource = new AtlasResource();
-                info.dir = directory;
-                info.textures.push(...pics);
-                let urls: Array<string> = info.frames;
+                let urls: Array<string> = [];
 
                 let scaleRate: number = 1;
 
@@ -86,10 +83,10 @@ class AtlasLoader implements IResourceLoader {
                     }
                 }
 
-                return info;
+                return new AtlasResource(directory, pics, urls);
             });
         });
     }
 }
 
-Loader.registerLoader([Loader.ATLAS, "atlas"], AtlasLoader);
+Loader.registerLoader(["atlas"], AtlasLoader, Loader.ATLAS);

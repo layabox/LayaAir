@@ -20,7 +20,7 @@ import { Byte } from "../../utils/Byte";
 import { Graphics } from "../../display/Graphics";
 import { IAniLib } from "../AniLibPack";
 import { Skeleton } from "./Skeleton";
-import { ILaya } from "../../../ILaya";
+import { AnimationParser01 } from "../AnimationParser01";
 
 const LAYA_ANIMATION_160_VISION: string = "LAYAANIMATION:1.6.0";
 const LAYA_ANIMATION_VISION: string = "LAYAANIMATION:1.7.0";
@@ -29,6 +29,8 @@ const LAYA_ANIMATION_VISION: string = "LAYAANIMATION:1.7.0";
  * 动画模板类
  */
 export class Templet extends AnimationTemplet {
+    public rate: number = 30;
+
     /**@internal */
     private _mainTexture: Texture;
     /**@internal */
@@ -53,7 +55,7 @@ export class Templet extends AnimationTemplet {
     /** 皮肤的字典数据 */
     skinDic: any = {};
     /** 存放纹理数据 */
-    subTextureDic: any = {};
+    subTextureDic: Record<string, Texture> = {};
     /** 是否解析失败 */
     isParseFail: boolean = false;
     /** 反转矩阵，有些骨骼动画要反转才能显示 */
@@ -71,8 +73,6 @@ export class Templet extends AnimationTemplet {
 
     /** @internal 是否需要解析audio数据 */
     private _isParseAudio: boolean = false;
-    /**@internal */
-    private _rate: number = 30;
     aniSectionDic: any = {};
     /**@internal */
     private _path: string;
@@ -96,12 +96,14 @@ export class Templet extends AnimationTemplet {
         return sk;
     }
 
-    parseData(texture: Texture, createURL: string, skeletonData: ArrayBuffer, playbackRate?: number) {
+    _parse(texture: Texture, createURL: string, skeletonData: ArrayBuffer) {
         this._path = createURL.slice(0, createURL.lastIndexOf("/")) + "/";
+        texture._addReference();
         this._mainTexture = texture;
-        this._rate = playbackRate != null ? playbackRate : 30;
 
-        this.parse(skeletonData);
+        var reader: Byte = new Byte(skeletonData);
+        this._aniVersion = reader.readUTFString();
+        AnimationParser01.parse(this, reader);
 
         if (this._aniVersion === LAYA_ANIMATION_VISION) {
             this._isParseAudio = true;
@@ -505,9 +507,9 @@ export class Templet extends AnimationTemplet {
      * @return
      */
     getTexture(name: string): Texture {
-        var tTexture: Texture = this.subTextureDic[name];
+        let tTexture = this.subTextureDic[name];
         if (!tTexture) {
-            tTexture = this.subTextureDic[name.substr(0, name.length - 1)];
+            tTexture = this.subTextureDic[name.substring(0, name.length - 1)];
         }
         if (tTexture == null) {
             return this._mainTexture;
@@ -598,13 +600,11 @@ export class Templet extends AnimationTemplet {
         }
     }
 
-    protected _disposeResource(force?: boolean): void {
-        var tTexture: any;
-        for (tTexture in this.subTextureDic) {
-            if (tTexture) {
-                this.subTextureDic[tTexture].destroy();
-            }
+    protected _disposeResource(): void {
+        for (let k in this.subTextureDic) {
+            this.subTextureDic[k]?.destroy();
         }
+        this._mainTexture._removeReference();
 
         var tSkinSlotDisplayData: SkinSlotDisplayData;
         for (var i: number = 0, n: number = this.skinSlotDisplayDataArr.length; i < n; i++) {
@@ -624,14 +624,6 @@ export class Templet extends AnimationTemplet {
         var tAni: any = this.getAnimation(index);
         if (tAni) return tAni.name;
         return null;
-    }
-
-    get rate(): number {
-        return this._rate;
-    }
-
-    set rate(v: number) {
-        this._rate = v;
     }
 }
 

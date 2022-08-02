@@ -34,7 +34,7 @@ export class WebXRStart {
 		var resource: any[] = ["res/VRscene/Conventional/SampleScene.ls",
 			"res/OculusController/controller-left.gltf",
 			"res/OculusController/controller.gltf"]
-		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
+		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
 	}
 
 	onPreLoadFinish() {

@@ -78,7 +78,7 @@ export class Mesh extends Resource implements IClone {
      * @param complete 完成回调。
      */
     static load(url: string, complete: Handler): void {
-        ILaya.loader.create(url, complete, null, Loader.MESH);
+        ILaya.loader.load(url, complete, null, Loader.MESH);
     }
 
     /** @internal */

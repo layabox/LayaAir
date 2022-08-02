@@ -27,7 +27,7 @@ export class MultiTouch {
 
 		//预加载所有资源
 		var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
-		Laya.loader.create(resource, Handler.create(this, this.onComplete));
+		Laya.loader.load(resource, Handler.create(this, this.onComplete));
 	}
 
 	private onComplete(): void {

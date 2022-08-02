@@ -12,4 +12,4 @@ class AnimationClipLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader([Loader.ANIMATIONCLIP, "lani"], AnimationClipLoader);
+Loader.registerLoader(["lani"], AnimationClipLoader, Loader.ANIMATIONCLIP);

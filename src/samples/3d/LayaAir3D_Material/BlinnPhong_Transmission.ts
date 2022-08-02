@@ -46,7 +46,7 @@ export class Blinnphong_Transmission {
 
 	}
 	loadThinkNessTexture(){
-		Laya.loader.create(this.resource, Handler.create(this, this.onPreLoadFinish));
+		Laya.loader.load(this.resource, Handler.create(this, this.onPreLoadFinish));
 	}
 
 	onPreLoadFinish(){

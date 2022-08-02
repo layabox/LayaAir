@@ -12,4 +12,4 @@ class SimpleAnimatorTextureLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader([Loader.SIMPLEANIMATORBIN, "lanit.ls"], SimpleAnimatorTextureLoader);
+Loader.registerLoader(["lanit.ls"], SimpleAnimatorTextureLoader, Loader.SIMPLEANIMATORBIN);

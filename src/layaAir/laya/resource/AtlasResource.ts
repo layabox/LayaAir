@@ -1,24 +1,21 @@
-import { ILaya } from "../../ILaya";
 import { Resource } from "./Resource";
 import { Texture } from "./Texture";
 
 export class AtlasResource extends Resource {
-    dir: string;
-    textures: Array<Texture>;
-    frames: Array<string>;
+    readonly dir: string;
+    readonly textures: Array<Texture>;
+    readonly frames: Array<string>;
 
-    constructor() {
+    constructor(dir: string, textures: Array<Texture>, frames: Array<string>) {
         super();
 
-        this.textures = [];
-        this.frames = [];
+        this.dir = dir;
+        this.textures = textures;
+        this.frames = frames;
         this.lock = true;
     }
 
     protected _disposeResource(): void {
-        for (let url of this.frames)
-            ILaya.loader.clearRes(url);
-
         for (let tex of this.textures)
             tex.destroy();
 

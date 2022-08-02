@@ -7,6 +7,7 @@ import { Loader } from "../../net/Loader"
 import { Texture } from "../../resource/Texture"
 import { IHtml } from "../utils/IHtml";
 import { URL } from "../../net/URL";
+import { ILaya } from "../../../ILaya";
 
 /**
  * @private
@@ -24,11 +25,9 @@ export class HTMLImageElement extends HTMLElement {
      */
     reset(): HTMLElement {
         super.reset();
-        if (this._tex) {
-            this._tex.off(Event.LOADED, this, this.onloaded);
-        }
         this._tex = null;
         this._url = null;
+        this._style = null;
         return this;
     }
 
@@ -37,13 +36,10 @@ export class HTMLImageElement extends HTMLElement {
         if (this._url === url) return;
         this._url = url;
 
-        var tex: Texture = this._tex = Loader.getRes(url);
-        if (!tex) {
-            this._tex = tex = new Texture();
-            tex.load(url);
-        }
-
-        tex.getIsReady() ? this.onloaded() : tex.once(Event.READY, this, this.onloaded);
+        ILaya.loader.load(url).then((tex: Texture) => {
+            this._tex = tex;
+            this.onloaded();
+        });
     }
 
     //TODO:coverage

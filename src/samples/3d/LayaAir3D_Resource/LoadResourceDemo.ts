@@ -164,7 +164,7 @@ export class LoadResourceDemo {
 			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh",
 			"res/threeDimen/skinModel/BoneLinkScene/PangZiNoAni.lh",
 			"res/threeDimen/skinModel/BoneLinkScene/Assets/Model3D/PangZi-Take 001.lani"];
-		Laya.loader.create(resource, Handler.create(this, this.onPreLoadFinish));
+		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
 	}
 
 	onPreLoadFinish() {

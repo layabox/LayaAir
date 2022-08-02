@@ -45,7 +45,7 @@ export class D3SpaceToD2Space {
 
 		var completeHandler: Handler = Handler.create(this, this.onComplete);
 
-		Laya.loader.create("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", completeHandler);
+		Laya.loader.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", completeHandler);
 	}
 
 	onComplete(): void {

@@ -1542,22 +1542,22 @@ export class Sprite extends Node {
     loadImage(url: string, complete: Handler = null): Sprite {
         if (!url) {
             this.texture = null;
-            loaded.call(this);
-        } else {
-            var tex: Texture = ILaya.Loader.getRes(url);
-            if (!tex) {
-                tex = new Texture();
-                tex.load(url);
-                ILaya.Loader.cacheRes(url, tex);
-            }
-            this.texture = tex;
-            if (!tex.getIsReady()) tex.once(Event.READY, this, loaded);
-            else loaded.call(this);
-        }
-
-        function loaded(this: Sprite): void {
             this.repaint(SpriteConst.REPAINT_ALL);
             complete && complete.run();
+        } else {
+            let tex = ILaya.loader.getRes(url);
+            if (tex) {
+                this.texture = tex;
+                this.repaint(SpriteConst.REPAINT_ALL);
+                complete && complete.run();
+            }
+            else {
+                ILaya.loader.load(url).then((tex: Texture) => {
+                    this.texture = tex;
+                    this.repaint(SpriteConst.REPAINT_ALL);
+                    complete && complete.run();
+                });
+            }
         }
 
         return this;

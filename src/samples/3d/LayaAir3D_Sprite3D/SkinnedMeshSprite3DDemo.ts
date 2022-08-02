@@ -38,7 +38,7 @@ export class SkinnedMeshSprite3DDemo {
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//预加载资源
-		Laya.loader.create("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, this.onComplete));
+		Laya.loader.load("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, this.onComplete));
 
 	}
 

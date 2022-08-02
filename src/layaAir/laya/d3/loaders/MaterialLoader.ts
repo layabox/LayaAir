@@ -45,4 +45,4 @@ class MaterialLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader([Loader.MATERIAL, "lmat"], MaterialLoader);
+Loader.registerLoader(["lmat"], MaterialLoader, Loader.MATERIAL);

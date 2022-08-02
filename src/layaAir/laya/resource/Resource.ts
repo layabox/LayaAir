@@ -2,7 +2,8 @@ import { ILaya } from "../../ILaya";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { URL } from "../net/URL";
 
-var _uniqueIDCounter: number = 0;
+var _idCounter: number = 0;
+var _disposingCounter: number = 0;
 
 /**
  * <code>Resource</code> 资源存取类。
@@ -55,11 +56,24 @@ export class Resource extends EventDispatcher {
 
     /**
      * 销毁当前没有被使用的资源,该函数会忽略lock=true的资源。
-     * @param group 指定分组。
      */
     static destroyUnusedResources(): void {
-        for (var k in Resource._idResourcesMap) {
-            var res: Resource = Resource._idResourcesMap[k];
+        _disposingCounter = 0; //复位一下，避免异常造成的标志错误
+        if (!ILaya.loader.loading)
+            Resource._destroyUnusedResources(true);
+        else
+            ILaya.timer.frameLoop(1, Resource, Resource._destroyUnusedResources);
+    }
+
+    //@private
+    private static _destroyUnusedResources(force: boolean): void {
+        if (!force && ILaya.loader.loading)
+            return;
+
+        ILaya.timer.clear(Resource, Resource._destroyUnusedResources);
+
+        for (let k in Resource._idResourcesMap) {
+            let res: Resource = Resource._idResourcesMap[k];
             if (!res.lock && res._referenceCount === 0)
                 res.destroy();
         }
@@ -115,6 +129,13 @@ export class Resource extends EventDispatcher {
     }
 
     /**
+     * 是否有效，未被销毁且依赖的资源未被销毁
+     */
+    get valid(): boolean {
+        return !this._destroyed;
+    }
+
+    /**
      * 获取资源的引用计数。
      */
     get referenceCount(): number {
@@ -128,7 +149,7 @@ export class Resource extends EventDispatcher {
     protected constructor(managed?: boolean) {
         super();
 
-        this._id = ++_uniqueIDCounter;
+        this._id = ++_idCounter;
         this._destroyed = false;
         this._referenceCount = 0;
         if (managed == null || managed)
@@ -137,7 +158,6 @@ export class Resource extends EventDispatcher {
     }
 
     /**
-     * @internal
      */
     _setCPUMemory(value: number): void {
         var offsetValue: number = value - this._cpuMemory;
@@ -146,7 +166,6 @@ export class Resource extends EventDispatcher {
     }
 
     /**
-     * @internal
      */
     _setGPUMemory(value: number): void {
         var offsetValue: number = value - this._gpuMemory;
@@ -155,7 +174,6 @@ export class Resource extends EventDispatcher {
     }
 
     /**
-     * @private
      */
     _setCreateURL(url: string, uuid?: string): void {
         this.url = url;
@@ -171,43 +189,38 @@ export class Resource extends EventDispatcher {
     }
 
     /**
-     * @internal
-     * @implements IReferenceCounter
      */
     _addReference(count: number = 1): void {
         this._referenceCount += count;
     }
 
     /**
-     * @internal
-     * @implements IReferenceCounter
      */
     _removeReference(count: number = 1): void {
         this._referenceCount -= count;
+        //如果_removeReference发生在destroy中，可能是在collect或者处理内嵌资源的释放
+        if (_disposingCounter > 0 && this._referenceCount <= 0) {
+            this.destroy();
+        }
     }
 
     /**
-     * @internal
-     * @implements IReferenceCounter
      */
     _clearReference(): void {
         this._referenceCount = 0;
     }
 
     /**
-     * @private
      */
     protected _recoverResource(): void {
     }
 
     /**
-     * @private
      */
-    protected _disposeResource(force?: boolean): void {
+    protected _disposeResource(): void {
     }
 
     /**
-     * @private
      */
     protected _activeResource(): void {
 
@@ -216,20 +229,22 @@ export class Resource extends EventDispatcher {
     /**
      * 销毁资源,销毁后资源不能恢复。
      */
-    destroy(force?: boolean): void {
+    destroy(): void {
         if (this._destroyed)
             return;
 
-        if (Resource.DEBUG)
-            console.debug(`destroy ${Object.getPrototypeOf(this).constructor.name} ${this.url}`);
-
         this._destroyed = true;
         this.lock = false; //解锁资源，强制清理
-        this._disposeResource(force);
+        _disposingCounter++;
+        this._disposeResource();
+        _disposingCounter--;
         this.offAll();
         delete Resource._idResourcesMap[this.id];
-        if (this.url)
+        if (this.url) {
+            if (Resource.DEBUG)
+                console.debug(`destroy ${Object.getPrototypeOf(this).constructor.name} ${this.url}`);
             ILaya.loader.clearRes(this.url, this);
+        }
     }
 }
 

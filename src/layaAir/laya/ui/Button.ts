@@ -639,7 +639,7 @@ export class Button extends UIComponent implements ISelect {
      * 兼容老IDE
      * @private
     */
-    private set text(value: Text) {
+    set text(value: Text) {
         if (typeof (value) == "string") {
             this._text && (this._text.text = value);
         }
