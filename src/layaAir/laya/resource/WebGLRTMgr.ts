@@ -35,7 +35,7 @@ export class WebGLRTMgr {
 			}
 		}
 		*/
-		ret = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8, -1);
+		ret = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
 		//ret._mgrKey = key;
 		return ret;
 	}

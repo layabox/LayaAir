@@ -49,7 +49,7 @@ export class TextTexture extends Resource {
     recreateResource(): void {
         if (this._source)
             return;
-        var glTex: Texture2D = this._source = new Texture2D(this._texW,this._texH,TextureFormat.R8G8B8A8,false,false,false);
+        var glTex: Texture2D = this._source = new Texture2D(this._texW,this._texH,TextureFormat.R8G8B8A8,false,false,true);
         glTex.setPixelsData(null,true,false);
         glTex.lock = true;
         this.bitmap._glTexture = glTex;

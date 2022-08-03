@@ -395,7 +395,7 @@ export class Context {
 		// WebGLContext.setDepthMask(gl, true);
 		// WebGLContext.setCullFace(gl, false);
 		// WebGLContext.setFrontFace(gl, gl.CCW);
-
+		RenderTexture2D.currentActive&&RenderTexture2D.currentActive.end();
 		LayaGL.renderEngine.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
 		LayaGL.renderEngine.scissorTest(true);
 		LayaGL.renderEngine.scissor(0, 0, RenderState2D.width, RenderState2D.height);

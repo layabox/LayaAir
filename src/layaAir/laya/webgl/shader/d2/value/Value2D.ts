@@ -115,8 +115,9 @@ export class Value2D {
 			this.defines.addInt(ShaderDefines2D.MVP3D);
 			this.u_MvpMatrix = RenderState2D.matWVP.elements;
 		}
-
-		if(this.textureHost&&((this.textureHost as RenderTexture2D).gammaCorrection==1||(this.textureHost as Texture).bitmap.gammaCorrection==1)){
+		let returnGamma:boolean = !(RenderTexture2D.currentActive);
+		returnGamma = returnGamma&&(this.textureHost&&((this.textureHost as RenderTexture2D).gammaCorrection==1||(this.textureHost as Texture).bitmap.gammaCorrection==1));
+		if(returnGamma){
 			this.defines.addInt(ShaderDefines2D.GAMMASPACE);
 		}else{
 			this.defines.remove(ShaderDefines2D.GAMMASPACE);
