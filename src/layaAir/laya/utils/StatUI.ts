@@ -1,6 +1,5 @@
 
 import { Browser } from "./Browser";
-import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite"
 import { Text } from "../display/Text"
 import { Context } from "../resource/Context"
@@ -19,7 +18,7 @@ import { IStatRender } from "./IStatRender";
  * @author laya
  */
 export class StatUI extends IStatRender {
-	private static _fontSize: number = 12;
+	private static _fontSize: number = 14;
 	private _txt: Text;
 	private _leftText: Text;
 	/**@internal */
@@ -118,7 +117,7 @@ export class StatUI extends IStatRender {
 			stat.addChild(this._leftText);
 
 			this._txt = new Text();
-			this._txt.pos(130 * pixel, 5);
+			this._txt.pos(170 * pixel, 5);
 			this._txt.color = "#ffffff";
 			stat.addChild(this._txt);
 			this._sp = stat;
