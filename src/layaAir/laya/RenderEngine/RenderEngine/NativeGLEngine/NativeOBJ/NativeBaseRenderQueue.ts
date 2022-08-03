@@ -42,7 +42,7 @@ export class NativeBaseRenderQueue implements IRenderQueue {
         this.elements.length = 0;
     }
 
-    renderQueue(context:RenderContext3D) {
+    renderQueue(context:RenderContext3D):number {
         this.context = context;
         this._context.applyContext(Camera._updateMark);
         
@@ -66,7 +66,7 @@ export class NativeBaseRenderQueue implements IRenderQueue {
         BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind(); 
         this._batch.recoverData();
 
-  
+        return n;
     }
 
     private _batchQueue() {

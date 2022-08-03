@@ -41,7 +41,7 @@ export class BaseRenderQueue implements IRenderQueue {
         this.elements.length = 0;
     }
 
-    renderQueue(context: RenderContext3D) {
+    renderQueue(context: RenderContext3D):number {
         this.context = context;
         this._context.applyContext(Camera._updateMark);
 
@@ -58,6 +58,7 @@ export class BaseRenderQueue implements IRenderQueue {
             elements[i]._render(this._context);//Update Data
         BufferState._curBindedBufferState&&BufferState._curBindedBufferState.unBind();
         this._batch.recoverData();
+        return n;
     }
 
     private _batchQueue() {

@@ -15,6 +15,7 @@ import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { Stat } from "../../utils/Stat";
 
 
 /**
@@ -149,7 +150,7 @@ export class DepthPass {
 				context.changeViewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				context.changeScissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				context.destTarget = this._depthTexture;
-				scene._opaqueQueue.renderQueue(context);
+				Stat.depthCastDrawCall += scene._opaqueQueue.renderQueue(context);
 				this._depthTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);
 				context.pipelineMode = context.configPipeLineMode;
@@ -167,7 +168,7 @@ export class DepthPass {
 				context.destTarget = this._depthNormalsTexture;
 				context.changeViewport(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
 				context.changeScissor(offsetX, offsetY, this._viewPort.width, this._viewPort.height);
-				scene._opaqueQueue.renderQueue(context);
+				Stat.depthCastDrawCall += scene._opaqueQueue.renderQueue(context);
 				this._depthNormalsTexture._end();
 				this._setupDepthModeShaderValue(depthType, this._camera);
 				context.pipelineMode = context.configPipeLineMode;

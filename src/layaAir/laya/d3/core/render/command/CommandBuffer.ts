@@ -25,6 +25,7 @@ import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable
 import { Color } from "../../../math/Color";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { Stat } from "../../../../utils/Stat";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
@@ -57,6 +58,7 @@ export class CommandBuffer {
 	_apply(): void {
 		for (var i: number = 0, n: number = this._commands.length; i < n; i++)
 			this._commands[i].run();
+		Stat.cmdDrawCall+=this._commands.length;
 	}
 
 	_applyOne(): boolean {

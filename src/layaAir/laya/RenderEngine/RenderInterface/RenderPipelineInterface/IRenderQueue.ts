@@ -14,8 +14,11 @@ export interface IRenderQueue{
 	elements: SingletonList<RenderElement>;
     /**@internal 共享渲染数据 */
     _context:IRenderContext3D
-    //渲染队列
-    renderQueue(context:RenderContext3D):void;
+    /**
+     * @param context 渲染上下文
+     * @return 返回渲染数量
+     */
+    renderQueue(context:RenderContext3D):number;
     //增加渲染队列
     addRenderElement(renderElement:RenderElement):void;
     //清除队列

@@ -189,11 +189,12 @@ export class StatUI extends IStatRender {
 		Stat._count++;
 		var timer: number = Browser.now();
 		if (timer - Stat._timer < 1000) return;
-
+		
 		var count: number = Stat._count;
 		//计算更精确的FPS值
 		Stat.FPS = Math.round((count * 1000) / (timer - Stat._timer));
 		if (this._show) {
+			Stat.updateEngineData();
 			// //计算平均值
 			// Stat.trianglesFaces = Math.round(Stat.trianglesFaces / count);
 			// if (!this._useCanvas) {

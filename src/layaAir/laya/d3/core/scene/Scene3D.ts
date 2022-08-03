@@ -75,6 +75,7 @@ import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { BufferState } from "../BufferState";
 import { Color } from "../../math/Color";
 import { HierarchyResource } from "../../../resource/HierarchyResource";
+import { Stat } from "../../../utils/Stat";
 
 /**
  * 环境光模式
@@ -1336,9 +1337,7 @@ export class Scene3D extends Sprite implements ISubmit {
 		var camera: Camera = <Camera>context.camera;
 		switch (renderFlag) {
 			case Scene3D.SCENERENDERFLAG_RENDERQPAQUE:
-				//this._opaqueQueue.preRender(context);
-				//this._opaqueQueue._render(context);//非透明队列
-				this._opaqueQueue.renderQueue(context);
+				Stat.opaqueDrawCall += this._opaqueQueue.renderQueue(context);
 				break;
 			case Scene3D.SCENERENDERFLAG_SKYBOX:
 				if (camera.clearFlag === CameraClearFlags.Sky) {
@@ -1349,15 +1348,11 @@ export class Scene3D extends Sprite implements ISubmit {
 				}
 				break;
 			case Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT:
-				//this._transparentQueue.preRender(context);//透明队列
-				this._transparentQueue.renderQueue(context);
+				Stat.transDrawCall += this._transparentQueue.renderQueue(context);
 				if (FrustumCulling.debugFrustumCulling) {
 					var renderElements: RenderElement[] = this._debugTool._render._renderElements;
 					for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
-						//renderElements[i]._update(this, context, null, null);
 						context.drawRenderElement(renderElements[i]);
-						//renderElements[i]._render(context);
-						//LayaGL.renderDrawConatext.drawGeometryElement(renderElements[i]._renderElementOBJ._render())
 					}
 				}
 				break;

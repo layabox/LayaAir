@@ -30,6 +30,7 @@ import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipeli
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderPlane } from "../core/RenderPlane";
+import { Stat } from "../../utils/Stat";
 
 /**
  * Shadow Light enum
@@ -399,9 +400,7 @@ export class ShadowCasterPass {
 					scene._directLightShadowCull(shadowCullInfo, context);
 					context.cameraShaderValue = sliceData.cameraShaderValue;
 					Camera._updateMark++;
-					// if (this._castDepthBufferData) {
-					// 	this._castDepthBufferOBJ && this._castDepthBufferOBJ.setDataByUniformBufferData(this._castDepthBufferData);
-					// }
+					
 					var resolution: number = sliceData.resolution;
 					var offsetX: number = sliceData.offsetX;
 					var offsetY: number = sliceData.offsetY;
@@ -415,7 +414,7 @@ export class ShadowCasterPass {
 						ShadowCasterPass._tempVector4.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
 						context.viewport = Viewport._tempViewport;
 						context.scissor = ShadowCasterPass._tempVector4;
-						scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
+						Stat.depthCastDrawCall +=scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
 					}
 				}
 				shadowMap._end();
@@ -435,20 +434,15 @@ export class ShadowCasterPass {
 				scene._sportLightShadowCull(shadowSpotData.cameraCullInfo, context);
 				context.cameraShaderValue = shadowSpotData.cameraShaderValue;
 				Camera._updateMark++;
-				// if (this._castDepthBufferData) {
-				// 	let depthCastUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
-				// 	depthCastUBO && depthCastUBO.setDataByUniformBufferData(this._castDepthBufferData);
-				// }
 
 				LayaGL.renderEngine.viewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 				LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 				LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, null, 1);
 
 				if (scene._opaqueQueue.elements.length > 0) {
-					//LayaGL.renderEngine.scissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution)
 					context.changeViewport(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
 					context.changeScissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
-					scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
+					Stat.depthCastDrawCall += scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
 				}
 				shadowMap._end();
 				this._setupSpotShadowReceiverShaderValues(shaderValues);

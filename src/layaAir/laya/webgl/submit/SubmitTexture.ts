@@ -67,8 +67,8 @@ export class SubmitTexture extends SubmitBase {
 
         LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
 
-        Stat.renderBatches++;
-        Stat.trianglesFaces += this._numEle / 3;
+        // Stat.renderBatches++;
+        // Stat.trianglesFaces += this._numEle / 3;
         return 1;
     }
 

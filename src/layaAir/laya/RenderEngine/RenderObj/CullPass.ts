@@ -38,6 +38,7 @@ export class CullPassBase implements ICullPass {
             }
         }
     }
+    
     cullByShadowCullInfo(cullInfo: IShadowCullInfo, renderManager: ISceneRenderManager): void {
         this._cullList.length = 0;
         var renderList: SingletonList<ISingletonElement> = renderManager.list;

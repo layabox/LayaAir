@@ -2,6 +2,7 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { BaseTexture } from "../../../../resource/BaseTexture";
+import { Stat } from "../../../../utils/Stat";
 import { Vector4 } from "../../../math/Vector4";
 import { Viewport } from "../../../math/Viewport";
 import { RenderTexture } from "../../../resource/RenderTexture";
@@ -122,6 +123,7 @@ export class BlitScreenQuadCMD extends Command {
         context.destTarget = dest;
         context._contextOBJ.applyContext(Camera._updateMark);
 		context.drawRenderElement(this._renderElement);
+		Stat.blitDrawCall++;
 	}
 
     /**

@@ -1,3 +1,5 @@
+import { LayaGL } from "../layagl/LayaGL";
+import { RenderStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
 import { IStatRender } from "./IStatRender";
 /**
      * <p> <code>Stat</code> 是一个性能统计面板，可以实时更新相关的性能参数。</p>
@@ -46,6 +48,8 @@ export class Stat {
     public static OpaqueDrawCall: StatUIParams = { title: "OpaqueDrawCall", value: "opaqueDrawCall", color: "white", units: "int", mode: "average" };
     //TransformDrawCall
     public static TransDrawCall: StatUIParams = { title: "TransDrawCall", value: "transDrawCall", color: "white", units: "int", mode: "average" };
+    //DepthCastDrawCall
+    public static DepthCastDrawCall:StatUIParams = {title: "DepthCastDrawCall", value: "depthCastDrawCall", color: "white", units: "int", mode: "average" };
     //InstanceDrawCall
     public static InstanceDrawCall: StatUIParams = { title: "InstanceDrawCall", value: "instanceDrawCall", color: "white", units: "int", mode: "average" };
     //CMDDrawCall
@@ -53,18 +57,18 @@ export class Stat {
     //BlitDrawCall
     public static BlitDrawCall: StatUIParams = { title: "BlitDrawCall", value: "blitDrawCall", color: "white", units: "int", mode: "average" };
     //GPU 显存:
-    public static GPUMemory: StatUIParams = { title: "GPUMemory", value: "gpuMemory", color: "white", units: "int", mode: "summit" };
+    public static GPUMemory: StatUIParams = { title: "GPUMemory", value: "gpuMemory", color: "white", units: "M", mode: "summit" };
     //Texture2D memory
-    public static TextureMemeory: StatUIParams = { title: "TextureMemory", value: "textureMemory", color: "white", units: "int", mode: "summit" };
+    public static TextureMemeory: StatUIParams = { title: "TextureMemory", value: "textureMemory", color: "white", units: "M", mode: "summit" };
     //RenderTexture memory
-    public static RenderTextureMemory: StatUIParams = { title: "RenderTextureMemory", value: "renderTextureMemory", color: "white", units: "int", mode: "summit" };
+    public static RenderTextureMemory: StatUIParams = { title: "RenderTextureMemory", value: "renderTextureMemory", color: "white", units: "M", mode: "summit" };
     //BufferMemory
-    public static BufferMemory: StatUIParams = { title: "BufferMemory", value: "bufferMemory", color: "white", units: "int", mode: "summit" };
+    public static BufferMemory: StatUIParams = { title: "BufferMemory", value: "bufferMemory", color: "white", units: "M", mode: "summit" };
 
     public static AllShow: Array<StatUIParams> = [Stat.FPSStatUIParams, Stat.NodeStatUIParams, Stat.Sprite3DStatUIParams, Stat.DrawCall, Stat.TriangleFace, Stat.RenderNode, Stat.SkinRenderNode, Stat.ParticleRenderNode
-        , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
+        , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall,Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
     public static memoryShow: Array<StatUIParams> = [Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
-    public static renderShaow: Array<StatUIParams> = [Stat.DrawCall, Stat.TriangleFace, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall];
+    public static renderShaow: Array<StatUIParams> = [Stat.DrawCall, Stat.TriangleFace, Stat.OpaqueDrawCall, Stat.TransDrawCall,Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall];
     /** 每秒帧数。*/
     static FPS: number = 0;
     /**主舞台 <code>Stage</code> 渲染次数计数。 */
@@ -133,21 +137,21 @@ export class Stat {
     /**@internal */
     public static transDrawCall: number = 0;
     /**@internal */
+    public static depthCastDrawCall:number = 0;
+    /**@internal */
     public static instanceDrawCall: number = 0;
     /**@internal */
     public static cmdDrawCall: number = 0;
     /**@internal */
     public static blitDrawCall: number = 0;
     /** 资源管理器所管理资源的累计内存,以字节为单位。*/
-    static gpuMemory: number;
+    public static gpuMemory: number;
     /**@internal */
     public static textureMemory: number = 0;
     /**@internal */
     public static renderTextureMemory: number = 0;
     /**@interanl */
     public static bufferMemory: number = 0;
-
-
 
 
     /**@internal*/
@@ -187,6 +191,18 @@ export class Stat {
         Stat._StatRender.hide();
     }
 
+    static updateEngineData():void{
+        
+        Stat.trianglesFaces = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.Triangle);
+        Stat.drawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.DrawCall);
+        Stat.instanceDrawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
+        
+        Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.GPUMemory);
+        Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.TextureMemeory);
+        Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.RenderTextureMemory);
+        Stat.bufferMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.BufferMemory);
+    }
+
     /**
      * @private
      * 清零性能统计计算相关的数据。
@@ -198,6 +214,9 @@ export class Stat {
             if(element.mode=="average")
                 (Stat as any)[element.value] = 0;
         });
+        LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.Triangle);
+        LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.DrawCall);
+        LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
     }
 
     /**
