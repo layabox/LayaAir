@@ -54,16 +54,11 @@ export interface PropertyDescriptor {
 
 export function regClass(className?: string): any {
     return function (constructor: Function) {
-        ClassUtils.regClass(className || constructor.name, constructor);
+        if (className)
+            ClassUtils.regClass(className, constructor);
     };
 }
 
-export function executeInEditMode(constructor: Function): void {
-}
-
-export function menu(name: string): any {
-}
-
-export function property(info?: string | Partial<PropertyDescriptor>): any {
-}
-
+export function executeInEditMode(constructor: Function): void {}
+export function menu(name: string): any {}
+export function property(info?: string | Partial<PropertyDescriptor>): any {}

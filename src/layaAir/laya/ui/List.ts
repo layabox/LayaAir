@@ -571,8 +571,6 @@ export class List extends Box implements IRender, IItem {
             else
                 box = LegacyUIParser.createComp(this._itemRender, null, null, arr);
         }
-        if (!(box instanceof UIComponent))
-            box = new Box();
         box.hideFlags = HideFlags.HideAndDontSave;
 
         if (arr.length == 0 && (<any>box)["_watchMap"]) {

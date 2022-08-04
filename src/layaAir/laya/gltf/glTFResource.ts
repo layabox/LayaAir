@@ -1,6 +1,6 @@
 import * as glTF from "./glTFInterface";
 import { Material } from "../d3/core/material/Material";
-import { Texture2D, TexturePropertyParams } from "../resource/Texture2D";
+import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
 import { URL } from "../net/URL";
 import { PBRStandardMaterial } from "../d3/core/material/PBRStandardMaterial";
 import { PBRRenderMode } from "../d3/core/material/PBRMaterial";
@@ -42,11 +42,12 @@ import { Base64Tool } from "../utils/Base64Tool";
 const maxSubBoneCount = 24;
 
 export class glTFResource extends HierarchyResource {
-    private _glTF: glTF.glTF;
-    private _buffers: Record<string, ArrayBuffer>;
-    private _textures: Texture2D[];
-    private _materials: Material[];
-    private _meshes: Record<string, Mesh>;
+    protected _data: glTF.glTF;
+    protected _buffers: Record<string, ArrayBuffer>;
+    protected _textures: Texture2D[];
+    protected _materials: Material[];
+    protected _meshes: Record<string, Mesh>;
+    protected _pendingOps: Array<Promise<any>>;
 
     private _scenes: Array<Sprite3D>;
     private _nodes: Array<Sprite3D>;
@@ -57,7 +58,7 @@ export class glTFResource extends HierarchyResource {
     /**
      * 保存 extra 处理函数对象
      */
-    private _extras: { [name: string]: { [name: string]: Handler } } = {};// todo change context from string to enum ?
+    protected _extras: { [name: string]: { [name: string]: Handler } } = {};// todo change context from string to enum ?
 
     constructor() {
         super();
@@ -66,19 +67,20 @@ export class glTFResource extends HierarchyResource {
         this._textures = [];
         this._materials = [];
         this._meshes = {};
+        this._pendingOps = [];
         this._scenes = [];
         this._nodes = [];
     }
 
-    _parse(glTF: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<void> {
-        this._glTF = glTF;
+    _parse(data: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<void> {
+        this._data = data;
         let basePath = URL.getPath(createURL);
         let promise: Promise<any>;
 
-        if (glTF.buffers) {
+        if (data.buffers) {
             let promises: Array<Promise<any>> = [];
             let i = 0;
-            for (let buffer of glTF.buffers) {
+            for (let buffer of data.buffers) {
                 if (Base64Tool.isBase64String(buffer.uri)) {
                     let bin = Base64Tool.decode(buffer.uri.replace(Base64Tool.reghead, ""));
                     this._buffers[i] = bin;
@@ -98,82 +100,63 @@ export class glTFResource extends HierarchyResource {
             promise = Promise.resolve();
 
         promise = promise.then(() => {
-            //load images
-            if (glTF.images) {
-                for (let glTFImg of glTF.images) {
-                    if (glTFImg.bufferView != undefined || glTFImg.bufferView != null) {
-                        let bufferView: glTF.glTFBufferView = glTF.bufferViews[glTFImg.bufferView];
+            //load textuers
+            if (data.textures) {
+                let promises: Array<Promise<Texture2D>> = [];
+                for (let tex of data.textures) {
+                    let imgSource = tex.source;
+                    let glTFImg = data.images[imgSource];
+                    let samplerSource = tex.sampler;
+                    let glTFSampler = data.samplers ? data.samplers[samplerSource] : undefined;
+                    let constructParams = this.getTextureConstructParams(glTFImg, glTFSampler);
+                    let propertyParams = this.getTexturePropertyParams(glTFSampler);
+
+                    if (glTFImg.bufferView != null) {
+                        let bufferView: glTF.glTFBufferView = data.bufferViews[glTFImg.bufferView];
                         let buffer: ArrayBuffer = this._buffers[bufferView.buffer];
                         let byteOffset: number = (bufferView.byteOffset || 0);
                         let byteLength: number = bufferView.byteLength;
                         let arraybuffer: ArrayBuffer = buffer.slice(byteOffset, byteOffset + byteLength);
-                        let base64: string = Base64Tool.encode(arraybuffer);
-                        let base64url: string = `data:${glTFImg.mimeType};base64,${base64}`;
-
-                        glTFImg.uri = base64url;
+                        promises.push(this.loadTextureFromBuffer(arraybuffer, glTFImg.mimeType, constructParams, propertyParams, progress));
                     }
-                }
-            }
-
-            //load textuers
-            if (glTF.textures) {
-                let promises: Array<Promise<Texture2D>> = [];
-                for (let tex of glTF.textures) {
-                    let imgSource = tex.source;
-                    let glTFImg = glTF.images[imgSource];
-                    let samplerSource = tex.sampler;
-                    let glTFSampler = glTF.samplers ? glTF.samplers[samplerSource] : undefined;
-                    let constructParams = this.getTextureConstructParams(glTFImg, glTFSampler);
-                    let propertyParams = this.getTexturePropertyParams(glTFSampler);
-                    if (Base64Tool.isBase64String(glTFImg.uri)) {
-                        //base64编码的图片不需要缓存
-                        promises.push(ILaya.loader.load({
-                            url: URL.join(basePath, glTFImg.uri),
-                            constructParams: constructParams,
-                            propertyParams: propertyParams,
-                            cache: false
-                        }, Loader.TEXTURE2D, progress?.createCallback()));
-                    }
-                    else {
-                        promises.push(ILaya.loader.load({
-                            url: URL.join(basePath, glTFImg.uri),
-                            constructParams: constructParams,
-                            propertyParams: propertyParams
-                        }, Loader.TEXTURE2D, progress?.createCallback()));
-                    }
+                    else
+                        promises.push(this.loadTexture(URL.join(basePath, glTFImg.uri), constructParams, propertyParams, progress));
                 }
 
-                Promise.all(promises).then(textures => {
+                return Promise.all(promises).then(textures => {
+                    textures = textures.filter(tex => tex);
                     this._textures.push(...textures);
                     this.addDeps(textures);
                 });
             }
+
+            return null;
         });
 
-        return promise.then(() => {
+        promise = promise.then(() => {
             //create materials
-            if (glTF.materials) {
+            if (data.materials) {
                 let index = 0;
-                for (let glTFMaterial of glTF.materials) {
+                for (let glTFMaterial of data.materials) {
                     let mat: Material;
                     // todo extension
                     if (glTFMaterial.extras) {
-                        let createHandler = Handler.create(this, this.createDefaultMaterial, null, false);
+                        let createHandler = Handler.create(this, this.createMaterial, null, false);
                         mat = this.executeExtras("MATERIAL", glTFMaterial.extras, createHandler, [glTFMaterial]);
                     }
                     else
-                        mat = this.createDefaultMaterial(glTFMaterial);
+                        mat = this.createMaterial(glTFMaterial);
                     this._materials[index++] = mat;
                     this.addDep(mat);
                 }
             }
 
             //create meshes
-            if (glTF.meshes && glTF.nodes) {
-                for (let glTFNode of glTF.nodes) {
+            if (data.meshes && data.nodes) {
+                for (let glTFNode of data.nodes) {
                     if (glTFNode.mesh != null) {
-                        let glTFMesh = this._glTF.meshes[glTFNode.mesh];
-                        let glTFSkin = this._glTF.skins?.[glTFNode.skin];
+                        let glTFMesh = this._data.meshes[glTFNode.mesh];
+                        let glTFSkin = this._data.skins?.[glTFNode.skin];
                         let key = glTFNode.mesh + (glTFNode.skin != null ? ("_" + glTFNode.skin) : "");
                         let mesh = this._meshes[key];
                         if (mesh)
@@ -191,21 +174,24 @@ export class glTFResource extends HierarchyResource {
                 }
             }
         });
+
+        this._pendingOps.unshift(promise);
+        return Promise.all(this._pendingOps).then();
     }
 
-    public createNode(): Node {
-        let glTF = this._glTF;
+    public createNodes(): Node {
+        let data = this._data;
 
         this._scenes.length = 0;
         this._nodes.length = 0;
         this._nameID = 0;
 
-        this.loadNodes(glTF.nodes);
-        this.buildHierarchy(glTF.nodes);
-        this.loadScenes(glTF.scenes);
-        this.loadAnimations(glTF.animations);
+        this.loadNodes(data.nodes);
+        this.buildHierarchy(data.nodes);
+        this.loadScenes(data.scenes);
+        this.loadAnimations(data.animations);
 
-        let defaultSceneIndex = (glTF.scene != undefined) ? glTF.scene : 0;
+        let defaultSceneIndex = (data.scene != undefined) ? data.scene : 0;
         let defaultScene: Sprite3D = this._scenes[defaultSceneIndex];
         this._scenes.length = 0;
         this._nodes.length = 0;
@@ -248,7 +234,7 @@ export class glTFResource extends HierarchyResource {
      * @param params 
      */
     private executeExtras(context: string, glTFExtra: glTF.glTFNodeProperty, createHandler: Handler, params?: any): any {
-        let contextExtra: any = this._extras[context];
+        let contextExtra = this._extras[context];
         let extraRes: any = null;
 
         if (contextExtra) {
@@ -261,6 +247,27 @@ export class glTFResource extends HierarchyResource {
         extraRes = extraRes || createHandler.runWith(params);
         createHandler.recover();
         return extraRes;
+    }
+
+    protected loadTextureFromBuffer(buffer: ArrayBuffer, mimeType: glTF.glTFImageMimeType, constructParams: TextureConstructParams, propertyParams: TexturePropertyParams, progress?: IBatchProgress): Promise<Texture2D> {
+        let base64: string = Base64Tool.encode(buffer);
+        let url: string = `data:${mimeType};base64,${base64}`;
+
+        return ILaya.loader.load({ url: url, constructParams: constructParams, propertyParams: propertyParams },
+            Loader.TEXTURE2D, progress?.createCallback());
+    }
+
+    protected loadTexture(url: string, constructParams: TextureConstructParams, propertyParams: TexturePropertyParams, progress?: IBatchProgress): Promise<Texture2D> {
+        return ILaya.loader.load({ url: url, constructParams: constructParams, propertyParams: propertyParams },
+            Loader.TEXTURE2D, progress?.createCallback());
+    }
+
+    protected toOcclusionTransTexture(tex: Texture2D): Texture2D {
+        return glTFTextureEditor.glTFOcclusionTrans(tex);
+    }
+
+    protected toMetallicGlossTransTexture(tex: Texture2D, metallicFactor: number, roughnessFactor: number): Texture2D {
+        return glTFTextureEditor.glTFMetallicGlossTrans(tex, metallicFactor, roughnessFactor);
     }
 
     /**
@@ -343,11 +350,11 @@ export class glTFResource extends HierarchyResource {
      * @param accessorIndex 
      */
     private getBufferwithAccessorIndex(accessorIndex: number) {
-        let accessor: glTF.glTFAccessor = this._glTF.accessors[accessorIndex];
+        let accessor: glTF.glTFAccessor = this._data.accessors[accessorIndex];
         if (!accessor)
             return null;
 
-        let bufferView: glTF.glTFBufferView = this._glTF.bufferViews[accessor.bufferView];
+        let bufferView: glTF.glTFBufferView = this._data.bufferViews[accessor.bufferView];
         let buffer: ArrayBuffer = this._buffers[bufferView.buffer];
 
         let count: number = accessor.count;
@@ -483,7 +490,7 @@ export class glTFResource extends HierarchyResource {
      * 根据 glTFTextureInfo 获取 Texture2D
      * @param glTFTextureInfo 
      */
-    private getTexturewithInfo(glTFTextureInfo: glTF.glTFTextureInfo): Texture2D {
+    private getTextureWithInfo(glTFTextureInfo: glTF.glTFTextureInfo): Texture2D {
 
         // uv 非 0 
         if (glTFTextureInfo.texCoord) {
@@ -499,33 +506,60 @@ export class glTFResource extends HierarchyResource {
      * 根据 glTFMaterial 节点数据创建 default Material
      * @param glTFMaterial 
      */
-    private createDefaultMaterial(glTFMaterial: glTF.glTFMaterial): PBRStandardMaterial {
+    protected createMaterial(glTFMaterial: glTF.glTFMaterial): PBRStandardMaterial {
         let layaPBRMaterial: PBRStandardMaterial = new PBRStandardMaterial();
 
         // apply glTF Material property
         layaPBRMaterial.name = glTFMaterial.name ? glTFMaterial.name : "";
 
         if (glTFMaterial.pbrMetallicRoughness) {
-            this.applyPBRMetallicRoughness(glTFMaterial.pbrMetallicRoughness, layaPBRMaterial);
+            let pbrMetallicRoughness = glTFMaterial.pbrMetallicRoughness;
+            if (pbrMetallicRoughness.baseColorFactor) {
+                layaPBRMaterial.albedoColor.fromArray(pbrMetallicRoughness.baseColorFactor);
+            }
+
+            if (pbrMetallicRoughness.baseColorTexture) {
+                layaPBRMaterial.albedoTexture = this.getTextureWithInfo(pbrMetallicRoughness.baseColorTexture);
+            }
+
+            let metallicFactor: number = layaPBRMaterial.metallic = 1.0;
+            if (pbrMetallicRoughness.metallicFactor != undefined) {
+                metallicFactor = layaPBRMaterial.metallic = pbrMetallicRoughness.metallicFactor;
+            }
+
+            let roughnessFactor = 1.0;
+            layaPBRMaterial.smoothness = 0.0;
+            if (pbrMetallicRoughness.roughnessFactor != undefined) {
+                roughnessFactor = pbrMetallicRoughness.roughnessFactor;
+                layaPBRMaterial.smoothness = 1.0 - pbrMetallicRoughness.roughnessFactor;
+            }
+
+            if (pbrMetallicRoughness.metallicRoughnessTexture) {
+                let metallicGlossTexture = this.getTextureWithInfo(pbrMetallicRoughness.metallicRoughnessTexture);
+                if (metallicGlossTexture)
+                    layaPBRMaterial.metallicGlossTexture = this.toMetallicGlossTransTexture(metallicGlossTexture, metallicFactor, roughnessFactor);
+            }
         }
 
         if (glTFMaterial.normalTexture) {
-            layaPBRMaterial.normalTexture = this.getTexturewithInfo(glTFMaterial.normalTexture);
+            layaPBRMaterial.normalTexture = this.getTextureWithInfo(glTFMaterial.normalTexture);
             if (glTFMaterial.normalTexture.scale != undefined) {
                 layaPBRMaterial.normalTextureScale = glTFMaterial.normalTexture.scale;
             }
         }
 
         if (glTFMaterial.occlusionTexture) {
-            let occlusionTexture = this.getTexturewithInfo(glTFMaterial.occlusionTexture);
-            layaPBRMaterial.occlusionTexture = glTFTextureEditor.glTFOcclusionTrans(occlusionTexture);
+            let occlusionTexture = this.getTextureWithInfo(glTFMaterial.occlusionTexture);
+            if (occlusionTexture) {
+                layaPBRMaterial.occlusionTexture = this.toOcclusionTransTexture(occlusionTexture);
+            }
             if (glTFMaterial.occlusionTexture.strength != undefined) {
                 layaPBRMaterial.occlusionTextureStrength = glTFMaterial.occlusionTexture.strength;
             }
         }
 
         if (glTFMaterial.emissiveTexture) {
-            layaPBRMaterial.emissionTexture = this.getTexturewithInfo(glTFMaterial.emissiveTexture);
+            layaPBRMaterial.emissionTexture = this.getTextureWithInfo(glTFMaterial.emissiveTexture);
             if (layaPBRMaterial.emissionTexture) {
                 layaPBRMaterial.enableEmission = true;
             }
@@ -565,39 +599,6 @@ export class glTFResource extends HierarchyResource {
         }
 
         return layaPBRMaterial;
-    }
-
-    /**
-     * 应用 pbrMetallicRoughness 数据
-     * @param pbrMetallicRoughness 
-     * @param layaPBRMaterial 
-     */
-    private applyPBRMetallicRoughness(pbrMetallicRoughness: glTF.glTFMaterialPbrMetallicRoughness, layaPBRMaterial: PBRStandardMaterial): void {
-        if (pbrMetallicRoughness.baseColorFactor) {
-            layaPBRMaterial.albedoColor.fromArray(pbrMetallicRoughness.baseColorFactor);
-        }
-
-        if (pbrMetallicRoughness.baseColorTexture) {
-            layaPBRMaterial.albedoTexture = this.getTexturewithInfo(pbrMetallicRoughness.baseColorTexture);
-        }
-
-        let metallicFactor: number = layaPBRMaterial.metallic = 1.0;
-        if (pbrMetallicRoughness.metallicFactor != undefined) {
-            metallicFactor = layaPBRMaterial.metallic = pbrMetallicRoughness.metallicFactor;
-        }
-
-        let roughnessFactor = 1.0;
-        layaPBRMaterial.smoothness = 0.0;
-        if (pbrMetallicRoughness.roughnessFactor != undefined) {
-            roughnessFactor = pbrMetallicRoughness.roughnessFactor;
-            layaPBRMaterial.smoothness = 1.0 - pbrMetallicRoughness.roughnessFactor;
-        }
-
-        if (pbrMetallicRoughness.metallicRoughnessTexture) {
-            let metallicGlossTexture: Texture2D = this.getTexturewithInfo(pbrMetallicRoughness.metallicRoughnessTexture);
-            layaPBRMaterial.metallicGlossTexture = glTFTextureEditor.glTFMetallicGlossTrans(metallicGlossTexture, metallicFactor, roughnessFactor);
-        }
-
     }
 
     /**
@@ -653,7 +654,7 @@ export class glTFResource extends HierarchyResource {
      * @param glTFScene 
      */
     private _createSceneNode(glTFScene: glTF.glTFScene): Sprite3D {
-        let glTFSceneNode: Sprite3D = new Sprite3D(glTFScene.name || "glTF_Scene_node");
+        let glTFSceneNode: Sprite3D = new Sprite3D(glTFScene.name || "Scene");
         glTFScene.nodes.forEach(nodeIndex => {
             let sprite: Sprite3D = this._nodes[nodeIndex];
             glTFSceneNode.addChild(sprite);
@@ -716,7 +717,6 @@ export class glTFResource extends HierarchyResource {
      * @param glTFNodes 
      */
     private loadNodes(glTFNodes?: glTF.glTFNode[]): void {
-
         if (!glTFNodes) {
             return;
         }
@@ -768,7 +768,7 @@ export class glTFResource extends HierarchyResource {
      * @param glTFNode 
      */
     private createMeshSprite3D(glTFNode: glTF.glTFNode): MeshSprite3D {
-        let glTFMesh: glTF.glTFMesh = this._glTF.meshes[glTFNode.mesh];
+        let glTFMesh: glTF.glTFMesh = this._data.meshes[glTFNode.mesh];
         let mesh = this._meshes[glTFNode.mesh];
         let materials: Material[] = this.pickMeshMaterials(glTFMesh);
         let sprite: MeshSprite3D = new MeshSprite3D(mesh, glTFNode.name);
@@ -781,7 +781,7 @@ export class glTFResource extends HierarchyResource {
      * @param glTFNode 
      */
     private createSkinnedMeshSprite3D(glTFNode: glTF.glTFNode): SkinnedMeshSprite3D {
-        let glTFMesh: glTF.glTFMesh = this._glTF.meshes[glTFNode.mesh];
+        let glTFMesh: glTF.glTFMesh = this._data.meshes[glTFNode.mesh];
         let mesh: Mesh = this._meshes[glTFNode.mesh + "_" + glTFNode.skin];
         let materials: Material[] = this.pickMeshMaterials(glTFMesh);
         let sprite: SkinnedMeshSprite3D = new SkinnedMeshSprite3D(mesh, glTFNode.name);
@@ -1154,7 +1154,7 @@ export class glTFResource extends HierarchyResource {
         let boneCount: number = joints.length;
         let boneNames: string[] = mesh._boneNames = [];
         joints.forEach(nodeIndex => {
-            let node: glTF.glTFNode = this._glTF.nodes[nodeIndex];
+            let node: glTF.glTFNode = this._data.nodes[nodeIndex];
             boneNames.push(node.name);
         })
 
@@ -1198,7 +1198,7 @@ export class glTFResource extends HierarchyResource {
      * 创建 Mesh
      * @param mesh 
      */
-    private createMesh(glTFMesh: glTF.glTFMesh, glTFSkin?: glTF.glTFSkin): Mesh {
+    protected createMesh(glTFMesh: glTF.glTFMesh, glTFSkin?: glTF.glTFSkin): Mesh {
         let layaMesh: Mesh = new Mesh();
 
         let glTFMeshPrimitives: glTF.glTFMeshPrimitive[] = glTFMesh.primitives;
@@ -1409,7 +1409,7 @@ export class glTFResource extends HierarchyResource {
      * @param skinned 
      */
     private fixSkinnedSprite(glTFNode: glTF.glTFNode, skinned: SkinnedMeshSprite3D): void {
-        let skin: glTF.glTFSkin = this._glTF.skins[glTFNode.skin];
+        let skin: glTF.glTFSkin = this._data.skins[glTFNode.skin];
         let skinnedMeshRenderer: SkinnedMeshRenderer = skinned.skinnedMeshRenderer;
         skin.joints.forEach(nodeIndex => {
             let bone: Sprite3D = this._nodes[nodeIndex];
@@ -1433,7 +1433,7 @@ export class glTFResource extends HierarchyResource {
                 return false;
             if (nodeArr.indexOf(findNodeIndex) == -1) {
                 for (let index = 0; index < nodeArr.length; index++) {
-                    let glTFNode: glTF.glTFNode = this._glTF.nodes[nodeArr[index]];
+                    let glTFNode: glTF.glTFNode = this._data.nodes[nodeArr[index]];
                     if (isContainNode(glTFNode.children, findNodeIndex)) {
                         return true;
                     }
@@ -1444,8 +1444,8 @@ export class glTFResource extends HierarchyResource {
 
         let target: glTF.glTFAnimationChannelTarget = channels[0].target;
         let spriteIndex: number = target.node;
-        for (let index = 0; index < this._glTF.scenes.length; index++) {
-            let glTFScene: glTF.glTFScene = this._glTF.scenes[index];
+        for (let index = 0; index < this._data.scenes.length; index++) {
+            let glTFScene: glTF.glTFScene = this._data.scenes[index];
             if (isContainNode(glTFScene.nodes, spriteIndex)) {
                 return this._scenes[index];
             }
@@ -1519,12 +1519,12 @@ export class glTFResource extends HierarchyResource {
         let animator: Animator = animatorRoot.getComponent(Animator);
         if (!animator) {
             animator = animatorRoot.addComponent(Animator);
-            let animatorLayer: AnimatorControllerLayer = new AnimatorControllerLayer("glTF_AnimatorLayer");
+            let animatorLayer: AnimatorControllerLayer = new AnimatorControllerLayer("AnimatorLayer");
             animator.addControllerLayer(animatorLayer);
             animatorLayer.defaultWeight = 1.0;
         }
 
-        let clip: AnimationClip = this._createAnimatorClip(animation, animatorRoot);
+        let clip: AnimationClip = this.createAnimatorClip(animation, animatorRoot);
         let animatorLayer: AnimatorControllerLayer = animator.getControllerLayer();
 
         let animationName: string = clip.name;
@@ -1552,7 +1552,7 @@ export class glTFResource extends HierarchyResource {
      * @param animatorRoot 
      * @returns 
      */
-    private _createAnimatorClip(animation: glTF.glTFAnimation, animatorRoot: Sprite3D): AnimationClip {
+    protected createAnimatorClip(animation: glTF.glTFAnimation, animatorRoot: Sprite3D): AnimationClip {
         let clip: AnimationClip = new AnimationClip();
 
         let duration: number = 0;
@@ -1565,7 +1565,7 @@ export class glTFResource extends HierarchyResource {
             let target: glTF.glTFAnimationChannelTarget = channel.target;
             let sampler: glTF.glTFAnimationSampler = samplers[channel.sampler];
 
-            let clipNode: ClipNode = clipNodes[index] = new ClipNode();
+            let clipNode: ClipNode = clipNodes[index] = {};
 
             let sprite: Sprite3D = this._nodes[target.node];
 
@@ -1573,7 +1573,8 @@ export class glTFResource extends HierarchyResource {
             let outBuffer = this.getBufferwithAccessorIndex(sampler.output);
             clipNode.timeArray = new Float32Array(timeBuffer);
             clipNode.valueArray = new Float32Array(outBuffer);
-            // todo sampler.interpolation
+            let interpolation = sampler.interpolation;
+            clipNode.interpolation = interpolation;
 
             clipNode.paths = this.getAnimationPath(animatorRoot, sprite);
             clipNode.propertyOwner = "transform";
@@ -1602,7 +1603,7 @@ export class glTFResource extends HierarchyResource {
             duration = Math.max(duration, clipNode.duration);
         });
 
-        clip.name = animation.name ? animation.name : this.getNodeRandomName("glTF_Animation");
+        clip.name = animation.name ? animation.name : this.getNodeRandomName("Animation");
         clip._duration = duration;
         clip.islooping = true;
         clip._frameRate = 30;
@@ -1614,15 +1615,15 @@ export class glTFResource extends HierarchyResource {
         for (let i: number = 0; i < nodeCount; i++) {
             let node: KeyframeNode = new KeyframeNode();
 
-            let gLTFClipNode: ClipNode = clipNodes[i];
+            let glTFClipNode: ClipNode = clipNodes[i];
 
             nodes.setNodeByIndex(i, node);
             node._indexInList = i;
             // todo type
-            let type: number = node.type = gLTFClipNode.type;
-            let pathLength: number = gLTFClipNode.paths.length;
+            let type: number = node.type = glTFClipNode.type;
+            let pathLength: number = glTFClipNode.paths.length;
             node._setOwnerPathCount(pathLength);
-            let tempPath: string[] = gLTFClipNode.paths;
+            let tempPath: string[] = glTFClipNode.paths;
             for (let j: number = 0; j < pathLength; j++) {
                 node._setOwnerPathByIndex(j, tempPath[j]);
             }
@@ -1630,17 +1631,17 @@ export class glTFResource extends HierarchyResource {
             let mapArray: KeyframeNode[] = nodesMap[nodePath];
             (mapArray) || (nodesMap[nodePath] = mapArray = []);
             mapArray.push(node);
-            node.propertyOwner = gLTFClipNode.propertyOwner;
-            let propertyLength: number = gLTFClipNode.propertyLength;
+            node.propertyOwner = glTFClipNode.propertyOwner;
+            let propertyLength: number = glTFClipNode.propertyLength;
             node._setPropertyCount(propertyLength);
             for (let j: number = 0; j < propertyLength; j++) {
-                node._setPropertyByIndex(j, gLTFClipNode.propertise[j]);
+                node._setPropertyByIndex(j, glTFClipNode.propertise[j]);
             }
             let fullPath: string = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
             nodesDic[fullPath] = fullPath;
             node.fullPath = fullPath;
 
-            let keyframeCount: number = gLTFClipNode.timeArray.length;
+            let keyframeCount: number = glTFClipNode.timeArray.length;
 
             // laya animation version "LAYAANIMATION:04"
             for (let j: number = 0; j < keyframeCount; j++) {
@@ -1652,29 +1653,129 @@ export class glTFResource extends HierarchyResource {
                     case 4: // local euler angler raw
                         let floatArrayKeyframe: Vector3Keyframe = new Vector3Keyframe();
                         node._setKeyframeByIndex(j, floatArrayKeyframe);
-                        let startTimev3: number = floatArrayKeyframe.time = gLTFClipNode.timeArray[j];
+                        let startTimev3: number = floatArrayKeyframe.time = glTFClipNode.timeArray[j];
                         let inTangent: Vector3 = floatArrayKeyframe.inTangent;
                         let outTangent: Vector3 = floatArrayKeyframe.outTangent;
                         let value: Vector3 = floatArrayKeyframe.value;
-                        // todo tangent
-                        inTangent.setValue(0, 0, 0);
-                        outTangent.setValue(0, 0, 0);
-                        value.setValue(gLTFClipNode.valueArray[3 * j], gLTFClipNode.valueArray[3 * j + 1], gLTFClipNode.valueArray[3 * j + 2]);
+                        value.setValue(glTFClipNode.valueArray[3 * j], glTFClipNode.valueArray[3 * j + 1], glTFClipNode.valueArray[3 * j + 2]);
+
+                        switch (glTFClipNode.interpolation) {
+                            case glTF.glTFAnimationSamplerInterpolation.LINEAR:
+                                {
+                                    let lastI = j == 0 ? j : j - 1;
+                                    let lastTime = glTFClipNode.timeArray[lastI];
+                                    let lastX = glTFClipNode.valueArray[3 * lastI];
+                                    let lastY = glTFClipNode.valueArray[3 * lastI + 1];
+                                    let lastZ = glTFClipNode.valueArray[3 * lastI + 2];
+
+                                    let lastTimeDet = lastI == j ? 1 : startTimev3 - lastTime;
+                                    inTangent.x = (value.x - lastX) / lastTimeDet;
+                                    inTangent.y = (value.y - lastY) / lastTimeDet;
+                                    inTangent.z = (value.z - lastZ) / lastTimeDet;
+
+                                    let nextI = j == keyframeCount - 1 ? j : j + 1;
+                                    let nextTime = glTFClipNode.timeArray[nextI];
+                                    let nextX = glTFClipNode.valueArray[3 * nextI];
+                                    let nextY = glTFClipNode.valueArray[3 * nextI + 1];
+                                    let nextZ = glTFClipNode.valueArray[3 * nextI + 2];
+
+                                    let nestTimeDet = nextI == j ? 1 : nextTime - startTimev3;
+                                    outTangent.x = (nextX - value.x) / nestTimeDet;
+                                    outTangent.y = (nextY - value.y) / nestTimeDet;
+                                    outTangent.z = (nextZ - value.z) / nestTimeDet;
+
+                                    if (lastI = j) {
+                                        outTangent.cloneTo(inTangent);
+                                    }
+                                    if (nextI = j) {
+                                        inTangent.cloneTo(outTangent);
+                                    }
+                                }
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.CUBICSPLINE:// todo
+                                inTangent.setValue(0, 0, 0);
+                                outTangent.setValue(0, 0, 0);
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.STEP:
+                            default:
+                                inTangent.setValue(0, 0, 0);
+                                outTangent.setValue(0, 0, 0);
+                                break;
+                        }
+                        break;
                         break;
                     case 2: // local rotation
                         let quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe();
                         node._setKeyframeByIndex(j, quaternionKeyframe);
-                        let startTimeQu: number = quaternionKeyframe.time = gLTFClipNode.timeArray[j];
+                        let startTimeQu: number = quaternionKeyframe.time = glTFClipNode.timeArray[j];
                         let inTangentQua: Vector4 = quaternionKeyframe.inTangent;
                         let outTangentQua: Vector4 = quaternionKeyframe.outTangent;
                         let valueQua: Quaternion = quaternionKeyframe.value;
-                        // todo tangent
-                        inTangentQua.setValue(0, 0, 0, 0);
-                        outTangentQua.setValue(0, 0, 0, 0);
-                        valueQua.x = gLTFClipNode.valueArray[4 * j];
-                        valueQua.y = gLTFClipNode.valueArray[4 * j + 1];
-                        valueQua.z = gLTFClipNode.valueArray[4 * j + 2];
-                        valueQua.w = gLTFClipNode.valueArray[4 * j + 3];
+
+                        valueQua.x = glTFClipNode.valueArray[4 * j];
+                        valueQua.y = glTFClipNode.valueArray[4 * j + 1];
+                        valueQua.z = glTFClipNode.valueArray[4 * j + 2];
+                        valueQua.w = glTFClipNode.valueArray[4 * j + 3];
+
+                        switch (glTFClipNode.interpolation) {
+                            case glTF.glTFAnimationSamplerInterpolation.LINEAR:
+                                {
+                                    let lastI = j == 0 ? j : j - 1;
+                                    let lastTime = glTFClipNode.timeArray[lastI];
+                                    let lastX = glTFClipNode.valueArray[4 * lastI];
+                                    let lastY = glTFClipNode.valueArray[4 * lastI + 1];
+                                    let lastZ = glTFClipNode.valueArray[4 * lastI + 2];
+                                    let lastW = glTFClipNode.valueArray[4 * lastI + 3];
+
+                                    let lastTimeDet = lastI == j ? 1 : startTimeQu - lastTime;
+                                    inTangentQua.x = (valueQua.x - lastX) / lastTimeDet;
+                                    inTangentQua.y = (valueQua.y - lastY) / lastTimeDet;
+                                    inTangentQua.z = (valueQua.z - lastZ) / lastTimeDet;
+                                    inTangentQua.w = (valueQua.w - lastW) / lastTimeDet;
+
+                                    let nextI = j == keyframeCount - 1 ? j : j + 1;
+                                    let nextTime = glTFClipNode.timeArray[nextI];
+                                    let nextX = glTFClipNode.valueArray[4 * nextI];
+                                    let nextY = glTFClipNode.valueArray[4 * nextI + 1];
+                                    let nextZ = glTFClipNode.valueArray[4 * nextI + 2];
+                                    let nextW = glTFClipNode.valueArray[4 * nextI + 3];
+
+                                    if ((valueQua.x * nextX + valueQua.y * nextY + valueQua.z * nextZ + valueQua.w * nextW) < 0) {
+                                        nextX *= -1;
+                                        nextY *= -1;
+                                        nextZ *= -1;
+                                        nextW *= -1;
+                                        glTFClipNode.valueArray[4 * nextI] = nextX;
+                                        glTFClipNode.valueArray[4 * nextI + 1] = nextY;
+                                        glTFClipNode.valueArray[4 * nextI + 2] = nextZ;
+                                        glTFClipNode.valueArray[4 * nextI + 3] = nextW;
+                                    }
+
+                                    let nestTimeDet = nextI == j ? 1 : nextTime - startTimeQu;
+                                    outTangentQua.x = (nextX - valueQua.x) / nestTimeDet;
+                                    outTangentQua.y = (nextY - valueQua.y) / nestTimeDet;
+                                    outTangentQua.z = (nextZ - valueQua.z) / nestTimeDet;
+                                    outTangentQua.w = (nextW - valueQua.w) / nestTimeDet;
+
+                                    if (lastI = j) {
+                                        outTangentQua.cloneTo(inTangentQua);
+                                    }
+                                    if (nextI = j) {
+                                        inTangentQua.cloneTo(outTangentQua);
+                                    }
+
+                                }
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.CUBICSPLINE:// todo
+                                inTangentQua.setValue(0, 0, 0, 0);
+                                outTangentQua.setValue(0, 0, 0, 0);
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.STEP:
+                            default:
+                                inTangentQua.setValue(0, 0, 0, 0);
+                                outTangentQua.setValue(0, 0, 0, 0);
+                                break;
+                        }
                         break;
                 }
             }
@@ -1682,7 +1783,6 @@ export class glTFResource extends HierarchyResource {
 
         return clip;
     }
-
 }
 
 /**
@@ -1708,18 +1808,14 @@ class PrimitiveSubMesh {
  * @internal
  * 辅助记录 animator clip 所需数据
  */
-class ClipNode {
-    paths: string[];
-    propertyOwner: string;
-    propertyLength: number;
-    propertise: string[];
-    timeArray: Float32Array;
-    valueArray: Float32Array;
-
-    // 
-    duration: number;
-    type: number;
-    constructor() {
-
-    }
+interface ClipNode {
+    paths?: string[];
+    propertyOwner?: string;
+    propertyLength?: number;
+    propertise?: string[];
+    timeArray?: Float32Array;
+    valueArray?: Float32Array;
+    interpolation?: glTF.glTFAnimationSamplerInterpolation;
+    duration?: number;
+    type?: number;
 }
