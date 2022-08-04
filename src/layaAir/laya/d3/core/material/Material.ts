@@ -406,7 +406,7 @@ export class Material extends Resource implements IClone {
         let propertyMap: any = {};
         var shaderValues = this._shaderValues.getData();
         for (let key in shaderValues) {
-            propertyMap[Shader3D._propertyNameMap[parseInt(key)]] = shaderValues[key];
+            propertyMap[LayaGL.renderEngine.propertyIDToName(parseInt(key))] = shaderValues[key];
         }
         return propertyMap;
     }

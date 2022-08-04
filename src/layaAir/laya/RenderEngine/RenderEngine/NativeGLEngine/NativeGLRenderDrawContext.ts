@@ -28,14 +28,23 @@ export class NativeGLRenderDrawContext extends NativeGLObject implements IRender
         this._nativeObj.drawArraysInstanced(mode, first, count, instanceCount);
     }
 
+    /**
+     * @internal 
+     */
     drawArrays(mode: MeshTopology, first: number, count: number): void {
         this._nativeObj.drawArrays(mode, first, count);
     }
 
+    /**
+     * @internal
+     */
     drawElements(mode: MeshTopology, count: number, type: IndexFormat, offset: number): void {
         this._nativeObj.drawElements(mode, count, type, offset);
     }
 
+    /**
+     * @internal
+     */
     drawGeometryElement(geometryElement: IRenderGeometryElement): void {
         this._nativeObj.drawGeometryElement((geometryElement as any)._nativeObj);
     }
