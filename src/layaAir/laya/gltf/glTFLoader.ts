@@ -10,7 +10,7 @@ class glTFLoader implements IResourceLoader {
                 return null;
             }
 
-            let glTF = new glTFResource();
+            let glTF = task.options.factory ? task.options.factory() : new glTFResource();
             return glTF._parse(data, task.url, task.progress).then(() => glTF);
         });
     }

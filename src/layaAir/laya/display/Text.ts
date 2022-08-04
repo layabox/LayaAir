@@ -382,7 +382,6 @@ export class Text extends Sprite {
      * <p>文本的字体名称，以字符串形式表示。</p>
      * <p>默认值为："Arial"，可以通过Text.defaultFont设置默认字体。</p>
      * <p>如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。</p>
-     * @see laya.display.Text#defaultFont
      */
     get font(): string {
         return this._font;

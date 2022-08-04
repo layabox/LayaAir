@@ -1,5 +1,6 @@
 import { Component } from "../components/Component";
 import { Node } from "../display/Node";
+import { ILoadURL } from "../net/Loader";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SerializeUtil } from "./SerializeUtil";
 
@@ -106,10 +107,13 @@ export class HierarchyParser {
                             continue;
 
                         try {
-                            comp = new cls();
-                            comp.owner = node;
-                            components.push(comp);
-                            comp._onAdded();
+                            comp = node.getComponent(cls);
+                            if (!comp) {
+                                comp = new cls();
+                                comp.owner = node;
+                                components.push(comp);
+                                comp._onAdded();
+                            }
 
                             util.decodeObj(compData, comp, null, nodeMap);
                         }
@@ -138,12 +142,12 @@ export class HierarchyParser {
 
     public static collectResourceLinks(data: any) {
         let test = new Set();
-        let innerUrls: string[] = [];
+        let innerUrls: ILoadURL[] = [];
 
-        function addInnerUrl(uuid: string) {
+        function addInnerUrl(uuid: string, type: string) {
             if (!test.has(uuid)) {
                 test.add(uuid);
-                innerUrls.push("res://" + uuid);
+                innerUrls.push({ url: "res://" + uuid, type: type == "Laya.Texture2D" ? "Laya.Texture2D" : null });
             }
         }
 
@@ -159,7 +163,7 @@ export class HierarchyParser {
 
                         if (typeof (item) === "object") {
                             if (item._$uuid != null)
-                                addInnerUrl(item._$uuid);
+                                addInnerUrl(item._$uuid, item._$type);
                             else
                                 check(item);
                         }
@@ -167,7 +171,7 @@ export class HierarchyParser {
                 }
                 else if (typeof (child) === "object") {
                     if (child._$uuid != null)
-                        addInnerUrl(child._$uuid);
+                        addInnerUrl(child._$uuid, child._$type);
                     else
                         check(child);
                 }

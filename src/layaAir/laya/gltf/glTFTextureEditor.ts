@@ -8,19 +8,19 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
  */
 export class glTFTextureEditor {
 
-    static PixelArrayToBase64(pixelArray: Uint8Array, width: number, height: number) {
-        let clampedArray: Uint8ClampedArray = new Uint8ClampedArray(pixelArray);
-        let imageData: ImageData = new ImageData(clampedArray, width, height);
-        let canvas = new HTMLCanvas(true);
-        let ctx = canvas.source.getContext("2d");
-        canvas.source.width = width;
-        canvas.source.height = height;
-        ctx.putImageData(imageData, 0, 0);
-        let base64 = canvas.source.toDataURL();
-        return base64;
-    }
+    // static pixelArrayToBase64(pixelArray: Uint8Array, width: number, height: number) {
+    //     let clampedArray: Uint8ClampedArray = new Uint8ClampedArray(pixelArray);
+    //     let imageData: ImageData = new ImageData(clampedArray, width, height);
+    //     let canvas = new HTMLCanvas(true);
+    //     let ctx = canvas.source.getContext("2d");
+    //     canvas.source.width = width;
+    //     canvas.source.height = height;
+    //     ctx.putImageData(imageData, 0, 0);
+    //     let base64 = canvas.source.toDataURL();
+    //     return base64;
+    // }
 
-    static GenerateTexture2DWithPixel(pixelArray: Uint8Array, width: number, height: number, format: TextureFormat, mipmap: boolean): Texture2D {
+    static generateTexture2DWithPixel(pixelArray: Uint8Array, width: number, height: number, format: TextureFormat, mipmap: boolean): Texture2D {
         let tex: Texture2D = new Texture2D(width, height, format, mipmap, true);
         tex.setPixelsData(pixelArray, false, false);
         return tex;
@@ -42,7 +42,7 @@ export class glTFTextureEditor {
             layaTexPixels[offset + g] = occlusion;
         }
 
-        let layaTex: Texture2D = glTFTextureEditor.GenerateTexture2DWithPixel(layaTexPixels, glTFOcclusion.width, glTFOcclusion.height, TextureFormat.R8G8B8A8, glTFOcclusion.mipmap);
+        let layaTex: Texture2D = glTFTextureEditor.generateTexture2DWithPixel(layaTexPixels, glTFOcclusion.width, glTFOcclusion.height, TextureFormat.R8G8B8A8, glTFOcclusion.mipmap);
 
         return layaTex;
     }
@@ -66,7 +66,7 @@ export class glTFTextureEditor {
             layaTexPixels[offset + a] = smooth;
         }
 
-        let layaTex: Texture2D = glTFTextureEditor.GenerateTexture2DWithPixel(layaTexPixels, glTFMetallicGloss.width, glTFMetallicGloss.height, TextureFormat.R8G8B8A8, glTFMetallicGloss.mipmap);
+        let layaTex: Texture2D = glTFTextureEditor.generateTexture2DWithPixel(layaTexPixels, glTFMetallicGloss.width, glTFMetallicGloss.height, TextureFormat.R8G8B8A8, glTFMetallicGloss.mipmap);
         return layaTex;
     }
 

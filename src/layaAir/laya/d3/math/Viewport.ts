@@ -7,7 +7,7 @@ import { Vector4 } from "./Vector4";
 export class Viewport {
 	/** @internal */
 	static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
-	static _tempViewport:Viewport = new Viewport(0,0,0,0);
+	static _tempViewport: Viewport = new Viewport(0, 0, 0, 0);
 	/**X轴坐标*/
 	x: number;
 	/**Y轴坐标*/
@@ -28,14 +28,14 @@ export class Viewport {
 	 * @param	width 宽度。
 	 * @param	height 高度。
 	 */
-	constructor(x: number, y: number, width: number, height: number) {
+	constructor(x?: number, y?: number, width?: number, height?: number) {
 		this.minDepth = 0.0;
 		this.maxDepth = 1.0;
 
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		this.x = x ?? 0;
+		this.y = y ?? 0;
+		this.width = width ?? 0;
+		this.height = height ?? 0;
 	}
 
 	/**
@@ -95,7 +95,7 @@ export class Viewport {
 		this.unprojectFromMat(source, Viewport._tempMatrix4x4, out);
 	}
 
-	set(x:number,y:number,width:number,height:number){
+	set(x: number, y: number, width: number, height: number) {
 		this.x = x;
 		this.y = y;
 		this.width = width;

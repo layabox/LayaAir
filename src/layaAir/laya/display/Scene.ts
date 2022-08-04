@@ -38,7 +38,6 @@ export class Scene extends Sprite {
     constructor(createChildren = true) {
         super();
 
-        this._setBit(Const.DISPLAY, true);
         Scene.unDestroyedScenes.push(this);
         this._scene = this;
         if (createChildren)
@@ -126,6 +125,8 @@ export class Scene extends Sprite {
     open(closeOther: boolean = true, param: any = null): void {
         if (closeOther) Scene.closeAll();
         Scene.root.addChild(this);
+        if (this._scene3D)
+            ILaya.stage.addChildAt(this._scene3D, 0);
         this.onOpened(param);
     }
 
@@ -141,8 +142,16 @@ export class Scene extends Sprite {
      */
     close(type: string = null): void {
         this.onClosed(type);
-        if (this.autoDestroyAtClosed) this.destroy();
-        else this.removeSelf();
+        if (this.autoDestroyAtClosed) {
+            this.destroy();
+            if (this._scene3D)
+                this._scene3D.destroy();
+        }
+        else {
+            this.removeSelf();
+            if (this._scene3D)
+                this._scene3D.removeSelf();
+        }
     }
 
     /**
@@ -274,19 +283,6 @@ export class Scene extends Sprite {
     /**@private */
     protected _sizeChanged(): void {
         this.event(Event.RESIZE);
-    }
-
-    _setDisplay(value: boolean): void {
-        if (this._scene3D) {
-            if (value) {
-                if (!this._scene3D.parent)
-                    ILaya.stage.addChildAt(this._scene3D, 0);
-            }
-            else
-                this._scene3D.removeSelf();
-        }
-
-        super._setDisplay(value);
     }
 
     //////////////////////////////////////静态方法//////////////////////////////////////////
