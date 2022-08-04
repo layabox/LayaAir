@@ -11,6 +11,7 @@ import { Vector3 } from "../../d3/math/Vector3";
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
 import { Resource } from "../../resource/Resource";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
+import { CommandUniformMap } from "../CommandUniformMap";
 import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
@@ -79,4 +80,6 @@ export interface IRenderOBJCreate {
     createRenderState(): RenderState;
 
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject;
+
+    createCommandUniformMap(blockName: string): CommandUniformMap;
 }

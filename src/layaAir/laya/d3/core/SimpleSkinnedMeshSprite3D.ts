@@ -9,8 +9,8 @@ import { Sprite3D } from "./Sprite3D";
 import { Material } from "./material/Material";
 import { SimpleSkinnedMeshRenderer } from "./SimpleSkinnedMeshRenderer";
 import { Texture2D } from "../../resource/Texture2D";
-import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 
 
 

@@ -5,12 +5,12 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Transform3D } from "./Transform3D";
-import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
 import { HierarchyResource } from "../../resource/HierarchyResource";
 import { ILaya } from "../../../ILaya";
+import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。

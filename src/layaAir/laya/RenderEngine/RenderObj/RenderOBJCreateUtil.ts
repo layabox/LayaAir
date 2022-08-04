@@ -13,6 +13,7 @@ import { Plane } from "../../d3/math/Plane";
 import { Vector3 } from "../../d3/math/Vector3";
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
+import { CommandUniformMap } from "../CommandUniformMap";
 import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
@@ -141,5 +142,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
 
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
         return new UniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
+    }
+
+    createCommandUniformMap(blockName: string): CommandUniformMap{
+        return new CommandUniformMap(blockName);
     }
 }

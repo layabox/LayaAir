@@ -50,6 +50,7 @@ import { NativeInstanceRenderElementOBJ } from "./NativeInstanceRenderElementOBJ
 import { UniformBufferObject } from "../../../UniformBufferObject";
 import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
 import { RenderPlane } from "../../../../d3/core/RenderPlane";
+import { NativeCommandUniformMap } from "./NativeCommandUniformMap";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
 
@@ -145,5 +146,9 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
 
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
         return new NativeUniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
+    }
+
+    createCommandUniformMap(blockName: string): NativeCommandUniformMap{
+        return new NativeCommandUniformMap(blockName);
     }
 }

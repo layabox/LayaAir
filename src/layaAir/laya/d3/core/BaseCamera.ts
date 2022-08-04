@@ -14,10 +14,10 @@ import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { Scene3D } from "./scene/Scene3D";
-import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { Sprite3D } from "./Sprite3D";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。

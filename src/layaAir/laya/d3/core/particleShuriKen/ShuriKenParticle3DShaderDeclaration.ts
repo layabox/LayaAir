@@ -1,6 +1,6 @@
+import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
-import { CommandUniformMap } from "../scene/Scene3DShaderDeclaration";
 
 /**
  * @internal

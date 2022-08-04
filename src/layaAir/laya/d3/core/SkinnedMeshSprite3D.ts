@@ -9,8 +9,8 @@ import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
 import { Sprite3D } from "./Sprite3D";
 import { Material } from "./material/Material";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-import { CommandUniformMap } from "./scene/Scene3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 
 /**
  * <code>SkinnedMeshSprite3D</code> 类用于绑点骨骼节点精灵。

@@ -1,3 +1,4 @@
+import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
@@ -9,7 +10,6 @@ import { BaseRender } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { RenderElement } from "../../core/render/RenderElement";
 import { Scene3D } from "../../core/scene/Scene3D";
-import { CommandUniformMap } from "../../core/scene/Scene3DShaderDeclaration";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { SkyBox } from "./SkyBox";

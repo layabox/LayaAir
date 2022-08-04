@@ -13,9 +13,9 @@ import { TextureMode } from "../TextureMode";
 import { TrailGeometry } from "./TrailGeometry";
 import { TrailMaterial } from "./TrailMaterial";
 import { TrailRenderer } from "./TrailRenderer";
-import { CommandUniformMap } from "../scene/Scene3DShaderDeclaration";
 import { Sprite3D } from "../Sprite3D";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 
 /**
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。

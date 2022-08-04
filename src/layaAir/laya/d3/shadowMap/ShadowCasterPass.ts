@@ -6,7 +6,7 @@ import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowMapFormat, ShadowUtils } from "../core/light/ShadowUtils";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { Scene3D } from "../core/scene/Scene3D";
-import { CommandUniformMap, Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
+import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
 import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
@@ -31,6 +31,7 @@ import { FrustumCulling } from "../graphics/FrustumCulling";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderPlane } from "../core/RenderPlane";
 import { Stat } from "../../utils/Stat";
+import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 
 /**
  * Shadow Light enum

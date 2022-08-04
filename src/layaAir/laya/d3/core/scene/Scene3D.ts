@@ -37,7 +37,7 @@ import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
 import { Lightmap } from "./Lightmap";
-import { CommandUniformMap, Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
+import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
 import { StaticBatchManager } from "../../graphics/StaticBatchManager";
 import { DynamicBatchManager } from "../../graphics/DynamicBatchManager";
@@ -76,6 +76,7 @@ import { BufferState } from "../BufferState";
 import { Color } from "../../math/Color";
 import { HierarchyResource } from "../../../resource/HierarchyResource";
 import { Stat } from "../../../utils/Stat";
+import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 
 /**
  * 环境光模式

@@ -1,5 +1,6 @@
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { LayaGL } from "../../layagl/LayaGL";
+import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
 import { RenderStateType } from "../../RenderEngine/RenderEnum/RenderStateType";
 import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
@@ -11,7 +12,6 @@ import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Stat } from "../../utils/Stat";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { RenderState } from "../core/material/RenderState";
-import { CommandUniformMap } from "../core/scene/Scene3DShaderDeclaration";
 import { ShaderPass } from "./ShaderPass";
 
 /**
