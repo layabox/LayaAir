@@ -1,5 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { BufferState } from "../d3/core/BufferState";
+import { RenderTexture } from "../d3/resource/RenderTexture";
 import { ColorFilter } from "../filters/ColorFilter";
 import { LayaGL } from "../layagl/LayaGL";
 import { Matrix } from "../maths/Matrix";
@@ -181,6 +182,7 @@ export class NativeContext {
 			cmd.addCMD(RenderStateType.FrontFace,CullMode.Front);
 		}
 		NativeContext.const2DRenderCMD.applyCMD();
+        RenderTexture.currentActive && RenderTexture.currentActive._end();
 		// WebGLContext.setBlend(gl, true);//还原2D设置
 		// WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
 		// BlendMode.activeBlendFunction = null;// 防止submit不设置blend
