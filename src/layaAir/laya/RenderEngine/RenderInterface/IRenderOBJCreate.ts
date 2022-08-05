@@ -81,5 +81,5 @@ export interface IRenderOBJCreate {
 
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject;
 
-    createCommandUniformMap(blockName: string): CommandUniformMap;
+    createGlobalUniformMap(blockName: string): CommandUniformMap;
 }

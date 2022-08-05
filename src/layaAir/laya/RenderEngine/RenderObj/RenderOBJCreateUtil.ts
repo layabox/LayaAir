@@ -47,7 +47,11 @@ import { ShadowCullInfo } from "./ShadowCullInfo";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
+    
+    /**@internal */
+	private globalBlockMap: any = {};
 
+	
     createTransform(owner: Sprite3D): Transform3D {
         return new Transform3D(owner);
     }
@@ -144,7 +148,10 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new UniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
     }
 
-    createCommandUniformMap(blockName: string): CommandUniformMap{
-        return new CommandUniformMap(blockName);
-    }
+    createGlobalUniformMap(blockName: string): CommandUniformMap {
+		let comMap = this.globalBlockMap[blockName];
+		if (!comMap)
+			comMap = this.globalBlockMap[blockName] = new CommandUniformMap(blockName);;
+		return comMap;
+	}
 }

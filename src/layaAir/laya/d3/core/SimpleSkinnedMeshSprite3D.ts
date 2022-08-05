@@ -11,6 +11,7 @@ import { SimpleSkinnedMeshRenderer } from "./SimpleSkinnedMeshRenderer";
 import { Texture2D } from "../../resource/Texture2D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
+import { LayaGL } from "../../layagl/LayaGL";
 
 
 
@@ -37,7 +38,7 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
 		SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS = Shader3D.propertyNameToID("u_SimpleAnimatorParams");
 		SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
 		
-		const commandUniform = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+		const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
 		commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture");
 		commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams");
 		commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize");

@@ -240,7 +240,7 @@ export class Scene3D extends Sprite implements ISubmit {
 		Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
 
 
-		let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = CommandUniformMap.createGlobalUniformMap("Scene3D");
+		let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Scene3D");
 		sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor");
 		sceneUniformMap.addShaderUniform(Scene3D.FOGSTART, "u_FogStart");
 		sceneUniformMap.addShaderUniform(Scene3D.FOGRANGE, "u_FogRange");

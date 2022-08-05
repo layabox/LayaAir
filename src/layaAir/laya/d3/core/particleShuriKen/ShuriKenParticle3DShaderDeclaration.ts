@@ -1,3 +1,4 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
@@ -278,7 +279,7 @@ export class ShuriKenParticle3DShaderDeclaration {
 
 
 
-		let uniformMap = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+		let uniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.WORLDPOSITION, 'u_WorldPosition'),
 			uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, 'u_WorldRotation');
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, 'u_PositionScale');

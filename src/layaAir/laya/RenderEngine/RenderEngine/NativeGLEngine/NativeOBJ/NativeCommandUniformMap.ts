@@ -1,12 +1,15 @@
 import { CommandUniformMap } from "../../../CommandUniformMap";
 
 export class NativeCommandUniformMap extends CommandUniformMap {
-    constructor(stateName: string){
+
+	private _nativeObj: any;
+
+    constructor(_nativeObj: any, stateName: string){
         super(stateName);
-        //native todo
+		this._nativeObj = _nativeObj;
     }
     hasPtrID(propertyID: number): boolean {
-		return !!(this._idata[propertyID] != null);
+		return this._nativeObj.hasPtrID(propertyID);
 	}
 
 	getMap() {
@@ -21,6 +24,6 @@ export class NativeCommandUniformMap extends CommandUniformMap {
 	 */
 	addShaderUniform(propertyID: number, propertyKey: string): void {
 		this._idata[propertyID] = propertyKey;
-        //native obj addUniform TODO
+        this._nativeObj.addShaderUniform(propertyID, propertyKey);
 	}
 }

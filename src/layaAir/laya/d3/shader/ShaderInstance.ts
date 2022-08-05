@@ -72,10 +72,10 @@ export class ShaderInstance {
 		this._cameraUniformParamsMap = new CommandEncoder();
 		this._spriteUniformParamsMap = new CommandEncoder();
 		this._materialUniformParamsMap = new CommandEncoder();
-		const sceneParams = CommandUniformMap.createGlobalUniformMap("Scene3D");
-		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
-		const cameraParams = CommandUniformMap.createGlobalUniformMap("BaseCamera");
-		const customParams = CommandUniformMap.createGlobalUniformMap("Custom");
+		const sceneParams = LayaGL.renderOBJCreate.createGlobalUniformMap("Scene3D");
+		const spriteParms = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
+		const cameraParams = LayaGL.renderOBJCreate.createGlobalUniformMap("BaseCamera");
+		const customParams = LayaGL.renderOBJCreate.createGlobalUniformMap("Custom");
 		let i, n;
 		let data: ShaderVariable[] = this._renderShaderInstance.getUniformMap();
 		for (i = 0, n = data.length; i < n; i++) {

@@ -1,3 +1,4 @@
+import { LayaGL } from "../../../layagl/LayaGL";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
@@ -37,7 +38,7 @@ export class SkyRenderer {
     static __init__(){
         SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
         SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
-        const commandUniform = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+        const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
         commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction");
         commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color");
     }

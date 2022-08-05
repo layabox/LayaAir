@@ -79,7 +79,7 @@ export class BaseCamera extends Sprite3D {
 		BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
 		BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
 		BaseCamera.SHADERDEFINE_ORTHOGRAPHIC = Shader3D.getDefineByName("CAMERAORTHOGRAPHIC");
-		let camerauniformMap = BaseCamera.cameraUniformMap = CommandUniformMap.createGlobalUniformMap("BaseCamera");
+		let camerauniformMap = BaseCamera.cameraUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("BaseCamera");
 
 		BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
 		BaseCamera.VIEWMATRIX = Shader3D.propertyNameToID("u_View");

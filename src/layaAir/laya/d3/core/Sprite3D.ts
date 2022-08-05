@@ -30,7 +30,7 @@ export class Sprite3D extends Node {
 
 		Sprite3D.WORLDMATRIX = Shader3D.propertyNameToID("u_WorldMat");
 
-		Sprite3D.sprite3DCommandUniformMap = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+		Sprite3D.sprite3DCommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
 		Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat");
 	}
 

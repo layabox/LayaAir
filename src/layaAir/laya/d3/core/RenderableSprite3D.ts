@@ -5,6 +5,7 @@ import { BaseRender } from "./render/BaseRender";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * @deprecated
@@ -53,7 +54,7 @@ export class RenderableSprite3D extends Sprite3D {
 		RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX = Shader3D.propertyNameToID("u_SpecCubeBoxMax");
 		RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN = Shader3D.propertyNameToID("u_SpecCubeBoxMin");
 
-		const commandUniform = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+		const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
 		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAPSCALEOFFSET, "u_LightmapScaleOffset");
 		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAP, "u_LightMap");
 		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAP_DIRECTION, "u_LightMapDirection");

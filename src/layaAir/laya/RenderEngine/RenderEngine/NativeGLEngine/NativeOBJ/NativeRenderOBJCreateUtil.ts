@@ -148,7 +148,7 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeUniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
     }
 
-    createCommandUniformMap(blockName: string): NativeCommandUniformMap{
-        return new NativeCommandUniformMap(blockName);
+    createGlobalUniformMap(blockName: string): NativeCommandUniformMap{
+        return new NativeCommandUniformMap((window as any).conchCommandUniformMap.createGlobalUniformMap(blockName), blockName);
     }
 }
