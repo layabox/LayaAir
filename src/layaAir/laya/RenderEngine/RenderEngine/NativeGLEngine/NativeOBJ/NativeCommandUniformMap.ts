@@ -1,6 +1,7 @@
 import { CommandUniformMap } from "../../../CommandUniformMap";
 
 export class NativeCommandUniformMap extends CommandUniformMap {
+    
     constructor(stateName: string){
         super(stateName);
         //native todo

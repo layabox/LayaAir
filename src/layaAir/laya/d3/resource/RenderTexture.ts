@@ -160,6 +160,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     _start() {
         (this._isCameraTarget) && (RenderContext3D._instance.invertY = true);
         if (RenderTexture._currentActive != this) {
+            RenderTexture._currentActive && RenderTexture._currentActive._end();
             RenderTexture._currentActive = this;
             LayaGL.textureContext.bindRenderTarget(this._renderTarget);
         }

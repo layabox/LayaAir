@@ -499,6 +499,7 @@ export class Transform3D extends EventDispatcher {
 
 	/**
 	 * 创建一个 <code>Transform3D</code> 实例。
+	 * @internal
 	 * @param owner 所属精灵。
 	 */
 	constructor(owner: Sprite3D) {
