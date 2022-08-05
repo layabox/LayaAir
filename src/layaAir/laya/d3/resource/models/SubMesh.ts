@@ -61,7 +61,7 @@ export class SubMesh extends GeometryElement {
 	constructor(mesh: Mesh) {
 		super(MeshTopology.Triangles,DrawType.DrawElement);
 		this.indexFormat = mesh.indexFormat;
-		if (mesh.indexFormat === IndexFormat.UInt32 && LayaGL.renderEngine.getCapable(RenderCapable.Element_Index_Uint32)) {
+		if (mesh.indexFormat === IndexFormat.UInt32 && !LayaGL.renderEngine.getCapable(RenderCapable.Element_Index_Uint32)) {
 			console.warn("SubMesh:this device do not support IndexFormat.UInt32.");
 			return;
 		}

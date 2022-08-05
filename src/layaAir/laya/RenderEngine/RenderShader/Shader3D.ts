@@ -81,7 +81,7 @@ export class Shader3D {
 	/**@internal */
 	private static _defineMap: { [key: string]: ShaderDefine } = {};
 	/**@internal */
-	static _preCompileShader: any = {};
+	static _preCompileShader: { [key: string]: Shader3D } = {};
 	/**@internal */
 	static _maskMap: Array<{ [key: number]: string }> = [];
 	/**@internal */

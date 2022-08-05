@@ -17,7 +17,7 @@ export type AttributeMapType = { [name: string]: [number, ShaderDataType] };
  * <code>SubShader</code> 类用于创建SubShader。
  */
 export class SubShader {
-	private static DefaultShaderStateMap: any = {
+	public static DefaultShaderStateMap: any = {
 		's_Cull': Shader3D.RENDER_STATE_CULL,
 		's_Blend': Shader3D.RENDER_STATE_BLEND,
 		's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
