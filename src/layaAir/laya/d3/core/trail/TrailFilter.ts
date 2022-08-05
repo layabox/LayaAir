@@ -16,6 +16,7 @@ import { TrailRenderer } from "./TrailRenderer";
 import { Sprite3D } from "../Sprite3D";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。
@@ -32,7 +33,7 @@ export class TrailFilter {
 		TrailFilter.WIDTHCURVE = Shader3D.propertyNameToID("u_WidthCurve");
 		TrailFilter.WIDTHCURVEKEYLENGTH = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
 
-		const spriteParms = CommandUniformMap.createGlobalUniformMap("Sprite3D");
+		const spriteParms = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
 		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime");
 		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime");
 		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve");

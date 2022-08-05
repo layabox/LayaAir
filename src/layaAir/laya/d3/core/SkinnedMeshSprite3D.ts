@@ -11,6 +11,7 @@ import { Material } from "./material/Material";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * <code>SkinnedMeshSprite3D</code> 类用于绑点骨骼节点精灵。
@@ -27,7 +28,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	static __init__(): void {
 		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = Shader3D.getDefineByName("BONE");
 		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
-		const commandUniform = CommandUniformMap.createGlobalUniformMap("Custom");
+		const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Custom");
 		SkinnedMeshSprite3D.BONES = Shader3D.propertyNameToID("u_Bones");
 		commandUniform.addShaderUniform(SkinnedMeshSprite3D.BONES, "u_Bones");
 	}
