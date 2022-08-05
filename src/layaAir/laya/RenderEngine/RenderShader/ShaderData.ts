@@ -37,7 +37,7 @@ export class ShaderData implements IClone {
 	protected _ownerResource: Resource = null;
 
 	/**@internal */
-	private _gammaColorMap: Map<number, Color>;
+	protected _gammaColorMap: Map<number, Color>;
 
 	/**@internal */
 	_data: any = null;
