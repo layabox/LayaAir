@@ -76,7 +76,6 @@ class TextureLoader implements IResourceLoader {
             tex.bitmap = tex2D;
         else
             tex = new Texture(tex2D);
-        tex2D._setCreateURL(task.url);
         return tex;
     }
 
