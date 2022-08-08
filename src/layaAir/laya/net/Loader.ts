@@ -287,7 +287,11 @@ export class Loader extends EventDispatcher {
             uuid = url.substring(6);
             url = URL.UUID_to_URL(uuid);
             if (!url) {
-                return URL.UUID_to_URL_async(uuid).then(url => {
+                let promise = this.queryAssetDb(uuid, 0);
+                if (!promise)
+                    return Promise.resolve(null);
+
+                return promise.then(url => {
                     if (url)
                         return this._load2(url, uuid, type, options, onProgress);
                     else
@@ -295,8 +299,25 @@ export class Loader extends EventDispatcher {
                 });
             }
         }
+        else {
+            let promise = this.queryAssetDb(url, 1);
+            if (promise) {
+                return promise.then(uuid => {
+                    return this._load2(url, uuid, type, options, onProgress);
+                });
+            }
+        }
 
         return this._load2(url, uuid, type, options, onProgress);
+    }
+
+    queryAssetDb(value: string, conversionType: number): Promise<string> {
+        if (conversionType == 0) {
+            console.error(`unknown uuid: ${value}`);
+            return null;
+        }
+        else
+            return null;
     }
 
     private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
@@ -412,7 +433,11 @@ export class Loader extends EventDispatcher {
             let uuid = url.substring(6);
             url = URL.UUID_to_URL(uuid);
             if (!url) {
-                return URL.UUID_to_URL_async(uuid).then(url => {
+                let promise = this.queryAssetDb(uuid, 0);
+                if (!promise)
+                    return Promise.resolve(null);
+
+                return promise.then(url => {
                     if (url)
                         return new Promise((resolve) => {
                             task.url = URL.formatURL(url);

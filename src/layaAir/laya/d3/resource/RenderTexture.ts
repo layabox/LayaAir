@@ -181,6 +181,11 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     protected _disposeResource(): void {
+
+        if (RenderTexture._currentActive == this) {
+            this._end();
+        }
+
         this._renderTarget.dispose();
         this._renderTarget = null;
         this._depthStencilTexture?.destroy();
