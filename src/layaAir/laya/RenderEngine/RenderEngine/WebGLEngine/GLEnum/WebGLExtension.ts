@@ -5,6 +5,8 @@ export enum WebGLExtension{
     OES_texture_half_float_linear,
     OES_texture_float,
     OES_element_index_uint,
+    OES_texture_float_linear,//allows linear filtering with floating-point pixel types for textures.
+    EXT_color_buffer_half_float,//Render BufferHalf float color
     EXT_shader_texture_lod,
     WEBGL_depth_texture,
     EXT_sRGB,
