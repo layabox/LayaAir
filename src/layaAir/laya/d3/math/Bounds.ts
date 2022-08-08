@@ -1,7 +1,7 @@
-import { IClone } from "./IClone";
-import { BoundBox } from "../math/BoundBox"
-import { Matrix4x4 } from "../math/Matrix4x4"
-import { Vector3 } from "../math/Vector3"
+import { IClone } from "../core/IClone";
+import { BoundBox } from "./BoundBox";
+import { Matrix4x4 } from "./Matrix4x4";
+import { Vector3 } from "./Vector3";
 
 /**
  * <code>Bounds</code> 类用于创建包围体。

@@ -4,7 +4,6 @@ import { Animator } from "./component/Animator";
 import { AnimatorControllerLayer } from "./component/AnimatorControllerLayer";
 import { AnimatorState } from "./component/AnimatorState";
 import { AvatarMask } from "./component/AvatarMask";
-import { Bounds } from "./core/Bounds";
 import { Sprite3D } from "./core/Sprite3D";
 import { Camera } from "./core/Camera";
 import { Gradient } from "./core/Gradient";
@@ -87,6 +86,7 @@ import "./loaders/MeshLoader";
 import "./loaders/SimpleAnimatorTextureLoader";
 import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
+import { Bounds } from "./math/Bounds";
 
 let c = ClassUtils.regClass;
 c("Laya.Sprite3D", Sprite3D);

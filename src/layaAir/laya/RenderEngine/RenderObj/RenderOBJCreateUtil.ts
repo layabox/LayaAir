@@ -1,15 +1,12 @@
-import { Bounds } from "../../d3/core/Bounds";
 import { RenderState } from "../../d3/core/material/RenderState";
 import { RenderBoundingSphere } from "../../d3/core/RenderBoundingSphere";
+import { RenderBounds } from "../../d3/core/RenderBounds";
 import { RenderPlane } from "../../d3/core/RenderPlane";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
-import { BoundFrustum } from "../../d3/math/BoundFrustum";
-import { BoundSphere } from "../../d3/math/BoundSphere";
 import { Matrix4x4 } from "../../d3/math/Matrix4x4";
-import { Plane } from "../../d3/math/Plane";
 import { Vector3 } from "../../d3/math/Vector3";
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
@@ -56,8 +53,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new Transform3D(owner);
     }
 
-    createBounds(min: Vector3, max: Vector3): Bounds {
-        return new Bounds(min, max);
+    createBounds(min: Vector3, max: Vector3): RenderBounds {
+        return new RenderBounds(min, max);
     }
 
     createBoundsSphere(center: Vector3, radius: number): RenderBoundingSphere {

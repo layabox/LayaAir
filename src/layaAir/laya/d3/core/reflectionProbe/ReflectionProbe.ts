@@ -1,6 +1,5 @@
 import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
-import { Bounds } from "../Bounds";
 import { Sprite3D } from "../Sprite3D";
 import { Scene3D } from "../scene/Scene3D";
 import { Vector3 } from "../../math/Vector3";
@@ -8,6 +7,8 @@ import { Loader } from "../../../net/Loader";
 import { Node } from "../../../display/Node";
 import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { RenderBounds } from "../RenderBounds";
+import { Bounds } from "../../math/Bounds";
 
 /**
  * 反射探针模式
@@ -38,7 +39,7 @@ export class ReflectionProbe extends Sprite3D {
 	/** 包围盒偏移 */
 	private _offset:Vector3 = new Vector3();
 	/** 包围盒 */
-	private _bounds:Bounds;
+	private _bounds:RenderBounds;
 	/** 反射强度 */
 	private _intensity:number;
 	/** 反射参数 */
@@ -52,6 +53,7 @@ export class ReflectionProbe extends Sprite3D {
 
 	constructor(){
 		super();
+		this._bounds = LayaGL.renderOBJCreate.createBounds(new Vector3(),new Vector3());
 	}
 
 	/**
@@ -107,14 +109,14 @@ export class ReflectionProbe extends Sprite3D {
 	 * 获得反射探针的包围盒
 	 */
 	get bounds():Bounds{
-		return this._bounds;
+		return this._bounds as Bounds;
 	}
 
 	/**
 	 * @internal
 	 */
 	set bounds(value:Bounds){
-		this._bounds = value;
+		this._bounds.set(value);
 	}
 
 	get boundsMax():Vector3{

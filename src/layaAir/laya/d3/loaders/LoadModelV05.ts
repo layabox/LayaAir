@@ -4,7 +4,6 @@ import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat"
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration"
 import { Byte } from "../../utils/Byte"
 import { HalfFloatUtils } from "../../utils/HalfFloatUtils"
-import { Bounds } from "../core/Bounds"
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
@@ -254,7 +253,7 @@ export class LoadModelV05 {
         mesh._setGPUMemory(memorySize);
 
         if (LoadModelV05._version == "LAYAMODEL:0501" || LoadModelV05._version == "LAYAMODEL:COMPRESSION_0501") {
-            var bounds: Bounds = mesh.bounds;
+            var bounds = mesh.bounds;
             var min: Vector3 = bounds.getMin();
             var max: Vector3 = bounds.getMax();
             min.setValue(reader.getFloat32(), reader.getFloat32(), reader.getFloat32());

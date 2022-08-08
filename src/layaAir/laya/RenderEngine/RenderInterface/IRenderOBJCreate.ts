@@ -1,6 +1,6 @@
-import { Bounds } from "../../d3/core/Bounds";
 import { RenderState } from "../../d3/core/material/RenderState";
 import { RenderBoundingSphere } from "../../d3/core/RenderBoundingSphere";
+import { RenderBounds } from "../../d3/core/RenderBounds";
 import { RenderPlane } from "../../d3/core/RenderPlane";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
@@ -37,7 +37,7 @@ export interface IRenderOBJCreate {
 
     createTransform(owner: Sprite3D): Transform3D;
 
-    createBounds(min: Vector3, max: Vector3): Bounds;
+    createBounds(min: Vector3, max: Vector3): RenderBounds;
 
     createBoundsSphere(center: Vector3, radius: number): RenderBoundingSphere;
 

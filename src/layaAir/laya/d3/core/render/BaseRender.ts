@@ -1,6 +1,5 @@
 import { RenderElement } from "./RenderElement";
 import { RenderContext3D } from "./RenderContext3D";
-import { Bounds } from "../Bounds"
 import { GeometryElement } from "../GeometryElement"
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Transform3D } from "../Transform3D"
@@ -24,6 +23,8 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 import { SubUniformBufferData } from "../../../RenderEngine/SubUniformBufferData";
 import { Stat } from "../../../utils/Stat";
+import { RenderBounds } from "../RenderBounds";
+import { Bounds } from "../../math/Bounds";
 
 
 /**
@@ -110,10 +111,10 @@ export class BaseRender extends Component {
 	/**@internal */
 	protected _rendernode: IBaseRenderNode;
 	/** @internal */
-	protected _bounds: Bounds;
+	protected _bounds: RenderBounds;
 
 	/** @internal */
-	protected _baseGeometryBounds: Bounds;
+	protected _baseGeometryBounds: RenderBounds;
 	/**@internal */
 	protected _transform: Transform3D;
 
@@ -264,7 +265,7 @@ export class BaseRender extends Component {
 			this._calculateBoundingBox();
 			this._boundsChange = false;
 		}
-		return this._bounds;
+		return this._bounds as Bounds;
 	}
 
 	set receiveShadow(value: boolean) {

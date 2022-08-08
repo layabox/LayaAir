@@ -23,7 +23,7 @@ export class RenderPlane extends Plane implements IClone {
     }
 
     clone(): RenderPlane {
-        let dest = LayaGL.renderOBJCreate.createPlane(new Vector3, 0);
+        let dest = LayaGL.renderOBJCreate.createPlane(new Vector3(), 0);
         this.cloneTo(dest);
         return dest;
     }

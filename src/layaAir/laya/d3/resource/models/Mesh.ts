@@ -6,15 +6,16 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
-import { Bounds } from "../../core/Bounds";
 import { BufferState } from "../../core/BufferState";
 import { IClone } from "../../core/IClone";
 import { InstanceRenderElement } from "../../core/render/InstanceRenderElement";
+import { RenderBounds } from "../../core/RenderBounds";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexElement } from "../../graphics/VertexElement";
 import { VertexElementFormat } from "../../graphics/VertexElementFormat";
+import { Bounds } from "../../math/Bounds";
 import { Color } from "../../math/Color";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector2 } from "../../math/Vector2";
@@ -90,7 +91,7 @@ export class Mesh extends Resource implements IClone {
     /** @internal */
     private _needUpdateBounds: boolean = true;
     /** @internal */
-    private _bounds: Bounds;
+    private _bounds: RenderBounds;
 
     /** @internal */
     _isReadable: boolean;
@@ -169,8 +170,7 @@ export class Mesh extends Resource implements IClone {
     }
 
     set bounds(value: Bounds) {
-        if (this._bounds !== value)
-            value.cloneTo(this._bounds);
+        this._bounds.set(value);
     }
 
     /**

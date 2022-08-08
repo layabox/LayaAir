@@ -1,6 +1,5 @@
 import { MeshSprite3D } from "./MeshSprite3D";
 import { HeightMap } from "./HeightMap";
-import { Bounds } from "./Bounds";
 import { RenderContext3D } from "./render/RenderContext3D"
 import { Matrix4x4 } from "../math/Matrix4x4"
 import { Quaternion } from "../math/Quaternion"
@@ -8,6 +7,7 @@ import { Vector2 } from "../math/Vector2"
 import { Vector3 } from "../math/Vector3"
 import { Mesh } from "../resource/models/Mesh"
 import { Texture2D } from "../../resource/Texture2D"
+import { Bounds } from "../math/Bounds";
 
 /**
  * <code>TerrainMeshSprite3D</code> 类用于地形节点转换普通mesh渲染。

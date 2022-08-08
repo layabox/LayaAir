@@ -2,12 +2,12 @@ import { BaseRender } from "../render/BaseRender";
 import { ReflectionProbe } from "./ReflectionProbe";
 import { ReflectionProbeList } from "./ReflectionProbeList";
 import { SingletonList } from "../../component/SingletonList";
-import { Bounds } from "../Bounds";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
 import { TextureCube } from "../../resource/TextureCube";
 import { Vector4 } from "../../math/Vector4";
 import { Vector3 } from "../../math/Vector3";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Bounds } from "../../math/Bounds";
 
 /**
  *<code>ReflectionProbeManager</code> 类用于反射探针管理

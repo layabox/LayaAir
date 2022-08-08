@@ -33,12 +33,10 @@ import { BaseShape, ParticleSystemShapeType } from "./module/shape/BaseShape";
 import { SizeOverLifetime } from "./module/SizeOverLifetime";
 import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
 import { VelocityOverLifetime } from "./module/VelocityOverLifetime";
-import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 import { ShurikenParticleData } from "./ShurikenParticleData";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { Quaternion } from "../../math/Quaternion";
-import { Bounds } from "../Bounds";
 import { SphereShape } from "./module/shape/SphereShape";
 import { HemisphereShape } from "./module/shape/HemisphereShape";
 import { ConeShape } from "./module/shape/ConeShape";
@@ -53,6 +51,8 @@ import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
+import { RenderBounds } from "../RenderBounds";
+import { Bounds } from "../../math/Bounds";
 
 
 /**
@@ -95,12 +95,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     /**@internal */
     protected static _type: number = GeometryElement._typeCounter++;
     /** @internal */
-    _bounds: Bounds = null;
+    _bounds: RenderBounds = null;
     /** @internal 重力影响偏移, 用于计算世界包围盒 */
     _gravityOffset: Vector2 = new Vector2();
 
     /** @internal */
-    _customBounds: Bounds = null;
+    _customBounds: RenderBounds = null;
 
     /** @internal */
     _useCustomBounds: boolean = false;
@@ -1330,7 +1330,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         else {
             this._useCustomBounds = false;
         }
-        this._customBounds = value;
+        this._customBounds.set(value);
     }
 
     /**

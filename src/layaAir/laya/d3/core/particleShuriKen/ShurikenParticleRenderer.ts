@@ -2,11 +2,9 @@ import { BoundFrustum } from "../../math/BoundFrustum";
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
 import { Physics3DUtils } from "../../utils/Physics3DUtils";
-import { Bounds } from "../Bounds";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Transform3D } from "../Transform3D";
-import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 import { Vector2 } from "../../math/Vector2";
@@ -20,6 +18,7 @@ import { Component } from "../../../components/Component";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Stat } from "../../../utils/Stat";
+import { Bounds } from "../../math/Bounds";
 
 
 /**

@@ -4,7 +4,6 @@ import { NativeRenderContext3DOBJ } from "./NativeRenderContext3DOBJ";
 import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
 import { NativeVertexBuffer3D } from "./NativeVertexBuffer3D";
 import { NativeShaderData } from "./NativeShaderData";
-import { Bounds } from "../../../../d3/core/Bounds";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { Plane } from "../../../../d3/math/Plane";
@@ -51,6 +50,7 @@ import { UniformBufferObject } from "../../../UniformBufferObject";
 import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
 import { RenderPlane } from "../../../../d3/core/RenderPlane";
 import { NativeCommandUniformMap } from "./NativeCommandUniformMap";
+import { RenderBounds } from "../../../../d3/core/RenderBounds";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
 
@@ -58,8 +58,8 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeTransform3D(owner);
     }
 
-    createBounds(min: Vector3, max: Vector3): Bounds {
-        return new NativeBounds(min, max) as unknown as Bounds;
+    createBounds(min: Vector3, max: Vector3): RenderBounds {
+        return new NativeBounds(min, max) as unknown as RenderBounds;
     }
 
     createBoundsSphere(center: Vector3, radius: number): NativeBoundSphere {

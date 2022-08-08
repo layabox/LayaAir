@@ -1,10 +1,10 @@
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
-import { Bounds } from "../core/Bounds";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ICameraCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { RenderPlane } from "../core/RenderPlane";
+import { Bounds } from "../math/Bounds";
 
 /**
  * @internal

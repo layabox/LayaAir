@@ -5,7 +5,6 @@ import { Vector3 } from "../math/Vector3";
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh";
 import { SubMesh } from "../resource/models/SubMesh";
 import { Utils3D } from "../utils/Utils3D";
-import { Bounds } from "./Bounds";
 import { MeshRenderer } from "./MeshRenderer";
 import { Sprite3D } from "./Sprite3D";
 import { Transform3D } from "./Transform3D";
@@ -18,6 +17,8 @@ import { SkinRenderElement } from "./render/SkinRenderElement";
 import { Material } from "./material/Material";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
 import { Scene3D } from "./scene/Scene3D";
+import { Bounds } from "../math/Bounds";
+import { RenderBounds } from "./RenderBounds";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -37,7 +38,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/** @internal */
 	private _skinnedDataLoopMarks: number[] = [];
 	/**@internal */
-	protected _localBounds: Bounds;
+	protected _localBounds: RenderBounds;
 	// /**@internal */
 	// protected _cacheAnimator: Animator;
 	/**@internal */
@@ -51,7 +52,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 	set localBounds(value: Bounds) {
-		this._localBounds = value;
+		this._localBounds.set(value);
 	}
 
 	/**

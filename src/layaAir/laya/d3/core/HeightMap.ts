@@ -1,4 +1,3 @@
-import { Bounds } from "./Bounds";
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
 import { Ray } from "../math/Ray"
@@ -8,6 +7,7 @@ import { Mesh } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
 import { Picker } from "../utils/Picker"
 import { Texture2D } from "../../resource/Texture2D"
+import { Bounds } from "../math/Bounds"
 
 
 /**

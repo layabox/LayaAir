@@ -1,5 +1,6 @@
 import { IClone } from "../../../../d3/core/IClone";
 import { BoundBox } from "../../../../d3/math/BoundBox";
+import { Bounds } from "../../../../d3/math/Bounds";
 import { Matrix4x4 } from "../../../../d3/math/Matrix4x4";
 import { Vector3 } from "../../../../d3/math/Vector3";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
@@ -51,6 +52,10 @@ export class NativeBounds implements IClone {
     /**bound box*/
     _boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
+    set(bounds: Bounds) {
+        this.setMin(bounds.min);
+        this.setMax(bounds.max);
+    }
     /**
      * 设置包围盒的最小点。
      * @param value	包围盒的最小点。
@@ -115,7 +120,7 @@ export class NativeBounds implements IClone {
             this.updateNativeData(NativeBounds.Bounds_Stride_Max, max);
             this._setUpdateFlag(NativeBounds._UPDATE_MAX, false);
             this._setUpdateFlag(NativeBounds.BOUNDS_MAX_UPDATA_NATIVE, false);
-        }else if(this._getUpdateFlag(NativeBounds.BOUNDS_MAX_UPDATA_NATIVE)){
+        } else if (this._getUpdateFlag(NativeBounds.BOUNDS_MAX_UPDATA_NATIVE)) {
             const offset = NativeBounds.Bounds_Stride_Max;
             max.x = this.float32Array[offset];
             max.y = this.float32Array[offset + 1];
@@ -209,14 +214,14 @@ export class NativeBounds implements IClone {
         this.float32Array = this.nativeMemory.float32Array;
         this.int32Array = this.nativeMemory.int32Array;
         this._nativeObj = new (window as any).conchBounds(this.nativeMemory._buffer);
-        this.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] = 0;	
-        
+        this.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] = 0;
+
         min.cloneTo(this._boundBox.min);
-		max.cloneTo(this._boundBox.max);
+        max.cloneTo(this._boundBox.max);
         this._setUpdateFlag(NativeBounds._UPDATE_CENTER | NativeBounds._UPDATE_EXTENT, true);
 
-        this.updateNativeData(NativeBounds.Bounds_Stride_Min,min);
-        this.updateNativeData(NativeBounds.Bounds_Stride_Max,max);
+        this.updateNativeData(NativeBounds.Bounds_Stride_Min, min);
+        this.updateNativeData(NativeBounds.Bounds_Stride_Max, max);
     }
 
 
@@ -276,14 +281,14 @@ export class NativeBounds implements IClone {
      * @param matrix 转换矩阵
      * @param out 转换目标Bounds
      */
-    _tranform(matrix: Matrix4x4, out:any): void {
+    _tranform(matrix: Matrix4x4, out: any): void {
         var outCen: Vector3 = out._center;
-		var outExt: Vector3 = out._extent;
+        var outExt: Vector3 = out._extent;
 
-		Vector3.transformCoordinate(this.getCenter(), matrix, outCen);
-		this._rotateExtents(this.getExtent(), matrix, outExt);
-        out.updateNativeData(NativeBounds.Bounds_Stride_Center,outCen);
-        out.updateNativeData(NativeBounds.Bounds_Stride_Extends,outExt);
+        Vector3.transformCoordinate(this.getCenter(), matrix, outCen);
+        this._rotateExtents(this.getExtent(), matrix, outExt);
+        out.updateNativeData(NativeBounds.Bounds_Stride_Center, outCen);
+        out.updateNativeData(NativeBounds.Bounds_Stride_Extends, outExt);
 
         out._boundBox.setCenterAndExtent(out._center, out._extent);
         out.updateNativeData(NativeBounds.Bounds_Stride_Min, out._boundBox.min);
@@ -303,7 +308,7 @@ export class NativeBounds implements IClone {
     /**
      * @returns -1为不相交 不为0的时候返回值为相交体积
      */
-    calculateBoundsintersection(bounds:any): number {
+    calculateBoundsintersection(bounds: any): number {
         var ownMax: Vector3 = this.getMax();
         var ownMin: Vector3 = this.getMin();
         var calMax: Vector3 = bounds.getMax();
@@ -336,9 +341,9 @@ export class NativeBounds implements IClone {
         destBounds.updateNativeData(NativeBounds.Bounds_Stride_Min, destBounds._boundBox.min);
         destBounds.updateNativeData(NativeBounds.Bounds_Stride_Max, destBounds._boundBox.max);
         this.getCenter().cloneTo(destBounds._center);
-		this.getExtent().cloneTo(destBounds._extent);
-        destBounds.updateNativeData(NativeBounds.Bounds_Stride_Center,destBounds._center);
-        destBounds.updateNativeData(NativeBounds.Bounds_Stride_Extends,destBounds._extent);
+        this.getExtent().cloneTo(destBounds._extent);
+        destBounds.updateNativeData(NativeBounds.Bounds_Stride_Center, destBounds._center);
+        destBounds.updateNativeData(NativeBounds.Bounds_Stride_Extends, destBounds._extent);
         destBounds.int32Array[NativeBounds.Bounds_Stride_UpdateFlag] = 0;
     }
 
