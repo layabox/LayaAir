@@ -128,7 +128,7 @@ export class Camera extends BaseCamera {
 		camera._renderMainPass(context, viewport, scene, shader, replaceFlag, needInternalRT);
 		camera._aftRenderMainPass(needShadowCasterPass);
 		camera.renderTarget = recoverTexture;
-		return camera.renderTarget;
+		return renderTexture;
 	}
 
 	/**
