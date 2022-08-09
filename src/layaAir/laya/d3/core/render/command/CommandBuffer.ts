@@ -348,6 +348,7 @@ export class CommandBuffer {
 	 * @param command 
 	 */
 	addCustomCMD(command:Command){
+		command._commandBuffer = this;
 		this._commands.push(command);
 	}
 
