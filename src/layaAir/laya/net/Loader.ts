@@ -583,7 +583,7 @@ export class Loader extends EventDispatcher {
         let extEntry: Array<TypeMapEntry>;
         if (ext.length > 0) {
             //处理复杂的扩展名，例如ltcb.ls
-            let ext2 = Utils.getFileExtension(url, ext.length);
+            let ext2 = Utils.getFileExtension(url, url.length - ext.length - 2);
             if (ext2.length > 0)
                 extEntry = Loader.extMap[ext2];
             if (extEntry)

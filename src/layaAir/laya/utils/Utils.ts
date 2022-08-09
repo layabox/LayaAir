@@ -171,8 +171,8 @@ export class Utils {
      * 获取文件名的扩展名，并转换为小写字母。例如"1.abc"将返回abc。
      */
     static getFileExtension(path: string, position?: number): string {
-        let i = path.lastIndexOf(".",path.length-position-2);
-        
+        let i = path.lastIndexOf(".", position);
+
         if (i != -1)
             return path.substring(i + 1).toLowerCase();
         else
@@ -183,7 +183,7 @@ export class Utils {
      * 更改文件名的扩展名。
      */
     static replaceFileExtension(path: string, newExt: string): string {
-        if(!path)
+        if (!path)
             return path;
         let i = path.lastIndexOf(".");
         if (i != -1)
