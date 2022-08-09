@@ -28,11 +28,11 @@ export class LoadGltfResource {
         Stat.show();
 
         Shader3D.debugMode = true;
-
+        
         this.scene = <Scene3D>Laya.stage.addChild(new Scene3D);
         this.camera = <Camera>this.scene.addChild(new Camera);
         this.camera.addComponent(CameraMoveScript);
-
+        this.scene.ambientColor = Color.WHITE;
         this.camera.transform.position = new Vector3(0, 1, 7);
 
         //light
@@ -45,7 +45,7 @@ export class LoadGltfResource {
 
         // 配置环境反射贴图
         Laya.loader.load("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls", Handler.create(this, function () {
-            this.scene.ambientColor = new Vector3(0.858, 0.858, 0.858);
+            this.scene.ambientColor = new Color(0.858, 0.858, 0.858,1.0);
             this.scene.reflection = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
             this.scene.reflectionDecodingFormat = 1;
             this.scene.reflectionIntensity = 1;
