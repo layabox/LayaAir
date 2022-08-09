@@ -6,6 +6,7 @@ import { AttributeMapType, SubShader } from "../SubShader";
 import SkyPanoramicVS from "./SkyPanoramic.vs";
 import SkyPanoramicFS from "./SkyPanoramic.fs";
 import { Texture2D } from "../../../resource/Texture2D";
+import { Vector4 } from "../../math/Vector4";
 
 export class SkyPanoramicShaderInit {
     static init() {
@@ -22,7 +23,7 @@ export class SkyPanoramicShaderInit {
 
         let defaultValue = {
             'u_TintColor': new Color(0.5,0.5,0.5,1.0),
-            'u_TextureHDRParams': ShaderDataType.Vector4,
+            'u_TextureHDRParams': new Vector4(1.0, 0.0, 0.0, 1.0),
             'u_Rotation': 0,
             'u_Texture': Texture2D.grayTexture,
         };

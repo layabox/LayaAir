@@ -10,8 +10,12 @@
 
 void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 {
-    vec2 uv = pixel.uv0;
 
+#ifdef UV
+    vec2 uv = pixel.uv0;
+#else // UV
+    vec2 uv = vec2(0.0);
+#endif // UV
     inputs.diffuseColor = u_AlbedoColor.rgb;
     inputs.alpha = u_AlbedoColor.a;
     inputs.alphaTest = u_AlphaTestValue;

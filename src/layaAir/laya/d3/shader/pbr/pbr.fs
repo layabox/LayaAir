@@ -22,13 +22,19 @@ struct SurfaceInputs {
 
 void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 {
+
+#ifdef UV
     vec2 uv = pixel.uv0;
+#else // UV
+    vec2 uv = vec2(0.0);
+#endif // UV
 
     inputs.diffuseColor = u_DiffuseColor.rgb;
     inputs.alpha = u_DiffuseColor.a;
     inputs.alphaTest = u_AlphaTest;
 
 #ifdef DIFFUSEMAP
+    
     vec4 diffuseSampler = texture2D(u_DiffuseMap, uv);
 
     #ifdef Gamma_u_DiffuseMap
