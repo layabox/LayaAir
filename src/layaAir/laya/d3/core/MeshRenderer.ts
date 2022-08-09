@@ -143,6 +143,7 @@ export class MeshRenderer extends BaseRender {
 		if (mesh && this._mesh != mesh) {
 			this._changeVertexDefine(mesh);
 			this._mesh = mesh;
+			this.geometryBounds = mesh.bounds;
 			var count: number = mesh.subMeshCount;
 			this._renderElements.length = count;
 			for (var i: number = 0; i < count; i++) {
@@ -228,7 +229,7 @@ export class MeshRenderer extends BaseRender {
 	protected _calculateBoundingBox(): void {
 		var sharedMesh: Mesh = this._mesh;
 		if (sharedMesh) {
-			var worldMat: Matrix4x4 = ((<Sprite3D>this.owner)).transform.worldMatrix;
+			var worldMat: Matrix4x4 =this._transform.worldMatrix;
 			sharedMesh.bounds._tranform(worldMat, this._bounds);
 		}
 	}

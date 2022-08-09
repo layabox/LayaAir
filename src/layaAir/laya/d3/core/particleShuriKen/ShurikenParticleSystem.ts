@@ -1326,11 +1326,20 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     set customBounds(value: Bounds) {
         if (value) {
             this._useCustomBounds = true;
+            if(!this._customBounds){
+                this._customBounds = LayaGL.renderOBJCreate.createBounds(new Vector3(),new Vector3());   
+                this._ownerRender.geometryBounds = this._customBounds;
+            }
+            this._customBounds.set(value);
+            
         }
         else {
             this._useCustomBounds = false;
+            this._customBounds = null;
+            this._ownerRender.geometryBounds = null;
         }
-        this._customBounds.set(value);
+        
+
     }
 
     /**

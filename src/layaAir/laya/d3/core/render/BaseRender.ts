@@ -131,6 +131,17 @@ export class BaseRender extends Component {
 	}
 
 	/**
+	 * 设置GeometryBounds，
+	 * 如果设置了此bounds，渲染包围盒会根据geometryBounds和transform来更新，native层会下沉
+	 * @internal
+	 */
+	set geometryBounds(value: RenderBounds) {
+		this._baseGeometryBounds = this._rendernode.geometryBounds = value;
+	}
+	get geometryBounds(): RenderBounds {
+		return this._baseGeometryBounds;
+	}
+	/**
 	 * 获取唯一标识ID,通常用于识别。
 	 */
 	get id(): number {

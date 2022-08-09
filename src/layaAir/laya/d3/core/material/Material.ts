@@ -916,7 +916,10 @@ export class Material extends Resource implements IClone {
                                         (<any>mat)[vector.name] = new Vector2(vectorValue[0], vectorValue[1]);
                                         break;
                                     case 3:
-                                        (<any>mat)[vector.name] = new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]);
+                                        if ((<any>mat)[vector.name] instanceof Color) {
+                                            (<any>mat)[vector.name] = new Color(vectorValue[0], vectorValue[1], vectorValue[2], 1.0);
+                                        } else
+                                            (<any>mat)[vector.name] = new Vector3(vectorValue[0], vectorValue[1], vectorValue[2]);
                                         break;
                                     case 4:
                                         if ((<any>mat)[vector.name] instanceof Color) {

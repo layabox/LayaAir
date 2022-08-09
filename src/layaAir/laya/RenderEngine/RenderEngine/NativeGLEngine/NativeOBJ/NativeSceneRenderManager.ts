@@ -61,6 +61,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
             }
         }
     }
+
     updateMotionObjects(): void {
         //update native Motion Node
         this._nativeObj.updateMotionObjects();

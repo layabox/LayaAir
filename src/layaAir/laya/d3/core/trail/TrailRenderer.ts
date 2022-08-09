@@ -193,22 +193,6 @@ export class TrailRenderer extends BaseRender {
 		super._renderUpdate(state, transform);
 	}
 
-
-	// /**
-	//  * @inheritDoc
-	//  * @internal
-	//  * @override
-	//  */
-	// _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-	// 	//var projectionView: Matrix4x4 = context.projectionViewMatrix;
-	// 	// if (transform) {
-	// 	// 	Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-	// 	// 	this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-	// 	// } else {
-	// 	// 	this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-	// 	// }
-	// }
-
 	clear(): void {
 		this._trailFilter.clear();
 	}
