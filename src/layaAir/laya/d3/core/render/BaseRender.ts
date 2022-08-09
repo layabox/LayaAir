@@ -385,6 +385,7 @@ export class BaseRender extends Component {
 	 */
 	_setOwner(node: Node) {
 		super._setOwner(node);
+		this._transform = (this.owner as Sprite3D).transform;
 		(this.owner) && (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
 	}
 

@@ -262,7 +262,7 @@ export class StatUI extends IStatRender {
 			var value: any = (Stat as any)[vieparam.value];
 			(vieparam.units == "M") && (value = Math.floor(value / (1024 * 1024) * 100) / 100);
 			(vieparam.units == "K") && (value = Math.floor(value / (1024) * 100) / 100);
-			
+			//(vieparam.units == "int") &&(value = Math.floor(value / (1024) * 100) / 100))
 			if (isAverage)
 				value /= count;
 			(vieparam.units == "M") && (value += "M");
