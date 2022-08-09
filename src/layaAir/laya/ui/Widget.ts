@@ -1,4 +1,5 @@
 import { Component } from "../components/Component"
+import { HideFlags } from "../Const";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 
@@ -15,12 +16,20 @@ export class Widget extends Component {
     private _right: number = NaN;
     private _centerX: number = NaN;
     private _centerY: number = NaN;
-		/**
-		 * @override
-		 */
-		/*override*/  onReset(): void {
+
+    constructor() {
+        super();
+
+        this.hideFlags |= HideFlags.HideAndDontSave;
+    }
+
+    /**
+     * @override
+     */
+    onReset(): void {
         this._top = this._bottom = this._left = this._right = this._centerX = this._centerY = NaN;
     }
+
     /**
      * @override
      * @internal
@@ -38,12 +47,12 @@ export class Widget extends Component {
         if (this.owner.parent) this.owner.parent.off(Event.RESIZE, this, this._onParentResize);
     }
 
-		/**
-		 * @internal
-		 * 对象被添加到显示列表的事件侦听处理函数。
-		 * @override
-		 */
-		/*override*/  _onAdded(): void {
+    /**
+     * @internal
+     * 对象被添加到显示列表的事件侦听处理函数。
+     * @override
+     */
+    _onAdded(): void {
         if (this.owner.parent)
             this.owner.parent.on(Event.RESIZE, this, this._onParentResize);
         this.resetLayoutX();
