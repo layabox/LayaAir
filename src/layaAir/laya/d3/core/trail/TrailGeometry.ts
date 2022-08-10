@@ -443,7 +443,6 @@ export class TrailGeometry extends GeometryElement {
 		var count: number = this._endIndex * 2 - start;
 		this.setDrawArrayParams(start, count);
 		// LayaGL.renderDrawConatext.drawArrays(MeshTopology.TriangleStrip,start,count);
-		Stat.renderBatches++;
 		// Stat.trianglesFaces += count - 2;
 	}
 

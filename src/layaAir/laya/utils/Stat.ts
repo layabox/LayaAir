@@ -73,12 +73,6 @@ export class Stat {
     static FPS: number = 0;
     /**主舞台 <code>Stage</code> 渲染次数计数。 */
     static loopCount: number = 0;
-    /** 着色器请求次数。*/
-    static shaderCall: number = 0;
-    /** 渲染批次。*/
-    static renderBatches: number = 0;
-    /** 节省的渲染批次。*/
-    static savedRenderBatches: number = 0;
     // /** 三角形面数。*/
     // static trianglesFaces: number = 0;
     /** 精灵<code>Sprite</code> 的数量。*/

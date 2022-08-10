@@ -140,7 +140,7 @@ export class ShaderInstance {
 	}
 
 	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean) {
-		Stat.shaderCall += LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
+		LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
 	}
 
 	/**
@@ -262,7 +262,7 @@ export class ShaderInstance {
 	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
-		Stat.shaderCall += LayaGL.renderEngine.uploadCustomUniforms(this._renderShaderInstance, this._customUniformParamsMap, index, data);
+		LayaGL.renderEngine.uploadCustomUniforms(this._renderShaderInstance, this._customUniformParamsMap, index, data);
 	}
 }
 

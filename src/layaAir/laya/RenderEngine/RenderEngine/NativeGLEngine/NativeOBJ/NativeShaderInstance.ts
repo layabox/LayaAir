@@ -49,14 +49,14 @@ export class NativeShaderInstance/* extends ShaderInstance */ {
 	}
 
 	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean) {
-		Stat.shaderCall += this._nativeObj.uploadUniforms(shaderUniform, (shaderDatas as any)._nativeObj, uploadUnTexture);
+		this._nativeObj.uploadUniforms(shaderUniform, (shaderDatas as any)._nativeObj, uploadUnTexture);
 	}
 
 	/**
 	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
-		Stat.shaderCall += this._nativeObj.uploadCustomUniforms(index, data);
+		this._nativeObj.uploadCustomUniforms(index, data);
 	}
 	get _sceneUniformParamsMap(): CommandEncoder {
 		return (UniformParamsMapType.Scene as unknown as CommandEncoder);

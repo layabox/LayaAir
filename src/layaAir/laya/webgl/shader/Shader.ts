@@ -453,7 +453,6 @@ export class Shader extends BaseShader {
                 shaderCall += one.fun.call(this, one, value);
         }
 
-        Stat.shaderCall += shaderCall;
     }
 }
 
