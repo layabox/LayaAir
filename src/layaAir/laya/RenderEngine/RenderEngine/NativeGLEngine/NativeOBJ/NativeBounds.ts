@@ -56,6 +56,23 @@ export class NativeBounds implements IClone {
         this.setMin(bounds.min);
         this.setMax(bounds.max);
     }
+
+    get min() {
+		return this.getMin();
+	}
+
+	set min(value: Vector3) {
+		this.setMin(value);
+	}
+
+	get max() {
+		return this.getMax();
+	}
+
+	set max(value: Vector3) {
+		this.setMax(value);
+	}
+	
     /**
      * 设置包围盒的最小点。
      * @param value	包围盒的最小点。
