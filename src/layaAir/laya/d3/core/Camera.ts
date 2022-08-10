@@ -613,7 +613,14 @@ export class Camera extends BaseCamera {
 			return RenderTargetFormat.R8G8B8A8;
 	}
 
-
+	/**
+	 * update Camera Render
+	 * @param context 
+	 */
+	_updateCameraRenderData(context:RenderContext3D){
+		this._prepareCameraToRender();
+		this._applyViewProject(context,this.viewMatrix, this._projectionMatrix);
+	}
 
 
 	/**
