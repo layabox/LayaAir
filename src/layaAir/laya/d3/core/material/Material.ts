@@ -555,6 +555,12 @@ export class Material extends Resource implements IClone {
         this._shaderValues = null;
     }
 
+
+    //get all material uniform property
+	effectiveProperty(){
+		return this._shader.getSubShaderAt(0)._uniformTypeMap;
+	}
+
     /**
      * 设置使用Shader名字。
      * @param name 名称。
