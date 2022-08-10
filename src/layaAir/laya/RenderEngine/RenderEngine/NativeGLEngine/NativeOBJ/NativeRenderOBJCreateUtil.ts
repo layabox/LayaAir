@@ -51,6 +51,7 @@ import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
 import { RenderPlane } from "../../../../d3/core/RenderPlane";
 import { NativeCommandUniformMap } from "./NativeCommandUniformMap";
 import { RenderBounds } from "../../../../d3/core/RenderBounds";
+import { NativeBaseRenderNode } from "./NativeBaseRenderNode";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
 
@@ -110,7 +111,7 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createBaseRenderNode(): IBaseRenderNode {
-        return new (window as any).conchRenderNode();
+        return new NativeBaseRenderNode();
     }
 
     createRenderContext3D(): IRenderContext3D {
@@ -118,11 +119,11 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createSceneRenderManager(): ISceneRenderManager {
-        return new SceneRenderManager();//return new NativeSceneRenderManager();
+        return new NativeSceneRenderManager();
     }
 
     createCullPass(): ICullPass {
-        return new CullPassBase();//return new NativeCullPassBase();
+        return new NativeCullPassBase();
     }
 
     createSortPass(): ISortPass {
