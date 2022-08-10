@@ -24,18 +24,20 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     }
 
     addRenderObject(object: BaseRender): void {
+        
         this._renders.add(object);
         if (object._customCull)
             this._customCullList.add(object);
         else
-            this._nativeObj.addRenderObject(object.renderNode);
+            this._nativeObj.addRenderObject((object.renderNode as any)._nativeObj);
 
     }
 
     removeRenderObject(object: BaseRender): void {
+        
         this._renders.remove(object);
         if (!object._customCull)
-            this._nativeObj.removeRenderObject(object.renderNode);
+            this._nativeObj.removeRenderObject((object.renderNode as any)._nativeObj);
         else {
             //remove
             let elements = this._customCullList.elements;
@@ -48,9 +50,10 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     }
 
     removeMotionObject(object: BaseRender): void {
+        
         if (object.renderNode.geometryBounds) {
             //可以在native更新Bounds的渲染节点
-            this._nativeObj.removeMotionObject(object.renderNode);
+            this._nativeObj.removeMotionObject((object.renderNode as any)._nativeObj);
         } else {
             let index = object._motionIndexList;
             if (index != -1) {//remove
@@ -63,6 +66,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     }
 
     updateMotionObjects(): void {
+        
         //update native Motion Node
         this._nativeObj.updateMotionObjects();
 
@@ -74,8 +78,9 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     }
 
     addMotionObject(object: BaseRender): void {
+        
         if (object.renderNode.geometryBounds) {
-            this._nativeObj.addMotionObject(object.renderNode);
+            this._nativeObj.addMotionObject((object.renderNode as any)._nativeObj);
         } else {
             if (object._motionIndexList == -1) {
                 object._motionIndexList = this._customUpdateList.length;

@@ -159,7 +159,6 @@ export class Context {
 	/**@internal */
 	//TODO:coverage
 	_drawRect(x: number, y: number, width: number, height: number, style: any): void {
-		Stat.renderBatches++;
 		style && (this.fillStyle = style);
 		this.fillRect(x, y, width, height, null);
 	}
@@ -289,7 +288,6 @@ export class Context {
 	static PI2: number = 2 * Math.PI;
 	/**@internal */
 	_drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
-		Stat.renderBatches++;
 		this.beginPath(true);
 		this.arc(x, y, radius, 0, Context.PI2);
 		this.closePath();

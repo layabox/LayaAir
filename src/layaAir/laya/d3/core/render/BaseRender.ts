@@ -25,6 +25,7 @@ import { SubUniformBufferData } from "../../../RenderEngine/SubUniformBufferData
 import { Stat } from "../../../utils/Stat";
 import { RenderBounds } from "../RenderBounds";
 import { Bounds } from "../../math/Bounds";
+import { Render } from "../../../renders/Render";
 
 
 /**
@@ -362,6 +363,7 @@ export class BaseRender extends Component {
 	constructor() {
 		super();
 		this._rendernode = this._createBaseRenderNode();
+		this._rendernode.owner = this;
 		this._rendernode.renderId = ++BaseRender._uniqueIDCounter;
 		this._bounds = this._rendernode.bounds = LayaGL.renderOBJCreate.createBounds(Vector3._ZERO, Vector3._ZERO);
 		this._renderElements = [];
@@ -386,6 +388,8 @@ export class BaseRender extends Component {
 	_setOwner(node: Node) {
 		super._setOwner(node);
 		this._transform = (this.owner as Sprite3D).transform;
+		
+		this._rendernode.transform = this._transform;
 		(this.owner) && (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
 	}
 

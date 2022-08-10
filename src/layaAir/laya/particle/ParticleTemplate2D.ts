@@ -243,8 +243,6 @@ export class ParticleTemplate2D extends Resource implements ISubmit {
                     if (this._firstFreeElement > 0)
                         LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, this._firstFreeElement * 6, IndexFormat.UInt16, 0);
                 }
-
-                Stat.renderBatches++;
             }
             this._drawCounter++;
         }

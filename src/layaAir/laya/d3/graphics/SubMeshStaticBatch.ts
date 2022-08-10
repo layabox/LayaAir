@@ -316,7 +316,6 @@ export class SubMeshStaticBatch extends GeometryElement {
 		indexCount = batchElementList[end].staticBatchIndexEnd - start;
 		this.setDrawElemenParams(indexCount, start * 2);
 		//LayaGL.renderDrawConatext.drawElements(MeshTopology.Triangles,indexCount, IndexFormat.UInt16, start * 2);
-		Stat.renderBatches++;
 		// Stat.savedRenderBatches += count - 1;
 		// Stat.trianglesFaces += indexCount / 3;
 		/*暴力循环版本:drawcall调用次数有浪费
