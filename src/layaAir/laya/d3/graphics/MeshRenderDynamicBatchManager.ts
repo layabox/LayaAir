@@ -3,7 +3,7 @@ import { BufferState } from "../core/BufferState"
 import { BatchMark } from "../core/render/BatchMark"
 import { RenderElement } from "../core/render/RenderElement"
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
-import { SingletonList } from "../component/SingletonList";
+import { SingletonList } from "../../utils/SingletonList";
 
 /**
  * @internal

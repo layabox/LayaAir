@@ -1,6 +1,6 @@
 import { CannonPhysicsComponent } from "./CannonPhysicsComponent";
-import { SingletonList } from "../component/SingletonList"
-import { ISingletonElement } from "../../resource/ISingletonElement";
+import { SingletonList } from "../../utils/SingletonList"
+import { ISingletonElement } from "../../utils/ISingletonElement";
 	
 	/**
 	 * <code>PhysicsUpdateList</code> 类用于实现物理更新队列。

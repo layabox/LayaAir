@@ -1,4 +1,4 @@
-import { SingletonList } from "../../d3/component/SingletonList";
+import { SingletonList } from "../../utils/SingletonList";
 import { RenderElement } from "../../d3/core/render/RenderElement";
 import { ISortPass } from "../RenderInterface/RenderPipelineInterface/ISortPass";
 

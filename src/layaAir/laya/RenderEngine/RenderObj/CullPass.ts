@@ -1,11 +1,11 @@
-import { SingletonList } from "../../d3/component/SingletonList";
+import { SingletonList } from "../../utils/SingletonList"
 import { BaseRender } from "../../d3/core/render/BaseRender";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { FrustumCulling } from "../../d3/graphics/FrustumCulling";
 import { BoundFrustum } from "../../d3/math/BoundFrustum";
 import { Vector3 } from "../../d3/math/Vector3";
-import { ISingletonElement } from "../../resource/ISingletonElement";
+import { ISingletonElement } from "../../utils/ISingletonElement";
 import { Stat } from "../../utils/Stat";
 import { ICameraCullInfo } from "../RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { ICullPass } from "../RenderInterface/RenderPipelineInterface/ICullPass";

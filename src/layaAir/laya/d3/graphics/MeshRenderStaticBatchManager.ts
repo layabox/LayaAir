@@ -9,7 +9,7 @@ import { Mesh } from "../resource/models/Mesh";
 import { StaticBatchManager } from "./StaticBatchManager";
 import { SubMeshStaticBatch } from "./SubMeshStaticBatch";
 import { VertexMesh } from "./Vertex/VertexMesh";
-import { SingletonList } from "../component/SingletonList";
+import { SingletonList } from "../../utils/SingletonList";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 
 /**

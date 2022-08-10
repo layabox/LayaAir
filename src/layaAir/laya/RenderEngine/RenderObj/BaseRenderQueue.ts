@@ -1,4 +1,4 @@
-import { SingletonList } from "../../d3/component/SingletonList";
+import { SingletonList } from "../../utils/SingletonList";
 import { BufferState } from "../../d3/core/BufferState";
 import { Camera } from "../../d3/core/Camera";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";

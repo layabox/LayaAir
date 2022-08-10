@@ -1,5 +1,5 @@
 import { Node } from "../display/Node"
-import { ISingletonElement } from "../resource/ISingletonElement"
+import { ISingletonElement } from "../utils/ISingletonElement"
 import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils";
 

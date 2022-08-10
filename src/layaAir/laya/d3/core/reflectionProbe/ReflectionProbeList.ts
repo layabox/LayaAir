@@ -1,4 +1,4 @@
-import { SingletonList } from "../../component/SingletonList";
+import { SingletonList } from "../../../utils/SingletonList";
 import { ReflectionProbe } from "./ReflectionProbe";
 
 /**

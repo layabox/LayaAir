@@ -1,4 +1,4 @@
-import { SingletonList } from "../../../../d3/component/SingletonList";
+import { SingletonList } from "../../../../utils/SingletonList";
 import { INativeUploadNode } from "./INativeUploadNode";
 import { UploadMemory } from "./UploadMemory";
 

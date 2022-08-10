@@ -1,4 +1,4 @@
-import { SimpleSingletonList } from "../../../d3/component/SimpleSingletonList";
+import { SimpleSingletonList } from "../../../utils/SimpleSingletonList";
 import { BaseRender } from "../../../d3/core/render/BaseRender";
 
 export interface ISceneRenderManager {
