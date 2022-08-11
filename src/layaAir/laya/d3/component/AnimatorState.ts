@@ -67,6 +67,7 @@ export class AnimatorState implements IClone {
 						case KeyFrameValueType.Position:
 						case KeyFrameValueType.Scale:
 						case KeyFrameValueType.RotationEuler:
+						case KeyFrameValueType.Vector3:
 							realtimeDatas[i] = new Vector3();
 							break;
 						case KeyFrameValueType.Rotation:

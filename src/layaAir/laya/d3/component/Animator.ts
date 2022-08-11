@@ -710,7 +710,7 @@ export class Animator extends Component {
         var pro: any = nodeOwner.propertyOwner;
         if (pro) {
             switch (nodeOwner.type) {
-                case 0: //Float
+                case KeyFrameValueType.Float: //Float
                     var proPat: string[] = nodeOwner.property!;
                     var m: number = proPat.length - 1;
                     for (var j: number = 0; j < m; j++) {
@@ -728,7 +728,7 @@ export class Animator extends Component {
                         pro && (pro as Material).setFloat(lastpro, this._applyFloat((pro as Material).getFloat(lastpro), nodeOwner, additive, weight, isFirstLayer, crossValue));
                     }
                     break;
-                case 1: //Position
+                case KeyFrameValueType.Position: //Position
                     var localPos: Vector3 = pro.localPosition;
                     var position: Vector3 = nodeOwner.value;
                     var srcX: number = srcValue.x, srcY: number = srcValue.y, srcZ: number = srcValue.z;
@@ -738,21 +738,21 @@ export class Animator extends Component {
                     this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, position, localPos);
                     pro.localPosition = localPos;
                     break;
-                case 2: //Rotation
+                case KeyFrameValueType.Rotation: //Rotation
                     var localRot: Quaternion = pro.localRotation;
                     var rotation: Quaternion = nodeOwner.value;
                     Quaternion.lerp(srcValue, desValue, crossWeight, rotation);
                     this._applyRotation(nodeOwner, additive, weight, isFirstLayer, rotation, localRot);
                     pro.localRotation = localRot;
                     break;
-                case 3: //Scale
+                case KeyFrameValueType.Scale: //Scale
                     var localSca: Vector3 = pro.localScale;
                     var scale: Vector3 = nodeOwner.value;
                     Utils3D.scaleBlend(srcValue, desValue, crossWeight, scale);
                     this._applyScale(nodeOwner, additive, weight, isFirstLayer, scale, localSca);
                     pro.localScale = localSca;
                     break;
-                case 4: //RotationEuler
+                case KeyFrameValueType.RotationEuler: //RotationEuler
                     var localEuler: Vector3 = pro.localRotationEuler;
                     var rotationEuler: Vector3 = nodeOwner.value;
                     srcX = srcValue.x, srcY = srcValue.y, srcZ = srcValue.z;
@@ -761,6 +761,18 @@ export class Animator extends Component {
                     rotationEuler.z = srcZ + crossWeight * (desValue.z - srcZ);
                     this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, rotationEuler, localEuler);
                     pro.localRotationEuler = localEuler;
+                    break;
+                case KeyFrameValueType.Color: 
+                    //TODO
+                    break;
+                case KeyFrameValueType.Vector2:
+                    //TODO
+                    break;
+                case KeyFrameValueType.Vector4:
+                    //TODO
+                    break;
+                case KeyFrameValueType.Vector3:
+                    //TODO
                     break;
             }
             nodeOwner.updateMark = this._updateMark;

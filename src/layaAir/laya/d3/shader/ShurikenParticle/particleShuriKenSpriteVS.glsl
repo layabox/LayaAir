@@ -1,4 +1,4 @@
-//sprite Uniform
+// sprite Uniform
 uniform float u_CurrentTime;
 uniform vec3 u_Gravity;
 uniform vec2 u_DragConstanct;
@@ -112,5 +112,3 @@ uniform vec2 u_TSAGradientUVs[4]; // x为key,y为frame
 #ifdef TEXTURESHEETANIMATIONRANDOMCURVE
 uniform vec2 u_TSAMaxGradientUVs[4]; // x为key,y为frame
 #endif
-
-

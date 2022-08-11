@@ -22,7 +22,7 @@ export class ParticleShuriKenShaderInit{
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {
             'a_CornerTextureCoordinate': [VertexShuriKenParticle.PARTICLE_CORNERTEXTURECOORDINATE0, ShaderDataType.Vector4],
 		 	'a_MeshPosition': [VertexShuriKenParticle.PARTICLE_POSITION0,ShaderDataType.Vector3],
-            'a_a_MeshColor':[VertexShuriKenParticle.PARTICLE_COLOR0,ShaderDataType.Vector4],
+            'a_MeshColor':[VertexShuriKenParticle.PARTICLE_COLOR0,ShaderDataType.Vector4],
 		 	'a_MeshTextureCoordinate': [VertexShuriKenParticle.PARTICLE_TEXTURECOORDINATE0,ShaderDataType.Vector2],
 		 	'a_ShapePositionStartLifeTime': [VertexShuriKenParticle.PARTICLE_SHAPEPOSITIONSTARTLIFETIME,ShaderDataType.Vector4],
 		    'a_DirectionTime': [VertexShuriKenParticle.PARTICLE_DIRECTIONTIME,ShaderDataType.Vector4],

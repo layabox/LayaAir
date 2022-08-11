@@ -6,6 +6,10 @@
 #include "MathGradient.glsl";
 #include "Color.glsl";
 
+#ifdef RENDERMODE_MESH
+varying vec4 v_MeshColor;
+#endif
+
 varying vec4 v_Color;
 varying vec2 v_TextureCoordinate;
 
