@@ -1,6 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
-import { SingletonList } from "../../component/SingletonList";
+import { SingletonList } from "../../../utils/SingletonList";
 import { RenderElement } from "../../core/render/RenderElement";
 import { SubMeshRenderElement } from "../../core/render/SubMeshRenderElement";
 import { SubMeshInstanceBatch } from "../SubMeshInstanceBatch";

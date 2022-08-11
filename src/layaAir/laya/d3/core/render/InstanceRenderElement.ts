@@ -3,7 +3,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { InstanceRenderElementOBJ } from "../../../RenderEngine/RenderObj/InstanceRenderElementOBJ";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
-import { SingletonList } from "../../component/SingletonList";
+import { SingletonList } from "../../../utils/SingletonList";
 import { MeshInstanceGeometry } from "../../graphics/MeshInstanceGeometry";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector4 } from "../../math/Vector4";

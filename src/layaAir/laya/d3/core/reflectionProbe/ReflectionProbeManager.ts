@@ -1,8 +1,8 @@
 import { BaseRender } from "../render/BaseRender";
 import { ReflectionProbe } from "./ReflectionProbe";
 import { ReflectionProbeList } from "./ReflectionProbeList";
-import { SingletonList } from "../../component/SingletonList";
-import { SimpleSingletonList } from "../../component/SimpleSingletonList";
+import { SingletonList } from "../../../utils/SingletonList";
+import { SimpleSingletonList } from "../../../utils/SimpleSingletonList";
 import { TextureCube } from "../../resource/TextureCube";
 import { Vector4 } from "../../math/Vector4";
 import { Vector3 } from "../../math/Vector3";

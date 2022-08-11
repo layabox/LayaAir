@@ -1,4 +1,4 @@
-import { SingletonList } from "../../../../d3/component/SingletonList";
+import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender } from "../../../../d3/core/render/BaseRender";
 import { RenderContext3D } from "../../../../d3/core/render/RenderContext3D";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";

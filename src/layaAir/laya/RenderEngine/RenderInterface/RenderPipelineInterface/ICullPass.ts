@@ -1,4 +1,4 @@
-import { SingletonList } from "../../../d3/component/SingletonList";
+import { SingletonList } from "../../../utils/SingletonList";
 import { BaseRender } from "../../../d3/core/render/BaseRender";
 import { ICameraCullInfo } from "./ICameraCullInfo";
 import { ISceneRenderManager } from "./ISceneRenderManager";

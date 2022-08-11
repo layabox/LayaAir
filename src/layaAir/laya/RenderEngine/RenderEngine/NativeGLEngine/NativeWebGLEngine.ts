@@ -60,15 +60,16 @@ export class NativeWebGLEngine implements IRenderEngine {
     return this._nativeObj.getUBOPointer(name);
   }
 
-
+  _addStatisticsInfo(info: RenderStatisticsInfo, value: number) {
+    this._nativeObj.addStatisticsInfo(info, value);
+  }
   /**
  * 清除
  * @internal
  * @param info 
  */
   clearStatisticsInfo(info: RenderStatisticsInfo) {
-    //LV todo
-    //this._GLStatisticsInfo.set(info,0);
+    this._nativeObj.clearStatisticsInfo(info);
   }
 
   /**
@@ -77,9 +78,7 @@ export class NativeWebGLEngine implements IRenderEngine {
    * @returns 
    */
   getStatisticsInfo(info: RenderStatisticsInfo): number {
-    //LV todo
-    return 0;
-    //return this._GLStatisticsInfo.get(info);
+    return this._nativeObj.getStatisticsInfo(info);
   }
   /**
    * GL Context

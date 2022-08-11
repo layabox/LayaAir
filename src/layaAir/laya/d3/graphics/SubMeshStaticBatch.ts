@@ -6,7 +6,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../resource/Resource";
 import { Stat } from "../../utils/Stat";
-import { SingletonList } from "../component/SingletonList";
+import { SingletonList } from "../../utils/SingletonList";
 import { BufferState } from "../core/BufferState";
 import { GeometryElement } from "../core/GeometryElement";
 import { MeshRenderer } from "../core/MeshRenderer";

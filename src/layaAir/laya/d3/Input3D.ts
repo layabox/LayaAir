@@ -3,7 +3,7 @@ import { Stat } from "../utils/Stat";
 import { MouseTouch } from "./MouseTouch";
 import { Touch } from "./Touch";
 import { Script3D } from "./component/Script3D";
-import { SimpleSingletonList } from "./component/SimpleSingletonList";
+import { SimpleSingletonList } from "../utils/SimpleSingletonList";
 import { BaseCamera } from "./core/BaseCamera";
 import { Camera, CameraClearFlags } from "./core/Camera";
 import { Scene3D } from "./core/scene/Scene3D";

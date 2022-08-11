@@ -1,4 +1,4 @@
-import { SingletonList } from "../../../d3/component/SingletonList";
+import { SingletonList } from "../../../utils/SingletonList";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { ShaderInstance } from "../../../d3/shader/ShaderInstance";
 import { ShaderData } from "../../RenderShader/ShaderData";
