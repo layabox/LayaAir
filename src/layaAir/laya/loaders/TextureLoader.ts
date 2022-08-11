@@ -24,7 +24,7 @@ class Texture2DLoader implements IResourceLoader {
 
                     case "ktx":
                         let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
-                        if (ktxInfo.dimension = TextureDimension.Cube) {
+                        if (ktxInfo.dimension == TextureDimension.Cube) {
                             //这里在core模块，不能直接引用d3里的TextureCube
                             let cls = ClassUtils.getClass("Laya.TextureCube");
                             if (cls) {
@@ -35,7 +35,7 @@ class Texture2DLoader implements IResourceLoader {
                             else
                                 return null;
                         }
-                        else if (ktxInfo.dimension = TextureDimension.Tex2D) {
+                        else if (ktxInfo.dimension == TextureDimension.Tex2D) {
                             tex = Texture2D._parseKTX(data, task.options.propertyParams, task.options.constructParams);
                         }
                         tex = Texture2D._parseKTX(data, task.options.propertyParams, task.options.constructParams);
