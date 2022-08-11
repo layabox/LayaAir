@@ -1,3 +1,4 @@
+import { ClassUtils } from "../../utils/ClassUtils";
 import { SimpleSkinnedMeshRenderer } from "../core/SimpleSkinnedMeshRenderer";
 import { Sprite3D } from "../core/Sprite3D";
 
@@ -6,11 +7,8 @@ export class AnimatorResource {
         switch (propertyKey) {
             case "simpleSkinnedMeshRenderer":
                 return sprite.getComponent(SimpleSkinnedMeshRenderer);
-                break;
-            case "meshFilter":
-                break;
             default:
-                //TODO Scripts
+                sprite.getComponent(ClassUtils.getClass(propertyKey));
                 break;
         }
         return null;

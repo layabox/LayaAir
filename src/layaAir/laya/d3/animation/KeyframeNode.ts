@@ -1,3 +1,4 @@
+import { KeyFrameValueType } from "../component/KeyframeNodeOwner";
 import { Keyframe } from "../core/Keyframe"
 
 /**
@@ -13,7 +14,7 @@ export class KeyframeNode {
 	_indexInList: number;
 
 	/**@internal */
-	type: number;
+	type: KeyFrameValueType;
 	/**@internal */
 	fullPath: string;
 	/**@internal */

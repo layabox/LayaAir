@@ -191,9 +191,9 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             this._bufferState.applyState([this._vertexBuffer,this._instanceParticleVertexBuffer],this._indexBuffer);
         }
 
-        let memorySize = this._instanceParticleVertexBuffer._byteLength + this._indexBuffer._byteLength + this._vertexBuffer._byteLength;
+        // let memorySize = this._instanceParticleVertexBuffer._byteLength + this._indexBuffer._byteLength + this._vertexBuffer._byteLength;
 
-        Resource._addMemory(memorySize, memorySize);
+        // Resource._addMemory(memorySize, memorySize);
     }
 
     protected _retireActiveParticles(): void {

@@ -1,6 +1,17 @@
 import { Vector3 } from "../math/Vector3";
 import { Quaternion } from "../math/Quaternion";
 
+export enum KeyFrameValueType{
+	Float = 0,
+	Position = 1,
+	Rotation = 2,
+	Scale = 3,
+	RotationEuler = 4,
+	Vector2,
+	Vector3,
+	Vector4,
+	Color
+}
 /**
  * @internal
  * <code>KeyframeNodeOwner</code> 类用于保存帧节点的拥有者信息。
@@ -13,8 +24,8 @@ export class KeyframeNodeOwner {
 	/**@internal */
 	updateMark: number = -1;
 
-	/**@internal */
-	type: number = -1;
+	/**@internal 0 float,1 position,2 rotation,3 Scale,4 rotationEuler*/
+	type: KeyFrameValueType = -1;
 	/**@internal */
 	fullPath: string | null = null;
 	nodePath: string | null = null;
@@ -28,6 +39,8 @@ export class KeyframeNodeOwner {
 	value: any = null;
 	/**@internal */
 	crossFixedValue: any = null;
+	/**@internal */
+	isMaterial:boolean = false;
 
 	/**
 	 * 创建一个 <code>KeyframeNodeOwner</code> 实例。

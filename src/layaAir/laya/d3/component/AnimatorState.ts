@@ -1,12 +1,14 @@
 import { AnimationClip } from "../animation/AnimationClip";
 import { AnimatorStateScript } from "../animation/AnimatorStateScript";
 import { IClone } from "../core/IClone";
-import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
+import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { KeyframeNodeList } from "../animation/KeyframeNodeList";
 import { ConchVector3 } from "../math/Native/ConchVector3";
 import { ConchQuaternion } from "../math/Native/ConchQuaternion";
+import { Vector2 } from "../math/Vector2";
+import { Vector4 } from "../math/Vector4";
 
 /**
  * <code>AnimatorState</code> 类用于创建动作状态。
@@ -16,11 +18,11 @@ export class AnimatorState implements IClone {
 	private _referenceCount: number = 0;
 
 	/** @internal */
-	_clip: AnimationClip|null = null;
+	_clip: AnimationClip | null = null;
 	/** @internal */
 	_nodeOwners: KeyframeNodeOwner[] = [];//TODO:提出去
 	/** @internal */
-	_currentFrameIndices: Int16Array|null = null;
+	_currentFrameIndices: Int16Array | null = null;
 	/**
 	 * @internal
 	 * to avoid data confused,must put realtime datas in animatorState,can't be in animationClip,
@@ -28,7 +30,7 @@ export class AnimatorState implements IClone {
 	 */
 	_realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = [];
 	/** @internal */
-	_scripts: AnimatorStateScript[]|null = null;
+	_scripts: AnimatorStateScript[] | null = null;
 
 	/**名称。*/
 	name: string;
@@ -42,16 +44,16 @@ export class AnimatorState implements IClone {
 	/**
 	 * 动作。
 	 */
-	get clip(): AnimationClip|null {
+	get clip(): AnimationClip | null {
 		return this._clip;
 	}
 
-	set clip(value: AnimationClip|null) {
+	set clip(value: AnimationClip | null) {
 		if (this._clip !== value) {
 			if (this._clip)
 				(this._referenceCount > 0) && (this._clip._removeReference(this._referenceCount));
 			if (value) {
-				var realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = this._realtimeDatas;
+				var realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion | Vector2 | Vector4> = this._realtimeDatas;
 				var clipNodes: KeyframeNodeList = value._nodes!;
 				var count: number = clipNodes.count;
 				this._currentFrameIndices = new Int16Array(count);
@@ -60,15 +62,21 @@ export class AnimatorState implements IClone {
 				this._realtimeDatas.length = count;
 				for (var i: number = 0; i < count; i++) {
 					switch (clipNodes.getNodeByIndex(i).type) {
-						case 0:
+						case KeyFrameValueType.Float:
 							break;
-						case 1:
-						case 3:
-						case 4:
+						case KeyFrameValueType.Position:
+						case KeyFrameValueType.Scale:
+						case KeyFrameValueType.RotationEuler:
 							realtimeDatas[i] = new Vector3();
 							break;
-						case 2:
+						case KeyFrameValueType.Rotation:
 							realtimeDatas[i] = new Quaternion();
+							break;
+						case KeyFrameValueType.Vector2:
+							realtimeDatas[i] = new Vector2();
+							break;
+						case KeyFrameValueType.Vector4:
+							realtimeDatas[i] = new Vector4();
 							break;
 						default:
 							throw "AnimationClipParser04:unknown type.";
@@ -131,7 +139,7 @@ export class AnimatorState implements IClone {
 	 * @return 脚本。
 	 *
 	 */
-	getScript(type: typeof AnimatorStateScript): AnimatorStateScript|null {
+	getScript(type: typeof AnimatorStateScript): AnimatorStateScript | null {
 		if (this._scripts) {
 			for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
 				var script: AnimatorStateScript = this._scripts[i];
@@ -147,8 +155,8 @@ export class AnimatorState implements IClone {
 	 * @param	type  组件类型。
 	 * @return 脚本集合。
 	 */
-	getScripts(type: typeof AnimatorStateScript): AnimatorStateScript[]|null {
-		var coms: AnimatorStateScript[]|null = null;
+	getScripts(type: typeof AnimatorStateScript): AnimatorStateScript[] | null {
+		var coms: AnimatorStateScript[] | null = null;
 		if (this._scripts) {
 			for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
 				var script: AnimatorStateScript = this._scripts[i];

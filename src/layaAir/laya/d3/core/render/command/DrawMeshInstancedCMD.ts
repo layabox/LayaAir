@@ -142,7 +142,11 @@ export class DrawMeshInstancedCMD extends Command {
  * @internal
      */
     private _setInstanceBuffer(): void {
-        let instanceBufferState = this._instanceBufferState ? this._instanceBufferState : new BufferState();
+        if(!this._instanceBufferState){
+            this._instanceBufferState = new BufferState();
+        }
+        let instanceBufferState = this._instanceBufferState;
+        
         let vertexArray: Array<VertexBuffer> = [];
         let meshVertexBuffer = this._mesh._bufferState._vertexBuffers;
         meshVertexBuffer.forEach(element => {

@@ -7,20 +7,24 @@ import { AnimationEvent } from "../animation/AnimationEvent";
 import { AnimatorStateScript } from "../animation/AnimatorStateScript";
 import { KeyframeNode } from "../animation/KeyframeNode";
 import { KeyframeNodeList } from "../animation/KeyframeNodeList";
+import { Material } from "../core/material/Material";
 import { RenderableSprite3D } from "../core/RenderableSprite3D";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
+import { Color } from "../math/Color";
 import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 import { ConchVector3 } from "../math/Native/ConchVector3";
 import { Quaternion } from "../math/Quaternion";
+import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
+import { Vector4 } from "../math/Vector4";
 import { Utils3D } from "../utils/Utils3D";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorPlayState } from "./AnimatorPlayState";
 import { AnimatorResource } from "./AnimatorResource";
 import { AnimatorState } from "./AnimatorState";
 import { AvatarMask } from "./AvatarMask";
-import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
+import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 import { Script3D } from "./Script3D";
 
 /**
@@ -230,6 +234,7 @@ export class Animator extends Component {
         var frameNodesCount = frameNodes!.count;
         var nodeOwners: KeyframeNodeOwner[] = clipStateInfo._nodeOwners;
         nodeOwners.length = frameNodesCount;
+        //Find node through path
         for (var i: number = 0; i < frameNodesCount; i++) {
             var node: KeyframeNode = frameNodes!.getNodeByIndex(i);
             //var property: any = this._avatar ? this._avatarNodeMap[this._avatar._rootNode.name!] : this.owner;//如果有avatar需使用克隆节点
@@ -244,10 +249,11 @@ export class Animator extends Component {
                         break;
                 }
             }
-
+            //
             if (property) {
                 var propertyOwner: string = node.propertyOwner;
                 const oriProperty = property;
+                //
                 (propertyOwner) && (property = property[propertyOwner]);
                 if (!property) {
                     property = AnimatorResource.getAnimatorResource(oriProperty, propertyOwner);
@@ -392,29 +398,183 @@ export class Animator extends Component {
     /**
      * @internal
      */
-    private _applyFloat(pro: any, proName: string, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: number): void {
+    private _applyFloat(defaultValue: number, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: number): number {
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
-                pro[proName] += weight * data;
+                defaultValue += weight * data;
             } else {
-                var oriValue: number = pro[proName];
-                pro[proName] = oriValue + weight * (data - oriValue);
+                var oriValue: number = defaultValue;
+                defaultValue = oriValue + weight * (data - oriValue);
             }
         } else {
             if (isFirstLayer) {
                 if (additive)
-                    pro[proName] = nodeOwner.defaultValue + data;
+                    defaultValue = nodeOwner.defaultValue + data;
                 else
-                    pro[proName] = data;
+                    defaultValue = data;
             } else {
                 if (additive) {
-                    pro[proName] = nodeOwner.defaultValue + weight * (data);
+                    defaultValue = nodeOwner.defaultValue + weight * (data);
                 } else {
                     var defValue: number = nodeOwner.defaultValue;
-                    pro[proName] = defValue + weight * (data - defValue);
+                    defaultValue = defValue + weight * (data - defValue);
                 }
             }
         }
+        return defaultValue;
+    }
+
+    private _applyVec2(defaultValue: Vector2, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector2): Vector2 {
+        if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
+            if (additive) {
+                defaultValue.x += weight * data.x;
+                defaultValue.y += weight * data.y;
+            } else {
+                var oriValue = defaultValue;
+                defaultValue.x = oriValue.x + weight * (data.x - oriValue.x);
+                defaultValue.y = oriValue.y + weight * (data.y - oriValue.y);
+            }
+        } else {
+            if (isFirstLayer) {
+                if (additive) {
+                    defaultValue.x = nodeOwner.defaultValue.x + data.x;
+                    defaultValue.y = nodeOwner.defaultValue.y + data.y;
+                }
+                else
+                    data.cloneTo(defaultValue);
+            } else {
+                if (additive) {
+                    defaultValue.x = nodeOwner.defaultValue.x + weight * (data.x);
+                    defaultValue.y = nodeOwner.defaultValue.y + weight * (data.y);
+                } else {
+                    var defValue: Vector2 = nodeOwner.defaultValue;
+                    defaultValue.x = defValue.x + weight * (data.x - defValue.x);
+                    defaultValue.y = defValue.y + weight * (data.y - defValue.y);
+                }
+            }
+        }
+        return defaultValue;
+    }
+
+    private _applyVec3(defaultValue: Vector3, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector3) {
+        if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
+            if (additive) {
+                defaultValue.x += weight * data.x;
+                defaultValue.y += weight * data.y;
+                defaultValue.z += weight * data.z;
+            } else {
+                var oriValue = defaultValue;
+                defaultValue.x = oriValue.x + weight * (data.x - oriValue.x);
+                defaultValue.y = oriValue.y + weight * (data.y - oriValue.y);
+                defaultValue.z = oriValue.z + weight * (data.z - oriValue.z);
+            }
+        } else {
+            if (isFirstLayer) {
+                if (additive) {
+                    defaultValue.x = nodeOwner.defaultValue.x + data.x;
+                    defaultValue.y = nodeOwner.defaultValue.y + data.y;
+                    defaultValue.z = nodeOwner.defaultValue.z + data.z;
+                }
+                else
+                    data.cloneTo(defaultValue);
+            } else {
+                if (additive) {
+                    defaultValue.x = nodeOwner.defaultValue.x + weight * (data.x);
+                    defaultValue.y = nodeOwner.defaultValue.y + weight * (data.y);
+                    defaultValue.z = nodeOwner.defaultValue.z + weight * (data.z);
+                } else {
+                    var defValue: Vector3 = nodeOwner.defaultValue;
+                    defaultValue.x = defValue.x + weight * (data.x - defValue.x);
+                    defaultValue.y = defValue.y + weight * (data.y - defValue.y);
+                    defaultValue.z = defValue.z + weight * (data.z - defValue.z);
+                }
+            }
+        }
+        return defaultValue;
+    }
+
+    private _applyVec4(defaultValue: Vector4, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector4) {
+        if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
+            if (additive) {
+                defaultValue.x += weight * data.x;
+                defaultValue.y += weight * data.y;
+                defaultValue.z += weight * data.z;
+                defaultValue.w += weight * data.w;
+            } else {
+                var oriValue = defaultValue;
+                defaultValue.x = oriValue.x + weight * (data.x - oriValue.x);
+                defaultValue.y = oriValue.y + weight * (data.y - oriValue.y);
+                defaultValue.z = oriValue.z + weight * (data.z - oriValue.z);
+                defaultValue.w = oriValue.w + weight * (data.w - oriValue.w);
+            }
+        } else {
+            if (isFirstLayer) {
+                if (additive) {
+                    defaultValue.x = nodeOwner.defaultValue.x + data.x;
+                    defaultValue.y = nodeOwner.defaultValue.y + data.y;
+                    defaultValue.z = nodeOwner.defaultValue.z + data.z;
+                    defaultValue.w = nodeOwner.defaultValue.w + data.w;
+                }
+                else
+                    data.cloneTo(defaultValue);
+            } else {
+                if (additive) {
+                    defaultValue.x = nodeOwner.defaultValue.x + weight * (data.x);
+                    defaultValue.y = nodeOwner.defaultValue.y + weight * (data.y);
+                    defaultValue.z = nodeOwner.defaultValue.z + weight * (data.z);
+                    defaultValue.w = nodeOwner.defaultValue.w + weight * (data.w);
+                } else {
+                    var defValue: Vector4 = nodeOwner.defaultValue;
+                    defaultValue.x = defValue.x + weight * (data.x - defValue.x);
+                    defaultValue.y = defValue.y + weight * (data.y - defValue.y);
+                    defaultValue.z = defValue.z + weight * (data.z - defValue.z);
+                    defaultValue.w = defValue.w + weight * (data.w - defValue.w);
+                }
+            }
+        }
+        return defaultValue;
+    }
+
+    private _applyColor(defaultValue: Color, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector4) {
+        if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
+            if (additive) {
+                defaultValue.r += weight * data.x;
+                defaultValue.g += weight * data.y;
+                defaultValue.b += weight * data.z;
+                defaultValue.a += weight * data.w;
+            } else {
+                var oriValue = defaultValue;
+                defaultValue.r = oriValue.r + weight * (data.x - oriValue.r);
+                defaultValue.g = oriValue.g + weight * (data.y - oriValue.g);
+                defaultValue.b = oriValue.b + weight * (data.z - oriValue.b);
+                defaultValue.a = oriValue.a + weight * (data.w - oriValue.a);
+            }
+        } else {
+            if (isFirstLayer) {
+                if (additive) {
+                    defaultValue.r = nodeOwner.defaultValue.x + data.x;
+                    defaultValue.g = nodeOwner.defaultValue.y + data.y;
+                    defaultValue.b = nodeOwner.defaultValue.z + data.z;
+                    defaultValue.a = nodeOwner.defaultValue.w + data.w;
+                }
+                else
+                    data.cloneTo(defaultValue);
+            } else {
+                if (additive) {
+                    defaultValue.r = nodeOwner.defaultValue.x + weight * (data.x);
+                    defaultValue.g = nodeOwner.defaultValue.y + weight * (data.y);
+                    defaultValue.b = nodeOwner.defaultValue.z + weight * (data.z);
+                    defaultValue.a = nodeOwner.defaultValue.w + weight * (data.w);
+                } else {
+                    var defValue: Vector4 = nodeOwner.defaultValue;
+                    defaultValue.r = defValue.x + weight * (data.x - defValue.x);
+                    defaultValue.g = defValue.y + weight * (data.y - defValue.y);
+                    defaultValue.b = defValue.z + weight * (data.z - defValue.z);
+                    defaultValue.a = defValue.w + weight * (data.w - defValue.w);
+                }
+            }
+        }
+        return defaultValue;
     }
 
     /**
@@ -561,7 +721,12 @@ export class Animator extends Component {
 
                     var crossValue: number = srcValue + crossWeight * (desValue - srcValue);
                     nodeOwner.value = crossValue;
-                    pro && this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, crossValue);
+                    const lastpro = proPat[m];
+                    if (!nodeOwner.isMaterial) {
+                        pro && (pro[lastpro] = this._applyFloat(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, crossValue));
+                    } else {
+                        pro && (pro as Material).setFloat(lastpro, this._applyFloat((pro as Material).getFloat(lastpro), nodeOwner, additive, weight, isFirstLayer, crossValue));
+                    }
                     break;
                 case 1: //Position
                     var localPos: Vector3 = pro.localPosition;
@@ -610,7 +775,7 @@ export class Animator extends Component {
      * @param isFirstLayer 是否是第一层
      */
     private _setClipDatasToNode(stateInfo: AnimatorState, additive: boolean, weight: number, isFirstLayer: boolean, controllerLayer: AnimatorControllerLayer = null): void {
-        var realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = stateInfo._realtimeDatas;
+        var realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion | Vector2 | Vector4 | Color> = stateInfo._realtimeDatas;
         var nodes: KeyframeNodeList = stateInfo._clip!._nodes!;
         var nodeOwners: KeyframeNodeOwner[] = stateInfo._nodeOwners;
         for (var i: number = 0, n: number = nodes.count; i < n; i++) {
@@ -621,9 +786,10 @@ export class Animator extends Component {
                     continue;
                 }
                 var pro: any = nodeOwner.propertyOwner;
+                let value: string;
                 if (pro) {
                     switch (nodeOwner.type) {
-                        case 0: //Float
+                        case KeyFrameValueType.Float: //Float
                             var proPat: string[] = nodeOwner.property!;
                             var m: number = proPat.length - 1;
                             for (var j: number = 0; j < m; j++) {
@@ -631,27 +797,93 @@ export class Animator extends Component {
                                 if (!pro)//属性可能或被置空
                                     break;
                             }
-                            pro && this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]);
+                            //pro && this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]);
+                            let lastpro = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[lastpro] = this._applyFloat(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]));
+                            } else {
+                                pro && (pro as Material).setFloat(lastpro, this._applyFloat(0, nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]));
+                            }
                             break;
-                        case 1: //Position
+                        case KeyFrameValueType.Position: //Position
                             var localPos: Vector3 = pro.localPosition;
                             this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i], localPos);
                             pro.localPosition = localPos;
                             break;
-                        case 2: //Rotation
+                        case KeyFrameValueType.Rotation: //Rotation
                             var localRot: Quaternion = pro.localRotation;
                             this._applyRotation(nodeOwner, additive, weight, isFirstLayer, <Quaternion>realtimeDatas[i], localRot);
                             pro.localRotation = localRot;
                             break;
-                        case 3: //Scale
+                        case KeyFrameValueType.Scale: //Scale
                             var localSca: Vector3 = pro.localScale;
                             this._applyScale(nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i], localSca);
                             pro.localScale = localSca;
                             break;
-                        case 4: //RotationEuler
+                        case KeyFrameValueType.RotationEuler: //RotationEuler
                             var localEuler: Vector3 = pro.localRotationEuler;
                             this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i], localEuler);
                             pro.localRotationEuler = localEuler;
+                            break;
+                        case KeyFrameValueType.Vector2://vec2
+                            var proPat: string[] = nodeOwner.property!;
+                            var m: number = proPat.length - 1;
+                            for (var j: number = 0; j < m; j++) {
+                                pro = pro[proPat[j]];
+                                if (!pro)//属性可能或被置空
+                                    break;
+                            }
+                            value = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[value] = this._applyVec2(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector2>realtimeDatas[i]));
+                            } else {
+                                pro && (pro as Material).setVector2(value, this._applyVec2(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector2>realtimeDatas[i]));
+                            }
+                            break;
+                        case KeyFrameValueType.Vector3://vec3
+                            var proPat: string[] = nodeOwner.property!;
+                            var m: number = proPat.length - 1;
+                            for (var j: number = 0; j < m; j++) {
+                                pro = pro[proPat[j]];
+                                if (!pro)//属性可能或被置空
+                                    break;
+                            }
+                            value = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[value] = this._applyVec3(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i]));
+                            } else {
+                                pro && (pro as Material).setVector3(value, this._applyVec3(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i]));
+                            }
+                            break;
+                        case KeyFrameValueType.Vector4://vec4
+                            var proPat: string[] = nodeOwner.property!;
+                            var m: number = proPat.length - 1;
+                            for (var j: number = 0; j < m; j++) {
+                                pro = pro[proPat[j]];
+                                if (!pro)//属性可能或被置空
+                                    break;
+                            }
+                            value = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[value] = this._applyVec4(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                            } else {
+                                pro && (pro as Material).setVector4(value, this._applyVec4(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                            }
+                            break;
+                        case KeyFrameValueType.Color://Color
+                            var proPat: string[] = nodeOwner.property!;
+                            var m: number = proPat.length - 1;
+                            for (var j: number = 0; j < m; j++) {
+                                pro = pro[proPat[j]];
+                                if (!pro)//属性可能或被置空
+                                    break;
+                            }
+                            value = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[value] = this._applyVec4(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                            } else {
+                                pro && (pro as Material).setColor(value, this._applyColor(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                            }
                             break;
                     }
                     nodeOwner.updateMark = this._updateMark;

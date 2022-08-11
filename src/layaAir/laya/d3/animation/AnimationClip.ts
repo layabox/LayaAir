@@ -17,6 +17,11 @@ import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 import { AvatarMask } from "../component/AvatarMask";
 import { WeightedMode } from "../core/Keyframe";
 import { Loader } from "../../net/Loader";
+import { Vector4 } from "../math/Vector4";
+import { Vector2Keyframe } from "../core/Vector2Keyframe";
+import { Vector2 } from "../math/Vector2";
+import { Vector4Keyframe } from "../core/Vector4Keyframe";
+import { KeyFrameValueType } from "../component/KeyframeNodeOwner";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。
@@ -231,6 +236,99 @@ export class AnimationClip extends Resource {
 		}
 	}
 
+	private _hermiteInterpolateVector4(frame: Vector4Keyframe, nextFrame: Vector4Keyframe, t: number, dur: number, out: Vector4) {
+		var p0 = frame.value;
+		var tan0 = frame.outTangent;
+		var p1 = nextFrame.value;
+		var tan1 = nextFrame.inTangent;
+
+		var t2 = t * t;
+		var t3 = t2 * t;
+		var a = 2.0 * t3 - 3.0 * t2 + 1.0;
+		var b = t3 - 2.0 * t2 + t;
+		var c = t3 - t2;
+		var d = -2.0 * t3 + 3.0 * t2;
+
+		var t0 = tan0.x, t1 = tan1.x;
+		if (this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
+			else
+				out.x = p0.x;
+		} else {
+			out.x = this._hermiteCurveSplineWeight(frame.value.x, frame.time, frame.outWeight.x, frame.outTangent.x,
+				nextFrame.value.x, nextFrame.time, nextFrame.inWeight.x, nextFrame.inTangent.x, t);
+		}
+		t0 = tan0.y, t1 = tan1.y;
+		if (this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
+			else
+				out.y = p0.y;
+		} else {
+			out.y = this._hermiteCurveSplineWeight(frame.value.y, frame.time, frame.outWeight.y, frame.outTangent.y,
+				nextFrame.value.y, nextFrame.time, nextFrame.inWeight.y, nextFrame.inTangent.y, t);
+		}
+
+		t0 = tan0.z, t1 = tan1.z;
+		if (this._weightModeHermite(frame.weightedMode.z, nextFrame.weightedMode.z)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
+			else
+				out.z = p0.z;
+		} else {
+			out.z = this._hermiteCurveSplineWeight(frame.value.z, frame.time, frame.outWeight.z, frame.outTangent.z,
+				nextFrame.value.z, nextFrame.time, nextFrame.inWeight.z, nextFrame.inTangent.z, t);
+		}
+
+		t0 = tan0.w, t1 = tan1.w;
+		if (this._weightModeHermite(frame.weightedMode.w, nextFrame.weightedMode.w)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.w = a * p0.w + b * t0 * dur + c * t1 * dur + d * p1.w;
+			else
+				out.w = p0.w;
+		} else {
+			out.w = this._hermiteCurveSplineWeight(frame.value.w, frame.time, frame.outWeight.w, frame.outTangent.w,
+				nextFrame.value.w, nextFrame.time, nextFrame.inWeight.w, nextFrame.inTangent.w, t);
+		}
+	}
+
+	private _hermiteInterpolateVector2(frame: Vector2Keyframe, nextFrame: Vector2Keyframe, t: number, dur: number, out: Vector2) {
+		var p0 = frame.value;
+		var tan0 = frame.outTangent;
+		var p1 = nextFrame.value;
+		var tan1 = nextFrame.inTangent;
+
+		var t2 = t * t;
+		var t3 = t2 * t;
+		var a = 2.0 * t3 - 3.0 * t2 + 1.0;
+		var b = t3 - 2.0 * t2 + t;
+		var c = t3 - t2;
+		var d = -2.0 * t3 + 3.0 * t2;
+
+		var t0 = tan0.x, t1 = tan1.x;
+		if (this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
+			else
+				out.x = p0.x;
+		} else {
+			out.x = this._hermiteCurveSplineWeight(frame.value.x, frame.time, frame.outWeight.x, frame.outTangent.x,
+				nextFrame.value.x, nextFrame.time, nextFrame.inWeight.x, nextFrame.inTangent.x, t);
+		}
+
+		t0 = tan0.y, t1 = tan1.y;
+		if (this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
+			if (Number.isFinite(t0) && Number.isFinite(t1))
+				out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
+			else
+				out.y = p0.y;
+		} else {
+			out.y = this._hermiteCurveSplineWeight(frame.value.y, frame.time, frame.outWeight.y, frame.outTangent.y,
+				nextFrame.value.y, nextFrame.time, nextFrame.inWeight.y, nextFrame.inTangent.y, t);
+		}
+	}
+
 	private _hermiteCurveSplineWeight(frameValue: number, frametime: number, frameOutWeight: number, frameOutTangent: number, nextframeValue: number, nextframetime: number, nextframeInweight: number, nextframeIntangent: number, time: number) {
 		let Eps = 2.22e-16;
 
@@ -306,7 +404,7 @@ export class AnimationClip extends Resource {
 	 * @param frontPlay 是否是前向播放
 	 * @param outDatas 计算好的动画数据
 	 */
-	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion>, avatarMask: AvatarMask): void {
+	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion | Vector4 | Vector2>, avatarMask: AvatarMask): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
 			var node = nodes.getNodeByIndex(i);
 			var type = node.type;
@@ -350,7 +448,7 @@ export class AnimationClip extends Resource {
 
 			var isEnd = nextFrameIndex === keyFramesCount;
 			switch (type) {
-				case 0:
+				case KeyFrameValueType.Float:
 					if (frameIndex !== -1) {
 						var frame = (<FloatKeyframe>keyFrames[frameIndex]);
 						if (isEnd) {//如果nextFarme为空，不修改数据，保持上一帧
@@ -373,8 +471,9 @@ export class AnimationClip extends Resource {
 					if (addtive)
 						outDatas[i] = <number>outDatas[i] - (<FloatKeyframe>keyFrames[0]).value;
 					break;
-				case 1:
-				case 4:
+				case KeyFrameValueType.Position:
+				case KeyFrameValueType.RotationEuler:
+				case KeyFrameValueType.Vector3:
 					var clipData = <Vector3>outDatas[i];
 					this._evaluateFrameNodeVector3DatasRealTime(keyFrames as Vector3Keyframe[], frameIndex, isEnd, playCurTime, clipData);
 					if (addtive) {
@@ -384,7 +483,7 @@ export class AnimationClip extends Resource {
 						clipData.z -= firstFrameValue.z;
 					}
 					break;
-				case 2:
+				case KeyFrameValueType.Rotation:
 					var clipQuat = <Quaternion>outDatas[i];
 					this._evaluateFrameNodeQuaternionDatasRealTime(keyFrames as QuaternionKeyframe[], frameIndex, isEnd, playCurTime, clipQuat);
 					if (addtive) {
@@ -395,7 +494,7 @@ export class AnimationClip extends Resource {
 					}
 
 					break;
-				case 3:
+				case KeyFrameValueType.Scale:
 					clipData = <Vector3>outDatas[i];
 					this._evaluateFrameNodeVector3DatasRealTime(keyFrames as Vector3Keyframe[], frameIndex, isEnd, playCurTime, clipData);
 					if (addtive) {
@@ -404,6 +503,29 @@ export class AnimationClip extends Resource {
 						clipData.y /= firstFrameValue.y;
 						clipData.z /= firstFrameValue.z;
 					}
+					break;
+				case KeyFrameValueType.Vector2:
+					var v2Data = <Vector2>outDatas[i];
+					this._evaluateFrameNodeVector2DatasRealTime(keyFrames as Vector2Keyframe[], frameIndex, isEnd, playCurTime, v2Data);
+					if (addtive) {
+						var v2FrameValue = ((<Vector2Keyframe>keyFrames[0])).value;
+						v2Data.x -= v2FrameValue.x;
+						v2Data.y -= v2FrameValue.y;
+					}
+					break;
+					break;
+				case KeyFrameValueType.Vector4:
+				case KeyFrameValueType.Color:
+					var v4Data = <Vector4>outDatas[i];
+					this._evaluateFrameNodeVector4DatasRealTime(keyFrames as Vector4Keyframe[], frameIndex, isEnd, playCurTime, v4Data);
+					if (addtive) {
+						var v4FrameValue = ((<Vector4Keyframe>keyFrames[0])).value;
+						v4Data.x -= v4FrameValue .x;
+						v4Data.y -= v4FrameValue .y;
+						v4Data.z -= v4FrameValue .z;
+						v4Data.w -= v4FrameValue .w;
+					}
+					break;
 					break;
 				default:
 					throw "AnimationClip:unknown node type.";
@@ -430,6 +552,62 @@ export class AnimationClip extends Resource {
 					t = 0;
 
 				this._hermiteInterpolateVector3(frame, nextKeyFrame, t, d, outDatas);
+			}
+
+		} else {
+			var firstFrameDatas = keyFrames[0].value;
+			outDatas.x = firstFrameDatas.x;
+			outDatas.y = firstFrameDatas.y;
+			outDatas.z = firstFrameDatas.z;
+		}
+	}
+
+	private _evaluateFrameNodeVector2DatasRealTime(keyFrames: Vector2Keyframe[], frameIndex: number, isEnd: boolean, playCurTime: number, outDatas: Vector2): void {
+		if (frameIndex !== -1) {
+			var frame = keyFrames[frameIndex];
+			if (isEnd) {
+				var frameData = frame.value;
+				outDatas.x = frameData.x;//不能设为null，会造成跳过当前帧数据
+				outDatas.y = frameData.y;
+			} else {
+				var nextKeyFrame = keyFrames[frameIndex + 1];
+				var t;
+				var startTime = frame.time;
+				var d = nextKeyFrame.time - startTime;
+				if (d !== 0)
+					t = (playCurTime - startTime) / d;
+				else
+					t = 0;
+
+				this._hermiteInterpolateVector2(frame, nextKeyFrame, t, d, outDatas);
+			}
+
+		} else {
+			var firstFrameDatas = keyFrames[0].value;
+			outDatas.x = firstFrameDatas.x;
+			outDatas.y = firstFrameDatas.y;
+		}
+	}
+
+	private _evaluateFrameNodeVector4DatasRealTime(keyFrames: Vector4Keyframe[], frameIndex: number, isEnd: boolean, playCurTime: number, outDatas: Vector4): void {
+		if (frameIndex !== -1) {
+			var frame = keyFrames[frameIndex];
+			if (isEnd) {
+				var frameData = frame.value;
+				outDatas.x = frameData.x;//不能设为null，会造成跳过当前帧数据
+				outDatas.y = frameData.y;
+				outDatas.z = frameData.z;
+			} else {
+				var nextKeyFrame = keyFrames[frameIndex + 1];
+				var t;
+				var startTime = frame.time;
+				var d = nextKeyFrame.time - startTime;
+				if (d !== 0)
+					t = (playCurTime - startTime) / d;
+				else
+					t = 0;
+
+				this._hermiteInterpolateVector4(frame, nextKeyFrame, t, d, outDatas);
 			}
 
 		} else {

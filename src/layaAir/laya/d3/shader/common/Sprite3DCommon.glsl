@@ -8,10 +8,11 @@ uniform mat4 u_WorldMat;
 uniform mat4 u_Bones[24];
 
 	#ifdef SIMPLEBONE
-	    #include "BakedBoneMatrixSampler.glsl";
 uniform vec4 u_SimpleAnimatorParams;
 uniform sampler2D u_SimpleAnimatorTexture;
 uniform float u_SimpleAnimatorTextureSize;
+	    #include "BakedBoneMatrixSampler.glsl";
+
 	#endif // SIMPLEBONE
 
     #endif // BONE
