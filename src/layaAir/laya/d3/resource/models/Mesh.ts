@@ -165,7 +165,7 @@ export class Mesh extends Resource implements IClone {
     /**
      * 边界。
      */
-    get bounds(): RenderBounds {
+    get bounds(): Bounds {
         return this._bounds;
     }
 

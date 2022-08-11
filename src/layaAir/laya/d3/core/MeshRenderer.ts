@@ -22,6 +22,7 @@ import { SubMesh } from "../resource/models/SubMesh"
 import { VertexElement } from "../graphics/VertexElement"
 import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData"
+import { RenderBounds } from "./RenderBounds"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -143,7 +144,7 @@ export class MeshRenderer extends BaseRender {
 		if (mesh && this._mesh != mesh) {
 			this._changeVertexDefine(mesh);
 			this._mesh = mesh;
-			this.geometryBounds = mesh.bounds;
+			this.geometryBounds = mesh.bounds as RenderBounds;
 			var count: number = mesh.subMeshCount;
 			this._renderElements.length = count;
 			for (var i: number = 0; i < count; i++) {
@@ -229,7 +230,7 @@ export class MeshRenderer extends BaseRender {
 	protected _calculateBoundingBox(): void {
 		var sharedMesh: Mesh = this._mesh;
 		if (sharedMesh) {
-			var worldMat: Matrix4x4 =this._transform.worldMatrix;
+			var worldMat: Matrix4x4 = this._transform.worldMatrix;
 			sharedMesh.bounds._tranform(worldMat, this._bounds);
 		}
 	}
