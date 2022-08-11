@@ -353,7 +353,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
             }
         }
         this._defineDatas.cloneTo(dest._defineDatas);
-        super._gammaColorMap.forEach((color, index) => {
+        this._gammaColorMap.forEach((color, index) => {
 		    destObject._gammaColorMap.set(index, color.clone());
 	    })
     }

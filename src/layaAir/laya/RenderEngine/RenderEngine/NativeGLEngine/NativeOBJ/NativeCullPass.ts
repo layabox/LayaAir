@@ -41,7 +41,7 @@ export class NativeCullPassBase implements ICullPass {
             if (canPass) {debugger
                 Stat.frustumCulling++;
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
-                    this._nativeObj.cullList.add(render);
+                    this._nativeObj.cullList.push(render);
                 }
             }
         }
@@ -59,7 +59,7 @@ export class NativeCullPassBase implements ICullPass {
             if (canPass) {debugger
                 Stat.frustumCulling++;
                 let pass = FrustumCulling.cullingRenderBounds(render.bounds, cullInfo);
-                pass && this._nativeObj.cullList.add(render);
+                pass && this._nativeObj.cullList.push(render);
             }
         }
     }
@@ -79,7 +79,7 @@ export class NativeCullPassBase implements ICullPass {
             if (canPass) {debugger
                 var render: BaseRender = <BaseRender>renders[i];
                 if (canPass && render._needRender(cameraCullInfo.boundFrustum, context))
-                    this._nativeObj.cullList.add(render);
+                    this._nativeObj.cullList.push(render);
             }
         }
     }

@@ -6,7 +6,7 @@ import { IBaseRenderNode } from "../../../RenderInterface/RenderPipelineInterfac
 export class NativeBaseRenderNode implements IBaseRenderNode {
 
     private _nativeObj: any;
-
+    private _bounds: RenderBounds = null;
     constructor() {
         this._nativeObj = new (window as any).conchRenderNode();
     }
@@ -33,9 +33,10 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     }
 
     get bounds(): RenderBounds {
-        return null;
+        return this._bounds;
     }
     set bounds(value: RenderBounds) {
+        this._bounds = value;
         this._nativeObj.bounds = value ? (value as any)._nativeObj : null;
     }
 
