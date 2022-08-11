@@ -7,6 +7,7 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
 
     private _nativeObj: any;
     private _bounds: RenderBounds = null;
+    private _geometryBounds: RenderBounds = null;
     constructor() {
         this._nativeObj = new (window as any).conchRenderNode();
     }
@@ -64,10 +65,11 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     }
 
     get geometryBounds(): RenderBounds | null {
-        return null;
+        return this._geometryBounds;
     }
 
     set geometryBounds(value: RenderBounds | null) {
+        this._geometryBounds = value;
         this._nativeObj.geometryBounds = value ? (value as any)._nativeObj : null;
     }
 }

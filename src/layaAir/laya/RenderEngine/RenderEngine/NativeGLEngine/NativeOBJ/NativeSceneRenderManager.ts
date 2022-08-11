@@ -26,18 +26,21 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     addRenderObject(object: BaseRender): void {
         
         this._renders.add(object);
-        if (object._customCull)
-            this._customCullList.add(object);
-        else
+        if (!object._customCull && object.renderNode.geometryBounds) {
             this._nativeObj.addRenderObject((object.renderNode as any)._nativeObj);
+        }
+        else {
+             this._customCullList.add(object);
+        }
 
     }
 
     removeRenderObject(object: BaseRender): void {
         
         this._renders.remove(object);
-        if (!object._customCull)
+        if (!object._customCull && object.renderNode.geometryBounds) {
             this._nativeObj.removeRenderObject((object.renderNode as any)._nativeObj);
+        }
         else {
             //remove
             let elements = this._customCullList.elements;
