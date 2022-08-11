@@ -53,7 +53,7 @@ export class NativeBaseRenderQueue implements IRenderQueue {
         for (var i: number = 0, n: number = this.elements.length; i < n; i++){
             var render_element = elements[i];
             this._nativeObj.addRenderElement((render_element._renderElementOBJ as any)._nativeObj, 
-            render_element.render.renderNode,
+            (render_element.render.renderNode as any)._nativeObj,
             render_element.material.renderQueue, 
             render_element.render.sortingFudge);
             render_element._renderUpdatePre(context);//Update Data
