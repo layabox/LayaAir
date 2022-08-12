@@ -11,6 +11,9 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     constructor() {
         this._nativeObj = new (window as any).conchRenderNode();
     }
+    set layer(value: number) {
+        this._nativeObj.layer = value;
+    }
 
     get renderId(): number {
         return this._nativeObj.renderId;
