@@ -131,6 +131,7 @@ export class RenderContext3D {
 	 * @param renderelemt 
 	 */
 	drawRenderElement(renderelemt: RenderElement): void {
+		renderelemt._convertSubShader(this.customShader,this.replaceTag);
 		renderelemt._renderUpdatePre(this);
 		this._contextOBJ.drawRenderElement(renderelemt._renderElementOBJ);
 	}

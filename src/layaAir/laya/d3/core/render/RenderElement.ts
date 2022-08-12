@@ -167,36 +167,41 @@ export class RenderElement {
 		}
 	}
 
+	
+    _convertSubShader(customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0){
+		var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
+		this.renderSubShader = null;
+		if (customShader) {
+			if (replacementTag) {
+				var oriTag: string = subShader.getFlag(replacementTag);
+				if (oriTag) {
+					var customSubShaders: SubShader[] = customShader._subShaders;
+					for (var k: number = 0, p: number = customSubShaders.length; k < p; k++) {
+						var customSubShader: SubShader = customSubShaders[k];
+						if (oriTag === customSubShader.getFlag(replacementTag)) {
+							this.renderSubShader = customSubShader;
+							break;
+						}
+					}
+					if (!this.renderSubShader)
+						return;
+				} else {
+					return;
+				}
+			} else {
+				this.renderSubShader = customShader.getSubShaderAt(subshaderIndex);//TODO:
+			}
+		} else {
+			this.renderSubShader = subShader;
+		}
+	}
+
 	/**
 	 * @internal
 	 */
 	_update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0): void {
 		if (this.material) {//材质可能为空
-			var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
-			this.renderSubShader = null;
-			if (customShader) {
-				if (replacementTag) {
-					var oriTag: string = subShader.getFlag(replacementTag);
-					if (oriTag) {
-						var customSubShaders: SubShader[] = customShader._subShaders;
-						for (var k: number = 0, p: number = customSubShaders.length; k < p; k++) {
-							var customSubShader: SubShader = customSubShaders[k];
-							if (oriTag === customSubShader.getFlag(replacementTag)) {
-								this.renderSubShader = customSubShader;
-								break;
-							}
-						}
-						if (!this.renderSubShader)
-							return;
-					} else {
-						return;
-					}
-				} else {
-					this.renderSubShader = customShader.getSubShaderAt(subshaderIndex);//TODO:
-				}
-			} else {
-				this.renderSubShader = subShader;
-			}
+			this._convertSubShader(customShader,replacementTag,subshaderIndex);
 
 			var renderQueue: BaseRenderQueue = scene._getRenderQueue(this.material.renderQueue);
 			if (renderQueue._isTransparent)

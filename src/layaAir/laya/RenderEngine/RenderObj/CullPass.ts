@@ -65,11 +65,15 @@ export class CullPassBase implements ICullPass {
         var boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;
         let context = RenderContext3D._instance;
         for (var i: number = 0, n: number = renderManager.list.length; i < n; i++) {
-      		Stat.frustumCulling++;
+      		
             var render: BaseRender = <BaseRender>renders[i];
             var canPass: boolean = render.castShadow && render._enabled && render.sharedMaterial.depthWrite;
-            if (canPass && render._needRender(cameraCullInfo.boundFrustum, context))
-                this._cullList.add(render);
+            if(canPass){
+                Stat.frustumCulling++;
+                if (render._needRender(cameraCullInfo.boundFrustum, context))
+                    this._cullList.add(render);
+            }
+            
         }
     }
 
