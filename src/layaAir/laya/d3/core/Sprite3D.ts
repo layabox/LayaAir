@@ -16,6 +16,7 @@ import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
  * <code>Sprite3D</code> 类用于实现3D精灵。
  */
 export class Sprite3D extends Node {
+	static LAYERCHANGE:string = "layerChange";
 	/**@internal 着色器变量名，世界矩阵。*/
 	static WORLDMATRIX: number;
 	/**@internal */
@@ -103,6 +104,7 @@ export class Sprite3D extends Node {
 		if (this._layer !== value) {
 			if (value >= 0 && value <= 30) {
 				this._layer = value;
+				this.event(Sprite3D.LAYERCHANGE,value);
 			} else {
 				throw new Error("Layer value must be 0-30.");
 			}
@@ -132,6 +134,7 @@ export class Sprite3D extends Node {
 		super();
 		this._id = ++Sprite3D._uniqueIDCounter;
 		this._transform = LayaGL.renderOBJCreate.createTransform(this);
+		
 		this._isStatic = isStatic;
 		this.layer = 0;
 		this.name = name ? name : "New Sprite3D";

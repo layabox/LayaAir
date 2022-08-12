@@ -380,6 +380,9 @@ export class BaseRender extends Component {
 		return LayaGL.renderOBJCreate.createBaseRenderNode();
 	}
 
+	private _changeLayer(layer:number){
+		this._rendernode.layer = layer;
+	}
 	/**
 	 * @override Component
 	 * @internal
@@ -390,7 +393,11 @@ export class BaseRender extends Component {
 		this._transform = (this.owner as Sprite3D).transform;
 		
 		this._rendernode.transform = this._transform;
-		(this.owner) && (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
+		if(this.owner){
+			(this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
+			(this.owner as Sprite3D).on(Sprite3D.LAYERCHANGE,this,this._changeLayer);
+		} 
+		
 	}
 
 	/**
