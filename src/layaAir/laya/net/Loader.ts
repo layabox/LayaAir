@@ -58,6 +58,7 @@ interface ContentTypeMap {
 
 var typeIdCounter = 0;
 type TypeMapEntry = { typeId: number, loaderType: new () => IResourceLoader };
+var imageEntry: TypeMapEntry;
 
 interface URLInfo {
     ext: string,
@@ -134,8 +135,11 @@ export class Loader extends EventDispatcher {
         let typeEntry: TypeMapEntry;
         if (type) {
             typeEntry = <TypeMapEntry>Loader.typeMap[type];
-            if (!typeEntry)
+            if (!typeEntry) {
                 Loader.typeMap[type] = typeEntry = { typeId: typeIdCounter++, loaderType: cls };
+                if (!imageEntry && type === Loader.IMAGE)
+                    imageEntry = typeEntry;
+            }
             else if (typeEntry.loaderType != cls)
                 typeEntry = { typeId: typeEntry.typeId, loaderType: cls };
         }
@@ -613,8 +617,8 @@ export class Loader extends EventDispatcher {
                 }
                 else {
                     //未与扩展名匹配的情况，例如a.lh试图以Loader.JSON类型加载，这种组合没有注册，但仍然允许加载为副资源
-                    //但这种操作未必是预期的，这里用黑名单
-                    if (type == Loader.TEXTURE2D) { //不允许，fallback到主类型
+                    if (type == Loader.TEXTURE2D && extEntry[0] != imageEntry) {
+                        //特别检查，TEXTURE2D必须是图片类型才允许这样，如果不是图片，忽略type
                         main = true;
                         loaderType = extEntry[0].loaderType;
                     }
