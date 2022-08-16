@@ -1,4 +1,4 @@
-import { IClone } from "../../../IClone"
+import { IClone } from "../../../../../utils/IClone"
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"
 import { Vector2 } from "../../../../math/Vector2"

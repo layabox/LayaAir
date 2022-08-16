@@ -1,24 +1,18 @@
-import { Config } from "./Config";
 import { Config3D } from "./Config3D";
 import { ILaya3D } from "./ILaya3D";
 import { Laya } from "./Laya";
 import { PostProcess } from "./laya/d3/component/PostProcess";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
-import { EffectMaterial } from "./laya/d3/core/material/EffectMaterial";
-import { ExtendTerrainMaterial } from "./laya/d3/core/material/ExtendTerrainMaterial";
 import { Material } from "./laya/d3/core/material/Material";
 import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
-import { PBRSpecularMaterial } from "./laya/d3/core/material/PBRSpecularMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
 import { SkyBoxMaterial } from "./laya/d3/core/material/SkyBoxMaterial";
 import { SkyProceduralMaterial } from "./laya/d3/core/material/SkyProceduralMaterial";
 import { UnlitMaterial } from "./laya/d3/core/material/UnlitMaterial";
-import { WaterPrimaryMaterial } from "./laya/d3/core/material/WaterPrimaryMaterial";
 import { MeshRenderer } from "./laya/d3/core/MeshRenderer";
 import { MeshSprite3D } from "./laya/d3/core/MeshSprite3D";
 import { ShuriKenParticle3D } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3D";
 import { ShurikenParticleMaterial } from "./laya/d3/core/particleShuriKen/ShurikenParticleMaterial";
-import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
 import { PixelLineVertex } from "./laya/d3/core/pixelLine/PixelLineVertex";
 import { Command } from "./laya/d3/core/render/command/Command";
 import { RenderContext3D } from "./laya/d3/core/render/RenderContext3D";
@@ -31,7 +25,6 @@ import { TrailMaterial } from "./laya/d3/core/trail/TrailMaterial";
 import { TrailSprite3D } from "./laya/d3/core/trail/TrailSprite3D";
 import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
 import { FrustumCulling } from "./laya/d3/graphics/FrustumCulling";
-import { MeshRenderDynamicBatchManager } from "./laya/d3/graphics/MeshRenderDynamicBatchManager";
 import { MeshRenderStaticBatchManager } from "./laya/d3/graphics/MeshRenderStaticBatchManager";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { VertexMesh } from "./laya/d3/graphics/Vertex/VertexMesh";
@@ -39,7 +32,6 @@ import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionT
 import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
-import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
 import { BulletInteractive } from "./laya/d3/physics/BulletInteractive";
 import { Mesh } from "./laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
@@ -48,34 +40,29 @@ import { SkyDome } from "./laya/d3/resource/models/SkyDome";
 import { TextureCube } from "./laya/d3/resource/TextureCube";
 import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
-import { Loader } from "./laya/net/Loader";
 import { Render } from "./laya/renders/Render";
 import { Texture2D } from "./laya/resource/Texture2D";
 import { Handler } from "./laya/utils/Handler";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { WebGL } from "./laya/webgl/WebGL";
-import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
-import { ShadowCasterPass, ShadowLightType } from "./laya/d3/shadowMap/ShadowCasterPass";
+import { ShadowCasterPass } from "./laya/d3/shadowMap/ShadowCasterPass";
 import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
 import { Physics3D } from "./laya/d3/Physics3D";
 import { Camera } from "./laya/d3/core/Camera";
-import { CommandBuffer } from "./laya/d3/core/render/command/CommandBuffer";
-import { RenderElement } from "./laya/d3/core/render/RenderElement";
-import { SubMeshRenderElement } from "./laya/d3/core/render/SubMeshRenderElement";
 import { BaseCamera } from "./laya/d3/core/BaseCamera";
 import { ShuriKenParticle3DShaderDeclaration } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3DShaderDeclaration";
 import { BaseRender } from "./laya/d3/core/render/BaseRender";
-import { BloomEffect } from "./laya/d3/core/render/BloomEffect";
 import { TrailFilter } from "./laya/d3/core/trail/TrailFilter";
 import { DepthPass } from "./laya/d3/depthMap/DepthPass";
 import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { BlitFrameBufferCMD } from "./laya/d3/core/render/command/BlitFrameBufferCMD";
-import { ParticleShuriKenShaderInit } from "./laya/d3/shader/ShurikenParticle/ParticleShuriKenShaderInit";
 import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";
+import { CannonPhysicsSettings } from "./laya/d3/physicsCannon/CannonPhysicsSettings";
 import { SubShader } from "./laya/d3/shader/SubShader";
+import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -104,12 +91,7 @@ export class Laya3D {
     /**
      *@internal
      */
-    private static __init__(width: number, height: number, config: Config3D): void {
-        Config.isAntialias = config.isAntialias;
-        Config.isAlpha = config.isAlpha;
-        Config.premultipliedAlpha = config.premultipliedAlpha;
-        Config.isStencil = config.isStencil;
-
+    private static __init__(width: number, height: number): void {
         if (!WebGL.enable()) {
             alert("Laya3D init error,must support webGL!");
             return;
@@ -118,22 +100,32 @@ export class Laya3D {
         RunDriver.changeWebGLSize = Laya3D._changeWebGLSize;
         Render.is3DMode = true;
         Laya.init(width, height);
-        config._multiLighting = config.enableMultiLight && LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
-        config._uniformBlock = config.enableUniformBufferObject && LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject);
+
+        Config3D._multiLighting = Config3D.enableMultiLight && LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
+        Config3D._uniformBlock = Config3D.enableUniformBufferObject && LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject);
+
+        if (Config3D.maxLightCount > 2048) {
+            Config3D.maxLightCount = 2048;
+            console.warn("Config3D: maxLightCount must less equal 2048.");
+        }
+
+        let lcc = Config3D.lightClusterCount;
+        if (lcc.x > 128 || lcc.y > 128 || lcc.z > 128) {
+            lcc.setValue(Math.min(lcc.x, 128), Math.min(lcc.y, 128), Math.min(lcc.z, 128));
+            console.warn("Config3D: lightClusterCount X and Y、Z must less equal 128.");
+        }
+
+        let maxAreaLightCountWithZ = Math.floor(2048 / Config3D.lightClusterCount.z - 1) * 4;
+        if (maxAreaLightCountWithZ < Config3D.maxLightCount)
+            console.warn("Config3D: if the area light(PointLight、SpotLight) count is large than " + maxAreaLightCountWithZ + ",maybe the far away culster will ingonre some light.");
+        Config3D._maxAreaLightCountPerClusterAverage = Math.min(maxAreaLightCountWithZ, Config3D.maxLightCount);
+
         ILaya3D.Shader3D = Shader3D;
         ILaya3D.Scene3D = Scene3D;
-        ILaya3D.MeshRenderStaticBatchManager = MeshRenderStaticBatchManager;
-        ILaya3D.MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager;
         ILaya3D.Laya3D = Laya3D;
-        ILaya3D.Matrix4x4 = Matrix4x4;
         ILaya3D.Physics3D = Physics3D;
-        ILaya3D.ShadowLightType = ShadowLightType;
-        ILaya3D.Camera = Camera;
-        ILaya3D.CommandBuffer = CommandBuffer;
-        ILaya3D.RenderElement = RenderElement;
-        ILaya3D.SubMeshRenderElement = SubMeshRenderElement;
 
-        if (config.isUseCannonPhysicsEngine)
+        if (Config3D.useCannonPhysics)
             Physics3D.__cannoninit__();
 
         Physics3D.__bulletinit__();
@@ -184,7 +176,7 @@ export class Laya3D {
         SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();
         TrailMaterial.__initDefine__();
-        
+
         // EffectMaterial.__initDefine__();
         // WaterPrimaryMaterial.__initDefine__();
         ShurikenParticleMaterial.__initDefine__();
@@ -232,35 +224,35 @@ export class Laya3D {
      * 初始化Laya3D相关设置。
      * @param	width  3D画布宽度。
      * @param	height 3D画布高度。
+     * @param   config 参数已废弃，传null。
      */
-    static init(width: number, height: number, config: Config3D = null, complete: Handler = null): void {
+    static init(width: number, height: number, config: any = null, complete: Handler = null): void {
         if (Laya3D._isInit) {
             complete && complete.run();
             return;
         }
         Laya3D._isInit = true;
-        (config) && (config.cloneTo(Config3D._config));
-        config = Config3D._config;
-        FrustumCulling.debugFrustumCulling = config.debugFrustumCulling;
-        Scene3D.octreeCulling = config.octreeCulling;
-        Scene3D.octreeInitialSize = config.octreeInitialSize;
-        Scene3D.octreeInitialCenter = config.octreeInitialCenter;
-        Scene3D.octreeMinNodeSize = config.octreeMinNodeSize;
-        Scene3D.octreeLooseness = config.octreeLooseness;
 
         var physics3D: Function = (window as any).Physics3D;
-        if (physics3D == null || config.isUseCannonPhysicsEngine) {
+        if (physics3D == null || Config3D.useCannonPhysics) {
             Physics3D._enablePhysics = false;
-            Laya3D.__init__(width, height, config);
+            Laya3D.__init__(width, height);
             complete && complete.run();
         } else {
             Physics3D._enablePhysics = true;
             //should convert MB to pages
-            physics3D(config.defaultPhysicsMemory * 16, new BulletInteractive(null,null)).then(function (): void {
-                Laya3D.__init__(width, height, config);
+            physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(function (): void {
+                Laya3D.__init__(width, height);
                 complete && complete.run();
             });
         }
+    }
+
+    static useCannonPhysics() {
+        Config3D.useCannonPhysics = true;
+        Physics3D.__cannoninit__();
+        if (!Scene3D.cannonPhysicsSettings)
+            Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
     }
 }
 

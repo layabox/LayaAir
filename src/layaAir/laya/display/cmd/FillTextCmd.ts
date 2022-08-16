@@ -5,16 +5,17 @@ import { Pool } from "../../utils/Pool"
 import { WordText } from "../../utils/WordText"
 import { ILaya } from "../../../ILaya";
 import { HTMLChar } from "../../utils/HTMLChar";
+import { Const } from "../../Const"
 
 /**
  * 绘制文字
  */
 export class FillTextCmd {
     static ID: string = "FillText";
-    private _text: string | WordText|null;
+    private _text: string | WordText | null;
     /**@internal */
     _textIsWorldText = false;
-    _words: HTMLChar[]|null;
+    _words: HTMLChar[] | null;
     /**
      * 开始绘制文本的 x 坐标位置（相对于画布）。
      */
@@ -25,7 +26,7 @@ export class FillTextCmd {
     y: number;
     private _font: string;
     private _color: string;
-    private _borderColor: string|null;
+    private _borderColor: string | null;
     private _lineWidth: number;
     private _textAlign: string;
     private _fontColor = 0xffffffff;
@@ -35,7 +36,7 @@ export class FillTextCmd {
     private _nTexAlign = 0;
 
     /**@private */
-    static create(text: string | WordText|null, words: HTMLChar[]|null, x: number, y: number, font: string, color: string|null, textAlign: string, lineWidth: number, borderColor: string|null): FillTextCmd {
+    static create(text: string | WordText | null, words: HTMLChar[] | null, x: number, y: number, font: string, color: string | null, textAlign: string, lineWidth: number, borderColor: string | null): FillTextCmd {
         var cmd: FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
         cmd.text = text;
         cmd._textIsWorldText = text instanceof WordText;
@@ -82,11 +83,11 @@ export class FillTextCmd {
     /**
      * 在画布上输出的文本。
      */
-    get text(): string | WordText|null {
+    get text(): string | WordText | null {
         return this._text;
     }
 
-    set text(value: string | WordText|null) {
+    set text(value: string | WordText | null) {
         //TODO 问题。 怎么通知native
         this._text = value;
         this._textIsWorldText = value instanceof WordText;
@@ -130,13 +131,13 @@ export class FillTextCmd {
         this._textAlign = value;
         switch (value) {
             case 'center':
-                this._nTexAlign = ILaya.Context.ENUM_TEXTALIGN_CENTER;
+                this._nTexAlign = Const.ENUM_TEXTALIGN_CENTER;
                 break;
             case 'right':
-                this._nTexAlign = ILaya.Context.ENUM_TEXTALIGN_RIGHT;
+                this._nTexAlign = Const.ENUM_TEXTALIGN_RIGHT;
                 break;
             default:
-                this._nTexAlign = ILaya.Context.ENUM_TEXTALIGN_DEFAULT;
+                this._nTexAlign = Const.ENUM_TEXTALIGN_DEFAULT;
         }
         this._textIsWorldText && ((<WordText>this._text)).cleanCache();
     }

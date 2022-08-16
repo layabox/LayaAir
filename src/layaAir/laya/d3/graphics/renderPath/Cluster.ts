@@ -476,7 +476,7 @@ export class Cluster {
     update(camera: Camera, scene: Scene3D): void {
         this._updateMark++;
         var camNear: number = camera.nearPlane;
-        this._depthSliceParam.x = Config3D._config.lightClusterCount.z / Math.log2(camera.farPlane / camNear);
+        this._depthSliceParam.x = Config3D.lightClusterCount.z / Math.log2(camera.farPlane / camNear);
         this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
 
         var near: number = camera.nearPlane;

@@ -23,36 +23,21 @@ export class Widget extends Component {
         this.hideFlags |= HideFlags.HideAndDontSave;
     }
 
-    /**
-     * @override
-     */
     onReset(): void {
         this._top = this._bottom = this._left = this._right = this._centerX = this._centerY = NaN;
     }
 
-    /**
-     * @override
-     * @internal
-     */
-    _onEnable(): void {
-        if (this.owner.parent) this._onAdded();
-        else this.owner.once(Event.ADDED, this, this._onAdded);
+    onEnable(): void {
+        if (this.owner.parent) this.onAdded();
+        else this.owner.once(Event.ADDED, this, this.onAdded);
     }
-    /**
-     * @override
-     * @internal
-     */
-    protected _onDisable(): void {
-        this.owner.off(Event.ADDED, this, this._onAdded);
+
+    onDisable(): void {
+        this.owner.off(Event.ADDED, this, this.onAdded);
         if (this.owner.parent) this.owner.parent.off(Event.RESIZE, this, this._onParentResize);
     }
 
-    /**
-     * @internal
-     * 对象被添加到显示列表的事件侦听处理函数。
-     * @override
-     */
-    _onAdded(): void {
+    onAdded(): void {
         if (this.owner.parent)
             this.owner.parent.on(Event.RESIZE, this, this._onParentResize);
         this.resetLayoutX();

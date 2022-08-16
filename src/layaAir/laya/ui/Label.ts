@@ -343,54 +343,54 @@ export class Label extends UIComponent {
         return this._tf;
     }
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		/*override*/ protected measureWidth(): number {
+    /**
+     * @inheritDoc
+     * @override
+     */
+    protected measureWidth(): number {
         return this._tf.width;
     }
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		/*override*/ protected measureHeight(): number {
+    /**
+     * @inheritDoc
+     * @override
+     */
+    protected measureHeight(): number {
         return this._tf.height;
     }
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		/*override*/  get width(): number {
+    /**
+     * @inheritDoc
+     * @override
+     */
+    get width(): number {
         if (this._width || this._tf.text) return super.width;
         return 0;
     }
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		/*override*/  set width(value: number) {
+    /**
+     * @inheritDoc
+     * @override
+     */
+    set width(value: number) {
         super.width = value;
         this._tf.width = value;
     }
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		/*override*/  get height(): number {
+    /**
+     * @inheritDoc
+     * @override
+     */
+    get height(): number {
         if (this._height || this._tf.text) return super.height;
         return 0;
     }
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		/*override*/  set height(value: number) {
+    /**
+     * @inheritDoc
+     * @override
+     */
+    set height(value: number) {
         super.height = value;
         this._tf.height = value;
     }

@@ -265,11 +265,11 @@ export class Dialog extends View {
         }
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  open(closeOther: boolean = true, param: any = null): void {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    open(closeOther: boolean = true, param: any = null): void {
         this._dealDragArea();
         this._param = param;
         Dialog.manager.open(this, closeOther, this.isShowEffect);
@@ -281,7 +281,7 @@ export class Dialog extends View {
      * @param type 关闭的原因，会传递给onClosed函数
      * @override
      */
-	close(type: string = null): void {
+    close(type: string = null): void {
         this.closeType = type;
         Dialog.manager.close(this);
     }
@@ -290,7 +290,7 @@ export class Dialog extends View {
      * @inheritDoc 
      * @override
      */
-	destroy(destroyChild: boolean = true): void {
+    destroy(destroyChild: boolean = true): void {
         this.closeHandler = null;
         this.popupEffect = null;
         this.closeEffect = null;
@@ -333,7 +333,7 @@ export class Dialog extends View {
      * @inheritDoc 
      * @override
      */
-	set zOrder(value: number) {
+    set zOrder(value: number) {
         super.zOrder = value;
         Dialog.manager._checkMask();
     }

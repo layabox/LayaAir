@@ -33,6 +33,7 @@ import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
+import { Config } from "../../Config";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -369,7 +370,7 @@ export class Graphics {
      * @param textAlign 文本对齐方式，可选值："left"，"center"，"right"。
      */
     fillText(text: string, x: number, y: number, font: string, color: string, textAlign: string): FillTextCmd {
-        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), color, textAlign, 0, ""));
+        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || Config.defaultFontStr(), color, textAlign, 0, ""));
     }
 
     /**
@@ -385,17 +386,17 @@ export class Graphics {
      */
 
     fillBorderText(text: string, x: number, y: number, font: string, fillColor: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
-        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), fillColor, textAlign, lineWidth, borderColor));
+        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || Config.defaultFontStr(), fillColor, textAlign, lineWidth, borderColor));
     }
 
     /*** @private */
     fillWords(words: any[], x: number, y: number, font: string, color: string): FillTextCmd {
-        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, null, words, x, y, font || ILaya.Text.defaultFontStr(), color, '', 0, null));
+        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, null, words, x, y, font || Config.defaultFontStr(), color, '', 0, null));
     }
 
     /*** @private */
     fillBorderWords(words: any[], x: number, y: number, font: string, fillColor: string, borderColor: string, lineWidth: number): FillTextCmd {
-        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, null, words, x, y, font || ILaya.Text.defaultFontStr(), fillColor, "", lineWidth, borderColor));
+        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, null, words, x, y, font || Config.defaultFontStr(), fillColor, "", lineWidth, borderColor));
     }
 
     /**
@@ -410,7 +411,7 @@ export class Graphics {
      */
     strokeText(text: string, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): FillTextCmd {
         return this._saveToCmd(Render._context.fillText,
-            FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), null, textAlign, lineWidth, color));
+            FillTextCmd.create.call(this, text, null, x, y, font || Config.defaultFontStr(), null, textAlign, lineWidth, color));
     }
 
     /**

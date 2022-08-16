@@ -21,7 +21,6 @@ import { CannonRigidbody3D } from "laya/d3/physicsCannon/CannonRigidbody3D";
 import { CannonSphereColliderShape } from "laya/d3/physicsCannon/shape/CannonSphereColliderShape";
 import { CannonCompoundColliderShape } from "laya/d3/physicsCannon/shape/CannonCompoundColliderShape";
 import { Event } from "laya/events/Event";
-import { MouseManager } from "laya/events/MouseManager";
 import { Vector2 } from "laya/d3/math/Vector2";
 import { Ray } from "laya/d3/math/Ray";
 import { CannonHitResult } from "laya/d3/physicsCannon/CannonHitResult";
@@ -51,8 +50,8 @@ export class CannonPhysicsWorld_RayCheck {
 	private stype: any = 0;
 	isMaster: any;
 	constructor() {
+		Config3D.useCannonPhysics = true;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
-			Config3D.useCannonPhysics = true;
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
@@ -212,8 +211,8 @@ export class CannonPhysicsWorld_RayCheck {
 	}
 
 	mouseDown() {
-		this.point.x = MouseManager.instance.mouseX;
-		this.point.y = MouseManager.instance.mouseY;
+		this.point.x = Laya.stage.mouseX;
+		this.point.y = Laya.stage.mouseY;
 		//产生射线
 		this.camera.viewportPointToRay(this.point, this.ray);
 		var out: CannonHitResult = new CannonHitResult();

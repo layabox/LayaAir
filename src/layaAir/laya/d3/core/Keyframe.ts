@@ -1,4 +1,4 @@
-import { IClone } from "./IClone";
+import { IClone } from "../../utils/IClone";
 /**
  * 动画权重模式
  */

@@ -13,126 +13,113 @@ import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
  * <code>MeshFilter</code> 类用于创建网格过滤器。
  */
 export class MeshFilter extends Component {
-	/** @internal */
-	static _meshVerticeDefine: Array<ShaderDefine> = [];
+    /** @internal */
+    static _meshVerticeDefine: Array<ShaderDefine> = [];
 
-	/** @internal */
-	private _sharedMesh: Mesh;
+    /** @internal */
+    private _sharedMesh: Mesh;
 
-	/**
-	 * @internal
-	 */
-	_onEnable(): void {
-		super._onEnable();
-		const render = this.owner.getComponent(MeshRenderer) as MeshRenderer;
-		render && render._enabled && render._onMeshChange(this._sharedMesh);
-	}
+    /**
+     * @internal
+     */
+    onEnable(): void {
+        const render = this.owner.getComponent(MeshRenderer) as MeshRenderer;
+        render && render._enabled && render._onMeshChange(this._sharedMesh);
+    }
 
-	/**
-	 * @internal
-	 */
-	protected _onDisable(): void {
-		super._onDisable();
-		const render = this.owner.getComponent(MeshRenderer) as MeshRenderer;
-		render && render._enabled && render._onMeshChange(null);
-	}
+    /**
+     * @internal
+     */
+    onDisable(): void {
+        const render = this.owner.getComponent(MeshRenderer) as MeshRenderer;
+        render && render._enabled && render._onMeshChange(null);
+    }
 
-	/**
-	 * @internal
-	 */
-	protected _onDestroy(): void {
-		super._onDestroy();
-	}
+    /**
+     * 共享网格。
+     */
+    get sharedMesh(): Mesh {
+        return this._sharedMesh;
+    }
 
-	/**
-	 * 共享网格。
-	 */
-	get sharedMesh(): Mesh {
-		return this._sharedMesh;
-	}
+    set sharedMesh(value: Mesh) {
+        if (this._sharedMesh !== value) {
+            //meshReference
+            var lastValue: Mesh = this._sharedMesh;
+            if (lastValue) {
+                lastValue._removeReference();
+            }
+            if (value) {
+                value._addReference();
+            }
+            this._sharedMesh = value;
 
-	set sharedMesh(value: Mesh) {
-		if (this._sharedMesh !== value) {
-			//meshReference
-			var lastValue: Mesh = this._sharedMesh;
-			if (lastValue) {
-				lastValue._removeReference();
-			}
-			if (value) {
-				value._addReference();
-			}
-			this._sharedMesh = value;
+            const render = this.owner.getComponent(MeshRenderer);
+            if (!render) {
+                return;
+            }
+            // var defineDatas: ShaderData = render._shaderValues;
+            // var lastValue: Mesh = this._sharedMesh;
+            // if (lastValue) {
+            // 	this._getMeshDefine(lastValue, MeshFilter._meshVerticeDefine);
+            // 	for (var i: number = 0, n: number = MeshFilter._meshVerticeDefine.length; i < n; i++)
+            // 		defineDatas.removeDefine(MeshFilter._meshVerticeDefine[i]);
+            // }
 
-			const render = this.owner.getComponent(MeshRenderer);
-			if (!render) {
-				return;
-			}
-			// var defineDatas: ShaderData = render._shaderValues;
-			// var lastValue: Mesh = this._sharedMesh;
-			// if (lastValue) {
-			// 	this._getMeshDefine(lastValue, MeshFilter._meshVerticeDefine);
-			// 	for (var i: number = 0, n: number = MeshFilter._meshVerticeDefine.length; i < n; i++)
-			// 		defineDatas.removeDefine(MeshFilter._meshVerticeDefine[i]);
-			// }
+            // if (value) {
+            // 	this._getMeshDefine(value, MeshFilter._meshVerticeDefine);
+            // 	for (var i: number = 0, n: number = MeshFilter._meshVerticeDefine.length; i < n; i++)
+            // 		defineDatas.addDefine(MeshFilter._meshVerticeDefine[i]);
+            // }
 
-			// if (value) {
-			// 	this._getMeshDefine(value, MeshFilter._meshVerticeDefine);
-			// 	for (var i: number = 0, n: number = MeshFilter._meshVerticeDefine.length; i < n; i++)
-			// 		defineDatas.addDefine(MeshFilter._meshVerticeDefine[i]);
-			// }
+            render._onMeshChange(value);
+            this._sharedMesh = value;
+        }
+    }
 
-			render._onMeshChange(value);
-			this._sharedMesh = value;
-		}
-	}
+    // /**
+    //  * @internal
+    //  * @param mesh 
+    //  * @param out 
+    //  */
+    // private _getMeshDefine(mesh: Mesh, out: Array<ShaderDefine>): number {
+    // 	out.length = 0;
+    // 	var define: number;
+    // 	for (var i: number = 0, n: number = mesh._subMeshes.length; i < n; i++) {
+    // 		var subMesh: SubMesh = (<SubMesh>mesh.getSubMesh(i));
+    // 		var vertexElements: any[] = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
+    // 		for (var j: number = 0, m: number = vertexElements.length; j < m; j++) {
+    // 			var vertexElement: VertexElement = vertexElements[j];
+    // 			var name: number = vertexElement._elementUsage;
+    // 			switch (name) {
+    // 				case VertexMesh.MESH_COLOR0:
+    // 					out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+    // 					break
+    // 				case VertexMesh.MESH_TEXTURECOORDINATE0:
+    // 					out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
+    // 					break;
+    // 				case VertexMesh.MESH_TEXTURECOORDINATE1:
+    // 					out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
+    // 					break;
+    // 			}
+    // 		}
+    // 	}
+    // 	return define;
+    // }
 
-	// /**
-	//  * @internal
-	//  * @param mesh 
-	//  * @param out 
-	//  */
-	// private _getMeshDefine(mesh: Mesh, out: Array<ShaderDefine>): number {
-	// 	out.length = 0;
-	// 	var define: number;
-	// 	for (var i: number = 0, n: number = mesh._subMeshes.length; i < n; i++) {
-	// 		var subMesh: SubMesh = (<SubMesh>mesh.getSubMesh(i));
-	// 		var vertexElements: any[] = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
-	// 		for (var j: number = 0, m: number = vertexElements.length; j < m; j++) {
-	// 			var vertexElement: VertexElement = vertexElements[j];
-	// 			var name: number = vertexElement._elementUsage;
-	// 			switch (name) {
-	// 				case VertexMesh.MESH_COLOR0:
-	// 					out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
-	// 					break
-	// 				case VertexMesh.MESH_TEXTURECOORDINATE0:
-	// 					out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
-	// 					break;
-	// 				case VertexMesh.MESH_TEXTURECOORDINATE1:
-	// 					out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
-	// 					break;
-	// 			}
-	// 		}
-	// 	}
-	// 	return define;
-	// }
+    onDestroy(): void {
+        (this._sharedMesh) && (this._sharedMesh._removeReference(), this._sharedMesh = null);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	destroy(): void {
-		(this._sharedMesh) && (this._sharedMesh._removeReference(), this._sharedMesh = null);
-		super.destroy();
-	}
-
-	/**
-	 * @internal
-	 * @param dest 
-	 */
-	_cloneTo(dest: Component): void {
-		let meshfilter = dest as MeshFilter;
-		meshfilter.sharedMesh = this.sharedMesh;
-		super._cloneTo(dest);
-	}
+    /**
+     * @internal
+     * @param dest 
+     */
+    _cloneTo(dest: Component): void {
+        let meshfilter = dest as MeshFilter;
+        meshfilter.sharedMesh = this.sharedMesh;
+        super._cloneTo(dest);
+    }
 
 }
 

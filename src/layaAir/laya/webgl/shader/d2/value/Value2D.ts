@@ -10,167 +10,165 @@ import { RenderTexture2D } from "../../../../resource/RenderTexture2D"
 import { TextTexture } from "laya/webgl/text/TextTexture"
 
 export class Value2D {
+    protected static _cache: any[] = [];
+    protected static _typeClass: any = [];
+
+    static TEMPMAT4_ARRAY: any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+
+    public static _initone(type: number, classT: any): void {
+        Value2D._typeClass[type] = classT;
+        Value2D._cache[type] = [];
+        Value2D._cache[type]._length = 0;
+    }
+
+    static create(mainType: number, subType: number): Value2D {
+        var types: any = Value2D._cache[mainType | subType];
+        if (types._length)
+            return types[--types._length];
+        else
+            return new Value2D._typeClass[mainType | subType](subType);
+    }
 
 
-	protected static _cache: any[] = [];
-	protected static _typeClass: any = [];
+    static __init__(): void {
+    }
 
-	static TEMPMAT4_ARRAY: any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-
-	public static _initone(type: number, classT: any): void {
-		Value2D._typeClass[type] = classT;
-		Value2D._cache[type] = [];
-		Value2D._cache[type]._length = 0;
-	}
-
-	static create(mainType: number, subType: number): Value2D {
-		var types: any = Value2D._cache[mainType | subType];
-		if (types._length)
-			return types[--types._length];
-		else
-			return new Value2D._typeClass[mainType | subType](subType);
-	}
+    defines: ShaderDefines2D = new ShaderDefines2D();
 
 
-	static __init__(): void {
-	}
+    size: any[] = [0, 0];
 
-	defines: ShaderDefines2D = new ShaderDefines2D();
-	
+    alpha: number = 1.0;	//这个目前只给setIBVB用。其他的都放到attribute的color中了
+    mmat: any[];		//worldmatrix，是4x4的，因为为了shader使用方便。 TODO 换成float32Array
+    u_MvpMatrix: any[];
+    texture: any;
 
-	size: any[] = [0, 0];
+    ALPHA: number = 1.0;	//这个？
 
-	alpha: number = 1.0;	//这个目前只给setIBVB用。其他的都放到attribute的color中了
-	mmat: any[];		//worldmatrix，是4x4的，因为为了shader使用方便。 TODO 换成float32Array
-	u_MvpMatrix: any[];
-	texture: any;
+    shader: Shader;
 
-	ALPHA: number = 1.0;	//这个？
+    mainID: number;
+    subID: number = 0;
+    filters: any[];
 
-	shader: Shader;
+    textureHost: Texture | RenderTexture2D | TextTexture;
+    //public var fillStyle:DrawStyle;			//TODO 这个有什么用？
+    color: any[];
+    //public var strokeStyle:DrawStyle;
+    colorAdd: any[];
+    u_mmat2: any[];
+    ref: number = 1;
+    protected _attribLocation: any[];	//[name,location,name,location...] 由继承类赋值。这个最终会传给对应的shader
 
-	mainID: number;
-	subID: number = 0;
-	filters: any[];
+    private _inClassCache: any;
+    private _cacheID: number = 0;
+    clipMatDir: any[] = [ILaya.Context._MAXSIZE, 0, 0, ILaya.Context._MAXSIZE];
+    clipMatPos: any[] = [0, 0];
+    clipOff: any[] = [0, 0];			// 裁剪是否需要加上偏移，cacheas normal用
+    //public var clipDir:Array = [Context._MAXSIZE, 0, 0, Context._MAXSIZE];		//裁剪信息
+    //public var clipRect:Array = [0, 0];						//裁剪位置
 
-	textureHost: Texture|RenderTexture2D|TextTexture;
-	//public var fillStyle:DrawStyle;			//TODO 这个有什么用？
-	color: any[];
-	//public var strokeStyle:DrawStyle;
-	colorAdd: any[];
-	u_mmat2: any[];
-	ref: number = 1;
-	protected _attribLocation: any[];	//[name,location,name,location...] 由继承类赋值。这个最终会传给对应的shader
+    constructor(mainID: number, subID: number) {
+        this.mainID = mainID;
+        this.subID = subID;
 
-	private _inClassCache: any;
-	private _cacheID: number = 0;
-	clipMatDir: any[] = [ILaya.Context._MAXSIZE, 0, 0, ILaya.Context._MAXSIZE];
-	clipMatPos: any[] = [0, 0];
-	clipOff: any[] = [0, 0];			// 裁剪是否需要加上偏移，cacheas normal用
-	//public var clipDir:Array = [Context._MAXSIZE, 0, 0, Context._MAXSIZE];		//裁剪信息
-	//public var clipRect:Array = [0, 0];						//裁剪位置
+        this.textureHost = null;
+        this.texture = null;
+        //this.fillStyle = null;
+        this.color = null;
+        //this.strokeStyle = null;
+        this.colorAdd = null;
+        this.u_mmat2 = null;
 
-	constructor(mainID: number, subID: number) {
-		this.mainID = mainID;
-		this.subID = subID;
+        this._cacheID = mainID | subID;
+        this._inClassCache = Value2D._cache[this._cacheID];
+        if (mainID > 0 && !this._inClassCache) {
+            this._inClassCache = Value2D._cache[this._cacheID] = [];
+            this._inClassCache._length = 0;
+        }
+        this.clear();
 
-		this.textureHost = null;
-		this.texture = null;
-		//this.fillStyle = null;
-		this.color = null;
-		//this.strokeStyle = null;
-		this.colorAdd = null;
-		this.u_mmat2 = null;
+    }
 
-		this._cacheID = mainID | subID;
-		this._inClassCache = Value2D._cache[this._cacheID];
-		if (mainID > 0 && !this._inClassCache) {
-			this._inClassCache = Value2D._cache[this._cacheID] = [];
-			this._inClassCache._length = 0;
-		}
-		this.clear();
+    setValue(value: Shader2D): void { }
+    //throw new Error("todo in subclass");
 
-	}
+    //不知道什么意思，这个名字太难懂，反正只有submitIBVB中用到。直接把代码拷贝到哪里
+    //public function refresh():ShaderValue
 
-	setValue(value: Shader2D): void { }
-	//throw new Error("todo in subclass");
+    private _ShaderWithCompile(): Shader2X {
+        var ret: Shader2X = (<Shader2X>Shader.withCompile2D(0, this.mainID, this.defines.toNameDic(), this.mainID | this.defines._value, Shader2X.create, this._attribLocation));
+        //ret.setAttributesLocation(_attribLocation); 由于上面函数的流程的修改，导致这里已经晚了
+        return ret;
+    }
 
-	//不知道什么意思，这个名字太难懂，反正只有submitIBVB中用到。直接把代码拷贝到哪里
-	//public function refresh():ShaderValue
+    upload(): void {
+        var renderstate2d: any = RenderState2D;
 
-	private _ShaderWithCompile(): Shader2X {
-		var ret: Shader2X = (<Shader2X>Shader.withCompile2D(0, this.mainID, this.defines.toNameDic(), this.mainID | this.defines._value, Shader2X.create, this._attribLocation));
-		//ret.setAttributesLocation(_attribLocation); 由于上面函数的流程的修改，导致这里已经晚了
-		return ret;
-	}
+        // 如果有矩阵的话，就设置 WORLDMAT 宏
+        RenderState2D.worldMatrix4 === RenderState2D.TEMPMAT4_ARRAY || this.defines.addInt(ShaderDefines2D.WORLDMAT);
+        this.mmat = renderstate2d.worldMatrix4;
 
-	upload(): void {
-		var renderstate2d: any = RenderState2D;
+        if (RenderState2D.matWVP) {
+            this.defines.addInt(ShaderDefines2D.MVP3D);
+            this.u_MvpMatrix = RenderState2D.matWVP.elements;
+        }
+        let returnGamma: boolean = !(RenderTexture2D.currentActive);
+        returnGamma = returnGamma && (this.textureHost && ((this.textureHost as RenderTexture2D).gammaCorrection == 1 || (this.textureHost as Texture).bitmap.gammaCorrection == 1));
+        if (returnGamma) {
+            this.defines.addInt(ShaderDefines2D.GAMMASPACE);
+        } else {
+            this.defines.remove(ShaderDefines2D.GAMMASPACE);
+        }
 
-		// 如果有矩阵的话，就设置 WORLDMAT 宏
-		RenderState2D.worldMatrix4 === RenderState2D.TEMPMAT4_ARRAY || this.defines.addInt(ShaderDefines2D.WORLDMAT);
-		this.mmat = renderstate2d.worldMatrix4;
+        var sd: Shader2X = Shader.sharders[this.mainID | this.defines._value] || this._ShaderWithCompile();
 
-		if (RenderState2D.matWVP) {
-			this.defines.addInt(ShaderDefines2D.MVP3D);
-			this.u_MvpMatrix = RenderState2D.matWVP.elements;
-		}
-		let returnGamma:boolean = !(RenderTexture2D.currentActive);
-		returnGamma = returnGamma&&(this.textureHost&&((this.textureHost as RenderTexture2D).gammaCorrection==1||(this.textureHost as Texture).bitmap.gammaCorrection==1));
-		if(returnGamma){
-			this.defines.addInt(ShaderDefines2D.GAMMASPACE);
-		}else{
-			this.defines.remove(ShaderDefines2D.GAMMASPACE);
-		}
+        if (sd._shaderValueWidth !== renderstate2d.width || sd._shaderValueHeight !== renderstate2d.height) {
+            this.size[0] = renderstate2d.width;
+            this.size[1] = renderstate2d.height;
+            sd._shaderValueWidth = renderstate2d.width;
+            sd._shaderValueHeight = renderstate2d.height;
+            sd.upload((<ShaderValue>this), null);
+        }
+        else {
+            sd.upload((<ShaderValue>this), sd._params2dQuick2 || sd._make2dQuick2());
+        }
+    }
 
-		var sd: Shader2X = Shader.sharders[this.mainID | this.defines._value] || this._ShaderWithCompile();
+    //TODO:coverage
+    setFilters(value: any[]): void {
+        this.filters = value;
+        if (!value)
+            return;
 
-		if (sd._shaderValueWidth !== renderstate2d.width || sd._shaderValueHeight !== renderstate2d.height) {
-			this.size[0] = renderstate2d.width;
-			this.size[1] = renderstate2d.height;
-			sd._shaderValueWidth = renderstate2d.width;
-			sd._shaderValueHeight = renderstate2d.height;
-			sd.upload((<ShaderValue>this), null);
-		}
-		else {
-			sd.upload((<ShaderValue>this), sd._params2dQuick2 || sd._make2dQuick2());
-		}
-	}
+        var n: number = value.length, f: any;
+        for (var i: number = 0; i < n; i++) {
+            f = value[i];
+            if (f) {
+                this.defines.add(f.type);//搬到setValue中
+                f.action.setValue(this);
+            }
+        }
+    }
 
-	//TODO:coverage
-	setFilters(value: any[]): void {
-		this.filters = value;
-		if (!value)
-			return;
+    clear(): void {
+        this.defines._value = this.subID;
+        this.clipOff[0] = 0;
+    }
 
-		var n: number = value.length, f: any;
-		for (var i: number = 0; i < n; i++) {
-			f = value[i];
-			if (f) {
-				this.defines.add(f.type);//搬到setValue中
-				f.action.setValue(this);
-			}
-		}
-	}
+    release(): void {
+        if ((--this.ref) < 1) {
+            this._inClassCache && (this._inClassCache[this._inClassCache._length++] = this);
+            //this.fillStyle = null;
+            //this.strokeStyle = null;
+            this.clear();
+            this.filters = null;
+            this.ref = 1;
+            this.clipOff[0] = 0;
+        }
+    }
 
-	clear(): void {
-		this.defines._value = this.subID;
-		this.clipOff[0] = 0;
-	}
 
-	release(): void {
-		if ((--this.ref) < 1) {
-			this._inClassCache && (this._inClassCache[this._inClassCache._length++] = this);
-			//this.fillStyle = null;
-			//this.strokeStyle = null;
-			this.clear();
-			this.filters = null;
-			this.ref = 1;
-			this.clipOff[0] = 0;
-		}
-	}
-
-	
 }
 
 

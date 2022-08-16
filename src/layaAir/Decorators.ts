@@ -59,6 +59,6 @@ export function regClass(className?: string): any {
     };
 }
 
-export function executeInEditMode(constructor: Function): void {}
+export function runInEditor(constructor: Function): void {}
 export function menu(name: string): any {}
 export function property(info?: string | Partial<PropertyDescriptor>): any {}

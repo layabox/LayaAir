@@ -9,19 +9,21 @@ import { IRenderContext3D } from "./IRenderContext3D";
 /**
  * RenderQueue,渲染队列
  */
-export interface IRenderQueue{
+export interface IRenderQueue {
+    /** @interanl */
+    _isTransparent: boolean;
     /** @internal */
-	elements: SingletonList<RenderElement>;
+    elements: SingletonList<RenderElement>;
     /**@internal 共享渲染数据 */
-    _context:IRenderContext3D
+    _context: IRenderContext3D
     /**
      * @param context 渲染上下文
      * @return 返回渲染数量
      */
-    renderQueue(context:RenderContext3D):number;
+    renderQueue(context: RenderContext3D): number;
     //增加渲染队列
-    addRenderElement(renderElement:RenderElement):void;
+    addRenderElement(renderElement: RenderElement): void;
     //清除队列
-    clear():void
-    
+    clear(): void
+
 }

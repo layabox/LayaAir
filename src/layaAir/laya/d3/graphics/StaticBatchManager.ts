@@ -46,7 +46,7 @@ export class StaticBatchManager {
 		if (batchSpritesCount > 0) {
 			for (var i: number = 0; i < batchSpritesCount; i++) {
 				var sprite: RenderableSprite3D = renderableSprite3Ds[i];
-				if (!sprite.destroyed) {
+				if (!sprite._destroyed) {
 					if (sprite._render._isPartOfStaticBatch)
 						console.warn("StaticBatchManager: Sprite " + sprite.name + " has a part of Static Batch,it will be ignore.");
 					else

@@ -1,4 +1,4 @@
-import { IClone } from "../../core/IClone"
+import { IClone } from "../../../utils/IClone"
 	import { MathUtils3D } from "../MathUtils3D"
 	
 	/**

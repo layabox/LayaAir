@@ -1,4 +1,4 @@
-import { IClone } from "../../d3/core/IClone";
+import { IClone } from "../../utils/IClone";
 import { RenderPlane } from "../../d3/core/RenderPlane";
 import { BoundFrustum } from "../../d3/math/BoundFrustum";
 import { Matrix4x4 } from "../../d3/math/Matrix4x4";

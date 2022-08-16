@@ -21,11 +21,11 @@ import { CannonRigidbody3D } from "laya/d3/physicsCannon/CannonRigidbody3D";
 import { CannonSphereColliderShape } from "laya/d3/physicsCannon/shape/CannonSphereColliderShape";
 import { CannonCompoundColliderShape } from "laya/d3/physicsCannon/shape/CannonCompoundColliderShape";
 import { Event } from "laya/events/Event";
-import { Script3D } from "laya/d3/component/Script3D";
 import { PhysicsComponent } from "laya/d3/physics/PhysicsComponent";
 import { Collision } from "laya/d3/physics/Collision";
 import { Config3D } from "Config3D";
 import { Color } from "laya/d3/math/Color";
+import { Script } from "laya/components/Script";
 
 /**
  * 用键盘WASD来控制小盒子的移动，碰到的会变成红色
@@ -40,8 +40,8 @@ export class CannonPhysicsWorld_ColliderEvent {
 	private speed: number = 0.1;
 	private tempSpeed: Vector3 = new Vector3();
 	constructor() {
+		Config3D.useCannonPhysics = true;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
-			Config3D.useCannonPhysics = true;
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
@@ -214,7 +214,7 @@ export class CannonPhysicsWorld_ColliderEvent {
 	}
 }
 
-export class colliderCheck extends Script3D {
+export class colliderCheck extends Script {
 	/**
 	 * 开始触发时执行
 	 * 此方法为虚方法，使用时重写覆盖即可

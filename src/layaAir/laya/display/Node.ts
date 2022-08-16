@@ -1,12 +1,12 @@
-import { Const } from "../Const"
+import { NodeFlags } from "../Const"
 import { Component } from "../components/Component"
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
 import { Pool } from "../utils/Pool"
 import { Stat } from "../utils/Stat"
 import { Timer } from "../utils/Timer"
-import { Sprite } from "./Sprite";
 import { ILaya } from "../../ILaya";
+import { ComponentDriver } from "../components/ComponentDriver";
 
 const ARRAY_EMPTY: any[] = [];
 
@@ -39,29 +39,31 @@ export class Node extends EventDispatcher {
     private _bits: number = 0;
     /**@private */
     private _hideFlags: number = 0;
+
     /**@internal 子对象集合，请不要直接修改此对象。*/
     _children: Node[] = ARRAY_EMPTY;
-
     /**@internal 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
     _extUIChild: Node[] = ARRAY_EMPTY;
-
     /**@internal 父节点对象*/
     _parent: Node = null;
+    /**@internal */
+    _destroyed: boolean = false;
+    /**@internal */
+    _conchData: any;
+    /**@internal */
+    _componentDriver?: ComponentDriver;
+    /**@internal */
+    _is3D?: boolean;
+    /** 如果节点从资源中创建，这里记录是他的url */
+    protected _url?: string;
 
     /**节点名称。*/
     name: string = "";
-    /**[只读]是否已经销毁。对象销毁后不能再使用。*/
-    destroyed: boolean = false;
-    /**@internal */
-    _conchData: any;
 
-    /** 如果节点从资源中创建，这里记录是他的url */
-    protected _url?: string;
-    
     /**
      * 得到资源的URL
      */
-     get url(): string {
+    get url(): string {
         return this._url;
     }
 
@@ -80,6 +82,16 @@ export class Node extends EventDispatcher {
         this._hideFlags = value;
     }
 
+    /** 是否3D节点，即Scene3D和Sprite3D及其衍生类 */
+    get is3D(): boolean {
+        return this._is3D;
+    }
+
+    /** 是否已经销毁。对象销毁后不能再使用。*/
+    get destroyed(): boolean {
+        return this._destroyed;
+    }
+
     constructor() {
         super();
 
@@ -92,7 +104,7 @@ export class Node extends EventDispatcher {
 
     /**@internal */
     _setBit(type: number, value: boolean): void {
-        if (type === Const.DISPLAY) {
+        if (type === NodeFlags.DISPLAY) {
             var preValue: boolean = this._getBit(type);
             if (preValue != value) this._updateDisplayedInstage();
         }
@@ -107,7 +119,7 @@ export class Node extends EventDispatcher {
 
     /**@internal */
     _setUpNoticeChain(): void {
-        if (this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
+        if (this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
     }
 
     /**@internal */
@@ -124,7 +136,7 @@ export class Node extends EventDispatcher {
 
     protected onStartListeningToType(type: string) {
         if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
-            if (!this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
+            if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
         }
     }
 
@@ -138,8 +150,8 @@ export class Node extends EventDispatcher {
      * @param destroyChild	（可选）是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
      */
     destroy(destroyChild: boolean = true): void {
-        this.destroyed = true;
-        this._destroyAllComponent();
+        this._destroyed = true;
+        this.destroyAllComponent();
         this._parent && this._parent.removeChild(this);
 
         //销毁子节点
@@ -153,9 +165,6 @@ export class Node extends EventDispatcher {
 
         //移除所有事件监听
         this.offAll();
-
-        //移除所有timer
-        //this.timer.clearAll(this);			
     }
 
     /**
@@ -173,7 +182,7 @@ export class Node extends EventDispatcher {
         //销毁子节点
         if (this._children) {
             //为了保持销毁顺序，所以需要正序销毁
-            for (var i: number = 0, n: number = this._children.length; i < n; i++) {
+            for (let i = 0, n = this._children.length; i < n; i++) {
                 this._children[0] && this._children[0].destroy(true);
             }
         }
@@ -186,8 +195,8 @@ export class Node extends EventDispatcher {
      * @return	返回添加的节点
      */
     addChild<T extends Node>(node: T): T {
-        if (!node || this.destroyed || node as any === this) return node;
-        if ((<Sprite>(node as any))._zOrder) this._setBit(Const.HAS_ZORDER, true);
+        if (!node || this._destroyed || node as any === this) return node;
+        if ((<any>node)._zOrder) this._setBit(NodeFlags.HAS_ZORDER, true);
         if (node._parent === this) {
             var index: number = this.getChildIndex(node);
             if (index !== this._children.length - 1) {
@@ -243,8 +252,8 @@ export class Node extends EventDispatcher {
      * @return	返回添加的节点。
      */
     addChildAt(node: Node, index: number): Node {
-        if (!node || this.destroyed || node === this) return node;
-        if (((<Sprite>node))._zOrder) this._setBit(Const.HAS_ZORDER, true);
+        if (!node || this._destroyed || node === this) return node;
+        if ((<any>node)._zOrder) this._setBit(NodeFlags.HAS_ZORDER, true);
         if (index >= 0 && index <= this._children.length) {
             if (node._parent === this) {
                 var oldIndex: number = this.getChildIndex(node);
@@ -432,7 +441,7 @@ export class Node extends EventDispatcher {
                 //如果父对象可见，则设置子对象可见
                 this._onAdded();
                 this.event(Event.ADDED);
-                if (this._getBit(Const.DISPLAY)) {
+                if (this._getBit(NodeFlags.DISPLAY)) {
                     this._setUpNoticeChain();
                     value.displayedInStage && this._displayChild(this, true);
                 }
@@ -442,7 +451,7 @@ export class Node extends EventDispatcher {
                 this._onRemoved();
                 this.event(Event.REMOVED);
                 this._parent._childChanged();
-                if (this._getBit(Const.DISPLAY)) this._displayChild(this, false);
+                if (this._getBit(NodeFlags.DISPLAY)) this._displayChild(this, false);
                 this._parent = value;
             }
         }
@@ -450,9 +459,9 @@ export class Node extends EventDispatcher {
 
     /**表示是否在显示列表中显示。*/
     get displayedInStage(): boolean {
-        if (this._getBit(Const.DISPLAY)) return this._getBit(Const.DISPLAYED_INSTAGE);
-        this._setBitUp(Const.DISPLAY);
-        return this._getBit(Const.DISPLAYED_INSTAGE);
+        if (this._getBit(NodeFlags.DISPLAY)) return this._getBit(NodeFlags.DISPLAYED_INSTAGE);
+        this._setBitUp(NodeFlags.DISPLAY);
+        return this._getBit(NodeFlags.DISPLAYED_INSTAGE);
     }
 
     /**@private */
@@ -462,23 +471,23 @@ export class Node extends EventDispatcher {
         var stage: Node = ILaya.stage;
         var displayedInStage: boolean = false;
         while (ele) {
-            if (ele._getBit(Const.DISPLAY)) {
-                displayedInStage = ele._getBit(Const.DISPLAYED_INSTAGE);
+            if (ele._getBit(NodeFlags.DISPLAY)) {
+                displayedInStage = ele._getBit(NodeFlags.DISPLAYED_INSTAGE);
                 break;
             }
-            if (ele === stage || ele._getBit(Const.DISPLAYED_INSTAGE)) {
+            if (ele === stage || ele._getBit(NodeFlags.DISPLAYED_INSTAGE)) {
                 displayedInStage = true;
                 break;
             }
             ele = ele._parent;
         }
-        this._setBit(Const.DISPLAYED_INSTAGE, displayedInStage);
+        this._setBit(NodeFlags.DISPLAYED_INSTAGE, displayedInStage);
     }
 
     /**@internal */
     _setDisplay(value: boolean): void {
-        if (this._getBit(Const.DISPLAYED_INSTAGE) !== value) {
-            this._setBit(Const.DISPLAYED_INSTAGE, value);
+        if (this._getBit(NodeFlags.DISPLAYED_INSTAGE) !== value) {
+            this._setBit(NodeFlags.DISPLAYED_INSTAGE, value);
             if (value) this.event(Event.DISPLAY);
             else this.event(Event.UNDISPLAY);
         }
@@ -496,7 +505,7 @@ export class Node extends EventDispatcher {
             for (var i: number = 0, n: number = childs.length; i < n; i++) {
                 var child: Node = childs[i];
                 if (!child) continue;
-                if (!child._getBit(Const.DISPLAY)) continue;
+                if (!child._getBit(NodeFlags.DISPLAY)) continue;
                 if (child._children.length > 0) {
                     this._displayChild(child, display);
                 } else {
@@ -531,8 +540,7 @@ export class Node extends EventDispatcher {
      * @param	jumpFrame 时钟是否跳帧。基于时间的循环回调，单位时间间隔内，如能执行多次回调，出于性能考虑，引擎默认只执行一次，设置jumpFrame=true后，则回调会连续执行多次
      */
     timerLoop(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true, jumpFrame: boolean = false): void {
-        var timer: Timer = this.scene ? this.scene.timer : ILaya.timer;
-        timer.loop(delay, caller, method, args, coverBefore, jumpFrame);
+        this.timer.loop(delay, caller, method, args, coverBefore, jumpFrame);
     }
 
     /**
@@ -544,8 +552,7 @@ export class Node extends EventDispatcher {
      * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
      */
     timerOnce(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true): void {
-        var timer: Timer = this.scene ? this.scene.timer : ILaya.timer;
-        timer._create(false, false, delay, caller, method, args, coverBefore);
+        this.timer._create(false, false, delay, caller, method, args, coverBefore);
     }
 
     /**
@@ -557,8 +564,7 @@ export class Node extends EventDispatcher {
      * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
      */
     frameLoop(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true): void {
-        var timer: Timer = this.scene ? this.scene.timer : ILaya.timer;
-        timer._create(true, true, delay, caller, method, args, coverBefore);
+        this.timer._create(true, true, delay, caller, method, args, coverBefore);
     }
 
     /**
@@ -570,8 +576,7 @@ export class Node extends EventDispatcher {
      * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true
      */
     frameOnce(delay: number, caller: any, method: Function, args: any[] = null, coverBefore: boolean = true): void {
-        var timer: Timer = this.scene ? this.scene.timer : ILaya.timer;
-        timer._create(true, false, delay, caller, method, args, coverBefore);
+        this.timer._create(true, false, delay, caller, method, args, coverBefore);
     }
 
     /**
@@ -580,8 +585,7 @@ export class Node extends EventDispatcher {
      * @param	method 结束时的回调方法。
      */
     clearTimer(caller: any, method: Function): void {
-        var timer: Timer = this.scene ? this.scene.timer : ILaya.timer;
-        timer.clear(caller, method);
+        this.timer.clear(caller, method);
     }
 
     /**
@@ -593,8 +597,7 @@ export class Node extends EventDispatcher {
      * @see #runCallLater()
      */
     callLater(method: Function, args: any[] = null): void {
-        var timer: Timer = this.scene ? this.scene.timer : ILaya.timer;
-        timer.callLater(this, method, args);
+        this.timer.callLater(this, method, args);
     }
 
     /**
@@ -603,15 +606,14 @@ export class Node extends EventDispatcher {
      * @see #callLater()
      */
     runCallLater(method: Function): void {
-        var timer: Timer = this.scene ? this.scene.timer : ILaya.timer;
-        timer.runCallLater(this, method);
+        this.timer.runCallLater(this, method);
     }
 
     //============================组件化支持==============================
     /** @private */
     private _components: Component[];
     /**@private */
-    private _activeChangeScripts: any[];//TODO:可用对象池
+    private _activeChangeScripts: Component[];
 
     /**@internal */
     _scene: Node;
@@ -629,7 +631,7 @@ export class Node extends EventDispatcher {
      *   @return	自身是否激活。
      */
     get active(): boolean {
-        return !this._getBit(Const.NOT_READY) && !this._getBit(Const.NOT_ACTIVE);
+        return !this._getBit(NodeFlags.NOT_READY) && !this._getBit(NodeFlags.NOT_ACTIVE);
     }
 
     /**
@@ -638,14 +640,14 @@ export class Node extends EventDispatcher {
      */
     set active(value: boolean) {
         value = !!value;
-        if (!this._getBit(Const.NOT_ACTIVE) !== value) {
+        if (!this._getBit(NodeFlags.NOT_ACTIVE) !== value) {
             if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
                 if (value)
                     throw "Node: can't set the main inActive node active in hierarchy,if the operate is in main inActive node or it's children script's onDisable Event.";
                 else
                     throw "Node: can't set the main active node inActive in hierarchy,if the operate is in main active node or it's children script's onEnable Event.";
             } else {
-                this._setBit(Const.NOT_ACTIVE, !value);
+                this._setBit(NodeFlags.NOT_ACTIVE, !value);
                 if (this._parent) {
                     if (this._parent.activeInHierarchy) {
                         if (value) this._processActive();
@@ -663,7 +665,7 @@ export class Node extends EventDispatcher {
      *   @return	在场景中是否激活。
      */
     get activeInHierarchy(): boolean {
-        return this._getBit(Const.ACTIVE_INHIERARCHY);
+        return this._getBit(NodeFlags.ACTIVE_INHIERARCHY);
     }
 
     /**
@@ -754,24 +756,21 @@ export class Node extends EventDispatcher {
      * @internal
      */
     _activeHierarchy(activeChangeScripts: any[]): void {
-        this._setBit(Const.ACTIVE_INHIERARCHY, true);
+        this._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         if (this._components) {
-            for (var i: number = 0, n: number = this._components.length; i < n; i++) {
-                var comp: Component = this._components[i];
-                if (comp._isScript())//TODO:maybe should combime the logic with script and unScript. 
-                    (comp._enabled) && (activeChangeScripts.push(comp));
-                else
-                    comp._setActive(true);
+            for (let i = 0, n = this._components.length; i < n; i++) {
+                let comp = this._components[i];
+                (comp._enabled) && (activeChangeScripts.push(comp));
             }
         }
 
         this._onActive();
-        for (i = 0, n = this._children.length; i < n; i++) {
-            var child: Node = this._children[i];
-            (!child._getBit(Const.NOT_ACTIVE) && !child._getBit(Const.NOT_READY)) && (child._activeHierarchy(activeChangeScripts));
+        for (let i = 0, n = this._children.length; i < n; i++) {
+            let child = this._children[i];
+            (!child._getBit(NodeFlags.NOT_ACTIVE) && !child._getBit(NodeFlags.NOT_READY)) && (child._activeHierarchy(activeChangeScripts));
         }
-        if (!this._getBit(Const.AWAKED)) {
-            this._setBit(Const.AWAKED, true);
+        if (!this._getBit(NodeFlags.AWAKED)) {
+            this._setBit(NodeFlags.AWAKED, true);
             this.onAwake();
         }
         this.onEnable();
@@ -781,18 +780,12 @@ export class Node extends EventDispatcher {
      * @private
      */
     private _activeScripts(): void {
-        for (var i: number = 0, n: number = this._activeChangeScripts.length; i < n; i++) {
-            var comp: Component = this._activeChangeScripts[i];
-            //修复在onAwake里,子级removeSelf导致错误调用_onEnable的问题
-            var owner = comp.owner;
-            if (owner && !comp._awaked) {
-                comp._awaked = true;
-                comp._onAwake();
-            }
-            if (owner && owner.activeInHierarchy)
-                comp._onEnable();
+        let arr = this._activeChangeScripts;
+        for (let i = 0, n = arr.length; i < n; i++) {
+            let comp = arr[i];
+            comp.owner && comp._setActive(true);
         }
-        this._activeChangeScripts.length = 0;
+        arr.length = 0;
     }
 
     /**
@@ -810,17 +803,16 @@ export class Node extends EventDispatcher {
     _inActiveHierarchy(activeChangeScripts: any[]): void {
         this._onInActive();
         if (this._components) {
-            for (var i: number = 0, n: number = this._components.length; i < n; i++) {
-                var comp: Component = this._components[i];
-                (!comp._isScript()) && comp._setActive(false);
-                (comp._isScript() && comp._enabled) && (activeChangeScripts.push(comp));
+            for (let i = 0, n = this._components.length; i < n; i++) {
+                let comp = this._components[i];
+                comp._enabled && (activeChangeScripts.push(comp));
             }
         }
-        this._setBit(Const.ACTIVE_INHIERARCHY, false);
+        this._setBit(NodeFlags.ACTIVE_INHIERARCHY, false);
 
-        for (i = 0, n = this._children.length; i < n; i++) {
-            var child: Node = this._children[i];
-            (child && !child._getBit(Const.NOT_ACTIVE)) && (child._inActiveHierarchy(activeChangeScripts));
+        for (let i = 0, n = this._children.length; i < n; i++) {
+            let child = this._children[i];
+            (child && !child._getBit(NodeFlags.NOT_ACTIVE)) && (child._inActiveHierarchy(activeChangeScripts));
         }
         this.onDisable();
     }
@@ -829,9 +821,12 @@ export class Node extends EventDispatcher {
      * @private
      */
     private _inActiveScripts(): void {
-        for (var i: number = 0, n: number = this._activeChangeScripts.length; i < n; i++)
-            ((this._activeChangeScripts[i]).owner) && this._activeChangeScripts[i]._onDisable();
-        this._activeChangeScripts.length = 0;
+        let arr = this._activeChangeScripts;
+        for (let i = 0, n = arr.length; i < n; i++) {
+            let comp = arr[i];
+            comp.owner && comp._setActive(false);
+        }
+        arr.length = 0;
     }
 
     /**
@@ -849,7 +844,7 @@ export class Node extends EventDispatcher {
         if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
             throw "Node: can't set the main inActive node active in hierarchy,if the operate is in main inActive node or it's children script's onDisable Event.";
         } else {
-            var parentScene: Node = this._parent.scene;
+            let parentScene = this._parent.scene;
             parentScene && this._setBelongScene(parentScene);
             (this._parent.activeInHierarchy && this.active) && this._processActive();
         }
@@ -871,11 +866,11 @@ export class Node extends EventDispatcher {
      * @internal
      */
     _addComponentInstance(comp: Component): void {
-        this._components = this._components || [];
+        if (!this._components)
+            this._components = [];
         this._components.push(comp);
 
         comp._setOwner(this);
-        comp._onAdded();
         if (this.activeInHierarchy)
             comp._setActive(true);
         this._componentChanged?.();
@@ -884,32 +879,31 @@ export class Node extends EventDispatcher {
     /**
      * @internal
      */
-    _destroyComponent(comp: Component): void {
-        if (this._components) {
-            for (var i: number = 0, n: number = this._components.length; i < n; i++) {
-                var item: Component = this._components[i];
-                if (item === comp) {
-                    item._destroy();
-                    this._components.splice(i, 1);
-                    this._componentChanged?.();
-                    break;
-                }
-            }
+    _destroyComponent(comp: Component) {
+        if (!this._components)
+            return;
+
+        let i = this._components.indexOf(comp);
+        if (i != -1) {
+            this._components.splice(i, 1);
+            comp._destroy();
+            this._componentChanged?.();
         }
     }
 
     /**
      * @internal
      */
-    _destroyAllComponent(): void {
-        if (this._components) {
-            for (var i: number = 0, n: number = this._components.length; i < n; i++) {
-                var item: Component = this._components[0];
-                item && item.destroy();
-            }
-            this._components.length = 0;
-            this._componentChanged?.();
+    private destroyAllComponent(): void {
+        if (!this._components)
+            return;
+
+        for (let i = 0, n = this._components.length; i < n; i++) {
+            let item = this._components[i];
+            item && !item.destroyed && item._destroy();
         }
+        this._components.length = 0;
+        this._componentChanged?.();
     }
 
     /**
@@ -925,8 +919,8 @@ export class Node extends EventDispatcher {
     _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
         var destNode: Node = (<Node>destObject);
         if (this._components) {
-            for (var i: number = 0, n: number = this._components.length; i < n; i++) {
-                var destComponent: Component = destNode.addComponent((this._components[i] as any).constructor);
+            for (let i = 0, n = this._components.length; i < n; i++) {
+                var destComponent = destNode.addComponent((this._components[i] as any).constructor);
                 this._components[i]._cloneTo(destComponent);
             }
         }
@@ -941,8 +935,8 @@ export class Node extends EventDispatcher {
     addComponentInstance(component: Component): Component {
         if (component.owner)
             throw "Node:the component has belong to other node.";
-        if (component.isSingleton && this.getComponent(((<any>component)).constructor))
-            throw "Node:the component is singleton,can't add the second one.";
+        if (component._singleton && this.getComponent(((<any>component)).constructor))
+            throw "Node:the component is singleton, can't add the second one.";
         this._addComponentInstance(component);
         return component;
     }
@@ -953,12 +947,12 @@ export class Node extends EventDispatcher {
      * @return	组件。
      */
     addComponent<T extends Component>(componentType: new () => T): T {
-        var comp: T = Pool.createByClass(componentType);
+        let comp: T = Pool.createByClass(componentType);
         if (!comp) {
             throw componentType.toString() + "组件不存在";
         }
-        comp._destroyed = false;
-        if (comp.isSingleton && this.getComponent(componentType))
+
+        if (comp._singleton && this.getComponent(componentType))
             throw "无法实例" + componentType + "组件" + "，" + componentType + "组件已存在！";
         this._addComponentInstance(comp);
         return comp;
@@ -971,8 +965,8 @@ export class Node extends EventDispatcher {
      */
     getComponent<T extends Component>(componentType: new () => T): T {
         if (this._components) {
-            for (var i: number = 0, n: number = this._components.length; i < n; i++) {
-                var comp: Component = this._components[i];
+            for (let i = 0, n = this._components.length; i < n; i++) {
+                let comp = this._components[i];
                 if (comp instanceof componentType)
                     return comp;
             }
@@ -996,8 +990,8 @@ export class Node extends EventDispatcher {
     getComponents(componentType: typeof Component): Component[] {
         var arr: any[];
         if (this._components) {
-            for (var i: number = 0, n: number = this._components.length; i < n; i++) {
-                var comp: Component = this._components[i];
+            for (let i = 0, n = this._components.length; i < n; i++) {
+                let comp = this._components[i];
                 if (comp instanceof componentType) {
                     arr = arr || [];
                     arr.push(comp);
@@ -1008,10 +1002,9 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @private
      * 获取timer
      */
     get timer(): Timer {
-        return this.scene ? this.scene.timer : ILaya.timer;
+        return this._scene ? this._scene.timer : ILaya.timer;
     }
 }

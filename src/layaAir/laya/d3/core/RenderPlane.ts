@@ -1,4 +1,4 @@
-import { IClone } from "./IClone";
+import { IClone } from "../../utils/IClone";
 import { Plane } from "../math/Plane";
 import { Vector3 } from "../math/Vector3";
 import { LayaGL } from "../../layagl/LayaGL";

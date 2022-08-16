@@ -201,7 +201,7 @@ export class ScrollBar extends UIComponent {
     }
 
     protected _skinLoaded(): void {
-        if (this.destroyed) {
+        if (this._destroyed) {
             return
         }
         this.slider.skin = this._skin;
@@ -460,7 +460,7 @@ export class ScrollBar extends UIComponent {
 
     /**@private */
     protected onTargetMouseWheel(e: Event): void {
-        this.value -= e.delta * this._scrollSize;
+        this.value += e.delta * this._scrollSize;
         this.target = this._target;
     }
 

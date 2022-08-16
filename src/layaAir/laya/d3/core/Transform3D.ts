@@ -882,11 +882,11 @@ export class Transform3D extends EventDispatcher {
 	 */
 	rotationTo(out:Quaternion, a:Vector3, b:Vector3):boolean {
 		var dot:number = Vector3.dot(a, b);
-		Vector3._Up
+		Vector3.Up
 		if (dot < -0.999999) {// 180度了，可以选择多个轴旋转
-			Vector3.cross(Vector3._UnitX, a, Transform3D.tmpVec3);
+			Vector3.cross(Vector3.UnitX, a, Transform3D.tmpVec3);
 			if (Vector3.scalarLength( Transform3D.tmpVec3) < 0.000001)
-				Vector3.cross(Vector3._UnitY, a, Transform3D.tmpVec3);
+				Vector3.cross(Vector3.UnitY, a, Transform3D.tmpVec3);
 			Vector3.normalize(Transform3D.tmpVec3, Transform3D.tmpVec3);
 			Quaternion.createFromAxisAngle(Transform3D.tmpVec3, Math.PI, out);
 			return true

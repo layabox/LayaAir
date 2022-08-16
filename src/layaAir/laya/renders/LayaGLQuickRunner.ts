@@ -1,4 +1,4 @@
-import { Const } from "../Const"
+import { NodeFlags } from "../Const"
 import { Sprite } from "../display/Sprite"
 import { SpriteConst } from "../display/SpriteConst"
 import { SpriteStyle } from "../display/css/SpriteStyle"
@@ -211,7 +211,7 @@ export class LayaGLQuickRunner {
 
     static transform_drawNodes(sprite: Sprite, context: Context, x: number, y: number): void {
         //var transform:Matrix = sprite.transform;
-        var textLastRender: boolean = sprite._getBit(Const.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
+        var textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
 
         var style: SpriteStyle = sprite._style;
         context.saveTransform(LayaGLQuickRunner.curMat);
@@ -248,7 +248,7 @@ export class LayaGLQuickRunner {
 
     static drawLayaGL_drawNodes(sprite: Sprite, context: Context, x: number, y: number): void {
 
-        var textLastRender: boolean = sprite._getBit(Const.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
+        var textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
 
         var style: SpriteStyle = sprite._style;
         x = x - style.pivotX;

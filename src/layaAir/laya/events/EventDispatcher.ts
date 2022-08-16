@@ -1,4 +1,7 @@
 import { Delegate } from "../utils/Delegate";
+import { Event } from "./Event";
+
+const eventPool: Array<Event> = [];
 
 /**
  * <code>EventDispatcher</code> 类是可调度事件的所有类的基类。
@@ -35,6 +38,12 @@ export class EventDispatcher {
             listeners.invoke(...data);
         else if (data !== undefined)
             listeners.invoke(data);
+        else if (data === Event.EMPTY) {
+            let ev = eventPool.length > 0 ? eventPool.pop() : new Event();
+            listeners.invoke(ev.setTo(type, this, this));
+            ev.target = ev.currentTarget = null;
+            eventPool.push(ev);
+        }
         else
             listeners.invoke();
 

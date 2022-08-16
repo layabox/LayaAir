@@ -1,10 +1,10 @@
 import { IPhysics } from "./IPhysics";
-import { Laya } from "../../Laya";
 import { ColliderBase } from "./ColliderBase";
 import { Component } from "../components/Component"
 import { Sprite } from "..//display/Sprite"
 import { Point } from "../maths/Point"
 import { Utils } from "../utils/Utils"
+import { ILaya } from "../../ILaya";
 
 /**
  * 2D刚体，显示对象通过RigidBody和物理世界进行绑定，保持物理和显示对象之间的位置同步
@@ -61,7 +61,7 @@ export class RigidBody extends Component {
     protected _body: any;
 
     private _createBody(): void {
-        if (this._body||!this.owner) return;
+        if (this._body || !this.owner) return;
         var sp: Sprite = (<Sprite>this.owner);
         var box2d: any = (<any>window).box2d;
         var def: any = new box2d.b2BodyDef();
@@ -88,22 +88,14 @@ export class RigidBody extends Component {
         //查找碰撞体
         this.resetCollider(false);
     }
-    /**
-     * @internal
-     * @override
-     */
-    _onAwake(): void {
+
+    onAwake(): void {
         this._createBody();
     }
-    /**
-     * @internal
-     * @override
-     */
-    _onEnable(): void {
+
+    onEnable(): void {
         var _$this = this;
         this._createBody();
-        //实时同步物理到节点
-        Laya.physicsTimer.frameLoop(1, this, this._sysPhysicToNode);
 
         //监听节点变化，同步到物理世界
         var sp: any = <Sprite>this.owner;
@@ -187,8 +179,8 @@ export class RigidBody extends Component {
         }
     }
 
-    /**@private 同步物理坐标到游戏坐标*/
-    private _sysPhysicToNode(): void {
+    /**同步物理坐标到游戏坐标*/
+    onUpdate(): void {
         if (this.type != "static" && this._body.IsAwake()) {
             var pos: any = this._body.GetPosition();
             var ang: any = this._body.GetAngle();
@@ -203,12 +195,12 @@ export class RigidBody extends Component {
             //     this.accessGetSetFunc(sp, "x", "set")(point.x);
             //     this.accessGetSetFunc(sp, "y", "set")(point.y);
             // } else {
-                var point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO, pos.y * IPhysics.Physics.PIXEL_RATIO), false, IPhysics.Physics.I.worldRoot);
-                point.x += sp.pivotX;
-                point.y += sp.pivotY;
-                point = sp.toParentPoint(point);
-                this.accessGetSetFunc(sp, "x", "set")(point.x);
-                this.accessGetSetFunc(sp, "y", "set")(point.y);
+            var point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO, pos.y * IPhysics.Physics.PIXEL_RATIO), false, IPhysics.Physics.I.worldRoot);
+            point.x += sp.pivotX;
+            point.y += sp.pivotY;
+            point = sp.toParentPoint(point);
+            this.accessGetSetFunc(sp, "x", "set")(point.x);
+            this.accessGetSetFunc(sp, "y", "set")(point.y);
             // }
         }
     }
@@ -232,13 +224,9 @@ export class RigidBody extends Component {
     private _overSet(sp: Node, prop: string, getfun: any): void {
         Object.defineProperty(sp, prop, { get: this.accessGetSetFunc(sp, prop, "get"), set: getfun, enumerable: false, configurable: true });;
     }
-    /**
-     * @internal
-     * @override
-     */
-    protected _onDisable(): void {
+
+    onDisable(): void {
         //添加到物理世界
-        Laya.physicsTimer.clear(this, this._sysPhysicToNode);
         this._body && IPhysics.Physics.I._removeBody(this._body);
         this._body = null;
 
@@ -255,7 +243,7 @@ export class RigidBody extends Component {
 
     /**获得原始body对象 */
     getBody(): any {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         return this._body;
     }
 
@@ -265,7 +253,7 @@ export class RigidBody extends Component {
 
     /**[只读]获得原始body对象 */
     get body(): any {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         return this._body;
     }
 
@@ -275,7 +263,7 @@ export class RigidBody extends Component {
      * @param	force	施加的力，如{x:0.1,y:0.1}
      */
     applyForce(position: any, force: any): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         this._body.ApplyForce(force, position);
     }
 
@@ -284,7 +272,7 @@ export class RigidBody extends Component {
      * @param	force	施加的力，如{x:0.1,y:0.1}
      */
     applyForceToCenter(force: any): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         this._body.ApplyForceToCenter(force);
     }
 
@@ -294,7 +282,7 @@ export class RigidBody extends Component {
      * @param	impulse	施加的速度冲量，如{x:0.1,y:0.1}
      */
     applyLinearImpulse(position: any, impulse: any): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         this._body.ApplyLinearImpulse(impulse, position);
     }
 
@@ -303,7 +291,7 @@ export class RigidBody extends Component {
      * @param	impulse	施加的速度冲量，如{x:0.1,y:0.1}
      */
     applyLinearImpulseToCenter(impulse: any): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         this._body.ApplyLinearImpulseToCenter(impulse);
     }
 
@@ -312,7 +300,7 @@ export class RigidBody extends Component {
      * @param	torque	施加的扭矩
      */
     applyTorque(torque: number): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         this._body.ApplyTorque(torque);
     }
 
@@ -321,7 +309,7 @@ export class RigidBody extends Component {
      * @param	velocity
      */
     setVelocity(velocity: any): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         this._body.SetLinearVelocity(velocity);
     }
 
@@ -330,7 +318,7 @@ export class RigidBody extends Component {
      * @param	value 单位为弧度
      */
     setAngle(value: any): void {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         this._body.SetAngle(value);
         this._body.SetAwake(true);
     }
@@ -344,7 +332,7 @@ export class RigidBody extends Component {
      * 获得质心的相对节点0,0点的位置偏移
      */
     getCenter(): any {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         var p: Point = this._body.GetLocalCenter();
         p.x = p.x * IPhysics.Physics.PIXEL_RATIO;
         p.y = p.y * IPhysics.Physics.PIXEL_RATIO;
@@ -355,7 +343,7 @@ export class RigidBody extends Component {
      * 获得质心的世界坐标，相对于Physics.I.worldRoot节点
      */
     getWorldCenter(): any {
-        if (!this._body) this._onAwake();
+        if (!this._body) this.onAwake();
         var p: Point = this._body.GetWorldCenter();
         p.x = p.x * IPhysics.Physics.PIXEL_RATIO;
         p.y = p.y * IPhysics.Physics.PIXEL_RATIO;

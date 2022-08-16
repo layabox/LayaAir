@@ -1,7 +1,7 @@
 import { Sprite } from "../../display/Sprite";
 import { Byte } from "../../utils/Byte";
 import { Handler } from "../../utils/Handler";
-import { Const } from "../../Const";
+import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
 import { ILaya } from "../../../ILaya";
 import { Matrix } from "../../maths/Matrix";
@@ -96,7 +96,7 @@ export class MovieClip extends Sprite {
         if (!parentMovieClip) {
             this._movieClipList = [this];
             this._isRoot = true;
-            this._setBitUp(Const.DISPLAY);
+            this._setBitUp(NodeFlags.DISPLAY);
         } else {
             this._isRoot = false;
             this._movieClipList = parentMovieClip._movieClipList;

@@ -1,4 +1,4 @@
-import { IClone } from "../../IClone";
+import { IClone } from "../../../../utils/IClone";
 import { GradientVelocity } from "./GradientVelocity";
 
 /**

@@ -3,9 +3,9 @@ import { Node } from "./Node";
 import { Config } from "./../../Config";
 import { Input } from "./Input";
 import { SpriteConst } from "./SpriteConst";
-import { Const } from "../Const"
+import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
-import { MouseManager } from "../events/MouseManager"
+import { InputManager } from "../events/InputManager"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Render } from "../renders/Render"
@@ -21,6 +21,8 @@ import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Stat } from "../utils/Stat";
 import { ILaya } from "../../ILaya";
 import { LayaGL } from "../layagl/LayaGL";
+import { ComponentDriver } from "../components/ComponentDriver";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * stage大小经过重新调整时进行调度。
@@ -155,19 +157,16 @@ export class Stage extends Sprite {
     /**@internal webgl Color*/
     _wgColor: number[] | null = [0, 0, 0, 1];
     /**@internal */
-    _scene3Ds: any[] = [];
+    _scene3Ds: Node[] = [];
 
     /**@private */
     private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
     /**@private */
     private _globalRepaintGet: boolean = false;		// 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
 
-    /**@internal */
-    _3dUI: Sprite[] = [];
-    /**@internal */
-    _curUIBase: Sprite | null = null; 		// 给鼠标事件capture用的。用来找到自己的根。因为3d界面的根不是stage（界面链会被3d对象打断）
     /**使用物理分辨率作为canvas大小，会改进渲染效果，但是会降低性能*/
     useRetinalCanvas: boolean = false;
+
     /**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
     constructor() {
         super();
@@ -176,8 +175,8 @@ export class Stage extends Sprite {
         this.mouseEnabled = true;
         this.hitTestPrior = true;
         this.autoSize = false;
-        this._setBit(Const.DISPLAYED_INSTAGE, true);
-        this._setBit(Const.ACTIVE_INHIERARCHY, true);
+        this._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
+        this._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._isFocused = true;
         this._isVisibility = true;
 
@@ -251,6 +250,8 @@ export class Stage extends Sprite {
 
         this.on(Event.MOUSE_MOVE, this, this._onmouseMove);
         if (Browser.onMobile) this.on(Event.MOUSE_DOWN, this, this._onmouseMove);
+
+        this._componentDriver = new ComponentDriver();
     }
 
     /**
@@ -258,7 +259,7 @@ export class Stage extends Sprite {
      * 在移动端输入时，输入法弹出期间不进行画布尺寸重置。
      */
     private _isInputting(): boolean {
-        return (Browser.onMobile && Input.isInputting);
+        return (Browser.onMobile && InputManager.isTextInputting);
     }
 
     /**@inheritDoc @override*/
@@ -468,6 +469,7 @@ export class Stage extends Sprite {
         mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
         this.visible = true;
         this._repaint |= SpriteConst.REPAINT_CACHE;
+
         this.event(Event.RESIZE);
     }
 
@@ -555,12 +557,12 @@ export class Stage extends Sprite {
 
     /**鼠标在 Stage 上的 X 轴坐标。@override*/
     get mouseX(): number {
-        return Math.round(MouseManager.instance.mouseX / this.clientScaleX);
+        return Math.round(InputManager.mouseX / this.clientScaleX);
     }
 
     /**鼠标在 Stage 上的 Y 轴坐标。@override*/
     get mouseY(): number {
-        return Math.round(MouseManager.instance.mouseY / this.clientScaleY);
+        return Math.round(InputManager.mouseY / this.clientScaleY);
     }
 
     /**@inheritDoc @override*/
@@ -662,15 +664,17 @@ export class Stage extends Sprite {
 
     /**@inheritDoc @override*/
     render(context: Context, x: number, y: number): void {
-        if (((<any>window)).conch) {
+        if (LayaEnv.isConch) {
             this.renderToNative(context, x, y);
             return;
         }
 
+        let delta: number = ILaya.timer._delta / 1000;
         if (this._frameRate === Stage.FRAME_SLEEP) {
             var now: number = Browser.now();
-            if (now - this._frameStartTime >= 1000) this._frameStartTime = now;
-            else return;
+            if (now - this._frameStartTime < 1000)
+                return;
+            this._frameStartTime = now;
         } else {
             if (!this._visible) {
                 this._renderCount++;
@@ -678,6 +682,7 @@ export class Stage extends Sprite {
                     CallLater.I._update();
                     Stat.loopCount++;
                     RenderInfo.loopCount = Stat.loopCount;
+                    this._runComponents();
                     this._updateTimers();
                 }
                 return;
@@ -700,28 +705,39 @@ export class Stage extends Sprite {
         RenderInfo.loopCount = Stat.loopCount;
 
         if (this.renderingEnabled) {
-            for (var i: number = 0, n: number = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
-                this._scene3Ds[i]._update();
+            for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
+                (<any>this._scene3Ds[i])._update(delta);
+            this._runComponents();
+
+            this._componentDriver.callPreRender();
+
             context.clear();
             super.render(context, x, y);
             Stat._StatRender.renderNotCanvas(context, x, y);
+
+            this._componentDriver.callPostRender();
         }
+        else
+            this._runComponents();
 
         if (this.renderingEnabled) {
             Stage.clear(this._bgColor);
             context.flush();
             VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
         }
+
         this._updateTimers();
     }
 
     renderToNative(context: Context, x: number, y: number): void {
         this._renderCount++;
+
         if (!this._visible) {
             if (this._renderCount % 5 === 0) {
                 CallLater.I._update();
                 Stat.loopCount++;
                 RenderInfo.loopCount = Stat.loopCount;
+                this._runComponents();
                 this._updateTimers();
             }
             return;
@@ -734,12 +750,22 @@ export class Stage extends Sprite {
 
         //render
         if (this.renderingEnabled) {
-            for (var i: number = 0, n: number = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
-                this._scene3Ds[i]._update();
+            for (let i: number = 0, n: number = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
+                (<any>this._scene3Ds[i])._update();
+
+            this._runComponents();
+
+            this._componentDriver.callPreRender();
+
             context.clear();
             super.render(context, x, y);
             Stat._StatRender.renderNotCanvas(context, x, y);
+
+            this._componentDriver.callPostRender();
         }
+        else
+            this._runComponents();
+
         //commit submit
         if (this.renderingEnabled) {
             Stage.clear(this._bgColor);
@@ -749,12 +775,16 @@ export class Stage extends Sprite {
         this._updateTimers();
     }
 
+    private _runComponents() {
+        this._componentDriver.callStart();
+        this._componentDriver.callUpdate();
+        this._componentDriver.callLateUpdate();
+        this._componentDriver.callDestroy();
+    }
+
     private _updateTimers(): void {
         ILaya.systemTimer._update();
-        ILaya.startTimer._update();
         ILaya.physicsTimer._update();
-        ILaya.updateTimer._update();
-        ILaya.lateTimer._update();
         ILaya.timer._update();
     }
 
@@ -783,7 +813,7 @@ export class Stage extends Sprite {
     }
 
     get frameRate(): string {
-        if (!ILaya.Render.isConchApp) {
+        if (!LayaEnv.isConch) {
             return this._frameRate;
         } else {
             return ((<any>this))._frameRateNative;
@@ -791,7 +821,7 @@ export class Stage extends Sprite {
     }
 
     set frameRate(value: string) {
-        if (!ILaya.Render.isConchApp) {
+        if (!LayaEnv.isConch) {
             this._frameRate = value;
         } else {
             var c: any = ((<any>window)).conch;
@@ -852,23 +882,5 @@ export class Stage extends Sprite {
     /**@private */
     setGlobalRepaint(): void {
         this._globalRepaintSet = true;
-    }
-
-    /**@private */
-    add3DUI(uibase: Sprite): void {
-        var uiroot: Sprite = ((<any>uibase)).rootView;
-        if (this._3dUI.indexOf(uiroot) >= 0) return;
-        this._3dUI.push(uiroot);
-    }
-
-    /**@private */
-    remove3DUI(uibase: Sprite): boolean {
-        var uiroot: Sprite = ((<any>uibase)).rootView;
-        var p: number = this._3dUI.indexOf(uiroot);
-        if (p >= 0) {
-            this._3dUI.splice(p, 1);
-            return true;
-        }
-        return false;
     }
 }

@@ -1,6 +1,5 @@
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
-import { MouseManager } from "../events/MouseManager";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { ILaya } from "./../../ILaya";
@@ -39,7 +38,6 @@ export class Dragging {
     private _offsetX: number;
     private _offsetY: number;
     private _offsets: any[];
-    private _disableMouseEvent: boolean;
     private _tween: Tween;
     private _parent: Sprite;
 
@@ -51,10 +49,9 @@ export class Dragging {
      * @param	elasticDistance 橡皮筋最大值。
      * @param	elasticBackTime 橡皮筋回弹时间，单位为毫秒。
      * @param	data 事件携带数据。
-     * @param	disableMouseEvent 鼠标事件是否有效。
      * @param	ratio 惯性阻尼系数
      */
-    start(target: Sprite, area: Rectangle, hasInertia: boolean, elasticDistance: number, elasticBackTime: number, data: any, disableMouseEvent: boolean, ratio: number = 0.92): void {
+    start(target: Sprite, area: Rectangle, hasInertia: boolean, elasticDistance: number, elasticBackTime: number, data: any, ratio: number = 0.92): void {
         this.clearTimer();
 
         this.target = target;
@@ -63,7 +60,6 @@ export class Dragging {
         this.elasticDistance = area ? elasticDistance : 0;
         this.elasticBackTime = elasticBackTime;
         this.data = data;
-        this._disableMouseEvent = disableMouseEvent;
         this.ratio = ratio;
 
         this._parent = (target.parent as Sprite);
@@ -97,7 +93,6 @@ export class Dragging {
      */
     stop(): void {
         if (this._dragging) {
-            MouseManager.instance.disableMouseEvent = false;
             ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp);
             ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp);
             this._dragging = false;
@@ -122,7 +117,6 @@ export class Dragging {
                 this._offsets || (this._offsets = []);
                 this._offsets.length = 0;
                 this.target.event(Event.DRAG_START, this.data);
-                MouseManager.instance.disableMouseEvent = this._disableMouseEvent;
                 //TODO:
                 //target._set$P("$_MOUSEDOWN", false);
             } else return;
@@ -181,7 +175,6 @@ export class Dragging {
      * @param	e Event 对象。
      */
     private onStageMouseUp(e: Event): void {
-        MouseManager.instance.disableMouseEvent = false;
         ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp);
         ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp);
         //Laya.stage.off(Event.MOUSE_MOVE, this, onStageMouseMove);

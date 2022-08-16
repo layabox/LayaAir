@@ -1,7 +1,7 @@
 import { Component } from "../../components/Component";
+import { NodeFlags } from "../../Const";
 import { Loader } from "../../net/Loader";
 import { Stat } from "../../utils/Stat";
-import { Timer } from "../../utils/Timer";
 import { AnimationClip } from "../animation/AnimationClip";
 import { AnimationEvent } from "../animation/AnimationEvent";
 import { AnimatorStateScript } from "../animation/AnimatorStateScript";
@@ -9,7 +9,6 @@ import { KeyframeNode } from "../animation/KeyframeNode";
 import { KeyframeNodeList } from "../animation/KeyframeNodeList";
 import { Material } from "../core/material/Material";
 import { RenderableSprite3D } from "../core/RenderableSprite3D";
-import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Color } from "../math/Color";
 import { ConchQuaternion } from "../math/Native/ConchQuaternion";
@@ -25,7 +24,6 @@ import { AnimatorResource } from "./AnimatorResource";
 import { AnimatorState } from "./AnimatorState";
 import { AvatarMask } from "./AvatarMask";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
-import { Script3D } from "./Script3D";
 
 /**
  * 动画更新模式
@@ -234,7 +232,6 @@ export class Animator extends Component {
         var frameNodesCount = frameNodes!.count;
         var nodeOwners: KeyframeNodeOwner[] = clipStateInfo._nodeOwners;
         nodeOwners.length = frameNodesCount;
-        //Find node through path
         for (var i: number = 0; i < frameNodesCount; i++) {
             var node: KeyframeNode = frameNodes!.getNodeByIndex(i);
             //var property: any = this._avatar ? this._avatarNodeMap[this._avatar._rootNode.name!] : this.owner;//如果有avatar需使用克隆节点
@@ -249,11 +246,10 @@ export class Animator extends Component {
                         break;
                 }
             }
-            //
+
             if (property) {
                 var propertyOwner: string = node.propertyOwner;
                 const oriProperty = property;
-                //
                 (propertyOwner) && (property = property[propertyOwner]);
                 if (!property) {
                     property = AnimatorResource.getAnimatorResource(oriProperty, propertyOwner);
@@ -301,7 +297,7 @@ export class Animator extends Component {
         if (playState._finish) {
             var scripts: AnimatorStateScript[] | null = animatorState._scripts;
             if (scripts) {
-                for (var i = 0, n = scripts.length; i < n; i++) {
+                for (let i = 0, n = scripts.length; i < n; i++) {
                     scripts[i].onStateExit();
                 }
             }
@@ -311,15 +307,18 @@ export class Animator extends Component {
     /**
      * @internal
      */
-    private _eventScript(scripts: Script3D[], events: AnimationEvent[], eventIndex: number, endTime: number, front: boolean): number {
+    private _eventScript(events: AnimationEvent[], eventIndex: number, endTime: number, front: boolean): number {
+        let scripts = this.owner.components;
         if (front) {
-            for (var n = events.length; eventIndex < n; eventIndex++) {
-                var event = events[eventIndex];
+            for (let n = events.length; eventIndex < n; eventIndex++) {
+                let event = events[eventIndex];
                 if (event.time <= endTime) {
-                    for (var j = 0, m = scripts.length; j < m; j++) {
-                        var script = scripts[j];
-                        var fun: Function = (script as any)[event.eventName];
-                        (fun) && (fun.apply(script, event.params));
+                    for (let j = 0, m = scripts.length; j < m; j++) {
+                        let script = scripts[j];
+                        if (script._isScript) {
+                            let fun: Function = (script as any)[event.eventName];
+                            (fun) && (fun.apply(script, event.params));
+                        }
                     }
                 } else {
                     break;
@@ -327,12 +326,14 @@ export class Animator extends Component {
             }
         } else {
             for (; eventIndex >= 0; eventIndex--) {
-                event = events[eventIndex];
+                let event = events[eventIndex];
                 if (event.time >= endTime) {
-                    for (j = 0, m = scripts.length; j < m; j++) {
-                        script = scripts[j];
-                        fun = (script as any)[event.eventName];
-                        (fun) && (fun.apply(script, event.params));
+                    for (let j = 0, m = scripts.length; j < m; j++) {
+                        let script = scripts[j];
+                        if (script._isScript) {
+                            let fun = (script as any)[event.eventName];
+                            (fun) && (fun.apply(script, event.params));
+                        }
                     }
                 } else {
                     break;
@@ -346,38 +347,38 @@ export class Animator extends Component {
      * @internal
      */
     private _updateEventScript(stateInfo: AnimatorState, playStateInfo: AnimatorPlayState): void {
-        var scripts = (<Sprite3D>this.owner)._scripts;
-        if (scripts) {//TODO:play是否也换成此种计算
-            var clip = stateInfo._clip;
-            var events = clip!._animationEvents;
-            var clipDuration = clip!._duration;
-            var elapsedTime = playStateInfo._elapsedTime;
-            var time = elapsedTime % clipDuration;
-            var loopCount = Math.abs(Math.floor(elapsedTime / clipDuration) - Math.floor(playStateInfo._lastElapsedTime / clipDuration));//backPlay可能为负数
+        if (!this.owner._getBit(NodeFlags.HAS_SCRIPT))
+            return;
 
-            var frontPlay = playStateInfo._elapsedTime >= playStateInfo._lastElapsedTime;
-            if (playStateInfo._lastIsFront !== frontPlay) {
-                if (frontPlay)
-                    playStateInfo._playEventIndex++;
-                else
-                    playStateInfo._playEventIndex--;
-                playStateInfo._lastIsFront = frontPlay;
-            }
-            var preEventIndex = playStateInfo._playEventIndex;
-            if (frontPlay) {
-                var newEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
-                (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
-                for (var i = 0, n = loopCount - 1; i < n; i++)
-                    this._eventScript(scripts, events, 0, clipDuration, true);
-                (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, 0, time, true));//if need cross loop,'time' must large than 0
-            } else {
-                var newEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
-                (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
-                var eventIndex = events.length - 1;
-                for (i = 0, n = loopCount - 1; i < n; i++)
-                    this._eventScript(scripts, events, eventIndex, 0, false);
-                (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, eventIndex, time, false));//if need cross loop,'time' must large than 0
-            }
+        let clip = stateInfo._clip;
+        let events = clip!._animationEvents;
+        let clipDuration = clip!._duration;
+        let elapsedTime = playStateInfo._elapsedTime;
+        let time = elapsedTime % clipDuration;
+        let loopCount = Math.abs(Math.floor(elapsedTime / clipDuration) - Math.floor(playStateInfo._lastElapsedTime / clipDuration));//backPlay可能为负数
+
+        let frontPlay = playStateInfo._elapsedTime >= playStateInfo._lastElapsedTime;
+        if (playStateInfo._lastIsFront !== frontPlay) {
+            if (frontPlay)
+                playStateInfo._playEventIndex++;
+            else
+                playStateInfo._playEventIndex--;
+            playStateInfo._lastIsFront = frontPlay;
+        }
+        let preEventIndex = playStateInfo._playEventIndex;
+        if (frontPlay) {
+            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
+            for (let i = 0, n = loopCount - 1; i < n; i++)
+                this._eventScript(events, 0, clipDuration, true);
+            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, 0, time, true));//if need cross loop,'time' must large than 0
+        } else {
+            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
+            let eventIndex = events.length - 1;
+            for (let i = 0, n = loopCount - 1; i < n; i++)
+                this._eventScript(events, eventIndex, 0, false);
+            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, eventIndex, time, false));//if need cross loop,'time' must large than 0
         }
     }
 
@@ -762,7 +763,7 @@ export class Animator extends Component {
                     this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, rotationEuler, localEuler);
                     pro.localRotationEuler = localEuler;
                     break;
-                case KeyFrameValueType.Color: 
+                case KeyFrameValueType.Color:
                     //TODO
                     break;
                 case KeyFrameValueType.Vector2:
@@ -1020,26 +1021,16 @@ export class Animator extends Component {
         }
     }
 
-    /**
-     * @inheritDoc
-     * @internal
-     * @override
-     */
-    protected _onDestroy(): void {
-        for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++)
+
+    onDestroy(): void {
+        for (let i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i]._removeReference();
     }
 
-    /**
-     * @inheritDoc
-     * @internal
-     * @override
-     */
-    _onEnable(): void {
-        (this.owner.scene) && (this.owner.scene as Scene3D)._componentManager.addAnimator(this);
-        for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
+    onEnable(): void {
+        for (let i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
-                var defaultClip: AnimatorState = this.getDefaultState(i);
+                let defaultClip: AnimatorState = this.getDefaultState(i);
                 (defaultClip) && (this.play(null, i, 0));
             }
         }
@@ -1059,15 +1050,6 @@ export class Animator extends Component {
                 break;
         }
         return ret;
-    }
-
-    /**
-     * @inheritDoc
-     * @internal
-     * @override
-     */
-    protected _onDisable(): void {
-        (<Scene3D>this.owner._scene) && (<Scene3D>this.owner._scene)._componentManager.removeAnimator(this);
     }
 
     /**
@@ -1151,9 +1133,9 @@ export class Animator extends Component {
     /**
      * @internal
      */
-    _update(): void {
-        var timer: Timer = ((<Scene3D>this.owner._scene)).timer;
-        var delta: number = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale
+    onUpdate(): void {
+        let timer = this.owner._scene.timer;
+        let delta = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale
         delta = this._applyUpdateMode(delta);
         if (this._speed === 0 || delta === 0)//delta为0无需更新,可能造成crossWeight计算值为NaN
             return;
@@ -1368,7 +1350,7 @@ export class Animator extends Component {
             console.warn("Invalid layerIndex " + layerIndex + ".");
         }
         if (this.owner._scene) {
-            this._update();
+            this.onUpdate();
         }
     }
 

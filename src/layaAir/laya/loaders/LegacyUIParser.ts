@@ -11,7 +11,7 @@ import { HitArea } from "../utils/HitArea";
 import { Pool } from "../utils/Pool";
 import { WeakObject } from "../utils/WeakObject";
 import { Handler } from "laya/utils/Handler";
-import { Const } from "../Const";
+import { NodeFlags } from "../Const";
 
 /**
  * 模板，预制件
@@ -127,7 +127,7 @@ export class LegacyUIParser {
 
         //设置组件
         tInitTool.finish();
-        root._setBit(Const.NOT_READY, false);
+        root._setBit(NodeFlags.NOT_READY, false);
         if (root.parent && root.parent.activeInHierarchy && root.active)
             root._processActive();
         return root;
@@ -181,7 +181,7 @@ export class LegacyUIParser {
                     //处理脚本
                     if (node.type == "Script") {
                         if (tChild instanceof Component) {
-                            comp._addComponentInstance(tChild);
+                            comp.addComponentInstance(tChild);
                         } else {
                             //兼容老版本
                             if ("owner" in tChild) {

@@ -18,7 +18,6 @@ import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { Event } from "laya/events/Event";
-import { MouseManager } from "laya/events/MouseManager";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -144,8 +143,8 @@ export class CameraRay {
 	}
 
 	private onMouseDown(): void {
-		this.posX = this.point.x = MouseManager.instance.mouseX;
-		this.posY = this.point.y = MouseManager.instance.mouseY;
+		this.posX = this.point.x = Laya.stage.mouseX;
+		this.posY = this.point.y = Laya.stage.mouseY;
 		//产生射线
 		this.camera.viewportPointToRay(this.point, this._ray);
 		//拿到射线碰撞的物体

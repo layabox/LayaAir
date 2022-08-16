@@ -1,13 +1,13 @@
-import { IClone } from "../core/IClone"
+import { IClone } from "../../utils/IClone"
 
 /**
  * <code>Vector2</code> 类用于创建二维向量。
  */
 export class Vector2 implements IClone {
     /**零向量,禁止修改*/
-    static ZERO: Vector2 = new Vector2(0.0, 0.0);
+    static readonly ZERO: Readonly<Vector2> = new Vector2(0.0, 0.0);
     /**一向量,禁止修改*/
-    static ONE: Vector2 = new Vector2(1.0, 1.0);
+    static readonly ONE: Readonly<Vector2> = new Vector2(1.0, 1.0);
 
     /**X轴坐标*/
     x: number;

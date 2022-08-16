@@ -2,7 +2,8 @@ import { AtlasGrid } from "./AtlasGrid";
 import { TextTexture } from "./TextTexture";
 import { Point } from "../../maths/Point"
 import { CharRenderInfo } from "./CharRenderInfo"
-import { ILaya } from "../../../ILaya";
+import { TextRender } from "./TextRender";
+
 /**
  *  文字贴图的大图集。
  */
@@ -16,7 +17,7 @@ export class TextAtlas {
     static atlasGridW: number = 16;
 
     constructor() {
-        this.texHeight = this.texWidth = ILaya.TextRender.atlasWidth;
+        this.texHeight = this.texWidth = TextRender.atlasWidth;
         this.texture = TextTexture.getTextTexture(this.texWidth, this.texHeight);
         if (this.texWidth / TextAtlas.atlasGridW > 256) {
             TextAtlas.atlasGridW = Math.ceil(this.texWidth / 256);

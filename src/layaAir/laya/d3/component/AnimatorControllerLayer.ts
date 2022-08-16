@@ -1,5 +1,5 @@
 import { AnimationClip } from "../animation/AnimationClip";
-import { IClone } from "../core/IClone";
+import { IClone } from "../../utils/IClone";
 import { Animator } from "./Animator";
 import { AnimatorPlayState } from "./AnimatorPlayState";
 import { AnimatorState } from "./AnimatorState";

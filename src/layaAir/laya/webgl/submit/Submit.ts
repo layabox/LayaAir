@@ -1,12 +1,11 @@
+import { Const } from "../../Const";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Context } from "../../resource/Context";
-import { Stat } from "../../utils/Stat";
 import { BlendMode } from "../canvas/BlendMode";
 import { Value2D } from "../shader/d2/value/Value2D";
-import { CONST3D2D } from "../utils/CONST3D2D";
 import { Mesh2D } from "../utils/Mesh2D";
 import { SubmitBase } from "./SubmitBase";
 
@@ -75,7 +74,7 @@ export class Submit extends SubmitBase {
         o._ref = 1;
         o._mesh = mesh;
         o._key.clear();
-        o._startIdx = mesh.indexNum * CONST3D2D.BYTES_PIDX;
+        o._startIdx = mesh.indexNum * Const.BYTES_PIDX;
         o._numEle = 0;
         var blendType = context._nBlendType;
         o._blendFn = context._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];

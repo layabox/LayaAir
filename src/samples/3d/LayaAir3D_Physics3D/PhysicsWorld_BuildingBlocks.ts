@@ -17,7 +17,6 @@ import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-import { MouseManager } from "laya/events/MouseManager";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -45,11 +44,11 @@ export class PhysicsWorld_BuildingBlocks {
 	private mesh2: Mesh;
 
 	constructor() {
+		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-			Config3D.useCannonPhysics = false;
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
@@ -138,8 +137,8 @@ export class PhysicsWorld_BuildingBlocks {
 	}
 
 	onMouseDown(): void {
-		this.posX = this.point.x = MouseManager.instance.mouseX;
-		this.posY = this.point.y = MouseManager.instance.mouseY;
+		this.posX = this.point.x = Laya.stage.mouseX;
+		this.posY = this.point.y = Laya.stage.mouseY;
 		this.camera.viewportPointToRay(this.point, this.ray);
 		this.scene.physicsSimulation.rayCast(this.ray, this._outHitResult);
 		if (this._outHitResult.succeeded) {
@@ -156,13 +155,13 @@ export class PhysicsWorld_BuildingBlocks {
 
 	onMouseMove(): void {
 
-		this.delX = MouseManager.instance.mouseX - this.posX;
-		this.delY = MouseManager.instance.mouseY - this.posY;
+		this.delX = Laya.stage.mouseX - this.posX;
+		this.delY = Laya.stage.mouseY - this.posY;
 		if (this.hasSelectedSprite) {
 			this.hasSelectedRigidBody.linearVelocity = new Vector3(this.delX / 4, 0, this.delY / 4);
 		}
-		this.posX = MouseManager.instance.mouseX;
-		this.posY = MouseManager.instance.mouseY;
+		this.posX = Laya.stage.mouseX;
+		this.posY = Laya.stage.mouseY;
 	}
 
 	onMouseUp(): void {

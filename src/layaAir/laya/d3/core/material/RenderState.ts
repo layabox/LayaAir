@@ -1,4 +1,4 @@
-import { IClone } from "../IClone"
+import { IClone } from "../../../utils/IClone"
 import { Vector4 } from "../../math/Vector4"
 import { Vector3 } from "../../math/Vector3";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";

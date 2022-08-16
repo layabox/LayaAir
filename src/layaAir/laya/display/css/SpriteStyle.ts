@@ -7,7 +7,8 @@ import { Pool } from "../../utils/Pool"
  */
 export class SpriteStyle {
 
-    static EMPTY: SpriteStyle = new SpriteStyle();
+    static readonly EMPTY: Readonly<SpriteStyle> = new SpriteStyle();
+
     /**水平缩放 */
     scaleX: number;
     /**垂直缩放 */

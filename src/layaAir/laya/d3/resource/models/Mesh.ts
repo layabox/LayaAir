@@ -7,7 +7,7 @@ import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
 import { BufferState } from "../../core/BufferState";
-import { IClone } from "../../core/IClone";
+import { IClone } from "../../../utils/IClone";
 import { InstanceRenderElement } from "../../core/render/InstanceRenderElement";
 import { RenderBounds } from "../../core/RenderBounds";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";

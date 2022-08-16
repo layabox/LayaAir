@@ -3,17 +3,15 @@ import { SubmitKey } from "./SubmitKey";
 import { ColorFilter } from "../../filters/ColorFilter"
 import { Context } from "../../resource/Context"
 import { RenderTexture2D } from "../../resource/RenderTexture2D"
-import { Stat } from "../../utils/Stat"
 import { BlendMode } from "../canvas/BlendMode"
 import { TextureSV } from "../shader/d2/value/TextureSV"
 import { Value2D } from "../shader/d2/value/Value2D"
-import { CONST3D2D } from "../utils/CONST3D2D"
 import { Mesh2D } from "../utils/Mesh2D"
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { LayaGL } from "../../layagl/LayaGL";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
-
+import { Const } from "../../Const";
 
 export class SubmitTarget implements ISubmit {
     /**@internal */
@@ -72,7 +70,7 @@ export class SubmitTarget implements ISubmit {
         var o: SubmitTarget = (SubmitTarget.POOL as any)._length ? SubmitTarget.POOL[--(SubmitTarget.POOL as any)._length] : new SubmitTarget();
         o._mesh = mesh;
         o.srcRT = rt;
-        o._startIdx = mesh.indexNum * CONST3D2D.BYTES_PIDX;
+        o._startIdx = mesh.indexNum * Const.BYTES_PIDX;
         o._ref = 1;
         o._key.clear();
         o._numEle = 0;

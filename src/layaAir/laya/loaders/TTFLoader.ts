@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
 import { Browser } from "../utils/Browser";
 import { Handler } from "../utils/Handler";
 
@@ -20,7 +21,7 @@ export class TTFLoader {
         this._url = fontPath;
         var tArr: any[] = fontPath.toLowerCase().split(".ttf")[0].split("/");
         this.fontName = tArr[tArr.length - 1];
-        if (ILaya.Render.isConchApp) {
+        if (LayaEnv.isConch) {
             ILaya.loader.fetch(this._url, "arraybuffer").then(data => {
                 if (data)
                     (window as any)["conchTextCanvas"].setFontFaceFromBuffer(this.fontName, data);

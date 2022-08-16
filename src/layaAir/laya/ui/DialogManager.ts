@@ -1,5 +1,5 @@
 import { UIConfig } from "./../../UIConfig";
-import { Const } from "../Const"
+import { NodeFlags } from "../Const"
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Box } from "./Box"
@@ -112,7 +112,7 @@ export class DialogManager extends Sprite {
         this._clearDialogEffect(dialog);
         if (dialog.isPopupCenter) this._centerDialog(dialog);
         this.addChild(dialog);
-        if (dialog.isModal || this._getBit(Const.HAS_ZORDER)) ILaya.timer.callLater(this, this._checkMask);
+        if (dialog.isModal || this._getBit(NodeFlags.HAS_ZORDER)) ILaya.timer.callLater(this, this._checkMask);
         if (showEffect && dialog.popupEffect != null) dialog.popupEffect.runWith(dialog);
         else this.doOpen(dialog);
         this.event(Event.OPEN);

@@ -24,11 +24,11 @@ export class Radio extends Button {
         this._autoSize = false;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		 * */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+    /**
+     * @inheritDoc 
+     * @override
+     * */
+    destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._value = null;
     }

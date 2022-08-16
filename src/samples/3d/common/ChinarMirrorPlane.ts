@@ -1,4 +1,3 @@
-import { Script3D } from "laya/d3/component/Script3D";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Camera } from "laya/d3/core/Camera";
 import { Vector3 } from "laya/d3/math/Vector3";
@@ -9,8 +8,9 @@ import { Vector4 } from "laya/d3/math/Vector4";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Color } from "laya/d3/math/Color";
+import { Script } from "laya/components/Script";
 
-export class ChinarMirrorPlane extends Script3D {
+export class ChinarMirrorPlane extends Script {
 
     //这里的mesh必须是-5-5的plane板，修改了mesh的话需要修改这里
     public static oriPa: Vector3 = new Vector3(5, 0, -5);

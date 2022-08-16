@@ -1,4 +1,4 @@
-import { Laya } from "../../Laya";
+import { ILaya } from "../../ILaya";
 import { Component } from "../components/Component";
 import { IPhysics } from "./IPhysics";
 import { RigidBody } from "./RigidBody";
@@ -27,6 +27,12 @@ export class ColliderBase extends Component {
     /**[只读]刚体引用*/
     rigidBody: RigidBody;
 
+    constructor() {
+        super();
+
+        this._singleton = false;
+    }
+
     /**@private 获取碰撞体信息*/
     protected getDef(): any {
         if (!this._def) {
@@ -40,17 +46,12 @@ export class ColliderBase extends Component {
         }
         return this._def;
     }
-    /**
-     * @internal
-     * @override
-     */
-    _onEnable(): void {
-        if(this.rigidBody){
+
+    onEnable(): void {
+        if (this.rigidBody)
             this.refresh();
-        }
-        else{
-            Laya.systemTimer.callLater(this, this._checkRigidBody);
-        }
+        else
+            ILaya.systemTimer.callLater(this, this._checkRigidBody);
     }
 
     private _checkRigidBody(): void {
@@ -62,11 +63,8 @@ export class ColliderBase extends Component {
             }
         }
     }
-    /**
-     * @internal
-     * @override
-     */
-    protected _onDestroy(): void {
+
+    onDestroy(): void {
         if (this.rigidBody) {
             if (this.fixture) {
                 if (this.fixture.GetBody() == this.rigidBody._getOriBody()) {
@@ -163,13 +161,5 @@ export class ColliderBase extends Component {
      */
     resetShape(re: boolean = true): void {
 
-    }
-
-    /**
-     * 获取是否为单实例组件。
-     * @override
-     */
-    get isSingleton(): boolean {
-        return false;
     }
 }

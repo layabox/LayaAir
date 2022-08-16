@@ -1,6 +1,6 @@
 import { AnimationClip } from "../animation/AnimationClip";
 import { AnimatorStateScript } from "../animation/AnimatorStateScript";
-import { IClone } from "../core/IClone";
+import { IClone } from "../../utils/IClone";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

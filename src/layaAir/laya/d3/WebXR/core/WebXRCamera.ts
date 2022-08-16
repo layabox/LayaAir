@@ -135,7 +135,7 @@ export class WebXRCamera extends Camera {
 
 		context.viewport = viewport;
 		this._prepareCameraToRender();
-		var multiLighting: boolean = Config3D._config._multiLighting;
+		var multiLighting: boolean = Config3D._multiLighting;
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
 		scene._preCulling(context, this);
 
@@ -161,7 +161,7 @@ export class WebXRCamera extends Camera {
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
 		this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
 		scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
-		scene._componentManager.callPostRenderScript();//TODO:duo相机是否重复
+		scene._componentDriver.callPostRender();//TODO:duo相机是否重复
 		this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
 		(renderTex) && (renderTex._end());
 		//PostProcess TODO

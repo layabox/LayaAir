@@ -63,6 +63,7 @@ export class PhysicsWorld_RayShapeCast {
 	private stype:any = 0;
 	constructor() {
 		//初始化引擎
+		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			//设置舞台
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
@@ -71,7 +72,6 @@ export class PhysicsWorld_RayShapeCast {
 			Stat.show();
 			//创建场景
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-			Config3D.useCannonPhysics = false;
 			//创建相机
 			var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
 			camera.transform.translate(new Vector3(0, 8, 20));

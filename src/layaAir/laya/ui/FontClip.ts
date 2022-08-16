@@ -217,24 +217,24 @@ export class FontClip extends Clip {
     get height() {
         return super.height;
     }
-		/**
-		 * @override
-		 */
-		/*override*/ protected measureWidth(): number {
+    /**
+     * @override
+     */
+    protected measureWidth(): number {
         return this._wordsW;
     }
-		/**
-		 * @override
-		 */
-		/*override*/ protected measureHeight(): number {
+    /**
+     * @override
+     */
+    protected measureHeight(): number {
         return this._wordsH;
     }
-		/**
-		 * 
-		 * @param destroyChild 
-		 * @override
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+    /**
+     * 
+     * @param destroyChild 
+     * @override
+     */
+    destroy(destroyChild: boolean = true): void {
         this._valueArr = null;
         this._indexMap = null;
         this.graphics.clear(true);

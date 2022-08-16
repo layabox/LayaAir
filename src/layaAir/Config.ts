@@ -59,13 +59,24 @@ export class Config {
 
     /** 是否允许GPUInstance动态合并,仅对3D有效。*/
     static allowGPUInstanceDynamicBatch: boolean = true;
-    /** 是否允许静态合并 */
-    static enableStaticBatch: boolean = true;
 
     static useRetinalCanvas: boolean = false;
 
     /** 限制fps */
     static FPS = 60;
+
+    /**默认文本大小，默认为12*/
+    static defaultFontSize: number = 12;
+    /**默认文本字体，默认为Arial*/
+    static defaultFont: string = "Arial";
+
+    /**WebGL下，文字会被拆分为单个字符进行渲染，一些语系不能拆开显示，比如阿拉伯文，这时可以设置isComplexText=true，禁用文字拆分。*/
+    static isComplexText: boolean = false;
+    /**在IOS下，一些字体会找不到，引擎提供了字体映射功能，比如默认会把 "黑体" 映射为 "黑体-简"，更多映射，可以自己添加*/
+    static fontFamilyMap: any = { "报隶": "报隶-简", "黑体": "黑体-简", "楷体": "楷体-简", "兰亭黑": "兰亭黑-简", "隶变": "隶变-简", "凌慧体": "凌慧体-简", "翩翩体": "翩翩体-简", "苹方": "苹方-简", "手札体": "手札体-简", "宋体": "宋体-简", "娃娃体": "娃娃体-简", "魏碑": "魏碑-简", "行楷": "行楷-简", "雅痞": "雅痞-简", "圆体": "圆体-简" };
+
+    static defaultFontStr(): string {
+        return Config.defaultFontSize + "px " + Config.defaultFont;
+    }
 }
-(window as any).Config = Config;
 

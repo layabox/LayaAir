@@ -11,136 +11,135 @@ import { IRenderContext3D, PipelineMode } from "../../../RenderEngine/RenderInte
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 
-
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。
  */
 export class RenderContext3D {
-	/** @internal */
-	static _instance: RenderContext3D;
+    /** @internal */
+    static _instance: RenderContext3D;
 
-	/**渲染区宽度。*/
-	static clientWidth: number;
-	/**渲染区高度。*/
-	static clientHeight: number;
+    /**渲染区宽度。*/
+    static clientWidth: number;
+    /**渲染区高度。*/
+    static clientHeight: number;
 
-	static __init__() {
-		RenderContext3D._instance = new RenderContext3D();
-	}
-	/**@internal */
+    static __init__() {
+        RenderContext3D._instance = new RenderContext3D();
+    }
+    /**@internal */
 
-	/** @internal */
-	viewMatrix: Matrix4x4;
-	/**@internal */
-	customShader: Shader3D;
-	/**@internal */
-	replaceTag: string;
+    /** @internal */
+    viewMatrix: Matrix4x4;
+    /**@internal */
+    customShader: Shader3D;
+    /**@internal */
+    replaceTag: string;
 
-	/** @internal */
-	projectionMatrix: Matrix4x4;
-	/** @internal */
-	projectionViewMatrix: Matrix4x4;
-	/** @internal */
-	renderElement: RenderElement;
-	/** @internal */
-	camera: Camera;
-	/**@internal */
-	_scene: Scene3D;
-	/** @internal */
-	shader: ShaderInstance;
-	/**设置渲染管线 */
-	configPipeLineMode: PipelineMode = "Forward";
-	/**@internal contextOBJ*/
-	_contextOBJ: IRenderContext3D;
-	/**@internal */
-	get destTarget(): IRenderTarget {
-		return this._contextOBJ.destTarget;
-	}
+    /** @internal */
+    projectionMatrix: Matrix4x4;
+    /** @internal */
+    projectionViewMatrix: Matrix4x4;
+    /** @internal */
+    renderElement: RenderElement;
+    /** @internal */
+    camera: Camera;
+    /**@internal */
+    _scene: Scene3D;
+    /** @internal */
+    shader: ShaderInstance;
+    /**设置渲染管线 */
+    configPipeLineMode: PipelineMode = "Forward";
+    /**@internal contextOBJ*/
+    _contextOBJ: IRenderContext3D;
+    /**@internal */
+    get destTarget(): IRenderTarget {
+        return this._contextOBJ.destTarget;
+    }
 
-	/**@internal */
-	set destTarget(value: IRenderTarget) {
-		this._contextOBJ.destTarget = value;
-	}
+    /**@internal */
+    set destTarget(value: IRenderTarget) {
+        this._contextOBJ.destTarget = value;
+    }
 
-	/** @internal */
-	get viewport(): Viewport {
-		return this._contextOBJ.viewPort;
-	}
+    /** @internal */
+    get viewport(): Viewport {
+        return this._contextOBJ.viewPort;
+    }
 
-	set viewport(value: Viewport) {
-		value.cloneTo(this._contextOBJ.viewPort);
-	}
-	/** @internal */
-	get scissor(): Vector4 {
-		return this._contextOBJ.scissor;
-	}
+    set viewport(value: Viewport) {
+        value.cloneTo(this._contextOBJ.viewPort);
+    }
+    /** @internal */
+    get scissor(): Vector4 {
+        return this._contextOBJ.scissor;
+    }
 
-	set scissor(value: Vector4) {
-		value.cloneTo(this._contextOBJ.scissor);
-	}
+    set scissor(value: Vector4) {
+        value.cloneTo(this._contextOBJ.scissor);
+    }
 
-	/** @internal */
-	get invertY(): boolean {
-		return this._contextOBJ.invertY;
-	}
+    /** @internal */
+    get invertY(): boolean {
+        return this._contextOBJ.invertY;
+    }
 
-	set invertY(value: boolean) {
-		this._contextOBJ.invertY = value;
-	}
+    set invertY(value: boolean) {
+        this._contextOBJ.invertY = value;
+    }
 
-	/** @internal */
-	get pipelineMode(): PipelineMode {
-		return this._contextOBJ.pipelineMode;
-	}
+    /** @internal */
+    get pipelineMode(): PipelineMode {
+        return this._contextOBJ.pipelineMode;
+    }
 
-	set pipelineMode(value: PipelineMode) {
-		this._contextOBJ.pipelineMode = value;
-	}
-	//Camera Shader Data
-	get cameraShaderValue(): ShaderData {
-		return this._contextOBJ.cameraShaderData;
-	}
+    set pipelineMode(value: PipelineMode) {
+        this._contextOBJ.pipelineMode = value;
+    }
+    //Camera Shader Data
+    get cameraShaderValue(): ShaderData {
+        return this._contextOBJ.cameraShaderData;
+    }
 
-	set cameraShaderValue(value: ShaderData) {
-		this._contextOBJ.cameraShaderData = value;
-	}
+    set cameraShaderValue(value: ShaderData) {
+        this._contextOBJ.cameraShaderData = value;
+    }
 
-	/** @internal */
-	set scene(value: Scene3D) {
-		this._contextOBJ.sceneID = value._id;
-		this._contextOBJ.sceneShaderData = value._shaderValues;
-		this._scene = value;
-	}
+    /** @internal */
+    set scene(value: Scene3D) {
+        this._contextOBJ.sceneID = value._id;
+        this._contextOBJ.sceneShaderData = value._shaderValues;
+        this._scene = value;
+    }
 
-	get scene(): Scene3D {
-		return this._scene;
-	}
+    get scene(): Scene3D {
+        return this._scene;
+    }
 
-	changeViewport(x: number, y: number, width: number, height: number) {
-		Viewport._tempViewport.set(x, y, width, height);
-		this.viewport = Viewport._tempViewport;
-	}
+    changeViewport(x: number, y: number, width: number, height: number) {
+        Viewport._tempViewport.set(x, y, width, height);
+        this.viewport = Viewport._tempViewport;
+    }
 
-	changeScissor(x: number, y: number, width: number, height: number) {
-		Vector4.tempVec4.setValue(x, y, width, height);
-		this.scissor = Vector4.tempVec4;
-	}
+    changeScissor(x: number, y: number, width: number, height: number) {
+        Vector4.tempVec4.setValue(x, y, width, height);
+        this.scissor = Vector4.tempVec4;
+    }
 
-	/**
-	 * 渲染一个
-	 * @param renderelemt 
-	 */
-	drawRenderElement(renderelemt: RenderElement): void {
-		renderelemt.material && renderelemt._convertSubShader(this.customShader, this.replaceTag);
-		renderelemt._renderUpdatePre(this);
-		this._contextOBJ.drawRenderElement(renderelemt._renderElementOBJ);
-	}
-	/**
-	 * 创建一个 <code>RenderContext3D</code> 实例。
-	 */
-	constructor() {
-		this._contextOBJ = LayaGL.renderOBJCreate.createRenderContext3D();
-	}
+    /**
+     * 渲染一个
+     * @param renderelemt 
+     */
+    drawRenderElement(renderelemt: RenderElement): void {
+        renderelemt.material && renderelemt._convertSubShader(this.customShader, this.replaceTag);
+        renderelemt._renderUpdatePre(this);
+        this._contextOBJ.drawRenderElement(renderelemt._renderElementOBJ);
+    }
+    /**
+     * 创建一个 <code>RenderContext3D</code> 实例。
+     */
+    constructor() {
+        this._contextOBJ = LayaGL.renderOBJCreate.createRenderContext3D();
+    }
 
 }
 

@@ -1,5 +1,3 @@
-import { ILaya } from "../../../ILaya";
-import { Stat } from "../../utils/Stat";
 import { StringKey } from "../../utils/StringKey";
 import { ShaderCompile } from "../utils/ShaderCompile";
 import { BaseShader } from "./BaseShader";
@@ -64,7 +62,7 @@ export class Shader extends BaseShader {
     }
 
     static addInclude(fileName: string, txt: string): void {
-        ILaya.ShaderCompile.addInclude(fileName, txt);
+        ShaderCompile.addInclude(fileName, txt);
     }
 
 	/**
@@ -76,7 +74,7 @@ export class Shader extends BaseShader {
     //TODO:coverage
     static preCompile(nameID: number, vs: string, ps: string, nameMap: any): void {
         var id: number = Shader.SHADERNAME2ID * nameID;
-        Shader._preCompileShader[id] = new ILaya.ShaderCompile(vs, ps, nameMap);
+        Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap);
     }
 
 	/**
@@ -87,7 +85,7 @@ export class Shader extends BaseShader {
 	 */
     static preCompile2D(nameID: number, mainID: number, vs: string, ps: string, nameMap: any): void {
         var id: number = Shader.SHADERNAME2ID * nameID + mainID;
-        Shader._preCompileShader[id] = new ILaya.ShaderCompile(vs, ps, nameMap);
+        Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap);
     }
 
     private _nameMap: any; //shader参数别名，语义

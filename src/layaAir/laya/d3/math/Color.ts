@@ -1,4 +1,4 @@
-import { IClone } from "../core/IClone"
+import { IClone } from "../../utils/IClone"
 
 /**
  * <code>Color</code> 类用于创建颜色实例。

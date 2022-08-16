@@ -34,11 +34,11 @@ export class PhysicsWorld_MeshCollider {
 	private mat2: BlinnPhongMaterial;
 	private mat3: BlinnPhongMaterial;
 	constructor() {
+		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-			Config3D.useCannonPhysics = false;
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			//初始化照相机

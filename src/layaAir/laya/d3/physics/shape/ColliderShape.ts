@@ -1,4 +1,4 @@
-import { IClone } from "../../core/IClone";
+import { IClone } from "../../../utils/IClone";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";

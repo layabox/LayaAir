@@ -46,7 +46,7 @@ this._type =type=3;
 		private fixScale:number;
 		private onMouseDown(e:Event):void {
 			this._currDir = (<Sprite>e.target );
-			if(e.nativeEvent.shiftKey)
+			if(e.shiftKey)
 			{
 				this.initFixScale();
 			}
@@ -75,7 +75,7 @@ this._type =type=3;
 			var sameScale:boolean = false;
 			var adptX:number;
 			var adptY:number;
-			if(e.nativeEvent.shiftKey)
+			if(e.shiftKey)
 			{			
 				if(this.fixScale<0) this.initFixScale();
 //				ty=Math.ceil(tx/_target.width*_target.height);

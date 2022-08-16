@@ -126,9 +126,9 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
                         let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
                         this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(worldMat) : true;
                     }
-                    this._setShaderValue(Sprite3D.WORLDMATRIX,ShaderDataType.Matrix4x4, worldMat);
+                    this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, worldMat);
                 } else {
-                    this._setShaderValue(Sprite3D.WORLDMATRIX,ShaderDataType.Matrix4x4, transform.worldMatrix);
+                    this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
                 }
                 this._computeAnimatorParamsData();
                 this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
@@ -212,12 +212,11 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**
      * 删除节点
      */
-    destroy(): void {
+    onDestroy(): void {
         if (this._cacheRootBone)
-            (!this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
+            (!this._cacheRootBone._destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
         (this._simpleAnimatorTexture) && this._simpleAnimatorTexture._removeReference();
         this._simpleAnimatorTexture = null;
-        super.destroy();
+        super.onDestroy();
     }
-
 }

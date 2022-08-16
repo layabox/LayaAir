@@ -6,7 +6,7 @@ import { ContainmentType } from "./ContainmentType";
 import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
 import { LayaGL } from "../../layagl/LayaGL";
-import { IClone } from "../core/IClone";
+import { IClone } from "../../utils/IClone";
 
 /**
  * @internal

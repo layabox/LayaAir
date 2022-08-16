@@ -1,4 +1,3 @@
-import { Config3D } from "Config3D";
 import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator";
 import { Camera } from "laya/d3/core/Camera";
@@ -25,9 +24,8 @@ export class SkinAnimationPerformance {
 	private clipName: any[] = ["idle", "fallingback", "idle", "walk", "Take 001"];
 
 	constructor() {
-		var c: Config3D = new Config3D();
-		//c.debugFrustumCulling = true;
-		Laya3D.init(0, 0, c);
+		//Config3D.debugFrustumCulling = true;
+		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();

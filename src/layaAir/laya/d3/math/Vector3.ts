@@ -2,33 +2,24 @@ import { Vector4 } from "./Vector4";
 import { Quaternion } from "./Quaternion";
 import { Matrix4x4 } from "./Matrix4x4";
 import { MathUtils3D } from "./MathUtils3D";
-import { Vector2 } from "./Vector2";
-import { IClone } from "../core/IClone"
+import { IClone } from "../../utils/IClone"
+
 /**
  * <code>Vector3</code> 类用于创建三维向量。
  */
 export class Vector3 implements IClone {
     /**@internal	*/
-    static _tempVector4: Vector4 = new Vector4();
+    static _tempVector4 = new Vector4();
 
-    /**@internal	*/
-    static _ZERO: Vector3 = new Vector3(0.0, 0.0, 0.0);
-    /**@internal	*/
-    static _ONE: Vector3 = new Vector3(1.0, 1.0, 1.0);
-    /**@internal	*/
-    static _NegativeUnitX: Vector3 = new Vector3(-1, 0, 0);
-    /**@internal	*/
-    static _UnitX: Vector3 = new Vector3(1, 0, 0);
-    /**@internal	*/
-    static _UnitY: Vector3 = new Vector3(0, 1, 0);
-    /**@internal	*/
-    static _UnitZ: Vector3 = new Vector3(0, 0, 1);
-    /**@internal	*/
-    static _ForwardRH: Vector3 = new Vector3(0, 0, -1);
-    /**@internal	*/
-    static _ForwardLH: Vector3 = new Vector3(0, 0, 1);
-    /**@internal	*/
-    static _Up: Vector3 = new Vector3(0, 1, 0);
+    static readonly ZERO: Readonly<Vector3> = new Vector3(0.0, 0.0, 0.0);
+    static readonly ONE: Readonly<Vector3> = new Vector3(1.0, 1.0, 1.0);
+    static readonly NegativeUnitX: Readonly<Vector3> = new Vector3(-1, 0, 0);
+    static readonly UnitX: Readonly<Vector3> = new Vector3(1, 0, 0);
+    static readonly UnitY: Readonly<Vector3> = new Vector3(0, 1, 0);
+    static readonly UnitZ: Readonly<Vector3> = new Vector3(0, 0, 1);
+    static readonly ForwardRH: Readonly<Vector3> = new Vector3(0, 0, -1);
+    static readonly ForwardLH: Readonly<Vector3> = new Vector3(0, 0, 1);
+    static readonly Up: Readonly<Vector3> = new Vector3(0, 1, 0);
 
     /**
      * 两个三维向量距离的平方。

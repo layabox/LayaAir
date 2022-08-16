@@ -144,7 +144,7 @@ export class SkyRenderer {
 
             camera.viewMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
             camera.projectionMatrix.cloneTo(projectionMatrix);
-            viewMatrix.setTranslationVector(Vector3._ZERO);
+            viewMatrix.setTranslationVector(Vector3.ZERO);
             var epsilon: number = 1e-6;
             var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
             projectionMatrix.elements[0] = yScale / camera.aspectRatio;

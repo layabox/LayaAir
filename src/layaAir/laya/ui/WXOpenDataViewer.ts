@@ -1,10 +1,10 @@
 import { UIComponent } from "../../laya/ui/UIComponent";
-import { Laya } from "./../../Laya";
 import { Stage } from "../../laya/display/Stage"
 import { Matrix } from "../../laya/maths/Matrix"
 import { Texture } from "../../laya/resource/Texture"
 import { Texture2D } from "../resource/Texture2D";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { ILaya } from "../../ILaya";
 
 /**
  * 微信开放数据展示组件，直接实例本组件，即可根据组件宽高，位置，以最优的方式显示开放域数据
@@ -23,15 +23,15 @@ export class WXOpenDataViewer extends UIComponent {
      * @override
      */
     onEnable(): void {
-        this.postMsg({ type: "display", rate: Laya.stage.frameRate });
-        if ((window as any).wx && (window as any).sharedCanvas) Laya.timer.frameLoop(1, this, this._onLoop);
+        this.postMsg({ type: "display", rate: ILaya.stage.frameRate });
+        if ((window as any).wx && (window as any).sharedCanvas) ILaya.timer.frameLoop(1, this, this._onLoop);
     }
     /**
      * @override
      */
     onDisable(): void {
         this.postMsg({ type: "undisplay" });
-        Laya.timer.clear(this, this._onLoop);
+        ILaya.timer.clear(this, this._onLoop);
     }
 
     private _onLoop(): void {
@@ -106,7 +106,7 @@ export class WXOpenDataViewer extends UIComponent {
     private _postMsg(): void {
         var mat: Matrix = new Matrix();
         mat.translate(this.x, this.y);
-        var stage: Stage = Laya.stage;
+        var stage: Stage = ILaya.stage;
         mat.scale(stage._canvasTransform.getScaleX() * this.globalScaleX * stage.transform.getScaleX(), stage._canvasTransform.getScaleY() * this.globalScaleY * stage.transform.getScaleY());
         this.postMsg({ type: "changeMatrix", a: mat.a, b: mat.b, c: mat.c, d: mat.d, tx: mat.tx, ty: mat.ty, w: this.width, h: this.height });
     }

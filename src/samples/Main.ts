@@ -15,8 +15,8 @@ import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
 import Client from "./Client";
 
-import "laya/ui/RegClasses";
-import "laya/d3/physics/RegClasses";
+import "laya/ui/ModuleDef";
+import "laya/d3/physics/ModuleDef";
 
 export class Main {
     private static _box3D: Sprite;

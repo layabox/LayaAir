@@ -8,20 +8,20 @@ import { Vector4 } from "../../math/Vector4";
 import { BlendFactor } from "../../../RenderEngine/RenderEnum/BlendFactor";
 import { BlendEquationSeparate } from "../../../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
-import { Laya } from "../../../../Laya";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ClassUtils } from "../../../utils/ClassUtils";
-import { IClone } from "../IClone";
+import { IClone } from "../../../utils/IClone";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Config3D } from "../../../../Config3D";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderState } from "./RenderState";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Color } from "../../math/Color";
+import { ILaya } from "../../../../ILaya";
 
 export enum MaterialRenderMode {
     /**渲染状态_不透明。*/
@@ -83,7 +83,7 @@ export class Material extends Resource implements IClone {
      * @param complete 完成回掉。
      */
     static load(url: string, complete: Handler): void {
-        Laya.loader.load(url, complete, null, Loader.MATERIAL);
+        ILaya.loader.load(url, complete, null, Loader.MATERIAL);
     }
 
     /**
@@ -574,7 +574,7 @@ export class Material extends Resource implements IClone {
         if (!this._shader)
             throw new Error("Material: unknown shader name.");
 
-        if (Config3D._config._uniformBlock) {
+        if (Config3D._uniformBlock) {
             this._releaseUBOData();
             //bind shader info
             // todo 清理残留 shader data

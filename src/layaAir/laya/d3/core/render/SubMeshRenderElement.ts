@@ -11,11 +11,6 @@ import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
  */
 export class SubMeshRenderElement extends RenderElement {
 
-	/**控制是否动态合并 */
-	static enableDynamicBatch: boolean = true;
-	/**是否静态合并 */
-	static enableStaticBatch: boolean = true;
-
 	/** @internal */
 	private _dynamicWorldPositionNormalNeedUpdate: boolean;
 

@@ -135,11 +135,11 @@ export class TextInput extends Label {
         this.mouseEnabled = true;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  destroy(destroyChild: boolean = true): void {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._bg && this._bg.destroy();
         this._bg = null;

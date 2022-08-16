@@ -6,7 +6,7 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
-import { KeyBoardManager } from "laya/events/KeyBoardManager";
+import { InputManager } from "laya/events/InputManager";
 import { Image } from "laya/ui/Image";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -72,10 +72,10 @@ export class Scene2DPlayer3D {
 	}
 	private onKeyDown(): void {
 		var transform: Transform3D = this._layaMonkey.transform;
-		KeyBoardManager.hasKeyDown(87) && transform.translate(this._translate3);//W
-		KeyBoardManager.hasKeyDown(83) && transform.translate(this._translate4);//S
-		KeyBoardManager.hasKeyDown(65) && transform.translate(this._translate5);//A
-		KeyBoardManager.hasKeyDown(68) && transform.translate(this._translate6);//D
+		InputManager.hasKeyDown(87) && transform.translate(this._translate3);//W
+		InputManager.hasKeyDown(83) && transform.translate(this._translate4);//S
+		InputManager.hasKeyDown(65) && transform.translate(this._translate5);//A
+		InputManager.hasKeyDown(68) && transform.translate(this._translate6);//D
 	}
 }
 

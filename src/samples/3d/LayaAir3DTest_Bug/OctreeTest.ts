@@ -8,13 +8,12 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-import { KeyBoardManager } from "laya/events/KeyBoardManager";
+import { InputManager } from "laya/events/InputManager";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Config3D } from "Config3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Color } from "laya/d3/math/Color";
 
@@ -26,14 +25,7 @@ export class OctreeTest {
 	private sprite3D: Sprite3D;
 
 	constructor() {
-
-		var config: Config3D = new Config3D();
-		config.debugFrustumCulling = true;
-		config.octreeCulling = true;
-		config.octreeInitialSize = 32;
-		config.octreeMinNodeSize = 0.01;
-		config.octreeLooseness = 1.01;
-		Laya3D.init(0, 0, config);
+		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
@@ -98,10 +90,10 @@ export class OctreeTest {
 	private character: MeshSprite3D;
 
 	private onKeyDown(): void {
-		KeyBoardManager.hasKeyDown(38) && this.character.transform.translate(new Vector3(0, 0, -0.2));//上
-		KeyBoardManager.hasKeyDown(40) && this.character.transform.translate(new Vector3(0, 0, 0.2));//左
-		KeyBoardManager.hasKeyDown(37) && this.character.transform.translate(new Vector3(-0.2, 0, 0));//下
-		KeyBoardManager.hasKeyDown(39) && this.character.transform.translate(new Vector3(0.2, 0, 0));//右
+		InputManager.hasKeyDown(38) && this.character.transform.translate(new Vector3(0, 0, -0.2));//上
+		InputManager.hasKeyDown(40) && this.character.transform.translate(new Vector3(0, 0, 0.2));//左
+		InputManager.hasKeyDown(37) && this.character.transform.translate(new Vector3(-0.2, 0, 0));//下
+		InputManager.hasKeyDown(39) && this.character.transform.translate(new Vector3(0.2, 0, 0));//右
 	}
 
 	private curStateIndex: number = 0;

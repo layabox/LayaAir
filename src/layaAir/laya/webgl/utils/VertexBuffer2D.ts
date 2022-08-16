@@ -2,12 +2,12 @@ import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/Buf
 import { VertexBuffer } from "../../RenderEngine/VertexBuffer";
 import { Buffer2D } from "./Buffer2D";
 
-export class VertexBuffer2D extends VertexBuffer{
+export class VertexBuffer2D extends VertexBuffer {
     static create: Function = function (vertexStride: number, bufferUsage: number = BufferUsage.Dynamic): VertexBuffer2D {
         return new VertexBuffer2D(vertexStride, bufferUsage);
     }
 
-    buffer2D:Buffer2D;
+    buffer2D: Buffer2D;
 
     private _vertexStride: number;
 
@@ -16,7 +16,7 @@ export class VertexBuffer2D extends VertexBuffer{
     }
 
     constructor(vertexStride: number, bufferUsage: number) {
-        super(BufferTargetType.ARRAY_BUFFER,bufferUsage);
+        super(BufferTargetType.ARRAY_BUFFER, bufferUsage);
         this.buffer2D = new Buffer2D(this);
         this._vertexStride = vertexStride;
         this._bufferUsage = bufferUsage;
@@ -29,11 +29,11 @@ export class VertexBuffer2D extends VertexBuffer{
         return this.buffer2D._floatArray32;
     }
 
-    get _floatArray32(){
+    get _floatArray32() {
         return this.buffer2D._floatArray32;
     }
 
-    get _uint32Array(){
+    get _uint32Array() {
         return this.buffer2D._uint32Array;
     }
 
@@ -49,10 +49,10 @@ export class VertexBuffer2D extends VertexBuffer{
         vbdata.set(data, oldoff);
         this.buffer2D._upload = true;
     }
-	// 	/**
-	// 	 * @override
-	// 	 */
-	// 	/*override*/ protected _checkArrayUse(): void {
+    // 	/**
+    // 	 * @override
+    // 	 */
+    // 	 protected _checkArrayUse(): void {
     //     this._floatArray32 && (this._floatArray32 = new Float32Array(this._buffer));
     //     this._uint32Array && (this._uint32Array = new Uint32Array(this._buffer));
     // }
@@ -62,11 +62,11 @@ export class VertexBuffer2D extends VertexBuffer{
         this.buffer2D._disposeResource();
     }
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		/*override*/  _bindForVAO(): void {
+    /**
+     * @inheritDoc
+     * @override
+     */
+    _bindForVAO(): void {
         this._glBuffer.bindBuffer();
     }
     /**

@@ -1,5 +1,5 @@
 import { Laya } from "Laya";
-import { Script3D } from "laya/d3/component/Script3D";
+import { Script } from "laya/components/Script";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -20,7 +20,6 @@ import { MeshColliderShape } from "laya/d3/physics/shape/MeshColliderShape";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
-import { MouseManager } from "laya/events/MouseManager";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -168,8 +167,8 @@ export class MouseInteraction {
 	}
 
 	private onMouseDown(): void {
-		this.posX = this.point.x = MouseManager.instance.mouseX;
-		this.posY = this.point.y = MouseManager.instance.mouseY;
+		this.posX = this.point.x = Laya.stage.mouseX;
+		this.posY = this.point.y = Laya.stage.mouseY;
 		//产生射线
 		this._camera.viewportPointToRay(this.point, this._ray);
 		//拿到射线碰撞的物体
@@ -189,7 +188,7 @@ export class MouseInteraction {
 
 
 
-class SceneScript extends Script3D {
+class SceneScript extends Script {
 	private meshSprite: MeshSprite3D;
 	private text: Text;
 	private _albedoColor: Color = new Color(0.0, 0.0, 0.0, 1.0);
@@ -203,7 +202,7 @@ class SceneScript extends Script3D {
 	/**
 	 * 覆写3D对象组件被激活后执行，此时所有节点和组件均已创建完毕，此方法只执行一次
 	 */
-	/*override*/  onAwake(): void {
+	onAwake(): void {
 		this.meshSprite = (<MeshSprite3D>this.owner);
 		this.text = (<Text>Laya.stage.getChildByName("text"));
 	}
@@ -211,19 +210,19 @@ class SceneScript extends Script3D {
 	/**
 	 * 覆写组件更新方法（相当于帧循环）
 	 */
-	/*override*/  onUpdate(): void {
+	onUpdate(): void {
 	}
 
 	//物体必须拥有碰撞组件（Collider）
 	//当被鼠标点击
-	/*override*/  onMouseDown(): void {
+	onMouseDown(): void {
 		this.text.text = "碰撞到了" + this.owner.name;
 		//从父容器销毁我自己
 		//box.removeSelf();
 	}
 
 	//当产生碰撞
-	/*override*/  onCollisionEnter(collision: Collision): void {
+	onCollisionEnter(collision: Collision): void {
 		((<BlinnPhongMaterial>this.meshSprite.meshRenderer.sharedMaterial)).albedoColor = this._albedoColor;
 		// box.removeSelf();
 	}

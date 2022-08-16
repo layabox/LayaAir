@@ -63,7 +63,7 @@ export class MultiTouch {
 		this.text.overflow = Text.HIDDEN;
 		this.text.color = "#FFFFFF";
 		this.text.font = "Impact";
-		this.text.fontSize = 20;
+		this.text.fontSize = 30;
 		this.text.borderColor = "#FFFF00";
 		this.text.x = Laya.stage.width / 2;
 		Laya.stage.addChild(this.text);
@@ -71,18 +71,12 @@ export class MultiTouch {
 }
 
 
-
-import { Touch } from "laya/d3/Touch"
-import { Script3D } from "laya/d3/component/Script3D"
-
-
-
 import { Vector2 } from "laya/d3/math/Vector2"
 import { Color } from "laya/d3/math/Color";
+import { Script } from "laya/components/Script";
+import { InputManager } from "laya/events/InputManager";
 
-
-
-class MonkeyScript extends Script3D {
+class MonkeyScript extends Script {
 
 	private _scene: Scene3D;
 	private _text: Text;
@@ -97,17 +91,17 @@ class MonkeyScript extends Script3D {
 	private twoFirst: boolean = true;
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
 
-	/*override*/  onAwake(): void {
+	onAwake(): void {
 	}
 
-	/*override*/  onStart(): void {
+	onStart(): void {
 		this._scene = (<Scene3D>((<Sprite3D>this.owner)).parent);
 		this._text = (this._scene.parent as Stage).getChildByName("ceshi") as Text;
 		this._camera = (<Camera>this._scene.getChildByName("camera"));
 	}
 
-	/*override*/  onUpdate(): void {
-		var touchCount: number = this._scene.input.touchCount();
+	onUpdate(): void {
+		var touchCount: number = InputManager.touchCount;
 		if (1 === touchCount) {
 			//判断是否为两指触控，撤去一根手指后引发的touchCount===1
 			if (this.isTwoTouch) {
@@ -115,19 +109,19 @@ class MonkeyScript extends Script3D {
 			}
 			this._text.text = "触控点为1";
 			//获取当前的触控点，数量为1
-			var touch: Touch = this._scene.input.getTouch(0);
+			var touch = InputManager.touches[0];
 			//是否为新一次触碰，并未发生移动
 			if (this.first) {
 				//获取触碰点的位置
-				this.lastPosition.x = touch.position.x;
-				this.lastPosition.y = touch.position.y;
+				this.lastPosition.x = touch.pos.x;
+				this.lastPosition.y = touch.pos.y;
 				this.first = false;
 			} else {
 				//移动触碰点
-				var deltaY: number = touch.position.y - this.lastPosition.y;
-				var deltaX: number = touch.position.x - this.lastPosition.x;
-				this.lastPosition.x = touch.position.x;
-				this.lastPosition.y = touch.position.y;
+				var deltaY: number = touch.pos.y - this.lastPosition.y;
+				var deltaX: number = touch.pos.x - this.lastPosition.x;
+				this.lastPosition.x = touch.pos.x;
+				this.lastPosition.y = touch.pos.y;
 				//根据移动的距离进行旋转
 				this.tmpVector.setValue(1 * deltaY / 2, 1 * deltaX / 2, 0);
 				((<Sprite3D>this.owner)).transform.rotate(this.tmpVector, true, false);
@@ -136,18 +130,18 @@ class MonkeyScript extends Script3D {
 			this._text.text = "触控点为2";
 			this.isTwoTouch = true;
 			//获取两个触碰点
-			var touch: Touch = this._scene.input.getTouch(0);
-			var touch2: Touch = this._scene.input.getTouch(1);
+			var touch = InputManager.touches[0];
+			var touch2 = InputManager.touches[1];
 			//是否为新一次触碰，并未发生移动
 			if (this.twoFirst) {
 				//获取触碰点的位置
-				this.disVector1.x = touch.position.x - touch2.position.x;
-				this.disVector1.y = touch.position.y - touch2.position.y;
+				this.disVector1.x = touch.pos.x - touch2.pos.x;
+				this.disVector1.y = touch.pos.y - touch2.pos.y;
 				this.distance = Vector2.scalarLength(this.disVector1);
 				this.twoFirst = false;
 			} else {
-				this.disVector2.x = touch.position.x - touch2.position.x;
-				this.disVector2.y = touch.position.y - touch2.position.y;
+				this.disVector2.x = touch.pos.x - touch2.pos.x;
+				this.disVector2.y = touch.pos.y - touch2.pos.y;
 				var distance2: number = Vector2.scalarLength(this.disVector2);
 				//根据移动的距离进行缩放
 				this.tmpVector.setValue(0, 0, -0.01 * (distance2 - this.distance));
@@ -164,7 +158,7 @@ class MonkeyScript extends Script3D {
 		}
 	}
 
-	/*override*/  onLateUpdate(): void {
+	onLateUpdate(): void {
 	}
 
 }

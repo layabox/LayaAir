@@ -368,7 +368,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 * @override
 	 */
 	destroy(destroyChild: boolean = true): void {
-		if (this.destroyed)
+		if (this._destroyed)
 			return;
 		super.destroy(destroyChild);
 	}

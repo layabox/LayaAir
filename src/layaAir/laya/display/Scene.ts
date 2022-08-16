@@ -7,7 +7,7 @@ import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
-import { Const } from "../Const";
+import { NodeFlags } from "../Const";
 import { ClassUtils } from "../utils/ClassUtils";
 
 /**
@@ -37,6 +37,8 @@ export class Scene extends Sprite {
 
     constructor(createChildren = true) {
         super();
+
+        this._timer = ILaya.timer;
 
         Scene.unDestroyedScenes.push(this);
         this._scene = this;
@@ -80,7 +82,7 @@ export class Scene extends Sprite {
                 this._viewCreated = true;
             }
         } else {
-            this._setBit(Const.NOT_READY, true);
+            this._setBit(NodeFlags.NOT_READY, true);
             ILaya.loader.load(url, null, value => {
                 if (Scene._loadPage) Scene._loadPage.event("progress", value);
             }).then((content: HierarchyResource) => {
@@ -92,7 +94,7 @@ export class Scene extends Sprite {
                     this._viewCreated = true;
                 }
                 else
-                    this._setBit(Const.NOT_READY, false);
+                    this._setBit(NodeFlags.NOT_READY, false);
             });
         }
     }
@@ -269,7 +271,7 @@ export class Scene extends Sprite {
      * @override
      */
     get timer(): Timer {
-        return this._timer || ILaya.timer;
+        return this._timer;
     }
 
     set timer(value: Timer) {
@@ -407,7 +409,7 @@ export class Scene extends Sprite {
         var list: any[] = [].concat(Scene.unDestroyedScenes);
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             var scene: Scene = list[i];
-            if (scene.url === url && scene.name == name && !scene.destroyed) {
+            if (scene.url === url && scene.name == name && !scene._destroyed) {
                 scene.destroy();
                 flag = true;
             }

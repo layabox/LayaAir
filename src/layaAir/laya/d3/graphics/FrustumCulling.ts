@@ -16,9 +16,6 @@ export class FrustumCulling {
 	/**@internal */
 	static _shadowCullInfo: IShadowCullInfo;
 
-	/**@internal */
-	static debugFrustumCulling: boolean = false;
-
 	/**
 	 * @internal
 	 */

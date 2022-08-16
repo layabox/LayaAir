@@ -3,7 +3,6 @@ import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Laya3D } from "Laya3D";
 import { Config3D } from "Config3D";
-import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
 import { LightSprite } from "laya/d3/core/light/LightSprite";
 import { PointLight } from "laya/d3/core/light/PointLight";
@@ -15,8 +14,9 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Script } from "laya/components/Script";
 
-class LightMoveScript extends Script3D {
+class LightMoveScript extends Script {
 	forward: Vector3 = new Vector3();
 	lights: LightSprite[] = [];
 	offsets: Vector3[] = [];
@@ -40,13 +40,12 @@ class LightMoveScript extends Script3D {
 export class MultiLight {
 
 	constructor() {
-		var c = new Config3D();
-		c.maxLightCount = 16;
-		Laya3D.init(0, 0, c);
+		Config3D.maxLightCount = 16;
+		Config3D.useCannonPhysics = false;
+		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
-		Config3D.useCannonPhysics = false;
 		Scene3D.load("res/threeDimen/scene/MultiLightScene/InventoryScene_Forest.ls", Handler.create(this, function (scene: Scene3D): void {
 			Laya.stage.addChild(scene);
 

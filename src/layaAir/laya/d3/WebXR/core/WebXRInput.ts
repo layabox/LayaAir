@@ -82,7 +82,7 @@ export class WebXRInput extends EventDispatcher {
             const orientation = rayPose.transform.orientation;
             WebXRInput.tempQua.setValue(orientation.x, orientation.y, orientation.z, orientation.w);
             this.ray.origin.setValue(pos.x, pos.y, pos.z);
-            Vector3.transformQuat(Vector3._UnitZ, WebXRInput.tempQua, this.ray.direction);
+            Vector3.transformQuat(Vector3.UnitZ, WebXRInput.tempQua, this.ray.direction);
             Vector3.scale(this.ray.direction, -1, this.ray.direction);
         }
         //updateMesh
