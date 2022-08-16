@@ -605,13 +605,26 @@ export class Loader extends EventDispatcher {
             typeId = typeEntry.typeId;
 
             let i: number = 0;
-            if (extEntry &&
-                (extEntry[0].typeId === typeId //优化，大部分情况均为如此
-                    || (i = extEntry.findIndex(e => e.typeId === typeId)) != -1)) {
-                main = i == 0;
-                loaderType = extEntry[i].loaderType;
+            if (extEntry) {
+                if (extEntry[0].typeId === typeId //优化，大部分情况均为如此
+                    || (i = extEntry.findIndex(e => e.typeId === typeId)) != -1) {
+                    main = i == 0;
+                    loaderType = extEntry[i].loaderType;
+                }
+                else {
+                    //未与扩展名匹配的情况，例如a.lh试图以Loader.JSON类型加载，这种组合没有注册，但仍然允许加载为副资源
+                    //但这种操作未必是预期的，这里用黑名单
+                    if (type == Loader.TEXTURE2D) { //不允许，fallback到主类型
+                        main = true;
+                        loaderType = extEntry[0].loaderType;
+                    }
+                    else {
+                        main = false;
+                        loaderType = typeEntry.loaderType;
+                    }
+                }
             }
-            else { //扩展名没有注册的情况，或者未与扩展名匹配的情况，例如a.lh试图以Loader.JSON类型加载，这种组合没有注册，但仍然允许加载为副资源
+            else { //扩展名没有注册的情况
                 main = false;
                 loaderType = typeEntry.loaderType;
             }
