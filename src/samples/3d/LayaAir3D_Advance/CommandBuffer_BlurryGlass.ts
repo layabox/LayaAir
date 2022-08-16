@@ -37,6 +37,7 @@ export class CommandBuffer_BlurryGlass {
 
 		//加载场景
 		Scene3D.load("res/threeDimen/BlurryRefraction/Conventional/BlurryGlass.ls", Handler.create(this, function (scene: Scene3D): void {
+			debugger;
 			(<Scene3D>Laya.stage.addChild(scene));
 			//获取场景中的相机
 			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));

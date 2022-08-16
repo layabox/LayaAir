@@ -152,6 +152,7 @@ export class Laya3D {
         PBRMaterial.__init__();
         PBRStandardMaterial.__init__();
         SkyPanoramicMaterial.__init__();
+        BloomEffect.init();
         // PBRSpecularMaterial.__init__();
         // SkyPanoramicMaterial.__init__();
         Mesh.__init__();

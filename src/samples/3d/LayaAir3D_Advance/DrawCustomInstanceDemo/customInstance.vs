@@ -1,42 +1,22 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了
-	precision highp float;
-#else
-	precision mediump float;
-#endif
+#define SHADER_NAME CustomInstanceVS
+#include "Camera.glsl";
+#include "Sprite3DVertex.glsl";
 
-#include "LayaComInput.glsl";
-#include "Lighting.glsl";
-#include "LayaUtile.glsl";
-
-attribute vec4 a_Position;
-
-#ifdef GPU_INSTANCE
-	attribute mat4 a_WorldMat;
-#else
-	uniform mat4 u_MvpMatrix;
-#endif
-
-#ifdef GPU_INSTANCE
-    attribute vec4 a_InstanceColor;
-#endif
-
+#include "VertexCommon.glsl";
+#include "Color.glsl";
 varying vec4 v_Color;
-
 void main() {
-	vec4 position;
-	position=a_Position;
-	#ifdef GPU_INSTANCE
-		gl_Position = u_ViewProjection * a_WorldMat * position;
-	#else
-		gl_Position = u_MvpMatrix * position;
-	#endif
-
+	Vertex vertex;
+	getVertexParams(vertex);
+	mat4 worldMat = getWorldMatrix();
+	vec3 positionWS = (worldMat *vec4(vertex.positionOS, 1.0)).xyz; 
+	gl_Position = getPositionCS(positionWS);
 
     #ifdef GPU_INSTANCE
-		v_Color =a_InstanceColor;
+		v_Color = gammaToLinear(a_InstanceColor);
 	#else
-		v_Color = vec4(1.0,1.0,1.0,1.0);
+		v_Color = gammaToLinear(vec4(1.0,1.0,1.0,1.0));
 	#endif
 
-	gl_Position=remapGLPositionZ(gl_Position);
+	gl_Position=remapPositionZ(gl_Position);
 }

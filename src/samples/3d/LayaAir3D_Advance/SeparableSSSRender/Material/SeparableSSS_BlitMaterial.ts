@@ -32,9 +32,16 @@ export class SeparableSSS_BlitMaterial extends Material {
 
 		var attributeMap: { [name: string]: [number, ShaderDataType] } = {
 			'a_PositionTexcoord': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
-		}
+		};
+		var uniformMap: any  = {
+			"u_MainTex": ShaderDataType.Texture2D,
+			"u_depthTex": ShaderDataType.Texture2D,
+			"u_blurDir": ShaderDataType.Vector2,
+			"u_sssWidth": ShaderDataType.Float,
+			"u_distanceToProjectionWindow": ShaderDataType.Float,
+		};
 		var shader: Shader3D = Shader3D.add("SeparableSSS");
-		var subShader: SubShader = new SubShader(attributeMap);
+		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		var shaderpass = subShader.addShaderPass(SeprableSSSVS, SeprableSSSFS);
 		var renderState = shaderpass.renderState;

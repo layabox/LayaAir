@@ -62,7 +62,19 @@ export class GaussianDoF extends PostProcessEffect {
         GaussianDoF.SHADERDEFINE_DEPTHNORMALTEXTURE = Shader3D.getDefineByName("CAMERA_NORMALDEPTH");
 
         let attributeMap: any = {
-            'a_PositionTexcoord': VertexMesh.MESH_POSITION0
+            'a_PositionTexcoord': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
+        };
+
+        let uniformMap: any = {
+            "u_MainTex": ShaderDataType.Texture2D,
+            "u_MainTex_TexelSize": ShaderDataType.Vector4,
+            "u_OffsetScale": ShaderDataType.Vector4,
+            "u_ZBufferParams": ShaderDataType.Vector4,
+            "u_CoCParams": ShaderDataType.Vector3,
+            "u_FullCoCTex": ShaderDataType.Texture2D,
+            "u_SourceSize": ShaderDataType.Vector4,
+            "u_DownSampleScale": ShaderDataType.Vector4,
+            "u_BlurCoCTex": ShaderDataType.Texture2D,
         };
         let shader: Shader3D = Shader3D.add("GaussianDoF");
 
@@ -73,7 +85,7 @@ export class GaussianDoF extends PostProcessEffect {
          * Camera nearPlane---------FarStart---------FarEnd---------Camera farplane
          *       0         ---------   0    ---------   1  ---------      1
          */
-        let cocSubShader: SubShader = new SubShader(attributeMap);
+        let cocSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(cocSubShader);
         let cocPass: ShaderPass = cocSubShader.addShaderPass(FullScreenVert, CoCFS);
 
@@ -81,7 +93,7 @@ export class GaussianDoF extends PostProcessEffect {
          * Prefilter pass
          * 
          */
-        let prefilterSubShader: SubShader = new SubShader(attributeMap);
+        let prefilterSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(prefilterSubShader);
         let prefilterPass: ShaderPass = prefilterSubShader.addShaderPass(FullScreenVert, PrefilterFS);
 
@@ -89,21 +101,21 @@ export class GaussianDoF extends PostProcessEffect {
         /**
          * blurH pass
          */
-        let blurHSubShader: SubShader = new SubShader(attributeMap);
+        let blurHSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(blurHSubShader);
         let blurHPass: ShaderPass = blurHSubShader.addShaderPass(FullScreenVert, BlurHFS);
 
         /**
          * blurV pass
          */
-        let blurVSubShader: SubShader = new SubShader(attributeMap);
+        let blurVSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(blurVSubShader);
         let blurVPass: ShaderPass = blurVSubShader.addShaderPass(FullScreenVert, BlurVFS);
 
         /**
          * Composite pass
          */
-        let compositeSubShader: SubShader = new SubShader(attributeMap);
+        let compositeSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(compositeSubShader);
         let compositePass: ShaderPass = compositeSubShader.addShaderPass(FullScreenVert, CompositeFS);
 
@@ -188,7 +200,7 @@ export class GaussianDoF extends PostProcessEffect {
         // blur
         prefilterTex.filterMode = FilterMode.Bilinear;
         this._sourceSize.setValue(prefilterTex.width, prefilterTex.height, 1.0 / prefilterTex.width, 1.0 / prefilterTex.height);
-        this._shaderData.setShaderData(GaussianDoF.SOURCESIZE,ShaderDataType.Vector4, this._sourceSize);
+        this._shaderData.setShaderData(GaussianDoF.SOURCESIZE, ShaderDataType.Vector4, this._sourceSize);
         // blur H
         let blurHTex: RenderTexture = RenderTexture.createFromPool(prefilterTex.width, prefilterTex.height, dataTexFormat, RenderTargetFormat.None, false, 1);
         cmd.blitScreenTriangle(prefilterTex, blurHTex, null, this._shader, this._shaderData, 2);

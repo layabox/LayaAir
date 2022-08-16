@@ -1,14 +1,4 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-	precision highp float;
-#else
-	precision mediump float;
-#endif
-
 #define SHADER_NAME PrefilterFS
-
-uniform sampler2D u_MainTex;
-uniform sampler2D u_FullCoCTex;
-uniform vec4 u_MainTex_TexelSize;
 
 varying vec2 v_Texcoord0;
 

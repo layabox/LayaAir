@@ -1,16 +1,4 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-	precision highp float;
-#else
-	precision mediump float;
-#endif
-
 #define SHADER_NAME BlurVFS
-
-uniform sampler2D u_MainTex;
-
-uniform vec4 u_SourceSize;
-uniform vec4 u_DownSampleScale;
-uniform vec3 u_CoCParams;
 
 varying vec2 v_Texcoord0;
 

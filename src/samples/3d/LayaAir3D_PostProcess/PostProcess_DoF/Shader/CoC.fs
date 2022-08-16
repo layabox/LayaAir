@@ -1,14 +1,4 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-	precision highp float;
-#else
-	precision mediump float;
-#endif
-
 #define SHADER_NAME COCFS
-
-uniform sampler2D u_MainTex;
-uniform vec4 u_ZBufferParams;
-uniform vec3 u_CoCParams;
 
 #ifdef CAMERA_NORMALDEPTH
     uniform sampler2D u_CameraDepthNormalTexture;

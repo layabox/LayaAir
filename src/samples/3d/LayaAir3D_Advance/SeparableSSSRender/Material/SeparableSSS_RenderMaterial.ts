@@ -5,6 +5,8 @@ import SSSSRenderFS from "./../shader/SeparableSSS_Render.fs";
 import { RenderState } from "laya/d3/core/material/RenderState";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
+import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 
 export class SeparableSSSRenderMaterial extends Material {
 
@@ -17,7 +19,20 @@ export class SeparableSSSRenderMaterial extends Material {
         SeparableSSSRenderMaterial.SSSSSPECULARTEX = Shader3D.propertyNameToID("sssssSpecularTexture");
         SeparableSSSRenderMaterial.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
         var shader: Shader3D = Shader3D.add("SeparableRender", false);
-        var subShader: SubShader = new SubShader();
+        var attributeMap: any = {
+            'a_Position': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
+			'a_Normal': [VertexMesh.MESH_NORMAL0, ShaderDataType.Vector3],
+			'a_Texcoord0': [VertexMesh.MESH_TEXTURECOORDINATE0, ShaderDataType.Vector2],
+			'a_Tangent0': [VertexMesh.MESH_TANGENT0, ShaderDataType.Vector4],
+        };
+
+        var uniformMap: any = {
+            'sssssDiffuseTexture': ShaderDataType.Texture2D,
+            'sssssSpecularTexture': ShaderDataType.Texture2D,
+			'u_TilingOffset': ShaderDataType.Vector4,
+			'u_MvpMatrix': ShaderDataType.Matrix4x4
+        };
+        var subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(SSSSRenderVS, SSSSRenderFS, "Forward");
     }

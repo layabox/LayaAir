@@ -32,7 +32,6 @@ export class CullPassBase implements ICullPass {
             if (canPass) {
                 Stat.frustumCulling++;
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
-
                     this.cullList.add(render);
                 }
             }

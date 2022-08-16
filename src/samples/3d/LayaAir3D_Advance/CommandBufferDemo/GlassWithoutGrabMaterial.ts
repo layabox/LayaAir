@@ -7,6 +7,7 @@ import { RenderState } from "laya/d3/core/material/RenderState";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 
 export class GlassWithoutGrabMaterial extends Material {
     /** tintTexure */
@@ -20,13 +21,21 @@ export class GlassWithoutGrabMaterial extends Material {
 
     static init() {
         var attributeMap: any = {
-            'a_Position': VertexMesh.MESH_POSITION0,
-            'a_Normal': VertexMesh.MESH_NORMAL0,
-            'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
-            'a_Tangent0': VertexMesh.MESH_TANGENT0,
+            'a_Position': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
+            'a_Normal': [VertexMesh.MESH_NORMAL0, ShaderDataType.Vector3],
+            'a_Texcoord0': [VertexMesh.MESH_TEXTURECOORDINATE0, ShaderDataType.Vector2],
+            'a_Tangent0': [VertexMesh.MESH_TANGENT0, ShaderDataType.Vector4],
         };
+
+        var uniformMap: any = {
+            "u_tintTexure": ShaderDataType.Texture2D,
+            "u_screenTexture": ShaderDataType.Texture2D,
+            "u_normalTexture": ShaderDataType.Texture2D,
+            "u_TilingOffset": ShaderDataType.Vector4,
+            "u_tintAmount": ShaderDataType.Color,
+        }
         var shader: Shader3D = Shader3D.add("GlassShader", false);
-        var subShader: SubShader = new SubShader(attributeMap);
+        var subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(GlassShaderVS, GlassShaderFS);
 

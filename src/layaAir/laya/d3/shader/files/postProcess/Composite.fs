@@ -10,7 +10,7 @@ void main() {
 	mediump vec4 color=vec4(0.0);
 	color = texture2D(u_MainTex, v_Texcoord0);
 	
-	color = sRGBToLinear(color);
+	//color = sRGBToLinear(color);
 	color.rgb *= autoExposure;
 	
 	#if defined(BLOOM)||defined(BLOOM_LOW)
@@ -35,7 +35,7 @@ void main() {
 	#endif
 	
 	mediump vec4 finalColor = color;
-	finalColor = linearToSRGB(finalColor);
+	//finalColor = linearToSRGB(finalColor);
 	//finalColor.rgb = Dither(finalColor.rgb, v_Texcoord0);//TODO:抖动
 	gl_FragColor = finalColor;
 }

@@ -5,20 +5,25 @@ import { SubShader } from "laya/d3/shader/SubShader";
 import CustomInstanceVS from "./customInstance.vs";
 import CustomInstanceFS from "./customInstance.fs";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 
 export class CustomInstanceMaterial extends Material{
     
     static init(){
         var attributeMap: any = {
-			'a_Position': VertexMesh.MESH_POSITION0,
-			'a_Normal': VertexMesh.MESH_NORMAL0,
-			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
-            'a_Tangent0': VertexMesh.MESH_TANGENT0,
-            'a_WorldMat':VertexMesh.MESH_WORLDMATRIX_ROW0,
-            'a_InstanceColor':VertexMesh.MESH_CUSTOME0
+			'a_Position': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
+			'a_Normal': [VertexMesh.MESH_NORMAL0, ShaderDataType.Vector3],
+			'a_Texcoord0': [VertexMesh.MESH_TEXTURECOORDINATE0, ShaderDataType.Vector2],
+            'a_Tangent0': [VertexMesh.MESH_TANGENT0, ShaderDataType.Vector4],
+            'a_WorldMat':[VertexMesh.MESH_WORLDMATRIX_ROW0, ShaderDataType.Matrix4x4],
+            'a_InstanceColor':[VertexMesh.MESH_CUSTOME0, ShaderDataType.Color],
         };
+
+        var uniformMap: any = {
+            
+        }
         var shader: Shader3D = Shader3D.add("CustomInstanceMat",false);
-		var subShader: SubShader = new SubShader(attributeMap);
+		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(CustomInstanceVS, CustomInstanceFS, "Forward");
     }

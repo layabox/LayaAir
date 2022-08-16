@@ -58,6 +58,7 @@ interface ContentTypeMap {
 
 var typeIdCounter = 0;
 type TypeMapEntry = { typeId: number, loaderType: new () => IResourceLoader };
+var imageEntry: TypeMapEntry;
 
 interface URLInfo {
     ext: string,
@@ -134,8 +135,11 @@ export class Loader extends EventDispatcher {
         let typeEntry: TypeMapEntry;
         if (type) {
             typeEntry = <TypeMapEntry>Loader.typeMap[type];
-            if (!typeEntry)
+            if (!typeEntry) {
                 Loader.typeMap[type] = typeEntry = { typeId: typeIdCounter++, loaderType: cls };
+                if (!imageEntry && type === Loader.IMAGE)
+                    imageEntry = typeEntry;
+            }
             else if (typeEntry.loaderType != cls)
                 typeEntry = { typeId: typeEntry.typeId, loaderType: cls };
         }
@@ -369,7 +373,7 @@ export class Loader extends EventDispatcher {
         if (options.priority == null)
             options.priority = 0;
         if (options.useWorkerLoader == null)
-            options.useWorkerLoader = ILaya.WorkerLoader.enable;
+            options.useWorkerLoader = WorkerLoader.enable;
         if (onProgress)
             task.onProgress.add(onProgress);
         task.loader = this;
@@ -605,13 +609,26 @@ export class Loader extends EventDispatcher {
             typeId = typeEntry.typeId;
 
             let i: number = 0;
-            if (extEntry &&
-                (extEntry[0].typeId === typeId //优化，大部分情况均为如此
-                    || (i = extEntry.findIndex(e => e.typeId === typeId)) != -1)) {
-                main = i == 0;
-                loaderType = extEntry[i].loaderType;
+            if (extEntry) {
+                if (extEntry[0].typeId === typeId //优化，大部分情况均为如此
+                    || (i = extEntry.findIndex(e => e.typeId === typeId)) != -1) {
+                    main = i == 0;
+                    loaderType = extEntry[i].loaderType;
+                }
+                else {
+                    //未与扩展名匹配的情况，例如a.lh试图以Loader.JSON类型加载，这种组合没有注册，但仍然允许加载为副资源
+                    if (type == Loader.TEXTURE2D && extEntry[0] != imageEntry) {
+                        //特别检查，TEXTURE2D必须是图片类型才允许这样，如果不是图片，忽略type
+                        main = true;
+                        loaderType = extEntry[0].loaderType;
+                    }
+                    else {
+                        main = false;
+                        loaderType = typeEntry.loaderType;
+                    }
+                }
             }
-            else { //扩展名没有注册的情况，或者未与扩展名匹配的情况，例如a.lh试图以Loader.JSON类型加载，这种组合没有注册，但仍然允许加载为副资源
+            else { //扩展名没有注册的情况
                 main = false;
                 loaderType = typeEntry.loaderType;
             }

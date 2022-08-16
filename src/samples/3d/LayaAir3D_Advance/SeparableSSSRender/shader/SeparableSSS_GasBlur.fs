@@ -1,9 +1,4 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了
-	precision highp float;
-#else
-	precision mediump float;
-#endif
-
+#define SHADER_NAME SeparableSSSGasFS
 //#if defined(SAMPLE_HIGH)
     const int StepRange = 3;
     const int SamplerNum = 17;
@@ -14,20 +9,8 @@
 //    uniform vec4 u_kernel[samplerNum];
 //#endif
 
-//DiffuseBuffer
-uniform sampler2D u_MainTex;
-//深度贴图
-uniform sampler2D u_depthTex;
 //uv
 varying vec2 v_Texcoord0;
-//sss宽度
-uniform float u_sssWidth;
-//模糊方向 0，1 或者1，0
-uniform vec2 u_blurDir;
-
-//float distanceToProjectionWindow = 1.0 / tan(0.5 * radians(SSSS_FOVY));
-uniform float u_distanceToProjectionWindow;
-
 
 vec4 Sample17Nums(vec2 finalStep,vec4 colorBlurred,float depthM,vec4 colorM){
       for (int i = 1; i < SamplerNum; i++) {

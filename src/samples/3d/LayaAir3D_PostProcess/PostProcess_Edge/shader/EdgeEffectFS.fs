@@ -1,34 +1,9 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-	precision highp float;
-#else
-	precision mediump float;
-#endif
-
+#define SHADER_NAME EdgeEffectFS
 #include "DepthNormalUtil.glsl";
-
-uniform sampler2D u_MainTex;
-uniform vec4 u_MainTex_TexelSize;
-
-uniform vec4 u_DepthBufferParams;
-
-uniform vec3 u_EdgeColor;
-
-#ifdef DEPTHEDGE
-    uniform float u_Depthhold;
-#endif
-
-#ifdef NORMALEDGE
-    uniform float u_NormalHold;
-#endif
-
-#ifdef COLOREDGE
-    uniform float u_ColorHold;
-#endif
 
 varying vec2 v_Texcoord0;
 
 #ifdef DEPTHNORMAL
-    uniform sampler2D u_DepthNormalTex;
     void getDepthNormal(out float depth, out vec3 normal){
         vec4 col = texture2D(u_DepthNormalTex, v_Texcoord0);
         DecodeDepthNormal(col, depth, normal);
@@ -53,7 +28,6 @@ varying vec2 v_Texcoord0;
 #endif
 
 #ifdef DEPTH
-    uniform sampler2D u_DepthTex;
     float getDepth(vec2 uv) {
         float depth = texture2D(u_DepthTex, uv).r;
         depth = Linear01Depth(depth, u_DepthBufferParams);
@@ -150,7 +124,7 @@ void main() {
         vec3 edgeValue = getEdgeValue(u_ColorHold, colorG);
     #endif
 
-    vec3 fillColor = u_EdgeColor;
+    vec3 fillColor = u_EdgeColor.xyz;
 
     #ifdef SOURCE
         fillColor = texture2D(u_MainTex, uv).rgb;

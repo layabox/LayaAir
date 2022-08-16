@@ -1,20 +1,14 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了
-	precision highp float;
-#else
-	precision mediump float;
-#endif
+#define SHADER_NAME GlassShaderFS
 
-uniform sampler2D u_tintTexure;
-uniform sampler2D u_screenTexture;
 varying vec2 v_Texcoord0;
-uniform float u_tintAmount;
 varying vec4 v_ScreenTexcoord;
 
 void main()
 {
 	vec4 color;
-	color =mix(texture2D(u_screenTexture,v_ScreenTexcoord.xy/v_ScreenTexcoord.w),texture2D(u_tintTexure, v_Texcoord0),0.5);
-
+	vec4 screenTexColor = texture2D(u_screenTexture,v_ScreenTexcoord.xy/v_ScreenTexcoord.w);
+	vec4 tintTexColor = texture2D(u_tintTexure, v_Texcoord0);
+	color = mix(screenTexColor, tintTexColor,0.5);
 	gl_FragColor = color;
 }
 

@@ -17,7 +17,7 @@ import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "laya/layagl/LayaGL";
 
@@ -68,10 +68,22 @@ export class EdgeEffect extends PostProcessEffect {
 
         EdgeEffect.SHADERDEFINE_SOURCE = Shader3D.getDefineByName("SOURCE");
         let attributeMap: any = {
-            'a_PositionTexcoord': VertexMesh.MESH_POSITION0
+            'a_PositionTexcoord': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
+        };
+
+        let uniformMap: any = {
+            "u_MainTex": ShaderDataType.Texture2D,
+            "u_MainTex_TexelSize": ShaderDataType.Vector4,
+            "u_DepthTex": ShaderDataType.Texture2D,
+            "u_DepthNormalTex": ShaderDataType.Texture2D,
+            "u_DepthBufferParams": ShaderDataType.Vector4,
+            "u_EdgeColor": ShaderDataType.Color,
+            "u_ColorHold": ShaderDataType.Float,
+            "u_Depthhold": ShaderDataType.Float,
+            "u_NormalHold": ShaderDataType.Float,
         };
         let shader: Shader3D = Shader3D.add("PostProcessEdge");
-        let subShader: SubShader = new SubShader(attributeMap);
+        let subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         let pass: ShaderPass = subShader.addShaderPass(EdgeEffectVS, EdgeEffectFS);
         pass.renderState.depthWrite = false;
