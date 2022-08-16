@@ -20,7 +20,7 @@ import AmbientOcclusion from "./Shader/AmbientOcclusion.glsl";
 import { WrapMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "laya/layagl/LayaGL";
 
 export class ScalableAO extends PostProcessEffect {
@@ -55,27 +55,33 @@ export class ScalableAO extends PostProcessEffect {
         Shader3D.addInclude("AmbientOcclusion.glsl", AmbientOcclusion);
         //scalableAoShader
         let attributeMap: any = {
-            'a_PositionTexcoord': VertexMesh.MESH_POSITION0
+            'a_PositionTexcoord': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
         };
+        let uniformMap:any = {
+            'u_OffsetScale': ShaderDataType.Vector4,
+            'u_MainTex': ShaderDataType.Texture2D,
+            'u_MainTex_TexelSize': ShaderDataType.Vector4,
+            'u_Delty': ShaderDataType.Vector2,
+            'u_PlugTime': ShaderDataType.Vector4,
+            'u_AOParams': ShaderDataType.Vector4,
+            'u_BlurVector': ShaderDataType.Vector2,
+            'u_AOColor': ShaderDataType.Vector3,
+            'u_compositionAoTexture': ShaderDataType.Texture2D
+
+        }
         let shader: Shader3D = Shader3D.add("ScalableAO");
-        let subShader: SubShader = new SubShader(attributeMap);
+        let subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(BlitScreenVS, FragAO);
         //BlurShader
-        attributeMap = {
-            'a_PositionTexcoord': VertexMesh.MESH_POSITION0
-        };
         shader = Shader3D.add("AOBlurHorizontal");
-        subShader = new SubShader(attributeMap);
+        subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(BlitScreenVS, AoBlurHorizontal);
 
         //Composition
-        attributeMap = {
-            'a_PositionTexcoord': VertexMesh.MESH_POSITION0
-        };
         shader = Shader3D.add("AOComposition");
-        subShader = new SubShader(attributeMap);
+        subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         subShader.addShaderPass(BlitScreenVS, AOComposition);
 

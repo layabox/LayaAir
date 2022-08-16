@@ -7,10 +7,7 @@
 #define SHADER_NAME AOComposition
 #define BLUR_HIGH_QUALITY 0
 
-uniform sampler2D u_MainTex;
-uniform vec4 u_MainTex_TexelSize;
-uniform vec3 u_AOColor;
-uniform sampler2D u_compositionAoTexture;
+
 varying vec2 v_Texcoord0;
 
 vec3 GetPackedNormal(vec4 p)

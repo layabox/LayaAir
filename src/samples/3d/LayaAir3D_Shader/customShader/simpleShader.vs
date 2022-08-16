@@ -1,20 +1,19 @@
-#include "LayaComInput.glsl";
-#include "Lighting.glsl";
+#include "Camera.glsl";
+#include "Sprite3DVertex.glsl";
+#include "VertexCommon.glsl";
 
-attribute vec4 a_Position;
-
-uniform mat4 u_MvpMatrix;
-//uniform mat4 u_WorldMat;
-
-
-attribute vec3 a_Normal;
 varying vec3 v_Normal;
 
 void main()
 {
-	gl_Position = u_MvpMatrix * a_Position;
+	Vertex vertex;
+    getVertexParams(vertex);
+  	mat4 worldMat = getWorldMatrix();
+    vec3 positionWS = (worldMat * vec4(vertex.positionOS, 1.0)).xyz;
+
+    gl_Position = getPositionCS(positionWS);
 	  
-	mat3 worldMat=mat3(u_WorldMat);
-	v_Normal=worldMat*a_Normal;
-	gl_Position=remapGLPositionZ(gl_Position);
+	vec3 normalWS = normalize((worldMat * vec4(vertex.normalOS, 0.0)).xyz);
+    v_Normal = normalWS;
+	gl_Position=remapPositionZ(gl_Position);
 }

@@ -4,15 +4,15 @@
 	precision mediump float;
 #endif
 
+
 #define SHADER_NAME AOBlurHorizontal
 //质量
 #define BLUR_HIGH_QUALITY 0
 
-uniform sampler2D u_MainTex;
-uniform vec4 u_MainTex_TexelSize;
+
 varying vec2 v_Texcoord0;
 
-uniform vec2 u_Delty;
+// uniform vec2 u_Delty;
 
 vec3 GetPackedNormal(vec4 p)
 {

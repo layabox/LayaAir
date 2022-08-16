@@ -1,9 +1,11 @@
 import { Material } from "laya/d3/core/material/Material";
 import { RenderState } from "laya/d3/core/material/RenderState";
+import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import OutlineFS from "../customShader/outline.fs";
@@ -79,11 +81,19 @@ export class MultiplePassOutlineMaterial extends Material {
 
 	static initShader(): void {
 		MultiplePassOutlineMaterial.__init__();
+
+		var uniformMap: any = {
+			'u_OutlineLightness': ShaderDataType.Float,
+			'u_OutlineColor': ShaderDataType.Vector4,
+			'u_AlbedoTexture': ShaderDataType.Texture2D,
+			'u_OutlineWidth': ShaderDataType.Float
+
+		};
 		var customShader: Shader3D = Shader3D.add("MultiplePassOutlineShader");
-		var subShader: SubShader = new SubShader();
+		var subShader: SubShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap);
 		customShader.addSubShader(subShader);
 		var pass1: ShaderPass = subShader.addShaderPass(OutlineVS, OutlineFS);
-		pass1.renderState.cull = RenderState.CULL_FRONT;
+		 pass1.renderState.cull = RenderState.CULL_FRONT;
 		subShader.addShaderPass(Outline02VS, Outline02FS);
 	}
 

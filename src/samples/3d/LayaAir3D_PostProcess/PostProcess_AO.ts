@@ -71,6 +71,7 @@ export class ProstProcess_AO {
 
         let planeMesh: Mesh = PrimitiveMesh.createPlane(10, 10, 1, 1);
         let plane: MeshSprite3D = new MeshSprite3D(planeMesh);
+        plane.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
         scene.addChild(plane);
 
         let cubeMesh: Mesh = PrimitiveMesh.createBox();
@@ -85,6 +86,19 @@ export class ProstProcess_AO {
         let sphere3: MeshSprite3D = new MeshSprite3D(sphere);
 
         cube0.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
+        cube1.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
+
+        cube2.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
+
+        cube3.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
+
+
+        sphere0.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
+        sphere1.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
+
+        sphere2.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
+
+        sphere3.meshRenderer.sharedMaterial = new BlinnPhongMaterial;
 
         sprite.addChild(cube0);
         sprite.addChild(cube1);

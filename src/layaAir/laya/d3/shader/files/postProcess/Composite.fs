@@ -1,23 +1,9 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)// 原来的写法会被我们自己的解析流程处理，而我们的解析是不认内置宏的，导致被删掉，所以改成 if defined 了
-	precision highp float;
-#else
-	precision mediump float;
-#endif
+#define SHADER_NAME CompositeFS
 
 #include "Colors.glsl";
 #include "Sampling.glsl";
 
 varying vec2 v_Texcoord0;
-
-uniform sampler2D u_MainTex;
-uniform sampler2D u_BloomTex;
-
-uniform sampler2D u_AutoExposureTex;
-uniform sampler2D u_Bloom_DirtTex;
-uniform vec4 u_BloomTex_TexelSize;
-uniform vec4 u_Bloom_DirtTileOffset; // xy: tiling, zw: offset
-uniform mediump vec3 u_Bloom_Settings;// x: sampleScale, y: intensity, z: dirt intensity
-uniform mediump vec3 u_Bloom_Color;
 
 void main() {
 	mediump float autoExposure = texture2D(u_AutoExposureTex, v_Texcoord0).r;

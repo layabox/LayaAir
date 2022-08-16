@@ -146,8 +146,8 @@ export class IndexView3D extends IndexViewUI {
 	//var s:Secne3DPlayer2D    
 	//AStarFindPath 删除
 	//VideoPlayIn3DWorld videoTexture现在跑不起来
-	private _advanceClsArr: any[] = [ AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,CommandBuffer_DrawCustomInstance,ReflectionProbeDemo,CameraDepthModeTextureDemo,SeparableSSS_RenderDemo];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = [ 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','CommandBuffer_DrawCustomInstance','ReflectionProbeDemo','CameraDepthTextureDemo','SeparableScreenSSS'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,CommandBuffer_DrawCustomInstance,ReflectionProbeDemo,CameraDepthModeTextureDemo,SeparableSSS_RenderDemo];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = ['DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','CommandBuffer_DrawCustomInstance','ReflectionProbeDemo','CameraDepthTextureDemo','SeparableScreenSSS'];//'后期处理之泛光','寻路示例',
 
 	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge,PostProcessDoF,ProstProcess_AO];
 	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge','PostProcessDOF','PostProcessAO'];
@@ -164,8 +164,8 @@ export class IndexView3D extends IndexViewUI {
 	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow,SpotLightShadowMap,  SpotLightDemo, MultiLight];
 	private _lightingArr: any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLightShadowMap', 'SpotLight', 'MultiLight'];
 
-	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap,Blinnphong_Transmission, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, UnlitMaterialDemo, WaterPrimaryMaterialDemo,StencilDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
-	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap","Blinnphong_Transmission", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRMaterial", "UnlitMaterial", "WaterPrimaryMaterial","StencilDemo"];
+	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap,Blinnphong_Transmission, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, UnlitMaterialDemo, StencilDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
+	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap","Blinnphong_Transmission", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRMaterial", "UnlitMaterial", "StencilDemo"];
 
 	private _meshClsArr: any[] = [ChangeMesh, CustomMesh, MeshLoad];
 	private _meshArr: any[] = ['ChangeMesh', 'CustomMesh', "MeshLoad"];
@@ -190,14 +190,14 @@ export class IndexView3D extends IndexViewUI {
 	private _resourceClsArr: any[] = [GarbageCollection, LoadResourceDemo,LoadGltfResource];
 	private _resourceArr: any[] = ['GarbageCollection', 'LoadResourceDemo','LoadGltfResource'];
 
-	private _scene3DClsArr: any[] = [EnvironmentalReflection, LightmapScene, SceneLoad1, SceneLoad2];
-	private _scene3DArr: any[] = ['EnvironmentalReflection', 'LightmapScene', 'SceneLoad1', "SceneLoad2"];
+	private _scene3DClsArr: any[] = [EnvironmentalReflection, LightmapScene, SceneLoad1, ];
+	private _scene3DArr: any[] = ['EnvironmentalReflection', 'LightmapScene', 'SceneLoad1'];
 
 	private _scriptClsArr: any[] = [ScriptDemo];
 	private _scriptArr: any[] = ['ScriptDemo'];
 
-	private _shaderClsArr: any[] = [Shader_MultiplePassOutline, Shader_GlowingEdge, Shader_Simple, Shader_Terrain];
-	private _shaderArr: any[] = ['Shader_MultiplePassOutline', 'Shader_GlowingEdge', 'Shader_Simple', "Shader_Terrain"];
+	private _shaderClsArr: any[] = [Shader_MultiplePassOutline, Shader_GlowingEdge, Shader_Simple];
+	private _shaderArr: any[] = ['Shader_MultiplePassOutline', 'Shader_GlowingEdge', 'Shader_Simple'];
 
 	private _skyClsArr: any[] = [Sky_Procedural, Sky_SkyBox,GriendSkyAmbientDemo];
 	private _skyArr: any[] = ['Sky_Procedural', 'Sky_SkyBox','GriendSkyAmbientDemo'];

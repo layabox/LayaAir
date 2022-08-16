@@ -1,3 +1,4 @@
+#include "Camera.glsl";
 // const 
 #define TWO_PI 6.2831852
 
@@ -8,16 +9,6 @@ const float kContrast = 0.6;
 const float kGeometryCoeff = 0.8;
 const float kBeta = 0.002;
 
-// unifrom 
-uniform sampler2D u_MainTex;
-uniform vec4 u_MainTex_TexelSize;
-
-uniform mat4 u_Projection;
-uniform vec4 u_ProjectionParams; // x: near, y: far, z: invert, w: 1/far
-
-uniform vec4 u_PlugTime;
-uniform vec4 u_AOParams;
-uniform vec2 u_BlurVector;
 
 // varying
 varying vec2 v_Texcoord0;

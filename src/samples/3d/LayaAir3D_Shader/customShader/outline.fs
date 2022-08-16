@@ -4,8 +4,6 @@ precision highp float;
     precision mediump float; 
 #endif 
 
-uniform float u_OutlineLightness; 
-uniform vec4 u_OutlineColor;
 
 void main() 
 { 

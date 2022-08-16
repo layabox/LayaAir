@@ -10,8 +10,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Utils } from "laya/utils/Utils";
-
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
@@ -26,11 +24,10 @@ export class GarbageCollection {
 	private _castType: number = 0;
 
 	/**实例类型*/
-	private btype:any = "CommandBuffer_Outline";
+	private btype:any = "GarbageCollection";
 	/**场景内按钮类型*/
 	private stype:any = 0;
 	private changeActionButton:Button;
-	isMaster: any;
 
 	/**
 	 * @private
@@ -44,28 +41,8 @@ export class GarbageCollection {
 		this.loadScene();
 		this.loadUI();
 
-		this.isMaster = Utils.getQueryString("isMaster");
-		this.initEvent();
 	}
 	
-	initEvent()
-	{
-		Laya.stage.on("next",this,this.onNext);
-	}
-
-	/**
-	 * 
-	 * @param data {btype:""}
-	 */
-	onNext(data:any)
-	{
-		if(this.isMaster)return;//拒绝非主控制器推送消息
-		if(data.btype == this.btype)
-		{
-			this.stypeFun(data.value);
-		}
-	}
-
 	/**
 	 * @private
 	 */
@@ -78,11 +55,11 @@ export class GarbageCollection {
 			this.changeActionButton.sizeGrid = "4,4,4,4";
 			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(200, 200);
-			this.changeActionButton.on(Event.CLICK, this, this.stypeFun);
+			this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 		}));
 	}
 
-	stypeFun(label:string = "加载场景") {
+	stypeFun0(label:string = "加载场景") {
 		this._castType++;
 		this._castType %= 2;
 		switch (this._castType) {
@@ -97,9 +74,7 @@ export class GarbageCollection {
 				break;
 	    }
 		label = this.changeActionButton.label;
-		if(this.isMaster)
 		Client.instance.send({"type":"next","btype":this.btype,"stype":0,"value":label});	
-
 	}
 
 	/**

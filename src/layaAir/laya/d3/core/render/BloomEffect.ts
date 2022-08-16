@@ -10,8 +10,23 @@ import { RenderTexture } from "../../resource/RenderTexture";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
+import { SubShader } from "../../shader/SubShader";
+import { RenderState } from "../material/RenderState";
+import BloomVS from "../../shader/files/postProcess/Bloom.vs";
+import BloomDownsample13PS from "../../shader/files/postProcess/BloomDownsample13.fs";
+import BloomDownsample4PS from "../../shader/files/postProcess/BloomDownsample4.fs";
+import BloomPrefilter13PS from "../../shader/files/postProcess/BloomPrefilter13.fs";
+import BloomPrefilter4PS from "../../shader/files/postProcess/BloomPrefilter4.fs";
+import BloomUpsampleBoxPS from "../../shader/files/postProcess/BloomUpsampleBox.fs";
+import BloomUpsampleTentPS from "../../shader/files/postProcess/BloomUpsampleTent.fs";
+import SamplingGLSL from "../../shader/files/postProcess/Sampling.glsl";
+import StdLibGLSL from "../../shader/files/postProcess/StdLib.glsl";
+import ColorsGLSL from "../../shader/files/postProcess/Colors.glsl";
+import CompositePS from "../../shader/files/postProcess/Composite.fs";
+import CompositeVS from "../../shader/files/postProcess/Composite.vs";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。
@@ -46,13 +61,116 @@ export class BloomEffect extends PostProcessEffect {
 	/**@internal */
 	private static MAXPYRAMIDSIZE: number = 16; // Just to make sure we handle 64k screens... Future-proof!
 
-	static __init__(){
-	BloomEffect.SHADERVALUE_MAINTEX= Shader3D.propertyNameToID("u_MainTex");
-	BloomEffect.SHADERVALUE_AUTOEXPOSURETEX= Shader3D.propertyNameToID("u_AutoExposureTex");
-	BloomEffect.SHADERVALUE_SAMPLESCALE= Shader3D.propertyNameToID("u_SampleScale");
-	BloomEffect.SHADERVALUE_THRESHOLD= Shader3D.propertyNameToID("u_Threshold");
-	BloomEffect.SHADERVALUE_PARAMS= Shader3D.propertyNameToID("u_Params");
-	BloomEffect.SHADERVALUE_BLOOMTEX= Shader3D.propertyNameToID("u_BloomTex");
+	static init() {
+		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
+		Shader3D.addInclude("Colors.glsl", ColorsGLSL);
+		Shader3D.addInclude("Sampling.glsl", SamplingGLSL);
+		var attributeMap: any = {
+			'a_PositionTexcoord': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
+		};
+
+		var uniformMap: any = {
+			"u_MainTex": ShaderDataType.Texture2D,
+			"u_MainTex_TexelSize": ShaderDataType.Vector4,
+			"u_AutoExposureTex": ShaderDataType.Texture2D,
+			"u_Threshold": ShaderDataType.Vector4,
+			"u_Params": ShaderDataType.Vector4,
+			"u_BloomTex": ShaderDataType.Texture2D,
+			"u_SampleScale": ShaderDataType.Float,
+		};
+		var shader = Shader3D.add("PostProcessBloom");
+		//subShader0
+		var subShader = new SubShader(attributeMap, uniformMap);
+		shader.addSubShader(subShader);
+		var shaderPass = subShader.addShaderPass(BloomVS, BloomPrefilter13PS);
+		var renderState: RenderState = shaderPass.renderState;
+		renderState = shaderPass.renderState;
+		renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+		renderState.depthWrite = false;
+		renderState.cull = RenderState.CULL_NONE;
+		renderState.blend = RenderState.BLEND_DISABLE;
+		//subShader1
+		subShader = new SubShader(attributeMap, uniformMap);
+		shader.addSubShader(subShader);
+		shaderPass = subShader.addShaderPass(BloomVS, BloomPrefilter4PS);
+		renderState = shaderPass.renderState;
+		renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+		renderState.depthWrite = false;
+		renderState.cull = RenderState.CULL_NONE;
+		renderState.blend = RenderState.BLEND_DISABLE;
+		//subShader2
+		subShader = new SubShader(attributeMap, uniformMap);
+		shader.addSubShader(subShader);
+		shaderPass = subShader.addShaderPass(BloomVS, BloomDownsample13PS);
+		renderState = shaderPass.renderState;
+		renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+		renderState.depthWrite = false;
+		renderState.cull = RenderState.CULL_NONE;
+		renderState.blend = RenderState.BLEND_DISABLE;
+		//subShader3
+		subShader = new SubShader(attributeMap, uniformMap);
+		shader.addSubShader(subShader);
+		shaderPass = subShader.addShaderPass(BloomVS, BloomDownsample4PS);
+		renderState = shaderPass.renderState;
+		renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+		renderState.depthWrite = false;
+		renderState.cull = RenderState.CULL_NONE;
+		renderState.blend = RenderState.BLEND_DISABLE;
+		//subShader4
+		subShader = new SubShader(attributeMap, uniformMap);
+		shader.addSubShader(subShader);
+		shaderPass = subShader.addShaderPass(BloomVS, BloomUpsampleTentPS);
+		renderState = shaderPass.renderState;
+		renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+		renderState.depthWrite = false;
+		renderState.cull = RenderState.CULL_NONE;
+		renderState.blend = RenderState.BLEND_DISABLE;
+		//subShader5
+		subShader = new SubShader(attributeMap, uniformMap);
+		shader.addSubShader(subShader);
+		shaderPass = subShader.addShaderPass(BloomVS, BloomUpsampleBoxPS);
+		renderState = shaderPass.renderState;
+		renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+		renderState.depthWrite = false;
+		renderState.cull = RenderState.CULL_NONE;
+		renderState.blend = RenderState.BLEND_DISABLE;
+		this.CompositeInit();
+	}
+
+	static CompositeInit() {
+		//PostProcessComposite
+		let attributeMap: any = {
+			'a_PositionTexcoord': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
+		};
+		let uniformMap = {
+			'u_MainTex': ShaderDataType.Texture2D,
+			'u_BloomTex': ShaderDataType.Texture2D,
+			'u_AutoExposureTex': ShaderDataType.Texture2D,
+			'u_Bloom_DirtTex': ShaderDataType.Texture2D,
+			'u_BloomTex_TexelSize': ShaderDataType.Vector4,
+			'u_Bloom_DirtTileOffset': ShaderDataType.Vector4,
+			'u_Bloom_Settings': ShaderDataType.Vector3,
+			'u_Bloom_Color': ShaderDataType.Vector3,
+		};
+		let shader = Shader3D.add("PostProcessComposite");
+
+		let subShader = new SubShader(attributeMap, uniformMap);
+		shader.addSubShader(subShader);
+		let shaderPass = subShader.addShaderPass(CompositeVS, CompositePS);
+		let renderState = shaderPass.renderState;
+		renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+		renderState.depthWrite = false;
+		renderState.cull = RenderState.CULL_NONE;
+		renderState.blend = RenderState.BLEND_DISABLE;
+	}
+
+	static __initDefine__() {
+		BloomEffect.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
+		BloomEffect.SHADERVALUE_AUTOEXPOSURETEX = Shader3D.propertyNameToID("u_AutoExposureTex");
+		BloomEffect.SHADERVALUE_SAMPLESCALE = Shader3D.propertyNameToID("u_SampleScale");
+		BloomEffect.SHADERVALUE_THRESHOLD = Shader3D.propertyNameToID("u_Threshold");
+		BloomEffect.SHADERVALUE_PARAMS = Shader3D.propertyNameToID("u_Params");
+		BloomEffect.SHADERVALUE_BLOOMTEX = Shader3D.propertyNameToID("u_BloomTex");
 	}
 
 	/**@internal */
@@ -197,6 +315,7 @@ export class BloomEffect extends PostProcessEffect {
 	 */
 	constructor() {
 		super();
+		BloomEffect.__initDefine__();
 		this._shader = Shader3D.find("PostProcessBloom");
 		this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
 	}
