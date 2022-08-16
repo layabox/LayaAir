@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -20,13 +19,14 @@ import { CapsuleColliderShape } from "laya/d3/physics/shape/CapsuleColliderShape
 import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
-import { KeyBoardManager } from "laya/events/KeyBoardManager";
+import { InputManager } from "laya/events/InputManager";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Config3D } from "Config3D";
 import { Color } from "laya/d3/math/Color";
+import { Script } from "laya/components/Script";
 
 export class PhysicsWorld_TriggerAndCollisionEvent {
 
@@ -45,12 +45,12 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 
 	constructor() {
 		//初始化引擎
+		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-			Config3D.useCannonPhysics = false;
 			//创建场景
 			this.scene = new Scene3D();
 			Laya.stage.addChild(this.scene);
@@ -132,12 +132,12 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 	}
 
 	private onKeyDown(): void {
-		KeyBoardManager.hasKeyDown(87) && this.kinematicSphere.transform.translate(this.translateW);//W
-		KeyBoardManager.hasKeyDown(83) && this.kinematicSphere.transform.translate(this.translateS);//S
-		KeyBoardManager.hasKeyDown(65) && this.kinematicSphere.transform.translate(this.translateA);//A
-		KeyBoardManager.hasKeyDown(68) && this.kinematicSphere.transform.translate(this.translateD);//D
-		KeyBoardManager.hasKeyDown(81) && this.plane.transform.translate(this.translateQ);//Q
-		KeyBoardManager.hasKeyDown(69) && this.plane.transform.translate(this.translateE);//E
+		InputManager.hasKeyDown(87) && this.kinematicSphere.transform.translate(this.translateW);//W
+		InputManager.hasKeyDown(83) && this.kinematicSphere.transform.translate(this.translateS);//S
+		InputManager.hasKeyDown(65) && this.kinematicSphere.transform.translate(this.translateA);//A
+		InputManager.hasKeyDown(68) && this.kinematicSphere.transform.translate(this.translateD);//D
+		InputManager.hasKeyDown(81) && this.plane.transform.translate(this.translateQ);//Q
+		InputManager.hasKeyDown(69) && this.plane.transform.translate(this.translateE);//E
 	}
 
 	addBoxAndTrigger(): void {
@@ -237,7 +237,7 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 
 
 
-class TriggerCollisionScript extends Script3D {
+class TriggerCollisionScript extends Script {
 	kinematicSprite: Sprite3D;
 
 	constructor() {
@@ -247,34 +247,34 @@ class TriggerCollisionScript extends Script3D {
 	}
 
 	//开始触发时执行
-	/*override*/  onTriggerEnter(other: PhysicsComponent): void {
+	onTriggerEnter(other: PhysicsComponent): void {
 		((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Color(0.0, 1.0, 0.0, 1.0);
 		console.log("onTriggerEnter");
 	}
 
 	//持续触发时执行
-	/*override*/  onTriggerStay(other: PhysicsComponent): void {
+	onTriggerStay(other: PhysicsComponent): void {
 		console.log("onTriggerStay");
 	}
 
 	//结束触发时执行
-	/*override*/  onTriggerExit(other: PhysicsComponent): void {
+	onTriggerExit(other: PhysicsComponent): void {
 		((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Color(1.0, 1.0, 1.0, 1.0);
 		console.log("onTriggerExit");
 	}
 
 	//开始碰撞时执行
-	/*override*/  onCollisionEnter(collision: Collision): void {
+	onCollisionEnter(collision: Collision): void {
 		if (collision.other.owner === this.kinematicSprite)
 			((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Color(0.0, 0.0, 0.0, 1.0);
 	}
 
 	//持续碰撞时执行
-	/*override*/  onCollisionStay(collision: Collision): void {
+	onCollisionStay(collision: Collision): void {
 	}
 
 	//结束碰撞时执行
-	/*override*/  onCollisionExit(collision: Collision): void {
+	onCollisionExit(collision: Collision): void {
 	}
 
 }

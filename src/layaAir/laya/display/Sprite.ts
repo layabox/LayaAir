@@ -1,7 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { Const } from "../Const";
-import { Event } from "../events/Event";
-import { EventDispatcher } from "../events/EventDispatcher";
+import { NodeFlags } from "../Const";
 import { ColorFilter } from "../filters/ColorFilter";
 import { Filter } from "../filters/Filter";
 import { GrahamScan } from "../maths/GrahamScan";
@@ -22,8 +20,9 @@ import { Graphics } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst } from "./SpriteConst";
 import { Stage } from "./Stage";
-import { URL } from "../net/URL";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { Event } from "../events/Event";
+import { Dragging } from "../utils/Dragging";
 
 
 /**在显示对象上按下后调度。
@@ -409,7 +408,7 @@ export class Sprite extends Node {
     }
 
     set x(value: number) {
-        if (this.destroyed) return;
+        if (this._destroyed) return;
         if (this._x !== value) {
             this._setX(value);
             //_setTranformChange();
@@ -427,7 +426,7 @@ export class Sprite extends Node {
     }
 
     set y(value: number) {
-        if (this.destroyed) return;
+        if (this._destroyed) return;
         if (this._y !== value) {
             this._setY(value);
             //_setTranformChange();
@@ -1048,7 +1047,7 @@ export class Sprite extends Node {
      */
     pos(x: number, y: number, speedMode: boolean = false): Sprite {
         if (this._x !== x || this._y !== y) {
-            if (this.destroyed) return this;
+            if (this._destroyed) return this;
             if (speedMode) {
                 this._setX(x);
                 this._setY(y);
@@ -1102,7 +1101,7 @@ export class Sprite extends Node {
     scale(scaleX: number, scaleY: number, speedMode: boolean = false): Sprite {
         var style: SpriteStyle = this.getStyle();
         if (style.scaleX != scaleX || style.scaleY != scaleY) {
-            if (this.destroyed) return this;
+            if (this._destroyed) return this;
             if (speedMode) {
                 this._setScaleX(scaleX);
                 this._setScaleY(scaleY);
@@ -1353,7 +1352,7 @@ export class Sprite extends Node {
         this._setRenderType(this._renderType);
 
         if (value && value.length > 0) {
-            if (!this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
+            if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
             if (!(value.length == 1 && (value[0] instanceof ColorFilter))) {
                 this._getCacheStyle().cacheForFilters = true;
                 this._checkCanvasEnable();
@@ -1404,7 +1403,7 @@ export class Sprite extends Node {
         }
         var ele: Sprite = this;
         globalNode = globalNode || ILaya.stage;
-        while (ele && !ele.destroyed) {
+        while (ele && !ele._destroyed) {
             if (ele == globalNode) break;
             point = ele.toParentPoint(point);
             ele = (<Sprite>ele.parent);
@@ -1428,7 +1427,7 @@ export class Sprite extends Node {
         var ele: Sprite = this;
         var list: any[] = [];
         globalNode = globalNode || ILaya.stage;
-        while (ele && !ele.destroyed) {
+        while (ele && !ele._destroyed) {
             if (ele == globalNode) break;
             list.push(ele);
             ele = (<Sprite>ele.parent);
@@ -1487,21 +1486,13 @@ export class Sprite extends Node {
         return point;
     }
 
-    /**
-     * 将Stage坐标系坐标转换到本地坐标系。
-     * @param point 父容器坐标点。
-     * @return  转换后的点。
-     */
-    fromStagePoint(point: Point): Point {
-        // TODO 没做
-        return point;
-    }
-
     protected onStartListeningToType(type: string) {
+        super.onStartListeningToType(type);
+
         //如果是鼠标事件，则设置自己和父对象为可接受鼠标交互事件
-        if (this._mouseState !== 1 && isMouseEvent(type)) {
+        if (this._mouseState !== 1 && Event.isMouseEvent(type)) {
             this.mouseEnabled = true;
-            this._setBit(Const.HAS_MOUSE, true);
+            this._setBit(NodeFlags.HAS_MOUSE, true);
             if (this._parent) {
                 this._onDisplay();
             }
@@ -1514,9 +1505,9 @@ export class Sprite extends Node {
             var ele: Sprite = this;
             ele = (<Sprite>ele.parent);
             while (ele && ele._mouseState !== 1) {
-                if (ele._getBit(Const.HAS_MOUSE)) break;
+                if (ele._getBit(NodeFlags.HAS_MOUSE)) break;
                 ele.mouseEnabled = true;
-                ele._setBit(Const.HAS_MOUSE, true);
+                ele._setBit(NodeFlags.HAS_MOUSE, true);
                 ele = (<Sprite>ele.parent);
             }
         }
@@ -1527,7 +1518,7 @@ export class Sprite extends Node {
     */
     protected _setParent(value: Node): void {
         super._setParent(value);
-        if (value && this._getBit(Const.HAS_MOUSE)) {
+        if (value && this._getBit(NodeFlags.HAS_MOUSE)) {
             this._onDisplay();
         }
     }
@@ -1602,7 +1593,7 @@ export class Sprite extends Node {
         if (this._children.length) this._renderType |= SpriteConst.CHILDS;
         else this._renderType &= ~SpriteConst.CHILDS;
         this._setRenderType(this._renderType);
-        if (child && this._getBit(Const.HAS_ZORDER)) ILaya.systemTimer.callLater(this, this.updateZOrder);
+        if (child && this._getBit(NodeFlags.HAS_ZORDER)) ILaya.systemTimer.callLater(this, this.updateZOrder);
         this.repaint(SpriteConst.REPAINT_ALL);
     }
 
@@ -1684,9 +1675,9 @@ export class Sprite extends Node {
      * @param disableMouseEvent	（可选）禁用其他对象的鼠标检测，默认为false，设置为true能提高性能。
      * @param ratio				（可选）惯性阻尼系数，影响惯性力度和时长。
      */
-    startDrag(area: Rectangle = null, hasInertia: boolean = false, elasticDistance: number = 0, elasticBackTime: number = 300, data: any = null, disableMouseEvent: boolean = false, ratio: number = 0.92): void {
-        this._style.dragging || (this.getStyle().dragging = new ILaya.Dragging());
-        this._style.dragging.start(this, area, hasInertia, elasticDistance, elasticBackTime, data, disableMouseEvent, ratio);
+    startDrag(area: Rectangle = null, hasInertia: boolean = false, elasticDistance: number = 0, elasticBackTime: number = 300, data: any = null, ratio: number = 0.92): void {
+        this._style.dragging || (this.getStyle().dragging = new Dragging());
+        this._style.dragging.start(this, area, hasInertia, elasticDistance, elasticBackTime, data, ratio);
     }
 
     /**停止拖动此对象。*/
@@ -1795,7 +1786,7 @@ export class Sprite extends Node {
         if (this._zOrder != value) {
             this._zOrder = value;
             if (this._parent) {
-                value && this._parent._setBit(Const.HAS_ZORDER, true);
+                value && this._parent._setBit(NodeFlags.HAS_ZORDER, true);
                 ILaya.systemTimer.callLater(this._parent, this.updateZOrder);
             }
         }
@@ -1876,33 +1867,11 @@ export class Sprite extends Node {
 
     }
 
-    /**@private */
-    captureMouseEvent(exclusive: boolean): void {
-        ILaya.MouseManager.instance.setCapture(this, exclusive);
-    }
-
-    /**@private */
-    releaseMouseEvent(): void {
-        ILaya.MouseManager.instance.releaseCapture();
-    }
-
     set drawCallOptimize(value: boolean) {
-        this._setBit(Const.DRAWCALL_OPTIMIZE, value);
+        this._setBit(NodeFlags.DRAWCALL_OPTIMIZE, value);
     }
 
     get drawCallOptimize(): boolean {
-        return this._getBit(Const.DRAWCALL_OPTIMIZE);
+        return this._getBit(NodeFlags.DRAWCALL_OPTIMIZE);
     }
-}
-
-/**@private */
-const MOUSE_EVENTS: Record<string, boolean> = { "rightmousedown": true, "rightmouseup": true, "rightclick": true, "mousedown": true, "mouseup": true, "mousemove": true, "mouseover": true, "mouseout": true, "click": true, "doubleclick": true };
-
-/**
- * 检测指定事件类型是否是鼠标事件。
- * @param	type 事件的类型。
- * @return	如果是鼠标事件，则值为 true;否则，值为 false。
- */
-function isMouseEvent(type: string): boolean {
-    return MOUSE_EVENTS[type] || false;
 }

@@ -1,6 +1,6 @@
 import { Sprite } from "./Sprite";
 import { Config } from "./../../Config";
-import { Const } from "../Const"
+import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 
 /**
@@ -55,7 +55,7 @@ export class AnimationBase extends Sprite {
      */
     constructor() {
         super();
-        this._setBitUp(Const.DISPLAY);
+        this._setBitUp(NodeFlags.DISPLAY);
     }
 
     /**
@@ -106,7 +106,7 @@ export class AnimationBase extends Sprite {
 
     /**@private */
     protected _frameLoop(): void {
-        if (!this._controlNode || this._controlNode.destroyed) {
+        if (!this._controlNode || this._controlNode._destroyed) {
             this.clearTimer(this, this._frameLoop);
             return;
         }

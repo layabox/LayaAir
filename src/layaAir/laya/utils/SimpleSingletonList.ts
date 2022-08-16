@@ -1,10 +1,13 @@
 import { SingletonList } from "./SingletonList";
-import { ISingletonElement } from "./ISingletonElement"
+
+export interface ISingletonElement {
+    _indexInList: number;
+}
 
 /**
  * <code>SimpleSingletonList</code> 类用于实现单例队列。
  */
-export class SimpleSingletonList extends SingletonList<ISingletonElement> {
+export class SimpleSingletonList<T extends ISingletonElement> extends SingletonList<T> {
     /**
      * 创建一个新的 <code>SimpleSingletonList</code> 实例。
      */
@@ -15,37 +18,37 @@ export class SimpleSingletonList extends SingletonList<ISingletonElement> {
     /**
      * @internal
      */
-    add(element: ISingletonElement): void {
-        var index: number = element._getIndexInList();
+    add(element: T): void {
+        let index = element._indexInList;
         if (index !== -1) {
             console.error("SimpleSingletonList:" + element + " has  in  SingletonList.");
             return;
         }
         this._add(element);
-        element._setIndexInList(this.length++);
+        element._indexInList = this.length++;
     }
 
     /**
      * @internal
      */
-    remove(element: ISingletonElement): void {
-        var index: number = element._getIndexInList();
+    remove(element: T): void {
+        let index: number = element._indexInList;
         this.length--;
         if (index !== this.length) {
-            var end: any = this.elements[this.length];
+            let end = this.elements[this.length];
             this.elements[index] = end;
-            end._setIndexInList(index);
+            end._indexInList = index;
         }
-        element._setIndexInList(-1);
+        element._indexInList = -1;
     }
 
     /**
      * @internal
      */
     clear(): void {
-        var elements: ISingletonElement[] = this.elements;
-        for (var i: number = 0, n: number = this.length; i < n; i++)
-            elements[i]._setIndexInList(-1);
+        let elements = this.elements;
+        for (let i = 0, n = this.length; i < n; i++)
+            elements[i]._indexInList = -1;
         this.length = 0;
     }
 
@@ -53,7 +56,4 @@ export class SimpleSingletonList extends SingletonList<ISingletonElement> {
         this.elements = null;
         this.length = 0;
     }
-
 }
-
-

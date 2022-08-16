@@ -3,6 +3,7 @@ import { ILaya } from "../../../ILaya";
 import { Pool } from "../../utils/Pool";
 import { HTMLElement } from "../dom/HTMLElement";
 import { URL } from "../../net/URL";
+import { Config } from "../../../Config";
 
 /**
  * @private
@@ -220,7 +221,7 @@ export class HTMLStyle {
     }
 
     get font(): string {
-        return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (ILaya.Browser.onIPhone ? (ILaya.Text.fontFamilyMap[this.family] || this.family) : this.family);
+        return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[this.family] || this.family) : this.family);
     }
 
     /**
@@ -242,8 +243,8 @@ export class HTMLStyle {
         this.ower = null;
         this._type = 0;
         this.wordWrap = true;
-        this.fontSize = ILaya.Text.defaultFontSize;
-        this.family = ILaya.Text.defaultFont;
+        this.fontSize = Config.defaultFontSize;
+        this.family = Config.defaultFont;
         this.color = "#000000";
         this.valign = HTMLStyle.VALIGN_TOP;
 

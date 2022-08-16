@@ -107,14 +107,7 @@ export class HierarchyParser {
                             continue;
 
                         try {
-                            comp = node.getComponent(cls);
-                            if (!comp) {
-                                comp = new cls();
-                                comp.owner = node;
-                                components.push(comp);
-                                comp._onAdded();
-                            }
-
+                            comp = node.addComponent(cls);
                             util.decodeObj(compData, comp, null, nodeMap);
                         }
                         catch (err: any) {

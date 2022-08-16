@@ -92,11 +92,11 @@ export class Slider extends UIComponent {
         this.skin = skin;
     }
 
-		/**
-		 *@inheritDoc
-		 @override
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+    /**
+     *@inheritDoc
+     @override
+     */
+    destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._bg && this._bg.destroy(destroyChild);
         this._bar && this._bar.destroy(destroyChild);
@@ -281,19 +281,19 @@ export class Slider extends UIComponent {
         return Math.max(this._bg.width, this._bar.width);
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/ protected measureHeight(): number {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    protected measureHeight(): number {
         return Math.max(this._bg.height, this._bar.height);
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/ protected _sizeChanged(): void {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    protected _sizeChanged(): void {
         super._sizeChanged();
         if (this.isVertical) this._bg.height = this.height;
         else this._bg.width = this.width;

@@ -1,9 +1,10 @@
 import { Event as LayaEvent } from "../../events/Event"
 import { SoundChannel } from "../SoundChannel"
 //import { SoundManager } from "../SoundManager"
-import { Render } from "../../renders/Render"
 import { Browser } from "../../utils/Browser"
 import { ILaya } from "../../../ILaya";
+import { Pool } from "../../utils/Pool";
+import { LayaEnv } from "../../../LayaEnv";
 
 /**
  * @private
@@ -111,7 +112,7 @@ export class AudioSoundChannel extends SoundChannel {
             return;
         if ("pause" in this._audio)
             //理论上应该全部使用stop，但是不知为什么，使用pause，为了安全我只修改在加速器模式下再调用一次stop
-            if (ILaya.Render.isConchApp) {
+            if (LayaEnv.isConch) {
                 (this._audio as any).stop();
             }
         this._audio.pause();
@@ -120,7 +121,7 @@ export class AudioSoundChannel extends SoundChannel {
         //ie下使用对象池可能会导致后面的声音播放不出来
         if (!ILaya.Browser.onIE) {
             if (this._audio != ILaya.AudioSound._musicAudio) {
-                ILaya.Pool.recover("audio:" + this.url, this._audio);
+                Pool.recover("audio:" + this.url, this._audio);
             }
         }
         Browser.removeElement(this._audio);

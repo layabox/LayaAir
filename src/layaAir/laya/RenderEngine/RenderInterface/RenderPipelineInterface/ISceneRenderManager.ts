@@ -3,7 +3,8 @@ import { BaseRender } from "../../../d3/core/render/BaseRender";
 
 export interface ISceneRenderManager {
 
-    list: SimpleSingletonList;
+    list: SimpleSingletonList<BaseRender>;
+
     /**
      * add one BaseRender
      * @param object 

@@ -1,20 +1,14 @@
 ﻿import { ILaya } from "./ILaya";
-import { Graphics } from "./laya/display/Graphics";
-import { GraphicsBounds } from "./laya/display/GraphicsBounds";
 import { Input } from "./laya/display/Input";
-import { Node } from "./laya/display/Node";
 import { Sprite } from "./laya/display/Sprite";
 import { Stage } from "./laya/display/Stage";
-import { Text } from "./laya/display/Text";
-import { KeyBoardManager } from "./laya/events/KeyBoardManager";
-import { MouseManager } from "./laya/events/MouseManager";
+import { InputManager } from "./laya/events/InputManager";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { AudioSound } from "./laya/media/h5audio/AudioSound";
 import { SoundManager } from "./laya/media/SoundManager";
 import { WebAudioSound } from "./laya/media/webaudio/WebAudioSound";
 import { Loader } from "./laya/net/Loader";
 import { LocalStorage } from "./laya/net/LocalStorage";
-import { TTFLoader } from "./laya/loaders/TTFLoader";
 import { URL } from "./laya/net/URL";
 import { Render } from "./laya/renders/Render";
 import { RenderSprite } from "./laya/renders/RenderSprite";
@@ -26,8 +20,6 @@ import { Texture } from "./laya/resource/Texture";
 import { Browser } from "./laya/utils/Browser";
 import { CacheManger } from "./laya/utils/CacheManger";
 import { ColorUtils } from "./laya/utils/ColorUtils";
-import { Dragging } from "./laya/utils/Dragging";
-import { Pool } from "./laya/utils/Pool";
 import { Stat } from "./laya/utils/Stat";
 import { StatUI } from "./laya/utils/StatUI";
 import { Timer } from "./laya/utils/Timer";
@@ -37,30 +29,18 @@ import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
 import { Value2D } from "./laya/webgl/shader/d2/value/Value2D";
-import { Submit } from "./laya/webgl/submit/Submit";
-import { TextRender } from "./laya/webgl/text/TextRender";
 import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
-import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { WebGL } from "./laya/webgl/WebGL";
-import { WorkerLoader } from "./laya/net/WorkerLoader";
 import { Mouse } from "./laya/utils/Mouse";
 import { MeshVG } from "./laya/webgl/utils/MeshVG";
 import { MeshParticle2D } from "./laya/webgl/utils/MeshParticle2D";
 import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
-import { SoundChannel } from "./laya/media/SoundChannel";
-import { EventDispatcher } from "./laya/events/EventDispatcher";
-import { Handler } from "./laya/utils/Handler";
-import { RunDriver } from "./laya/utils/RunDriver";
-import { Matrix } from "./laya/maths/Matrix";
-import { Event } from "./laya/events/Event";
-import { Config } from "./Config";
 import { WeakObject } from "./laya/utils/WeakObject";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
 import { Color } from "./laya/d3/math/Color";
-import { WebGLEngine } from "./laya/RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
-import { NativeWebGLEngine } from "./laya/RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
+import { LayaEnv } from "./LayaEnv";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -73,21 +53,13 @@ export class Laya {
 
     /**@private 系统时钟管理器，引擎内部使用*/
     static systemTimer: Timer = null;
-    /**@private 组件的start时钟管理器*/
-    static startTimer: Timer = null;
     /**@private 组件的物理时钟管理器*/
     static physicsTimer: Timer = null;
-    /**@private 组件的update时钟管理器*/
-    static updateTimer: Timer = null;
-    /**@private 组件的lateUpdate时钟管理器*/
-    static lateTimer: Timer = null;
     /**游戏主时针，同时也是管理场景，动画，缓动等效果时钟，通过控制本时针缩放，达到快进慢播效果*/
     static timer: Timer = null;
     /** 加载管理器的引用。*/
     static loader: Loader = null;
     /** 当前引擎版本。*/
-
-    static version: string = "2.12.2beta2";
 
     /**@private Render 类的引用。*/
     static render: Render;
@@ -97,51 +69,6 @@ export class Laya {
     static isWXOpenDataContext: boolean = false;
     /**微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false**/
     static isWXPosMsg: boolean = false;
-
-    /**@internal*/
-    static Config = Config;    //这种写法是为了防止被混淆掉，不能用其他技巧，例如 assin({Config,Stage,...})
-    /**@internal*/
-    static TextRender = TextRender;
-    /**@internal*/
-    static EventDispatcher = EventDispatcher;
-    /**@internal*/
-    static SoundChannel = SoundChannel;
-    /**@internal*/
-    static Stage = Stage;
-    /**@internal*/
-    static Render = Render;
-    /**@internal*/
-    static Browser = Browser;
-    /**@internal*/
-    static Sprite = Sprite;
-    /**@internal*/
-    static Node = Node;
-    /**@internal*/
-    static Context = Context;
-    /**@internal*/
-    static WebGL = WebGL;
-    /**@internal*/
-    static Handler = Handler;
-    /**@internal*/
-    static RunDriver = RunDriver;
-    /**@internal*/
-    static Utils = Utils;
-    /**@internal*/
-    static Input = Input;
-    /**@internal*/
-    static Loader = Loader;
-    /**@internal*/
-    static LocalStorage = LocalStorage;
-    /**@internal*/
-    static SoundManager = SoundManager;
-    /**@internal*/
-    static URL = URL;
-    /**@internal*/
-    static Event = Event;
-    /**@internal*/
-    static Matrix = Matrix;
-    /**@internal*/
-    static Laya = Laya;
     /**@internal */
     static WasmModules: { [key: string]: { exports: WebAssembly.Exports, memory: WebAssembly.Memory } } = {};
 
@@ -181,15 +108,9 @@ export class Laya {
         //temp TODO 以后分包
         Laya.systemTimer = new Timer(false);
         systemTimer = Timer.gSysTimer = Laya.systemTimer;
-        Laya.startTimer = new Timer(false);
         Laya.physicsTimer = new Timer(false);
-        Laya.updateTimer = new Timer(false);
-        Laya.lateTimer = new Timer(false);
         Laya.timer = new Timer(false);
 
-        startTimer = ILaya.startTimer = Laya.startTimer;
-        lateTimer = ILaya.lateTimer = Laya.lateTimer;
-        updateTimer = ILaya.updateTimer = Laya.updateTimer;
         ILaya.systemTimer = Laya.systemTimer;
         timer = ILaya.timer = Laya.timer;
         physicsTimer = ILaya.physicsTimer = Laya.physicsTimer;
@@ -209,7 +130,7 @@ export class Laya {
                 }
             }
         }
-        if (ILaya.Render.isConchApp) {
+        if (LayaEnv.isConch) {
             Laya.enableNative();
         }
         CacheManger.beginCheck();
@@ -218,7 +139,7 @@ export class Laya {
         ILaya.stage = Laya.stage;
         Utils.gStage = Laya.stage;
 
-        if (ILaya.Render.isConchApp && (window as any).conch.setGlobalRepaint) {
+        if (LayaEnv.isConch && (window as any).conch.setGlobalRepaint) {
             (window as any).conch.setGlobalRepaint(Laya.stage.setGlobalRepaint.bind(Laya.stage));
         }
         URL.rootPath = URL.basePath = Laya._getUrlPath();
@@ -233,8 +154,7 @@ export class Laya {
         RenderStateContext.__init__();
         MeshParticle2D.__init__();
         RenderSprite.__init__();
-        KeyBoardManager.__init__();
-        MouseManager.instance.__init__(Laya.stage, Render.canvas);
+        InputManager.__init__(Laya.stage, Render.canvas);
         Input.__init__();
         SoundManager.autoStopMusic = true;
         Stat._StatRender = new StatUI();
@@ -372,31 +292,14 @@ export class Laya {
 }
 
 ILaya.Timer = Timer;
-ILaya.Dragging = Dragging;
-ILaya.GraphicsBounds = GraphicsBounds;
-ILaya.Sprite = Sprite;
-ILaya.TextRender = TextRender;
 ILaya.Loader = Loader;
-ILaya.TTFLoader = TTFLoader;
 ILaya.WebAudioSound = WebAudioSound;
 ILaya.SoundManager = SoundManager;
-ILaya.ShaderCompile = ShaderCompile;
 ILaya.Context = Context;
-ILaya.Render = Render;
-ILaya.MouseManager = MouseManager;
-ILaya.Text = Text;
 ILaya.Browser = Browser;
-ILaya.WebGL = WebGL;
 ILaya.AudioSound = AudioSound;
-ILaya.Pool = Pool;
 ILaya.Utils = Utils;
-ILaya.Graphics = Graphics;
-ILaya.Submit = Submit;
-ILaya.Stage = Stage;
 ILaya.Resource = Resource;
-ILaya.WorkerLoader = WorkerLoader;
-ILaya.WebGLEngine=WebGLEngine;
-ILaya.NativeWebGLEngine=NativeWebGLEngine;
 
 /**@internal */
 export var init = Laya.init;
@@ -416,8 +319,6 @@ export var lateTimer: Timer;
 export var timer: Timer;
 /**@internal */
 export var loader: Loader;
-/**@internal */
-export var version = Laya.version;
 /**@internal */
 export var render: Render;
 /**@internal */

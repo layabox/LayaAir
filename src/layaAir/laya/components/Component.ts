@@ -1,31 +1,38 @@
+import { ILaya } from "../../ILaya";
+import { NodeFlags } from "../Const";
 import { Node } from "../display/Node"
-import { ISingletonElement } from "../utils/ISingletonElement"
 import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils";
 
 /**
  * <code>Component</code> 类用于创建组件的基类。
  */
-export class Component implements ISingletonElement {
+export class Component {
+    /** @private */
+    private _id: number;
     /**@private */
     private _hideFlags: number = 0;
-    /** @internal [实现IListPool接口]*/
-    protected _indexInList: number;
-
-    /** @internal [实现IListPool接口]*/
-    _destroyed: boolean;
-    /** @internal */
-    _id: number;
-    /** @internal */
-    _enabled: boolean = false;
-    /** @internal */
-    _awaked: boolean;
-
     /**
-     * [只读]获取所属Node节点。
-     * @readonly
+     * 获取所属Node节点。
      */
     owner: Node;
+    /** @internal */
+    _enabled: boolean = true;
+    _singleton?: boolean = true;
+
+    /** @internal */
+    _awaked: boolean;
+    /**@internal */
+    _started: boolean;
+    /**@internal */
+    _enableState: boolean;
+    /** @internal*/
+    _destroyed: boolean;
+
+    /**
+     * 是否可以在IDE环境中运行
+     */
+    runInEditor?: boolean;
 
     get hideFlags(): number {
         return this._hideFlags;
@@ -42,7 +49,6 @@ export class Component implements ISingletonElement {
         this._id = Utils.getGID();
 
         this._initialize();
-        this._resetComp();
     }
 
     //@internal
@@ -70,117 +76,42 @@ export class Component implements ISingletonElement {
     set enabled(value: boolean) {
         if (this._enabled != value) {
             this._enabled = value;
-            if (this.owner) {
-                if (value)
-                    this.owner.activeInHierarchy && this._onEnable();
-                else
-                    this.owner.activeInHierarchy && this._onDisable();
-            }
+            if (this.owner)
+                this._setActive(value);
         }
-    }
-
-    /**
-     * 是否为单实例组件。
-     */
-    get isSingleton(): boolean {
-        return true;
     }
 
     /**
      * 是否已经销毁 。
      */
     get destroyed(): boolean {
-        //[实现IListPool接口]
         return this._destroyed;
     }
-
     /**
      * @internal
      */
     _isScript(): boolean {
         return false;
     }
-
     /**
      * @internal
      */
     protected _resetComp(): void {
-        this._indexInList = -1;
         this._enabled = true;
         this._awaked = false;
+        this._enableState = false;
+        this._started = false;
         this.owner = null;
     }
 
-    /**
-     * [实现IListPool接口]
-     */
-    _getIndexInList(): number {
-        return this._indexInList;
-    }
-
-    /**
-     * [实现IListPool接口]
-     */
-    _setIndexInList(index: number): void {
-        this._indexInList = index;
-    }
-
-    /**
-     * @override
-     * @internal
-     * @param node 
-     */
     _setOwner(node: Node) {
         this.owner = node;
-    }
+        this._destroyed = false;
 
-    /**
-     * 被添加到节点后调用，可根据需要重写此方法
-     * @internal
-     */
-    _onAdded(): void {
-        //override it.
-    }
+        if (this._isScript)
+            node._setBit(NodeFlags.HAS_SCRIPT, true);
 
-    /**
-     * 被激活后调用，可根据需要重写此方法
-     * @internal
-     */
-    _onAwake(): void {
-        //override it.
-    }
-
-    /**
-     * 被激活后调用，可根据需要重写此方法
-     * @internal
-     */
-    _onEnable(): void {
-        //override it.
-    }
-
-    /**
-     * 被禁用时调用，可根据需要重写此方法
-     * @internal
-     */
-    protected _onDisable(): void {
-        //override it.
-    }
-
-    /**
-     * 被销毁时调用，可根据需要重写此方法
-     * @internal
-     */
-    protected _onDestroy(): void {
-        //override it.
-    }
-
-    /**
-     * 重置组件参数到默认值，如果实现了这个函数，则组件会被重置并且自动回收到对象池，方便下次复用
-     * 如果没有重置，则不进行回收复用
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onReset(): void {
-        //override it.
+        this.onAdded?.();
     }
 
     /**
@@ -211,41 +142,122 @@ export class Component implements ISingletonElement {
         if (value) {
             if (!this._awaked) {
                 this._awaked = true;
-                this._onAwake();
+                this.onAwake?.();
             }
-            if (this.owner.activeInHierarchy) {
-                this._enabled && this._onEnable();
-            }
+            if (this._enabled && !this._enableState && this.owner.activeInHierarchy) {
+                let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
+                if (!this._started && this.onStart) {
+                    this._started = true;
+                    driver._toStarts.push(this);
+                }
 
-        } else {
-            this._enabled && this._onDisable();
+                driver.add(this);
+                this._enableState = true;
+
+                if (this._isScript)
+                    this.setupScript();
+                this.onEnable?.();
+            }
+        } else if (this._enableState) {
+            this._enableState = false;
+            let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
+            driver.remove(this);
+
+            this.owner.offAllCaller(this);
+
+            this.onDisable?.();
         }
     }
 
+    protected setupScript() {
+    }
 
     /**
      * 销毁组件
      */
     destroy(): void {
-        if (this.owner) this.owner._destroyComponent(this);
-        //this.owner = null;
+        if (this._destroyed)
+            return;
+
+        if (this.owner)
+            this.owner._destroyComponent(this);
     }
 
     /**
      * @internal
      */
-    _destroy(): void {
-        if (this.owner.activeInHierarchy && this._enabled)
-            this._setActive(false);
-
-        this._onDestroy();
-        this._destroyed = true;
-        if (this.onReset !== Component.prototype.onReset) {
-            this.onReset();
-            this._resetComp();
-            Pool.recoverByClass(this);
-        } else {
-            this._resetComp();
+    _destroy(second?: boolean): void {
+        if (second) {
+            this.onDestroy?.();
+            if (this.onReset) {
+                this.onReset();
+                this._resetComp();
+                Pool.recoverByClass(this);
+            }
+            return;
         }
+
+        this._destroyed = true;
+        this._setActive(false);
+
+        let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
+        driver._toDestroys.push(this);
     }
+
+    /**
+     * 被添加到节点后调用，和Awake不同的是即使节点未激活onAdded也会调用。
+     */
+    onAdded?(): void;
+
+    /**
+     * 重置组件参数到默认值，如果实现了这个函数，则组件会被重置并且自动回收到对象池，方便下次复用
+     * 如果没有重置，则不进行回收复用
+
+     */
+    onReset?(): void;
+
+    /**
+     * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
+     */
+    onAwake?(): void;
+
+    /**
+     * 组件被启用后执行，比如节点被添加到舞台后
+     */
+    onEnable?(): void;
+
+    /**
+     * 第一次执行update之前执行，只会执行一次
+     */
+    onStart?(): void;
+
+    /**
+     * 每帧更新时执行，尽量不要在这里写大循环逻辑或者使用getComponent方法
+     */
+    onUpdate?(): void;
+
+    /**
+     * 每帧更新时执行，在update之后执行，尽量不要在这里写大循环逻辑或者使用getComponent方法
+     */
+    onLateUpdate?(): void;
+
+    /**
+     * 渲染之前执行
+     */
+    onPreRender?(): void;
+
+    /**
+     * 渲染之后执行
+     */
+    onPostRender?(): void;
+
+    /**
+     * 组件被禁用时执行，比如从节点从舞台移除后
+     */
+    onDisable?(): void;
+
+    /**
+     * 手动调用节点销毁时执行
+     */
+    onDestroy?(): void;
 }

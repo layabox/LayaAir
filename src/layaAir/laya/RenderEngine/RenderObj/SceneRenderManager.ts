@@ -5,7 +5,7 @@ import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/
 
 export class SceneRenderManager implements ISceneRenderManager{
     /** @internal */
-	_renders: SimpleSingletonList = new SimpleSingletonList();
+	_renders: SimpleSingletonList<BaseRender> = new SimpleSingletonList();
     _motionRenders:SingletonList<BaseRender> = new SingletonList();
     constructor(){
 

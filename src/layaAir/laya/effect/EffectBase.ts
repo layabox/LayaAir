@@ -24,15 +24,15 @@ export class EffectBase extends Component {
 
     protected _comlete: Handler;
     protected _tween: Tween;
-    /**
-     * @internal
-     * @override
-     */
-    _onAwake(): void {
+
+    onAwake(): void {
         this.target = this.target || (<Sprite>this.owner);
-        if (this.autoDestroyAtComplete) this._comlete = Handler.create(this.target, this.target.destroy, null, false);
-        if (this.eventName) this.owner.on(this.eventName, this, this._exeTween);
-        else this._exeTween();
+        if (this.autoDestroyAtComplete) 
+            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
+        if (this.eventName) 
+            this.owner.on(this.eventName, this, this._exeTween);
+        else 
+            this._exeTween();
     }
 
     protected _exeTween(): void {
@@ -43,9 +43,7 @@ export class EffectBase extends Component {
     protected _doTween(): Tween {
         return null;
     }
-    /**
-     * @override
-     */
+
     onReset(): void {
         this.duration = 1000;
         this.delay = 0;

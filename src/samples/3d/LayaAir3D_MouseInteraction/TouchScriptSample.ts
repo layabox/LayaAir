@@ -1,5 +1,5 @@
 import { Laya } from "Laya";
-import { Script3D } from "laya/d3/component/Script3D";
+import { Script } from "laya/components/Script";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -17,6 +17,7 @@ import { CapsuleColliderShape } from "laya/d3/physics/shape/CapsuleColliderShape
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
+import { Event } from "laya/events/Event";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Laya3D } from "Laya3D";
@@ -78,9 +79,9 @@ export class TouchScriptSample {
 			mat1.albedoTexture = tex;
 		}));
 
-		var sX: number = Math.random() * 0.75 + 0.25;
-		var sY: number = Math.random() * 0.75 + 0.25;
-		var sZ: number = Math.random() * 0.75 + 0.25;
+		var sX: number = Math.random() * 7.5 + 0.25;
+		var sY: number = Math.random() * 7.5 + 0.25;
+		var sZ: number = Math.random() * 7.5 + 0.25;
 		var box: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(sX, sY, sZ))));
 		box.meshRenderer.material = mat1;
 		box.transform.position = new Vector3(Math.random() * 4 - 2, 2, Math.random() * 4 - 2);
@@ -102,8 +103,8 @@ export class TouchScriptSample {
 			mat3.albedoTexture = tex;
 		}));
 
-		var raidius: number = Math.random() * 0.2 + 0.2;
-		var height: number = Math.random() * 0.5 + 0.8;
+		var raidius: number = Math.random() * 2 + 0.2;
+		var height: number = Math.random() * 5 + 0.8;
 		var capsule: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(raidius, height))));
 		capsule.meshRenderer.material = mat3;
 		capsule.transform.position = new Vector3(Math.random() * 4 - 2, 2, Math.random() * 4 - 2);
@@ -124,13 +125,13 @@ export class TouchScriptSample {
 
 
 
-class TouchScript extends Script3D {
+class TouchScript extends Script {
 	header: string;
 	subText: string = "";
 	count: number = 0;
 	text: Text;
 
-	/*override*/  onUpdate(): void {
+	onUpdate(): void {
 		if (this.count === 24) {
 			var t: string = this.text.text;
 			var index: number = t.indexOf("\n");
@@ -145,32 +146,33 @@ class TouchScript extends Script3D {
 		}
 	}
 
-	/*override*/  onMouseEnter(): void {
-		this.subText += "onMouseEnter  ";
-	}
 
-	/*override*/  onMouseOver(): void {
+	onMouseOver(): void {
 		this.subText += "onMouseOver  ";
 	}
 
-	/*override*/  onMouseOut(): void {
+	onMouseOut(): void {
 		this.subText += "onMouseOut  ";
 	}
 
-	/*override*/  onMouseDown(): void {
+	onMouseDown(): void {
 		this.subText += "onMouseDown  ";
 	}
 
-	/*override*/  onMouseUp(): void {
+	onMouseUp(): void {
 		this.subText += "onMouseUp  ";
 	}
 
-	/*override*/  onMouseClick(): void {
+	onMouseClick(): void {
 		this.subText += "onMouseClick  ";
 	}
 
-	/*override*/  onMouseDrag(): void {
+	onMouseDrag(evt:Event): void {
 		this.subText += "onMouseDrag  ";
+	}
+
+	onMouseDragEnd() : void {
+		this.subText += "onMouseDragEnd  ";
 	}
 }
 

@@ -3,10 +3,10 @@ import { Event } from "../../events/Event"
 import { EventDispatcher } from "../../events/EventDispatcher"
 import { SoundChannel } from "../SoundChannel"
 import { URL } from "../../net/URL"
-import { Render } from "../../renders/Render"
 import { Browser } from "../../utils/Browser"
 import { Pool } from "../../utils/Pool"
 import { ILaya } from "../../../ILaya";
+import { LayaEnv } from "../../../LayaEnv";
 
 /**
  * @private
@@ -38,7 +38,7 @@ export class AudioSound extends EventDispatcher {
         var ad: HTMLAudioElement = AudioSound._audioCache[this.url];
         Pool.clearBySign("audio:" + this.url);
         if (ad) {
-            if (!Render.isConchApp) {
+            if (!LayaEnv.isConch) {
                 ad.src = "";
             }
             delete AudioSound._audioCache[this.url];
@@ -49,7 +49,7 @@ export class AudioSound extends EventDispatcher {
     static _initMusicAudio(): void {
         if (AudioSound._musicAudio) return;
         if (!AudioSound._musicAudio) AudioSound._musicAudio = (<HTMLAudioElement>Browser.createElement("audio"));
-        if (!Render.isConchApp) {
+        if (!LayaEnv.isConch) {
             Browser.document.addEventListener("mousedown", AudioSound._makeMusicOK);
         }
     }
@@ -155,7 +155,7 @@ export class AudioSound extends EventDispatcher {
 
         tAd = Pool.getItem("audio:" + this.url);
 
-        if (Render.isConchApp) {
+        if (LayaEnv.isConch) {
             if (!tAd) {
                 tAd = (<HTMLAudioElement>Browser.createElement("audio"));
                 tAd.src = this.url;

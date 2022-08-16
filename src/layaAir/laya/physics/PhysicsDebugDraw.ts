@@ -1,4 +1,4 @@
-import { Laya } from "../../Laya";
+import { ILaya } from "../../ILaya";
 import { Graphics } from "../display/Graphics"
 import { Sprite } from "../display/Sprite"
 import { Context } from "../resource/Context"
@@ -236,7 +236,7 @@ export class PhysicsDebugDraw extends Sprite {
             debug.world.SetDebugDraw(debug);
             debug.zOrder = 1000;
             debug.m_drawFlags = flags;
-            Laya.stage.addChild(debug);
+            ILaya.stage.addChild(debug);
             PhysicsDebugDraw.I = debug;
 
         }

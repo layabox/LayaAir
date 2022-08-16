@@ -1,19 +1,18 @@
 import { SubmitBase } from "./SubmitBase";
 import { ColorFilter } from "../../filters/ColorFilter"
 import { Context } from "../../resource/Context"
-import { Stat } from "../../utils/Stat"
 import { BlendMode } from "../canvas/BlendMode"
 import { BaseShader } from "../shader/BaseShader"
 import { Shader } from "../shader/Shader"
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
 import { TextureSV } from "../shader/d2/value/TextureSV"
 import { Value2D } from "../shader/d2/value/Value2D"
-import { CONST3D2D } from "../utils/CONST3D2D"
 import { Mesh2D } from "../utils/Mesh2D"
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { LayaGL } from "../../layagl/LayaGL";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { Const } from "../../Const";
 
 export class SubmitTexture extends SubmitBase {
     private static _poolSize: number = 0;
@@ -81,7 +80,7 @@ export class SubmitTexture extends SubmitBase {
         o._key.clear();
         o._key.submitType = SubmitBase.KEY_DRAWTEXTURE;
         o._ref = 1;
-        o._startIdx = mesh.indexNum * CONST3D2D.BYTES_PIDX;
+        o._startIdx = mesh.indexNum * Const.BYTES_PIDX;
         o._numEle = 0;
         var blendType = context._nBlendType;
         o._key.blendShader = blendType;

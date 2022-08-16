@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { ShadowCascadesMode } from "laya/d3/core/light/ShadowCascadesMode";
@@ -25,11 +24,12 @@ import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
 import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 import { Color } from "laya/d3/math/Color";
+import { Script } from "laya/components/Script";
 
 /**
  * Light rotation script.
  */
-class RotationScript extends Script3D {
+class RotationScript extends Script {
 	/** Roation speed. */
 	autoRotateSpeed: Vector3 = new Vector3(0, 0.05, 0);
 	/** If roation. */

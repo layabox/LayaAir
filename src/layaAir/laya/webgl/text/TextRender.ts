@@ -13,6 +13,8 @@ import { CharRender_Canvas } from "./CharRender_Canvas"
 import { CharRender_Native } from "./CharRender_Native"
 import { ICharRender } from "./ICharRender"
 import { ILaya } from "../../../ILaya";
+import { LayaEnv } from "../../../LayaEnv";
+import { Const } from "../../Const";
 
 export class TextRender {
     //config
@@ -42,7 +44,7 @@ export class TextRender {
     static atlasWidth2: number;
     private charRender: ICharRender;
     private static tmpRI: CharRenderInfo = new CharRenderInfo();
-    private static pixelBBX:number[] = [0, 0, 0, 0];
+    private static pixelBBX: number[] = [0, 0, 0, 0];
     private mapFont: any = {};		// 把font名称映射到数字
     private fontID: number = 0;
 
@@ -61,7 +63,7 @@ export class TextRender {
     private static imgdtRect: any[] = [0, 0, 0, 0];
 
     // 当前字体的测量信息。
-    private lastFont: FontInfo|null = null;
+    private lastFont: FontInfo | null = null;
     private fontSizeW: number = 0;
     private fontSizeH: number = 0;
     private fontSizeOffX: number = 0;
@@ -74,18 +76,16 @@ export class TextRender {
     static simClean: boolean = false;				// 测试用。强制清理占用低的图集
 
     constructor() {
-        ILaya.TextAtlas = TextAtlas;
-
         var bugIOS = false;//是否是有bug的ios版本
         //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
         var miniadp: any = ILaya.Laya['MiniAdpter']; //头条也继承了这个bug
         if (miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
-			bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
-			//12.3
+            bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
+            //12.3
         }
-        if ((ILaya.Browser.onMiniGame||ILaya.Browser.onTTMiniGame||ILaya.Browser.onBLMiniGame||ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
+        if ((ILaya.Browser.onMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
         //TextRender.isWan1Wan = true;
-        this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
+        this.charRender = LayaEnv.isConch ? (new CharRender_Native()) : (new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
         TextRender.textRenderInst = this;
         ILaya.Laya['textRender'] = this;
         TextRender.atlasWidth2 = TextRender.atlasWidth * TextRender.atlasWidth;
@@ -127,10 +127,10 @@ export class TextRender {
      * @param	str
      * @param	start	开始位置
      */
-    getNextChar(str: string): string |null{
+    getNextChar(str: string): string | null {
         var len = str.length;
-		var start = this._curStrPos;
-		if(!str.substring) return null;	// 保护一下，避免下面 substring 报错
+        var start = this._curStrPos;
+        if (!str.substring) return null;	// 保护一下，避免下面 substring 报错
         if (start >= len)
             return null;
 
@@ -159,8 +159,8 @@ export class TextRender {
         }
         this._curStrPos = i;
         return str.substring(start, i);
-	}
-	
+    }
+
     filltext(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string, underLine: number = 0): void {
         if (data.length <= 0)
             return;
@@ -170,23 +170,23 @@ export class TextRender {
         var nTextAlign = 0;
         switch (textAlign) {
             case 'center':
-                nTextAlign = ILaya.Context.ENUM_TEXTALIGN_CENTER;
+                nTextAlign = Const.ENUM_TEXTALIGN_CENTER;
                 break;
             case 'right':
-                nTextAlign = ILaya.Context.ENUM_TEXTALIGN_RIGHT;
+                nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
                 break;
         }
         this._fast_filltext(ctx, (<WordText>data), null, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
     }
 
-    fillWords(ctx: Context, data: HTMLChar[], x: number, y: number, fontStr: string | FontInfo, color: string, strokeColor: string|null, lineWidth: number): void {
+    fillWords(ctx: Context, data: HTMLChar[], x: number, y: number, fontStr: string | FontInfo, color: string, strokeColor: string | null, lineWidth: number): void {
         if (!data) return;
         if (data.length <= 0) return;
         var font = typeof (fontStr) === 'string' ? FontInfo.Parse(fontStr) : fontStr;
         this._fast_filltext(ctx, null, data, x, y, font, color, strokeColor, lineWidth, 0, 0);
     }
 
-    _fast_filltext(ctx: Context, data: string | WordText|null, htmlchars: HTMLChar[]|null, x: number, y: number, font: FontInfo, color: string, strokeColor: string|null, lineWidth: number, textAlign: number, underLine: number = 0): void {
+    _fast_filltext(ctx: Context, data: string | WordText | null, htmlchars: HTMLChar[] | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number, underLine: number = 0): void {
         if (data && !(data.length >= 1)) return;	// length有可能是 undefined
         if (htmlchars && htmlchars.length < 1) return;
         if (lineWidth < 0) lineWidth = 0;
@@ -195,16 +195,16 @@ export class TextRender {
         if (TextRender.scaleFontWithCtx) {
             var sx = 1;
             var sy = 1;
-    
-            if (!ILaya.Render.isConchApp || ((window as any).conchTextCanvas.scale)) {
+
+            if (!LayaEnv.isConch || ((window as any).conchTextCanvas.scale)) {
                 sx = ctx.getMatScaleX();
                 sy = ctx.getMatScaleY();
             }
-            
+
             if (sx < 1e-4 || sy < 1e-1)
                 return;
-            if(sx>1) this.fontScaleX = sx;
-            if(sy>1) this.fontScaleY = sy;
+            if (sx > 1) this.fontScaleX = sx;
+            if (sy > 1) this.fontScaleY = sy;
         }
 
         font._italic && (ctx._italicDeg = 13);
@@ -212,8 +212,8 @@ export class TextRender {
         //拷贝到texture上,得到一个gltexture和uv
         var wt = <WordText>data;
         var isWT = !htmlchars && (data instanceof WordText);
-        var str = data&&data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
-        var isHtmlChar= !!htmlchars;
+        var str = data && data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
+        var isHtmlChar = !!htmlchars;
         /**
          * sameTexData 
          * WordText 中保存了一个数组，这个数组是根据贴图排序的，目的是为了能相同的贴图合并。
@@ -235,10 +235,10 @@ export class TextRender {
 
         //水平对齐方式
         switch (textAlign) {
-            case ILaya.Context.ENUM_TEXTALIGN_CENTER:
+            case Const.ENUM_TEXTALIGN_CENTER:
                 x -= strWidth / 2;
                 break;
-            case ILaya.Context.ENUM_TEXTALIGN_RIGHT:
+            case Const.ENUM_TEXTALIGN_RIGHT:
                 x -= strWidth;
                 break;
         }
@@ -248,17 +248,17 @@ export class TextRender {
             //wt.lastGCCnt = _curPage.gcCnt;
             if (this.hasFreedText(sameTexData)) {
                 sameTexData = wt.pageChars = [];
-			}
-			// if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
-			// 	// 文字缩放要清理缓存
-			// 	sameTexData = wt.pageChars = [];
-			// }
+            }
+            // if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
+            // 	// 文字缩放要清理缓存
+            // 	sameTexData = wt.pageChars = [];
+            // }
         }
         var ri: CharRenderInfo = null;
         //var oneTex: boolean = isWT || TextRender.forceWholeRender;	// 如果能缓存的话，就用一张贴图
         var splitTex = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || isHtmlChar || (isWT && wt.splitRender); 	// 拆分字符串渲染，这个优先级高
         if (!sameTexData || sameTexData.length < 1) {
-			if (isWT) {
+            if (isWT) {
                 wt.scalex = this.fontScaleX;
                 wt.scaley = this.fontScaleY;
             }
@@ -270,7 +270,7 @@ export class TextRender {
                 var sty = 0;
 
                 this._curStrPos = 0;
-                var curstr: string|null;
+                var curstr: string | null;
                 while (true) {
                     if (htmlchars) {
                         var chc = htmlchars[this._curStrPos++];
@@ -310,8 +310,8 @@ export class TextRender {
 
             } else {
                 // 如果要整句话渲染
-				var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
-				var isotex = TextRender.noAtlas || (strWidth+margin+margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
+                var margin = LayaEnv.isConch ? 0 : (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
+                var isotex = TextRender.noAtlas || (strWidth + margin + margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
                 ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                 // 整句渲染，则只有一个贴图
                 sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
@@ -331,12 +331,12 @@ export class TextRender {
      * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
      */
     protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: any[]): void {
-        var isLastRender = ctx._charSubmitCache?ctx._charSubmitCache._enable:false;
+        var isLastRender = ctx._charSubmitCache ? ctx._charSubmitCache._enable : false;
         var mat = ctx._curMat;
         //var slen = samePagesData.length;
         //for (var id = 0; id < slen; id++) {
-		for(var id in samePagesData) {// TODO samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt;
-										// TODO 想个更好的方法
+        for (var id in samePagesData) {// TODO samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt;
+            // TODO 想个更好的方法
             var dt = samePagesData[id];
             if (!dt) continue;
             var pri: any[] = dt.words;
@@ -349,7 +349,7 @@ export class TextRender {
                 ri.touch();
                 ctx.drawTexAlign = true;
                 //ctx._drawTextureM(ri.tex.texture as Texture, startx +riSaved.x -ri.orix / fontScaleX , starty + riSaved.y -ri.oriy / fontScaleY , riSaved.w, riSaved.h, null, 1.0, ri.uv);
-                if (ILaya.Render.isConchApp) {
+                if (LayaEnv.isConch) {
                     ctx._drawTextureM((<Texture>tex.texture), startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h, null, 1.0, ri.uv);
                 } else {
                     let t = tex as TextTexture;
@@ -374,7 +374,7 @@ export class TextRender {
      * @return
      */
     hasFreedText(txts: any[]): boolean {
-        for(let i in txts){
+        for (let i in txts) {
             var pri = txts[i];
             if (!pri) continue;
             var tex = (<TextTexture>pri.tex);
@@ -385,7 +385,7 @@ export class TextRender {
         return false;
     }
 
-    getCharRenderInfo(str: string, font: FontInfo, color: string, strokeColor: string|null, lineWidth: number, isoTexture: boolean = false): CharRenderInfo {
+    getCharRenderInfo(str: string, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, isoTexture: boolean = false): CharRenderInfo {
         var fid = this.mapFont[font._family];
         if (fid == undefined) {
             this.mapFont[font._family] = fid = this.fontID++;
@@ -426,9 +426,9 @@ export class TextRender {
         this.charRender.scale(this.fontScaleX, this.fontScaleY);
         ri.char = str;
         ri.height = font._size;
-        var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
+        var margin = LayaEnv.isConch ? 0 : (font._size / 3 | 0);	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
         // 如果不存在，就要插入已有的，或者创建新的
-        var imgdt: ImageData|null=null;
+        var imgdt: ImageData | null = null;
         // 先大约测量文字宽度 
 
         if (!lineWidth) {
@@ -442,16 +442,16 @@ export class TextRender {
             // 独立贴图
             this.charRender.fontsz = font._size;
             imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri, margin, margin, margin, margin, null);
-			// 这里可以直接
-			if(imgdt){
-				var tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
-				tex.addChar(imgdt, 0, 0, ri.uv);
-				ri.tex = tex;
-				ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
-				ri.oriy = margin;
-				tex.ri = ri;
-				this.isoTextures.push(tex);
-			}
+            // 这里可以直接
+            if (imgdt) {
+                var tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
+                tex.addChar(imgdt, 0, 0, ri.uv);
+                ri.tex = tex;
+                ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
+                ri.oriy = margin;
+                tex.ri = ri;
+                this.isoTextures.push(tex);
+            }
         } else {
             // 大图集
             var len = str.length;
@@ -474,20 +474,20 @@ export class TextRender {
             }
             this.charRender.fontsz = font._size;
             imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri,
-				margin, margin, margin, margin, TextRender.imgdtRect);
-			if(imgdt){
-				atlas = this.addBmpData(imgdt, ri);
-				if (TextRender.isWan1Wan) {
-					// 这时候 imgdtRect 是不好使的，要自己设置
-					ri.orix = margin;	// 不要乘缩放。要不后面也要除。
-					ri.oriy = margin;
-				} else {
-					// 取下来的imagedata的原点在哪
-					ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
-					ri.oriy = (this.fontSizeOffY + lineExt);
-				}
-				atlas.charMaps[key] = ri;
-			}
+                margin, margin, margin, margin, TextRender.imgdtRect);
+            if (imgdt) {
+                atlas = this.addBmpData(imgdt, ri);
+                if (TextRender.isWan1Wan) {
+                    // 这时候 imgdtRect 是不好使的，要自己设置
+                    ri.orix = margin;	// 不要乘缩放。要不后面也要除。
+                    ri.oriy = margin;
+                } else {
+                    // 取下来的imagedata的原点在哪
+                    ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
+                    ri.oriy = (this.fontSizeOffY + lineExt);
+                }
+                atlas.charMaps[key] = ri;
+            }
         }
         return ri;
     }
@@ -761,7 +761,7 @@ export class TextRender {
         this.charRender.fontsz = TextRender.standardFontSize;
         var bmpdt = this.charRender.getCharBmp('g', fontstr, 0, 'red', null, TextRender.tmpRI, orix, oriy, marginr, marginb);
         // native 返回的是 textBitmap。 data直接是ArrayBuffer 
-        if (ILaya.Render.isConchApp) {
+        if (LayaEnv.isConch) {
             //bmpdt.data.buffer = bmpdt.data;
             (bmpdt as any).data = new Uint8ClampedArray(bmpdt.data);
         }
@@ -769,7 +769,7 @@ export class TextRender {
         //测量宽度是 tmpRI.width
         this.updateBbx(bmpdt, TextRender.pixelBBX, false);
         bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, TextRender.tmpRI, oriy, oriy, marginr, marginb);// '有'比'国'大
-        if (ILaya.Render.isConchApp) {
+        if (LayaEnv.isConch) {
             //bmpdt.data.buffer = bmpdt.data;
             (bmpdt as any).data = new Uint8ClampedArray(bmpdt.data);
         }
@@ -779,7 +779,7 @@ export class TextRender {
             TextRender.pixelBBX[2] = orix + TextRender.tmpRI.width;
         this.updateBbx(bmpdt, TextRender.pixelBBX, false);//TODO 改成 true
         // 原点在 16,16
-        if (ILaya.Render.isConchApp) {
+        if (LayaEnv.isConch) {
             //runtime 的接口好像有问题，不认orix，oriy
             orix = 0;
             oriy = 0;
@@ -837,7 +837,7 @@ export class TextRender {
             console.log('没有这个图集');
             return null;
         }
-        var sp = new ILaya.Sprite();
+        var sp = new Sprite();
         var texttex = this.textAtlases[n].texture;
         var texture: any = {
             width: TextRender.atlasWidth,
@@ -878,14 +878,12 @@ export class TextRender {
         var nTextAlign = 0;
         switch (textAlign) {
             case 'center':
-                nTextAlign = ILaya.Context.ENUM_TEXTALIGN_CENTER;
+                nTextAlign = Const.ENUM_TEXTALIGN_CENTER;
                 break;
             case 'right':
-                nTextAlign = ILaya.Context.ENUM_TEXTALIGN_RIGHT;
+                nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
                 break;
         }
         return this._fast_filltext(ctx, (<WordText>data), htmlchars, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
     }
 }
-
-TextTexture.gTextRender = TextRender;

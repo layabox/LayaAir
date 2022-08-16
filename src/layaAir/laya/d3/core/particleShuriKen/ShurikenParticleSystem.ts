@@ -1282,8 +1282,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             Vector3.add(speedZOffset, velocitySpeedOffset, speedZOffset);
             Vector3.subtract(speedFOffset, velocitySpeedOffset, speedFOffset);
 
-            Vector3.max(speedZOffset, Vector3._ZERO, speedZOffset);
-            Vector3.max(speedFOffset, Vector3._ZERO, speedFOffset);
+            Vector3.max(speedZOffset, Vector3.ZERO, speedZOffset);
+            Vector3.max(speedFOffset, Vector3.ZERO, speedFOffset);
         }
 
         Vector3.scale(speedZOffset, time, speedZOffset);

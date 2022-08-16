@@ -1,10 +1,10 @@
-import { RenderableSprite3D } from "../../d3/core/RenderableSprite3D";
 import { VertexElement } from "../../d3/graphics/VertexElement";
 import { VertexElementFormat } from "../../d3/graphics/VertexElementFormat";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { IndexBuffer2D } from "./IndexBuffer2D";
 import { Mesh2D } from "./Mesh2D";
 import { VertexBuffer2D } from "./VertexBuffer2D";
+
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
  */

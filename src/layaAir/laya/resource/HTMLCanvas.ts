@@ -6,6 +6,7 @@ import { Browser } from "../utils/Browser";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Resource } from "./Resource";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
@@ -115,7 +116,7 @@ export class HTMLCanvas extends Resource {
             this._ctx = new ILaya.Context();
         } else {
             //@ts-ignore
-            this._ctx = this._source.getContext(ILaya.Render.isConchApp ? 'layagl' : '2d');
+            this._ctx = this._source.getContext(LayaEnv.isConch ? 'layagl' : '2d');
         }
         this._ctx._canvas = this;
         return this._ctx;
@@ -191,7 +192,7 @@ export class HTMLCanvas extends Resource {
      */
     toBase64(type: string, encoderOptions: number): string | null {
         if (this._source) {
-            if (ILaya.Render.isConchApp) {
+            if (LayaEnv.isConch) {
                 var win: any = window as any;
                 if (win.conchConfig.threadMode == 2) {
                     throw "native 2 thread mode use toBase64Async";

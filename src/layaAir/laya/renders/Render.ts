@@ -13,8 +13,10 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { WebGL } from "../webgl/WebGL";
-
 import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
+import { WebGLEngine } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
+import { NativeWebGLEngine } from "../RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
@@ -24,8 +26,6 @@ export class Render {
     static _context: Context;
     /** @internal 主画布。canvas和webgl渲染都用这个画布*/
     static _mainCanvas: HTMLCanvas;
-    /**是否是加速器 只读*/
-    static isConchApp: boolean = false;
     /** 表示是否是 3D 模式。*/
     static is3DMode: boolean;
     /**自定义帧循环 */
@@ -34,14 +34,14 @@ export class Render {
     static _loopFunction: any;
 
     /** 当前的帧数 */
-    private static lastFrm=0;
+    private static lastFrm = 0;
     /** 第一次运行标记 */
-    private _first=true;
+    private _first = true;
     /** 刚启动的时间。由于微信的rAF不标准，传入的stamp参数不对，因此自己计算一个从启动开始的相对时间 */
-    private _startTm=0;    
+    private _startTm = 0;
 
     /** @internal */
-    private static ifps=1000/60;
+    private static ifps = 1000 / 60;
 
     static _Render: Render;
 
@@ -64,36 +64,36 @@ export class Render {
         source.id = "layaCanvas";
         source.width = width;
         source.height = height;
-        if (Render.isConchApp) {
+        if (LayaEnv.isConch) {
             document.body.appendChild(source);
         }
 
         this.initRender(Render._mainCanvas, width, height);
         window.requestAnimationFrame(loop);
-		let me = this;
-        let lastFrmTm=performance.now();
+        let me = this;
+        let lastFrmTm = performance.now();
         let fps = Config.FPS;
-        let ifps = Render.ifps= 1000/fps; //如果VR的话，需要改这个
-        function loop(stamp: number){
+        let ifps = Render.ifps = 1000 / fps; //如果VR的话，需要改这个
+        function loop(stamp: number) {
             //let perf = PerfHUD.inst;
             let sttm = performance.now();
             //perf && perf.updateValue(0, sttm-lastFrmTm);
-            lastFrmTm=sttm;
-            if(me._first){
+            lastFrmTm = sttm;
+            if (me._first) {
                 // 把starttm转成帧对齐
-                me._startTm=Math.floor(stamp/ifps)*ifps;
-                me._first=false;
+                me._startTm = Math.floor(stamp / ifps) * ifps;
+                me._first = false;
             }
             // 与第一帧开始时间的delta
-            stamp-=me._startTm;
+            stamp -= me._startTm;
             // 计算当前帧数
-			let frm = Math.floor(stamp/ifps);    // 不能|0 在微信下会变成负的
+            let frm = Math.floor(stamp / ifps);    // 不能|0 在微信下会变成负的
             // 是否已经跨帧了
-            let dfrm = frm-Render.lastFrm;
-			if(dfrm>0 || Render.isConchApp){
-				Render.lastFrm=frm;
-				ILaya.stage._loop();
-			}
+            let dfrm = frm - Render.lastFrm;
+            if (dfrm > 0 || LayaEnv.isConch) {
+                Render.lastFrm = frm;
+                ILaya.stage._loop();
+            }
             //perf && perf.updateValue(1, performance.now()-sttm);
 
             if (!!Render._customRequestAnimationFrame && !!Render._loopFunction) {
@@ -123,25 +123,25 @@ export class Render {
      * 从render构造开始算起。
      * @returns 
      */
-    static vsyncTime(){
-        return Render.lastFrm*Render.ifps;
-    }    
+    static vsyncTime() {
+        return Render.lastFrm * Render.ifps;
+    }
 
     initRender(canvas: HTMLCanvas, w: number, h: number): boolean {
         let glConfig: WebGlConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
-       
+
         //TODO  other engine
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
 
         let engine: IRenderEngine;
-        if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
-            engine = new ILaya.NativeWebGLEngine(glConfig, webglMode);
+        if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
+            engine = new NativeWebGLEngine(glConfig, webglMode);
             engine.initRenderEngine(Render._mainCanvas.source);
             WebGL._isWebGL2 = engine.isWebGL2;
             new LayaGL();
         }
         else {
-            engine = new ILaya.WebGLEngine(glConfig, webglMode);
+            engine = new WebGLEngine(glConfig, webglMode);
             engine.initRenderEngine(Render._mainCanvas.source);
             var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
             if (Config.printWebglOrder)
@@ -159,7 +159,7 @@ export class Render {
         //native TODO
         LayaGL.textureContext = engine.getTextureContext();
         LayaGL.renderDrawContext = engine.getDrawContext();
-        LayaGL.render2DContext =engine.get2DRenderContext();
+        LayaGL.render2DContext = engine.get2DRenderContext();
         LayaGL.renderOBJCreate = engine.getCreateRenderOBJContext();
 
         canvas.size(w, h);	//在ctx之后调用。
@@ -177,7 +177,7 @@ export class Render {
         Value2D.__init__();
         Shader2D.__init__();
         BlendMode._init_();
-        
+
         return true;
     }
 
@@ -221,8 +221,3 @@ export class Render {
         return Render._mainCanvas.source;
     }
 }
-{
-    Render.isConchApp = ((window as any).conch != null);
-}
-
-

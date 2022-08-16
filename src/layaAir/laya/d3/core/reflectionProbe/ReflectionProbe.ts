@@ -217,7 +217,7 @@ export class ReflectionProbe extends Sprite3D {
 	 * @override
 	 */
 	destroy(destroyChild: boolean = true): void {
-		if (this.destroyed)
+		if (this._destroyed)
 			return;
 		super.destroy(destroyChild);
 		this._reflectionTexture&&this._reflectionTexture._removeReference();

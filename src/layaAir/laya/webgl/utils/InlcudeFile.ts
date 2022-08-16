@@ -1,6 +1,5 @@
-import { ILaya } from "../../../ILaya";
+import { ShaderCompile } from "./ShaderCompile";
 
-//import { ShaderCompile } from "./ShaderCompile";
 export class InlcudeFile {
     script: string;
     codes: any = {};
@@ -29,7 +28,7 @@ export class InlcudeFile {
             }
 
             ofs = txt.indexOf('\n', begin);
-            var words: any[] = ILaya.ShaderCompile.splitToWords(txt.substr(begin, ofs - begin), null);
+            var words: any[] = ShaderCompile.splitToWords(txt.substr(begin, ofs - begin), null);
             if (words[1] == 'code') {
                 this.codes[words[2]] = txt.substr(ofs + 1, end - ofs - 1);
             } else if (words[1] == 'function')//#begin function void test()

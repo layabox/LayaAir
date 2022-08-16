@@ -1,18 +1,18 @@
 import { Laya } from "Laya";
-import { Script3D } from "laya/d3/component/Script3D";
+import { Script } from "laya/components/Script";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Event } from "laya/events/Event";
-import { KeyBoardManager } from "laya/events/KeyBoardManager";
+import { InputManager } from "laya/events/InputManager";
 
 /**
  * ...
  * @author
  */
-export class CameraMoveScript extends Script3D {
+export class CameraMoveScript extends Script {
 
 	/** @private */
 	protected _tempVector3: Vector3 = new Vector3();
@@ -47,29 +47,29 @@ export class CameraMoveScript extends Script3D {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  onAwake(): void {
-		Laya.stage.on(Event.RIGHT_MOUSE_DOWN, this, this.mouseDown);
-		Laya.stage.on(Event.RIGHT_MOUSE_UP, this, this.mouseUp);
+	/**
+	 * @inheritDoc
+	 */
+	onAwake(): void {
+		Laya.stage.on(Event.MOUSE_DOWN, this, this.mouseDown);
+		Laya.stage.on(Event.MOUSE_UP, this, this.mouseUp);
 		//Laya.stage.on(Event.RIGHT_MOUSE_OUT, this, mouseOut);
 		this.camera = (<Camera>this.owner);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  onUpdate(): void {
+	/**
+	 * @inheritDoc
+	 */
+	onUpdate(): void {
 		var elapsedTime: number = Laya.timer.delta;
 		if (!isNaN(this.lastMouseX) && !isNaN(this.lastMouseY) && this.isMouseDown) {
 			var scene: Scene3D = this.owner.scene;
-			KeyBoardManager.hasKeyDown(87) && this.moveForward(-this.speed * elapsedTime);//W
-			KeyBoardManager.hasKeyDown(83) && this.moveForward(this.speed * elapsedTime);//S
-			KeyBoardManager.hasKeyDown(65) && this.moveRight(-this.speed * elapsedTime);//A
-			KeyBoardManager.hasKeyDown(68) && this.moveRight(this.speed * elapsedTime);//D
-			KeyBoardManager.hasKeyDown(81) && this.moveVertical(this.speed * elapsedTime);//Q
-			KeyBoardManager.hasKeyDown(69) && this.moveVertical(-this.speed * elapsedTime);//E
+			InputManager.hasKeyDown(87) && this.moveForward(-this.speed * elapsedTime);//W
+			InputManager.hasKeyDown(83) && this.moveForward(this.speed * elapsedTime);//S
+			InputManager.hasKeyDown(65) && this.moveRight(-this.speed * elapsedTime);//A
+			InputManager.hasKeyDown(68) && this.moveRight(this.speed * elapsedTime);//D
+			InputManager.hasKeyDown(81) && this.moveVertical(this.speed * elapsedTime);//Q
+			InputManager.hasKeyDown(69) && this.moveVertical(-this.speed * elapsedTime);//E
 
 			var offsetX: number = Laya.stage.mouseX - this.lastMouseX;
 			var offsetY: number = Laya.stage.mouseY - this.lastMouseY;
@@ -83,16 +83,18 @@ export class CameraMoveScript extends Script3D {
 		this.lastMouseY = Laya.stage.mouseY;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  onDestroy(): void {
-		Laya.stage.off(Event.RIGHT_MOUSE_DOWN, this, this.mouseDown);
-		Laya.stage.off(Event.RIGHT_MOUSE_UP, this, this.mouseUp);
+	/**
+	 * @inheritDoc
+	 */
+	onDestroy(): void {
+		Laya.stage.off(Event.MOUSE_DOWN, this, this.mouseDown);
+		Laya.stage.off(Event.MOUSE_UP, this, this.mouseUp);
 		//Laya.stage.off(Event.RIGHT_MOUSE_OUT, this, mouseOut);
 	}
 
 	protected mouseDown(e: Event): void {
+		if (e.button != 2)
+			return;
 		this.camera.transform.localRotation.getYawPitchRoll(this.yawPitchRoll);
 
 		this.lastMouseX = Laya.stage.mouseX;
@@ -101,6 +103,8 @@ export class CameraMoveScript extends Script3D {
 	}
 
 	protected mouseUp(e: Event): void {
+		if (e.button != 2)
+			return;
 		this.isMouseDown = false;
 	}
 

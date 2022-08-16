@@ -32,7 +32,6 @@ import { GLTextureContext } from "./GLTextureContext";
 import { GLVertexState } from "./GLVertexState";
 import { WebGlConfig } from "./WebGLConfig";
 
-
 /**
  * @private 封装Webgl
  */

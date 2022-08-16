@@ -4,10 +4,10 @@ import { AudioSound } from "./h5audio/AudioSound"
 import { WebAudioSound } from "./webaudio/WebAudioSound"
 import { URL } from "../net/URL"
 import { Handler } from "../utils/Handler"
-import { Utils } from "../utils/Utils"
 import { Sound } from "./Sound";
 import { ILaya } from "../../ILaya";
 import { Browser } from "../utils/Browser";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * <code>SoundManager</code> 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
@@ -246,7 +246,7 @@ export class SoundManager {
         if (value) {
             if (SoundManager._bgMusic) {
                 if (SoundManager._musicChannel && !SoundManager._musicChannel.isStopped) {
-                    if (ILaya.Render.isConchApp) {
+                    if (LayaEnv.isConch) {
                         if ((SoundManager._musicChannel as any)._audio) (SoundManager._musicChannel as any)._audio.muted = true;;
                     }
                     else {
@@ -264,7 +264,7 @@ export class SoundManager {
             SoundManager._musicMuted = value;
             if (SoundManager._bgMusic) {
                 if (SoundManager._musicChannel) {
-                    if (ILaya.Render.isConchApp) {
+                    if (LayaEnv.isConch) {
                         if ((SoundManager._musicChannel as any)._audio) (SoundManager._musicChannel as any)._audio.muted = false;;
                     }
                     else {

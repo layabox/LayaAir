@@ -15,7 +15,7 @@ import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { CapsuleColliderShape } from "laya/d3/physics/shape/CapsuleColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
-import { KeyBoardManager } from "laya/events/KeyBoardManager";
+import { InputManager } from "laya/events/InputManager";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -37,12 +37,12 @@ export class PhysicsWorld_Character {
 
 	constructor() {
 		//初始化引擎
+		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-			Config3D.useCannonPhysics = false;
 			//创建场景
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -128,11 +128,11 @@ export class PhysicsWorld_Character {
 
 	private onKeyDown(): void {
 		var character: CharacterController = (<CharacterController>this.kinematicSphere.getComponent(CharacterController));
-		KeyBoardManager.hasKeyDown(87) && character.move(this.translateW);//W
-		KeyBoardManager.hasKeyDown(83) && character.move(this.translateS);//S
-		KeyBoardManager.hasKeyDown(65) && character.move(this.translateA);//A
-		KeyBoardManager.hasKeyDown(68) && character.move(this.translateD);//D
-		KeyBoardManager.hasKeyDown(69) && character.jump();//E
+		InputManager.hasKeyDown(87) && character.move(this.translateW);//W
+		InputManager.hasKeyDown(83) && character.move(this.translateS);//S
+		InputManager.hasKeyDown(65) && character.move(this.translateA);//A
+		InputManager.hasKeyDown(68) && character.move(this.translateD);//D
+		InputManager.hasKeyDown(69) && character.jump();//E
 	}
 
 	addBox(): void {

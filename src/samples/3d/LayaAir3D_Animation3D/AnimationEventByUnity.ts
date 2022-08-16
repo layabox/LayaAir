@@ -1,5 +1,5 @@
 import { Laya } from "Laya";
-import { Script3D } from "laya/d3/component/Script3D";
+import { Script } from "laya/components/Script";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -34,7 +34,7 @@ export class AnimationEventByUnity {
 
 
 
-class SceneScript extends Script3D {
+class SceneScript extends Script {
 	constructor() {
 		super();
 

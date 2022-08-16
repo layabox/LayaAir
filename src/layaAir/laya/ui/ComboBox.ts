@@ -398,7 +398,7 @@ export class ComboBox extends UIComponent {
             if (this._labels.length > 0) this.changeSelected();
             else this.callLater(this.changeSelected);
 
-            this.event(Event.CHANGE, [Event.EMPTY.setTo(Event.CHANGE, this, this)]);
+            this.event(Event.CHANGE, Event.EMPTY);
             this._selectHandler && this._selectHandler.runWith(this._selectedIndex);
         }
     }

@@ -2,7 +2,7 @@ import { UIComponent } from "./UIComponent";
 import { AutoBitmap } from "./AutoBitmap";
 import { UIUtils } from "./UIUtils";
 import { Styles } from "./Styles";
-import { Const } from "../Const"
+import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"
 import { Texture } from "../resource/Texture"
@@ -194,7 +194,7 @@ export class Clip extends UIComponent {
     /**@private	 @override*/
     protected _onDisplay(e?: boolean): void {
         if (this._isPlaying) {
-            if (this._getBit(Const.DISPLAYED_INSTAGE)) this.play();
+            if (this._getBit(NodeFlags.DISPLAYED_INSTAGE)) this.play();
             else this.stop();
         } else if (this._autoPlay) {
             this.play();
@@ -279,7 +279,7 @@ export class Clip extends UIComponent {
      */
     protected changeClip(): void {
         this._clipChanged = false;
-        if (!this._skin || this.destroyed) return;
+        if (!this._skin || this._destroyed) return;
         var img: any = Loader.getRes(this._skin);
         if (img) {
             this.loadComplete(this._skin, img);

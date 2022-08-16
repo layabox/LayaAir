@@ -179,7 +179,7 @@ export class ProgressBar extends UIComponent {
     }
 
     protected _skinLoaded(): void {
-        if (this.destroyed) {
+        if (this._destroyed) {
             return
         }
         this._bg.skin = this._skin;

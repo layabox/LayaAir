@@ -1,120 +1,13 @@
 import { Component } from "./Component";
 import { Event } from "../events/Event"
-import { ILaya } from "../../ILaya";
+import { Collision } from "../d3/physics/Collision";
+import { PhysicsComponent } from "../d3/physics/PhysicsComponent";
+import { ColliderBase } from "../physics/ColliderBase";
 
 /**
  * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
- * 组件的生命周期
  */
 export class Script extends Component {
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get isSingleton(): boolean {
-        return false;
-    }
-
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
-    _onAwake(): void {
-        this.onAwake();
-        if (this.onStart !== Script.prototype.onStart) {
-            ILaya.startTimer.callLater(this, this.onStart);
-        }
-    }
-
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
-    _onEnable(): void {
-        var proto: any = Script.prototype;
-        if (this.onTriggerEnter !== proto.onTriggerEnter) {
-            this.owner.on(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
-        }
-        if (this.onTriggerStay !== proto.onTriggerStay) {
-            this.owner.on(Event.TRIGGER_STAY, this, this.onTriggerStay);
-        }
-        if (this.onTriggerExit !== proto.onTriggerExit) {
-            this.owner.on(Event.TRIGGER_EXIT, this, this.onTriggerExit);
-        }
-
-        if (this.onMouseDown !== proto.onMouseDown) {
-            this.owner.on(Event.MOUSE_DOWN, this, this.onMouseDown);
-        }
-        if (this.onMouseUp !== proto.onMouseUp) {
-            this.owner.on(Event.MOUSE_UP, this, this.onMouseUp);
-        }
-        if (this.onClick !== proto.onClick) {
-            this.owner.on(Event.CLICK, this, this.onClick);
-        }
-        if (this.onStageMouseDown !== proto.onStageMouseDown) {
-            ILaya.stage.on(Event.MOUSE_DOWN, this, this.onStageMouseDown);
-        }
-        if (this.onStageMouseUp !== proto.onStageMouseUp) {
-            ILaya.stage.on(Event.MOUSE_UP, this, this.onStageMouseUp);
-        }
-        if (this.onStageClick !== proto.onStageClick) {
-            ILaya.stage.on(Event.CLICK, this, this.onStageClick);
-        }
-        if (this.onStageMouseMove !== proto.onStageMouseMove) {
-            ILaya.stage.on(Event.MOUSE_MOVE, this, this.onStageMouseMove);
-        }
-        if (this.onDoubleClick !== proto.onDoubleClick) {
-            this.owner.on(Event.DOUBLE_CLICK, this, this.onDoubleClick);
-        }
-        if (this.onRightClick !== proto.onRightClick) {
-            this.owner.on(Event.RIGHT_CLICK, this, this.onRightClick);
-        }
-        if (this.onMouseMove !== proto.onMouseMove) {
-            this.owner.on(Event.MOUSE_MOVE, this, this.onMouseMove);
-        }
-        if (this.onMouseOver !== proto.onMouseOver) {
-            this.owner.on(Event.MOUSE_OVER, this, this.onMouseOver);
-        }
-        if (this.onMouseOut !== proto.onMouseOut) {
-            this.owner.on(Event.MOUSE_OUT, this, this.onMouseOut);
-        }
-        if (this.onKeyDown !== proto.onKeyDown) {
-            ILaya.stage.on(Event.KEY_DOWN, this, this.onKeyDown);
-        }
-        if (this.onKeyPress !== proto.onKeyPress) {
-            ILaya.stage.on(Event.KEY_PRESS, this, this.onKeyPress);
-        }
-        if (this.onKeyUp !== proto.onKeyUp) {
-            ILaya.stage.on(Event.KEY_UP, this, this.onKeyUp);
-        }
-        if (this.onUpdate !== proto.onUpdate) {
-            ILaya.updateTimer.frameLoop(1, this, this.onUpdate);
-        }
-        if (this.onLateUpdate !== proto.onLateUpdate) {
-            ILaya.lateTimer.frameLoop(1, this, this.onLateUpdate);
-        }
-        if (this.onPreRender !== proto.onPreRender) {
-            ILaya.lateTimer.frameLoop(1, this, this.onPreRender);
-        }
-        this.onEnable();
-    }
-
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
-    protected _onDisable(): void {
-        this.owner.offAllCaller(this);
-        ILaya.stage.offAllCaller(this);
-        ILaya.startTimer.clearAll(this);
-        ILaya.updateTimer.clearAll(this);
-        ILaya.lateTimer.clearAll(this);
-        this.onDisable();
-    }
-
     /**
      * @internal
      * @override
@@ -123,229 +16,148 @@ export class Script extends Component {
         return true;
     }
 
-    /**
-     * @internal
-     * @inheritDoc
-     * @override
-     */
-    protected _onDestroy(): void {
-        this.onDestroy();
-    }
+    protected setupScript(): void {
+        let owner = this.owner;
+        let func: Function;
 
-    /**
-     * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onAwake(): void {
+        if (func = this.onTriggerEnter) owner.on(Event.TRIGGER_ENTER, this, func);
+        if (func = this.onTriggerStay) owner.on(Event.TRIGGER_STAY, this, func);
+        if (func = this.onTriggerExit) owner.on(Event.TRIGGER_EXIT, this, func);
 
-    }
+        if (func = this.onCollisionEnter) owner.on(Event.COLLISION_ENTER, this, func);
+        if (func = this.onCollisionStay) owner.on(Event.COLLISION_STAY, this, func);
+        if (func = this.onCollisionExit) owner.on(Event.COLLISION_EXIT, this, func);
+        if (func = this.onJointBreak) owner.on(Event.JOINT_BREAK, this, func);
 
-    /**
-     * 组件被启用后执行，比如节点被添加到舞台后
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onEnable(): void {
+        if (func = this.onMouseDown) owner.on(Event.MOUSE_DOWN, this, func);
+        if (func = this.onMouseUp) owner.on(Event.MOUSE_UP, this, func);
+        if (func = this.onMouseMove) owner.on(Event.MOUSE_MOVE, this, func);
+        if (func = this.onMouseDrag) owner.on(Event.MOUSE_DRAG, this, func);
+        if (func = this.onMouseDragEnd) owner.on(Event.MOUSE_DRAG_END, this, func);
+        if (func = this.onMouseOver) owner.on(Event.MOUSE_OVER, this, func);
+        if (func = this.onMouseOut) owner.on(Event.MOUSE_OUT, this, func);
+        if (func = this.onMouseClick) owner.on(Event.CLICK, this, func);
+        if (func = this.onMouseDoubleClick) owner.on(Event.DOUBLE_CLICK, this, func);
+        if (func = this.onMouseRightClick) owner.on(Event.RIGHT_CLICK, this, func);
 
-    }
-
-    /**
-     * 第一次执行update之前执行，只会执行一次
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onStart(): void {
-
+        if (func = this.onKeyDown) owner.on(Event.KEY_DOWN, this, func);
+        if (func = this.onKeyPress) owner.on(Event.KEY_PRESS, this, func);
+        if (func = this.onKeyUp) owner.on(Event.KEY_UP, this, func);
     }
 
     /**
      * 开始碰撞时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onTriggerEnter(other: any, self: any, contact: any): void {
-
-    }
+    onTriggerEnter?(other: PhysicsComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
      * 持续碰撞时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onTriggerStay(other: any, self: any, contact: any): void {
-
-    }
+    onTriggerStay?(other: PhysicsComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
      * 结束碰撞时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onTriggerExit(other: any, self: any, contact: any): void {
+    onTriggerExit?(other: PhysicsComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
-    }
+    /**
+     * 开始碰撞时执行
+     */
+    onCollisionEnter?(collision: Collision): void;
+
+    /**
+     * 持续碰撞时执行
+     */
+    onCollisionStay?(collision: Collision): void;
+
+    /**
+     * 结束碰撞时执行
+     */
+    onCollisionExit?(collision: Collision): void;
+
+    /**
+     * 关节破坏时执行此方法
+     */
+    onJointBreak?(): void;
+
+    /**
+     * 开始碰撞时执行
+     */
+    onTrigger2DEnter?(other: ColliderBase, self: ColliderBase, contact: any): void;
+
+    /**
+     * 持续碰撞时执行
+     */
+    onTrigger2DStay?(other: ColliderBase, self: ColliderBase, contact: any): void;
+
+    /**
+     * 结束碰撞时执行
+     */
+    onTrigger2DExit?(other: ColliderBase, self: ColliderBase, contact: any): void;
 
     /**
      * 鼠标按下时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onMouseDown(e: Event): void {
-
-    }
+    onMouseDown?(evt: Event): void;
 
     /**
      * 鼠标抬起时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onMouseUp(e: Event): void {
+    onMouseUp?(evt: Event): void;
 
-    }
+    /**
+     * 鼠标在节点上移动时执行
+     */
+    onMouseMove?(evt: Event): void;
+
+    /**
+     * 鼠标进入节点时执行
+     */
+    onMouseOver?(evt: Event): void;
+
+    /**
+     * 鼠标离开节点时执行
+     */
+    onMouseOut?(evt: Event): void;
+
+    /**
+     * 鼠标按住一个物体后，拖拽时执行
+     */
+    onMouseDrag?(evt: Event): void;
+
+    /**
+     * 鼠标按住一个物体，拖拽一定距离，释放鼠标按键后执行
+     */
+    onMouseDragEnd?(evt: Event): void;
 
     /**
      * 鼠标点击时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onClick(e: Event): void {
-
-    }
-
-    /**
-     * 鼠标在舞台按下时执行
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onStageMouseDown(e: Event): void {
-
-    }
-
-    /**
-     * 鼠标在舞台抬起时执行
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onStageMouseUp(e: Event): void {
-
-    }
-
-    /**
-     * 鼠标在舞台点击时执行
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onStageClick(e: Event): void {
-
-    }
-
-    /**
-     * 鼠标在舞台移动时执行
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onStageMouseMove(e: Event): void {
-
-    }
+    onMouseClick?(evt: Event): void;
 
     /**
      * 鼠标双击时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onDoubleClick(e: Event): void {
-
-    }
+    onMouseDoubleClick?(evt: Event): void;
 
     /**
      * 鼠标右键点击时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onRightClick(e: Event): void {
-
-    }
-
-    /**
-     * 鼠标移动时执行
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onMouseMove(e: Event): void {
-
-    }
-
-    /**
-     * 鼠标经过节点时触发
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onMouseOver(e: Event): void {
-
-    }
-
-    /**
-     * 鼠标离开节点时触发
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onMouseOut(e: Event): void {
-
-    }
+    onMouseRightClick?(evt: Event): void;
 
     /**
      * 键盘按下时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onKeyDown(e: Event): void {
-
-    }
+    onKeyDown?(evt: Event): void;
 
     /**
      * 键盘产生一个字符时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onKeyPress(e: Event): void {
-
-    }
+    onKeyPress?(evt: Event): void;
 
     /**
      * 键盘抬起时执行
-     * 此方法为虚方法，使用时重写覆盖即可
      */
-    onKeyUp(e: Event): void {
-
-    }
-
-    /**
-     * 每帧更新时执行，尽量不要在这里写大循环逻辑或者使用getComponent方法
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onUpdate(): void {
-
-    }
-
-    /**
-     * 每帧更新时执行，在update之后执行，尽量不要在这里写大循环逻辑或者使用getComponent方法
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onLateUpdate(): void {
-
-    }
-
-    /**
-     * 渲染之前执行
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onPreRender(): void {
-
-    }
-
-    /**
-     * 渲染之后执行
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onPostRender(): void {
-
-    }
-
-    /**
-     * 组件被禁用时执行，比如从节点从舞台移除后
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onDisable(): void {
-
-    }
-
-    /**
-     * 手动调用节点销毁时执行
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onDestroy(): void {
-
-    }
+    onKeyUp?(evt: Event): void;
 }
 

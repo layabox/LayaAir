@@ -37,11 +37,11 @@ export class View extends Scene {
         ILaya.loader.cacheRes(url, json);
     }
 
-		/** 
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  destroy(destroyChild: boolean = true): void {
+    /** 
+     * @inheritDoc 
+     * @override
+    */
+    destroy(destroyChild: boolean = true): void {
         this._watchMap = null;
         super.destroy(destroyChild);
     }
@@ -158,11 +158,11 @@ export class View extends Scene {
         }
     }
 
-		/**
-		 * @private 
-		 * @override
-		*/
-		/*override*/ protected _sizeChanged(): void {
+    /**
+     * @private 
+     * @override
+    */
+    protected _sizeChanged(): void {
         if (!isNaN(this._anchorX)) this.pivotX = this.anchorX * this.width;
         if (!isNaN(this._anchorY)) this.pivotY = this.anchorY * this.height;
         this.event(Event.RESIZE);

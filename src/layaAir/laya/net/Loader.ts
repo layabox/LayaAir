@@ -369,7 +369,7 @@ export class Loader extends EventDispatcher {
         if (options.priority == null)
             options.priority = 0;
         if (options.useWorkerLoader == null)
-            options.useWorkerLoader = ILaya.WorkerLoader.enable;
+            options.useWorkerLoader = WorkerLoader.enable;
         if (onProgress)
             task.onProgress.add(onProgress);
         task.loader = this;

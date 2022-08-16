@@ -387,7 +387,7 @@ export class ColorPicker extends UIComponent {
             this.drawBlock(value);
             this.changeColor();
             this.changeHandler && this.changeHandler.runWith(this._selectedColor);
-            this.event(Event.CHANGE, Event.EMPTY.setTo(Event.CHANGE, this, this));
+            this.event(Event.CHANGE, Event.EMPTY);
         }
     }
 

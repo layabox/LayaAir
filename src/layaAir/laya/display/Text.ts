@@ -8,6 +8,8 @@ import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { WordText } from "../utils/WordText"
 import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
+import { Config } from "../../Config";
 
 /**
  * 文本内容发生改变后调度。
@@ -110,21 +112,8 @@ export class Text extends Sprite {
     /**hidden 不显示超出文本域的字符。*/
     static HIDDEN: string = "hidden";
 
-    /**默认文本大小，默认为12*/
-    static defaultFontSize: number = 12;
-    /**默认文本字体，默认为Arial*/
-    static defaultFont: string = "Arial";
-
-    /**@private */
-    static defaultFontStr(): string {
-        return Text.defaultFontSize + "px " + Text.defaultFont;
-    }
     /**语言包，是一个包含key:value的集合，用key索引，替换为目标value语言*/
     static langPacks: any;
-    /**WebGL下，文字会被拆分为单个字符进行渲染，一些语系不能拆开显示，比如阿拉伯文，这时可以设置isComplexText=true，禁用文字拆分。*/
-    static isComplexText: boolean = false;
-    /**在IOS下，一些字体会找不到，引擎提供了字体映射功能，比如默认会把 "黑体" 映射为 "黑体-简"，更多映射，可以自己添加*/
-    static fontFamilyMap: any = { "报隶": "报隶-简", "黑体": "黑体-简", "楷体": "楷体-简", "兰亭黑": "兰亭黑-简", "隶变": "隶变-简", "凌慧体": "凌慧体-简", "翩翩体": "翩翩体-简", "苹方": "苹方-简", "手札体": "手札体-简", "宋体": "宋体-简", "娃娃体": "娃娃体-简", "魏碑": "魏碑-简", "行楷": "行楷-简", "雅痞": "雅痞-简", "圆体": "圆体-简" };
     /**@internal 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可*/
     static _testWord: string = "游";
     /**@private 位图字体字典。*/
@@ -135,7 +124,7 @@ export class Text extends Sprite {
     static RightToLeft: boolean = false;
 
     /**@private */
-    private _clipPoint: Point|null;
+    private _clipPoint: Point | null;
     /**@private 表示文本内容字符串。*/
     protected _text: string;
     /**@private 表示文本内容是否发生改变。*/
@@ -145,23 +134,23 @@ export class Text extends Sprite {
     /**@private 表示文本的高度，以像素为单位。*/
     protected _textHeight: number = 0;
     /**@private 存储文字行数信息。*/
-    protected _lines: string[]|null = [];
+    protected _lines: string[] | null = [];
     /**@private 保存每行宽度*/
-    protected _lineWidths: number[]|null = [];
+    protected _lineWidths: number[] | null = [];
     /**@private 文本的内容位置 X 轴信息。*/
     protected _startX: number = 0;
     /**@private 文本的内容位置X轴信息。 */
     protected _startY: number = 0;
     /**@private */
-    protected _words: WordText[]|null;
+    protected _words: WordText[] | null;
     /**@private */
     protected _charSize: any = {};
     /**@private */
     protected _valign: string = "top";
     /**@internal */
-    _fontSize: number = Text.defaultFontSize;
+    _fontSize: number = Config.defaultFontSize;
     /**@internal */
-    _font: string = Text.defaultFont;
+    _font: string = Config.defaultFont;
     /**@internal */
     _color: string = "#000000";
 
@@ -633,7 +622,7 @@ export class Text extends Sprite {
      * @private
      */
     protected _getContextFont(): string {
-        return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (ILaya.Browser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
+        return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[this.font] || this.font) : this.font);
     }
 
     /**
@@ -705,7 +694,7 @@ export class Text extends Sprite {
         }
 
         //drawBg(style);
-        let bitmapScale=1;
+        let bitmapScale = 1;
         if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
             bitmapScale = tCurrBitmapFont.fontSize / this.fontSize;
         }
@@ -713,9 +702,9 @@ export class Text extends Sprite {
         if (this._height > 0) {
             var tempVAlign = (this._textHeight > this._height) ? "top" : this.valign;
             if (tempVAlign === "middle")
-                startY = (this._height - visibleLineCount /bitmapScale* lineHeight) * 0.5 + padding[0] - padding[2];
+                startY = (this._height - visibleLineCount / bitmapScale * lineHeight) * 0.5 + padding[0] - padding[2];
             else if (tempVAlign === "bottom")
-                startY = this._height - visibleLineCount /bitmapScale* lineHeight - padding[2];
+                startY = this._height - visibleLineCount / bitmapScale * lineHeight - padding[2];
         }
 
         //渲染
@@ -750,7 +739,7 @@ export class Text extends Sprite {
             var word = lines[i];
             var _word: any;
             if (password) {
-				let len = word.length;
+                let len = word.length;
                 word = "";
                 for (var j = len; j > 0; j--) {
                     word += "●";
@@ -767,8 +756,8 @@ export class Text extends Sprite {
                 var tWidth = this.width;
                 if (tCurrBitmapFont.autoScaleSize) {
                     tWidth = this.width * bitmapScale;
-                    x*=bitmapScale;
-                    y*=bitmapScale;
+                    x *= bitmapScale;
+                    y *= bitmapScale;
                 }
                 tCurrBitmapFont._drawText(word, this, x, y, this.align, tWidth);
             } else {
@@ -834,7 +823,7 @@ export class Text extends Sprite {
             return;
         }
 
-        if (ILaya.Render.isConchApp) {
+        if (LayaEnv.isConch) {
             (window as any).conchTextCanvas.font = this._getContextFont();;
         } else {
             ILaya.Browser.context.font = this._getContextFont();
@@ -863,20 +852,20 @@ export class Text extends Sprite {
         nw = Math.max.apply(this, this._lineWidths);
 
         //计算textHeight
-        let bmpFont = (this._style as TextStyle) .currBitmapFont;
-        if (bmpFont){
+        let bmpFont = (this._style as TextStyle).currBitmapFont;
+        if (bmpFont) {
             let h = bmpFont.getMaxHeight();
-            if(bmpFont.autoScaleSize){
+            if (bmpFont.autoScaleSize) {
                 h = this.fontSize;
             }
             nh = this._lines.length * (h + this.leading) + this.padding[0] + this.padding[2];
         }
-        else{
-			nh = this._lines.length * (this._charSize.height + this.leading) + this.padding[0] + this.padding[2];
-			if(this._lines.length){
-				nh-=this.leading; 	// 去掉最后一行的leading，否则多算了。
-			}
-		}
+        else {
+            nh = this._lines.length * (this._charSize.height + this.leading) + this.padding[0] + this.padding[2];
+            if (this._lines.length) {
+                nh -= this.leading; 	// 去掉最后一行的leading，否则多算了。
+            }
+        }
         if (nw != this._textWidth || nh != this._textHeight) {
             this._textWidth = nw;
             this._textHeight = nh;
@@ -924,7 +913,7 @@ export class Text extends Sprite {
             this._charSize.height = bitmapFont.getMaxHeight();
         } else {
             var measureResult: any = null;
-            if (ILaya.Render.isConchApp) {
+            if (LayaEnv.isConch) {
                 measureResult = (window as any).conchTextCanvas.measureText(Text._testWord);
             } else {
                 measureResult = ILaya.Browser.context.measureText(Text._testWord);
@@ -982,26 +971,26 @@ export class Text extends Sprite {
             // 考虑性能，保留这种非方式。
             charsWidth = this._getTextWidth(line.charAt(j));
             wordWidth += charsWidth;
-			// 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
+            // 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
             if (wordWidth > wordWrapWidth) {
                 if (this.wordWrap) {
                     //截断换行单词
                     var newLine = line.substring(startIndex, j);
-					// 如果最后一个是中文则直接截断，否则找空格或者-来拆分
-					var ccode = newLine.charCodeAt(newLine.length-1)
-					if (ccode<0x4e00 || ccode>0x9fa5){
-                    //if (newLine.charCodeAt(newLine.length - 1) < 255) {
+                    // 如果最后一个是中文则直接截断，否则找空格或者-来拆分
+                    var ccode = newLine.charCodeAt(newLine.length - 1)
+                    if (ccode < 0x4e00 || ccode > 0x9fa5) {
+                        //if (newLine.charCodeAt(newLine.length - 1) < 255) {
                         //按照英文单词字边界截取 因此将会无视中文
                         //var execResult = /(?:\w|-)+$/.exec(newLine);
-						var execResult=/(?:[^\s\!-\/])+$/.exec(newLine);// 找不是 空格和标点符号的
+                        var execResult = /(?:[^\s\!-\/])+$/.exec(newLine);// 找不是 空格和标点符号的
                         if (execResult) {
                             j = execResult.index + startIndex;
                             //此行只够容纳这一个单词 强制换行
-                            if (execResult.index == 0) 
-								j += newLine.length;
+                            if (execResult.index == 0)
+                                j += newLine.length;
                             //此行有多个单词 按单词分行
-                            else 
-								newLine = line.substring(startIndex, j);
+                            else
+                                newLine = line.substring(startIndex, j);
                         }
                     }
 
@@ -1042,13 +1031,13 @@ export class Text extends Sprite {
         var bitmapFont: BitmapFont = ((<TextStyle>this._style)).currBitmapFont;
         if (bitmapFont) return bitmapFont.getTextWidth(text);
         else {
-            if (ILaya.Render.isConchApp) {
+            if (LayaEnv.isConch) {
                 return (window as any).conchTextCanvas.measureText(text).width;;
             }
-            else{
-				let ret = ILaya.Browser.context.measureText(text)||{width:100};
-				return ret.width;
-			}
+            else {
+                let ret = ILaya.Browser.context.measureText(text) || { width: 100 };
+                return ret.width;
+            }
         }
     }
 
@@ -1185,16 +1174,16 @@ export class Text extends Sprite {
     }
     get singleCharRender(): boolean {
         return this._singleCharRender;
-	}
-/*	
-	scale(scaleX: number, scaleY: number, speedMode: boolean = false): Sprite {
-		super.scale(scaleX,scaleY, speedMode);
-        // 注意_words是一个数组（例如有换行）
-        this._words && this._words.forEach(function (w: WordText): void {
-            w.cleanCache();
-		});
-		this.repaint();
-		return this;
-	}	
-*/
+    }
+    /*	
+        scale(scaleX: number, scaleY: number, speedMode: boolean = false): Sprite {
+            super.scale(scaleX,scaleY, speedMode);
+            // 注意_words是一个数组（例如有换行）
+            this._words && this._words.forEach(function (w: WordText): void {
+                w.cleanCache();
+            });
+            this.repaint();
+            return this;
+        }	
+    */
 }

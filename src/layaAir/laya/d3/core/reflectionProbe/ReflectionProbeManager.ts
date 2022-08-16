@@ -126,10 +126,10 @@ export class ReflectionProbeManager {
      * 更新传入所有渲染器反射探针
      * @param 渲染器列表
      */
-    updateAllRenderObjects(baseRenders: SimpleSingletonList) {
+    updateAllRenderObjects(baseRenders: SimpleSingletonList<BaseRender>) {
         var elements = baseRenders.elements;
         for (var i: number = 0, n: number = baseRenders.length; i < n; i++) {
-            this._updateMotionObjects(elements[i] as BaseRender);
+            this._updateMotionObjects(elements[i]);
         }
         this._needUpdateAllRender = false;
     }

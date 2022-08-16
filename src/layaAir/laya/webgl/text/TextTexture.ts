@@ -1,4 +1,3 @@
-//import { TextAtlas } from "./TextAtlas";
 import { LayaGL } from "../../layagl/LayaGL"
 import { RenderInfo } from "../../renders/RenderInfo"
 import { Resource } from "../../resource/Resource"
@@ -9,14 +8,16 @@ import { Texture2D } from "../../resource/Texture2D";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
+import { TextAtlas } from "./TextAtlas";
+import { LayaEnv } from "../../../LayaEnv";
+import { TextRender } from "./TextRender";
 
 export class TextTexture extends Resource {
-    static gTextRender: ITextRender = null;
-
-    private static pool: any[] = new Array(10);		// 回收用
+    private static pool: any[] = new Array(10); // 回收用
     private static poolLen: number = 0;
     private static cleanTm: number = 0;
-    private _render2DContext:IRender2DContext; 
+    private _render2DContext: IRender2DContext;
+
     /**@internal */
     _source: Texture2D;	// webgl 贴图
     /**@internal */
@@ -34,13 +35,13 @@ export class TextTexture extends Resource {
     lastTouchTm: number = 0;
     ri: CharRenderInfo = null; 		// 如果是独立文字贴图的话带有这个信息
     //public var isIso:Boolean = false;
-    get gammaCorrection():number{
+    get gammaCorrection(): number {
         return (this.bitmap._glTexture as any).gammaCorrection;
     }
     constructor(textureW: number, textureH: number) {
         super();
-        this._texW = textureW || TextTexture.gTextRender.atlasWidth;
-        this._texH = textureH || TextTexture.gTextRender.atlasWidth;
+        this._texW = textureW || TextRender.atlasWidth;
+        this._texH = textureH || TextRender.atlasWidth;
         this.bitmap.id = this.id;
         this.lock = true;//防止被资源管理清除
         this._render2DContext = LayaGL.render2DContext;
@@ -49,8 +50,8 @@ export class TextTexture extends Resource {
     recreateResource(): void {
         if (this._source)
             return;
-        var glTex: Texture2D = this._source = new Texture2D(this._texW,this._texH,TextureFormat.R8G8B8A8,false,false,true);
-        glTex.setPixelsData(null,true,false);
+        var glTex: Texture2D = this._source = new Texture2D(this._texW, this._texH, TextureFormat.R8G8B8A8, false, false, true);
+        glTex.setPixelsData(null, true, false);
         glTex.lock = true;
         this.bitmap._glTexture = glTex;
 
@@ -59,7 +60,7 @@ export class TextTexture extends Resource {
         this._source.wrapModeV = WrapMode.Clamp;
 
         //TODO 预乘alpha
-        if (TextTexture.gTextRender.debugUV) {
+        if (TextRender.debugUV) {
             this.fillWhite();
         }
     }
@@ -74,23 +75,23 @@ export class TextTexture extends Resource {
      */
     addChar(data: ImageData, x: number, y: number, uv: any[] = null): any[] {
         //if (!ILaya.Render.isConchApp &&  !__JS__('(data instanceof ImageData)')) {
-        if (TextTexture.gTextRender.isWan1Wan) {
+        if (TextRender.isWan1Wan) {
             return this.addCharCanvas(data, x, y, uv);
         }
         var dt: any = data.data;
         if (data.data instanceof Uint8ClampedArray)
             dt = new Uint8Array(dt.buffer);
         !this._source && this.recreateResource();
-        
-        LayaGL.textureContext.setTextureSubPixelsData(this._source._texture,dt,0,false,x,y,data.width,data.height,true,false);
+
+        LayaGL.textureContext.setTextureSubPixelsData(this._source._texture, dt, 0, false, x, y, data.width, data.height, true, false);
         var u0: number;
         var v0: number;
         var u1: number;
         var v1: number;
-		u0 = x / this._texW;	
-		v0 = y / this._texH;
-		u1 = (x + data.width) / this._texW;	
-		v1 = (y + data.height) / this._texH;
+        u0 = x / this._texW;
+        v0 = y / this._texH;
+        u1 = (x + data.width) / this._texW;
+        v1 = (y + data.height) / this._texH;
         uv = uv || new Array(8);
         uv[0] = u0, uv[1] = v0;
         uv[2] = u1, uv[3] = v0;
@@ -108,12 +109,12 @@ export class TextTexture extends Resource {
     addCharCanvas(canv: any, x: number, y: number, uv: any[] = null): any[] {
         !this._source && this.recreateResource();
 
-        LayaGL.textureContext.setTextureImageData(this._source._getSource(),canv,true,false);
+        LayaGL.textureContext.setTextureImageData(this._source._getSource(), canv, true, false);
         var u0: number;
         var v0: number;
         var u1: number;
         var v1: number;
-        if (ILaya.Render.isConchApp) {
+        if (LayaEnv.isConch) {
             u0 = x / this._texW;		// +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
             v0 = y / this._texH;
             u1 = (x + canv.width) / this._texW;
@@ -139,20 +140,20 @@ export class TextTexture extends Resource {
         !this._source && this.recreateResource();
         var dt: Uint8Array = new Uint8Array(this._texW * this._texH * 4);
         ((<any>dt)).fill(0xff);
-        LayaGL.textureContext.setTextureImageData(this._source._getSource(),dt as any,true,false);
+        LayaGL.textureContext.setTextureImageData(this._source._getSource(), dt as any, true, false);
     }
 
     discard(): void {
-		// 文字贴图的释放要触发全局cacheas normal无效
-		ILaya.stage.setGlobalRepaint();
-		// 不再使用问题贴图的重用，否则会有内容清理问题
-		this.destroy();
-		return;
+        // 文字贴图的释放要触发全局cacheas normal无效
+        ILaya.stage.setGlobalRepaint();
+        // 不再使用问题贴图的重用，否则会有内容清理问题
+        this.destroy();
+        return;
     }
 
     static getTextTexture(w: number, h: number): TextTexture {
-		// 不再回收
-		return new TextTexture(w, h);
+        // 不再回收
+        return new TextTexture(w, h);
     }
     /**
      * @override
@@ -171,10 +172,10 @@ export class TextTexture extends Resource {
     static clean(): void {
         var curtm: number = RenderInfo.loopStTm;// Laya.stage.getFrameTm();
         if (TextTexture.cleanTm === 0) TextTexture.cleanTm = curtm;
-        if (curtm - TextTexture.cleanTm >= TextTexture.gTextRender.checkCleanTextureDt) {	//每10秒看看pool中的贴图有没有很老的可以删除的
+        if (curtm - TextTexture.cleanTm >= TextRender.checkCleanTextureDt) {	//每10秒看看pool中的贴图有没有很老的可以删除的
             for (var i: number = 0; i < TextTexture.poolLen; i++) {
                 var p: TextTexture = TextTexture.pool[i];
-                if (curtm - p._discardTm >= TextTexture.gTextRender.destroyUnusedTextureDt) {//超过20秒没用的删掉
+                if (curtm - p._discardTm >= TextRender.destroyUnusedTextureDt) {//超过20秒没用的删掉
                     p.destroy();					//真正删除贴图
                     TextTexture.pool[i] = TextTexture.pool[TextTexture.poolLen - 1];
                     TextTexture.poolLen--;
@@ -191,10 +192,10 @@ export class TextTexture extends Resource {
             this.curUsedCovRateAtlas = 0;
             this.lastTouchTm = curloop;
         }
-        var texw2: number = TextTexture.gTextRender.atlasWidth * TextTexture.gTextRender.atlasWidth;
-        var gridw2: number = ILaya.TextAtlas.atlasGridW * ILaya.TextAtlas.atlasGridW;
+        var texw2: number = TextRender.atlasWidth * TextRender.atlasWidth;
+        var gridw2: number = TextAtlas.atlasGridW * TextAtlas.atlasGridW;
         this.curUsedCovRate += (ri.bmpWidth * ri.bmpHeight) / texw2;
-        this.curUsedCovRateAtlas += (Math.ceil(ri.bmpWidth / ILaya.TextAtlas.atlasGridW) * Math.ceil(ri.bmpHeight / ILaya.TextAtlas.atlasGridW)) / (texw2 / gridw2);
+        this.curUsedCovRateAtlas += (Math.ceil(ri.bmpWidth / TextAtlas.atlasGridW) * Math.ceil(ri.bmpHeight / TextAtlas.atlasGridW)) / (texw2 / gridw2);
     }
 
     // 为了与当前的文字渲染兼容的补丁
@@ -210,12 +211,4 @@ export class TextTexture extends Resource {
     drawOnScreen(x: number, y: number): void {
 
     }
-}
-
-interface ITextRender {
-    atlasWidth: number;
-    checkCleanTextureDt: number;
-    debugUV: boolean;
-    isWan1Wan: boolean;
-    destroyUnusedTextureDt: number;
 }

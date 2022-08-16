@@ -5,7 +5,7 @@ import { ISceneRenderManager } from "../../../RenderInterface/RenderPipelineInte
 
 export class NativeSceneRenderManager implements ISceneRenderManager {
     /** @internal */
-    _renders: SimpleSingletonList = new SimpleSingletonList();
+    _renders: SimpleSingletonList<BaseRender> = new SimpleSingletonList();
     //自定义更新的Bounds渲染节点
     _customUpdateList: SingletonList<BaseRender> = new SingletonList();
     //自定义裁剪的渲染节点

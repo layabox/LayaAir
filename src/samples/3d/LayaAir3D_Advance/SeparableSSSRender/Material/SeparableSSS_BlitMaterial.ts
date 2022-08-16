@@ -99,9 +99,9 @@ export class SeparableSSS_BlitMaterial extends Material {
 	//衰减
 	set falloff(value: Vector3) {
 		//@ts-ignore
-		Vector3.max(value, Vector3._ZERO, value);
+		Vector3.max(value, Vector3.ZERO, value);
 		//@ts-ignore
-		Vector3.min(value, Vector3._ONE, value);
+		Vector3.min(value, Vector3.ONE, value);
 		this._fallOff = value;
 		this.kenel = this.calculateKernel(this._nSampler, this._fallOff, this._strength);
 	}
@@ -109,9 +109,9 @@ export class SeparableSSS_BlitMaterial extends Material {
 	//强度
 	set strength(value: Vector3) {
 		//@ts-ignore
-		Vector3.max(value, Vector3._ZERO, value);
+		Vector3.max(value, Vector3.ZERO, value);
 		//@ts-ignore
-		Vector3.min(value, Vector3._ONE, value);
+		Vector3.min(value, Vector3.ONE, value);
 		this._strength = value;
 		this.kenel = this.calculateKernel(this._nSampler, this._fallOff, this._strength);
 	}

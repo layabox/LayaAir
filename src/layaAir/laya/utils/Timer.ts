@@ -1,5 +1,6 @@
 import { CallLater } from "./CallLater";
 import { ILaya } from "../../ILaya";
+
 /**
  * <code>Timer</code> 是时钟管理类。它是一个单例，不要手动实例化此类，应该通过 Laya.timer 访问。
  */

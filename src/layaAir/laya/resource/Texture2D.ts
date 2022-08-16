@@ -11,6 +11,7 @@ import { KTXTextureInfo } from "../RenderEngine/KTXTextureInfo";
 import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { LayaEnv } from "../../LayaEnv";
 
 export interface TexturePropertyParams {
     wrapModeU?: number,
@@ -130,7 +131,7 @@ export class Texture2D extends BaseTexture {
             texture.setImageData(imageSource, false, false);
 
         if (canread) {
-            if (ILaya.Render.isConchApp && imageSource._nativeObj) {
+            if (LayaEnv.isConch && imageSource._nativeObj) {
                 texture._pixels = new Uint8Array(imageSource._nativeObj.getImageData(0, 0, imageSource.width, imageSource.height));
             } else {
                 ILaya.Browser.canvas.size(imageSource.width, imageSource.height);

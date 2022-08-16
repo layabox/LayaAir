@@ -1,6 +1,4 @@
-import { ILaya } from "../../../ILaya";
-
-//	import { ShaderCompile } from "./ShaderCompile"
+import { ShaderCompile } from "./ShaderCompile"
 
 export class ShaderNode {
     private static __id: number = 1;
@@ -49,7 +47,7 @@ export class ShaderNode {
         var outIndex: number = out.length;
         if (this.condition) {
             var ifdef: boolean = !!this.condition.call(def);
-            this.conditionType === ILaya.ShaderCompile.IFDEF_ELSE && (ifdef = !ifdef);
+            this.conditionType === ShaderCompile.IFDEF_ELSE && (ifdef = !ifdef);
             if (!ifdef&&ShaderNode.__noCompileEnable) return out;
         }
         if(this.noCompile||!ShaderNode.__noCompileEnable)

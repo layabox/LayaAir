@@ -16,7 +16,7 @@ import { CapsuleColliderShape } from "laya/d3/physics/shape/CapsuleColliderShape
 import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
-import { KeyBoardManager } from "laya/events/KeyBoardManager";
+import { InputManager } from "laya/events/InputManager";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -41,11 +41,11 @@ export class PhysicsWorld_Kinematic {
 	private mat3: BlinnPhongMaterial;
 
 	constructor() {
+		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-			Config3D.useCannonPhysics = false;
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
@@ -121,12 +121,12 @@ export class PhysicsWorld_Kinematic {
 	}
 
 	private onKeyDown(): void {
-		KeyBoardManager.hasKeyDown(87) && this.kinematicSphere.transform.translate(this.translateW);//W
-		KeyBoardManager.hasKeyDown(83) && this.kinematicSphere.transform.translate(this.translateS);//S
-		KeyBoardManager.hasKeyDown(65) && this.kinematicSphere.transform.translate(this.translateA);//A
-		KeyBoardManager.hasKeyDown(68) && this.kinematicSphere.transform.translate(this.translateD);//D
-		KeyBoardManager.hasKeyDown(81) && this.plane.transform.translate(this.translateQ);//Q
-		KeyBoardManager.hasKeyDown(69) && this.plane.transform.translate(this.translateE);//E
+		InputManager.hasKeyDown(87) && this.kinematicSphere.transform.translate(this.translateW);//W
+		InputManager.hasKeyDown(83) && this.kinematicSphere.transform.translate(this.translateS);//S
+		InputManager.hasKeyDown(65) && this.kinematicSphere.transform.translate(this.translateA);//A
+		InputManager.hasKeyDown(68) && this.kinematicSphere.transform.translate(this.translateD);//D
+		InputManager.hasKeyDown(81) && this.plane.transform.translate(this.translateQ);//Q
+		InputManager.hasKeyDown(69) && this.plane.transform.translate(this.translateE);//E
 	}
 
 	addBox(): void {

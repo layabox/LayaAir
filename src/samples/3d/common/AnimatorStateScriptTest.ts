@@ -22,7 +22,7 @@ export class AnimatorStateScriptTest extends AnimatorStateScript {
 	/**
 	 * 动画状态开始时执行。
 	 */
-	/*override*/  onStateEnter(): void {
+	onStateEnter(): void {
 		console.log("动画开始播放了");
 		this._text.text = "动画状态：动画开始播放";
 	}
@@ -30,7 +30,7 @@ export class AnimatorStateScriptTest extends AnimatorStateScript {
 	/**
 	* 动画状态更新时执行。
 	*/
-	/*override*/  onStateUpdate(): void {
+	onStateUpdate(): void {
 		console.log("动画状态更新了");
 		this._text.text = "动画状态：动画更新中";
 	}
@@ -38,7 +38,7 @@ export class AnimatorStateScriptTest extends AnimatorStateScript {
 	/**
 	* 动画状态退出时执行。
 	*/
-	/*override*/  onStateExit(): void {
+	onStateExit(): void {
 		console.log("动画退出了");
 		this._text.text = "动画状态：动画开始退出";
 	}

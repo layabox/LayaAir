@@ -1,25 +1,13 @@
-import { BoxCollider } from "./BoxCollider";
-import { ChainCollider } from "./ChainCollider";
-import { CircleCollider } from "./CircleCollider";
-import { PolygonCollider } from "./PolygonCollider";
 import { RigidBody } from "./RigidBody";
-import { PhysicsDebugDraw } from "./PhysicsDebugDraw";
-import { Laya } from "../../Laya";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
 import { Point } from "../maths/Point"
-import { DistanceJoint } from "./joint/DistanceJoint"
-import { GearJoint } from "./joint/GearJoint"
-import { MotorJoint } from "./joint/MotorJoint"
-import { MouseJoint } from "./joint/MouseJoint"
-import { PrismaticJoint } from "./joint/PrismaticJoint"
-import { PulleyJoint } from "./joint/PulleyJoint"
-import { RevoluteJoint } from "./joint/RevoluteJoint"
-import { WeldJoint } from "./joint/WeldJoint"
-import { WheelJoint } from "./joint/WheelJoint"
 import { IPhysics } from "./IPhysics";
 import { DestructionListener } from "./DestructionListener";
+import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
+
 /**
  * 2D物理引擎，使用Box2d驱动
  */
@@ -92,13 +80,14 @@ export class Physics extends EventDispatcher {
             this.world.SetDestructionListener(new DestructionListener());
             this.world.SetContactListener(new ContactListener());
             this.allowSleeping = options.allowSleeping == null ? true : options.allowSleeping;
-            if (!options.customUpdate) Laya.physicsTimer.frameLoop(1, this, this._update);
+            if (!options.customUpdate && LayaEnv.isPlaying)
+                ILaya.physicsTimer.frameLoop(1, this, this._update);
             this._emptyBody = this._createBody(new (<any>window).box2d.b2BodyDef());
         }
     }
 
     private _update(): void {
-        var delta = Laya.timer.delta / 1000;
+        var delta = ILaya.timer.delta / 1000;
         if (delta > .033) { // 时间步太长，会导致错误穿透
             delta = .033;
         }
@@ -201,7 +190,7 @@ export class Physics extends EventDispatcher {
      * 停止物理世界
      */
     stop(): void {
-        Laya.physicsTimer.clear(this, this._update);
+        ILaya.physicsTimer.clear(this, this._update);
     }
 
     /**
@@ -246,7 +235,7 @@ export class Physics extends EventDispatcher {
      * 设置特定容器后，就可整体位移物理对象，保持物理世界不变。
      * 注意，仅会在 set worldRoot 时平移一次，其他情况请配合 updatePhysicsByWorldRoot 函数使用*/
     get worldRoot(): Sprite {
-        return this._worldRoot || Laya.stage;
+        return this._worldRoot || ILaya.stage;
     }
 
     set worldRoot(value: Sprite) {

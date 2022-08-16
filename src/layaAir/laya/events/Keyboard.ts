@@ -1,6 +1,6 @@
 /**
-	 * <code>Keyboard</code> 类的属性是一些常数，这些常数表示控制游戏时最常用的键。
-	 */
+ * <code>Keyboard</code> 类的属性是一些常数，这些常数表示控制游戏时最常用的键。
+ */
 export class Keyboard {
     /** 与 0 的键控代码值 (48) 关联的常数。*/
     static NUMBER_0: number = 48;

@@ -9,6 +9,7 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { LayaEnv } from "../../LayaEnv";
 
 export const enum VideoType {
     MP4 = 1,
@@ -363,7 +364,7 @@ export class VideoTexture extends BaseTexture {
     }
 
     destroy() {
-        var isConchApp: boolean = ILaya.Render.isConchApp;
+        var isConchApp: boolean = LayaEnv.isConch;
         if (isConchApp) {
             (<any>this.element)._destroy();
         }

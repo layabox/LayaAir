@@ -1,6 +1,7 @@
 import { LayaGL } from "../layagl/LayaGL";
 import { RenderStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
 import { IStatRender } from "./IStatRender";
+
 /**
      * <p> <code>Stat</code> 是一个性能统计面板，可以实时更新相关的性能参数。</p>
      * <p>参与统计的性能参数如下（所有参数都是每大约1秒进行更新）：<br/>

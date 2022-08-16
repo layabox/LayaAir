@@ -1,21 +1,18 @@
 import { Matrix } from "../../maths/Matrix";
 import { Context } from "../../resource/Context";
-import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 import { Value2D } from "../shader/d2/value/Value2D";
-import { CONST3D2D } from "../utils/CONST3D2D";
 import { RenderState2D } from "../utils/RenderState2D";
 import { SubmitBase } from "./SubmitBase";
 
 /**
  * cache as normal 模式下的生成的canvas的渲染。
  */
-
 export class SubmitCanvas extends SubmitBase {
     /**@internal */
     _matrix: Matrix = new Matrix();		// 用来计算当前的世界矩阵
     canv: Context;
     /**@internal */
-    _matrix4: any[] = CONST3D2D.defaultMatrix4.concat();
+    _matrix4: any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
     static POOL: SubmitCanvas[] = [];
 
@@ -36,9 +33,9 @@ export class SubmitCanvas extends SubmitBase {
         this.shaderValue = new Value2D(0, 0);
     }
 
-	/**
-	 * @override
-	 */
+    /**
+     * @override
+     */
     renderSubmit(): number {
         // 下面主要是为了给canvas设置矩阵。因为canvas保存的是没有偏移的。
         var preAlpha = RenderState2D.worldAlpha;

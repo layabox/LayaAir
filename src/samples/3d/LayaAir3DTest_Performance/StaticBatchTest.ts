@@ -1,4 +1,3 @@
-import { Config3D } from "Config3D";
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
@@ -9,8 +8,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class StaticBatchTest {
 	constructor() {
-		var config: Config3D = new Config3D();
-		Laya3D.init(0, 0, config);
+		Laya3D.init(0, 0);
 		Stat.show();
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;

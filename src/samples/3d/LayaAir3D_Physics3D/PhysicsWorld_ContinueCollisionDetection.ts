@@ -23,11 +23,11 @@ export class PhysicsWorld_ContinueCollisionDetection {
 	private scene: Scene3D;
 	private mat2: BlinnPhongMaterial;
 	constructor() {
+		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-			Config3D.useCannonPhysics = false;
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 			this.scene.physicsSimulation.gravity = new Vector3(0, -98.0, 0);
 

@@ -4,8 +4,6 @@ import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension
 import { InternalRenderTarget } from "../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { IRenderTarget } from "../../RenderEngine/RenderInterface/IRenderTarget";
 import { BaseTexture } from "../../resource/BaseTexture";
-import { RenderContext3D } from "../core/render/RenderContext3D";
-
 
 export class RenderTexture extends BaseTexture implements IRenderTarget {
 

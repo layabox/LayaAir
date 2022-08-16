@@ -1,8 +1,4 @@
-//import { HTMLCanvas } from "../resource/HTMLCanvas"
-import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { ILaya } from "../../ILaya";
-import { Laya } from "../../Laya";
-
 
 /**
  * <code>Browser</code> 是浏览器代理类。封装浏览器及原生 js 提供的一些功能。
@@ -66,14 +62,13 @@ export class Browser {
     /** @private */
     static onLayaRuntime: boolean;
 
-
     /** 表示是否支持WebAudio*/
     static supportWebAudio: boolean;
     /** 表示是否支持LocalStorage*/
     static supportLocalStorage: boolean;
 
     /** 全局离线画布（非主画布）。主要用来测量字体、获取image数据。*/
-    static canvas: HTMLCanvas;
+    static canvas: any;
     /** 全局离线画布上绘图的环境（非主画布）。 */
     static context: CanvasRenderingContext2D;
 
@@ -87,7 +82,7 @@ export class Browser {
     private static _pixelRatio: number = -1;
 
     /** @private */
-    static mainCanvas: HTMLCanvas = null;
+    static mainCanvas: any = null;
 
     /**@private */
     private static hanzi: RegExp = new RegExp("^[\u4E00-\u9FA5]$");
@@ -110,7 +105,7 @@ export class Browser {
 
     /**@internal */
     static __init__(): any {
-        var Laya: Laya = (window as any).Laya || ILaya.Laya;
+        var Laya:any = (window as any).Laya || ILaya.Laya;
         if (Browser._window) return Browser._window;
         var win: any = Browser._window = window;
         var doc: any = Browser._document = win.document;
@@ -123,18 +118,18 @@ export class Browser {
             if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {
                 //这里需要手动初始化阿里适配库
                 (window as any).tbMiniGame(Laya, Laya);
-                if (!(Laya as any)["TBMiniAdapter"]) {
+                if (!Laya["TBMiniAdapter"]) {
                     console.error("请先添加淘宝适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
                 } else {
-                    (Laya as any)["TBMiniAdapter"].enable();
+                    Laya["TBMiniAdapter"].enable();
                 }
             } else if (u.indexOf('AlipayMiniGame') > -1) {
                 //这里需要手动初始化阿里适配库
                 (window as any).aliPayMiniGame(Laya, Laya);
-                if (!(Laya as any)["ALIMiniAdapter"]) {
+                if (!Laya["ALIMiniAdapter"]) {
                     console.error("请先添加阿里小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
                 } else {
-                    (Laya as any)["ALIMiniAdapter"].enable();
+                    Laya["ALIMiniAdapter"].enable();
                 }
             }
         }
@@ -143,90 +138,90 @@ export class Browser {
             if ("tt" in Browser.window) {
                 //手机头条小游戏
                 (window as any).ttMiniGame(Laya, Laya);
-                if (!(Laya as any)["TTMiniAdapter"]) {
+                if (!Laya["TTMiniAdapter"]) {
                     //TODO
                     console.error("请引入字节跳动小游戏的适配库");
                 } else {
-                    (Laya as any)["TTMiniAdapter"].enable();
+                    Laya["TTMiniAdapter"].enable();
                 }
             } else if ("bl" in Browser.window) {
                 //手机B站小游戏
                 (window as any).biliMiniGame(Laya, Laya);
-                if (!(Laya as any)["BLMiniAdapter"]) {
+                if (!Laya["BLMiniAdapter"]) {
                     console.error("请引入bilibili小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-7-0");
                 } else {
-                    (Laya as any)["BLMiniAdapter"].enable();
+                    Laya["BLMiniAdapter"].enable();
                 }
             }
             else if ("qq" in Browser.window) {
                 //手机QQ小游戏
                 (window as any).qqMiniGame(Laya, Laya);
-                if (!(Laya as any)["QQMiniAdapter"]) {
+                if (!Laya["QQMiniAdapter"]) {
                     console.error("请引入手机QQ小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-0-0");
                 } else {
-                    (Laya as any)["QQMiniAdapter"].enable();
+                    Laya["QQMiniAdapter"].enable();
                 }
             }
             else {
                 //微信小游戏
                 (window as any).wxMiniGame(Laya, Laya);
-                if (!(Laya as any)["MiniAdpter"]) {
+                if (!Laya["MiniAdpter"]) {
                     console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
                     //TODO 教程要改
                 } else {
-                    (Laya as any)["MiniAdpter"].enable();
+                    Laya["MiniAdpter"].enable();
                 }
             }
         }
         //华为快游戏
         if ("hbs" in Browser.window) {
             (window as any).hwMiniGame(Laya, Laya);
-            if (!(Laya as any)["HWMiniAdapter"]) {
+            if (!Laya["HWMiniAdapter"]) {
                 console.error("请先添加小游戏适配库!");
                 //TODO 教程要改
             } else {
-                (Laya as any)["HWMiniAdapter"].enable();
+                Laya["HWMiniAdapter"].enable();
             }
         }
 
         //百度小游戏
         if (u.indexOf("SwanGame") > -1) {
             (window as any).bdMiniGame(Laya, Laya);
-            if (!(Laya as any)["BMiniAdapter"]) {
+            if (!Laya["BMiniAdapter"]) {
                 console.error("请先添加百度小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-1-0");
                 //TODO 教程要改
             } else {
-                (Laya as any)["BMiniAdapter"].enable();
+                Laya["BMiniAdapter"].enable();
             }
         }
 
         //小米小游戏
         if (u.indexOf('QuickGame') > -1) {
             (window as any).miMiniGame(Laya, Laya);
-            if (!(Laya as any)["KGMiniAdapter"]) {
+            if (!Laya["KGMiniAdapter"]) {
                 console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-2-0");
             } else {
-                (Laya as any)["KGMiniAdapter"].enable();
+                Laya["KGMiniAdapter"].enable();
             }
         }
 
         //OPPO小游戏
         if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
             (window as any).qgMiniGame(Laya, Laya);
-            if (!(Laya as any)["QGMiniAdapter"]) {
+            if (!Laya["QGMiniAdapter"]) {
                 console.error("请先添加OPPO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-3-0");
             } else {
-                (Laya as any)["QGMiniAdapter"].enable();
+                Laya["QGMiniAdapter"].enable();
             }
         }
 
         //VIVO小游戏
         if (u.indexOf('VVGame') > -1) {
             (window as any).vvMiniGame(Laya, Laya);
-            if (!(Laya as any)["VVMiniAdapter"]) {
+            if (!Laya["VVMiniAdapter"]) {
                 console.error("请先添加VIVO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-4-0");
             } else {
-                (Laya as any)["VVMiniAdapter"].enable();
+                Laya["VVMiniAdapter"].enable();
             }
         }
 

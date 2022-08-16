@@ -1,6 +1,6 @@
 /**
-	 * @private
-	 */
+ * @private
+ */
 export class SpriteConst {
     /** @private */
     static ALPHA: number = 0x01;
@@ -30,7 +30,6 @@ export class SpriteConst {
     static ONECHILD: number = 0x1000;
     /** @private */
     static CHILDS: number = 0x2000;
-
 
     /** @private */
     static REPAINT_NONE: number = 0;

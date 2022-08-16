@@ -3,6 +3,10 @@ import { Event } from "../events/Event"
 import { Matrix } from "../maths/Matrix"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
+import { InputManager } from "../events/InputManager";
+import { Render } from "../renders/Render";
+import { Config } from "../../Config";
 
 /**
  * 用户输入一个或多个文本字符时后调度。
@@ -70,11 +74,11 @@ export class Input extends Text {
     static TYPE_SEARCH: string = "search";
 
     /**@private */
-	protected static input: HTMLInputElement;
+    protected static input: HTMLInputElement;
     /**@private */
     protected static area: HTMLTextAreaElement;
     /**@private */
-    protected static inputElement: HTMLInputElement|HTMLTextAreaElement;
+    protected static inputElement: HTMLInputElement | HTMLTextAreaElement;
     /**@private */
     protected static inputContainer: HTMLDivElement;
     /**@private */
@@ -104,10 +108,6 @@ export class Input extends Text {
 
     /**@private */
     static IOS_IFRAME: boolean = false;
-    private static inputHeight: number = 45;
-
-    /**表示是否处于输入状态。*/
-    static isInputting: boolean = false;
 
     static isAppUseNewInput: boolean = false;
 
@@ -135,14 +135,14 @@ export class Input extends Text {
             if (ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onQQMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onHWMiniGame || ILaya.Browser.onTBMiniGame) {
                 isTrue = true;
             }
-            ILaya.Render.canvas.addEventListener(Input.IOS_IFRAME ? (isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
+            Render.canvas.addEventListener(Input.IOS_IFRAME ? (isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
         }
     }
 
     // 移动平台在单击事件触发后弹出输入法
     private static _popupInputMethod(e: any): void {
         //e.preventDefault();
-        if (!Input.isInputting) return;
+        if (!InputManager.isTextInputting) return;
 
         var input: any = Input.inputElement;
 
@@ -175,12 +175,12 @@ export class Input extends Text {
 
         input.addEventListener('input', Input._processInputting);
 
-        input.addEventListener('mousemove', Input._stopEvent);
-        input.addEventListener('mousedown', Input._stopEvent);
-        input.addEventListener('touchmove', Input._stopEvent);
+        input.addEventListener('mousemove', Input._stopEvent, { passive: false });
+        input.addEventListener('mousedown', Input._stopEvent, { passive: false });
+        input.addEventListener('touchmove', Input._stopEvent, { passive: false });
 
         (input as any).setFontFace = function (fontFace: string): void { input.style.fontFamily = fontFace; };
-        if (!(ILaya.Render.isConchApp && !Input.isAppUseNewInput)) {
+        if (!(LayaEnv.isConch && !Input.isAppUseNewInput)) {
             (input as any).setColor = function (color: string): void { input.style.color = color; };
             (input as any).setFontSize = function (fontSize: number): void { input.style.fontSize = fontSize + 'px'; };
         }
@@ -237,7 +237,7 @@ export class Input extends Text {
     /**
      * 获取对输入框的引用实例。
      */
-    get nativeInput(): HTMLInputElement|HTMLTextAreaElement {
+    get nativeInput(): HTMLInputElement | HTMLTextAreaElement {
         return this._multiline ? Input.area : Input.input;
     }
 
@@ -259,7 +259,7 @@ export class Input extends Text {
         var transform = Utils.getTransformRelativeToWindow(this, this.padding[3], this.padding[0]);
         var inputWid = this._width - this.padding[1] - this.padding[3];
         var inputHei = this._height - this.padding[0] - this.padding[2];
-        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) {
+        if (LayaEnv.isConch && !Input.isAppUseNewInput) {
             (inputElement as any).setScale(transform.scaleX, transform.scaleY);
             (inputElement as any).setSize(inputWid, inputHei);
             (inputElement as any).setPos(transform.x, transform.y);
@@ -305,7 +305,7 @@ export class Input extends Text {
                 ILaya.Browser.document.body.scrollTop = 0;
                 input.blur();
 
-                if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) (input as any).setPos(-10000, -10000);
+                if (LayaEnv.isConch && !Input.isAppUseNewInput) (input as any).setPos(-10000, -10000);
                 else if (Input.inputContainer.contains(input)) Input.inputContainer.removeChild(input);
             }
         }
@@ -315,14 +315,14 @@ export class Input extends Text {
         Input.input.parentElement && (Input.inputContainer.removeChild(Input.input));
         Input.area.parentElement && (Input.inputContainer.removeChild(Input.area));
 
-		// 安卓的安全键盘的问题；
-		// 如果设置type='password' 则会弹安全键盘
-		// 就算以后设置type='text' 还是会弹安全键盘，所以对于安卓，干脆全部重新生成
-		if(ILaya.Browser.onAndroid){
-		    Input.input = Input.inputElement = ILaya.Browser.createElement('input');
-		    Input._initInput(Input.input);
-		}
-	
+        // 安卓的安全键盘的问题；
+        // 如果设置type='password' 则会弹安全键盘
+        // 就算以后设置type='text' 还是会弹安全键盘，所以对于安卓，干脆全部重新生成
+        if (ILaya.Browser.onAndroid) {
+            Input.input = Input.inputElement = ILaya.Browser.createElement('input');
+            Input._initInput(Input.input);
+        }
+
         Input.inputElement = (this._multiline ? Input.area : Input.input);
         Input.inputContainer.appendChild(Input.inputElement);
         if (Text.RightToLeft) {
@@ -331,10 +331,10 @@ export class Input extends Text {
     }
 
     private _focusIn(): void {
-        Input.isInputting = true;
-		var input = this.nativeInput;
-		
-		Input.input && (Input.input.type = this._type);		// 设置input控件的 password
+        InputManager.isTextInputting = true;
+        var input = this.nativeInput;
+
+        Input.input && (Input.input.type = this._type);		// 设置input控件的 password
 
         this._focus = true;
 
@@ -343,7 +343,7 @@ export class Input extends Text {
         this._setPromptColor();
 
         input.readOnly = !this._editable;
-        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) {
+        if (LayaEnv.isConch && !Input.isAppUseNewInput) {
             (input as any).setType(this._type);
             (input as any).setForbidEdit(!this._editable);
         }
@@ -364,7 +364,7 @@ export class Input extends Text {
         if (ILaya.Browser.onPC) input.focus();
 
         // PC浏览器隐藏文字
-        if (!(ILaya.Render.isConchApp && Input.isAppUseNewInput) && !ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
+        if (!(LayaEnv.isConch && Input.isAppUseNewInput) && !ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
             //var temp: string = this._text;
             this._text = null;
         }
@@ -373,8 +373,8 @@ export class Input extends Text {
         // PC同步输入框外观。
         (input as any).setColor(this._originColor);
         (input as any).setFontSize(this.fontSize);
-        (input as any).setFontFace(ILaya.Browser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
-        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) {
+        (input as any).setFontFace(ILaya.Browser.onIPhone ? (Config.fontFamilyMap[this.font] || this.font) : this.font);
+        if (LayaEnv.isConch && !Input.isAppUseNewInput) {
             (input as any).setMultiAble && (input as any).setMultiAble(this._multiline);
         }
         cssStyle.lineHeight = (this.leading + this.fontSize) + "px";
@@ -385,7 +385,7 @@ export class Input extends Text {
 
         // 输入框重定位。
         this._syncInputTransform();
-        if (!ILaya.Render.isConchApp && ILaya.Browser.onPC)
+        if (!LayaEnv.isConch && ILaya.Browser.onPC)
             ILaya.systemTimer.frameLoop(1, this, this._syncInputTransform);
     }
 
@@ -405,8 +405,8 @@ export class Input extends Text {
 
     /**@private */
     private _focusOut(): void {
-        if(!Input.isInputting)return;
-        Input.isInputting = false;
+        if (!InputManager.isTextInputting) return;
+        InputManager.isTextInputting = false;
         this._focus = false;
 
         this._text = null;
@@ -423,7 +423,7 @@ export class Input extends Text {
         ILaya.stage.focus = null;
         this.event(Event.BLUR);
         this.event(Event.CHANGE);
-        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) this.nativeInput.blur();
+        if (LayaEnv.isConch && !Input.isAppUseNewInput) this.nativeInput.blur();
         // 只有PC会注册此事件。
         ILaya.Browser.onPC && ILaya.systemTimer.clear(this, this._syncInputTransform);
     }
@@ -443,20 +443,19 @@ export class Input extends Text {
      * 小游戏专用(解决键盘输入框内容和游戏输入框内容不同步的bug)
      * @param value 
      */
-     miniGameTxt(value:string)
-     {
-         super.set_color(this._originColor);
-         value += '';
-         if (!this._multiline)
-             value = value.replace(/\r?\n/g, '');
-         this._content = value;
-         if (value)
-             super.set_text(value);
-         else {
-             super.set_text(this._prompt);
-             super.set_color(this.promptColor);
-         }
-     }
+    miniGameTxt(value: string) {
+        super.set_color(this._originColor);
+        value += '';
+        if (!this._multiline)
+            value = value.replace(/\r?\n/g, '');
+        this._content = value;
+        if (value)
+            super.set_text(value);
+        else {
+            super.set_text(this._prompt);
+            super.set_color(this.promptColor);
+        }
+    }
 
     /**@inheritDoc 
      * @override
@@ -528,7 +527,7 @@ export class Input extends Text {
     */
     set bgColor(value: string) {
         super.set_bgColor(value);
-        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput)
+        if (LayaEnv.isConch && !Input.isAppUseNewInput)
             (this.nativeInput as any).setBgColor(value);
     }
 
@@ -563,7 +562,7 @@ export class Input extends Text {
      */
     set editable(value: boolean) {
         this._editable = value;
-        if (ILaya.Render.isConchApp && !Input.isAppUseNewInput) {
+        if (LayaEnv.isConch && !Input.isAppUseNewInput) {
             (Input.input as any).setForbidEdit(!value);
         }
     }

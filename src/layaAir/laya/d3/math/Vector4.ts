@@ -9,23 +9,24 @@ import { IClone } from "../core/IClone"
 export class Vector4 implements IClone {
 
     /**零向量*/
-    static readonly ZERO: Vector4 = new Vector4();
+    static readonly ZERO: Readonly<Vector4> = new Vector4();
 
     /*一向量*/
-    static readonly ONE: Vector4 = new Vector4(1.0, 1.0, 1.0, 1.0);
+    static readonly ONE: Readonly<Vector4> = new Vector4(1.0, 1.0, 1.0, 1.0);
 
     /*X单位向量*/
-    static readonly UnitX: Vector4 = new Vector4(1.0, 0.0, 0.0, 0.0);
+    static readonly UnitX: Readonly<Vector4> = new Vector4(1.0, 0.0, 0.0, 0.0);
 
     /*Y单位向量*/
-    static readonly UnitY: Vector4 = new Vector4(0.0, 1.0, 0.0, 0.0);
+    static readonly UnitY: Readonly<Vector4> = new Vector4(0.0, 1.0, 0.0, 0.0);
 
     /*Z单位向量*/
-    static readonly UnitZ: Vector4 = new Vector4(0.0, 0.0, 1.0, 0.0);
+    static readonly UnitZ: Readonly<Vector4> = new Vector4(0.0, 0.0, 1.0, 0.0);
 
     /*W单位向量*/
-    static readonly UnitW: Vector4 = new Vector4(0.0, 0.0, 0.0, 1.0);
+    static readonly UnitW: Readonly<Vector4> = new Vector4(0.0, 0.0, 0.0, 1.0);
 
+    /** @internal */
     static tempVec4: Vector4 = new Vector4(0.0, 0.0, 0.0, 0.0);
 
     /**X轴坐标*/
@@ -356,9 +357,7 @@ export class Vector4 implements IClone {
         out.w = Math.max(a.w, b.w);
     }
 
-    forNativeElement(nativeElements: Float32Array = null): void//[NATIVE_TS]
-    {
-
+    forNativeElement(nativeElements: Float32Array = null): void {
         if (nativeElements) {
             (<any>this).elements = nativeElements;
             (<any>this).elements[0] = this.x;
