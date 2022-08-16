@@ -310,13 +310,6 @@ export class SoundManager {
         if (url == SoundManager._bgMusic) {
             if (SoundManager._musicMuted) return null;
         } else {
-            if (ILaya.Render.isConchApp) {
-                var ext: string = Utils.getFileExtension(url);
-                if (ext != "wav" && ext != "ogg") {
-                    alert("The sound only supports wav or ogg format,for optimal performance reason,please refer to the official website document.");
-                    return null;
-                }
-            }
             if (SoundManager._soundMuted) return null;
         }
         var tSound: Sound;
