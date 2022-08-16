@@ -1,7 +1,7 @@
 import { Vector3 } from "./Vector3";
 import { Quaternion } from "./Quaternion";
 import { MathUtils3D } from "./MathUtils3D";
-import { IClone } from "../core/IClone";
+import { IClone } from "../../utils/IClone";
 
 const _tempVector0 = new Vector3();
 const _tempVector1 = new Vector3();

@@ -1,5 +1,5 @@
 import { ConchVector3 } from "./ConchVector3";
-import { IClone } from "../../core/IClone"
+import { IClone } from "../../../utils/IClone"
 	import { MathUtils3D } from "../MathUtils3D"
 	import { Matrix3x3 } from "../Matrix3x3"
 	import { Matrix4x4 } from "../Matrix4x4"

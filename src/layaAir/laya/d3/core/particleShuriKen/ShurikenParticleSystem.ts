@@ -15,7 +15,7 @@ import { Mesh } from "../../resource/models/Mesh";
 import { BufferState } from "../BufferState";
 import { GeometryElement } from "../GeometryElement";
 import { Gradient } from "../Gradient";
-import { IClone } from "../IClone";
+import { IClone } from "../../../utils/IClone";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Scene3D } from "../scene/Scene3D";
 import { Transform3D } from "../Transform3D";

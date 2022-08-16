@@ -1,4 +1,4 @@
-import { IClone } from "../../IClone"
+import { IClone } from "../../../../utils/IClone"
 
 /**
  * <code>GradientDataNumber</code> 类用于创建浮点渐变。

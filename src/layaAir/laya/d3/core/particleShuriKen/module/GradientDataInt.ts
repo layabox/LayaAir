@@ -1,4 +1,4 @@
-import { IClone } from "../../IClone"
+import { IClone } from "../../../../utils/IClone"
 
 /**
  * <code>GradientDataInt</code> 类用于创建整形渐变。

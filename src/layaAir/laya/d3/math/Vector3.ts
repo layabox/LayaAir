@@ -2,7 +2,7 @@ import { Vector4 } from "./Vector4";
 import { Quaternion } from "./Quaternion";
 import { Matrix4x4 } from "./Matrix4x4";
 import { MathUtils3D } from "./MathUtils3D";
-import { IClone } from "../core/IClone"
+import { IClone } from "../../utils/IClone"
 
 /**
  * <code>Vector3</code> 类用于创建三维向量。

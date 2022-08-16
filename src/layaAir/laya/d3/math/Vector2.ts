@@ -1,4 +1,4 @@
-import { IClone } from "../core/IClone"
+import { IClone } from "../../utils/IClone"
 
 /**
  * <code>Vector2</code> 类用于创建二维向量。

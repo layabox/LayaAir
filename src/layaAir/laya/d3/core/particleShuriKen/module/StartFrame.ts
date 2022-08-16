@@ -1,4 +1,4 @@
-import { IClone } from "../../IClone"
+import { IClone } from "../../../../utils/IClone"
 
 /**
  * <code>StartFrame</code> 类用于创建开始帧。

@@ -14,7 +14,7 @@ import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../RenderEngin
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ClassUtils } from "../../../utils/ClassUtils";
-import { IClone } from "../IClone";
+import { IClone } from "../../../utils/IClone";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Config3D } from "../../../../Config3D";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";

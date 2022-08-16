@@ -1,7 +1,7 @@
 import { Vector3 } from "./Vector3";
 import { Vector2 } from "./Vector2";
 import { Matrix4x4 } from "./Matrix4x4";
-import { IClone } from "../core/IClone"
+import { IClone } from "../../utils/IClone"
 import { Quaternion } from "./Quaternion";
 
 const _DEFAULTELEMENTS = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);

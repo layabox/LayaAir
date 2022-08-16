@@ -1,4 +1,4 @@
-import { IClone } from "../core/IClone";
+import { IClone } from "../../utils/IClone";
 import { BoundBox } from "./BoundBox";
 import { Matrix4x4 } from "./Matrix4x4";
 import { Vector3 } from "./Vector3";

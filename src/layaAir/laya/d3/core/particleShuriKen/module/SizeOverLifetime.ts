@@ -1,5 +1,5 @@
 import { GradientSize } from "./GradientSize";
-import { IClone } from "../../IClone"
+import { IClone } from "../../../../utils/IClone"
 
 /**
  * <code>SizeOverLifetime</code> 类用于粒子的生命周期尺寸。

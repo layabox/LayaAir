@@ -1,6 +1,6 @@
 import { Vector3 } from "./Vector3";
 import { Matrix4x4 } from "./Matrix4x4";
-import { IClone } from "../core/IClone"
+import { IClone } from "../../utils/IClone"
 
 /**
  * <code>BoundBox</code> 类用于创建包围盒。

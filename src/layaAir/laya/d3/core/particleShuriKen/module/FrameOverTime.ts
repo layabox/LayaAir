@@ -1,5 +1,5 @@
 import { GradientDataInt } from "./GradientDataInt";
-import { IClone } from "../../IClone"
+import { IClone } from "../../../../utils/IClone"
 
 
 /**

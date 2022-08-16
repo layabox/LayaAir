@@ -1,6 +1,6 @@
 import { ConchVector4 } from "./ConchVector4";
 import { ConchQuaternion } from "./ConchQuaternion";
-import { IClone } from "../../core/IClone"
+import { IClone } from "../../../utils/IClone"
 	import { MathUtils3D } from "../MathUtils3D"
 	
 	/**

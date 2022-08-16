@@ -1,4 +1,4 @@
-import { IClone } from "../../IClone"
+import { IClone } from "../../../../utils/IClone"
 
 /**
  * <code>Burst</code> 类用于粒子的爆裂描述。
