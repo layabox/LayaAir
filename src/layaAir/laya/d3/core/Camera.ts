@@ -617,9 +617,9 @@ export class Camera extends BaseCamera {
 	 * update Camera Render
 	 * @param context 
 	 */
-	_updateCameraRenderData(context:RenderContext3D){
+	_updateCameraRenderData(context: RenderContext3D) {
 		this._prepareCameraToRender();
-		this._applyViewProject(context,this.viewMatrix, this._projectionMatrix);
+		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
 	}
 
 
@@ -893,6 +893,9 @@ export class Camera extends BaseCamera {
 			RenderTexture.bindCanvasRender = null;
 		}
 		this._applyCommandBuffer(CameraEventFlags.AfterEveryThing, context);
+
+		if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
+			context.invertY = false;
 	}
 
 	recoverRenderContext3D(context: RenderContext3D, renderTexture: RenderTexture) {

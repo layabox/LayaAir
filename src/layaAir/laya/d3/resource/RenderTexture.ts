@@ -158,7 +158,6 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     _start() {
-        RenderContext3D._instance.invertY = this._isCameraTarget;
         if (RenderTexture._currentActive != this) {
             RenderTexture._currentActive && RenderTexture._currentActive._end();
             RenderTexture._currentActive = this;
@@ -170,7 +169,6 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         RenderTexture._currentActive = null;
 
         LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-        (this._isCameraTarget) && (RenderContext3D._instance.invertY = false);
     }
 
     getData(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array): Uint8Array | Float32Array {
