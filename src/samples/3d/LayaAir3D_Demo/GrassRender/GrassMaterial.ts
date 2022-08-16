@@ -13,6 +13,8 @@ import { BaseTexture } from "laya/resource/BaseTexture";
 import value from "*.glsl";
 import { Loader } from "laya/net/Loader";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
+import { Shader } from "laya/webgl/shader/Shader";
 
 export class GrassMaterial extends Material {
     static hasInited: boolean = false;
@@ -73,14 +75,34 @@ export class GrassMaterial extends Material {
         GrassMaterial.ALBEDOTEXTURE= Shader3D.propertyNameToID("u_albedoTexture");
 
         var attributeMap: any = {
-            'a_Position': VertexMesh.MESH_POSITION0,
-            'a_Normal': VertexMesh.MESH_NORMAL0,
-            'a_Color': VertexMesh.MESH_COLOR0,
-            'a_Tangent0': VertexMesh.MESH_TANGENT0,
-            'a_privotPosition': VertexMesh.MESH_CUSTOME0
+            'a_Position': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
+            'a_Normal': [VertexMesh.MESH_NORMAL0, ShaderDataType.Vector3],
+            'a_privotPosition': [VertexMesh.MESH_CUSTOME0, ShaderDataType.Vector3]
         };
+        var uniformMap:any = {
+            "u_WindAIntensity":ShaderDataType.Float,
+            "u_WindAFrequency":ShaderDataType.Float,
+            "u_WindATiling":ShaderDataType.Vector2,
+            "u_WindAWrap":ShaderDataType.Vector2,
+
+            "u_WindBIntensity":ShaderDataType.Float,
+            "u_WindBFrequency":ShaderDataType.Float,
+            "u_WindBTiling":ShaderDataType.Vector2,
+            "u_WindBWrap":ShaderDataType.Vector2,
+
+            "u_WindCIntensity":ShaderDataType.Float,
+            "u_WindCFrequency":ShaderDataType.Float,
+            "u_WindCTiling":ShaderDataType.Vector2,
+            "u_WindCWrap":ShaderDataType.Vector2,
+            //grass
+            "u_grassHeight":ShaderDataType.Float,
+            "u_grassWidth":ShaderDataType.Float,
+            "u_BoundSize":ShaderDataType.Vector4,
+            "u_GroundColor":ShaderDataType.Vector3,
+            "u_albedoTexture":ShaderDataType.Texture2D
+        }
         var shader: Shader3D = Shader3D.add("GrassShader", false, false);
-        var subShader: SubShader = new SubShader(attributeMap);
+        var subShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         var pass: ShaderPass = subShader.addShaderPass(UnityGrassVS, UnityGrassFS, "Forward");
         pass.renderState.cull = RenderState.CULL_BACK;

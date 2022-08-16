@@ -27,7 +27,7 @@ export class SkyPanoramicShaderInit {
             'u_Rotation': 0,
             'u_Texture': Texture2D.grayTexture,
         };
-        let shader = Shader3D.add("SkyProcedural");
+        let shader = Shader3D.add("SkyPanoramic");
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyPanoramicVS, SkyPanoramicFS);

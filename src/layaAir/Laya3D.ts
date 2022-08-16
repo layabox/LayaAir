@@ -151,6 +151,7 @@ export class Laya3D {
         SimpleSkinnedMeshSprite3D.__init__();
         PBRMaterial.__init__();
         PBRStandardMaterial.__init__();
+        SkyPanoramicMaterial.__init__();
         // PBRSpecularMaterial.__init__();
         // SkyPanoramicMaterial.__init__();
         Mesh.__init__();

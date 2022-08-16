@@ -4,45 +4,15 @@
 	precision mediump float;
 #endif
 
-#include "LayaComInput.glsl";
-#include "Lighting.glsl";
-
-//attribute
-attribute vec4 a_Position;
-attribute vec3 a_privotPosition;
-
-//camera
-uniform mat4 u_MvpMatrix;
-
-
-//wind
-uniform float u_WindAIntensity;
-uniform float u_WindAFrequency;
-uniform vec2 u_WindATiling;
-uniform vec2 u_WindAWrap;
-
-uniform float u_WindBIntensity;
-uniform float u_WindBFrequency;
-uniform vec2 u_WindBTiling;
-uniform vec2 u_WindBWrap;
-
-uniform float u_WindCIntensity;
-uniform float u_WindCFrequency;
-uniform vec2 u_WindCTiling;
-uniform vec2 u_WindCWrap;
-
-//Grass property
-uniform float u_grassHeight;
-uniform float u_grassWidth;
-uniform vec4 u_BoundSize;
-uniform vec3 u_GroundColor;
-
-//albedoTextue;
-uniform sampler2D u_albedoTexture;
+#include "Camera.glsl";
+#include "VertexCommon.glsl";
+#include "Scene.glsl";
 
 varying vec4 v_Color;
 
 void main() {
+    // Vertex vertex;
+    // getVertexParams(vertex);
     
     // uniform
     vec3 baseColor = vec3(0.1, 0.5, 0.1);
@@ -53,7 +23,7 @@ void main() {
     float maxHeight = 5.0;
 
 
-    vec4 aposition = a_Position;
+    vec4 aposition = getVertexPosition();
     vec3 perGrassPivotPosWS = a_privotPosition;
     float perGrassHeight = mix(minHeight, maxHeight, (sin(perGrassPivotPosWS.x * 23.4643 + perGrassPivotPosWS.z) * 0.45 + 0.55)) * u_grassHeight;
 
@@ -98,5 +68,5 @@ void main() {
     v_Color = vec4(albedo, 1.0);
 
     gl_Position = position;
-    gl_Position=remapGLPositionZ(gl_Position);
+    gl_Position=remapPositionZ(gl_Position);
 }

@@ -3,8 +3,8 @@
 #else
 	precision mediump float;
 #endif
+#include "Scene.glsl"
 
-#include "LayaComInput.glsl";
 varying vec4 v_Color;
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
      gl_FragColor = color;
 	#ifdef FOG
 		float lerpFact=clamp((1.0/gl_FragCoord.w-u_FogStart)/u_FogRange,0.0,1.0);
-		gl_FragColor.rgb=mix(gl_FragColor.rgb,u_FogColor,lerpFact);
+		gl_FragColor.rgb=mix(gl_FragColor.rgb,u_FogColor.rgb,lerpFact);
 	#endif
    
 }

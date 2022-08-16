@@ -29,10 +29,10 @@ export class SkyPanoramicMaterial extends Material {
         SkyPanoramicMaterial.TEXTURE = Shader3D.propertyNameToID("u_Texture");
         SkyPanoramicMaterial.TEXTURE_HDR_PARAMS = Shader3D.propertyNameToID("u_TextureHDRParams");
 
-        var shader: Shader3D = Shader3D.add("SkyPanoramic");
-        var subShader: SubShader = new SubShader();
-        shader.addSubShader(subShader);
-        subShader.addShaderPass(SkyPanoramicVS, SkyPanoramicFS);
+        // var shader: Shader3D = Shader3D.add("SkyPanoramic");
+        // var subShader: SubShader = new SubShader();
+        // shader.addSubShader(subShader);
+        // subShader.addShaderPass(SkyPanoramicVS, SkyPanoramicFS);
     }
 
     /** @internal */
