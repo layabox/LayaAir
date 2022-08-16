@@ -6,7 +6,24 @@ import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
 
+export interface IShaderObjStructor {
+    name: string,
+    enableInstancing: boolean,
+    supportReflectionProbe: boolean,
+    attributeMap:any;
+    uniformMap: any;
+    defaultValue: any;
+    shaderPass: Array<any>;
+}
 
+export interface IShaderpassStructor {
+    VS?: string,
+    FS?: string,
+    VSPath?: string,//TODO
+    FSPath?: string,//TODO
+    pipeline?: string,
+	
+}
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
  */
@@ -201,6 +218,20 @@ export class Shader3D {
 	 */
 	static find(name: string): Shader3D {
 		return Shader3D._preCompileShader[name];
+	}
+
+	static parse(data:IShaderObjStructor){
+		if(!data.name||!data.uniformMap)
+			console.error("TODO");
+		let shader = Shader3D.add(data.name,data.enableInstancing,data.supportReflectionProbe);
+		let subshader = new SubShader(data.attributeMap,data.uniformMap,data.defaultValue);
+		shader.addSubShader(subshader);
+		let passArray = data.shaderPass;
+		for(var i in passArray){
+			 let pass = passArray[i] as IShaderpassStructor;
+			 subshader.addShaderPass(pass.VS,pass.FS,pass.pipeline);
+		}
+		return shader
 	}
 
 	/**@internal */

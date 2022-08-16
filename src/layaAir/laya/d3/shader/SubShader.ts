@@ -17,18 +17,7 @@ export type AttributeMapType = { [name: string]: [number, ShaderDataType] };
  * <code>SubShader</code> 类用于创建SubShader。
  */
 export class SubShader {
-	public static DefaultShaderStateMap: any = {
-		's_Cull': Shader3D.RENDER_STATE_CULL,
-		's_Blend': Shader3D.RENDER_STATE_BLEND,
-		's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-		's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-		's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-		's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE,
-		's_StencilTest': Shader3D.RENDER_STATE_STENCIL_TEST,
-		's_StencilWrite': Shader3D.RENDER_STATE_STENCIL_WRITE,
-		's_StencilRef': Shader3D.RENDER_STATE_STENCIL_REF,
-		's_StencilOp': Shader3D.RENDER_STATE_STENCIL_OP
-	}
+	public static DefaultShaderStateMap: any;
 
 	public static readonly DefaultAttributeMap: { [name: string]: [number, ShaderDataType] } = {
 		'a_Position': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
@@ -41,6 +30,21 @@ export class SubShader {
 		'a_BoneIndices': [VertexMesh.MESH_BLENDINDICES0, ShaderDataType.Vector4],
 		'a_WorldMat': [VertexMesh.MESH_WORLDMATRIX_ROW0, ShaderDataType.Matrix4x4],
 		'a_SimpleTextureParams': [VertexMesh.MESH_SIMPLEANIMATOR, ShaderDataType.Vector2]
+	}
+
+	static __init__(){
+		SubShader.DefaultShaderStateMap = {
+			's_Cull': Shader3D.RENDER_STATE_CULL,
+			's_Blend': Shader3D.RENDER_STATE_BLEND,
+			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
+			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
+			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
+			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE,
+			's_StencilTest': Shader3D.RENDER_STATE_STENCIL_TEST,
+			's_StencilWrite': Shader3D.RENDER_STATE_STENCIL_WRITE,
+			's_StencilRef': Shader3D.RENDER_STATE_STENCIL_REF,
+			's_StencilOp': Shader3D.RENDER_STATE_STENCIL_OP
+		}
 	}
 
 	/**@internal */

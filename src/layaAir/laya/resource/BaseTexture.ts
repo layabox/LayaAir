@@ -129,7 +129,6 @@ export class BaseTexture extends Resource {
     // todo
     public get gammaSpace(): boolean {
         // return this._gammaSpace;
-
         return this._texture.useSRGBLoad || this._texture.gammaCorrection > 1;
     }
 

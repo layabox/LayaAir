@@ -86,6 +86,8 @@ import "./loaders/MeshLoader";
 import "./loaders/SimpleAnimatorTextureLoader";
 import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
+import "./loaders/ShaderLoader";
+
 import { Bounds } from "./math/Bounds";
 
 let c = ClassUtils.regClass;

@@ -37,7 +37,7 @@ export enum DepthTextureMode {
 export class DepthPass {
 	private static SHADOW_BIAS: Vector4 = new Vector4();
 	/** @internal */
-	static DEPTHPASS: ShaderDefine = Shader3D.getDefineByName("DEPTHPASS");
+	static DEPTHPASS: ShaderDefine;
 	/** @internal */
 	static DEFINE_SHADOW_BIAS: number;
 	/**@internal */
@@ -51,6 +51,7 @@ export class DepthPass {
 
 
 	static __init__() {
+		DepthPass.DEPTHPASS = Shader3D.getDefineByName("DEPTHPASS");
 		DepthPass.DEFINE_SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
 		DepthPass.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
 		DepthPass.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");

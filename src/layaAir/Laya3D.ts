@@ -75,6 +75,7 @@ import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { BlitFrameBufferCMD } from "./laya/d3/core/render/command/BlitFrameBufferCMD";
 import { ParticleShuriKenShaderInit } from "./laya/d3/shader/ShurikenParticle/ParticleShuriKenShaderInit";
 import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";
+import { SubShader } from "./laya/d3/shader/SubShader";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -136,7 +137,7 @@ export class Laya3D {
             Physics3D.__cannoninit__();
 
         Physics3D.__bulletinit__();
-
+        SubShader.__init__();
         VertexMesh.__init__();
         VertexShurikenParticleBillboard.__init__();
         VertexShurikenParticleMesh.__init__();

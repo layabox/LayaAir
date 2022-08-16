@@ -34,5 +34,4 @@ export class UnlitShaderInit {
         let forwardPass = subShader.addShaderPass(UnlitVS, UnlitFS);
         let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");
     }
-
 }
