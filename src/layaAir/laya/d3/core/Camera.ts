@@ -895,8 +895,8 @@ export class Camera extends BaseCamera {
         }
         this._applyCommandBuffer(CameraEventFlags.AfterEveryThing, context);
 
-        if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
-            context.invertY = false;
+        // if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
+        //     context.invertY = false;
     }
 
     recoverRenderContext3D(context: RenderContext3D, renderTexture: RenderTexture) {
