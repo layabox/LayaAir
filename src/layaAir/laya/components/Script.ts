@@ -31,6 +31,8 @@ export class Script extends Component {
 
         if (func = this.onMouseDown) owner.on(Event.MOUSE_DOWN, this, func);
         if (func = this.onMouseUp) owner.on(Event.MOUSE_UP, this, func);
+        if (func = this.onRightMouseDown) owner.on(Event.RIGHT_MOUSE_DOWN, this, func);
+        if (func = this.onRightMouseUp) owner.on(Event.RIGHT_MOUSE_UP, this, func);
         if (func = this.onMouseMove) owner.on(Event.MOUSE_MOVE, this, func);
         if (func = this.onMouseDrag) owner.on(Event.MOUSE_DRAG, this, func);
         if (func = this.onMouseDragEnd) owner.on(Event.MOUSE_DRAG_END, this, func);
@@ -104,6 +106,16 @@ export class Script extends Component {
      * 鼠标抬起时执行
      */
     onMouseUp?(evt: Event): void;
+
+    /**
+     * 鼠标右键或中键按下时执行
+     */
+    onRightMouseDown?(evt: Event): void;
+
+    /**
+     * 鼠标右键或中键抬起时执行
+     */
+    onRightMouseUp?(evt: Event): void;
 
     /**
      * 鼠标在节点上移动时执行
