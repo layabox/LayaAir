@@ -54,6 +54,7 @@ import { ReflectionProbe } from "./core/reflectionProbe/ReflectionProbe";
 import { BaseRender } from "./core/render/BaseRender";
 import { RenderableSprite3D } from "./core/RenderableSprite3D";
 import { Lightmap } from "./core/scene/Lightmap";
+import { Sprite } from "../display/Sprite";
 import { Scene3D } from "./core/scene/Scene3D";
 import { SimpleSkinnedMeshRenderer } from "./core/SimpleSkinnedMeshRenderer";
 import { SimpleSkinnedMeshSprite3D } from "./core/SimpleSkinnedMeshSprite3D";

@@ -41,13 +41,3 @@ export class Vector2Keyframe extends Keyframe {
 		this.value.cloneTo(destKeyFarme.value);
 	}
 }
-
-// native
-/*if ((window as any).conch && (window as any).conchFloatArrayKeyframe) {
-	//@ts-ignore
-	Vector2Keyframe = (window as any).conchFloatArrayKeyframe;
-}
-if ((window as any).qq && (window as any).qq.webglPlus) {
-	//@ts-ignore
-	Vector2Keyframe = (window as any).qq.webglPlus.conchFloatArrayKeyframe;
-}*/

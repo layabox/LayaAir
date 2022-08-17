@@ -12,8 +12,6 @@ import { Resource } from "../../resource/Resource"
 import { Byte } from "../../utils/Byte"
 import { Handler } from "../../utils/Handler"
 import { ILaya } from "../../../ILaya";
-import { ConchVector3 } from "../math/Native/ConchVector3";
-import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 import { AvatarMask } from "../component/AvatarMask";
 import { WeightedMode } from "../core/Keyframe";
 import { Loader } from "../../net/Loader";
@@ -404,7 +402,7 @@ export class AnimationClip extends Resource {
 	 * @param frontPlay 是否是前向播放
 	 * @param outDatas 计算好的动画数据
 	 */
-	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion | Vector4 | Vector2>, avatarMask: AvatarMask): void {
+	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | Vector4 | Vector2>, avatarMask: AvatarMask): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
 			var node = nodes.getNodeByIndex(i);
 			var type = node.type;

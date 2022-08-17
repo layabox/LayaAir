@@ -11,8 +11,6 @@ import { Material } from "../core/material/Material";
 import { RenderableSprite3D } from "../core/RenderableSprite3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Color } from "../math/Color";
-import { ConchQuaternion } from "../math/Native/ConchQuaternion";
-import { ConchVector3 } from "../math/Native/ConchVector3";
 import { Quaternion } from "../math/Quaternion";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
@@ -788,7 +786,7 @@ export class Animator extends Component {
      * @param isFirstLayer 是否是第一层
      */
     private _setClipDatasToNode(stateInfo: AnimatorState, additive: boolean, weight: number, isFirstLayer: boolean, controllerLayer: AnimatorControllerLayer = null): void {
-        var realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion | Vector2 | Vector4 | Color> = stateInfo._realtimeDatas;
+        var realtimeDatas: Array<number | Vector3 | Quaternion | Vector2 | Vector4 | Color> = stateInfo._realtimeDatas;
         var nodes: KeyframeNodeList = stateInfo._clip!._nodes!;
         var nodeOwners: KeyframeNodeOwner[] = stateInfo._nodeOwners;
         for (var i: number = 0, n: number = nodes.count; i < n; i++) {
@@ -914,10 +912,10 @@ export class Animator extends Component {
         var additive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
         var weight: number = controllerLayer.defaultWeight;
 
-        var destRealtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = destState._realtimeDatas;
+        var destRealtimeDatas: Array<number | Vector3 | Quaternion > = destState._realtimeDatas;
         var destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
         var destNodeOwners: KeyframeNodeOwner[] = destState._nodeOwners;
-        var srcRealtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = srcState._realtimeDatas;
+        var srcRealtimeDatas: Array<number | Vector3 | Quaternion > = srcState._realtimeDatas;
         var srcDataIndices: number[] = controllerLayer._srcCrossClipNodeIndices;
         var srcNodeOwners: KeyframeNodeOwner[] = srcState._nodeOwners;
 
@@ -944,7 +942,7 @@ export class Animator extends Component {
         var ownerCount: number = controllerLayer._crossNodesOwnersCount;
         var additive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
         var weight: number = controllerLayer.defaultWeight;
-        var destRealtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = destState._realtimeDatas;
+        var destRealtimeDatas: Array<number | Vector3 | Quaternion > = destState._realtimeDatas;
         var destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
 
         for (var i: number = 0; i < ownerCount; i++) {

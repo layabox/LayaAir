@@ -5,8 +5,6 @@ import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { KeyframeNodeList } from "../animation/KeyframeNodeList";
-import { ConchVector3 } from "../math/Native/ConchVector3";
-import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 import { Vector2 } from "../math/Vector2";
 import { Vector4 } from "../math/Vector4";
 
@@ -28,7 +26,7 @@ export class AnimatorState implements IClone {
 	 * to avoid data confused,must put realtime datas in animatorState,can't be in animationClip,
 	 * for example use crossFade() with different animatorState but the sample clip source.
 	 */
-	_realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = [];
+	_realtimeDatas: Array<number | Vector3 | Quaternion> = [];
 	/** @internal */
 	_scripts: AnimatorStateScript[] | null = null;
 
@@ -53,7 +51,7 @@ export class AnimatorState implements IClone {
 			if (this._clip)
 				(this._referenceCount > 0) && (this._clip._removeReference(this._referenceCount));
 			if (value) {
-				var realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion | Vector2 | Vector4> = this._realtimeDatas;
+				var realtimeDatas: Array<number | Vector3 | Quaternion  | Vector2 | Vector4> = this._realtimeDatas;
 				var clipNodes: KeyframeNodeList = value._nodes!;
 				var count: number = clipNodes.count;
 				this._currentFrameIndices = new Int16Array(count);

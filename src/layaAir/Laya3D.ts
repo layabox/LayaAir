@@ -63,6 +63,7 @@ import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";
 import { CannonPhysicsSettings } from "./laya/d3/physicsCannon/CannonPhysicsSettings";
 import { SubShader } from "./laya/d3/shader/SubShader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
+import { BloomEffect } from "./laya/d3/core/render/BloomEffect";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
