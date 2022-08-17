@@ -291,17 +291,19 @@ export class Scene extends Sprite {
 
     /**获取场景根容器*/
     static get root(): Sprite {
-        if (!Scene._root) {
-            Scene._root = (<Sprite>ILaya.stage.addChild(new Sprite()));
-            Scene._root.name = "root";
+        let root = Scene._root;
+        if (!root) {
+            root = Scene._root = (<Sprite>ILaya.stage.addChild(new Sprite()));
+            root.name = "root";
+            root.mouseThrough = true;
             ILaya.stage.on("resize", null, () => {
-                Scene._root.size(ILaya.stage.width, ILaya.stage.height);
-                Scene._root.event(Event.RESIZE);
+                root.size(ILaya.stage.width, ILaya.stage.height);
+                root.event(Event.RESIZE);
             });
-            Scene._root.size(ILaya.stage.width, ILaya.stage.height);
-            Scene._root.event(Event.RESIZE);
+            root.size(ILaya.stage.width, ILaya.stage.height);
+            root.event(Event.RESIZE);
         }
-        return Scene._root;
+        return root;
     }
 
     /**
@@ -310,7 +312,7 @@ export class Scene extends Sprite {
      * @param	complete	加载完成回调，返回场景实例（可选）
      * @param	progress	加载进度回调（可选）
      */
-    static load(url: string, complete: Handler = null, progress: Handler = null): Promise<void> {
+    static load(url: string, complete: Handler = null, progress: Handler = null): Promise<Scene> {
         return ILaya.loader.load(url, null, value => {
             if (Scene._loadPage) Scene._loadPage.event("progress", value);
             progress && progress.runWith(value);
@@ -330,6 +332,7 @@ export class Scene extends Sprite {
                     nodes.splice(i, 1);
                     scene.addChildren(...nodes);
                     scene._scene3D = scene3D;
+                    scene.mouseThrough = true;
                 }
                 else
                     scene.addChildren(...nodes);
@@ -338,6 +341,8 @@ export class Scene extends Sprite {
             scene._viewCreated = true;
             Scene.hideLoadingPage();
             complete && complete.runWith(scene);
+
+            return scene;
         });
     }
 
@@ -349,7 +354,7 @@ export class Scene extends Sprite {
      * @param	complete	打开完成回调，返回场景实例（可选）
      * @param	progress	加载进度回调（可选）
      */
-    static open(url: string, closeOther: boolean = true, param: any = null, complete: Handler = null, progress: Handler = null): Promise<void> {
+    static open(url: string, closeOther: boolean = true, param: any = null, complete: Handler = null, progress: Handler = null): Promise<Scene> {
         //兼容处理
         if (param instanceof Handler) {
             var temp: any = complete;

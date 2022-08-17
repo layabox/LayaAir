@@ -18,7 +18,6 @@ import { CannonBoxColliderShape } from "laya/d3/physicsCannon/shape/CannonBoxCol
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { CannonRigidbody3D } from "laya/d3/physicsCannon/CannonRigidbody3D";
 import { CannonSphereColliderShape } from "laya/d3/physicsCannon/shape/CannonSphereColliderShape";
-import { Config3D } from "Config3D";
 import { Color } from "laya/d3/math/Color";
 
 /**
@@ -28,8 +27,8 @@ export class CannonPhysicsWorld_PhysicsProperty {
 	private scene: Scene3D;
 
 	constructor() {
-		Config3D.useCannonPhysics = true;
-		Laya3D.init(0, 0, Handler.create(null, () => {
+		Laya3D.init(0, 0, null, Handler.create(null, () => {
+			Laya3D.useCannonPhysics();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();

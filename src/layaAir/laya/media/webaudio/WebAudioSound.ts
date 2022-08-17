@@ -3,7 +3,7 @@ import { Event } from "../../events/Event"
 import { EventDispatcher } from "../../events/EventDispatcher"
 import { SoundChannel } from "../SoundChannel"
 import { URL } from "../../net/URL"
-import { ILaya } from "../../../ILaya";
+import { SoundManager } from "../SoundManager";
 
 /**
  * @private
@@ -14,14 +14,9 @@ export class WebAudioSound extends EventDispatcher {
     private static _dataCache: any = {};
 
     /**
-     * 是否支持web audio api
-     */
-    static webAudioEnabled: boolean = window["AudioContext"] || (window as any)["webkitAudioContext"] || (window as any)["mozAudioContext"];
-
-    /**
      * 播放设备
      */
-    static ctx: any = WebAudioSound.webAudioEnabled ? new (window["AudioContext"] || (window as any)["webkitAudioContext"] || (window as any)["mozAudioContext"])() : undefined;
+    static ctx: AudioContext;
 
     /**
      * 当前要解码的声音文件列表
@@ -147,6 +142,8 @@ export class WebAudioSound extends EventDispatcher {
     /*;*/
 
     static initWebAudio(): void {
+        WebAudioSound.ctx = new (window["AudioContext"] || (window as any)["webkitAudioContext"] || (window as any)["mozAudioContext"])();
+
         if (WebAudioSound.ctx.state != "running") {
             WebAudioSound._unlock(); // When played inside of a touch event, this will enable audio on iOS immediately.
             window.document.addEventListener("mousedown", WebAudioSound._unlock, true);
@@ -255,7 +252,7 @@ export class WebAudioSound extends EventDispatcher {
         channel.audioBuffer = this.audioBuffer;
         channel.startTime = startTime;
         channel.play();
-        ILaya.SoundManager.addChannel(channel);
+        SoundManager.addChannel(channel);
         return channel;
     }
 

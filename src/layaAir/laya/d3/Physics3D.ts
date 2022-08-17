@@ -12,6 +12,7 @@ import { CannonPhysicsSimulation } from "./physicsCannon/CannonPhysicsSimulation
 import { CannonRigidbody3D } from "./physicsCannon/CannonRigidbody3D";
 import { CannonBoxColliderShape } from "./physicsCannon/shape/CannonBoxColliderShape";
 import { CannonColliderShape } from "./physicsCannon/shape/CannonColliderShape";
+import { CannonCompoundColliderShape } from "./physicsCannon/shape/CannonCompoundColliderShape";
 
 
 /**
@@ -47,7 +48,9 @@ export class Physics3D {
         this._cannon = window.CANNON;
         if(!this._cannon)
             return;
+
         CannonColliderShape.__init__();
+        CannonCompoundColliderShape.__init__();
         CannonPhysicsComponent.__init__();
         CannonPhysicsSimulation.__init__();
         CannonBoxColliderShape.__init__();

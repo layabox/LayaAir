@@ -74,7 +74,7 @@ export class TextTexture extends Resource {
      * @return uv数组  如果uv不为空就返回传入的uv，否则new一个数组
      */
     addChar(data: ImageData, x: number, y: number, uv: any[] = null): any[] {
-        //if (!ILaya.Render.isConchApp &&  !__JS__('(data instanceof ImageData)')) {
+        //if (!LayaEnv.isConch &&  !__JS__('(data instanceof ImageData)')) {
         if (TextRender.isWan1Wan) {
             return this.addCharCanvas(data, x, y, uv);
         }

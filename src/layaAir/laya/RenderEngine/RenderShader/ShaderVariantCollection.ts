@@ -72,7 +72,7 @@ export class ShaderVariant {
                     var validDefine: DefineDatas = pass._validDefine;
                     for (var i: number = 0, n: number = defineNames.length; i < n; i++) {
                         var defname: string = defineNames[i];
-                        if (!validDefine.has(ILaya3D.Shader3D.getDefineByName(defname)))
+                        if (!validDefine.has(Shader3D.getDefineByName(defname)))
                             throw `ShaderVariantInfo:Invalid defineName ${defname} in ${shader._name} subShaderIndex of ${subShaderIndex} passIndex of ${passIndex}.`;
                     }
                 }
@@ -214,7 +214,7 @@ export class ShaderVariantCollection {
             var variants: ShaderVariant[] = this._variants;
             for (var i: number = 0, n: number = variants.length; i < n; i++) {
                 var variant: ShaderVariant = variants[i];
-                ILaya3D.Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames);
+                Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames);
             }
             this._allCompiled = true;
         }

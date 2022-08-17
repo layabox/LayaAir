@@ -17,12 +17,5 @@
     "include": [
         "./**/*",
         "../layaAir/tslibs"
-    ],
-    "exclude": [
-        "3d/LayaAir3DTest__Voxel",
-        "3d/LayaAir3DTest__Editor",
-        "3d/LayaAir3DTest__Experiment",
-        "3d/common/CreateHeightMap.ts",
-        "3d/LayaAir3D_Demo/CartoonRender.ts"
     ]
 }

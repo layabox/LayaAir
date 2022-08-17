@@ -89,7 +89,7 @@ class CubemapLoader implements IResourceLoader {
                         return Promise.resolve(null);
                 })).then(images => {
                     let constructParams = task.options.constructParams;
-                    let size = constructParams ? constructParams[0] : images[0].width;
+                    let size = constructParams ? constructParams[0] : ((images[0]?.width) ?? 1);
                     let format = constructParams ? constructParams[1] : TextureFormat.R8G8B8A8;
                     let mipmap = constructParams ? constructParams[3] : false;
                     let tex = new TextureCube(size, format, mipmap);

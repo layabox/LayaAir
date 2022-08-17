@@ -1,3 +1,42 @@
+#!/usr/bin/env node
+// var td = require('./dist/lib/cli.js');
+// new td.CliApplication();
+const typedoc = require("typedoc");
+const app = new typedoc.CliApplication();
+app.bootstrap({
+    mode: "modules",
+    target: "ES6",
+    out:"doc",
+    module: "CommonJS",
+    experimentalDecorators: true,
+    excludePrivate:true,
+    excludeProtected:true,
+    hideGenerator:true,
+    theme:"default",
+    ignoreCompilerErrors:true,
+    stripInternal:true,
+    exclude:"node",
+    tsconfig:"../layaAir/tsconfig.json",
+    includes:"../layaAir"
+});
+
+/* 待整理
+### 需要环境：
+
+**Typedoc@0.19.2**
+
+**TypeScript@4.0.3**
+
+
+
+### 发布步骤
+
+1. 双击run.bat等待完成
+2. 拷贝 `out/classes` 文件夹覆盖 `API-git\Chinese\laya\${版本号}\classes` 
+3. 拷贝`out/config.json` 文件至 `API-git\Chinese\version` 文件夹下，并修改文件名未 `${版本号}.json`。
+4. 在 `API-git\Chinese\script\script.js`的 `versionList` 数组中增加对应版本名称。
+
+
 const fs = require("fs");
 const path = require('path');
 const starturl = "./doc/";
@@ -219,3 +258,5 @@ const createDir = async (cb)=>{
 }
 
 exports.buildAPI = gulp.series(createDir,copyEnumAndJS);
+
+*/

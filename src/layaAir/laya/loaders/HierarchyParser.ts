@@ -6,6 +6,7 @@ import { SerializeUtil } from "./SerializeUtil";
 
 export class HierarchyParser {
     public static parse(data: any, options?: Record<string, any>, errors?: Array<any>): Array<Node> {
+        errors = errors || [];
         let util = new SerializeUtil();
         let nodeMap: Record<string, Node> = {};
         let allChild: Array<any> = [];
@@ -96,9 +97,6 @@ export class HierarchyParser {
                     let node = nodeMap[nodeData._$id];
                     if (!node)
                         continue;
-                    let components: Array<Component> = (<any>node)._components;
-                    if (!components)
-                        components = (<any>node)._components = [];
 
                     for (let compData of nodeData.components) {
                         let comp: Component;
@@ -106,8 +104,18 @@ export class HierarchyParser {
                         if (!cls)
                             continue;
 
+                        comp = node.getComponent(cls);
+                        if (!comp) {
+                            try {
+                                comp = node.addComponent(cls);
+                            }
+                            catch (err: any) {
+                                errors.push(err);
+                                continue;
+                            }
+                        }
+
                         try {
-                            comp = node.addComponent(cls);
                             util.decodeObj(compData, comp, null, nodeMap);
                         }
                         catch (err: any) {

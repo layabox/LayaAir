@@ -2,7 +2,6 @@ bin/res
 bin/tsc
 node_modules
 .cache
-/src/generateDoc/doc
 .vscode/chrome
 /src/platform
 .DS_Store

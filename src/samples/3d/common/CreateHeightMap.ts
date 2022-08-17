@@ -1,15 +1,15 @@
-import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { HeightMap } from "laya/d3/core/HeightMap";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
-import { Scene } from "laya/d3/core/scene/Scene";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Vector2 } from "laya/d3/math/Vector2";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { Stage } from "laya/display/Stage";
-import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
+import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Handler } from "laya/utils/Handler";
 
 /**
  * ...
@@ -25,14 +25,12 @@ export class CreateHeightMap {
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
-		var scene: Scene = (<Scene>Laya.stage.addChild(new Scene()));
+		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		scene.currentCamera = (<Camera>(scene.addChild(new Camera(0, 0.1, 2000))));
+		(<Camera>(scene.addChild(new Camera(0, 0.1, 2000))));
 
-		//3d场景
-		var sceneSprite3d: Sprite3D = (<Sprite3D>scene.addChild(Sprite3D.load("maze/maze.lh")));
 
-		sceneSprite3d.once(Event.HIERARCHY_LOADED, this, function (): void {
+		Sprite3D.load("maze/maze.lh", Handler.create(null, (sceneSprite3d: Sprite3D) => {
 			var v2: Vector2 = new Vector2();
 			//获取3d场景中需要采集高度数据的网格精灵,这里需要美术根据场景中可行走区域建模型
 			var meshSprite3D: MeshSprite3D = (<MeshSprite3D>sceneSprite3d.getChildAt(0));
@@ -46,7 +44,7 @@ export class CreateHeightMap {
 			var compressionRatio: number = (maxHeight - minHeight) / 254;
 			//把高度数据画到canvas画布上,并保存为png图片
 			this.pringScreen(this.width, this.height, compressionRatio, minHeight, heightMap);
-		});
+		}));
 	}
 
 	private pringScreen(tWidth: number, tHeight: number, cr: number, min: number, th: HeightMap): void {

@@ -5,6 +5,8 @@ import { Browser } from "../../utils/Browser"
 import { ILaya } from "../../../ILaya";
 import { Pool } from "../../utils/Pool";
 import { LayaEnv } from "../../../LayaEnv";
+import { SoundManager } from "../SoundManager";
+import { AudioSound } from "./AudioSound";
 
 /**
  * @private
@@ -64,13 +66,13 @@ export class AudioSoundChannel extends SoundChannel {
     play(): void {
         this.isStopped = false;
         try {
-            this._audio.playbackRate = ILaya.SoundManager.playbackRate;
+            this._audio.playbackRate = SoundManager.playbackRate;
             this._audio.currentTime = this.startTime;
         } catch (e) {
             this._audio.addEventListener("canplay", this._resumePlay as any);
             return;
         }
-        ILaya.SoundManager.addChannel(this);
+        SoundManager.addChannel(this);
         Browser.container.appendChild(this._audio);
         if ("play" in this._audio)
             this._audio.play();
@@ -106,7 +108,7 @@ export class AudioSoundChannel extends SoundChannel {
         //trace("stop and remove event");
         super.stop();
         this.isStopped = true;
-        ILaya.SoundManager.removeChannel(this);
+        SoundManager.removeChannel(this);
         this.completeHandler = null;
         if (!this._audio)
             return;
@@ -120,27 +122,27 @@ export class AudioSoundChannel extends SoundChannel {
         this._audio.removeEventListener("canplay", this._resumePlay);
         //ie下使用对象池可能会导致后面的声音播放不出来
         if (!ILaya.Browser.onIE) {
-            if (this._audio != ILaya.AudioSound._musicAudio) {
+            if (this._audio != AudioSound._musicAudio) {
                 Pool.recover("audio:" + this.url, this._audio);
             }
         }
         Browser.removeElement(this._audio);
         this._audio = null;
-        if (ILaya.SoundManager.autoReleaseSound)
-            ILaya.SoundManager.disposeSoundLater(this.url);
+        if (SoundManager.autoReleaseSound)
+            SoundManager.disposeSoundLater(this.url);
     }
     /**
      * @override
      */
     pause(): void {
         this.isStopped = true;
-        ILaya.SoundManager.removeChannel(this);
+        SoundManager.removeChannel(this);
         if (!this._audio)
             return;
         if ("pause" in this._audio)
             this._audio.pause();
-        if (ILaya.SoundManager.autoReleaseSound)
-            ILaya.SoundManager.disposeSoundLater(this.url);
+        if (SoundManager.autoReleaseSound)
+            SoundManager.disposeSoundLater(this.url);
     }
     /**
      * @override
@@ -155,7 +157,7 @@ export class AudioSoundChannel extends SoundChannel {
             audio.addEventListener("canplay", this._resumePlay as any);
             audio.load();
         }
-        ILaya.SoundManager.addChannel(this);
+        SoundManager.addChannel(this);
         if ("play" in audio) {
             audio.play();
         }
