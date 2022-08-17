@@ -3,7 +3,6 @@ import { WebGL } from "../../webgl/WebGL";
 import { RenderState } from "../core/material/RenderState";
 import { Vector3 } from "../math/Vector3";
 import { SubShader } from "./SubShader";
-import { Scene3D } from "../core/scene/Scene3D";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderParams } from "../../RenderEngine/RenderEnum/RenderParams";
@@ -79,7 +78,6 @@ export class ShaderPass extends ShaderCompileDefineBase {
             debugMaskLength = compileDefine._length;
             this._addDebugShaderVariantCollection(compileDefine, debugDefineString, debugDefineMask);
         }
-        compileDefine.addDefineDatas(Scene3D._configDefineValues);
 
         var cacheShaders: any = this._cacheSharders;
         var maskLength: number = compileDefine._length;

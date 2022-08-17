@@ -796,13 +796,13 @@ export class Scene3D extends Sprite implements ISubmit {
         if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
         }
-
         if (!Config3D.useCannonPhysics && Physics3D._bullet)
             this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
         else if (Physics3D._cannon) {
             this._cannonPhysicsSimulation = new CannonPhysicsSimulation(Scene3D.cannonPhysicsSettings);
         }
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
+        this._shaderValues._defineDatas.addDefineDatas(Scene3D._configDefineValues);
         if (Config3D._uniformBlock) {
             //SceneUniformBlock
             this._sceneUniformObj = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SCENE, 0);
