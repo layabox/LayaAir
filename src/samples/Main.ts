@@ -2,21 +2,15 @@
 import { Laya } from "Laya";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { URL } from "laya/net/URL";
 import { Handler } from "laya/utils/Handler";
-
-
 import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
 import Client from "./Client";
-
-import "laya/ui/ModuleDef";
-import "laya/d3/physics/ModuleDef";
 
 export class Main {
     private static _box3D: Sprite;

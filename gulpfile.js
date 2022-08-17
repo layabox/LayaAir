@@ -24,12 +24,15 @@ const packsDef = [
     {
         'libName': "core",
         'input': [
+            './layaAir/laya/d3/core/scene/Scene3D.ts',
+
             './layaAir/Decorators.ts',
             './layaAir/Config.ts',
             './layaAir/laya/Const.ts',
-            './layaAir/laya/RegClasses.ts',
+            './layaAir/laya/ModuleDef.ts',
             './layaAir/ILaya.ts',
             './layaAir/Laya.ts',
+            './layaAir/LayaEnv.ts',
             './layaAir/laya/components/**/*.*',
             './layaAir/laya/display/**/*.*',
             './layaAir/laya/effect/**/*.*',
@@ -46,11 +49,7 @@ const packsDef = [
             './layaAir/laya/system/**/*.*',
             './layaAir/laya/utils/**/*.*',
             './layaAir/laya/webgl/**/*.*',
-        ],
-    },
-    {
-        'libName': "d3",
-        'input': [
+
             './layaAir/laya/d3/animation/**/*.*',
             './layaAir/laya/d3/component/**/*.*',
             './layaAir/laya/d3/core/**/*.*',
@@ -68,10 +67,39 @@ const packsDef = [
             './layaAir/laya/d3/MouseTouch.ts',
             './layaAir/laya/d3/Touch.ts',
             './layaAir/laya/d3/Physics3D.ts',
-            './layaAir/laya/d3/RegClasses.ts',
+            './layaAir/laya/d3/ModuleDef.ts',
             './layaAir/Config3D.ts',
             './layaAir/ILaya3D.ts',
-            './layaAir/Laya3D.ts'
+            './layaAir/Laya3D.ts',
+
+            './layaAir/laya/d3/physicsCannon/**/*.*',
+            './layaAir/laya/d3/physics/**/*.*',
+        ],
+    },
+    {
+        'libName': "d3",
+        'input': [
+            // './layaAir/laya/d3/animation/**/*.*',
+            // './layaAir/laya/d3/component/**/*.*',
+            // './layaAir/laya/d3/core/**/*.*',
+            // './layaAir/laya/d3/depthMap/*.*',
+            // './layaAir/laya/d3/graphics/**/*.*',
+            // './layaAir/laya/d3/loaders/**/*.*',
+            // './layaAir/laya/d3/math/**/*.*',
+            // './layaAir/laya/d3/resource/**/*.*',
+            // './layaAir/laya/d3/shader/**/*.*',
+            // './layaAir/laya/d3/shadowMap/**/*.*',
+            // './layaAir/laya/d3/text/**/*.*',
+            // './layaAir/laya/d3/utils/**/*.*',
+            // './layaAir/laya/d3/WebXR/**/*.*',
+            // './layaAir/laya/d3/Input3D.ts',
+            // './layaAir/laya/d3/MouseTouch.ts',
+            // './layaAir/laya/d3/Touch.ts',
+            // './layaAir/laya/d3/Physics3D.ts',
+            // './layaAir/laya/d3/ModuleDef.ts',
+            // './layaAir/Config3D.ts',
+            // './layaAir/ILaya3D.ts',
+            // './layaAir/Laya3D.ts'
         ],
     },
     {
@@ -83,13 +111,13 @@ const packsDef = [
     {
         'libName': "cannonPhysics",
         'input': [
-            './layaAir/laya/d3/physicsCannon/**/*.*',
+            //'./layaAir/laya/d3/physicsCannon/**/*.*',
         ],
     },
     {
         'libName': "bullet",
         'input': [
-            './layaAir/laya/d3/physics/**/*.*',
+            //'./layaAir/laya/d3/physics/**/*.*',
         ],
     },
     {
@@ -156,6 +184,43 @@ const packsDef = [
     }
 ];
 
+/*
+    并非所有循环引用都会引起加载问题，如果两个模块只是使用对方的类型声明，没有使用继承/构造行为，是允许的。
+    这里忽略这类情况。
+*/
+const ignoredCirclarDependencies = new Set([
+    "Shader -> ShaderCompile -> Shader",
+    "ShaderCompile -> InlcudeFile -> ShaderCompil",
+    "ShaderCompile -> ShaderNode -> ShaderCompile",
+    "TextAtlas -> TextTexture -> TextAtlas",
+    "TextRender -> TextAtlas -> TextTexture -> TextRender",
+    "TextRender -> TextAtlas -> TextRender",
+    "Sprite -> Context -> TextRender -> Sprite",
+    "Matrix4x4 -> Quaternion -> Matrix4x4",
+    "Shader3D -> SubShader -> Shader3D",
+    "Shader3D -> SubShader -> UniformBufferData -> Shader3D",
+    "ShaderCompile -> InlcudeFile -> ShaderCompile",
+    "MeshRenderer -> MeshFilter -> MeshRenderer",
+]);
+
+const onwarn = warning => {
+    let msg = warning.message;
+    if (warning.code === 'CIRCULAR_DEPENDENCY') {
+        let arr = msg.split("->");
+        arr = arr.map(e => {
+            e = e.trim();
+            return path.basename(e, path.extname(e));
+        });
+        msg = arr.join(" -> ");
+        if (ignoredCirclarDependencies.has(msg))
+            return;
+
+        msg = "(C_D) " + msg;
+    }
+
+    console.warn(msg);
+}
+
 gulp.task('compileLayaAir', () => {
     rimrafSync(tscOutPath + 'layaAir');
 
@@ -191,11 +256,11 @@ gulp.task('compile', gulp.series('compileLayaAir', 'compileExtension'));
 gulp.task("buildJs", async () => {
     rimrafSync("./build/libs");
 
-    const rootPath = process.cwd().replace(/\\/g, "/");
-    const outPath = path.posix.join(rootPath, tscOutPath);
-    const mentry = 'multientry:entry-point';
+    const rootPath = process.cwd();
+    const outPath = path.join(rootPath, tscOutPath);
+    const mentry = '[entry]';
 
-    function myMultiInput(pkgDef, rootPath, files, fileSet) {
+    function myMultiInput(pkgDef, files, fileSet) {
         return {
             resolveId(id, importer) {
                 if (id === mentry)
@@ -206,13 +271,13 @@ gulp.task("buildJs", async () => {
 
                 var ext = path.extname(id);
                 if (ext == ".js" || ext == "") {
-                    var importfile = path.posix.join(importer === mentry ? rootPath : path.posix.dirname(importer), id);
+                    var importfile = path.join(importer === mentry ? rootPath : path.dirname(importer), id);
                     if (ext == "")
                         importfile += ".js";
 
                     if (!fileSet.has(importfile)) {
                         if (pkgDef.libName == "core")
-                            console.warn(`external: ${path.relative(outPath, importer)} ==> ${path.relative(outPath, importfile)}`);
+                        console.warn(`external: ${path.relative(outPath, importer)} ==> ${path.relative(outPath, importfile)}`);
                         return { id: 'Laya', external: true };
                     }
                 }
@@ -249,7 +314,7 @@ gulp.task("buildJs", async () => {
         let files = await getFiles(packsDef[i].input);
 
         files = files.filter(ele => ele.endsWith(".ts")).map(ele => ele = ele.substring(0, ele.length - 3) + ".js");
-        let fileSet = new Set(files.map(ele => outPath + ele));
+        let fileSet = new Set(files.map(ele => path.normalize(outPath + ele)));
 
         let config = {
             input: mentry,
@@ -258,8 +323,9 @@ gulp.task("buildJs", async () => {
                 globals: { 'Laya': 'Laya' }
             },
             external: ['Laya'],
+            onwarn: onwarn,
             plugins: [
-                myMultiInput(packsDef[i], rootPath, files, fileSet),
+                myMultiInput(packsDef[i], files, fileSet),
                 rollupSourcemaps(),
                 glsl({
                     include: /.*(.glsl|.vs|.fs)$/,
@@ -453,6 +519,9 @@ gulp.task('genDts', () => {
                 else if (node.kind == SyntaxKind.ExportKeyword) { //删除所有export语句
                     let code = declarationFile.text.slice(node.pos, node.end);
                     return code.substring(0, code.length - 6);
+                }
+                else if (node.kind == SyntaxKind.DeclareKeyword && inNamespace) { //删除declare
+                    return '';
                 }
                 else if (node.kind == SyntaxKind.TypeReference) {
                     let code = declarationFile.text.slice(node.pos, node.end);
