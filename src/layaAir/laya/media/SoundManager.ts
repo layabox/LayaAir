@@ -69,15 +69,17 @@ export class SoundManager {
 
     /**@internal */
     static __init__(): boolean {
-
         var win: any = ILaya.Browser.window;
-        var supportWebAudio: boolean = win["AudioContext"] || win["webkitAudioContext"] || win["mozAudioContext"] ? true : false;
-        if (supportWebAudio) WebAudioSound.initWebAudio();
+        var supportWebAudio = win["AudioContext"] || win["webkitAudioContext"] || win["mozAudioContext"] ? true : false;
+        if (supportWebAudio)
+            WebAudioSound.initWebAudio();
         SoundManager._soundClass = supportWebAudio ? WebAudioSound : AudioSound;
+
         if (!Browser.onTBMiniGame) {
             AudioSound._initMusicAudio();
         }
         SoundManager._musicClass = AudioSound;
+
         return supportWebAudio;
     }
 

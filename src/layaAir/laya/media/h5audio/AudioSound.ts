@@ -5,8 +5,8 @@ import { SoundChannel } from "../SoundChannel"
 import { URL } from "../../net/URL"
 import { Browser } from "../../utils/Browser"
 import { Pool } from "../../utils/Pool"
-import { ILaya } from "../../../ILaya";
 import { LayaEnv } from "../../../LayaEnv";
+import { SoundManager } from "../SoundManager";
 
 /**
  * @private
@@ -75,7 +75,7 @@ export class AudioSound extends EventDispatcher {
         url = URL.postFormatURL(URL.formatURL(url));
         this.url = url;
         var ad: HTMLAudioElement;
-        if (url == ILaya.SoundManager._bgMusic) {
+        if (url == SoundManager._bgMusic) {
             AudioSound._initMusicAudio();
             ad = AudioSound._musicAudio;
             if (ad.src != url) {
@@ -90,7 +90,7 @@ export class AudioSound extends EventDispatcher {
             return;
         }
         if (!ad) {
-            if (url == ILaya.SoundManager._bgMusic) {
+            if (url == SoundManager._bgMusic) {
                 AudioSound._initMusicAudio();
                 ad = AudioSound._musicAudio;
             } else {
@@ -140,7 +140,7 @@ export class AudioSound extends EventDispatcher {
         //trace("playAudioSound");
         if (!this.url) return null;
         var ad: HTMLAudioElement;
-        if (this.url == ILaya.SoundManager._bgMusic) {
+        if (this.url == SoundManager._bgMusic) {
             ad = AudioSound._musicAudio;
             if (ad.src != "" && ad.src != this.url) {  //@fix 清除上一次记录 防止它释放时把音乐暂停了
                 delete AudioSound._audioCache[ad.src];
@@ -162,7 +162,7 @@ export class AudioSound extends EventDispatcher {
             }
         }
         else {
-            if (this.url == ILaya.SoundManager._bgMusic) {
+            if (this.url == SoundManager._bgMusic) {
                 AudioSound._initMusicAudio();
                 tAd = AudioSound._musicAudio;
                 tAd.src = this.url;
@@ -175,7 +175,7 @@ export class AudioSound extends EventDispatcher {
         channel.loops = loops;
         channel.startTime = startTime;
         channel.play();
-        ILaya.SoundManager.addChannel(channel);
+        SoundManager.addChannel(channel);
         return channel;
     }
 

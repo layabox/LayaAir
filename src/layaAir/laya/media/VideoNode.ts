@@ -4,6 +4,7 @@ import { ILaya } from "../../ILaya";
 import { Browser } from "../utils/Browser";
 import { VideoTexture } from "./VideoTexture";
 import { LayaEnv } from "../../LayaEnv";
+import { Utils } from "../utils/Utils";
 
 /**
  * <code>VideoNode</code>将视频显示到Canvas上。<code>Video</code>可能不会在所有浏览器有效。
@@ -312,7 +313,7 @@ export class VideoNode extends Sprite {
     _setX(value: number): void {
         super._setX(value);
         if (this._videoTexture && LayaEnv.isConch) {
-            var transform: any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
+            var transform: any = Utils.getTransformRelativeToWindow(this, 0, 0);
             this._videoTexture.element.style.left = transform.x;
         }
     }
@@ -323,7 +324,7 @@ export class VideoNode extends Sprite {
     _setY(value: number): void {
         super._setY(value);
         if (this._videoTexture && LayaEnv.isConch) {
-            var transform: any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
+            var transform: any = Utils.getTransformRelativeToWindow(this, 0, 0);
             this._videoTexture.element.style.top = transform.y;
         }
     }
@@ -335,7 +336,7 @@ export class VideoNode extends Sprite {
         if (!this._videoTexture)
             return;
         if (LayaEnv.isConch) {
-            var transform: any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
+            var transform: any = Utils.getTransformRelativeToWindow(this, 0, 0);
             this._videoTexture.element.width = value * transform.scaleX;
         }
         else {
@@ -352,7 +353,7 @@ export class VideoNode extends Sprite {
         if (!this._videoTexture)
             return;
         if (LayaEnv.isConch) {
-            var transform: any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
+            var transform: any = Utils.getTransformRelativeToWindow(this, 0, 0);
             this._videoTexture.element.height = value * transform.scaleY;
 
         }

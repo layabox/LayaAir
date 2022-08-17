@@ -1,5 +1,4 @@
 import { Sprite } from "../display/Sprite"
-import { Stage } from "../display/Stage"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
@@ -14,8 +13,6 @@ const _pi2: number = Math.PI / 180;
  * <code>Utils</code> 是工具类。
  */
 export class Utils {
-    /**@private */
-    static gStage: Stage = null;
 
     /**
      * 角度转弧度。
@@ -200,7 +197,7 @@ export class Utils {
      * @return
      */
     static getTransformRelativeToWindow(coordinateSpace: Sprite, x: number, y: number): any {
-        var stage: Stage = Utils.gStage;
+        var stage = ILaya.stage;
 
         // coordinateSpace的全局缩放、坐标
         var globalTransform: Rectangle = Utils.getGlobalPosAndScale(coordinateSpace);
@@ -292,7 +289,7 @@ export class Utils {
         var transform: any = Utils.getTransformRelativeToWindow(coordinateSpace, x, y);
 
         // 设置dom样式
-        dom.style.transform = dom.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (Utils.gStage.canvasDegree) + "deg)";
+        dom.style.transform = dom.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (ILaya.stage.canvasDegree) + "deg)";
         dom.style.width = width + 'px';
         dom.style.height = height + 'px';
         dom.style.left = transform.x + 'px';

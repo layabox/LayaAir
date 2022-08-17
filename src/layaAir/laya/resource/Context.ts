@@ -60,6 +60,7 @@ import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { NativeContext } from "./NativeContext";
 import { RenderTexture } from "../d3/resource/RenderTexture";
+import { Const } from "../Const";
 
 
 /**
@@ -73,7 +74,6 @@ export class Context {
 
     static _SUBMITVBSIZE: number = 32000;
 
-    static _MAXSIZE: number = 99999999;
     private static _MAXVERTNUM: number = 65535;
 
     static MAXCLIPRECT: Rectangle = null;
@@ -93,7 +93,7 @@ export class Context {
     private _drawTriUseAbsMatrix: boolean = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
 
     static __init__(): void {
-        Context.MAXCLIPRECT = new Rectangle(0, 0, Context._MAXSIZE, Context._MAXSIZE);
+        Context.MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
         ContextParams.DEFAULT = new ContextParams();
         WebGLCacheAsNormalCanvas;
     }
@@ -404,8 +404,8 @@ export class Context {
     private _path: Path | null = null;
     /**@internal */
     _drawCount: number = 1;
-    private _width: number = Context._MAXSIZE;
-    private _height: number = Context._MAXSIZE;
+    private _width: number = Const.MAX_CLIP_SIZE;
+    private _height: number = Const.MAX_CLIP_SIZE;
     private _renderCount: number = 0;
     /**@internal */
     _submits: any = null;
@@ -429,9 +429,9 @@ export class Context {
 
     /**@internal */
     _clipRect: Rectangle = Context.MAXCLIPRECT;
-    //public var _transedClipInfo:Array = [0, 0, Context._MAXSIZE, 0, 0, Context._MAXSIZE];	//应用矩阵后的clip。ox,oy, xx,xy,yx,yy 	xx,xy等是缩放*宽高
+    //public var _transedClipInfo:Array = [0, 0, Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE];	//应用矩阵后的clip。ox,oy, xx,xy,yx,yy 	xx,xy等是缩放*宽高
     /**@internal */
-    _globalClipMatrix: Matrix = new Matrix(Context._MAXSIZE, 0, 0, Context._MAXSIZE, 0, 0);	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
+    _globalClipMatrix: Matrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
     /**@internal */
     _clipInCache: boolean = false; 	// 当前记录的clipinfo是在cacheas normal后赋值的，因为cacheas normal会去掉当前矩阵的tx，ty，所以需要记录一下，以便在是shader中恢复
     /**@internal */
@@ -1783,8 +1783,8 @@ export class Context {
         var maxy: number = miny + cm.d;
         //TEMP end
 
-        if (this._clipRect.width >= Context._MAXSIZE) {
-            cm.a = cm.d = Context._MAXSIZE;
+        if (this._clipRect.width >= Const.MAX_CLIP_SIZE) {
+            cm.a = cm.d = Const.MAX_CLIP_SIZE;
             cm.b = cm.c = cm.tx = cm.ty = 0;
         } else {
             //其实就是矩阵相乘

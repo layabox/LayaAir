@@ -9,6 +9,8 @@ export class Const {
 
     static BYTES_PE: number = 4;
     static BYTES_PIDX: number = 2;
+
+    static MAX_CLIP_SIZE: number = 99999999;
 }
 
 /**

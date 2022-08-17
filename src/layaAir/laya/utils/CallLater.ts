@@ -1,4 +1,6 @@
-import { ILaya } from "../../ILaya";
+import { Timer } from "./Timer";
+import { Utils } from "./Utils";
+
 /**
  * @private
  */
@@ -35,8 +37,8 @@ export class CallLater {
 
     /** @private */
     private _getHandler(caller: any, method: any): LaterHandler {
-        var cid: number = caller ? caller.$_GID || (caller.$_GID = ILaya.Utils.getGID()) : 0;
-        var mid: number = method.$_TID || (method.$_TID = (ILaya.Timer._mid++));
+        var cid: number = caller ? caller.$_GID || (caller.$_GID = Utils.getGID()) : 0;
+        var mid: number = method.$_TID || (method.$_TID = (Timer._mid++));
         return this._map[cid + '.' + mid]
     }
 

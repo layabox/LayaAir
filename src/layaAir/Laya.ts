@@ -4,9 +4,7 @@ import { Sprite } from "./laya/display/Sprite";
 import { Stage } from "./laya/display/Stage";
 import { InputManager } from "./laya/events/InputManager";
 import { LayaGL } from "./laya/layagl/LayaGL";
-import { AudioSound } from "./laya/media/h5audio/AudioSound";
 import { SoundManager } from "./laya/media/SoundManager";
-import { WebAudioSound } from "./laya/media/webaudio/WebAudioSound";
 import { Loader } from "./laya/net/Loader";
 import { LocalStorage } from "./laya/net/LocalStorage";
 import { URL } from "./laya/net/URL";
@@ -15,7 +13,6 @@ import { RenderSprite } from "./laya/renders/RenderSprite";
 import { Context } from "./laya/resource/Context";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
-import { Resource } from "./laya/resource/Resource";
 import { Texture } from "./laya/resource/Texture";
 import { Browser } from "./laya/utils/Browser";
 import { CacheManger } from "./laya/utils/CacheManger";
@@ -23,7 +20,6 @@ import { ColorUtils } from "./laya/utils/ColorUtils";
 import { Stat } from "./laya/utils/Stat";
 import { StatUI } from "./laya/utils/StatUI";
 import { Timer } from "./laya/utils/Timer";
-import { Utils } from "./laya/utils/Utils";
 import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
 import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
@@ -137,7 +133,6 @@ export class Laya {
         Laya.stage = new Stage();
         stage = Laya.stage = new Stage();
         ILaya.stage = Laya.stage;
-        Utils.gStage = Laya.stage;
 
         if (LayaEnv.isConch && (window as any).conch.setGlobalRepaint) {
             (window as any).conch.setGlobalRepaint(Laya.stage.setGlobalRepaint.bind(Laya.stage));
@@ -291,15 +286,9 @@ export class Laya {
     }
 }
 
-ILaya.Timer = Timer;
 ILaya.Loader = Loader;
-ILaya.WebAudioSound = WebAudioSound;
-ILaya.SoundManager = SoundManager;
 ILaya.Context = Context;
 ILaya.Browser = Browser;
-ILaya.AudioSound = AudioSound;
-ILaya.Utils = Utils;
-ILaya.Resource = Resource;
 
 /**@internal */
 export var init = Laya.init;

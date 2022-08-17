@@ -1,10 +1,9 @@
 import { Event } from "../../events/Event"
 import { SoundChannel } from "../SoundChannel"
-//import { SoundManager } from "../SoundManager"
 import { Browser } from "../../utils/Browser"
-import { Utils } from "../../utils/Utils"
 import { ILaya } from "../../../ILaya";
-//import { WebAudioSound } from "./WebAudioSound";
+import { SoundManager } from "../SoundManager";
+import { WebAudioSound } from "./WebAudioSound";
 
 /**
  * @private
@@ -45,18 +44,22 @@ export class WebAudioSoundChannel extends SoundChannel {
     /**
      * 播放设备
      */
-    private context: any = ILaya.WebAudioSound.ctx;
+    private context: AudioContext;
 
     private _onPlayEnd: Function;
     private static _tryCleanFailed: boolean = false;
     static SetTargetDelay: number = 0.001;
+
     constructor() {
         super();
+
+        this.context = WebAudioSound.ctx;
+
         this._onPlayEnd = this.__onPlayEnd.bind(this);
         if (this.context["createGain"]) {
             this.gain = this.context["createGain"]();
         } else {
-            this.gain = this.context["createGainNode"]();
+            this.gain = (<any>this.context)["createGainNode"]();
         }
     }
     /**
@@ -64,7 +67,7 @@ export class WebAudioSoundChannel extends SoundChannel {
      * @override
      */
     play(): void {
-        ILaya.SoundManager.addChannel(this);
+        SoundManager.addChannel(this);
         this.isStopped = false;
         this._clearBufferSource();
         if (!this.audioBuffer) return;
@@ -89,9 +92,9 @@ export class WebAudioSoundChannel extends SoundChannel {
             bufferSource.loop = true;
         }
         if (bufferSource.playbackRate.setTargetAtTime) {
-            bufferSource.playbackRate.setTargetAtTime(ILaya.SoundManager.playbackRate, this.context.currentTime, WebAudioSoundChannel.SetTargetDelay)
+            bufferSource.playbackRate.setTargetAtTime(SoundManager.playbackRate, this.context.currentTime, WebAudioSoundChannel.SetTargetDelay)
         } else
-            bufferSource.playbackRate.value = ILaya.SoundManager.playbackRate;
+            bufferSource.playbackRate.value = SoundManager.playbackRate;
         bufferSource.start(0, this.startTime);
         this._currentTime = 0;
     }
@@ -170,10 +173,10 @@ export class WebAudioSoundChannel extends SoundChannel {
         if (this.gain)
             this.gain.disconnect();
         this.isStopped = true;
-        ILaya.SoundManager.removeChannel(this);
+        SoundManager.removeChannel(this);
         this.completeHandler = null;
-        if (ILaya.SoundManager.autoReleaseSound)
-            ILaya.SoundManager.disposeSoundLater(this.url);
+        if (SoundManager.autoReleaseSound)
+            SoundManager.disposeSoundLater(this.url);
     }
     /**
      * @override
@@ -186,9 +189,9 @@ export class WebAudioSoundChannel extends SoundChannel {
         if (this.gain)
             this.gain.disconnect();
         this.isStopped = true;
-        ILaya.SoundManager.removeChannel(this);
-        if (ILaya.SoundManager.autoReleaseSound)
-            ILaya.SoundManager.disposeSoundLater(this.url);
+        SoundManager.removeChannel(this);
+        if (SoundManager.autoReleaseSound)
+            SoundManager.disposeSoundLater(this.url);
     }
     /**
      * @override

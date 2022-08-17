@@ -5,9 +5,9 @@ import { Shader2D } from "../Shader2D"
 import { Shader2X } from "../Shader2X"
 import { ShaderDefines2D } from "../ShaderDefines2D"
 import { RenderState2D } from "../../../utils/RenderState2D"
-import { ILaya } from "../../../../../ILaya";
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D"
 import { TextTexture } from "laya/webgl/text/TextTexture"
+import { Const } from "../../../../Const"
 
 export class Value2D {
     protected static _cache: any[] = [];
@@ -62,10 +62,10 @@ export class Value2D {
 
     private _inClassCache: any;
     private _cacheID: number = 0;
-    clipMatDir: any[] = [ILaya.Context._MAXSIZE, 0, 0, ILaya.Context._MAXSIZE];
+    clipMatDir: any[] = [Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE];
     clipMatPos: any[] = [0, 0];
     clipOff: any[] = [0, 0];			// 裁剪是否需要加上偏移，cacheas normal用
-    //public var clipDir:Array = [Context._MAXSIZE, 0, 0, Context._MAXSIZE];		//裁剪信息
+    //public var clipDir:Array = [Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE];		//裁剪信息
     //public var clipRect:Array = [0, 0];						//裁剪位置
 
     constructor(mainID: number, subID: number) {

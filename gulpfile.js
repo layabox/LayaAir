@@ -190,17 +190,27 @@ const packsDef = [
 */
 const ignoredCirclarDependencies = new Set([
     "Shader -> ShaderCompile -> Shader",
-    "ShaderCompile -> InlcudeFile -> ShaderCompil",
+    "ShaderCompile -> InlcudeFile -> ShaderCompile",
     "ShaderCompile -> ShaderNode -> ShaderCompile",
+    "Shader3D -> SubShader -> ShaderPass -> ShaderCompileDefineBase -> Shader3D",
+    "Shader3D -> SubShader -> ShaderPass -> Shader3D",
+    "Shader3D -> SubShader -> ShaderPass -> ShaderVariantCollection -> Shader3D",
+    "Shader3D -> SubShader -> Shader3D",
+    "Shader3D -> SubShader -> UniformBufferData -> Shader3D",
+    "ShaderCompile -> InlcudeFile -> ShaderCompile",
     "TextAtlas -> TextTexture -> TextAtlas",
     "TextRender -> TextAtlas -> TextTexture -> TextRender",
     "TextRender -> TextAtlas -> TextRender",
     "Sprite -> Context -> TextRender -> Sprite",
     "Matrix4x4 -> Quaternion -> Matrix4x4",
-    "Shader3D -> SubShader -> Shader3D",
-    "Shader3D -> SubShader -> UniformBufferData -> Shader3D",
-    "ShaderCompile -> InlcudeFile -> ShaderCompile",
     "MeshRenderer -> MeshFilter -> MeshRenderer",
+    "CallLater -> Timer -> CallLater",
+    "SoundManager -> AudioSound -> AudioSoundChannel -> SoundManager",
+    "AudioSound -> AudioSoundChannel -> AudioSound",
+    "SoundManager -> AudioSound -> SoundManager",
+    "SoundManager -> WebAudioSound -> WebAudioSoundChannel -> SoundManager",
+    "WebAudioSound -> WebAudioSoundChannel -> WebAudioSound",
+    "SoundManager -> WebAudioSound -> SoundManager",
 ]);
 
 const onwarn = warning => {
@@ -277,7 +287,7 @@ gulp.task("buildJs", async () => {
 
                     if (!fileSet.has(importfile)) {
                         if (pkgDef.libName == "core")
-                        console.warn(`external: ${path.relative(outPath, importer)} ==> ${path.relative(outPath, importfile)}`);
+                            console.warn(`external: ${path.relative(outPath, importer)} ==> ${path.relative(outPath, importfile)}`);
                         return { id: 'Laya', external: true };
                     }
                 }

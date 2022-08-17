@@ -1,5 +1,5 @@
 import { CallLater } from "./CallLater";
-import { ILaya } from "../../ILaya";
+import { Utils } from "./Utils";
 
 /**
  * <code>Timer</code> 是时钟管理类。它是一个单例，不要手动实例化此类，应该通过 Laya.timer 访问。
@@ -162,7 +162,7 @@ export class Timer {
     private _indexHandler(handler: TimerHandler): void {
         var caller: any = handler.caller;
         var method: any = handler.method;
-        var cid: number = caller ? caller.$_GID || (caller.$_GID = ILaya.Utils.getGID()) : 0;
+        var cid: number = caller ? caller.$_GID || (caller.$_GID = Utils.getGID()) : 0;
         var mid: number = method.$_TID || (method.$_TID = Timer._mid++);
         handler.key = cid + "_" + mid;
         this._map[handler.key] = handler;
@@ -251,7 +251,7 @@ export class Timer {
 
     /** @private */
     private _getHandler(caller: any, method: any): TimerHandler {
-        var cid: number = caller ? caller.$_GID || (caller.$_GID = ILaya.Utils.getGID()) : 0;
+        var cid: number = caller ? caller.$_GID || (caller.$_GID = Utils.getGID()) : 0;
         var mid: number = method.$_TID || (method.$_TID = Timer._mid++);
         var key: any = cid + "_" + mid;
         return this._map[key];

@@ -1,7 +1,6 @@
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { Context } from "./Context";
-import { ILaya } from "../../ILaya";
 import { Browser } from "../utils/Browser";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Resource } from "./Resource";
@@ -113,7 +112,7 @@ export class HTMLCanvas extends Resource {
         //@ts-ignore
         if (this._source == this) {	//是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
             // @ts-ignore
-            this._ctx = new ILaya.Context();
+            this._ctx = new Context();
         } else {
             //@ts-ignore
             this._ctx = this._source.getContext(LayaEnv.isConch ? 'layagl' : '2d');
