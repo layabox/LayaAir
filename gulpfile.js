@@ -365,7 +365,7 @@ gulp.task("buildJs", async () => {
             return gulp.src(path.join("./build/libs", "laya." + pack.libName + ".js"))
                 .pipe(inject.replace(/var Laya = \(function \(exports\)/, "window.Laya = (function (exports)"))
                 .pipe(inject.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)/, "(window.Laya = window.Laya || {}, Laya)"))
-                .pipe(gulp.dest('./build/libs'));
+                .pipe(gulp.dest(process.platform == 'darwin' ? './build/libs' : '.')); //在win下dest竟然突然变成src的相对目录
         }),
     );
 });
