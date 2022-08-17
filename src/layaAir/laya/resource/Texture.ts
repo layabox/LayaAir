@@ -371,7 +371,7 @@ export class Texture extends Resource {
         ctx.flush();
         ctx._targets.end();
         ctx._targets.restore();
-        var dt: Uint8Array = ctx._targets.getData(0, 0, width, height);
+        var dt: Uint8Array = ctx._targets.getData(0, 0, width, height) as Uint8Array;
         ctx.destroy();
         // 上下颠倒一下
         ret = new Uint8Array(width * height * 4);

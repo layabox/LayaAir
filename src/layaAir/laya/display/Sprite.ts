@@ -1244,7 +1244,7 @@ export class Sprite extends Node {
         ctx.flush();
         ctx._targets.end();
         ctx._targets.restore();
-        var dt: Uint8Array = ctx._targets.getData(0, 0, canvasWidth, canvasHeight);
+        var dt: Uint8Array = ctx._targets.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
         ctx.destroy();
         var imgdata: any = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
         //翻转getData的结果。

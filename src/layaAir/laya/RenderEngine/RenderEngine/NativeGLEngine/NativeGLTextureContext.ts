@@ -120,4 +120,8 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         throw new Error("updateVideoTexture Method not implemented.");
     }
 
+    getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView{
+        //TODO
+        return null;
+    }
 }
