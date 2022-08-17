@@ -24,6 +24,7 @@ import "./loaders/TextResourceLoader";
 import "./loaders/AtlasLoader";
 import "./loaders/HierarchyLoader";
 import "./loaders/TextureLoader";
+import "./loaders/AnimationClip2DLoader";
 
 let c = ClassUtils.regClass;
 
