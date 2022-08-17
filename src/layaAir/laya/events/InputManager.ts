@@ -99,9 +99,9 @@ export class InputManager {
         let inst = _inst = new InputManager();
         inst._stage = stage;
 
-        canvas.addEventListener("contextmenu", ev => {
+        canvas.oncontextmenu = () => {
             return false;
-        });
+        };
         canvas.addEventListener("mousedown", ev => {
             if (!Browser.onIE)
                 (ev.cancelable) && (ev.preventDefault());
@@ -208,14 +208,20 @@ export class InputManager {
 
                 this.handleFocus();
 
-                this.bubbleEvent(Event.MOUSE_DOWN, touch.event, touch.target);
+                if (ev.button == 0)
+                    this.bubbleEvent(Event.MOUSE_DOWN, touch.event, touch.target);
+                else
+                    this.bubbleEvent(Event.RIGHT_MOUSE_DOWN, touch.event, touch.target);
             }
         }
         else if (type == 1) {
             if (touch.began) {
                 touch.end();
 
-                this.bubbleEvent(Event.MOUSE_UP, touch.event, touch.target);
+                if (ev.button == 0)
+                    this.bubbleEvent(Event.MOUSE_UP, touch.event, touch.target);
+                else
+                    this.bubbleEvent(Event.RIGHT_MOUSE_UP, touch.event, touch.target);
 
                 if (touch.moved) {
                     for (let t of touch.downTargets)
@@ -224,14 +230,14 @@ export class InputManager {
 
                 let clickTarget = touch.clickTest();
                 if (clickTarget) {
-                    if (ev.button == 1 || ev.button == 2)
-                        this.bubbleEvent(Event.RIGHT_CLICK, touch.event, clickTarget);
-                    else {
+                    if (ev.button == 0) {
                         this.bubbleEvent(Event.CLICK, touch.event, clickTarget);
 
                         if (touch.clickCount == 2)
                             this.bubbleEvent(Event.DOUBLE_CLICK, touch.event, clickTarget);
                     }
+                    else
+                        this.bubbleEvent(Event.RIGHT_CLICK, touch.event, clickTarget);
                 }
             }
         }

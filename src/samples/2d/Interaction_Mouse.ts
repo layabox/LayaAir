@@ -42,6 +42,8 @@ export class Interaction_Mouse {
 		//增加鼠标事件
 		rect.on(Event.MOUSE_DOWN, this, this.mouseHandler);
 		rect.on(Event.MOUSE_UP, this, this.mouseHandler);
+		rect.on(Event.RIGHT_MOUSE_DOWN, this, this.mouseHandler);
+		rect.on(Event.RIGHT_MOUSE_UP, this, this.mouseHandler);
 		rect.on(Event.CLICK, this, this.mouseHandler);
 		rect.on(Event.RIGHT_CLICK, this, this.mouseHandler);
 		rect.on(Event.MOUSE_MOVE, this, this.mouseHandler);
@@ -57,19 +59,19 @@ export class Interaction_Mouse {
 	private mouseHandler(e: Event = null): void {
 		switch (e.type) {
 			case Event.MOUSE_DOWN:
-				if (e.button == 2)
-					this.appendText("\n————————\n右键按下");
-				else
-					this.appendText("\n————————\n左键按下");
+				this.appendText("\n————————\n左键按下");
 				break;
 			case Event.MOUSE_UP:
-				if (e.button == 2)
-					this.appendText("\n右键抬起");
-				else
-					this.appendText("\n左键抬起");
+				this.appendText("\n左键抬起");
 				break;
 			case Event.CLICK:
 				this.appendText("\n左键点击\n————————");
+				break;
+			case Event.RIGHT_MOUSE_DOWN:
+				this.appendText("\n————————\n右键按下");
+				break;
+			case Event.RIGHT_MOUSE_UP:
+				this.appendText("\n右键抬起");
 				break;
 			case Event.RIGHT_CLICK:
 				this.appendText("\n右键单击\n————————");

@@ -17,6 +17,10 @@ export class Event {
     static MOUSE_DOWN = "mousedown";
     /** 定义 mouseup 事件对象的 type 属性值。*/
     static MOUSE_UP = "mouseup";
+    /** 定义 rightmousedown 事件对象的 type 属性值。*/
+    static RIGHT_MOUSE_DOWN: string = "rightmousedown";
+    /** 定义 rightmouseup 事件对象的 type 属性值。*/
+    static RIGHT_MOUSE_UP: string = "rightmouseup";
     /** 定义 click 事件对象的 type 属性值。*/
     static CLICK = "click";
     /** 定义 rightclick 事件对象的 type 属性值。*/
@@ -174,7 +178,7 @@ export class Event {
     /** @internal */
     _stopped: boolean;
     /** @internal */
-    _touches : ReadonlyArray<Readonly<ITouchInfo>>;
+    _touches: ReadonlyArray<Readonly<ITouchInfo>>;
 
     constructor() {
         this.touchPos = new Point();

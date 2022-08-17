@@ -51,9 +51,8 @@ export class CameraMoveScript extends Script {
 	 * @inheritDoc
 	 */
 	onAwake(): void {
-		Laya.stage.on(Event.MOUSE_DOWN, this, this.mouseDown);
-		Laya.stage.on(Event.MOUSE_UP, this, this.mouseUp);
-		//Laya.stage.on(Event.RIGHT_MOUSE_OUT, this, mouseOut);
+		Laya.stage.on(Event.RIGHT_MOUSE_DOWN, this, this.mouseDown);
+		Laya.stage.on(Event.RIGHT_MOUSE_UP, this, this.mouseUp);
 		this.camera = (<Camera>this.owner);
 	}
 
@@ -87,14 +86,11 @@ export class CameraMoveScript extends Script {
 	 * @inheritDoc
 	 */
 	onDestroy(): void {
-		Laya.stage.off(Event.MOUSE_DOWN, this, this.mouseDown);
-		Laya.stage.off(Event.MOUSE_UP, this, this.mouseUp);
-		//Laya.stage.off(Event.RIGHT_MOUSE_OUT, this, mouseOut);
+		Laya.stage.off(Event.RIGHT_MOUSE_DOWN, this, this.mouseDown);
+		Laya.stage.off(Event.RIGHT_MOUSE_UP, this, this.mouseUp);
 	}
 
 	protected mouseDown(e: Event): void {
-		if (e.button != 2)
-			return;
 		this.camera.transform.localRotation.getYawPitchRoll(this.yawPitchRoll);
 
 		this.lastMouseX = Laya.stage.mouseX;
@@ -104,8 +100,6 @@ export class CameraMoveScript extends Script {
 
 	protected mouseUp(e: Event): void {
 		this.isMouseDown = false;
-		if (e.button != 2)
-			return;
 	}
 
 	protected mouseOut(e: Event): void {
