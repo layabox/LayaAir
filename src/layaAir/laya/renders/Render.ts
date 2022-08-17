@@ -168,6 +168,7 @@ export class Render {
         SubmitBase.__init__();
 
         var ctx: Context = new Context();
+        Context._rendercontex = ctx;
         ctx.isMain = true;
         Render._context = ctx;
         canvas._setContext(ctx);

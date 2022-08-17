@@ -75,6 +75,7 @@ export class AnimatorState implements IClone {
 							realtimeDatas[i] = new Vector2();
 							break;
 						case KeyFrameValueType.Vector4:
+						case KeyFrameValueType.Color:
 							realtimeDatas[i] = new Vector4();
 							break;
 						default:

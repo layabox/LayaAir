@@ -70,6 +70,8 @@ import { Const } from "../Const";
 export class Context {
 
     /**@internal */
+    static _rendercontex:Context;
+    /**@internal */
     _canvas: HTMLCanvas;
 
     static _SUBMITVBSIZE: number = 32000;
