@@ -47,7 +47,7 @@ export class StatUI extends IStatRender {
             this._view[i] = views[i];
         }
         // var dt: any = Stat;
-        // if (!Browser._isMiniGame && !ILaya.Render.isConchApp) this._useCanvas = true;
+        // if (!Browser._isMiniGame && !LayaEnv.isConch) this._useCanvas = true;
         this._show = true;
         // Stat._fpsData.length = 60;
         // this._view[0] = { title: "FPS(WebGL)", value: "_fpsStr", color: "yellow", units: "int" };

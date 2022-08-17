@@ -245,7 +245,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     getData(x: number, y: number, width: number, height: number): Uint8Array {
         // todo
         throw "native 2 thread mode use getDataAsync";
-        // if (ILaya.Render.isConchApp && (window as any).conchConfig.threadMode == 2) {
+        // if (LayaEnv.isConch && (window as any).conchConfig.threadMode == 2) {
         //     throw "native 2 thread mode use getDataAsync";
         // }
         // var gl: WebGLRenderingContext = LayaGL.instance;
