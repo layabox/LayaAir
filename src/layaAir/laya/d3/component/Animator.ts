@@ -165,6 +165,7 @@ export class Animator extends Component {
         var nodeIndex = node._indexInList;
         var fullPath = node.fullPath;
         var keyframeNodeOwner = this._keyframeNodeOwnerMap[fullPath];
+        let mat = false;
         if (keyframeNodeOwner) {
             keyframeNodeOwner.referenceCount++;
             clipOwners[nodeIndex] = keyframeNodeOwner;
@@ -172,11 +173,15 @@ export class Animator extends Component {
             var property = propertyOwner;
             for (var i = 0, n = node.propertyCount; i < n; i++) {
                 property = property[node.getPropertyByIndex(i)];
+                if(property instanceof Material){
+                    mat = true
+                }
                 if (!property)
                     break;
             }
-
+            
             keyframeNodeOwner = this._keyframeNodeOwnerMap[fullPath] = new KeyframeNodeOwner();
+            keyframeNodeOwner.isMaterial = mat;
             keyframeNodeOwner.fullPath = fullPath;
             keyframeNodeOwner.indexInList = this._keyframeNodeOwners.length;
             keyframeNodeOwner.referenceCount = 1;
