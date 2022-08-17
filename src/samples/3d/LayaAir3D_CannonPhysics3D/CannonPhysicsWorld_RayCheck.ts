@@ -50,8 +50,8 @@ export class CannonPhysicsWorld_RayCheck {
 	private stype: any = 0;
 	isMaster: any;
 	constructor() {
-		Config3D.useCannonPhysics = true;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
+			Laya3D.useCannonPhysics();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板

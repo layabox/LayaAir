@@ -103,9 +103,9 @@ export class CameraMoveScript extends Script {
 	}
 
 	protected mouseUp(e: Event): void {
+		this.isMouseDown = false;
 		if (e.button != 2)
 			return;
-		this.isMouseDown = false;
 	}
 
 	protected mouseOut(e: Event): void {

@@ -348,10 +348,8 @@ export class CannonPhysicsComponent extends Component {
     }
 
     onAdded(): void {
-        this.enabled = this._enabled;
         this.restitution = this._restitution;
         this.friction = this._friction;
-        (<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
     }
 
     onEnable(): void {
@@ -361,6 +359,7 @@ export class CannonPhysicsComponent extends Component {
             this._derivePhysicsTransformation(true);
             this._addToSimulation();
         }
+        (<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
     }
 
     onDisable(): void {
@@ -369,6 +368,7 @@ export class CannonPhysicsComponent extends Component {
             (this._inPhysicUpdateListIndex !== -1) && (this._simulation._physicsUpdateList.remove(this));//销毁前一定会调用 _onDisable()
         }
         this._simulation = null;
+        (<Sprite3D>this.owner).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
     }
 
     onDestroy(): void {
@@ -378,7 +378,6 @@ export class CannonPhysicsComponent extends Component {
         this._btColliderObject = null;
         this._colliderShape = null;
         this._simulation = null;
-        (<Sprite3D>this.owner).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
     }
 
     /**

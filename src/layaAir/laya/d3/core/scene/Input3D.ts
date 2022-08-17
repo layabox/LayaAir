@@ -16,13 +16,14 @@ const _ray = new Ray(new Vector3(), new Vector3());
 const _hitResult = new HitResult();
 
 InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: number, y: number): Node {
-    if (!Physics3D._bullet)
-        return null;
-
     _hitResult.succeeded = false;
     _vec2.setValue(x, y);
 
     for (let scene of <Scene3D[]>this._stage._scene3Ds) {
+        let sim = scene._physicsSimulation || scene._cannonPhysicsSimulation;
+        if (!sim)
+            continue;
+
         let cameras = scene._cameraPool;
         for (let i = cameras.length - 1; i >= 0; i--) {
             let camera = <Camera>cameras[i];
@@ -31,7 +32,7 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
             if (x >= viewport.x && y >= viewport.y && x <= viewport.width / ratio && y <= viewport.height / ratio) {
                 camera.viewportPointToRay(_vec2, _ray);
 
-                var sucess: boolean = scene._physicsSimulation.rayCast(_ray, _hitResult);
+                var sucess: boolean = sim.rayCast(_ray, <any>_hitResult);
                 if (sucess || (camera.clearFlag === CameraClearFlags.SolidColor || camera.clearFlag === CameraClearFlags.Sky))
                     break;
             }
