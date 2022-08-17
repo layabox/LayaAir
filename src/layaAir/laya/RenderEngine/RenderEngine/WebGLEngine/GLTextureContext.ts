@@ -398,15 +398,15 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 singlebyte = 0;
                 break;
         }
-        bytelength = channels*singlebyte*tex.width*tex.height;
-        if(tex.mipmap){
-            bytelength*=1.333;
+        bytelength = channels * singlebyte * tex.width * tex.height;
+        if (tex.mipmap) {
+            bytelength *= 1.333;
         }
-        if(tex.target==gl.TEXTURE_CUBE_MAP)
-            bytelength*=6;
-        else if(tex.target == gl.TEXTURE_2D)
-            bytelength*=1;
-        
+        if (tex.target == gl.TEXTURE_CUBE_MAP)
+            bytelength *= 6;
+        else if (tex.target == gl.TEXTURE_2D)
+            bytelength *= 1;
+
         return bytelength;
     }
 
@@ -1384,6 +1384,58 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    }
+
+    getRenderTextureData(internalTex: WebGLInternalRT, x: number, y: number, width: number, height: number): ArrayBufferView {
+        if (internalTex.colorFormat == RenderTargetFormat.None)
+            return null;
+        let gl = internalTex._gl;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, internalTex._framebuffer);
+        var canRead: boolean = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
+        if (!canRead) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            return null;
+        }
+        let size = width * height;
+        let format, type;
+        var pixels;
+        switch (internalTex.colorFormat) {
+            case RenderTargetFormat.R8G8B8:
+                format = gl.RGB;
+                type = gl.UNSIGNED_BYTE;
+                pixels = new Uint8Array(size * 3);
+                break;
+            case RenderTargetFormat.R8G8B8A8:
+                format = gl.RGBA;
+                type = gl.UNSIGNED_BYTE;
+                pixels = new Uint8Array(size * 4);
+                break;
+            case RenderTargetFormat.R16G16B16:
+                format = gl.RGB;
+                type = gl.UNSIGNED_SHORT_4_4_4_4;
+                pixels = new Uint16Array(size * 3);
+                break;
+            case RenderTargetFormat.R16G16B16A16:
+                format = gl.RGBA;
+                type = gl.UNSIGNED_SHORT_4_4_4_4;
+                pixels = new Uint16Array(size * 4);
+                break;
+            case RenderTargetFormat.R32G32B32:
+                format = gl.RGB;
+                type = gl.FLOAT;
+                pixels = new Float32Array(size * 3);
+                break;
+            case RenderTargetFormat.R32G32B32A32:
+                format = gl.RGBA;
+                type = gl.FLOAT;
+                pixels = new Float32Array(size * 4);
+                break;
+            default:
+                return null;
+        }
+        gl.readPixels(x, y, width, height, format, type, pixels);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        return pixels;
     }
 
 }

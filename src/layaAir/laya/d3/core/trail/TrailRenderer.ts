@@ -164,7 +164,7 @@ export class TrailRenderer extends BaseRender {
     protected _calculateBoundingBox(): void {
         let context = RenderContext3D._instance;
         this._boundsChange = false;
-        (<TrailSprite3D>this.owner).trailFilter._update(context);
+        this._trailFilter._update(context);
 
     }
 

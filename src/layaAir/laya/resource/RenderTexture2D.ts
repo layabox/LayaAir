@@ -242,38 +242,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @param height 高度。
      * @return 像素数据。
      */
-    getData(x: number, y: number, width: number, height: number): Uint8Array {
-        // todo
-        throw "native 2 thread mode use getDataAsync";
-        // if (LayaEnv.isConch && (window as any).conchConfig.threadMode == 2) {
-        //     throw "native 2 thread mode use getDataAsync";
-        // }
-        // var gl: WebGLRenderingContext = LayaGL.instance;
-        // gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-        // var canRead: boolean = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
-
-        // if (!canRead) {
-        //     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        //     return null;
-        // }
-
-        // var pixels: Uint8Array = new Uint8Array(this._width * this._height * 4);
-        // var glFormat: number = this._getGLFormat();
-        // gl.readPixels(x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
-        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        // return pixels;
-    }
-    /**
-     * native多线程
-     */
-    getDataAsync(x: number, y: number, width: number, height: number, callBack: Function): void {
-        // todo
-        // var gl: any = LayaGL.instance;
-        // gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-        // gl.readPixelsAsync(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, function (data: ArrayBuffer): void {
-        //     callBack(new Uint8Array(data));
-        // });
-        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    getData(x: number, y: number, width: number, height: number): ArrayBufferView {
+        return LayaGL.textureContext.getRenderTextureData(this._renderTarget,x,y,width,height);
+   
     }
     recycle(): void {
 
