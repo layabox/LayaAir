@@ -6,6 +6,7 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
+import { ParseJSON } from "../utils/ParseJSON";
 
 
 /**
@@ -67,11 +68,11 @@ export class ShaderLoader implements IResourceLoader {
         let shaderData = source.substring(source.indexOf(ShaderLoader.ShaderBlock[0]) + ShaderLoader.ShaderBlock[0].length, source.indexOf(ShaderLoader.ShaderBlock[1]));
         let shaderObj;
         try {
-            shaderObj = JSON.parse(shaderData);//TODO new FIle parse(1、去掉繁琐的json格式报错，2、可以有注释)
+            shaderObj = ParseJSON.parse(shaderData);//TODO new FIle parse(1、去掉繁琐的json格式报错，2、可以有注释)
         } catch {
             console.error("Shader describe Data error");
         }
-        return shaderObj;
+        return shaderObj as IShaderObjStructor;
     }
 
     /**
