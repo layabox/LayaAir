@@ -1,12 +1,12 @@
+
 import { AnimatorUpdateMode } from "../d3/component/Animator";
-import { AnimatorControllerLayer } from "../d3/component/AnimatorControllerLayer";
-import { Node } from "../display/Node";
 import { Stat } from "../utils/Stat";
 import { AnimatorControllerLayer2D } from "./AnimatorControllerLayer2D";
 import { AnimatorPlayState2D } from "./AnimatorPlayState2D";
 import { AnimatorState2D } from "./AnimatorState2D";
 import { Component } from "./Component";
 import { KeyframeNode2D } from "./KeyframeNode2D";
+import { Node } from "../../laya/display/Node";
 
 export class Animator2D extends Component {
     private _speed = 1;
@@ -89,7 +89,7 @@ export class Animator2D extends Component {
 
             var playStateInfo = controllerLayer._playStateInfo!;
             //var crossPlayStateInfo = controllerLayer._crossPlayStateInfo!;
-            var addtive = controllerLayer.blendingMode != AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
+            var addtive = controllerLayer.blendingMode != AnimatorControllerLayer2D.BLENDINGMODE_OVERRIDE;
             switch (controllerLayer._playType) {
                 case 0:
                     var animatorState = playStateInfo._currentState!;
@@ -120,11 +120,13 @@ export class Animator2D extends Component {
     }
     set debug(b: boolean) {
         this._isPlaying = b;
-        // if (b) {
-        //     this.onEnable();
-        // } else {
-        //     this.stop();
-        // }
+
+        if (b) {
+            this.owner.timer.frameLoop(1, this, this.onUpdate);
+            this.onEnable();
+        } else {
+            this.stop();
+        }
     }
 
     public get controllerLayers(): ReadonlyArray<AnimatorControllerLayer2D> {
@@ -319,6 +321,9 @@ export class Animator2D extends Component {
         if (isPlayFin) {
             if (0 != animatorState.loop && playState._playNum >= animatorState.loop) {
                 playState._finish = true;
+            } else {
+                playState._elapsedTime = 0;
+                playState._normalizedPlayTime = 0;
             }
 
         }
