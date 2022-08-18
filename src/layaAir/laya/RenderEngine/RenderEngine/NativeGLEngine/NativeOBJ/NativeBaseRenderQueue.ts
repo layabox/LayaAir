@@ -61,9 +61,9 @@ export class NativeBaseRenderQueue implements IRenderQueue {
 
         UploadMemoryManager.syncRenderMemory();
 
+        BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
         this._nativeObj.renderQueue((this._context as any)._nativeObj);
         
-        BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind(); 
         this._batch.recoverData();
 
         return n;
