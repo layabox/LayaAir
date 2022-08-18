@@ -120,8 +120,16 @@ export class Animator extends Component {
         return this._controllerLayers;
     }
 
+
+    private _cachContollerLayer:Array<AnimatorControllerLayer>;
+
     //@internal
     public set controllerLayers(layers: ReadonlyArray<AnimatorControllerLayer>) {
+        if(!this._enabled||!this._awaked){
+            this._cachContollerLayer = [];
+            this._cachContollerLayer.push(...layers);
+            return;
+        }
         if (this._controllerLayers === layers)
             return;
 
@@ -135,12 +143,14 @@ export class Animator extends Component {
                     i++;
             }
         }
-
         if (layers.length > 0) {
             let newAdded = layers.filter(s => oldLayers.indexOf(s) == -1);
             for (let layer of newAdded)
                 this.addControllerLayer(layer);
         }
+
+        
+        
 
         this._controllerLayers.length = 0;
         this._controllerLayers.push(...layers);
@@ -556,25 +566,28 @@ export class Animator extends Component {
         } else {
             if (isFirstLayer) {
                 if (additive) {
-                    defaultValue.r = nodeOwner.defaultValue.x + data.x;
-                    defaultValue.g = nodeOwner.defaultValue.y + data.y;
-                    defaultValue.b = nodeOwner.defaultValue.z + data.z;
-                    defaultValue.a = nodeOwner.defaultValue.w + data.w;
+                    defaultValue.r = nodeOwner.defaultValue.r + data.x;
+                    defaultValue.g = nodeOwner.defaultValue.g + data.y;
+                    defaultValue.b = nodeOwner.defaultValue.b + data.z;
+                    defaultValue.a = nodeOwner.defaultValue.a + data.w;
                 }
-                else
-                    data.cloneTo(defaultValue);
+                else{
+//data.cloneTo(defaultValue);
+                    defaultValue.setValue(data.x,data.y,data.z,data.w);
+                }
+                    
             } else {
                 if (additive) {
-                    defaultValue.r = nodeOwner.defaultValue.x + weight * (data.x);
-                    defaultValue.g = nodeOwner.defaultValue.y + weight * (data.y);
-                    defaultValue.b = nodeOwner.defaultValue.z + weight * (data.z);
-                    defaultValue.a = nodeOwner.defaultValue.w + weight * (data.w);
+                    defaultValue.r = nodeOwner.defaultValue.r + weight * (data.x);
+                    defaultValue.g = nodeOwner.defaultValue.g + weight * (data.y);
+                    defaultValue.b = nodeOwner.defaultValue.b + weight * (data.z);
+                    defaultValue.a = nodeOwner.defaultValue.a + weight * (data.w);
                 } else {
-                    var defValue: Vector4 = nodeOwner.defaultValue;
-                    defaultValue.r = defValue.x + weight * (data.x - defValue.x);
-                    defaultValue.g = defValue.y + weight * (data.y - defValue.y);
-                    defaultValue.b = defValue.z + weight * (data.z - defValue.z);
-                    defaultValue.a = defValue.w + weight * (data.w - defValue.w);
+                    var defValue: Color = nodeOwner.defaultValue;
+                    defaultValue.r = defValue.r + weight * (data.x - defValue.r);
+                    defaultValue.g = defValue.g + weight * (data.y - defValue.g);
+                    defaultValue.b = defValue.b + weight * (data.z - defValue.b);
+                    defaultValue.a = defValue.a + weight * (data.w - defValue.a);
                 }
             }
         }
@@ -896,7 +909,7 @@ export class Animator extends Component {
                             }
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
-                                pro && (pro[value] = this._applyVec4(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                pro && (pro[value] = this._applyColor(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             } else {
                                 pro && (pro as Material).setColor(value, this._applyColor(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             }
@@ -1031,12 +1044,16 @@ export class Animator extends Component {
     }
 
     onEnable(): void {
+        if(this._cachContollerLayer){
+            this.controllerLayers = this._cachContollerLayer;
+        }
         for (let i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
                 let defaultClip: AnimatorState = this.getDefaultState(i);
                 (defaultClip) && (this.play(null, i, 0));
             }
         }
+        
     }
 
     private _applyUpdateMode(delta: number): number {
