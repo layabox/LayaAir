@@ -25,6 +25,10 @@ import "./loaders/AtlasLoader";
 import "./loaders/HierarchyLoader";
 import "./loaders/TextureLoader";
 import "./loaders/AnimationClip2DLoader";
+import { Animator2D } from "./components/Animator2D";
+import { AnimatorControllerLayer2D } from "./components/AnimatorControllerLayer2D";
+import { AnimatorState2D } from "./components/AnimatorState2D";
+import { AnimationClip2D } from "./components/AnimationClip2D";
 
 let c = ClassUtils.regClass;
 
@@ -49,3 +53,9 @@ c("Laya.Point", Point);
 c("Laya.Rectangle", Rectangle);
 c("Laya.Texture", Texture);
 c("Laya.Texture2D", Texture2D);
+
+
+c("Laya.Animator2D", Animator2D);
+c("Laya.AnimatorControllerLayer2D", AnimatorControllerLayer2D);
+c("Laya.AnimatorState2D", AnimatorState2D);
+c("Laya.AnimationClip2D", AnimationClip2D);
