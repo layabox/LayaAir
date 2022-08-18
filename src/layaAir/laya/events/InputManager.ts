@@ -19,6 +19,8 @@ export class InputManager {
 
     /**是否开启多点触控*/
     static multiTouchEnabled: boolean = true;
+    /**是否开启鼠标/触摸事件，默认为true*/
+    static mouseEventsEnabled: boolean = true;
     /**是否开启键盘事件，默认为true*/
     static keyEventsEnabled: boolean = true;
     /**如果鼠标按下的位置和弹起的位置距离超过这个阀值，则不视为一次点击*/
@@ -192,10 +194,12 @@ export class InputManager {
                 touch.pos.setTo(x, y);
                 touch.move();
 
-                this.bubbleEvent(Event.MOUSE_MOVE, touch.event, touch.target);
+                if (InputManager.mouseEventsEnabled) {
+                    this.bubbleEvent(Event.MOUSE_MOVE, touch.event, touch.target);
 
-                for (let t of touch.downTargets)
-                    t.event(Event.MOUSE_DRAG, touch.event);
+                    for (let t of touch.downTargets)
+                        t.event(Event.MOUSE_DRAG, touch.event);
+                }
             }
         }
 
@@ -206,45 +210,51 @@ export class InputManager {
             if (!touch.began) {
                 touch.begin();
 
-                this.handleFocus();
+                if (InputManager.mouseEventsEnabled) {
+                    this.handleFocus();
 
-                if (ev.button == 0)
-                    this.bubbleEvent(Event.MOUSE_DOWN, touch.event, touch.target);
-                else
-                    this.bubbleEvent(Event.RIGHT_MOUSE_DOWN, touch.event, touch.target);
+                    if (ev.button == 0)
+                        this.bubbleEvent(Event.MOUSE_DOWN, touch.event, touch.target);
+                    else
+                        this.bubbleEvent(Event.RIGHT_MOUSE_DOWN, touch.event, touch.target);
+                }
             }
         }
         else if (type == 1) {
             if (touch.began) {
                 touch.end();
 
-                if (ev.button == 0)
-                    this.bubbleEvent(Event.MOUSE_UP, touch.event, touch.target);
-                else
-                    this.bubbleEvent(Event.RIGHT_MOUSE_UP, touch.event, touch.target);
-
-                if (touch.moved) {
-                    for (let t of touch.downTargets)
-                        t.event(Event.MOUSE_DRAG_END, touch.event);
-                }
-
-                let clickTarget = touch.clickTest();
-                if (clickTarget) {
-                    if (ev.button == 0) {
-                        this.bubbleEvent(Event.CLICK, touch.event, clickTarget);
-
-                        if (touch.clickCount == 2)
-                            this.bubbleEvent(Event.DOUBLE_CLICK, touch.event, clickTarget);
-                    }
+                if (InputManager.mouseEventsEnabled) {
+                    if (ev.button == 0)
+                        this.bubbleEvent(Event.MOUSE_UP, touch.event, touch.target);
                     else
-                        this.bubbleEvent(Event.RIGHT_CLICK, touch.event, clickTarget);
+                        this.bubbleEvent(Event.RIGHT_MOUSE_UP, touch.event, touch.target);
+
+                    if (touch.moved) {
+                        for (let t of touch.downTargets)
+                            t.event(Event.MOUSE_DRAG_END, touch.event);
+                    }
+
+                    let clickTarget = touch.clickTest();
+                    if (clickTarget) {
+                        if (ev.button == 0) {
+                            this.bubbleEvent(Event.CLICK, touch.event, clickTarget);
+
+                            if (touch.clickCount == 2)
+                                this.bubbleEvent(Event.DOUBLE_CLICK, touch.event, clickTarget);
+                        }
+                        else
+                            this.bubbleEvent(Event.RIGHT_CLICK, touch.event, clickTarget);
+                    }
                 }
             }
         }
         else if (type == 4) {
-            touch.event.delta = (<WheelEvent>ev).deltaY * 0.025;
-            this.bubbleEvent(Event.MOUSE_WHEEL, touch.event, touch.target);
-            touch.event.delta = 0;
+            if (InputManager.mouseEventsEnabled) {
+                touch.event.delta = (<WheelEvent>ev).deltaY * 0.025;
+                this.bubbleEvent(Event.MOUSE_WHEEL, touch.event, touch.target);
+                touch.event.delta = 0;
+            }
         }
     }
 
@@ -281,10 +291,13 @@ export class InputManager {
                     touch.pos.setTo(x, y);
                     touch.move();
 
-                    this.bubbleEvent(Event.MOUSE_MOVE, touch.event, touch.target);
+                    if (InputManager.mouseEventsEnabled) {
 
-                    for (let t of touch.downTargets)
-                        t.event(Event.MOUSE_DRAG, touch.event);
+                        this.bubbleEvent(Event.MOUSE_MOVE, touch.event, touch.target);
+
+                        for (let t of touch.downTargets)
+                            t.event(Event.MOUSE_DRAG, touch.event);
+                    }
                 }
             }
 
@@ -295,29 +308,32 @@ export class InputManager {
                 if (!touch.began) {
                     touch.begin();
 
-                    this.handleFocus();
-
-                    this.bubbleEvent(Event.MOUSE_DOWN, touch.event, touch.target);
+                    if (InputManager.mouseEventsEnabled) {
+                        this.handleFocus();
+                        this.bubbleEvent(Event.MOUSE_DOWN, touch.event, touch.target);
+                    }
                 }
             }
             else if (type == 1 || type == 3) {
                 if (touch.began) {
                     touch.end();
 
-                    this.bubbleEvent(Event.MOUSE_UP, touch.event, touch.target);
+                    if (InputManager.mouseEventsEnabled) {
+                        this.bubbleEvent(Event.MOUSE_UP, touch.event, touch.target);
 
-                    if (touch.moved) {
-                        for (let t of touch.downTargets)
-                            t.event(Event.MOUSE_DRAG_END, touch.event);
-                    }
+                        if (touch.moved) {
+                            for (let t of touch.downTargets)
+                                t.event(Event.MOUSE_DRAG_END, touch.event);
+                        }
 
-                    if (type != 3) {
-                        let clickTarget = touch.clickTest();
-                        if (clickTarget != null) {
-                            this.bubbleEvent(Event.CLICK, touch.event, clickTarget);
+                        if (type != 3) {
+                            let clickTarget = touch.clickTest();
+                            if (clickTarget != null) {
+                                this.bubbleEvent(Event.CLICK, touch.event, clickTarget);
 
-                            if (touch.clickCount == 2)
-                                this.bubbleEvent(Event.DOUBLE_CLICK, touch.event, clickTarget);
+                                if (touch.clickCount == 2)
+                                    this.bubbleEvent(Event.DOUBLE_CLICK, touch.event, clickTarget);
+                            }
                         }
                     }
 
@@ -363,9 +379,6 @@ export class InputManager {
     }
 
     handleKeys(ev: KeyboardEvent): void {
-        if (!InputManager.keyEventsEnabled)
-            return;
-
         let type = ev.type;
         let keyCode = ev.keyCode;
         //判断同时按下的键
@@ -382,11 +395,13 @@ export class InputManager {
 
         this._keyEvent.nativeEvent = ev;
 
-        let target = (this._stage.focus && (this._stage.focus.event != null) && this._stage.focus.displayedInStage) ? this._stage.focus : this._stage;
-        let ct = target;
-        while (ct) {
-            ct.event(type, this._keyEvent.setTo(type, ct, target));
-            ct = ct.parent;
+        if (InputManager.keyEventsEnabled) {
+            let target = (this._stage.focus && (this._stage.focus.event != null) && this._stage.focus.displayedInStage) ? this._stage.focus : this._stage;
+            let ct = target;
+            while (ct) {
+                ct.event(type, this._keyEvent.setTo(type, ct, target));
+                ct = ct.parent;
+            }
         }
 
         this._keyEvent.nativeEvent = null;
@@ -503,6 +518,11 @@ export class InputManager {
     }
 
     private handleRollOver(touch: TouchInfo) {
+        if (!InputManager.mouseEventsEnabled) {
+            touch.lastRollOver = touch.target;
+            return;
+        }
+
         _rollOverChain.length = 0;
         _rollOutChain.length = 0;
 
@@ -583,7 +603,6 @@ class TouchInfo implements ITouchInfo {
     private lastClickTime: number;
     private lastClickPos: Point;
     private lastClickButton: number;
-
 
     constructor() {
         this.downPos = new Point();
