@@ -318,7 +318,7 @@ export class Animator extends Component {
                 if (event.time <= endTime) {
                     for (let j = 0, m = scripts.length; j < m; j++) {
                         let script = scripts[j];
-                        if (script._isScript) {
+                        if (script._isScript()) {
                             let fun: Function = (script as any)[event.eventName];
                             (fun) && (fun.apply(script, event.params));
                         }
@@ -333,7 +333,7 @@ export class Animator extends Component {
                 if (event.time >= endTime) {
                     for (let j = 0, m = scripts.length; j < m; j++) {
                         let script = scripts[j];
-                        if (script._isScript) {
+                        if (script._isScript()) {
                             let fun = (script as any)[event.eventName];
                             (fun) && (fun.apply(script, event.params));
                         }

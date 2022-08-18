@@ -108,7 +108,7 @@ export class Component {
         this.owner = node;
         this._destroyed = false;
 
-        if (this._isScript)
+        if (this._isScript())
             node._setBit(NodeFlags.HAS_SCRIPT, true);
 
         this.onAdded?.();
@@ -154,7 +154,7 @@ export class Component {
                 driver.add(this);
                 this._enableState = true;
 
-                if (this._isScript)
+                if (this._isScript())
                     this.setupScript();
                 this.onEnable?.();
             }

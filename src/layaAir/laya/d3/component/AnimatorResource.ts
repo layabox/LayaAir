@@ -8,7 +8,7 @@ export class AnimatorResource {
             case "simpleSkinnedMeshRenderer":
                 return sprite.getComponent(SimpleSkinnedMeshRenderer);
             default:
-                sprite.getComponent(ClassUtils.getClass(propertyKey));
+                return sprite.getComponent(ClassUtils.getClass(propertyKey));
                 break;
         }
         return null;
