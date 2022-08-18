@@ -7,7 +7,6 @@ import { LayaGL } from "./laya/layagl/LayaGL";
 import { SoundManager } from "./laya/media/SoundManager";
 import { Loader } from "./laya/net/Loader";
 import { LocalStorage } from "./laya/net/LocalStorage";
-import { URL } from "./laya/net/URL";
 import { Render } from "./laya/renders/Render";
 import { RenderSprite } from "./laya/renders/RenderSprite";
 import { Context } from "./laya/resource/Context";
@@ -137,7 +136,7 @@ export class Laya {
         if (LayaEnv.isConch && (window as any).conch.setGlobalRepaint) {
             (window as any).conch.setGlobalRepaint(Laya.stage.setGlobalRepaint.bind(Laya.stage));
         }
-        URL.rootPath = URL.basePath = Laya._getUrlPath();
+
         MeshQuadTexture.__int__();
         MeshVG.__init__();
         MeshTexture.__init__();
@@ -164,11 +163,6 @@ export class Laya {
 
     static addWasmModule(id: string, exports: WebAssembly.Exports, memory: WebAssembly.Memory) {
         Laya.WasmModules[id] = { exports, memory };
-    }
-
-    /**@internal */
-    static _getUrlPath(): string {//不再需要特殊处理file的路径
-        return URL.getPath(location.protocol + "//" + location.host + location.pathname);
     }
 
     /**@internal */

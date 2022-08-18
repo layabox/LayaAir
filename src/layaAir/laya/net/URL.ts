@@ -1,4 +1,3 @@
-import { ILaya } from "../../ILaya";
 import { Utils } from "../utils/Utils";
 
 /**
@@ -214,3 +213,5 @@ export class URL {
             URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
     }
 }
+
+URL.rootPath = URL.basePath = URL.getPath(location.protocol + "//" + location.host + location.pathname);
