@@ -24,6 +24,7 @@ class MaterialLoader implements IResourceLoader {
             case "LAYAMATERIAL:01":
             case "LAYAMATERIAL:02":
             case "LAYAMATERIAL:03":
+            case "LAYAMATERIAL:04":
                 let i: number, n: number;
                 let textures: any[] = lmatData.props.textures;
                 if (textures) {
