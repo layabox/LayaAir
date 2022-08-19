@@ -2,8 +2,8 @@ import { ColliderBase } from "./ColliderBase";
 import { Physics } from "./Physics";
 
 /**
-	 * 2D矩形碰撞体
-	 */
+ * 2D矩形碰撞体
+ */
 export class BoxCollider extends ColliderBase {
     /**相对节点的x轴偏移*/
     private _x: number = 0;

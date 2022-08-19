@@ -2,8 +2,8 @@ import { ColliderBase } from "./ColliderBase";
 import { Physics } from "./Physics";
 
 /**
-	 * 2D圆形碰撞体
-	 */
+ * 2D圆形碰撞体
+ */
 export class CircleCollider extends ColliderBase {
     /**@private */
     private static _temp: any;

@@ -1,10 +1,9 @@
-import { IPhysics } from "./IPhysics";
 import { ColliderBase } from "./ColliderBase";
 import { Component } from "../components/Component"
 import { Sprite } from "..//display/Sprite"
 import { Point } from "../maths/Point"
 import { Utils } from "../utils/Utils"
-import { ILaya } from "../../ILaya";
+import { Physics } from "./Physics";
 
 /**
  * 2D刚体，显示对象通过RigidBody和物理世界进行绑定，保持物理和显示对象之间的位置同步
@@ -65,8 +64,8 @@ export class RigidBody extends Component {
         var sp: Sprite = (<Sprite>this.owner);
         var box2d: any = (<any>window).box2d;
         var def: any = new box2d.b2BodyDef();
-        var point: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, IPhysics.Physics.I.worldRoot);
-        def.position.Set(point.x / IPhysics.Physics.PIXEL_RATIO, point.y / IPhysics.Physics.PIXEL_RATIO);
+        var point: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
+        def.position.Set(point.x / Physics.PIXEL_RATIO, point.y / Physics.PIXEL_RATIO);
         def.angle = Utils.toRadian(sp.rotation);
         def.allowSleep = this._allowSleep;
         def.angularDamping = this._angularDamping;
@@ -82,7 +81,7 @@ export class RigidBody extends Component {
         def.type = box2d.b2BodyType["b2_" + this._type + "Body"];
         //def.userData = label;
 
-        this._body = IPhysics.Physics.I._createBody(def);
+        this._body = Physics.I._createBody(def);
         //trace(body);
 
         //查找碰撞体
@@ -195,7 +194,7 @@ export class RigidBody extends Component {
             //     this.accessGetSetFunc(sp, "x", "set")(point.x);
             //     this.accessGetSetFunc(sp, "y", "set")(point.y);
             // } else {
-            var point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO, pos.y * IPhysics.Physics.PIXEL_RATIO), false, IPhysics.Physics.I.worldRoot);
+            var point = sp.globalToLocal(Point.TEMP.setTo(pos.x * Physics.PIXEL_RATIO, pos.y * Physics.PIXEL_RATIO), false, Physics.I.worldRoot);
             point.x += sp.pivotX;
             point.y += sp.pivotY;
             point = sp.toParentPoint(point);
@@ -209,15 +208,15 @@ export class RigidBody extends Component {
     private _sysNodeToPhysic(): void {
         var sp: Sprite = <Sprite>this.owner;
         this._body.SetAngle(Utils.toRadian(sp.rotation));
-        var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, IPhysics.Physics.I.worldRoot);
-        this._body.SetPositionXY(p.x / IPhysics.Physics.PIXEL_RATIO, p.y / IPhysics.Physics.PIXEL_RATIO);
+        var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
+        this._body.SetPositionXY(p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
     }
 
     /**@private 同步节点坐标到物理世界*/
     private _sysPosToPhysic(): void {
         var sp: Sprite = <Sprite>this.owner;
-        var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, IPhysics.Physics.I.worldRoot);
-        this._body.SetPositionXY(p.x / IPhysics.Physics.PIXEL_RATIO, p.y / IPhysics.Physics.PIXEL_RATIO);
+        var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
+        this._body.SetPositionXY(p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
     }
 
     /**@private */
@@ -227,7 +226,7 @@ export class RigidBody extends Component {
 
     onDisable(): void {
         //添加到物理世界
-        this._body && IPhysics.Physics.I._removeBody(this._body);
+        this._body && Physics.I._removeBody(this._body);
         this._body = null;
 
         var owner: any = this.owner;
@@ -334,8 +333,8 @@ export class RigidBody extends Component {
     getCenter(): any {
         if (!this._body) this.onAwake();
         var p: Point = this._body.GetLocalCenter();
-        p.x = p.x * IPhysics.Physics.PIXEL_RATIO;
-        p.y = p.y * IPhysics.Physics.PIXEL_RATIO;
+        p.x = p.x * Physics.PIXEL_RATIO;
+        p.y = p.y * Physics.PIXEL_RATIO;
         return p;
     }
 
@@ -345,8 +344,8 @@ export class RigidBody extends Component {
     getWorldCenter(): any {
         if (!this._body) this.onAwake();
         var p: Point = this._body.GetWorldCenter();
-        p.x = p.x * IPhysics.Physics.PIXEL_RATIO;
-        p.y = p.y * IPhysics.Physics.PIXEL_RATIO;
+        p.x = p.x * Physics.PIXEL_RATIO;
+        p.y = p.y * Physics.PIXEL_RATIO;
         return p;
     }
 
