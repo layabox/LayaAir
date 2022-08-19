@@ -51,7 +51,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
         this._parseShape(data.shapes);
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         var bt: any = Physics3D._bullet;
         var btColObj: number = bt.btCollisionObject_create();
         bt.btCollisionObject_setUserIndex(btColObj, this.id);
@@ -69,7 +69,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
         }
         bt.btCollisionObject_setCollisionFlags(btColObj, flags);
         this._btColliderObject = btColObj;
-        super.onAdded();
+        super._onAdded();
     }
 }
 

@@ -27,17 +27,17 @@ export class Widget extends Component {
         this._top = this._bottom = this._left = this._right = this._centerX = this._centerY = NaN;
     }
 
-    onEnable(): void {
-        if (this.owner.parent) this.onAdded();
-        else this.owner.once(Event.ADDED, this, this.onAdded);
+    protected _onEnable(): void {
+        if (this.owner.parent) this._onAdded();
+        else this.owner.once(Event.ADDED, this, this._onAdded);
     }
 
-    onDisable(): void {
-        this.owner.off(Event.ADDED, this, this.onAdded);
+    protected _onDisable(): void {
+        this.owner.off(Event.ADDED, this, this._onAdded);
         if (this.owner.parent) this.owner.parent.off(Event.RESIZE, this, this._onParentResize);
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         if (this.owner.parent)
             this.owner.parent.on(Event.RESIZE, this, this._onParentResize);
         this.resetLayoutX();

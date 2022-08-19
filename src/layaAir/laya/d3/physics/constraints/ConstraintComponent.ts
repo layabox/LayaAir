@@ -325,7 +325,7 @@ export class ConstraintComponent extends Component {
         return;
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         var physics3D: any = Physics3D._bullet;
         this._simulation && this._removeFromSimulation();
         if (this._btConstraint && this._btJointFeedBackObj && this._simulation) {

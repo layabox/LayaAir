@@ -387,7 +387,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this._rendernode.layer = layer;
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         this._transform = (this.owner as Sprite3D).transform;
 
         this._rendernode.transform = this._transform;
@@ -397,12 +397,12 @@ export class BaseRender extends Component implements ISingletonElement {
         }
     }
 
-    onEnable(): void {
+    protected _onEnable(): void {
         (this.owner.scene as Scene3D)._addRenderObject(this);
         this._setBelongScene(this.owner.scene);
     }
 
-    onDisable(): void {
+    protected _onDisable(): void {
         (this.owner.scene as Scene3D)._removeRenderObject(this);
         this._setUnBelongScene();
     }
@@ -605,7 +605,7 @@ export class BaseRender extends Component implements ISingletonElement {
     // _revertBatchRenderUpdate(context: RenderContext3D): void {
     // }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         var i: number = 0, n: number = 0;

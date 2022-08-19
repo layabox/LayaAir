@@ -40,8 +40,8 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
         super(collisionGroup, canCollideWith);
     }
 
-    onAdded(): void {
-        super.onAdded();
+    protected _onAdded(): void {
+        super._onAdded();
         this.isTrigger = this._isTrigger;
     }
 

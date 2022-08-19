@@ -347,12 +347,12 @@ export class CannonPhysicsComponent extends Component {
         this._btColliderObject.updateBoundingRadius();
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         this.restitution = this._restitution;
         this.friction = this._friction;
     }
 
-    onEnable(): void {
+    protected _onEnable(): void {
         //@ts-ignorets  minerTODO：
         this._simulation = ((<Scene3D>this.owner._scene))._cannonPhysicsSimulation;
         if (this._colliderShape) {
@@ -362,7 +362,7 @@ export class CannonPhysicsComponent extends Component {
         (<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
     }
 
-    onDisable(): void {
+    protected _onDisable(): void {
         if (this._colliderShape) {
             this._removeFromSimulation();
             (this._inPhysicUpdateListIndex !== -1) && (this._simulation._physicsUpdateList.remove(this));//销毁前一定会调用 _onDisable()
@@ -371,7 +371,7 @@ export class CannonPhysicsComponent extends Component {
         (<Sprite3D>this.owner).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         delete CannonPhysicsComponent._physicObjectsMap[this.id];
         this._btColliderObject = null;
         this._colliderShape.destroy();

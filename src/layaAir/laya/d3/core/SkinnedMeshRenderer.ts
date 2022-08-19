@@ -317,12 +317,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         super._cloneTo(dest);
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         if (this._cacheRootBone)
             (!this._cacheRootBone._destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
         else
             (this.owner && !this.owner._destroyed) && ((this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
-        super.onDestroy();
+        super._onDestroy();
     }
 }
 

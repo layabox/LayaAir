@@ -48,14 +48,14 @@ export class CannonPhysicsCollider extends CannonPhysicsTriggerComponent {
         this._parseShape(data.shapes);
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         this._btColliderObject = new CANNON.Body();
         this._btColliderObject.material = new CANNON.Material();
         this._btColliderObject.layaID = this.id;
         this._btColliderObject.type = CANNON.Body.STATIC;
         this._btColliderObject.collisionFilterGroup = this._collisionGroup;
         this._btColliderObject.collisionFilterMask = this._canCollideWith;
-        super.onAdded();
+        super._onAdded();
     }
 }
 

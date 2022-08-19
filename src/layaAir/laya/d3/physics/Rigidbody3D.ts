@@ -490,9 +490,9 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
         bt.btRigidBodyConstructionInfo_destroy(constructInfo);
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         this._initRigidbody(this.id);
-        super.onAdded();
+        super._onAdded();
         this.mass = this._mass;
         this.linearFactor = this._linearFactor;
         this.angularFactor = this._angularFactor;
@@ -503,7 +503,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
         this.isKinematic = this._isKinematic;
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         ILaya3D.Physics3D._bullet.btMotionState_destroy(this._btLayaMotionState);
 
         ////Remove constraints safely
@@ -521,7 +521,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
         //LinkedConstraints.Clear();
         ////~Remove constraints
 
-        super.onDestroy();
+        super._onDestroy();
         this._btLayaMotionState = null;
         this._gravity = null;
         this._totalTorque = null;

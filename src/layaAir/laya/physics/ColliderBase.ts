@@ -46,7 +46,7 @@ export class ColliderBase extends Component {
         return this._def;
     }
 
-    onEnable(): void {
+    protected _onEnable(): void {
         if (this.rigidBody)
             this.refresh();
         else
@@ -63,7 +63,7 @@ export class ColliderBase extends Component {
         }
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         if (this.rigidBody) {
             if (this.fixture) {
                 if (this.fixture.GetBody() == this.rigidBody._getOriBody()) {

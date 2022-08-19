@@ -88,11 +88,11 @@ export class RigidBody extends Component {
         this.resetCollider(false);
     }
 
-    onAwake(): void {
+    protected _onAwake(): void {
         this._createBody();
     }
 
-    onEnable(): void {
+    protected _onEnable(): void {
         var _$this = this;
         this._createBody();
 
@@ -224,7 +224,7 @@ export class RigidBody extends Component {
         Object.defineProperty(sp, prop, { get: this.accessGetSetFunc(sp, prop, "get"), set: getfun, enumerable: false, configurable: true });;
     }
 
-    onDisable(): void {
+    protected _onDisable(): void {
         //添加到物理世界
         this._body && Physics.I._removeBody(this._body);
         this._body = null;
@@ -242,7 +242,7 @@ export class RigidBody extends Component {
 
     /**获得原始body对象 */
     getBody(): any {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         return this._body;
     }
 
@@ -252,7 +252,7 @@ export class RigidBody extends Component {
 
     /**[只读]获得原始body对象 */
     get body(): any {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         return this._body;
     }
 
@@ -262,7 +262,7 @@ export class RigidBody extends Component {
      * @param	force	施加的力，如{x:0.1,y:0.1}
      */
     applyForce(position: any, force: any): void {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         this._body.ApplyForce(force, position);
     }
 
@@ -271,7 +271,7 @@ export class RigidBody extends Component {
      * @param	force	施加的力，如{x:0.1,y:0.1}
      */
     applyForceToCenter(force: any): void {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         this._body.ApplyForceToCenter(force);
     }
 
@@ -281,7 +281,7 @@ export class RigidBody extends Component {
      * @param	impulse	施加的速度冲量，如{x:0.1,y:0.1}
      */
     applyLinearImpulse(position: any, impulse: any): void {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         this._body.ApplyLinearImpulse(impulse, position);
     }
 
@@ -290,7 +290,7 @@ export class RigidBody extends Component {
      * @param	impulse	施加的速度冲量，如{x:0.1,y:0.1}
      */
     applyLinearImpulseToCenter(impulse: any): void {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         this._body.ApplyLinearImpulseToCenter(impulse);
     }
 
@@ -299,7 +299,7 @@ export class RigidBody extends Component {
      * @param	torque	施加的扭矩
      */
     applyTorque(torque: number): void {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         this._body.ApplyTorque(torque);
     }
 
@@ -308,7 +308,7 @@ export class RigidBody extends Component {
      * @param	velocity
      */
     setVelocity(velocity: any): void {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         this._body.SetLinearVelocity(velocity);
     }
 
@@ -317,7 +317,7 @@ export class RigidBody extends Component {
      * @param	value 单位为弧度
      */
     setAngle(value: any): void {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         this._body.SetAngle(value);
         this._body.SetAwake(true);
     }
@@ -331,7 +331,7 @@ export class RigidBody extends Component {
      * 获得质心的相对节点0,0点的位置偏移
      */
     getCenter(): any {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         var p: Point = this._body.GetLocalCenter();
         p.x = p.x * Physics.PIXEL_RATIO;
         p.y = p.y * Physics.PIXEL_RATIO;
@@ -342,7 +342,7 @@ export class RigidBody extends Component {
      * 获得质心的世界坐标，相对于Physics.I.worldRoot节点
      */
     getWorldCenter(): any {
-        if (!this._body) this.onAwake();
+        if (!this._body) this._onAwake();
         var p: Point = this._body.GetWorldCenter();
         p.x = p.x * Physics.PIXEL_RATIO;
         p.y = p.y * Physics.PIXEL_RATIO;

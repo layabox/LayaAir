@@ -1036,14 +1036,14 @@ export class Animator extends Component {
         }
     }
 
-    onAwake(): void {
+    protected _onAwake(): void {
         if (this._cacheContollerLayers) {
             this.controllerLayers = this._cacheContollerLayers;
             this._cacheContollerLayers = null;
         }
     }
 
-    onEnable(): void {
+    protected _onEnable(): void {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
                 let defaultClip: AnimatorState = this.getDefaultState(i);
@@ -1052,7 +1052,7 @@ export class Animator extends Component {
         }
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i]._removeReference();
     }

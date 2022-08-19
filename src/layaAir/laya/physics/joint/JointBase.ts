@@ -20,18 +20,18 @@ export class JointBase extends Component {
         return this._joint;
     }
 
-    onEnable(): void {
+    protected _onEnable(): void {
         this._createJoint();
     }
 
-    onAwake(): void {
+    protected _onAwake(): void {
         this._createJoint();
     }
 
     protected _createJoint(): void {
     }
 
-    onDisable(): void {
+    protected _onDisable(): void {
         if (this._joint && this._joint.m_userData && !this._joint.m_userData.isDestroy) {
             Physics.I._removeJoint(this._joint);
         }
