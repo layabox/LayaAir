@@ -389,7 +389,7 @@ export class PhysicsComponent extends Component {
         this._colliderShape._setScale(scale);
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         this.restitution = this._restitution;
         this.friction = this._friction;
         this.rollingFriction = this._rollingFriction;
@@ -397,7 +397,7 @@ export class PhysicsComponent extends Component {
         this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
     }
 
-    onEnable(): void {
+    protected _onEnable(): void {
         (<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
         ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
@@ -407,7 +407,7 @@ export class PhysicsComponent extends Component {
         }
     }
 
-    onDisable(): void {
+    protected _onDisable(): void {
         (<Sprite3D>this.owner).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         if (this._colliderShape) {
             this._removeFromSimulation();
@@ -416,7 +416,7 @@ export class PhysicsComponent extends Component {
         this._simulation = null;
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         delete PhysicsComponent._physicObjectsMap[this.id];
         ILaya3D.Physics3D._bullet.btCollisionObject_destroy(this._btColliderObject);
         this._colliderShape.destroy();

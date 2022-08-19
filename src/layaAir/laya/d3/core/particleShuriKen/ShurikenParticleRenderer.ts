@@ -124,7 +124,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         this._supportOctree = false;
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         if (!LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
             this._particleSystem = new ShurikenParticleSystem(this);
         } else
@@ -138,15 +138,15 @@ export class ShurikenParticleRenderer extends BaseRender {
         element.material = ShurikenParticleMaterial.defaultMaterial;
     }
 
-    onEnable(): void {
-        super.onEnable();
+    protected _onEnable(): void {
+        super._onEnable();
 
         Stat.particleRenderNode++;
         (this._particleSystem.playOnAwake) && (this._particleSystem.play());
     }
 
-    onDisable(): void {
-        super.onDisable();
+    protected _onDisable(): void {
+        super._onDisable();
 
         Stat.particleRenderNode--;
         (this._particleSystem.isAlive) && (this._particleSystem.simulate(0, true));
@@ -299,11 +299,11 @@ export class ShurikenParticleRenderer extends BaseRender {
         parRender.sortingFudge = this.sortingFudge;
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         (this._mesh) && (this._mesh._removeReference(), this._mesh = null);
         this._particleSystem.destroy();
         this._particleSystem = null;
-        super.onDestroy();
+        super._onDestroy();
     }
 
 }

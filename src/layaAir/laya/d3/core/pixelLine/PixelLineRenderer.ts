@@ -60,11 +60,11 @@ export class PixelLineRenderer extends BaseRender {
         return this._pixelLineFilter._lineCount;
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         this._changeRenderObjects(0, PixelLineMaterial.defaultMaterial);
     }
 
-    onEnable(): void {
+    protected _onEnable(): void {
         this._isRenderActive = true;
         if (this._pixelLineFilter._lineCount != 0) {
             (this.owner.scene)._addRenderObject(this);
@@ -73,7 +73,7 @@ export class PixelLineRenderer extends BaseRender {
         this._setBelongScene(this.owner.scene);
     }
 
-    onDisable(): void {
+    protected _onDisable(): void {
         if (this._pixelLineFilter && this._pixelLineFilter._lineCount != 0 && this._isRenderActive) {
             this.owner.scene._removeRenderObject(this);
             this._isInRenders = false;
@@ -216,10 +216,10 @@ export class PixelLineRenderer extends BaseRender {
         }
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         this._pixelLineFilter.destroy();
         this._pixelLineFilter = null;
-        super.onDestroy();
+        super._onDestroy();
     }
 
     /**

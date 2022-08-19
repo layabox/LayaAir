@@ -68,8 +68,8 @@ export class MeshRenderer extends BaseRender {
     /**
      * @internal
      */
-    onEnable(): void {
-        super.onEnable();
+    protected _onEnable(): void {
+        super._onEnable();
         const filter = this.owner.getComponent(MeshFilter) as MeshFilter;
         filter._enabled && this._onMeshChange(filter.sharedMesh);
     }
@@ -271,9 +271,9 @@ export class MeshRenderer extends BaseRender {
         }
     }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         (this._isPartOfStaticBatch) && (MeshRenderStaticBatchManager.instance._removeRenderSprite(this));
-        super.onDestroy();
+        super._onDestroy();
     }
 
     /**

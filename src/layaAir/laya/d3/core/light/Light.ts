@@ -265,16 +265,15 @@ export class Light extends Component {
     protected _removeFromLightQueue(): void {
     }
 
-    onEnable(): void {
+    protected _onEnable(): void {
         (this.lightmapBakedType !== LightMode.bakeOnly) && (this._addToScene());
     }
 
-    onDisable(): void {
+    protected _onDisable(): void {
         (this.lightmapBakedType !== LightMode.bakeOnly) && (this._removeFromScene());
     }
 
-    onDestroy(): void {
-        //TODO
+    protected _onDestroy() {
     }
 
     /**

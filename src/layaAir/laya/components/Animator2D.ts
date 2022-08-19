@@ -134,7 +134,7 @@ export class Animator2D extends Component {
 
         if (b) {
             this.owner.timer.frameLoop(1, this, this.onUpdate);
-            this.onEnable();
+            this._onEnable();
         } else {
             this.stop();
         }
@@ -373,7 +373,7 @@ export class Animator2D extends Component {
     }
 
 
-    onEnable() {
+    protected _onEnable(): void {
         if (this._isPlaying) {
             for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
                 if (this._controllerLayers[i].playOnWake) {
@@ -388,7 +388,7 @@ export class Animator2D extends Component {
         return controllerLayer.defaultState;
     }
 
-    onDestroy() {
+    protected _onDestroy() {
         for (var i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i].destroy();
         this._controllerLayers.length = 0;
