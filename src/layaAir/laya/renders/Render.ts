@@ -54,6 +54,9 @@ export class Render {
     static set customRenderEngine(engine:IRenderEngine){
         Render._customEngine = engine;
     }
+    static get customRenderEngine(){
+        return Render._customEngine;
+    }
 
 
     /**
