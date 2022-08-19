@@ -258,8 +258,7 @@ export class Component {
      * 如果没有重置，则不进行回收复用
 
      */
-    onReset?(): void {
-    }
+    onReset?(): void;
 
     /**
      * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
