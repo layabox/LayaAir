@@ -11,7 +11,6 @@ import { Resource } from "./Resource";
  * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
  */
 export class BaseTexture extends Resource {
-
     /**
      * @internal
      */
@@ -109,20 +108,20 @@ export class BaseTexture extends Resource {
         return this._texture.gammaCorrection;
     }
 
-    public set baseMipmapLevel(value:number){
+    public set baseMipmapLevel(value: number) {
         this._texture.baseMipmapLevel = value;
     }
 
-    public get baseMipmapLevel():number{
+    public get baseMipmapLevel(): number {
         return this._texture.baseMipmapLevel;
     }
 
-    public set maxMipmapLevel(value:number){
-        this._texture.baseMipmapLevel = value;
+    public set maxMipmapLevel(value: number) {
+        this._texture.maxMipmapLevel = value;
     }
 
-    public get maxMipmapLevel():number{
-        return this._texture.baseMipmapLevel;
+    public get maxMipmapLevel(): number {
+        return this._texture.maxMipmapLevel;
     }
 
     protected _gammaSpace: boolean = false;
@@ -191,6 +190,4 @@ export class BaseTexture extends Resource {
     protected _disposeResource(): void {
         this._texture.dispose();
     }
-
 }
-
