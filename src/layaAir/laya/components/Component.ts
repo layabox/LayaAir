@@ -12,23 +12,21 @@ export class Component {
     private _id: number;
     /**@private */
     private _hideFlags: number = 0;
+    /**@private */
+    private _enableState: boolean;
+    /** @internal */
+    _status: number = 0; //1-awaked,2-starting,3-started,4-destroyed
+
     /**
      * 获取所属Node节点。
      */
     owner: Node;
     /** @internal */
     _enabled: boolean = true;
+    /**
+     * 是否单例，即同一个节点只能添加此类型的脚本一次
+     */
     _singleton?: boolean = true;
-
-    /** @internal */
-    _awaked: boolean;
-    /**@internal */
-    _started: boolean;
-    /**@internal */
-    _enableState: boolean;
-    /** @internal*/
-    _destroyed: boolean;
-
     /**
      * 是否可以在IDE环境中运行
      */
@@ -77,15 +75,19 @@ export class Component {
         if (this._enabled != value) {
             this._enabled = value;
             if (this.owner)
-                this._setActive(value);
+                this._setActive(this.owner.activeInHierarchy);
         }
+    }
+
+    get awaked(): boolean {
+        return this._status > 0;
     }
 
     /**
      * 是否已经销毁 。
      */
     get destroyed(): boolean {
-        return this._destroyed;
+        return this._status == 4;
     }
     /**
      * @internal
@@ -98,15 +100,16 @@ export class Component {
      */
     protected _resetComp(): void {
         this._enabled = true;
-        this._awaked = false;
+        this._status = 0;
         this._enableState = false;
-        this._started = false;
         this.owner = null;
     }
 
     _setOwner(node: Node) {
+        if (this._status != 0) {
+            throw 'reuse a destroyed component';
+        }
         this.owner = node;
-        this._destroyed = false;
 
         if (this._isScript())
             node._setBit(NodeFlags.HAS_SCRIPT, true);
@@ -140,26 +143,24 @@ export class Component {
      */
     _setActive(value: boolean): void {
         if (value) {
-            if (!this._awaked) {
-                this._awaked = true;
+            if (this._status == 0) {
+                this._status = 1;
                 this.onAwake?.();
             }
-            if (this._enabled && !this._enableState && this.owner.activeInHierarchy) {
-                let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-                if (!this._started && this.onStart) {
-                    this._started = true;
-                    driver._toStarts.push(this);
-                }
-
-                driver.add(this);
+            if (this._enabled && !this._enableState) {
                 this._enableState = true;
+
+                let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
+                driver.add(this);
 
                 if (this._isScript())
                     this.setupScript();
+
                 this.onEnable?.();
             }
         } else if (this._enableState) {
             this._enableState = false;
+
             let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
             driver.remove(this);
 
@@ -176,7 +177,7 @@ export class Component {
      * 销毁组件
      */
     destroy(): void {
-        if (this._destroyed)
+        if (this._status == 4)
             return;
 
         if (this.owner)
@@ -197,11 +198,11 @@ export class Component {
             return;
         }
 
-        this._destroyed = true;
         this._setActive(false);
+        this._status = 4;
 
         let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-        driver._toDestroys.push(this);
+        driver._toDestroys.add(this);
     }
 
     /**

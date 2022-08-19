@@ -1,6 +1,5 @@
 import { ILaya } from "../../ILaya";
 import { Component } from "../components/Component";
-import { IPhysics } from "./IPhysics";
 import { RigidBody } from "./RigidBody";
 
 /**
@@ -56,7 +55,7 @@ export class ColliderBase extends Component {
 
     private _checkRigidBody(): void {
         if (!this.rigidBody) {
-            var comp: RigidBody = this.owner.getComponent(IPhysics.RigidBody);
+            var comp: RigidBody = this.owner.getComponent(RigidBody);
             if (comp) {
                 this.rigidBody = comp;
                 this.refresh();
