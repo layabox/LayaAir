@@ -34,6 +34,7 @@ export class InputManager {
     static isTextInputting = false;
 
     protected _stage: Stage;
+    protected _mouseTouch: TouchInfo;
     protected _touches: TouchInfo[];
     protected _touchPool: TouchInfo[];
     protected _touchTarget: Node;
@@ -50,6 +51,7 @@ export class InputManager {
     constructor() {
         this._touches = [];
         this._touchPool = [];
+        this._mouseTouch = new TouchInfo(this._touches);
         this._pressKeys = new Set();
         this._keyEvent = new Event();
         this._keyEvent._touches = this._touches;
@@ -176,7 +178,7 @@ export class InputManager {
         this._nativeEvent = ev;
 
         //console.log("handleMouse", type);
-        let touch: TouchInfo = this.getTouch(0, true);
+        let touch: TouchInfo = this._mouseTouch;
 
         _tempPoint.setTo(ev.pageX || ev.clientX, ev.pageY || ev.clientY);
         if (this._stage._canvasTransform)
@@ -209,6 +211,7 @@ export class InputManager {
         if (type == 0) {
             if (!touch.began) {
                 touch.begin();
+                this._touches[0] = touch;
 
                 if (InputManager.mouseEventsEnabled) {
                     this.handleFocus();
@@ -223,6 +226,7 @@ export class InputManager {
         else if (type == 1) {
             if (touch.began) {
                 touch.end();
+                this._touches.length = 0;
 
                 if (InputManager.mouseEventsEnabled) {
                     if (ev.button == 0)
@@ -353,7 +357,7 @@ export class InputManager {
         if (touch || !shouldCreate)
             return touch;
 
-        touch = this._touchPool.length > 0 ? this._touchPool.pop() : new TouchInfo();
+        touch = this._touchPool.length > 0 ? this._touchPool.pop() : new TouchInfo(this._touches);
         touch.touchId = touchId;
         this._touches.push(touch);
 
@@ -604,12 +608,12 @@ class TouchInfo implements ITouchInfo {
     private lastClickPos: Point;
     private lastClickButton: number;
 
-    constructor() {
+    constructor(touches: Array<TouchInfo>) {
         this.downPos = new Point();
         this.lastClickPos = new Point();
         this.downTargets = [];
         this.event = new Event();
-        this.event._touches = (<any>_inst)._touches;
+        this.event._touches = touches;
         this.pos = this.event.touchPos;
         this.reset();
     }
@@ -696,6 +700,7 @@ class TouchInfo implements ITouchInfo {
 
     reset() {
         this.pos.setTo(0, 0);
+        this.touchId = 0;
         this.clickCount = 0;
         this.lastClickTime = 0;
         this.began = false;
