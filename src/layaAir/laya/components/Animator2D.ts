@@ -93,10 +93,21 @@ export class Animator2D extends Component {
             switch (controllerLayer._playType) {
                 case 0:
                     var animatorState = playStateInfo._currentState!;
-                    var clip = animatorState._clip!;
                     var speed = this._speed * animatorState.speed;
                     var finish = playStateInfo._finish;
-                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed);
+
+                    var loop = animatorState.loop;
+                    if (-1 >= loop) {
+                        var clip = animatorState._clip!;
+                        if (clip.islooping) {
+                            loop = 0;
+                        } else {
+                            loop = 1;
+                        }
+                    }
+
+
+                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, loop);
                     if (needRender) {
                         this._updateClipDatas(animatorState, addtive, playStateInfo);
                         this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i == 0, controllerLayer);//多层动画混合时即使动画停止也要设置数据
@@ -273,7 +284,7 @@ export class Animator2D extends Component {
     }
 
 
-    private _updatePlayer(animatorState: AnimatorState2D, playState: AnimatorPlayState2D, elapsedTime: number): void {
+    private _updatePlayer(animatorState: AnimatorState2D, playState: AnimatorPlayState2D, elapsedTime: number, loop: number): void {
 
         var clipDuration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
         var lastElapsedTime = playState._elapsedTime;
@@ -319,7 +330,7 @@ export class Animator2D extends Component {
 
 
         if (isPlayFin) {
-            if (0 != animatorState.loop && playState._playNum >= animatorState.loop) {
+            if (0 != loop && playState._playNum >= loop) {
                 playState._finish = true;
             } else {
                 playState._elapsedTime = 0;
