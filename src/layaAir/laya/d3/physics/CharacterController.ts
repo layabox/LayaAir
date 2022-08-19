@@ -216,19 +216,19 @@ export class CharacterController extends PhysicsComponent {
         ILaya3D.Physics3D._bullet.btKinematicCharacterController_setJumpAxis(this._btKinematicCharacter, x, y, z);
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         var bt: any = ILaya3D.Physics3D._bullet;
         var ghostObject: number = bt.btPairCachingGhostObject_create();
         bt.btCollisionObject_setUserIndex(ghostObject, this.id);
         bt.btCollisionObject_setCollisionFlags(ghostObject, PhysicsComponent.COLLISIONFLAGS_CHARACTER_OBJECT);
         this._btColliderObject = ghostObject;
         (this._colliderShape) && (this._constructCharacter());
-        super.onAdded();
+        super._onAdded();
     }
     
-    onDestroy(): void {
+    protected _onDestroy() {
         ILaya3D.Physics3D._bullet.btKinematicCharacterController_destroy(this._btKinematicCharacter);
-        super.onDestroy();
+        super._onDestroy();
         this._btKinematicCharacter = null;
     }
 

@@ -31,7 +31,7 @@ export class TrailRenderer extends BaseRender {
 
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         this._trailFilter = new TrailFilter(this);
     }
 
@@ -139,8 +139,8 @@ export class TrailRenderer extends BaseRender {
         this._trailFilter.alignment = value;
     }
 
-    onEnable(): void {
-        super.onEnable();
+    protected _onEnable(): void {
+        super._onEnable();
 
         (this.owner as Sprite3D)._transform.position.cloneTo(this._trailFilter._lastPosition);//激活时需要重置上次位置
     }
@@ -184,9 +184,9 @@ export class TrailRenderer extends BaseRender {
     /**
      * @internal
      */
-    onDestroy(): void {
+    protected _onDestroy() {
         this._trailFilter.destroy();
-        super.onDestroy();
+        super._onDestroy();
     }
 
     _cloneTo(dest: Component): void {

@@ -120,14 +120,13 @@ export class Animator extends Component {
         return this._controllerLayers;
     }
 
-
-    private _cachContollerLayer:Array<AnimatorControllerLayer>;
+    /** @private*/
+    private _cacheContollerLayers: ReadonlyArray<AnimatorControllerLayer>;
 
     //@internal
     public set controllerLayers(layers: ReadonlyArray<AnimatorControllerLayer>) {
-        if(!this._enabled||!this._awaked){
-            this._cachContollerLayer = [];
-            this._cachContollerLayer.push(...layers);
+        if (!this.awaked) {
+            this._cacheContollerLayers = layers;
             return;
         }
         if (this._controllerLayers === layers)
@@ -149,8 +148,8 @@ export class Animator extends Component {
                 this.addControllerLayer(layer);
         }
 
-        
-        
+
+
 
         this._controllerLayers.length = 0;
         this._controllerLayers.push(...layers);
@@ -183,13 +182,13 @@ export class Animator extends Component {
             var property = propertyOwner;
             for (var i = 0, n = node.propertyCount; i < n; i++) {
                 property = property[node.getPropertyByIndex(i)];
-                if(property instanceof Material){
+                if (property instanceof Material) {
                     mat = true
                 }
                 if (!property)
                     break;
             }
-            
+
             keyframeNodeOwner = this._keyframeNodeOwnerMap[fullPath] = new KeyframeNodeOwner();
             keyframeNodeOwner.isMaterial = mat;
             keyframeNodeOwner.fullPath = fullPath;
@@ -571,11 +570,11 @@ export class Animator extends Component {
                     defaultValue.b = nodeOwner.defaultValue.b + data.z;
                     defaultValue.a = nodeOwner.defaultValue.a + data.w;
                 }
-                else{
-//data.cloneTo(defaultValue);
-                    defaultValue.setValue(data.x,data.y,data.z,data.w);
+                else {
+                    //data.cloneTo(defaultValue);
+                    defaultValue.setValue(data.x, data.y, data.z, data.w);
                 }
-                    
+
             } else {
                 if (additive) {
                     defaultValue.r = nodeOwner.defaultValue.r + weight * (data.x);
@@ -930,10 +929,10 @@ export class Animator extends Component {
         var additive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
         var weight: number = controllerLayer.defaultWeight;
 
-        var destRealtimeDatas: Array<number | Vector3 | Quaternion > = destState._realtimeDatas;
+        var destRealtimeDatas: Array<number | Vector3 | Quaternion> = destState._realtimeDatas;
         var destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
         var destNodeOwners: KeyframeNodeOwner[] = destState._nodeOwners;
-        var srcRealtimeDatas: Array<number | Vector3 | Quaternion > = srcState._realtimeDatas;
+        var srcRealtimeDatas: Array<number | Vector3 | Quaternion> = srcState._realtimeDatas;
         var srcDataIndices: number[] = controllerLayer._srcCrossClipNodeIndices;
         var srcNodeOwners: KeyframeNodeOwner[] = srcState._nodeOwners;
 
@@ -960,7 +959,7 @@ export class Animator extends Component {
         var ownerCount: number = controllerLayer._crossNodesOwnersCount;
         var additive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
         var weight: number = controllerLayer.defaultWeight;
-        var destRealtimeDatas: Array<number | Vector3 | Quaternion > = destState._realtimeDatas;
+        var destRealtimeDatas: Array<number | Vector3 | Quaternion> = destState._realtimeDatas;
         var destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
 
         for (var i: number = 0; i < ownerCount; i++) {
@@ -1037,23 +1036,25 @@ export class Animator extends Component {
         }
     }
 
-
-    onDestroy(): void {
-        for (let i = 0, n = this._controllerLayers.length; i < n; i++)
-            this._controllerLayers[i]._removeReference();
+    protected _onAwake(): void {
+        if (this._cacheContollerLayers) {
+            this.controllerLayers = this._cacheContollerLayers;
+            this._cacheContollerLayers = null;
+        }
     }
 
-    onEnable(): void {
-        if(this._cachContollerLayer){
-            this.controllerLayers = this._cachContollerLayer;
-        }
+    protected _onEnable(): void {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
                 let defaultClip: AnimatorState = this.getDefaultState(i);
                 (defaultClip) && (this.play(null, i, 0));
             }
         }
-        
+    }
+
+    protected _onDestroy() {
+        for (let i = 0, n = this._controllerLayers.length; i < n; i++)
+            this._controllerLayers[i]._removeReference();
     }
 
     private _applyUpdateMode(delta: number): number {

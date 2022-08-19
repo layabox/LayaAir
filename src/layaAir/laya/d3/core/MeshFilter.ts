@@ -22,7 +22,7 @@ export class MeshFilter extends Component {
     /**
      * @internal
      */
-    onEnable(): void {
+    protected _onEnable(): void {
         const render = this.owner.getComponent(MeshRenderer) as MeshRenderer;
         render && render._enabled && render._onMeshChange(this._sharedMesh);
     }
@@ -30,7 +30,7 @@ export class MeshFilter extends Component {
     /**
      * @internal
      */
-    onDisable(): void {
+    protected _onDisable(): void {
         const render = this.owner.getComponent(MeshRenderer) as MeshRenderer;
         render && render._enabled && render._onMeshChange(null);
     }
@@ -107,7 +107,7 @@ export class MeshFilter extends Component {
     // 	return define;
     // }
 
-    onDestroy(): void {
+    protected _onDestroy() {
         (this._sharedMesh) && (this._sharedMesh._removeReference(), this._sharedMesh = null);
     }
 

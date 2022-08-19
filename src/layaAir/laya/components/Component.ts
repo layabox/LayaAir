@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
 import { NodeFlags } from "../Const";
 import { Node } from "../display/Node"
 import { Pool } from "../utils/Pool"
@@ -12,23 +13,21 @@ export class Component {
     private _id: number;
     /**@private */
     private _hideFlags: number = 0;
+    /**@private */
+    private _enableState: boolean;
+    /** @internal */
+    _status: number = 0; //1-awaked,2-starting,3-started,4-destroyed
+
     /**
      * 获取所属Node节点。
      */
     owner: Node;
     /** @internal */
     _enabled: boolean = true;
+    /**
+     * 是否单例，即同一个节点只能添加此类型的脚本一次
+     */
     _singleton?: boolean = true;
-
-    /** @internal */
-    _awaked: boolean;
-    /**@internal */
-    _started: boolean;
-    /**@internal */
-    _enableState: boolean;
-    /** @internal*/
-    _destroyed: boolean;
-
     /**
      * 是否可以在IDE环境中运行
      */
@@ -77,15 +76,19 @@ export class Component {
         if (this._enabled != value) {
             this._enabled = value;
             if (this.owner)
-                this._setActive(value);
+                this._setActive(this.owner.activeInHierarchy);
         }
+    }
+
+    get awaked(): boolean {
+        return this._status > 0;
     }
 
     /**
      * 是否已经销毁 。
      */
     get destroyed(): boolean {
-        return this._destroyed;
+        return this._status == 4;
     }
     /**
      * @internal
@@ -98,20 +101,58 @@ export class Component {
      */
     protected _resetComp(): void {
         this._enabled = true;
-        this._awaked = false;
+        this._status = 0;
         this._enableState = false;
-        this._started = false;
         this.owner = null;
     }
 
     _setOwner(node: Node) {
+        if (this._status != 0) {
+            throw 'reuse a destroyed component';
+        }
         this.owner = node;
-        this._destroyed = false;
 
         if (this._isScript())
             node._setBit(NodeFlags.HAS_SCRIPT, true);
 
-        this.onAdded?.();
+        this._onAdded();
+        this.onAdded();
+    }
+
+    /**
+     * 被添加到节点后调用，可根据需要重写此方法
+     * @internal
+     */
+    protected _onAdded(): void {
+    }
+
+    /**
+   * 被激活后调用，可根据需要重写此方法
+   * @internal
+   */
+    protected _onAwake(): void {
+    }
+
+    /**
+     * 被激活后调用，可根据需要重写此方法
+     * @internal
+     */
+    protected _onEnable(): void {
+    }
+
+    /**
+    * 被禁用时调用，可根据需要重写此方法
+    * @internal
+    * 销毁组件
+    */
+    protected _onDisable(): void {
+    }
+
+    /**
+     * 被销毁时调用，可根据需要重写此方法
+     * @internal
+     */
+    protected _onDestroy(): void {
     }
 
     /**
@@ -140,32 +181,33 @@ export class Component {
      */
     _setActive(value: boolean): void {
         if (value) {
-            if (!this._awaked) {
-                this._awaked = true;
-                this.onAwake?.();
+            if (this._status == 0) {
+                this._status = 1;
+                this._onAwake();
+                this.onAwake();
             }
-            if (this._enabled && !this._enableState && this.owner.activeInHierarchy) {
-                let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-                if (!this._started && this.onStart) {
-                    this._started = true;
-                    driver._toStarts.push(this);
-                }
-
-                driver.add(this);
+            if (this._enabled && !this._enableState) {
                 this._enableState = true;
 
-                if (this._isScript())
+                let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
+                driver.add(this);
+
+                if (this._isScript() && (LayaEnv.isPlaying || this.runInEditor))
                     this.setupScript();
-                this.onEnable?.();
+
+                this._onEnable();
+                this.onEnable();
             }
         } else if (this._enableState) {
             this._enableState = false;
+
             let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
             driver.remove(this);
 
             this.owner.offAllCaller(this);
 
-            this.onDisable?.();
+            this._onDisable();
+            this.onDisable();
         }
     }
 
@@ -176,7 +218,7 @@ export class Component {
      * 销毁组件
      */
     destroy(): void {
-        if (this._destroyed)
+        if (this._status == 4)
             return;
 
         if (this.owner)
@@ -188,7 +230,8 @@ export class Component {
      */
     _destroy(second?: boolean): void {
         if (second) {
-            this.onDestroy?.();
+            this._onDestroy();
+            this.onDestroy();
             if (this.onReset) {
                 this.onReset();
                 this._resetComp();
@@ -197,17 +240,18 @@ export class Component {
             return;
         }
 
-        this._destroyed = true;
         this._setActive(false);
+        this._status = 4;
 
         let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-        driver._toDestroys.push(this);
+        driver._toDestroys.add(this);
     }
 
     /**
      * 被添加到节点后调用，和Awake不同的是即使节点未激活onAdded也会调用。
      */
-    onAdded?(): void;
+    onAdded(): void {
+    }
 
     /**
      * 重置组件参数到默认值，如果实现了这个函数，则组件会被重置并且自动回收到对象池，方便下次复用
@@ -219,12 +263,14 @@ export class Component {
     /**
      * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
      */
-    onAwake?(): void;
+    onAwake(): void {
+    }
 
     /**
      * 组件被启用后执行，比如节点被添加到舞台后
      */
-    onEnable?(): void;
+    onEnable(): void {
+    }
 
     /**
      * 第一次执行update之前执行，只会执行一次
@@ -254,10 +300,12 @@ export class Component {
     /**
      * 组件被禁用时执行，比如从节点从舞台移除后
      */
-    onDisable?(): void;
+    onDisable(): void {
+    }
 
     /**
      * 手动调用节点销毁时执行
      */
-    onDestroy?(): void;
+    onDestroy(): void {
+    }
 }

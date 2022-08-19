@@ -24,8 +24,8 @@ export class MouseJoint extends JointBase {
     /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     private _dampingRatio: number = 0.7;
 
-    onEnable(): void {
-        super.onEnable();
+    protected _onEnable(): void {
+        super._onEnable();
         this.owner.on(Event.MOUSE_DOWN, this, this.onMouseDown);
     }
 
@@ -68,15 +68,15 @@ export class MouseJoint extends JointBase {
         ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp);
         ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp);
 
-        super.onDisable();
+        super._onDisable();
     }
 
     private onMouseMove(): void {
         this._joint.SetTarget(new (<any>window).box2d.b2Vec2(Physics.I.worldRoot.mouseX / Physics.PIXEL_RATIO, Physics.I.worldRoot.mouseY / Physics.PIXEL_RATIO));
     }
 
-    onDisable(): void {
-        super.onDisable();
+    protected _onDisable(): void {
+        super._onDisable();
 
         this.owner.off(Event.MOUSE_DOWN, this, this.onMouseDown);
     }

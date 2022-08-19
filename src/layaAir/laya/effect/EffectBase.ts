@@ -25,7 +25,7 @@ export class EffectBase extends Component {
     protected _comlete: Handler;
     protected _tween: Tween;
 
-    onAwake(): void {
+    protected _onAwake(): void {
         this.target = this.target || (<Sprite>this.owner);
         if (this.autoDestroyAtComplete) 
             this._comlete = Handler.create(this.target, this.target.destroy, null, false);

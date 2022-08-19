@@ -121,7 +121,6 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView{
-        //TODO
-        return null;
+        return this._native.getRenderTextureData(internalTex, x, y, width, height);
     }
 }

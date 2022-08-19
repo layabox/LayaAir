@@ -1,9 +1,7 @@
-import { RigidBody } from "./RigidBody";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
 import { Point } from "../maths/Point"
-import { IPhysics } from "./IPhysics";
 import { DestructionListener } from "./DestructionListener";
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
@@ -53,8 +51,6 @@ export class Physics extends EventDispatcher {
      */
     static enable(options: any = null): void {
         Physics.I.start(options);
-        IPhysics.RigidBody = RigidBody;
-        IPhysics.Physics = this;
     }
 
     /**

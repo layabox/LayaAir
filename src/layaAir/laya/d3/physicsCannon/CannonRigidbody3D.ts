@@ -261,14 +261,14 @@ export class CannonRigidbody3D extends CannonPhysicsCollider {
         this._innerDerivePhysicsTransformation(this.btColliderObject, force);
     }
 
-    onAdded(): void {
+    protected _onAdded(): void {
         var btRigid: CANNON.Body = new CANNON.Body();
         btRigid.material = new CANNON.Material();
         btRigid.layaID = this.id;
         btRigid.collisionFilterGroup = this.collisionGroup;
         btRigid.collisionFilterMask = this._canCollideWith;
         this._btColliderObject = btRigid;
-        super.onAdded();
+        super._onAdded();
         this.mass = this._mass;
         this.linearDamping = this._linearDamping;
         this.angularDamping = this._angularDamping;
@@ -310,8 +310,8 @@ export class CannonRigidbody3D extends CannonPhysicsCollider {
         this._parseShape(data.shapes);
     }
 
-    onDestroy(): void {
-        super.onDestroy();
+    protected _onDestroy() {
+        super._onDestroy();
         this._gravity = null;
         this._totalTorque = null;
         this._linearVelocity = null;

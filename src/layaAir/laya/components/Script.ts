@@ -83,21 +83,6 @@ export class Script extends Component {
     onJointBreak?(): void;
 
     /**
-     * 开始碰撞时执行
-     */
-    onTrigger2DEnter?(other: ColliderBase, self: ColliderBase, contact: any): void;
-
-    /**
-     * 持续碰撞时执行
-     */
-    onTrigger2DStay?(other: ColliderBase, self: ColliderBase, contact: any): void;
-
-    /**
-     * 结束碰撞时执行
-     */
-    onTrigger2DExit?(other: ColliderBase, self: ColliderBase, contact: any): void;
-
-    /**
      * 鼠标按下时执行
      */
     onMouseDown?(evt: Event): void;

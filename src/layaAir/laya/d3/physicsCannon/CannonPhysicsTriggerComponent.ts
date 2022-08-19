@@ -43,8 +43,8 @@ export class CannonPhysicsTriggerComponent extends CannonPhysicsComponent {
         super(collisionGroup, canCollideWith);
     }
 
-    onAdded(): void {
-        super.onAdded();
+    protected _onAdded(): void {
+        super._onAdded();
         this.isTrigger = this._isTrigger;
     }
 
