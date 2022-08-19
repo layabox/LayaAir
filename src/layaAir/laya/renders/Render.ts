@@ -50,6 +50,11 @@ export class Render {
         Render._loopFunction = loopFun;
     }
 
+    private static _customEngine:IRenderEngine;
+    static set customRenderEngine(engine:IRenderEngine){
+        Render._customEngine = engine;
+    }
+
 
     /**
      * 初始化引擎。
@@ -134,26 +139,33 @@ export class Render {
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
 
         let engine: IRenderEngine;
-        if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
-            engine = new NativeWebGLEngine(glConfig, webglMode);
-            engine.initRenderEngine(Render._mainCanvas.source);
-            WebGL._isWebGL2 = engine.isWebGL2;
-            new LayaGL();
-        }
-        else {
-            engine = new WebGLEngine(glConfig, webglMode);
-            engine.initRenderEngine(Render._mainCanvas.source);
-            var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
-            if (Config.printWebglOrder)
-                this._replaceWebglcall(gl);
-
-            if (!gl)
-                return false;
-            if (gl) {
+        if(!Render.customRenderEngine){
+            if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
+                engine = new NativeWebGLEngine(glConfig, webglMode);
+                engine.initRenderEngine(Render._mainCanvas.source);
                 WebGL._isWebGL2 = engine.isWebGL2;
                 new LayaGL();
             }
+            else {
+                engine = new WebGLEngine(glConfig, webglMode);
+                engine.initRenderEngine(Render._mainCanvas.source);
+                var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
+                if (Config.printWebglOrder)
+                    this._replaceWebglcall(gl);
+    
+                if (!gl)
+                    return false;
+                if (gl) {
+                    WebGL._isWebGL2 = engine.isWebGL2;
+                    new LayaGL();
+                }
+            }
         }
+        else{
+            engine = Render.customRenderEngine;
+            engine.initRenderEngine(Render._mainCanvas.source);
+        }
+        
         LayaGL.renderEngine = engine;
         //LayaGL.instance = gl;
         //native TODO
