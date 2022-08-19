@@ -21,8 +21,8 @@ export class AnimatorState2D implements IClone {
     /**动作播放结束时间。*/
     clipEnd = 1.0;
 
-    /** 动画循环次数，1为播放一次，2为播放2次，0为无限循环*/
-    loop = 1.0;
+    /** 动画循环次数，-1或者小于-1为使用clip的循环状态，1为播放一次，2为播放2次，0为无限循环*/
+    loop = -1;
     /**是否为一次正播放，一次倒播放模式 */
     yoyo = false;
 
