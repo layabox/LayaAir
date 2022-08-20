@@ -486,6 +486,34 @@ export class ShaderData implements IClone {
 		}
 	}
 
+	getShaderData(uniformIndex: number, type: ShaderDataType) {
+		switch (type) {
+			case ShaderDataType.Int:
+				return this.getInt(uniformIndex);
+			case ShaderDataType.Bool:
+				return this.getBool(uniformIndex);
+			case ShaderDataType.Float:
+				return this.getNumber(uniformIndex);
+			case ShaderDataType.Vector2:
+				return this.getVector2(uniformIndex);
+			case ShaderDataType.Vector3:
+				return this.getVector3(uniformIndex);
+			case ShaderDataType.Vector4:
+				return this.getVector(uniformIndex);
+			case ShaderDataType.Color:
+				return this.getColor(uniformIndex);
+			case ShaderDataType.Matrix4x4:
+				return this.getMatrix4x4(uniformIndex);
+			case ShaderDataType.Texture2D:
+			case ShaderDataType.TextureCube:
+				return this.getTexture(uniformIndex);
+			case ShaderDataType.Buffer:
+				return this.getBuffer(uniformIndex);
+			default:
+				throw "unkone shader data type.";
+		}
+	}
+
 	/**
 	 * get shader data
 	 * @deprecated
