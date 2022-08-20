@@ -14,9 +14,11 @@ void main()
 {
     Vertex vertex;
     getVertexParams(vertex);
-
-#ifdef UV
+	
+#if defined(UV)
     v_Texcoord0 = transformUV(vertex.texCoord0, u_TilingOffset);
+#else
+	v_Texcoord0 = vec2(0);
 #endif // UV
 
 #if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
