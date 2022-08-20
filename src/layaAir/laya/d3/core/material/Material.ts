@@ -793,6 +793,15 @@ export class Material extends Resource implements IClone {
         this.setShaderDataByIndex(uniformIndex, type, value);
     }
 
+    getShaderData(name:string,type:ShaderDataType):ShaderDataItem{
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getShaderDataByIndex(uniformIndex, type);
+    }
+
+    getShaderDataByIndex(uniformIndex: number, type: ShaderDataType):ShaderDataItem{
+        return this._shaderValues.getShaderData(uniformIndex, type);
+    }
+
     /**
      * 克隆。
      * @param	destObject 克隆源。

@@ -1,3 +1,5 @@
+import { ClassUtils } from "./ClassUtils";
+
 /**
  * <p> <code>Pool</code> 是对象池类，用于对象的存储、重复使用。</p>
  * <p>合理使用对象池，可以有效减少对象创建的开销，避免频繁的垃圾回收，从而优化游戏流畅度。</p>
@@ -52,11 +54,12 @@ export class Pool {
     /**
      * 返回类的唯一标识
      */
-    private static _getClassSign(cla: any): string {
+    private static _getClassSign(cla:any): string {
         var className = cla["__className"] || cla["_$gid"];
         if (!className) {
             cla["_$gid"] = className = Pool._CLSID + "";
             Pool._CLSID++;
+            ClassUtils.regClass(cla.name,cla);
         }
         return className;
     }

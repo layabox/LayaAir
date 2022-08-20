@@ -697,6 +697,30 @@ export class Node extends EventDispatcher {
     }
 
     /**
+    * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
+    * 此方法为虚方法，使用时重写覆盖即可
+    */
+    onAwake(): void {
+        //this.name  && trace("onAwake node ", this.name);
+    }
+
+    /**
+     * 组件被启用后执行，比如节点被添加到舞台后
+     * 此方法为虚方法，使用时重写覆盖即可
+     */
+    onEnable(): void {
+        //this.name  && trace("onEnable node ", this.name);
+    }
+
+    /**
+     * 组件被禁用时执行，比如从节点从舞台移除后
+     * 此方法为虚方法，使用时重写覆盖即可
+     */
+    onDisable(): void {
+        //trace("onDisable node", this.name);
+    }
+
+    /**
      * @internal
      */
     _parse(data: any, spriteMap: any): void {
@@ -728,22 +752,6 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onAwake(): void {
-        //this.name  && trace("onAwake node ", this.name);
-    }
-
-    /**
-     * 组件被启用后执行，比如节点被添加到舞台后
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onEnable(): void {
-        //this.name  && trace("onEnable node ", this.name);
-    }
-
-    /**
      * @internal
      */
     _processActive(): void {
@@ -760,7 +768,10 @@ export class Node extends EventDispatcher {
         if (this._components) {
             for (let i = 0, n = this._components.length; i < n; i++) {
                 let comp = this._components[i];
-                (comp._enabled) && (activeChangeScripts.push(comp));
+                if (comp._isScript())
+                    (comp._enabled) && (activeChangeScripts.push(comp));
+                else
+                    comp._setActive(true);
             }
         }
 
@@ -805,7 +816,10 @@ export class Node extends EventDispatcher {
         if (this._components) {
             for (let i = 0, n = this._components.length; i < n; i++) {
                 let comp = this._components[i];
-                comp._enabled && (activeChangeScripts.push(comp));
+                if (comp._isScript())
+                    comp._enabled && (activeChangeScripts.push(comp));
+                else
+                    comp._setActive(false);
             }
         }
         this._setBit(NodeFlags.ACTIVE_INHIERARCHY, false);
@@ -827,14 +841,6 @@ export class Node extends EventDispatcher {
             comp.owner && comp._setActive(false);
         }
         arr.length = 0;
-    }
-
-    /**
-     * 组件被禁用时执行，比如从节点从舞台移除后
-     * 此方法为虚方法，使用时重写覆盖即可
-     */
-    onDisable(): void {
-        //trace("onDisable node", this.name);
     }
 
     /**
