@@ -175,3 +175,13 @@ c("Laya.ColorOverLifetime", ColorOverLifetime);
 c("Laya.RotationOverLifetime", RotationOverLifetime);
 c("Laya.SizeOverLifetime", SizeOverLifetime);
 c("Laya.VelocityOverLifetime", VelocityOverLifetime);
+
+
+c("DirectionLight", DirectionLight);
+c("DirectionLightCom", DirectionLightCom);
+c("MeshRenderer", MeshRenderer);
+c("MeshFilter", MeshFilter);
+c("MeshRenderer", MeshRenderer);
+c("SkinnedMeshRenderer", SkinnedMeshRenderer);
+c("SimpleSkinnedMeshRenderer", SimpleSkinnedMeshRenderer);
+c("SkyRenderer", SkyRenderer);
