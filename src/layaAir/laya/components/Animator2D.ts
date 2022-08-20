@@ -7,6 +7,7 @@ import { AnimatorState2D } from "./AnimatorState2D";
 import { Component } from "./Component";
 import { KeyframeNode2D } from "./KeyframeNode2D";
 import { Node } from "../../laya/display/Node";
+import { ClassUtils } from "../utils/ClassUtils";
 
 export class Animator2D extends Component {
     private _speed = 1;
@@ -134,7 +135,7 @@ export class Animator2D extends Component {
 
         if (b) {
             this.owner.timer.frameLoop(1, this, this.onUpdate);
-            this._onEnable();
+            this.onEnable();
         } else {
             this.stop();
         }
@@ -194,33 +195,45 @@ export class Animator2D extends Component {
             o && this._applyFloat(o, additive, weight, isFirstLayer, realtimeDatas[i]);
         }
     }
-    private _applyFloat(o: { ower: Node, pro: { name: string, defVal: any }[] }, additive: boolean, weight: number, isFirstLayer: boolean, data: string | number | boolean): void {
+    private _applyFloat(o: { ower: Node, pro?: { ower: any, key: string, defVal: any } }, additive: boolean, weight: number, isFirstLayer: boolean, data: string | number | boolean): void {
         var pro = o.pro;
-        for (var i = pro.length - 1; i >= 0; i--) {
-
+        if (pro && pro.ower) {
             if (additive && "number" == typeof data) {
-                (o.ower as any)[pro[i].name] = pro[i].defVal + data;
-            } else
-                (o.ower as any)[pro[i].name] = data;
+                pro.ower[pro.key] = pro.defVal + data;
+            } else {
+                pro.ower[pro.key] = data;
+            }
         }
+
+
+        // for (var i = pro.length - 1; i >= 0; i--) {
+
+        //     if (additive && "number" == typeof data) {
+        //         (o.ower as any)[pro[i].name] = pro[i].defVal + data;
+        //     } else
+        //         (o.ower as any)[pro[i].name] = data;
+        // }
     }
 
     private resetDefOwerVal() {
         if (this._ownerMap) {
             this._ownerMap.forEach((val, key) => {
-                var ower = val.ower;
                 var pro = val.pro;
-                for (var i = pro.length - 1; i >= 0; i--) {
-                    pro[i].defVal = (ower as any)[pro[i].name]
+                if (pro.ower) {
+                    pro.defVal = pro.ower[pro.key];
                 }
+
+                // for (var i = pro.length - 1; i >= 0; i--) {
+                //     pro[i].defVal = (ower as any)[pro[i].name]
+                // }
             })
         }
     }
 
 
-    private _ownerMap: Map<KeyframeNode2D, { ower: Node, pro: { name: string, defVal: any }[] }>
+    private _ownerMap: Map<KeyframeNode2D, { ower: Node, pro?: { ower: any, key: string, defVal: any } }>
     private getOwner(node: KeyframeNode2D) {
-        var ret: { ower: Node, pro: { name: string, defVal: any }[] };
+        var ret: { ower: Node, pro?: { ower: any, key: string, defVal: any } };
         if (this._ownerMap) {
             ret = this._ownerMap.get(node);
             if (ret) {
@@ -242,18 +255,41 @@ export class Animator2D extends Component {
             }
         }
 
-        ret = { ower: property, pro: [] };
+        ret = { ower: property };
 
         if (property) {
+            var pobj: any = property;
             var propertyCount = node.propertyCount;
-            for (var i = 0; i < propertyCount; i++) {
-                //var fun: Function = (property as any)[node.getPropertyByIndex(i)];
-                //ret.pro.push(node.getPropertyByIndex(i));
-                var pname = node.getPropertyByIndex(i);
-                ret.pro.push({ name: pname, defVal: (property as any)[pname] });
 
+            if (1 == propertyCount) {
+                var pname = node.getPropertyByIndex(0);
+                ret.pro = { ower: property, key: pname, defVal: (property as any)[pname] };
+            } else {
+                for (var i = 0; i < propertyCount; i++) {
+                    var pname = node.getPropertyByIndex(i);
+
+                    if (i == propertyCount - 1 || null == pobj) {
+                        ret.pro = { ower: pobj, key: pname, defVal: pobj ? pobj[pname] : null }
+                        break;
+                    }
+
+                    if (null == pobj[pname] && property == pobj) {
+                        //有可能是组件,查找组件逻辑
+                        pobj = null;
+                        var classObj = ClassUtils.getClass(pname);
+                        if(!classObj){
+                            classObj = ClassUtils.getClass("Laya." + pname);
+                        }
+                        if(classObj){
+                            pobj = property.getComponent(classObj);
+                        }
+
+                    } else {
+                        pobj = pobj[pname];
+                    }
+                }
             }
-            //console.log(node.getPropertyByIndex(i));
+
         }
         if (null == this._ownerMap) {
             this._ownerMap = new Map();
@@ -373,7 +409,7 @@ export class Animator2D extends Component {
     }
 
 
-    protected _onEnable(): void {
+    onEnable() {
         if (this._isPlaying) {
             for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
                 if (this._controllerLayers[i].playOnWake) {
@@ -388,7 +424,7 @@ export class Animator2D extends Component {
         return controllerLayer.defaultState;
     }
 
-    protected _onDestroy() {
+    onDestroy() {
         for (var i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i].destroy();
         this._controllerLayers.length = 0;
