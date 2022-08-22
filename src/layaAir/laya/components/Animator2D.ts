@@ -247,7 +247,7 @@ export class Animator2D extends Component {
         for (var j = 0, m = node.ownerPathCount; j < m; j++) {
             var ownPat = node.getOwnerPathByIndex(j);
             if ("" == ownPat) {
-                break;
+                continue;
             } else {
                 property = property.getChildByName(ownPat);
                 if (!property)
@@ -277,10 +277,10 @@ export class Animator2D extends Component {
                         //有可能是组件,查找组件逻辑
                         pobj = null;
                         var classObj = ClassUtils.getClass(pname);
-                        if(!classObj){
+                        if (!classObj) {
                             classObj = ClassUtils.getClass("Laya." + pname);
                         }
-                        if(classObj){
+                        if (classObj) {
                             pobj = property.getComponent(classObj);
                         }
 
