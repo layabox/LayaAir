@@ -17,15 +17,15 @@ export class Timer {
     /** 时针缩放。*/
     scale: number = 1;
     /** 当前帧开始的时间。*/
-    currTimer: number = Date.now();
+    currTimer: number;
     /** 当前的帧数。*/
     currFrame: number = 0;
     /**@internal 两帧之间的时间间隔,单位毫秒。*/
     _delta: number = 0;
     /**@internal */
-    _lastTimer: number = Date.now();
+    _lastTimer: number;
     /**@private */
-    private _map: {[key:string]:TimerHandler} = {};
+    private _map: { [key: string]: TimerHandler } = {};
     /**@private */
     private _handlers: any[] = [];
     /**@private */
@@ -38,6 +38,8 @@ export class Timer {
      */
     constructor(autoActive: boolean = true) {
         autoActive && Timer.gSysTimer && Timer.gSysTimer.frameLoop(1, this, this._update);
+        this.currTimer = this._getNowData();
+        this._lastTimer = this._getNowData();
     }
 
     /**两帧之间的时间间隔,单位毫秒。*/
@@ -45,18 +47,19 @@ export class Timer {
         return this._delta;
     }
 
+
     /**
      * @internal
      * 帧循环处理函数。
      */
     _update(): void {
         if (this.scale <= 0) {
-            this._lastTimer = Date.now();
+            this._lastTimer = this._getNowData();
             this._delta = 0;
             return;
         }
         var frame: number = this.currFrame = this.currFrame + this.scale;
-        var now: number = Date.now();
+        var now: number = this._getNowData();
         var awake: boolean = (now - this._lastTimer) > 30000;
         this._delta = (now - this._lastTimer) * this.scale;
         var timer: number = this.currTimer = this.currTimer + this._delta;
@@ -111,9 +114,17 @@ export class Timer {
 
     /** @private */
     private _recoverHandler(handler: TimerHandler): void {
-        if (this._map[handler.key] == handler)delete this._map[handler.key];
+        if (this._map[handler.key] == handler) delete this._map[handler.key];
         handler.clear();
         Timer._pool.push(handler);
+    }
+
+    /**
+     * get now time data
+     * @returns 
+     */
+    protected _getNowData(): number {
+        return Date.now();
     }
 
     /** @internal */
@@ -134,7 +145,7 @@ export class Timer {
                 handler.caller = caller;
                 handler.method = method;
                 handler.args = args;
-                handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + Date.now() - this._lastTimer);
+                handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + this._getNowData() - this._lastTimer);
                 return handler;
             }
         }
@@ -147,7 +158,7 @@ export class Timer {
         handler.caller = caller;
         handler.method = method;
         handler.args = args;
-        handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + Date.now() - this._lastTimer);
+        handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + this._getNowData() - this._lastTimer);
 
         //索引handler
         this._indexHandler(handler);
@@ -303,15 +314,15 @@ export class Timer {
         this.scale = 1;
     }
 
-    
-    destroy(){
-        for (var i=0,n=this._handlers.length;i < n;i++){
-            var handler=this._handlers[i];
+
+    destroy() {
+        for (var i = 0, n = this._handlers.length; i < n; i++) {
+            var handler = this._handlers[i];
             handler.clear();
         }
-        this._handlers.length=0;
-        this._map={};
-        this._temp.length=0;
+        this._handlers.length = 0;
+        this._map = {};
+        this._temp.length = 0;
     }
 }
 
