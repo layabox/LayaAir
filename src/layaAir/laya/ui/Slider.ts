@@ -107,20 +107,20 @@ export class Slider extends UIComponent {
         this.changeHandler = null;
     }
 
-		/**
-		 * @inheritDoc 
-         * @override
-		*/
-		protected createChildren(): void {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    protected createChildren(): void {
         this.addChild(this._bg = new Image());
         this.addChild(this._bar = new Button());
     }
 
-		/**
-		 * @inheritDoc 
-         * @override
-		*/
-		protected initialize(): void {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    protected initialize(): void {
         this._bar.on(Event.MOUSE_DOWN, this, this.onBarMouseDown);
         this._bg.sizeGrid = this._bar.sizeGrid = "4,4,4,4,0";
         if (this._progress) this._progress.sizeGrid = this._bar.sizeGrid;
@@ -349,14 +349,15 @@ export class Slider extends UIComponent {
             var pow: number = Math.pow(10, (this._tick + "").length - 1);
             this._value = Math.round(Math.round(this._value / this._tick) * this._tick * pow) / pow;
         }
-        
-        if (this._max >= this._max) {
-            // this._max >= this._min 时
-            this._value = this._value > this._max ? this._max : this._value < this._min ? this._min : this._value; 
-        } else { 
-            // this._max < this._min 时
-			this._value = this._value > this._min ? this._min : this._value < this._max ? this._max : this._value;
+
+        if (this._max >= this._min) {
+            this._value = this._value > this._max ? this._max : this._value < this._min ? this._min : this._value;
+        } else {
+            //当设置的最小值大于最大值的时候，滑动条会反向处理，滑动条限制也应反向处理。
+            this._value = this._value > this._min ? this._min : this._value < this._max ? this._max : this._value;
         }
+
+
         var num: number = this._max - this._min;
         if (num === 0) num = 1;
         if (this.isVertical) {
