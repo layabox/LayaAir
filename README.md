@@ -16,7 +16,9 @@ LayaAie引擎被公认"性能最优、3D技术成熟"，树立了良好的业内
 
 尤其是3D引擎的功能完善，成熟度高，在小游戏与HTML5的3D领域，LayaAir引擎市场占有率一直保持在90%以上，是中国3D-HTML5与小游戏研发团队的首选。
 
-拥有完整的开发生态，旗下的开发环境工具LayaAirIDE，支持开发者可视化，编辑UI、动画、打包、多平台发布等功能。支持使用Unity、Spine、TiledMap等第三方工具导出的游戏资源；
+拥有完整的开发生态，配套的开发环境工具LayaAirIDE，支持开发者可视化，编辑UI、动画、打包、多平台发布等功能。支持使用Unity、Spine、TiledMap等第三方工具导出的游戏资源；
+
+拥有专业的游戏UI编辑器工具[FairyGUI](https://www.fairygui.com/)
 
 还拥有打包移动平台APP的Native-Runtime方案，让基于LayaAir引擎的产品全平台运行；
 
@@ -50,6 +52,18 @@ https://layaair2.ldc2.layabox.com/api2/Chinese/index.html
 
 http://ask.layabox.com/
 
-#### 3.7 商务合作（VIP技术服务洽谈）微信
+#### 3.7 LayaAir 案例展示
+
+[http://layaair.layabox.com/gamelist/](http://layaair.layabox.com/gamelist/)
+
+#### 3.8 LayaAir官网首页
+
+http://layaair.layabox.com/
+
+#### 3.9 FairyGUI工具官网
+
+[https://www.fairygui.com/](https://www.fairygui.com/)
+
+### 四、商务合作（VIP技术服务洽谈）微信
 
 <img src="wechatQRcode.jpg" style="zoom:80%;" />  
