@@ -59,7 +59,7 @@ export class MeshColliderShape extends ColliderShape {
 	 */
 	_setPhysicsMesh(){
 		if (this._attatchedCollisionObject) {
-			if(this._attatchedCollisionObject._enableProcessCollisions){
+			if(false){
 				this._createDynamicMeshCollider();
 			}else{
 				this._createBvhTriangleCollider();
