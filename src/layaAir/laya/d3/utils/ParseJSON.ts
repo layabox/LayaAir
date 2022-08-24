@@ -62,7 +62,10 @@ export class ParseJSON {
             return false;
         } else if ("true" == str.toLowerCase()) {
             return true;
+        } else if ("null" == str) {
+            return null;
         }
+
 
         return str;
     }
@@ -159,7 +162,7 @@ export class ParseJSON {
                 }
                 var obj = this.findIndex(str, i, c, this.len);
 
-                if (null != this.cobj && Array.isArray(this.cobj.val)) {
+                if (2 == this.type && null != this.cobj && Array.isArray(this.cobj.val)) {
                     if (null != this.currStr) {
                         this.currStr = this.currStr.trim();
                         if ("" != this.currStr) {
