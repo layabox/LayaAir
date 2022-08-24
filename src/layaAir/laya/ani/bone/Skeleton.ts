@@ -444,10 +444,10 @@ export class Skeleton extends Sprite {
 					}
 				}
 			} else if (tEventData.time < this._player.playStart && this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null" && tEventData.audioValue !== "undefined") {
-					this._eventIndex++;
-					_soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null,  (this._player.currentPlayTime - tEventData.time) / 1000);
-					SoundManager.playbackRate = this._player.playbackRate;
-					_soundChannel && this._soundChannelArr.push(_soundChannel);
+				this._eventIndex++;
+				_soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null, (this._player.currentPlayTime - tEventData.time) / 1000);
+				SoundManager.playbackRate = this._player.playbackRate;
+				_soundChannel && this._soundChannelArr.push(_soundChannel);
 			} else {
 				this._eventIndex++;
 			}
@@ -1103,13 +1103,13 @@ export class Skeleton extends Sprite {
 		this._graphicsCache[aniIndex][frameIndex] = graphics;
 	}
 
-		/**
-		 * 销毁当前动画
-		 * @override
-		 */
-		destroy(destroyChild: boolean = true): void {
+	/**
+	 * 销毁当前动画
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
 		super.destroy(destroyChild);
-		this._templet._removeReference(1);
+		this._templet && this._templet._removeReference(1);
 		this._templet = null;//动画解析器
 		if (this._player) this._player.offAll();
 		this._player = null;// 播放器
