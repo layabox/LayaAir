@@ -419,7 +419,7 @@ export class PhysicsComponent extends Component {
     protected _onDestroy() {
         delete PhysicsComponent._physicObjectsMap[this.id];
         ILaya3D.Physics3D._bullet.btCollisionObject_destroy(this._btColliderObject);
-        this._colliderShape.destroy();
+        this._colliderShape && this._colliderShape.destroy();
         this._btColliderObject = null;
         this._colliderShape = null;
         this._simulation = null;

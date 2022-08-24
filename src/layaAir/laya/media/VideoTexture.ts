@@ -44,14 +44,16 @@ export class VideoTexture extends BaseTexture {
         this.wrapModeV = WrapMode.Clamp;
         this.filterMode = FilterMode.Bilinear;
         LayaGL.textureContext.setTexturePixelsData(this._texture, null, false, false);
-
+        
+        ele.setAttribute('crossorigin', 'Anonymous');
+        
         var style: any = this.element.style;
         style.position = 'absolute';
         style.top = '0px';
         style.left = '0px';
 
         // 默认放开webGL对纹理数据的跨域限制
-        ele.setAttribute('crossorigin', 'anonymous');
+        
 
         // 默认放开webGL对纹理数据的跨域限制
         ele.setAttribute('crossorigin', 'anonymous');
