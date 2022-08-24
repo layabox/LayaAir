@@ -120,10 +120,11 @@ export class Timer {
     }
 
     /**
+     * @private
      * get now time data
      * @returns 
      */
-    protected _getNowData(): number {
+    public _getNowData(): number {
         return Date.now();
     }
 
