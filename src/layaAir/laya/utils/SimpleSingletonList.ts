@@ -33,6 +33,8 @@ export class SimpleSingletonList<T extends ISingletonElement> extends SingletonL
      */
     remove(element: T): void {
         let index: number = element._indexInList;
+        if (index == -1)
+            return;
         this.length--;
         if (index !== this.length) {
             let end = this.elements[this.length];

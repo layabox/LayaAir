@@ -420,38 +420,38 @@ export class Mesh extends Resource implements IClone {
      * @internal
      */
     _getPhysicMesh(): any {
-        if (!this._btTriangleMesh) {
-            var bt: any = Physics3D._bullet;
-            var triangleMesh: number = bt.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
-            var nativePositio0: number = Mesh._nativeTempVector30;
-            var nativePositio1: number = Mesh._nativeTempVector31;
-            var nativePositio2: number = Mesh._nativeTempVector32;
-            var position0: Vector3 = this._tempVector30;
-            var position1: Vector3 = this._tempVector31;
-            var position2: Vector3 = this._tempVector32;
+        //if (!this._btTriangleMesh) {//TODO 去掉共享物理Mesh
+        var bt: any = Physics3D._bullet;
+        var triangleMesh: number = bt.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
+        var nativePositio0: number = Mesh._nativeTempVector30;
+        var nativePositio1: number = Mesh._nativeTempVector31;
+        var nativePositio2: number = Mesh._nativeTempVector32;
+        var position0: Vector3 = this._tempVector30;
+        var position1: Vector3 = this._tempVector31;
+        var position2: Vector3 = this._tempVector32;
 
-            var vertexBuffer: VertexBuffer3D = this._vertexBuffer;
-            var positionElement: VertexElement = this._getPositionElement(vertexBuffer);
-            var verticesData: Float32Array = vertexBuffer.getFloat32Data();
-            var floatCount: number = vertexBuffer.vertexDeclaration.vertexStride / 4;
-            var posOffset: number = positionElement._offset / 4;
+        var vertexBuffer: VertexBuffer3D = this._vertexBuffer;
+        var positionElement: VertexElement = this._getPositionElement(vertexBuffer);
+        var verticesData: Float32Array = vertexBuffer.getFloat32Data();
+        var floatCount: number = vertexBuffer.vertexDeclaration.vertexStride / 4;
+        var posOffset: number = positionElement._offset / 4;
 
-            var indices: Uint16Array = this._indexBuffer.getData();//TODO:API修改问题
-            for (var i: number = 0, n: number = indices.length; i < n; i += 3) {
-                var p0Index: number = indices[i] * floatCount + posOffset;
-                var p1Index: number = indices[i + 1] * floatCount + posOffset;
-                var p2Index: number = indices[i + 2] * floatCount + posOffset;
-                position0.setValue(verticesData[p0Index], verticesData[p0Index + 1], verticesData[p0Index + 2]);
-                position1.setValue(verticesData[p1Index], verticesData[p1Index + 1], verticesData[p1Index + 2]);
-                position2.setValue(verticesData[p2Index], verticesData[p2Index + 1], verticesData[p2Index + 2]);
+        var indices: Uint16Array = this._indexBuffer.getData();//TODO:API修改问题
+        for (var i: number = 0, n: number = indices.length; i < n; i += 3) {
+            var p0Index: number = indices[i] * floatCount + posOffset;
+            var p1Index: number = indices[i + 1] * floatCount + posOffset;
+            var p2Index: number = indices[i + 2] * floatCount + posOffset;
+            position0.setValue(verticesData[p0Index], verticesData[p0Index + 1], verticesData[p0Index + 2]);
+            position1.setValue(verticesData[p1Index], verticesData[p1Index + 1], verticesData[p1Index + 2]);
+            position2.setValue(verticesData[p2Index], verticesData[p2Index + 1], verticesData[p2Index + 2]);
 
-                Utils3D._convertToBulletVec3(position0, nativePositio0);
-                Utils3D._convertToBulletVec3(position1, nativePositio1);
-                Utils3D._convertToBulletVec3(position2, nativePositio2);
-                bt.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, true);
-            }
-            this._btTriangleMesh = triangleMesh;
+            Utils3D._convertToBulletVec3(position0, nativePositio0);
+            Utils3D._convertToBulletVec3(position1, nativePositio1);
+            Utils3D._convertToBulletVec3(position2, nativePositio2);
+            bt.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, true);
         }
+        this._btTriangleMesh = triangleMesh;
+        //}
         return this._btTriangleMesh;
     }
 
