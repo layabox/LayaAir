@@ -29,6 +29,7 @@ export class SimpleSingletonList extends SingletonList<ISingletonElement> {
 	 */
 	remove(element: ISingletonElement): void {
 		var index: number = element._getIndexInList();
+		if(index===-1) return;//TODO
 		this.length--;
 		if (index !== this.length) {
 			var end: any = this.elements[this.length];
