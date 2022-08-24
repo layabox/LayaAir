@@ -57,6 +57,13 @@ export class ParseJSON {
         if (!isNaN(numVal)) {
             return numVal;
         }
+
+        if ("false" == str.toLowerCase()) {
+            return false;
+        } else if ("true" == str.toLowerCase()) {
+            return true;
+        }
+
         return str;
     }
 
