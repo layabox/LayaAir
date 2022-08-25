@@ -39,7 +39,7 @@ import { RenderBoundingFrustum } from "./RenderBoundingFrustum";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
-import { SceneRenderManagerOBJ } from "./SceneRenderManager";
+import { SceneRenderManagerOBJ } from "./SceneRenderManagerOBJ";
 import { ShadowCullInfo } from "./ShadowCullInfo";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
