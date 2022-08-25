@@ -76,7 +76,7 @@ export class Component {
         if (this._enabled != value) {
             this._enabled = value;
             if (this.owner)
-                this._setActive(this.owner.activeInHierarchy);
+                this._setActive(value && this.owner.activeInHierarchy);
         }
     }
 
@@ -138,6 +138,7 @@ export class Component {
      * @internal
      */
     protected _onEnable(): void {
+        this.onEnable();
     }
 
     /**
@@ -146,6 +147,7 @@ export class Component {
     * 销毁组件
     */
     protected _onDisable(): void {
+        this.onDisable();
     }
 
     /**
@@ -196,7 +198,6 @@ export class Component {
                     this.setupScript();
 
                 this._onEnable();
-                this.onEnable();
             }
         } else if (this._enableState) {
             this._enableState = false;
@@ -207,7 +208,7 @@ export class Component {
             this.owner.offAllCaller(this);
 
             this._onDisable();
-            this.onDisable();
+
         }
     }
 
