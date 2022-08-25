@@ -17,6 +17,22 @@ export type AttributeMapType = { [name: string]: [number, ShaderDataType] };
  */
 export class SubShader {
     public static DefaultShaderStateMap: any;
+    public static IncludeUniformMap:any;
+
+    /**
+     * 注册glsl所用到的Uniform
+     * 会在生成Uniformmap的时候根据包含的Include文件，添加所需要的uniform因素
+     * @param includeName 
+     * @param uniformInfo 
+     * @param defaultUniformData 
+     */
+    public static regIncludeBindUnifrom(includeName:string,uniformMap:{ [name: string]: ShaderDataType },defaultValue:{[key:string]:any}){
+        let obj:any = {};
+        let data:any = obj[includeName] = {};
+        data["uniformMap"] = uniformMap;
+        data["defaultValue"] = defaultValue;
+        Object.assign(SubShader.IncludeUniformMap,obj);
+    }
 
     public static readonly DefaultAttributeMap: { [name: string]: [number, ShaderDataType] } = {
         'a_Position': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
@@ -44,6 +60,7 @@ export class SubShader {
             's_StencilRef': Shader3D.RENDER_STATE_STENCIL_REF,
             's_StencilOp': Shader3D.RENDER_STATE_STENCIL_OP
         }
+        SubShader.IncludeUniformMap = {};
     }
 
     /**@internal */
@@ -99,19 +116,18 @@ export class SubShader {
                 blockUniformMap.forEach((value, key) => {
                     blockUniformIndexMap.set(Shader3D.propertyNameToID(key), value);
                 });
-
                 let blockData = new UnifromBufferData(blockUniformIndexMap);
                 this._uniformBufferDataMap.set(key, blockData);
             }
             else {
                 let unifromType = <ShaderDataType>uniformMap[key];
                 this._uniformTypeMap.set(key, unifromType);
-
                 if (unifromType == ShaderDataType.Texture2D || unifromType == ShaderDataType.TextureCube) {
                     let textureGammaDefine = Shader3D.getDefineByName(`Gamma_${key}`);
                     let uniformIndex = Shader3D.propertyNameToID(key);
                     ShaderDefine._texGammaDefine[uniformIndex] = textureGammaDefine;
                 }
+
             }
         }
     }
@@ -147,7 +163,33 @@ export class SubShader {
         var shaderPass: ShaderPass = new ShaderPass(this, vs, ps, stateMap);
         shaderPass._pipelineMode = pipelineMode;
         this._passes.push(shaderPass);
+        this._addIncludeUniform(shaderPass);
         return shaderPass;
+    }
+
+
+    private _addIncludeUniform(shaderpass:ShaderPass){
+        let includemap = shaderpass._includemap;
+        if(!includemap)
+            return;
+        includemap.forEach(element => {
+            if(SubShader.IncludeUniformMap[element]){
+                let includeBindInfo = SubShader.IncludeUniformMap[element];
+                let bindtypeMap = includeBindInfo["uniformMap"];
+                let bindDefaultValue = includeBindInfo["defaultValue"];
+                for(var i in bindtypeMap){
+                    if(!this._uniformTypeMap.has(i)){
+                        this._uniformTypeMap.set(i,bindtypeMap[i]);
+                        this._uniformMap[i] = bindtypeMap[i];
+                    }
+                }
+                for(var i in bindDefaultValue){
+                    if(!this._uniformDefaultValue[i]){
+                        this._uniformDefaultValue[i] = bindDefaultValue[i];
+                    }
+                }
+            }
+        });
     }
 
 }

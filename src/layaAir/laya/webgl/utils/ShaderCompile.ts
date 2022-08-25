@@ -24,6 +24,8 @@ export class ShaderCompile {
     public _VS: ShaderNode;
     /** @internal */
     public _PS: ShaderNode;
+    /**@internal */
+    public _includemap:string[] = [];
 
     static addInclude(fileName: string, txt: string): void {
         if (!txt || txt.length === 0)
@@ -191,6 +193,7 @@ export class ShaderCompile {
                     case "#include"://这里有问题,主要是空格
                         words = ShaderCompile.splitToWords(text, null);
                         var inlcudeFile: InlcudeFile = ShaderCompile.includes[words[1]];
+                        this._includemap.push(words[1]);
                         if (!inlcudeFile) {
                             throw "ShaderCompile error no this include file:" + words[1];
                         }

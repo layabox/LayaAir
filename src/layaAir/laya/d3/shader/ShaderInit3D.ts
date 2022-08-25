@@ -32,7 +32,6 @@ import PBRLightingGLSL from "./lightingmode/PBRLighting.glsl";
 import { BlitScreenShaderInit } from "./postprocess/BlitScreenShaderInit";
 import { UnlitShaderInit } from "./unlit/UnlitShaderInit";
 import { BlinnPhongShaderInit } from "./blinnphong/BlinnPhongShaderInit";
-import { PBRShaderInit } from "./pbr/PBRShaderInit";
 import { TrailShaderInit } from "./Trail/TrailShaderInit";
 import { PBRShaderLib } from "./pbr/PBRShaderLib";
 import { PBRStandardShaderInit } from "./pbr/PBRStandardShaderInit";
@@ -97,7 +96,7 @@ export class ShaderInit3D {
 		BlitScreenShaderInit.init();
 		UnlitShaderInit.init();
 		PBRStandardShaderInit.init();
-		PBRShaderInit.init();
+		//PBRShaderInit.init();
 		BlinnPhongShaderInit.init();
 		TrailShaderInit.init();
 		ParticleShuriKenShaderInit.init();

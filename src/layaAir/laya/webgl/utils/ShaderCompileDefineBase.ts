@@ -162,6 +162,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
                         if (!inlcudeFile) {
                             throw "ShaderCompile error no this include file:" + words[1];
                         }
+                        this._includemap.push(words[1]);
                         if ((ofs = words[0].indexOf("?")) < 0) {
                             node.setParent(parent);
                             text = inlcudeFile.getWith(words[2] == 'with' ? words[3] : null);

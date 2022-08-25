@@ -34,7 +34,6 @@ export class PBRStandardShaderInit {
             "u_OcclusionTexture": ShaderDataType.Texture2D,
             "u_EmissionTexture": ShaderDataType.Texture2D,
             "u_MetallicGlossTexture": ShaderDataType.Texture2D,
-            "u_IBLDGF": ShaderDataType.Texture2D
         };
 
         let defaultValue = {
@@ -46,7 +45,6 @@ export class PBRStandardShaderInit {
             "u_SmoothnessScale": 1,
             "u_OcclusionStrength": 1,
             "u_EmissionColor": Color.WHITE,
-            "u_IBLDGF": PBRDefaultDFG.defaultDFG
         };
 
         let shader = Shader3D.add("PBR");
