@@ -35,7 +35,6 @@ import { IndexBuffer3D } from "../../../../d3/graphics/IndexBuffer3D";
 import { NativeIndexBuffer3D } from "../NativeOBJ/NativeIndexBuffer3D";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
 import { CullPassBase } from "../../../RenderObj/CullPass";
-import { SceneRenderManager } from "../../../RenderObj/SceneRenderManager";
 import { ShaderCompileDefineBase } from "../../../../webgl/utils/ShaderCompileDefineBase";
 import { NativeShaderInstance } from "./NativeShaderInstance";
 import { ShaderInstance } from "../../../../d3/shader/ShaderInstance";

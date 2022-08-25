@@ -3,7 +3,7 @@ import { SingletonList } from "../../utils/SingletonList";
 import { BaseRender } from "../../d3/core/render/BaseRender";
 import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 
-export class SceneRenderManager implements ISceneRenderManager{
+export class SceneRenderManagerOBJ implements ISceneRenderManager{
     /** @internal */
 	_renders: SimpleSingletonList<BaseRender> = new SimpleSingletonList();
     _motionRenders:SingletonList<BaseRender> = new SingletonList();

@@ -59,7 +59,6 @@ import { UnifromBufferData, UniformBufferParamsType } from "../../../RenderEngin
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { ICullPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICullPass";
 import { FrustumCulling } from "../../graphics/FrustumCulling";
 import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
@@ -75,6 +74,7 @@ import { ComponentDriver } from "../../../components/ComponentDriver";
 import "./Input3D";
 import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { LayaEnv } from "../../../../LayaEnv";
+import { SceneRenderManager } from "./SceneRenderManager";
 
 /**
  * 环境光模式
@@ -462,7 +462,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     _reflectionProbeManager: ReflectionProbeManager = new ReflectionProbeManager();
     /**@internal */
-    _sceneRenderManager: ISceneRenderManager;
+    _sceneRenderManager: SceneRenderManager;
     /**@internal */
     _cullPass: ICullPass;
     /** 当前创建精灵所属遮罩层。*/
@@ -478,7 +478,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**
      * set SceneRenderableManager
      */
-    set sceneRenderableManager(manager: ISceneRenderManager) {
+    set sceneRenderableManager(manager: SceneRenderManager) {
         // this._octree = manager;
         manager.list = this._sceneRenderManager.list;
         this._sceneRenderManager = manager;
@@ -489,7 +489,7 @@ export class Scene3D extends Sprite implements ISubmit {
         // }
     }
 
-    get sceneRenderableManager(): ISceneRenderManager {
+    get sceneRenderableManager(): SceneRenderManager {
         return this._sceneRenderManager;
     }
 
@@ -830,7 +830,7 @@ export class Scene3D extends Sprite implements ISubmit {
             this._shCoefficients[i] = new Vector4();
         this._reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
         this._scene = this;
-        this._sceneRenderManager = LayaGL.renderOBJCreate.createSceneRenderManager();
+        this._sceneRenderManager = new SceneRenderManager();
         this._cullPass = LayaGL.renderOBJCreate.createCullPass();
 
         // if (Scene3D.octreeCulling)

@@ -39,7 +39,7 @@ import { RenderBoundingFrustum } from "./RenderBoundingFrustum";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
-import { SceneRenderManager } from "./SceneRenderManager";
+import { SceneRenderManagerOBJ } from "./SceneRenderManager";
 import { ShadowCullInfo } from "./ShadowCullInfo";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
@@ -114,7 +114,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createSceneRenderManager(): ISceneRenderManager {
-        return new SceneRenderManager();
+        return new SceneRenderManagerOBJ();
     }
 
     createCullPass(): ICullPass {
