@@ -27,9 +27,9 @@ export class NativeCullPassBase implements ICullPass {
 
     cullByCameraCullInfo(cameraCullInfo: ICameraCullInfo, renderManager: NativeSceneRenderManager): void {
         //native Cull
-        Stat.frustumCulling += this._nativeObj.cullByCameraCullInfo((cameraCullInfo as any)._nativeObj, (renderManager as any)._nativeObj);
+        Stat.frustumCulling += this._nativeObj.cullByCameraCullInfo((cameraCullInfo as any)._nativeObj, (renderManager as any)._sceneManagerOBJ._nativeObj);
         //Custom list Cull
-        var customRenderList = renderManager._customCullList;
+        var customRenderList = (renderManager as any)._sceneManagerOBJ._customCullList;
         var boundFrustum = cameraCullInfo.boundFrustum;
         var cullMask: number = cameraCullInfo.cullingMask;
         var renders = customRenderList.elements;
@@ -49,9 +49,9 @@ export class NativeCullPassBase implements ICullPass {
     cullByShadowCullInfo(cullInfo: IShadowCullInfo, renderManager: NativeSceneRenderManager): void {
         //native Cull
         //TODO transparent filter
-        Stat.frustumCulling += this._nativeObj.cullByShadowCullInfo((cullInfo as any)._nativeObj, (renderManager as any)._nativeObj);
+        Stat.frustumCulling += this._nativeObj.cullByShadowCullInfo((cullInfo as any)._nativeObj, (renderManager as any)._sceneManagerOBJ._nativeObj);
         //Custom list Cull
-        var customRenderList = renderManager._customCullList;
+        var customRenderList = (renderManager as any)._sceneManagerOBJ._customCullList;
         var renders = customRenderList.elements;
         for (var i: number = 0, n: number = customRenderList.length; i < n; i++) {
             var render: BaseRender = <BaseRender>renders[i];
@@ -66,10 +66,10 @@ export class NativeCullPassBase implements ICullPass {
     cullingSpotShadow(cameraCullInfo: ICameraCullInfo, renderManager: NativeSceneRenderManager): void {
         //native Cull
         //TODO transparent filter
-        Stat.frustumCulling += this._nativeObj.cullingSpotShadow((cameraCullInfo as any)._nativeObj, (renderManager as any)._nativeObj);
+        Stat.frustumCulling += this._nativeObj.cullingSpotShadow((cameraCullInfo as any)._nativeObj, (renderManager as any)._sceneManagerOBJ._nativeObj);
         
         //Custom list Cull
-        var customRenderList = renderManager._customCullList;
+        var customRenderList = (renderManager as any)._sceneManagerOBJ._customCullList;
         var renders = customRenderList.elements;
         let context = RenderContext3D._instance;
         for (var i: number = 0, n: number = customRenderList.length; i < n; i++) {
