@@ -167,9 +167,11 @@ export class Loader extends EventDispatcher {
     }
 
     /**资源分组对应表。*/
-    static groupMap: { [key: string]: Set<string> } = {};
+    static groupMap: { [name: string]: Set<string> } = {};
     /**已加载的资源池。*/
-    static loadedMap: { [key: string]: Array<any> } = {};
+    static loadedMap: { [url: string]: Array<any> } = {};
+    /** 预加载的数据文件。如果一个url在这里有记录，则请求时直接使用这里的数据，放弃网络加载。*/
+    static preLoadedMap: { [url: string]: any } = {};
 
     /**@private */
     private _loadings: Map<string, LoadTask>;
@@ -539,23 +541,36 @@ export class Loader extends EventDispatcher {
             item.temp = audio;
         }
         else {
-            let http: HttpRequest = getRequestInst();
-            http.on(Event.COMPLETE, () => {
-                let data = http.data;
-                returnRequestInst(http);
+            let preloadedContent = Loader.preLoadedMap[item.url];
+            if (preloadedContent) {
+                this.completeItem(item, preloadedContent);
+                return;
+            }
 
-                this.completeItem(item, data);
+            item.temp = this._loadHttpRequest(url, item.contentType, item.onProgress, (data: any, error: string) => {
+                this.completeItem(item, data, error);
             });
-            http.on(Event.ERROR, null, (error: string) => {
-                returnRequestInst(http);
-
-                this.completeItem(item, null, error);
-            });
-            if (item.onProgress)
-                http.on(Event.PROGRESS, item.onProgress);
-            http.send(url, null, "get", <any>item.contentType);
-            item.temp = http;
         }
+    }
+
+    _loadHttpRequest(url: string, contentType: string,
+        onProgress: (progress: number) => void, onComplete: (data: any, error?: string) => void): any {
+        let http: HttpRequest = getRequestInst();
+        http.on(Event.COMPLETE, () => {
+            let data = http.data;
+            returnRequestInst(http);
+
+            onComplete(data);
+        });
+        http.on(Event.ERROR, null, (error: string) => {
+            returnRequestInst(http);
+
+            onComplete(null, error);
+        });
+        if (onProgress)
+            http.on(Event.PROGRESS, onProgress);
+        http.send(url, null, "get", <any>contentType);
+        return http;
     }
 
     private completeItem(item: DownloadItem, content: any, error?: string) {
