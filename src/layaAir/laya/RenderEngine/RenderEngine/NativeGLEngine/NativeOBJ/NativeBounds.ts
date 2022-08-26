@@ -164,6 +164,20 @@ export class NativeBounds implements IClone {
     }
 
     /**
+     * @internal
+     */
+    _getBoundBox(): BoundBox {
+        var boundBox: BoundBox = this._boundBox;
+        this._nativeObj._getBoundBox();
+        boundBox.min.x = this.float32Array[0];
+        boundBox.min.y = this.float32Array[1];
+        boundBox.min.z = this.float32Array[2];
+        boundBox.max.x = this.float32Array[3];
+        boundBox.max.y = this.float32Array[4];
+        boundBox.max.z = this.float32Array[5];
+        return boundBox;
+    }
+    /**
      * @returns -1为不相交 不为0的时候返回值为相交体积
      */
     calculateBoundsintersection(bounds: Bounds): number {
