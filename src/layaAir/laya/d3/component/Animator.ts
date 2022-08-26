@@ -865,7 +865,7 @@ export class Animator extends Component {
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec2(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector2>realtimeDatas[i]));
                             } else {
-                                pro && (pro as Material).setVector2(value, this._applyVec2(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector2>realtimeDatas[i]));
+                                pro && (pro as Material).setVector2(value, this._applyVec2(pro.getVector2(value), nodeOwner, additive, weight, isFirstLayer, <Vector2>realtimeDatas[i]));
                             }
                             break;
                         case KeyFrameValueType.Vector3://vec3
@@ -880,7 +880,7 @@ export class Animator extends Component {
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec3(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i]));
                             } else {
-                                pro && (pro as Material).setVector3(value, this._applyVec3(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i]));
+                                pro && (pro as Material).setVector3(value, this._applyVec3(pro.getVector3(value), nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i]));
                             }
                             break;
                         case KeyFrameValueType.Vector4://vec4
@@ -895,7 +895,7 @@ export class Animator extends Component {
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec4(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             } else {
-                                pro && (pro as Material).setVector4(value, this._applyVec4(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                pro && (pro as Material).setVector4(value, this._applyVec4(pro.getVector(value), nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             }
                             break;
                         case KeyFrameValueType.Color://Color
@@ -910,7 +910,7 @@ export class Animator extends Component {
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyColor(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             } else {
-                                pro && (pro as Material).setColor(value, this._applyColor(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                pro && (pro as Material).setColor(value, this._applyColor(pro.getColor(value), nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             }
                             break;
                     }
