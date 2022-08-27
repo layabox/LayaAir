@@ -199,7 +199,7 @@ export class Resource extends EventDispatcher {
     _removeReference(count: number = 1): void {
         this._referenceCount -= count;
         //如果_removeReference发生在destroy中，可能是在collect或者处理内嵌资源的释放
-        if (_disposingCounter > 0 && this._referenceCount <= 0) {
+        if (_disposingCounter > 0 && this._referenceCount <= 0 && !this.lock) {
             this.destroy();
         }
     }

@@ -185,10 +185,11 @@ export class NativeContext {
         // WebGLContext.setDepthMask(gl, true);
         // WebGLContext.setCullFace(gl, false);
         // WebGLContext.setFrontFace(gl, gl.CCW);
-
+        
         LayaGL.renderEngine.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
         LayaGL.renderEngine.scissorTest(true);
         LayaGL.renderEngine.scissor(0, 0, RenderState2D.width, RenderState2D.height);
+        BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
     }
     set globalCompositeOperation(value: string) {
         //this._nativeObj.globalCompositeOperation = value;
