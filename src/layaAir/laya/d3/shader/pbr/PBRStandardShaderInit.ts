@@ -12,7 +12,6 @@ import DepthNormalFS from "../depth/DepthNormal.fs";
 
 import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
-import { PBRDefaultDFG } from "./PBRDefaultDFG";
 
 
 export class PBRStandardShaderInit {
