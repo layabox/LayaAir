@@ -51,7 +51,7 @@ export class BlinnPhongShaderInit {
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(BlinnPhongVS, BlinnPhongFS);
         let shadowPass = subShader.addShaderPass(DepthVS, DepthFS, "ShadowCaster");
-        let depthNormal = subShader.addShaderPass(DepthNormalVS,DepthNormalFS,"DepthNormal");
+        let depthNormal = subShader.addShaderPass(DepthNormalVS, DepthNormalFS, "DepthNormal");
     }
 
 }
