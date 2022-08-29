@@ -25,6 +25,7 @@ struct Vertex {
     #endif // COLOR
 };
 
+
 /**
  * vertex position
  */

@@ -85,7 +85,7 @@ export class PhysicsSimulation {
     /*是否禁用所有模拟器。*/
     static disableSimulation = false;
 
-    private _updateCount = 0;
+    protected _updateCount = 0;
 
     /**
     * @internal
@@ -112,7 +112,7 @@ export class PhysicsSimulation {
     /** @internal */
     private _btCollisionWorld: number;
     /** @internal */
-    private _btDispatcher: number;
+    protected _btDispatcher: number;
     /** @internal */
     private _btCollisionConfiguration: number;
     /** @internal */
@@ -138,11 +138,11 @@ export class PhysicsSimulation {
     private _btAllConvexResultCallback: number;
 
     /** @internal */
-    private _collisionsUtils = new CollisionTool();
+    protected _collisionsUtils = new CollisionTool();
     /** @internal */
-    private _previousFrameCollisions: Collision[] = [];
+    protected _previousFrameCollisions: Collision[] = [];
     /** @internal */
-    private _currentFrameCollisions: Collision[] = [];
+    protected _currentFrameCollisions: Collision[] = [];
     /** @internal */
     private _currentConstraint: { [key: number]: ConstraintComponent } = {};
     /** @internal */

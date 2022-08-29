@@ -1356,7 +1356,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 break;
         }
         this.unbindRenderTarget(renderTarget);
-
         return out;
     }
 

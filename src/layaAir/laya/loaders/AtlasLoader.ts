@@ -48,7 +48,7 @@ class AtlasLoader implements IResourceLoader {
             return Promise.all(toloadPics).then(pics => {
                 let frames: any = data.frames;
                 let directory: string = (data.meta && data.meta.prefix) ? data.meta.prefix : task.url.substring(0, task.url.lastIndexOf(".")) + "/";
-                let urls: Array<string> = [];
+                let subTextures: Array<Texture> = [];
 
                 let scaleRate: number = 1;
 
@@ -64,9 +64,10 @@ class AtlasLoader implements IResourceLoader {
                         let url = directory + name;
                         tPic.scaleRate = scaleRate;
                         let tTexture = Texture.create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h);
+                        tTexture.lock = true;
                         task.loader.cacheRes(url, tTexture);
                         tTexture.url = url;
-                        urls.push(url);
+                        subTextures.push(tTexture);
                     }
                 } else {
                     for (let name in frames) {
@@ -77,13 +78,14 @@ class AtlasLoader implements IResourceLoader {
 
                         let url = directory + name;
                         let tTexture = Texture.create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h);
+                        tTexture.lock = true;
                         task.loader.cacheRes(url, tTexture);
                         tTexture.url = url;
-                        urls.push(url);
+                        subTextures.push(tTexture);
                     }
                 }
 
-                return new AtlasResource(directory, pics, urls);
+                return new AtlasResource(directory, pics, subTextures);
             });
         });
     }

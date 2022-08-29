@@ -382,7 +382,7 @@ export class Animation extends AnimationBase {
                 arr = [];
                 for (var i: number = 0, n: number = frames.length; i < n; i++) {
                     var g: Graphics = new Graphics();
-                    g.drawImage(Loader.getRes(frames[i]), 0, 0);
+                    g.drawImage(frames[i], 0, 0);
                     arr.push(g);
                 }
             }
