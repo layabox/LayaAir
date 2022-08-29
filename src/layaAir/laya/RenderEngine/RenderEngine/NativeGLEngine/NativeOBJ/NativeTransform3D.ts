@@ -373,6 +373,20 @@ export class NativeTransform3D  extends Transform3D {
 	/**
 	 * @internal
 	 */
+	 _setTransformFlag(type: number, value: boolean): void {
+		this._nativeObj && this._nativeObj._setTransformFlag(type, value);
+	}
+
+	/**
+	 * @internal
+	 */
+	_getTransformFlag(type: number): boolean {
+		return this._nativeObj._getTransformFlag(type);
+	}
+
+	/**
+	 * @internal
+	 */
 	_setParent(value: Transform3D): void {
         this._nativeObj.setParent(value ? (value as any)._nativeObj : null);
 	}
