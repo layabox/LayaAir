@@ -193,6 +193,8 @@ export class InputManager {
             touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
 
             if (x != touch.pos.x || y != touch.pos.y) {
+                this._stage._mouseMoveTime = Browser.now();
+
                 touch.pos.setTo(x, y);
                 touch.move();
 
@@ -290,6 +292,7 @@ export class InputManager {
                 touch.target = this._touchTarget = null;
             else {
                 touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
+                this._stage._mouseMoveTime = Browser.now();
 
                 if (Math.abs(x - touch.pos.x) > 1.5 || Math.abs(y - touch.pos.y) > 1.5) {
                     touch.pos.setTo(x, y);
