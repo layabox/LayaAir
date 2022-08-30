@@ -4,6 +4,8 @@ import { Transform3D } from "../../d3/core/Transform3D";
 import { IBaseRenderNode } from "../RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 
 export class BaseRenderNode implements IBaseRenderNode {
+    /**@interanl */
+    boundsChange: boolean;
     /**@internal ID */
     renderId: number;
     /**@internal Shadow Mode */

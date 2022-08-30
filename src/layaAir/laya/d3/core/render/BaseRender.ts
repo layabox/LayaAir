@@ -109,8 +109,15 @@ export class BaseRender extends Component implements ISingletonElement {
     _motionIndexList: number = -1;
     /**@internal 是否自定义了needRender*/
     _customCull: boolean;
-    /** @internal */
-    protected _boundsChange: boolean = true;
+    
+    set boundsChange(value:boolean){
+        this._rendernode.boundsChange = value
+    }
+
+    get boundsChange():boolean{
+        return this._rendernode.boundsChange;
+    }
+
     /**@internal */
     protected _rendernode: IBaseRenderNode;
     /** @internal */
@@ -275,9 +282,9 @@ export class BaseRender extends Component implements ISingletonElement {
      * 包围盒,只读,不允许修改其值。
      */
     get bounds(): Bounds {
-        if (this._boundsChange) {
+        if (this.boundsChange) {
             this._calculateBoundingBox();
-            this._boundsChange = false;
+            this.boundsChange = false;
         }
         return this._bounds as Bounds;
     }
@@ -444,7 +451,7 @@ export class BaseRender extends Component implements ISingletonElement {
      * BaseRender motion
      */
     protected _onWorldMatNeedChange(flag: number): void {
-        this._boundsChange = true;
+        this.boundsChange = true;
         // if (this._octreeNode) {
         // 	flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
         // 	if (flag) {

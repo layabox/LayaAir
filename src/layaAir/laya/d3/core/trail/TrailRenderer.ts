@@ -1,9 +1,7 @@
-import { TrailSprite3D } from "./TrailSprite3D";
 import { Sprite3D } from "../Sprite3D"
 import { Transform3D } from "../Transform3D"
 import { BaseRender } from "../render/BaseRender"
 import { RenderContext3D } from "../render/RenderContext3D"
-import { BoundFrustum } from "../../math/BoundFrustum"
 import { Matrix4x4 } from "../../math/Matrix4x4"
 import { TrailFilter } from "./TrailFilter";
 import { FloatKeyframe } from "../FloatKeyframe";
@@ -163,7 +161,7 @@ export class TrailRenderer extends BaseRender {
      */
     protected _calculateBoundingBox(): void {
         let context = RenderContext3D._instance;
-        this._boundsChange = false;
+        this.boundsChange = false;
         this._trailFilter._update(context);
 
     }

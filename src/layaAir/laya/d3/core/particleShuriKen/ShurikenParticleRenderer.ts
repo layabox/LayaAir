@@ -276,9 +276,9 @@ export class ShurikenParticleRenderer extends BaseRender {
      * @override
      */
     get bounds(): Bounds {
-        if (this._boundsChange) {
+        if (this.boundsChange) {
             this._calculateBoundingBox();
-            this._boundsChange = false;
+            this.boundsChange = false;
         }
         return this._bounds;
     }

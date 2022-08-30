@@ -138,7 +138,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @override
      */
     protected _onWorldMatNeedChange(flag: number): void {
-        this._boundsChange = true;
+        this.boundsChange = true;
         // if (this._octreeNode) {
         // 	flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
         // 	if (flag) {
@@ -182,7 +182,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._mesh = null;
             this._changeVertexDefine(null);
         }
-        this._boundsChange = true;
+        this.boundsChange = true;
         // if (this._octreeNode && this._indexInOctreeMotionList === -1) {
         // 	this._octreeNode.getManagerNode().addMotionObject(this);
         // }

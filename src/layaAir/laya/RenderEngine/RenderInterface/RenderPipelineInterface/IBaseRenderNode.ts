@@ -25,4 +25,6 @@ export interface IBaseRenderNode {
     geometryBounds:RenderBounds|null;
      /**@internal layer */
     layer:number;
+    /**@internal */
+    boundsChange:boolean;
 }
