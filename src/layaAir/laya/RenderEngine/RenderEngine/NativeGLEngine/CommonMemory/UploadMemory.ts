@@ -10,7 +10,7 @@ export class UploadMemory extends NativeMemory{
     _currentOffsetInByte:number = 0;
 
     constructor(size:number){
-        super(size);
+        super(size,false);
     }
 
     addBlockCell(node: INativeUploadNode, dataSizeInByte: number){

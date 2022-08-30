@@ -405,6 +405,7 @@ export class ShadowCasterPass {
                         context.scissor = ShadowCasterPass._tempVector4;
                         Stat.depthCastDrawCall +=scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
                     }
+                    context.camera._applyCasterPassCommandBuffer(context);
                 }
                 shadowMap._end();
                 this._setupShadowReceiverShaderValues(shaderValues);
@@ -433,6 +434,7 @@ export class ShadowCasterPass {
                     context.changeScissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
                     Stat.depthCastDrawCall += scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
                 }
+                context.camera._applyCasterPassCommandBuffer(context);
                 shadowMap._end();
                 this._setupSpotShadowReceiverShaderValues(shaderValues);
                 context.pipelineMode = context.configPipeLineMode;
