@@ -110,7 +110,7 @@ export class PostProcess {
 
 		var cameraTarget: RenderTexture = camera!._internalRenderTexture;
 		var screenTexture: RenderTexture = RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1);
-		var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None,false,1),RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None,false,1)];
+		var Indirect: RenderTexture[] = [RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1), RenderTexture.createFromPool(cameraTarget.width, cameraTarget.height, camera._getRenderTextureFormat(), RenderTargetFormat.None, false, 1)];
 		//var screenTexture: RenderTexture = cameraTarget;
 		this._context!.command!.clear();
 		this._context!.source = screenTexture;
@@ -122,17 +122,17 @@ export class PostProcess {
 
 		this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
 
-		for (var i: number = 0, n: number = this._effects.length; i < n; i++){
+		for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
 			this._effects[i].render(this._context!);
-			if(i==n-2){//last effect:destination RenderTexture is CameraTarget
+			if (i == n - 2) {//last effect:destination RenderTexture is CameraTarget
 				this._context.indirectTarget = this._context.destination;
 				this._context.destination = cameraTarget;
-			}else{
+			} else {
 				this._context.indirectTarget = this._context.destination;
-				this._context.destination = Indirect[(i+1)%2];
+				this._context.destination = Indirect[(i + 1) % 2];
 			}
 		}
-			
+
 
 		this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);
 		//dithering.Render(context);
@@ -165,6 +165,22 @@ export class PostProcess {
 	 */
 	addEffect(effect: PostProcessEffect): void {
 		this._effects.push(effect);
+	}
+
+	/**
+	 * 根据类型获得后期处理实例
+	 * @param classReg 
+	 * @returns 
+	 */
+	getEffect(classReg: any): any {
+		let size: number = this._effects.length;
+		for (let i = 0; i < size; i++) {
+			let element = this._effects[i];
+			if (element instanceof classReg) {
+				return element;
+			}
+		}
+		return null
 	}
 
 	/**

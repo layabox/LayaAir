@@ -17,6 +17,18 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     private static _pool: RenderTexture[] = [];
 
+    /**
+     * 创建一个RenderTexture
+     * @param width 
+     * @param height 
+     * @param colorFormat 
+     * @param depthFormat 
+     * @param mipmap 
+     * @param multiSamples 
+     * @param depthTexture 
+     * @param sRGB 
+     * @returns 
+     */
     static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean = false, multiSamples: number = 1, depthTexture: boolean = false, sRGB: boolean = false) {
 
         // todo mipmap 判断
@@ -128,7 +140,17 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         return this._renderTarget._generateMipmap;
     }
 
-    // todo format
+    /**
+     * @internal
+     * @param width 
+     * @param height 
+     * @param colorFormat 
+     * @param depthFormat 
+     * @param generateMipmap 
+     * @param multiSamples 
+     * @param generateDepthTexture 
+     * @param sRGB 
+     */
     constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false) {
         super(width, height, colorFormat);
 
