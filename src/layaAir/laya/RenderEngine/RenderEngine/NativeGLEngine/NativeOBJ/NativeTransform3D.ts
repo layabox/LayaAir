@@ -365,7 +365,7 @@ export class NativeTransform3D  extends Transform3D {
 	constructor(owner: Sprite3D) {
 		super(owner);
         //native memory
-        this.nativeMemory = new NativeMemory(NativeTransform3D.MemoryBlock_size);
+        this.nativeMemory = new NativeMemory(NativeTransform3D.MemoryBlock_size, true);
         this.float32Array = this.nativeMemory.float32Array;
 		this.float64Array = this.nativeMemory.float64Array;
         this.int32Array = this.nativeMemory.int32Array;

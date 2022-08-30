@@ -12,7 +12,7 @@ export class UploadMemoryManager {
      * each upload block memory size
      * defined 1MB
      */
-    static UploadMemorySize: number = 10 * 1024 * 1024;
+    static UploadMemorySize: number = 1024 * 1024;
     /*@internal SingleOBJ*/
     private static _instance: UploadMemoryManager = null;
     /**@internal 需要上传数据的Node列表*/

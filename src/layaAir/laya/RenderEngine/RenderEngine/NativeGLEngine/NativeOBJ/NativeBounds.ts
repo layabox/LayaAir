@@ -148,7 +148,7 @@ export class NativeBounds implements IClone {
      * @param	max  max 最大坐标。
      */
     constructor(min?: Vector3, max?: Vector3) {
-        this.nativeMemory = new NativeMemory(NativeBounds.MemoryBlock_size);
+        this.nativeMemory = new NativeMemory(NativeBounds.MemoryBlock_size, true);
         this.float32Array = this.nativeMemory.float32Array;
         this.float64Array = this.nativeMemory.float64Array;
         this._nativeObj = new (window as any).conchBounds(this.nativeMemory._buffer); 

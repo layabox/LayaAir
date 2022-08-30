@@ -18,7 +18,7 @@ export class NativeBoundFrustum extends RenderBoundingFrustum {
      */
     constructor(matrix: Matrix4x4) {
         super(matrix);
-        this.nativeMemory = new NativeMemory(NativeBoundFrustum.MemoryBlock_size);
+        this.nativeMemory = new NativeMemory(NativeBoundFrustum.MemoryBlock_size, true);
         this.float32Array = this.nativeMemory.float32Array;
         this._nativeObj = new (window as any).conchBoundFrustum(this.nativeMemory._buffer);
         this.matrix = matrix;

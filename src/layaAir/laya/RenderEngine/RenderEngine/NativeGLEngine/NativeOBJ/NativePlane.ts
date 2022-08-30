@@ -19,7 +19,7 @@ export class NativePlane extends RenderPlane {
      */
     constructor(normal: Vector3, d: number = 0) {
         super(normal, d);
-        this.nativeMemory = new NativeMemory(NativePlane.MemoryBlock_size);
+        this.nativeMemory = new NativeMemory(NativePlane.MemoryBlock_size, true);
         this.float32Array = this.nativeMemory.float32Array;
         this.float64Array = this.nativeMemory.float64Array;
         this._nativeObj = new (window as any).conchPlane(this.nativeMemory._buffer);
