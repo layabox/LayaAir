@@ -58,15 +58,14 @@ export class MeshColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	_setPhysicsMesh(){
-		if (this._attatchedCollisionObject) {
+		//if (this._attatchedCollisionObject) {
 			if(false){
 				this._createDynamicMeshCollider();
 			}else{
 				this._createBvhTriangleCollider();
 				//bt.btGImpactShapeInterface_updateBound(this._btShape);
 			}
-			
-		}
+		//}
 	}
 
 	private _createDynamicMeshCollider(){
