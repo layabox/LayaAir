@@ -7,6 +7,7 @@ export class NativeMemory {
     /**@internal 显示数据 */
     protected _idata:Int32Array;
     protected _fdata:Float32Array;
+    protected _f64data:Float64Array;
     protected _byteArray:Uint8Array;
     /**数据长度 */
     protected _byteLength: number;
@@ -22,6 +23,7 @@ export class NativeMemory {
         this._buffer = CommonMemoryAllocater.creatBlock(size);
         this._idata = new Int32Array(this._buffer);
         this._fdata = new Float32Array(this._buffer);
+        this._f64data = new Float64Array(this._buffer);
         this._byteArray = new Uint8Array(this._buffer);
         this._byteLength = size;
         this._id
@@ -34,6 +36,9 @@ export class NativeMemory {
         return  this._fdata;
     }
 
+    get float64Array(): Float64Array {
+        return  this._f64data;
+    }
     /**
      * Uint16Array Data
      */

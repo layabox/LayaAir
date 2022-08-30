@@ -9,13 +9,13 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
 export class NativeBounds implements IClone {
 
     /**native Share Memory */
-    static Bounds_MemoryBlock_size: number = 16;
+    static MemoryBlock_size: number = Math.max(6 * 8, 16 * 4);
     /**@internal	*/
     nativeMemory: NativeMemory;
     /**@internal	*/
     float32Array: Float32Array;
     /**@internal	*/
-    int32Array: Int32Array;
+    float64Array: Float64Array;
     /**@internal	*/
     _nativeObj: any;
     /**@internal	*/
@@ -51,9 +51,9 @@ export class NativeBounds implements IClone {
      * @param value	包围盒的最小点。
      */
     setMin(value: Vector3): void {
-        this.float32Array[0] = value.x;
-        this.float32Array[1] = value.y;
-        this.float32Array[2] = value.z;
+        this.float64Array[0] = value.x;
+        this.float64Array[1] = value.y;
+        this.float64Array[2] = value.z;
 		this._nativeObj.setMin();
     }
 
@@ -64,9 +64,9 @@ export class NativeBounds implements IClone {
     getMin(): Vector3 {
         var min: Vector3 = this._boundBox.min;
         this._nativeObj.getMin();
-        min.x = this.float32Array[0];
-        min.y = this.float32Array[1];
-        min.z = this.float32Array[2];
+        min.x = this.float64Array[0];
+        min.y = this.float64Array[1];
+        min.z = this.float64Array[2];
         return min;
     }
 
@@ -75,9 +75,9 @@ export class NativeBounds implements IClone {
      * @param value	包围盒的最大点。
      */
     setMax(value: Vector3): void {
-        this.float32Array[0] = value.x;
-        this.float32Array[1] = value.y;
-        this.float32Array[2] = value.z;
+        this.float64Array[0] = value.x;
+        this.float64Array[1] = value.y;
+        this.float64Array[2] = value.z;
 		this._nativeObj.setMax();
     }
 
@@ -88,9 +88,9 @@ export class NativeBounds implements IClone {
     getMax(): Vector3 {
         var max: Vector3 = this._boundBox.max;
         this._nativeObj.getMax();
-        max.x = this.float32Array[0];
-        max.y = this.float32Array[1];
-        max.z = this.float32Array[2];
+        max.x = this.float64Array[0];
+        max.y = this.float64Array[1];
+        max.z = this.float64Array[2];
         return max;
     }
 
@@ -99,9 +99,9 @@ export class NativeBounds implements IClone {
      * @param value	包围盒的中心点。
      */
     setCenter(value: Vector3): void {
-        this.float32Array[0] = value.x;
-        this.float32Array[1] = value.y;
-        this.float32Array[2] = value.z;
+        this.float64Array[0] = value.x;
+        this.float64Array[1] = value.y;
+        this.float64Array[2] = value.z;
 		this._nativeObj.setCenter();
     }
 
@@ -112,9 +112,9 @@ export class NativeBounds implements IClone {
     getCenter(): Vector3 {
         var center: Vector3 = this._center;
         this._nativeObj.getCenter();
-        center.x = this.float32Array[0];
-        center.y = this.float32Array[1];
-        center.z = this.float32Array[2];
+        center.x = this.float64Array[0];
+        center.y = this.float64Array[1];
+        center.z = this.float64Array[2];
         return center;
     }
 
@@ -123,9 +123,9 @@ export class NativeBounds implements IClone {
      * @param value	包围盒的范围。
      */
     setExtent(value: Vector3): void {
-        this.float32Array[0] = value.x;
-        this.float32Array[1] = value.y;
-        this.float32Array[2] = value.z;
+        this.float64Array[0] = value.x;
+        this.float64Array[1] = value.y;
+        this.float64Array[2] = value.z;
 		this._nativeObj.setExtent();
     }
 
@@ -136,9 +136,9 @@ export class NativeBounds implements IClone {
     getExtent(): Vector3 {
         var extent: Vector3 = this._extent;
         this._nativeObj.getExtent();
-        extent.x = this.float32Array[0];
-        extent.y = this.float32Array[1];
-        extent.z = this.float32Array[2];
+        extent.x = this.float64Array[0];
+        extent.y = this.float64Array[1];
+        extent.z = this.float64Array[2];
         return extent;
     }
 
@@ -148,9 +148,9 @@ export class NativeBounds implements IClone {
      * @param	max  max 最大坐标。
      */
     constructor(min?: Vector3, max?: Vector3) {
-        this.nativeMemory = new NativeMemory(NativeBounds.Bounds_MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(NativeBounds.MemoryBlock_size);
         this.float32Array = this.nativeMemory.float32Array;
-        this.int32Array = this.nativeMemory.int32Array;
+        this.float64Array = this.nativeMemory.float64Array;
         this._nativeObj = new (window as any).conchBounds(this.nativeMemory._buffer); 
         min && this.setMin(min);
         max && this.setMax(max);
@@ -169,12 +169,12 @@ export class NativeBounds implements IClone {
     _getBoundBox(): BoundBox {
         var boundBox: BoundBox = this._boundBox;
         this._nativeObj._getBoundBox();
-        boundBox.min.x = this.float32Array[0];
-        boundBox.min.y = this.float32Array[1];
-        boundBox.min.z = this.float32Array[2];
-        boundBox.max.x = this.float32Array[3];
-        boundBox.max.y = this.float32Array[4];
-        boundBox.max.z = this.float32Array[5];
+        boundBox.min.x = this.float64Array[0];
+        boundBox.min.y = this.float64Array[1];
+        boundBox.min.z = this.float64Array[2];
+        boundBox.max.x = this.float64Array[3];
+        boundBox.max.y = this.float64Array[4];
+        boundBox.max.z = this.float64Array[5];
         return boundBox;
     }
     /**
