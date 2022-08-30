@@ -5,8 +5,11 @@ export class NativeMemory {
     /**@internal 共享内存数据 */
     public _buffer: ArrayBuffer;
     /**@internal 显示数据 */
+    static  _sharedBuffer: ArrayBuffer = new ArrayBuffer(64);
+    /**@internal 显示数据 */
     protected _idata:Int32Array;
     protected _fdata:Float32Array;
+    protected _f64data:Float64Array;
     protected _byteArray:Uint8Array;
     /**数据长度 */
     protected _byteLength: number;
@@ -18,13 +21,21 @@ export class NativeMemory {
      * 实例化一个共享内存
      * @param size byteLength
      */
-    constructor(size: number) {
-        this._buffer = CommonMemoryAllocater.creatBlock(size);
+    constructor(size: number, shared: boolean) {
+        if (shared) {
+            if (size > NativeMemory._sharedBuffer.byteLength) {
+                throw new Error("NativeMemory:shared buffer not enough");
+            }
+            this._buffer = NativeMemory._sharedBuffer;
+        }
+        else {
+            this._buffer = CommonMemoryAllocater.creatBlock(size);
+        }
         this._idata = new Int32Array(this._buffer);
         this._fdata = new Float32Array(this._buffer);
+        this._f64data = new Float64Array(this._buffer);
         this._byteArray = new Uint8Array(this._buffer);
         this._byteLength = size;
-        this._id
     }
 
     /**
@@ -34,6 +45,9 @@ export class NativeMemory {
         return  this._fdata;
     }
 
+    get float64Array(): Float64Array {
+        return  this._f64data;
+    }
     /**
      * Uint16Array Data
      */

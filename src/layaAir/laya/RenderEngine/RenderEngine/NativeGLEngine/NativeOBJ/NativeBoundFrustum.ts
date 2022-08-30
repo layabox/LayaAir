@@ -5,12 +5,10 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
 
 
 export class NativeBoundFrustum extends RenderBoundingFrustum {
-    private static MemoryBlock_size = 17;
-    private static Stride_UpdateFlag = 16;
+    private static MemoryBlock_size = 16 * 4;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
     private float32Array: Float32Array;
-    private int32Array: Int32Array;
 
     _nativeObj: any;
 
@@ -20,9 +18,8 @@ export class NativeBoundFrustum extends RenderBoundingFrustum {
      */
     constructor(matrix: Matrix4x4) {
         super(matrix);
-        this.nativeMemory = new NativeMemory(NativeBoundFrustum.MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(NativeBoundFrustum.MemoryBlock_size, true);
         this.float32Array = this.nativeMemory.float32Array;
-        this.int32Array = this.nativeMemory.int32Array;
         this._nativeObj = new (window as any).conchBoundFrustum(this.nativeMemory._buffer);
         this.matrix = matrix;
     }
@@ -31,7 +28,7 @@ export class NativeBoundFrustum extends RenderBoundingFrustum {
         matrix.cloneTo(this._matrix);
         //update Native Data  native拿到Frustumnative 需要更新plane
         this.float32Array.set(this._matrix.elements);
-        this.int32Array[NativeBoundFrustum.Stride_UpdateFlag] = 1;
+        this._nativeObj.setMatrix();
         BoundFrustum.getPlanesFromMatrix(this._matrix, this._near, this._far, this._left, this._right, this._top, this._bottom);
     }
 }

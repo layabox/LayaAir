@@ -4,14 +4,11 @@ import { Vector3 } from "../../../../d3/math/Vector3";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
 
 export class NativePlane extends RenderPlane {
-    private static MemoryBlock_size = 5;
-    private static Stride_Normal = 0;
-    private static Stride_Distance = 3;
-    private static Stride_UpdateFlag = 4;
+    private static MemoryBlock_size = 3 * 8;
     /**native Share Memory */
     private nativeMemory: NativeMemory;
     private float32Array: Float32Array;
-    private int32Array: Int32Array;
+    private float64Array: Float64Array;
     _nativeObj: any;
 
 
@@ -22,9 +19,9 @@ export class NativePlane extends RenderPlane {
      */
     constructor(normal: Vector3, d: number = 0) {
         super(normal, d);
-        this.nativeMemory = new NativeMemory(NativePlane.MemoryBlock_size * 4);
+        this.nativeMemory = new NativeMemory(NativePlane.MemoryBlock_size, true);
         this.float32Array = this.nativeMemory.float32Array;
-        this.int32Array = this.nativeMemory.int32Array;
+        this.float64Array = this.nativeMemory.float64Array;
         this._nativeObj = new (window as any).conchPlane(this.nativeMemory._buffer);
         this.normal = normal;
         this.distance = d;
@@ -32,12 +29,10 @@ export class NativePlane extends RenderPlane {
 
     set normal(value: Vector3) {
         value.cloneTo(this._normal);
-        const offset = NativePlane.Stride_Normal;
-        this.float32Array[offset] = value.x;
-        this.float32Array[offset + 1] = value.y;
-        this.float32Array[offset + 2] = value.z;
-
-        this.int32Array[NativePlane.Stride_UpdateFlag] = 1;
+        this.float64Array[0] = value.x;
+        this.float64Array[1] = value.y;
+        this.float64Array[2] = value.z;
+        this._nativeObj.setNormal();
     }
 
     get normal() {
@@ -46,9 +41,8 @@ export class NativePlane extends RenderPlane {
 
     set distance(value: number) {
         this._distance = value;
-        this.float32Array[NativePlane.Stride_Distance] = value;
-
-        this.int32Array[NativePlane.Stride_UpdateFlag] = 1;
+        this.float32Array[0] = value;
+        this._nativeObj.setDistance();
     }
 
     get distance(): number {

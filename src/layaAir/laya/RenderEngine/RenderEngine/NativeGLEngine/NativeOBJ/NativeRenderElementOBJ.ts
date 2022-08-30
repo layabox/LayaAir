@@ -39,7 +39,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     set _materialShaderData(data: NativeShaderData) {
         this.materialShaderData = data;
-        this._nativeObj._materialShaderData = data._nativeObj;
+        this._nativeObj._materialShaderData = data ? (data as any)._nativeObj : null;
     }
 
     get _materialShaderData(): NativeShaderData {
@@ -48,7 +48,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     set _renderShaderData(data: NativeShaderData) {
         this.renderShaderData = data;
-        this._nativeObj._renderShaderData = data._nativeObj;
+        this._nativeObj._renderShaderData = data ? (data as any)._nativeObj : null;
     }
 
     get _renderShaderData(): NativeShaderData {
