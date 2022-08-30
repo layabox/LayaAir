@@ -778,7 +778,7 @@ export class Camera extends BaseCamera {
             scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
             shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
             shadowCasterPass.update(this, mainDirectLight, ShadowLightType.DirectionLight);
-            shadowCasterPass.render(context, scene, ShadowLightType.DirectionLight);
+            shadowCasterPass.render(context, scene, ShadowLightType.DirectionLight,this);
         }
         else {
             scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
@@ -790,7 +790,7 @@ export class Camera extends BaseCamera {
             scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
             shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
             shadowCasterPass.update(this, spotMainLight, ShadowLightType.SpotLight);
-            shadowCasterPass.render(context, scene, ShadowLightType.SpotLight);
+            shadowCasterPass.render(context, scene, ShadowLightType.SpotLight,this);
         }
         else {
             scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);

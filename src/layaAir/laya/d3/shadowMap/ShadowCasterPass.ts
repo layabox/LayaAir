@@ -366,7 +366,7 @@ export class ShadowCasterPass {
      * @param scene 3DScene场景
      * @param lightType 阴影类型
      */
-    render(context: RenderContext3D, scene: Scene3D, lightType: ShadowLightType): void {
+    render(context: RenderContext3D, scene: Scene3D, lightType: ShadowLightType,camera:Camera): void {
         switch (lightType) {
             case ShadowLightType.DirectionLight:
                 var shaderValues: ShaderData = scene._shaderValues;
@@ -405,7 +405,7 @@ export class ShadowCasterPass {
                         context.scissor = ShadowCasterPass._tempVector4;
                         Stat.depthCastDrawCall +=scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
                     }
-                    context.camera._applyCasterPassCommandBuffer(context);
+                    camera._applyCasterPassCommandBuffer(context);
                 }
                 shadowMap._end();
                 this._setupShadowReceiverShaderValues(shaderValues);
@@ -434,7 +434,7 @@ export class ShadowCasterPass {
                     context.changeScissor(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
                     Stat.depthCastDrawCall += scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
                 }
-                context.camera._applyCasterPassCommandBuffer(context);
+                camera._applyCasterPassCommandBuffer(context);
                 shadowMap._end();
                 this._setupSpotShadowReceiverShaderValues(shaderValues);
                 context.pipelineMode = context.configPipeLineMode;

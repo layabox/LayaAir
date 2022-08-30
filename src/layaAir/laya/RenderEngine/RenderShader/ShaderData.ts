@@ -297,6 +297,8 @@ export class ShaderData implements IClone {
 	 * @param value 颜色值
 	 */
 	setColor(index: number, value: Color): void {
+		if(!value)
+			return;
 		if (this._data[index]) {
 			let gammaColor = this._gammaColorMap.get(index);
 			value.cloneTo(gammaColor);

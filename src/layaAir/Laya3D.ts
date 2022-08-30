@@ -190,6 +190,7 @@ export class Laya3D {
 
         // PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
         BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
+        BlinnPhongMaterial.defaultMaterial.lock = true;
         // EffectMaterial.defaultMaterial = new EffectMaterial();
         // PBRStandardMaterial.defaultMaterial = new PBRStandardMaterial();
         // PBRSpecularMaterial.defaultMaterial = new PBRSpecularMaterial();
