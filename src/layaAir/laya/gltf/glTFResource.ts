@@ -1400,6 +1400,7 @@ export class glTFResource extends HierarchyResource {
 
         render.localBounds.setMin(min);
         render.localBounds.setMax(max);
+        render.localBounds = render.localBounds;
     }
 
     /**

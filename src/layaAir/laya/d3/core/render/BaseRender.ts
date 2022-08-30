@@ -54,21 +54,6 @@ export class BaseRender extends Component implements ISingletonElement {
         // 	BaseRender.initRenderableLargeUniformBlock();
     }
 
-    /**
-     * init Renderable Block
-     */
-    //static initRenderableLargeUniformBlock() {
-    //	let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-    //	uniformpara.set("u_WorldMat", UniformBufferParamsType.Matrix4x4);
-    //	//uniformpara.set("u_LightmapScaleOffset", UniformBufferParamsType.Vector4);
-    //	uniformpara.set("u_ReflectCubeHDRParams", UniformBufferParamsType.Vector4);
-    //	let subUBOData = new SubUniformBufferData(uniformpara, 0);
-    //	//createUBO Buffer
-    //	let ubo = UniformBufferObject.creat(UniformBufferObject.UBONAME_SPRITE3D, BufferUsage.Dynamic, subUBOData.getbyteLength(), true);
-    //	//bind manager
-    //	BaseRender._transLargeUbO = new TransLargeUBOUtils(ubo, uniformpara, subUBOData);
-    //}
-
     /** @internal */
     private _lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
     /** @internal */
@@ -470,41 +455,6 @@ export class BaseRender extends Component implements ISingletonElement {
         throw ("BaseRender: must override it.");
     }
 
-
-
-    // /**
-    //  * scene manager Node get
-    //  */
-    // _getOctreeNode(): BoundsOctreeNode {//[实现IOctreeObject接口]
-    // 	//@ts-ignore
-    // 	return this._octreeNode;
-    // }
-
-    // /**
-    //  * scene manager Node Set
-    //  */
-    // _setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
-    // 	if (!value) {
-    // 		(this._indexInOctreeMotionList !== -1) && (this._octreeNode.getManagerNode().removeMotionObject(this));
-    // 	}
-    // 	this._octreeNode = value;
-    // }
-
-    // /**
-    //  * motion list id get
-    //  */
-    // _getIndexInMotionList(): number {//[实现IOctreeObject接口]
-    // 	return this._indexInOctreeMotionList;
-    // }
-
-    // /**
-    //  * motion list id set
-    //  */
-    // _setIndexInMotionList(value: number): void {//[实现IOctreeObject接口]
-    // 	this._indexInOctreeMotionList = value;
-    // }
-
-
     /**
      * @internal
      */
@@ -606,12 +556,6 @@ export class BaseRender extends Component implements ISingletonElement {
     _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
     }
 
-    // /**
-    //  * @internal
-    //  */
-    // _revertBatchRenderUpdate(context: RenderContext3D): void {
-    // }
-
     protected _onDestroy() {
         (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
@@ -632,16 +576,6 @@ export class BaseRender extends Component implements ISingletonElement {
             this._subUniformBufferData = null;
         }
     }
-
-    // /**
-    //  * 标记为非静态,静态合并后可用于取消静态限制。
-    //  */
-    // markAsUnStatic(): void {
-    // 	if (this._isPartOfStaticBatch) {
-    // 		MeshRenderStaticBatchManager.instance._removeRenderSprite(this);
-    // 		this._isPartOfStaticBatch = false;
-    // 	}
-    // }
 
     /**
      * @override

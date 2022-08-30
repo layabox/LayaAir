@@ -100,7 +100,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
         var max: any[] = boundBox.max;
         render.localBounds.setMin(new Vector3(min[0], min[1], min[2]));
         render.localBounds.setMax(new Vector3(max[0], max[1], max[2]));
-
+        render.localBounds =  render.localBounds;
         if (spriteMap) {
             var rootBoneData: number = data.rootBone;
             render.rootBone = spriteMap[rootBoneData];

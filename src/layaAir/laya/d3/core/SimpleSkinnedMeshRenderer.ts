@@ -133,48 +133,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
                 this._computeAnimatorParamsData();
                 this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
                 break;
-            case RenderElement.RENDERTYPE_INSTANCEBATCH:
-                // var worldMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceWorldMatrixData;
-                // var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
-                // var elements: SubMeshRenderElement[] = insBatches.elements;
-                // var count: number = insBatches.length;
-                // if (this.rootBone) {
-                //     for (var i: number = 0; i < count; i++) {
-                //         var mat: Matrix4x4 = (((elements[i].render) as SimpleSkinnedMeshRenderer).rootBone as Sprite3D)._transform.worldMatrix;
-                //         worldMatrixData.set(mat.elements, i * 16);
-                //     }
-                // }
-                // else {
-                //     for (var i: number = 0; i < count; i++)
-                //         worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
-                // }
-                // var worldBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer;
-                // worldBuffer.orphanStorage();// prphan the memory block to avoid sync problem.can improve performance in HUAWEI P10.   TODO:"WebGL's bufferData(target, size, usage) call is guaranteed to initialize the buffer to 0"
-                // worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
-                // this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
-                // //TODO:new Instance
-
-                // var simpleAnimatorData: Float32Array = SubMeshInstanceBatch.instance.instanceSimpleAnimatorData;
-                // if (this.rootBone) {
-                //     for (var i: number = 0; i < count; i++) {
-                //         var render: SimpleSkinnedMeshRenderer = (elements[i].render) as SimpleSkinnedMeshRenderer;
-                //         render._computeAnimatorParamsData();
-                //         var simpleAnimatorParams: Vector4 = render._simpleAnimatorParams;
-                //         var offset: number = i * 4;
-                //         simpleAnimatorData[offset] = simpleAnimatorParams.x;
-                //         simpleAnimatorData[offset + 1] = simpleAnimatorParams.y;
-                //     }
-                // }
-                // else {
-                //     for (var i: number = 0; i < count; i++) {
-                //         simpleAnimatorData[offset] = 0;
-                //         simpleAnimatorData[offset + 1] = 0;
-                //     }
-                // }
-                // var simpleAnimatorBuffer: VertexBuffer3D = SubMeshInstanceBatch.instance.instanceSimpleAnimatorBuffer;
-                // simpleAnimatorBuffer.orphanStorage();
-                // simpleAnimatorBuffer.setData(simpleAnimatorData.buffer, 0, 0, count * 4 * 4);
-                break;
         }
     }
     /**
@@ -183,22 +141,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      * @internal
      */
     _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-        // var projectionView: Matrix4x4 = context.projectionViewMatrix;
-        // if (projectionView) {
-        //     var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
-        //     switch (element.renderType) {
-        //         case RenderElement.RENDERTYPE_NORMAL:
-        //             if (this.rootBone) {
-        //                 var mat: Matrix4x4 = (this.rootBone as Sprite3D)._transform.worldMatrix;
-        //                 Matrix4x4.multiply(projectionView, mat, this._projectionViewWorldMatrix);
-        //                 this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-        //             } else {
-        //                 Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-        //                 this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-        //             }
-        //             break;
-        //     }
-        // }
     }
 
     _cloneTo(dest: Component): void {

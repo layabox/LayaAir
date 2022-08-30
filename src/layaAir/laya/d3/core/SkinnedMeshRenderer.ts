@@ -53,6 +53,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     set localBounds(value: Bounds) {
         this._localBounds.set(value);
+        this.geometryBounds = this._localBounds;
     }
 
     /**
@@ -76,6 +77,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
             this._cacheRootBone = value;
             this._onWorldMatNeedChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
+
+            let count = this._renderElements.length;
+            for (var i: number = 0; i < count; i++) {
+                var renderElement: SkinRenderElement = this._renderElements[i];
+                renderElement.setTransform(value.transform);
+            }
         }
     }
 
@@ -134,21 +141,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     /**
-     * @internal
-     * @override
-     */
-    protected _onWorldMatNeedChange(flag: number): void {
-        this.boundsChange = true;
-        // if (this._octreeNode) {
-        // 	flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
-        // 	if (flag) {
-        // 		if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
-        // 			this._octreeNode.getManagerNode().addMotionObject(this);
-        // 	}
-        // }
-    }
-
-    /**
      *@inheritDoc
      *@override
      *@internal
@@ -171,7 +163,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                 if (!renderElement) {
                     var material: Material = this.sharedMaterials[i];
                     renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
-                    renderElement.setTransform((this.owner as Sprite3D)._transform);
+                    if(this._cacheRootBone){
+                        renderElement.setTransform(this._cacheRootBone._transform);
+                    }else{
+                        renderElement.setTransform((this.owner as Sprite3D)._transform);
+                    }
                     renderElement.render = this;
                     renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
                 }
@@ -314,6 +310,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         //bounds
         var lbb: Bounds = this.localBounds;
         (lbb) && (lbb.cloneTo(render.localBounds));
+        (render.localBounds)&&(render.localBounds = render.localBounds);
         super._cloneTo(dest);
     }
 
