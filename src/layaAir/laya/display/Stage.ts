@@ -140,8 +140,8 @@ export class Stage extends Sprite {
     private _alignH: string = "left";
     /**@private */
     private _bgColor: string = "black";
-    /**@private */
-    private _mouseMoveTime: number = 0;
+    /**@internal */
+    _mouseMoveTime: number = 0;
     /**@private */
     private _renderCount: number = 0;
     /**@private */
@@ -247,9 +247,6 @@ export class Stage extends Sprite {
         window.addEventListener("orientationchange", (e: any) => {
             this._resetCanvas();
         });
-
-        this.on(Event.MOUSE_MOVE, this, this._onmouseMove);
-        if (Browser.onMobile) this.on(Event.MOUSE_DOWN, this, this._onmouseMove);
 
         this._componentDriver = new ComponentDriver();
     }
@@ -618,11 +615,6 @@ export class Stage extends Sprite {
         return this._frameStartTime;
     }
 
-    /**@private */
-    private _onmouseMove(e: Event): void {
-        this._mouseMoveTime = Browser.now();
-    }
-
     /**
      * <p>获得距当前帧开始后，过了多少时间，单位为毫秒。</p>
      * <p>可以用来判断函数内时间消耗，通过合理控制每帧函数处理消耗时长，避免一帧做事情太多，对复杂计算分帧处理，能有效降低帧率波动。</p>
@@ -859,7 +851,7 @@ export class Stage extends Sprite {
 
     /**@private */
     private _fullScreenChanged(): void {
-        ILaya.stage.event(Event.FULL_SCREEN_CHANGE);
+        this.event(Event.FULL_SCREEN_CHANGE);
     }
 
     /**退出全屏模式*/

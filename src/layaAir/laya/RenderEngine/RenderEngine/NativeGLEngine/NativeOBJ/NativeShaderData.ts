@@ -164,7 +164,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         var value: BaseTexture = this._data[index];
         memoryBlock.int32Array[stride] = index;
         memoryBlock.int32Array[stride + 1] = NativeShaderDataType.Texture;
-        memoryBlock.int32Array[stride + 2] = value ? (value._texture as any).id : (Texture2D.erroTextur._texture as any).id;
+        memoryBlock.int32Array[stride + 2] = (value && value._texture) ? (value._texture as any).id : (Texture2D.erroTextur._texture as any).id;
         return 3;
     }
 

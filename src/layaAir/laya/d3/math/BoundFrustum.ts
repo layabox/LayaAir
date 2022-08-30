@@ -9,7 +9,6 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { IClone } from "../../utils/IClone";
 
 /**
- * @internal
  * 锥体角点。
  */
 export enum FrustumCorner {

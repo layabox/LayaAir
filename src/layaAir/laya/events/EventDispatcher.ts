@@ -144,7 +144,7 @@ export class EventDispatcher {
      * @param	caller caller对象
      */
     offAllCaller(caller: any): EventDispatcher {
-        if (this._events) {
+        if (caller && this._events) {
             for (let type in this._events)
                 this._events[type].clearForTarget(caller);
         }

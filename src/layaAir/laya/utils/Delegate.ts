@@ -56,6 +56,9 @@ export class Delegate {
     }
 
     public clearForTarget(target: any): void {
+        if (!target)
+            return;
+
         let arr = this._items;
         if (this._flag != 0) {
             arr.forEach((value, index, arr) => { if ((index % ITEM_LAYOUT == 1) && arr[index] == target) arr[index + 2] = 0; });

@@ -2,12 +2,10 @@ import { ILaya } from "../../ILaya";
 import { Event } from "../events/Event";
 import { URL } from "../net/URL";
 import { Texture } from "../resource/Texture";
-import { Browser } from "../utils/Browser";
 import { Delegate } from "../utils/Delegate";
 import { AtlasInfoManager } from "./AtlasInfoManager";
 import { WorkerLoader } from "./WorkerLoader";
 import { Utils } from "../utils/Utils";
-import { HttpRequest } from "./HttpRequest";
 import { AtlasResource } from "../resource/AtlasResource";
 import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
 import { IBatchProgress, ProgressCallback, BatchProgress } from "./BatchProgress";
@@ -15,8 +13,8 @@ import { Handler } from "../utils/Handler";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { Node } from "../display/Node";
-import { ImgUtils } from "../utils/ImgUtils";
 import { Resource } from "../resource/Resource";
+import { Downloader } from "./Downloader";
 
 export interface ILoadTask {
     readonly type: string;
@@ -105,15 +103,15 @@ export class Loader extends EventDispatcher {
     /**AnimationClip资源。*/
     static ANIMATIONCLIP = "ANIMATIONCLIP";
     /**SimpleAnimator资源。 */
-    static SIMPLEANIMATORBIN: string = "SIMPLEANIMATOR";
+    static SIMPLEANIMATORBIN = "SIMPLEANIMATOR";
     /**Terrain资源。*/
     static TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
     /**Terrain资源。*/
     static TERRAINRES = "TERRAIN";
     /** glTF 资源 */
-    static GLTF: string = "GLTF";
+    static GLTF = "GLTF";
     /** Spine 资源 */
-    static SPINE: string = "SPINE";
+    static SPINE = "SPINE";
 
     /** 加载出错后的重试次数，默认重试一次*/
     retryNum: number = 1;
@@ -124,6 +122,8 @@ export class Loader extends EventDispatcher {
 
     static readonly extMap: { [ext: string]: Array<TypeMapEntry> } = {};
     static readonly typeMap: { [type: string]: TypeMapEntry } = {};
+
+    static downloader = new Downloader();
 
     /**
      * 注册一种资源装载器。
@@ -483,62 +483,42 @@ export class Loader extends EventDispatcher {
 
     private download(item: DownloadItem) {
         this._downloadings.add(item);
-
         let url = URL.postFormatURL(item.url);
+
         if (item.contentType == "image") {
-            if (item.blob) {
-                url = ImgUtils.arrayBufferToURL(item.originalUrl, item.blob);
-                item.retryCnt = -1; //失败无需重试
-            }
-            else if (item.useWorkerLoader) {
-                WorkerLoader.enableWorkerLoader();
-                if (WorkerLoader.enable) {
-                    let workerLoader = WorkerLoader.I;
-                    workerLoader.once(url, null, (imageData: any) => {
-                        if (imageData != null)
-                            this.completeItem(item, imageData);
-                        else {
-                            item.useWorkerLoader = false;
-                            this.completeItem(item, null, "workerloader failed!");
-                        }
-                    });
-                    workerLoader.worker.postMessage(url);
+            let preloadedContent = Loader.preLoadedMap[item.url];
+            if (preloadedContent) {
+                if (!(preloadedContent instanceof ArrayBuffer)) {
+                    this.completeItem(item, preloadedContent);
                     return;
                 }
+
+                //cache as arraybuffer
+                item.blob = preloadedContent;
             }
 
-            let image: HTMLImageElement = new Browser.window.Image();
-            image.crossOrigin = "";
-            image.onload = () => {
-                image.onload = null;
-                image.onerror = null;
-                this.completeItem(item, image);
-            };
-            image.onerror = () => {
-                image.onload = null;
-                image.onerror = null;
-
-                this.completeItem(item, null, "");
-            };
-            image.src = url;
-            item.temp = image;
+            if (item.blob) {
+                Loader.downloader.imageWithBlob(item, item.blob, item.originalUrl, item.onProgress, (data: any, error: string) => {
+                    if (!data)
+                        item.retryCnt = -1; //失败无需重试
+                    this.completeItem(item, data, error);
+                });
+            }
+            else if (item.useWorkerLoader) {
+                Loader.downloader.imageWithWorker(item, url, item.originalUrl, item.onProgress, (data: any, error: string) => {
+                    if (!data)
+                        item.useWorkerLoader = false; //重试不用worker
+                    this.completeItem(item, data, error);
+                });
+            }
+            else {
+                Loader.downloader.image(item, url, item.originalUrl, item.onProgress, (data: any, error: string) =>
+                    this.completeItem(item, data, error));
+            }
         }
         else if (item.contentType == "sound") {
-            let audio = (<HTMLAudioElement>Browser.createElement("audio"));
-            audio.crossOrigin = "";
-            audio.src = url;
-            audio.oncanplaythrough = () => {
-                audio.oncanplaythrough = null;
-                audio.onerror = null;
-                this.completeItem(item, audio);
-            };
-            audio.onerror = () => {
-                audio.oncanplaythrough = null;
-                audio.onerror = null;
-
-                this.completeItem(item, null, "");
-            };
-            item.temp = audio;
+            Loader.downloader.audio(item, url, item.originalUrl, item.onProgress, (data: any, error: string) =>
+                this.completeItem(item, data, error));
         }
         else {
             let preloadedContent = Loader.preLoadedMap[item.url];
@@ -547,30 +527,9 @@ export class Loader extends EventDispatcher {
                 return;
             }
 
-            item.temp = this._loadHttpRequest(url, item.contentType, item.onProgress, (data: any, error: string) => {
-                this.completeItem(item, data, error);
-            });
+            Loader.downloader.common(item, url, item.originalUrl, item.contentType, item.onProgress, (data: any, error: string) =>
+                this.completeItem(item, data, error));
         }
-    }
-
-    _loadHttpRequest(url: string, contentType: string,
-        onProgress: (progress: number) => void, onComplete: (data: any, error?: string) => void): any {
-        let http: HttpRequest = getRequestInst();
-        http.on(Event.COMPLETE, () => {
-            let data = http.data;
-            returnRequestInst(http);
-
-            onComplete(data);
-        });
-        http.on(Event.ERROR, null, (error: string) => {
-            returnRequestInst(http);
-
-            onComplete(null, error);
-        });
-        if (onProgress)
-            http.on(Event.PROGRESS, onProgress);
-        http.send(url, null, "get", <any>contentType);
-        return http;
     }
 
     private completeItem(item: DownloadItem, content: any, error?: string) {
@@ -956,23 +915,6 @@ interface DownloadItem {
     useWorkerLoader?: boolean;
     blob?: ArrayBuffer;
     retryCnt?: number;
-    temp?: any;
     onComplete: (content: any) => void;
     onProgress: (progress: number) => void;
-}
-
-const httpRequestPool: Array<HttpRequest> = [];
-function getRequestInst() {
-    if (httpRequestPool.length == 0
-        || Browser.onVVMiniGame || Browser.onHWMiniGame /*临时修复vivo复用xmlhttprequest的bug*/) {
-        return new HttpRequest();
-    } else {
-        return httpRequestPool.pop();
-    }
-}
-
-function returnRequestInst(inst: HttpRequest) {
-    inst.reset();
-    if (httpRequestPool.length < 10)
-        httpRequestPool.push(inst);
 }

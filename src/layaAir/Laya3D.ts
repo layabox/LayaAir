@@ -189,7 +189,7 @@ export class Laya3D {
         BlitFrameBufferCMD.__init__();
 
         // PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
-        // BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
+        BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
         // EffectMaterial.defaultMaterial = new EffectMaterial();
         // PBRStandardMaterial.defaultMaterial = new PBRStandardMaterial();
         // PBRSpecularMaterial.defaultMaterial = new PBRSpecularMaterial();
