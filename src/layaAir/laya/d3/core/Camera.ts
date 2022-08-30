@@ -188,6 +188,8 @@ export class Camera extends BaseCamera {
     private _depthNormalsTexture: RenderTexture;
 
     private _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
+    /**@internal 实现CommanBuffer的阴影渲染 */
+    private _shadowCasterCommanBuffer: CommandBuffer[] = [];
 
     /** @internal */
     _clusterXPlanes: Vector3[];
@@ -730,6 +732,35 @@ export class Camera extends BaseCamera {
         LayaGL.renderEngine.viewport(0, 0, context.viewport.width, context.viewport.height);
     }
 
+    /**
+     * apply 
+     * @internal
+     */
+    _applyCasterPassCommandBuffer(context: RenderContext3D) {
+        if (!this._shadowCasterCommanBuffer || this._shadowCasterCommanBuffer.length == 0)
+            return;
+        this._shadowCasterCommanBuffer.forEach(function (value) {
+            value._context = context;
+            value._apply();
+        });
+    }
+
+    /**
+    * @internal
+    */
+    _addCasterShadowCommandBuffer(commandBuffer: CommandBuffer) {
+        if (this._shadowCasterCommanBuffer.indexOf(commandBuffer) < 0)
+            this._shadowCasterCommanBuffer.push(commandBuffer);
+    }
+
+    /**
+     * @internal
+     * @param commandBuffer 
+     */
+    _removeCasterShadowCommandBuffer(commandBuffer: CommandBuffer) {
+        var index: number = this._shadowCasterCommanBuffer.indexOf(commandBuffer);
+        if (index != -1) this._shadowCasterCommanBuffer.splice(index, 1);
+    }
 
     /**
      * 渲染阴影模式
@@ -1093,6 +1124,13 @@ export class Camera extends BaseCamera {
     destroy(destroyChild: boolean = true): void {
         this._offScreenRenderTexture = null;
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+        for (var i in this._cameraEventCommandBuffer) {
+            if (!this._cameraEventCommandBuffer[i])
+                continue;
+            this._cameraEventCommandBuffer[i].forEach(element => {
+                element.clear();
+            });
+        }
         super.destroy(destroyChild);
     }
 
@@ -1107,7 +1145,13 @@ export class Camera extends BaseCamera {
         if (commandBufferArray.indexOf(commandBuffer) < 0)
             commandBufferArray.push(commandBuffer);
         commandBuffer._camera = this;
+        if (commandBuffer.casterShadow) {
+            this._addCasterShadowCommandBuffer(commandBuffer);
+        }
     }
+
+
+    
 
     /**
      * 移除camera渲染节点渲染缓存
@@ -1119,6 +1163,8 @@ export class Camera extends BaseCamera {
         if (commandBufferArray) {
             var index: number = commandBufferArray.indexOf(commandBuffer);
             if (index != -1) commandBufferArray.splice(index, 1);
+
+            commandBuffer.casterShadow && this._removeCasterShadowCommandBuffer(commandBuffer);
         }
         else
             throw "Camera:unknown event.";

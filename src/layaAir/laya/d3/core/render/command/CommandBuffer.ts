@@ -34,21 +34,29 @@ export class CommandBuffer {
 	/**@internal */
 	_name: string
 	/**@internal */
+	private _shadow:boolean = false;
+	/**@internal */
 	_camera: Camera = null;
 	/**@internal */
 	_context: RenderContext3D;
 	/**@internal */
 	private _commands: Command[] = [];
 
+
 	/**
 	 * 创建一个 <code>CommandBuffer</code> 实例。
 	 */
-	constructor(name: string = null) {
+	constructor(name: string = null,shadowCaster:boolean = false) {
 		this._name = name;
+		this._shadow = shadowCaster;
 	}
 
 	get name(): string {
 		return this._name;
+	}
+
+	get casterShadow(){
+		return this._shadow;
 	}
 
 	/**
