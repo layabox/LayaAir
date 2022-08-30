@@ -23,7 +23,7 @@ export class ChinarMirrorPlane extends Script {
     public mainCamera: Camera;
     private mirrorCamera: Camera = new Camera(); // 镜像摄像机
 
-    private renderTexture: RenderTexture = new RenderTexture(1024, 1024, RenderTargetFormat.R8G8B8, RenderTargetFormat.DEPTH_16, false, 1);
+    private renderTexture: RenderTexture = RenderTexture.createFromPool(1024, 1024, RenderTargetFormat.R8G8B8, RenderTargetFormat.DEPTH_16, false, 1);
 
     public estimateViewFrustum: boolean = true;
     public setNearClipPlane: boolean = true;
