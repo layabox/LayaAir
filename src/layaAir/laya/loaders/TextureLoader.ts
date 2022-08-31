@@ -38,9 +38,7 @@ class Texture2DLoader implements IResourceLoader {
                         else if (ktxInfo.dimension == TextureDimension.Tex2D) {
                             tex = Texture2D._parseKTX(data, task.options.propertyParams, task.options.constructParams);
                         }
-                        tex = Texture2D._parseKTX(data, task.options.propertyParams, task.options.constructParams);
                         break;
-
                     case "pvr":
                         tex = Texture2D._parsePVR(data, task.options.propertyParams, task.options.constructParams);
                         break;
