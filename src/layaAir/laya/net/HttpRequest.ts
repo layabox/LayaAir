@@ -62,14 +62,18 @@ export class HttpRequest extends EventDispatcher {
             for (let i: number = 0; i < headers.length; i++) {
                 http.setRequestHeader(headers[i++], headers[i]);
             }
-        } else if (!(((<any>window)).conch)) {
-            if (!data || typeof (data) == 'string') http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            else {
+        } else {
+            if (!data || typeof (data) == 'string') {
+                if (!(<any>window).conch) {
+                    http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                }
+            }
+			else{
                 http.setRequestHeader("Content-Type", "application/json");
                 if (!(data instanceof ArrayBuffer) && typeof data !== "string") {
                     isJson = true;
                 }
-            }
+			}
         }
         let restype: XMLHttpRequestResponseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";
         http.responseType = restype;

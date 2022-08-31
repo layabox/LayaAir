@@ -192,23 +192,26 @@ export class Component {
                 this._enableState = true;
 
                 let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-                driver.add(this);
+                if (LayaEnv.isPlaying || this.runInEditor) {
+                    driver.add(this);
 
-                if (this._isScript() && (LayaEnv.isPlaying || this.runInEditor))
-                    this.setupScript();
+                    if (this._isScript())
+                        this.setupScript();
 
-                this._onEnable();
+                    this._onEnable();
+                }
             }
         } else if (this._enableState) {
             this._enableState = false;
 
             let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
-            driver.remove(this);
+            if (LayaEnv.isPlaying || this.runInEditor) {
+                driver.remove(this);
 
-            this.owner.offAllCaller(this);
+                this.owner.offAllCaller(this);
 
-            this._onDisable();
-
+                this._onDisable();
+            }
         }
     }
 

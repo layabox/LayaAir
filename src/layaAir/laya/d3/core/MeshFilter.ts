@@ -19,6 +19,12 @@ export class MeshFilter extends Component {
     /** @internal */
     private _sharedMesh: Mesh;
 
+    constructor() {
+        super();
+
+        this.runInEditor = true;
+    }
+
     /**
      * @internal
      */
