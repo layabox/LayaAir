@@ -180,6 +180,8 @@ export class Light extends Component {
      */
     constructor() {
         super();
+
+        this.runInEditor = true;
         this._intensity = 1.0;
         this._intensityColor = new Vector3();
         this.color = new Color(1.0, 1.0, 1.0, 1.0);

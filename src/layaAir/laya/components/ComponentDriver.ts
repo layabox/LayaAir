@@ -1,4 +1,3 @@
-import { LayaEnv } from "../../LayaEnv";
 import { Component } from "./Component";
 
 export class ComponentDriver {
@@ -91,21 +90,20 @@ export class ComponentDriver {
     }
 
     add(comp: Component) {
-        if (LayaEnv.isPlaying || comp.runInEditor) {
-            if (comp._status == 1) {
-                if (comp.onStart) {
-                    comp._status = 2;
-                    this._toStarts.add(comp);
-                }
-                else
-                    comp._status = 3;
+        if (comp._status == 1) {
+            if (comp.onStart) {
+                comp._status = 2;
+                this._toStarts.add(comp);
             }
-
-            if (comp.onUpdate)
-                this._onUpdates.add(comp);
-            if (comp.onLateUpdate)
-                this._onLateUpdates.add(comp);
+            else
+                comp._status = 3;
         }
+
+        if (comp.onUpdate)
+            this._onUpdates.add(comp);
+        if (comp.onLateUpdate)
+            this._onLateUpdates.add(comp);
+
         if (comp.onPreRender)
             this._onPreRenders.add(comp);
         if (comp.onPostRender)
@@ -113,15 +111,14 @@ export class ComponentDriver {
     }
 
     remove(comp: Component) {
-        if (LayaEnv.isPlaying || comp.runInEditor) {
-            if (comp._status == 2) //starting
-                comp._status = 1; //cancel start
+        if (comp._status == 2) //starting
+            comp._status = 1; //cancel start
 
-            if (comp.onUpdate)
-                this._onUpdates.delete(comp);
-            if (comp.onLateUpdate)
-                this._onLateUpdates.delete(comp);
-        }
+        if (comp.onUpdate)
+            this._onUpdates.delete(comp);
+        if (comp.onLateUpdate)
+            this._onLateUpdates.delete(comp);
+
         if (comp.onPreRender)
             this._onPreRenders.delete(comp);
         if (comp.onPostRender)
