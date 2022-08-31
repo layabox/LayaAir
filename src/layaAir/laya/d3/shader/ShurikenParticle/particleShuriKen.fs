@@ -4,6 +4,8 @@
 #include "SceneFog.glsl";
 #include "Color.glsl";
 
+const vec4 c_ColorSpace = vec4(4.59479380, 4.59479380, 4.59479380, 2.0);
+
 varying vec4 v_Color;
 varying vec2 v_TextureCoordinate;
 // uniform sampler2D u_texture;
@@ -28,13 +30,13 @@ void main()
         colorT = gammaToLinear(colorT);
     #endif // Gamma_u_SpecularTexture
     #ifdef TINTCOLOR
-    color *= colorT * u_Tintcolor * 2.0 * v_Color;
+    color *= colorT * u_Tintcolor * c_ColorSpace * v_Color;
     #else
     color *= colorT * v_Color;
     #endif // TINTCOLORd
 #else
     #ifdef TINTCOLOR
-    color *= u_Tintcolor * 2.0 * v_Color;
+    color *= u_Tintcolor * c_ColorSpace * v_Color;
     #else
     color *= v_Color;
     #endif // TINTCOLOR
