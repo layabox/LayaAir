@@ -12,10 +12,10 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
         this._nativeObj = new (window as any).conchRenderNode();
     }
     set boundsChange(value:boolean){
-        this._nativeObj.boundchange = value;
+        this._nativeObj.boundsChange = value;
     }
-    get boundchange():boolean{
-        return this._nativeObj.boundchange;
+    get boundsChange():boolean{
+        return this._nativeObj.boundsChange;
     }
     set layer(value: number) {
         this._nativeObj.layer = value;
