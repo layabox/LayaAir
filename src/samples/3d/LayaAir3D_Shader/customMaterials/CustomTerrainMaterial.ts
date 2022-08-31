@@ -55,7 +55,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @return splatAlpha贴图。
 	 */
 	get splatAlphaTexture(): BaseTexture {
-		return this._shaderValues.getTexture(CustomTerrainMaterial.SPLATALPHATEXTURE);
+		return this.getTextureByIndex(CustomTerrainMaterial.SPLATALPHATEXTURE);
 	}
 
 	/**
@@ -63,7 +63,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @param value splatAlpha贴图。
 	 */
 	set splatAlphaTexture(value: BaseTexture) {
-		this._shaderValues.setTexture(CustomTerrainMaterial.SPLATALPHATEXTURE, value);
+		this.setTextureByIndex(CustomTerrainMaterial.SPLATALPHATEXTURE, value);
 	}
 
 	/**
@@ -71,7 +71,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @return 第一层贴图。
 	 */
 	get diffuseTexture1(): BaseTexture {
-		return this._shaderValues.getTexture(CustomTerrainMaterial.DIFFUSETEXTURE1);
+		return this.getTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE1);
 	}
 
 	/**
@@ -79,7 +79,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @param value 第一层贴图。
 	 */
 	set diffuseTexture1(value: BaseTexture) {
-		this._shaderValues.setTexture(CustomTerrainMaterial.DIFFUSETEXTURE1, value);
+		this.setTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE1, value);
 		this._setDetailNum(1);
 	}
 
@@ -88,7 +88,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @return 第二层贴图。
 	 */
 	get diffuseTexture2(): BaseTexture {
-		return this._shaderValues.getTexture(CustomTerrainMaterial.DIFFUSETEXTURE2);
+		return this.getTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE2);
 	}
 
 	/**
@@ -96,7 +96,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @param value 第二层贴图。
 	 */
 	set diffuseTexture2(value: BaseTexture) {
-		this._shaderValues.setTexture(CustomTerrainMaterial.DIFFUSETEXTURE2, value);
+		this.setTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE2, value);
 		this._setDetailNum(2);
 	}
 
@@ -105,7 +105,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @return 第三层贴图。
 	 */
 	get diffuseTexture3(): BaseTexture {
-		return this._shaderValues.getTexture(CustomTerrainMaterial.DIFFUSETEXTURE3);
+		return this.getTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE3);
 	}
 
 	/**
@@ -113,7 +113,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @param value 第三层贴图。
 	 */
 	set diffuseTexture3(value: BaseTexture) {
-		this._shaderValues.setTexture(CustomTerrainMaterial.DIFFUSETEXTURE3, value);
+		this.setTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE3, value);
 		this._setDetailNum(3);
 	}
 
@@ -122,7 +122,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @return 第四层贴图。
 	 */
 	get diffuseTexture4(): BaseTexture {
-		return this._shaderValues.getTexture(CustomTerrainMaterial.DIFFUSETEXTURE4);
+		return this.getTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE4);
 	}
 
 	/**
@@ -130,7 +130,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @param value 第四层贴图。
 	 */
 	set diffuseTexture4(value: BaseTexture) {
-		this._shaderValues.setTexture(CustomTerrainMaterial.DIFFUSETEXTURE4, value);
+		this.setTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE4, value);
 		this._setDetailNum(4);
 	}
 
@@ -139,7 +139,7 @@ export class CustomTerrainMaterial extends Material {
 	 * @return 第五层贴图。
 	 */
 	get diffuseTexture5(): BaseTexture {
-		return this._shaderValues.getTexture(CustomTerrainMaterial.DIFFUSETEXTURE5);
+		return this.getTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE5);
 	}
 
 	/**
@@ -147,66 +147,66 @@ export class CustomTerrainMaterial extends Material {
 	 * @param value 第五层贴图。
 	 */
 	set diffuseTexture5(value: BaseTexture) {
-		this._shaderValues.setTexture(CustomTerrainMaterial.DIFFUSETEXTURE5, value);
+		this.setTextureByIndex(CustomTerrainMaterial.DIFFUSETEXTURE5, value);
 		this._setDetailNum(5);
 	}
 
 	setDiffuseScale1(scale1: Vector2): void {
-		this._shaderValues.setVector2(CustomTerrainMaterial.DIFFUSESCALE1, scale1);
+		this.setVector2ByIndex(CustomTerrainMaterial.DIFFUSESCALE1, scale1);
 	}
 
 	setDiffuseScale2(scale2: Vector2): void {
-		this._shaderValues.setVector2(CustomTerrainMaterial.DIFFUSESCALE2, scale2);
+		this.setVector2ByIndex(CustomTerrainMaterial.DIFFUSESCALE2, scale2);
 	}
 
 	setDiffuseScale3(scale3: Vector2): void {
-		this._shaderValues.setVector2(CustomTerrainMaterial.DIFFUSESCALE3, scale3);
+		this.setVector2ByIndex(CustomTerrainMaterial.DIFFUSESCALE3, scale3);
 	}
 
 	setDiffuseScale4(scale4: Vector2): void {
-		this._shaderValues.setVector2(CustomTerrainMaterial.DIFFUSESCALE4, scale4);
+		this.setVector2ByIndex(CustomTerrainMaterial.DIFFUSESCALE4, scale4);
 	}
 
 	setDiffuseScale5(scale5: Vector2): void {
-		this._shaderValues.setVector2(CustomTerrainMaterial.DIFFUSESCALE5, scale5);
+		this.setVector2ByIndex(CustomTerrainMaterial.DIFFUSESCALE5, scale5);
 	}
 
 	private _setDetailNum(value: number): void {
 		switch (value) {
 			case 1:
-				this._shaderValues.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
+				this.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
 				break;
 			case 2:
-				this._shaderValues.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
+				this.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
 				break;
 			case 3:
-				this._shaderValues.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
+				this.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
 				break;
 			case 4:
-				this._shaderValues.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
+				this.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
 				break;
 			case 5:
-				this._shaderValues.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
-				this._shaderValues.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
+				this.addDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3);
+				this.removeDefine(CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4);
 				break;
 		}
 	}

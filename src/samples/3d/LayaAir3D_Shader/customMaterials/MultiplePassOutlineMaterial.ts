@@ -1,6 +1,6 @@
 import { Material } from "laya/d3/core/material/Material";
 import { RenderState } from "laya/d3/core/material/RenderState";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
+import { Color } from "laya/d3/math/Color";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
@@ -38,44 +38,44 @@ export class MultiplePassOutlineMaterial extends Material {
 	 * 漫反射贴图。
 	 */
 	get albedoTexture(): BaseTexture {
-		return this._shaderValues.getTexture(MultiplePassOutlineMaterial.ALBEDOTEXTURE);
+		return this.getTextureByIndex(MultiplePassOutlineMaterial.ALBEDOTEXTURE);
 	}
 
 	set albedoTexture(value: BaseTexture) {
-		this._shaderValues.setTexture(MultiplePassOutlineMaterial.ALBEDOTEXTURE, value);
+		this.setTextureByIndex(MultiplePassOutlineMaterial.ALBEDOTEXTURE, value);
 	}
 	/**
 	 * 线条颜色
 	 */
-	get outlineColor(): Vector4 {
-		return this._shaderValues.getVector(MultiplePassOutlineMaterial.OUTLINECOLOR);
+	get outlineColor(): Color {
+		return this.getColorByIndex(MultiplePassOutlineMaterial.OUTLINECOLOR);
 	}
 
-	set outlineColor(value: Vector4) {
-		this._shaderValues.setVector(MultiplePassOutlineMaterial.OUTLINECOLOR, value);
+	set outlineColor(value: Color) {
+		this.setColorByIndex(MultiplePassOutlineMaterial.OUTLINECOLOR, value);
 	}
 	/**
 	 * 获取轮廓宽度,范围为0到0.05。
 	 */
 	get outlineWidth(): number {
-		return this._shaderValues.getNumber(MultiplePassOutlineMaterial.OUTLINEWIDTH);
+		return this.getFloatByIndex(MultiplePassOutlineMaterial.OUTLINEWIDTH);
 	}
 
 	set outlineWidth(value: number) {
 		value = Math.max(0.0, Math.min(0.05, value));
-		this._shaderValues.setNumber(MultiplePassOutlineMaterial.OUTLINEWIDTH, value);
+		this.setFloatByIndex(MultiplePassOutlineMaterial.OUTLINEWIDTH, value);
 	}
 
 	/**
 	 * 轮廓亮度,范围为0到1。
 	 */
 	get outlineLightness(): number {
-		return this._shaderValues.getNumber(MultiplePassOutlineMaterial.OUTLINELIGHTNESS);
+		return this.getFloatByIndex(MultiplePassOutlineMaterial.OUTLINELIGHTNESS);
 	}
 
 	set outlineLightness(value: number) {
 		value = Math.max(0.0, Math.min(1.0, value));
-		this._shaderValues.setNumber(MultiplePassOutlineMaterial.OUTLINELIGHTNESS, value);
+		this.setFloatByIndex(MultiplePassOutlineMaterial.OUTLINELIGHTNESS, value);
 	}
 
 
@@ -84,7 +84,7 @@ export class MultiplePassOutlineMaterial extends Material {
 
 		var uniformMap: any = {
 			'u_OutlineLightness': ShaderDataType.Float,
-			'u_OutlineColor': ShaderDataType.Vector4,
+			'u_OutlineColor': ShaderDataType.Color,
 			'u_AlbedoTexture': ShaderDataType.Texture2D,
 			'u_OutlineWidth': ShaderDataType.Float
 
@@ -102,9 +102,9 @@ export class MultiplePassOutlineMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("MultiplePassOutlineShader");
-		this._shaderValues.setNumber(MultiplePassOutlineMaterial.OUTLINEWIDTH, 0.01581197);
-		this._shaderValues.setNumber(MultiplePassOutlineMaterial.OUTLINELIGHTNESS, 1);
-		this._shaderValues.setVector(MultiplePassOutlineMaterial.OUTLINECOLOR, new Vector4(1.0, 1.0, 1.0, 0.0));
+		this.setFloatByIndex(MultiplePassOutlineMaterial.OUTLINEWIDTH, 0.01581197);
+		this.setFloatByIndex(MultiplePassOutlineMaterial.OUTLINELIGHTNESS, 1);
+		this.setColorByIndex(MultiplePassOutlineMaterial.OUTLINECOLOR, new Color(1.0, 1.0, 1.0, 0.0));
 	}
 }
 

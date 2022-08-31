@@ -25,7 +25,7 @@ export class GlowingEdgeMaterial extends Material {
      *  漫反射贴图。
      */
     public get diffuseTexture(): BaseTexture {
-        return this._shaderValues.getTexture(GlowingEdgeMaterial.DIFFUSETEXTURE);
+        return this.getTextureByIndex(GlowingEdgeMaterial.DIFFUSETEXTURE);
     }
 
     /**
@@ -33,7 +33,7 @@ export class GlowingEdgeMaterial extends Material {
      * 漫反射贴图。
      */
     public set diffuseTexture(value: BaseTexture) {
-        this._shaderValues.setTexture(GlowingEdgeMaterial.DIFFUSETEXTURE, value);
+        this.setTextureByIndex(GlowingEdgeMaterial.DIFFUSETEXTURE, value);
     }
 
     /**
@@ -41,6 +41,6 @@ export class GlowingEdgeMaterial extends Material {
      * 边缘光照颜色。
      */
     public set marginalColor(value: Vector3) {
-        this._shaderValues.setVector3(GlowingEdgeMaterial.MARGINALCOLOR, value);
+        this.setVector3ByIndex(GlowingEdgeMaterial.MARGINALCOLOR, value);
     }
 }

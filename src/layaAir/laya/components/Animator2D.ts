@@ -199,7 +199,9 @@ export class Animator2D extends Component {
         var pro = o.pro;
         if (pro && pro.ower) {
             if (additive && "number" == typeof data) {
-                pro.ower[pro.key] = pro.defVal + data;
+                pro.ower[pro.key] = pro.defVal + weight * data;
+            } else if ("number" == typeof data) {
+                pro.ower[pro.key] = weight * data;
             } else {
                 pro.ower[pro.key] = data;
             }
