@@ -343,6 +343,10 @@ export class CharacterController extends PhysicsComponent {
             bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
         }
     }
+	
+	get btColliderObject():number{
+		return this._btColliderObject;
+	}		
 
     /**
      * @inheritDoc

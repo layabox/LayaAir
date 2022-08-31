@@ -378,7 +378,7 @@ export class TextRender {
             var pri = txts[i];
             if (!pri) continue;
             var tex = (<TextTexture>pri.tex);
-            if (tex.__destroyed || tex.genID != pri.texgen) {
+            if (tex._destroyed || tex.genID != pri.texgen) {
                 return true;
             }
         }

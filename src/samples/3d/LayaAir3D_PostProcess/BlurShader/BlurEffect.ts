@@ -228,16 +228,13 @@ export class BlurMaterial extends Material {
         super();
         BlurMaterial.__init__();
         this.setShaderName("blurEffect");
-        this._shaderValues.setNumber(BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE, offset);
-        this._shaderValues.setVector(BlurMaterial.SHADERVALUE_TEXELSIZE, texelSize);
+        this.setIntByIndex(BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE, offset);
+        this.setVector4ByIndex(BlurMaterial.SHADERVALUE_TEXELSIZE, texelSize);
     }
 
     sourceTexture(sourceTexture0: BaseTexture, sourceTexture1: BaseTexture) {
-        this._shaderValues.setTexture(BlurMaterial.SHADERVALUE_SOURCETEXTURE0, sourceTexture0);
-        this._shaderValues.setTexture(BlurMaterial.ShADERVALUE_SOURCETEXTURE1, sourceTexture1);
+        this.setTextureByIndex(BlurMaterial.SHADERVALUE_SOURCETEXTURE0, sourceTexture0);
+        this.setTextureByIndex(BlurMaterial.ShADERVALUE_SOURCETEXTURE1, sourceTexture1);
     }
-
-
-
 }
 

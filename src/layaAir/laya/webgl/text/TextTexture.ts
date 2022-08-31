@@ -25,7 +25,7 @@ export class TextTexture extends Resource {
     /**@internal */
     _texH: number = 0;
     /**@internal */
-    __destroyed: boolean = false;	//父类有，但是private
+    _destroyed: boolean = false;	//父类有，但是private
     /**@internal */
     _discardTm: number = 0;			//释放的时间。超过一定时间会被真正删除
     genID: number = 0; 				// 这个对象会重新利用，为了能让引用他的人知道自己引用的是否有效，加个id
@@ -160,7 +160,7 @@ export class TextTexture extends Resource {
      */
     destroy(): void {
         //console.log('destroy TextTexture');
-        this.__destroyed = true;
+        super.destroy();
         this._source && this._source.destroy();
         this._source = null;
     }
