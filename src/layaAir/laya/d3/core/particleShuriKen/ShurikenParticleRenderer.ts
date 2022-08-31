@@ -125,6 +125,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     protected _onAdded(): void {
+        super._onAdded();
         if (!LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
             this._particleSystem = new ShurikenParticleSystem(this);
         } else

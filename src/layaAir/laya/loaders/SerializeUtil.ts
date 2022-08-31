@@ -11,9 +11,7 @@ export const TypedArrayClasses: Record<string, any> = {
     "Int32Array": Int32Array,
     "Uint32Array": Uint32Array,
     "Float32Array": Float32Array,
-    "Float64Array": Float64Array,
-    "BigInt64Array": BigInt64Array,
-    "BigUint64Array": BigUint64Array
+    "Float64Array": Float64Array
 };
 
 export class SerializeUtil {

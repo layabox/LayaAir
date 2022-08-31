@@ -20,6 +20,7 @@ export class Widget extends Component {
     constructor() {
         super();
 
+        this.runInEditor = true;
         this.hideFlags |= HideFlags.HideAndDontSave;
     }
 
