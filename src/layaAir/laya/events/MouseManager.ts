@@ -195,9 +195,9 @@ export class MouseManager {
 
             // 新的焦点是Input的情况下，不需要blur；
             // 不过如果是Input和TextArea之间的切换，还是需要重新弹出输入法；
-            if (new_input instanceof Input && new_input.multiline == pre_input.multiline)
-                pre_input['_focusOut']();
-            else
+            // if (new_input instanceof Input && new_input.multiline == pre_input.multiline)
+            //     pre_input['_focusOut']();
+            // else
                 pre_input.focus = false;
         }
         TouchManager.I.onMouseDown(ele, this._tTouchID, this._isLeftMouse);
