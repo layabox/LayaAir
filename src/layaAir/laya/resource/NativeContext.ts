@@ -155,6 +155,15 @@ export class NativeContext {
         this.add_i(CONTEXT2D_FUNCTION_ID.CLEAR);
         this._nativeObj.flushCommand();
     }
+    /**
+     * 释放所有资源
+     * @param	keepRT  是否保留rendertarget
+     */
+     destroy(keepRT: boolean = false): void {
+        this._nativeObj.flushCommand();
+        this._nativeObj.destroy(keepRT);
+    }
+    
     static const2DRenderCMD: RenderStateCommand;
     static set2DRenderConfig(): void {
         //(window as any).set2DRenderConfig();
