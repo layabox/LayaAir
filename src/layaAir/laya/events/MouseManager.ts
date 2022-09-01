@@ -191,7 +191,7 @@ export class MouseManager {
             // 从UI Input组件中取得Input引用
             // _tf 是TextInput的属性
             var pre_input: any = (ILaya.stage.focus as any)['_tf'] || ILaya.stage.focus;
-            var new_input: Input = ele['_tf'] || ele;
+            // var new_input: Input = ele['_tf'] || ele;
 
             // 新的焦点是Input的情况下，不需要blur；
             // 不过如果是Input和TextArea之间的切换，还是需要重新弹出输入法；
