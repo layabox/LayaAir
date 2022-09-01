@@ -658,7 +658,7 @@ class TouchInfo implements ITouchInfo {
             this.clickCount = 1;
         }
         else {
-            if (now - this.lastClickTime < 0.35
+            if (now - this.lastClickTime < 350
                 && Math.abs(this.pos.x - this.lastClickPos.x) < InputManager.clickTestThreshold
                 && Math.abs(this.pos.y - this.lastClickPos.y) < InputManager.clickTestThreshold
                 && this.lastClickButton == this.event.button) {
