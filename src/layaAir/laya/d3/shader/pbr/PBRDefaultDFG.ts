@@ -26,6 +26,7 @@ export class PBRDefaultDFG {
         tex.lock = true;
         tex.wrapModeU = WrapMode.Clamp;
         tex.wrapModeV = WrapMode.Clamp;
+        tex.anisoLevel = 1;
 
         this._defaultDFG = tex;
     }

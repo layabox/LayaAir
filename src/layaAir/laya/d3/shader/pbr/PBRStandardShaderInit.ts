@@ -33,6 +33,8 @@ export class PBRStandardShaderInit {
             "u_OcclusionTexture": ShaderDataType.Texture2D,
             "u_EmissionTexture": ShaderDataType.Texture2D,
             "u_MetallicGlossTexture": ShaderDataType.Texture2D,
+            "u_Anisotropy": ShaderDataType.Float,
+            "u_TangentTexture": ShaderDataType.Texture2D
         };
 
         let defaultValue = {

@@ -8,6 +8,7 @@ struct SurfaceInputs {
     float smoothness;
     float occlusion;
     vec3 emissionColor;
+    float anisotropy;
 };
 
 void initSurface(inout Surface surface, const in SurfaceInputs inputs)
@@ -25,6 +26,9 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs)
     surface.f0 = baseColor * metallic + (0.16 * reflectance * reflectance * (1.0 - metallic));
 
     surface.occlusion = inputs.occlusion;
+#ifdef ANISOTROPIC
+    surface.anisotropy = inputs.anisotropy;
+#endif // ANISOTROPIC
 }
 
 vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)

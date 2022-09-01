@@ -14,9 +14,20 @@ float D_GGX(float roughness, float NoH, vec3 h, vec3 n)
 
     float a = NoH * roughness;
     float k = roughness / (oneMinusNoHSquared + a * a);
-    float d = k * k * (1.0 / PI);
+    float d = k * k * INVERT_PI;
 
     return saturateMediump(d);
+}
+
+float D_GGX_Anisotropic(float NoH, const vec3 h, const vec3 t, const vec3 b, float at, float ab)
+{
+    float ToH = dot(t, h);
+    float BoH = dot(b, h);
+    float a2 = at * ab;
+    highp vec3 v = vec3(ab * ToH, at * BoH, a2 * NoH);
+    highp float v2 = dot(v, v);
+    float w2 = a2 / v2;
+    return a2 * w2 * w2 * INVERT_PI;
 }
 
 float V_SmithGGXCorrelated(float roughness, float NoV, float NoL)
@@ -26,6 +37,14 @@ float V_SmithGGXCorrelated(float roughness, float NoV, float NoL)
     float lambdaL = NoV * sqrt((NoL - a2 * NoL) * NoL + a2);
     float v = 0.5 / (lambdaV + lambdaL);
 
+    return saturateMediump(v);
+}
+
+float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float ToV, float BoV, float ToL, float BoL, float NoV, float NoL)
+{
+    float lambdaV = NoL * length(vec3(at * ToV, ab * BoV, NoV));
+    float lambdaL = NoV * length(vec3(at * ToL, ab * BoL, NoL));
+    float v = 0.5 / (lambdaV + lambdaL);
     return saturateMediump(v);
 }
 
@@ -66,7 +85,8 @@ vec3 fresnel(vec3 f0, float LoH)
 
 float Fd_Lambert()
 {
-    return 1.0 / PI;
+    // return 1.0 / PI;
+    return 1.0;
 }
 
 // diffuse dispatch

@@ -80,6 +80,10 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.emissionColor *= emissionSampler.rgb;
     #endif // EMISSIONTEXTURE
 #endif // EMISSION
+
+#ifdef ANISOTROPIC
+    inputs.anisotropy = u_Anisotropy;
+#endif // ANISOTROPIC
 }
 
 void main()
