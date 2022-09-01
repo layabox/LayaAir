@@ -3,7 +3,6 @@ import { Vector3 } from "../math/Vector3";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ICameraCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
-import { RenderPlane } from "../core/RenderPlane";
 import { Bounds } from "../math/Bounds";
 
 /**
@@ -48,7 +47,7 @@ export class FrustumCulling {
 	 */
 	static cullingRenderBounds(bounds: Bounds, cullInfo: IShadowCullInfo): boolean {
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
-		var cullPlanes: RenderPlane[] = cullInfo.cullPlanes;
+		var cullPlanes: Plane[] = cullInfo.cullPlanes;
 
 		var min: Vector3 = bounds.getMin();
 		var max: Vector3 = bounds.getMax();

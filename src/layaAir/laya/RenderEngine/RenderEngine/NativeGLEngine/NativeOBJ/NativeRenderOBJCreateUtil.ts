@@ -47,7 +47,6 @@ import { NativeBounds } from "./NativeBounds";
 import { NativeInstanceRenderElementOBJ } from "./NativeInstanceRenderElementOBJ";
 import { UniformBufferObject } from "../../../UniformBufferObject";
 import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
-import { RenderPlane } from "../../../../d3/core/RenderPlane";
 import { NativeCommandUniformMap } from "./NativeCommandUniformMap";
 import { RenderBounds } from "../../../../d3/core/RenderBounds";
 import { NativeBaseRenderNode } from "./NativeBaseRenderNode";
@@ -60,14 +59,6 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
 
     createBounds(min: Vector3, max: Vector3): RenderBounds {
         return new NativeBounds(min, max) as unknown as RenderBounds;
-    }
-
-    createBoundsSphere(center: Vector3, radius: number): NativeBoundSphere {
-        return new NativeBoundSphere(center, radius);
-    }
-
-    createPlane(normal: Vector3, d: number = 0): RenderPlane {
-        return new NativePlane(normal, d);
     }
 
     createBoundFrustum(matrix: Matrix4x4): NativeBoundFrustum {

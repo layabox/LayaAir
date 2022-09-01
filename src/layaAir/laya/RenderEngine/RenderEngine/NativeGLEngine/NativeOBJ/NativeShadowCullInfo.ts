@@ -1,48 +1,67 @@
+import { BoundSphere } from "../../../../d3/math/BoundSphere";
+import { Plane } from "../../../../d3/math/Plane";
 import { Vector3 } from "../../../../d3/math/Vector3";
 import { IShadowCullInfo } from "../../../RenderInterface/RenderPipelineInterface/IShadowCullInfo";
-import { NativeBoundSphere } from "./NativeBoundsSphere";
-import { NativePlane } from "./NativePlane";
+import { NativeMemory } from "../CommonMemory/NativeMemory";
 
-export class NativeShadowCullInfo implements IShadowCullInfo{
+export class NativeShadowCullInfo implements IShadowCullInfo {
+
     private _position: Vector3;
 
-    private _nativeCullPlanes:any[];
-
-	private _cullPlanes: NativePlane[];
+	private _cullPlanes: Plane[];
 
     private _direction: Vector3;
 
     private _nativeObj: any;
 	
-	private _cullSphere: NativeBoundSphere;
+	private _cullSphere: BoundSphere;
 
 	private _cullPlaneCount: number;
 
+	/**native Share Memory */
+	static MemoryBlock_size: number = 4 * 8;
+
+	private nativeMemory: NativeMemory;
+	
+	private float64Array: Float64Array;
+
 	constructor() {
-    	this._nativeObj = new (window as any).conchShadowCullInfo();
+		this.nativeMemory = new NativeMemory(NativeShadowCullInfo.MemoryBlock_size, true);
+		this.float64Array = this.nativeMemory.float64Array;
+    	this._nativeObj = new (window as any).conchShadowCullInfo(this.nativeMemory._buffer);
   	}
-    set cullPlanes(cullPlanes: NativePlane[]) {
+    set cullPlanes(cullPlanes: Plane[]) {
 		this._cullPlanes = cullPlanes;
-        this._nativeCullPlanes = [];
+        this._nativeObj.clearCullPlanes();
         cullPlanes.forEach((element) => {
-            this._nativeCullPlanes.push((element as any)._nativeObj);
+			this.float64Array[0] = element.normal.x;
+        	this.float64Array[1] = element.normal.y;
+        	this.float64Array[2] = element.normal.z;
+			this.float64Array[3] = element.distance;
+            this._nativeObj.addCullPlane();
         });
-		this._nativeObj.cullPlanes = this._nativeCullPlanes;
 	}
-	get cullPlanes(): NativePlane[] {
+	get cullPlanes(): Plane[] {
 		return this._cullPlanes;
 	}
-    set cullSphere(cullSphere: NativeBoundSphere) {
+    set cullSphere(cullSphere: BoundSphere) {
 		this._cullSphere = cullSphere;
-		this._nativeObj.cullSphere = cullSphere._nativeObj;
+		this.float64Array[0] = cullSphere.center.x;
+        this.float64Array[1] = cullSphere.center.y;
+        this.float64Array[2] = cullSphere.center.z;
+		this.float64Array[3] = cullSphere.radius;
+		this._nativeObj.setCullSphere();
 	}
 	
-	get cullSphere(): NativeBoundSphere {
+	get cullSphere(): BoundSphere {
 		return this._cullSphere;
 	}
     set position(position: Vector3) {
 		this._position = position;
-		this._nativeObj.setPosition(position.x, position.y, position.z);
+		this.float64Array[0] = position.x;
+        this.float64Array[1] = position.y;
+        this.float64Array[2] = position.z;
+		this._nativeObj.setPosition();
 	} 
 
 	get position(): Vector3 {
@@ -50,7 +69,10 @@ export class NativeShadowCullInfo implements IShadowCullInfo{
 	}
     set direction(direction: Vector3) {
 		this._direction = direction;
-		this._nativeObj.setDirection(direction.x, direction.y, direction.z);
+		this.float64Array[0] = direction.x;
+        this.float64Array[1] = direction.y;
+        this.float64Array[2] = direction.z;
+		this._nativeObj.setDirection();
 	} 
 
 	get direction(): Vector3 {

@@ -4,8 +4,7 @@ import { Vector3 } from "../math/Vector3";
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ICameraCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
-import { RenderBoundingSphere } from "../core/RenderBoundingSphere";
-import { RenderPlane } from "../core/RenderPlane";
+import { BoundSphere } from "../math/BoundSphere";
 
 /**
  * @internal
@@ -20,9 +19,9 @@ export class ShadowSliceData {
     viewMatrix: Matrix4x4 = new Matrix4x4();
     projectionMatrix: Matrix4x4 = new Matrix4x4();
     viewProjectMatrix: Matrix4x4 = new Matrix4x4();
-    cullPlanes: Array<RenderPlane> = [LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0)];
+    cullPlanes: Array<Plane> = [new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0)];
     cullPlaneCount: number;
-    splitBoundSphere: RenderBoundingSphere = LayaGL.renderOBJCreate.createBoundsSphere(new Vector3(), 0.0);
+    splitBoundSphere: BoundSphere = new BoundSphere(new Vector3(), 0.0);
     sphereCenterZ: number;
 }
 
