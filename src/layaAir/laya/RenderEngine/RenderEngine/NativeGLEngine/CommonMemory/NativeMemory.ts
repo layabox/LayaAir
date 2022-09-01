@@ -5,7 +5,7 @@ export class NativeMemory {
     /**@internal 共享内存数据 */
     public _buffer: ArrayBuffer;
     /**@internal 显示数据 */
-    static  _sharedBuffer: ArrayBuffer = new ArrayBuffer(64);
+    static  _sharedBuffer: ArrayBuffer = new ArrayBuffer(256);
     /**@internal 显示数据 */
     protected _idata:Int32Array;
     protected _fdata:Float32Array;

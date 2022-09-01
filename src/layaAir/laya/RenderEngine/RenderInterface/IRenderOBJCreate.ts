@@ -14,7 +14,6 @@ import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
-import { RenderBoundingFrustum } from "../RenderObj/RenderBoundingFrustum";
 import { ShaderData, ShaderDataType } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { UniformBufferObject } from "../UniformBufferObject";
@@ -36,8 +35,6 @@ export interface IRenderOBJCreate {
     createTransform(owner: Sprite3D): Transform3D;
 
     createBounds(min: Vector3, max: Vector3): RenderBounds;
-
-    createBoundFrustum(matrix: Matrix4x4): RenderBoundingFrustum;
 
     createShaderData(ownerResource: Resource): ShaderData;
 

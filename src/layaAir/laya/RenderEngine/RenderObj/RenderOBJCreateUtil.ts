@@ -33,7 +33,6 @@ import { CameraCullInfo } from "./CameraCullInfo";
 import { CullPassBase } from "./CullPass";
 import { InstanceRenderElementOBJ } from "./InstanceRenderElementOBJ";
 import { QuickSort } from "./QuickSort";
-import { RenderBoundingFrustum } from "./RenderBoundingFrustum";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
@@ -53,10 +52,6 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
 
     createBounds(min: Vector3, max: Vector3): RenderBounds {
         return new RenderBounds(min, max);
-    }
-
-    createBoundFrustum(matrix: Matrix4x4): RenderBoundingFrustum {
-        return new RenderBoundingFrustum(matrix);
     }
 
     createShaderData(): ShaderData {

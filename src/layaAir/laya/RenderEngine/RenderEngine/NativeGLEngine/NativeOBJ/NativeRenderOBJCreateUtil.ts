@@ -6,7 +6,6 @@ import { NativeVertexBuffer3D } from "./NativeVertexBuffer3D";
 import { NativeShaderData } from "./NativeShaderData";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
-import { Plane } from "../../../../d3/math/Plane";
 import { Vector3 } from "../../../../d3/math/Vector3";
 import { BufferUsage } from "../../../RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEnum/DrawType";
@@ -22,11 +21,7 @@ import { IRenderQueue } from "../../../RenderInterface/RenderPipelineInterface/I
 import { ISceneRenderManager } from "../../../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { ISortPass } from "../../../RenderInterface/RenderPipelineInterface/ISortPass";
 import { ShaderData, ShaderDataType } from "../../../RenderShader/ShaderData";
-import { NativePlane } from "./NativePlane";
-import { NativeBoundSphere } from "./NativeBoundsSphere";
 import { NativeTransform3D } from "./NativeTransform3D";
-import { Matrix4x4 } from "../../../../d3/math/Matrix4x4";
-import { NativeBoundFrustum } from "./NativeBoundFrustum";
 import { IShadowCullInfo } from "../../../RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { ICameraCullInfo } from "../../../RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { NativeShadowCullInfo } from "./NativeShadowCullInfo";
@@ -34,7 +29,6 @@ import { NativeCameraCullInfo } from "./NativeCameraCullInfo";
 import { IndexBuffer3D } from "../../../../d3/graphics/IndexBuffer3D";
 import { NativeIndexBuffer3D } from "../NativeOBJ/NativeIndexBuffer3D";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
-import { CullPassBase } from "../../../RenderObj/CullPass";
 import { ShaderCompileDefineBase } from "../../../../webgl/utils/ShaderCompileDefineBase";
 import { NativeShaderInstance } from "./NativeShaderInstance";
 import { ShaderInstance } from "../../../../d3/shader/ShaderInstance";
@@ -59,10 +53,6 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
 
     createBounds(min: Vector3, max: Vector3): RenderBounds {
         return new NativeBounds(min, max) as unknown as RenderBounds;
-    }
-
-    createBoundFrustum(matrix: Matrix4x4): NativeBoundFrustum {
-        return new NativeBoundFrustum(matrix);
     }
 
     createShaderData(): ShaderData {

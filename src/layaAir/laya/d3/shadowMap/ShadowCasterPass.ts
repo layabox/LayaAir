@@ -159,7 +159,7 @@ export class ShadowCasterPass {
     _castDepthBufferData: UnifromBufferData;
     _castDepthBufferOBJ: UniformBufferObject;
     constructor() {
-        this._shadowSpotData.cameraCullInfo.boundFrustum = LayaGL.renderOBJCreate.createBoundFrustum(new Matrix4x4());
+        this._shadowSpotData.cameraCullInfo.boundFrustum = new BoundFrustum(new Matrix4x4());
         if (Config3D._uniformBlock) {
             this._castDepthBufferData = ShadowCasterPass.createDepthCasterUniformBlock();
             this._castDepthBufferOBJ = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
