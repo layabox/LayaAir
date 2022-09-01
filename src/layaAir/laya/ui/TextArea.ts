@@ -127,7 +127,7 @@ export class TextArea extends TextInput {
     /**
      * @override
      */
-	set width(value: number) {
+    set width(value: number) {
         super.width = value;
         this.callLater(this.changeScroll);
     }
@@ -141,7 +141,7 @@ export class TextArea extends TextInput {
     /**
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         super.height = value;
         this.callLater(this.changeScroll);
     }
@@ -227,31 +227,39 @@ export class TextArea extends TextInput {
     }
 
     private changeScroll(): void {
-        var vShow: boolean = this._vScrollBar && this._tf.maxScrollY > 0;
-        var hShow: boolean = this._hScrollBar && this._tf.maxScrollX > 0;
-        var showWidth: number = vShow ? this._width - this._vScrollBar.width : this._width;
-        var showHeight: number = hShow ? this._height - this._hScrollBar.height : this._height;
-        var padding: any[] = this._tf.padding || Styles.labelPadding;
+        /**垂直滚动条显示状态*/
+        let vShow: boolean = this._vScrollBar && this._tf.maxScrollY > 0,
+            /**水平滚动条显示状态*/
+            hShow: boolean = this._hScrollBar && this._tf.maxScrollX > 0,
+            /**垂直滚动条的宽 */
+            vScrollBarWidth: number = 0,
+            /**水平滚动条的高 */
+            hScrollBarHeight: number = 0,
+            /**文本边距 */
+            padding: any[] = this._tf.padding || Styles.labelPadding;
 
-        this._tf.width = showWidth;
-        this._tf.height = showHeight;
+        vShow && (vScrollBarWidth = this._vScrollBar.width);
+        hShow && (hScrollBarHeight = this._hScrollBar.height);
+
+        this._tf.width = this._width - vScrollBarWidth;
+        this._tf.height = this._height - hScrollBarHeight;
 
         if (this._vScrollBar) {
             this._vScrollBar.x = this._width - this._vScrollBar.width - padding[1];
             this._vScrollBar.y = padding[0];
-            this._vScrollBar.height = this._height - (hShow ? this._hScrollBar.height : 0) - padding[0] - padding[2];
+            this._vScrollBar.height = this._height - hScrollBarHeight - padding[0] - padding[2];
             this._vScrollBar.scrollSize = 1;
-            this._vScrollBar.thumbPercent = showHeight / Math.max(this._tf.textHeight, showHeight);
-            this._vScrollBar.setScroll(1, this._tf.maxScrollY, this._tf.scrollY);
+            this._vScrollBar.thumbPercent = this._tf.height / Math.max(this._tf.textHeight, this._tf.height);
+            this._vScrollBar.setScroll(0, this._tf.maxScrollY + 5, this._tf.scrollY);
             this._vScrollBar.visible = vShow;
         }
         if (this._hScrollBar) {
             this._hScrollBar.x = padding[3];
             this._hScrollBar.y = this._height - this._hScrollBar.height - padding[2];
-            this._hScrollBar.width = this._width - (vShow ? this._vScrollBar.width : 0) - padding[1] - padding[3];
-            this._hScrollBar.scrollSize = Math.max(showWidth * 0.033, 1);
-            this._hScrollBar.thumbPercent = showWidth / Math.max(this._tf.textWidth, showWidth);
-            this._hScrollBar.setScroll(0, this.maxScrollX, this.scrollX);
+            this._hScrollBar.width = this._width - vScrollBarWidth - padding[1] - padding[3];
+            this._hScrollBar.scrollSize = Math.max(this._tf.width * 0.033, 1);
+            this._hScrollBar.thumbPercent = this._tf.width / Math.max(this._tf.textWidth, this._tf.width);
+            this._hScrollBar.setScroll(0, this._tf.maxScrollX + padding[1] + padding[3] + 8, this._tf.scrollX);
             this._hScrollBar.visible = hShow;
         }
     }

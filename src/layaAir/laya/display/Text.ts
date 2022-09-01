@@ -1110,7 +1110,7 @@ export class Text extends Sprite {
         var maxScrollX: number = this._textWidth - this._width;
         value = value > maxScrollX ? maxScrollX : value;
 
-        this._clipPoint.x = value;
+        this._clipPoint.x = value > this._textWidth ? this._textWidth : value;
         this._renderText();
     }
 
@@ -1132,7 +1132,7 @@ export class Text extends Sprite {
         var maxScrollY: number = this._textHeight - this._height;
         value = value > maxScrollY ? maxScrollY : value;
 
-        this._clipPoint.y = value;
+        this._clipPoint.y = value > this._textHeight ? this._textHeight : value;
         this._renderText();
     }
 
