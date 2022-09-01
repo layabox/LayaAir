@@ -43,6 +43,12 @@ struct PixelParams {
     #ifdef NEEDTBN
     vec3 tangentWS;
     vec3 biNormalWS;
+
+	#ifdef ANISOTROPIC
+    float ToV;
+    float BoV;
+	#endif // ANISOTROPIC
+
     #endif // NEEDTBN
 
     #ifdef COLOR

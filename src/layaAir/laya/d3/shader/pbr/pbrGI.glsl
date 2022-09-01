@@ -38,7 +38,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     float f90 = 1.0;
     vec3 specularColor = f0 * env.x + f90 * env.y;
 
-    vec3 r = getReflectedVector(info.viewDir, info.normalWS);
+    vec3 r = getReflectedVector(surface, info);
     vec3 indirectSpecular = specularIrradiance(r, perceptualRoughness);
 
     vec3 Fr = indirectSpecular * specularColor;

@@ -66,9 +66,13 @@ const COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR = 37853;
 const GL_FORMAT_RGBA = 6408;
 const GL_FORMAT_RGB = 6407;
 const GL_FORMAT_RGBA32F = 0x8814;
+const GL_FORMAT_RGB32F = 0x8815;
 const GL_FORMAT_RGBA16F = 0x881A;
+const GL_FORMAT_RGB16F = 0x881B;
+const GL_FORMAT_SRGB8 = 0x8C41;
 
 const GL_INTERNALFORMAT_RGBA8 = 0x8058;
+const GL_INTERNALFORMAT_RGB8 = 0x8051;
 const GL_INTERNALFORMAT_SRGB8_ALPHA8 = 0x8C43;
 const GL_INTERNALFORMAT_R11F_G11F_B10F = 0x8C3A;
 
@@ -144,6 +148,18 @@ export class KTXTextureInfo {
             }
             else if (glFormat == GL_FORMAT_RGBA && glInternalFormat == GL_FORMAT_RGBA16F && glType == GL_DATATYPE_HALF_FLOAT) {
                 return { format: TextureFormat.R16G16B16A16, sRGB: false };
+            }
+            else if (glFormat == GL_FORMAT_RGB && glInternalFormat == GL_FORMAT_RGB32F && glType == GL_DATATYPE_FLOAT) {
+                return { format: TextureFormat.R32G32B32, sRGB: false };
+            }
+            else if (glFormat == GL_FORMAT_RGB && glInternalFormat == GL_FORMAT_RGB16F && glType == GL_DATATYPE_HALF_FLOAT) {
+                return { format: TextureFormat.R16G16B16, sRGB: false };
+            }
+            else if (glFormat == GL_FORMAT_RGB && glInternalFormat == GL_FORMAT_SRGB8 && glType == GL_DATATYPE_UNSIGNED_BYTE) {
+                return { format: TextureFormat.R8G8B8, sRGB: true };
+            }
+            else if (glFormat == GL_FORMAT_RGB && glInternalFormat == GL_INTERNALFORMAT_RGB8 && glType == GL_DATATYPE_UNSIGNED_BYTE) {
+                return { format: TextureFormat.R8G8B8, sRGB: false };
             }
             else {
                 throw "ktx: Unsupported UnCompressed image data.";
