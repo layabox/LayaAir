@@ -9,7 +9,6 @@ import { Handler } from "../../../utils/Handler";
 import { BufferState } from "../../core/BufferState";
 import { IClone } from "../../../utils/IClone";
 import { InstanceRenderElement } from "../../core/render/InstanceRenderElement";
-import { RenderBounds } from "../../core/RenderBounds";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
@@ -91,7 +90,7 @@ export class Mesh extends Resource implements IClone {
     /** @internal */
     private _needUpdateBounds: boolean = true;
     /** @internal */
-    private _bounds: RenderBounds;
+    private _bounds: Bounds;
 
     /** @internal */
     _isReadable: boolean;
@@ -170,7 +169,8 @@ export class Mesh extends Resource implements IClone {
     }
 
     set bounds(value: Bounds) {
-        this._bounds.set(value);
+        if (this._bounds !== value)
+            value.cloneTo(this._bounds);
     }
 
     /**
@@ -186,7 +186,7 @@ export class Mesh extends Resource implements IClone {
      */
     constructor(isReadable: boolean = true) {
         super();
-        this._bounds = LayaGL.renderOBJCreate.createBounds(new Vector3(), new Vector3());
+        this._bounds = new Bounds(new Vector3(), new Vector3());
         this._isReadable = isReadable;
         this._subMeshes = [];
     }

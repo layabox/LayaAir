@@ -1,5 +1,4 @@
 import { RenderState } from "../../d3/core/material/RenderState";
-import { RenderBounds } from "../../d3/core/RenderBounds";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
@@ -34,7 +33,7 @@ export interface IRenderOBJCreate {
 
     createTransform(owner: Sprite3D): Transform3D;
 
-    createBounds(min: Vector3, max: Vector3): RenderBounds;
+    createBounds(min: Vector3, max: Vector3): any;
 
     createShaderData(ownerResource: Resource): ShaderData;
 

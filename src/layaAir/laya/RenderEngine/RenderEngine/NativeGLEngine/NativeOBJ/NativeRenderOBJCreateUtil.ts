@@ -42,7 +42,6 @@ import { NativeInstanceRenderElementOBJ } from "./NativeInstanceRenderElementOBJ
 import { UniformBufferObject } from "../../../UniformBufferObject";
 import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
 import { NativeCommandUniformMap } from "./NativeCommandUniformMap";
-import { RenderBounds } from "../../../../d3/core/RenderBounds";
 import { NativeBaseRenderNode } from "./NativeBaseRenderNode";
 
 export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
@@ -51,8 +50,8 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeTransform3D(owner);
     }
 
-    createBounds(min: Vector3, max: Vector3): RenderBounds {
-        return new NativeBounds(min, max) as unknown as RenderBounds;
+    createBounds(min: Vector3, max: Vector3): any {
+        return new NativeBounds(min, max);
     }
 
     createShaderData(): ShaderData {

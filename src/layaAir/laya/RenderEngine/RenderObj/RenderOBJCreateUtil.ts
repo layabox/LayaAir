@@ -1,9 +1,9 @@
 import { RenderState } from "../../d3/core/material/RenderState";
-import { RenderBounds } from "../../d3/core/RenderBounds";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
+import { BoundsImpl } from "../../d3/math/BoundsImpl";
 import { Matrix4x4 } from "../../d3/math/Matrix4x4";
 import { Vector3 } from "../../d3/math/Vector3";
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
@@ -50,8 +50,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new Transform3D(owner);
     }
 
-    createBounds(min: Vector3, max: Vector3): RenderBounds {
-        return new RenderBounds(min, max);
+    createBounds(min: Vector3, max: Vector3): any {
+        return new BoundsImpl(min, max);
     }
 
     createShaderData(): ShaderData {

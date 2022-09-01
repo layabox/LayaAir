@@ -7,7 +7,6 @@ import { Loader } from "../../../net/Loader";
 import { Node } from "../../../display/Node";
 import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { RenderBounds } from "../RenderBounds";
 import { Bounds } from "../../math/Bounds";
 
 /**
@@ -39,7 +38,7 @@ export class ReflectionProbe extends Sprite3D {
 	/** 包围盒偏移 */
 	private _offset:Vector3 = new Vector3();
 	/** 包围盒 */
-	private _bounds:RenderBounds;
+	private _bounds:Bounds;
 	/** 反射强度 */
 	private _intensity:number;
 	/** 反射参数 */
@@ -53,7 +52,7 @@ export class ReflectionProbe extends Sprite3D {
 
 	constructor(){
 		super();
-		this._bounds = LayaGL.renderOBJCreate.createBounds(new Vector3(),new Vector3());
+		this._bounds = new Bounds(new Vector3(),new Vector3());
 	}
 
 	/**
@@ -116,7 +115,7 @@ export class ReflectionProbe extends Sprite3D {
 	 * @internal
 	 */
 	set bounds(value:Bounds){
-		this._bounds.set(value);
+		this._bounds = value;
 	}
 
 	get boundsMax():Vector3{
@@ -168,7 +167,7 @@ export class ReflectionProbe extends Sprite3D {
 		Vector3.add(min,this._offset,min);
 		this._reflectionDecodeFormat = data.reflectionDecodingFormat;
 		this.intensity = data.intensity;
-		if(!this._bounds) this.bounds = LayaGL.renderOBJCreate.createBounds(min,max);
+		if(!this._bounds) this.bounds = new Bounds(min,max);
 		else {
 			this._bounds.setMin(min);
 			this._bounds.setMax(max);

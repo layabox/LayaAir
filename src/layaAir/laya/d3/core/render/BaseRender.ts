@@ -22,7 +22,6 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 import { SubUniformBufferData } from "../../../RenderEngine/SubUniformBufferData";
 import { Stat } from "../../../utils/Stat";
-import { RenderBounds } from "../RenderBounds";
 import { Bounds } from "../../math/Bounds";
 import { ISingletonElement } from "../../../utils/SimpleSingletonList";
 
@@ -106,10 +105,10 @@ export class BaseRender extends Component implements ISingletonElement {
     /**@internal */
     protected _rendernode: IBaseRenderNode;
     /** @internal */
-    protected _bounds: RenderBounds;
+    protected _bounds: Bounds;
 
     /** @internal */
-    protected _baseGeometryBounds: RenderBounds;
+    protected _baseGeometryBounds: Bounds;
     /**@internal */
     protected _transform: Transform3D;
 
@@ -130,10 +129,10 @@ export class BaseRender extends Component implements ISingletonElement {
      * 如果设置了此bounds，渲染包围盒会根据geometryBounds和transform来更新，native层会下沉
      * @internal
      */
-    set geometryBounds(value: RenderBounds) {
+    set geometryBounds(value: Bounds) {
         this._baseGeometryBounds = this._rendernode.geometryBounds = value;
     }
-    get geometryBounds(): RenderBounds {
+    get geometryBounds(): Bounds {
         return this._baseGeometryBounds;
     }
     /**
@@ -359,7 +358,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this._rendernode = this._createBaseRenderNode();
         this._rendernode.owner = this;
         this._rendernode.renderId = ++BaseRender._uniqueIDCounter;
-        this._bounds = this._rendernode.bounds = LayaGL.renderOBJCreate.createBounds(Vector3.ZERO, Vector3.ZERO);
+        this._bounds = this._rendernode.bounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
         this._renderElements = [];
         this._enabled = true;
         this._materialsInstance = [];

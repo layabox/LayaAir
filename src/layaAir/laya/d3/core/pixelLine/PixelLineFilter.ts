@@ -74,7 +74,7 @@ export class PixelLineFilter extends GeometryElement {
 		var max: Vector3 = PixelLineFilter._tempVector1;
 		min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
 		max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-		this._bounds = LayaGL.renderOBJCreate.createBounds(min, max);
+		this._bounds = new Bounds(min, max);
 	}
 
 	/**
