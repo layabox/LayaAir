@@ -191,8 +191,8 @@ export class Component {
             if (this._enabled && !this._enableState) {
                 this._enableState = true;
 
-                let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
                 if (LayaEnv.isPlaying || this.runInEditor) {
+                    let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
                     driver.add(this);
 
                     if (this._isScript())
@@ -204,8 +204,8 @@ export class Component {
         } else if (this._enableState) {
             this._enableState = false;
 
-            let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
             if (LayaEnv.isPlaying || this.runInEditor) {
+                let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
                 driver.remove(this);
 
                 this.owner.offAllCaller(this);
