@@ -864,7 +864,8 @@ export class Camera extends BaseCamera {
         if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
             context.invertY = true;
         context.viewport = viewport;
-
+        //设置context的渲染目标
+        context.destTarget = renderTex;
         this._prepareCameraToRender();
         var multiLighting: boolean = Config3D._multiLighting;
         (multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
@@ -884,6 +885,7 @@ export class Camera extends BaseCamera {
 
         // todo layame temp
         (renderTex) && (renderTex._start());
+        
 
         scene._clear(context);
 
@@ -1124,13 +1126,14 @@ export class Camera extends BaseCamera {
     destroy(destroyChild: boolean = true): void {
         this._offScreenRenderTexture = null;
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-        for (var i in this._cameraEventCommandBuffer) {
-            if (!this._cameraEventCommandBuffer[i])
-                continue;
-            this._cameraEventCommandBuffer[i].forEach(element => {
-                element.clear();
-            });
-        }
+        this._cameraEventCommandBuffer = {};
+        // for (var i in this._cameraEventCommandBuffer) {
+        //     if (!this._cameraEventCommandBuffer[i])
+        //         continue;
+        //     this._cameraEventCommandBuffer[i].forEach(element => {
+        //         element.clear();
+        //     });
+        // }
         super.destroy(destroyChild);
     }
 

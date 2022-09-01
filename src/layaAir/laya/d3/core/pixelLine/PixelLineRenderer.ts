@@ -61,6 +61,7 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     protected _onAdded(): void {
+        super._onAdded();
         this._changeRenderObjects(0, PixelLineMaterial.defaultMaterial);
     }
 
