@@ -77,6 +77,9 @@ export class Stage extends Sprite {
     static SCALE_FIXED_HEIGHT: string = "fixedheight";
     /**应用保持设计比例不变，全屏显示全部内容(类似showall，但showall非全屏，会有黑边)，根据屏幕长宽比，自动选择使用SCALE_FIXED_WIDTH或SCALE_FIXED_HEIGHT*/
     static SCALE_FIXED_AUTO: string = "fixedauto";
+    
+	static SCALE_FIXED_AUTO_LAYAME: string = "fixedauto_layame";
+
 
     /**画布水平居左对齐。*/
     static ALIGN_LEFT: string = "left";
@@ -406,6 +409,17 @@ export class Stage extends Sprite {
                 } else {
                     scaleX = scaleY;
                     this._width = canvasWidth = Math.round(screenWidth / scaleY);
+                }
+                break;
+            case Stage.SCALE_FIXED_AUTO_LAYAME:
+                if (screenWidth < screenHeight) {
+                    scaleY = scaleX;
+                    this._height = canvasHeight = Math.round(screenHeight / scaleX);
+                } else {
+                    scaleX = screenHeight / this.designWidth;
+                    scaleY = scaleX;
+                    this._width = canvasWidth = Math.round(screenWidth / scaleX);
+                    this._height = canvasHeight = Math.round(screenHeight / scaleY);
                 }
                 break;
         }
