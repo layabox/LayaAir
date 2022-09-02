@@ -187,7 +187,7 @@ export class InputManager {
         let y = InputManager.mouseY = _tempPoint.y;
 
         touch.event.nativeEvent = ev;
-        if (type == 3)
+        if (type == 3 || !InputManager.mouseEventsEnabled)
             touch.target = this._touchTarget = null;
         else {
             touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
@@ -288,7 +288,7 @@ export class InputManager {
                 continue;
 
             touch.event.nativeEvent = ev;
-            if (type == 3)
+            if (type == 3 || !InputManager.mouseEventsEnabled)
                 touch.target = this._touchTarget = null;
             else {
                 touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
