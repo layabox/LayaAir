@@ -12,6 +12,8 @@ export class MeshColliderShape extends ColliderShape {
 	/** @internal */
 	private _convex: boolean = false;
 
+	private _physicMesh: any;
+
 	/**
 	 * 网格。
 	 */
@@ -20,15 +22,18 @@ export class MeshColliderShape extends ColliderShape {
 	}
 
 	set mesh(value: Mesh) {
+		if (!value) return;
 		if (this._mesh !== value) {
 			var bt: any = ILaya3D.Physics3D._bullet;
+			this._physicMesh = value._getPhysicMesh();
 			if (this._mesh) {
 				bt.btCollisionShape_destroy(this._btShape);
 			}
-			if (value) {
-				this._btShape = bt.btGImpactMeshShape_create(value._getPhysicMesh());
-				bt.btGImpactShapeInterface_updateBound(this._btShape);
-			}
+			// if (value) {
+			// 	this._btShape = bt.btGImpactMeshShape_create(value._getPhysicMesh());
+			// 	bt.btGImpactShapeInterface_updateBound(this._btShape);
+			// }
+			this._setPhysicsMesh();
 			this._mesh = value;
 		}
 	}
@@ -49,8 +54,35 @@ export class MeshColliderShape extends ColliderShape {
 	 */
 	constructor() {
 		super();
+	}
 
+	/**
+	 * @internal
+	 */
+	_setPhysicsMesh() {
+		if (this._attatchedCollisionObject) {
+			if (this._attatchedCollisionObject._enableProcessCollisions) {
+				this._createDynamicMeshCollider();
+			} else {
+				this._createBvhTriangleCollider();
+				//bt.btGImpactShapeInterface_updateBound(this._btShape);
+			}
 
+		}
+	}
+
+	private _createDynamicMeshCollider() {
+		var bt: any = ILaya3D.Physics3D._bullet;
+		if (this._physicMesh) {
+			this._btShape = bt.btGImpactMeshShape_create(this._physicMesh);
+			bt.btGImpactShapeInterface_updateBound(this._btShape);
+		}
+	}
+
+	private _createBvhTriangleCollider() {
+		var bt: any = ILaya3D.Physics3D._bullet;
+		if (this._physicMesh)
+			this._btShape = bt.btBvhTriangleMeshShape_create(this._physicMesh);
 	}
 
 	/**

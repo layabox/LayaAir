@@ -295,6 +295,7 @@ export class PhysicsComponent extends Component {
 				value._attatchedCollisionObject = this;
 			}
 
+			((value as any)._physicMesh)&&((value as any)._setPhysicsMesh());
 			if (this._btColliderObject) {
 				ILaya3D.Physics3D._bullet.btCollisionObject_setCollisionShape(this._btColliderObject, value._btShape);
 				var canInSimulation: boolean = this._simulation && this._enabled;
