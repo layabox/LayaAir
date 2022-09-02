@@ -369,6 +369,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this.sortingFudge = 0.0;
         this._customCull = this._needRender !== BaseRender.prototype._needRender;
         this.runInEditor = true;
+        this.boundsChange = true;
     }
 
     protected _createBaseRenderNode(): IBaseRenderNode {

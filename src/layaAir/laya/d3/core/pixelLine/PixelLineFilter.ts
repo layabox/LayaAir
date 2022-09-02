@@ -159,6 +159,7 @@ export class PixelLineFilter extends GeometryElement {
 		bounds.setMax(max);
 		floatBound[0] = min.x, floatBound[1] = min.y, floatBound[2] = min.z;
 		floatBound[3] = max.x, floatBound[4] = max.y, floatBound[5] = max.z;
+		this._ownerRender.boundsChange = true;
 	}
 
 

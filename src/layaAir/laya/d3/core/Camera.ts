@@ -253,6 +253,7 @@ export class Camera extends BaseCamera {
     }
 
     get clientWidth(): number {
+        ILaya.stage.needUpdateCanvasSize();
         if (Config3D.customResolution)
             return Config3D.pixelRatio * Config3D._resoluWidth | 0;
         else
@@ -260,6 +261,7 @@ export class Camera extends BaseCamera {
     }
 
     get clientHeight(): number {
+        ILaya.stage.needUpdateCanvasSize();
         if (Config3D.customResolution)
             return Config3D.pixelRatio * Config3D._resoluHeight | 0;
         else
