@@ -673,8 +673,8 @@ class emiter {
                     let arr = newtype.split(".");
                     type = arr[arr.length - 1];
                 }
-            } else if (this.importArr[type]) {
-                type = this.importArr[type];
+            } else if (this.importArr[type] && !this.url) {
+                type = "Laya." + type;
             }
 
             if (node.typeArguments && node.typeArguments.length) {
@@ -738,7 +738,7 @@ class emiter {
                 type = node.getText();
             }
         }
-        if (this.importArr[type])
+        if (this.importArr[type] && !this.url)
             return this.importArr[type];
         return type;
     }
