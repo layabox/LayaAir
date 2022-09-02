@@ -1321,7 +1321,7 @@ export class Sprite extends Node {
 
     set filters(value: any[]) {
         value && value.length === 0 && (value = null);
-        if (this._cacheStyle.filters == value) return;
+        // if (this._cacheStyle.filters == value) return;
         this._getCacheStyle().filters = value ? value.slice() : null;
         if (value && value.length) {
             //temp TODO 

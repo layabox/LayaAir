@@ -8,9 +8,9 @@ import { ILaya } from "../../../ILaya";
  */
 export class HtmlVideo extends Bitmap {
     public video: HTMLVideoElement;
-	protected _source: any;
-	protected _w=0;
-	protected _h=0;
+    protected _source: any;
+    protected _w = 0;
+    protected _h = 0;
     constructor() {
         super();
 
@@ -30,15 +30,14 @@ export class HtmlVideo extends Bitmap {
     private createDomElement(): void {
         this._source = this.video = ILaya.Browser.createElement("video");
 
+        // 默认放开webGL对纹理数据的跨域限制
+        this.video.setAttribute('crossorigin', 'Anonymous');
         var style: any = this.video.style;
         style.position = 'absolute';
         style.top = '0px';
         style.left = '0px';
 
-        // 默认放开webGL对纹理数据的跨域限制
-        this.video.setAttribute('crossorigin', 'anonymous');
-
-        this.video.addEventListener("loadedmetadata", ()=> {
+        this.video.addEventListener("loadedmetadata", () => {
             this._w = this.video.videoWidth;
             this._h = this.video.videoHeight;
         });

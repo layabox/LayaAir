@@ -295,7 +295,7 @@ export class PhysicsComponent extends Component {
 				value._attatchedCollisionObject = this;
 			}
 
-			((value as any)._physicMesh)&&((value as any)._setPhysicsMesh());
+			((value as any)._physicMesh) && ((value as any)._setPhysicsMesh());
 			if (this._btColliderObject) {
 				ILaya3D.Physics3D._bullet.btCollisionObject_setCollisionShape(this._btColliderObject, value._btShape);
 				var canInSimulation: boolean = this._simulation && this._enabled;
@@ -425,7 +425,7 @@ export class PhysicsComponent extends Component {
 	protected _onDestroy(): void {
 		delete PhysicsComponent._physicObjectsMap[this.id];
 		ILaya3D.Physics3D._bullet.btCollisionObject_destroy(this._btColliderObject);
-		this._colliderShape.destroy();
+		this._colliderShape && this._colliderShape.destroy();
 		super._onDestroy();
 		this._btColliderObject = null;
 		this._colliderShape = null;
