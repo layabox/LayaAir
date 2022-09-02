@@ -156,6 +156,8 @@ export class Stage extends Sprite {
 	private _isFocused: boolean;
 	/**@private */
 	private _isVisibility: boolean;
+	/**@private */
+	private _needUpdateCanvasSize:boolean = false;
 	/**@internal webgl Color*/
 	_wgColor: number[]|null = [0, 0, 0, 1];
 	/**@internal */
@@ -269,6 +271,7 @@ export class Stage extends Sprite {
 	set width(value: number) {
 		this.designWidth = value;
 		super.set_width(value);
+		this._needUpdateCanvasSize = true;
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
 	/**
@@ -276,6 +279,7 @@ export class Stage extends Sprite {
      * @override
      */
 	get width(): number {
+		this.needUpdateCanvasSize();
 		return super.get_width();
 	}
 
@@ -283,11 +287,13 @@ export class Stage extends Sprite {
 	set height(value: number) {
 		this.designHeight = value;
 		super.set_height(value);
+		this._needUpdateCanvasSize = true;
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
 
 	/** @override*/  
 	get height(): number {
+		this.needUpdateCanvasSize();
 		return super.get_height();
 	}
 
@@ -317,6 +323,7 @@ export class Stage extends Sprite {
 
 	/**@private */
 	private _changeCanvasSize(): void {
+		this._needUpdateCanvasSize = false;
 		this.setScreenSize(Browser.clientWidth * Browser.pixelRatio, Browser.clientHeight * Browser.pixelRatio);
 	}
 
@@ -331,6 +338,11 @@ export class Stage extends Sprite {
 		//Laya.timer.once(100, this, this._changeCanvasSize);
 		this._changeCanvasSize();
 	}
+
+	
+
+
+
 
 	/**
 	 * 设置屏幕大小，场景会根据屏幕大小进行适配。可以动态调用此方法，来更改游戏显示的大小。
@@ -513,11 +525,13 @@ export class Stage extends Sprite {
 	 * </ul></p>
 	 */
 	get alignH(): string {
+		this.needUpdateCanvasSize();
 		return this._alignH;
 	}
 
 	set alignH(value: string) {
 		this._alignH = value;
+		this._needUpdateCanvasSize = true;
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
 
@@ -530,11 +544,13 @@ export class Stage extends Sprite {
 	 * </ul></p>
 	 */
 	get alignV(): string {
+		this.needUpdateCanvasSize();
 		return this._alignV;
 	}
 
 	set alignV(value: string) {
 		this._alignV = value;
+		this._needUpdateCanvasSize = true;
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
 
@@ -574,12 +590,18 @@ export class Stage extends Sprite {
 
 	/**当前视窗由缩放模式导致的 X 轴缩放系数。*/
 	get clientScaleX(): number {
+		this.needUpdateCanvasSize();
 		return this._transform ? this._transform.getScaleX() : 1;
 	}
 
 	/**当前视窗由缩放模式导致的 Y 轴缩放系数。*/
 	get clientScaleY(): number {
+		this.needUpdateCanvasSize();
 		return this._transform ? this._transform.getScaleY() : 1;
+	}
+
+	needUpdateCanvasSize(){
+		if(this._needUpdateCanvasSize) this._changeCanvasSize();
 	}
 
 	/**

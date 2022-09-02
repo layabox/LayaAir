@@ -242,6 +242,7 @@ export class Camera extends BaseCamera {
 	}
 
 	get clientWidth(): number {
+		Laya.stage.needUpdateCanvasSize();
 		if (Config3D._config.customPixel)
 			return Config3D._config.pixResolWidth | 0;
 		else
@@ -249,6 +250,7 @@ export class Camera extends BaseCamera {
 	}
 
 	get clientHeight(): number {
+		Laya.stage.needUpdateCanvasSize();
 		if (Config3D._config.customPixel)
 			return Config3D._config.pixResolHeight | 0;
 		else
