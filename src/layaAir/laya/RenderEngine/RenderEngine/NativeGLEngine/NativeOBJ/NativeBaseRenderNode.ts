@@ -47,7 +47,7 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     }
     set bounds(value: Bounds) {
         this._bounds = value;
-        this._nativeObj.bounds = value ? (value as any)._nativeObj : null;
+        this._nativeObj.bounds = (value as any)._imp._nativeObj;
     }
 
     sortingFudge: number;
@@ -79,6 +79,6 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
 
     set geometryBounds(value: Bounds | null) {
         this._geometryBounds = value;
-        this._nativeObj.geometryBounds = value ? (value as any)._nativeObj : null;
+        this._nativeObj.geometryBounds = (value as any)._imp._nativeObj;
     }
 }
