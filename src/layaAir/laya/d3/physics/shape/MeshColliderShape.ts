@@ -61,13 +61,7 @@ export class MeshColliderShape extends ColliderShape {
 	 */
 	_setPhysicsMesh() {
 		if (this._attatchedCollisionObject) {
-			if (this._attatchedCollisionObject._enableProcessCollisions) {
-				this._createDynamicMeshCollider();
-			} else {
-				this._createBvhTriangleCollider();
-				//bt.btGImpactShapeInterface_updateBound(this._btShape);
-			}
-
+			this._createBvhTriangleCollider();
 		}
 	}
 
@@ -97,7 +91,9 @@ export class MeshColliderShape extends ColliderShape {
 			var bt: any = ILaya3D.Physics3D._bullet;
 			bt.btVector3_setValue(ColliderShape._btScale, value.x, value.y, value.z);
 			bt.btCollisionShape_setLocalScaling(this._btShape, ColliderShape._btScale);
-			bt.btGImpactShapeInterface_updateBound(this._btShape);//更新缩放后需要更新包围体,有性能损耗
+			if (this._attatchedCollisionObject && this._attatchedCollisionObject._enableProcessCollisions) {
+				bt.btGImpactShapeInterface_updateBound(this._btShape);//更新缩放后需要更新包围体,有性能损耗
+			}
 		}
 	}
 

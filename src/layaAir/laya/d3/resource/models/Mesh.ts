@@ -390,7 +390,7 @@ export class Mesh extends Resource implements IClone {
 	 * @internal
 	 */
 	_getPhysicMesh(): any {
-		if (!this._btTriangleMesh) {
+		// if (!this._btTriangleMesh) {
 			var bt: any = Physics3D._bullet;
 			var triangleMesh: number = bt.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
 			var nativePositio0: number = Mesh._nativeTempVector30;
@@ -421,7 +421,7 @@ export class Mesh extends Resource implements IClone {
 				bt.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, true);
 			}
 			this._btTriangleMesh = triangleMesh;
-		}
+		// }
 		return this._btTriangleMesh;
 	}
 
