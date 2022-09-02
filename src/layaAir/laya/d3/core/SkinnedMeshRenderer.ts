@@ -18,7 +18,6 @@ import { Material } from "./material/Material";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
 import { Scene3D } from "./scene/Scene3D";
 import { Bounds } from "../math/Bounds";
-import { RenderBounds } from "./RenderBounds";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -38,7 +37,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     /** @internal */
     private _skinnedDataLoopMarks: number[] = [];
     /**@internal */
-    protected _localBounds: RenderBounds;
+    protected _localBounds: Bounds;
     // /**@internal */
     // protected _cacheAnimator: Animator;
     /**@internal */
@@ -52,7 +51,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     set localBounds(value: Bounds) {
-        this._localBounds.set(value);
+        this._localBounds = value;
         this.geometryBounds = this._localBounds;
     }
 
@@ -98,7 +97,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      */
     constructor() {
         super();
-        this._localBounds = LayaGL.renderOBJCreate.createBounds(Vector3.ZERO, Vector3.ZERO);
+        this._localBounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
         this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
     }
 

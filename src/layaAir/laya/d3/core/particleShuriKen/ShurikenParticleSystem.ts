@@ -51,7 +51,6 @@ import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { RenderBounds } from "../RenderBounds";
 import { Bounds } from "../../math/Bounds";
 
 
@@ -95,12 +94,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     /**@internal */
     protected static _type: number = GeometryElement._typeCounter++;
     /** @internal */
-    _bounds: RenderBounds = null;
+    _bounds: Bounds = null;
     /** @internal 重力影响偏移, 用于计算世界包围盒 */
     _gravityOffset: Vector2 = new Vector2();
 
     /** @internal */
-    _customBounds: RenderBounds = null;
+    _customBounds: Bounds = null;
 
     /** @internal */
     _useCustomBounds: boolean = false;
@@ -962,7 +961,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this._useCustomBounds = false;
 
         this._currentTime = 0;
-        this._bounds = LayaGL.renderOBJCreate.createBounds(new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE), new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE));
+        this._bounds = new Bounds(new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE), new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE));
         this.bufferState = this._bufferState = new BufferState();
         this._isEmitting = false;
         this._isPlaying = false;
@@ -1327,10 +1326,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (value) {
             this._useCustomBounds = true;
             if(!this._customBounds){
-                this._customBounds = LayaGL.renderOBJCreate.createBounds(new Vector3(),new Vector3());   
+                this._customBounds = new Bounds(new Vector3(),new Vector3());   
                 this._ownerRender.geometryBounds = this._customBounds;
             }
-            this._customBounds.set(value);
+            this._customBounds = value;
             
         }
         else {

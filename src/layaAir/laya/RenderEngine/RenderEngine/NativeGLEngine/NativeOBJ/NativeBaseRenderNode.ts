@@ -1,13 +1,13 @@
 import { BaseRender } from "../../../../d3/core/render/BaseRender";
-import { RenderBounds } from "../../../../d3/core/RenderBounds";
 import { Transform3D } from "../../../../d3/core/Transform3D";
+import { Bounds } from "../../../../d3/math/Bounds";
 import { IBaseRenderNode } from "../../../RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 
 export class NativeBaseRenderNode implements IBaseRenderNode {
 
     private _nativeObj: any;
-    private _bounds: RenderBounds = null;
-    private _geometryBounds: RenderBounds = null;
+    private _bounds: Bounds = null;
+    private _geometryBounds: Bounds = null;
     constructor() {
         this._nativeObj = new (window as any).conchRenderNode();
     }
@@ -42,12 +42,12 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
         this._nativeObj.castShadow = value;
     }
 
-    get bounds(): RenderBounds {
+    get bounds(): Bounds {
         return this._bounds;
     }
-    set bounds(value: RenderBounds) {
+    set bounds(value: Bounds) {
         this._bounds = value;
-        this._nativeObj.bounds = value ? (value as any)._nativeObj : null;
+        this._nativeObj.bounds = (value as any)._imp._nativeObj;
     }
 
     sortingFudge: number;
@@ -73,12 +73,12 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
         this._nativeObj.owner = value;
     }
 
-    get geometryBounds(): RenderBounds | null {
+    get geometryBounds(): Bounds | null {
         return this._geometryBounds;
     }
 
-    set geometryBounds(value: RenderBounds | null) {
+    set geometryBounds(value: Bounds | null) {
         this._geometryBounds = value;
-        this._nativeObj.geometryBounds = value ? (value as any)._nativeObj : null;
+        this._nativeObj.geometryBounds = (value as any)._imp._nativeObj;
     }
 }

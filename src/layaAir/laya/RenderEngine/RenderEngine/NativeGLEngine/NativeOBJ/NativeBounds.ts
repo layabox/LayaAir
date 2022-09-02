@@ -25,11 +25,6 @@ export class NativeBounds implements IClone {
     /***/
     _boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
-    set(bounds: NativeBounds) {
-        this.setMin(bounds.min);
-        this.setMax(bounds.max);
-    }
-
     get min() {
         return this.getMin();
     }

@@ -31,7 +31,6 @@ import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { RenderBoundingFrustum } from "../../RenderEngine/RenderObj/RenderBoundingFrustum";
 import { ILaya } from "../../../ILaya";
 import { ShadowLightType } from "../shadowMap/ShadowLightType";
 
@@ -155,7 +154,7 @@ export class Camera extends BaseCamera {
     /** @internal */
     protected _projectionViewMatrix: Matrix4x4;
     /** @internal */
-    protected _boundFrustum: RenderBoundingFrustum;
+    protected _boundFrustum: BoundFrustum;
     /** @internal */
     private _updateViewMatrix: boolean = true;
     /** @internal */
@@ -464,7 +463,7 @@ export class Camera extends BaseCamera {
         this._normalizedViewport = new Viewport(0, 0, 1, 1);
         this._rayViewport = new Viewport(0, 0, 0, 0);
         this._aspectRatio = aspectRatio;
-        this._boundFrustum = LayaGL.renderOBJCreate.createBoundFrustum(new Matrix4x4());
+        this._boundFrustum = new BoundFrustum(new Matrix4x4());
 
         this._calculateProjectionMatrix();
         ILaya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);

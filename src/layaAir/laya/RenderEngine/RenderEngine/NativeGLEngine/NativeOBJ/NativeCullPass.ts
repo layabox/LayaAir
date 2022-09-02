@@ -7,7 +7,8 @@ import { Stat } from "../../../../utils/Stat";
 import { ICameraCullInfo } from "../../../RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { ICullPass } from "../../../RenderInterface/RenderPipelineInterface/ICullPass";
 import { IShadowCullInfo } from "../../../RenderInterface/RenderPipelineInterface/IShadowCullInfo";
-import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
+import { ISceneRenderManager } from "../../../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
+import { NativeCameraCullInfo } from "./NativeCameraCullInfo";
 
 
 export class NativeCullPassBase implements ICullPass {
@@ -25,8 +26,9 @@ export class NativeCullPassBase implements ICullPass {
         this._tempRenderList = new SingletonList<BaseRender>();
     }
 
-    cullByCameraCullInfo(cameraCullInfo: ICameraCullInfo, renderManager: NativeSceneRenderManager): void {
-        //native Cull
+    cullByCameraCullInfo(cameraCullInfo: ICameraCullInfo, renderManager: ISceneRenderManager): void {
+        //native Cull 
+        (cameraCullInfo as NativeCameraCullInfo).serialize();
         Stat.frustumCulling += this._nativeObj.cullByCameraCullInfo((cameraCullInfo as any)._nativeObj, (renderManager as any)._sceneManagerOBJ._nativeObj);
         //Custom list Cull
         var customRenderList = (renderManager as any)._sceneManagerOBJ._customCullList;
@@ -46,7 +48,7 @@ export class NativeCullPassBase implements ICullPass {
             }
         }
     }
-    cullByShadowCullInfo(cullInfo: IShadowCullInfo, renderManager: NativeSceneRenderManager): void {
+    cullByShadowCullInfo(cullInfo: IShadowCullInfo, renderManager: ISceneRenderManager): void {
         //native Cull
         //TODO transparent filter
         Stat.frustumCulling += this._nativeObj.cullByShadowCullInfo((cullInfo as any)._nativeObj, (renderManager as any)._sceneManagerOBJ._nativeObj);
@@ -63,8 +65,9 @@ export class NativeCullPassBase implements ICullPass {
             }
         }
     }
-    cullingSpotShadow(cameraCullInfo: ICameraCullInfo, renderManager: NativeSceneRenderManager): void {
+    cullingSpotShadow(cameraCullInfo: ICameraCullInfo, renderManager: ISceneRenderManager): void {
         //native Cull
+        (cameraCullInfo as NativeCameraCullInfo).serialize();
         //TODO transparent filter
         Stat.frustumCulling += this._nativeObj.cullingSpotShadow((cameraCullInfo as any)._nativeObj, (renderManager as any)._sceneManagerOBJ._nativeObj);
         

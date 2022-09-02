@@ -1,7 +1,4 @@
 import { RenderState } from "../../d3/core/material/RenderState";
-import { RenderBoundingSphere } from "../../d3/core/RenderBoundingSphere";
-import { RenderBounds } from "../../d3/core/RenderBounds";
-import { RenderPlane } from "../../d3/core/RenderPlane";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
@@ -16,7 +13,6 @@ import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
-import { RenderBoundingFrustum } from "../RenderObj/RenderBoundingFrustum";
 import { ShaderData, ShaderDataType } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { UniformBufferObject } from "../UniformBufferObject";
@@ -37,13 +33,7 @@ export interface IRenderOBJCreate {
 
     createTransform(owner: Sprite3D): Transform3D;
 
-    createBounds(min: Vector3, max: Vector3): RenderBounds;
-
-    createBoundsSphere(center: Vector3, radius: number): RenderBoundingSphere;
-
-    createPlane(normal: Vector3, d: number): RenderPlane;
-
-    createBoundFrustum(matrix: Matrix4x4): RenderBoundingFrustum;
+    createBounds(min: Vector3, max: Vector3): any;
 
     createShaderData(ownerResource: Resource): ShaderData;
 

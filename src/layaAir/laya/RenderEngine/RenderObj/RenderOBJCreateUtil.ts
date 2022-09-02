@@ -1,11 +1,9 @@
 import { RenderState } from "../../d3/core/material/RenderState";
-import { RenderBoundingSphere } from "../../d3/core/RenderBoundingSphere";
-import { RenderBounds } from "../../d3/core/RenderBounds";
-import { RenderPlane } from "../../d3/core/RenderPlane";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
+import { BoundsImpl } from "../../d3/math/BoundsImpl";
 import { Matrix4x4 } from "../../d3/math/Matrix4x4";
 import { Vector3 } from "../../d3/math/Vector3";
 import { ShaderInstance } from "../../d3/shader/ShaderInstance";
@@ -35,7 +33,6 @@ import { CameraCullInfo } from "./CameraCullInfo";
 import { CullPassBase } from "./CullPass";
 import { InstanceRenderElementOBJ } from "./InstanceRenderElementOBJ";
 import { QuickSort } from "./QuickSort";
-import { RenderBoundingFrustum } from "./RenderBoundingFrustum";
 import { RenderContext3DOBJ } from "./RenderContext3DOBJ";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
@@ -53,20 +50,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new Transform3D(owner);
     }
 
-    createBounds(min: Vector3, max: Vector3): RenderBounds {
-        return new RenderBounds(min, max);
-    }
-
-    createBoundsSphere(center: Vector3, radius: number): RenderBoundingSphere {
-        return new RenderBoundingSphere(center, radius);
-    }
-
-    createPlane(normal: Vector3, d: number = 0): RenderPlane {
-        return new RenderPlane(normal, d);
-    }
-
-    createBoundFrustum(matrix: Matrix4x4): RenderBoundingFrustum {
-        return new RenderBoundingFrustum(matrix);
+    createBounds(min: Vector3, max: Vector3): any {
+        return new BoundsImpl(min, max);
     }
 
     createShaderData(): ShaderData {

@@ -29,7 +29,6 @@ import { Viewport } from "../math/Viewport";
 import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { RenderPlane } from "../core/RenderPlane";
 import { Stat } from "../../utils/Stat";
 import { ShadowLightType } from "./ShadowLightType";
 
@@ -69,14 +68,14 @@ export class ShadowCasterPass {
     /**@internal */
     private static _cascadesSplitDistance: number[] = new Array(ShadowCasterPass._maxCascades + 1);
     /** @internal */
-    private static _frustumPlanes: RenderPlane[] = new Array();
+    private static _frustumPlanes: Plane[] = new Array();
 
     /**
      * @internal
      * init Scene UniformMap
      */
     static __init__() {
-        ShadowCasterPass._frustumPlanes = new Array(LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0), LayaGL.renderOBJCreate.createPlane(new Vector3(), 0));
+        ShadowCasterPass._frustumPlanes = new Array(new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0));
         ShadowCasterPass.SHADOW_BIAS = Shader3D.propertyNameToID("u_ShadowBias");
         ShadowCasterPass.SHADOW_LIGHT_DIRECTION = Shader3D.propertyNameToID("u_ShadowLightDirection");
         ShadowCasterPass.SHADOW_SPLIT_SPHERES = Shader3D.propertyNameToID("u_ShadowSplitSpheres");
@@ -160,7 +159,7 @@ export class ShadowCasterPass {
     _castDepthBufferData: UnifromBufferData;
     _castDepthBufferOBJ: UniformBufferObject;
     constructor() {
-        this._shadowSpotData.cameraCullInfo.boundFrustum = LayaGL.renderOBJCreate.createBoundFrustum(new Matrix4x4());
+        this._shadowSpotData.cameraCullInfo.boundFrustum = new BoundFrustum(new Matrix4x4());
         if (Config3D._uniformBlock) {
             this._castDepthBufferData = ShadowCasterPass.createDepthCasterUniformBlock();
             this._castDepthBufferOBJ = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
