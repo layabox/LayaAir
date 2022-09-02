@@ -347,7 +347,7 @@ export class NativeTransform3D  extends Transform3D {
 	 */
 	get worldMatrix(): Matrix4x4 {
 		this._nativeObj.getWorldMatrix();
-        for (var i = 0; i < 16; ++i) {
+        for (var i = 0; i < 16; i++) {
 			this._worldMatrix.elements[i] = this.float32Array[i];
 		}
 		return this._worldMatrix;
