@@ -1,9 +1,11 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
+var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
+    return new(P || (P = Promise))(function(resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+
         function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
@@ -48,7 +50,7 @@ class Main {
         this._BaseURL = value;
     }
     start() {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             let json = JSON.parse(fs.readFileSync("outConfig.json"));
             this.BaseURL = emiter_1.emiter.BaseURL = json.from;
             this.outfile = json.out;
@@ -59,10 +61,9 @@ class Main {
             emiter_1.emiter.jscObj = json.jscObj;
             if (!this.tsCongfig.length || (yield this.compile())) { //确认编译结果
                 this.checkAllDir("");
-            }
-            else {
+            } else {
                 console.log("compile fail!");
-                exit(1);// 在publish.sh中检测编译成功与否
+                exit(1); // 在publish.sh中检测编译成功与否
             }
         });
     }
@@ -70,7 +71,7 @@ class Main {
         return new Promise(reslove => {
             let mark = 0;
             let _result = 0;
-            let start = function (result) {
+            let start = function(result) {
                 mark--;
                 _result += result;
                 if (!mark) {
@@ -78,8 +79,7 @@ class Main {
                         //进程全部执行完毕
                         console.log("compile success!");
                         reslove(true);
-                    }
-                    else {
+                    } else {
                         reslove(false);
                     }
                 }
@@ -91,7 +91,7 @@ class Main {
                 let tsConfigUrl = this.tsCongfig[i];
                 let cmd = ["-b", tsConfigUrl];
                 let tscurl = path.join(this.BaseURL.split("bin")[0], "./node_modules/.bin/tsc.cmd");
-                if  (process.platform === 'darwin') {
+                if (process.platform === 'darwin') {
                     // mac版本
                     tscurl = path.join(this.BaseURL.split("bin")[0], "./node_modules/.bin/tsc");
                 }
@@ -105,227 +105,224 @@ class Main {
         });
     }
     checkAllDir(url) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let fileData = yield this.readDir(url);
-            if (fileData) {
-                this.createAS && this.createDir(this.outfileAS + url);
-                yield this.ergodic(fileData, url);
-            }
-        });
-    }
-    /**
-     * TS转AS
-     * @param infile 文件路径
-     * @param code 读取出来的文件
-     * @param fileurl 文件夹名字
-     */
+            return __awaiter(this, void 0, void 0, function*() {
+                let fileData = yield this.readDir(url);
+                if (fileData) {
+                    this.createAS && this.createDir(this.outfileAS + url);
+                    yield this.ergodic(fileData, url);
+                }
+            });
+        }
+        /**
+         * TS转AS
+         * @param infile 文件路径
+         * @param code 读取出来的文件
+         * @param fileurl 文件夹名字
+         */
     tstoas(infile, code, fileurl) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!code) {
-                code = yield this.readFile(infile);
-            }
-            // code = code.replace(/\|\s*null/gm,"");    
-            const sc = ts.createSourceFile(this.formatUrl(infile), code, ts.ScriptTarget.Latest, true);
-            this.addName(sc); // 为了调试方便，给每个节点加上名字
-            let em = new emiter_1.emiter();
-            em.createCode(sc, code, fileurl);
-            this.dtsObj += em.copyTSdata;
-            if (!this._BaseURL) {
-                for (let index = 0; index < em.outputObj.length; index++) {
-                    let element = em.outputObj[index];
-                    console.log(element.asCode);
+            return __awaiter(this, void 0, void 0, function*() {
+                if (!code) {
+                    code = yield this.readFile(infile);
                 }
-                //测试 查看copyTsdata
-                console.log(em.copyTSdata);
-            }
-            return em;
-        });
-    }
-    // var testArr = [];
-    /**
-     * 遍历文件夹
-     * @param {*} files 列表
-     * @param {*} url 该文件夹所在位置
-     */
+                // code = code.replace(/\|\s*null/gm,"");    
+                const sc = ts.createSourceFile(this.formatUrl(infile), code, ts.ScriptTarget.Latest, true);
+                this.addName(sc); // 为了调试方便，给每个节点加上名字
+                let em = new emiter_1.emiter();
+                em.createCode(sc, code, fileurl);
+                this.dtsObj += em.copyTSdata;
+                if (!this._BaseURL) {
+                    for (let index = 0; index < em.outputObj.length; index++) {
+                        let element = em.outputObj[index];
+                        console.log(element.asCode);
+                    }
+                    //测试 查看copyTsdata
+                    console.log(em.copyTSdata);
+                }
+                return em;
+            });
+        }
+        // var testArr = [];
+        /**
+         * 遍历文件夹
+         * @param {*} files 列表
+         * @param {*} url 该文件夹所在位置
+         */
     ergodic(files, url) {
-        return __awaiter(this, void 0, void 0, function* () {
-            for (let i = 0; i < files.length; i++) {
-                let fileUrl = path.join(url, files[i]);
-                let isFile = yield this.checkIsFile(fileUrl);
-                if (isFile) {
-                    // testArr.push(files[i]);
-                    if (this.filterArr.indexOf(files[i]) == -1)
-                        yield this.checkAllDir(fileUrl);
-                }
-                else {
-                    if (this.filterArr.indexOf(files[i]) == -1) {
-                        if (fileUrl.indexOf(".d.ts") != -1) {
-                            //读取文件
-                            let tsdata = yield this.readFile(fileUrl);
-                            // debugger
-                            let em = yield this.tstoas(fileUrl, tsdata, url);
-                            this.Testobj += em.outputObj.length;
-                            //多份文件
-                            for (let i = 0; i < em.outputObj.length; i++) {
-                                let asObj = em.outputObj[i];
-                                this.writeFile(this.outfileAS + asObj.url, asObj.asCode);
+            return __awaiter(this, void 0, void 0, function*() {
+                for (let i = 0; i < files.length; i++) {
+                    let fileUrl = path.join(url, files[i]);
+                    let isFile = yield this.checkIsFile(fileUrl);
+                    if (isFile) {
+                        // testArr.push(files[i]);
+                        if (this.filterArr.indexOf(files[i]) == -1)
+                            yield this.checkAllDir(fileUrl);
+                    } else {
+                        if (this.filterArr.indexOf(files[i]) == -1) {
+                            if (fileUrl.indexOf(".d.ts") != -1) {
+                                //读取文件
+                                let tsdata = yield this.readFile(fileUrl);
+                                // debugger
+                                let em = yield this.tstoas(fileUrl, tsdata, url);
+                                this.Testobj += em.outputObj.length;
+                                //多份文件
+                                for (let i = 0; i < em.outputObj.length; i++) {
+                                    let asObj = em.outputObj[i];
+                                    this.writeFile(this.outfileAS + asObj.url, asObj.asCode);
+                                }
+                                em.outputObj = null;
                             }
-                            em.outputObj = null;
                         }
                     }
                 }
-            }
-        });
-    }
-    /**
-     * 检测读写完成
-     */
+            });
+        }
+        /**
+         * 检测读写完成
+         */
     checkComplete() {
-        setTimeout(() => {
-            // let keys = Object.keys(this.Testobj);
-            if (!this.Testobj) {
-                console.log("TS to AS complete!!!", this.complete, this.progress);
-                let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
-                this.dtsObj += layaObj;
-                this.createDir(this.outfileJS);
-                this.createDir(this.outfileTS);
-                let jsout = path.join(this.outfile, this.outfileJS) + "LayaAir.d.ts";
-                let tsout = path.join(this.outfile, this.outfileTS) + "LayaAir.d.ts";
-                fs.writeFile(tsout, this.dtsObj, err => {
-                    if (err) {
-                        console.log("create ts d.ts fail");
-                        exit(1);
-                        return;
-                    }
-                    fs.writeFile(jsout, this.dtsObj, (err) => __awaiter(this, void 0, void 0, function* () {
+            setTimeout(() => {
+                // let keys = Object.keys(this.Testobj);
+                if (!this.Testobj) {
+                    console.log("TS to AS complete!!!", this.complete, this.progress);
+                    let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
+                    this.dtsObj += layaObj;
+                    this.createDir(this.outfileJS);
+                    this.createDir(this.outfileTS);
+                    let jsout = path.join(this.outfile, this.outfileJS) + "LayaAir.d.ts";
+                    let tsout = path.join(this.outfile, this.outfileTS) + "LayaAir.d.ts";
+                    fs.writeFile(tsout, this.dtsObj, err => {
                         if (err) {
-                            console.log("create js d.ts fail");
+                            console.log("create ts d.ts fail");
                             exit(1);
                             return;
                         }
-                        console.log("create d.ts success");
-                        console.log("start copy layajs.exe");
-                        yield gulp.src(this.layajsURL).pipe(gulp.dest(path.join(this.outfile, this.outfileAS, "../../")));
-                        console.log("start copy jsc");
-                        yield gulp.src("./jsc/**/*.*").pipe(gulp.dest(path.join(this.outfile, this.outfileAS)));
-                        console.log("copy success!");
-                    }));
-                });
-            }
-            else {
-                this.checkComplete();
-            }
-        }, 1000 * 5);
-    }
-    /**
-     * 给节点加上名字，便于调试
-     * @param node
-     */
+                        fs.writeFile(jsout, this.dtsObj, (err) => __awaiter(this, void 0, void 0, function*() {
+                            if (err) {
+                                console.log("create js d.ts fail");
+                                exit(1);
+                                return;
+                            }
+                            console.log("create d.ts success");
+                            console.log("start copy layajs.exe");
+                            yield gulp.src(this.layajsURL).pipe(gulp.dest(path.join(this.outfile, this.outfileAS, "../../")));
+                            console.log("start copy jsc");
+                            yield gulp.src("./jsc/**/*.*").pipe(gulp.dest(path.join(this.outfile, this.outfileAS)));
+                            console.log("copy success!");
+                        }));
+                    });
+                } else {
+                    this.checkComplete();
+                }
+            }, 1000 * 5);
+        }
+        /**
+         * 给节点加上名字，便于调试
+         * @param node
+         */
     addName(node) {
-        node._kindname = ts.SyntaxKind[node.kind];
-        ts.forEachChild(node, this.addName.bind(this));
-    }
-    /**
-     * 读取文件夹
-     **/
-    readDir(fileUrl) {
-        return new Promise(resolve => {
-            fs.readdir(this.formatUrl(fileUrl), (err, files) => {
-                if (err) {
-                    console.error("readDir fial", fileUrl);
-                    return resolve(0);
-                }
-                // console.log("readDir success",fileUrl);
-                resolve(files);
-            });
-        });
-    }
-    /**
-     * 创建文件夹
-     * @param filePath
-     */
-    createDir(filePath) {
-        // filePath = filePath.replace(BaseURL,'');
-        let url = path.resolve(this.outfile, filePath);
-        if (!fs.existsSync(url)) {
-            let topUrl = path.join(url, "../");
-            // console.log("_没有这一级检测上一级",topUrl);
-            this.createDir(topUrl); //创建上一级
-            fs.mkdirSync(url);
+            node._kindname = ts.SyntaxKind[node.kind];
+            ts.forEachChild(node, this.addName.bind(this));
         }
-    }
-    /**
-     * 读取文件
-     * @param {*} fileUrl 文件地址
-     */
-    readFile(fileUrl) {
-        return new Promise(resolve => {
-            fs.readFile(this.formatUrl(fileUrl), "utf8", (err, files) => {
-                if (err) {
-                    console.error("readfile fail", fileUrl);
-                    return resolve(0);
-                }
-                this.complete++;
-                // this.Testobj[this.outfileAS+fileUrl.replace(".d.ts","")] = "reading";
-                // console.log("readfile success",fileUrl);
-                resolve(files);
-            });
-        });
-    }
-    /**
-     * 是否是文件夹
-     */
-    checkIsFile(url) {
-        return new Promise(resolve => {
-            fs.lstat(this.formatUrl(url), (err, stats) => {
-                if (err) {
-                    // console.log("lstatfail",url);
-                    return resolve(false);
-                }
-                resolve(stats.isDirectory());
-            });
-        });
-    }
-    /**
-     * 写入文件
-     * @param url 地址
-     * @param data 数据
-     */
-    writeFile(url, data) {
-        if (this.createAS && data != "") {
-            let outUrl = this.outfile + url;
-            // url.replace("(d.ts)","as");
-            // outUrl 
+        /**
+         * 读取文件夹
+         **/
+    readDir(fileUrl) {
             return new Promise(resolve => {
-                fs.writeFile(outUrl, data, err => {
+                fs.readdir(this.formatUrl(fileUrl), (err, files) => {
                     if (err) {
-                        console.log("write file fail", url, err);
-                        exit(1);
+                        console.error("readDir fial", fileUrl);
+                        return resolve(0);
                     }
-                    this.progress++;
-                    // delete this.Testobj[url.replace(".as","")]
-                    this.Testobj--;
-                    if (!this.isTimeOut) {
-                        this.isTimeOut = true;
-                        this.checkComplete();
-                    }
-                    resolve();
+                    // console.log("readDir success",fileUrl);
+                    resolve(files);
                 });
             });
         }
-        else {
-            this.progress++;
-            this.Testobj--;
-            // delete this.Testobj[url]
-            if (!this.isTimeOut) {
-                this.isTimeOut = true;
-                this.checkComplete();
+        /**
+         * 创建文件夹
+         * @param filePath
+         */
+    createDir(filePath) {
+            // filePath = filePath.replace(BaseURL,'');
+            let url = path.resolve(this.outfile, filePath);
+            if (!fs.existsSync(url)) {
+                let topUrl = path.join(url, "../");
+                // console.log("_没有这一级检测上一级",topUrl);
+                this.createDir(topUrl); //创建上一级
+                fs.mkdirSync(url);
             }
         }
-    }
-    /**
-     *  格式化url
-     * */
+        /**
+         * 读取文件
+         * @param {*} fileUrl 文件地址
+         */
+    readFile(fileUrl) {
+            return new Promise(resolve => {
+                fs.readFile(this.formatUrl(fileUrl), "utf8", (err, files) => {
+                    if (err) {
+                        console.error("readfile fail", fileUrl);
+                        return resolve(0);
+                    }
+                    this.complete++;
+                    // this.Testobj[this.outfileAS+fileUrl.replace(".d.ts","")] = "reading";
+                    // console.log("readfile success",fileUrl);
+                    resolve(files);
+                });
+            });
+        }
+        /**
+         * 是否是文件夹
+         */
+    checkIsFile(url) {
+            return new Promise(resolve => {
+                fs.lstat(this.formatUrl(url), (err, stats) => {
+                    if (err) {
+                        // console.log("lstatfail",url);
+                        return resolve(false);
+                    }
+                    resolve(stats.isDirectory());
+                });
+            });
+        }
+        /**
+         * 写入文件
+         * @param url 地址
+         * @param data 数据
+         */
+    writeFile(url, data) {
+            if (this.createAS && data != "") {
+                let outUrl = this.outfile + url;
+                // url.replace("(d.ts)","as");
+                // outUrl 
+                return new Promise(resolve => {
+                    fs.writeFile(outUrl, data, err => {
+                        if (err) {
+                            console.log("write file fail", url, err);
+                            exit(1);
+                        }
+                        this.progress++;
+                        // delete this.Testobj[url.replace(".as","")]
+                        this.Testobj--;
+                        if (!this.isTimeOut) {
+                            this.isTimeOut = true;
+                            this.checkComplete();
+                        }
+                        resolve();
+                    });
+                });
+            } else {
+                this.progress++;
+                this.Testobj--;
+                // delete this.Testobj[url]
+                if (!this.isTimeOut) {
+                    this.isTimeOut = true;
+                    this.checkComplete();
+                }
+            }
+        }
+        /**
+         *  格式化url
+         * */
     formatUrl(url) {
         if (url.indexOf(this.BaseURL) != -1)
             return url;
