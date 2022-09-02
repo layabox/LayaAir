@@ -42,7 +42,7 @@ export class Tool {
 	}
 
 	static DrawBoundingBox(sprite3D: Sprite3D, sprite: Sprite3D, color: Color): void {
-		var boundingBox: BoundBox = (<MeshSprite3D>sprite3D).meshRenderer.bounds._boundBox;
+		var boundingBox: BoundBox = (<MeshSprite3D>sprite3D).meshRenderer.bounds._getBoundBox();
 		boundingBox.getCorners(Tool.corners);
 		/*lineSprite3D.addLine(corners[0], corners[1], Color.RED, Color.RED);
 		lineSprite3D.addLine(corners[1], corners[2], Color.RED, Color.RED);
