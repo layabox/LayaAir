@@ -86,6 +86,7 @@ export class BlitScreenQuadCMD extends Command {
 		this._subShader = subShader || 0;
 		this.shaderData = shaderData;
 		this._renderElement.renderSubShader = this._shader.getSubShaderAt(this._subShader);
+		this._renderElement._subShaderIndex = subShader;
 	}
 
 	/**
