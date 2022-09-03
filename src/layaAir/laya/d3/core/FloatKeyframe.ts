@@ -34,16 +34,17 @@ export class FloatKeyframe extends Keyframe {
 		destKeyFrame.inTangent = this.inTangent;
 		destKeyFrame.outTangent = this.outTangent;
 		destKeyFrame.value = this.value;
+		destKeyFrame.inTangent = this.inTangent;
+		destKeyFrame.outTangent = this.outTangent;
+		destKeyFrame.value = this.value;
+		destKeyFrame.inWeight = this.inWeight;
+		destKeyFrame.outWeight = this.outWeight;
+		destKeyFrame.weightedMode = this.weightedMode;
 	}
 
 	clone(): FloatKeyframe {
 		let f = new FloatKeyframe();
-		f.inTangent = this.inTangent;
-		f.outTangent = this.outTangent;
-		f.value = this.value;
-		f.inWeight = this.inWeight;
-		f.outWeight = this.outWeight;
-		f.weightedMode = this.weightedMode;
+		this.cloneTo(f);
 		return f;
 	}
 

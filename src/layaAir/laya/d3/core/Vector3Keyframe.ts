@@ -38,5 +38,8 @@ export class Vector3Keyframe extends Keyframe {
 		this.inTangent.cloneTo(destKeyFarme.inTangent);
 		this.outTangent.cloneTo(destKeyFarme.outTangent);
 		this.value.cloneTo(destKeyFarme.value);
+		this.inWeight.cloneTo(destKeyFarme.inWeight);
+		this.outWeight.cloneTo(destKeyFarme.outWeight);
+		this.weightedMode.cloneTo(destKeyFarme.weightedMode);
 	}
 }
