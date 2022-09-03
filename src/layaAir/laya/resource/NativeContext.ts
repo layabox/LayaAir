@@ -78,12 +78,14 @@ export class NativeContext {
     static ENUM_TEXTALIGN_CENTER: number = 1;
     static ENUM_TEXTALIGN_RIGHT: number = 2;
     private _nativeObj: any;
+    private _tempRenderTexture2D: any;
     sprite: any = null;
     static __init__(): void {
     }
     constructor() {
         this._nativeObj = new (window as any)._conchContext((LayaGL.renderEngine as any)._nativeObj);
         this._byteLen = 1024 * 512;
+        this._tempRenderTexture2D = new RenderTexture2D(0, 0);
         this._init(false);
     }
     _init(isSyncToRenderThread: boolean): void {
@@ -139,6 +141,21 @@ export class NativeContext {
         this._nativeObj.flushCommand();
         return this._nativeObj.isMain;
     }
+    set _targets(target: RenderTexture2D) {
+    }
+    get _targets(): RenderTexture2D {
+        this._nativeObj.flushCommand();
+        let target = this._nativeObj._target;
+        //if (target && !this._tempRenderTexture2D._renderTarget) {
+        if (target) {
+            this._tempRenderTexture2D.width = this._nativeObj.width;
+            this._tempRenderTexture2D.height = this._nativeObj.height;
+            this._tempRenderTexture2D._renderTarget = target;
+            this._tempRenderTexture2D._texture = target._textures[0];
+            return this._tempRenderTexture2D;
+        }
+        return null;
+    }
     alpha(value: number): void {
         //this._nativeObj.globalAlpha *= value;
         //this.add_if(CONTEXT2D_FUNCTION_ID.ALPHA, value);
@@ -161,6 +178,9 @@ export class NativeContext {
      */
      destroy(keepRT: boolean = false): void {
         this._nativeObj.flushCommand();
+        if (this._tempRenderTexture2D._renderTarget) {
+            this._tempRenderTexture2D._renderTarget._deleteRT = keepRT;
+        }
         this._nativeObj.destroy(keepRT);
     }
     
