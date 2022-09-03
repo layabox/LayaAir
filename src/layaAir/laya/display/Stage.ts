@@ -344,6 +344,7 @@ export class Stage extends Sprite {
      * @param	screenHeight	屏幕高度。
      */
     setScreenSize(screenWidth: number, screenHeight: number): void {
+        this._needUpdateCanvasSize = false;
         //计算是否旋转
         var rotation: boolean = false;
         if (this._screenMode !== Stage.SCREEN_NONE) {

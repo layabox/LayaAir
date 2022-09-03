@@ -157,6 +157,9 @@ export class Bounds implements IClone {
         this._imp._tranform(matrix, out._imp);
     }
 
+    getCorners(corners: Vector3[]){
+        this._getBoundBox().getCorners(corners);
+    }
     /**
      * @internal
      */

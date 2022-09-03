@@ -42,8 +42,7 @@ export class Tool {
 	}
 
 	static DrawBoundingBox(sprite3D: Sprite3D, sprite: Sprite3D, color: Color): void {
-		var boundingBox: BoundBox = (<MeshSprite3D>sprite3D).meshRenderer.bounds._getBoundBox();
-		boundingBox.getCorners(Tool.corners);
+		(<MeshSprite3D>sprite3D).meshRenderer.bounds.getCorners(Tool.corners);
 		/*lineSprite3D.addLine(corners[0], corners[1], Color.RED, Color.RED);
 		lineSprite3D.addLine(corners[1], corners[2], Color.RED, Color.RED);
 		lineSprite3D.addLine(corners[2], corners[3], Color.RED, Color.RED);
@@ -84,8 +83,6 @@ export class Tool {
 		Tool.DrawTwelveLines(Tool.corners[2], Tool.corners[6], rotate, sprite);
 		rotate.setValue(90, 0, 0);
 		Tool.DrawTwelveLines(Tool.corners[3], Tool.corners[7], rotate, sprite);
-
-
 
 		/*for (var i:int = 0; i < 12; i++ ){
 			

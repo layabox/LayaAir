@@ -57,7 +57,7 @@ export class DrawMeshInstancedCMD extends Command {
     /**@internal */
     private _subMeshIndex: number;
     /**@internal */
-    private _subShaderIndex: number;
+    private _subShaderIndex: number = 0;
     /**@internal */
     private _mesh: Mesh;
     /**@internal */
@@ -115,6 +115,7 @@ export class DrawMeshInstancedCMD extends Command {
                 element.transform = this._transform;
                 element.material = this._material;
                 element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
+                element._subShaderIndex = this._subShaderIndex;
                 element.render = this._render;
                 
                 geometry.bufferState = this._instanceBufferState;

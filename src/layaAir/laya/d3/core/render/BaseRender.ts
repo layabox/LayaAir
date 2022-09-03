@@ -455,6 +455,7 @@ export class BaseRender extends Component implements ISingletonElement {
         throw ("BaseRender: must override it.");
     }
 
+
     /**
      * @internal
      */

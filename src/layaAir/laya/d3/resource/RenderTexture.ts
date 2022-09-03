@@ -195,9 +195,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     getData(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array): Uint8Array | Float32Array {
-
         LayaGL.textureContext.readRenderTargetPixelData(this._renderTarget, xOffset, yOffset, width, height, out);
-
         return out;
     }
 

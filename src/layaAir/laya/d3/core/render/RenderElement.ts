@@ -44,7 +44,8 @@ export class RenderElement {
     protected _baseRender: BaseRender;
     /**@internal */
     protected _subShader: SubShader;
-
+    /**@internal */
+    _subShaderIndex:number = 0;
 
 
 
@@ -172,7 +173,7 @@ export class RenderElement {
 
 
     _convertSubShader(customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0) {
-        var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
+        var subShader: SubShader = this.material._shader.getSubShaderAt(this._subShaderIndex);//TODO:
         this.renderSubShader = null;
         if (customShader) {
             if (replacementTag) {

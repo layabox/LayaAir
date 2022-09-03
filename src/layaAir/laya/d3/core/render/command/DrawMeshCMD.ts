@@ -80,6 +80,7 @@ export class DrawMeshCMD extends Command {
             element.material = this._material;
             element.setTransform(this._transform);
             element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
+            element._subShaderIndex = this._subShaderIndex;
         });
     }
     /**
@@ -96,7 +97,7 @@ export class DrawMeshCMD extends Command {
                 context.drawRenderElement(element);
             }
         } else {
-            let element = this._renderElemnts[0];
+            let element = this._renderElemnts[this._subMeshIndex];
             context.drawRenderElement(element);
         }
     }

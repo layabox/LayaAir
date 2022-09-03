@@ -343,7 +343,7 @@ export class CommandBuffer {
 	 * @param instanceProperty Instance自定义属性
 	 * @param drawnums 渲染个数
 	 */
-	drawMeshInstance(mesh: Mesh, subMeshIndex: number, matrixs: Matrix4x4[], material: Material, subShaderIndex: number, instanceProperty: MaterialInstancePropertyBlock, drawnums: number): any {
+	drawMeshInstance(mesh: Mesh, subMeshIndex: number = 0, matrixs: Matrix4x4[], material: Material, subShaderIndex: number = 0, instanceProperty: MaterialInstancePropertyBlock, drawnums: number): any {
 		if (!LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance))
 			return null;
 		var drawMeshInstancedCMD = DrawMeshInstancedCMD.create(mesh, subMeshIndex, matrixs, material, subShaderIndex, instanceProperty, drawnums, this);

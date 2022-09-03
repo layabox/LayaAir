@@ -147,14 +147,41 @@ export class BaseTexture extends Resource {
         switch (format) {
             case TextureFormat.R8G8B8:
             case TextureFormat.R8G8B8A8:
+            case TextureFormat.R16G16B16:
+            case TextureFormat.R16G16B16A16:
+            case TextureFormat.R32G32B32:
+            case TextureFormat.R32G32B32A32:
+            case TextureFormat.R5G6B5:
+            case TextureFormat.Alpha8:
                 return false;
+            case TextureFormat.DXT1:
+            case TextureFormat.DXT3:
+            case TextureFormat.DXT5:
+            case TextureFormat.ETC1RGB:
+            case TextureFormat.ETC2RGB:
+            case TextureFormat.ETC2RGBA:
+            case TextureFormat.ETC2SRGB_Alpha8:
+            case TextureFormat.ETC2SRGB:
+            case TextureFormat.PVRTCRGB_2BPPV:
+            case TextureFormat.PVRTCRGBA_2BPPV:
+            case TextureFormat.PVRTCRGB_4BPPV:
+            case TextureFormat.PVRTCRGBA_4BPPV:
             case TextureFormat.ASTC4x4:
+            case TextureFormat.ASTC4x4SRGB:
+            case TextureFormat.ASTC6x6:
+            case TextureFormat.ASTC6x6SRGB:
+            case TextureFormat.ASTC8x8:
+            case TextureFormat.ASTC8x8SRGB:
+            case TextureFormat.ASTC10x10:
+            case TextureFormat.ASTC10x10SRGB:
+            case TextureFormat.ASTC12x12:
+            case TextureFormat.ASTC12x12SRGB:
                 return true;
             default:
                 return false;
         }
     }
-
+    
     /**
      * 获取纹理格式的字节数
      * @internal
@@ -173,7 +200,7 @@ export class BaseTexture extends Resource {
                 return 2;
             case TextureFormat.R32G32B32A32:
                 return 4;
-
+                
             default:
                 throw "Texture2D: unknown format.";
         }

@@ -1331,7 +1331,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
-    // todo 不同 格式
+
     readRenderTargetPixelData(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
 
         let gl = renderTarget._gl;
@@ -1351,7 +1351,16 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             case RenderTargetFormat.R8G8B8A8:
                 gl.readPixels(xOffset, yOffset, width, height, gl.RGBA, gl.UNSIGNED_BYTE, out);
                 break;
+            case RenderTargetFormat.R16G16B16:
+                gl.readPixels(xOffset, yOffset, width, height, gl.RGB, gl.FLOAT, out);
+                break;
             case RenderTargetFormat.R16G16B16A16:
+                gl.readPixels(xOffset, yOffset, width, height, gl.RGBA, gl.FLOAT, out);
+                break;
+            case RenderTargetFormat.R32G32B32:
+                gl.readPixels(xOffset, yOffset, width, height, gl.RGB, gl.FLOAT, out);
+                break;
+            case RenderTargetFormat.R32G32B32A32:
                 gl.readPixels(xOffset, yOffset, width, height, gl.RGBA, gl.FLOAT, out);
                 break;
         }

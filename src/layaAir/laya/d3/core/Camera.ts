@@ -33,6 +33,9 @@ import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ILaya } from "../../../ILaya";
 import { ShadowLightType } from "../shadowMap/ShadowLightType";
+import { TextureCube } from "../resource/TextureCube";
+import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
+import { Texture2D } from "../../resource/Texture2D";
 
 /**
  * 相机清除标记。
@@ -130,6 +133,82 @@ export class Camera extends BaseCamera {
         camera.renderTarget = recoverTexture;
         return renderTexture;
     }
+
+    /**
+     * get PixelTexture
+     * @param texture 
+     * @returns 
+     */
+    static getTexturePixel(texture: Texture2D): ArrayBufferView {
+        let coverFilter = texture.filterMode;
+        texture.filterMode = FilterMode.Point;
+        let rtFormat = RenderTargetFormat.R8G8B8;
+        let pixelData;
+        let size = texture.width * texture.height;
+        switch (texture.format) {
+            case TextureFormat.R32G32B32A32:
+            case TextureFormat.R16G16B16A16:
+                rtFormat = RenderTargetFormat.R32G32B32A32;
+                pixelData = new Float32Array(size * 4);
+                break;
+            case TextureFormat.R32G32B32:
+            case TextureFormat.R16G16B16:
+                rtFormat = RenderTargetFormat.R32G32B32;
+                pixelData = new Float32Array(size * 3);
+                break;
+            case TextureFormat.R5G6B5:
+            case TextureFormat.R8G8B8:
+                rtFormat = RenderTargetFormat.R8G8B8;
+                pixelData = new Uint8Array(size * 3);
+                break;
+            default:
+                rtFormat = RenderTargetFormat.R8G8B8A8;
+                pixelData = new Uint8Array(size * 4);
+                break;
+        }
+        let rt = new RenderTexture(texture.width, texture.height, rtFormat, RenderTargetFormat.None, false, 0, false);
+        var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(texture, rt);
+        blit.setContext(RenderContext3D._instance);
+        blit.run();
+        blit.recover();
+        texture.filterMode = coverFilter;
+        rt.getData(0, 0, texture.width, texture.height, pixelData);
+        rt.destroy();//删除
+        return pixelData;
+    }
+
+    /**
+     * 根据场景中的位置
+     * @param position 
+     * @param scene 
+     * @param renderCubeSize 
+     * @param format 
+     * @returns 
+     */
+    static drawTextureCubePixelByScene(camera:Camera, scene: Scene3D, renderCubeSize: number, format: RenderTargetFormat,cullingMask:number): ArrayBufferView[] {
+        // bake 0,1,0,0
+        //front 0,0,0,1
+        //left 0,0.7071068,0,0.7071068
+        //right 0,0.7071068,0,-0.7071068
+        //up 0,0.7071068,-0.7071068,0
+        //down 0,-0.7071068,-0.7071068,0
+
+
+        return null;
+    }
+
+    static drawTextureCubeByScene(camera:Camera,position:Vector3, scene: Scene3D, renderCubeSize: number, format: RenderTargetFormat,cullingMask:number): ArrayBufferView[] 
+    {
+        camera.transform.position = position;
+        camera.fieldOfView = 90;
+        camera.cullingMask = cullingMask;
+        ler rt = new RenderTexture(renderCubeSize,renderCubeSize,format,RenderTargetFormat.DEPTH_16,false,0,false,true);
+        
+        this.drawRenderTextureByScene(camera,)
+        return null;
+    }
+
+
 
     /**
      * @internal
@@ -779,7 +858,7 @@ export class Camera extends BaseCamera {
             scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
             shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
             shadowCasterPass.update(this, mainDirectLight, ShadowLightType.DirectionLight);
-            shadowCasterPass.render(context, scene, ShadowLightType.DirectionLight,this);
+            shadowCasterPass.render(context, scene, ShadowLightType.DirectionLight, this);
         }
         else {
             scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
@@ -791,7 +870,7 @@ export class Camera extends BaseCamera {
             scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
             shadowCasterPass = ILaya3D.Scene3D._shadowCasterPass;
             shadowCasterPass.update(this, spotMainLight, ShadowLightType.SpotLight);
-            shadowCasterPass.render(context, scene, ShadowLightType.SpotLight,this);
+            shadowCasterPass.render(context, scene, ShadowLightType.SpotLight, this);
         }
         else {
             scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
@@ -886,7 +965,7 @@ export class Camera extends BaseCamera {
 
         // todo layame temp
         (renderTex) && (renderTex._start());
-        
+
 
         scene._clear(context);
 
@@ -1155,7 +1234,7 @@ export class Camera extends BaseCamera {
     }
 
 
-    
+
 
     /**
      * 移除camera渲染节点渲染缓存
