@@ -206,7 +206,8 @@ export class RenderElement {
     _update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0): void {
         if (this.material) {//材质可能为空
             this._convertSubShader(customShader, replacementTag, subshaderIndex);
-
+            if(!this.renderSubShader)
+                return;
             var renderQueue = scene._getRenderQueue(this.material.renderQueue);
             if (renderQueue._isTransparent)
                 renderQueue.addRenderElement(this);
