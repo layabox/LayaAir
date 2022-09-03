@@ -1,11 +1,4 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
-import PBRPS from "../../shader/files/PBR.fs";
-import PBRVS from "../../shader/files/PBR.vs";
-import PBRShadowCasterPS from "../../shader/files/PBRShadowCaster.fs";
-import PBRShadowCasterVS from "../../shader/files/PBRShadowCaster.vs";
-import DepthNormalsTextureVS from "../../shader/files/DepthNormalsTextureVS.vs";
-import DepthNormalsTextureFS from "../../shader/files/DepthNormalsTextureFS.fs";
-import { SubShader } from "../../shader/SubShader";
 import { PBRMaterial } from "./PBRMaterial";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";

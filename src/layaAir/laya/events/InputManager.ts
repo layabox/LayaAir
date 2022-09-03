@@ -288,6 +288,7 @@ export class InputManager {
                 continue;
 
             touch.event.nativeEvent = ev;
+            touch.event.touchId = touch.touchId;
             if (type == 3 || !InputManager.mouseEventsEnabled)
                 touch.target = this._touchTarget = null;
             else {

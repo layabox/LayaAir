@@ -155,7 +155,7 @@ export class NativeBounds implements IClone {
      */
     _tranform(matrix: Matrix4x4, out: NativeBounds): void {
         this.float32Array.set(matrix.elements);
-        out._nativeObj._tranform(out._nativeObj);
+        this._nativeObj._tranform(out._nativeObj);
     }
 
     /**

@@ -6,6 +6,7 @@ import { PBRRenderQuality } from "./PBRRenderQuality";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { Color } from "../../math/Color";
+import { Texture2D } from "../../../resource/Texture2D";
 
 /**
  * 渲染模式。
@@ -19,6 +20,11 @@ export enum PBRRenderMode {
     Fade,
     /**透明混合_物理上看似合理的透明。*/
     Transparent
+}
+
+export enum PBRMaterialType {
+    Standard,
+    Anisotropy
 }
 
 /**
@@ -37,6 +43,13 @@ export class PBRMaterial extends Material {
     static SHADERDEFINE_EMISSION: ShaderDefine;
     /** @internal */
     static SHADERDEFINE_EMISSIONTEXTURE: ShaderDefine;
+
+    /**@internal */
+    static SHADERDEFINE_ANISOTROPY: ShaderDefine;
+
+    /**@internal */
+    static SHADERDEFINE_TANGENTTEXTURE: ShaderDefine;
+
     /** @internal */
     static SHADERDEFINE_TRANSPARENTBLEND: ShaderDefine;
     /**@internal */
@@ -70,6 +83,10 @@ export class PBRMaterial extends Material {
     static EMISSIONTEXTURE: number;
     /** @internal */
     static EMISSIONCOLOR: number;
+    /** @internal */
+    static ANISOTROPY: number;
+    /** @internal */
+    static TANGENTTEXTURE: number;
 
     /** 渲染质量。*/
     static renderQuality: PBRRenderQuality = PBRRenderQuality.High;
@@ -84,6 +101,8 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = Shader3D.getDefineByName("OCCLUSIONTEXTURE");
         PBRMaterial.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
         PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
+        PBRMaterial.SHADERDEFINE_ANISOTROPY = Shader3D.getDefineByName("ANISOTROPIC");
+        PBRMaterial.SHADERDEFINE_TANGENTTEXTURE = Shader3D.getDefineByName("TANGENTTEXTURE");
         PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH = Shader3D.getDefineByName("LAYA_PBR_BRDF_HIGH");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW = Shader3D.getDefineByName("LAYA_PBR_BRDF_LOW");
@@ -101,7 +120,8 @@ export class PBRMaterial extends Material {
         PBRMaterial.PARALLAXSCALE = Shader3D.propertyNameToID("u_ParallaxScale");
         PBRMaterial.EMISSIONTEXTURE = Shader3D.propertyNameToID("u_EmissionTexture");
         PBRMaterial.EMISSIONCOLOR = Shader3D.propertyNameToID("u_EmissionColor");
-
+        PBRMaterial.ANISOTROPY = Shader3D.propertyNameToID("u_Anisotropy");
+        PBRMaterial.TANGENTTEXTURE = Shader3D.propertyNameToID("u_TangentTexture");
     }
 
 
@@ -145,7 +165,9 @@ export class PBRMaterial extends Material {
             this._shaderValues.addDefine(Shader3D.getDefineByName("NEEDTBN"));
         } else {
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE);
-            this._shaderValues.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
+            if (this.materialType != PBRMaterialType.Anisotropy) {
+                this._shaderValues.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
+            }
         }
         this._shaderValues.setTexture(PBRMaterial.NORMALTEXTURE, value);
     }
@@ -345,6 +367,49 @@ export class PBRMaterial extends Material {
         }
     }
 
+    public get anisotropy(): number {
+        return this.getFloatByIndex(PBRMaterial.ANISOTROPY);
+    }
+
+    public set anisotropy(value: number) {
+        this.setFloatByIndex(PBRMaterial.ANISOTROPY, Math.min(1, Math.max(-1, value)));
+    }
+
+    public get tangentTexture(): Texture2D {
+        return <Texture2D>this.getTextureByIndex(PBRMaterial.TANGENTTEXTURE);
+    }
+    public set tangentTexture(value: Texture2D) {
+        this.setTextureByIndex(PBRMaterial.TANGENTTEXTURE, value);
+        if (value) {
+            this.addDefine(PBRMaterial.SHADERDEFINE_TANGENTTEXTURE);
+        }
+        else {
+            this.removeDefine(PBRMaterial.SHADERDEFINE_TANGENTTEXTURE);
+        }
+    }
+
+    private _materialType: PBRMaterialType;
+    public get materialType(): PBRMaterialType {
+        return this._materialType;
+    }
+    public set materialType(value: PBRMaterialType) {
+        switch (value) {
+            case PBRMaterialType.Standard:
+                this.removeDefine(PBRMaterial.SHADERDEFINE_ANISOTROPY);
+                if (!this.normalTexture) {
+                    this.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
+                }
+                break;
+            case PBRMaterialType.Anisotropy:
+                this.addDefine(PBRMaterial.SHADERDEFINE_ANISOTROPY);
+                this.addDefine(Shader3D.getDefineByName("NEEDTBN"));
+                break;
+            default:
+                break;
+        }
+        this._materialType = value;
+    }
+
     constructor() {
         super();
         this._shaderValues.setColor(PBRMaterial.ALBEDOCOLOR, new Color(1.0, 1.0, 1.0, 1.0));
@@ -357,5 +422,6 @@ export class PBRMaterial extends Material {
         this._shaderValues.setNumber(PBRMaterial.PARALLAXSCALE, 0.001);
         this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
         this.renderMode = PBRRenderMode.Opaque;
+        this.materialType = PBRMaterialType.Standard;
     }
 }

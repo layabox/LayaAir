@@ -58,6 +58,11 @@ vec3 F_Schlick(vec3 f0, float VoH)
     return f0 + (1.0 - f0) * pow5(1.0 - VoH);
 }
 
+float F_Schlick(float f0, float f90, float VoH)
+{
+    return f0 + (f90 - f0) * pow5(1.0 - VoH);
+}
+
 // Specular dispatch
 
 // D
@@ -89,7 +94,15 @@ float Fd_Lambert()
     return 1.0;
 }
 
-// diffuse dispatch
+float Fd_Burley(float roughness, float NoV, float NoL, float LoH)
+{
+    float f90 = 0.5 + 2.0 * roughness * LoH * LoH;
+    float lightScatter = F_Schlick(1.0, f90, NoL);
+    float veiwScatter = F_Schlick(1.0, f90, NoV);
+    return lightScatter * veiwScatter;
+}
+
+// diffuse dispatch 
 float diffuse()
 {
     return Fd_Lambert();

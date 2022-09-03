@@ -20,7 +20,13 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     }
 
     set list(value) {
-        this._renders = value;
+        this._renders.clear();
+        this._customCullList.elements = [];
+        this._customCullList.length = 0;
+        this._nativeObj.clear();
+        for (let i = 0, len = value.length; i < len; i++) {
+            this.addRenderObject((value.elements[i] as BaseRender));
+        }
     }
 
     addRenderObject(object: BaseRender): void {

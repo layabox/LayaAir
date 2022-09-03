@@ -107,9 +107,10 @@ void initLightParams(inout LightParams params, const in PixelInfo pixel, const i
     #endif // ANISOTROPIC
 }
 
-vec3 diffuseLobe(in Surface surface)
+vec3 diffuseLobe(in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
 {
-    return surface.diffuseColor * diffuse();
+    // return surface.diffuseColor * diffuse();
+    return surface.diffuseColor * Fd_Burley(surface.roughness, pixel.NoV, lightParams.NoL, lightParams.LoH);
 }
 
 vec3 specularLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
@@ -146,7 +147,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
     LightParams lightParams;
     initLightParams(lightParams, pixel, light);
 
-    vec3 Fd = diffuseLobe(surface);
+    vec3 Fd = diffuseLobe(surface, pixel, lightParams);
 
     vec3 Fr = specularLobe(surface, pixel, lightParams);
 
