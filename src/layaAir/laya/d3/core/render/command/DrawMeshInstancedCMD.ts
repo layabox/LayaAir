@@ -36,6 +36,7 @@ export class DrawMeshInstancedCMD extends Command {
         }
         cmd = DrawMeshInstancedCMD._pool.length > 0 ? DrawMeshInstancedCMD._pool.pop() : new DrawMeshInstancedCMD();
 
+
         cmd._matrixs = matrixs;
         cmd._material = material;
         cmd._subMeshIndex = subMeshIndex;
@@ -242,6 +243,11 @@ export class DrawMeshInstancedCMD extends Command {
         DrawMeshInstancedCMD._pool.push(this);
         this._instanceBufferState.destroy();
         this._instanceBufferState = null;
+        delete this._instanceRenderElementArray;
+        this._instanceRenderElementArray = [];
+        delete this._instanceGeometryArray;
+        this._instanceGeometryArray = [];
+
     }
 
 }
