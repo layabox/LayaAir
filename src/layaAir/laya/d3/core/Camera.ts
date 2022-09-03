@@ -36,6 +36,7 @@ import { ShadowLightType } from "../shadowMap/ShadowLightType";
 import { TextureCube } from "../resource/TextureCube";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Texture2D } from "../../resource/Texture2D";
+import { Quaternion } from "../math/Quaternion";
 
 /**
  * 相机清除标记。
@@ -185,30 +186,98 @@ export class Camera extends BaseCamera {
      * @param format 
      * @returns 
      */
-    static drawTextureCubePixelByScene(camera:Camera, scene: Scene3D, renderCubeSize: number, format: RenderTargetFormat,cullingMask:number): ArrayBufferView[] {
+    static drawTextureCubePixelByScene(camera: Camera, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number): ArrayBufferView[] {
+        let rtFormat = RenderTargetFormat.R8G8B8;
+        let pixelData;
+        let size = renderCubeSize * renderCubeSize;
+        let bytelength;
+        switch (format) {
+            case TextureFormat.R32G32B32A32:
+            case TextureFormat.R16G16B16A16:
+                rtFormat = RenderTargetFormat.R32G32B32A32;
+                size *= 4;
+                bytelength = 4;
+                break;
+            case TextureFormat.R32G32B32:
+            case TextureFormat.R16G16B16:
+                rtFormat = RenderTargetFormat.R32G32B32;
+                size *= 3;
+                bytelength = 4;
+                break;
+            case TextureFormat.R5G6B5:
+            case TextureFormat.R8G8B8:
+                rtFormat = RenderTargetFormat.R8G8B8;
+                size *= 3;
+                bytelength = 1;
+                break;
+            case TextureFormat.R8G8B8A8:
+                rtFormat = RenderTargetFormat.R8G8B8A8;
+                pixelData = new Uint8Array(size * 4);
+                size *= 4;
+                bytelength = 1;
+                break;
+            default:
+                throw "Type is not supported";
+                break;
+        }
+        let rt = new RenderTexture(renderCubeSize, renderCubeSize, rtFormat, RenderTargetFormat.DEPTH_16, false, 0, false, true);
+        camera.fieldOfView = 90;
+        camera.cullingMask = cullingMask;
         // bake 0,1,0,0
         //front 0,0,0,1
         //left 0,0.7071068,0,0.7071068
         //right 0,0.7071068,0,-0.7071068
         //up 0,0.7071068,-0.7071068,0
         //down 0,-0.7071068,-0.7071068,0
-
-
-        return null;
+        let pixels: ArrayBufferView[] = [];
+        let quaterionArray = [
+            new Quaternion(0, 1, 0, 0),
+            new Quaternion(0, 0, 0, 1),
+            new Quaternion(0, 0.7071068, 0, 0.7071068),
+            new Quaternion(0, 0.7071068, 0, -0.7071068),
+            new Quaternion(0, 0.7071068, -0.7071068, 0),
+            new Quaternion(0, -0.7071068, -0.7071068, 0),
+        ];
+        for (var i = 0; i < 6; i++) {
+            camera.transform.rotation = quaterionArray[i];
+            this.drawRenderTextureByScene(camera, scene, rt);
+            if (bytelength == 4)
+                pixelData = new Float32Array(size);
+            else
+                pixelData = new Uint8Array(size);
+            pixels[i] = rt.getData(0, 0, renderCubeSize, renderCubeSize, pixelData);
+        }
+        rt.destroy();
+        return pixels;
     }
 
-    static drawTextureCubeByScene(camera:Camera,position:Vector3, scene: Scene3D, renderCubeSize: number, format: RenderTargetFormat,cullingMask:number): ArrayBufferView[] 
-    {
+    static drawTextureCubeByScene(camera: Camera, position: Vector3, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number): TextureCube {
         camera.transform.position = position;
-        camera.fieldOfView = 90;
-        camera.cullingMask = cullingMask;
-        ler rt = new RenderTexture(renderCubeSize,renderCubeSize,format,RenderTargetFormat.DEPTH_16,false,0,false,true);
-        
-        this.drawRenderTextureByScene(camera,)
-        return null;
+        let pixels = this.drawTextureCubePixelByScene(camera, scene, renderCubeSize, format, cullingMask);
+        let finalformat:TextureFormat;
+        switch (format) {
+            case TextureFormat.R32G32B32A32:
+            case TextureFormat.R16G16B16A16:
+                finalformat = TextureFormat.R32G32B32A32;
+                break;
+            case TextureFormat.R32G32B32:
+            case TextureFormat.R16G16B16:
+                finalformat = TextureFormat.R32G32B32;
+                break;
+            case TextureFormat.R5G6B5:
+            case TextureFormat.R8G8B8:
+                finalformat = TextureFormat.R8G8B8;
+                break;
+            case TextureFormat.R8G8B8A8:
+                finalformat = TextureFormat.R8G8B8A8;
+                break;
+            default:
+                throw "Type is not supported";
+        }
+        let textureCube = new TextureCube(renderCubeSize,format,false,false);
+        textureCube.setPixelsData(pixels,false,false);
+        return textureCube;
     }
-
-
 
     /**
      * @internal
