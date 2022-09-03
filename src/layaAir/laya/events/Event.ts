@@ -165,7 +165,7 @@ export class Event {
     currentTarget: any;
 
     /** 分配给触摸点的唯一标识号（作为 int）。*/
-    touchId: number;
+    touchId: number = 0;
     /** 点击坐标 */
     readonly touchPos: Point;
 
