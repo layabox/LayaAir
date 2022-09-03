@@ -26,8 +26,6 @@ export class Texture extends Resource {
     private _bitmap: BaseTexture;
     /**@internal */
     public _uv: ArrayLike<number>;
-    /** @internal [NATIVE]*/
-    _nativeObj: any;
     /** @private */
     private _w: number = 0;
     /** @private */
@@ -394,11 +392,8 @@ export class Texture extends Resource {
      * @return  返回像素点集合
      */
     getPixels(x: number, y: number, width: number, height: number): Uint8Array {
-        if ((window as any).conch) {
-            return this._nativeObj.getImageData(x, y, width, height);
-        } else {
-            return this.getTexturePixels(x, y, width, height);
-        }// canvas 不支持
+        return this.getTexturePixels(x, y, width, height);
+        // canvas 不支持
     }
 
     /**
