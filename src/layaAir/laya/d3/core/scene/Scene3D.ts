@@ -765,8 +765,8 @@ export class Scene3D extends Sprite implements ISubmit {
         if (maps) {
             for (var i: number = 0, n: number = maps.length; i < n; i++) {
                 var map: Lightmap = maps[i];
-                map.lightmapColor._removeReference();
-                map.lightmapDirection._removeReference();
+                map.lightmapColor && map.lightmapColor._removeReference();
+                map.lightmapDirection && map.lightmapDirection._removeReference();
             }
         }
         if (value) {
