@@ -251,7 +251,7 @@ export class Camera extends BaseCamera {
         return pixels;
     }
 
-    static drawTextureCubeByScene(camera: Camera, position: Vector3, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number): TextureCube {
+    static drawTextureCubeByScene(camera: Camera, position: Vector3, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number = 0): TextureCube {
         camera.transform.position = position;
         let pixels = this.drawTextureCubePixelByScene(camera, scene, renderCubeSize, format, cullingMask);
         let finalformat:TextureFormat;
