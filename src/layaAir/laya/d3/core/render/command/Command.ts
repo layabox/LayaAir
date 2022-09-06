@@ -15,7 +15,7 @@ export class Command {
 	static _screenShader: Shader3D;
 
 	/** @internal */
-	static SCREENTEXTURE_NAME: string = "u_MainTex";//todo：
+	static SCREENTEXTURE_NAME: string = "u_MainTex";
 	/** @internal */
 	static SCREENTEXTUREOFFSETSCALE_NAME: string = "u_OffsetScale";
 	/** @internal */

@@ -184,7 +184,7 @@ export class Camera extends BaseCamera {
      * @param scene 
      * @param renderCubeSize 
      * @param format 
-     * @returns 
+     * @returns bake front left right up down
      */
     static drawTextureCubePixelByScene(camera: Camera, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number): ArrayBufferView[] {
         let rtFormat = RenderTargetFormat.R8G8B8;
@@ -220,7 +220,7 @@ export class Camera extends BaseCamera {
                 throw "Type is not supported";
                 break;
         }
-        let rt = new RenderTexture(renderCubeSize, renderCubeSize, rtFormat, RenderTargetFormat.DEPTH_16, false, 0, false, true);
+        let rt = new RenderTexture(renderCubeSize, renderCubeSize, rtFormat, RenderTargetFormat.DEPTH_16, false, 0, false, false);
         camera.fieldOfView = 90;
         camera.cullingMask = cullingMask;
         // bake 0,1,0,0
@@ -254,7 +254,7 @@ export class Camera extends BaseCamera {
     static drawTextureCubeByScene(camera: Camera, position: Vector3, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number = 0): TextureCube {
         camera.transform.position = position;
         let pixels = this.drawTextureCubePixelByScene(camera, scene, renderCubeSize, format, cullingMask);
-        let finalformat:TextureFormat;
+        let finalformat: TextureFormat;
         switch (format) {
             case TextureFormat.R32G32B32A32:
             case TextureFormat.R16G16B16A16:
@@ -274,8 +274,8 @@ export class Camera extends BaseCamera {
             default:
                 throw "Type is not supported";
         }
-        let textureCube = new TextureCube(renderCubeSize,format,false,false);
-        textureCube.setPixelsData(pixels,false,false);
+        let textureCube = new TextureCube(renderCubeSize, format, true, false);
+        textureCube.setPixelsData(pixels, false, false);
         return textureCube;
     }
 
@@ -317,6 +317,8 @@ export class Camera extends BaseCamera {
     protected _needBuiltInRenderTexture: boolean = false;
     /**@internal */
     protected _msaa: boolean = false;
+    /**@internal */
+    private _fxaa: boolean;
     /** @internal*/
     private _depthTextureMode: number;
     /** @internal */
@@ -422,8 +424,17 @@ export class Camera extends BaseCamera {
         LayaGL.renderEngine.getCapable(RenderCapable.MSAA) ? this._msaa = value : this._msaa = false;
     }
 
+
     get msaa(): boolean {
         return this._msaa;
+    }
+
+    set fxaa(value: boolean) {
+        this._fxaa = value;
+    }
+
+    get fxaa(): boolean {
+        return this._fxaa;
     }
 
     /**
