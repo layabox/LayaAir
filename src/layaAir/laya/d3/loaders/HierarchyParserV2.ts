@@ -106,7 +106,7 @@ class HierarchyParserV2 {
         if (componentsData) {
             for (let j: number = 0, m: number = componentsData.length; j < m; j++) {
                 let data: any = componentsData[j];
-                let cls: any = ClassUtils.getClass("Laya." + data.type);
+                let cls: any = ClassUtils.getClass(data.type);
                 if (cls) {
                     let component: Component = node.addComponent(cls);
                     component._parse(data, interactMap);
@@ -217,7 +217,7 @@ class HierarchyParserV2 {
         if (componentsData) {
             for (let j: number = 0, m: number = componentsData.length; j < m; j++) {
                 let data: any = componentsData[j];
-                let clas: any = ClassUtils.getClass("Laya." + data.type);
+                let clas: any = ClassUtils.getClass(data.type);
                 if (clas) {
                     let component: Component = node.addComponent(clas);
                     component._parse(data);

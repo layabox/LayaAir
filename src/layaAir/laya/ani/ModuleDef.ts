@@ -5,4 +5,4 @@ import "./TempletLoader";
 
 let c = ClassUtils.regClass;
 
-c("Laya.Skeleton", Skeleton);
+c("Skeleton", Skeleton);
