@@ -57,6 +57,10 @@ export class BaseCamera extends Sprite3D {
     static SHADERDEFINE_DEPTHNORMALS: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_ORTHOGRAPHIC: ShaderDefine;
+    /**@internal */
+    static SHADERDEFINE_FXAA: ShaderDefine;
+	/**@internal */
+    static RENDERINGTYPE_SHADERDEFINE_FXAA: string = "FXAA";
     /**渲染模式,延迟光照渲染，暂未开放。*/
     static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
     /**渲染模式,前向渲染。*/
@@ -79,6 +83,7 @@ export class BaseCamera extends Sprite3D {
         BaseCamera.SHADERDEFINE_DEPTH = Shader3D.getDefineByName("DEPTHMAP");
         BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
         BaseCamera.SHADERDEFINE_ORTHOGRAPHIC = Shader3D.getDefineByName("CAMERAORTHOGRAPHIC");
+        BaseCamera.SHADERDEFINE_FXAA = Shader3D.getDefineByName("FXAA");
         let camerauniformMap = BaseCamera.cameraUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("BaseCamera");
 
         BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
