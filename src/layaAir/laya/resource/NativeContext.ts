@@ -1,3 +1,4 @@
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Const } from "../Const";
 import { BufferState } from "../d3/core/BufferState";
 import { RenderTexture } from "../d3/resource/RenderTexture";
@@ -85,7 +86,7 @@ export class NativeContext {
     constructor() {
         this._nativeObj = new (window as any)._conchContext((LayaGL.renderEngine as any)._nativeObj);
         this._byteLen = 1024 * 512;
-        this._tempRenderTexture2D = new RenderTexture2D(0, 0);
+        this._tempRenderTexture2D = new RenderTexture2D(0, 0, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
         this._init(false);
     }
     _init(isSyncToRenderThread: boolean): void {
@@ -133,6 +134,11 @@ export class NativeContext {
     /**@private */
     set miterLimit(value: string) {
     }
+
+    /**@private */
+    clearRect(x: number, y: number, width: number, height: number): void {
+    }
+
     set isMain(value: boolean) {
         this._nativeObj.flushCommand();
         this._nativeObj.isMain = value;
@@ -142,6 +148,7 @@ export class NativeContext {
         return this._nativeObj.isMain;
     }
     set _targets(target: RenderTexture2D) {
+        throw new Error("Method not implemented.");
     }
     get _targets(): RenderTexture2D {
         this._nativeObj.flushCommand();
@@ -150,8 +157,9 @@ export class NativeContext {
         if (target) {
             this._tempRenderTexture2D.width = this._nativeObj.width;
             this._tempRenderTexture2D.height = this._nativeObj.height;
-            this._tempRenderTexture2D._renderTarget = target;
-            this._tempRenderTexture2D._texture = target._textures[0];
+            this._tempRenderTexture2D._nativeObj = target;
+            this._tempRenderTexture2D._renderTarget = target._renderTarget;
+            this._tempRenderTexture2D._texture = target._renderTarget._textures[0];
             return this._tempRenderTexture2D;
         }
         return null;
@@ -178,8 +186,8 @@ export class NativeContext {
      */
      destroy(keepRT: boolean = false): void {
         this._nativeObj.flushCommand();
-        if (this._tempRenderTexture2D._renderTarget) {
-            this._tempRenderTexture2D._renderTarget._deleteRT = keepRT;
+        if (this._tempRenderTexture2D._nativeObj) {
+            this._tempRenderTexture2D._nativeObj._deleteRT = keepRT;
         }
         this._nativeObj.destroy(keepRT);
     }

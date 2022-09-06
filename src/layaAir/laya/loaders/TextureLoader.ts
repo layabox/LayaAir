@@ -26,7 +26,7 @@ class Texture2DLoader implements IResourceLoader {
                         let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
                         if (ktxInfo.dimension == TextureDimension.Cube) {
                             //这里在core模块，不能直接引用d3里的TextureCube
-                            let cls = ClassUtils.getClass("Laya.TextureCube");
+                            let cls = ClassUtils.getClass("TextureCube");
                             if (cls) {
                                 let tc = new cls(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, ktxInfo.sRGB);
                                 tc.setKTXData(ktxInfo);

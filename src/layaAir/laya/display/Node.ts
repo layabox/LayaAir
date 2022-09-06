@@ -54,14 +54,13 @@ export class Node extends EventDispatcher {
     _componentDriver?: ComponentDriver;
     /**@internal */
     _is3D?: boolean;
-    /** 如果节点从资源中创建，这里记录是他的url */
-    protected _url?: string;
+    _url?: string;
 
     /**节点名称。*/
     name: string = "";
 
     /**
-     * 得到资源的URL
+     * 如果节点从资源中创建，这里记录是他的url
      */
     get url(): string {
         return this._url;

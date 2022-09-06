@@ -11,7 +11,7 @@ export class HierarchyResource extends Resource {
     }
 
     createScene(options?: Record<string, any>, errors?: Array<any>): Array<Node> {
-        let ret = this.createNodes(options);
+        let ret = this.createNodes(options, errors);
         if (ret)
             return [ret];
         else

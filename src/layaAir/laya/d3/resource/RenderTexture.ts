@@ -141,7 +141,6 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     /**
-     * @internal
      * @param width 
      * @param height 
      * @param colorFormat 

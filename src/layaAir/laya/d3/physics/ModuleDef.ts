@@ -6,8 +6,8 @@ import { PhysicsCollider } from "./PhysicsCollider";
 import { Rigidbody3D } from "./Rigidbody3D";
 
 let c = ClassUtils.regClass;
-c("Laya.CharacterController", CharacterController);
-c("Laya.Rigidbody3D", Rigidbody3D);
-c("Laya.PhysicsCollider", PhysicsCollider);
-c("Laya.ConfigurableConstraint", ConfigurableConstraint);
-c("Laya.FixedConstraint", FixedConstraint);
+c("CharacterController", CharacterController);
+c("Rigidbody3D", Rigidbody3D);
+c("PhysicsCollider", PhysicsCollider);
+c("ConfigurableConstraint", ConfigurableConstraint);
+c("FixedConstraint", FixedConstraint);

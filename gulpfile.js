@@ -24,8 +24,6 @@ const packsDef = [
     {
         'libName': "core",
         'input': [
-            './layaAir/laya/d3/core/scene/Scene3D.ts',
-
             './layaAir/Decorators.ts',
             './layaAir/Config.ts',
             './layaAir/laya/Const.ts',
@@ -211,6 +209,7 @@ const ignoredCirclarDependencies = new Set([
     "SoundManager -> WebAudioSound -> WebAudioSoundChannel -> SoundManager",
     "WebAudioSound -> WebAudioSoundChannel -> WebAudioSound",
     "SoundManager -> WebAudioSound -> SoundManager",
+    "ColliderBase -> RigidBody -> ColliderBase",
 ]);
 
 const onwarn = warning => {

@@ -47,7 +47,6 @@ export class LegacyUIParser {
         if (!root) {
             let runtime: string = data.props.runtime ? data.props.runtime : data.type;
             let clas = ClassUtils.getClass(runtime);
-            if (!clas) clas = ClassUtils.getClass("Laya." + runtime);
 
             if (data.props.renderType == "instance")
                 root = clas.instance || (clas.instance = new clas());
@@ -295,7 +294,6 @@ export class LegacyUIParser {
         }
         var runtime: string = (json.props && json.props.runtime) || json.type;
         var compClass = ClassUtils.getClass(runtime);
-        if (!compClass) compClass = ClassUtils.getClass("Laya." + runtime);
         if (!compClass) throw "Can not find class " + runtime;
         if (json.type === "Script" && compClass.prototype._doAwake) {
             var comp: any = Pool.createByClass(compClass);

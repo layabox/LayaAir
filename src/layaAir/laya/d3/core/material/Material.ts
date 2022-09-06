@@ -123,6 +123,8 @@ export class Material extends Resource implements IClone {
         let mat: Material;
         let classType: string = props.type;
         let clas: any = ClassUtils.getClass(classType);
+        if (!clas && classType && classType.startsWith("Laya."))
+            clas = ClassUtils.getClass(classType.substring(5));
         if (clas)
             mat = new clas();
         else {
@@ -793,12 +795,12 @@ export class Material extends Resource implements IClone {
         this.setShaderDataByIndex(uniformIndex, type, value);
     }
 
-    getShaderData(name:string,type:ShaderDataType):ShaderDataItem{
+    getShaderData(name: string, type: ShaderDataType): ShaderDataItem {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getShaderDataByIndex(uniformIndex, type);
     }
 
-    getShaderDataByIndex(uniformIndex: number, type: ShaderDataType):ShaderDataItem{
+    getShaderDataByIndex(uniformIndex: number, type: ShaderDataType): ShaderDataItem {
         return this._shaderValues.getShaderData(uniformIndex, type);
     }
 
@@ -911,6 +913,8 @@ export class Material extends Resource implements IClone {
         let mat: Material;
         let classType: string = props.type;
         let clas: any = ClassUtils.getClass(classType);
+        if (!clas && classType && classType.startsWith("Laya."))
+            clas = ClassUtils.getClass(classType.substring(5));
         if (clas)
             mat = new clas();
         else {

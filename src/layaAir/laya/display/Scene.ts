@@ -325,7 +325,7 @@ export class Scene extends Sprite {
             }
             else {
                 scene = new Scene();
-                let scene3DClass = ClassUtils.getClass("Laya.Scene3D");
+                let scene3DClass = ClassUtils.getClass("Scene3D");
                 let i: number;
                 if (scene3DClass && (i = nodes.findIndex(node => Object.getPrototypeOf(node).constructor === scene3DClass)) != -1) {
                     let scene3D = <Sprite>nodes[i];
