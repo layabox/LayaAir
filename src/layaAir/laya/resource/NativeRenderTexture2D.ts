@@ -8,15 +8,15 @@ import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRe
 import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 import { Color } from "../d3/math/Color";
 import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
-import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
+
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
  */
-export class RenderTexture2D extends BaseTexture implements IRenderTarget {
+export class NativeRenderTexture2D extends BaseTexture implements IRenderTarget {
     /** @private */
-    private static _currentActive: RenderTexture2D;
+    private static _currentActive: NativeRenderTexture2D;
     private static _clearColor: Color = new Color();
-    private _lastRT: RenderTexture2D;
+    private _lastRT: NativeRenderTexture2D;
     private _lastWidth: number;
     private _lastHeight: number;
 
@@ -29,8 +29,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /**
      * 获取当前激活的Rendertexture
      */
-    static get currentActive(): RenderTexture2D {
-        return RenderTexture2D._currentActive;
+    static get currentActive(): NativeRenderTexture2D {
+        return NativeRenderTexture2D._currentActive;
     }
 
     /** @private */
@@ -94,7 +94,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     _renderTarget: InternalRenderTarget;
     _isCameraTarget: boolean;
 
-
+    private _nativeObj: any;
     /**
      * @param width  宽度。
      * @param height 高度。
@@ -107,22 +107,22 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         super(width, height, format);
         this._colorFormat = format;
         this._depthStencilFormat = depthStencilFormat;
-        if (width != 0 && height != 0) {
-            this._create();
-        }
+        //if (width != 0 && height != 0) {
+        //    this._create();
+        //}
         this.lock = true;
     }
 
     get isCube(): boolean {
-        return this._renderTarget._isCube;
+        return this._nativeObj.isCube;
     }
 
     get samples(): number {
-        return this._renderTarget._samples;
+        return this._nativeObj.samples;
     }
 
     get generateMipmap(): boolean {
-        return this._renderTarget._generateMipmap;
+        return this._nativeObj.generateMipmap;
     }
 
     _start(): void {
@@ -133,9 +133,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
     _create() {
         // todo  mipmap
-        this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, true, 1);
+        //this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, true, 1);
 
-        this._texture = this._renderTarget._textures[0];
+        //this._texture = this._renderTarget._textures[0];
     }
 
 
@@ -143,94 +143,38 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * 保存当前的RT信息。
      */
     static pushRT(): void {
-        RenderTexture2D.rtStack.push({ rt: RenderTexture2D._currentActive, w: RenderState2D.width, h: RenderState2D.height });
+        throw new Error("Method not implemented.");
     }
     /**
      * 恢复上次保存的RT信息
      */
     static popRT(): void {
-        var top: any = RenderTexture2D.rtStack.pop();
-        if (top) {
-            if (RenderTexture2D._currentActive != top.rt) {
-                top.rt ? LayaGL.textureContext.bindRenderTarget(top.rt._renderTarget) : LayaGL.textureContext.bindoutScreenTarget();
-                RenderTexture2D._currentActive = top.rt;
-            }
-            LayaGL.renderEngine.viewport(0, 0, top.w, top.h);
-            RenderState2D.width = top.w;
-            RenderState2D.height = top.h;
-        }
+        throw new Error("Method not implemented.");
     }
     /**
      * 开始绑定。
      */
     start(): void {
-        //(memorySize == 0) && recreateResource();
-        LayaGL.textureContext.bindRenderTarget(this._renderTarget);
-        this._lastRT = RenderTexture2D._currentActive;
-        RenderTexture2D._currentActive = this;
-
-        //var gl:LayaGL = LayaGL.instance;//TODO:这段代码影响2D、3D混合
-        ////(memorySize == 0) && recreateResource();
-        //LayaGL.instance.bindFramebuffer(WebGLContext.FRAMEBUFFER, _frameBuffer);
-        //_lastRT = _currentActive;
-        //_currentActive = this;
-        ////_readyed = false;  
-        //_readyed = true;	//这个没什么用。还会影响流程，比如我有时候并不调用end。所以直接改成true
-        //
-        ////if (_type == TYPE2D) {
-        LayaGL.renderEngine.viewport(0, 0, this._width, this._height);//外部设置
-        this._lastWidth = RenderState2D.width;
-        this._lastHeight = RenderState2D.height;
-        RenderState2D.width = this._width;
-        RenderState2D.height = this._height;
-        BaseShader.activeShader = null;
-        ////}
+        this._nativeObj.start();
     }
 
     /**
      * 结束绑定。
      */
     end(): void {
-        LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-        RenderTexture2D._currentActive = null;
+        this._nativeObj.end();
     }
 
     /**
      * 恢复上一次的RenderTarge.由于使用自己保存的，所以如果被外面打断了的话，会出错。
      */
     restore(): void {
-        if (this._lastRT != RenderTexture2D._currentActive) {
-
-            if (this._lastRT) {
-                LayaGL.textureContext.bindRenderTarget(this._lastRT._renderTarget);
-            }
-            else {
-                LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-            }
-
-            RenderTexture2D._currentActive = this._lastRT;
-        }
-        // this._readyed = true;
-        //if (_type == TYPE2D)//待调整
-        //{
-        LayaGL.renderEngine.viewport(0, 0, this._lastWidth, this._lastHeight);
-        RenderState2D.width = this._lastWidth;
-        RenderState2D.height = this._lastHeight;
-        BaseShader.activeShader = null;
-        //} else 
-        //	gl.viewport(0, 0, Laya.stage.width, Laya.stage.height);
-
+        this._nativeObj.restore();
     }
 
 
     clear(r: number = 0.0, g: number = 0.0, b: number = 0.0, a: number = 1.0): void {
-
-        RenderTexture2D._clearColor.r = r;
-        RenderTexture2D._clearColor.g = g;
-        RenderTexture2D._clearColor.b = b;
-        RenderTexture2D._clearColor.a = a;
-        //@ts-ignore
-        LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, RenderTexture2D._clearColor, 1);
+        this._nativeObj.clear(r, g, b, a);
     }
 
 
@@ -243,8 +187,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @return 像素数据。
      */
     getData(x: number, y: number, width: number, height: number): ArrayBufferView {
-        return LayaGL.textureContext.getRenderTextureData(this._renderTarget,x,y,width,height);
-   
+        return this._nativeObj.getData(x, y, width, height);
     }
     recycle(): void {
 
@@ -255,16 +198,10 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @internal
      */
     _disposeResource(): void {
-        //width 和height为0的时候不会创建资源
-        this._renderTarget && this._renderTarget.dispose();
+        this._nativeObj._disposeResource();
     }
 
 }
 
-// native
-if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
-    //@ts-ignore
-    RenderTexture2D = NativeRenderTexture2D;
-}
 
 
