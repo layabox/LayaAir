@@ -240,6 +240,9 @@ export class Animator extends Component {
      * @internal
      */
     _getOwnersByClip(clipStateInfo: AnimatorState): void {
+        if (!clipStateInfo._clip)
+            return;
+
         var frameNodes = clipStateInfo._clip!._nodes;
         var frameNodesCount = frameNodes!.count;
         var nodeOwners: KeyframeNodeOwner[] = clipStateInfo._nodeOwners;
@@ -438,7 +441,7 @@ export class Animator extends Component {
     }
 
     private _applyVec2(defaultValue: Vector2, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector2): Vector2 {
-        if(!defaultValue) return null;
+        if (!defaultValue) return null;
 
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
@@ -472,7 +475,7 @@ export class Animator extends Component {
     }
 
     private _applyVec3(defaultValue: Vector3, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector3) {
-        if(!defaultValue) return null;
+        if (!defaultValue) return null;
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
                 defaultValue.x += weight * data.x;
@@ -510,7 +513,7 @@ export class Animator extends Component {
     }
 
     private _applyVec4(defaultValue: Vector4, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector4) {
-        if(!defaultValue) return null;
+        if (!defaultValue) return null;
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
                 defaultValue.x += weight * data.x;
@@ -553,7 +556,7 @@ export class Animator extends Component {
     }
 
     private _applyColor(defaultValue: Color, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector4) {
-        if(!defaultValue) return null;
+        if (!defaultValue) return null;
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
                 defaultValue.r += weight * data.x;
@@ -1350,6 +1353,9 @@ export class Animator extends Component {
 
 
             var animatorState: AnimatorState = name ? controllerLayer._statesMap[name] : defaultState;
+            if (!animatorState._clip)
+                return;
+
             var clipDuration: number = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
             if (curPlayState !== animatorState) {
