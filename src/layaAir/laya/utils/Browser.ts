@@ -1,3 +1,4 @@
+import { Input } from "laya/display/Input";
 import { ILaya } from "../../ILaya";
 
 /**
@@ -113,6 +114,10 @@ export class Browser {
         var maxTouchPoints: number = win.navigator.maxTouchPoints || 0;
         var platform: string = win.navigator.platform;
 
+        if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
+            (window as any).wxMiniGame(Laya, Laya);
+            Laya["MiniAdpter"].enable();
+        }
         //阿里小游戏
         if ("my" in Browser.window) {
             if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {

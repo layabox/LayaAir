@@ -318,7 +318,7 @@ export class Input extends Text {
         // 安卓的安全键盘的问题；
         // 如果设置type='password' 则会弹安全键盘
         // 就算以后设置type='text' 还是会弹安全键盘，所以对于安卓，干脆全部重新生成
-        if (ILaya.Browser.onAndroid || LayaEnv.isConch) {
+        if (ILaya.Browser.onAndroid) {
             Input.input = Input.inputElement = ILaya.Browser.createElement('input');
             Input._initInput(Input.input);
         }

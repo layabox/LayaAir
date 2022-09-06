@@ -149,6 +149,9 @@ export class Laya {
         MeshParticle2D.__init__();
         RenderSprite.__init__();
         InputManager.__init__(Laya.stage, Render.canvas);
+        if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
+            Input.isAppUseNewInput = true;
+        }
         Input.__init__();
         SoundManager.autoStopMusic = true;
         Stat._StatRender = new StatUI();
