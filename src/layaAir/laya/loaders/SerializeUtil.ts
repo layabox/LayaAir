@@ -15,21 +15,8 @@ export const TypedArrayClasses: Record<string, any> = {
 };
 
 export class SerializeUtil {
-    private _errors: Array<any>;
-    private _nodeMap: Record<string, Node>;
 
-    public constructor(errors?: Array<any>) {
-        this._errors = errors || [];
-    }
-
-    public decodeObj(data: any, obj?: any, type?: string, nodeMap?: Record<string, Node>): any {
-        this._nodeMap = nodeMap;
-        let ret = this._decodeObj(data, obj, type);
-        this._nodeMap = null;
-        return ret;
-    }
-
-    private _decodeObj(data: any, obj?: any, type?: string): any {
+    public static decodeObj(data: any, receiver?: any, type?: string, nodeFinder?: (id: string | Array<string>) => Node, errors?: Array<any>): any {
         if (data == null)
             return null;
         else if (Array.isArray(data)) {
@@ -38,10 +25,11 @@ export class SerializeUtil {
                 let v = data[i];
                 if (v != null) {
                     try {
-                        arr[i] = this._decodeObj(v);
+                        arr[i] = this.decodeObj(v, null, null, nodeFinder, errors);
                     }
                     catch (error: any) {
-                        this._errors.push(error);
+                        if (errors)
+                            errors.push(error);
                         arr[i] = null;
                     }
                 }
@@ -56,7 +44,7 @@ export class SerializeUtil {
             }
 
             if (data._$ref != null) {
-                return this._nodeMap?.[data._$ref];
+                return nodeFinder?.(data._$ref);
             }
 
             type = type || data._$type;
@@ -76,17 +64,17 @@ export class SerializeUtil {
                     return new typedArray(data);
             }
 
-            if (!obj) {
+            if (!receiver) {
                 let cls: any = ClassUtils.getClass(type);
                 if (!cls) {
                     //this._errors.push(new Error(`missing type '${type}'`));
                     return null;
                 }
 
-                obj = new cls();
+                receiver = new cls();
             }
 
-            let isNode = obj instanceof Node;
+            let isNode = receiver instanceof Node;
             for (let key in data) {
                 if (key.startsWith("_$") || (isNode && (key === "children" || key == "components")))
                     continue;
@@ -95,29 +83,31 @@ export class SerializeUtil {
                 if (v == null || typeof (v) !== "object" || Array.isArray(v)
                     || v._$type || v._$uuid || v._$ref) {
                     try {
-                        obj[key] = this._decodeObj(v);
+                        receiver[key] = SerializeUtil.decodeObj(v, null, null, nodeFinder, errors);
                     }
                     catch (error: any) {
-                        this._errors.push(error);
+                        if (errors)
+                            errors.push(error);
                     }
                 }
                 else {
-                    let childObj = obj[key];
+                    let childObj = receiver[key];
                     if (childObj) {
                         try {
-                            this._decodeObj(v, childObj);
+                            SerializeUtil.decodeObj(v, childObj, null, nodeFinder, errors);
                         }
                         catch (error: any) {
-                            this._errors.push(error);
+                            if (errors)
+                                errors.push(error);
                         }
                     }
                 }
             }
 
-            if (obj.onAfterDeserialize)
-                obj.onAfterDeserialize();
+            if (receiver.onAfterDeserialize)
+                receiver.onAfterDeserialize();
 
-            return obj;
+            return receiver;
         }
         else
             return data;

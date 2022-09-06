@@ -38,6 +38,7 @@ import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { Base64Tool } from "../utils/Base64Tool";
+import { HierarchyLoader } from "../loaders/HierarchyLoader";
 
 const maxSubBoneCount = 24;
 
@@ -74,6 +75,11 @@ export class glTFResource extends HierarchyResource {
 
     _parse(data: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<void> {
         this._data = data;
+        if (!data.asset || data.asset.version !== "2.0") {
+            console.warn("glTF version wrong!");
+            return Promise.resolve();
+        }
+
         let basePath = URL.getPath(createURL);
         let promise: Promise<any>;
 
@@ -1820,3 +1826,5 @@ interface ClipNode {
     duration?: number;
     type?: number;
 }
+
+HierarchyLoader.glTFResourceClass = glTFResource;
