@@ -158,13 +158,15 @@ export class Bounds implements IClone {
     }
 
     getCorners(corners: Vector3[]){
-        this._getBoundBox().getCorners(corners);
+        this._imp.getCorners(corners);
     }
+
     /**
-     * @internal
+     * TODO
+     * @param box 
      */
-    _getBoundBox(): BoundBox {
-        return this._imp._getBoundBox();
+    getBoundBox(box:BoundBox):void {
+       this._imp.cloneTo(box);
     }
 
     /**

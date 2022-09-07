@@ -7,6 +7,7 @@ import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IClone } from "../../utils/IClone";
+import { Bounds } from "./Bounds";
 
 /**
  * 锥体角点。
@@ -360,7 +361,7 @@ export class BoundFrustum implements IClone {
 	 * @param box 包围盒。
 	 * @returns boolean 是否相交
 	 */
-	intersects(box: BoundBox): boolean {
+	intersects(box: BoundBox|Bounds): boolean {
 		var min: Vector3 = box.min;
 		var max: Vector3 = box.max;
 		var minX: number = min.x;

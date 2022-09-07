@@ -22,8 +22,8 @@ export class NativeBounds implements IClone {
     _center: Vector3 = new Vector3();
     /**@internal	*/
     _extent: Vector3 = new Vector3();
-    /***/
-    _boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
+    /**@internal */
+    private _boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
     get min() {
         return this.getMin();
@@ -158,19 +158,15 @@ export class NativeBounds implements IClone {
         this._nativeObj._tranform(out._nativeObj);
     }
 
-    /**
-     * @internal
-     */
-    _getBoundBox(): BoundBox {
-        var boundBox: BoundBox = this._boundBox;
+    getBoundBox(box:BoundBox) {
         this._nativeObj._getBoundBox();
-        boundBox.min.x = this.float64Array[0];
-        boundBox.min.y = this.float64Array[1];
-        boundBox.min.z = this.float64Array[2];
-        boundBox.max.x = this.float64Array[3];
-        boundBox.max.y = this.float64Array[4];
-        boundBox.max.z = this.float64Array[5];
-        return boundBox;
+        this._boundBox.min.x = this.float64Array[0];
+        this._boundBox.min.y = this.float64Array[1];
+        this._boundBox.min.z = this.float64Array[2];
+        this._boundBox.max.x = this.float64Array[3];
+        this._boundBox.max.y = this.float64Array[4];
+        this._boundBox.max.z = this.float64Array[5];
+        this._boundBox.cloneTo(box);
     }
     /**
      * @returns -1为不相交 不为0的时候返回值为相交体积

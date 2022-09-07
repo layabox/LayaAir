@@ -135,6 +135,8 @@ export class WebGLEngine implements IRenderEngine {
         this._lastScissor = new Vector4(0, 0, 0, 0);
         this._webglMode = webglMode;
         this._initStatisticsInfo();
+
+
     }
 
     /**

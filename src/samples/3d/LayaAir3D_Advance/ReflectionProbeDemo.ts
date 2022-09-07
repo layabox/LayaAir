@@ -30,7 +30,7 @@ constructor() {
 			 var lineSprite3D:PixelLineSprite3D = new PixelLineSprite3D(50,null);
 			 scene.addChild(lineSprite3D);
 			 //@ts-ignore  画出反射探针的volume包围盒
-			 Utils3D._drawBound(lineSprite3D,reflectionProb.bounds._boundBox,Color.RED);
+			 Utils3D._drawBound(lineSprite3D,reflectionProb.bounds,Color.RED);
 		}));
 	}
 }
