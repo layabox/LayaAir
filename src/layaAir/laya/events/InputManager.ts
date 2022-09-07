@@ -514,7 +514,7 @@ export class InputManager {
         if (hitArea && hitArea._hit) {
             return hitArea.contains(x, y);
         }
-        let mouseThrough = !LayaEnv.isPlaying || sp.mouseThrough;
+        let mouseThrough = LayaEnv.isPlaying && sp.mouseThrough;
         if (sp.width > 0 && sp.height > 0 || mouseThrough || hitArea) {
             //判断是否在矩形区域内
             if (!mouseThrough)
