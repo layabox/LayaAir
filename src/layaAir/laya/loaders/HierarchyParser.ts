@@ -100,8 +100,13 @@ export class HierarchyParser {
             createChildren(data, null);
 
         //兼容单节点入口模式
-        if (data._$type)
-            createNode(data, null);
+        if (data._$type) {
+            let node = createNode(data, null);
+            if (node) {
+                dataList.push(data);
+                allNodes.push(node);
+            }
+        }
 
         let cnt = dataList.length;
 
