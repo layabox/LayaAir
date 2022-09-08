@@ -20,6 +20,7 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { ISubmit } from "../webgl/submit/ISubmit";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { HTMLCanvas } from "./HTMLCanvas";
+import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
 
@@ -194,7 +195,7 @@ export class NativeContext {
     
     static const2DRenderCMD: RenderStateCommand;
     static set2DRenderConfig(): void {
-        //(window as any).set2DRenderConfig();
+       
         if (!NativeContext.const2DRenderCMD) {
             const cmd = NativeContext.const2DRenderCMD = LayaGL.renderOBJCreate.createRenderStateComand();
             cmd.addCMD(RenderStateType.BlendType, true);
@@ -214,18 +215,7 @@ export class NativeContext {
         }
         NativeContext.const2DRenderCMD.applyCMD();
         RenderTexture.currentActive && RenderTexture.currentActive._end();
-        // WebGLContext.setBlend(gl, true);//还原2D设置
-        // WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
-        // BlendMode.activeBlendFunction = null;// 防止submit不设置blend
-        // WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        // WebGLContext.setDepthTest(gl, false);
-        // WebGLContext.setDepthMask(gl, true);
-        // WebGLContext.setCullFace(gl, false);
-        // WebGLContext.setFrontFace(gl, gl.CCW);
-        
-        LayaGL.renderEngine.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
-        LayaGL.renderEngine.scissorTest(true);
-        LayaGL.renderEngine.scissor(0, 0, RenderState2D.width, RenderState2D.height);
+        (window as any).set2DRenderConfig();
         BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
     }
     set globalCompositeOperation(value: string) {

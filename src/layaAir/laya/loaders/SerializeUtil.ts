@@ -16,7 +16,7 @@ export const TypedArrayClasses: Record<string, any> = {
 
 export class SerializeUtil {
 
-    public static decodeObj(data: any, receiver?: any, type?: string, nodeFinder?: (id: string | Array<string>) => Node, errors?: Array<any>): any {
+    public static decodeObj(data: any, obj?: any, type?: string, nodeFinder?: (id: string | Array<string>) => Node, errors?: Array<any>): any {
         if (data == null)
             return null;
         else if (Array.isArray(data)) {
@@ -64,26 +64,25 @@ export class SerializeUtil {
                     return new typedArray(data);
             }
 
-            if (!receiver) {
+            if (!obj) {
                 let cls: any = ClassUtils.getClass(type);
                 if (!cls) {
                     //this._errors.push(new Error(`missing type '${type}'`));
                     return null;
                 }
 
-                receiver = new cls();
+                obj = new cls();
             }
 
-            let isNode = receiver instanceof Node;
             for (let key in data) {
-                if (key.startsWith("_$") || (isNode && (key === "children" || key == "components")))
+                if (key.startsWith("_$"))
                     continue;
 
                 let v = data[key];
                 if (v == null || typeof (v) !== "object" || Array.isArray(v)
                     || v._$type || v._$uuid || v._$ref) {
                     try {
-                        receiver[key] = SerializeUtil.decodeObj(v, null, null, nodeFinder, errors);
+                        obj[key] = SerializeUtil.decodeObj(v, null, null, nodeFinder, errors);
                     }
                     catch (error: any) {
                         if (errors)
@@ -91,7 +90,7 @@ export class SerializeUtil {
                     }
                 }
                 else {
-                    let childObj = receiver[key];
+                    let childObj = obj[key];
                     if (childObj) {
                         try {
                             SerializeUtil.decodeObj(v, childObj, null, nodeFinder, errors);
@@ -104,10 +103,10 @@ export class SerializeUtil {
                 }
             }
 
-            if (receiver.onAfterDeserialize)
-                receiver.onAfterDeserialize();
+            if (obj.onAfterDeserialize)
+                obj.onAfterDeserialize();
 
-            return receiver;
+            return obj;
         }
         else
             return data;
