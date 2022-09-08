@@ -166,7 +166,7 @@ export class Bounds implements IClone {
      * @param box 
      */
     getBoundBox(box:BoundBox):void {
-       this._imp.cloneTo(box);
+       this._imp._getBoundBox.cloneTo(box);
     }
 
     /**
