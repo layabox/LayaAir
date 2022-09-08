@@ -145,7 +145,7 @@ export class BoundBox implements IClone {
 	 * 克隆。
 	 * @param	destObject 克隆源。
 	 */
-	cloneTo(destObject: any): void {
+	cloneTo(destObject: BoundBox): void {
 		var dest: BoundBox = (<BoundBox>destObject);
 		this.min.cloneTo(dest.min);
 		this.max.cloneTo(dest.max);
