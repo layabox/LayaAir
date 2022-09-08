@@ -158,7 +158,7 @@ export class NativeBounds implements IClone {
         this._nativeObj._tranform(out._nativeObj);
     }
 
-    getBoundBox(box:BoundBox) {
+    _getBoundBox(): BoundBox {
         this._nativeObj._getBoundBox();
         this._boundBox.min.x = this.float64Array[0];
         this._boundBox.min.y = this.float64Array[1];
@@ -166,7 +166,7 @@ export class NativeBounds implements IClone {
         this._boundBox.max.x = this.float64Array[3];
         this._boundBox.max.y = this.float64Array[4];
         this._boundBox.max.z = this.float64Array[5];
-        this._boundBox.cloneTo(box);
+        return this._boundBox;
     }
     /**
      * @returns -1为不相交 不为0的时候返回值为相交体积
