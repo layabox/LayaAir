@@ -28,6 +28,13 @@ export class Animator2D extends Component {
         this._controllerLayers = [];
     }
 
+    set parameters(val: Record<string, number | boolean>) {
+        this._parameters = val;
+    }
+    get parameters() {
+        return this._parameters;
+    }
+
 
     set speed(num: number) {
         this._speed = num;
