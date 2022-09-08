@@ -72,10 +72,11 @@ export class NativeTransform3D  extends Transform3D {
 	 * 局部位置。
 	 */
 	get localPosition(): Vector3 {
-        this._nativeObj.getLocalPosition();
-        this._localPosition.x = this.float64Array[0];
-        this._localPosition.y = this.float64Array[1];
-        this._localPosition.z = this.float64Array[2];
+        if (this._nativeObj.getLocalPosition()) {
+        	this._localPosition.x = this.float64Array[0];
+       	 	this._localPosition.y = this.float64Array[1];
+        	this._localPosition.z = this.float64Array[2];
+		}
 		return this._localPosition;
 	}
 
@@ -142,11 +143,12 @@ export class NativeTransform3D  extends Transform3D {
 	 * 局部旋转。
 	 */
 	get localRotation(): Quaternion {
-        this._nativeObj.getLocalRotation();
-        this._localRotation.x = this.float64Array[0];
-        this._localRotation.y = this.float64Array[1];
-        this._localRotation.z = this.float64Array[2];
-        this._localRotation.w = this.float64Array[3];
+        if (this._nativeObj.getLocalRotation()) {
+        	this._localRotation.x = this.float64Array[0];
+        	this._localRotation.y = this.float64Array[1];
+        	this._localRotation.z = this.float64Array[2];
+        	this._localRotation.w = this.float64Array[3];
+		}
 		return this._localRotation;
 	}
 
@@ -198,10 +200,12 @@ export class NativeTransform3D  extends Transform3D {
 	 * 局部缩放。
 	 */
 	get localScale(): Vector3 {
-        this._nativeObj.getLocalScale();
-        this._localScale.x = this.float64Array[0];
-        this._localScale.y = this.float64Array[1];
-        this._localScale.z = this.float64Array[2];
+        if (this._nativeObj.getLocalScale())
+		{
+        	this._localScale.x = this.float64Array[0];
+        	this._localScale.y = this.float64Array[1];
+        	this._localScale.z = this.float64Array[2];
+		}
 		return this._localScale;
 	}
 
@@ -255,10 +259,11 @@ export class NativeTransform3D  extends Transform3D {
 	 * 局部空间欧拉角。
 	 */
 	get localRotationEuler(): Vector3 {
-		this._nativeObj.getLocalRotationEuler();
-        this._localRotationEuler.x = this.float64Array[0];
-        this._localRotationEuler.y = this.float64Array[1];
-        this._localRotationEuler.z = this.float64Array[2];
+		if (this._nativeObj.getLocalRotationEuler()) {
+        	this._localRotationEuler.x = this.float64Array[0];
+       	 	this._localRotationEuler.y = this.float64Array[1];
+        	this._localRotationEuler.z = this.float64Array[2];
+		}
 		return this._localRotationEuler;
 	}
 
@@ -273,9 +278,10 @@ export class NativeTransform3D  extends Transform3D {
 	 * 局部矩阵。
 	 */
 	get localMatrix(): Matrix4x4 {
-        this._nativeObj.getLocalMatrix();
-        for (var i = 0; i < 16; ++i) {
-			this._localMatrix.elements[i] = this.float32Array[i];
+        if (this._nativeObj.getLocalMatrix()) {
+        	for (var i = 0; i < 16; ++i) {
+				this._localMatrix.elements[i] = this.float32Array[i];
+			}
 		}
 		return this._localMatrix;
 	}
@@ -289,10 +295,11 @@ export class NativeTransform3D  extends Transform3D {
 	 * 世界位置。
 	 */
 	get position(): Vector3 {  
-        this._nativeObj.getPosition();
-        this._position.x = this.float64Array[0];
-        this._position.y = this.float64Array[1];
-        this._position.z = this.float64Array[2];
+        if (this._nativeObj.getPosition()) {
+        	this._position.x = this.float64Array[0];
+        	this._position.y = this.float64Array[1];
+        	this._position.z = this.float64Array[2];
+		}
 		return this._position;
 	}
 
@@ -307,11 +314,12 @@ export class NativeTransform3D  extends Transform3D {
 	 * 世界旋转。
 	 */
 	get rotation(): Quaternion {
-		this._nativeObj.getRotation();
-        this._rotation.x = this.float64Array[0];
-        this._rotation.y = this.float64Array[1];
-        this._rotation.z = this.float64Array[2];
-        this._rotation.w = this.float64Array[3];
+		if (this._nativeObj.getRotation()) {
+        	this._rotation.x = this.float64Array[0];
+        	this._rotation.y = this.float64Array[1];
+        	this._rotation.z = this.float64Array[2];
+        	this._rotation.w = this.float64Array[3];
+		}
 		return this._rotation;
 	}
 
@@ -328,10 +336,11 @@ export class NativeTransform3D  extends Transform3D {
 	 * 世界空间的旋转角度，顺序为x、y、z。
 	 */
 	get rotationEuler(): Vector3 {
-		this._nativeObj.getRotationEuler();
-        this._rotationEuler.x = this.float64Array[0];
-        this._rotationEuler.y = this.float64Array[1];
-        this._rotationEuler.z = this.float64Array[2];
+		if (this._nativeObj.getRotationEuler()) {
+        	this._rotationEuler.x = this.float64Array[0];
+        	this._rotationEuler.y = this.float64Array[1];
+        	this._rotationEuler.z = this.float64Array[2];
+		}
 		return this._rotationEuler;
 	}
 
@@ -346,9 +355,10 @@ export class NativeTransform3D  extends Transform3D {
 	 * 世界矩阵。
 	 */
 	get worldMatrix(): Matrix4x4 {
-		this._nativeObj.getWorldMatrix();
-        for (var i = 0; i < 16; i++) {
-			this._worldMatrix.elements[i] = this.float32Array[i];
+		if (this._nativeObj.getWorldMatrix()) {
+        	for (var i = 0; i < 16; i++) {
+				this._worldMatrix.elements[i] = this.float32Array[i];
+			}
 		}
 		return this._worldMatrix;
 	}
@@ -490,10 +500,11 @@ export class NativeTransform3D  extends Transform3D {
 	 * @return	世界缩放。
 	 */
 	getWorldLossyScale(): Vector3 {
-        this._nativeObj.getWorldLossyScale();
-        this._scale.x = this.float64Array[0];
-        this._scale.y = this.float64Array[1];
-        this._scale.z = this.float64Array[2];
+        if (this._nativeObj.getWorldLossyScale()) {
+        	this._scale.x = this.float64Array[0];
+        	this._scale.y = this.float64Array[1];
+        	this._scale.z = this.float64Array[2];
+		}
 		return this._scale;
 	}
 

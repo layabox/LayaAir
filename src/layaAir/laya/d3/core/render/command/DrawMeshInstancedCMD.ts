@@ -11,6 +11,7 @@ import { Transform3D } from "../../Transform3D";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
+
 import { RenderElement } from "../RenderElement";
 import { MeshInstanceGeometry } from "../../../graphics/MeshInstanceGeometry";
 import { RenderContext3D } from "../RenderContext3D";
@@ -35,6 +36,7 @@ export class DrawMeshInstancedCMD extends Command {
             throw "the number of renderings exceeds the maximum number of merges";
         }
         cmd = DrawMeshInstancedCMD._pool.length > 0 ? DrawMeshInstancedCMD._pool.pop() : new DrawMeshInstancedCMD();
+
 
         cmd._matrixs = matrixs;
         cmd._material = material;
@@ -242,6 +244,11 @@ export class DrawMeshInstancedCMD extends Command {
         DrawMeshInstancedCMD._pool.push(this);
         this._instanceBufferState.destroy();
         this._instanceBufferState = null;
+        delete this._instanceRenderElementArray;
+        this._instanceRenderElementArray = [];
+        delete this._instanceGeometryArray;
+        this._instanceGeometryArray = [];
+
     }
 
 }

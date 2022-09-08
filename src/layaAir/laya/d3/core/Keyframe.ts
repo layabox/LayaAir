@@ -40,6 +40,7 @@ export class Keyframe implements IClone {
 	 */
 	clone(): any {
 		var dest: Keyframe = new Keyframe();
+		
 		this.cloneTo(dest);
 		return dest;
 	}

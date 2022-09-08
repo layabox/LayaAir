@@ -7,18 +7,21 @@ import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 
 import BlitVS from "./BlitScreen.vs";
 import BlitFS from "./BlitScreen.fs";
+import FXAA from "./FastApproximateAntiAliasing.glsl";
 
 export class BlitScreenShaderInit {
 
     static init() {
-
+        Shader3D.addInclude("FastApproximateAntiAliasing.glsl", FXAA);
+        
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {
             "a_PositionTexcoord": [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
         };
 
         let uniformMap = {
             "u_OffsetScale": ShaderDataType.Vector4,
-            "u_MainTex": ShaderDataType.Texture2D
+            "u_MainTex": ShaderDataType.Texture2D,
+            "u_MainTex_TexelSize":ShaderDataType.Vector4,//x:width,y:height,z:1/width,w:1/height
         };
 
         let shader = Shader3D.add("BlitScreen");

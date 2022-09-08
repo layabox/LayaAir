@@ -19,6 +19,7 @@ import { Downloader } from "./Downloader";
 export interface ILoadTask {
     readonly type: string;
     readonly url: string;
+    readonly uuid: string;
     readonly ext: string;
     readonly loader: Loader;
     readonly options: Readonly<ILoadOptions>;
@@ -108,8 +109,6 @@ export class Loader extends EventDispatcher {
     static TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
     /**Terrain资源。*/
     static TERRAINRES = "TERRAIN";
-    /** glTF 资源 */
-    static GLTF = "GLTF";
     /** Spine 资源 */
     static SPINE = "SPINE";
 
@@ -148,17 +147,12 @@ export class Loader extends EventDispatcher {
 
         for (let ext of exts) {
             let entry = Loader.extMap[ext];
-            if (entry) { //这个扩展名已经被注册为其他资源类型
-                if (!type) { //覆盖旧的设置
-                    entry[0].loaderType = cls;
-                }
-                else {
-                    let i = entry.findIndex(e => e.typeId == typeEntry.typeId);
-                    if (i == -1) //注册为次类型
-                        entry.push(typeEntry);
-                    else //覆盖旧的设置
-                        entry[i].loaderType = cls;
-                }
+            if (entry && type) { //这个扩展名已经被注册为其他资源类型
+                let i = entry.findIndex(e => e.typeId == typeEntry.typeId);
+                if (i == -1) //注册为次类型
+                    entry.push(typeEntry);
+                else //覆盖旧的设置
+                    entry[i].loaderType = cls;
             }
             else {
                 Loader.extMap[ext] = [typeEntry];
@@ -369,6 +363,7 @@ export class Loader extends EventDispatcher {
             task = new LoadTask();
         task.type = type;
         task.url = url;
+        task.uuid = uuid;
         task.ext = ext;
         options = Object.assign(task.options, options);
         delete options.type;
@@ -880,6 +875,7 @@ export class Loader extends EventDispatcher {
 class LoadTask implements ILoadTask {
     type: string;
     url: string;
+    uuid: string;
     ext: string;
     options: ILoadOptions;
     loader: Loader;

@@ -180,6 +180,17 @@ export class Mesh extends Resource implements IClone {
         return this._indexFormat;
     }
 
+
+    /**
+     * 设置indexformat
+     */
+    set indexFormat(value:IndexFormat){
+        this._indexFormat = value
+        this._subMeshes.forEach(element => {
+            element.indexFormat = value;
+        });
+    }
+
     /**
      * 创建一个 <code>Mesh</code> 实例,禁止使用。
      * @param isReadable 是否可读。
@@ -729,7 +740,8 @@ export class Mesh extends Resource implements IClone {
             this._indexBuffer = indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(format, indices.length, BufferUsage.Static, this._isReadable);
         }
         indexBuffer.setData(indices);
-        this._indexFormat = format;
+        this.indexFormat = format;
+
     }
 
 

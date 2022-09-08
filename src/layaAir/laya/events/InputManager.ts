@@ -1,4 +1,5 @@
 import { LayaEnv } from "../../LayaEnv";
+import { HideFlags } from "../Const";
 import { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
 import { Stage } from "../display/Stage";
@@ -441,7 +442,10 @@ export class InputManager {
 
             for (let i = sp._children.length - 1; i > -1; i--) {
                 let child = <Sprite>sp._children[i];
-                if (!child._is3D && !child._destroyed && (editor || child._mouseState > 1) && child._visible) {
+                if (!child._is3D 
+                    && !child._destroyed 
+                    && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1) 
+                    && child._visible) {
                     let ret = this._getSpriteUnderPoint(child, x, y, editor);
                     if (ret)
                         return ret;
@@ -478,7 +482,9 @@ export class InputManager {
         for (let i = sp._children.length - 1; i > -1; i--) {
             let child = <Sprite>sp._children[i];
             //只有接受交互事件的，才进行处理
-            if (!child._destroyed && (editor || child._mouseState > 1) && child._visible) {
+            if (!child._destroyed 
+                && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1) 
+                && child._visible) {
                 let ret = this._getSpriteUnderPoint(child, x, y, editor);
                 if (ret)
                     return ret;
@@ -486,9 +492,11 @@ export class InputManager {
         }
         // 检查逻辑子对象
         for (let i = sp._extUIChild.length - 1; i >= 0; i--) {
-            let c = <Sprite>sp._extUIChild[i];
-            if (!c._destroyed && (editor || c._mouseState > 1) && c._visible) {
-                let ret = this._getSpriteUnderPoint(c, x, y, editor);
+            let child = <Sprite>sp._extUIChild[i];
+            if (!child._destroyed 
+                && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1) 
+                && child._visible) {
+                let ret = this._getSpriteUnderPoint(child, x, y, editor);
                 if (ret)
                     return ret;
             }
@@ -514,7 +522,7 @@ export class InputManager {
         if (hitArea && hitArea._hit) {
             return hitArea.contains(x, y);
         }
-        let mouseThrough = !LayaEnv.isPlaying || sp.mouseThrough;
+        let mouseThrough = LayaEnv.isPlaying && sp.mouseThrough;
         if (sp.width > 0 && sp.height > 0 || mouseThrough || hitArea) {
             //判断是否在矩形区域内
             if (!mouseThrough)

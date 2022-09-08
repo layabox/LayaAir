@@ -765,8 +765,8 @@ export class Scene3D extends Sprite implements ISubmit {
         if (maps) {
             for (var i: number = 0, n: number = maps.length; i < n; i++) {
                 var map: Lightmap = maps[i];
-                map.lightmapColor._removeReference();
-                map.lightmapDirection._removeReference();
+                map.lightmapColor && map.lightmapColor._removeReference();
+                map.lightmapDirection && map.lightmapDirection._removeReference();
             }
         }
         if (value) {
@@ -1547,19 +1547,19 @@ export class Scene3D extends Sprite implements ISubmit {
 
             camera.enableRender && camera.render();
             Scene3D._blitTransRT = null;
+            
             if (camera.enableRender && !camera.renderTarget) {
                 (Scene3D._blitTransRT = camera._internalRenderTexture);
                 var canvasWidth: number = camera._getCanvasWidth(), canvasHeight: number = camera._getCanvasHeight();
                 Scene3D._blitOffset.setValue(camera.viewport.x / canvasWidth, camera.viewport.y / canvasHeight, camera.viewport.width / canvasWidth, camera.viewport.height / canvasHeight);
-                this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport);
+                this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport,camera);
             }
-
         }
         Context.set2DRenderConfig();//还原2D配置
         return 1;
     }
 
-    blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport) {
+    blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport,camera:Camera) {
         if (!source)
             return;
         Scene3D.mainCavansViewPort.x = RenderContext3D.clientWidth * normalizeViewPort.x | 0;
@@ -1567,9 +1567,12 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3D.mainCavansViewPort.width = RenderContext3D.clientWidth * normalizeViewPort.width | 0;
         Scene3D.mainCavansViewPort.height = RenderContext3D.clientHeight * normalizeViewPort.height | 0;
         source.filterMode = FilterMode.Bilinear;
-        var cmd = BlitFrameBufferCMD.create(source, null, Scene3D.mainCavansViewPort);
+        if(camera.fxaa)
+            BlitFrameBufferCMD.shaderdata.addDefine(BaseCamera.SHADERDEFINE_FXAA);
+        var cmd = BlitFrameBufferCMD.create(source, null, Scene3D.mainCavansViewPort,null,null,BlitFrameBufferCMD.shaderdata);
         cmd.run();
         cmd.recover();
+        BlitFrameBufferCMD.shaderdata.removeDefine(BaseCamera.SHADERDEFINE_FXAA);
     }
 
     /**

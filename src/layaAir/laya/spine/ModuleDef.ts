@@ -4,4 +4,4 @@ import "./SpineTempletLoader";
 
 let c = ClassUtils.regClass;
 
-c("Laya.SpineSkeleton", SpineSkeleton);
+c("SpineSkeleton", SpineSkeleton);

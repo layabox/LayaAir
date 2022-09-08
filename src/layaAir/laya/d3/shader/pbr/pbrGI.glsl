@@ -21,13 +21,15 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     vec2 lightmapUV = info.lightmapUV;
     vec3 bakedColor = getBakedLightmapColor(lightmapUV);
     // todo  surface.diffuseColor ？
-    indirect = bakedColor * surface.diffuseColor;
+    vec3 Fd = bakedColor * surface.diffuseColor;
 	#endif // UV1
 
-    #else
-    // diffuse
+    #else // LIGHTMAP
+
     vec3 n = info.normalWS;
     vec3 Fd = diffuseIrradiance(n) * surface.diffuseColor;
+
+    #endif // LIGHTMAP
 
     // specular
     float perceptualRoughness = surface.perceptualRoughness;
@@ -42,8 +44,8 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     vec3 indirectSpecular = specularIrradiance(r, perceptualRoughness);
 
     vec3 Fr = indirectSpecular * specularColor;
+
     indirect = Fd + Fr;
-    #endif // LIGHTMAP
 
     return indirect;
 }

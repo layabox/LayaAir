@@ -70,7 +70,7 @@ export class MeshRenderer extends BaseRender {
     protected _onEnable(): void {
         super._onEnable();
         const filter = this.owner.getComponent(MeshFilter) as MeshFilter;
-        filter._enabled && this._onMeshChange(filter.sharedMesh);
+        if(filter) filter._enabled && this._onMeshChange(filter.sharedMesh);
     }
 
     /**

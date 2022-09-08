@@ -15,6 +15,7 @@ import { SubmitCMD } from "../webgl/submit/SubmitCMD"
 import { ColorFilter } from "./ColorFilter";
 import { BlurFilter } from "./BlurFilter";
 import { LayaGL } from "../layagl/LayaGL";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
  * <code>Filter</code> 是滤镜基类。
@@ -96,9 +97,9 @@ export class NativeFilter implements IFilter {
                 //out && WebGLRTMgr.releaseRT(out);// out.recycle();
                 out && out.destroy();// out.recycle();
                 //source = WebGLRTMgr.getRT(b.width, b.height);
-                source = new (window as any).conchRenderTexture2D((LayaGL.renderEngine as any)._nativeObj, b.width, b.height);
+                source = new (window as any).conchRenderTexture2D((LayaGL.renderEngine as any)._nativeObj, b.width, b.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
                 //var outRT: RenderTexture2D = out = WebGLRTMgr.getRT(b.width, b.height);
-                var outRT: any = out = new (window as any).conchRenderTexture2D((LayaGL.renderEngine as any)._nativeObj, b.width, b.height);
+                var outRT: any = out = new (window as any).conchRenderTexture2D((LayaGL.renderEngine as any)._nativeObj, b.width, b.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
                 sprite._getCacheStyle().filterCache = out;
                 //使用RT
                 webglctx.pushRT();

@@ -533,7 +533,7 @@ export class BaseRender extends Component implements ISingletonElement {
      */
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
         if (boundFrustum)
-            return boundFrustum.intersects(this.bounds._getBoundBox());
+            return boundFrustum.intersects(this.bounds);
         else
             return true;
     }

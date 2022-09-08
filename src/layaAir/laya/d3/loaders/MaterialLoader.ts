@@ -9,6 +9,9 @@ class MaterialLoader implements IResourceLoader {
                 return null;
 
             let urls: Array<any> = this.getSubUrls(task, lmtData);
+            if (!urls)
+                return null;
+
             return task.loader.load(urls, task.options, task.progress.createCallback()).then(() => {
                 let mat = Material._parse(lmtData);
                 return mat;
@@ -39,7 +42,8 @@ class MaterialLoader implements IResourceLoader {
                 }
                 break;
             default:
-                throw new Error("Laya3D:unkonwn version.");
+                console.log("MaterialLoader:unkonwn version.");
+                return null;
         }
 
         return urls;

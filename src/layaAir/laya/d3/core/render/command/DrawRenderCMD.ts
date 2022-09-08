@@ -11,9 +11,7 @@ import { CommandBuffer } from "./CommandBuffer";
 export class DrawRenderCMD extends Command {
     /**@internal */
     private static _pool: any[] = [];
-    /**@internal */
-    private static _compileDefine: DefineDatas = new DefineDatas();
-    private static _elemntpool: IRenderElement[] = [];
+
     /**
      * @internal
      */
@@ -26,6 +24,7 @@ export class DrawRenderCMD extends Command {
         cmd._commandBuffer = commandBuffer;
         return cmd;
     }
+    
     /**@internal */
     private _material: Material;
     /**@internal */

@@ -286,9 +286,6 @@ export class Animator2D extends Component {
                         //有可能是组件,查找组件逻辑
                         pobj = null;
                         var classObj = ClassUtils.getClass(pname);
-                        if (!classObj) {
-                            classObj = ClassUtils.getClass("Laya." + pname);
-                        }
                         if (classObj) {
                             pobj = property.getComponent(classObj);
                         }

@@ -25,7 +25,7 @@ export class BlitFrameBufferCMD {
 	/** @internal */
 	private static _defaultOffsetScale: Vector4 = new Vector4(0, 0, 1, 1);
 	/** @internal */
-	private static shaderdata:ShaderData;
+	static shaderdata:ShaderData;
 	/** @internal */
 	private static GAMMAOUT:ShaderDefine;
 	static __init__(): void {
@@ -49,6 +49,7 @@ export class BlitFrameBufferCMD {
 		cmd._dest = dest;
 		cmd._offsetScale = offsetScale;
 		cmd.setshader(shader,subShader,shaderData);
+		cmd._source&& cmd._texture_size.setValue(source.width,source.height,1.0/source.width,1.0/source.height);
 		//cmd._shader = shader;
 		//cmd._shaderData = shaderData;
 		//cmd._subShader = subShader;
@@ -61,6 +62,8 @@ export class BlitFrameBufferCMD {
 	private _dest: RenderTexture = null;
 	/**@internal 偏移缩放*/
 	private _offsetScale: Vector4 = null;
+	/**@internal */
+	_texture_size:Vector4 = null;
 	/**@internal 渲染shader*/
 	private _shader: Shader3D = null;
 	/**@internal 渲染数据*/
@@ -80,6 +83,7 @@ export class BlitFrameBufferCMD {
         this._renderElement = new RenderElement();
         this._renderElement.setTransform(this._transform3D);
 		this._renderElement.setGeometry(ScreenQuad.instance);
+		this._texture_size = new Vector4();
     }
 
 	set shaderData(value:ShaderData){
@@ -117,6 +121,7 @@ export class BlitFrameBufferCMD {
 
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitFrameBufferCMD._defaultOffsetScale);
+		source && (shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID,this._texture_size));
 		//this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		(RenderTexture.currentActive) && (RenderTexture.currentActive._end());
 		if(!dest){

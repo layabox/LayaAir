@@ -17,6 +17,7 @@ import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { LayaEnv } from "../../../LayaEnv";
+import { Bounds } from "../math/Bounds";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
@@ -639,7 +640,7 @@ export class Utils3D {
     /**
      * @internal
      */
-    static _drawBound(debugLine: PixelLineSprite3D, boundBox: BoundBox, color: Color): void {
+    static _drawBound(debugLine: PixelLineSprite3D, boundBox: BoundBox|Bounds, color: Color): void {
         if (debugLine.lineCount + 12 > debugLine.maxLineCount)
             debugLine.maxLineCount += 12;
 
