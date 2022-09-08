@@ -81,9 +81,9 @@ export class NativeTransform3D  extends Transform3D {
 	}
 
 	set localPosition(value: Vector3) {
-        this.float64Array[0] = value.x;
-        this.float64Array[1] = value.y;
-        this.float64Array[2] = value.z;
+        this._localPosition.x = this.float64Array[0] = value.x;
+        this._localPosition.y = this.float64Array[1] = value.y;
+        this._localPosition.z = this.float64Array[2] = value.z;
 		this._nativeObj.setLocalPosition();
 	}
 
@@ -153,10 +153,10 @@ export class NativeTransform3D  extends Transform3D {
 	}
 
 	set localRotation(value: Quaternion) {
-        this.float64Array[0] = value.x;
-        this.float64Array[1] = value.y;
-        this.float64Array[2] = value.z;
-        this.float64Array[3] = value.w;
+        this._localRotation.x = this.float64Array[0] = value.x;
+        this._localRotation.y = this.float64Array[1] = value.y;
+        this._localRotation.z = this.float64Array[2] = value.z;
+        this._localRotation.w = this.float64Array[3] = value.w;
 		this._nativeObj.setLocalRotation();
 	}
 
@@ -210,9 +210,9 @@ export class NativeTransform3D  extends Transform3D {
 	}
 
 	set localScale(value: Vector3) {
-		this.float64Array[0] = value.x;
-        this.float64Array[1] = value.y;
-        this.float64Array[2] = value.z;
+		this._localScale.x = this.float64Array[0] = value.x;
+        this._localScale.y = this.float64Array[1] = value.y;
+        this._localScale.z = this.float64Array[2] = value.z;
 		this._nativeObj.setLocalScale();
 	}
 
@@ -268,9 +268,9 @@ export class NativeTransform3D  extends Transform3D {
 	}
 
 	set localRotationEuler(value: Vector3) {
-		this.float64Array[0] = value.x;
-        this.float64Array[1] = value.y;
-        this.float64Array[2] = value.z;
+		this._localRotationEuler.x = this.float64Array[0] = value.x;
+        this._localRotationEuler.y = this.float64Array[1] = value.y;
+        this._localRotationEuler.z = this.float64Array[2] = value.z;
 		this._nativeObj.setLocalRotationEuler();
 	}
 
@@ -287,6 +287,8 @@ export class NativeTransform3D  extends Transform3D {
 	}
 
 	set localMatrix(value: Matrix4x4) {
+		if (this._localMatrix !== value)
+			value.cloneTo(this._localMatrix);
         this.float32Array.set(value.elements);
 		this._nativeObj.setLocalMatrix();
 	}
@@ -304,9 +306,9 @@ export class NativeTransform3D  extends Transform3D {
 	}
 
 	set position(value: Vector3) {
-        this.float64Array[0] = value.x;
-        this.float64Array[1] = value.y;
-        this.float64Array[2] = value.z;
+        this._position.x = this.float64Array[0] = value.x;
+        this._position.y = this.float64Array[1] = value.y;
+        this._position.z = this.float64Array[2] = value.z;
 		this._nativeObj.setPosition();
 	}
 
@@ -324,10 +326,10 @@ export class NativeTransform3D  extends Transform3D {
 	}
 
 	set rotation(value: Quaternion) {
-        this.float64Array[0] = value.x;
-        this.float64Array[1] = value.y;
-        this.float64Array[2] = value.z;
-        this.float64Array[3] = value.w;
+        this._rotation.x = this.float64Array[0] = value.x;
+        this._rotation.y = this.float64Array[1] = value.y;
+        this._rotation.z = this.float64Array[2] = value.z;
+        this._rotation.w = this.float64Array[3] = value.w;
 		this._nativeObj.setRotation();
 	}
 
@@ -345,9 +347,9 @@ export class NativeTransform3D  extends Transform3D {
 	}
 
 	set rotationEuler(value: Vector3) {
-		this.float64Array[0] = value.x;
-        this.float64Array[1] = value.y;
-        this.float64Array[2] = value.z;
+		this._rotationEuler.x = this.float64Array[0] = value.x;
+        this._rotationEuler.y = this.float64Array[1] = value.y;
+        this._rotationEuler.z = this.float64Array[2] = value.z;
 		this._nativeObj.setRotationEuler();
 	}
 
@@ -364,6 +366,8 @@ export class NativeTransform3D  extends Transform3D {
 	}
 
 	set worldMatrix(value: Matrix4x4) {
+		if (this._worldMatrix !== value)
+			value.cloneTo(this._worldMatrix);
         this.float32Array.set(value.elements);
 		this._nativeObj.setWorldMatrix();
 	}
@@ -514,9 +518,9 @@ export class NativeTransform3D  extends Transform3D {
 	 * @return	世界缩放。
 	 */
 	setWorldLossyScale(value: Vector3) {
-		this.float64Array[0] = value.x;
-        this.float64Array[1] = value.y;
-        this.float64Array[2] = value.z;
+		this._scale.x = this.float64Array[0] = value.x;
+        this._scale.y = this.float64Array[1] = value.y;
+        this._scale.z = this.float64Array[2] = value.z;
 		this._nativeObj.setWorldLossyScale();
 	}
 }
