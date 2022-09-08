@@ -12,7 +12,7 @@ float rgb2luma(in vec3 rgb)
     return dot(rgb, vec3(0.299, 0.587, 0.114));
 }
 
-vec3 textureOffset(in sampler2D mainTex, in vec2 uv, in vec2 offset, in vec2 inverseScreenSize)
+vec3 textureOffsetbyScreenSize(in sampler2D mainTex, in vec2 uv, in vec2 offset, in vec2 inverseScreenSize)
 {
     vec2 sampleruv = uv + inverseScreenSize * offset; // u_texturesize表示每个像素的偏移量
     return texture2D(mainTex, sampleruv).rgb;
@@ -27,10 +27,10 @@ vec4 FXAAMain(in sampler2D mainTex, in vec2 texuv, in vec2 inverseScreenSize)
     float lumaCenter = rgb2luma(colorCenter);
 
     // Luma at the four direct neighbours of the current fragment.
-    float lumaDown = rgb2luma(textureOffset(mainTex, texuv, vec2(0, -1), inverseScreenSize));
-    float lumaUp = rgb2luma(textureOffset(mainTex, texuv, vec2(0, 1), inverseScreenSize));
-    float lumaLeft = rgb2luma(textureOffset(mainTex, texuv, vec2(-1, 0), inverseScreenSize));
-    float lumaRight = rgb2luma(textureOffset(mainTex, texuv, vec2(1, 0), inverseScreenSize));
+    float lumaDown = rgb2luma(textureOffsetbyScreenSize(mainTex, texuv, vec2(0, -1), inverseScreenSize));
+    float lumaUp = rgb2luma(textureOffsetbyScreenSize(mainTex, texuv, vec2(0, 1), inverseScreenSize));
+    float lumaLeft = rgb2luma(textureOffsetbyScreenSize(mainTex, texuv, vec2(-1, 0), inverseScreenSize));
+    float lumaRight = rgb2luma(textureOffsetbyScreenSize(mainTex, texuv, vec2(1, 0), inverseScreenSize));
 
     // Find the maximum and minimum luma around the current fragment.
     float lumaMin = min(lumaCenter, min(min(lumaDown, lumaUp), min(lumaLeft, lumaRight)));
@@ -46,10 +46,10 @@ vec4 FXAAMain(in sampler2D mainTex, in vec2 texuv, in vec2 inverseScreenSize)
 	}
 
     // Query the 4 remaining corners lumas.
-    float lumaDownLeft = rgb2luma(textureOffset(mainTex, texuv, vec2(-1, -1), inverseScreenSize));
-    float lumaUpRight = rgb2luma(textureOffset(mainTex, texuv, vec2(1, 1), inverseScreenSize));
-    float lumaUpLeft = rgb2luma(textureOffset(mainTex, texuv, vec2(-1, 1), inverseScreenSize));
-    float lumaDownRight = rgb2luma(textureOffset(mainTex, texuv, vec2(1, -1), inverseScreenSize));
+    float lumaDownLeft = rgb2luma(textureOffsetbyScreenSize(mainTex, texuv, vec2(-1, -1), inverseScreenSize));
+    float lumaUpRight = rgb2luma(textureOffsetbyScreenSize(mainTex, texuv, vec2(1, 1), inverseScreenSize));
+    float lumaUpLeft = rgb2luma(textureOffsetbyScreenSize(mainTex, texuv, vec2(-1, 1), inverseScreenSize));
+    float lumaDownRight = rgb2luma(textureOffsetbyScreenSize(mainTex, texuv, vec2(1, -1), inverseScreenSize));
 
     // Combine the four edges lumas (using intermediary variables for future computations with the same values).
     float lumaDownUp = lumaDown + lumaUp;
@@ -115,8 +115,8 @@ vec4 FXAAMain(in sampler2D mainTex, in vec2 texuv, in vec2 inverseScreenSize)
     vec2 uv2 = currentUv + offset * QUALITY(0);
 
     // Read the lumas at both current extremities of the exploration segment, and compute the delta wrt to the local average luma.
-    float lumaEnd1 = rgb2luma(textureOffset(mainTex, uv1, vec2(0.0, 0.0), inverseScreenSize));
-    float lumaEnd2 = rgb2luma(textureOffset(mainTex, uv2, vec2(0.0, 0.0), inverseScreenSize));
+    float lumaEnd1 = rgb2luma(textureOffsetbyScreenSize(mainTex, uv1, vec2(0.0, 0.0), inverseScreenSize));
+    float lumaEnd2 = rgb2luma(textureOffsetbyScreenSize(mainTex, uv2, vec2(0.0, 0.0), inverseScreenSize));
     lumaEnd1 -= lumaLocalAverage;
     lumaEnd2 -= lumaLocalAverage;
 
@@ -144,13 +144,13 @@ vec4 FXAAMain(in sampler2D mainTex, in vec2 texuv, in vec2 inverseScreenSize)
 		    // If needed, read luma in 1st direction, compute delta.
 		    if (!reached1)
 			{
-			    lumaEnd1 = rgb2luma(textureOffset(mainTex, uv1, vec2(0.0, 0.0), inverseScreenSize));
+			    lumaEnd1 = rgb2luma(textureOffsetbyScreenSize(mainTex, uv1, vec2(0.0, 0.0), inverseScreenSize));
 			    lumaEnd1 = lumaEnd1 - lumaLocalAverage;
 			}
 		    // If needed, read luma in opposite direction, compute delta.
 		    if (!reached2)
 			{
-			    lumaEnd2 = rgb2luma(textureOffset(mainTex, uv2, vec2(0.0, 0.0), inverseScreenSize));
+			    lumaEnd2 = rgb2luma(textureOffsetbyScreenSize(mainTex, uv2, vec2(0.0, 0.0), inverseScreenSize));
 			    lumaEnd2 = lumaEnd2 - lumaLocalAverage;
 			}
 		    // If the luma deltas at the current extremities is larger than the local gradient, we have reached the side of the edge.
